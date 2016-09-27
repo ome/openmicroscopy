@@ -15,7 +15,6 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-
 package integration.chgrp;
 
 import integration.AbstractServerTest;
@@ -26,11 +25,12 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.RandomStringUtils;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static org.testng.AssertJUnit.*;
 import ome.specification.XMLMockObjects;
 import ome.specification.XMLWriter;
 import ome.xml.model.OME;
@@ -41,10 +41,8 @@ import omero.api.IUpdatePrx;
 import omero.cmd.Chgrp2;
 import omero.cmd.Delete2;
 import omero.cmd.OK;
-import omero.cmd.Request;
 import omero.cmd.Response;
 import omero.gateway.util.Requests;
-import omero.model.Arc;
 import omero.model.Channel;
 import omero.model.Dataset;
 import omero.model.DatasetI;
@@ -53,14 +51,12 @@ import omero.model.DatasetImageLinkI;
 import omero.model.Detector;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
-import omero.model.Filament;
 import omero.model.Fileset;
 import omero.model.FilesetI;
 import omero.model.Filter;
 import omero.model.FilterSet;
 import omero.model.IObject;
 import omero.model.Image;
-import omero.model.ImageI;
 import omero.model.Instrument;
 import omero.model.Laser;
 import omero.model.LightSource;
@@ -73,7 +69,6 @@ import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import omero.util.TempFileManager;
 import omero.gateway.model.ChannelAcquisitionData;
-import omero.gateway.model.ImageData;
 import omero.gateway.model.InstrumentData;
 import omero.gateway.model.LightSourceData;
 
@@ -112,7 +107,7 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
         File fake = TempFileManager.create_path("importMIF",
                 String.format("&series=%d.fake", seriesCount));
         List<Pixels> pixels = importFile(importer, fake, null, false, null);
-        assertEquals(seriesCount, pixels.size());
+        Assert.assertEquals(seriesCount, pixels.size());
         List<Image> images = new ArrayList<Image>();
         for (Pixels pixel : pixels) {
             images.add(pixel.getImage());
@@ -167,17 +162,14 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
         long img1 = f.images.get(1).getId().getValue();
         long fs0 = f.images.get(0).getFileset().getId().getValue();
         long fs1 = f.images.get(1).getFileset().getId().getValue();
-        assertEquals(fs0, fs1);
+        Assert.assertEquals(fs0, fs1);
 
-        final Chgrp2 mv = Requests.chgrp("Image", img0, secondGroup.getId().getValue());
+        final Chgrp2 mv = Requests.chgrp().target(f.images.get(0)).toGroup(secondGroup).build();
 
         Response rsp = doChange(client, factory, mv, false); // Don't pass
         // However, it should still be possible to delete the 2 images
         // and have the fileset cleaned up.
-        List<Long> ids = new ArrayList<Long>();
-        ids.add(img0);
-        ids.add(img1);
-        Delete2 dc = Requests.delete("Image", ids);
+        Delete2 dc = Requests.delete().target("Image").id(img0, img1).build();
         callback(true, client, dc);
         assertDoesNotExist(new FilesetI(fs0, false));
     }
@@ -189,13 +181,12 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
     public void testMoveFilesetAsRoot() throws Throwable {
     	int imageCount = 2;
     	List<Image> images = importMIF(imageCount);
-        long fs0 = images.get(0).getFileset().getId().getValue();
 
-        final Chgrp2 mv = Requests.chgrp("Fileset", fs0, secondGroup.getId().getValue());
+        final Chgrp2 mv = Requests.chgrp().target(images.get(0).getFileset()).toGroup(secondGroup).build();
 
         Response rsp = doChange(client, factory, mv, true);
         OK err = (OK) rsp;
-        assertNotNull(err);
+        Assert.assertNotNull(err);
     }
     
     
@@ -234,10 +225,10 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
     		set.addImage(j.next());
 		}
     	set = (Fileset) iUpdate.saveAndReturnObject(set);
-    	final Chgrp2 mv = Requests.chgrp("Fileset", set.getId().getValue(), secondGroup.getId().getValue());
+    	final Chgrp2 mv = Requests.chgrp().target(set).toGroup(secondGroup).build();
     	Response rsp = doChange(client, factory, mv, true);
     	OK err = (OK) rsp;
-    	assertNotNull(err);
+    	Assert.assertNotNull(err);
 
     	// Reconnect in second group to check group.id for all objects in graph
     	long gid2 = secondGroup.getId().getValue();
@@ -251,7 +242,7 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
     	Iterator<Image> i = images.iterator();
     	while (i.hasNext()) {
     		Image img = i.next();
-    		assertEquals(img.getDetails().getGroup().getId().getValue(), gid2);
+    		Assert.assertEquals(img.getDetails().getGroup().getId().getValue(), gid2);
     		Pixels pixels = img.getPrimaryPixels();
         	long pixId = pixels.getId().getValue();
         	//method already tested in PixelsServiceTest
@@ -268,36 +259,36 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
         	iMetadata = factory.getMetadataService();
         	List<LogicalChannel> channels = iMetadata.loadChannelAcquisitionData(
         			lcIds);
-        	assertEquals(channels.size(), pixels.getSizeC().getValue());
+        	Assert.assertEquals(channels.size(), pixels.getSizeC().getValue());
         	LogicalChannel loaded;
         	Iterator<LogicalChannel> lci = channels.iterator();
         	LightSourceData l;
         	while (lci.hasNext()) {
         		loaded = lci.next();
-        		assertNotNull(loaded);
-        		assertEquals(loaded.getDetails().getGroup().getId().getValue(), gid2);
+        		Assert.assertNotNull(loaded);
+        		Assert.assertEquals(loaded.getDetails().getGroup().getId().getValue(), gid2);
             	ChannelAcquisitionData data = new ChannelAcquisitionData(loaded);
-            	assertEquals(data.getDetector().asIObject().getDetails().getGroup().getId().getValue(), gid2);
-//            	assertEquals(data.getFilterSet().asIObject().getDetails().getGroup().getId().getValue(), gid2);		// getFilterSet() is null
+            	Assert.assertEquals(data.getDetector().asIObject().getDetails().getGroup().getId().getValue(), gid2);
+//            	Assert.assertEquals(data.getFilterSet().asIObject().getDetails().getGroup().getId().getValue(), gid2);		// getFilterSet() is null
             	l = (LightSourceData) data.getLightSource();
-            	assertEquals(l.asIObject().getDetails().getGroup().getId().getValue(), gid2);
-            	assertEquals(loaded.getDetectorSettings().getDetails().getGroup().getId().getValue(), gid2);
-            	assertEquals(loaded.getLightSourceSettings().getDetails().getGroup().getId().getValue(), gid2);
-            	assertNotNull(loaded.getDetectorSettings().getBinning());	// No Group on Binning
-            	assertEquals(loaded.getDetectorSettings().getDetector().getDetails().getGroup().getId().getValue(), gid2);
-            	assertNotNull(loaded.getDetectorSettings().getDetector().getType());
-            	assertEquals(loaded.getLightPath().getDetails().getGroup().getId().getValue(), gid2);
-            	assertEquals(data.getLightPath().getDichroic().asIObject().getDetails().getGroup().getId().getValue(), gid2);
-            	assertNotNull(data.getContrastMethod());
-            	assertNotNull(data.getIllumination());
-            	assertNotNull(data.getMode());
+            	Assert.assertEquals(l.asIObject().getDetails().getGroup().getId().getValue(), gid2);
+            	Assert.assertEquals(loaded.getDetectorSettings().getDetails().getGroup().getId().getValue(), gid2);
+            	Assert.assertEquals(loaded.getLightSourceSettings().getDetails().getGroup().getId().getValue(), gid2);
+            	Assert.assertNotNull(loaded.getDetectorSettings().getBinning());	// No Group on Binning
+            	Assert.assertEquals(loaded.getDetectorSettings().getDetector().getDetails().getGroup().getId().getValue(), gid2);
+            	Assert.assertNotNull(loaded.getDetectorSettings().getDetector().getType());
+            	Assert.assertEquals(loaded.getLightPath().getDetails().getGroup().getId().getValue(), gid2);
+            	Assert.assertEquals(data.getLightPath().getDichroic().asIObject().getDetails().getGroup().getId().getValue(), gid2);
+            	Assert.assertNotNull(data.getContrastMethod());
+            	Assert.assertNotNull(data.getIllumination());
+            	Assert.assertNotNull(data.getMode());
 
 //            	//OTF support            	
-//            	assertNotNull(loaded.getOtf());		// null
-//            	assertNotNull(loaded.getOtf().getFilterSet());
-//            	assertEquals(loaded.getOtf().getObjective().getDetails().getGroup().getId().getValue(), gid2);
-//            	assertEquals(loaded.getOtf().getFilterSet().getDetails().getGroup().getId().getValue(), gid2);
-//            	assertNotNull(loaded.getOtf().getPixelsType());
+//            	Assert.assertNotNull(loaded.getOtf());		// null
+//            	Assert.assertNotNull(loaded.getOtf().getFilterSet());
+//            	Assert.assertEquals(loaded.getOtf().getObjective().getDetails().getGroup().getId().getValue(), gid2);
+//            	Assert.assertEquals(loaded.getOtf().getFilterSet().getDetails().getGroup().getId().getValue(), gid2);
+//            	Assert.assertNotNull(loaded.getOtf().getPixelsType());
 
     		}
         	
@@ -305,28 +296,28 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
         	Instrument instrument = iMetadata.loadInstrument(
         			img.getInstrument().getId().getValue());
         	InstrumentData data = new InstrumentData(instrument);
-        	assertEquals(data.asIObject().getDetails().getGroup().getId().getValue(), gid2);
-    		assertTrue(instrument.sizeOfDetector() > 0);
-    		assertTrue(instrument.sizeOfDichroic() > 0);
-    		assertTrue(instrument.sizeOfFilter() > 0);
-    		assertTrue(instrument.sizeOfFilterSet() > 0);
-    		assertEquals(instrument.sizeOfLightSource(), 5);
-    		assertTrue(instrument.sizeOfObjective() > 0);
-//    		assertTrue(instrument.sizeOfOtf() > 0);
+        	Assert.assertEquals(data.asIObject().getDetails().getGroup().getId().getValue(), gid2);
+    		Assert.assertTrue(CollectionUtils.isNotEmpty(instrument.copyDetector()));
+    		Assert.assertTrue(CollectionUtils.isNotEmpty(instrument.copyDichroic()));
+    		Assert.assertTrue(CollectionUtils.isNotEmpty(instrument.copyFilter()));
+    		Assert.assertTrue(CollectionUtils.isNotEmpty(instrument.copyFilterSet()));
+    		Assert.assertEquals(instrument.sizeOfLightSource(), 5);
+    		Assert.assertTrue(CollectionUtils.isNotEmpty(instrument.copyObjective()));
+//    		Assert.assertTrue(instrument.sizeOfOtf() > 0);
     		
-    		assertEquals(instrument.sizeOfDetector(),
+    		Assert.assertEquals(instrument.sizeOfDetector(),
     			data.getDetectors().size());
-    		assertEquals(instrument.sizeOfDichroic(),
+    		Assert.assertEquals(instrument.sizeOfDichroic(),
     			data.getDichroics().size());
-    		assertEquals(instrument.sizeOfFilter(),
+    		Assert.assertEquals(instrument.sizeOfFilter(),
     			data.getFilters().size());
-    		assertEquals(instrument.sizeOfFilterSet(),
+    		Assert.assertEquals(instrument.sizeOfFilterSet(),
     			data.getFilterSets().size());
-    		assertEquals(instrument.sizeOfLightSource(),
+    		Assert.assertEquals(instrument.sizeOfLightSource(),
     			data.getLightSources().size());
-    		assertEquals(instrument.sizeOfObjective(),
+    		Assert.assertEquals(instrument.sizeOfObjective(),
     			data.getObjectives().size());
-    		assertEquals(instrument.sizeOfOtf(),
+    		Assert.assertEquals(instrument.sizeOfOtf(),
     			data.getOTF().size());
     		
     		List<Detector> detectors;
@@ -348,39 +339,39 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
     		j1 = detectors.iterator();
     		while (j1.hasNext()) {
     			detector = (Detector) j1.next();
-    			assertEquals(detector.getDetails().getGroup().getId().getValue(), gid2);
+    			Assert.assertEquals(detector.getDetails().getGroup().getId().getValue(), gid2);
 			}
     		filters = instrument.copyFilter();
     		j1 = filters.iterator();
     		while (j1.hasNext()) {
 				filter = (Filter) j1.next();
-				assertEquals(filter.getTransmittanceRange().getDetails().getGroup().getId().getValue(), gid2);
+				Assert.assertEquals(filter.getTransmittanceRange().getDetails().getGroup().getId().getValue(), gid2);
 			}
     		filterSets = instrument.copyFilterSet();
     		j1 = filterSets.iterator();
     		while (j1.hasNext()) {
 				fs = (FilterSet) j1.next();
-				assertEquals(fs.getDetails().getGroup().getId().getValue(), gid2);
+				Assert.assertEquals(fs.getDetails().getGroup().getId().getValue(), gid2);
 			}
     		objectives = instrument.copyObjective();
     		j1 = objectives.iterator();
     		while (j1.hasNext()) {
 				objective = (Objective) j1.next();
-				assertEquals(objective.getDetails().getGroup().getId().getValue(), gid2);
-				assertNotNull(objective.getCorrection());
-				assertNotNull(objective.getImmersion());
-//				assertEquals(objective.getImmersion().getDetails().getGroup().getId().getValue(), gid2);
+				Assert.assertEquals(objective.getDetails().getGroup().getId().getValue(), gid2);
+				Assert.assertNotNull(objective.getCorrection());
+				Assert.assertNotNull(objective.getImmersion());
+//				Assert.assertEquals(objective.getImmersion().getDetails().getGroup().getId().getValue(), gid2);
 			}
 //    		otfs = instrument.copyOtf();
 //    		j1 = otfs.iterator();
 //    		while (j1.hasNext()) {
 //				otf = (OTF) j1.next();
 //				objective = otf.getObjective();
-//				assertNotNull(otf.getPixelsType());
-//				assertNotNull(otf.getFilterSet());
-//				assertNotNull(objective);
-//				assertNotNull(objective.getCorrection());
-//				assertNotNull(objective.getImmersion());
+//				Assert.assertNotNull(otf.getPixelsType());
+//				Assert.assertNotNull(otf.getFilterSet());
+//				Assert.assertNotNull(objective);
+//				Assert.assertNotNull(objective.getCorrection());
+//				Assert.assertNotNull(objective.getImmersion());
 //			}
     		lights = instrument.copyLightSource();
     		j1 = lights.iterator();
@@ -388,9 +379,9 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
     			light = (LightSource) j1.next();
 				if (light instanceof Laser) {
 					laser = (Laser) light;
-					assertNotNull(laser.getType());
-					assertNotNull(laser.getLaserMedium());
-//					assertNotNull(laser.getPulse());
+					Assert.assertNotNull(laser.getType());
+					Assert.assertNotNull(laser.getLaserMedium());
+//					Assert.assertNotNull(laser.getPulse());
 				}
 			}
     	
@@ -418,7 +409,7 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
 		}
         long filesetID = images.get(0).getFileset().getId().getValue();
         iUpdate.saveAndReturnArray(links);
-        final Chgrp2 dc = Requests.chgrp("Dataset", dataset.getId().getValue(), secondGroup.getId().getValue());
+        final Chgrp2 dc = Requests.chgrp().target(dataset).toGroup(secondGroup).build();
 
     	doAllChanges(client, factory, true, dc);
 
@@ -431,13 +422,13 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
     	List<IObject> values = iContainer.loadContainerHierarchy(
         		Dataset.class.getName(),
         		Arrays.asList(dataset.getId().getValue()), param);
-    	assertEquals(1, values.size());
+    	Assert.assertEquals(1, values.size());
     	dataset = (Dataset) values.get(0);
-    	assertEquals(imageCount, dataset.sizeOfImageLinks());
+    	Assert.assertEquals(imageCount, dataset.sizeOfImageLinks());
     	List<DatasetImageLink> imageLinks = dataset.copyImageLinks();
     	for (DatasetImageLink link : imageLinks) {
     		Image img = link.getChild();
-    		assertEquals(img.getFileset().getId().getValue(), filesetID);
+    		Assert.assertEquals(img.getFileset().getId().getValue(), filesetID);
     	}
     }
 }

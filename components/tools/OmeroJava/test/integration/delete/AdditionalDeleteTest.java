@@ -2,7 +2,6 @@
  *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-
 package integration.delete;
 
 import integration.AbstractServerTest;
@@ -10,6 +9,7 @@ import integration.AbstractServerTest;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import ome.testing.ObjectFactory;
 
@@ -20,10 +20,14 @@ import omero.cmd.Delete2;
 import omero.cmd.SkipHead;
 import omero.cmd.graphs.ChildOption;
 import omero.gateway.util.Requests;
+import omero.model.AffineTransform;
+import omero.model.AffineTransformI;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.AnnotationAnnotationLinkI;
 import omero.model.Dataset;
 import omero.model.DatasetI;
+import omero.model.ExternalInfo;
+import omero.model.ExternalInfoI;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.IObject;
@@ -35,8 +39,12 @@ import omero.model.OriginalFileI;
 import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.PlateI;
+import omero.model.Point;
+import omero.model.PointI;
 import omero.model.Project;
 import omero.model.ProjectI;
+import omero.model.Roi;
+import omero.model.RoiI;
 import omero.model.Screen;
 import omero.model.ScreenAnnotationLink;
 import omero.model.ScreenAnnotationLinkI;
@@ -78,7 +86,8 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         Assert.assertFalse(ids.isEmpty());
 
         // Perform delete
-        final SkipHead dc = Requests.skipHead("Image", imageId, "Channel", new Delete2());
+        final SkipHead dc = Requests.skipHead().target("Image").id(imageId).startFrom("Channel")
+                .request(Delete2.class).build();
         callback(true, client, dc);
 
         // Check that data is gone
@@ -109,7 +118,8 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         Assert.assertFalse(ids.isEmpty());
 
         // Perform delete
-        final SkipHead dc = Requests.skipHead("Image", imageId, "RenderingDef", new Delete2());
+        final SkipHead dc = Requests.skipHead().target("Image").id(imageId).startFrom("RenderingDef")
+                .request(Delete2.class).build();
         callback(true, client, dc);
 
         // Check that data is gone
@@ -134,7 +144,7 @@ public class AdditionalDeleteTest extends AbstractServerTest {
      */
     public void testImage() throws Exception {
         final long imageId = iUpdate.saveAndReturnObject(mmFactory.createImage()).getId().getValue();
-        final Delete2 dc = Requests.delete("Image", imageId);
+        final Delete2 dc = Requests.delete().target("Image").id(imageId).build();
         callback(true, client, dc);
 
         // Check that data is gone
@@ -148,7 +158,7 @@ public class AdditionalDeleteTest extends AbstractServerTest {
      */
     public void testImageI() throws Exception {
         final long imageId = iUpdate.saveAndReturnObject(mmFactory.createImage()).getId().getValue();
-        final Delete2 dc = Requests.delete("ImageI", imageId);
+        final Delete2 dc = Requests.delete().target("ImageI").id(imageId).build();
         callback(true, client, dc);
 
         // Check that data is gone
@@ -172,7 +182,7 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         final long annId = link.getChild().getId().getValue();
 
         // Perform delete
-        final Delete2 dc = Requests.delete("Image", imageId);
+        final Delete2 dc = Requests.delete().target("Image").id(imageId).build();
         callback(true, client, dc);
 
         // Check that the annotation is gone
@@ -208,7 +218,7 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         link2 = (ImageAnnotationLink) iUpdate.saveAndReturnObject(link2);
 
         // Perform delete
-        final Delete2 dc = Requests.delete("Image", imageId1);
+        final Delete2 dc = Requests.delete().target("Image").id(imageId1).build();
         callback(true, client, dc);
 
         // Check that data is gone
@@ -242,7 +252,7 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         final long id = p.getId().getValue();
 
         // Do Delete
-        final Delete2 dc = Requests.delete("Project", id);
+        final Delete2 dc = Requests.delete().target("Project").id(id).build();
         callback(true, client, dc);
 
         // Check that data is gone
@@ -276,7 +286,7 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         final long did = d.getId().getValue();
 
         // Do Delete
-        final Delete2 dc = Requests.delete("Project", pid);
+        final Delete2 dc = Requests.delete().target("Project").id(pid).build();
         callback(true, client, dc);
 
         // Check that data is gone
@@ -313,7 +323,7 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         final long wsid = ws.getId().getValue();
 
         // Do Delete
-        final Delete2 dc = Requests.delete("Plate", pid);
+        final Delete2 dc = Requests.delete().target("Plate").id(pid).build();
         callback(true, client, dc);
 
         // Check that data is gone
@@ -349,7 +359,7 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         final long aid = link.getChild().getId().getValue();
 
         // Do Delete
-        final Delete2 dc = Requests.delete("Image", iid);
+        final Delete2 dc = Requests.delete().target("Image").id(iid).build();
         callback(true, client, dc);
 
         // Check that data is gone
@@ -381,7 +391,7 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         final long cid = link.getChild().getId().getValue();
 
         // Do Delete
-        final Delete2 dc = Requests.delete("Annotation", cid);
+        final Delete2 dc = Requests.delete().target("Annotation").id(cid).build();
         callback(true, client, dc);
 
         // Make sure the parent annotation still exists, but both the annotation
@@ -414,8 +424,8 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         final long cid = link.getChild().getId().getValue();
 
         // Do Delete
-        final ChildOption option = Requests.option(null, "TagAnnotation");
-        final Delete2 dc = Requests.delete("Image", pid, option);
+        final ChildOption option = Requests.option().excludeType("TagAnnotation").build();
+        final Delete2 dc = Requests.delete().target("Image").id(pid).option(option).build();
         callback(true, client, dc);
 
         // Make sure the image is deleted but the annotation remains.
@@ -452,8 +462,8 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         final long cid = link.getChild().getId().getValue();
 
         // Do Delete
-        final ChildOption option = Requests.option(null, "FileAnnotation");
-        final Delete2 dc = Requests.delete("Image", pid, option);
+        final ChildOption option = Requests.option().excludeType("FileAnnotation").build();
+        final Delete2 dc = Requests.delete().target("Image").id(pid).option(option).build();
         callback(true, client, dc);
 
         // Make sure the image and annotation are deleted.
@@ -489,8 +499,8 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         long cid = link.getChild().getId().getValue();
 
         // Do Delete
-        final ChildOption option = Requests.option(null, "FileAnnotation", null, "keepme");
-        final Delete2 dc = Requests.delete("Image", pid, option);
+        final ChildOption option = Requests.option().excludeType("FileAnnotation").excludeNs("keepme").build();
+        final Delete2 dc = Requests.delete().target("Image").id(pid).option(option).build();
         callback(true, client, dc);
 
         // Make sure the image and annotation are deleted.
@@ -523,8 +533,8 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         List<Long> annotationIds = createNonSharableAnnotation(obj, null);
         List<Long> annotationIdsNS = createNonSharableAnnotation(obj, "TEST");
 
-        final ChildOption option = Requests.option(null, "Annotation", null, "TEST");
-        final Delete2 dc = Requests.delete(type, id, option);
+        final ChildOption option = Requests.option().excludeType("Annotation").excludeNs("TEST").build();
+        final Delete2 dc = Requests.delete().target(type).id(id).option(option).build();
         callback(true, client, dc);
 
         ParametersI param = new ParametersI();
@@ -563,10 +573,9 @@ public class AdditionalDeleteTest extends AbstractServerTest {
     public void testOriginalFileAnnotation() throws Exception {
         final FileAnnotationI ann = mockAnnotation();
         final OriginalFile file = ann.getFile();
-        final long id = file.getId().getValue();
 
         // Do Delete
-        final Delete2 dc = Requests.delete("OriginalFile", id);
+        final Delete2 dc = Requests.delete().target(file).build();
         callback(true, client, dc);
 
         assertGone(file);
@@ -581,16 +590,91 @@ public class AdditionalDeleteTest extends AbstractServerTest {
     public void testOriginalFileAnnotationWithKeep() throws Exception {
         final FileAnnotationI ann = mockAnnotation();
         final OriginalFile file = ann.getFile();
-        final long id = file.getId().getValue();
 
         // Do Delete
-        final ChildOption option = Requests.option(null, "Annotation");
-        final Delete2 dc = Requests.delete("OriginalFile", id, option);
+        final ChildOption option = Requests.option().excludeType("Annotation").build();
+        final Delete2 dc = Requests.delete().target(file).option(option).build();
         callback(true, client, dc);
 
         assertGone(ann);
         assertGone(file);
 
+    }
+
+    /**
+     * Test that deleting an project also deletes its external information.
+     * @throws Exception unexpected
+     */
+    @Test(groups = "ticket:13176")
+    public void testDeleteExternalInfoWithProject() throws Exception {
+        ExternalInfo info = new ExternalInfoI();
+        info.setEntityType(omero.rtypes.rstring("ExternalEntity"));
+        info.setEntityId(omero.rtypes.rlong(0));
+        info.setUuid(omero.rtypes.rstring(UUID.randomUUID().toString()));
+        info = (ExternalInfo) iUpdate.saveAndReturnObject(info).proxy();
+
+        IObject object = mmFactory.simpleProject();
+        object.getDetails().setExternalInfo(info);
+        object = iUpdate.saveAndReturnObject(object).proxy();
+
+        doChange(Requests.delete().target(object).build());
+
+        assertGone(object);
+        assertGone(info);
+    }
+
+    /**
+     * Check that a shared ROI transform is not deleted prematurely.
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testDeleteTransformedRoi() throws Exception {
+        /* create ROIs whose shapes share a transform */
+
+        AffineTransform transformation = new AffineTransformI();
+        transformation.setA00(omero.rtypes.rdouble(0));
+        transformation.setA10(omero.rtypes.rdouble(1));
+        transformation.setA01(omero.rtypes.rdouble(1));
+        transformation.setA11(omero.rtypes.rdouble(0));
+        transformation.setA02(omero.rtypes.rdouble(0));
+        transformation.setA12(omero.rtypes.rdouble(0));
+        transformation = (AffineTransform) iUpdate.saveAndReturnObject(transformation).proxy();
+
+        Point point1 = new PointI();
+        point1.setX(omero.rtypes.rdouble(2));
+        point1.setY(omero.rtypes.rdouble(3));
+        point1.setTransform(transformation);
+        Roi roi1 = new RoiI();
+        roi1.addShape(point1);
+        roi1 = (Roi) iUpdate.saveAndReturnObject(roi1);
+        point1 = (Point) roi1.getShape(0);
+
+        Point point2 = new PointI();
+        point2.setX(omero.rtypes.rdouble(4));
+        point2.setY(omero.rtypes.rdouble(5));
+        point2.setTransform(transformation);
+        Roi roi2 = new RoiI();
+        roi2.addShape(point2);
+        roi2 = (Roi) iUpdate.saveAndReturnObject(roi2);
+        point2 = (Point) roi2.getShape(0);
+
+        /* delete first ROI */
+        doChange(Requests.delete().target(roi1).build());
+
+        /* check what remains */
+        assertDoesNotExist(roi1);
+        assertExists(roi2);
+        assertDoesNotExist(point1);
+        assertExists(point2);
+        assertExists(transformation);  // needed by second ROI
+
+        /* delete second ROI */
+        doChange(Requests.delete().target(roi2).build());
+
+        /* check what remains */
+        assertDoesNotExist(roi2);
+        assertDoesNotExist(point2);
+        assertDoesNotExist(transformation);  // no longer needed
     }
 
     private FileAnnotationI mockAnnotation()

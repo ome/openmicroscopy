@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -508,7 +508,7 @@ public class TreeViewerAgent
         if (exp == null) 
             return;
         TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
-        viewer.download(evt.getFolder(), evt.isOverride());
+        viewer.download(evt.getFolder(), evt.isOverride(), evt.getSelection());
     }
 
     /**

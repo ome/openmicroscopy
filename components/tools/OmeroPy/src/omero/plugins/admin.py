@@ -27,6 +27,7 @@ from path import path
 import omero
 import omero.config
 
+from omero.cli import admin_only
 from omero.cli import CLI
 from omero.cli import DirectoryType
 from omero.cli import NonZeroReturnCode
@@ -159,7 +160,8 @@ already be running. This may automatically restart some server components.""")
             "ice", "Drop user into icegridadmin console or execute arguments")
 
         fixpyramids = Action(
-            "fixpyramids", "Remove empty pyramid pixels files").parser
+            "fixpyramids",
+            "Remove empty pyramid pixels files (admins only)").parser
         # See cleanse options below
 
         diagnostics = Action(
@@ -361,7 +363,7 @@ dt_socket,address=8787,suspend=y" \\
             "sessionlist", "List currently running sessions").parser
         sessionlist.add_login_arguments()
 
-        cleanse = Action("cleanse", """Remove binary data files from OMERO
+        cleanse = Action("cleanse", """Remove binary data files from OMERO  (admins only)
 
 Deleting an object from OMERO currently may not remove all the binary data.
 Use this command either manually or in a cron job periodically to remove
@@ -955,6 +957,7 @@ present, the user will enter a console""")
         else:
             self.ctx.call(command)
 
+    @admin_only
     @with_config
     def fixpyramids(self, args, config):
         self.check_access()
@@ -962,6 +965,7 @@ present, the user will enter a console""")
         client = self.ctx.conn(args)
         client.getSessionId()
         fixpyramids(data_dir=args.data_dir, dry_run=args.dry_run,
+                    admin_service=client.sf.getAdminService(),
                     query_service=client.sf.getQueryService(),
                     config_service=client.sf.getConfigService())
 
@@ -1136,18 +1140,19 @@ OMERO Diagnostics %s
                 if not p.exists():
                     self.ctx.out("n/a")
                 else:
+                    warn_regex = ('(-! )?[\d\-/]+\s+[\d:,.]+\s+([\w.]+:\s+)?'
+                                  'warn(i(ng:)?)?\s')
+                    err_regex = ('(!! )?[\d\-/]+\s+[\d:,.]+\s+([\w.]+:\s+)?'
+                                 'error:?\s')
                     warn = 0
                     err = 0
                     for l in p.lines():
                         # ensure errors/warnings search is case-insensitive
                         lcl = l.lower()
-                        found_err = lcl.find("error") >= 0
-                        found_warn = lcl.find("warn") >= 0
-
-                        if found_err:
-                            err += 1
-                        elif found_warn:
+                        if re.match(warn_regex, lcl):
                             warn += 1
+                        elif re.match(err_regex, lcl):
+                            err += 1
                     msg = ""
                     if warn or err:
                         msg = " errors=%-4s warnings=%-4s" % (err, warn)
@@ -1784,6 +1789,7 @@ OMERO Diagnostics %s
             " regenerated. Use the omero.ports.xxx configuration properties"
             " instead.")
 
+    @admin_only
     def cleanse(self, args):
         self.check_access()
         from omero.util.cleanse import cleanse

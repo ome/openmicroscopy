@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -404,6 +404,13 @@ public interface Renderer
      */
     Color getChannelColor(int index);
 
+    /**
+     * Return the lookup table for the given channel
+     * @param index The channel index
+     * @return See above
+     */
+    String getLookupTable(int index);
+    
     /**
      * Returns <code>true</code> if the channel is mapped, <code>false</code>
      * otherwise.
@@ -810,4 +817,25 @@ public interface Renderer
      * @return See above.
      */
     RndProxyDef getSelectedDef();
+    
+    /**
+     * Set the lookup table for the specified channel
+     * 
+     * @param index
+     *            The channel index
+     * @param lut
+     *            The lookup table
+     * @param preview
+     *            Pass <code>true</code> to indicate that it is a color preview,
+     *            <code>false</code> otherwise.
+     */
+    void setLookupTable(int index, String lut, boolean preview);
+
+    /**
+     * Resets a previously previewed lookup table
+     * 
+     * @param index
+     *            The channel index
+     */
+    void resetLookupTable(int index);
 }

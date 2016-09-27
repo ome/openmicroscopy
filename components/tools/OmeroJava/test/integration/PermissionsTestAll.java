@@ -20,8 +20,6 @@
  */
 package integration;
 
-import static org.testng.AssertJUnit.assertNotNull;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -242,7 +240,7 @@ public class PermissionsTestAll extends AbstractServerTest {
                     for (int k = 0; k <= groupIds.size(); k++) {
                         Image img = (Image) iUpdate
                                 .saveAndReturnObject(mmFactory.simpleImage());
-                        assertNotNull(img);
+                        Assert.assertNotNull(img);
                     }
                 }
             }
@@ -295,7 +293,7 @@ public class PermissionsTestAll extends AbstractServerTest {
                     // Create File for FileAnnotation
                     OriginalFile originalFile = (OriginalFile) iUpdate
                             .saveAndReturnObject(mmFactory.createOriginalFile());
-                    assertNotNull(originalFile);
+                    Assert.assertNotNull(originalFile);
                     FileAnnotation file = new FileAnnotationI();
                     file.setFile(originalFile);
                     file = (FileAnnotation) iUpdate.saveAndReturnObject(file);
@@ -386,8 +384,7 @@ public class PermissionsTestAll extends AbstractServerTest {
                         if (!isSecuritySystemGroup(targetGroup)
                                 && targetGroup != sourceGroup) {
                             img = images.get(k);
-                            long imageId = img.getId().getValue();
-                            final Chgrp2 dc = Requests.chgrp("Image", imageId, targetGroup);
+                            final Chgrp2 dc = Requests.chgrp().target(img).toGroup(targetGroup).build();
                             testParams.add(new TestParam(dc, testUserNames[i],
                                     PASSWORD, sourceGroup));
                         }

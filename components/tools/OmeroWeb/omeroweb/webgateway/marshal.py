@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2012-2014 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2012-2016 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software: you can redistribute it and/or modify
@@ -43,7 +43,7 @@ def channelMarshal(channel):
     @return:            Dict
     """
 
-    return {'emissionWave': channel.getEmissionWave(),
+    chan = {'emissionWave': channel.getEmissionWave(),
             'label': channel.getLabel(),
             'color': channel.getColor().getHtml(),
             'window': {'min': channel.getWindowMin(),
@@ -51,6 +51,10 @@ def channelMarshal(channel):
                        'start': channel.getWindowStart(),
                        'end': channel.getWindowEnd()},
             'active': channel.isActive()}
+    lut = channel.getLut()
+    if lut and len(lut) > 0:
+        chan['lut'] = lut
+    return chan
 
 
 def imageMarshal(image, key=None, request=None):
@@ -258,10 +262,10 @@ def shapeMarshal(shape):
         # TODO: support for mask
     elif shape_type == omero.model.EllipseI:
         rv['type'] = 'Ellipse'
-        rv['cx'] = shape.getCx().getValue()
-        rv['cy'] = shape.getCy().getValue()
-        rv['rx'] = shape.getRx().getValue()
-        rv['ry'] = shape.getRy().getValue()
+        rv['x'] = shape.getX().getValue()
+        rv['y'] = shape.getY().getValue()
+        rv['radiusX'] = shape.getRadiusX().getValue()
+        rv['radiusY'] = shape.getRadiusY().getValue()
     elif shape_type == omero.model.PolylineI:
         rv['type'] = 'PolyLine'
         rv['points'] = stringToSvg(shape.getPoints().getValue())
@@ -273,8 +277,8 @@ def shapeMarshal(shape):
         rv['y2'] = shape.getY2().getValue()
     elif shape_type == omero.model.PointI:
         rv['type'] = 'Point'
-        rv['cx'] = shape.getCx().getValue()
-        rv['cy'] = shape.getCy().getValue()
+        rv['x'] = shape.getX().getValue()
+        rv['y'] = shape.getY().getValue()
     elif shape_type == omero.model.PolygonI:
         rv['type'] = 'Polygon'
         # z = closed line
@@ -296,8 +300,15 @@ def shapeMarshal(shape):
         set_if('fontStyle', shape.getFontStyle())
         set_if('fontFamily', shape.getFontFamily())
 
-    set_if('transform', shape.getTransform(),
-           func=lambda a: a is not None and a != 'None')
+    if shape.getTransform() is not None:
+        transform = shape.getTransform()
+        tm = [unwrap(transform.a00),
+              unwrap(transform.a10),
+              unwrap(transform.a01),
+              unwrap(transform.a11),
+              unwrap(transform.a02),
+              unwrap(transform.a12)]
+        rv['transform'] = 'matrix(%s)' % (' '.join([str(t) for t in tm]))
     fill_color = unwrap(shape.getFillColor())
     if fill_color is not None:
         rv['fillColor'], rv['fillAlpha'] = rgb_int2css(fill_color)

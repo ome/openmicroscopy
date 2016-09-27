@@ -2,11 +2,8 @@
  *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-
 package integration.delete;
 
-import static omero.rtypes.rbool;
-import static omero.rtypes.rstring;
 import integration.AbstractServerTest;
 
 import java.util.ArrayList;
@@ -30,6 +27,7 @@ import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.cmd.Delete2;
+import omero.cmd.graphs.ChildOption;
 import omero.gateway.util.Requests;
 import omero.model.Annotation;
 import omero.model.CommentAnnotationI;
@@ -40,6 +38,8 @@ import omero.model.DatasetImageLinkI;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
+import omero.model.Folder;
+import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
@@ -53,6 +53,7 @@ import omero.model.PlateI;
 import omero.model.Project;
 import omero.model.ProjectI;
 import omero.model.Roi;
+import omero.model.RoiI;
 import omero.model.Screen;
 import omero.model.ScreenI;
 import omero.model.Well;
@@ -82,7 +83,7 @@ import com.google.common.collect.Multimap;
 @Test(groups = "ticket:2615")
 public class HierarchyDeleteTest extends AbstractServerTest {
 
-    private final static omero.RString t3031 = rstring("#3031");
+    private final static omero.RString t3031 = omero.rtypes.rstring("#3031");
 
     /**
      * Test to delete a dataset containing an image also contained in another
@@ -118,7 +119,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         ds2.linkImage(i2);
         ds2 = (Dataset) iUpdate.saveAndReturnObject(ds2);
 
-        final Delete2 dc = Requests.delete("Dataset", ds2.getId().getValue());
+        final Delete2 dc = Requests.delete().target(ds2).build();
         callback(true, client, dc);
 
         assertDoesNotExist(ds2);
@@ -163,7 +164,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         link.setParent((Image) i.proxy());
         iUpdate.saveAndReturnObject(link);
 
-        final Delete2 dc = Requests.delete("Dataset", ds2.getId().getValue());
+        final Delete2 dc = Requests.delete().target(ds2).build();
         callback(true, client, dc);
         assertDoesNotExist(ds2);
         assertExists(ds1);
@@ -198,7 +199,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         ds2.linkImage(i);
         ds2 = (Dataset) iUpdate.saveAndReturnObject(ds2);
 
-        final Delete2 dc = Requests.delete("Dataset", ds2.getId().getValue());
+        final Delete2 dc = Requests.delete().target(ds2).build();
         callback(true, client, dc);
 
         assertDoesNotExist(ds2);
@@ -235,7 +236,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         p2.linkDataset(d);
         p2 = (Project) iUpdate.saveAndReturnObject(p2);
 
-        final Delete2 dc = Requests.delete("Project", p2.getId().getValue());
+        final Delete2 dc = Requests.delete().target(p2).build();
         callback(true, client, dc);
 
         assertDoesNotExist(p2);
@@ -271,7 +272,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         s2.linkPlate(p);
         s2 = (Screen) iUpdate.saveAndReturnObject(s2);
 
-        final Delete2 dc = Requests.delete("Screen", s2.getId().getValue());
+        final Delete2 dc = Requests.delete().target(s2).build();
         callback(true, client, dc);
 
         assertDoesNotExist(s2);
@@ -292,8 +293,8 @@ public class HierarchyDeleteTest extends AbstractServerTest {
 
         final String normalGroupName = UUID.randomUUID().toString();
         ExperimenterGroup normalGroup = new ExperimenterGroupI();
-        normalGroup.setName(rstring(normalGroupName));
-        normalGroup.setLdap(rbool(false));
+        normalGroup.setName(omero.rtypes.rstring(normalGroupName));
+        normalGroup.setLdap(omero.rtypes.rbool(false));
         normalGroup = rootAdminSvc.getGroup(rootAdminSvc.createGroup(normalGroup));
 
         /* Create a new user in that group. */
@@ -458,7 +459,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
 
             /* Delete the run. */
 
-            final Delete2 dc = Requests.delete("PlateAcquisition", runIdToDelete);
+            final Delete2 dc = Requests.delete().target("PlateAcquisition").id(runIdToDelete).build();
             callback(true, client, dc);
             
             /* Verify that exactly the expected entities remain. */
@@ -470,7 +471,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
        }
  
         /* Delete the plate. */
-        final Delete2 dc = Requests.delete("Plate", plateId);
+        final Delete2 dc = Requests.delete().target("Plate").id(plateId).build();
         callback(true, client, dc);
 
         /* Verify that no entities remain. */
@@ -542,7 +543,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         iUpdate.saveAndReturnObject(link);
 
         /* delete the dataset */
-        final Delete2 delete = Requests.delete("Dataset", dataset.getId().getValue());
+        final Delete2 delete = Requests.delete().target(dataset).build();
         callback(true, client, delete);
 
         /* check what is left afterward */
@@ -600,13 +601,13 @@ public class HierarchyDeleteTest extends AbstractServerTest {
 
         switch (target) {
         case DATASET:
-            delete = Requests.delete("Dataset", datasetId);
+            delete = Requests.delete().target(dataset).build();
             break;
         case IMAGES:
-            delete = Requests.delete("Image", imageIds);
+            delete = Requests.delete().target("Image").id(imageIds).build();
             break;
         case PLATE:
-            delete = Requests.delete("Plate", plateId);
+            delete = Requests.delete().target(plate).build();
             break;
         default:
             delete = null;
@@ -678,6 +679,238 @@ public class HierarchyDeleteTest extends AbstractServerTest {
             testCase[TARGET] = target;
             // DEBUG: if (target == Target.DATASET)
             testCases.add(testCase);
+        }
+
+        return testCases.toArray(new Object[testCases.size()][]);
+    }
+
+    /**
+     * Test the deletion of folder hierarchies.
+     * @param folderOption if the child option should target folders
+     * @param includeOrphans how to set child options
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "hierarchical folder test cases")
+    public void testDeletingTopLevelFolder(boolean folderOption, Boolean includeOrphans) throws Exception {
+
+        /* set up the data */
+
+        Folder parentFolder = (Folder) saveAndReturnFolder(mmFactory.simpleFolder()).proxy();
+        Folder childFolder = mmFactory.simpleFolder();
+        childFolder.setParentFolder(parentFolder);
+        childFolder = (Folder) saveAndReturnFolder(childFolder).proxy();
+        Roi roi = new RoiI();
+        roi.linkFolder(childFolder);
+        roi = (Roi) iUpdate.saveAndReturnObject(roi).proxy();
+
+        /* check that the three objects exist */
+
+        assertExists(parentFolder);
+        assertExists(childFolder);
+        assertExists(roi);
+
+        /* determine expectations for after deletion */
+
+        boolean childExpected = folderOption && Boolean.FALSE.equals(includeOrphans);
+        boolean roiExpected = Boolean.FALSE.equals(includeOrphans);
+
+        /* perform the specified deletion */
+
+        final ChildOption option;
+        if (Boolean.TRUE.equals(includeOrphans)) {
+            option = Requests.option().includeType(folderOption ? "Folder" : "Roi").build();
+        } else if (Boolean.FALSE.equals(includeOrphans)) {
+            option = Requests.option().excludeType(folderOption ? "Folder" : "Roi").build();
+        } else {
+            option = null;
+        }
+        final Delete2 delete = new Delete2();
+        delete.targetObjects = ImmutableMap.of("Folder", Collections.singletonList(parentFolder.getId().getValue()));
+        if (option != null) {
+            delete.childOptions = Collections.singletonList(option);
+        }
+        doChange(delete);
+
+        /* check which objects now exist */
+
+        assertDoesNotExist(parentFolder);
+        if (childExpected) {
+            assertExists(childFolder);
+        } else {
+            assertDoesNotExist(childFolder);
+        }
+        if (roiExpected) {
+            assertExists(roi);
+        } else {
+            assertDoesNotExist(roi);
+        }
+    }
+
+    /**
+     * @return a variety of test cases for deletion of folder hierarchies
+     */
+    @DataProvider(name = "hierarchical folder test cases")
+    public Object[][] provideFolderDeletionCases() {
+        int index = 0;
+        final int ORPHAN_FOLDER = index++;
+        final int INCLUDE_ORPHANS = index++;
+
+        final Boolean[] classCases = new Boolean[]{false, true};
+        final Boolean[] includeCases = new Boolean[]{null, false, true};
+
+        final List<Object[]> testCases = new ArrayList<Object[]>();
+
+        for (final Boolean folderOption : classCases) {
+            for (final Boolean includeOption : includeCases) {
+                    if (folderOption == true && includeOption == null) {
+                        continue;
+                    }
+                    final Object[] testCase = new Object[index];
+                    testCase[ORPHAN_FOLDER] = folderOption;
+                    testCase[INCLUDE_ORPHANS] = includeOption;
+                    // DEBUG: if (folderOption == true && Boolean.TRUE.equals(includeOption))
+                    testCases.add(testCase);
+                }
+        }
+
+        return testCases.toArray(new Object[testCases.size()][]);
+    }
+
+
+    /**
+     * Count how many specific instances of a class remain.
+     * @param type the type of the instances
+     * @param ids the IDs of the instances of interest
+     * @return how many of the instances remain
+     * @throws ServerError unexpected
+     */
+    private long countInstances(Class<? extends IObject> type, Collection<Long> ids) throws ServerError {
+        if (ids.isEmpty()) {
+            return 0;
+        }
+        final String query = "SELECT COUNT(*) FROM " + type.getSimpleName() + " WHERE id IN (:ids)";
+        final omero.sys.Parameters params = new ParametersI().addIds(ids);
+        return ((RLong) iQuery.projection(query, params).get(0).get(0)).getValue();
+    }
+
+    /**
+     * Test the deletion of ROIs that are on images and in folders.
+     * @param folderCount how many folders the ROI should be in
+     * @param imageCount how many images the ROI should be on (0 or 1)
+     * @param targetFolder if the deletion should target a folder
+     * @param targetImage if the deletion should target an image
+     * @param includeOrphans how to set child options for deleting ROIs
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "contained ROI test cases")
+    public void testRoiDeletion(int folderCount, int imageCount, boolean targetFolder, boolean targetImage, Boolean includeOrphans)
+            throws Exception {
+
+        /* set up the data and note the IDs */
+
+        final Roi roi = new RoiI();
+        final List<Long> roiIds = new ArrayList<Long>();
+        final List<Long> folderIds = new ArrayList<Long>();
+        final List<Long> imageIds = new ArrayList<Long>();
+
+        for (int f = 0; f < folderCount; f++) {
+            final Folder folder = (Folder) iUpdate.saveAndReturnObject(mmFactory.simpleFolder());
+            folderIds.add(folder.getId().getValue());
+            roi.linkFolder((Folder) folder.proxy());
+        }
+
+        for (int i = 0; i < imageCount; i++) {
+            final Image image = (Image) iUpdate.saveAndReturnObject(mmFactory.simpleImage());
+            imageIds.add(image.getId().getValue());
+            roi.setImage((Image) image.proxy());
+        }
+
+        roiIds.add(iUpdate.saveAndReturnObject(roi).proxy().getId().getValue());
+
+        /* check that the object counts are as expected */
+
+        int expectedRoiCount = 1;
+        int expectedFolderCount = folderCount;
+        int expectedImageCount = imageCount;
+
+        Assert.assertEquals(countInstances(Roi.class, roiIds), expectedRoiCount);
+        Assert.assertEquals(countInstances(Folder.class, folderIds), expectedFolderCount);
+        Assert.assertEquals(countInstances(Image.class, imageIds), expectedImageCount);
+
+        /* perform the specified deletion and update the expected object counts */
+
+        final Delete2 delete = new Delete2();
+        delete.targetObjects = new HashMap<String, List<Long>>();
+        if (targetFolder) {
+            delete.targetObjects.put("Folder", Collections.singletonList(folderIds.get(0)));
+            expectedFolderCount--;
+        }
+        if (targetImage) {
+            delete.targetObjects.put("Image", Collections.singletonList(imageIds.get(0)));
+            expectedImageCount--;
+        }
+        if (Boolean.TRUE.equals(includeOrphans)) {
+            final ChildOption option = new ChildOption();
+            option.includeType = Collections.singletonList("Roi");
+            delete.childOptions = Collections.singletonList(option);
+            expectedRoiCount--;
+        } else if (Boolean.FALSE.equals(includeOrphans)) {
+            final ChildOption option = new ChildOption();
+            option.excludeType = Collections.singletonList("Roi");
+            delete.childOptions = Collections.singletonList(option);
+        } else if (expectedFolderCount + expectedImageCount == 0) {
+            expectedRoiCount--;
+        }
+        doChange(delete);
+
+        /* check that the object counts are as expected */
+
+        Assert.assertEquals(countInstances(Roi.class, roiIds), expectedRoiCount);
+        Assert.assertEquals(countInstances(Folder.class, folderIds), expectedFolderCount);
+        Assert.assertEquals(countInstances(Image.class, imageIds), expectedImageCount);
+    }
+
+    /**
+     * @return a variety of test cases for ROI deletion
+     */
+    @DataProvider(name = "contained ROI test cases")
+    public Object[][] provideRoiDeletionCases() {
+        int index = 0;
+        final int FOLDER_COUNT = index++;
+        final int IMAGE_COUNT = index++;
+        final int TARGET_FOLDER = index++;
+        final int TARGET_IMAGE = index++;
+        final int INCLUDE_ORPHANS = index++;
+
+        final Integer[] folderCountCases = new Integer[]{0, 1, 2};
+        final Integer[] imageCountCases = new Integer[]{0, 1};
+        final Boolean[] targetCases = new Boolean[]{false, true};
+        final Boolean[] includeCases = new Boolean[]{null, false, true};
+
+        final List<Object[]> testCases = new ArrayList<Object[]>();
+
+        for (final Integer folderCount : folderCountCases) {
+            for (final Integer imageCount : imageCountCases) {
+                for (final Boolean targetFolder : targetCases) {
+                    for (final Boolean targetImage : targetCases) {
+                        for (final Boolean includeOrphans : includeCases) {
+                            if (targetFolder && folderCount == 0 || targetImage && imageCount == 0 ||
+                                    !(targetFolder || targetImage)) {
+                                continue;
+                            }
+                            final Object[] testCase = new Object[index];
+                            testCase[FOLDER_COUNT] = folderCount;
+                            testCase[IMAGE_COUNT] = imageCount;
+                            testCase[TARGET_FOLDER] = targetFolder;
+                            testCase[TARGET_IMAGE] = targetImage;
+                            testCase[INCLUDE_ORPHANS] = includeOrphans;
+                            // DEBUG: if (folderCount == 1 && imageCount == 1 && targetFolder == true && targetImage == true
+                            //        && includeOrphans == null)
+                            testCases.add(testCase);
+                        }
+                    }
+                }
+            }
         }
 
         return testCases.toArray(new Object[testCases.size()][]);

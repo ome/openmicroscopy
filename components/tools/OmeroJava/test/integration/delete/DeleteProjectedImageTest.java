@@ -2,13 +2,10 @@
  * Copyright 2013-2015 University of Dundee. All rights reserved.
  * Use is subject to license terms supplied in LICENSE.txt
  */
-
 package integration.delete;
 
-import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertNull;
-
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -23,6 +20,8 @@ import omero.model.Pixels;
 import omero.sys.EventContext;
 
 import org.springframework.util.ResourceUtils;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
 /**
@@ -32,7 +31,7 @@ import org.testng.annotations.Test;
  *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since 4.4.9
  */
-public class DeleteProjectedImageTest  extends AbstractServerTest {
+public class DeleteProjectedImageTest extends AbstractServerTest {
 
     /** Indicates to delete the source image. */
     private static final int SOURCE_IMAGE = 0;
@@ -42,6 +41,9 @@ public class DeleteProjectedImageTest  extends AbstractServerTest {
 
     /** Indicates to delete the both images. */
     private static final int BOTH_IMAGES = 2;
+
+    /* the IDs of the images left over by the tests */
+    private final List<Long> remainingImageIds = new ArrayList<Long>();
 
     /**
      * Imports the small dv.
@@ -129,15 +131,15 @@ public class DeleteProjectedImageTest  extends AbstractServerTest {
         Delete2 dc;
         switch (action) {
         case SOURCE_IMAGE:
-            dc = Requests.delete("Image", id);
+            dc = Requests.delete().target("Image").id(id).build();
             callback(passes, client, dc);
             break;
         case PROJECTED_IMAGE:
-            dc = Requests.delete("Image", projectedID);
+            dc = Requests.delete().target("Image").id(projectedID).build();
             callback(passes, client, dc);
             break;
         case BOTH_IMAGES:
-            dc = Requests.delete("Image", Arrays.asList(id, projectedID));
+            dc = Requests.delete().target("Image").id(id, projectedID).build();
             callback(passes, client, dc);
             break;
         }
@@ -145,19 +147,31 @@ public class DeleteProjectedImageTest  extends AbstractServerTest {
         //Check the result
         switch (action) {
         case SOURCE_IMAGE:
-            assertNull(iQuery.find(Image.class.getSimpleName(), id));
+            Assert.assertNull(iQuery.find(Image.class.getSimpleName(), id));
             //check that the projected image is still there
-            assertNotNull(iQuery.find(Image.class.getSimpleName(), projectedID));
+            Assert.assertNotNull(iQuery.find(Image.class.getSimpleName(), projectedID));
+            remainingImageIds.add(projectedID);
             break;
         case PROJECTED_IMAGE:
-            assertNull(iQuery.find(Image.class.getSimpleName(), projectedID));
+            Assert.assertNull(iQuery.find(Image.class.getSimpleName(), projectedID));
            //check that the original image is still there
-            assertNotNull(iQuery.find(Image.class.getSimpleName(), id));
+            Assert.assertNotNull(iQuery.find(Image.class.getSimpleName(), id));
+            remainingImageIds.add(id);
             break;
         case BOTH_IMAGES:
-            assertNull(iQuery.find(Image.class.getSimpleName(), projectedID));
-            assertNull(iQuery.find(Image.class.getSimpleName(), id));
+            Assert.assertNull(iQuery.find(Image.class.getSimpleName(), projectedID));
+            Assert.assertNull(iQuery.find(Image.class.getSimpleName(), id));
         }
+    }
+
+    /**
+     * Delete the images left over from the tests.
+     * @throws Exception unexpected
+     */
+    @AfterClass
+    public void cleanUpRemainingImages() throws Exception {
+        doChange(root, root.getSession(), Requests.delete().target("Image").id(remainingImageIds).build(), true);
+        remainingImageIds.clear();
     }
 
     /**

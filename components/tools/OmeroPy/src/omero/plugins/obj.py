@@ -39,7 +39,7 @@ from omero.rtypes import rlong
 
 class TxField(object):
 
-    ARG_RE = re.compile(("(?P<FIELD>[a-zA-Z]+)"
+    ARG_RE = re.compile(("(?P<FIELD>[a-zA-Z][a-zA-Z0-9]*)"
                          "(?P<OPER>[@])?="
                          "(?P<VALUE>.*)"))
 

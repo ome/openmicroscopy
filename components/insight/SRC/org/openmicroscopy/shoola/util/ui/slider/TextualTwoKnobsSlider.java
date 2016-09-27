@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -37,6 +37,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.DecimalFormat;
@@ -807,6 +808,16 @@ public class TextualTwoKnobsSlider
 	{
 		slider.setColourGradients(rgbStart, rgbEnd);
 	}
+	
+    /**
+     * Set the background image (takes precedence over color gradients!)
+     * 
+     * @param image
+     *            The image
+     */
+    public void setImage(BufferedImage image) {
+        slider.setImage(image);
+    }
 	
 	/**
 	 * Overridden to set the text fields and the slider enabled.

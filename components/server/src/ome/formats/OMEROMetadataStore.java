@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2006-2014 University of Dundee & Open Microscopy Environment.
+ *   Copyright (C) 2006-2016 University of Dundee & Open Microscopy Environment.
  *   All rights reserved.
  *
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -39,6 +39,7 @@ import ome.model.acquisition.StageLabel;
 import ome.model.annotations.Annotation;
 import ome.model.annotations.FileAnnotation;
 import ome.model.containers.Dataset;
+import ome.model.containers.Folder;
 import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
@@ -128,6 +129,10 @@ public class OMEROMetadataStore
     /** A map of experimentIndex vs. Experiment object ordered by first access. */
     private Map<Integer, Experiment> experimentList = 
     	new LinkedHashMap<Integer, Experiment>();
+
+    /** A map of folderIndex vs. Folder object ordered by first access. */
+    private Map<Integer, Folder> folderList =
+        new LinkedHashMap<Integer, Folder>();
 
     /**
      * A map of Instrument vs. a map of otfIndex vs. OTF object ordered by
@@ -277,6 +282,10 @@ public class OMEROMetadataStore
         else if (sourceObject instanceof Shape)
         {
             handle(lsid, (Shape) sourceObject, indexes);
+        }
+        else if (sourceObject instanceof Folder)
+        {
+            handle(lsid, (Folder) sourceObject, indexes);
         }
         else
     	{
@@ -659,6 +668,26 @@ public class OMEROMetadataStore
                     if (referenceObject instanceof Annotation) {
                         handleReference((PlateAcquisition) targetObject,
                                         (Annotation) referenceObject);
+                        continue;
+                    }
+                }
+                else if (targetObject instanceof Folder)
+                {
+                    if (referenceObject instanceof Annotation) {
+                        handleReference((Folder) targetObject,
+                                        (Annotation) referenceObject);
+                        continue;
+                    } else if (referenceObject instanceof Folder) {
+                        handleReference((Folder) targetObject,
+                                        (Folder) referenceObject);
+                        continue;
+                    } else if (referenceObject instanceof Image) {
+                        handleReference((Folder) targetObject,
+                                        (Image) referenceObject);
+                        continue;
+                    } else if (referenceObject instanceof Roi) {
+                        handleReference((Folder) targetObject,
+                                        (Roi) referenceObject);
                         continue;
                     }
                 }
@@ -1180,7 +1209,21 @@ public class OMEROMetadataStore
         Plate p = getPlate(plateIndex);
         p.addPlateAcquisition(sourceObject);
     }
-    
+
+    /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should be used to reference the model
+     * object.
+     */
+    private void handle(String LSID, Folder sourceObject,
+                        Map<String, Integer> indexes)
+    {
+        final int folderIndex = indexes.get("folderIndex");
+        folderList.put(folderIndex, sourceObject);
+    }
+
     /**
      * Handles linking a specific reference object to a target object in our
      * object graph.
@@ -1713,6 +1756,46 @@ public class OMEROMetadataStore
     }
 
     /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(Folder target, Annotation reference) {
+        target.linkAnnotation(reference);
+    }
+
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(Folder target, Image reference) {
+        target.linkImage(reference);
+    }
+
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(Folder target, Folder reference) {
+        target.addChildFolders(reference);
+    }
+
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(Folder target, Roi reference) {
+        target.linkRoi(reference);
+    }
+
+    /**
      * Retrieves an object from the internal object graph by LSID.
      * @param lsid LSID of the object.
      * @return See above. <code>null</code> if the object is not in the
@@ -1838,6 +1921,17 @@ public class OMEROMetadataStore
     private Roi getRoi(int roiIndex)
     {
         return roiList.get(roiIndex);
+    }
+
+    /**
+     * Returns a Folder model object based on its indexes within the
+     * OMERO data model.
+     * @param folderIndex Folder index.
+     * @return See above.
+     */
+    private Folder getFolder(int folderIndex)
+    {
+        return folderList.get(folderIndex);
     }
 
     /**

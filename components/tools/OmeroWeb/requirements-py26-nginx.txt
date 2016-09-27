@@ -1,7 +1,0 @@
-# Python installation requirements for OMERO.web
-# ==============================================
-#
-#     pip install -r requirements-py26-nginx.txt
-#
-Django==1.6.11
-gunicorn>=19.3

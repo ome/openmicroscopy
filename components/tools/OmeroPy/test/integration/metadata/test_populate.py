@@ -278,8 +278,8 @@ class MockMeasurementCtx(AbstractMeasurementCtx):
             #  image = images[field]
             roi = RoiI()
             shape = PointI()
-            shape.cx = rdouble(float(row[2]))
-            shape.cy = rdouble(float(row[3]))
+            shape.x = rdouble(float(row[2]))
+            shape.y = rdouble(float(row[3]))
             shape.textValue = rstring(row[4])
             roi.addShape(shape)
             roi.image = image.proxy()

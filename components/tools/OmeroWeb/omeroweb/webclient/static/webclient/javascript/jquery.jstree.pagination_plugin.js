@@ -24,6 +24,8 @@
         this.get_page = function(node) {
             if (node.id in page_map) {
                 return page_map[node.id];
+            } else if (node.data && node.data.obj.childPage != undefined) {
+                return node.data.obj.childPage;
             }
             return 1;
         };

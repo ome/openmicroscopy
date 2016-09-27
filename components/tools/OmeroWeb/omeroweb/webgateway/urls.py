@@ -344,6 +344,13 @@ Gets rendering definition from the 'session' if saved.
 Returns json dict of 'c', 'm', 'z', 't'.
 """
 
+listLuts_json = (r'^luts/$', 'webgateway.views.listLuts_json')
+"""
+json method: returning list of all lookup tables available
+for rendering engine.
+E.g. list of {path: "/luts/", size: 800, id: 37, name: "cool.lut"},
+"""
+
 list_compatible_imgs_json = (r'^compatImgRDef/(?P<iid>[0-9]+)/$',
                              'webgateway.views.list_compatible_imgs_json')
 """
@@ -443,6 +450,7 @@ urlpatterns = patterns(
     # rendering def methods
     save_image_rdef_json,
     get_image_rdef_json,
+    listLuts_json,
     list_compatible_imgs_json,
     copy_image_rdef_json,
     reset_rdef_json,

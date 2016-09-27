@@ -185,7 +185,7 @@ function(icegen in outsrc outhdr)
         OUTPUT ${GEN_DIR}/${ICECPP} ${GEN_DIR}/${ICEHPP}
         WORKING_DIRECTORY gen
         COMMAND ${CMAKE_COMMAND} -E make_directory "${ICE_PATH}"
-        COMMAND "${Ice_SLICE2CPP_EXECUTABLE}" ${SLICEOPTS} ${incdir} "--output-dir=${ICE_PATH}" "${PROJECT_SOURCE_DIR}/${icesrc}"
+        COMMAND "${Ice_SLICE2CPP_EXECUTABLE}" ${SLICEOPTS} ${incdir} --add-header "omero/internal/fixes.h" "--output-dir=${ICE_PATH}" "${PROJECT_SOURCE_DIR}/${icesrc}"
         DEPENDS "${PROJECT_SOURCE_DIR}/${icesrc}")
       install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${GEN_DIR}/${ICEHPP}
               DESTINATION "${CMAKE_INSTALL_FULL_INCLUDEDIR}/${ICE_PATH}")
@@ -243,7 +243,12 @@ abspath_sources(OMERO_API_GENERATED_SOURCES OMERO_API_GENERATED_SOURCES_ABS)
 abspath_sources(OMERO_MODEL_GENERATED_SOURCES OMERO_MODEL_GENERATED_SOURCES_ABS)
 abspath_sources(OMERO_COMMON_GENERATED_SOURCES OMERO_COMMON_GENERATED_SOURCES_ABS)
 
+# Private headers which aren't installed.  Used only at compile time.
+set(OMERO_INTERNAL_HEADERS
+    src/omero/internal/fixes.h)
+
 set(OMERO_ICE_HEADERS
+    ${OMERO_INTERNAL_HEADERS}
     ${OMERO_COMMON_STATIC_ICE_HEADERS}
     ${OMERO_COMMON_GENERATED_ICE_HEADERS}
     ${OMERO_MODEL_STATIC_ICE_HEADERS}
@@ -264,7 +269,7 @@ set(OMERO_ICE_SOURCES
 
 add_library(omero-ice SHARED
             ${OMERO_ICE_HEADERS} ${OMERO_ICE_SOURCES})
-target_link_libraries(omero-ice ${Ice_LIBRARIES})
+target_link_libraries(omero-ice Ice::Ice Ice::IceUtil Ice::Glacier2)
 set_target_properties(omero-ice PROPERTIES
                       VERSION ${OME_VERSION_SHORT})
 
@@ -278,6 +283,8 @@ set(OMERO_COMMON_STATIC_HEADERS
     src/omero/ClientErrors.h
     src/omero/IceNoWarnPop.h
     src/omero/IceNoWarnPush.h
+    src/omero/IcePortPop.h
+    src/omero/IcePortPush.h
     src/omero/ObjectFactoryRegistrar.h
     src/omero/RTypesI.h
     src/omero/templates.h)
@@ -292,6 +299,7 @@ set(OMERO_COMMON_STATIC_SOURCES
     src/omero/sys/ParametersI.cpp)
 
 set(OMERO_COMMON_HEADERS
+    ${OMERO_INTERNAL_HEADERS}
     ${OMERO_COMMON_STATIC_HEADERS}
     ${OMERO_COMMON_STATIC_SYS_HEADERS}
     ${OMERO_COMMON_GENERATED_HEADERS_ABS})
@@ -379,7 +387,7 @@ add_library(omero-client SHARED
             ${OMERO_MODEL_HEADERS} ${OMERO_MODEL_SOURCES}
             ${OMERO_API_HEADERS} ${OMERO_API_SOURCES}
             ${OMERO_CLIENT_HEADERS} ${OMERO_CLIENT_SOURCES})
-target_link_libraries(omero-client omero-ice ${Ice_LIBRARIES})
+target_link_libraries(omero-client omero-ice Ice::Ice Ice::IceUtil Ice::Glacier2)
 set_target_properties(omero-client PROPERTIES
                       VERSION ${OME_VERSION_SHORT})
 

@@ -37,6 +37,7 @@
 			<zeromany name="rois" type="ome.model.roi.Roi" inverse="image"/>
 			<!-- Containers -->
 			<parent name="datasetLinks" type="ome.model.containers.DatasetImageLink" target="ome.model.containers.Dataset"/>
+			<parent name="folderLinks" type="ome.model.containers.FolderImageLink" target="ome.model.containers.Folder"/>
 			<optional name="fileset" type="ome.model.fs.Fileset"/>
 		</properties>
 	</type>
@@ -736,6 +737,9 @@
 		<entry name="LCM"/>
 		<entry name="Other"/>
 		<entry name="Unknown"/>
+		<entry name="BrightField"/>
+		<entry name="SweptFieldConfocal"/>
+		<entry name="SPIM"/>
 	</enum>
 <!-- Detector Settings Entity -->
 	<enum id="ome.model.enums.Binning">

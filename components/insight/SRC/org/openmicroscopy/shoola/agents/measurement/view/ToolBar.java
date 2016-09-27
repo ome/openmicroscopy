@@ -296,7 +296,7 @@ class ToolBar
 		{
 			JToggleButton button = (JToggleButton) component;
 			IconManager icons = IconManager.getInstance();
-			button.setIcon(icons.getIcon(IconManager.POINTICON_22));
+			button.setIcon(icons.getIcon(IconManager.POINT_16));
 			button.setToolTipText(FigureUtil.POINT_TYPE);
 			setUpToggleButton(button);
 		}
@@ -361,6 +361,7 @@ class ToolBar
         button = new JButton(controller.getAction(
 				MeasurementViewerControl.LOAD));
         UIUtilities.unifiedButtonLookAndFeel(button);
+        button.setVisible(false);
         bar.add(button);
         assistantButton = new JButton(controller.getAction(
         	MeasurementViewerControl.ROI_ASSISTANT));

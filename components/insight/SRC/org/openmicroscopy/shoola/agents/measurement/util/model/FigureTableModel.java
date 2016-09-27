@@ -28,9 +28,7 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 import org.apache.commons.collections.CollectionUtils;
-
 import org.jhotdraw.draw.AttributeKey;
-
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
@@ -39,6 +37,7 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 
+import omero.gateway.model.FolderData;
 import omero.gateway.model.TagAnnotationData;
 
 /** 
@@ -153,6 +152,18 @@ public class FigureTableModel
 	                            value = buffer.toString();
 	                        }
 	                    }
+					}
+					else if (AnnotationKeys.FOLDERS.equals(key)) {
+					    List<FolderData> folders = (List<FolderData>) figure.getAttribute(key);
+					    value = "";
+					    if(CollectionUtils.isNotEmpty(folders)) {
+					        Iterator<FolderData> it = folders.iterator();
+					        while(it.hasNext()) {
+					            value += it.next().getFolderPathString();
+					            if(it.hasNext())
+					                value += "; ";
+					        }
+					    }
 					}
 					keys.add(key);
 					values.add(value);

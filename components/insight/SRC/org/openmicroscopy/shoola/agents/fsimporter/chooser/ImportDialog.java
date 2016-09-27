@@ -199,7 +199,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	private static final String TEXT_TAGS_SELECTION = "Tags Selection";
 
 	/** Text for add tags button */
-	private static final String TOOLTIP_ADD_TAGS = "Add Tags.";
+	private static final String TOOLTIP_ADD_TAGS = "Add tags.";
 
 	/** File naming checkbox text */
 	private static final String TEXT_OVERRIDE_FILE_NAMING =

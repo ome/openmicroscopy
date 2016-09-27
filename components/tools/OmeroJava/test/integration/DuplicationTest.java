@@ -16,7 +16,6 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-
 package integration;
 
 import java.util.ArrayList;
@@ -38,8 +37,10 @@ import omero.cmd.Delete2;
 import omero.cmd.Duplicate;
 import omero.cmd.DuplicateResponse;
 import omero.cmd.ERR;
+import omero.cmd.Response;
 import omero.cmd.SkipHead;
 import omero.gateway.util.Requests;
+import omero.gateway.util.Requests.DuplicateBuilder;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.AnnotationAnnotationLinkI;
@@ -52,6 +53,11 @@ import omero.model.Ellipse;
 import omero.model.EllipseI;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
+import omero.model.Folder;
+import omero.model.FolderImageLink;
+import omero.model.FolderImageLinkI;
+import omero.model.FolderRoiLink;
+import omero.model.FolderRoiLinkI;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
@@ -65,28 +71,40 @@ import omero.model.LongAnnotationI;
 import omero.model.MapAnnotationI;
 import omero.model.Pixels;
 import omero.model.PlaneInfo;
+import omero.model.Plate;
+import omero.model.PlateAcquisition;
 import omero.model.Point;
 import omero.model.PointI;
+import omero.model.Project;
+import omero.model.ProjectDatasetLink;
+import omero.model.ProjectDatasetLinkI;
 import omero.model.Rectangle;
 import omero.model.RectangleI;
 import omero.model.Roi;
 import omero.model.RoiI;
+import omero.model.Screen;
+import omero.model.ScreenPlateLink;
+import omero.model.ScreenPlateLinkI;
 import omero.model.Shape;
 import omero.model.StatsInfo;
 import omero.model.TagAnnotationI;
 import omero.model.TextAnnotation;
+import omero.model.Well;
+import omero.model.WellSample;
 import omero.model.XmlAnnotationI;
+import omero.sys.EventContext;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.SetMultimap;
@@ -269,10 +287,10 @@ public class DuplicationTest extends AbstractServerTest {
         Assert.assertEquals(duplicate.getTheZ().getValue(), original.getTheZ().getValue());
         Assert.assertEquals(duplicate.getTheT().getValue(), original.getTheT().getValue());
         Assert.assertEquals(duplicate.getTheC().getValue(), original.getTheC().getValue());
-        Assert.assertEquals(duplicate.getCx().getValue(), original.getCx().getValue());
-        Assert.assertEquals(duplicate.getCy().getValue(), original.getCy().getValue());
-        Assert.assertEquals(duplicate.getRx().getValue(), original.getRx().getValue());
-        Assert.assertEquals(duplicate.getRy().getValue(), original.getRy().getValue());
+        Assert.assertEquals(duplicate.getX().getValue(), original.getX().getValue());
+        Assert.assertEquals(duplicate.getY().getValue(), original.getY().getValue());
+        Assert.assertEquals(duplicate.getRadiusX().getValue(), original.getRadiusX().getValue());
+        Assert.assertEquals(duplicate.getRadiusY().getValue(), original.getRadiusY().getValue());
     }
 
     /**
@@ -299,8 +317,8 @@ public class DuplicationTest extends AbstractServerTest {
         Assert.assertEquals(duplicate.getTheZ().getValue(), original.getTheZ().getValue());
         Assert.assertEquals(duplicate.getTheT().getValue(), original.getTheT().getValue());
         Assert.assertEquals(duplicate.getTheC().getValue(), original.getTheC().getValue());
-        Assert.assertEquals(duplicate.getCx().getValue(), original.getCx().getValue());
-        Assert.assertEquals(duplicate.getCy().getValue(), original.getCy().getValue());
+        Assert.assertEquals(duplicate.getX().getValue(), original.getX().getValue());
+        Assert.assertEquals(duplicate.getY().getValue(), original.getY().getValue());
     }
 
     /**
@@ -381,8 +399,7 @@ public class DuplicationTest extends AbstractServerTest {
 
         /* duplicate the image */
 
-        final Duplicate dup = new Duplicate();
-        dup.targetObjects = ImmutableMap.of("Image", Arrays.asList(originalImageId));
+        final Duplicate dup = Requests.duplicate().target("Image").id(originalImageId).build();
         final DuplicateResponse response = (DuplicateResponse) doChange(dup);
 
         /* find out which objects the duplication claims to have created */
@@ -496,9 +513,7 @@ public class DuplicationTest extends AbstractServerTest {
 
         /* duplicate the image in dry-run mode */
 
-        final Duplicate dup = new Duplicate();
-        dup.targetObjects = ImmutableMap.of("Image", Arrays.asList(originalImageId));
-        dup.dryRun = true;
+        final Duplicate dup = Requests.duplicate().target("Image").id(originalImageId).dryRun().build();
         final DuplicateResponse response = (DuplicateResponse) doChange(dup);
 
         /* find out which objects the duplication reports as being targets for processing */
@@ -550,8 +565,7 @@ public class DuplicationTest extends AbstractServerTest {
 
         /* duplicate the image */
 
-        final Duplicate dup = new Duplicate();
-        dup.targetObjects = ImmutableMap.of("Image", Arrays.asList(originalImageId));
+        final Duplicate dup = Requests.duplicate().target("Image").id(originalImageId).build();
         final DuplicateResponse response = (DuplicateResponse) doChange(dup);
 
         /* check that the response includes duplication of an image, link, and annotation */
@@ -618,9 +632,7 @@ public class DuplicationTest extends AbstractServerTest {
 
         /* duplicate the image */
 
-        final Duplicate dup = new Duplicate();
-        dup.targetObjects = ImmutableMap.of("Image", Arrays.asList(originalImageId));
-        dup.typesToReference = ImmutableList.of("TextAnnotation");
+        final Duplicate dup = Requests.duplicate().target("Image").id(originalImageId).referenceType("TextAnnotation").build();
         final DuplicateResponse response = (DuplicateResponse) doChange(dup);
 
         /* check that the response includes duplication of an image and link, but not an annotation */
@@ -676,9 +688,7 @@ public class DuplicationTest extends AbstractServerTest {
 
         /* duplicate the image */
 
-        final Duplicate dup = new Duplicate();
-        dup.targetObjects = ImmutableMap.of("Image", Arrays.asList(originalImageId));
-        dup.typesToIgnore = ImmutableList.of("IAnnotationLink");
+        final Duplicate dup = Requests.duplicate().target("Image").id(originalImageId).ignoreType("IAnnotationLink").build();
         final DuplicateResponse response = (DuplicateResponse) doChange(dup);
 
         /* check that the response includes duplication of an image and link, but not an annotation */
@@ -729,8 +739,7 @@ public class DuplicationTest extends AbstractServerTest {
 
         /* duplicate the image */
 
-        final Duplicate dup = new Duplicate();
-        dup.targetObjects = ImmutableMap.of("Image", Arrays.asList(originalImageId));
+        final Duplicate dup = Requests.duplicate().target("Image").id(originalImageId).build();
         final DuplicateResponse response = (DuplicateResponse) doChange(dup);
 
         /* check that the response includes duplication of an image and link, but not the attachment */
@@ -809,8 +818,7 @@ public class DuplicationTest extends AbstractServerTest {
 
         /* duplicate the image */
 
-        final Duplicate dup = new Duplicate();
-        dup.targetObjects = ImmutableMap.of("Image", Arrays.asList(originalImageId));
+        final Duplicate dup = Requests.duplicate().target("Image").id(originalImageId).build();
         final DuplicateResponse response = (DuplicateResponse) doChange(dup);
 
         /* check that the response includes duplication of an image and annotations and the links among them */
@@ -900,8 +908,7 @@ public class DuplicationTest extends AbstractServerTest {
 
         /* duplicate the images */
 
-        final Duplicate dup = new Duplicate();
-        dup.targetObjects = ImmutableMap.of("Image", (List<Long>) new ArrayList<Long>(originalImageIds));
+        final Duplicate dup = Requests.duplicate().target("Image").id(originalImageIds).build();
         final DuplicateResponse response = (DuplicateResponse) doChange(dup);
 
         /* check that the response includes duplication of the images, links, and annotations */
@@ -994,10 +1001,10 @@ public class DuplicationTest extends AbstractServerTest {
         originalEllipse.setTheZ(omero.rtypes.rint(propertyValue++));
         originalEllipse.setTheT(omero.rtypes.rint(propertyValue++));
         originalEllipse.setTheC(omero.rtypes.rint(propertyValue++));
-        originalEllipse.setCx(omero.rtypes.rdouble(propertyValue++));
-        originalEllipse.setCy(omero.rtypes.rdouble(propertyValue++));
-        originalEllipse.setRx(omero.rtypes.rdouble(propertyValue++));
-        originalEllipse.setRy(omero.rtypes.rdouble(propertyValue++));
+        originalEllipse.setX(omero.rtypes.rdouble(propertyValue++));
+        originalEllipse.setY(omero.rtypes.rdouble(propertyValue++));
+        originalEllipse.setRadiusX(omero.rtypes.rdouble(propertyValue++));
+        originalEllipse.setRadiusY(omero.rtypes.rdouble(propertyValue++));
         originalLine.setTheZ(omero.rtypes.rint(propertyValue++));
         originalLine.setTheT(omero.rtypes.rint(propertyValue++));
         originalLine.setTheC(omero.rtypes.rint(propertyValue++));
@@ -1008,8 +1015,8 @@ public class DuplicationTest extends AbstractServerTest {
         originalPoint.setTheZ(omero.rtypes.rint(propertyValue++));
         originalPoint.setTheT(omero.rtypes.rint(propertyValue++));
         originalPoint.setTheC(omero.rtypes.rint(propertyValue++));
-        originalPoint.setCx(omero.rtypes.rdouble(propertyValue++));
-        originalPoint.setCy(omero.rtypes.rdouble(propertyValue++));
+        originalPoint.setX(omero.rtypes.rdouble(propertyValue++));
+        originalPoint.setY(omero.rtypes.rdouble(propertyValue++));
 
         originalRoi = (Roi) iUpdate.saveAndReturnObject(originalRoi);
         final Iterator<Shape> originalShapes = originalRoi.copyShapes().iterator();
@@ -1033,8 +1040,7 @@ public class DuplicationTest extends AbstractServerTest {
 
         /* duplicate the image */
 
-        final Duplicate dup = new Duplicate();
-        dup.targetObjects = ImmutableMap.of("Image", Arrays.asList(originalImageId));
+        final Duplicate dup = Requests.duplicate().target("Image").id(originalImageId).build();
         final DuplicateResponse response = (DuplicateResponse) doChange(dup);
 
         /* check that the response includes duplication of an image, link, and annotation */
@@ -1095,6 +1101,7 @@ public class DuplicationTest extends AbstractServerTest {
         assertSameProperties(originalLine, duplicateLine);
         assertSameProperties(originalPoint, duplicatePoint);
 }
+
     /**
      * Test duplication of an annotated image with various annotation types treated differently.
      * @throws Exception unexpected
@@ -1132,10 +1139,9 @@ public class DuplicationTest extends AbstractServerTest {
 
         /* duplicate the image */
 
-        final Duplicate dup = new Duplicate();
-        dup.targetObjects = ImmutableMap.of("Image", Arrays.asList(originalImageId));
-        dup.typesToDuplicate = ImmutableList.of("BasicAnnotation", "XmlAnnotation");
-        dup.typesToReference = ImmutableList.of("DoubleAnnotation", "TextAnnotation");
+        final Duplicate dup = Requests.duplicate().target("Image").id(originalImageId)
+                .duplicateType("BasicAnnotation", "XmlAnnotation")
+                .referenceType("DoubleAnnotation", "TextAnnotation").build();
         final DuplicateResponse response = (DuplicateResponse) doChange(dup);
 
         /* check that the response includes duplication of an image, annotations and their links */
@@ -1192,7 +1198,7 @@ public class DuplicationTest extends AbstractServerTest {
     }
 
     /**
-     * Test duplication of an annotated image with contradictory treatments for the same annotation typs.
+     * Test duplication of an annotated image with contradictory treatments for the same annotation types.
      * @throws Exception unexpected
      */
     @Test
@@ -1211,8 +1217,7 @@ public class DuplicationTest extends AbstractServerTest {
 
         /* duplicate the image with contradictory instructions */
 
-        final Duplicate dup = new Duplicate();
-        dup.targetObjects = ImmutableMap.of("Image", Arrays.asList(originalImageId));
+        final Duplicate dup = Requests.duplicate().target("Image").id(originalImageId).build();
 
         for (int i = 0; i < 4; i++) {
             dup.typesToDuplicate = i == 0 ? null : ImmutableList.of("IAnnotationLink");
@@ -1269,5 +1274,443 @@ public class DuplicationTest extends AbstractServerTest {
         testImages.add(reportedImageId);
 
         Assert.assertNotEquals(originalImageId, reportedImageId);
+    }
+
+    /**
+     * Test duplication of links depending on ownership and group permissions.
+     * @param groupPerms the permissions on the group in which to test
+     * @param myContainer if the parent of the link is owned by the user doing the duplication
+     * @param myContained if the child of the link is owned by the user doing the duplication
+     * @param myLink if the link is owned by the user doing the duplication
+     * @param containerType what kind of model object the parent of the link is
+     * @param containedType what kind of model object the child of the link is
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "container permissions test cases")
+    public void testDuplicateWithContainerPermissions(String groupPerms, boolean myContainer, boolean myContained, boolean myLink,
+            Class<? extends IObject> containerType, Class<? extends IObject> containedType) throws Exception {
+        final EventContext duplicator = newUserAndGroup(groupPerms);
+        final EventContext containerOwner, containedOwner, linkOwner;
+
+        /* set up the model object owners */
+
+        if (myContainer) {
+            containerOwner = duplicator;
+        } else {
+            containerOwner = newUserInGroup();
+        }
+
+        if (myContained) {
+            containedOwner = duplicator;
+        } else if (!myContainer) {
+            containedOwner = containerOwner;
+        } else {
+            containedOwner = newUserInGroup();
+        }
+
+        if (myLink) {
+            linkOwner = duplicator;
+        } else if (!myContainer) {
+            linkOwner = containerOwner;
+        } else if (!myContained) {
+            linkOwner = containedOwner;
+        } else {
+            linkOwner = newUserInGroup();
+        }
+
+        /* create the model objects */
+
+        final IObject container, contained, link;
+
+        loginUser(containerOwner);
+
+        if (containerType == Project.class) {
+            container = iUpdate.saveAndReturnObject(mmFactory.simpleProject());
+        } else if (containerType == Dataset.class) {
+            container = iUpdate.saveAndReturnObject(mmFactory.simpleDataset());
+        } else if (containerType == Folder.class) {
+            container = iUpdate.saveAndReturnObject(mmFactory.simpleFolder());
+        } else if (containerType == Screen.class) {
+            container = iUpdate.saveAndReturnObject(mmFactory.simpleScreen());
+        } else {
+            throw new IllegalArgumentException("container type cannot be " + containerType);
+        }
+
+        if (containerOwner != containedOwner) {
+            loginUser(containedOwner);
+        }
+
+        if (containedType == Dataset.class) {
+            contained = iUpdate.saveAndReturnObject(mmFactory.simpleDataset());
+        } else if (containedType == Image.class) {
+            contained = iUpdate.saveAndReturnObject(mmFactory.simpleImage());
+            testImages.add(contained.getId().getValue());
+        } else if (containedType == Roi.class) {
+            contained = iUpdate.saveAndReturnObject(new RoiI());
+        } else if (containedType == Plate.class) {
+            contained = iUpdate.saveAndReturnObject(mmFactory.createPlate(0, 0, 0, 0, false));
+        } else {
+            throw new IllegalArgumentException("contained type cannot be " + containedType);
+        }
+
+        if (containedOwner != linkOwner) {
+            loginUser(linkOwner);
+        }
+
+        if (containerType == Project.class && containedType == Dataset.class) {
+            final ProjectDatasetLink linkPD = new ProjectDatasetLinkI();
+            linkPD.setParent((Project) container);
+            linkPD.setChild((Dataset) contained);
+            link = iUpdate.saveAndReturnObject(linkPD);
+        } else if (containerType == Dataset.class && containedType == Image.class) {
+            final DatasetImageLink linkDI = new DatasetImageLinkI();
+            linkDI.setParent((Dataset) container);
+            linkDI.setChild((Image) contained);
+            link = iUpdate.saveAndReturnObject(linkDI);
+        } else if (containerType == Folder.class && containedType == Image.class) {
+            final FolderImageLink linkFI = new FolderImageLinkI();
+            linkFI.setParent((Folder) container);
+            linkFI.setChild((Image) contained);
+            link = iUpdate.saveAndReturnObject(linkFI);
+        } else if (containerType == Folder.class && containedType == Roi.class) {
+            final FolderRoiLink linkFR = new FolderRoiLinkI();
+            linkFR.setParent((Folder) container);
+            linkFR.setChild((Roi) contained);
+            link = iUpdate.saveAndReturnObject(linkFR);
+        } else if (containerType == Screen.class && containedType == Plate.class) {
+            final ScreenPlateLink linkSP = new ScreenPlateLinkI();
+            linkSP.setParent((Screen) container);
+            linkSP.setChild((Plate) contained);
+            link = iUpdate.saveAndReturnObject(linkSP);
+        } else {
+            throw new IllegalArgumentException("type " + containerType + " cannot contain type " + containedType);
+        }
+
+        /* duplicate the link */
+
+        if (linkOwner != duplicator) {
+            loginUser(duplicator);
+        }
+
+        final boolean expectSuccess = myContainer || "rwrw--".equals(groupPerms);
+
+        final Duplicate dup = Requests.duplicate().target(link).build();
+        final Response response = doChange(client, factory, dup, expectSuccess);
+
+        if (expectSuccess) {
+
+            /* find the duplicated link */
+
+            String linkType = null;
+            long linkId = -1;
+            for (final Map.Entry<String, List<Long>> duplicate : ((DuplicateResponse) response).duplicates.entrySet()) {
+                final String duplicateType = duplicate.getKey();
+                final List<Long> duplicateIds = duplicate.getValue();
+                if (duplicateType.endsWith("Link")) {
+                    Assert.assertNull(linkType);
+                    Assert.assertEquals(duplicateIds.size(), 1);
+                    linkType = duplicateType;
+                    linkId = duplicateIds.get(0);
+                }
+            }
+            Assert.assertNotNull(linkType);
+
+            /* check that the link parent is as before but the child is not */
+
+            final String query = "SELECT parent.id, child.id FROM " + linkType + " WHERE id = :id";
+            final Parameters params = new ParametersI().addId(linkId);
+            final List<RType> result = iQuery.projection(query, params).get(0);
+            final long parentId = ((RLong) result.get(0)).getValue();
+            final long childId = ((RLong) result.get(1)).getValue();
+
+            if (containedType == Image.class) {
+                testImages.add(childId);
+            }
+
+            Assert.assertEquals(parentId, container.getId().getValue());
+            Assert.assertNotEquals(childId, contained.getId().getValue());
+        }
+    }
+
+    /**
+     * @return group permissions for container permissions test cases
+     */
+    @DataProvider(name = "container permissions test cases")
+    public Object[][] provideContainerPermissionsCases() {
+        int index = 0;
+        final int GROUP_PERMS = index++;
+        final int MY_CONTAINER = index++;
+        final int MY_CONTAINED = index++;
+        final int MY_LINK = index++;
+        final int CONTAINER_TYPE = index++;
+        final int CONTAINED_TYPE = index++;
+
+        final String[] permsCases = new String[]{"rwra--", "rwrw--"};
+        final boolean[] booleanCases = new boolean[]{false, true};
+        final SetMultimap<Class<? extends IObject>, Class<? extends IObject>> containmentRelations = HashMultimap.create();
+        containmentRelations.put(Project.class, Dataset.class);
+        containmentRelations.put(Dataset.class, Image.class);
+        containmentRelations.put(Folder.class, Image.class);
+        containmentRelations.put(Folder.class, Roi.class);
+        containmentRelations.put(Screen.class, Plate.class);
+
+        final List<Object[]> testCases = new ArrayList<Object[]>();
+
+        for (final String groupPerms : permsCases) {
+            for (final boolean myContainer : booleanCases) {
+                for (final boolean myContained : booleanCases) {
+                    for (final boolean myLink : booleanCases) {
+                        for (final Map.Entry<Class<? extends IObject>, Class<? extends IObject>> containmentRelation :
+                            containmentRelations.entries()) {
+                            if ((myContainer != myContained || myContainer != myLink) && "rwra--".equals(groupPerms)) {
+                                /* test case does not make sense */
+                                continue;
+                            }
+                            final Object[] testCase = new Object[index];
+                            testCase[GROUP_PERMS] = groupPerms;
+                            testCase[MY_CONTAINER] = myContainer;
+                            testCase[MY_CONTAINED] = myContained;
+                            testCase[MY_LINK] = myLink;
+                            testCase[CONTAINER_TYPE] = containmentRelation.getKey();
+                            testCase[CONTAINED_TYPE] = containmentRelation.getValue();
+                            // DEBUG: if ("rwrw--".equals(groupPerms) &&
+                            //        myContainer == true && myContained == false && myLink == true &&
+                            //        containmentRelation.getKey() == Folder.class && containmentRelation.getValue() == Image.class)
+                            testCases.add(testCase);
+                        }
+                    }
+                }
+            }
+        }
+
+        return testCases.toArray(new Object[testCases.size()][]);
+    }
+
+    /**
+     * Test duplication of a rich plate structure.
+     * @throws Exception unexpected
+     */
+    @Test(groups = "ticket:13171")
+    public void testDuplicatePlate() throws Exception {
+        newUserAndGroup("rw----");
+
+        final int rowCount = 2;
+        final int columnCount = 2;
+        final int fieldCount = 2;
+        final int runCount = 2;
+        final int timeCount = 2;
+        final int channelCount = 4;
+
+        /* create a new plate */
+
+        Plate originalPlate = mmFactory.createPlate(rowCount, columnCount, fieldCount, runCount, 1, 1, 1, timeCount, channelCount);
+        originalPlate = (Plate) iUpdate.saveAndReturnObject(originalPlate).proxy();
+
+        /* note the objects (and their IDs) that were thus created and saved */
+
+        final long originalPlateId = originalPlate.getId().getValue();
+
+        final String hql1 = "FROM Plate AS plate " +
+                "LEFT JOIN FETCH plate.wells AS well " +
+                "LEFT JOIN FETCH plate.plateAcquisitions AS run " +
+                "LEFT JOIN FETCH run.wellSample AS field " +
+                "LEFT JOIN FETCH field.image AS image " +
+                "LEFT JOIN FETCH image.pixels AS pixels " +
+                "LEFT JOIN FETCH pixels.channels AS channels " +
+                "LEFT JOIN FETCH pixels.planeInfo as planeInfo";
+        final Parameters params1 = new ParametersI().addId(originalPlateId);
+        originalPlate = (Plate) iQuery.findByQuery(hql1, params1);
+
+        final Set<Long> originalWellIds = new HashSet<Long>();
+        final Set<Long> originalRunIds = new HashSet<Long>();
+        final Set<Long> originalFieldIds = new HashSet<Long>();
+        final Set<Long> originalImageIds = new HashSet<Long>();
+        final Set<Long> originalPixelsIds = new HashSet<Long>();
+        final Set<Long> originalChannelIds = new HashSet<Long>();
+        final Set<Long> originalPlaneInfoIds = new HashSet<Long>();
+
+        for (final Well well : originalPlate.copyWells()) {
+            originalWellIds.add(well.getId().getValue());
+        }
+        for (final PlateAcquisition run : originalPlate.copyPlateAcquisitions()) {
+            originalRunIds.add(run.getId().getValue());
+            for (final WellSample field : run.copyWellSample()) {
+                final Image image = field.getImage();
+                final Pixels pixels = image.getPrimaryPixels();
+                originalFieldIds.add(field.getId().getValue());
+                originalImageIds.add(image.getId().getValue());
+                originalPixelsIds.add(pixels.getId().getValue());
+                for (final Channel channel : pixels.copyChannels()) {
+                    originalChannelIds.add(channel.getId().getValue());
+                }
+                for (final PlaneInfo planeInfo : pixels.copyPlaneInfo()) {
+                    originalPlaneInfoIds.add(planeInfo.getId().getValue());
+                }
+            }
+        }
+
+        /* add ROIs to the well sample images and also note their IDs */
+
+        final Set<Long> originalRoiIds = new HashSet<Long>();
+        final Set<Long> originalPointIds = new HashSet<Long>();
+
+        for (final Long originalImageId : originalImageIds) {
+            Point originalPoint = new PointI();
+            originalPoint.setX(omero.rtypes.rdouble(0));
+            originalPoint.setY(omero.rtypes.rdouble(0));
+            Roi originalRoi = new RoiI();
+            originalRoi.setImage(new ImageI(originalImageId, false));
+            originalRoi.addShape(originalPoint);
+            originalRoi = (Roi) iUpdate.saveAndReturnObject(originalRoi);
+            final Long originalRoiId = originalRoi.getId().getValue();
+            originalPoint = (Point) iQuery.findByQuery("FROM Point WHERE roi.id = :id", new ParametersI().addId(originalRoiId));
+            final Long originalPointId = originalPoint.getId().getValue();
+            Assert.assertEquals(originalRoi.getImage().getId().getValue(), (long) originalImageId);
+            originalRoiIds.add(originalRoiId);
+            originalPointIds.add(originalPointId);
+        }
+
+        /* check that the expected numbers of objects were created */
+
+        Assert.assertEquals(originalWellIds.size(), rowCount * columnCount);
+        Assert.assertEquals(originalRunIds.size(), runCount);
+        Assert.assertEquals(originalFieldIds.size(), rowCount * columnCount * runCount * fieldCount);
+        Assert.assertEquals(originalImageIds.size(), rowCount * columnCount * runCount * fieldCount);
+        Assert.assertEquals(originalPixelsIds.size(), rowCount * columnCount * runCount * fieldCount);
+        Assert.assertEquals(originalChannelIds.size(), rowCount * columnCount * runCount * fieldCount * channelCount);
+        Assert.assertEquals(originalPlaneInfoIds.size(), rowCount * columnCount * runCount * fieldCount * timeCount * channelCount);
+        Assert.assertEquals(originalRoiIds.size(), rowCount * columnCount * runCount * fieldCount);
+        Assert.assertEquals(originalPointIds.size(), rowCount * columnCount * runCount * fieldCount);
+
+        /* combine all the logical channels into one: this often triggers duplication failure in OMERO 5.2.2 */
+
+        final String hql2 = "FROM Channel WHERE id IN (:ids)";
+        final Parameters params2 = new ParametersI().addIds(originalChannelIds);
+        final List<IObject> results = iQuery.findAllByQuery(hql2, params2);
+        final LogicalChannel originalLogicalChannel = ((Channel) results.get(0)).getLogicalChannel();
+        for (int index = 1; index < results.size(); index++) {
+            final Channel originalChannel = (Channel) results.get(index);
+            originalChannel.setLogicalChannel(originalLogicalChannel);
+        }
+        iUpdate.saveCollection(results);
+
+        /* duplicate the plate */
+
+        final Duplicate dup = Requests.duplicate().target(originalPlate).build();
+        final DuplicateResponse response = (DuplicateResponse) doChange(dup);
+
+        /* capture the IDs of the duplicated plate, wells, runs, fields, images, ROIs and shapes */
+
+        final Set<Long> reportedPlateIds = new HashSet<Long>(response.duplicates.get("ome.model.screen.Plate"));
+        final Set<Long> reportedWellIds = new HashSet<Long>(response.duplicates.get("ome.model.screen.Well"));
+        final Set<Long> reportedRunIds = new HashSet<Long>(response.duplicates.get("ome.model.screen.PlateAcquisition"));
+        final Set<Long> reportedFieldIds = new HashSet<Long>(response.duplicates.get("ome.model.screen.WellSample"));
+        final Set<Long> reportedImageIds = new HashSet<Long>(response.duplicates.get("ome.model.core.Image"));
+        final Set<Long> reportedPixelsIds = new HashSet<Long>(response.duplicates.get("ome.model.core.Pixels"));
+        final Set<Long> reportedChannelIds = new HashSet<Long>(response.duplicates.get("ome.model.core.Channel"));
+        final Set<Long> reportedPlaneInfoIds = new HashSet<Long>(response.duplicates.get("ome.model.core.PlaneInfo"));
+        final Set<Long> reportedRoiIds = new HashSet<Long>(response.duplicates.get("ome.model.roi.Roi"));
+        final Set<Long> reportedPointIds = new HashSet<Long>(response.duplicates.get("ome.model.roi.Point"));
+
+        /* delete the original and duplicate plates */
+
+        doChange(Requests.delete()
+                .target("Plate").id(originalPlateId).id(reportedPlateIds).build());
+
+        /* check that the reported plate, wells, runs, fields, images, ROIs and shapes all have new IDs */
+
+        Assert.assertEquals(reportedPlateIds.size(), 1);
+        Assert.assertEquals(reportedWellIds.size(), originalWellIds.size());
+        Assert.assertEquals(reportedRunIds.size(), originalRunIds.size());
+        Assert.assertEquals(reportedFieldIds.size(), originalFieldIds.size());
+        Assert.assertEquals(reportedImageIds.size(), originalImageIds.size());
+        Assert.assertEquals(reportedPixelsIds.size(), originalPixelsIds.size());
+        Assert.assertEquals(reportedChannelIds.size(), originalChannelIds.size());
+        Assert.assertEquals(reportedPlaneInfoIds.size(), originalPlaneInfoIds.size());
+        Assert.assertEquals(reportedRoiIds.size(), originalRoiIds.size());
+        Assert.assertEquals(reportedPointIds.size(), originalPointIds.size());
+
+        Assert.assertNotEquals(originalPlateId, reportedPlateIds.iterator().next());
+        Assert.assertTrue(Sets.intersection(originalWellIds, reportedWellIds).isEmpty());
+        Assert.assertTrue(Sets.intersection(originalRunIds, reportedRunIds).isEmpty());
+        Assert.assertTrue(Sets.intersection(originalFieldIds, reportedFieldIds).isEmpty());
+        Assert.assertTrue(Sets.intersection(originalImageIds, reportedImageIds).isEmpty());
+        Assert.assertTrue(Sets.intersection(originalPixelsIds, reportedPixelsIds).isEmpty());
+        Assert.assertTrue(Sets.intersection(originalChannelIds, reportedChannelIds).isEmpty());
+        Assert.assertTrue(Sets.intersection(originalPlaneInfoIds, reportedPlaneInfoIds).isEmpty());
+        Assert.assertTrue(Sets.intersection(originalRoiIds, reportedRoiIds).isEmpty());
+        Assert.assertTrue(Sets.intersection(originalPointIds, reportedPointIds).isEmpty());
+    }
+
+    /**
+     * Test duplication of plates that share logical channels.
+     * @throws Exception unexpected
+     */
+    @Test(groups = "ticket:13199")
+    public void testDuplicatePlatesSharingLogicalChannel() throws Exception {
+        newUserAndGroup("rw----");
+        final List<Long> plateIds = new ArrayList<Long>();
+
+        /* create the plates */
+
+        final Plate plate1 = (Plate) iUpdate.saveAndReturnObject(mmFactory.createPlate(1, 1, 1, 1, true)).proxy();
+        final Plate plate2 = (Plate) iUpdate.saveAndReturnObject(mmFactory.createPlate(1, 1, 1, 1, true)).proxy();
+        plateIds.add(plate1.getId().getValue());
+        plateIds.add(plate2.getId().getValue());
+
+        /* combine all the logical channels into one */
+
+        final List<IObject> results = iQuery.findAllByQuery(
+                "FROM Channel WHERE pixels.image IN (SELECT image FROM WellSample WHERE well.plate.id IN (:ids))",
+                new ParametersI().addIds(plateIds));
+        final LogicalChannel originalLogicalChannel = ((Channel) results.get(0)).getLogicalChannel();
+        for (int index = 1; index < results.size(); index++) {
+            final Channel originalChannel = (Channel) results.get(index);
+            originalChannel.setLogicalChannel(originalLogicalChannel);
+        }
+        iUpdate.saveCollection(results);
+
+        /* perform the tests */
+
+        for (final boolean dupPlate1 : Arrays.asList(true, false)) {
+            for (final boolean dupPlate2 : Arrays.asList(true, false)) {
+                if (dupPlate1 || dupPlate2) {
+
+                    /* duplicate the plate(s) */
+
+                    final DuplicateBuilder dupBuilder = Requests.duplicate();
+                    if (dupPlate1) {
+                        dupBuilder.target(plate1);
+                    }
+                    if (dupPlate2) {
+                        dupBuilder.target(plate2);
+                    }
+                    final DuplicateResponse response = (DuplicateResponse) doChange(dupBuilder.build());
+
+                    /* note the response */
+
+                    final Collection<Long> reportedPlateIds = response.duplicates.get("ome.model.screen.Plate");
+                    final Collection<Long> reportedLogicalChannelIds = response.duplicates.get("ome.model.core.LogicalChannel");
+                    final Collection<Long> reportedChannelIds = response.duplicates.get("ome.model.core.Channel");
+                    plateIds.addAll(reportedPlateIds);
+
+                    /* check that duplication targeted the expected objects */
+
+                    if (dupPlate1 && dupPlate2) {
+                        Assert.assertEquals(reportedPlateIds.size(), 2);
+                        Assert.assertEquals(reportedChannelIds.size(), 2);
+                        Assert.assertEquals(reportedLogicalChannelIds.size(), 1);
+                    } else {
+                        Assert.assertEquals(reportedPlateIds.size(), 1);
+                        Assert.assertEquals(reportedChannelIds.size(), 1);
+                        Assert.assertNull(reportedLogicalChannelIds);
+                    }
+                }
+            }
+        }
+
+        /* delete the original and duplicate plates */
+
+        doChange(Requests.delete().target("Plate").id(plateIds).build());
     }
 }

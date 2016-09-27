@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -31,6 +31,7 @@ import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import omero.gateway.model.ChannelData;
 
 /** 
@@ -84,8 +85,13 @@ public class ChannelMetadataLoader
                 		ChannelData channel;
                 		while (i.hasNext()) {
                 			channel = (ChannelData) i.next();
-                			channels.put(channel, 
-                					ref.getChannelColor(channel.getIndex()));
+                            if (CommonsLangUtils.isNotEmpty(ref
+                                    .getLookupTable(channel.getIndex())))
+                                channels.put(channel,
+                                        ref.getLookupTable(channel.getIndex()));
+                            else
+                                channels.put(channel,
+                                        ref.getChannelColor(channel.getIndex()));
 						}
                 	} else {
                 		while (i.hasNext())

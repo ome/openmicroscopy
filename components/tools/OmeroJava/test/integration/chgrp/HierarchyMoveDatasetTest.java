@@ -19,7 +19,6 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package integration.chgrp;
 
 /**
@@ -145,7 +144,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
 
         // Create commands to move and create the link in target
         List<Request> list = new ArrayList<Request>();
-        final Chgrp2 dc = Requests.chgrp("Dataset", d.getId().getValue(), g.getId().getValue());
+        final Chgrp2 dc = Requests.chgrp().target(d).toGroup(g).build();
         list.add(dc);
 
         ProjectDatasetLink link = null;
@@ -259,7 +258,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
         links.add(link);
         iUpdate.saveAndReturnArray(links);
 
-        final Chgrp2 dc = Requests.chgrp("Dataset", s1.getId().getValue(), g.getId().getValue());
+        final Chgrp2 dc = Requests.chgrp().target(s1).toGroup(g).build();
         callback(true, client, dc);
 
         List<Long> ids = new ArrayList<Long>();

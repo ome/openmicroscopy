@@ -21,7 +21,11 @@
 package omero.gateway.model;
 
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Hosts the results of a call loading the ROI.
@@ -39,6 +43,9 @@ public class ROIResult
     /** The collection of rois. */
     private Collection<ROIData> rois;
 
+    /** The collection of folders */
+    private Collection<FolderData> folders;
+    
     /** The ID of the original file */
     private long fileID;
 
@@ -108,4 +115,38 @@ public class ROIResult
      */
     public Object getResult() { return result; }
 
+    /**
+     * Sets the available folders
+     * 
+     * @param folders
+     *            The folders
+     */
+    public void setFolders(Collection<FolderData> folders) {
+        Map<Long, FolderData> folderById = new HashMap<Long, FolderData>();
+        for (FolderData f : folders) {
+            folderById.put(f.getId(), f);
+        }
+
+        if (rois != null) {
+            for (ROIData roi : rois) {
+                for (FolderData folder : roi.getFolders()) {
+                    FolderData initFolder = folderById.get(folder.getId());
+                    folder.setFolder(initFolder.asFolder());
+                }
+            }
+        }
+
+        this.folders = folderById.values();
+    }
+
+    /**
+     * Get the available folders
+     * 
+     * @return See above.
+     */
+    public Collection<FolderData> getFolders() {
+        return folders == null ? Collections.EMPTY_LIST
+                : new ArrayList<FolderData>(folders);
+    }
+    
 }

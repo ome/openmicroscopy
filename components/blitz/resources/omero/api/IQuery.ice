@@ -166,7 +166,7 @@ module omero {
                  * select this from SomeModelClass this ...
                  * </pre>
                  *
-                 * though the alias "this" is unimportant. Do not try to
+                 * though the alias <i>this</i> is unimportant. Do not try to
                  * return multiple classes in one call like:
                  *
                  * <pre>

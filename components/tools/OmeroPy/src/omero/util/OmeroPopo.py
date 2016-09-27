@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+# Copyright (C) 2006-2016 University of Dundee. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -38,6 +38,7 @@ from omero.model import MaskI
 from omero.model import NamespaceI
 from omero.rtypes import rdouble, rint, rlong, rstring
 
+import warnings
 # Popo helpers #
 
 
@@ -47,6 +48,8 @@ def toCSV(list):
     @param list The list to convert.
     @return See above.
     """
+    warnings.warn(
+        "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
     lenList = len(list)
     cnt = 0
     str = ""
@@ -64,6 +67,8 @@ def toList(csvString):
     @param csvString The CSV string to convert.
     @return See above.
     """
+    warnings.warn(
+        "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
     list = csvString.split(',')
     for index in range(len(list)):
         list[index] = list[index].strip()
@@ -81,6 +86,8 @@ class DataObject(object):
     #
 
     def __init__(self):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         self.value = None
         self.dirty = False
 
@@ -487,84 +494,6 @@ class ROIData(DataObject):
                 keyList.append(coord)
         return self.roiShapes.from_keys(keyList)
 
-    ##
-    # Returns the namespace of the ROI.
-    #
-    # @return see above.
-    #
-    def setNamespaceKeywords(self, namespace, keywords):
-        roi = self.asIObject()
-        if(roi is None):
-            raise Exception("No Roi specified.")
-        if(len(keywords) == 0):
-            self.removeNamespace(namespace)
-        else:
-            map = self.getNamespaceKeywords()
-            map[namespace] = keywords
-            self.setNamespaceMap(map)
-            self.setDirty(True)
-
-    ##
-    # Remove the namespace from the ROI
-    # @param namespace See above.
-    #
-    def removeNamespace(self, namespace):
-        roi = self.asIObject()
-        if(roi is None):
-            raise Exception("No Roi specified.")
-        map = self.getNamespaceKeywords()
-        if(namespace in map.keys()):
-            del map[namespace]
-        self.setNamespaceMap(map)
-        self.setDirty(True)
-
-    ##
-    # Update the ROIData object to have the namespaces of the
-    # map, and the keywords of the map.
-    # @param map See above.
-    #
-    def setNamespaceMap(self, map):
-        roi = self.asIObject()
-        if(roi is None):
-            raise Exception("No Roi specified.")
-        roi.setNamespaces(map.keys)
-        keywords = []
-        for namespace in map.keys:
-            keywords.append(map[namespace])
-        roi.setKeywords(keywords)
-        self.setDirty(True)
-
-    ##
-    # Retrieve the namespaces of the ROI
-    # @return See above.
-    #
-    def getNamespaces(self):
-        roi = self.asIObject()
-        if(roi is None):
-            raise Exception("No Roi specified.")
-        namespaces = roi.getNamespaces()
-        if(namespaces is None):
-            return []
-        return namespaces
-
-    ##
-    # Get the keywords and namespaces as a map<namespace, keywords>
-    # @return See above.
-    #
-    def getNamespaceKeywords(self):
-        roi = self.asIObject()
-        if (roi is None):
-            raise Exception("No Roi specified.")
-        namespaces = self.getNamespaces()
-        namespaceKeywords = roi.getKeywords()
-        if(len(namespaces) != len(namespaceKeywords)):
-            raise Exception(
-                "Namespaces length does not match keywords namespace length.")
-        map = {}
-        for i in range(len(namespaces)):
-            map[namespaces[i]] = namespaceKeywords[i]
-        return map
-
 
 class ShapeData(DataObject):
 
@@ -749,96 +678,96 @@ class EllipseData(ShapeData):
         ShapeData.__init__(self)
         if(shape is None):
             self.setValue(EllipseI())
-            self.setCx(0)
-            self.setCy(0)
-            self.setRx(0)
-            self.setRy(0)
+            self.setX(0)
+            self.setY(0)
+            self.setRadiusX(0)
+            self.setRadiusY(0)
         else:
             self.setValue(shape)
 
     ##
     # Set the centre x coord of the Ellipse
-    # @param cx See above.
-    def setCx(self, cx):
+    # @param x See above.
+    def setX(self, x):
         shape = self.asIObject()
         if(shape is None):
             raise Exception("No Shape specified.")
-        shape.setCx(rdouble(cx))
+        shape.setX(rdouble(x))
 
     ##
     # Get the centre x coord of the Ellipse
     # @return See Above.
-    def getCx(self):
+    def getX(self):
         shape = self.asIObject()
         if(shape is None):
             raise Exception("No Shape specified.")
-        cx = shape.getCx()
-        if(cx is None):
+        x = shape.getX()
+        if(x is None):
             return 0
-        return cx.getValue()
+        return x.getValue()
 
     ##
     # Set the centre y coord of the Ellipse
-    # @param cy See above.
-    def setCy(self, cy):
+    # @param y See above.
+    def setY(self, y):
         shape = self.asIObject()
         if(shape is None):
             raise Exception("No Shape specified.")
-        shape.setCy(rdouble(cy))
+        shape.setY(rdouble(y))
 
     ##
     # Get the centre y coord of the Ellipse
     # @return See Above.
-    def getCy(self):
+    def getY(self):
         shape = self.asIObject()
         if(shape is None):
             raise Exception("No Shape specified.")
-        cy = shape.getCy()
-        if(cy is None):
+        y = shape.getY()
+        if(y is None):
             return 0
-        return cy.getValue()
+        return y.getValue()
 
     ##
     # Set the radius on the x-axis of the Ellipse
-    # @param rx See above.
-    def setRx(self, rx):
+    # @param radiusx See above.
+    def setRadiusX(self, radiusx):
         shape = self.asIObject()
         if(shape is None):
             raise Exception("No Shape specified.")
-        shape.setRx(rdouble(rx))
+        shape.setRadiusX(rdouble(radiusx))
 
     ##
     # Get the radius of the x-axis of the Ellipse
     # @return See Above.
-    def getRx(self):
+    def getRadiusX(self):
         shape = self.asIObject()
         if(shape is None):
             raise Exception("No Shape specified.")
-        rx = shape.getRx()
-        if(rx is None):
+        radiusx = shape.getRadiusX()
+        if(radiusx is None):
             return 0
-        return rx.getValue()
+        return radiusx.getValue()
 
     ##
     # Set the radius on the y-axis of the Ellipse
-    # @param rx See above.
-    def setRy(self, ry):
+    # @param radiusy See above.
+    def setRadiusY(self, radiusy):
         shape = self.asIObject()
         if(shape is None):
             raise Exception("No Shape specified.")
-        shape.setRy(rdouble(ry))
+        shape.setRadiusY(rdouble(radiusy))
 
     ##
     # Get the radius of the y-axis of the Ellipse
     # @return See Above.
-    def getRy(self):
+    def getRadiusY(self):
         shape = self.asIObject()
         if(shape is None):
             raise Exception("No Shape specified.")
-        ry = shape.getRy()
-        if(ry is None):
+        radiusy = shape.getRadiusY()
+        if(radiusy is None):
             return 0
-        return ry.getValue()
+        return radiusy.getValue()
 
     ##
     # Transform the point by the affineTransform transform.
@@ -855,19 +784,19 @@ class EllipseData(ShapeData):
     # @return See above.
     #
     def containsPoints(self):
-        cx = self.getCx()
-        cy = self.getCy()
-        rx = self.getRx()
-        ry = self.getRy()
+        x = self.getX()
+        y = self.getY()
+        radiusx = self.getRadiusX()
+        radiusy = self.getRadiusY()
         transform = self.transformToMatrix(self.getTransform())
-        point = numpy.matrix((cx, cy, 1)).transpose()
+        point = numpy.matrix((x, y, 1)).transpose()
         centre = transform * point
-        BL = numpy.matrix((cx - rx, cy + ry, 1)).transpose()
-        BR = numpy.matrix((cx + rx, cy + ry, 1)).transpose()
-        TL = numpy.matrix((cx - rx, cy - ry, 1)).transpose()
-        TR = numpy.matrix((cx + rx, cy - ry, 1)).transpose()
-        MajorAxisLeft = numpy.matrix((cx - rx, cy, 1)).transpose()
-        MajorAxisRight = numpy.matrix((cx + rx, cy, 1)).transpose()
+        BL = numpy.matrix((x - radiusx, y + radiusy, 1)).transpose()
+        BR = numpy.matrix((x + radiusx, y + radiusy, 1)).transpose()
+        TL = numpy.matrix((x - radiusx, y - radiusy, 1)).transpose()
+        TR = numpy.matrix((x + radiusx, y - radiusy, 1)).transpose()
+        MajorAxisLeft = numpy.matrix((x - radiusx, y, 1)).transpose()
+        MajorAxisRight = numpy.matrix((x + radiusx, y, 1)).transpose()
         lb = transform * BL
         rb = transform * BR
         lt = transform * TL
@@ -893,15 +822,16 @@ class EllipseData(ShapeData):
         cy = float(centre[1])
         xrange = range(centredBoundingBox[0][0], centredBoundingBox[1][0])
         yrange = range(centredBoundingBox[0][1], centredBoundingBox[1][1])
-        for x in xrange:
-            for y in yrange:
-                newX = x * math.cos(majorAxisAngle) + y * \
+        for dx in xrange:
+            for dy in yrange:
+                newX = dx * math.cos(majorAxisAngle) + dy * \
                     math.sin(majorAxisAngle)
-                newY = -x * math.sin(majorAxisAngle) + \
-                    y * math.cos(majorAxisAngle)
-                val = (newX * newX) / (rx * rx) + (newY * newY) / (ry * ry)
+                newY = -dx * math.sin(majorAxisAngle) + \
+                    dy * math.cos(majorAxisAngle)
+                val = (newX * newX) / (radiusx * radiusx) + \
+                    (newY * newY) / (radiusy * radiusy)
                 if(val <= 1):
-                    points[(int(x + cx), int(y + cy))] = 1
+                    points[(int(dx + cx), int(dy + cy))] = 1
         return points
 
 ##

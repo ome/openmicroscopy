@@ -151,7 +151,7 @@ public class RatingTaskPaneUI extends AnnotationTaskPaneUI implements
         JButton unrateButton = new JButton(icons.getIcon(IconManager.MINUS_12));
         UIUtilities.unifiedButtonLookAndFeel(unrateButton);
         unrateButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-        unrateButton.setToolTipText("Unrate.");
+        unrateButton.setToolTipText("Delete rating");
         unrateButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 rating.setValue(0);
@@ -204,4 +204,12 @@ public class RatingTaskPaneUI extends AnnotationTaskPaneUI implements
         rating.setEnabled(model.canAddAnnotationLink());
     }
 
+    @Override
+    int getUnfilteredAnnotationCount() {
+        if (model.isMultiSelection()) {
+            return model.getRatingCount(EditorModel.ME);
+        } else {
+            return model.getRatingCount(EditorModel.ALL);
+        }
+    }
 }

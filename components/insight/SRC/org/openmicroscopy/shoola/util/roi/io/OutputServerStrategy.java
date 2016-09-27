@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -18,6 +18,7 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package org.openmicroscopy.shoola.util.roi.io;
 
 import java.awt.Color;
@@ -60,6 +61,7 @@ import omero.gateway.model.ShapeData;
 import omero.gateway.model.ShapeSettingsData;
 import omero.gateway.model.TextData;
 import omero.gateway.model.RectangleData;
+import omero.model.AffineTransformI;
 import omero.model.LengthI;
 import omero.model.enums.UnitsLength;
 
@@ -73,7 +75,7 @@ import omero.model.enums.UnitsLength;
  * @version 3.0
  * @since 3.0-Beta4
  */
-class OutputServerStrategy 
+public class OutputServerStrategy 
 {
 	
 	/** The ROIComponent to serialize. */
@@ -197,6 +199,7 @@ class OutputServerStrategy
 		throws Exception
 	{
 		ROIData roiData = new ROIData();
+		roiData.setUuid(roi.getUUID());
 		roiData.setClientSide(roi.isClientSide());
 		if (!roi.isClientSide())
 			roiData.setId(roi.getID());
@@ -249,7 +252,6 @@ class OutputServerStrategy
 		double cy = fig.getEllipse().getCenterY();
 		
 		EllipseData ellipse = new EllipseData(cx, cy, rx, ry); 
-		ellipse.setVisible(fig.isVisible());
 		String text = fig.getText();
 		if (text != null && text.trim().length() > 0 && 
 				!text.equals(ROIFigure.DEFAULT_TEXT))
@@ -288,7 +290,6 @@ class OutputServerStrategy
 		double cy = fig.getCentre().getY();
 		
 		PointData point = new PointData(cx, cy); 
-		point.setVisible(fig.isVisible());
 		String text = fig.getText();
 		if (text != null && text.trim().length() > 0 && 
 				!text.equals(ROIFigure.DEFAULT_TEXT))
@@ -351,7 +352,6 @@ class OutputServerStrategy
 		if (text != null && text.trim().length() > 0 && 
 				!text.equals(ROIFigure.DEFAULT_TEXT))
 			rectangle.setText(fig.getText());
-		rectangle.setVisible(fig.isVisible());
 		AffineTransform t = AttributeKeys.TRANSFORM.get(fig);
 		if (t != null)
 			rectangle.setTransform(toTransform(t));
@@ -386,7 +386,6 @@ class OutputServerStrategy
 			maskList.add(Integer.valueOf(node.getMask()));
 		}
 		PolygonData poly = new PolygonData();
-		poly.setVisible(fig.isVisible());
 		poly.setPoints(points, points1, points2, maskList);
 		if (t != null)
 			poly.setTransform(toTransform(t));
@@ -417,7 +416,6 @@ class OutputServerStrategy
 			BezierPath.Node end = bezier.get(1);
 			LineData line = new LineData(start.x[0], start.y[0], 
 					end.x[0], end.y[0]);
-			line.setVisible(fig.isVisible());
 			if (t != null) line.setTransform(toTransform(t));
 			String text = fig.getText();
 			if (text != null && text.trim().length() > 0 && 
@@ -438,7 +436,6 @@ class OutputServerStrategy
 			maskList.add(Integer.valueOf(node.getMask()));
 		}
 		PolylineData line = new PolylineData();
-		line.setVisible(fig.isVisible());
 		line.setPoints(points, points1, points2, maskList);
 		if (t != null)
 			line.setTransform(toTransform(t));
@@ -476,7 +473,6 @@ class OutputServerStrategy
 			maskList.add(Integer.valueOf(node.getMask()));
 		}
 		PolylineData poly = new PolylineData();
-		poly.setVisible(fig.isVisible());
 		poly.setPoints(points, points1, points2, maskList);
 		if (t != null)
 			poly.setTransform(toTransform(t));
@@ -546,89 +542,25 @@ class OutputServerStrategy
 			}
 		} else settings.setFontStyle(ShapeSettingsData.FONT_REGULAR);
 	}
-	
-	/**
-	 * Converts an AffineTransform into an SVG transform attribute value as
-	 * specified in
-	 * http://www.w3.org/TR/SVGMobile12/coords.html#TransformAttribute
-	 */
-	private static String toTransform(AffineTransform t)
-			throws ParsingException
-	{
-		StringBuilder buf=new StringBuilder();
-		switch (t.getType())
-		{
-			case AffineTransform.TYPE_IDENTITY:
-				buf.append("none");
-				break;
-			case AffineTransform.TYPE_TRANSLATION:
-				// translate(<tx> [<ty>]), specifies a translation by tx and ty.
-				// If <ty> is not provided, it is assumed to be zero.
-				buf.append("translate(");
-				buf.append(toNumber(t.getTranslateX()));
-				if (t.getTranslateY()!=0d)
-				{
-					buf.append(' ');
-					buf.append(toNumber(t.getTranslateY()));
-				}
-				buf.append(')');
-				break;
-			/*
-			 * case AffineTransform.TYPE_GENERAL_ROTATION : case
-			 * AffineTransform.TYPE_QUADRANT_ROTATION : case
-			 * AffineTransform.TYPE_MASK_ROTATION : // rotate(<rotate-angle> [<cx>
-			 * <cy>]), specifies a rotation by // <rotate-angle> degrees about a
-			 * given point. // If optional parameters <cx> and <cy> are not
-			 * supplied, the // rotate is about the origin of the current user
-			 * coordinate // system. The operation corresponds to the matrix //
-			 * [cos(a) sin(a) -sin(a) cos(a) 0 0]. // If optional parameters
-			 * <cx> and <cy> are supplied, the rotate // is about the point (<cx>,
-			 * <cy>). The operation represents the // equivalent of the
-			 * following specification: // translate(<cx>, <cy>) rotate(<rotate-angle>) //
-			 * translate(-<cx>, -<cy>). buf.append("rotate(");
-			 * buf.append(toNumber(t.getScaleX())); buf.append(')'); break;
-			 */
-			case AffineTransform.TYPE_UNIFORM_SCALE:
-				// scale(<sx> [<sy>]), specifies a scale operation by sx
-				// and sy. If <sy> is not provided, it is assumed to be equal
-				// to <sx>.
-				buf.append("scale(");
-				buf.append(toNumber(t.getScaleX()));
-				buf.append(')');
-				break;
-			case AffineTransform.TYPE_GENERAL_SCALE:
-			case AffineTransform.TYPE_MASK_SCALE:
-				// scale(<sx> [<sy>]), specifies a scale operation by sx
-				// and sy. If <sy> is not provided, it is assumed to be equal
-				// to <sx>.
-				buf.append("scale(");
-				buf.append(toNumber(t.getScaleX()));
-				buf.append(' ');
-				buf.append(toNumber(t.getScaleY()));
-				buf.append(')');
-				break;
-			default:
-				// matrix(<a> <b> <c> <d> <e> <f>), specifies a transformation
-				// in the form of a transformation matrix of six values.
-				// matrix(a,b,c,d,e,f) is equivalent to applying the
-				// transformation matrix [a b c d e f].
-				buf.append("matrix(");
-				double[] matrix = new double[6];
-				t.getMatrix(matrix);
-				for (int i = 0; i < matrix.length; i++)
-				{
-					if (i != 0)
-					{
-						buf.append(' ');
-					}
-					buf.append(toNumber(matrix[i]));
-				}
-				buf.append(')');
-				break;
-		}
-		
-		return buf.toString();
-	}
+
+    /**
+     * Convert an AWT affine transform to an OMERO affine transform.
+     * @param awtTransform an AWT affine transform, never {@code null}
+     * @return the corresponding OMERO affine transform, may be {@code null}
+     */
+    private static omero.model.AffineTransform toTransform(AffineTransform awtTransform) {
+        if (awtTransform.getType() == AffineTransform.TYPE_IDENTITY) {
+            return null;
+        }
+        final omero.model.AffineTransform omeroTransform = new AffineTransformI();
+        omeroTransform.setA00(omero.rtypes.rdouble(awtTransform.getScaleX()));
+        omeroTransform.setA01(omero.rtypes.rdouble(awtTransform.getShearX()));
+        omeroTransform.setA02(omero.rtypes.rdouble(awtTransform.getTranslateX()));
+        omeroTransform.setA10(omero.rtypes.rdouble(awtTransform.getShearY()));
+        omeroTransform.setA11(omero.rtypes.rdouble(awtTransform.getScaleY()));
+        omeroTransform.setA12(omero.rtypes.rdouble(awtTransform.getTranslateY()));
+        return omeroTransform;
+    }
 
 	/**
 	 * Returns a double array as a number attribute value.

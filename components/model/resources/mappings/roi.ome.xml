@@ -2,8 +2,6 @@
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# $Id$
-#
 # Copyright 2009 Glencoe Software, Inc. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
@@ -17,8 +15,7 @@
                         <onemany name="shapes" type="ome.model.roi.Shape" inverse="roi" ordered="true"/>
                         <optional name="image" type="ome.model.core.Image" inverse="rois"/>
                         <optional name="source" type="ome.model.core.OriginalFile"/>
-                        <optional name="namespaces" type="string[]"/>
-                        <optional name="keywords" type="string[][]"/>
+                        <parent name="folderLinks" type="ome.model.containers.FolderRoiLink" target="ome.model.containers.Folder"/>
                 </properties>
         </type>
         <abstract id="ome.model.roi.Shape" discriminator="" annotated="true">
@@ -42,58 +39,25 @@
                                Color keyword : red, blue, black, ...
                         -->
                         <!-- Global -->
-                        <!-- "g" provides limited support for the nestable g
-                              elements in SVG. All shapes with the same roi and the same
-                              g value are in the same group -->
-                        <optional name="g" type="string"/>
-                        <optional name="transform" type="string"/><!-- e.g. [cos(a) sin(a) -sin(a) cos(a) 0 0] -->
-                        <optional name="vectorEffect" type="string"/><!-- non-scaling-stroke, none -->
-                        <optional name="visibility" type="boolean"/>
+                        <optional name="transform" type="ome.model.roi.AffineTransform"/>
                         <!-- Fill -->
                         <optional name="fillColor" type="int"/>
                         <optional name="fillRule" type="string"/><!-- even-odd, nonzero -->
                         <!-- Stroke -->
                         <optional name="strokeColor" type="int"/>
                         <optional name="strokeDashArray" type="string"/><!-- e.g. none, 10 20 30 10 -->
-                        <optional name="strokeDashOffset" type="int"/>
-                        <optional name="strokeLineCap" type="string"/><!-- butt, round, square -->
-                        <optional name="strokeLineJoin" type="string"/><!-- miter, round, bevel -->
-                        <optional name="strokeMiterLimit" type="int"/>
                         <optional name="strokeWidth" type="ome.model.units.Length"/><!-- point default -->
-                        <!-- Font -->
+                        <!-- Font -->  <!-- n.b.: fontFamily is under consideration for removal -->
                         <optional name="fontFamily" type="string"/><!-- e.g. monospace, serif -->
                         <optional name="fontSize" type="ome.model.units.Length"/><!-- point default -->
-                        <optional name="fontStretch" type="string"/><!-- normal, wider, narrower, expanded, ultra-condensed, extra-condensed -->
                         <optional name="fontStyle" type="string"/><!-- normal, italic, oblique -->
-                        <optional name="fontVariant" type="string"/><!-- normal, small-caps -->
-                        <optional name="fontWeight" type="string"/><!-- normal, bold, bolder, lighter, 100, 900 -->
-                         <!-- Marker
-                        To support something of the form:
-                        <marker id="startArrow" viewBox="0 0 10 10" refX="1" refY="5" markerUnits="strokeWidth" orient="auto" markerWidth="5" markerHeight="4">
-                            <polyline points="10,0 0,5 10,10 9,5" fill="darkblue" />
-                        </marker>
-                        We may need a component object or a reference to another shape. For now,
-                        create the polyline at the proper location and group it to the line.
-                        <optional name="markerStart" type="string"/>
-                        <optional name="markerMid" type="string"/>
-                        <optional name="markerEnd" type="string"/>
-                        -->
                 </properties>
         </abstract>
         <type id="ome.model.roi.Label" discriminator="text" superclass="ome.model.roi.Shape">
                 <properties>
-                        <!-- Offset of the text: specifies the coordinates of the top-left
-                             corner of the text box -->
-                        <optional name="x" type="double"/>
-                        <optional name="y" type="double"/>
-                        <!-- Text values -->
+                        <optional name="x" type="double"/>  <!-- left of text box -->
+                        <optional name="y" type="double"/>  <!-- top of text box -->
                         <optional name="textValue" type="text"/>
-                        <optional name="anchor" type="string"/><!-- start, middle, end -->
-                        <optional name="decoration" type="string"/><!-- underline, overline, line-through -->
-                        <optional name="baselineShift" type="string"/><!-- 70%, -70%, 7, sup, sub, normal -->
-                        <optional name="glyphOrientationVertical" type="int"/><!-- 0, 90, 180, 270 -->
-                        <optional name="direction" type="string"/><!-- ltr, rtl -->
-                        <optional name="writingMode" type="string"/><!-- r-tb | rl-tb | tb-rl | lr | rl | tb -->
                  </properties>
         </type>
         <type id="ome.model.roi.Rectangle" discriminator="rect" superclass="ome.model.roi.Shape">
@@ -102,7 +66,6 @@
                         <optional name="y" type="double"/>
                         <optional name="width" type="double"/>
                         <optional name="height" type="double"/>
-                        <optional name="rx" type="double"/>
                         <optional name="textValue" type="text"/>
                 </properties>
         </type>
@@ -119,24 +82,24 @@
         </type>
         <type id="ome.model.roi.Ellipse" discriminator="ellipse" superclass="ome.model.roi.Shape">
                 <properties>
-                        <optional name="cx" type="double"/>
-                        <optional name="cy" type="double"/>
-                        <optional name="rx" type="double"/>
-                        <optional name="ry" type="double"/>
+                        <optional name="x" type="double"/>
+                        <optional name="y" type="double"/>
+                        <optional name="radiusX" type="double"/>
+                        <optional name="radiusY" type="double"/>
                         <optional name="textValue" type="text"/>
                 </properties>
         </type>
         <type id="ome.model.roi.Point" discriminator="point" superclass="ome.model.roi.Shape">
                 <properties>
-                        <optional name="cx" type="double"/>
-                        <optional name="cy" type="double"/>
+                        <optional name="x" type="double"/>
+                        <optional name="y" type="double"/>
                         <optional name="textValue" type="text"/>
                 </properties>
         </type>
         <type id="ome.model.roi.Path" discriminator="path" superclass="ome.model.roi.Shape">
                 <properties>
                         <optional name="d" type="text"/><!-- e.g. "M 100 100 L 300 100 L 200 300 z" -->
-                         <optional name="textValue" type="text"/>
+                        <optional name="textValue" type="text"/>
                </properties>
         </type>
         <type id="ome.model.roi.Polygon" discriminator="polygon" superclass="ome.model.roi.Shape">
@@ -148,6 +111,8 @@
         <type id="ome.model.roi.Polyline" discriminator="polyline" superclass="ome.model.roi.Shape">
                 <properties>
                         <optional name="points" type="text"/>
+                        <optional name="markerStart" type="string"/>  <!-- only "Arrow" at present -->
+                        <optional name="markerEnd"   type="string"/>  <!-- only "Arrow" at present -->
                         <optional name="textValue" type="text"/>
                 </properties>
         </type>
@@ -157,7 +122,22 @@
                         <optional name="y1" type="double"/>
                         <optional name="x2" type="double"/>
                         <optional name="y2" type="double"/>
+                        <optional name="markerStart" type="string"/>  <!-- only "Arrow" at present -->
+                        <optional name="markerEnd"   type="string"/>  <!-- only "Arrow" at present -->
                         <optional name="textValue" type="text"/>
+                </properties>
+        </type>
+        <type id="ome.model.roi.AffineTransform">
+                <!-- A00 A01 A02 -->
+                <!-- A10 A11 A12 -->
+                <!--  0   0   1  -->
+                <properties>
+                        <required name="a00" type="double"/>  <!-- x scaling -->
+                        <required name="a10" type="double"/>  <!-- y shearing -->
+                        <required name="a01" type="double"/>  <!-- x shearing -->
+                        <required name="a11" type="double"/>  <!-- y scaling -->
+                        <required name="a02" type="double"/>  <!-- x translation -->
+                        <required name="a12" type="double"/>  <!-- y translation -->
                 </properties>
         </type>
         <!-- MISSING:

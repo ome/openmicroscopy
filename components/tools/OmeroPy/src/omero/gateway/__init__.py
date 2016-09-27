@@ -1043,7 +1043,7 @@ class BlitzObjectWrapper (object):
                 clone = self.__class__(newConn, self._obj)
                 ann = clone._linkAnnotation(ann)
                 if newConn != self._conn:
-                    newConn.seppuku()
+                    newConn.close()
             elif d.getGroup():
                 # Try to match group
                 # TODO: Should switch session of this object to use group from
@@ -1748,10 +1748,16 @@ class _BlitzGateway (object):
     def seppuku(self, softclose=False):  # pragma: no cover
         """
         Terminates connection with killSession(). If softclose is False, the
-        session is really terminate disregarding its connection refcount.
+        session is really terminated disregarding its connection refcount.
+        If softclose is True then the connection refcount is decremented by 1.
 
         :param softclose:   Boolean
+
+        ** Deprecated ** Use :meth:`close`.
+        Our apologies for any offense caused by this previous method name.
         """
+        warnings.warn("Deprecated. Use close()",
+                      DeprecationWarning)
         self._connected = False
         oldC = self.c
         if oldC is not None:
@@ -1767,6 +1773,24 @@ class _BlitzGateway (object):
                         oldC.closeSession()
                 else:
                     self._closeSession()
+            finally:
+                oldC.__del__()
+                oldC = None
+                self.c = None
+
+        self._proxies = NoProxies()
+        logger.info("closed connecion (uuid=%s)" % str(self._sessionUuid))
+
+    def close(self):  # pragma: no cover
+        """
+        Terminates connection with killSession(). The session is terminated
+        regardless of its connection refcount.
+        """
+        self._connected = False
+        oldC = self.c
+        if oldC is not None:
+            try:
+                self._closeSession()
             finally:
                 oldC.__del__()
                 oldC = None
@@ -3111,7 +3135,6 @@ class _BlitzGateway (object):
             toExclude.append(omero.constants.namespaces.NSCOMPANIONFILE)
             toExclude.append(omero.constants.annotation.file.ORIGINALMETADATA)
             toExclude.append(omero.constants.namespaces.NSEXPERIMENTERPHOTO)
-            toExclude.append(omero.constants.analysis.flim.NSFLIM)
 
         anns = self.getMetadataService().loadSpecifiedAnnotations(
             "FileAnnotation", toInclude, toExclude, params, self.SERVICE_OPTS)
@@ -6695,6 +6718,22 @@ class _ChannelWrapper (BlitzObjectWrapper):
         return ColorHolder.fromRGBA(
             *self._re.getRGBA(self._idx, self._conn.SERVICE_OPTS))
 
+    def getLut(self):
+        """
+        Returns the Lookup Table name for the Channel.
+        E.g. "cool.lut" or None if no LUT.
+
+        :return:    Lut name.
+        :rtype:     String
+        """
+
+        if self._re is None:
+            return None
+        lut = self._re.getChannelLookupTable(self._idx)
+        if not lut or len(lut) == 0:
+            return None
+        return lut
+
     def getWindowStart(self):
         """
         Returns the rendering settings window-start of this channel
@@ -6913,7 +6952,10 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
 
         t = unwrap(self._obj.acquisitionDate)
         if t is not None and t > 0:
-            return datetime.fromtimestamp(t/1000)
+            try:
+                return datetime.fromtimestamp(t/1000)
+            except ValueError:
+                return None
 
     def getInstrument(self):
         """
@@ -7472,19 +7514,25 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
 
         pixels_id = self._obj.getPrimaryPixels().getId().val
         rp = self._conn.createRawPixelsStore()
-        rp.setPixelsId(pixels_id, True, self._conn.SERVICE_OPTS)
-        pmax = 2 ** (8 * rp.getByteWidth())
-        if rp.isSigned():
-            return (-(pmax / 2), pmax / 2 - 1)
-        else:
-            return (0, pmax-1)
+        try:
+            rp.setPixelsId(pixels_id, True, self._conn.SERVICE_OPTS)
+            pmax = 2 ** (8 * rp.getByteWidth())
+            if rp.isSigned():
+                return (-(pmax / 2), pmax / 2 - 1)
+            else:
+                return (0, pmax-1)
+        finally:
+            rp.close()
 
     @assert_pixels
     def requiresPixelsPyramid(self):
         pixels_id = self._obj.getPrimaryPixels().getId().val
         rp = self._conn.createRawPixelsStore()
-        rp.setPixelsId(pixels_id, True, self._conn.SERVICE_OPTS)
-        return rp.requiresPixelsPyramid()
+        try:
+            rp.setPixelsId(pixels_id, True, self._conn.SERVICE_OPTS)
+            return rp.requiresPixelsPyramid()
+        finally:
+            rp.close()
 
     @assert_pixels
     def getPrimaryPixels(self):
@@ -7643,10 +7691,15 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                         c, float(windows[idx][0]), float(windows[idx][1]),
                         self._conn.SERVICE_OPTS)
                 if colors is not None and colors[idx]:
-                    rgba = splitHTMLColor(colors[idx])
-                    if rgba:
-                        self._re.setRGBA(
-                            c, *(rgba + [self._conn.SERVICE_OPTS]))
+                    if colors[idx].endswith('.lut'):
+                        self._re.setChannelLookupTable(c, colors[idx])
+                    else:
+                        rgba = splitHTMLColor(colors[idx])
+                        if rgba:
+                            self._re.setRGBA(
+                                c, *(rgba + [self._conn.SERVICE_OPTS]))
+                            # disable LUT
+                            self._re.setChannelLookupTable(c, None)
             if (c+1 in abs_channels):
                 idx += 1
         return True
@@ -7764,34 +7817,37 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         rv = []
         pixels_id = self._obj.getPrimaryPixels().getId().val
         rp = self._conn.createRawPixelsStore()
-        rp.setPixelsId(pixels_id, True, self._conn.SERVICE_OPTS)
-        for c in channels:
-            bw = rp.getByteWidth()
-            key = self.LINE_PLOT_DTYPES.get(
-                (bw, rp.isFloat(), rp.isSigned()), None)
-            if key is None:
-                logger.error(
-                    "Unknown data type: "
-                    + str((bw, rp.isFloat(), rp.isSigned())))
-            plot = array.array(key, (axis == 'h'
-                               and rp.getRow(pos, z, c, t)
-                               or rp.getCol(pos, z, c, t)))
-            plot.byteswap()  # TODO: Assuming ours is a little endian system
-            # now move data into the windowMin..windowMax range
-            offset = -chw[c][0]
-            if offset != 0:
-                plot = map(lambda x: x+offset, plot)
-            try:
-                normalize = 1.0/chw[c][1]*(range-1)
-            except ZeroDivisionError:
-                # This channel has zero sized window, no plot here
-                continue
-            if normalize != 1.0:
-                plot = map(lambda x: x*normalize, plot)
-            if isinstance(plot, array.array):
-                plot = plot.tolist()
-            rv.append(plot)
-        return rv
+        try:
+            rp.setPixelsId(pixels_id, True, self._conn.SERVICE_OPTS)
+            for c in channels:
+                bw = rp.getByteWidth()
+                key = self.LINE_PLOT_DTYPES.get(
+                    (bw, rp.isFloat(), rp.isSigned()), None)
+                if key is None:
+                    logger.error(
+                        "Unknown data type: "
+                        + str((bw, rp.isFloat(), rp.isSigned())))
+                plot = array.array(key, (axis == 'h'
+                                   and rp.getRow(pos, z, c, t)
+                                   or rp.getCol(pos, z, c, t)))
+                plot.byteswap()  # TODO: Assuming ours is a little endian
+                # system now move data into the windowMin..windowMax range
+                offset = -chw[c][0]
+                if offset != 0:
+                    plot = map(lambda x: x+offset, plot)
+                try:
+                    normalize = 1.0/chw[c][1]*(range-1)
+                except ZeroDivisionError:
+                    # This channel has zero sized window, no plot here
+                    continue
+                if normalize != 1.0:
+                    plot = map(lambda x: x*normalize, plot)
+                if isinstance(plot, array.array):
+                    plot = plot.tolist()
+                rv.append(plot)
+            return rv
+        finally:
+            rp.close()
 
     def getRow(self, z, t, y, channels=None, range=None):
         """

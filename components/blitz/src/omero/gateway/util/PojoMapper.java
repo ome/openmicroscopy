@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -25,6 +25,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -49,6 +50,7 @@ import omero.model.ExperimenterGroup;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.Fileset;
+import omero.model.Folder;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
@@ -93,6 +95,7 @@ import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.FileAnnotationData;
 import omero.gateway.model.FileData;
 import omero.gateway.model.FilesetData;
+import omero.gateway.model.FolderData;
 import omero.gateway.model.GroupData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.LineData;
@@ -164,6 +167,8 @@ public class PojoMapper
             return new ProjectData((Project) object);
         else if (object instanceof Dataset) 
             return new DatasetData((Dataset) object);
+        else if (object instanceof Folder) 
+            return new FolderData((Folder) object);
         else if (object instanceof Image) 
             return new ImageData((Image) object);
         else if (object instanceof TermAnnotation)
@@ -225,6 +230,8 @@ public class PojoMapper
      * @return A set of {@link DataObject}s.
      * @throws IllegalArgumentException If the set is <code>null</code>, doesn't
      * contain {@link IObject} or if the type {@link IObject} is unknown.
+     * 
+     * @deprecated Use {@link #convertToDataObjects(Collection)} instead
      */
     public static Set asDataObjects(Collection objects)
     {
@@ -247,6 +254,30 @@ public class PojoMapper
      * @return A set of {@link DataObject}s.
      * @throws IllegalArgumentException If the set is <code>null</code>, doesn't
      * contain {@link IObject} or if the type {@link IObject} is unknown.
+     */
+    public static <T extends DataObject> Collection<T> convertToDataObjects(Collection objects)
+    {
+        if (objects == null) return Collections.EMPTY_LIST;
+        Collection<T> result = new ArrayList<T>(objects.size());
+        Iterator i = objects.iterator();
+        DataObject data;
+        while (i.hasNext()) {
+            data = asDataObject((IObject) i.next());
+            if (data != null) result.add(((T)data));
+        }
+        return result;
+    }
+    
+    /**
+     * Converts each {@link IObject element} of the collection into its 
+     * corresponding {@link DataObject}.
+     *
+     * @param objects The set of objects to convert.
+     * @return A set of {@link DataObject}s.
+     * @throws IllegalArgumentException If the set is <code>null</code>, doesn't
+     * contain {@link IObject} or if the type {@link IObject} is unknown.
+     * 
+     * @deprecated Use {@link #convertToDataObjects(Collection)} instead 
      */
     public static List asDataObjectsAsList(Collection objects)
     {
@@ -273,7 +304,7 @@ public class PojoMapper
     public static <T extends DataObject> Collection<T> asCastedDataObjects(List objects)
     {
         if (objects == null) return new HashSet<T>();
-        Set<T> set = new HashSet<T>(objects.size());
+        Collection<T> set = new ArrayList<T>(objects.size());
         Iterator i = objects.iterator();
         DataObject data;
         while (i.hasNext()) {
@@ -292,6 +323,8 @@ public class PojoMapper
      * @return A set of {@link DataObject}s.
      * @throws IllegalArgumentException If the set is <code>null</code>, doesn't
      * contain {@link IObject} or if the type {@link IObject} is unknown.
+     * 
+     * @deprecated Use {@link #convertToDataObjects(Collection)} instead 
      */
     public static Set asDataObjects(List objects)
     {
@@ -314,6 +347,8 @@ public class PojoMapper
      * @return A set of {@link DataObject}s.
      * @throws IllegalArgumentException If the set is <code>null</code>, doesn't
      * contain {@link IObject} or if the type {@link IObject} is unknown.
+     * 
+     * @deprecated Use {@link #convertToDataObjects(Collection)} instead
      */
     public static Set asDataObjects(IObject[] objects)
     {
@@ -408,6 +443,8 @@ public class PojoMapper
      *
      * @param nodeType The type to convert.
      * @return See above.
+     * 
+     * @deprecated Not used.
      */
     public static String convertTypeForSearchByQuery(Class nodeType) {
         if (nodeType.equals(Image.class) || nodeType.equals(ImageData.class))
@@ -429,6 +466,14 @@ public class PojoMapper
         throw new IllegalArgumentException("type not supported");
     }
 
+    /**
+     * Get the pojo type for a an {@link IObject} class
+     * (Reverse of {@link #getModelType(Class)})
+     * 
+     * @param modelType
+     *            The {@link IObject}
+     * @return See above
+     */
     public static Class<? extends DataObject> getPojoType(Class<? extends IObject> modelType) {
         if (OriginalFile.class.equals(modelType))
             return FileData.class;
@@ -477,7 +522,8 @@ public class PojoMapper
     }
 
     /**
-     * Converts the specified POJO into the corresponding model class
+     * Converts the specified POJO into the corresponding model class,
+     * see {@link #getModelType(Class)}
      *
      * @param pojoType
      *            The POJO class (Either the simple or the full
@@ -496,6 +542,8 @@ public class PojoMapper
                 pojoType = ProjectData.class.getName();
             else if (DatasetData.class.getSimpleName().equals(pojoType))
                 pojoType = DatasetData.class.getName();
+            else if (FolderData.class.getSimpleName().equals(pojoType))
+                pojoType = FolderData.class.getName();
             else if (ImageData.class.getSimpleName().equals(pojoType))
                 pojoType = ImageData.class.getName();
             else if (BooleanAnnotationData.class.getSimpleName().equals(
@@ -541,6 +589,8 @@ public class PojoMapper
                 pojoType = FilesetData.class.getName();
             else if (MapAnnotationData.class.getSimpleName().equals(pojoType))
                 pojoType = MapAnnotationData.class.getName();
+            else if (ROIData.class.getSimpleName().equals(pojoType))
+                pojoType = ROIData.class.getName();
             else if (EllipseData.class.getSimpleName().equals(pojoType))
                 pojoType = EllipseData.class.getName();
             else if (LineData.class.getSimpleName().equals(pojoType))
@@ -568,12 +618,12 @@ public class PojoMapper
     
     /**
      * Converts the specified POJO into the corresponding model class.
-     *
+     * (Reverse of {@link #getPojoType(Class)})
      * @param pojoType
      *            The POJO class.
      * @return The corresponding {@link IObject} class.
      */
-    public static Class<? extends IObject> getModelType(Class pojoType) {
+    public static Class<? extends IObject> getModelType(Class<? extends DataObject> pojoType) {
         if (!DataObject.class.isAssignableFrom(pojoType))
             throw new IllegalArgumentException(pojoType.getSimpleName()+" is not a DataObject");
 
@@ -583,6 +633,8 @@ public class PojoMapper
             return Project.class;
         else if (DatasetData.class.equals(pojoType))
             return Dataset.class;
+        else if (FolderData.class.equals(pojoType))
+            return Folder.class;
         else if (ImageData.class.equals(pojoType))
             return Image.class;
         else if (BooleanAnnotationData.class.equals(pojoType))
@@ -622,6 +674,8 @@ public class PojoMapper
             return Fileset.class;
         else if (MapAnnotationData.class.equals(pojoType))
             return MapAnnotation.class;
+        else if (ROIData.class.equals(pojoType))
+            return Roi.class;
         else if (EllipseData.class.equals(pojoType))
             return Ellipse.class;
         else if (LineData.class.equals(pojoType))
@@ -646,7 +700,7 @@ public class PojoMapper
      * Returns the name of the data type which has to used for Graph actions,
      * see {@link Requests}
      *
-     * @param dataType
+     * @param dataType The pojo type
      * @return See above
      */
     public static String getGraphType(Class<? extends DataObject> dataType) {
@@ -664,6 +718,8 @@ public class PojoMapper
             return Plate.class.getSimpleName();
         if (dataType.equals(PlateAcquisitionData.class))
             return PlateAcquisition.class.getSimpleName();
+        if (dataType.equals(FolderData.class))
+            return Folder.class.getSimpleName();
 
         // annotations
         if (dataType.equals(AnnotationData.class))

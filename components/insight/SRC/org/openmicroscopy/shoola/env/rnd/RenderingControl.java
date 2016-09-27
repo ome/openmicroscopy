@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.env.rnd;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -839,4 +840,39 @@ public interface RenderingControl
 	 */
 	List<ResolutionLevel> getResolutionDescriptions()
 		throws RenderingServiceException, DSOutOfServiceException;
+	
+    /**
+     * Get all available lookup tables
+     * 
+     * @return See above
+     */
+    Collection<String> getAvailableLookupTables();
+	
+    /**
+     * Get the lookup table
+     * 
+     * @param w
+     *            The channel index
+     * @return See above
+     */
+    String getLookupTable(int w);
+
+    /**
+     * Set the lookup table
+     * 
+     * @param w
+     *            The channel index
+     * @param lut
+     *            The lookup table
+     */
+    void setLookupTable(int w, String lut) throws RenderingServiceException,
+            DSOutOfServiceException;
+
+    /**
+     * Set the available lookup tables
+     * 
+     * @param lookupTables
+     *            The lookup tables
+     */
+    void setAvailableLookupTables(Collection<String> lookupTables);
 }

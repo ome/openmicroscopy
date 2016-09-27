@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2016 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -63,7 +63,9 @@ import omero.model.OriginalFile;
  * Calculate the disk usage entailed by the given objects.
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.1.0
+ * @deprecated will be removed in OMERO 5.4, use {@code DiskUsage2} instead
  */
+@Deprecated
 @SuppressWarnings("serial")
 public class DiskUsageI extends DiskUsage implements IRequest {
     /* TODO: This class can be substantially refactored and simplified by using the graph traversal reimplementation. */
@@ -108,6 +110,12 @@ public class DiskUsageI extends DiskUsage implements IRequest {
                 "SELECT child.id FROM ProjectDatasetLink WHERE parent.id IN (:ids)"));
         builder.put("Dataset", Maps.immutableEntry("Image",
                 "SELECT child.id FROM DatasetImageLink WHERE parent.id IN (:ids)"));
+        builder.put("Folder", Maps.immutableEntry("Image",
+                "SELECT child.id FROM FolderImageLink WHERE parent.id IN (:ids)"));
+        builder.put("Folder", Maps.immutableEntry("Roi",
+                "SELECT child.id FROM FolderRoiLink WHERE parent.id IN (:ids)"));
+        builder.put("Folder", Maps.immutableEntry("Folder",
+                "SELECT id FROM Folder WHERE parentFolder.id IN (:ids)"));
         builder.put("Screen", Maps.immutableEntry("Plate",
                 "SELECT child.id FROM ScreenPlateLink WHERE parent.id IN (:ids)"));
         builder.put("Plate", Maps.immutableEntry("Well",
@@ -184,6 +192,7 @@ public class DiskUsageI extends DiskUsage implements IRequest {
         builder.add("Dichroic");
         builder.add("Fileset");
         builder.add("Filter");
+        builder.add("Folder");
         builder.add("Image");
         builder.add("LogicalChannel");
         builder.add("Instrument");
@@ -218,6 +227,7 @@ public class DiskUsageI extends DiskUsage implements IRequest {
         builder.add("ExperimenterGroup");
         builder.add("Fileset");
         builder.add("Filter");
+        builder.add("Folder");
         builder.add("Image");
         builder.add("Instrument");
         builder.add("LightPath");

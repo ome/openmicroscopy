@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -733,11 +733,17 @@ public class DataServicesFactory
      */
 	public void shutdown(SecurityContext ctx)
     { 
-		//Need to write the current group.
-		//if (!omeroGateway.isConnected()) return;
-		if (omeroGateway != null) omeroGateway.logout();
-		DataServicesFactory.registry.getCacheService().clearAllCaches();
-		PixelsServicesFactory.shutDownRenderingControls(container.getRegistry());
+        try {
+            if (omeroGateway != null)
+                omeroGateway.logout();
+            DataServicesFactory.registry.getCacheService().clearAllCaches();
+            PixelsServicesFactory.shutDownRenderingControls(container
+                    .getRegistry());
+        } catch (Exception e) {
+            LogMessage msg = new LogMessage(
+                    "Could not properly shutdown OMERO connection", e);
+            container.getRegistry().getLogger().error(this, msg);
+        }
         singleton = null;
         omeroGateway = null;
     }

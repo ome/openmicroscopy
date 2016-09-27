@@ -1,8 +1,6 @@
 /*
- *
  *------------------------------------------------------------------------------
- * Copyright (C) 2006-2009 University of Dundee. All rights reserved.
- *
+ * Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +17,7 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package omero.gateway.model;
 
 import java.awt.geom.Point2D;
@@ -26,10 +25,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import omero.RBool;
 import omero.rtypes;
 import omero.RInt;
-import omero.RString;
+import omero.model.AffineTransform;
 import omero.model.IObject;
 import omero.model.Polygon;
 import omero.model.Polyline;
@@ -397,14 +395,12 @@ public abstract class ShapeData
      *
      * @return See above.
      */
-    public String getTransform()
+    public AffineTransform getTransform()
     {
         Shape shape = (Shape) asIObject();
         if (shape == null) 
             throw new IllegalArgumentException("No shape specified.");
-        RString value = shape.getTransform();
-        if (value == null) return "";
-        return value.getValue();
+        return shape.getTransform();
     }
 
     /**
@@ -412,13 +408,12 @@ public abstract class ShapeData
      * 
      * @param transform The transform to set.
      */
-    public void setTransform(String transform)
+    public void setTransform(AffineTransform transform)
     {
         Shape shape = (Shape) asIObject();
         if (shape == null) 
             throw new IllegalArgumentException("No shape specified.");
-        if (transform == null) return;
-        shape.setTransform(rtypes.rstring(transform));
+        shape.setTransform(transform);
         setDirty(true);
     }
 
@@ -432,35 +427,4 @@ public abstract class ShapeData
     {
         super.setDirty(dirty);
     }
-
-    /**
-     * Returns <code>true</code> if the shape is visible, <code>false</code>
-     * otherwise.
-     *
-     * @return See above.
-     */
-    public boolean isVisible()
-    {
-        Shape shape = (Shape) asIObject();
-        if (shape == null) return false;
-        RBool b = shape.getVisibility();
-        if (b == null) return true;
-        return b.getValue();
-    }
-
-    /**
-     * Sets to <code>true</code> if the shape is visible, <code>false</code>
-     * otherwise.
-     *
-     * @param visible The value to set.
-     */
-    public void setVisible(boolean visible)
-    {
-        Shape shape = (Shape) asIObject();
-        if (shape == null) 
-            throw new IllegalArgumentException("No shape specified.");
-        shape.setVisibility(rtypes.rbool(visible));
-        setDirty(true);
-    }
-
 }

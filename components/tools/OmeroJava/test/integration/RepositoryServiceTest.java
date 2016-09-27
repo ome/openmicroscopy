@@ -6,11 +6,10 @@
  */
 package integration;
 
-import static org.testng.AssertJUnit.assertTrue;
-
 import omero.InternalException;
 import omero.api.IRepositoryInfoPrx;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
@@ -35,7 +34,7 @@ public class RepositoryServiceTest extends AbstractServerTest {
     @Test
     public void testFreeSpace() throws Exception {
         IRepositoryInfoPrx svc = root.getSession().getRepositoryInfoService();
-        assertTrue(svc.getFreeSpaceInKilobytes() > 0);
+        Assert.assertTrue(svc.getFreeSpaceInKilobytes() > 0);
     }
 
     /**

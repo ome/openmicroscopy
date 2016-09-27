@@ -393,6 +393,7 @@ class EditorUI
 			metadata = acquisitionPane.prepareDataToSave();
 
 		model.fireAnnotationSaving(object, metadata, async);
+		toolBar.setStatus(true);
 	}
 
 	/** Shows the image's info. */
@@ -612,7 +613,9 @@ class EditorUI
 	 */
 	void handleObjectsSelection(Class<?> type, Collection objects)
 	{
-		if (objects == null) return;
+		if (objects == null)
+		    return;
+		
 		List<Object> selection = new ArrayList<Object>();
 		if (CollectionUtils.isNotEmpty(objects)) {
 		    selection.addAll(objects);
@@ -672,7 +675,7 @@ class EditorUI
 		if (model.isAdministrator() || model.isGroupLeader()) {
 			if (docMenu == null) {
 				docMenu = new PermissionMenu(PermissionMenu.REMOVE,
-						"Attachments");
+						"Files");
 				docMenu.addPropertyChangeListener(new PropertyChangeListener() {
 					
 					public void propertyChange(PropertyChangeEvent evt) {
@@ -689,8 +692,8 @@ class EditorUI
 		}
 		SwingUtilities.convertPointToScreen(location, src);
 		MessageBox box = new MessageBox(model.getRefFrame(),
-				"Remove All Attachments", 
-				"Are you sure you want to remove all Attachments?");
+				"Remove all files", 
+				"Are you sure you want to remove all files?");
 		Dimension d = box.getPreferredSize();
 		Point p = new Point(location.x-d.width/2, location.y);
 		if (box.showMsgBox(p) == MessageBox.YES_OPTION) {
@@ -812,13 +815,6 @@ class EditorUI
 		}
 		tabPane.addChangeListener(controller);
 	}
-
-	/**
-	 * Analyzes the data. 
-	 * 
-	 * @param index The index identifying the analysis to perform.
-	 */
-	void analyse(int index) { model.analyse(index); }
 
 	/** Sets the instrument and its components. */
 	void setInstrumentData() { acquisitionPane.setInstrumentData(); }
