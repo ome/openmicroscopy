@@ -24,14 +24,13 @@ Decorators for use with the webclient application.
 """
 
 import logging
-import json
 
 import omeroweb.decorators
 from omero import constants
 
 from django.http import HttpResponse
 from django.conf import settings
-from django.core.urlresolvers import reverse, NoReverseMatch
+from django.core.urlresolvers import reverse
 
 from omeroweb.webclient.forms import GlobalSearchForm
 
@@ -193,34 +192,3 @@ class render_response(omeroweb.decorators.render_response):
                 "label": label, "include": include, "plugin_id": plugin_id})
         context['ome']['center_plugins'] = c_plugins
 
-        open_with = settings.OPEN_WITH
-        viewers = []
-        openwith_scripts = []
-        for ow in open_with:
-            if len(ow) < 2:
-                continue
-            viewer = {}
-            viewer['label'] = ow[0]
-            try:
-                viewer['url'] = reverse(ow[1])
-            except NoReverseMatch:
-                viewer['url'] = ow[1]
-            # try non-essential parameters...
-            # By default, we support single image, opening in new window
-            viewer['objects'] = ['image']
-            viewer['open'] = 'window'
-            try:
-                if len(ow) > 2:
-                    if 'objects' in ow[2]:
-                        viewer['objects'] = ow[2]['objects']
-                    if 'target' in ow[2]:
-                        viewer['target'] = ow[2]['target']
-                    if 'script' in ow[2]:
-                        openwith_scripts.append(ow[2]['script'])
-            except:
-                # ignore invalid params
-                pass
-            viewers.append(viewer)
-        viewers = json.dumps(viewers)
-        context['ome']['open_with'] = viewers
-        context['ome']['open_with_scripts'] = openwith_scripts

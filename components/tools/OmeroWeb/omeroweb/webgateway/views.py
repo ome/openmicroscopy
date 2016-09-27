@@ -22,7 +22,7 @@ from django.http import HttpResponse, HttpResponseServerError
 from django.http import HttpResponseRedirect, HttpResponseNotAllowed, Http404
 from django.template import loader as template_loader
 from django.views.decorators.http import require_POST
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, NoReverseMatch
 from django.conf import settings
 from django.template import RequestContext as Context
 from django.core.servers.basehttp import FileWrapper
@@ -32,6 +32,7 @@ from omero.util.ROI_utils import pointsStringToXYlist, xyListToBbox
 from plategrid import PlateGrid
 from omero_version import build_year
 from marshal import imageMarshal, shapeMarshal, rgb_int2rgba
+from django.contrib.staticfiles.templatetags.staticfiles import static
 
 try:
     from hashlib import md5
@@ -1514,6 +1515,43 @@ def projectDetail_json(request, pid, conn=None, **kwargs):
     pr = conn.getObject("Project", pid)
     rv = pr.simpleMarshal()
     return rv
+
+@jsonp
+def open_with_options(request, **kwargs):
+    """
+    Make the settings.OPEN_WITH available via JSON
+    """
+    open_with = settings.OPEN_WITH
+    viewers = []
+    for ow in open_with:
+        if len(ow) < 2:
+            continue
+        viewer = {}
+        viewer['label'] = ow[0]
+        try:
+            viewer['url'] = reverse(ow[1])
+        except NoReverseMatch:
+            viewer['url'] = ow[1]
+        # try non-essential parameters...
+        # By default, we support single image, opening in new window
+        viewer['supported_objects'] = ['image']
+        try:
+            if len(ow) > 2:
+                print ow[2]
+                if 'objects' in ow[2]:
+                    viewer['supported_objects'] = ow[2]['objects']
+                if 'target' in ow[2]:
+                    viewer['target'] = ow[2]['target']
+                if 'script_url' in ow[2]:
+                    try:
+                        viewer['script_url'] = static(ow[2]['script_url'])
+                    except NoReverseMatch:
+                        viewer['script_url'] = ow[2]['script_url']
+        except:
+            # ignore invalid params
+            pass
+        viewers.append(viewer)
+    return {'open_with_options': viewers}
 
 
 def searchOptFromRequest(request):

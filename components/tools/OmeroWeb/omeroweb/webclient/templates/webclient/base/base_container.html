@@ -199,10 +199,18 @@
 
         // ** "Open With" config used by E.g. ome.tree.js **
         WEBCLIENT.OPEN_WITH = [];
-        {% if ome.open_with %}
-            // This is a json dump, so we can add it directly without escaping
-            WEBCLIENT.OPEN_WITH = {{ ome.open_with|safe }};
-        {% endif %}
+        $.getJSON("{% url 'webgateway.views.open_with_options' %}", function(data){
+            if (data && data.open_with_options) {
+                WEBCLIENT.OPEN_WITH = data.open_with_options;
+
+                WEBCLIENT.OPEN_WITH.forEach(function(ow){
+                    if (ow.script_url) {
+                        $.getScript(ow.script_url);
+                    }
+                })
+            }
+        });
+
         // Helper can be used by 'open with' plugins to add isEnabled()
         // handlers to the OPEN_WITH object.
         OME.setOpenWithEnabledHandler = function(label, fn) {
@@ -213,7 +221,7 @@
                         // wrap fn with try/catch, return true by default
                         var args = Array.from(arguments);
                         try {
-                            enabled = fn(args);
+                            enabled = fn.apply(this, args);
                         } catch (e) {
                             console.log("Open with " + label + ": " + e);
                             enabled = true;
@@ -241,14 +249,6 @@
                 }
             });
         };
-        // Include any JavaScript snippets provided by 'open with' plugins
-        {% for ow in ome.open_with_scripts %}
-            (function(){
-                // Wrap them in self-executing function
-                {% include ow %}
-            }());
-        {% endfor %}
-
 
         $(document).ready(function(){
             // initially hidden

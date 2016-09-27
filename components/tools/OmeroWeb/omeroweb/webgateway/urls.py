@@ -406,6 +406,9 @@ Get a json dict of original file paths.
 'client' is a list of paths for original files on the client when imported
 """
 
+open_with_options = url(r'^open_with/$', 'webgateway.views.open_with_options',
+                        name='open_with_options')
+
 urlpatterns = patterns(
     '',
     webgateway,
@@ -454,7 +457,7 @@ urlpatterns = patterns(
     annotations,
     table_query,
     object_table_query,
-
+    open_with_options,
     # Debug stuff
 
 )

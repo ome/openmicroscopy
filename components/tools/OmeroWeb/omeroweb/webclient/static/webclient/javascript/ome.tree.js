@@ -959,7 +959,6 @@ $(function() {
                         }
                     }
                 };
-
                 if (WEBCLIENT.OPEN_WITH.length > 0) {
                     // build a submenu of viewers...
                     var viewers = WEBCLIENT.OPEN_WITH.map(function(v){
@@ -988,10 +987,9 @@ $(function() {
                                     if (!eventBubbled) return;
                                 }
                                 // ...otherwise we use default handling...
-                                if (v.target && v.target === 'tab') {
-                                    // tries to open in a new tab (not reliable)
-                                    // see http://stackoverflow.com/questions/4907843/open-a-url-in-a-new-tab-and-not-a-new-window-using-javascript
-                                    window.open(url,'_blank');
+                                if (v.target) {
+                                    // E.g. target '_blank' tries to open in a new tab
+                                    window.open(url, v.target);
                                 } else {
                                     OME.openPopup(url);
                                 }
@@ -1016,8 +1014,8 @@ $(function() {
                                     return !enabled;
                                 }
                                 // ...Otherwise use the supported objects list
-                                // v.objects is ['image'] or ['dataset', 'images']
-                                enabled = v.objects.reduce(function(prev, o){
+                                // v.supported_objects is ['image'] or ['dataset', 'images']
+                                enabled = v.supported_objects.reduce(function(prev, o){
                                     return prev || o.indexOf(selType) > -1;
                                 }, false);
                                 return !enabled;
