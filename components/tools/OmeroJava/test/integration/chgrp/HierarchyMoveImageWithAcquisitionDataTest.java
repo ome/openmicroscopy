@@ -24,7 +24,6 @@ package integration.chgrp;
 import integration.AbstractServerTest;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 import ome.specification.XMLMockObjects;
@@ -135,8 +134,6 @@ public class HierarchyMoveImageWithAcquisitionDataTest extends
 
         Image savedImage = (Image) iUpdate.saveAndReturnObject(sourceImage);
         long originalImageId = savedImage.getId().getValue();
-        List<Long> imageIds = new ArrayList<Long>(1);
-        imageIds.add(originalImageId);
 
         // make sure we are in the source group
         loginUser(sourceGroup);
