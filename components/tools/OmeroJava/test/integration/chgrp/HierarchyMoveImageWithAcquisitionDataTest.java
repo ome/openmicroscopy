@@ -135,7 +135,7 @@ public class HierarchyMoveImageWithAcquisitionDataTest extends
 
         Image savedImage = (Image) iUpdate.saveAndReturnObject(sourceImage);
         long originalImageId = savedImage.getId().getValue();
-        final long objectiveId = savedImage.getObjectiveSettings().getObjective().getId().getValue();
+        final long originalObjectiveId = savedImage.getObjectiveSettings().getObjective().getId().getValue();
 
         // make sure we are in the source group
         loginUser(sourceGroup);
@@ -177,7 +177,7 @@ public class HierarchyMoveImageWithAcquisitionDataTest extends
         final Objective returnedObjective = (Objective) iQuery.findByQuery(
                 "SELECT i.objectiveSettings.objective FROM Image i WHERE i.id = :id",
                 new ParametersI().addId(originalImageId));
-        Assert.assertEquals(returnedObjective.getId().getValue(), objectiveId);
+        Assert.assertEquals(returnedObjective.getId().getValue(), originalObjectiveId);
     }
 
     /**
