@@ -1044,7 +1044,7 @@ $(function() {
                                 // ...Otherwise use the supported objects list
                                 // v.supported_objects is ['image'] or ['dataset', 'images']
                                 enabled = v.supported_objects.reduce(function(prev, o){
-                                    return prev || o.indexOf(selType) > -1;
+                                    return prev || selType.indexOf(o) > -1;
                                 }, false);
                                 return !enabled;
                             }
