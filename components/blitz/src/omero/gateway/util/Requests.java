@@ -2179,10 +2179,11 @@ public class Requests {
     public static class Chown2Builder extends GraphModify2Builder<Chown2Builder, Chown2> {
 
         /**
-         * Instantiate a new {@link Chown2}.
+         * Instantiate a new {@link Chown2} and initialize its collection containers.
          */
         public Chown2Builder() {
             super(new Chown2());
+            assembly.targetUsers = new ArrayList<Long>();
         }
 
         /* PROPERTY SETTERS THAT ACT DIRECTLY ON THE INSTANCE BEING ASSEMBLED */
@@ -2193,6 +2194,28 @@ public class Requests {
          */
         public Chown2Builder toUser(long id) {
             assembly.userId = id;
+            return this;
+        }
+
+        /**
+         * @param ids the IDs of users whose data is to be targeted for this operation, does not overwrite previous calls
+         * @return this builder, for method chaining
+         */
+        public Chown2Builder targetUsers(Iterable<Long> ids) {
+            for (final Long id : ids) {
+                assembly.targetUsers.add(id);
+            }
+            return this;
+        }
+
+        /**
+         * @param ids the IDs of users whose data is to be targeted for this operation, does not overwrite previous calls
+         * @return this builder, for method chaining
+         */
+        public Chown2Builder targetUsers(RLong... ids) {
+            for (final RLong id : ids) {
+                assembly.targetUsers.add(id.getValue());
+            }
             return this;
         }
 
@@ -2222,6 +2245,22 @@ public class Requests {
         @Deprecated
         public Chown2Builder toGroup(Experimenter user) {
             return toUser(user);
+        }
+
+        /**
+         * @param ids the IDs of users whose data is to be targeted for this operation, does not overwrite previous calls
+         * @return this builder, for method chaining
+         */
+        public Chown2Builder targetUsers(Long... ids) {
+            return targetUsers(Arrays.asList(ids));
+        }
+
+        /**
+         * @param user the user whose data is to be targeted for this operation, does not overwrite previous calls
+         * @return this builder, for method chaining
+         */
+        public Chown2Builder targetUsers(Experimenter user) {
+            return targetUsers(user.getId());
         }
     }
 
