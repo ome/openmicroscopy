@@ -2542,8 +2542,8 @@ def get_image_rdefs_json(request, img_id=None, conn=None, **kwargs):
         img = conn.getObject("Image", img_id)
 
         if img is None:
-            return {'error' : 'No image with id ' + str(img_id)}
+            return {'error': 'No image with id ' + str(img_id)}
 
-        return {'rdefs' : img.getAllRenderingDefs()}
+        return {'rdefs': img.getAllRenderingDefs()}
     except:
-        return {'error' : 'Failed to retrieve rdefs'}
+        return {'error': 'Failed to retrieve rdefs'}

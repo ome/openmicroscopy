@@ -170,8 +170,10 @@ class TestRendering(IWebTest):
         assert image.isGreyscaleRenderingModel() is False
 
         # request the rendering def via the method we want to test
-        request_url = reverse('webgateway.views.get_image_rdefs_json',args=[iid])
-        response = _get_response(self.django_client, request_url, {}, status_code=200)
+        request_url = reverse(
+            'webgateway.views.get_image_rdefs_json', args=[iid])
+        response = _get_response(
+            self.django_client, request_url, {}, status_code=200)
 
         # check expected response
         assert response is not None and response.content is not None
