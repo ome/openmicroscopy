@@ -199,6 +199,8 @@
 
 
         // ** "Open With" config used by E.g. ome.tree.js **
+        // Loaded scripts can call OME.setOpenWithEnabledHandler and/or
+        // OME.setOpenWithActionHandler to override default behaviour
         WEBCLIENT.OPEN_WITH = [];
         $.getJSON("{% url 'webgateway.views.open_with_options' %}", function(data){
             if (data && data.open_with_options) {
@@ -211,36 +213,6 @@
                 })
             }
         });
-
-        // Helper can be used by 'open with' plugins to add isEnabled()
-        // handlers to the OPEN_WITH object.
-        OME.setOpenWithEnabledHandler = function(label, fn) {
-            // look for label in OPEN_WITH
-            WEBCLIENT.OPEN_WITH.forEach(function(ow){
-                if (ow.label === label) {
-                    ow.isEnabled = function() {
-                        // wrap fn with try/catch, since error here will break jsTree menu
-                        var args = Array.from(arguments);
-                        try {
-                            enabled = fn.apply(this, args);
-                        } catch (e) {
-                            // Give user a clue as to what went wrong
-                            console.log("Open with " + label + ": " + e);
-                            enabled = true;
-                        }
-                        return enabled;
-                    }
-                }
-            });
-        };
-        OME.setOpenWithActionHandler = function(label, fn) {
-            // look for label in OPEN_WITH
-            WEBCLIENT.OPEN_WITH.forEach(function(ow){
-                if (ow.label === label) {
-                    ow.action = fn;
-                }
-            });
-        };
 
         $(document).ready(function(){
             // initially hidden
