@@ -1549,10 +1549,12 @@ def open_with_options(request, **kwargs):
                 if 'target' in ow[2]:
                     viewer['target'] = ow[2]['target']
                 if 'script_url' in ow[2]:
-                    try:
-                        viewer['script_url'] = static(ow[2]['script_url'])
-                    except NoReverseMatch:
+                    # If we have an absolute url, use it...
+                    if ow[2]['script_url'].startswith('http'):
                         viewer['script_url'] = ow[2]['script_url']
+                    else:
+                        # ...otherwise, assume within static
+                        viewer['script_url'] = static(ow[2]['script_url'])
         except:
             # ignore invalid params
             pass
