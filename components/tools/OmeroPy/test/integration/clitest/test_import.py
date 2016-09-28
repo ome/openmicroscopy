@@ -164,8 +164,11 @@ class TestImport(CLITest):
             match = re.match(pattern, line)
             if match:
                 break
-        return query.get(obj_type, int(match.group('id')),
+        obj = query.get(obj_type, int(match.group('id')),
                          {"omero.group": "-1"})
+        assert obj
+        assert obj.id.val == int(match.group('id'))
+        return obj
 
     def get_objects(self, err, obj_type, query=None):
         if not query:
@@ -831,18 +834,14 @@ class TestImport(CLITest):
         # Check the contents of "o",
         # and the existence of the newly created image
         assert len(self.parse_imported_objects(o)) == 1
-        image = self.get_object(o, 'Image')
-        assert image
-        assert self.parse_imported_objects(o)[0] == "Image:%s" % image.id.val
+        self.get_object(o, 'Image')
 
         # Check the contents of "e"
         # and the existence of the newly created Fileset
         e_lines = self.parse_imported_objects(e)
+        self.get_object(e, 'Fileset')
         assert len(e_lines) == 5
         assert e_lines[0] == "Other imported objects:"
-        fileset = self.get_object(e, 'Fileset')
-        assert fileset
-        assert e_lines[1] == "Fileset:%s" % fileset.id.val
         assert e_lines[2] == ''
         assert e_lines[3] == "==> Summary"
 
