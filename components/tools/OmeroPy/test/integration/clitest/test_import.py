@@ -820,7 +820,7 @@ class TestImport(CLITest):
         expected_levels = debug_levels[debug_levels.index(level):]
         assert set(levels) <= set(expected_levels), out
 
-    def testImportOutput(self, tmpdir, capfd):
+    def testImportOutputDefault(self, tmpdir, capfd):
         """Test import output"""
         fakefile = tmpdir.join("test.fake")
         fakefile.write('')
