@@ -165,7 +165,7 @@ class TestImport(CLITest):
             if match:
                 break
         obj = query.get(obj_type, int(match.group('id')),
-                         {"omero.group": "-1"})
+                        {"omero.group": "-1"})
         assert obj
         assert obj.id.val == int(match.group('id'))
         return obj
