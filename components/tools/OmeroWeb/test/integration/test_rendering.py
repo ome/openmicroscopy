@@ -197,6 +197,14 @@ class TestRendering(IWebTest):
             assert c['end'] == expChannels[i].getWindowEnd()
             assert c['color'] == expChannels[i].getColor().getHtml()
 
+        # id and owner check
+        assert rdefs[0].get("id") is not None
+        owner = rdefs[0].get("owner")
+        assert isinstance(owner, dict)
+        fullOwner = owner.get("firstName", "") + " " +\
+            owner.get("lastName", "")
+        assert fullOwner == conn.getUser().getFullName()
+
 
 class TestRenderImageRegion(IWebTest):
     """

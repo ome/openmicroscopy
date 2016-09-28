@@ -2546,4 +2546,5 @@ def get_image_rdefs_json(request, img_id=None, conn=None, **kwargs):
 
         return {'rdefs': img.getAllRenderingDefs()}
     except:
+        logger.debug(traceback.format_exc())
         return {'error': 'Failed to retrieve rdefs'}
