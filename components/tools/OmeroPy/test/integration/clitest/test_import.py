@@ -155,6 +155,13 @@ class TestImport(CLITest):
         client_dir = dist_dir / "lib" / "client"
         self.args += ["--clientdir", client_dir]
 
+    def check_other_output(self, out_lines):
+        """Check the output of the import except Images, Plates and Summary"""
+        assert len(out_lines) == 5
+        assert out_lines[0] == "Other imported objects:"
+        assert out_lines[2] == ''
+        assert out_lines[3] == "==> Summary"
+
     def get_object(self, err, obj_type, query=None):
         if not query:
             query = self.query
@@ -174,14 +181,18 @@ class TestImport(CLITest):
         if not query:
             query = self.query
         """Retrieve the created objects by parsing the stderr output"""
-        pattern = re.compile('^%s:(?P<id>\d+)$' % obj_type)
+        pattern = re.compile('^%s:(?P<idstring>\d+)$' % obj_type)
         objs = []
         for line in reversed(err.split('\n')):
             match = re.match(pattern, line)
             if match:
-                objs.append(
-                    query.get(obj_type, int(match.group('id')),
-                              {"omero.group": "-1"}))
+                ids = match.group('idstring').split(',')
+                for obj_id in ids:
+                    obj = query.get(obj_type, int(obj_id),
+                                    {"omero.group": "-1"})
+                    assert obj
+                    assert obj.id.val == int(obj_id)
+                    objs.append(obj)
         return objs
 
     def get_linked_annotations(self, oid):
@@ -840,10 +851,7 @@ class TestImport(CLITest):
         # and the existence of the newly created Fileset
         e_lines = self.parse_imported_objects(e)
         self.get_object(e, 'Fileset')
-        assert len(e_lines) == 5
-        assert e_lines[0] == "Other imported objects:"
-        assert e_lines[2] == ''
-        assert e_lines[3] == "==> Summary"
+        self.check_other_output(e_lines)
 
         # Parse and check the summary of the import output
         summary = self.parse_summary(e)
@@ -851,7 +859,7 @@ class TestImport(CLITest):
         assert len(summary) == 5
 
     @pytest.mark.parametrize("plate", [1, 2, 3])
-    def testImportSummaryWithScreen(self, tmpdir, capfd, plate):
+    def testImportOutputDefaultWithScreen(self, tmpdir, capfd, plate):
         """Test import summary argument with a screen"""
         fakefile = tmpdir.join("SPW&plates=%d&plateRows=1&plateCols=1&"
                                "fields=1&plateAcqs=1.fake" % plate)
@@ -859,6 +867,19 @@ class TestImport(CLITest):
 
         self.args += [str(fakefile)]
         o, e = self.do_import(capfd)
+
+        # Check the contents of "o",
+        # and the existence of the newly created plates
+        assert len(self.parse_imported_objects(o)) == 1
+        self.get_objects(o, 'Plate')
+
+        # Check the contents of "e"
+        # and the existence of the newly created Fileset
+        e_lines = self.parse_imported_objects(e)
+        self.get_object(e, 'Fileset')
+        self.check_other_output(e_lines)
+
+        # Parse and check the summary of the import output
         summary = self.parse_summary(e)
         assert summary
         assert len(summary) == 6
