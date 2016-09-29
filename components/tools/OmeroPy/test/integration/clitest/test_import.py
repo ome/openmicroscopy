@@ -129,8 +129,6 @@ class TestImport(CLITest):
         self.add_client_dir()
 
     def do_import(self, capfd, strip_logs=True):
-        # Temporary fix to pass current tests by getting legacy output
-        # self.args += ["--output", "legacy"]
         try:
             self.cli.invoke(self.args, strict=True)
             o, e = capfd.readouterr()
@@ -349,7 +347,7 @@ class TestImport(CLITest):
 
         # Invoke CLI import command and retrieve stdout/stderr
         o, e = self.do_import(capfd)
-        obj = self.get_object(e, 'Image')
+        obj = self.get_object(o, 'Image')
         annotations = self.get_linked_annotations(obj.id.val)
 
         assert len(annotations) == fixture.n
@@ -378,7 +376,7 @@ class TestImport(CLITest):
         print self.args
         # Invoke CLI import command and retrieve stdout/stderr
         o, e = self.do_import(capfd)
-        obj = self.get_object(e, 'Image')
+        obj = self.get_object(o, 'Image')
         annotations = self.get_linked_annotations(obj.id.val)
 
         assert len(annotations) == fixture.n
@@ -522,10 +520,10 @@ class TestImport(CLITest):
     def parse_container(self, spw, capfd):
         o, e = self.do_import(capfd)
         if spw:
-            obj = self.get_object(e, 'Plate')
+            obj = self.get_object(o, 'Plate')
             container = self.get_screen(obj.id.val)
         else:
-            obj = self.get_object(e, 'Image')
+            obj = self.get_object(o, 'Image')
             container = self.get_dataset(obj.id.val)
 
         assert container
@@ -699,7 +697,7 @@ class TestImport(CLITest):
         # containers are created and used.
         o, e = self.do_import(capfd)
 
-        objs = self.get_objects(e, importType)
+        objs = self.get_objects(o, importType)
         assert len(objs) == 2
         container1 = self.get_container(objs[0].id.val, spw=spw)
         container2 = self.get_container(objs[1].id.val, spw=spw)
@@ -780,7 +778,7 @@ class TestImport(CLITest):
         # Now, run the import and check that the imported object
         # is not in a container.
         o, e = self.do_import(capfd)
-        obj = self.get_object(e, importType)
+        obj = self.get_object(o, importType)
         container = self.get_container(obj.id.val, spw=spw)
         assert container is None
 
@@ -902,7 +900,7 @@ class TestImport(CLITest):
 
         # Invoke CLI import command and retrieve stdout/stderr
         o, e = self.do_import(capfd)
-        obj = self.get_object(e, 'Image', query=client.sf.getQueryService())
+        obj = self.get_object(o, 'Image', query=client.sf.getQueryService())
         assert obj.details.owner.id.val == user.id.val
 
     def testImportMultiGroup(self, tmpdir, capfd):
@@ -924,7 +922,7 @@ class TestImport(CLITest):
 
         # Invoke CLI import command and retrieve stdout/stderr
         o, e = self.do_import(capfd)
-        obj = self.get_object(e, 'Image', query=client.sf.getQueryService())
+        obj = self.get_object(o, 'Image', query=client.sf.getQueryService())
         assert obj.details.owner.id.val == user.id.val
         assert obj.details.group.id.val == group2.id.val
 
@@ -947,7 +945,7 @@ class TestImport(CLITest):
 
         # Invoke CLI import command and retrieve stdout/stderr
         o, e = self.do_import(capfd)
-        obj = self.get_object(e, 'Image', query=client.sf.getQueryService())
+        obj = self.get_object(o, 'Image', query=client.sf.getQueryService())
         assert obj.details.owner.id.val == user.id.val
         assert obj.details.group.id.val == group2.id.val
 
@@ -969,7 +967,7 @@ class TestImport(CLITest):
 
         # Invoke CLI import command and retrieve stdout/stderr
         o, e = self.do_import(capfd)
-        obj = self.get_object(e, fixture.obj_type)
+        obj = self.get_object(o, fixture.obj_type)
 
         if fixture.name_arg:
             assert obj.getName().val == 'name'
@@ -988,7 +986,7 @@ class TestImport(CLITest):
 
         # Invoke CLI import command and retrieve stdout/stderr
         out, err = self.do_import(capfd)
-        image = self.get_object(err, 'Image')
+        image = self.get_object(out, 'Image')
 
         # Check no thumbnails
         assert self.get_thumbnail(image.id.val) is None
@@ -1007,7 +1005,7 @@ class TestImport(CLITest):
 
         # Invoke CLI import command and retrieve stdout/stderr
         out, err = self.do_import(capfd)
-        image = self.get_object(err, 'Image')
+        image = self.get_object(out, 'Image')
 
         # Check min/max calculation
         query = ("select p from Pixels p left outer "
@@ -1045,7 +1043,7 @@ class TestImport(CLITest):
 
         # Invoke CLI import command and retrieve stdout/stderr
         o, e = self.do_import(capfd)
-        obj = self.get_object(e, 'Image')
+        obj = self.get_object(o, 'Image')
 
         assert obj
 
@@ -1074,7 +1072,7 @@ class TestImport(CLITest):
 
         # Invoke CLI import command and retrieve stdout/stderr
         o, e = self.do_import(capfd)
-        obj = self.get_object(e, 'Image')
+        obj = self.get_object(o, 'Image')
         assert obj.details.group.id.val == new_group.id.val
 
     @pytest.mark.parametrize("container,filename,arg", target_fixtures)
