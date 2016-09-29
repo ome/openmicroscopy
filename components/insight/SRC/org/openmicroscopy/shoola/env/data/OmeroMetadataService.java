@@ -208,8 +208,6 @@ public interface OmeroMetadataService
 	 * @param data The objects to handle.
      * @param userID The id of the user who added attachments to the object 
      *               or <code>-1</code> if the user is not specified.
-     * @param viewed Pass <code>true</code> to load the rendering settings 
-	 *               related to the objects, <code>false<code> otherwise.
      * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.

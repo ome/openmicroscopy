@@ -482,11 +482,7 @@ public interface MetadataHandlerView
 	 * @param annotationTypes The type of annotation to load.
 	 * @param nsInclude The annotation's name space to include if any.
 	 * @param nsExlcude The annotation's name space to exclude if any.
-<<<<<<< HEAD
-	 * @param observer 
-=======
 	 * @param observer Call-back handler.
->>>>>>> dbc1038... Load annotations only on TaskPane expansion
 	 * @return A handle that can be used to cancel the call.
 	 */
 
