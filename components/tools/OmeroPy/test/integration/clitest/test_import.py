@@ -25,6 +25,7 @@ from test.integration.clitest.cli import CLITest
 import pytest
 import stat
 import re
+import yaml
 import omero
 from omero.cli import NonZeroReturnCode
 from omero.rtypes import rstring
@@ -153,29 +154,36 @@ class TestImport(CLITest):
         client_dir = dist_dir / "lib" / "client"
         self.args += ["--clientdir", client_dir]
 
-    def check_other_output(self, out):
-        """Check the output of the import except Images, Plates and Summary"""
-        assert "Other imported objects:" in out
+    def check_other_output(self, out, import_type='default'):
+        """Check the output of the import except objects
+           (Images, Plates, Filesets) and Summary"""
+
         assert "==> Summary" in out
+        if import_type == 'default':
+            assert "Other imported objects:" in out
+        elif import_type == 'yaml':
+            assert "Imported objects:" in out
 
     def get_object(self, err, obj_type, query=None):
-        if not query:
-            query = self.query
         """Retrieve the created object by parsing the stderr output"""
         pattern = re.compile('^%s:(?P<id>\d+)$' % obj_type)
         for line in reversed(err.split('\n')):
             match = re.match(pattern, line)
             if match:
                 break
-        obj = query.get(obj_type, int(match.group('id')),
+        obj_id = int(match.group('id'))
+        return self.assert_object(obj_type, obj_id, query=query)
+
+    def assert_object(self, obj_type, obj_id, query=None):
+        if not query:
+            query = self.query
+        obj = query.get(obj_type, obj_id,
                         {"omero.group": "-1"})
         assert obj
-        assert obj.id.val == int(match.group('id'))
+        assert obj.id.val == obj_id
         return obj
 
     def get_objects(self, err, obj_type, query=None):
-        if not query:
-            query = self.query
         """Retrieve the created objects by parsing the stderr output"""
         pattern = re.compile('^%s:(?P<idstring>\d+)$' % obj_type)
         objs = []
@@ -184,10 +192,8 @@ class TestImport(CLITest):
             if match:
                 ids = match.group('idstring').split(',')
                 for obj_id in ids:
-                    obj = query.get(obj_type, int(obj_id),
-                                    {"omero.group": "-1"})
-                    assert obj
-                    assert obj.id.val == int(obj_id)
+                    obj = self.assert_object(obj_type,
+                                             int(obj_id), query=query)
                     objs.append(obj)
         return objs
 
@@ -847,6 +853,31 @@ class TestImport(CLITest):
         # and the existence of the newly created Fileset
         self.get_object(e, 'Fileset')
         self.check_other_output(e)
+
+        # Parse and check the summary of the import output
+        summary = self.parse_summary(e)
+        assert summary
+        assert len(summary) == 5
+
+    def testImportOutputYaml(self, tmpdir, capfd):
+        """Test import output in yaml case"""
+        # Make sure you get yaml output
+        self.args += ["--output", "yaml"]
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+
+        self.args += [str(fakefile)]
+        o, e = self.do_import(capfd)
+        yo = yaml.load(o)
+
+        # Check the contents of "o",
+        # and the existence of the newly created image
+        # print yo[0]['Fileset']
+        # print yo[0]['Image']
+        self.assert_object("Fileset", int(yo[0]['Fileset']))
+        # Check the contents of "e"
+        # and the existence of the newly created Fileset
+        self.check_other_output(e, import_type='yaml')
 
         # Parse and check the summary of the import output
         summary = self.parse_summary(e)
