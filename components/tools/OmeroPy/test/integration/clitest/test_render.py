@@ -47,7 +47,7 @@ class TestRender(CLITest):
     def create_image(self, sizec=4):
         self.gw = BlitzGateway(client_obj=self.client)
         self.plates = []
-        for plate in self.importPlates(fields=2, sizeC=sizec):
+        for plate in self.importPlates(fields=2, sizeC=sizec, screens=1):
             self.plates.append(self.gw.getObject("Plate", plate.id.val))
         # Now pick the first Image
         self.imgobj = list(self.plates[0].listChildren())[0].getImage(index=0)
