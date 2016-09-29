@@ -74,6 +74,7 @@ public class ChannelMetadataLoader
             {
                 OmeroMetadataService os = context.getMetadataService();
                 List l = os.getChannelsMetadata(ctx, pixelsID);
+                
                 if (userID >= 0) { //load the rendering settings.
                 	OmeroImageService svc = context.getImageService();
                 	List rnd = svc.getRenderingSettingsFor(ctx,
@@ -99,7 +100,13 @@ public class ChannelMetadataLoader
                 	}
                 	
                 	results = channels;
-                } else results = l;
+                } 
+                else {
+                    results = new HashMap();
+                    for (Object o : l) {
+                        ((Map) results).put(o, null);
+                    }
+                }
             }
         };
     }
