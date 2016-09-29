@@ -20,9 +20,10 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
-import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -154,9 +155,17 @@ class DataBrowserUI
 		}
 		factor = DataBrowserFactory.getThumbnailScaleFactor();
 		setNumberOfImages(-1);
-		setLayout(new BorderLayout(0, 0));
+		setLayout(new GridBagLayout());
+		c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.weightx = 1;
+		c.weighty = 0;
+		c.gridx = 0;
+		c.gridy = 0;
 		buildGUI(true);
 	}
+	
+	GridBagConstraints c;
 	
 	/** 
 	 * Builds and lays out the UI. 
@@ -169,14 +178,23 @@ class DataBrowserUI
 		removeAll();
 		if (full) {
 			if (model.getType() == DataBrowserModel.WELLS) {
-				add(wellToolBar, BorderLayout.NORTH);
+			    add(wellToolBar, c);
+			    c.gridy++;
 			} else {
-				add(toolBar, BorderLayout.NORTH);
+			    add(toolBar, c);
+			    c.gridy++;
 			}
-			add(statusBar, BorderLayout.SOUTH);
+			c.fill = GridBagConstraints.BOTH;
+			c.weighty = 1;
+			add(statusBar,c);
+			c.gridy++;
 			statusBar.setVisible(model.getType() != DataBrowserModel.SEARCH);
 		}
-		add(model.getBrowser().getUI(), BorderLayout.CENTER);
+		
+		c.fill = GridBagConstraints.BOTH;
+        c.weighty = 1;
+        add(model.getBrowser().getUI(), c);
+        c.gridy++;
 	}
 	
 	/**
@@ -318,36 +336,51 @@ class DataBrowserUI
     void setSelectedView(int index) 
     {
     	removeAll();
+    	c = new GridBagConstraints();
+    	c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1;
+        c.weighty = 0;
+        c.gridx = 0;
+        c.gridy = 0;
     	double f = DataBrowserFactory.getThumbnailScaleFactor();
     	switch (index) {
 			case THUMB_VIEW:
 				selectedView = index;
 				if (model.getType() == DataBrowserModel.WELLS) {
-					add(wellToolBar, BorderLayout.NORTH);
+					add(wellToolBar, c);
+					c.gridy++;
 					wellToolBar.displayFieldsOptions(false);
 				} else {
-					add(toolBar, BorderLayout.NORTH);
+					add(toolBar, c);
+					c.gridy++;
 					layoutUI();
 				}
-				add(model.getBrowser().getUI(), BorderLayout.CENTER);
+				c.fill = GridBagConstraints.BOTH;
+				c.weighty = 1;
+				add(model.getBrowser().getUI(), c);
+				c.gridy++;
 				f = factor;
 				break;
 			case FIELDS_VIEW:
 				selectedView = index;
-				add(wellToolBar, BorderLayout.NORTH);
+				add(wellToolBar, c);
+				c.gridy++;
 				if (fieldsView == null) {
 					f = Thumbnail.MAX_SCALING_FACTOR;
 					fieldsView  = new WellFieldsView((WellsModel) model, 
 							controller, f);//statusBar.getMagnificationFactor());
 				}
 				wellToolBar.displayFieldsOptions(true);
-				add(fieldsView, BorderLayout.CENTER);
+				c.fill = GridBagConstraints.BOTH;
+                c.weighty = 1;
+				add(fieldsView, c);
+				c.gridy++;
 				f = fieldsView.getMagnification();
 				break;
 			case COLUMNS_VIEW:
 				selectedView = index;
-				add(toolBar, BorderLayout.NORTH);
-				
+				add(toolBar, c);
+				c.gridy++;
 				ImageTableView existed = model.getTableView();
 				ImageTableView v = model.createImageTableView();
 				if (existed != null && v != null) v.refreshTable();
@@ -370,17 +403,26 @@ class DataBrowserUI
 				if (existed == null) v.addPropertyChangeListener(controller);
 				v.validate();
 				v.repaint();
-				add(v, BorderLayout.CENTER);
+				c.fill = GridBagConstraints.BOTH;
+                c.weighty = 1;
+				add(v, c);
+				c.gridy++;
 				break;
 			case SEARCH_VIEW:
                             selectedView = index;
                             SearchResultView sv = model.createSearchResultView();
                             sv.addPropertyChangeListener(controller);
-                            add(sv, BorderLayout.CENTER);
+                            c.fill = GridBagConstraints.BOTH;
+                            c.weighty = 1;
+                            add(sv, c);
+                            c.gridy++;
                             sv.refreshTable();
                             break;
 		}
-    	add(statusBar, BorderLayout.SOUTH);
+    	c.fill = GridBagConstraints.HORIZONTAL;
+        c.weighty = 0;
+    	add(statusBar, c);
+    	c.gridy++;
     	toolBar.setSelectedViewIndex(selectedView);
     	statusBar.setSelectedViewIndex(selectedView, f);
     	revalidate();
