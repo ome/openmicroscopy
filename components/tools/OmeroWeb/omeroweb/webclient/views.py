@@ -1580,7 +1580,7 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None,
             act = "-"
             if c['active']:
                 act = ""
-            reverse = 'r' if c['reverseIntensity'] else ''
+            reverse = 'r' if c['reverseIntensity'] else '-r'
             chs.append('%s%s|%d:%d%s$%s'
                        % (act, i+1, c['start'], c['end'], reverse, c['color']))
         rdefQueries.append({
