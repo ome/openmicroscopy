@@ -350,7 +350,7 @@ class ITest(object):
         return images
 
     def import_plates(self, client=None, plates=1, plate_acqs=1, plate_cols=1,
-                      plate_rows=1, fields=1, **kwargs):
+                      plate_rows=1, fields=1, screens=0, **kwargs):
         """
         Creates fake plates and imports them.
         """
@@ -358,6 +358,7 @@ class ITest(object):
         if client is None:
             client = self.client
 
+        kwargs["screens"] = screens
         kwargs["plates"] = plates
         kwargs["plateAcqs"] = plate_acqs
         kwargs["plateCols"] = plate_cols
