@@ -1047,6 +1047,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             bindingTo.setRed(binding.getRed());
             // lut used
             bindingTo.setLookupTable(binding.getLookupTable());
+            bindingTo.clearSpatialDomainEnhancement();
             Iterator<CodomainMapContext> j = binding.iterateSpatialDomainEnhancement();
             while (j.hasNext()) {
                 ctx = copyContext(j.next());
