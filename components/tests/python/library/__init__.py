@@ -369,12 +369,13 @@ class ITest(object):
         self, client=None,
         plates=1, plateAcqs=1,
         plateCols=1, plateRows=1,
-        fields=1, **kwargs
+        fields=1, screens=0, **kwargs
     ):
 
         if client is None:
             client = self.client
 
+        kwargs["screens"] = screens
         kwargs["plates"] = plates
         kwargs["plateAcqs"] = plateAcqs
         kwargs["plateCols"] = plateCols
