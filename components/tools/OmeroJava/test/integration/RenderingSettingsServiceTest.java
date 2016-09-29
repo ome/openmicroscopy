@@ -1563,4 +1563,73 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
             Assert.assertEquals(ctxList1.size(), 0);
         }
     }
+
+    /**
+     * Tests to apply the rendering settings to a collection of images. Tests
+     * the <code>ApplySettingsToSet</code> method.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testResetDefaultByOwnerInSetCodomain() throws Exception {
+        EventContext ctx = newUserAndGroup("rwra--");
+        Image image = createBinaryImage();
+        Pixels pixels = image.getPrimaryPixels();
+        long id = pixels.getId().getValue();
+        IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+        prx.setOriginalSettingsInSet(Image.class.getName(),
+                Arrays.asList(image.getId().getValue()));
+        RenderingDef defOwner = factory.getPixelsService().retrieveRndSettings(id);
+        List<ChannelBinding> channels = defOwner.copyWaveRendering();
+        ChannelBinding cb;
+        List<CodomainMapContext> l;
+        for (int k = 0; k < channels.size(); k++) {
+            cb = channels.get(k);
+            l = cb.copySpatialDomainEnhancement();
+            Assert.assertEquals(l.size(), 0);
+        }
+        disconnect();
+        EventContext ctx2 = newUserInGroup(ctx);
+        prx = factory.getRenderingSettingsService();
+        prx.setOriginalSettingsInSet(Image.class.getName(),
+                Arrays.asList(image.getId().getValue()));
+        
+        // Image
+        RenderingDef def1 = factory.getPixelsService().retrieveRndSettings(id);
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        channels = def1.copyWaveRendering();
+
+        for (int k = 0; k < channels.size(); k++) {
+            omero.romio.ReverseIntensityMapContext reverse = new omero.romio.ReverseIntensityMapContext();
+            re.addCodomainMapToChannel(reverse, k);
+        }
+        re.saveCurrentSettings();
+        // method already tested
+        re.close();
+        def1 = factory.getPixelsService().retrieveRndSettings(id);
+        channels = def1.copyWaveRendering();
+        for (int k = 0; k < channels.size(); k++) {
+            cb = channels.get(k);
+            l = cb.copySpatialDomainEnhancement();
+            Assert.assertEquals(l.size(), 1);
+        }
+        List<Long> v = prx.resetDefaultsByOwnerInSet(Image.class.getName(),
+                Arrays.asList(image.getId().getValue()));
+        Assert.assertNotNull(v);
+        Assert.assertEquals(v.size(), 1);
+        def1 = factory.getPixelsService().retrieveRndSettings(id);
+        channels = def1.copyWaveRendering();
+        for (int k = 0; k < channels.size(); k++) {
+            cb = channels.get(k);
+            l = cb.copySpatialDomainEnhancement();
+            Assert.assertEquals(l.size(), 0);
+        }
+    }
 }
