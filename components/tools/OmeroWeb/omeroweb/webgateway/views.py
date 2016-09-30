@@ -1544,8 +1544,8 @@ def open_with_options(request, **kwargs):
         viewer['supported_objects'] = ['image']
         try:
             if len(ow) > 2:
-                if 'objects' in ow[2]:
-                    viewer['supported_objects'] = ow[2]['objects']
+                if 'supported_objects' in ow[2]:
+                    viewer['supported_objects'] = ow[2]['supported_objects']
                 if 'target' in ow[2]:
                     viewer['target'] = ow[2]['target']
                 if 'script_url' in ow[2]:
