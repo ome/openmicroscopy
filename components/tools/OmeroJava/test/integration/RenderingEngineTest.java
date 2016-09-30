@@ -2343,7 +2343,6 @@ public class RenderingEngineTest extends AbstractServerTest {
                 int ap = after[i] & 0x0ff;
                 //check that the reverse intensity was applied
                 Assert.assertEquals(ap, (end-bp));
-                System.err.println(bp);
             }
         }
     }
