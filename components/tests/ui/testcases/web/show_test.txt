@@ -22,7 +22,7 @@ ${runName}                          PlateAcquisition Name 0
 Wait For Right Panel
     [Arguments]                             ${dataType}       ${dataName}
     Wait Until Page Contains Element        xpath=//tr[contains(@class,'data_heading_id')]//th[contains(text(),'${dataType} ID:')]
-    Wait Until Page Contains Element        xpath=//div[contains(@class,'data_heading')]//span[contains(text(),'${dataName}')]
+    Wait Until Page Contains Element        xpath=//div[contains(@class,'data_heading')]//*[contains(text(),'${dataName}')]
     ${dataId}=                              Get Text                css=tr.data_heading_id strong
     [Return]                                ${dataId}   
 
@@ -51,7 +51,7 @@ Test Show Plate
 
     #Load Well by path
     Go To                               ${WELCOME URL}?path=plate.name-${plateName}|well.name-A1
-    ${wellId}=                          Wait For Right Panel            Well                ${wellName}     
+    ${wellId}=                          Wait For Right Panel            Well                A1
     Check Well Selected                 A1                              ${wellId}
     ${runId}=                           Get Selected Id From Tree
     # Check URL from the Link button
