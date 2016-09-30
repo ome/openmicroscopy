@@ -631,10 +631,18 @@ $(function() {
                                 });
                             }
 
-                            // Add plates to the jstree data structure
+                            // Add acquistions (runs) to the jstree data structure
                             if (data.hasOwnProperty('acquisitions')) {
                                 $.each(data.acquisitions, function(index, value) {
                                     var node = makeNode(value, 'acquisition');
+                                    jstree_data.push(node);
+                                });
+                            }
+
+                            // Add wells to the jstree data structure
+                            if (data.hasOwnProperty('wells')) {
+                                $.each(data.wells, function(index, value) {
+                                    var node = makeNode(value, 'well');
                                     jstree_data.push(node);
                                 });
                             }
@@ -750,7 +758,7 @@ $(function() {
             },
             'tag': {
                 'icon': WEBCLIENT.URLS.static_webclient + 'image/left_sidebar_icon_tag.png',
-                'valid_children': ['project', 'dataset', 'image', 'screen', 'plate', 'acquisition'],
+                'valid_children': ['project', 'dataset', 'image', 'screen', 'plate', 'acquisition', 'well'],
                 'draggable': true
             },
             'project': {
@@ -777,6 +785,9 @@ $(function() {
             },
             'acquisition': {
                 'icon': WEBCLIENT.URLS.static_webclient + 'image/run16.png',
+            },
+            'well': {
+                'icon': WEBCLIENT.URLS.static_webclient + 'image/well16.png',
             },
             'orphaned': {
                 'icon': WEBCLIENT.URLS.static_webclient + 'image/folder_yellow16.png',
