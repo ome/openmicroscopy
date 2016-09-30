@@ -56,6 +56,9 @@ INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatc
 
 DELETE FROM format WHERE id NOT IN (SELECT DISTINCT format FROM image) AND external_id IS NULL;
 
+-- ensure that the format table is repopulated even if the Bio-Formats revision is unchanged
+DELETE FROM configuration WHERE name = 'DB check DBEnumCheck';
+
 
 --
 -- FINISHED
