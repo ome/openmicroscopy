@@ -159,10 +159,12 @@ class TestImport(CLITest):
            (Images, Plates, Filesets) and Summary"""
 
         assert "==> Summary" in out
-        if import_type == 'default':
+        if import_type == 'default' or import_type == 'legacy':
             assert "Other imported objects:" in out
         elif import_type == 'yaml':
             assert "Imported objects:" in out
+        elif import_type == 'legacy':
+            assert 'Imported Pixels:' in out
 
     def get_object(self, err, obj_type, query=None):
         """Retrieve the created object by parsing the stderr output"""
@@ -869,15 +871,40 @@ class TestImport(CLITest):
         self.args += [str(fakefile)]
         o, e = self.do_import(capfd)
         yo = yaml.load(o)
+        # Check the contents of "yo",
+        # and the existence of the newly created fileset and image
+        self.assert_object("Fileset", int(yo[0]['Fileset']))
+        assert len(yo[0]['Image']) == 1
+        self.assert_object("Image", int(yo[0]['Image'][0]))
+        # Check the contents of "e"
+        self.check_other_output(e, import_type='yaml')
+
+        # Parse and check the summary of the import output
+        summary = self.parse_summary(e)
+        assert summary
+        assert len(summary) == 5
+
+    def testImportOutputLegacy(self, tmpdir, capfd):
+        """Test import output in legacy case"""
+        # Make sure you get legacy output
+        self.args += ["--output", "legacy"]
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+
+        self.args += [str(fakefile)]
+        o, e = self.do_import(capfd)
 
         # Check the contents of "o",
         # and the existence of the newly created image
-        # print yo[0]['Fileset']
-        # print yo[0]['Image']
-        self.assert_object("Fileset", int(yo[0]['Fileset']))
+        assert len(self.parse_imported_objects(o)) == 1
+        pid = int(self.parse_imported_objects(o)[0])
+        self.assert_object('Pixels', pid)
+
         # Check the contents of "e"
-        # and the existence of the newly created Fileset
-        self.check_other_output(e, import_type='yaml')
+        # and the existence of the newly created Fileset and Image
+        self.get_object(e, 'Fileset')
+        self.get_object(e, 'Image')
+        self.check_other_output(e, import_type='legacy')
 
         # Parse and check the summary of the import output
         summary = self.parse_summary(e)
