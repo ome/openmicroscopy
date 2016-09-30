@@ -365,9 +365,23 @@ $(document).ready(function() {
         $("#choosefilter").change(function(){
             var $this = $(this),
                 filterby = $this.val();
+
+            // Unrated and By rating are mutually exclusive
+            if (filterby === "unrated") {
+                // reset 'by rating' filter
+                $("#filterrating").hide().find("img").attr('src', "{% static 'webclient/image/rating' %}0.png");
+                // do filtering
+                filterUnrated();
+            } else if (filterby === "rating" && $("#filterrating").is( ":hidden" )) {
+                $("#filterunrated").hide();
+                $("#dataIcons li.row").removeClass('ratingFilter_hidden');
+            }
+
+            // Show filter
             if (filterby != "addfilter") {
                 $("#filter" + filterby).appendTo("#filtersContainer").show();
             }
+            // reset chooser
             $this.val("addfilter");
         });
         // Each filter has a 'X' for hiding & clearing filter
@@ -378,6 +392,8 @@ $(document).ready(function() {
             } else if ($fltr.attr('id') === 'filterrating') {
                 $("#dataIcons li.row").removeClass('ratingFilter_hidden');
                 $("#filterrating img").attr('src', "{% static 'webclient/image/rating' %}0.png");
+            } else if ($fltr.attr('id') === 'filterrating') {
+                $("#dataIcons li.row").removeClass('ratingFilter_hidden');
             }
             $fltr.hide();
         });
@@ -398,6 +414,37 @@ $(document).ready(function() {
                 }
             }
         });
+
+        // filter by unrated
+        var filterUnrated = function(){
+            var iids = [];
+            $("#dataIcons li.row").each(function(){
+                iids.push($(this).attr("data-id"));
+            });
+            var query = "image=" + iids.join("&image=");
+            $.getJSON("{% url 'api_annotations' %}?type=rating&" + query, function(data){
+                // map imageId to rating... rdata = {'iid': hide?}
+                var rdata = data.annotations.reduce(function(prev, r){
+                    var iid = "" + r.link.parent.id;
+                    prev[iid] = true;
+                    return prev;
+                }, {});
+                $("#dataIcons li.row").each(function(){
+                    var $this = $(this),
+                        iid = $this.attr("data-id");
+                    if (rdata[iid]) {
+                        // hide
+                        $this.addClass('ratingFilter_hidden');
+                    } else {
+                        // show
+                        $this.removeClass('ratingFilter_hidden');
+                    }
+                });
+                // finally, we de-select hidden
+                deselectFiltered();
+            });
+        };
+
         // filter by rating
         $("#filterrating img").click(function(event) {
             var iids = [],
@@ -413,7 +460,7 @@ $(document).ready(function() {
             var query = "image=" + iids.join("&image=");
             // get ratings...
             $.getJSON("{% url 'api_annotations' %}?type=rating&" + query, function(data){
-                // map imageId to rating (for MY ratings...)
+                // map imageId to rating... rdata = {'iid': show?}
                 var rdata = data.annotations.reduce(function(prev, r){
                     // if (r.link.owner.id === WEBCLIENT.USER.id) {
                     // we don't care who owns the rating/link

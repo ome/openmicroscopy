@@ -11,6 +11,11 @@
                 <span title="Clear filter" class="removefilter" style="vertical-align:top">X</span>
             </div>
 
+            <div id="filterunrated" class="imagefilter">
+                <span style="font-size: 15px; font-weight: bold">Unrated</span>
+                <span title="Clear filter" class="removefilter" style="vertical-align:top">X</span>
+            </div>
+
             <div id="filtername" class="imagefilter" style="position: relative; width: 180px; height:30px; top: -4px">
                 <label for="id_search"> Filter by name </label>
                 <input id="id_search" type="text" size="25">
@@ -21,7 +26,8 @@
 
         <select id="choosefilter" style="margin-top: -1px;">
             <option value="addfilter">Add filter</option>
-            <option value="rating">Rating</option>
+            <option value="rating">By Rating</option>
+            <option value="unrated">Unrated</option>
             <option value="name">Name</option>
         </select>
     </form>
