@@ -153,12 +153,10 @@ class TestImport(CLITest):
         client_dir = dist_dir / "lib" / "client"
         self.args += ["--clientdir", client_dir]
 
-    def check_other_output(self, out_lines):
+    def check_other_output(self, out):
         """Check the output of the import except Images, Plates and Summary"""
-        assert len(out_lines) == 5
-        assert out_lines[0] == "Other imported objects:"
-        assert out_lines[2] == ''
-        assert out_lines[3] == "==> Summary"
+        assert "Other imported objects:" in out
+        assert "==> Summary" in out
 
     def get_object(self, err, obj_type, query=None):
         if not query:
@@ -847,9 +845,8 @@ class TestImport(CLITest):
 
         # Check the contents of "e"
         # and the existence of the newly created Fileset
-        e_lines = self.parse_imported_objects(e)
         self.get_object(e, 'Fileset')
-        self.check_other_output(e_lines)
+        self.check_other_output(e)
 
         # Parse and check the summary of the import output
         summary = self.parse_summary(e)
@@ -873,9 +870,8 @@ class TestImport(CLITest):
 
         # Check the contents of "e"
         # and the existence of the newly created Fileset
-        e_lines = self.parse_imported_objects(e)
         self.get_object(e, 'Fileset')
-        self.check_other_output(e_lines)
+        self.check_other_output(e)
 
         # Parse and check the summary of the import output
         summary = self.parse_summary(e)
