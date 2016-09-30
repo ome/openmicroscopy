@@ -27,6 +27,7 @@ from django.conf import settings
 from django.http import Http404
 from datetime import datetime
 from copy import deepcopy
+from omero.gateway import _letterGridLabel
 
 
 def build_clause(components, name='', join=','):
@@ -1492,7 +1493,63 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
         plate_acquisitions.append(_marshal_plate_acquisition(conn, e[0:6]))
     tagged['acquisitions'] = plate_acquisitions
 
+    # Wells
+    q = '''
+        select distinct new map(obj.id as id,
+            obj.details.owner.id as ownerId,
+            obj as well_details_permissions,
+            obj.row as row,
+            obj.column as column,
+            plate.id as plateId,
+            plate.columnNamingConvention as colnames,
+            plate.rowNamingConvention as rownames)
+        from Well obj
+            join obj.annotationLinks alink
+            join obj.plate plate
+            where alink.child.id=:tid
+        '''
+
+    wells = []
+    for e in qs.projection(q, params, service_opts):
+        e = unwrap(e)
+        e = [e[0]["id"],
+             e[0]["ownerId"],
+             e[0]["well_details_permissions"],
+             e[0]["row"],
+             e[0]["column"],
+             e[0]["plateId"],
+             e[0]["rownames"],
+             e[0]["colnames"]]
+        wells.append(_marshal_well(conn, e[0:8]))
+    tagged['wells'] = wells
+
     return tagged
+
+
+def _marshal_well(conn, row):
+    ''' Given a Well row (list) marshals it into a dictionary.  Order
+        and type of columns in row is:
+          * id (rlong)
+          * name (rstring)
+          * details.owner.id (rlong)
+          * details.permissions (dict)
+
+        @param conn OMERO gateway.
+        @type conn L{omero.gateway.BlitzGateway}
+        @param row The Well row to marshal
+        @type row L{list}
+    '''
+    well_id, owner_id, perms, row, col, plateId, rownames, colnames = row
+    well = dict()
+    well['id'] = unwrap(well_id)
+    well['ownerId'] = unwrap(owner_id)
+    well['plateId'] = unwrap(plateId)
+    well['permsCss'] = \
+        parse_permissions_css(perms, unwrap(owner_id), conn)
+    rowname = str(row + 1) if rownames == 'number' else _letterGridLabel(row)
+    colname = _letterGridLabel(col) if colnames == 'letter' else str(col + 1)
+    well['name'] = "%s%s" % (rowname, colname)
+    return well
 
 
 def _marshal_share(conn, row):

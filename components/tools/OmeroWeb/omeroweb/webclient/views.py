@@ -1124,6 +1124,7 @@ def api_tags_and_tagged_list_GET(request, conn=None, **kwargs):
         else:
             tagged = {}
 
+        # Get 'tags' under tag_id
         tagged['tags'] = tree.marshal_tags(conn=conn,
                                            orphaned=orphaned,
                                            experimenter_id=experimenter_id,
