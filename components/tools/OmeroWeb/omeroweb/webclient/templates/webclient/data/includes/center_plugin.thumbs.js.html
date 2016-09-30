@@ -365,6 +365,13 @@ $(document).ready(function() {
         $("#choosefilter").change(function(){
             var $this = $(this),
                 filterby = $this.val();
+            // reset chooser
+            $this.val("addfilter");
+
+            // if we're already showing this filter, ignore
+            if ($("#filter" + filterby).is( ":visible" )) {
+                return;
+            }
 
             // Unrated and By rating are mutually exclusive
             if (filterby === "unrated") {
@@ -372,7 +379,7 @@ $(document).ready(function() {
                 $("#filterrating").hide().find("img").attr('src', "{% static 'webclient/image/rating' %}0.png");
                 // do filtering
                 filterUnrated();
-            } else if (filterby === "rating" && $("#filterrating").is( ":hidden" )) {
+            } else if (filterby === "rating") {
                 $("#filterunrated").hide();
                 $("#dataIcons li.row").removeClass('ratingFilter_hidden');
             }
@@ -381,8 +388,6 @@ $(document).ready(function() {
             if (filterby != "addfilter") {
                 $("#filter" + filterby).appendTo("#filtersContainer").show();
             }
-            // reset chooser
-            $this.val("addfilter");
         });
         // Each filter has a 'X' for hiding & clearing filter
         $(".removefilter").click(function(){
@@ -392,7 +397,7 @@ $(document).ready(function() {
             } else if ($fltr.attr('id') === 'filterrating') {
                 $("#dataIcons li.row").removeClass('ratingFilter_hidden');
                 $("#filterrating img").attr('src', "{% static 'webclient/image/rating' %}0.png");
-            } else if ($fltr.attr('id') === 'filterrating') {
+            } else if ($fltr.attr('id') === 'filterunrated') {
                 $("#dataIcons li.row").removeClass('ratingFilter_hidden');
             }
             $fltr.hide();
