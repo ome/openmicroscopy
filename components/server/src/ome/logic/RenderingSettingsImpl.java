@@ -16,6 +16,7 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.commons.collections.CollectionUtils;
 import org.perf4j.StopWatch;
 import org.perf4j.slf4j.Slf4JStopWatch;
 import org.springframework.transaction.annotation.Transactional;
@@ -950,10 +951,21 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      * Copies the context.
      *
      * @param ctx The context to copy.
+     * @param l The list of context already linked to the image if any.
      * @return See above.
      */
-    private CodomainMapContext copyContext(CodomainMapContext ctx)
+    private CodomainMapContext copyContext(CodomainMapContext ctx, List<CodomainMapContext> l)
     {
+        CodomainMapContext c;
+        if (l != null) {
+            Iterator<CodomainMapContext> i = l.iterator();
+            while (i.hasNext()) {
+                c = i.next();
+                if (ctx.getClass().equals(c.getClass())) {
+                    return null;
+                }
+            }
+        }
         if (ctx instanceof ReverseIntensityContext) {
             ReverseIntensityContext nc =  new ReverseIntensityContext();
             nc.setReverse(((ReverseIntensityContext) ctx).getReverse());
@@ -1047,10 +1059,14 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             bindingTo.setRed(binding.getRed());
             // lut used
             bindingTo.setLookupTable(binding.getLookupTable());
-            bindingTo.clearSpatialDomainEnhancement();
+            List<CodomainMapContext> original = bindingTo.collectSpatialDomainEnhancement(null);
             Iterator<CodomainMapContext> j = binding.iterateSpatialDomainEnhancement();
+            //clear if no binding for new one
+            if (binding.sizeOfSpatialDomainEnhancement() == 0) {
+                bindingTo.clearSpatialDomainEnhancement();
+            }
             while (j.hasNext()) {
-                ctx = copyContext(j.next());
+                ctx = copyContext(j.next(), original);
                 if (ctx != null) {
                     bindingTo.addCodomainMapContext(ctx);
                 }
