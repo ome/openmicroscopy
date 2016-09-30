@@ -1,7 +1,7 @@
 OMERO version history
 =====================
 
-5.2.6 (September 2016)
+5.2.6 (October 2016)
 ----------------------
 
 This is a bug-fix release focusing on services closure and a DB upgrade fix.
