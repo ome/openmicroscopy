@@ -163,6 +163,7 @@ class WellFieldsCanvas
 		setPreferredSize(new Dimension(WellFieldsView.DEFAULT_WIDTH, 
 				WellFieldsView.DEFAULT_HEIGHT));
 		setSize(getPreferredSize());
+		setBackground(UIUtilities.BACKGROUND);
 		locations = new HashMap<Rectangle, WellSampleNode>();
 		setFont();
 	}

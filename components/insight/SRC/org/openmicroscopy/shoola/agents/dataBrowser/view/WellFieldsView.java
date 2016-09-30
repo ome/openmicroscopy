@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -31,6 +31,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseMotionListener;
 import java.util.List;
+
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -42,6 +43,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.RollOverNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Displays all the fields of a given well.
@@ -119,6 +121,9 @@ class WellFieldsView
 	
 	/** The component displaying the plate grid. */
 	private JXTaskPane			plateTask;
+	
+	/** Flag to indicate if thumbnails are loading */
+	private boolean loading = false;
 	
 	/** Initializes the components. */
 	private void initComponents()
@@ -215,6 +220,7 @@ class WellFieldsView
 	{
 		setBorder(new LineBorder(new Color(99, 130, 191)));
 		setLayout(new BorderLayout(0, 0));
+		setBackground(UIUtilities.BACKGROUND);
 		JScrollPane pane = new JScrollPane(canvas);
 		pane.setPreferredSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
 		add(pane, BorderLayout.CENTER);
@@ -280,6 +286,18 @@ class WellFieldsView
 	 */
 	void displayFields(List<WellSampleNode> nodes)
 	{
+	    for(WellSampleNode node : nodes) {
+	        // if not all thumbnails are available, load them first
+	        if(!node.getThumbnail().isThumbnailLoaded() && !loading)
+	        {
+	            loading = true;
+	            model.loadFields(node.getRow(), node.getColumn());
+	            return;
+	        }
+	    }
+	    
+	    loading = false;
+	    
 		this.nodes = nodes;
 		if (nodes != null && nodes.size() > 0) {
 			WellSampleNode node = nodes.get(0);

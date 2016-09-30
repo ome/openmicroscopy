@@ -30,12 +30,15 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.swing.JSplitPane;
+
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.MagnificationVisitor;
@@ -48,6 +51,7 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.ScrollablePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
+
 import omero.gateway.model.DataObject;
 import omero.gateway.model.ImageData;
 
@@ -346,19 +350,36 @@ class DataBrowserUI
     	switch (index) {
 			case THUMB_VIEW:
 				selectedView = index;
+				
 				if (model.getType() == DataBrowserModel.WELLS) {
-					add(wellToolBar, c);
-					c.gridy++;
-					wellToolBar.displayFieldsOptions(false);
-				} else {
+				    add(wellToolBar, c);
+                    c.gridy++;
+                    wellToolBar.displayFieldsOptions(false);
+                    
+                    c.fill = GridBagConstraints.BOTH;
+                    c.weighty = 1;
+                    JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+                    split.setTopComponent(model.getBrowser().getUI());
+
+                    fieldsView  = new WellFieldsView((WellsModel) model, 
+                            controller, Thumbnail.MAX_SCALING_FACTOR);
+                    fieldsView.setLayoutFields(WellFieldsView.ROW_LAYOUT);
+                    split.setBottomComponent(fieldsView);
+                    
+                    split.setResizeWeight(.66);
+                    add(split, c);
+                    c.gridy++;
+				}
+				else {
 					add(toolBar, c);
 					c.gridy++;
 					layoutUI();
+					
+					c.fill = GridBagConstraints.BOTH;
+	                c.weighty = 1;
+	                add(model.getBrowser().getUI(), c);
+	                c.gridy++;
 				}
-				c.fill = GridBagConstraints.BOTH;
-				c.weighty = 1;
-				add(model.getBrowser().getUI(), c);
-				c.gridy++;
 				f = factor;
 				break;
 			case FIELDS_VIEW:
@@ -368,7 +389,7 @@ class DataBrowserUI
 				if (fieldsView == null) {
 					f = Thumbnail.MAX_SCALING_FACTOR;
 					fieldsView  = new WellFieldsView((WellsModel) model, 
-							controller, f);//statusBar.getMagnificationFactor());
+							controller, f);
 				}
 				wellToolBar.displayFieldsOptions(true);
 				c.fill = GridBagConstraints.BOTH;
@@ -683,15 +704,23 @@ class DataBrowserUI
 	{
 		if (fieldsView == null) return;
 		setFieldsStatus(false);
-		if (selectedView == FIELDS_VIEW)
+		if (selectedView == FIELDS_VIEW || selectedView == THUMB_VIEW)
 			fieldsView.displayFields(nodes);
 	}
 	
 	/** Invokes when a well is selected. */
 	void onSelectedWell()
 	{
-		if (!(model instanceof WellsModel)) return;
+	    
+		if (!(model instanceof WellsModel))
+		    return;
+		
 		plateGridUI.onSelectedWell();
+        
+        WellsModel wm = (WellsModel) model;
+        WellImageSet node = wm.getSelectedWell();
+        if (node != null) 
+            fieldsView.displayFields(node.getWellSamples());
 	}
 	
 	/**
