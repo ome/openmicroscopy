@@ -41,7 +41,6 @@ $.fn.colorbtn = function(cfg) {
       var data_color = self.attr('data-picked-color');
       var reverse_intensity = self.data('data-reverse-intensity');
       // data_color could be 'FF0000' or 'cool.lut'
-      console.log('data_color', data_color, 'reverse_intensity', reverse_intensity);
       if (data_color) {
         self.attr('data-color', data_color);
         self.trigger('changed');
@@ -57,6 +56,11 @@ $.fn.colorbtn = function(cfg) {
       jQuery("body").prepend('<div class="'+this.cfg.prefix+'" id="'+this.cfg.prefix+'-box"></div>');
       var box = jQuery("#"+this.cfg.prefix+"-box").append('<h1>Choose color</h1>');
       box.postit();
+
+      var reverseIntensityHtml = '<div><input id="reverseIntensity" type="checkbox" style="width:20px"></input>';
+          reverseIntensityHtml += '<label for="reverseIntensity" style="font-size:15px; font-weight: normal;">Reverse Intensity</label></div>';
+          reverseIntensityHtml += '<div style="clear:both"></div>';
+      $(reverseIntensityHtml).appendTo(box);
 
       // Add Lookup Table list - gets populated in show_picker() below.
       var $luts = $('<div id="' + this.cfg.prefix + '-luts" class="lutpicker"></div>').appendTo(box);
@@ -106,7 +110,6 @@ $.fn.colorbtn = function(cfg) {
     this.show_picker = function () {
       // 'data-reverse-intensity' is a string in template, not boolean.
       var reverse_intensity = self.data('data-reverse-intensity');
-      console.log('show_picker', reverse_intensity);
       if (!picker) {
         if (jQuery('#'+this.cfg.prefix+'-box').length === 0) {
           this._prepare_picker();
@@ -138,12 +141,8 @@ $.fn.colorbtn = function(cfg) {
             lutHtml += (lut.name.replace('.lut', '')) + '</label></div>';
             return lutHtml;
           });
-          var reverseIntensityHtml = '<div><input id="reverseIntensity" type="checkbox"></input>';
-          reverseIntensityHtml += '<label for="reverseIntensity" style="font-size:15px;">Reverse Intensity</label></div>';
-          reverseIntensityHtml += '<div style="clear:both"></div>';
-          var html = '<div>' + reverseIntensityHtml + colorRows.join("") + lutRows.join("") + '</div>';
+          var html = '<div>' + colorRows.join("") + lutRows.join("") + '</div>';
           $luts.html(html);
-          $('#reverseIntensity').prop('checked', reverse_intensity);
         });
       }
 
@@ -153,18 +152,17 @@ $.fn.colorbtn = function(cfg) {
       $('.showColorPicker a').html('Show Color Picker');
       $('#reverseIntensity').prop('checked', reverse_intensity);
 
-      // bind appropriate handler (wraps ref to button)
+      // unbind and re-bind appropriate handler (wraps ref to button)
       $("#cbpicker-OK-btn").unbind('click').bind('click', ok_callback)
         .bind('click',function(){
           jQuery("#"+that.cfg.prefix+"-box").hide();
         });
       $('#' + this.cfg.prefix + '-luts').off("click").on( "click", "input", function() {
-        console.log(this, this.checked);
-        if (this.id === 'reverseIntensity') {
-          self.data('data-reverse-intensity', this.checked);
-        } else {
-          self.attr('data-picked-color', this.value);
-        }
+        self.attr('data-picked-color', this.value);
+        ok_callback();
+      });
+      $("#reverseIntensity").off('click').click(function(){
+        self.data('data-reverse-intensity', this.checked);
         ok_callback();
       });
       self.removeAttr('data-picked-color');
