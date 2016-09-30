@@ -395,7 +395,6 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
             re.setChannelLookupTable(k, luts.get(0).getName().getValue());
         }
         re.saveCurrentSettings();
-        // method already tested
         re.close();
         def = factory.getPixelsService().retrieveRndSettings(id);
         long pix2 = image2.getPrimaryPixels().getId().getValue();
@@ -415,13 +414,30 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
         RenderingDef def3 = factory.getPixelsService()
                 .retrieveRndSettings(pix3);
         cb = def2.getChannelBinding(0);
-        Assert.assertEquals(!b, cb.getActive().getValue());
+        Assert.assertEquals(cb.getActive().getValue(), !b);
         cb = def3.getChannelBinding(0);
-        Assert.assertEquals(!b, cb.getActive().getValue());
-
+        Assert.assertEquals(cb.getActive().getValue(), !b);
+        List<ChannelBinding> channels2 = def2.copyWaveRendering();
+        for (int k = 0; k < channels2.size(); k++) {
+            Assert.assertEquals(channels2.get(k).copySpatialDomainEnhancement().size(), 1);
+        }
+        List<ChannelBinding> channels3 = def3.copyWaveRendering();
+        for (int k = 0; k < channels3.size(); k++) {
+            Assert.assertEquals(channels3.get(k).copySpatialDomainEnhancement().size(), 1);
+        }
         // Now pass the original image too.
-        ids.add(image.getId().getValue());
+        //ids.add(image.getId().getValue());
         prx.applySettingsToSet(id, Image.class.getName(), ids);
+        def2 = factory.getPixelsService().retrieveRndSettings(pix2);
+        channels2 = def2.copyWaveRendering();
+        for (int k = 0; k < channels2.size(); k++) {
+            Assert.assertEquals(channels2.get(k).copySpatialDomainEnhancement().size(), 1);
+        }
+        def3 = factory.getPixelsService().retrieveRndSettings(pix2);
+        channels3 = def3.copyWaveRendering();
+        for (int k = 0; k < channels3.size(); k++) {
+            Assert.assertEquals(channels3.get(k).copySpatialDomainEnhancement().size(), 1);
+        }
     }
 
     /**
