@@ -653,6 +653,19 @@ CUSTOM_SETTINGS_MAPPINGS = {
           " ] or [\"Repository\", {\"viewname\": \"webindex\", "
           "\"query_string\": {\"experimenter\": -1}}, "
           "{\"title\": \"Repo\"}]'``")],
+    "omero.web.ui.metadata_pane":
+        ["METADATA_PANE",
+         ('['
+          '{"name": "tag", "index": "0"},'
+          '{"name": "map", "index": "1"},'
+          '{"name": "table", "index": "2"},'
+          '{"name": "file", "index": "3"},'
+          '{"name": "comment", "index": "4"},'
+          '{"name": "rating", "index": "5"},'
+          '{"name": "other", "index": "6"}'
+          ']'),
+         json.loads,
+         ("Manage Metadata pane accordion.")],
     "omero.web.ui.right_plugins":
         ["RIGHT_PLUGINS",
          ('[["Acquisition",'
