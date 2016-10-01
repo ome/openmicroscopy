@@ -1,0 +1,34 @@
+{% comment %}
+<!--
+  Copyright (C) 2011-2016 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% endcomment %}
+
+    <!-- TABLES -->
+    {% if manager.well or manager.image %}
+    <h1 class="can-collapse closed" data-name="tables">
+        Tables
+    </h1>
+    <div class="annotations_section" style="display:none">
+
+        <h2 id="bulk-annotations" class="bulk_annotation" style="display: none;">Info</h2>
+        <div style="display: none;">
+            <table id="bulk_annotations_table" class="bulk_annotations_table"></table>
+        </div>
+        <div style="clear:both; margin:8px"></div>
+    </div>
+    {% endif %}
