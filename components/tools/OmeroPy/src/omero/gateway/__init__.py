@@ -7408,6 +7408,8 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             else:
                 w = w * size[0] / h
                 h = size[0]
+        elif len(size) == 2:
+            w, h = size
         img = img.resize((w, h), Image.NEAREST)
         rv = StringIO()
         img.save(rv, 'jpeg', quality=70)
