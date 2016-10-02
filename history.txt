@@ -11,7 +11,7 @@ Improvements include:
 -  fixed memory leak where services were not correctly closed
 -  added a DB upgrade patch to fix errors only affecting DBs that have been
    upgraded from OMERO 4.4
--  fixed a MATLAB regression introduced in 5.2.2
+-  fixed a MATLAB regression introduced in 5.2.2, casting error.
 -  fixed error in logs on getProjectedThumbnail
 
 Support for OMERO.web deployment using Apache has also been deprecated and is
