@@ -750,16 +750,11 @@
         <ul id="left_panel_tab_list" class="ui-tabs-nav">
 			
 			<!-- Remember to update this in public/public.html as well. We should change this, but for the meantime, you need to manually update the menu there too -->
-			
-	        <li id="explore_tab" class="ui-state-default{% ifequal menu 'userdata' %} ui-tabs-active{% endifequal %}">
-                <a href="{% url 'load_template' 'userdata' %}" class="ui-tabs-anchor" title="Explore">{% trans "Explore" %}</a>
-            </li>
-	        <li id="tags_tab" class="ui-state-default{% ifequal menu 'usertags' %} ui-tabs-active{% endifequal %}">
-                <a href="{% url 'load_template' 'usertags' %}" class="ui-tabs-anchor">{% trans "Tags" %}</a>
-            </li>
-	        <li id="public_tab" class="ui-state-default">
-                <a href="{% url 'load_template' 'public' %}" class="ui-tabs-anchor">{% trans "Shares" %}</a>
-            </li>
+            {% for lt in ome.left_plugins %}
+                <li class="ui-state-default{% ifequal menu lt.menu %} ui-tabs-active{% endifequal %}">
+                    <a href="{{ lt.url }}" class="ui-tabs-anchor" title="{{ lt.label }}">{{ lt.label }}</a>
+                </li>
+            {% endfor %}
        
 	    </ul>
 

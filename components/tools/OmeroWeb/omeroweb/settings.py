@@ -793,6 +793,13 @@ DEVELOPMENT_SETTINGS_MAPPINGS = {
          ("(SYNC WORKERS only) The number of worker threads for handling "
           "requests. Check Gunicorn Documentation "
           "http://docs.gunicorn.org/en/stable/settings.html#threads")],
+    "omero.web.ui.left_plugins":
+        ["LEFT_PLUGINS",
+         ('[{"label": "Explore", "menu": "userdata"},'
+          ' {"label": "Tags", "menu": "usertags"},'
+          ' {"label": "Shares", "menu": "public"}]'),
+         json.loads,
+         ("Manage plugins in the left-hand panel.")],
 }
 
 
