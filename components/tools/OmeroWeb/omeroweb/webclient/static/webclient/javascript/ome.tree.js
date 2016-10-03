@@ -1028,7 +1028,7 @@ $(function() {
                                     selType = sel.reduce(function(prev, s){
                                         return s.type + (sel.length > 1 ? "s" : "");
                                     }, "undefined"),
-                                    enabled;
+                                    enabled = false;
                                 if (typeof v.isEnabled === "function") {
                                     // If plugin has provided a function 'isEnabled'...
                                     // prepare json of selected objects to pass to function
@@ -1041,12 +1041,14 @@ $(function() {
                                     enabled = v.isEnabled(selJson);
                                     return !enabled;
                                 }
-                                // ...Otherwise use the supported objects list
+                                // ...Otherwise if supported_objects list is configured...
                                 // v.supported_objects is ['image'] or ['dataset', 'images'] etc.
-                                enabled = v.supported_objects.reduce(function(prev, supported){
-                                    // E.g. If supported_objects is 'images'...
-                                    return prev || supported.indexOf(selType) > -1;  // ... selType 'image' OR 'images' are > -1
-                                }, false);
+                                if (typeof v.supported_objects === "object" && v.supported_objects.length > 0) {
+                                    enabled = v.supported_objects.reduce(function(prev, supported){
+                                        // E.g. If supported_objects is 'images'...
+                                        return prev || supported.indexOf(selType) > -1;  // ... selType 'image' OR 'images' are > -1
+                                    }, false);
+                                }
                                 return !enabled;
                             }
                         };

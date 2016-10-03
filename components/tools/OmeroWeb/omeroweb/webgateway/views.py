@@ -1540,8 +1540,7 @@ def open_with_options(request, **kwargs):
         except NoReverseMatch:
             viewer['url'] = ow[1]
         # try non-essential parameters...
-        # By default, we support single image, opening in new window
-        viewer['supported_objects'] = ['image']
+        # NB: Need supported_objects OR script_url to enable plugin
         try:
             if len(ow) > 2:
                 if 'supported_objects' in ow[2]:
