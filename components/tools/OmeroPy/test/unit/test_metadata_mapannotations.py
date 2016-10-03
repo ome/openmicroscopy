@@ -81,20 +81,6 @@ class TestCanonicalMapAnnotation(object):
             CanonicalMapAnnotation(ma)
         assert str(excinfo.value).startswith('Duplicate ')
 
-    @pytest.mark.parametrize('unique_keys', [False, True])
-    def test_init_unique_keys(self, unique_keys):
-        ma = MapAnnotationI(1)
-        ma.setMapValue([NamedValue('b', '2'), NamedValue('b', '1')])
-
-        if unique_keys:
-            with pytest.raises(ValueError) as excinfo:
-                CanonicalMapAnnotation(ma, unique_keys=unique_keys)
-                assert str(excinfo.value).startswith('Duplicate ')
-        else:
-            cma = CanonicalMapAnnotation(ma, unique_keys=unique_keys)
-            assert cma.kvpairs == [('b', '2'), ('b', '1')]
-            assert cma.primary is None
-
     @pytest.mark.parametrize('ns', [None, '', 'NS'])
     @pytest.mark.parametrize('primary_keys', [[], ['a'], ['a', 'b']])
     def test_init_primary_keys(self, ns, primary_keys):

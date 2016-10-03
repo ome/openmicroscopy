@@ -40,8 +40,8 @@ NSBULKANNOTATIONSRAW = namespaces.NSBULKANNOTATIONS + "/raw"
 
 class GroupConfig(object):
 
-    def __init__(self, groupname, column_cfg):
-        self.groupname = groupname
+    def __init__(self, namespace, column_cfg):
+        self.namespace = namespace
         self.columns = column_cfg
 
     def __eq__(self, other):
@@ -66,7 +66,7 @@ class BulkAnnotationConfiguration(object):
         "visible",
         "omitempty",
         ])
-    GROUPREQUIRED = set(["groupname", "columns"])
+    GROUPREQUIRED = set(["namespace", "columns"])
 
     def __init__(self, default_cfg, column_cfgs):
         """
@@ -177,7 +177,7 @@ class BulkAnnotationConfiguration(object):
                 "Required key(s) missing from group configuration: %s" %
                 list(missing))
 
-        if not cfg["groupname"]:
+        if not cfg["namespace"]:
             raise Exception("Empty name in group configuration: %s" % cfg)
 
         if not cfg["columns"]:
@@ -198,7 +198,7 @@ class BulkAnnotationConfiguration(object):
             self.validate_group_config(gcfg)
             column_cfgs = [
                 self.get_column_config(gc) for gc in gcfg['columns']]
-            return GroupConfig(gcfg['groupname'], column_cfgs)
+            return GroupConfig(gcfg['namespace'], column_cfgs)
 
         self.validate_column_config(cfg)
         column_cfg = self.default_cfg.copy()
@@ -251,7 +251,7 @@ class KeyValueGroupList(BulkAnnotationConfiguration):
     def get_output_configs(self):
         """
         Get the full set of output column configs including column groups
-        The default set of column configs has an empty groupname
+        The default set of column configs has an empty namespace
         """
 
         # First process groups in case the default is to include all
@@ -259,7 +259,7 @@ class KeyValueGroupList(BulkAnnotationConfiguration):
         output_configs = []
         for gcfg in self.group_cfgs:
             output_cfg = self.get_group_output_configs(gcfg.columns, False)
-            output_configs.append(GroupConfig(gcfg.groupname, output_cfg))
+            output_configs.append(GroupConfig(gcfg.namespace, output_cfg))
 
         output_defcfg = self.get_group_output_configs(self.column_cfgs, True)
         output_configs.append(GroupConfig('', output_defcfg))
@@ -326,7 +326,7 @@ class KeyValueGroupList(BulkAnnotationConfiguration):
         Return a set of KeyValueListTransformer objects, one for each group
         """
         transformers = [KeyValueListTransformer(
-            self.headers, gc.columns, gc.groupname)
+            self.headers, gc.columns, gc.namespace)
             for gc in self.output_configs]
         return transformers
 

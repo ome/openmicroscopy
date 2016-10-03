@@ -1089,8 +1089,35 @@ class BulkToMapAnnotationContext(_QueryContext):
         self.default_cfg, self.column_cfgs, self.advanced_cfgs = \
             get_config(self.client.getSession(), cfg=cfg, cfgid=cfgid)
 
-        self.pkmap = None
+        self.pkmap = {}
         self.mapannotations = MapAnnotationManager()
+        self._init_namespace_primarykeys()
+
+    def _init_namespace_primarykeys(self):
+        try:
+            pkcfg = self.advanced_cfgs['primary_group_keys']
+        except (TypeError, KeyError):
+            return None
+
+        for pk in pkcfg:
+            try:
+                gns = pk['namespace']
+                keys = pk['keys']
+            except KeyError:
+                raise Exception('Invalid primary_group_keys: %s' % pk)
+            if keys:
+                if not isinstance(keys, list):
+                    raise Exception('keys must be a list')
+                if gns in self.pkmap:
+                    raise Exception('Duplicate namespace in keys: %s' % gns)
+
+                self.pkmap[gns] = keys
+                self.mapannotations.add_from_namespace_query(
+                    self.client.getSession(), gns, keys)
+                log.debug('Loaded ns:%s primary-keys:%s', gns, keys)
+
+    def _get_ns_primary_keys(self, ns):
+        return self.pkmap.get(ns, None)
 
     def get_target(self, target_object):
         qs = self.client.getSession().getQueryService()
@@ -1105,31 +1132,6 @@ class BulkToMapAnnotationContext(_QueryContext):
                             omero.constants.namespaces.NSBULKANNOTATIONS)
         if r:
             return r[-1]
-
-    def _get_ns_primary_keys(self, ns):
-        if self.pkmap is not None:
-            return self.pkmap.get(ns, None)
-
-        self.pkmap = {}
-        try:
-            pkcfg = self.advanced_cfgs['primary_group_keys']
-        except (TypeError, KeyError):
-            return None
-
-        for pk in pkcfg:
-            try:
-                gns = pk['groupname']
-                keys = pk['keys']
-            except KeyError:
-                raise Exception('Invalid primary_group_keys: %s' % pk)
-            if keys:
-                if not isinstance(keys, list):
-                    raise Exception('keys must be a list')
-                if gns in self.pkmap:
-                    raise Exception('Duplicate namespace in keys: %s' % gns)
-                self.pkmap[gns] = keys
-
-        return self.pkmap[ns]
 
     def _create_cmap_annotation(self, targets, rowkvs, ns):
         pks = self._get_ns_primary_keys(ns)
@@ -1150,7 +1152,7 @@ class BulkToMapAnnotationContext(_QueryContext):
 
         log.debug('Creating CanonicalMapAnnotation ns:%s pks:%s kvs:%s',
                   ns, pks, rowkvs)
-        cma = CanonicalMapAnnotation(ma, primary_keys=pks, unique_keys=False)
+        cma = CanonicalMapAnnotation(ma, primary_keys=pks)
         for (otype, oid) in targets:
             cma.add_parent(otype, oid)
         return cma
@@ -1240,7 +1242,6 @@ class BulkToMapAnnotationContext(_QueryContext):
                         cma = self._create_cmap_annotation(targets, rowkvs, ns)
                         if cma:
                             self.mapannotations.add(cma)
-                            print cma
                             log.debug('Added MapAnnotation: %s', cma)
                         else:
                             log.debug(
@@ -1265,11 +1266,11 @@ class BulkToMapAnnotationContext(_QueryContext):
         for cma in self.mapannotations.get_map_annotations():
             links.append(self._create_map_annotation_links(cma))
         for batch in self._grouped_batch(links, sz=batch_size):
-            ids = update_service.saveAndReturnIds(
+            arr = update_service.saveAndReturnArray(
                 batch, {'omero.group': group})
-            i += len(ids)
+            i += len(arr)
             log.info('Created/linked %d MapAnnotations (total %s)',
-                     len(ids), i)
+                     len(arr), i)
 
 
 class DeleteMapAnnotationContext(_QueryContext):
@@ -1318,7 +1319,7 @@ class DeleteMapAnnotationContext(_QueryContext):
         if self.column_cfgs:
             for c in self.column_cfgs:
                 try:
-                    ns = c['group']['groupname']
+                    ns = c['group']['namespace']
                     nss.add(ns)
                 except KeyError:
                     continue
