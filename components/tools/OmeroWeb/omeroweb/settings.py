@@ -663,13 +663,13 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.ui.metadata_pane":
         ["METADATA_PANE",
          ('['
-          '{"name": "tag", "label": "Tags", "index": "0"},'
-          '{"name": "map", "label": "Key-Value Pairs", "index": "1"},'
-          '{"name": "table", "label": "Tables", "index": "2"},'
-          '{"name": "file", "label": "Attachements", "index": "3"},'
-          '{"name": "comment", "label": "Comments", "index": "4"},'
-          '{"name": "rating", "label": "Ratings", "index": "5"},'
-          '{"name": "other", "label": "Others", "index": "6"}'
+          '{"name": "tag", "label": "Tags", "index": 0},'
+          '{"name": "map", "label": "Key-Value Pairs", "index": 1},'
+          '{"name": "table", "label": "Tables", "index": 2},'
+          '{"name": "file", "label": "Attachements", "index": 3},'
+          '{"name": "comment", "label": "Comments", "index": 4},'
+          '{"name": "rating", "label": "Ratings", "index": 5},'
+          '{"name": "other", "label": "Others", "index": 6}'
           ']'),
          json.loads,
          ("Manage Metadata pane accordion.")],
