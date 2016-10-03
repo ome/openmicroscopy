@@ -482,7 +482,7 @@
     
         #right_panel th, #right_panel td {
             padding: 0 5px 5px 0;
-            white-space: nowrap;
+            overflow-wrap: break-word;
         }
     
         #right_panel th, #right_panel td.title{
