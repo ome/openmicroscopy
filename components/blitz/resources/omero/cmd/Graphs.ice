@@ -175,6 +175,11 @@ module omero {
              * objects.
              **/
             long userId;
+
+            /**
+             * The users who should have all their data targeted.
+             **/
+            omero::api::LongList targetUsers;
         };
 
         /**
