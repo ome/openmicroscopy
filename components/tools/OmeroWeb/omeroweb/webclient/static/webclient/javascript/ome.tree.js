@@ -1010,9 +1010,8 @@ $(function() {
                                                  'type': s.type};
                                         return o;
                                     });
-                                    // see if it handles the event
-                                    var eventBubbled = v.action(selJson, v.url);
-                                    if (!eventBubbled) return;
+                                    v.action(selJson, v.url);
+                                    return;
                                 }
                                 // ...otherwise we use default handling...
                                 if (v.target) {
