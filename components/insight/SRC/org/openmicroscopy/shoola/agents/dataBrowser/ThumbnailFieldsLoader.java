@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -20,6 +20,7 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser;
 
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -60,6 +61,9 @@ public class ThumbnailFieldsLoader
     /** The column identifying the well. */
     private int column;
     
+    /** The rows/columns identifying the wells. */
+    private List<Point> fields;
+    
 	/** The loaded thumbnails.*/
 	private List<Object> result;
 	
@@ -72,11 +76,32 @@ public class ThumbnailFieldsLoader
      * @param images The <code>ImageData</code> objects for the images whose 
      *               thumbnails have to be fetched. 
      *               Mustn't be <code>null</code>.
-     * @param row	 The row identifying the well.
+     * @param fields The rows/columns identifying the wells.
+     */
+    public ThumbnailFieldsLoader(DataBrowser viewer, SecurityContext ctx,
+    				Collection<DataObject> images, List<Point> fields)
+    {
+        super(viewer, ctx);
+        if (images == null)
+            throw new IllegalArgumentException("Collection shouldn't be null.");
+        this.images = images;
+        this.fields = fields;
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
+     * @param images The <code>ImageData</code> objects for the images whose 
+     *               thumbnails have to be fetched. 
+     *               Mustn't be <code>null</code>.
+     * @param row    The row identifying the well.
      * @param column The column identifying the well.
      */
     public ThumbnailFieldsLoader(DataBrowser viewer, SecurityContext ctx,
-    				Collection<DataObject> images, int row, int column)
+                    Collection<DataObject> images, int row, int column)
     {
         super(viewer, ctx);
         if (images == null)
@@ -116,8 +141,12 @@ public class ThumbnailFieldsLoader
     	if (td != null) {
     		if (result == null) result = new ArrayList<Object>();
         	result.add(td);
-    		if (result.size() == images.size())
-    			viewer.setThumbnailsFieldsFor(result, row, column);
+    		if (result.size() == images.size()) {
+    		    if(fields != null)
+    		        viewer.setThumbnailsFieldsFor(result, fields);
+    		    else
+    		        viewer.setThumbnailsFieldsFor(result, row, column);
+    		}
     	}
     }
     

@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -19,6 +19,8 @@
  *------------------------------------------------------------------------------
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.browser;
+
+import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailProvider;
 
 import omero.gateway.model.WellSampleData;
 import ome.model.units.BigResult;
@@ -39,7 +41,7 @@ public class WellSampleNode
 {
 
 	/** Reference to the parent of the well. */
-	private WellImageSet	parent;
+    private WellImageSet	parent;
 	
 	/** The index of the sample. */
 	private int 			index;
@@ -73,6 +75,19 @@ public class WellSampleNode
 		this.parent = parent;
 	}
 
+    /**
+     * Creates a copy (including a copy of the thumbnail)
+     * @return See above.
+     */
+    public WellSampleNode copy() {
+        ThumbnailProvider thumbCopy = new ThumbnailProvider(
+                ((WellSampleData) getHierarchyObject()).getImage());
+        thumbCopy.setFullScaleThumb(getThumbnail().getFullScaleThumb());
+        WellSampleNode copy = new WellSampleNode(getTitle(),
+                getHierarchyObject(), thumbCopy, index, parent);
+        return copy;
+    }
+    
 	/** 
 	 * Returns the height of the title.
 	 * 

@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,6 +22,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -656,11 +657,10 @@ class WellsModel
 	/**
 	 * Creates a concrete loader.
 	 * 
-	 * @param row The row identifying the well.
-	 * @param column The column identifying the well.
+	 * @param fields The rows/columns identifying the well.
 	 * @return See above.
 	 */
-	DataBrowserLoader createFieldsLoader(int row, int column)
+	DataBrowserLoader createFieldsLoader(List<Point> fields)
 	{
 		List<ImageDisplay> l = getNodes();
 		Iterator<ImageDisplay> i = l.iterator();
@@ -672,13 +672,18 @@ class WellsModel
 		List<WellSampleNode> nodes;
 		Iterator<WellSampleNode> j;
 		WellSampleNode n;
-		if (selectedNodes != null) selectedNodes.clear();
 		while (i.hasNext()) {
 			node = (ImageSet) i.next();
 			if (node instanceof WellImageSet) {
 				wis = (WellImageSet) node;
-				if (wis.getRow() == row && wis.getColumn() == column) {
-					setSelectedWell(wis);
+				boolean targetField = false;
+				for(Point p : fields) {
+				    if(wis.getRow()==p.getX() && wis.getColumn()==p.getY()) {
+				        targetField = true;
+				        break;
+				    }
+				}
+				if (targetField) {
 					nodes = wis.getWellSamples();
 					j = nodes.iterator();
 					while (j.hasNext()) {
@@ -699,7 +704,7 @@ class WellsModel
 		}
 
 		if (images.size() == 0) return null;
-		return new ThumbnailFieldsLoader(component, ctx, images, row, column);
+		return new ThumbnailFieldsLoader(component, ctx, images, fields);
 	}
 	
 	/**

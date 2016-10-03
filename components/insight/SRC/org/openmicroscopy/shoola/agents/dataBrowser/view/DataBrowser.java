@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -20,6 +20,7 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Collection;
@@ -724,6 +725,14 @@ public interface DataBrowser
 	 */
 	public void setThumbnailsFieldsFor(List list, int row, int column);
 
+	/**
+     * Sets the thumbnails for all the fields of the specified well.
+     * 
+     * @param list   The collection of thumbnails.
+     * @param fields    The rows/columns identifying the well.
+     */
+	public void setThumbnailsFieldsFor(List list, List<Point> fields);
+	
 	/**
 	 * Opens the currently selected object with an external application.
 	 * 

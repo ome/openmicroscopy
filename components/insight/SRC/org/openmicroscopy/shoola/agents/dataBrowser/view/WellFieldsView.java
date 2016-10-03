@@ -23,13 +23,14 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseMotionListener;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.swing.JLabel;
@@ -125,6 +126,9 @@ class WellFieldsView
 	/** Flag to indicate if thumbnails are loading */
 	private boolean loading = false;
 	
+	/** The scroll pane */
+	private JScrollPane pane;
+	
 	/** Initializes the components. */
 	private void initComponents()
 	{
@@ -136,20 +140,10 @@ class WellFieldsView
 		if (node != null) {
 			selectedNode.setText(DEFAULT_WELL_TEXT+node.getWellLocation());
 		}
-		/*
-		grid = new PlateGrid(model.getRowSequenceIndex(), 
-				model.getColumnSequenceIndex(), model.getValidWells(), 
-				model.getRows(), model.getColumns());
-		grid.addPropertyChangeListener(controller);
 		
-		WellImageSet node = model.getSelectedWell();
-		selectedNode = new JLabel();
-		if (node != null) {
-			selectedNode.setText(DEFAULT_WELL_TEXT+node.getWellLocation());
-			grid.selectCell(node.getRow(), node.getColumn());
-		}
-		*/
-		canvas = new WellFieldsCanvas(this);
+		canvas = new GridFieldCanvas(this);
+		//canvas = new GridSpatialFieldCanvas(this);
+		
 		canvas.addMouseListener(new MouseAdapter() {
 
 			/**
@@ -157,12 +151,12 @@ class WellFieldsView
 			 * @see MouseListener#mouseEntered(MouseEvent)
 			 */
 			public void mouseReleased(MouseEvent e) {
-				WellSampleNode node = canvas.getNode(e.getPoint());
-				if (node != null) {
-					model.setSelectedField(node);
-					if (e.getClickCount() == 2)
-						controller.viewDisplay(node);
-				}
+//				WellSampleNode node = canvas.getNode(e.getPoint());
+//				if (node != null) {
+//					model.setSelectedField(node);
+//					if (e.getClickCount() == 2)
+//						controller.viewDisplay(node);
+//				}
 			}
 
 			/**
@@ -171,8 +165,6 @@ class WellFieldsView
 			 */
 			public void mousePressed(MouseEvent e)
 			{
-				//WellSampleNode node = canvas.getNode(e.getPoint());
-				//if (node != null) model.setSelectedField(node);
 			}
 
 		});
@@ -221,24 +213,8 @@ class WellFieldsView
 		setBorder(new LineBorder(new Color(99, 130, 191)));
 		setLayout(new BorderLayout(0, 0));
 		setBackground(UIUtilities.BACKGROUND);
-		JScrollPane pane = new JScrollPane(canvas);
-		pane.setPreferredSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
+		pane = new JScrollPane(canvas);
 		add(pane, BorderLayout.CENTER);
-		/*
-		JPanel p = new JPanel();
-		double[][] size = {{TableLayout.PREFERRED, 5, TableLayout.PREFERRED},
-				{TableLayout.PREFERRED, TableLayout.PREFERRED, 
-				TableLayout.FILL}};
-		p.setLayout(new TableLayout(size));
-		p.add(grid, "0, 0, 0, 2");
-		p.add(selectedNode, "2, 0, LEFT, TOP");
-		p.add(selectedField, "2, 1, LEFT, TOP");
-		
-		plateTask = EditorUtil.createTaskPane("Plate");
-		plateTask.add(UIUtilities.buildComponentPanel(p));
-		plateTask.setCollapsed(false);
-		add(plateTask, BorderLayout.SOUTH);
-		*/
 	}
 	
 	/**
@@ -286,19 +262,34 @@ class WellFieldsView
 	 */
 	void displayFields(List<WellSampleNode> nodes)
 	{
+	    HashSet<Point> toLoad = new HashSet<Point>();
 	    for(WellSampleNode node : nodes) {
 	        // if not all thumbnails are available, load them first
-	        if(!node.getThumbnail().isThumbnailLoaded() && !loading)
+	        if(!node.getThumbnail().isThumbnailLoaded())
 	        {
-	            loading = true;
-	            model.loadFields(node.getRow(), node.getColumn());
-	            return;
+	            Point p = new Point(node.getRow(), node.getColumn());
+	            toLoad.add(p);
 	        }
+	    }
+	    if(!toLoad.isEmpty() && !loading) {
+	        loading = true;
+	        ArrayList<Point> tmp = new ArrayList<Point>(toLoad.size());
+	        tmp.addAll(toLoad);
+	        canvas.setLoading(true);
+	        model.loadFields(tmp);
+            return;
 	    }
 	    
 	    loading = false;
-	    
-		this.nodes = nodes;
+
+		this.nodes = new ArrayList<WellSampleNode>(nodes.size());
+		for(WellSampleNode n : nodes) {
+		    WellSampleNode copy = n.copy();
+		    copy.setTitle(n.getTitle()+" Field #"+(copy.getIndex()+1));
+		    copy.setTitleBarType(ImageNode.SMALL_TITLE_BAR);
+		    this.nodes.add(copy);
+		}
+		
 		if (nodes != null && nodes.size() > 0) {
 			WellSampleNode node = nodes.get(0);
 			if (node != null) {
@@ -307,7 +298,8 @@ class WellFieldsView
 				selectedNode.repaint();
 			}
 		}
-		canvas.repaint();
+		
+		canvas.refreshUI();
 	}
 	
 	/** 
@@ -318,7 +310,7 @@ class WellFieldsView
 	void setMagnificationFactor(double factor)
 	{
 		magnification = factor;
-		canvas.repaint();
+		canvas.refreshUI();
 	}
 	
 	/**
@@ -336,7 +328,7 @@ class WellFieldsView
 	void setMagnificationUnscaled(double factor)
 	{
 		magnificationUnscaled = factor;
-		canvas.repaint();
+		canvas.refreshUI();
 	}
 	
 	/**

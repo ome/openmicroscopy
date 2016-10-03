@@ -718,9 +718,13 @@ class DataBrowserUI
 		plateGridUI.onSelectedWell();
         
         WellsModel wm = (WellsModel) model;
-        WellImageSet node = wm.getSelectedWell();
-        if (node != null) 
-            fieldsView.displayFields(node.getWellSamples());
+        List<WellImageSet> nodes = wm.getSelectedWells();
+        List<WellSampleNode> wsnodes = new ArrayList<WellSampleNode>();
+        for (WellImageSet node : nodes) {
+            wsnodes.addAll(node.getWellSamples());
+        }
+        if (nodes != null && !nodes.isEmpty())
+            fieldsView.displayFields(wsnodes);
 	}
 	
 	/**

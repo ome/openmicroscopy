@@ -21,6 +21,7 @@
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 import java.awt.image.BufferedImage;
+import java.awt.Point;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -1623,6 +1624,51 @@ class DataBrowserComponent
 		}
 	}
 	
+	/**
+     * Implemented as specified by the {@link DataBrowser} interface.
+     * @see DataBrowser#setThumbnailsFieldsFor(List, List)
+     */
+	@Override
+    public void setThumbnailsFieldsFor(List list, List<Point> fields)
+    {
+	    if (!(model instanceof WellsModel)) return;
+        WellsModel wm = (WellsModel) model;
+        
+        List<WellImageSet> wells = wm.getSelectedWells();
+        if (wells == null || wells.isEmpty())
+            return;
+        
+        List<WellSampleNode> nodes = new ArrayList<WellSampleNode>();
+        for(WellImageSet well : wells) {
+            nodes.addAll(well.getWellSamples());
+            Iterator<WellSampleNode> j = nodes.iterator();
+            WellSampleNode n; 
+            Map<Long, WellSampleNode> map = new HashMap<Long, WellSampleNode>();
+            WellSampleData data;
+            while (j.hasNext()) {
+                n = j.next();
+                data = (WellSampleData) n.getHierarchyObject();
+                if (data.getId() > 0) {
+                    map.put(data.getImage().getId(), n);
+                }
+            }
+            //Check the data.
+            Iterator i = list.iterator();
+            ThumbnailData td;
+            Thumbnail thumb;
+            while (i.hasNext()) {
+                td = (ThumbnailData) i.next();
+                n = map.get(td.getImageID());
+                if (n != null) {
+                    thumb = n.getThumbnail();
+                    thumb.setFullScaleThumb(td.getThumbnail());
+                    thumb.setValid(true);
+                }
+            }
+        }
+        view.displayFields(nodes);
+    }
+    
 	/**
 	 * Implemented as specified by the {@link DataBrowser} interface.
 	 * @see DataBrowser#setThumbnailsFieldsFor(List, int, int)

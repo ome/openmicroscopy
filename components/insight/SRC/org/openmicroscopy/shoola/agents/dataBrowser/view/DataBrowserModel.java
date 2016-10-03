@@ -20,6 +20,7 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -390,11 +391,31 @@ abstract class DataBrowserModel
      */
     boolean loadFields(int row, int column)
     {
-    	if (!(this instanceof WellsModel)) return false;
-    	fieldsLoader = ((WellsModel) this).createFieldsLoader(row, column);
+    	if (!(this instanceof WellsModel)) 
+    	    return false;
+    	Point p = new Point(row, column);
+    	List<Point> l = new ArrayList<Point>(1);
+    	l.add(p);
+    	fieldsLoader = ((WellsModel) this).createFieldsLoader(l);
     	if (fieldsLoader == null) return false;
     	fieldsLoader.load();
     	return true;
+    }
+    
+    /**
+     * Loads the fields for the specified well. Returns <code>true</code>
+     * if a loader was created, <code>false</code> otherwise.
+     * 
+     * @param fields    The rows/columns identifying the well.
+     * @return See above.
+     */
+    boolean loadFields(List<Point> fields)
+    {
+        if (!(this instanceof WellsModel)) return false;
+        fieldsLoader = ((WellsModel) this).createFieldsLoader(fields);
+        if (fieldsLoader == null) return false;
+        fieldsLoader.load();
+        return true;
     }
     
     /** Cancels any-going fields loading. */
