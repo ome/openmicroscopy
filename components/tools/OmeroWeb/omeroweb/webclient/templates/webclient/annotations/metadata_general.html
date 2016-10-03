@@ -685,7 +685,9 @@
         <!-- templates are loaded based on config -->
         {% for t in ome.metadata_pane|dictsort:"index" %}
             {% with "webclient/annotations/includes/metadata_general_"|add:t.name|add:".html" as metadata_templates_path %}
+            {% with label=t.label %}
             {% include metadata_templates_path %}
+            {% endwith %}
             {% endwith %}
         {% endfor %}
 
