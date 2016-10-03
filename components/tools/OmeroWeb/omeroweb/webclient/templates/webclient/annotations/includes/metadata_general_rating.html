@@ -21,7 +21,7 @@
     <!-- RATING -->
     <div id="ratingsPane">
     <h1 class="can-collapse closed" data-name="ratings">
-        Ratings
+        {{ label|default:"Ratings" }}
     </h1>
     <div class="annotations_section" style="display: none">
         <div id="rating_annotations" {% if manager.canAnnotate %}class="canAnnotate"{% endif %}></div>
