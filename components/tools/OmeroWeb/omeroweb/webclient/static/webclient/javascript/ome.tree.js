@@ -157,52 +157,61 @@ $(function() {
                     // Use the open_node callback mechanism to facilitate loading the tree to the
                     // point indicated by the path, starting from the top, 'experimenter'.
                     if (data.length === 0) return;
-                    var path = data[0];
-                    var lastIndex = path.length - 1;
 
-                    var traverse = function(index, parentNode) {
-                        // Get this path component
-                        var comp = path[index];
-                        // Get the node for this path component
-                        var node = inst.locate_node(comp.type + '-' + comp.id, parentNode)[0];
+                    var getTraverse = function(path) {
+                        var traverse = function(index, parentNode) {
+                            // Get this path component
+                            var comp = path[index];
+                            // Get the node for this path component
+                            var node = inst.locate_node(comp.type + '-' + comp.id, parentNode)[0];
 
-                        // if we've failed to find root, we might be showing "All Members". Try again...
-                        if (index === 0 && !node) {
-                            node = inst.locate_node(comp.type + '-' + '-1', parentNode)[0];
-                        }
+                            // if we've failed to find root, we might be showing "All Members". Try again...
+                            if (index === 0 && !node) {
+                                node = inst.locate_node(comp.type + '-' + '-1', parentNode)[0];
+                            }
+                            
+                            // If at any point the node doesn't exist, simply give up as the path has
+                            // become invalid
+                            if (!node) {
+                                return;
+                            }
+                            // If we have a 'childPage' greater than 0, need to paginate
+                            if (comp.childPage) {
+                                inst._set_page(node, comp.childPage);
+                            }
 
-                        // If at any point the node doesn't exist, simply give up as the path has
-                        // become invalid
-                        if (!node) {
-                            return;
-                        }
-                        // If we have a 'childPage' greater than 0, need to paginate
-                        if (comp.childPage) {
-                            inst._set_page(node, comp.childPage);
-                        }
-
-                        if (index < lastIndex) {
-                            inst.open_node(node, function() {
-                                traverse(index += 1, node);
-                            });
-                        // Otherwise select it
-                        } else {
-                            inst.select_node(node);
-                            inst.open_node(node);
-                            // we also focus the node, to scroll to it and setup hotkey events
-                            $("#" + node.id).children('.jstree-anchor').focus();
-                            // Handle multiple selection. E.g. extra images in same dataset
-                            for(var n=1; n<nodeIds.length; n++) {
-                                node = inst.locate_node(nodeIds[n], parentNode)[0];
-                                if(node) {
-                                    inst.select_node(node);
+                            if (index < lastIndex) {
+                                inst.open_node(node, function() {
+                                    traverse(index += 1, node);
+                                });
+                            // Otherwise select it
+                            } else {
+                                inst.select_node(node);
+                                inst.open_node(node);
+                                // we also focus the node, to scroll to it and setup hotkey events
+                                $("#" + node.id).children('.jstree-anchor').focus();
+                                // Handle multiple selection. E.g. extra images in same dataset
+                                for(var n=1; n<nodeIds.length; n++) {
+                                    node = inst.locate_node(nodeIds[n], parentNode)[0];
+                                    if(node) {
+                                        inst.select_node(node);
+                                    }
                                 }
                             }
+                        };
+                        return traverse;
+                    }
+                    var i;
+                    for (i=0; i < (data.length); i++) {
+                        var path = data[i];
+                        var lastIndex = path.length - 1;
+                        var traverse = getTraverse(path)
+                        // Start traversing at the start of the path with no parent node
+                        try {
+                            traverse(0, undefined);
+                        } finally {
                         }
-                    };
-
-                    // Start traversing at the start of the path with no parent node
-                    traverse(0, undefined);
+                    }
                 },
 
                 error: function(json) {
@@ -378,20 +387,29 @@ $(function() {
             'force_text': true,
             // Make use of function for 'data' because there are some scenarios in which
             // an ajax call is not used to get the data. Namely, the all-user view
-            'data' : function(node, callback) {
+            'data' : function(node, callback, payload) {
                 // Get the data for this query
-                var payload = {};
+                if (payload === undefined) {
+                    payload = {};
+                }
                 // We always use the parent id to fitler. E.g. experimenter id, project id etc.
                 // Exception to this for orphans as in the case of api_images, id is a dataset
                 if (node.hasOwnProperty('data') && node.type != 'orphaned') {
-
                     // NB: In case of loading Tags, we don't want to use 'id' for top level
                     // since that will filter by tag.
                     // TODO: fix inconsistency between url apis by using 'owner'
                     var tagroot = (WEBCLIENT.URLS.tree_top_level === WEBCLIENT.URLS.api_tags_and_tagged &&
                             node.type === 'experimenter');
 
+                    if (node.data.hasOwnProperty('obj')) {
+                        // Allows to load custom parameters to QUERY_STRING
+                        if (node.data.obj.hasOwnProperty('extra')) {
+                            $.extend(payload, node.data.obj.extra)
+                        }
+                    }
+
                     if (!tagroot && node.data.hasOwnProperty('obj')) {
+                        // Allows to load custom parameters to QUERY_STRING
                         payload['id'] = node.data.obj.id;
                     }
 
@@ -418,16 +436,18 @@ $(function() {
 
                 // If this is a node which can have paged results then either specify that
                 // we want the specific page, or use default first page
-                if (node.type === 'dataset' || node.type === 'orphaned') {
+
+                // Disable paging for node without counter
+                var nopageTypes = ['project', 'screen', 'plate', 'tagset', 'tag'];
+                if (nopageTypes.indexOf(node.type) > -1) {
+                    // TODO: temporary workaround to not paginate datasets,
+                    // plates and acquisitions
+                    // see center_plugin.thumbs.js.html
+                    payload['page'] = 0;
+                } else {
                     // Attempt to get the current page desired if there is one
                     var page = inst.get_page(node);
-                    if (page) {
-                        payload['page'] = page;
-                        // Otherwise, no 'page' will give us default, first page
-                    }
-                } else {
-                    // Disable paging for other queries
-                    payload['page'] = 0;
+                    payload['page'] = page;
                 }
 
                 // Specify that orphans are specifically sought
@@ -456,6 +476,8 @@ $(function() {
                 if (node.type === 'experimenter') {
                     // This will be set to containers or tags url, depending on page we're on 
                     url = WEBCLIENT.URLS.tree_top_level;
+                } else if (node.type === 'map') {
+                    url = WEBCLIENT.URLS.tree_map_level;
                 } else if (node.type === 'tagset') {
                     url = WEBCLIENT.URLS.tree_top_level;
                 } else if (node.type === 'tag') {
@@ -472,27 +494,8 @@ $(function() {
                     url = WEBCLIENT.URLS.api_images;
                 } else if (node.id === '#') {
                     // Here we handle root of jsTree
-                    // Either show a single experimenters's data...
-                    if (WEBCLIENT.active_user && WEBCLIENT.active_user.id != -1) {
-                        url = WEBCLIENT.URLS.api_experimenter;   // url includes active_user.id
-                    } else {
-                        // ...or multiple experimenters
-                        node = {
-                            'data': {'id': -1, 'obj': {'id': -1}},
-                            'text': 'All members',
-                            'children': true,
-                            'type': 'experimenter',
-                            'state': {
-                                'opened': true
-                            },
-                            'li_attr': {
-                                'data-id': -1
-                            }
-                        };
-
-                        callback.call(this, [node]);
-                        return;
-                    }
+                    // Experimenhter ID is set for user ID or -1 for entire group
+                    url = WEBCLIENT.URLS.api_experimenter;
                 }
 
                 if (url === undefined) {
@@ -549,13 +552,15 @@ $(function() {
                                     'text': value.name,
                                     'children': value.childCount ? true : false,
                                     'type': type,
+                                    'state': value.state ? value.state : {'opened': false},
                                     'li_attr': {
                                         'data-id': value.id
-                                    }
+                                    },
+                                    'extra': value.extra
                                 };
                                 if (type === 'experimenter') {
                                     rv.text = value.firstName + ' ' + value.lastName;
-                                    rv.state = {'opened': true};
+                                    rv.state = value.state ? value.state : {'opened': true},
                                     rv.children = true;
                                 } else if (type === 'tag') {
                                     // We don't count children for Tags (too expensive?) Assume they have children
@@ -569,6 +574,13 @@ $(function() {
                             if (data.hasOwnProperty('experimenter')) {
                                 node = makeNode(data.experimenter, 'experimenter');
                                 jstree_data.push(node);
+                            }
+
+                            if (data.hasOwnProperty('maps')) {
+                                $.each(data.maps, function(index, value) {
+                                    var node = makeNode(value, 'map');
+                                    jstree_data.push(node);
+                                });
                             }
 
                             // Add tags to the jstree data structure
@@ -727,13 +739,18 @@ $(function() {
                 'icon' : WEBCLIENT.URLS.static_webclient + 'image/icon_user.png',
                 'valid_children': ['project','dataset','screen','plate', 'tag', 'tagset']
             },
+            'map': {
+                'icon': WEBCLIENT.URLS.static_webclient + 'image/left_sidebar_icon_tag.png',
+                'valid_children': ['project', 'screen'],
+                'draggable': false
+            },
             'tagset': {
                 'icon': WEBCLIENT.URLS.static_webclient + 'image/left_sidebar_icon_tags.png',
                 'valid_children': ['tagset','tag']
             },
             'tag': {
                 'icon': WEBCLIENT.URLS.static_webclient + 'image/left_sidebar_icon_tag.png',
-                'valid_children': ['project, dataset, image, screen, plate, acquisition'],
+                'valid_children': ['project', 'dataset', 'image', 'screen', 'plate', 'acquisition'],
                 'draggable': true
             },
             'project': {
