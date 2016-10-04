@@ -268,7 +268,8 @@ def expected_tagged(user, projects, datasets, images, screens, plates,
         'images': expected_images(user, images),
         'screens': expected_screens(user, screens),
         'plates': expected_plates(user, plates),
-        'acquisitions': expected_plate_acquisitions(user, plate_acquisitions)
+        'acquisitions': expected_plate_acquisitions(user, plate_acquisitions),
+        'wells': []
     }
 
 
@@ -2259,7 +2260,8 @@ class TestTree(lib.ITest):
             'images': [],
             'screens': [],
             'plates': [],
-            'acquisitions': []
+            'acquisitions': [],
+            'wells': []
         }
 
     def test_marshal_tagged_user(self, userA, tagset_hierarchy_userA_groupA):
