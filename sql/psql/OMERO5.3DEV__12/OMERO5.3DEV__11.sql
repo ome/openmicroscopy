@@ -54,7 +54,7 @@ DROP FUNCTION omero_assert_db_version(varchar, int);
 INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
              VALUES ('OMERO5.3DEV',  12,           'OMERO5.3DEV',   11);
 
-DELETE FROM format WHERE id NOT IN (SELECT DISTINCT format FROM image) AND external_id IS NULL;
+DELETE FROM format WHERE id NOT IN (SELECT DISTINCT format FROM image WHERE format IS NOT NULL) AND external_id IS NULL;
 
 -- ensure that the format table is repopulated even if the Bio-Formats revision is unchanged
 DELETE FROM configuration WHERE name = 'DB check DBEnumCheck';

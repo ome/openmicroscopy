@@ -1974,7 +1974,7 @@ CREATE OR REPLACE FUNCTION filesetjoblink_parent_index_move() RETURNS trigger
 
 -- ... up to patch 12:
 
-DELETE FROM format WHERE id NOT IN (SELECT DISTINCT format FROM image) AND external_id IS NULL;
+DELETE FROM format WHERE id NOT IN (SELECT DISTINCT format FROM image WHERE format IS NOT NULL) AND external_id IS NULL;
 
 
 --
