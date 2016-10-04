@@ -74,9 +74,6 @@ class GridSpatialFieldCanvas
 	/** The size of a tick. */
 	private static final int TICK = 2;
 	
-	/** Reference to the parent. */
-	private WellFieldsView parent;
-	
 	/** Collection of rectangles indicating where the image is painted. */
 	private Map<Rectangle, WellSampleNode> locations;
 	
@@ -172,9 +169,9 @@ class GridSpatialFieldCanvas
 	 * 
 	 * @param parent The parent of the canvas.
 	 */
-	GridSpatialFieldCanvas(WellFieldsView parent)
+	public GridSpatialFieldCanvas(WellFieldsView parent)
 	{
-		this.parent = parent;
+		super(parent);
 		setDoubleBuffered(true);
 		setPreferredSize(new Dimension(WellFieldsView.DEFAULT_WIDTH, 
 				WellFieldsView.DEFAULT_HEIGHT));

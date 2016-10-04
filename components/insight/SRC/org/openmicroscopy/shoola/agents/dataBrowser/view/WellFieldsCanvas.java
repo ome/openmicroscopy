@@ -37,6 +37,19 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
  */
 public abstract class WellFieldsCanvas extends JPanel {
 
+    /** Reference to the parent. */
+    WellFieldsView parent;
+    
+    /**
+     * Creates a new instance
+     * 
+     * @param parent
+     *            Reference to the parent {@link WellFieldsView}
+     */
+    public WellFieldsCanvas(WellFieldsView parent) {
+        this.parent = parent;
+    }
+
     /**
      * Refresh the UI
      */

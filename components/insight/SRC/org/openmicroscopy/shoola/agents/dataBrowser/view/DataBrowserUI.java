@@ -117,9 +117,12 @@ class DataBrowserUI
 	 /** The pop-up menu. */
 	private PopupMenu				popupMenu;
 	
-	/** Component displaying the fields. */
-	private WellFieldsView			fieldsView;
+	/** Standalone component displaying the fields. */
+	private WellFieldsView			standaloneFieldsView;
 	
+	/** Embedded component displaying the fields. */
+    private WellFieldsView          embeddedFieldsView;
+    
 	/** The magnification factor. */
 	private double					factor;
 	
@@ -361,10 +364,10 @@ class DataBrowserUI
                     JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
                     split.setTopComponent(model.getBrowser().getUI());
 
-                    fieldsView  = new WellFieldsView((WellsModel) model, 
-                            controller, Thumbnail.MAX_SCALING_FACTOR);
-                    fieldsView.setLayoutFields(WellFieldsView.ROW_LAYOUT);
-                    split.setBottomComponent(fieldsView);
+                    embeddedFieldsView  = new WellFieldsView((WellsModel) model, 
+                            controller, Thumbnail.MAX_SCALING_FACTOR, GridFieldCanvas.class);
+                    embeddedFieldsView.setLayoutFields(WellFieldsView.ROW_LAYOUT);
+                    split.setBottomComponent(embeddedFieldsView);
                     
                     split.setResizeWeight(.66);
                     add(split, c);
@@ -386,17 +389,17 @@ class DataBrowserUI
 				selectedView = index;
 				add(wellToolBar, c);
 				c.gridy++;
-				if (fieldsView == null) {
+				if (standaloneFieldsView == null) {
 					f = Thumbnail.MAX_SCALING_FACTOR;
-					fieldsView  = new WellFieldsView((WellsModel) model, 
-							controller, f);
+					standaloneFieldsView  = new WellFieldsView((WellsModel) model, 
+							controller, f, GridSpatialFieldCanvas.class);
 				}
 				wellToolBar.displayFieldsOptions(true);
 				c.fill = GridBagConstraints.BOTH;
                 c.weighty = 1;
-				add(fieldsView, c);
+				add(standaloneFieldsView, c);
 				c.gridy++;
-				f = fieldsView.getMagnification();
+				f = standaloneFieldsView.getMagnification();
 				break;
 			case COLUMNS_VIEW:
 				selectedView = index;
@@ -543,13 +546,10 @@ class DataBrowserUI
 				}
 				break;
 			case FIELDS_VIEW:
-				if (fieldsView != null)
-					fieldsView.setMagnificationFactor(factor);
+				if (standaloneFieldsView != null)
+					standaloneFieldsView.setMagnificationFactor(factor);
 				break;
 		}
-		
-		//if (model.getType() == DataBrowserModel.WELLS);
-		//	browser.getSelectedLayout().doLayout();
 	}
 	
 	/**
@@ -559,8 +559,8 @@ class DataBrowserUI
 	 */
 	void setMagnificationUnscaled(double factor)
 	{
-		if (selectedView == FIELDS_VIEW && fieldsView != null) 
-			fieldsView.setMagnificationUnscaled(factor);
+		if (selectedView == FIELDS_VIEW && standaloneFieldsView != null) 
+			standaloneFieldsView.setMagnificationUnscaled(factor);
 	}
 	
     /**
@@ -702,10 +702,11 @@ class DataBrowserUI
 	 */
 	void displayFields(List<WellSampleNode> nodes)
 	{
-		if (fieldsView == null) return;
 		setFieldsStatus(false);
-		if (selectedView == FIELDS_VIEW || selectedView == THUMB_VIEW)
-			fieldsView.displayFields(nodes);
+		if (selectedView == FIELDS_VIEW && standaloneFieldsView != null)
+			standaloneFieldsView.displayFields(nodes);
+		if (selectedView == THUMB_VIEW && embeddedFieldsView != null)
+		    embeddedFieldsView.displayFields(nodes);
 	}
 	
 	/** Invokes when a well is selected. */
@@ -723,8 +724,13 @@ class DataBrowserUI
         for (WellImageSet node : nodes) {
             wsnodes.addAll(node.getWellSamples());
         }
-        if (nodes != null && !nodes.isEmpty())
-            fieldsView.displayFields(wsnodes);
+        
+        if (nodes != null && !nodes.isEmpty()) {
+            if (selectedView == FIELDS_VIEW)
+                standaloneFieldsView.displayFields(wsnodes);
+            if(selectedView == THUMB_VIEW)
+                embeddedFieldsView.displayFields(wsnodes);
+        }
 	}
 	
 	/**
@@ -734,10 +740,10 @@ class DataBrowserUI
 	 */
 	void setSelectedFieldLayout(int index)
 	{
-		if (fieldsView == null) return;
-		fieldsView.setLayoutFields(index);
+		if (standaloneFieldsView == null) return;
+		standaloneFieldsView.setLayoutFields(index);
 		if (selectedView == FIELDS_VIEW)
-			fieldsView.displayFields(fieldsView.getNodes());
+			standaloneFieldsView.displayFields(standaloneFieldsView.getNodes());
 	}
 	
 	/** Invokes when the parent has been set. */

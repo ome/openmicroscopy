@@ -61,17 +61,14 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 class GridFieldCanvas extends WellFieldsCanvas {
 
-    /** Reference to the parent. */
-    private WellFieldsView parent;
-
     /**
      * Creates a new instance.
      * 
      * @param parent
      *            The parent of the canvas.
      */
-    GridFieldCanvas(WellFieldsView parent) {
-        this.parent = parent;
+    public GridFieldCanvas(WellFieldsView parent) {
+        super(parent);
         setDoubleBuffered(true);
         setBackground(UIUtilities.BACKGROUND);
         setLayout(new GridBagLayout());

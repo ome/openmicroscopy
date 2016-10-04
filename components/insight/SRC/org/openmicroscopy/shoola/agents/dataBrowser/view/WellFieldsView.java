@@ -29,6 +29,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseMotionListener;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -39,11 +40,15 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
 
+import omero.log.LogMessage;
+
 import org.jdesktop.swingx.JXTaskPane;
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.RollOverNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -130,7 +135,7 @@ class WellFieldsView
 	private JScrollPane pane;
 	
 	/** Initializes the components. */
-	private void initComponents()
+	private void initComponents(Class<? extends WellFieldsCanvas> canvasType)
 	{
 		magnificationUnscaled = MAGNIFICATION_UNSCALED_MIN;
 		layoutFields = DEFAULT_LAYOUT;
@@ -141,8 +146,18 @@ class WellFieldsView
 			selectedNode.setText(DEFAULT_WELL_TEXT+node.getWellLocation());
 		}
 		
-		canvas = new GridFieldCanvas(this);
-		//canvas = new GridSpatialFieldCanvas(this);
+        try {
+            Constructor<WellFieldsCanvas> con = (Constructor<WellFieldsCanvas>) canvasType
+                    .getConstructor(WellFieldsView.class);
+            canvas = con.newInstance(this);
+        } catch (Exception e1) {
+            Registry r = DataBrowserAgent.getRegistry();
+            LogMessage m = new LogMessage("Could not instantiate canvasType "
+                    + canvasType.getSimpleName(), e1);
+            r.getLogger().error(this, m);
+            r.getUserNotifier().notifyError("Error",
+                    "Could not create well field canvas");
+        }
 		
 		canvas.addMouseListener(new MouseAdapter() {
 
@@ -235,14 +250,17 @@ class WellFieldsView
 	 * @param model 	 	Reference to the model.
 	 * @param controller 	Reference to the control.
 	 * @param magnification The default magnification.
+	 * @param canvasType   The type of canvas/layout to use (can be <code>null</code>)
 	 */
 	WellFieldsView(WellsModel model, DataBrowserControl controller, double
-			magnification)
+			magnification, Class<? extends WellFieldsCanvas> canvasType)
 	{
 		this.model = model;
 		this.controller = controller;
 		this.magnification = magnification;
-		initComponents();
+		if(canvasType == null) 
+		    canvasType = GridSpatialFieldCanvas.class;
+		initComponents(canvasType);
 		buildGUI();
 	}
 	
