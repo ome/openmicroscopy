@@ -151,12 +151,13 @@ class WellFieldsView
 			 * @see MouseListener#mouseEntered(MouseEvent)
 			 */
 			public void mouseReleased(MouseEvent e) {
-//				WellSampleNode node = canvas.getNode(e.getPoint());
-//				if (node != null) {
-//					model.setSelectedField(node);
-//					if (e.getClickCount() == 2)
-//						controller.viewDisplay(node);
-//				}
+				WellSampleNode node = canvas.getNode(e.getPoint());
+				if (node != null) {
+					model.setSelectedField(node);
+					if (e.getClickCount() == 2)
+						controller.viewDisplay(node);
+					canvas.repaint();
+				}
 			}
 
 			/**
@@ -206,6 +207,17 @@ class WellFieldsView
 		});
 		nodes = null;
 	}
+	
+    /**
+     * Checks if the provided field is the currently selected field
+     * 
+     * @param n
+     *            The field
+     * @return See above.
+     */
+    boolean isSelected(WellSampleNode n) {
+        return n.getIndex() == model.getSelectedFieldIndex();
+    }
 	
 	/** Builds and lays out the UI. */
 	private void buildGUI()

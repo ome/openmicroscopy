@@ -677,7 +677,7 @@ class DataBrowserUI
 	int getSelectedField()
 	{
 		if (model instanceof WellsModel)
-			return ((WellsModel) model).getSelectedField();
+			return ((WellsModel) model).getDefaultFieldIndex();
 		return 0;
 	}
 

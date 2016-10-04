@@ -22,6 +22,7 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -39,11 +40,15 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
 
 import omero.gateway.model.DataObject;
 
 import org.jdesktop.swingx.JXBusyLabel;
+import org.openmicroscopy.shoola.agents.dataBrowser.Colors;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -187,10 +192,14 @@ class GridFieldCanvas extends WellFieldsCanvas {
      */
     public WellSampleNode getNode(Point p) {
         Component c = findComponentAt(p);
-        if (c != null && c instanceof WellSampleNode) {
-            return (WellSampleNode) c;
+        if (c != null && c instanceof FieldDisplay) {
+            return ((FieldDisplay) c).node;
         }
         return null;
+    }
+    
+    boolean isSelected(WellSampleNode n) {
+        return this.parent.isSelected(n);
     }
 
     /**
@@ -201,17 +210,35 @@ class GridFieldCanvas extends WellFieldsCanvas {
      *
      */
     class FieldDisplay extends JPanel {
+
         WellSampleNode node;
+
+        final Colors colors = Colors.getInstance();
 
         public FieldDisplay(WellSampleNode node) {
             this.node = node;
             this.node.getThumbnail().scale(Thumbnail.MAX_SCALING_FACTOR);
-            setBorder(BorderFactory.createTitledBorder(node.getTitle()));
+
             setBackground(UIUtilities.BACKGROUND);
+
+            Color col = isSelected(node) ? colors
+                    .getColor(Colors.TITLE_BAR_HIGHLIGHT) : colors
+                    .getColor(Colors.TITLE_BAR);
+            Border b = BorderFactory.createLineBorder(col, 2);
+            setBorder(BorderFactory.createTitledBorder(b, node.getTitle(),
+                    TitledBorder.LEFT, TitledBorder.ABOVE_TOP,
+                    (new JLabel()).getFont(), col));
         }
 
         @Override
         public void paint(Graphics g) {
+            Color col = isSelected(node) ? colors
+                    .getColor(Colors.TITLE_BAR_HIGHLIGHT) : colors
+                    .getColor(Colors.TITLE_BAR);
+            Border b = BorderFactory.createLineBorder(col, 2);
+            setBorder(BorderFactory.createTitledBorder(b, node.getTitle(),
+                    TitledBorder.LEFT, TitledBorder.ABOVE_TOP,
+                    (new JLabel()).getFont(), col));
             super.paint(g);
             g.drawImage(node.getThumbnail().getDisplayedImage(),
                     getInsets().left, getInsets().top, null);

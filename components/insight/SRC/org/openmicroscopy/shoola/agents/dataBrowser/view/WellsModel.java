@@ -100,8 +100,17 @@ class WellsModel
 	/** The number of fields per well. */
 	private int					fieldsNumber;
 	
-	/** The selected field. */
-	private int					selectedField;
+    /**
+     * The selected field. (default field index which is selected in the
+     * toolbar)
+     */
+    private int defaultFieldIndex;
+
+    /**
+     * The selected field. (specific field which is selected in the bottom
+     * WellFieldsCanvas)
+     */
+    private int selectedFieldIndex = -1;
 	
 	/** Indicates how to display a row. */
 	private int					rowSequenceIndex;
@@ -248,8 +257,9 @@ class WellsModel
 		PlateData plate = (PlateData) parent;
 		columnSequenceIndex = plate.getColumnSequenceIndex();
 		rowSequenceIndex = plate.getRowSequenceIndex();
-		selectedField = plate.getDefaultSample();
-		if (selectedField < 0) selectedField = 0;
+		defaultFieldIndex = plate.getDefaultSample();
+		if (defaultFieldIndex < 0) defaultFieldIndex = 0;
+		selectedFieldIndex = defaultFieldIndex;
 		Set<ImageDisplay> samples = new HashSet<ImageDisplay>();
 		cells = new HashSet<CellDisplay>();
         rows = -1;
@@ -325,7 +335,7 @@ class WellsModel
 			node.setCellDisplay(columnSequence, rowSequence);
 			f = node.getNumberOfSamples();
 			if (fieldsNumber < f) fieldsNumber = f;
-			node.setSelectedWellSample(selectedField);
+			node.setSelectedWellSample(defaultFieldIndex);
 			selected = node.getSelectedWellSample();
 			//set the title to Row/Column
 			node.formatWellSampleTitle();
@@ -439,7 +449,7 @@ class WellsModel
 	 * 
 	 * @return See above.
 	 */
-	int getSelectedField() { return selectedField; }
+	int getDefaultFieldIndex() { return defaultFieldIndex; }
 	
 	/**
 	 * Sets the selected well. This should only be needed for the fields
@@ -465,6 +475,8 @@ class WellsModel
 	{
 		if (nodes == null) selectedNodes.clear();
 		else selectedNodes = nodes;
+		
+		selectedFieldIndex = defaultFieldIndex;
 	}
 	
 	/**
@@ -493,7 +505,8 @@ class WellsModel
 	void viewField(int index)
 	{
 		if (index < 0 || index >= fieldsNumber) return;
-		selectedField = index;
+		defaultFieldIndex = index;
+		selectedFieldIndex = index;
 		Set<ImageDisplay> samples = new HashSet<ImageDisplay>();
 		List<ImageDisplay> l = getNodes();
 		Iterator<ImageDisplay> i = l.iterator();
@@ -534,7 +547,7 @@ class WellsModel
 		PlateData plate = (PlateData) parent;
 		long userID = DataBrowserAgent.getUserDetails().getId();
 		if (plate.getOwner().getId() == userID) {
-			plate.setDefaultSample(selectedField);
+			plate.setDefaultSample(defaultFieldIndex);
 			List<DataObject> list = new ArrayList<DataObject>();
 			list.add(plate);
 			DataBrowserLoader loader = new PlateSaver(component, ctx, list);
@@ -594,15 +607,25 @@ class WellsModel
 		}
 	}
 	
-	/**
-	 * Sets the passed node as the current node.
-	 * 
-	 * @param node See above.
-	 */
-	void setSelectedField(WellSampleNode node)
-	{
-		browser.setSelectedDisplay(node, false, true);
-	}
+    /**
+     * Sets currently selected field
+     * 
+     * @param node
+     *            See above.
+     */
+    void setSelectedField(WellSampleNode node) {
+        browser.setSelectedDisplay(node, false, true);
+        selectedFieldIndex = node.getIndex();
+    }
+
+    /**
+     * Get the index of the currently selected field
+     * 
+     * @return See above.
+     */
+    int getSelectedFieldIndex() {
+        return selectedFieldIndex;
+    }
 	
 	/**
 	 * Returns the number of rows.
