@@ -166,10 +166,10 @@ class TestTags(IWebTest):
         }
         _post_response(self.django_client, request_url, data)
         _csrf_post_response(self.django_client, request_url, data)
-        # Check that tag is removed - sort delay to allow async delete
+        # Check that tag is removed - short delay to allow async delete
         sleep(0.1)
         request_url = reverse("api_annotations")
-        data = {'image': img.id.val}
+        data = {'image': img.id.val, 'type': 'tag'}
         data = _get_response_json(self.django_client, request_url, data)
         assert len(data['annotations']) == 1
 
@@ -179,11 +179,71 @@ class TestTags(IWebTest):
         _post_response(self.django_client, request_url, {})
         _csrf_post_response(self.django_client, request_url, {})
         # Check that tag is deleted from image
-        sleep(0.1)
+        sleep(1)
         request_url = reverse("api_annotations")
-        data = {'image': img.id.val}
-        data = _get_response_json(self.django_client, request_url, data)
-        assert len(data['annotations']) == 0
+        data = {'image': img.id.val, 'type': 'tag'}
+        rsp = _get_response_json(self.django_client, request_url, data)
+        assert len(rsp['annotations']) == 0
+
+    def test_add_remove_tags(self):
+        # Test performance with lots of tags.
+        # See https://github.com/openmicroscopy/openmicroscopy/pull/4842
+        img = self.make_image()
+        img_count = 200
+        tag_count = 10
+        iids = [self.make_image().id.val for i in range(img_count)]
+        tagIds = [str(self.new_tag().id.val) for i in range(tag_count)]
+        tagIds = ",".join(tagIds)
+        request_url = reverse('annotate_tags')
+        data = {
+            'image': iids,
+            'filter_mode': 'any',
+            'filter_owner_mode': 'all',
+            'index': 0,
+            'newtags-INITIAL_FORMS': 0,
+            'newtags-MAX_NUM_FORMS': 1000,
+            'newtags-TOTAL_FORMS': 0,
+            'tags': tagIds
+        }
+        _post_response(self.django_client, request_url, data)
+        rsp = _csrf_post_response(self.django_client, request_url, data)
+        rspJson = json.loads(rsp.content)
+        assert len(rspJson['added']) == tag_count
+        # Check that tags are added to all images
+        anns_url = reverse("api_annotations")
+        query_string = '&'.join(['image=%s' % i for i in iids])
+        query_string += '&type=tag'
+        query_string += '&page=0'  # disable pagination
+        print query_string
+        rsp = self.django_client.get('%s?%s' % (anns_url, query_string))
+        rspJson = json.loads(rsp.content)
+        assert len(rspJson['annotations']) == img_count * tag_count
+
+        # Remove tags
+        data = {
+            'image': iids,
+            'filter_mode': 'any',
+            'filter_owner_mode': 'all',
+            'index': 0,
+            'newtags-INITIAL_FORMS': 0,
+            'newtags-MAX_NUM_FORMS': 1000,
+            'newtags-TOTAL_FORMS': 0,
+            'tags': ''
+        }
+        _post_response(self.django_client, request_url, data)
+        rsp = _csrf_post_response(self.django_client, request_url, data)
+        rspJson = json.loads(rsp.content)
+
+        # Async delete - Keep checking until all removed
+        completed = False
+        for t in range(10):
+            rsp = self.django_client.get('%s?%s' % (anns_url, query_string))
+            rspJson = json.loads(rsp.content)
+            if len(rspJson['annotations']) == 0:
+                completed = True
+                break
+            sleep(1)
+        assert completed
 
 
 def _get_response_json(django_client, request_url, query_string):
