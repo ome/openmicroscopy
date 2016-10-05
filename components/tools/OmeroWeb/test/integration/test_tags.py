@@ -31,9 +31,10 @@ from weblibrary import _get_response
 import pytest
 import json
 from django.core.urlresolvers import reverse
+from time import sleep
 
 
-class TestCsrf(IWebTest):
+class TestTags(IWebTest):
     """
     Tests creation, linking, editing and deletion of Tags
     """
@@ -145,7 +146,16 @@ class TestCsrf(IWebTest):
             'tags': tag.id.val
         }
         _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, data)
+        rsp = _csrf_post_response(self.django_client, request_url, data)
+        rspJson = json.loads(rsp.content)
+        assert len(rspJson['new']) == 1
+        newTagId = rspJson['new'][0]
+        assert rspJson['added'] == [tag.id.val]
+        # Check that image is tagged with both tags
+        request_url = reverse("api_annotations")
+        data = {'image': img.id.val, 'type': 'tag'}
+        data = _get_response_json(self.django_client, request_url, data)
+        assert len(data['annotations']) == 2
 
         # Remove tag
         request_url = reverse("manage_action_containers",
@@ -156,12 +166,24 @@ class TestCsrf(IWebTest):
         }
         _post_response(self.django_client, request_url, data)
         _csrf_post_response(self.django_client, request_url, data)
+        # Check that tag is removed - sort delay to allow async delete
+        sleep(0.1)
+        request_url = reverse("api_annotations")
+        data = {'image': img.id.val}
+        data = _get_response_json(self.django_client, request_url, data)
+        assert len(data['annotations']) == 1
 
-        # Delete tag
+        # Delete other tag
         request_url = reverse("manage_action_containers",
-                              args=["delete", "tag", tag.id.val])
+                              args=["delete", "tag", newTagId])
         _post_response(self.django_client, request_url, {})
         _csrf_post_response(self.django_client, request_url, {})
+        # Check that tag is deleted from image
+        sleep(0.1)
+        request_url = reverse("api_annotations")
+        data = {'image': img.id.val}
+        data = _get_response_json(self.django_client, request_url, data)
+        assert len(data['annotations']) == 0
 
 
 def _get_response_json(django_client, request_url, query_string):
