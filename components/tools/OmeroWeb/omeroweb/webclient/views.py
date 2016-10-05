@@ -1187,6 +1187,8 @@ def api_annotations(request, conn=None, **kwargs):
     screen_ids = r.getlist('screen')
     plate_ids = r.getlist('plate')
     run_ids = r.getlist('acquisition')
+    page = get_long_or_default(request, 'page', 1)
+    limit = get_long_or_default(request, 'limit', settings.PAGE)
 
     ann_type = r.get('type', None)
 
@@ -1196,7 +1198,9 @@ def api_annotations(request, conn=None, **kwargs):
                                           screen_ids=screen_ids,
                                           plate_ids=plate_ids,
                                           run_ids=run_ids,
-                                          ann_type=ann_type)
+                                          ann_type=ann_type,
+                                          page=page,
+                                          limit=limit)
 
     return HttpJsonResponse({'annotations': anns, 'experimenters': exps})
 
@@ -2403,7 +2407,9 @@ def annotate_tags(request, conn=None, **kwargs):
         screen_ids=selected['screens'],
         plate_ids=selected['plates'],
         run_ids=selected['acquisitions'],
-        ann_type='tag')
+        ann_type='tag',
+        # If we reach this limit we'll get some tags not removed
+        limit=100000)
 
     userMap = {}
     for exp in users:
