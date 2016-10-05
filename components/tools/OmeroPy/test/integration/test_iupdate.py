@@ -91,6 +91,14 @@ class TestIUpdate(lib.ITest):
         with pytest.raises(Exception):
             self.assert_type(ds, "updated")
 
+    def testCannotSaveDeleted(self):
+        ds = self.mkdataset(True)
+        ds = self.update.saveAndReturnObject(ds)
+        self.delete([ds])
+        ds.name = omero.rtypes.rstring("now is deleted")
+        with pytest.raises(omero.ValidationException):
+            self.update.saveObject(ds)
+
     # Helpers
 
     def reload(self, ds):

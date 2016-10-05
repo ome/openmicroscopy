@@ -3,4 +3,5 @@
 #
 #     pip install -r requirements-py27-apache.txt
 #
-Django>=1.8,<1.9
+
+-r requirements-common.txt

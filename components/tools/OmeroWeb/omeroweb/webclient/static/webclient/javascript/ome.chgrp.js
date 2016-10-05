@@ -128,7 +128,7 @@ $(function() {
         var dryRunUrl = webindex_url + "chgrpDryRun/",
             data = $.extend({}, targetObjects, {'group_id': groupId});
         // Show message and start dry-run
-        var msg = "<p style='margin-bottom:0'><img alt='Loading' src='" + static_url + "/../webgateway/img/spinner.gif'> " +
+        var msg = "<p style='margin-bottom:0'><img alt='Loading' src='" + static_url + "../webgateway/img/spinner.gif'> " +
                   "Checking which linked objects will be moved...</p>";
         var $dryRunSpinner = $(msg).appendTo($group_chooser);
         $group_chooser.append('<hr>');
@@ -145,7 +145,7 @@ $(function() {
                             // More assertive error message
                             errMsg = errMsg.replace("may not move", "Cannot move");
                             var errHtml = "<img style='vertical-align: middle; position:relative; top:-3px' src='" +
-                                static_url + "/../webgateway/img/failed.png'> ";
+                                static_url + "../webgateway/img/failed.png'> ";
                             // In messages, replace Image[123] with link to image
                             var getLinkHtml = function(imageId) {
                                 var id = imageId.replace("Image[", "").replace("]", "");
@@ -233,7 +233,8 @@ $(function() {
 
         // Remove all groups (except the chosen one)
         $(".chgrpGroup").remove();
-        $group_chooser.append($this);
+        // We remove .chgrpGroup to avoid clicking again on .chgrpGroup
+        $group_chooser.append($this.removeClass('chgrpGroup'));
 
         // Add hidden inputs to include 'group_id' in the POST data
         $("<input name='group_id' value='"+ gid +"'/>")

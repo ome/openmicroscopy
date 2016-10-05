@@ -165,12 +165,18 @@ class PrefsControl(WriteableConfigControl):
         for x in [set, append, remove]:
             x.add_argument(
                 "KEY", help="Name of the key in the current profile")
+            # report is intended for use with cfg mgmt tools
+            x.add_argument("--report", action="store_true",
+                           help="Report if changes are made")
         set.add_argument(
             "-f", "--file", type=ExistingFile('r'),
             help="Load value from file")
         set.add_argument(
             "VALUE", nargs="?",
             help="Value to be set. If it is missing, the key will be removed")
+        append.add_argument(
+            "--set", action="store_true",
+            help="Append only if not already in the list")
         append.add_argument("VALUE", help="Value to be appended")
         remove.add_argument("VALUE", help="Value to be removed")
 
@@ -317,8 +323,12 @@ class PrefsControl(WriteableConfigControl):
                 f.close()
         elif args.VALUE is None:
             del config[args.KEY]
+            if args.report:
+                self.ctx.out('Changed: Removed %s' % args.KEY)
         else:
             config[args.KEY] = args.VALUE
+            if args.report:
+                self.ctx.out('Changed: Set %s:%s' % (args.KEY, args.VALUE))
 
     def get_list_value(self, args, config):
         import json
@@ -348,13 +358,17 @@ class PrefsControl(WriteableConfigControl):
         import json
         if args.KEY in config.keys():
             list_value = self.get_list_value(args, config)
-            list_value.append(json.loads(args.VALUE))
         elif args.KEY.startswith('omero.web.'):
             list_value = self.get_omeroweb_default(args.KEY)
-            list_value.append(json.loads(args.VALUE))
         else:
-            list_value = [json.loads(args.VALUE)]
-        config[args.KEY] = json.dumps(list_value)
+            list_value = []
+        jv = json.loads(args.VALUE)
+        if not args.set or jv not in list_value:
+            list_value.append(json.loads(args.VALUE))
+            config[args.KEY] = json.dumps(list_value)
+            if args.report:
+                self.ctx.out(
+                    'Changed: Appended %s:%s' % (args.KEY, args.VALUE))
 
     @with_rw_config
     def remove(self, args, config):
@@ -372,6 +386,8 @@ class PrefsControl(WriteableConfigControl):
 
         list_value.remove(json.loads(args.VALUE))
         config[args.KEY] = json.dumps(list_value)
+        if args.report:
+            self.ctx.out('Changed: Removed %s:%s' % (args.KEY, args.VALUE))
 
     @with_config
     def keys(self, args, config):

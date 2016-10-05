@@ -18,7 +18,8 @@ import json
 import omero
 import omero.clients
 
-from django.http import HttpResponse, HttpResponseServerError
+from django.http import HttpResponse, HttpResponseBadRequest, \
+    HttpResponseServerError
 from django.http import HttpResponseRedirect, HttpResponseNotAllowed, Http404
 from django.template import loader as template_loader
 from django.views.decorators.http import require_POST
@@ -846,9 +847,10 @@ def render_image_region(request, iid, z, t, conn=None, **kwargs):
             x = int(zxyt[1])*w
             y = int(zxyt[2])*h
         except:
-            logger.debug("render_image_region: tile=%s" % tile)
-            logger.debug(traceback.format_exc())
-
+            logger.debug(
+                "render_image_region: tile=%s" % tile, exc_info=True
+            )
+            return HttpResponseBadRequest('malformed tile argument')
     elif region:
         try:
             xywh = region.split(",")
@@ -858,8 +860,12 @@ def render_image_region(request, iid, z, t, conn=None, **kwargs):
             w = int(xywh[2])
             h = int(xywh[3])
         except:
-            logger.debug("render_image_region: region=%s" % region)
-            logger.debug(traceback.format_exc())
+            logger.debug(
+                "render_image_region: region=%s" % region, exc_info=True
+            )
+            return HttpResponseBadRequest('malformed region argument')
+    else:
+        return HttpResponseBadRequest('tile or region argument required')
 
     # region details in request are used as key for caching.
     jpeg_data = webgateway_cache.getImage(request, server_id, img, z, t)
@@ -2323,7 +2329,7 @@ def su(request, user, conn=None, **kwargs):
         connector.omero_session_key = conn.suConn(user, ttl=ttl)._sessionUuid
         request.session['connector'] = connector
         conn.revertGroupForSession()
-        conn.seppuku()
+        conn.close()
         return True
     else:
         context = {
@@ -2532,3 +2538,31 @@ def object_table_query(request, objtype, objid, conn=None, **kwargs):
     tableData['parentId'] = ann['parentId']
     tableData['addedOn'] = ann['addedOn']
     return tableData
+
+
+@login_required()
+@jsonp
+def get_image_rdefs_json(request, img_id=None, conn=None, **kwargs):
+    """
+    Retrieves all rendering definitions for a given image (id).
+
+    Example:  /get_image_rdefs_json/1
+              Returns all rdefs for image with id 1
+
+    @param request:     http request.
+    @param img_id:      the id of the image in question
+    @param conn:        L{omero.gateway.BlitzGateway}
+    @param **kwargs:    unused
+    @return:            A dictionary with key 'rdefs' in the success case,
+                        one with key 'error' if something went wrong
+    """
+    try:
+        img = conn.getObject("Image", img_id)
+
+        if img is None:
+            return {'error': 'No image with id ' + str(img_id)}
+
+        return {'rdefs': img.getAllRenderingDefs()}
+    except:
+        logger.debug(traceback.format_exc())
+        return {'error': 'Failed to retrieve rdefs'}

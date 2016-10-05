@@ -21,6 +21,8 @@
 Tests copying and pasting of rendering settings in webclient
 """
 
+import json
+
 import omero
 import omero.clients
 
@@ -149,3 +151,139 @@ class TestRendering(IWebTest):
         assert old_c1 == new_c2
         # check if image2 rendering model changed from greyscale to color
         assert image2.isGreyscaleRenderingModel() is False
+
+    """
+    Tests retrieving all rendering defs for an image (given id)
+    """
+    def test_all_rendering_defs(self):
+        # Create image with 3 channels
+        iid = self.createTestImage(sizeC=3, session=self.sf).id.val
+
+        conn = omero.gateway.BlitzGateway(client_obj=self.client)
+
+        image = conn.getObject("Image", iid)
+        image.resetDefaults()
+        image.setColorRenderingModel()
+        image.saveDefaults()
+        image = conn.getObject("Image", iid)
+
+        assert image.isGreyscaleRenderingModel() is False
+
+        # request the rendering def via the method we want to test
+        request_url = reverse(
+            'webgateway.views.get_image_rdefs_json', args=[iid])
+        response = _get_response(
+            self.django_client, request_url, {}, status_code=200)
+
+        # check expected response
+        assert response is not None and response.content is not None
+
+        # json => dict for convenience
+        rdefDict = json.loads(response.content)
+        assert isinstance(rdefDict, dict)
+        rdefs = rdefDict.get('rdefs')
+
+        # there has to be one rgb image with 3 channels
+        assert isinstance(rdefs, list) and len(rdefs) == 1
+        assert rdefs[0].get("model") == "rgb"
+        channels = rdefs[0].get("c")
+        assert isinstance(channels, list) and len(channels) == 3
+
+        # channel info is supposed to match
+        expChannels = image.getChannels()
+        for i, c in enumerate(channels):
+            assert c['active'] == expChannels[i].isActive()
+            assert c['start'] == expChannels[i].getWindowStart()
+            assert c['end'] == expChannels[i].getWindowEnd()
+            assert c['color'] == expChannels[i].getColor().getHtml()
+
+        # id and owner check
+        assert rdefs[0].get("id") is not None
+        owner = rdefs[0].get("owner")
+        assert isinstance(owner, dict)
+        fullOwner = owner.get("firstName", "") + " " +\
+            owner.get("lastName", "")
+        assert fullOwner == conn.getUser().getFullName()
+
+
+class TestRenderImageRegion(IWebTest):
+    """
+    Tests rendering of image regions
+    """
+
+    def assert_no_leaked_rendering_engines(self):
+        """
+        Assert no rendering engine stateful services are left open for the
+        current session.
+        """
+        for v in self.client.getSession().activeServices():
+            assert 'RenderingEngine' not in v, 'Leaked rendering engine!'
+
+    def test_render_image_region_incomplete_request(self):
+        """
+        Either `tile` or `region` is a required request argument to
+        `render_image_region()`.  If `c` is also passed, the rendering
+        engine will also be initialised.  This test ensure that the correct
+        HTTP status code is used and that consequently, any and all
+        rendering engines that were created servicing the request are closed.
+        """
+        image_id = self.createTestImage(sizeC=1, session=self.sf).id.val
+
+        request_url = reverse(
+            'webgateway.views.render_image_region',
+            kwargs={'iid': str(image_id), 'z': '0', 't': '0'}
+        )
+        data = {'c': '1|0:255$FF0000'}
+        django_client = self.new_django_client_from_session_id(
+            self.client.getSessionId()
+        )
+        try:
+            _get_response(django_client, request_url, data, status_code=400)
+        finally:
+            self.assert_no_leaked_rendering_engines()
+
+    def test_render_image_region_malformed_tile_argument(self):
+        """
+        Either `tile` or `region` is a required request argument to
+        `render_image_region()`.  This test ensure that if a malformed `tile`
+        is requested the correct HTTP status code is used and that
+        consequently, any and all rendering engines that were created
+        servicing the request are closed.
+        """
+        image_id = self.createTestImage(sizeC=1, session=self.sf).id.val
+
+        request_url = reverse(
+            'webgateway.views.render_image_region',
+            kwargs={'iid': str(image_id), 'z': '0', 't': '0'}
+        )
+        data = {'tile': 'malformed'}
+        django_client = self.new_django_client_from_session_id(
+            self.client.getSessionId()
+        )
+        try:
+            _get_response(django_client, request_url, data, status_code=400)
+        finally:
+            self.assert_no_leaked_rendering_engines()
+
+    def test_render_image_region_malformed_region_argument(self):
+        """
+        Either `tile` or `region` is a required request argument to
+        `render_image_region()`.  This test ensure that if a malformed
+        `region` is requested the correct HTTP status code is used and that
+        consequently, any and all rendering engines that were created
+        servicing the request are closed.
+        """
+        image_id = self.createTestImage(sizeC=1, session=self.sf).id.val
+
+        request_url = reverse(
+            'webgateway.views.render_image_region',
+            kwargs={'iid': str(image_id), 'z': '0', 't': '0'}
+        )
+        data = {'region': 'malformed'}
+        django_client = self.new_django_client_from_session_id(
+            self.client.getSessionId()
+        )
+        try:
+            _get_response(django_client, request_url, data, status_code=400)
+        finally:
+            self.assert_no_leaked_rendering_engines()

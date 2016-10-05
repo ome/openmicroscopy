@@ -90,7 +90,7 @@ CREATE OR REPLACE FUNCTION codomainmapcontext_channelBinding_index_move() RETURN
        LIMIT 1;
 
       IF duplicate IS NOT NULL THEN
-          RAISE NOTICE ''Remapping codomainmapcontext %% via (-1 - oldvalue )'', duplicate;
+          RAISE NOTICE ''Remapping codomainmapcontext % via (-1 - oldvalue )'', duplicate;
           UPDATE codomainmapcontext SET channelBinding_index = -1 - channelBinding_index WHERE id = duplicate;
       END IF;
 

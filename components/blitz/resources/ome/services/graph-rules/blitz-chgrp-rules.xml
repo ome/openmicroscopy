@@ -136,9 +136,9 @@
 
         <!-- Move settings if underlying object is moved. -->
 
-        <bean parent="graphPolicyRule" p:matches="S:DetectorSettings[E].detector = [I]" p:changes="S:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="S:LightSettings[E].lightSource = [I]" p:changes="S:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="S:ObjectiveSettings[E].objective = [I]" p:changes="S:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="S:DetectorSettings[ED].detector = [I]" p:changes="S:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="S:LightSettings[ED].lightSource = [I]" p:changes="S:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="S:ObjectiveSettings[ED].objective = [I]" p:changes="S:[I]"/>
 
         <!-- Images may be moved only if doing so would not remove an imaging environment from any of them. -->
 

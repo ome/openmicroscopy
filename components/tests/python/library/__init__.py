@@ -255,6 +255,8 @@ class ITest(object):
         args.extend(["-s", server, "-k", key, "-p", port, "import"])
         if skip:
             args.extend(["--skip", skip])
+        # Temporary fix to pass current tests by getting legacy output
+        args.extend(["--output", "legacy"])
         args.extend(["--"])
         if extra_args:
             args.extend(extra_args)
