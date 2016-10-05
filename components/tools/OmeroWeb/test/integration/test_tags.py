@@ -188,7 +188,6 @@ class TestTags(IWebTest):
     def test_add_remove_tags(self):
         # Test performance with lots of tags.
         # See https://github.com/openmicroscopy/openmicroscopy/pull/4842
-        img = self.make_image()
         img_count = 200
         tag_count = 10
         iids = [self.make_image().id.val for i in range(img_count)]
