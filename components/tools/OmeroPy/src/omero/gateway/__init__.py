@@ -8023,7 +8023,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                         reverse = True
                 color = ColorHolder.fromRGBA(
                     w.getRed().val, w.getGreen().val, w.getBlue().val, 255)
-                d['c'].append({
+                r = {
                     'active': w.getActive().val,
                     'start': w.getInputStart().val,
                     'end': w.getInputEnd().val,
@@ -8032,7 +8032,11 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                     'rgb': {'red': w.getRed().val,
                             'green': w.getGreen().val,
                             'blue': w.getBlue().val}
-                    })
+                    }
+                lut = unwrap(w.getLookupTable())
+                if lut is not None and len(lut) > 0:
+                    r['lut'] = lut
+                d['c'].append(r)
             rv.append(d)
         return rv
 

@@ -173,13 +173,14 @@
     };
 
     function getLutBgPos(color) {
-        var css = {};
         if (color.endsWith('.lut')) {
             var lutIndex = OME.LUT_NAMES.indexOf(color);
-            return '0px -' + (lutIndex * 20) + 'px';
-        } else {
-            return '0px 100px';  // hide by offsetting
+            if (lutIndex > -1) {
+                return '0px -' + (lutIndex * 20) + 'px';
+            }
         }
+        // Not found...
+        return '0px 100px';  // hide by offsetting
     }
 
     window.syncRDCW = function(viewport) {

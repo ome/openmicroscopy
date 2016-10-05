@@ -117,6 +117,7 @@ $.fn.colorbtn = function(cfg) {
           picker = jQuery.farbtastic("#"+this.cfg.prefix);
         }
       }
+      var currColor = self.attr('data-color');
 
       // lookup LUTs & build list with other colors
       var $luts = $("#" + this.cfg.prefix + "-luts");
@@ -143,6 +144,7 @@ $.fn.colorbtn = function(cfg) {
           });
           var html = '<div>' + colorRows.join("") + lutRows.join("") + '</div>';
           $luts.html(html);
+          $("label[for='" + currColor + "']").css('background', '#cddcfc');
         });
       }
 
@@ -151,6 +153,9 @@ $.fn.colorbtn = function(cfg) {
       $luts.show();
       $('.showColorPicker a').html('Show Color Picker');
       $('#reverseIntensity').prop('checked', reverse_intensity);
+      // Highlight current color/lut
+      $("label", $luts).css('background', 'none');
+      $("label[for='" + currColor + "']", $luts).css('background', '#cddcfc')
 
       // unbind and re-bind appropriate handler (wraps ref to button)
       $("#cbpicker-OK-btn").unbind('click').bind('click', ok_callback)
