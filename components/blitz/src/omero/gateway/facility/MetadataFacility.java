@@ -299,7 +299,12 @@ public class MetadataFacility extends Facility {
                     annoType = RatingAnnotationData.class;
                 }
                 
-                result.put(annoType, e.getValue());
+                Long count = result.get(annoType);
+                if (count == null)
+                    count = e.getValue();
+                else
+                    count += e.getValue();
+                result.put(annoType, count);
             }
             return result;
         } catch (Throwable t) {
