@@ -30,18 +30,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 import java.util.Arrays;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.testng.collections.ListMultiMap;
-
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.MultimapBuilder;
-import com.google.common.collect.Multimaps;
-
-import omero.RLong;
 import omero.api.IMetadataPrx;
-import omero.api.IQueryPrx;
 import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
@@ -55,6 +44,8 @@ import omero.gateway.model.ChannelData;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.ImageAcquisitionData;
 import omero.gateway.model.ImageData;
+import omero.gateway.model.LongAnnotationData;
+import omero.gateway.model.RatingAnnotationData;
 import omero.gateway.util.PojoMapper;
 
 
@@ -296,9 +287,18 @@ public class MetadataFacility extends Facility {
             Map<Class<? extends AnnotationData>, Long> result = new HashMap<Class<? extends AnnotationData>, Long>(
                     data.size());
             for (Entry<String, Long> e : data.entrySet()) {
+                String[] key = e.getKey().split("\\s");
+                String clazz = key[0];
+                String ns = key.length > 1 ? key[1] : null;
                 Class<? extends AnnotationData> annoType = (Class<? extends AnnotationData>) PojoMapper
-                        .getPojoType((Class<? extends IObject>) Class.forName(e
-                                .getKey()));
+                        .getPojoType((Class<? extends IObject>) Class.forName(clazz));
+                
+                if (annoType == LongAnnotationData.class
+                        && omero.constants.metadata.NSINSIGHTRATING.value
+                                .equals(ns)) {
+                    annoType = RatingAnnotationData.class;
+                }
+                
                 result.put(annoType, e.getValue());
             }
             return result;
