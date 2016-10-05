@@ -162,6 +162,7 @@ $(function() {
                         var traverse = function(index, parentNode) {
                             // Get this path component
                             var comp = path[index];
+                            var lastIndex = path.length - 1;
                             // Get the node for this path component
                             var node = inst.locate_node(comp.type + '-' + comp.id, parentNode)[0];
 
@@ -204,7 +205,6 @@ $(function() {
                     var i;
                     for (i=0; i < (data.length); i++) {
                         var path = data[i];
-                        var lastIndex = path.length - 1;
                         var traverse = getTraverse(path)
                         // Start traversing at the start of the path with no parent node
                         try {
