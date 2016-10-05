@@ -467,7 +467,9 @@ public class PermissionsTest extends AbstractServerTest {
     }
 
     /**
-     * Test a specific case of using {@link Chown2} with owner's shared annotations in a private group.
+     * Test a specific case of using {@link Chown2} with targetUsers option, transferring everything 
+     * belonging to a targetUser to a recipient completely,
+     * where targetUser's shared annotations, images and tag sets are in a private group.
      * @param isDataOwner if the user submitting the {@link Chown2} request owns the data in the group
      * @param isAdmin if the user submitting the {@link Chown2} request is a member of the system group
      * @param isGroupOwner if the user submitting the {@link Chown2} request owns the group itself
@@ -481,7 +483,6 @@ public class PermissionsTest extends AbstractServerTest {
             boolean isExpectSuccess, Option option) throws Exception {
 
         /* set up the users and group for this test case */
-
         final EventContext importer, chowner, recipient;
         final ExperimenterGroup dataGroup;
 
@@ -503,7 +504,6 @@ public class PermissionsTest extends AbstractServerTest {
         }
 
         /* note which objects were used to annotate an image */
-
         final List<IObject> annotationsDoublyLinked;
         final List<IObject> annotationsSinglyLinked;
         final List<ImageAnnotationLink> tagLinksOnOtherImage = new ArrayList<ImageAnnotationLink>();
@@ -511,7 +511,6 @@ public class PermissionsTest extends AbstractServerTest {
         final List<ImageAnnotationLink> mapAnnLinksOnOtherImage = new ArrayList<ImageAnnotationLink>();
         
         /* import and annotate an image with two sets of annotations */
-
         init(importer);
         final Image image = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage()).proxy();
         final long imageId = image.getId().getValue();
@@ -523,7 +522,6 @@ public class PermissionsTest extends AbstractServerTest {
          * Note that ALL of both "annotationsDoublyLinked" and "annotationsSinglyLinked"
          * are already linked to the first image.
          * NONE of the "annotationsSinglyLinked" will be linked to the second image.*/
-
         final Image otherImage = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage()).proxy();
         testImages.add(otherImage.getId().getValue());
         for (final IObject annotation : annotationsDoublyLinked) {
@@ -538,7 +536,6 @@ public class PermissionsTest extends AbstractServerTest {
                 mapAnnLinksOnOtherImage.add((ImageAnnotationLink) link.proxy());
             }
         }
-        
         /* create two tag sets and three tags */
         final List<TagAnnotation> tagsets = createTagsets(2);
         final List<TagAnnotation> tags = createTags(3);
@@ -547,7 +544,7 @@ public class PermissionsTest extends AbstractServerTest {
         final SetMultimap<TagAnnotation, TagAnnotation> members = defineLinkingTags(tags, tagsets);
         linkTagsTagsets(members);
 
-        /* chown the image */
+        /* chown all what belongs to importer to recipient */
 
         init(chowner);
         Chown2 chown = Requests.chown().targetUsers(importer.userId).toUser(recipient.userId).build();
@@ -557,104 +554,52 @@ public class PermissionsTest extends AbstractServerTest {
             return;
         }
 
-        /* check that the objects' ownership is all as expected, i.e. the non-doubly linked
-         * annotations belong to recipient, the doubly-linked annotations belong to importer */
-
-        final Set<Long> imageLinkIds = new HashSet<Long>();
-
+        /* check that the images and all annotations owner is the recipient*/
         logRootIntoGroup(dataGroupId);
         assertOwnedBy(image, recipient);
-        for (final IObject annotation : annotationsDoublyLinked) {
-            if (annotation instanceof TagAnnotation || annotation instanceof FileAnnotation ||
-                annotation instanceof MapAnnotation) {
-                assertOwnedBy(annotation, recipient);
-            } else if (annotation instanceof ImageAnnotationLink) {
-                imageLinkIds.add(annotation.getId().getValue());
-            } else {
-                assertOwnedBy(annotation, recipient);
-            }
-        }
+        assertOwnedBy(otherImage, recipient);
+        assertOwnedBy(annotationsSinglyLinked, recipient);
+        assertOwnedBy(annotationsDoublyLinked, recipient);
 
-        for (final IObject annotation : annotationsSinglyLinked) {
-            assertOwnedBy(annotation, recipient);
-        }
-
+        /* check that the annotations links to other image are owned by recipient too*/
         assertOwnedBy(tagLinksOnOtherImage, recipient);
         assertOwnedBy(fileAnnLinksOnOtherImage, recipient);
         assertOwnedBy(mapAnnLinksOnOtherImage, recipient);
 
-        /* check that the image's links to the tags and FileAnnotations that were also linked to the other image were deleted */
+        /* check that the annotationsSinglyLinked links and annotationsDoublyLinked
+         * links on the primary image are owned by recipient too*/
+        final Set<Long> imageLinkIds = new HashSet<Long>();
+        for (final IObject annotation : annotationsDoublyLinked) {
+            if (annotation instanceof ImageAnnotationLink) {
+                imageLinkIds.add(annotation.getId().getValue());
+            }
+            assertOwnedBy(annotation, recipient);
+        }
 
-        final String query = "SELECT COUNT(id) FROM ImageAnnotationLink WHERE id IN (:ids)";
+        for (final IObject annotation : annotationsSinglyLinked) {
+            if (annotation instanceof ImageAnnotationLink) {
+                imageLinkIds.add(annotation.getId().getValue());
+            }
+            assertOwnedBy(annotation, recipient);
+        }
+
+        final String query = "SELECT DISTINCT link.details.owner.id FROM ImageAnnotationLink link WHERE link.id IN (:ids)";
         final ParametersI params = new ParametersI().addIds(imageLinkIds);
         final List<List<RType>> results = iQuery.projection(query, params);
-        final long remainingLinkCount = ((RLong) results.get(0).get(0)).getValue();
-        final long deletedLinkCount = tagLinksOnOtherImage.size() + fileAnnLinksOnOtherImage.size() + mapAnnLinksOnOtherImage.size();
-        Assert.assertEquals(remainingLinkCount, imageLinkIds.size());
-        
-        /* chown the first tag set */
-        init(chowner);
-        chown = Requests.chown().target(tagsets.get(0)).toUser(recipient.userId).build();
+        Assert.assertEquals(results.size(), 1);
+        final long imageLinkOwnerIds = ((RLong) results.get(0).get(0)).getValue();
+        Assert.assertEquals(imageLinkOwnerIds, recipient.userId);
 
-        switch (option) {
-        case NONE:
-            break;
-        case INCLUDE:
-            chown.childOptions = Collections.singletonList(Requests.option().includeType("Annotation").build());
-            break;
-        case EXCLUDE:
-            chown.childOptions = Collections.singletonList(Requests.option().excludeType("Annotation").build());
-            break;
-        case BOTH:
-            chown.childOptions = Collections.singletonList(Requests.option().includeType("Annotation")
-                                                                            .excludeType("Annotation").build());
-            break;
-        default:
-            Assert.fail("unexpected option for chown");
-        }
-        doChange(chown);
-
-         /* check that the tag set is transferred and the other remains owned by original owner */
+         /* check that both tag sets are transferred */
         assertOwnedBy(tagsets.get(0), recipient);
         assertOwnedBy(tagsets.get(1), recipient);
 
-        /* check that only the expected tags are transferred */
-        switch (option) {
-        case NONE:
-            assertOwnedBy(tags.get(0), recipient);
-            assertOwnedBy(tags.get(1), recipient);
-            assertOwnedBy(tags.get(2), recipient);
-            break;
-        case BOTH:
-            /* include overrides exclude */
-        case INCLUDE:
-            assertOwnedBy(tags.get(0), recipient);
-            assertOwnedBy(tags.get(1), recipient);
-            assertOwnedBy(tags.get(2), recipient);
-            break;
-        case EXCLUDE:
-            assertOwnedBy(tags.get(0), recipient);
-            assertOwnedBy(tags.get(1), recipient);
-            assertOwnedBy(tags.get(2), recipient);
-            /* transfer the tag that is not in the second tag set */
-            init(chowner);
-            chown = Requests.chown().target(tags.get(0)).toUser(recipient.userId).build();
-            doChange(chown);
-            break;
-        }
-
-        /* transfer the second tag set */
-        init(chowner);
-        chown = Requests.chown().target(tagsets.get(1)).toUser(recipient.userId).build();
-        doChange(chown);
-
-        /* check that the tag sets are transferred */
-        logRootIntoGroup(dataGroupId);
-        assertOwnedBy(tagsets, recipient);
-        /* check that the tag in the second tag set was implicitly transferred */
+        /* check all the tags are transferred */
+        assertOwnedBy(tags.get(0), recipient);
+        assertOwnedBy(tags.get(1), recipient);
         assertOwnedBy(tags.get(2), recipient);
     }
-    
+
     /**
      * Test a specific case of using {@link Chown2} with owner's and others' annotations, including tag sets with
      * variously linked tags in a read-annotate group
