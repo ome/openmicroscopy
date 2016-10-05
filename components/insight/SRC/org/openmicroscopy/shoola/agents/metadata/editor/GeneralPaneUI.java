@@ -466,7 +466,7 @@ class GeneralPaneUI extends JPanel
             ratingTaskPane.setVisible(visible);
             commentTaskPane.setVisible(visible);
             otherTaskPane.setVisible(visible
-                    && !model.getAllOtherAnnotations().isEmpty());
+                    && model.getAnnotationCount(AnnotationType.OTHER)>0);
     
             if (visible) {
                 tagsTaskPane.refreshUI();
@@ -918,7 +918,13 @@ class GeneralPaneUI extends JPanel
         roiTaskPane.refreshUI();
         mapTaskPane.refreshUI();
         attachmentTaskPane.refreshUI();
+        
+        boolean visible = !(model.getRefObject() instanceof TagAnnotationData)
+                && !(model.getRefObject() instanceof FileAnnotationData);
         otherTaskPane.refreshUI();
+        otherTaskPane.setVisible(otherTaskPane.getAnnotationCount() > 0
+                && visible);
+        
         ratingTaskPane.refreshUI();
         commentTaskPane.refreshUI();
 	}

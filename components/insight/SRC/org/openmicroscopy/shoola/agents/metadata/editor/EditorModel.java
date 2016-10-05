@@ -4674,7 +4674,23 @@ class EditorModel
     long getAnnotationCount(AnnotationType type) {
         if (annotationCounts == null)
             return -1;
-        Long l = annotationCounts.get(type);
-        return l == null ? 0 : l;
+        long result = 0;
+        if (type == AnnotationType.OTHER) {
+            result += annotationCounts.get(AnnotationType.BOOLEAN) != null ? annotationCounts
+                    .get(AnnotationType.BOOLEAN) : 0;
+            result += annotationCounts.get(AnnotationType.DOUBLE) != null ? annotationCounts
+                    .get(AnnotationType.DOUBLE) : 0;
+            result += annotationCounts.get(AnnotationType.LONG) != null ? annotationCounts
+                    .get(AnnotationType.LONG) : 0;
+            result += annotationCounts.get(AnnotationType.TERM) != null ? annotationCounts
+                    .get(AnnotationType.TERM) : 0;
+            result += annotationCounts.get(AnnotationType.TIME) != null ? annotationCounts
+                    .get(AnnotationType.TIME) : 0;
+            result += annotationCounts.get(AnnotationType.XML) != null ? annotationCounts
+                    .get(AnnotationType.XML) : 0;
+        } else
+            result = annotationCounts.get(type) != null ? annotationCounts
+                    .get(type) : 0;
+        return result;
     }
 }

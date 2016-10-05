@@ -62,6 +62,9 @@ public class AnnotationTaskPane extends JXTaskPane {
     /** The {@link AnnotationType} this taskpane should display */
     private AnnotationType type;
 
+    /** The number of annotations */
+    private int annotationCount = 0;
+    
     /**
      * Creates a new instance
      * 
@@ -112,6 +115,17 @@ public class AnnotationTaskPane extends JXTaskPane {
             setTitle(type.getDescriptiveName() + " ( - )");
         else
             setTitle(type.getDescriptiveName() + " (" + n + ")");
+        
+        this.annotationCount = n;
+    }
+    
+    /**
+     * Get the number of annotations available for this pane
+     * 
+     * @return See above.
+     */
+    int getAnnotationCount() {
+        return this.annotationCount;
     }
 
     /**
