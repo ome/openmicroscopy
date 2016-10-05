@@ -36,8 +36,7 @@ import omero.model.LongAnnotationI;
 public class RatingAnnotationData extends AnnotationData {
 
     /**
-     * The name space used to identify the archived annotation linked to a set
-     * of pixels.
+     * The name space used to identify rating annotations
      */
     public static final String INSIGHT_RATING_NS = 
     	omero.constants.metadata.NSINSIGHTRATING.value;
