@@ -58,7 +58,6 @@ import ome.model.screen.Plate;
 import ome.model.screen.PlateAcquisition;
 import ome.model.screen.Screen;
 import ome.model.screen.Well;
-import ome.model.screen.WellSample;
 import ome.parameters.Parameters;
 import ome.services.query.PojosFindAnnotationsQueryDefinition;
 import ome.services.query.Query;
@@ -594,13 +593,16 @@ public class MetadataImpl
         
         for (Set<Annotation> annoSet : annos.values()) {
             for (Annotation anno : annoSet) {
-                String type = anno.getClass().getName();
-                Long count = map.get(type);
+                String key = anno.getClass().getName();
+                if (anno.getNs() != null && !anno.getNs().trim().isEmpty()) {
+                    key += " " + anno.getNs();
+                }
+                Long count = map.get(key);
                 if (count == null) {
                     count = 0l;
                 }
                 count++;
-                map.put(type, count);
+                map.put(key, count);
             }
         }
         

@@ -84,8 +84,9 @@ module omero {
                  *      retrieved. If <code>null</code>, all annotations
                  *      returned.
                  * @param options
-                 * @return A map whose key is the {@link Annotation} and value the number of
-     			 *         annotations of this kind attached to the specified objects
+                 * @return A map whose key is the {@link Annotation} class and if existing the annotation's 
+                 *         namespace (separated by a single whitespace character) and value the number of 
+                 *         annotations of this kind attached to the specified objects
                  **/
                 idempotent StringLongMap loadAnnotationCounts(string rootType, omero::sys::LongList rootIds,
                                                          omero::sys::LongList annotatorIds,
