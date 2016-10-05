@@ -198,7 +198,7 @@
 	</type>
 	<type id="ome.model.core.LogicalChannel">
 		<properties>
-			<optional name="name" type="string"/>
+			<optional name="name" type="text"/>
 			<optional name="pinHoleSize" type="ome.model.units.Length"/>
 			<optional name="illumination" type="ome.model.enums.Illumination"/>
 			<!-- Note: illumination is called IlluminationType in model-->
