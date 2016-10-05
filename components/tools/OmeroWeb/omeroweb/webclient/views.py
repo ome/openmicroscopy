@@ -1599,8 +1599,9 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None,
             act = "-"
             if c['active']:
                 act = ""
+            color = c['lut'] if 'lut' in c else c['color']
             chs.append('%s%s|%d:%d$%s'
-                       % (act, i+1, c['start'], c['end'], c['color']))
+                       % (act, i+1, c['start'], c['end'], color))
         rdefQueries.append({
             'id': r['id'],
             'owner': r['owner'],
