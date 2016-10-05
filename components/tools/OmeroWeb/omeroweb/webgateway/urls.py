@@ -415,6 +415,9 @@ Get a json dict of original file paths.
 
 open_with_options = url(r'^open_with/$', 'webgateway.views.open_with_options',
                         name='open_with_options')
+"""
+This makes the settings.OPEN_WITH configuration available via json
+"""
 
 
 get_image_rdefs_json = url(r'^get_image_rdefs_json/(?P<img_id>[0-9]+)/$',
