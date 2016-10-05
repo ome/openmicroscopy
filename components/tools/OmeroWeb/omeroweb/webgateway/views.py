@@ -2919,3 +2919,31 @@ class SaveView(View):
                                                           conn.SERVICE_OPTS)
         encoder = get_encoder(obj.__class__)
         return encoder.encode(obj)
+
+
+@login_required()
+@jsonp
+def get_image_rdefs_json(request, img_id=None, conn=None, **kwargs):
+    """
+    Retrieves all rendering definitions for a given image (id).
+
+    Example:  /get_image_rdefs_json/1
+              Returns all rdefs for image with id 1
+
+    @param request:     http request.
+    @param img_id:      the id of the image in question
+    @param conn:        L{omero.gateway.BlitzGateway}
+    @param **kwargs:    unused
+    @return:            A dictionary with key 'rdefs' in the success case,
+                        one with key 'error' if something went wrong
+    """
+    try:
+        img = conn.getObject("Image", img_id)
+
+        if img is None:
+            return {'error': 'No image with id ' + str(img_id)}
+
+        return {'rdefs': img.getAllRenderingDefs()}
+    except:
+        logger.debug(traceback.format_exc())
+        return {'error': 'Failed to retrieve rdefs'}

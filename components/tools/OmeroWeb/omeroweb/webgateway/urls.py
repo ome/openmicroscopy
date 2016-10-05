@@ -413,6 +413,13 @@ Get a json dict of original file paths.
 'client' is a list of paths for original files on the client when imported
 """
 
+get_image_rdefs_json = url(r'^get_image_rdefs_json/(?P<img_id>[0-9]+)/$',
+                           'webgateway.views.get_image_rdefs_json',
+                           name="webgateway_get_image_rdefs_json")
+"""
+This url will retrieve all rendering definitions for a given image (id)
+"""
+
 
 urlpatterns = patterns(
     '',
@@ -448,6 +455,7 @@ urlpatterns = patterns(
     # rendering def methods
     save_image_rdef_json,
     get_image_rdef_json,
+    get_image_rdefs_json,
     listLuts_json,
     list_compatible_imgs_json,
     copy_image_rdef_json,
