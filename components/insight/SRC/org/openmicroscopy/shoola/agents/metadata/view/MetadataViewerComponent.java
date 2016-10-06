@@ -613,11 +613,13 @@ class MetadataViewerComponent
 		} else {
 			if (model.isSameSelection(data))
 				model.setRelatedNodes(data);
-			else model.setState(READY);
+			setRootObject(model.getRefObject(), model.getUserID(),
+                    model.getSecurityContext());
+			model.setState(READY);
 			firePropertyChange(ON_DATA_SAVE_PROPERTY, null, data);
 		}
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-		fireStateChange();
+		refresh();
 	}
 
 	/** 
