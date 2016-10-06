@@ -435,9 +435,6 @@ class MetadataViewerComponent
 	 */
 	public void refresh()
 	{
-		if (!model.isSingleMode()) {
-			model.setRelatedNodes(model.getRelatedNodes());
-		}
 		fireStateChange();
 		view.setRootObject();
 	}
@@ -645,7 +642,8 @@ class MetadataViewerComponent
 	 */
 	public void setRelatedNodes(List nodes)
 	{
-		if (CollectionUtils.isEmpty(nodes)) return;
+		if (CollectionUtils.isEmpty(nodes)) 
+		    return;
 		List<Long> ids = new ArrayList<Long>();
 		Iterator i = nodes.iterator();
 		List<DataObject> results = new ArrayList<DataObject>();

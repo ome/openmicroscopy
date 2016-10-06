@@ -1485,20 +1485,6 @@ class TreeViewerComponent
             if (parent instanceof WellData) 
                 grandParent = ((WellData) parent).getPlate();
         }
-
-        if (!sameSelection) {
-            if (browser == null) {
-                if (selected instanceof DataObject) {
-                    SecurityContext ctx = new SecurityContext(
-                            ((DataObject) selected).getGroupId());
-                    mv.setRootObject(selected, exp.getId(), ctx);
-                }
-            } else {
-                mv.setRootObject(selected, exp.getId(),
-                        browser.getSecurityContext(last));
-            }
-            mv.setParentRootObject(parent, grandParent);
-        }
         
         if (view.getDisplayMode() == SEARCH_MODE) {
             siblings.add(selected);
@@ -1528,6 +1514,21 @@ class TreeViewerComponent
                 }
             }
         }
+        
+        if (!sameSelection) {
+            if (browser == null) {
+                if (selected instanceof DataObject) {
+                    SecurityContext ctx = new SecurityContext(
+                            ((DataObject) selected).getGroupId());
+                    mv.setRootObject(selected, exp.getId(), ctx);
+                }
+            } else {
+                mv.setRootObject(selected, exp.getId(),
+                        browser.getSecurityContext(last));
+            }
+            mv.setParentRootObject(parent, grandParent);
+        }
+        
         if (model.getDataViewer() != null)
             model.getDataViewer().setApplications(
                     TreeViewerFactory.getApplications(
