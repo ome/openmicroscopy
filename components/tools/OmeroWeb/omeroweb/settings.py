@@ -666,7 +666,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
           '{"name": "tag", "label": "Tags", "index": 0},'
           '{"name": "map", "label": "Key-Value Pairs", "index": 1},'
           '{"name": "table", "label": "Tables", "index": 2},'
-          '{"name": "file", "label": "Attachements", "index": 3},'
+          '{"name": "file", "label": "Attachments", "index": 3},'
           '{"name": "comment", "label": "Comments", "index": 4},'
           '{"name": "rating", "label": "Ratings", "index": 5},'
           '{"name": "other", "label": "Others", "index": 6}'
