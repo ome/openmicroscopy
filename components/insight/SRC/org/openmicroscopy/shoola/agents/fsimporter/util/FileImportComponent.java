@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -35,6 +35,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -737,7 +738,7 @@ public class FileImportComponent
 	{
 		resultIndex = ImportStatus.SUCCESS;
 		if (files == null || files.size() == 0) return;
-		components = new HashMap<File, FileImportComponent>();
+		components = Collections.synchronizedMap(new HashMap<File, FileImportComponent>());
 		
 		Entry<File, StatusLabel> entry;
 		Iterator<Entry<File, StatusLabel>> i = files.entrySet().iterator();
@@ -1062,16 +1063,19 @@ public class FileImportComponent
 			}
 		} else {
 			if (components != null) {
-				Iterator<FileImportComponent> i = components.values().iterator();
-				FileImportComponent fc;
-				l = new ArrayList<FileImportComponent>();
-				List<FileImportComponent> list;
-				while (i.hasNext()) {
-					fc = i.next();
-					list = fc.getImportErrors();
-					if (!CollectionUtils.isEmpty(list))
-						l.addAll(list);
-				}
+			    Collection<FileImportComponent> values =  components.values();
+                synchronized (components) {
+                    Iterator<FileImportComponent> i = values.iterator();
+    				FileImportComponent fc;
+    				l = new ArrayList<FileImportComponent>();
+    				List<FileImportComponent> list;
+    				while (i.hasNext()) {
+    					fc = i.next();
+    					list = fc.getImportErrors();
+    					if (!CollectionUtils.isEmpty(list))
+    						l.addAll(list);
+    				}
+                }
 			}
 		}
 		return l;
@@ -1154,11 +1158,14 @@ public class FileImportComponent
 		boolean b = statusLabel.isMarkedAsCancel();
 		if (b || getFile().isFile()) return b;
 		if (components == null) return false;
-		Iterator<FileImportComponent> i = components.values().iterator();
-		while (i.hasNext()) {
-			if (i.next().isCancelled())
-				return true;
-		}
+		Collection<FileImportComponent> values =  components.values();
+        synchronized (components) {
+            Iterator<FileImportComponent> i = values.iterator();
+    		while (i.hasNext()) {
+    			if (i.next().isCancelled())
+    				return true;
+    		}
+        }
 		return false;
 	}
 
@@ -1174,12 +1181,15 @@ public class FileImportComponent
         if (b) return false;
         if (getFile().isFile() && !hasImportStarted()) return true;
         if (components == null) return false;
-        Iterator<FileImportComponent> i = components.values().iterator();
-        FileImportComponent fc;
-        while (i.hasNext()) {
-            fc = i.next();
-            if (!fc.isCancelled() && !fc.hasImportStarted())
-                return true;
+        Collection<FileImportComponent> values =  components.values();
+        synchronized (components) {
+            Iterator<FileImportComponent> i = values.iterator();
+            FileImportComponent fc;
+            while (i.hasNext()) {
+                fc = i.next();
+                if (!fc.isCancelled() && !fc.hasImportStarted())
+                    return true;
+            }
         }
         return false;
     }
@@ -1194,11 +1204,14 @@ public class FileImportComponent
 	{
 		if (getFile().isFile()) return hasUploadFailed() && !reimported;
 		if (components == null) return false;
-		Iterator<FileImportComponent> i = components.values().iterator();
-		while (i.hasNext()) {
-			if (i.next().hasUploadFailed())
-				return true;
-		}
+		Collection<FileImportComponent> values =  components.values();
+        synchronized (components) {
+            Iterator<FileImportComponent> i = values.iterator();
+    		while (i.hasNext()) {
+    			if (i.next().hasUploadFailed())
+    				return true;
+    		}
+        }
 		return false;
 	}
 	
@@ -1212,11 +1225,14 @@ public class FileImportComponent
 	{
 		if (getFile().isFile()) return hasUploadFailed() && !reimported;
 		if (components == null) return false;
-		Iterator<FileImportComponent> i = components.values().iterator();
-		while (i.hasNext()) {
-			if (i.next().hasFailuresToReupload())
-				return true;
-		}
+		Collection<FileImportComponent> values =  components.values();
+        synchronized (components) {
+            Iterator<FileImportComponent> i = values.iterator();
+    		while (i.hasNext()) {
+    			if (i.next().hasFailuresToReupload())
+    				return true;
+    		}
+        }
 		return false;
 	}
 	
@@ -1230,11 +1246,14 @@ public class FileImportComponent
 	{
 		if (getFile().isFile()) return resultIndex != ImportStatus.QUEUED;
 		if (components == null) return false;
-		Iterator<FileImportComponent> i = components.values().iterator();
+		Collection<FileImportComponent> values =  components.values();
 		int count = 0;
-		while (i.hasNext()) {
-			if (i.next().hasImportStarted()) count++;
-		}
+        synchronized (components) {
+            Iterator<FileImportComponent> i = values.iterator();
+    		while (i.hasNext()) {
+    			if (i.next().hasImportStarted()) count++;
+    		}
+        }
 		return count == components.size();
 	}
 
@@ -1248,11 +1267,14 @@ public class FileImportComponent
 	{
 		if (getFile().isFile()) return resultIndex == ImportStatus.FAILURE;
 		if (components == null) return false;
-		Iterator<FileImportComponent> i = components.values().iterator();
-		while (i.hasNext()) {
-			if (i.next().hasFailuresToSend())
-				return true;
-		}
+		Collection<FileImportComponent> values =  components.values();
+        synchronized (components) {
+            Iterator<FileImportComponent> i = values.iterator();
+    		while (i.hasNext()) {
+    			if (i.next().hasFailuresToSend())
+    				return true;
+    		}
+        }
 		return false;
 	}
 	
@@ -1280,34 +1302,37 @@ public class FileImportComponent
 		p.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		if (!hasComponents()) return;
 		Entry<File, FileImportComponent> e;
-		Iterator<Entry<File, FileImportComponent>> i =
-				components.entrySet().iterator();
-		int index = 0;
-		FileImportComponent fc;
-		if (failure) {
-			while (i.hasNext()) {
-				e = i.next();
-				fc = e.getValue();
-				if (fc.hasImportFailed()) {
-					if (index%2 == 0)
-						fc.setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
-					else 
-						fc.setBackground(UIUtilities.BACKGROUND_COLOUR_ODD);
-					p.add(fc);
-					index++;
-				}
-			}
-		} else {
-			while (i.hasNext()) {
-				e = i.next();
-				fc = e.getValue();
-				if (index%2 == 0)
-					fc.setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
-				else 
-					fc.setBackground(UIUtilities.BACKGROUND_COLOUR_ODD);
-				p.add(fc);
-				index++;
-			}
+		Set<Entry<File, FileImportComponent>> entries = components.entrySet();
+		synchronized (components) {
+    		Iterator<Entry<File, FileImportComponent>> i =
+    		        entries.iterator();
+    		int index = 0;
+    		FileImportComponent fc;
+    		if (failure) {
+    			while (i.hasNext()) {
+    				e = i.next();
+    				fc = e.getValue();
+    				if (fc.hasImportFailed()) {
+    					if (index%2 == 0)
+    						fc.setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
+    					else 
+    						fc.setBackground(UIUtilities.BACKGROUND_COLOUR_ODD);
+    					p.add(fc);
+    					index++;
+    				}
+    			}
+    		} else {
+    			while (i.hasNext()) {
+    				e = i.next();
+    				fc = e.getValue();
+    				if (index%2 == 0)
+    					fc.setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
+    				else 
+    					fc.setBackground(UIUtilities.BACKGROUND_COLOUR_ODD);
+    				p.add(fc);
+    				index++;
+    			}
+    		}
 		}
 		
 		pane.removeAll();
@@ -1341,13 +1366,16 @@ public class FileImportComponent
 			return resultIndex;
 		}
 			
-		Iterator<FileImportComponent> i = components.values().iterator();
+		Collection<FileImportComponent> values =  components.values();
 		int n = components.size();
 		int count = 0;
-		while (i.hasNext()) {
-			if (i.next().hasImportFailed())
-				count++;
-		}
+        synchronized (components) {
+            Iterator<FileImportComponent> i = values.iterator();
+    		while (i.hasNext()) {
+    			if (i.next().hasImportFailed())
+    				count++;
+    		}
+        }
 		if (count == n) return ImportStatus.FAILURE;
 		if (count > 0) return ImportStatus.PARTIAL;
 		return ImportStatus.SUCCESS;
@@ -1373,11 +1401,14 @@ public class FileImportComponent
 		}
 		if (components == null) return false;
 		if (importable.isFolderAsContainer() && type != PROJECT_TYPE) {
-			Iterator<FileImportComponent> i = components.values().iterator();
-			while (i.hasNext()) {
-				if (i.next().toRefresh()) 
-					return true;
-			}
+		    Collection<FileImportComponent> values =  components.values();
+            synchronized (components) {
+                Iterator<FileImportComponent> i = values.iterator();
+    			while (i.hasNext()) {
+    				if (i.next().toRefresh()) 
+    					return true;
+    			}
+            }
 			return false;
 		}
 		return true;
@@ -1417,10 +1448,13 @@ public class FileImportComponent
 			cancel(getFile().isFile());
 			return;
 		}
-		Iterator<FileImportComponent> i = components.values().iterator();
-		while (i.hasNext()) {
-			i.next().cancelLoading();
-		}
+		Collection<FileImportComponent> values =  components.values();
+		synchronized (components) {
+		    Iterator<FileImportComponent> i = values.iterator();
+	        while (i.hasNext()) {
+	            i.next().cancelLoading();
+	        }
+        }
 	}
 	
 	/**
@@ -1470,16 +1504,19 @@ public class FileImportComponent
 			}
 		} else {
 			if (components != null) {
-				Iterator<FileImportComponent> i = components.values().iterator();
-				FileImportComponent fc;
-				l = new ArrayList<FileImportComponent>();
-				List<FileImportComponent> list;
-				while (i.hasNext()) {
-					fc = i.next();
-					list = fc.getFilesToReupload();
-					if (!CollectionUtils.isEmpty(list))
-						l.addAll(list);
-				}
+			    Collection<FileImportComponent> values =  components.values();
+		        synchronized (components) {
+		            Iterator<FileImportComponent> i = values.iterator();
+    				FileImportComponent fc;
+    				l = new ArrayList<FileImportComponent>();
+    				List<FileImportComponent> list;
+    				while (i.hasNext()) {
+    					fc = i.next();
+    					list = fc.getFilesToReupload();
+    					if (!CollectionUtils.isEmpty(list))
+    						l.addAll(list);
+    				}
+		        }
 			}
 		}
 		return l;

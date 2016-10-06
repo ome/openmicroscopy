@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.2__0 to OMERO5.3DEV__11.
+--- OMERO5 development release upgrade from OMERO5.2__0 to OMERO5.3DEV__12.
 ---
 
 BEGIN;
@@ -95,7 +95,7 @@ DROP FUNCTION db_pretty_version(INTEGER);
 --
 
 INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
-             VALUES ('OMERO5.3DEV',  11,           'OMERO5.2',      0);
+             VALUES ('OMERO5.3DEV',  12,           'OMERO5.2',      0);
 
 -- ... up to patch 0:
 
@@ -1972,6 +1972,10 @@ CREATE OR REPLACE FUNCTION filesetjoblink_parent_index_move() RETURNS trigger
       RETURN new;
     END;$$;
 
+-- ... up to patch 12:
+
+DELETE FROM format WHERE id NOT IN (SELECT DISTINCT format FROM image WHERE format IS NOT NULL) AND external_id IS NULL;
+
 
 --
 -- FINISHED
@@ -1979,10 +1983,10 @@ CREATE OR REPLACE FUNCTION filesetjoblink_parent_index_move() RETURNS trigger
 
 UPDATE dbpatch SET message = 'Database updated.', finished = clock_timestamp()
     WHERE currentVersion  = 'OMERO5.3DEV' AND
-          currentPatch    = 11            AND
+          currentPatch    = 12            AND
           previousVersion = 'OMERO5.2'    AND
           previousPatch   = 0;
 
-SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.3DEV__11'||CHR(10)||CHR(10)||CHR(10) AS Status;
+SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.3DEV__12'||CHR(10)||CHR(10)||CHR(10) AS Status;
 
 COMMIT;

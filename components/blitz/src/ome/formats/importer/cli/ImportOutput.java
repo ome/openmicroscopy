@@ -25,6 +25,7 @@ package ome.formats.importer.cli;
  */
 enum ImportOutput {
 
+    ids,
     legacy,
     yaml;
 

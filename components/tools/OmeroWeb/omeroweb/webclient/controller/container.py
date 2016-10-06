@@ -730,6 +730,8 @@ class BaseContainer(BaseController):
 
         @param parents:     List of parent IDs, E.g. ['image-123']
         """
+        toDelete = []
+        notFound = []
         for p in parents:
             parent = p.split('-')
             dtype = str(parent[0])
@@ -741,35 +743,45 @@ class BaseContainer(BaseController):
                     if (al is not None and al.canDelete() and (
                             tag_owner_id is None or
                             unwrap(al.details.owner.id) == tag_owner_id)):
-                        self.conn.deleteObject(al._obj)
+                        toDelete.append(al._obj)
             elif self.file:
                 for al in self.file.getParentLinks(dtype, [parentId]):
                     if al is not None and al.canDelete():
-                        self.conn.deleteObject(al._obj)
+                        toDelete.append(al._obj)
             elif self.comment:
                 # remove the comment from specified parent
                 # the comment is automatically deleted when orphaned
                 for al in self.comment.getParentLinks(dtype, [parentId]):
                     if al is not None and al.canDelete():
-                        self.conn.deleteObject(al._obj)
+                        toDelete.append(al._obj)
             elif self.dataset is not None:
                 if dtype == 'project':
                     for pdl in self.dataset.getParentLinks([parentId]):
                         if pdl is not None:
-                            self.conn.deleteObject(pdl._obj)
+                            toDelete.append(pdl._obj)
             elif self.plate is not None:
                 if dtype == 'screen':
                     for spl in self.plate.getParentLinks([parentId]):
                         if spl is not None:
-                            self.conn.deleteObject(spl._obj)
+                            toDelete.append(spl._obj)
             elif self.image is not None:
                 if dtype == 'dataset':
                     for dil in self.image.getParentLinks([parentId]):
                         if dil is not None:
-                            self.conn.deleteObject(dil._obj)
+                            toDelete.append(dil._obj)
             else:
-                raise AttributeError(
-                    "Attribute not specified. Cannot be removed.")
+                notFound.append(p)
+        # Need to group objects by class then batch delete
+        linksByType = {}
+        for obj in toDelete:
+            objType = obj.__class__.__name__.rstrip('I')
+            if (objType not in linksByType):
+                linksByType[objType] = []
+            linksByType[objType].append(obj.id.val)
+        for linkType, ids in linksByType.items():
+            self.conn.deleteObjects(linkType, ids, wait=False)
+        if len(notFound) > 0:
+            raise AttributeError("Attribute not specified. Cannot be removed.")
 
     ##########################################################
     # Delete

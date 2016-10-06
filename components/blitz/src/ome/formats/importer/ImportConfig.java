@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2009-2014 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2009-2016 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -98,7 +98,7 @@ public class ImportConfig {
     private String omeroVersion = "Unknown";
 
     //
-    // MUTABLE STATE : To prevent every class from having it's own
+    // MUTABLE STATE : To prevent every class from having its own
     // username/password/port/etc field, all are available here. On save, these
     // are committed to disk.
     //

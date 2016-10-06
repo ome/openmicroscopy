@@ -1189,6 +1189,8 @@ def api_annotations(request, conn=None, **kwargs):
     plate_ids = r.getlist('plate')
     run_ids = r.getlist('acquisition')
     well_ids = r.getlist('well')
+    page = get_long_or_default(request, 'page', 1)
+    limit = get_long_or_default(request, 'limit', settings.PAGE)
 
     ann_type = r.get('type', None)
 
@@ -1199,7 +1201,9 @@ def api_annotations(request, conn=None, **kwargs):
                                           plate_ids=plate_ids,
                                           run_ids=run_ids,
                                           well_ids=well_ids,
-                                          ann_type=ann_type)
+                                          ann_type=ann_type,
+                                          page=page,
+                                          limit=limit)
 
     return HttpJsonResponse({'annotations': anns, 'experimenters': exps})
 
@@ -1588,8 +1592,9 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None,
             act = "-"
             if c['active']:
                 act = ""
+            color = c['lut'] if 'lut' in c else c['color']
             chs.append('%s%s|%d:%d$%s'
-                       % (act, i+1, c['start'], c['end'], c['color']))
+                       % (act, i+1, c['start'], c['end'], color))
         rdefQueries.append({
             'id': r['id'],
             'owner': r['owner'],
@@ -2367,7 +2372,9 @@ def annotate_tags(request, conn=None, **kwargs):
         plate_ids=selected['plates'],
         run_ids=selected['acquisitions'],
         well_ids=selected['wells'],
-        ann_type='tag')
+        ann_type='tag',
+        # If we reach this limit we'll get some tags not removed
+        limit=100000)
 
     userMap = {}
     for exp in users:
@@ -2399,6 +2406,8 @@ def annotate_tags(request, conn=None, **kwargs):
         selected_tags.append(
             (tag['id'], self_id, ownerName, canDelete, created, linkOwned))
 
+    # selected_tags is really a list of tag LINKS.
+    # May be several links per tag.id
     selected_tags.sort(key=lambda x: x[0])
 
     initial = {
@@ -2422,7 +2431,8 @@ def annotate_tags(request, conn=None, **kwargs):
             # filter down previously selected tags to the ones linked by
             # current user
             selected_tag_ids = [stag[0] for stag in selected_tags if stag[5]]
-            # added_tags = [stag[0] for stag in selected_tags if not stag[5]]
+            # Remove duplicates from tag IDs
+            selected_tag_ids = list(set(selected_tag_ids))
             post_tags = form_tags.cleaned_data['tags']
             tags = [tag for tag in post_tags
                     if tag not in selected_tag_ids]
