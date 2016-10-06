@@ -31,7 +31,7 @@
         // save to session
         var jqxhr = $.getJSON(viewport.viewport_server + "/copyImgRDef/?" + rdefQry);
         jqxhr.complete(function() {
-            $("#rdef-paste-btn").removeAttr('disabled').removeClass("button-disabled");
+            $(".rdef-paste-btn").removeAttr('disabled').removeClass("button-disabled");
         });
     };
 
