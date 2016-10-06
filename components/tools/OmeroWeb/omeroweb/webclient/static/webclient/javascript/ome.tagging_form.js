@@ -194,7 +194,7 @@ var tagging_form = function(
         var num_desc_callbacks = 0;
 
         var load = function(mode, callback, offset, limit) {
-            var url = WEBCLIENT.URLS.webindex + "marshal_tagging_form_data";
+            var url = WEBCLIENT.URLS.webindex + "marshal_tagging_form_data/";
             url = url + "?jsonmode=" + mode +
                         "&group=" + WEBCLIENT.active_group_id;
             if (offset !== undefined && limit !== undefined) {
