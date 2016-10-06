@@ -33,15 +33,11 @@ from api_exceptions import NotFoundError, BadRequestError, CreatedObject
 logger = logging.getLogger(__name__)
 
 
-class login_required(omeroweb.decorators.login_required):
-    """
-    webgateway specific extension of the OMERO.web login_required() decorator.
-    """
+class LoginRequired(omeroweb.decorators.login_required):
+    """webgateway specific extension of the login_required() decorator."""
 
     def on_not_logged_in(self, request, url, error=None):
-        """
-        Used for json api methods
-        """
+        """Used for json api methods."""
         return JsonResponse({'message': 'Not logged in'},
                             status=403)
 

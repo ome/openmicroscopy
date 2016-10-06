@@ -17,11 +17,11 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Handles all 'api' urls without including '/webgateway/' in the url.
+"""Handles all 'api' urls."""
 
 from django.conf.urls import url, patterns
-from omeroweb.webgateway import views
-from omeroweb.webgateway.views import LoginView
+from omeroweb.api import views
+from omeroweb.api.views import LoginView
 from django.conf import settings
 import re
 

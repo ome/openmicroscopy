@@ -17,15 +17,18 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""Exceptions used by the api/views methods."""
 
 class BadRequestError(Exception):
     """
-    An exception that will result in a response status of 400
-    due to invalid client input
+    An exception that will result in a response status of 400.
+
+    Due to invalid client input
     """
     status = 400
 
     def __init__(self, message, stacktrace=None):
+    	"""Override init to handle message and stacktrace."""
         super(BadRequestError, self).__init__(message)
         self.stacktrace = stacktrace
 
