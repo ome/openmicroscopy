@@ -46,6 +46,7 @@ import omero.gateway.model.ImageAcquisitionData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.LongAnnotationData;
 import omero.gateway.model.RatingAnnotationData;
+import omero.gateway.model.WellSampleData;
 import omero.gateway.util.PojoMapper;
 
 
@@ -271,13 +272,21 @@ public class MetadataFacility extends Facility {
         String type = null;
         List<Long> ids = new ArrayList<Long>();
         for (DataObject obj : objects) {
-            if (type == null)
-                type = PojoMapper.getModelType(obj.getClass()).getName();
+            if (type == null) {
+                if (obj instanceof WellSampleData)
+                    type = PojoMapper.getModelType(ImageData.class).getName();
+                else
+                    type = PojoMapper.getModelType(obj.getClass()).getName();
+            }
             else if (!type.equals(PojoMapper.getModelType(obj.getClass())
                     .getName()))
                 throw new IllegalArgumentException(
                         "All objects have to be the same type");
-            ids.add(obj.getId());
+            
+            if (obj instanceof WellSampleData)
+                ids.add(((WellSampleData) obj).getImage().getId());
+            else
+                ids.add(obj.getId());
         }
 
         try {
