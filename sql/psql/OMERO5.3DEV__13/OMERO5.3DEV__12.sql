@@ -54,7 +54,27 @@ DROP FUNCTION omero_assert_db_version(varchar, int);
 INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
              VALUES ('OMERO5.3DEV',  13,           'OMERO5.3DEV',   12);
 
--- TODO
+ALTER TABLE annotation ALTER COLUMN name TYPE TEXT;
+ALTER TABLE annotation ALTER COLUMN ns TYPE TEXT;
+ALTER TABLE dataset ALTER COLUMN name TYPE TEXT;
+ALTER TABLE folder ALTER COLUMN name TYPE TEXT;
+ALTER TABLE image ALTER COLUMN name TYPE TEXT;
+ALTER TABLE importjob ALTER COLUMN imagename TYPE TEXT;
+ALTER TABLE importjob ALTER COLUMN imagedescription TYPE TEXT;
+ALTER TABLE logicalchannel ALTER COLUMN name TYPE TEXT;
+ALTER TABLE namespace ALTER COLUMN name TYPE TEXT;
+ALTER TABLE namespace ALTER COLUMN displayname TYPE TEXT;
+ALTER TABLE originalfile ALTER COLUMN name TYPE TEXT;
+ALTER TABLE plate ALTER COLUMN name TYPE TEXT;
+ALTER TABLE plateacquisition ALTER COLUMN name TYPE TEXT;
+ALTER TABLE project ALTER COLUMN name TYPE TEXT;
+ALTER TABLE reagent ALTER COLUMN name TYPE TEXT;
+ALTER TABLE renderingdef ALTER COLUMN name TYPE TEXT;
+ALTER TABLE roi ALTER COLUMN name TYPE TEXT;
+ALTER TABLE screen ALTER COLUMN name TYPE TEXT;
+ALTER TABLE screen ALTER COLUMN protocoldescription TYPE TEXT;
+ALTER TABLE screen ALTER COLUMN reagentsetdescription TYPE TEXT;
+ALTER TABLE stagelabel ALTER COLUMN name TYPE TEXT;
 
 
 --
