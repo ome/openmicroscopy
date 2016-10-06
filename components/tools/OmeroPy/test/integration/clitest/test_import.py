@@ -163,8 +163,8 @@ class TestImport(CLITest):
             assert "Other imported objects:" in out
         elif import_type == 'yaml':
             assert "Imported objects:" in out
-        elif import_type == 'legacy':
-            assert 'Imported Pixels:' in out
+        if import_type == 'legacy':
+            assert "Imported pixels:" in out
 
     def get_object(self, err, obj_type, query=None):
         """Retrieve the created object by parsing the stderr output"""
