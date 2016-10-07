@@ -370,12 +370,11 @@ OME.initToolbarDropdowns = function() {
 OME.refreshThumbnails = function(options) {
     options = options || {};
     var rdm = Math.random(),
-        // thumbs_selector = "#dataIcons img",
         search_selector = ".search_thumb",
-        spw_selector = "#spw img";
-    // handle Dataset thumbs, search rusults and SPW thumbs
+        // In SPW, we select spw grid and Well images in bottom panel
+        spw_selector = "#spw img, #wellImages img";
+    // handle search results and SPW thumbs
     if (options.imageId) {
-        // thumbs_selector = "#image_icon-" + options.imageId + " img";
         search_selector = "#image-" + options.imageId + " img.search_thumb";
         spw_selector += "#image-" + options.imageId;
     }
