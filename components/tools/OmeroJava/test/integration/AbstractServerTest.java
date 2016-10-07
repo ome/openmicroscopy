@@ -178,7 +178,7 @@ public class AbstractServerTest extends AbstractTest {
     protected IAdminPrx iAdmin;
 
     /** Reference to the importer store. */
-    protected OMEROMetadataStoreClient importer;
+    protected OMEROMetadataStoreClient importerTargetUser;
 
     /** Helper class creating mock object. */
     protected ModelMockFactory mmFactory;
@@ -705,9 +705,9 @@ public class AbstractServerTest extends AbstractTest {
      * which were set on creation.
      */
     protected void clean() throws Exception {
-        if (importer != null) {
-            importer.closeServices();
-            importer = null;
+        if (importerTargetUser != null) {
+            importerTargetUser.closeServices();
+            importerTargetUser = null;
         }
 
         if (client != null) {
@@ -743,8 +743,8 @@ public class AbstractServerTest extends AbstractTest {
         iAdmin = factory.getAdminService();
         mmFactory = new ModelMockFactory(factory.getPixelsService());
 
-        importer = new OMEROMetadataStoreClient();
-        importer.initialize(factory);
+        importerTargetUser = new OMEROMetadataStoreClient();
+        importerTargetUser.initialize(factory);
 
         return iAdmin.getEventContext();
     }
@@ -1001,7 +1001,7 @@ public class AbstractServerTest extends AbstractTest {
      */
     protected List<Pixels> importFile(File file, String format)
             throws Throwable {
-        return importFile(importer, file, format, false, null);
+        return importFile(importerTargetUser, file, format, false, null);
     }
 
     /**
@@ -1018,7 +1018,7 @@ public class AbstractServerTest extends AbstractTest {
      */
     protected List<Pixels> importFile(File file, String format, boolean metadata)
             throws Throwable {
-        return importFile(importer, file, format, metadata, null);
+        return importFile(importerTargetUser, file, format, metadata, null);
     }
 
     /**
@@ -1044,7 +1044,7 @@ public class AbstractServerTest extends AbstractTest {
      * Imports the specified OME-XML file and returns the pixels set if
      * successfully imported.
      *
-     * @param importer
+     * @param importerTargetUser
      *            The metadataStore to use.
      * @param file
      *            The file to import.
@@ -1056,7 +1056,7 @@ public class AbstractServerTest extends AbstractTest {
      */
     protected List<Pixels> importFile(File file, String format, IObject target)
             throws Throwable {
-        return importFile(importer, file, format, false, target);
+        return importFile(importerTargetUser, file, format, false, target);
     }
 
     /**

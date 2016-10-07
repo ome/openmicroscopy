@@ -468,8 +468,9 @@ public class PermissionsTest extends AbstractServerTest {
 
     /**
      * Test a specific case of using {@link Chown2} with targetUsers option, transferring everything 
-     * belonging to a targetUser to a recipient completely,
-     * where targetUser's shared annotations, images and tag sets are in a private group.
+     * belonging to a targetUser (importerTargetUser) to a recipient completely,
+     * where targetUser's shared annotations, images and tag sets are in a read-annotate group,
+     * as well as leaving the otherImporter's images, which targetUser annotated, not transferred.
      * @param isDataOwner if the user submitting the {@link Chown2} request owns the data in the group
      * @param isAdmin if the user submitting the {@link Chown2} request is a member of the system group
      * @param isGroupOwner if the user submitting the {@link Chown2} request owns the group itself
@@ -479,22 +480,22 @@ public class PermissionsTest extends AbstractServerTest {
      * @throws Exception unexpected
      */
     @Test(dataProvider = "chown annotation test cases")
-    public void testChownAllBelongingToUserPrivate(boolean isDataOwner, boolean isAdmin, boolean isGroupOwner, boolean isRecipientInGroup,
+    public void testChownAllBelongingToUserReadAnnotate(boolean isDataOwner, boolean isAdmin, boolean isGroupOwner, boolean isRecipientInGroup,
             boolean isExpectSuccess, Option option) throws Exception {
 
         /* set up the users and group for this test case */
-        final EventContext importer, chowner, recipient;
+        final EventContext importerTargetUser, otherImporter, chowner, recipient;
         final ExperimenterGroup dataGroup;
 
-        importer = newUserAndGroup("rw----", isDataOwner && isGroupOwner);
+        importerTargetUser = newUserAndGroup("rwra--", isDataOwner && isGroupOwner);
 
-        final long dataGroupId = importer.groupId;
+        final long dataGroupId = importerTargetUser.groupId;
         dataGroup = new ExperimenterGroupI(dataGroupId, false);
-
+        otherImporter = newUserInGroup(dataGroup, false);
         recipient = newUserInGroup(isRecipientInGroup ? dataGroup : otherGroup, false);
 
         if (isDataOwner) {
-            chowner = importer;
+            chowner = importerTargetUser;
         } else {
             chowner = newUserInGroup(dataGroup, isGroupOwner);
         }
@@ -504,36 +505,92 @@ public class PermissionsTest extends AbstractServerTest {
         }
 
         /* note which objects were used to annotate an image */
-        final List<IObject> annotationsDoublyLinked;
-        final List<IObject> annotationsSinglyLinked;
-        final List<ImageAnnotationLink> tagLinksOnOtherImage = new ArrayList<ImageAnnotationLink>();
-        final List<ImageAnnotationLink> fileAnnLinksOnOtherImage = new ArrayList<ImageAnnotationLink>();
-        final List<ImageAnnotationLink> mapAnnLinksOnOtherImage = new ArrayList<ImageAnnotationLink>();
-        
-        /* import and annotate an image with two sets of annotations */
-        init(importer);
+        final List<IObject> annotationsOwnOwnImageTripleLink;
+        final List<IObject> annotationsOwnOthersImageOwnLink;
+        final List<IObject> annotationsOthersOwnImageOthersLink;
+        final List<IObject> annotationsOthersOthersImageTripleLink;
+        final List<ImageAnnotationLink> tagOthersLinksOthersImageOwnAnn = new ArrayList<ImageAnnotationLink>();
+        final List<ImageAnnotationLink> fileAnnOthersLinksOthersImageOwnAnn = new ArrayList<ImageAnnotationLink>();
+        final List<ImageAnnotationLink> mapAnnOthersLinksOthersImageOwnAnn = new ArrayList<ImageAnnotationLink>();
+        final List<ImageAnnotationLink> tagOwnLinksOwnImageOthersAnn = new ArrayList<ImageAnnotationLink>();
+        final List<ImageAnnotationLink> fileAnnOwnLinksOwnImageOthersAnn = new ArrayList<ImageAnnotationLink>();
+        final List<ImageAnnotationLink> mapAnnOwnLinksOwnImageOthersAnn = new ArrayList<ImageAnnotationLink>();
+        final List<ImageAnnotationLink> tagOwnLinksOtherImageOthersAnn = new ArrayList<ImageAnnotationLink>();
+        final List<ImageAnnotationLink> fileAnnOwnLinksOtherImageOthersAnn = new ArrayList<ImageAnnotationLink>();
+        final List<ImageAnnotationLink> mapAnnOwnLinksOtherImageOthersAnn = new ArrayList<ImageAnnotationLink>();
+        final List<ImageAnnotationLink> tagOthersLinksOwnImageOwnAnn = new ArrayList<ImageAnnotationLink>();
+        final List<ImageAnnotationLink> fileAnnOthersLinksOwnImageOwnAnn = new ArrayList<ImageAnnotationLink>();
+        final List<ImageAnnotationLink> mapAnnOthersLinksOwnImageOwnAnn = new ArrayList<ImageAnnotationLink>();
+
+        /* Both importers import their respective images*/
+        init(importerTargetUser);
         final Image image = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage()).proxy();
         final long imageId = image.getId().getValue();
         testImages.add(imageId);
-        annotationsDoublyLinked = annotateImage(image);
-        annotationsSinglyLinked = annotateImage(image);
-
-        /* Link Tag, FileAnnotation and MapAnnotation from "annotationsDoublyLinked" to a second image.
-         * Note that ALL of both "annotationsDoublyLinked" and "annotationsSinglyLinked"
-         * are already linked to the first image.
-         * NONE of the "annotationsSinglyLinked" will be linked to the second image.*/
+        init(otherImporter);
         final Image otherImage = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage()).proxy();
         testImages.add(otherImage.getId().getValue());
-        for (final IObject annotation : annotationsDoublyLinked) {
+
+        /* First user/importer (importerTargetUser) annotates both images
+         * (image, otherImage) which belongs to the first user/importer (importerTargetUser)
+         * and this second user (otherImporter) respectively.*/
+        init(importerTargetUser);
+        annotationsOwnOwnImageTripleLink = annotateImage(image);
+        annotationsOwnOthersImageOwnLink = annotateImage(otherImage);
+
+        /* Another user (otherImporter) annotates both images
+         * (image, otherImage) which belongs to the first user/importer (importerTargetUser)
+         * and this second user (otherImporter) respectively.*/
+        init(otherImporter);
+        annotationsOthersOwnImageOthersLink = annotateImage(image);
+        annotationsOthersOthersImageTripleLink = annotateImage(otherImage);
+
+        /* First user/importer (importerTargetUser) links the second users'
+         * Tag, FileAnnotation and MapAnnotation
+         * from "annotationsOthersOthersImageDoubleLink" to the first image
+         * (image) which belongs to the first user/importer (importerTargetUser)
+         * as well as to the second image (otherImage) which belongs to the otherImporter*/
+        init(importerTargetUser);
+        for (final IObject annotation : annotationsOthersOthersImageTripleLink) {
             if (annotation instanceof TagAnnotation) {
-                final ImageAnnotationLink link = (ImageAnnotationLink) annotateImage(otherImage, (TagAnnotation) annotation);
-                tagLinksOnOtherImage.add((ImageAnnotationLink) link.proxy());
+                final ImageAnnotationLink linkOwnImage = (ImageAnnotationLink) annotateImage(image, (TagAnnotation) annotation);
+                tagOwnLinksOwnImageOthersAnn.add((ImageAnnotationLink) linkOwnImage.proxy());
+                final ImageAnnotationLink linkOtherImage = (ImageAnnotationLink) annotateImage(otherImage, (TagAnnotation) annotation);
+                tagOwnLinksOtherImageOthersAnn.add((ImageAnnotationLink) linkOtherImage.proxy());
             } else if (annotation instanceof FileAnnotation) {
-                final ImageAnnotationLink link = (ImageAnnotationLink) annotateImage(otherImage, (FileAnnotation) annotation);
-                fileAnnLinksOnOtherImage.add((ImageAnnotationLink) link.proxy());
+                final ImageAnnotationLink linkOwnImage = (ImageAnnotationLink) annotateImage(image, (FileAnnotation) annotation);
+                fileAnnOwnLinksOwnImageOthersAnn.add((ImageAnnotationLink) linkOwnImage.proxy());
+                final ImageAnnotationLink linkOtherImage = (ImageAnnotationLink) annotateImage(otherImage, (FileAnnotation) annotation);
+                fileAnnOwnLinksOtherImageOthersAnn.add((ImageAnnotationLink) linkOtherImage.proxy());
             } else if (annotation instanceof MapAnnotation) {
-                final ImageAnnotationLink link = (ImageAnnotationLink) annotateImage(otherImage, (MapAnnotation) annotation);
-                mapAnnLinksOnOtherImage.add((ImageAnnotationLink) link.proxy());
+                final ImageAnnotationLink linkOwnImage = (ImageAnnotationLink) annotateImage(image, (MapAnnotation) annotation);
+                mapAnnOwnLinksOwnImageOthersAnn.add((ImageAnnotationLink) linkOwnImage.proxy());
+                final ImageAnnotationLink linkOtherImage = (ImageAnnotationLink) annotateImage(otherImage, (MapAnnotation) annotation);
+                mapAnnOwnLinksOtherImageOthersAnn.add((ImageAnnotationLink) linkOtherImage.proxy());
+            }
+        }
+        
+        /* Another user (otherImporter) links Tag, FileAnnotation and MapAnnotation
+         * from "annotationsOwnTriplyLinked" (belonging to the first user/importer)
+         *  to a second image (otherImage) which belongs to this other user (otherImporter).
+         *  as well as to the first image (image) which belongs to the importerTargetUser*/
+        init(otherImporter);
+        for (final IObject annotation : annotationsOwnOwnImageTripleLink) {
+            if (annotation instanceof TagAnnotation) {
+                final ImageAnnotationLink linkOtherImage = (ImageAnnotationLink) annotateImage(otherImage, (TagAnnotation) annotation);
+                tagOthersLinksOthersImageOwnAnn.add((ImageAnnotationLink) linkOtherImage.proxy());
+                final ImageAnnotationLink linkOwnImage = (ImageAnnotationLink) annotateImage(image, (TagAnnotation) annotation);
+                tagOthersLinksOwnImageOwnAnn.add((ImageAnnotationLink) linkOwnImage.proxy());
+            } else if (annotation instanceof FileAnnotation) {
+                final ImageAnnotationLink linkOtherImage = (ImageAnnotationLink) annotateImage(otherImage, (FileAnnotation) annotation);
+                fileAnnOthersLinksOthersImageOwnAnn.add((ImageAnnotationLink) linkOtherImage.proxy());
+                final ImageAnnotationLink linkOwnImage = (ImageAnnotationLink) annotateImage(image, (FileAnnotation) annotation);
+                fileAnnOthersLinksOwnImageOwnAnn.add((ImageAnnotationLink) linkOwnImage.proxy());
+            } else if (annotation instanceof MapAnnotation) {
+                final ImageAnnotationLink linkOtherImage = (ImageAnnotationLink) annotateImage(otherImage, (MapAnnotation) annotation);
+                mapAnnOthersLinksOthersImageOwnAnn.add((ImageAnnotationLink) linkOtherImage.proxy());
+                final ImageAnnotationLink linkOwnImage = (ImageAnnotationLink) annotateImage(image, (MapAnnotation) annotation);
+                mapAnnOthersLinksOwnImageOwnAnn.add((ImageAnnotationLink) linkOwnImage.proxy());
             }
         }
         /* create two tag sets and three tags */
@@ -544,51 +601,68 @@ public class PermissionsTest extends AbstractServerTest {
         final SetMultimap<TagAnnotation, TagAnnotation> members = defineLinkingTags(tags, tagsets);
         linkTagsTagsets(members);
 
-        /* chown all what belongs to importer to recipient */
+        /* chown all what belongs to importerTargetUser to recipient */
 
-        init(chowner);
-        Chown2 chown = Requests.chown().targetUsers(importer.userId).toUser(recipient.userId).build();
+        init(importerTargetUser);
+        Chown2 chown = Requests.chown().targetUsers(importerTargetUser.userId).toUser(recipient.userId).build();
         doChange(client, factory, chown, isExpectSuccess);
 
         if (!isExpectSuccess) {
             return;
         }
 
-        /* check that the images and all annotations owner is the recipient*/
+        /* check that the ownership of images is as expected*/
         logRootIntoGroup(dataGroupId);
         assertOwnedBy(image, recipient);
-        assertOwnedBy(otherImage, recipient);
-        assertOwnedBy(annotationsSinglyLinked, recipient);
-        assertOwnedBy(annotationsDoublyLinked, recipient);
+        assertOwnedBy(otherImage, otherImporter);
 
-        /* check that the annotations links to other image are owned by recipient too*/
-        assertOwnedBy(tagLinksOnOtherImage, recipient);
-        assertOwnedBy(fileAnnLinksOnOtherImage, recipient);
-        assertOwnedBy(mapAnnLinksOnOtherImage, recipient);
+        /* check that the annotations links are as expected too*/
+        assertOwnedBy(tagOthersLinksOthersImageOwnAnn, otherImporter);
+        assertOwnedBy(fileAnnOthersLinksOthersImageOwnAnn, otherImporter);
+        assertOwnedBy(mapAnnOthersLinksOthersImageOwnAnn, otherImporter);
+        assertOwnedBy(tagOwnLinksOwnImageOthersAnn, recipient);
+        assertOwnedBy(fileAnnOwnLinksOwnImageOthersAnn, recipient);
+        assertOwnedBy(mapAnnOwnLinksOwnImageOthersAnn, recipient);
+        assertOwnedBy(tagOwnLinksOtherImageOthersAnn, recipient);
+        assertOwnedBy(fileAnnOwnLinksOtherImageOthersAnn, recipient);
+        assertOwnedBy(mapAnnOwnLinksOtherImageOthersAnn, recipient);
+        assertOwnedBy(tagOthersLinksOwnImageOwnAnn, otherImporter);
+        assertOwnedBy(fileAnnOthersLinksOwnImageOwnAnn, otherImporter);
+        assertOwnedBy(mapAnnOthersLinksOwnImageOwnAnn, otherImporter);
 
-        /* check that the annotationsSinglyLinked links and annotationsDoublyLinked
-         * links on the primary image are owned by recipient too*/
+        /* check that the annotations ownership is as expected */
         final Set<Long> imageLinkIds = new HashSet<Long>();
-        for (final IObject annotation : annotationsDoublyLinked) {
+        for (final IObject annotation : annotationsOwnOwnImageTripleLink) {
             if (annotation instanceof ImageAnnotationLink) {
                 imageLinkIds.add(annotation.getId().getValue());
             }
             assertOwnedBy(annotation, recipient);
         }
-
-        for (final IObject annotation : annotationsSinglyLinked) {
+        for (final IObject annotation : annotationsOwnOthersImageOwnLink) {
             if (annotation instanceof ImageAnnotationLink) {
                 imageLinkIds.add(annotation.getId().getValue());
             }
             assertOwnedBy(annotation, recipient);
+        }
+        for (final IObject annotation : annotationsOthersOthersImageTripleLink) {
+            if (annotation instanceof ImageAnnotationLink) {
+                imageLinkIds.add(annotation.getId().getValue());
+            }
+            assertOwnedBy(annotation, otherImporter);
+        }
+        for (final IObject annotation : annotationsOthersOwnImageOthersLink) {
+            if (annotation instanceof ImageAnnotationLink) {
+                imageLinkIds.add(annotation.getId().getValue());
+            }
+            assertOwnedBy(annotation, otherImporter);
         }
 
         final String query = "SELECT DISTINCT link.details.owner.id FROM ImageAnnotationLink link WHERE link.id IN (:ids)";
         final ParametersI params = new ParametersI().addIds(imageLinkIds);
         final List<List<RType>> results = iQuery.projection(query, params);
-        Assert.assertEquals(results.size(), 1);
+        Assert.assertEquals(results.size(), 2);
         final long imageLinkOwnerIds = ((RLong) results.get(0).get(0)).getValue();
-        Assert.assertEquals(imageLinkOwnerIds, recipient.userId);
+        /*Assert.assertEquals(imageLinkOwnerIds, recipient.userId);*/
 
          /* check that both tag sets are transferred */
         assertOwnedBy(tagsets.get(0), recipient);

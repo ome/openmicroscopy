@@ -106,7 +106,7 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
     protected List<Image> importMIF(int seriesCount) throws Throwable {
         File fake = TempFileManager.create_path("importMIF",
                 String.format("&series=%d.fake", seriesCount));
-        List<Pixels> pixels = importFile(importer, fake, null, false, null);
+        List<Pixels> pixels = importFile(importerTargetUser, fake, null, false, null);
         Assert.assertEquals(seriesCount, pixels.size());
         List<Image> images = new ArrayList<Image>();
         for (Pixels pixel : pixels) {
