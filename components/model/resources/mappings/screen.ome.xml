@@ -43,7 +43,7 @@
 			<optional name="rows" type="int"/>
 			<optional name="columns" type="int"/>
 			<!-- end not in model -->
-			<optional name="status" type="string"/>
+			<optional name="status" type="text"/>
 			<optional name="externalIdentifier" type="string"/>
 			<parent name="screenLinks" type="ome.model.screen.ScreenPlateLink" target="ome.model.screen.Screen"/>
 			<zeromany name="wells" type="ome.model.screen.Well" inverse="plate"/>
@@ -65,7 +65,7 @@
                         <!-- end not in model -->
 			<child name="reagentLinks" type="ome.model.screen.WellReagentLink" target="ome.model.screen.Reagent"/>
 			<!-- Note: only one reagent per well in model-->
-			<optional name="externalDescription" type="string"/>
+			<optional name="externalDescription" type="text"/>
 			<optional name="externalIdentifier" type="string"/>
 			<optional name="type" type="string"/>
 			<zeromany name="wellSamples" type="ome.model.screen.WellSample" inverse="well" ordered="true"/>
