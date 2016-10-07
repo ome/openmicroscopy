@@ -1510,7 +1510,9 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
             join obj.annotationLinks alink
             join obj.plate plate
             where alink.child.id=:tid
+        order by obj.row, obj.column
         '''
+    # E.g. sort A1, A2, B1, B2
 
     wells = []
     for e in qs.projection(q, params, service_opts):
