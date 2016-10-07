@@ -154,8 +154,10 @@ class TestPopulateMetadata(BasePopulate):
         except Exception:
             skip("PyYAML not installed.")
         self._test_parsing_context()
-        self._test_bulk_to_map_annotation_context()
-        self._test_delete_map_annotation_context()
+        # Adding map annotations to wells AND images is currently disabled
+        # in commit d3a0b362 because they are duplicated in UI.
+        # self._test_bulk_to_map_annotation_context()
+        # self._test_delete_map_annotation_context()
 
     def _test_parsing_context(self):
         """
