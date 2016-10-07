@@ -49,7 +49,6 @@ import omero.gateway.model.DataObject;
 
 import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.agents.dataBrowser.Colors;
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -212,9 +211,13 @@ class GridFieldCanvas extends WellFieldsCanvas {
 
         final Colors colors = Colors.getInstance();
 
+        double mag = 0;
+        
         public FieldDisplay(WellSampleNode node) {
             this.node = node;
-            this.node.getThumbnail().scale(Thumbnail.MAX_SCALING_FACTOR);
+            
+            this.mag = parent.getMagnification();
+            this.node.getThumbnail().scale(mag);
 
             setBackground(UIUtilities.BACKGROUND);
 
@@ -229,6 +232,11 @@ class GridFieldCanvas extends WellFieldsCanvas {
 
         @Override
         public void paint(Graphics g) {
+            if(parent.getMagnification()!=this.mag) {
+                this.mag = parent.getMagnification();
+                this.node.getThumbnail().scale(mag);
+            }
+            
             Color col = isSelected(node) ? colors
                     .getColor(Colors.TITLE_BAR_HIGHLIGHT) : colors
                     .getColor(Colors.TITLE_BAR);

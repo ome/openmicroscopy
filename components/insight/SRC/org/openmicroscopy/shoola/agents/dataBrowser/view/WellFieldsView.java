@@ -42,7 +42,6 @@ import javax.swing.border.LineBorder;
 
 import omero.log.LogMessage;
 
-import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.RollOverNode;
@@ -124,9 +123,6 @@ class WellFieldsView
 	
 	/** The magnification not preserving the scale. */
 	private double				 magnificationUnscaled;
-	
-	/** The component displaying the plate grid. */
-	private JXTaskPane			plateTask;
 	
 	/** Flag to indicate if thumbnails are loading */
 	private boolean loading = false;
@@ -292,6 +288,9 @@ class WellFieldsView
 	 */
 	void displayFields(List<WellSampleNode> nodes)
 	{
+        if (nodes == null || nodes.isEmpty())
+            return;
+	    
 	    HashSet<Point> toLoad = new HashSet<Point>();
 	    for(WellSampleNode node : nodes) {
 	        // if not all thumbnails are available, load them first

@@ -367,6 +367,7 @@ class DataBrowserUI
                     embeddedFieldsView  = new WellFieldsView((WellsModel) model, 
                             controller, Thumbnail.MAX_SCALING_FACTOR, GridFieldCanvas.class);
                     embeddedFieldsView.setLayoutFields(WellFieldsView.ROW_LAYOUT);
+                    embeddedFieldsView.setMagnificationFactor(factor);
                     split.setBottomComponent(embeddedFieldsView);
                     
                     split.setResizeWeight(.66);
@@ -551,6 +552,26 @@ class DataBrowserUI
 				break;
 		}
 	}
+	
+    /**
+     * Get the current magnification factor
+     * 
+     * @return See above.
+     */
+    double getMagnificationFactor() {
+        return factor;
+    }
+	
+	/**
+     * Magnifies the images nodes.
+     * 
+     * @param factor The magnification factor.
+     */
+    void setFieldMagnificationFactor(double factor)
+    {
+        embeddedFieldsView.setMagnificationFactor(factor);
+    }
+	
 	
 	/**
 	 * Sets the magnification the <code>Fields View </code> is selected.
