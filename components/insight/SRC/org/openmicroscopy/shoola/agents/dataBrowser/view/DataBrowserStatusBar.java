@@ -81,23 +81,21 @@ class DataBrowserStatusBar
 	{
 	    double scale = view.getMagnificationFactor();
 	    
-	    if(view.wells()) {
-    		mag = new MagnificationComponent(Thumbnail.MIN_SCALING_FACTOR,
-    				Thumbnail.MAX_SCALING_FACTOR, scale);
-    		mag.addPropertyChangeListener(
-    				MagnificationComponent.MAGNIFICATION_PROPERTY, this);
-    
-    		fieldsZoomSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL,
-    		        (int)(Thumbnail.MIN_SCALING_FACTOR*FACTOR),
-                    (int)(Thumbnail.MAX_SCALING_FACTOR*FACTOR),
-                    (int)(scale*FACTOR));
-    		
-    		fieldsZoomSlider.setToolTipText("Magnifies the thumbnails.");
-    	
-    		fieldsZoomSlider.addChangeListener(this);
-    		addPropertyChangeListener(
-    		        MagnificationComponent.MAGNIFICATION_UPDATE_PROPERTY, mag);
-	    }
+		mag = new MagnificationComponent(Thumbnail.MIN_SCALING_FACTOR,
+				Thumbnail.MAX_SCALING_FACTOR, scale);
+		mag.addPropertyChangeListener(
+				MagnificationComponent.MAGNIFICATION_PROPERTY, this);
+
+		fieldsZoomSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL,
+		        (int)(Thumbnail.MIN_SCALING_FACTOR*FACTOR),
+                (int)(Thumbnail.MAX_SCALING_FACTOR*FACTOR),
+                (int)(scale*FACTOR));
+		
+		fieldsZoomSlider.setToolTipText("Magnifies the thumbnails.");
+	
+		fieldsZoomSlider.addChangeListener(this);
+		addPropertyChangeListener(
+		        MagnificationComponent.MAGNIFICATION_UPDATE_PROPERTY, mag);
 		
 		progressBar = new JProgressBar();
         status = new JLabel();
@@ -111,14 +109,12 @@ class DataBrowserStatusBar
 		JPanel right = new JPanel();
 		right.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         right.add(progressBar);
-        if(view.wells()) {
-            JPanel left = new JPanel();
-            left.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-            left.add(mag);
-            left.add(Box.createHorizontalStrut(5));
-            left.add(fieldsZoomSlider);
-            add(left);
-        }
+        JPanel left = new JPanel();
+        left.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        left.add(mag);
+        left.add(Box.createHorizontalStrut(5));
+        left.add(fieldsZoomSlider);
+        add(left);
 		add(right);
 	}
 	
@@ -144,10 +140,10 @@ class DataBrowserStatusBar
 	 */
 	void setSelectedViewIndex(int index, double magnification)
 	{
-		mag.setOriginal(magnification);
-		fieldsZoomSlider.removeChangeListener(this);
-		fieldsZoomSlider.setValue((int)(magnification*FACTOR));
-		fieldsZoomSlider.addChangeListener(this);
+        mag.setOriginal(magnification);
+        fieldsZoomSlider.removeChangeListener(this);
+        fieldsZoomSlider.setValue((int) (magnification * FACTOR));
+        fieldsZoomSlider.addChangeListener(this);
 		removeAll();
 		buildGUI();
 	}
@@ -169,7 +165,8 @@ class DataBrowserStatusBar
     void setProgress(boolean hide, int perc)
     {
         progressBar.setVisible(!hide);
-        if (perc < 0) { progressBar.setIndeterminate(true);
+        if (perc < 0) { 
+            progressBar.setIndeterminate(true);
         } else {
             progressBar.setStringPainted(true);
             progressBar.setIndeterminate(false);
@@ -194,8 +191,10 @@ class DataBrowserStatusBar
 		if (src == fieldsZoomSlider) {
 			int v = fieldsZoomSlider.getValue();
 	    	double f = (double) v/FACTOR;
-			view.setFieldMagnificationFactor(f);
-			
+	    	if(view.wells())
+	    	    view.setFieldMagnificationFactor(f);
+	    	else
+	    	    view.setMagnificationFactor(f);
 		} 
 	}
 
@@ -204,7 +203,10 @@ class DataBrowserStatusBar
         String name = evt.getPropertyName();
         if (MagnificationComponent.MAGNIFICATION_PROPERTY.equals(name)) {
             double v = (Double) evt.getNewValue();
-            view.setFieldMagnificationFactor(v);
+            if(view.wells())
+                view.setFieldMagnificationFactor(v);
+            else
+                view.setMagnificationFactor(v);
             int value = (int) (v*FACTOR);
             fieldsZoomSlider.removeChangeListener(this);
             fieldsZoomSlider.setValue(value);

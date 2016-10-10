@@ -29,7 +29,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseMotionListener;
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -40,14 +39,10 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
 
-import omero.log.LogMessage;
-
-import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.RollOverNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
-import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -149,11 +144,6 @@ class WellFieldsView
                 }
             }
 
-            /**
-             * Displays the field's metadata.
-             * 
-             * @see MouseListener#mouseEntered(MouseEvent)
-             */
             public void mousePressed(MouseEvent e) {
             }
 
@@ -179,7 +169,7 @@ class WellFieldsView
                     WellSampleNode node = canvas.getNode(p);
                     if (node != null) {
                         StringBuffer buffer = new StringBuffer();
-                        buffer.append(DEFAULT_FIELD_TEXT + node.getIndex());
+                        buffer.append(DEFAULT_FIELD_TEXT + (node.getIndex()+1));
                         buffer.append("\n");
                         buffer.append("x=" + node.getPositionX() + ", " + "y="
                                 + node.getPositionY());

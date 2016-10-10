@@ -120,6 +120,9 @@ class DataBrowserUI
 	/** The magnification factor. */
 	private double					factor;
 	
+	/** The layout constraints */
+	private GridBagConstraints c;
+	
 	/** Creates a new instance. */
 	DataBrowserUI()
 	{
@@ -165,11 +168,14 @@ class DataBrowserUI
 		buildGUI(true);
 	}
 	
-	boolean wells() {
-	    return model.getType() == DataBrowserModel.WELLS;
-	}
-	
-	GridBagConstraints c;
+    /**
+     * Check's if the browser currently deals with wells
+     * 
+     * @return See above
+     */
+    boolean wells() {
+        return model.getType() == DataBrowserModel.WELLS;
+    }
 	
 	/** 
 	 * Builds and lays out the UI. 
