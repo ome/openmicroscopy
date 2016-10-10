@@ -71,17 +71,6 @@ class DataBrowserWellToolBar
 
 	/** ID to bring up the add thumbnail view to the node.. */
 	private static final int	ROLL_OVER = 0;
-	
-	/** The layout options for the fields. */
-	private static final String[] LAYOUT;
-	
-	/** Defines the static values. */
-    static {
-        LAYOUT = new String[2];
-        LAYOUT[WellFieldsView.ROW_LAYOUT] = "As a row";
-        LAYOUT[WellFieldsView.SPATIAL_LAYOUT] = "Spatial";
-    }
-	
 	/** The factor to use to set the magnification factor. */
     private static final int FACTOR = 10;
 	
@@ -93,9 +82,6 @@ class DataBrowserWellToolBar
 	
 	/** Button to refresh the display. */
 	private JButton				refreshButton;
-	
-	/** Button to view all the fields for a given well. */
-	private JToggleButton		fieldsViewButton;
 	
 	/** 
 	 * Button to display a magnified thumbnail if selected when 
@@ -109,9 +95,6 @@ class DataBrowserWellToolBar
 	/** The fields indicating the loading state of the field. */
 	private JXBusyLabel			busyLabel;
 	
-	/** The type of possible layout of the fields. */
-	private JComboBox			layoutBox;
-	
 	/** The component displaying the magnification factor. */
     private MagnificationComponent mag;
 
@@ -124,16 +107,6 @@ class DataBrowserWellToolBar
 	/** Initializes the components. */
 	private void initComponents()
 	{
-		layoutBox = new JComboBox(LAYOUT);
-		layoutBox.setSelectedIndex(WellFieldsView.SPATIAL_LAYOUT);
-		view.setSelectedFieldLayout(WellFieldsView.DEFAULT_LAYOUT);
-		layoutBox.addActionListener(new ActionListener() {
-			
-			public void actionPerformed(ActionEvent e) {
-				view.setSelectedFieldLayout(layoutBox.getSelectedIndex());
-				
-			}
-		});
 		IconManager icons = IconManager.getInstance();
 		rollOverButton = new JToggleButton();
 		rollOverButton.setIcon(icons.getIcon(IconManager.ROLL_OVER));
@@ -148,8 +121,6 @@ class DataBrowserWellToolBar
 		refreshButton = new JButton(controller.getAction(
 				DataBrowserControl.REFRESH));
 		UIUtilities.unifiedButtonLookAndFeel(refreshButton);
-		fieldsViewButton = new JToggleButton(controller.getAction(
-				DataBrowserControl.FIELDS_VIEW));
 		int f = view.getFieldsNumber();
 		if (f > 1) { 
 			String[] values = new String[f];
@@ -165,7 +136,6 @@ class DataBrowserWellToolBar
 			
 			});
 		}
-        displayFieldsOptions(false);
 
         double scale = DataBrowserFactory.getThumbnailScaleFactor();
 
@@ -225,9 +195,6 @@ class DataBrowserWellToolBar
 		bar.add(refreshButton);
 		bar.add(rollOverButton);
 		if (fields != null) { 
-			bar.add(fieldsViewButton);
-			bar.add(layoutBox);
-			bar.add(Box.createHorizontalStrut(5));
 			bar.add(fields);
 			bar.add(Box.createHorizontalStrut(5));
             bar.add(mag);
@@ -291,8 +258,8 @@ class DataBrowserWellToolBar
 	void displayFieldsOptions(boolean show)
 	{
 		refreshButton.setEnabled(!show);
-		if (fields != null) fields.setEnabled(!show);
-		layoutBox.setVisible(show);
+		if (fields != null) 
+		    fields.setEnabled(show);
 	}
 	
 	/** 

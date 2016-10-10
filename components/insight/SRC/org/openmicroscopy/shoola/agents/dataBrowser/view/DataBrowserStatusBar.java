@@ -25,11 +25,14 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 //Java imports
 import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
@@ -37,6 +40,10 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 //Third-party libraries
+
+
+
+
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
@@ -61,6 +68,16 @@ class DataBrowserStatusBar
 	/** The factor to use to set the magnification factor. */
 	private static final int FACTOR = 10;
 
+	/** The layout options for the fields. */
+    private static final String[] LAYOUT;
+    
+	/** Defines the static values. */
+    static {
+        LAYOUT = new String[2];
+        LAYOUT[WellFieldsView.ROW_LAYOUT] = "As a row";
+        LAYOUT[WellFieldsView.SPATIAL_LAYOUT] = "Spatial";
+    }
+    
 	/** Reference to the view. */
 	private DataBrowserUI view;
 	
@@ -76,26 +93,42 @@ class DataBrowserStatusBar
     /** The component displaying the magnification factor. */
     private MagnificationComponent mag;
 
+    /** The type of possible layout of the fields. */
+    private JComboBox           layoutBox;
+    
 	/** Initializes the components. */
 	private void initComponents()
 	{
 	    double scale = view.getMagnificationFactor();
 	    
-		mag = new MagnificationComponent(Thumbnail.MIN_SCALING_FACTOR,
-				Thumbnail.MAX_SCALING_FACTOR, scale);
-		mag.addPropertyChangeListener(
-				MagnificationComponent.MAGNIFICATION_PROPERTY, this);
-
-		fieldsZoomSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL,
-		        (int)(Thumbnail.MIN_SCALING_FACTOR*FACTOR),
-                (int)(Thumbnail.MAX_SCALING_FACTOR*FACTOR),
-                (int)(scale*FACTOR));
+	    if(view.wells()) {
+    	    layoutBox = new JComboBox(LAYOUT);
+            layoutBox.setSelectedIndex(WellFieldsView.ROW_LAYOUT);
+            layoutBox.addActionListener(new ActionListener() {
+                
+                public void actionPerformed(ActionEvent e) {
+                    view.setSelectedFieldLayout(layoutBox.getSelectedIndex());
+                    
+                }
+            });
+            
+    		mag = new MagnificationComponent(Thumbnail.MIN_SCALING_FACTOR,
+    				Thumbnail.MAX_SCALING_FACTOR, scale);
+    		mag.addPropertyChangeListener(
+    				MagnificationComponent.MAGNIFICATION_PROPERTY, this);
+    
+    		fieldsZoomSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL,
+    		        (int)(Thumbnail.MIN_SCALING_FACTOR*FACTOR),
+                    (int)(Thumbnail.MAX_SCALING_FACTOR*FACTOR),
+                    (int)(scale*FACTOR));
+    		
+    		fieldsZoomSlider.setToolTipText("Magnifies the thumbnails.");
+    	
+    		fieldsZoomSlider.addChangeListener(this);
+    		addPropertyChangeListener(
+    		        MagnificationComponent.MAGNIFICATION_UPDATE_PROPERTY, mag);
+	    }
 		
-		fieldsZoomSlider.setToolTipText("Magnifies the thumbnails.");
-	
-		fieldsZoomSlider.addChangeListener(this);
-		addPropertyChangeListener(
-		        MagnificationComponent.MAGNIFICATION_UPDATE_PROPERTY, mag);
 		progressBar = new JProgressBar();
         status = new JLabel();
 		progressBar.setVisible(false);
@@ -108,12 +141,16 @@ class DataBrowserStatusBar
 		JPanel right = new JPanel();
 		right.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         right.add(progressBar);
-        JPanel left = new JPanel();
-        left.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        left.add(mag);
-        left.add(Box.createHorizontalStrut(5));
-        left.add(fieldsZoomSlider);
-        add(left);
+        if(view.wells()) {
+            JPanel left = new JPanel();
+            left.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+            left.add(layoutBox);
+            left.add(Box.createHorizontalStrut(5));
+            left.add(mag);
+            left.add(Box.createHorizontalStrut(5));
+            left.add(fieldsZoomSlider);
+            add(left);
+        }
 		add(right);
 	}
 	

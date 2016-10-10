@@ -1570,29 +1570,6 @@ class DataBrowserComponent
 
 	/**
 	 * Implemented as specified by the {@link DataBrowser} interface.
-	 * @see DataBrowser#displayFieldsView()
-	 */
-	public void displayFieldsView()
-	{
-		if (!(model instanceof WellsModel)) return;
-		int index = view.getSelectedView();
-		
-		if (index == DataBrowserUI.FIELDS_VIEW) {
-			view.setSelectedView(DataBrowserUI.THUMB_VIEW);
-			view.setFieldsStatus(false); 
-			model.cancelFieldsLoading();
-		} else if (index == DataBrowserUI.THUMB_VIEW) {
-			view.setSelectedView(DataBrowserUI.FIELDS_VIEW);
-			WellsModel wm = (WellsModel) model;
-			WellImageSet node = wm.getSelectedWell();
-			if (node != null) 
-				viewFieldsFor(node.getRow(), node.getColumn(), false);
-		}
-		fireStateChange();
-	}
-
-	/**
-	 * Implemented as specified by the {@link DataBrowser} interface.
 	 * @see DataBrowser#viewFieldsFor(int, int, boolean)
 	 */
 	public void viewFieldsFor(int row, int column, boolean multiSelection)
@@ -1606,14 +1583,7 @@ class DataBrowserComponent
 		
 		int index = view.getSelectedView();
 		
-		if (index == DataBrowserUI.FIELDS_VIEW) {
-			if (!model.loadFields(row, column)) {
-				view.displayFields(wm.getSelectedWell().getWellSamples());
-			} else {
-				view.setFieldsStatus(true);
-				fireStateChange();
-			}
-		} else if (index == DataBrowserUI.THUMB_VIEW) {
+		if (index == DataBrowserUI.THUMB_VIEW) {
 			WellImageSet well = wm.getWell(row, column);
 			
 			if (well != null && well.isSampleValid()) {

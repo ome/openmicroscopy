@@ -79,9 +79,6 @@ class WellFieldsView
 	/** Indicates to lay out the fields in a spatial position. */
 	static final int			SPATIAL_LAYOUT = 1;
 	
-	/** Indicates the default layout. */
-	static final int			DEFAULT_LAYOUT = SPATIAL_LAYOUT;
-	
 	/** The width of the canvas. */
 	static final int 			DEFAULT_WIDTH = 512;
 	
@@ -131,91 +128,16 @@ class WellFieldsView
 	private JScrollPane pane;
 	
 	/** Initializes the components. */
-	private void initComponents(Class<? extends WellFieldsCanvas> canvasType)
+	private void initComponents()
 	{
 		magnificationUnscaled = MAGNIFICATION_UNSCALED_MIN;
-		layoutFields = DEFAULT_LAYOUT;
+		layoutFields = ROW_LAYOUT;
 		selectedField = new JLabel();
 		WellImageSet node = model.getSelectedWell();
 		selectedNode = new JLabel();
 		if (node != null) {
 			selectedNode.setText(DEFAULT_WELL_TEXT+node.getWellLocation());
-		}
-		
-        try {
-            Constructor<WellFieldsCanvas> con = (Constructor<WellFieldsCanvas>) canvasType
-                    .getConstructor(WellFieldsView.class);
-            canvas = con.newInstance(this);
-        } catch (Exception e1) {
-            Registry r = DataBrowserAgent.getRegistry();
-            LogMessage m = new LogMessage("Could not instantiate canvasType "
-                    + canvasType.getSimpleName(), e1);
-            r.getLogger().error(this, m);
-            r.getUserNotifier().notifyError("Error",
-                    "Could not create well field canvas");
-        }
-		
-		canvas.addMouseListener(new MouseAdapter() {
-
-			/**
-			 * Launches the viewer if the number of click is <code>2</code>.
-			 * @see MouseListener#mouseEntered(MouseEvent)
-			 */
-			public void mouseReleased(MouseEvent e) {
-				WellSampleNode node = canvas.getNode(e.getPoint());
-				if (node != null) {
-					model.setSelectedField(node);
-					if (e.getClickCount() == 2)
-						controller.viewDisplay(node);
-					canvas.repaint();
-				}
-			}
-
-			/**
-			 * Displays the field's metadata.
-			 * @see MouseListener#mouseEntered(MouseEvent)
-			 */
-			public void mousePressed(MouseEvent e)
-			{
-			}
-
-		});
-		canvas.addMouseMotionListener(new MouseMotionAdapter() {
-
-			/**
-			 * Sets the node which has to be zoomed when the roll over flag
-			 * is turned on. Note that the {@link ImageNode}s are the only nodes
-			 * considered.
-			 * @see MouseMotionListener#mouseMoved(MouseEvent)
-			 */
-			public void mouseMoved(MouseEvent e) {
-				if (model.getBrowser().isRollOver()) {
-					Point p = e.getPoint();
-					WellSampleNode node = canvas.getNode(p);
-					SwingUtilities.convertPointToScreen(p, canvas);
-					model.getBrowser().setRollOverNode(
-							new RollOverNode(node, p));
-				} else {
-					Point p = e.getPoint();
-					WellSampleNode node = canvas.getNode(p);
-					if (node != null) {
-						StringBuffer buffer = new StringBuffer();
-						buffer.append(DEFAULT_FIELD_TEXT+node.getIndex());
-						buffer.append("\n");
-						buffer.append("x="+node.getPositionX()+", " +
-								"y="+node.getPositionY());
-						String s = buffer.toString();
-						canvas.setToolTipText(s);
-						selectedField.setText(s);
-					} else {
-						canvas.setToolTipText("");
-						selectedField.setText("");
-					}
-				}
-			}
-
-
-		});
+		}		
 		nodes = null;
 	}
 	
@@ -233,6 +155,7 @@ class WellFieldsView
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
+	    removeAll();
 		setBorder(new LineBorder(new Color(99, 130, 191)));
 		setLayout(new BorderLayout(0, 0));
 		setBackground(UIUtilities.BACKGROUND);
@@ -249,30 +172,104 @@ class WellFieldsView
 	 * @param canvasType   The type of canvas/layout to use (can be <code>null</code>)
 	 */
 	WellFieldsView(WellsModel model, DataBrowserControl controller, double
-			magnification, Class<? extends WellFieldsCanvas> canvasType)
+			magnification, int layoutFields)
 	{
 		this.model = model;
 		this.controller = controller;
 		this.magnification = magnification;
-		if(canvasType == null) 
-		    canvasType = GridSpatialFieldCanvas.class;
-		initComponents(canvasType);
+		initComponents();
+		setLayoutFields(layoutFields);
 		buildGUI();
 	}
 	
-	/**
-	 * Sets the index indicating how to layout the fields.
-	 * 
-	 * @param layoutFields The value to set.
-	 */
-	void setLayoutFields(int layoutFields) { this.layoutFields = layoutFields; }
+    /**
+     * Sets the index indicating how to layout the fields.
+     * 
+     * @param layoutFields
+     *            The value to set.
+     */
+    void setLayoutFields(int layoutFields) {
+        this.layoutFields = layoutFields;
+        buildFieldCanvas();
+        buildGUI();
+    }
 	
-	/**
-	 * Returns the index identifying the type of layout of the fields.
-	 * 
-	 * @return See above
-	 */
-	int getLayoutFields() { return layoutFields; }
+    /**
+     * Initializes the canvas taking the field layout into account (row or
+     * spatial)
+     */
+    void buildFieldCanvas() {
+        if (layoutFields == ROW_LAYOUT) {
+            canvas = new RowFieldCanvas(this);
+        } else {
+            canvas = new SpatialFieldCanvas(this);
+        }
+
+        canvas.addMouseListener(new MouseAdapter() {
+
+            /**
+             * Launches the viewer if the number of click is <code>2</code>.
+             * 
+             * @see MouseListener#mouseEntered(MouseEvent)
+             */
+            public void mouseReleased(MouseEvent e) {
+                WellSampleNode node = canvas.getNode(e.getPoint());
+                if (node != null) {
+                    model.setSelectedField(node);
+                    if (e.getClickCount() == 2)
+                        controller.viewDisplay(node);
+                    canvas.refreshUI();
+                }
+            }
+
+            /**
+             * Displays the field's metadata.
+             * 
+             * @see MouseListener#mouseEntered(MouseEvent)
+             */
+            public void mousePressed(MouseEvent e) {
+            }
+
+        });
+        canvas.addMouseMotionListener(new MouseMotionAdapter() {
+
+            /**
+             * Sets the node which has to be zoomed when the roll over flag is
+             * turned on. Note that the {@link ImageNode}s are the only nodes
+             * considered.
+             * 
+             * @see MouseMotionListener#mouseMoved(MouseEvent)
+             */
+            public void mouseMoved(MouseEvent e) {
+                if (model.getBrowser().isRollOver()) {
+                    Point p = e.getPoint();
+                    WellSampleNode node = canvas.getNode(p);
+                    SwingUtilities.convertPointToScreen(p, canvas);
+                    model.getBrowser().setRollOverNode(
+                            new RollOverNode(node, p));
+                } else {
+                    Point p = e.getPoint();
+                    WellSampleNode node = canvas.getNode(p);
+                    if (node != null) {
+                        StringBuffer buffer = new StringBuffer();
+                        buffer.append(DEFAULT_FIELD_TEXT + node.getIndex());
+                        buffer.append("\n");
+                        buffer.append("x=" + node.getPositionX() + ", " + "y="
+                                + node.getPositionY());
+                        String s = buffer.toString();
+                        canvas.setToolTipText(s);
+                        selectedField.setText(s);
+                    } else {
+                        canvas.setToolTipText("");
+                        selectedField.setText("");
+                    }
+                }
+            }
+
+        });
+        
+        canvas.refreshUI();
+    }
 	
 	/** 
 	 * Returns the fields to display if any.
@@ -309,6 +306,7 @@ class WellFieldsView
             return;
 	    }
 	    
+	    canvas.setLoading(false);
 	    loading = false;
 
 		this.nodes = new ArrayList<WellSampleNode>(nodes.size());

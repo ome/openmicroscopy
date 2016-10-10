@@ -703,9 +703,6 @@ public interface DataBrowser
 	/** Indicates to refresh when images are added to datasets. */
 	public void refresh();
 
-	/** Shows or hides the fields view. */
-	public void displayFieldsView();
-	
 	/** 
 	 * Loads all the fields for the specified well.
 	 * 

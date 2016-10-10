@@ -58,7 +58,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  */
-class GridFieldCanvas extends WellFieldsCanvas {
+class RowFieldCanvas extends WellFieldsCanvas {
 
     /**
      * Creates a new instance.
@@ -66,12 +66,11 @@ class GridFieldCanvas extends WellFieldsCanvas {
      * @param parent
      *            The parent of the canvas.
      */
-    public GridFieldCanvas(WellFieldsView parent) {
+    public RowFieldCanvas(WellFieldsView parent) {
         super(parent);
         setDoubleBuffered(true);
         setBackground(UIUtilities.BACKGROUND);
         setLayout(new GridBagLayout());
-        refreshUI();
     }
 
     /**
@@ -80,23 +79,26 @@ class GridFieldCanvas extends WellFieldsCanvas {
      * @see WellFieldsCanvas#setLoading(boolean)
      */
     public void setLoading(boolean loading) {
+        this.loading = loading;
         removeAll();
-        GridBagConstraints c = new GridBagConstraints();
-        c.anchor = GridBagConstraints.NORTHWEST;
-        JXBusyLabel busyLabel = new JXBusyLabel(
-                new Dimension(UIUtilities.DEFAULT_ICON_WIDTH,
-                        UIUtilities.DEFAULT_ICON_HEIGHT));
-        busyLabel.setBusy(true);
-        add(busyLabel, c);
-        // add empty component to fill up space
-        c.gridy++;
-        c.weightx = 1;
-        c.weighty = 1;
-        c.fill = GridBagConstraints.BOTH;
-        add(UIUtilities.createComponent(JPanel.class, UIUtilities.BACKGROUND),
-                c);
 
-        validate();
+        if (loading) {
+            GridBagConstraints c = new GridBagConstraints();
+            c.anchor = GridBagConstraints.NORTHWEST;
+            JXBusyLabel busyLabel = new JXBusyLabel(new Dimension(
+                    UIUtilities.DEFAULT_ICON_WIDTH,
+                    UIUtilities.DEFAULT_ICON_HEIGHT));
+            busyLabel.setBusy(true);
+            add(busyLabel, c);
+            // add empty component to fill up space
+            c.gridy++;
+            c.weightx = 1;
+            c.weighty = 1;
+            c.fill = GridBagConstraints.BOTH;
+            add(UIUtilities.createComponent(JPanel.class,
+                    UIUtilities.BACKGROUND), c);
+        }
+
         repaint();
         parent.revalidate();
     }
@@ -107,76 +109,76 @@ class GridFieldCanvas extends WellFieldsCanvas {
      * @see WellFieldsCanvas#refreshUI()
      */
     public void refreshUI() {
-        removeAll();
-        setLayout(new GridBagLayout());
 
-        List<WellSampleNode> l = parent.getNodes();
-        if (l == null)
-            return;
+        if (!loading) {
+            removeAll();
+            List<WellSampleNode> l = parent.getNodes();
+            if (l == null)
+                return;
 
-        // filter out duplicates
-        HashSet<Long> ids = new HashSet<Long>();
-        Iterator<WellSampleNode> it = l.iterator();
-        while (it.hasNext()) {
-            WellSampleNode n = it.next();
-            long id = ((DataObject) n.getHierarchyObject()).getId();
-            if (ids.contains(id))
-                it.remove();
-            else
-                ids.add(id);
-        }
-
-        // sort
-        Collections.sort(l, new Comparator<WellSampleNode>() {
-            @Override
-            public int compare(WellSampleNode o1, WellSampleNode o2) {
-                int res = 0;
-
-                if (o1.getRow() == o2.getRow()) {
-                    if (o1.getColumn() > o2.getColumn())
-                        res = -1;
-                    else if (o1.getColumn() < o2.getColumn())
-                        res = 1;
-                } else if (o1.getRow() > o2.getRow())
-                    res = -1;
+            // filter out duplicates
+            HashSet<Long> ids = new HashSet<Long>();
+            Iterator<WellSampleNode> it = l.iterator();
+            while (it.hasNext()) {
+                WellSampleNode n = it.next();
+                long id = ((DataObject) n.getHierarchyObject()).getId();
+                if (ids.contains(id))
+                    it.remove();
                 else
-                    res = 1;
-
-                return -res;
+                    ids.add(id);
             }
-        });
 
-        Map<String, GridBagConstraints> cs = new HashMap<String, GridBagConstraints>();
-        int y = 0;
-        GridBagConstraints c = null;
-        for (WellSampleNode n : l) {
-            String key = n.getRow() + "_" + n.getColumn();
-            c = cs.get(key);
-            if (c == null) {
-                c = new GridBagConstraints();
-                c.fill = GridBagConstraints.NONE;
-                c.gridx = 0;
-                c.gridy = y++;
-                c.weightx = 0;
-                c.weighty = 0;
-                c.insets = new Insets(2, 2, 4, 4);
-                c.anchor = GridBagConstraints.NORTHWEST;
-                cs.put(key, c);
+            // sort
+            Collections.sort(l, new Comparator<WellSampleNode>() {
+                @Override
+                public int compare(WellSampleNode o1, WellSampleNode o2) {
+                    int res = 0;
+
+                    if (o1.getRow() == o2.getRow()) {
+                        if (o1.getColumn() > o2.getColumn())
+                            res = -1;
+                        else if (o1.getColumn() < o2.getColumn())
+                            res = 1;
+                    } else if (o1.getRow() > o2.getRow())
+                        res = -1;
+                    else
+                        res = 1;
+
+                    return -res;
+                }
+            });
+
+            Map<String, GridBagConstraints> cs = new HashMap<String, GridBagConstraints>();
+            int y = 0;
+            GridBagConstraints c = null;
+            for (WellSampleNode n : l) {
+                String key = n.getRow() + "_" + n.getColumn();
+                c = cs.get(key);
+                if (c == null) {
+                    c = new GridBagConstraints();
+                    c.fill = GridBagConstraints.NONE;
+                    c.gridx = 0;
+                    c.gridy = y++;
+                    c.weightx = 0;
+                    c.weighty = 0;
+                    c.insets = new Insets(2, 2, 4, 4);
+                    c.anchor = GridBagConstraints.NORTHWEST;
+                    cs.put(key, c);
+                }
+                FieldDisplay fd = new FieldDisplay(n);
+                add(fd, c);
+                c.gridx++;
             }
-            FieldDisplay fd = new FieldDisplay(n);
-            add(fd, c);
-            c.gridx++;
+
+            // add empty component to fill up space
+            c.gridy++;
+            c.weightx = 1;
+            c.weighty = 1;
+            c.fill = GridBagConstraints.BOTH;
+            add(UIUtilities.createComponent(JPanel.class,
+                    UIUtilities.BACKGROUND), c);
         }
 
-        // add empty component to fill up space
-        c.gridy++;
-        c.weightx = 1;
-        c.weighty = 1;
-        c.fill = GridBagConstraints.BOTH;
-        add(UIUtilities.createComponent(JPanel.class, UIUtilities.BACKGROUND),
-                c);
-
-        validate();
         repaint();
         parent.revalidate();
     }
@@ -193,13 +195,13 @@ class GridFieldCanvas extends WellFieldsCanvas {
         }
         return null;
     }
-    
+
     boolean isSelected(WellSampleNode n) {
         return this.parent.isSelected(n);
     }
 
     /**
-     * Simple panel displaying the field thumbnail at max scale
+     * Simple panel displaying the field thumbnail
      * 
      * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
      *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
@@ -212,10 +214,10 @@ class GridFieldCanvas extends WellFieldsCanvas {
         final Colors colors = Colors.getInstance();
 
         double mag = 0;
-        
+
         public FieldDisplay(WellSampleNode node) {
             this.node = node;
-            
+
             this.mag = parent.getMagnification();
             this.node.getThumbnail().scale(mag);
 
@@ -231,20 +233,8 @@ class GridFieldCanvas extends WellFieldsCanvas {
         }
 
         @Override
-        public void paint(Graphics g) {
-            if(parent.getMagnification()!=this.mag) {
-                this.mag = parent.getMagnification();
-                this.node.getThumbnail().scale(mag);
-            }
-            
-            Color col = isSelected(node) ? colors
-                    .getColor(Colors.TITLE_BAR_HIGHLIGHT) : colors
-                    .getColor(Colors.TITLE_BAR);
-            Border b = BorderFactory.createLineBorder(col, 2);
-            setBorder(BorderFactory.createTitledBorder(b, node.getTitle(),
-                    TitledBorder.LEFT, TitledBorder.ABOVE_TOP,
-                    (new JLabel()).getFont(), col));
-            super.paint(g);
+        public void paintComponent(Graphics g) {
+            super.paintComponent(g);
             g.drawImage(node.getThumbnail().getDisplayedImage(),
                     getInsets().left, getInsets().top, null);
         }

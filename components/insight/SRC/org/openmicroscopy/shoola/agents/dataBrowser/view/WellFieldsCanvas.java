@@ -40,6 +40,8 @@ public abstract class WellFieldsCanvas extends JPanel {
     /** Reference to the parent. */
     WellFieldsView parent;
     
+    boolean loading = true;
+    
     /**
      * Creates a new instance
      * 
