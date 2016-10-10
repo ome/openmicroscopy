@@ -172,7 +172,7 @@
 
                         <!-- The human-readable text denoting this
                         namespace -->
-			<optional name="displayName" type="string"/>
+			<optional name="displayName" type="text"/>
 
 		</properties>
 	</type>
