@@ -30,6 +30,7 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 
+import omero.model.Image;
 import omero.model.Pixels;
 import omero.model.StatsInfo;
 
@@ -249,5 +250,36 @@ public class PyramidMinMaxTest extends AbstractServerTest {
             Assert.fail("No pyramid after " + WAITS * INTERVAL / 1000.0 + " seconds");
         }
         return p;
+    }
+
+    /**
+     * Test the creation of tiles using RPSTileLoop.
+     * @throws Exception
+     */
+    @Test
+    public void testRPSTileloop() throws Exception {
+        int sizeX = 256;
+        int sizeY = 256;
+        int sizeZ = 2;
+        int sizeT = 3;
+        int sizeC = 4;
+        Image image = mmFactory.createImage(sizeX, sizeY, sizeZ, sizeT,
+                sizeC);
+        image = (Image) iUpdate.saveAndReturnObject(image);
+        Pixels pixels = image.getPrimaryPixels();
+     // first write to the image
+        omero.util.RPSTileLoop loop = new omero.util.RPSTileLoop(
+                client.getSession(), pixels);
+        loop.forEachTile(sizeX, sizeY, new omero.util.TileLoopIteration() {
+            public void run(omero.util.TileData data, int z, int c, int t,
+                    int x, int y, int tileWidth, int tileHeight, int tileCount) {
+                data.setTile(new byte[tileWidth * tileHeight * 8], z, c, t, x,
+                        y, tileWidth, tileHeight);
+            }
+        });
+        // This block will change the updateEvent on the pixels
+        // therefore we're going to reload the pixels.
+
+        image.setPixels(0, loop.getPixels());
     }
 }
