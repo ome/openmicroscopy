@@ -74,12 +74,28 @@ api_projects = url(r'^v(?P<api_version>%s)/m/projects/$' % versions,
 GET all projects, using omero-marshal to generate json
 """
 
-api_project = url(
-    r'^v(?P<api_version>%s)/m/projects/(?P<pid>[0-9]+)/$' % versions,
-    views.ProjectView.as_view(),
-    name='api_project')
+api_object = url(
+    r'^v(?P<api_version>%s)/m/(?P<object_type>[a-zA-Z]+)/'
+    r'(?P<pid>[0-9]+)/$' % versions,
+    views.ObjectView.as_view(),
+    name='api_object')
 """
 Project url to GET or DELETE a single Project
+"""
+
+api_datasets = url(r'^v(?P<api_version>%s)/m/datasets/$' % versions,
+                   views.DatasetsView.as_view(),
+                   name='api_datasets')
+"""
+GET all projects, using omero-marshal to generate json
+"""
+
+api_projects_datasets = url(
+    r'^v(?P<api_version>%s)/m/projects/(?P<pid>[0-9]+)/datasets/$' % versions,
+    views.DatasetsView.as_view(),
+    name='api_datasets')
+"""
+GET all projects, using omero-marshal to generate json
 """
 
 urlpatterns = patterns(
@@ -91,5 +107,7 @@ urlpatterns = patterns(
     api_login,
     api_save,
     api_projects,
-    api_project,
+    api_object,
+    api_datasets,
+    api_projects_datasets,
 )

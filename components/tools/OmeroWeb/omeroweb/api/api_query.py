@@ -28,12 +28,43 @@ from api_marshal import marshal_objects
 from copy import deepcopy
 
 
+def build_clause(clauses):
+    """
+    Build a string from a list of components.
+
+    This is to simplify building where clauses in particular that
+    may optionally have zero, one or more parts
+    """
+    if not clauses:
+        return ''
+    return ' where ' + " and ".join(clauses) + ' '
+
+
 def query_projects(conn, childCount=False,
                    group=None, owner=None,
                    page=1, limit=settings.PAGE,
                    normalize=False):
     """
+<<<<<<< HEAD
     Query OMERO and marshal omero.model.Projects.
+=======
+    Use the QueryService to load Projects from OMERO.
+
+    Marshals the omero.model objects using
+    omero_marshal
+    """
+    return query_objects(conn, 'Project',
+                         childCount=childCount, group=group, owner=owner,
+                         page=page, limit=limit, normalize=normalize)
+
+
+def query_datasets(conn, project=None, childCount=False,
+                   group=None, owner=None,
+                   page=1, limit=settings.PAGE,
+                   normalize=False):
+    """
+    Use the QueryService to load data from OMERO.
+>>>>>>> bce4900... Adding support for /datasets/:id/
 
     Build a query based on a number of parameters,
     queries OMERO with the query service and
@@ -47,8 +78,42 @@ def query_projects(conn, childCount=False,
     @param limit:       Page size
     @param normalize:   If true, marshal groups and experimenters separately
     """
-    qs = conn.getQueryService()
+    clauses = []
     params = omero.sys.ParametersI()
+    extra_joins = ""
+    # If this is a query to get datasets from a parent project
+    if project:
+        params.add('pid', rlong(project))
+        extra_joins = 'join obj.projectLinks plink'
+        clauses.append('plink.parent.id = :pid')
+    return query_objects(conn, 'Dataset', clauses=clauses,
+                         params=params, extra_joins=extra_joins,
+                         childCount=childCount, group=group, owner=owner,
+                         page=page, limit=limit, normalize=normalize)
+
+
+def query_objects(conn, object_type, clauses=[],
+                  params=omero.sys.ParametersI(),
+                  extra_joins="",
+                  childCount=False,
+                  group=None, owner=None,
+                  page=1, limit=settings.PAGE,
+                  normalize=False):
+    """
+    Base query method, handles different object_types.
+
+    E.g. 'Project'. Builds a query and adds common
+    parameters and filters such as by owner or group.
+    """
+    childCountQueries = {
+        "Project": """, (select count(id) from ProjectDatasetLink pdl
+                      where pdl.parent=obj.id)""",
+        "Dataset": """, (select count(id) from DatasetImageLink pdl
+                      where pdl.parent=obj.id)"""
+    }
+
+    qs = conn.getQueryService()
+    # params = omero.sys.ParametersI()
     if page:
         params.page((page-1) * limit, limit)
     ctx = deepcopy(conn.SERVICE_OPTS)
@@ -57,32 +122,31 @@ def query_projects(conn, childCount=False,
     if group is None:
         group = -1
     ctx.setOmeroGroup(group)
-    where_clause = ''
     if owner is not None and owner != -1:
         params.add('owner', rlong(owner))
-        where_clause = 'where project.details.owner.id = :owner'
+        clauses.append('obj.details.owner.id = :owner')
 
     withChildCount = ""
-    if childCount:
-        withChildCount = """, (select count(id) from ProjectDatasetLink pdl
-                 where pdl.parent=project.id)"""
+    if childCount and object_type in childCountQueries.keys():
+        withChildCount = childCountQueries[object_type]
 
     # Need to load owners specifically, else can be unloaded if group != -1
     query = """
-            select project %s from Project project
-            join fetch project.details.owner
+            select obj %s from %s obj
+            join fetch obj.details.owner
             %s
-            order by lower(project.name), project.id
-            """ % (withChildCount, where_clause)
-
+            %s
+            order by lower(obj.name), obj.id
+            """ % (withChildCount, object_type,
+                   extra_joins, build_clause(clauses))
     projects = []
     extras = {}
     if childCount:
         result = qs.projection(query, params, ctx)
         for p in result:
-            project = unwrap(p[0])
-            projects.append(project)
-            extras[project.id.val] = {'omero:childCount': unwrap(p[1])}
+            object = unwrap(p[0])
+            projects.append(object)
+            extras[object.id.val] = {'omero:childCount': unwrap(p[1])}
     else:
         extras = None
         result = qs.findAllByQuery(query, params, ctx)

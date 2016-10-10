@@ -28,7 +28,7 @@ from django.conf import settings
 import traceback
 import json
 
-from api_query import query_projects
+from api_query import query_projects, query_datasets
 from omero_marshal import get_encoder, get_decoder, OME_SCHEMA_URL
 from omero import ValidationException
 from omeroweb.connector import Server
@@ -107,18 +107,22 @@ def api_servers(request, api_version, **kwargs):
     return {'data': servers}
 
 
-class ProjectView(View):
+class ObjectView(View):
     """Handle access to an individual Project to GET or DELETE it."""
 
     @method_decorator(login_required(useragent='OMERO.webapi'))
     @method_decorator(json_response())
     def dispatch(self, *args, **kwargs):
         """Wrap other methods to add decorators."""
-        return super(ProjectView, self).dispatch(*args, **kwargs)
+        return super(ObjectView, self).dispatch(*args, **kwargs)
 
-    def get(self, request, pid, conn=None, **kwargs):
+    def get(self, request, pid, object_type, conn=None, **kwargs):
         """Simply GET a single Project and marshal it or 404 if not found."""
-        project = conn.getObject("Project", pid)
+        supported_types = {'projects': 'Project',
+                           'datasets': 'Dataset'}
+        if object_type not in supported_types.keys():
+            raise NotFoundError('Object type %s not supported' % object_type)
+        project = conn.getObject(supported_types[object_type], pid)
         if project is None:
             raise NotFoundError('Project %s not found' % pid)
         encoder = get_encoder(project._obj.__class__)
@@ -171,6 +175,40 @@ class ProjectsView(View):
                                   normalize=normalize)
 
         return projects
+
+
+class DatasetsView(View):
+    """Handles GET for /datasets/ to list available Datasets."""
+
+    @method_decorator(login_required(useragent='OMERO.webapi'))
+    @method_decorator(json_response())
+    def dispatch(self, *args, **kwargs):
+        """Use dispatch to add decorators to class methods."""
+        return super(DatasetsView, self).dispatch(*args, **kwargs)
+
+    def get(self, request, pid=None, conn=None, **kwargs):
+        """GET a list of Datasets, filtering by various request parameters."""
+        try:
+            page = getIntOrDefault(request, 'page', 1)
+            limit = getIntOrDefault(request, 'limit', settings.PAGE)
+            group = getIntOrDefault(request, 'group', -1)
+            owner = getIntOrDefault(request, 'owner', -1)
+            childCount = request.GET.get('childCount', False) == 'true'
+            normalize = request.GET.get('normalize', False) == 'true'
+        except ValueError as ex:
+            raise BadRequestError(str(ex))
+
+        # Get the datasets
+        datasets = query_datasets(conn,
+                                  project=pid,
+                                  group=group,
+                                  owner=owner,
+                                  childCount=childCount,
+                                  page=page,
+                                  limit=limit,
+                                  normalize=normalize)
+
+        return datasets
 
 
 class SaveView(View):
