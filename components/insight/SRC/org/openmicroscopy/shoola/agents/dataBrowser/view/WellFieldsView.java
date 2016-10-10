@@ -73,12 +73,6 @@ class WellFieldsView
 	/** The maximum value for the magnification w/o respect of distance. */
 	static final int 			MAGNIFICATION_UNSCALED_MAX = 4;
 	
-	/** Indicates to lay out the fields in a row. */
-	static final int			ROW_LAYOUT = 0;
-	
-	/** Indicates to lay out the fields in a spatial position. */
-	static final int			SPATIAL_LAYOUT = 1;
-	
 	/** The width of the canvas. */
 	static final int 			DEFAULT_WIDTH = 512;
 	
@@ -105,10 +99,7 @@ class WellFieldsView
 	
 	/** The collection of nodes to display. */
 	private List<WellSampleNode> nodes;
-	
-	/** The type of layout of the fields. */
-	private int					 layoutFields;
-	
+
 	/** The currently selected well. */
 	private JLabel				 selectedNode;
 	
@@ -131,7 +122,6 @@ class WellFieldsView
 	private void initComponents()
 	{
 		magnificationUnscaled = MAGNIFICATION_UNSCALED_MIN;
-		layoutFields = ROW_LAYOUT;
 		selectedField = new JLabel();
 		WellImageSet node = model.getSelectedWell();
 		selectedNode = new JLabel();
@@ -139,71 +129,8 @@ class WellFieldsView
 			selectedNode.setText(DEFAULT_WELL_TEXT+node.getWellLocation());
 		}		
 		nodes = null;
-	}
-	
-    /**
-     * Checks if the provided field is the currently selected field
-     * 
-     * @param n
-     *            The field
-     * @return See above.
-     */
-    boolean isSelected(WellSampleNode n) {
-        return n.getIndex() == model.getSelectedFieldIndex();
-    }
-	
-	/** Builds and lays out the UI. */
-	private void buildGUI()
-	{
-	    removeAll();
-		setBorder(new LineBorder(new Color(99, 130, 191)));
-		setLayout(new BorderLayout(0, 0));
-		setBackground(UIUtilities.BACKGROUND);
-		pane = new JScrollPane(canvas);
-		add(pane, BorderLayout.CENTER);
-	}
-	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param model 	 	Reference to the model.
-	 * @param controller 	Reference to the control.
-	 * @param magnification The default magnification.
-	 * @param canvasType   The type of canvas/layout to use (can be <code>null</code>)
-	 */
-	WellFieldsView(WellsModel model, DataBrowserControl controller, double
-			magnification, int layoutFields)
-	{
-		this.model = model;
-		this.controller = controller;
-		this.magnification = magnification;
-		initComponents();
-		setLayoutFields(layoutFields);
-		buildGUI();
-	}
-	
-    /**
-     * Sets the index indicating how to layout the fields.
-     * 
-     * @param layoutFields
-     *            The value to set.
-     */
-    void setLayoutFields(int layoutFields) {
-        this.layoutFields = layoutFields;
-        buildFieldCanvas();
-        buildGUI();
-    }
-	
-    /**
-     * Initializes the canvas taking the field layout into account (row or
-     * spatial)
-     */
-    void buildFieldCanvas() {
-        if (layoutFields == ROW_LAYOUT) {
-            canvas = new RowFieldCanvas(this);
-        } else {
-            canvas = new SpatialFieldCanvas(this);
-        }
+		
+		canvas = new RowFieldCanvas(this);
 
         canvas.addMouseListener(new MouseAdapter() {
 
@@ -267,10 +194,47 @@ class WellFieldsView
             }
 
         });
-        
-        canvas.refreshUI();
+	}
+	
+    /**
+     * Checks if the provided field is the currently selected field
+     * 
+     * @param n
+     *            The field
+     * @return See above.
+     */
+    boolean isSelected(WellSampleNode n) {
+        return n.getIndex() == model.getSelectedFieldIndex();
     }
 	
+	/** Builds and lays out the UI. */
+	private void buildGUI()
+	{
+	    removeAll();
+		setBorder(new LineBorder(new Color(99, 130, 191)));
+		setLayout(new BorderLayout(0, 0));
+		setBackground(UIUtilities.BACKGROUND);
+		pane = new JScrollPane(canvas);
+		add(pane, BorderLayout.CENTER);
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param model 	 	Reference to the model.
+	 * @param controller 	Reference to the control.
+	 * @param magnification The default magnification.
+	 */
+	WellFieldsView(WellsModel model, DataBrowserControl controller, double
+			magnification)
+	{
+		this.model = model;
+		this.controller = controller;
+		this.magnification = magnification;
+		initComponents();
+		buildGUI();
+	}
+
 	/** 
 	 * Returns the fields to display if any.
 	 * 

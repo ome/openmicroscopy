@@ -361,7 +361,7 @@ class DataBrowserUI
                     split.setTopComponent(model.getBrowser().getUI());
 
                     fieldsView  = new WellFieldsView((WellsModel) model, 
-                            controller, Thumbnail.MAX_SCALING_FACTOR, WellFieldsView.ROW_LAYOUT);
+                            controller, Thumbnail.MAX_SCALING_FACTOR);
                     fieldsView.setMagnificationFactor(factor);
                     split.setBottomComponent(fieldsView);
                     
@@ -713,16 +713,6 @@ class DataBrowserUI
             fieldsView.displayFields(wsnodes);
         }
 	}
-
-    /**
-     * Sets the layout used to display the fields.
-     * 
-     * @param index
-     *            The index of the layout.
-     */
-    void setSelectedFieldLayout(int index) {
-        fieldsView.setLayoutFields(index);
-    }
 	
 	/** Invokes when the parent has been set. */
 	void onExperimenterSet() { toolBar.onExperimenterSet(); }
