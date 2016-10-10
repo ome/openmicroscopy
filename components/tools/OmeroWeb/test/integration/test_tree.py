@@ -257,6 +257,7 @@ def expected_wells(user, wells):
         })
     return expected
 
+
 def expected_orphaned(user, images):
     return {
         'id': user[1].id.val,
