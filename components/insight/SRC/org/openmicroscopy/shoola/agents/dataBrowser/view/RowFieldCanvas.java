@@ -36,14 +36,13 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.border.Border;
-import javax.swing.border.TitledBorder;
 
 import omero.gateway.model.DataObject;
 
@@ -148,16 +147,57 @@ class RowFieldCanvas extends WellFieldsCanvas {
                 }
             });
 
+            LinkedHashMap<String, Integer> titles = new LinkedHashMap<String, Integer>();
+            for (WellSampleNode n : l) {
+                if (!titles.containsKey(n.getTitle()))
+                    titles.put(n.getTitle(), 1);
+                else
+                    titles.put(n.getTitle(), (titles.get(n.getTitle()) + 1));
+            }
+
+            int nFields = 0;
+            for (Integer i : titles.values()) {
+                nFields = Math.max(nFields, i);
+            }
+
+            // column header
+            GridBagConstraints c = new GridBagConstraints();
+            c.fill = GridBagConstraints.NONE;
+            c.gridx = 1;
+            c.gridy = 0;
+            c.weightx = 0;
+            c.weighty = 0;
+            for (int i = 0; i < nFields; i++) {
+                JLabel f = new JLabel("" + (i + 1));
+                f.setBackground(UIUtilities.BACKGROUND);
+                add(f, c);
+                c.gridx++;
+            }
+            
+            // row header
+            c = new GridBagConstraints();
+            c.fill = GridBagConstraints.NONE;
+            c.gridx = 0;
+            c.gridy = 1;
+            c.weightx = 0;
+            c.weighty = 0;
+            for (String title : titles.keySet()) {
+                JLabel f = new JLabel(title);
+                f.setBackground(UIUtilities.BACKGROUND);
+                add(f, c);
+                c.gridy++;
+            }
+
             Map<String, GridBagConstraints> cs = new HashMap<String, GridBagConstraints>();
-            int y = 0;
-            GridBagConstraints c = null;
+            int y = 1;
+            c = null;
             for (WellSampleNode n : l) {
                 String key = n.getRow() + "_" + n.getColumn();
                 c = cs.get(key);
                 if (c == null) {
                     c = new GridBagConstraints();
                     c.fill = GridBagConstraints.NONE;
-                    c.gridx = 0;
+                    c.gridx = 1;
                     c.gridy = y++;
                     c.weightx = 0;
                     c.weighty = 0;
@@ -175,7 +215,7 @@ class RowFieldCanvas extends WellFieldsCanvas {
             c.weightx = 1;
             c.weighty = 1;
             c.fill = GridBagConstraints.BOTH;
-            add(UIUtilities.createComponent(JPanel.class,
+            add(UIUtilities.createComponent(JLabel.class,
                     UIUtilities.BACKGROUND), c);
         }
 
@@ -226,10 +266,7 @@ class RowFieldCanvas extends WellFieldsCanvas {
             Color col = isSelected(node) ? colors
                     .getColor(Colors.TITLE_BAR_HIGHLIGHT) : colors
                     .getColor(Colors.TITLE_BAR);
-            Border b = BorderFactory.createLineBorder(col, 2);
-            setBorder(BorderFactory.createTitledBorder(b, node.getTitle(),
-                    TitledBorder.LEFT, TitledBorder.ABOVE_TOP,
-                    (new JLabel()).getFont(), col));
+            setBorder(BorderFactory.createLineBorder(col, 2));
         }
 
         @Override

@@ -276,8 +276,8 @@ class WellFieldsView
 		this.nodes = new ArrayList<WellSampleNode>(nodes.size());
 		for(WellSampleNode n : nodes) {
 		    WellSampleNode copy = n.copy();
-		    copy.setTitle(n.getTitle()+" Field #"+(copy.getIndex()+1));
-		    copy.setTitleBarType(ImageNode.SMALL_TITLE_BAR);
+		    copy.setTitle(n.getTitle());
+		    copy.setTitleBarType(ImageNode.NO_BAR);
 		    this.nodes.add(copy);
 		}
 		
