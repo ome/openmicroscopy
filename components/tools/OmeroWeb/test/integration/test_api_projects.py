@@ -33,6 +33,29 @@ from omero.rtypes import unwrap, rstring
 from omero_marshal import get_encoder, OME_SCHEMA_URL
 
 
+def build_url(name, api_version, **kwargs):
+    """
+    Helper for generating urls within /api json responses.
+
+    By default we use request.build_absolute_uri() but this
+    can be configured by setting "omero.web.api.absolute_url"
+    to a string or empty string, used to prefix relative urls.
+    Extra **kwargs are passed to reverse() function.
+
+    @param name:            Name of the url
+    @param api_version      Version string
+    """
+    kwargs['api_version'] = api_version
+    url = reverse(name, kwargs=kwargs)
+    return url
+    # if settings.API_ABSOLUTE_URL is None:
+    #     return request.build_absolute_uri(url)
+    # else:
+    #     # remove trailing slash
+    #     prefix = settings.API_ABSOLUTE_URL.rstrip('/')
+    #     return "%s%s" % (prefix, url)
+
+
 def get_update_service(user):
     """
     Get the update_service for the given user's client
@@ -156,7 +179,7 @@ def marshal_objects(objects):
 
 
 def assert_objects(conn, json_objects, omero_ids_objects, dtype="Project",
-                   group='-1'):
+                   group='-1', version=None):
     """
     Load objects from OMERO, via conn.getObjects(), marshal with
     omero_marshal and compare with json_objects.
@@ -172,6 +195,12 @@ def assert_objects(conn, json_objects, omero_ids_objects, dtype="Project",
     projects = conn.getObjects(dtype, pids, respect_order=True)
     projects = [p._obj for p in projects]
     expected = marshal_objects(projects)
+    if dtype == "Project":
+        for o in expected:
+            datasets_url = build_url('api_project_datasets',
+                                     version, pid=o['@id'])
+            print datasets_url
+            o['omero:datasets_url'] = datasets_url
     assert len(json_objects) == len(expected)
     for o1, o2 in zip(json_objects, expected):
         assert o1 == o2
@@ -291,7 +320,7 @@ class TestProjects(IWebTest):
         rsp = _get_response_json(django_client, request_url, {})
         # Reload projects with group '-1' to get same 'canLink' perms
         # on owner and group permissions
-        assert_objects(conn, rsp['data'], projects_user1_group1)
+        assert_objects(conn, rsp['data'], projects_user1_group1, version=version)
 
     def test_marshal_projects_another_user(self, user1, user2,
                                            projects_user2_group1):
