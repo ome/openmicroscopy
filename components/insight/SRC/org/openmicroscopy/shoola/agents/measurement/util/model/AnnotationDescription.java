@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.measurement.util.AnnotationDescription 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -98,6 +98,8 @@ public class AnnotationDescription
 														"Show Measurement");
 		annotationDescription.put(MeasurementAttributes.SCALE_PROPORTIONALLY,
 				"Scale Proportionally");
+		annotationDescription.put(MeasurementAttributes.START_DECORATION, "Start decoration");
+        annotationDescription.put(MeasurementAttributes.END_DECORATION, "End decoration");
 		annotationDescription.put(AnnotationKeys.TAG, "Tag");
 		annotationDescription.put(AnnotationKeys.FOLDERS, "Folders");
 		}

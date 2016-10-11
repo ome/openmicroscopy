@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -174,6 +174,8 @@ public class MeasureLineFigure
 		setAttribute(MeasurementAttributes.FONT_FACE, DEFAULT_FONT);
 		setAttribute(MeasurementAttributes.FONT_SIZE, new Double(FONT_SIZE));
         setAttribute(MeasurementAttributes.SCALE_PROPORTIONALLY, Boolean.FALSE);
+        setAttribute(MeasurementAttributes.START_DECORATION, null);
+        setAttribute(MeasurementAttributes.END_DECORATION, null);
 		boundsArray = new ArrayList<Rectangle2D>();
 		lengthArray = new ArrayList<Length>();
 		angleArray = new ArrayList<Double>();

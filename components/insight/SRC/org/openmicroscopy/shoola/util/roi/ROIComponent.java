@@ -133,6 +133,8 @@ public class ROIComponent
 				ShapeSettingsData.DEFAULT_FILL_COLOUR);
 		AttributeKeys.STROKE_COLOR.set(fig, 
 				ShapeSettingsData.DEFAULT_STROKE_COLOUR);
+        MeasurementAttributes.START_DECORATION.set(fig, null);
+        MeasurementAttributes.END_DECORATION.set(fig, null);
     }
         
     /**

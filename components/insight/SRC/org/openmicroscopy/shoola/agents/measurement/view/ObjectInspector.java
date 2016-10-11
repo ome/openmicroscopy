@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.measurement.view.ObjectInspector 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -133,6 +133,12 @@ class ObjectInspector
             attributeFields.add(new AttributeField(MeasurementAttributes.HEIGHT,
                     AnnotationDescription.annotationDescription
                             .get(AnnotationKeys.HEIGHT), true));
+            attributeFields.add(new AttributeField(MeasurementAttributes.START_DECORATION,
+                    AnnotationDescription.annotationDescription
+                    .get(MeasurementAttributes.START_DECORATION), true));
+            attributeFields.add(new AttributeField(MeasurementAttributes.END_DECORATION,
+                    AnnotationDescription.annotationDescription
+                    .get(MeasurementAttributes.END_DECORATION), true));
             attributeFields.add(new AttributeField(MeasurementAttributes.SHOWTEXT,
                     "Show Comment", false));
             attributeFields.add(new AttributeField(MeasurementAttributes.SHOWMEASUREMENT,
@@ -243,7 +249,12 @@ class ObjectInspector
                     }
                 } catch (Exception e) {
                 }
-            }
+            } else if (attr.equals(MeasurementAttributes.START_DECORATION)) {
+                figure.setAttribute(MeasurementAttributes.START_DECORATION, text);
+            } 
+            else if (attr.equals(MeasurementAttributes.END_DECORATION)) {
+                figure.setAttribute(MeasurementAttributes.END_DECORATION, text);
+            } 
             model.getDrawingView().repaint();
         }
         
