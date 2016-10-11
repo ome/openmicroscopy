@@ -594,6 +594,7 @@ public class PermissionsTest extends AbstractServerTest {
             }
         }
         /* create two tag sets and three tags */
+        init(importerTargetUser);
         final List<TagAnnotation> tagsets = createTagsets(2);
         final List<TagAnnotation> tags = createTags(3);
 
@@ -603,7 +604,7 @@ public class PermissionsTest extends AbstractServerTest {
 
         /* chown all what belongs to importerTargetUser to recipient */
 
-        init(importerTargetUser);
+        init(chowner);
         Chown2 chown = Requests.chown().targetUsers(importerTargetUser.userId).toUser(recipient.userId).build();
         doChange(client, factory, chown, isExpectSuccess);
 
