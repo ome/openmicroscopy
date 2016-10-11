@@ -283,9 +283,14 @@
                         var values = result.data.rows.map(function(row){
                             return ("" + row[colIdx]).escapeHTML();
                         });
+                        
                         values = values.join('<br />');
                         var oddEvenClass = col % 2 == 1 ? 'odd' : 'even';
-                        return '<tr><td class="title ' + oddEvenClass + '">' + label + ':&nbsp;</td><td>' + values + '</td></tr>';
+                        console.log(values, (values.length > 0))
+                        if (values.length > 0) {
+                            return '<tr><td class="title ' + oddEvenClass + '">' + label + ':&nbsp;</td><td>' + values + '</td></tr>';
+                        }
+                        return;
                     });
                     table.html(html.join(""));
                     if (callback) {
