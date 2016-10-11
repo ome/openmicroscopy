@@ -30,9 +30,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeMap;
 
+import org.jhotdraw.draw.ArrowTip;
 import org.jhotdraw.draw.AttributeKeys;
+import org.jhotdraw.draw.LineDecoration;
 import org.jhotdraw.geom.BezierPath;
-
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
@@ -45,10 +46,10 @@ import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
-import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import omero.gateway.model.EllipseData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.LineData;
@@ -541,6 +542,14 @@ public class OutputServerStrategy
 				} else settings.setFontStyle(ShapeSettingsData.FONT_REGULAR);
 			}
 		} else settings.setFontStyle(ShapeSettingsData.FONT_REGULAR);
+		
+		LineDecoration ld = MeasurementAttributes.START_DECORATION.get(fig);
+        if (ld instanceof ArrowTip)
+            settings.setMarkerStart("Arrow");
+
+        ld = MeasurementAttributes.END_DECORATION.get(fig);
+        if (ld instanceof ArrowTip)
+            settings.setMarkerEnd("Arrow");
 	}
 
     /**

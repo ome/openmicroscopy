@@ -43,12 +43,14 @@ import static org.jhotdraw.draw.AttributeKeys.STROKE_COLOR;
 import static org.jhotdraw.draw.AttributeKeys.TEXT_COLOR;
 import static org.jhotdraw.draw.AttributeKeys.STROKE_WIDTH;
 
+import org.jhotdraw.draw.ArrowTip;
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.geom.BezierPath.Node;
 
 import omero.model.Length;
 import omero.model.enums.UnitsLength;
 
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
@@ -526,6 +528,17 @@ class InputServerStrategy
 		FONT_ITALIC.set(figure, data.isFontItalic());
 		FONT_BOLD.set(figure, data.isFontBold());
 		TEXT_COLOR.set(figure, data.getStroke());
+		
+        if (CommonsLangUtils.isNotBlank(data.getMarkerStart())) {
+            if (data.getMarkerStart().equalsIgnoreCase("Arrow"))
+                MeasurementAttributes.START_DECORATION.set(figure,
+                        new ArrowTip());
+        }
+        if (CommonsLangUtils.isNotBlank(data.getMarkerEnd())) {
+            if (data.getMarkerEnd().equalsIgnoreCase("Arrow"))
+                MeasurementAttributes.END_DECORATION
+                        .set(figure, new ArrowTip());
+        }
 	}
 
     /**
