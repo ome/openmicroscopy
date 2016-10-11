@@ -37,6 +37,7 @@ from omeroweb.api.api_exceptions import BadRequestError, NotFoundError, \
 from omeroweb.api.decorators import login_required, json_response
 from omeroweb.webgateway.util import getIntOrDefault
 
+from django.http import JsonResponse
 
 def build_url(request, name, api_version, **kwargs):
     """
@@ -116,17 +117,15 @@ class ObjectView(View):
         """Wrap other methods to add decorators."""
         return super(ObjectView, self).dispatch(*args, **kwargs)
 
-    def get(self, request, pid, object_type, conn=None, **kwargs):
-        """Simply GET a single Project and marshal it or 404 if not found."""
-        supported_types = {'projects': 'Project',
-                           'datasets': 'Dataset'}
-        if object_type not in supported_types.keys():
-            raise NotFoundError('Object type %s not supported' % object_type)
-        project = conn.getObject(supported_types[object_type], pid)
-        if project is None:
-            raise NotFoundError('Project %s not found' % pid)
-        encoder = get_encoder(project._obj.__class__)
-        return encoder.encode(project._obj)
+    def get(self, request, pid, conn=None, **kwargs):
+        """Simply GET a single Object and marshal it or 404 if not found."""
+        obj = conn.getObject(self.OMERO_TYPE, pid)
+        if obj is None:
+            return JsonResponse(
+                {'message': '%s %s not found' % (self.OMERO_TYPE, pid)},
+                status=404)
+        encoder = get_encoder(obj._obj.__class__)
+        return encoder.encode(obj._obj)
 
     def delete(self, request, pid, conn=None, **kwargs):
         """
@@ -135,13 +134,33 @@ class ObjectView(View):
         Return 404 if not found.
         """
         try:
-            project = conn.getQueryService().get('Project', long(pid))
+            obj = conn.getQueryService().get(self.OMERO_TYPE, long(pid))
         except ValidationException:
-            raise NotFoundError('Project %s not found' % pid)
-        encoder = get_encoder(project.__class__)
-        json = encoder.encode(project)
-        conn.deleteObject(project)
+            return JsonResponse(
+                {'message': '%s %s not found' % (self.OMERO_TYPE, pid)},
+                status=404)
+        encoder = get_encoder(obj.__class__)
+        json = encoder.encode(obj)
+        conn.deleteObject(obj)
         return json
+
+
+class ProjectView(ObjectView):
+    OMERO_TYPE = 'Project'
+
+    def get(self, request, pid, conn=None, **kwargs):
+        o = super(ProjectView, self).get(request, pid, conn, **kwargs)
+        if isinstance(o, JsonResponse):
+            return o
+        version = kwargs['api_version']
+        datasets_url = build_url(request, 'api_project_datasets',
+                                 version, pid=o['@id'])
+        o['omero:datasets_url'] = datasets_url
+        return o
+
+
+class DatasetView(ObjectView):
+    OMERO_TYPE = 'Dataset'
 
 
 class ProjectsView(View):
@@ -174,6 +193,11 @@ class ProjectsView(View):
                                   limit=limit,
                                   normalize=normalize)
 
+        version = kwargs['api_version']
+        for p in projects['data']:
+            url = build_url(request, 'api_project_datasets',
+                            version, pid=p['@id'])
+            p['omero:datasets_url'] = url
         return projects
 
 
