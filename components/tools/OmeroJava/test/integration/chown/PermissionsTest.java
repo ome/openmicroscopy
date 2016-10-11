@@ -1022,7 +1022,7 @@ public class PermissionsTest extends AbstractServerTest {
         logRootIntoGroup(dataGroupId);
         assertOwnedBy(container, recipient);
         assertOwnedBy(image, isImageOwner ? recipient : imageOwner);
-        assertOwnedBy(link, isImageOwner ? recipient : linkOwner);
+        assertOwnedBy(link, isImageOwner && isLinkOwner ? recipient : linkOwner);
     }
 
     /**
