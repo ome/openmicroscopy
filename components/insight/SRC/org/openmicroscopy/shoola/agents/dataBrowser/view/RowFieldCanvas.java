@@ -173,7 +173,7 @@ class RowFieldCanvas extends WellFieldsCanvas {
                 add(f, c);
                 c.gridx++;
             }
-            
+
             // row header
             c = new GridBagConstraints();
             c.fill = GridBagConstraints.NONE;
@@ -272,13 +272,17 @@ class RowFieldCanvas extends WellFieldsCanvas {
         @Override
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
-            g.drawImage(node.getThumbnail().getDisplayedImage(),
-                    getInsets().left, getInsets().top, null);
+            if (node.getThumbnail().getDisplayedImage() != null)
+                g.drawImage(node.getThumbnail().getDisplayedImage(),
+                        getInsets().left, getInsets().top, null);
         }
 
         @Override
         public Dimension getPreferredSize() {
             BufferedImage img = node.getThumbnail().getDisplayedImage();
+            if (img == null)
+                return new Dimension(0, 0);
+
             Insets in = getInsets();
             return new Dimension(img.getWidth() + in.left + in.right,
                     img.getHeight() + in.top + in.bottom);
