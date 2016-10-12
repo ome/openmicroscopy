@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,6 +37,7 @@ import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
+import org.openmicroscopy.shoola.env.data.model.AnnotationType;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.Target;
@@ -134,8 +136,11 @@ public interface Editor
 	/** Identified the <code>mode</code> enumeration. */
 	public static final String MODE = OmeroMetadataService.ACQUISITION_MODE;
 
-	/** Feeds the metadata back to the editor. */
-	public void setStructuredDataResults();
+	/** 
+	 * Feeds the metadata back to the editor. 
+	 * @param types The {@link AnnotationType}s which have been loaded
+	 */
+	public void setStructuredDataResults(EnumSet<AnnotationType> types);
 	
 	/**
 	 * Returns the View.
@@ -144,6 +149,11 @@ public interface Editor
 	 */
 	public JComponent getUI();
 	
+	/**
+	 * Layout/Refresh the UI
+	 */
+    public void layoutUI();
+    
 	/**
 	 * Sets the root of the tree.
 	 * 
@@ -569,4 +579,11 @@ public interface Editor
      */
     public void reloadROICount();
     
+    /**
+     * Set the annotation counts
+     * 
+     * @param result
+     *            The annotation counts
+     */
+    public void setAnnotationCount(Map<AnnotationType, Long> result);
 }

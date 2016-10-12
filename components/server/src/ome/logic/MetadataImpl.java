@@ -578,81 +578,145 @@ public class MetadataImpl
             Set<String> annotationTypes, Set<Long> annotatorIds, 
             Parameters options)
     {
-    	 Map<Long, Set<A>> map = new HashMap<Long, Set<A>>();
-         if (rootNodeIds.size() == 0)  return map;
-         if (!IAnnotated.class.isAssignableFrom(rootNodeType)) {
-             throw new ApiUsageException(
-                     "Class parameter for loadAnnotation() "
-                             + "must be a subclass of ome.model.IAnnotated");
-         }
-
-         Parameters po = new Parameters();
-
-         Query<List<IAnnotated>> q = getQueryFactory().lookup(
-                 PojosFindAnnotationsQueryDefinition.class.getName(),
-                 po.addIds(rootNodeIds).addClass(rootNodeType)
-                         .addSet("annotatorIds", annotatorIds));
-
-         List<IAnnotated> l = iQuery.execute(q);
-         iQuery.clear();
-         // no count collection
-
-         // SORT
-         Iterator<IAnnotated> i = new HashSet<IAnnotated>(l).iterator();
-         IAnnotated annotated;
-         Long id; 
-         Set<A> set;
-         List<A> list;
-         List<A> supported;
-         Iterator<A> j;
-         A object;
-         Iterator<A> ann;
-         OriginalFile of;
-         FileAnnotation fa;
-         while (i.hasNext()) {
-             annotated = i.next();
-             id = annotated.getId();
-             set = map.get(id);
-             if (set == null) {
-                 set = new HashSet<A>();
-                 map.put(id, set);
-             }
-             list = (List<A>) annotated.linkedAnnotationList();
-             supported = new ArrayList<A>();
-             if (list != null) {
-            	 if (annotationTypes != null && annotationTypes.size() > 0) {
-            		 j = list.iterator();
-            		 
-                	 while (j.hasNext()) {
-                		 object = j.next();
-                		 if (annotationTypes.contains(
-                				 object.getClass().getName())) {
-                			 supported.add(object);
-                		 }
-                	 }
-            	 } else {
-            		 supported.addAll(list);
-            	 }
-             } else supported.addAll(list);
-             ann = supported.iterator();
-             while (ann.hasNext()) {
-            	 object = ann.next();
-            	 //load original file.
-            	 if (object instanceof FileAnnotation) {
-            		 fa = (FileAnnotation) object;
-            		 if (fa.getFile() != null) {
-            			 of = iQuery.findByQuery(LOAD_ORIGINAL_FILE, 
-                				 new Parameters().addId(fa.getFile().getId()));
-				 fa.setFile(of);
-            		 }
-            	 }
-             }
-             //Archived if no updated script.
-            set.addAll(supported);
-         }
-         return map;
+         return loadAnnotationsImpl(rootNodeType, rootNodeIds, annotationTypes, annotatorIds, options);
     }
 
+    @Override
+    @RolesAllowed("user")
+    @Transactional(readOnly = true)
+    public Map<String, Long> loadAnnotationCounts(Class nodeType,
+            Set<Long> rootNodeIds, Set<Long> annotatorIds, Parameters options) {
+        Map<String, Long> map = new HashMap<String, Long>();
+
+        Map<Long, Set<Annotation>> annos = loadAnnotationsImpl(nodeType,
+                rootNodeIds, null, annotatorIds, options);
+        
+        for (Set<Annotation> annoSet : annos.values()) {
+            for (Annotation anno : annoSet) {
+                String key = anno.getClass().getName();
+                if (anno.getNs() != null && !anno.getNs().trim().isEmpty()) {
+                    key += " " + anno.getNs();
+                }
+                Long count = map.get(key);
+                if (count == null) {
+                    count = 0l;
+                }
+                count++;
+                map.put(key, count);
+            }
+        }
+        
+        return map;
+    }
+    
+    /**
+     * Loads all the annotations of given types, that have been attached to the
+     * specified <code>rootNodes</code> for the specified
+     * <code>annotatorIds</code>. If no types specified, all annotations will be
+     * loaded. This method looks for the annotations that have been attached to
+     * each of the specified objects. It then maps each <code>rootNodeId</code>
+     * onto the set of annotations that were found for that node. If no
+     * annotations were found for that node, then the entry will be
+     * <code>null</code>. Otherwise it will be a <code>Set</code> containing
+     * {@link Annotation} objects.
+     * 
+     * @param nodeType
+     *            The type of the nodes the annotations are linked to. Mustn't
+     *            be <code>null</code>.
+     * @param rootNodeIds
+     *            Ids of the objects of type <code>rootNodeType</code>. Mustn't
+     *            be <code>null</code>.
+     * @param annotationType
+     *            The types of annotation to retrieve. If <code>null</code> all
+     *            annotations will be loaded. String of the type
+     *            <code>ome.model.annotations.*</code>.
+     * @param annotatorIds
+     *            Ids of the users for whom annotations should be retrieved. If
+     *            <code>null</code>, all annotations returned.
+     * @param options
+     * @return A map whose key is rootNodeId and value the <code>Set</code> of
+     *         all annotations for that node or <code>null</code>.
+     */
+    private <T extends IObject, A extends Annotation> Map<Long, Set<A>> loadAnnotationsImpl(
+            Class<T> rootNodeType, Set<Long> rootNodeIds,
+            Set<String> annotationTypes, Set<Long> annotatorIds,
+            Parameters options) {
+        Map<Long, Set<A>> map = new HashMap<Long, Set<A>>();
+        if (rootNodeIds.size() == 0)
+            return map;
+        if (!IAnnotated.class.isAssignableFrom(rootNodeType)) {
+            throw new ApiUsageException("Class parameter for loadAnnotation() "
+                    + "must be a subclass of ome.model.IAnnotated");
+        }
+
+        Parameters po = new Parameters();
+
+        Query<List<IAnnotated>> q = getQueryFactory().lookup(
+                PojosFindAnnotationsQueryDefinition.class.getName(),
+                po.addIds(rootNodeIds).addClass(rootNodeType)
+                        .addSet("annotatorIds", annotatorIds));
+
+        List<IAnnotated> l = iQuery.execute(q);
+        iQuery.clear();
+        // no count collection
+
+        // SORT
+        Iterator<IAnnotated> i = new HashSet<IAnnotated>(l).iterator();
+        IAnnotated annotated;
+        Long id;
+        Set<A> set;
+        List<A> list;
+        List<A> supported;
+        Iterator<A> j;
+        A object;
+        Iterator<A> ann;
+        OriginalFile of;
+        FileAnnotation fa;
+        while (i.hasNext()) {
+            annotated = i.next();
+            id = annotated.getId();
+            set = map.get(id);
+            if (set == null) {
+                set = new HashSet<A>();
+                map.put(id, set);
+            }
+            list = (List<A>) annotated.linkedAnnotationList();
+            supported = new ArrayList<A>();
+            if (list != null) {
+                if (annotationTypes != null && annotationTypes.size() > 0) {
+                    j = list.iterator();
+
+                    while (j.hasNext()) {
+                        object = j.next();
+                        if (annotationTypes.contains(object.getClass()
+                                .getName())) {
+                            supported.add(object);
+                        }
+                    }
+                } else {
+                    supported.addAll(list);
+                }
+            } else
+                supported.addAll(list);
+            ann = supported.iterator();
+            while (ann.hasNext()) {
+                object = ann.next();
+                // load original file.
+                if (object instanceof FileAnnotation) {
+                    fa = (FileAnnotation) object;
+                    if (fa.getFile() != null) {
+                        of = iQuery.findByQuery(LOAD_ORIGINAL_FILE,
+                                new Parameters().addId(fa.getFile().getId()));
+                        fa.setFile(of);
+                    }
+                }
+            }
+            // Archived if no updated script.
+            set.addAll(supported);
+        }
+        return map;
+    }
+    
     @Override
     @RolesAllowed("user")
     @Transactional(readOnly = true)

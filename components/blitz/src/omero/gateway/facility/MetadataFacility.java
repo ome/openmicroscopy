@@ -21,6 +21,8 @@
 package omero.gateway.facility;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +44,9 @@ import omero.gateway.model.ChannelData;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.ImageAcquisitionData;
 import omero.gateway.model.ImageData;
+import omero.gateway.model.LongAnnotationData;
+import omero.gateway.model.RatingAnnotationData;
+import omero.gateway.model.WellSampleData;
 import omero.gateway.util.PojoMapper;
 
 
@@ -243,4 +248,79 @@ public class MetadataFacility extends Facility {
         return result;
     }
 
+    /**
+     * Get the annotation counts for the given {@link DataObject}s
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param objects
+     *            The {@link DataObject}s to load the annotation counts for
+     * @param userIds
+     *            Only load annotations of certain users (can be
+     *            <code>null</code>, i. e. all users)
+     * @return See above
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public Map<Class<? extends AnnotationData>, Long> getAnnotationCount(
+            SecurityContext ctx, Collection<? extends DataObject> objects,
+            List<Long> userIds) throws DSOutOfServiceException,
+            DSAccessException {
+        String type = null;
+        List<Long> ids = new ArrayList<Long>();
+        for (DataObject obj : objects) {
+            if (type == null) {
+                if (obj instanceof WellSampleData)
+                    type = PojoMapper.getModelType(ImageData.class).getName();
+                else
+                    type = PojoMapper.getModelType(obj.getClass()).getName();
+            }
+            else if (!type.equals(PojoMapper.getModelType(obj.getClass())
+                    .getName()))
+                throw new IllegalArgumentException(
+                        "All objects have to be the same type");
+            
+            if (obj instanceof WellSampleData)
+                ids.add(((WellSampleData) obj).getImage().getId());
+            else
+                ids.add(obj.getId());
+        }
+
+        try {
+            IMetadataPrx proxy = gateway.getMetadataService(ctx);
+            Map<String, Long> data = proxy.loadAnnotationCounts(type, ids,
+                    userIds, null);
+            Map<Class<? extends AnnotationData>, Long> result = new HashMap<Class<? extends AnnotationData>, Long>(
+                    data.size());
+            for (Entry<String, Long> e : data.entrySet()) {
+                String[] key = e.getKey().split("\\s");
+                String clazz = key[0];
+                String ns = key.length > 1 ? key[1] : null;
+                Class<? extends AnnotationData> annoType = (Class<? extends AnnotationData>) PojoMapper
+                        .getPojoType((Class<? extends IObject>) Class.forName(clazz));
+                
+                if (annoType == LongAnnotationData.class
+                        && omero.constants.metadata.NSINSIGHTRATING.value
+                                .equals(ns)) {
+                    annoType = RatingAnnotationData.class;
+                }
+                
+                Long count = result.get(annoType);
+                if (count == null)
+                    count = e.getValue();
+                else
+                    count += e.getValue();
+                result.put(annoType, count);
+            }
+            return result;
+        } catch (Throwable t) {
+            handleException(this, t, "Cannot get annotation counts.");
+        }
+
+        return Collections.emptyMap();
+    }
+    
 }

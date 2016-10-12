@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -20,15 +20,16 @@
  */
 package org.openmicroscopy.shoola.agents.metadata;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
-
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
+import org.openmicroscopy.shoola.env.data.model.AnnotationType;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
@@ -56,23 +57,28 @@ public class StructuredDataLoader
 	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
 
+    /** The types of Annotations to load */
+    private EnumSet<AnnotationType> types;
+    
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param viewer The viewer this data loader is for.
      *               Mustn't be <code>null</code>.
      * @param ctx The security context.
+     * @param types The types of Annotations to load
 	 * @param dataObjects The objects the data are related to.
 	 *                   Mustn't be <code>null</code>.
 	 * @param loaderID The identifier of the loader.
 	 */
 	public StructuredDataLoader(MetadataViewer viewer, SecurityContext ctx,
-			List<DataObject> dataObjects, int loaderID)
+			List<DataObject> dataObjects, EnumSet<AnnotationType> types, int loaderID)
 	{
 		super(viewer, ctx, null, loaderID);
 		if (CollectionUtils.isEmpty(dataObjects))
 			throw new IllegalArgumentException("No object specified.");
 		this.dataObjects = dataObjects;
+		this.types = types;
 	}
 
 	/** 
@@ -81,7 +87,7 @@ public class StructuredDataLoader
 	 */
 	public void load()
 	{
-	    handle = mhView.loadStructuredData(ctx, dataObjects, -1, false, this);
+	    handle = mhView.loadStructuredData(ctx, dataObjects, types, -1, false, this);
 	}
 
 	/** 
@@ -97,7 +103,7 @@ public class StructuredDataLoader
     public void handleResult(Object result) 
     {
     	if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
-    	viewer.setMetadata((Map<DataObject, StructuredDataResults>) result,
+    	viewer.setMetadata((Map<DataObject, StructuredDataResults>) result, types,
     			loaderID);
     }
 
@@ -117,6 +123,6 @@ public class StructuredDataLoader
             data = i.next();
             m.put(data, new StructuredDataResults(data, false));
         }
-        viewer.setMetadata(m, loaderID);
+        viewer.setMetadata(m, types, loaderID);
     }
 }

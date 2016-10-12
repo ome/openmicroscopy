@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -86,6 +87,7 @@ import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.AnnotationLinkData;
+import org.openmicroscopy.shoola.env.data.model.AnnotationType;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
@@ -268,6 +270,9 @@ class EditorModel
     
     /** The file set associated to the image if an image is selected.*/
     private Set<FilesetData> set;
+    
+    /** The annotation counts */
+    private Map<AnnotationType, Long> annotationCounts = null;
     
     /** Checks if the image is a large image or not. */
     private void fireLargeImageLoading()
@@ -1914,6 +1919,9 @@ class EditorModel
 		Collection<XMLAnnotationData> xml = data.getXMLAnnotations();
 		if (xml != null && !xml.isEmpty())
 			l.addAll(xml);
+		Collection<TermAnnotationData> term = data.getTerms();
+        if (term != null && !term.isEmpty())
+            l.addAll(term);
 		Collection<AnnotationData> others = data.getOtherAnnotations();
 		if (others != null && !others.isEmpty())
 			l.addAll(others);
@@ -1979,12 +1987,16 @@ class EditorModel
 		i = r.entrySet().iterator();
 
 		Collection<XMLAnnotationData> files;
+		Collection<TermAnnotationData> terms;
 		Collection<AnnotationData> others;
 		List<AnnotationData> results = new ArrayList<AnnotationData>();
 		List<Long> ids = new ArrayList<Long>();
+		List<Long> ids2 = new ArrayList<Long>();
 		Iterator<XMLAnnotationData> j;
+		Iterator<TermAnnotationData> j2;
 		Iterator<AnnotationData> k;
 		XMLAnnotationData file;
+		TermAnnotationData term;
 		AnnotationData other;
 		while (i.hasNext()) {
 			e = i.next();
@@ -1999,6 +2011,17 @@ class EditorModel
 					}
 				}
 			}
+			terms = e.getValue().getTerms();
+            if (terms != null) {
+                j2 = terms.iterator();
+                while (j2.hasNext()) {
+                    term = j2.next();
+                    if (!ids2.contains(term)) {
+                        results.add(term);
+                        ids2.add(term.getId());
+                    }
+                }
+            }
 			others = e.getValue().getOtherAnnotations();
 			if (others != null) {
 				k = others.iterator();
@@ -2649,6 +2672,7 @@ class EditorModel
 	    if (resultsLoader != null) resultsLoader.clear();
 	    resultsLoader = null;
 	    if (!b) {
+	        annotationCounts = null;
 			parentRefObject = null;
 			gpRefObject = null;
 	    	if (emissionsWavelengths != null) 
@@ -4612,5 +4636,61 @@ class EditorModel
             }
         }
         return imgSize <= maxSize;
+    }
+
+    /**
+     * Triggers the loading of the annotations
+     * @param types The types of annotations to load.
+     */
+    public void loadStructuredData(EnumSet<AnnotationType> types) {
+        parent.loadStructuredData(types);
+    }
+    
+    /**
+     * Triggers the loading of the annotation counts
+     */
+    void loadAnnotationCount() {
+        parent.loadAnnotationCount();
+    }
+
+    /**
+     * Set the annotation counts
+     * 
+     * @param result
+     *            The annotation counts
+     */
+    void setAnnotationCount(Map<AnnotationType, Long> result) {
+        this.annotationCounts = result;
+    }
+
+    /**
+     * Get the number of annotations of a certain type
+     * 
+     * @param type
+     *            The {@link AnnotationType}
+     * @return The number of annotations or <code>-1</code> if the annotation
+     *         counts haven't been loaded (see {@link #loadAnnotationCount()})
+     */
+    long getAnnotationCount(AnnotationType type) {
+        if (annotationCounts == null)
+            return -1;
+        long result = 0;
+        if (type == AnnotationType.OTHER) {
+            result += annotationCounts.get(AnnotationType.BOOLEAN) != null ? annotationCounts
+                    .get(AnnotationType.BOOLEAN) : 0;
+            result += annotationCounts.get(AnnotationType.DOUBLE) != null ? annotationCounts
+                    .get(AnnotationType.DOUBLE) : 0;
+            result += annotationCounts.get(AnnotationType.LONG) != null ? annotationCounts
+                    .get(AnnotationType.LONG) : 0;
+            result += annotationCounts.get(AnnotationType.TERM) != null ? annotationCounts
+                    .get(AnnotationType.TERM) : 0;
+            result += annotationCounts.get(AnnotationType.TIME) != null ? annotationCounts
+                    .get(AnnotationType.TIME) : 0;
+            result += annotationCounts.get(AnnotationType.XML) != null ? annotationCounts
+                    .get(AnnotationType.XML) : 0;
+        } else
+            result = annotationCounts.get(type) != null ? annotationCounts
+                    .get(type) : 0;
+        return result;
     }
 }

@@ -70,6 +70,28 @@ module omero {
                                                          omero::api::StringSet annotationTypes, omero::sys::LongList annotatorIds,
                                                          omero::sys::Parameters options) throws ServerError;
 
+				/**
+                 * Loads all the annotations counts
+                 *
+                 * @param rootType
+                 *      The type of the nodes the annotations are linked to.
+                 *      Mustn't be <code>null</code>.
+                 * @param rootIds
+                 *      Ids of the objects of type <code>rootType</code>.
+                 * 		Mustn't be <code>null</code>.
+                 * @param annotatorIds
+                 *      Ids of the users for whom annotations should be
+                 *      retrieved. If <code>null</code>, all annotations
+                 *      returned.
+                 * @param options
+                 * @return A map whose key is the {@link Annotation} class and if existing the annotation's 
+                 *         namespace (separated by a single whitespace character) and value the number of 
+                 *         annotations of this kind attached to the specified objects
+                 **/
+                idempotent StringLongMap loadAnnotationCounts(string rootType, omero::sys::LongList rootIds,
+                                                         omero::sys::LongList annotatorIds,
+                                                         omero::sys::Parameters options) throws ServerError;
+                                                         
                 /**
                  * Loads all the annotations of a given type.
                  * It is possible to filter the annotations by including or

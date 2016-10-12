@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -181,6 +181,8 @@ class MetadataViewerUI
 		uiDelegate.revalidate();
 		uiDelegate.repaint();
 		viewedByItems.clear();
+		
+		model.getEditor().layoutUI();
 	}
 	
 	/**

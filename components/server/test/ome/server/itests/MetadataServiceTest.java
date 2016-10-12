@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2009-2011 University of Dundee & Open Microscopy Environment.
+ *   Copyright (C) 2009-2016 University of Dundee & Open Microscopy Environment.
  *   All rights reserved.
  *
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -19,6 +19,7 @@ import ome.model.annotations.Annotation;
 import ome.model.annotations.AnnotationAnnotationLink;
 import ome.model.annotations.CommentAnnotation;
 import ome.model.annotations.FileAnnotation;
+import ome.model.annotations.LongAnnotation;
 import ome.model.annotations.TagAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
@@ -419,5 +420,63 @@ public class MetadataServiceTest
         iMetadata.loadAnnotations(Experimenter.class,
                 Collections.singleton(iAdmin.getEventContext().getCurrentUserId()),
                 new HashSet(), null, null);
+    }
+    
+    @Test
+    public void testLoadAnnotationCounts() throws Exception {
+        loginNewUser();
+        
+        //create a project
+        Project p = new Project();
+        p.setName("project 1");
+        
+        CommentAnnotation c1 = new CommentAnnotation();
+        c1.setTextValue("comment 1");
+        c1.setNs("");
+        p.linkAnnotation(c1);
+        
+        CommentAnnotation c2 = new CommentAnnotation();
+        c2.setTextValue("comment 2");
+        c2.setNs("");
+        p.linkAnnotation(c2);
+        
+        TagAnnotation t1 = new TagAnnotation();
+        t1.setTextValue("tag 1");
+        t1.setNs("");
+        p.linkAnnotation(t1);
+        
+        LongAnnotation l1 = new LongAnnotation();
+        l1.setLongValue(3l);
+        l1.setNs("");
+        p.linkAnnotation(l1);
+        
+        // rating annotation
+        LongAnnotation r1 = new LongAnnotation();
+        r1.setLongValue(3l);
+        r1.setNs("openmicroscopy.org/omero/insight/rating");
+        p.linkAnnotation(r1);
+        
+        p = iUpdate.saveAndReturnObject(p);
+        
+        Set<Long> ids = new HashSet<Long>();
+        ids.add(p.getId());
+        
+        Parameters options = new Parameters();
+        Map<String, Long> result = iMetadata.loadAnnotationCounts(Project.class, ids, null, options);
+        assertEquals(5, result.size());
+        
+        long count = result.get(CommentAnnotation.class.getName());
+        assertEquals(2, count);
+        
+        count = result.get(TagAnnotation.class.getName());
+        assertEquals(1, count);
+        
+        count = result.get(LongAnnotation.class.getName());
+        assertEquals(1, count);
+        
+        // rating annotation
+        count = result.get(LongAnnotation.class.getName()+" openmicroscopy.org/omero/insight/rating");
+        assertEquals(1, count);
+        
     }
 }

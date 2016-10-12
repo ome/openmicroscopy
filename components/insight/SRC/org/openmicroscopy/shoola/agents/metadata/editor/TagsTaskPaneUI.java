@@ -22,6 +22,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -34,6 +35,7 @@ import omero.gateway.model.DataObject;
 import omero.gateway.model.TagAnnotationData;
 
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.env.data.model.AnnotationType;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.WrapLayout;
 
@@ -163,6 +165,11 @@ public class TagsTaskPaneUI extends AnnotationTaskPaneUI {
     @Override
     void refreshUI() {
         clearDisplay();
+        
+        if(state == State.LOADING) {
+            add(loadingLabel);
+            return;
+        }
         
         toAdd.clear();
         toRemove.clear();
@@ -327,10 +334,13 @@ public class TagsTaskPaneUI extends AnnotationTaskPaneUI {
 
     @Override
     int getUnfilteredAnnotationCount() {
-        if (model.isMultiSelection()) {
-            return model.getAllTags().size();
-        } else {
-            return model.getTags().size();
+        return (int) model.getAnnotationCount(AnnotationType.TAG);
+    }
+    
+    void onCollapsed(boolean collapsed) {
+        if(!collapsed) {
+            model.loadStructuredData(EnumSet.of(AnnotationType.TAG));
         }
     }
+   
 }

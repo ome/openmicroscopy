@@ -30,6 +30,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -44,7 +45,7 @@ import omero.gateway.model.AnnotationData;
 import omero.gateway.model.TextualAnnotationData;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
+import org.openmicroscopy.shoola.env.data.model.AnnotationType;
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.border.SeparatorOneLineBorder;
@@ -77,13 +78,17 @@ public class CommentsTaskPaneUI extends AnnotationTaskPaneUI implements
     CommentsTaskPaneUI(EditorModel model, EditorUI view,
             EditorControl controller) {
         super(model, view, controller);
-        initComponents();
+        
+        refreshUI();
     }
     
     
 
     @Override
     List<AnnotationData> getAnnotationsToSave() {
+        if(commentArea==null)
+            return Collections.EMPTY_LIST;
+        
         List<AnnotationData> l = new ArrayList<AnnotationData>();
         String text = commentArea.getText();
         if (CommonsLangUtils.isNotBlank(text))
@@ -106,7 +111,14 @@ public class CommentsTaskPaneUI extends AnnotationTaskPaneUI implements
     @Override
     void refreshUI() {
         clearDisplay();
-        buildGUI();
+        
+        if(state == State.LOADING) {
+            add(loadingLabel);
+            return;
+        }
+        
+        initComponents();
+        
         displayAnnotations(model.getTextualAnnotationsByDate());
     }
 
@@ -141,6 +153,7 @@ public class CommentsTaskPaneUI extends AnnotationTaskPaneUI implements
         commentArea.addPropertyChangeListener(controller);
         commentArea.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
         commentArea.setComponentBorder(EDIT_BORDER);
+        commentArea.addDocumentListener(this);
         commentArea.addFocusListener(new FocusListener() {
 
             public void focusLost(FocusEvent arg0) {
@@ -186,9 +199,11 @@ public class CommentsTaskPaneUI extends AnnotationTaskPaneUI implements
      *            The value to set.
      */
     private void setAreaText(String text) {
-        commentArea.removeDocumentListener(this);
-        commentArea.setText(text);
-        commentArea.addDocumentListener(this);
+        if (commentArea != null) {
+            commentArea.removeDocumentListener(this);
+            commentArea.setText(text);
+            commentArea.addDocumentListener(this);
+        }
     }
 
     /** Builds and lays out the UI. */
@@ -357,7 +372,8 @@ public class CommentsTaskPaneUI extends AnnotationTaskPaneUI implements
             annotationToRemove.clear();
         annotationToDisplay = null;
         setAreaText("");
-        addButton.setEnabled(model.canAddAnnotationLink());
+        if (commentArea != null && !model.canAddAnnotationLink())
+            commentArea.setEnabled(false);
     }
 
 
@@ -402,16 +418,20 @@ public class CommentsTaskPaneUI extends AnnotationTaskPaneUI implements
     public void changedUpdate(DocumentEvent e) {
     }
 
-
-
     @Override
     void onRelatedNodesSet() {
-        addButton.setEnabled(model.canAddAnnotationLink());
         refreshUI();
     }
 
     @Override
     int getUnfilteredAnnotationCount() {
-        return model.getTextualAnnotationCount();
+        return (int) model.getAnnotationCount(AnnotationType.COMMENT);
+    }
+    
+    @Override
+    void onCollapsed(boolean collapsed) {
+        if(!collapsed) {
+            model.loadStructuredData(EnumSet.of(AnnotationType.COMMENT));
+        }
     }
 }
