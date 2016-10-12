@@ -954,12 +954,12 @@ OME.setOpenWithEnabledHandler = function(label, fn) {
             ow.isEnabled = function() {
                 // wrap fn with try/catch, since error here will break jsTree menu
                 var args = Array.from(arguments);
+                var enabled = false;
                 try {
                     enabled = fn.apply(this, args);
                 } catch (e) {
                     // Give user a clue as to what went wrong
                     console.log("Open with " + label + ": " + e);
-                    enabled = true;
                 }
                 return enabled;
             }
