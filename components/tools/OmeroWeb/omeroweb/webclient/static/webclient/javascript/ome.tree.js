@@ -999,9 +999,11 @@ $(function() {
                                         return s.type + "=" + s.data.id;
                                     }),
                                     query = dtypes.join("&"),
+                                    // default url includes objects in query
                                     url = v.url + "?" + query;
-                                // if plugin has provided an action handler...
-                                if (v.action) {
+                                // if plugin has added a url provider,
+                                // use it to update the url...
+                                if (v.getUrl) {
                                     // prepare json of selected objects to pass to function
                                     var selJson = sel.map(function(s){
                                         // var o = $.extend({}, s.data.obj);
@@ -1010,8 +1012,7 @@ $(function() {
                                                  'type': s.type};
                                         return o;
                                     });
-                                    v.action(selJson, v.url);
-                                    return;
+                                    url = v.getUrl(selJson, v.url);
                                 }
                                 // ...otherwise we use default handling...
                                 if (v.target) {

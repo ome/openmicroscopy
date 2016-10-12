@@ -966,13 +966,13 @@ OME.setOpenWithEnabledHandler = function(label, fn) {
         }
     });
 };
-// Helper can be used by 'open with' plugins to add action()
-// handlers to the OPEN_WITH object.
-OME.setOpenWithActionHandler = function(label, fn) {
+// Helper can be used by 'open with' plugins to provide
+// a url for the selected objects
+OME.setOpenWithUrlProvider = function(label, fn) {
     // look for label in OPEN_WITH
     WEBCLIENT.OPEN_WITH.forEach(function(ow){
         if (ow.label === label) {
-            ow.action = fn;
+            ow.getUrl = fn;
         }
     });
 };
