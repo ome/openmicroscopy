@@ -537,13 +537,14 @@ CUSTOM_SETTINGS_MAPPINGS = {
     # OPEN WITH
     "omero.web.open_with":
         ["OPEN_WITH",
-         ('[]'),
+         ('[["Image viewer", "webindex", {"supported_objects": ["image"],'
+          '"script_url": "webclient/javascript/ome.openwith_viewer.js"}]]'),
          json.loads,
          ("A list of viewers that can be used to display selected Images "
           "or other objects. Each viewer is defined as "
           "``[\"Name\", \"url\", options]``. Url is reverse(url). "
           "Selected objects are added to the url as ?image=:1&image=2"
-          "The options object is optional "
+          "Objects supported must be specified in options with"
           "E.g. ``{\"supported_objects\":[\"images\"]}`` "
           "to enable viewer for one or more images, "
           "``{\"target\":\"_blank\"}`` to open in new tab.")],
