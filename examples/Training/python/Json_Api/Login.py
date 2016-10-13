@@ -9,10 +9,13 @@
 
 import requests
 
+
+from Parse_OMERO_Properties import OMERO_WEB_HOST
+
 session = requests.Session()
 
 # Start by getting supported versions from the base url...
-r = session.get('http://localhost:4080/api/')
+r = session.get('%s/api/' % OMERO_WEB_HOST)
 # we get a list of versions
 versions = r.json()['data']
 print 'Versions', versions
