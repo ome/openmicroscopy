@@ -58,7 +58,7 @@ server = servers[0]
 # Login with username, password and token
 payload = {'username': USERNAME,
            'password': PASSWORD,
-           'csrfmiddlewaretoken': token,
+           # 'csrfmiddlewaretoken': token,  # Using CSRFToken in header instead
            'server': server['id']}
 
 r = session.post(login_url, data=payload)
