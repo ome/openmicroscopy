@@ -290,8 +290,12 @@ class TestPlateGrid(object):
                 well_metadata = grid[well.row.val][well.column.val]
                 well_samples = well.copyWellSamples()
                 if len(well_samples) > field:
-                    assert well_metadata['name'] ==\
-                        well_samples[field].getImage().name.val
+                    img = well_samples[field].getImage()
+                    assert well_metadata['name'] == img.name.val
+                    # expect default thumbnail (no size specified)
+                    assert well_metadata['thumb_url'] ==\
+                        reverse('webgateway.views.render_thumbnail',
+                                args=[img.id.val])
 
     def test_instantiation(self, plate_wells, conn):
         """
