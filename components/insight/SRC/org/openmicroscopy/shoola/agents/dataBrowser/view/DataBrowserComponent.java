@@ -337,7 +337,6 @@ class DataBrowserComponent
 				WellSampleNode wsn = (WellSampleNode) node;
 				parent = wsn.getParentObject();
 				List<WellImageSet> wells = new ArrayList<WellImageSet>();
-				wells.add(wsn.getParentWell());
 				Iterator<ImageDisplay> i = nodes.iterator();
 				ImageDisplay n;
 				while (i.hasNext()) {
@@ -1596,88 +1595,37 @@ class DataBrowserComponent
 	
 	/**
      * Implemented as specified by the {@link DataBrowser} interface.
-     * @see DataBrowser#setThumbnailsFieldsFor(List, List)
+     * @see DataBrowser#updateThumbnailsFields(Point, ThumbnailData, boolean)
      */
-	@Override
-    public void setThumbnailsFieldsFor(List list, List<Point> fields)
-    {
-	    if (!(model instanceof WellsModel)) return;
+    @Override
+    public void updateThumbnailsFields(Point well, ThumbnailData thumbnail, boolean complete)
+    {   
+        if (!(model instanceof WellsModel)) 
+            return;
         WellsModel wm = (WellsModel) model;
         
         List<WellImageSet> wells = wm.getSelectedWells();
         if (wells == null || wells.isEmpty())
             return;
+
+        EXIT: 
+        for (WellImageSet w : wells) {
+            Point p = new Point(w.getRow(), w.getColumn());
         
-        List<WellSampleNode> nodes = new ArrayList<WellSampleNode>();
-        for(WellImageSet well : wells) {
-            nodes.addAll(well.getWellSamples());
-            Iterator<WellSampleNode> j = nodes.iterator();
-            WellSampleNode n; 
-            Map<Long, WellSampleNode> map = new HashMap<Long, WellSampleNode>();
-            WellSampleData data;
-            while (j.hasNext()) {
-                n = j.next();
-                data = (WellSampleData) n.getHierarchyObject();
-                if (data.getId() > 0) {
-                    map.put(data.getImage().getId(), n);
-                }
-            }
-            //Check the data.
-            Iterator i = list.iterator();
-            ThumbnailData td;
-            Thumbnail thumb;
-            while (i.hasNext()) {
-                td = (ThumbnailData) i.next();
-                n = map.get(td.getImageID());
-                if (n != null) {
-                    thumb = n.getThumbnail();
-                    thumb.setFullScaleThumb(td.getThumbnail());
-                    thumb.setValid(true);
+            for (WellSampleNode n : w.getWellSamples()) {
+                if (p.equals(well)) {
+                    WellSampleData d = (WellSampleData) n.getHierarchyObject();
+                    if (d.getImage().getId() == thumbnail.getImageID()) {
+                        Thumbnail thumb = n.getThumbnail();
+                        thumb.setFullScaleThumb(thumbnail.getThumbnail());
+                        thumb.setValid(true);
+                        view.updateFieldThumb(n, complete);
+                        break EXIT;
+                    }
                 }
             }
         }
-        view.displayFields(nodes);
     }
-    
-	/**
-	 * Implemented as specified by the {@link DataBrowser} interface.
-	 * @see DataBrowser#setThumbnailsFieldsFor(List, int, int)
-	 */
-	public void setThumbnailsFieldsFor(List list, int row, int column)
-	{
-		if (!(model instanceof WellsModel)) return;
-		WellsModel wm = (WellsModel) model;
-		if (!wm.isSameWell(row, column)) return;
-		WellImageSet well = wm.getSelectedWell();
-		if (well == null)
-		    return;
-		List<WellSampleNode> nodes = well.getWellSamples();
-		Iterator<WellSampleNode> j = nodes.iterator();
-		WellSampleNode n; 
-		Map<Long, WellSampleNode> map = new HashMap<Long, WellSampleNode>();
-		WellSampleData data;
-		while (j.hasNext()) {
-			n = j.next();
-			data = (WellSampleData) n.getHierarchyObject();
-			if (data.getId() > 0) {
-				map.put(data.getImage().getId(), n);
-			}
-		}
-		//Check the data.
-		Iterator i = list.iterator();
-		ThumbnailData td;
-		Thumbnail thumb;
-		while (i.hasNext()) {
-			td = (ThumbnailData) i.next();
-			n = map.get(td.getImageID());
-			if (n != null) {
-				thumb = n.getThumbnail();
-				thumb.setFullScaleThumb(td.getThumbnail());
-				thumb.setValid(true);
-			}
-		}
-		view.displayFields(nodes);
-	}
 
 	/**
 	 * Implemented as specified by the {@link DataBrowser} interface.

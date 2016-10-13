@@ -43,10 +43,10 @@ import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
 import omero.gateway.model.DataObject;
 
-import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.agents.dataBrowser.Colors;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -59,6 +59,9 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 class RowFieldCanvas extends WellFieldsCanvas {
 
+    /** The titles of the wells */
+    List<String> titles;
+    
     /**
      * Creates a new instance.
      * 
@@ -75,31 +78,126 @@ class RowFieldCanvas extends WellFieldsCanvas {
     /**
      * Implemented as specified by the {@link WellFieldsCanvas} interface.
      * 
-     * @see WellFieldsCanvas#setLoading(boolean)
+     * @see WellFieldsCanvas#clear(List, int, Dimension)
      */
-    public void setLoading(boolean loading) {
-        this.loading = loading;
+    public void clear(List<String> titles, int nFields, final Dimension thumbDim) {
         removeAll();
-
-        if (loading) {
+        
+        this.titles = titles;
+        
+        if(!titles.isEmpty() && nFields > 0) {
+            // column header
             GridBagConstraints c = new GridBagConstraints();
-            c.anchor = GridBagConstraints.NORTHWEST;
-            JXBusyLabel busyLabel = new JXBusyLabel(new Dimension(
-                    UIUtilities.DEFAULT_ICON_WIDTH,
-                    UIUtilities.DEFAULT_ICON_HEIGHT));
-            busyLabel.setBusy(true);
-            add(busyLabel, c);
+            c.insets = new Insets(2, 2, 0, 0);
+            c.fill = GridBagConstraints.NONE;
+            c.gridx = 1;
+            c.gridy = 0;
+            c.weightx = 0;
+            c.weighty = 0;
+            for (int i = 0; i < nFields; i++) {
+                JLabel f = new JLabel("" + (i + 1), SwingConstants.CENTER) {
+                    @Override
+                    public Dimension getPreferredSize() {
+                        Dimension d = super.getPreferredSize();
+                        if (thumbDim != null)
+                            d.width = thumbDim.width;
+                        return d;
+                    }
+                    @Override
+                    public Dimension getMinimumSize() {
+                        return getPreferredSize();
+                    }
+                };
+                f.setBackground(UIUtilities.BACKGROUND);
+                add(f, c);
+                c.gridx++;
+            }
+    
+            // row header
+            c = new GridBagConstraints();
+            c.insets = new Insets(2, 2, 0, 0);
+            c.fill = GridBagConstraints.NONE;
+            c.gridx = 0;
+            c.gridy = 1;
+            c.weightx = 0;
+            c.weighty = 0;
+            for (String title : titles) {
+                JLabel f = new JLabel(title, SwingConstants.CENTER) {
+                    @Override
+                    public Dimension getPreferredSize() {
+                        Dimension d = super.getPreferredSize();
+                        if (thumbDim != null)
+                            d.height = thumbDim.height;
+                        return d;
+                    }
+                    @Override
+                    public Dimension getMinimumSize() {
+                        return getPreferredSize();
+                    }
+                };
+                f.setBackground(UIUtilities.BACKGROUND);
+                add(f, c);
+                c.gridy++;
+            }
+            
             // add empty component to fill up space
-            c.gridy++;
+            c = new GridBagConstraints();
             c.weightx = 1;
             c.weighty = 1;
+            c.gridx = nFields+1;
+            c.gridy = titles.size()+1;
             c.fill = GridBagConstraints.BOTH;
-            add(UIUtilities.createComponent(JPanel.class,
+            add(UIUtilities.createComponent(JLabel.class,
                     UIUtilities.BACKGROUND), c);
+            
+            displayExistingThumbs();
         }
-
-        repaint();
+        
+        revalidate();
         parent.revalidate();
+    }
+    
+    private void displayExistingThumbs() {
+        List<WellSampleNode> l = parent.getNodes();
+        if (l == null)
+            return;
+        
+        for (WellSampleNode n : l) {
+            if(!n.getThumbnail().isThumbnailLoaded())
+                continue;
+            
+            GridBagConstraints c = new GridBagConstraints();
+            c.fill = GridBagConstraints.NONE;
+            c.gridx = n.getIndex()+1;
+            c.gridy = titles.indexOf(n.getTitle())+1;
+            c.weightx = 0;
+            c.weighty = 0;
+            c.insets = new Insets(2, 2, 0, 0);
+
+            FieldDisplay fd = new FieldDisplay(n);
+            add(fd, c);
+        }
+    }
+    
+    /**
+     * Implemented as specified by the {@link WellFieldsCanvas} interface.
+     * 
+     * @see WellFieldsCanvas#updateFieldThumb(WellSampleNode)
+     */
+    public void updateFieldThumb(WellSampleNode node) {
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.NONE;
+        c.gridx = node.getIndex()+1;
+        c.gridy = titles.indexOf(node.getTitle())+1;
+        c.weightx = 0;
+        c.weighty = 0;
+        c.insets = new Insets(2, 2, 0, 0);
+
+        FieldDisplay fd = new FieldDisplay(node);
+        add(fd, c);
+        
+        revalidate();
+        System.out.println("updateFieldThumb "+c.gridx+" "+c.gridy);
     }
 
     /**
@@ -109,8 +207,8 @@ class RowFieldCanvas extends WellFieldsCanvas {
      */
     public void refreshUI() {
 
-        if (!loading) {
             removeAll();
+            
             List<WellSampleNode> l = parent.getNodes();
             if (l == null)
                 return;
@@ -217,7 +315,6 @@ class RowFieldCanvas extends WellFieldsCanvas {
             c.fill = GridBagConstraints.BOTH;
             add(UIUtilities.createComponent(JLabel.class,
                     UIUtilities.BACKGROUND), c);
-        }
 
         repaint();
         parent.revalidate();

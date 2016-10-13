@@ -28,9 +28,15 @@ import java.util.List;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
+
 import omero.gateway.SecurityContext;
+
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+
+import com.google.common.collect.Multimap;
+
 import omero.gateway.model.DataObject;
+import omero.gateway.model.ImageData;
 
 /** 
  * Loads the thumbnails for the fields of a given well.
@@ -50,19 +56,10 @@ public class ThumbnailFieldsLoader
 	 * The <code>DataObject</code> objects for the images whose thumbnails 
 	 * have to be fetched.
 	 */
-    private Collection<DataObject> images;
+    private Multimap<Point, ImageData> images;
     
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle handle;
-
-    /** The row identifying the well. */
-    private int row;
-    
-    /** The column identifying the well. */
-    private int column;
-    
-    /** The rows/columns identifying the wells. */
-    private List<Point> fields;
     
 	/** The loaded thumbnails.*/
 	private List<Object> result;
@@ -76,39 +73,14 @@ public class ThumbnailFieldsLoader
      * @param images The <code>ImageData</code> objects for the images whose 
      *               thumbnails have to be fetched. 
      *               Mustn't be <code>null</code>.
-     * @param fields The rows/columns identifying the wells.
      */
     public ThumbnailFieldsLoader(DataBrowser viewer, SecurityContext ctx,
-    				Collection<DataObject> images, List<Point> fields)
+            Multimap<Point, ImageData> images)
     {
         super(viewer, ctx);
         if (images == null)
             throw new IllegalArgumentException("Collection shouldn't be null.");
         this.images = images;
-        this.fields = fields;
-    }
-    
-    /**
-     * Creates a new instance.
-     * 
-     * @param viewer The viewer this data loader is for.
-     *               Mustn't be <code>null</code>.
-     * @param ctx The security context.
-     * @param images The <code>ImageData</code> objects for the images whose 
-     *               thumbnails have to be fetched. 
-     *               Mustn't be <code>null</code>.
-     * @param row    The row identifying the well.
-     * @param column The column identifying the well.
-     */
-    public ThumbnailFieldsLoader(DataBrowser viewer, SecurityContext ctx,
-                    Collection<DataObject> images, int row, int column)
-    {
-        super(viewer, ctx);
-        if (images == null)
-            throw new IllegalArgumentException("Collection shouldn't be null.");
-        this.images = images;
-        this.row = row;
-        this.column = column;
     }
     
     /**
@@ -118,7 +90,12 @@ public class ThumbnailFieldsLoader
     public void load()
     {
     	long userID = DataBrowserAgent.getUserDetails().getId();
-    	handle = hiBrwView.loadThumbnails(ctx, images, 
+    	
+    	Collection<DataObject> imgs = new ArrayList<DataObject>();
+    	for(ImageData i : images.values()) 
+    	    imgs.add(i);
+    	
+    	handle = hiBrwView.loadThumbnails(ctx, imgs, 
                 ThumbnailProvider.THUMB_MAX_WIDTH,
                 ThumbnailProvider.THUMB_MAX_HEIGHT,
                 userID, ThumbnailLoader.IMAGE, this);
@@ -139,14 +116,23 @@ public class ThumbnailFieldsLoader
         if (viewer.getState() == DataBrowser.DISCARDED) return;  //Async cancel.
         ThumbnailData td = (ThumbnailData) fe.getPartialResult();
     	if (td != null) {
-    		if (result == null) result = new ArrayList<Object>();
+    		if (result == null) 
+    		    result = new ArrayList<Object>();
         	result.add(td);
-    		if (result.size() == images.size()) {
-    		    if(fields != null)
-    		        viewer.setThumbnailsFieldsFor(result, fields);
-    		    else
-    		        viewer.setThumbnailsFieldsFor(result, row, column);
-    		}
+        	
+        	boolean complete = result.size() == images.values().size();
+        	
+        	Point well = null;
+        	for(Point p : images.keys()) {
+        	    for(ImageData img : images.get(p)) {
+        	        if(img.getId() == td.getImageID()) {
+        	            well = p;
+        	            break;
+        	        }
+        	    }
+        	}
+        	
+        	viewer.updateThumbnailsFields(well, td, complete);
     	}
     }
     

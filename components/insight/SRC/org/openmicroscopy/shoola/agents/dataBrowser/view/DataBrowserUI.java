@@ -687,16 +687,15 @@ class DataBrowserUI
     void setFieldsStatus(boolean status) {
         wellToolBar.setStatus(status);
     }
-
+	
 	/**
-	 * Displays the passed fields.
+     * Update the thumbnail for a particular field
 	 * 
-	 * @param nodes The nodes hosting the fields.
+	 * @param node The field
+	 * @param complete Flag to indicate that all fields have been loaded
 	 */
-	void displayFields(List<WellSampleNode> nodes)
-	{
-		setFieldsStatus(false);
-		fieldsView.displayFields(nodes);
+	void updateFieldThumb(WellSampleNode node, boolean complete) {
+	    fieldsView.updateFieldThumb(node, complete);
 	}
 	
 	/** Invokes when a well is selected. */
@@ -709,15 +708,7 @@ class DataBrowserUI
 		plateGridUI.onSelectedWell();
         
         WellsModel wm = (WellsModel) model;
-        List<WellImageSet> nodes = wm.getSelectedWells();
-        List<WellSampleNode> wsnodes = new ArrayList<WellSampleNode>();
-        for (WellImageSet node : nodes) {
-            wsnodes.addAll(node.getWellSamples());
-        }
-        
-        if (nodes != null && !nodes.isEmpty()) {
-            fieldsView.displayFields(wsnodes);
-        }
+        fieldsView.loadFields( wm.getSelectedWells());
 	}
 	
 	/** Invokes when the parent has been set. */

@@ -35,7 +35,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
-
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserTranslator;
@@ -52,13 +51,19 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.DecoratorVisitor;
+
 import omero.gateway.model.TableResult;
 import omero.gateway.SecurityContext;
+
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.PlateGrid;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.WellGridElement;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourObject;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+
 import omero.gateway.model.DataObject;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.PlateData;
@@ -473,6 +478,7 @@ class WellsModel
 	 */
 	void setSelectedWells(List<WellImageSet> nodes)
 	{
+	    System.out.println(System.currentTimeMillis()+" setSelectedWells "+nodes);
 		if (nodes == null) selectedNodes.clear();
 		else selectedNodes = nodes;
 		
@@ -688,7 +694,9 @@ class WellsModel
 		List<ImageDisplay> l = getNodes();
 		Iterator<ImageDisplay> i = l.iterator();
 		ImageSet node;
-		List<DataObject> images = new ArrayList<DataObject>();
+		
+		Multimap<Point, ImageData> images = HashMultimap.create();
+		
 		WellSampleData data;
 		Thumbnail thumb;
 		WellImageSet wis;
@@ -699,14 +707,14 @@ class WellsModel
 			node = (ImageSet) i.next();
 			if (node instanceof WellImageSet) {
 				wis = (WellImageSet) node;
-				boolean targetField = false;
+				Point targetField = null;
 				for(Point p : fields) {
 				    if(wis.getRow()==p.getX() && wis.getColumn()==p.getY()) {
-				        targetField = true;
+				        targetField = p;
 				        break;
 				    }
 				}
-				if (targetField) {
+				if (targetField != null ) {
 					nodes = wis.getWellSamples();
 					j = nodes.iterator();
 					while (j.hasNext()) {
@@ -719,15 +727,18 @@ class WellsModel
 							thumb.setFullScaleThumb(
 								Factory.createDefaultImageThumbnail(
 									wellDimension.width, wellDimension.height));
-						} else 
-							images.add(data.getImage());
+						} else {
+						    images.put(targetField, data.getImage());
+						}
 					}
 				}
 			}
 		}
 
-		if (images.size() == 0) return null;
-		return new ThumbnailFieldsLoader(component, ctx, images, fields);
+		if (images.size() == 0) 
+		    return null;
+		
+		return new ThumbnailFieldsLoader(component, ctx, images);
 	}
 	
 	/**

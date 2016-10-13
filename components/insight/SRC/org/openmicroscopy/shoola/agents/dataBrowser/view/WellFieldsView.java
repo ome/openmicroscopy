@@ -23,6 +23,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -30,8 +31,11 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -39,10 +43,13 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
 
+import omero.gateway.model.WellSampleData;
+
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.RollOverNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -225,63 +232,113 @@ class WellFieldsView
 		buildGUI();
 	}
 
-	/** 
-	 * Returns the fields to display if any.
-	 * 
-	 * @return See above.
-	 */
-	List<WellSampleNode> getNodes() { return nodes; }
+    /**
+     * Returns the fields to display if any.
+     * 
+     * @return See above.
+     */
+    List<WellSampleNode> getNodes() {
+        return nodes;
+    }
 	
-	/**
-	 * Displays the passed fields.
-	 * 
-	 * @param nodes The nodes hosting the fields.
-	 */
-	void displayFields(List<WellSampleNode> nodes)
-	{
-        if (nodes == null || nodes.isEmpty())
-            return;
-	    
-	    HashSet<Point> toLoad = new HashSet<Point>();
-	    for(WellSampleNode node : nodes) {
-	        // if not all thumbnails are available, load them first
-	        if(!node.getThumbnail().isThumbnailLoaded())
-	        {
-	            Point p = new Point(node.getRow(), node.getColumn());
-	            toLoad.add(p);
-	        }
-	    }
-	    if(!toLoad.isEmpty() && !loading) {
-	        loading = true;
-	        ArrayList<Point> tmp = new ArrayList<Point>(toLoad.size());
-	        tmp.addAll(toLoad);
-	        canvas.setLoading(true);
-	        model.loadFields(tmp);
-            return;
-	    }
-	    
-	    canvas.setLoading(false);
-	    loading = false;
+    /**
+     * Load the thumbnails for the selected wells
+     * 
+     * @param wells
+     *            The selected wells
+     */
+    void loadFields(List<WellImageSet> wells) {
+        Dimension thumbDim = magnification > 0 ? new Dimension(
+                (int) (Factory.THUMB_DEFAULT_WIDTH * magnification),
+                (int) (Factory.THUMB_DEFAULT_HEIGHT * magnification)) : null;
 
-		this.nodes = new ArrayList<WellSampleNode>(nodes.size());
-		for(WellSampleNode n : nodes) {
-		    WellSampleNode copy = n.copy();
-		    copy.setTitle(n.getTitle());
-		    copy.setTitleBarType(ImageNode.NO_BAR);
-		    this.nodes.add(copy);
-		}
-		
-		if (nodes != null && nodes.size() > 0) {
-			WellSampleNode node = nodes.get(0);
-			if (node != null) {
-				selectedNode.setText(DEFAULT_WELL_TEXT+
-						node.getParentWell().getWellLocation());
-				selectedNode.repaint();
-			}
-		}
-		
-		canvas.refreshUI();
-	}
+        if (wells == null || wells.isEmpty()) {
+            canvas.clear(Collections.emptyList(), -1, thumbDim);
+        }
+
+        // sort
+        Collections.sort(wells, new Comparator<WellImageSet>() {
+            @Override
+            public int compare(WellImageSet o1, WellImageSet o2) {
+                if (o1.getRow() > o2.getRow())
+                    return 1;
+                else if (o1.getRow() < o2.getRow())
+                    return -1;
+                else {
+                    if (o1.getColumn() > o2.getColumn())
+                        return 1;
+                    else if (o1.getColumn() < o2.getColumn())
+                        return -1;
+                }
+                return 0;
+            }
+        });
+
+        if (loading) {
+            boolean selectionChanged = false;
+            Set<Long> ids = new HashSet<Long>();
+            for (WellImageSet well : wells) {
+                for (WellSampleNode n : well.getWellSamples()) {
+                    WellSampleData d = (WellSampleData) n.getHierarchyObject();
+                    ids.add(d.getImage().getId());
+                }
+            }
+
+            for (WellSampleNode n : this.nodes) {
+                WellSampleData d = (WellSampleData) n.getHierarchyObject();
+                if (!ids.contains(d.getImage().getId())) {
+                    selectionChanged = true;
+                    break;
+                }
+                ids.remove(d.getImage().getId());
+            }
+
+            selectionChanged = !ids.isEmpty();
+
+            if (!selectionChanged)
+                return;
+        }
+
+        int nFields = 0;
+        nodes = new ArrayList<WellSampleNode>();
+        List<String> titles = new ArrayList<String>();
+        for (WellImageSet well : wells) {
+            nodes.addAll(well.getWellSamples());
+            nFields = Math.max(nFields, well.getWellSamples().size());
+            titles.add(well.getTitle());
+        }
+
+        canvas.clear(titles, nFields, thumbDim);
+
+        HashSet<Point> toLoad = new HashSet<Point>();
+        for (WellSampleNode node : nodes) {
+            if (!node.getThumbnail().isThumbnailLoaded()) {
+                Point p = new Point(node.getRow(), node.getColumn());
+                toLoad.add(p);
+            }
+        }
+
+        if (!toLoad.isEmpty()) {
+            loading = true;
+            ArrayList<Point> tmp = new ArrayList<Point>(toLoad.size());
+            tmp.addAll(toLoad);
+            model.loadFields(tmp);
+            return;
+        }
+    }
+	
+    /**
+     * Update the thumbnail for a particular field
+     * 
+     * @param node
+     *            The field
+     * @param complete
+     *            Flag to indicate that all fields have been loaded
+     */
+    void updateFieldThumb(WellSampleNode node, boolean complete) {
+        loading = !complete;
+        canvas.updateFieldThumb(node);
+    }
 	
 	/** 
 	 * Sets the magnification factor.

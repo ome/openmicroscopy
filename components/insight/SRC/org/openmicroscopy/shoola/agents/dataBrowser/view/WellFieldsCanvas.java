@@ -22,7 +22,9 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
+import java.awt.Dimension;
 import java.awt.Point;
+import java.util.List;
 
 import javax.swing.JPanel;
 
@@ -40,8 +42,6 @@ public abstract class WellFieldsCanvas extends JPanel {
     /** Reference to the parent. */
     WellFieldsView parent;
     
-    boolean loading = true;
-    
     /**
      * Creates a new instance
      * 
@@ -58,13 +58,26 @@ public abstract class WellFieldsCanvas extends JPanel {
     public abstract void refreshUI();
 
     /**
-     * Set loading state
+     * Clear/Reset the canvas
      * 
-     * @param loading
-     *            Pass <code>true</code> to indicate loading state
+     * @param titles
+     *            The titles of the selected wells
+     * @param nFields
+     *            The maximum number of fields per well
+     * @param thumbDim
+     *            The expected thumbnail dimensions
      */
-    public abstract void setLoading(boolean loading);
+    public abstract void clear(List<String> titles, int nFields,
+            Dimension thumbDim);
 
+    /**
+     * Updates a particular field thumbnail
+     * 
+     * @param node
+     *            The field
+     */
+    public abstract void updateFieldThumb(WellSampleNode node);
+    
     /**
      * Get the {@link WellSampleNode} at a certain position
      * 
