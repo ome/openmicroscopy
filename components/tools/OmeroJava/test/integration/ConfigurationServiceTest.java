@@ -7,7 +7,9 @@
 package integration;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
@@ -175,7 +177,7 @@ public class ConfigurationServiceTest extends AbstractServerTest {
         toExclude.add("Fake");
         try (final ImageReader reader = new ImageReader()) {
             IFormatReader[] readers = reader.getReaders();
-            List<String> values = new ArrayList<String>();
+            Set<String> values = new HashSet<String>();
             for (int i = 0; i < readers.length; i++) {
                 IFormatReader r = readers[i];;
                 String name = r.getClass().getSimpleName();
@@ -193,13 +195,10 @@ public class ConfigurationServiceTest extends AbstractServerTest {
             ParametersI param = new ParametersI();
             String sql = "select f from Format as f";
             List<IObject> objects = iQuery.findAllByQuery(sql, param);
-            Assert.assertEquals(objects.size(), values.size());
+            Assert.assertTrue(values.size() <= objects.size());
             for (int i = 0; i < objects.size(); i++) {
                 Format o = (Format) objects.get(i);
-                String v = o.getValue().getValue();
-                if (values.contains(v)) {
-                    values.remove(v);
-                }
+                values.remove(o.getValue().getValue());
             }
             Assert.assertEquals(0, values.size());
         }
