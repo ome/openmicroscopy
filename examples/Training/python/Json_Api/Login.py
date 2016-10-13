@@ -9,8 +9,7 @@
 
 import requests
 
-
-from Parse_OMERO_Properties import OMERO_WEB_HOST
+from Parse_OMERO_Properties import USERNAME, PASSWORD, OMERO_WEB_HOST
 
 session = requests.Session()
 
@@ -57,8 +56,9 @@ if len(servers) < 1:
 server = servers[0]
 
 # Login with username, password and token
-payload = {'username': 'ben',
-           'password': 'secret',
+payload = {'username': USERNAME,
+           'password': PASSWORD,
+           'csrfmiddlewaretoken': token,
            'server': server['id']}
 
 r = session.post(login_url, data=payload)
@@ -67,6 +67,8 @@ assert r.status_code == 200
 assert login_rsp['success']
 eventContext = login_rsp['eventContext']
 print 'eventContext', eventContext
+# Can get our 'default' group
+groupId = eventContext['groupId']
 
 # With succesful login, request.session will contain
 # OMERO session details and reconnect to OMERO on
@@ -83,9 +85,10 @@ for p in data['data']:
 
 # Create a project:
 projType = schema_url + '#Project'
-r = session.post(save_url, json={'name': 'API TEST foo',
-                                 '@type': projType})
-assert r.status_code == 200
+# Need to specify target group
+url = save_url + '?group=' + str(groupId)
+r = session.post(url, json={'Name': 'API TEST foo', '@type': projType})
+assert r.status_code == 201
 project = r.json()
 project_id = project['@id']
 print 'Created Project:', project_id, project['Name']
