@@ -23,6 +23,32 @@ class BadRequestError(Exception):
     An exception that will result in a response status of 400
     due to invalid client input
     """
+    status = 400
+
     def __init__(self, message, stacktrace=None):
         super(BadRequestError, self).__init__(message)
         self.stacktrace = stacktrace
+
+
+class NotFoundError(Exception):
+    """
+    An exception that will result in a response status of 404
+    due to objects not being found
+    """
+    status = 404
+
+    def __init__(self, message, stacktrace=None):
+        super(NotFoundError, self).__init__(message)
+        self.stacktrace = stacktrace
+
+
+class CreatedObject(Exception):
+    """
+    An exception that is thrown when new object created
+    that returns a status of 201
+    """
+    status = 201
+
+    def __init__(self, response):
+        super(CreatedObject, self).__init__(response)
+        self.response = response
