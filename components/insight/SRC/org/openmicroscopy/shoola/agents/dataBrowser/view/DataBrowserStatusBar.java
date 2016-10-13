@@ -191,10 +191,12 @@ class DataBrowserStatusBar
 		if (src == fieldsZoomSlider) {
 			int v = fieldsZoomSlider.getValue();
 	    	double f = (double) v/FACTOR;
-	    	if(view.wells())
-	    	    view.setFieldMagnificationFactor(f);
-	    	else
-	    	    view.setMagnificationFactor(f);
+            if (view.wells()) {
+                view.setFieldMagnificationFactor(f);
+            } else {
+                view.setMagnificationFactor(f);
+                DataBrowserFactory.setThumbnailScaleFactor(f);
+            }
 		} 
 	}
 
