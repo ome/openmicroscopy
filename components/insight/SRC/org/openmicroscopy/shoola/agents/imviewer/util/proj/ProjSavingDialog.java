@@ -60,8 +60,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import info.clearthought.layout.TableLayout;
-import org.apache.commons.collections.CollectionUtils;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.util.ComboBoxToolTipRenderer;
@@ -70,6 +70,7 @@ import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.browser.DataNode;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.CreateFolderDialog;
@@ -542,13 +543,7 @@ public class ProjSavingDialog
 	/** Sets the enabled flag of the {@link #projectButton}. */
     private void enableSave()
     {
-    	String name = nameField.getText();
-    	if (name == null) projectButton.setEnabled(false);
-    	else {
-    		name = name.trim();
-        	int l = name.length();
-        	projectButton.setEnabled(l > 0 && l < 256);
-    	}
+        projectButton.setEnabled(CommonsLangUtils.isNotBlank(nameField.getText()));
     }
     
     /** Projects the image. */

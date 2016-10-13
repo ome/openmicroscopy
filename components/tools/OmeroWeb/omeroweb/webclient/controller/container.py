@@ -3,7 +3,7 @@
 #
 # container
 #
-# Copyright (c) 2008-2015 University of Dundee.
+# Copyright (c) 2008-2016 University of Dundee.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -25,7 +25,6 @@
 
 import omero
 from omero.rtypes import rstring, rlong, unwrap
-from django.conf import settings
 from django.utils.encoding import smart_str
 import logging
 
@@ -332,19 +331,6 @@ class BaseContainer(BaseController):
         if self.channel_metadata is None:
             self.channel_metadata = list()
 
-    def loadTags(self, eid=None):
-        if eid is not None:
-            if eid == -1:       # Load data for all users
-                eid = None
-            else:
-                self.experimenter = self.conn.getObject("Experimenter", eid)
-        else:
-            eid = self.conn.getEventContext().userId
-        self.tags = list(self.conn.listTags(eid))
-        self.tags.sort(
-            key=lambda x: x.getTextValue() and x.getTextValue().lower())
-        self.t_size = len(self.tags)
-
     def loadTagsRecursive(self, eid=None, offset=None, limit=1000):
         if eid is not None:
             if eid == -1:       # Load data for all users
@@ -361,57 +347,6 @@ class BaseContainer(BaseController):
 
     def getTagCount(self, eid=None):
         return self.conn.getTagCount(eid)
-
-    def loadDataByTag(self):
-        pr_list = list(self.conn.getObjectsByAnnotations(
-            'Project', [self.tag.id]))
-        ds_list = list(self.conn.getObjectsByAnnotations(
-            'Dataset', [self.tag.id]))
-        im_list = list(self.conn.getObjectsByAnnotations(
-            'Image', [self.tag.id]))
-        sc_list = list(self.conn.getObjectsByAnnotations(
-            'Screen', [self.tag.id]))
-        pl_list = list(self.conn.getObjectsByAnnotations(
-            'Plate', [self.tag.id]))
-        pa_list = list(self.conn.getObjectsByAnnotations(
-            'PlateAcquisition', [self.tag.id]))
-
-        def sortKeys(x):
-            return (x.getName() and x.getName().lower() or " ", x.id)
-        pr_list.sort(key=lambda x: sortKeys(x))
-        ds_list.sort(key=lambda x: sortKeys(x))
-        im_list.sort(key=lambda x: sortKeys(x))
-        sc_list.sort(key=lambda x: sortKeys(x))
-        pl_list.sort(key=lambda x: sortKeys(x))
-        pa_list.sort(key=lambda x: sortKeys(x))
-
-        self.containers = {
-            'projects': pr_list,
-            'datasets': ds_list,
-            'images': im_list,
-            'screens': sc_list,
-            'plates': pl_list,
-            'aquisitions': pa_list}
-        self.c_size = (len(pr_list) + len(ds_list) + len(im_list) +
-                       len(sc_list) + len(pl_list) + len(pa_list))
-
-    def listImagesInDataset(self, did, eid=None, page=None,
-                            load_pixels=False):
-        if eid is not None:
-            if eid == -1:       # Load data for all users
-                eid = None
-            # else:
-            #     self.experimenter = self.conn.getObject("Experimenter", eid)
-        im_list = list(self.conn.listImagesInDataset(
-            oid=did, eid=eid, page=page, load_pixels=load_pixels))
-        # List is already sorted by name, id in query
-        # im_list.sort(key=lambda x: (x.getName().lower(), x.getId()))
-        self.containers = {'images': im_list}
-        self.c_size = self.conn.getCollectionCount(
-            "Dataset", "imageLinks", [long(did)])[long(did)]
-
-        if page is not None:
-            self.paging = self.doPaging(page, len(im_list), self.c_size)
 
     def listContainerHierarchy(self, eid=None):
         if eid is not None:
@@ -440,149 +375,6 @@ class BaseContainer(BaseController):
             'plates': pl_list}
         self.c_size = len(pr_list)+len(ds_list)+len(sc_list)+len(pl_list)
 
-    def listOrphanedImages(self, eid=None, page=None):
-        if eid is not None:
-            if eid == -1:
-                eid = None
-            else:
-                self.experimenter = self.conn.getObject("Experimenter", eid)
-        else:
-            eid = self.conn.getEventContext().userId
-
-        params = omero.sys.ParametersI()
-        if page is not None:
-            params.page((int(page)-1)*settings.PAGE, settings.PAGE)
-        im_list = list(self.conn.listOrphans(
-            "Image", eid=eid, params=params, loadPixels=True))
-        im_list.sort(key=lambda x: (x.getName().lower(), x.getId()))
-        self.containers = {'orphaned': True, 'images': im_list}
-        self.c_size = self.conn.countOrphans("Image", eid=eid)
-
-        if page is not None:
-            self.paging = self.doPaging(page, len(im_list), self.c_size)
-
-    # Annotation list
-    def annotationList(self):
-        self.text_annotations = list()
-        self.rating_annotations = list()
-        self.file_annotations = list()
-        self.tag_annotations = list()
-        self.xml_annotations = list()
-        self.boolean_annotations = list()
-        self.double_annotations = list()
-        self.long_annotations = list()
-        self.term_annotations = list()
-        self.time_annotations = list()
-        self.my_client_map_annotations = list()  # 'should' only be 1
-        self.client_map_annotations = list()
-        self.map_annotations = list()
-        self.companion_files = list()
-
-        annTypes = {omero.model.CommentAnnotationI: self.text_annotations,
-                    omero.model.LongAnnotationI: self.long_annotations,
-                    omero.model.FileAnnotationI: self.file_annotations,
-                    omero.model.TagAnnotationI: self.tag_annotations,
-                    omero.model.XmlAnnotationI: self.xml_annotations,
-                    omero.model.BooleanAnnotationI: self.boolean_annotations,
-                    omero.model.DoubleAnnotationI: self.double_annotations,
-                    omero.model.TermAnnotationI: self.term_annotations,
-                    omero.model.TimestampAnnotationI: self.time_annotations,
-                    omero.model.MapAnnotationI: self.map_annotations}
-
-        aList = list()
-        if self.image is not None:
-            aList = list(self.image.listAnnotations())
-        elif self.dataset is not None:
-            aList = list(self.dataset.listAnnotations())
-        elif self.project is not None:
-            aList = list(self.project.listAnnotations())
-        elif self.screen is not None:
-            aList = list(self.screen.listAnnotations())
-        elif self.plate is not None:
-            aList = list(self.plate.listAnnotations())
-        elif self.acquisition is not None:
-            aList = list(self.acquisition.listAnnotations())
-        elif self.well is not None:
-            aList = list(self.well.getWellSample().image().listAnnotations())
-
-        for ann in aList:
-            annClass = ann._obj.__class__
-            if annClass in annTypes:
-                if ann.ns == omero.constants.metadata.NSINSIGHTRATING:
-                    self.rating_annotations.append(ann)
-                elif ann.ns == omero.constants.namespaces.NSCOMPANIONFILE:
-                    if (ann.getFileName() !=
-                            omero.constants.annotation.file.ORIGINALMETADATA):
-                        self.companion_files.append(ann)
-                elif ann.ns == omero.constants.metadata.NSCLIENTMAPANNOTATION:
-                    if (ann.getDetails().getOwner().id ==
-                            self.conn.getUserId()):
-                        self.my_client_map_annotations.append(ann)
-                    else:
-                        self.client_map_annotations.append(ann)
-                else:
-                    annTypes[annClass].append(ann)
-
-        self.text_annotations.sort(
-            key=lambda x: x.creationEventDate(), reverse=True)
-        self.file_annotations.sort(key=lambda x: x.creationEventDate())
-        self.rating_annotations.sort(key=lambda x: x.creationEventDate())
-        self.tag_annotations.sort(key=lambda x: x.textValue)
-        self.map_annotations.sort(key=lambda x: x.creationEventDate())
-
-        self.txannSize = len(self.text_annotations)
-        self.fileannSize = len(self.file_annotations)
-        self.tgannSize = len(self.tag_annotations)
-
-    def getGroupedRatings(self, rating_annotations=None):
-        """
-        Groups ratings in preparation for display. Picks out the user's rating
-        and groups the remaining ones by value.
-        NB: This should be called after annotationList() has loaded
-        annotations.
-        """
-        if rating_annotations is None:
-            rating_annotations = self.rating_annotations
-        userId = self.conn.getUserId()
-        myRating = None
-        ratingsByValue = {}
-        for r in range(1, 6):
-            ratingsByValue[r] = []
-        for rating in rating_annotations:
-            if rating.getDetails().getOwner().id == userId:
-                myRating = rating
-            else:
-                rVal = rating.getValue()
-                if rVal in ratingsByValue:
-                    ratingsByValue[rVal].append(rating)
-
-        avgRating = 0
-        if (len(rating_annotations) > 0):
-            sumRating = sum([r.getValue() for r in rating_annotations])
-            avgRating = float(sumRating)/len(rating_annotations)
-            avgRating = int(round(avgRating))
-
-        # Experimental display of ratings as in PR #3322
-        # groupedRatings = []
-        # for r in range(5,0, -1):
-        #     ratings = ratingsByValue[r]
-        #     if len(ratings) > 0:
-        #         groupedRatings.append({
-        #             'value': r,
-        #             'count': len(ratings),
-        #             'owners': ", ".join([
-        #                str(r.getDetails().getOwner().getNameWithInitial())
-        #                for r in ratings])
-        #             })
-
-        myRating = myRating is not None and myRating.getValue() or 0
-        # NB: this should be json serializable as used in
-        # views.annotate_rating
-        return {
-            'myRating': myRating,
-            'average': avgRating,
-            'count': len(rating_annotations)}
-
     def canUseOthersAnns(self):
         """
         Test to see whether other user's Tags, Files etc should be provided
@@ -607,145 +399,6 @@ class BaseContainer(BaseController):
                                    self.conn.isLeader(group.id))):
             return True
         return False
-
-    def loadBatchAnnotations(self, objDict, ann_ids=None, addedByMe=False):
-        """
-        Look up the Tags, Files, Comments, Ratings etc that are on one or more
-        of the objects in objDect.
-        """
-
-        batchAnns = {
-            omero.model.CommentAnnotationI: 'Comment',
-            omero.model.LongAnnotationI: 'Long',
-            omero.model.FileAnnotationI: 'File',
-            omero.model.TagAnnotationI: 'Tag',
-            omero.model.XmlAnnotationI: 'Xml',
-            omero.model.BooleanAnnotationI: 'Boolean',
-            omero.model.DoubleAnnotationI: 'Double',
-            omero.model.TermAnnotationI: 'Term',
-            omero.model.TimestampAnnotationI: 'TimeStamp'
-        }
-
-        # return, E.g {"Tag": {AnnId: {'ann': ObjWrapper, 'parents':
-        #                              [ImageWrapper, etc] } }, etc...}
-        rv = {}
-        rv["UserRatings"] = {}
-        rv["OtherRatings"] = {}
-        # populate empty return map
-        for key, value in batchAnns.items():
-            rv[value] = {}
-
-        params = omero.sys.Parameters()
-        params.theFilter = omero.sys.Filter()
-        if addedByMe:
-            params.theFilter.ownerId = omero.rtypes.rlong(
-                self.conn.getUserId())
-        for objType, objList in objDict.items():
-            if len(objList) == 0:
-                continue
-            parent_ids = [o.getId() for o in objList]
-            # If we're working with a 'well', we're actually annotating the
-            # image
-            for i in range(len(objList)):
-                o = objList[i]
-                if isinstance(o._obj, omero.model.WellI):
-                    objType = "Image"
-                    # index has already been set
-                    parent_ids[i] = o.getWellSample().image().getId()
-            if isinstance(objList[0]._obj, omero.model.PlateAcquisitionI):
-                objType = 'PlateAcquisition'
-            for annLink in self.conn.getAnnotationLinks(
-                    objType, parent_ids=parent_ids, ann_ids=ann_ids,
-                    params=params):
-                ann = annLink.getAnnotation()
-                if ann.ns == omero.constants.namespaces.NSCOMPANIONFILE:
-                    continue
-                annClass = ann._obj.__class__
-                if annClass in batchAnns:
-                    if ann.ns == omero.constants.metadata.NSINSIGHTRATING:
-                        if (ann.getDetails().owner.id.val ==
-                                self.conn.getUserId()):
-                            annotationsMap = rv["UserRatings"]
-                        else:
-                            annotationsMap = rv["OtherRatings"]
-                    else:
-                        # E.g. map for 'Tags'
-                        annotationsMap = rv[batchAnns[annClass]]
-                    if ann.getId() not in annotationsMap:
-                        annotationsMap[ann.getId()] = {
-                            'ann': ann,
-                            'links': [annLink],
-                            'unlink': 0}
-                    else:
-                        annotationsMap[ann.getId()]['links'].append(annLink)
-                    if annLink.canDelete():
-                        annotationsMap[ann.getId()]['unlink'] += 1
-
-        # bit more preparation for display...
-        batchAnns = {}
-        for key, annMap in rv.items():
-            # E.g. key = 'Tag', 'Comment', 'File' etc
-            annList = []
-            for annId, annDict in annMap.items():
-                # ann is {'ann':AnnWrapper, 'links'[AnnotationLinkWrapper, ..]}
-                # Each ann has links to several objects
-                annDict['links'].sort(key=lambda x: x.parent.id.val)
-                annDict['added_by'] = ",".join([
-                    str(l.getDetails().getOwner().id)
-                    for l in annDict['links']])
-                annDict['can_remove'] = annDict['unlink'] > 0
-                annList.append(annDict)
-            batchAnns[key] = annList
-        return batchAnns
-
-    def getTagsByObject(self, parent_type=None, parent_ids=None):
-        eid = ((not self.canUseOthersAnns()) and
-               self.conn.getEventContext().userId or None)
-
-        def sort_tags(tag_gen):
-            tag_anns = list(tag_gen)
-            try:
-                tag_anns.sort(key=lambda x: x.getValue().lower())
-            except:
-                pass
-            return tag_anns
-
-        if self.image is not None:
-            return sort_tags(self.image.listOrphanedAnnotations(
-                eid=eid, anntype='Tag'))
-        elif self.dataset is not None:
-            return sort_tags(self.dataset.listOrphanedAnnotations(
-                eid=eid, anntype='Tag', ns=['any']))
-        elif self.project is not None:
-            return sort_tags(self.project.listOrphanedAnnotations(
-                eid=eid, anntype='Tag'))
-        elif self.well is not None:
-            return sort_tags(
-                self.well.getWellSample().image().listOrphanedAnnotations(
-                    eid=eid, anntype='Tag'))
-        elif self.plate is not None:
-            return sort_tags(self.plate.listOrphanedAnnotations(
-                eid=eid, anntype='Tag'))
-        elif self.screen is not None:
-            return sort_tags(self.screen.listOrphanedAnnotations(
-                eid=eid, anntype='Tag'))
-        elif self.acquisition is not None:
-            return sort_tags(self.acquisition.listOrphanedAnnotations(
-                eid=eid, anntype='Tag'))
-        elif parent_type and parent_ids:
-            parent_type = parent_type.title()
-            if parent_type == "Acquisition":
-                parent_type = "PlateAcquisition"
-            return sort_tags(self.conn.listOrphanedAnnotations(
-                parent_type, parent_ids, eid=eid, anntype='Tag'))
-        else:
-            if eid is not None:
-                params = omero.sys.Parameters()
-                params.theFilter = omero.sys.Filter()
-                params.theFilter.ownerId = omero.rtypes.rlong(eid)
-                return sort_tags(
-                    self.conn.getObjects("TagAnnotation", params=params))
-            return sort_tags(self.conn.getObjects("TagAnnotation"))
 
     def getFilesByObject(self, parent_type=None, parent_ids=None):
         eid = ((not self.canUseOthersAnns()) and
@@ -853,7 +506,7 @@ class BaseContainer(BaseController):
 
         if len(new_links) > 0:
             self.conn.saveArray(new_links)
-        return self.conn.getObject("CommentAnnotation", ann.getId())
+        return ann.getId()
 
     def createTagAnnotations(self, tag, desc, oids, well_index=0,
                              tag_group_id=None):
@@ -1088,138 +741,6 @@ class BaseContainer(BaseController):
             container.description = None
         self.conn.saveObject(container)
 
-    def move(self, parent, destination):
-        if self.project is not None:
-            return 'Cannot move project.'
-        elif self.dataset is not None:
-            if destination[0] == 'dataset':
-                return 'Cannot move dataset to dataset'
-            elif destination[0] == 'project':
-                up_pdl = None
-                pdls = self.dataset.getParentLinks()
-                already_there = None
-
-                for pdl in pdls:
-                    if pdl.parent.id.val == long(destination[1]):
-                        already_there = True
-                    if pdl.parent.id.val == long(parent[1]):
-                        up_pdl = pdl
-                if already_there:
-                    if long(parent[1]) != long(destination[1]):
-                        self.conn.deleteObject(up_pdl._obj)
-                else:
-                    new_pr = self.conn.getObject("Project", destination[1])
-                    if parent[0] not in ('experimenter', 'orphaned'):
-                        up_pdl.setParent(new_pr._obj)
-                        self.conn.saveObject(up_pdl._obj)
-                    else:
-                        up_pdl = omero.model.ProjectDatasetLinkI()
-                        up_pdl.setChild(self.dataset._obj)
-                        up_pdl.setParent(new_pr._obj)
-                        self.conn.saveObject(up_pdl)
-            elif destination[0] == 'experimenter':
-                up_pdl = None
-                for p in self.dataset.getParentLinks():
-                    if p.parent.id.val == long(parent[1]):
-                        up_pdl = p
-                        self.conn.deleteObject(up_pdl._obj)
-            elif destination[0] == 'orphaned':
-                return ('Cannot move dataset to %s.' %
-                        self.conn.getOrphanedContainerSettings()[1])
-            else:
-                return 'Destination not supported.'
-        elif self.image is not None:
-            if destination[0] == 'dataset':
-                up_dsl = None
-                # gets every links for child
-                dsls = self.image.getParentLinks()
-                already_there = None
-
-                # checks links
-                for dsl in dsls:
-                    # if is already linked to destination
-                    if dsl.parent.id.val == long(destination[1]):
-                        already_there = True
-                    # gets old parent to update or delete
-                    if dsl.parent.id.val == long(parent[1]):
-                        up_dsl = dsl
-                if already_there:
-                    # delete link to not duplicate
-                    if long(parent[1]) != long(destination[1]):
-                        self.conn.deleteObject(up_dsl._obj)
-                else:
-                    # update link to new destination
-                    new_ds = self.conn.getObject("Dataset", destination[1])
-                    if parent[0] not in ('experimenter', 'orphaned'):
-                        up_dsl.setParent(new_ds._obj)
-                        self.conn.saveObject(up_dsl._obj)
-                    else:
-                        up_dsl = omero.model.DatasetImageLinkI()
-                        up_dsl.setChild(self.image._obj)
-                        up_dsl.setParent(new_ds._obj)
-                        self.conn.saveObject(up_dsl)
-            elif destination[0] == 'project':
-                return 'Cannot move image to project.'
-            elif (destination[0] == 'experimenter' or
-                    destination[0] == 'orphaned'):
-                if parent[0] != destination[0]:
-                    up_dsl = None
-                    # gets every links for child
-                    dsls = list(self.image.getParentLinks())
-                    if len(dsls) == 1:
-                        # gets old parent to delete
-                        if dsls[0].parent.id.val == long(parent[1]):
-                            up_dsl = dsls[0]
-                            self.conn.deleteObject(up_dsl._obj)
-                    else:
-                        return ('This image is linked in multiple places.'
-                                ' Please unlink the image first.')
-            else:
-                return 'Destination not supported.'
-        elif self.screen is not None:
-            return 'Cannot move screen.'
-        elif self.plate is not None:
-            if destination[0] == 'plate':
-                return 'Cannot move plate to plate'
-            elif destination[0] == 'screen':
-                up_spl = None
-                spls = self.plate.getParentLinks()
-                already_there = None
-
-                for spl in spls:
-                    if spl.parent.id.val == long(destination[1]):
-                        already_there = True
-                    if spl.parent.id.val == long(parent[1]):
-                        up_spl = spl
-                if already_there:
-                    if long(parent[1]) != long(destination[1]):
-                        self.conn.deleteObject(up_spl._obj)
-                else:
-                    new_sc = self.conn.getObject("Screen", destination[1])
-                    if parent[0] not in ('experimenter', 'orphaned'):
-                        up_spl.setParent(new_sc._obj)
-                        self.conn.saveObject(up_spl._obj)
-                    else:
-                        up_spl = omero.model.ScreenPlateLinkI()
-                        up_spl.setChild(self.plate._obj)
-                        up_spl.setParent(new_sc._obj)
-                        self.conn.saveObject(up_spl)
-            elif (destination[0] == 'experimenter' or
-                    destination[0] == 'orphaned'):
-                if parent[0] != destination[0]:
-                    up_spl = None
-                    # gets every links for child
-                    spls = list(self.plate.getParentLinks())
-                    for spl in spls:
-                        if spl.parent.id.val == long(parent[1]):
-                            self.conn.deleteObject(spl._obj)
-                            break
-            else:
-                return 'Destination not supported.'
-        else:
-            return 'No data was chosen.'
-        return
-
     def remove(self, parents, index, tag_owner_id=None):
         """
         Removes the current object (file, tag, comment, dataset, plate, image)
@@ -1230,6 +751,8 @@ class BaseContainer(BaseController):
 
         @param parents:     List of parent IDs, E.g. ['image-123']
         """
+        toDelete = []
+        notFound = []
         for p in parents:
             parent = p.split('-')
             dtype = str(parent[0])
@@ -1245,192 +768,45 @@ class BaseContainer(BaseController):
                     if (al is not None and al.canDelete() and (
                             tag_owner_id is None or
                             unwrap(al.details.owner.id) == tag_owner_id)):
-                        self.conn.deleteObject(al._obj)
+                        toDelete.append(al._obj)
             elif self.file:
                 for al in self.file.getParentLinks(dtype, [parentId]):
                     if al is not None and al.canDelete():
-                        self.conn.deleteObject(al._obj)
+                        toDelete.append(al._obj)
             elif self.comment:
                 # remove the comment from specified parent
                 # the comment is automatically deleted when orphaned
                 for al in self.comment.getParentLinks(dtype, [parentId]):
                     if al is not None and al.canDelete():
-                        self.conn.deleteObject(al._obj)
+                        toDelete.append(al._obj)
             elif self.dataset is not None:
                 if dtype == 'project':
                     for pdl in self.dataset.getParentLinks([parentId]):
                         if pdl is not None:
-                            self.conn.deleteObject(pdl._obj)
+                            toDelete.append(pdl._obj)
             elif self.plate is not None:
                 if dtype == 'screen':
                     for spl in self.plate.getParentLinks([parentId]):
                         if spl is not None:
-                            self.conn.deleteObject(spl._obj)
+                            toDelete.append(spl._obj)
             elif self.image is not None:
                 if dtype == 'dataset':
                     for dil in self.image.getParentLinks([parentId]):
                         if dil is not None:
-                            self.conn.deleteObject(dil._obj)
+                            toDelete.append(dil._obj)
             else:
-                raise AttributeError(
-                    "Attribute not specified. Cannot be removed.")
-
-    def removemany(self, images):
-        if self.dataset is not None:
-            dil = self.dataset.getParentLinks('image', images)
-            if dil is not None:
-                self.conn.deleteObject(dil._obj)
-        else:
-            raise AttributeError(
-                "Attribute not specified. Cannot be removed.")
-
-    ##########################################################
-    # Copy
-
-    def paste(self, destination):
-        if self.project is not None:
-            return 'Cannot paste project.'
-        elif self.dataset is not None:
-            if destination[0] == 'dataset':
-                return 'Cannot paste dataset to dataset'
-            elif destination[0] == 'project':
-                pdls = self.dataset.getParentLinks()
-                already_there = None
-
-                for pdl in pdls:
-                    if pdl.parent.id.val == long(destination[1]):
-                        already_there = True
-                if already_there:
-                    return 'Dataset is already there.'
-                else:
-                    new_pr = self.conn.getObject("Project", destination[1])
-                    up_pdl = omero.model.ProjectDatasetLinkI()
-                    up_pdl.setChild(self.dataset._obj)
-                    up_pdl.setParent(new_pr._obj)
-                    self.conn.saveObject(up_pdl)
-            else:
-                return 'Destination not supported.'
-        elif self.image is not None:
-            if destination[0] == 'dataset':
-                # gets every links for child
-                dsls = self.image.getParentLinks()
-                already_there = None
-
-                # checks links
-                for dsl in dsls:
-                    # if is already linked to destination
-                    if dsl.parent.id.val == long(destination[1]):
-                        already_there = True
-                if already_there:
-                    return 'Image is already there.'
-                else:
-                    # update link to new destination
-                    new_ds = self.conn.getObject("Dataset", destination[1])
-                    up_dsl = omero.model.DatasetImageLinkI()
-                    up_dsl.setChild(self.image._obj)
-                    up_dsl.setParent(new_ds._obj)
-                    self.conn.saveObject(up_dsl)
-            elif destination[0] == 'project':
-                return 'Cannot copy image to project.'
-            else:
-                return 'Destination not supported.'
-        elif self.screen is not None:
-            return 'Cannot paste screen.'
-        elif self.plate is not None:
-            if destination[0] == 'plate':
-                return 'Cannot move plate to plate'
-            elif destination[0] == 'screen':
-                spls = self.plate.getParentLinks()
-                already_there = None
-
-                for spl in spls:
-                    if spl.parent.id.val == long(destination[1]):
-                        already_there = True
-                if already_there:
-                    return 'Plate is already there.'
-                else:
-                    new_sc = self.conn.getObject("Screen", destination[1])
-                    up_spl = omero.model.ScreenPlateLinkI()
-                    up_spl.setChild(self.plate._obj)
-                    up_spl.setParent(new_sc._obj)
-                    self.conn.saveObject(up_spl)
-            else:
-                return 'Destination not supported.'
-        else:
-            return 'No data was chosen.'
-
-    def copyImageToDataset(self, source, destination=None):
-        if destination is None:
-            # gets every links for child
-            dsls = self.conn.getDatasetImageLinks(source[1])
-            dslIds = [dsl._obj.id.val for dsl in dsls]
-            self.conn.deleteObjects("DatasetImageLink", dslIds, wait=True)
-        else:
-            im = self.conn.getObject("Image", source[1])
-            ds = self.conn.getObject("Dataset", destination[1])
-            new_dsl = omero.model.DatasetImageLinkI()
-            new_dsl.setChild(im._obj)
-            new_dsl.setParent(ds._obj)
-            self.conn.saveObject(new_dsl)
-
-    def copyImagesToDataset(self, images, dataset):
-        if dataset is not None and dataset[0] is not "dataset":
-            ims = self.conn.getObjects("Image", images)
-            ds = self.conn.getObject("Dataset", dataset[1])
-            link_array = list()
-            for im in ims:
-                new_dsl = omero.model.DatasetImageLinkI()
-                new_dsl.setChild(im._obj)
-                new_dsl.setParent(ds._obj)
-                link_array.append(new_dsl)
-            self.conn.saveArray(link_array)
-        raise AttributeError("Destination not supported")
-
-    def copyDatasetToProject(self, source, destination=None):
-        if destination is not None and destination[0] is not "project":
-            ds = self.conn.getObject("Dataset", source[1])
-            pr = self.conn.getObject("Project", destination[1])
-            new_pdl = omero.model.ProjectDatasetLinkI()
-            new_pdl.setChild(ds._obj)
-            new_pdl.setParent(pr._obj)
-            self.conn.saveObject(new_pdl)
-        raise AttributeError("Destination not supported")
-
-    def copyDatasetsToProject(self, datasets, project):
-        if project is not None and project[0] is not "project":
-            dss = self.conn.getObjects("Dataset", datasets)
-            pr = self.conn.getObject("Project", project[1])
-            link_array = list()
-            for ds in dss:
-                new_pdl = omero.model.ProjectDatasetLinkI()
-                new_pdl.setChild(ds._obj)
-                new_pdl.setParent(pr._obj)
-                link_array.append(new_pdl)
-            self.conn.saveArray(link_array)
-        raise AttributeError("Destination not supported")
-
-    def copyPlateToScreen(self, source, destination=None):
-        if destination is not None and destination[0] is not "screen":
-            pl = self.conn.getObject("Plate", source[1])
-            sc = self.conn.getObject("Screen", destination[1])
-            new_spl = omero.model.ScreenPlateLinkI()
-            new_spl.setChild(pl._obj)
-            new_spl.setParent(sc._obj)
-            self.conn.saveObject(new_spl)
-        raise AttributeError("Destination not supported")
-
-    def copyPlatesToScreen(self, plates, screen):
-        if screen is not None and screen[0] is not "screen":
-            pls = self.conn.getObjects("Plate", plates)
-            sc = self.conn.getObject("Screen", screen[1])
-            link_array = list()
-            for pl in pls:
-                new_spl = omero.model.ScreenPlateLinkI()
-                new_spl.setChild(pl._obj)
-                new_spl.setParent(sc._obj)
-                link_array.append(new_spl)
-            self.conn.saveArray(link_array)
-        raise AttributeError("Destination not supported")
+                notFound.append(p)
+        # Need to group objects by class then batch delete
+        linksByType = {}
+        for obj in toDelete:
+            objType = obj.__class__.__name__.rstrip('I')
+            if (objType not in linksByType):
+                linksByType[objType] = []
+            linksByType[objType].append(obj.id.val)
+        for linkType, ids in linksByType.items():
+            self.conn.deleteObjects(linkType, ids, wait=False)
+        if len(notFound) > 0:
+            raise AttributeError("Attribute not specified. Cannot be removed.")
 
     ##########################################################
     # Delete

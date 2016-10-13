@@ -41,6 +41,7 @@ import omero.api.AMD_IScript_getScriptID;
 import omero.api.AMD_IScript_getScriptText;
 import omero.api.AMD_IScript_getScriptWithDetails;
 import omero.api.AMD_IScript_getScripts;
+import omero.api.AMD_IScript_getScriptsByMimetype;
 import omero.api.AMD_IScript_getUserScripts;
 import omero.api.AMD_IScript_runScript;
 import omero.api.AMD_IScript_uploadOfficialScript;
@@ -236,7 +237,9 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                     }
                     RepoFile f = scripts.write(path, scriptText);
                     OriginalFile file = scripts.addOrReplace(f, fileID);
-                    validateParams(__current, file);
+                    if (!scripts.isInert(file)) {
+                        validateParams(__current, file);
+                    }
                     return file.getId();
                 } catch (IOException e) {
                     omero.ServerError se = new omero.InternalException(null, null, "Cannot write " + path);
@@ -433,6 +436,27 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         });
     }
 
+    /**
+     * Get Scripts will return all the scripts by id and name available on the
+     * server.
+     *
+     * @param mimetype The mimetype of the scripts to retrieve.
+     * @param __current
+     *            ice context,
+     * @throws ServerError
+     *             validation, api usage.
+     */
+    public void getScriptsByMimetype_async(final AMD_IScript_getScriptsByMimetype __cb,
+            final String mimetype, Current __current) throws ServerError {
+        safeRunnableCall(__current, __cb, false, new Callable<Object>() {
+            public Object call() throws Exception {
+                List<OriginalFile> files = scripts.loadAll(true, mimetype);
+                IceMapper mapper = new IceMapper();
+                return mapper.map(files);
+            }
+        });
+    }
+ 
     @SuppressWarnings("unchecked")
     public void getUserScripts_async(AMD_IScript_getUserScripts __cb,
             final List<IObject> acceptsList, final Current __current) throws ServerError {
@@ -528,15 +552,25 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         safeRunnableCall(__current, cb, true, new Callable<Object>() {
             public Object call() throws Exception {
 
-                OriginalFile file = getOriginalFileOrNull(id, __current);
+                final OriginalFile file = getOriginalFileOrNull(id, __current);
                 if (file == null) {
                     throw new ApiUsageException(null, null,
                             "No script with id " + id + " on server.");
                 }
 
                 deleteOriginalFile(file, __current);
-                return null; // void
+                factory.executor.execute(
+                        __current.ctx, factory.principal, new Executor.SimpleWork(this, "deleteScript") {
 
+                            @Transactional(readOnly = false)
+                            public Object doWork(Session session, ServiceFactory sf) {
+                                session.delete(file);
+                                return null;
+                            }
+
+                        });
+                
+                return null; // void
             }
         });
     }
@@ -655,14 +689,11 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         if (file == null) {
             return;
         }
-
         if (scripts.delete(file.getId())) {
             return;
         }
-
         scripts.simpleDelete(current.ctx, factory.executor, factory.principal,
             file.getId());
-
     }
 
     /**

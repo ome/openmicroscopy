@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -234,20 +234,21 @@ class MetadataHandlerViewImpl
 		return cmd.exec(observer);
 	}
 
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see MetadataHandlerView#loadArchivedImage(SecurityContext, List, File,
-	 * String, boolean, boolean, boolean AgentEventListener)
-	 */
-	public CallHandle loadArchivedImage(SecurityContext ctx, List<Long> imageIDs,
-			File path, boolean override, boolean zip, boolean keepOriginalPaths,
-			AgentEventListener observer)
-	{
-		BatchCallTree cmd = new ArchivedImageLoader(ctx, imageIDs, path,
-		        override, zip, keepOriginalPaths);
-		return cmd.exec(observer);
-	}
-
+    /**
+     * Implemented as specified by the view interface.
+     * 
+     * @see MetadataHandlerView#loadArchivedImage(SecurityContext , List, File ,
+     *      boolean , boolean , boolean , AgentEventListener )
+     */
+    public CallHandle loadArchivedImage(SecurityContext ctx,
+            List<DataObject> objects, File location,
+            boolean override, boolean zip, boolean keepOriginalPaths,
+            AgentEventListener observer) {
+        BatchCallTree cmd = new ArchivedImageLoader(ctx, objects, location,
+                override, zip, keepOriginalPaths);
+        return cmd.exec(observer);
+    }
+    
 	/**
 	 * Implemented as specified by the view interface.
 	 * @see MetadataHandlerView#loadRatings(SecurityContext, Class, List, long,
@@ -456,7 +457,7 @@ class MetadataHandlerViewImpl
 	 * @see MetadataHandlerView#loadAnnotations(SecurityContext, Class, List,
 	 * Class, List, List, AgentEventListener)
 	 */
-	public CallHandle loadAnnotations(SecurityContext ctx, Class<?> rootType,
+	public CallHandle loadAnnotations(SecurityContext ctx, Class<? extends DataObject> rootType,
 			List<Long> rootIDs, Class<?> annotationType, List<String> nsInclude,
 			List<String> nsExlcude, AgentEventListener observer)
 	{

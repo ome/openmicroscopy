@@ -27,7 +27,7 @@ import java.util.StringTokenizer;
 
 import omero.rtypes;
 import omero.RInt;
-import omero.RString;
+import omero.model.AffineTransform;
 import omero.model.IObject;
 import omero.model.Polygon;
 import omero.model.Polyline;
@@ -395,14 +395,12 @@ public abstract class ShapeData
      *
      * @return See above.
      */
-    public String getTransform()
+    public AffineTransform getTransform()
     {
         Shape shape = (Shape) asIObject();
         if (shape == null) 
             throw new IllegalArgumentException("No shape specified.");
-        RString value = shape.getTransform();
-        if (value == null) return "";
-        return value.getValue();
+        return shape.getTransform();
     }
 
     /**
@@ -410,13 +408,12 @@ public abstract class ShapeData
      * 
      * @param transform The transform to set.
      */
-    public void setTransform(String transform)
+    public void setTransform(AffineTransform transform)
     {
         Shape shape = (Shape) asIObject();
         if (shape == null) 
             throw new IllegalArgumentException("No shape specified.");
-        if (transform == null) return;
-        shape.setTransform(rtypes.rstring(transform));
+        shape.setTransform(transform);
         setDirty(true);
     }
 

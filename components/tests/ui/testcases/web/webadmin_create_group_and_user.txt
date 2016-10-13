@@ -79,7 +79,7 @@ Create Edit Group
     
     ${group_name}           Unique name     test_group
     
-    Input Text              name    ${group_name}
+    Input Text              name            ${group_name}
     Input Text              description     This is test group
     Select Radio Button     permissions     1
     
@@ -89,9 +89,7 @@ Create Edit Group
     Page Should Contain     ${group_name}
     # find row which contains group name, and click 'btn_edit' of that row
     Click Element           xpath=//table[@id="groupTable"]/tbody/tr[descendant::td[contains(text(), '${group_name}')]]//a[contains(@class, "btn_edit")]
-    Wait Until Page Contains Element    id=id_name
-    ${createdName}=                     Get Element Attribute   xpath=//input[@id='id_name']@value
-    Should Be Equal                     "${group_name}"    "${createdName}"
+    Wait Until Page Contains Element    xpath=//input[@value='${group_name}']       ${WAIT}
     Input Text                          name    ${group_name}-Edited
     Click Button                        Save
     Location Should Be                  ${GROUPS URL}
@@ -144,7 +142,7 @@ Check Admin Edit Self
     Go To                             ${USERS URL}
     Click Element                     xpath=//table[@id="experimenterTable"]/tbody/tr[descendant::td[contains(text(), '${ROOT FULL NAME}')]]//a[contains(@class, "btn_edit")] 
 
-    Wait Until Page Contains Element  id=id_administrator
+    Wait Until Page Contains Element  id=id_administrator       ${WAIT}
     Checkbox Should Be selected       id=id_administrator
     Element Should Be Disabled        id=id_administrator
     

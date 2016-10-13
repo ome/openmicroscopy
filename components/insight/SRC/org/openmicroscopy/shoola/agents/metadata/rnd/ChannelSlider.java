@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -26,16 +26,20 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Point;
+import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.swing.JPanel;
 
 import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.JLabelButton;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.colourpicker.LookupTableIconUtil;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
 import omero.gateway.model.ChannelData;
@@ -131,6 +135,7 @@ class ChannelSlider
         slider.getSlider().setPaintTicks(false);
         slider.addPropertyChangeListener(this);
         Color c = model.getChannelColor(index);
+        String lut = model.getLookupTable(index);
         slider.setColourGradients(GRADIENT_COLOR, c);
  
         Font font = slider.getFont();
@@ -141,7 +146,14 @@ class ChannelSlider
         list.add("max: "+max);
         slider.getSlider().setToolTipText(UIUtilities.formatToolTipText(list));
         
-    	channelSelection = new ChannelButton(channel.getChannelLabeling(), c, index);
+        if (CommonsLangUtils.isNotEmpty(lut)) {
+            channelSelection = new ChannelButton(channel.getChannelLabeling(),
+                   LookupTableIconUtil.getLUTIconImage(lut), index);
+        } else {
+            channelSelection = new ChannelButton(channel.getChannelLabeling(),
+                    c, index);
+        }
+        
     	channelSelection.setPreferredSize(ChannelButton.DEFAULT_MAX_SIZE);
     	channelSelection.setSelected(model.isChannelActive(index));
     	channelSelection.setRightClickSupported(false);
@@ -263,25 +275,62 @@ class ChannelSlider
 	/** Toggles between color model and Greyscale. */
     void setColorModelChanged() 
     {
-    	 slider.setColourGradients(GRADIENT_COLOR, 
-    			 model.getChannelColor(getIndex()));
+        boolean lut = CommonsLangUtils.isNotEmpty(model
+                .getLookupTable(getIndex()));
+        
+        if (lut) {
+            slider.setColourGradients(Color.WHITE, Color.WHITE);
+            slider.setImage(LookupTableIconUtil.getLUTIconImage(model
+                    .getLookupTable(getIndex())));
+        } else {
+            Color c = model.getChannelColor(getIndex());
+            slider.setColourGradients(GRADIENT_COLOR, c);
+            slider.setImage(null);
+        }
+
     	 setSelectedChannel();
     }
     
     /** Modifies the color of the channel. */
     void setChannelColor()
-    {
-    	Color c = model.getChannelColor(getIndex());
-    	slider.setColourGradients(GRADIENT_COLOR, c);
-    	if (channelSelection != null) channelSelection.setColor(c);
+    {  
+        boolean lut = CommonsLangUtils.isNotEmpty(model
+                .getLookupTable(getIndex()));
+
+        if (lut) {
+            slider.setColourGradients(Color.WHITE, Color.WHITE);
+            slider.setImage(LookupTableIconUtil.getLUTIconImage(model
+                    .getLookupTable(getIndex())));
+        } else {
+            Color c = model.getChannelColor(getIndex());
+            slider.setColourGradients(GRADIENT_COLOR, c);
+            slider.setImage(null);
+        }
+
+        if (channelSelection != null) {
+            if (lut) {
+                channelSelection.setImage(LookupTableIconUtil.getLUTIconImage(model.getLookupTable(getIndex())));
+            } else {
+                channelSelection.setColor(model.getChannelColor(getIndex()));
+                channelSelection.setImage(null);
+            }
+        }
     }
     
     /** Indicates that the channel is selected. */
     void setSelectedChannel()
     {
-    	if (channelSelection == null) return;
+    	if (channelSelection == null) 
+    	    return;
     	channelSelection.setSelected(model.isChannelActive(getIndex()));
-    	channelSelection.setColor(model.getChannelColor(getIndex()));
+    	
+        if (CommonsLangUtils.isEmpty(model.getLookupTable(getIndex()))) {
+            channelSelection.setColor(model.getChannelColor(getIndex()));
+            channelSelection.setImage(null);
+        } else {
+            channelSelection.setImage(LookupTableIconUtil.getLUTIconImage(model
+                    .getLookupTable(getIndex())));
+        }
     }
     
 	/**

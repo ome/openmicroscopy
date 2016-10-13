@@ -60,6 +60,7 @@
         <!-- display -->
         <value>ChannelBinding</value>
         <value>CodomainMapContext</value>
+        <value>ProjectionDef</value>
         <value>QuantumDef</value>
         <value>RenderingDef</value>
         <value>Thumbnail</value>
@@ -84,6 +85,7 @@
         <value>ExternalInfo</value>
 
         <!-- roi -->
+        <value>AffineTransform</value>
         <value>Roi</value>
         <value>Shape</value>
 
@@ -189,9 +191,10 @@
 
         <!-- DISPLAY -->
 
+        <bean parent="graphPolicyRule" p:matches="RenderingDef[I].projections = PD:[E]" p:changes="PD:[I]"/>
         <bean parent="graphPolicyRule" p:matches="RenderingDef[I].quantization = Q:[E]" p:changes="Q:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="RenderingDef[I].spatialDomainEnhancement = SDE:[E]" p:changes="SDE:[I]"/>
         <bean parent="graphPolicyRule" p:matches="RenderingDef[I].waveRendering = CB:[E]" p:changes="CB:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="ChannelBinding[I].spatialDomainEnhancement = SDE:[E]" p:changes="SDE:[I]"/>
 
         <!-- EXPERIMENT -->
 
@@ -218,6 +221,7 @@
 
         <bean parent="graphPolicyRule" p:matches="Image[I].rois = ROI:[E]" p:changes="ROI:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Roi[I].shapes = S:[E]" p:changes="S:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="Shape[I].transform = T:[E]" p:changes="T:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Mask[I].pixels = P:[EI]" p:changes="P:[-]"/>
         <bean parent="graphPolicyRule" p:matches="Mask[I].pixels = P:[EI], P.image = I:[E]" p:changes="I:[I]"/>
 

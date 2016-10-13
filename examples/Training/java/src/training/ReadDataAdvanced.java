@@ -27,8 +27,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import static omero.rtypes.rint;
-import static omero.rtypes.rstring;
 import omero.api.IContainerPrx;
 import omero.api.IQueryPrx;
 import omero.gateway.Gateway;
@@ -104,7 +102,7 @@ public class ReadDataAdvanced
         for (int i = 0; i < 3; i ++)
         {
             TagAnnotationData t = new TagAnnotationData(tagName);
-            ((TagAnnotation)t.asIObject()).setNs(rstring(Setup.TRAINING_NS));
+            ((TagAnnotation)t.asIObject()).setNs(omero.rtypes.rstring(Setup.TRAINING_NS));
             t.setDescription(String.format("%s %s", tagName, i));
             dm.saveAndReturnObject(ctx, t);
         }
@@ -120,8 +118,8 @@ public class ReadDataAdvanced
         final boolean caseSensitive = true;
         final Filter filter = new Filter();
         // Return the first 10 hits or less.
-        filter.limit = rint(10);
-        filter.offset = rint(0);
+        filter.limit = omero.rtypes.rint(10);
+        filter.offset = omero.rtypes.rint(0);
         IQueryPrx proxy = gateway.getQueryService(ctx);
         List<IObject> datasets = (List<IObject>)
                 proxy.findAllByString("Dataset", "name", datasetName, caseSensitive,
@@ -144,8 +142,8 @@ public class ReadDataAdvanced
         final boolean caseSensitive = true;
         final Filter filter = new Filter();
         // Return the first 10 hits or less.
-        filter.limit = rint(10);
-        filter.offset = rint(0);
+        filter.limit = omero.rtypes.rint(10);
+        filter.offset = omero.rtypes.rint(0);
         IQueryPrx proxy = gateway.getQueryService(ctx);
         List<IObject> tags = (List<IObject>)
                 proxy.findAllByString("TagAnnotation", "ns",

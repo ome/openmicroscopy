@@ -846,6 +846,10 @@ class MeasurementViewerUI
     		model.getDrawingView().setToolTipText("");
     		return;
     	}
+    	
+    	if(!figure.isVisible())
+    	    return;
+    	
     	Coord3D coord3D = figure.getROIShape().getCoord3D();
     	if (coord3D == null) return;
     	if (!coord3D.equals(model.getCurrentView()) || model.isBigImage()) {

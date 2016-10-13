@@ -204,7 +204,7 @@ class TestFindObject (object):
         fileAnn = omero.gateway.FileAnnotationWrapper(gatewaywrapper.gateway)
         # An original file object needs to be linked to the annotation or it
         # will fail to be loaded on getObject(s).
-        fileObj = omero.model.OriginalFileI(False)
+        fileObj = omero.model.OriginalFileI()
         fileObj = omero.gateway.OriginalFileWrapper(
             gatewaywrapper.gateway, fileObj)
         fileObj.setName(omero.rtypes.rstring('a'))

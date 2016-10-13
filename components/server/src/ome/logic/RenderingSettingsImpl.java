@@ -1,9 +1,7 @@
 /*
- *   $Id$
- *  Copyright 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright 2006-2016 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-
 package ome.logic;
 
 import java.io.IOException;
@@ -18,6 +16,7 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.commons.collections.CollectionUtils;
 import org.perf4j.StopWatch;
 import org.perf4j.slf4j.Slf4JStopWatch;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,8 +43,10 @@ import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
+import ome.model.display.CodomainMapContext;
 import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
+import ome.model.display.ReverseIntensityContext;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
 import ome.model.screen.PlateAcquisition;
@@ -804,6 +805,9 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             channelBinding.setAlpha(defaultColor[ColorsFactory.ALPHA_INDEX]);
 
             channelBinding.setNoiseReduction(false);
+            //Set the lookuptable if set during import
+            channelBinding.setLookupTable(channel.getLookupTable());
+            channelBinding.clearSpatialDomainEnhancement();
             i++;
         }
         if (count > 0 && count != m.size()) {
@@ -942,7 +946,34 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         }
         return cbs;
     }
-    
+
+    /**
+     * Copies the context.
+     *
+     * @param ctx The context to copy.
+     * @param l The list of context already linked to the image if any.
+     * @return See above.
+     */
+    private CodomainMapContext copyContext(CodomainMapContext ctx, List<CodomainMapContext> l)
+    {
+        CodomainMapContext c;
+        if (l != null) {
+            Iterator<CodomainMapContext> i = l.iterator();
+            while (i.hasNext()) {
+                c = i.next();
+                if (ctx.getClass().equals(c.getClass())) {
+                    return null;
+                }
+            }
+        }
+        if (ctx instanceof ReverseIntensityContext) {
+            ReverseIntensityContext nc =  new ReverseIntensityContext();
+            nc.setReverse(((ReverseIntensityContext) ctx).getReverse());
+            return nc;
+        }
+        return null;
+    }
+
     /**
      * Applies rendering settings from a source set of pixels and settings to
      * a destination set of pixels and settings.
@@ -1003,6 +1034,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         Iterator<ChannelBinding> i = settingsFrom.iterateWaveRendering();
         Iterator<ChannelBinding> iTo = settingsTo.iterateWaveRendering();
         ChannelBinding binding, bindingTo;
+        CodomainMapContext ctx;
         while (i.hasNext())
         {
             binding = i.next();
@@ -1025,8 +1057,22 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             bindingTo.setBlue(binding.getBlue());
             bindingTo.setGreen(binding.getGreen());
             bindingTo.setRed(binding.getRed());
+            // lut used
+            bindingTo.setLookupTable(binding.getLookupTable());
+            List<CodomainMapContext> original = bindingTo.collectSpatialDomainEnhancement(null);
+            Iterator<CodomainMapContext> j = binding.iterateSpatialDomainEnhancement();
+            //clear if no binding for new one
+            if (binding.sizeOfSpatialDomainEnhancement() == 0) {
+                bindingTo.clearSpatialDomainEnhancement();
+            }
+            while (j.hasNext()) {
+                ctx = copyContext(j.next(), original);
+                if (ctx != null) {
+                    bindingTo.addCodomainMapContext(ctx);
+                }
+            }
         }
-        
+
         // Increment the version of the rendering settings so that we 
         // can have some notification that either the RenderingDef 
         // object itself or one of its children in the object graph has 

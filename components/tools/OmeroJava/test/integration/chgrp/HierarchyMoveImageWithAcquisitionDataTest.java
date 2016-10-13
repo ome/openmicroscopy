@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2016 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -19,13 +19,11 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package integration.chgrp;
 
 import integration.AbstractServerTest;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 import ome.specification.XMLMockObjects;
@@ -39,14 +37,14 @@ import omero.model.Image;
 import omero.model.Instrument;
 import omero.model.Laser;
 import omero.model.LightSource;
+import omero.model.Objective;
 import omero.model.Pixels;
 import omero.sys.ParametersI;
 
 import org.apache.commons.lang.RandomStringUtils;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
-
-import static org.testng.AssertJUnit.*;
 
 /**
  * @author Scott Littlewood, <a
@@ -100,9 +98,9 @@ public class HierarchyMoveImageWithAcquisitionDataTest extends
     /**
      * Test moving data as the data owner from a private to a private group
      *
-     * @throws Exception
+     * @throws Exception unexpected
      */
-    @Test(groups = "broken")
+    @Test
     public void moveImageRWtoRW() throws Exception {
         moveImageBetweenPermissionGroups("rw----", "rw----");
     }
@@ -137,8 +135,7 @@ public class HierarchyMoveImageWithAcquisitionDataTest extends
 
         Image savedImage = (Image) iUpdate.saveAndReturnObject(sourceImage);
         long originalImageId = savedImage.getId().getValue();
-        List<Long> imageIds = new ArrayList<Long>(1);
-        imageIds.add(originalImageId);
+        final long originalObjectiveId = savedImage.getObjectiveSettings().getObjective().getId().getValue();
 
         // make sure we are in the source group
         loginUser(sourceGroup);
@@ -147,9 +144,9 @@ public class HierarchyMoveImageWithAcquisitionDataTest extends
         final Chgrp2 dc = Requests.chgrp().target(savedImage).toGroup(targetGroup).build();
         callback(true, client, dc);
 
-        // check if the image have been moved.
+        // check if the image has been moved.
         Image returnedSourceImage = getImageWithId(originalImageId);
-        assertNull(returnedSourceImage);
+        Assert.assertNull(returnedSourceImage);
 
         // Move the user into the target group!
         loginUser(targetGroup);
@@ -161,7 +158,7 @@ public class HierarchyMoveImageWithAcquisitionDataTest extends
                 .createLightSource(ome.xml.model.Laser.class.getName(), 0);
 
         Image returnedTargetImage = getImageWithId(originalImageId);
-        assertNotNull(returnedTargetImage);
+        Assert.assertNotNull(returnedTargetImage);
 
         long instrumentId = returnedTargetImage.getInstrument().getId()
                 .getValue();
@@ -175,6 +172,12 @@ public class HierarchyMoveImageWithAcquisitionDataTest extends
             if (lightSource instanceof Laser)
                 validateLaser((Laser) lightSource, xmlLaser);
         }
+
+        // check that the objective and settings moved
+        final Objective returnedObjective = (Objective) iQuery.findByQuery(
+                "SELECT i.objectiveSettings.objective FROM Image i WHERE i.id = :id",
+                new ParametersI().addId(originalImageId));
+        Assert.assertEquals(returnedObjective.getId().getValue(), originalObjectiveId);
     }
 
     /**
@@ -199,12 +202,12 @@ public class HierarchyMoveImageWithAcquisitionDataTest extends
      *            The XML version.
      */
     private void validateLaser(Laser laser, ome.xml.model.Laser xml) {
-        assertEquals(laser.getManufacturer().getValue(), xml.getManufacturer());
-        assertEquals(laser.getModel().getValue(), xml.getModel());
-        assertEquals(laser.getSerialNumber().getValue(), xml.getSerialNumber());
-        assertEquals(laser.getLotNumber().getValue(), xml.getLotNumber());
-        assertEquals(laser.getPower().getValue(), xml.getPower());
-        assertEquals(laser.getType().getValue().getValue(),
+        Assert.assertEquals(laser.getManufacturer().getValue(), xml.getManufacturer());
+        Assert.assertEquals(laser.getModel().getValue(), xml.getModel());
+        Assert.assertEquals(laser.getSerialNumber().getValue(), xml.getSerialNumber());
+        Assert.assertEquals(laser.getLotNumber().getValue(), xml.getLotNumber());
+        Assert.assertEquals(laser.getPower().getValue(), xml.getPower().value());
+        Assert.assertEquals(laser.getType().getValue().getValue(),
                 XMLMockObjects.LASER_TYPE.getValue());
     }
 }

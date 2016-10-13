@@ -2,17 +2,7 @@
  *   Copyright 2006-2016 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-
 package integration;
-
-import static omero.rtypes.rlong;
-import static omero.rtypes.rstring;
-import static omero.rtypes.rtime;
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertNull;
-import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -103,6 +93,7 @@ import omero.model.XmlAnnotation;
 import omero.model.XmlAnnotationI;
 import omero.sys.ParametersI;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -148,15 +139,15 @@ public class UpdateServiceTest extends AbstractServerTest {
     @Test
     public void testVersionHandling() throws Exception {
         Image img = mmFactory.simpleImage();
-        img.setName(rstring("version handling"));
+        img.setName(omero.rtypes.rstring("version handling"));
         Image sent = (Image) iUpdate.saveAndReturnObject(img);
         long version = sent.getDetails().getUpdateEvent().getId().getValue();
 
-        sent.setDescription(rstring("version handling update"));
+        sent.setDescription(omero.rtypes.rstring("version handling update"));
         // Update event should be created
         Image sent2 = (Image) iUpdate.saveAndReturnObject(sent);
         long version2 = sent2.getDetails().getUpdateEvent().getId().getValue();
-        assertTrue(version != version2);
+        Assert.assertNotEquals(version, version2);
     }
 
     /**
@@ -170,23 +161,23 @@ public class UpdateServiceTest extends AbstractServerTest {
     public void testVersionNotIncreasingAfterUpdate() throws Exception {
         CommentAnnotation ann = new CommentAnnotationI();
         Image img = mmFactory.simpleImage();
-        img.setName(rstring("version_test"));
+        img.setName(omero.rtypes.rstring("version_test"));
         img = (Image) iUpdate.saveAndReturnObject(img);
 
-        ann.setTextValue(rstring("version_test"));
+        ann.setTextValue(omero.rtypes.rstring("version_test"));
         img.linkAnnotation(ann);
 
         img = (Image) iUpdate.saveAndReturnObject(img);
         ann = (CommentAnnotation) img.linkedAnnotationList().get(0);
-        assertNotNull(img.getId());
-        assertNotNull(ann.getId());
+        Assert.assertNotNull(img.getId());
+        Assert.assertNotNull(ann.getId());
         long oldId = img.getDetails().getUpdateEvent().getId().getValue();
-        ann.setTextValue(rstring("updated version_test"));
+        ann.setTextValue(omero.rtypes.rstring("updated version_test"));
         ann = (CommentAnnotation) iUpdate.saveAndReturnObject(ann);
         img = (Image) iQuery.get(Image.class.getName(), img.getId().getValue());
 
         long newId = img.getDetails().getUpdateEvent().getId().getValue();
-        assertTrue(newId == oldId);
+        Assert.assertEquals(newId, oldId);
     }
 
     /**
@@ -200,11 +191,11 @@ public class UpdateServiceTest extends AbstractServerTest {
     public void testVersionNotIncreasingOnUnmodifiedObject() throws Exception {
         Image img = (Image) iUpdate.saveAndReturnObject(mmFactory
                 .simpleImage());
-        assertNotNull(img.getDetails().getUpdateEvent());
+        Assert.assertNotNull(img.getDetails().getUpdateEvent());
         long id = img.getDetails().getUpdateEvent().getId().getValue();
         Image test = (Image) iUpdate.saveAndReturnObject(img);
-        assertNotNull(test.getDetails().getUpdateEvent());
-        assertTrue(id == test.getDetails().getUpdateEvent().getId().getValue());
+        Assert.assertNotNull(test.getDetails().getUpdateEvent());
+        Assert.assertEquals(id, test.getDetails().getUpdateEvent().getId().getValue());
     }
 
     /**
@@ -217,12 +208,12 @@ public class UpdateServiceTest extends AbstractServerTest {
     public void testEmptyProject() throws Exception {
         Project p = (Project) iUpdate.saveAndReturnObject(mmFactory
                 .simpleProjectData().asIObject());
-        assertNotNull(p);
+        Assert.assertNotNull(p);
         ProjectData pd = new ProjectData(p);
-        assertTrue(p.getId().getValue() > 0);
-        assertTrue(p.getId().getValue() == pd.getId());
-        assertTrue(p.getName().getValue() == pd.getName());
-        assertTrue(p.getDescription().getValue() == pd.getDescription());
+        Assert.assertTrue(p.getId().getValue() > 0);
+        Assert.assertEquals(p.getId().getValue(), pd.getId());
+        Assert.assertEquals(p.getName().getValue(), pd.getName());
+        Assert.assertEquals(p.getDescription().getValue(), pd.getDescription());
     }
 
     /**
@@ -235,12 +226,12 @@ public class UpdateServiceTest extends AbstractServerTest {
     public void testEmptyDataset() throws Exception {
         Dataset p = (Dataset) iUpdate.saveAndReturnObject(mmFactory
                 .simpleDatasetData().asIObject());
-        assertNotNull(p);
+        Assert.assertNotNull(p);
         DatasetData d = new DatasetData(p);
-        assertTrue(p.getId().getValue() > 0);
-        assertTrue(p.getId().getValue() == d.getId());
-        assertTrue(p.getName().getValue() == d.getName());
-        assertTrue(p.getDescription().getValue() == d.getDescription());
+        Assert.assertTrue(p.getId().getValue() > 0);
+        Assert.assertEquals(p.getId().getValue(), d.getId());
+        Assert.assertEquals(p.getName().getValue(), d.getName());
+        Assert.assertEquals(p.getDescription().getValue(), d.getDescription());
     }
 
     /**
@@ -253,11 +244,11 @@ public class UpdateServiceTest extends AbstractServerTest {
     public void testEmptyImage() throws Exception {
         Image p = (Image) iUpdate.saveAndReturnObject(mmFactory.simpleImage());
         ImageData img = new ImageData(p);
-        assertNotNull(p);
-        assertTrue(p.getId().getValue() > 0);
-        assertTrue(p.getId().getValue() == img.getId());
-        assertTrue(p.getName().getValue() == img.getName());
-        assertTrue(p.getDescription().getValue() == img.getDescription());
+        Assert.assertNotNull(p);
+        Assert.assertTrue(p.getId().getValue() > 0);
+        Assert.assertEquals(p.getId().getValue(), img.getId());
+        Assert.assertEquals(p.getName().getValue(), img.getName());
+        Assert.assertEquals(p.getDescription().getValue(), img.getDescription());
     }
 
     /**
@@ -270,7 +261,7 @@ public class UpdateServiceTest extends AbstractServerTest {
     public void testCreateImageWithPixels() throws Exception {
         Image img = (Image) iUpdate.saveAndReturnObject(mmFactory
                 .simpleImage());
-        assertNotNull(img);
+        Assert.assertNotNull(img);
         Pixels pixels = mmFactory.createPixels();
         img.addPixels(pixels);
         img = (Image) iUpdate.saveAndReturnObject(img);
@@ -284,10 +275,10 @@ public class UpdateServiceTest extends AbstractServerTest {
         sb.append("left outer join fetch pix.pixelsType as pt ");
         sb.append("where i.id = :id");
         img = (Image) iQuery.findByQuery(sb.toString(), param);
-        assertNotNull(img);
+        Assert.assertNotNull(img);
         // Make sure we have a pixels set.
         pixels = img.getPixels(0);
-        assertNotNull(pixels);
+        Assert.assertNotNull(pixels);
     }
 
     /**
@@ -301,11 +292,11 @@ public class UpdateServiceTest extends AbstractServerTest {
         Screen p = (Screen) factory.getUpdateService().saveAndReturnObject(
                 mmFactory.simpleScreenData().asIObject());
         ScreenData data = new ScreenData(p);
-        assertNotNull(p);
-        assertTrue(p.getId().getValue() > 0);
-        assertTrue(p.getId().getValue() == data.getId());
-        assertTrue(p.getName().getValue() == data.getName());
-        assertTrue(p.getDescription().getValue() == data.getDescription());
+        Assert.assertNotNull(p);
+        Assert.assertTrue(p.getId().getValue() > 0);
+        Assert.assertEquals(p.getId().getValue(), data.getId());
+        Assert.assertEquals(p.getName().getValue(), data.getName());
+        Assert.assertEquals(p.getDescription().getValue(), data.getDescription());
     }
 
     /**
@@ -319,11 +310,11 @@ public class UpdateServiceTest extends AbstractServerTest {
         Plate p = (Plate) factory.getUpdateService().saveAndReturnObject(
                 mmFactory.simplePlateData().asIObject());
         PlateData data = new PlateData(p);
-        assertNotNull(p);
-        assertTrue(p.getId().getValue() > 0);
-        assertTrue(p.getId().getValue() == data.getId());
-        assertTrue(p.getName().getValue() == data.getName());
-        assertTrue(p.getDescription().getValue() == data.getDescription());
+        Assert.assertNotNull(p);
+        Assert.assertTrue(p.getId().getValue() > 0);
+        Assert.assertEquals(p.getId().getValue(), data.getId());
+        Assert.assertEquals(p.getName().getValue(), data.getName());
+        Assert.assertEquals(p.getDescription().getValue(), data.getDescription());
     }
 
     /**
@@ -337,24 +328,24 @@ public class UpdateServiceTest extends AbstractServerTest {
     public void testPopulatedPlate() throws Exception {
         Plate p = mmFactory.createPlate(1, 1, 1, 1, false);
         p = (Plate) iUpdate.saveAndReturnObject(p);
-        assertNotNull(p);
-        assertNotNull(p.getName().getValue());
-        assertNotNull(p.getStatus().getValue());
-        assertNotNull(p.getDescription().getValue());
-        assertNotNull(p.getExternalIdentifier().getValue());
+        Assert.assertNotNull(p);
+        Assert.assertNotNull(p.getName().getValue());
+        Assert.assertNotNull(p.getStatus().getValue());
+        Assert.assertNotNull(p.getDescription().getValue());
+        Assert.assertNotNull(p.getExternalIdentifier().getValue());
         String sql = "select l from PlateAcquisition as l ";
         sql += "join fetch l.plate as p ";
         sql += "where p.id = :id";
         ParametersI param = new ParametersI();
         param.addId(p.getId());
-        assertNotNull(iQuery.findByQuery(sql, param));
+        Assert.assertNotNull(iQuery.findByQuery(sql, param));
 
         p = mmFactory.createPlate(1, 1, 1, 0, false);
         p = (Plate) iUpdate.saveAndReturnObject(p);
-        assertNotNull(p);
+        Assert.assertNotNull(p);
         p = mmFactory.createPlate(1, 1, 1, 1, true);
         p = (Plate) iUpdate.saveAndReturnObject(p);
-        assertNotNull(p);
+        Assert.assertNotNull(p);
     }
 
     /**
@@ -367,16 +358,16 @@ public class UpdateServiceTest extends AbstractServerTest {
     public void testCreateProjectAndLinkDatasets() throws Exception {
         String name = " 2&1 " + System.currentTimeMillis();
         Project p = new ProjectI();
-        p.setName(rstring(name));
+        p.setName(omero.rtypes.rstring(name));
 
         p = (Project) iUpdate.saveAndReturnObject(p);
 
         Dataset d1 = new DatasetI();
-        d1.setName(rstring(name));
+        d1.setName(omero.rtypes.rstring(name));
         d1 = (Dataset) iUpdate.saveAndReturnObject(d1);
 
         Dataset d2 = new DatasetI();
-        d2.setName(rstring(name));
+        d2.setName(omero.rtypes.rstring(name));
         d2 = (Dataset) iUpdate.saveAndReturnObject(d2);
 
         List<IObject> links = new ArrayList<IObject>();
@@ -406,7 +397,7 @@ public class UpdateServiceTest extends AbstractServerTest {
         ProjectData pData = new ProjectData(p);
         Set<DatasetData> datasets = pData.getDatasets();
         // We should have 2 datasets
-        assertTrue(datasets.size() == 2);
+        Assert.assertEquals(datasets.size(), 2);
         int count = 0;
         Iterator<DatasetData> i = datasets.iterator();
         DatasetData dataset;
@@ -416,7 +407,7 @@ public class UpdateServiceTest extends AbstractServerTest {
                     || dataset.getId() == d2.getId().getValue())
                 count++;
         }
-        assertTrue(count == 2);
+        Assert.assertEquals(count, 2);
     }
 
     /**
@@ -429,16 +420,16 @@ public class UpdateServiceTest extends AbstractServerTest {
     public void testCreateDatasetAndLinkImages() throws Exception {
         String name = " 2&1 " + System.currentTimeMillis();
         Dataset p = new DatasetI();
-        p.setName(rstring(name));
+        p.setName(omero.rtypes.rstring(name));
 
         p = (Dataset) iUpdate.saveAndReturnObject(p);
 
         Image d1 = new ImageI();
-        d1.setName(rstring(name));
+        d1.setName(omero.rtypes.rstring(name));
         d1 = (Image) iUpdate.saveAndReturnObject(d1);
 
         Image d2 = new ImageI();
-        d2.setName(rstring(name));
+        d2.setName(omero.rtypes.rstring(name));
         d2 = (Image) iUpdate.saveAndReturnObject(d2);
 
         List<IObject> links = new ArrayList<IObject>();
@@ -468,7 +459,7 @@ public class UpdateServiceTest extends AbstractServerTest {
         DatasetData pData = new DatasetData(p);
         Set<ImageData> images = pData.getImages();
         // We should have 2 datasets
-        assertTrue(images.size() == 2);
+        Assert.assertEquals(images.size(), 2);
         int count = 0;
         Iterator<ImageData> i = images.iterator();
         ImageData image;
@@ -478,7 +469,7 @@ public class UpdateServiceTest extends AbstractServerTest {
                     || image.getId() == d2.getId().getValue())
                 count++;
         }
-        assertTrue(count == 2);
+        Assert.assertEquals(count, 2);
     }
 
     /**
@@ -547,8 +538,8 @@ public class UpdateServiceTest extends AbstractServerTest {
         oldParentChildren = oldParent.copyChildFolders();
         newParentChildren = newParent.copyChildFolders();
 
-        Assert.assertEquals(oldParentChildren.size(), 1);
-        Assert.assertEquals(newParentChildren.size(), 0);
+        Assert.assertEquals(1, oldParentChildren.size());
+        Assert.assertEquals(0, newParentChildren.size());
         Assert.assertEquals(child.getParentFolder().getId().getValue(), oldParent.getId().getValue());
         Assert.assertEquals(oldParentChildren.get(0).getId().getValue(), child.getId().getValue());
 
@@ -564,8 +555,8 @@ public class UpdateServiceTest extends AbstractServerTest {
         oldParentChildren = oldParent.copyChildFolders();
         newParentChildren = newParent.copyChildFolders();
 
-        Assert.assertEquals(oldParentChildren.size(), 0);
-        Assert.assertEquals(newParentChildren.size(), 1);
+        Assert.assertEquals(0, oldParentChildren.size());
+        Assert.assertEquals(1, newParentChildren.size());
         Assert.assertEquals(child.getParentFolder().getId().getValue(), newParent.getId().getValue());
         Assert.assertEquals(newParentChildren.get(0).getId().getValue(), child.getId().getValue());
     }
@@ -591,8 +582,8 @@ public class UpdateServiceTest extends AbstractServerTest {
         oldParentChildren = oldParent.copyChildFolders();
         newParentChildren = newParent.copyChildFolders();
 
-        Assert.assertEquals(oldParentChildren.size(), 1);
-        Assert.assertEquals(newParentChildren.size(), 0);
+        Assert.assertEquals(1, oldParentChildren.size());
+        Assert.assertEquals(0, newParentChildren.size());
         Assert.assertEquals(child.getParentFolder().getId().getValue(), oldParent.getId().getValue());
         Assert.assertEquals(oldParentChildren.get(0).getId().getValue(), child.getId().getValue());
 
@@ -608,8 +599,8 @@ public class UpdateServiceTest extends AbstractServerTest {
         oldParentChildren = oldParent.copyChildFolders();
         newParentChildren = newParent.copyChildFolders();
 
-        Assert.assertEquals(oldParentChildren.size(), 0);
-        Assert.assertEquals(newParentChildren.size(), 1);
+        Assert.assertEquals(0, oldParentChildren.size());
+        Assert.assertEquals(1, newParentChildren.size());
         Assert.assertEquals(child.getParentFolder().getId().getValue(), newParent.getId().getValue());
         Assert.assertEquals(newParentChildren.get(0).getId().getValue(), child.getId().getValue());
     }
@@ -629,10 +620,10 @@ public class UpdateServiceTest extends AbstractServerTest {
         l.setParent((Image) i.proxy());
         l.setChild((Annotation) data.proxy());
         IObject o1 = iUpdate.saveAndReturnObject(l);
-        assertNotNull(o1);
+        Assert.assertNotNull(o1);
         l = (ImageAnnotationLink) o1;
-        assertEquals(l.getChild().getId().getValue(), data.getId().getValue());
-        assertEquals(l.getParent().getId().getValue(), i.getId().getValue());
+        Assert.assertEquals(l.getChild().getId().getValue(), data.getId().getValue());
+        Assert.assertEquals(l.getParent().getId().getValue(), i.getId().getValue());
 
         // Project
         Project p = (Project) iUpdate.saveAndReturnObject(mmFactory
@@ -641,10 +632,10 @@ public class UpdateServiceTest extends AbstractServerTest {
         pl.setParent((Project) p.proxy());
         pl.setChild((Annotation) data.proxy());
         o1 = iUpdate.saveAndReturnObject(pl);
-        assertNotNull(o1);
+        Assert.assertNotNull(o1);
         pl = (ProjectAnnotationLink) o1;
-        assertEquals(pl.getChild().getId().getValue(), data.getId().getValue());
-        assertEquals(pl.getParent().getId().getValue(), p.getId().getValue());
+        Assert.assertEquals(pl.getChild().getId().getValue(), data.getId().getValue());
+        Assert.assertEquals(pl.getParent().getId().getValue(), p.getId().getValue());
 
         // Dataset
         Dataset d = (Dataset) iUpdate.saveAndReturnObject(mmFactory
@@ -653,10 +644,10 @@ public class UpdateServiceTest extends AbstractServerTest {
         dl.setParent((Dataset) d.proxy());
         dl.setChild((Annotation) data.proxy());
         o1 = iUpdate.saveAndReturnObject(dl);
-        assertNotNull(o1);
+        Assert.assertNotNull(o1);
         dl = (DatasetAnnotationLink) o1;
-        assertEquals(dl.getChild().getId().getValue(), data.getId().getValue());
-        assertEquals(dl.getParent().getId().getValue(), d.getId().getValue());
+        Assert.assertEquals(dl.getChild().getId().getValue(), data.getId().getValue());
+        Assert.assertEquals(dl.getParent().getId().getValue(), d.getId().getValue());
 
         // Screen
         Screen s = (Screen) iUpdate.saveAndReturnObject(mmFactory
@@ -665,10 +656,10 @@ public class UpdateServiceTest extends AbstractServerTest {
         sl.setParent((Screen) s.proxy());
         sl.setChild((Annotation) data.proxy());
         o1 = iUpdate.saveAndReturnObject(sl);
-        assertNotNull(o1);
+        Assert.assertNotNull(o1);
         sl = (ScreenAnnotationLink) o1;
-        assertEquals(sl.getChild().getId().getValue(), data.getId().getValue());
-        assertEquals(sl.getParent().getId().getValue(), s.getId().getValue());
+        Assert.assertEquals(sl.getChild().getId().getValue(), data.getId().getValue());
+        Assert.assertEquals(sl.getParent().getId().getValue(), s.getId().getValue());
 
         // Plate
         Plate pp = (Plate) iUpdate.saveAndReturnObject(mmFactory
@@ -677,33 +668,33 @@ public class UpdateServiceTest extends AbstractServerTest {
         ppl.setParent((Plate) pp.proxy());
         ppl.setChild((Annotation) data.proxy());
         o1 = iUpdate.saveAndReturnObject(ppl);
-        assertNotNull(o1);
+        Assert.assertNotNull(o1);
         ppl = (PlateAnnotationLink) o1;
-        assertEquals(ppl.getChild().getId().getValue(), data.getId().getValue());
-        assertEquals(ppl.getParent().getId().getValue(), pp.getId().getValue());
+        Assert.assertEquals(ppl.getChild().getId().getValue(), data.getId().getValue());
+        Assert.assertEquals(ppl.getParent().getId().getValue(), pp.getId().getValue());
 
         // Plate acquisition
         pp = (Plate) iUpdate.saveAndReturnObject(
                 mmFactory.createPlate(1, 1, 1, 1, false));
         long self = factory.getAdminService().getEventContext().userId;
         ParametersI param = new ParametersI();
-        param.exp(rlong(self));
+        param.exp(omero.rtypes.rlong(self));
         //method tested in PojosServiceTest
         List<IObject> results = factory.getContainerService().loadContainerHierarchy(
                 Plate.class.getName(),
                 Arrays.asList(pp.getId().getValue()), param);
         pp = (Plate) results.get(0);
         List<PlateAcquisition> list = pp.copyPlateAcquisitions();
-        assertEquals(1, list.size());
+        Assert.assertEquals(1, list.size());
         PlateAcquisition pa = list.get(0);
         PlateAcquisitionAnnotationLink pal = new PlateAcquisitionAnnotationLinkI();
         pal.setParent((PlateAcquisition) pa.proxy());
         pal.setChild((Annotation) data.proxy());
         o1 = iUpdate.saveAndReturnObject(pal);
-        assertNotNull(o1);
+        Assert.assertNotNull(o1);
         pal = (PlateAcquisitionAnnotationLink) o1;
-        assertEquals(pal.getChild().getId().getValue(), data.getId().getValue());
-        assertEquals(pal.getParent().getId().getValue(), pa.getId().getValue());
+        Assert.assertEquals(pal.getChild().getId().getValue(), data.getId().getValue());
+        Assert.assertEquals(pal.getParent().getId().getValue(), pa.getId().getValue());
 
         //Create a roi
         int n = 0;
@@ -744,12 +735,12 @@ public class UpdateServiceTest extends AbstractServerTest {
         ral.setParent((Roi) roi.proxy());
         ral.setChild((Annotation) data.proxy());
         o1 = iUpdate.saveAndReturnObject(ral);
-        assertNotNull(o1);
+        Assert.assertNotNull(o1);
         ral = (RoiAnnotationLink) o1;
-        assertEquals(ral.getChild().getId().getValue(), data.getId().getValue());
-        assertEquals(ral.getParent().getId().getValue(), roi.getId().getValue());
+        Assert.assertEquals(ral.getChild().getId().getValue(), data.getId().getValue());
+        Assert.assertEquals(ral.getParent().getId().getValue(), roi.getId().getValue());
         List<Shape> shapes = roi.copyShapes();
-        assertEquals(n, shapes.size());
+        Assert.assertEquals(n, shapes.size());
         Iterator<Shape> k = shapes.iterator();
         while (k.hasNext()) {
             Shape shape = k.next();
@@ -757,10 +748,10 @@ public class UpdateServiceTest extends AbstractServerTest {
             sal.setParent((Shape) shape.proxy());
             sal.setChild((Annotation) data.proxy());
             o1 = iUpdate.saveAndReturnObject(sal);
-            assertNotNull(o1);
+            Assert.assertNotNull(o1);
             sal = (ShapeAnnotationLink) o1;
-            assertEquals(sal.getChild().getId().getValue(), data.getId().getValue());
-            assertEquals(sal.getParent().getId().getValue(), shape.getId().getValue());
+            Assert.assertEquals(sal.getChild().getId().getValue(), data.getId().getValue());
+            Assert.assertEquals(sal.getParent().getId().getValue(), shape.getId().getValue());
         }
     }
 
@@ -776,12 +767,12 @@ public class UpdateServiceTest extends AbstractServerTest {
         annotation.setTextValue(omero.rtypes.rstring("comment"));
         annotation = (CommentAnnotation) iUpdate
                 .saveAndReturnObject(annotation);
-        assertNotNull(annotation);
+        Assert.assertNotNull(annotation);
         linkAnnotationAndObjects(annotation);
         TextualAnnotationData data = new TextualAnnotationData(annotation);
-        assertNotNull(data);
-        assertEquals(data.getText(), annotation.getTextValue().getValue());
-        assertNull(data.getNameSpace());
+        Assert.assertNotNull(data);
+        Assert.assertEquals(data.getText(), annotation.getTextValue().getValue());
+        Assert.assertNull(data.getNameSpace());
     }
 
     /**
@@ -795,12 +786,12 @@ public class UpdateServiceTest extends AbstractServerTest {
         TagAnnotation annotation = new TagAnnotationI();
         annotation.setTextValue(omero.rtypes.rstring("tag"));
         annotation = (TagAnnotation) iUpdate.saveAndReturnObject(annotation);
-        assertNotNull(annotation);
+        Assert.assertNotNull(annotation);
         linkAnnotationAndObjects(annotation);
         TagAnnotationData data = new TagAnnotationData(annotation);
-        assertNotNull(data);
-        assertNull(data.getNameSpace());
-        assertEquals(data.getTagValue(), annotation.getTextValue().getValue());
+        Assert.assertNotNull(data);
+        Assert.assertNull(data.getNameSpace());
+        Assert.assertEquals(data.getTagValue(), annotation.getTextValue().getValue());
     }
 
     /**
@@ -815,11 +806,11 @@ public class UpdateServiceTest extends AbstractServerTest {
         annotation.setBoolValue(omero.rtypes.rbool(true));
         annotation = (BooleanAnnotation) iUpdate
                 .saveAndReturnObject(annotation);
-        assertNotNull(annotation);
+        Assert.assertNotNull(annotation);
         linkAnnotationAndObjects(annotation);
         BooleanAnnotationData data = new BooleanAnnotationData(annotation);
-        assertNotNull(data);
-        assertNull(data.getNameSpace());
+        Assert.assertNotNull(data);
+        Assert.assertNull(data.getNameSpace());
     }
 
     /**
@@ -833,12 +824,12 @@ public class UpdateServiceTest extends AbstractServerTest {
         LongAnnotation annotation = new LongAnnotationI();
         annotation.setLongValue(omero.rtypes.rlong(1L));
         annotation = (LongAnnotation) iUpdate.saveAndReturnObject(annotation);
-        assertNotNull(annotation);
+        Assert.assertNotNull(annotation);
         linkAnnotationAndObjects(annotation);
         LongAnnotationData data = new LongAnnotationData(annotation);
-        assertNotNull(data);
-        assertNull(data.getNameSpace());
-        assertEquals(data.getDataValue(), annotation.getLongValue().getValue());
+        Assert.assertNotNull(data);
+        Assert.assertNull(data.getNameSpace());
+        Assert.assertEquals(data.getDataValue(), annotation.getLongValue().getValue());
     }
 
     /**
@@ -851,11 +842,11 @@ public class UpdateServiceTest extends AbstractServerTest {
     public void testCreateFileAnnotation() throws Exception {
         OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(mmFactory
                 .createOriginalFile());
-        assertNotNull(of);
+        Assert.assertNotNull(of);
         FileAnnotation fa = new FileAnnotationI();
         fa.setFile(of);
         FileAnnotation data = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
-        assertNotNull(data);
+        Assert.assertNotNull(data);
         linkAnnotationAndObjects(data);
     }
 
@@ -870,12 +861,12 @@ public class UpdateServiceTest extends AbstractServerTest {
         TermAnnotation term = new TermAnnotationI();
         term.setTermValue(omero.rtypes.rstring("term"));
         term = (TermAnnotation) iUpdate.saveAndReturnObject(term);
-        assertNotNull(term);
+        Assert.assertNotNull(term);
         linkAnnotationAndObjects(term);
         TermAnnotationData data = new TermAnnotationData(term);
-        assertNotNull(data);
-        assertEquals(data.getTerm(), term.getTermValue().getValue());
-        assertNull(data.getNameSpace());
+        Assert.assertNotNull(data);
+        Assert.assertEquals(data.getTerm(), term.getTermValue().getValue());
+        Assert.assertNull(data.getNameSpace());
     }
 
     /**
@@ -890,14 +881,14 @@ public class UpdateServiceTest extends AbstractServerTest {
         annotation.setLongValue(omero.rtypes.rlong(1L));
         LongAnnotation data = (LongAnnotation) iUpdate
                 .saveAndReturnObject(annotation);
-        assertNotNull(data);
+        Assert.assertNotNull(data);
         // Image
         Image i = (Image) iUpdate.saveAndReturnObject(mmFactory.simpleImage());
         ImageAnnotationLink l = new ImageAnnotationLinkI();
         l.setParent((Image) i.proxy());
         l.setChild((Annotation) data.proxy());
         l = (ImageAnnotationLink) iUpdate.saveAndReturnObject(l);
-        assertNotNull(l);
+        Assert.assertNotNull(l);
         long id = l.getId().getValue();
         // annotation and image are linked. Remove the link.
         final Delete2 dc = Requests.delete().target(l).build();
@@ -908,7 +899,7 @@ public class UpdateServiceTest extends AbstractServerTest {
         ParametersI p = new ParametersI();
         p.addId(id);
         IObject object = iQuery.findByQuery(sql, p);
-        assertNull(object);
+        Assert.assertNull(object);
     }
 
     /**
@@ -923,17 +914,17 @@ public class UpdateServiceTest extends AbstractServerTest {
         annotation.setTextValue(omero.rtypes.rstring("comment"));
         CommentAnnotation data = (CommentAnnotation) iUpdate
                 .saveAndReturnObject(annotation);
-        assertNotNull(data);
+        Assert.assertNotNull(data);
         // modified the text
         String newText = "commentModified";
         data.setTextValue(omero.rtypes.rstring(newText));
         CommentAnnotation update = (CommentAnnotation) iUpdate
                 .saveAndReturnObject(data);
-        assertNotNull(update);
+        Assert.assertNotNull(update);
 
-        assertTrue(data.getId().getValue() == update.getId().getValue());
+        Assert.assertEquals(data.getId().getValue(), update.getId().getValue());
 
-        assertTrue(newText.equals(update.getTextValue().getValue()));
+        Assert.assertEquals(newText, update.getTextValue().getValue());
     }
 
     /**
@@ -962,7 +953,7 @@ public class UpdateServiceTest extends AbstractServerTest {
         l.setChild((Annotation) data.proxy());
 
         IObject o1 = iUpdate.saveAndReturnObject(l);
-        assertNotNull(o1);
+        Assert.assertNotNull(o1);
         CreatePojosFixture2 fixture = CreatePojosFixture2.withNewUser(root,
                 groupName);
 
@@ -971,13 +962,13 @@ public class UpdateServiceTest extends AbstractServerTest {
         l.setChild((Annotation) data.proxy());
         // l.getDetails().setOwner(fixture.e);
         IObject o2 = fixture.iUpdate.saveAndReturnObject(l);
-        assertNotNull(o2);
+        Assert.assertNotNull(o2);
 
         long self = factory.getAdminService().getEventContext().userId;
 
-        assertTrue(o1.getId().getValue() != o2.getId().getValue());
-        assertTrue(o1.getDetails().getOwner().getId().getValue() == self);
-        assertTrue(o2.getDetails().getOwner().getId().getValue() == fixture.e
+        Assert.assertNotEquals(o1.getId().getValue(), o2.getId().getValue());
+        Assert.assertEquals(o1.getDetails().getOwner().getId().getValue(), self);
+        Assert.assertEquals(o2.getDetails().getOwner().getId().getValue(), fixture.e
                 .getId().getValue());
     }
 
@@ -997,17 +988,17 @@ public class UpdateServiceTest extends AbstractServerTest {
         TagAnnotation tagSetReturned = (TagAnnotation) iUpdate
                 .saveAndReturnObject(tagSet);
         // create a tag and link it to the tag set
-        assertNotNull(tagSetReturned);
+        Assert.assertNotNull(tagSetReturned);
         TagAnnotationI tag = new TagAnnotationI();
         tag.setTextValue(omero.rtypes.rstring("tag"));
         TagAnnotation tagReturned = (TagAnnotation) iUpdate
                 .saveAndReturnObject(tag);
-        assertNotNull(tagReturned);
+        Assert.assertNotNull(tagReturned);
         AnnotationAnnotationLinkI link = new AnnotationAnnotationLinkI();
         link.setChild(tagReturned);
         link.setParent(tagSetReturned);
         IObject l = iUpdate.saveAndReturnObject(link); // save the link.
-        assertNotNull(l);
+        Assert.assertNotNull(l);
 
         ParametersI param = new ParametersI();
         param.addId(l.getId());
@@ -1019,11 +1010,11 @@ public class UpdateServiceTest extends AbstractServerTest {
         sb.append("where l.id = :id");
         AnnotationAnnotationLinkI lReturned = (AnnotationAnnotationLinkI) iQuery
                 .findByQuery(sb.toString(), param);
-        assertNotNull(lReturned.getChild());
-        assertNotNull(lReturned.getParent());
-        assertTrue(lReturned.getChild().getId().getValue() == tagReturned
+        Assert.assertNotNull(lReturned.getChild());
+        Assert.assertNotNull(lReturned.getParent());
+        Assert.assertEquals(lReturned.getChild().getId().getValue(), tagReturned
                 .getId().getValue());
-        assertTrue(lReturned.getParent().getId().getValue() == tagSetReturned
+        Assert.assertEquals(lReturned.getParent().getId().getValue(), tagSetReturned
                 .getId().getValue());
     }
 
@@ -1047,10 +1038,10 @@ public class UpdateServiceTest extends AbstractServerTest {
         Pixels p = i.getPrimaryPixels();
 
         Set<Long> ids = new HashSet<Long>();
-        assertEquals(ModelMockFactory.DEFAULT_CHANNELS_NUMBER,
+        Assert.assertEquals(ModelMockFactory.DEFAULT_CHANNELS_NUMBER,
                 p.sizeOfChannels());
         for (Channel ch : p.copyChannels()) {
-            assertNotNull(ch);
+            Assert.assertNotNull(ch);
             ids.add(ch.getId().getValue());
         }
 
@@ -1062,9 +1053,9 @@ public class UpdateServiceTest extends AbstractServerTest {
         i = (Image) iUpdate.saveAndReturnObject(i);
         p = i.getPrimaryPixels();
 
-        assertEquals(ModelMockFactory.DEFAULT_CHANNELS_NUMBER + 1,
+        Assert.assertEquals(ModelMockFactory.DEFAULT_CHANNELS_NUMBER + 1,
                 p.sizeOfChannels());
-        assertFalse(ids.contains(p
+        Assert.assertFalse(ids.contains(p
                 .getChannel(ModelMockFactory.DEFAULT_CHANNELS_NUMBER).getId()
                 .getValue()));
     }
@@ -1089,15 +1080,15 @@ public class UpdateServiceTest extends AbstractServerTest {
 
         Set<Long> ids = new HashSet<Long>();
         Channel old = p.getChannel(0);
-        assertEquals(ModelMockFactory.DEFAULT_CHANNELS_NUMBER,
+        Assert.assertEquals(ModelMockFactory.DEFAULT_CHANNELS_NUMBER,
                 p.sizeOfChannels());
-        assertNotNull(old);
+        Assert.assertNotNull(old);
         ids.add(p.getChannel(0).getId().getValue());
 
         // Middle should be empty
-        assertNull(p.getChannel(1));
+        Assert.assertNull(p.getChannel(1));
 
-        assertNotNull(p.getChannel(2));
+        Assert.assertNotNull(p.getChannel(2));
         ids.add(p.getChannel(2).getId().getValue());
 
         // Now add a channel to the front
@@ -1112,9 +1103,9 @@ public class UpdateServiceTest extends AbstractServerTest {
 
         p = (Pixels) iUpdate.saveAndReturnObject(p);
 
-        assertEquals(ModelMockFactory.DEFAULT_CHANNELS_NUMBER,
+        Assert.assertEquals(ModelMockFactory.DEFAULT_CHANNELS_NUMBER,
                 p.sizeOfChannels());
-        assertFalse(ids.contains(p.getChannel(0).getId().getValue()));
+        Assert.assertFalse(ids.contains(p.getChannel(0).getId().getValue()));
     }
 
     /**
@@ -1136,15 +1127,15 @@ public class UpdateServiceTest extends AbstractServerTest {
         p = (Pixels) iUpdate.saveAndReturnObject(p);
 
         Set<Long> ids = new HashSet<Long>();
-        assertEquals(ModelMockFactory.DEFAULT_CHANNELS_NUMBER,
+        Assert.assertEquals(ModelMockFactory.DEFAULT_CHANNELS_NUMBER,
                 p.sizeOfChannels());
-        assertNotNull(p.getChannel(0));
+        Assert.assertNotNull(p.getChannel(0));
         ids.add(p.getChannel(0).getId().getValue());
 
         // Middle should be empty
-        assertNull(p.getChannel(1));
+        Assert.assertNull(p.getChannel(1));
 
-        assertNotNull(p.getChannel(2));
+        Assert.assertNotNull(p.getChannel(2));
         ids.add(p.getChannel(2).getId().getValue());
 
         // Now add a channel to the space
@@ -1153,9 +1144,9 @@ public class UpdateServiceTest extends AbstractServerTest {
 
         p = (Pixels) iUpdate.saveAndReturnObject(p);
 
-        assertEquals(ModelMockFactory.DEFAULT_CHANNELS_NUMBER,
+        Assert.assertEquals(ModelMockFactory.DEFAULT_CHANNELS_NUMBER,
                 p.sizeOfChannels());
-        assertFalse(ids.contains(p.getChannel(1).getId().getValue()));
+        Assert.assertFalse(ids.contains(p.getChannel(1).getId().getValue()));
     }
 
     /**
@@ -1177,7 +1168,7 @@ public class UpdateServiceTest extends AbstractServerTest {
         param.addId(planeInfo.getId());
         Pixels test = (Pixels) iQuery.findByQuery(
                 "select pi.pixels from PlaneInfo pi where pi.id = :id", param);
-        assertNotNull(test);
+        Assert.assertNotNull(test);
     }
 
     /**
@@ -1201,7 +1192,7 @@ public class UpdateServiceTest extends AbstractServerTest {
         param.addId(pixels.getId());
         List<IObject> test = (List<IObject>) iQuery.findAllByQuery(
                 "select pi from PlaneInfo pi where pi.pixels.id = :id", param);
-        assertTrue(test.size() > 0);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(test));
     }
 
     /**
@@ -1218,7 +1209,7 @@ public class UpdateServiceTest extends AbstractServerTest {
         RoiI roi = new RoiI();
         roi.setImage(image);
         RoiI serverROI = (RoiI) iUpdate.saveAndReturnObject(roi);
-        assertNotNull(serverROI);
+        Assert.assertNotNull(serverROI);
         double v = 10;
         int z = 0;
         int t = 0;
@@ -1236,23 +1227,23 @@ public class UpdateServiceTest extends AbstractServerTest {
         serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
 
         ROIData data = new ROIData(serverROI);
-        assertTrue(data.getId() == serverROI.getId().getValue());
-        assertTrue(data.getShapeCount() == 1);
+        Assert.assertEquals(data.getId(), serverROI.getId().getValue());
+        Assert.assertEquals(data.getShapeCount(), 1);
 
         List<ShapeData> shapes = data.getShapes(z, t);
-        assertNotNull(shapes);
-        assertTrue(shapes.size() == 1);
+        Assert.assertNotNull(shapes);
+        Assert.assertEquals(shapes.size(), 1);
         EllipseData shape;
         Iterator<ShapeData> i = shapes.iterator();
         while (i.hasNext()) {
             shape = (EllipseData) i.next();
-            assertTrue(shape.getT() == t);
-            assertTrue(shape.getZ() == z);
-            assertTrue(shape.getC() == c);
-            assertTrue(shape.getX() == v);
-            assertTrue(shape.getY() == v);
-            assertTrue(shape.getRadiusX() == v);
-            assertTrue(shape.getRadiusY() == v);
+            Assert.assertEquals(shape.getT(), t);
+            Assert.assertEquals(shape.getZ(), z);
+            Assert.assertEquals(shape.getC(), c);
+            Assert.assertEquals(shape.getX(), v);
+            Assert.assertEquals(shape.getY(), v);
+            Assert.assertEquals(shape.getRadiusX(), v);
+            Assert.assertEquals(shape.getRadiusY(), v);
         }
     }
 
@@ -1270,7 +1261,7 @@ public class UpdateServiceTest extends AbstractServerTest {
         Roi roi = new RoiI();
         roi.setImage(image);
         Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
-        assertNotNull(serverROI);
+        Assert.assertNotNull(serverROI);
         double v = 10;
         int z = 0;
         int t = 0;
@@ -1286,21 +1277,21 @@ public class UpdateServiceTest extends AbstractServerTest {
         serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
 
         ROIData data = new ROIData(serverROI);
-        assertTrue(data.getId() == serverROI.getId().getValue());
-        assertTrue(data.getShapeCount() == 1);
+        Assert.assertEquals(data.getId(), serverROI.getId().getValue());
+        Assert.assertEquals(data.getShapeCount(), 1);
 
         List<ShapeData> shapes = data.getShapes(z, t);
-        assertNotNull(shapes);
-        assertTrue(shapes.size() == 1);
+        Assert.assertNotNull(shapes);
+        Assert.assertEquals(shapes.size(), 1);
         PointData shape;
         Iterator<ShapeData> i = shapes.iterator();
         while (i.hasNext()) {
             shape = (PointData) i.next();
-            assertTrue(shape.getT() == t);
-            assertTrue(shape.getZ() == z);
-            assertTrue(shape.getC() == c);
-            assertTrue(shape.getX() == v);
-            assertTrue(shape.getY() == v);
+            Assert.assertEquals(shape.getT(), t);
+            Assert.assertEquals(shape.getZ(), z);
+            Assert.assertEquals(shape.getC(), c);
+            Assert.assertEquals(shape.getX(), v);
+            Assert.assertEquals(shape.getY(), v);
         }
     }
 
@@ -1318,7 +1309,7 @@ public class UpdateServiceTest extends AbstractServerTest {
         Roi roi = new RoiI();
         roi.setImage(image);
         Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
-        assertNotNull(serverROI);
+        Assert.assertNotNull(serverROI);
         double v = 10;
         int z = 0;
         int t = 0;
@@ -1336,23 +1327,23 @@ public class UpdateServiceTest extends AbstractServerTest {
         serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
 
         ROIData data = new ROIData(serverROI);
-        assertTrue(data.getId() == serverROI.getId().getValue());
-        assertTrue(data.getShapeCount() == 1);
+        Assert.assertEquals(data.getId(), serverROI.getId().getValue());
+        Assert.assertEquals(data.getShapeCount(), 1);
 
         List<ShapeData> shapes = data.getShapes(z, t);
-        assertNotNull(shapes);
-        assertTrue(shapes.size() == 1);
+        Assert.assertNotNull(shapes);
+        Assert.assertEquals(shapes.size(), 1);
         RectangleData shape;
         Iterator<ShapeData> i = shapes.iterator();
         while (i.hasNext()) {
             shape = (RectangleData) i.next();
-            assertTrue(shape.getT() == t);
-            assertTrue(shape.getZ() == z);
-            assertTrue(shape.getC() == c);
-            assertTrue(shape.getX() == v);
-            assertTrue(shape.getY() == v);
-            assertTrue(shape.getWidth() == v);
-            assertTrue(shape.getHeight() == v);
+            Assert.assertEquals(shape.getT(), t);
+            Assert.assertEquals(shape.getZ(), z);
+            Assert.assertEquals(shape.getC(), c);
+            Assert.assertEquals(shape.getX(), v);
+            Assert.assertEquals(shape.getY(), v);
+            Assert.assertEquals(shape.getWidth(), v);
+            Assert.assertEquals(shape.getHeight(), v);
         }
     }
 
@@ -1383,7 +1374,7 @@ public class UpdateServiceTest extends AbstractServerTest {
         Roi roi = new RoiI();
         roi.setImage(image);
         Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
-        assertNotNull(serverROI);
+        Assert.assertNotNull(serverROI);
         double v = 10;
         double w = 11;
         int z = 0;
@@ -1400,22 +1391,20 @@ public class UpdateServiceTest extends AbstractServerTest {
         serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
 
         ROIData data = new ROIData(serverROI);
-        assertTrue(data.getId() == serverROI.getId().getValue());
-        assertTrue(data.getShapeCount() == 1);
+        Assert.assertEquals(data.getId(), serverROI.getId().getValue());
+        Assert.assertEquals(data.getShapeCount(), 1);
 
         List<ShapeData> shapes = data.getShapes(z, t);
-        assertNotNull(shapes);
-        assertTrue(shapes.size() == 1);
+        Assert.assertNotNull(shapes);
+        Assert.assertEquals(shapes.size(), 1);
         PolygonData shape;
         Iterator<ShapeData> i = shapes.iterator();
         while (i.hasNext()) {
             shape = (PolygonData) i.next();
-            assertTrue(shape.getT() == t);
-            assertTrue(shape.getZ() == z);
-            assertTrue(shape.getC() == c);
-            assertTrue(shape.getPoints().size() == 1);
-            assertTrue(shape.getPoints1().size() == 1);
-            assertTrue(shape.getPoints2().size() == 1);
+            Assert.assertEquals(shape.getT(), t);
+            Assert.assertEquals(shape.getZ(), z);
+            Assert.assertEquals(shape.getC(), c);
+            Assert.assertEquals(shape.getPoints().size(), 1);
         }
     }
 
@@ -1433,7 +1422,7 @@ public class UpdateServiceTest extends AbstractServerTest {
         Roi roi = new RoiI();
         roi.setImage(image);
         Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
-        assertNotNull(serverROI);
+        Assert.assertNotNull(serverROI);
         double v = 10;
         String points = "points[10,10] points1[10,10] points2[10,10]";
         int z = 0;
@@ -1449,22 +1438,20 @@ public class UpdateServiceTest extends AbstractServerTest {
         serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
 
         ROIData data = new ROIData(serverROI);
-        assertTrue(data.getId() == serverROI.getId().getValue());
-        assertTrue(data.getShapeCount() == 1);
+        Assert.assertEquals(data.getId(), serverROI.getId().getValue());
+        Assert.assertEquals(data.getShapeCount(), 1);
 
         List<ShapeData> shapes = data.getShapes(z, t);
-        assertNotNull(shapes);
-        assertTrue(shapes.size() == 1);
+        Assert.assertNotNull(shapes);
+        Assert.assertEquals(shapes.size(), 1);
         PolylineData shape;
         Iterator<ShapeData> i = shapes.iterator();
         while (i.hasNext()) {
             shape = (PolylineData) i.next();
-            assertTrue(shape.getT() == t);
-            assertTrue(shape.getZ() == z);
-            assertTrue(shape.getC() == c);
-            assertTrue(shape.getPoints().size() == 1);
-            assertTrue(shape.getPoints1().size() == 1);
-            assertTrue(shape.getPoints2().size() == 1);
+            Assert.assertEquals(shape.getT(), t);
+            Assert.assertEquals(shape.getZ(), z);
+            Assert.assertEquals(shape.getC(), c);
+            Assert.assertEquals(shape.getPoints().size(), 1);
         }
     }
 
@@ -1482,7 +1469,7 @@ public class UpdateServiceTest extends AbstractServerTest {
         Roi roi = new RoiI();
         roi.setImage(image);
         Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
-        assertNotNull(serverROI);
+        Assert.assertNotNull(serverROI);
         double v = 10;
         double w = 11;
         int z = 0;
@@ -1501,23 +1488,23 @@ public class UpdateServiceTest extends AbstractServerTest {
         serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
 
         ROIData data = new ROIData(serverROI);
-        assertTrue(data.getId() == serverROI.getId().getValue());
-        assertTrue(data.getShapeCount() == 1);
+        Assert.assertEquals(data.getId(), serverROI.getId().getValue());
+        Assert.assertEquals(data.getShapeCount(), 1);
 
         List<ShapeData> shapes = data.getShapes(z, t);
-        assertNotNull(shapes);
-        assertTrue(shapes.size() == 1);
+        Assert.assertNotNull(shapes);
+        Assert.assertEquals(shapes.size(), 1);
         LineData shape;
         Iterator<ShapeData> i = shapes.iterator();
         while (i.hasNext()) {
             shape = (LineData) i.next();
-            assertTrue(shape.getT() == t);
-            assertTrue(shape.getZ() == z);
-            assertTrue(shape.getC() == c);
-            assertTrue(shape.getX1() == v);
-            assertTrue(shape.getY1() == v);
-            assertTrue(shape.getX2() == w);
-            assertTrue(shape.getY2() == w);
+            Assert.assertEquals(shape.getT(), t);
+            Assert.assertEquals(shape.getZ(), z);
+            Assert.assertEquals(shape.getC(), c);
+            Assert.assertEquals(shape.getX1(), v);
+            Assert.assertEquals(shape.getY1(), v);
+            Assert.assertEquals(shape.getX2(), w);
+            Assert.assertEquals(shape.getY2(), w);
         }
     }
 
@@ -1535,7 +1522,7 @@ public class UpdateServiceTest extends AbstractServerTest {
         Roi roi = new RoiI();
         roi.setImage(image);
         Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
-        assertNotNull(serverROI);
+        Assert.assertNotNull(serverROI);
         double v = 10;
         int z = 0;
         int t = 0;
@@ -1553,23 +1540,23 @@ public class UpdateServiceTest extends AbstractServerTest {
         serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
 
         ROIData data = new ROIData(serverROI);
-        assertTrue(data.getId() == serverROI.getId().getValue());
-        assertTrue(data.getShapeCount() == 1);
+        Assert.assertEquals(data.getId(), serverROI.getId().getValue());
+        Assert.assertEquals(data.getShapeCount(), 1);
 
         List<ShapeData> shapes = data.getShapes(z, t);
-        assertNotNull(shapes);
-        assertTrue(shapes.size() == 1);
+        Assert.assertNotNull(shapes);
+        Assert.assertEquals(shapes.size(), 1);
         MaskData shape;
         Iterator<ShapeData> i = shapes.iterator();
         while (i.hasNext()) {
             shape = (MaskData) i.next();
-            assertTrue(shape.getT() == t);
-            assertTrue(shape.getZ() == z);
-            assertTrue(shape.getC() == c);
-            assertTrue(shape.getX() == v);
-            assertTrue(shape.getY() == v);
-            assertTrue(shape.getWidth() == v);
-            assertTrue(shape.getHeight() == v);
+            Assert.assertEquals(shape.getT(), t);
+            Assert.assertEquals(shape.getZ(), z);
+            Assert.assertEquals(shape.getC(), c);
+            Assert.assertEquals(shape.getX(), v);
+            Assert.assertEquals(shape.getY(), v);
+            Assert.assertEquals(shape.getWidth(), v);
+            Assert.assertEquals(shape.getHeight(), v);
         }
     }
 
@@ -1591,42 +1578,42 @@ public class UpdateServiceTest extends AbstractServerTest {
             value = ModelMockFactory.LIGHT_SOURCES[i];
             instrument = mmFactory.createInstrument(value);
             instrument = (Instrument) iUpdate.saveAndReturnObject(instrument);
-            assertNotNull(instrument);
+            Assert.assertNotNull(instrument);
             param = new ParametersI();
             param.addLong("iid", instrument.getId().getValue());
             sql = "select d from Detector as d where d.instrument.id = :iid";
             test = iQuery.findByQuery(sql, param);
-            assertNotNull(test);
+            Assert.assertNotNull(test);
             sql = "select d from Dichroic as d where d.instrument.id = :iid";
             test = iQuery.findByQuery(sql, param);
-            assertNotNull(test);
+            Assert.assertNotNull(test);
             sql = "select d from Filter as d where d.instrument.id = :iid";
             test = iQuery.findByQuery(sql, param);
-            assertNotNull(test);
+            Assert.assertNotNull(test);
             sql = "select d from Objective as d where d.instrument.id = :iid";
             test = iQuery.findByQuery(sql, param);
-            assertNotNull(test);
+            Assert.assertNotNull(test);
             sql = "select d from LightSource as d where d.instrument.id = :iid";
             test = iQuery.findByQuery(sql, param);
-            assertNotNull(test);
+            Assert.assertNotNull(test);
             param = new ParametersI();
             param.addLong("iid", test.getId().getValue());
             if (ModelMockFactory.LASER.equals(value)) {
                 sql = "select d from Laser as d where d.id = :iid";
                 test = iQuery.findByQuery(sql, param);
-                assertNotNull(test);
+                Assert.assertNotNull(test);
             } else if (ModelMockFactory.FILAMENT.equals(value)) {
                 sql = "select d from Filament as d where d.id = :iid";
                 test = iQuery.findByQuery(sql, param);
-                assertNotNull(test);
+                Assert.assertNotNull(test);
             } else if (ModelMockFactory.ARC.equals(value)) {
                 sql = "select d from Arc as d where d.id = :iid";
                 test = iQuery.findByQuery(sql, param);
-                assertNotNull(test);
+                Assert.assertNotNull(test);
             } else if (ModelMockFactory.LIGHT_EMITTING_DIODE.equals(value)) {
                 sql = "select d from LightEmittingDiode as d where d.id = :iid";
                 test = iQuery.findByQuery(sql, param);
-                assertNotNull(test);
+                Assert.assertNotNull(test);
             }
         }
     }
@@ -1642,55 +1629,55 @@ public class UpdateServiceTest extends AbstractServerTest {
     public void testCreateInstrumentUsingSet() throws Exception {
         Instrument instrument = (Instrument) iUpdate
                 .saveAndReturnObject(mmFactory.createInstrument());
-        assertNotNull(instrument);
+        Assert.assertNotNull(instrument);
 
         Detector d = mmFactory.createDetector();
         d.setInstrument((Instrument) instrument.proxy());
         d = (Detector) iUpdate.saveAndReturnObject(d);
-        assertNotNull(d);
+        Assert.assertNotNull(d);
 
         Filter f = mmFactory.createFilter(500, 560);
         f.setInstrument((Instrument) instrument.proxy());
         f = (Filter) iUpdate.saveAndReturnObject(f);
-        assertNotNull(f);
+        Assert.assertNotNull(f);
 
         Dichroic di = mmFactory.createDichroic();
         di.setInstrument((Instrument) instrument.proxy());
         di = (Dichroic) iUpdate.saveAndReturnObject(di);
-        assertNotNull(di);
+        Assert.assertNotNull(di);
 
         Objective o = mmFactory.createObjective();
         o.setInstrument((Instrument) instrument.proxy());
         o = (Objective) iUpdate.saveAndReturnObject(o);
-        assertNotNull(o);
+        Assert.assertNotNull(o);
 
         Laser l = mmFactory.createLaser();
         l.setInstrument((Instrument) instrument.proxy());
         l = (Laser) iUpdate.saveAndReturnObject(l);
-        assertNotNull(l);
+        Assert.assertNotNull(l);
 
         ParametersI param = new ParametersI();
         param.addLong("iid", instrument.getId().getValue());
         // Now check that we have a detector.
         String sql = "select d from Detector as d where d.instrument.id = :iid";
         IObject test = iQuery.findByQuery(sql, param);
-        assertNotNull(test);
-        assertNotNull(test.getId().getValue() == d.getId().getValue());
+        Assert.assertNotNull(test);
+        Assert.assertNotNull(test.getId().getValue() == d.getId().getValue());
         sql = "select d from Dichroic as d where d.instrument.id = :iid";
         test = iQuery.findByQuery(sql, param);
-        assertNotNull(test);
-        assertNotNull(test.getId().getValue() == di.getId().getValue());
+        Assert.assertNotNull(test);
+        Assert.assertNotNull(test.getId().getValue() == di.getId().getValue());
         sql = "select d from Filter as d where d.instrument.id = :iid";
         test = iQuery.findByQuery(sql, param);
-        assertNotNull(test);
-        assertNotNull(test.getId().getValue() == f.getId().getValue());
+        Assert.assertNotNull(test);
+        Assert.assertNotNull(test.getId().getValue() == f.getId().getValue());
         sql = "select d from Objective as d where d.instrument.id = :iid";
         test = iQuery.findByQuery(sql, param);
-        assertNotNull(test);
-        assertNotNull(test.getId().getValue() == o.getId().getValue());
+        Assert.assertNotNull(test);
+        Assert.assertNotNull(test.getId().getValue() == o.getId().getValue());
         sql = "select d from LightSource as d where d.instrument.id = :iid";
         test = iQuery.findByQuery(sql, param);
-        assertNotNull(test);
+        Assert.assertNotNull(test);
     }
 
 
@@ -1708,13 +1695,13 @@ public class UpdateServiceTest extends AbstractServerTest {
         Plate p = mmFactory.createPlateWithReagent(1, 1, 1, r);
         s.linkPlate(p);
         s = (Screen) iUpdate.saveAndReturnObject(s);
-        assertNotNull(s);
-        assertNotNull(s.getName().getValue());
-        assertNotNull(s.getDescription().getValue());
-        assertNotNull(s.getProtocolDescription().getValue());
-        assertNotNull(s.getProtocolIdentifier().getValue());
-        assertNotNull(s.getReagentSetDescription().getValue());
-        assertNotNull(s.getReagentSetIdentifier().getValue());
+        Assert.assertNotNull(s);
+        Assert.assertNotNull(s.getName().getValue());
+        Assert.assertNotNull(s.getDescription().getValue());
+        Assert.assertNotNull(s.getProtocolDescription().getValue());
+        Assert.assertNotNull(s.getProtocolIdentifier().getValue());
+        Assert.assertNotNull(s.getReagentSetDescription().getValue());
+        Assert.assertNotNull(s.getReagentSetIdentifier().getValue());
 
         // reagent first
         String sql = "select r from Reagent as r ";
@@ -1723,10 +1710,10 @@ public class UpdateServiceTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.addId(s.getId().getValue());
         r = (Reagent) iQuery.findByQuery(sql, param);
-        assertNotNull(r);
-        assertNotNull(r.getName().getValue());
-        assertNotNull(r.getDescription().getValue());
-        assertNotNull(r.getReagentIdentifier().getValue());
+        Assert.assertNotNull(r);
+        Assert.assertNotNull(r.getName().getValue());
+        Assert.assertNotNull(r.getDescription().getValue());
+        Assert.assertNotNull(r.getReagentIdentifier().getValue());
 
         //
         sql = "select s from ScreenPlateLink as s ";
@@ -1736,7 +1723,7 @@ public class UpdateServiceTest extends AbstractServerTest {
         param = new ParametersI();
         param.addId(s.getId().getValue());
         ScreenPlateLink link = (ScreenPlateLink) iQuery.findByQuery(sql, param);
-        assertNotNull(link);
+        Assert.assertNotNull(link);
         // check the reagent.
         sql = "select s from WellReagentLink as s ";
         sql += "join fetch s.child as c ";
@@ -1744,7 +1731,7 @@ public class UpdateServiceTest extends AbstractServerTest {
         sql += "where c.id = :id";
         param = new ParametersI();
         param.addId(r.getId().getValue());
-        assertNotNull(iQuery.findByQuery(sql, param));
+        Assert.assertNotNull(iQuery.findByQuery(sql, param));
     }
 
     /**
@@ -1758,11 +1745,11 @@ public class UpdateServiceTest extends AbstractServerTest {
     public void testAttachFileAnnotationToSeveralImages() throws Exception {
         OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(mmFactory
                 .createOriginalFile());
-        assertNotNull(of);
+        Assert.assertNotNull(of);
         FileAnnotation fa = new FileAnnotationI();
         fa.setFile(of);
         FileAnnotation data = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
-        assertNotNull(data);
+        Assert.assertNotNull(data);
         // Image
         Image i1 = (Image) iUpdate
                 .saveAndReturnObject(mmFactory.simpleImage());
@@ -1778,8 +1765,8 @@ public class UpdateServiceTest extends AbstractServerTest {
         l.setChild((Annotation) data.proxy());
         links.add(l);
         links = iUpdate.saveAndReturnArray(links);
-        assertNotNull(links);
-        assertEquals(links.size(), 2);
+        Assert.assertNotNull(links);
+        Assert.assertEquals(links.size(), 2);
         Iterator<IObject> i = links.iterator();
         long id;
         List<Long> ids = new ArrayList<Long>();
@@ -1788,13 +1775,13 @@ public class UpdateServiceTest extends AbstractServerTest {
         int n = 0;
         while (i.hasNext()) {
             l = (ImageAnnotationLink) i.next();
-            assertEquals(l.getChild().getId().getValue(), data.getId()
+            Assert.assertEquals(l.getChild().getId().getValue(), data.getId()
                     .getValue());
             id = l.getParent().getId().getValue();
             if (ids.contains(id))
                 n++;
         }
-        assertEquals(ids.size(), n);
+        Assert.assertEquals(ids.size(), n);
     }
 
     /**
@@ -1808,11 +1795,11 @@ public class UpdateServiceTest extends AbstractServerTest {
     public void testAttachFileAnnotationToSeveralImagesII() throws Exception {
         OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(mmFactory
                 .createOriginalFile());
-        assertNotNull(of);
+        Assert.assertNotNull(of);
         FileAnnotation fa = new FileAnnotationI();
         fa.setFile(of);
         FileAnnotation data = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
-        assertNotNull(data);
+        Assert.assertNotNull(data);
         // Image
         Image i1 = (Image) iUpdate
                 .saveAndReturnObject(mmFactory.simpleImage());
@@ -1823,15 +1810,15 @@ public class UpdateServiceTest extends AbstractServerTest {
         l.setChild((Annotation) data.proxy());
 
         l = (ImageAnnotationLink) iUpdate.saveAndReturnObject(l);
-        assertEquals(l.getChild().getId().getValue(), data.getId().getValue());
-        assertEquals(l.getParent().getId().getValue(), i1.getId().getValue());
+        Assert.assertEquals(l.getChild().getId().getValue(), data.getId().getValue());
+        Assert.assertEquals(l.getParent().getId().getValue(), i1.getId().getValue());
         l = new ImageAnnotationLinkI();
         l.setParent((Image) i2.proxy());
         l.setChild((Annotation) data.proxy());
         l = (ImageAnnotationLink) iUpdate.saveAndReturnObject(l);
 
-        assertEquals(l.getChild().getId().getValue(), data.getId().getValue());
-        assertEquals(l.getParent().getId().getValue(), i2.getId().getValue());
+        Assert.assertEquals(l.getChild().getId().getValue(), data.getId().getValue());
+        Assert.assertEquals(l.getParent().getId().getValue(), i2.getId().getValue());
     }
 
     /**
@@ -1849,7 +1836,7 @@ public class UpdateServiceTest extends AbstractServerTest {
         Roi roi = new RoiI();
         roi.setImage(image);
         Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
-        assertNotNull(serverROI);
+        Assert.assertNotNull(serverROI);
         double v = 10;
         String points = "10,10 11,11";
         int z = 0;
@@ -1865,22 +1852,20 @@ public class UpdateServiceTest extends AbstractServerTest {
         serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
 
         ROIData data = new ROIData(serverROI);
-        assertTrue(data.getId() == serverROI.getId().getValue());
-        assertTrue(data.getShapeCount() == 1);
+        Assert.assertEquals(data.getId(), serverROI.getId().getValue());
+        Assert.assertEquals(data.getShapeCount(), 1);
 
         List<ShapeData> shapes = data.getShapes(z, t);
-        assertNotNull(shapes);
-        assertTrue(shapes.size() == 1);
+        Assert.assertNotNull(shapes);
+        Assert.assertEquals(shapes.size(), 1);
         PolylineData shape;
         Iterator<ShapeData> i = shapes.iterator();
         while (i.hasNext()) {
             shape = (PolylineData) i.next();
-            assertTrue(shape.getT() == t);
-            assertTrue(shape.getZ() == z);
-            assertTrue(shape.getC() == c);
-            assertTrue(shape.getPoints().size() == 2);
-            assertTrue(shape.getPoints1().size() == 2);
-            assertTrue(shape.getPoints2().size() == 2);
+            Assert.assertEquals(shape.getT(), t);
+            Assert.assertEquals(shape.getZ(), z);
+            Assert.assertEquals(shape.getC(), c);
+            Assert.assertEquals(shape.getPoints().size(), 2);
         }
     }
 
@@ -1898,7 +1883,7 @@ public class UpdateServiceTest extends AbstractServerTest {
         Roi roi = new RoiI();
         roi.setImage(image);
         Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
-        assertNotNull(serverROI);
+        Assert.assertNotNull(serverROI);
         double v = 10;
         double w = 11;
         int z = 0;
@@ -1915,22 +1900,20 @@ public class UpdateServiceTest extends AbstractServerTest {
         serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
 
         ROIData data = new ROIData(serverROI);
-        assertTrue(data.getId() == serverROI.getId().getValue());
-        assertTrue(data.getShapeCount() == 1);
+        Assert.assertEquals(data.getId(), serverROI.getId().getValue());
+        Assert.assertEquals(data.getShapeCount(), 1);
 
         List<ShapeData> shapes = data.getShapes(z, t);
-        assertNotNull(shapes);
-        assertTrue(shapes.size() == 1);
+        Assert.assertNotNull(shapes);
+        Assert.assertEquals(shapes.size(), 1);
         PolygonData shape;
         Iterator<ShapeData> i = shapes.iterator();
         while (i.hasNext()) {
             shape = (PolygonData) i.next();
-            assertTrue(shape.getT() == t);
-            assertTrue(shape.getZ() == z);
-            assertTrue(shape.getC() == c);
-            assertTrue(shape.getPoints().size() == 2);
-            assertTrue(shape.getPoints1().size() == 2);
-            assertTrue(shape.getPoints2().size() == 2);
+            Assert.assertEquals(shape.getT(), t);
+            Assert.assertEquals(shape.getZ(), z);
+            Assert.assertEquals(shape.getC(), c);
+            Assert.assertEquals(shape.getPoints().size(), 2);
         }
     }
 
@@ -1945,12 +1928,12 @@ public class UpdateServiceTest extends AbstractServerTest {
         XmlAnnotation term = new XmlAnnotationI();
         term.setTextValue(omero.rtypes.rstring("xml"));
         term = (XmlAnnotation) iUpdate.saveAndReturnObject(term);
-        assertNotNull(term);
+        Assert.assertNotNull(term);
         linkAnnotationAndObjects(term);
         XMLAnnotationData data = new XMLAnnotationData(term);
-        assertNotNull(data);
-        assertNull(data.getNameSpace());
-        assertEquals(data.getText(), term.getTextValue().getValue());
+        Assert.assertNotNull(data);
+        Assert.assertNull(data.getNameSpace());
+        Assert.assertEquals(data.getText(), term.getTextValue().getValue());
     }
 
     /**
@@ -1964,16 +1947,16 @@ public class UpdateServiceTest extends AbstractServerTest {
         TagAnnotation annotation = new TagAnnotationI();
         annotation.setTextValue(omero.rtypes.rstring("tag set"));
         annotation = (TagAnnotation) iUpdate.saveAndReturnObject(annotation);
-        assertNotNull(annotation);
+        Assert.assertNotNull(annotation);
         linkAnnotationAndObjects(annotation);
         TagAnnotationData data = new TagAnnotationData(annotation);
         data.setNameSpace(TagAnnotationData.INSIGHT_TAGSET_NS);
         annotation = (TagAnnotation) iUpdate.saveAndReturnObject(data
                 .asIObject());
         data = new TagAnnotationData(annotation);
-        assertNotNull(data);
-        assertEquals(data.getTagValue(), annotation.getTextValue().getValue());
-        assertEquals(data.getNameSpace(), TagAnnotationData.INSIGHT_TAGSET_NS);
+        Assert.assertNotNull(data);
+        Assert.assertEquals(data.getTagValue(), annotation.getTextValue().getValue());
+        Assert.assertEquals(data.getNameSpace(), TagAnnotationData.INSIGHT_TAGSET_NS);
     }
 
     /**
@@ -1990,9 +1973,9 @@ public class UpdateServiceTest extends AbstractServerTest {
         TagAnnotation annotation = (TagAnnotation) iUpdate
                 .saveAndReturnObject(data.asIObject());
         data = new TagAnnotationData(annotation);
-        assertNotNull(data);
-        assertEquals(data.getTagValue(), name);
-        assertNull(data.getNameSpace());
+        Assert.assertNotNull(data);
+        Assert.assertEquals(data.getTagValue(), name);
+        Assert.assertNull(data.getNameSpace());
     }
 
     /**
@@ -2009,9 +1992,9 @@ public class UpdateServiceTest extends AbstractServerTest {
         TagAnnotation annotation = (TagAnnotation) iUpdate
                 .saveAndReturnObject(data.asIObject());
         data = new TagAnnotationData(annotation);
-        assertNotNull(data);
-        assertEquals(data.getTagValue(), name);
-        assertNotNull(data.getNameSpace());
-        assertEquals(data.getNameSpace(), TagAnnotationData.INSIGHT_TAGSET_NS);
+        Assert.assertNotNull(data);
+        Assert.assertEquals(data.getTagValue(), name);
+        Assert.assertNotNull(data.getNameSpace());
+        Assert.assertEquals(data.getNameSpace(), TagAnnotationData.INSIGHT_TAGSET_NS);
     }
 }

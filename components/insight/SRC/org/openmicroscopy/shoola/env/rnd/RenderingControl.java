@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -18,15 +18,16 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.env.rnd;
 
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import omero.model.CodomainMapContext;
 import omero.model.Length;
 import omero.romio.PlaneDef;
 import omero.gateway.exception.DSOutOfServiceException;
@@ -408,14 +409,14 @@ public interface RenderingControl
      * Only one codomain map can be added to the transformations list.
      * When a new element is added to the list, the look-up table
      * managing the codomain transformations is rebuilt. 
-     * 
+     *
      * @param mapCtx The context to add.
-     * @throws RenderingServiceException 	If an error occurred while setting 
-     * 										the value.
-     * @throws DSOutOfServiceException  	If the connection is broken.
+     * @param w The channel to add the context to.
+     * @throws RenderingServiceException If an error occurred while setting the value.
+     * @throws DSOutOfServiceException If the connection is broken.
      */
-    //public void addCodomainMap(CodomainMapContext mapCtx)
-    //	throws RenderingServiceException, DSOutOfServiceException;
+    public void addCodomainMap(CodomainMapContext mapCtx, int w)
+            throws RenderingServiceException, DSOutOfServiceException;
     
     /**
      * Updates the specified <code>CodomainMapContext</code>.
@@ -433,21 +434,23 @@ public interface RenderingControl
      * Removed the <code>CodomainMapContext</code> from the list of
      * transformations.
      * 
-     * @param mapCtx    The context to remove.
-     * @throws RenderingServiceException 	If an error occurred while setting 
-     * 										the value.
-     * @throws DSOutOfServiceException  	If the connection is broken.
+     * @param mapCtx The context to remove.
+     * @param w The channel to remove the context from.
+     * @throws RenderingServiceException If an error occurred while setting the value.
+     * @throws DSOutOfServiceException If the connection is broken.
      */
-   // public void removeCodomainMap(CodomainMapContext mapCtx)
-    //	throws RenderingServiceException, DSOutOfServiceException;
-    
+    public void removeCodomainMap(CodomainMapContext mapCtx, int w)
+            throws RenderingServiceException, DSOutOfServiceException;
+
     /**
      * Returns a read-only list of <code>CodomainMapContext</code>s using during
      * the mapping process in the device space.
-     * 
+     *
+     * @param w The channel
      * @return See above.
      */
-    public List getCodomainMaps();
+    public List<CodomainMapContext> getCodomainMaps(int w)
+        throws RenderingServiceException, DSOutOfServiceException;
 
     /**
      * Returns a list of string representing the mapping families supported by
@@ -839,4 +842,39 @@ public interface RenderingControl
 	 */
 	List<ResolutionLevel> getResolutionDescriptions()
 		throws RenderingServiceException, DSOutOfServiceException;
+	
+    /**
+     * Get all available lookup tables
+     * 
+     * @return See above
+     */
+    Collection<String> getAvailableLookupTables();
+	
+    /**
+     * Get the lookup table
+     * 
+     * @param w
+     *            The channel index
+     * @return See above
+     */
+    String getLookupTable(int w);
+
+    /**
+     * Set the lookup table
+     * 
+     * @param w
+     *            The channel index
+     * @param lut
+     *            The lookup table
+     */
+    void setLookupTable(int w, String lut) throws RenderingServiceException,
+            DSOutOfServiceException;
+
+    /**
+     * Set the available lookup tables
+     * 
+     * @param lookupTables
+     *            The lookup tables
+     */
+    void setAvailableLookupTables(Collection<String> lookupTables);
 }

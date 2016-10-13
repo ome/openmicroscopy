@@ -41,7 +41,7 @@ import omero.model.Fileset;
  * background threads.
  *
  * @author Josh Moore, josh at glencoesoftware.com
- * @since 4.5
+ * @since 5.0.0
  */
 public class ProcessContainer {
 

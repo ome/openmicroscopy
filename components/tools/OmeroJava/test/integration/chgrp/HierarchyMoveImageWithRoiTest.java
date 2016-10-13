@@ -19,11 +19,8 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package integration.chgrp;
 
-import static omero.rtypes.rdouble;
-import static omero.rtypes.rint;
 import integration.AbstractServerTest;
 
 import java.util.ArrayList;
@@ -42,9 +39,8 @@ import omero.model.RoiI;
 import omero.model.Shape;
 import omero.sys.ParametersI;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import static org.testng.AssertJUnit.*;
 
 /**
  * @author Scott Littlewood, <a
@@ -98,21 +94,21 @@ public class HierarchyMoveImageWithRoiTest extends AbstractServerTest {
 
         // check if the objects have been moved.
         Roi originalRoi = getRoiWithId(originalRoiId);
-        assertNull(originalRoi);
+        Assert.assertNull(originalRoi);
 
         // check the shapes have been moved
         List<IObject> orginalShapes = getShapesWithIds(shapeIds);
-        assertEquals(0, orginalShapes.size());
+        Assert.assertEquals(0, orginalShapes.size());
 
         // Move the user into the RW group!
         loginUser(targetGroup);
 
         // Check that the ROI has moved
         Roi movedRoi = getRoiWithId(originalRoiId);
-        assertNotNull(movedRoi);
+        Assert.assertNotNull(movedRoi);
 
         List<IObject> movedShapes = getShapesWithIds(shapeIds);
-        assertEquals(shapeIds.size(), movedShapes.size());
+        Assert.assertEquals(shapeIds.size(), movedShapes.size());
     }
 
     /**
@@ -328,12 +324,12 @@ public class HierarchyMoveImageWithRoiTest extends AbstractServerTest {
 
         for (int i = 0; i < 3; i++) {
             Rectangle rect = new RectangleI();
-            rect.setX(rdouble(10));
-            rect.setY(rdouble(20));
-            rect.setWidth(rdouble(40));
-            rect.setHeight(rdouble(80));
-            rect.setTheZ(rint(i));
-            rect.setTheT(rint(0));
+            rect.setX(omero.rtypes.rdouble(10));
+            rect.setY(omero.rtypes.rdouble(20));
+            rect.setWidth(omero.rtypes.rdouble(40));
+            rect.setHeight(omero.rtypes.rdouble(80));
+            rect.setTheZ(omero.rtypes.rint(i));
+            rect.setTheT(omero.rtypes.rint(0));
             roi.addShape(rect);
         }
 

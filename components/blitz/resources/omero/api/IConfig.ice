@@ -88,7 +88,7 @@ module omero {
 
                 /**
                  * Retrieves configuration values like {@link #getConfigValues}
-                 * but only those with the prefix "omero.client".
+                 * but only those with the prefix <i>omero.client</i>.
                  *
                  * @return a map from the found keys to the linked values.
                  */
@@ -97,7 +97,7 @@ module omero {
                 /**
                  * Reads the etc/omero.properties file and returns all the
                  * key/value pairs that are found there which match the prefix
-                 * "omero.client".
+                 * <i>omero.client</i>.
                  *
                  * @return a map from the found keys to the linked values.
                  */
@@ -143,14 +143,14 @@ module omero {
                  * invalid as soon as one modification is made.
                  *
                  * This value is stored in the configuration table under the
-                 * key "omero.db.uuid"
+                 * key <i>omero.db.uuid</i>.
                  *
                  * @return String not null.
                  */
                 idempotent string getDatabaseUuid() throws ServerError;
 
                 /**
-                 * Checks the database for it's time using a SELECT statement.
+                 * Checks the database for its time using a SELECT statement.
                  *
                  * @return Non-null {@link RTime} representation of the
                  *         database time.

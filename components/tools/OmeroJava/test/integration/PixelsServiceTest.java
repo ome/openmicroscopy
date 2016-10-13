@@ -6,11 +6,6 @@
  */
 package integration;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertNull;
-import static org.testng.AssertJUnit.assertTrue;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -50,6 +45,7 @@ import omero.model.RenderingDef;
 import omero.model.RenderingModel;
 import omero.sys.ParametersI;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
@@ -208,8 +204,8 @@ public class PixelsServiceTest extends AbstractServerTest {
     private void checkEnumeration(String name, int max) throws Exception {
         IPixelsPrx svc = factory.getPixelsService();
         List<IObject> values = svc.getAllEnumerations(name);
-        assertNotNull(values);
-        assertTrue(values.size() >= max);
+        Assert.assertNotNull(values);
+        Assert.assertTrue(values.size() >= max);
         Iterator<IObject> i = values.iterator();
         int count = 0;
         String v;
@@ -219,7 +215,7 @@ public class PixelsServiceTest extends AbstractServerTest {
             if (name.equals(v))
                 count++;
         }
-        assertTrue(values.size() >= count);
+        Assert.assertTrue(values.size() >= count);
     }
 
     /**
@@ -238,43 +234,43 @@ public class PixelsServiceTest extends AbstractServerTest {
         Pixels pixels = image.getPrimaryPixels();
         long id = pixels.getId().getValue();
         Pixels p = factory.getPixelsService().retrievePixDescription(id);
-        assertNotNull(p);
-        assertTrue(pixels.getSizeX().getValue() == p.getSizeX().getValue());
-        assertTrue(pixels.getSizeY().getValue() == p.getSizeY().getValue());
-        assertTrue(pixels.getSizeT().getValue() == p.getSizeT().getValue());
-        assertTrue(pixels.getSizeZ().getValue() == p.getSizeZ().getValue());
-        assertTrue(pixels.getSizeC().getValue() == p.getSizeC().getValue());
-        assertTrue(pixels.sizeOfChannels() == ModelMockFactory.DEFAULT_CHANNELS_NUMBER);
-        assertTrue(p.sizeOfChannels() == pixels.sizeOfChannels());
-        assertTrue(pixels.getPhysicalSizeX().getValue() == p.getPhysicalSizeX()
+        Assert.assertNotNull(p);
+        Assert.assertEquals(pixels.getSizeX().getValue(), p.getSizeX().getValue());
+        Assert.assertEquals(pixels.getSizeY().getValue(), p.getSizeY().getValue());
+        Assert.assertEquals(pixels.getSizeT().getValue(),p.getSizeT().getValue());
+        Assert.assertEquals(pixels.getSizeZ().getValue(), p.getSizeZ().getValue());
+        Assert.assertEquals(pixels.getSizeC().getValue(), p.getSizeC().getValue());
+        Assert.assertEquals(pixels.sizeOfChannels(), ModelMockFactory.DEFAULT_CHANNELS_NUMBER);
+        Assert.assertEquals(p.sizeOfChannels(), pixels.sizeOfChannels());
+        Assert.assertEquals(pixels.getPhysicalSizeX().getValue(), p.getPhysicalSizeX()
                 .getValue());
-        assertTrue(pixels.getPhysicalSizeY().getValue() == p.getPhysicalSizeY()
+        Assert.assertEquals(pixels.getPhysicalSizeY().getValue(), p.getPhysicalSizeY()
                 .getValue());
-        assertTrue(pixels.getPhysicalSizeZ().getValue() == p.getPhysicalSizeZ()
+        Assert.assertEquals(pixels.getPhysicalSizeZ().getValue(), p.getPhysicalSizeZ()
                 .getValue());
-        assertNotNull(pixels.getPixelsType());
-        assertNotNull(p.getPixelsType());
-        assertTrue(pixels.getPixelsType().getValue().getValue()
-                .equals(p.getPixelsType().getValue().getValue()));
+        Assert.assertNotNull(pixels.getPixelsType());
+        Assert.assertNotNull(p.getPixelsType());
+        Assert.assertEquals(pixels.getPixelsType().getValue().getValue(),
+                p.getPixelsType().getValue().getValue());
         Channel channel;
         LogicalChannel lc;
         List<Long> ids = new ArrayList<Long>();
         for (int j = 0; j < p.sizeOfChannels(); j++) {
             channel = p.getChannel(j);
-            assertNotNull(channel);
+            Assert.assertNotNull(channel);
             ids.add(channel.getId().getValue());
-            assertNotNull(channel.getStatsInfo());
+            Assert.assertNotNull(channel.getStatsInfo());
             lc = channel.getLogicalChannel();
-            assertNotNull(lc);
-            assertNotNull(lc.getContrastMethod().getValue().getValue());
-            assertNotNull(lc.getIllumination().getValue().getValue());
-            assertNotNull(lc.getMode().getValue().getValue());
+            Assert.assertNotNull(lc);
+            Assert.assertNotNull(lc.getContrastMethod().getValue().getValue());
+            Assert.assertNotNull(lc.getIllumination().getValue().getValue());
+            Assert.assertNotNull(lc.getMode().getValue().getValue());
         }
         for (int j = 0; j < pixels.sizeOfChannels(); j++) {
             channel = pixels.getChannel(j);
-            assertNotNull(channel);
-            assertTrue(ids.contains(channel.getId().getValue()));
-            assertNotNull(channel.getStatsInfo());
+            Assert.assertNotNull(channel);
+            Assert.assertTrue(ids.contains(channel.getId().getValue()));
+            Assert.assertNotNull(channel.getStatsInfo());
         }
     }
 
@@ -337,14 +333,14 @@ public class PixelsServiceTest extends AbstractServerTest {
                 Arrays.asList(pixels.getId().getValue()));
         IPixelsPrx svc = factory.getPixelsService();
         RenderingDef def = svc.retrieveRndSettings(pixels.getId().getValue());
-        assertNotNull(def);
+        Assert.assertNotNull(def);
         long id = iAdmin.getEventContext().userId;
         RenderingDef def1 = svc.retrieveRndSettingsFor(pixels.getId()
                 .getValue(), id);
-        assertNotNull(def1);
-        assertTrue(def1.getId().getValue() == def.getId().getValue());
+        Assert.assertNotNull(def1);
+        Assert.assertEquals(def1.getId().getValue(), def.getId().getValue());
         def1 = svc.retrieveRndSettingsFor(pixels.getId().getValue(), id + 1);
-        assertNull(def1);
+        Assert.assertNull(def1);
     }
 
     /**
@@ -370,8 +366,8 @@ public class PixelsServiceTest extends AbstractServerTest {
         long id = iAdmin.getEventContext().userId;
         List<IObject> defs = svc.retrieveAllRndSettings(pixels.getId()
                 .getValue(), id);
-        assertNotNull(defs);
-        assertTrue(defs.size() == 1);
+        Assert.assertNotNull(defs);
+        Assert.assertEquals(1, defs.size());
     }
 
     /**
@@ -391,13 +387,13 @@ public class PixelsServiceTest extends AbstractServerTest {
         }
         RLong id = svc.createImage(10, 10, 10, 10, channels,
                 (PixelsType) types.get(1), "test", "");
-        assertNotNull(id);
+        Assert.assertNotNull(id);
         // Retrieve the image.
         ParametersI param = new ParametersI();
         param.addId(id.getValue());
         Image img = (Image) iQuery.findByQuery(
                 "select i from Image i where i.id = :id", param);
-        assertNotNull(img);
+        Assert.assertNotNull(img);
     }
 
     /**
@@ -422,14 +418,14 @@ public class PixelsServiceTest extends AbstractServerTest {
         IPixelsPrx svc = factory.getPixelsService();
         // Already tested
         RenderingDef def = svc.retrieveRndSettings(id);
-        assertNotNull(def);
+        Assert.assertNotNull(def);
         // change z
         int v = 1;
         def.setDefaultZ(omero.rtypes.rint(v));
         svc.saveRndSettings(def);
         // retrieve the settings.
         def = svc.retrieveRndSettings(id);
-        assertEquals(def.getDefaultZ().getValue(), v);
+        Assert.assertEquals(def.getDefaultZ().getValue(), v);
     }
 
 }

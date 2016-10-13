@@ -50,7 +50,6 @@ import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserSet;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
-import org.openmicroscopy.shoola.agents.metadata.util.ChannelSelectionDialog;
 import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
@@ -59,7 +58,6 @@ import org.openmicroscopy.shoola.agents.util.ui.MovieExportDialog;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptingDialog;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
-import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 import org.openmicroscopy.shoola.env.data.model.MovieActivityParam;
@@ -73,7 +71,6 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import omero.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 import omero.gateway.model.AnnotationData;
@@ -942,42 +939,6 @@ class MetadataViewerComponent
 		Renderer rnd = getRenderer();
 		if (rnd == null) return new Dimension(0, 0);
 		return rnd.getUI().getPreferredSize();
-	}
-	
-	/**
-	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#analyse(int)
-	 */
-	public void analyse(int index)
-	{
-		if (index != AnalysisParam.FRAP) return;
-		Object refObject = model.getRefObject();
-		if (!(refObject instanceof ImageData)) return;
-		List<ChannelData> channels = new ArrayList<ChannelData>();
-		Map m = model.getEditor().getChannelData();
-		if (m != null && m.size() == 1) {
-			controller.analyseFRAP(0);
-			return;
-		}
-		if (m != null) {
-			Iterator j = m.keySet().iterator();
-			while (j.hasNext()) {
-				channels.add((ChannelData) j.next());
-			}
-		}
-		
-		IconManager icons = IconManager.getInstance();
-		Icon icon = icons.getIcon(IconManager.ANALYSE_48);
-		switch (index) {
-			case AnalysisParam.FRAP:
-				icon = icons.getIcon(IconManager.ANALYSE_FRAP_48);
-				break;
-		}
-		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
-		ChannelSelectionDialog d = new ChannelSelectionDialog(f, icon, channels,
-				index);
-		d.addPropertyChangeListener(controller);
-		UIUtilities.centerAndShow(d);
 	}
 
 	/**

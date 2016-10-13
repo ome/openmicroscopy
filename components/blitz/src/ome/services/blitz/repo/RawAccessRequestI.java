@@ -45,7 +45,7 @@ import omero.model.ChecksumAlgorithm;
  * Command request for accessing a repository directly.
  *
  * @author Josh Moore, josh at glencoesoftware.com
- * @since 4.5.0
+ * @since 5.0.0
  */
 public class RawAccessRequestI extends RawAccessRequest implements IRequest {
 

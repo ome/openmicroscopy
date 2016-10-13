@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -190,6 +190,10 @@ class BrowserUI
     
     /** Identifies the key event.*/
     private int keyEvent;
+    
+    /** Optional comma separated sorting priority of the different data types, 
+     * in form tagset,tag,project,dataset,screen,plate,acquisition,image */
+    private  String typePriority;
     
     /**
      * Builds the tool bar.
@@ -1313,6 +1317,24 @@ class BrowserUI
 	}
     
     /**
+     * Get the position of 'type' in the type priority setting, ie. 0 ~ highest
+     * priority, Integer.MAX_VALUE ~ lowest priority. If no type priority set, 0
+     * is returned; if only the particular 'type' is not specified
+     * Integer.MAX_VALUE is returned.
+     * 
+     * @param type
+     *            The type to check
+     * @return See above.
+     */
+    private int getTypePriority(String type) {
+        if (CommonsLangUtils.isEmpty(typePriority))
+            return 0;
+
+        int value = typePriority.indexOf(type);
+        return value == -1 ? Integer.MAX_VALUE : value;
+    }
+    
+    /**
      * Organizes the sorted list so that the Project/Screen/Tag Set 
      * are displayed first.
      * 
@@ -1327,23 +1349,62 @@ class BrowserUI
 		List<TreeImageDisplay> top2 = new ArrayList<TreeImageDisplay>();
 		List<TreeImageDisplay> bottom2 = new ArrayList<TreeImageDisplay>();
 		
+		int projectPriority = getTypePriority("project");
+		int datasetPriority = getTypePriority("dataset");
+		int screenPriority = getTypePriority("screen");
+		int platePriority = getTypePriority("plate");
+		int plateAqPriority = getTypePriority("acquisition");
+		int tagPriority = getTypePriority("tag");
+		int tagsetPriority = getTypePriority("tagset");
+		
 		Iterator j = sorted.iterator();
 		TreeImageDisplay object;
 		Object uo;
 		while (j.hasNext()) {
 			object = (TreeImageDisplay) j.next();
 			uo = object.getUserObject();
-			if (uo instanceof ProjectData) top.add(object);
+			if (uo instanceof ProjectData) {
+			    if(projectPriority<=datasetPriority)
+			        top.add(object);
+			    else
+			        bottom.add(object);
+			}
 			else if (uo instanceof GroupData) top.add(object);
-			else if (uo instanceof ScreenData) top2.add(object);
-			else if (uo instanceof DatasetData) bottom.add(object);
-			else if (uo instanceof PlateData) bottom2.add(object);
-			else if (uo instanceof PlateAcquisitionData) bottom2.add(object);
+			else if (uo instanceof ScreenData) {
+			    if(screenPriority<=platePriority)
+			        top2.add(object);
+			    else
+			        bottom2.add(object);
+			}
+			else if (uo instanceof DatasetData)  {
+			    if(projectPriority<=datasetPriority)
+			        bottom.add(object);
+			    else
+			        top.add(object);
+			}
+			else if (uo instanceof PlateData) {
+			    if(screenPriority<=platePriority)
+			        bottom2.add(object);
+			    else
+			        top2.add(object);
+			}
+			else if (uo instanceof PlateAcquisitionData)  {
+			    if(screenPriority<=plateAqPriority)
+			        bottom2.add(object);
+			    else
+			        top2.add(object);
+			}
 			else if (uo instanceof TagAnnotationData) {
 				if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(
 					((TagAnnotationData) uo).getNameSpace()))
-					top.add(object);
-				else bottom.add(object);
+				    if(tagsetPriority<=tagPriority)
+				        top.add(object);
+				    else 
+				        bottom.add(object);
+				else 
+				    if(tagsetPriority<=tagPriority)
+				        bottom.add(object);
+				    else top.add(object);
 			} else if (uo instanceof File) {
 				File f = (File) uo;
 				if (f.isDirectory()) {
@@ -1466,6 +1527,9 @@ class BrowserUI
 						e.getPath().getLastPathComponent(), true);  
             }   
         };
+        
+        Registry reg = TreeViewerAgent.getRegistry();
+        typePriority = (String) reg.lookup(LookupNames.TREE_TYPE_ORDER);
     }
     
     /**

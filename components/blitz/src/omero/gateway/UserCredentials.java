@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -31,7 +31,7 @@ package omero.gateway;
 
 public class UserCredentials {
 
-    /** The username */
+    /** The username (or session ID) */
     private String username;
 
     /** The password */
@@ -48,7 +48,8 @@ public class UserCredentials {
      * Creates a new instance
      * 
      * @param username
-     *            The username
+     *            The username or alternatively a session ID (in which case
+     *            the password will be ignored)
      * @param password
      *            The password
      */
@@ -58,18 +59,21 @@ public class UserCredentials {
     }
 
     /**
-     * Returns the user name.
-     * @return The username
+     * Returns the user name (or session ID, if it was set before instead of an
+     * username)
+     * 
+     * @return The username (or session ID)
      */
     public String getUsername() {
         return username;
     }
 
     /**
-     * Sets the username
+     * Sets the username (or session ID)
      * 
      * @param username
-     *            See above
+     *            The username or alternatively a session ID (in which case the
+     *            password will be ignored)
      */
     public void setUsername(String username) {
         this.username = username;

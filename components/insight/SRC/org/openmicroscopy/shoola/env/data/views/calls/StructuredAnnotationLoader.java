@@ -79,7 +79,7 @@ public class StructuredAnnotationLoader
      * @param nsExlcude The annotation's name space to exclude if any.
      * @return The {@link BatchCall}.
      */
-    private BatchCall loadSpeficiedAnnotationLinkedTo(final Class<?> rootType,
+    private BatchCall loadSpeficiedAnnotationLinkedTo(final Class<? extends DataObject> rootType,
             final List<Long> rootIDs, final Class<?> annotationType,
             final List<String> nsInclude, final List<String> nsExlcude)
     {
@@ -426,7 +426,7 @@ public class StructuredAnnotationLoader
      * @param nsInclude The annotation's name space to include if any.
      * @param nsExlcude The annotation's name space to exclude if any.
      */
-    public StructuredAnnotationLoader(SecurityContext ctx, Class<?> rootType,
+    public StructuredAnnotationLoader(SecurityContext ctx, Class<? extends DataObject> rootType,
             List<Long> rootIDs, Class<?> annotationType, List<String> nsInclude,
             List<String> nsExlcude)
     {

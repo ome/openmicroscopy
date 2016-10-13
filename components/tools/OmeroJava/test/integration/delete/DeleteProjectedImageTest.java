@@ -2,11 +2,7 @@
  * Copyright 2013-2015 University of Dundee. All rights reserved.
  * Use is subject to license terms supplied in LICENSE.txt
  */
-
 package integration.delete;
-
-import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertNull;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -24,6 +20,7 @@ import omero.model.Pixels;
 import omero.sys.EventContext;
 
 import org.springframework.util.ResourceUtils;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
@@ -150,20 +147,20 @@ public class DeleteProjectedImageTest extends AbstractServerTest {
         //Check the result
         switch (action) {
         case SOURCE_IMAGE:
-            assertNull(iQuery.find(Image.class.getSimpleName(), id));
+            Assert.assertNull(iQuery.find(Image.class.getSimpleName(), id));
             //check that the projected image is still there
-            assertNotNull(iQuery.find(Image.class.getSimpleName(), projectedID));
+            Assert.assertNotNull(iQuery.find(Image.class.getSimpleName(), projectedID));
             remainingImageIds.add(projectedID);
             break;
         case PROJECTED_IMAGE:
-            assertNull(iQuery.find(Image.class.getSimpleName(), projectedID));
+            Assert.assertNull(iQuery.find(Image.class.getSimpleName(), projectedID));
            //check that the original image is still there
-            assertNotNull(iQuery.find(Image.class.getSimpleName(), id));
+            Assert.assertNotNull(iQuery.find(Image.class.getSimpleName(), id));
             remainingImageIds.add(id);
             break;
         case BOTH_IMAGES:
-            assertNull(iQuery.find(Image.class.getSimpleName(), projectedID));
-            assertNull(iQuery.find(Image.class.getSimpleName(), id));
+            Assert.assertNull(iQuery.find(Image.class.getSimpleName(), projectedID));
+            Assert.assertNull(iQuery.find(Image.class.getSimpleName(), id));
         }
     }
 

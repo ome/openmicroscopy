@@ -1,7 +1,5 @@
 /*
- *   $Ids$
- *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2016 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -269,9 +267,17 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
         if (getBeanHelper().getLogger().isDebugEnabled()) {
             getBeanHelper().getLogger().debug(" Internal merge. ");
         }
-
+        final Long previousId = obj.getId();
         IObject result = (IObject) filter.filter(null, obj);
         result = (IObject) session.merge(result);
+        final Long currentId = result.getId();
+        if (previousId != null && previousId != currentId) {
+            /* HHH-1661: merge may insert deleted entities with new ID */
+            if (getBeanHelper().getLogger().isDebugEnabled()) {
+                getBeanHelper().getLogger().debug("attempt to save deleted object: " + obj);
+            }
+            throw new ValidationException("object no longer exists in database");
+        }
         return result;
     }
 

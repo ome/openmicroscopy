@@ -87,7 +87,7 @@ done
 bin/omero import $PLATE_NAME --debug ERROR > plate_import.log 2>&1
 plateid=$(sed -n -e 's/^Plate://p' plate_import.log)
 # Use populate_metadata to upload and attach bulk annotation csv
-PYTHONPATH=./lib/python python lib/python/omero/util/populate_metadata.py -s $HOSTNAME -p $PORT -k $key Plate:$plateid $BULK_ANNOTATION_CSV
+OMERO_DEV_PLUGINS=1 bin/omero metadata populate Plate:$plateid --file $BULK_ANNOTATION_CSV
 
 # Import Plate and rename for test ?show=image.name-NAME
 bin/omero import $PLATE_NAME --debug ERROR > show_import.log 2>&1
@@ -118,9 +118,8 @@ do
 done
 
 # Uplodad file and create FileAnnotation
-bin/omero upload $FILE_ANNOTATION > file_upload.log
-fileId=$(sed "s/^Uploaded $FILE_ANNOTATION as //" file_upload.log)
-bin/omero obj new FileAnnotation file=OriginalFile:$fileId
+ofile=$(bin/omero upload $FILE_ANNOTATION)
+bin/omero obj new FileAnnotation file=$ofile
 
 # Logout
 bin/omero logout

@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -291,10 +291,10 @@ public interface MetadataHandlerView
 		Collection<Long> pixelsID, AgentEventListener observer);
 	
 	/**
-	 * Loads the archived files related to the specified image.
+	 * Loads the archived files related to the specified objects (images or plates).
 	 * 
 	 * @param ctx The security context.
-	 * @param imageIDs The ids of the pixels set related to the image.
+	 * @param objects The objects to download the original image files for
 	 * @param location The location where to store the files.
 	 * @param override Flag indicating to override the existing file if it
 	 *                 exists, <code>false</code> otherwise.
@@ -303,10 +303,10 @@ public interface MetadataHandlerView
 	 * @param observer Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle loadArchivedImage(SecurityContext ctx, List<Long> imageIDs,
+	public CallHandle loadArchivedImage(SecurityContext ctx, List<DataObject> objects,
 		File location, boolean override, boolean zip, boolean keepOriginalPaths,
 		AgentEventListener observer);
-	
+    
 	/**
 	 * Filters by annotation.
 	 * 
@@ -504,7 +504,7 @@ public interface MetadataHandlerView
 	 * @param nsExlcude The annotation's name space to exclude if any.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle loadAnnotations(SecurityContext ctx, Class<?> rootType,
+	public CallHandle loadAnnotations(SecurityContext ctx, Class<? extends DataObject> rootType,
 		List<Long> rootIDs, Class<?> annotationType, List<String> nsInclude,
 		List<String> nsExlcude, AgentEventListener observer);
 
