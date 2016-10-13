@@ -124,7 +124,7 @@ urlpatterns = patterns(
     url(r'^render_thumbnail/(?P<iid>[0-9]+)/'
         r'(?:(?P<share_id>[0-9]+)/)?$',
         webgateway.render_thumbnail,
-        {'w': 80, '_defcb': defaultThumbnail},
+        {'_defcb': defaultThumbnail},
         name="render_thumbnail"),
     url(r'^render_thumbnail/size/(?P<w>[0-9]+)/'
         r'(?P<iid>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$',
