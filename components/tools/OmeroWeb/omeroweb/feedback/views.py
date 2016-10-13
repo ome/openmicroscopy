@@ -135,7 +135,10 @@ def csrf_failure(request, reason=""):
     Always return Json response
     since this is accepted by browser and API users
     """
-    error = "CSRF Error. You need to include 'X-CSRFToken' in header"
+    error = ("CSRF Error. You need to include valid CSRF tokens for any"
+             " POST, PUT, PATCH or DELETE operations."
+             " You have to include CSRF token in the POST data or"
+             " add the token to the HTTP header.")
     return JsonResponse({"message": error}, status=403)
 
 

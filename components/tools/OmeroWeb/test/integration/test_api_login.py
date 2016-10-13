@@ -94,7 +94,10 @@ class TestLogin(IWebTest):
         rsp = _post_response_json(django_client, request_url, {},
                                   status_code=403)
         assert (rsp['message'] ==
-                "CSRF Error. You need to include 'X-CSRFToken' in header")
+                ("CSRF Error. You need to include valid CSRF tokens for any"
+                 " POST, PUT, PATCH or DELETE operations."
+                 " You have to include CSRF token in the POST data or"
+                 " add the token to the HTTP header."))
 
     @pytest.mark.parametrize("credentials", [
         [{'username': 'guest', 'password': 'fake', 'server': 1},

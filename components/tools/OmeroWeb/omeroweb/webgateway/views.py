@@ -75,7 +75,7 @@ from omeroweb.decorators import login_required, ConnCleaningHttpResponse
 from omeroweb.webgateway.decorators import login_required as api_login_required
 from omeroweb.connector import Connector
 from omeroweb.webgateway.util import zip_archived_files, getIntOrDefault
-from omeroweb.webgateway.api_exceptions import BadRequestError, NotFoundError, \
+from omeroweb.webgateway.api_exceptions import BadRequestError, NotFoundError,\
     CreatedObject
 
 cache = CacheBase()
