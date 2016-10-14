@@ -14,10 +14,38 @@ import java.util.Set;
 
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
+import omero.RString;
 import omero.api.IConfigPrx;
 import omero.api.ITypesPrx;
+import omero.model.AcquisitionMode;
+import omero.model.ArcType;
+import omero.model.Binning;
+import omero.model.ChecksumAlgorithm;
+import omero.model.ContrastMethod;
+import omero.model.Correction;
+import omero.model.DetectorType;
+import omero.model.DimensionOrder;
+import omero.model.EventType;
+import omero.model.ExperimentType;
+import omero.model.Family;
+import omero.model.FilamentType;
+import omero.model.FilterType;
 import omero.model.Format;
 import omero.model.IObject;
+import omero.model.Illumination;
+import omero.model.Immersion;
+import omero.model.JobStatus;
+import omero.model.LaserMedium;
+import omero.model.LaserType;
+import omero.model.Medium;
+import omero.model.MicrobeamManipulationType;
+import omero.model.MicroscopeType;
+import omero.model.PhotometricInterpretation;
+import omero.model.PixelsType;
+import omero.model.ProjectionAxis;
+import omero.model.ProjectionType;
+import omero.model.Pulse;
+import omero.model.RenderingModel;
 import omero.sys.ParametersI;
 
 import org.testng.Assert;
@@ -225,12 +253,12 @@ public class ConfigurationServiceTest extends AbstractServerTest {
             if (type.equals("Format")) {
                 continue;
             }
-            List<IObject> original = new ArrayList<IObject>();
+            Set<String> original = new HashSet<String>();
             type = "omero.model."+type+"I";
             for (int j = 0; j < objects.size(); j++) {
                 IObject ho = objects.get(j);
                 if (ho.getClass().getName().equals(type)) {
-                    original.add(ho);
+                    original.add(getEnumValue(ho));
                 }
             }
             testParams.add(new TestEnum(type, original));
@@ -246,6 +274,75 @@ public class ConfigurationServiceTest extends AbstractServerTest {
     }
 
     /**
+     * Returns the enumeration value.
+     *
+     * @param object The enumeration object.
+     * @return See above.
+     */
+    private String getEnumValue(IObject object)
+    {
+        RString value = null;
+        if (object instanceof Immersion)
+            value = ((Immersion) object).getValue();
+        else if (object instanceof Correction)
+            value = ((Correction) object).getValue();
+        else if (object instanceof Medium)
+            value = ((Medium) object).getValue();
+        else if (object instanceof DetectorType)
+            value = ((DetectorType) object).getValue();
+        else if (object instanceof Binning)
+            value = ((Binning) object).getValue();
+        else if (object instanceof ContrastMethod)
+            value = ((ContrastMethod) object).getValue();
+        else if (object instanceof Illumination)
+            value = ((Illumination) object).getValue();
+        else if (object instanceof PhotometricInterpretation)
+            value = ((PhotometricInterpretation) object).getValue();
+        else if (object instanceof AcquisitionMode)
+            value = ((AcquisitionMode) object).getValue();
+        else if (object instanceof LaserMedium)
+            value = ((LaserMedium) object).getValue();
+        else if (object instanceof LaserType)
+            value = ((LaserType) object).getValue();
+        else if (object instanceof Pulse)
+            value = ((Pulse) object).getValue();
+        else if (object instanceof ArcType)
+            value = ((ArcType) object).getValue();
+        else if (object instanceof FilamentType)
+            value = ((FilamentType) object).getValue();
+        else if (object instanceof FilterType)
+            value = ((FilterType) object).getValue();
+        else if (object instanceof MicroscopeType)
+            value = ((MicroscopeType) object).getValue();
+        else if (object instanceof Format)
+            value = ((Format) object).getValue();
+        else if (object instanceof EventType)
+            value = ((EventType) object).getValue();
+        else if (object instanceof Family)
+            value = ((Family) object).getValue();
+        else if (object instanceof JobStatus)
+            value = ((JobStatus) object).getValue();
+        else if (object instanceof ProjectionAxis)
+            value = ((ProjectionAxis) object).getValue();
+        else if (object instanceof MicrobeamManipulationType)
+            value = ((MicrobeamManipulationType) object).getValue();
+        else if (object instanceof ExperimentType)
+            value = ((ExperimentType) object).getValue();
+        else if (object instanceof ChecksumAlgorithm)
+            value = ((ChecksumAlgorithm) object).getValue();
+        else if (object instanceof ProjectionType)
+            value = ((ProjectionType) object).getValue();
+        else if (object instanceof DimensionOrder)
+            value = ((DimensionOrder) object).getValue();
+        else if (object instanceof PixelsType)
+            value = ((PixelsType) object).getValue();
+        else if (object instanceof RenderingModel)
+            value = ((RenderingModel) object).getValue();
+        if (value != null) return value.getValue();
+        return null;
+    }
+
+    /**
      * Tests the retrieval of the various enumerations.
      * @throws Exception
      */
@@ -254,15 +351,31 @@ public class ConfigurationServiceTest extends AbstractServerTest {
     
        ITypesPrx svc =  root.getSession().getTypesService();
        String type = param.getType();
-       List<IObject> original = param.getOriginal();
+       Set<String> original = param.getOriginal();
        List<IObject> fromDB = svc.allEnumerations(type);
+       int total = 0;
        if (type.endsWith("EventTypeI")) {
            //Bootstrap event is added to the DB during the init process
            //see psql-footer.vm
            Assert.assertEquals(fromDB.size()-1, original.size());
+           for (int i = 0; i < fromDB.size(); i++) {
+               String value = getEnumValue(fromDB.get(i));
+               Assert.assertNotNull(value);
+               if (original.contains(value) && !value.equals("Bootstrap")) {
+                   total++;
+               }
+           }
+           Assert.assertEquals(fromDB.size()-1, total);
        } else {
            Assert.assertEquals(fromDB.size(), original.size());
-
+           for (int i = 0; i < fromDB.size(); i++) {
+               String value = getEnumValue(fromDB.get(i));
+               Assert.assertNotNull(value);
+               if (original.contains(value)) {
+                   total++;
+               }
+           }
+           Assert.assertEquals(fromDB.size(), total);
        }
     }
 
@@ -275,7 +388,7 @@ public class ConfigurationServiceTest extends AbstractServerTest {
         /** Hold information about the object to move.*/
         private String type;
 
-        private List<IObject> original;
+        private Set<String> original;
         /**
          * Creates a new instance.
          *
@@ -284,13 +397,13 @@ public class ConfigurationServiceTest extends AbstractServerTest {
          * @param password The user's password.
          * @param srcID The identifier of the group to move the data from.
          */
-        TestEnum(String type, List<IObject> original) {
+        TestEnum(String type, Set<String> original) {
             this.type = type;
             this.original = original;
         }
 
         /**
-         * Returns the information object to move.
+         * Returns the enumeration type.
          *
          * @return See above.
          */
@@ -299,11 +412,11 @@ public class ConfigurationServiceTest extends AbstractServerTest {
         }
 
         /**
-         * Returns the user to log as.
+         * Returns the original values.
          *
          * @return See above.
          */
-        List<IObject> getOriginal() {
+        Set<String> getOriginal() {
             return original;
         }
 
