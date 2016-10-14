@@ -8,18 +8,21 @@ package integration;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 import omero.api.IConfigPrx;
+import omero.api.ITypesPrx;
 import omero.model.Format;
 import omero.model.IObject;
 import omero.sys.ParametersI;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -202,5 +205,107 @@ public class ConfigurationServiceTest extends AbstractServerTest {
             }
             Assert.assertEquals(0, values.size());
         }
+    }
+
+    /**
+     * Loads the enumeration.
+     * @return Object[][] data.
+     */
+    @DataProvider(name = "loadEnumData")
+    public Object[][] loadEnumData() throws Exception {
+        List<TestEnum> testParams = new ArrayList<TestEnum>();
+        Object[][] data = null;
+        ITypesPrx svc =  root.getSession().getTypesService();
+        List<IObject> objects = svc.getOriginalEnumerations();
+        List<String> types = svc.getEnumerationTypes();
+        Assert.assertTrue(types.size() > 0);
+        for (int i = 0; i < types.size(); i++) {
+            String type = types.get(i);
+            //tested via testSupportedFormats
+            if (type.equals("Format")) {
+                continue;
+            }
+            List<IObject> original = new ArrayList<IObject>();
+            type = "omero.model."+type+"I";
+            for (int j = 0; j < objects.size(); j++) {
+                IObject ho = objects.get(j);
+                if (ho.getClass().getName().equals(type)) {
+                    original.add(ho);
+                }
+            }
+            testParams.add(new TestEnum(type, original));
+        }
+        int index = 0;
+        Iterator<TestEnum> j = testParams.iterator();
+        data = new Object[testParams.size()][1];
+        while (j.hasNext()) {
+            data[index][0] = j.next();
+            index++;
+        }
+        return data;
+    }
+
+    /**
+     * Tests the retrieval of the various enumerations.
+     * @throws Exception
+     */
+    @Test(dataProvider = "loadEnumData")
+    public void testSupportedEnumerations(TestEnum param) throws Exception {
+    
+       ITypesPrx svc =  root.getSession().getTypesService();
+       String type = param.getType();
+       List<IObject> original = param.getOriginal();
+       List<IObject> fromDB = svc.allEnumerations(type);
+       if (type.endsWith("EventTypeI")) {
+           //Bootstrap event is added to the DB during the init process
+           //see psql-footer.vm
+           Assert.assertEquals(fromDB.size()-1, original.size());
+       } else {
+           Assert.assertEquals(fromDB.size(), original.size());
+
+       }
+    }
+
+    /**
+     * Inner class hosting information about object to move.
+     *
+     */
+    class TestEnum {
+
+        /** Hold information about the object to move.*/
+        private String type;
+
+        private List<IObject> original;
+        /**
+         * Creates a new instance.
+         *
+         * @param chgrp Hold information about the object to move.
+         * @param user The user to log as.
+         * @param password The user's password.
+         * @param srcID The identifier of the group to move the data from.
+         */
+        TestEnum(String type, List<IObject> original) {
+            this.type = type;
+            this.original = original;
+        }
+
+        /**
+         * Returns the information object to move.
+         *
+         * @return See above.
+         */
+        String getType() {
+            return type;
+        }
+
+        /**
+         * Returns the user to log as.
+         *
+         * @return See above.
+         */
+        List<IObject> getOriginal() {
+            return original;
+        }
+
     }
 }
