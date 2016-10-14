@@ -13,6 +13,7 @@ import omero.model.JobStatus;
 import omero.model.LogicalChannel;
 import omero.model.Namespace;
 import omero.model.NamespaceI;
+import omero.model.OriginalFile;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 
@@ -229,7 +230,8 @@ public class ObjectPropertiesTest extends AbstractServerTest {
     }
 
     /**
-     * Test to create a dataset and save it with long name
+     * Test to create a namespace and save it with a long name
+     * and a long display name
      *
      * @throws Exception
      *             Thrown if an error occurred.
@@ -279,4 +281,42 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         Assert.assertEquals(displayName, retrievedDisplayName, savedDisplayName);
     }
     
+    /**
+     * Test to create an original file and save it with long name
+     * and with a long hash
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testOriginalFileNameAndHash() throws Exception {
+        final OriginalFile oFile = mmFactory.createOriginalFile();
+        /* createName() creates name with lenght in approx. bytes */
+        String name = createName(1000000);
+        oFile.setName(omero.rtypes.rstring(name));
+        /* for original file hash sizes of >2KB the test fails */
+        String hash = createName(1000000);
+        oFile.setHash(omero.rtypes.rstring(hash));
+        try {
+            iUpdate.saveAndReturnObject(oFile);
+            Assert.fail("Hibernate operation: could not insert:..."
+                      + "ERROR: index row requires 1000016 bytes, maximum size is 8191; ");
+        } catch (ServerError se) {
+            /* expected */
+        }
+        /* now set hash with size 2KB (name is fine at 1MB as set above)
+         * and let the test pass */
+        hash = createName(2000);
+        oFile.setName(omero.rtypes.rstring(name));
+        oFile.setHash(omero.rtypes.rstring(hash));
+        OriginalFile sent = (OriginalFile) iUpdate.saveAndReturnObject(oFile);
+        String savedName = sent.getName().getValue().toString();
+        String savedHash = sent.getHash().getValue().toString();
+        long id = sent.getId().getValue();
+        final OriginalFile retrievedOFile = (OriginalFile) iQuery.get("OriginalFile", id);
+        final String retrievedName = retrievedOFile.getName().getValue().toString();
+        final String retrievedHash = retrievedOFile.getHash().getValue().toString();
+        Assert.assertEquals(name, retrievedName, savedName);
+        Assert.assertEquals(hash, retrievedHash, savedHash);
+    }
 }
