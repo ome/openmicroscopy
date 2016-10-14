@@ -272,7 +272,7 @@ class TestDownload(CLITest):
         self.do_restrictions(fixture, tmpdir, group)
 
     @pytest.mark.parametrize('fixture', POLICY_FIXTURES,
-                             ids=POLICY_FIXTURES)
+                             ids=[str(x) for x in POLICY_FIXTURES])
     def testPolicyGroupRestriction(self, tmpdir, fixture):
         parts = fixture.cfg.split(",")
         config = [NV("omero.policy.binary_access", x) for x in parts]
