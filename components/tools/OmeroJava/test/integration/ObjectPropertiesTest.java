@@ -14,6 +14,7 @@ import omero.model.LogicalChannel;
 import omero.model.Namespace;
 import omero.model.NamespaceI;
 import omero.model.OriginalFile;
+import omero.model.Plate;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 
@@ -332,4 +333,32 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         Assert.assertEquals(hash, retrievedHash);
         Assert.assertEquals(hash, savedHash);
     }
+    
+    /**
+     * Test to create a plate and save it with long name
+     * and a long status
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testPlateNameAndStatus() throws Exception {
+        final Plate plate = mmFactory.createPlate(1, 1, 1, 1, true);
+        final String name = createName(1000000);
+        final String status = createName(1000000);
+        plate.setName(omero.rtypes.rstring(name));
+        plate.setStatus(omero.rtypes.rstring(status));
+        Plate sent = (Plate) iUpdate.saveAndReturnObject(plate);
+        String savedName = sent.getName().getValue().toString();
+        String savedStatus = sent.getStatus().getValue().toString();
+        long id = sent.getId().getValue();
+        final Plate retrievedPlate = (Plate) iQuery.get("Plate", id);
+        final String retrievedName = retrievedPlate.getName().getValue().toString();
+        final String retrievedStatus = retrievedPlate.getStatus().getValue().toString();
+        Assert.assertEquals(name, retrievedName);
+        Assert.assertEquals(name, savedName);
+        Assert.assertEquals(status, retrievedStatus);
+        Assert.assertEquals(status, savedStatus);
+    }
+    
 }
