@@ -310,17 +310,10 @@ class MetadataViewerComponent
 					return;
 				}
 				data = e.getValue();
-				Object object = data.getRelatedObject();
-				if (object == model.getParentRefObject() ||
-					(object instanceof PlateData && node 
-							instanceof WellSampleData)) {
-					model.setParentDataResults(data, node, loaderID);
-					model.fireStructuredDataLoading(node);
-				} else {
-					model.setStructuredDataResults(results, loaderID);
-					browser.setParents(null, data.getParents());
-					model.getEditor().setStructuredDataResults();
-				}
+				model.setStructuredDataResults(results, loaderID);
+				browser.setParents(null, data.getParents());
+				model.getEditor().setStructuredDataResults();
+				
 				fireStateChange();
 			}
 		} else {

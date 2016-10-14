@@ -172,12 +172,7 @@ class RowFieldCanvas extends WellFieldsCanvas {
             c.weighty = 0;
             c.insets = new Insets(2, 2, 0, 0);
 
-            // work with copy otherwise scaling etc. would affect
-            // the thumbnail in the well's view too!
-            WellSampleNode copy = n.copy();
-            copy.setTitle(n.getTitle());
-
-            FieldDisplay fd = new FieldDisplay(copy);
+            FieldDisplay fd = new FieldDisplay(n);
             add(fd, c);
         }
     }
@@ -196,12 +191,7 @@ class RowFieldCanvas extends WellFieldsCanvas {
         c.weighty = 0;
         c.insets = new Insets(2, 2, 0, 0);
 
-        // work with copy otherwise scaling etc. would affect
-        // the thumbnail in the well's view too!
-        WellSampleNode copy = node.copy();
-        copy.setTitle(node.getTitle());
-
-        FieldDisplay fd = new FieldDisplay(copy);
+        FieldDisplay fd = new FieldDisplay(node);
         add(fd, c);
 
         revalidate();
@@ -253,7 +243,8 @@ class RowFieldCanvas extends WellFieldsCanvas {
     }
 
     boolean isSelected(WellSampleNode n) {
-        return this.parent.isSelected(n);
+        boolean sel = this.parent.isSelected(n);
+        return sel;
     }
 
     /**
@@ -272,14 +263,21 @@ class RowFieldCanvas extends WellFieldsCanvas {
         private double mag = 0;
 
         public FieldDisplay(WellSampleNode node) {
-            this.node = node;
+
+            // work with copy otherwise scaling etc. would affect
+            // the thumbnail in the well's view too!
+            WellSampleNode copy = node.copy();
+            copy.setTitle(node.getTitle());
+            copy.setWell(false);
+
+            this.node = copy;
 
             this.mag = parent.getMagnification();
             this.node.getThumbnail().scale(mag);
 
             setBackground(UIUtilities.BACKGROUND);
 
-            Color col = isSelected(node) ? colors
+            Color col = isSelected(this.node) ? colors
                     .getColor(Colors.TITLE_BAR_HIGHLIGHT) : colors
                     .getColor(Colors.TITLE_BAR);
             setBorder(BorderFactory.createLineBorder(col, 2));
@@ -311,9 +309,15 @@ class RowFieldCanvas extends WellFieldsCanvas {
         }
 
         /**
-         * Adapts the thumbnail scale in case it has changed
+         * Adapts the display properties with respect to the current thumbnail
+         * scale factor and if it is selected or not.
          */
         public void refresh() {
+            Color col = isSelected(this.node) ? colors
+                    .getColor(Colors.TITLE_BAR_HIGHLIGHT) : colors
+                    .getColor(Colors.TITLE_BAR);
+            setBorder(BorderFactory.createLineBorder(col, 2));
+
             if (this.mag != parent.getMagnification()) {
                 this.mag = parent.getMagnification();
                 this.node.getThumbnail().scale(mag);

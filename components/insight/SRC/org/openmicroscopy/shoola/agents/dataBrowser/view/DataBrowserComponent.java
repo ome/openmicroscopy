@@ -86,6 +86,7 @@ import omero.gateway.model.GroupData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.TagAnnotationData;
 import omero.gateway.model.TextualAnnotationData;
+import omero.gateway.model.WellData;
 import omero.gateway.model.WellSampleData;
 
 /** 
@@ -336,14 +337,14 @@ class DataBrowserComponent
 			if (object instanceof WellSampleData) {
 				WellSampleNode wsn = (WellSampleNode) node;
 				parent = wsn.getParentObject();
-				List<WellImageSet> wells = new ArrayList<WellImageSet>();
+				List<WellSampleNode> wells = new ArrayList<WellSampleNode>();
 				Iterator<ImageDisplay> i = nodes.iterator();
 				ImageDisplay n;
 				while (i.hasNext()) {
 					n = i.next();
 					if (n instanceof WellSampleNode) {
 						wsn = (WellSampleNode) n;
-						wells.add(wsn.getParentWell());
+						wells.add(wsn);
 					}
 				}
 				((WellsModel) model).setSelectedWells(wells);
@@ -376,47 +377,63 @@ class DataBrowserComponent
 			}
 			return;
 		}
-		model.getBrowser().scrollToNode(node);
+		
+        if (!(node instanceof WellSampleNode)
+                || ((WellSampleNode) node).isWell())
+            model.getBrowser().scrollToNode(node);
+        
 		Object object = node.getHierarchyObject();
 		List<Object> objects = new ArrayList<Object>();
 		List<Object> others = new ArrayList<Object>(); 
 		
-		Collection<ImageDisplay>
-		selected = model.getBrowser().getSelectedDisplays();
-		Iterator<ImageDisplay> i = selected.iterator();
-		ImageDisplay n;
-		while (i.hasNext()) {
-			n = i.next();
-			if (n != node) others.add(n.getHierarchyObject());
-		}
-		objects.add(others);
+		
+        if ((node instanceof WellSampleNode)
+                && ((WellSampleNode) node).isWell()) {
+            Iterator<ImageDisplay> i = model.getBrowser().getSelectedDisplays().iterator();
+            while (i.hasNext()) {
+                ImageDisplay n = i.next();
+                if (n != node) {
+                    others.add(n.getHierarchyObject());
+                }
+            }
+        }
+        objects.add(others);
+		
 		//Root node
-		if (node.equals(model.getBrowser().getUI())) {
+		if (node.equals(model.getBrowser().getUI())) 
 			objects.add(model.parent);
-		} else objects.add(object);
+		else {
+            if (node instanceof WellSampleNode && ((WellSampleNode) node).isWell()) {
+                WellSampleNode wsn = (WellSampleNode) node;
+                WellData wd = (WellData) wsn.getParentWell()
+                        .getHierarchyObject();
+                objects.add(wd);
+            } else
+                objects.add(object);
+		}
+		
 		if (object instanceof DataObject) {
 			Object parent = null;
-			if (object instanceof WellSampleData) {
+			if (object instanceof WellSampleData && ((WellSampleNode) node).isWell()) {
 				WellSampleNode wsn = (WellSampleNode) node;
 				parent = wsn.getParentObject();
-				if (others.size() > 0) parent = null;
-				List<WellImageSet> wells = new ArrayList<WellImageSet>();
-				boolean in = false;
-				WellImageSet well;
-				i = selected.iterator();
+				if (others.size() > 0)
+				    parent = null;
+				List<WellSampleNode> wells = new ArrayList<WellSampleNode>();
+				Iterator<ImageDisplay>  i = model.getBrowser().getSelectedDisplays().iterator();
 				while (i.hasNext()) {
-					n = i.next();
+				    ImageDisplay n = i.next();
 					if (n instanceof WellSampleNode) {
 						wsn = (WellSampleNode) n;
-						well = wsn.getParentWell();
-						if (well.equals(wsn.getParentWell())) in = true;
-						wells.add(well);
+						wells.add(wsn);
 					}
 				}
-				if (!in) wells.add(wsn.getParentWell());
+				
 				((WellsModel) model).setSelectedWells(wells);
+				
 				view.onSelectedWell();
-			} else {
+			} 
+			else {
 				ImageDisplay p = node.getParentDisplay();
 				if (p != null) {
 					parent = p.getHierarchyObject();
@@ -427,6 +444,7 @@ class DataBrowserComponent
 			if (parent != null)
 				objects.add(parent);
 		}
+		
 		firePropertyChange(SELECTED_NODE_DISPLAY_PROPERTY, null, objects);
 	}
 
@@ -1604,23 +1622,25 @@ class DataBrowserComponent
             return;
         WellsModel wm = (WellsModel) model;
         
-        List<WellImageSet> wells = wm.getSelectedWells();
+        List<WellSampleNode> wells = wm.getSelectedWells();
         if (wells == null || wells.isEmpty())
             return;
 
         EXIT: 
-        for (WellImageSet w : wells) {
-            Point p = new Point(w.getRow(), w.getColumn());
-        
-            for (WellSampleNode n : w.getWellSamples()) {
-                if (p.equals(well)) {
-                    WellSampleData d = (WellSampleData) n.getHierarchyObject();
-                    if (d.getImage().getId() == thumbnail.getImageID()) {
-                        Thumbnail thumb = n.getThumbnail();
-                        thumb.setFullScaleThumb(thumbnail.getThumbnail());
-                        thumb.setValid(true);
-                        view.updateFieldThumb(n, complete);
-                        break EXIT;
+        for (WellSampleNode w : wells) {
+            if(w.isWell()) {
+                Point p = new Point(w.getRow(), w.getColumn());
+            
+                for (WellSampleNode n : w.getParentWell().getWellSamples()) {
+                    if (p.equals(well)) {
+                        WellSampleData d = (WellSampleData) n.getHierarchyObject();
+                        if (d.getImage().getId() == thumbnail.getImageID()) {
+                            Thumbnail thumb = n.getThumbnail();
+                            thumb.setFullScaleThumb(thumbnail.getThumbnail());
+                            thumb.setValid(true);
+                            view.updateFieldThumb(n, complete);
+                            break EXIT;
+                        }
                     }
                 }
             }

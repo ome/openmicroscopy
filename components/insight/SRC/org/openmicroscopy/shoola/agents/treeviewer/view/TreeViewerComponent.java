@@ -1481,10 +1481,6 @@ class TreeViewerComponent
         if (last != null) exp = browser.getNodeOwner(last);
         if (exp == null) exp = model.getUserDetails();
         Object grandParent = null;
-        if (selected instanceof WellSampleData) {
-            if (parent instanceof WellData) 
-                grandParent = ((WellData) parent).getPlate();
-        }
 
         if (!sameSelection) {
             if (browser == null) {
@@ -1508,24 +1504,13 @@ class TreeViewerComponent
             TreeImageDisplay[] selection = null;
             if (browser != null) selection = browser.getSelectedDisplays();
             if (selection != null && selection.length > 0) {
-                if (selected instanceof WellSampleData) {
-                    siblings.add(selected);
-                    if (siblings.size() > 1 && !sameSelection)
-                        mv.setRelatedNodes(siblings);
-                } else {
                     siblings = new ArrayList<Object>(selection.length);
                     for (int i = 0; i < selection.length; i++) {
                         siblings.add(selection[i].getUserObject());
                     }
                     if (siblings.size() > 1 && !sameSelection)
                         mv.setRelatedNodes(siblings);
-                }
-            } else {
-                if (selected instanceof WellSampleData) {
-                    siblings.add(selected);
-                    if (siblings.size() > 1 && !sameSelection)
-                        mv.setRelatedNodes(siblings);
-                }
+                
             }
         }
         if (model.getDataViewer() != null)

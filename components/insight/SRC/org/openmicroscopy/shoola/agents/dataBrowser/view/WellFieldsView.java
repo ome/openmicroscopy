@@ -45,9 +45,9 @@ import javax.swing.border.LineBorder;
 
 import omero.gateway.model.WellSampleData;
 
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.RollOverNode;
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -125,10 +125,10 @@ class WellFieldsView
 	{
 		magnificationUnscaled = MAGNIFICATION_UNSCALED_MIN;
 		selectedField = new JLabel();
-		WellImageSet node = model.getSelectedWell();
+		WellSampleNode node = model.getSelectedWell();
 		selectedNode = new JLabel();
-		if (node != null) {
-			selectedNode.setText(DEFAULT_WELL_TEXT+node.getWellLocation());
+		if (node != null && node.isWell()) {
+			selectedNode.setText(DEFAULT_WELL_TEXT+node.getParentWell().getWellLocation());
 		}		
 		nodes = null;
 		
@@ -144,11 +144,15 @@ class WellFieldsView
             public void mouseReleased(MouseEvent e) {
                 WellSampleNode node = canvas.getNode(e.getPoint());
                 if (node != null) {
-                    model.setSelectedField(node);
+                    model.setSelectedWell(node);
                     if (e.getClickCount() == 2)
                         controller.viewDisplay(node);
                     canvas.refreshUI();
                 }
+
+                firePropertyChange(
+                        Browser.SELECTED_DATA_BROWSER_NODE_DISPLAY_PROPERTY,
+                        null, node);
             }
 
             public void mousePressed(MouseEvent e) {
@@ -201,7 +205,11 @@ class WellFieldsView
      * @return See above.
      */
     boolean isSelected(WellSampleNode n) {
-        return n.getIndex() == model.getSelectedFieldIndex();
+        for (WellSampleNode n2 : model.getSelectedWells()) {
+            if (n2.isSame(n))
+                return true;
+        }
+        return false;
     }
 	
 	/** Builds and lays out the UI. */
@@ -227,6 +235,7 @@ class WellFieldsView
 	{
 		this.model = model;
 		this.controller = controller;
+		addPropertyChangeListener(controller);
 		this.magnification = magnification;
 		initComponents();
 		buildGUI();
@@ -247,19 +256,19 @@ class WellFieldsView
      * @param wells
      *            The selected wells
      */
-    void loadFields(List<WellImageSet> wells) {
+    void loadFields(List<WellSampleNode> wells) {
         Dimension thumbDim = magnification > 0 ? new Dimension(
                 (int) (Factory.THUMB_DEFAULT_WIDTH * magnification),
                 (int) (Factory.THUMB_DEFAULT_HEIGHT * magnification)) : null;
 
         if (wells == null || wells.isEmpty()) {
-            canvas.clear(Collections.emptyList(), -1, thumbDim);
+            canvas.clear(Collections.EMPTY_LIST, -1, thumbDim);
         }
 
         // sort
-        Collections.sort(wells, new Comparator<WellImageSet>() {
+        Collections.sort(wells, new Comparator<WellSampleNode>() {
             @Override
-            public int compare(WellImageSet o1, WellImageSet o2) {
+            public int compare(WellSampleNode o1, WellSampleNode o2) {
                 if (o1.getRow() > o2.getRow())
                     return 1;
                 else if (o1.getRow() < o2.getRow())
@@ -277,8 +286,10 @@ class WellFieldsView
         if (loading) {
             boolean selectionChanged = false;
             Set<Long> ids = new HashSet<Long>();
-            for (WellImageSet well : wells) {
-                for (WellSampleNode n : well.getWellSamples()) {
+            for (WellSampleNode well : wells) {
+                if(!well.isWell())
+                    continue;
+                for (WellSampleNode n : well.getParentWell().getWellSamples()) {
                     WellSampleData d = (WellSampleData) n.getHierarchyObject();
                     ids.add(d.getImage().getId());
                 }
@@ -302,9 +313,11 @@ class WellFieldsView
         int nFields = 0;
         nodes = new ArrayList<WellSampleNode>();
         List<String> titles = new ArrayList<String>();
-        for (WellImageSet well : wells) {
-            nodes.addAll(well.getWellSamples());
-            nFields = Math.max(nFields, well.getWellSamples().size());
+        for (WellSampleNode well : wells) {
+            if(!well.isWell())
+                continue;
+            nodes.addAll(well.getParentWell().getWellSamples());
+            nFields = Math.max(nFields, well.getParentWell().getWellSamples().size());
             titles.add(well.getTitle());
         }
 

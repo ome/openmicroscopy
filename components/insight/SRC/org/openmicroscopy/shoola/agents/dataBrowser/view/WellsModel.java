@@ -110,12 +110,6 @@ class WellsModel
      * toolbar)
      */
     private int defaultFieldIndex;
-
-    /**
-     * The selected field. (specific field which is selected in the bottom
-     * WellFieldsCanvas)
-     */
-    private int selectedFieldIndex = -1;
 	
 	/** Indicates how to display a row. */
 	private int					rowSequenceIndex;
@@ -129,8 +123,8 @@ class WellsModel
 	/** Flag indicating to load or not the thumbnails. */
 	private boolean				withThumbnails;
 	
-	/** The selected nodes. */
-	private List<WellImageSet> selectedNodes;
+	/** The selected nodes. Note: Can contain wells and fields! */
+	private List<WellSampleNode> selectedNodes;
 	
 	/** 
 	 * Sorts the passed nodes by row.
@@ -254,7 +248,7 @@ class WellsModel
 		if (wells == null)
 			throw new IllegalArgumentException("No wells.");
 		this.withThumbnails = withThumbnails;
-		selectedNodes = new ArrayList<WellImageSet>();
+		selectedNodes = new ArrayList<WellSampleNode>();
 		wellDimension = null;
 		this.parent = parent;
 		wellNodes = sortByRow(DataBrowserTranslator.transformHierarchy(wells));
@@ -263,8 +257,8 @@ class WellsModel
 		columnSequenceIndex = plate.getColumnSequenceIndex();
 		rowSequenceIndex = plate.getRowSequenceIndex();
 		defaultFieldIndex = plate.getDefaultSample();
-		if (defaultFieldIndex < 0) defaultFieldIndex = 0;
-		selectedFieldIndex = defaultFieldIndex;
+		if (defaultFieldIndex < 0) 
+		    defaultFieldIndex = 0;
 		Set<ImageDisplay> samples = new HashSet<ImageDisplay>();
 		cells = new HashSet<CellDisplay>();
         rows = -1;
@@ -339,7 +333,8 @@ class WellsModel
 				rowSequence = ""+(row+1);
 			node.setCellDisplay(columnSequence, rowSequence);
 			f = node.getNumberOfSamples();
-			if (fieldsNumber < f) fieldsNumber = f;
+			if (fieldsNumber < f) 
+			    fieldsNumber = f;
 			node.setSelectedWellSample(defaultFieldIndex);
 			selected = node.getSelectedWellSample();
 			//set the title to Row/Column
@@ -455,42 +450,37 @@ class WellsModel
 	 * @return See above.
 	 */
 	int getDefaultFieldIndex() { return defaultFieldIndex; }
-	
-	/**
-	 * Sets the selected well. This should only be needed for the fields
-	 * view.
-	 * 
-	 * @param node The selected node.
-	 */
-	void setSelectedWell(WellImageSet node)
-	{
-		if (selectedNodes != null) selectedNodes.clear();
-		List<WellImageSet> l = new ArrayList<WellImageSet>(1);
-		l.add(node);
-		setSelectedWells(l);
-	}
 
+    /**
+     * Sets the selected well.
+     * 
+     * @param node
+     *            The selected node.
+     */
+    void setSelectedWell(WellSampleNode node) {
+        selectedNodes.clear();
+        selectedNodes.add(node);
+    }
+    
 	/**
-	 * Sets the selected wells. This should only be needed for the fields
-	 * view.
+	 * Sets the selected wells. 
 	 * 
-	 * @param node The selected node.
+	 * @param nodes The selected nodes.
 	 */
-	void setSelectedWells(List<WellImageSet> nodes)
+	void setSelectedWells(List<WellSampleNode> nodes)
 	{
-	    System.out.println(System.currentTimeMillis()+" setSelectedWells "+nodes);
-		if (nodes == null) selectedNodes.clear();
-		else selectedNodes = nodes;
-		
-		selectedFieldIndex = defaultFieldIndex;
+        selectedNodes.clear();
+        if (nodes != null) {
+            selectedNodes = nodes;
+        }
 	}
 	
 	/**
 	 * Returns the selected well.
-	 * 
+	 * Note: Can be a well or a field (@see {@link WellSampleNode#isWell()} )!
 	 * @return See above.
 	 */
-	WellImageSet getSelectedWell()
+	WellSampleNode getSelectedWell()
 	{
 		if (selectedNodes == null || selectedNodes.size() == 0) return null;
 		return selectedNodes.get(0);
@@ -498,10 +488,10 @@ class WellsModel
 	
 	/**
 	 * Returns the collection of selected wells.
-	 * 
+	 * Note: Can contain wells and fields (@see {@link WellSampleNode#isWell()} )!
 	 * @return See above.
 	 */
-	List<WellImageSet> getSelectedWells() { return selectedNodes; }
+	List<WellSampleNode> getSelectedWells() { return selectedNodes; }
 	
 	/**
 	 * Views the selected field.
@@ -512,7 +502,6 @@ class WellsModel
 	{
 		if (index < 0 || index >= fieldsNumber) return;
 		defaultFieldIndex = index;
-		selectedFieldIndex = index;
 		Set<ImageDisplay> samples = new HashSet<ImageDisplay>();
 		List<ImageDisplay> l = getNodes();
 		Iterator<ImageDisplay> i = l.iterator();
@@ -613,26 +602,6 @@ class WellsModel
 		}
 	}
 	
-    /**
-     * Sets currently selected field
-     * 
-     * @param node
-     *            See above.
-     */
-    void setSelectedField(WellSampleNode node) {
-        browser.setSelectedDisplay(node, false, true);
-        selectedFieldIndex = node.getIndex();
-    }
-
-    /**
-     * Get the index of the currently selected field
-     * 
-     * @return See above.
-     */
-    int getSelectedFieldIndex() {
-        return selectedFieldIndex;
-    }
-	
 	/**
 	 * Returns the number of rows.
 	 * 
@@ -646,22 +615,6 @@ class WellsModel
 	 * @return See above.
 	 */
 	int getColumns() { return columns; }
-	
-	/**
-	 * Returns <code>true</code> is the selected well corresponds to the passed
-	 * one, <code>false</code> otherwise.
-	 * 
-	 * @param row 	 The row identifying the well.
-	 * @param column The column identifying the well.
-	 * @return See above.
-	 */
-	boolean isSameWell(int row, int column)
-	{
-		WellImageSet selectedNode = getSelectedWell();
-		if (selectedNode == null) return false;
-		return (selectedNode.getRow() == row 
-				&& selectedNode.getColumn() == column);
-	}
 	
 	/**
 	 * Returns the well corresponding to the passed location.
