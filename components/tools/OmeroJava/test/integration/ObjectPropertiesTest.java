@@ -9,6 +9,8 @@ import omero.model.Image;
 import omero.model.ImportJob;
 import omero.model.ImportJobI;
 import omero.model.JobStatus;
+import omero.model.LogicalChannel;
+import omero.model.LogicalChannelI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 
@@ -70,25 +72,41 @@ public class ObjectPropertiesTest extends AbstractServerTest {
 
     /**
      * Test to create a channel and save it with long lookup table
+     * and saving logical channel with long name.
      *
      * @throws Exception
      *             Thrown if an error occurred.
      */
     @Test
-    public void testChannelLUT() throws Exception {
-        /* create some image which contains a valid channel */
+    public void testChannelLUTLogChannelName() throws Exception {
+        /* create some image which contains a
+         * valid channel which contains a valid logical channel*/
         final Image img = mmFactory.createImage();
         final Image sentImage = (Image) iUpdate.saveAndReturnObject(img);
-        /* get the channel from the image */
+        /* get the channel from the image and set
+         * the lut of the channel and the name of the logical channel */
         final Channel ch = sentImage.getPrimaryPixels().getChannel(0);
         final String lut = createName(1000000);
         ch.setLookupTable(omero.rtypes.rstring(lut));
+        final String logChannelName = createName(1000000);
+        ch.getLogicalChannel().setName(omero.rtypes.rstring(logChannelName));
+        /* save the channel back and get the saved lut and logical channel name
+         * and ids of channel and logical channel for later query*/
         Channel sent = (Channel) iUpdate.saveAndReturnObject(ch);
         String savedLut = sent.getLookupTable().getValue().toString();
+        String savedLogChannelName = sent.getLogicalChannel().getName().getValue().toString();
         long id = sent.getId().getValue();
+        long lChId = sent.getLogicalChannel().getId().getValue();
+        /* query the DB for the lut and logical channel name */
         final Channel retrievedChannel = (Channel) iQuery.get("Channel", id);
+        final LogicalChannel retrievedLogChannel = (LogicalChannel) iQuery.get("LogicalChannel", lChId);
         final String retrievedLut = retrievedChannel.getLookupTable().getValue().toString();
+        final String retrievedLogChannelName = retrievedLogChannel.getName().getValue().toString();
+        /* check that the originally created Lut, the saved lut,
+         * and the lut retrieved by the query are the same. Do 
+         * analogical check for the logical channel name */
         Assert.assertEquals(lut, retrievedLut, savedLut);
+        Assert.assertEquals(logChannelName, retrievedLogChannelName, savedLogChannelName);
     }
 
     /**
@@ -156,7 +174,9 @@ public class ObjectPropertiesTest extends AbstractServerTest {
      */
     @Test
     public void testImportJobImageNameAndDescrSaving() throws Exception {
+        /*login as root in order to be able to create an ImportJob */
         logRootIntoGroup();
+        /* set up an ImportJob with all the compulsory parameters */
         final ImportJob importJob = new ImportJobI();
         importJob.setGroupname(omero.rtypes.rstring("GroupName"));
         importJob.setMessage(omero.rtypes.rstring("message"));
@@ -165,11 +185,13 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         importJob.setSubmitted(omero.rtypes.rtime(System.currentTimeMillis()));
         importJob.setType(omero.rtypes.rstring("Test"));
         importJob.setUsername(omero.rtypes.rstring("username"));
-
+        /* set a long name and a long description for the ImportJob */
         final String name = createName(1000000);
         importJob.setImageName(omero.rtypes.rstring(name));
         final String desc = createName(1000000);
         importJob.setImageDescription(omero.rtypes.rstring(desc));
+        /* save the ImmportJob and get the saved name, description 
+         * and id for later query */
         ImportJob sent = (ImportJob) iUpdate.saveAndReturnObject(importJob);
         final String savedName = sent.getImageName().getValue().toString();
         final String savedDesc = sent.getImageDescription().getValue().toString();
