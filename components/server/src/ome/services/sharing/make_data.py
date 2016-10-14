@@ -92,9 +92,14 @@ def compile(dir=dat):
             stderr=subprocess.PIPE,
             shell=True)
         version = proc.communicate()[1].strip()
-        pat = "%s/ice*%s.jar" % (rep, version)
-        cp = ":".join(glob.glob(pat))
-        javac_cmd = "javac -target 1.7 -cp "
+        # Current Ice version
+        pat1 = "~/.m2/repository/com/zeroc/*/%s/*.jar" % (version)
+        pat1 = os.path.expanduser(pat1)
+        # Berkeley DB jar
+        pat2 = "~/.m2/repository/zeroc/*/%s/*.jar" % ('3.6.2')
+        pat2 = os.path.expanduser(pat2)
+        cp = ":".join(glob.glob(pat1) + glob.glob(pat2))
+        javac_cmd = "javac -source 1.7 -target 1.7 -cp "
         javac_cmd += ("%s %s/*.java""" % (cp, dat))
         print javac_cmd
         call(javac_cmd, cwd=src)
