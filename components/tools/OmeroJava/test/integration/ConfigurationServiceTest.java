@@ -6,7 +6,17 @@
  */
 package integration;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import loci.formats.IFormatReader;
+import loci.formats.ImageReader;
 import omero.api.IConfigPrx;
+import omero.model.Format;
+import omero.model.IObject;
+import omero.sys.ParametersI;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -151,4 +161,46 @@ public class ConfigurationServiceTest extends AbstractServerTest {
         }
     }
 
+    /**
+     * Tests that the list of supported formats in the DB matches
+     * what is currently supported by BioFormats.
+     * This does not include the <code>FakeReader</code> since it is solely
+     * used for testing.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testSupportedFormats() throws Exception {
+        final String ref = "Reader";
+        List<String> toExclude = new ArrayList<String>();
+        toExclude.add("Fake");
+        try (final ImageReader reader = new ImageReader()) {
+            IFormatReader[] readers = reader.getReaders();
+            Set<String> values = new HashSet<String>();
+            for (int i = 0; i < readers.length; i++) {
+                IFormatReader r = readers[i];;
+                String name = r.getClass().getSimpleName();
+                if (name.endsWith(ref)) {
+                    name = name.substring(0, name.length() - ref.length());
+                    if (!toExclude.contains(name)) {
+                        values.add(name);
+                        if (r.hasCompanionFiles()) {
+                            values.add("Companion/"+name);
+                        }
+                    }
+                }
+            }
+            //Load from DB
+            ParametersI param = new ParametersI();
+            String sql = "select f from Format as f";
+            List<IObject> objects = iQuery.findAllByQuery(sql, param);
+            Assert.assertTrue(values.size() <= objects.size());
+            for (int i = 0; i < objects.size(); i++) {
+                Format o = (Format) objects.get(i);
+                values.remove(o.getValue().getValue());
+            }
+            Assert.assertEquals(0, values.size());
+        }
+    }
 }
