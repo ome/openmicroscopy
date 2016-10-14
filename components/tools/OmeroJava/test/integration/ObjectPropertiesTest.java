@@ -68,7 +68,10 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         }
         /* similarly, for annotation namespace sizes of >2KB the test fails */
         String namespace = createName(1000000);
-        ann.setNs(omero.rtypes.rstring(namespace));;
+        ann.setNs(omero.rtypes.rstring(namespace));
+        /* need to revert the name to 2KB size in order to be sure to test
+         * for namespace failure, not both name and namespace failure */
+        name = createName(2000);
         try {
             iUpdate.saveAndReturnObject(ann);
             Assert.fail("Hibernate operation: could not insert:..."
@@ -76,8 +79,8 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         } catch (ServerError se) {
             /* expected */
         }
-        /* now create both name and namespace with size <2KB and let the test pass */
-        name = createName(2000);
+        /* now set namespace with size 2KB (name was set to this size already above)
+         * and let the test pass */
         namespace = createName(2000);
         ann.setName(omero.rtypes.rstring(name));
         ann.setNs(omero.rtypes.rstring(namespace));;
@@ -236,8 +239,33 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         /*login as root in order to be able to create a Namespace */
         logRootIntoGroup();
         final Namespace ns = new NamespaceI();
-        final String name = createName(2000);
-        final String displayName = createName(2000);
+        /* for namespace name sizes of >2KB the test fails */
+        /* createName() creates name with lenght in approx. bytes */
+        String name = createName(1000000);
+        ns.setName(omero.rtypes.rstring(name));
+        try {
+            iUpdate.saveAndReturnObject(ns);
+            Assert.fail("Hibernate operation: could not insert:..."
+                      + "ERROR: index row requires 1000016 bytes, maximum size is 8191; ");
+        } catch (ServerError se) {
+            /* expected */
+        }
+        /* similarly, for namespace display name sizes of >2KB the test fails */
+        String displayName = createName(1000000);
+        ns.setDisplayName(omero.rtypes.rstring(displayName));
+        /* need to revert the name to 2KB size in order to be sure to test
+         * for displayName failure, not both name and displayName failure */
+        name = createName(2000);
+        try {
+            iUpdate.saveAndReturnObject(ns);
+            Assert.fail("Hibernate operation: could not insert:..."
+                      + "ERROR: index row requires 1000016 bytes, maximum size is 8191; ");
+        } catch (ServerError se) {
+            /* expected */
+        }
+        /* now set displayName with size 2KB (name was set to this size already above)
+         * and let the test pass */
+        displayName = createName(2000);
         ns.setName(omero.rtypes.rstring(name));
         ns.setDisplayName(omero.rtypes.rstring(displayName));
         Namespace sent = (Namespace) iUpdate.saveAndReturnObject(ns);
