@@ -14,40 +14,13 @@ import java.util.Set;
 
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
-import omero.RString;
 import omero.api.IConfigPrx;
 import omero.api.ITypesPrx;
-import omero.model.AcquisitionMode;
-import omero.model.ArcType;
-import omero.model.Binning;
-import omero.model.ChecksumAlgorithm;
-import omero.model.ContrastMethod;
-import omero.model.Correction;
-import omero.model.DetectorType;
-import omero.model.DimensionOrder;
-import omero.model.EventType;
-import omero.model.ExperimentType;
-import omero.model.Family;
-import omero.model.FilamentType;
-import omero.model.FilterType;
 import omero.model.Format;
 import omero.model.IObject;
-import omero.model.Illumination;
-import omero.model.Immersion;
-import omero.model.JobStatus;
-import omero.model.LaserMedium;
-import omero.model.LaserType;
-import omero.model.Medium;
-import omero.model.MicrobeamManipulationType;
-import omero.model.MicroscopeType;
-import omero.model.PhotometricInterpretation;
-import omero.model.PixelsType;
-import omero.model.ProjectionAxis;
-import omero.model.ProjectionType;
-import omero.model.Pulse;
-import omero.model.RenderingModel;
 import omero.sys.ParametersI;
 
+import org.apache.commons.beanutils.PropertyUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -281,64 +254,9 @@ public class ConfigurationServiceTest extends AbstractServerTest {
      */
     private String getEnumValue(IObject object)
     {
-        RString value = null;
-        if (object instanceof Immersion)
-            value = ((Immersion) object).getValue();
-        else if (object instanceof Correction)
-            value = ((Correction) object).getValue();
-        else if (object instanceof Medium)
-            value = ((Medium) object).getValue();
-        else if (object instanceof DetectorType)
-            value = ((DetectorType) object).getValue();
-        else if (object instanceof Binning)
-            value = ((Binning) object).getValue();
-        else if (object instanceof ContrastMethod)
-            value = ((ContrastMethod) object).getValue();
-        else if (object instanceof Illumination)
-            value = ((Illumination) object).getValue();
-        else if (object instanceof PhotometricInterpretation)
-            value = ((PhotometricInterpretation) object).getValue();
-        else if (object instanceof AcquisitionMode)
-            value = ((AcquisitionMode) object).getValue();
-        else if (object instanceof LaserMedium)
-            value = ((LaserMedium) object).getValue();
-        else if (object instanceof LaserType)
-            value = ((LaserType) object).getValue();
-        else if (object instanceof Pulse)
-            value = ((Pulse) object).getValue();
-        else if (object instanceof ArcType)
-            value = ((ArcType) object).getValue();
-        else if (object instanceof FilamentType)
-            value = ((FilamentType) object).getValue();
-        else if (object instanceof FilterType)
-            value = ((FilterType) object).getValue();
-        else if (object instanceof MicroscopeType)
-            value = ((MicroscopeType) object).getValue();
-        else if (object instanceof Format)
-            value = ((Format) object).getValue();
-        else if (object instanceof EventType)
-            value = ((EventType) object).getValue();
-        else if (object instanceof Family)
-            value = ((Family) object).getValue();
-        else if (object instanceof JobStatus)
-            value = ((JobStatus) object).getValue();
-        else if (object instanceof ProjectionAxis)
-            value = ((ProjectionAxis) object).getValue();
-        else if (object instanceof MicrobeamManipulationType)
-            value = ((MicrobeamManipulationType) object).getValue();
-        else if (object instanceof ExperimentType)
-            value = ((ExperimentType) object).getValue();
-        else if (object instanceof ChecksumAlgorithm)
-            value = ((ChecksumAlgorithm) object).getValue();
-        else if (object instanceof ProjectionType)
-            value = ((ProjectionType) object).getValue();
-        else if (object instanceof DimensionOrder)
-            value = ((DimensionOrder) object).getValue();
-        else if (object instanceof PixelsType)
-            value = ((PixelsType) object).getValue();
-        else if (object instanceof RenderingModel)
-            value = ((RenderingModel) object).getValue();
-        if (value != null) return value.getValue();
+        try {
+            return (String) PropertyUtils.getNestedProperty(object, "value.value");
+        } catch (Exception e) {}
         return null;
     }
 
