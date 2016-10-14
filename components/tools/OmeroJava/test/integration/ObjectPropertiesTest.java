@@ -11,6 +11,8 @@ import omero.model.ImportJobI;
 import omero.model.JobStatus;
 import omero.model.LogicalChannel;
 import omero.model.LogicalChannelI;
+import omero.model.Namespace;
+import omero.model.NamespaceI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 
@@ -202,4 +204,31 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         Assert.assertEquals(name, retrievedName, savedName);
         Assert.assertEquals(desc, retrievedDesc, savedDesc);
     }
+
+    /**
+     * Test to create a dataset and save it with long name
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testNamespaceNameAndDisplayName() throws Exception {
+        /*login as root in order to be able to create a Namespace */
+        logRootIntoGroup();
+        final Namespace ns = new NamespaceI();
+        final String name = createName(2000);
+        final String displayName = createName(2000);
+        ns.setName(omero.rtypes.rstring(name));
+        ns.setDisplayName(omero.rtypes.rstring(displayName));
+        Namespace sent = (Namespace) iUpdate.saveAndReturnObject(ns);
+        final String savedName = sent.getName().getValue().toString();
+        final String savedDisplayName = sent.getDisplayName().getValue().toString();
+        long id = sent.getId().getValue();
+        final Namespace retrievedNamespace = (Namespace) iQuery.get("Namespace", id);
+        final String retrievedName = retrievedNamespace.getName().getValue().toString();
+        final String retrievedDisplayName = retrievedNamespace.getDisplayName().getValue().toString();
+        Assert.assertEquals(name, retrievedName, savedName);
+        Assert.assertEquals(displayName, retrievedDisplayName, savedDisplayName);
+    }
+    
 }
