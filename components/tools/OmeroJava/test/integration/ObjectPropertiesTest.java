@@ -92,8 +92,10 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         final TagAnnotation retrievedAnnotation = (TagAnnotation) iQuery.get("TagAnnotation", id);
         final String retrievedName = retrievedAnnotation.getName().getValue().toString();
         final String retrievedNamespace = retrievedAnnotation.getNs().getValue().toString();
-        Assert.assertEquals(name, retrievedName, savedName);
-        Assert.assertEquals(namespace, retrievedNamespace, savedNamespace);
+        Assert.assertEquals(name, retrievedName);
+        Assert.assertEquals(name, savedName);
+        Assert.assertEquals(namespace, retrievedNamespace);
+        Assert.assertEquals(namespace, savedNamespace);
     }
 
     /**
@@ -131,8 +133,10 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         /* check that the originally created Lut, the saved lut,
          * and the lut retrieved by the query are the same. Do 
          * analogical check for the logical channel name */
-        Assert.assertEquals(lut, retrievedLut, savedLut);
-        Assert.assertEquals(logChannelName, retrievedLogChannelName, savedLogChannelName);
+        Assert.assertEquals(lut, retrievedLut);
+        Assert.assertEquals(lut, savedLut);
+        Assert.assertEquals(logChannelName, retrievedLogChannelName);
+        Assert.assertEquals(logChannelName, savedLogChannelName);
     }
 
     /**
@@ -151,7 +155,8 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         long id = sent.getId().getValue();
         final Dataset retrievedDataset = (Dataset) iQuery.get("Dataset", id);
         final String retrievedName = retrievedDataset.getName().getValue().toString();
-        Assert.assertEquals(name, retrievedName, savedName);
+        Assert.assertEquals(name, retrievedName);
+        Assert.assertEquals(name, savedName);
     }
 
     /**
@@ -170,7 +175,8 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         long id = sent.getId().getValue();
         final Folder retrievedDataset = (Folder) iQuery.get("Folder", id);
         final String retrievedName = retrievedDataset.getName().getValue().toString();
-        Assert.assertEquals(name, retrievedName, savedName);
+        Assert.assertEquals(name, retrievedName);
+        Assert.assertEquals(name, savedName);
     }
 
     /**
@@ -189,7 +195,8 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         long id = sent.getId().getValue();
         final Image retrievedImage = (Image) iQuery.get("Image", id);
         final String retrievedName = retrievedImage.getName().getValue().toString();
-        Assert.assertEquals(name, retrievedName, savedName);
+        Assert.assertEquals(name, retrievedName);
+        Assert.assertEquals(name, savedName);
     }
 
     /**
@@ -225,8 +232,10 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         final ImportJob retrievedImportJob = (ImportJob) iQuery.get("ImportJob", id);
         final String retrievedName = retrievedImportJob.getImageName().getValue().toString();
         final String retrievedDesc = retrievedImportJob.getImageDescription().getValue().toString();
-        Assert.assertEquals(name, retrievedName, savedName);
-        Assert.assertEquals(desc, retrievedDesc, savedDesc);
+        Assert.assertEquals(name, retrievedName);
+        Assert.assertEquals(name, savedName);
+        Assert.assertEquals(desc, retrievedDesc);
+        Assert.assertEquals(desc, savedDesc);
     }
 
     /**
@@ -277,8 +286,10 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         final Namespace retrievedNamespace = (Namespace) iQuery.get("Namespace", id);
         final String retrievedName = retrievedNamespace.getName().getValue().toString();
         final String retrievedDisplayName = retrievedNamespace.getDisplayName().getValue().toString();
-        Assert.assertEquals(name, retrievedName, savedName);
-        Assert.assertEquals(displayName, retrievedDisplayName, savedDisplayName);
+        Assert.assertEquals(name, retrievedName);
+        Assert.assertEquals(name, savedName);
+        Assert.assertEquals(displayName, retrievedDisplayName);
+        Assert.assertEquals(displayName, savedDisplayName);
     }
     
     /**
@@ -316,7 +327,9 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         final OriginalFile retrievedOFile = (OriginalFile) iQuery.get("OriginalFile", id);
         final String retrievedName = retrievedOFile.getName().getValue().toString();
         final String retrievedHash = retrievedOFile.getHash().getValue().toString();
-        Assert.assertEquals(name, retrievedName, savedName);
-        Assert.assertEquals(hash, retrievedHash, savedHash);
+        Assert.assertEquals(name, retrievedName);
+        Assert.assertEquals(name, savedName);
+        Assert.assertEquals(hash, retrievedHash);
+        Assert.assertEquals(hash, savedHash);
     }
 }
