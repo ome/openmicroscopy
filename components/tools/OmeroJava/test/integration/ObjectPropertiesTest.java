@@ -2,6 +2,7 @@ package integration;
 
 import java.util.Random;
 
+import omero.ServerError;
 import omero.model.Channel;
 import omero.model.Dataset;
 import omero.model.Folder;
@@ -10,7 +11,6 @@ import omero.model.ImportJob;
 import omero.model.ImportJobI;
 import omero.model.JobStatus;
 import omero.model.LogicalChannel;
-import omero.model.LogicalChannelI;
 import omero.model.Namespace;
 import omero.model.NamespaceI;
 import omero.model.TagAnnotation;
@@ -55,10 +55,30 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         /* Tag annotation is used here as a good representative to test
          * the annotations in general */
         final TagAnnotation ann = new TagAnnotationI();
-        /* creates name with lenght in approx. bytes, for annotation name
-         * and ann namespace sizes of >4K the test fails, needs to be investigated */
-        final String name = createName(2000);
-        final String namespace = createName(2000);
+        /* for annotation name sizes of >2KB the test fails */
+        /* createName() creates name with lenght in approx. bytes */
+        String name = createName(1000000);
+        ann.setName(omero.rtypes.rstring(name));
+        try {
+            iUpdate.saveAndReturnObject(ann);
+            Assert.fail("Hibernate operation: could not insert:..."
+                      + "ERROR: index row requires 1000016 bytes, maximum size is 8191; ");
+        } catch (ServerError se) {
+            /* expected */
+        }
+        /* similarly, for annotation namespace sizes of >2KB the test fails */
+        String namespace = createName(1000000);
+        ann.setNs(omero.rtypes.rstring(namespace));;
+        try {
+            iUpdate.saveAndReturnObject(ann);
+            Assert.fail("Hibernate operation: could not insert:..."
+                      + "ERROR: index row requires 1000016 bytes, maximum size is 8191; ");
+        } catch (ServerError se) {
+            /* expected */
+        }
+        /* now create both name and namespace with size <2KB and let the test pass */
+        name = createName(2000);
+        namespace = createName(2000);
         ann.setName(omero.rtypes.rstring(name));
         ann.setNs(omero.rtypes.rstring(namespace));;
         TagAnnotation sent = (TagAnnotation) iUpdate.saveAndReturnObject(ann);
