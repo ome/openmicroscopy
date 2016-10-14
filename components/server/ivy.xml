@@ -19,13 +19,13 @@
     <dependency name="rendering" rev="${omero.version}" changing="true" conf="build->build;server->server"/>
     <dependency org="com.mortennobel" name="java-image-scaling" rev="${versions.java-image-scaling}"/>
     <!-- Ice -->
-    <dependency org="omero" name="omero-shares" rev="${versions.ice}"/>
-    <dependency org="zeroc" name="ice" rev="${versions.ice}"/>
-    <dependency org="zeroc" name="ice-glacier2" rev="${versions.ice}"/>
-    <dependency org="zeroc" name="ice-storm" rev="${versions.ice}"/>
-    <dependency org="zeroc" name="ice-grid" rev="${versions.ice}"/>
-    <dependency org="zeroc" name="ice-db" rev="${versions.ice}"/>
-    <dependency org="zeroc" name="ice-freeze" rev="${versions.ice}"/>
+    <dependency org="omero" name="omero-shares" rev="3.6.2"/>
+    <dependency org="com.zeroc" name="ice" rev="${versions.ice}"/>
+    <dependency org="com.zeroc" name="glacier2" rev="${versions.ice}"/>
+    <dependency org="com.zeroc" name="icestorm" rev="${versions.ice}"/>
+    <dependency org="com.zeroc" name="icegrid" rev="${versions.ice}"/>
+    <dependency org="com.zeroc" name="freeze" rev="${versions.ice}"/>
+    <dependency org="zeroc" name="ice-db" rev="3.6.2"/>
     <!-- j2ee replacements : jta, jndi, etc. -->
     <dependency org="geronimo-spec" name="geronimo-spec-jta" rev="1.0.1B-rc4"/>
     <dependency org="org.codehaus.btm" name="btm" rev="${versions.btm}" transitive="false"/>
