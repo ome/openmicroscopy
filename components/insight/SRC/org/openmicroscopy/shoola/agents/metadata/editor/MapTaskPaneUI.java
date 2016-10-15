@@ -1,7 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
- *
+ *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -36,6 +35,7 @@ import java.awt.event.MouseListener;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -771,7 +771,17 @@ public class MapTaskPaneUI extends AnnotationTaskPaneUI implements
         clearDisplay();
         refreshButtonStates();
     }
-    
-    
 
+    @Override
+    int getUnfilteredAnnotationCount() {
+        int count = 0;
+        for (final MapAnnotationType type : MapAnnotationType.values()) {
+            for (final MapAnnotationData map : model.getMapAnnotations(type)) {
+                if (!((Collection<?>) map.getContent()).isEmpty()) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
 }

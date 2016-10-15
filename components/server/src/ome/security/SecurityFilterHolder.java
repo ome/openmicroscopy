@@ -13,6 +13,7 @@ import ome.model.internal.Details;
 import ome.security.basic.AllGroupsSecurityFilter;
 import ome.security.basic.CurrentDetails;
 import ome.security.basic.OneGroupSecurityFilter;
+import ome.security.basic.SharingSecurityFilter;
 import ome.system.EventContext;
 
 /**
@@ -29,6 +30,8 @@ public class SecurityFilterHolder implements SecurityFilter {
 
     final protected OneGroupSecurityFilter onegroup;
 
+    final protected SharingSecurityFilter share;
+
     final protected CurrentDetails cd;
 
     protected ThreadLocal<SecurityFilter> current = new ThreadLocal<SecurityFilter>() {
@@ -40,15 +43,21 @@ public class SecurityFilterHolder implements SecurityFilter {
 
     public SecurityFilterHolder(CurrentDetails cd,
             OneGroupSecurityFilter onegroup,
-            AllGroupsSecurityFilter allgroups) {
+            AllGroupsSecurityFilter allgroups,
+            SharingSecurityFilter share) {
         this.cd = cd;
         this.onegroup = onegroup;
         this.allgroups = allgroups;
+        this.share = share;
     }
 
     public SecurityFilter choose() {
-        Long groupId = cd.getCurrentEventContext().getCurrentGroupId();
-        if (groupId < 0) {
+        final EventContext ec = cd.getCurrentEventContext();
+        final Long groupId = ec.getCurrentGroupId();
+        final Long shareId = ec.getCurrentShareId();
+        if (shareId != null && shareId >= 0) {
+            return share;
+        } else if (groupId < 0) {
             return allgroups;
         } else {
             return onegroup;

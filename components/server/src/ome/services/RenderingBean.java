@@ -1,16 +1,17 @@
 /*
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2016 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-
 package ome.services;
 
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -32,15 +33,18 @@ import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.IObject;
 import ome.model.core.Channel;
+import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
+//import ome.model.display.ReverseIntensityContext;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
 import ome.model.roi.Mask;
 import ome.parameters.Parameters;
 import ome.security.SecuritySystem;
+import ome.services.scripts.ScriptRepoHelper;
 import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.ServiceFactory;
@@ -50,7 +54,10 @@ import ome.util.ShallowCopy;
 import omeis.providers.re.RGBBuffer;
 import omeis.providers.re.Renderer;
 import omeis.providers.re.RenderingEngine;
+import omeis.providers.re.codomain.CodomainChain;
+import omeis.providers.re.codomain.CodomainMap;
 import omeis.providers.re.codomain.CodomainMapContext;
+import omeis.providers.re.codomain.ReverseIntensityContext;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.data.RegionDef;
 import omeis.providers.re.quantum.QuantizationException;
@@ -146,6 +153,9 @@ public class RenderingBean implements RenderingEngine, Serializable {
     /** Reference to the compression service. */
     private final LocalCompress compressionSrv;
 
+    /** Reference to the helper used to retrieve luts.*/
+    private final ScriptRepoHelper helper;
+
     /** Notification that the bean has just returned from passivation. */
     private transient boolean wasPassivated = false;
 
@@ -171,13 +181,16 @@ public class RenderingBean implements RenderingEngine, Serializable {
      *          Reference to the executor.
      * @param secSys
      *          Reference to the security system.
+     * @param helper
+     *          Reference to the script repo.
      */
     public RenderingBean(PixelsService dataService, LocalCompress compress,
-            Executor ex, SecuritySystem secSys) {
+            Executor ex, SecuritySystem secSys, ScriptRepoHelper helper) {
         this.ex = ex;
         this.secSys = secSys;
         this.pixDataSrv = dataService;
         this.compressionSrv = compress;
+        this.helper = helper;
     }
 
     @RolesAllowed("user")
@@ -404,7 +417,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
             // Loading last to try to ensure that the buffer will get closed.
             PixelBuffer buffer = getPixelBuffer();
             renderer = new Renderer(quantumFactory, renderingModels, pixelsObj,
-                    rendDefObj, buffer);
+                    rendDefObj, buffer, loadLuts());
         } finally {
             rwl.writeLock().unlock();
         }
@@ -761,6 +774,39 @@ public class RenderingBean implements RenderingEngine, Serializable {
         internalSave(!requestedRenderingDef && !settingsBelongToCurrentUser());
     }
 
+    /**
+     * Copies the context.
+     *
+     * @param ctx The context to copy.
+     * @return See above.
+     */
+    private ome.model.display.CodomainMapContext copyContext(ome.model.display.CodomainMapContext ctx,
+            Collection<ome.model.display.CodomainMapContext> saved, boolean saveAs)
+    {
+        if (ctx == null) {
+            return null;
+        }
+        if (!saveAs && ctx.getId() != null && ctx.getId().longValue() >= 0) {
+            return ctx;
+        }
+        if (saved != null) {
+            Iterator<ome.model.display.CodomainMapContext> j = saved.iterator();
+            ome.model.display.CodomainMapContext cmc;
+            while (j.hasNext()) {
+                cmc = j.next();
+                if (cmc.getClass().equals(ctx.getClass())) {
+                    return cmc;
+                }
+            }
+        }
+        if (ctx instanceof ome.model.display.ReverseIntensityContext) {
+            ome.model.display.ReverseIntensityContext nc =  new ome.model.display.ReverseIntensityContext();
+            nc.setReverse(((ome.model.display.ReverseIntensityContext) ctx).getReverse());
+            return nc;
+        }
+        return null;
+    }
+
     private long internalSave(boolean saveAs) {
 
         rwl.writeLock().lock();
@@ -773,6 +819,10 @@ public class RenderingBean implements RenderingEngine, Serializable {
             // itself or one of its children in the object graph has been
             // updated. FIXME: This should be implemented using IUpdate.touch()
             // or similar once that functionality exists.
+            RenderingDef saved = null;
+            if (!saveAs) {
+                saved = retrieveRndSettings(pixelsObj.getId());
+            }
             RenderingDef old = rendDefObj;
             rendDefObj = createNewRenderingDef(pixelsObj);
             if (!saveAs) {
@@ -804,8 +854,15 @@ public class RenderingBean implements RenderingEngine, Serializable {
             // headaches.
             Family family;
             int index = 0;
-            ChannelBinding cb;
-            for (ChannelBinding binding : old.unmodifiableWaveRendering()) {
+            ChannelBinding cb, scb;
+            Collection<ChannelBinding> bindings = old.unmodifiableWaveRendering();
+            ChannelBinding[] savedBindings = new ChannelBinding[bindings.size()];
+            if (saved != null) {
+                savedBindings = (ChannelBinding[]) saved.unmodifiableWaveRendering().toArray(
+                        new ChannelBinding[bindings.size()]);
+            }
+            for (ChannelBinding binding : bindings) {
+                scb = savedBindings[index];
                 family = new Family(binding.getFamily().getId(), false);
                 cb = rendDefObj.getChannelBinding(index);
                 cb.setFamily(family);
@@ -821,7 +878,27 @@ public class RenderingBean implements RenderingEngine, Serializable {
                 cb.setInputEnd(binding.getInputEnd());
                 cb.setCoefficient(binding.getCoefficient());
                 cb.setNoiseReduction(binding.getNoiseReduction());
+                cb.setLookupTable(binding.getLookupTable());
                 //binding.setFamily(unloadedFamily);
+                //Codomain save
+                cb.clearSpatialDomainEnhancement();
+                Collection<ome.model.display.CodomainMapContext> ctx =
+                        binding.unmodifiableSpatialDomainEnhancement();
+                Collection<ome.model.display.CodomainMapContext> octx = null;
+                if (!saveAs) {
+                    octx = scb.unmodifiableSpatialDomainEnhancement();
+                }
+                Iterator<ome.model.display.CodomainMapContext> i = ctx.iterator();
+                ome.model.display.CodomainMapContext nc;
+                cb.clearSpatialDomainEnhancement();
+                List<Class<?>> types = new ArrayList<Class<?>>();
+                while (i.hasNext()) {
+                    nc = copyContext(i.next(), octx, saveAs);
+                    if (nc != null && !types.contains(nc.getClass())) {
+                        types.add(nc.getClass());
+                        cb.addCodomainMapContext(nc);
+                    }
+                }
                 index++;
             }
             
@@ -1038,8 +1115,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
         try {
             errorIfNullRenderingDef();
-            ChannelBinding[] cb = renderer.getChannelBindings();
-            cb[w].setLookupTable(lookup);
+            renderer.setChannelLookupTable(w, lookup);
         } finally {
             rwl.readLock().unlock();
         }
@@ -1183,12 +1259,19 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
     /** Implemented as specified by the {@link RenderingEngine} interface. */
     @RolesAllowed("user")
+    @Deprecated
     public void addCodomainMap(CodomainMapContext mapCtx) {
         rwl.writeLock().lock();
 
         try {
             errorIfInvalidState();
-            renderer.getCodomainChain().add(mapCtx.copy());
+            ChannelBinding[] cb = renderer.getChannelBindings();
+            for (int i = 0; i < pixelsObj.getSizeC(); i++) {
+              boolean b = renderer.getCodomainChain(i).add(mapCtx);
+              if (b) {
+                  cb[i].addCodomainMapContext(convert(mapCtx));
+              }
+            }
         } finally {
             rwl.writeLock().unlock();
         }
@@ -1196,11 +1279,57 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
     /** Implemented as specified by the {@link RenderingEngine} interface. */
     @RolesAllowed("user")
+    public void addCodomainMapToChannel(CodomainMapContext mapCtx, int w) {
+        rwl.writeLock().lock();
+
+        try {
+            errorIfInvalidState();
+            boolean b = renderer.getCodomainChain(w).add(mapCtx);
+            if (b) {
+                ChannelBinding[] cb = renderer.getChannelBindings();
+                cb[w].addCodomainMapContext(convert(mapCtx));
+            }
+        } finally {
+            rwl.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Converts the codomain context into the corresponding ome.model object.
+     *
+     * @param mapCtx The context to convert.
+     * @return See above.
+     */
+    private ome.model.display.CodomainMapContext convert(CodomainMapContext mapCtx)
+    {
+        if (mapCtx instanceof ReverseIntensityContext) {
+            ome.model.display.ReverseIntensityContext c = new ome.model.display.ReverseIntensityContext();
+            c.setReverse(true);
+            return c;
+        }
+        return null;
+    }
+
+    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    @RolesAllowed("user")
+    @Deprecated
     public void removeCodomainMap(CodomainMapContext mapCtx) {
         rwl.writeLock().lock();
         try {
             errorIfInvalidState();
-            renderer.getCodomainChain().remove(mapCtx.copy());
+            ChannelBinding[] cb = renderer.getChannelBindings();
+            for (int i = 0; i < pixelsObj.getSizeC(); i++) {
+                boolean b = renderer.getCodomainChain(i).remove(mapCtx.copy());
+                if (b) {
+                    cb[i].clearSpatialDomainEnhancement();
+                    CodomainChain chain = renderer.getCodomainChain(i);
+                    List<CodomainMapContext> l = chain.getContexts();
+                    Iterator<CodomainMapContext> j = l.iterator();
+                    while (j.hasNext()) {
+                        cb[i].addCodomainMapContext(convert(j.next()));
+                    }
+                }
+            }
         } finally {
             rwl.writeLock().unlock();
         }
@@ -1208,12 +1337,38 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
     /** Implemented as specified by the {@link RenderingEngine} interface. */
     @RolesAllowed("user")
+    public void removeCodomainMapFromChannel(CodomainMapContext mapCtx, int w) {
+        rwl.writeLock().lock();
+        try {
+            errorIfInvalidState();
+            boolean b = renderer.getCodomainChain(w).remove(mapCtx.copy());
+            if (b) {
+                ChannelBinding[] cb = renderer.getChannelBindings();
+                cb[w].clearSpatialDomainEnhancement();
+
+                CodomainChain chain = renderer.getCodomainChain(w);
+                List<CodomainMapContext> l = chain.getContexts();
+                Iterator<CodomainMapContext> i = l.iterator();
+                while (i.hasNext()) {
+                    cb[w].addCodomainMapContext(convert(i.next()));
+                }
+            }
+        } finally {
+            rwl.writeLock().unlock();
+        }
+    }
+
+    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    @RolesAllowed("user")
+    @Deprecated
     public void updateCodomainMap(CodomainMapContext mapCtx) {
         rwl.writeLock().lock();
 
         try {
             errorIfInvalidState();
-            renderer.getCodomainChain().update(mapCtx.copy());
+            for (int i = 0; i < pixelsObj.getSizeC(); i++) {
+                renderer.getCodomainChain(i).update(mapCtx.copy());
+            }
         } finally {
             rwl.writeLock().unlock();
         }
@@ -1518,6 +1673,23 @@ public class RenderingBean implements RenderingEngine, Serializable {
     }
 
     /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
+     * @see RenderingEngine#getCodomainMapContext(int)
+     */
+    @RolesAllowed("user")
+    public List<CodomainMapContext> getCodomainMapContext(int w) {
+        rwl.readLock().lock();
+        try {
+            errorIfInvalidState();
+            ChannelBinding[] cb = renderer.getChannelBindings();
+            return cb[w].collectSpatialDomainEnhancement(null);
+        } finally {
+            rwl.readLock().unlock();
+        }
+    }
+    
+    /**
      * Validates the plane definition.
      * @param pd Plane definition to validate.
      */
@@ -1797,6 +1969,21 @@ public class RenderingBean implements RenderingEngine, Serializable {
                         return sf.getPixelsService().loadRndSettings(rdefId);
                     }
                 });
+    }
+
+    /** Loads the lookup tables.*/
+    private List<File> loadLuts()
+    {
+        List<OriginalFile> luts = helper.loadAll(true, "text/x-lut", null);
+        Iterator<OriginalFile> i = luts.iterator();
+        File dir = new File(ScriptRepoHelper.getDefaultScriptDir());
+        List<File> files = new ArrayList<File>(luts.size());
+        while (i.hasNext()) {
+            OriginalFile f = i.next();
+            String path = (new File(f.getPath(), f.getName())).getPath();
+            files.add(new File(dir, path));
+        }
+        return files;
     }
 
     /**

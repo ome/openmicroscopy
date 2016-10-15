@@ -685,7 +685,8 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
             select coalesce(sowner.id, plowner.id, aowner.id, wsowner.id),
                    slink.parent.id,
                    plate.id,
-                   acquisition.id
+                   acquisition.id,
+                   well.id
             from WellSample wellsample
             left outer join wellsample.details.owner wsowner
             left outer join wellsample.plateAcquisition acquisition
@@ -746,6 +747,13 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
                 path.append({
                     'type': 'acquisition',
                     'id': e[3].val
+                })
+
+            # Include Well if path is to image
+            if e[4] is not None and orphanedImage:
+                path.append({
+                    'type': 'well',
+                    'id': e[4].val
                 })
 
             paths.append(path)

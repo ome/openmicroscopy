@@ -5,7 +5,7 @@ Reconcile and cleanse where necessary an OMERO data directory of orphaned data.
 """
 
 #
-#  Copyright (c) 2009-2015 University of Dundee. All rights reserved.
+#  Copyright (c) 2009-2016 University of Dundee. All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions
@@ -219,7 +219,6 @@ def cleanse(data_dir, client, dry_run=False):
     admin_service = client.sf.getAdminService()
     query_service = client.sf.getQueryService()
     config_service = client.sf.getConfigService()
-    shared_resources = client.sf.sharedResources()
 
     initial_check(config_service, admin_service)
 
@@ -242,12 +241,11 @@ def cleanse(data_dir, client, dry_run=False):
             print cleanser
 
     # delete empty directories from the managed repositories
-    repos = shared_resources.repositories()
-    for (description, proxy) in zip(repos.descriptions, repos.proxies):
-        if description.name.val == 'ManagedRepository':
-            # found a managed repository, so delete empty directories
-            root = description.path.val + description.name.val
-            delete_empty_dirs(proxy, root, client, dry_run)
+    proxy, description = client.getManagedRepository(description=True)
+    if proxy:
+        root = description.path.val + description.name.val
+        print "Removing empty directories from...\n %s" % root
+        delete_empty_dirs(proxy, root, client, dry_run)
 
 
 def delete_empty_dirs(repo, root, client, dry_run):
@@ -259,7 +257,7 @@ def delete_empty_dirs(repo, root, client, dry_run):
 
     if dry_run:
         for directory in to_delete:
-            print "Would remove %s%s" % (root, directory)
+            print "   \_ %s%s (remove)" % (root, directory)
     elif to_delete:
         # probably less than a screenful
         batch_size = 20

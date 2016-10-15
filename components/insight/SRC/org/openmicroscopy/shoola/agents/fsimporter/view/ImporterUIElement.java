@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -839,7 +839,9 @@ class ImporterUIElement
 	 * 
 	 * @return See above.
 	 */
-	boolean isUploadComplete() { return countUploaded == totalToImport; }
+	boolean isUploadComplete() { 
+	    return (countFailure + countUploaded) == totalToImport;
+	}
 	
 	/**
 	 * Returns <code>true</code> if the import is finished, <code>false</code>

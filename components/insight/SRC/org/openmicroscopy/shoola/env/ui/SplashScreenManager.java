@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.ui.SplashScreenManager
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -23,7 +23,6 @@
 
 package org.openmicroscopy.shoola.env.ui;
 
-//Java imports
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -36,19 +35,12 @@ import java.beans.PropertyChangeListener;
 import javax.swing.Icon;
 import javax.swing.JFrame;
 
-//Third-party libraries
 
-
-
-
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.OMEROInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
-import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.login.LoginCredentials;
@@ -181,23 +173,8 @@ class SplashScreenManager
     	String port = ""+ info.getPortSSL();
     	String host = info.getHostName();
     	boolean configurable = info.isHostNameConfigurable();
-    	//check if we have jnlp option
-    	String jnlpHost = System.getProperty("jnlp.omero.host");
-    	if (CommonsLangUtils.isNotBlank(jnlpHost)) {
-    	    host = jnlpHost;
-    	    configurable = false;
-    	}
-        String jnlpPort = System.getProperty("jnlp.omero.port");
-        if (CommonsLangUtils.isNotBlank(jnlpPort)) {
-            port = jnlpPort;
-            p = Integer.parseInt(port);
-            configurable = false;
-        }
-        String jnlpSession = System.getProperty("jnlp.omero.sessionid");
+
         boolean serverAvailable = connectToServer();
-        if (CommonsLangUtils.isNotBlank(jnlpSession)) {
-            serverAvailable = false;
-        }
     	view = new ScreenLogin(Container.TITLE, splashscreen, img, v, port,
     			host, serverAvailable);
     	view.setEncryptionConfiguration(info.isEncrypted(),

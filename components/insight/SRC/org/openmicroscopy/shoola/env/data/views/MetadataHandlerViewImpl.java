@@ -457,7 +457,7 @@ class MetadataHandlerViewImpl
 	 * @see MetadataHandlerView#loadAnnotations(SecurityContext, Class, List,
 	 * Class, List, List, AgentEventListener)
 	 */
-	public CallHandle loadAnnotations(SecurityContext ctx, Class<?> rootType,
+	public CallHandle loadAnnotations(SecurityContext ctx, Class<? extends DataObject> rootType,
 			List<Long> rootIDs, Class<?> annotationType, List<String> nsInclude,
 			List<String> nsExlcude, AgentEventListener observer)
 	{

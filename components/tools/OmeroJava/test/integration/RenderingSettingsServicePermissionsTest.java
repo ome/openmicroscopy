@@ -1,30 +1,29 @@
 /*
- * $Id$
- *
- *  Copyright 2006-2011 University of Dundee & Open Microscopy Environment.
+ *  Copyright 2006-2016 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package integration;
-
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import omero.api.IRenderingSettingsPrx;
+import omero.api.IScriptPrx;
+import omero.api.RenderingEnginePrx;
 import omero.cmd.Chmod2;
 import omero.gateway.util.Requests;
 import omero.model.ChannelBinding;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.RenderingDef;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
@@ -69,15 +68,15 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
         ids.add(image.getId().getValue());
         List<Long> v = factory.getRenderingSettingsService()
                 .resetDefaultsByOwnerInSet(Image.class.getName(), ids);
-        assertNotNull(v);
-        assertEquals(v.size(), 1);
+        Assert.assertNotNull(v);
+        Assert.assertEquals(1, v.size());
         ParametersI param = new ParametersI();
         param.addLong("pid", pixels.getId().getValue());
         String sql = "select rdef from RenderingDef as rdef "
                 + "where rdef.pixels.id = :pid";
         List<IObject> values = iQuery.findAllByQuery(sql, param);
-        assertNotNull(values);
-        assertEquals(values.size(), 2);
+        Assert.assertNotNull(values);
+        Assert.assertEquals(2, values.size());
     }
 
     /**
@@ -114,7 +113,7 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
         factory.getRenderingSettingsService().setOriginalSettingsInSet(
                 Image.class.getName(), Arrays.asList(image.getId().getValue()));
         RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
-        assertNotNull(def);
+        Assert.assertNotNull(def);
         ChannelBinding cb = def.getChannelBinding(0);
         boolean b = cb.getActive().getValue();
         cb.setActive(omero.rtypes.rbool(!b));
@@ -177,7 +176,7 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
                 .retrieveRndSettings(pix2);
 
         cb = def2.getChannelBinding(0);
-        assertEquals(cb.getActive().getValue(), !b);
+        Assert.assertEquals(!b, cb.getActive().getValue());
         ids.add(image.getId().getValue());
         factory.getRenderingSettingsService().applySettingsToSet(id,
                 Image.class.getName(), ids);
@@ -239,7 +238,7 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
                 .retrieveRndSettings(pix2);
 
         cb = def2.getChannelBinding(0);
-        assertEquals(cb.getActive().getValue(), !b);
+        Assert.assertEquals(!b, cb.getActive().getValue());
     }
 
     /**
@@ -287,7 +286,7 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
         RenderingDef def2 = factory.getPixelsService()
                 .retrieveRndSettings(pix2);
         cb = def2.getChannelBinding(0);
-        assertEquals(cb.getActive().getValue(), !b);
+        Assert.assertEquals(!b, cb.getActive().getValue());
     }
 
     /**
@@ -339,7 +338,7 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
         RenderingDef def2 = factory.getPixelsService()
                 .retrieveRndSettings(pix2);
         cb = def2.getChannelBinding(0);
-        assertEquals(cb.getActive().getValue(), !b);
+        Assert.assertEquals(!b, cb.getActive().getValue());
     }
 
     /**
@@ -377,7 +376,27 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
         prx.setOriginalSettingsInSet(Image.class.getName(), ids);
 
         // method already tested
+        IScriptPrx svc = factory.getScriptService();
+        List<OriginalFile> luts = svc.getScriptsByMimetype(
+                ScriptServiceTest.LUT_MIMETYPE);
         RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        List<ChannelBinding> channels = def.copyWaveRendering();
+
+        for (int k = 0; k < channels.size(); k++) {
+            omero.romio.ReverseIntensityMapContext c = new omero.romio.ReverseIntensityMapContext();
+            re.addCodomainMapToChannel(c, k);
+            re.setChannelLookupTable(k, luts.get(0).getName().getValue());
+        }
+        re.saveCurrentSettings();
+        re.close();
+        def = factory.getPixelsService().retrieveRndSettings(id);
         long pix2 = image2.getPrimaryPixels().getId().getValue();
         long pix3 = image3.getPrimaryPixels().getId().getValue();
         ChannelBinding cb = def.getChannelBinding(0);
@@ -395,13 +414,30 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
         RenderingDef def3 = factory.getPixelsService()
                 .retrieveRndSettings(pix3);
         cb = def2.getChannelBinding(0);
-        assertEquals(cb.getActive().getValue(), !b);
+        Assert.assertEquals(cb.getActive().getValue(), !b);
         cb = def3.getChannelBinding(0);
-        assertEquals(cb.getActive().getValue(), !b);
-
+        Assert.assertEquals(cb.getActive().getValue(), !b);
+        List<ChannelBinding> channels2 = def2.copyWaveRendering();
+        for (int k = 0; k < channels2.size(); k++) {
+            Assert.assertEquals(channels2.get(k).copySpatialDomainEnhancement().size(), 1);
+        }
+        List<ChannelBinding> channels3 = def3.copyWaveRendering();
+        for (int k = 0; k < channels3.size(); k++) {
+            Assert.assertEquals(channels3.get(k).copySpatialDomainEnhancement().size(), 1);
+        }
         // Now pass the original image too.
-        ids.add(image.getId().getValue());
+        //ids.add(image.getId().getValue());
         prx.applySettingsToSet(id, Image.class.getName(), ids);
+        def2 = factory.getPixelsService().retrieveRndSettings(pix2);
+        channels2 = def2.copyWaveRendering();
+        for (int k = 0; k < channels2.size(); k++) {
+            Assert.assertEquals(channels2.get(k).copySpatialDomainEnhancement().size(), 1);
+        }
+        def3 = factory.getPixelsService().retrieveRndSettings(pix2);
+        channels3 = def3.copyWaveRendering();
+        for (int k = 0; k < channels3.size(); k++) {
+            Assert.assertEquals(channels3.get(k).copySpatialDomainEnhancement().size(), 1);
+        }
     }
 
     /**
@@ -1076,7 +1112,7 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
         RenderingDef def2 = factory.getPixelsService()
                 .retrieveRndSettings(pix2);
         cb = def2.getChannelBinding(0);
-        assertEquals(cb.getActive().getValue(), !b);
+        Assert.assertEquals(!b, cb.getActive().getValue());
     }
 
     /**
@@ -1116,7 +1152,7 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
         RenderingDef def2 = factory.getPixelsService()
                 .retrieveRndSettings(pix2);
         cb = def2.getChannelBinding(0);
-        assertEquals(cb.getActive().getValue(), !b);
+        Assert.assertEquals(!b, cb.getActive().getValue());
     }
 
     // Test save rendering settings.

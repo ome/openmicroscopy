@@ -100,7 +100,7 @@ public class PojosUtil {
             WellSampleData w = (WellSampleData) obj;
             return w.getImage().isArchived()
                     && !w.asWellSample()
-                            .getPlateAcquisition()
+                            .getWell()
                             .getPlate()
                             .getDetails()
                             .getPermissions()

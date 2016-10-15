@@ -2,7 +2,7 @@
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# Copyright 2006-2014 University of Dundee. All rights reserved.
+# Copyright 2006-2016 University of Dundee. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -37,6 +37,7 @@
 				<optional name="email" type="string"/>
 			</component>
 			<!-- TODO: ## add to dsl [email/] -->
+			<map name="config" type="string"/>
 		</properties>
 	</type>
 	<link id="ome.model.meta.GroupExperimenterMap" global="true">
@@ -171,7 +172,7 @@
 
                         <!-- The human-readable text denoting this
                         namespace -->
-			<optional name="displayName" type="string"/>
+			<optional name="displayName" type="text"/>
 
 		</properties>
 	</type>

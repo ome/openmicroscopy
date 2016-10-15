@@ -37,7 +37,7 @@ from django.template import RequestContext
 from django.core.cache import cache
 
 from omeroweb.http import HttpJsonResponse
-
+from omeroweb.utils import reverse_with_params
 from omeroweb.connector import Connector
 from omero.gateway.utils import propertiesToDict
 
@@ -45,15 +45,15 @@ logger = logging.getLogger(__name__)
 
 
 def parse_url(lookup_view):
+    if not lookup_view:
+        raise ValueError("No lookup_view")
     url = None
     try:
-        if "args" in lookup_view.keys():
-            url = reverse(viewname=lookup_view["viewname"],
-                          args=lookup_view["args"])
-        else:
-            url = reverse(viewname=lookup_view["viewname"])
-        if "query_string" in lookup_view.keys():
-            url = url + "?" + lookup_view["query_string"]
+        url = reverse_with_params(
+            lookup_view['viewname'],
+            args=lookup_view['args'],
+            query_string=lookup_view['query_string']
+        )
     except KeyError:
         # assume we've been passed a url
         try:

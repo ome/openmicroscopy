@@ -288,7 +288,11 @@ class TestISession(lib.ITest):
         finally:
             c1.__del__()
 
-    def testSessionWithIP(self):
+    @pytest.mark.parametrize("client_ip", [
+        "127.0.0.1",
+        "2400:cb00:2048:1::6814:55",
+        "1234:5678:1234:5678:1234:5678:121.212.121.212"])
+    def testSessionWithIP(self, client_ip):
         c1 = omero.client(
             pmap=['--Ice.Config='+(os.environ.get("ICE_CONFIG"))])
         try:
@@ -301,7 +305,7 @@ class TestISession(lib.ITest):
         c = omero.client(host=host, port=port)
         try:
             c.setAgent("OMERO.py.root_test")
-            c.setIP("127.0.0.1")
+            c.setIP(client_ip)
             s = c.createSession("root", rootpass)
 
             p = omero.sys.ParametersI()
@@ -311,7 +315,7 @@ class TestISession(lib.ITest):
             res = s.getQueryService().findByQuery(
                 "from Session where uuid=:uuid", p)
 
-            assert "127.0.0.1" == res.getUserIP().val
+            assert client_ip == res.getUserIP().val
 
             s.closeOnDestroy()
             c.closeSession()

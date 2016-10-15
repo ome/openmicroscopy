@@ -60,6 +60,7 @@
         <!-- display -->
         <value>ChannelBinding</value>
         <value>CodomainMapContext</value>
+        <value>ProjectionDef</value>
         <value>QuantumDef</value>
         <value>RenderingDef</value>
         <value>Thumbnail</value>
@@ -188,9 +189,10 @@
 
         <!-- DISPLAY -->
 
+        <bean parent="graphPolicyRule" p:matches="RD:RenderingDef[E].projections = [I]" p:changes="RD:[I]"/>
         <bean parent="graphPolicyRule" p:matches="RD:RenderingDef[E].quantization = [I]" p:changes="RD:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="RD:RenderingDef[E].spatialDomainEnhancement = [I]" p:changes="RD:[I]"/>
         <bean parent="graphPolicyRule" p:matches="RD:RenderingDef[E].waveRendering = [I]" p:changes="RD:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="CB:ChannelBinding[E].spatialDomainEnhancement = [I]" p:changes="CB:[I]"/>
 
         <!-- EXPERIMENT -->
 

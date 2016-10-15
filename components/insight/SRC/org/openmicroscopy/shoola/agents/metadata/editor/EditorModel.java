@@ -179,7 +179,6 @@ class EditorModel
 	static {
 		EXCLUDED_FILE_NS = new ArrayList<String>();
 		EXCLUDED_FILE_NS.add(FileAnnotationData.COMPANION_FILE_NS);
-		EXCLUDED_FILE_NS.add(FileAnnotationData.FLIM_NS);
 	}
 	
 	/** The parent of this editor. */
@@ -2179,75 +2178,7 @@ class EditorModel
 		
 		return (Collection<AnnotationData>) sorter.sort(results);
 	}
-	
-	/** 
-	 * Returns the objects displaying analysis results.
-	 * 
-	 * @return See above.
-	 */
-	List<AnalysisResultsItem> getAnalysisResults()
-	{
-		Map<DataObject, StructuredDataResults> 
-		r = parent.getAllStructuredData();
-		if (r == null) return null;
-		Entry<DataObject, StructuredDataResults> e;
-		Iterator<Entry<DataObject, StructuredDataResults>>
-		j = r.entrySet().iterator();
-		StructuredDataResults data;
-		Collection<FileAnnotationData> attachments;
-		Iterator<FileAnnotationData> i;
-		FileAnnotationData f;
-		String ns;
-		AnalysisResultsItem item;
-		
-		Map<Long, FileAnnotationData> 
-		ids = new HashMap<Long, FileAnnotationData>();
-		
-		while (j.hasNext()) {
-			e = j.next();
-			data = e.getValue();
-			if (data != null) {
-				attachments = data.getAttachments();
-				if (attachments != null) {
-					i = attachments.iterator();
-					while (i.hasNext()) {
-						f = i.next();
-						ns = f.getNameSpace();
-						if (FileAnnotationData.FLIM_NS.equals(ns)) {
-							ids.put(f.getId(), f);
-						}
-					}
-				}
-			}
-		}
 
-		if (ids.size() == 0) return null;
-		List<Long> orderedIds =  (List<Long>) sorter.sort(ids.keySet());
-		
-		int index = 0; //this should be modified.
-		Iterator<Long> k = orderedIds.iterator();
-		Long id;
-		List<AnalysisResultsItem> 
-		results = new ArrayList<AnalysisResultsItem>();
-		item = null;
-		int n = 6;
-		int number = 1;
-		while (k.hasNext()) {
-			id = k.next();
-			if (index == 0) {
-				item = new AnalysisResultsItem((DataObject) getRefObject(), 
-						FileAnnotationData.FLIM_NS, number);
-				results.add(item);
-				number++;
-			} else if (index == n) {
-				index = -1;
-			}
-			item.addAttachment(ids.get(id));
-			index++;
-		}
-		return results;
-	}
-	
 	/**
 	 * Returns the companion file generated while importing the file
 	 * and containing the metadata found in the file, or <code>null</code>
@@ -2970,7 +2901,11 @@ class EditorModel
 				ChannelData data;
 				while (i.hasNext()) {
 					data = i.next();
-					m.put(data, renderer.getChannelColor(data.getIndex()));
+                    if (CommonsLangUtils.isNotEmpty(renderer
+                            .getLookupTable(data.getIndex())))
+                        m.put(data, renderer.getLookupTable(data.getIndex()));
+                    else
+                        m.put(data, renderer.getChannelColor(data.getIndex()));
 				}
 				return m;
 			}
@@ -3614,13 +3549,6 @@ class EditorModel
 	}
 	
 	/**
-	 * Analyzes the data. 
-	 * 
-	 * @param index The index identifying the analysis to perform.
-	 */
-	void analyse(int index) { parent.analyse(index); }
-	
-	/**
 	 * Returns <code>true</code> if the renderer has been loaded,
 	 * <code>false</code> otherwise.
 	 * 
@@ -3651,7 +3579,7 @@ class EditorModel
 	/**
          * Reloads the {@link RenderingControl} for the given pixelsID
          * (Note: This is a blocking method, for asynchronous call use 
-         *   {@link fireRenderingControlLoading(long, int)} instead
+         *   {@link #fireRenderingControlLoading(long, int)} instead
          * @param pixelsID The id of the pixels set.
          */
         void loadRenderingControl(long pixelsID) {
@@ -3804,6 +3732,12 @@ class EditorModel
 		return renderer.getChannelColor(index);
 	}
 
+	String getLookupTable(int index) {
+	    if(renderer == null)
+	        return null;
+	    return renderer.getLookupTable(index);
+	}
+	
 	/**
 	 * Returns <code>true</code> if it is an image with a lot of channels.
 	 * <code>false</code> otherwise.

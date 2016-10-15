@@ -74,6 +74,20 @@ class IWebTest(lib.ITest):
         cls.django_clients.append(django_client)
         return django_client
 
+    @classmethod
+    def new_django_client_from_session_id(cls, session_id):
+        django_client = Client(enforce_csrf_checks=True)
+        index_url = reverse('webindex')
+
+        data = {
+            'server': 1,
+            'bsession': session_id,
+        }
+        response = django_client.get(index_url, data)
+        assert response.status_code == 200
+        cls.django_clients.append(django_client)
+        return django_client
+
 
 # Helpers
 def _response(django_client, request_url, method, data, status_code=403,

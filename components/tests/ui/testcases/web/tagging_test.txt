@@ -8,36 +8,48 @@ Resource          ../../resources/web/tree.txt
 Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}"  Maximize Browser Window
 Suite Teardown      Close all browsers
 
+*** Keywords ***
+
+Launch Tag Dialog
+    Click Element                           launch_tags_form
+    Wait Until Page Contains Element        id_tag
+    Wait Until Page Contains Element        xpath=//div[contains(@class,'ui-progressbar')][@aria-valuenow='100']    ${WAIT}
+
+Check For Tag
+    [Arguments]                             ${tagText}
+    Wait Until Page Contains Element        xpath=//div[@class='tag']/a[contains(text(), '${tagText}')]  10
+
+Check No Tag
+    [Arguments]                             ${tagText}
+    Wait Until Keyword Succeeds             ${TIMEOUT}     ${INTERVAL}     Page Should Not Contain Element         xpath=//div[@class='tag']/a[contains(text(), '${tagText}')]
+
+
 *** Test Cases ***
 
-Test Tag
+Test Tag Dialog
     [Documentation]     Several tests of the Tag dialog for single or batch tagging.
 
     Go To                                       ${WELCOME URL}
     Select Experimenter
     ${projectId}=                               Create Project      robot test tagging_1
     ${pId}=                                     Create Project      robot test tagging_2
-    Page Should Not Contain Element             xpath=//div[@class='tag']/a[contains(text(), 'robotTagTest${pid}TagOne')]
-    Page Should Not Contain Element             xpath=//div[@class='tag']/a[contains(text(), 'robotTagTest${pid}TagTwo')]
+    Check No Tag                                robotTagTest${pid}TagOne
+    Check No Tag                                robotTagTest${pid}TagTwo
 
     # Tag a single Project
     Click Element                               xpath=//h1[@data-name='tags']
-    Click Element                               launch_tags_form
-    Wait Until Page Contains Element            id_tag
-    Wait Until Page Contains Element            xpath=//div[contains(@class,'ui-progressbar')][@aria-valuenow='100']    ${WAIT}
+    Launch Tag Dialog
     Input Text                                  id_tag     robotTagTest${pid}TagOne
     Click Element                               id_add_new_tag
     Click Dialog Button                         Save
-    Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), 'robotTagTest${pid}TagOne')]  10
+    Check For Tag                               robotTagTest${pid}TagOne
     # Refresh (select other Project and re-select)
-    ${nodeId}=                                  Select Project By Id                        ${projectId}
+    ${nodeId}=                                  Select Project By Id     ${projectId}
     Wait Until Right Panel Loads                Project                  ${projectId}
     Select Project By Id                        ${pId}
     # Check and add another Tag, remove first one
-    Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), 'robotTagTest${pid}TagOne')]  10
-    Click Element                               launch_tags_form
-    Wait Until Page Contains Element            id_tag
-    Wait Until Page Contains Element            xpath=//div[contains(@class,'ui-progressbar')][@aria-valuenow='100']    ${WAIT}
+    Check For Tag                               robotTagTest${pid}TagOne
+    Launch Tag Dialog
     # Create a second Tag
     Input Text                                  id_tag     robotTagTest${pid}TagTwo
     Click Element                               id_add_new_tag
@@ -47,19 +59,17 @@ Test Tag
     Page Should Not Contain Element             xpath=//div[@id='id_selected_tags']/div[contains(text(),'robotTagTest${pid}TagOne')]
     # Save - check Tag added and Tag removed
     Click Dialog Button                         Save
-    Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), 'robotTagTest${pid}TagTwo')]  10
-    Page Should Not Contain Element             xpath=//div[@class='tag']/a[contains(text(), 'robotTagTest${pid}TagOne')]
+    Check For Tag                               robotTagTest${pid}TagTwo
+    Check No Tag                                robotTagTest${pid}TagOne
 
 
     # Now select both Projects...
     Meta Click Node                             ${nodeId}
     Wait Until Page Contains Element            id=batch_ann_title
     # Previously added Tag will show up
-    Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), 'robotTagTest${pid}TagTwo')]
+    Check For Tag                               robotTagTest${pid}TagTwo
     Wait Until Element Is Visible               launch_tags_form
-    Click Element                               launch_tags_form
-    Wait Until Page Contains Element            id_tag
-    Wait Until Page Contains Element            xpath=//div[contains(@class,'ui-progressbar')][@aria-valuenow='100']    ${WAIT}
+    Launch Tag Dialog
 
     # Tags created above should be available to add to second Project
     Wait Until Page Contains Element            xpath=//div[@id='id_all_tags']/div[contains(text(),'robotTagTest${pid}TagOne')]
@@ -79,13 +89,11 @@ Test Tag
     Wait Until Page Contains Element            xpath=//span[@class='tooltip_html']/b[contains(text(),'2 objects')]
     # Other tag is still on one Project
     Page Should Contain Element                 xpath=//span[@class='tooltip_html']/b[contains(text(),'1 object')]
-    Page Should Contain Element                 xpath=//div[@class='tag']/a[contains(text(), 'robotTagTest${pid}TagOne')]
-    Page Should Contain Element                 xpath=//div[@class='tag']/a[contains(text(), 'robotTagTest${pid}TagTwo')]
+    Check For Tag                               robotTagTest${pid}TagOne
+    Check For Tag                               robotTagTest${pid}TagTwo
 
     # Open Tag dialog again...
-    Click Element                               launch_tags_form
-    Wait Until Page Contains Element            id_tag
-    Wait Until Page Contains Element            xpath=//div[contains(@class,'ui-progressbar')][@aria-valuenow='100']    ${WAIT}
+    Launch Tag Dialog
     # Same tag as before should be on right
     Wait Until Page Contains Element            xpath=//div[@id='id_selected_tags']/div[contains(text(),'robotTagTest${pid}TagOne')]
     Page Should Not Contain Element             xpath=//div[@id='id_selected_tags']/div[contains(text(),'robotTagTest${pid}TagTwo')]
@@ -101,8 +109,56 @@ Test Tag
     Go To                                       ${WELCOME URL}?show=project-${projectId}|project-${pId}
     Wait Until Element Is Visible               xpath=//h1[@data-name='tags']
     Click Element                               xpath=//h1[@data-name='tags']
-    Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), 'robotTagTest${pid}TagThree')]  10
-    Page Should Contain Element                 xpath=//div[@class='tag']/a[contains(text(), 'robotTagTest${pid}TagTwo')]
-    Page Should Not Contain Element             xpath=//div[@class='tag']/a[contains(text(), 'robotTagTest${pid}TagOne')]
+    Check For Tag                               robotTagTest${pid}TagThree
+    Check For Tag                               robotTagTest${pid}TagTwo
+    Check No Tag                                robotTagTest${pid}TagOne
 
 
+Test Tag Removal
+    [Documentation]     Tests the removal of tags by clicking on the Tag (-) button
+
+    Go To                                       ${WELCOME URL}
+    Select Experimenter
+    ${projectId}=                               Create Project      robot test tag remove_1
+    ${pId}=                                     Create Project      robot test tag remove_2
+    # Tag a single Project
+    Click Element                               xpath=//h1[@data-name='tags']
+    Launch Tag Dialog
+    Input Text                                  id_tag     removeTest${pid}One
+    Click Element                               id_add_new_tag
+    Click Dialog Button                         Save
+    Check For Tag                               removeTest${pid}One
+    # Click (-) button on Tag to remove
+    Click Element                               xpath=//div[@class='tag'][descendant::a[contains(text(), 'removeTest${pid}One')]]/span[@title='Remove Tag']
+    Click Dialog Button                         OK
+    Check No Tag                                removeTest${pid}One
+
+    # Batch Tag 2 Projects
+    ${pNodeId}=                                 Select Project By Id    ${pId}
+    ${projectNodeId}=                           Select Project By Id    ${projectId}
+    Meta Click Node                             ${pNodeId}
+    Wait Until Page Contains Element            id=batch_ann_title
+    Launch Tag Dialog
+    # Add 2 Tags to both Projects...
+    Input Text                                  id_tag     removeTest${pid}Two
+    Click Element                               id_add_new_tag
+    Input Text                                  id_tag     removeTest${pid}Three
+    Click Element                               id_add_new_tag
+    Click Dialog Button                         Save
+    Check For Tag                               removeTest${pid}Two
+    # Click (-) button on Tag to remove
+    Click Element                               xpath=//div[@class='tag'][descendant::a[contains(text(), 'removeTest${pid}Two')]]/span[@title='Remove Tag']
+    Click Dialog Button                         OK
+    Check No Tag                                removeTest${pid}Two
+
+    # Select each Project in turn, check tags One and Two are gone (but Three remains)
+    Select Project By Id                        ${projectId}
+    Wait Until Page Contains                    robot test tag remove_1
+    Check For Tag                               removeTest${pid}Three
+    Check No Tag                                removeTest${pid}One
+    Check No Tag                                removeTest${pid}Two
+    Select Project By Id                        ${pId}
+    Wait Until Page Contains                    robot test tag remove_2
+    Check For Tag                               removeTest${pid}Three
+    Check No Tag                                removeTest${pid}One
+    Check No Tag                                removeTest${pid}Two

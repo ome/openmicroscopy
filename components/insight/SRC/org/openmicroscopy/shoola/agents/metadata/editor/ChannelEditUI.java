@@ -149,7 +149,7 @@ class ChannelEditUI
         Iterator k = channels.keySet().iterator();
         while (k.hasNext()) {
             channel = (ChannelData) k.next();
-            field = new TextFieldLimit(EditorUtil.MAX_CHAR-1);
+            field = new JTextField();
             field.setBackground(UIUtilities.BACKGROUND_COLOR);
             field.setText(channel.getChannelLabeling());
             field.getDocument().addDocumentListener(this);
