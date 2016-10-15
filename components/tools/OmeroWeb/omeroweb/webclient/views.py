@@ -59,7 +59,7 @@ from webclient_utils import _formatReport, _purgeCallback
 from forms import GlobalSearchForm, ContainerForm
 from forms import ShareForm, BasketShareForm
 from forms import ContainerNameForm, ContainerDescriptionForm
-from forms import CommentAnnotationForm, TagsAnnotationForm,  UsersForm
+from forms import CommentAnnotationForm, TagsAnnotationForm
 from forms import MetadataFilterForm, MetadataDetectorForm
 from forms import MetadataChannelForm, MetadataEnvironmentForm
 from forms import MetadataObjectiveForm, MetadataObjectiveSettingsForm
@@ -372,9 +372,8 @@ def logout(request, conn=None, **kwargs):
 
 
 ###########################################################################
-@login_required()
-@render_response()
-def load_template(request, menu, conn=None, url=None, **kwargs):
+def _load_template(request, menu, conn=None, url=None, **kwargs):
+
     """
     This view handles most of the top-level pages, as specified by 'menu' E.g.
     userdata, usertags, history, search etc.
@@ -385,16 +384,18 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     """
     request.session.modified = True
 
-    if menu == 'userdata':
-        template = "webclient/data/containers.html"
-    elif menu == 'usertags':
-        template = "webclient/data/containers.html"
-    else:
-        # E.g. search/search.html
-        template = "webclient/%s/%s.html" % (menu, menu)
+    template = kwargs.get('template', None)
+    if template is None:
+        if menu == 'userdata':
+            template = "webclient/data/containers.html"
+        elif menu == 'usertags':
+            template = "webclient/data/containers.html"
+        else:
+            # E.g. search/search.html
+            template = "webclient/%s/%s.html" % (menu, menu)
 
     # tree support
-    show = Show(conn, request, menu)
+    show = kwargs.get('show', Show(conn, request, menu))
     # Constructor does no loading.  Show.first_selected must be called first
     # in order to set up our initial state correctly.
     try:
@@ -418,7 +419,9 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
 
     # get url without request string - used to refresh page after switch
     # user/group etc
-    url = reverse(viewname="load_template", args=[menu])
+    url = kwargs.get('load_template_url', None)
+    if url is None:
+        url = reverse(viewname="load_template", args=[menu])
 
     # validate experimenter is in the active group
     active_group = (request.session.get('active_group') or
@@ -428,12 +431,6 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
         "ExperimenterGroup", active_group).groupSummary()
     userIds = [u.id for u in leaders]
     userIds.extend([u.id for u in members])
-    users = []
-    if len(leaders) > 0:
-        users.append(("Owners", leaders))
-    if len(members) > 0:
-        users.append(("Members", members))
-    users = tuple(users)
 
     # check any change in experimenter...
     user_id = request.GET.get('experimenter')
@@ -445,13 +442,13 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
         user_id = long(user_id)
     except:
         user_id = None
+    # check if user_id is in a currnt group
     if user_id is not None:
-        form_users = UsersForm(
-            initial={'users': users, 'empty_label': None, 'menu': menu},
-            data=request.GET.copy())
-        if not form_users.is_valid():
-            if user_id != -1:           # All users in group is allowed
-                user_id = None
+        if (user_id not in
+            (set(map(lambda x: x.id, leaders))
+             | set(map(lambda x: x.id, members))) and user_id != -1):
+            # All users in group is allowed
+            user_id = None
     if user_id is None:
         # ... or check that current user is valid in active group
         user_id = request.session.get('user_id', None)
@@ -495,6 +492,13 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     context['template'] = template
 
     return context
+
+
+@login_required()
+@render_response()
+def load_template(request, menu, conn=None, url=None, **kwargs):
+    return _load_template(request=request, menu=menu, conn=conn,
+                          url=url, **kwargs)
 
 
 @login_required()

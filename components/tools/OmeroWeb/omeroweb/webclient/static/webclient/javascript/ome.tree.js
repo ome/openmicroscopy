@@ -438,7 +438,7 @@ $(function() {
                 // we want the specific page, or use default first page
 
                 // Disable paging for node without counter
-                var nopageTypes = ['project', 'screen', 'plate', 'tagset', 'tag'];
+                var nopageTypes = WEBCLIENT.UI.TREE.pagination_nodes;
                 if (nopageTypes.indexOf(node.type) > -1) {
                     // TODO: temporary workaround to not paginate datasets,
                     // plates and acquisitions
@@ -505,7 +505,6 @@ $(function() {
                 $.ajax({
                     url: url,
                     data: payload,
-                    cache: false,
                     success: function (data, textStatus, jqXHR) {
                         callback.call(this, data);
                     },
