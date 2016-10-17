@@ -49,6 +49,7 @@ import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnnotationDescription;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AttributeField;
 import org.openmicroscopy.shoola.agents.measurement.util.model.FigureTableModel;
+import org.openmicroscopy.shoola.agents.measurement.util.model.ValueType;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.FigureTable;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureEllipseFigure;
@@ -107,6 +108,13 @@ class ObjectInspector
 		COLUMN_NAMES.add("Value");
 	}
 	
+    /** Possible values for start/end line decorations */
+    private static final List<String> LINE_DECORATION_VALUES = new ArrayList<String>();
+    static {
+        LINE_DECORATION_VALUES.add("None");
+        LINE_DECORATION_VALUES.add("Arrow");
+    }
+	
 	/** Statically initialize the AttributeFields to be shown;
 	 *  The order in the list reflects the order they are shown in the table
          */
@@ -133,12 +141,16 @@ class ObjectInspector
             attributeFields.add(new AttributeField(MeasurementAttributes.HEIGHT,
                     AnnotationDescription.annotationDescription
                             .get(AnnotationKeys.HEIGHT), true));
-            attributeFields.add(new AttributeField(MeasurementAttributes.START_DECORATION,
+            attributeFields.add(new AttributeField(
+                    MeasurementAttributes.START_DECORATION,
                     AnnotationDescription.annotationDescription
-                    .get(MeasurementAttributes.START_DECORATION), true));
-            attributeFields.add(new AttributeField(MeasurementAttributes.END_DECORATION,
+                            .get(MeasurementAttributes.START_DECORATION), true,
+                    LINE_DECORATION_VALUES, ValueType.ENUM));
+            attributeFields.add(new AttributeField(
+                    MeasurementAttributes.END_DECORATION,
                     AnnotationDescription.annotationDescription
-                    .get(MeasurementAttributes.END_DECORATION), true));
+                            .get(MeasurementAttributes.END_DECORATION), true,
+                    LINE_DECORATION_VALUES, ValueType.ENUM));
             attributeFields.add(new AttributeField(MeasurementAttributes.SHOWTEXT,
                     "Show Comment", false));
             attributeFields.add(new AttributeField(MeasurementAttributes.SHOWMEASUREMENT,
