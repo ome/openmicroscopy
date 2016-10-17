@@ -322,7 +322,13 @@ class DataBrowserComponent
 		objects.add(others);
 		
 		for (final ImageDisplay node : nodes) {
-			final Object hierarchyObject = node.getHierarchyObject();
+		    final Object hierarchyObject;
+		    
+		    if(node instanceof WellSampleNode && ((WellSampleNode)node).isWell())
+		        hierarchyObject = ((WellSampleNode)node).getParentWell().getHierarchyObject();
+		    else
+		        hierarchyObject = node.getHierarchyObject();
+		    
 			if (!(hierarchyObject instanceof ImageData) ||
 				visibleObjectIds.contains(
 						((ImageData) hierarchyObject).getId()))
@@ -334,7 +340,7 @@ class DataBrowserComponent
 		
 		if (object instanceof DataObject) {
 			Object parent = null;
-			if (object instanceof WellSampleData) {
+			if (object instanceof WellSampleData && !((WellSampleNode)node).isWell()) {
 				WellSampleNode wsn = (WellSampleNode) node;
 				parent = wsn.getParentObject();
 				List<WellSampleNode> wells = new ArrayList<WellSampleNode>();
