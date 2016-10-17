@@ -1,11 +1,13 @@
 package integration;
 
+import java.util.List;
 import java.util.Random;
 
 import omero.ServerError;
 import omero.model.Channel;
 import omero.model.Dataset;
 import omero.model.Folder;
+import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImportJob;
 import omero.model.ImportJobI;
@@ -15,8 +17,10 @@ import omero.model.Namespace;
 import omero.model.NamespaceI;
 import omero.model.OriginalFile;
 import omero.model.Plate;
+import omero.model.PlateAcquisition;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
+import omero.sys.ParametersI;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
@@ -342,23 +346,36 @@ public class ObjectPropertiesTest extends AbstractServerTest {
      *             Thrown if an error occurred.
      */
     @Test
-    public void testPlateNameAndStatus() throws Exception {
-        final Plate plate = mmFactory.createPlate(1, 1, 1, 1, true);
+    public void testPlateNameStatusAcquistitionName() throws Exception {
+        /* First test for plate name and status */
+        final Plate plate = mmFactory.createPlate(1, 1, 1, 1, false);
         final String name = createName(1000000);
         final String status = createName(1000000);
         plate.setName(omero.rtypes.rstring(name));
         plate.setStatus(omero.rtypes.rstring(status));
-        Plate sent = (Plate) iUpdate.saveAndReturnObject(plate);
-        String savedName = sent.getName().getValue().toString();
-        String savedStatus = sent.getStatus().getValue().toString();
-        long id = sent.getId().getValue();
-        final Plate retrievedPlate = (Plate) iQuery.get("Plate", id);
+        Plate sentP = (Plate) iUpdate.saveAndReturnObject(plate);
+        String savedName = sentP.getName().getValue().toString();
+        String savedStatus = sentP.getStatus().getValue().toString();
+        long idPlate = sentP.getId().getValue();
+        final Plate retrievedPlate = (Plate) iQuery.get("Plate", idPlate);
         final String retrievedName = retrievedPlate.getName().getValue().toString();
         final String retrievedStatus = retrievedPlate.getStatus().getValue().toString();
         Assert.assertEquals(name, retrievedName);
         Assert.assertEquals(name, savedName);
         Assert.assertEquals(status, retrievedStatus);
         Assert.assertEquals(status, savedStatus);
+        /* With the plate created in above test in hand
+         * test for plate acquisition name.*/
+        final PlateAcquisition acquisition = (PlateAcquisition) iQuery.findByQuery("FROM PlateAcquisition WHERE plate.id = :id", new ParametersI().addId(idPlate));
+        final String acquisitionName = createName(1000000);
+        acquisition.setName(omero.rtypes.rstring(acquisitionName));
+        PlateAcquisition sentA = (PlateAcquisition) iUpdate.saveAndReturnObject(acquisition);
+        String savedAcquisitionName = sentA.getName().getValue().toString();
+        long idAcquisition = sentA.getId().getValue();
+        final PlateAcquisition retrievedAcquisition = (PlateAcquisition) iQuery.get("PlateAcquisition", idAcquisition);
+        final String retrievedAcquisitionName = retrievedAcquisition.getName().getValue().toString();
+        Assert.assertEquals(acquisitionName, retrievedAcquisitionName);
+        Assert.assertEquals(acquisitionName, savedAcquisitionName);
     }
     
 }
