@@ -683,6 +683,8 @@ jQuery._WeblitzViewport = function (container, server, options) {
       if (!noreload) {
         _load();
       }
+      // provide a more-granular trigger, E.g. for histogram to switch channel
+      _this.self.trigger('channelColorChange', [_this, idx, _this.loadedImg.channels[idx]]);
     }
   };
 
@@ -1215,7 +1217,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
   this.bind = function (event, callback) {
     if (event == 'projectionChange' || event == 'modelChange' || event == 'channelChange' || event == 'channelSlide' ||
     event == 'imageChange' || event == 'imageLoad' || event == 'linePlotPos' || event == 'linePlotChange' ||
-    event == 'channelToggle' || event == 'channelFocus') {
+    event == 'channelToggle' || event == 'channelFocus' || event == 'channelColorChange') {
       _this.self.bind(event, callback);
     } else {
       _this.viewportimg.bind(event, callback);

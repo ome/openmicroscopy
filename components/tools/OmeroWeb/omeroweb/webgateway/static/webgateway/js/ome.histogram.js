@@ -230,6 +230,10 @@ window.OME.createViewportHistogram = function(viewport, chartSelector, checkboxS
         plotHistogram({'chIdx': chIdx});
     });
 
+    viewport.bind('channelColorChange', function(event, viewport, chIdx){
+        plotHistogram({'chIdx': chIdx});
+    });
+
     viewport.zslider.bind('change', function (e,pos) {
         plotHistogram({'theZ': pos-1});
     });
