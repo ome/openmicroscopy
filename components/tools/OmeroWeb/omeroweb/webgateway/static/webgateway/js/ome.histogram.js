@@ -137,6 +137,14 @@ window.OME.createViewportHistogram = function(viewport, chartSelector, checkboxS
     var currChIdx;
     var plotHistogram = function(opts) {
         if (!histogram) return;  // not shown/created yet
+        // If viewport image not loaded yet (E.g. we're immediately showing histogram)
+        if (!viewport.loadedImg || !viewport.loadedImg.channels) {
+            // then we listen for the load event and try again
+            viewport.bind('imageLoad', function(){
+                plotHistogram();
+            });
+            return;
+        }
         opts = opts || {};
         var chIdx = opts.chIdx !== undefined ? opts.chIdx : currChIdx;
         if (chIdx === undefined) {
@@ -147,14 +155,7 @@ window.OME.createViewportHistogram = function(viewport, chartSelector, checkboxS
         }
         if (chIdx === -1) {chIdx = 0}  // in case no channels active
         currChIdx = chIdx;
-        // If viewport image not loaded yet (E.g. we're immediately showing histogram)
-        if (!viewport.loadedImg || !viewport.loadedImg.channels) {
-            // then we listen for the load event and try again
-            viewport.bind('imageLoad', function(){
-                plotHistogram();
-            });
-            return;
-        }
+
         var img = viewport.loadedImg;
         var ch = img.channels[chIdx];
         var color = ch.color === 'FFFFFF' ? '000000' : ch.color;
