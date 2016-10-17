@@ -18,6 +18,7 @@ import omero.model.NamespaceI;
 import omero.model.OriginalFile;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
+import omero.model.Project;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.sys.ParametersI;
@@ -340,7 +341,8 @@ public class ObjectPropertiesTest extends AbstractServerTest {
     
     /**
      * Test to create a plate and save it with long name
-     * and a long status
+     * and a long status and create plate acquisition and save it 
+     * with a long name
      *
      * @throws Exception
      *             Thrown if an error occurred.
@@ -376,6 +378,26 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         final String retrievedAcquisitionName = retrievedAcquisition.getName().getValue().toString();
         Assert.assertEquals(acquisitionName, retrievedAcquisitionName);
         Assert.assertEquals(acquisitionName, savedAcquisitionName);
+    }
+    
+    /**
+     * Test to create a project and save it with long name
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testProjectNameSaving() throws Exception {
+        Project pro = mmFactory.simpleProject();
+        final String name = createName(1000000);
+        pro.setName(omero.rtypes.rstring(name));
+        Project sent = (Project) iUpdate.saveAndReturnObject(pro);
+        String savedName = sent.getName().getValue().toString();
+        long id = sent.getId().getValue();
+        final Project retrievedProject = (Project) iQuery.get("Project", id);
+        final String retrievedName = retrievedProject.getName().getValue().toString();
+        Assert.assertEquals(name, retrievedName);
+        Assert.assertEquals(name, savedName);
     }
     
 }
