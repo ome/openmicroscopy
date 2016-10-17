@@ -77,7 +77,7 @@ module omero {
 
                 /**
                  * Returns <code>true</code> if the {@link omero.model.Job} is
-                 * running, I.e. has an attached process.
+                 * running, i.e. has an attached process.
                  */
                 idempotent bool jobRunning()  throws ServerError;
 

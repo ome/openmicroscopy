@@ -1,22 +1,22 @@
 /*
- * omeis.providers.re.HSBStrategy
- *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2016 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-
 package omeis.providers.re;
 
 import java.awt.Color;
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,11 +27,12 @@ import ome.model.display.ChannelBinding;
 import ome.model.display.QuantumDef;
 import ome.model.enums.PixelsType;
 import ome.util.PixelData;
-
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.data.PlaneFactory;
 import omeis.providers.re.data.Plane2D;
 import omeis.providers.re.data.PlaneDef;
+import omeis.providers.re.lut.LutReader;
+import omeis.providers.re.lut.LutReaderFactory;
 import omeis.providers.re.quantum.BinaryMaskQuantizer;
 import omeis.providers.re.quantum.QuantizationException;
 import omeis.providers.re.quantum.QuantumStrategy;
@@ -135,6 +136,74 @@ class HSBStrategy extends RenderingStrategy {
     }
 
     /**
+     * Reads the Lut if it is valid.
+     *
+     * @param name The name of the lookup table.
+     * @param luts The collection of supported LUT.
+     * @return See above.
+     */
+    private LutReader initReader(String name, List<File> luts)
+    {
+        Iterator<File> i = luts.iterator();
+        if (name != null) {
+            name = name.toLowerCase();
+        }
+        while (i.hasNext()) {
+            File f = i.next();
+            String lutName = f.getName();
+            lutName = lutName.toLowerCase();
+            if (lutName.equals(name) ||
+                    FilenameUtils.getBaseName(lutName).equals(name)) {
+                try {
+                    return LutReaderFactory.read(f);
+                } catch (Exception e) {
+                    log.debug("cannot read lut "+f.getName(), e);
+                }
+                return null;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the lookup table readers if any.
+     *
+     * @return See above.
+     */
+    private List<LutReader> getLutReaders()
+    {
+        ChannelBinding[] channelBindings = renderer.getChannelBindings();
+        List<File> luts = renderer.getAllLuts();
+        List<LutReader> l = new ArrayList<LutReader>();
+        for (int w = 0; w < channelBindings.length; w++) {
+            ChannelBinding cb = channelBindings[w];
+            if (cb.getActive()) {
+                l.add(initReader(cb.getLookupTable(), luts));
+            }
+        }
+        return l;
+    }
+
+    /**
+     * Returns the collection of chains.
+     *
+     * @return See above.
+     */
+    private List<CodomainChain> getChains()
+    {
+        List<CodomainChain> chains = renderer.getCodomainChains();
+        ChannelBinding[] channelBindings = renderer.getChannelBindings();
+        List<CodomainChain> list = new ArrayList<CodomainChain>();
+        for (int w = 0; w < channelBindings.length; w++) {
+            ChannelBinding cb = channelBindings[w];
+            if (cb.getActive()) {
+                list.add(chains.get(w));
+            }
+        }
+        return list;
+    }
+
+    /**
      * Retrieves the color for each active channels.
      * 
      * @return the active channel color data.
@@ -211,11 +280,10 @@ class HSBStrategy extends RenderingStrategy {
     private RenderingTask[] makeRenderingTasks(PlaneDef def, RGBBuffer buf) {
         List<RenderHSBRegionTask> tasks = new ArrayList<RenderHSBRegionTask>();
 
-        // Get all objects we need to create the tasks.
-        CodomainChain cc = renderer.getCodomainChain();
         //RenderingStats performanceStats = renderer.getStats();
         List<Plane2D> wData = getWavelengthData(def);
         List<int[]> colors = getColors();
+        List<LutReader> readers = getLutReaders();
         List<QuantumStrategy> strategies = getStrategies();
         // Create a number of rendering tasks.
         int taskCount = numTasks(sizeX2);
@@ -227,9 +295,9 @@ class HSBStrategy extends RenderingStrategy {
         for (int i = 0; i < taskCount; i++) {
             x2Start = i*delta;
             x2End = (i+1)*delta;
-            tasks.add(new RenderHSBRegionTask(buf, wData, strategies, cc,
-            		colors, renderer.getOptimizations(),
-            		x1Start, x1End, x2Start, x2End));
+            tasks.add(new RenderHSBRegionTask(buf, wData, strategies,
+                    getChains(), colors, renderer.getOptimizations(),
+                    x1Start, x1End, x2Start, x2End, readers));
         }
 
         // Turn the list into an array an return it.

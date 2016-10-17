@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSliderUI
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -350,31 +350,39 @@ class TwoKnobsSliderUI
 	{
 		int l = xPositionForValue(model.getStartValue());
 		int r = xPositionForValue(model.getEndValue());
-		if (!component.getColourGradient())
-		{
-			Paint paint = new GradientPaint(0, trackRect.y,
-				UIUtilities.TRACK_GRADIENT_START, 0,
-				trackRect.y+trackRect.height-10,
-				UIUtilities.TRACK_GRADIENT_END, false);
-			g2D.setPaint(paint);
-			g2D.fillRoundRect(trackRect.x, trackRect.y+3, trackRect.width,
-					trackRect.height-12, trackRect.height/3, 
-					trackRect.height/3);
-			g2D.setColor(TRACK_COLOR);
-			g2D.drawRoundRect(trackRect.x, trackRect.y+2, trackRect.width,
-					trackRect.height-11, trackRect.height/3, trackRect.height/3);
-		} else {
-			Color[] colors = component.getGradientColors();
-			Paint paint = new GradientPaint(trackRect.x,
-					trackRect.y-2,  colors[0], trackRect.width,
-					trackRect.height+2, colors[1], false);
-			g2D.setPaint(paint);
-			g2D.fillRoundRect(trackRect.x, trackRect.y+2, trackRect.width,
-					trackRect.height-10, trackRect.height/3, 
-					trackRect.height/3);
-			g2D.setColor(Color.black);
-			g2D.drawRoundRect(trackRect.x, trackRect.y+2, trackRect.width,
-					trackRect.height-9, trackRect.height/3, trackRect.height/3);
+		if ( component.getImage() != null ){
+            g2D.drawImage(component.getImage(), trackRect.x, trackRect.y, trackRect.width, trackRect.height-9, null);
+            
+            g2D.drawRect(trackRect.x, trackRect.y, trackRect.width,
+                    trackRect.height-8);
+		}
+		else {
+		    if (!component.getColourGradient())
+	        {
+	            Paint paint = new GradientPaint(0, trackRect.y,
+	                UIUtilities.TRACK_GRADIENT_START, 0,
+	                trackRect.y+trackRect.height-10,
+	                UIUtilities.TRACK_GRADIENT_END, false);
+	            g2D.setPaint(paint);
+	            g2D.fillRoundRect(trackRect.x, trackRect.y+3, trackRect.width,
+	                    trackRect.height-12, trackRect.height/3, 
+	                    trackRect.height/3);
+	            g2D.setColor(TRACK_COLOR);
+	            g2D.drawRoundRect(trackRect.x, trackRect.y+2, trackRect.width,
+	                    trackRect.height-11, trackRect.height/3, trackRect.height/3);
+	        } else {
+	            Color[] colors = component.getGradientColors();
+	            Paint paint = new GradientPaint(trackRect.x,
+	                    trackRect.y-2,  colors[0], trackRect.width,
+	                    trackRect.height+2, colors[1], false);
+	            g2D.setPaint(paint);
+	            g2D.fillRoundRect(trackRect.x, trackRect.y+2, trackRect.width,
+	                    trackRect.height-10, trackRect.height/3, 
+	                    trackRect.height/3);
+	            g2D.setColor(Color.black);
+	            g2D.drawRoundRect(trackRect.x, trackRect.y+2, trackRect.width,
+	                    trackRect.height-9, trackRect.height/3, trackRect.height/3);
+	        }
 		}
 		//Draw the knobs
 		int w  = component.getKnobWidth();

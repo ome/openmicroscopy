@@ -1,5 +1,5 @@
 /*
- *   Copyright 2006-2014 University of Dundee. All rights reserved.
+ *   Copyright 2006-2016 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -59,7 +59,10 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 		"left outer join fetch rdef.model " +
 		"left outer join fetch rdef.waveRendering as cb " +
 		"left outer join fetch cb.family " +
-		"left outer join fetch rdef.spatialDomainEnhancement where ";
+		"left outer join fetch cb.spatialDomainEnhancement " +
+		"left outer join fetch rdef.projections as proj " +
+		"left outer join fetch proj.axis " +
+		"left outer join fetch proj.type where ";
 
 	// ~ Service methods
 	// =========================================================================

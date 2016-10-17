@@ -2,9 +2,7 @@
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# $Id$
-#
-# Copyright 2008 University of Dundee. All rights reserved.
+# Copyright 2008-2016 University of Dundee. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -16,16 +14,16 @@
 		<properties>
 			<optional name="type" type="string"/>
 			<optional name="protocolIdentifier" type="string"/>
-			<optional name="protocolDescription" type="string"/>
+			<optional name="protocolDescription" type="text"/>
 			<optional name="reagentSetIdentifier" type="string"/>
-			<optional name="reagentSetDescription" type="string"/>
+			<optional name="reagentSetDescription" type="text"/>
 			<child name="plateLinks" type="ome.model.screen.ScreenPlateLink" target="ome.model.screen.Plate"/>
 			<zeromany name="reagents" type="ome.model.screen.Reagent" inverse="screen"/>
 		</properties>
 	</type>
 	<type id="ome.model.screen.PlateAcquisition" described="true" annotated="true">
 		<properties>
-			<optional name="name" type="string"/>
+			<optional name="name" type="text"/>
 			<optional name="startTime" type="timestamp"/>
 			<optional name="endTime" type="timestamp"/>
 			<optional name="maximumFieldCount" type="int"/>
@@ -45,7 +43,7 @@
 			<optional name="rows" type="int"/>
 			<optional name="columns" type="int"/>
 			<!-- end not in model -->
-			<optional name="status" type="string"/>
+			<optional name="status" type="text"/>
 			<optional name="externalIdentifier" type="string"/>
 			<parent name="screenLinks" type="ome.model.screen.ScreenPlateLink" target="ome.model.screen.Screen"/>
 			<zeromany name="wells" type="ome.model.screen.Well" inverse="plate"/>
@@ -67,7 +65,7 @@
                         <!-- end not in model -->
 			<child name="reagentLinks" type="ome.model.screen.WellReagentLink" target="ome.model.screen.Reagent"/>
 			<!-- Note: only one reagent per well in model-->
-			<optional name="externalDescription" type="string"/>
+			<optional name="externalDescription" type="text"/>
 			<optional name="externalIdentifier" type="string"/>
 			<optional name="type" type="string"/>
 			<zeromany name="wellSamples" type="ome.model.screen.WellSample" inverse="well" ordered="true"/>
@@ -88,7 +86,7 @@
 	<type id="ome.model.screen.Reagent" annotated="true" described="true">
 		<!-- Note: Name is optional in model-->
 		<properties>
-			<optional name="name" type="string"/>
+			<optional name="name" type="text"/>
 			<optional name="reagentIdentifier" type="string"/>
 			<manyone name="screen" type="ome.model.screen.Screen" inverse="reagent"/>
 			<parent name="wellLinks" type="ome.model.screen.WellReagentLink" target="ome.model.screen.Well"/>

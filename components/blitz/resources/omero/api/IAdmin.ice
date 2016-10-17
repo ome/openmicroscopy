@@ -194,7 +194,7 @@ module omero {
                  * {@link omero.model.Experimenter} object via an
                  * {@link omero.model.FileAnnotation} with
                  * the namespace:
-                 *  "openmicroscopy.org/omero/experimenter/photo"
+                 *  <i>openmicroscopy.org/omero/experimenter/photo</i>
                  * (NSEXPERIMENTERPHOTO).
                  * If such an {@link omero.model.OriginalFile} instance
                  * already exists, it will be overwritten. If more than one
@@ -202,8 +202,8 @@ module omero {
                  * the highest updateEvent id).
                  *
                  * Note: as outlined in <a href="https://trac.openmicroscopy.org/ome/ticket/1794">ticket 1794</a>
-                 * this photo will be placed in the "user" group and therefore
-                 * will be visible to everyone on the system.
+                 * this photo will be placed in the <i>user</i> group and
+                 * therefore will be visible to everyone on the system.
                  *
                  * @param filename Not null. String name which will be used.
                  * @param format Not null. Format.value string. 'image/jpeg'
@@ -275,8 +275,8 @@ module omero {
 
                 /**
                  * Creates and returns a new system user. This user will be
-                 * created with the "System" (administration) group as default
-                 * and will also be in the "user" group.
+                 * created with the <i>System</i> (administration) group as
+                 * default and will also be in the <i>user</i> group.
                  *
                  * @param experimenter a new {@link omero.model.Experimenter}
                  *        instance
@@ -383,7 +383,7 @@ module omero {
                  * Adds the user to the owner list for this group.
                  *
                  * Since <a href="https://trac.openmicroscopy.org/ome/ticket/1434">Beta 4.2</a>
-                 * multiple users can be the "owner" of a group.
+                 * multiple users can be the <i>owner</i> of a group.
                  *
                  * @param group A currently managed
                  *        {@link omero.model.ExperimenterGroup}. Not null.
@@ -396,7 +396,7 @@ module omero {
                  * Removes the user from the owner list for this group.
                  *
                  * Since <a href="https://trac.openmicroscopy.org/ome/ticket/1434">Beta 4.2</a>
-                 * multiple users can be the "owner" of a group.
+                 * multiple users can be the <i>owner</i> of a group.
                  *
                  * @param group A currently managed
                  *        {@link omero.model.ExperimenterGroup}. Not null.
@@ -454,8 +454,8 @@ module omero {
                 idempotent void changePermissions(omero::model::IObject obj, omero::model::Permissions perms) throws ServerError;
 
                 /**
-                 * Moves the given objects into the "user" group to make them
-                 * visible and linkable from all security contexts.
+                 * Moves the given objects into the <i>user</i> group to make
+                 * them visible and linkable from all security contexts.
                  *
                  * See also <a href="https://trac.openmicroscopy.org/ome/ticket/1794">ticket 1794</a>
                  *

@@ -18,6 +18,7 @@ from omero.cli import CLI, NonZeroReturnCode
 plugin = __import__('omero.plugins.import', globals(), locals(),
                     ['ImportControl'], -1)
 ImportControl = plugin.ImportControl
+CommandArguments = plugin.CommandArguments
 
 help_arguments = ("-h", "--javahelp", "--java-help", "--advanced-help")
 
@@ -43,7 +44,9 @@ class TestImport(object):
             ".." / "dist"  # FIXME: should not be hard-coded
         dist_dir = dist_dir.abspath()
         client_dir = dist_dir / "lib" / "client"
+        logback = dist_dir / "etc" / "logback-cli.xml"
         self.args += ["--clientdir", client_dir]
+        self.args += ["--logback", logback]
 
     def mkdir(self, parent, name, with_ds_store=False):
         child = parent / name
@@ -147,13 +150,18 @@ class TestImport(object):
         self.args += ["-f", "--debug=ERROR"]
         self.args += [str(dir1)]
 
+        def f():
+            self.cli.invoke(self.args + ["--depth=%s" % depth], strict=True)
+
         depth, result = data
-        self.cli.invoke(self.args + ["--depth=%s" % depth], strict=True)
-        o, e = capfd.readouterr()
         if result:
+            f()
+            o, e = capfd.readouterr()
             assert str(fakefile) in str(o)
         else:
-            assert str(fakefile) not in str(o)
+            # Now a failure condition
+            with pytest.raises(NonZeroReturnCode):
+                f()
 
     def testImportFakeImage(self, tmpdir, capfd):
         """Test fake image import"""
@@ -219,8 +227,6 @@ class TestImport(object):
     @pytest.mark.parametrize('port', [None, 4064, 14064])
     def testLoginArguments(self, monkeypatch, hostname, port, tmpdir):
         self.args += ['test.fake']
-        control = self.cli.controls['import']
-        control.command_args = []
         sessionid = str(uuid.uuid4())
 
         def new_client(x):
@@ -235,9 +241,127 @@ class TestImport(object):
         ice_config.write('omero.host=%s\nomero.port=%g' % (
             hostname, (port or 4064)))
         monkeypatch.setenv("ICE_CONFIG", ice_config)
-        control.set_login_arguments(self.cli.parser.parse_args(self.args))
+        args = self.cli.parser.parse_args(self.args)
+        command_args = CommandArguments(self.cli, args)
 
         expected_args = ['-s', '%s' % hostname]
         expected_args += ['-p', '%s' % (port or 4064)]
         expected_args += ['-k', '%s' % sessionid]
-        assert control.command_args == expected_args
+        expected_args += ['test.fake']
+        assert command_args.java_args() == expected_args
+
+    def testLogPrefix(self, tmpdir, capfd):
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+        prefix = tmpdir.join("log")
+
+        self.add_client_dir()
+        self.args += ["-f", "---logprefix=%s" % prefix,
+                      "---file=out", "---errs=errs"]
+        self.args += [str(fakefile)]
+        self.cli.invoke(self.args, strict=True)
+
+        o, e = capfd.readouterr()
+        assert o == ""
+        assert e == ""
+
+        outlines = prefix.join("out").read().split("\n")
+        reader = 'loci.formats.in.FakeReader'
+        assert outlines[-2] == str(fakefile)
+        assert outlines[-3] == \
+            "# Group: %s SPW: false Reader: %s" % (str(fakefile), reader)
+
+    def testYamlOutput(self, tmpdir, capfd):
+
+        import yaml
+        from StringIO import StringIO
+
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+        self.add_client_dir()
+        self.args += ["-f", "--output=yaml", str(fakefile)]
+        self.cli.invoke(self.args, strict=True)
+
+        o, e = capfd.readouterr()
+        result = yaml.load(StringIO(o))
+        result = result[0]
+        assert "fake" in result["group"]
+        assert 1 == len(result["files"])
+        assert "reader" in result
+        assert "spw" in result
+
+    def testBulkNoPaths(self):
+        t = path(__file__) / "bulk_import" / "test_simple"
+        b = t / "bulk.yml"
+        self.add_client_dir()
+        self.args += ["-f", "---bulk=%s" % b, "dne.fake"]
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
+
+    def testBulkSimple(self):
+        t = path(__file__).parent / "bulk_import" / "test_simple"
+        b = t / "bulk.yml"
+
+        self.add_client_dir()
+        self.args += ["-f", "---bulk=%s" % b]
+        self.cli.invoke(self.args, strict=True)
+
+    def testBulkInclude(self):
+        t = path(__file__).parent / "bulk_import" / "test_include" / "inner"
+        b = t / "bulk.yml"
+
+        self.add_client_dir()
+        self.args += ["-f", "---bulk=%s" % b]
+        self.cli.invoke(self.args, strict=True)
+
+    def testBulkName(self):
+        # Metadata provided in the yml file will be applied
+        # to the args
+        t = path(__file__).parent / "bulk_import" / "test_name"
+        b = t / "bulk.yml"
+
+        class MockImportControl(ImportControl):
+            def do_import(self, command_args, xargs):
+                assert "--name=testname" in command_args.java_args()
+        self.cli.register("mock-import", MockImportControl, "HELP")
+
+        self.args = ["mock-import", "-f", "---bulk=%s" % b]
+        self.add_client_dir()
+        self.cli.invoke(self.args, strict=True)
+
+    def testBulkCols(self):
+        # Metadata provided about the individual columns in
+        # the tsv will be used.
+        t = path(__file__).parent / "bulk_import" / "test_cols"
+        b = t / "bulk.yml"
+
+        class MockImportControl(ImportControl):
+            def do_import(self, command_args, xargs):
+                cmd = command_args.java_args()
+                assert "--name=meta_one" in cmd or \
+                       "--name=meta_two" in cmd
+
+        self.cli.register("mock-import", MockImportControl, "HELP")
+
+        self.args = ["mock-import", "-f", "---bulk=%s" % b]
+        self.add_client_dir()
+        self.cli.invoke(self.args, strict=True)
+
+    def testBulkBad(self):
+        t = path(__file__).parent / "bulk_import" / "test_bad"
+        b = t / "bulk.yml"
+
+        self.add_client_dir()
+        self.args += ["-f", "---bulk=%s" % b]
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
+
+    def testBulkDry(self, capfd):
+        t = path(__file__).parent / "bulk_import" / "test_dryrun"
+        b = t / "bulk.yml"
+
+        self.add_client_dir()
+        self.args += ["-f", "---bulk=%s" % b]
+        self.cli.invoke(self.args, strict=True)
+        o, e = capfd.readouterr()
+        assert o == '"--name=no-op" "1.fake"\n'

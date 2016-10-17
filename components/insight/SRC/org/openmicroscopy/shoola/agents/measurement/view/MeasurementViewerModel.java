@@ -57,14 +57,19 @@ import org.openmicroscopy.shoola.agents.measurement.ROISaver;
 import org.openmicroscopy.shoola.agents.measurement.ServerSideROILoader;
 import org.openmicroscopy.shoola.agents.measurement.TagsLoader;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 import org.openmicroscopy.shoola.env.data.views.calls.ROIFolderSaver.ROIFolderAction;
 
+import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
+import omero.gateway.facility.DataManagerFacility;
 import omero.gateway.model.ROIResult;
 
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -98,7 +103,10 @@ import omero.gateway.model.GroupData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.PixelsData;
 import omero.gateway.model.ROIData;
+import omero.gateway.util.PojoMapper;
+import omero.gateway.util.Pojos;
 import ome.model.units.BigResult;
+import omero.model.IObject;
 import omero.model.Length;
 import omero.model.LengthI;
 import omero.model.enums.UnitsLength;
@@ -1306,18 +1314,51 @@ class MeasurementViewerModel
      *            The ROIs
      * @param folders
      *            The Folders
+     * @param async
+     *            Pass <code>true</code> to initiate an asynchronous call (will
+     *            return <code>null</code> immediately)
+     * @return The saved folders if *not* called asynchronously,
+     *         <code>null</code> if called asynchronously
      */
-    void saveROIFolders(Collection<FolderData> folders) {
+    Collection<FolderData> saveROIFolders(Collection<FolderData> folders,
+            boolean async) {
         if (getState() != MeasurementViewer.READY)
-            return;
-        
-        ExperimenterData exp = (ExperimenterData) MeasurementAgent
-                .getUserDetails();
-        currentSaver = new ROIFolderSaver(component, getSecurityContext(),
-                getImageID(), exp.getId(), null, folders,
-                ROIFolderAction.CREATE_FOLDER);
-        setSaveState();
-        currentSaver.load();
+            return null;
+
+        if (async) {
+            ExperimenterData exp = (ExperimenterData) MeasurementAgent
+                    .getUserDetails();
+            currentSaver = new ROIFolderSaver(component, getSecurityContext(),
+                    getImageID(), exp.getId(), null, folders,
+                    ROIFolderAction.CREATE_FOLDER);
+            setSaveState();
+            currentSaver.load();
+        } else {
+            try {
+                Registry reg = MetadataViewerAgent.getRegistry();
+                OmeroDataService ods = reg.getDataService();
+                Gateway gw = ods.getGateway();
+                DataManagerFacility dm = gw
+                        .getFacility(DataManagerFacility.class);
+                List<IObject> objs = new ArrayList<IObject>(folders.size());
+                for (FolderData f : folders)
+                    objs.add(f.asIObject());
+                objs = dm.saveAndReturnObject(getSecurityContext(), objs, null,
+                        null);
+                Collection<FolderData> result = PojoMapper
+                        .asCastedDataObjects(objs);
+                Collection<Long> ids = Pojos.extractIds(this.folders);
+                for (FolderData f : result) {
+                    if (!ids.contains(f.getId()))
+                        this.folders.add(f);
+                }
+                return result;
+            } catch (Exception e) {
+                MeasurementAgent.getRegistry().getLogger()
+                        .error(this, "Could not create folders");
+            }
+        }
+        return null;
     }
 
     /**

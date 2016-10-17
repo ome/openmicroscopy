@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -28,6 +28,8 @@ import java.awt.image.BufferedImage;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -38,12 +40,16 @@ import java.util.Set;
 import omero.LockTimeout;
 import omero.api.RenderingEnginePrx;
 import omero.api.ResolutionDescription;
+import omero.model.CodomainMapContext;
 import omero.model.Family;
+import omero.model.IObject;
 import omero.model.Length;
 import omero.model.LengthI;
 import omero.model.Pixels;
 import omero.model.QuantumDef;
 import omero.model.RenderingModel;
+import omero.model.ReverseIntensityContext;
+import omero.model.ReverseIntensityContextI;
 import omero.model.enums.UnitsLength;
 import omero.romio.PlaneDef;
 
@@ -63,6 +69,7 @@ import omero.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
+import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPickerUtil;
 
 import omero.gateway.model.ChannelData;
 import omero.gateway.model.ExperimenterData;
@@ -168,6 +175,9 @@ class RenderingControlProxy
 	
 	/** The number of retry.*/
 	private int retry;
+	
+	/** The lookup tables */
+	private Collection<String> lookupTables;
 	
     /**
      * Maps the color channel Red to {@link #RED_INDEX}, Blue to 
@@ -475,6 +485,7 @@ class RenderingControlProxy
     			cb.setRGBA(servant.getRGBA(i));
     			cb.setLowerBound(servant.getPixelsTypeLowerBound(i));
     			cb.setUpperBound(servant.getPixelsTypeUpperBound(i));
+    			cb.setLookupTable(servant.getChannelLookupTable(i));
     		}
     		tmpSolutionForNoiseReduction();
 		} catch (Exception e) {
@@ -748,6 +759,7 @@ class RenderingControlProxy
                     cb = rndDef.getChannel(i);
                     cb.setLowerBound(servant.getPixelsTypeLowerBound(i));
                     cb.setUpperBound(servant.getPixelsTypeUpperBound(i));
+                    cb.setLookupTable(servant.getChannelLookupTable(i));
                 }
             }
             tmpSolutionForNoiseReduction();
@@ -831,6 +843,7 @@ class RenderingControlProxy
                     cb = rndDef.getChannel(i);
                     cb.setLowerBound(servant.getPixelsTypeLowerBound(i));
                     cb.setUpperBound(servant.getPixelsTypeUpperBound(i));
+                    cb.setLookupTable(servant.getChannelLookupTable(i));
                 }
             }
 		} catch (Exception e) {
@@ -1240,17 +1253,24 @@ class RenderingControlProxy
 
     /** 
      * Implemented as specified by {@link RenderingControl}.
-     * @see RenderingControl#addCodomainMap(CodomainMapContext)
+     * @see RenderingControl#addCodomainMap(CodomainMapContext, int)
      */
-    /*
-    public void addCodomainMap(CodomainMapContext mapCtx)
-    	throws RenderingServiceException, DSOutOfServiceException
+    public void addCodomainMap(CodomainMapContext mapCtx, int w)
+            throws RenderingServiceException, DSOutOfServiceException
     {
-    	//servant.addCodomainMap(mapCtx);
-        invalidateCache();
+        if (!(mapCtx instanceof ReverseIntensityContext)){
+            return ;
+        }
+        isSessionAlive();
+        try {
+            omero.romio.ReverseIntensityMapContext c = new omero.romio.ReverseIntensityMapContext();
+            servant.addCodomainMapToChannel(c, w);
+            invalidateCache();
+        } catch (Exception e) {
+            handleException(e, ERROR+"cannot set the map context.");
+        }
     }
-*/
-    
+
     /** 
      * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#updateCodomainMap(CodomainMapContext)
@@ -1266,27 +1286,46 @@ class RenderingControlProxy
 
     /** 
      * Implemented as specified by {@link RenderingControl}.
-     * @see RenderingControl#removeCodomainMap(CodomainMapContext)
+     * @see RenderingControl#removeCodomainMap(CodomainMapContext, int)
      */
-    /*
-    public void removeCodomainMap(CodomainMapContext mapCtx)
-    	throws RenderingServiceException, DSOutOfServiceException
+    public void removeCodomainMap(CodomainMapContext mapCtx, int w)
+        throws RenderingServiceException, DSOutOfServiceException
     {
-        //servant.removeCodomainMap(mapCtx);
-        invalidateCache();
+        if (!(mapCtx instanceof ReverseIntensityContext)){
+            return ;
+        }
+        isSessionAlive();
+        try {
+            omero.romio.ReverseIntensityMapContext c = new omero.romio.ReverseIntensityMapContext();
+            servant.removeCodomainMapFromChannel(c, w);
+            invalidateCache();
+        } catch (Exception e) {
+            handleException(e, ERROR+"cannot set the map context.");
+        }
     }
-    */
 
     /** 
      * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getCodomainMaps()
      */
-    public List getCodomainMaps()
+    public List<CodomainMapContext> getCodomainMaps(int w)
+            throws RenderingServiceException, DSOutOfServiceException
     {
-        // TODO Auto-generated method stub
-        return new ArrayList(0);
+        isSessionAlive();
+        List<CodomainMapContext> l = new ArrayList<CodomainMapContext>();
+        try {
+            List<IObject> ll = servant.getCodomainMapContext(w);
+            Iterator<IObject> i = ll.iterator();
+            while (i.hasNext()) {
+                l.add((CodomainMapContext) i.next());
+            }
+            invalidateCache();
+        } catch (Exception e) {
+            handleException(e, ERROR+"cannot set the map context.");
+        }
+        return l;
     }
-    
+
     /** 
      * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#saveCurrentSettings()
@@ -1530,6 +1569,7 @@ class RenderingControlProxy
 			c = rndDef.getChannel(i);
 			if (c != null) {
 				setRGBA(i, c.getRGBA());
+				setLookupTable(i, c.getLookupTable());
 				setChannelWindow(i, c.getInputStart(), c.getInputEnd());
 				setQuantizationMap(i, c.getFamily(), c.getCurveCoefficient(),
 									c.isNoiseReduction());
@@ -1848,6 +1888,9 @@ class RenderingControlProxy
 				return false;
 			if (channel.isNoiseReduction() != getChannelNoiseReduction(i))
 				return false;
+            if (!ColourPickerUtil.sameLookuptable(channel.getLookupTable(),
+                    getLookupTable(i)))
+                return false;
 			rgba = channel.getRGBA();
 			color = getRGBA(i);
 			if (rgba[0] != color.getRed()) return false;
@@ -2038,5 +2081,63 @@ class RenderingControlProxy
 		}
     	return levels;
     }
+    
+    /**
+     * Implemented as specified by {@link RenderingControl}.
+     * 
+     * @see RenderingControl#setAvailableLookupTables(Collection)
+     */
+    @Override
+    public void setAvailableLookupTables(Collection<String> lookupTables) {
+        this.lookupTables = lookupTables;
+    }
 
+    /**
+     * Implemented as specified by {@link RenderingControl}.
+     * 
+     * @see RenderingControl#getAvailableLookupTables()
+     */
+    @Override
+    public Collection<String> getAvailableLookupTables() {
+        if (lookupTables == null)
+            return Collections.EMPTY_LIST;
+        return lookupTables;
+    }
+
+    /**
+     * Implemented as specified by {@link RenderingControl}.
+     * 
+     * @see RenderingControl#getLookupTable(int)
+     */
+    @Override
+    public String getLookupTable(int w) {
+        ChannelBindingsProxy channel = rndDef.getChannel(w);
+        if (channel == null)
+            return null;
+        return channel.getLookupTable();
+    }
+
+    /**
+     * Implemented as specified by {@link RenderingControl}.
+     * 
+     * @see RenderingControl#setLookupTable(int, String)
+     */
+    @Override
+    public void setLookupTable(int w, String lut)
+            throws RenderingServiceException, DSOutOfServiceException {
+        isSessionAlive();
+        try {
+            servant.setChannelLookupTable(w, lut);
+            Iterator<RenderingControl> i = slaves.iterator();
+            while (i.hasNext())
+                i.next().setLookupTable(w, lut);
+            invalidateCache();
+            ChannelBindingsProxy channel = rndDef.getChannel(w);
+            if (channel != null)
+                channel.setLookupTable(lut);
+        } catch (Exception e) {
+            handleException(e, ERROR + " lookup up table for channel: " + w
+                    + ".");
+        }
+    }
 }

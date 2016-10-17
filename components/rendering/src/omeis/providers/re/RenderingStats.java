@@ -1,10 +1,7 @@
 /*
- * omeis.providers.re.RenderingStats
- *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2016 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-
 package omeis.providers.re;
 
 import java.util.HashMap;
@@ -196,15 +193,14 @@ public class RenderingStats
     	a += String.format(
     			"CONTEXT ---- OMEIS Pixels ID: %d Plane: %s Type: %s " +
     			"PlaneData: %s Channels: %d Renderered Image: %s " +
-    			"Color Model: %s Maps: %s\n",
+    			"Color Model: %s\n",
     				context.getMetadata().getId(),
     				plane,
     				context.getPlaneDimsAsString(plane),
     				context.getPixelsType(),
     				ioTime.keySet().size(),
     				context.getImageSize(plane),
-    				context.getRenderingDef().getModel().getValue(),
-    				context.getCodomainChain());
+    				context.getRenderingDef().getModel().getValue());
     	a += String.format(
     			"TIMES (ms) ---- Memory Allocation: %d I/O: %s " +
     			"Rendering: %d Total: %d\n",

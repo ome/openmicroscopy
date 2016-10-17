@@ -1412,6 +1412,8 @@
         top: 0; 
         left: 0;
         position: relative;
+        width: 100%;
+        height: 100%;
     }
 
 
@@ -2260,7 +2262,11 @@ width: 250px;
     color:white;
 }
 
-.ui-tooltip h3, .ui-tooltip div { margin: 0; }
+/* tooltip plugin */
+.ui-tooltip h3, .ui-tooltip div {
+	margin: 0;
+	word-wrap: break-word;
+}
 
 
 

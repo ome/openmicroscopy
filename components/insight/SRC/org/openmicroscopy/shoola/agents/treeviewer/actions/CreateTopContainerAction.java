@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,6 +22,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
+import javax.swing.tree.TreeNode;
 
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
@@ -220,7 +221,20 @@ public class CreateTopContainerAction
             setEnabled(TreeViewerAgent.isAdministrator());
             return;
         }
-        if (nodeType != EXPERIMENTER) {
+        if (model.getDisplayMode() == TreeViewer.EXPERIMENTER_DISPLAY
+                && (nodeType == TAG || nodeType == TAG_SET)
+                && selectedDisplay != null) {
+            TreeNode[] nodes = selectedDisplay.getPath();
+            if (nodes.length > 2) {
+                TreeNode expNode = nodes[2];
+                if (((TreeImageDisplay) expNode).getUserObject() instanceof ExperimenterData) {
+                    ExperimenterData exp = (ExperimenterData) ((TreeImageDisplay) expNode)
+                            .getUserObject();
+                    setEnabled(exp.getId() == TreeViewerAgent.getUserDetails()
+                            .getId());
+                }
+            }
+        } else if (nodeType != EXPERIMENTER) {
             if (selectedDisplay != null) {
                 Object ho = selectedDisplay.getUserObject();
                 if (ho instanceof ExperimenterData) {

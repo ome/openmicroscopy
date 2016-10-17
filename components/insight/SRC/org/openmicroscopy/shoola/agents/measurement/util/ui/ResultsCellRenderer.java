@@ -284,10 +284,6 @@ public class ResultsCellRenderer
 				}
     		}
     		
-    		if(k.equals(AnnotationKeys.ANGLE.getKey())) {
-    			s += UIUtilities.DEGREE_SYMBOL;
-    		}
-    		
     		label.setText(s);
     		thisComponent = label;
     	}

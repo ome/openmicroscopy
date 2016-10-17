@@ -61,7 +61,7 @@ import com.google.common.collect.ListMultimap;
  *
  * @author Blazej Pindelski <bpindelski at dundee dot ac dot uk>
  * @author Colin Blackburn <c.blackburn at dundee dot ac dot uk>
- * @since 4.5
+ * @since 5.0.0
  */
 public class RepositoryDaoImpl implements RepositoryDao {
 

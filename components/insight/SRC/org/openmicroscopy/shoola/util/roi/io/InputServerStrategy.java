@@ -20,13 +20,13 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package org.openmicroscopy.shoola.util.roi.io;
 
 import java.awt.Font;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -46,7 +46,6 @@ import static org.jhotdraw.draw.AttributeKeys.STROKE_WIDTH;
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.geom.BezierPath.Node;
 
-import ome.model.units.BigResult;
 import omero.model.Length;
 import omero.model.enums.UnitsLength;
 
@@ -61,7 +60,6 @@ import org.openmicroscopy.shoola.util.roi.figures.MeasurePointFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureRectangleFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
-import org.openmicroscopy.shoola.util.roi.io.util.SVGTransform;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
@@ -281,12 +279,7 @@ class InputServerStrategy
 		fig.setEllipse(x0, y0, width, height);
 		fig.setText(data.getText());
 		addShapeSettings(fig, data.getShapeSettings());
-		AffineTransform transform;
-		try {
-			transform = SVGTransform.toTransform(data.getTransform());
-			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {}
-		
+		TRANSFORM.set(fig, toTransform(data.getTransform()));
 		return fig;
 	}
 	
@@ -306,11 +299,7 @@ class InputServerStrategy
 		        PointFigure.FIGURE_SIZE, PointFigure.FIGURE_SIZE, data.isReadOnly(), data.isClientObject(), 
 				data.canEdit(), data.canDelete(), data.canAnnotate());
 		addShapeSettings(fig, data.getShapeSettings());
-		AffineTransform transform;
-		try {
-			transform = SVGTransform.toTransform(data.getTransform());
-			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {}	
+		TRANSFORM.set(fig, toTransform(data.getTransform()));
 		return fig;
 	}
 	
@@ -330,12 +319,7 @@ class InputServerStrategy
 					data.canDelete(), data.canAnnotate());
 		fig.setText(data.getText());
 		addShapeSettings(fig, data.getShapeSettings());
-		AffineTransform transform;
-		try {
-			transform = SVGTransform.toTransform(data.getTransform());
-			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {}
-		
+		TRANSFORM.set(fig, toTransform(data.getTransform()));
 		return fig;
 	}
 	
@@ -357,12 +341,7 @@ class InputServerStrategy
 				data.canEdit(), data.canDelete(), data.canAnnotate());
 		addShapeSettings(fig, data.getShapeSettings());
 		fig.setText(data.getText());
-		AffineTransform transform;
-		try {
-			transform = SVGTransform.toTransform(data.getTransform());
-			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {}
-		
+		TRANSFORM.set(fig, toTransform(data.getTransform()));
 		return fig;
 	}
 	
@@ -385,11 +364,7 @@ class InputServerStrategy
 		fig.setVisible(true);
 		addShapeSettings(fig, data.getShapeSettings());
 		fig.setText(data.getText());
-		AffineTransform transform;
-		try {
-			transform = SVGTransform.toTransform(data.getTransform());
-			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {}
+		TRANSFORM.set(fig, toTransform(data.getTransform()));
 		return fig;
 	}
 	
@@ -416,12 +391,7 @@ class InputServerStrategy
 		
 		addShapeSettings(fig, data.getShapeSettings());
 		fig.setText(data.getText());
-		AffineTransform transform;
-		try {
-			transform = SVGTransform.toTransform(data.getTransform());
-			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {}
-		
+		TRANSFORM.set(fig, toTransform(data.getTransform()));
 		return fig;
 	}
 	
@@ -452,11 +422,7 @@ class InputServerStrategy
 		if (text == null || text.trim().length() == 0)
 			text = ROIFigure.DEFAULT_TEXT;
 		fig.setText(text);
-		AffineTransform transform;
-		try {
-			transform = SVGTransform.toTransform(data.getTransform());
-			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {}
+		TRANSFORM.set(fig, toTransform(data.getTransform()));
 		fig.setClosed(true);		
 		return fig;
 	}
@@ -502,11 +468,7 @@ class InputServerStrategy
 		
 		addShapeSettings(fig, data.getShapeSettings());
 		fig.setText(data.getText());
-		AffineTransform transform;
-		try {
-			transform = SVGTransform.toTransform(data.getTransform());
-			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {}	
+		TRANSFORM.set(fig, toTransform(data.getTransform()));
 		return fig;
 	}
 	
@@ -534,12 +496,7 @@ class InputServerStrategy
 		if (text == null || text.trim().length() == 0)
 			text = ROIFigure.DEFAULT_TEXT;
 		fig.setText(text);
-		AffineTransform transform;
-		try {
-			transform = SVGTransform.toTransform(data.getTransform());
-			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {
-		}	
+		TRANSFORM.set(fig, toTransform(data.getTransform()));
 		return fig;
 	}
 	
@@ -555,16 +512,10 @@ class InputServerStrategy
 	    Length l;
         try {
             l = data.getStrokeWidth(UnitsLength.PIXEL);
-            if (l != null) {
+            if (l != null && l.getValue() >= 1) {
                 value = l.getValue();
             }
         } catch (Exception e) {
-            if (e instanceof BigResult) {
-                BigResult ex = (BigResult) e;
-                if (ex.result != null) {
-                    value = ex.result.doubleValue();
-                }
-            }
         }
 		STROKE_WIDTH.set(figure, value);
 		STROKE_COLOR.set(figure, data.getStroke());
@@ -576,7 +527,25 @@ class InputServerStrategy
 		FONT_BOLD.set(figure, data.isFontBold());
 		TEXT_COLOR.set(figure, data.getStroke());
 	}
-	
+
+    /**
+     * Convert an OMERO affine transform to an AWT affine transform.
+     * @param omeroTransform an OMERO affine transform, may be {@code null}
+     * @return the corresponding AWT affine transform, never {@code null}
+     */
+    private static AffineTransform toTransform(omero.model.AffineTransform omeroTransform)
+    {
+        if (omeroTransform == null ||
+                omeroTransform.getA00() == null || omeroTransform.getA01() == null || omeroTransform.getA02() == null ||
+                omeroTransform.getA10() == null || omeroTransform.getA11() == null || omeroTransform.getA12() == null) {
+            return new AffineTransform();
+        } else {
+            return new AffineTransform(omeroTransform.getA00().getValue(), omeroTransform.getA10().getValue(),
+                                       omeroTransform.getA01().getValue(), omeroTransform.getA11().getValue(),
+                                       omeroTransform.getA02().getValue(), omeroTransform.getA12().getValue());
+        }
+    }
+
 	/** Creates a new instance. */
 	InputServerStrategy()
 	{

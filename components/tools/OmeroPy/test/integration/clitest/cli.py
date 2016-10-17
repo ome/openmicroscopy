@@ -20,6 +20,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
+import pytest
+
 import omero
 from omero.cli import CLI
 from omero.plugins.sessions import SessionsControl
@@ -70,6 +72,15 @@ class CLITest(AbstractCLITest):
         assert found_object.id.val == new_object.id.val
 
         return new_object.id.val
+
+    @pytest.fixture()
+    def simpleHierarchy(self):
+        proj = self.make_project()
+        dset = self.make_dataset()
+        img = self.update.saveAndReturnObject(self.new_image())
+        self.link(proj, dset)
+        self.link(dset, img)
+        return proj, dset, img
 
 
 class RootCLITest(AbstractCLITest):

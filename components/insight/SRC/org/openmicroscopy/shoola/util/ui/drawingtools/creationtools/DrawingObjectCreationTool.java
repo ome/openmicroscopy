@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.drawingtools.creationtools.DrawingObjectCreationTool 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.util.ui.drawingtools.creationtools;
 
 import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -75,17 +74,6 @@ public class DrawingObjectCreationTool
      * UndoableEdit.
      */
     private String presentationName;
-    
-    /**
-     * Threshold for which we create a larger shape of a minimal size.
-     */
-    private Dimension minimalSizeTreshold = new Dimension(2, 2);
-    
-    /**
-     * We set the figure to this minimal size, if it is smaller than the
-     * minimal size threshold.
-     */
-    private Dimension minimalSize = new Dimension(10, 10);
     
     /** The prototype for new figures. */
     private Figure prototype;
@@ -288,22 +276,6 @@ public class DrawingObjectCreationTool
                 getDrawing().remove(createdFigure);
                 fireToolDone();
             } else {
-                if (Math.abs(anchor.x - evt.getX()) < 
-                		minimalSizeTreshold.width &&
-                        Math.abs(anchor.y - evt.getY()) < 
-                        minimalSizeTreshold.height) {
-                    createdFigure.willChange();
-                    createdFigure.setBounds(
-                            constrainPoint(new Point(anchor.x, anchor.y)),
-                            constrainPoint(new Point(
-                            anchor.x + (int) Math.max(bounds.width, 
-                            		minimalSize.width),
-                            anchor.y + (int) Math.max(bounds.height, 
-                            		minimalSize.height)
-                            ))
-                            );
-                    createdFigure.changed();
-                }
                 getView().addToSelection(createdFigure);
                 if (createdFigure instanceof CompositeFigure) {
                     ((CompositeFigure) createdFigure).layout();

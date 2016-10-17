@@ -136,9 +136,9 @@
 
         <!-- Move settings if underlying object is moved. -->
 
-        <bean parent="graphPolicyRule" p:matches="S:DetectorSettings[E].detector = [I]" p:changes="S:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="S:LightSettings[E].lightSource = [I]" p:changes="S:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="S:ObjectiveSettings[E].objective = [I]" p:changes="S:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="S:DetectorSettings[ED].detector = [I]" p:changes="S:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="S:LightSettings[ED].lightSource = [I]" p:changes="S:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="S:ObjectiveSettings[ED].objective = [I]" p:changes="S:[I]"/>
 
         <!-- Images may be moved only if doing so would not remove an imaging environment from any of them. -->
 
@@ -267,7 +267,9 @@
 
         <!-- If an original file is moved then any corresponding file annotation must also be moved. -->
 
-        <bean parent="graphPolicyRule" p:matches="A:FileAnnotation[E].file = OF:[I]" p:error="may not move {OF} while used by {A}"/>
+        <bean parent="graphPolicyRule" p:matches="A:FileAnnotation[I].file = OF:[E]" p:error="may not move {A} without {OF}"/>
+        <bean parent="graphPolicyRule" p:matches="A:FileAnnotation[ED].file = OF:[I]"
+                                       p:error="may not move {OF} while used by {A}"/>
 
         <!-- If both parent and child are moved then move the annotation link regardless of permissions. -->
 
@@ -493,15 +495,17 @@
 
         <!-- If rendering settings are deleted then delete the subgraph below. -->
 
+        <bean parent="graphPolicyRule" p:matches="RenderingDef[D].projections = PD:[E]" p:changes="PD:[D]"/>
         <bean parent="graphPolicyRule" p:matches="RenderingDef[D].quantization = Q:[E]" p:changes="Q:[D]"/>
-        <bean parent="graphPolicyRule" p:matches="RenderingDef[D].spatialDomainEnhancement = SDE:[E]" p:changes="SDE:[D]"/>
         <bean parent="graphPolicyRule" p:matches="RenderingDef[D].waveRendering = CB:[E]" p:changes="CB:[D]"/>
+        <bean parent="graphPolicyRule" p:matches="ChannelBinding[D].spatialDomainEnhancement = SDE:[E]" p:changes="SDE:[D]"/>
 
         <!-- If rendering settings are moved then move the subgraph below. -->
 
+        <bean parent="graphPolicyRule" p:matches="RenderingDef[I].projections = PD:[E]" p:changes="PD:[I]"/>
         <bean parent="graphPolicyRule" p:matches="RenderingDef[I].quantization = Q:[E]" p:changes="Q:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="RenderingDef[I].spatialDomainEnhancement = SDE:[E]" p:changes="SDE:[I]"/>
         <bean parent="graphPolicyRule" p:matches="RenderingDef[I].waveRendering = CB:[E]" p:changes="CB:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="ChannelBinding[I].spatialDomainEnhancement = SDE:[E]" p:changes="SDE:[I]"/>
 
         <!-- Regardless of permissions move thumbnails, except to a private group delete them if another's. -->
 
@@ -625,12 +629,24 @@
         <!-- Move contained objects: shapes of moved ROIs, pixels of moved masks. -->
 
         <bean parent="graphPolicyRule" p:matches="Roi[I].shapes = S:[E]" p:changes="S:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="Shape[I].transform = T:[E]" p:changes="T:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Mask[I].pixels =/o P:[E]" p:changes="P:[-]"/>
         <bean parent="graphPolicyRule" p:matches="Mask[I].pixels =/o P:[E], P.image = I:[E]{i}" p:changes="I:{r}"/>
 
         <!-- Delete the shapes of deleted ROIs. -->
 
         <bean parent="graphPolicyRule" p:matches="Roi[D].shapes = S:[E]" p:changes="S:[D]"/>
+
+        <!-- Delete orphaned affine transforms. -->
+
+        <bean parent="graphPolicyRule" p:matches="Shape[D].transform = T:[E]{i}" p:changes="T:[E]{r}"/>
+        <bean parent="graphPolicyRule" p:matches="Shape[E].transform = T:[E]{r}" p:changes="T:[E]{a}"/>
+        <bean parent="graphPolicyRule" p:matches="T:AffineTransform[E]{o}" p:changes="T:[D]"/>
+
+        <!-- Cannot split affine transforms. -->
+
+        <bean parent="graphPolicyRule" p:matches="S1:Shape[I].transform = T:[EI], S2:Shape[E].transform = T"
+                                       p:error="may not move {S1} while {S2} remains as they share {T}"/>
 
         <!-- SCREEN -->
 

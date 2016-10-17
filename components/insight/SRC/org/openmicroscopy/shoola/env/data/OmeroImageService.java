@@ -801,7 +801,7 @@ public interface OmeroImageService
 	 *                                  retrieve data from OMEDS service.
 	 * @throws ProcessException If an error occurred while running the script.
 	 */
-	public Set<DataObject> getFileSet(SecurityContext ctx, long imageId)
+	public Collection<DataObject> getFileSet(SecurityContext ctx, long imageId)
 		throws DSAccessException, DSOutOfServiceException;
 
 	/**

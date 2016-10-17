@@ -26,7 +26,7 @@
       ./setup.py test --pdb
 
 
-   Copyright 2007-2013 Glencoe Software, Inc. All rights reserved.
+   Copyright 2007-2016 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -67,4 +67,4 @@ setup(
         'omero.gateway': ['pilfonts/*'],
         'omero.gateway.scripts': ['imgs/*']},
     cmdclass={'test': PyTest},
-    tests_require=['pytest'])
+    tests_require=['pytest != 3.0.0, != 3.0.1, != 3.0.2'])

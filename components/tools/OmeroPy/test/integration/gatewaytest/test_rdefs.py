@@ -238,6 +238,7 @@ class TestRDefs (object):
         gatewaywrapper.gateway.SERVICE_OPTS.setOmeroGroup('-1')
         self.image = gatewaywrapper.getTestImage()
         self.image.setGreyscaleRenderingModel()
+        self.image.setActiveChannels([1], colors=['cool.lut'])
         self.image.saveDefaults()
 
         # Author saves Rdef (color)
@@ -245,6 +246,7 @@ class TestRDefs (object):
         authorId = gatewaywrapper.gateway.getUserId()
         self.image = gatewaywrapper.getTestImage()
         self.image.setColorRenderingModel()
+        self.image.setActiveChannels([1], colors=['FF0000'])
         self.image.saveDefaults()
 
         rdefs = self.image.getAllRenderingDefs()
@@ -256,9 +258,12 @@ class TestRDefs (object):
             if r['owner']['id'] == adminId:
                 adminRdefId = r['id']
                 assert r['model'] == 'greyscale'
+                assert r['c'][0]['lut'] == 'cool.lut'
             elif r['owner']['id'] == authorId:
                 authorRdefId = r['id']
                 assert r['model'] == 'rgb'
+                assert 'lut' not in r['c'][0]
+                assert r['c'][0]['color'] == 'FF0000'
 
         assert adminRdefId is not None
         assert authorRdefId is not None

@@ -28,7 +28,6 @@
     <dependency org="gnu.getopt" name="java-getopt" rev="1.0.13"/>
     <dependency org="org.apache.httpcomponents" name="httpmime" rev="${versions.httpmime}"/>
     <dependency org="commons-lang" name="commons-lang" rev="${versions.commons-lang}"/>
-    <dependency org="OME" name="ome-java" rev="${versions.ome-java}"/>
   </dependencies>
 </ivy-module>
 

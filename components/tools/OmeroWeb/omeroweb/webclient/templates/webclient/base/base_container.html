@@ -87,12 +87,12 @@
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.editinplace-0.1.2.js" %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.form-3.51.js" %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/ome.tagging_form.js"|add:url_suffix %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/ome.right_panel_tags_pane.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/ome.right_panel_fileanns_pane.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/ome.right_panel_comments_pane.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/ome.right_panel_customanns_pane.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/ome.right_panel_ratings_pane.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/ome.right_panel_mapanns_pane.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/ome.right_panel_tags_pane.js"|add:url_suffix %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/ome.right_panel_fileanns_pane.js"|add:url_suffix %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/ome.right_panel_comments_pane.js"|add:url_suffix %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/ome.right_panel_customanns_pane.js"|add:url_suffix %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/ome.right_panel_ratings_pane.js"|add:url_suffix %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/ome.right_panel_mapanns_pane.js"|add:url_suffix %}"></script>
 
 
     <!-- preview viewer... -->
@@ -189,10 +189,11 @@
             WEBCLIENT.URLS.tree_top_level = WEBCLIENT.URLS.api_containers;
         {% endifequal %}
 
-        {% if active_user %}
-        WEBCLIENT.active_user = {'id': {{ active_user.id }} };
-        WEBCLIENT.URLS.api_experimenter = "{% url 'api_experimenter' active_user.id %}";
-        {% endif %}
+        WEBCLIENT.URLS.api_experimenter = "{% url 'api_experimenter' ome.user_id %}";
+
+        WEBCLIENT.UI = {};
+        WEBCLIENT.UI.TREE = {};
+        WEBCLIENT.UI.TREE.type_order = "{{ui.tree.type_order}}".toLowerCase().split(",").filter(function(e){return e});
 
         {% if page_size %}
             var PAGE_SIZE = {{ page_size }};
@@ -220,11 +221,7 @@
         // The shown user's ID. This is located here because static javascript files
         // are not preprocessed by django
         function activeUserId() {
-            {% if active_user.id %}
-                return {{ active_user.id }}
-            {% else %}
-                return -1;
-            {% endif %}
+            return {{ ome.user_id }};
         };
 
         // The currently logged in user ID

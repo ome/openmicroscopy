@@ -24,16 +24,20 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import omero.RLong;
 import omero.RType;
 import omero.ServerError;
+import omero.rtypes;
 import omero.cmd.Chmod2;
 import omero.cmd.Chown2;
 import omero.cmd.Delete2;
 import omero.gateway.util.Requests;
 import omero.model.Annotation;
+import omero.model.AnnotationAnnotationLink;
+import omero.model.AnnotationAnnotationLinkI;
 import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
 import omero.model.DatasetImageLink;
@@ -43,6 +47,8 @@ import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;
+import omero.model.FileAnnotation;
+import omero.model.FileAnnotationI;
 import omero.model.Folder;
 import omero.model.FolderImageLink;
 import omero.model.FolderImageLinkI;
@@ -51,6 +57,8 @@ import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
 import omero.model.Instrument;
+import omero.model.MapAnnotation;
+import omero.model.MapAnnotationI;
 import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.RectangleI;
@@ -69,7 +77,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.SetMultimap;
 
 import integration.AbstractServerTest;
 
@@ -135,7 +145,8 @@ public class PermissionsTest extends AbstractServerTest {
     }
 
     /**
-     * Add a comment, tag and a ROI to the given image.
+     * Add a comment, tag, MapAnnotation, FileAnnotation,
+     * Thumbnail and a ROI to the given image.
      * @param image an image
      * @return the new model objects
      * @throws ServerError unexpected
@@ -147,7 +158,8 @@ public class PermissionsTest extends AbstractServerTest {
 
         final List<IObject> annotationObjects = new ArrayList<IObject>();
 
-        for (final Annotation annotation : new Annotation[] {new CommentAnnotationI(), new TagAnnotationI()}) {
+        for (final Annotation annotation : new Annotation[] {new CommentAnnotationI(),
+             new TagAnnotationI(), new FileAnnotationI(), new MapAnnotationI()}) {
             final ImageAnnotationLink link = annotateImage(image, annotation);
             annotationObjects.add(link.proxy());
             annotationObjects.add(link.getChild().proxy());
@@ -169,6 +181,70 @@ public class PermissionsTest extends AbstractServerTest {
         annotationObjects.add(thumbnail.proxy());
 
         return annotationObjects;
+    }
+
+    /**
+     * Create tag sets
+     * @param number number of tag sets to create
+     * @return the newly created tag sets
+     * @throws Exception unexpected
+     */
+    private List<TagAnnotation> createTagsets(int number) throws Exception {
+        final List<TagAnnotation> tagsets = new ArrayList<TagAnnotation>();
+        for (int i = 1; i <= number; i++) {
+            final TagAnnotation tagset = new TagAnnotationI();
+            tagset.setName(rtypes.rstring("tagset #" + i));
+            tagset.setNs(rtypes.rstring(omero.constants.metadata.NSINSIGHTTAGSET.value));
+            tagsets.add((TagAnnotation) iUpdate.saveAndReturnObject(tagset).proxy());
+        }
+        return tagsets;
+    }
+
+    /**
+     * Create tags
+     * @param number number of tags to create
+     * @return the newly created tags
+     * @throws Exception unexpected
+     */
+    private List<TagAnnotation> createTags(int number) throws Exception {
+        final List<TagAnnotation> tags = new ArrayList<TagAnnotation>();
+        for (int i = 1; i <= number; i++) {
+            final TagAnnotation tag = new TagAnnotationI();
+            tag.setName(rtypes.rstring("tag #" + i));
+            tags.add((TagAnnotation) iUpdate.saveAndReturnObject(tag).proxy());
+        }
+         return tags;
+    }
+
+    /**
+     * Define how to link the tag sets to the tags
+     * @param tags the tags to be mapped for linking
+     * @param tagsets the tag sets to be mapped for linking
+     * @return the map of the prospective links
+     * @throws Exception unexpected
+     */
+    private SetMultimap<TagAnnotation, TagAnnotation> defineLinkingTags(List<TagAnnotation> tags, List<TagAnnotation> tagsets) throws Exception {
+        final SetMultimap<TagAnnotation, TagAnnotation> members = HashMultimap.create();
+        members.put(tagsets.get(0), tags.get(0));
+        members.put(tagsets.get(0), tags.get(1));
+        members.put(tagsets.get(1), tags.get(1));
+        members.put(tagsets.get(1), tags.get(2));
+        return members;
+    }
+
+    /**
+     * Perform the linking
+     * of tags and tag sets
+     * @param members the map of the links
+     * @throws Exception unexpected
+     */
+    private void linkTagsTagsets(SetMultimap<TagAnnotation, TagAnnotation> members) throws Exception {
+    	for (final Map.Entry<TagAnnotation, TagAnnotation> toLink : members.entries()) {
+            final AnnotationAnnotationLink link = new AnnotationAnnotationLinkI();
+            link.setParent(toLink.getKey());
+            link.setChild(toLink.getValue());
+            iUpdate.saveObject(link);
+        }
     }
 
     /**
@@ -208,11 +284,12 @@ public class PermissionsTest extends AbstractServerTest {
      * @param isGroupOwner if the user submitting the {@link Chown2} request owns the group itself
      * @param isRecipientInGroup if the user receiving data by means of the {@link Chown2} request is a member of the data's group
      * @param isExpectSuccess if the chown is expected to succeed
+     * @param option the child option to use in the tagset transfer
      * @throws Exception unexpected
      */
     @Test(dataProvider = "chown annotation test cases")
     public void testChownAnnotationPrivate(boolean isDataOwner, boolean isAdmin, boolean isGroupOwner, boolean isRecipientInGroup,
-            boolean isExpectSuccess) throws Exception {
+            boolean isExpectSuccess, Option option) throws Exception {
 
         /* set up the users and group for this test case */
 
@@ -238,46 +315,69 @@ public class PermissionsTest extends AbstractServerTest {
 
         /* note which objects were used to annotate an image */
 
-        final List<IObject> imageAnnotations;
+        final List<IObject> annotationsDoublyLinked;
+        final List<IObject> annotationsSinglyLinked;
         final List<ImageAnnotationLink> tagLinksOnOtherImage = new ArrayList<ImageAnnotationLink>();
-
-        /* import and annotate an image */
+        final List<ImageAnnotationLink> fileAnnLinksOnOtherImage = new ArrayList<ImageAnnotationLink>();
+        final List<ImageAnnotationLink> mapAnnLinksOnOtherImage = new ArrayList<ImageAnnotationLink>();
+        
+        /* import and annotate an image with two sets of annotations */
 
         init(importer);
         final Image image = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage()).proxy();
         final long imageId = image.getId().getValue();
         testImages.add(imageId);
-        imageAnnotations = annotateImage(image);
+        annotationsDoublyLinked = annotateImage(image);
+        annotationsSinglyLinked = annotateImage(image);
 
-        /* tag another image with the tags from the first image */
+        /* Link Tag, FileAnnotation and MapAnnotation from "annotationsDoublyLinked" to a second image.
+         * Note that ALL of both "annotationsDoublyLinked" and "annotationsSinglyLinked"
+         * are already linked to the first image.
+         * NONE of the "annotationsSinglyLinked" will be linked to the second image.*/
 
         final Image otherImage = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage()).proxy();
         testImages.add(otherImage.getId().getValue());
-        for (final IObject annotation : imageAnnotations) {
+        for (final IObject annotation : annotationsDoublyLinked) {
             if (annotation instanceof TagAnnotation) {
                 final ImageAnnotationLink link = (ImageAnnotationLink) annotateImage(otherImage, (TagAnnotation) annotation);
                 tagLinksOnOtherImage.add((ImageAnnotationLink) link.proxy());
+            } else if (annotation instanceof FileAnnotation) {
+                final ImageAnnotationLink link = (ImageAnnotationLink) annotateImage(otherImage, (FileAnnotation) annotation);
+                fileAnnLinksOnOtherImage.add((ImageAnnotationLink) link.proxy());
+            } else if (annotation instanceof MapAnnotation) {
+                final ImageAnnotationLink link = (ImageAnnotationLink) annotateImage(otherImage, (MapAnnotation) annotation);
+                mapAnnLinksOnOtherImage.add((ImageAnnotationLink) link.proxy());
             }
         }
+        
+        /* create two tag sets and three tags */
+        final List<TagAnnotation> tagsets = createTagsets(2);
+        final List<TagAnnotation> tags = createTags(3);
 
-        /* perform the chown */
+        /* define how to link the tag sets to the tags and link them */
+        final SetMultimap<TagAnnotation, TagAnnotation> members = defineLinkingTags(tags, tagsets);
+        linkTagsTagsets(members);
+
+        /* chown the image */
 
         init(chowner);
-        final Chown2 chown = Requests.chown().target(image).toUser(recipient.userId).build();
+        Chown2 chown = Requests.chown().target(image).toUser(recipient.userId).build();
         doChange(client, factory, chown, isExpectSuccess);
 
         if (!isExpectSuccess) {
             return;
         }
 
-        /* check that the objects' ownership is all as expected */
+        /* check that the objects' ownership is all as expected, i.e. the non-doubly linked
+         * annotations belong to recipient, the doubly-linked annotations belong to importer */
 
         final Set<Long> imageLinkIds = new HashSet<Long>();
 
         logRootIntoGroup(dataGroupId);
         assertOwnedBy(image, recipient);
-        for (final IObject annotation : imageAnnotations) {
-            if (annotation instanceof TagAnnotation) {
+        for (final IObject annotation : annotationsDoublyLinked) {
+            if (annotation instanceof TagAnnotation || annotation instanceof FileAnnotation || 
+                annotation instanceof MapAnnotation) {
                 assertOwnedBy(annotation, importer);
             } else if (annotation instanceof ImageAnnotationLink) {
                 imageLinkIds.add(annotation.getId().getValue());
@@ -285,29 +385,101 @@ public class PermissionsTest extends AbstractServerTest {
                 assertOwnedBy(annotation, recipient);
             }
         }
-        assertOwnedBy(tagLinksOnOtherImage, importer);
 
-        /* check that the image's links to the tags that were also linked to the other image were deleted */
+        for (final IObject annotation : annotationsSinglyLinked) {
+        	assertOwnedBy(annotation, recipient);
+        }
+
+        assertOwnedBy(tagLinksOnOtherImage, importer);
+        assertOwnedBy(fileAnnLinksOnOtherImage, importer);
+        assertOwnedBy(mapAnnLinksOnOtherImage, importer);
+
+        /* check that the image's links to the tags and FileAnnotations that were also linked to the other image were deleted */
 
         final String query = "SELECT COUNT(id) FROM ImageAnnotationLink WHERE id IN (:ids)";
         final ParametersI params = new ParametersI().addIds(imageLinkIds);
         final List<List<RType>> results = iQuery.projection(query, params);
         final long remainingLinkCount = ((RLong) results.get(0).get(0)).getValue();
-        Assert.assertEquals(remainingLinkCount, imageLinkIds.size() - tagLinksOnOtherImage.size());
+        final long deletedLinkCount = tagLinksOnOtherImage.size() + fileAnnLinksOnOtherImage.size() + mapAnnLinksOnOtherImage.size();
+        Assert.assertEquals(remainingLinkCount, imageLinkIds.size() - deletedLinkCount);
+        
+        /* chown the first tag set */
+        init(chowner);
+        chown = Requests.chown().target(tagsets.get(0)).toUser(recipient.userId).build();
+
+        switch (option) {
+        case NONE:
+            break;
+        case INCLUDE:
+            chown.childOptions = Collections.singletonList(Requests.option().includeType("Annotation").build());
+            break;
+        case EXCLUDE:
+            chown.childOptions = Collections.singletonList(Requests.option().excludeType("Annotation").build());
+            break;
+        case BOTH:
+            chown.childOptions = Collections.singletonList(Requests.option().includeType("Annotation")
+                                                                            .excludeType("Annotation").build());
+            break;
+        default:
+            Assert.fail("unexpected option for chown");
+        }
+        doChange(chown);
+
+         /* check that the tag set is transferred and the other remains owned by original owner */
+        assertOwnedBy(tagsets.get(0), recipient);
+        assertOwnedBy(tagsets.get(1), importer);
+
+        /* check that only the expected tags are transferred */
+        switch (option) {
+        case NONE:
+            assertOwnedBy(tags.get(0), recipient);
+            assertOwnedBy(tags.get(1), importer);
+            assertOwnedBy(tags.get(2), importer);
+            break;
+        case BOTH:
+            /* include overrides exclude */
+        case INCLUDE:
+            assertOwnedBy(tags.get(0), recipient);
+            assertOwnedBy(tags.get(1), recipient);
+            assertOwnedBy(tags.get(2), importer);
+            break;
+        case EXCLUDE:
+            assertOwnedBy(tags.get(0), importer);
+            assertOwnedBy(tags.get(1), importer);
+            assertOwnedBy(tags.get(2), importer);
+            /* transfer the tag that is not in the second tag set */
+            init(chowner);
+            chown = Requests.chown().target(tags.get(0)).toUser(recipient.userId).build();
+            doChange(chown);
+            break;
+        }
+
+        /* transfer the second tag set */
+        init(chowner);
+        chown = Requests.chown().target(tagsets.get(1)).toUser(recipient.userId).build();
+        doChange(chown);
+
+        /* check that the tag sets are transferred */
+        logRootIntoGroup(dataGroupId);
+        assertOwnedBy(tagsets, recipient);
+        /* check that the tag in the second tag set was implicitly transferred */
+        assertOwnedBy(tags.get(2), recipient);
     }
 
     /**
-     * Test a specific case of using {@link Chown2} with owner's and others' annotations in a read-annotate group.
+     * Test a specific case of using {@link Chown2} with owner's and others' annotations, including tag sets with
+     * variously linked tags in a read-annotate group
      * @param isDataOwner if the user submitting the {@link Chown2} request owns the data in the group
      * @param isAdmin if the user submitting the {@link Chown2} request is a member of the system group
      * @param isGroupOwner if the user submitting the {@link Chown2} request owns the group itself
      * @param isRecipientInGroup if the user receiving data by means of the {@link Chown2} request is a member of the data's group
      * @param isExpectSuccess if the chown is expected to succeed
+     * @param option the child option to use in the tagset transfer
      * @throws Exception unexpected
      */
     @Test(dataProvider = "chown annotation test cases")
     public void testChownAnnotationReadAnnotate(boolean isDataOwner, boolean isAdmin, boolean isGroupOwner,
-            boolean isRecipientInGroup, boolean isExpectSuccess) throws Exception {
+            boolean isRecipientInGroup, boolean isExpectSuccess, Option option) throws Exception {
 
         /* set up the users and group for this test case */
 
@@ -350,10 +522,17 @@ public class PermissionsTest extends AbstractServerTest {
         init(annotator);
         otherAnnotations = annotateImage(image);
 
-        /* perform the chown */
+        /* create two tag sets and three tags */
+        final List<TagAnnotation> tagsets = createTagsets(2);
+        final List<TagAnnotation> tags = createTags(3);
 
+        /* define how to link the tag sets to the tags and link them */
+        final SetMultimap<TagAnnotation, TagAnnotation> members = defineLinkingTags(tags, tagsets);
+        linkTagsTagsets(members);
+
+        /* chown the image */
         init(chowner);
-        final Chown2 chown = Requests.chown().target(image).toUser(recipient.userId).build();
+        Chown2 chown = Requests.chown().target(image).toUser(recipient.userId).build();
         doChange(client, factory, chown, isExpectSuccess);
 
         if (!isExpectSuccess) {
@@ -366,7 +545,72 @@ public class PermissionsTest extends AbstractServerTest {
         assertOwnedBy(image, recipient);
         assertOwnedBy(ownerAnnotations, importer);
         assertOwnedBy(otherAnnotations, annotator);
+
+        /* chown the first tag set */
+        chown = Requests.chown().target(tagsets.get(0)).toUser(recipient.userId).build();
+
+        switch (option) {
+        case NONE:
+            break;
+        case INCLUDE:
+            chown.childOptions = Collections.singletonList(Requests.option().includeType("Annotation").build());
+            break;
+        case EXCLUDE:
+            chown.childOptions = Collections.singletonList(Requests.option().excludeType("Annotation").build());
+            break;
+        case BOTH:
+            chown.childOptions = Collections.singletonList(Requests.option().includeType("Annotation")
+                                                                            .excludeType("Annotation").build());
+            break;
+        default:
+            Assert.fail("unexpected option for chown");
+        }
+        doChange(chown);
+
+        /* check that the tag set is transferred and the other remains owned by original owner */
+        assertOwnedBy(tagsets.get(0), recipient);
+        assertOwnedBy(tagsets.get(1), annotator);
+
+        /* check that only the expected tags are transferred */
+        switch (option) {
+        case NONE:
+            assertOwnedBy(tags.get(0), annotator);
+            assertOwnedBy(tags.get(1), annotator);
+            assertOwnedBy(tags.get(2), annotator);
+            break;
+        case BOTH:
+            /* include overrides exclude */
+        case INCLUDE:
+            assertOwnedBy(tags.get(0), recipient);
+            assertOwnedBy(tags.get(1), recipient);
+            assertOwnedBy(tags.get(2), annotator);
+            break;
+        case EXCLUDE:
+            assertOwnedBy(tags.get(0), annotator);
+            assertOwnedBy(tags.get(1), annotator);
+            assertOwnedBy(tags.get(2), annotator);
+            /* transfer the tag that is not in the second tag set */
+            init(chowner);
+            chown = Requests.chown().target(tags.get(0)).toUser(recipient.userId).build();
+            doChange(chown);
+            break;
+        }
+
+        /* transfer the second tag set */
+        init(chowner);
+        chown = Requests.chown().target(tagsets.get(1)).toUser(recipient.userId).build();
+        doChange(chown);
+
+        /* check that the tag sets are transferred */
+        logRootIntoGroup(dataGroupId);
+        assertOwnedBy(tagsets, recipient);
+        /* check that the tag in the second tag set was not implicitly transferred */
+        assertOwnedBy(tags.get(2), annotator);
+        
     }
+
+    /* child options to try using in transfer */
+    private enum Option { NONE, INCLUDE, EXCLUDE, BOTH };
 
     /**
      * @return a variety of test cases for annotation chown
@@ -374,13 +618,17 @@ public class PermissionsTest extends AbstractServerTest {
     @DataProvider(name = "chown annotation test cases")
     public Object[][] provideChownAnnotationCases() {
         int index = 0;
+        int count_value = 0;
         final int IS_DATA_OWNER = index++;
         final int IS_ADMIN = index++;
         final int IS_GROUP_OWNER = index++;
         final int IS_RECIPIENT_IN_GROUP = index++;
         final int IS_EXPECT_SUCCESS = index++;
+        final int CHILD_OPTION = index++;
 
         final boolean[] booleanCases = new boolean[]{false, true};
+
+        final Option[] values = Option.values();
 
         final List<Object[]> testCases = new ArrayList<Object[]>();
 
@@ -398,8 +646,11 @@ public class PermissionsTest extends AbstractServerTest {
                         testCase[IS_GROUP_OWNER] = isGroupOwner;
                         testCase[IS_RECIPIENT_IN_GROUP] = isRecipientInGroup;
                         testCase[IS_EXPECT_SUCCESS] = isAdmin || isGroupOwner && isRecipientInGroup;
-                        // DEBUG: if (isDataOwner == true && isAdmin == true && isGroupOwner == true &&
-                        //            isRecipientInGroup == true)
+                        /* only add one tag set child option per one permission
+                         * test, but alternate over all child options doing this */
+                        testCase[CHILD_OPTION] = values[count_value++ % values.length];
+                        //DEBUG: if (isDataOwner == true && isAdmin == true && isGroupOwner == false &&
+                        //           isRecipientInGroup == true && testCase[CHILD_OPTION] == Option.BOTH)
                         testCases.add(testCase);
                     }
                 }

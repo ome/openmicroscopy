@@ -1,7 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
- *
+ *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -410,6 +409,9 @@ public class CommentsTaskPaneUI extends AnnotationTaskPaneUI implements
         addButton.setEnabled(model.canAddAnnotationLink());
         refreshUI();
     }
-    
-    
+
+    @Override
+    int getUnfilteredAnnotationCount() {
+        return model.getTextualAnnotationCount();
+    }
 }

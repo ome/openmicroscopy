@@ -146,10 +146,6 @@
             $('#wblitz-ch'+idx).removeClass('pressed');
             $('#rd-wblitz-ch'+idx).removeClass('pressed');
         }
-        //var t = $('#rd-wblitz-ch'+idx).get(0);
-        //if (t != undefined) t.checked=ch.active;
-        var rgb = OME.hexToRgb(ch.color)
-        $('#wblitz-ch'+idx).css('background-color', 'rgb('+rgb.r+', '+rgb.g+', '+rgb.b+')').attr('title', ch.label);
     };
 
 
@@ -176,17 +172,42 @@
         }
     };
 
+    function getLutBgPos(color) {
+        if (color.endsWith('.lut')) {
+            var lutIndex = OME.LUT_NAMES.indexOf(color);
+            if (lutIndex > -1) {
+                return '0px -' + (lutIndex * 20) + 'px';
+            }
+        }
+        // Not found...
+        return '0px 100px';  // hide by offsetting
+    }
+
     window.syncRDCW = function(viewport) {
-        var cb;
+        var cb, color;
         var channels = viewport.getChannels();
+        var lutBgPos;
         for (i=0; i<channels.length; i++) {
-            $('#rd-wblitz-ch'+i).css('background-color', toRGB(channels[i].color));
-            $('#wblitz-ch'+i+'-cwslider .ui-slider-range').css('background-color', toRGB(channels[i].color));
+            color = channels[i].color;
+            lutBgPos = getLutBgPos(color);
+            if (color.endsWith('.lut')) {
+                color = 'EEEEEE';
+            }
+            // Button beside image in full viewer (not in Preview panel):
+            $('#wblitz-ch' + i).css('background-color', '#' + color)
+                .find('.lutBackground').css('background-position', lutBgPos);
+            // Slider background
+            $('#wblitz-ch'+i+'-cwslider').addClass('lutBackground')
+                .css({'background-position': lutBgPos, 'background-color': '#' + color});
+            // Channel button beside slider
+            $('#rd-wblitz-ch'+i)
+                .css('background-color', '#' + color)
+                .find('.lutBackground').css('background-position', lutBgPos);
             var w = channels[i].window;
             $('#wblitz-ch'+i+'-cwslider')
                 .slider( "option", "min", Math.min(w.min, w.start) )   // extend range if needed
                 .slider( "option", "max", Math.max(w.max, w.end) );
-                $('#wblitz-ch'+i+'-color').attr('data-color', toRGB(channels[i].color));//$('#wblitz-ch'+i).css('background-color'));
+                $('#wblitz-ch'+i+'-color').attr('data-color', channels[i].color);
                 $('#wblitz-ch'+i+'-cw-start').val(channels[i].window.start).change();
                 $('#wblitz-ch'+i+'-cw-end').val(channels[i].window.end).change();
         }
@@ -326,12 +347,11 @@
             };
         };
         for (i=0; i<channels.length; i++) {
-            var rgb = OME.hexToRgb(channels[i].color)
             $('<button id="wblitz-ch'+i+
-                '"class="squared' + (channels[i].active?' pressed':'') +
-                '"style="background-color: rgb('+rgb.r+', '+rgb.g+', '+rgb.b+')' +
-                '"title="' + channels[i].label +
-                '">'+channels[i].label+'</button>')
+                '" class="squared' + (channels[i].active?' pressed':'') +
+                '" style="background-color: #'+ channels[i].color +
+                '" title="' + channels[i].label +
+                '"><div class="lutBackground"></div><div class="btnLabel">'+channels[i].label+'</div></button>')
             .appendTo(box)
             .bind('click', doToggle(i));
         }
@@ -367,7 +387,7 @@
         var template = '' +
           '<tr class="$cls rdef-window">' +
           '<td><button id="rd-wblitz-ch$idx0" class="rd-wblitz-ch squared $class" style="background-color: $col" ' +
-            'title="$label">$l</button></td>' +
+            'title="$label"><div class="lutBackground"></div><div class="btnLabel">$l</div></button></td>' +
           '<td><table><tr id="wblitz-ch$idx0-cw" class="rangewidget"></tr></table></td>' +
           '<td><button id="wblitz-ch$idx0-color" class="picker squarred" title="Choose Color">&nbsp;</button></td>' +
           '</tr>';
@@ -470,10 +490,9 @@
             if (lbl.length > 7) {
                 lbl = lbl.slice(0, 5) + "...";
             }
-            var rgb = OME.hexToRgb(channels[i].color)
             tmp.after(template
                 .replace(/\$class/g, btnClass)
-                .replace(/\$col/g, 'rgb('+rgb.r+', '+rgb.g+', '+rgb.b+')')
+                .replace(/\$col/g, '#' + channels[i].color)
                 .replace(/\$label/g, channels[i].label)
                 .replace(/\$l/g, lbl)
                 .replace(/\$idx0/g, i) // Channel Index, 0 based
@@ -498,7 +517,7 @@
 
         /* Prepare color picker buttons */
         $(".picker")
-            .colorbtn()
+            .colorbtn({'server': viewport.viewport_server})
             .bind('showing', function () {
                 var t = $(this).parents('.postit'),
                     offset;
