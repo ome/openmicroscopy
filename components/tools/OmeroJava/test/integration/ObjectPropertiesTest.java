@@ -1,9 +1,11 @@
 package integration;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
 import omero.ServerError;
+import omero.api.IRenderingSettingsPrx;
 import omero.model.Channel;
 import omero.model.Dataset;
 import omero.model.Folder;
@@ -16,10 +18,12 @@ import omero.model.LogicalChannel;
 import omero.model.Namespace;
 import omero.model.NamespaceI;
 import omero.model.OriginalFile;
+import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.Project;
 import omero.model.Reagent;
+import omero.model.RenderingDef;
 import omero.model.Screen;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
@@ -432,6 +436,35 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         long id = sentR.getId().getValue();
         final Reagent retrievedReagent = (Reagent) iQuery.get("Reagent", id);
         final String retrievedName = retrievedReagent.getName().getValue().toString();
+        Assert.assertEquals(name, retrievedName);
+        Assert.assertEquals(name, savedName);
+    }
+    /**
+     * Test to create a rendering definition and save it with long name
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testRenderingDefinitionNameSaving() throws Exception {
+        /* first prepare image and pixels to get valid rendering defs */
+        Image img = mmFactory.createImage();
+        Image sentI = (Image) iUpdate.saveAndReturnObject(img);
+        Pixels pixels = sentI.getPrimaryPixels();
+        /* now get the rendering defs back via a method and a query */
+        IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+        prx.setOriginalSettingsInSet(Pixels.class.getName(),
+                Arrays.asList(pixels.getId().getValue()));
+        final RenderingDef rDef = (RenderingDef) iQuery.findByQuery("select rdef from RenderingDef as rdef where rdef.pixels.id = :id", 
+                new ParametersI().addId(pixels.getId().getValue()));
+        /* create a rendering defs name and set it on the retrieved rDef object */
+        final String name = createName(1000000);
+        rDef.setName(omero.rtypes.rstring(name));
+        RenderingDef sentR = (RenderingDef) iUpdate.saveAndReturnObject(rDef);
+        String savedName = sentR.getName().getValue().toString();
+        long id = sentR.getId().getValue();
+        final RenderingDef retrievedRDef = (RenderingDef) iQuery.get("RenderingDef", id);
+        final String retrievedName = retrievedRDef.getName().getValue().toString();
         Assert.assertEquals(name, retrievedName);
         Assert.assertEquals(name, savedName);
     }
