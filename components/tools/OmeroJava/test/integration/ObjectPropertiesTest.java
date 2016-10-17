@@ -19,6 +19,8 @@ import omero.model.OriginalFile;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.Project;
+import omero.model.Reagent;
+import omero.model.Screen;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.sys.ParametersI;
@@ -399,5 +401,39 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         Assert.assertEquals(name, retrievedName);
         Assert.assertEquals(name, savedName);
     }
-    
+
+    /**
+     * Test to create a reagent and save it with long name
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testReagentNameSaving() throws Exception {
+        /* first need to create a screen, then a plate
+         * with reagent and link it to the screen to 
+         * populate all necessary parameters of reagent
+         */
+        Screen screen = mmFactory.simpleScreenData().asScreen();
+        Reagent reagent = mmFactory.createReagent();
+        screen.addReagent(reagent);
+        Plate p = mmFactory.createPlateWithReagent(1, 1, 1, reagent);
+        screen.linkPlate(p);
+        Screen sentS = (Screen) iUpdate.saveAndReturnObject(screen);
+        long screenId = sentS.getId().getValue();
+        /* now get the updated reagent back via a query */
+        reagent = (Reagent) iQuery.findByQuery("FROM Reagent WHERE screen.id = :id", 
+                new ParametersI().addId(screenId));
+        /* create a reagent name and set it on the retrieved reagent object */
+        final String name = createName(1000000);
+        reagent.setName(omero.rtypes.rstring(name));
+        Reagent sentR = (Reagent) iUpdate.saveAndReturnObject(reagent);
+        String savedName = sentR.getName().getValue().toString();
+        long id = sentR.getId().getValue();
+        final Reagent retrievedReagent = (Reagent) iQuery.get("Reagent", id);
+        final String retrievedName = retrievedReagent.getName().getValue().toString();
+        Assert.assertEquals(name, retrievedName);
+        Assert.assertEquals(name, savedName);
+    }
+
 }
