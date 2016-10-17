@@ -134,11 +134,18 @@ window.OME.Histogram = function(element, webgatewayUrl, graphWidth, graphHeight)
 // Helper for creating a Histogram and binding it to change events from viewport
 window.OME.createViewportHistogram = function(viewport, chartSelector, checkboxSelector, webgatewayUrl) {
     var histogram;
-    var currChIdx = 0;
+    var currChIdx;
     var plotHistogram = function(opts) {
         if (!histogram) return;  // not shown/created yet
         opts = opts || {};
         var chIdx = opts.chIdx !== undefined ? opts.chIdx : currChIdx;
+        if (chIdx === undefined) {
+            chIdx = viewport.getChannels().reduce(function(prev, ch, i){
+                // get the index of first active channel
+                return (prev > -1 ? prev : (ch.active ? i : -1));
+            }, -1);
+        }
+        if (chIdx === -1) {chIdx = 0}  // in case no channels active
         currChIdx = chIdx;
         // If viewport image not loaded yet (E.g. we're immediately showing histogram)
         if (!viewport.loadedImg || !viewport.loadedImg.channels) {
