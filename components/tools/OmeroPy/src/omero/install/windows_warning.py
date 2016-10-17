@@ -9,7 +9,7 @@
 
 from functools import wraps
 
-WINDOWS_WARNING = ("WARNING: OMERO.server support for Windows will be removed"
+WINDOWS_WARNING = ("ERROR: OMERO.server support for Windows was removed"
                    " in OMERO 5.3, see http://blog.openmicroscopy.org/"
                    "tech-issues/future-plans/deployment/2016/03/22/"
                    "windows-support/")
@@ -22,7 +22,7 @@ def windows_warning(func):
     def win_warn(func):
         def wrapper(self, *args, **kwargs):
             if self._isWindows():
-                self.ctx.err(WINDOWS_WARNING)
+                self.ctx.die(20, WINDOWS_WARNING)
             return func(self, *args, **kwargs)
         return wrapper
     return wraps(func)(win_warn(func))

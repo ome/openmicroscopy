@@ -21,6 +21,7 @@
 
 
 import pytest
+import omero
 
 from test.integration.clitest.cli import CLITest
 from omero_model_NamespaceI import NamespaceI
@@ -44,6 +45,13 @@ class TestObj(CLITest):
     def go(self):
         self.cli.invoke(self.args, strict=True)
         return self.cli.get("tx.state")
+
+    def create_line(self):
+        roi = omero.model.RoiI()
+        line = omero.model.LineI()
+        roi.addShape(line)
+        line = self.update.saveAndReturnObject(line)
+        return line.id.val
 
     def create_script(self):
         path = create_path()
@@ -146,6 +154,33 @@ class TestObj(CLITest):
             "obj", "get", project, "description"]
         state = self.go()
         assert state.get_row(0) == desc
+
+    def test_fail_leading_numbers_argument(self):
+        for argument in ("123name", "123"):
+            self.args = self.login_args() + [
+                "obj", "new", "Project", "%s=foo" % argument]
+            with pytest.raises(Exception):
+                self.go()
+
+    def test_argument_with_letters_and_numbers(self):
+        self.args = self.login_args() + ["obj", "new", "AffineTransform"]
+        for matrix_pos in ["00", "10", "01", "11", "02", "12"]:
+            argument = "a%s=1" % matrix_pos
+            self.args.append(argument)
+        state = self.go()
+        AffineTransform = state.get_row(0)
+        aid = AffineTransform.split(":")[1]
+        assert AffineTransform == "AffineTransform:%s" % aid
+        y2 = 40
+        lid = self.create_line()
+        self.args = self.login_args() + [
+            "obj", "update", "Line:%s" % lid,
+            "x1=10", "x2=20", "y1=30", "y2=%s" % y2]
+        state = self.go()
+        self.args = self.login_args() + [
+            "obj", "get", "Line:%s" % lid]
+        state = self.go()
+        assert "y2=%s" % y2 in state.get_row(0)
 
     def test_new_and_get_obj(self):
         pname = "foo"

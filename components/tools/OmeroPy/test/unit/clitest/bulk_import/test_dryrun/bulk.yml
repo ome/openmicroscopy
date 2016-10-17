@@ -1,0 +1,4 @@
+---
+name: no-op
+path: bulk.tsv
+dry_run: true

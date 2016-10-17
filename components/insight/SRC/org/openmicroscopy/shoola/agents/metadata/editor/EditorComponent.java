@@ -336,7 +336,6 @@ class EditorComponent
 			return;
 		}
 		showSelectionWizard(TagAnnotationData.class, available, selected, true);
-		setStatus(false);
 	}
 
 	/** 
@@ -444,7 +443,6 @@ class EditorComponent
 		}
 		showSelectionWizard(FileAnnotationData.class, available, selected,
 							true);
-		setStatus(false);
 	}
 	
 	/** 

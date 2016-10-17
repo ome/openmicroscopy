@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -35,6 +35,7 @@ import org.apache.commons.collections.CollectionUtils;
 
 import omero.romio.PlaneDef;
 
+import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsChanged;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlShutDown;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
@@ -284,6 +285,19 @@ class RendererModel
 		if (rndControl == null) return Color.white;
 		return rndControl.getRGBA(index);
 	}
+	
+    /**
+     * Get the lookup table for the channel
+     * 
+     * @param index
+     *            The index of the channel.
+     * @return See above.
+     */
+    String getLookupTable(int index) {
+        if (rndControl == null)
+            return null;
+        return rndControl.getLookupTable(index);
+    }
 
 	/**
 	 * Returns the status of the window.
@@ -491,18 +505,6 @@ class RendererModel
 		return null;
 	}
 	*/
-
-	/**
-	 * Returns a read-only list of {@link CodomainMapContext}s using during
-	 * the mapping process in the device space.
-	 *
-	 * @return See above.
-	 */
-	List getCodomainMaps()
-	{ 
-		if (rndControl == null) return new ArrayList();
-		return rndControl.getCodomainMaps();
-	}
 
 	/**
 	 * Removes the codomain map identified by the class from the chain of 
@@ -1760,4 +1762,29 @@ class RendererModel
                 || t.equals(OmeroImageService.INT_32)
                 || t.equals(OmeroImageService.UINT_32);
 	}
+
+    public Collection<String> getAvailableLookupTables() {
+        if (rndControl == null)
+            return null;
+        return rndControl.getAvailableLookupTables();
+    }
+
+    /**
+     * Set the lookup table
+     * 
+     * @param index
+     *            The channel index
+     * @param lut
+     *            The lookup table
+     */
+    public void setLookupTable(int index, String lut) {
+        try {
+            rndControl.setLookupTable(index, lut);
+        } catch (Exception e) {
+            LogMessage msg = new LogMessage();
+            msg.append("Error while setting lookup table.");
+            msg.print(e);
+            MetadataViewerAgent.getRegistry().getLogger().error(this, msg);
+        }
+    }
 }

@@ -1,12 +1,9 @@
 /*
- * Copyright 2006-2015 University of Dundee. All rights reserved.
+ * Copyright 2006-2016 University of Dundee. All rights reserved.
  * Use is subject to license terms supplied in LICENSE.txt
  */
-
 package integration.chgrp;
 
-import static omero.rtypes.rdouble;
-import static omero.rtypes.rint;
 import integration.AbstractServerTest;
 
 import java.util.ArrayList;
@@ -17,9 +14,12 @@ import java.util.UUID;
 import omero.cmd.Chgrp2;
 import omero.cmd.Chgrp2Response;
 import omero.gateway.util.Requests;
+import omero.gateway.util.Requests.Chgrp2Builder;
 import omero.grid.Column;
 import omero.grid.LongColumn;
 import omero.grid.TablePrx;
+import omero.model.AffineTransform;
+import omero.model.AffineTransformI;
 import omero.model.Arc;
 import omero.model.Channel;
 import omero.model.Dataset;
@@ -42,6 +42,8 @@ import omero.model.PlateAcquisition;
 import omero.model.PlateAnnotationLink;
 import omero.model.PlateAnnotationLinkI;
 import omero.model.PlateI;
+import omero.model.Point;
+import omero.model.PointI;
 import omero.model.Project;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
@@ -62,10 +64,12 @@ import omero.model.WellSample;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import static org.testng.AssertJUnit.*;
+import com.google.common.collect.ImmutableList;
+
 import omero.gateway.model.FileAnnotationData;
 
 /**
@@ -99,15 +103,15 @@ public class HierarchyMoveTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.addId(id);
 
-        assertTrue(g.getId().getValue() != ctx.groupId);
+        Assert.assertNotEquals(g.getId().getValue(), ctx.groupId);
         StringBuilder sb = new StringBuilder();
         sb.append("select i from Image i ");
         sb.append("where i.id = :id");
-        assertNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNull(iQuery.findByQuery(sb.toString(), param));
 
         EventContext ec = loginUser(g);
-        assertEquals(g.getId().getValue(), ec.groupId);
-        assertNotNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertEquals(g.getId().getValue(), ec.groupId);
+        Assert.assertNotNull(iQuery.findByQuery(sb.toString(), param));
     }
 
     /**
@@ -140,13 +144,13 @@ public class HierarchyMoveTest extends AbstractServerTest {
         StatsInfo info;
         for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
             channel = pixels.getChannel(i);
-            assertNotNull(channel);
+            Assert.assertNotNull(channel);
             channels.add(channel.getId().getValue());
             lc = channel.getLogicalChannel();
-            assertNotNull(lc);
+            Assert.assertNotNull(lc);
             logicalChannels.add(lc.getId().getValue());
             info = channel.getStatsInfo();
-            assertNotNull(info);
+            Assert.assertNotNull(info);
             infos.add(info.getId().getValue());
         }
 
@@ -159,13 +163,13 @@ public class HierarchyMoveTest extends AbstractServerTest {
         StringBuilder sb = new StringBuilder();
         sb.append("select i from Image i ");
         sb.append("where i.id = :id");
-        assertNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNull(iQuery.findByQuery(sb.toString(), param));
         sb = new StringBuilder();
         param = new ParametersI();
         param.addId(pixId);
         sb.append("select i from Pixels i ");
         sb.append("where i.id = :id");
-        assertNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNull(iQuery.findByQuery(sb.toString(), param));
         Iterator<Long> i = channels.iterator();
         while (i.hasNext()) {
             id = i.next();
@@ -174,7 +178,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
             sb = new StringBuilder();
             sb.append("select i from Channel i ");
             sb.append("where i.id = :id");
-            assertNull(iQuery.findByQuery(sb.toString(), param));
+            Assert.assertNull(iQuery.findByQuery(sb.toString(), param));
         }
         i = infos.iterator();
         while (i.hasNext()) {
@@ -184,7 +188,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
             sb = new StringBuilder();
             sb.append("select i from StatsInfo i ");
             sb.append("where i.id = :id");
-            assertNull(iQuery.findByQuery(sb.toString(), param));
+            Assert.assertNull(iQuery.findByQuery(sb.toString(), param));
         }
         i = logicalChannels.iterator();
         while (i.hasNext()) {
@@ -194,7 +198,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
             sb = new StringBuilder();
             sb.append("select i from LogicalChannel i ");
             sb.append("where i.id = :id");
-            assertNull(iQuery.findByQuery(sb.toString(), param));
+            Assert.assertNull(iQuery.findByQuery(sb.toString(), param));
         }
         // Check that the data moved
         loginUser(g);
@@ -206,13 +210,13 @@ public class HierarchyMoveTest extends AbstractServerTest {
         sb = new StringBuilder();
         sb.append("select i from Image i ");
         sb.append("where i.id = :id");
-        assertNotNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNotNull(iQuery.findByQuery(sb.toString(), param));
         sb = new StringBuilder();
         param = new ParametersI();
         param.addId(pixId);
         sb.append("select i from Pixels i ");
         sb.append("where i.id = :id");
-        assertNotNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNotNull(iQuery.findByQuery(sb.toString(), param));
         i = channels.iterator();
         while (i.hasNext()) {
             id = i.next();
@@ -221,7 +225,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
             sb = new StringBuilder();
             sb.append("select i from Channel i ");
             sb.append("where i.id = :id");
-            assertNotNull(iQuery.findByQuery(sb.toString(), param));
+            Assert.assertNotNull(iQuery.findByQuery(sb.toString(), param));
         }
         i = infos.iterator();
         while (i.hasNext()) {
@@ -231,7 +235,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
             sb = new StringBuilder();
             sb.append("select i from StatsInfo i ");
             sb.append("where i.id = :id");
-            assertNotNull(iQuery.findByQuery(sb.toString(), param));
+            Assert.assertNotNull(iQuery.findByQuery(sb.toString(), param));
         }
         i = logicalChannels.iterator();
         while (i.hasNext()) {
@@ -241,7 +245,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
             sb = new StringBuilder();
             sb.append("select i from LogicalChannel i ");
             sb.append("where i.id = :id");
-            assertNotNull(iQuery.findByQuery(sb.toString(), param));
+            Assert.assertNotNull(iQuery.findByQuery(sb.toString(), param));
         }
     }
 
@@ -266,12 +270,12 @@ public class HierarchyMoveTest extends AbstractServerTest {
         Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
             rect = new RectangleI();
-            rect.setX(rdouble(10));
-            rect.setY(rdouble(10));
-            rect.setWidth(rdouble(10));
-            rect.setHeight(rdouble(10));
-            rect.setTheZ(rint(i));
-            rect.setTheT(rint(0));
+            rect.setX(omero.rtypes.rdouble(10));
+            rect.setY(omero.rtypes.rdouble(10));
+            rect.setWidth(omero.rtypes.rdouble(10));
+            rect.setHeight(omero.rtypes.rdouble(10));
+            rect.setTheZ(omero.rtypes.rint(i));
+            rect.setTheT(omero.rtypes.rint(0));
             serverROI.addShape(rect);
         }
         serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
@@ -290,28 +294,28 @@ public class HierarchyMoveTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.addId(serverROI.getId().getValue());
         String sql = "select d from Roi as d where d.id = :id";
-        assertNull(iQuery.findByQuery(sql, param));
+        Assert.assertNull(iQuery.findByQuery(sql, param));
 
         // shapes
         param = new ParametersI();
         param.addIds(shapeIds);
         sql = "select d from Shape as d where d.id in (:ids)";
         List<IObject> results = iQuery.findAllByQuery(sql, param);
-        assertEquals(results.size(), 0);
+        Assert.assertEquals(results.size(), 0);
 
         // Check that the data moved
         loginUser(g);
         param = new ParametersI();
         param.addId(serverROI.getId().getValue());
         sql = "select d from Roi as d where d.id = :id";
-        assertNotNull(iQuery.findByQuery(sql, param));
+        Assert.assertNotNull(iQuery.findByQuery(sql, param));
 
         // shapes
         param = new ParametersI();
         param.addIds(shapeIds);
         sql = "select d from Shape as d where d.id in (:ids)";
         results = iQuery.findAllByQuery(sql, param);
-        assertTrue(results.size() > 0);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(results));
     }
 
     /**
@@ -362,7 +366,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
             for (int k = 0; k < well.sizeOfWellSamples(); k++) {
                 field = well.getWellSample(k);
                 wellSampleIds.add(field.getId().getValue());
-                assertNotNull(field.getImage());
+                Assert.assertNotNull(field.getImage());
                 imageIds.add(field.getImage().getId().getValue());
             }
         }
@@ -378,7 +382,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         sb.append("left outer join fetch well.plate as pt ");
         sb.append("where pt.id = :plateID");
         results = iQuery.findAllByQuery(sb.toString(), param);
-        assertEquals(results.size(), 0);
+        Assert.assertEquals(results.size(), 0);
 
         // check the well samples.
         sb = new StringBuilder();
@@ -386,7 +390,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         param.addIds(wellSampleIds);
         sb.append("select p from WellSample as p where p.id in (:ids)");
         results = iQuery.findAllByQuery(sb.toString(), param);
-        assertEquals(results.size(), 0);
+        Assert.assertEquals(results.size(), 0);
 
         // check the image.
         sb = new StringBuilder();
@@ -394,7 +398,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         param.addIds(imageIds);
         sb.append("select p from Image as p where p.id in (:ids)");
         results = iQuery.findAllByQuery(sb.toString(), param);
-        assertEquals(results.size(), 0);
+        Assert.assertEquals(results.size(), 0);
         if (pa != null) {
             param = new ParametersI();
             param.addId(pa.getId().getValue());
@@ -402,7 +406,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
             // check the plate
             sb.append("select p from PlateAcquisition as p "
                     + "where p.id = :id");
-            assertNull(iQuery.findByQuery(sb.toString(), param));
+            Assert.assertNull(iQuery.findByQuery(sb.toString(), param));
         }
         loginUser(g);
         // check the well
@@ -413,7 +417,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         sb.append("left outer join fetch well.plate as pt ");
         sb.append("where pt.id = :plateID");
         results = iQuery.findAllByQuery(sb.toString(), param);
-        assertTrue(results.size() > 0);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(results));
 
         // check the well samples.
         sb = new StringBuilder();
@@ -421,7 +425,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         param.addIds(wellSampleIds);
         sb.append("select p from WellSample as p where p.id in (:ids)");
         results = iQuery.findAllByQuery(sb.toString(), param);
-        assertTrue(results.size() > 0);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(results));
 
         // check the image.
         sb = new StringBuilder();
@@ -429,7 +433,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         param.addIds(imageIds);
         sb.append("select p from Image as p where p.id in (:ids)");
         results = iQuery.findAllByQuery(sb.toString(), param);
-        assertTrue(results.size() > 0);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(results));
         if (pa != null) {
             param = new ParametersI();
             param.addId(pa.getId().getValue());
@@ -437,7 +441,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
             // check the plate
             sb.append("select p from PlateAcquisition as p "
                     + "where p.id = :id");
-            assertNotNull(iQuery.findByQuery(sb.toString(), param));
+            Assert.assertNotNull(iQuery.findByQuery(sb.toString(), param));
         }
     }
 
@@ -483,7 +487,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
             for (int k = 0; k < well.sizeOfWellSamples(); k++) {
                 field = well.getWellSample(k);
                 wellSampleIds.add(field.getId().getValue());
-                assertNotNull(field.getImage());
+                Assert.assertNotNull(field.getImage());
                 imageIds.add(field.getImage().getId().getValue());
             }
         }
@@ -500,7 +504,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         sb.append("left outer join fetch well.plate as pt ");
         sb.append("where pt.id = :plateID");
         results = iQuery.findAllByQuery(sb.toString(), param);
-        assertEquals(results.size(), 0);
+        Assert.assertEquals(results.size(), 0);
 
         // check the well samples.
         sb = new StringBuilder();
@@ -508,7 +512,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         param.addIds(wellSampleIds);
         sb.append("select p from WellSample as p where p.id in (:ids)");
         results = iQuery.findAllByQuery(sb.toString(), param);
-        assertEquals(results.size(), 0);
+        Assert.assertEquals(results.size(), 0);
 
         // check the image.
         sb = new StringBuilder();
@@ -516,7 +520,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         param.addIds(imageIds);
         sb.append("select p from Image as p where p.id in (:ids)");
         results = iQuery.findAllByQuery(sb.toString(), param);
-        assertEquals(results.size(), 0);
+        Assert.assertEquals(results.size(), 0);
 
         loginUser(g);
         // check the well
@@ -527,7 +531,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         sb.append("left outer join fetch well.plate as pt ");
         sb.append("where pt.id = :plateID");
         results = iQuery.findAllByQuery(sb.toString(), param);
-        assertTrue(results.size() > 0);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(results));
 
         // check the well samples.
         sb = new StringBuilder();
@@ -535,7 +539,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         param.addIds(wellSampleIds);
         sb.append("select p from WellSample as p where p.id in (:ids)");
         results = iQuery.findAllByQuery(sb.toString(), param);
-        assertTrue(results.size() > 0);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(results));
 
         // check the image.
         sb = new StringBuilder();
@@ -543,7 +547,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         param.addIds(imageIds);
         sb.append("select p from Image as p where p.id in (:ids)");
         results = iQuery.findAllByQuery(sb.toString(), param);
-        assertTrue(results.size() > 0);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(results));
     }
 
     /**
@@ -591,12 +595,12 @@ public class HierarchyMoveTest extends AbstractServerTest {
         param.addIds(ids);
         String sql = "select i from Plate as i where i.id in (:ids)";
         List<IObject> results = iQuery.findAllByQuery(sql, param);
-        assertEquals(results.size(), 0);
+        Assert.assertEquals(results.size(), 0);
 
         param = new ParametersI();
         param.addId(screen.getId().getValue());
         sql = "select i from Screen as i where i.id = :id";
-        assertNull(iQuery.findByQuery(sql, param));
+        Assert.assertNull(iQuery.findByQuery(sql, param));
 
         // Check that the data moved
         loginUser(g);
@@ -604,12 +608,12 @@ public class HierarchyMoveTest extends AbstractServerTest {
         param.addIds(ids);
         sql = "select i from Plate as i where i.id in (:ids)";
         results = iQuery.findAllByQuery(sql, param);
-        assertTrue(results.size() > 0);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(results));
 
         param = new ParametersI();
         param.addId(screen.getId().getValue());
         sql = "select i from Screen as i where i.id = :id";
-        assertNotNull(iQuery.findByQuery(sql, param));
+        Assert.assertNotNull(iQuery.findByQuery(sql, param));
     }
 
     /**
@@ -658,19 +662,19 @@ public class HierarchyMoveTest extends AbstractServerTest {
         sql += "where r.id = :id";
         param = new ParametersI();
         param.addId(screenId);
-        assertNull(iQuery.findByQuery(sql, param));
+        Assert.assertNull(iQuery.findByQuery(sql, param));
 
         sql = "select r from Reagent as r ";
         sql += "where r.id = :id";
         param = new ParametersI();
         param.addId(reagentID);
-        assertNull(iQuery.findByQuery(sql, param));
+        Assert.assertNull(iQuery.findByQuery(sql, param));
 
         sql = "select r from Plate as r ";
         sql += "where r.id = :id";
         param = new ParametersI();
         param.addId(plateID);
-        assertNull(iQuery.findByQuery(sql, param));
+        Assert.assertNull(iQuery.findByQuery(sql, param));
 
         // Check data moved
         loginUser(g);
@@ -678,19 +682,19 @@ public class HierarchyMoveTest extends AbstractServerTest {
         sql += "where r.id = :id";
         param = new ParametersI();
         param.addId(screenId);
-        assertNotNull(iQuery.findByQuery(sql, param));
+        Assert.assertNotNull(iQuery.findByQuery(sql, param));
 
         sql = "select r from Reagent as r ";
         sql += "where r.id = :id";
         param = new ParametersI();
         param.addId(reagentID);
-        assertNotNull(iQuery.findByQuery(sql, param));
+        Assert.assertNotNull(iQuery.findByQuery(sql, param));
 
         sql = "select r from Plate as r ";
         sql += "where r.id = :id";
         param = new ParametersI();
         param.addId(plateID);
-        assertNotNull(iQuery.findByQuery(sql, param));
+        Assert.assertNotNull(iQuery.findByQuery(sql, param));
     }
 
     /**
@@ -738,19 +742,19 @@ public class HierarchyMoveTest extends AbstractServerTest {
         sql += "where r.id = :id";
         param = new ParametersI();
         param.addId(screenId);
-        assertNotNull(iQuery.findByQuery(sql, param));
+        Assert.assertNotNull(iQuery.findByQuery(sql, param));
 
         sql = "select r from Reagent as r ";
         sql += "where r.id = :id";
         param = new ParametersI();
         param.addId(reagentID);
-        assertNotNull(iQuery.findByQuery(sql, param));
+        Assert.assertNotNull(iQuery.findByQuery(sql, param));
 
         sql = "select r from Plate as r ";
         sql += "where r.id = :id";
         param = new ParametersI();
         param.addId(plateID);
-        assertNull(iQuery.findByQuery(sql, param));
+        Assert.assertNull(iQuery.findByQuery(sql, param));
 
         // Check move
         loginUser(g);
@@ -758,19 +762,19 @@ public class HierarchyMoveTest extends AbstractServerTest {
         sql += "where r.id = :id";
         param = new ParametersI();
         param.addId(screenId);
-        assertNull(iQuery.findByQuery(sql, param));
+        Assert.assertNull(iQuery.findByQuery(sql, param));
 
         sql = "select r from Reagent as r ";
         sql += "where r.id = :id";
         param = new ParametersI();
         param.addId(reagentID);
-        assertNull(iQuery.findByQuery(sql, param));
+        Assert.assertNull(iQuery.findByQuery(sql, param));
 
         sql = "select r from Plate as r ";
         sql += "where r.id = :id";
         param = new ParametersI();
         param.addId(plateID);
-        assertNotNull(iQuery.findByQuery(sql, param));
+        Assert.assertNotNull(iQuery.findByQuery(sql, param));
     }
 
     /**
@@ -798,12 +802,12 @@ public class HierarchyMoveTest extends AbstractServerTest {
         roi = (Roi) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
             rect = new RectangleI();
-            rect.setX(rdouble(10));
-            rect.setY(rdouble(10));
-            rect.setWidth(rdouble(10));
-            rect.setHeight(rdouble(10));
-            rect.setTheZ(rint(i));
-            rect.setTheT(rint(0));
+            rect.setX(omero.rtypes.rdouble(10));
+            rect.setY(omero.rtypes.rdouble(10));
+            rect.setWidth(omero.rtypes.rdouble(10));
+            rect.setHeight(omero.rtypes.rdouble(10));
+            rect.setTheZ(omero.rtypes.rint(i));
+            rect.setTheT(omero.rtypes.rint(0));
             roi.addShape(rect);
         }
         // First create a table
@@ -812,9 +816,9 @@ public class HierarchyMoveTest extends AbstractServerTest {
         Column[] columns = new Column[1];
         columns[0] = new LongColumn("Uid", "", new long[1]);
         table.initialize(columns);
-        assertNotNull(table);
+        Assert.assertNotNull(table);
         OriginalFile of = table.getOriginalFile();
-        assertTrue(of.getId().getValue() > 0);
+        Assert.assertTrue(of.getId().getValue() > 0);
         FileAnnotation fa = new FileAnnotationI();
         fa.setNs(omero.rtypes.rstring(FileAnnotationData.MEASUREMENT_NS));
         fa.setFile(of);
@@ -841,10 +845,11 @@ public class HierarchyMoveTest extends AbstractServerTest {
         StringBuilder sb = new StringBuilder();
         sb.append("select a from Annotation as a ");
         sb.append("where a.id = :id");
-        assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
+        Assert.assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
 
         loginUser(g);
-        assertTrue(iQuery.findAllByQuery(sb.toString(), param).size() > 0);
+        List<IObject> l = iQuery.findAllByQuery(sb.toString(), param);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(l));
     }
 
     /**
@@ -897,17 +902,17 @@ public class HierarchyMoveTest extends AbstractServerTest {
         param.addIds(ids);
         String sql = "select i from Image as i where i.id in (:ids)";
         List<IObject> results = iQuery.findAllByQuery(sql, param);
-        assertEquals(results.size(), 0);
+        Assert.assertEquals(results.size(), 0);
 
         param = new ParametersI();
         param.addId(d.getId().getValue());
         sql = "select i from Dataset as i where i.id = :id";
-        assertNull(iQuery.findByQuery(sql, param));
+        Assert.assertNull(iQuery.findByQuery(sql, param));
 
         param = new ParametersI();
         param.addId(p.getId().getValue());
         sql = "select i from Project as i where i.id = :id";
-        assertNull(iQuery.findByQuery(sql, param));
+        Assert.assertNull(iQuery.findByQuery(sql, param));
 
         // Logger in to other group
         loginUser(g);
@@ -916,17 +921,17 @@ public class HierarchyMoveTest extends AbstractServerTest {
         param.addIds(ids);
         sql = "select i from Image as i where i.id in (:ids)";
         results = iQuery.findAllByQuery(sql, param);
-        assertEquals(results.size(), ids.size());
+        Assert.assertEquals(results.size(), ids.size());
 
         param = new ParametersI();
         param.addId(d.getId().getValue());
         sql = "select i from Dataset as i where i.id = :id";
-        assertNotNull(iQuery.findByQuery(sql, param));
+        Assert.assertNotNull(iQuery.findByQuery(sql, param));
 
         param = new ParametersI();
         param.addId(p.getId().getValue());
         sql = "select i from Project as i where i.id = :id";
-        assertNotNull(iQuery.findByQuery(sql, param));
+        Assert.assertNotNull(iQuery.findByQuery(sql, param));
     }
 
     /**
@@ -975,16 +980,16 @@ public class HierarchyMoveTest extends AbstractServerTest {
         param.addIds(ids);
         String sql = "select i from Plate as i where i.id in (:ids)";
         List<IObject> results = iQuery.findAllByQuery(sql, param);
-        assertEquals(results.size(), ids.size());
+        Assert.assertEquals(results.size(), ids.size());
 
         param = new ParametersI();
         param.addId(s1.getId().getValue());
         sql = "select i from Screen as i where i.id = :id";
-        assertNull(iQuery.findByQuery(sql, param));
+        Assert.assertNull(iQuery.findByQuery(sql, param));
 
         param = new ParametersI();
         param.addId(s2.getId().getValue());
-        assertNotNull(iQuery.findByQuery(sql, param));
+        Assert.assertNotNull(iQuery.findByQuery(sql, param));
 
         loginUser(g);
         param = new ParametersI();
@@ -992,13 +997,13 @@ public class HierarchyMoveTest extends AbstractServerTest {
         // plate should not have moved.
         sql = "select i from Plate as i where i.id in (:ids)";
         results = iQuery.findAllByQuery(sql, param);
-        assertEquals(results.size(), 0);
+        Assert.assertEquals(results.size(), 0);
 
         // screen should move
         param = new ParametersI();
         param.addId(s1.getId().getValue());
         sql = "select i from Screen as i where i.id = :id";
-        assertNotNull(iQuery.findByQuery(sql, param));
+        Assert.assertNotNull(iQuery.findByQuery(sql, param));
     }
 
     /**
@@ -1055,19 +1060,19 @@ public class HierarchyMoveTest extends AbstractServerTest {
         callback(true, client, chgrp);
 
         /* check what remains in the source group */
-        assertNull(iQuery.findByQuery("FROM Dataset WHERE id = :id", new ParametersI().addId(dataset.getId())));
-        assertNotNull(iQuery.findByQuery("FROM Image WHERE id = :id", new ParametersI().addId(original.getId())));
-        assertNotNull(iQuery.findByQuery("FROM Image WHERE id = :id", new ParametersI().addId(projection.getId())));
-        assertNull(iQuery.findByQuery("FROM Image WHERE id = :id", new ParametersI().addId(other.getId())));
+        Assert.assertNull(iQuery.findByQuery("FROM Dataset WHERE id = :id", new ParametersI().addId(dataset.getId())));
+        Assert.assertNotNull(iQuery.findByQuery("FROM Image WHERE id = :id", new ParametersI().addId(original.getId())));
+        Assert.assertNotNull(iQuery.findByQuery("FROM Image WHERE id = :id", new ParametersI().addId(projection.getId())));
+        Assert.assertNull(iQuery.findByQuery("FROM Image WHERE id = :id", new ParametersI().addId(other.getId())));
 
         /* switch to the destination group */
         loginUser(destination);
 
         /* check what was moved to the destination group */
-        assertNotNull(iQuery.findByQuery("FROM Dataset WHERE id = :id", new ParametersI().addId(dataset.getId())));
-        assertNull(iQuery.findByQuery("FROM Image WHERE id = :id", new ParametersI().addId(original.getId())));
-        assertNull(iQuery.findByQuery("FROM Image WHERE id = :id", new ParametersI().addId(projection.getId())));
-        assertNotNull(iQuery.findByQuery("FROM Image WHERE id = :id", new ParametersI().addId(other.getId())));
+        Assert.assertNotNull(iQuery.findByQuery("FROM Dataset WHERE id = :id", new ParametersI().addId(dataset.getId())));
+        Assert.assertNull(iQuery.findByQuery("FROM Image WHERE id = :id", new ParametersI().addId(original.getId())));
+        Assert.assertNull(iQuery.findByQuery("FROM Image WHERE id = :id", new ParametersI().addId(projection.getId())));
+        Assert.assertNotNull(iQuery.findByQuery("FROM Image WHERE id = :id", new ParametersI().addId(other.getId())));
     }
 
     /**
@@ -1105,14 +1110,87 @@ public class HierarchyMoveTest extends AbstractServerTest {
         Assert.assertTrue(rsp.deletedObjects.isEmpty());
 
         /* check what remains in the source group */
-        assertNull(iQuery.findByQuery("FROM Image WHERE id = :id", new ParametersI().addId(image.getId())));
-        assertNull(iQuery.findByQuery("FROM LightSettings WHERE id = :id", new ParametersI().addId(lightSettings.getId())));
+        Assert.assertNull(iQuery.findByQuery("FROM Image WHERE id = :id", new ParametersI().addId(image.getId())));
+        Assert.assertNull(iQuery.findByQuery("FROM LightSettings WHERE id = :id", new ParametersI().addId(lightSettings.getId())));
 
         /* switch to the destination group */
         loginUser(destination);
 
         /* check what was moved to the destination group */
-        assertNotNull(iQuery.findByQuery("FROM Image WHERE id = :id", new ParametersI().addId(image.getId())));
-        assertNotNull(iQuery.findByQuery("FROM LightSettings WHERE id = :id", new ParametersI().addId(lightSettings.getId())));
+        Assert.assertNotNull(iQuery.findByQuery("FROM Image WHERE id = :id", new ParametersI().addId(image.getId())));
+        Assert.assertNotNull(iQuery.findByQuery("FROM LightSettings WHERE id = :id", new ParametersI().addId(lightSettings.getId())));
+    }
+
+    /**
+     * Check that a shared ROI transform cannot be split by moving.
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testMoveTransformedRoi() throws Exception {
+        /* prepare a pair of groups for the user */
+        newUserAndGroup("rwr---");
+        final EventContext ctx = iAdmin.getEventContext();
+        final ExperimenterGroup source = iAdmin.getGroup(ctx.groupId);
+        final ExperimenterGroup destination = newGroupAddUser("rwr---", ctx.userId);
+
+        /* start in the source group */
+        loginUser(source);
+
+        /* create ROIs whose shapes share a transform */
+
+        AffineTransform transformation = new AffineTransformI();
+        transformation.setA00(omero.rtypes.rdouble(0));
+        transformation.setA10(omero.rtypes.rdouble(1));
+        transformation.setA01(omero.rtypes.rdouble(1));
+        transformation.setA11(omero.rtypes.rdouble(0));
+        transformation.setA02(omero.rtypes.rdouble(0));
+        transformation.setA12(omero.rtypes.rdouble(0));
+        transformation = (AffineTransform) iUpdate.saveAndReturnObject(transformation).proxy();
+
+        Point point1 = new PointI();
+        point1.setX(omero.rtypes.rdouble(2));
+        point1.setY(omero.rtypes.rdouble(3));
+        point1.setTransform(transformation);
+        Roi roi1 = new RoiI();
+        roi1.addShape(point1);
+        roi1 = (Roi) iUpdate.saveAndReturnObject(roi1);
+        point1 = (Point) roi1.getShape(0);
+
+        Point point2 = new PointI();
+        point2.setX(omero.rtypes.rdouble(4));
+        point2.setY(omero.rtypes.rdouble(5));
+        point2.setTransform(transformation);
+        Roi roi2 = new RoiI();
+        roi2.addShape(point2);
+        roi2 = (Roi) iUpdate.saveAndReturnObject(roi2);
+        point2 = (Point) roi2.getShape(0);
+
+        /* note IDs of created objects */
+        final List<Long> roiIds = ImmutableList.of(roi1.getId().getValue(), roi2.getId().getValue());
+        final List<Long> pointIds = ImmutableList.of(point1.getId().getValue(), point2.getId().getValue());
+        final Long transformationId = transformation.getId().getValue();
+
+        /* move of only one ROI fails */
+        final Chgrp2Builder move = Requests.chgrp().toGroup(destination).target(roi1);
+        doChange(client, factory, move.build(), false);
+
+        /* move of both ROIs succeeds */
+        move.target(roi2);
+        doChange(move.build());
+
+        /* check what remains in the source group */
+        Assert.assertNull(iQuery.findByQuery("FROM Roi WHERE id IN (:ids)", new ParametersI().addIds(roiIds)));
+        Assert.assertNull(iQuery.findByQuery("FROM Point WHERE id IN (:ids)", new ParametersI().addIds(pointIds)));
+        Assert.assertNull(iQuery.findByQuery("FROM AffineTransform WHERE id = :id", new ParametersI().addId(transformationId)));
+
+        /* switch to the destination group */
+        loginUser(destination);
+
+        /* check what was moved to the destination group */
+        assertExists(roi1);
+        assertExists(roi2);
+        assertExists(point1);
+        assertExists(point2);
+        assertExists(transformation);
     }
 }

@@ -1,17 +1,8 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package integration;
-
-import static omero.rtypes.rbool;
-import static omero.rtypes.rstring;
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertTrue;
-import static org.testng.AssertJUnit.fail;
 
 import java.util.List;
 import java.util.UUID;
@@ -28,7 +19,10 @@ import omero.model.ExperimenterI;
 import omero.model.PermissionsI;
 import omero.sys.EventContext;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import Ice.UserException;
 
 /**
  * Various uses of the {@link omero.client} object. All configuration comes from
@@ -47,13 +41,13 @@ public class ClientUsageTest extends AbstractServerTest {
         IAdminPrx svc = root.getSession().getAdminService();
         String uuid = UUID.randomUUID().toString();
         Experimenter e = new ExperimenterI();
-        e.setOmeName(rstring(uuid));
-        e.setFirstName(rstring("integration"));
-        e.setLastName(rstring("tester"));
-        e.setLdap(rbool(false));
+        e.setOmeName(omero.rtypes.rstring(uuid));
+        e.setFirstName(omero.rtypes.rstring("integration"));
+        e.setLastName(omero.rtypes.rstring("tester"));
+        e.setLdap(omero.rtypes.rbool(false));
         ExperimenterGroup g = new ExperimenterGroupI();
-        g.setName(rstring(uuid));
-        g.setLdap(rbool(false));
+        g.setName(omero.rtypes.rstring(uuid));
+        g.setLdap(omero.rtypes.rbool(false));
         g.getDetails().setPermissions(new PermissionsI("rw----"));
         g = svc.getGroup(svc.createGroup(g));
         long uid = newUserInGroupWithPassword(e, g, uuid);
@@ -73,13 +67,13 @@ public class ClientUsageTest extends AbstractServerTest {
         IAdminPrx svc = root.getSession().getAdminService();
         String uuid = UUID.randomUUID().toString();
         Experimenter e = new ExperimenterI();
-        e.setOmeName(rstring(uuid));
-        e.setFirstName(rstring("integration"));
-        e.setLastName(rstring("tester"));
-        e.setLdap(rbool(false));
+        e.setOmeName(omero.rtypes.rstring(uuid));
+        e.setFirstName(omero.rtypes.rstring("integration"));
+        e.setLastName(omero.rtypes.rstring("tester"));
+        e.setLdap(omero.rtypes.rbool(false));
         ExperimenterGroup g = new ExperimenterGroupI();
-        g.setName(rstring(uuid));
-        g.setLdap(rbool(false));
+        g.setName(omero.rtypes.rstring(uuid));
+        g.setLdap(omero.rtypes.rbool(false));
         g.getDetails().setPermissions(new PermissionsI("rw----"));
         g = svc.getGroup(svc.createGroup(g));
         long uid = newUserInGroupWithPassword(e, g, uuid);
@@ -87,11 +81,11 @@ public class ClientUsageTest extends AbstractServerTest {
         client = new omero.client();
         client.createSession(uuid, uuid);
 
-        assertEquals(0, client.getInputKeys().size());
-        client.setInput("a", rstring("b"));
-        assertEquals(1, client.getInputKeys().size());
-        assertTrue(client.getInputKeys().contains("a"));
-        assertEquals("b", ((RString) client.getInput("a")).getValue());
+        Assert.assertEquals(0, client.getInputKeys().size());
+        client.setInput("a", omero.rtypes.rstring("b"));
+        Assert.assertEquals(1, client.getInputKeys().size());
+        Assert.assertTrue(client.getInputKeys().contains("a"));
+        Assert.assertEquals("b", ((RString) client.getInput("a")).getValue());
 
         client.closeSession();
     }
@@ -106,26 +100,26 @@ public class ClientUsageTest extends AbstractServerTest {
         IAdminPrx svc = root.getSession().getAdminService();
         String uuid = UUID.randomUUID().toString();
         Experimenter e = new ExperimenterI();
-        e.setOmeName(rstring(uuid));
-        e.setFirstName(rstring("integration"));
-        e.setLastName(rstring("tester"));
-        e.setLdap(rbool(false));
+        e.setOmeName(omero.rtypes.rstring(uuid));
+        e.setFirstName(omero.rtypes.rstring("integration"));
+        e.setLastName(omero.rtypes.rstring("tester"));
+        e.setLdap(omero.rtypes.rbool(false));
         ExperimenterGroup g = new ExperimenterGroupI();
-        g.setName(rstring(uuid));
-        g.setLdap(rbool(false));
+        g.setName(omero.rtypes.rstring(uuid));
+        g.setLdap(omero.rtypes.rbool(false));
         g.getDetails().setPermissions(new PermissionsI("rw----"));
         g = svc.getGroup(svc.createGroup(g));
         long uid = newUserInGroupWithPassword(e, g, uuid);
         svc.setDefaultGroup(svc.getExperimenter(uid), g);
         client secure = new omero.client();
         ServiceFactoryPrx factory = secure.createSession(uuid, uuid);
-        assertTrue(secure.isSecure());
+        Assert.assertTrue(secure.isSecure());
         try {
             factory.getAdminService().getEventContext();
             omero.client insecure = secure.createClient(false);
             try {
                 insecure.getSession().getAdminService().getEventContext();
-                assertFalse(insecure.isSecure());
+                Assert.assertFalse(insecure.isSecure());
             } finally {
                 insecure.closeSession();
             }
@@ -148,37 +142,42 @@ public class ClientUsageTest extends AbstractServerTest {
         sf.setSecurityContext(new omero.model.ExperimenterGroupI(0L, false));
         sf.createRenderingEngine();
         List<StatefulServiceInterfacePrx> srvs = root.getStatefulServices();
-        assertEquals(1, srvs.size());
+        Assert.assertEquals(1, srvs.size());
         try {
             sf.setSecurityContext(new omero.model.ExperimenterGroupI(1L, false));
-            fail("Should not be allowed");
+            Assert.fail("Should not be allowed");
         } catch (omero.SecurityViolation sv) {
             // good
         }
         srvs.get(0).close();
         srvs = root.getStatefulServices();
-        assertEquals(0, srvs.size());
+        Assert.assertEquals(0, srvs.size());
         sf.setSecurityContext(new omero.model.ExperimenterGroupI(1L, false));
     }
 
+    /**
+     * Test that {@link client#joinSession(String)} fails after the client is disconnected.
+     * @throws Exception unexpected
+     */
     public void testJoinSession() throws Exception {
-        
         //create a new user.
         EventContext ec = newUserAndGroup("rw----", true);
         String session = ec.sessionUuid;
         //delete the active client
         disconnect();
+        
+        try {
+            // wait a bit before trying to join the session
+            Thread.sleep(2000);
+        } catch (Exception e1) {
+        }
+        
         client c = new client();
         try {
             c.joinSession(session);
-            if (Ice.Util.intVersion() >= 30600) {
-                fail("The session should have been deleted");
-            }
-        } catch (Exception e) {
-            if (Ice.Util.intVersion() < 30600) {
-                fail("Ice 3.5 do not close the session."
-                        + "An error should not have been thrown");
-            }
+            Assert.fail("The session should have been deleted");
+        } catch (UserException e) {
+            /* expected because the client is disconnected */
         }
     }
 }

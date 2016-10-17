@@ -184,9 +184,9 @@ module omero {
                 /**
                  * Returns a list of {@link omero.model.FileAnnotation}
                  * instances with the namespace
-                 * "openmicroscopy.org/measurements" which are attached to the
-                 * {@link omero.model.Plate} containing the given image AND
-                 * which are attached to at least one
+                 * <i>openmicroscopy.org/measurements</i> which are attached
+                 * to the {@link omero.model.Plate} containing the given image
+                 * AND which are attached to at least one
                  * {@link omero.model.Roi}
                  *
                  * @param opts, userId and groupId are respected based on the

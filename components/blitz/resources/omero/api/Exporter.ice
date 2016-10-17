@@ -23,7 +23,7 @@ module omero {
          *
          *   ExporterPrx e = sf.createExporter();
          *
-         *   // Exporter is currently in the "configuration" state
+         *   // Exporter is currently in the <i>configuration</i> state
          *   // Objects can be added by id which should be present
          *   // in the output.
          *
@@ -82,8 +82,8 @@ module omero {
             long generateTiff() throws ServerError;
 
             /**
-             * Returns ""length"" bytes from the output file. The file can
-             * be safely read until reset() is called.
+             * Returns <code>length</code> bytes from the output file. The
+             * file can be safely read until reset() is called.
              **/
             idempotent Ice::ByteSeq read(long position, int length) throws ServerError;
 

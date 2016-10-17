@@ -7,6 +7,7 @@ package ome.services.scripts.test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Iterator;
 import java.util.List;
 
@@ -14,10 +15,12 @@ import ome.model.core.OriginalFile;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.services.scripts.RepoFile;
 import ome.services.scripts.ScriptRepoHelper;
+import ome.system.OmeroContext;
 import ome.system.Roles;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -45,6 +48,9 @@ public class ScriptRepoHelperTest extends AbstractManagedContextTest {
         loginRoot();
         helper = new ScriptRepoHelper(uuid(""), dir, this.executor,
                 this.loginAop.p, new Roles());
+        ContextRefreshedEvent event = new ContextRefreshedEvent(
+                OmeroContext.getManagedServerContext());
+        helper.handleContextRefreshedEvent(event);
         assertEmptyRepo();
     }
 
@@ -109,9 +115,26 @@ public class ScriptRepoHelperTest extends AbstractManagedContextTest {
     }
 
     public void testTxtFiles() throws Exception {
+        files = helper.loadAll(false);
+        int n = files.size();
         path = generateFile("test", ".txt", "import omero");
         files = helper.loadAll(false);
-        assertEmptyRepo();
+    }
+
+    public void testLutFilesLoadByMimetype() throws Exception {
+        path = generateFile("test", ".lut", "1 2 3");
+        files = helper.loadAll(false, "text/x-lut");
+        assertEquals(1, helper.countOnDisk());
+        assertEquals(1, helper.countInDb());
+        assertEquals(1, files.size());
+    }
+
+    public void testLutFilesLoadAll() throws Exception {
+        path = generateFile("test", ".lut", "1 2 3");
+        files = helper.loadAll(false);
+        assertEquals(1, helper.countOnDisk());
+        assertEquals(1, helper.countInDb());
+        assertEquals(0, files.size());
     }
 
     public void testFilesAreAddedToUserGroup() throws Exception {
@@ -146,9 +169,11 @@ public class ScriptRepoHelperTest extends AbstractManagedContextTest {
     public void testFilesCanBeDeletedByRelativeValue() throws Exception {
         path = generateFile();
         files = helper.loadAll(false);
+        assertEquals(1, files.size());
         Long id = files.get(0).getId();
         assertTrue(path.file().exists());
         helper.delete(id);
+        helper.modificationCheck();
         assertFalse(helper.isInRepo(id));
         assertFalse(path.file().exists());
     }

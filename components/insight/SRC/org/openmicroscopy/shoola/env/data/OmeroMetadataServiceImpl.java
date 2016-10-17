@@ -25,6 +25,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -79,6 +80,7 @@ import omero.sys.ParametersI;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.ListUtils;
+import org.apache.commons.collections.MapUtils;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AnnotationLinkData;
@@ -209,59 +211,50 @@ class OmeroMetadataServiceImpl
 		if (l == null) return false;
 		return l.size() > 0;
 	}
-	
+
 	/**
-	 * Removes the specified annotation from the object.
-	 * Returns the updated object.
+	 * Returns the objects to delete in order to remove the annotation.
 	 * 
 	 * @param ctx The security context.
 	 * @param annotation	The annotation to create. 
 	 * 						Mustn't be <code>null</code>.
 	 * @param object		The object to handle. Mustn't be <code>null</code>.
-	 * @return See above.
+	 * @return the objects to delete, never {@code null}
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	private void removeAnnotation(SecurityContext ctx,
+	private List<IObject> getRemoveAnnotation(SecurityContext ctx,
 			Object annotation, DataObject object) 
 		throws DSOutOfServiceException, DSAccessException 
 	{
 		if (annotation == null || object == null ||
 				(!(annotation instanceof IObject || 
-					annotation instanceof DataObject))) return;
+					annotation instanceof DataObject))) return Collections.emptyList();
 		IObject o = null;
 		if (annotation instanceof IObject) o = (IObject) annotation;
 		else o = ((DataObject) annotation).asIObject();
 		IObject ho = gateway.findIObject(ctx, o);
-		if (ho == null) return;
+		if (ho == null) return Collections.emptyList();
 		long id = -1;//getUserDetails().getId();
+		final List<IObject> toDelete = new ArrayList<IObject>();
 		if (ho instanceof Annotation) {
 			List links = gateway.findAnnotationLinks(ctx, object.getClass(),
 				   object.getId(), Arrays.asList(ho.getId().getValue()), id);
 			Iterator i = links.iterator();
-			IObject link;
 			while (i.hasNext()) {
-				link = (IObject) i.next();
+				final IObject link = (IObject) i.next();
 				if (link != null && gateway.canDelete(link)) {
-					try {
-						gateway.deleteObject(ctx, link);
-					} catch (Exception e) {
-					}
+				    toDelete.add(link);
 				}
 			}
-		} else {
-			if (gateway.canDelete(o)) {
-				try {
-					gateway.deleteObject(ctx, ho);
-				} catch (Exception e) {
-				}
-			}
+		} else if (gateway.canDelete(o)) {
+		    toDelete.add(ho);
 		}
-		
+		return toDelete;
 	}
-	
+
 	/**
 	 * Saves the logical channel.
 	 * 
@@ -579,7 +572,7 @@ class OmeroMetadataServiceImpl
                             PojoMapper.asDataObject(link.getChild()));
                 }
             }
-			annotations.addAll(PojoMapper.asDataObjects(r));
+			annotations.addAll(PojoMapper.<AnnotationData>convertToDataObjects(r));
 		}
 		return annotations;
     }
@@ -1399,8 +1392,6 @@ class OmeroMetadataServiceImpl
 	            toExclude.add(FileAnnotationData.COMPANION_FILE_NS);
 	        if (!FileAnnotationData.MEASUREMENT_NS.equals(nameSpace))
 	            toExclude.add(FileAnnotationData.MEASUREMENT_NS);
-	        if (!FileAnnotationData.FLIM_NS.equals(nameSpace))
-	            toExclude.add(FileAnnotationData.FLIM_NS);
 	        if (!FileAnnotationData.EXPERIMENTER_PHOTO_NS.equals(nameSpace))
 	            toExclude.add(FileAnnotationData.EXPERIMENTER_PHOTO_NS);
 	        if (!FileAnnotationData.LOG_FILE_NS.equals(nameSpace))
@@ -1433,6 +1424,7 @@ class OmeroMetadataServiceImpl
 		AnnotationData ann;
 		List<DataObject> updated = new ArrayList<DataObject>();
 		List<Long> ids = new ArrayList<Long>();
+		final List<IObject> toDelete = new ArrayList<IObject>();
 		while (j.hasNext()) {
 			object = j.next();
 			if (!ids.contains(object.getId())) {
@@ -1454,12 +1446,11 @@ class OmeroMetadataServiceImpl
 				}
 				if (toRemove != null) {
 					Iterator<Object> k = toRemove.iterator();
-					List<IObject> toDelete = new ArrayList<IObject>();
 					Object o;
 					while (k.hasNext()) {
 						o = k.next();
 						if (o != null) {
-							removeAnnotation(ctx, o, object);
+							toDelete.addAll(getRemoveAnnotation(ctx, o, object));
 							if (o instanceof TextualAnnotationData) {
 								ann = (AnnotationData) o;
 								if (!isAnnotationShared(ctx, ann, object)) {
@@ -1468,11 +1459,11 @@ class OmeroMetadataServiceImpl
 							}
 						}
 					}
-					if (toDelete.size() > 0) {
-						gateway.deleteObjects(ctx, toDelete);
-					}
 				}
 			}
+		}
+		if (!toDelete.isEmpty()) {
+		    gateway.deleteObjects(ctx, toDelete);
 		}
 		return updated;//data;
 	}
@@ -1493,13 +1484,14 @@ class OmeroMetadataServiceImpl
 		Iterator<DataObject> j = data.iterator();
 		DataObject object, child;
 		List<Long> ids;
-		Set images = null;
+		Collection images = null;
 		Parameters po = new Parameters();
 		Iterator k;
 		List result = null;
 		//First create the new annotations 
 		List<AnnotationData> annotations = prepareAnnotationToAdd(ctx, toAdd);
 		List<Long> childrenIds = new ArrayList<Long>();
+		final List<IObject> toDelete = new ArrayList<IObject>();
 		while (j.hasNext()) {
 			object = j.next();
 			if (result == null) result = new ArrayList();
@@ -1527,7 +1519,7 @@ class OmeroMetadataServiceImpl
 							if (toRemove != null) {
 								i = toRemove.iterator();
 								while (i.hasNext())
-									removeAnnotation(ctx, i.next(), child);
+									toDelete.addAll(getRemoveAnnotation(ctx, i.next(), child));
 							}
 						}
 					}
@@ -1551,8 +1543,7 @@ class OmeroMetadataServiceImpl
 							if (toRemove != null) {
 								i = toRemove.iterator();
 								while (i.hasNext())
-									removeAnnotation(ctx,
-										(AnnotationData) i.next(), child);
+									toDelete.addAll(getRemoveAnnotation(ctx, (AnnotationData) i.next(), child));
 							}
 						}
 					}
@@ -1568,10 +1559,14 @@ class OmeroMetadataServiceImpl
 				if (toRemove != null) {
 					i = toRemove.iterator();
 					while (i.hasNext())
-						removeAnnotation(ctx, (AnnotationData) i.next(),
-								object);
+						toDelete.addAll(getRemoveAnnotation(ctx, (AnnotationData) i.next(), object));
 				}
 			}
+		}
+		try {
+		    gateway.deleteObjects(ctx, toDelete);
+		} catch (Exception e) {
+		    /* do nothing */
 		}
 		if (result == null) return data;
 		return result;
@@ -1597,6 +1592,7 @@ class OmeroMetadataServiceImpl
 		Iterator j;
 		//First create the new annotations 
 		List<AnnotationData> annotations = prepareAnnotationToAdd(ctx, toAdd);
+		final List<IObject> toDelete = new ArrayList<IObject>();
 		while (i.hasNext()) {
 			child = (DataObject) i.next();
 			r.add(child);
@@ -1608,9 +1604,17 @@ class OmeroMetadataServiceImpl
 			if (toRemove != null) {
 				j = toRemove.iterator();
 				while (j.hasNext())
-					removeAnnotation(ctx, j.next(), child);
+					toDelete.addAll(getRemoveAnnotation(ctx, j.next(), child));
 			}
 		}
+		if (!toDelete.isEmpty()) {
+		    try {
+		        gateway.deleteObjects(ctx, toDelete);
+		    } catch (Exception e) {
+		        /* do nothing */
+		    }
+		}
+
 		return r;
 	}
 	
@@ -2265,7 +2269,6 @@ class OmeroMetadataServiceImpl
 				exclude.add(FileAnnotationData.MOVIE_NS);
 				exclude.add(FileAnnotationData.COMPANION_FILE_NS);
 				exclude.add(FileAnnotationData.MEASUREMENT_NS);
-				exclude.add(FileAnnotationData.FLIM_NS);
 				exclude.add(FileAnnotationData.EXPERIMENTER_PHOTO_NS);
 				exclude.add(FileAnnotationData.LOG_FILE_NS);
 		}
@@ -2298,7 +2301,6 @@ class OmeroMetadataServiceImpl
 				exclude.add(FileAnnotationData.MOVIE_NS);
 				exclude.add(FileAnnotationData.COMPANION_FILE_NS);
 				exclude.add(FileAnnotationData.MEASUREMENT_NS);
-				exclude.add(FileAnnotationData.FLIM_NS);
 				exclude.add(FileAnnotationData.EXPERIMENTER_PHOTO_NS);
 				exclude.add(FileAnnotationData.LOG_FILE_NS);
 		}
@@ -2315,7 +2317,7 @@ class OmeroMetadataServiceImpl
 			throws DSOutOfServiceException, DSAccessException
 	{
 		//Tmp code
-		Set<DataObject> set = gateway.loadAnnotation(ctx, 
+	    Collection<DataObject> set = gateway.loadAnnotation(ctx, 
 				Arrays.asList(annotationID));
 		if (set.size() != 1) return null;
 		Iterator<DataObject> i = set.iterator();
@@ -2468,7 +2470,7 @@ class OmeroMetadataServiceImpl
 	 * Class, List, List)
 	 */
 	public Map<Long, Collection<AnnotationData>>
-		loadAnnotations(SecurityContext ctx, Class<?> rootType,
+		loadAnnotations(SecurityContext ctx, Class<? extends DataObject> rootType,
 			List<Long> rootIDs, Class<?> annotationType, List<String> nsInclude,
 			List<String> nsExclude)
 		throws DSOutOfServiceException, DSAccessException
@@ -2486,7 +2488,7 @@ class OmeroMetadataServiceImpl
 
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#downloadMetadataFile(SecurityContext, File, long)
+	 * @see OmeroMetadataService#downloadMetadataFile(SecurityContext, File, long)
 	 */
 	public RequestCallback downloadMetadataFile(SecurityContext ctx,
 			File file, long id)
@@ -2501,10 +2503,10 @@ class OmeroMetadataServiceImpl
 
     /**
      * Implemented as specified by {@link OmeroDataService}.
-     * @see OmeroDataService#loadLogFiles(SecurityContext, Class, List)
+     * @see OmeroMetadataService#loadLogFiles(SecurityContext, Class, List)
      */
     public Map<Long, List<IObject>> loadLogFiles(SecurityContext ctx,
-            Class<?> rootType, List<Long> rootIDs)
+            Class<? extends DataObject> rootType, List<Long> rootIDs)
                     throws DSOutOfServiceException, DSAccessException
    {
         if (rootType == null || CollectionUtils.isEmpty(rootIDs))
@@ -2514,7 +2516,7 @@ class OmeroMetadataServiceImpl
 
     /**
      * Implemented as specified by {@link OmeroDataService}.
-     * @see OmeroMetadataService#saveData(SecurityContext, Map, Map, long)
+     * @see OmeroMetadataService#saveAnnotationData(SecurityContext, Map, Map, long)
      */
     public void saveAnnotationData(SecurityContext ctx,
             Map<DataObject, List<AnnotationData>> toAdd,
@@ -2540,9 +2542,10 @@ class OmeroMetadataServiceImpl
                        }
                    }
                }
-           }
+            }
         }
-        if (toRemove != null && toRemove.size() > 0) {
+        if (MapUtils.isNotEmpty(toRemove)) {
+            final List<IObject> toDelete = new ArrayList<IObject>();
             j = toRemove.entrySet().iterator();
             while (j.hasNext()) {
                e = j.next();
@@ -2551,8 +2554,15 @@ class OmeroMetadataServiceImpl
                while (i.hasNext()) {
                    ann = i.next();
                    if (ann != null) {
-                       removeAnnotation(ctx, ann, e.getKey());
+                       toDelete.addAll(getRemoveAnnotation(ctx, ann, e.getKey()));
                    }
+               }
+           }
+           if (!toDelete.isEmpty()) {
+               try {
+                   gateway.deleteObjects(ctx, toDelete);
+               } catch (Exception ex) {
+                   /* do nothing */
                }
            }
         }

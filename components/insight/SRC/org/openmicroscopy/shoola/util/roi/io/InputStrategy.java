@@ -73,7 +73,6 @@ import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGStrokeLineJoinPa
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGStrokeOpacityParser;
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGStrokeParser;
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGStrokeWidthParser;
-import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGTransformParser;
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.ShowMeasurementParser;
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.ShowTextParser;
 
@@ -216,7 +215,7 @@ public class InputStrategy
 		attributeParserMap.put(IOConstants.SVG_ROTATE_ATTRIBUTE,
 			new SVGNullParser());
 		attributeParserMap.put(IOConstants.SVG_TRANSFORM_ATTRIBUTE,
-			new SVGTransformParser());
+			new SVGNullParser());
 	}
 	
 	/**

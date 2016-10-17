@@ -446,7 +446,7 @@
       roi_html += "<th>T</th>"; // no T for ROI
       roi_html += "<th>" + toggle_shape_text + " Text</th>";
       roi_html += "<th title='Pick color of ROI outlines'><div style='white-space:nowrap;'>" + toggle_roi_thumbs + "Preview</div>"+ color_picker + "</th>";
-      roi_html += "<th>" + toggle_roi_visibility + " Visibility</th>";
+      roi_html += "<th>" + toggle_roi_visibility + " Show</th>";
       roi_html += "</tr></thead>";
       $roi_table.append($(roi_html));
 
@@ -926,11 +926,11 @@
 	    {% endif %}-->{% endcomment %}
             <br />
             <label>Rendering Settings</label><br />
-            <button id="rdef-copy-btn" class="btn silver btn_text" title="Copy Rendering Settings">
+            <button id="rdef-copy-btn-viewer" class="btn silver btn_text" title="Copy Rendering Settings">
                 <span>Copy</span>
             </button>
 
-            <button id="rdef-paste-btn" class="btn silver btn_text" title="Paste Rendering Settings">
+            <button id="rdef-paste-btn-viewer" class="btn silver btn_text" title="Paste Rendering Settings">
                 <span>Paste</span>
             </button>
           </div>
@@ -1183,11 +1183,12 @@
     });
 
     var copy_paste_rdef_url = "{% url 'webgateway.views.copy_image_rdef_json' %}";
-    $("#rdef-copy-btn").click(function() {
+    // Handle clicks on Copy/paste in toolbar and left of main viewer
+    // NB: Need to use IDs for robot tests
+    $("#rdef-copy-btn, #rdef-copy-btn-viewer").click(function() {
         copyRdefs(viewport);
     });
-
-    $("#rdef-paste-btn").click(function() {
+    $("#rdef-paste-btn, #rdef-paste-btn-viewer").click(function() {
         pasteRdefs(viewport);
     });
 

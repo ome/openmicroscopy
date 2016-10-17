@@ -696,7 +696,7 @@ public class ImViewerAgent
         else if (e instanceof ROIEvent) 
             handleROIEvent((ROIEvent) e);
     }
-
+    
     private void handleROIEvent(ROIEvent e) {
         ImViewer viewer = ImViewerFactory.getImageViewerFromImage(null, e.getImageId());
         if (viewer != null) {

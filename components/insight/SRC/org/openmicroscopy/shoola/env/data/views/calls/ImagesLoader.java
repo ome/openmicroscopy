@@ -22,14 +22,18 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
+
 import omero.gateway.SecurityContext;
+
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ImageData;
 
@@ -88,7 +92,7 @@ public class ImagesLoader
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                Set set = os.getImages(ctx, ImageData.class,
+                Collection set = os.getImages(ctx, ImageData.class,
                 		Arrays.asList(imageID), -1);
                 if (set != null && set.size() == 1) {
                 	Iterator i = set.iterator();

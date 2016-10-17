@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.roi.IconManager 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -120,9 +120,6 @@ public class IconManager
 
 	/** The <code>Text</code> icon. */
 	public static final int		TEXT = 23;
-	
-	/** The <code>Point Icon 22</code> icon. */
-	public static final int		POINTICON_22 = 24;
 
 	 /** The <code>Progress</code> icon. */
     public static final int     PROGRESS = 25;
@@ -190,16 +187,23 @@ public class IconManager
     /** The <code>ROI stack</code> icon if ROI is owned by other users. */
     public static final int ROISTACK_OTHER_OWNER = 46;
     
+    /** Icon for ROI folders */
     public static final int ROIFOLDER = 47;
     
     /** The <code>Filter Menu</code> icon. */
     public static final int           FILTER_MENU = 48;
     
+    /** 16px plus icon */
+    public static final int           ADD_16 = 49;
+   
+    /** Icon for ROI folders owned by other user */
+    public static final int ROIFOLDERUSER = 50;
+    
 	/** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int    MAX_ID = 48;
+    private static final int    MAX_ID = 50;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -231,7 +235,6 @@ public class IconManager
         relPaths[POLYGON] = "polygon.png";
         relPaths[POINT] = "point.png";
         relPaths[TEXT] = "text.png";
-        relPaths[POINTICON_22] = "point22.png";
         relPaths[PROGRESS] = "eclipse_progress_none16.png";
         relPaths[GRAPHPANE] = "nuvola_kmplot16.png";
         relPaths[INTENSITYVIEW] = "nuvola_kig16.png";
@@ -254,8 +257,10 @@ public class IconManager
         relPaths[DELETE_22] = "nuvola_cancel22.png";
         relPaths[APPLY_22] = "nuvola_apply22.png";
         relPaths[ROISTACK_OTHER_OWNER] = "roistack_owner_16.png";
-        relPaths[ROIFOLDER] = "ROI-foldertest-24.png";
+        relPaths[ROIFOLDER] = "roi_folder_icon.png";
         relPaths[FILTER_MENU] = "eclipse_view_menu16.png";
+        relPaths[ADD_16] = "nuvola_edit_add16.png";
+        relPaths[ROIFOLDERUSER] = "roi_folder_user_icon.png";
     }
     
     /** 

@@ -2,11 +2,7 @@
  *  Copyright 2006-2016 University of Dundee. All rights reserved.
  *  Use is subject to license terms supplied in LICENSE.txt
  */
-
 package integration;
-
-import static omero.rtypes.rint;
-import static omero.rtypes.rstring;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -34,7 +30,6 @@ import omero.gateway.model.DatasetData;
 import omero.gateway.model.PlateAcquisitionData;
 import omero.gateway.model.PlateData;
 import omero.gateway.model.ProjectData;
-import omero.gateway.model.ROIData;
 import omero.gateway.model.ScreenData;
 
 /**
@@ -106,7 +101,7 @@ public class ModelMockFactory {
     private ImmutableList<ExperimentType> experimentTypes;
 
     private static Frequency hz(double d) {
-        return new FrequencyI(d, UNITS.HZ);
+        return new FrequencyI(d, UNITS.HERTZ);
     }
 
     private static ElectricPotential volt(double d) {
@@ -218,11 +213,11 @@ public class ModelMockFactory {
         String uuidAsString = UUID.randomUUID().toString();
         String uniqueName = String.format("test-image:%s", uuidAsString);
         String uniqueDesc = String.format("test-desc:%s", uuidAsString);
-        img.setName(rstring(uniqueName));
-        img.setDescription(rstring(uniqueDesc));
-        img.setSeries(rint(0));
+        img.setName(omero.rtypes.rstring(uniqueName));
+        img.setDescription(omero.rtypes.rstring(uniqueDesc));
+        img.setSeries(omero.rtypes.rint(0));
         Format f = new FormatI();
-        f.setValue(rstring("JPEG"));
+        f.setValue(omero.rtypes.rstring("JPEG"));
         img.setFormat(f);
         return img;
     }
@@ -244,8 +239,8 @@ public class ModelMockFactory {
         String uuidAsString = UUID.randomUUID().toString();
         String uniqueName = String.format("test-folder:%s", uuidAsString);
         String uniqueDesc = String.format("test-desc:%s", uuidAsString);
-        folder.setName(rstring(uniqueName));
-        folder.setDescription(rstring(uniqueDesc));
+        folder.setName(omero.rtypes.rstring(uniqueName));
+        folder.setDescription(omero.rtypes.rstring(uniqueDesc));
         return folder;
     }
 
@@ -260,8 +255,8 @@ public class ModelMockFactory {
         String uuidAsString = UUID.randomUUID().toString();
         String uniqueName = String.format("test-project:%s", uuidAsString);
         String uniqueDesc = String.format("test-desc:%s", uuidAsString);
-        project.setName(rstring(uniqueName));
-        project.setDescription(rstring(uniqueDesc));
+        project.setName(omero.rtypes.rstring(uniqueName));
+        project.setDescription(omero.rtypes.rstring(uniqueDesc));
         return project;
     }
 
@@ -276,8 +271,8 @@ public class ModelMockFactory {
         String uuidAsString = UUID.randomUUID().toString();
         String uniqueName = String.format("test-screen:%s", uuidAsString);
         String uniqueDesc = String.format("test-desc:%s", uuidAsString);
-        screen.setName(rstring(uniqueName));
-        screen.setDescription(rstring(uniqueDesc));
+        screen.setName(omero.rtypes.rstring(uniqueName));
+        screen.setDescription(omero.rtypes.rstring(uniqueDesc));
         return screen;
     }
 
@@ -292,8 +287,8 @@ public class ModelMockFactory {
         String uuidAsString = UUID.randomUUID().toString();
         String uniqueName = String.format("test-dataset:%s", uuidAsString);
         String uniqueDesc = String.format("test-desc:%s", uuidAsString);
-        dataset.setName(rstring(uniqueName));
-        dataset.setDescription(rstring(uniqueDesc));
+        dataset.setName(omero.rtypes.rstring(uniqueName));
+        dataset.setDescription(omero.rtypes.rstring(uniqueDesc));
         return dataset;
     }
 
@@ -307,7 +302,7 @@ public class ModelMockFactory {
         final Experiment experiment = new ExperimentI();
         String uuidAsString = UUID.randomUUID().toString();
         String uniqueDesc = String.format("test-exp:%s", uuidAsString);
-        experiment.setDescription(rstring(uniqueDesc));
+        experiment.setDescription(omero.rtypes.rstring(uniqueDesc));
         experiment.setType(experimentTypes.get(0));
         return experiment;
     }

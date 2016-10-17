@@ -1,19 +1,19 @@
 /*
- * omeis.providers.re.Renderer
- *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2016 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-
 package omeis.providers.re;
 
 import java.awt.Dimension;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,8 +26,9 @@ import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
 import ome.model.enums.PixelsType;
 import ome.model.enums.RenderingModel;
-
 import omeis.providers.re.codomain.CodomainChain;
+import omeis.providers.re.codomain.CodomainMapContext;
+import omeis.providers.re.codomain.ReverseIntensityContext;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.data.PlaneFactory;
 import omeis.providers.re.data.RegionDef;
@@ -116,7 +117,7 @@ public class Renderer {
      * Defines the sequence of spatial transformations to apply to quantized
      * data.
      */
-    private CodomainChain codomainChain;
+    private List<CodomainChain> codomainChains;
 
     /**
      * Takes care of the actual rendering, using this <code>Renderer</code> as
@@ -135,6 +136,9 @@ public class Renderer {
     
     /** Map of overlays we've currently been told to render. */
     private Map<byte[], Integer> overlays;
+
+    /** The collections of available lookup tables.*/
+    private List<File> luts;
 
     /**
      * Returns a copy of a list of channel bindings with one element removed;
@@ -228,7 +232,11 @@ public class Renderer {
     			optimizations.setPrimaryColorEnabled(false);
     			return;
     		}
-    		
+    		// Check if there is no lut
+    		if (StringUtils.isNotBlank(channelBinding.getLookupTable())) {
+    		    optimizations.setPrimaryColorEnabled(false);
+                return;
+    		}
 			// Now we ensure the color is "primary" (Red, Green or Blue).
 			boolean isPrimary = false;
 			int[] colorArray = getColorArray(channelBinding);
@@ -317,6 +325,20 @@ public class Renderer {
     }
 
     /**
+     * Converts the context.
+     *
+     * @param ctx The value to convert.
+     * @return See above.
+     */
+    private CodomainMapContext convert(ome.model.display.CodomainMapContext ctx)
+    {
+        if (ctx instanceof ome.model.display.ReverseIntensityContext) {
+            return new ReverseIntensityContext();
+        }
+        return null;
+    }
+
+    /**
      * Creates a new instance to render the specified pixels set and get this
      * new instance ready for rendering.
      * 
@@ -325,15 +347,17 @@ public class Renderer {
      * @param pixelsObj Pixels object.
      * @param renderingDefObj Rendering definition object.
      * @param bufferObj PixelBuffer object.
+     * @param luts the available lookup tables.
      * @throws NullPointerException If <code>null</code> parameters are passed.
      */
     public Renderer(QuantumFactory quantumFactory,
     		List<RenderingModel> renderingModels, Pixels pixelsObj,
-            RenderingDef renderingDefObj, PixelBuffer bufferObj) {
+            RenderingDef renderingDefObj, PixelBuffer bufferObj,
+            List<File> luts) {
         metadata = pixelsObj;
         rndDef = renderingDefObj;
         buffer = bufferObj;
-
+        this.luts = Collections.unmodifiableList(luts);
         if (metadata == null) {
             throw new NullPointerException("Expecting not null metadata");
         } else if (rndDef == null) {
@@ -350,9 +374,26 @@ public class Renderer {
         quantumManager.initStrategies(qd, cBindings);
 
         // Create and configure the codomain chain.
-        codomainChain = new CodomainChain(qd.getCdStart().intValue(), qd
-                .getCdEnd().intValue(), rndDef.<ome.model.display.CodomainMapContext>
-                collectSpatialDomainEnhancement(null));
+        
+        codomainChains = new ArrayList<CodomainChain>();
+        ChannelBinding cb;
+        for (int i = 0; i < cBindings.length; i++) {
+            cb = cBindings[i];
+            List<ome.model.display.CodomainMapContext> l = cb.<ome.model.display.CodomainMapContext>
+            collectSpatialDomainEnhancement(null);
+            List<CodomainMapContext> nl = new ArrayList<CodomainMapContext>();
+            if (l != null && l.size() > 0) {
+                Iterator<ome.model.display.CodomainMapContext> j = l.iterator();
+                while (j.hasNext()) {
+                    CodomainMapContext ctx = convert(j.next());
+                    if (ctx != null) {
+                        nl.add(ctx);
+                    }
+                }
+            }
+            codomainChains.add(new CodomainChain(qd.getCdStart().intValue(),
+                    qd.getCdEnd().intValue(), nl));
+        }
 
         // Create an appropriate rendering strategy.
         renderingStrategy = RenderingStrategy.makeNew(rndDef.getModel());
@@ -361,6 +402,15 @@ public class Renderer {
         checkOptimizations();
     }
 
+    /**
+     * Returns the list of lookup tables that can be used.
+     *
+     * @return See above.
+     */
+    List<File> getAllLuts()
+    {
+        return luts;
+    }
     /**
      * Specifies the model that dictates how transformed raw data has to be
      * mapped onto a color space. This class delegates the actual rendering to a
@@ -574,7 +624,15 @@ public class Renderer {
         return (ChannelBinding[]) bindings.toArray(new ChannelBinding[bindings
                 .size()]);
     }
-    
+
+    /**
+     * Returns the list of codomain map contexts. One per channel.
+     * @return See above.
+     */
+    public List getCodomainMapContexts() {
+        return null;//rndDef.collectSpatialDomainEnhancement(null);
+    }
+
     /**
      * Returns a list containing the channel bindings. The dimension of the
      * array equals the number of channels.
@@ -634,13 +692,24 @@ public class Renderer {
     }
 
     /**
-     * Returns the object that defines the sequence of spatial transformations
-     * to be applied to quantized data.
+     * Returns the objects that defines the sequence of spatial transformations
+     * to be applied to quantized data. One object per channel
      * 
      * @return See above.
      */
-    public CodomainChain getCodomainChain() {
-        return codomainChain;
+    List<CodomainChain> getCodomainChains() {
+        return Collections.unmodifiableList(codomainChains);
+    }
+
+    /**
+     * Returns the object that defines the sequence of spatial transformations
+     * to be applied to quantized data.
+     * 
+     * @param channel
+     * @return See above.
+     */
+    public CodomainChain getCodomainChain(int channel) {
+        return codomainChains.get(channel);
     }
 
     /**
@@ -690,8 +759,11 @@ public class Renderer {
      *            The upper bound of the interval.
      */
     public void setCodomainInterval(int start, int end) {
-        CodomainChain chain = getCodomainChain();
-        chain.setInterval(start, end);
+        CodomainChain c;
+        for (int i = 0; i < getPixels().getSizeC(); i++) {
+            c = getCodomainChain(i);
+            c.setInterval(start, end);
+        }
         /*
          * RenderingDef rd = getRenderingDef(); QuantumDef qd =
          * rd.getQuantization(), newQd; newQd = new QuantumDef();
@@ -703,13 +775,6 @@ public class Renderer {
         QuantumDef qd = rd.getQuantization();
         qd.setCdStart(Integer.valueOf(start));
         qd.setCdEnd(Integer.valueOf(end));
-        ome.model.display.CodomainMapContext mapCtx;
-        Iterator<ome.model.display.CodomainMapContext> i = rd.iterateSpatialDomainEnhancement();
-        while (i.hasNext()) {
-            mapCtx = i.next();
-            throw new UnsupportedOperationException("BROKEN");
-            // XXX What is supposed to happen here? mapCtx.setCodomain(start, end);
-        }
         //need to rebuild the look up table
         updateQuantumManager();
     }
@@ -777,7 +842,19 @@ public class Renderer {
         cb[w].setAlpha(Integer.valueOf(alpha));
         checkOptimizations();
     }
-    
+
+    /**
+     * Sets the lookup table associated to the channel.
+     *
+     * @param w The selected channel.
+     * @param lookupTable The lookup table.
+     */
+    public void setChannelLookupTable(int w, String lookupTable) {
+        ChannelBinding[] cb = getChannelBindings();
+        cb[w].setLookupTable(lookupTable);
+        checkOptimizations();
+    }
+
     /**
      * Makes a particular channel active or inactive.
      * @param w the wavelength index to toggle.

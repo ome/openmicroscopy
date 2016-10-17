@@ -47,6 +47,7 @@ import javax.swing.JFrame;
 import org.apache.commons.collections.CollectionUtils;
 
 import omero.model.OriginalFile;
+import omero.model.PlateAcquisition;
 
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserFactory;
@@ -3232,9 +3233,9 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#browseTimeInterval(TreeImageTimeSet, Set)
+	 * @see TreeViewer#browseTimeInterval(TreeImageTimeSet, Collection)
 	 */
-	public void browseTimeInterval(TreeImageTimeSet parent, Set leaves)
+	public void browseTimeInterval(TreeImageTimeSet parent, Collection leaves)
 	{
 		if (leaves == null) return;
 		
@@ -3267,7 +3268,7 @@ class TreeViewerComponent
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#setPlates(Map, boolean)
 	 */
-	public void setPlates(Map<TreeImageSet, Set> plates, boolean withThumbnails)
+	public void setPlates(Map<TreeImageSet, Collection> plates, boolean withThumbnails)
 	{
 		if (plates == null || plates.size() == 0) {
 			return;
@@ -3304,7 +3305,7 @@ class TreeViewerComponent
 				
 				db = DataBrowserFactory.getWellsDataBrowser(
 						model.getSecurityContext(parent), m, parentObject, 
-						(Set) entry.getValue(), withThumbnails);
+						(Collection) entry.getValue(), withThumbnails);
 			}
 		}
 		if (db != null) {
@@ -3646,18 +3647,21 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#download(File, boolean)
+	 * @see TreeViewer#download(File, boolean, List)
 	 */
-	public void download(File folder, boolean override)
+	public void download(File folder, boolean override, List<DataObject> selection)
 	{
-	    if (model.getState() == DISCARDED) return;
-	    Browser browser = model.getSelectedBrowser();
-	    if (browser == null) return;
-	    List l = browser.getSelectedDataObjects();
+        if (model.getState() == DISCARDED)
+            return;
+        Browser browser = model.getSelectedBrowser();
+        if (browser == null)
+            return;
+        List l = selection == null ? browser.getSelectedDataObjects()
+                : selection;
 	    if (l == null) return;
 	    Iterator i = l.iterator();
 	    Object object;
-	    List<ImageData> archived = new ArrayList<ImageData>();
+	    List<DataObject> archived = new ArrayList<DataObject>();
 	    List<Long> filesetIds = new ArrayList<Long>();
 	    ImageData image;
 	    long id;
@@ -3677,6 +3681,29 @@ class TreeViewerComponent
 	            downloadFile(folder, override, (FileAnnotationData) object,
 	                    null);
 	        }
+	        else if (object instanceof PlateAcquisitionData
+                    && PojosUtil.isDownloadable((DataObject) object)) {
+                PlateData p = new PlateData(
+                        ((PlateAcquisition) (((DataObject) object).asIObject()))
+                                .getPlate());
+                archived.add(p);
+            } else if (object instanceof PlateData
+                    && PojosUtil.isDownloadable((DataObject) object)) {
+                archived.add((PlateData) object);
+            }
+            else if (object instanceof WellSampleData
+                    && PojosUtil.isDownloadable((DataObject) object)) {
+                
+                image = ((WellSampleData)object).getImage();
+                if (image.isArchived()) {
+                    id = image.getFilesetId();
+                    if (id < 0) archived.add(image);
+                    else if (!filesetIds.contains(id)) {
+                        archived.add(image);
+                        filesetIds.add(id);
+                    }
+                }
+            }
 	    }
 	    if (archived.size() > 0) {
             UserNotifier un = MetadataViewerAgent.getRegistry()

@@ -5,7 +5,7 @@
 /*global $, setTimeout, clearTimeout, OME, WEBCLIENT */
 /*exported tagging_form */
 //
-// Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
+// Copyright (C) 2013-2016 University of Dundee & Open Microscopy Environment.
 // All rights reserved.
 //
 // This program is free software: you can redistribute it and/or modify
@@ -194,7 +194,7 @@ var tagging_form = function(
         var num_desc_callbacks = 0;
 
         var load = function(mode, callback, offset, limit) {
-            var url = WEBCLIENT.URLS.webindex + "marshal_tagging_form_data";
+            var url = WEBCLIENT.URLS.webindex + "marshal_tagging_form_data/";
             url = url + "?jsonmode=" + mode +
                         "&group=" + WEBCLIENT.active_group_id;
             if (offset !== undefined && limit !== undefined) {
@@ -309,7 +309,8 @@ var tagging_form = function(
             for (idx in selected_tags) {
                 if (!selected_tags[idx][5]) {
                     others_tags.push(selected_tags[idx][0]);
-                    continue; // not owned by current user, don't add to list
+                    // link(s) not owned by current user, don't add to list
+                    continue;
                 }
                 var selected_tag = $(".tag_selection div[data-id=" +
                                      selected_tags[idx][0] + "]");

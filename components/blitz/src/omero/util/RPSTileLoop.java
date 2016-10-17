@@ -100,7 +100,7 @@ public class RPSTileLoop extends TileLoop {
         final int sizeC = pixels.getSizeC().getValue();
         final int sizeT = pixels.getSizeT().getValue();
 
-        return forEachTile(sizeX, sizeY, sizeZ, sizeT, sizeC, tileWidth, tileHeight, iteration);
+        return forEachTile(sizeX, sizeY, sizeZ, sizeC, sizeT, tileWidth, tileHeight, iteration);
 
     }
 }

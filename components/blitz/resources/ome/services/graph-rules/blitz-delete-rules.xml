@@ -67,6 +67,7 @@
         <value>PixelsOriginalFileMap</value>
 
         <!-- display -->
+        <value>ProjectionDef</value>
         <value>RenderingDef</value>
         <value>Thumbnail</value>
 
@@ -92,6 +93,7 @@
         <value>ShareMember</value>
 
         <!-- roi -->
+        <value>AffineTransform</value>
         <value>Roi</value>
         <value>Shape</value>
 
@@ -375,9 +377,10 @@
 
         <!-- If rendering settings are deleted then delete the subgraph below. -->
 
+        <bean parent="graphPolicyRule" p:matches="RenderingDef[D].projections = PD:[E]" p:changes="PD:[D]"/>
         <bean parent="graphPolicyRule" p:matches="RenderingDef[D].quantization = Q:[E]" p:changes="Q:[D]"/>
-        <bean parent="graphPolicyRule" p:matches="RenderingDef[D].spatialDomainEnhancement = SDE:[E]" p:changes="SDE:[D]"/>
         <bean parent="graphPolicyRule" p:matches="RenderingDef[D].waveRendering = CB:[E]" p:changes="CB:[D]"/>
+        <bean parent="graphPolicyRule" p:matches="ChannelBinding[D].spatialDomainEnhancement = SDE:[E]" p:changes="SDE:[D]"/>
 
         <!-- EXPERIMENT -->
 
@@ -452,6 +455,12 @@
         <bean parent="graphPolicyRule" p:matches="Roi[D].shapes = S:[E]" p:changes="S:[D]"/>
         <bean parent="graphPolicyRule" p:matches="Mask[D].pixels = P:[E]" p:changes="P:[-]"/>
         <bean parent="graphPolicyRule" p:matches="Mask[D].pixels = P:[E], P.image = I:[E]{i}/d" p:changes="I:{r}"/>
+
+        <!-- Delete orphaned affine transforms. -->
+
+        <bean parent="graphPolicyRule" p:matches="Shape[D].transform = T:[E]{i}" p:changes="T:[E]{r}"/>
+        <bean parent="graphPolicyRule" p:matches="Shape[E].transform = T:[E]{r}" p:changes="T:[E]{a}"/>
+        <bean parent="graphPolicyRule" p:matches="T:AffineTransform[E]{o}" p:changes="T:[D]"/>
 
         <!-- SCREEN -->
 

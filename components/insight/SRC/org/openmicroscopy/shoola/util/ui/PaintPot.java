@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.PaintPot 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -30,6 +30,7 @@ import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 
 //Third-party libraries
@@ -56,6 +57,9 @@ public class PaintPot
 	/** Colour of the paint pot. */
 	protected Color					colour;
 
+	/** The background image */
+	protected BufferedImage         image;
+	
 	/** Width  of the paint pot. */
 	protected int 					w;
 
@@ -132,19 +136,23 @@ public class PaintPot
     {
         Graphics2D g = (Graphics2D)og;
         createUI();
-        Color c = new Color(colour.getRed(), colour.getGreen(), 
-        					colour.getBlue());
-        g.setColor(c);
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                  RenderingHints.VALUE_ANTIALIAS_ON);
-        g.fill(topPoly);
-        g.setColor(colour);
-        g.fill(bottomPoly);
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                  RenderingHints.VALUE_ANTIALIAS_OFF);          
-        g.setColor(Color.black);
-        g.draw(strokeRect);
         
+        if (image != null) {
+            g.drawImage(image, 0, 0, w, h, null);
+        } else {
+            Color c = new Color(colour.getRed(), colour.getGreen(),
+                    colour.getBlue());
+            g.setColor(c);
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON);
+            g.fill(topPoly);
+            g.setColor(colour);
+            g.fill(bottomPoly);
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_OFF);
+            g.setColor(Color.black);
+            g.draw(strokeRect);
+        }
     }
     
 	/**

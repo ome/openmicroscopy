@@ -117,6 +117,9 @@ class HSVWheel
 	 */
 	private void createColourWheelFromLUT()
 	{
+        if (img == null)
+            return;
+	    
 		int sz = (int) radius;
 		float szsz = sz*sz;
 		float value  = control.getValue(); 
