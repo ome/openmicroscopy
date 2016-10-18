@@ -114,6 +114,7 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         /* need to revert the name to 2KB size in order to be sure to test
          * for namespace failure, not both name and namespace failure */
         name = createName(2000);
+        ann.setName(omero.rtypes.rstring(name));
         try {
             iUpdate.saveAndReturnObject(ann);
             Assert.fail("Expected not to be able to insert "
