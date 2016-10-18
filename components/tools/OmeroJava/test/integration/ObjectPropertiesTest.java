@@ -101,8 +101,8 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         ann.setName(omero.rtypes.rstring(name));
         try {
             iUpdate.saveAndReturnObject(ann);
-            Assert.fail("Hibernate operation: could not insert:..."
-                      + "ERROR: index row requires 1000016 bytes, maximum size is 8191; ");
+            Assert.fail("Expected not to be able to insert"
+                      + "tag names of size 1MB into the DB");
         } catch (ServerError se) {
             /* expected */
         }
@@ -116,8 +116,8 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         name = createName(2000);
         try {
             iUpdate.saveAndReturnObject(ann);
-            Assert.fail("Hibernate operation: could not insert:..."
-                      + "ERROR: index row requires 1000016 bytes, maximum size is 8191; ");
+            Assert.fail("Expected not to be able to insert"
+                      + "tag namespaces of size 1MB into the DB");
         } catch (ServerError se) {
             /* expected */
         }
@@ -303,8 +303,8 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         ns.setName(omero.rtypes.rstring(name));
         try {
             iUpdate.saveAndReturnObject(ns);
-            Assert.fail("Hibernate operation: could not insert:..."
-                      + "ERROR: index row requires 1000016 bytes, maximum size is 8191; ");
+            Assert.fail("Expected not to be able to insert"
+                      + "namespace names of size 1MB into the DB");
         } catch (ServerError se) {
             /* expected */
         }
@@ -318,8 +318,8 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         name = createName(2000);
         try {
             iUpdate.saveAndReturnObject(ns);
-            Assert.fail("Hibernate operation: could not insert:..."
-                      + "ERROR: index row requires 1000016 bytes, maximum size is 8191; ");
+            Assert.fail("Expected not to be able to insert"
+                      + "namespace display names of size 1MB into the DB");
         } catch (ServerError se) {
             /* expected */
         }
@@ -362,8 +362,8 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         oFile.setHash(omero.rtypes.rstring(hash));
         try {
             iUpdate.saveAndReturnObject(oFile);
-            Assert.fail("Hibernate operation: could not insert:..."
-                      + "ERROR: index row requires 1000016 bytes, maximum size is 8191; ");
+            Assert.fail("Expected not to be able to insert"
+                      + "original file hashes of size 1MB into the DB");
         } catch (ServerError se) {
             /* expected */
         }
@@ -537,8 +537,8 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         roi.setName(omero.rtypes.rstring(name));
         try {
             iUpdate.saveAndReturnObject(roi);
-            Assert.fail("Hibernate operation: could not insert:..."
-                      + "ERROR: index row requires 1000016 bytes, maximum size is 8191; ");
+            Assert.fail("Expected not to be able to insert"
+                      + "roi names of size 1MB into the DB");
         } catch (ServerError se) {
             /* expected */
         }
