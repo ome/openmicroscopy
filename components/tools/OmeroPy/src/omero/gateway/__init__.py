@@ -3077,9 +3077,14 @@ class _BlitzGateway (object):
                 "'Image' not %r" % obj_type)
 
         if params is None:
-            params = omero.sys.Parameters()
-        if params.map is None:
-            params.map = {}
+            params = omero.sys.ParametersI()
+        elif isinstance(params, dict):
+            opts = params
+            params = omero.sys.ParametersI()
+            # Parse params dict to build params
+            if 'page' in opts and 'limit' in opts:
+                limit = opts['limit']
+                params.page((opts['page']-1) * limit, limit)
 
         # get the base query from the instantiated object itself. E.g "select
         # obj Project as obj"
