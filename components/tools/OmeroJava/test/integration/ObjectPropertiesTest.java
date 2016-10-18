@@ -501,8 +501,6 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         Roi sentR = (Roi) iUpdate.saveAndReturnObject(roi);
         String savedName = sentR.getName().getValue().toString();
         long id = sentR.getId().getValue();
-        System.out.println(name);
-        System.out.println(id);
         final Roi retrievedRoi = (Roi) iQuery.get("Roi", id);
         final String retrievedName = retrievedRoi.getName().getValue().toString();
         Assert.assertEquals(name, retrievedName);
