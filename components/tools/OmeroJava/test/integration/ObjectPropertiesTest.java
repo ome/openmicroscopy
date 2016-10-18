@@ -1,7 +1,6 @@
 package integration;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Random;
 
 import omero.ServerError;
@@ -9,7 +8,6 @@ import omero.api.IRenderingSettingsPrx;
 import omero.model.Channel;
 import omero.model.Dataset;
 import omero.model.Folder;
-import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImportJob;
 import omero.model.ImportJobI;
@@ -40,8 +38,12 @@ import ome.api.JobHandle;
 
 public class ObjectPropertiesTest extends AbstractServerTest {
 
-
-    /* method for creating long (1MB) strings for names of objects */
+    /**
+     * Creates a name with length as a string
+     * @param integer lenght of the name to create in bytes
+     * @return the name
+     * @throws Exception unexpected
+     */
     private String createName(int integer) throws Exception {
         final Random rng = new Random();
         final char[] chars = new char[integer];  // string length
@@ -52,25 +54,28 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         return string;
     }
 
-    /* method for setting up the testing user and group
-     * to run before every test */
+    /**
+     * Sets up the testing user and group before each test
+     * @throws Exception unexpected
+     */
     @BeforeMethod
     private void createUserAndGroup() throws Exception {
         newUserAndGroup("rw----");
     }
 
     /**
-     * Test to create a (tag) annotation and save it with long name
-     * and long namespace
-     *
-     * @throws Exception
-     *             Thrown if an error occurred.
+     * Test to create a (tag) annotation and
+     * save it with long name and long namespace
+     * also has a negative test for names and namespaces >2KB
+     * @throws Exception unexpected
      */
     @Test
     public void testAnnotationNameAndNsSaving() throws Exception {
-        /* Tag annotation is used here as a good representative to test
-         * the annotations in general */
+
+        /* Tag annotation is used here as a good representative
+         * to test the annotations in general */
         final TagAnnotation ann = new TagAnnotationI();
+
         /* for annotation name sizes of >2KB the test fails */
         /* createName() creates name with lenght in approx. bytes */
         String name = createName(1000000);
@@ -82,9 +87,11 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         } catch (ServerError se) {
             /* expected */
         }
+
         /* similarly, for annotation namespace sizes of >2KB the test fails */
         String namespace = createName(1000000);
         ann.setNs(omero.rtypes.rstring(namespace));
+
         /* need to revert the name to 2KB size in order to be sure to test
          * for namespace failure, not both name and namespace failure */
         name = createName(2000);
@@ -95,8 +102,10 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         } catch (ServerError se) {
             /* expected */
         }
+
         /* now set namespace with size 2KB (name was set to this size already above)
          * and let the test pass */
+
         namespace = createName(2000);
         ann.setName(omero.rtypes.rstring(name));
         ann.setNs(omero.rtypes.rstring(namespace));;
@@ -115,17 +124,17 @@ public class ObjectPropertiesTest extends AbstractServerTest {
 
     /**
      * Test to create a channel and save it with long lookup table
-     * and saving logical channel with long name.
-     *
-     * @throws Exception
-     *             Thrown if an error occurred.
+     * and test saving logical channel with long name.
+     * @throws Exception unexpected
      */
     @Test
     public void testChannelLUTLogChannelName() throws Exception {
+
         /* create some image which contains a
          * valid channel which contains a valid logical channel*/
         final Image img = mmFactory.createImage();
         final Image sentImage = (Image) iUpdate.saveAndReturnObject(img);
+
         /* get the channel from the image and set
          * the lut of the channel and the name of the logical channel */
         final Channel ch = sentImage.getPrimaryPixels().getChannel(0);
@@ -133,6 +142,7 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         ch.setLookupTable(omero.rtypes.rstring(lut));
         final String logChannelName = createName(1000000);
         ch.getLogicalChannel().setName(omero.rtypes.rstring(logChannelName));
+
         /* save the channel back and get the saved lut and logical channel name
          * and ids of channel and logical channel for later query*/
         Channel sent = (Channel) iUpdate.saveAndReturnObject(ch);
@@ -140,14 +150,16 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         String savedLogChannelName = sent.getLogicalChannel().getName().getValue().toString();
         long id = sent.getId().getValue();
         long lChId = sent.getLogicalChannel().getId().getValue();
+
         /* query the DB for the lut and logical channel name */
         final Channel retrievedChannel = (Channel) iQuery.get("Channel", id);
         final LogicalChannel retrievedLogChannel = (LogicalChannel) iQuery.get("LogicalChannel", lChId);
         final String retrievedLut = retrievedChannel.getLookupTable().getValue().toString();
         final String retrievedLogChannelName = retrievedLogChannel.getName().getValue().toString();
+
         /* check that the originally created Lut, the saved lut,
          * and the lut retrieved by the query are the same. Do 
-         * analogical check for the logical channel name */
+         * a similar check for the logical channel name */
         Assert.assertEquals(lut, retrievedLut);
         Assert.assertEquals(lut, savedLut);
         Assert.assertEquals(logChannelName, retrievedLogChannelName);
@@ -156,9 +168,7 @@ public class ObjectPropertiesTest extends AbstractServerTest {
 
     /**
      * Test to create a dataset and save it with long name
-     *
-     * @throws Exception
-     *             Thrown if an error occurred.
+     * @throws Exception unexpected
      */
     @Test
     public void testDatasetNameSaving() throws Exception {
@@ -176,9 +186,7 @@ public class ObjectPropertiesTest extends AbstractServerTest {
 
     /**
      * Test to create a folder and save it with long name
-     *
-     * @throws Exception
-     *             Thrown if an error occurred.
+     * @throws Exception unexpected
      */
     @Test
     public void testFolderNameSaving() throws Exception {
@@ -196,9 +204,7 @@ public class ObjectPropertiesTest extends AbstractServerTest {
 
     /**
      * Test to create an image and save it with long name
-     *
-     * @throws Exception
-     *             Thrown if an error occurred.
+     * @throws Exception unexpected
      */
     @Test
     public void testImageNameSaving() throws Exception {
@@ -215,16 +221,18 @@ public class ObjectPropertiesTest extends AbstractServerTest {
     }
 
     /**
-     * Test to create a long import job image name and save it
-     *
-     * @throws Exception
-     *             Thrown if an error occurred.
+     * Test to create a long import job image name
+     * and a long import job image description and save these
+     * @throws Exception unexpected
      */
     @Test
     public void testImportJobImageNameAndDescrSaving() throws Exception {
+
         /*login as root in order to be able to create an ImportJob */
         logRootIntoGroup();
+
         /* set up an ImportJob with all the compulsory parameters */
+
         final ImportJob importJob = new ImportJobI();
         importJob.setGroupname(omero.rtypes.rstring("GroupName"));
         importJob.setMessage(omero.rtypes.rstring("message"));
@@ -233,13 +241,16 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         importJob.setSubmitted(omero.rtypes.rtime(System.currentTimeMillis()));
         importJob.setType(omero.rtypes.rstring("Test"));
         importJob.setUsername(omero.rtypes.rstring("username"));
+
         /* set a long name and a long description for the ImportJob */
         final String name = createName(1000000);
         importJob.setImageName(omero.rtypes.rstring(name));
         final String desc = createName(1000000);
         importJob.setImageDescription(omero.rtypes.rstring(desc));
+
         /* save the ImmportJob and get the saved name, description 
          * and id for later query */
+
         ImportJob sent = (ImportJob) iUpdate.saveAndReturnObject(importJob);
         final String savedName = sent.getImageName().getValue().toString();
         final String savedDesc = sent.getImageDescription().getValue().toString();
@@ -254,17 +265,19 @@ public class ObjectPropertiesTest extends AbstractServerTest {
     }
 
     /**
-     * Test to create a namespace and save it with a long name
-     * and a long display name
-     *
-     * @throws Exception
-     *             Thrown if an error occurred.
+     * Test to create a namespace and save it
+     * with a long name and a long display name
+     * also has negative tests for
+     * namespace names and display names >2KB
+     * @throws Exception unexpected
      */
     @Test
     public void testNamespaceNameAndDisplayName() throws Exception {
+
         /*login as root in order to be able to create a Namespace */
         logRootIntoGroup();
         final Namespace ns = new NamespaceI();
+
         /* for namespace name sizes of >2KB the test fails */
         /* createName() creates name with lenght in approx. bytes */
         String name = createName(1000000);
@@ -276,9 +289,11 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         } catch (ServerError se) {
             /* expected */
         }
+
         /* similarly, for namespace display name sizes of >2KB the test fails */
         String displayName = createName(1000000);
         ns.setDisplayName(omero.rtypes.rstring(displayName));
+
         /* need to revert the name to 2KB size in order to be sure to test
          * for displayName failure, not both name and displayName failure */
         name = createName(2000);
@@ -289,8 +304,10 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         } catch (ServerError se) {
             /* expected */
         }
+
         /* now set displayName with size 2KB (name was set to this size already above)
          * and let the test pass */
+
         displayName = createName(2000);
         ns.setName(omero.rtypes.rstring(name));
         ns.setDisplayName(omero.rtypes.rstring(displayName));
@@ -306,20 +323,21 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         Assert.assertEquals(displayName, retrievedDisplayName);
         Assert.assertEquals(displayName, savedDisplayName);
     }
-    
+
     /**
-     * Test to create an original file and save it with long name
-     * and with a long hash
-     *
-     * @throws Exception
-     *             Thrown if an error occurred.
+     * Test to create an original file and save it
+     * with long name and with long hash (2KB),
+     * also has a negative test for hash >2KB
+     * @throws Exception unexpected
      */
     @Test
     public void testOriginalFileNameAndHash() throws Exception {
         final OriginalFile oFile = mmFactory.createOriginalFile();
+
         /* createName() creates name with lenght in approx. bytes */
         String name = createName(1000000);
         oFile.setName(omero.rtypes.rstring(name));
+
         /* for original file hash sizes of >2KB the test fails */
         String hash = createName(1000000);
         oFile.setHash(omero.rtypes.rstring(hash));
@@ -330,8 +348,10 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         } catch (ServerError se) {
             /* expected */
         }
+
         /* now set hash with size 2KB (name is fine at 1MB as set above)
          * and let the test pass */
+
         hash = createName(2000);
         oFile.setName(omero.rtypes.rstring(name));
         oFile.setHash(omero.rtypes.rstring(hash));
@@ -347,18 +367,18 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         Assert.assertEquals(hash, retrievedHash);
         Assert.assertEquals(hash, savedHash);
     }
-    
+
     /**
      * Test to create a plate and save it with long name
      * and a long status and create plate acquisition and save it 
      * with a long name
-     *
-     * @throws Exception
-     *             Thrown if an error occurred.
+     * @throws Exception unexpected
      */
     @Test
     public void testPlateNameStatusAcquistitionName() throws Exception {
+
         /* First test for plate name and status */
+
         final Plate plate = mmFactory.createPlate(1, 1, 1, 1, false);
         final String name = createName(1000000);
         final String status = createName(1000000);
@@ -375,8 +395,10 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         Assert.assertEquals(name, savedName);
         Assert.assertEquals(status, retrievedStatus);
         Assert.assertEquals(status, savedStatus);
+
         /* With the plate created in above test in hand
          * test for plate acquisition name.*/
+
         final PlateAcquisition acquisition = (PlateAcquisition) iQuery.findByQuery("FROM PlateAcquisition WHERE plate.id = :id", new ParametersI().addId(idPlate));
         final String acquisitionName = createName(1000000);
         acquisition.setName(omero.rtypes.rstring(acquisitionName));
@@ -388,12 +410,10 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         Assert.assertEquals(acquisitionName, retrievedAcquisitionName);
         Assert.assertEquals(acquisitionName, savedAcquisitionName);
     }
-    
+
     /**
      * Test to create a project and save it with long name
-     *
-     * @throws Exception
-     *             Thrown if an error occurred.
+     * @throws Exception unexpected
      */
     @Test
     public void testProjectNameSaving() throws Exception {
@@ -411,16 +431,16 @@ public class ObjectPropertiesTest extends AbstractServerTest {
 
     /**
      * Test to create a reagent and save it with long name
-     *
-     * @throws Exception
-     *             Thrown if an error occurred.
+     * @throws Exception unexpected
      */
     @Test
     public void testReagentNameSaving() throws Exception {
+
         /* first need to create a screen, then a plate
          * with reagent and link it to the screen to 
          * populate all necessary parameters of reagent
          */
+
         Screen screen = mmFactory.simpleScreenData().asScreen();
         Reagent reagent = mmFactory.createReagent();
         screen.addReagent(reagent);
@@ -428,10 +448,13 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         screen.linkPlate(p);
         Screen sentS = (Screen) iUpdate.saveAndReturnObject(screen);
         long screenId = sentS.getId().getValue();
+
         /* now get the updated reagent back via a query */
         reagent = (Reagent) iQuery.findByQuery("FROM Reagent WHERE screen.id = :id", 
                 new ParametersI().addId(screenId));
+
         /* create a reagent name and set it on the retrieved reagent object */
+
         final String name = createName(1000000);
         reagent.setName(omero.rtypes.rstring(name));
         Reagent sentR = (Reagent) iUpdate.saveAndReturnObject(reagent);
@@ -442,25 +465,28 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         Assert.assertEquals(name, retrievedName);
         Assert.assertEquals(name, savedName);
     }
+
     /**
      * Test to create a rendering definition and save it with long name
-     *
-     * @throws Exception
-     *             Thrown if an error occurred.
+     * @throws Exception unexpected
      */
     @Test
     public void testRenderingDefinitionNameSaving() throws Exception {
+
         /* first prepare image and pixels to get valid rendering defs */
         Image img = mmFactory.createImage();
         Image sentI = (Image) iUpdate.saveAndReturnObject(img);
         Pixels pixels = sentI.getPrimaryPixels();
+
         /* now get the rendering defs back via a method and a query */
         IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
         prx.setOriginalSettingsInSet(Pixels.class.getName(),
                 Arrays.asList(pixels.getId().getValue()));
         final RenderingDef rDef = (RenderingDef) iQuery.findByQuery("select rdef from RenderingDef as rdef where rdef.pixels.id = :id", 
                 new ParametersI().addId(pixels.getId().getValue()));
+
         /* create a rendering defs name and set it on the retrieved rDef object */
+
         final String name = createName(1000000);
         rDef.setName(omero.rtypes.rstring(name));
         RenderingDef sentR = (RenderingDef) iUpdate.saveAndReturnObject(rDef);
@@ -474,18 +500,19 @@ public class ObjectPropertiesTest extends AbstractServerTest {
 
     /**
      * Test to create a roi and save it with long name
-     *
-     * @throws Exception
-     *             Thrown if an error occurred.
+     * also contains negative test for roi names >2KB
+     * @throws Exception unexpected
      */
     @Test
     public void testRoiNameSaving() throws Exception {
+
         /* first prepare image to get valid roi */
         Image img = mmFactory.createImageWithRoi();
         Image sentI = (Image) iUpdate.saveAndReturnObject(img);
         /* now get the roi back using a query */
         final Roi roi = (Roi) iQuery.findByQuery("select roi from Roi as roi where roi.image.id = :id",
                 new ParametersI().addId(sentI.getId().getValue()));
+
         /* test for failure of names >2KB for roi name */
         String name = createName(1000000);
         roi.setName(omero.rtypes.rstring(name));
@@ -496,7 +523,9 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         } catch (ServerError se) {
             /* expected */
         }
+
         /* now set name with size 2KB and let the test pass */
+
         name = createName(2000);
         roi.setName(omero.rtypes.rstring(name));
         Roi sentR = (Roi) iUpdate.saveAndReturnObject(roi);
@@ -510,17 +539,16 @@ public class ObjectPropertiesTest extends AbstractServerTest {
 
     /**
      * Test to create a screen and save it with long name
-     * and long protocol description and long reagent set
-     * description
-     *
-     * @throws Exception
-     *             Thrown if an error occurred.
+     * and long protocol description and long reagentSet description
+     * @throws Exception unexpected
      */
     @Test
     public void testScreenNameProtocolDescReagentSetDesc() throws Exception {
+
         /* create some screen which contains a
-         * valid protocol and reagent set descriptions */
+         * valid protocol and reagentSet descriptions */
         Screen screen = mmFactory.simpleScreen();
+
         /* set long name, protocol and reagent set descriptions */
         final String name = createName(1000000);
         screen.setName(omero.rtypes.rstring(name));
@@ -528,6 +556,7 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         screen.setProtocolDescription(omero.rtypes.rstring(protocolDesc));
         final String reagentSetDesc = createName(1000000);
         screen.setReagentSetDescription(omero.rtypes.rstring(reagentSetDesc));
+
         /* save the screen with the name, and protocol and reagent
          * set descriptions and get the saved values back */
         Screen sent = (Screen) iUpdate.saveAndReturnObject(screen);
@@ -535,9 +564,11 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         String savedProtocolDesc = sent.getProtocolDescription().getValue().toString();
         String savedReagentSetDesc = sent.getReagentSetDescription().getValue().toString();
         long id = sent.getId().getValue();
+
         /* query for the screen and check that the retrieved name,
          * protocol description and reagent description
          * match the ones which were created and saved */
+
         final Screen retrievedScreen = (Screen) iQuery.get("Screen", id);
         final String retrievedName = retrievedScreen.getName().getValue().toString();
         final String retrievedProtocolDesc = retrievedScreen.getProtocolDescription().getValue().toString();
@@ -549,12 +580,10 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         Assert.assertEquals(reagentSetDesc, retrievedReagentSetDesc);
         Assert.assertEquals(reagentSetDesc, savedReagentSetDesc);
     }
-    
+
     /**
      * Test to create a stage label and save it with long name
-     *
-     * @throws Exception
-     *             Thrown if an error occurred.
+     * @throws Exception unexpected
      */
     @Test
     public void testStageLabelNameSaving() throws Exception {
@@ -569,24 +598,27 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         Assert.assertEquals(name, retrievedName);
         Assert.assertEquals(name, savedName);
     }
-    
+
     /**
-     * Test to create a stage label and save it with long name
-     *
-     * @throws Exception
-     *             Thrown if an error occurred.
+     * Test to create a long external description on
+     * a well and save it
+     * @throws Exception unexpected
      */
     @Test
     public void testWellExternalDescription() throws Exception {
+
         /* create some plate which contains a valid well */
         final Plate plate = mmFactory.createPlate(1, 1, 1, 1, false);
         Plate sentP = (Plate) iUpdate.saveAndReturnObject(plate);
+
         /* get the well back using a query */
         final Well well = (Well) iQuery.findByQuery("select well from Well as well where well.plate.id = :id",
                 new ParametersI().addId(sentP.getId().getValue()));
+
         /* create a long external description, set it on the well
-         * save it and check that it was saved correctly by retrieveing
-         * it and comparing with the originally created string */
+         * save the well, check that the saved description
+         * matches the originally created string */
+
         final String name = createName(1000000);
         well.setExternalDescription(omero.rtypes.rstring(name));
         Well sent = (Well) iUpdate.saveAndReturnObject(well);
