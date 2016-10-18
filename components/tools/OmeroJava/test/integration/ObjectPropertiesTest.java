@@ -40,13 +40,13 @@ public class ObjectPropertiesTest extends AbstractServerTest {
 
     /**
      * Creates a name with length as a string
-     * @param integer lenght of the name to create in bytes
+     * @param length length of the name to create in bytes
      * @return the name
      * @throws Exception unexpected
      */
-    private String createName(int integer) throws Exception {
+    private String createName(int length) throws Exception {
         final Random rng = new Random();
-        final char[] chars = new char[integer];  // string length
+        final char[] chars = new char[length];  // string length
         for (int i = 0; i < chars.length; i++) {
             chars[i] = (char) ('a' + rng.nextInt(26));
         }
@@ -77,7 +77,7 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         final TagAnnotation ann = new TagAnnotationI();
 
         /* for annotation name sizes of >2KB the test fails */
-        /* createName() creates name with lenght in approx. bytes */
+        /* createName() creates name with length in approx. bytes */
         String name = createName(1000000);
         ann.setName(omero.rtypes.rstring(name));
         try {
@@ -279,7 +279,7 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         final Namespace ns = new NamespaceI();
 
         /* for namespace name sizes of >2KB the test fails */
-        /* createName() creates name with lenght in approx. bytes */
+        /* createName() creates name with length in approx. bytes */
         String name = createName(1000000);
         ns.setName(omero.rtypes.rstring(name));
         try {
@@ -334,7 +334,7 @@ public class ObjectPropertiesTest extends AbstractServerTest {
     public void testOriginalFileNameAndHash() throws Exception {
         final OriginalFile oFile = mmFactory.createOriginalFile();
 
-        /* createName() creates name with lenght in approx. bytes */
+        /* createName() creates name with length in approx. bytes */
         String name = createName(1000000);
         oFile.setName(omero.rtypes.rstring(name));
 
