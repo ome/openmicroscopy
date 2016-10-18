@@ -10,9 +10,14 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import omero.ServerError;
+import omero.ValidationException;
+import omero.api.IQueryPrx;
+import omero.api.IUpdatePrx;
 import omero.cmd.Delete2;
+import omero.cmd.Request;
 import omero.gateway.util.Requests;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLinkI;
@@ -30,6 +35,8 @@ import omero.model.DatasetImageLinkI;
 import omero.model.Detector;
 import omero.model.Dichroic;
 import omero.model.EllipseI;
+import omero.model.ExternalInfo;
+import omero.model.ExternalInfoI;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.Filter;
@@ -82,6 +89,7 @@ import omero.model.ScreenAnnotationLink;
 import omero.model.ScreenAnnotationLinkI;
 import omero.model.ScreenI;
 import omero.model.ScreenPlateLink;
+import omero.model.Session;
 import omero.model.Shape;
 import omero.model.ShapeAnnotationLink;
 import omero.model.ShapeAnnotationLinkI;
@@ -91,6 +99,7 @@ import omero.model.TermAnnotation;
 import omero.model.TermAnnotationI;
 import omero.model.XmlAnnotation;
 import omero.model.XmlAnnotationI;
+import omero.sys.Parameters;
 import omero.sys.ParametersI;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -1996,5 +2005,72 @@ public class UpdateServiceTest extends AbstractServerTest {
         Assert.assertEquals(data.getTagValue(), name);
         Assert.assertNotNull(data.getNameSpace());
         Assert.assertEquals(data.getNameSpace(), TagAnnotationData.INSIGHT_TAGSET_NS);
+    }
+
+    /**
+     * Test that users cannot adjust the {@link ExternalInfo} of their own session.
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testEditSessionExternalInfo() throws Exception {
+        newUserAndGroup("rw----");
+        /* prepare to act as root */
+        final IQueryPrx iQueryRoot = root.getSession().getQueryService();
+        final IUpdatePrx iUpdateRoot = root.getSession().getUpdateService();
+        /* as root, add external info with a specific UUID to the user's current session */
+        Session session = (Session) iQueryRoot.findByString("Session", "uuid", client.getSessionId());
+        final long sessionId = session.getId().getValue();
+        final ExternalInfo infoOld = new ExternalInfoI();
+        infoOld.setEntityType(omero.rtypes.rstring(Session.class.getName()));
+        infoOld.setEntityId(omero.rtypes.rlong(sessionId));
+        infoOld.setUuid(omero.rtypes.rstring(UUID.randomUUID().toString()));
+        session.getDetails().setExternalInfo(infoOld);
+        iUpdateRoot.saveObject(session);
+        /* prepare for querying session with external info */
+        final String hql = "FROM Session s JOIN FETCH s.details.externalInfo WHERE s.id = :id";
+        final Parameters params = new ParametersI().addId(sessionId);
+        /* as the normal user, check that the session external info UUID is as set by root */
+        session = (Session) iQuery.findByQuery(hql, params);
+        ExternalInfo info = session.getDetails().getExternalInfo();
+        Assert.assertEquals(info.getUuid().getValue(), infoOld.getUuid().getValue());
+        /* as the normal user, attempt to set the session external info to something else */
+        final ExternalInfo infoNew = new ExternalInfoI();
+        infoNew.setEntityType(omero.rtypes.rstring(Session.class.getName()));
+        infoNew.setEntityId(omero.rtypes.rlong(sessionId));
+        infoNew.setUuid(omero.rtypes.rstring(UUID.randomUUID().toString()));
+        Assert.assertNotEquals(infoOld.getUuid().getValue(), infoNew.getUuid().getValue());
+        session.getDetails().setExternalInfo(infoNew);
+        try {
+            iUpdate.saveObject(session);
+            Assert.fail("the user cannot change the external info of a session");
+        } catch (ValidationException ve) {
+            /* expected */
+        }
+        /* as the normal user, check that the session external info UUID remains as set by root */
+        session = (Session) iQuery.findByQuery(hql, params);
+        info = session.getDetails().getExternalInfo();
+        Assert.assertEquals(info.getUuid().getValue(), infoOld.getUuid().getValue());
+        /* as the normal user, attempt to set the session external info UUID to something else */
+        info.setUuid(infoNew.getUuid());
+        iUpdate.saveObject(info);
+        /* as the normal user, check that the session external info UUID remains as set by root */
+        session = (Session) iQuery.findByQuery(hql, params);
+        info = session.getDetails().getExternalInfo();
+        Assert.assertEquals(info.getUuid().getValue(), infoOld.getUuid().getValue());
+        /* as root, check that there is external info with UUID as set by root */
+        Assert.assertNotNull(iQueryRoot.findByString("ExternalInfo", "uuid", infoOld.getUuid().getValue()));
+        /* as root, check that there is not external info with UUID as set by the user */
+        Assert.assertNull(iQueryRoot.findByString("ExternalInfo", "uuid", infoNew.getUuid().getValue()));
+        /* as root, try setting the external info UUID just as the user first did */
+        session = (Session) iQueryRoot.findByQuery(hql, params);
+        session.getDetails().setExternalInfo(infoNew);
+        iUpdateRoot.saveObject(session);
+        /* as the normal user, check that the session external info UUID is now changed */
+        session = (Session) iQuery.findByQuery(hql, params);
+        info = session.getDetails().getExternalInfo();
+        Assert.assertEquals(info.getUuid().getValue(), infoNew.getUuid().getValue());
+        /* clean up after test */
+        final Request delete = Requests.delete().target(info).build();
+        doChange(root, root.getSession(), delete, true);
     }
 }
