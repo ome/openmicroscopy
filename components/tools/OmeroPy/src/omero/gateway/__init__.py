@@ -3076,15 +3076,25 @@ class _BlitzGateway (object):
                 "getObjects uses a string to define obj_type, E.g. "
                 "'Image' not %r" % obj_type)
 
-        if params is None:
-            params = omero.sys.ParametersI()
-        elif isinstance(params, dict):
+        owner = None
+        # Handle dict of parameters -> convert to ParametersI()
+        if isinstance(params, dict):
             opts = params
             params = omero.sys.ParametersI()
             # Parse params dict to build params
             if 'page' in opts and 'limit' in opts:
                 limit = opts['limit']
                 params.page((opts['page']-1) * limit, limit)
+            if 'owner' in opts:
+                owner = rlong(opts['owner'])
+        # Handle existing Parameters - need to retrieve owner filter
+        elif isinstance(params, omero.sys.Parameters):
+            if params.map is None:
+                params.map = {}
+            if params.theFilter and params.theFilter.ownerId:
+                owner = params.theFilter.ownerId
+        else:
+            params = omero.sys.ParametersI()
 
         # get the base query from the instantiated object itself. E.g "select
         # obj Project as obj"
@@ -3097,12 +3107,12 @@ class _BlitzGateway (object):
             params.map["ids"] = rlist([rlong(a) for a in ids])
 
         # support filtering by owner (not for some object types)
-        if (params.theFilter
-                and params.theFilter.ownerId
+        if (owner is not None
+                and owner.val != -1
                 and obj_type.lower()
                 not in ["experimentergroup", "experimenter"]):
             clauses.append("owner.id = (:eid)")
-            params.map["eid"] = params.theFilter.ownerId
+            params.map["eid"] = owner
 
         # finding by attributes
         if attributes is not None:
