@@ -268,14 +268,19 @@ class BlitzObjectWrapper (object):
             return obj
         return obj.getValue()
 
-    def _getQueryString(self):
+    def _getQueryString(self, child_count=False):
         """
         Used for building queries in generic methods
         such as getObjects("Project")
         """
-        return ("select obj from %s obj "
+        extra_select = ""
+        if child_count and self.LINK_CLASS is not None:
+            extra_select = """, (select count(id) from %s chl
+                      where chl.parent=obj.id)""" % self.LINK_CLASS
+        return ("select obj %s from %s obj "
                 "join fetch obj.details.owner as owner "
-                "join fetch obj.details.creationEvent" % self.OMERO_CLASS)
+                "join fetch obj.details.creationEvent" %
+                (extra_select, self.OMERO_CLASS))
 
     def _getChildWrapper(self):
         """
@@ -4531,7 +4536,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
                 and self.getValue() == a.getValue()
                 and self.getNs() == a.getNs())
 
-    def _getQueryString(self):
+    def _getQueryString(self, child_count=False):
         """
         Used for building queries in generic methods such as
         getObjects("Annotation")
@@ -4690,7 +4695,7 @@ class FileAnnotationWrapper (AnnotationWrapper, OmeroRestrictionWrapper):
 
     _attrs = ('file|OriginalFileWrapper',)
 
-    def _getQueryString(self):
+    def _getQueryString(self, child_count=False):
         """
         Used for building queries in generic methods such as
         getObjects("FileAnnotation")
@@ -4831,7 +4836,7 @@ class TimestampAnnotationWrapper (AnnotationWrapper):
 
     OMERO_TYPE = TimestampAnnotationI
 
-    def _getQueryString(self):
+    def _getQueryString(self, child_count=False):
         """
         Used for building queries in generic methods such as
         getObjects("TimestampAnnotation")
@@ -4879,7 +4884,7 @@ class BooleanAnnotationWrapper (AnnotationWrapper):
 
     OMERO_TYPE = BooleanAnnotationI
 
-    def _getQueryString(self):
+    def _getQueryString(self, child_count=False):
         """
         Used for building queries in generic methods such as
         getObjects("BooleanAnnotation")
@@ -4964,7 +4969,7 @@ class TagAnnotationWrapper (AnnotationWrapper):
                         self._conn, l.parent, l))
         return rv
 
-    def _getQueryString(self):
+    def _getQueryString(self, child_count=False):
         """
         Used for building queries in generic methods such as
         getObjects("TagAnnotation")
@@ -5005,7 +5010,7 @@ class CommentAnnotationWrapper (AnnotationWrapper):
 
     OMERO_TYPE = CommentAnnotationI
 
-    def _getQueryString(self):
+    def _getQueryString(self, child_count=False):
         """
         Used for building queries in generic methods such as
         getObjects("CommentAnnotation")
@@ -5044,7 +5049,7 @@ class LongAnnotationWrapper (AnnotationWrapper):
     """
     OMERO_TYPE = LongAnnotationI
 
-    def _getQueryString(self):
+    def _getQueryString(self, child_count=False):
         """
         Used for building queries in generic methods such as
         getObjects("LongAnnotation")
@@ -5084,7 +5089,7 @@ class DoubleAnnotationWrapper (AnnotationWrapper):
     """
     OMERO_TYPE = DoubleAnnotationI
 
-    def _getQueryString(self):
+    def _getQueryString(self, child_count=False):
         """
         Used for building queries in generic methods such as
         getObjects("DoubleAnnotation")
@@ -5125,7 +5130,7 @@ class TermAnnotationWrapper (AnnotationWrapper):
     """
     OMERO_TYPE = TermAnnotationI
 
-    def _getQueryString(self):
+    def _getQueryString(self, child_count=False):
         """
         Used for building queries in generic methods such as
         getObjects("TermAnnotation")
@@ -5243,7 +5248,7 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
              'isAdmin': isAdmin, })
         return rv
 
-    def _getQueryString(self):
+    def _getQueryString(self, child_count=False):
         """
         Returns string for building queries, loading Experimenters only.
         """
@@ -5471,7 +5476,7 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
         self.CHILD_WRAPPER_CLASS = 'ExperimenterWrapper'
         self.PARENT_WRAPPER_CLASS = None
 
-    def _getQueryString(self):
+    def _getQueryString(self, child_count=False):
         """
         Returns string for building queries, loading Experimenters for each
         group.
@@ -5816,7 +5821,7 @@ class _PlateWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         """
         return None
 
-    def _getQueryString(self):
+    def _getQueryString(self, child_count=False):
         """
         Returns a query string for constructing custom queries,
         loading the screen for each plate.
@@ -6569,7 +6574,7 @@ class _FilesetWrapper (BlitzObjectWrapper):
     def __bstrap__(self):
         self.OMERO_CLASS = 'Fileset'
 
-    def _getQueryString(self):
+    def _getQueryString(self, child_count=False):
         """
         Used for building queries in generic methods such as
         getObjects("Fileset")
