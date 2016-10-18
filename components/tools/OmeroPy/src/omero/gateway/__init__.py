@@ -3122,6 +3122,11 @@ class _BlitzGateway (object):
         if clauses:
             query += " where " + (" and ".join(clauses))
 
+        # check if we can order by name
+        omero_model = getattr(omero.model, wrapper().OMERO_CLASS)
+        if hasattr(omero_model, 'getName'):
+            query += " order by lower(obj.name), obj.id"
+
         return (query, params, wrapper)
 
     def listFileAnnotations(self, eid=None, toInclude=[], toExclude=[]):
