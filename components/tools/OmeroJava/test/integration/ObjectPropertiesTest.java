@@ -26,6 +26,7 @@ import omero.model.Reagent;
 import omero.model.RenderingDef;
 import omero.model.Roi;
 import omero.model.Screen;
+import omero.model.StageLabel;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.sys.ParametersI;
@@ -548,5 +549,25 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         Assert.assertEquals(protocolDesc, savedProtocolDesc);
         Assert.assertEquals(reagentSetDesc, retrievedReagentSetDesc);
         Assert.assertEquals(reagentSetDesc, savedReagentSetDesc);
+    }
+    
+    /**
+     * Test to create a stage label and save it with long name
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testStageLabelNameSaving() throws Exception {
+        StageLabel stageLabel = mmFactory.createStageLabel();
+        final String name = createName(1000000);
+        stageLabel.setName(omero.rtypes.rstring(name));
+        StageLabel sent = (StageLabel) iUpdate.saveAndReturnObject(stageLabel);
+        String savedName = sent.getName().getValue().toString();
+        long id = sent.getId().getValue();
+        final StageLabel retrievedStageLabel = (StageLabel) iQuery.get("StageLabel", id);
+        final String retrievedName = retrievedStageLabel.getName().getValue().toString();
+        Assert.assertEquals(name, retrievedName);
+        Assert.assertEquals(name, savedName);
     }
 }
