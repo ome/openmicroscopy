@@ -3082,6 +3082,7 @@ class _BlitzGateway (object):
                 "'Image' not %r" % obj_type)
 
         owner = None
+        child_count = False
         # Handle dict of parameters -> convert to ParametersI()
         if isinstance(params, dict):
             opts = params
@@ -3092,6 +3093,8 @@ class _BlitzGateway (object):
                 params.page((opts['page']-1) * limit, limit)
             if 'owner' in opts:
                 owner = rlong(opts['owner'])
+            if 'child_count' in opts and opts['child_count']:
+                child_count = True
         # Handle existing Parameters - need to retrieve owner filter
         elif isinstance(params, omero.sys.Parameters):
             if params.map is None:
@@ -3103,7 +3106,7 @@ class _BlitzGateway (object):
 
         # get the base query from the instantiated object itself. E.g "select
         # obj Project as obj"
-        query = wrapper()._getQueryString()
+        query = wrapper()._getQueryString(child_count=child_count)
 
         clauses = []
         # getting object by ids
