@@ -3040,8 +3040,11 @@ class _BlitzGateway (object):
         """
         query, params, wrapper = self.buildQuery(
             obj_type, ids, params, attributes)
-        result = self.getQueryService().findAllByQuery(
-            query, params, self.SERVICE_OPTS)
+        qs = self.getQueryService()
+        # we do projection in case query has extra selects (E.g. child_count)
+        result = qs.projection(query, params, self.SERVICE_OPTS)
+        # unwrap projected objects
+        result = [unwrap(r[0]) for r in result]
         if respect_order and ids is not None:
             idMap = {}
             for r in result:
