@@ -29,6 +29,7 @@ import omero.model.Screen;
 import omero.model.StageLabel;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
+import omero.model.Well;
 import omero.sys.ParametersI;
 
 import org.testng.Assert;
@@ -565,6 +566,34 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         long id = sent.getId().getValue();
         final StageLabel retrievedStageLabel = (StageLabel) iQuery.get("StageLabel", id);
         final String retrievedName = retrievedStageLabel.getName().getValue().toString();
+        Assert.assertEquals(name, retrievedName);
+        Assert.assertEquals(name, savedName);
+    }
+    
+    /**
+     * Test to create a stage label and save it with long name
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testWellExternalDescription() throws Exception {
+        /* create some plate which contains a valid well */
+        final Plate plate = mmFactory.createPlate(1, 1, 1, 1, false);
+        Plate sentP = (Plate) iUpdate.saveAndReturnObject(plate);
+        /* get the well back using a query */
+        final Well well = (Well) iQuery.findByQuery("select well from Well as well where well.plate.id = :id",
+                new ParametersI().addId(sentP.getId().getValue()));
+        /* create a long external description, set it on the well
+         * save it and check that it was saved correctly by retrieveing
+         * it and comparing with the originally created string */
+        final String name = createName(1000000);
+        well.setExternalDescription(omero.rtypes.rstring(name));
+        Well sent = (Well) iUpdate.saveAndReturnObject(well);
+        String savedName = sent.getExternalDescription().getValue().toString();
+        long id = sent.getId().getValue();
+        final Well retrievedWell = (Well) iQuery.get("Well", id);
+        final String retrievedName = retrievedWell.getExternalDescription().getValue().toString();
         Assert.assertEquals(name, retrievedName);
         Assert.assertEquals(name, savedName);
     }
