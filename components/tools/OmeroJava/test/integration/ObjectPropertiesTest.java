@@ -24,6 +24,7 @@ import omero.model.PlateAcquisition;
 import omero.model.Project;
 import omero.model.Reagent;
 import omero.model.RenderingDef;
+import omero.model.Roi;
 import omero.model.Screen;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
@@ -469,4 +470,41 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         Assert.assertEquals(name, savedName);
     }
 
+    /**
+     * Test to create a roi and save it with long name
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testRoiNameSaving() throws Exception {
+        /* first prepare image to get valid roi */
+        Image img = mmFactory.createImageWithRoi();
+        Image sentI = (Image) iUpdate.saveAndReturnObject(img);
+        /* now get the roi back using a query */
+        final Roi roi = (Roi) iQuery.findByQuery("select roi from Roi as roi where roi.image.id = :id",
+                new ParametersI().addId(sentI.getId().getValue()));
+        /* test for failure of names >2KB for roi name */
+        String name = createName(1000000);
+        roi.setName(omero.rtypes.rstring(name));
+        try {
+            iUpdate.saveAndReturnObject(roi);
+            Assert.fail("Hibernate operation: could not insert:..."
+                      + "ERROR: index row requires 1000016 bytes, maximum size is 8191; ");
+        } catch (ServerError se) {
+            /* expected */
+        }
+        /* now set name with size 2KB and let the test pass */
+        name = createName(2000);
+        roi.setName(omero.rtypes.rstring(name));
+        Roi sentR = (Roi) iUpdate.saveAndReturnObject(roi);
+        String savedName = sentR.getName().getValue().toString();
+        long id = sentR.getId().getValue();
+        System.out.println(name);
+        System.out.println(id);
+        final Roi retrievedRoi = (Roi) iQuery.get("Roi", id);
+        final String retrievedName = retrievedRoi.getName().getValue().toString();
+        Assert.assertEquals(name, retrievedName);
+        Assert.assertEquals(name, savedName);
+    }
 }
