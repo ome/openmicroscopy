@@ -507,4 +507,46 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         Assert.assertEquals(name, retrievedName);
         Assert.assertEquals(name, savedName);
     }
+
+    /**
+     * Test to create a screen and save it with long name
+     * and long protocol description and long reagent set
+     * description
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testScreenNameProtocolDescReagentSetDesc() throws Exception {
+        /* create some screen which contains a
+         * valid protocol and reagent set descriptions */
+        Screen screen = mmFactory.simpleScreen();
+        /* set long name, protocol and reagent set descriptions */
+        final String name = createName(1000000);
+        screen.setName(omero.rtypes.rstring(name));
+        final String protocolDesc = createName(1000000);
+        screen.setProtocolDescription(omero.rtypes.rstring(protocolDesc));
+        final String reagentSetDesc = createName(1000000);
+        screen.setReagentSetDescription(omero.rtypes.rstring(reagentSetDesc));
+        /* save the screen with the name, and protocol and reagent
+         * set descriptions and get the saved values back */
+        Screen sent = (Screen) iUpdate.saveAndReturnObject(screen);
+        String savedName = sent.getName().getValue().toString();
+        String savedProtocolDesc = sent.getProtocolDescription().getValue().toString();
+        String savedReagentSetDesc = sent.getReagentSetDescription().getValue().toString();
+        long id = sent.getId().getValue();
+        /* query for the screen and check that the retrieved name,
+         * protocol description and reagent description
+         * match the ones which were created and saved */
+        final Screen retrievedScreen = (Screen) iQuery.get("Screen", id);
+        final String retrievedName = retrievedScreen.getName().getValue().toString();
+        final String retrievedProtocolDesc = retrievedScreen.getProtocolDescription().getValue().toString();
+        final String retrievedReagentSetDesc = retrievedScreen.getReagentSetDescription().getValue().toString();
+        Assert.assertEquals(name, retrievedName);
+        Assert.assertEquals(name, savedName);
+        Assert.assertEquals(protocolDesc, retrievedProtocolDesc);
+        Assert.assertEquals(protocolDesc, savedProtocolDesc);
+        Assert.assertEquals(reagentSetDesc, retrievedReagentSetDesc);
+        Assert.assertEquals(reagentSetDesc, savedReagentSetDesc);
+    }
 }
