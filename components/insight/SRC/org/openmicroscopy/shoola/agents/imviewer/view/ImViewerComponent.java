@@ -2849,16 +2849,12 @@ class ImViewerComponent
 	 */
 	public void setSettingsToPaste(RndProxyDef rndProxyDef)
 	{
-		if (model.getState() != PASTING)
-			throw new IllegalArgumentException("This method should be " +
-					"invoked in the PASTING state.");
 		try {
-			model.resetMappingSettings(rndProxyDef);
+		    model.resetMappingSettings(rndProxyDef);
 			view.resetDefaults();
 			renderXYPlane();
 		} catch (Exception e) {
 			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-
 			Logger logger = ImViewerAgent.getRegistry().getLogger();
 			LogMessage logMsg = new LogMessage();
 			logMsg.print("Rendering Exception:");
