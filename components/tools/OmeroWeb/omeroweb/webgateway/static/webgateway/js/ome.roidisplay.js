@@ -116,7 +116,7 @@ $.fn.roi_display = function(options) {
             var arrowStart = shape.markerStart === "Arrow";
             var arrowEnd = shape.markerEnd === "Arrow";
 
-            var headSize = (w * 5) + 9,
+            var headSize = (w * 12) + 9,
                 dx = x2 - x1,
                 dy = y2 - y1;
 
@@ -139,10 +139,10 @@ $.fn.roi_display = function(options) {
             var arrowPoint1x, arrowPoint1y, arrowPoint2x, arrowPoint2y;
             // if line starts with arrow...
             if (arrowStart) {
-                arrowPoint1x = x1 - (f * Math.sin(lineAngle - 0.4) * headSize);
-                arrowPoint1y = y1 - (f * Math.cos(lineAngle - 0.4) * headSize);
-                arrowPoint2x = x1 - (f * Math.sin(lineAngle + 0.4) * headSize);
-                arrowPoint2y = y1 - (f * Math.cos(lineAngle + 0.4) * headSize);
+                arrowPoint1x = x1 - (f * Math.sin(lineAngle - 0.35) * headSize);
+                arrowPoint1y = y1 - (f * Math.cos(lineAngle - 0.35) * headSize);
+                arrowPoint2x = x1 - (f * Math.sin(lineAngle + 0.35) * headSize);
+                arrowPoint2y = y1 - (f * Math.cos(lineAngle + 0.35) * headSize);
                 var startArrowPointMidx = (arrowPoint1x + arrowPoint2x) / 2,
                     startArrowPointMidy = (arrowPoint1y + arrowPoint2y) / 2;
                 startLeftX = startArrowPointMidx - lineOffsetX;
@@ -162,10 +162,10 @@ $.fn.roi_display = function(options) {
 
             // if line ends with arrow, line end is within arrow point
             if (arrowEnd) {
-                arrowPoint1x = x2 + (f * Math.sin(lineAngle - 0.4) * headSize);
-                arrowPoint1y = y2 + (f * Math.cos(lineAngle - 0.4) * headSize);
-                arrowPoint2x = x2 + (f * Math.sin(lineAngle + 0.4) * headSize);
-                arrowPoint2y = y2 + (f * Math.cos(lineAngle + 0.4) * headSize);
+                arrowPoint1x = x2 + (f * Math.sin(lineAngle - 0.35) * headSize);
+                arrowPoint1y = y2 + (f * Math.cos(lineAngle - 0.35) * headSize);
+                arrowPoint2x = x2 + (f * Math.sin(lineAngle + 0.35) * headSize);
+                arrowPoint2y = y2 + (f * Math.cos(lineAngle + 0.35) * headSize);
                 var endArrowPointMidx = (arrowPoint1x + arrowPoint2x) / 2,
                     endArrowPointMidy = (arrowPoint1y + arrowPoint2y) / 2;
                 endLeftX = endArrowPointMidx - lineOffsetX;
