@@ -105,40 +105,23 @@ def query_objects(conn, object_type, clauses=[],
     E.g. 'Project'. Builds a query and adds common
     parameters and filters such as by owner or group.
     """
-    childCountQueries = {
-        "Project": """, (select count(id) from ProjectDatasetLink pdl
-                      where pdl.parent=obj.id)""",
-        "Dataset": """, (select count(id) from DatasetImageLink pdl
-                      where pdl.parent=obj.id)"""
-    }
+    params = {'page': page,
+          'limit': limit,
+          'owner': owner,
+          'child_count': childCount,
+          'order_by': 'name'}
 
-    qs = conn.getQueryService()
-    # params = omero.sys.ParametersI()
-    if page:
-        params.page((page-1) * limit, limit)
+    # buildQuery is used by conn.getObjects()
+    query, params, wrapper = conn.buildQuery(object_type, params=params)
+
+    # Set the desired group context
     ctx = deepcopy(conn.SERVICE_OPTS)
-
-    # Set the desired group context and owner
     if group is None:
         group = -1
     ctx.setOmeroGroup(group)
-    if owner is not None and owner != -1:
-        params.add('owner', rlong(owner))
-        clauses.append('obj.details.owner.id = :owner')
 
-    withChildCount = ""
-    if childCount and object_type in childCountQueries.keys():
-        withChildCount = childCountQueries[object_type]
+    qs = conn.getQueryService()
 
-    # Need to load owners specifically, else can be unloaded if group != -1
-    query = """
-            select obj %s from %s obj
-            join fetch obj.details.owner
-            %s
-            %s
-            order by lower(obj.name), obj.id
-            """ % (withChildCount, object_type,
-                   extra_joins, build_clause(clauses))
     projects = []
     extras = {}
     if childCount:
