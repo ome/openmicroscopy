@@ -505,10 +505,10 @@ public class PermissionsTest extends AbstractServerTest {
         }
 
         /* note which objects were used to annotate an image */
-        final List<IObject> annotationsOwnOwnImageTripleLink;
-        final List<IObject> annotationsOwnOthersImageOwnLink;
-        final List<IObject> annotationsOthersOwnImageOthersLink;
-        final List<IObject> annotationsOthersOthersImageTripleLink;
+        final List<IObject> annotationsOwnImageOwnTriplyLinked;
+        final List<IObject> annotationsOwnImageOthersLinkedByOwn;
+        final List<IObject> annotationsOthersImageOwnLinkedByOthers;
+        final List<IObject> annotationsOthersImageOthersTriplyLinked;
         ImageAnnotationLink linkOthersTagOwnImageOthers = new ImageAnnotationLinkI();
         ImageAnnotationLink linkOthersFileAnnOwnImageOthers = new ImageAnnotationLinkI();
         ImageAnnotationLink linkOthersMapAnnOwnImageOthers = new ImageAnnotationLinkI();
@@ -535,15 +535,15 @@ public class PermissionsTest extends AbstractServerTest {
          * (image, otherImage) which belongs to the first user/importer (importerTargetUser)
          * and the second user (otherImporter) respectively.*/
         init(importerTargetUser);
-        annotationsOwnOwnImageTripleLink = annotateImage(image);
-        annotationsOwnOthersImageOwnLink = annotateImage(otherImage);
+        annotationsOwnImageOwnTriplyLinked = annotateImage(image);
+        annotationsOwnImageOthersLinkedByOwn = annotateImage(otherImage);
 
         /* Another user (otherImporter) annotates both images
          * (image, otherImage) which belongs to the first user/importer (importerTargetUser)
          * and this second user (otherImporter) respectively.*/
         init(otherImporter);
-        annotationsOthersOwnImageOthersLink = annotateImage(image);
-        annotationsOthersOthersImageTripleLink = annotateImage(otherImage);
+        annotationsOthersImageOwnLinkedByOthers = annotateImage(image);
+        annotationsOthersImageOthersTriplyLinked = annotateImage(otherImage);
 
         /* First user/importer (importerTargetUser) links the second users'
          * Tag, FileAnnotation and MapAnnotation
@@ -551,7 +551,7 @@ public class PermissionsTest extends AbstractServerTest {
          * (image) which belongs to the first user/importer (importerTargetUser)
          * as well as to the second image (otherImage) which belongs to the otherImporter*/
         init(importerTargetUser);
-        for (final IObject annotation : annotationsOthersOthersImageTripleLink) {
+        for (final IObject annotation : annotationsOthersImageOthersTriplyLinked) {
             if (annotation instanceof TagAnnotation) {
                 linkOwnTagOthersImageOwn = (ImageAnnotationLink) annotateImage(image, (TagAnnotation) annotation);
                 linkOwnTagOthersImageOthers = (ImageAnnotationLink) annotateImage(otherImage, (TagAnnotation) annotation);
@@ -569,7 +569,7 @@ public class PermissionsTest extends AbstractServerTest {
          *  to a second image (otherImage) which belongs to this other user (otherImporter).
          *  as well as to the first image (image) which belongs to the importerTargetUser*/
         init(otherImporter);
-        for (final IObject annotation : annotationsOwnOwnImageTripleLink) {
+        for (final IObject annotation : annotationsOwnImageOwnTriplyLinked) {
             if (annotation instanceof TagAnnotation) {
                 linkOthersTagOwnImageOthers = (ImageAnnotationLink) annotateImage(otherImage, (TagAnnotation) annotation);
                 linkOthersTagOwnImageOwn = (ImageAnnotationLink) annotateImage(image, (TagAnnotation) annotation);
@@ -622,25 +622,25 @@ public class PermissionsTest extends AbstractServerTest {
 
         /* check that the annotations ownership is as expected */
         final Set<Long> imageLinkIds = new HashSet<Long>();
-        for (final IObject annotation : annotationsOwnOwnImageTripleLink) {
+        for (final IObject annotation : annotationsOwnImageOwnTriplyLinked) {
             if (annotation instanceof ImageAnnotationLink) {
                 imageLinkIds.add(annotation.getId().getValue());
             }
             assertOwnedBy(annotation, recipient);
         }
-        for (final IObject annotation : annotationsOwnOthersImageOwnLink) {
+        for (final IObject annotation : annotationsOwnImageOthersLinkedByOwn) {
             if (annotation instanceof ImageAnnotationLink) {
                 imageLinkIds.add(annotation.getId().getValue());
             }
             assertOwnedBy(annotation, recipient);
         }
-        for (final IObject annotation : annotationsOthersOthersImageTripleLink) {
+        for (final IObject annotation : annotationsOthersImageOthersTriplyLinked) {
             if (annotation instanceof ImageAnnotationLink) {
                 imageLinkIds.add(annotation.getId().getValue());
             }
             assertOwnedBy(annotation, otherImporter);
         }
-        for (final IObject annotation : annotationsOthersOwnImageOthersLink) {
+        for (final IObject annotation : annotationsOthersImageOwnLinkedByOthers) {
             if (annotation instanceof ImageAnnotationLink) {
                 imageLinkIds.add(annotation.getId().getValue());
             }
