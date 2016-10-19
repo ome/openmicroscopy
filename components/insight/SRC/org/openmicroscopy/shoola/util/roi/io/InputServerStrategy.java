@@ -43,8 +43,8 @@ import static org.jhotdraw.draw.AttributeKeys.STROKE_COLOR;
 import static org.jhotdraw.draw.AttributeKeys.TEXT_COLOR;
 import static org.jhotdraw.draw.AttributeKeys.STROKE_WIDTH;
 
-import org.jhotdraw.draw.ArrowTip;
 import org.jhotdraw.draw.AttributeKey;
+import org.jhotdraw.draw.LineDecoration;
 import org.jhotdraw.geom.BezierPath.Node;
 
 import omero.model.Length;
@@ -54,6 +54,7 @@ import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
+import org.openmicroscopy.shoola.util.roi.figures.Cap;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureEllipseFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
@@ -530,14 +531,20 @@ class InputServerStrategy
 		TEXT_COLOR.set(figure, data.getStroke());
 		
         if (CommonsLangUtils.isNotBlank(data.getMarkerStart())) {
-            if (data.getMarkerStart().equalsIgnoreCase("Arrow"))
-                MeasurementAttributes.START_DECORATION.set(figure,
-                        new ArrowTip());
+            LineDecoration dec = null;
+            Cap c = Cap.findByValue(data.getMarkerStart());
+            if (c != null) {
+                dec = c.newLineDecorationInstance();
+            }
+            MeasurementAttributes.START_DECORATION.set(figure, dec);
         }
         if (CommonsLangUtils.isNotBlank(data.getMarkerEnd())) {
-            if (data.getMarkerEnd().equalsIgnoreCase("Arrow"))
-                MeasurementAttributes.END_DECORATION
-                        .set(figure, new ArrowTip());
+            LineDecoration dec = null;
+            Cap c = Cap.findByValue(data.getMarkerEnd());
+            if (c != null) {
+                dec = c.newLineDecorationInstance();
+            }
+            MeasurementAttributes.END_DECORATION.set(figure, dec);
         }
 	}
 

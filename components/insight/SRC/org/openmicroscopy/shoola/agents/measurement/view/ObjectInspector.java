@@ -51,6 +51,7 @@ import org.openmicroscopy.shoola.agents.measurement.util.model.AttributeField;
 import org.openmicroscopy.shoola.agents.measurement.util.model.FigureTableModel;
 import org.openmicroscopy.shoola.agents.measurement.util.model.ValueType;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.FigureTable;
+import org.openmicroscopy.shoola.util.roi.figures.Cap;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureEllipseFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineConnectionFigure;
@@ -111,8 +112,9 @@ class ObjectInspector
     /** Possible values for start/end line decorations */
     private static final List<String> LINE_DECORATION_VALUES = new ArrayList<String>();
     static {
-        LINE_DECORATION_VALUES.add("None");
-        LINE_DECORATION_VALUES.add("Arrow");
+        for(Cap c : Cap.values()) {
+            LINE_DECORATION_VALUES.add(c.getValue());
+        }
     }
 	
 	/** Statically initialize the AttributeFields to be shown;

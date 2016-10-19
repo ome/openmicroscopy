@@ -38,7 +38,7 @@ public class MeasureArrowFigure extends MeasureLineFigure {
      * See {@link MeasureLineFigure}
      */
     public MeasureArrowFigure() {
-        setAttribute(MeasurementAttributes.END_DECORATION, new ArrowTip());
+        setAttribute(MeasurementAttributes.END_DECORATION, Cap.ARROW.newLineDecorationInstance());
     }
 
     /**
@@ -48,7 +48,7 @@ public class MeasureArrowFigure extends MeasureLineFigure {
     public MeasureArrowFigure(boolean readOnly, boolean clientObject,
             boolean editable, boolean deletable, boolean annotatable) {
         super(readOnly, clientObject, editable, deletable, annotatable);
-        setAttribute(MeasurementAttributes.END_DECORATION, new ArrowTip());
+        setAttribute(MeasurementAttributes.END_DECORATION, Cap.ARROW.newLineDecorationInstance());
     }
 
     /**
@@ -59,7 +59,7 @@ public class MeasureArrowFigure extends MeasureLineFigure {
             boolean clientObject, boolean editable, boolean deletable,
             boolean annotatable) {
         super(text, readOnly, clientObject, editable, deletable, annotatable);
-        setAttribute(MeasurementAttributes.END_DECORATION, new ArrowTip());
+        setAttribute(MeasurementAttributes.END_DECORATION, Cap.ARROW.newLineDecorationInstance());
     }
 
 }

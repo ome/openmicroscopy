@@ -30,12 +30,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeMap;
 
-import org.jhotdraw.draw.ArrowTip;
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.LineDecoration;
 import org.jhotdraw.geom.BezierPath;
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
+import org.openmicroscopy.shoola.util.roi.figures.Cap;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureEllipseFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasurePointFigure;
@@ -543,13 +543,19 @@ public class OutputServerStrategy
 			}
 		} else settings.setFontStyle(ShapeSettingsData.FONT_REGULAR);
 		
-		LineDecoration ld = MeasurementAttributes.START_DECORATION.get(fig);
-        if (ld instanceof ArrowTip)
-            settings.setMarkerStart("Arrow");
-
+        LineDecoration ld = MeasurementAttributes.START_DECORATION.get(fig);
+        Cap c = Cap.findByPrototype(ld);
+        if (c != null)
+            settings.setMarkerStart(c.getValue());
+        else
+            settings.setMarkerStart("");
+        
         ld = MeasurementAttributes.END_DECORATION.get(fig);
-        if (ld instanceof ArrowTip)
-            settings.setMarkerEnd("Arrow");
+        c = Cap.findByPrototype(ld);
+        if (c != null)
+            settings.setMarkerEnd(c.getValue());
+        else
+            settings.setMarkerEnd("");
 	}
 
     /**

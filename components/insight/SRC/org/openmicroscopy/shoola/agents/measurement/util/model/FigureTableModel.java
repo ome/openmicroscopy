@@ -28,10 +28,11 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.jhotdraw.draw.ArrowTip;
 import org.jhotdraw.draw.AttributeKey;
+import org.jhotdraw.draw.LineDecoration;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
+import org.openmicroscopy.shoola.util.roi.figures.Cap;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
@@ -167,14 +168,16 @@ public class FigureTableModel
 					    }
                     } else if (MeasurementAttributes.START_DECORATION
                             .equals(key)) {
-                        if (value != null) {
-                            if (value instanceof ArrowTip)
-                                value = "Arrow";
+                        if (value instanceof LineDecoration) {
+                            Cap c = Cap.findByPrototype((LineDecoration) value);
+                            if (c != null)
+                                value = c.getValue();
                         }
                     } else if (MeasurementAttributes.END_DECORATION.equals(key)) {
-                        if (value != null) {
-                            if (value instanceof ArrowTip)
-                                value = "Arrow";
+                        if (value instanceof LineDecoration) {
+                            Cap c = Cap.findByPrototype((LineDecoration) value);
+                            if (c != null)
+                                value = c.getValue();
                         }
                     }
 					keys.add(key);
@@ -231,7 +234,7 @@ public class FigureTableModel
 	public int getRowCount()
 	{
 		return keys.size();
-	} 
+	}
 	
 	/**
 	 * Returns the value of the specified cell.
@@ -294,16 +297,20 @@ public class FigureTableModel
 			}
 		}
 		else if (MeasurementAttributes.START_DECORATION.equals(key)) {
-		    if("Arrow".equals(value)) 
-		        figure.setAttribute(key, new ArrowTip());
-		    else
-                figure.setAttribute(key, null);
+            LineDecoration dec = null;
+            Cap c = Cap.findByValue(value.toString());
+            if (c != null) {
+                dec = c.newLineDecorationInstance();
+            }
+            figure.setAttribute(key, dec);
 		}
 		else if (MeasurementAttributes.END_DECORATION.equals(key)) {
-            if("Arrow".equals(value)) 
-                figure.setAttribute(key, new ArrowTip());
-            else
-                figure.setAttribute(key, null);
+		    LineDecoration dec = null;
+            Cap c = Cap.findByValue(value.toString());
+            if (c != null) {
+                dec = c.newLineDecorationInstance();
+            }
+            figure.setAttribute(key, dec);
         }
 		else  
 			figure.setAttribute(key, value);
