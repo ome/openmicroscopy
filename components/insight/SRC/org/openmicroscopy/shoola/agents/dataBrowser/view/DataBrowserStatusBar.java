@@ -141,9 +141,7 @@ class DataBrowserStatusBar
 	void setSelectedViewIndex(int index, double magnification)
 	{
         mag.setOriginal(magnification);
-        fieldsZoomSlider.removeChangeListener(this);
-        fieldsZoomSlider.setValue((int) (magnification * FACTOR));
-        fieldsZoomSlider.addChangeListener(this);
+        resetZoomSlider(magnification);
 		removeAll();
 		buildGUI();
 	}
@@ -205,16 +203,25 @@ class DataBrowserStatusBar
         String name = evt.getPropertyName();
         if (MagnificationComponent.MAGNIFICATION_PROPERTY.equals(name)) {
             double v = (Double) evt.getNewValue();
-            if(view.wells())
+            if (view.wells())
                 view.setFieldMagnificationFactor(v);
             else
                 view.setMagnificationFactor(v);
-            int value = (int) (v*FACTOR);
-            fieldsZoomSlider.removeChangeListener(this);
-            fieldsZoomSlider.setValue(value);
-            fieldsZoomSlider.addChangeListener(this);
+            resetZoomSlider(v);
         }
     }
 
+    /**
+     * Reset the zoom slider to the given value without triggering the
+     * ChangeListener
+     * 
+     * @param value
+     *            The value
+     */
+    private void resetZoomSlider(double value) {
+        fieldsZoomSlider.removeChangeListener(this);
+        fieldsZoomSlider.setValue((int) (value * FACTOR));
+        fieldsZoomSlider.addChangeListener(this);
+    }
 
 }

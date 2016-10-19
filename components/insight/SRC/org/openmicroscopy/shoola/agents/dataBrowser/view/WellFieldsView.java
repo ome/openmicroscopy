@@ -287,7 +287,7 @@ class WellFieldsView
             boolean selectionChanged = false;
             Set<Long> ids = new HashSet<Long>();
             for (WellSampleNode well : wells) {
-                if(!well.isWell())
+                if (!well.isWell())
                     continue;
                 for (WellSampleNode n : well.getParentWell().getWellSamples()) {
                     WellSampleData d = (WellSampleData) n.getHierarchyObject();
@@ -314,10 +314,11 @@ class WellFieldsView
         nodes = new ArrayList<WellSampleNode>();
         List<String> titles = new ArrayList<String>();
         for (WellSampleNode well : wells) {
-            if(!well.isWell())
+            if (!well.isWell())
                 continue;
             nodes.addAll(well.getParentWell().getWellSamples());
-            nFields = Math.max(nFields, well.getParentWell().getWellSamples().size());
+            nFields = Math.max(nFields, well.getParentWell().getWellSamples()
+                    .size());
             titles.add(well.getTitle());
         }
 

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.view.WellFieldsCanvas 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -32,10 +32,18 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 
 /**
  * Display all the fields for a given well.
- * 
+ *
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
- *
+ * @version 3.0
+ * <small>
+ * (<b>Internal version:</b> $Revision: $Date: $)
+ * </small>
+ * @since 3.0-Beta4
  */
 public abstract class WellFieldsCanvas extends JPanel {
 
@@ -71,7 +79,7 @@ public abstract class WellFieldsCanvas extends JPanel {
             Dimension thumbDim);
 
     /**
-     * Updates a particular field thumbnail
+     * Updates/Adds a particular field thumbnail
      * 
      * @param node
      *            The field

@@ -169,7 +169,7 @@ class DataBrowserUI
 	}
 	
     /**
-     * Check's if the browser currently deals with wells
+     * Checks if the browser currently deals with wells
      * 
      * @return See above
      */
@@ -347,8 +347,8 @@ class DataBrowserUI
         selectedView = index;
         
     	removeAll();
-    	c = new GridBagConstraints();
-    	c.fill = GridBagConstraints.HORIZONTAL;
+        c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1;
         c.weighty = 0;
         c.gridx = 0;
@@ -535,7 +535,7 @@ class DataBrowserUI
 	}
 	
     /**
-     * Get the current magnification factor
+     * Gets the current magnification factor
      * 
      * @return See above.
      */
@@ -689,7 +689,7 @@ class DataBrowserUI
     }
 	
 	/**
-     * Update the thumbnail for a particular field
+     * Updates the thumbnail for a particular field
 	 * 
 	 * @param node The field
 	 * @param complete Flag to indicate that all fields have been loaded
@@ -708,7 +708,7 @@ class DataBrowserUI
 		plateGridUI.onSelectedWell();
         
         WellsModel wm = (WellsModel) model;
-        fieldsView.loadFields( wm.getSelectedWells());
+        fieldsView.loadFields(wm.getSelectedWells());
 	}
 	
 	/** Invokes when the parent has been set. */

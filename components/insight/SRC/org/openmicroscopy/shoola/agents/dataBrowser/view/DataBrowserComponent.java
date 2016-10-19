@@ -38,6 +38,7 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.hibernate.hql.CollectionSubqueryFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailProvider;
@@ -1629,7 +1630,7 @@ class DataBrowserComponent
         WellsModel wm = (WellsModel) model;
         
         List<WellSampleNode> wells = wm.getSelectedWells();
-        if (wells == null || wells.isEmpty())
+        if (CollectionUtils.isEmpty(wells))
             return;
 
         EXIT: 

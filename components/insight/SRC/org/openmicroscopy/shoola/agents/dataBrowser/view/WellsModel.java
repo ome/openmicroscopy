@@ -475,16 +475,18 @@ class WellsModel
         }
 	}
 	
-	/**
-	 * Returns the selected well.
-	 * Note: Can be a well or a field (@see {@link WellSampleNode#isWell()} )!
-	 * @return See above.
-	 */
-	WellSampleNode getSelectedWell()
-	{
-		if (selectedNodes == null || selectedNodes.size() == 0) return null;
-		return selectedNodes.get(0);
-	}
+    /**
+     * Returns the selected well. Note: Can be a well or a field (@see
+     * {@link WellSampleNode#isWell()} )!
+     * 
+     * @return See above.
+     */
+    WellSampleNode getSelectedWell() {
+        if (CollectionUtils.isEmpty(selectedNodes))
+            return null;
+
+        return selectedNodes.get(0);
+    }
 	
 	/**
 	 * Returns the collection of selected wells.
@@ -636,63 +638,64 @@ class WellsModel
 		return null;
 	}
 	
-	/**
-	 * Creates a concrete loader.
-	 * 
-	 * @param fields The rows/columns identifying the well.
-	 * @return See above.
-	 */
-	DataBrowserLoader createFieldsLoader(List<Point> fields)
-	{
-		List<ImageDisplay> l = getNodes();
-		Iterator<ImageDisplay> i = l.iterator();
-		ImageSet node;
-		
-		Multimap<Point, ImageData> images = HashMultimap.create();
-		
-		WellSampleData data;
-		Thumbnail thumb;
-		WellImageSet wis;
-		List<WellSampleNode> nodes;
-		Iterator<WellSampleNode> j;
-		WellSampleNode n;
-		while (i.hasNext()) {
-			node = (ImageSet) i.next();
-			if (node instanceof WellImageSet) {
-				wis = (WellImageSet) node;
-				Point targetField = null;
-				for(Point p : fields) {
-				    if(wis.getRow()==p.getX() && wis.getColumn()==p.getY()) {
-				        targetField = p;
-				        break;
-				    }
-				}
-				if (targetField != null ) {
-					nodes = wis.getWellSamples();
-					j = nodes.iterator();
-					while (j.hasNext()) {
-						n = j.next();
-						data = (WellSampleData) n.getHierarchyObject();
-						
-						if (data.getId() < 0) {
-							thumb = n.getThumbnail();
-							thumb.setValid(false);
-							thumb.setFullScaleThumb(
-								Factory.createDefaultImageThumbnail(
-									wellDimension.width, wellDimension.height));
-						} else {
-						    images.put(targetField, data.getImage());
-						}
-					}
-				}
-			}
-		}
+    /**
+     * Creates a concrete loader.
+     * 
+     * @param fields
+     *            The rows/columns identifying the well.
+     * @return See above.
+     */
+    DataBrowserLoader createFieldsLoader(List<Point> fields) {
+        List<ImageDisplay> l = getNodes();
+        Iterator<ImageDisplay> i = l.iterator();
+        ImageSet node;
 
-		if (images.size() == 0) 
-		    return null;
-		
-		return new ThumbnailFieldsLoader(component, ctx, images);
-	}
+        Multimap<Point, ImageData> images = HashMultimap.create();
+
+        WellSampleData data;
+        Thumbnail thumb;
+        WellImageSet wis;
+        List<WellSampleNode> nodes;
+        Iterator<WellSampleNode> j;
+        WellSampleNode n;
+        while (i.hasNext()) {
+            node = (ImageSet) i.next();
+            if (node instanceof WellImageSet) {
+                wis = (WellImageSet) node;
+                Point targetField = null;
+                for (Point p : fields) {
+                    if (wis.getRow() == p.getX() && wis.getColumn() == p.getY()) {
+                        targetField = p;
+                        break;
+                    }
+                }
+                if (targetField != null) {
+                    nodes = wis.getWellSamples();
+                    j = nodes.iterator();
+                    while (j.hasNext()) {
+                        n = j.next();
+                        data = (WellSampleData) n.getHierarchyObject();
+
+                        if (data.getId() < 0) {
+                            thumb = n.getThumbnail();
+                            thumb.setValid(false);
+                            thumb.setFullScaleThumb(Factory
+                                    .createDefaultImageThumbnail(
+                                            wellDimension.width,
+                                            wellDimension.height));
+                        } else {
+                            images.put(targetField, data.getImage());
+                        }
+                    }
+                }
+            }
+        }
+
+        if (images.size() == 0)
+            return null;
+
+        return new ThumbnailFieldsLoader(component, ctx, images);
+    }
 	
 	/**
 	 * Creates a concrete loader.

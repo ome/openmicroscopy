@@ -5,7 +5,7 @@
  *  Copyright (C) 2016 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -155,6 +155,11 @@ class RowFieldCanvas extends WellFieldsCanvas {
         parent.revalidate();
     }
 
+    /**
+     * Populates the display with the already loaded {@link WellSampleNode}s.
+     * (in contrast to {@link #updateFieldThumb(WellSampleNode)} which
+     * adds/updates a specific single {@link WellSampleNode} to the display)
+     */
     private void displayExistingThumbs() {
         List<WellSampleNode> l = parent.getNodes();
         if (l == null)
@@ -242,9 +247,15 @@ class RowFieldCanvas extends WellFieldsCanvas {
         return null;
     }
 
+    /**
+     * Checks if the given {@link WellSampleNode} is selected
+     * 
+     * @param n
+     *            The node to check
+     * @return <code>true</code> if it is selected.
+     */
     boolean isSelected(WellSampleNode n) {
-        boolean sel = this.parent.isSelected(n);
-        return sel;
+        return this.parent.isSelected(n);
     }
 
     /**
@@ -256,14 +267,22 @@ class RowFieldCanvas extends WellFieldsCanvas {
      */
     class FieldDisplay extends JPanel {
 
+        /** Reference to the WellSamplenode */
         private final WellSampleNode node;
 
+        /** Reference to some predefined color */
         private final Colors colors = Colors.getInstance();
 
+        /** The current magnification factor */
         private double mag = 0;
 
+        /**
+         * Creates a new instance with the given node
+         * 
+         * @param node
+         *            The node
+         */
         public FieldDisplay(WellSampleNode node) {
-
             // work with copy otherwise scaling etc. would affect
             // the thumbnail in the well's view too!
             WellSampleNode copy = node.copy();

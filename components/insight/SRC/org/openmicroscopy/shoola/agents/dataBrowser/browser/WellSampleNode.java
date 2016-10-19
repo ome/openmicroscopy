@@ -87,7 +87,7 @@ public class WellSampleNode
      * 
      * @return <code>true</code> if this {@link WellSampleNode} represents the
      *         well, <code>false</code> if it represents the
-     *         {@link WellSampleData} (ie field)
+     *         {@link WellSampleData} (i.e. field)
      */
     public boolean isWell() {
         return well;
@@ -99,7 +99,7 @@ public class WellSampleNode
      * @param well
      *            Pass <code>true</code> if this {@link WellSampleNode}
      *            represents the well, <code>false</code> if it represents the
-     *            {@link WellSampleData} (ie field)
+     *            {@link WellSampleData} (i.e. field)
      */
     public void setWell(boolean well) {
         this.well = well;

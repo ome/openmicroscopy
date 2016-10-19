@@ -32,9 +32,12 @@ import java.util.List;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
 
+
+import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
@@ -61,9 +64,6 @@ class PlateGridUI
 	/** The text for the selected well. */
 	private static final String	DEFAULT_WELL_TEXT = "Well: ";
 	
-	/** The text for the selected field. */
-	private static final String	DEFAULT_FIELD_TEXT = "Field #";
-	
 	/** Reference to the model. */
 	private WellsModel 			model;
 	
@@ -74,9 +74,6 @@ class PlateGridUI
 	private JLabel				 selectedNode;
 	
 	/** The currently selected field. */
-	private JLabel				 selectedField;
-	
-	/** The currently selected field. */
 	private JLabel				 selectedText;
 	
 	/** Reference to the controller. */
@@ -85,7 +82,6 @@ class PlateGridUI
 	/** Initializes the components. */
 	private void initComponents()
 	{
-		selectedField = new JLabel();
 		grid = new PlateGrid(model.getRowSequenceIndex(), 
 				model.getColumnSequenceIndex(), model.getValidWells(), 
 				model.getRows(), model.getColumns());
@@ -125,32 +121,32 @@ class PlateGridUI
 		buildGUI();
 	}
 	
-	/** Invokes when a well is selected. */
-	void onSelectedWell()
-	{
-		List<WellSampleNode> nodes = model.getSelectedWells();
-		if (nodes != null && nodes.size() > 0) {
-		    WellSampleNode node = nodes.get(0);
-		    if(node.isWell()) {
-		        WellImageSet well = (WellImageSet)node.getParentWell();
-    			if (nodes.size() == 1) {
-    				selectedNode.setText(DEFAULT_WELL_TEXT+well.getWellLocation());
-    				if (well.getText() != null)
-    					selectedText.setText(
-    							UIUtilities.formatToolTipText(well.getText()));
-    			} else {
-    				selectedText.setText("");
-    				selectedNode.setText("");
-    			}
-    			List<Point> cells = new ArrayList<Point>(nodes.size());
-    			Iterator<WellSampleNode> i = nodes.iterator();
-    			while (i.hasNext()) {
-    				node = i.next();
-    				cells.add(new Point(node.getRow(), node.getColumn()));
-    			}
-    			grid.selectCells(cells);
-		    }
-		}
-	}
+    /** Invokes when a well is selected. */
+    void onSelectedWell() {
+        List<WellSampleNode> nodes = model.getSelectedWells();
+        if (CollectionUtils.isNotEmpty(nodes)) {
+            WellSampleNode node = nodes.get(0);
+            if (node.isWell()) {
+                WellImageSet well = (WellImageSet) node.getParentWell();
+                if (nodes.size() == 1) {
+                    selectedNode.setText(DEFAULT_WELL_TEXT
+                            + well.getWellLocation());
+                    if (well.getText() != null)
+                        selectedText.setText(UIUtilities.formatToolTipText(well
+                                .getText()));
+                } else {
+                    selectedText.setText("");
+                    selectedNode.setText("");
+                }
+                List<Point> cells = new ArrayList<Point>(nodes.size());
+                Iterator<WellSampleNode> i = nodes.iterator();
+                while (i.hasNext()) {
+                    node = i.next();
+                    cells.add(new Point(node.getRow(), node.getColumn()));
+                }
+                grid.selectCells(cells);
+            }
+        }
+    }
 	
 }
