@@ -25,11 +25,16 @@ Test of metadata_utils classes
 
 
 import pytest
-from pytest import skip
 
 from omero.util.metadata_utils import (
     BulkAnnotationConfiguration, KeyValueListPassThrough,
     KeyValueListTransformer)
+
+try:
+    import jinja2  # noqa
+    JINJA2_MISSING = None
+except ImportError as j2exc:
+    JINJA2_MISSING = j2exc
 
 
 def expected(**kwargs):
@@ -193,6 +198,58 @@ class TestKeyValueListTransformer(object):
         assert tr.output_configs[4] == (expected(name="a5"), 5)
         assert tr.output_configs[5] == (expected(name="a6"), 6)
 
+    def test_init_col_group(self):
+        headers = ["a1", "a2"]
+        desc = [
+            {"name": "a1"},
+            {"group": {"namespace": "g2", "columns": [{"name": "a2"}]}},
+        ]
+        kvgl = KeyValueGroupList(headers, None, desc)
+        assert kvgl.default_cfg == expected()
+        assert kvgl.headerindexmap == {'a1': 0, 'a2': 1}
+
+        assert len(kvgl.output_configs) == 2
+
+        assert kvgl.output_configs[0].namespace == "g2"
+        assert kvgl.output_configs[0].columns == [(expected(name="a2"), 1)]
+
+        # Default group always comes last
+        assert kvgl.output_configs[1].namespace == ""
+        assert kvgl.output_configs[1].columns == [(expected(name="a1"), 0)]
+
+    def test_init_col_group_multi(self):
+        headers = ["a1", "a2", "a3", "a4", "a5"]
+        desc = [
+            {"name": "a1"},
+            {"group": {"namespace": "g2", "columns": [{"name": "a2"}]}},
+            {"name": "a3"},
+            {"group": {
+                "namespace": "g4", "columns": [{"name": "a4"}, {"name": "a5"}]
+            }},
+        ]
+        kvgl = KeyValueGroupList(headers, None, desc)
+        assert kvgl.default_cfg == expected()
+        assert kvgl.headerindexmap == {
+            'a1': 0, 'a2': 1, 'a3': 2, 'a4': 3, 'a5': 4}
+
+        assert len(kvgl.output_configs) == 3
+
+        assert kvgl.output_configs[0].namespace == "g2"
+        assert kvgl.output_configs[0].columns == [(expected(name="a2"), 1)]
+
+        assert kvgl.output_configs[1].namespace == "g4"
+        assert kvgl.output_configs[1].columns == [
+            (expected(name="a4"), 3), (expected(name="a5"), 4)]
+
+        # Default group always comes last
+        assert kvgl.output_configs[2].namespace == ""
+        assert kvgl.output_configs[2].columns == [
+            (expected(name="a1"), 0), (expected(name="a3"), 2)]
+
+
+@pytest.mark.skipif(JINJA2_MISSING, reason="Requires Jinja2")
+class TestKeyValueListTransformer(object):
+
     def test_transform1_default(self):
         cfg = expected(name="a1")
         assert KeyValueListTransformer.transform1("ab, c", cfg) == (
@@ -220,10 +277,6 @@ class TestKeyValueListTransformer(object):
 
     # TODO: Can we assume jinja2 is always installed on test systems?
     def test_transformj2(self):
-        try:
-            import jinja2  # noqa
-        except ImportError:
-            skip("jinja2 not found")
         cfg = expected(name="a1", clientvalue="http://{{ value | urlencode }}")
         assert KeyValueListTransformer.transform1("a b", cfg) == (
             "a1", ["http://a%20b"])
