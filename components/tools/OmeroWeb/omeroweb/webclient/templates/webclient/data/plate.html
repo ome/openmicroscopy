@@ -273,7 +273,7 @@
                     var url = "{% url 'webgateway' %}well/" + wellId + "/children/";
                     $.getJSON(url, function(data){
                         var html = data.reduce(function(html, w){
-                            return html + '<li data-imageId="' + w.id + '"><img src="' + w.thumb_url + '" /></li>';
+                            return html + '<li title="' + w.name + '" data-imageId="' + w.id + '"><img src="' + w.thumb_url + '" /></li>';
                         }, "<ul>");
                         $('#wellImages-' + wellId).append(html + "</ul>");
                     });
