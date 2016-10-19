@@ -92,9 +92,7 @@ def query_datasets(conn, project=None, childCount=False,
                          page=page, limit=limit, normalize=normalize)
 
 
-def query_objects(conn, object_type, clauses=[],
-                  params=omero.sys.ParametersI(),
-                  extra_joins="",
+def query_objects(conn, object_type,
                   childCount=False,
                   group=None, owner=None,
                   page=1, limit=settings.PAGE,
