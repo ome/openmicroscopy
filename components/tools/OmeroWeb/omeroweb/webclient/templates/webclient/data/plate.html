@@ -275,8 +275,8 @@
                     $.getJSON(url, function(data){
                         var html = data.reduce(function(html, w){
                             return html + '<li title="' + w.name + '" data-imageId="' + w.id + '"><img src="' + w.thumb_url + '" /></li>';
-                        }, "<ul>");
-                        $('#wellImages-' + wellId).append(html + "</ul>");
+                        }, "");
+                        $('#wellImages-' + wellId).append("<td><ul>" + html + "</ul></tr>");
                     });
                 });
             }
@@ -306,6 +306,7 @@
         .wellImagesLabel {
             width: 30px;
             vertical-align: middle;
+            border-bottom: solid #ddd 1px;
         }
     </style>
     
