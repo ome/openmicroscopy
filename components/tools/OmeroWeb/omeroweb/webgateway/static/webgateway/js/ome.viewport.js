@@ -682,9 +682,10 @@ jQuery._WeblitzViewport = function (container, server, options) {
       _this.self.trigger('channelChange', [_this, idx, _this.loadedImg.channels[idx]]);
       if (!noreload) {
         _load();
+        // provide a more-granular trigger, E.g. for histogram to switch channel
+        // Only do this on _load() to prevent firing on all channels E.g. in viewport.setQuery()
+        _this.self.trigger('channelColorChange', [_this, idx, _this.loadedImg.channels[idx]]);
       }
-      // provide a more-granular trigger, E.g. for histogram to switch channel
-      _this.self.trigger('channelColorChange', [_this, idx, _this.loadedImg.channels[idx]]);
     }
   };
 
