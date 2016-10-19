@@ -1491,9 +1491,24 @@ def listWellImages_json(request, did, conn=None, **kwargs):
     def urlprefix(iid):
         return reverse(prefix, args=(iid,))
     xtra = {'thumbUrlPrefix': kwargs.get('urlprefix', urlprefix)}
-    return map(lambda x: x.getImage() and
-               x.getImage().simpleMarshal(xtra=xtra),
-               well.listChildren())
+
+    def marshal_pos(w):
+        d = {}
+        for x, p in (['x', w.getPosX()], ['y', w.getPosY()]):
+            if p is not None:
+                d[x] = {'value': p.getValue(), 'unit': str(p.getUnit())}
+        return d
+
+    wellImgs = []
+    for ws in well.listChildren():
+        img = ws.getImage()
+        if img is not None:
+            m = img.simpleMarshal(xtra=xtra)
+            pos = marshal_pos(ws)
+            if len(pos.keys()) > 0:
+                m['position'] = pos
+            wellImgs.append(m)
+    return wellImgs
 
 
 @login_required()
