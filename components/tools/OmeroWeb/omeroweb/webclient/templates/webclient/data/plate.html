@@ -259,17 +259,18 @@
             });
 
             var showImagesInWell = function() {
+                var $table = $("#wellImages table");
                 if (!imagesInWellVisible) {
-                    $("#wellImages").empty();
+                    $table.empty();
                     return;
                 }
                 var $selected = $('td.ui-selected', wpv.self);
-                $('#wellImages').empty();
+                $table.empty();
                 $selected.each(function(i, w){
                     var wellId = w.id.split('-')[1];
                     var label = $(w).children('.wellLabel').text();
                     // create placeholders for each Well
-                    $('#wellImages').append("<div id='wellImages-" + wellId + "'><h1>" + label + "</h1></div>");
+                    $table.append("<tr id='wellImages-" + wellId + "'><td class='wellImagesLabel'><h1>" + label + "</h1></td></tr>");
                     var url = "{% url 'webgateway' %}well/" + wellId + "/children/";
                     $.getJSON(url, function(data){
                         var html = data.reduce(function(html, w){
@@ -296,20 +297,15 @@
         .wellImages img {
             margin: 2px;
         }
-        .wellImages h1 {
-            float: left;
-        }
-        #wellImages>div {
-            clear: both;
-        }
         #wellImages li {
             display: inline-block;
         }
         #wellImages .ui-selected {
             background-color: #87ABD2;
         }
-        #wellImages h1 {
+        .wellImagesLabel {
             width: 30px;
+            vertical-align: middle;
         }
     </style>
     
@@ -349,6 +345,7 @@
 <div id="wellImagesContainer" class="wellImages fillSpace" style="bottom: 0px; height: 100px">
     <!-- Scrollable container for wellImages -->
     <div id="wellImages" class='fillSpace' style='top: 0; bottom: 0'>
+        <table style="width: 100%"></table>
     </div>
     <!-- Slider -->
     <div style="position: absolute; right: 10px; bottom: 10px; width: 200px; height: 25px">
