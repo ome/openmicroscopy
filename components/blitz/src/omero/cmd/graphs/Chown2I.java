@@ -156,6 +156,21 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
             final IAdmin iAdmin = helper.getServiceFactory().getAdminService();
             acceptableGroupsFrom = ImmutableSet.copyOf(eventContext.getLeaderOfGroupsList());
             acceptableGroupsTo = ImmutableSet.copyOf(iAdmin.getMemberOfGroupIds(new Experimenter(userId, false)));
+            if (acceptableGroupsFrom.isEmpty()) {
+                throw new RuntimeException(new GraphException("not an owner of any group"));
+            }
+            if (targetUsers != null) {
+                for (final Long targetUserId : targetUsers) {
+                    final Set<Long> groupsForTargetUserData = new HashSet<Long>(acceptableGroupsFrom);
+                    final Experimenter targetUser = new Experimenter(targetUserId, false);
+                    groupsForTargetUserData.retainAll(iAdmin.getMemberOfGroupIds(targetUser));
+                    if (groupsForTargetUserData.isEmpty()) {
+                        final String message = "not an owner of any group of " +
+                                Experimenter.class.getName() + "[" + targetUserId + "]";
+                        throw new RuntimeException(new GraphException(message));
+                    }
+                }
+            }
         }
 
         graphPolicy.registerPredicate(new PermissionsPredicate());

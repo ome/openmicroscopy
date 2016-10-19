@@ -285,9 +285,10 @@
 
         <bean parent="graphPolicyRule" p:matches="A:FileAnnotation[E].file = OF:[I]" p:error="may not give {OF} while used by {A}"/>
 
-        <!-- If both parent and child are given then give the annotation link regardless of permissions. -->
+        <!-- If both parent and child are given then give the annotation link unless owned by a third party. -->
 
-        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink[ED].parent = [I], L.child = [I]" p:changes="L:[I]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink[ED].parent =/o [I], L.child = [I]" p:changes="L:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink[ED].parent = [I], L.child =/o [I]" p:changes="L:[I]"/>
 
         <!-- If an annotation link's parent or child is deleted then delete the link regardless of permissions. -->
 
@@ -354,26 +355,18 @@
         <bean parent="graphPolicyRule" p:matches="F:Folder[E]{o}/o" p:changes="F:[I]"/>
 
         <!--
-             If a project, dataset, folder, image or ROI is given for both sides of a link then, regardless of permissions, give the
-             link if same owners or not in private group.
+             If a project, dataset, folder, image or ROI is given for both sides of a link then give the link unless owned by a
+             third party.
           -->
 
-        <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink[ED].parent = P:[I], L.child = D:[I], P =/o D"
-                                       p:changes="L:[I]/n"/>
-        <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink[ED].parent = D:[I], L.child = I:[I], D =/o I"
-                                       p:changes="L:[I]/n"/>
-        <bean parent="graphPolicyRule" p:matches="L:FolderImageLink[ED].parent = F:[I], L.child = I:[I], F =/o I"
-                                       p:changes="L:[I]/n"/>
-        <bean parent="graphPolicyRule" p:matches="L:FolderRoiLink[ED].parent = F:[I], L.child = ROI:[I], F =/o ROI"
-                                       p:changes="L:[I]/n"/>
-        <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink[E].parent = [I];perms=??r???, L.child = [I]"
-                                       p:changes="L:[I]/n"/>
-        <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink[E].parent = [I];perms=??r???, L.child = [I]"
-                                       p:changes="L:[I]/n"/>
-        <bean parent="graphPolicyRule" p:matches="L:FolderImageLink[ED].parent = [I];perms=??r???, L.child = [I]"
-                                       p:changes="L:[I]/n"/>
-        <bean parent="graphPolicyRule" p:matches="L:FolderRoiLink[ED].parent = [I];perms=??r???, L.child = [I]"
-                                       p:changes="L:[I]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink[ED].parent =/o [I], L.child = [I]" p:changes="L:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink[ED].parent = [I], L.child =/o [I]" p:changes="L:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink[ED].parent =/o [I], L.child = [I]" p:changes="L:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink[ED].parent = [I], L.child =/o [I]" p:changes="L:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderImageLink[ED].parent =/o [I], L.child = [I]" p:changes="L:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderImageLink[ED].parent = [I], L.child =/o [I]" p:changes="L:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderRoiLink[ED].parent =/o [I], L.child = [I]" p:changes="L:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderRoiLink[ED].parent = [I], L.child =/o [I]" p:changes="L:[I]"/>
 
         <!--
              If a project, dataset, folder, image or ROI is given then delete any remaining cross-owner links regardless of
@@ -683,15 +676,10 @@
         <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[E].parent = [E]{ia}, L.child = P:[E]{r}" p:changes="P:{a}"/>
         <bean parent="graphPolicyRule" p:matches="P:Plate[E]{o}" p:changes="P:[I]"/>
 
-        <!--
-             If a screen and plate are given for both sides of a link then, regardless of permissions, give the link if same owners
-             or not to private group.
-          -->
+        <!-- If a screen and plate are given for both sides of a link then give the link unless owned by a third party. -->
 
-        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[ED].parent = S:[I], L.child = P:[I], S =/o P"
-                                       p:changes="L:[I]/n"/>
-        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[E].parent = [I];perms=??r???, L.child = [I]"
-                                       p:changes="L:[I]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[ED].parent =/o [I], L.child = [I]" p:changes="L:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[ED].parent = [I], L.child =/o [I]" p:changes="L:[I]"/>
 
         <!-- If a screen or plate are given then delete their remaining links regardless of permissions in a private group. -->
 
