@@ -86,7 +86,11 @@ class RGBModel
     /**
      * Sets the value of the model to v without firing an event.
      * 
-     * @param v value.
+     * @param v
+     *            value.
+     * @param reset
+     *            Pass <code>true</code> to also overwrite the original color
+     *            values (see {@link #revert()})
      */
     private void setV(float v, boolean reset)
     {
@@ -108,6 +112,9 @@ class RGBModel
      * Sets the hue of the model to h without firing an event.
      * 
      * @param h hue.
+     * @param reset
+     *            Pass <code>true</code> to also overwrite the original color
+     *            values (see {@link #revert()})
      */
     private void setH(float h, boolean reset)
     {
@@ -128,6 +135,9 @@ class RGBModel
      * Sets the saturation of the model to S without firing an event.
      * 
      * @param s saturation.
+     * @param reset
+     *            Pass <code>true</code> to also overwrite the original color
+     *            values (see {@link #revert()})
      */
     private void setS(float s, boolean reset)
     {
@@ -728,7 +738,7 @@ class RGBModel
      * Check if the provided lookup table is the same as the original lookup
      * table
      * 
-     * @param The
+     * @param lut The
      *            lookup table
      * @return <code>true</code> if it is, <code>false</code> if it is not
      */
@@ -743,6 +753,7 @@ class RGBModel
 
     /**
      * Get all available lookup tables
+     * @return See above
      */
     Collection<String> getAvailableLookupTables() {
         return availableLUTs;
