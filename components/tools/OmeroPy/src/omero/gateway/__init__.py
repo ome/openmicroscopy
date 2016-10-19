@@ -3086,6 +3086,7 @@ class _BlitzGateway (object):
 
         owner = None
         child_count = False
+        order_by = None
         # Handle dict of parameters -> convert to ParametersI()
         if isinstance(params, dict):
             opts = params
@@ -3098,6 +3099,8 @@ class _BlitzGateway (object):
                 owner = rlong(opts['owner'])
             if 'child_count' in opts and opts['child_count']:
                 child_count = True
+            if 'order_by' in opts:
+                order_by = opts['order_by']
         # Handle existing Parameters - need to retrieve owner filter
         elif isinstance(params, omero.sys.Parameters):
             if params.map is None:
@@ -3133,10 +3136,9 @@ class _BlitzGateway (object):
         if clauses:
             query += " where " + (" and ".join(clauses))
 
-        # check if we can order by name
-        omero_model = getattr(omero.model, wrapper().OMERO_CLASS)
-        if hasattr(omero_model, 'getName'):
-            query += " order by lower(obj.name), obj.id"
+        # Order by...
+        if order_by is not None:
+            query += " order by lower(obj.%s), obj.id" % order_by
 
         return (query, params, wrapper)
 
