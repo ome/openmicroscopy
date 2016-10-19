@@ -605,7 +605,8 @@ public class PermissionsTest extends AbstractServerTest {
         assertOwnedBy(image, recipient);
         assertOwnedBy(otherImage, otherImporter);
 
-        /* check that the annotations links are as expected too*/
+        /* check that the links made from the already created and linked
+         * annotations are as expected too*/
 
         assertOwnedBy(linkOwnTagOthersImageOwn, recipient);
         assertOwnedBy(linkOwnFileAnnOthersImageOwn, recipient);
@@ -620,39 +621,24 @@ public class PermissionsTest extends AbstractServerTest {
         assertOwnedBy(linkOthersFileAnnOwnImageOwn, otherImporter);
         assertOwnedBy(linkOthersMapAnnOwnImageOwn, otherImporter);
 
-        /* check that the annotations ownership is as expected */
-        final Set<Long> imageLinkIds = new HashSet<Long>();
+        /* check that the originally made annotations and the originally
+         * made links of these annotations to images ownership are as expected too
+         * Note that variables like the e.g. annotationsOwnImageOwnTriplyLinked
+         * contains both links as well as annotations and that in the original
+         * annotating procedure the links always belonged to the owner of the annotations */
         for (final IObject annotation : annotationsOwnImageOwnTriplyLinked) {
-            if (annotation instanceof ImageAnnotationLink) {
-                imageLinkIds.add(annotation.getId().getValue());
-            }
             assertOwnedBy(annotation, recipient);
+            System.out.println(annotation.toString());
         }
         for (final IObject annotation : annotationsOwnImageOthersLinkedByOwn) {
-            if (annotation instanceof ImageAnnotationLink) {
-                imageLinkIds.add(annotation.getId().getValue());
-            }
             assertOwnedBy(annotation, recipient);
         }
         for (final IObject annotation : annotationsOthersImageOthersTriplyLinked) {
-            if (annotation instanceof ImageAnnotationLink) {
-                imageLinkIds.add(annotation.getId().getValue());
-            }
             assertOwnedBy(annotation, otherImporter);
         }
         for (final IObject annotation : annotationsOthersImageOwnLinkedByOthers) {
-            if (annotation instanceof ImageAnnotationLink) {
-                imageLinkIds.add(annotation.getId().getValue());
-            }
             assertOwnedBy(annotation, otherImporter);
         }
-
-        final String query = "SELECT DISTINCT link.details.owner.id FROM ImageAnnotationLink link WHERE link.id IN (:ids)";
-        final ParametersI params = new ParametersI().addIds(imageLinkIds);
-        final List<List<RType>> results = iQuery.projection(query, params);
-        Assert.assertEquals(results.size(), 2);
-        final long imageLinkOwnerIds = ((RLong) results.get(0).get(0)).getValue();
-        /*Assert.assertEquals(imageLinkOwnerIds, recipient.userId);*/
 
          /* check that both tag sets are transferred */
         assertOwnedBy(tagsets.get(0), recipient);
