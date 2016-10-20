@@ -505,23 +505,19 @@ public class PermissionsTest extends AbstractServerTest {
         }
 
         /* note which objects were used to annotate an image */
-        final List<IObject> annotationsOwnImageOwnTriplyLinked;
-        final List<IObject> annotationsOwnImageOthersLinkedByOwn;
-        final List<IObject> annotationsOthersImageOwnLinkedByOthers;
-        final List<IObject> annotationsOthersImageOthersTriplyLinked;
-        ImageAnnotationLink linkOthersTagOwnImageOthers = new ImageAnnotationLinkI();
-        ImageAnnotationLink linkOthersFileAnnOwnImageOthers = new ImageAnnotationLinkI();
-        ImageAnnotationLink linkOthersMapAnnOwnImageOthers = new ImageAnnotationLinkI();
-        ImageAnnotationLink linkOwnTagOthersImageOwn = new ImageAnnotationLinkI();
-        ImageAnnotationLink linkOwnFileAnnOthersImageOwn = new ImageAnnotationLinkI();
-        ImageAnnotationLink linkOwnMapAnnOthersImageOwn = new ImageAnnotationLinkI();
-        ImageAnnotationLink linkOwnTagOthersImageOthers = new ImageAnnotationLinkI();
-        ImageAnnotationLink linkOwnFileAnnOthersImageOthers = new ImageAnnotationLinkI();
-        ImageAnnotationLink linkOwnMapAnnOthersImageOthers = new ImageAnnotationLinkI();
-        ImageAnnotationLink linkOthersTagOwnImageOwn = new ImageAnnotationLinkI();
-        ImageAnnotationLink linkOthersFileAnnOwnImageOwn = new ImageAnnotationLinkI();
-        ImageAnnotationLink linkOthersMapAnnOwnImageOwn = new ImageAnnotationLinkI();
-
+        final List<IObject> annotationsAndLinksOwnAnnForTripleLinking;
+        final List<IObject> annotationsAndLinksOwnToOthersImage;
+        final List<IObject> annotationsAndLinksOthersToOwnImage;
+        final List<IObject> annotationsAndLinksOthersAnnForTripleLinking;
+        final List<IObject> annotationsOwnForTripleLinking = new ArrayList<IObject>();
+        final List<IObject> annotationsOthersForTripleLinking = new ArrayList<IObject>();
+        final List<IObject> linksOwnToOwnAnnOwnImage = new ArrayList<IObject>();
+        final List<IObject> linksOthersToOthersAnnOtherImage = new ArrayList<IObject>();
+        final List<ImageAnnotationLink> linksOwnToOthersAnnOwnImage = new ArrayList<ImageAnnotationLink>();
+        final List<ImageAnnotationLink> linksOwnToOthersAnnOthersImage = new ArrayList<ImageAnnotationLink>();
+        final List<ImageAnnotationLink> linksOthersToOwnAnnOwnImage = new ArrayList<ImageAnnotationLink>();
+        final List<ImageAnnotationLink> linksOthersToOwnAnnOthersImage = new ArrayList<ImageAnnotationLink>();
+        
         /* Both importers import their respective images*/
         init(importerTargetUser);
         final Image image = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage()).proxy();
@@ -533,60 +529,84 @@ public class PermissionsTest extends AbstractServerTest {
 
         /* First user/importer (importerTargetUser) annotates both images
          * (image, otherImage) which belongs to the first user/importer (importerTargetUser)
-         * and the second user (otherImporter) respectively.*/
+         * and the second user (otherImporter) respectively. 
+         * Note that the "...ForTripleLinking" annotations have to be sorted out
+         * from the links in the variable and later will be used to be linked again by
+         * the other user to both first and second images (image and other image)*/
         init(importerTargetUser);
-        annotationsOwnImageOwnTriplyLinked = annotateImage(image);
-        annotationsOwnImageOthersLinkedByOwn = annotateImage(otherImage);
+        annotationsAndLinksOwnAnnForTripleLinking = annotateImage(image);
+        annotationsAndLinksOwnToOthersImage = annotateImage(otherImage);
+        
+        /* Now sort out the annotations from the links out of the 
+         * annotationsAndLinksOwnAnnForTripleLinking bag of annotations and links */
+        for (final IObject annotation : annotationsAndLinksOwnAnnForTripleLinking) {
+            if (annotation instanceof ImageAnnotationLink) {
+                linksOwnToOwnAnnOwnImage.add(annotation.proxy());
+            } else {
+                annotationsOwnForTripleLinking.add(annotation.proxy());
+            }
+        }
 
         /* Another user (otherImporter) annotates both images
          * (image, otherImage) which belongs to the first user/importer (importerTargetUser)
          * and this second user (otherImporter) respectively.*/
         init(otherImporter);
-        annotationsOthersImageOwnLinkedByOthers = annotateImage(image);
-        annotationsOthersImageOthersTriplyLinked = annotateImage(otherImage);
+        annotationsAndLinksOthersToOwnImage = annotateImage(image);
+        annotationsAndLinksOthersAnnForTripleLinking = annotateImage(otherImage);
 
-        /* First user/importer (importerTargetUser) links the second users'
-         * Tag, FileAnnotation and MapAnnotation
-         * from "annotationsOthersOthersImageTripleLink" to the first image
-         * (image) which belongs to the first user/importer (importerTargetUser)
-         * as well as to the second image (otherImage) which belongs to the otherImporter*/
-        init(importerTargetUser);
-        for (final IObject annotation : annotationsOthersImageOthersTriplyLinked) {
-            if (annotation instanceof TagAnnotation) {
-                linkOwnTagOthersImageOwn = (ImageAnnotationLink) annotateImage(image, (TagAnnotation) annotation);
-                linkOwnTagOthersImageOthers = (ImageAnnotationLink) annotateImage(otherImage, (TagAnnotation) annotation);
-            } else if (annotation instanceof FileAnnotation) {
-                linkOwnFileAnnOthersImageOwn = (ImageAnnotationLink) annotateImage(image, (FileAnnotation) annotation);
-                linkOwnFileAnnOthersImageOthers = (ImageAnnotationLink) annotateImage(otherImage, (FileAnnotation) annotation);
-            } else if (annotation instanceof MapAnnotation) {
-                linkOwnMapAnnOthersImageOwn = (ImageAnnotationLink) annotateImage(image, (MapAnnotation) annotation);
-                linkOwnMapAnnOthersImageOthers = (ImageAnnotationLink) annotateImage(otherImage, (MapAnnotation) annotation);
+        /* Now sort out the annotations from the links out of the 
+         * annotationsAndLinksOthersAnnForTripleLinking bag of annotations and links */
+        for (final IObject annotation : annotationsAndLinksOthersAnnForTripleLinking) {
+            if (annotation instanceof ImageAnnotationLink) {
+                linksOthersToOthersAnnOtherImage.add(annotation.proxy());
+            } else {
+                annotationsOthersForTripleLinking.add(annotation.proxy());
             }
         }
         
-        /* Another user (otherImporter) links Tag, FileAnnotation and MapAnnotation
-         * from "annotationsOwnTriplyLinked" (belonging to the first user/importer)
-         *  to a second image (otherImage) which belongs to this other user (otherImporter).
-         *  as well as to the first image (image) which belongs to the importerTargetUser*/
-        init(otherImporter);
-        for (final IObject annotation : annotationsOwnImageOwnTriplyLinked) {
-            if (annotation instanceof TagAnnotation) {
-                linkOthersTagOwnImageOthers = (ImageAnnotationLink) annotateImage(otherImage, (TagAnnotation) annotation);
-                linkOthersTagOwnImageOwn = (ImageAnnotationLink) annotateImage(image, (TagAnnotation) annotation);
-            } else if (annotation instanceof FileAnnotation) {
-                linkOthersFileAnnOwnImageOthers = (ImageAnnotationLink) annotateImage(otherImage, (FileAnnotation) annotation);
-                linkOthersFileAnnOwnImageOwn = (ImageAnnotationLink) annotateImage(image, (FileAnnotation) annotation);
-            } else if (annotation instanceof MapAnnotation) {
-                linkOthersMapAnnOwnImageOthers = (ImageAnnotationLink) annotateImage(otherImage, (MapAnnotation) annotation);
-                linkOthersMapAnnOwnImageOwn = (ImageAnnotationLink) annotateImage(image, (MapAnnotation) annotation);
+        /* First user/importer (importerTargetUser) links the second users'
+         * annotationsOthersForTripleLinking to the first image
+         * (image) which belongs to the first user/importer (importerTargetUser)
+         * as well as to the second image (otherImage) which belongs to the otherImporter,
+         * thus making them triply linked by two different users to two differently owned
+         * images. Note that ROI and thumbnail cannot be multiply linked, and thus will
+         * remain just singly linked objects in the annotationsOthersForTripleLinking batch
+         * of annotations*/
+        init(importerTargetUser);
+        for (final IObject annotation : annotationsOthersForTripleLinking) {
+            if (!(annotation instanceof Roi) & !(annotation instanceof Thumbnail) & !(annotation instanceof RectangleI)) {
+                final ImageAnnotationLink linkOwnImage = (ImageAnnotationLink) annotateImage(image, (Annotation) annotation);
+                linksOwnToOthersAnnOwnImage.add((ImageAnnotationLink) linkOwnImage.proxy());
+                final ImageAnnotationLink linkOtherImage = (ImageAnnotationLink) annotateImage(otherImage, (Annotation) annotation);
+                linksOwnToOthersAnnOthersImage.add((ImageAnnotationLink) linkOtherImage.proxy());
             }
         }
-        /* create two tag sets and three tags */
+        
+        /* Another user (otherImporter) links the first user/importer's 
+         * annotationsOwnForTripleLinking to a second image (otherImage) 
+         * which belongs to this other user (otherImporter).
+         * as well as to the first image (image) which belongs to the importerTargetUser
+         * Note that ROI and thumbnail cannot be multiply linked, and thus will
+         * remain just singly linked objects in the annotationsOwnForTripleLinking batch
+         * of annotations*/
+        init(otherImporter);
+        for (final IObject annotation : annotationsOwnForTripleLinking) {
+            if (!(annotation instanceof Roi) & !(annotation instanceof Thumbnail) & !(annotation instanceof RectangleI)) {
+                final ImageAnnotationLink linkOtherImage = (ImageAnnotationLink) annotateImage(otherImage, (Annotation) annotation);
+                linksOthersToOwnAnnOthersImage.add((ImageAnnotationLink) linkOtherImage.proxy());
+                final ImageAnnotationLink linkOwnImage = (ImageAnnotationLink) annotateImage(image, (Annotation) annotation);
+                linksOthersToOwnAnnOwnImage.add((ImageAnnotationLink) linkOwnImage.proxy());
+            }
+        }
+
+        /* create two tag sets and three tags as the first user
+         * (importerTargetUser) */
         init(importerTargetUser);
         final List<TagAnnotation> tagsets = createTagsets(2);
         final List<TagAnnotation> tags = createTags(3);
 
-        /* define how to link the tag sets to the tags and link them */
+        /* define how to link the tag sets to the tags and link them
+         * still being importerTargetUser */
         final SetMultimap<TagAnnotation, TagAnnotation> members = defineLinkingTags(tags, tagsets);
         linkTagsTagsets(members);
 
@@ -605,46 +625,37 @@ public class PermissionsTest extends AbstractServerTest {
         assertOwnedBy(image, recipient);
         assertOwnedBy(otherImage, otherImporter);
 
-        /* check that the links made from the already created and linked
-         * annotations are as expected too*/
+        /* check that all the own (=belonging to targetUserImporter)
+         * triply linked annotations and the own mixed bag of annotations
+         * (singly linked) were transferred to recipient */
+        assertOwnedBy(annotationsOwnForTripleLinking, recipient);
+        assertOwnedBy(annotationsAndLinksOwnToOthersImage, recipient);
 
-        assertOwnedBy(linkOwnTagOthersImageOwn, recipient);
-        assertOwnedBy(linkOwnFileAnnOthersImageOwn, recipient);
-        assertOwnedBy(linkOwnMapAnnOthersImageOwn, recipient);
-        assertOwnedBy(linkOwnTagOthersImageOthers, recipient);
-        assertOwnedBy(linkOwnFileAnnOthersImageOthers, recipient);
-        assertOwnedBy(linkOwnMapAnnOthersImageOthers, recipient);
-        assertOwnedBy(linkOthersTagOwnImageOthers, otherImporter);
-        assertOwnedBy(linkOthersFileAnnOwnImageOthers, otherImporter);
-        assertOwnedBy(linkOthersMapAnnOwnImageOthers, otherImporter);
-        assertOwnedBy(linkOthersTagOwnImageOwn, otherImporter);
-        assertOwnedBy(linkOthersFileAnnOwnImageOwn, otherImporter);
-        assertOwnedBy(linkOthersMapAnnOwnImageOwn, otherImporter);
+        /* check that all the others' (=belonging to otherImporter)
+         * triply linked annotations and the others' mixed bag of annotations
+         * (singly linked) are still belonging to otherImporter */
+        assertOwnedBy(annotationsOthersForTripleLinking, otherImporter);
+        assertOwnedBy(annotationsAndLinksOthersToOwnImage, otherImporter);
 
-        /* check that the originally made annotations and the originally
-         * made links of these annotations to images ownership are as expected too
-         * Note that variables like the e.g. annotationsOwnImageOwnTriplyLinked
-         * contains both links as well as annotations and that in the original
-         * annotating procedure the links always belonged to the owner of the annotations */
-        for (final IObject annotation : annotationsOwnImageOwnTriplyLinked) {
-            assertOwnedBy(annotation, recipient);
-            System.out.println(annotation.toString());
-        }
-        for (final IObject annotation : annotationsOwnImageOthersLinkedByOwn) {
-            assertOwnedBy(annotation, recipient);
-        }
-        for (final IObject annotation : annotationsOthersImageOthersTriplyLinked) {
-            assertOwnedBy(annotation, otherImporter);
-        }
-        for (final IObject annotation : annotationsOthersImageOwnLinkedByOthers) {
-            assertOwnedBy(annotation, otherImporter);
-        }
+        /* check that all the own (=belonging to targetUserImporter) links
+         * were transferred to recipient, irrespective of ownership of the objects
+         * they were linking */
+        assertOwnedBy(linksOwnToOwnAnnOwnImage, recipient);
+        assertOwnedBy(linksOwnToOthersAnnOthersImage, recipient);
+        assertOwnedBy(linksOwnToOthersAnnOwnImage, recipient);
 
-         /* check that both tag sets are transferred */
+        /* check that all the others' (=belonging to otherImporter) links
+         * still belong to otherImporter, irrespective of ownership of the objects
+         * they were linking */
+        assertOwnedBy(linksOthersToOthersAnnOtherImage, otherImporter);
+        assertOwnedBy(linksOthersToOwnAnnOwnImage, otherImporter);
+        assertOwnedBy(linksOthersToOwnAnnOthersImage, otherImporter);
+
+         /* check that both tag sets are transferred to recipient */
         assertOwnedBy(tagsets.get(0), recipient);
         assertOwnedBy(tagsets.get(1), recipient);
 
-        /* check all the tags are transferred */
+        /* check all the tags are transferred to recipient */
         assertOwnedBy(tags.get(0), recipient);
         assertOwnedBy(tags.get(1), recipient);
         assertOwnedBy(tags.get(2), recipient);
