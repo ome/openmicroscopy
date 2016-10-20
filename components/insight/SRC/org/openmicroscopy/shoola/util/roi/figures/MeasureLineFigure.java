@@ -122,6 +122,9 @@ public class MeasureLineFigure
 	/** Flag indicating if the user can move or resize the shape.*/
 	private boolean interactable;
 	
+	/** Flat indicating if the user can split the line */
+	private boolean allowSplitSegment = false;
+	
 	/**
 	 * Returns the point i in pixels or microns depending on the units used.
 	 * 
@@ -828,7 +831,8 @@ public class MeasureLineFigure
 	 */
 	public int splitSegment(Point2D.Double split) 
 	{
-		if (isReadOnly() || !interactable) return -1;
+		if (isReadOnly() || !interactable || !allowSplitSegment)
+		    return -1;
 		this.setObjectDirty(true);
 		return super.splitSegment(split);
 	}
@@ -840,7 +844,8 @@ public class MeasureLineFigure
 	 */
 	public int splitSegment(Point2D.Double split, float tolerance) 
 	{
-		if (isReadOnly() || !interactable) return -1;
+		if (isReadOnly() || !interactable || !allowSplitSegment)
+		    return -1;
 		this.setObjectDirty(true);
 		return super.splitSegment(split, tolerance);
 	}
@@ -852,7 +857,8 @@ public class MeasureLineFigure
 	 */
 	public int joinSegments(Point2D.Double join, float tolerance) 
 	{
-		if (isReadOnly() || !interactable) return -1;
+		if (isReadOnly() || !interactable || !allowSplitSegment)
+		    return -1;
 		this.setObjectDirty(true);
 		return super.joinSegments(join, tolerance);
 	}
