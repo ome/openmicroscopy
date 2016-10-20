@@ -689,6 +689,16 @@ public class PermissionsTest extends AbstractServerTest {
          * the others' tag still belongs to other user */
         assertOwnedBy(tagsOwn, recipient);
         assertOwnedBy(tagsOthers, otherImporter);
+
+
+        /* Test for targetUser method having two users. For that,
+         * first chown everything from the "recipient" back to
+         * importerTargerUser, in order to get the original setup
+         * with two users, two images and cross-linked annotations */
+        init(chowner);
+        Chown2 chownBack = Requests.chown().targetUsers(recipient.userId).toUser(importerTargetUser.userId).build();
+        doChange(client, factory, chownBack, true);
+
     }
 
     /**
