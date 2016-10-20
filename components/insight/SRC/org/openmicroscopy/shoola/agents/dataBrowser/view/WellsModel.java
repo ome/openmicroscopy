@@ -471,7 +471,7 @@ class WellsModel
 	{
         selectedNodes.clear();
         if (nodes != null) {
-            selectedNodes = nodes;
+            selectedNodes.addAll(nodes);
         }
 	}
 	
