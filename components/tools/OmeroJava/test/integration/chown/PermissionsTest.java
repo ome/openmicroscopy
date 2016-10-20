@@ -563,7 +563,7 @@ public class PermissionsTest extends AbstractServerTest {
                 annotationsOthersForTripleLinking.add(annotation.proxy());
             }
         }
-        
+
         /* First user/importer (importerTargetUser) links the second users'
          * annotationsOthersForTripleLinking to the first image
          * (image) which belongs to the first user/importer (importerTargetUser)
@@ -581,7 +581,7 @@ public class PermissionsTest extends AbstractServerTest {
                 linksOwnToOthersAnnOthersImage.add((ImageAnnotationLink) linkOtherImage.proxy());
             }
         }
-        
+
         /* Another user (otherImporter) links the first user/importer's 
          * annotationsOwnForTripleLinking to a second image (otherImage) 
          * which belongs to this other user (otherImporter).
@@ -599,14 +599,44 @@ public class PermissionsTest extends AbstractServerTest {
             }
         }
 
-        /* create two tag sets and three tags as the first user
-         * (importerTargetUser) */
+        /* create two tag sets, one as the first user
+         * (importerTargetUser) and another one as the other user
+         * and create two tags as the first user and one tag
+         * as the other user */
         init(importerTargetUser);
-        final List<TagAnnotation> tagsets = createTagsets(2);
-        final List<TagAnnotation> tags = createTags(3);
+        final List<TagAnnotation> tagsetOwn = createTagsets(1);
+        init(otherImporter);
+        final List<TagAnnotation> tagsetOthers = createTagsets(1);
+        init(importerTargetUser);
+        final List<TagAnnotation> tagsOwn = createTags(2);
+        init(otherImporter);
+        final List<TagAnnotation> tagsOthers = createTags(1);
 
-        /* define how to link the tag sets to the tags and link them
-         * still being importerTargetUser */
+        /* group the tagsets to one pot in order to be able to reuse the 
+         * definteLinikingTags method
+         */
+        final List<TagAnnotation> tagsets = new ArrayList<TagAnnotation>();
+        for (final TagAnnotation tagset : tagsetOwn) {
+            tagsets.add(tagset);
+        }
+        for (final TagAnnotation tagset : tagsetOthers) {
+            tagsets.add(tagset);
+        }
+
+        final List<TagAnnotation> tags = new ArrayList<TagAnnotation>();
+        for (final TagAnnotation tag : tagsOwn) {
+            tags.add(tag);
+        }
+        for (final TagAnnotation tag : tagsOthers) {
+            tags.add(tag);
+        }
+
+        /* define how to link the tag sets to the tags and link them,
+         * one own tag to the own tagset, the second own tag to the own
+         * tagset and to the other user's tagset, and link the other user's
+         * tag to the other users tagset (all being importerTargetUser, so all
+         * links are "own" */
+        init(importerTargetUser);
         final SetMultimap<TagAnnotation, TagAnnotation> members = defineLinkingTags(tags, tagsets);
         linkTagsTagsets(members);
 
@@ -651,14 +681,15 @@ public class PermissionsTest extends AbstractServerTest {
         assertOwnedBy(linksOthersToOwnAnnOwnImage, otherImporter);
         assertOwnedBy(linksOthersToOwnAnnOthersImage, otherImporter);
 
-         /* check that both tag sets are transferred to recipient */
-        assertOwnedBy(tagsets.get(0), recipient);
-        assertOwnedBy(tagsets.get(1), recipient);
+         /* check that own tag set was transferred to recipient,
+          * the others' tag set still belongs to other user */
+        assertOwnedBy(tagsetOwn, recipient);
+        assertOwnedBy(tagsetOthers, otherImporter);
 
-        /* check all the tags are transferred to recipient */
-        assertOwnedBy(tags.get(0), recipient);
-        assertOwnedBy(tags.get(1), recipient);
-        assertOwnedBy(tags.get(2), recipient);
+        /* check that own tags were transferred to recipient,
+         * the others' tag still belongs to other user */
+        assertOwnedBy(tagsOwn, recipient);
+        assertOwnedBy(tagsOthers, otherImporter);
     }
 
     /**
