@@ -340,7 +340,7 @@ class DataBrowserComponent
 		
 		if (object instanceof DataObject) {
 			Object parent = null;
-			if (object instanceof WellSampleData && !((WellSampleNode)node).isWell()) {
+			if (object instanceof WellSampleData) {
 				WellSampleNode wsn = (WellSampleNode) node;
 				parent = wsn.getParentObject();
 				List<WellSampleNode> wells = new ArrayList<WellSampleNode>();
