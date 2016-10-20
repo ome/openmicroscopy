@@ -96,7 +96,7 @@ def compile(dir=dat):
         pat1 = "~/.m2/repository/com/zeroc/*/%s/*.jar" % (version)
         pat1 = os.path.expanduser(pat1)
         # Berkeley DB jar
-        pat2 = "~/.m2/repository/zeroc/*/%s/*.jar" % ('3.6.2')
+        pat2 = "~/.m2/repository/zeroc/*/%s/*.jar" % (version)
         pat2 = os.path.expanduser(pat2)
         cp = ":".join(glob.glob(pat1) + glob.glob(pat2))
         javac_cmd = "javac -source 1.7 -target 1.7 -cp "
