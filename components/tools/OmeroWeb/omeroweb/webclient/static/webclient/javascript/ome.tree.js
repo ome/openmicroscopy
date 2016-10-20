@@ -390,8 +390,11 @@ $(function() {
             'data' : function(node, callback, payload) {
                 // Get the data for this query
                 if (payload === undefined) {
-                    payload = {};
+                    payload = this.element.data('payload');
+                    // clear data
+                    $.removeData(this.element[0], "payload");
                 }
+                payload = payload || {}
                 // We always use the parent id to fitler. E.g. experimenter id, project id etc.
                 // Exception to this for orphans as in the case of api_images, id is a dataset
                 if (node.hasOwnProperty('data') && node.type != 'orphaned') {
