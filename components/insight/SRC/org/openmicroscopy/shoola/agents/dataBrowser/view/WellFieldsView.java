@@ -25,11 +25,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionAdapter;
-import java.awt.event.MouseMotionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -40,14 +37,11 @@ import java.util.Set;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
 
 import omero.gateway.model.WellSampleData;
 
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.RollOverNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -120,82 +114,43 @@ class WellFieldsView
 	/** The scroll pane */
 	private JScrollPane pane;
 	
-	/** Initializes the components. */
-	private void initComponents()
-	{
-		magnificationUnscaled = MAGNIFICATION_UNSCALED_MIN;
-		selectedField = new JLabel();
-		WellSampleNode node = model.getSelectedWell();
-		selectedNode = new JLabel();
-		if (node != null && node.isWell()) {
-			selectedNode.setText(DEFAULT_WELL_TEXT+node.getParentWell().getWellLocation());
-		}		
-		nodes = null;
-		
-		canvas = new RowFieldCanvas(this);
+    /** Initializes the components. */
+    private void initComponents() {
+        magnificationUnscaled = MAGNIFICATION_UNSCALED_MIN;
+        selectedField = new JLabel();
+        WellSampleNode node = model.getSelectedWell();
+        selectedNode = new JLabel();
+        if (node != null && node.isWell()) {
+            selectedNode.setText(DEFAULT_WELL_TEXT
+                    + node.getParentWell().getWellLocation());
+        }
+        nodes = null;
 
-        canvas.addMouseListener(new MouseAdapter() {
+        canvas = new RowFieldCanvas(this, model);
 
-            /**
-             * Launches the viewer if the number of click is <code>2</code>.
-             * 
-             * @see MouseListener#mouseEntered(MouseEvent)
-             */
-            public void mouseReleased(MouseEvent e) {
-                WellSampleNode node = canvas.getNode(e.getPoint());
-                if (node != null) {
-                    model.setSelectedWell(node);
-                    if (e.getClickCount() == 2)
-                        controller.viewDisplay(node);
+        canvas.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (WellFieldsCanvas.SELECTION_PROPERTY.equals(evt
+                        .getPropertyName())) {
+                    List<WellSampleNode> selection = (List<WellSampleNode>) evt
+                            .getNewValue();
+                    WellSampleNode n = selection.iterator().next();
+                    model.setSelectedWell(n);
                     canvas.refreshUI();
-                }
-
-                firePropertyChange(
-                        Browser.SELECTED_DATA_BROWSER_NODE_DISPLAY_PROPERTY,
-                        null, node);
-            }
-
-            public void mousePressed(MouseEvent e) {
-            }
-
-        });
-        canvas.addMouseMotionListener(new MouseMotionAdapter() {
-
-            /**
-             * Sets the node which has to be zoomed when the roll over flag is
-             * turned on. Note that the {@link ImageNode}s are the only nodes
-             * considered.
-             * 
-             * @see MouseMotionListener#mouseMoved(MouseEvent)
-             */
-            public void mouseMoved(MouseEvent e) {
-                if (model.getBrowser().isRollOver()) {
-                    Point p = e.getPoint();
-                    WellSampleNode node = canvas.getNode(p);
-                    SwingUtilities.convertPointToScreen(p, canvas);
-                    model.getBrowser().setRollOverNode(
-                            new RollOverNode(node, p));
-                } else {
-                    Point p = e.getPoint();
-                    WellSampleNode node = canvas.getNode(p);
-                    if (node != null) {
-                        StringBuffer buffer = new StringBuffer();
-                        buffer.append(DEFAULT_FIELD_TEXT + (node.getIndex()+1));
-                        buffer.append("\n");
-                        buffer.append("x=" + node.getPositionX() + ", " + "y="
-                                + node.getPositionY());
-                        String s = buffer.toString();
-                        canvas.setToolTipText(s);
-                        selectedField.setText(s);
-                    } else {
-                        canvas.setToolTipText("");
-                        selectedField.setText("");
-                    }
+                    firePropertyChange(
+                            Browser.SELECTED_DATA_BROWSER_NODE_DISPLAY_PROPERTY,
+                            null, n);
+                } else if (WellFieldsCanvas.VIEW_PROPERTY.equals(evt
+                        .getPropertyName())) {
+                    List<WellSampleNode> selection = (List<WellSampleNode>) evt
+                            .getNewValue();
+                    WellSampleNode n = selection.iterator().next();
+                    controller.viewDisplay(n);
                 }
             }
-
         });
-	}
+    }
 	
     /**
      * Checks if the provided field is the currently selected field

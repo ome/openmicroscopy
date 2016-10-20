@@ -30,7 +30,10 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -62,11 +65,36 @@ class RowFieldCanvas extends WellFieldsCanvas {
      * @param parent
      *            The parent of the canvas.
      */
-    public RowFieldCanvas(WellFieldsView parent) {
-        super(parent);
+    public RowFieldCanvas(final WellFieldsView parent, final WellsModel model) {
+        super(parent, model);
         setDoubleBuffered(true);
         setBackground(UIUtilities.BACKGROUND);
         setLayout(new GridBagLayout());
+        
+        
+        addMouseListener(new MouseAdapter() {
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                WellSampleNode node = getNode(e.getPoint());
+                List<WellSampleNode> oldSelection = new ArrayList<WellSampleNode>();
+                List<WellSampleNode> newSelection = new ArrayList<WellSampleNode>();
+
+                oldSelection.addAll(model.getSelectedWells());
+                newSelection.add(node);
+
+                if (e.getClickCount() == 2)
+                    RowFieldCanvas.this.firePropertyChange(VIEW_PROPERTY, null,
+                            newSelection);
+
+                else
+                    RowFieldCanvas.this.firePropertyChange(SELECTION_PROPERTY,
+                            oldSelection, newSelection);
+
+            }
+
+        });
+        
     }
 
     /**

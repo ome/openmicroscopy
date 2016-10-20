@@ -47,8 +47,16 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
  */
 public abstract class WellFieldsCanvas extends JPanel {
 
+    /** Property for WellSampleNode being selected */
+    public static String SELECTION_PROPERTY = "WellFieldsCanvas.SELECTION_PROPERTY";
+    
+    /** Property for WellSampleNode being requested to view */
+    public static String VIEW_PROPERTY = "WellFieldsCanvas.VIEW_PROPERTY";
+    
     /** Reference to the parent. */
     WellFieldsView parent;
+    
+    WellsModel model;
     
     /**
      * Creates a new instance
@@ -56,8 +64,9 @@ public abstract class WellFieldsCanvas extends JPanel {
      * @param parent
      *            Reference to the parent {@link WellFieldsView}
      */
-    public WellFieldsCanvas(WellFieldsView parent) {
+    public WellFieldsCanvas(WellFieldsView parent, WellsModel model) {
         this.parent = parent;
+        this.model = model;
     }
 
     /**
