@@ -292,7 +292,7 @@
             overflow: auto;
         }
         .wellImages {
-            border-top: solid #ddd 1px;
+            border-top: solid 1px #bbb;
         }
         .wellImages img {
             margin: 2px;
@@ -340,22 +340,25 @@
     <div class='fillSpace' style='top: 0; bottom: 25px'>
         <div id="spw"></div>
     </div>
-    <div class='fillSpace toolbarBg' style='bottom: 0; height: 25px; border-top: solid 1px #ddd' >
+    <div class='fillSpace' style='bottom: 0; height: 25px; border-top: solid 1px #ddd; background: #EFF1F4' >
         <!-- Slider -->
         <div style="position: absolute; right: 10px; bottom: 0; width: 200px; height: 25px">
             <div id="thumb_size_slider" class="thumb_size_slider" title="Zoom Plate"></div>
         </div>
     </div>
 </div>
-<div id="wellImagesDragHandle" class='fillSpace' style="bottom: 110px; overflow: visible">
+<div id="wellImagesDragHandle" class='fillSpace' style="bottom: 100px; overflow: visible">
     <div class="verticalDragHandle"></div>
 </div>
 <div id="wellImagesContainer" class="wellImages fillSpace" style="bottom: 0px; height: 100px">
+    <div class='fillSpace toolbarBg' style='top: 0; height: 25px; border-bottom: solid 1px #ddd' >
+
+    </div>
     <!-- Scrollable container for wellImages -->
-    <div id="wellImages" class='fillSpace' style='top: 0; bottom: 25px'>
+    <div id="wellImages" class='fillSpace' style='top: 25px; bottom: 25px'>
         <table style="width: 100%"></table>
     </div>
-    <div class='fillSpace toolbarBg' style='bottom: 0; height: 25px; border-top: solid 1px #ddd' >
+    <div class='fillSpace' style='bottom: 0; height: 25px; border-top: solid 1px #ddd; background: #EFF1F4' >
         <!-- Slider -->
         <div style="position: absolute; right: 10px; bottom: 0px; width: 200px; height: 25px">
             <div id="wellImages_size_slider" class="thumb_size_slider" title="Zoom Plate"></div>
