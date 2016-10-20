@@ -479,15 +479,18 @@ public class PermissionsTest extends AbstractServerTest {
      * @param option the child option to use in the tagset transfer
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "chown annotation test cases")
-    public void testChownAllBelongingToUserReadAnnotate(boolean isDataOwner, boolean isAdmin, boolean isGroupOwner, boolean isRecipientInGroup,
-            boolean isExpectSuccess, Option option) throws Exception {
+    @Test
+    public void testChownAllBelongingToUserReadAnnotate() throws Exception {
 
         /* set up the users and group for this test case */
         final EventContext importerTargetUser, otherImporter, chowner, recipient;
         final ExperimenterGroup dataGroup;
+        final boolean isRecipientInGroup = false;
+        final boolean isDataOwner = false;
+        final boolean isGroupOwner = false;
+        final boolean isAdmin = true;
 
-        importerTargetUser = newUserAndGroup("rwra--", isDataOwner && isGroupOwner);
+        importerTargetUser = newUserAndGroup("rwra--", false);
 
         final long dataGroupId = importerTargetUser.groupId;
         dataGroup = new ExperimenterGroupI(dataGroupId, false);
@@ -644,11 +647,7 @@ public class PermissionsTest extends AbstractServerTest {
 
         init(chowner);
         Chown2 chown = Requests.chown().targetUsers(importerTargetUser.userId).toUser(recipient.userId).build();
-        doChange(client, factory, chown, isExpectSuccess);
-
-        if (!isExpectSuccess) {
-            return;
-        }
+        doChange(client, factory, chown, true);
 
         /* check that the ownership of images is as expected*/
         logRootIntoGroup(dataGroupId);
