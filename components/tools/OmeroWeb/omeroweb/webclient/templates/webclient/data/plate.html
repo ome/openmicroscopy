@@ -99,10 +99,10 @@
         
         $(document).ready(function() {
 
-            // Drag to resize #wellImages bottom panel
+            // Drag to resize #wellImagesContainer bottom panel
             $(".verticalDragHandle").draggable({ axis: "y" })
             .bind("dragstart", function(event, ui) {
-                var wellImgs_h = $("#wellImages").height();
+                var wellImgs_h = $("#wellImagesContainer").height();
                 $(this).data({'dragstart': ui.offset.top, 'wellImgs_h': wellImgs_h});
             })
             .bind("drag", function(event, ui) {
@@ -121,7 +121,7 @@
             var newH = $('body').data('well_images_panel_height') || 100;
             $("#wellImagesContainer").css('height', newH + 'px');
             $("#spwContainer").css('bottom', newH + 'px');
-            $("#wellImagesDragHandle").css('bottom', newH + 'px');
+            $("#wellImagesDragHandle").css('bottom', (newH + 7) + 'px');
 
             // Resize SPW thumbnails
             var spw_thumb_size = $('body').data('spw_thumb_size') || 64;
@@ -337,24 +337,28 @@
 <div id="spwContainer" class='fillSpace' style="top: 29px; bottom: 100px">
 
     <!-- Scrollable container for spw -->
-    <div class='fillSpace' style='top: 0; bottom: 0'>
+    <div class='fillSpace' style='top: 0; bottom: 25px'>
         <div id="spw"></div>
     </div>
-    <!-- Slider -->
-    <div style="position: absolute; right: 10px; bottom: 10px; width: 200px; height: 25px">
-        <div id="thumb_size_slider" class="thumb_size_slider" title="Zoom Plate"></div>
+    <div class='fillSpace toolbarBg' style='bottom: 0; height: 25px; border-top: solid 1px #ddd' >
+        <!-- Slider -->
+        <div style="position: absolute; right: 10px; bottom: 0; width: 200px; height: 25px">
+            <div id="thumb_size_slider" class="thumb_size_slider" title="Zoom Plate"></div>
+        </div>
     </div>
 </div>
-<div id="wellImagesDragHandle" class='fillSpace' style="bottom: 100px; overflow: visible">
+<div id="wellImagesDragHandle" class='fillSpace' style="bottom: 110px; overflow: visible">
     <div class="verticalDragHandle"></div>
 </div>
 <div id="wellImagesContainer" class="wellImages fillSpace" style="bottom: 0px; height: 100px">
     <!-- Scrollable container for wellImages -->
-    <div id="wellImages" class='fillSpace' style='top: 0; bottom: 0'>
+    <div id="wellImages" class='fillSpace' style='top: 0; bottom: 25px'>
         <table style="width: 100%"></table>
     </div>
-    <!-- Slider -->
-    <div style="position: absolute; right: 10px; bottom: 10px; width: 200px; height: 25px">
-        <div id="wellImages_size_slider" class="thumb_size_slider" title="Zoom Plate"></div>
+    <div class='fillSpace toolbarBg' style='bottom: 0; height: 25px; border-top: solid 1px #ddd' >
+        <!-- Slider -->
+        <div style="position: absolute; right: 10px; bottom: 0px; width: 200px; height: 25px">
+            <div id="wellImages_size_slider" class="thumb_size_slider" title="Zoom Plate"></div>
+        </div>
     </div>
 </div>   

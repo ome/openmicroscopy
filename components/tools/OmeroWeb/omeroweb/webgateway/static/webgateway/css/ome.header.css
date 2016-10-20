@@ -1132,9 +1132,9 @@ li.menu_back a {
 
 .verticalDragHandle {
 	z-index: 100;
-	width: 20px;
-	height: 5px;
-	left: 49%;
+	width: 100%;
+	height: 8px;
+	left: 0;
 	position: absolute;
 	cursor: row-resize
 }
@@ -1145,7 +1145,7 @@ li.menu_back a {
     width: 20px;
     height: 20px;
     top: -8px;
-    left: 0;
+    left: 48%;
     background: url(../img/drag_handle_5.png) 50% 50% no-repeat;
     /* -webkit-transform: rotate(90deg); */
     -moz-transform: rotate(90deg);

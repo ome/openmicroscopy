@@ -339,7 +339,7 @@
 
     /* Right & Center Panel Headers */
     
-    #center_panel_header, #annotation_tabs_list {
+    #center_panel_header, #annotation_tabs_list, .toolbarBg {
   		background:hsl(215,10%,80%); /* Old browsers */
 		background-image:-moz-linear-gradient(top, rgba(255,255,255,.7) 0%, rgba(255,255,255,0) 100%); /* FF3.6+ */
 		background-image:-webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,.7)), color-stop(100%,rgba(255,255,255,0))); /* Chrome,Safari4+ */
