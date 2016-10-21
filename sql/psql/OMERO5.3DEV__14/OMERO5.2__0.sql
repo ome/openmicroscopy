@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.2__0 to OMERO5.3DEV__13.
+--- OMERO5 development release upgrade from OMERO5.2__0 to OMERO5.3DEV__14.
 ---
 
 BEGIN;
@@ -95,7 +95,7 @@ DROP FUNCTION db_pretty_version(INTEGER);
 --
 
 INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
-             VALUES ('OMERO5.3DEV',  13,           'OMERO5.2',      0);
+             VALUES ('OMERO5.3DEV',  14,           'OMERO5.2',      0);
 
 -- ... up to patch 0:
 
@@ -2004,17 +2004,20 @@ ALTER TABLE screen ALTER COLUMN reagentsetdescription TYPE TEXT;
 ALTER TABLE stagelabel ALTER COLUMN name TYPE TEXT;
 ALTER TABLE well ALTER COLUMN externaldescription TYPE TEXT;
 
+-- ... up to patch 14:
+
+-- TODO
+
 
 --
 -- FINISHED
 --
 
 UPDATE dbpatch SET message = 'Database updated.', finished = clock_timestamp()
-    WHERE currentVersion  = 'OMERO5.3DEV' AND
-          currentPatch    = 13            AND
-          previousVersion = 'OMERO5.2'    AND
-          previousPatch   = 0;
+    WHERE id IN (SELECT id FROM dbpatch ORDER BY id DESC LIMIT 1);
 
-SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.3DEV__13'||CHR(10)||CHR(10)||CHR(10) AS Status;
+SELECT E'\n\n\nYOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION ' ||
+       currentversion || '__' || currentpatch || E'\n\n\n' AS Status FROM dbpatch
+    WHERE id IN (SELECT id FROM dbpatch ORDER BY id DESC LIMIT 1);
 
 COMMIT;
