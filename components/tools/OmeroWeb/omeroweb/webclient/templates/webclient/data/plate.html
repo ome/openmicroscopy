@@ -118,7 +118,7 @@
                 $('body').data('well_images_panel_height', newH);
             });
             // If height has previously been set, apply this...
-            var newH = $('body').data('well_images_panel_height') || 100;
+            var newH = $('body').data('well_images_panel_height') || 150;
             $("#wellImagesContainer").css('height', newH + 'px');
             $("#spwContainer").css('bottom', newH + 'px');
             $("#wellImagesDragHandle").css('bottom', (newH + 7) + 'px');
@@ -334,7 +334,7 @@
         </div>
     </div>
 </div>
-<div id="spwContainer" class='fillSpace' style="top: 29px; bottom: 100px">
+<div id="spwContainer" class='fillSpace' style="top: 29px; bottom: 150px">
 
     <!-- Scrollable container for spw -->
     <div class='fillSpace' style='top: 0; bottom: 25px'>
@@ -347,10 +347,10 @@
         </div>
     </div>
 </div>
-<div id="wellImagesDragHandle" class='fillSpace' style="bottom: 100px; overflow: visible">
+<div id="wellImagesDragHandle" class='fillSpace' style="bottom: 150px; overflow: visible">
     <div class="verticalDragHandle"></div>
 </div>
-<div id="wellImagesContainer" class="wellImages fillSpace" style="bottom: 0px; height: 100px">
+<div id="wellImagesContainer" class="wellImages fillSpace" style="bottom: 0px; height: 150px">
     <div class='fillSpace toolbarBg' style='top: 0; height: 25px; border-bottom: solid 1px #ddd' >
 
     </div>
