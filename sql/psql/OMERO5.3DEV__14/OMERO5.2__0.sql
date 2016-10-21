@@ -2006,7 +2006,30 @@ ALTER TABLE well ALTER COLUMN externaldescription TYPE TEXT;
 
 -- ... up to patch 14:
 
--- TODO
+ALTER TABLE session ADD COLUMN sudoer BIGINT;
+
+ALTER TABLE session
+    ADD CONSTRAINT FKsession_sudoer_experimenter
+    FOREIGN KEY (sudoer)
+    REFERENCES experimenter;
+
+CREATE INDEX i_session_sudoer ON session(sudoer);
+
+CREATE TABLE adminprivilege (
+    id BIGINT PRIMARY KEY,
+    permissions BIGINT NOT NULL,
+    value VARCHAR(255) NOT NULL UNIQUE,
+    external_id BIGINT UNIQUE
+);
+
+ALTER TABLE adminprivilege
+    ADD CONSTRAINT FKadminprivilege_external_id_externalinfo
+    FOREIGN KEY (external_id)
+    REFERENCES externalinfo;
+
+CREATE SEQUENCE seq_adminprivilege;
+
+INSERT INTO _lock_ids (name, id) SELECT 'seq_adminprivilege', nextval('_lock_seq');
 
 
 --
