@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -284,7 +284,7 @@ public class ScriptingDialog
     private void canRunScript()
     {
         Iterator<Entry<String, ScriptComponent>>
-        i = components.entrySet().iterator();
+        i = componentsAll.entrySet().iterator();
         Entry<String, ScriptComponent> entry;
         ScriptComponent c;
         int required = 0;
