@@ -321,3 +321,32 @@ class TestISession(lib.ITest):
             c.closeSession()
         finally:
             c.__del__()
+
+    # Test that ISession.createUserSession can be used from a normal session.
+    def testCreateUserSession(self):
+        iSession = self.client.sf.getSessionService()
+        newSession = iSession.createUserSession(
+            10 * 1000, 10 * 1000, self.ctx.groupName)
+        c = omero.client(self.client.getPropertyMap())
+        c.joinSession(newSession.uuid.val)
+
+    # Test that ISession.createUserSession cannot be used from a session that
+    # is a sudo from somebody else.
+    def testCreateUserSessionFromSudo(self):
+        iSessionRoot = self.root.sf.getSessionService()
+
+        principal = omero.sys.Principal()
+        principal.name = self.ctx.userName
+        principal.group = self.ctx.groupName
+        principal.eventType = "Test"
+
+        sudoSession = iSessionRoot.createSessionWithTimeout(
+            principal, 10 * 1000)
+
+        c = omero.client(self.client.getPropertyMap())
+        c.joinSession(sudoSession.uuid.val)
+
+        iSession = c.sf.getSessionService()
+        with pytest.raises(omero.SecurityViolation):
+            iSession.createUserSession(
+                10 * 1000, 10 * 1000, self.ctx.groupName)
