@@ -7,6 +7,14 @@
         primary key (id)
     );;
 
+    create table adminprivilege (
+        id int8 not null,
+        permissions int8 not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
     create table affinetransform (
         id int8 not null,
         a00 float8 not null,
@@ -2205,6 +2213,7 @@
         external_id int8 unique,
         node int8 not null,
         owner int8 not null,
+        sudoer int8,
         primary key (id)
     );;
 
@@ -2472,6 +2481,11 @@
 
     alter table acquisitionmode 
         add constraint FKacquisitionmode_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table adminprivilege 
+        add constraint FKadminprivilege_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo  ;;
 
@@ -5769,6 +5783,11 @@
         add constraint FKscriptjob_job_id_job 
         foreign key (job_id) 
         references job  ;;
+
+    alter table session 
+        add constraint FKsession_sudoer_experimenter 
+        foreign key (sudoer) 
+        references experimenter  ;;
 
     alter table session 
         add constraint FKsession_node_node 
