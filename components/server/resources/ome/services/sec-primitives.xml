@@ -41,6 +41,10 @@
 
   <bean id="roles" factory-bean="dbUserCheck" factory-method="getRoles"/>
 
+  <bean id="adminPrivileges" class="ome.security.basic.LightAdminPrivileges">
+    <constructor-arg ref="roles"/>
+  </bean>
+
   <bean id="securityFilterHolder" class="ome.security.SecurityFilterHolder">
     <constructor-arg ref="currentDetails"/>
     <constructor-arg ref="&amp;OneGroupSecurityFilter"/><!-- filter is a factory -->
