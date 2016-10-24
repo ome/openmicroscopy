@@ -13,6 +13,7 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,11 +44,13 @@ import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.display.RenderingDef;
 import ome.model.display.Thumbnail;
+import ome.model.enums.AdminPrivilege;
 import ome.model.internal.Details;
 import ome.model.internal.NamedValue;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
+import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.ExternalInfo;
@@ -95,8 +98,11 @@ public class OmeroInterceptor implements Interceptor {
 
     private final Roles roles;
 
+    private final LightAdminPrivileges adminPrivileges;
+
     public OmeroInterceptor(Roles roles, SystemTypes sysTypes, ExtendedMetadata em,
-            CurrentDetails cd, TokenHolder tokenHolder, SessionStats stats) {
+            CurrentDetails cd, TokenHolder tokenHolder, SessionStats stats,
+            LightAdminPrivileges adminPrivileges) {
         Assert.notNull(tokenHolder);
         Assert.notNull(sysTypes);
         // Assert.notNull(em); Permitting null for testing
@@ -109,6 +115,7 @@ public class OmeroInterceptor implements Interceptor {
         this.stats = stats;
         this.roles = roles;
         this.em = em;
+        this.adminPrivileges = adminPrivileges;
     }
 
     /**
@@ -620,13 +627,35 @@ public class OmeroInterceptor implements Interceptor {
         // Allow values to be passed in.
         newDetails.copyWhereUnset(null, currentUser.createDetails());
 
+        // Light administrator privileges
+        final boolean isPrivilegedCreator;
+        final boolean sysType = sysTypes.isSystemType(obj.getClass())
+                || sysTypes.isInSystemGroup(obj.getDetails());
+        final Set<AdminPrivilege> privileges;
+        final Event event = currentUser.current().getEvent();
+        if (event == null) {
+            privileges = adminPrivileges.getAllPrivileges();
+        } else {
+            privileges = adminPrivileges.getSessionPrivileges(event.getSession());
+        }
+        /* see trac ticket 10691 re. enum values */
+        if (!bec.isCurrentUserAdmin()) {
+            isPrivilegedCreator = false;
+        } else if (obj instanceof Experimenter) {
+            isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege("ModifyUser"));
+        } else if (sysType) {
+            isPrivilegedCreator = true;
+        } else {
+            isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege("WriteOwned"));
+        }
+
         // OWNER
         // users *aren't* allowed to set the owner of an item.
         if (source.getOwner() != null
                 && !newDetails.getOwner().getId().equals(
                         source.getOwner().getId())) {
-            // but this is root
-            if (bec.isCurrentUserAdmin()) {
+            if (isPrivilegedCreator) {
+                // but this is an administrator
                 newDetails.setOwner(source.getOwner());
             } else {
                 throw new SecurityViolation(String.format(
@@ -645,7 +674,6 @@ public class OmeroInterceptor implements Interceptor {
         if (source.getGroup() != null && source.getGroup().getId() != null) {
 
             final long sourceGroupId = source.getGroup().getId();
-            final boolean isAdmin = bec.isCurrentUserAdmin();
 
             // ticket:1434
             if (bec.getCurrentGroupId().equals(sourceGroupId)) {
@@ -653,7 +681,7 @@ public class OmeroInterceptor implements Interceptor {
             }
 
             // ticket:1794
-            else if (bec.isCurrentUserAdmin() &&
+            else if (isPrivilegedCreator &&
                     Long.valueOf(roles.getUserGroupId())
                     .equals(source.getGroup().getId())) {
                 newDetails.setGroup(source.getGroup());
@@ -661,7 +689,7 @@ public class OmeroInterceptor implements Interceptor {
 
             // ticket:3529
             else if ((bec.getCurrentGroupId() < 0) &&
-                    (isAdmin || bec.getMemberOfGroupsList()
+                    (isPrivilegedCreator || bec.getMemberOfGroupsList()
                         .contains(sourceGroupId))) {
                 newDetails.setGroup(source.getGroup());
             }

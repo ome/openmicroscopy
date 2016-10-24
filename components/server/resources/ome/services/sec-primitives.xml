@@ -117,6 +117,7 @@
     <constructor-arg ref="securityFilterHolder"/>
     <constructor-arg ref="policyService"/>
     <constructor-arg ref="roles"/>
+    <constructor-arg ref="adminPrivileges"/>
   </bean>
 
   <bean name="sessionCache" class="ome.services.sessions.state.SessionCache">

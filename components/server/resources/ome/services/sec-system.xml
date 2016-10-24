@@ -3,8 +3,6 @@
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# $Id$
-#
 # Copyright 2008 Glencoe Software, Inc.. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
@@ -88,6 +86,7 @@
     <constructor-arg ref="tokenHolder"/>
     <constructor-arg ref="extendedMetadata"/>
     <constructor-arg ref="delegatingStats"/>
+    <constructor-arg ref="adminPrivileges"/>
   </bean>
 
 </beans>

@@ -1,7 +1,7 @@
 /*
  * ome.security.BasicACLVoter
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2016 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -17,10 +17,12 @@ import ome.conditions.GroupSecurityViolation;
 import ome.conditions.InternalException;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
+import ome.model.enums.AdminPrivilege;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Token;
+import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.ACLVoter;
@@ -77,6 +79,8 @@ public class BasicACLVoter implements ACLVoter {
 
     protected final Roles roles;
 
+    private final LightAdminPrivileges adminPrivileges;
+
     public BasicACLVoter(CurrentDetails cd, SystemTypes sysTypes,
         TokenHolder tokenHolder, SecurityFilter securityFilter,
         PolicyService policyService) {
@@ -85,15 +89,24 @@ public class BasicACLVoter implements ACLVoter {
     }
 
     public BasicACLVoter(CurrentDetails cd, SystemTypes sysTypes,
+            TokenHolder tokenHolder, SecurityFilter securityFilter,
+            PolicyService policyService,
+            Roles roles) {
+        this(cd, sysTypes, tokenHolder, securityFilter, policyService,
+                roles, new LightAdminPrivileges(roles));
+    }
+
+    public BasicACLVoter(CurrentDetails cd, SystemTypes sysTypes,
         TokenHolder tokenHolder, SecurityFilter securityFilter,
         PolicyService policyService,
-        Roles roles) {
+        Roles roles, LightAdminPrivileges adminPrivileges) {
         this.currentUser = cd;
         this.sysTypes = sysTypes;
         this.securityFilter = securityFilter;
         this.tokenHolder = tokenHolder;
         this.roles = roles;
         this.policyService = policyService;
+        this.adminPrivileges = adminPrivileges;
     }
 
     // ~ Interface methods
@@ -140,7 +153,7 @@ public class BasicACLVoter implements ACLVoter {
         // Misusing this location to store the loaded objects perms for later.
         if (this.currentUser.getCurrentEventContext().getCurrentGroupId() < 0) {
             // For every object that gets loaded when omero.group = -1, we
-            // cache it's permissions in the session context so that when the
+            // cache its permissions in the session context so that when the
             // session is over we can re-apply all the permissions.
             ExperimenterGroup g = d.getGroup();
             if (g == null) {
@@ -179,16 +192,28 @@ public class BasicACLVoter implements ACLVoter {
         // OmeroInterceptor checks whether or not objects are only
         // LINKED to one's own objects which is the actual intent.
 
-        if (tokenHolder.hasPrivilegedToken(iObject)
-                || currentUser.getCurrentEventContext().isCurrentUserAdmin()) {
+        if (tokenHolder.hasPrivilegedToken(iObject)) {
             return true;
-        }
-
-        else if (sysType) {
+        } else if (!sysType) {
+            /* checked by OmeroInterceptor.newTransientDetails */
+            return true;
+        } else if (currentUser.getCurrentEventContext().isCurrentUserAdmin()) {
+            final Set<AdminPrivilege> privileges;
+            final Event event = currentUser.current().getEvent();
+            if (event == null) {
+                privileges = adminPrivileges.getAllPrivileges();
+            } else {
+                privileges = adminPrivileges.getSessionPrivileges(event.getSession());
+            }
+            /* see trac ticket 10691 re. enum values */
+            if (iObject instanceof Experimenter) {
+                return privileges.contains(adminPrivileges.getPrivilege("ModifyUser"));
+            } else {
+                return true;
+            }
+        } else {
             return false;
         }
-
-        return true;
     }
 
     public void throwCreationViolation(IObject iObject)
@@ -327,17 +352,36 @@ public class BasicACLVoter implements ACLVoter {
             // Don't return. Need further processing for delete.
         }
 
+        final Set<AdminPrivilege> privileges;
+        if (c.getEvent() == null) {
+            privileges = adminPrivileges.getAllPrivileges();
+        } else {
+            privileges = adminPrivileges.getSessionPrivileges(c.getEvent().getSession());
+        }
         if (c.isCurrentUserAdmin()) {
-            for (int i = 0; i < scopes.length; i++) {
-                if (scopes[i] != null) {
-                    rv |= (1<<i);
+            /* see trac ticket 10691 re. enum values */
+            boolean isLightAdminRestricted = false;
+            if (!sysType) {
+                if (!privileges.contains(adminPrivileges.getPrivilege("WriteOwned"))) {
+                    isLightAdminRestricted = true;
+                }
+            } else if (iObject instanceof Experimenter) {
+                if (!privileges.contains(adminPrivileges.getPrivilege("ModifyUser"))) {
+                    isLightAdminRestricted = true;
                 }
             }
-            return rv; // EARLY EXIT!
-        } else if (sysType) {
+            if (!isLightAdminRestricted) {
+                for (int i = 0; i < scopes.length; i++) {
+                    if (scopes[i] != null) {
+                        rv |= (1<<i);
+                    }
+                }
+                return rv; // EARLY EXIT!
+            }
+        }
+        if (sysType) {
             return 0;
         }
-
         Permissions grpPermissions = c.getCurrentGroupPermissions();
         if (grpPermissions == null || grpPermissions == Permissions.DUMMY) {
             if (d.getGroup() != null) {
