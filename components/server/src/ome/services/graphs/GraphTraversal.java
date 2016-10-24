@@ -457,6 +457,7 @@ public class GraphTraversal {
 
     private final Session session;
     private final EventContext eventContext;
+    private final boolean isCheckUserPermissions;
     private final ACLVoter aclVoter;
     private final SystemTypes systemTypes;
     private final GraphPathBean model;
@@ -488,6 +489,26 @@ public class GraphTraversal {
         this.planning = new Planning();
         this.policy = policy;
         this.processor = log.isDebugEnabled() ? debugWrap(processor) : processor;
+
+        if (eventContext.isCurrentUserAdmin()) {
+            /* check if light administrator restrictions may apply */
+            final String querySession = "FROM Session s LEFT OUTER JOIN FETCH s.sudoer WHERE s.id = :id";
+            final Long sessionId = eventContext.getCurrentSessionId();
+            final ome.model.meta.Session omeroSession =
+                    (ome.model.meta.Session) session.createQuery(querySession).setParameter("id", sessionId).uniqueResult();
+            final Experimenter sudoer = omeroSession.getSudoer();
+            final Long userId = sudoer == null ? omeroSession.getOwner().getId() : sudoer.getId();
+            final String queryConfig = "SELECT COUNT(config.value) FROM Experimenter user JOIN user.config AS config " +
+                    "WHERE user.id = :id AND config.name IN (SELECT value FROM AdminPrivilege)";
+            final Long count = (Long) session.createQuery(queryConfig).setParameter("id", userId).uniqueResult();
+            if (count != null && count > 0) {
+                this.isCheckUserPermissions = true;
+            } else {
+                this.isCheckUserPermissions = false;
+            }
+        } else {
+            this.isCheckUserPermissions = true;
+        }
     }
 
     /**
@@ -695,7 +716,7 @@ public class GraphTraversal {
             return;
         }
 
-        if (!eventContext.isCurrentUserAdmin()) {
+        if (isCheckUserPermissions) {
             /* allowLoad ensures that BasicEventContext.groupPermissionsMap is populated */
             aclVoter.allowLoad(session, objectInstance.getClass(), objectDetails, object.id);
 
@@ -1039,13 +1060,13 @@ public class GraphTraversal {
             final Action action = getAction(object);
             final Orphan orphan = action == Action.EXCLUDE ? getOrphan(object) : Orphan.IRRELEVANT;
 
-            if (eventContext.isCurrentUserAdmin()) {
-                details = new DetailsWithCI(object.toIObject(), ownerId, groupId, action, orphan, true, true, true, true, true);
-            } else {
+            if (isCheckUserPermissions) {
                 details = new DetailsWithCI(object.toIObject(), ownerId, groupId, action, orphan,
                         planning.mayUpdate.contains(object), planning.mayDelete.contains(object),
                         planning.mayChmod.contains(object), planning.owns.contains(object),
                         !planning.overrides.contains(object));
+            } else {
+                details = new DetailsWithCI(object.toIObject(), ownerId, groupId, action, orphan, true, true, true, true, true);
             }
 
             cache.put(object, details);
@@ -1164,7 +1185,7 @@ public class GraphTraversal {
                 /* probably just needs review */
                 planning.toProcess.add(instance);
             }
-            if (!(change.isCheckPermissions || eventContext.isCurrentUserAdmin())) {
+            if (isCheckUserPermissions && !change.isCheckPermissions) {
                 /* do not check the user's permissions on this object */
                 planning.overrides.add(instance);
             }
@@ -1280,7 +1301,7 @@ public class GraphTraversal {
         if (!isSystemType(className)) {
             assertPermissions(objects, processor.getRequiredPermissions());
         }
-        if (!eventContext.isCurrentUserAdmin()) {
+        if (isCheckUserPermissions) {
             for (final CI object : Sets.difference(objects, planning.overrides)) {
                 try {
                     processor.assertMayProcess(object.className, object.id, planning.detailsNoted.get(object));
@@ -1322,7 +1343,7 @@ public class GraphTraversal {
      * @throws GraphException if the user does not have all the abilities to operate upon all of the objects
      */
     private void assertPermissions(Set<CI> objects, Collection<GraphPolicy.Ability> abilities) throws GraphException {
-        if (abilities == null || eventContext.isCurrentUserAdmin()) {
+        if (abilities == null || !isCheckUserPermissions) {
             return;
         }
         objects = Sets.difference(objects, planning.overrides);
