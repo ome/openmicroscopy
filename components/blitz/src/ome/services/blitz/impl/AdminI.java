@@ -36,6 +36,8 @@ import omero.api.AMD_IAdmin_createSystemUser;
 import omero.api.AMD_IAdmin_createUser;
 import omero.api.AMD_IAdmin_deleteExperimenter;
 import omero.api.AMD_IAdmin_deleteGroup;
+import omero.api.AMD_IAdmin_getAdminPrivileges;
+import omero.api.AMD_IAdmin_getAdminsWithPrivileges;
 import omero.api.AMD_IAdmin_getDefaultGroup;
 import omero.api.AMD_IAdmin_getEventContext;
 import omero.api.AMD_IAdmin_getExperimenter;
@@ -54,6 +56,7 @@ import omero.api.AMD_IAdmin_moveToCommonSpace;
 import omero.api.AMD_IAdmin_removeGroupOwners;
 import omero.api.AMD_IAdmin_removeGroups;
 import omero.api.AMD_IAdmin_reportForgottenPassword;
+import omero.api.AMD_IAdmin_setAdminPrivileges;
 import omero.api.AMD_IAdmin_setDefaultGroup;
 import omero.api.AMD_IAdmin_setGroupOwner;
 import omero.api.AMD_IAdmin_synchronizeLoginCache;
@@ -64,6 +67,7 @@ import omero.api.AMD_IAdmin_updateGroup;
 import omero.api.AMD_IAdmin_updateSelf;
 import omero.api.AMD_IAdmin_uploadMyUserPhoto;
 import omero.api._IAdminOperations;
+import omero.model.AdminPrivilege;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.IObject;
@@ -389,4 +393,24 @@ public class AdminI extends AbstractAmdServant implements _IAdminOperations {
         callInvokerOnRawArgs(__cb, __current, objects);
     }
 
+    @Override
+    public void getAdminPrivileges_async(AMD_IAdmin_getAdminPrivileges __cb,
+            Experimenter user,
+            Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, user);
+    }
+
+    @Override
+    public void getAdminsWithPrivileges_async(AMD_IAdmin_getAdminsWithPrivileges __cb,
+            List<AdminPrivilege> privileges,
+            Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, privileges);
+    }
+
+    @Override
+    public void setAdminPrivileges_async(AMD_IAdmin_setAdminPrivileges __cb,
+            Experimenter user, List<AdminPrivilege> privileges,
+            Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, user, privileges);
+    }
 }
