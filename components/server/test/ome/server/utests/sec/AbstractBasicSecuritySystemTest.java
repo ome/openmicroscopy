@@ -1,7 +1,5 @@
 /*
- *   $Id$
- *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2016 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.server.utests.sec;
@@ -26,6 +24,7 @@ import ome.security.SystemTypes;
 import ome.security.basic.BasicACLVoter;
 import ome.security.basic.BasicSecuritySystem;
 import ome.security.basic.CurrentDetails;
+import ome.security.basic.LightAdminPrivileges;
 import ome.security.basic.OmeroInterceptor;
 import ome.security.basic.OneGroupSecurityFilter;
 import ome.security.basic.TokenHolder;
@@ -97,11 +96,13 @@ public abstract class AbstractBasicSecuritySystemTest extends
         cd = new CurrentDetails(new TestSessionCache(this));
         SystemTypes st = new SystemTypes();
         TokenHolder th = new TokenHolder();
-        OmeroInterceptor oi = new OmeroInterceptor(new Roles(),
+        final Roles roles = new Roles();
+        OmeroInterceptor oi = new OmeroInterceptor(roles,
                 st, new ExtendedMetadata.Impl(),
-                cd, th, new NullSessionStats());
+                cd, th, new NullSessionStats(),
+                new LightAdminPrivileges(roles));
         SecurityFilter filter = new OneGroupSecurityFilter();
-        sec = new BasicSecuritySystem(oi, st, cd, mgr, new Roles(), sf,
+        sec = new BasicSecuritySystem(oi, st, cd, mgr, roles, sf,
                 th, filter, new DefaultPolicyService());
         aclVoter = new BasicACLVoter(cd, st, th, filter,
                 new DefaultPolicyService());

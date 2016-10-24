@@ -1,13 +1,12 @@
 /*
- *   $Id$
- *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2016 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.server.utests.sec;
 
 import ome.security.SystemTypes;
 import ome.security.basic.BasicSecuritySystem;
+import ome.security.basic.LightAdminPrivileges;
 import ome.security.basic.OmeroInterceptor;
 import ome.security.basic.TokenHolder;
 import ome.server.utests.TestSessionCache;
@@ -33,7 +32,9 @@ public class OmeroInterceptorTest extends MockObjectTestCase {
         SessionManager sm = (SessionManager) mock(SessionManager.class).proxy();
         BasicSecuritySystem sec = BasicSecuritySystem.selfConfigure(sm, sf, new TestSessionCache(this));
         TokenHolder tokenHolder = new TokenHolder();
-        oi = new OmeroInterceptor(new Roles(), new SystemTypes(), null, null, tokenHolder, new NullSessionStats());
+        final Roles roles = new Roles();
+        oi = new OmeroInterceptor(roles, new SystemTypes(), null, null, tokenHolder, new NullSessionStats(),
+                new LightAdminPrivileges(roles));
     }
 
     // ~ TESTS
