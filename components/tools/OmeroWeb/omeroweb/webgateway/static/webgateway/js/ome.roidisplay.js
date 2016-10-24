@@ -138,11 +138,13 @@ $.fn.roi_display = function(options) {
             var arrowPath = "";
             var arrowPoint1x, arrowPoint1y, arrowPoint2x, arrowPoint2y;
             // if line starts with arrow...
+            var arrowAngle1 = lineAngle - 0.35;
+            var arrowAngle2 = lineAngle + 0.35;
             if (arrowStart) {
-                arrowPoint1x = x1 - (f * Math.sin(lineAngle - 0.35) * headSize);
-                arrowPoint1y = y1 - (f * Math.cos(lineAngle - 0.35) * headSize);
-                arrowPoint2x = x1 - (f * Math.sin(lineAngle + 0.35) * headSize);
-                arrowPoint2y = y1 - (f * Math.cos(lineAngle + 0.35) * headSize);
+                arrowPoint1x = x1 - (f * Math.sin(arrowAngle1) * headSize);
+                arrowPoint1y = y1 - (f * Math.cos(arrowAngle1) * headSize);
+                arrowPoint2x = x1 - (f * Math.sin(arrowAngle2) * headSize);
+                arrowPoint2y = y1 - (f * Math.cos(arrowAngle2) * headSize);
                 var startArrowPointMidx = (arrowPoint1x + arrowPoint2x) / 2,
                     startArrowPointMidy = (arrowPoint1y + arrowPoint2y) / 2;
                 startLeftX = startArrowPointMidx - lineOffsetX;
@@ -162,10 +164,10 @@ $.fn.roi_display = function(options) {
 
             // if line ends with arrow, line end is within arrow point
             if (arrowEnd) {
-                arrowPoint1x = x2 + (f * Math.sin(lineAngle - 0.35) * headSize);
-                arrowPoint1y = y2 + (f * Math.cos(lineAngle - 0.35) * headSize);
-                arrowPoint2x = x2 + (f * Math.sin(lineAngle + 0.35) * headSize);
-                arrowPoint2y = y2 + (f * Math.cos(lineAngle + 0.35) * headSize);
+                arrowPoint1x = x2 + (f * Math.sin(arrowAngle1) * headSize);
+                arrowPoint1y = y2 + (f * Math.cos(arrowAngle1) * headSize);
+                arrowPoint2x = x2 + (f * Math.sin(arrowAngle2) * headSize);
+                arrowPoint2y = y2 + (f * Math.cos(arrowAngle2) * headSize);
                 var endArrowPointMidx = (arrowPoint1x + arrowPoint2x) / 2,
                     endArrowPointMidy = (arrowPoint1y + arrowPoint2y) / 2;
                 endLeftX = endArrowPointMidx - lineOffsetX;
