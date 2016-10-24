@@ -646,7 +646,10 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             ExperimenterGroup defaultGroup, ExperimenterGroup... otherGroups) {
 
         adminOrPiOfNonUserGroups(defaultGroup, otherGroups);
-        
+        if (!getCurrentAdminPrivileges().contains(new AdminPrivilege("ModifyUser"))) {
+            throwNonAdminOrPi();
+        }
+
         long uid = roleProvider.createExperimenter(experimenter, defaultGroup, otherGroups);
         // If this method passes, then the Experimenter is valid.
         changeUserPassword(experimenter.getOmeName(), " ");
@@ -663,6 +666,9 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             final ExperimenterGroup... otherGroups) {
 
         adminOrPiOfNonUserGroups(defaultGroup, otherGroups);
+        if (!getCurrentAdminPrivileges().contains(new AdminPrivilege("ModifyUser"))) {
+            throwNonAdminOrPi();
+        }
 
         long uid = roleProvider.createExperimenter(experimenter,
                         defaultGroup, otherGroups);
@@ -1480,6 +1486,9 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         if (!isAdmin() && ! isPiOf(user)) {
             throwNonAdminOrPi();
         }
+        if (!getCurrentAdminPrivileges().contains(new AdminPrivilege("ModifyUser"))) {
+            throwNonAdminOrPi();
+        }
     }
 
     private void adminOrPiOfGroup(ExperimenterGroup group) {
@@ -1520,5 +1529,16 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         }
         adminOrPiOfGroups(defaultGroup,
                 nonUserGroupGroups.toArray(new ExperimenterGroup[0]));
+    }
+
+    private Set<AdminPrivilege> getCurrentAdminPrivileges() {
+        if (isAdmin()) {
+            final String hql = "FROM Session s LEFT OUTER JOIN FETCH s.sudoer WHERE s.id = :id";
+            final Parameters params = new Parameters().addId(getEventContext().getCurrentSessionId());
+            final ome.model.meta.Session session = iQuery.findByQuery(hql, params);
+            return adminPrivileges.getSessionPrivileges(session);
+        } else {
+            return ImmutableSet.of();
+        }
     }
 }
