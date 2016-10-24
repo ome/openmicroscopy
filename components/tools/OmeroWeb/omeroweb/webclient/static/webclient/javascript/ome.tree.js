@@ -631,7 +631,7 @@ $(function() {
                                 });
                             }
 
-                            // Add acquistions (runs) to the jstree data structure
+                            // Add acquisitions (runs) to the jstree data structure
                             if (data.hasOwnProperty('acquisitions')) {
                                 $.each(data.acquisitions, function(index, value) {
                                     var node = makeNode(value, 'acquisition');
