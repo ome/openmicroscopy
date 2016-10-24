@@ -102,7 +102,7 @@ api_project_datasets = url(
     views.DatasetsView.as_view(),
     name='api_project_datasets')
 """
-GET all projects, using omero-marshal to generate json
+GET Datasets in Project, using omero-marshal to generate json
 """
 
 urlpatterns = patterns(

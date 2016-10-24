@@ -219,6 +219,9 @@ class DatasetsView(View):
             owner = getIntOrDefault(request, 'owner', -1)
             childCount = request.GET.get('childCount', False) == 'true'
             normalize = request.GET.get('normalize', False) == 'true'
+            # filter by ?project=pid instead of /projects/:pdi/datasets/
+            if pid is None:
+                pid = getIntOrDefault(request, 'project', None)
         except ValueError as ex:
             raise BadRequestError(str(ex))
 

@@ -19,25 +19,12 @@
 
 """Helper functions for views that handle object trees."""
 
-import omero
 
-from omero.rtypes import unwrap, rlong
+from omero.rtypes import unwrap
 from django.conf import settings
 
 from api_marshal import marshal_objects
 from copy import deepcopy
-
-
-def build_clause(clauses):
-    """
-    Build a string from a list of components.
-
-    This is to simplify building where clauses in particular that
-    may optionally have zero, one or more parts
-    """
-    if not clauses:
-        return ''
-    return ' where ' + " and ".join(clauses) + ' '
 
 
 def query_projects(conn, childCount=False,
@@ -78,21 +65,13 @@ def query_datasets(conn, project=None, childCount=False,
     @param limit:       Page size
     @param normalize:   If true, marshal groups and experimenters separately
     """
-    clauses = []
-    params = omero.sys.ParametersI()
-    extra_joins = ""
-    # If this is a query to get datasets from a parent project
-    if project:
-        params.add('pid', rlong(project))
-        extra_joins = 'join obj.projectLinks plink'
-        clauses.append('plink.parent.id = :pid')
-    return query_objects(conn, 'Dataset', clauses=clauses,
-                         params=params, extra_joins=extra_joins,
+    return query_objects(conn, 'Dataset', project=project,
                          childCount=childCount, group=group, owner=owner,
                          page=page, limit=limit, normalize=normalize)
 
 
 def query_objects(conn, object_type,
+                  project=None,
                   childCount=False,
                   group=None, owner=None,
                   page=1, limit=settings.PAGE,
@@ -108,6 +87,9 @@ def query_objects(conn, object_type,
           'owner': owner,
           'child_count': childCount,
           'order_by': 'name'}
+
+    if object_type == 'Dataset' and project is not None:
+      params['project'] = project
 
     # buildQuery is used by conn.getObjects()
     query, params, wrapper = conn.buildQuery(object_type, params=params)
