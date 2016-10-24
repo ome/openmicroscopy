@@ -12,10 +12,15 @@
 #include <omero/ServicesF.ice>
 #include <omero/System.ice>
 #include <omero/Collections.ice>
+#include <omero/model/AdminPrivilege.ice>
 
 module omero {
 
     module api {
+
+        /* would normally be among Collections' object lists but that does not have OMERO-only enumerations in scope */
+        ["java:type:java.util.ArrayList<omero.model.AdminPrivilege>:java.util.List<omero.model.AdminPrivilege>"]
+        sequence<omero::model::AdminPrivilege> AdminPrivilegeList;
 
         /**
          * Administration interface providing access to admin-only
@@ -166,6 +171,23 @@ module omero {
                  * @see omero.model.Details#getOwner
                  */
                 idempotent LongList getLeaderOfGroupIds(omero::model::Experimenter exp) throws ServerError;
+
+                /**
+                 * Gets the light administrator privileges for the given user.
+                 *
+                 * @param user the user whose privileges are being queried
+                 * @return the user's light administrator privileges
+                 */
+                idempotent AdminPrivilegeList getAdminPrivileges(omero::model::Experimenter user) throws ServerError;
+
+                /**
+                 * Gets the administrators who have all the given privileges.
+                 * Consistent with the results from "getAdminPrivileges".
+                 *
+                 * @param privileges the required privileges
+                 * @return the light administrators who have those privileges
+                 */
+                idempotent ExperimenterList getAdminsWithPrivileges(AdminPrivilegeList privileges) throws ServerError;
 
                 // Mutators
 
@@ -462,6 +484,14 @@ module omero {
                  * @param objects
                  */
                 idempotent void moveToCommonSpace(IObjectList objects) throws ServerError;
+
+                /**
+                 * Sets the set of light administrator privileges for the given user.
+                 *
+                 * @param user the user whose privileges are to be set
+                 * @param privileges the privileges to set for the user
+                 */
+                idempotent void setAdminPrivileges(omero::model::Experimenter user, AdminPrivilegeList privileges) throws ServerError;
 
                 // UAuth
 

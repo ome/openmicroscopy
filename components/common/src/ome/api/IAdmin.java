@@ -1,5 +1,5 @@
 /*
- *   Copyright 2006-2014 University of Dundee. All rights reserved.
+ *   Copyright 2006-2016 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -10,9 +10,11 @@ import java.util.Map;
 
 import ome.annotations.Hidden;
 import ome.annotations.NotNull;
+import ome.annotations.Validate;
 import ome.conditions.AuthenticationException;
 import ome.model.IObject;
 import ome.model.core.OriginalFile;
+import ome.model.enums.AdminPrivilege;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
@@ -613,6 +615,34 @@ public interface IAdmin extends ServiceInterface {
      * on the application server and the authentication/authorization backend.
      */
     void synchronizeLoginCache();
+
+    // ~ Light administrator privileges
+    // =========================================================================
+
+    /**
+     * Gets the administrators who have all the given privileges.
+     * Consistent with the results from {@link #getAdminPrivileges(Experimenter)}.
+     *
+     * @param privileges the required privileges
+     * @return the light administrators who have those privileges
+     */
+    List<Experimenter> getAdminsWithPrivileges(@NotNull @Validate(AdminPrivilege.class) List<AdminPrivilege> privileges);
+
+    /**
+     * Gets the light administrator privileges for the given user.
+     *
+     * @param user the user whose privileges are being queried
+     * @return the user's light administrator privileges
+     */
+    List<AdminPrivilege> getAdminPrivileges(@NotNull Experimenter user);
+
+    /**
+     * Sets the set of light administrator privileges for the given user.
+     *
+     * @param user the user whose privileges are to be set
+     * @param privileges the privileges to set for the user
+     */
+    void setAdminPrivileges(@NotNull Experimenter user, @NotNull @Validate(AdminPrivilege.class) List<AdminPrivilege> privileges);
 
     // ~ Security context
     // =========================================================================
