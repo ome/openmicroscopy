@@ -446,7 +446,7 @@ implements java.io.Serializable, IObject
 
    /*
     *    PROPERTIES
-    *    All properties which follow are straight-forward
+    *    All properties which follow are straightforward
     *    and can be understood using only the Hibernate
     *    documentation.
     */
@@ -1402,10 +1402,14 @@ implements java.io.Serializable, IObject
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         String name = this.getClass().getName();
         StringBuilder sb = new StringBuilder(name.length() + 24);
         sb.append(name);
+#if($type.isEnum)
+        sb.append(':');
+        sb.append(value);
+#end
         if (this.id == null) {
             sb.append(":Hash_");
             sb.append(this.hashCode());
