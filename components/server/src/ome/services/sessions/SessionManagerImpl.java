@@ -358,7 +358,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
                     Principal p = validateSessionInputs(sf, req);
                     oldsession.setDefaultEventType(p.getEventType());
                     long userId = executeLookupUser(sf, p);
-                    Session s = executeUpdate(sf, oldsession, userId);
+                    final Session s = executeUpdate(sf, oldsession, userId, req.sudoer);
                     return executeSessionContextLookup(sf, p, s);
                 }
 
@@ -372,7 +372,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         SessionContext newctx = createSessionContext(rv, null);
 
         // This the publishEvent returns successfully, then we will have to
-        // handle rolling back this addition our selves
+        // handle rolling back this addition ourselves
         String uuid = newctx.getCurrentSessionUuid();
         cache.putSession(uuid, newctx);
         try {
@@ -479,7 +479,13 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         executor.execute(asroot, new Executor.SimpleWork(this, "update") {
             @Transactional(readOnly = false)
             public Object doWork(org.hibernate.Session __s, ServiceFactory sf) {
-                return executeUpdate(sf, copy, newctx.getCurrentUserId());
+                final Long sudoerId;
+                if (orig.getSudoer() == null) {
+                    sudoerId = null;
+                } else {
+                    sudoerId = orig.getSudoer().getId();
+                }
+                return executeUpdate(sf, copy, newctx.getCurrentUserId(), sudoerId);
             }
         });
         cache.putSession(uuid, newctx);
@@ -1046,7 +1052,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
     }
 
     private Session executeUpdate(ServiceFactory sf, Session session,
-            long userId) {
+            long userId, Long sudoerId) {
         Node node = sf.getQueryService().findByQuery(
                 "select n from Node n where uuid = :uuid",
                 new Parameters().addString("uuid", internal_uuid).setFilter(
@@ -1056,6 +1062,11 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         }
         session.setNode(node);
         session.setOwner(new Experimenter(userId, false));
+        if (sudoerId == null) {
+            session.setSudoer(null);
+        } else {
+            session.setSudoer(new Experimenter(sudoerId, false));
+        }
         Session rv = sf.getUpdateService().saveAndReturnObject(session);
         rv.putAt("#2733", session.retrieve("#2733"));
         return rv;
@@ -1401,6 +1412,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
             final Session reloaded = (Session)
                     sf.getQueryService().findByQuery(
                             "select s from Session s "
+                            + "left outer join fetch s.sudoer "
                             + "left outer join fetch s.annotationLinks l "
                             + "left outer join fetch l.child a where s.id = :id",
                             new Parameters().addId(session.getId()));

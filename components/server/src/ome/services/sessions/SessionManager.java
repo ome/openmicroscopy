@@ -45,6 +45,7 @@ public interface SessionManager {
         public List<Long> groupsLed;
         public Long timeToLive;
         public Long timeToIdle;
+        public Long sudoer;
     }
 
     Session createFromRequest(CreationRequest request);

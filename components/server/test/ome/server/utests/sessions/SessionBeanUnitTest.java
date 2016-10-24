@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -20,6 +18,7 @@ import ome.model.internal.Permissions;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
 import ome.security.basic.CurrentDetails;
+import ome.security.basic.LightAdminPrivileges;
 import ome.services.sessions.SessionBean;
 import ome.services.sessions.SessionContextImpl;
 import ome.services.sessions.SessionManager;
@@ -55,7 +54,7 @@ public class SessionBeanUnitTest extends MockObjectTestCase {
         exMock = mock(Executor.class);
         ex = (Executor) exMock.proxy();
 
-        bean = new SessionBean(mgr, ex, new CurrentDetails());
+        bean = new SessionBean(mgr, ex, new CurrentDetails(), new LightAdminPrivileges(new Roles()));
         session = new Session();
         session.setId(1L);
         session.setUuid("uuid");

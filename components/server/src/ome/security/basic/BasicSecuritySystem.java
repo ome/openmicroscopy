@@ -31,6 +31,7 @@ import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
+import ome.parameters.Parameters;
 import ome.security.AdminAction;
 import ome.security.SecureAction;
 import ome.security.SecurityFilter;
@@ -415,12 +416,22 @@ public class BasicSecuritySystem implements SecuritySystem,
 
         }
 
-        long sessionId = ec.getCurrentSessionId().longValue();
-        ome.model.meta.Session sess = null;
+        final String hql = "FROM Session s LEFT OUTER JOIN FETCH s.sudoer WHERE s.id = :id";
+        final Parameters params = new Parameters().addId(ec.getCurrentSessionId());
+        ome.model.meta.Session sess = sf.getQueryService().findByQuery(hql, params);
+        final Experimenter sessionOwner = sess.getOwner();
+        final Experimenter sessionSudoer = sess.getSudoer();
         if (isReadOnly) {
-            sess = new ome.model.meta.Session(sessionId, false);
-        } else {
-            sess = sf.getQueryService().get(ome.model.meta.Session.class, sessionId);
+            sess = new ome.model.meta.Session(sess.getId(), false) {
+                @Override
+                public Experimenter getOwner() {
+                    return sessionOwner;
+                }
+                @Override
+                public Experimenter getSudoer() {
+                    return sessionSudoer;
+                }
+            };
         }
 
         tokenHolder.setToken(callGroup.getGraphHolder());
@@ -439,7 +450,7 @@ public class BasicSecuritySystem implements SecuritySystem,
         Event event = cd.newEvent(sess, type, tokenHolder);
         tokenHolder.setToken(event.getGraphHolder());
 
-        // If this event is not read only, then lets save this event to prevent
+        // If this event is not read only, then let's save this event to prevent
         // flushing issues later.
         if (!isReadOnly) {
             if (event.getExperimenterGroup().getId() < 0) {
