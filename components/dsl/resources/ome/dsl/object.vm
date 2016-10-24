@@ -37,6 +37,10 @@
 
 package ${type.package};
 
+#if($type.isEnum)
+import java.util.Arrays;
+
+#end
 import ome.conditions.*;
 import ome.model.*;
 
@@ -1627,6 +1631,29 @@ implements java.io.Serializable, IObject
 #end
 ##
 #######################################################
+
+## Generate value-based equals and hashCode methods for enumerations.
+
+#if($type.isEnum)
+    @Override
+    public boolean equals(Object other) {
+        if (other == this) {
+            return true;
+        } else if (other instanceof ${type.shortname}) {
+            return value.equals(((${type.shortname}) other).value);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(new Object[] {${type.shortname}.class, value});
+    }
+
+#end
+
+## Generate Details inner class.
 
 #if(!$type.superclass)
     public static class Details extends ome.model.internal.Details {
