@@ -131,8 +131,22 @@ public class SessionBean implements ISession {
         } else {
             currentSession = null;
         }
-        final List<Long> groupsLed = context.isCurrentUserAdmin() ? null :
-            context.getLeaderOfGroupsList();
+
+        final List<Long> groupsLed;
+        if (context.isCurrentUserAdmin()) {
+            if (currentSession != null) {
+                final Set<AdminPrivilege> privileges = adminPrivileges.getSessionPrivileges(currentSession);
+                if (privileges.contains(adminPrivileges.getPrivilege("Sudo"))) {
+                    groupsLed = null;
+                } else {
+                    groupsLed = context.getLeaderOfGroupsList();
+                }
+            } else {
+                groupsLed = null;
+            }
+        } else {
+            groupsLed = context.getLeaderOfGroupsList();
+        }
 
         try {
             Future<Session> future = ex.submit(new Callable<Session>(){
