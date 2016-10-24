@@ -24,10 +24,11 @@
 Test of various things under omero.util
 """
 
+import json
 import pytest
 from path import path
 
-from omero.util.text import CSVStyle, PlainStyle, TableBuilder
+from omero.util.text import CSVStyle, JSONStyle, PlainStyle, TableBuilder
 from omero.util.upgrade_check import UpgradeCheck
 from omero.util.temp_files import manager
 from omero.util import get_user_dir
@@ -36,7 +37,8 @@ from omero_version import omero_version
 
 class MockTable(object):
 
-    def __init__(self, names, data, csvheaders, csvrows, sqlheaders, sqlrows):
+    def __init__(self, names, data, csvheaders, csvrows, sqlheaders, sqlrows,
+                 jsondicts):
         self.names = names
         self.data = data
         self.length = len(data)
@@ -44,6 +46,7 @@ class MockTable(object):
         self.csvrows = csvrows
         self.sqlheaders = sqlheaders
         self.sqlrows = sqlrows
+        self.jsondicts = jsondicts
         self.columns = 6
 
     def get_row(self, i):
@@ -63,19 +66,29 @@ class MockTable(object):
 tables = (
     MockTable(("c1", "c2"), (("a", "b"),),
               ['c1,c2'], ['a,b\r\n'],
-              ' c1 | c2 \n----+----\n', [' a  | b  ']),
+              ' c1 | c2 \n----+----\n', [' a  | b  '],
+              [{"c1": "a", "c2": "b"}],
+              ),
     MockTable(("c1", "c2"), (("a,b", "c"),),
               ['c1,c2'], ['"a,b",c\r\n'],
-              ' c1  | c2 \n-----+----\n', [' a,b | c  ']),
+              ' c1  | c2 \n-----+----\n', [' a,b | c  '],
+              [{"c1": "a,b", "c2": "c"}],
+              ),
     MockTable(("c1", "c2"), (("'a b'", "c"),),
               ['c1,c2'], ["'a b',c\r\n"],
-              ' c1    | c2 \n-------+----\n', [" 'a b' | c  "],),
+              ' c1    | c2 \n-------+----\n', [" 'a b' | c  "],
+              [{"c1": "'a b'", "c2": "c"}],
+              ),
     MockTable(("c1", "c2"), (("a", "b"), ("c", "d")),
               ['c1,c2'], ['a,b\r\n', 'c,d\r\n'],
-              ' c1 | c2 \n----+----\n', [' a  | b  ', ' c  | d  '],),
+              ' c1 | c2 \n----+----\n', [' a  | b  ', ' c  | d  '],
+              [{"c1": "a", "c2": "b"}, {"c1": "c", "c2": "d"}],
+              ),
     MockTable(("c1", "c2"), (("£ö", "b"),),
               ['c1,c2'], ['£ö,b\r\n'],
-              ' c1 | c2 \n----+----\n', [' £ö | b  ']),
+              ' c1 | c2 \n----+----\n', [' £ö | b  '],
+              [{"c1": u"£ö", "c2": "b"}],
+              ),
     )
 
 
@@ -98,6 +111,15 @@ class TestCSVSTyle(object):
         style = PlainStyle()
         output = list(style.get_rows(mock_table))
         assert output == mock_table.csvrows
+
+
+class TestJSONSTyle(object):
+
+    @pytest.mark.parametrize('mock_table', tables)
+    def testPlainModuleParsing(self, mock_table):
+        style = JSONStyle()
+        output = ''.join(style.get_rows(mock_table))
+        assert json.loads(output) == mock_table.jsondicts
 
 
 class TestTableBuilder(object):
