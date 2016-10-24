@@ -96,7 +96,9 @@ public class LightAdminPrivileges {
     public AdminPrivilege getPrivilege(String value) {
         final AdminPrivilege privilege = ADMIN_PRIVILEGES_BY_VALUE.get(value);
         if (privilege == null) {
-            LOGGER.warn("checked for unknown privilege " + value);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("checked for unknown privilege " + value);
+            }
             return null;
         }
         return privilege;
