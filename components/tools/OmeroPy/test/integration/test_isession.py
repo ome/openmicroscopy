@@ -332,14 +332,21 @@ class TestISession(lib.ITest):
 
     # Test that ISession.createUserSession cannot be used from a session that
     # is a sudo from somebody else.
-    def testCreateUserSessionFromSudo(self):
-        iSessionRoot = self.root.sf.getSessionService()
-
+    @pytest.mark.parametrize("to_root", [True, False])
+    def testCreateUserSessionFromSudo(self, to_root):
         principal = omero.sys.Principal()
-        principal.name = self.ctx.userName
-        principal.group = self.ctx.groupName
         principal.eventType = "Test"
 
+        if to_root:
+            iAdminRoot = self.root.sf.getAdminService()
+            ctx_root = iAdminRoot.getEventContext()
+            principal.name = ctx_root.userName
+            principal.group = ctx_root.groupName
+        else:
+            principal.name = self.ctx.userName
+            principal.group = self.ctx.groupName
+
+        iSessionRoot = self.root.sf.getSessionService()
         sudoSession = iSessionRoot.createSessionWithTimeout(
             principal, 10 * 1000)
 
