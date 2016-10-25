@@ -19,14 +19,15 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-"""
-Decorators for use with the webgateway application.
-"""
+"""Decorators for use with the webgateway application."""
 
+import omero
 import omeroweb.decorators
 import logging
+import traceback
 from django.http import JsonResponse
 from functools import update_wrapper
+from api_exceptions import NotFoundError, BadRequestError, CreatedObject
 
 
 logger = logging.getLogger(__name__)
@@ -66,39 +67,61 @@ class json_response(object):
         else:
             return super(json_response, self).getattr(name)
 
+    def handle_success(self, rv):
+        """
+        Handle successful response from wrapped function.
+
+        By default, we simply return a JsonResponse() but this can be
+        overwritten by subclasses if needed.
+        """
+        return JsonResponse(rv)
+
+    def handle_error(self, ex, trace):
+        """
+        Handle errors from wrapped function.
+
+        By default, we format exception or message and return this
+        as a JsonResponse with an appropriate status code.
+        """
+
+        # Default status is 500 'server error'
+        # But we try to handle all 'expected' errors appropriately
+        # TODO: handle omero.ConcurrencyException
+        status = 500
+        if isinstance(ex, NotFoundError):
+            status = ex.status
+        if isinstance(ex, BadRequestError):
+            status = ex.status
+            trace = ex.stacktrace   # Might be None
+        elif isinstance(ex, omero.SecurityViolation):
+            status = 403
+        elif isinstance(ex, omero.ApiUsageException):
+            status = 400
+        logger.debug(trace)
+        rsp_json = {"message": str(ex)}
+        if trace is not None:
+            rsp_json["stacktrace"] = trace
+        # In this case, there's no Error and the response
+        # is valid (status code is 201)
+        if isinstance(ex, CreatedObject):
+            status = ex.status
+            rsp_json = ex.response
+        return JsonResponse(rsp_json, status=status)
+
     def __call__(ctx, f):
         """
-        Tries to prepare a logged in connection, then calls function and
-        returns the result.
+        Returns the decorator.
+
+        The decorator calls the wrapped function and
+        handles success or exception, returning a
+        JsonResponse
         """
         def wrapped(request, *args, **kwargs):
             logger.debug('json_response')
             try:
                 rv = f(request, *args, **kwargs)
-                return JsonResponse(rv)
+                return ctx.handle_success(rv)
             except Exception, ex:
-                # Default status is 500 'server error'
-                # But we try to handle all 'expected' errors appropriately
-                # TODO: handle omero.ConcurrencyException
-                status = 500
                 trace = traceback.format_exc()
-                if isinstance(ex, NotFoundError):
-                    status = ex.status
-                if isinstance(ex, BadRequestError):
-                    status = ex.status
-                    trace = ex.stacktrace   # Might be None
-                elif isinstance(ex, omero.SecurityViolation):
-                    status = 403
-                elif isinstance(ex, omero.ApiUsageException):
-                    status = 400
-                logger.debug(trace)
-                rsp_json = {"message": str(ex)}
-                if trace is not None:
-                    rsp_json["stacktrace"] = trace
-                # In this case, there's no Error and the response
-                # is valid (status code is 201)
-                if isinstance(ex, CreatedObject):
-                    status = ex.status
-                    rsp_json = ex.response
-                return JsonResponse(rsp_json, status=status)
+                return ctx.handle_error(ex, trace)
         return update_wrapper(wrapped, f)
