@@ -32,7 +32,21 @@ def query_projects(conn, childCount=False,
                    group=None, owner=None,
                    page=1, limit=settings.PAGE,
                    normalize=False):
+    """
+    Query OMERO and marshal omero.model.Projects.
 
+    Build a query based on a number of parameters,
+    queries OMERO with the query service and
+    marshals Projects with omero_marshal.
+
+    @param conn:        BlitzGateway
+    @param childCount:  If true, also load Dataset counts as omero:childCount
+    @param group:       Filter by group Id
+    @param owner:       Filter by owner Id
+    @param page:        Pagination page. Default is 1
+    @param limit:       Page size
+    @param normalize:   If true, marshal groups and experimenters separately
+    """
     qs = conn.getQueryService()
     params = omero.sys.ParametersI()
     if page:
