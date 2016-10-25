@@ -91,14 +91,12 @@
         <resolver ref="user-maven"/>
         <resolver ref="maven"/>
         <resolver ref="ome-artifactory"/>
-        <resolver ref="ome-simple-artifactory"/>
     </chain>
 
     <!-- Resolver for OME dependencies-->
     <chain name="ome-resolver" returnFirst="true">
         <resolver ref="user-maven"/>
         <resolver ref="ome-artifactory"/>
-        <resolver ref="ome-simple-artifactory"/>
     </chain>
 
     <!-- Resolver for Unidata dependencies-->
