@@ -136,8 +136,8 @@ class TestSearch(lib.ITest):
         assert 5 == len(res)
 
     def _3164_search(self, searcher, runs=10, pause=1):
-        texts = ("*earch", "*h", "search tif", "search",
-                 "test", "tag", "t*", "search_test",
+        texts = ("*earch", "*rch", "search tif", "search",
+                 "test", "tag", "ta*", "search_test",
                  "s .tif", ".tif", "tif", "*tif")
 
         # Commented out to pass flake8 but these patterns may no longer
