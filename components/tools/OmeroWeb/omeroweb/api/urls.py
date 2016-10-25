@@ -105,6 +105,21 @@ api_project_datasets = url(
 GET Datasets in Project, using omero-marshal to generate json
 """
 
+api_screens = url(r'^v(?P<api_version>%s)/m/screens/$' % versions,
+                   views.ScreensView.as_view(),
+                   name='api_screens')
+"""
+GET all projects, using omero-marshal to generate json
+"""
+
+api_screen = url(
+    r'^v(?P<api_version>%s)/m/screens/(?P<pid>[0-9]+)/$' % versions,
+    views.ScreenView.as_view(),
+    name='api_screen')
+"""
+Dataset url to GET or DELETE a single Screen
+"""
+
 urlpatterns = patterns(
     '',
     api_versions,
@@ -118,4 +133,6 @@ urlpatterns = patterns(
     api_datasets,
     api_dataset,
     api_project_datasets,
+    api_screens,
+    api_screen,
 )

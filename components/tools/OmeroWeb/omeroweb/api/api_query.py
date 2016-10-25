@@ -31,15 +31,7 @@ def query_projects(conn, childCount=False,
                    group=None, owner=None,
                    page=1, limit=settings.PAGE,
                    normalize=False):
-    """
-<<<<<<< HEAD
-    Query OMERO and marshal omero.model.Projects.
-=======
-    Use the QueryService to load Projects from OMERO.
-
-    Marshals the omero.model objects using
-    omero_marshal
-    """
+    """Query OMERO and marshal omero.model.Projects."""
     return query_objects(conn, 'Project',
                          childCount=childCount, group=group, owner=owner,
                          page=page, limit=limit, normalize=normalize)
@@ -49,22 +41,7 @@ def query_datasets(conn, project=None, childCount=False,
                    group=None, owner=None,
                    page=1, limit=settings.PAGE,
                    normalize=False):
-    """
-    Use the QueryService to load data from OMERO.
->>>>>>> bce4900... Adding support for /datasets/:id/
-
-    Build a query based on a number of parameters,
-    queries OMERO with the query service and
-    marshals Projects with omero_marshal.
-
-    @param conn:        BlitzGateway
-    @param childCount:  If true, also load Dataset counts as omero:childCount
-    @param group:       Filter by group Id
-    @param owner:       Filter by owner Id
-    @param page:        Pagination page. Default is 1
-    @param limit:       Page size
-    @param normalize:   If true, marshal groups and experimenters separately
-    """
+    """Query OMERO and marshal omero.model.Datasets."""
     return query_objects(conn, 'Dataset', project=project,
                          childCount=childCount, group=group, owner=owner,
                          page=page, limit=limit, normalize=normalize)
@@ -79,8 +56,17 @@ def query_objects(conn, object_type,
     """
     Base query method, handles different object_types.
 
-    E.g. 'Project'. Builds a query and adds common
+    Builds a query and adds common
     parameters and filters such as by owner or group.
+
+    @param conn:        BlitzGateway
+    @param object_type: Type to query. E.g. Project
+    @param childCount:  If true, also load Dataset counts as omero:childCount
+    @param group:       Filter by group Id
+    @param owner:       Filter by owner Id
+    @param page:        Pagination page. Default is 1
+    @param limit:       Page size
+    @param normalize:   If true, marshal groups and experimenters separately
     """
     params = {'page': page,
           'limit': limit,
