@@ -72,7 +72,8 @@ import zipfile
 import shutil
 
 from omeroweb.decorators import login_required, ConnCleaningHttpResponse
-from omeroweb.webgateway.decorators import login_required as api_login_required
+from omeroweb.webgateway.decorators import login_required as api_login_required, \
+    json_response
 from omeroweb.connector import Connector
 from omeroweb.webgateway.util import zip_archived_files, getIntOrDefault
 from omeroweb.webgateway.api_exceptions import BadRequestError, NotFoundError,\
@@ -1212,49 +1213,6 @@ def debug(f):
         if 'error' in debug:
             raise AttributeError('Debug requested error')
         return f(request, *args, **kwargs)
-    wrap.func_name = f.func_name
-    return wrap
-
-
-def json_response(f):
-    """
-    Decorator for wrapping response in JsonResponse if needed and
-    error handling
-
-    @param f:       The function to wrap
-    @return:        The wrapped function, which will return json
-    """
-    @wraps(f)
-    def wrap(request, *args, **kwargs):
-        logger.debug('json_response')
-        try:
-            rv = f(request, *args, **kwargs)
-            return JsonResponse(rv)
-        except Exception, ex:
-            # Default status is 500 'server error'
-            # But we try to handle all 'expected' errors appropriately
-            # TODO: handle omero.ConcurrencyException
-            status = 500
-            trace = traceback.format_exc()
-            if isinstance(ex, NotFoundError):
-                status = ex.status
-            if isinstance(ex, BadRequestError):
-                status = ex.status
-                trace = ex.stacktrace   # Might be None
-            elif isinstance(ex, omero.SecurityViolation):
-                status = 403
-            elif isinstance(ex, omero.ApiUsageException):
-                status = 400
-            logger.debug(trace)
-            rsp_json = {"message": str(ex)}
-            if trace is not None:
-                rsp_json["stacktrace"] = trace
-            # In this case, there's no Error and the response
-            # is valid (status code is 201)
-            if isinstance(ex, CreatedObject):
-                status = ex.status
-                rsp_json = ex.response
-            return JsonResponse(rsp_json, status=status)
     wrap.func_name = f.func_name
     return wrap
 
@@ -2609,7 +2567,7 @@ def build_url(request, name, api_version, **kwargs):
         return "%s%s" % (prefix, url)
 
 
-@json_response
+@json_response()
 def api_versions(request, **kwargs):
     """
     Base url of the webgateway json api.
@@ -2623,7 +2581,7 @@ def api_versions(request, **kwargs):
     return {'data': versions}
 
 
-@json_response
+@json_response()
 def api_base(request, api_version=None, **kwargs):
     """
     Base url of the webgateway json api for a specified version.
@@ -2638,7 +2596,7 @@ def api_base(request, api_version=None, **kwargs):
     return rv
 
 
-@json_response
+@json_response()
 def api_token(request, api_version, **kwargs):
     """
     Provides CSRF token for current session
@@ -2647,7 +2605,7 @@ def api_token(request, api_version, **kwargs):
     return {'data': token}
 
 
-@json_response
+@json_response()
 def api_servers(request, api_version, **kwargs):
     """
     Lists the available servers to connect to
@@ -2771,7 +2729,7 @@ class ProjectView(View):
     """
 
     @method_decorator(api_login_required(useragent='OMERO.webapi'))
-    @method_decorator(json_response)
+    @method_decorator(json_response())
     def dispatch(self, *args, **kwargs):
         return super(ProjectView, self).dispatch(*args, **kwargs)
 
@@ -2804,7 +2762,7 @@ class ProjectsView(View):
     """
 
     @method_decorator(api_login_required(useragent='OMERO.webapi'))
-    @method_decorator(json_response)
+    @method_decorator(json_response())
     def dispatch(self, *args, **kwargs):
         """ Use dispatch to add decorators to class methods """
         return super(ProjectsView, self).dispatch(*args, **kwargs)
@@ -2842,7 +2800,7 @@ class SaveView(View):
     """
 
     @method_decorator(api_login_required(useragent='OMERO.webapi'))
-    @method_decorator(json_response)
+    @method_decorator(json_response())
     def dispatch(self, *args, **kwargs):
         """ Apply decorators for class methods below """
         return super(SaveView, self).dispatch(*args, **kwargs)

@@ -24,7 +24,12 @@ Decorators for use with the webgateway application.
 """
 
 import omeroweb.decorators
+import logging
 from django.http import JsonResponse
+from functools import update_wrapper
+
+
+logger = logging.getLogger(__name__)
 
 
 class login_required(omeroweb.decorators.login_required):
@@ -38,3 +43,62 @@ class login_required(omeroweb.decorators.login_required):
         """
         return JsonResponse({'message': 'Not logged in'},
                             status=403)
+
+
+class json_response(object):
+    """
+    Class-based decorator for wrapping Django views methods.
+    Returns JsonResponse based on dict returned by views methods.
+    Also handles exceptions from views methods, returning
+    JsonResponse with appropriate status values.
+    """
+
+    def __init__(self):
+        """Initialises the decorator."""
+        pass
+
+    # To make django's method_decorator work, this is required until
+    # python/django sort out how argumented decorator wrapping should work
+    # https://github.com/openmicroscopy/openmicroscopy/pull/1820
+    def __getattr__(self, name):
+        if name == '__name__':
+            return self.__class__.__name__
+        else:
+            return super(json_response, self).getattr(name)
+
+    def __call__(ctx, f):
+        """
+        Tries to prepare a logged in connection, then calls function and
+        returns the result.
+        """
+        def wrapped(request, *args, **kwargs):
+            logger.debug('json_response')
+            try:
+                rv = f(request, *args, **kwargs)
+                return JsonResponse(rv)
+            except Exception, ex:
+                # Default status is 500 'server error'
+                # But we try to handle all 'expected' errors appropriately
+                # TODO: handle omero.ConcurrencyException
+                status = 500
+                trace = traceback.format_exc()
+                if isinstance(ex, NotFoundError):
+                    status = ex.status
+                if isinstance(ex, BadRequestError):
+                    status = ex.status
+                    trace = ex.stacktrace   # Might be None
+                elif isinstance(ex, omero.SecurityViolation):
+                    status = 403
+                elif isinstance(ex, omero.ApiUsageException):
+                    status = 400
+                logger.debug(trace)
+                rsp_json = {"message": str(ex)}
+                if trace is not None:
+                    rsp_json["stacktrace"] = trace
+                # In this case, there's no Error and the response
+                # is valid (status code is 201)
+                if isinstance(ex, CreatedObject):
+                    status = ex.status
+                    rsp_json = ex.response
+                return JsonResponse(rsp_json, status=status)
+        return update_wrapper(wrapped, f)
