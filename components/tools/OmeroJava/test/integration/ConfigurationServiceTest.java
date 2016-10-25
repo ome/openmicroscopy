@@ -166,22 +166,20 @@ public class ConfigurationServiceTest extends AbstractServerTest {
     }
 
     /**
-     * Tests that the list of supported formats in the DB matches
-     * what is currently supported by BioFormats.
-     * This does not include the <code>FakeReader</code> since it is solely
-     * used for testing.
+     * Returns the collection of supported formats.
      *
-     * @throws Exception
-     *             Thrown if an error occurred.
+     * @return See above
+     * @throws Exception If an error occurred while reading the formats.
      */
-    @Test
-    public void testSupportedFormats() throws Exception {
+    private Set<String> getSupportedFormats() throws Exception
+    {
         final String ref = "Reader";
         List<String> toExclude = new ArrayList<String>();
         toExclude.add("Fake");
+        Set<String> values = new HashSet<String>();
         try (final ImageReader reader = new ImageReader()) {
             IFormatReader[] readers = reader.getReaders();
-            Set<String> values = new HashSet<String>();
+            
             for (int i = 0; i < readers.length; i++) {
                 IFormatReader r = readers[i];;
                 String name = r.getClass().getSimpleName();
@@ -195,17 +193,32 @@ public class ConfigurationServiceTest extends AbstractServerTest {
                     }
                 }
             }
-            //Load from DB
-            ParametersI param = new ParametersI();
-            String sql = "select f from Format as f";
-            List<IObject> objects = iQuery.findAllByQuery(sql, param);
-            Assert.assertTrue(values.size() <= objects.size());
-            for (int i = 0; i < objects.size(); i++) {
-                Format o = (Format) objects.get(i);
-                values.remove(o.getValue().getValue());
-            }
-            Assert.assertEquals(0, values.size());
         }
+        return values;
+    }
+
+    /**
+     * Tests that the list of supported formats in the DB matches
+     * what is currently supported by BioFormats.
+     * This does not include the <code>FakeReader</code> since it is solely
+     * used for testing.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testSupportedFormats() throws Exception {
+        Set<String> values = getSupportedFormats();
+        //Load from DB
+        ParametersI param = new ParametersI();
+        String sql = "select f from Format as f";
+        List<IObject> objects = iQuery.findAllByQuery(sql, param);
+        Assert.assertTrue(values.size() <= objects.size());
+        for (int i = 0; i < objects.size(); i++) {
+            Format o = (Format) objects.get(i);
+            values.remove(o.getValue().getValue());
+        }
+        Assert.assertEquals(0, values.size());
     }
 
     /**
@@ -222,10 +235,6 @@ public class ConfigurationServiceTest extends AbstractServerTest {
         Assert.assertTrue(types.size() > 0);
         for (int i = 0; i < types.size(); i++) {
             String type = types.get(i);
-            //tested via testSupportedFormats
-            if (type.equals("Format")) {
-                continue;
-            }
             Set<String> original = new HashSet<String>();
             type = "omero.model."+type+"I";
             for (int j = 0; j < objects.size(); j++) {
@@ -284,6 +293,19 @@ public class ConfigurationServiceTest extends AbstractServerTest {
                }
            }
            Assert.assertEquals(fromDB.size()-1, total);
+       } else if (type.endsWith("FormatI")) {
+           //original should be 0
+           Assert.assertEquals(original.size(), 0);
+           Set<String> values = getSupportedFormats();
+           Assert.assertTrue(values.size() <= fromDB.size());
+           for (int i = 0; i < fromDB.size(); i++) {
+               String value = getEnumValue(fromDB.get(i));
+               Assert.assertNotNull(value);
+               if (values.contains(value)) {
+                   total++;
+               }
+           }
+           Assert.assertEquals(values.size(), total);
        } else {
            Assert.assertEquals(fromDB.size(), original.size());
            for (int i = 0; i < fromDB.size(); i++) {
