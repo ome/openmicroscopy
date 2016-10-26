@@ -41,7 +41,6 @@ from omeroweb.webadmin.forms import LoginForm
 from omeroweb.decorators import get_client_ip
 from omeroweb.webadmin.webadmin_utils import upgradeCheck
 from omero_marshal import get_encoder, get_decoder, OME_SCHEMA_URL
-from functools import wraps
 
 try:
     from hashlib import md5
