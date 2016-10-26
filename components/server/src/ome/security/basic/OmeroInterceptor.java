@@ -1,7 +1,5 @@
 /*
- *   $Id$
- *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2016 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -28,6 +26,8 @@ import org.hibernate.engine.PersistenceContext;
 import org.hibernate.type.ComponentType;
 import org.hibernate.type.Type;
 import org.springframework.util.Assert;
+
+import com.google.common.collect.ImmutableSet;
 
 import ome.conditions.ApiUsageException;
 import ome.conditions.GroupSecurityViolation;
@@ -71,7 +71,6 @@ import ome.tools.hibernate.HibernateUtils;
  * Current responsibilities include the proper (re-)setting of {@link Details}
  *
  * @author Josh Moore, josh.moore at gmx.de
- * @version $Revision$, $Date$
  * @see EmptyInterceptor
  * @see Interceptor
  * @since 3.0-M3
@@ -150,7 +149,7 @@ public class OmeroInterceptor implements Interceptor {
     }
 
     /**
-     * callsback to {@link BasicSecuritySystem#newTransientDetails(IObject)} for
+     * calls back to {@link BasicSecuritySystem#newTransientDetails(IObject)} for
      * properly setting {@link IObject#getDetails() Details}
      */
     public boolean onSave(Object entity, Serializable id, Object[] state,
@@ -594,6 +593,20 @@ public class OmeroInterceptor implements Interceptor {
         return neededRight;
     }
 
+    /**
+     * Determine the light administrator privileges associated with an event.
+     * If the event is {@code null} then returns the full set of privileges.
+     * @param event an event, may be {@code null}
+     * @return the light administrator privileges associated with the event
+     */
+    private ImmutableSet<AdminPrivilege> getAdminPrivileges(Event event) {
+        if (event == null) {
+            return adminPrivileges.getAllPrivileges();
+        } else {
+            return adminPrivileges.getSessionPrivileges(event.getSession());
+        }
+    }
+
     // TODO is this natural? perhaps permissions don't belong in details
     // details are the only thing that users can change the rest is
     // read only...
@@ -631,13 +644,8 @@ public class OmeroInterceptor implements Interceptor {
         final boolean isPrivilegedCreator;
         final boolean sysType = sysTypes.isSystemType(obj.getClass())
                 || sysTypes.isInSystemGroup(obj.getDetails());
-        final Set<AdminPrivilege> privileges;
-        final Event event = currentUser.current().getEvent();
-        if (event == null) {
-            privileges = adminPrivileges.getAllPrivileges();
-        } else {
-            privileges = adminPrivileges.getSessionPrivileges(event.getSession());
-        }
+        final Set<AdminPrivilege> privileges = getAdminPrivileges(currentUser.current().getEvent());
+
         /* see trac ticket 10691 re. enum values */
         if (!bec.isCurrentUserAdmin()) {
             isPrivilegedCreator = false;
@@ -937,6 +945,8 @@ public class OmeroInterceptor implements Interceptor {
             IObject obj, Details previousDetails, Details currentDetails,
             Details newDetails, final BasicEventContext bec) {
 
+        final Set<AdminPrivilege> privileges = getAdminPrivileges(currentUser.current().getEvent());
+
         if (!HibernateUtils.idEqual(previousDetails.getOwner(), currentDetails
                 .getOwner())) {
 
@@ -950,7 +960,7 @@ public class OmeroInterceptor implements Interceptor {
 
             // if the current user is an admin or if the entity has been
             // marked privileged, then use the current owner.
-            else if (bec.isCurrentUserAdmin() || privileged) {
+            else if (bec.isCurrentUserAdmin() && privileges.contains(adminPrivileges.getPrivilege("Chown")) || privileged) {
                 // ok
             }
 
@@ -987,6 +997,8 @@ public class OmeroInterceptor implements Interceptor {
             }
         }
 
+        final Set<AdminPrivilege> privileges = getAdminPrivileges(currentUser.current().getEvent());
+
         // previous and current have different ids. either change it and return
         // true if permitted, or throw an exception.
         if (!HibernateUtils.idEqual(previousDetails.getGroup(), currentDetails
@@ -1008,7 +1020,7 @@ public class OmeroInterceptor implements Interceptor {
                          roles.getUserGroupId()) &&
                        bec.getMemberOfGroupsList().contains(
                          currentDetails.getGroup().getId())) // ticket:1794
-                    || bec.isCurrentUserAdmin() || privileged) {
+                    || bec.isCurrentUserAdmin() && privileges.contains(adminPrivileges.getPrivilege("Chgrp")) || privileged) {
                 newDetails.setGroup(currentDetails.getGroup());
                 return true;
             }
