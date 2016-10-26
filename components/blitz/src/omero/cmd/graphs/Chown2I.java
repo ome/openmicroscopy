@@ -38,6 +38,7 @@ import com.google.common.collect.SetMultimap;
 
 import ome.api.IAdmin;
 import ome.model.IObject;
+import ome.model.enums.AdminPrivilege;
 import ome.model.internal.Details;
 import ome.model.meta.Experimenter;
 import ome.security.ACLVoter;
@@ -143,8 +144,8 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
 
         /* if the current user is not an administrator then find of which groups the target user is a member */
         final EventContext eventContext = helper.getEventContext();
-
-        if (eventContext.isCurrentUserAdmin()) {
+        /* see trac ticket 10691 re. enum values */
+        if (graphHelper.checkIsAdministrator(new AdminPrivilege("Chown"))) {
             acceptableGroupsFrom = null;
             acceptableGroupsTo = null;
         } else {

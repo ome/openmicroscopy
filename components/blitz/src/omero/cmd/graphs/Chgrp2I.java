@@ -37,6 +37,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.SetMultimap;
 
 import ome.model.IObject;
+import ome.model.enums.AdminPrivilege;
 import ome.model.internal.Permissions;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.ACLVoter;
@@ -139,7 +140,9 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
 
         /* check that the user is a member of the destination group */
         final EventContext eventContext = helper.getEventContext();
-        if (!(eventContext.isCurrentUserAdmin() || eventContext.getMemberOfGroupsList().contains(groupId))) {
+        /* see trac ticket 10691 re. enum values */
+        if (!(graphHelper.checkIsAdministrator(new AdminPrivilege("Chgrp")) ||
+                eventContext.getMemberOfGroupsList().contains(groupId))) {
             final Exception e = new IllegalArgumentException("not a member of the chgrp destination group");
             throw helper.cancel(new ERR(), e, "not-in-group");
         }
