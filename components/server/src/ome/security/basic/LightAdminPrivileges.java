@@ -112,7 +112,7 @@ public class LightAdminPrivileges {
      * @param session an OMERO session
      * @return the light administrator privileges associated with the session
      */
-    public Set<AdminPrivilege> getSessionPrivileges(Session session) {
+    public ImmutableSet<AdminPrivilege> getSessionPrivileges(Session session) {
         try {
             return PRIVILEGE_CACHE.get(session);
         } catch (ExecutionException ee) {
@@ -132,11 +132,11 @@ public class LightAdminPrivileges {
         rootId = roles.getRootId();
     }
 
-    private final LoadingCache<ome.model.meta.Session, Set<AdminPrivilege>> PRIVILEGE_CACHE =
+    private final LoadingCache<ome.model.meta.Session, ImmutableSet<AdminPrivilege>> PRIVILEGE_CACHE =
             CacheBuilder.newBuilder().expireAfterWrite(1, TimeUnit.MINUTES).build(
-                    new CacheLoader<ome.model.meta.Session, Set<AdminPrivilege>>() {
+                    new CacheLoader<ome.model.meta.Session, ImmutableSet<AdminPrivilege>>() {
                         @Override
-                        public Set<AdminPrivilege> load(Session session) {
+                        public ImmutableSet<AdminPrivilege> load(Session session) {
                             return getPrivileges(session);
                         }
                     });
@@ -150,7 +150,7 @@ public class LightAdminPrivileges {
      * @param session an OMERO session
      * @return the light administrator privileges associated with the session
      */
-    private Set<AdminPrivilege> getPrivileges(ome.model.meta.Session session) {
+    private ImmutableSet<AdminPrivilege> getPrivileges(ome.model.meta.Session session) {
         final Set<AdminPrivilege> privileges = new HashSet<>(getAllPrivileges());
         final Experimenter user;
         if (session.getSudoer() == null) {
@@ -168,6 +168,6 @@ public class LightAdminPrivileges {
                 }
             }
         }
-        return privileges;
+        return ImmutableSet.copyOf(privileges);
     }
 }
