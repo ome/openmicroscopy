@@ -58,15 +58,6 @@ class json_response(object):
         """Initialises the decorator."""
         pass
 
-    # To make django's method_decorator work, this is required until
-    # python/django sort out how argumented decorator wrapping should work
-    # https://github.com/openmicroscopy/openmicroscopy/pull/1820
-    def __getattr__(self, name):
-        if name == '__name__':
-            return self.__class__.__name__
-        else:
-            return super(json_response, self).getattr(name)
-
     def handle_success(self, rv):
         """
         Handle successful response from wrapped function.
