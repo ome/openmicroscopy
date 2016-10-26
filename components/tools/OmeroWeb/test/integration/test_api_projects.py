@@ -557,15 +557,11 @@ class TestProjects(IWebTest):
         rsp = _csrf_put_json(django_client, save_url, payload)
         assert rsp['@id'] == project.id.val
         assert rsp['Name'] == 'updated name'
-        # Description should be None, but is an empty string
-        # See https://github.com/openmicroscopy/omero-marshal/issues/18
-        # assert 'Description' not in rsp
-        assert rsp['Description'] == ''
+        assert 'Description' not in rsp
         # Get project again to check update
         pr_json = _get_response_json(django_client, project_url, {})
         assert pr_json['Name'] == 'updated name'
-        # assert 'Description' not in pr_json
-        assert pr_json['Description'] == ''
+        assert 'Description' not in pr_json
 
     def test_project_delete(self, user1):
         conn = get_connection(user1)
