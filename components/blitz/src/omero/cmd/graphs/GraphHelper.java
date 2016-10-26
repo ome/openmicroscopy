@@ -33,13 +33,17 @@ import com.google.common.base.Function;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 
+import ome.api.IQuery;
 import ome.model.IObject;
+import ome.model.enums.AdminPrivilege;
+import ome.model.meta.Session;
 import ome.security.ACLVoter;
 import ome.security.SystemTypes;
 import ome.security.basic.LightAdminPrivileges;
 import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
 import ome.services.graphs.GraphTraversal;
+import ome.system.EventContext;
 import omero.cmd.ERR;
 import omero.cmd.Helper;
 
@@ -64,6 +68,22 @@ public class GraphHelper {
         this.helper = helper;
         this.graphPathBean = graphPathBean;
         this.adminPrivileges = adminPrivileges;
+    }
+
+    /**
+     * Check if the current user is an administrator.
+     * @param requiredPrivilege the privilege that the administrator must have if they are a light administrator
+     * @return if the current user is an administrator
+     */
+    public boolean checkIsAdministrator(AdminPrivilege requiredPrivilege) {
+        final EventContext eventContext = helper.getEventContext();
+        if (!eventContext.isCurrentUserAdmin()) {
+            return false;
+        }
+        final IQuery iQuery = helper.getServiceFactory().getQueryService();
+        final Session session = iQuery.get(Session.class, eventContext.getCurrentSessionId());
+        final Set<AdminPrivilege> privileges = adminPrivileges.getSessionPrivileges(session);
+        return privileges.contains(requiredPrivilege);
     }
 
     /**
