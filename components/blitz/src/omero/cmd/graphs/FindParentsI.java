@@ -44,6 +44,7 @@ import com.google.common.collect.Sets;
 import ome.model.IObject;
 import ome.security.ACLVoter;
 import ome.security.SystemTypes;
+import ome.security.basic.LightAdminPrivileges;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
@@ -74,6 +75,7 @@ public class FindParentsI extends FindParents implements IRequest {
     private final ACLVoter aclVoter;
     private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
+    private final LightAdminPrivileges adminPrivileges;
     private final Set<Class<? extends IObject>> targetClasses;
     private final GraphPolicy graphPolicy;
 
@@ -92,14 +94,16 @@ public class FindParentsI extends FindParents implements IRequest {
      * @param securityRoles the security roles
      * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean to use
+     * @param adminPrivileges the light administrator privileges helper
      * @param targetClasses legal target object classes for the search
      * @param graphPolicy the graph policy to apply for the search
      */
     public FindParentsI(ACLVoter aclVoter, Roles securityRoles, SystemTypes systemTypes, GraphPathBean graphPathBean,
-            Set<Class<? extends IObject>> targetClasses, GraphPolicy graphPolicy) {
+            LightAdminPrivileges adminPrivileges, Set<Class<? extends IObject>> targetClasses, GraphPolicy graphPolicy) {
         this.aclVoter = aclVoter;
         this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
+        this.adminPrivileges = adminPrivileges;
         this.targetClasses = targetClasses;
         this.graphPolicy = graphPolicy;
     }
@@ -121,7 +125,7 @@ public class FindParentsI extends FindParents implements IRequest {
 
         this.helper = helper;
         helper.setSteps(1);
-        this.graphHelper = new GraphHelper(helper, graphPathBean);
+        this.graphHelper = new GraphHelper(helper, graphPathBean, adminPrivileges);
 
         if (CollectionUtils.isEmpty(typesOfParents)) {
             final Exception e = new IllegalArgumentException("no types of parents specified to find");

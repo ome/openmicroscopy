@@ -42,6 +42,7 @@ import ome.model.internal.Details;
 import ome.model.meta.Experimenter;
 import ome.security.ACLVoter;
 import ome.security.SystemTypes;
+import ome.security.basic.LightAdminPrivileges;
 import ome.services.delete.Deletion;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphPathBean;
@@ -75,6 +76,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
     private final ACLVoter aclVoter;
     private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
+    private final LightAdminPrivileges adminPrivileges;
     private final Deletion deletionInstance;
     private final Set<Class<? extends IObject>> targetClasses;
     private GraphPolicy graphPolicy;  /* not final because of adjustGraphPolicy */
@@ -100,17 +102,19 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
      * @param securityRoles the security roles
      * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean to use
+     * @param adminPrivileges the light administrator privileges helper
      * @param deletionInstance a deletion instance for deleting files
      * @param targetClasses legal target object classes for chown
      * @param graphPolicy the graph policy to apply for chown
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      */
     public Chown2I(ACLVoter aclVoter, Roles securityRoles, SystemTypes systemTypes, GraphPathBean graphPathBean,
-            Deletion deletionInstance, Set<Class<? extends IObject>> targetClasses, GraphPolicy graphPolicy,
-            SetMultimap<String, String> unnullable) {
+            LightAdminPrivileges adminPrivileges, Deletion deletionInstance, Set<Class<? extends IObject>> targetClasses,
+            GraphPolicy graphPolicy, SetMultimap<String, String> unnullable) {
         this.aclVoter = aclVoter;
         this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
+        this.adminPrivileges = adminPrivileges;
         this.deletionInstance = deletionInstance;
         this.targetClasses = targetClasses;
         this.graphPolicy = graphPolicy;
@@ -135,7 +139,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
 
         this.helper = helper;
         helper.setSteps(dryRun ? 4 : 6);
-        this.graphHelper = new GraphHelper(helper, graphPathBean);
+        this.graphHelper = new GraphHelper(helper, graphPathBean, adminPrivileges);
 
         /* if the current user is not an administrator then find of which groups the target user is a member */
         final EventContext eventContext = helper.getEventContext();

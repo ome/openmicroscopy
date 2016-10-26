@@ -36,6 +36,7 @@ import com.google.common.collect.SetMultimap;
 import ome.model.IObject;
 import ome.security.ACLVoter;
 import ome.security.SystemTypes;
+import ome.security.basic.LightAdminPrivileges;
 import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
 import ome.services.graphs.GraphTraversal;
@@ -51,15 +52,18 @@ public class GraphHelper {
 
     private final Helper helper;
     private final GraphPathBean graphPathBean;
+    private final LightAdminPrivileges adminPrivileges;
 
     /**
      * Construct a helper for a graph request instance.
      * @param helper the general request helper for the graph request instance
      * @param graphPathBean the graph path bean
+     * @param adminPrivileges the light administrator privileges helper
      */
-    public GraphHelper(Helper helper, GraphPathBean graphPathBean) {
+    public GraphHelper(Helper helper, GraphPathBean graphPathBean, LightAdminPrivileges adminPrivileges) {
         this.helper = helper;
         this.graphPathBean = graphPathBean;
+        this.adminPrivileges = adminPrivileges;
     }
 
     /**

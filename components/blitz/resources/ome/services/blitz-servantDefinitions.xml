@@ -3,8 +3,6 @@
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# $Id$
-#
 # Copyright 2007-2014 Glencoe Software, Inc. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
@@ -337,6 +335,7 @@
       <constructor-arg ref="roles"/>
       <constructor-arg ref="systemTypes"/>
       <constructor-arg ref="graphPathBean"/>
+      <constructor-arg ref="adminPrivileges"/>
       <constructor-arg ref="ome.services.delete.Deletion"/>
       <constructor-arg>
         <map>
