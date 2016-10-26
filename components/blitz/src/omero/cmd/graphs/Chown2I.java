@@ -43,6 +43,7 @@ import com.google.common.collect.SetMultimap;
 
 import ome.api.IAdmin;
 import ome.api.IQuery;
+import ome.model.IAnnotationLink;
 import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.model.meta.Experimenter;
@@ -427,6 +428,29 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
             }
             if (!(acceptableGroupsTo == null || acceptableGroupsTo.contains(objectGroupId))) {
                 throw new GraphException("user " + userId + " is not a member of group " + objectGroupId);
+            }
+            final Class<?> actualClass;
+            try {
+                actualClass = Class.forName(className);
+            } catch (ClassNotFoundException cnfe) {
+                LOGGER.error("could not look up model class " + className, cnfe);
+                return;
+            }
+            if (IAnnotationLink.class.isAssignableFrom(actualClass)) {
+                final Object[] parentChildIds = (Object[]) session.createQuery(
+                        "SELECT parent.id, child.id FROM " + className + " WHERE id = :id")
+                        .setParameter("id", objectId)
+                        .uniqueResult();
+                final Long parentId = (Long) parentChildIds[0];
+                final Long childId = (Long) parentChildIds[1];
+                final Long count = (Long) session.createQuery(
+                        "SELECT COUNT(*) FROM " + className +
+                        " WHERE parent.id = :parent AND child.id = :child AND details.owner.id = :owner")
+                        .setParameter("parent", parentId).setParameter("child", childId).setParameter("owner", userId)
+                        .uniqueResult();
+                if (count > 0) {
+                    throw new GraphException("would have user " + userId + " owning multiple identical links");
+                }
             }
         }
     }
