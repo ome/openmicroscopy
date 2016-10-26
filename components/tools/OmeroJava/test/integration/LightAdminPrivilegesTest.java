@@ -20,7 +20,6 @@
 package integration;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -171,14 +170,12 @@ public class LightAdminPrivilegesTest extends AbstractServerTest {
         gem.setChild(newUser);
         gem.setOwner(omero.rtypes.rbool(false));
         newUser.addGroupExperimenterMap(gem);
-        boolean isActualSuccess;
         try {
             iUpdate.saveObject(newUser);
-            isActualSuccess = true;
+            Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
-            isActualSuccess = false;
+            Assert.assertFalse(isExpectSuccess);
         }
-        Assert.assertEquals(isActualSuccess, isExpectSuccess);
     }
 
     /**
@@ -199,14 +196,14 @@ public class LightAdminPrivilegesTest extends AbstractServerTest {
         newUser.setFirstName(omero.rtypes.rstring("August"));
         newUser.setLastName(omero.rtypes.rstring("Köhler"));
         newUser.setLdap(omero.rtypes.rbool(false));
-        boolean isActualSuccess;
         try {
-            iAdmin.createExperimenter(newUser, new ExperimenterGroupI(newGroupId, false), Collections.<ExperimenterGroup>singletonList(new ExperimenterGroupI(iAdmin.getSecurityRoles().userGroupId, false)));
-            isActualSuccess = true;
+            final long userGroupId = iAdmin.getSecurityRoles().userGroupId;
+            final List<ExperimenterGroup> groups = ImmutableList.<ExperimenterGroup>of(new ExperimenterGroupI(userGroupId, false));
+            iAdmin.createExperimenter(newUser, new ExperimenterGroupI(newGroupId, false), groups);
+            Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
-            isActualSuccess = false;
+            Assert.assertFalse(isExpectSuccess);
         }
-        Assert.assertEquals(isActualSuccess, isExpectSuccess);
     }
 
     /**
@@ -224,14 +221,12 @@ public class LightAdminPrivilegesTest extends AbstractServerTest {
         loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeModifyUser.value : null);
         final Experimenter newUser = (Experimenter) iQuery.get("Experimenter", newUserId);
         newUser.setConfig(ImmutableList.of(new NamedValue("color", "green")));
-        boolean isActualSuccess;
         try {
             iUpdate.saveObject(newUser);
-            isActualSuccess = true;
+            Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
-            isActualSuccess = false;
+            Assert.assertFalse(isExpectSuccess);
         }
-        Assert.assertEquals(isActualSuccess, isExpectSuccess);
     }
 
     /**
@@ -249,14 +244,12 @@ public class LightAdminPrivilegesTest extends AbstractServerTest {
         loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeModifyUser.value : null);
         final Experimenter newUser = (Experimenter) iQuery.get("Experimenter", newUserId);
         newUser.setConfig(ImmutableList.of(new NamedValue("color", "green")));
-        boolean isActualSuccess;
         try {
             iAdmin.updateExperimenter(newUser);
-            isActualSuccess = true;
+            Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
-            isActualSuccess = false;
+            Assert.assertFalse(isExpectSuccess);
         }
-        Assert.assertEquals(isActualSuccess, isExpectSuccess);
     }
 
     /**
@@ -290,18 +283,14 @@ public class LightAdminPrivilegesTest extends AbstractServerTest {
         loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeWriteOwned.value : null);
         Folder folder = mmFactory.simpleFolder();
         folder.getDetails().setOwner(new ExperimenterI(normalUser.userId, false));
-        boolean isActualSuccess;
         try {
             final ImmutableMap<String, String> groupContext = ImmutableMap.of("omero.group", Long.toString(normalUser.groupId));
             folder = (Folder) iUpdate.saveAndReturnObject(folder, groupContext);
-            isActualSuccess = true;
-        } catch (ServerError se) {
-            isActualSuccess = false;
-        }
-        Assert.assertEquals(isActualSuccess, isExpectSuccess);
-        if (isActualSuccess) {
             Assert.assertEquals(folder.getDetails().getOwner().getId().getValue(), normalUser.userId);
             Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+            Assert.assertTrue(isExpectSuccess);
+        } catch (ServerError se) {
+            Assert.assertFalse(isExpectSuccess);
         }
     }
 
@@ -329,16 +318,12 @@ public class LightAdminPrivilegesTest extends AbstractServerTest {
             return;
         }
         folder.setName(omero.rtypes.rstring(getClass().getName()));
-        boolean isActualSuccess;
         try {
             folder = (Folder) iUpdate.saveAndReturnObject(folder, groupContext);
-            isActualSuccess = true;
-        } catch (ServerError se) {
-            isActualSuccess = false;
-        }
-        Assert.assertEquals(isActualSuccess, isExpectSuccess);
-        if (isActualSuccess) {
             Assert.assertEquals(folder.getName().getValue(), getClass().getName());
+            Assert.assertTrue(isExpectSuccess);
+        } catch (ServerError se) {
+            Assert.assertFalse(isExpectSuccess);
         }
     }
 
