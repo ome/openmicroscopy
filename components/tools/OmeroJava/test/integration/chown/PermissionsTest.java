@@ -471,6 +471,9 @@ public class PermissionsTest extends AbstractServerTest {
      * belonging to a targetUser (importerTargetUser) to a recipient completely,
      * where targetUser's shared annotations, images and tag sets are in a read-annotate group,
      * as well as leaving the otherImporter's images, which targetUser annotated, not transferred.
+     * The target user has also additional data in a different group, which are to be transferred too.
+     * Further, the test deals also with 2 users being passed to the argument of targetUsers (in 2 variations:
+     * 2 users from the same group and 2 users from 2 different groups).
      * @param isDataOwner if the user submitting the {@link Chown2} request owns the data in the group
      * @param isAdmin if the user submitting the {@link Chown2} request is a member of the system group
      * @param isGroupOwner if the user submitting the {@link Chown2} request owns the group itself
@@ -504,6 +507,13 @@ public class PermissionsTest extends AbstractServerTest {
         dataGroup2 = new ExperimenterGroupI(dataGroupId2, false);
         otherImporter2 = newUserInGroup(dataGroup2, false);
         recipient = newUserInGroup(isRecipientInGroup ? dataGroup2 : otherGroup, false);
+        
+        /* Add importerTargetUser1 also to "otherGroup" in order to be able
+         * to test the case where a user has data in two different groups
+         * in this test
+         */
+
+        addUsers(otherGroup, Collections.singletonList(importerTargetUser1.userId), false);
 
         /* make chowner an admin, other cases will not be tested 
          * in this test
@@ -546,11 +556,19 @@ public class PermissionsTest extends AbstractServerTest {
         final List<ImageAnnotationLink> linksOthersToOwnAnnOwnImage2 = new ArrayList<ImageAnnotationLink>();
         final List<ImageAnnotationLink> linksOthersToOwnAnnOthersImage2 = new ArrayList<ImageAnnotationLink>();
 
-        /* First pair of importers imports their respective images*/
+        /* First pair of importers imports their respective images, note
+         * that importerTargetUser1 is member of 2 groups (dataGroup1 and otherGroup),
+         * so care has to be taken to import an image for this user in 
+         * each of his groups.*/
         init(importerTargetUser1);
+        loginUser(dataGroup1);
         final Image image1 = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage()).proxy();
         final long imageId1 = image1.getId().getValue();
         testImages.add(imageId1);
+        loginUser(otherGroup);
+        final Image imageOtherGroup1 = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage()).proxy();
+        final long imageOtherGroupId1 = imageOtherGroup1.getId().getValue();
+        testImages.add(imageOtherGroupId1);
         init(otherImporter1);
         final Image otherImage1 = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage()).proxy();
         testImages.add(otherImage1.getId().getValue());
@@ -558,7 +576,7 @@ public class PermissionsTest extends AbstractServerTest {
         /* Second pair of importers imports their respective images*/
         init(importerTargetUser2);
         final Image image2 = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage()).proxy();
-        final long imageId2 = image1.getId().getValue();
+        final long imageId2 = image2.getId().getValue();
         testImages.add(imageId2);
         init(otherImporter2);
         final Image otherImage2 = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage()).proxy();
@@ -733,7 +751,12 @@ public class PermissionsTest extends AbstractServerTest {
         Chown2 chown = Requests.chown().targetUsers(importerTargetUser1.userId).toUser(recipient.userId).build();
         doChange(client, factory, chown, true);
 
-        /* check that the ownership of images is as expected*/
+        /* check that the ownership of images is as expected,
+         * start checking the unannotated image which importerTargetUser1
+         * has in otherGroup. Later switch to dataGroup1, where all the other
+         * data are and perform the remaining checks*/
+        logRootIntoGroup(otherGroup.getId().getValue());
+        assertOwnedBy(imageOtherGroup1, recipient);
         logRootIntoGroup(dataGroupId1);
         assertOwnedBy(image1, recipient);
         assertOwnedBy(otherImage1, otherImporter1);
@@ -793,6 +816,8 @@ public class PermissionsTest extends AbstractServerTest {
         doChange(client, factory, chownTwoUsers, true);
         
         /* check that the ownership of images is as expected*/
+        logRootIntoGroup(otherGroup.getId().getValue());
+        assertOwnedBy(imageOtherGroup1, recipient);
         logRootIntoGroup(dataGroupId1);
         assertOwnedBy(image1, recipient);
         logRootIntoGroup(dataGroupId2);
