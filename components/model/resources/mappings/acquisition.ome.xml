@@ -2,7 +2,7 @@
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # 
-# Copyright 2006-2014 University of Dundee. All rights reserved.
+# Copyright 2006-2016 University of Dundee. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -104,7 +104,7 @@
 			<optional name="mtime" type="timestamp"/>
 			<optional name="ctime" type="timestamp"/>
 			<optional name="hasher" type="ome.model.enums.ChecksumAlgorithm"/>
-			<optional name="hash" type="string"/>
+			<optional name="hash" type="text"/>
 			<optional name="mimetype" type="string"/>
 			<zeromany name="filesetEntries" type="ome.model.fs.FilesetEntry" inverse="originalFile"/>
 			<!--
@@ -191,14 +191,14 @@
 			<optional name="green" type="int"/>
 			<optional name="blue" type="int"/>
 			<optional name="alpha" type="int"/>
-			<optional name="lookupTable" type="string"/>
+			<optional name="lookupTable" type="text"/>
 			<manyone name="logicalChannel" type="ome.model.core.LogicalChannel" inverse="channels"/>
 			<manyone name="pixels" type="ome.model.core.Pixels" ordered="true"/>
 		</properties>
 	</type>
 	<type id="ome.model.core.LogicalChannel">
 		<properties>
-			<optional name="name" type="string"/>
+			<optional name="name" type="text"/>
 			<optional name="pinHoleSize" type="ome.model.units.Length"/>
 			<optional name="illumination" type="ome.model.enums.Illumination"/>
 			<!-- Note: illumination is called IlluminationType in model-->
@@ -543,122 +543,7 @@
 <!-- OriginalFile Entity -->
 	<enum id="ome.model.enums.Format">
 		<!-- Note: Format is not in model but used by OriginalFile-->
-		<entry name="PNG"/>
-		<entry name="Companion/PNG"/>
-		<entry name="JPEG"/>
-		<entry name="Companion/JPEG"/>
-		<entry name="PGM"/>
-		<entry name="Companion/PGM"/>
-		<entry name="Fits"/>
-		<entry name="Companion/Fits"/>
-		<entry name="GIF"/>
-		<entry name="Companion/GIF"/>
-		<entry name="BMP"/>
-		<entry name="Companion/BMP"/>
-		<entry name="Dicom"/>
-		<entry name="Companion/Dicom"/>
-		<entry name="BioRad"/>
-		<entry name="Companion/BioRad"/>
-		<entry name="IPLab"/>
-		<entry name="Companion/IPLab"/>
-		<entry name="Deltavision"/>
-		<entry name="Companion/Deltavision"/>
-		<entry name="MRC"/>
-		<entry name="Companion/MRC"/>
-		<entry name="Gatan"/>
-		<entry name="Companion/Gatan"/>
-		<entry name="Imaris"/>
-		<entry name="Companion/Imaris"/>
-		<entry name="OpenlabRaw"/>
-		<entry name="Companion/OpenlabRaw"/>
-		<entry name="OMEXML"/>
-		<entry name="Companion/OMEXML"/>
-		<entry name="LIF"/>
-		<entry name="Companion/LIF"/>
-		<entry name="AVI"/>
-		<entry name="Companion/AVI"/>
-		<entry name="QT"/>
-		<entry name="Companion/QT"/>
-		<entry name="Pict"/>
-		<entry name="Companion/Pict"/>
-		<entry name="SDT"/>
-		<entry name="Companion/SDT"/>
-		<entry name="EPS"/>
-		<entry name="Companion/EPS"/>
-		<entry name="Slidebook"/>
-		<entry name="Companion/Slidebook"/>
-		<entry name="Alicona"/>
-		<entry name="Companion/Alicona"/>
-		<entry name="MNG"/>
-		<entry name="Companion/MNG"/>
-		<entry name="NRRD"/>
-		<entry name="Companion/NRRD"/>
-		<entry name="Khoros"/>
-		<entry name="Companion/Khoros"/>
-		<entry name="Visitech"/>
-		<entry name="Companion/Visitech"/>
-		<entry name="LIM"/>
-		<entry name="Companion/LIM"/>
-		<entry name="PSD"/>
-		<entry name="Companion/PSD"/>
-		<entry name="InCell"/>
-		<entry name="Companion/InCell"/>
-		<entry name="ICS"/>
-		<entry name="Companion/ICS"/>
-		<entry name="PerkinElmer"/>
-		<entry name="Companion/PerkinElmer"/>
-		<entry name="TCS"/>
-		<entry name="Companion/TCS"/>
-		<entry name="FV1000"/>
-		<entry name="Companion/FV1000"/>
-		<entry name="ZeissZVI"/>
-		<entry name="Companion/ZeissZVI"/>
-		<entry name="IPW"/>
-		<entry name="Companion/IPW"/>
-		<entry name="LegacyND2"/>
-		<entry name="Companion/LegacyND2"/>
-		<entry name="ND2"/>
-		<entry name="Companion/ND2"/>
-		<entry name="PCI"/>
-		<entry name="Companion/PCI"/>
-		<entry name="ImarisHDF"/>
-		<entry name="Companion/ImarisHDF"/>
-		<entry name="Metamorph"/>
-		<entry name="Companion/Metamorph"/>
-		<entry name="ZeissLSM"/>
-		<entry name="Companion/ZeissLSM"/>
-		<entry name="SEQ"/>
-		<entry name="Companion/SEQ"/>
-		<entry name="Gel"/>
-		<entry name="Companion/Gel"/>
-		<entry name="ImarisTiff"/>
-		<entry name="Companion/ImarisTiff"/>
-		<entry name="Flex"/>
-		<entry name="Companion/Flex"/>
-		<entry name="SVS"/>
-		<entry name="Companion/SVS"/>
-		<entry name="Leica"/>
-		<entry name="Companion/Leica"/>
-		<entry name="Nikon"/>
-		<entry name="Companion/Nikon"/>
-		<entry name="Fluoview"/>
-		<entry name="Companion/Fluoview"/>
-		<entry name="Prairie"/>
-		<entry name="Companion/Prairie"/>
-		<entry name="Micromanager"/>
-		<entry name="Companion/Micromanager"/>
-		<entry name="ImprovisionTiff"/>
-		<entry name="Companion/ImprovisionTiff"/>
-		<entry name="OMETiff"/>
-		<entry name="Companion/OMETiff"/>
-		<entry name="MetamorphTiff"/>
-		<entry name="Companion/MetamorphTiff"/>
-		<entry name="Tiff"/>
-		<entry name="Companion/Tiff"/>
-		<entry name="Openlab"/>
-		<entry name="Companion/Openlab"/>
-		<entry name="MIAS"/>
-		<entry name="Companion/MIAS"/>
+		<!-- Note: On server startup the DBEnumCheck class adds the formats as determined from the current Bio-Formats -->
 		<!-- Note: Other and Unknown are not needed use text/plain or application/octet-stream -->
 	</enum>
 	<enum id="ome.model.enums.ChecksumAlgorithm">

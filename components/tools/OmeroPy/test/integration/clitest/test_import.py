@@ -129,8 +129,6 @@ class TestImport(CLITest):
         self.add_client_dir()
 
     def do_import(self, capfd, strip_logs=True):
-        # Temporary fix to pass current tests by getting legacy output
-        self.args += ["--output", "legacy"]
         try:
             self.cli.invoke(self.args, strict=True)
             o, e = capfd.readouterr()
@@ -155,6 +153,11 @@ class TestImport(CLITest):
         client_dir = dist_dir / "lib" / "client"
         self.args += ["--clientdir", client_dir]
 
+    def check_other_output(self, out):
+        """Check the output of the import except Images, Plates and Summary"""
+        assert "Other imported objects:" in out
+        assert "==> Summary" in out
+
     def get_object(self, err, obj_type, query=None):
         if not query:
             query = self.query
@@ -164,21 +167,28 @@ class TestImport(CLITest):
             match = re.match(pattern, line)
             if match:
                 break
-        return query.get(obj_type, int(match.group('id')),
-                         {"omero.group": "-1"})
+        obj = query.get(obj_type, int(match.group('id')),
+                        {"omero.group": "-1"})
+        assert obj
+        assert obj.id.val == int(match.group('id'))
+        return obj
 
     def get_objects(self, err, obj_type, query=None):
         if not query:
             query = self.query
         """Retrieve the created objects by parsing the stderr output"""
-        pattern = re.compile('^%s:(?P<id>\d+)$' % obj_type)
+        pattern = re.compile('^%s:(?P<idstring>\d+)$' % obj_type)
         objs = []
         for line in reversed(err.split('\n')):
             match = re.match(pattern, line)
             if match:
-                objs.append(
-                    query.get(obj_type, int(match.group('id')),
-                              {"omero.group": "-1"}))
+                ids = match.group('idstring').split(',')
+                for obj_id in ids:
+                    obj = query.get(obj_type, int(obj_id),
+                                    {"omero.group": "-1"})
+                    assert obj
+                    assert obj.id.val == int(obj_id)
+                    objs.append(obj)
         return objs
 
     def get_linked_annotations(self, oid):
@@ -248,6 +258,12 @@ class TestImport(CLITest):
                 levels.append(splitline[2])
                 loggers.append(splitline[3])
         return levels, loggers
+
+    def parse_imported_objects(self, out):
+        """Parse the output from stderr or stdout
+           regarding Imported objects"""
+
+        return out.strip('\n').split('\n')
 
     def parse_summary(self, err):
         """Parse the summary output from stderr"""
@@ -329,7 +345,7 @@ class TestImport(CLITest):
 
         # Invoke CLI import command and retrieve stdout/stderr
         o, e = self.do_import(capfd)
-        obj = self.get_object(e, 'Image')
+        obj = self.get_object(o, 'Image')
         annotations = self.get_linked_annotations(obj.id.val)
 
         assert len(annotations) == fixture.n
@@ -358,7 +374,7 @@ class TestImport(CLITest):
         print self.args
         # Invoke CLI import command and retrieve stdout/stderr
         o, e = self.do_import(capfd)
-        obj = self.get_object(e, 'Image')
+        obj = self.get_object(o, 'Image')
         annotations = self.get_linked_annotations(obj.id.val)
 
         assert len(annotations) == fixture.n
@@ -502,10 +518,10 @@ class TestImport(CLITest):
     def parse_container(self, spw, capfd):
         o, e = self.do_import(capfd)
         if spw:
-            obj = self.get_object(e, 'Plate')
+            obj = self.get_object(o, 'Plate')
             container = self.get_screen(obj.id.val)
         else:
-            obj = self.get_object(e, 'Image')
+            obj = self.get_object(o, 'Image')
             container = self.get_dataset(obj.id.val)
 
         assert container
@@ -679,7 +695,7 @@ class TestImport(CLITest):
         # containers are created and used.
         o, e = self.do_import(capfd)
 
-        objs = self.get_objects(e, importType)
+        objs = self.get_objects(o, importType)
         assert len(objs) == 2
         container1 = self.get_container(objs[0].id.val, spw=spw)
         container2 = self.get_container(objs[1].id.val, spw=spw)
@@ -760,7 +776,7 @@ class TestImport(CLITest):
         # Now, run the import and check that the imported object
         # is not in a container.
         o, e = self.do_import(capfd)
-        obj = self.get_object(e, importType)
+        obj = self.get_object(o, importType)
         container = self.get_container(obj.id.val, spw=spw)
         assert container is None
 
@@ -814,19 +830,31 @@ class TestImport(CLITest):
         expected_levels = debug_levels[debug_levels.index(level):]
         assert set(levels) <= set(expected_levels), out
 
-    def testImportSummary(self, tmpdir, capfd):
-        """Test import summary output"""
+    def testImportOutputDefault(self, tmpdir, capfd):
+        """Test import output"""
         fakefile = tmpdir.join("test.fake")
         fakefile.write('')
 
         self.args += [str(fakefile)]
         o, e = self.do_import(capfd)
+
+        # Check the contents of "o",
+        # and the existence of the newly created image
+        assert len(self.parse_imported_objects(o)) == 1
+        self.get_object(o, 'Image')
+
+        # Check the contents of "e"
+        # and the existence of the newly created Fileset
+        self.get_object(e, 'Fileset')
+        self.check_other_output(e)
+
+        # Parse and check the summary of the import output
         summary = self.parse_summary(e)
         assert summary
         assert len(summary) == 5
 
     @pytest.mark.parametrize("plate", [1, 2, 3])
-    def testImportSummaryWithScreen(self, tmpdir, capfd, plate):
+    def testImportOutputDefaultWithScreen(self, tmpdir, capfd, plate):
         """Test import summary argument with a screen"""
         fakefile = tmpdir.join("SPW&plates=%d&plateRows=1&plateCols=1&"
                                "fields=1&plateAcqs=1.fake" % plate)
@@ -834,6 +862,18 @@ class TestImport(CLITest):
 
         self.args += [str(fakefile)]
         o, e = self.do_import(capfd)
+
+        # Check the contents of "o",
+        # and the existence of the newly created plates
+        assert len(self.parse_imported_objects(o)) == 1
+        self.get_objects(o, 'Plate')
+
+        # Check the contents of "e"
+        # and the existence of the newly created Fileset
+        self.get_object(e, 'Fileset')
+        self.check_other_output(e)
+
+        # Parse and check the summary of the import output
         summary = self.parse_summary(e)
         assert summary
         assert len(summary) == 6
@@ -856,7 +896,7 @@ class TestImport(CLITest):
 
         # Invoke CLI import command and retrieve stdout/stderr
         o, e = self.do_import(capfd)
-        obj = self.get_object(e, 'Image', query=client.sf.getQueryService())
+        obj = self.get_object(o, 'Image', query=client.sf.getQueryService())
         assert obj.details.owner.id.val == user.id.val
 
     def testImportMultiGroup(self, tmpdir, capfd):
@@ -878,7 +918,7 @@ class TestImport(CLITest):
 
         # Invoke CLI import command and retrieve stdout/stderr
         o, e = self.do_import(capfd)
-        obj = self.get_object(e, 'Image', query=client.sf.getQueryService())
+        obj = self.get_object(o, 'Image', query=client.sf.getQueryService())
         assert obj.details.owner.id.val == user.id.val
         assert obj.details.group.id.val == group2.id.val
 
@@ -901,7 +941,7 @@ class TestImport(CLITest):
 
         # Invoke CLI import command and retrieve stdout/stderr
         o, e = self.do_import(capfd)
-        obj = self.get_object(e, 'Image', query=client.sf.getQueryService())
+        obj = self.get_object(o, 'Image', query=client.sf.getQueryService())
         assert obj.details.owner.id.val == user.id.val
         assert obj.details.group.id.val == group2.id.val
 
@@ -923,7 +963,7 @@ class TestImport(CLITest):
 
         # Invoke CLI import command and retrieve stdout/stderr
         o, e = self.do_import(capfd)
-        obj = self.get_object(e, fixture.obj_type)
+        obj = self.get_object(o, fixture.obj_type)
 
         if fixture.name_arg:
             assert obj.getName().val == 'name'
@@ -942,7 +982,7 @@ class TestImport(CLITest):
 
         # Invoke CLI import command and retrieve stdout/stderr
         out, err = self.do_import(capfd)
-        image = self.get_object(err, 'Image')
+        image = self.get_object(out, 'Image')
 
         # Check no thumbnails
         assert self.get_thumbnail(image.id.val) is None
@@ -961,7 +1001,7 @@ class TestImport(CLITest):
 
         # Invoke CLI import command and retrieve stdout/stderr
         out, err = self.do_import(capfd)
-        image = self.get_object(err, 'Image')
+        image = self.get_object(out, 'Image')
 
         # Check min/max calculation
         query = ("select p from Pixels p left outer "
@@ -999,7 +1039,7 @@ class TestImport(CLITest):
 
         # Invoke CLI import command and retrieve stdout/stderr
         o, e = self.do_import(capfd)
-        obj = self.get_object(e, 'Image')
+        obj = self.get_object(o, 'Image')
 
         assert obj
 
@@ -1028,7 +1068,7 @@ class TestImport(CLITest):
 
         # Invoke CLI import command and retrieve stdout/stderr
         o, e = self.do_import(capfd)
-        obj = self.get_object(e, 'Image')
+        obj = self.get_object(o, 'Image')
         assert obj.details.group.id.val == new_group.id.val
 
     @pytest.mark.parametrize("container,filename,arg", target_fixtures)

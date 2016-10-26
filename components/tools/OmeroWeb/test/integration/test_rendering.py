@@ -21,6 +21,8 @@
 Tests copying and pasting of rendering settings in webclient
 """
 
+import json
+
 import omero
 import omero.clients
 
@@ -149,6 +151,59 @@ class TestRendering(IWebTest):
         assert old_c1 == new_c2
         # check if image2 rendering model changed from greyscale to color
         assert image2.isGreyscaleRenderingModel() is False
+
+    """
+    Tests retrieving all rendering defs for an image (given id)
+    """
+    def test_all_rendering_defs(self):
+        # Create image with 3 channels
+        iid = self.createTestImage(sizeC=3, session=self.sf).id.val
+
+        conn = omero.gateway.BlitzGateway(client_obj=self.client)
+
+        image = conn.getObject("Image", iid)
+        image.resetDefaults()
+        image.setColorRenderingModel()
+        image.saveDefaults()
+        image = conn.getObject("Image", iid)
+
+        assert image.isGreyscaleRenderingModel() is False
+
+        # request the rendering def via the method we want to test
+        request_url = reverse(
+            'webgateway.views.get_image_rdefs_json', args=[iid])
+        response = _get_response(
+            self.django_client, request_url, {}, status_code=200)
+
+        # check expected response
+        assert response is not None and response.content is not None
+
+        # json => dict for convenience
+        rdefDict = json.loads(response.content)
+        assert isinstance(rdefDict, dict)
+        rdefs = rdefDict.get('rdefs')
+
+        # there has to be one rgb image with 3 channels
+        assert isinstance(rdefs, list) and len(rdefs) == 1
+        assert rdefs[0].get("model") == "rgb"
+        channels = rdefs[0].get("c")
+        assert isinstance(channels, list) and len(channels) == 3
+
+        # channel info is supposed to match
+        expChannels = image.getChannels()
+        for i, c in enumerate(channels):
+            assert c['active'] == expChannels[i].isActive()
+            assert c['start'] == expChannels[i].getWindowStart()
+            assert c['end'] == expChannels[i].getWindowEnd()
+            assert c['color'] == expChannels[i].getColor().getHtml()
+
+        # id and owner check
+        assert rdefs[0].get("id") is not None
+        owner = rdefs[0].get("owner")
+        assert isinstance(owner, dict)
+        fullOwner = owner.get("firstName", "") + " " +\
+            owner.get("lastName", "")
+        assert fullOwner == conn.getUser().getFullName()
 
 
 class TestRenderImageRegion(IWebTest):

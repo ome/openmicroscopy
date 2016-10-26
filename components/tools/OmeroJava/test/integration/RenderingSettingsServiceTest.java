@@ -14,14 +14,18 @@ import java.util.List;
 import java.util.Map;
 
 import omero.api.IRenderingSettingsPrx;
+import omero.api.IScriptPrx;
+import omero.api.RenderingEnginePrx;
 import omero.model.Channel;
 import omero.model.ChannelBinding;
+import omero.model.CodomainMapContext;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
@@ -1356,5 +1360,276 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
                 Arrays.asList(image.getId().getValue()));
         Assert.assertNotNull(m);
         Assert.assertEquals(m.size(), 1);
+    }
+
+    /**
+     * Tests to apply the rendering settings of an image with Lut and
+     * codomain transformation
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsWithLutAndCodomain() throws Exception {
+        IScriptPrx svc = factory.getScriptService();
+        List<OriginalFile> luts = svc.getScriptsByMimetype(
+                ScriptServiceTest.LUT_MIMETYPE);
+        Assert.assertNotNull(luts);
+        IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+        Image image = createBinaryImage();
+        Pixels pixels = image.getPrimaryPixels();
+        long id = pixels.getId().getValue();
+        // Image
+        prx.setOriginalSettingsInSet(Image.class.getName(),
+                Arrays.asList(image.getId().getValue()));
+        RenderingDef def1 = factory.getPixelsService().retrieveRndSettings(id);
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        List<ChannelBinding> channels = def1.copyWaveRendering();
+
+        for (int k = 0; k < channels.size(); k++) {
+            omero.romio.ReverseIntensityMapContext ctx = new omero.romio.ReverseIntensityMapContext();
+            re.addCodomainMapToChannel(ctx, k);
+            re.setChannelLookupTable(k, luts.get(0).getName().getValue());
+        }
+        re.saveCurrentSettings();
+        // method already tested
+        re.close();
+        def1 = factory.getPixelsService().retrieveRndSettings(id);
+        // Create a second image.
+        Image image2 = createBinaryImage();
+        Map<Boolean, List<Long>> m = prx
+                .applySettingsToSet(id, Image.class.getName(),
+                        Arrays.asList(image2.getId().getValue()));
+        Assert.assertNotNull(m);
+        List<Long> success = (List<Long>) m.get(Boolean.valueOf(true));
+        List<Long> failure = (List<Long>) m.get(Boolean.valueOf(false));
+        Assert.assertNotNull(success);
+        Assert.assertNotNull(failure);
+        Assert.assertEquals(success.size(), 1);
+        Assert.assertTrue(failure.isEmpty());
+        id = success.get(0); // image id.
+        Assert.assertEquals(id, image2.getId().getValue());
+        RenderingDef def2 = factory.getPixelsService().retrieveRndSettings(
+                image2.getPrimaryPixels().getId().getValue());
+        compareRenderingDef(def1, def2);
+        //Check if we have lut
+        List<ChannelBinding> channels1 = def1.copyWaveRendering();
+        List<ChannelBinding> channels2 = def2.copyWaveRendering();
+        ChannelBinding c1, c2;
+        int index = 0;
+        Iterator<ChannelBinding> i = channels1.iterator();
+        while (i.hasNext()) {
+            c1 = i.next();
+            c2 = channels2.get(index);
+            //Check lut
+            Assert.assertEquals(c1.getLookupTable().getValue(),
+                    c2.getLookupTable().getValue());
+            List<CodomainMapContext> ctxList1 = c1.copySpatialDomainEnhancement();
+            List<CodomainMapContext> ctxList2 = c2.copySpatialDomainEnhancement();
+            Assert.assertEquals(ctxList1.size(), ctxList2.size());
+            Assert.assertTrue(ctxList1.size() > 0);
+            Iterator<CodomainMapContext> j = ctxList1.iterator();
+            int k = 0;
+            CodomainMapContext ctx1, ctx2;
+            while (j.hasNext()) {
+                ctx1 = j.next();
+                ctx2 = ctxList2.get(k);
+                Assert.assertEquals(ctx1.getClass(), ctx2.getClass());
+                Assert.assertNotEquals(ctx1.getId().getValue(), ctx2.getId().getValue());
+            }
+        }
+    }
+
+    /**
+     * Tests to apply the rendering settings of an image
+     * codomain transformation and remove it.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsWithCodomainAndRemove() throws Exception {
+        IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+        Image image = createBinaryImage();
+        Pixels pixels = image.getPrimaryPixels();
+        long id = pixels.getId().getValue();
+        // Image
+        prx.setOriginalSettingsInSet(Image.class.getName(),
+                Arrays.asList(image.getId().getValue()));
+        RenderingDef def1 = factory.getPixelsService().retrieveRndSettings(id);
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        List<ChannelBinding> channels = def1.copyWaveRendering();
+
+        for (int k = 0; k < channels.size(); k++) {
+            omero.romio.ReverseIntensityMapContext ctx = new omero.romio.ReverseIntensityMapContext();
+            re.addCodomainMapToChannel(ctx, k);
+        }
+        re.saveCurrentSettings();
+        // method already tested
+        re.close();
+        def1 = factory.getPixelsService().retrieveRndSettings(id);
+        // Create a second image.
+        Image image2 = createBinaryImage();
+        Map<Boolean, List<Long>> m = prx
+                .applySettingsToSet(id, Image.class.getName(),
+                        Arrays.asList(image2.getId().getValue()));
+        Assert.assertNotNull(m);
+        List<Long> success = (List<Long>) m.get(Boolean.valueOf(true));
+        List<Long> failure = (List<Long>) m.get(Boolean.valueOf(false));
+        Assert.assertNotNull(success);
+        Assert.assertNotNull(failure);
+        Assert.assertEquals(success.size(), 1);
+        Assert.assertTrue(failure.isEmpty());
+        Assert.assertEquals(success.get(0).longValue(), image2.getId().getValue());
+        RenderingDef def2 = factory.getPixelsService().retrieveRndSettings(
+                image2.getPrimaryPixels().getId().getValue());
+        compareRenderingDef(def1, def2);
+        List<ChannelBinding> channels1 = def1.copyWaveRendering();
+        List<ChannelBinding> channels2 = def2.copyWaveRendering();
+        ChannelBinding c1, c2;
+        int index = 0;
+        Iterator<ChannelBinding> i = channels1.iterator();
+        while (i.hasNext()) {
+            c1 = i.next();
+            c2 = channels2.get(index);
+            List<CodomainMapContext> ctxList1 = c1.copySpatialDomainEnhancement();
+            List<CodomainMapContext> ctxList2 = c2.copySpatialDomainEnhancement();
+            Assert.assertEquals(ctxList1.size(), ctxList2.size());
+            Assert.assertTrue(ctxList1.size() > 0);
+            Iterator<CodomainMapContext> j = ctxList1.iterator();
+            int k = 0;
+            CodomainMapContext ctx1, ctx2;
+            while (j.hasNext()) {
+                ctx1 = j.next();
+                ctx2 = ctxList2.get(k);
+                Assert.assertEquals(ctx1.getClass(), ctx2.getClass());
+                Assert.assertNotEquals(ctx1.getId().getValue(), ctx2.getId().getValue());
+            }
+        }
+        //remove the codomain from image 1
+        id = pixels.getId().getValue();
+        re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        def1 = factory.getPixelsService().retrieveRndSettings(id);
+        channels = def1.copyWaveRendering();
+        for (int k = 0; k < channels.size(); k++) {
+            omero.romio.ReverseIntensityMapContext ctx = new omero.romio.ReverseIntensityMapContext();
+            re.removeCodomainMapFromChannel(ctx, k);
+        }
+        re.saveCurrentSettings();
+        // method already tested
+        re.close();
+        def1 = factory.getPixelsService().retrieveRndSettings(id);
+        m = prx.applySettingsToSet(id, Image.class.getName(),
+                        Arrays.asList(image2.getId().getValue()));
+        Assert.assertNotNull(m);
+        success = (List<Long>) m.get(Boolean.valueOf(true));
+        failure = (List<Long>) m.get(Boolean.valueOf(false));
+        Assert.assertNotNull(success);
+        Assert.assertNotNull(failure);
+        Assert.assertEquals(success.size(), 1);
+        Assert.assertTrue(failure.isEmpty());
+        Assert.assertEquals(success.get(0).longValue(), image2.getId().getValue());
+        def2 = factory.getPixelsService().retrieveRndSettings(
+                image2.getPrimaryPixels().getId().getValue());
+        compareRenderingDef(def1, def2);
+        channels1 = def1.copyWaveRendering();
+        channels2 = def2.copyWaveRendering();
+        index = 0;
+        i = channels1.iterator();
+        while (i.hasNext()) {
+            c1 = i.next();
+            c2 = channels2.get(index);
+            List<CodomainMapContext> ctxList1 = c1.copySpatialDomainEnhancement();
+            List<CodomainMapContext> ctxList2 = c2.copySpatialDomainEnhancement();
+            Assert.assertEquals(ctxList1.size(), ctxList2.size());
+            Assert.assertEquals(ctxList1.size(), 0);
+        }
+    }
+
+    /**
+     * Tests to apply the rendering settings to a collection of images. Tests
+     * the <code>ApplySettingsToSet</code> method.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testResetDefaultByOwnerInSetCodomain() throws Exception {
+        EventContext ctx = newUserAndGroup("rwra--");
+        Image image = createBinaryImage();
+        Pixels pixels = image.getPrimaryPixels();
+        long id = pixels.getId().getValue();
+        IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+        prx.setOriginalSettingsInSet(Image.class.getName(),
+                Arrays.asList(image.getId().getValue()));
+        RenderingDef defOwner = factory.getPixelsService().retrieveRndSettings(id);
+        List<ChannelBinding> channels = defOwner.copyWaveRendering();
+        ChannelBinding cb;
+        List<CodomainMapContext> l;
+        for (int k = 0; k < channels.size(); k++) {
+            cb = channels.get(k);
+            l = cb.copySpatialDomainEnhancement();
+            Assert.assertEquals(l.size(), 0);
+        }
+        disconnect();
+        EventContext ctx2 = newUserInGroup(ctx);
+        prx = factory.getRenderingSettingsService();
+        prx.setOriginalSettingsInSet(Image.class.getName(),
+                Arrays.asList(image.getId().getValue()));
+        
+        // Image
+        RenderingDef def1 = factory.getPixelsService().retrieveRndSettings(id);
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        channels = def1.copyWaveRendering();
+
+        for (int k = 0; k < channels.size(); k++) {
+            omero.romio.ReverseIntensityMapContext reverse = new omero.romio.ReverseIntensityMapContext();
+            re.addCodomainMapToChannel(reverse, k);
+        }
+        re.saveCurrentSettings();
+        // method already tested
+        re.close();
+        def1 = factory.getPixelsService().retrieveRndSettings(id);
+        channels = def1.copyWaveRendering();
+        for (int k = 0; k < channels.size(); k++) {
+            cb = channels.get(k);
+            l = cb.copySpatialDomainEnhancement();
+            Assert.assertEquals(l.size(), 1);
+        }
+        List<Long> v = prx.resetDefaultsByOwnerInSet(Image.class.getName(),
+                Arrays.asList(image.getId().getValue()));
+        Assert.assertNotNull(v);
+        Assert.assertEquals(v.size(), 1);
+        def1 = factory.getPixelsService().retrieveRndSettings(id);
+        channels = def1.copyWaveRendering();
+        for (int k = 0; k < channels.size(); k++) {
+            cb = channels.get(k);
+            l = cb.copySpatialDomainEnhancement();
+            Assert.assertEquals(l.size(), 0);
+        }
     }
 }

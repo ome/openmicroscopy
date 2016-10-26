@@ -97,7 +97,7 @@
                 <tr id="{{ byId.otype }}-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">
                         {% if byId.otype == 'image' %}
-                            <img class="search_thumb" id="{{ c.id }}" src="{% url 'render_thumbnail_resize' 96 c.id  %}" alt="image" title="{{ c.name }}"/>
+                            <img class="search_thumb" id="{{ c.id }}" src="{% url 'render_thumbnail' c.id  %}" alt="image" title="{{ c.name }}"/>
                         {% elif byId.otype == 'project' %}
                             <img src="{% static "webgateway/img/folder16.png" %}" alt="{{ byId.otype }}" title="{{ c.name }}"/>
                         {% elif byId.otype == 'dataset' %}
@@ -198,7 +198,7 @@
             {% for c in manager.containers.images %}
                 <tr id="image-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">
-                        <img class="search_thumb" id="{{ c.id }}" src="{% url 'render_thumbnail_resize' 96 c.id  %}" alt="image" title="{{ c.name }}"/>
+                        <img class="search_thumb" id="{{ c.id }}" src="{% url 'render_thumbnail' c.id  %}" alt="image" title="{{ c.name }}"/>
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
                     <td class="date">{{ c.getDate|date:"Y-m-d H:i:s" }}</td>

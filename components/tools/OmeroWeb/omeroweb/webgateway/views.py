@@ -292,8 +292,6 @@ def render_birds_eye_view(request, iid, size=None,
                         bird's eye view.
     @return:            http response containing jpeg
     """
-    if size is None:
-        size = 96       # Use cached thumbnail
     return render_thumbnail(request, iid, w=size, **kwargs)
 
 
@@ -306,14 +304,14 @@ def render_thumbnail(request, iid, w=None, h=None, conn=None, _defcb=None,
 
     @param request:     http request
     @param iid:         Image ID
-    @param w:           Thumbnail max width. 64 by default
+    @param w:           Thumbnail max width. 96 by default
     @param h:           Thumbnail max height
     @return:            http response containing jpeg
     """
     server_id = request.session['connector'].server_id
     direct = True
     if w is None:
-        size = (64,)
+        size = (96,)
     else:
         if h is None:
             size = (int(w),)
@@ -1378,24 +1376,28 @@ def plateGrid_json(request, pid, field=0, conn=None, **kwargs):
     except ValueError:
         field = 0
     prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
-    thumbsize = int(request.GET.get('size', 96))
+    thumbsize = getIntOrDefault(request, 'size', None)
     logger.debug(thumbsize)
     server_id = kwargs['server_id']
 
-    def urlprefix(iid):
-        return reverse(prefix, args=(iid, thumbsize))
+    def get_thumb_url(iid):
+        if thumbsize is not None:
+            return reverse(prefix, args=(iid, thumbsize))
+        return reverse(prefix, args=(iid,))
+
     plateGrid = PlateGrid(conn, pid, field,
-                          kwargs.get('urlprefix', urlprefix))
+                          kwargs.get('urlprefix', get_thumb_url))
     plate = plateGrid.plate
     if plate is None:
         return Http404
 
-    rv = webgateway_cache.getJson(request, server_id, plate,
-                                  'plategrid-%d-%d' % (field, thumbsize))
+    cache_key = 'plategrid-%d-%s' % (field, thumbsize)
+    rv = webgateway_cache.getJson(request, server_id, plate, cache_key)
+
     if rv is None:
         rv = plateGrid.metadata
         webgateway_cache.setJson(request, server_id, plate, json.dumps(rv),
-                                 'plategrid-%d-%d' % (field, thumbsize))
+                                 cache_key)
     else:
         rv = json.loads(rv)
     return rv
@@ -2520,3 +2522,31 @@ def object_table_query(request, objtype, objid, conn=None, **kwargs):
     tableData['parentId'] = ann['parentId']
     tableData['addedOn'] = ann['addedOn']
     return tableData
+
+
+@login_required()
+@jsonp
+def get_image_rdefs_json(request, img_id=None, conn=None, **kwargs):
+    """
+    Retrieves all rendering definitions for a given image (id).
+
+    Example:  /get_image_rdefs_json/1
+              Returns all rdefs for image with id 1
+
+    @param request:     http request.
+    @param img_id:      the id of the image in question
+    @param conn:        L{omero.gateway.BlitzGateway}
+    @param **kwargs:    unused
+    @return:            A dictionary with key 'rdefs' in the success case,
+                        one with key 'error' if something went wrong
+    """
+    try:
+        img = conn.getObject("Image", img_id)
+
+        if img is None:
+            return {'error': 'No image with id ' + str(img_id)}
+
+        return {'rdefs': img.getAllRenderingDefs()}
+    except:
+        logger.debug(traceback.format_exc())
+        return {'error': 'Failed to retrieve rdefs'}
