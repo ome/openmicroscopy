@@ -179,6 +179,8 @@
 	</type>
 	<enum id="ome.model.enums.AdminPrivilege">
 		<!-- Note: AdminPrivilege is not in model-->
+		<entry name="Chgrp"/>
+		<entry name="Chown"/>
 		<entry name="ModifyUser"/>
 		<entry name="ReadSession"/>
 		<entry name="Sudo"/>

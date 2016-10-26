@@ -55,6 +55,8 @@ public class LightAdminPrivileges {
 
     /* see trac ticket 10691 re. enum values */
     private enum Privilege {
+        CHGRP("Chgrp"),
+        CHOWN("Chown"),
         MODIFY_USER("ModifyUser"),
         READ_SESSION("ReadSession"),
         SUDO("Sudo"),
