@@ -274,7 +274,7 @@ public class LightAdminPrivilegesTest extends AbstractServerTest {
      * Test that users may write other users' data only if they are a member of the <tt>system</tt> group and
      * have the <tt>WriteOwned</tt> privilege. Attempts creation of another user's data.
      * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param isRestricted if to test a user who does <em>not</em> have the <tt>ModifyUser</tt> privilege
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>WriteOwned</tt> privilege
      * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
      * @throws Exception unexpected
      */
@@ -300,7 +300,7 @@ public class LightAdminPrivilegesTest extends AbstractServerTest {
      * Test that users may write other users' data only if they are a member of the <tt>system</tt> group and
      * have the <tt>WriteOwned</tt> privilege. Attempts changing of another user's existing data.
      * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param isRestricted if to test a user who does <em>not</em> have the <tt>ModifyUser</tt> privilege
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>WriteOwned</tt> privilege
      * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
      * @throws Exception unexpected
      */
@@ -333,7 +333,7 @@ public class LightAdminPrivilegesTest extends AbstractServerTest {
      * Test that users may write other users' data only if they are a member of the <tt>system</tt> group and
      * have the <tt>WriteOwned</tt> privilege. Attempts deletion of another user's data.
      * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param isRestricted if to test a user who does <em>not</em> have the <tt>ModifyUser</tt> privilege
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>WriteOwned</tt> privilege
      * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
      * @throws Exception unexpected
      */
