@@ -482,8 +482,9 @@ public class PermissionsTest extends AbstractServerTest {
      * @param option the child option to use in the tagset transfer
      * @throws Exception unexpected
      */
-    @Test
-    public void testChownAllBelongingToUserReadAnnotate() throws Exception {
+    @Test(dataProvider = "chown targetUser test cases")
+    public void testChownAllBelongingToUserReadAnnotate(boolean areDataOwnersInOneGroup, boolean isAdmin, boolean isGroupOwner, boolean isRecipientInGroup,
+            boolean isExpectSuccessOneTargetUser, boolean isExpectSuccessTwoTargetUsers) throws Exception {
 
         /* set up the users and group for this test case 
          * Note that two pairs of importers (1 and 2) are
@@ -492,22 +493,23 @@ public class PermissionsTest extends AbstractServerTest {
          * will be tested.*/
         final EventContext importerTargetUser1, otherImporter1, importerTargetUser2, otherImporter2;
         final EventContext chowner, recipient;
-        final ExperimenterGroup dataGroup1, dataGroup2;
-        final boolean isRecipientInGroup = false;
-        final boolean isGroupOwner = false;
-
+        final ExperimenterGroup dataGroup1;
 
         importerTargetUser1 = newUserAndGroup("rwra--", false);
-        importerTargetUser2 = newUserAndGroup("rwra--", false);
-
         final long dataGroupId1 = importerTargetUser1.groupId;
         dataGroup1 = new ExperimenterGroupI(dataGroupId1, false);
         otherImporter1 = newUserInGroup(dataGroup1, false);
-        final long dataGroupId2 = importerTargetUser2.groupId;
-        dataGroup2 = new ExperimenterGroupI(dataGroupId2, false);
-        otherImporter2 = newUserInGroup(dataGroup2, false);
-        recipient = newUserInGroup(isRecipientInGroup ? dataGroup2 : otherGroup, false);
         
+        if (areDataOwnersInOneGroup) {
+            importerTargetUser2 = newUserInGroup(dataGroup1, false);
+            otherImporter2 = newUserInGroup(dataGroup1, false);
+        }else {
+            importerTargetUser2 = newUserAndGroup("rwra--", false);
+            otherImporter2 = newUserInGroup(importerTargetUser2, false);
+        }
+
+        recipient = newUserInGroup(isRecipientInGroup ? dataGroup1 : otherGroup, false);
+
         /* Add importerTargetUser1 also to "otherGroup" in order to be able
          * to test the case where a user has data in two different groups
          * in this test
@@ -515,18 +517,15 @@ public class PermissionsTest extends AbstractServerTest {
 
         addUsers(otherGroup, Collections.singletonList(importerTargetUser1.userId), false);
 
-        /* make chowner an admin, other cases will not be tested 
-         * in this test
-         */
         chowner = newUserInGroup(dataGroup1, isGroupOwner);
-        final boolean isAdmin = true;
+
         if (isAdmin) {
             addUsers(systemGroup, Collections.singletonList(chowner.userId), false);
         }
 
-        /* note which objects will be used to annotate an image 
+        /* note which objects will be used to annotate an image
          * Note that two object sets are necessary, for the
-         * two pairs of importers, denoted as 1 and 2*/
+         * two pairs of importers, denoted as 1 and 2.*/
         final List<IObject> annotationsAndLinksOwnAnnForTripleLinking1;
         final List<IObject> annotationsAndLinksOwnToOthersImage1;
         final List<IObject> annotationsAndLinksOthersToOwnImage1;
@@ -749,14 +748,27 @@ public class PermissionsTest extends AbstractServerTest {
 
         init(chowner);
         Chown2 chown = Requests.chown().targetUsers(importerTargetUser1.userId).toUser(recipient.userId).build();
-        doChange(client, factory, chown, true);
+        doChange(client, factory, chown, isExpectSuccessOneTargetUser);
+
+        if (!isExpectSuccessOneTargetUser) {
+            return;
+        }
 
         /* check that the ownership of images is as expected,
          * start checking the unannotated image which importerTargetUser1
-         * has in otherGroup. Later switch to dataGroup1, where all the other
-         * data are and perform the remaining checks*/
+         * has in otherGroup. Note that in case
+         * chowner is just a GroupOwner, not an admin, the image in the otherGroup
+         * must still belong to the importerTargetUser1, because GroupOwner has
+         * no power to perform chown outside his group. Cases where chowner is
+         * both admin and GroupOwner are not tested here and are not provided by
+         * data provider for this test.*/
         logRootIntoGroup(otherGroup.getId().getValue());
-        assertOwnedBy(imageOtherGroup1, recipient);
+        if (isGroupOwner) {
+            assertOwnedBy(imageOtherGroup1, importerTargetUser1);
+        } else assertOwnedBy(imageOtherGroup1, recipient);
+
+        /*Later switch to dataGroup1, where all the other
+        * data are and perform the remaining checks.*/
         logRootIntoGroup(dataGroupId1);
         assertOwnedBy(image1, recipient);
         assertOwnedBy(otherImage1, otherImporter1);
@@ -813,24 +825,45 @@ public class PermissionsTest extends AbstractServerTest {
         init(chowner);
         Chown2 chownTwoUsers = Requests.chown().
                 targetUsers(importerTargetUser1.userId, importerTargetUser2.userId).toUser(recipient.userId).build();
-        doChange(client, factory, chownTwoUsers, true);
+        doChange(client, factory, chownTwoUsers, isExpectSuccessTwoTargetUsers);
         
-        /* check that the ownership of images is as expected*/
+        if (!isExpectSuccessTwoTargetUsers) {
+            return;
+        }
+
+        /* check that the ownership of images is as expected
+         * Note that in case
+         * chowner is just a GroupOwner, not an admin, the image in the otherGroup
+         * must still belong to the importerTargetUser1, because GroupOwner has
+         * no power to perform chown outside his group. Cases where chowner is
+         * both admin and GroupOwner are not tested here and are not provided by
+         * data provider for this test.*/
+
         logRootIntoGroup(otherGroup.getId().getValue());
-        assertOwnedBy(imageOtherGroup1, recipient);
+        if (isGroupOwner) {
+            assertOwnedBy(imageOtherGroup1, importerTargetUser1);
+        } else assertOwnedBy(imageOtherGroup1, recipient);
+
+        /* in case chowner is GroupOwner, and the areTargetUsersInOneGroup is false,
+         * the whole chown().targetUsers operation with the two users in different
+         * groups must fail. Thus it is possible to assert that both importerTargetUser1's
+         * and importerTargetUser2's images have the same ownership after
+         * chown().targetUsers operation with both users passed in argument */
+
         logRootIntoGroup(dataGroupId1);
         assertOwnedBy(image1, recipient);
-        logRootIntoGroup(dataGroupId2);
+        logRootIntoGroup(importerTargetUser2.groupId);
         assertOwnedBy(image2, recipient);
-        
+
         /* check that all the own (=belonging to targetUserImporter)
          * triply linked annotations and the own mixed bag of annotations
          * (singly linked) were transferred to recipient 
          * Do this check in both groups for both sets of annotations, 1 and 2.*/
+
         logRootIntoGroup(dataGroupId1);
         assertOwnedBy(annotationsOwnForTripleLinking1, recipient);
         assertOwnedBy(annotationsAndLinksOwnToOthersImage1, recipient);
-        logRootIntoGroup(dataGroupId2);
+        logRootIntoGroup(importerTargetUser2.groupId);
         assertOwnedBy(annotationsOwnForTripleLinking2, recipient);
         assertOwnedBy(annotationsAndLinksOwnToOthersImage2, recipient);
         
@@ -838,10 +871,11 @@ public class PermissionsTest extends AbstractServerTest {
          * triply linked annotations and the others' mixed bag of annotations
          * (singly linked) are still belonging to otherImporter
          * Do this check in both groups for both sets of annotations, 1 and 2. */
+
         logRootIntoGroup(dataGroupId1);
         assertOwnedBy(annotationsOthersForTripleLinking1, otherImporter1);
         assertOwnedBy(annotationsAndLinksOthersToOwnImage1, otherImporter1);
-        logRootIntoGroup(dataGroupId2);
+        logRootIntoGroup(importerTargetUser2.groupId);
         assertOwnedBy(annotationsOthersForTripleLinking2, otherImporter2);
         assertOwnedBy(annotationsAndLinksOthersToOwnImage2, otherImporter2);
         
@@ -849,11 +883,12 @@ public class PermissionsTest extends AbstractServerTest {
          * were transferred to recipient, irrespective of ownership of the objects
          * they were linking 
          * Do this check in both groups for both sets of annotations, 1 and 2. */
+
         logRootIntoGroup(dataGroupId1);
         assertOwnedBy(linksOwnToOwnAnnOwnImage1, recipient);
         assertOwnedBy(linksOwnToOthersAnnOthersImage1, recipient);
         assertOwnedBy(linksOwnToOthersAnnOwnImage1, recipient);
-        logRootIntoGroup(dataGroupId2);
+        logRootIntoGroup(importerTargetUser2.groupId);
         assertOwnedBy(linksOwnToOwnAnnOwnImage2, recipient);
         assertOwnedBy(linksOwnToOthersAnnOthersImage2, recipient);
         assertOwnedBy(linksOwnToOthersAnnOwnImage2, recipient);
@@ -862,17 +897,16 @@ public class PermissionsTest extends AbstractServerTest {
          * still belong to otherImporter, irrespective of ownership of the objects
          * they were linking
          * Do this check in both groups for both sets of annotations, 1 and 2. */
+
         logRootIntoGroup(dataGroupId1);
         assertOwnedBy(linksOthersToOthersAnnOtherImage1, otherImporter1);
         assertOwnedBy(linksOthersToOwnAnnOwnImage1, otherImporter1);
         assertOwnedBy(linksOthersToOwnAnnOthersImage1, otherImporter1);
-        logRootIntoGroup(dataGroupId2);
+        logRootIntoGroup(importerTargetUser2.groupId);
         assertOwnedBy(linksOthersToOthersAnnOtherImage2, otherImporter2);
         assertOwnedBy(linksOthersToOwnAnnOwnImage2, otherImporter2);
         assertOwnedBy(linksOthersToOwnAnnOthersImage2, otherImporter2);
     }
-    
-    
 
     /**
      * Test a specific case of using {@link Chown2} with owner's and others' annotations, including tag sets with
@@ -1064,7 +1098,51 @@ public class PermissionsTest extends AbstractServerTest {
                 }
             }
         }
+        return testCases.toArray(new Object[testCases.size()][]);
+    }
 
+    /**
+     * @return a variety of test cases for ChownAllBelongingToUser (targetUser)
+     */
+    @DataProvider(name = "chown targetUser test cases")
+    public Object[][] provideChownTargetUserCases() {
+        int index = 0;
+        final int ARE_DATAOWNERS_IN_ONE_GROUP = index++;
+        final int IS_ADMIN = index++;
+        final int IS_GROUP_OWNER = index++;
+        final int IS_RECIPIENT_IN_GROUP = index++;
+        final int IS_EXPECT_SUCCESS_CHOWN_ONE_TARGET_USER = index++;
+        final int IS_EXPECT_SUCCESS_CHOWN_TWO_TARGET_USERS = index++;
+
+        final boolean[] booleanCases = new boolean[]{false, true};
+
+        final List<Object[]> testCases = new ArrayList<Object[]>();
+
+        for (final boolean areDataOwnersInOneGroup : booleanCases) {
+            for (final boolean isAdmin : booleanCases) {
+                for (final boolean isGroupOwner : booleanCases) {
+                    for (final boolean isRecipientInGroup : booleanCases) {
+                        final Object[] testCase = new Object[index];
+                        if (isAdmin) {
+                            if (isRecipientInGroup || areDataOwnersInOneGroup || isGroupOwner) {
+                                continue;
+                                /* not interesting cases, tested already for simple chown
+                                 * without targetUser option */
+                            }
+                        }
+                        testCase[ARE_DATAOWNERS_IN_ONE_GROUP] = areDataOwnersInOneGroup;
+                        testCase[IS_ADMIN] = isAdmin;
+                        testCase[IS_GROUP_OWNER] = isGroupOwner;
+                        testCase[IS_RECIPIENT_IN_GROUP] = isRecipientInGroup;
+                        testCase[IS_EXPECT_SUCCESS_CHOWN_ONE_TARGET_USER] = ((isAdmin) ||
+                                (isGroupOwner && isRecipientInGroup));
+                        testCase[IS_EXPECT_SUCCESS_CHOWN_TWO_TARGET_USERS] = ((isAdmin) ||
+                                isGroupOwner && isRecipientInGroup && areDataOwnersInOneGroup);
+                        testCases.add(testCase);
+                    }
+                }
+            }
+        }
         return testCases.toArray(new Object[testCases.size()][]);
     }
 
