@@ -338,20 +338,20 @@ class TestISession(lib.ITest):
         principal.eventType = "Test"
 
         if to_root:
-            iAdminRoot = self.root.sf.getAdminService()
-            ctx_root = iAdminRoot.getEventContext()
+            iAdmin_root = self.root.sf.getAdminService()
+            ctx_root = iAdmin_root.getEventContext()
             principal.name = ctx_root.userName
             principal.group = ctx_root.groupName
         else:
             principal.name = self.ctx.userName
             principal.group = self.ctx.groupName
 
-        iSessionRoot = self.root.sf.getSessionService()
-        sudoSession = iSessionRoot.createSessionWithTimeout(
+        iSession_root = self.root.sf.getSessionService()
+        sudo_session = iSession_root.createSessionWithTimeout(
             principal, 10 * 1000)
 
         c = omero.client(self.client.getPropertyMap())
-        c.joinSession(sudoSession.uuid.val)
+        c.joinSession(sudo_session.uuid.val)
 
         iSession = c.sf.getSessionService()
         with pytest.raises(omero.SecurityViolation):
