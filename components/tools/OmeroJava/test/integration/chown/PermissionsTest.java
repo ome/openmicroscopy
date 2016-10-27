@@ -34,6 +34,8 @@ import omero.rtypes;
 import omero.cmd.Chmod2;
 import omero.cmd.Chown2;
 import omero.cmd.Delete2;
+import omero.cmd.ERR;
+import omero.cmd.Response;
 import omero.gateway.util.Requests;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
@@ -471,15 +473,17 @@ public class PermissionsTest extends AbstractServerTest {
      * belonging to a targetUser (importerTargetUser) to a recipient completely,
      * where targetUser's shared annotations, images and tag sets are in a read-annotate group,
      * as well as leaving the otherImporter's images, which targetUser annotated, not transferred.
-     * The target user has also additional data in a different group, which are to be transferred too.
+     * The target user has also additional data in a different group, which are to be transferred too, in case
+     * Admin does the action, whereas in case of GroupOwner being a chowner the data from other group
+     * will not be transferred.
      * Further, the test deals also with 2 users being passed to the argument of targetUsers (in 2 variations:
      * 2 users from the same group and 2 users from 2 different groups).
-     * @param isDataOwner if the user submitting the {@link Chown2} request owns the data in the group
+     * @param areDataOwnersInOneGroup if all the owners of the data have a membership of a common group
      * @param isAdmin if the user submitting the {@link Chown2} request is a member of the system group
      * @param isGroupOwner if the user submitting the {@link Chown2} request owns the group itself
      * @param isRecipientInGroup if the user receiving data by means of the {@link Chown2} request is a member of the data's group
-     * @param isExpectSuccess if the chown is expected to succeed
-     * @param option the child option to use in the tagset transfer
+     * @param isExpectSuccessOneTargetUser if the one-user chown is expected to succeed
+     * @param isExpectSuccessTwoTargetUsers if the two-users chown is expected to succeed
      * @throws Exception unexpected
      */
     @Test(dataProvider = "chown targetUser test cases")
@@ -906,6 +910,45 @@ public class PermissionsTest extends AbstractServerTest {
         assertOwnedBy(linksOthersToOthersAnnOtherImage2, otherImporter2);
         assertOwnedBy(linksOthersToOwnAnnOwnImage2, otherImporter2);
         assertOwnedBy(linksOthersToOwnAnnOthersImage2, otherImporter2);
+
+        /* now do a negative test for violating link uniqueness in case
+         * of non-unique image-annotation links. The reason for the error
+         * is that after the chown action on 2 users which linked doubly identical
+         * annotations to their images, these links become non-unique as
+         * they change ownership from 2 different users (importerTargetUser1,
+         * otherImporter1) to just one user (recipient) */
+        init(chowner);
+        Chown2 chownTwoUsersExpectFail = Requests.chown().
+                targetUsers(importerTargetUser1.userId, otherImporter1.userId).toUser(recipient.userId).build();
+
+        /*perform the chown and catch the response*/
+        Response response = new Response();
+        response = doChange(client, factory, chownTwoUsersExpectFail, false);
+        boolean isGraphException = response instanceof omero.cmd.GraphException;
+        boolean isError = response instanceof omero.cmd.ERR;
+
+        /* in case of chowner being an admin, the error is just omero.cmd.ERR and the message
+         * returned is not too friendly, it is just "could not execute update query" */
+        if (isAdmin) {
+            Assert.assertEquals(isError, true,
+                    "in case of Admin only a general Error is expected");
+        }
+
+        /* in case of chowner being an GroupOwner, omero.cmd.GraphException
+         * is returned, with explicit pointing out which user (recipient in our case)
+         * and the ID number of the link whose duplication is impossible to execute */
+        if (isGroupOwner) {
+            Assert.assertEquals(isGraphException, true,
+                    "in case of GroupOwner a nice GraphException is expected");
+            omero.cmd.ERR err = (omero.cmd.ERR) response;
+            Map.Entry<String,String> entry=err.parameters.entrySet().iterator().next();
+            String string = entry.getValue().substring(0, entry.getValue().indexOf("\n"));
+            String result = string.substring(string.indexOf(":") + 1, string.indexOf(")"));
+            System.out.println(result);
+            Assert.assertEquals(result, " would have user " + recipient.userId + " owning multiple identical links");
+        }
+
+
     }
 
     /**
