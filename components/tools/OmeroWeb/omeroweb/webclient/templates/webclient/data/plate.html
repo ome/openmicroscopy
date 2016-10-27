@@ -188,6 +188,7 @@
                 showImagesInWell();
             });
 
+            var wellBirdsEye = OME.WellBirdsEye();
             var showImagesInWell = function() {
                 var $table = $("#wellImages table");
                 if (!imagesInWellVisible) {
@@ -203,6 +204,7 @@
                     $table.append("<tr id='wellImages-" + wellId + "'><td class='wellImagesLabel'><h1>" + label + "</h1></td></tr>");
                     var url = "{% url 'webgateway' %}well/" + wellId + "/children/";
                     $.getJSON(url, function(data){
+                        wellBirdsEye.addWell(data);
                         var html = data.reduce(function(html, w){
                             return html + '<li title="' + w.name + '" data-imageId="' + w.id + '"><img src="' + w.thumb_url + '" /></li>';
                         }, "");
@@ -242,6 +244,12 @@
         }
         #wellImages td {
             border-bottom: solid #bbb 1px;
+        }
+        #well_birds_eye img {
+            position: absolute;
+            width: 20px;
+            max-height: 20px;
+            border: solid black 1px;
         }
     </style>
     
