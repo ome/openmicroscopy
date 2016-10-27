@@ -511,20 +511,20 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
             if (ILink.class.isAssignableFrom(actualClass)) {
                 final Class<? extends ILink> linkType = actualClass.asSubclass(ILink.class);
                 if (isDuplicationRisk(linkType)) {
-                final Object[] parentChildIds = (Object[]) session.createQuery(
-                        "SELECT parent.id, child.id FROM " + className + " WHERE id = :id")
-                        .setParameter("id", objectId)
-                        .uniqueResult();
-                final Long parentId = (Long) parentChildIds[0];
-                final Long childId = (Long) parentChildIds[1];
-                final Long count = (Long) session.createQuery(
-                        "SELECT COUNT(*) FROM " + className +
-                        " WHERE parent.id = :parent AND child.id = :child AND details.owner.id = :owner")
-                        .setParameter("parent", parentId).setParameter("child", childId).setParameter("owner", userId)
-                        .uniqueResult();
-                if (count > 0 || !linksToChown.add(new LinkDetails(linkType, parentId, childId))) {
-                    throw new GraphException("would have user " + userId + " owning multiple identical links");
-                }
+                    final Object[] parentChildIds = (Object[]) session.createQuery(
+                            "SELECT parent.id, child.id FROM " + className + " WHERE id = :id")
+                            .setParameter("id", objectId)
+                            .uniqueResult();
+                    final Long parentId = (Long) parentChildIds[0];
+                    final Long childId = (Long) parentChildIds[1];
+                    final Long count = (Long) session.createQuery(
+                            "SELECT COUNT(*) FROM " + className +
+                            " WHERE parent.id = :parent AND child.id = :child AND details.owner.id = :owner")
+                            .setParameter("parent", parentId).setParameter("child", childId).setParameter("owner", userId)
+                            .uniqueResult();
+                    if (count > 0 || !linksToChown.add(new LinkDetails(linkType, parentId, childId))) {
+                        throw new GraphException("would have user " + userId + " owning multiple identical links");
+                    }
                 }
             }
         }
