@@ -501,7 +501,7 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         prx.setOriginalSettingsInSet(Pixels.class.getName(),
                 Arrays.asList(pixels.getId().getValue()));
         final RenderingDef rDef = (RenderingDef) iQuery.findByQuery("FROM RenderingDef WHERE pixels.id = :id",
-                new ParametersI().addId(pixels.getId().getValue()));
+                new ParametersI().addId(pixels.getId()));
 
         /* create a rendering defs name and set it on the retrieved rDef object */
 
@@ -529,7 +529,7 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         Image sentI = (Image) iUpdate.saveAndReturnObject(img);
         /* now get the roi back using a query */
         final Roi roi = (Roi) iQuery.findByQuery("select roi from Roi as roi where roi.image.id = :id",
-                new ParametersI().addId(sentI.getId().getValue()));
+                new ParametersI().addId(sentI.getId()));
 
         /* test for failure of names >2KB for roi name */
         String name = createName(1000000);
@@ -631,7 +631,7 @@ public class ObjectPropertiesTest extends AbstractServerTest {
 
         /* get the well back using a query */
         final Well well = (Well) iQuery.findByQuery("select well from Well as well where well.plate.id = :id",
-                new ParametersI().addId(sentP.getId().getValue()));
+                new ParametersI().addId(sentP.getId()));
 
         /* create a long external description, set it on the well
          * save the well, check that the saved description
