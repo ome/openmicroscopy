@@ -388,6 +388,47 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
     }
 
     /**
+     * Notes annotation links that are to be given. Intended for use in {@link HashSet}s.
+     * @author m.t.b.carroll@dundee.ac.uk
+     * @since 5.3.0
+     */
+    private final class AnnotationLinkDetails {
+        private final Class<? extends IAnnotationLink> linkType;
+        private final long parentId, childId;
+
+        /**
+         * Construct a new note of annotation link details.
+         * @param linkType the type of link
+         * @param parentId the ID of the annotated object
+         * @param childId the ID of the annotation
+         */
+        public AnnotationLinkDetails(Class<? extends IAnnotationLink> linkType, long parentId, long childId) {
+            this.linkType = linkType;
+            this.parentId = parentId;
+            this.childId = childId;
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if (other == this) {
+                return true;
+            } else if (other instanceof AnnotationLinkDetails) {
+                final AnnotationLinkDetails otherLink = (AnnotationLinkDetails) other;
+                return this.linkType == otherLink.linkType &&
+                        this.parentId == otherLink.parentId &&
+                        this.childId == otherLink.childId;
+            } else {
+                return false;
+            }
+        }
+
+        @Override
+        public int hashCode() {
+            return Arrays.hashCode(new Object[] {AnnotationLinkDetails.class, linkType, parentId, childId});
+        }
+    }
+
+    /**
      * A <q>chown</q> processor that updates model objects' user.
      * @author m.t.b.carroll@dundee.ac.uk
      * @since 5.1.0
@@ -398,6 +439,8 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
 
         private final Long userFromId = helper.getEventContext().getCurrentUserId();
         private final Experimenter userTo = new Experimenter(userId, false);
+
+        private final Set<AnnotationLinkDetails> linksToChown = new HashSet<AnnotationLinkDetails>();
 
         public InternalProcessor() {
             super(helper.getSession());
@@ -420,6 +463,10 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
 
         @Override
         public void assertMayProcess(String className, long objectId, Details details) throws GraphException {
+            if (details.getOwner().getId() == userId) {
+                /* no-op */
+                return;
+            }
             /* final Long objectOwnerId = details.getOwner().getId();
                also allow userFromId.equals(objectOwnerId) for users to chown their own data */
             final Long objectGroupId = details.getGroup().getId();
@@ -437,6 +484,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
                 return;
             }
             if (IAnnotationLink.class.isAssignableFrom(actualClass)) {
+                final Class<? extends IAnnotationLink> linkType = actualClass.asSubclass(IAnnotationLink.class);
                 final Object[] parentChildIds = (Object[]) session.createQuery(
                         "SELECT parent.id, child.id FROM " + className + " WHERE id = :id")
                         .setParameter("id", objectId)
@@ -448,7 +496,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
                         " WHERE parent.id = :parent AND child.id = :child AND details.owner.id = :owner")
                         .setParameter("parent", parentId).setParameter("child", childId).setParameter("owner", userId)
                         .uniqueResult();
-                if (count > 0) {
+                if (count > 0 || !linksToChown.add(new AnnotationLinkDetails(linkType, parentId, childId))) {
                     throw new GraphException("would have user " + userId + " owning multiple identical links");
                 }
             }
