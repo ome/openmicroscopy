@@ -91,13 +91,21 @@
 
             // Trigger Well Images selected (to update right panel)
             var triggerWellImagesSelection = function() {
-                var selected_objs = $("#wellImages li.ui-selected").map(function(){
-                    return {'id': 'image-' + this.getAttribute('data-imageId')};
+                var selected_ids = [];
+                $("#wellImages li.ui-selected").each(function(){
+                    selected_ids.push(this.getAttribute('data-imageId'));
                 });
+                // This may be redundant if selection change came from birds eye component
+                wellBirdsEye.setSelected(selected_ids);
+
+                // trigger right panel update etc
+                var selected_objs = selected_ids.map(function(iid){
+                    return {id: 'image-' + iid};
+                })
                 $("body")
                     .data("selected_objects.ome", selected_objs)
                     .trigger("selection_change.ome");
-            }
+            };
             // Handle click on Wellsample Images
             $( '#wellImages' ).on( "click", "img", function(event) {
                 // Update 'ui-selected' on images, handling shift-click etc
@@ -188,7 +196,16 @@
                 showImagesInWell();
             });
 
-            var wellBirdsEye = OME.WellBirdsEye();
+            // Callback for the spacial birds eye component
+            var selectImages = function(imageIds) {
+                $("#wellImages li").removeClass('ui-selected');
+                imageIds.forEach(function(iid){
+                    $("#wellImages li[data-imageId=" + iid + "]").addClass('ui-selected');
+                });
+                triggerWellImagesSelection();
+            }
+
+            var wellBirdsEye = OME.WellBirdsEye({callback: selectImages});
             var showImagesInWell = function() {
                 var $table = $("#wellImages table");
                 if (!imagesInWellVisible) {
@@ -197,6 +214,7 @@
                 }
                 var $selected = $('td.ui-selected', wpv.self);
                 $table.empty();
+                wellBirdsEye.clear();
                 $selected.each(function(i, w){
                     var wellId = w.id.split('-')[1];
                     var label = $(w).children('.wellLabel').text();
@@ -250,6 +268,13 @@
             width: 20px;
             max-height: 20px;
             border: solid black 1px;
+            z-index: 0;
+        }
+        #well_birds_eye .ui-selected {
+            width: 16px;
+            max-height: 16px;
+            border: solid 3px #87ABD2;
+            z-index: 10;
         }
     </style>
     

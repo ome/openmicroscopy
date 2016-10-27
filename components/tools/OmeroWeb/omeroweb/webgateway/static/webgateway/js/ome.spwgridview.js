@@ -5,11 +5,42 @@
         window.OME = {};
     }
 
-    OME.WellBirdsEye = function() {
+    OME.WellBirdsEye = function(opts) {
 
         var $left_panel_tabs = $("#left_panel_tabs");
         var $left_panel_bottom = $("#left_panel_bottom");
         var $well_birds_eye = $("#well_birds_eye");
+
+        function selectionChanged() {
+            var imageIds = [];
+            $('.ui-selected', $well_birds_eye).each(function(ws){
+                imageIds.push(parseInt(this.getAttribute('data-imageId'), 10));
+            });
+            if (opts.callback) {
+                opts.callback(imageIds);
+            }
+        };
+
+        // Drag selection on WellSample images
+        $well_birds_eye.selectable({
+            filter: 'img',
+            distance: 2,
+            stop: function(){
+                selectionChanged();
+            }
+        });
+        // Handle click on image
+        $well_birds_eye.on( "click", "img", function(event) {
+            if (event.metaKey) {
+                // Ctrl click - simply toggle clicked image
+                $(event.target).toggleClass('ui-selected');
+            } else {
+                // select ONLY clicked image
+                $("img", $well_birds_eye).removeClass('ui-selected');
+                $(event.target).addClass('ui-selected');
+            }
+            selectionChanged();
+        });
 
         var minX,
             maxX,
@@ -31,9 +62,16 @@
             return p !== undefined;
         }
 
+        // 'public' methods returned...
         return {
             clear: function() {
                 $well_birds_eye.empty();
+            },
+            setSelected: function(imageIds) {
+                $("img", $well_birds_eye).removeClass('ui-selected');
+                imageIds.forEach(function(iid){
+                    $("img[data-imageId=" + iid + "]", $well_birds_eye).addClass('ui-selected');
+                });
             },
             addWell: function(data) {
                 showPanel();
