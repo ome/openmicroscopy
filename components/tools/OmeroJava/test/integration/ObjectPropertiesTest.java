@@ -127,7 +127,6 @@ public class ObjectPropertiesTest extends AbstractServerTest {
          * and let the test pass */
 
         namespace = createName(2000);
-        ann.setName(omero.rtypes.rstring(name));
         ann.setNs(omero.rtypes.rstring(namespace));;
         TagAnnotation sent = (TagAnnotation) iUpdate.saveAndReturnObject(ann);
         String savedName = sent.getName().getValue().toString();
@@ -210,14 +209,14 @@ public class ObjectPropertiesTest extends AbstractServerTest {
      */
     @Test
     public void testFolderNameSaving() throws Exception {
-        Folder dat = mmFactory.simpleFolder();
+        Folder folder = mmFactory.simpleFolder();
         final String name = createName(1000000);
-        dat.setName(omero.rtypes.rstring(name));
-        Folder sent = (Folder) iUpdate.saveAndReturnObject(dat);
+        folder.setName(omero.rtypes.rstring(name));
+        Folder sent = (Folder) iUpdate.saveAndReturnObject(folder);
         String savedName = sent.getName().getValue().toString();
         long id = sent.getId().getValue();
-        final Folder retrievedDataset = (Folder) iQuery.get("Folder", id);
-        final String retrievedName = retrievedDataset.getName().getValue().toString();
+        final Folder retrievedFolder = (Folder) iQuery.get("Folder", id);
+        final String retrievedName = retrievedFolder.getName().getValue().toString();
         Assert.assertEquals(name, retrievedName);
         Assert.assertEquals(name, savedName);
     }
@@ -317,6 +316,7 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         /* need to revert the name to 2KB size in order to be sure to test
          * for displayName failure, not both name and displayName failure */
         name = createName(2000);
+        ns.setName(omero.rtypes.rstring(name));
         try {
             iUpdate.saveAndReturnObject(ns);
             Assert.fail("Expected not to be able to insert "
@@ -329,7 +329,6 @@ public class ObjectPropertiesTest extends AbstractServerTest {
          * and let the test pass */
 
         displayName = createName(2000);
-        ns.setName(omero.rtypes.rstring(name));
         ns.setDisplayName(omero.rtypes.rstring(displayName));
         Namespace sent = (Namespace) iUpdate.saveAndReturnObject(ns);
         final String savedName = sent.getName().getValue().toString();
@@ -373,7 +372,6 @@ public class ObjectPropertiesTest extends AbstractServerTest {
          * and let the test pass */
 
         hash = createName(2000);
-        oFile.setName(omero.rtypes.rstring(name));
         oFile.setHash(omero.rtypes.rstring(hash));
         OriginalFile sent = (OriginalFile) iUpdate.saveAndReturnObject(oFile);
         String savedName = sent.getName().getValue().toString();
@@ -502,7 +500,7 @@ public class ObjectPropertiesTest extends AbstractServerTest {
         IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
         prx.setOriginalSettingsInSet(Pixels.class.getName(),
                 Arrays.asList(pixels.getId().getValue()));
-        final RenderingDef rDef = (RenderingDef) iQuery.findByQuery("select rdef from RenderingDef as rdef where rdef.pixels.id = :id", 
+        final RenderingDef rDef = (RenderingDef) iQuery.findByQuery("FROM RenderingDef WHERE pixels.id = :id",
                 new ParametersI().addId(pixels.getId().getValue()));
 
         /* create a rendering defs name and set it on the retrieved rDef object */
