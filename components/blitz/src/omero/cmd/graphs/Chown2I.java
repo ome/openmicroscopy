@@ -44,9 +44,15 @@ import com.google.common.collect.SetMultimap;
 import ome.api.IAdmin;
 import ome.api.IQuery;
 import ome.model.IAnnotationLink;
+import ome.model.ILink;
 import ome.model.IObject;
+import ome.model.containers.DatasetImageLink;
+import ome.model.containers.FolderImageLink;
+import ome.model.containers.FolderRoiLink;
+import ome.model.containers.ProjectDatasetLink;
 import ome.model.internal.Details;
 import ome.model.meta.Experimenter;
+import ome.model.screen.ScreenPlateLink;
 import ome.parameters.Parameters;
 import ome.security.ACLVoter;
 import ome.security.SystemTypes;
@@ -388,21 +394,21 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
     }
 
     /**
-     * Notes annotation links that are to be given. Intended for use in {@link HashSet}s.
+     * Notes links that are to be given. Intended for use in {@link HashSet}s.
      * @author m.t.b.carroll@dundee.ac.uk
      * @since 5.3.0
      */
-    private final class AnnotationLinkDetails {
-        private final Class<? extends IAnnotationLink> linkType;
+    private final class LinkDetails {
+        private final Class<? extends ILink> linkType;
         private final long parentId, childId;
 
         /**
-         * Construct a new note of annotation link details.
+         * Construct a new note of link details.
          * @param linkType the type of link
-         * @param parentId the ID of the annotated object
-         * @param childId the ID of the annotation
+         * @param parentId the ID of the link's parent <q>from</q> object
+         * @param childId the ID of the link's child <q>to</q> object
          */
-        public AnnotationLinkDetails(Class<? extends IAnnotationLink> linkType, long parentId, long childId) {
+        public LinkDetails(Class<? extends ILink> linkType, long parentId, long childId) {
             this.linkType = linkType;
             this.parentId = parentId;
             this.childId = childId;
@@ -412,8 +418,8 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
         public boolean equals(Object other) {
             if (other == this) {
                 return true;
-            } else if (other instanceof AnnotationLinkDetails) {
-                final AnnotationLinkDetails otherLink = (AnnotationLinkDetails) other;
+            } else if (other instanceof LinkDetails) {
+                final LinkDetails otherLink = (LinkDetails) other;
                 return this.linkType == otherLink.linkType &&
                         this.parentId == otherLink.parentId &&
                         this.childId == otherLink.childId;
@@ -424,7 +430,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
 
         @Override
         public int hashCode() {
-            return Arrays.hashCode(new Object[] {AnnotationLinkDetails.class, linkType, parentId, childId});
+            return Arrays.hashCode(new Object[] {LinkDetails.class, linkType, parentId, childId});
         }
     }
 
@@ -437,10 +443,15 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
 
         private final Logger LOGGER = LoggerFactory.getLogger(InternalProcessor.class);
 
+        @SuppressWarnings("unchecked")
+        private final ImmutableSet<Class<? extends ILink>> UNIQUENESS_RISK_LINK_TYPES = ImmutableSet.of(
+                IAnnotationLink.class, ScreenPlateLink.class, ProjectDatasetLink.class, DatasetImageLink.class,
+                FolderImageLink.class, FolderRoiLink.class);
+
         private final Long userFromId = helper.getEventContext().getCurrentUserId();
         private final Experimenter userTo = new Experimenter(userId, false);
 
-        private final Set<AnnotationLinkDetails> linksToChown = new HashSet<AnnotationLinkDetails>();
+        private final Set<LinkDetails> linksToChown = new HashSet<LinkDetails>();
 
         public InternalProcessor() {
             super(helper.getSession());
@@ -459,6 +470,20 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
         @Override
         public Set<GraphPolicy.Ability> getRequiredPermissions() {
             return REQUIRED_ABILITIES;
+        }
+
+        /**
+         * Determine if the given link type may be duplicated among different users.
+         * @param linkType the type of link
+         * @return if multiple identical links may exist among different users
+         */
+        private boolean isDuplicationRisk(Class<? extends ILink> linkType) {
+            for (final Class<? extends ILink> riskType : UNIQUENESS_RISK_LINK_TYPES) {
+                if (riskType.isAssignableFrom(linkType)) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         @Override
@@ -483,8 +508,9 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
                 LOGGER.error("could not look up model class " + className, cnfe);
                 return;
             }
-            if (IAnnotationLink.class.isAssignableFrom(actualClass)) {
-                final Class<? extends IAnnotationLink> linkType = actualClass.asSubclass(IAnnotationLink.class);
+            if (ILink.class.isAssignableFrom(actualClass)) {
+                final Class<? extends ILink> linkType = actualClass.asSubclass(ILink.class);
+                if (isDuplicationRisk(linkType)) {
                 final Object[] parentChildIds = (Object[]) session.createQuery(
                         "SELECT parent.id, child.id FROM " + className + " WHERE id = :id")
                         .setParameter("id", objectId)
@@ -496,8 +522,9 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
                         " WHERE parent.id = :parent AND child.id = :child AND details.owner.id = :owner")
                         .setParameter("parent", parentId).setParameter("child", childId).setParameter("owner", userId)
                         .uniqueResult();
-                if (count > 0 || !linksToChown.add(new AnnotationLinkDetails(linkType, parentId, childId))) {
+                if (count > 0 || !linksToChown.add(new LinkDetails(linkType, parentId, childId))) {
                     throw new GraphException("would have user " + userId + " owning multiple identical links");
+                }
                 }
             }
         }
