@@ -1,3 +1,6 @@
+# Distributed under the OSI-approved BSD 3-Clause License.  See accompanying
+# file Copyright.txt or https://cmake.org/licensing for details.
+
 #.rst:
 # FindIce
 # -------
@@ -121,19 +124,6 @@
 
 # Written by Roger Leigh <rleigh@codelibre.net>
 
-#=============================================================================
-# Copyright 2014-2015 University of Dundee
-#
-# Distributed under the OSI-approved BSD License (the "License");
-# see accompanying file Copyright.txt for details.
-#
-# This software is distributed WITHOUT ANY WARRANTY; without even the
-# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the License for more information.
-#=============================================================================
-# (To distribute this file outside of CMake, substitute the full
-#  License text for the above reference.)
-
 # The Ice checks are contained in a function due to the large number
 # of temporary variables needed.
 function(_Ice_FIND)
@@ -141,6 +131,7 @@ function(_Ice_FIND)
   set(ice_versions
       3
       3.6
+      3.6.3
       3.6.2
       3.6.1
       3.6.0
@@ -466,19 +457,19 @@ if(Ice_FOUND)
             IMPORTED_LINK_INTERFACE_LANGUAGES "CXX"
             IMPORTED_LOCATION "${${_Ice_component_cache}}")
         endif()
-        if(EXISTS "${${_Ice_component_cache_debug}}")
-          set_property(TARGET ${_Ice_imported_target} APPEND PROPERTY
-            IMPORTED_CONFIGURATIONS DEBUG)
-          set_target_properties(${_Ice_imported_target} PROPERTIES
-            IMPORTED_LINK_INTERFACE_LANGUAGES_DEBUG "CXX"
-            IMPORTED_LOCATION_DEBUG "${${_Ice_component_cache_debug}}")
-        endif()
         if(EXISTS "${${_Ice_component_cache_release}}")
           set_property(TARGET ${_Ice_imported_target} APPEND PROPERTY
             IMPORTED_CONFIGURATIONS RELEASE)
           set_target_properties(${_Ice_imported_target} PROPERTIES
             IMPORTED_LINK_INTERFACE_LANGUAGES_RELEASE "CXX"
             IMPORTED_LOCATION_RELEASE "${${_Ice_component_cache_release}}")
+        endif()
+        if(EXISTS "${${_Ice_component_cache_debug}}")
+          set_property(TARGET ${_Ice_imported_target} APPEND PROPERTY
+            IMPORTED_CONFIGURATIONS DEBUG)
+          set_target_properties(${_Ice_imported_target} PROPERTIES
+            IMPORTED_LINK_INTERFACE_LANGUAGES_DEBUG "CXX"
+            IMPORTED_LOCATION_DEBUG "${${_Ice_component_cache_debug}}")
         endif()
       endif()
     endif()

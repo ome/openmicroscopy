@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.2__0 to OMERO5.3DEV__11.
+--- OMERO5 development release upgrade from OMERO5.2__0 to OMERO5.3DEV__14.
 ---
 
 BEGIN;
@@ -95,7 +95,7 @@ DROP FUNCTION db_pretty_version(INTEGER);
 --
 
 INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
-             VALUES ('OMERO5.3DEV',  11,           'OMERO5.2',      0);
+             VALUES ('OMERO5.3DEV',  14,           'OMERO5.2',      0);
 
 -- ... up to patch 0:
 
@@ -1972,17 +1972,75 @@ CREATE OR REPLACE FUNCTION filesetjoblink_parent_index_move() RETURNS trigger
       RETURN new;
     END;$$;
 
+-- ... up to patch 12:
+
+DELETE FROM format WHERE id NOT IN (SELECT DISTINCT format FROM image WHERE format IS NOT NULL) AND external_id IS NULL;
+
+-- ... up to patch 13:
+
+ALTER TABLE annotation ALTER COLUMN name TYPE TEXT;
+ALTER TABLE annotation ALTER COLUMN ns TYPE TEXT;
+ALTER TABLE channel ALTER COLUMN lookuptable TYPE TEXT;
+ALTER TABLE dataset ALTER COLUMN name TYPE TEXT;
+ALTER TABLE folder ALTER COLUMN name TYPE TEXT;
+ALTER TABLE image ALTER COLUMN name TYPE TEXT;
+ALTER TABLE importjob ALTER COLUMN imagename TYPE TEXT;
+ALTER TABLE importjob ALTER COLUMN imagedescription TYPE TEXT;
+ALTER TABLE logicalchannel ALTER COLUMN name TYPE TEXT;
+ALTER TABLE namespace ALTER COLUMN name TYPE TEXT;
+ALTER TABLE namespace ALTER COLUMN displayname TYPE TEXT;
+ALTER TABLE originalfile ALTER COLUMN name TYPE TEXT;
+ALTER TABLE originalfile ALTER COLUMN hash TYPE TEXT;
+ALTER TABLE plate ALTER COLUMN name TYPE TEXT;
+ALTER TABLE plate ALTER COLUMN status TYPE TEXT;
+ALTER TABLE plateacquisition ALTER COLUMN name TYPE TEXT;
+ALTER TABLE project ALTER COLUMN name TYPE TEXT;
+ALTER TABLE reagent ALTER COLUMN name TYPE TEXT;
+ALTER TABLE renderingdef ALTER COLUMN name TYPE TEXT;
+ALTER TABLE roi ALTER COLUMN name TYPE TEXT;
+ALTER TABLE screen ALTER COLUMN name TYPE TEXT;
+ALTER TABLE screen ALTER COLUMN protocoldescription TYPE TEXT;
+ALTER TABLE screen ALTER COLUMN reagentsetdescription TYPE TEXT;
+ALTER TABLE stagelabel ALTER COLUMN name TYPE TEXT;
+ALTER TABLE well ALTER COLUMN externaldescription TYPE TEXT;
+
+-- ... up to patch 14:
+
+ALTER TABLE session ADD COLUMN sudoer BIGINT;
+
+ALTER TABLE session
+    ADD CONSTRAINT FKsession_sudoer_experimenter
+    FOREIGN KEY (sudoer)
+    REFERENCES experimenter;
+
+CREATE INDEX i_session_sudoer ON session(sudoer);
+
+CREATE TABLE adminprivilege (
+    id BIGINT PRIMARY KEY,
+    permissions BIGINT NOT NULL,
+    value VARCHAR(255) NOT NULL UNIQUE,
+    external_id BIGINT UNIQUE
+);
+
+ALTER TABLE adminprivilege
+    ADD CONSTRAINT FKadminprivilege_external_id_externalinfo
+    FOREIGN KEY (external_id)
+    REFERENCES externalinfo;
+
+CREATE SEQUENCE seq_adminprivilege;
+
+INSERT INTO _lock_ids (name, id) SELECT 'seq_adminprivilege', nextval('_lock_seq');
+
 
 --
 -- FINISHED
 --
 
 UPDATE dbpatch SET message = 'Database updated.', finished = clock_timestamp()
-    WHERE currentVersion  = 'OMERO5.3DEV' AND
-          currentPatch    = 11            AND
-          previousVersion = 'OMERO5.2'    AND
-          previousPatch   = 0;
+    WHERE id IN (SELECT id FROM dbpatch ORDER BY id DESC LIMIT 1);
 
-SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.3DEV__11'||CHR(10)||CHR(10)||CHR(10) AS Status;
+SELECT E'\n\n\nYOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION ' ||
+       currentversion || '__' || currentpatch || E'\n\n\n' AS Status FROM dbpatch
+    WHERE id IN (SELECT id FROM dbpatch ORDER BY id DESC LIMIT 1);
 
 COMMIT;

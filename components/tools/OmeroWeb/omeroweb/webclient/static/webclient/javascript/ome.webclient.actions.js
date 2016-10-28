@@ -945,6 +945,38 @@ OME.hideScriptList = function() {
     $("#scriptList").hide();
 };
 
+// Helper can be used by 'open with' plugins to add isEnabled()
+// handlers to the OPEN_WITH object.
+OME.setOpenWithEnabledHandler = function(label, fn) {
+    // look for label in OPEN_WITH
+    WEBCLIENT.OPEN_WITH.forEach(function(ow){
+        if (ow.label === label) {
+            ow.isEnabled = function() {
+                // wrap fn with try/catch, since error here will break jsTree menu
+                var args = Array.from(arguments);
+                var enabled = false;
+                try {
+                    enabled = fn.apply(this, args);
+                } catch (e) {
+                    // Give user a clue as to what went wrong
+                    console.log("Open with " + label + ": " + e);
+                }
+                return enabled;
+            }
+        }
+    });
+};
+// Helper can be used by 'open with' plugins to provide
+// a url for the selected objects
+OME.setOpenWithUrlProvider = function(label, fn) {
+    // look for label in OPEN_WITH
+    WEBCLIENT.OPEN_WITH.forEach(function(ow){
+        if (ow.label === label) {
+            ow.getUrl = fn;
+        }
+    });
+};
+
 OME.toggleFileAnnotationCheckboxes = function(event) {
     var checkboxes = $("#fileanns_container input[type=checkbox]");
     checkboxes.toggle().prop("checked", false);

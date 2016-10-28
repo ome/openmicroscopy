@@ -542,6 +542,21 @@ CUSTOM_SETTINGS_MAPPINGS = {
          ("Django view which handles display of, or redirection to, the "
           "desired full image viewer.")],
 
+    # OPEN WITH
+    "omero.web.open_with":
+        ["OPEN_WITH",
+         ('[["Image viewer", "webindex", {"supported_objects": ["image"],'
+          '"script_url": "webclient/javascript/ome.openwith_viewer.js"}]]'),
+         json.loads,
+         ("A list of viewers that can be used to display selected Images "
+          "or other objects. Each viewer is defined as "
+          "``[\"Name\", \"url\", options]``. Url is reverse(url). "
+          "Selected objects are added to the url as ?image=:1&image=2"
+          "Objects supported must be specified in options with"
+          "E.g. ``{\"supported_objects\":[\"images\"]}`` "
+          "to enable viewer for one or more images, "
+          "``{\"target\":\"_blank\"}`` to open in new tab.")],
+
     # PIPELINE 1.3.20
 
     # Pipeline is an asset packaging library for Django, providing both CSS

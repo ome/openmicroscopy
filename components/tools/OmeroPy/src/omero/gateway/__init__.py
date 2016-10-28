@@ -6812,6 +6812,23 @@ class _ChannelWrapper (BlitzObjectWrapper):
                 return None
         return si.getGlobalMax().val
 
+    def isReverseIntensity(self):
+        """
+        Returns True if this channel has ReverseIntensityContext
+        set on it.
+
+        :return:    True if ReverseIntensityContext found
+        :rtype:     Boolean
+        """
+        if self._re is None:
+            return None
+        ctx = self._re.getCodomainMapContext(self._idx)
+        reverse = False
+        for c in ctx:
+            if isinstance(c, omero.model.ReverseIntensityContext):
+                reverse = True
+        return reverse
+
 ChannelWrapper = _ChannelWrapper
 
 
@@ -7656,7 +7673,8 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             rv[i] = float(level)/sizeXList[0]
         return rv
 
-    def setActiveChannels(self, channels, windows=None, colors=None):
+    def setActiveChannels(self, channels, windows=None, colors=None,
+                          reverseMaps=None):
         """
         Sets the active channels on the rendering engine.
         Also sets rendering windows and channel colors
@@ -7680,12 +7698,17 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                             Must be list for each channel
         :param colors:      List of colors. ['F00', None, '00FF00'].
                             Must be item for each channel
+        :param reverseMaps: List of boolean (or None). If True/False then
+                            set/remove reverseIntensityMap on channel
         """
         abs_channels = [abs(c) for c in channels]
         idx = 0     # index of windows/colors args above
         for c in range(len(self.getChannels())):
             self._re.setActive(c, (c+1) in channels, self._conn.SERVICE_OPTS)
             if (c+1) in channels:
+                if (reverseMaps is not None and
+                        reverseMaps[idx] is not None):
+                    self.setReverseIntensity(c, reverseMaps[idx])
                 if (windows is not None
                         and windows[idx][0] is not None
                         and windows[idx][1] is not None):
@@ -7932,6 +7955,24 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         """
         return self.getRenderingModel().value.lower() == 'greyscale'
 
+    @assert_re()
+    def setReverseIntensity(self, channelIndex, reverse=True):
+        """
+        Sets or removes a ReverseIntensityMapContext from the
+        specified channel. If set, the intensity of the channel
+        is mapped in reverse: brightest -> darkest.
+
+        :param channelIndex:    The index of channel (int)
+        :param reverse:         If True, set reverse intensity (boolean)
+        """
+        r = omero.romio.ReverseIntensityMapContext()
+        # Always remove map from channel
+        # (doesn't throw exception, even if not on channel)
+        self._re.removeCodomainMapFromChannel(r, channelIndex)
+        # If we want to reverse, add it to the channel (again)
+        if reverse:
+            self._re.addCodomainMapToChannel(r, channelIndex)
+
     @assert_re(ignoreExceptions=(omero.ConcurrencyException))
     def getRenderingDefId(self):
         """
@@ -7976,17 +8017,26 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             waves = rdef.iterateWaveRendering()
             d['c'] = []
             for w in waves:
+                reverse = False
+                for c in w.copySpatialDomainEnhancement():
+                    if isinstance(c, omero.model.ReverseIntensityContext):
+                        reverse = True
                 color = ColorHolder.fromRGBA(
                     w.getRed().val, w.getGreen().val, w.getBlue().val, 255)
-                d['c'].append({
+                r = {
                     'active': w.getActive().val,
                     'start': w.getInputStart().val,
                     'end': w.getInputEnd().val,
                     'color': color.getHtml(),
+                    'reverseIntensity': reverse,
                     'rgb': {'red': w.getRed().val,
                             'green': w.getGreen().val,
                             'blue': w.getBlue().val}
-                    })
+                    }
+                lut = unwrap(w.getLookupTable())
+                if lut is not None and len(lut) > 0:
+                    r['lut'] = lut
+                d['c'].append(r)
             rv.append(d)
         return rv
 

@@ -88,6 +88,8 @@ class TestRendering(IWebTest):
         image1 = conn.getObject("Image", iid1)
         image1.resetDefaults()
         image1.setColorRenderingModel()
+        image1.setActiveChannels([1, 2], [[20, 300], [50, 100]],
+                                 ['00FF00', 'FF0000'], [True, False])
         image1.saveDefaults()
         image1 = conn.getObject("Image", iid1)
 
@@ -104,14 +106,18 @@ class TestRendering(IWebTest):
             chs = []
             for i, ch in enumerate(im.getChannels()):
                 act = "" if ch.isActive() else "-"
-                start = ch.getWindowStart()
-                end = ch.getWindowEnd()
+                start = int(ch.getWindowStart())
+                end = int(ch.getWindowEnd())
+                rev = 'r' if ch.isReverseIntensity() else '-r'
                 color = ch.getColor().getHtml()
-                chs.append("%s%s|%s:%s$%s" % (act, i+1, start, end, color))
+                chs.append("%s%s|%s:%s%s$%s" % (act, i+1, start, end,
+                                                rev, color))
             return ",".join(chs)
 
         # build channel parameter e.g. 1|0:15$FF0000...
         old_c1 = buildParamC(image1)
+        # Check it is what we expect
+        assert old_c1 == "1|20:300r$00FF00,2|50:100-r$FF0000"
 
         # copy rendering settings from image1 via URL
         request_url = reverse('webgateway.views.copy_image_rdef_json')
@@ -164,6 +170,7 @@ class TestRendering(IWebTest):
         image = conn.getObject("Image", iid)
         image.resetDefaults()
         image.setColorRenderingModel()
+        image.setReverseIntensity(0, True)
         image.saveDefaults()
         image = conn.getObject("Image", iid)
 
@@ -191,11 +198,13 @@ class TestRendering(IWebTest):
 
         # channel info is supposed to match
         expChannels = image.getChannels()
+        revs = [True, False, False]    # expected reverse intensity flags
         for i, c in enumerate(channels):
             assert c['active'] == expChannels[i].isActive()
             assert c['start'] == expChannels[i].getWindowStart()
             assert c['end'] == expChannels[i].getWindowEnd()
             assert c['color'] == expChannels[i].getColor().getHtml()
+            assert c['reverseIntensity'] == revs[i]
 
         # id and owner check
         assert rdefs[0].get("id") is not None

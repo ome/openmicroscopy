@@ -30,6 +30,24 @@ def default_id():
     return TestShapeMarshal.DEFAULT_ID
 
 
+@pytest.fixture(scope='function')
+def basic_line(default_id):
+    shape = omero.model.LineI()
+    shape.id = rlong(default_id)
+    shape.x1 = rdouble(0.0)
+    shape.y1 = rdouble(1.0)
+    shape.x2 = rdouble(2.0)
+    shape.y2 = rdouble(3.0)
+    return shape
+
+
+@pytest.fixture(scope='function')
+def basic_arrow(basic_line):
+    basic_line.markerStart = rstring('Arrow')
+    basic_line.markerEnd = rstring('Arrow')
+    return basic_line
+
+
 @pytest.fixture(scope='function', params=[
     # OME-XML version of the points
     '1,2 2,3 4,5',
@@ -116,6 +134,20 @@ class TestShapeMarshal(object):
     def assert_marshal(self, marshaled, type):
         assert marshaled['type'] == type
         assert marshaled['id'] == self.DEFAULT_ID
+
+    def test_line_marshal(self, basic_line):
+        marshaled = shapeMarshal(basic_line)
+        self.assert_marshal(marshaled, 'Line')
+        assert marshaled['x1'] == 0
+        assert marshaled['y1'] == 1
+        assert marshaled['x2'] == 2
+        assert marshaled['y2'] == 3
+
+    def test_arrow_marshal(self, basic_arrow):
+        marshaled = shapeMarshal(basic_arrow)
+        self.assert_marshal(marshaled, 'Line')
+        assert marshaled['markerStart'] == 'Arrow'
+        assert marshaled['markerEnd'] == 'Arrow'
 
     def test_polyline_marshal(self, basic_polyline):
         marshaled = shapeMarshal(basic_polyline)

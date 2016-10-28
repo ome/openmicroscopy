@@ -24,7 +24,7 @@ from django.http import HttpResponseRedirect, HttpResponseNotAllowed, Http404
 from django.template import loader as template_loader
 from django.views.decorators.http import require_POST
 from django.views.generic import View
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, NoReverseMatch
 from django.conf import settings
 from django.template import RequestContext as Context
 from django.core.servers.basehttp import FileWrapper
@@ -41,6 +41,7 @@ from omeroweb.webadmin.forms import LoginForm
 from omeroweb.decorators import get_client_ip
 from omeroweb.webadmin.webadmin_utils import upgradeCheck
 from omero_marshal import get_encoder, get_decoder, OME_SCHEMA_URL
+from django.contrib.staticfiles.templatetags.staticfiles import static
 
 try:
     from hashlib import md5
@@ -219,10 +220,16 @@ def _split_channel_info(rchannels):
     channels = []
     windows = []
     colors = []
+    reverses = []
     for chan in rchannels.split(','):
+        # chan  1|12:1386r$0000FF
         chan = chan.split('|', 1)
+        # chan ['1', '12:1386r$0000FF']
         t = chan[0].strip()
+        # t = '1'
         color = None
+        rev = None
+        # Not normally used...
         if t.find('$') >= 0:
             t, color = t.split('$')
         try:
@@ -230,8 +237,18 @@ def _split_channel_info(rchannels):
             ch_window = (None, None)
             if len(chan) > 1:
                 t = chan[1].strip()
+                # t = '12:1386r$0000FF'
                 if t.find('$') >= 0:
                     t, color = t.split('$', 1)
+                    # color = '0000FF'
+                    # t = 12:1386r
+                # Optional flag to enable reverse codomain
+                if t.endswith('-r'):
+                    rev = False
+                    t = t[:-2]
+                elif t.endswith('r'):
+                    rev = True
+                    t = t[:-1]
                 t = t.split(':')
                 if len(t) == 2:
                     try:
@@ -240,10 +257,11 @@ def _split_channel_info(rchannels):
                         pass
             windows.append(ch_window)
             colors.append(color)
+            reverses.append(rev)
         except ValueError:
             pass
     logger.debug(str(channels)+","+str(windows)+","+str(colors))
-    return channels, windows, colors
+    return channels, windows, colors, reverses
 
 
 def getImgDetailsFromReq(request, as_string=False):
@@ -304,8 +322,6 @@ def render_birds_eye_view(request, iid, size=None,
                         bird's eye view.
     @return:            http response containing jpeg
     """
-    if size is None:
-        size = 96       # Use cached thumbnail
     return render_thumbnail(request, iid, w=size, **kwargs)
 
 
@@ -318,14 +334,14 @@ def render_thumbnail(request, iid, w=None, h=None, conn=None, _defcb=None,
 
     @param request:     http request
     @param iid:         Image ID
-    @param w:           Thumbnail max width. 64 by default
+    @param w:           Thumbnail max width. 96 by default
     @param h:           Thumbnail max height
     @return:            http response containing jpeg
     """
     server_id = request.session['connector'].server_id
     direct = True
     if w is None:
-        size = (64,)
+        size = (96,)
     else:
         if h is None:
             size = (int(w),)
@@ -767,8 +783,8 @@ def _get_prepared_image(request, iid, server_id=None, conn=None,
         return
     if 'c' in r:
         logger.debug("c="+r['c'])
-        channels, windows, colors = _split_channel_info(r['c'])
-        if not img.setActiveChannels(channels, windows, colors):
+        channels, windows, colors, reverses = _split_channel_info(r['c'])
+        if not img.setActiveChannels(channels, windows, colors, reverses):
             logger.debug(
                 "Something bad happened while setting the active channels...")
     if r.get('m', None) == 'g':
@@ -1401,24 +1417,28 @@ def plateGrid_json(request, pid, field=0, conn=None, **kwargs):
     except ValueError:
         field = 0
     prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
-    thumbsize = int(request.GET.get('size', 96))
+    thumbsize = getIntOrDefault(request, 'size', None)
     logger.debug(thumbsize)
     server_id = kwargs['server_id']
 
-    def urlprefix(iid):
-        return reverse(prefix, args=(iid, thumbsize))
+    def get_thumb_url(iid):
+        if thumbsize is not None:
+            return reverse(prefix, args=(iid, thumbsize))
+        return reverse(prefix, args=(iid,))
+
     plateGrid = PlateGrid(conn, pid, field,
-                          kwargs.get('urlprefix', urlprefix))
+                          kwargs.get('urlprefix', get_thumb_url))
     plate = plateGrid.plate
     if plate is None:
         return Http404
 
-    rv = webgateway_cache.getJson(request, server_id, plate,
-                                  'plategrid-%d-%d' % (field, thumbsize))
+    cache_key = 'plategrid-%d-%s' % (field, thumbsize)
+    rv = webgateway_cache.getJson(request, server_id, plate, cache_key)
+
     if rv is None:
         rv = plateGrid.metadata
         webgateway_cache.setJson(request, server_id, plate, json.dumps(rv),
-                                 'plategrid-%d-%d' % (field, thumbsize))
+                                 cache_key)
     else:
         rv = json.loads(rv)
     return rv
@@ -1543,6 +1563,44 @@ def projectDetail_json(request, pid, conn=None, **kwargs):
     pr = conn.getObject("Project", pid)
     rv = pr.simpleMarshal()
     return rv
+
+
+@jsonp
+def open_with_options(request, **kwargs):
+    """
+    Make the settings.OPEN_WITH available via JSON
+    """
+    open_with = settings.OPEN_WITH
+    viewers = []
+    for ow in open_with:
+        if len(ow) < 2:
+            continue
+        viewer = {}
+        viewer['label'] = ow[0]
+        try:
+            viewer['url'] = reverse(ow[1])
+        except NoReverseMatch:
+            viewer['url'] = ow[1]
+        # try non-essential parameters...
+        # NB: Need supported_objects OR script_url to enable plugin
+        try:
+            if len(ow) > 2:
+                if 'supported_objects' in ow[2]:
+                    viewer['supported_objects'] = ow[2]['supported_objects']
+                if 'target' in ow[2]:
+                    viewer['target'] = ow[2]['target']
+                if 'script_url' in ow[2]:
+                    # If we have an absolute url, use it...
+                    if ow[2]['script_url'].startswith('http'):
+                        viewer['script_url'] = ow[2]['script_url']
+                    else:
+                        # ...otherwise, assume within static
+                        viewer['script_url'] = static(ow[2]['script_url'])
+        except:
+            # ignore invalid params
+            pass
+        viewers.append(viewer)
+    return {'open_with_options': viewers}
 
 
 def searchOptFromRequest(request):
@@ -1877,9 +1935,10 @@ def copy_image_rdef_json(request, conn=None, **kwargs):
             start = ch.getWindowStart()
             end = ch.getWindowEnd()
             color = ch.getLut()
+            rev = 'r' if ch.isReverseIntensity() else ''
             if not color or len(color) == 0:
                 color = ch.getColor().getHtml()
-            chs.append("%s%s|%s:%s$%s" % (act, i+1, start, end, color))
+            chs.append("%s%s|%s:%s%s$%s" % (act, i+1, start, end, rev, color))
         rv['c'] = ",".join(chs)
         rv['m'] = "g" if image.isGreyscaleRenderingModel() else "c"
         rv['z'] = image.getDefaultZ() + 1
@@ -1887,9 +1946,9 @@ def copy_image_rdef_json(request, conn=None, **kwargs):
         return rv
 
     def applyRenderingSettings(image, rdef):
-        channels, windows, colors = _split_channel_info(rdef['c'])
+        channels, windows, colors, reverse = _split_channel_info(rdef['c'])
         # also prepares _re
-        image.setActiveChannels(channels, windows, colors)
+        image.setActiveChannels(channels, windows, colors, reverse)
         if rdef['m'] == 'g':
             image.setGreyscaleRenderingModel()
         else:

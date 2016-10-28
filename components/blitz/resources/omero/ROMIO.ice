@@ -26,8 +26,8 @@ Primitives for working with binary data.
  **/
 module romio
 {
-    sequence<Ice::ByteSeq> RGBBands;
 
+    sequence<Ice::ByteSeq> RGBBands;
     const int RedBand = 0;
     const int GreenBand = 1;
     const int BlueBand = 2;
@@ -77,6 +77,14 @@ module romio
     class CodomainMapContext
     {
     };
+
+    /**
+     * The reverse intensity.
+     **/
+    class ReverseIntensityMapContext extends CodomainMapContext
+    {
+    };
+
 };
 
 };

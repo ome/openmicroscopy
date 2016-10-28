@@ -367,6 +367,7 @@ $(document).ready(function() {
             'delay': 300,
             'bind': 'keyup',
             'loader': 'span.loading',
+            'selector': '.hidden_sort_text',
             onAfter: function(){
                 // onAfter can get triggered without text change, E.g. by tree selection!
                 var new_txt = $filter_input.val();

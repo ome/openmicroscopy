@@ -413,6 +413,13 @@ Get a json dict of original file paths.
 'client' is a list of paths for original files on the client when imported
 """
 
+open_with_options = url(r'^open_with/$', 'webgateway.views.open_with_options',
+                        name='open_with_options')
+"""
+This makes the settings.OPEN_WITH configuration available via json
+"""
+
+
 get_image_rdefs_json = url(r'^get_image_rdefs_json/(?P<img_id>[0-9]+)/$',
                            'webgateway.views.get_image_rdefs_json',
                            name="webgateway_get_image_rdefs_json")
@@ -471,5 +478,5 @@ urlpatterns = patterns(
     annotations,
     table_query,
     object_table_query,
-
+    open_with_options,
 )

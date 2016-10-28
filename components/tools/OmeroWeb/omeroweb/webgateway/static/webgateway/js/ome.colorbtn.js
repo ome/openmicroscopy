@@ -24,8 +24,8 @@ $.fn.colorbtn = function(cfg) {
     };
     var that = this;
 
-    var colors = ["FF0000", "00FF00", "0000FF", "FFFFFF", "FFFF00", "EE82EE"];
-    var colorNames = ["red", "green", "blue", "white", "yellow", "magenta"];
+    var colors = ["FF0000", "00FF00", "0000FF", "FFFFFF", "FFFF00", "EE00EE", "00FFFF"];
+    var colorNames = ["red", "green", "blue", "white", "yellow", "magenta", "cyan"];
     var picker = null;
 
     /* The basic setup */
@@ -39,9 +39,13 @@ $.fn.colorbtn = function(cfg) {
     var ok_callback = function () {
       // On 'OK' we get the color saved by 'callback' above and apply it to the color-btn, then trigger
       var data_color = self.attr('data-picked-color');
+      var reverse_intensity = self.data('data-reverse-intensity');
       // data_color could be 'FF0000' or 'cool.lut'
       if (data_color) {
         self.attr('data-color', data_color);
+        self.trigger('changed');
+      } else if (reverse_intensity !== undefined) {
+        self.data('data-reverse-intensity', reverse_intensity);
         self.trigger('changed');
       }
     };
@@ -52,6 +56,11 @@ $.fn.colorbtn = function(cfg) {
       jQuery("body").prepend('<div class="'+this.cfg.prefix+'" id="'+this.cfg.prefix+'-box"></div>');
       var box = jQuery("#"+this.cfg.prefix+"-box").append('<h1>Choose color</h1>');
       box.postit();
+
+      var reverseIntensityHtml = '<div><input id="reverseIntensity" type="checkbox" style="width:20px"></input>';
+          reverseIntensityHtml += '<label for="reverseIntensity" style="font-size:15px; font-weight: normal;">Reverse Intensity</label></div>';
+          reverseIntensityHtml += '<div style="clear:both"></div>';
+      $(reverseIntensityHtml).appendTo(box);
 
       // Add Lookup Table list - gets populated in show_picker() below.
       var $luts = $('<div id="' + this.cfg.prefix + '-luts" class="lutpicker"></div>').appendTo(box);
@@ -99,6 +108,8 @@ $.fn.colorbtn = function(cfg) {
     }
 
     this.show_picker = function () {
+      // 'data-reverse-intensity' is a string in template, not boolean.
+      var reverse_intensity = self.data('data-reverse-intensity');
       if (!picker) {
         if (jQuery('#'+this.cfg.prefix+'-box').length === 0) {
           this._prepare_picker();
@@ -106,8 +117,9 @@ $.fn.colorbtn = function(cfg) {
           picker = jQuery.farbtastic("#"+this.cfg.prefix);
         }
       }
+      var currColor = self.attr('data-color');
 
-      // lookup LUTs
+      // lookup LUTs & build list with other colors
       var $luts = $("#" + this.cfg.prefix + "-luts");
       if ($luts.is(':empty')) {
         $.getJSON(cfg.server + '/luts/', function(data){
@@ -132,6 +144,7 @@ $.fn.colorbtn = function(cfg) {
           });
           var html = '<div>' + colorRows.join("") + lutRows.join("") + '</div>';
           $luts.html(html);
+          $("label[for='" + currColor + "']").css('background', '#cddcfc');
         });
       }
 
@@ -139,14 +152,22 @@ $.fn.colorbtn = function(cfg) {
       $('.cpickerPane').hide();
       $luts.show();
       $('.showColorPicker a').html('Show Color Picker');
+      $('#reverseIntensity').prop('checked', reverse_intensity);
+      // Highlight current color/lut
+      $("label", $luts).css('background', 'none');
+      $("label[for='" + currColor + "']", $luts).css('background', '#cddcfc')
 
-      // bind appropriate handler (wraps ref to button)
+      // unbind and re-bind appropriate handler (wraps ref to button)
       $("#cbpicker-OK-btn").unbind('click').bind('click', ok_callback)
         .bind('click',function(){
           jQuery("#"+that.cfg.prefix+"-box").hide();
         });
       $('#' + this.cfg.prefix + '-luts').off("click").on( "click", "input", function() {
         self.attr('data-picked-color', this.value);
+        ok_callback();
+      });
+      $("#reverseIntensity").off('click').click(function(){
+        self.data('data-reverse-intensity', this.checked);
         ok_callback();
       });
       self.removeAttr('data-picked-color');

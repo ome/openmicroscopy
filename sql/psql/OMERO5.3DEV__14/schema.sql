@@ -7,6 +7,14 @@
         primary key (id)
     );;
 
+    create table adminprivilege (
+        id int8 not null,
+        permissions int8 not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
     create table affinetransform (
         id int8 not null,
         a00 float8 not null,
@@ -30,8 +38,8 @@
         id int8 not null,
         description text,
         permissions int8 not null,
-        name varchar(255),
-        ns varchar(255),
+        name text,
+        ns text,
         version int4,
         boolValue bool,
         textValue text,
@@ -99,7 +107,7 @@
         blue int4,
         permissions int8 not null,
         green int4,
-        lookupTable varchar(255),
+        lookupTable text,
         red int4,
         version int4,
         creation_id int8 not null,
@@ -558,7 +566,7 @@
         id int8 not null,
         description text,
         permissions int8 not null,
-        name varchar(255) not null,
+        name text not null,
         version int4,
         creation_id int8 not null,
         external_id int8 unique,
@@ -1040,7 +1048,7 @@
         id int8 not null,
         description text,
         permissions int8 not null,
-        name varchar(255) not null,
+        name text not null,
         version int4,
         creation_id int8 not null,
         external_id int8 unique,
@@ -1145,7 +1153,7 @@
         archived bool,
         description text,
         permissions int8 not null,
-        name varchar(255) not null,
+        name text not null,
         partial bool,
         series nonnegative_int,
         version int4,
@@ -1214,8 +1222,8 @@
     );;
 
     create table importjob (
-        imageDescription varchar(255) not null,
-        imageName varchar(255) not null,
+        imageDescription text not null,
+        imageName text not null,
         job_id int8 not null,
         primary key (job_id)
     );;
@@ -1470,7 +1478,7 @@
         excitationWaveUnit UnitsLength,
         excitationWave float8,
         fluor varchar(255),
-        name varchar(255),
+        name text,
         ndFilter float8,
         pinHoleSizeUnit UnitsLength,
         pinHoleSize float8,
@@ -1568,10 +1576,10 @@
         description text,
         permissions int8 not null,
         display bool,
-        displayName varchar(255),
+        displayName text,
         keywords text[],
         multivalued bool,
-        name varchar(255) not null,
+        name text not null,
         version int4,
         external_id int8 unique,
         primary key (id)
@@ -1681,10 +1689,10 @@
         atime timestamp,
         ctime timestamp,
         permissions int8 not null,
-        hash varchar(255),
+        hash text,
         mimetype varchar(255),
         mtime timestamp,
-        name varchar(255) not null,
+        name text not null,
         path text not null,
         "size" int8,
         version int4,
@@ -1870,10 +1878,10 @@
         description text,
         permissions int8 not null,
         externalIdentifier varchar(255),
-        name varchar(255) not null,
+        name text not null,
         rowNamingConvention varchar(255),
         "rows" int4,
-        status varchar(255),
+        status text,
         version int4,
         wellOriginXUnit UnitsLength,
         wellOriginX float8,
@@ -1893,7 +1901,7 @@
         permissions int8 not null,
         endTime timestamp,
         maximumFieldCount int4,
-        name varchar(255),
+        name text,
         startTime timestamp,
         version int4,
         creation_id int8 not null,
@@ -1939,7 +1947,7 @@
         id int8 not null,
         description text,
         permissions int8 not null,
-        name varchar(255) not null,
+        name text not null,
         version int4,
         creation_id int8 not null,
         external_id int8 unique,
@@ -2043,7 +2051,7 @@
         id int8 not null,
         description text,
         permissions int8 not null,
-        name varchar(255),
+        name text,
         reagentIdentifier varchar(255),
         version int4,
         creation_id int8 not null,
@@ -2076,7 +2084,7 @@
         defaultT int4 not null,
         defaultZ int4 not null,
         permissions int8 not null,
-        name varchar(255),
+        name text,
         version int4,
         creation_id int8 not null,
         external_id int8 unique,
@@ -2107,7 +2115,7 @@
         id int8 not null,
         description text,
         permissions int8 not null,
-        name varchar(255),
+        name text,
         version int4,
         creation_id int8 not null,
         external_id int8 unique,
@@ -2138,10 +2146,10 @@
         id int8 not null,
         description text,
         permissions int8 not null,
-        name varchar(255) not null,
-        protocolDescription varchar(255),
+        name text not null,
+        protocolDescription text,
         protocolIdentifier varchar(255),
-        reagentSetDescription varchar(255),
+        reagentSetDescription text,
         reagentSetIdentifier varchar(255),
         type varchar(255),
         version int4,
@@ -2205,6 +2213,7 @@
         external_id int8 unique,
         node int8 not null,
         owner int8 not null,
+        sudoer int8,
         primary key (id)
     );;
 
@@ -2309,7 +2318,7 @@
     create table stagelabel (
         id int8 not null,
         permissions int8 not null,
-        name varchar(255) not null,
+        name text not null,
         positionXUnit UnitsLength,
         positionX float8,
         positionYUnit UnitsLength,
@@ -2401,7 +2410,7 @@
         blue int4,
         "column" int4,
         permissions int8 not null,
-        externalDescription varchar(255),
+        externalDescription text,
         externalIdentifier varchar(255),
         green int4,
         red int4,
@@ -2472,6 +2481,11 @@
 
     alter table acquisitionmode 
         add constraint FKacquisitionmode_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table adminprivilege 
+        add constraint FKadminprivilege_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo  ;;
 
@@ -5769,6 +5783,11 @@
         add constraint FKscriptjob_job_id_job 
         foreign key (job_id) 
         references job  ;;
+
+    alter table session 
+        add constraint FKsession_sudoer_experimenter 
+        foreign key (sudoer) 
+        references experimenter  ;;
 
     alter table session 
         add constraint FKsession_node_node 
