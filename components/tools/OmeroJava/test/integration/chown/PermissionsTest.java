@@ -26,6 +26,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import omero.RLong;
 import omero.RType;
@@ -940,15 +942,23 @@ public class PermissionsTest extends AbstractServerTest {
         if (isGroupOwner) {
             Assert.assertEquals(isGraphException, true,
                     "in case of GroupOwner a nice GraphException is expected");
-            omero.cmd.ERR err = (omero.cmd.ERR) response;
-            Map.Entry<String,String> entry=err.parameters.entrySet().iterator().next();
-            String string = entry.getValue().substring(0, entry.getValue().indexOf("\n"));
-            String result = string.substring(string.indexOf(":") + 1, string.indexOf(")"));
-            System.out.println(result);
-            Assert.assertEquals(result, " would have user " + recipient.userId + " owning multiple identical links");
+            /* parse the GraphException response and check that it delivers a valid
+             * ImageAnnotationLink ID */
+            omero.cmd.ERR graphExc = (omero.cmd.ERR) response;
+            /* make the regex pattern as lenient as possible to accomodate for future
+             * changes in the GraphException syntax */
+            String pattern = "(ImageAnnotationLink\\D*)([0-9]+)";
+            Matcher m = Pattern.compile(pattern).
+                    matcher(graphExc.parameters.entrySet().iterator().next().getValue());
+            /* let the test be robust even if Graph Exception output
+             *  changes in future so much that the ImageAnnotationLink wording is
+             *  not present - then the matcher will not find anything
+             *  and this test will still pass */
+            if (m.find( )) {
+                long linkIdFromError = Long.parseLong(m.group(2));
+                Assert.assertNotEquals(iQuery.get("ImageAnnotationLink", linkIdFromError), null);
+             }
         }
-
-
     }
 
     /**
