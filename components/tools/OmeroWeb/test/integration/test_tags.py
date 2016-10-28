@@ -167,7 +167,7 @@ class TestTags(IWebTest):
         _post_response(self.django_client, request_url, data)
         _csrf_post_response(self.django_client, request_url, data)
         # Check that tag is removed - short delay to allow async delete
-        sleep(0.1)
+        sleep(1)
         request_url = reverse("api_annotations")
         data = {'image': img.id.val, 'type': 'tag'}
         data = _get_response_json(self.django_client, request_url, data)
