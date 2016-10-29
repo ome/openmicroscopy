@@ -33,6 +33,14 @@ Login Page Should Be Open
 
 Open Browser To Login Page
     [Arguments]                 ${main url}=${LOGIN URL}    ${login url}=${LOGIN URL}     ${title}=OMERO.web - Login
+
+    ${options}=    Set Variable If    '${BROWSER}' == 'firefox'
+    ...    Evaluate   sys.modules['selenium.webdriver'].FirefoxProfile()  sys,selenium.webdriver
+    ${options}=    Set Variable If    '${BROWSER}' == 'chrome'
+    ...    Evaluate  sys.modules['selenium.webdriver'].ChromeOptions()  sys,selenium.webdriver
+    Call Method  ${options}  add_argument  --disable-gpu\=true
+    Create webdriver  ${BROWSER}  browser_profile=${options}
+
     Open Browser                ${main url}         ${BROWSER}      remote_url=${REMOTE_URL}    desired_capabilities=${DC}
     Set Selenium Speed          ${DELAY}
     Login Page Should Be Open   ${login url}        ${title}

@@ -4,6 +4,7 @@ Documentation       A resource file containing the application specific keywords
 ...                 implements keywords for testing HTML version of the test
 ...                 application.
 Library             Selenium2Library
+Library             Collections
 
 *** Keywords ***
 Unique name
@@ -24,6 +25,14 @@ Log In As Root
 
 Open Browser To Login Page
     [Arguments]                 ${main url}     ${login url}
+
+    Run Keyword If      '${BROWSER}' == 'firefox'
+        ${options}=  Evaluate   sys.modules['selenium.webdriver'].FirefoxProfile()  sys,selenium.webdriver
+    Run Keyword If      '${BROWSER}' == 'chrome'
+        ${options}=  Evaluate  sys.modules['selenium.webdriver'].ChromeOptions()  sys,selenium.webdriver
+    Call Method  ${options}  add_argument  --disable-gpu\=true
+    Create webdriver  ${BROWSER}  browser_profile=${options}
+
     Open Browser                ${main url}     ${BROWSER}          remote_url=${REMOTE_URL}    desired_capabilities=${DC}
     Set Selenium Speed          ${DELAY}
     Page Should Be Open         ${login url}    OMERO.web - Login
