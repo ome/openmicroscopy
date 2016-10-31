@@ -647,7 +647,40 @@ class _QueryContext(object):
     def __init__(self, client):
         self.client = client
 
-    def projection(self, q, ids, ns=None):
+    def _batch(self, i, sz=1000):
+        """
+        Generate batches of size sz (by default 1000) from the input
+        iterable `i`.
+        """
+        i = list(i)  # Copying list to handle sets and modifications
+        for batch in (i[pos:pos + sz] for pos in xrange(0, len(i), sz)):
+            yield batch
+
+    def _grouped_batch(self, groups, sz=1000):
+        """
+        In some cases groups of objects must be kept together.
+        This method attempts to return up to sz objects without breaking
+        up groups.
+        If a single group is greater than sz the whole group is returned.
+        Callers are responsible for checking the size of the returned batch.
+
+        :param groups: an iterable of lists/tuples of objects
+        :return: a list of the next batch of objects, if a single group has
+                 more than sz elements it will be returned as a single
+                 over-sized batch
+        """
+        batch = []
+        for group in groups:
+            if (len(batch) == 0) or (len(batch) + len(group) <= sz):
+                batch.extend(group)
+            else:
+                toyield = batch
+                batch = group
+                yield toyield
+        if batch:
+            yield batch
+
+    def projection(self, q, ids, nss=None, batch_size=None):
         """
         Run a projection query designed to return scalars only
         :param q: The query to be projected, should contain either `:ids`
@@ -763,14 +796,75 @@ class BulkToMapAnnotationContext(_QueryContext):
             mv.extend(NamedValue(k, str(v)) for v in vs)
         ma.setMapValue(mv)
 
+        log.debug('Creating CanonicalMapAnnotation ns:%s pks:%s kvs:%s',
+                  ns, pks, rowkvs)
+        cma = CanonicalMapAnnotation(ma, primary_keys=pks)
+        for (otype, oid) in targets:
+            cma.add_parent(otype, oid)
+        return cma
+
+    def _create_map_annotation_links(self, cma):
+        """
+        Converts a `CanonicalMapAnnotation` object into OMERO `MapAnnotations`
+        and `AnnotationLinks`. `AnnotationLinks` will have the parent and
+        child set, where the child is a single `MapAnnotation` object shared
+        amongst all links.
+
+        If the number of `AnnotationLinks` is small callers may choose to save
+        the links and `MapAnnotation` using `UpdateService` directly, ignoring
+        the second element of the tuple.
+
+        If the number of `AnnotationLinks` is large the caller should first
+        save the `MapAnnotation`, call `setChild` on all `AnnotationLinks` to
+        reference the saved `MapAnnotation`, and finally save all
+        `AnnotationLinks`.
+
+        This complexity is unfortunately required to avoid going over the
+        Ice message size.
+
+        :return: A tuple of (`AnnotationLinks`, `MapAnnotation`)
+        """
         links = []
-        for target in targets:
-            otype = target.ice_staticId().split('::')[-1]
+        ma = cma.get_mapann()
+        for (otype, oid) in cma.get_parents():
             link = getattr(omero.model, '%sAnnotationLinkI' % otype)()
-            link.setParent(target)
+            link.setParent(getattr(omero.model, '%sI' % otype)(oid, False))
             link.setChild(ma)
             links.append(link)
-        return links
+        return links, ma
+
+    def _save_annotation_links(self, links):
+        """
+        Save `AnnotationLinks` including the child annotation in one go.
+        See `_create_map_annotation_links`
+        """
+        sf = self.client.getSession()
+        group = str(self.target_object.details.group.id)
+        update_service = sf.getUpdateService()
+        arr = update_service.saveAndReturnArray(links, {'omero.group': group})
+        return arr
+
+    def _save_annotation_and_links(self, links, ann, batch_size):
+        """
+        Save a single `Annotation`, followed by the `AnnotationLinks` to that
+        Annotation.
+        All `AnnotationLinks` must have `ann` as their child.
+        Links will be saved in batches of `batch_size`.
+        See `_create_map_annotation_links`
+        """
+        sf = self.client.getSession()
+        group = str(self.target_object.details.group.id)
+        update_service = sf.getUpdateService()
+
+        annobj = update_service.saveAndReturnObject(ann)
+        for link in links:
+            link.setChild(annobj)
+
+        arr = []
+        for batch in self._batch(links, sz=batch_size):
+            arr.extend(update_service.saveAndReturnArray(
+                batch, {'omero.group': group}))
+        return arr
 
     def parse(self):
         tableid = self.ofileid
@@ -830,24 +924,53 @@ class BulkToMapAnnotationContext(_QueryContext):
                 else:
                     log.warn("Invalid Id:%d found in row %s", row[n], row)
             if targets:
-                malinks = self.create_map_annotation(targets, rowkvs)
-                log.debug('Map:\n\t' + ('\n\t'.join("%s=%s" % (
-                    v.name, v.value) for v in
-                    malinks[0].getChild().getMapValue())))
-                log.debug('Targets:\n\t' + ('\n\t'.join("%s:%d" % (
-                    t.ice_staticId().split('::')[-1], t.id._val)
-                    for t in targets)))
-                mas.extend(malinks)
+                for tr in trs:
+                    rowkvs = tr.transform(row)
+                    ns = tr.name
+                    if not ns:
+                        ns = omero.constants.namespaces.NSBULKANNOTATIONS
+                    try:
+                        cma = self._create_cmap_annotation(targets, rowkvs, ns)
+                        if cma:
+                            self.mapannotations.add(cma)
+                            log.debug('Added MapAnnotation: %s', cma)
+                        else:
+                            log.debug(
+                                'Empty MapAnnotation: %s', rowkvs)
+                    except MapAnnotationPrimaryKeyException as e:
+                        c = ''
+                        if ignore_missing_primary_key:
+                            c = ' (Continuing)'
+                        log.error(
+                            'Missing primary keys%s: %s %s ', c, e, rowkvs)
+                        if not ignore_missing_primary_key:
+                            raise
 
-        self.mapannotations = mas
+    def write_to_omero(self, batch_size=1000):
+        i = 0
+        links = []
+        oversized_links = []
 
-    def write_to_omero(self):
-        sf = self.client.getSession()
-        group = str(self.target_object.details.group.id.val)
-        update_service = sf.getUpdateService()
-        ids = update_service.saveAndReturnIds(
-            self.mapannotations, {'omero.group': group})
-        log.info('Created %d MapAnnotations', len(ids))
+        # This may be many-links-to-one-new-mapann so everything must
+        # be kept together to avoid duplication of the mapann
+        for cma in self.mapannotations.get_map_annotations():
+            batch, ma = self._create_map_annotation_links(cma)
+            if len(batch) < batch_size:
+                links.append(batch)
+            else:
+                oversized_links.append((batch, ma))
+
+        for batch in self._grouped_batch(links, sz=batch_size):
+            arr = self._save_annotation_links(batch)
+            i += len(arr)
+            log.info('Created/linked %d MapAnnotations (total %s)',
+                     len(arr), i)
+
+        for malinks, ma in oversized_links:
+            arr = self._save_annotation_and_links(malinks, ma, batch_size)
+            i += len(arr)
+            log.info('Created/linked %d MapAnnotations (total %s)',
+                     len(arr), i)
 
 
 class DeleteMapAnnotationContext(_QueryContext):
