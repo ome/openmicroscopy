@@ -24,6 +24,6 @@
         {{ label|default:"Ratings" }}
     </h1>
     <div class="annotations_section" style="display: none">
-        <div id="rating_annotations" {% if manager.canAnnotate %}class="canAnnotate"{% endif %}></div>
+        <div id="rating_annotations" {% if manager.canAnnotate or not annotationBlocked %}class="canAnnotate"{% endif %}></div>
      </div>
      </div>

@@ -25,18 +25,30 @@
     </h1>
     <div class="annotations_section" style="display:none">
 
+        {% if obj_string %}
+            {% if not annotationBlocked %}
+                <a id="choose_file_anns" href="{% url 'annotate_file' %}?{{ obj_string }}&index={{ index }}" class="btn silver btn_add">
+                    <span></span>
+                </a>
+                <div class="toolbar">
+                    <input type="button" title="Select files for scripts"
+                        class="btn silver btn_script_dark">
+                </div>
+            {% endif %}
+        {% else %}
             {% if manager.canAnnotate %}
                 <a id="choose_file_anns"
                     href="{% url 'annotate_file' %}?{{manager.obj_type}}={{ manager.obj_id }}"
                     class="btn silver btn_add" title="Attach a file">
                     <span></span>
                 </a>
+                <div class="toolbar">
+                    <input type="button" title="Select files for scripts"
+                        class="btn silver btn_script_dark">
+                </div>
             {% endif %}
-            <div class="toolbar">
-                <input type="button" title="Select files for scripts"
-                    class="btn silver btn_script_dark">
-            </div>
-            <img id='fileann_spinner' src="{% static "webgateway/img/spinner.gif" %}" style="display:none"/>
+        {% endif %}
+        <img id='fileann_spinner' src="{% static "webgateway/img/spinner.gif" %}" style="display:none"/>
 
         <div style="clear:both"></div>
             <!-- file annotations loaded by FileAnnsPane -->
