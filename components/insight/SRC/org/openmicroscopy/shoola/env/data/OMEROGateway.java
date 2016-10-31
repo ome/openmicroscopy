@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -199,6 +199,7 @@ import omero.model.ScreenI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.model.Well;
+import omero.model.WellI;
 import omero.model.WellSample;
 import omero.model.WellSampleI;
 import omero.model.enums.ChecksumAlgorithmSHA1160;
@@ -971,6 +972,10 @@ class OMEROGateway
 		        WellSampleI.class.equals(klass) ||
 				WellSampleData.class.equals(klass))
 			table = "ScreenAnnotationLink";
+		else if (Well.class.equals(klass) ||
+                WellI.class.equals(klass) ||
+                WellData.class.equals(klass))
+            table = "WellAnnotationLink";
 		else if (RectangleData.class.equals(klass) || RectangleI.class.equals(klass) ||
 		        EllipseData.class.equals(klass) ||  EllipseI.class.equals(klass) ||
 		        PointData.class.equals(klass) || PointI.class.equals(klass) ||
