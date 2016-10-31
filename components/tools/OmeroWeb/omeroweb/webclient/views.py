@@ -1176,8 +1176,7 @@ def api_tags_and_tagged_list_DELETE(request, conn=None, **kwargs):
 @login_required()
 def api_annotations(request, conn=None, **kwargs):
 
-    r = request.GET or request.POST
-
+    r = request.GET
     image_ids = r.getlist('image')
     dataset_ids = r.getlist('dataset')
     project_ids = r.getlist('project')
