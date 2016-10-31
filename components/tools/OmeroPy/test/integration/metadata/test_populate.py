@@ -711,7 +711,7 @@ class TestPopulateMetadata(lib.ITest):
     METADATA_NS_IDS = [x.__class__.__name__ for x in METADATA_NS_FIXTURES]
 
     @mark.parametrize("fixture", METADATA_FIXTURES, ids=METADATA_IDS)
-    @mark.parametrize("batch_size", (None, 10, 1000))
+    @mark.parametrize("batch_size", (None, 1, 10))
     def testPopulateMetadata(self, fixture, batch_size):
         """
         We should really test each of the parsing contexts in separate tests
