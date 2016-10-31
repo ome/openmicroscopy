@@ -957,10 +957,14 @@ class _QueryContext(object):
         """
         In some cases groups of objects must be kept together.
         This method attempts to return up to sz objects without breaking
-        up groups. If a single group is greater than sz the whole group
-        is returned.
+        up groups.
+        If a single group is greater than sz the whole group is returned.
+        Callers are responsible for checking the size of the returned batch.
 
         :param groups: an iterable of lists/tuples of objects
+        :return: a list of the next batch of objects, if a single group has
+                 more than sz elements it will be returned as a single
+                 over-sized batch
         """
         batch = []
         for group in groups:
@@ -1158,13 +1162,67 @@ class BulkToMapAnnotationContext(_QueryContext):
         return cma
 
     def _create_map_annotation_links(self, cma):
+        """
+        Converts a `CanonicalMapAnnotation` object into OMERO `MapAnnotations`
+        and `AnnotationLinks`. `AnnotationLinks` will have the parent and
+        child set, where the child is a single `MapAnnotation` object shared
+        amongst all links.
+
+        If the number of `AnnotationLinks` is small callers may choose to save
+        the links and `MapAnnotation` using `UpdateService` directly, ignoring
+        the second element of the tuple.
+
+        If the number of `AnnotationLinks` is large the caller should first
+        save the `MapAnnotation`, call `setChild` on all `AnnotationLinks` to
+        reference the saved `MapAnnotation`, and finally save all
+        `AnnotationLinks`.
+
+        This complexity is unfortunately required to avoid going over the
+        Ice message size.
+
+        :return: A tuple of (`AnnotationLinks`, `MapAnnotation`)
+        """
         links = []
+        ma = cma.get_mapann()
         for (otype, oid) in cma.get_parents():
             link = getattr(omero.model, '%sAnnotationLinkI' % otype)()
             link.setParent(getattr(omero.model, '%sI' % otype)(oid, False))
-            link.setChild(cma.get_mapann())
+            link.setChild(ma)
             links.append(link)
-        return links
+        return links, ma
+
+    def _save_annotation_links(self, links):
+        """
+        Save `AnnotationLinks` including the child annotation in one go.
+        See `_create_map_annotation_links`
+        """
+        sf = self.client.getSession()
+        group = str(self.target_object.details.group.id)
+        update_service = sf.getUpdateService()
+        arr = update_service.saveAndReturnArray(links, {'omero.group': group})
+        return arr
+
+    def _save_annotation_and_links(self, links, ann, batch_size):
+        """
+        Save a single `Annotation`, followed by the `AnnotationLinks` to that
+        Annotation.
+        All `AnnotationLinks` must have `ann` as their child.
+        Links will be saved in batches of `batch_size`.
+        See `_create_map_annotation_links`
+        """
+        sf = self.client.getSession()
+        group = str(self.target_object.details.group.id)
+        update_service = sf.getUpdateService()
+
+        annobj = update_service.saveAndReturnObject(ann)
+        for link in links:
+            link.setChild(annobj)
+
+        arr = []
+        for batch in self._batch(links, sz=batch_size):
+            arr.extend(update_service.saveAndReturnArray(
+                batch, {'omero.group': group}))
+        return arr
 
     def parse(self):
         tableid = self.ofileid
@@ -1256,18 +1314,27 @@ class BulkToMapAnnotationContext(_QueryContext):
                             raise
 
     def write_to_omero(self, batch_size=1000):
-        sf = self.client.getSession()
-        group = str(self.target_object.details.group.id)
-        update_service = sf.getUpdateService()
         i = 0
         links = []
+        oversized_links = []
+
         # This may be many-links-to-one-new-mapann so everything must
         # be kept together to avoid duplication of the mapann
         for cma in self.mapannotations.get_map_annotations():
-            links.append(self._create_map_annotation_links(cma))
+            batch, ma = self._create_map_annotation_links(cma)
+            if len(batch) < batch_size:
+                links.append(batch)
+            else:
+                oversized_links.append((batch, ma))
+
         for batch in self._grouped_batch(links, sz=batch_size):
-            arr = update_service.saveAndReturnArray(
-                batch, {'omero.group': group})
+            arr = self._save_annotation_links(batch)
+            i += len(arr)
+            log.info('Created/linked %d MapAnnotations (total %s)',
+                     len(arr), i)
+
+        for malinks, ma in oversized_links:
+            arr = self._save_annotation_and_links(malinks, ma, batch_size)
             i += len(arr)
             log.info('Created/linked %d MapAnnotations (total %s)',
                      len(arr), i)
