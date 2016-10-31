@@ -24,6 +24,7 @@
 #
 
 from django.conf import settings
+from django.apps import AppConfig
 from django.conf.urls import url, patterns, include
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.shortcuts import redirect
@@ -67,14 +68,25 @@ def redirect_urlpatterns():
 urlpatterns = patterns('',)
 
 for app in settings.ADDITIONAL_APPS:
+    if isinstance(app, AppConfig):
+        app_config = app
+    else:
+        app_config = AppConfig.create(app)
+    label = app_config.label
+
     # Depending on how we added the app to INSTALLED_APPS in settings.py,
     # include the urls the same way
     if 'omeroweb.%s' % app in settings.INSTALLED_APPS:
         urlmodule = 'omeroweb.%s.urls' % app
     else:
         urlmodule = '%s.urls' % app
-    regex = '^(?i)%s/' % app
-    urlpatterns += patterns('', (regex, include(urlmodule)),)
+    try:
+        __import__(urlmodule)
+    except ImportError:
+        pass
+    else:
+        regex = '^(?i)%s/' % label
+        urlpatterns += patterns('', (regex, include(urlmodule)),)
 
 urlpatterns += patterns(
     '',
