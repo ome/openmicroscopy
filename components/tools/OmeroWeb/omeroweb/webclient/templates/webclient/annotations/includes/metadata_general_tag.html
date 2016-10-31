@@ -25,12 +25,22 @@
     </h1>
     <div class="annotations_section" style="display:none">
         
-        {% if manager.canAnnotate %}
-            <div>
+        {% if obj_string %}
+            {% if not annotationBlocked %}
                 <a id="launch_tags_form"
-                    href="{% url 'annotate_tags' %}?{{manager.obj_type}}={{ manager.obj_id }}&index={{ index }}" 
-                    class="btn silver btn_add" title="Add tags"><span></span></a>
-            </div>
+                    href="{% url 'annotate_tags' %}?{{ obj_string }}&index={{ index }}"
+                    class="btn silver btn_add">
+                    <span></span>
+                </a>
+            {% endif %}
+        {% else %}
+            {% if manager.canAnnotate %}
+                <div>
+                    <a id="launch_tags_form"
+                        href="{% url 'annotate_tags' %}?{{manager.obj_type}}={{ manager.obj_id }}&index={{ index }}" 
+                        class="btn silver btn_add" title="Add tags"><span></span></a>
+                </div>
+            {% endif %}
         {% endif %}
 
         <!-- display existing Tags -->
