@@ -406,7 +406,7 @@ def _load_template(request, menu, conn=None, url=None, **kwargs):
 
     # search support
     init = {}
-    global_search_form = GlobalSearchForm(data=request.POST.copy())
+    global_search_form = GlobalSearchForm(data=request.GET.copy())
     if menu == "search":
         if global_search_form.is_valid():
             init['query'] = global_search_form.cleaned_data['search_query']
@@ -1421,7 +1421,7 @@ def load_searching(request, form=None, conn=None, **kwargs):
 
     foundById = []
     # form = 'form' if we are searching. Get query from request...
-    r = request.GET or request.POST
+    r = request.GET
     if form is not None:
         query_search = r.get('query').replace("+", " ")
         template = "webclient/search/search_details.html"
