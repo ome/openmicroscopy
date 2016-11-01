@@ -125,6 +125,7 @@ import omero.api.IRenderingSettingsPrx;
 import omero.api.IRepositoryInfoPrx;
 import omero.api.IRoiPrx;
 import omero.api.IScriptPrx;
+import omero.api.ITypesPrx;
 import omero.api.IUpdatePrx;
 import omero.api.RawFileStorePrx;
 import omero.api.RawPixelsStorePrx;
@@ -5195,8 +5196,8 @@ class OMEROGateway
 	{
 	   
 		try {
-		    IQueryPrx service = gw.getQueryService(ctx);
-			return service.findByString(klass.getName(), "value", value);
+		    ITypesPrx service = gw.getTypesService(ctx);
+		    return service.getEnumeration(klass.getName(), value);
 		} catch (Exception e) {
 			handleException(e, "Cannot find the enumeration's value.");
 		}
@@ -5222,10 +5223,10 @@ class OMEROGateway
 	   
 		List<EnumerationObject> r;
 		try {
-		    IPixelsPrx service = gw.getPixelsService(ctx);
+		    ITypesPrx service = gw.getTypesService(ctx);
 			r = enumerations.get(klassName);
 			if (r != null) return r;
-			List<IObject> l = service.getAllEnumerations(klassName);
+			List<IObject> l = service.allEnumerations(klassName);
 			r = new ArrayList<EnumerationObject>();
 			if (l == null) return r;
 			Iterator<IObject> i = l.iterator();
