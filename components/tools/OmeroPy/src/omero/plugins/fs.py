@@ -840,7 +840,10 @@ Examples:
                 else:
                     ids = parts[1].split(",")
                     ids = map(long, ids)
-                    objects[klass] = ids
+                    if klass in objects:
+                        objects[klass].extend(ids)
+                    else:
+                        objects[klass] = ids
             except:
                 raise ValueError("Bad object: ", o)
 
