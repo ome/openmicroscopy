@@ -79,6 +79,9 @@ class RowFieldCanvas extends WellFieldsCanvas {
             @Override
             public void mouseReleased(MouseEvent e) {
                 WellSampleNode node = getNode(e.getPoint());
+                if (node == null)
+                    return;
+                
                 List<WellSampleNode> oldSelection = new ArrayList<WellSampleNode>();
                 List<WellSampleNode> newSelection = new ArrayList<WellSampleNode>();
 
