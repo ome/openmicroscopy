@@ -127,7 +127,7 @@ public class ObjectPropertiesTest extends AbstractServerTest {
          * and let the test pass */
 
         namespace = createName(2000);
-        ann.setNs(omero.rtypes.rstring(namespace));;
+        ann.setNs(omero.rtypes.rstring(namespace));
         TagAnnotation sent = (TagAnnotation) iUpdate.saveAndReturnObject(ann);
         String savedName = sent.getName().getValue().toString();
         String savedNamespace = sent.getNs().getValue().toString();
