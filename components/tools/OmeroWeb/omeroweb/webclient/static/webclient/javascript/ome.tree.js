@@ -141,7 +141,7 @@ $(function() {
             inst.select_node('ul > li:first');
         } else {
             // We load hierachy for first item...
-            var paramSplit = nodeIds[0].split('-');
+            var paramSplit = nodeIds[0].split(/-(.+)/);
 
             var payload = {};
             payload[paramSplit[0]] = paramSplit[1];
