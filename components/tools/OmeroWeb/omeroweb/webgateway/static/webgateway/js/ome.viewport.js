@@ -728,9 +728,10 @@ jQuery._WeblitzViewport = function (container, server, options) {
       channel.window.start = start;
       channel.window.end = end;
       _this.self.trigger('channelChange', [_this, idx, _this.loadedImg.channels[idx]]);
-      if (!noreload) {
-        _load();
-      }
+    }
+    // Reload, e.g. after last channel changed in applyRDCW() (Even if last channel not changed)
+    if (!noreload) {
+      _load();
     }
   };
 
