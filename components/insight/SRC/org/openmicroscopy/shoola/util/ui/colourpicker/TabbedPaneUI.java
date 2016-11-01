@@ -483,6 +483,7 @@ class TabbedPaneUI
 					|| !control.isOriginalLut() 
 					|| !control.isOriginalRevInt());
 		}
+		revIntButton.setSelected(control.getReverseIntensity());
 	}
 
 	/**
