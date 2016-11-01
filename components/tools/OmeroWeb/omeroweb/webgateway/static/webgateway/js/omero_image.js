@@ -525,7 +525,6 @@
 
         /* Prepare color picker buttons */
         $(".picker").each(function(i, pickerBtn) {
-            console.log(this, channels[i].reverseIntensity);
             $(pickerBtn).data('data-reverse-intensity', channels[i].reverseIntensity);
         });
         $(".picker")
