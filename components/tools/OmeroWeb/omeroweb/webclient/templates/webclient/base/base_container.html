@@ -198,6 +198,24 @@
         {% if page_size %}
             var PAGE_SIZE = {{ page_size }};
         {% endif %}
+
+
+        // ** "Open With" config used by E.g. ome.tree.js **
+        // Loaded scripts can call OME.setOpenWithEnabledHandler and/or
+        // OME.setOpenWithActionHandler to override default behaviour
+        WEBCLIENT.OPEN_WITH = [];
+        $.getJSON("{% url 'webgateway.views.open_with_options' %}", function(data){
+            if (data && data.open_with_options) {
+                WEBCLIENT.OPEN_WITH = data.open_with_options;
+                // Try to load scripts if specified:
+                WEBCLIENT.OPEN_WITH.forEach(function(ow){
+                    if (ow.script_url) {
+                        $.getScript(ow.script_url);
+                    }
+                })
+            }
+        });
+
         $(document).ready(function(){
             // initially hidden
             $("#user_dropdown ul").css('visibility', 'hidden');

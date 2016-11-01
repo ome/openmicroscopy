@@ -78,6 +78,10 @@
           m2compatible="true"
           root="http://artifacts.unidata.ucar.edu/content/repositories/unidata-releases/"/>
 
+      <ibiblio name="zeroc" cache="maven"
+          usepoms="true" useMavenMetadata="true"
+          m2compatible="true"
+          root="https://repo.zeroc.com/nexus/content/repositories/releases/"/>
 
     <!-- Main resolver which has as its first resolver the location
     where all our jars will be published -->
@@ -135,6 +139,7 @@
     <module organisation="omero" name="*-test" resolver="test-resolver" matcher="glob"/>
     <module organisation="org.springframework" resolver="maven-resolver"/>
     <module organisation="ome" name="appbundler" resolver="ome-resolver"/>
+    <module organisation="com.zeroc" resolver="zeroc"/>
     <module organisation="zeroc" resolver="ome-resolver"/>
     <module organisation="ome" resolver="${ome.resolver}"/>
   </modules>
