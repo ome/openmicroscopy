@@ -59,6 +59,9 @@ class RowFieldCanvas extends WellFieldsCanvas {
     /** The current thumbnail size */
     private Dimension thumbDim;
 
+    /** The number of fields per well */
+    private int nFields;
+
     /**
      * Creates a new instance.
      * 
@@ -80,14 +83,52 @@ class RowFieldCanvas extends WellFieldsCanvas {
                 List<WellSampleNode> newSelection = new ArrayList<WellSampleNode>();
 
                 oldSelection.addAll(model.getSelectedWells());
-                
+
+                // selected node has to be first entry of the list (important!)
                 newSelection.add(node);
-                
+
                 for (WellSampleNode n : model.getSelectedWells()) {
-                    // copy the old selection if CTRL key down but also keep
-                    // selected Wells
-                    if (e.isControlDown() || n.isWell()) {
+                    // add selected wells in any case
+                    if (n.isWell())
                         newSelection.add(n);
+                }
+
+                if (e.isShiftDown()) {
+                    // Determine the start and end nodes of the selection
+                    // and add every node in between to the new selection
+                    int minIndex = Integer.MAX_VALUE;
+                    int maxIndex = -1;
+                    int index = -1;
+                    for (WellSampleNode n : model.getSelectedWells()) {
+                        if (n.isWell())
+                            continue;
+                        index = calcIndex(n);
+                        minIndex = Math.min(minIndex, index);
+                        maxIndex = Math.max(maxIndex, index);
+                    }
+
+                    index = calcIndex(node);
+                    minIndex = Math.min(minIndex, index);
+                    maxIndex = Math.max(maxIndex, index);
+
+                    for (Component c : RowFieldCanvas.this.getComponents()) {
+                        if (c instanceof FieldDisplay) {
+                            WellSampleNode n = ((FieldDisplay) c).getNode();
+                            if (!n.isWell()) {
+                                index = calcIndex(n);
+                                if (index >= minIndex && index <= maxIndex
+                                        && !newSelection.contains(n)) {
+                                    newSelection.add(n);
+                                }
+                            }
+                        }
+                    }
+                } else if (e.isControlDown()) {
+                    // copy the old selection if CTRL key down
+                    for (WellSampleNode n : model.getSelectedWells()) {
+                        if (!newSelection.contains(n)) {
+                            newSelection.add(n);
+                        }
                     }
                 }
 
@@ -102,7 +143,19 @@ class RowFieldCanvas extends WellFieldsCanvas {
             }
 
         });
+    }
 
+    /**
+     * Calculates an index for the given {@link WellSampleNode} based on the row
+     * and column where it is displayed.
+     * 
+     * @param n
+     *            The node
+     * @return See above.
+     */
+    private int calcIndex(WellSampleNode n) {
+        int row = titles.indexOf(n.getTitle());
+        return row * nFields + n.getIndex();
     }
 
     /**
@@ -116,6 +169,7 @@ class RowFieldCanvas extends WellFieldsCanvas {
         removeAll();
 
         this.titles = titles;
+        this.nFields = nFields;
 
         if (!titles.isEmpty() && nFields > 0) {
             // column header
