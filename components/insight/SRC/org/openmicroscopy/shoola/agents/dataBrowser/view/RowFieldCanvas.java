@@ -70,8 +70,7 @@ class RowFieldCanvas extends WellFieldsCanvas {
         setDoubleBuffered(true);
         setBackground(UIUtilities.BACKGROUND);
         setLayout(new GridBagLayout());
-        
-        
+
         addMouseListener(new MouseAdapter() {
 
             @Override
@@ -81,7 +80,16 @@ class RowFieldCanvas extends WellFieldsCanvas {
                 List<WellSampleNode> newSelection = new ArrayList<WellSampleNode>();
 
                 oldSelection.addAll(model.getSelectedWells());
+                
                 newSelection.add(node);
+                
+                for (WellSampleNode n : model.getSelectedWells()) {
+                    // copy the old selection if CTRL key down but also keep
+                    // selected Wells
+                    if (e.isControlDown() || n.isWell()) {
+                        newSelection.add(n);
+                    }
+                }
 
                 if (e.getClickCount() == 2)
                     RowFieldCanvas.this.firePropertyChange(VIEW_PROPERTY, null,
@@ -94,7 +102,7 @@ class RowFieldCanvas extends WellFieldsCanvas {
             }
 
         });
-        
+
     }
 
     /**
@@ -270,7 +278,7 @@ class RowFieldCanvas extends WellFieldsCanvas {
     public WellSampleNode getNode(Point p) {
         Component c = findComponentAt(p);
         if (c != null && c instanceof FieldDisplay) {
-            return ((FieldDisplay) c).node;
+            return ((FieldDisplay) c).getNode();
         }
         return null;
     }
@@ -370,5 +378,15 @@ class RowFieldCanvas extends WellFieldsCanvas {
                 this.node.getThumbnail().scale(mag);
             }
         }
+
+        /**
+         * Get the {@link WellSampleNode} represented by this FieldDisplay
+         * 
+         * @return See above
+         */
+        public WellSampleNode getNode() {
+            return node;
+        }
+
     }
 }

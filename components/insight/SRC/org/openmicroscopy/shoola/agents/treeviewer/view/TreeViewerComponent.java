@@ -1110,7 +1110,7 @@ class TreeViewerComponent
 				}
 			}
 			removeEditor();
-			model.getMetadataViewer().setSelectionMode(false);
+			model.getMetadataViewer().setSelectionMode(true);
 			firePropertyChange(SELECTED_BROWSER_PROPERTY, oldBrowser, browser);
 		}
 		Browser b = model.getSelectedBrowser();
@@ -1379,6 +1379,12 @@ class TreeViewerComponent
 		if (selection == null || selection.size() == 0) return;
 		Object selected = selection.get(0);
 		
+        Iterator it = selection.iterator();
+        while (it.hasNext()) {
+            if (!(it.next().getClass().equals(selected.getClass())))
+                it.remove();
+        }
+		
 		MetadataViewer mv = model.getMetadataViewer();
 		if (hasDataToSave()) {
 		    mv.saveData();
@@ -1400,6 +1406,7 @@ class TreeViewerComponent
 			if (browser != null) last = browser.getLastSelectedDisplay();
 			if (last != null) exp = browser.getNodeOwner(last);
 			if (exp == null) exp = model.getUserDetails();
+			mv.setSelectionMode(true);
 			mv.setRootObject(selected, exp.getId(), 
 					browser.getSecurityContext(last));
 			mv.setParentRootObject(parent, null);

@@ -42,6 +42,7 @@ import javax.swing.border.LineBorder;
 import omero.gateway.model.WellSampleData;
 
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -133,20 +134,27 @@ class WellFieldsView
             public void propertyChange(PropertyChangeEvent evt) {
                 if (WellFieldsCanvas.SELECTION_PROPERTY.equals(evt
                         .getPropertyName())) {
+                    
                     List<WellSampleNode> selection = (List<WellSampleNode>) evt
                             .getNewValue();
-                    WellSampleNode n = selection.iterator().next();
-                    model.setSelectedWell(n);
-                    canvas.refreshUI();
+                    
+                    List<ImageDisplay> l = new ArrayList<ImageDisplay>(selection.size());
+                    l.addAll(selection);
+                    
                     firePropertyChange(
-                            Browser.SELECTED_DATA_BROWSER_NODE_DISPLAY_PROPERTY,
-                            null, n);
-                } else if (WellFieldsCanvas.VIEW_PROPERTY.equals(evt
+                            Browser.SELECTED_DATA_BROWSER_NODES_DISPLAY_PROPERTY,
+                            null, l);
+                    
+                    canvas.refreshUI();
+                }
+                else if (WellFieldsCanvas.VIEW_PROPERTY.equals(evt
                         .getPropertyName())) {
                     List<WellSampleNode> selection = (List<WellSampleNode>) evt
                             .getNewValue();
-                    WellSampleNode n = selection.iterator().next();
-                    controller.viewDisplay(n);
+                    if (!selection.isEmpty()) {
+                        WellSampleNode n = selection.get(0);
+                        controller.viewDisplay(n);
+                    }
                 }
             }
         });

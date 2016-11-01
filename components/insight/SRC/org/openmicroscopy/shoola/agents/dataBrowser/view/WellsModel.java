@@ -24,6 +24,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -458,22 +459,21 @@ class WellsModel
      *            The selected node.
      */
     void setSelectedWell(WellSampleNode node) {
-        selectedNodes.clear();
-        selectedNodes.add(node);
+        setSelectedWells(Arrays.asList(new WellSampleNode[] { node }));
     }
-    
-	/**
-	 * Sets the selected wells. 
-	 * 
-	 * @param nodes The selected nodes.
-	 */
-	void setSelectedWells(List<WellSampleNode> nodes)
-	{
+
+    /**
+     * Sets the selected wells.
+     * 
+     * @param nodes
+     *            The selected nodes.
+     */
+    void setSelectedWells(List<WellSampleNode> nodes) {
         selectedNodes.clear();
-        if (nodes != null) {
+        if (!CollectionUtils.isEmpty(nodes)) {
             selectedNodes.addAll(nodes);
         }
-	}
+    }
 	
     /**
      * Returns the selected well. Note: Can be a well or a field (@see
