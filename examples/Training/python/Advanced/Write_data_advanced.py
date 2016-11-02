@@ -7,6 +7,10 @@
 # Use is subject to license terms supplied in LICENSE.txt
 #
 
+import sys
+import os
+sys.path.append(os.path.join('..', 'python'))
+
 """
 FOR TRAINING PURPOSES ONLY!
 """
@@ -15,19 +19,13 @@ import omero
 from omero.rtypes import rstring
 from omero.gateway import BlitzGateway
 from Connect_To_OMERO import USERNAME, PASSWORD, HOST, PORT
+from Parse_OMERO_Properties import datasetId, projectId
 
 
 # Create a connection
 # =================================================================
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
-
-
-# Configuration
-# =================================================================
-datasetId = 101
-projectId = 51
-
 
 # Create a new Dataset
 # =================================================================
