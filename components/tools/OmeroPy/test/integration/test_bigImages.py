@@ -27,6 +27,9 @@
 import omero
 import logging
 from omero.testlib import ITest
+import library as lib
+import numpy
+import io
 
 try:
     from PIL import Image  # see ticket:2597
@@ -36,12 +39,6 @@ except:  # pragma: nocover
     except:
         logging.error('No Pillow installed')
 
-try:
-    import hashlib
-    hash_sha1 = hashlib.sha1
-except:
-    import sha
-    hash_sha1 = sha.new
 
 from numpy import asarray
 
@@ -54,14 +51,7 @@ class TestFigureExportScripts(ITest):
         a region retrieved from rendering engine.
 
         Uses PIL to convert compressed strings into 2D numpy arrays for
-        cropping and comparison. ** Although cropped images and retrieved
-        regions APPEAR identical, there appear to be rounding or rendering
-        errors, either in the 'renderCompressed' method of the rendering engine
-        or in PIL **
-
-        For this reason, there are small differences in the pixel values of
-        rendered regions. This functionality is also tested in Java. Therefore
-        this test is not 'Activated' currently.
+        cropping and comparison.
         """
 
         session = self.root.sf
@@ -102,26 +92,19 @@ class TestFigureExportScripts(ITest):
         planeDef.z = long(0)
         planeDef.t = long(0)
 
-        import StringIO
-
         # First, get the full rendered plane...
         img = renderingEngine.renderCompressed(planeDef)  # compressed String
-        fullImage = Image.open(StringIO.StringIO(img))  # convert to numpy arr
+        fullImage = Image.open(io.BytesIO(img))  # convert to numpy arr
         img_array = asarray(fullImage)  # 3D array, since each pixel is [r,g,b]
 
         # get the cropped image
         cropped = img_array[y:y2, x:x2, :]      # ... so we can crop to region
-        cropped_img = Image.fromarray(cropped)
-        h = hash_sha1()
-        h.update(cropped_img.tostring())
-        hash_cropped = h.hexdigest()
 
         # now get the region
         planeDef.region = regionDef
         img = renderingEngine.renderCompressed(planeDef)
-        regionImage = Image.open(StringIO.StringIO(img))
-        h = hash_sha1()
-        h.update(regionImage.tostring())
-        hash_region = h.hexdigest()
+        region_image = Image.open(io.BytesIO(img))
+        region_array = asarray(region_image)
 
-        assert hash_cropped == hash_region
+        # compare the values of the arrays
+        assert numpy.array_equal(cropped, region_array)
