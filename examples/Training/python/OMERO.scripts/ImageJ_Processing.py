@@ -4,11 +4,12 @@ from omero.rtypes import rstring, rlong, robject
 import omero.scripts as scripts
 import os
 import Image
-from numpy import zeros, int32, asarray
+from matplotlib.image import imsave
+from numpy import zeros, int32, asarray, add
 from cStringIO import StringIO
 
 
-# ** NEED to cofigure this with respect to your own server
+# ** NEED to configure this with respect to your own server
 # Path to ij.jar
 IMAGEJPATH = "/Applications/ImageJ/ImageJ.app/Contents/Resources/Java/ij.jar"
 
@@ -94,7 +95,7 @@ def download_raw_planes(image, tiff_stack_dir, cIndex, region=None):
     theT = 0
     theC = cIndex
 
-    def numpyToImage(plane):
+    def numpyToImage(plane, name):
         """
         Converts the numpy plane to a PIL Image, scaling to cMinMax (minVal,
         maxVal) and changing data type if needed.
@@ -103,9 +104,9 @@ def download_raw_planes(image, tiff_stack_dir, cIndex, region=None):
         if plane.dtype.name not in ('uint8', 'int8'):
             # int32 is handled by PIL (not uint32 etc). TODO: support floats
             convArray = zeros(plane.shape, dtype=int32)
-            convArray += plane
-            return Image.fromarray(convArray)
-        return Image.fromarray(plane)
+            add(convArray, plane, out=convArray, casting="unsafe")
+            imsave(name, convArray)
+        imsave(name, plane)
 
     # We use getTiles() or getPlanes() to provide numpy 2D arrays for each
     # image plane
@@ -119,9 +120,8 @@ def download_raw_planes(image, tiff_stack_dir, cIndex, region=None):
         planes = image.getPrimaryPixels().getPlanes(zctList)
 
     for z, plane in enumerate(planes):
-        i = numpyToImage(plane)
         img_path = os.path.join(tiff_stack_dir, "plane_%02d.tiff" % z)
-        i.save(img_path)
+        numpyToImage(plane, img_path)
 
 
 def do_processing(tiff_stack_dir, destination, sizeX, axis="Y"):
