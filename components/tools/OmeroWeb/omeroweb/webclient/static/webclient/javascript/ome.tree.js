@@ -742,7 +742,7 @@ $(function() {
                 'valid_children': ['project','dataset','screen','plate', 'tag', 'tagset']
             },
             'map': {
-                'icon': WEBCLIENT.URLS.static_webclient + 'image/left_sidebar_icon_tag.png',
+                'icon': WEBCLIENT.URLS.static_webclient + 'image/left_sidebar_icon_map.png',
                 'valid_children': ['project', 'screen'],
                 'draggable': false
             },
