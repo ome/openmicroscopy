@@ -72,8 +72,8 @@ import zipfile
 import shutil
 
 from omeroweb.decorators import login_required, ConnCleaningHttpResponse
-from omeroweb.webgateway.decorators import login_required as api_login_required, \
-    json_response
+from omeroweb.webgateway.decorators import login_required as \
+    api_login_required, json_response
 from omeroweb.connector import Connector
 from omeroweb.webgateway.util import zip_archived_files, getIntOrDefault
 from omeroweb.webgateway.api_exceptions import BadRequestError, NotFoundError,\
@@ -2382,7 +2382,7 @@ def histogram_json(request, iid, theC, conn=None, **kwargs):
     if (sizeX * sizeY) > (maxW * maxH):
         msg = ("Histogram not supported for 'big' images (over %s * %s pixels)"
                % (maxW, maxH))
-        return HttpJsonResponse({"error": msg})
+        return JsonResponse({"error": msg})
 
     theZ = int(request.REQUEST.get('theZ', 0))
     theT = int(request.REQUEST.get('theT', 0))
@@ -2402,7 +2402,7 @@ def histogram_json(request, iid, theC, conn=None, **kwargs):
     hsize = len(rgbHistogram) / 3
     histogram = rgbHistogram[0:hsize]
 
-    return HttpJsonResponse(histogram)
+    return JsonResponse(histogram)
 
 
 @login_required(isAdmin=True)
