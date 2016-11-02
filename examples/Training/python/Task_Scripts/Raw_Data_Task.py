@@ -7,6 +7,10 @@
 # Use is subject to license terms supplied in LICENSE.txt
 #
 
+import sys
+import os
+sys.path.append(os.path.join('..', 'python'))
+
 """
 FOR TRAINING PURPOSES ONLY!
 """
@@ -19,39 +23,20 @@ FOR TRAINING PURPOSES ONLY!
 # A more complete template, for 'real-world' scripts, is also included in this
 # folder
 # This script takes an Image ID as a parameter from the scripting service.
-from omero.rtypes import rlong, rstring, unwrap, robject
+from matplotlib.image import imsave
 from omero.gateway import BlitzGateway
-import omero.scripts as scripts
-from numpy import hstack, zeros, uint8
-try:
-    import Image
-except ImportError:
-    from PIL import Image
+from numpy import hstack, zeros, uint8, add
+
+from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
+from Parse_OMERO_Properties import imageId
 # Script definition
 
 
 # Script name, description and 2 parameters are defined here.
 # These parameters will be recognised by the Insight and web clients and
 # populated with the currently selected Image(s)
-
-# this script only takes Images (not Datasets etc.)
-dataTypes = [rstring('Image')]
-client = scripts.client(
-    "Raw_Data_Task.py",
-    ("Gets pixel data for a defined 'tile' on an Image and finds Average"
-     " value"),
-    # first parameter
-    scripts.String(
-        "Data_Type", optional=False, values=dataTypes, default="Image"),
-    # second parameter
-    scripts.List("IDs", optional=False).ofType(rlong(0)),
-)
-# we can now create our Blitz Gateway by wrapping the client object
-conn = BlitzGateway(client_obj=client)
-
-# get the 'IDs' parameter (which we have restricted to 'Image' IDs)
-ids = unwrap(client.getInput("IDs"))
-imageId = ids[0]        # simply use the first ID for this example
+conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
+conn.connect()
 
 
 # First Task: Get the Average pixel value for a specified region:
@@ -102,14 +87,12 @@ if kymograph_data.dtype.name not in ('uint8', 'int8'):  # we need to scale...
     valRange = maxVal - minVal
     scaled = (kymograph_data - minVal) * (float(255) / valRange)
     convArray = zeros(kymograph_data.shape, dtype=uint8)
-    convArray += scaled
+    add(convArray, scaled, out=convArray, casting="unsafe")
     print ("using converted int8 plane: dtype: %s min: %s max: %s"
            % (convArray.dtype.name, convArray.min(), convArray.max()))
-    i = Image.fromarray(convArray)
+    imsave("kymograph.png", convArray, format='png')
 else:
-    i = Image.fromarray(kymograph_data)
-# i.show()
-i.save("kymograph.png", 'PNG')
+    imsave("kymograph.png", kymograph_data, format='png')
 
 # attach the png to the image
 fileAnn = conn.createFileAnnfromLocalFile(
@@ -119,6 +102,6 @@ image.linkAnnotation(fileAnn)
 
 
 message = "Tile average value: %s" % average
-client.setOutput("Message", rstring(message))
-client.setOutput("Kymograph", robject(fileAnn._obj))
-client.closeSession()
+# client.setOutput("Message", rstring(message))
+# client.setOutput("Kymograph", robject(fileAnn._obj))
+# client.closeSession()
