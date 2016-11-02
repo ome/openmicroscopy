@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 #
-# Copyright (C) 2011-2014 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2011-2016 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software: you can redistribute it and/or modify
@@ -19,26 +19,19 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import json
-
 from django.http import HttpResponse, HttpResponseServerError
 
 
 class HttpJavascriptResponse(HttpResponse):
     def __init__(self, content):
-        HttpResponse.__init__(self, content, content_type="text/javascript")
+        HttpResponse.__init__(self, content,
+                              content_type="application/javascript")
 
 
 class HttpJavascriptResponseServerError(HttpResponseServerError):
     def __init__(self, content):
         HttpResponseServerError.__init__(
             self, content, content_type="text/javascript")
-
-
-class HttpJsonResponse(HttpResponse):
-    def __init__(self, content):
-        HttpResponse.__init__(
-            self, json.dumps(content), content_type="application/json")
 
 
 class HttpJPEGResponse(HttpResponse):

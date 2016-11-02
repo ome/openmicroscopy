@@ -472,7 +472,15 @@ CUSTOM_SETTINGS_MAPPINGS = {
          ("Workers silent for more than this many seconds are killed "
           "and restarted. Check Gunicorn Documentation "
           "http://docs.gunicorn.org/en/stable/settings.html#timeout")],
-
+    "omero.web.api.absolute_url":
+        ["API_ABSOLUTE_URL",
+         None,
+         str_slash,
+         ("URL to use for generating urls within API json responses. "
+          "By default this is None, and we use Django's "
+          "request.build_absolute_uri() to generate absolute urls "
+          "based on each request. If set to a string or empty string, "
+          "this will be used as prefix to relative urls.")],
 
     # Public user
     "omero.web.public.enabled":
@@ -1154,6 +1162,12 @@ CSRF_FAILURE_VIEW = "omeroweb.feedback.views.csrf_failure"
 # comment messages to http://qa.openmicroscopy.org.uk.
 # FEEDBACK_APP: 6 = OMERO.web
 FEEDBACK_APP = 6
+
+# For any given release of api, we may support
+# one or more versions of the api.
+# E.g. /api/v1.0/
+# TODO - need to decide how this is configured, strategy for extending etc.
+API_VERSIONS = ('0.1',)
 
 # IGNORABLE_404_STARTS:
 # Default: ('/cgi-bin/', '/_vti_bin', '/_vti_inf')

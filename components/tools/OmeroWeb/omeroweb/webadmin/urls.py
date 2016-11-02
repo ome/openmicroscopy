@@ -26,13 +26,14 @@
 from django.conf.urls import url, patterns
 
 from omeroweb.webadmin import views
-from omeroweb.webclient import views as webclient_views
+from omeroweb.webclient.views import WebclientLoginView
 
 # url patterns
 urlpatterns = patterns(
     '',
     url(r'^$', views.index, name="waindex"),
-    url(r'^login/$', webclient_views.login, name="walogin"),
+    url(r'^login/$', WebclientLoginView.as_view(),
+        name="walogin"),
     url(r'^logout/$', views.logout, name="walogout"),
     url(r'^forgottenpassword/$', views.forgotten_password,
         name="waforgottenpassword"),

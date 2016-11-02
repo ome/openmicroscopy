@@ -427,6 +427,7 @@ get_image_rdefs_json = url(r'^get_image_rdefs_json/(?P<img_id>[0-9]+)/$',
 This url will retrieve all rendering definitions for a given image (id)
 """
 
+
 urlpatterns = patterns(
     '',
     webgateway,
@@ -478,6 +479,4 @@ urlpatterns = patterns(
     table_query,
     object_table_query,
     open_with_options,
-    # Debug stuff
-
 )
