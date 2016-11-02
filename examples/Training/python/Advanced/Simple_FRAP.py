@@ -7,14 +7,19 @@
 # Use is subject to license terms supplied in LICENSE.txt
 #
 
+import sys
+import os
+sys.path.append(os.path.join('..', 'python'))
+
 """
 FOR TRAINING PURPOSES ONLY!
 """
 
 import omero
-from omero.rtypes import rint, rlong
+from omero.rtypes import rint, rlong, rdouble, rstring
 from omero.gateway import BlitzGateway
 from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
+from Parse_OMERO_Properties import imageId
 
 # Create a connection
 # =================================================================
@@ -22,14 +27,37 @@ conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
 
 
-# Configuration
-# =================================================================
-imageId = 67
-
-
 # The Image we want to Analyse
 # =================================================================
 image = conn.getObject('Image', imageId)
+
+# Create Ellipses one per timepoint
+# =================================================================
+x = 50
+y = 200
+width = 100
+height = 50
+image = conn.getObject("Image", imageId)
+theZ = image.getSizeZ() / 2
+
+# create an ROI, link it to Image
+roi = omero.model.RoiI()
+# use the omero.model.ImageI that underlies the 'image' wrapper
+roi.setImage(image._obj)
+
+# Create Ellipses one per t
+for t in range(image.getSizeT()):
+    ellipse = omero.model.EllipseI()
+    ellipse.x = rdouble(y)
+    ellipse.y = rdouble(x)
+    ellipse.radiusX = rdouble(width)
+    ellipse.radiusY = rdouble(height)
+    ellipse.theZ = rint(theZ)
+    ellipse.theT = rint(t)
+    ellipse.textValue = rstring("test-Ellipse")
+    roi.addShape(ellipse)
+
+conn.getUpdateService().saveAndReturnObject(roi)
 
 
 # To keep things simple, we'll work with a single Ellipse per T
