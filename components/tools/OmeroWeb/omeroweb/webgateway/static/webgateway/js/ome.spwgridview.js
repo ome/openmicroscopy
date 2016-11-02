@@ -5,6 +5,13 @@
         window.OME = {};
     }
 
+    // Can be called from 
+    console.log('spwgridview...');
+    OME.hideWellBirdsEye = function() {
+        $("#left_panel_tabs").css('bottom', '0');
+        $("#left_panel_bottom").css('height', '0');
+    };
+
     OME.WellBirdsEye = function(opts) {
 
         var $left_panel_tabs = $("#left_panel_tabs");
@@ -42,13 +49,8 @@
             selectionChanged();
         });
 
-        var minX,
-            maxX,
-            minY,
-            maxY;
-
         function showPanel() {
-            var height = 300;
+            var height = 240;
             $left_panel_tabs.css('bottom', height + 'px');
             $left_panel_bottom.css('height', height + 'px');
         }
@@ -77,6 +79,11 @@
                 showPanel();
                 console.log('addWell', data);
 
+                var minX,
+                    maxX,
+                    minY,
+                    maxY;
+
                 // first filter for well-samples that have positions
                 data = data.filter(function(ws){ return ws.position !== undefined });
 
@@ -87,6 +94,12 @@
                 var midX = ((maxX - minX)/2) + minX;
                 minY = Math.min.apply(null, yVals);
                 maxY = Math.max.apply(null, yVals);
+
+                console.log(xVals, minX, maxX);
+
+                var whRatio = (maxX - minX) / (maxY - minY);
+                console.log(whRatio);
+                $well_birds_eye.css('width', whRatio * 200 + 'px');
 
                 var html = data.map(function(ws){
                     // check if min===max to avoid zero-division error

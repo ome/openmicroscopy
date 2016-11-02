@@ -811,6 +811,10 @@ $(document).ready(function() {
         $contentDetails.removeData('path');
         $("div#page").removeData('page');
         $contentDetails.removeData('field');
+        // hide SPW 'spacial' birds eye view below tree
+        if (OME.hideWellBirdsEye) {
+            OME.hideWellBirdsEye();
+        }
     };
     // Allows other web apps to access this method
     OME.clearThumbnailsPanel = clearThumbnailsPanel;
