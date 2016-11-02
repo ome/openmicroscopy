@@ -7,14 +7,18 @@
 # Use is subject to license terms supplied in LICENSE.txt
 #
 
+import sys
+import os
+sys.path.append(os.path.join('..', 'python'))
+
 """
 FOR TRAINING PURPOSES ONLY!
 """
 
-from omero.rtypes import rdouble, rint
+from omero.rtypes import rint
 from omero.gateway import BlitzGateway
-from Connect_To_OMERO import USERNAME, PASSWORD, HOST, PORT
-
+from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
+from Parse_OMERO_Properties import imageId, datasetId
 
 # Create a connection
 # =================================================================
@@ -24,8 +28,11 @@ conn.connect()
 
 # Configuration
 # =================================================================
-imageId = 351
-imageId2 = 352
+dataset = conn.getObject("Dataset", datasetId)
+for image in dataset.listChildren():
+    imageId2 = image.getId()
+    break
+
 replaceChannel = 0
 
 
@@ -89,17 +96,11 @@ newImg.resetRDefs()  # reset based on colors above
 # =================================================================
 newPix = conn.getQueryService().get("Pixels", newImg.getPixelsId())
 
-physicalSizeX = pixels.getPhysicalSizeX()
-if physicalSizeX is not None:
-    newPix.setPhysicalSizeX(rdouble(physicalSizeX))
+newPix.setPhysicalSizeX(pixels.getPhysicalSizeX())
 
-physicalSizeY = pixels.getPhysicalSizeY()
-if physicalSizeY is not None:
-    newPix.setPhysicalSizeY(rdouble(physicalSizeY))
+newPix.setPhysicalSizeY(pixels.getPhysicalSizeY())
 
-physicalSizeZ = pixels.getPhysicalSizeZ()
-if physicalSizeZ is not None:
-    newPix.setPhysicalSizeZ(rdouble(physicalSizeZ))
+newPix.setPhysicalSizeZ(pixels.getPhysicalSizeZ())
 
 conn.getUpdateService().saveObject(newPix)
 
