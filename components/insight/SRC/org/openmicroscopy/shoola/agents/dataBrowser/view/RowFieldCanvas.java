@@ -126,7 +126,7 @@ class RowFieldCanvas extends WellFieldsCanvas {
                             }
                         }
                     }
-                } else if (e.isControlDown()) {
+                } else if (e.isControlDown() || e.isMetaDown()) {
                     // copy the old selection if CTRL key down
                     for (WellSampleNode n : model.getSelectedWells()) {
                         if (!newSelection.contains(n)) {
