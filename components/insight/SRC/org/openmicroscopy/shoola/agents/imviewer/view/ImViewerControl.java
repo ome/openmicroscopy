@@ -1208,8 +1208,7 @@ class ImViewerControl
         } else {
             if (!ColourPickerUtil.sameLookuptable(newLut, oldLut)) {
                 model.setLookupTable(index, newLut, preview);
-            } else if (newColor != null && !ColourPickerUtil.sameColor(newColor, oldColor)) {
-                model.setLookupTable(index, null, preview);
+            } if (newColor != null && !ColourPickerUtil.sameColor(newColor, oldColor)) {
                 model.setChannelColor(index, newColor, preview);
             } 
             model.setReverseIntensity(index, revInt, preview);
