@@ -350,12 +350,21 @@ class TwoKnobsSliderUI
 	{
 		int l = xPositionForValue(model.getStartValue());
 		int r = xPositionForValue(model.getEndValue());
-		if ( component.getImage() != null ){
-            g2D.drawImage(component.getImage(), trackRect.x, trackRect.y, trackRect.width, trackRect.height-9, null);
-            
+		
+		int w  = component.getKnobWidth();
+        int h = component.getKnobHeight();
+        
+        if (component.getImage() != null) {
+            if (component.isSqueezeImage())
+                g2D.drawImage(component.getImage(), r, trackRect.y, (l - r),
+                        trackRect.height - 9, null);
+            else
+                g2D.drawImage(component.getImage(), trackRect.x, trackRect.y,
+                        trackRect.width, trackRect.height - 9, null);
+
             g2D.drawRect(trackRect.x, trackRect.y, trackRect.width,
-                    trackRect.height-8);
-		}
+                    trackRect.height - 8);
+        }
 		else {
 		    if (!component.getColourGradient())
 	        {
@@ -385,8 +394,6 @@ class TwoKnobsSliderUI
 	        }
 		}
 		//Draw the knobs
-		int w  = component.getKnobWidth();
-		int h = component.getKnobHeight();
 		Image img;
 		int offset = 0;
 		if (!component.getColourGradient()) {
