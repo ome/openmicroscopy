@@ -24,6 +24,7 @@ HOST = omeroProperties.get('omero.host', 'localhost')
 PORT = omeroProperties.get('omero.port', 4064)
 USERNAME = omeroProperties.get('omero.user')
 PASSWORD = omeroProperties.get('omero.pass')
+OMERO_WEB_HOST = "http://localhost"
 projectId = omeroProperties.get('omero.projectid')
 datasetId = omeroProperties.get('omero.datasetid')
 imageId = omeroProperties.get('omero.imageid')

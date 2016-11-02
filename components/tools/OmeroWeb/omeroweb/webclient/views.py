@@ -46,7 +46,8 @@ from omero.gateway.utils import toBoolean
 
 from django.conf import settings
 from django.template import loader as template_loader
-from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseRedirect, \
+    JsonResponse
 from django.http import HttpResponseServerError, HttpResponseBadRequest
 from django.template import RequestContext as Context
 from django.utils.http import urlencode
@@ -74,21 +75,17 @@ from controller.search import BaseSearch
 from controller.share import BaseShare
 
 from omeroweb.webadmin.forms import LoginForm
-from omeroweb.webadmin.webadmin_utils import upgradeCheck
 
 from omeroweb.webgateway import views as webgateway_views
 from omeroweb.webgateway.marshal import chgrpMarshal
 
 from omeroweb.feedback.views import handlerInternalError
 
-from omeroweb.http import HttpJsonResponse
 from omeroweb.webclient.decorators import login_required
 from omeroweb.webclient.decorators import render_response
 from omeroweb.webclient.show import Show, IncorrectMenuError, \
     paths_to_object, paths_to_tag
-from omeroweb.connector import Connector
 from omeroweb.decorators import ConnCleaningHttpResponse, parse_url
-from omeroweb.decorators import get_client_ip
 from omeroweb.webgateway.util import getIntOrDefault
 
 from omero.model import ProjectI, DatasetI, ImageI, \
@@ -177,9 +174,10 @@ def custom_index(request, conn=None, **kwargs):
 # views
 
 
-def login(request):
+class WebclientLoginView(webgateway_views.LoginView):
     """
-    Webclient Login - Also can be used by other Apps to log in to OMERO. Uses
+    Webclient Login - Customises the superclass LoginView
+    for webclient. Also can be used by other Apps to log in to OMERO. Uses
     the 'server' id from request to lookup the server-id (index), host and
     port from settings. E.g. "localhost", 4064. Stores these details, along
     with username, password etc in the request.session. Resets other data
@@ -189,108 +187,80 @@ def login(request):
     with appropriate error messages.
     """
 
-    request.session.modified = True
-
-    conn = None
-    error = None
-
-    form = LoginForm(data=request.POST.copy())
-    useragent = 'OMERO.web'
-    if form.is_valid():
-        username = form.cleaned_data['username']
-        password = form.cleaned_data['password']
-        server_id = form.cleaned_data['server']
-        is_secure = form.cleaned_data['ssl']
-
-        connector = Connector(server_id, is_secure)
-
-        # TODO: version check should be done on the low level, see #5983
-        compatible = True
-        if settings.CHECK_VERSION:
-            compatible = connector.check_version(useragent)
-        if (server_id is not None and username is not None and
-                password is not None and compatible):
-            conn = connector.create_connection(
-                useragent, username, password, userip=get_client_ip(request))
-            if conn is not None:
-                # Check if user is in "user" group
-                roles = conn.getAdminService().getSecurityRoles()
-                userGroupId = roles.userGroupId
-                if userGroupId in conn.getEventContext().memberOfGroups:
-                    request.session['connector'] = connector
-                    # UpgradeCheck URL should be loaded from the server or
-                    # loaded omero.web.upgrades.url allows to customize web
-                    # only
-                    try:
-                        upgrades_url = settings.UPGRADES_URL
-                    except:
-                        upgrades_url = conn.getUpgradesUrl()
-                    upgradeCheck(url=upgrades_url)
-                    # if 'active_group' remains in session from previous
-                    # login, check it's valid for this user
-                    if request.session.get('active_group'):
-                        if (request.session.get('active_group') not in
-                                conn.getEventContext().memberOfGroups):
-                            del request.session['active_group']
-                    if request.session.get('user_id'):
-                        # always want to revert to logged-in user
-                        del request.session['user_id']
-                    if request.session.get('server_settings'):
-                        # always clean when logging in
-                        del request.session['server_settings']
-                    # do we ned to display server version ?
-                    # server_version = conn.getServerVersion()
-                    if request.POST.get('noredirect'):
-                        return HttpResponse('OK')
-                    url = request.GET.get("url")
-                    if url is None or len(url) == 0:
-                        try:
-                            url = parse_url(settings.LOGIN_REDIRECT)
-                        except:
-                            url = reverse("webindex")
-                    return HttpResponseRedirect(url)
-                else:
-                    error = "This user is not active."
-
-        if not connector.is_server_up(useragent):
-            error = "Server is not responding, please contact administrator."
-        elif not settings.CHECK_VERSION:
-            error = ("Connection not available, please check your"
-                     " credentials and version compatibility.")
-        else:
-            if not compatible:
-                error = ("Client version does not match server,"
-                         " please contact administrator.")
-            else:
-                error = ("Connection not available, please check your"
-                         " user name and password.")
-
-    url = request.GET.get("url")
-
     template = "webclient/login.html"
-    if request.method != 'POST':
-        server_id = request.GET.get('server', request.POST.get('server'))
-        if server_id is not None:
-            initial = {'server': unicode(server_id)}
-            form = LoginForm(initial=initial)
-        else:
-            form = LoginForm()
+    useragent = 'OMERO.web'
 
-    context = {
-        'version': omero_version,
-        'build_year': build_year,
-        'error': error,
-        'form': form}
-    if url is not None and len(url) != 0:
-        context['url'] = urlencode({'url': url})
+    def get(self, request):
+        """
+        GET simply returns the login page
+        """
+        return self.handle_not_logged_in(request)
 
-    if hasattr(settings, 'LOGIN_LOGO'):
-        context['LOGIN_LOGO'] = settings.LOGIN_LOGO
+    def handle_logged_in(self, request, conn, connector):
+        """
+        We override this to provide webclient-specific functionality
+        such as cleaning up any previous sessions (if user didn't logout)
+        and redirect to specified url or webclient index page.
+        """
 
-    t = template_loader.get_template(template)
-    c = Context(request, context)
-    rsp = t.render(c)
-    return HttpResponse(rsp)
+        # webclient has various state that needs cleaning up...
+        # if 'active_group' remains in session from previous
+        # login, check it's valid for this user
+        if request.session.get('active_group'):
+            if (request.session.get('active_group') not in
+                    conn.getEventContext().memberOfGroups):
+                del request.session['active_group']
+        if request.session.get('user_id'):
+            # always want to revert to logged-in user
+            del request.session['user_id']
+        if request.session.get('server_settings'):
+            # always clean when logging in
+            del request.session['server_settings']
+        # do we ned to display server version ?
+        # server_version = conn.getServerVersion()
+        if request.POST.get('noredirect'):
+            return HttpResponse('OK')
+        url = request.GET.get("url")
+        if url is None or len(url) == 0:
+            try:
+                url = parse_url(settings.LOGIN_REDIRECT)
+            except:
+                url = reverse("webindex")
+        return HttpResponseRedirect(url)
+
+    def handle_not_logged_in(self, request, error=None, form=None):
+        """
+        Returns a response for failed login.
+        Reason for failure may be due to server 'error' or because
+        of form validation errors.
+
+        @param request:     http request
+        @param error:       Error message
+        @param form:        Instance of Login Form, populated with data
+        """
+        if form is None:
+            server_id = request.GET.get('server', request.POST.get('server'))
+            if server_id is not None:
+                initial = {'server': unicode(server_id)}
+                form = LoginForm(initial=initial)
+            else:
+                form = LoginForm()
+        context = {
+            'version': omero_version,
+            'build_year': build_year,
+            'error': error,
+            'form': form}
+        url = request.GET.get("url")
+        if url is not None and len(url) != 0:
+            context['url'] = urlencode({'url': url})
+
+        if hasattr(settings, 'LOGIN_LOGO'):
+            context['LOGIN_LOGO'] = settings.LOGIN_LOGO
+
+        t = template_loader.get_template(self.template)
+        c = Context(request, context)
+        rsp = t.render(c)
+        return HttpResponse(rsp)
 
 
 @login_required(ignore_login_fail=True)
@@ -554,7 +524,7 @@ def api_group_list(request, conn=None, **kwargs):
     except IceException as e:
         return HttpResponseServerError(e.message)
 
-    return HttpJsonResponse({'groups': groups})
+    return JsonResponse({'groups': groups})
 
 
 @login_required()
@@ -573,7 +543,7 @@ def api_experimenter_list(request, conn=None, **kwargs):
                                                    group_id=group_id,
                                                    page=page,
                                                    limit=limit)
-        return HttpJsonResponse({'experimenters': experimenters})
+        return JsonResponse({'experimenters': experimenters})
     except ApiUsageException as e:
         return HttpResponseBadRequest(e.serverStackTrace)
     except ServerError as e:
@@ -598,7 +568,7 @@ def api_experimenter_detail(request, experimenter_id, conn=None, **kwargs):
             # Get the experimenter
             experimenter = tree.marshal_experimenter(
                 conn=conn, experimenter_id=experimenter_id)
-        return HttpJsonResponse({'experimenter': experimenter})
+        return JsonResponse({'experimenter': experimenter})
 
     except ApiUsageException as e:
         return HttpResponseBadRequest(e.serverStackTrace)
@@ -686,7 +656,7 @@ def api_container_list(request, conn=None, **kwargs):
     except IceException as e:
         return HttpResponseServerError(e.message)
 
-    return HttpJsonResponse(r)
+    return JsonResponse(r)
 
 
 @login_required()
@@ -714,7 +684,7 @@ def api_dataset_list(request, conn=None, **kwargs):
     except IceException as e:
         return HttpResponseServerError(e.message)
 
-    return HttpJsonResponse({'datasets': datasets})
+    return JsonResponse({'datasets': datasets})
 
 
 @login_required()
@@ -769,7 +739,7 @@ def api_image_list(request, conn=None, **kwargs):
     except IceException as e:
         return HttpResponseServerError(e.message)
 
-    return HttpJsonResponse({'images': images})
+    return JsonResponse({'images': images})
 
 
 @login_required()
@@ -797,7 +767,7 @@ def api_plate_list(request, conn=None, **kwargs):
     except IceException as e:
         return HttpResponseServerError(e.message)
 
-    return HttpJsonResponse({'plates': plates})
+    return JsonResponse({'plates': plates})
 
 
 @login_required()
@@ -826,7 +796,7 @@ def api_plate_acquisition_list(request, conn=None, **kwargs):
     except IceException as e:
         return HttpResponseServerError(e.message)
 
-    return HttpJsonResponse({'acquisitions': plate_acquisitions})
+    return JsonResponse({'acquisitions': plate_acquisitions})
 
 
 def get_object_links(conn, parent_type, parent_id, child_type, child_ids):
@@ -985,7 +955,7 @@ def _api_links_POST(conn, json_data, **kwargs):
                     pass
             response['success'] = True
 
-    return HttpJsonResponse(response)
+    return JsonResponse(response)
 
 
 def _api_links_DELETE(conn, json_data):
@@ -1036,7 +1006,7 @@ def _api_links_DELETE(conn, json_data):
     # If we got here, DELETE was OK
     response['success'] = True
 
-    return HttpJsonResponse(response)
+    return JsonResponse(response)
 
 
 @login_required()
@@ -1079,7 +1049,7 @@ def api_paths_to_object(request, conn=None, **kwargs):
         paths = paths_to_object(conn, experimenter_id, project_id,
                                 dataset_id, image_id, screen_id, plate_id,
                                 acquisition_id, well_id, group_id)
-    return HttpJsonResponse({'paths': paths})
+    return JsonResponse({'paths': paths})
 
 
 @login_required()
@@ -1138,7 +1108,7 @@ def api_tags_and_tagged_list_GET(request, conn=None, **kwargs):
     except IceException as e:
         return HttpResponseServerError(e.message)
 
-    return HttpJsonResponse(tagged)
+    return JsonResponse(tagged)
 
 
 def api_tags_and_tagged_list_DELETE(request, conn=None, **kwargs):
@@ -1173,7 +1143,7 @@ def api_tags_and_tagged_list_DELETE(request, conn=None, **kwargs):
     except IceException as e:
         return HttpResponseServerError(e.message)
 
-    return HttpJsonResponse('')
+    return JsonResponse('')
 
 
 @login_required()
@@ -1202,7 +1172,7 @@ def api_annotations(request, conn=None, **kwargs):
                                           page=page,
                                           limit=limit)
 
-    return HttpJsonResponse({'annotations': anns, 'experimenters': exps})
+    return JsonResponse({'annotations': anns, 'experimenters': exps})
 
 
 @login_required()
@@ -1240,7 +1210,7 @@ def api_share_list(request, conn=None, **kwargs):
     except IceException as e:
         return HttpResponseServerError(e.message)
 
-    return HttpJsonResponse({'shares': shares, 'discussions': discussions})
+    return JsonResponse({'shares': shares, 'discussions': discussions})
 
 
 @login_required()
@@ -2172,7 +2142,7 @@ def annotate_file(request, conn=None, **kwargs):
                 newFileId = manager.createFileAnnotations(
                     fileupload, oids, well_index=index)
                 added_files.append(newFileId)
-            return HttpJsonResponse({'fileIds': added_files})
+            return JsonResponse({'fileIds': added_files})
         else:
             return HttpResponse(form_file.errors)
 
@@ -2202,7 +2172,7 @@ def annotate_rating(request, conn=None, **kwargs):
             o.setRating(rating)
 
     # return a summary of ratings
-    return HttpJsonResponse({'success': True})
+    return JsonResponse({'success': True})
 
 
 @login_required()
@@ -2503,9 +2473,9 @@ def annotate_tags(request, conn=None, **kwargs):
                     "%s-%s" % (dtype, obj.id)
                     for dtype, objs in oids.items()
                     for obj in objs], index, tag_owner_id=self_id)
-            return HttpJsonResponse({'added': tags,
-                                     'removed': removed,
-                                     'new': new_tags})
+            return JsonResponse({'added': tags,
+                                 'removed': removed,
+                                 'new': new_tags})
         else:
             # TODO: handle invalid form error
             return HttpResponse(str(form_tags.errors))
@@ -2615,13 +2585,13 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
                 description = form.cleaned_data['description']
                 oid = manager.createDataset(name, description)
                 rdict = {'bad': 'false', 'id': oid}
-                return HttpJsonResponse(rdict)
+                return JsonResponse(rdict)
             else:
                 d = dict()
                 for e in form.errors.iteritems():
                     d.update({e[0]: unicode(e[1])})
                 rdict = {'bad': 'true', 'errs': d}
-                return HttpJsonResponse(rdict)
+                return JsonResponse(rdict)
         elif o_type == "tagset" and o_id > 0:
             form = ContainerForm(data=request.POST.copy())
             if form.is_valid():
@@ -2629,13 +2599,13 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
                 description = form.cleaned_data['description']
                 oid = manager.createTag(name, description)
                 rdict = {'bad': 'false', 'id': oid}
-                return HttpJsonResponse(rdict)
+                return JsonResponse(rdict)
             else:
                 d = dict()
                 for e in form.errors.iteritems():
                     d.update({e[0]: unicode(e[1])})
                 rdict = {'bad': 'true', 'errs': d}
-                return HttpJsonResponse(rdict)
+                return JsonResponse(rdict)
         elif request.POST.get('folder_type') in ("project", "screen",
                                                  "dataset", "tag", "tagset"):
             # No parent specified. We can create orphaned 'project', 'dataset'
@@ -2655,13 +2625,13 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
                     oid = getattr(manager, "create" +
                                   folder_type.capitalize())(name, description)
                 rdict = {'bad': 'false', 'id': oid}
-                return HttpJsonResponse(rdict)
+                return JsonResponse(rdict)
             else:
                 d = dict()
                 for e in form.errors.iteritems():
                     d.update({e[0]: unicode(e[1])})
                 rdict = {'bad': 'true', 'errs': d}
-                return HttpJsonResponse(rdict)
+                return JsonResponse(rdict)
         else:
             return HttpResponseServerError("Object does not exist")
     elif action == 'add':
@@ -2785,13 +2755,13 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
                     manager.image = manager.well.getWellSample(index).image()
                     o_type = "image"
                 manager.updateName(o_type, name)
-                return HttpJsonResponse(rdict)
+                return JsonResponse(rdict)
             else:
                 d = dict()
                 for e in form.errors.iteritems():
                     d.update({e[0]: unicode(e[1])})
                 rdict = {'bad': 'true', 'errs': d}
-                return HttpJsonResponse(rdict)
+                return JsonResponse(rdict)
         else:
             return HttpResponseServerError("Object does not exist")
     elif action == 'editdescription':
@@ -2822,13 +2792,13 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
                     o_type = "image"
                 manager.updateDescription(o_type, description)
                 rdict = {'bad': 'false'}
-                return HttpJsonResponse(rdict)
+                return JsonResponse(rdict)
             else:
                 d = dict()
                 for e in form.errors.iteritems():
                     d.update({e[0]: unicode(e[1])})
                 rdict = {'bad': 'true', 'errs': d}
-                return HttpJsonResponse(rdict)
+                return JsonResponse(rdict)
         else:
             return HttpResponseServerError("Object does not exist")
     elif action == 'remove':
@@ -2841,10 +2811,10 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
         except Exception, x:
             logger.error(traceback.format_exc())
             rdict = {'bad': 'true', 'errs': str(x)}
-            return HttpJsonResponse(rdict)
+            return JsonResponse(rdict)
 
         rdict = {'bad': 'false'}
-        return HttpJsonResponse(rdict)
+        return JsonResponse(rdict)
     elif action == 'removefromshare':
         image_id = request.POST.get('source')
         try:
@@ -2852,9 +2822,9 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
         except Exception, x:
             logger.error(traceback.format_exc())
             rdict = {'bad': 'true', 'errs': str(x)}
-            return HttpJsonResponse(rdict)
+            return JsonResponse(rdict)
         rdict = {'bad': 'false'}
-        return HttpJsonResponse(rdict)
+        return JsonResponse(rdict)
     elif action == 'delete':
         # Handles delete of a file attached to object.
         child = toBoolean(request.POST.get('child'))
@@ -2878,7 +2848,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
             rdict = {'bad': 'true', 'errs': str(x)}
         else:
             rdict = {'bad': 'false'}
-        return HttpJsonResponse(rdict)
+        return JsonResponse(rdict)
     elif action == 'deletemany':
         # Handles multi-delete from jsTree.
         object_ids = {
@@ -2924,7 +2894,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
             raise
         else:
             rdict = {'bad': 'false'}
-        return HttpJsonResponse(rdict)
+        return JsonResponse(rdict)
     context['template'] = template
     return context
 
@@ -3545,7 +3515,7 @@ def activities(request, conn=None, **kwargs):
         rv['inprogress'] = in_progress
         rv['failure'] = failure
         rv['jobs'] = len(request.session['callback'])
-        return HttpJsonResponse(rv)  # json
+        return JsonResponse(rv)  # json
 
     jobs = []
     new_errors = False
@@ -3598,7 +3568,7 @@ def activities_update(request, action, **kwargs):
                 rv['removed'] = True
             else:
                 rv['removed'] = False
-            return HttpJsonResponse(rv)
+            return JsonResponse(rv)
         else:
             for key, data in request.session['callback'].items():
                 if data['status'] != "in progress":
@@ -4304,7 +4274,7 @@ def chgrp(request, conn=None, **kwargs):
                            request.session.get('user_id'))
 
     # return HttpResponse("OK")
-    return HttpJsonResponse({'update': update})
+    return JsonResponse({'update': update})
 
 
 @login_required(setGroupContext=True)
@@ -4325,7 +4295,7 @@ def script_run(request, scriptId, conn=None, **kwargs):
             # Delegate to run_script() for handling 'No processor available'
             rsp = run_script(
                 request, conn, sId, inputMap, scriptName='Script')
-            return HttpJsonResponse(rsp)
+            return JsonResponse(rsp)
         else:
             raise
     params = scriptService.getParams(sId)
@@ -4433,7 +4403,7 @@ def script_run(request, scriptId, conn=None, **kwargs):
     except:
         pass
     rsp = run_script(request, conn, sId, inputMap, scriptName)
-    return HttpJsonResponse(rsp)
+    return JsonResponse(rsp)
 
 
 @require_POST
@@ -4459,7 +4429,7 @@ def ome_tiff_script(request, imageId, conn=None, **kwargs):
     inputMap['Format'] = wrap('OME-TIFF')
     rsp = run_script(
         request, conn, sId, inputMap, scriptName='Create OME-TIFF')
-    return HttpJsonResponse(rsp)
+    return JsonResponse(rsp)
 
 
 def run_script(request, conn, sId, inputMap, scriptName='Script'):
