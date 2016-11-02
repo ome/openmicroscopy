@@ -11,7 +11,7 @@
         <type id="ome.model.roi.Roi" annotated="true" described="true">
                 <properties>
                         <!--optional name="union" type="boolean"/-->
-                        <optional name="name" type="string"/>
+                        <optional name="name" type="text"/>
                         <onemany name="shapes" type="ome.model.roi.Shape" inverse="roi" ordered="true"/>
                         <optional name="image" type="ome.model.core.Image" inverse="rois"/>
                         <optional name="source" type="ome.model.core.OriginalFile"/>

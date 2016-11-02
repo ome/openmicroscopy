@@ -31,7 +31,7 @@
 			<required name="defaultT" type="int"/>
 			<required name="model" type="ome.model.enums.RenderingModel"/>
 			<onemany name="waveRendering" type="ome.model.display.ChannelBinding" inverse="renderingDef" ordered="true"/>
-			<optional name="name" type="string"/>
+			<optional name="name" type="text"/>
 			<optional name="compression" type="double"/>
 			<required name="quantization" type="ome.model.display.QuantumDef"/>
 			<zeromany name="projections" type="ome.model.display.ProjectionDef" inverse="renderingDef" ordered="true"/>

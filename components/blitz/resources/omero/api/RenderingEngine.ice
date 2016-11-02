@@ -421,6 +421,7 @@ module omero {
                  * @see #updateCodomainMap
                  * @see #removeCodomainMap
                  */
+                 ["deprecated:addCodomainMap() is deprecated. use addCodomainMapToChannel instead."]
                 void addCodomainMap(omero::romio::CodomainMapContext mapCtx) throws ServerError;
 
                 /**
@@ -432,6 +433,7 @@ module omero {
                  * @see #addCodomainMap
                  * @see #removeCodomainMap
                  */
+                 ["deprecated:removeCodomainMap() is deprecated."]
                 void updateCodomainMap(omero::romio::CodomainMapContext mapCtx) throws ServerError;
 
                 /**
@@ -442,7 +444,31 @@ module omero {
                  * @see #addCodomainMap
                  * @see #updateCodomainMap
                  */
+                 ["deprecated:removeCodomainMap() is deprecated. use removeCodomainMapFromChannel instead."]
                 void removeCodomainMap(omero::romio::CodomainMapContext mapCtx) throws ServerError;
+
+                /**
+                 * Adds the context to the mapping chain. Only one context of
+                 * the same type can be added to the chain. The codomain
+                 * transformations are functions from the device space to
+                 * device space. Each time a new context is added, the second
+                 * LUT is rebuilt.
+                 *
+                 * @param mapCtx The context to add.
+                 * @param w The channel to add the context to.
+                 * @see #removeCodomainMapFromChannel
+                 */
+                void addCodomainMapToChannel(omero::romio::CodomainMapContext mapCtx, int w) throws ServerError;
+
+                /**
+                 * Removes the specified context from the chain. Each time a
+                 * new context is removed, the second LUT is rebuilt.
+                 *
+                 * @param mapCtx The context to remove.
+                 * @param w The channel to remove the context from.
+                 * @see #addCodomainMapToChannel
+                 */
+                void removeCodomainMapFromChannel(omero::romio::CodomainMapContext mapCtx, int w) throws ServerError;
 
                 /** Saves the current rendering settings in the database. */
                 void saveCurrentSettings() throws ServerError;
@@ -504,6 +530,13 @@ module omero {
                  */
                 idempotent double getPixelsTypeLowerBound(int w) throws ServerError;
 
+                /**
+                 * Returns the list of codomain contexts for the specified
+                 * channel.
+                 *
+                 * @param w The channel index.
+                 */
+                idempotent IObjectList getCodomainMapContext(int w) throws ServerError;
             };
     };
 };

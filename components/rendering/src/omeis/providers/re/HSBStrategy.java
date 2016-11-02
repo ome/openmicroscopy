@@ -2,7 +2,6 @@
  *   Copyright 2006-2016 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-
 package omeis.providers.re;
 
 import java.awt.Color;
@@ -186,6 +185,25 @@ class HSBStrategy extends RenderingStrategy {
     }
 
     /**
+     * Returns the collection of chains.
+     *
+     * @return See above.
+     */
+    private List<CodomainChain> getChains()
+    {
+        List<CodomainChain> chains = renderer.getCodomainChains();
+        ChannelBinding[] channelBindings = renderer.getChannelBindings();
+        List<CodomainChain> list = new ArrayList<CodomainChain>();
+        for (int w = 0; w < channelBindings.length; w++) {
+            ChannelBinding cb = channelBindings[w];
+            if (cb.getActive()) {
+                list.add(chains.get(w));
+            }
+        }
+        return list;
+    }
+
+    /**
      * Retrieves the color for each active channels.
      * 
      * @return the active channel color data.
@@ -262,8 +280,6 @@ class HSBStrategy extends RenderingStrategy {
     private RenderingTask[] makeRenderingTasks(PlaneDef def, RGBBuffer buf) {
         List<RenderHSBRegionTask> tasks = new ArrayList<RenderHSBRegionTask>();
 
-        // Get all objects we need to create the tasks.
-        CodomainChain cc = renderer.getCodomainChain();
         //RenderingStats performanceStats = renderer.getStats();
         List<Plane2D> wData = getWavelengthData(def);
         List<int[]> colors = getColors();
@@ -279,8 +295,8 @@ class HSBStrategy extends RenderingStrategy {
         for (int i = 0; i < taskCount; i++) {
             x2Start = i*delta;
             x2End = (i+1)*delta;
-            tasks.add(new RenderHSBRegionTask(buf, wData, strategies, cc,
-                    colors, renderer.getOptimizations(),
+            tasks.add(new RenderHSBRegionTask(buf, wData, strategies,
+                    getChains(), colors, renderer.getOptimizations(),
                     x1Start, x1End, x2Start, x2End, readers));
         }
 

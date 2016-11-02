@@ -40,12 +40,16 @@ import java.util.Set;
 import omero.LockTimeout;
 import omero.api.RenderingEnginePrx;
 import omero.api.ResolutionDescription;
+import omero.model.CodomainMapContext;
 import omero.model.Family;
+import omero.model.IObject;
 import omero.model.Length;
 import omero.model.LengthI;
 import omero.model.Pixels;
 import omero.model.QuantumDef;
 import omero.model.RenderingModel;
+import omero.model.ReverseIntensityContext;
+import omero.model.ReverseIntensityContextI;
 import omero.model.enums.UnitsLength;
 import omero.romio.PlaneDef;
 
@@ -1249,17 +1253,24 @@ class RenderingControlProxy
 
     /** 
      * Implemented as specified by {@link RenderingControl}.
-     * @see RenderingControl#addCodomainMap(CodomainMapContext)
+     * @see RenderingControl#addCodomainMap(CodomainMapContext, int)
      */
-    /*
-    public void addCodomainMap(CodomainMapContext mapCtx)
-    	throws RenderingServiceException, DSOutOfServiceException
+    public void addCodomainMap(CodomainMapContext mapCtx, int w)
+            throws RenderingServiceException, DSOutOfServiceException
     {
-    	//servant.addCodomainMap(mapCtx);
-        invalidateCache();
+        if (!(mapCtx instanceof ReverseIntensityContext)){
+            return ;
+        }
+        isSessionAlive();
+        try {
+            omero.romio.ReverseIntensityMapContext c = new omero.romio.ReverseIntensityMapContext();
+            servant.addCodomainMapToChannel(c, w);
+            invalidateCache();
+        } catch (Exception e) {
+            handleException(e, ERROR+"cannot set the map context.");
+        }
     }
-*/
-    
+
     /** 
      * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#updateCodomainMap(CodomainMapContext)
@@ -1275,27 +1286,46 @@ class RenderingControlProxy
 
     /** 
      * Implemented as specified by {@link RenderingControl}.
-     * @see RenderingControl#removeCodomainMap(CodomainMapContext)
+     * @see RenderingControl#removeCodomainMap(CodomainMapContext, int)
      */
-    /*
-    public void removeCodomainMap(CodomainMapContext mapCtx)
-    	throws RenderingServiceException, DSOutOfServiceException
+    public void removeCodomainMap(CodomainMapContext mapCtx, int w)
+        throws RenderingServiceException, DSOutOfServiceException
     {
-        //servant.removeCodomainMap(mapCtx);
-        invalidateCache();
+        if (!(mapCtx instanceof ReverseIntensityContext)){
+            return ;
+        }
+        isSessionAlive();
+        try {
+            omero.romio.ReverseIntensityMapContext c = new omero.romio.ReverseIntensityMapContext();
+            servant.removeCodomainMapFromChannel(c, w);
+            invalidateCache();
+        } catch (Exception e) {
+            handleException(e, ERROR+"cannot set the map context.");
+        }
     }
-    */
 
     /** 
      * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getCodomainMaps()
      */
-    public List getCodomainMaps()
+    public List<CodomainMapContext> getCodomainMaps(int w)
+            throws RenderingServiceException, DSOutOfServiceException
     {
-        // TODO Auto-generated method stub
-        return new ArrayList(0);
+        isSessionAlive();
+        List<CodomainMapContext> l = new ArrayList<CodomainMapContext>();
+        try {
+            List<IObject> ll = servant.getCodomainMapContext(w);
+            Iterator<IObject> i = ll.iterator();
+            while (i.hasNext()) {
+                l.add((CodomainMapContext) i.next());
+            }
+            invalidateCache();
+        } catch (Exception e) {
+            handleException(e, ERROR+"cannot set the map context.");
+        }
+        return l;
     }
-    
+
     /** 
      * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#saveCurrentSettings()

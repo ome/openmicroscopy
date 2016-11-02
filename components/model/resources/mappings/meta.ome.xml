@@ -57,6 +57,7 @@
 			<manyone name="node" type="ome.model.meta.Node"/>
 			<required name="uuid" type="string" unique="true"/>
 			<required name="owner" type="ome.model.meta.Experimenter"/>
+			<optional name="sudoer" type="ome.model.meta.Experimenter"/>
 			<required name="timeToIdle" type="long"/>
 			<required name="timeToLive" type="long"/>
 			<required name="started" type="timestamp"/>
@@ -172,8 +173,12 @@
 
                         <!-- The human-readable text denoting this
                         namespace -->
-			<optional name="displayName" type="string"/>
+			<optional name="displayName" type="text"/>
 
 		</properties>
 	</type>
+	<enum id="ome.model.enums.AdminPrivilege">
+		<!-- Note: AdminPrivilege is not in model-->
+		<!-- Values will follow in later PRs -->
+	</enum>
 </types>

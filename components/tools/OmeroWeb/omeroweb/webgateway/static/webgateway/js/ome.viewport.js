@@ -631,6 +631,16 @@ jQuery._WeblitzViewport = function (container, server, options) {
     this.setChannelActive(idx, !_this.loadedImg.channels[idx].active);
   };
 
+  this.setChannelReverseIntensity = function (idx, reverse, noreload) {
+    if (_this.loadedImg.channels[idx].reverseIntensity !== reverse) {
+      _this.loadedImg.channels[idx].reverseIntensity = reverse;
+      _this.self.trigger('channelChange', [_this, idx, _this.loadedImg.channels[idx]]);
+      if (!noreload) {
+        _load();
+      }
+    }
+  };
+
   this.getCCount = function () {
     return _this.loadedImg.size.c;
   };
@@ -950,6 +960,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
             e1.channels[i].color == e2.channels[i].color &&
             e1.channels[i].windowStart == e2.channels[i].windowStart &&
             e1.channels[i].windowEnd == e2.channels[i].windowEnd &&
+            e1.channels[i].reverseIntensity == e2.channels[i].reverseIntensity &&
             e1.channels[i].metalabel == e2.channels[i].metalabel)) {
         return false;
       }
@@ -966,6 +977,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
                      color: channels[i].color,
                      windowStart: channels[i].window.start,
                      windowEnd: channels[i].window.end,
+                     reverseIntensity: channels[i].reverseIntensity,
                      metalabel: channels[i].metalabel};
       entry.channels.push(channel);
     }
@@ -991,6 +1003,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
         this.setChannelColor(i, entry.channels[i].color, true);
         this.setChannelActive(i, entry.channels[i].active, true);
         this.setChannelLabel(i, entry.channels[i].metalabel, true);
+        this.setChannelReverseIntensity(i, entry.channels[i].reverseIntensity, true);
       }
       _load();
     }
@@ -1067,6 +1080,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
       var ch = channels[i].active ? '' : '-';
       ch += parseInt(i, 10)+1;
       ch += '|' + channels[i].window.start + ':' + channels[i].window.end;
+      ch += channels[i].reverseIntensity ? 'r' : '-r';
       ch += '$' + OME.rgbToHex(channels[i].color);
       chs.push(ch);
     }
@@ -1136,6 +1150,12 @@ jQuery._WeblitzViewport = function (container, server, options) {
         }
         if (t.length > 1) {
           t = t[1].split('$');
+          if (t[0].endsWith('-r')) {
+            this.setChannelReverseIntensity(idx, false, true);
+          } else if (t[0].endsWith('r')) {
+            this.setChannelReverseIntensity(idx, true, true);
+          }
+          t[0] = t[0].replace('-r', '').replace('r', '');  // remove 'r' if present
           var range = t[0].split(':');
           if (range.length == 2) {
             this.setChannelWindow(idx, parseFloat(range[0], 10), parseFloat(range[1], 10), true);

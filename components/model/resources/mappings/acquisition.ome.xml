@@ -104,7 +104,7 @@
 			<optional name="mtime" type="timestamp"/>
 			<optional name="ctime" type="timestamp"/>
 			<optional name="hasher" type="ome.model.enums.ChecksumAlgorithm"/>
-			<optional name="hash" type="string"/>
+			<optional name="hash" type="text"/>
 			<optional name="mimetype" type="string"/>
 			<zeromany name="filesetEntries" type="ome.model.fs.FilesetEntry" inverse="originalFile"/>
 			<!--
@@ -191,14 +191,14 @@
 			<optional name="green" type="int"/>
 			<optional name="blue" type="int"/>
 			<optional name="alpha" type="int"/>
-			<optional name="lookupTable" type="string"/>
+			<optional name="lookupTable" type="text"/>
 			<manyone name="logicalChannel" type="ome.model.core.LogicalChannel" inverse="channels"/>
 			<manyone name="pixels" type="ome.model.core.Pixels" ordered="true"/>
 		</properties>
 	</type>
 	<type id="ome.model.core.LogicalChannel">
 		<properties>
-			<optional name="name" type="string"/>
+			<optional name="name" type="text"/>
 			<optional name="pinHoleSize" type="ome.model.units.Length"/>
 			<optional name="illumination" type="ome.model.enums.Illumination"/>
 			<!-- Note: illumination is called IlluminationType in model-->

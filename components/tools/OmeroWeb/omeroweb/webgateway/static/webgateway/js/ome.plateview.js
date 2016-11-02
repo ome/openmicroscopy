@@ -103,11 +103,10 @@ jQuery._WeblitzPlateview = function (container, options) {
       staticurl: '/static/webgateway/',
       width: 64,
       height: 48,
-      size: 96,
       useParentPrefix: true,
     }, options);
 
-  opts.size = opts.size || Math.max(opts.width, opts.height);
+  // if options.size is set, it will be used below, otherwise thumbs will be default size
   this.self = jQuery(container);
   this.self.addClass('weblitz-plateview');
   this.origHTML = this.self.html();
@@ -170,7 +169,11 @@ jQuery._WeblitzPlateview = function (container, options) {
     if (field === undefined) {
       field = 0;
     }
-    gs_json(opts.baseurl+'/plate/'+pid+'/'+field+'/?size='+opts.size, null, _reset);
+    var url = opts.baseurl+'/plate/'+pid+'/'+field+'/';
+    if (opts.size) {
+      url += '?size='+opts.size;
+    }
+    gs_json(url, null, _reset);
   };
 
   this.setFocus = function (elm, evt) {

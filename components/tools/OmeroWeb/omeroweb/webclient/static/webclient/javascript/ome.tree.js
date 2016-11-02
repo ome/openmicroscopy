@@ -998,6 +998,79 @@ $(function() {
                         }
                     }
                 };
+                if (WEBCLIENT.OPEN_WITH.length > 0) {
+                    // build a submenu of viewers...
+                    var viewers = WEBCLIENT.OPEN_WITH.map(function(v){
+                        return {
+                            "label": v.label,
+                            "action": function() {
+                                var inst = $.jstree.reference('#dataTree'),
+                                    sel = inst.get_selected(true),
+                                    dtypes = sel.map(function(s){
+                                        return s.type + "=" + s.data.id;
+                                    }),
+                                    query = dtypes.join("&"),
+                                    // default url includes objects in query
+                                    url = v.url + "?" + query;
+                                // if plugin has added a url provider,
+                                // use it to update the url...
+                                if (v.getUrl) {
+                                    // prepare json of selected objects to pass to function
+                                    var selJson = sel.map(function(s){
+                                        // var o = $.extend({}, s.data.obj);
+                                        var o = {'id': s.data.obj.id,
+                                                 'name': s.data.obj.name,
+                                                 'type': s.type};
+                                        return o;
+                                    });
+                                    url = v.getUrl(selJson, v.url);
+                                }
+                                // ...otherwise we use default handling...
+                                if (v.target) {
+                                    // E.g. target '_blank' tries to open in a new tab
+                                    window.open(url, v.target);
+                                } else {
+                                    OME.openPopup(url);
+                                }
+                            },
+                            "_disabled": function() {
+                                var sel = $.jstree.reference('#dataTree').get_selected(true),
+                                    // selType = 'image' or 'images' or 'dataset'
+                                    selType = sel.reduce(function(prev, s){
+                                        return s.type + (sel.length > 1 ? "s" : "");
+                                    }, "undefined"),
+                                    enabled = false;
+                                if (typeof v.isEnabled === "function") {
+                                    // If plugin has provided a function 'isEnabled'...
+                                    // prepare json of selected objects to pass to function
+                                    var selJson = sel.map(function(s){
+                                        var o = {'id': s.data.obj.id,
+                                                 'name': s.data.obj.name,
+                                                 'type': s.type};
+                                        return o;
+                                    });
+                                    enabled = v.isEnabled(selJson);
+                                    return !enabled;
+                                }
+                                // ...Otherwise if supported_objects list is configured...
+                                // v.supported_objects is ['image'] or ['dataset', 'images'] etc.
+                                if (typeof v.supported_objects === "object" && v.supported_objects.length > 0) {
+                                    enabled = v.supported_objects.reduce(function(prev, supported){
+                                        // E.g. If supported_objects is 'images'...
+                                        return prev || supported.indexOf(selType) > -1;  // ... selType 'image' OR 'images' are > -1
+                                    }, false);
+                                }
+                                return !enabled;
+                            }
+                        };
+                    });
+                    config["open_with"] = {
+                        "label": "Open With...",
+                        "_disabled": false,
+                        "action": false,
+                        "submenu": viewers
+                    };
+                }
 
                 // List of permissions related disabling
                 // use canLink, canDelete etc classes on each node to enable/disable right-click menu

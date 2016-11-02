@@ -1224,6 +1224,29 @@ public class AbstractServerTest extends AbstractTest {
     }
 
     /**
+     * Create a single image with binary.
+     *
+     * After recent changes on the server to check for existing binary data for
+     * pixels, many resetDefaults methods tested below began returning null
+     * since {@link omero.LockTimeout} exceptions were being thrown server-side.
+     * By using omero.client.forEachTile, we can set the necessary data easily.
+     *
+     * @param sizeX The number of pixels along the X-axis.
+     * @param sizeY The number of pixels along the Y-axis.
+     * @param sizeZ The number of z-sections.
+     * @param sizeT The number of timepoints.
+     * @param sizeC The number of channels.
+     * @see ticket:5755
+     */
+    protected Image createBinaryImage(int sizeX, int sizeY, int sizeZ,
+            int sizeT, int sizeC) throws Exception {
+        Image image = mmFactory.createImage(sizeX, sizeY, sizeZ, sizeT,
+                sizeC);
+        image = (Image) iUpdate.saveAndReturnObject(image);
+        return createBinaryImage(image);
+    }
+
+    /**
      * Create the binary data for the given image.
      */
     protected Image createBinaryImage(Image image) throws Exception {

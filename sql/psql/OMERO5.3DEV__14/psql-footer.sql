@@ -677,6 +677,7 @@
   CREATE INDEX i_ScreenPlateLink_child ON screenplatelink(child);
   CREATE INDEX i_Session_node ON session(node);
   CREATE INDEX i_Session_owner ON session(owner);
+  CREATE INDEX i_Session_sudoer ON session(sudoer);
   CREATE INDEX i_sessionannotationlink_owner ON sessionannotationlink(owner_id);
   CREATE INDEX i_sessionannotationlink_group ON sessionannotationlink(group_id);
   CREATE INDEX i_SessionAnnotationLink_parent ON sessionannotationlink(parent);
@@ -822,6 +823,7 @@ BEGIN
 END;' LANGUAGE plpgsql;
 
 CREATE SEQUENCE seq_acquisitionmode; INSERT INTO _lock_ids (name, id) SELECT 'seq_acquisitionmode', nextval('_lock_seq');
+CREATE SEQUENCE seq_adminprivilege; INSERT INTO _lock_ids (name, id) SELECT 'seq_adminprivilege', nextval('_lock_seq');
 CREATE SEQUENCE seq_affinetransform; INSERT INTO _lock_ids (name, id) SELECT 'seq_affinetransform', nextval('_lock_seq');
 CREATE SEQUENCE seq_annotation; INSERT INTO _lock_ids (name, id) SELECT 'seq_annotation', nextval('_lock_seq');
 CREATE SEQUENCE seq_annotationannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_annotationannotationlink', nextval('_lock_seq');
@@ -2042,7 +2044,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO5.3DEV',  12,    'OMERO5.3DEV',   0,             'Initializing');
+             values ('OMERO5.3DEV',  14,    'OMERO5.3DEV',   0,             'Initializing');
 
 --
 -- Temporarily make event columns nullable; restored below.
@@ -3162,7 +3164,7 @@ CREATE TRIGGER preserve_folder_tree
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
   where currentVersion = 'OMERO5.3DEV' and
-        currentPatch = 12 and
+        currentPatch = 14 and
         previousVersion = 'OMERO5.3DEV' and
         previousPatch = 0;
 

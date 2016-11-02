@@ -191,8 +191,8 @@
 
         <bean parent="graphPolicyRule" p:matches="RD:RenderingDef[E].projections = [I]" p:changes="RD:[I]"/>
         <bean parent="graphPolicyRule" p:matches="RD:RenderingDef[E].quantization = [I]" p:changes="RD:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="RD:RenderingDef[E].spatialDomainEnhancement = [I]" p:changes="RD:[I]"/>
         <bean parent="graphPolicyRule" p:matches="RD:RenderingDef[E].waveRendering = [I]" p:changes="RD:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="CB:ChannelBinding[E].spatialDomainEnhancement = [I]" p:changes="CB:[I]"/>
 
         <!-- EXPERIMENT -->
 

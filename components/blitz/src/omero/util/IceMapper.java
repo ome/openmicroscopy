@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,6 +46,8 @@ import ome.util.ModelMapper;
 import ome.util.ReverseModelMapper;
 import ome.util.Utils;
 import omeis.providers.re.RGBBuffer;
+import omeis.providers.re.codomain.CodomainMapContext;
+import omeis.providers.re.codomain.ReverseIntensityContext;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.data.RegionDef;
 import omero.ApiUsageException;
@@ -557,6 +560,21 @@ public class IceMapper extends ome.util.ModelMapper implements
         b.sizeX1 = buffer.getSizeX1();
         b.sizeX2 = buffer.getSizeX2();
         return b;
+    }
+
+    /**
+     * Converts the passed Ice Object and returns the converted object.
+     * 
+     * @param ctx The object to convert
+     * @return See above.
+     * @throws omero.ApiUsageException Thrown if the slice is unknown.
+     */
+    public CodomainMapContext convert(omero.romio.CodomainMapContext ctx)
+    {
+        if (!(ctx instanceof omero.romio.ReverseIntensityMapContext)) {
+            return null;
+        }
+        return new ReverseIntensityContext();
     }
 
     /**
@@ -1177,6 +1195,8 @@ public class IceMapper extends ome.util.ModelMapper implements
             return convert((omero.romio.PlaneDef) arg);
         } else if (Object[].class.isAssignableFrom(p)) {
             return reverseArray((List) arg, p);
+        } else if (CodomainMapContext.class.isAssignableFrom(p)) {
+            return convert((omero.romio.CodomainMapContext) arg);
         } else {
             throw new ApiUsageException(null, null, "Can't handle input " + p);
         }
@@ -1208,6 +1228,22 @@ public class IceMapper extends ome.util.ModelMapper implements
             return map(new ArrayList((Set) o)); // Necessary since Ice
             // doesn't support Sets.
         } else if (Collection.class.isAssignableFrom(type)) {
+            Collection l = (Collection) o;
+            //not part of the model so map "manually"
+            if (l.size() > 0) {
+                Object ho = l.iterator().next();
+                if (ho instanceof CodomainMapContext) {
+                    List result = new ArrayList();
+                    Iterator i = l.iterator();
+                    while (i.hasNext()) {
+                        Object t = reverse((CodomainMapContext) i.next());
+                        if (t != null) {
+                            result.add(t);
+                        }
+                    }
+                    return result;
+                }
+            }
             return map((Collection) o);
         } else if (IObject.class.isAssignableFrom(type)) {
             return map((Filterable) o);
@@ -1219,6 +1255,14 @@ public class IceMapper extends ome.util.ModelMapper implements
             throw new ApiUsageException(null, null, "Can't handle output "
                     + type);
         }
+    }
+
+    private omero.model.CodomainMapContext reverse(CodomainMapContext ctx)
+    {
+        if (ctx instanceof ReverseIntensityContext) {
+            return new omero.model.ReverseIntensityContextI();
+        }
+        return null;
     }
 
     /**

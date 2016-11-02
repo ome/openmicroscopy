@@ -46,6 +46,7 @@ def channelMarshal(channel):
     chan = {'emissionWave': channel.getEmissionWave(),
             'label': channel.getLabel(),
             'color': channel.getColor().getHtml(),
+            'reverseIntensity': channel.isReverseIntensity(),
             'window': {'min': channel.getWindowMin(),
                        'max': channel.getWindowMax(),
                        'start': channel.getWindowStart(),
@@ -318,6 +319,10 @@ def shapeMarshal(shape):
     if shape.getStrokeWidth() is not None:
         # FIXME: units ignored for stroke width
         set_if('strokeWidth', shape.getStrokeWidth().getValue())
+    if hasattr(shape, 'getMarkerStart') and shape.getMarkerStart() is not None:
+        rv['markerStart'] = shape.getMarkerStart().getValue()
+    if hasattr(shape, 'getMarkerEnd') and shape.getMarkerEnd() is not None:
+        rv['markerEnd'] = shape.getMarkerEnd().getValue()
     return rv
 
 
