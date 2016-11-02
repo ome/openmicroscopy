@@ -758,10 +758,7 @@ def split_image(client, imageId, dir,
     rawPixelsStore = session.createRawPixelsStore()
     pixelsService = session.getPixelsService()
 
-    try:
-        from PIL import Image   # see ticket:2597
-    except:
-        import Image        # see ticket:2597
+    from matplotlib.image import imsave
 
     query_string = "select p from Pixels p join fetch p.image as i join fetch " \
                    "p.pixelsType where i.id='%s'" % imageId
@@ -800,8 +797,7 @@ def split_image(client, imageId, dir,
                     "downloading plane z: %s c: %s t: %s  to  %s"
                     % (z, c, t, imageName))
                 plane = downloadPlane(rawPixelsStore, pixels, z, c, t)
-                i = Image.fromarray(plane)
-                i.save(imageName)
+                imsave(imageName, plane)
 
 
 def createFileFromData(updateService, queryService, filename, data):
