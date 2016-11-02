@@ -28,7 +28,6 @@ import omero
 import logging
 from omero.testlib import ITest
 import library as lib
-import numpy
 import io
 
 try:
@@ -40,7 +39,7 @@ except:  # pragma: nocover
         logging.error('No Pillow installed')
 
 
-from numpy import asarray
+from numpy import asarray, array_equal
 
 
 class TestFigureExportScripts(ITest):
@@ -107,4 +106,4 @@ class TestFigureExportScripts(ITest):
         region_array = asarray(region_image)
 
         # compare the values of the arrays
-        assert numpy.array_equal(cropped, region_array)
+        assert array_equal(cropped, region_array)
