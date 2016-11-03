@@ -317,7 +317,7 @@ public class ModelMockFactory {
     public OriginalFile createOriginalFile() throws Exception {
         OriginalFileI oFile = new OriginalFileI();
         oFile.setName(omero.rtypes.rstring("of1"));
-        oFile.setPath(omero.rtypes.rstring("/omero"));
+        oFile.setPath(omero.rtypes.rstring("/omero/"));
         oFile.setSize(omero.rtypes.rlong(0));
         oFile.setHash(omero.rtypes.rstring("pending"));
         oFile.setMimetype(omero.rtypes.rstring("application/octet-stream"));
