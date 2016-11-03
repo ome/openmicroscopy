@@ -62,7 +62,6 @@ import com.google.common.collect.ImmutableSet;
 public class LightAdminPrivilegesTest extends AbstractServerTest {
 
     private ImmutableSet<AdminPrivilege> allPrivileges = null;
-    private ExperimenterGroup systemGroup = null;
 
     @BeforeClass
     public void populateAllPrivileges() throws ServerError {
@@ -73,11 +72,6 @@ public class LightAdminPrivilegesTest extends AbstractServerTest {
         allPrivileges = privileges.build();
     }
 
-    @BeforeClass
-    public void populateSystemGroup() throws ServerError {
-        systemGroup = (ExperimenterGroup) iQuery.findByString("ExperimenterGroup", "name", SYSTEM_GROUP);
-    }
-
     /**
      * Create a light administrator, possibly without a specific privilege, and log in as them.
      * @param isAdmin if the user should be a member of the <tt>system</tt> group
@@ -86,7 +80,7 @@ public class LightAdminPrivilegesTest extends AbstractServerTest {
      * @throws Exception if the light administrator could not be created
      */
     private EventContext loginNewAdmin(boolean isAdmin, String restriction) throws Exception {
-        final EventContext ctx = isAdmin ? newUserInGroup(systemGroup, false) : newUserAndGroup("rw----");
+        final EventContext ctx = isAdmin ? newUserInGroup(iAdmin.lookupGroup(SYSTEM_GROUP), false) : newUserAndGroup("rw----");
         if (restriction != null) {
             final List<AdminPrivilege> privileges = new ArrayList<>(allPrivileges);
             final Iterator<AdminPrivilege> privilegeIterator = privileges.iterator();
