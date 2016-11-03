@@ -24,10 +24,12 @@
 
 import library as lib
 import omero.util.script_utils as scriptUtil
+from omero.gateway import BlitzGateway
 import tempfile
 import shutil
 from os import listdir
 from os.path import isfile, join
+from numpy import int32
 
 
 class TestScriptUtils(lib.ITest):
@@ -51,3 +53,33 @@ class TestScriptUtils(lib.ITest):
         files = [f for f in listdir(dir) if isfile(join(dir, f))]
         shutil.rmtree(dir)
         assert sizeZ*sizeC*sizeT == len(files)
+
+    def testNumpyToImage(self):
+        imported_pix = ",".join(self.import_image())
+        imported_img = self.query.findByQuery(
+            "select i from Image i join fetch i.pixels pixels\
+            where pixels.id in (%s)" % imported_pix, None)
+        conn = BlitzGateway(client_obj=self.client)
+        image = conn.getObject("Image", imported_img.id.getValue())
+        pixels = image.getPrimaryPixels()
+        channelMinMax = []
+        for c in image.getChannels():
+            minC = c.getWindowMin()
+            maxC = c.getWindowMax()
+            channelMinMax.append((minC, maxC))
+        theZ = image.getSizeZ() / 2
+        theT = 0
+        cIndex = 0
+        for minMax in channelMinMax:
+            plane = pixels.getPlane(theZ, cIndex, theT)
+            i = scriptUtil.numpyToImage(plane, minMax, int32)
+            assert i is not None
+            try:
+                # check if the image can be handled.
+                i.load()
+                assert True
+            except IOError:
+                assert False
+            else:
+                i.close()
+            cIndex += 1
