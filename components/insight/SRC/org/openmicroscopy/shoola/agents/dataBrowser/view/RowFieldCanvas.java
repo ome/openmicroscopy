@@ -67,6 +67,8 @@ class RowFieldCanvas extends WellFieldsCanvas {
      * 
      * @param parent
      *            The parent of the canvas.
+     * @param model
+     *            Reference to the model
      */
     public RowFieldCanvas(final WellFieldsView parent, final WellsModel model) {
         super(parent, model);
