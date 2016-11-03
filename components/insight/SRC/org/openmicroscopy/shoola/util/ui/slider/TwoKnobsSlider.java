@@ -157,10 +157,10 @@ public class TwoKnobsSlider
 	private BufferedImage      image;
 
     /**
-     * Flag to indicate that the background image should be only drawn within
-     * the start and end slider knob
+     * Flag to indicate that the background image/color should be only drawn
+     * within the start and end slider knob
      */
-    private boolean squeezeImage = true;
+    private boolean squeezeBackground = true;
 	
 	/** Computes the preferred size of this component. */
 	private void calculatePreferredSize()
@@ -743,13 +743,13 @@ public class TwoKnobsSlider
     }
 	
     /**
-     * Returns if the background image is supposed to be only drawn within the
-     * start and end slider knob (instead of the full range)
+     * Returns if the background image/color is supposed to be only drawn within
+     * the start and end slider knob (instead of the full range)
      * 
      * @return See above.
      */
-    boolean isSqueezeImage() {
-        return squeezeImage;
+    boolean isSqueezeBackground() {
+        return squeezeBackground;
     }
     
 	/**
