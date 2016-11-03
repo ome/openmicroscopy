@@ -22,10 +22,12 @@ package integration;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 import omero.SecurityViolation;
 import omero.ServerError;
+import omero.api.RawFileStorePrx;
 import omero.gateway.util.Requests;
 import omero.model.AdminPrivilege;
 import omero.model.Experimenter;
@@ -36,11 +38,13 @@ import omero.model.Folder;
 import omero.model.GroupExperimenterMapI;
 import omero.model.IObject;
 import omero.model.NamedValue;
+import omero.model.OriginalFile;
 import omero.model.Session;
 import omero.model.enums.AdminPrivilegeChgrp;
 import omero.model.enums.AdminPrivilegeChown;
 import omero.model.enums.AdminPrivilegeModifyUser;
 import omero.model.enums.AdminPrivilegeSudo;
+import omero.model.enums.AdminPrivilegeWriteFile;
 import omero.model.enums.AdminPrivilegeWriteOwned;
 import omero.sys.EventContext;
 import omero.sys.Principal;
@@ -384,6 +388,131 @@ public class LightAdminPrivilegesTest extends AbstractServerTest {
         } catch (SecurityViolation sv) {
             /* expected */
         }
+    }
+
+    /**
+     * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
+     * have the <tt>WriteFile</tt> privilege.
+     * Attempts creation of another user's file via {@link omero.api.IUpdatePrx#saveAndReturnObject(IObject, java.util.Map)}.
+     * @param isAdmin if to test a member of the <tt>system</tt> group
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>WriteFile</tt> privilege
+     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "light administrator privilege test cases")
+    public void testWriteFilePrivilegeCreationViaUpdate(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
+        final boolean isExpectSuccess = isAdmin && !isRestricted;
+        final EventContext normalUser = newUserAndGroup("rw----");
+        loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeWriteFile.value : null);
+        OriginalFile file = mmFactory.createOriginalFile();
+        file.getDetails().setOwner(new ExperimenterI(normalUser.userId, false));
+        try {
+            final ImmutableMap<String, String> groupContext = ImmutableMap.of("omero.group", Long.toString(normalUser.groupId));
+            file = (OriginalFile) iUpdate.saveAndReturnObject(file, groupContext);
+            Assert.assertEquals(file.getDetails().getOwner().getId().getValue(), normalUser.userId);
+            Assert.assertEquals(file.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+            Assert.assertTrue(isExpectSuccess);
+        } catch (ServerError se) {
+            Assert.assertFalse(isExpectSuccess);
+        }
+    }
+
+    /**
+     * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
+     * have the <tt>WriteFile</tt> privilege.
+     * Attempts changing an existing file via {@link omero.api.IUpdatePrx#saveAndReturnObject(IObject, java.util.Map)}.
+     * @param isAdmin if to test a member of the <tt>system</tt> group
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>WriteFile</tt> privilege
+     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "light administrator privilege test cases")
+    public void testWriteFilePrivilegeEditingViaUpdate(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
+        final boolean isExpectSuccess = isAdmin && !isRestricted;
+        final EventContext normalUser = newUserAndGroup("rw----");
+        OriginalFile file = (OriginalFile) iUpdate.saveAndReturnObject(mmFactory.createOriginalFile());
+        loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeWriteFile.value : null);
+        final ImmutableMap<String, String> groupContext = ImmutableMap.of("omero.group", Long.toString(normalUser.groupId));
+        try {
+            file = (OriginalFile) iQuery.get("OriginalFile", file.getId().getValue(), groupContext);
+            Assert.assertTrue(isAdmin, "normal users cannot read data from others' groups");
+        } catch (SecurityViolation sv) {
+            Assert.assertFalse(isAdmin, "admins can read data from others' groups");
+            /* cannot now make the attempt */
+            return;
+        }
+        file.setName(omero.rtypes.rstring(getClass().getName()));
+        try {
+            file = (OriginalFile) iUpdate.saveAndReturnObject(file, groupContext);
+            Assert.assertEquals(file.getName().getValue(), getClass().getName());
+            Assert.assertTrue(isExpectSuccess);
+        } catch (ServerError se) {
+            Assert.assertFalse(isExpectSuccess);
+        }
+    }
+
+    /**
+     * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
+     * have the <tt>WriteFile</tt> privilege.
+     * Attempts writing file via {@link RawFileStorePrx#write(byte[], long, int, java.util.Map)}.
+     * @param isAdmin if to test a member of the <tt>system</tt> group
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>WriteFile</tt> privilege
+     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "light administrator privilege test cases")
+    public void testWriteFilePrivilegeEditingViaRaw(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
+        final boolean isExpectSuccess = isAdmin && !isRestricted;
+        final EventContext normalUser = newUserAndGroup("rw----");
+        final long fileId = iUpdate.saveAndReturnObject(mmFactory.createOriginalFile()).getId().getValue();
+        final Random rng = new Random();
+        final byte[] fileContentOriginal = new byte[64];
+        final byte[] fileContentBlank = new byte[fileContentOriginal.length];
+        rng.nextBytes(fileContentOriginal);
+        RawFileStorePrx rfs = factory.createRawFileStore();
+        rfs.setFileId(fileId);
+        rfs.write(fileContentOriginal, 0, fileContentOriginal.length);
+        rfs.close();
+        byte[] fileContentCurrent;
+        rfs = factory.createRawFileStore();
+        rfs.setFileId(fileId);
+        fileContentCurrent = rfs.read(0, fileContentOriginal.length);
+        rfs.close();
+        Assert.assertEquals(fileContentCurrent, fileContentOriginal);
+        try {
+            final ImmutableMap<String, String> groupContext = ImmutableMap.of("omero.group", Long.toString(normalUser.groupId));
+            loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeWriteFile.value : null);
+            rfs = factory.createRawFileStore(groupContext);
+            rfs.setFileId(fileId, groupContext);
+            rfs.write(fileContentBlank, 0, fileContentBlank.length);
+            rfs.close();
+            Assert.assertTrue(isExpectSuccess);
+        } catch (ServerError se) {
+            Assert.assertFalse(isExpectSuccess);
+        }
+        loginUser(normalUser);
+        rfs = factory.createRawFileStore();
+        rfs.setFileId(fileId);
+        fileContentCurrent = rfs.read(0, fileContentOriginal.length);
+        rfs.close();
+        Assert.assertEquals(fileContentCurrent, isExpectSuccess ? fileContentBlank : fileContentOriginal);
+    }
+
+    /**
+     * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
+     * have the <tt>WriteFile</tt> privilege. Attempts deletion of another user's file.
+     * @param isAdmin if to test a member of the <tt>system</tt> group
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>WriteFile</tt> privilege
+     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "light administrator privilege test cases")
+    public void testWriteFilePrivilegeDeletionViaRequest(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
+        final boolean isExpectSuccess = isAdmin && !isRestricted;
+        newUserAndGroup("rw----");
+        final OriginalFile file = (OriginalFile) iUpdate.saveAndReturnObject(mmFactory.createOriginalFile());
+        loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeWriteFile.value : null);
+        doChange(client, factory, Requests.delete().target(file).build(), isExpectSuccess);
     }
 
     /**
