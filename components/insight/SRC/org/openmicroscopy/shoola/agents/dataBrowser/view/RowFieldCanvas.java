@@ -248,6 +248,7 @@ class RowFieldCanvas extends WellFieldsCanvas {
 
         revalidate();
         parent.revalidate();
+        repaint();
     }
 
     /**
@@ -327,6 +328,7 @@ class RowFieldCanvas extends WellFieldsCanvas {
         // etc.)
         revalidate();
         parent.revalidate();
+        repaint();
     }
 
     /**
