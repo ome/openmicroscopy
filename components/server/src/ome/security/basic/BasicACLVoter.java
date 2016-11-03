@@ -17,6 +17,7 @@ import ome.conditions.GroupSecurityViolation;
 import ome.conditions.InternalException;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
+import ome.model.core.OriginalFile;
 import ome.model.enums.AdminPrivilege;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
@@ -362,8 +363,14 @@ public class BasicACLVoter implements ACLVoter {
             /* see trac ticket 10691 re. enum values */
             boolean isLightAdminRestricted = false;
             if (!sysType) {
-                if (!privileges.contains(adminPrivileges.getPrivilege("WriteOwned"))) {
-                    isLightAdminRestricted = true;
+                if (iObject instanceof OriginalFile) {
+                    if (!privileges.contains(adminPrivileges.getPrivilege("WriteFile"))) {
+                        isLightAdminRestricted = true;
+                    }
+                } else {
+                    if (!privileges.contains(adminPrivileges.getPrivilege("WriteOwned"))) {
+                        isLightAdminRestricted = true;
+                    }
                 }
             } else if (iObject instanceof Experimenter) {
                 if (!privileges.contains(adminPrivileges.getPrivilege("ModifyUser"))) {

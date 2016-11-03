@@ -41,6 +41,7 @@ import ome.model.IAnnotationLink;
 import ome.model.IMutable;
 import ome.model.IObject;
 import ome.model.core.Image;
+import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.display.RenderingDef;
 import ome.model.display.Thumbnail;
@@ -649,10 +650,12 @@ public class OmeroInterceptor implements Interceptor {
         /* see trac ticket 10691 re. enum values */
         if (!bec.isCurrentUserAdmin()) {
             isPrivilegedCreator = false;
-        } else if (obj instanceof Experimenter) {
-            isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege("ModifyUser"));
         } else if (sysType) {
             isPrivilegedCreator = true;
+        } else if (obj instanceof Experimenter) {
+            isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege("ModifyUser"));
+        } else if (obj instanceof OriginalFile) {
+            isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege("WriteFile"));
         } else {
             isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege("WriteOwned"));
         }
