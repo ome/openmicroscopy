@@ -393,6 +393,7 @@ $(function() {
             'data' : function(node, callback, payload) {
                 // Get the data for this query
                 if (payload === undefined) {
+                    // Check for existing 'payload' data, used to initialise the jsTree
                     payload = this.element.data('payload');
                     // clear data
                     $.removeData(this.element[0], "payload");
