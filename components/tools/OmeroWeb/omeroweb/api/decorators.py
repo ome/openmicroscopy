@@ -42,16 +42,17 @@ class LoginRequired(omeroweb.decorators.login_required):
                             status=403)
 
 
-class json_response(object):
+class JsonResponseHandler(object):
     """
     Class-based decorator for wrapping Django views methods.
+
     Returns JsonResponse based on dict returned by views methods.
     Also handles exceptions from views methods, returning
     JsonResponse with appropriate status values.
     """
 
     def __init__(self):
-        """Initialises the decorator."""
+        """Initialise the decorator."""
         pass
 
     def handle_success(self, rv):
@@ -70,7 +71,6 @@ class json_response(object):
         By default, we format exception or message and return this
         as a JsonResponse with an appropriate status code.
         """
-
         # Default status is 500 'server error'
         # But we try to handle all 'expected' errors appropriately
         # TODO: handle omero.ConcurrencyException
@@ -95,9 +95,9 @@ class json_response(object):
             rsp_json = ex.response
         return JsonResponse(rsp_json, status=status)
 
-    def __call__(ctx, f):
+    def __call__(self, f):
         """
-        Returns the decorator.
+        Return the decorator.
 
         The decorator calls the wrapped function and
         handles success or exception, returning a
@@ -107,8 +107,8 @@ class json_response(object):
             logger.debug('json_response')
             try:
                 rv = f(request, *args, **kwargs)
-                return ctx.handle_success(rv)
+                return self.handle_success(rv)
             except Exception, ex:
                 trace = traceback.format_exc()
-                return ctx.handle_error(ex, trace)
+                return self.handle_error(ex, trace)
         return update_wrapper(wrapped, f)

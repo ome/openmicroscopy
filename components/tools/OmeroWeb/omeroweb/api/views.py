@@ -24,14 +24,11 @@ from django.middleware import csrf
 from django.utils.decorators import method_decorator
 from django.core.urlresolvers import reverse
 from django.conf import settings
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 
-from functools import wraps
-import logging
 import traceback
 import json
 
-import omero
 import omero.clients
 from api_query import query_projects
 from omeroweb.webadmin.forms import LoginForm
@@ -41,48 +38,11 @@ from omeroweb.webadmin.webadmin_utils import upgradeCheck
 from omero_marshal import get_encoder, get_decoder, OME_SCHEMA_URL
 from omero import ValidationException
 from omeroweb.connector import Server
-from omeroweb.api.api_exceptions import BadRequestError
-from omeroweb.api.decorators import LoginRequired
+from omeroweb.api.api_exceptions import BadRequestError, NotFoundError, \
+    CreatedObject
+from omeroweb.api.decorators import LoginRequired, JsonResponseHandler
 from omeroweb.webgateway.util import getIntOrDefault
 
-
-logger = logging.getLogger(__name__)
-
-def json_response(f):
-    """
-    Decorator for wrapping in JsonResponse and error handling.
-
-    @param f:       The function to wrap
-    @return:        The wrapped function, which will return json
-    """
-    @wraps(f)
-    def wrap(request, *args, **kwargs):
-        logger.debug('json_response')
-        try:
-            rv = f(request, *args, **kwargs)
-            if isinstance(rv, HttpResponse):
-                return rv
-            return JsonResponse(rv)
-        except Exception, ex:
-            # Default status is 500 'server error'
-            # But we try to handle all 'expected' errors appropriately
-            # TODO: handle omero.ConcurrencyException
-            status = 500
-            trace = traceback.format_exc()
-            if isinstance(ex, BadRequestError):
-                status = 400
-                trace = ex.stacktrace   # Might be None
-            elif isinstance(ex, omero.SecurityViolation):
-                status = 403
-            elif isinstance(ex, omero.ApiUsageException):
-                status = 400
-            logger.debug(trace)
-            rsp_json = {"message": str(ex)}
-            if trace is not None:
-                rsp_json["stacktrace"] = trace
-            return JsonResponse(rsp_json, status=status)
-    wrap.func_name = f.func_name
-    return wrap
 
 def build_url(request, name, api_version, **kwargs):
     """
@@ -106,7 +66,7 @@ def build_url(request, name, api_version, **kwargs):
         return "%s%s" % (prefix, url)
 
 
-@json_response
+@JsonResponseHandler()
 def api_versions(request, **kwargs):
     """Base url of the webgateway json api."""
     versions = []
@@ -118,7 +78,7 @@ def api_versions(request, **kwargs):
     return {'data': versions}
 
 
-@json_response
+@JsonResponseHandler()
 def api_base(request, api_version=None, **kwargs):
     """Base url of the webgateway json api for a specified version."""
     v = api_version
@@ -131,14 +91,14 @@ def api_base(request, api_version=None, **kwargs):
     return rv
 
 
-@json_response
+@JsonResponseHandler()
 def api_token(request, api_version, **kwargs):
     """Provide CSRF token for current session."""
     token = csrf.get_token(request)
     return {'data': token}
 
 
-@json_response
+@JsonResponseHandler()
 def api_servers(request, api_version, **kwargs):
     """List the available servers to connect to."""
     servers = []
@@ -258,7 +218,7 @@ class ProjectView(View):
     """Handle access to an individual Project to GET or DELETE it."""
 
     @method_decorator(LoginRequired(useragent='OMERO.webapi'))
-    @method_decorator(json_response)
+    @method_decorator(JsonResponseHandler())
     def dispatch(self, *args, **kwargs):
         """Wrap other methods to add decorators."""
         return super(ProjectView, self).dispatch(*args, **kwargs)
@@ -267,9 +227,7 @@ class ProjectView(View):
         """Simply GET a single Project and marshal it or 404 if not found."""
         project = conn.getObject("Project", pid)
         if project is None:
-            return JsonResponse(
-                {'message': 'Project %s not found' % pid},
-                status=404)
+            raise NotFoundError('Project %s not found' % pid)
         encoder = get_encoder(project._obj.__class__)
         return encoder.encode(project._obj)
 
@@ -282,9 +240,7 @@ class ProjectView(View):
         try:
             project = conn.getQueryService().get('Project', long(pid))
         except ValidationException:
-            return JsonResponse(
-                {'message': 'Project %s not found' % pid},
-                status=404)
+            raise NotFoundError('Project %s not found' % pid)
         encoder = get_encoder(project.__class__)
         json = encoder.encode(project)
         conn.deleteObject(project)
@@ -295,7 +251,7 @@ class ProjectsView(View):
     """Handles GET for /projects/ to list available Projects."""
 
     @method_decorator(LoginRequired(useragent='OMERO.webapi'))
-    @method_decorator(json_response)
+    @method_decorator(JsonResponseHandler())
     def dispatch(self, *args, **kwargs):
         """Use dispatch to add decorators to class methods."""
         return super(ProjectsView, self).dispatch(*args, **kwargs)
@@ -332,17 +288,10 @@ class SaveView(View):
     """
 
     @method_decorator(LoginRequired(useragent='OMERO.webapi'))
-    @method_decorator(json_response)
+    @method_decorator(JsonResponseHandler())
     def dispatch(self, *args, **kwargs):
         """Apply decorators for class methods below."""
         return super(SaveView, self).dispatch(*args, **kwargs)
-
-    def get(self, request, *args, **kwargs):
-        """Return a placeholder error message since GET is not supported."""
-        return JsonResponse({"message":
-                            ("POST or PUT only with object json encoded "
-                             "in content body")},
-                            status=405)
 
     def put(self, request, conn=None, **kwargs):
         """
@@ -367,8 +316,8 @@ class SaveView(View):
             raise BadRequestError(
                 "Object has '@id' attribute. Use PUT to update objects")
         rsp = self._save_object(request, conn, object_json, **kwargs)
-        # If no error thrown, return 201 ('Created')
-        return JsonResponse(rsp, status=201)
+        # will return 201 ('Created')
+        raise CreatedObject(rsp)
 
     def _save_object(self, request, conn, object_json, **kwargs):
         """Here we handle the saving for PUT and POST."""

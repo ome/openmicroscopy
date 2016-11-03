@@ -23,12 +23,7 @@ from django.http import HttpResponse, HttpResponseBadRequest, \
 from django.http import HttpResponseRedirect, HttpResponseNotAllowed, Http404
 from django.template import loader as template_loader
 from django.views.decorators.http import require_POST
-<<<<<<< 49109b0edadc90f329375f00499e4e7a2267c7fc
-from django.views.generic import View
 from django.core.urlresolvers import reverse, NoReverseMatch
-=======
-from django.core.urlresolvers import reverse
->>>>>>> Moved /api/ code to new omeroweb/api/ app
 from django.conf import settings
 from django.template import RequestContext as Context
 from django.core.servers.basehttp import FileWrapper
@@ -38,15 +33,7 @@ from omero.util.ROI_utils import pointsStringToXYlist, xyListToBbox
 from plategrid import PlateGrid
 from omero_version import build_year
 from marshal import imageMarshal, shapeMarshal, rgb_int2rgba
-<<<<<<< 49109b0edadc90f329375f00499e4e7a2267c7fc
-from api_query import query_projects
-from omeroweb.webadmin.forms import LoginForm
-from omeroweb.decorators import get_client_ip
-from omeroweb.webadmin.webadmin_utils import upgradeCheck
-from omero_marshal import get_encoder, get_decoder, OME_SCHEMA_URL
 from django.contrib.staticfiles.templatetags.staticfiles import static
-=======
->>>>>>> Moved /api/ code to new omeroweb/api/ app
 
 try:
     from hashlib import md5
@@ -76,17 +63,8 @@ import zipfile
 import shutil
 
 from omeroweb.decorators import login_required, ConnCleaningHttpResponse
-<<<<<<< 49109b0edadc90f329375f00499e4e7a2267c7fc
-from omeroweb.webgateway.decorators import login_required as api_login_required, \
-    json_response
 from omeroweb.connector import Connector
 from omeroweb.webgateway.util import zip_archived_files, getIntOrDefault
-from omeroweb.webgateway.api_exceptions import BadRequestError, NotFoundError,\
-    CreatedObject
-=======
-from omeroweb.connector import Connector
-from omeroweb.webgateway.util import zip_archived_files, getIntOrDefault
->>>>>>> Moved /api/ code to new omeroweb/api/ app
 
 cache = CacheBase()
 logger = logging.getLogger(__name__)
