@@ -1,0 +1,53 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2016 University of Dundee & Open Microscopy Environment.
+# All rights reserved.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+   Integration test which checks the various parameters for makemovie.py
+
+"""
+
+import library as lib
+import omero.util.script_utils as scriptUtil
+import tempfile
+import shutil
+from os import listdir
+from os.path import isfile, join
+
+
+class TestScriptUtils(lib.ITest):
+
+    def setup_method(self, method):
+        self.svc = self.client.sf.getScriptService()
+
+    def testSplitImage(self):
+        imported_pix = ",".join(self.import_image())
+        dir = tempfile.mkdtemp()
+        query_string = "select p from Pixels p where p.id='%s'" % imported_pix
+        pixels = self.query.findByQuery(query_string, None)
+        sizeZ = pixels.getSizeZ().getValue()
+        sizeC = pixels.getSizeC().getValue()
+        sizeT = pixels.getSizeT().getValue()
+        # split the image into file
+        imported_img = self.query.findByQuery(
+            "select i from Image i join fetch i.pixels pixels\
+            where pixels.id in (%s)" % imported_pix, None)
+        scriptUtil.split_image(self.client, imported_img.id.getValue(), dir)
+        files = [f for f in listdir(dir) if isfile(join(dir, f))]
+        shutil.rmtree(dir)
+        assert sizeZ*sizeC*sizeT == len(files)
