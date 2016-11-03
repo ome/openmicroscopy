@@ -705,7 +705,6 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
      * @return original file or null if script does not exist or more than one
      *         script with name exists.
      */
-    @SuppressWarnings("unchecked")
     private OriginalFile getOriginalFileOrNull(long id, final Ice.Current current) {
 
         try {
