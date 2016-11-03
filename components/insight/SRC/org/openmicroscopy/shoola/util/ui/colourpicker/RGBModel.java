@@ -721,7 +721,7 @@ class RGBModel
      * 
      * @return See above
      */
-    boolean getReversetIntensity() {
+    boolean getReverseIntensity() {
         return revInt;
     }
 
@@ -730,7 +730,7 @@ class RGBModel
      * 
      * @return See above
      */
-    boolean getOriginalReversetIntensity() {
+    boolean getOriginalReverseIntensity() {
         return originalRevInt;
     }
     

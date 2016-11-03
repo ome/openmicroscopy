@@ -352,7 +352,7 @@ class RGBControl
      * @return See above
      */
     boolean getReverseIntensity() {
-        return model.getReversetIntensity();
+        return model.getReverseIntensity();
     }
 
     
@@ -371,7 +371,7 @@ class RGBControl
      * @return <code>true</code> if it has not, <code>false</code> if it has
      */
     boolean isOriginalRevInt() {
-        return model.getOriginalReversetIntensity() == getReverseIntensity();
+        return model.getOriginalReverseIntensity() == getReverseIntensity();
     }
 
     /**

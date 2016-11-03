@@ -150,7 +150,7 @@ public class PixelsServicesFactory
                 
                 cb.setReverseIntensity(false);
                 List<CodomainMapContext> cdctx = c.copySpatialDomainEnhancement();
-                for(CodomainMapContext cd : cdctx) {
+                for (CodomainMapContext cd : cdctx) {
                     if(cd instanceof ReverseIntensityContext) {
                         cb.setReverseIntensity(true);
                         break;

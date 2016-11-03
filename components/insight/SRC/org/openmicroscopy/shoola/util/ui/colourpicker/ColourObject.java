@@ -22,12 +22,7 @@
  */
 package org.openmicroscopy.shoola.util.ui.colourpicker;
 
-//Java imports
 import java.awt.Color;
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /**
  * Utility object.
@@ -111,6 +106,15 @@ public class ColourObject {
         return true;
     }
 
+    /**
+     * Checks if the given {@link Color} is the same color as this
+     * {@link ColourObject}'s {@link Color}, by comparing the RGB and alpha
+     * values.
+     * 
+     * @param c
+     *            The {@link Color} to check
+     * @return See above.
+     */
     private boolean isSameColor(Color c) {
         return (c.getRed() == color.getRed()
                 && c.getGreen() == color.getGreen()
@@ -118,6 +122,13 @@ public class ColourObject {
                 .getAlpha());
     }
 
+    /**
+     * Calculates a hash code based on the {@link Color}'s RGB and alpha value
+     * 
+     * @param c
+     *            The {@link Color} to calculate the hash code for
+     * @return See above
+     */
     private int colorHashcode(Color c) {
         final int prime = 31;
         int result = 1;

@@ -490,6 +490,7 @@ class RendererControl
      * @param oldColor The previous Color
      * @param newLut The new lookup table
      * @param oldLut The previous lookup table
+     * @param revInt Reverse intensity flag
      */
     private void handleColorPicker(boolean reset, boolean preview, int index,
             Color newColor, Color oldColor, String newLut, String oldLut, boolean revInt) {

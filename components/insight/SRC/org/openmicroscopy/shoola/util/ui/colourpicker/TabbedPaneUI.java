@@ -52,6 +52,8 @@ import info.clearthought.layout.TableLayout;
 
 //Third-party libraries
 
+
+import org.apache.commons.lang.StringUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -365,8 +367,6 @@ class TabbedPaneUI
 	 * 
      * @param parent  The parent of this component. Mustn't be <code>null</code>.
 	 * @param control Reference to the control. Mustn't be <code>null</code>.
-	 * @param luts The available lookup tables
-	 * @param selectedLUT The selected lookup table
 	 * @param field	  Pass <code>true</code> to add a field, 
 	 * 				  <code>false</code> otherwise. 
 	 */
@@ -421,9 +421,7 @@ class TabbedPaneUI
 	{
 		if (fieldDescription == null) return null;
 		String text = fieldDescription.getText();
-		if (text == null) return null;
-		text = text.trim();
-		if(text.length()==0)
+		if (StringUtils.isBlank(text))
 		    return null;
 		return text;
 	}

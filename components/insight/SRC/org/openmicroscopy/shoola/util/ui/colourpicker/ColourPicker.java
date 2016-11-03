@@ -141,8 +141,8 @@ public class ColourPicker
         newColor.lut = model.getLUT();
         oldColor.lut = model.getOriginalLUT();
         
-        newColor.revInt = model.getReversetIntensity();
-        oldColor.revInt = model.getOriginalReversetIntensity();
+        newColor.revInt = model.getReverseIntensity();
+        oldColor.revInt = model.getOriginalReverseIntensity();
         
         newColor.description = tabbedPane.getDescription();
         
@@ -163,8 +163,8 @@ public class ColourPicker
         newColor.lut = model.getLUT();
         oldColor.lut = model.getOriginalLUT();
         
-        newColor.revInt = model.getReversetIntensity();
-        oldColor.revInt = model.getOriginalReversetIntensity();
+        newColor.revInt = model.getReverseIntensity();
+        oldColor.revInt = model.getOriginalReverseIntensity();
         
         newColor.description = tabbedPane.getDescription();
         
@@ -179,7 +179,7 @@ public class ColourPicker
         ColourObject oldColor = new ColourObject();
         oldColor.color = model.getOriginalColor();
         oldColor.lut = model.getOriginalLUT();
-        oldColor.revInt = model.getOriginalReversetIntensity();
+        oldColor.revInt = model.getOriginalReverseIntensity();
         
     	firePropertyChange(ACCEPT_PROPERTY, null,oldColor);
     }
@@ -270,6 +270,7 @@ public class ColourPicker
      *              the default color.
      * @param luts The available lookup tables
      * @param selectedLUT The selected lookup table
+	 * @param revInt  The reverse intensity flag
      */
     public ColourPicker(JFrame owner, Color color, Collection<String> luts, String selectedLUT, boolean revInt)
     {
