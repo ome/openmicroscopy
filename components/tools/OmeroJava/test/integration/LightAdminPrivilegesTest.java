@@ -139,6 +139,128 @@ public class LightAdminPrivilegesTest extends AbstractServerTest {
     }
 
     /**
+     * Test that users may move others' data only if they are a member of the <tt>system</tt> group and
+     * have the <tt>Chgrp</tt> privilege. Attempts moving data via {@link omero.cmd.Chgrp2}.
+     * @param isAdmin if to test a member of the <tt>system</tt> group
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>Chgrp</tt> privilege
+     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "light administrator privilege test cases")
+    public void testChgrpPrivilegeViaRequest(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
+        final boolean isExpectSuccess = isAdmin && !isRestricted;
+        final EventContext normalUser = newUserAndGroup("rwr---");
+        final long otherGroupId = newGroupAddUser("rwr---", normalUser.userId).getId().getValue();
+        Folder folder = (Folder) iUpdate.saveAndReturnObject(mmFactory.simpleFolder());
+        Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+        loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeChgrp.value : null);
+        doChange(client, factory, Requests.chgrp().target(folder).toGroup(otherGroupId).build(), isExpectSuccess);
+        if (isExpectSuccess) {
+            final ImmutableMap<String, String> groupContext = ImmutableMap.of("omero.group", Long.toString(otherGroupId));
+            folder = (Folder) iQuery.get("Folder", folder.getId().getValue(), groupContext);
+            Assert.assertEquals(folder.getDetails().getOwner().getId().getValue(), normalUser.userId);
+            Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), otherGroupId);
+        }
+    }
+
+    /**
+     * Test that users may move others' data only if they are a member of the <tt>system</tt> group and
+     * have the <tt>Chgrp</tt> privilege. Attempts moving data via {@link AbstractServerTest#iUpdate}.
+     * @param isAdmin if to test a member of the <tt>system</tt> group
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>Chgrp</tt> privilege
+     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "light administrator privilege test cases")
+    public void testChgrpPrivilegeViaUpdate(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
+        final boolean isExpectSuccess = isAdmin && !isRestricted;
+        final EventContext normalUser = newUserAndGroup("rwr---");
+        final ExperimenterGroup otherGroup = newGroupAddUser("rwr---", normalUser.userId);
+        Folder folder = (Folder) iUpdate.saveAndReturnObject(mmFactory.simpleFolder());
+        Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+        loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeChgrp.value : null);
+        final ImmutableMap<String, String> groupContext = ImmutableMap.of("omero.group", Long.toString(normalUser.groupId));
+        try {
+            folder = (Folder) iQuery.get("Folder", folder.getId().getValue(), groupContext);
+            Assert.assertTrue(isAdmin, "normal users cannot read data from others' groups");
+        } catch (SecurityViolation sv) {
+            Assert.assertFalse(isAdmin, "admins can read data from others' groups");
+            /* cannot now make the attempt */
+            return;
+        }
+        folder.getDetails().setGroup(otherGroup);
+        try {
+            folder = (Folder) iUpdate.saveAndReturnObject(folder, groupContext);
+            Assert.assertEquals(folder.getDetails().getOwner().getId().getValue(), normalUser.userId);
+            Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), otherGroup.getId().getValue());
+            Assert.assertTrue(isExpectSuccess);
+        } catch (ServerError se) {
+            Assert.assertFalse(isExpectSuccess);
+        }
+    }
+
+    /**
+     * Test that users may give others' data only if they are a member of the <tt>system</tt> group and
+     * have the <tt>Chown</tt> privilege. Attempts giving data via {@link omero.cmd.Chown2}.
+     * @param isAdmin if to test a member of the <tt>system</tt> group
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>Chown</tt> privilege
+     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "light administrator privilege test cases")
+    public void testChownPrivilegeViaRequest(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
+        final boolean isExpectSuccess = isAdmin && !isRestricted;
+        final EventContext normalUser = newUserAndGroup("rwr---");
+        Folder folder = (Folder) iUpdate.saveAndReturnObject(mmFactory.simpleFolder());
+        Assert.assertEquals(folder.getDetails().getOwner().getId().getValue(), normalUser.userId);
+        final EventContext otherUser = newUserInGroup(normalUser);
+        loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeChown.value : null);
+        doChange(client, factory, Requests.chown().target(folder).toUser(otherUser.userId).build(), isExpectSuccess);
+        if (isExpectSuccess) {
+            final ImmutableMap<String, String> groupContext = ImmutableMap.of("omero.group", Long.toString(normalUser.groupId));
+            folder = (Folder) iQuery.get("Folder", folder.getId().getValue(), groupContext);
+            Assert.assertEquals(folder.getDetails().getOwner().getId().getValue(), otherUser.userId);
+            Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+        }
+    }
+
+    /**
+     * Test that users may give others' data only if they are a member of the <tt>system</tt> group and
+     * have the <tt>Chown</tt> privilege. Attempts giving data via {@link AbstractServerTest#iUpdate}.
+     * @param isAdmin if to test a member of the <tt>system</tt> group
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>Chown</tt> privilege
+     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "light administrator privilege test cases")
+    public void testChownPrivilegeViaUpdate(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
+        final boolean isExpectSuccess = isAdmin && !isRestricted;
+        final EventContext normalUser = newUserAndGroup("rwr---");
+        Folder folder = (Folder) iUpdate.saveAndReturnObject(mmFactory.simpleFolder());
+        Assert.assertEquals(folder.getDetails().getOwner().getId().getValue(), normalUser.userId);
+        final EventContext otherUser = newUserInGroup(normalUser);
+        loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeChown.value : null);
+        final ImmutableMap<String, String> groupContext = ImmutableMap.of("omero.group", Long.toString(normalUser.groupId));
+        try {
+            folder = (Folder) iQuery.get("Folder", folder.getId().getValue(), groupContext);
+            Assert.assertTrue(isAdmin, "normal users cannot read data from others' groups");
+        } catch (SecurityViolation sv) {
+            Assert.assertFalse(isAdmin, "admins can read data from others' groups");
+            /* cannot now make the attempt */
+            return;
+        }
+        folder.getDetails().setOwner(new ExperimenterI(otherUser.userId, false));
+        try {
+            folder = (Folder) iUpdate.saveAndReturnObject(folder, groupContext);
+            Assert.assertEquals(folder.getDetails().getOwner().getId().getValue(), otherUser.userId);
+            Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+            Assert.assertTrue(isExpectSuccess);
+        } catch (ServerError se) {
+            Assert.assertFalse(isExpectSuccess);
+        }
+    }
+
+    /**
      * Test that users may modify other users only if they are a member of the <tt>system</tt> group and
      * have the <tt>ModifyUser</tt> privilege. Attempts creation of new user via {@link AbstractServerTest#iUpdate}.
      * @param isAdmin if to test a member of the <tt>system</tt> group
@@ -338,128 +460,6 @@ public class LightAdminPrivilegesTest extends AbstractServerTest {
         Folder folder = (Folder) iUpdate.saveAndReturnObject(mmFactory.simpleFolder());
         loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeWriteOwned.value : null);
         doChange(client, factory, Requests.delete().target(folder).build(), isExpectSuccess);
-    }
-
-    /**
-     * Test that users may move others' data only if they are a member of the <tt>system</tt> group and
-     * have the <tt>Chgrp</tt> privilege. Attempts moving data via {@link omero.cmd.Chgrp2}.
-     * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param isRestricted if to test a user who does <em>not</em> have the <tt>Chgrp</tt> privilege
-     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
-     * @throws Exception unexpected
-     */
-    @Test(dataProvider = "light administrator privilege test cases")
-    public void testChgrpPrivilegeViaRequest(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
-        final boolean isExpectSuccess = isAdmin && !isRestricted;
-        final EventContext normalUser = newUserAndGroup("rwr---");
-        final long otherGroupId = newGroupAddUser("rwr---", normalUser.userId).getId().getValue();
-        Folder folder = (Folder) iUpdate.saveAndReturnObject(mmFactory.simpleFolder());
-        Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), normalUser.groupId);
-        loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeChgrp.value : null);
-        doChange(client, factory, Requests.chgrp().target(folder).toGroup(otherGroupId).build(), isExpectSuccess);
-        if (isExpectSuccess) {
-            final ImmutableMap<String, String> groupContext = ImmutableMap.of("omero.group", Long.toString(otherGroupId));
-            folder = (Folder) iQuery.get("Folder", folder.getId().getValue(), groupContext);
-            Assert.assertEquals(folder.getDetails().getOwner().getId().getValue(), normalUser.userId);
-            Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), otherGroupId);
-        }
-    }
-
-    /**
-     * Test that users may move others' data only if they are a member of the <tt>system</tt> group and
-     * have the <tt>Chgrp</tt> privilege. Attempts moving data via {@link AbstractServerTest#iUpdate}.
-     * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param isRestricted if to test a user who does <em>not</em> have the <tt>Chgrp</tt> privilege
-     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
-     * @throws Exception unexpected
-     */
-    @Test(dataProvider = "light administrator privilege test cases")
-    public void testChgrpPrivilegeViaUpdate(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
-        final boolean isExpectSuccess = isAdmin && !isRestricted;
-        final EventContext normalUser = newUserAndGroup("rwr---");
-        final ExperimenterGroup otherGroup = newGroupAddUser("rwr---", normalUser.userId);
-        Folder folder = (Folder) iUpdate.saveAndReturnObject(mmFactory.simpleFolder());
-        Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), normalUser.groupId);
-        loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeChgrp.value : null);
-        final ImmutableMap<String, String> groupContext = ImmutableMap.of("omero.group", Long.toString(normalUser.groupId));
-        try {
-            folder = (Folder) iQuery.get("Folder", folder.getId().getValue(), groupContext);
-            Assert.assertTrue(isAdmin, "normal users cannot read data from others' groups");
-        } catch (SecurityViolation sv) {
-            Assert.assertFalse(isAdmin, "admins can read data from others' groups");
-            /* cannot now make the attempt */
-            return;
-        }
-        folder.getDetails().setGroup(otherGroup);
-        try {
-            folder = (Folder) iUpdate.saveAndReturnObject(folder, groupContext);
-            Assert.assertEquals(folder.getDetails().getOwner().getId().getValue(), normalUser.userId);
-            Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), otherGroup.getId().getValue());
-            Assert.assertTrue(isExpectSuccess);
-        } catch (ServerError se) {
-            Assert.assertFalse(isExpectSuccess);
-        }
-    }
-
-    /**
-     * Test that users may give others' data only if they are a member of the <tt>system</tt> group and
-     * have the <tt>Chown</tt> privilege. Attempts giving data via {@link omero.cmd.Chown2}.
-     * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param isRestricted if to test a user who does <em>not</em> have the <tt>Chown</tt> privilege
-     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
-     * @throws Exception unexpected
-     */
-    @Test(dataProvider = "light administrator privilege test cases")
-    public void testChownPrivilegeViaRequest(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
-        final boolean isExpectSuccess = isAdmin && !isRestricted;
-        final EventContext normalUser = newUserAndGroup("rwr---");
-        Folder folder = (Folder) iUpdate.saveAndReturnObject(mmFactory.simpleFolder());
-        Assert.assertEquals(folder.getDetails().getOwner().getId().getValue(), normalUser.userId);
-        final EventContext otherUser = newUserInGroup(normalUser);
-        loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeChown.value : null);
-        doChange(client, factory, Requests.chown().target(folder).toUser(otherUser.userId).build(), isExpectSuccess);
-        if (isExpectSuccess) {
-            final ImmutableMap<String, String> groupContext = ImmutableMap.of("omero.group", Long.toString(normalUser.groupId));
-            folder = (Folder) iQuery.get("Folder", folder.getId().getValue(), groupContext);
-            Assert.assertEquals(folder.getDetails().getOwner().getId().getValue(), otherUser.userId);
-            Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), normalUser.groupId);
-        }
-    }
-
-    /**
-     * Test that users may give others' data only if they are a member of the <tt>system</tt> group and
-     * have the <tt>Chown</tt> privilege. Attempts giving data via {@link AbstractServerTest#iUpdate}.
-     * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param isRestricted if to test a user who does <em>not</em> have the <tt>Chown</tt> privilege
-     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
-     * @throws Exception unexpected
-     */
-    @Test(dataProvider = "light administrator privilege test cases")
-    public void testChownPrivilegeViaUpdate(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
-        final boolean isExpectSuccess = isAdmin && !isRestricted;
-        final EventContext normalUser = newUserAndGroup("rwr---");
-        Folder folder = (Folder) iUpdate.saveAndReturnObject(mmFactory.simpleFolder());
-        Assert.assertEquals(folder.getDetails().getOwner().getId().getValue(), normalUser.userId);
-        final EventContext otherUser = newUserInGroup(normalUser);
-        loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeChown.value : null);
-        final ImmutableMap<String, String> groupContext = ImmutableMap.of("omero.group", Long.toString(normalUser.groupId));
-        try {
-            folder = (Folder) iQuery.get("Folder", folder.getId().getValue(), groupContext);
-            Assert.assertTrue(isAdmin, "normal users cannot read data from others' groups");
-        } catch (SecurityViolation sv) {
-            Assert.assertFalse(isAdmin, "admins can read data from others' groups");
-            /* cannot now make the attempt */
-            return;
-        }
-        folder.getDetails().setOwner(new ExperimenterI(otherUser.userId, false));
-        try {
-            folder = (Folder) iUpdate.saveAndReturnObject(folder, groupContext);
-            Assert.assertEquals(folder.getDetails().getOwner().getId().getValue(), otherUser.userId);
-            Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), normalUser.groupId);
-            Assert.assertTrue(isExpectSuccess);
-        } catch (ServerError se) {
-            Assert.assertFalse(isExpectSuccess);
-        }
     }
 
     /**
