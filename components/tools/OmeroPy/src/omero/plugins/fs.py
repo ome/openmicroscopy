@@ -838,8 +838,7 @@ Examples:
                 if '*' in parts[1]:
                     classes.add(klass)
                 else:
-                    ids = parts[1].split(",")
-                    ids = map(long, ids)
+                    ids = [long(id) for id in parts[1].split(",")]
                     objects.setdefault(klass, []).extend(ids)
             except:
                 raise ValueError("Bad object: ", o)
