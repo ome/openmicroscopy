@@ -29,7 +29,6 @@ from django.http import JsonResponse
 import traceback
 import json
 
-import omero.clients
 from api_query import query_projects
 from omeroweb.webadmin.forms import LoginForm
 from omeroweb.decorators import get_client_ip
