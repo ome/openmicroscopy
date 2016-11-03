@@ -165,6 +165,7 @@ $(document).ready(function() {
             parentNode = inst.get_node(inst.get_parent(selected[0]));
         } else if (dtype === "plate" || dtype === "acquisition") {
             parentId = undefined;
+            clearThumbnailsPanel();
             load_spw(event, data);
             return;
         // All other types have blank centre panel
@@ -811,9 +812,9 @@ $(document).ready(function() {
         $contentDetails.removeData('path');
         $("div#page").removeData('page');
         $contentDetails.removeData('field');
-        // hide SPW 'spacial' birds eye view below tree
-        if (OME.hideWellBirdsEye) {
-            OME.hideWellBirdsEye();
+        // empty SPW 'spacial' birds eye view below tree
+        if (OME.emptyWellBirdsEye) {
+            OME.emptyWellBirdsEye();
         }
     };
     // Allows other web apps to access this method

@@ -5,12 +5,18 @@
         window.OME = {};
     }
 
-    // Can be called from 
-    console.log('spwgridview...');
+    // Can be called from anywhere, E.g. center_plugin.thumbs
+    OME.emptyWellBirdsEye = function() {
+        $("#well_birds_eye").empty()
+            .off("click");
+    };
     OME.hideWellBirdsEye = function() {
         $("#left_panel_tabs").css('bottom', '0');
         $("#left_panel_bottom").css('height', '0');
+        // Also clear content
+        OME.emptyWellBirdsEye();
     };
+
 
     OME.WellBirdsEye = function(opts) {
 
@@ -29,7 +35,7 @@
         };
 
         // Drag selection on WellSample images
-        $well_birds_eye.selectable({
+        $("#well_birds_eye_container").selectable({
             filter: 'img',
             distance: 2,
             stop: function(){
@@ -77,7 +83,6 @@
             },
             addWell: function(data) {
                 showPanel();
-                console.log('addWell', data);
 
                 var minX,
                     maxX,
@@ -95,16 +100,27 @@
                 minY = Math.min.apply(null, yVals);
                 maxY = Math.max.apply(null, yVals);
 
-                console.log(xVals, minX, maxX);
+                // Resize the well_birds_eye according to extent of field positions...
+                var whRatio = 1;
+                if (maxX !== minX || maxY !== minY) {
+                    whRatio = (maxX - minX) / (maxY - minY);
+                }
+                var width = 200;
+                var height = 200;
+                var top = 4;
+                if (whRatio > 1) {
+                    height = 200/whRatio;
+                    top = ((200 - height) / 2) + 4;
+                } else {
+                    width = whRatio * 200;
+                }
+                $well_birds_eye.css({'width': width + 'px', 'height': height + 'px', 'top': top + 'px'});
 
-                var whRatio = (maxX - minX) / (maxY - minY);
-                console.log(whRatio);
-                $well_birds_eye.css('width', whRatio * 200 + 'px');
-
+                // Add images, positioned by percent...
                 var html = data.map(function(ws){
                     // check if min===max to avoid zero-division error
-                    var x = maxX === minX ? 0.5 : (ws.position.x.value - minX)/(maxX - minX);
-                    var y = maxY === minY ? 0.5 : (ws.position.y.value - minY)/(maxY - minY);
+                    var x = (maxX === minX) ? 0.5 : (ws.position.x.value - minX)/(maxX - minX);
+                    var y = (maxY === minY) ? 0.5 : (ws.position.y.value - minY)/(maxY - minY);
                     return '<img style="left: ' + (x * 100) + '%; top: ' + (y * 100) + '%" title="' + ws.name + '" data-imageId="' + ws.id + '" src="' + ws.thumb_url + '" />';
                 }, "");
                 $well_birds_eye.append(html.join(""));
