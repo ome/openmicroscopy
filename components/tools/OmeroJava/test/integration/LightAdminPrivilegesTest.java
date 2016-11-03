@@ -586,7 +586,7 @@ public class LightAdminPrivilegesTest extends AbstractServerTest {
     public void testWriteOwnedPrivilegeDeletion(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
         newUserAndGroup("rw----");
-        Folder folder = (Folder) iUpdate.saveAndReturnObject(mmFactory.simpleFolder());
+        final Folder folder = (Folder) iUpdate.saveAndReturnObject(mmFactory.simpleFolder());
         loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeWriteOwned.value : null);
         doChange(client, factory, Requests.delete().target(folder).build(), isExpectSuccess);
     }
