@@ -58,11 +58,11 @@
         }
 
         var primaryIndex = -1;
-        var handleClickSelection = function(event, target) {
+        var handleClickSelection = function(event, target, elementsSelector) {
             
             var $clickedImage = target || $(event.target);
             
-            var thumbs = $("#spw table tbody td.well img");
+            var thumbs = $(elementsSelector);
             var selIndex = thumbs.index($clickedImage);
 
             if (event && event.shiftKey ) {
@@ -99,6 +99,90 @@
         
         $(document).ready(function() {
 
+            // Drag to resize #wellImagesContainer bottom panel
+            $(".verticalDragHandle").draggable({ axis: "y" })
+            .bind("dragstart", function(event, ui) {
+                var wellImgs_h = $("#wellImagesContainer").height();
+                $(this).data({'dragstart': ui.offset.top, 'wellImgs_h': wellImgs_h});
+            })
+            .bind("drag", function(event, ui) {
+                var dy = ui.offset.top - $(this).data('dragstart');
+                var newH = $(this).data('wellImgs_h') - dy;
+                $("#wellImagesContainer").css('height', newH + 'px');
+                $("#spwContainer").css('bottom', newH + 'px');
+            }).
+            bind("dragstop", function(event, ui) {
+                // Save the current size
+                var dy = ui.offset.top - $(this).data('dragstart');
+                var newH = $(this).data('wellImgs_h') - dy;
+                $('body').data('well_images_panel_height', newH);
+            });
+            // If height has previously been set, apply this...
+            var newH = $('body').data('well_images_panel_height') || 150;
+            $("#wellImagesContainer").css('height', newH + 'px');
+            $("#spwContainer").css('bottom', newH + 'px');
+            $("#wellImagesDragHandle").css('bottom', (newH + 7) + 'px');
+
+            // Resize SPW thumbnails
+            var spw_thumb_size = $('body').data('spw_thumb_size') || 64;
+            function setSpwThumbSize(size) {
+                // Since we don't want to remove previous class (don't know it),
+                // just set new class
+                // if well is small, offset the hover label
+                var cls = size < 30 ? 'wellLabelOffset ' : '';
+                cls += 'wellSize' + size;
+                $("#spw>table").prop('class', cls);
+            }
+            $("#thumb_size_slider").slider({
+                max: 130,
+                min: 10,
+                value: spw_thumb_size,
+                slide: function(event, ui) {
+                    setSpwThumbSize(ui.value);
+                },
+                stop: function(event, ui) {
+                    $('body').data('spw_thumb_size', ui.value);
+                }
+            });
+            // Resize Images in Well
+            var well_images_size = $('body').data('well_images_size') || 64;
+            $("#wellImages").prop('class', 'fillSpace wellSize' + well_images_size);
+            $("#wellImages_size_slider").slider({
+                max: 130,
+                min: 30,
+                value: well_images_size,
+                slide: function(event, ui) {
+                    $("#wellImages").prop('class', 'fillSpace wellSize' + ui.value);
+                },
+                stop: function(event, ui) {
+                    $('body').data('well_images_size', ui.value);
+                }
+            });
+
+            // Trigger Well Images selected (to update right panel)
+            var triggerWellImagesSelection = function() {
+                var selected_objs = $("#wellImages li.ui-selected").map(function(){
+                    return {'id': 'image-' + this.getAttribute('data-imageId')};
+                });
+                $("body")
+                    .data("selected_objects.ome", selected_objs)
+                    .trigger("selection_change.ome");
+            }
+            // Handle click on Wellsample Images
+            $( '#wellImages' ).on( "click", "img", function(event) {
+                // Update 'ui-selected' on images, handling shift-click etc
+                handleClickSelection(event, undefined, "#wellImages img");
+                triggerWellImagesSelection();
+            });
+            // Drag selection on WellSample images
+            $('#wellImages').selectable({
+                filter: 'li',
+                distance: 2,
+                stop: function(){
+                    triggerWellImagesSelection();
+                }
+            });
+
             var syncTreeSelection = function(selected, idx, perms) {
                 // De-select 'Run' from tree, silent 'true' so we don't trigger clear of centre panel
                 var datatree = $.jstree.reference('#dataTree');
@@ -110,13 +194,18 @@
                 OME.well_selection_changed(selected, idx, perms);
             };
 
-            wpv = $.WeblitzPlateview($('#spw'), {baseurl: '{{ baseurl }}', useParentPrefix: false});
+            var staticurl = WEBCLIENT.URLS.static_webgateway;
+            var wpv = $.WeblitzPlateview($('#spw'), {baseurl: '{{ baseurl }}',
+                                                     width: spw_thumb_size,
+                                                     staticurl: staticurl,
+                                                     useParentPrefix: false});
             var $selected;
             // delegated click and dblclick handlers for wells
             $( '#spw' ).on( "click", "td.well img", function(event) {
-                handleClickSelection(event);
+                handleClickSelection(event, undefined, "#spw td.well img");
                 var $selected = $('td.ui-selected', wpv.self);
                 syncTreeSelection($selected, {{ index }}, '{{ manager.getPermsCss }}');
+                showImagesInWell();
             });
             $( '#spw' ).on( "dblclick", "td.well img", function(event) {
                 OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('/0/', "/"+$(this).attr('id').split("-")[1]+"/" ));
@@ -128,6 +217,7 @@
                 stop: function(){  
                     var $selected = $('td.ui-selected', this);
                     syncTreeSelection($selected, {{ index }}, '{{ manager.getPermsCss }}');
+                    showImagesInWell();
                 },
                 start: function(){
                 }
@@ -147,20 +237,87 @@
                         }
                     }
                     if (selected_wells.length > 0) {
-                        handleClickSelection(undefined, selected_wells.children("img"));
+                        handleClickSelection(undefined, selected_wells.children("img"), "#spw td.well img");
                         $selected = $('td.ui-selected', wpv.self);
                         syncTreeSelection($selected, {{ index }}, '{{ manager.getPermsCss }}');
                     }
                 });
             {% endif %}
 
+            // Need to apply correct thumb size once loaded
+            wpv.self.bind('_resetLoaded', function(){
+                setSpwThumbSize(spw_thumb_size);
+            });
+
             wpv.load({{ manager.getPlateId }}, {{ index }});
 
+
+            var imagesInWellVisible = true;
+            $("#showWellImages").click(function(){
+                imagesInWellVisible = !imagesInWellVisible;
+                showImagesInWell();
+            });
+
+            var showImagesInWell = function() {
+                var $table = $("#wellImages table");
+                if (!imagesInWellVisible) {
+                    $table.empty();
+                    return;
+                }
+                var $selected = $('td.ui-selected', wpv.self);
+                $table.empty();
+                $selected.each(function(i, w){
+                    var wellId = w.id.split('-')[1];
+                    var label = $(w).children('.wellLabel').text();
+                    // create placeholders for each Well
+                    $table.append("<tr id='wellImages-" + wellId + "'><td class='wellImagesLabel'><h1>" + label + "</h1></td></tr>");
+                    var url = "{% url 'webgateway' %}well/" + wellId + "/children/";
+                    $.getJSON(url, function(data){
+                        var html = data.reduce(function(html, w){
+                            return html + '<li title="' + w.name + '" data-imageId="' + w.id + '"><img src="' + w.thumb_url + '" /></li>';
+                        }, "");
+                        $('#wellImages-' + wellId).append("<td><ul>" + html + "</ul></tr>");
+                    });
+                });
+            }
         });
 
     </script>
+
+    <style type="text/css">
+        #content_details .fillSpace {
+            position: absolute;
+            left: 0px;
+            right: 0px;
+            overflow: auto;
+        }
+        .wellImages {
+            border-top: solid 1px #bbb;
+        }
+        .wellImages img {
+            margin: 2px;
+        }
+        #wellImages li {
+            display: inline-block;
+        }
+        #wellImages ul,  #wellImages h1{
+            margin: 5px;
+        }
+        #wellImages .ui-selected {
+            background-color: #87ABD2;
+        }
+        .wellImagesLabel {
+            width: 30px;
+            vertical-align: middle;
+        }
+        #wellImages td {
+            border-bottom: solid #bbb 1px;
+        }
+    </style>
     
     <!--content-->
+<!-- We add/remove class .showWellImages to #content_details expose #wellImages panel -->
+<div class='fillSpace' style="top: 0px; height: 29px">
     <div id="fields">
         <form action="" method="POST" class="align_left">
         <table>
@@ -172,7 +329,39 @@
           </tbody>
         </table>
         </form>
-        <div id="toolbar" class="toolbar_noborder"></div>
+        <div id="toolbar" class="toolbar_noborder">
+            <button style="margin: -4px 8px;" id="showWellImages">Hide Images in Well</button>
+        </div>
     </div>
-    
-    <div id="spw"></div>
+</div>
+<div id="spwContainer" class='fillSpace' style="top: 29px; bottom: 150px">
+
+    <!-- Scrollable container for spw -->
+    <div class='fillSpace' style='top: 0; bottom: 25px'>
+        <div id="spw"></div>
+    </div>
+    <div class='fillSpace' style='bottom: 0; height: 25px; border-top: solid 1px #ddd; background: #EFF1F4' >
+        <!-- Slider -->
+        <div style="position: absolute; right: 10px; bottom: 0; width: 200px; height: 25px">
+            <div id="thumb_size_slider" class="thumb_size_slider" title="Zoom Plate"></div>
+        </div>
+    </div>
+</div>
+<div id="wellImagesDragHandle" class='fillSpace' style="bottom: 150px; overflow: visible">
+    <div class="verticalDragHandle"></div>
+</div>
+<div id="wellImagesContainer" class="wellImages fillSpace" style="bottom: 0px; height: 150px">
+    <div class='fillSpace toolbarBg' style='top: 0; height: 25px; border-bottom: solid 1px #ddd' >
+
+    </div>
+    <!-- Scrollable container for wellImages -->
+    <div id="wellImages" class='fillSpace' style='top: 25px; bottom: 25px'>
+        <table style="width: 100%"></table>
+    </div>
+    <div class='fillSpace' style='bottom: 0; height: 25px; border-top: solid 1px #ddd; background: #EFF1F4' >
+        <!-- Slider -->
+        <div style="position: absolute; right: 10px; bottom: 0px; width: 200px; height: 25px">
+            <div id="wellImages_size_slider" class="thumb_size_slider" title="Zoom Plate"></div>
+        </div>
+    </div>
+</div>   

@@ -24,13 +24,14 @@ Simple integration tests for the "tree" module.
 import pytest
 import library as lib
 
-from omero.gateway import BlitzGateway
+from omero.gateway import BlitzGateway, _letterGridLabel
 from omero.constants.metadata import NSINSIGHTTAGSET
 from omero.model import ProjectI, DatasetI, ImageI, ScreenI, PlateI, \
     PlateAcquisitionI, TagAnnotationI, ProjectAnnotationLinkI, \
     DatasetAnnotationLinkI, ImageAnnotationLinkI, ScreenAnnotationLinkI, \
-    PlateAnnotationLinkI, PlateAcquisitionAnnotationLinkI
-from omero.rtypes import rstring, rtime
+    PlateAnnotationLinkI, PlateAcquisitionAnnotationLinkI, \
+    WellI, WellAnnotationLinkI
+from omero.rtypes import rstring, rtime, rint
 from omeroweb.webclient.tree import marshal_experimenter, \
     marshal_projects, marshal_datasets, marshal_images, marshal_plates, \
     marshal_screens, marshal_plate_acquisitions, marshal_orphaned, \
@@ -54,6 +55,11 @@ def cmp_id(x, y):
 def cmp_name(x, y):
     """Name comparator."""
     return cmp(unwrap(x.name), unwrap(y.name))
+
+
+def cmp_column(x, y):
+    """Column comparator for Wells."""
+    return cmp(unwrap(x.column), unwrap(y.column))
 
 
 def lower_or_none(x):
@@ -232,6 +238,26 @@ def expected_plate_acquisitions(user, plate_acquisitions):
     return expected
 
 
+def expected_wells(user, wells):
+    expected = []
+    for well in wells:
+        rName = unwrap(well.plate.rowNamingConvention)
+        cName = unwrap(well.plate.columnNamingConvention)
+        row = well.row.val
+        col = well.column.val
+        rowname = str(row + 1) if rName == 'number' else _letterGridLabel(row)
+        colname = _letterGridLabel(col) if cName == 'letter' else str(col + 1)
+        name = "%s%s" % (rowname, colname)
+        expected.append({
+            'id': well.id.val,
+            'name': name,
+            'ownerId': well.details.owner.id.val,
+            'plateId': well.plate.id.val,
+            'permsCss': get_perms(user, well, "Well")
+        })
+    return expected
+
+
 def expected_orphaned(user, images):
     return {
         'id': user[1].id.val,
@@ -261,14 +287,15 @@ def expected_tags(user, tags):
 
 
 def expected_tagged(user, projects, datasets, images, screens, plates,
-                    plate_acquisitions):
+                    plate_acquisitions, wells=[]):
     return {
         'projects': expected_projects(user, projects),
         'datasets': expected_datasets(user, datasets),
         'images': expected_images(user, images),
         'screens': expected_screens(user, screens),
         'plates': expected_plates(user, plates),
-        'acquisitions': expected_plate_acquisitions(user, plate_acquisitions)
+        'acquisitions': expected_plate_acquisitions(user, plate_acquisitions),
+        'wells': expected_wells(user, wells),
     }
 
 
@@ -855,6 +882,12 @@ def screen_hierarchy_userA_groupA(request, userA):
     acqTime = PlateAcquisitionI()
     acqTime.startTime = rtime(0)
     acqTime.endTime = rtime(1)
+    wellA1 = WellI()
+    wellA1.column = rint(0)
+    wellA1.row = rint(0)
+    wellA2 = WellI()
+    wellA2.column = rint(1)
+    wellA2.row = rint(0)
 
     # Link them together like so:
     # screenA
@@ -873,6 +906,8 @@ def screen_hierarchy_userA_groupA(request, userA):
     plateA.addPlateAcquisition(acqA)
     plateA.addPlateAcquisition(acqNone)
     plateA.addPlateAcquisition(acqTime)
+    plateA.addWell(wellA1)
+    plateA.addWell(wellA2)
 
     to_save = [screenA, screenB]
     screens = get_update_service(userA).saveAndReturnArray(to_save)
@@ -882,10 +917,13 @@ def screen_hierarchy_userA_groupA(request, userA):
     plates.sort(cmp_name_insensitive)
 
     acqs = plates[0].copyPlateAcquisitions()
-
     acqs.sort(cmp_id)
 
-    return screens + plates + acqs
+    wells = plates[0].copyWells()
+    wells.sort(cmp_column)
+
+    # return [scr, scr, plate, acq, acq, acq, well, well]
+    return screens + plates + acqs + wells
 
 
 @pytest.fixture(scope='function')
@@ -1116,6 +1154,7 @@ def tagset_hierarchy_userA_groupA(request, userA, userB,
     screen = screen_hierarchy_userA_groupA[0]
     plate = screen_hierarchy_userA_groupA[2]
     acq = screen_hierarchy_userA_groupA[3]
+    wells = screen_hierarchy_userA_groupA[6:8]
 
     # Create and name all the objects
     tagsetA = TagAnnotationI()
@@ -1166,6 +1205,12 @@ def tagset_hierarchy_userA_groupA(request, userA, userB,
     to_save = [project_link, dataset_link, image_link, screen_link, plate_link,
                acq_link]
 
+    for w in wells:
+        well_link = WellAnnotationLinkI()
+        well_link.parent = w
+        well_link.child = tags[0]
+        to_save.append(well_link)
+
     links = conn.getUpdateService().saveAndReturnArray(to_save)
 
     # User B also links tag to image
@@ -1174,7 +1219,7 @@ def tagset_hierarchy_userA_groupA(request, userA, userB,
     image_link.child = TagAnnotationI(tags[0].id.val, False)
     get_connection(userB).getUpdateService().saveObject(image_link)
 
-    # links is: project, dataset, image, screen, plate, acquisition
+    # links is: project, dataset, image, screen, plate, acquisition, well, well
     return tagsets + tags + [link.parent for link in links]
 
 
@@ -2259,7 +2304,8 @@ class TestTree(lib.ITest):
             'images': [],
             'screens': [],
             'plates': [],
-            'acquisitions': []
+            'acquisitions': [],
+            'wells': []
         }
 
     def test_marshal_tagged_user(self, userA, tagset_hierarchy_userA_groupA):
@@ -2274,8 +2320,9 @@ class TestTree(lib.ITest):
         screens = [tagset_hierarchy_userA_groupA[5]]
         plates = [tagset_hierarchy_userA_groupA[6]]
         acqs = [tagset_hierarchy_userA_groupA[7]]
+        wells = tagset_hierarchy_userA_groupA[8:10]
         expected = expected_tagged(userA, projects, datasets, images,
-                                   screens, plates, acqs)
+                                   screens, plates, acqs, wells)
         marshaled = marshal_tagged(conn=conn,
                                    experimenter_id=userA[1].id.val,
                                    tag_id=tag.id.val)
