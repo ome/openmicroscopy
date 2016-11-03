@@ -96,6 +96,8 @@ print "Attaching kymograph.png to image"
 image.linkAnnotation(fileAnn)
 
 message = "Tile average value: %s" % average
-# client.setOutput("Message", rstring(message))
-# client.setOutput("Kymograph", robject(fileAnn._obj))
-# client.closeSession()
+
+# Close connection:
+# =================================================================
+# When you are done, close the session to free up server resources.
+conn._closeSession()
