@@ -1,5 +1,5 @@
 
-(function(){
+$(function(){
 
     if (OME === undefined) {
         window.OME = {};
@@ -16,6 +16,7 @@
         // Also clear content
         OME.emptyWellBirdsEye();
     };
+    $("#hide_well_birds_eye").click(OME.hideWellBirdsEye);
 
 
     OME.WellBirdsEye = function(opts) {
@@ -195,4 +196,4 @@
         }
     }
 
-})();
+});
