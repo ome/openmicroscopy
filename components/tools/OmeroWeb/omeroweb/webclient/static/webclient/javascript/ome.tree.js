@@ -156,8 +156,11 @@ $(function() {
                     data = json.paths;
                     // Use the open_node callback mechanism to facilitate loading the tree to the
                     // point indicated by the path, starting from the top, 'experimenter'.
-                    if (data.length === 0) return;
-
+                    if (data.length === 0) {
+                        // If not found, just select root node
+                        inst.select_node('ul > li:first');
+                        return;
+                    }
                     var getTraverse = function(path) {
                         var traverse = function(index, parentNode) {
                             // Get this path component
