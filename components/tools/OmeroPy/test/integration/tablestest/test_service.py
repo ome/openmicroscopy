@@ -657,7 +657,7 @@ class TestTables(lib.ITest):
         The server should still allow you to load & read that file.
         """
         table = self.testBlankTable()
-        ofile = table.getOriginalFile()
+        table.getOriginalFile()
         table.close()
 
         filename = self.unique_dir + "/file.txt"
@@ -680,9 +680,7 @@ class TestTables(lib.ITest):
         table.close()
 
         # Mark the file as read only
-        read_only = self.raw("read-only", [file_path])
-
-
+        # wip: read_only = self.raw("read-only", [file_path])
 
         table = grid.openTable(omero.model.OriginalFileI(tid))
         assert table
