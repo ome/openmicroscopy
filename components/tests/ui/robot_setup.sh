@@ -87,7 +87,7 @@ done
 bin/omero import $PLATE_NAME --debug ERROR > plate_import.log 2>&1
 plateid=$(sed -n -e 's/^Plate://p' plate_import.log)
 # Use populate_metadata to upload and attach bulk annotation csv
-OMERO_DEV_PLUGINS=1 bin/omero metadata populate Plate:$plateid --file $BULK_ANNOTATION_CSV
+bin/omero metadata populate Plate:$plateid --file $BULK_ANNOTATION_CSV
 
 # Import Plate and rename for test ?show=image.name-NAME
 bin/omero import $PLATE_NAME --debug ERROR > show_import.log 2>&1
