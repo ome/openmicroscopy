@@ -323,7 +323,7 @@ class RGBControl
      */
     void setLUT(String lut) {
         model.setLUT(lut);
-        fireChangeEvent(true);
+        fireChangeEvent(PaintPotUI.LUT_PROPERTY);
     }
 
     /**
@@ -343,7 +343,7 @@ class RGBControl
      */
     void setReverseIntensity(boolean revInt) {
         model.setReverseIntensity(revInt);
-        fireChangeEvent(true);
+        fireChangeEvent(null);
     }
 
     /**
@@ -392,25 +392,28 @@ class RGBControl
 	
     /** Fires Changed event to all listeners stating the model has changed. */
     void fireChangeEvent() {
-        fireChangeEvent(false);
+        fireChangeEvent(PaintPotUI.COLOUR_CHANGED_PROPERTY);
     }
 
     /**
      * Fires Changed event to all listeners stating the model has changed.
      * 
-     * @param lut
-     *            Pass <code>true</code> if only the lookup table has changed
+     * @param property
+     *            An optional property to fire (see {@link
+     *            PaintPotUI#LUT_PROPERTY} ,
+     *            {@link PaintPotUI#COLOUR_CHANGED_PROPERTY}
      */
-    void fireChangeEvent(boolean lut) {
+    void fireChangeEvent(String property) {
         ChangeListener e;
         for (int i = 0; i < listeners.size(); i++) {
             e = listeners.get(i);
             e.stateChanged(new ColourChangedEvent(this));
         }
-        if (lut)
+
+        if (PaintPotUI.LUT_PROPERTY.equals(property))
             firePropertyChange(PaintPotUI.LUT_PROPERTY, null, model.getLUT());
 
-        else
+        else if (PaintPotUI.COLOUR_CHANGED_PROPERTY.equals(property))
             firePropertyChange(PaintPotUI.COLOUR_CHANGED_PROPERTY, null,
                     model.getColour());
     }
