@@ -1230,3 +1230,34 @@ def findROIByImage(roiService, image, namespace):
     for roi in results.rois:
         roiList.append(ROIData(roi))
     return roiList
+
+
+def numpyToImage(plane, minMax, type):
+    """
+    Converts the numpy plane to a PIL Image, converting data type if necessary.
+    @param plane The plane to handle
+    @param minMax the min and the max values for the plane
+    @param type the data type to use for scaling
+    """
+
+    from numpy import add, zeros
+    from matplotlib.image import imsave
+    import io
+    try:
+        from PIL import Image
+    except ImportError:
+        import Image
+
+    buf = io.BytesIO()
+    if plane.dtype.name not in ('uint8', 'int8'):   # we need to scale...
+        minVal, maxVal = minMax
+        valRange = maxVal - minVal
+        scaled = (plane - minVal) * (float(255) / valRange)
+        convArray = zeros(plane.shape, dtype=type)
+        add(convArray, scaled, out=convArray, casting="unsafe")
+        imsave(buf, convArray)
+    else:
+        imsave(buf, plane)
+    i = Image.open(buf)
+    # buf.close()
+    return i
