@@ -1205,9 +1205,11 @@ class BulkToMapAnnotationContext(_QueryContext):
     def _save_annotation_and_links(self, links, ann, batch_size):
         """
         Save a single `Annotation`, followed by the `AnnotationLinks` to that
-        Annotation.
+        Annotation and return the number of links saved.
+
         All `AnnotationLinks` must have `ann` as their child.
         Links will be saved in batches of `batch_size`.
+
         See `_create_map_annotation_links`
         """
         sf = self.client.getSession()
@@ -1215,14 +1217,16 @@ class BulkToMapAnnotationContext(_QueryContext):
         update_service = sf.getUpdateService()
 
         annobj = update_service.saveAndReturnObject(ann)
-        for link in links:
-            link.setChild(annobj)
+        annobj.unload()
 
-        arr = []
+        sz = 0
         for batch in self._batch(links, sz=batch_size):
-            arr.extend(update_service.saveAndReturnArray(
-                batch, {'omero.group': group}))
-        return arr
+            for link in batch:
+                link.setChild(annobj)
+            update_service.saveArray(
+                batch, {'omero.group': group})
+            sz += len(batch)
+        return sz
 
     def parse(self):
         tableid = self.ofileid
@@ -1313,31 +1317,48 @@ class BulkToMapAnnotationContext(_QueryContext):
                         if not ignore_missing_primary_key:
                             raise
 
+    def _write_log(self, text):
+        log.debug("BulkToMapAnnotation:write_to_omero - %s" % text)
+
     def write_to_omero(self, batch_size=1000):
         i = 0
+        cur = 0
         links = []
-        oversized_links = []
 
         # This may be many-links-to-one-new-mapann so everything must
         # be kept together to avoid duplication of the mapann
-        for cma in self.mapannotations.get_map_annotations():
+        self._write_log("Start")
+        cmas = self.mapannotations.get_map_annotations()
+        self._write_log("found %s annotations" % len(cmas))
+        for cma in cmas:
             batch, ma = self._create_map_annotation_links(cma)
+            self._write_log("found batch of size %s" % len(batch))
             if len(batch) < batch_size:
                 links.append(batch)
+                cur += len(batch)
+                if cur > 10 * batch_size:
+                    self._write_log("running batches. accumulated: %s" % cur)
+                    i += self._write_links(links, batch_size, i)
+                    links = []
+                    cur = 0
             else:
-                oversized_links.append((batch, ma))
+                self._write_log("running grouped_batch")
+                sz = self._save_annotation_and_links(batch, ma, batch_size)
+                i += sz
+                log.info('Created/linked %d MapAnnotations (total %s)',
+                         sz, i)
+        # Handle any remaining writes
+        i += self._write_links(links, batch_size, i)
 
+    def _write_links(self, links, batch_size, i):
+        count = 0
         for batch in self._grouped_batch(links, sz=batch_size):
+            self._write_log("batch size: %s" % len(batch))
             arr = self._save_annotation_links(batch)
-            i += len(arr)
+            count += len(arr)
             log.info('Created/linked %d MapAnnotations (total %s)',
-                     len(arr), i)
-
-        for malinks, ma in oversized_links:
-            arr = self._save_annotation_and_links(malinks, ma, batch_size)
-            i += len(arr)
-            log.info('Created/linked %d MapAnnotations (total %s)',
-                     len(arr), i)
+                     len(arr), i+count)
+        return count
 
 
 class DeleteMapAnnotationContext(_QueryContext):
