@@ -123,7 +123,7 @@ public class MeasureLineFigure
 	private boolean interactable;
 	
 	/** Flat indicating if the user can split the line */
-	private boolean allowSplitSegment = false;
+	private boolean allowSplitSegment = true;
 	
 	/**
 	 * Returns the point i in pixels or microns depending on the units used.
