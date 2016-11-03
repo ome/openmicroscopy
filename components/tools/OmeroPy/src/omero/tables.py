@@ -222,11 +222,11 @@ class HdfStorage(object):
 
             if self.__hdf_path.exists():
                 if self.__hdf_path.size == 0:
-                  mode = "w"
+                    mode = "w"
                 elif mode != "r" and not self.__hdf_path.access(W_OK):
                     self.logger.info(
                         "%s not writable (mode=%s). Opening read-only" % (
-                        self.__hdf_path, mode))
+                            self.__hdf_path, mode))
                     mode = "r"
 
             return tables.openFile(str(self.__hdf_path), mode=mode,
