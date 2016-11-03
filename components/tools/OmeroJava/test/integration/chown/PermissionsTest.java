@@ -353,7 +353,7 @@ public class PermissionsTest extends AbstractServerTest {
                 mapAnnLinksOnOtherImage.add((ImageAnnotationLink) link.proxy());
             }
         }
-        
+
         /* create two tag sets and three tags */
         final List<TagAnnotation> tagsets = createTagsets(2);
         final List<TagAnnotation> tags = createTags(3);
@@ -490,7 +490,8 @@ public class PermissionsTest extends AbstractServerTest {
      */
     @Test(dataProvider = "chown targetUser test cases")
     public void testChownAllBelongingToUserReadAnnotate(boolean areDataOwnersInOneGroup, boolean isAdmin, boolean isGroupOwner, boolean isRecipientInGroup,
-            boolean isExpectSuccessOneTargetUser, boolean isExpectSuccessTwoTargetUsers) throws Exception {
+            boolean isExpectSuccessOneTargetUser, boolean isExpectSuccessTwoTargetUsers,
+            String groupPermissions) throws Exception {
 
         /* set up the users and group for this test case 
          * Note that two pairs of importers (1 and 2) are
@@ -501,7 +502,9 @@ public class PermissionsTest extends AbstractServerTest {
         final EventContext chowner, recipient;
         final ExperimenterGroup dataGroup1;
 
-        importerTargetUser1 = newUserAndGroup("rwra--", false);
+
+        importerTargetUser1 = newUserAndGroup(groupPermissions, false);
+
         final long dataGroupId1 = importerTargetUser1.groupId;
         dataGroup1 = new ExperimenterGroupI(dataGroupId1, false);
         otherImporter1 = newUserInGroup(dataGroup1, false);
@@ -513,6 +516,20 @@ public class PermissionsTest extends AbstractServerTest {
             importerTargetUser2 = newUserAndGroup("rwra--", false);
             otherImporter2 = newUserInGroup(importerTargetUser2, false);
         }
+
+        /*setup of cross-linked annotations will succeed only for RA and RW groups
+         * for first pair of users (importerTargetUser1 and otherImporter1) this
+         * is checked by checking the groupPermissions variable */
+
+        final boolean users1CanAnnotateOthers = (groupPermissions == "rwra--" || groupPermissions == "rwrw--");
+
+        /*second pair of users (importerTargetUser2 and otherUser2) have to be
+         * checked via importerTargetUser2's group permissions, their group per-
+         * mission might differ from the first pair of users according to
+         * the areDataOwnersInOneGroup variable */
+
+        final boolean users2CanAnnotateOthers = (importerTargetUser2.groupPermissions.toString() == "rwra--"
+                || importerTargetUser2.groupPermissions.toString() == "rwrw--");
 
         recipient = newUserInGroup(isRecipientInGroup ? dataGroup1 : otherGroup, false);
 
@@ -596,11 +613,17 @@ public class PermissionsTest extends AbstractServerTest {
          * This procedure will be repeated for the second pair of users/importers.*/
         init(importerTargetUser1);
         annotationsAndLinksOwnAnnForTripleLinking1 = annotateImage(image1);
-        annotationsAndLinksOwnToOthersImage1 = annotateImage(otherImage1);
-
+        /* need to check whether the permissions for annotating are right,
+         * as this might be private or read-only group */
+        if (users1CanAnnotateOthers) {
+            annotationsAndLinksOwnToOthersImage1 = annotateImage(otherImage1);
+        } else annotationsAndLinksOwnToOthersImage1 = null;
         init(importerTargetUser2);
         annotationsAndLinksOwnAnnForTripleLinking2 = annotateImage(image2);
-        annotationsAndLinksOwnToOthersImage2 = annotateImage(otherImage2);
+        if (users2CanAnnotateOthers) {
+            annotationsAndLinksOwnToOthersImage2 = annotateImage(otherImage2);
+        }else annotationsAndLinksOwnToOthersImage2 = null;
+
 
         /* Now sort out the annotations from the links out of the 
          * annotationsAndLinksOwnAnnForTripleLinking bag of annotations and links,
@@ -626,11 +649,17 @@ public class PermissionsTest extends AbstractServerTest {
          * and this second user (otherImporter) respectively.
          * Again, do this for both sets of annotations, 1 and 2.*/
         init(otherImporter1);
-        annotationsAndLinksOthersToOwnImage1 = annotateImage(image1);
+        /* need to check whether the permissions for annotating are right,
+         * as this might be private or read-only group */
+        if (users1CanAnnotateOthers) {
+            annotationsAndLinksOthersToOwnImage1 = annotateImage(image1);
+        } else annotationsAndLinksOthersToOwnImage1 = null;
         annotationsAndLinksOthersAnnForTripleLinking1 = annotateImage(otherImage1);
 
         init(otherImporter2);
-        annotationsAndLinksOthersToOwnImage2 = annotateImage(image2);
+        if (users2CanAnnotateOthers) {
+            annotationsAndLinksOthersToOwnImage2 = annotateImage(image2);
+        } else annotationsAndLinksOthersToOwnImage2 = null;
         annotationsAndLinksOthersAnnForTripleLinking2 = annotateImage(otherImage2);
 
         /* Now sort out the annotations from the links out of the 
@@ -662,22 +691,27 @@ public class PermissionsTest extends AbstractServerTest {
          * of annotations.
          * Again, do the same sequence of linking for both sets of annotations/images, 1 and 2.*/
         init(importerTargetUser1);
-        for (final IObject annotation : annotationsOthersForTripleLinking1) {
-            if (!(annotation instanceof Roi) & !(annotation instanceof Thumbnail) & !(annotation instanceof RectangleI)) {
-                final ImageAnnotationLink linkOwnImage = (ImageAnnotationLink) annotateImage(image1, (Annotation) annotation);
-                linksOwnToOthersAnnOwnImage1.add((ImageAnnotationLink) linkOwnImage.proxy());
-                final ImageAnnotationLink linkOtherImage = (ImageAnnotationLink) annotateImage(otherImage1, (Annotation) annotation);
-                linksOwnToOthersAnnOthersImage1.add((ImageAnnotationLink) linkOtherImage.proxy());
+        /* check group permissions */
+        if (users1CanAnnotateOthers) {
+            for (final IObject annotation : annotationsOthersForTripleLinking1) {
+                if (!(annotation instanceof Roi) & !(annotation instanceof Thumbnail) & !(annotation instanceof RectangleI)) {
+                    final ImageAnnotationLink linkOwnImage = (ImageAnnotationLink) annotateImage(image1, (Annotation) annotation);
+                    linksOwnToOthersAnnOwnImage1.add((ImageAnnotationLink) linkOwnImage.proxy());
+                    final ImageAnnotationLink linkOtherImage = (ImageAnnotationLink) annotateImage(otherImage1, (Annotation) annotation);
+                    linksOwnToOthersAnnOthersImage1.add((ImageAnnotationLink) linkOtherImage.proxy());
+                }
             }
         }
 
         init(importerTargetUser2);
-        for (final IObject annotation : annotationsOthersForTripleLinking2) {
-            if (!(annotation instanceof Roi) & !(annotation instanceof Thumbnail) & !(annotation instanceof RectangleI)) {
-                final ImageAnnotationLink linkOwnImage = (ImageAnnotationLink) annotateImage(image2, (Annotation) annotation);
-                linksOwnToOthersAnnOwnImage2.add((ImageAnnotationLink) linkOwnImage.proxy());
-                final ImageAnnotationLink linkOtherImage = (ImageAnnotationLink) annotateImage(otherImage2, (Annotation) annotation);
-                linksOwnToOthersAnnOthersImage2.add((ImageAnnotationLink) linkOtherImage.proxy());
+        if (users2CanAnnotateOthers) {
+            for (final IObject annotation : annotationsOthersForTripleLinking2) {
+                if (!(annotation instanceof Roi) & !(annotation instanceof Thumbnail) & !(annotation instanceof RectangleI)) {
+                    final ImageAnnotationLink linkOwnImage = (ImageAnnotationLink) annotateImage(image2, (Annotation) annotation);
+                    linksOwnToOthersAnnOwnImage2.add((ImageAnnotationLink) linkOwnImage.proxy());
+                    final ImageAnnotationLink linkOtherImage = (ImageAnnotationLink) annotateImage(otherImage2, (Annotation) annotation);
+                    linksOwnToOthersAnnOthersImage2.add((ImageAnnotationLink) linkOtherImage.proxy());
+                }
             }
         }
 
@@ -690,21 +724,26 @@ public class PermissionsTest extends AbstractServerTest {
          * of annotations
          * Again, do the same sequence of linking for both sets of annotations/images, 1 and 2.*/
         init(otherImporter1);
-        for (final IObject annotation : annotationsOwnForTripleLinking1) {
-            if (!(annotation instanceof Roi) & !(annotation instanceof Thumbnail) & !(annotation instanceof RectangleI)) {
-                final ImageAnnotationLink linkOtherImage = (ImageAnnotationLink) annotateImage(otherImage1, (Annotation) annotation);
-                linksOthersToOwnAnnOthersImage1.add((ImageAnnotationLink) linkOtherImage.proxy());
-                final ImageAnnotationLink linkOwnImage = (ImageAnnotationLink) annotateImage(image1, (Annotation) annotation);
-                linksOthersToOwnAnnOwnImage1.add((ImageAnnotationLink) linkOwnImage.proxy());
+        /* check group permissions */
+        if (users1CanAnnotateOthers) {
+            for (final IObject annotation : annotationsOwnForTripleLinking1) {
+                if (!(annotation instanceof Roi) & !(annotation instanceof Thumbnail) & !(annotation instanceof RectangleI)) {
+                    final ImageAnnotationLink linkOtherImage = (ImageAnnotationLink) annotateImage(otherImage1, (Annotation) annotation);
+                    linksOthersToOwnAnnOthersImage1.add((ImageAnnotationLink) linkOtherImage.proxy());
+                    final ImageAnnotationLink linkOwnImage = (ImageAnnotationLink) annotateImage(image1, (Annotation) annotation);
+                    linksOthersToOwnAnnOwnImage1.add((ImageAnnotationLink) linkOwnImage.proxy());
+                }
             }
         }
         init(otherImporter2);
-        for (final IObject annotation : annotationsOwnForTripleLinking2) {
-            if (!(annotation instanceof Roi) & !(annotation instanceof Thumbnail) & !(annotation instanceof RectangleI)) {
-                final ImageAnnotationLink linkOtherImage = (ImageAnnotationLink) annotateImage(otherImage2, (Annotation) annotation);
-                linksOthersToOwnAnnOthersImage2.add((ImageAnnotationLink) linkOtherImage.proxy());
-                final ImageAnnotationLink linkOwnImage = (ImageAnnotationLink) annotateImage(image2, (Annotation) annotation);
-                linksOthersToOwnAnnOwnImage2.add((ImageAnnotationLink) linkOwnImage.proxy());
+        if (users2CanAnnotateOthers) {
+            for (final IObject annotation : annotationsOwnForTripleLinking2) {
+                if (!(annotation instanceof Roi) & !(annotation instanceof Thumbnail) & !(annotation instanceof RectangleI)) {
+                    final ImageAnnotationLink linkOtherImage = (ImageAnnotationLink) annotateImage(otherImage2, (Annotation) annotation);
+                    linksOthersToOwnAnnOthersImage2.add((ImageAnnotationLink) linkOtherImage.proxy());
+                    final ImageAnnotationLink linkOwnImage = (ImageAnnotationLink) annotateImage(image2, (Annotation) annotation);
+                    linksOthersToOwnAnnOwnImage2.add((ImageAnnotationLink) linkOwnImage.proxy());
+                }
             }
         }
 
@@ -747,7 +786,11 @@ public class PermissionsTest extends AbstractServerTest {
          * links are "own" */
         init(importerTargetUser1);
         final SetMultimap<TagAnnotation, TagAnnotation> members = defineLinkingTags(tags, tagsets);
-        linkTagsTagsets(members);
+        /* check group permissions*/
+        if (users1CanAnnotateOthers) {
+            linkTagsTagsets(members);
+        }
+
 
         /* chown all what belongs to importerTargetUser1 to recipient 
          * This chown has just one user (importerTargetUser1) in the argument*/
@@ -783,27 +826,37 @@ public class PermissionsTest extends AbstractServerTest {
          * triply linked annotations and the own mixed bag of annotations
          * (singly linked) were transferred to recipient */
         assertOwnedBy(annotationsOwnForTripleLinking1, recipient);
-        assertOwnedBy(annotationsAndLinksOwnToOthersImage1, recipient);
+        if (users1CanAnnotateOthers) {
+            assertOwnedBy(annotationsAndLinksOwnToOthersImage1, recipient);
+        }
 
         /* check that all the others' (=belonging to otherImporter)
          * triply linked annotations and the others' mixed bag of annotations
          * (singly linked) are still belonging to otherImporter */
         assertOwnedBy(annotationsOthersForTripleLinking1, otherImporter1);
-        assertOwnedBy(annotationsAndLinksOthersToOwnImage1, otherImporter1);
+        if (users1CanAnnotateOthers) {
+            assertOwnedBy(annotationsAndLinksOthersToOwnImage1, otherImporter1);
+        }
 
         /* check that all the own (=belonging to targetUserImporter) links
          * were transferred to recipient, irrespective of ownership of the objects
-         * they were linking */
-        assertOwnedBy(linksOwnToOwnAnnOwnImage1, recipient);
-        assertOwnedBy(linksOwnToOthersAnnOthersImage1, recipient);
-        assertOwnedBy(linksOwnToOthersAnnOwnImage1, recipient);
+         * they were linking. If the permissions were not right, no links at
+         * all were made between tags and tag sets.*/
+        if (users1CanAnnotateOthers) {
+            assertOwnedBy(linksOwnToOwnAnnOwnImage1, recipient);
+            assertOwnedBy(linksOwnToOthersAnnOthersImage1, recipient);
+            assertOwnedBy(linksOwnToOthersAnnOwnImage1, recipient);
+        }
 
         /* check that all the others' (=belonging to otherImporter) links
          * still belong to otherImporter, irrespective of ownership of the objects
-         * they were linking */
-        assertOwnedBy(linksOthersToOthersAnnOtherImage1, otherImporter1);
-        assertOwnedBy(linksOthersToOwnAnnOwnImage1, otherImporter1);
-        assertOwnedBy(linksOthersToOwnAnnOthersImage1, otherImporter1);
+         * they were linking. If the permissions were not right, no links at
+         * all were made between tags and tag sets. */
+        if (users1CanAnnotateOthers) {
+            assertOwnedBy(linksOthersToOthersAnnOtherImage1, otherImporter1);
+            assertOwnedBy(linksOthersToOwnAnnOwnImage1, otherImporter1);
+            assertOwnedBy(linksOthersToOwnAnnOthersImage1, otherImporter1);
+        }
 
          /* check that own tag set was transferred to recipient,
           * the others' tag set still belongs to other user */
@@ -868,11 +921,15 @@ public class PermissionsTest extends AbstractServerTest {
 
         logRootIntoGroup(dataGroupId1);
         assertOwnedBy(annotationsOwnForTripleLinking1, recipient);
-        assertOwnedBy(annotationsAndLinksOwnToOthersImage1, recipient);
+        if (users1CanAnnotateOthers) {
+            assertOwnedBy(annotationsAndLinksOwnToOthersImage1, recipient);
+        }
         logRootIntoGroup(importerTargetUser2.groupId);
         assertOwnedBy(annotationsOwnForTripleLinking2, recipient);
-        assertOwnedBy(annotationsAndLinksOwnToOthersImage2, recipient);
-        
+        if (users2CanAnnotateOthers) {
+            assertOwnedBy(annotationsAndLinksOwnToOthersImage2, recipient);
+        }
+
         /* check that all the others' (=belonging to otherImporter)
          * triply linked annotations and the others' mixed bag of annotations
          * (singly linked) are still belonging to otherImporter
@@ -880,11 +937,15 @@ public class PermissionsTest extends AbstractServerTest {
 
         logRootIntoGroup(dataGroupId1);
         assertOwnedBy(annotationsOthersForTripleLinking1, otherImporter1);
-        assertOwnedBy(annotationsAndLinksOthersToOwnImage1, otherImporter1);
+        if (users1CanAnnotateOthers) {
+            assertOwnedBy(annotationsAndLinksOthersToOwnImage1, otherImporter1);
+        }
         logRootIntoGroup(importerTargetUser2.groupId);
         assertOwnedBy(annotationsOthersForTripleLinking2, otherImporter2);
-        assertOwnedBy(annotationsAndLinksOthersToOwnImage2, otherImporter2);
-        
+        if (users2CanAnnotateOthers) {
+            assertOwnedBy(annotationsAndLinksOthersToOwnImage2, otherImporter2);
+        }
+
         /* check that all the own (=belonging to targetUserImporter) links
          * were transferred to recipient, irrespective of ownership of the objects
          * they were linking 
@@ -892,12 +953,17 @@ public class PermissionsTest extends AbstractServerTest {
 
         logRootIntoGroup(dataGroupId1);
         assertOwnedBy(linksOwnToOwnAnnOwnImage1, recipient);
-        assertOwnedBy(linksOwnToOthersAnnOthersImage1, recipient);
-        assertOwnedBy(linksOwnToOthersAnnOwnImage1, recipient);
+        if (users1CanAnnotateOthers) {
+            assertOwnedBy(linksOwnToOthersAnnOthersImage1, recipient);
+            assertOwnedBy(linksOwnToOthersAnnOwnImage1, recipient);
+        }
+
         logRootIntoGroup(importerTargetUser2.groupId);
         assertOwnedBy(linksOwnToOwnAnnOwnImage2, recipient);
-        assertOwnedBy(linksOwnToOthersAnnOthersImage2, recipient);
-        assertOwnedBy(linksOwnToOthersAnnOwnImage2, recipient);
+        if (users2CanAnnotateOthers) {
+            assertOwnedBy(linksOwnToOthersAnnOthersImage2, recipient);
+            assertOwnedBy(linksOwnToOthersAnnOwnImage2, recipient);
+        }
         
         /* check that all the others' (=belonging to otherImporter) links
          * still belong to otherImporter, irrespective of ownership of the objects
@@ -906,12 +972,16 @@ public class PermissionsTest extends AbstractServerTest {
 
         logRootIntoGroup(dataGroupId1);
         assertOwnedBy(linksOthersToOthersAnnOtherImage1, otherImporter1);
-        assertOwnedBy(linksOthersToOwnAnnOwnImage1, otherImporter1);
-        assertOwnedBy(linksOthersToOwnAnnOthersImage1, otherImporter1);
+        if (users1CanAnnotateOthers) {
+            assertOwnedBy(linksOthersToOwnAnnOwnImage1, otherImporter1);
+            assertOwnedBy(linksOthersToOwnAnnOthersImage1, otherImporter1);
+        }
         logRootIntoGroup(importerTargetUser2.groupId);
         assertOwnedBy(linksOthersToOthersAnnOtherImage2, otherImporter2);
-        assertOwnedBy(linksOthersToOwnAnnOwnImage2, otherImporter2);
-        assertOwnedBy(linksOthersToOwnAnnOthersImage2, otherImporter2);
+        if (users2CanAnnotateOthers) {
+            assertOwnedBy(linksOthersToOwnAnnOwnImage2, otherImporter2);
+            assertOwnedBy(linksOthersToOwnAnnOthersImage2, otherImporter2);
+        }
 
         /* now do a negative test for violating link uniqueness in case
          * of non-unique image-annotation links. The reason for the error
@@ -925,7 +995,11 @@ public class PermissionsTest extends AbstractServerTest {
 
         /*perform the chown and catch the response*/
         Response response = new Response();
-        response = doChange(client, factory, chownTwoUsersExpectFail, false);
+        if (users1CanAnnotateOthers) {
+            response = doChange(client, factory, chownTwoUsersExpectFail, false);
+        } else {
+            return;
+        }
         boolean isGraphException = response instanceof omero.cmd.GraphException;
         boolean isError = response instanceof omero.cmd.ERR;
 
@@ -1166,32 +1240,36 @@ public class PermissionsTest extends AbstractServerTest {
         final int IS_RECIPIENT_IN_GROUP = index++;
         final int IS_EXPECT_SUCCESS_CHOWN_ONE_TARGET_USER = index++;
         final int IS_EXPECT_SUCCESS_CHOWN_TWO_TARGET_USERS = index++;
+        final int GROUP_PERMS = index++;
 
         final boolean[] booleanCases = new boolean[]{false, true};
-
+        final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
         final List<Object[]> testCases = new ArrayList<Object[]>();
 
         for (final boolean areDataOwnersInOneGroup : booleanCases) {
             for (final boolean isAdmin : booleanCases) {
                 for (final boolean isGroupOwner : booleanCases) {
                     for (final boolean isRecipientInGroup : booleanCases) {
-                        final Object[] testCase = new Object[index];
-                        if (isAdmin) {
-                            if (isRecipientInGroup || areDataOwnersInOneGroup || isGroupOwner) {
-                                continue;
-                                /* not interesting cases, tested already for simple chown
-                                 * without targetUser option */
+                        for (final String groupPerms : permsCases) {
+                            final Object[] testCase = new Object[index];
+                            if (isAdmin) {
+                                if (isRecipientInGroup || areDataOwnersInOneGroup || isGroupOwner) {
+                                    continue;
+                                    /* not interesting cases, tested already for simple chown
+                                     * without targetUser option */
+                                }
                             }
+                            testCase[ARE_DATAOWNERS_IN_ONE_GROUP] = areDataOwnersInOneGroup;
+                            testCase[IS_ADMIN] = isAdmin;
+                            testCase[IS_GROUP_OWNER] = isGroupOwner;
+                            testCase[IS_RECIPIENT_IN_GROUP] = isRecipientInGroup;
+                            testCase[IS_EXPECT_SUCCESS_CHOWN_ONE_TARGET_USER] = ((isAdmin) ||
+                                    (isGroupOwner && isRecipientInGroup));
+                            testCase[IS_EXPECT_SUCCESS_CHOWN_TWO_TARGET_USERS] = ((isAdmin) ||
+                                    isGroupOwner && isRecipientInGroup && areDataOwnersInOneGroup);
+                            testCase[GROUP_PERMS] = groupPerms;
+                            testCases.add(testCase);
                         }
-                        testCase[ARE_DATAOWNERS_IN_ONE_GROUP] = areDataOwnersInOneGroup;
-                        testCase[IS_ADMIN] = isAdmin;
-                        testCase[IS_GROUP_OWNER] = isGroupOwner;
-                        testCase[IS_RECIPIENT_IN_GROUP] = isRecipientInGroup;
-                        testCase[IS_EXPECT_SUCCESS_CHOWN_ONE_TARGET_USER] = ((isAdmin) ||
-                                (isGroupOwner && isRecipientInGroup));
-                        testCase[IS_EXPECT_SUCCESS_CHOWN_TWO_TARGET_USERS] = ((isAdmin) ||
-                                isGroupOwner && isRecipientInGroup && areDataOwnersInOneGroup);
-                        testCases.add(testCase);
                     }
                 }
             }
