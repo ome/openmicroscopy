@@ -20,7 +20,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 """
-   Integration test for anaylis scripts.
+   Integration test for analysis scripts.
 """
 
 import omero
