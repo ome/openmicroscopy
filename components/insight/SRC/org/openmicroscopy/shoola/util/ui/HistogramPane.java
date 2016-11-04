@@ -75,6 +75,8 @@ public class HistogramPane extends JPanel
     /** Lays out the components.*/
     private void buildLayout()
     {
+        setBackground(UIUtilities.BACKGROUND);
+        
         JFreeChart jfreechart = ChartFactory.createHistogram("", null, null,
                 dataset, PlotOrientation.VERTICAL, false, false, false);
         XYPlot xyplot = (XYPlot) jfreechart.getPlot();
@@ -85,11 +87,12 @@ public class HistogramPane extends JPanel
         xyplot.addDomainMarker(markerStart);
         xyplot.addDomainMarker(markerEnd);
         xyplot.setForegroundAlpha(0.85F);
+        xyplot.setBackgroundPaint(UIUtilities.BACKGROUND);
         XYBarRenderer xybarrenderer = (XYBarRenderer) xyplot.getRenderer();
         xybarrenderer.setBarPainter(new StandardXYBarPainter());
         xybarrenderer.setDrawBarOutline(false);
         ChartPanel jpanel = new ChartPanel(jfreechart);
-        jpanel.setPreferredSize(new Dimension(400, 200));
+        jpanel.setPreferredSize(new Dimension(300, 150));
         add(jpanel);
     }
 
@@ -114,10 +117,8 @@ public class HistogramPane extends JPanel
             final int w = image.getWidth();
             final int h = image.getHeight();
             double[] r = new double[w * h];
-            for (int i = 0; i < raster.getNumBands(); i++) {
-                r = raster.getSamples(0, 0, w, h, i, r);
-                dataset.addSeries("", r, SIZE);
-            }
+            r = raster.getSamples(0, 0, w, h, 0, r);
+            dataset.addSeries("", r, SIZE);
         }
         buildLayout();
         validate();
