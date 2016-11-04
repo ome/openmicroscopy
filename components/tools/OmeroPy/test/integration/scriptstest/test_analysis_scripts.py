@@ -24,7 +24,6 @@
 """
 
 import omero
-from omero.rtypes import rdouble, rint, rstring
 import omero.scripts
 from test.integration.scriptstest.script import ScriptTest
 from test.integration.scriptstest.script import runScript, pointsToString
@@ -101,18 +100,18 @@ def createROI(imageId, x1, x2, y1, y2, sizeT):
     for t in range(sizeT):
         # lines
         line = omero.model.LineI()
-        line.x1 = rdouble(x1)
-        line.x2 = rdouble(x2)
-        line.y1 = rdouble(y1)
-        line.y2 = rdouble(y2)
-        line.theZ = rint(0)
-        line.theT = rint(t)
+        line.x1 = omero.rtypes.rdouble(x1)
+        line.x2 = omero.rtypes.rdouble(x2)
+        line.y1 = omero.rtypes.rdouble(y1)
+        line.y2 = omero.rtypes.rdouble(y2)
+        line.theZ = omero.rtypes.rint(0)
+        line.theT = omero.rtypes.rint(t)
         roi.addShape(line)
         # polylines
         polyline = omero.model.PolylineI()
-        polyline.theZ = rint(0)
-        polyline.theT = rint(t)
+        polyline.theZ = omero.rtypes.rint(0)
+        polyline.theT = omero.rtypes.rint(t)
         points = [[10, 20], [50, 50], [75, 60]]
-        polyline.points = rstring(pointsToString(points))
+        polyline.points = omero.rtypes.rstring(pointsToString(points))
         roi.addShape(polyline)
     return roi
