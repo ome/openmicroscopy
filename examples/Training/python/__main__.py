@@ -24,8 +24,6 @@ if __name__ == "__main__":
         execfile(os.path.join(training_dir, 'ROIs.py'))
         execfile(os.path.join(training_dir, 'Tables.py'))
         execfile(os.path.join(training_dir, 'Write_Data.py'))
-        execfile(os.path.join(training_dir, 'Advanced/Simple_FRAP.py'))
-        execfile(os.path.join(training_dir, 'Advanced/Shapes_To_Table.py'))
         execfile(os.path.join(training_dir, 'Task_Scripts/Write_Data_4.py'))
         execfile(os.path.join(training_dir, 'Task_Scripts/Write_Data_3.py'))
         execfile(os.path.join(training_dir,
