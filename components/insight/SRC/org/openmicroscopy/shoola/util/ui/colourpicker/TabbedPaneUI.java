@@ -23,7 +23,6 @@
 
 package org.openmicroscopy.shoola.util.ui.colourpicker;
 
-//Java imports
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Dimension;
@@ -47,14 +46,10 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import info.clearthought.layout.TableLayout; 
-
-
-//Third-party libraries
-
+import info.clearthought.layout.TableLayout;
 
 import org.apache.commons.lang.StringUtils;
-//Application-internal dependencies
+
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
