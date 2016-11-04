@@ -62,7 +62,7 @@ class TestAnalysisScripts(ScriptTest):
 
         # check the result
         assert kymograph_img is not None
-        assert kymograph_img.getId().getValue() > 0
+        assert kymograph_img.val.id.val > 0
 
     def testPlotProfile(self):
         scriptId = super(TestAnalysisScripts, self).upload(plot_profile_path)
@@ -87,7 +87,7 @@ class TestAnalysisScripts(ScriptTest):
             "Sum_or_Average": omero.rtypes.rstring("Average")
         }
         ann = runScript(client, scriptId, argMap, "Line_Data")
-        checkFileAnnotation(self, ann, False)
+        checkFileAnnotation(self, ann, True)
 
 
 def createROI(imageId, x1, x2, y1, y2, sizeT):
