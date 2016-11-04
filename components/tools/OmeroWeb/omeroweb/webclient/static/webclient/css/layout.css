@@ -1413,7 +1413,6 @@
         left: 0;
         position: relative;
         width: 100%;
-        height: 100%;
     }
 
 
@@ -1497,6 +1496,9 @@
         display: none;
     }
 
+    .iconLayout {
+        height: 100%;
+    }
     .iconLayout li {
         display: inline-block;
         background-color:hsl(0,0%,95%);
