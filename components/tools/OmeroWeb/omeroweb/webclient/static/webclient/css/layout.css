@@ -2256,6 +2256,9 @@ div.paging input.button_pagination {
     position: relative;
     border: solid #bbb 1px;
 }
+#wellImagesContainer span {
+	font-size: 12px;
+}
 
 
 /** Annotation Styles **/

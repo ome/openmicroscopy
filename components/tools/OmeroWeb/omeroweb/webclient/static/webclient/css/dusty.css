@@ -945,7 +945,7 @@ button::-moz-focus-inner {
  
 
 
-	#search input[type=text], .filtersearch input[type=text] {
+	#search input[type=text], .filtersearch input[type=text], #imagesPerRow {
 		-webkit-border-radius:50px;
 		-moz-border-radius:50px;
 		border-radius:50px;

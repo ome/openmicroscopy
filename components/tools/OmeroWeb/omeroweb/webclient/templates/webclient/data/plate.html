@@ -187,9 +187,24 @@
                 setSpwThumbSize(spw_thumb_size);
             });
 
+            // Kick-off loading...
             wpv.load({{ manager.getPlateId }}, {{ index }});
 
 
+            // Lower panel.....
+
+            // Wrap images to fixed number per row...
+            $("#imagesPerRow").on('change', function(){
+                var imagesPerRow = parseInt(this.value, 10);
+                var $lists = $("#wellImages ul");
+                // Remove any existing <br>
+                $("br", $lists).remove();
+                if (isNaN(imagesPerRow)) return;
+                // Add <br> after each nth image
+                $("li:nth-child(" + imagesPerRow + "n)", $lists).after('<br>');
+            });
+
+            // Toggle lower panel visibility
             var imagesInWellVisible = true;
             $("#showWellImages").click(function(){
                 imagesInWellVisible = !imagesInWellVisible;
@@ -223,8 +238,13 @@
                     var url = "{% url 'webgateway' %}well/" + wellId + "/children/";
                     $.getJSON(url, function(data){
                         wellBirdsEye.addWell(data);
-                        var html = data.reduce(function(html, w){
-                            return html + '<li title="' + w.name + '" data-imageId="' + w.id + '"><img src="' + w.thumb_url + '" /></li>';
+                        var imagesPerRow = parseInt($("#imagesPerRow").val(), 10);
+                        var html = data.reduce(function(html, w, idx){
+                            html += '<li title="' + w.name + '" data-imageId="' + w.id + '"><img src="' + w.thumb_url + '" /></li>';
+                            if (!isNaN(imagesPerRow) && (idx+1)%imagesPerRow === 0) {
+                                html += '<br>';
+                            }
+                            return html;
                         }, "");
                         $('#wellImages-' + wellId).append("<td><ul>" + html + "</ul></tr>");
                     });
@@ -271,11 +291,13 @@
     <div class="verticalDragHandle"></div>
 </div>
 <div id="wellImagesContainer" class="wellImages fillSpace" style="bottom: 0px; height: 150px">
-    <div class='fillSpace toolbarBg' style='top: 0; height: 25px; border-bottom: solid 1px #ddd' >
-
+    <div class='fillSpace toolbarBg' style='top: 0; height: 26px; border-bottom: solid 1px #ddd; padding-left:10px'>
+        <span>Wrap</span>
+        <input type="number" id="imagesPerRow" min="0" style="margin: 2px; width: 30px;"/>
+        <span>images per row</span>
     </div>
     <!-- Scrollable container for wellImages -->
-    <div id="wellImages" class='fillSpace' style='top: 25px; bottom: 25px'>
+    <div id="wellImages" class='fillSpace' style='top: 26px; bottom: 25px'>
         <table style="width: 100%"></table>
     </div>
     <div class='fillSpace' style='bottom: 0; height: 25px; border-top: solid 1px #ddd; background: #EFF1F4' >
