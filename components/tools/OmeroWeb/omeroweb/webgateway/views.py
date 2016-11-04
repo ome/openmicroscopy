@@ -63,6 +63,8 @@ import glob
 # from models import StoredConnection
 
 from webgateway_cache import webgateway_cache, CacheBase, webgateway_tempfile
+from omeroweb.webgateway.decorators import login_required as \
+    api_login_required, json_response
 
 import logging
 import os
@@ -72,8 +74,6 @@ import zipfile
 import shutil
 
 from omeroweb.decorators import login_required, ConnCleaningHttpResponse
-from omeroweb.webgateway.decorators import login_required as \
-    api_login_required, json_response
 from omeroweb.connector import Connector
 from omeroweb.webgateway.util import zip_archived_files, getIntOrDefault
 from omeroweb.webgateway.api_exceptions import BadRequestError, NotFoundError,\
