@@ -30,8 +30,9 @@ import javax.swing.SwingConstants;
 import org.jdesktop.swingx.JXBusyLabel;
 
 /**
- * A {@link JPanel} with some customizable text shown in its center and a
- * {@link JXBusyLabel} in the top right corner
+ * A {@link JPanel} with {@link BorderLayout} displaying a customizable text in
+ * the center and an optional {@link JXBusyLabel} in the top right corner; does
+ * not allow to change the {@link LayoutManager}
  * 
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
@@ -66,32 +67,37 @@ public class DummyPanel extends JPanel {
      * Creates a new instance
      * 
      * @param layout
-     *            See {@link JPanel#JPanel(LayoutManager, boolean)}
+     *            Ignored; equivalent to {@link DummyPanel#DummyPanel(boolean)}
      * @param isDoubleBuffered
      *            See {@link JPanel#JPanel(LayoutManager, boolean)}
      */
     public DummyPanel(LayoutManager layout, boolean isDoubleBuffered) {
-        super(layout, isDoubleBuffered);
-        init();
+        this(isDoubleBuffered);
     }
 
     /**
      * Creates a new instance
      * 
      * @param layout
-     *            See {@link JPanel#JPanel(LayoutManager)}
+     *            Ignored; equivalent to {@link DummyPanel#DummyPanel()}
      */
     public DummyPanel(LayoutManager layout) {
-        super(layout);
-        init();
+        this();
+    }
+
+    /**
+     * No effect - Not allowed to change LayoutManager
+     */
+    public void setLayout(LayoutManager mgr) {
     }
 
     /**
      * Set up the UI
      */
     private void init() {
+        super.setLayout(new BorderLayout());
+        
         setBackground(UIUtilities.BACKGROUND);
-        setLayout(new BorderLayout());
 
         busyLabel = new JXBusyLabel();
         busyLabel.setHorizontalAlignment(SwingConstants.RIGHT);
