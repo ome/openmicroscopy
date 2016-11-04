@@ -31,6 +31,7 @@ from test.integration.scriptstest.script import checkFileAnnotation
 
 
 batch_image_export = "scripts/omero/export_scripts/Batch_Image_Export.py"
+make_movie = "scripts/omero/export_scripts/Make_Movie.py"
 
 
 class TestExportScripts(ScriptTest):
@@ -47,4 +48,17 @@ class TestExportScripts(ScriptTest):
             "IDs": omero.rtypes.rlist(imageIds)
         }
         ann = runScript(client, scriptId, argMap, "File_Annotation")
-        checkFileAnnotation(self, ann, False)
+        checkFileAnnotation(self, ann, True)
+
+    def testMakeMovie(self):
+        scriptId = super(TestExportScripts, self).upload(make_movie)
+        client = self.root
+        image = self.createTestImage(100, 100, 5, 2, 4)    # x,y,z,c,t
+        imageIds = []
+        imageIds.append(omero.rtypes.rlong(image.getId().getValue()))
+        argMap = {
+            "Data_Type": omero.rtypes.rstring("Image"),
+            "IDs": omero.rtypes.rlist(imageIds)
+        }
+        ann = runScript(client, scriptId, argMap, "File_Annotation")
+        checkFileAnnotation(self, ann, True)
