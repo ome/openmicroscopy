@@ -26,7 +26,7 @@ conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
 
 
-# Configuration
+# Retrieve image in specified dataset
 # =================================================================
 dataset = conn.getObject("Dataset", datasetId)
 for image in dataset.listChildren():
@@ -97,11 +97,8 @@ newImg.resetRDefs()  # reset based on colors above
 newPix = conn.getQueryService().get("Pixels", newImg.getPixelsId())
 
 newPix.setPhysicalSizeX(pixels.getPhysicalSizeX())
-
 newPix.setPhysicalSizeY(pixels.getPhysicalSizeY())
-
 newPix.setPhysicalSizeZ(pixels.getPhysicalSizeZ())
-
 conn.getUpdateService().saveObject(newPix)
 
 
