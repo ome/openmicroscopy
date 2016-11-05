@@ -142,4 +142,3 @@ def checkFileAnnotation(client, fileAnnotation, hasFileAnnotation=True,
             assert nLinks == 0
     else:
         assert fileAnnotation is None
-
