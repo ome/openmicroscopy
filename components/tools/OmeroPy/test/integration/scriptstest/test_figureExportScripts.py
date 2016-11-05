@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2013-2016 University of Dundee & Open Microscopy Environment.
 # All rights reserved. Use is subject to license terms supplied in LICENSE.txt
 #
 # This program is free software; you can redistribute it and/or modify
@@ -24,33 +24,26 @@
 
 """
 
-from omero.testlib import ITest
 import omero
-import omero.scripts
-from omero.gateway import BlitzGateway
-import uuid
-from omero import ApiUsageException
-
-thumbnailFigurePath = "scripts/omero/figure_scripts/Thumbnail_Figure.py"
-splitViewFigurePath = "scripts/omero/figure_scripts/Split_View_Figure.py"
-roiFigurePath = "scripts/omero/figure_scripts/ROI_Split_Figure.py"
-movieFigurePath = "scripts/omero/figure_scripts/Movie_Figure.py"
-movieROIFigurePath = "scripts/omero/figure_scripts/Movie_ROI_Figure.py"
+from test.integration.scriptstest.script import ScriptTest
+from test.integration.scriptstest.script import runScript
+from test.integration.scriptstest.script import checkFileAnnotation
 
 
-class TestFigureExportScripts(ITest):
+thumbnailFigure = "scripts/omero/figure_scripts/Thumbnail_Figure.py"
+splitViewFigure = "scripts/omero/figure_scripts/Split_View_Figure.py"
+roiFigure = "scripts/omero/figure_scripts/ROI_Split_Figure.py"
+movieFigure = "scripts/omero/figure_scripts/Movie_Figure.py"
+movieROIFigure = "scripts/omero/figure_scripts/Movie_ROI_Figure.py"
+
+
+class TestFigureExportScripts(ScriptTest):
 
     def testThumbnailFigure(self):
 
-        print "testThumbnailFigure"
+        scriptId = super(TestFigureExportScripts, self).upload(thumbnailFigure)
 
-        # root session is root.sf
-        session = self.root.sf
         client = self.root
-
-        # upload script
-        scriptService = session.getScriptService()
-        scriptId = uploadScript(scriptService, thumbnailFigurePath)
 
         # create several test images in a dataset
         dataset = self.make_dataset("thumbnailFigure-test", client=self.root)
@@ -67,7 +60,7 @@ class TestFigureExportScripts(ITest):
 
         # put some images in dataset
         imageIds = []
-        for i in range(50):
+        for i in range(10):
             image = self.createTestImage(100, 100, 1, 1, 1)    # x,y,z,c,t
             imageIds.append(omero.rtypes.rlong(image.getId().getValue()))
             self.link(dataset, image, client=self.root)
@@ -87,8 +80,7 @@ class TestFigureExportScripts(ITest):
             "Max_Columns": omero.rtypes.rint(6),
             "Format": omero.rtypes.rstring("PNG"),
             "Figure_Name": omero.rtypes.rstring("thumbnail-test"),
-            "Tag_IDs": omero.rtypes.rlist(tagIds),
-            # "showUntaggedImages": omero.rtypes.rbool(True),
+            "Tag_IDs": omero.rtypes.rlist(tagIds)
         }
         fileAnnot1 = runScript(client, scriptId, argMap, "File_Annotation")
 
@@ -115,15 +107,9 @@ class TestFigureExportScripts(ITest):
 
     def testSplitViewFigure(self):
 
-        print "testSplitViewFigure"
+        scriptId = super(TestFigureExportScripts, self).upload(splitViewFigure)
 
-        # root session is root.sf
-        session = self.root.sf
         client = self.root
-
-        # upload script
-        scriptService = session.getScriptService()
-        scriptId = uploadScript(scriptService, splitViewFigurePath)
 
         # create several test images in a dataset
         dataset = self.make_dataset("thumbnailFigure-test", client=self.root)
@@ -190,15 +176,9 @@ class TestFigureExportScripts(ITest):
 
     def testRoiFigure(self):
 
-        print "testRoiFigure"
+        scriptId = super(TestFigureExportScripts, self).upload(roiFigure)
 
-        # root session is root.sf
-        session = self.root.sf
         client = self.root
-
-        # upload script
-        scriptService = session.getScriptService()
-        scriptId = uploadScript(scriptService, roiFigurePath)
 
         # create several test images in a dataset
         dataset = self.make_dataset("roiFig-test", client=self.root)
@@ -267,15 +247,9 @@ class TestFigureExportScripts(ITest):
 
     def testMovieRoiFigure(self):
 
-        print "testMovieRoiFigure"
+        scriptId = super(TestFigureExportScripts, self).upload(movieROIFigure)
 
-        # root session is root.sf
-        session = self.root.sf
         client = self.root
-
-        # upload script
-        scriptService = session.getScriptService()
-        scriptId = uploadScript(scriptService, movieROIFigurePath)
 
         # create several test images in a dataset
         dataset = self.make_dataset("movieRoiFig-test", client=self.root)
@@ -334,15 +308,9 @@ class TestFigureExportScripts(ITest):
 
     def testMovieFigure(self):
 
-        print "testMovieFigure"
+        scriptId = super(TestFigureExportScripts, self).upload(movieFigure)
 
-        # root session is root.sf
-        session = self.root.sf
         client = self.root
-
-        # upload script
-        scriptService = session.getScriptService()
-        scriptId = uploadScript(scriptService, movieFigurePath)
 
         # create several test images in a dataset
         dataset = self.make_dataset("movieFig-test", client=self.root)
@@ -398,87 +366,6 @@ class TestFigureExportScripts(ITest):
         checkFileAnnotation(self, fileAnnot3, False)
 
 
-def runScript(client, scriptId, argMap, returnKey=None):
-
-    scriptService = client.sf.getScriptService()
-    proc = scriptService.runScript(scriptId, argMap, None)
-    try:
-        cb = omero.scripts.ProcessCallbackI(client, proc)
-        while not cb.block(1000):  # ms.
-            pass
-        cb.close()
-        results = proc.getResults(0)    # ms
-    finally:
-        proc.close(False)
-
-    if 'stdout' in results:
-        origFile = results['stdout'].getValue()
-        print "Script generated StdOut in file:", origFile.getId().getValue()
-    if 'stderr' in results:
-        origFile = results['stderr'].getValue()
-        # But, we still get stderr from EMAN2 import (duplicate numpy etc.)
-        print "Script generated StdErr in file:", origFile.getId().getValue()
-    if returnKey and returnKey in results:
-        return results[returnKey]
-
-
-def uploadScript(scriptService, scriptPath):
-    _uuid = str(uuid.uuid4())
-
-    file = open(scriptPath)
-    scriptText = file.read()
-    file.close()
-    try:
-        scriptId = scriptService.uploadOfficialScript(
-            "/%s/%s" % (_uuid, scriptPath), scriptText)
-    except ApiUsageException:
-        raise  # The next line will never be run!
-        scriptId = editScript(scriptService, scriptPath)
-    return scriptId
-
-
-def editScript(scriptService, scriptPath):
-    file = open(scriptPath)
-    scriptText = file.read()
-    file.close()
-    # need the script Original File to edit
-    # scripts = scriptService.getScripts()
-    # if not scriptPath.startswith("/"): scriptPath =  "/" + scriptPath
-    # namedScripts =\
-    #     [s for s in scripts if s.path.val + s.name.val == scriptPath]
-    # script = namedScripts[-1]
-    script = getScript(scriptService, scriptPath)
-    print "Editing script:", scriptPath
-    scriptService.editScript(script, scriptText)
-    return script.id.val
-
-
-def getScript(scriptService, scriptPath):
-
-    scripts = scriptService.getScripts()     # returns list of OriginalFiles
-
-    for s in scripts:
-        print s.id.val, s.path.val + s.name.val
-
-    # make sure path starts with a slash.
-    # ** If you are a Windows client - will need to convert all path separators
-    #    to "/" since server stores /path/to/script.py **
-    if not scriptPath.startswith("/"):
-        scriptPath = "/" + scriptPath
-
-    namedScripts = [
-        s for s in scripts if s.path.val + s.name.val == scriptPath]
-
-    if len(namedScripts) == 0:
-        print "Didn't find any scripts with specified path: %s" % scriptPath
-        return
-
-    if len(namedScripts) > 1:
-        print "Found more than one script with specified path: %s" % scriptPath
-
-    return namedScripts[0]
-
-
 def addRectangleRoi(updateService, x, y, width, height, imageId):
     """
     Adds a Rectangle (particle) to the current OMERO image, at point x, y.
@@ -506,27 +393,3 @@ def addRectangleRoi(updateService, x, y, width, height, imageId):
     rect.setRoi(r)
     r.addShape(rect)
     updateService.saveAndReturnObject(rect)
-
-
-def checkFileAnnotation(self, fileAnnotation, hasFileAnnotation=True,
-                        parentType="Image", isLinked=True, client=None):
-    """
-    Check validity of file annotation. If hasFileAnnotation, check the size,
-    name and number of objects linked to the original file.
-    """
-    if hasFileAnnotation:
-        assert fileAnnotation is not None
-        assert fileAnnotation.val._file._size._val > 0
-        assert fileAnnotation.val._file._name._val is not None
-
-        if client is None:
-            client = self.root
-        conn = BlitzGateway(client_obj=client)
-        faWrapper = conn.getObject("FileAnnotation", fileAnnotation.val.id.val)
-        nLinks = sum(1 for i in faWrapper.getParentLinks(parentType))
-        if isLinked:
-            assert nLinks == 1
-        else:
-            assert nLinks == 0
-    else:
-        assert fileAnnotation is None
