@@ -7,11 +7,6 @@
 # Use is subject to license terms supplied in LICENSE.txt
 #
 
-import sys
-import os
-sys.path.append(os.path.join('..', 'python'))
-
-
 """
 FOR TRAINING PURPOSES ONLY!
 """
