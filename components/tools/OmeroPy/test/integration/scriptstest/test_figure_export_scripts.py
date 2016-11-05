@@ -90,8 +90,8 @@ class TestFigureExportScripts(ScriptTest):
         fileAnnot2 = runScript(client, scriptId, args, "File_Annotation")
 
         # should have figures attached to project and first image.
-        checkFileAnnotation(self, fileAnnot1, True, parentType="Dataset")
-        checkFileAnnotation(self, fileAnnot2, True)
+        checkFileAnnotation(client, fileAnnot1, True, parentType="Dataset")
+        checkFileAnnotation(client, fileAnnot2, True)
 
         # Run the script with invalid IDs
         args = {"Data_Type": omero.rtypes.rstring(
@@ -102,8 +102,8 @@ class TestFigureExportScripts(ScriptTest):
         fileAnnot4 = runScript(client, scriptId, args, "File_Annotation")
 
         # should have no annotation
-        checkFileAnnotation(self, fileAnnot3, False)
-        checkFileAnnotation(self, fileAnnot4, False)
+        checkFileAnnotation(client, fileAnnot3, False)
+        checkFileAnnotation(client, fileAnnot4, False)
 
     def testSplitViewFigure(self):
 
@@ -164,15 +164,15 @@ class TestFigureExportScripts(ScriptTest):
         fileAnnot2 = runScript(client, scriptId, args, "File_Annotation")
 
         # should have figures attached to project and first image.
-        checkFileAnnotation(self, fileAnnot1, True)
-        checkFileAnnotation(self, fileAnnot2, True)
+        checkFileAnnotation(client, fileAnnot1, True)
+        checkFileAnnotation(client, fileAnnot2, True)
 
         # Run the script with invalid args
         args = {"Data_Type": omero.rtypes.rstring(
             "Image"), "IDs": omero.rtypes.rlist(omero.rtypes.rlong(-1))}
         fileAnnot3 = runScript(client, scriptId, args, "File_Annotation")
 
-        checkFileAnnotation(self, fileAnnot3, False)
+        checkFileAnnotation(client, fileAnnot3, False)
 
     def testRoiFigure(self):
 
@@ -235,15 +235,15 @@ class TestFigureExportScripts(ScriptTest):
         fileAnnot2 = runScript(client, scriptId, args, "File_Annotation")
 
         # should have figures attached to project and first image.
-        checkFileAnnotation(self, fileAnnot1, True)
-        checkFileAnnotation(self, fileAnnot2, True)
+        checkFileAnnotation(client, fileAnnot1, True)
+        checkFileAnnotation(client, fileAnnot2, True)
 
         # Run the script with invalid IDs
         args = {"Data_Type": omero.rtypes.rstring(
             "Image"), "IDs": omero.rtypes.rlist(omero.rtypes.rlong(-1))}
         fileAnnot3 = runScript(client, scriptId, args, "File_Annotation")
 
-        checkFileAnnotation(self, fileAnnot3, False)
+        checkFileAnnotation(client, fileAnnot3, False)
 
     def testMovieRoiFigure(self):
 
@@ -296,15 +296,15 @@ class TestFigureExportScripts(ScriptTest):
         fileAnnot2 = runScript(client, scriptId, args, "File_Annotation")
 
         # should have figures attached to project and first image.
-        checkFileAnnotation(self, fileAnnot1, True)
-        checkFileAnnotation(self, fileAnnot2, True)
+        checkFileAnnotation(client, fileAnnot1, True)
+        checkFileAnnotation(client, fileAnnot2, True)
 
         # Run the script with invalid IDs
         args = {"Data_Type": omero.rtypes.rstring(
             "Image"), "IDs": omero.rtypes.rlist(omero.rtypes.rlong(-1))}
         fileAnnot3 = runScript(client, scriptId, args, "File_Annotation")
 
-        checkFileAnnotation(self, fileAnnot3, False)
+        checkFileAnnotation(client, fileAnnot3, False)
 
     def testMovieFigure(self):
 
@@ -355,15 +355,15 @@ class TestFigureExportScripts(ScriptTest):
         fileAnnot2 = runScript(client, scriptId, args, "File_Annotation")
 
         # should have figures attached to project and first image.
-        checkFileAnnotation(self, fileAnnot1, True)
-        checkFileAnnotation(self, fileAnnot2, True)
+        checkFileAnnotation(client, fileAnnot1, True)
+        checkFileAnnotation(client, fileAnnot2, True)
 
         # Run the script with invalid IDs
         args = {"Data_Type": omero.rtypes.rstring(
             "Image"), "IDs": omero.rtypes.rlist(omero.rtypes.rlong(-1))}
         fileAnnot3 = runScript(client, scriptId, args, "File_Annotation")
 
-        checkFileAnnotation(self, fileAnnot3, False)
+        checkFileAnnotation(client, fileAnnot3, False)
 
 
 def addRectangleRoi(updateService, x, y, width, height, imageId):

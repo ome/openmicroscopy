@@ -132,8 +132,9 @@ def checkFileAnnotation(client, fileAnnotation, hasFileAnnotation=True,
         assert fileAnnotation is not None
         assert fileAnnotation.val._file._size._val > 0
         assert fileAnnotation.val._file._name._val is not None
-
+        assert fileAnnotation.val.id.val > 0
         conn = BlitzGateway(client_obj=client)
+
         faWrapper = conn.getObject("FileAnnotation", fileAnnotation.val.id.val)
         nLinks = sum(1 for i in faWrapper.getParentLinks(parentType))
         if isLinked:

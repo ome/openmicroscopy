@@ -87,7 +87,7 @@ class TestAnalysisScripts(ScriptTest):
             "Sum_or_Average": omero.rtypes.rstring("Average")
         }
         ann = runScript(client, scriptId, argMap, "Line_Data")
-        checkFileAnnotation(self, ann, True)
+        checkFileAnnotation(client, ann, True)
 
 
 def createROI(imageId, x1, x2, y1, y2, sizeT):

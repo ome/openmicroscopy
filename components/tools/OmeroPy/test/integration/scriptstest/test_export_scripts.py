@@ -48,7 +48,7 @@ class TestExportScripts(ScriptTest):
             "IDs": omero.rtypes.rlist(imageIds)
         }
         ann = runScript(client, scriptId, argMap, "File_Annotation")
-        checkFileAnnotation(self, ann, True)
+        checkFileAnnotation(client, ann, True)
 
     def testMakeMovie(self):
         scriptId = super(TestExportScripts, self).upload(make_movie)
@@ -61,4 +61,4 @@ class TestExportScripts(ScriptTest):
             "IDs": omero.rtypes.rlist(imageIds)
         }
         ann = runScript(client, scriptId, argMap, "File_Annotation")
-        checkFileAnnotation(self, ann, True)
+        checkFileAnnotation(client, ann, True)
