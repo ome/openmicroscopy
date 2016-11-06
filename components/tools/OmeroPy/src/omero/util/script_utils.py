@@ -1240,7 +1240,7 @@ def numpyToImage(plane, minMax, type):
     @param type the data type to use for scaling
     """
 
-    from numpy import add, zeros
+    from numpy import add, zeros, savetxt
     from matplotlib.image import imsave
     import io
     try:
@@ -1252,12 +1252,12 @@ def numpyToImage(plane, minMax, type):
     if plane.dtype.name not in ('uint8', 'int8'):   # we need to scale...
         minVal, maxVal = minMax
         valRange = maxVal - minVal
+        if (valRange <= 0):
+            valRange = 1
         scaled = (plane - minVal) * (float(255) / valRange)
         convArray = zeros(plane.shape, dtype=type)
         add(convArray, scaled, out=convArray, casting="unsafe")
         imsave(buf, convArray)
     else:
         imsave(buf, plane)
-    i = Image.open(buf)
-    # buf.close()
-    return i
+    return Image.open(buf)
