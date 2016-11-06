@@ -58,7 +58,7 @@ class TestAnalysisScripts(ScriptTest):
             "Line_Width": omero.rtypes.rint(5)
         }
 
-        kymograph_img = runScript(client, scriptId, argMap, "First_Image")
+        kymograph_img = runScript(client, scriptId, argMap, "New_Image")
 
         # check the result
         assert kymograph_img is not None
