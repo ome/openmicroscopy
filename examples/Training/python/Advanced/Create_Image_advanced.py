@@ -37,7 +37,7 @@ replaceChannel = 0
 # Replace one channel with a channel from another image.
 # orphaned image has sizeT=10
 image2 = conn.getObject('Image', imageId)
-#Use the image in dataset as source image
+# Use the image in dataset as source image
 image = conn.getObject('Image', imageId2)
 sizeZ, sizeC, sizeT = image.getSizeZ(), image.getSizeC(), image.getSizeT()
 dataset = image.getParent()
