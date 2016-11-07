@@ -104,6 +104,7 @@ class TestUtilScripts(ScriptTest):
         rect.height = omero.rtypes.rdouble(sizeY / 2)
         rect.theZ = omero.rtypes.rint(0)
         rect.theT = omero.rtypes.rint(0)
+        roi.addShape(rect)
         session.getUpdateService().saveAndReturnObject(roi)
         argMap = {
             "Data_Type": omero.rtypes.rstring("Image"),
@@ -113,3 +114,4 @@ class TestUtilScripts(ScriptTest):
         img_from_rois = runScript(client, scriptId, argMap, "Result")
         # check the result
         assert img_from_rois is not None
+        assert img_from_rois.val.id.val > 0
