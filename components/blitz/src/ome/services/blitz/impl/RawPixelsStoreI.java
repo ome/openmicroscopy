@@ -15,6 +15,7 @@ import omero.ServerError;
 import omero.api.AMD_RawPixelsStore_calculateMessageDigest;
 import omero.api.AMD_RawPixelsStore_getByteWidth;
 import omero.api.AMD_RawPixelsStore_getCol;
+import omero.api.AMD_RawPixelsStore_getHistogram;
 import omero.api.AMD_RawPixelsStore_getHypercube;
 import omero.api.AMD_RawPixelsStore_getPixelsId;
 import omero.api.AMD_RawPixelsStore_getPixelsPath;
@@ -241,6 +242,16 @@ public class RawPixelsStoreI extends AbstractPyramidServant implements
             byte[] buf, int t, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, buf, t);
 
+    }
+    
+    public void getHistogram_async(AMD_RawPixelsStore_getHistogram __cb,
+            List<Integer> channels, int binSize,
+            omero.model.RenderingDef renderingDef,
+            omero.model.ProjectionDef projectionDef,
+            omero.romio.PlaneDef planeDef, Current __current)
+            throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, channels, binSize, renderingDef,
+                projectionDef, planeDef);
     }
 
     public void getCol_async(AMD_RawPixelsStore_getCol __cb, int x, int z,

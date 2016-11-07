@@ -23,6 +23,7 @@ import omero.api.AMD_PyramidService_setResolutionLevel;
 import omero.api.AMD_RawPixelsStore_calculateMessageDigest;
 import omero.api.AMD_RawPixelsStore_getByteWidth;
 import omero.api.AMD_RawPixelsStore_getCol;
+import omero.api.AMD_RawPixelsStore_getHistogram;
 import omero.api.AMD_RawPixelsStore_getHypercube;
 import omero.api.AMD_RawPixelsStore_getPixelsId;
 import omero.api.AMD_RawPixelsStore_getPixelsPath;
@@ -341,6 +342,15 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
     public void setTimepoint_async(AMD_RawPixelsStore_setTimepoint __cb,
             byte[] buf, int t, Current __current) throws ServerError {
         throw new UnsupportedOperationException("Cannot write to repository");
+    }
+    
+    public void getHistogram_async(AMD_RawPixelsStore_getHistogram __cb,
+            List<Integer> channels, int binSize,
+            omero.model.RenderingDef renderingDef,
+            omero.model.ProjectionDef projectionDef,
+            omero.romio.PlaneDef planeDef, Current __current)
+            throws ServerError {
+        // TODO: !?!?
     }
 
     public void activate_async(AMD_StatefulServiceInterface_activate __cb,

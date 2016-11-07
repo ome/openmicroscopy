@@ -341,6 +341,17 @@ public class RawPixelsStoreTest extends AbstractServerTest {
             }
         }
     }
+    
+    /**
+     * Tests the histogram data generation
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testGetHistogram() throws Exception {
+        //TODO: Implement!
+    }
 
     /**
      * Tests to set a region that is bigger than the entire file

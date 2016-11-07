@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2006-2015 University of Dundee. All rights reserved.
+ *   Copyright 2006-2016 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -31,10 +31,13 @@ import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.io.nio.RomioPixelBuffer;
 import ome.model.core.Pixels;
+import ome.model.display.ProjectionDef;
+import ome.model.display.RenderingDef;
 import ome.parameters.Parameters;
 import ome.util.PixelData;
 import ome.util.ShallowCopy;
 import ome.util.SqlAction;
+import omeis.providers.re.data.PlaneDef;
 
 import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
@@ -664,6 +667,17 @@ public class RawPixelsBean extends AbstractStatefulBean implements
         } catch (Exception e) {
             handleException(e);
         }
+    }
+    
+    @RolesAllowed("user")
+    public synchronized int[][] getHistogram(List<Integer> channels,
+            int binSize, RenderingDef renderingDef,
+            ProjectionDef projectionDef, PlaneDef planeDef) {
+        errorIfNotLoaded();
+
+        // TODO: Implement!
+
+        return null;
     }
 
     // ~ Helpers
