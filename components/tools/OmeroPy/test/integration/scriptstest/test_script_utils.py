@@ -18,7 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-   Integration test which checks the various parameters for makemovie.py
+   Integration test which checks the various methods from script_utils
 
 """
 
