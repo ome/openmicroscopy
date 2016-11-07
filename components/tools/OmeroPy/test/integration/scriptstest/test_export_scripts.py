@@ -30,14 +30,14 @@ from test.integration.scriptstest.script import runScript
 from test.integration.scriptstest.script import checkFileAnnotation
 
 
-batch_image_export = "scripts/omero/export_scripts/Batch_Image_Export.py"
-make_movie = "scripts/omero/export_scripts/Make_Movie.py"
+batch_image_export = "/omero/export_scripts/Batch_Image_Export.py"
+make_movie = "/omero/export_scripts/Make_Movie.py"
 
 
 class TestExportScripts(ScriptTest):
 
     def testBatchImageExport(self):
-        scriptId = super(TestExportScripts, self).upload(batch_image_export)
+        scriptId = super(TestExportScripts, self).getScript(batch_image_export)
 
         client = self.root
         image = self.createTestImage(100, 100, 1, 1, 1)    # x,y,z,c,t
@@ -51,7 +51,7 @@ class TestExportScripts(ScriptTest):
         checkFileAnnotation(client, ann, True)
 
     def testMakeMovie(self):
-        scriptId = super(TestExportScripts, self).upload(make_movie)
+        scriptId = super(TestExportScripts, self).getScript(make_movie)
         client = self.root
         image = self.createTestImage(100, 100, 5, 2, 4)    # x,y,z,c,t
         imageIds = []

@@ -31,6 +31,11 @@ class ScriptTest(ITest):
     def upload(self, path):
         return uploadScript(self.root, path)
 
+    def getScript(self, path):
+        scriptService = self.root.sf.getScriptService()
+        script = getScript(scriptService, path)
+        return script.id.val
+
 
 def uploadScript(client, scriptPath):
     scriptService = client.sf.getScriptService()

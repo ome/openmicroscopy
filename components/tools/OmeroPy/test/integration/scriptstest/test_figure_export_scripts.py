@@ -30,18 +30,18 @@ from test.integration.scriptstest.script import runScript
 from test.integration.scriptstest.script import checkFileAnnotation
 
 
-thumbnailFigure = "scripts/omero/figure_scripts/Thumbnail_Figure.py"
-splitViewFigure = "scripts/omero/figure_scripts/Split_View_Figure.py"
-roiFigure = "scripts/omero/figure_scripts/ROI_Split_Figure.py"
-movieFigure = "scripts/omero/figure_scripts/Movie_Figure.py"
-movieROIFigure = "scripts/omero/figure_scripts/Movie_ROI_Figure.py"
+thumbnail_figure = "/omero/figure_scripts/Thumbnail_Figure.py"
+split_view_figure = "/omero/figure_scripts/Split_View_Figure.py"
+roi_figure = "/omero/figure_scripts/ROI_Split_Figure.py"
+movie_figure = "/omero/figure_scripts/Movie_Figure.py"
+movie_ROI_figure = "/omero/figure_scripts/Movie_ROI_Figure.py"
 
 
 class TestFigureExportScripts(ScriptTest):
 
     def testThumbnailFigure(self):
 
-        scriptId = super(TestFigureExportScripts, self).upload(thumbnailFigure)
+        sid = super(TestFigureExportScripts, self).getScript(thumbnail_figure)
 
         client = self.root
 
@@ -82,12 +82,12 @@ class TestFigureExportScripts(ScriptTest):
             "Figure_Name": omero.rtypes.rstring("thumbnail-test"),
             "Tag_IDs": omero.rtypes.rlist(tagIds)
         }
-        fileAnnot1 = runScript(client, scriptId, argMap, "File_Annotation")
+        fileAnnot1 = runScript(client, sid, argMap, "File_Annotation")
 
         # ...then with bare minimum args
         args = {"Data_Type": omero.rtypes.rstring(
             "Image"), "IDs": omero.rtypes.rlist(imageIds)}
-        fileAnnot2 = runScript(client, scriptId, args, "File_Annotation")
+        fileAnnot2 = runScript(client, sid, args, "File_Annotation")
 
         # should have figures attached to project and first image.
         checkFileAnnotation(client, fileAnnot1, True, parentType="Dataset")
@@ -96,10 +96,10 @@ class TestFigureExportScripts(ScriptTest):
         # Run the script with invalid IDs
         args = {"Data_Type": omero.rtypes.rstring(
             "Image"), "IDs": omero.rtypes.rlist(omero.rtypes.rlong(-1))}
-        fileAnnot3 = runScript(client, scriptId, args, "File_Annotation")
+        fileAnnot3 = runScript(client, sid, args, "File_Annotation")
         args = {"Data_Type": omero.rtypes.rstring(
             "Dataset"), "IDs": omero.rtypes.rlist(omero.rtypes.rlong(-1))}
-        fileAnnot4 = runScript(client, scriptId, args, "File_Annotation")
+        fileAnnot4 = runScript(client, sid, args, "File_Annotation")
 
         # should have no annotation
         checkFileAnnotation(client, fileAnnot3, False)
@@ -107,7 +107,7 @@ class TestFigureExportScripts(ScriptTest):
 
     def testSplitViewFigure(self):
 
-        scriptId = super(TestFigureExportScripts, self).upload(splitViewFigure)
+        sid = super(TestFigureExportScripts, self).getScript(split_view_figure)
 
         client = self.root
 
@@ -153,7 +153,7 @@ class TestFigureExportScripts(ScriptTest):
             "Figure_Name": omero.rtypes.rstring("splitViewTest"),
             # "overlayColour": red,
         }
-        fileAnnot1 = runScript(client, scriptId, argMap, "File_Annotation")
+        fileAnnot1 = runScript(client, sid, argMap, "File_Annotation")
 
         # ...then with bare minimum args
         args = {"Data_Type": omero.rtypes.rstring("Image"),
@@ -161,7 +161,7 @@ class TestFigureExportScripts(ScriptTest):
                 "Merged_Colours": mrgdColoursMap,
                 "Format": omero.rtypes.rstring("PNG"),
                 "Figure_Name": omero.rtypes.rstring("splitViewTest")}
-        fileAnnot2 = runScript(client, scriptId, args, "File_Annotation")
+        fileAnnot2 = runScript(client, sid, args, "File_Annotation")
 
         # should have figures attached to project and first image.
         checkFileAnnotation(client, fileAnnot1, True)
@@ -170,13 +170,13 @@ class TestFigureExportScripts(ScriptTest):
         # Run the script with invalid args
         args = {"Data_Type": omero.rtypes.rstring(
             "Image"), "IDs": omero.rtypes.rlist(omero.rtypes.rlong(-1))}
-        fileAnnot3 = runScript(client, scriptId, args, "File_Annotation")
+        fileAnnot3 = runScript(client, sid, args, "File_Annotation")
 
         checkFileAnnotation(client, fileAnnot3, False)
 
     def testRoiFigure(self):
 
-        scriptId = super(TestFigureExportScripts, self).upload(roiFigure)
+        sid = super(TestFigureExportScripts, self).getScript(roi_figure)
 
         client = self.root
 
@@ -227,12 +227,12 @@ class TestFigureExportScripts(ScriptTest):
             # won't be found - but should still work
             "ROI_Label": omero.rtypes.rstring("fakeTest"),
         }
-        fileAnnot1 = runScript(client, scriptId, argMap, "File_Annotation")
+        fileAnnot1 = runScript(client, sid, argMap, "File_Annotation")
 
         # ...then with bare minimum args
         args = {"Data_Type": omero.rtypes.rstring(
             "Image"), "IDs": omero.rtypes.rlist(imageIds)}
-        fileAnnot2 = runScript(client, scriptId, args, "File_Annotation")
+        fileAnnot2 = runScript(client, sid, args, "File_Annotation")
 
         # should have figures attached to project and first image.
         checkFileAnnotation(client, fileAnnot1, True)
@@ -241,13 +241,13 @@ class TestFigureExportScripts(ScriptTest):
         # Run the script with invalid IDs
         args = {"Data_Type": omero.rtypes.rstring(
             "Image"), "IDs": omero.rtypes.rlist(omero.rtypes.rlong(-1))}
-        fileAnnot3 = runScript(client, scriptId, args, "File_Annotation")
+        fileAnnot3 = runScript(client, sid, args, "File_Annotation")
 
         checkFileAnnotation(client, fileAnnot3, False)
 
     def testMovieRoiFigure(self):
 
-        scriptId = super(TestFigureExportScripts, self).upload(movieROIFigure)
+        sid = super(TestFigureExportScripts, self).getScript(movie_ROI_figure)
 
         client = self.root
 
@@ -288,12 +288,12 @@ class TestFigureExportScripts(ScriptTest):
             "Algorithm": omero.rtypes.rstring("Mean Intensity"),
             "Figure_Name": omero.rtypes.rstring("movieROITest")
         }
-        fileAnnot1 = runScript(client, scriptId, argMap, "File_Annotation")
+        fileAnnot1 = runScript(client, sid, argMap, "File_Annotation")
 
         # ...then with bare minimum args
         args = {"Data_Type": omero.rtypes.rstring(
             "Image"), "IDs": omero.rtypes.rlist(imageIds)}
-        fileAnnot2 = runScript(client, scriptId, args, "File_Annotation")
+        fileAnnot2 = runScript(client, sid, args, "File_Annotation")
 
         # should have figures attached to project and first image.
         checkFileAnnotation(client, fileAnnot1, True)
@@ -302,13 +302,13 @@ class TestFigureExportScripts(ScriptTest):
         # Run the script with invalid IDs
         args = {"Data_Type": omero.rtypes.rstring(
             "Image"), "IDs": omero.rtypes.rlist(omero.rtypes.rlong(-1))}
-        fileAnnot3 = runScript(client, scriptId, args, "File_Annotation")
+        fileAnnot3 = runScript(client, sid, args, "File_Annotation")
 
         checkFileAnnotation(client, fileAnnot3, False)
 
     def testMovieFigure(self):
 
-        scriptId = super(TestFigureExportScripts, self).upload(movieFigure)
+        sid = super(TestFigureExportScripts, self).getScript(movie_figure)
 
         client = self.root
 
@@ -346,13 +346,13 @@ class TestFigureExportScripts(ScriptTest):
             "TimeUnits": omero.rtypes.rstring("MINS"),
             "Overlay_Colour": red,
         }
-        fileAnnot1 = runScript(client, scriptId, argMap, "File_Annotation")
+        fileAnnot1 = runScript(client, sid, argMap, "File_Annotation")
 
         # ...then with bare minimum args
         args = {"Data_Type": omero.rtypes.rstring("Image"),
                 "IDs": omero.rtypes.rlist(imageIds),
                 "T_Indexes": omero.rtypes.rlist(tIndexes), }
-        fileAnnot2 = runScript(client, scriptId, args, "File_Annotation")
+        fileAnnot2 = runScript(client, sid, args, "File_Annotation")
 
         # should have figures attached to project and first image.
         checkFileAnnotation(client, fileAnnot1, True)
@@ -361,7 +361,7 @@ class TestFigureExportScripts(ScriptTest):
         # Run the script with invalid IDs
         args = {"Data_Type": omero.rtypes.rstring(
             "Image"), "IDs": omero.rtypes.rlist(omero.rtypes.rlong(-1))}
-        fileAnnot3 = runScript(client, scriptId, args, "File_Annotation")
+        fileAnnot3 = runScript(client, sid, args, "File_Annotation")
 
         checkFileAnnotation(client, fileAnnot3, False)
 

@@ -29,14 +29,14 @@ from test.integration.scriptstest.script import ScriptTest
 from test.integration.scriptstest.script import runScript, pointsToString
 from test.integration.scriptstest.script import checkFileAnnotation
 
-kymograph_path = "scripts/omero/analysis_scripts/Kymograph.py"
-plot_profile_path = "scripts/omero/analysis_scripts/Plot_Profile.py"
+kymograph = "/omero/analysis_scripts/Kymograph.py"
+plot_profile = "/omero/analysis_scripts/Plot_Profile.py"
 
 
 class TestAnalysisScripts(ScriptTest):
 
     def testKymograph(self):
-        scriptId = super(TestAnalysisScripts, self).upload(kymograph_path)
+        scriptId = super(TestAnalysisScripts, self).getScript(kymograph)
 
         # root session is root.sf
         session = self.root.sf
@@ -65,7 +65,7 @@ class TestAnalysisScripts(ScriptTest):
         assert kymograph_img.val.id.val > 0
 
     def testPlotProfile(self):
-        scriptId = super(TestAnalysisScripts, self).upload(plot_profile_path)
+        scriptId = super(TestAnalysisScripts, self).getScript(plot_profile)
         # root session is root.sf
         session = self.root.sf
         client = self.root
