@@ -69,8 +69,6 @@ def runScript(client, scriptId, argMap, returnKey=None):
         print "Script generated StdErr in file:", origFile.getId().getValue()
     if returnKey and returnKey in results:
         return results[returnKey]
-    else:
-        return results
 
 
 def editScript(scriptService, scriptPath):
