@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -561,11 +561,11 @@ class BrowserControl
         } else if (CellDisplay.DESCRIPTOR_PROPERTY.equals(name)) {
         	CellDisplay node = (CellDisplay) evt.getNewValue();
         	setSelectedCell(node.getLocation(), node);
-        } else if (ColourPicker.COLOUR_PROPERTY.equals(name)) {
+        } else if (ColourPicker.ACCEPT_PROPERTY.equals(name)) {
         	ColourObject co = (ColourObject) evt.getNewValue();
         	if (selectedCell == null) return;
-        	selectedCell.setHighlight(co.getColor());
-        	selectedCell.setDescription(co.getDescription());
+        	selectedCell.setHighlight(co.color);
+        	selectedCell.setDescription(co.description != null ? co.description : "");
         	model.setSelectedCell(selectedCell);
         }
     }

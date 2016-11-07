@@ -1261,20 +1261,26 @@ class ControlPane
         ChannelButton button;
         while (i.hasNext()) {
             button = i.next();
-            if (index == button.getChannelIndex())
+            if (index == button.getChannelIndex()) {
                 button.setColor(c);
+                button.setImage(null);
+            }
         }
         i = channelButtonsGrid.iterator();
         while (i.hasNext()) {
             button = i.next();
-            if (index == button.getChannelIndex())
+            if (index == button.getChannelIndex()) {
                 button.setColor(c);
+                button.setImage(null);
+            }
         }
         i = channelButtonsProjection.iterator();
         while (i.hasNext()) {
             button = i.next();
-            if (index == button.getChannelIndex())
+            if (index == button.getChannelIndex()) {
                 button.setColor(c);
+                button.setImage(null);
+            }
         }
     }
     
