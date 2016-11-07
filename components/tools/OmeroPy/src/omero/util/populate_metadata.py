@@ -368,7 +368,7 @@ class ValueResolver(object):
             try:
                 return images_by_id[long(value)].id.val
             except KeyError:
-                log.debug('Image Id: %i not found!' % (value))
+                log.error('Image Id: %s not found!' % (value))
                 return -1L
             return
         if WellColumn is column_class:
