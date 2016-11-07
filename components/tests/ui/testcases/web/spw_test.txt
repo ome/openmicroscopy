@@ -59,7 +59,7 @@ Test Spw Grid Layout
     # First, Third and Fifth images should be aligned
     ${well1x}=                              Get Horizontal Position  xpath=//div[@id='wellImages']//li[1]/img
     ${well3x}=                              Get Horizontal Position  xpath=//div[@id='wellImages']//li[3]/img
-    ${well5x}=                              Get Horizontal Position  xpath=//div[@id='wellImages']//li[3]/img
+    ${well5x}=                              Get Horizontal Position  xpath=//div[@id='wellImages']//li[5]/img
     Should Be Equal                         ${well1x}                   ${well3x}
     Should Be Equal                         ${well1x}                   ${well5x}
 
