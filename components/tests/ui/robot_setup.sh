@@ -109,9 +109,10 @@ do
   bin/omero import -d $mifDs $MIF_IMAGE_NAME --debug ERROR
 done
 
-# Import Plate
+# Import Plate and rename
 bin/omero import $PLATE_NAME --debug ERROR > plate_import.log 2>&1
 plateid=$(sed -n -e 's/^Plate://p' plate_import.log)
+bin/omero obj update Plate:$plateid name=spwTests
 # Use populate_metadata to upload and attach bulk annotation csv
 OMERO_DEV_PLUGINS=1 bin/omero metadata populate Plate:$plateid --file $BULK_ANNOTATION_CSV
 

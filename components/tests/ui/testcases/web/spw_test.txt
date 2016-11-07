@@ -9,6 +9,13 @@ Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PA
 Suite Teardown      Close all browsers
 
 
+*** Variables ***
+# robot_setup script has created data with these parameters
+${PLATE_NAME}               spwTests
+${FIELD_COUNT}              5
+${FIELD_COUNT3}             15
+
+
 *** Keywords ***
 
 Click Well By Name
@@ -24,18 +31,44 @@ Bulk Annotation Should Contain Row
 
 *** Test Cases ***
 
-Test Auto Load Single Run
+Test Spw Grid Layout
     [Documentation]     Selecting Plate with single Run should load plate
 
     Select Experimenter
-    Select First Plate
+    Select First Plate With Name            ${PLATE_NAME}
+    # Plate should auto-load, allowing click on Well
     Click Well By Name                      A1
+    ${wellId}=                              Wait For General Panel And Return Id            Well
+
+    # Images from a single Well shown in bottom panel
+    Wait Until Page Contains Element        xpath=//div[@id='wellImages']//li/img
+    Xpath Should Match X Times              //div[@id='wellImages']//li/img                 ${FIELD_COUNT}
+
+    # Shift-Click to select 3 Wells - All images shown in bottom panel
+    Shift Click Element                     "img[name='A3']"
+    Wait Until Keyword Succeeds             ${TIMEOUT}    ${INTERVAL}     Xpath Should Match X Times    //div[@id='wellImages']//li/img     ${FIELD_COUNT3}
+
+    # No Well-Images selected. Click to select
+    Page Should Not Contain Element         xpath=//div[@id='wellImages']//li[contains(@class,'ui-selected')]
+    Click Element                           xpath=//div[@id='wellImages']//li/img[1]
+    Page Should Contain Element             xpath=//div[@id='wellImages']//li[1][contains(@class,'ui-selected')]
+
+    # Wrap rows of images by fixed column count
+    Input Text                              id=imagesPerRow             2
+    Press Key                               id=imagesPerRow             \\13    # ASCII code for enter key
+    # First, Third and Fifth images should be aligned
+    ${well1x}=                              Get Horizontal Position  xpath=//div[@id='wellImages']//li[1]/img
+    ${well3x}=                              Get Horizontal Position  xpath=//div[@id='wellImages']//li[3]/img
+    ${well5x}=                              Get Horizontal Position  xpath=//div[@id='wellImages']//li[3]/img
+    Should Be Equal                         ${well1x}                   ${well3x}
+    Should Be Equal                         ${well1x}                   ${well5x}
+
 
 Test Bulk Annotations
     [Documentation]     Test display of bulk annotations added in setup
 
     Select Experimenter
-    Select First Plate
+    Select First Plate With Name            ${PLATE_NAME}
     Select First Run
     Click Well By Name                      A1
     Wait Until Page Contains Element        xpath=//h1[@data-name='tables']

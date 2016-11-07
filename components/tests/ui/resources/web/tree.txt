@@ -232,6 +232,13 @@ Select First Image With Name
     Wait For General Panel          Image
     [Return]                        ${nodeId}
 
+Select First Plate With Name
+    [Arguments]                     ${PlateName}
+    ${nodeId}=                      Wait For Plate Node Text      ${PlateName}
+    Click Node                      ${nodeId}
+    Wait For General Panel          Plate
+    [Return]                        ${nodeId}
+
 Select First Orphaned Image
     ${nodeId}                       Select Orphaned Images Section
     Wait Until Element Is Visible   xpath=//li[@id='${nodeId}']/ul/li[1]/a
@@ -313,8 +320,8 @@ Wait Until Center Panel Loads
     Run Keyword If                  '${containerType}' == 'Dataset'        Wait Until Element Is Visible      //*[@id="content_details"]/div[1]
     Run Keyword If                  '${containerType}' == 'Dataset'        Wait Until Element Is Visible      xpath=//*[@id="filtersearch"]/div/label[contains(text(),'Filter Images')]
     Run Keyword If                  '${containerType}' == 'Dataset'        Wait Until Element Is Visible      xpath=//*[@id="icon_layout"][contains(@title,"View as Thumbnails")][contains(@class,"checked")]
-    Run Keyword If                  '${containerType}' == 'Dataset'        Wait Until Element Is Visible      //*[@id="table_layout"][contains(@title,"View as List")]    
-    
+    Run Keyword If                  '${containerType}' == 'Dataset'        Wait Until Element Is Visible      //*[@id="table_layout"][contains(@title,"View as List")]
+
 
 # Methods for querying nodes by TEXT
 
@@ -406,7 +413,7 @@ Image Should Not Exist In Tree
     [Arguments]                     ${imageId}
     Node Should Not Exist In Tree   ${imageIcon}        ${imageId}
 
-Dataset Should Contain Image 
+Dataset Should Contain Image
     [Arguments]                             ${imageId}      ${datasetId}
     Select Dataset By Id                    ${datasetId}
     Wait Until Page Contains Element        css=tr.data_heading_id strong
@@ -565,7 +572,7 @@ Meta Click Node
     [Arguments]                     ${nodeId}
     Meta Click Element              "#${nodeId}>a"
 
-Meta Click Thumbnail                
+Meta Click Thumbnail
     [Arguments]                     ${iid}
     Meta Click Element              "#image_icon-${iid}"
 
