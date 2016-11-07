@@ -116,7 +116,7 @@ plateid=$(sed -n -e 's/^Plate://p' plate_import.log)
 OMERO_DEV_PLUGINS=1 bin/omero metadata populate Plate:$plateid --file $BULK_ANNOTATION_CSV
 
 # Run script to populate WellSamples with posX and posY values
-python $WELLSCRIPT $key $plateid
+PYTHONPATH=./lib/python python $WELLSCRIPT $key $plateid
 
 # Import Plate and rename for test ?show=image.name-NAME
 bin/omero import $PLATE_NAME --debug ERROR > show_import.log 2>&1
