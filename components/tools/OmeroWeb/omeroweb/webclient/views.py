@@ -94,7 +94,7 @@ from omero.model import ProjectI, DatasetI, ImageI, \
     ScreenPlateLinkI, AnnotationAnnotationLinkI, TagAnnotationI
 from omero import ApiUsageException, ServerError, CmdError
 from omero.rtypes import rlong, rlist
-from omeroweb.api.views import LoginView
+from omeroweb.webgateway.views import LoginView
 
 import tree
 

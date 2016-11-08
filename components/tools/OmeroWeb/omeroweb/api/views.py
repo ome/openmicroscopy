@@ -24,16 +24,11 @@ from django.middleware import csrf
 from django.utils.decorators import method_decorator
 from django.core.urlresolvers import reverse
 from django.conf import settings
-from django.http import JsonResponse
 
 import traceback
 import json
 
 from api_query import query_projects
-from omeroweb.webadmin.forms import LoginForm
-from omeroweb.decorators import get_client_ip
-from omeroweb.connector import Connector
-from omeroweb.webadmin.webadmin_utils import upgradeCheck
 from omero_marshal import get_encoder, get_decoder, OME_SCHEMA_URL
 from omero import ValidationException
 from omeroweb.connector import Server
@@ -110,107 +105,6 @@ def api_servers(request, api_version, **kwargs):
             s['server'] = obj.server
         servers.append(s)
     return {'data': servers}
-
-
-class LoginView(View):
-    """Webgateway Login - Subclassed by WebclientLoginView."""
-
-    form_class = LoginForm
-    useragent = 'OMERO.webapi'
-
-    def get(self, request, api_version=None):
-        """Simply return a message to say GET not supported."""
-        return JsonResponse({"message":
-                            ("POST only with username, password, "
-                             "server and csrftoken")},
-                            status=405)
-
-    def handle_logged_in(self, request, conn, connector):
-        """Return a response for successful login."""
-        c = conn.getEventContext()
-        ctx = {}
-        for a in ['sessionId', 'sessionUuid', 'userId', 'userName', 'groupId',
-                  'groupName', 'isAdmin', 'eventId', 'eventType',
-                  'memberOfGroups', 'leaderOfGroups']:
-            if (hasattr(c, a)):
-                ctx[a] = getattr(c, a)
-        return JsonResponse({"success": True, "eventContext": ctx})
-
-    def handle_not_logged_in(self, request, error=None, form=None):
-        """
-        Return a response for failed login.
-
-        Reason for failure may be due to server 'error' or because
-        of form validation errors.
-
-        @param request:     http request
-        @param error:       Error message
-        @param form:        Instance of Login Form, populated with data
-        """
-        if error is None and form is not None:
-            # If no error from server, maybe form wasn't valid
-            formErrors = []
-            for field in form:
-                for e in field.errors:
-                    formErrors.append("%s: %s" % (field.label, e))
-            error = " ".join(formErrors)
-        elif error is None:
-            # Just in case no error or invalid form is given
-            error = "Login failed. Reason unknown."
-        return JsonResponse({"message": error}, status=403)
-
-    def post(self, request, api_version=None):
-        """
-        Here we handle the main login logic, creating a connection to OMERO.
-
-        and store that on the request.session OR handling login failures
-        """
-        error = None
-        form = self.form_class(request.POST.copy())
-        if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-            server_id = form.cleaned_data['server']
-            is_secure = form.cleaned_data['ssl']
-
-            connector = Connector(server_id, is_secure)
-
-            # TODO: version check should be done on the low level, see #5983
-            compatible = True
-            if settings.CHECK_VERSION:
-                compatible = connector.check_version(self.useragent)
-            if (server_id is not None and username is not None and
-                    password is not None and compatible):
-                conn = connector.create_connection(
-                    self.useragent, username, password,
-                    userip=get_client_ip(request))
-                if conn is not None:
-                    request.session['connector'] = connector
-                    # UpgradeCheck URL should be loaded from the server or
-                    # loaded omero.web.upgrades.url allows to customize web
-                    # only
-                    try:
-                        upgrades_url = settings.UPGRADES_URL
-                    except:
-                        upgrades_url = conn.getUpgradesUrl()
-                    upgradeCheck(url=upgrades_url)
-                    return self.handle_logged_in(request, conn, connector)
-            # Once here, we are not logged in...
-            # Need correct error message
-            if not connector.is_server_up(self.useragent):
-                error = ("Server is not responding,"
-                         " please contact administrator.")
-            elif not settings.CHECK_VERSION:
-                error = ("Connection not available, please check your"
-                         " credentials and version compatibility.")
-            else:
-                if not compatible:
-                    error = ("Client version does not match server,"
-                             " please contact administrator.")
-                else:
-                    error = ("Connection not available, please check your"
-                             " user name and password.")
-        return self.handle_not_logged_in(request, error, form)
 
 
 class ProjectView(View):

@@ -21,7 +21,7 @@
 
 from django.conf.urls import url, patterns
 from omeroweb.api import views
-from omeroweb.api.views import LoginView
+from omeroweb.webgateway.views import LoginView
 from django.conf import settings
 import re
 
