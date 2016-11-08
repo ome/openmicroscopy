@@ -33,7 +33,7 @@ from api_exceptions import NotFoundError, BadRequestError, CreatedObject
 logger = logging.getLogger(__name__)
 
 
-class LoginRequired(omeroweb.decorators.login_required):
+class login_required(omeroweb.decorators.login_required):
     """webgateway specific extension of the login_required() decorator."""
 
     def on_not_logged_in(self, request, url, error=None):
@@ -42,7 +42,7 @@ class LoginRequired(omeroweb.decorators.login_required):
                             status=403)
 
 
-class JsonResponseHandler(object):
+class json_response(object):
     """
     Class-based decorator for wrapping Django views methods.
 

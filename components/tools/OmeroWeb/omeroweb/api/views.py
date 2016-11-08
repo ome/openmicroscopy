@@ -34,7 +34,7 @@ from omero import ValidationException
 from omeroweb.connector import Server
 from omeroweb.api.api_exceptions import BadRequestError, NotFoundError, \
     CreatedObject
-from omeroweb.api.decorators import LoginRequired, JsonResponseHandler
+from omeroweb.api.decorators import login_required, json_response
 from omeroweb.webgateway.util import getIntOrDefault
 
 
@@ -60,7 +60,7 @@ def build_url(request, name, api_version, **kwargs):
         return "%s%s" % (prefix, url)
 
 
-@JsonResponseHandler()
+@json_response()
 def api_versions(request, **kwargs):
     """Base url of the webgateway json api."""
     versions = []
@@ -72,7 +72,7 @@ def api_versions(request, **kwargs):
     return {'data': versions}
 
 
-@JsonResponseHandler()
+@json_response()
 def api_base(request, api_version=None, **kwargs):
     """Base url of the webgateway json api for a specified version."""
     v = api_version
@@ -85,14 +85,14 @@ def api_base(request, api_version=None, **kwargs):
     return rv
 
 
-@JsonResponseHandler()
+@json_response()
 def api_token(request, api_version, **kwargs):
     """Provide CSRF token for current session."""
     token = csrf.get_token(request)
     return {'data': token}
 
 
-@JsonResponseHandler()
+@json_response()
 def api_servers(request, api_version, **kwargs):
     """List the available servers to connect to."""
     servers = []
@@ -110,8 +110,8 @@ def api_servers(request, api_version, **kwargs):
 class ProjectView(View):
     """Handle access to an individual Project to GET or DELETE it."""
 
-    @method_decorator(LoginRequired(useragent='OMERO.webapi'))
-    @method_decorator(JsonResponseHandler())
+    @method_decorator(login_required(useragent='OMERO.webapi'))
+    @method_decorator(json_response())
     def dispatch(self, *args, **kwargs):
         """Wrap other methods to add decorators."""
         return super(ProjectView, self).dispatch(*args, **kwargs)
@@ -143,8 +143,8 @@ class ProjectView(View):
 class ProjectsView(View):
     """Handles GET for /projects/ to list available Projects."""
 
-    @method_decorator(LoginRequired(useragent='OMERO.webapi'))
-    @method_decorator(JsonResponseHandler())
+    @method_decorator(login_required(useragent='OMERO.webapi'))
+    @method_decorator(json_response())
     def dispatch(self, *args, **kwargs):
         """Use dispatch to add decorators to class methods."""
         return super(ProjectsView, self).dispatch(*args, **kwargs)
@@ -180,8 +180,8 @@ class SaveView(View):
     POST to create a new Object and PUT to replace existing one.
     """
 
-    @method_decorator(LoginRequired(useragent='OMERO.webapi'))
-    @method_decorator(JsonResponseHandler())
+    @method_decorator(login_required(useragent='OMERO.webapi'))
+    @method_decorator(json_response())
     def dispatch(self, *args, **kwargs):
         """Apply decorators for class methods below."""
         return super(SaveView, self).dispatch(*args, **kwargs)
