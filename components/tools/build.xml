@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="tools" default="help" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
 
-   <dirname property="up-one" file="${basedir}"/>
-   <property name="import.dir" value="${up-one}/antlib/resources"/>
+	<dirname property="up-one" file="${basedir}"/>
+	<property name="import.dir" value="${up-one}/antlib/resources"/>
 
-   <import file="${import.dir}/global.xml"/>
-   <import file="${import.dir}/lifecycle.xml"/>
+	<import file="${import.dir}/global.xml"/>
+	<import file="${import.dir}/lifecycle.xml"/>
 
 	<target name="help" description="This help message">
 		<echo>
@@ -43,9 +43,9 @@
 				<depend targetdir="${dist.dir}"/>
 			</fileset>
 		</copy>
-                <chmod perm="a+x">
-                        <fileset dir="${dist.dir}/bin" includes="omero"/>
-                </chmod>
+		<chmod perm="a+x">
+			<fileset dir="${dist.dir}/bin" includes="omero"/>
+		</chmod>
 	</target>
 
 	<target name="clean" depends="buildlist" description="Calls 'tools-clean' on all components.">
