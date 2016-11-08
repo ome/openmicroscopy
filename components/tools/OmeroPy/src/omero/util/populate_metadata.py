@@ -374,6 +374,61 @@ class ValueResolver(object):
         raise MetadataError('Unsupported column class: %s' % column_class)
 
 
+class PlateData(object):
+    """
+    Largely "mock" object which is intended to simulate the data returned
+    by querying a Plate but without the overhead of storing all the Ice
+    fields.
+    """
+
+    def __init__(self, plate):
+        self.id = plate.id
+        self.name = plate.name
+        self.wells = []
+        for well in plate.copyWells():
+            self.wells.append(WellData(well))
+
+
+class WellData(object):
+    """
+    Largely "mock" object which is intended to simulate the data returned
+    by querying a Well but without the overhead of storing all the Ice
+    fields.
+    """
+
+    def __init__(self, well):
+        self.id = well.id
+        self.row = well.row
+        self.column = well.column
+        self.well_samples = []
+        for well_sample in well.copyWellSamples():
+            self.well_samples.append(WellSampleData(well_sample))
+
+
+class WellSampleData(object):
+    """
+    Largely "mock" object which is intended to simulate the data returned
+    by querying a WellSample but without the overhead of storing all the Ice
+    fields.
+    """
+
+    def __init__(self, well_sample):
+        self.id = well_sample.id
+        self.image = ImageData(well_sample.getImage())
+
+
+class ImageData(object):
+    """
+    Largely "mock" object which is intended to simulate the data returned
+    by querying a Image but without the overhead of storing all the Ice
+    fields.
+    """
+
+    def __init__(self, image):
+        self.id = image.id
+        self.name = image.name
+
+
 class ValueWrapper(object):
 
     def __init__(self, value_resolver):
@@ -397,9 +452,12 @@ class SPWWrapper(ValueWrapper):
         raise Exception("to be implemented by subclasses")
 
     def parse_plate(self, plate, wells_by_location, wells_by_id, images_by_id):
+        """
+        Accepts PlateData instances
+        """
         # TODO: This should use the PlateNamingConvention. We're assuming rows
         # as alpha and columns as numeric.
-        for well in plate.copyWells():
+        for well in plate.wells:
             wells_by_id[well.id.val] = well
             row = well.row.val
             # 0 offsetted is not what people use in reality
@@ -410,8 +468,8 @@ class SPWWrapper(ValueWrapper):
                 wells_by_location[self.AS_ALPHA[row]] = columns = dict()
             columns[column] = well
 
-            for well_sample in well.copyWellSamples():
-                image = well_sample.getImage()
+            for well_sample in well.well_samples:
+                image = well_sample.image
                 images_by_id[image.id.val] = image
         log.debug('Completed parsing plate: %s' % plate.name.val)
         for row in wells_by_location:
@@ -496,11 +554,12 @@ class ScreenWrapper(SPWWrapper):
             parameters = omero.sys.ParametersI()
             parameters.addId(plate.id.val)
             plate = query_service.findByQuery((
-                'select p from Plate as p '
+                'select p from Plate p '
                 'join fetch p.wells as w '
                 'join fetch w.wellSamples as ws '
                 'join fetch ws.image as i '
                 'where p.id = :id'), parameters, {'omero.group': '-1'})
+            plate = PlateData(plate)
             self.plates_by_name[plate.name.val] = plate
             self.plates_by_id[plate.id.val] = plate
             wells_by_location = dict()
@@ -564,7 +623,8 @@ class PlateWrapper(SPWWrapper):
         self.wells_by_id[self.target_object.id.val] = wells_by_id
         self.images_by_id[self.target_object.id.val] = images_by_id
         self.parse_plate(
-            self.target_object, wells_by_location, wells_by_id, images_by_id
+            PlateData(self.target_object),
+            wells_by_location, wells_by_id, images_by_id
         )
 
 
