@@ -248,6 +248,10 @@ class SaveView(View):
         # Therefore we ignore any details for now:
         obj.unloadDetails()
 
+        # For now, we don't try to save Project's linked Datasets
+        if hasattr(obj, 'unloadDatasetLinks'):
+            obj.unloadDatasetLinks()
+
         conn.SERVICE_OPTS.setOmeroGroup(group)
         obj = conn.getUpdateService().saveAndReturnObject(obj,
                                                           conn.SERVICE_OPTS)

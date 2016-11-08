@@ -563,6 +563,39 @@ class TestProjects(IWebTest):
         assert pr_json['Name'] == 'updated name'
         assert 'Description' not in pr_json
 
+    def test_project_datasets_update(self, user1):
+        """
+        Test updating a Project without losing child Datasets.
+
+        If we load a Project without loading Datasets, then update
+        and save the Project, we don't want to lose Dataset links
+        """
+        conn = get_connection(user1)
+        group = conn.getEventContext().groupId
+        user_name = conn.getUser().getName()
+        django_client = self.new_django_client(user_name, user_name)
+
+        project = ProjectI()
+        project.name = rstring('test_project_datasets_update')
+        dataset = DatasetI()
+        dataset.name = rstring('Dataset')
+        project.linkDataset(dataset)
+        project = get_update_service(user1).saveAndReturnObject(project)
+
+        version = settings.API_VERSIONS[-1]
+        project_url = reverse('api_project', kwargs={'api_version': version,
+                                                     'pid': project.id.val})
+        save_url = reverse('api_save', kwargs={'api_version': version})
+        # Get Project, update and save back
+        project_json = _get_response_json(django_client, project_url, {})
+        project_json['Name'] = 'renamed Project'
+        rsp = _csrf_put_json(django_client, save_url, project_json)
+
+        # Check Project has been updated and still has child Datasets
+        proj = conn.getObject('Project', project.id.val)
+        assert proj.getName() == 'renamed Project'
+        assert len(list(proj.listChildren())) == 1
+
     def test_project_delete(self, user1):
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
