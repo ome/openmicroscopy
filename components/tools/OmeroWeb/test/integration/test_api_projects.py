@@ -571,7 +571,6 @@ class TestProjects(IWebTest):
         and save the Project, we don't want to lose Dataset links
         """
         conn = get_connection(user1)
-        group = conn.getEventContext().groupId
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
 
@@ -589,7 +588,7 @@ class TestProjects(IWebTest):
         # Get Project, update and save back
         project_json = _get_response_json(django_client, project_url, {})
         project_json['Name'] = 'renamed Project'
-        rsp = _csrf_put_json(django_client, save_url, project_json)
+        _csrf_put_json(django_client, save_url, project_json)
 
         # Check Project has been updated and still has child Datasets
         proj = conn.getObject('Project', project.id.val)
