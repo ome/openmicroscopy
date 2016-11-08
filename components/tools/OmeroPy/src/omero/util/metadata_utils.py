@@ -30,6 +30,13 @@ from collections import deque
 from omero.constants import namespaces
 import re
 
+# TODO: Make jinja2 mandatory?
+try:
+    import jinja2
+    JINJA2_MISSING = None
+except ImportError as j2exc:
+    JINJA2_MISSING = j2exc
+
 
 # Namespace for Bulk-Annotations configuration files
 NSBULKANNOTATIONSCONFIG = namespaces.NSBULKANNOTATIONS + "/config"
@@ -357,7 +364,10 @@ class KeyValueListTransformer(object):
         """
 
         def valuesub(v, cv):
-            return re.sub("\{\{\s*value\s*\}\}", v, cv)
+            if JINJA2_MISSING:
+                raise JINJA2_MISSING
+            t = jinja2.Template(cv)
+            return t.render(value=v)
 
         key = cfg["name"]
         if cfg["clientname"]:

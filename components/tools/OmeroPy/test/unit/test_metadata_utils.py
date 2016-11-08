@@ -30,6 +30,12 @@ from omero.util.metadata_utils import (
     BulkAnnotationConfiguration, GroupConfig, KeyValueListPassThrough,
     KeyValueGroupList, KeyValueListTransformer)
 
+try:
+    import jinja2  # noqa
+    JINJA2_MISSING = None
+except ImportError as j2exc:
+    JINJA2_MISSING = j2exc
+
 
 def expected(**kwargs):
     """
@@ -286,6 +292,7 @@ class TestKeyValueGroupList(object):
             (expected(name="a1"), 0), (expected(name="a3"), 2)]
 
 
+@pytest.mark.skipif(JINJA2_MISSING, reason="Requires Jinja2")
 class TestKeyValueListTransformer(object):
 
     def test_transform1_default(self):
@@ -312,6 +319,12 @@ class TestKeyValueListTransformer(object):
     def test_transform1(self, inout):
         cfg = expected(name="a1", **inout[1])
         assert KeyValueListTransformer.transform1(inout[0], cfg) == inout[2]
+
+    # TODO: Can we assume jinja2 is always installed on test systems?
+    def test_transformj2(self):
+        cfg = expected(name="a1", clientvalue="http://{{ value | urlencode }}")
+        assert KeyValueListTransformer.transform1("a b", cfg) == (
+            "a1", ["http://a%20b"])
 
     def test_transform(self):
         headers = ["a2", "a4", "a3", "a1"]
