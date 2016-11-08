@@ -102,8 +102,6 @@ class TestUtilScripts(ScriptTest):
         rect.y = omero.rtypes.rdouble(0)
         rect.width = omero.rtypes.rdouble(sizeX / 2)
         rect.height = omero.rtypes.rdouble(sizeY / 2)
-        rect.theZ = omero.rtypes.rint(0)
-        rect.theT = omero.rtypes.rint(0)
         roi.addShape(rect)
         session.getUpdateService().saveAndReturnObject(roi)
         argMap = {
