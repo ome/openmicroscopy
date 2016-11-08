@@ -24,7 +24,7 @@ Tests for the MapAnnotation and related base types
 introduced in 5.1.
 """
 
-import library as lib
+from omero.testlib import ITest
 import pytest
 import omero
 
@@ -35,7 +35,7 @@ from omero.rtypes import unwrap
 from omero.model import NamedValue as NV
 
 
-class TestMapAnnotation(lib.ITest):
+class TestMapAnnotation(ITest):
 
     def assertNV(self, nv, name, value):
         assert name == nv.name

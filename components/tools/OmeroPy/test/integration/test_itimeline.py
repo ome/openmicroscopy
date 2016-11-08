@@ -11,13 +11,13 @@
 """
 import time
 import pytest
-import library as lib
+from omero.testlib import ITest
 import omero
 
 from omero.rtypes import rint, rlong, rstring, rtime
 
 
-class TestITimeline(lib.ITest):
+class TestITimeline(ITest):
 
     DEFAULT_PERMS = 'rwr---'
 

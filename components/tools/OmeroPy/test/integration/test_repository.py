@@ -12,7 +12,7 @@
 import platform
 import locale
 import pytest
-import library as lib
+from omero.testlib import ITest
 import omero
 
 from omero import CmdError
@@ -26,7 +26,7 @@ from omero.util.temp_files import create_path
 from omero_version import omero_version
 
 
-class AbstractRepoTest(lib.ITest):
+class AbstractRepoTest(ITest):
 
     def setup_method(self, method):
         self.unique_dir = self.test_dir()

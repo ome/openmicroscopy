@@ -26,11 +26,11 @@
 
 import omero
 import omero.gateway
-import library as lib
+from omero.testlib import ITest
 from helpers import createImageWithPixels
 
 
-class TestPixelsService(lib.ITest):
+class TestPixelsService(ITest):
 
     def test9655(self):
         # Create an image without statsinfo objects and attempt

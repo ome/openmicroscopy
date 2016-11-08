@@ -25,7 +25,7 @@
 """
 
 import pytest
-import library as lib
+from omero.testlib import ITest
 
 from omero.util.temp_files import create_path
 
@@ -36,7 +36,7 @@ def tmpfile():
     return file
 
 
-class TestFiles(lib.ITest):
+class TestFiles(ITest):
 
     def testUploadDownload(self):
         uploaded = tmpfile()

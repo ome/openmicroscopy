@@ -26,7 +26,7 @@
 
 import omero
 import logging
-import library as lib
+from omero.testlib import ITest
 
 try:
     from PIL import Image  # see ticket:2597
@@ -46,7 +46,7 @@ except:
 from numpy import asarray
 
 
-class TestFigureExportScripts(lib.ITest):
+class TestFigureExportScripts(ITest):
 
     def testRenderRegion(self):
         """

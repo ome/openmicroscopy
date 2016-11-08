@@ -24,13 +24,13 @@
 
 """
 
-import library as lib
+from omero.testlib import ITest
 import pytest
 import omero
 from omero.rtypes import rstring
 
 
-class TestAdmin(lib.ITest):
+class TestAdmin(ITest):
 
     def testGetGroup(self):
         a = self.sf.getAdminService()

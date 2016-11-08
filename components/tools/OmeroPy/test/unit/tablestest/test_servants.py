@@ -15,7 +15,7 @@ import omero
 import omero.tables
 import uuid
 import logging
-import library as lib
+from library import TestCase
 
 from omero.columns import LongColumnI, DoubleColumnI, ObjectFactories
 from path import path
@@ -180,10 +180,10 @@ class mock_storage(object):
         return 0
 
 
-class TestTables(lib.TestCase):
+class TestTables(TestCase):
 
     def setup_method(self, method):
-        lib.TestCase.setup_method(self, method)
+        TestCase.setup_method(self, method)
 
         # Session
         self.sf_provider = mocked_internal_service_factory()

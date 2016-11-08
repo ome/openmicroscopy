@@ -25,11 +25,11 @@
    etc/blitz/mail-server.example
 """
 
-import library as lib
+from omero.testlib import ITest
 import omero
 
 
-class TestMail(lib.ITest):
+class TestMail(ITest):
 
     def skipIfNot(self):
         self.skip_if("omero.mail.fake", lambda x: str(x).lower() != "true",
