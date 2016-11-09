@@ -20,19 +20,21 @@
  */
 package org.openmicroscopy.shoola.util.ui;
 
-import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.LayoutManager;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 
 import org.jdesktop.swingx.JXBusyLabel;
 
 /**
- * A {@link JPanel} with {@link BorderLayout} displaying a customizable text in
- * the center and an optional {@link JXBusyLabel} in the top right corner; does
- * not allow to change the {@link LayoutManager}
+ * A {@link JPanel} displaying a customizable text and an optional
+ * {@link JXBusyLabel} in the center; does not allow to change the
+ * {@link LayoutManager}
  * 
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
@@ -95,18 +97,28 @@ public class DummyPanel extends JPanel {
      * Set up the UI
      */
     private void init() {
-        super.setLayout(new BorderLayout());
-        
+        super.setLayout(new GridBagLayout());
         setBackground(UIUtilities.BACKGROUND);
 
-        busyLabel = new JXBusyLabel();
-        busyLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridx = 0;
+        c.gridy = 0;
+        c.weightx = 0;
+        c.weighty = 0;
+        c.insets = new Insets(0, 2, 0, 2);
+        c.fill = GridBagConstraints.NONE;
+        c.anchor = GridBagConstraints.CENTER;
+
+        busyLabel = new JXBusyLabel(
+                new Dimension(UIUtilities.DEFAULT_ICON_WIDTH,
+                        UIUtilities.DEFAULT_ICON_HEIGHT));
         busyLabel.setVisible(false);
         busyLabel.setBusy(false);
-        add(busyLabel, BorderLayout.NORTH);
+        add(busyLabel, c);
+        c.gridx++;
 
-        label = new JLabel("", SwingConstants.CENTER);
-        add(label, BorderLayout.CENTER);
+        label = new JLabel("");
+        add(label, c);
     }
 
     /**
