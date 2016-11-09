@@ -34,9 +34,6 @@ from numpy import int32
 
 class TestScriptUtils(lib.ITest):
 
-    def setup_method(self, method):
-        self.svc = self.client.sf.getScriptService()
-
     def testSplitImage(self):
         imported_pix = ",".join(self.import_image())
         dir = tempfile.mkdtemp()
@@ -49,7 +46,8 @@ class TestScriptUtils(lib.ITest):
         imported_img = self.query.findByQuery(
             "select i from Image i join fetch i.pixels pixels\
             where pixels.id in (%s)" % imported_pix, None)
-        scriptUtil.split_image(self.client, imported_img.id.getValue(), dir)
+        scriptUtil.split_image(self.client, imported_img.id.getValue(), dir,
+                               unformattedImageName="a_T%05d_C%s_Z%d_S1.png")
         files = [f for f in listdir(dir) if isfile(join(dir, f))]
         shutil.rmtree(dir)
         assert sizeZ*sizeC*sizeT == len(files)
