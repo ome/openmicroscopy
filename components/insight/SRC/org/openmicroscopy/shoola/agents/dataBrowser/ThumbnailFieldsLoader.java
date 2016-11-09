@@ -91,14 +91,14 @@ public class ThumbnailFieldsLoader
     {
     	long userID = DataBrowserAgent.getUserDetails().getId();
     	
-    	Collection<DataObject> imgs = new ArrayList<DataObject>();
-    	for(ImageData i : images.values()) 
-    	    imgs.add(i);
-    	
-    	handle = hiBrwView.loadThumbnails(ctx, imgs, 
+        Collection<DataObject> imgs = new ArrayList<DataObject>();
+        for (ImageData i : images.values())
+            imgs.add(i);
+
+        handle = hiBrwView.loadThumbnails(ctx, imgs,
                 ThumbnailProvider.THUMB_MAX_WIDTH,
-                ThumbnailProvider.THUMB_MAX_HEIGHT,
-                userID, ThumbnailLoader.IMAGE, this);
+                ThumbnailProvider.THUMB_MAX_HEIGHT, userID,
+                ThumbnailLoader.IMAGE, this);
     }
     
     /** 
@@ -113,27 +113,29 @@ public class ThumbnailFieldsLoader
      */
     public void update(DSCallFeedbackEvent fe) 
     {
-        if (viewer.getState() == DataBrowser.DISCARDED) return;  //Async cancel.
+        if (viewer.getState() == DataBrowser.DISCARDED)
+            return; // Async cancel.
+        
         ThumbnailData td = (ThumbnailData) fe.getPartialResult();
-    	if (td != null) {
-    		if (result == null) 
-    		    result = new ArrayList<Object>();
-        	result.add(td);
-        	
-        	boolean complete = result.size() == images.values().size();
-        	
-        	Point well = null;
-        	for(Point p : images.keys()) {
-        	    for(ImageData img : images.get(p)) {
-        	        if(img.getId() == td.getImageID()) {
-        	            well = p;
-        	            break;
-        	        }
-        	    }
-        	}
-        	
-        	viewer.updateThumbnailsFields(well, td, complete);
-    	}
+        if (td != null) {
+            if (result == null)
+                result = new ArrayList<Object>();
+            result.add(td);
+
+            boolean complete = result.size() == images.values().size();
+
+            Point well = null;
+            for (Point p : images.keys()) {
+                for (ImageData img : images.get(p)) {
+                    if (img.getId() == td.getImageID()) {
+                        well = p;
+                        break;
+                    }
+                }
+            }
+
+            viewer.updateThumbnailsFields(well, td, complete);
+        }
     }
     
     /**

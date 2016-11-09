@@ -1608,22 +1608,22 @@ class DataBrowserComponent
     @Override
     public void updateThumbnailsFields(Point well, ThumbnailData thumbnail, boolean complete)
     {   
-        if (!(model instanceof WellsModel)) 
+        if (!(model instanceof WellsModel))
             return;
         WellsModel wm = (WellsModel) model;
-        
+
         List<WellSampleNode> wells = wm.getSelectedWells();
         if (CollectionUtils.isEmpty(wells))
             return;
 
-        EXIT: 
-        for (WellSampleNode w : wells) {
-            if(w.isWell()) {
+        EXIT: for (WellSampleNode w : wells) {
+            if (w.isWell()) {
                 Point p = new Point(w.getRow(), w.getColumn());
-            
+
                 for (WellSampleNode n : w.getParentWell().getWellSamples()) {
                     if (p.equals(well)) {
-                        WellSampleData d = (WellSampleData) n.getHierarchyObject();
+                        WellSampleData d = (WellSampleData) n
+                                .getHierarchyObject();
                         if (d.getImage().getId() == thumbnail.getImageID()) {
                             Thumbnail thumb = n.getThumbnail();
                             thumb.setFullScaleThumb(thumbnail.getThumbnail());

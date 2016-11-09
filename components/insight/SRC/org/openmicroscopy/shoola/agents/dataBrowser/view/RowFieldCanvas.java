@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.view.WellFieldsCanvas 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2016 University of Dundee. All rights reserved.
  *
@@ -338,7 +336,7 @@ class RowFieldCanvas extends WellFieldsCanvas {
      */
     public WellSampleNode getNode(Point p) {
         Component c = findComponentAt(p);
-        if (c != null && c instanceof FieldDisplay) {
+        if (c instanceof FieldDisplay) {
             return ((FieldDisplay) c).getNode();
         }
         return null;

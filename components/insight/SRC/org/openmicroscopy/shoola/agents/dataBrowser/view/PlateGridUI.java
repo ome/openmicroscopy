@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.view.PlateGridUI 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
@@ -23,7 +21,6 @@
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 
-//Java imports
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -32,13 +29,10 @@ import java.util.List;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-
-//Third-party libraries
 import info.clearthought.layout.TableLayout;
 
-
 import org.apache.commons.collections.CollectionUtils;
-//Application-internal dependencies
+
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 import org.openmicroscopy.shoola.util.ui.PlateGrid;

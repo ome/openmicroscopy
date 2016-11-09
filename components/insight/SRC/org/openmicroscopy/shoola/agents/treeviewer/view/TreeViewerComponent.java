@@ -145,7 +145,6 @@ import omero.gateway.model.PlateData;
 import omero.gateway.model.ProjectData;
 import omero.gateway.model.ScreenData;
 import omero.gateway.model.TagAnnotationData;
-import omero.gateway.model.WellData;
 import omero.gateway.model.WellSampleData;
 
 /** 
@@ -1376,7 +1375,8 @@ class TreeViewerComponent
 		List selection = (List) l.get(0);
 		Object parent = null;
 		if (n == 2) parent = l.get(1);
-		if (selection == null || selection.size() == 0) return;
+		if (CollectionUtils.isEmpty(selection))
+		    return;
 		Object selected = selection.get(0);
 		
         Iterator it = selection.iterator();
