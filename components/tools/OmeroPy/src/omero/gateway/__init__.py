@@ -3118,10 +3118,15 @@ class _BlitzGateway (object):
                 order_by = opts['order_by']
         # Handle existing Parameters - need to retrieve owner filter
         elif inputParams is not None:
-            if inputParams.theFilter and inputParams.theFilter.ownerId is not None:
-                owner = inputParams.theFilter.ownerId
-            # TODO - other params args will be ignored unless we handle
-            # here, E.g. pagination?
+            if inputParams.theFilter:
+                if inputParams.theFilter.ownerId is not None:
+                    owner = inputParams.theFilter.ownerId
+                # pagination
+                offset = inputParams.theFilter.offset
+                limit = inputParams.theFilter.limit
+                if limit is not None and offset is not None:
+                    params.page(offset.val, limit.val)
+                # Other params args will be ignored unless we handle here
 
         # getting object by ids
         if ids is not None:
