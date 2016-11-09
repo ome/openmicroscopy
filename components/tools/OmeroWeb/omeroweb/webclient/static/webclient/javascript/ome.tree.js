@@ -141,7 +141,7 @@ $(function() {
             inst.select_node('ul > li:first');
         } else {
             // We load hierachy for first item...
-            var paramSplit = nodeIds[0].split('-');
+            var paramSplit = nodeIds[0].split(/-(.+)/);
 
             var payload = {};
             payload[paramSplit[0]] = paramSplit[1];
@@ -156,8 +156,11 @@ $(function() {
                     data = json.paths;
                     // Use the open_node callback mechanism to facilitate loading the tree to the
                     // point indicated by the path, starting from the top, 'experimenter'.
-                    if (data.length === 0) return;
-
+                    if (data.length === 0) {
+                        // If not found, just select root node
+                        inst.select_node('ul > li:first');
+                        return;
+                    }
                     var getTraverse = function(path) {
                         var traverse = function(index, parentNode) {
                             // Get this path component
@@ -390,8 +393,12 @@ $(function() {
             'data' : function(node, callback, payload) {
                 // Get the data for this query
                 if (payload === undefined) {
-                    payload = {};
+                    // Check for existing 'payload' data, used to initialise the jsTree
+                    payload = this.element.data('payload');
+                    // clear data
+                    $.removeData(this.element[0], "payload");
                 }
+                payload = payload || {}
                 // We always use the parent id to fitler. E.g. experimenter id, project id etc.
                 // Exception to this for orphans as in the case of api_images, id is a dataset
                 if (node.hasOwnProperty('data') && node.type != 'orphaned') {
@@ -739,7 +746,7 @@ $(function() {
                 'valid_children': ['project','dataset','screen','plate', 'tag', 'tagset']
             },
             'map': {
-                'icon': WEBCLIENT.URLS.static_webclient + 'image/left_sidebar_icon_tag.png',
+                'icon': WEBCLIENT.URLS.static_webclient + 'image/left_sidebar_icon_map.png',
                 'valid_children': ['project', 'screen'],
                 'draggable': false
             },
