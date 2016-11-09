@@ -374,6 +374,61 @@ class ValueResolver(object):
         raise MetadataError('Unsupported column class: %s' % column_class)
 
 
+class PlateData(object):
+    """
+    Largely "mock" object which is intended to simulate the data returned
+    by querying a Plate but without the overhead of storing all the Ice
+    fields.
+    """
+
+    def __init__(self, plate):
+        self.id = plate.id
+        self.name = plate.name
+        self.wells = []
+        for well in plate.copyWells():
+            self.wells.append(WellData(well))
+
+
+class WellData(object):
+    """
+    Largely "mock" object which is intended to simulate the data returned
+    by querying a Well but without the overhead of storing all the Ice
+    fields.
+    """
+
+    def __init__(self, well):
+        self.id = well.id
+        self.row = well.row
+        self.column = well.column
+        self.well_samples = []
+        for well_sample in well.copyWellSamples():
+            self.well_samples.append(WellSampleData(well_sample))
+
+
+class WellSampleData(object):
+    """
+    Largely "mock" object which is intended to simulate the data returned
+    by querying a WellSample but without the overhead of storing all the Ice
+    fields.
+    """
+
+    def __init__(self, well_sample):
+        self.id = well_sample.id
+        self.image = ImageData(well_sample.getImage())
+
+
+class ImageData(object):
+    """
+    Largely "mock" object which is intended to simulate the data returned
+    by querying a Image but without the overhead of storing all the Ice
+    fields.
+    """
+
+    def __init__(self, image):
+        self.id = image.id
+        self.name = image.name
+
+
 class ValueWrapper(object):
 
     def __init__(self, value_resolver):
@@ -397,9 +452,12 @@ class SPWWrapper(ValueWrapper):
         raise Exception("to be implemented by subclasses")
 
     def parse_plate(self, plate, wells_by_location, wells_by_id, images_by_id):
+        """
+        Accepts PlateData instances
+        """
         # TODO: This should use the PlateNamingConvention. We're assuming rows
         # as alpha and columns as numeric.
-        for well in plate.copyWells():
+        for well in plate.wells:
             wells_by_id[well.id.val] = well
             row = well.row.val
             # 0 offsetted is not what people use in reality
@@ -410,8 +468,8 @@ class SPWWrapper(ValueWrapper):
                 wells_by_location[self.AS_ALPHA[row]] = columns = dict()
             columns[column] = well
 
-            for well_sample in well.copyWellSamples():
-                image = well_sample.getImage()
+            for well_sample in well.well_samples:
+                image = well_sample.image
                 images_by_id[image.id.val] = image
         log.debug('Completed parsing plate: %s' % plate.name.val)
         for row in wells_by_location:
@@ -496,11 +554,12 @@ class ScreenWrapper(SPWWrapper):
             parameters = omero.sys.ParametersI()
             parameters.addId(plate.id.val)
             plate = query_service.findByQuery((
-                'select p from Plate as p '
+                'select p from Plate p '
                 'join fetch p.wells as w '
                 'join fetch w.wellSamples as ws '
                 'join fetch ws.image as i '
                 'where p.id = :id'), parameters, {'omero.group': '-1'})
+            plate = PlateData(plate)
             self.plates_by_name[plate.name.val] = plate
             self.plates_by_id[plate.id.val] = plate
             wells_by_location = dict()
@@ -564,7 +623,8 @@ class PlateWrapper(SPWWrapper):
         self.wells_by_id[self.target_object.id.val] = wells_by_id
         self.images_by_id[self.target_object.id.val] = images_by_id
         self.parse_plate(
-            self.target_object, wells_by_location, wells_by_id, images_by_id
+            PlateData(self.target_object),
+            wells_by_location, wells_by_id, images_by_id
         )
 
 
@@ -957,10 +1017,14 @@ class _QueryContext(object):
         """
         In some cases groups of objects must be kept together.
         This method attempts to return up to sz objects without breaking
-        up groups. If a single group is greater than sz the whole group
-        is returned.
+        up groups.
+        If a single group is greater than sz the whole group is returned.
+        Callers are responsible for checking the size of the returned batch.
 
         :param groups: an iterable of lists/tuples of objects
+        :return: a list of the next batch of objects, if a single group has
+                 more than sz elements it will be returned as a single
+                 over-sized batch
         """
         batch = []
         for group in groups:
@@ -1158,13 +1222,71 @@ class BulkToMapAnnotationContext(_QueryContext):
         return cma
 
     def _create_map_annotation_links(self, cma):
+        """
+        Converts a `CanonicalMapAnnotation` object into OMERO `MapAnnotations`
+        and `AnnotationLinks`. `AnnotationLinks` will have the parent and
+        child set, where the child is a single `MapAnnotation` object shared
+        amongst all links.
+
+        If the number of `AnnotationLinks` is small callers may choose to save
+        the links and `MapAnnotation` using `UpdateService` directly, ignoring
+        the second element of the tuple.
+
+        If the number of `AnnotationLinks` is large the caller should first
+        save the `MapAnnotation`, call `setChild` on all `AnnotationLinks` to
+        reference the saved `MapAnnotation`, and finally save all
+        `AnnotationLinks`.
+
+        This complexity is unfortunately required to avoid going over the
+        Ice message size.
+
+        :return: A tuple of (`AnnotationLinks`, `MapAnnotation`)
+        """
         links = []
+        ma = cma.get_mapann()
         for (otype, oid) in cma.get_parents():
             link = getattr(omero.model, '%sAnnotationLinkI' % otype)()
             link.setParent(getattr(omero.model, '%sI' % otype)(oid, False))
-            link.setChild(cma.get_mapann())
+            link.setChild(ma)
             links.append(link)
-        return links
+        return links, ma
+
+    def _save_annotation_links(self, links):
+        """
+        Save `AnnotationLinks` including the child annotation in one go.
+        See `_create_map_annotation_links`
+        """
+        sf = self.client.getSession()
+        group = str(self.target_object.details.group.id)
+        update_service = sf.getUpdateService()
+        arr = update_service.saveAndReturnArray(links, {'omero.group': group})
+        return arr
+
+    def _save_annotation_and_links(self, links, ann, batch_size):
+        """
+        Save a single `Annotation`, followed by the `AnnotationLinks` to that
+        Annotation and return the number of links saved.
+
+        All `AnnotationLinks` must have `ann` as their child.
+        Links will be saved in batches of `batch_size`.
+
+        See `_create_map_annotation_links`
+        """
+        sf = self.client.getSession()
+        group = str(self.target_object.details.group.id)
+        update_service = sf.getUpdateService()
+
+        annobj = update_service.saveAndReturnObject(ann)
+        annobj.unload()
+
+        sz = 0
+        for batch in self._batch(links, sz=batch_size):
+            for link in batch:
+                link.setChild(annobj)
+            update_service.saveArray(
+                batch, {'omero.group': group})
+            sz += len(batch)
+        return sz
 
     def parse(self):
         tableid = self.ofileid
@@ -1255,22 +1377,48 @@ class BulkToMapAnnotationContext(_QueryContext):
                         if not ignore_missing_primary_key:
                             raise
 
+    def _write_log(self, text):
+        log.debug("BulkToMapAnnotation:write_to_omero - %s" % text)
+
     def write_to_omero(self, batch_size=1000):
-        sf = self.client.getSession()
-        group = str(self.target_object.details.group.id)
-        update_service = sf.getUpdateService()
         i = 0
+        cur = 0
         links = []
+
         # This may be many-links-to-one-new-mapann so everything must
         # be kept together to avoid duplication of the mapann
-        for cma in self.mapannotations.get_map_annotations():
-            links.append(self._create_map_annotation_links(cma))
+        self._write_log("Start")
+        cmas = self.mapannotations.get_map_annotations()
+        self._write_log("found %s annotations" % len(cmas))
+        for cma in cmas:
+            batch, ma = self._create_map_annotation_links(cma)
+            self._write_log("found batch of size %s" % len(batch))
+            if len(batch) < batch_size:
+                links.append(batch)
+                cur += len(batch)
+                if cur > 10 * batch_size:
+                    self._write_log("running batches. accumulated: %s" % cur)
+                    i += self._write_links(links, batch_size, i)
+                    links = []
+                    cur = 0
+            else:
+                self._write_log("running grouped_batch")
+                sz = self._save_annotation_and_links(batch, ma, batch_size)
+                i += sz
+                log.info('Created/linked %d MapAnnotations (total %s)',
+                         sz, i)
+        # Handle any remaining writes
+        i += self._write_links(links, batch_size, i)
+
+    def _write_links(self, links, batch_size, i):
+        count = 0
         for batch in self._grouped_batch(links, sz=batch_size):
-            arr = update_service.saveAndReturnArray(
-                batch, {'omero.group': group})
-            i += len(arr)
+            self._write_log("batch size: %s" % len(batch))
+            arr = self._save_annotation_links(batch)
+            count += len(arr)
             log.info('Created/linked %d MapAnnotations (total %s)',
-                     len(arr), i)
+                     len(arr), i+count)
+        return count
 
 
 class DeleteMapAnnotationContext(_QueryContext):
