@@ -675,11 +675,6 @@ public class RawPixelsBean extends AbstractStatefulBean implements
 
         int imgWidth = buffer.getSizeX();
 
-        if (plane.getSlice() != PlaneDef.XY) {
-            handleException(new RuntimeException("XY planes supported only"));
-            // TODO: How to handle other plane types?
-        }
-
         int z = plane.getZ() >= 0 ? plane.getZ() : 0;
         int t = plane.getT() >= 0 ? plane.getT() : 0;
         int x = (plane.getRegion() != null && plane.getRegion().getX() >= 0) ? plane
