@@ -292,8 +292,6 @@ def render_birds_eye_view(request, iid, size=None,
                         bird's eye view.
     @return:            http response containing jpeg
     """
-    if size is None:
-        size = 96       # Use cached thumbnail
     return render_thumbnail(request, iid, w=size, **kwargs)
 
 
@@ -306,14 +304,14 @@ def render_thumbnail(request, iid, w=None, h=None, conn=None, _defcb=None,
 
     @param request:     http request
     @param iid:         Image ID
-    @param w:           Thumbnail max width. 64 by default
+    @param w:           Thumbnail max width. 96 by default
     @param h:           Thumbnail max height
     @return:            http response containing jpeg
     """
     server_id = request.session['connector'].server_id
     direct = True
     if w is None:
-        size = (64,)
+        size = (96,)
     else:
         if h is None:
             size = (int(w),)
@@ -1373,24 +1371,28 @@ def plateGrid_json(request, pid, field=0, conn=None, **kwargs):
     except ValueError:
         field = 0
     prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
-    thumbsize = int(request.GET.get('size', 96))
+    thumbsize = getIntOrDefault(request, 'size', None)
     logger.debug(thumbsize)
     server_id = kwargs['server_id']
 
-    def urlprefix(iid):
-        return reverse(prefix, args=(iid, thumbsize))
+    def get_thumb_url(iid):
+        if thumbsize is not None:
+            return reverse(prefix, args=(iid, thumbsize))
+        return reverse(prefix, args=(iid,))
+
     plateGrid = PlateGrid(conn, pid, field,
-                          kwargs.get('urlprefix', urlprefix))
+                          kwargs.get('urlprefix', get_thumb_url))
     plate = plateGrid.plate
     if plate is None:
         return Http404
 
-    rv = webgateway_cache.getJson(request, server_id, plate,
-                                  'plategrid-%d-%d' % (field, thumbsize))
+    cache_key = 'plategrid-%d-%s' % (field, thumbsize)
+    rv = webgateway_cache.getJson(request, server_id, plate, cache_key)
+
     if rv is None:
         rv = plateGrid.metadata
         webgateway_cache.setJson(request, server_id, plate, json.dumps(rv),
-                                 'plategrid-%d-%d' % (field, thumbsize))
+                                 cache_key)
     else:
         rv = json.loads(rv)
     return rv
