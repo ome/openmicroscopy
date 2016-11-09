@@ -21,13 +21,16 @@ from Parse_OMERO_Properties import imageId, datasetId
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
 
-
+print HOST
+print PORT
 # Retrieve image in specified dataset
 # =================================================================
 dataset = conn.getObject("Dataset", datasetId)
-for image in dataset.listChildren():
-    imageId2 = image.getId()
-    break
+imageId2 = imageId
+for img in dataset.listChildren():
+    if img.getName() == "test.fake":
+        imageId2 = img.getId()
+        break
 
 replaceChannel = 0
 
@@ -36,9 +39,9 @@ replaceChannel = 0
 # =================================================================
 # Replace one channel with a channel from another image.
 # orphaned image has sizeT=10
-image2 = conn.getObject('Image', imageId)
+image = conn.getObject('Image', imageId)
 # Use the image in dataset as source image
-image = conn.getObject('Image', imageId2)
+image2 = conn.getObject('Image', imageId2)
 sizeZ, sizeC, sizeT = image.getSizeZ(), image.getSizeC(), image.getSizeT()
 dataset = image.getParent()
 pixels = image.getPrimaryPixels()
