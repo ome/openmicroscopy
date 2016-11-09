@@ -52,7 +52,7 @@
     <dependency org="pdfbox" name="pdfbox" rev="${versions.pdfbox}"/>
     <dependency org="edu.ucar" name="grib" rev="${versions.grib}" transitive="false"/>
     <dependency org="edu.ucar" name="bufr" rev="${versions.bufr}" transitive="false"/>
-    <dependency org="ome" name="lwf-stubs" rev="${versions.bioformats}" transitive="false"/>
+    <dependency org="idr" name="lwf-stubs" rev="${versions.bioformats}" transitive="false"/>
     <!-- spring -->
     <dependency org="commons-collections" name="commons-collections" rev="${versions.commons-collections}"/>
     <dependency org="org.springframework" name="spring-context-support" rev="${versions.spring}"/>
