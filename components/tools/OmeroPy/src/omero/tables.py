@@ -13,8 +13,8 @@ import logging
 import threading
 import traceback
 
+from os import W_OK
 from path import path
-
 
 import omero  # Do we need both??
 import omero.clients
@@ -219,8 +219,16 @@ class HdfStorage(object):
 
     def openfile(self, mode):
         try:
-            if self.__hdf_path.exists() and self.__hdf_path.size == 0:
-                mode = "w"
+
+            if self.__hdf_path.exists():
+                if self.__hdf_path.size == 0:
+                    mode = "w"
+                elif mode != "r" and not self.__hdf_path.access(W_OK):
+                    self.logger.info(
+                        "%s not writable (mode=%s). Opening read-only" % (
+                            self.__hdf_path, mode))
+                    mode = "r"
+
             return tables.openFile(str(self.__hdf_path), mode=mode,
                                    title="OMERO HDF Measurement Storage",
                                    rootUEP="/")

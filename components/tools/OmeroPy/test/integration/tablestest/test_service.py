@@ -651,4 +651,39 @@ class TestTables(lib.ITest):
         table.delete()
         table.close()
 
+    @pytest.mark.broken(ticket="unimplemented")
+    def testReadOnlyFile(self):
+        """
+        Create an HDF5 file on the server, and then mark it read-only.
+        The server should still allow you to load & read that file.
+        """
+        self.testBlankTable()  # ofile
+
+        filename = self.unique_dir + "/file.txt"
+        mrepo = self.getManagedRepo()
+
+        assert not mrepo.fileExists(filename)
+        self.createFile(mrepo, filename)
+        assert mrepo.fileExists(filename)
+        assert "file.txt" in mrepo.list(self.unique_dir)[0]
+
+        grid = self.client.sf.sharedResources()
+        repoMap = grid.repositories()
+        repoObj = repoMap.descriptions[0]
+        table = grid.newTable(repoObj.id.val, "/test")
+        assert table
+        lcol = columns.LongColumnI('longcol', 'long col')
+        table.initialize([lcol])
+        table.setMetadata('test', wrap('test'))
+        tid = unwrap(table.getOriginalFile().getId())
+        table.close()
+
+        # Mark the file as read only
+        # wip: read_only = self.raw("read-only", [file_path])
+
+        table = grid.openTable(omero.model.OriginalFileI(tid))
+        assert table
+        table.delete()
+        table.close()
+
 # TODO: Add tests for error conditions
