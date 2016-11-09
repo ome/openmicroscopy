@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -21,12 +21,17 @@
 package integration;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import ome.io.nio.RomioPixelBuffer;
 import omero.api.RawPixelsStorePrx;
 import omero.model.Image;
 import omero.model.Pixels;
+import omero.romio.PlaneDef;
+import omero.romio.RegionDef;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
@@ -71,7 +76,7 @@ public class RawPixelsStoreTest extends AbstractServerTest {
     public void localSetUp() throws Exception {
         Image image = mmFactory.createImage(ModelMockFactory.SIZE_X,
                 ModelMockFactory.SIZE_Y, ModelMockFactory.SIZE_Z,
-                ModelMockFactory.SIZE_T, 1);
+                ModelMockFactory.SIZE_T, 3);
         image = (Image) iUpdate.saveAndReturnObject(image);
         Pixels pixels = image.getPrimaryPixels();
         planeSize = pixels.getSizeX().getValue() * pixels.getSizeY().getValue();
@@ -350,7 +355,95 @@ public class RawPixelsStoreTest extends AbstractServerTest {
      */
     @Test
     public void testGetHistogram() throws Exception {
-        //TODO: Implement!
+        final int bw = svc.getByteWidth();
+        final int byteSize = (int) svc.getPlaneSize();
+        final int pxSize = (int) (byteSize/bw);
+        final int nChannels = 3;
+        final int binSize = 256;
+        final int z = 0;
+        final int t = 0;
+        
+        // Construct an image with 3 channels, where half of the pixels
+        // are set to 50 (channel 0), 100 (channel 1) or 150 (channel 2),
+        // and the other half set to 150 (channel 0), 200 (channel 1) or 250 (channel 2);
+        // only set data for the first z/t plane.
+        for (int ch = 0; ch < nChannels; ch++) {
+            byte[] buf = new byte[byteSize];
+            for (int i = 0; i < byteSize; i+=bw) {
+                if (ch == 0)
+                    buf[i] = (byte) (i < byteSize / 2 ? 50 : 150);
+                else if (ch == 1)
+                    buf[i] = (byte) (i < byteSize / 2 ? 100 : 200);
+                else
+                    buf[i] = (byte) (i < byteSize / 2 ? 150 : 250);
+            }
+            svc.setPlane(buf, z, ch, t);
+        }
+
+        int[] channels = new int[] { 0, 1, 2 };
+
+        PlaneDef plane = new PlaneDef(omeis.providers.re.data.PlaneDef.XY, 0, 0, z, t, null, -1);
+        Map<Integer, int[]> data = svc.getHistogram(channels, binSize, plane);
+
+        Assert.assertEquals(data.size(), nChannels);
+
+        Iterator<Entry<Integer, int[]>> it = data.entrySet().iterator();
+        while(it.hasNext()) {
+            Entry<Integer, int[]> e = it.next();
+            int ch = e.getKey();
+            int[] counts = e.getValue();
+            Assert.assertEquals(counts.length, binSize);
+
+            if (ch == 0) {
+                for (int bin = 0; bin < binSize; bin++) {
+                    int exp = 0;
+                    if (bin == 50 || bin == 150)
+                        exp = pxSize / 2;
+
+                    Assert.assertEquals(counts[bin], exp);
+                }
+                it.remove();
+            } else if (ch == 1) {
+                for (int bin = 0; bin < binSize; bin++) {
+                    int exp = 0;
+                    if (bin == 100 || bin == 200)
+                        exp = pxSize / 2;
+
+                    Assert.assertEquals(counts[bin], exp);
+                }
+                it.remove();
+            } else if (ch == 2) {
+                for (int bin = 0; bin < binSize; bin++) {
+                    int exp = 0;
+                    if (bin == 150 || bin == 250)
+                        exp = pxSize / 2;
+
+                    Assert.assertEquals(counts[bin], exp);
+                }
+                it.remove();
+            }
+        }
+
+        Assert.assertTrue(data.isEmpty());
+        
+        // Test a region, first channel only
+        // (first 5x5 pixels should all have value '50')
+        RegionDef region = new RegionDef(0, 0, 5, 5);
+        plane = new PlaneDef(omeis.providers.re.data.PlaneDef.XY, 0, 0, z, t, region, -1);
+        
+        data = svc.getHistogram(new int[] {0}, binSize, plane);
+        Assert.assertEquals(data.size(), 1);
+        
+        int[] counts = data.values().iterator().next();
+        Assert.assertEquals(counts.length, binSize);
+        
+        for (int bin = 0; bin < binSize; bin++) {
+            int exp = 0;
+            if (bin == 50)
+                exp = 25;
+
+            Assert.assertEquals(counts[bin], exp);
+        }
     }
 
     /**

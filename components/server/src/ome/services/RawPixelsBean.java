@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,8 +32,6 @@ import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.io.nio.RomioPixelBuffer;
 import ome.model.core.Pixels;
-import ome.model.display.ProjectionDef;
-import ome.model.display.RenderingDef;
 import ome.parameters.Parameters;
 import ome.util.PixelData;
 import ome.util.ShallowCopy;
@@ -670,14 +669,53 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     }
     
     @RolesAllowed("user")
-    public synchronized int[][] getHistogram(List<Integer> channels,
-            int binSize, RenderingDef renderingDef,
-            ProjectionDef projectionDef, PlaneDef planeDef) {
+    public synchronized Map<Integer, int[]> getHistogram(int[] channels,
+            int binSize, PlaneDef plane) {
         errorIfNotLoaded();
 
-        // TODO: Implement!
+        int imgWidth = buffer.getSizeX();
 
-        return null;
+        if (plane.getSlice() != PlaneDef.XY) {
+            handleException(new RuntimeException("XY planes supported only"));
+            // TODO: How to handle other plane types?
+        }
+
+        int z = plane.getZ() >= 0 ? plane.getZ() : 0;
+        int t = plane.getT() >= 0 ? plane.getT() : 0;
+        int x = (plane.getRegion() != null && plane.getRegion().getX() >= 0) ? plane
+                .getRegion().getX() : 0;
+        int y = (plane.getRegion() != null && plane.getRegion().getY() >= 0) ? plane
+                .getRegion().getY() : 0;
+        int w = (plane.getRegion() != null && plane.getRegion().getWidth() > 0) ? plane
+                .getRegion().getWidth() : imgWidth;
+        int h = (plane.getRegion() != null && plane.getRegion().getHeight() > 0) ? plane
+                .getRegion().getHeight() : buffer.getSizeY();
+
+        Map<Integer, int[]> result = null;
+
+        try {
+            result = new HashMap<Integer, int[]>();
+            for (int ch : channels) {
+                PixelData px = buffer.getPlane(z, ch, t);
+                int[] data = new int[binSize];
+                double range = px.getMaximum() - px.getMinimum();
+                double binRange = range / binSize;
+                for (int i = 0; i < px.size(); i++) {
+                    int pxx = i % imgWidth;
+                    int pxy = i / imgWidth;
+                    if (pxx >= x && pxx < (x + w) && pxy >= y
+                            && pxy < (y + h)) {
+                        int bin = (int) (px.getPixelValue(i) / binRange);
+                        data[bin]++;
+                    }
+                }
+                result.put(ch, data);
+            }
+        } catch (Exception e) {
+            handleException(e);
+        }
+
+        return result;
     }
 
     // ~ Helpers

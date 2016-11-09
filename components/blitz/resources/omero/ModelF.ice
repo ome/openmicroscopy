@@ -48,7 +48,6 @@ module omero {
         class Plate;
         class Plate;
         class Project;
-        class ProjectionDef;
         class QuantumDef;
         class RenderingDef;
         class RenderingModel;

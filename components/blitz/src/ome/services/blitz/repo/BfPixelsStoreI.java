@@ -59,6 +59,7 @@ import omero.api.AMD_StatefulServiceInterface_close;
 import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
 import omero.api.AMD_StatefulServiceInterface_passivate;
 import omero.api._RawPixelsStoreDisp;
+import omero.romio.PlaneDef;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -345,11 +346,7 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
     }
     
     public void getHistogram_async(AMD_RawPixelsStore_getHistogram __cb,
-            List<Integer> channels, int binSize,
-            omero.model.RenderingDef renderingDef,
-            omero.model.ProjectionDef projectionDef,
-            omero.romio.PlaneDef planeDef, Current __current)
-            throws ServerError {
+            int[] channels, int binSize, PlaneDef plane, Current __current) throws ServerError {
         // TODO: !?!?
     }
 

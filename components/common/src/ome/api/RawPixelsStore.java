@@ -8,10 +8,12 @@
 package ome.api;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import ome.annotations.Validate;
 import ome.model.core.Pixels;
+import omeis.providers.re.data.PlaneDef;
 
 /**
  * Binary data provider. Initialized with the id of a
@@ -87,6 +89,8 @@ public interface RawPixelsStore extends StatefulServiceInterface {
     public byte[] getRow(int y, int z, int c, int t);
     
     public byte[] getCol(int x, int z, int c, int t);
+    
+    public Map<Integer, int[]> getHistogram(int[] channels, int binSize, PlaneDef plane);
 
     public byte[] getHypercube(@Validate(Integer.class) List<Integer> offset, @Validate(Integer.class) List<Integer> size, @Validate(Integer.class) List<Integer> step);
 
