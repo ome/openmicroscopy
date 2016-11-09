@@ -2595,7 +2595,7 @@ class _BlitzGateway (object):
             params = omero.sys.ParametersI()
 
         wrapper = KNOWN_WRAPPERS.get(obj_type.lower(), None)
-        # This gives us query, clauses and params but we only use query
+        query = wrapper()._getQueryString()
         query = wrapper()._getQueryString()[0]
 
         if loadPixels and obj_type == 'Image':
@@ -3095,17 +3095,20 @@ class _BlitzGateway (object):
         owner = None
         order_by = None
         opts = None
+        inputParams = None
 
         if isinstance(params, dict):
             opts = params
+        elif isinstance(params, omero.sys.Parameters):
+            inputParams = params
+
         # get the base query from the instantiated object itself. E.g "select
         # obj Project as obj"
         query, clauses, params = wrapper()._getQueryString(opts)
 
         # Handle dict of parameters -> convert to ParametersI()
         if opts is not None:
-            # params = omero.sys.ParametersI()
-            # Parse params dict to build params
+            # Parse opts dict to build params
             if 'page' in opts and 'limit' in opts:
                 limit = opts['limit']
                 params.page((opts['page']-1) * limit, limit)
@@ -3114,15 +3117,11 @@ class _BlitzGateway (object):
             if 'order_by' in opts:
                 order_by = opts['order_by']
         # Handle existing Parameters - need to retrieve owner filter
-        elif isinstance(params, omero.sys.Parameters):
-            if params.map is None:
-                params.map = {}
-            if params.theFilter and params.theFilter.ownerId:
-                owner = params.theFilter.ownerId
+        elif inputParams is not None:
+            if inputParams.theFilter and inputParams.theFilter.ownerId is not None:
+                owner = inputParams.theFilter.ownerId
             # TODO - other params args will be ignored unless we handle
             # here, E.g. pagination?
-        # else:
-        #     params = omero.sys.ParametersI()
 
         # getting object by ids
         if ids is not None:
