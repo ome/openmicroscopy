@@ -1242,8 +1242,6 @@ def numpyToImage(plane, minMax, type):
 
     import numpy
     from numpy import add, zeros
-    from matplotlib.image import imsave
-    import io
     try:
         from PIL import Image
     except ImportError:
@@ -1260,14 +1258,6 @@ def numpyToImage(plane, minMax, type):
             add(convArray, scaled, out=convArray, casting="unsafe")
         else:
             add(convArray, scaled, out=convArray)
-        if (len(plane.shape) == 2):
-            return Image.frombytes('I', (plane.shape[1], plane.shape[0]),
-                                   convArray)
-        else:
-            buf = io.BytesIO()
-            imsave(buf, convArray)
-            return Image.open(buf)
+        return Image.frombytes('I', plane.shape, convArray)
     else:
-        buf = io.BytesIO()
-        imsave(buf, plane)
-        return Image.open(buf)
+        return Image.frombytes('I', plane.shape, convArray)
