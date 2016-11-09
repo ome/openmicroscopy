@@ -651,14 +651,13 @@ class TestTables(lib.ITest):
         table.delete()
         table.close()
 
+    @pytest.mark.broken(ticket="unimplemented")
     def testReadOnlyFile(self):
         """
         Create an HDF5 file on the server, and then mark it read-only.
         The server should still allow you to load & read that file.
         """
-        table = self.testBlankTable()
-        table.getOriginalFile()
-        table.close()
+        self.testBlankTable()  # ofile
 
         filename = self.unique_dir + "/file.txt"
         mrepo = self.getManagedRepo()
