@@ -321,6 +321,16 @@ class TestGetObject (object):
         for p in pros:
             assert p.getId() in projectIds
 
+    def testPagination(self, gatewaywrapper):
+        gatewaywrapper.loginAsAuthor()
+        params = omero.sys.ParametersI()
+        # Only 3 images available
+        limit = 2
+        params.page(0, limit)
+        pros = list(gatewaywrapper.gateway.getObjects(
+            "Project", None, params))
+        assert len(pros) == limit
+
     def testListExperimentersAndGroups(self, gatewaywrapper):
         gatewaywrapper.loginAsAuthor()
         # experimenters
