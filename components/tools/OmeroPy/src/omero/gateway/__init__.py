@@ -2595,7 +2595,8 @@ class _BlitzGateway (object):
             params = omero.sys.ParametersI()
 
         wrapper = KNOWN_WRAPPERS.get(obj_type.lower(), None)
-        query = wrapper()._getQueryString()
+        # This gives us query, clauses and params but we only use query
+        query = wrapper()._getQueryString()[0]
 
         if loadPixels and obj_type == 'Image':
             # left outer join so we don't exclude
