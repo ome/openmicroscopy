@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import ome.api.RawPixelsStore;
 import ome.io.nio.RomioPixelBuffer;
 import omero.api.RawPixelsStorePrx;
 import omero.model.Image;
@@ -74,9 +75,21 @@ public class RawPixelsStoreTest extends AbstractServerTest {
 
     @BeforeMethod
     public void localSetUp() throws Exception {
+        localSetUp(1);
+    }
+
+    /**
+     * Setup {@link RawPixelsStore} with the specified number of channels
+     * 
+     * @param nChannels
+     *            Number of channels
+     * @throws Exception
+     *             If an error occured.
+     */
+    private void localSetUp(int nChannels) throws Exception {
         Image image = mmFactory.createImage(ModelMockFactory.SIZE_X,
                 ModelMockFactory.SIZE_Y, ModelMockFactory.SIZE_Z,
-                ModelMockFactory.SIZE_T, 3);
+                ModelMockFactory.SIZE_T, nChannels);
         image = (Image) iUpdate.saveAndReturnObject(image);
         Pixels pixels = image.getPrimaryPixels();
         planeSize = pixels.getSizeX().getValue() * pixels.getSizeY().getValue();
@@ -355,18 +368,21 @@ public class RawPixelsStoreTest extends AbstractServerTest {
      */
     @Test
     public void testGetHistogram() throws Exception {
+        // Create an image with 3 channels
+        final int nChannels = 3;
+        localSetUp(nChannels);
+        
         final int bw = svc.getByteWidth();
         final int byteSize = (int) svc.getPlaneSize();
         final int pxSize = (int) (byteSize/bw);
-        final int nChannels = 3;
         final int binSize = 256;
         final int z = 0;
         final int t = 0;
         
-        // Construct an image with 3 channels, where half of the pixels
+        // Only set data for the first z/t plane, where half of the pixels
         // are set to 50 (channel 0), 100 (channel 1) or 150 (channel 2),
-        // and the other half set to 150 (channel 0), 200 (channel 1) or 250 (channel 2);
-        // only set data for the first z/t plane.
+        // and the other half set to 150 (channel 0), 200 (channel 1) 
+        // or 250 (channel 2)
         for (int ch = 0; ch < nChannels; ch++) {
             byte[] buf = new byte[byteSize];
             for (int i = 0; i < byteSize; i+=bw) {
