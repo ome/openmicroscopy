@@ -53,10 +53,12 @@ import omero
 from omero.gateway import BlitzGateway
 from omero.model.enums import UnitsLength
 parser = argparse.ArgumentParser()
+parser.add_argument('host', help='OMERO host')
+parser.add_argument('port', help='OMERO port')
 parser.add_argument('key', help='OMERO session key')
 parser.add_argument('plateId', help='Plate ID to process', type=int)
 args = parser.parse_args()
-conn = BlitzGateway()
+conn = BlitzGateway(host=args.host, port=args.port)
 conn.connect(args.key)
 update = conn.getUpdateService()
 plate = conn.getObject('Plate', args.plateId)
@@ -117,7 +119,7 @@ bin/omero obj update Plate:$plateid name=spwTests
 OMERO_DEV_PLUGINS=1 bin/omero metadata populate Plate:$plateid --file $BULK_ANNOTATION_CSV
 
 # Run script to populate WellSamples with posX and posY values
-PYTHONPATH=./lib/python python $WELLSCRIPT $key $plateid
+PYTHONPATH=./lib/python python $WELLSCRIPT $HOSTNAME $PORT $key $plateid
 
 # Import Plate and rename for test ?show=image.name-NAME
 bin/omero import $PLATE_NAME --debug ERROR > show_import.log 2>&1
