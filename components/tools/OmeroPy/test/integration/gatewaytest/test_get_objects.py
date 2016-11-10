@@ -331,6 +331,25 @@ class TestGetObject (object):
             "Project", None, params))
         assert len(pros) == limit
 
+    def testGetDatasetsByProject(self, gatewaywrapper):
+        gatewaywrapper.loginAsAuthor()
+        allDs = list(gatewaywrapper.gateway.getObjects("Dataset"))
+
+        # Get Datasets by project.listChildren()...
+        project = gatewaywrapper.getTestProject()
+        dsIds = [d.id for d in project.listChildren()]
+
+        # Get Datasets, filtering by project
+        p = {'project': project.id}
+        datasets = list(gatewaywrapper.gateway.getObjects("Dataset", params=p))
+
+        # Check that not all Datasets are in Project (or test is invalid)
+        assert len(allDs) > len(dsIds)
+        # Should get same result both methods
+        assert len(datasets) == len(dsIds)
+        for d in datasets:
+            assert d.id in dsIds
+
     def testListExperimentersAndGroups(self, gatewaywrapper):
         gatewaywrapper.loginAsAuthor()
         # experimenters
