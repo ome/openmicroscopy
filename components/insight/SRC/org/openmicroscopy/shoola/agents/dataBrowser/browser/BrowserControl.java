@@ -254,8 +254,10 @@ class BrowserControl
 					break;
 				}
 			}
-    		if (remove) model.removeSelectedDisplay(d);
-    		else model.setSelectedDisplay(d, true, true);
+    		if (remove)
+    		    model.removeSelectedDisplay(d);
+    		else
+    		    model.setSelectedDisplay(d, true, true);
     	} else {
     		if (isSelectionValid(d)) {
     			if (d instanceof CellDisplay && !(d.equals(previousDisplay))) {

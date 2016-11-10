@@ -20,14 +20,17 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
-import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.swing.JSplitPane;
 
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
@@ -47,6 +50,7 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.ScrollablePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
+
 import omero.gateway.model.DataObject;
 import omero.gateway.model.ImageData;
 
@@ -72,9 +76,6 @@ class DataBrowserUI
 	
 	/** ID to select the columns view. */
 	static final int			COLUMNS_VIEW = 1;
-	
-	/** ID to select the fields view. */
-	static final int			FIELDS_VIEW = 2;
 	
 	/** ID to select the search view. */
 	static final int                        SEARCH_VIEW = 3;
@@ -113,10 +114,13 @@ class DataBrowserUI
 	private PopupMenu				popupMenu;
 	
 	/** Component displaying the fields. */
-	private WellFieldsView			fieldsView;
-	
+    private WellFieldsView          fieldsView;
+    
 	/** The magnification factor. */
 	private double					factor;
+	
+	/** The layout constraints */
+	private GridBagConstraints c;
 	
 	/** Creates a new instance. */
 	DataBrowserUI()
@@ -140,7 +144,6 @@ class DataBrowserUI
 			throw new IllegalArgumentException("No control.");
 		this.model = model;
 		this.controller = controller;
-		//if (model.getType() == DataBrowserModel.WELLS)
 		wellToolBar = new DataBrowserWellToolBar(this, controller);
 		toolBar = new DataBrowserToolBar(model, this, controller);
 		if (model.getType() == DataBrowserModel.WELLS)
@@ -154,9 +157,24 @@ class DataBrowserUI
 		}
 		factor = DataBrowserFactory.getThumbnailScaleFactor();
 		setNumberOfImages(-1);
-		setLayout(new BorderLayout(0, 0));
+		setLayout(new GridBagLayout());
+		c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.weightx = 1;
+		c.weighty = 0;
+		c.gridx = 0;
+		c.gridy = 0;
 		buildGUI(true);
 	}
+	
+    /**
+     * Checks if the browser currently deals with wells
+     * 
+     * @return See above
+     */
+    boolean wells() {
+        return model.getType() == DataBrowserModel.WELLS;
+    }
 	
 	/** 
 	 * Builds and lays out the UI. 
@@ -169,14 +187,23 @@ class DataBrowserUI
 		removeAll();
 		if (full) {
 			if (model.getType() == DataBrowserModel.WELLS) {
-				add(wellToolBar, BorderLayout.NORTH);
+			    add(wellToolBar, c);
+			    c.gridy++;
 			} else {
-				add(toolBar, BorderLayout.NORTH);
+			    add(toolBar, c);
+			    c.gridy++;
 			}
-			add(statusBar, BorderLayout.SOUTH);
+			c.fill = GridBagConstraints.BOTH;
+			c.weighty = 1;
+			add(statusBar,c);
+			c.gridy++;
 			statusBar.setVisible(model.getType() != DataBrowserModel.SEARCH);
 		}
-		add(model.getBrowser().getUI(), BorderLayout.CENTER);
+		
+		c.fill = GridBagConstraints.BOTH;
+        c.weighty = 1;
+        add(model.getBrowser().getUI(), c);
+        c.gridy++;
 	}
 	
 	/**
@@ -303,10 +330,9 @@ class DataBrowserUI
 				    v.refreshTable();
 				break;
 			case SEARCH_VIEW:
-                            SearchResultView sv = model.getSearchView();
-                            if (sv != null) 
-                                sv.refreshTable();
-                            break;
+                SearchResultView sv = model.getSearchView();
+                if (sv != null) 
+                    sv.refreshTable();
     	}
     }
     
@@ -317,37 +343,53 @@ class DataBrowserUI
      */
     void setSelectedView(int index) 
     {
+        selectedView = index;
+        
     	removeAll();
+        c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1;
+        c.weighty = 0;
+        c.gridx = 0;
+        c.gridy = 0;
     	double f = DataBrowserFactory.getThumbnailScaleFactor();
     	switch (index) {
 			case THUMB_VIEW:
-				selectedView = index;
 				if (model.getType() == DataBrowserModel.WELLS) {
-					add(wellToolBar, BorderLayout.NORTH);
-					wellToolBar.displayFieldsOptions(false);
-				} else {
-					add(toolBar, BorderLayout.NORTH);
+				    add(wellToolBar, c);
+                    c.gridy++;
+                    wellToolBar.displayFieldsOptions(true);
+                    
+                    c.fill = GridBagConstraints.BOTH;
+                    c.weighty = 1;
+                    JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+                    split.setTopComponent(model.getBrowser().getUI());
+
+                    fieldsView  = new WellFieldsView((WellsModel) model, 
+                            controller, Thumbnail.MAX_SCALING_FACTOR);
+                    fieldsView.setMagnificationFactor(factor);
+                    split.setBottomComponent(fieldsView);
+                    
+                    split.setResizeWeight(.66);
+                    add(split, c);
+                    c.gridy++;
+				}
+				else {
+					add(toolBar, c);
+					c.gridy++;
 					layoutUI();
+					
+					c.fill = GridBagConstraints.BOTH;
+	                c.weighty = 1;
+	                add(model.getBrowser().getUI(), c);
+	                c.gridy++;
 				}
-				add(model.getBrowser().getUI(), BorderLayout.CENTER);
 				f = factor;
-				break;
-			case FIELDS_VIEW:
-				selectedView = index;
-				add(wellToolBar, BorderLayout.NORTH);
-				if (fieldsView == null) {
-					f = Thumbnail.MAX_SCALING_FACTOR;
-					fieldsView  = new WellFieldsView((WellsModel) model, 
-							controller, f);//statusBar.getMagnificationFactor());
-				}
-				wellToolBar.displayFieldsOptions(true);
-				add(fieldsView, BorderLayout.CENTER);
-				f = fieldsView.getMagnification();
 				break;
 			case COLUMNS_VIEW:
 				selectedView = index;
-				add(toolBar, BorderLayout.NORTH);
-				
+				add(toolBar, c);
+				c.gridy++;
 				ImageTableView existed = model.getTableView();
 				ImageTableView v = model.createImageTableView();
 				if (existed != null && v != null) v.refreshTable();
@@ -370,17 +412,26 @@ class DataBrowserUI
 				if (existed == null) v.addPropertyChangeListener(controller);
 				v.validate();
 				v.repaint();
-				add(v, BorderLayout.CENTER);
+				c.fill = GridBagConstraints.BOTH;
+                c.weighty = 1;
+				add(v, c);
+				c.gridy++;
 				break;
 			case SEARCH_VIEW:
                             selectedView = index;
                             SearchResultView sv = model.createSearchResultView();
                             sv.addPropertyChangeListener(controller);
-                            add(sv, BorderLayout.CENTER);
+                            c.fill = GridBagConstraints.BOTH;
+                            c.weighty = 1;
+                            add(sv, c);
+                            c.gridy++;
                             sv.refreshTable();
                             break;
 		}
-    	add(statusBar, BorderLayout.SOUTH);
+    	c.fill = GridBagConstraints.HORIZONTAL;
+        c.weighty = 0;
+    	add(statusBar, c);
+    	c.gridy++;
     	toolBar.setSelectedViewIndex(selectedView);
     	statusBar.setSelectedViewIndex(selectedView, f);
     	revalidate();
@@ -479,26 +530,27 @@ class DataBrowserUI
 					v.refreshTable();
 				}
 				break;
-			case FIELDS_VIEW:
-				if (fieldsView != null)
-					fieldsView.setMagnificationFactor(factor);
-				break;
 		}
-		
-		//if (model.getType() == DataBrowserModel.WELLS);
-		//	browser.getSelectedLayout().doLayout();
 	}
 	
+    /**
+     * Gets the current magnification factor
+     * 
+     * @return See above.
+     */
+    double getMagnificationFactor() {
+        return factor;
+    }
+	
 	/**
-	 * Sets the magnification the <code>Fields View </code> is selected.
-	 * 
-	 * @param factor The value to set.
-	 */
-	void setMagnificationUnscaled(double factor)
-	{
-		if (selectedView == FIELDS_VIEW && fieldsView != null) 
-			fieldsView.setMagnificationUnscaled(factor);
-	}
+     * Magnifies the images nodes.
+     * 
+     * @param factor The magnification factor.
+     */
+    void setFieldMagnificationFactor(double factor)
+    {
+        fieldsView.setMagnificationFactor(factor);
+    }
 	
     /**
      * Brings up the pop-up menu on top of the specified component at the
@@ -614,7 +666,7 @@ class DataBrowserUI
 	int getSelectedField()
 	{
 		if (model instanceof WellsModel)
-			return ((WellsModel) model).getSelectedField();
+			return ((WellsModel) model).getDefaultFieldIndex();
 		return 0;
 	}
 
@@ -624,45 +676,38 @@ class DataBrowserUI
 		setMagnificationFactor(statusBar.getMagnificationFactor());
 	}
 
+    /**
+     * Indicates the status of the fields loading.
+     * 
+     * @param status
+     *            Pass <code>true</code> while loading the fields,
+     *            <code>false</code> otherwise.
+     */
+    void setFieldsStatus(boolean status) {
+        wellToolBar.setStatus(status);
+    }
+	
 	/**
-	 * Indicates the status of the fields loading.
+     * Updates the thumbnail for a particular field
 	 * 
-	 * @param status Pass <code>true</code> while loading the fields,
-	 * 				 <code>false</code> otherwise.
+	 * @param node The field
+	 * @param complete Flag to indicate that all fields have been loaded
 	 */
-	void setFieldsStatus(boolean status) { wellToolBar.setStatus(status); }
-
-	/**
-	 * Displays the passed fields.
-	 * 
-	 * @param nodes The nodes hosting the fields.
-	 */
-	void displayFields(List<WellSampleNode> nodes)
-	{
-		if (fieldsView == null) return;
-		setFieldsStatus(false);
-		if (selectedView == FIELDS_VIEW)
-			fieldsView.displayFields(nodes);
+	void updateFieldThumb(WellSampleNode node, boolean complete) {
+	    fieldsView.updateFieldThumb(node, complete);
 	}
 	
 	/** Invokes when a well is selected. */
 	void onSelectedWell()
 	{
-		if (!(model instanceof WellsModel)) return;
+	    
+		if (!(model instanceof WellsModel))
+		    return;
+		
 		plateGridUI.onSelectedWell();
-	}
-	
-	/**
-	 * Sets the layout used to display the fields.
-	 * 
-	 * @param index The index of the layout.
-	 */
-	void setSelectedFieldLayout(int index)
-	{
-		if (fieldsView == null) return;
-		fieldsView.setLayoutFields(index);
-		if (selectedView == FIELDS_VIEW)
-			fieldsView.displayFields(fieldsView.getNodes());
+        
+        WellsModel wm = (WellsModel) model;
+        fieldsView.loadFields(wm.getSelectedWells());
 	}
 	
 	/** Invokes when the parent has been set. */
