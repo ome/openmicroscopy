@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -20,15 +20,20 @@
  */
 package omero.gateway.facility;
 
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
+import omero.api.RawPixelsStorePrx;
 import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
+import omero.gateway.exception.DSAccessException;
+import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.exception.DataSourceException;
 import omero.gateway.rnd.DataSink;
 import omero.gateway.rnd.Plane2D;
 import omero.gateway.model.PixelsData;
+import omero.romio.PlaneDef;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -55,6 +60,76 @@ public class RawDataFacility extends Facility {
         super(gateway);
     }
 
+    /**
+     * Get the histogram data for the given image, using default 256 bins
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param pixels
+     *            The {@link PixelsData} object
+     * @param channels
+     *            The channel indices
+     * @param z
+     *            The z plane index (optional; default: 0)
+     * @param t
+     *            The t plane index (optional; default: 0)
+     * @return A {@link Map} of histogram data, where the key is the channel
+     *         index
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public Map<Integer, int[]> getHistogram(SecurityContext ctx,
+            PixelsData pixels, int[] channels, int z, int t)
+            throws DSOutOfServiceException, DSAccessException {
+        z = z >= 0 ? z : 0;
+        t = t >= 0 ? t : 0;
+        PlaneDef plane = new PlaneDef(omeis.providers.re.data.PlaneDef.XY, 0,
+                0, z, t, null, -1);
+        return getHistogram(ctx, pixels, channels, 256, plane);
+    }
+
+    /**
+     * Get the histogram data for the given image
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param pixels
+     *            The {@link PixelsData} object
+     * @param channels
+     *            The channel indices
+     * @param binSize
+     *            The number of bins (optional, default: 256)
+     * @param plane
+     *            The plane to specify z/t and/or a certain region (optional,
+     *            default: whole region of the first z/t plane)
+     * @return A {@link Map} of histogram data, where the key is the channel
+     *         index
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public Map<Integer, int[]> getHistogram(SecurityContext ctx,
+            PixelsData pixels, int[] channels, int binSize, PlaneDef plane)
+            throws DSOutOfServiceException, DSAccessException {
+        try {
+            RawPixelsStorePrx store = gateway.createPixelsStore(ctx);
+            store.setPixelsId(pixels.getId(), false);
+
+            if (plane == null)
+                plane = new PlaneDef(omeis.providers.re.data.PlaneDef.XY, 0, 0,
+                        0, 0, null, -1);
+            return store.getHistogram(channels, binSize, plane);
+        } catch (Exception e) {
+            handleException(this, e, "Couldn't get histogram data.");
+        }
+        return null;
+    }
+    
     /**
      * Extracts a 2D plane from the pixels set. Connection to the PixelsStore
      * will be closed automatically.
