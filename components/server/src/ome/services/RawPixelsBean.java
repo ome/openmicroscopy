@@ -681,26 +681,27 @@ public class RawPixelsBean extends AbstractStatefulBean implements
         
         int imgWidth = buffer.getSizeX();
 
-        int z = plane.getZ() >= 0 ? plane.getZ() : 0;
-        int t = plane.getT() >= 0 ? plane.getT() : 0;
-        int x = (plane.getRegion() != null && plane.getRegion().getX() >= 0) ? plane
-                .getRegion().getX() : 0;
-        int y = (plane.getRegion() != null && plane.getRegion().getY() >= 0) ? plane
-                .getRegion().getY() : 0;
-        int w = (plane.getRegion() != null && plane.getRegion().getWidth() > 0) ? plane
-                .getRegion().getWidth() : imgWidth;
-        int h = (plane.getRegion() != null && plane.getRegion().getHeight() > 0) ? plane
-                .getRegion().getHeight() : buffer.getSizeY();
+        int z = (plane != null && plane.getZ() >= 0) ? plane.getZ() : 0;
+        int t = (plane != null && plane.getT() >= 0) ? plane.getT() : 0;
+        int x = (plane != null && plane.getRegion() != null && plane
+                .getRegion().getX() >= 0) ? plane.getRegion().getX() : 0;
+        int y = (plane != null && plane.getRegion() != null && plane
+                .getRegion().getY() >= 0) ? plane.getRegion().getY() : 0;
+        int w = (plane != null && plane.getRegion() != null && plane
+                .getRegion().getWidth() > 0) ? plane.getRegion().getWidth()
+                : imgWidth;
+        int h = (plane != null && plane.getRegion() != null && plane
+                .getRegion().getHeight() > 0) ? plane.getRegion().getHeight()
+                : buffer.getSizeY();
 
-        Map<Integer, int[]> result = null;
+        Map<Integer, int[]> result = new HashMap<Integer, int[]>();
 
         try {
-            result = new HashMap<Integer, int[]>();
             for (int ch : channels) {
                 PixelData px = buffer.getPlane(z, ch, t);
                 int[] data = new int[binSize];
                 double range = px.getMaximum() - px.getMinimum();
-                double binRange = range / binSize;
+                double binRange = range / (binSize - 1);
                 for (int i = 0; i < px.size(); i++) {
                     int pxx = i % imgWidth;
                     int pxy = i / imgWidth;

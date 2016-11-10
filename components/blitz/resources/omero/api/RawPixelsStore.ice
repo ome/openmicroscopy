@@ -330,7 +330,7 @@ module omero {
                  * Retrieves the histogram data for the specified plane and channels
                  * @param channels the channels to generate the histogram data for
                  * @param binSize the number of the histogram bins (optional, default: 256)
-                 * @param plane the plane
+                 * @param plane the plane (optional, default: whole region of first z/t plane)
                  * @return See above.
                  **/
                 idempotent IntegerIntegerArrayMap getHistogram(IntegerArray channels, int binSize, omero::romio::PlaneDef plane) throws ServerError;
