@@ -508,7 +508,6 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
 
     # Hierarchies for this object
     paths = []
-    orphanedImage = False
 
     # It is probably possible to write a more generic query instead
     # of special casing each type, but it will be less readable and
@@ -586,31 +585,45 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
                 path.append(ds)
 
             # If it is orphaned->image
+            paths_to_img = []
             if e[2] is None:
-                orphanedImage = True
-                orph = {
-                    'type': 'orphaned',
-                    'id': e[0].val
-                }
-                iids = get_image_ids(conn, groupId=e[5].val, ownerId=e[0].val)
-                if len(iids) > page_size:
-                    try:
-                        index = iids.index(imageId)
-                        page = (index / page_size) + 1  # 1-based index
-                        orph['childCount'] = len(iids)
-                        orph['childIndex'] = index
-                        orph['childPage'] = page
-                    except ValueError:
-                        # If image is in Well, it won't be in orphaned list
-                        pass
-                path.append(orph)
+                # Check if image is in Well
+                paths_to_img = paths_to_well_image(
+                        conn, params,
+                        well_id=well_id, image_id=image_id,
+                        acquisition_id=acquisition_id,
+                        plate_id=plate_id,
+                        screen_id=screen_id,
+                        experimenter_id=experimenter_id,
+                        orphanedImage=True)
+                if len(paths_to_img) == 0:
+                    orph = {
+                        'type': 'orphaned',
+                        'id': e[0].val
+                    }
+                    iids = get_image_ids(conn, groupId=e[5].val,
+                                         ownerId=e[0].val)
+                    if len(iids) > page_size:
+                        try:
+                            index = iids.index(imageId)
+                            page = (index / page_size) + 1  # 1-based index
+                            orph['childCount'] = len(iids)
+                            orph['childIndex'] = index
+                            orph['childPage'] = page
+                        except ValueError:
+                            # If image is in Well, it won't be in orphaned list
+                            pass
+                    path.append(orph)
 
-            # Image always present
-            path.append({
-                'type': 'image',
-                'id': imageId
-            })
-            paths.append(path)
+            if len(paths_to_img) > 0:
+                paths = paths_to_img
+            else:
+                # Image always present
+                path.append({
+                    'type': 'image',
+                    'id': imageId
+                })
+                paths.append(path)
 
     elif lowest_type == 'dataset':
         q = '''
@@ -683,84 +696,17 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
     # restricted by a particular WellSample id
     # May not have acquisition (load plate from well)
     # We don't need to load the wellsample (not in tree)
-    if lowest_type == 'well' or orphanedImage:
+    elif lowest_type == 'well':
 
-        q = '''
-            select coalesce(sowner.id, plowner.id, aowner.id, wsowner.id),
-                   slink.parent.id,
-                   plate.id,
-                   acquisition.id,
-                   well.id
-            from WellSample wellsample
-            left outer join wellsample.details.owner wsowner
-            left outer join wellsample.plateAcquisition acquisition
-            left outer join wellsample.details.owner aowner
-            join wellsample.well well
-            left outer join well.plate plate
-            left outer join plate.details.owner plowner
-            left outer join plate.screenLinks slink
-            left outer join slink.parent.details.owner sowner
-            '''
-        where_clause = []
-        if well_id is not None:
-            where_clause.append('wellsample.well.id = :wid')
-        if image_id is not None:
-            where_clause.append('wellsample.image.id = :iid')
-        if acquisition_id is not None:
-            where_clause.append('acquisition.id = :aid')
-        if plate_id is not None:
-            where_clause.append('plate.id = :plid')
-        if screen_id is not None:
-            where_clause.append('slink.parent.id = :sid')
-        if experimenter_id is not None:
-            where_clause.append(
-                'coalesce(sowner.id, plowner.id, aoener.id, wowner.id) = :eid')
-        if len(where_clause) > 0:
-            q += 'where ' + ' and '.join(where_clause)
-
-        result = qs.projection(q, params, service_opts)
-
-        # For image, remove 'orphaned' path if we have found it in well
-        if len(result) > 0:
-            paths = []
-
-        for e in qs.projection(q, params, service_opts):
-            path = []
-
-            # Experimenter is always found
-            path.append({
-                'type': 'experimenter',
-                'id': e[0].val
-            })
-
-            # If it is experimenter->screen->plate->acquisition->wellsample
-            if e[1] is not None:
-                path.append({
-                    'type': 'screen',
-                    'id': e[1].val
-                })
-
-            # Plate should always present
-            path.append({
-                'type': 'plate',
-                'id': e[2].val
-            })
-
-            # Acquisition not present if plate created via API (not imported)
-            if e[3] is not None:
-                path.append({
-                    'type': 'acquisition',
-                    'id': e[3].val
-                })
-
-            # Include Well if path is to image
-            if e[4] is not None and orphanedImage:
-                path.append({
-                    'type': 'well',
-                    'id': e[4].val
-                })
-
-            paths.append(path)
+        paths_to_img = paths_to_well_image(conn, params,
+                                           well_id=well_id,
+                                           image_id=image_id,
+                                           acquisition_id=acquisition_id,
+                                           plate_id=plate_id,
+                                           screen_id=screen_id,
+                                           experimenter_id=experimenter_id)
+        if len(paths_to_img) > 0:
+            paths.extend(paths_to_img)
 
     elif lowest_type == 'acquisition':
         q = '''
@@ -897,6 +843,87 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
 
         paths.append(path)
 
+    return paths
+
+
+def paths_to_well_image(conn, params, well_id=None, image_id=None,
+                        acquisition_id=None,
+                        plate_id=None, screen_id=None, experimenter_id=None,
+                        orphanedImage=False):
+
+    qs = conn.getQueryService()
+    service_opts = deepcopy(conn.SERVICE_OPTS)
+    q = '''
+        select coalesce(sowner.id, plowner.id, aowner.id, wsowner.id),
+               slink.parent.id,
+               plate.id,
+               acquisition.id,
+               well.id
+        from WellSample wellsample
+        left outer join wellsample.details.owner wsowner
+        left outer join wellsample.plateAcquisition acquisition
+        left outer join wellsample.details.owner aowner
+        join wellsample.well well
+        left outer join well.plate plate
+        left outer join plate.details.owner plowner
+        left outer join plate.screenLinks slink
+        left outer join slink.parent.details.owner sowner
+        '''
+    where_clause = []
+    if well_id is not None:
+        where_clause.append('wellsample.well.id = :wid')
+    if image_id is not None:
+        where_clause.append('wellsample.image.id = :iid')
+    if acquisition_id is not None:
+        where_clause.append('acquisition.id = :aid')
+    if plate_id is not None:
+        where_clause.append('plate.id = :plid')
+    if screen_id is not None:
+        where_clause.append('slink.parent.id = :sid')
+    if experimenter_id is not None:
+        where_clause.append(
+            'coalesce(sowner.id, plowner.id, aoener.id, wowner.id) = :eid')
+    if len(where_clause) > 0:
+        q += 'where ' + ' and '.join(where_clause)
+
+    paths = []
+    for e in qs.projection(q, params, service_opts):
+        path = []
+
+        # Experimenter is always found
+        path.append({
+            'type': 'experimenter',
+            'id': e[0].val
+        })
+
+        # If it is experimenter->screen->plate->acquisition->wellsample
+        if e[1] is not None:
+            path.append({
+                'type': 'screen',
+                'id': e[1].val
+            })
+
+        # Plate should always present
+        path.append({
+            'type': 'plate',
+            'id': e[2].val
+        })
+
+        # Acquisition not present if plate created via API (not imported)
+        if e[3] is not None:
+            path.append({
+                'type': 'acquisition',
+                'id': e[3].val
+            })
+
+        # Include Well if path is to image
+        if e[4] is not None and orphanedImage:
+            path.append({
+                'type': 'well',
+                'id': e[4].val
+            })
+
+        paths.append(path)
     return paths
 
 
