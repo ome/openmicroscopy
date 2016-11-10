@@ -94,6 +94,7 @@ from omero.model import ProjectI, DatasetI, ImageI, \
     ScreenPlateLinkI, AnnotationAnnotationLinkI, TagAnnotationI
 from omero import ApiUsageException, ServerError, CmdError
 from omero.rtypes import rlong, rlist
+from omeroweb.webgateway.views import LoginView
 
 import tree
 
@@ -174,7 +175,7 @@ def custom_index(request, conn=None, **kwargs):
 # views
 
 
-class WebclientLoginView(webgateway_views.LoginView):
+class WebclientLoginView(LoginView):
     """
     Webclient Login - Customises the superclass LoginView
     for webclient. Also can be used by other Apps to log in to OMERO. Uses

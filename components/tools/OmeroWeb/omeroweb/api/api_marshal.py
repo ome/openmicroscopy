@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-''' Helper functions for views that handle object trees '''
+"""Helper functions for views that handle object trees."""
 
 
 from omero_marshal import get_encoder
@@ -25,7 +25,9 @@ from omero_marshal import get_encoder
 
 def normalize_objects(objects):
     """
-    Takes a list of dicts generated from omero_marshal and
+    Normalize the groups and owners from omero_marshal dicts.
+
+    Take a list of dicts generated from omero_marshal and
     normalizes the groups and owners into separate
     lists. omero:details will only retain group and owner IDs.
     """
@@ -47,12 +49,11 @@ def normalize_objects(objects):
 
 def marshal_objects(objects, extras=None, normalize=False):
     """
-    Marshals a list of OMERO.model objects using omero_marshal
+    Marshal a list of OMERO.model objects using omero_marshal.
 
     @param extras:      A dict of id:dict to add extra data to each object
     @param normalize:   If true, normalize groups & owners into separate lists
     """
-
     marshalled = []
     for o in objects:
         encoder = get_encoder(o.__class__)
