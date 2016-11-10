@@ -589,13 +589,13 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
             if e[2] is None:
                 # Check if image is in Well
                 paths_to_img = paths_to_well_image(
-                        conn, params,
-                        well_id=well_id, image_id=image_id,
-                        acquisition_id=acquisition_id,
-                        plate_id=plate_id,
-                        screen_id=screen_id,
-                        experimenter_id=experimenter_id,
-                        orphanedImage=True)
+                    conn, params,
+                    well_id=well_id, image_id=image_id,
+                    acquisition_id=acquisition_id,
+                    plate_id=plate_id,
+                    screen_id=screen_id,
+                    experimenter_id=experimenter_id,
+                    orphanedImage=True)
                 if len(paths_to_img) == 0:
                     orph = {
                         'type': 'orphaned',
