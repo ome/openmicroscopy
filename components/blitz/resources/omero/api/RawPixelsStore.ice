@@ -329,7 +329,7 @@ module omero {
 				/**
                  * Retrieves the histogram data for the specified plane and channels
                  * @param channels the channels to generate the histogram data for
-                 * @param binSize the size of the histogram bins
+                 * @param binSize the number of the histogram bins (optional, default: 256)
                  * @param plane the plane
                  * @return See above.
                  **/

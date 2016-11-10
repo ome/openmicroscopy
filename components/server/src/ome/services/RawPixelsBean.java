@@ -63,6 +63,9 @@ public class RawPixelsBean extends AbstractStatefulBean implements
 
     private static final long serialVersionUID = -6640632220587930165L;
 
+    /** The default bin size used for histograms */
+    private static final int DEFAULT_HISTOGRAM_BINSIZE = 256;
+    
     private Long id;
 
     private transient Long reset = null;
@@ -673,6 +676,9 @@ public class RawPixelsBean extends AbstractStatefulBean implements
             int binSize, PlaneDef plane) {
         errorIfNotLoaded();
 
+        if (binSize <= 0)
+            binSize = DEFAULT_HISTOGRAM_BINSIZE;
+        
         int imgWidth = buffer.getSizeX();
 
         int z = plane.getZ() >= 0 ? plane.getZ() : 0;
