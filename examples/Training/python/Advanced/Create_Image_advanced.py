@@ -42,7 +42,7 @@ replaceChannel = 0
 image = conn.getObject('Image', imageId)
 # Use the image in dataset as source image
 image2 = conn.getObject('Image', imageId2)
-sizeZ, sizeC, sizeT = image.getSizeZ(), image.getSizeC(), image.getSizeT()
+sizeZ, sizeC, sizeT = image2.getSizeZ(), image2.getSizeC(), image2.getSizeT()
 dataset = image.getParent()
 pixels = image.getPrimaryPixels()
 pixels2 = image2.getPrimaryPixels()
@@ -55,13 +55,13 @@ def planeGen():
             for t in range(sizeT):      # all time-points
                 print "Plane: ", z, c, t
                 if c == replaceChannel:
-                    yield pixels2.getPlane(z, c, t)
-                else:
                     yield pixels.getPlane(z, c, t)
+                else:
+                    yield pixels2.getPlane(z, c, t)
 
 
 desc = ("Image created from Image ID: %s, replacing Channel %s from Image ID:"
-        " %s" % (imageId, replaceChannel, imageId2))
+        " %s" % (imageId2, replaceChannel, imageId))
 newImg = conn.createImageFromNumpySeq(
     planeGen(), "ImageFromTwo", sizeZ, sizeC, sizeT, description=desc,
     dataset=dataset)
