@@ -28,7 +28,7 @@ from django.conf import settings
 from django.test import Client
 import pytest
 from omero.gateway import BlitzGateway
-from omero.model import ProjectI, DatasetI
+from omero.model import ProjectI, DatasetI, TagAnnotationI
 from omero.rtypes import unwrap, rstring
 from omero_marshal import get_encoder, OME_SCHEMA_URL
 
@@ -594,6 +594,39 @@ class TestProjects(IWebTest):
         proj = conn.getObject('Project', project.id.val)
         assert proj.getName() == 'renamed Project'
         assert len(list(proj.listChildren())) == 1
+
+    def test_project_tags_update(self, user1):
+        """
+        Test updating a Project without losing linked Tags.
+
+        If we load a Project without loading Annotations, then update
+        and save the Project, we don't want to lose Annotation links
+        """
+        conn = get_connection(user1)
+        user_name = conn.getUser().getName()
+        django_client = self.new_django_client(user_name, user_name)
+
+        project = ProjectI()
+        project.name = rstring('test_project_tags_update')
+        tag = TagAnnotationI()
+        tag.textValue = rstring('tag')
+        project.linkAnnotation(tag)
+        project = get_update_service(user1).saveAndReturnObject(project)
+
+        version = settings.API_VERSIONS[-1]
+        project_url = reverse('api_project', kwargs={'api_version': version,
+                                                     'pid': project.id.val})
+        save_url = reverse('api_save', kwargs={'api_version': version})
+        # Get Project, update and save back
+        project_json = _get_response_json(django_client, project_url, {})
+        project_json['Name'] = 'renamed Project'
+        _csrf_put_json(django_client, save_url, project_json)
+
+        # Check Project has been updated and still has annotation links
+        proj = conn.getObject('Project', project.id.val)
+        assert proj.getName() == 'renamed Project'
+        assert len(list(proj.listAnnotations())) == 1
+        assert False
 
     def test_project_delete(self, user1):
         conn = get_connection(user1)
