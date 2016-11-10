@@ -594,11 +594,15 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
                 }
                 iids = get_image_ids(conn, groupId=e[5].val, ownerId=e[0].val)
                 if len(iids) > page_size:
-                    index = iids.index(imageId)
-                    page = (index / page_size) + 1  # 1-based index
-                    orph['childCount'] = len(iids)
-                    orph['childIndex'] = index
-                    orph['childPage'] = page
+                    try:
+                        index = iids.index(imageId)
+                        page = (index / page_size) + 1  # 1-based index
+                        orph['childCount'] = len(iids)
+                        orph['childIndex'] = index
+                        orph['childPage'] = page
+                    except ValueError:
+                        # If image is in Well, it won't be in orphaned list
+                        pass
                 path.append(orph)
 
             # Image always present
