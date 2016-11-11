@@ -19,9 +19,10 @@ FOR TRAINING PURPOSES ONLY!
 # A more complete template, for 'real-world' scripts, is also included in this
 # folder
 # This script takes an Image ID as a parameter from the scripting service.
-from matplotlib.image import imsave
+
+import omero.util.script_utils as scriptUtil
 from omero.gateway import BlitzGateway
-from numpy import hstack, zeros, uint8, add
+from numpy import hstack, uint8
 from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
 from Parse_OMERO_Properties import imageId
 
@@ -71,19 +72,9 @@ for theT in range(sizeT):
 kymograph_data = hstack(col_data)
 print "kymograph_data", kymograph_data.shape
 
-
-if kymograph_data.dtype.name not in ('uint8', 'int8'):  # we need to scale...
-    minVal = kymograph_data.min()
-    maxVal = kymograph_data.max()
-    valRange = maxVal - minVal
-    scaled = (kymograph_data - minVal) * (float(255) / valRange)
-    convArray = zeros(kymograph_data.shape, dtype=uint8)
-    add(convArray, scaled, out=convArray, casting="unsafe")
-    print ("using converted int8 plane: dtype: %s min: %s max: %s"
-           % (convArray.dtype.name, convArray.min(), convArray.max()))
-    imsave("kymograph.png", convArray, format='png')
-else:
-    imsave("kymograph.png", kymograph_data, format='png')
+name = "kymograph.png"
+minMax = (kymograph_data.min(), kymograph_data.max())
+scriptUtil.numpySaveAsImage(kymograph_data, minMax, uint8, name)
 
 # attach the png to the image
 fileAnn = conn.createFileAnnfromLocalFile(

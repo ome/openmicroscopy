@@ -11,8 +11,8 @@
 FOR TRAINING PURPOSES ONLY!
 """
 
-from matplotlib.image import imsave
-from numpy import zeros, uint8, add
+import omero.util.script_utils as scriptUtil
+from numpy import uint8
 from omero.gateway import BlitzGateway
 from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
 from Parse_OMERO_Properties import imageId
@@ -46,19 +46,8 @@ theT = 0
 cIndex = 0
 for minMax in channelMinMax:
     plane = pixels.getPlane(theZ, cIndex, theT)
-    print "dtype:", plane.dtype.name
-    # need plane dtype to be uint8 (or int8) for conversion to tiff by matplot
-    if plane.dtype.name not in ('uint8', 'int8'):      # we need to scale...
-        minVal, maxVal = minMax
-        valRange = maxVal - minVal
-        scaled = (plane - minVal) * (float(255) / valRange)
-        convArray = zeros(plane.shape, dtype=uint8)
-        add(convArray, scaled, out=convArray, casting="unsafe")
-        print ("using converted int8 plane: dtype: %s min: %s max: %s"
-               % (convArray.dtype.name, convArray.min(), convArray.max()))
-        imsave("tiffPlaneInt8%s.tiff" % cIndex, convArray)
-    else:
-        imsave("tiffPlaneInt8%s.tiff" % cIndex, plane)
+    name = "tiffPlaneInt8%s.png" % cIndex
+    scriptUtil.numpySaveAsImage(plane, minMax, uint8, name)
     cIndex += 1
 
 
