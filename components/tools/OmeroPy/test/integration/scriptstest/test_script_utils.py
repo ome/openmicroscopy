@@ -29,7 +29,7 @@ import tempfile
 import shutil
 from os import listdir
 from os.path import isfile, join
-from numpy import int32
+from numpy import int32, uint8
 
 
 class TestScriptUtils(lib.ITest):
@@ -80,4 +80,48 @@ class TestScriptUtils(lib.ITest):
                 assert False
             else:
                 i.close()
+            cIndex += 1
+
+    def testConvertNumpyArray(self):
+        imported_pix = ",".join(self.import_image())
+        imported_img = self.query.findByQuery(
+            "select i from Image i join fetch i.pixels pixels\
+            where pixels.id in (%s)" % imported_pix, None)
+        conn = BlitzGateway(client_obj=self.client)
+        image = conn.getObject("Image", imported_img.id.getValue())
+        pixels = image.getPrimaryPixels()
+        channelMinMax = []
+        for c in image.getChannels():
+            minC = c.getWindowMin()
+            maxC = c.getWindowMax()
+            channelMinMax.append((minC, maxC))
+        theZ = image.getSizeZ() / 2
+        theT = 0
+        cIndex = 0
+        for minMax in channelMinMax:
+            plane = pixels.getPlane(theZ, cIndex, theT)
+            i = scriptUtil.convertNumpyArray(plane, minMax, uint8)
+            assert i is not None
+            cIndex += 1
+
+    def testNumpySaveAsImage(self):
+        imported_pix = ",".join(self.import_image())
+        imported_img = self.query.findByQuery(
+            "select i from Image i join fetch i.pixels pixels\
+            where pixels.id in (%s)" % imported_pix, None)
+        conn = BlitzGateway(client_obj=self.client)
+        image = conn.getObject("Image", imported_img.id.getValue())
+        pixels = image.getPrimaryPixels()
+        channelMinMax = []
+        for c in image.getChannels():
+            minC = c.getWindowMin()
+            maxC = c.getWindowMax()
+            channelMinMax.append((minC, maxC))
+        theZ = image.getSizeZ() / 2
+        theT = 0
+        cIndex = 0
+        for minMax in channelMinMax:
+            plane = pixels.getPlane(theZ, cIndex, theT)
+            name = "test%s.png" % cIndex
+            scriptUtil.numpySaveAsImage(plane, minMax, int32, name)
             cIndex += 1
