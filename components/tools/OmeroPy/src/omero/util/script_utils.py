@@ -1232,7 +1232,39 @@ def findROIByImage(roiService, image, namespace):
     return roiList
 
 
-def numpyToImage(plane, minMax, type):
+def numpyToImage(plane, minMax, dtype):
+    """
+    Converts the numpy plane to a PIL Image, converting data type if necessary.
+    @param plane The plane to handle
+    @param minMax the min and the max values for the plane
+    @param dtype the data type to use for scaling
+    """
+
+    try:
+        from PIL import Image
+    except ImportError:
+        import Image
+
+    convArray = convertNumpyArray(plane, minMax, dtype)
+    return Image.frombytes('I', plane.shape, convArray)
+
+
+def numpySaveAsImage(plane, minMax, type, name):
+    """
+    Converts the numpy plane, converting data type if necessary
+    and saves it as png, jpeg etc.
+    @param plane The plane to handle
+    @param minMax the min and the max values for the plane
+    @param type the data type to use for scaling
+    """
+
+    from matplotlib.image import imsave
+
+    convArray = convertNumpyArray(plane, minMax, type)
+    imsave(name, convArray)
+
+
+def convertNumpyArray(plane, minMax, type):
     """
     Converts the numpy plane to a PIL Image, converting data type if necessary.
     @param plane The plane to handle
@@ -1241,10 +1273,6 @@ def numpyToImage(plane, minMax, type):
     """
 
     from numpy import add, zeros
-    try:
-        from PIL import Image
-    except ImportError:
-        import Image
 
     if plane.dtype.name not in ('uint8', 'int8'):   # we need to scale...
         minVal, maxVal = minMax
@@ -1257,5 +1285,6 @@ def numpyToImage(plane, minMax, type):
             convArray += scaled
         except TypeError:
             add(convArray, scaled, out=convArray, casting="unsafe")
-
-    return Image.frombytes('I', plane.shape, convArray)
+        return convArray
+    else:
+        return plane
