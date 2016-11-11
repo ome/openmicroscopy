@@ -21,8 +21,6 @@ from Parse_OMERO_Properties import imageId, datasetId
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
 
-print HOST
-print PORT
 # Retrieve image in specified dataset
 # =================================================================
 dataset = conn.getObject("Dataset", datasetId)
