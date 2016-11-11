@@ -700,8 +700,8 @@ public class RawPixelsBean extends AbstractStatefulBean implements
             for (int ch : channels) {
                 PixelData px = buffer.getPlane(z, ch, t);
                 int[] data = new int[binSize];
-                double range = px.getMaximum() - px.getMinimum();
-                double binRange = range / (binSize - 1);
+                double range = (px.getMaximum() - px.getMinimum()) + 1;
+                double binRange = range / binSize;
                 for (int i = 0; i < px.size(); i++) {
                     int pxx = i % imgWidth;
                     int pxy = i / imgWidth;

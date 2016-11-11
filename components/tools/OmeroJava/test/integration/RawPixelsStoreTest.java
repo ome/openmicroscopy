@@ -368,30 +368,41 @@ public class RawPixelsStoreTest extends AbstractServerTest {
      */
     @Test
     public void testGetHistogram() throws Exception {
-        // Create an image with 3 channels
+        // Create an  UINT16 image with 3 channels
         final int nChannels = 3;
         localSetUp(nChannels);
         
-        final int bw = svc.getByteWidth();
+        Assert.assertEquals(svc.getByteWidth(), 2, "Test assumes image of type UINT16");
+        
         final int byteSize = (int) svc.getPlaneSize();
-        final int pxSize = (int) (byteSize/bw);
+        final int pxSize = (int) (byteSize/2);
         final int binSize = 256;
         final int z = 0;
         final int t = 0;
         
         // Only set data for the first z/t plane, where half of the pixels
-        // are set to 50 (channel 0), 100 (channel 1) or 150 (channel 2),
-        // and the other half set to 150 (channel 0), 200 (channel 1) 
-        // or 250 (channel 2)
+        // are set to 12800 (channel 0), 25600 (channel 1) or 38400 (channel 2),
+        // and the other half set to 25600 (channel 0), 38400 (channel 1) 
+        // or 51200 (channel 2)
+        // 12800 -> bin:50  
+        // 25600 -> bin:100 
+        // 38400 -> bin:150 
+        // 51200 -> bin:200 
+        
         for (int ch = 0; ch < nChannels; ch++) {
             byte[] buf = new byte[byteSize];
-            for (int i = 0; i < byteSize; i+=bw) {
+            for (int i = 0; i < byteSize; i += 2) {
+                int pxValue = 0;
                 if (ch == 0)
-                    buf[i] = (byte) (i < byteSize / 2 ? 50 : 150);
+                    pxValue = i < byteSize / 2 ? 12800 : 25600;
                 else if (ch == 1)
-                    buf[i] = (byte) (i < byteSize / 2 ? 100 : 200);
+                    pxValue = i < byteSize / 2 ? 25600 : 38400;
                 else
-                    buf[i] = (byte) (i < byteSize / 2 ? 150 : 250);
+                    pxValue = i < byteSize / 2 ? 38400 : 51200;
+
+                byte[] pxBytes = intTo2ByteArray(pxValue);
+                buf[i] = pxBytes[0];
+                buf[i + 1] = pxBytes[1];
             }
             svc.setPlane(buf, z, ch, t);
         }
@@ -413,7 +424,7 @@ public class RawPixelsStoreTest extends AbstractServerTest {
             if (ch == 0) {
                 for (int bin = 0; bin < binSize; bin++) {
                     int exp = 0;
-                    if (bin == 50 || bin == 150)
+                    if (bin == 50 || bin == 100)
                         exp = pxSize / 2;
 
                     Assert.assertEquals(counts[bin], exp);
@@ -422,7 +433,7 @@ public class RawPixelsStoreTest extends AbstractServerTest {
             } else if (ch == 1) {
                 for (int bin = 0; bin < binSize; bin++) {
                     int exp = 0;
-                    if (bin == 100 || bin == 200)
+                    if (bin == 100 || bin == 150)
                         exp = pxSize / 2;
 
                     Assert.assertEquals(counts[bin], exp);
@@ -431,7 +442,7 @@ public class RawPixelsStoreTest extends AbstractServerTest {
             } else if (ch == 2) {
                 for (int bin = 0; bin < binSize; bin++) {
                     int exp = 0;
-                    if (bin == 150 || bin == 250)
+                    if (bin == 150 || bin == 200)
                         exp = pxSize / 2;
 
                     Assert.assertEquals(counts[bin], exp);
@@ -443,7 +454,7 @@ public class RawPixelsStoreTest extends AbstractServerTest {
         Assert.assertTrue(data.isEmpty());
         
         // Test a region, first channel only
-        // (first 5x5 pixels should all have value '50')
+        // (first 5x5 pixels should all have value '12800' and therefore go into bin '50')
         RegionDef region = new RegionDef(0, 0, 5, 5);
         plane = new PlaneDef(omeis.providers.re.data.PlaneDef.XY, 0, 0, z, t, region, -1);
         
@@ -462,6 +473,17 @@ public class RawPixelsStoreTest extends AbstractServerTest {
         }
     }
 
+    /**
+     * Convert an integer into a two byte array
+     * 
+     * @param value
+     *            the integer value
+     * @return See above.
+     */
+    private byte[] intTo2ByteArray(int value) {
+        return new byte[] { (byte) (value >>> 8), (byte) value };
+    }
+    
     /**
      * Tests to set a region that is bigger than the entire file
      *
