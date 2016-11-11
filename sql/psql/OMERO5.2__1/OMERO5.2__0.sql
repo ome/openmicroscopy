@@ -48,7 +48,11 @@ DROP FUNCTION omero_assert_db_version(varchar, int);
 INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
              VALUES ('OMERO5.2',     1,            'OMERO5.2',      0);
 
--- TODO
+CREATE VIEW count_annotation_imagelinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM imageannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_welllinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM wellannotationlink GROUP BY child, owner_id ORDER BY child;
 
 
 --

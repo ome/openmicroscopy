@@ -7,6 +7,16 @@
 -- and can be used to overwrite the generated Map<Long, Long> tables
 -- with functional views.
 
+  DROP TABLE count_Annotation_imageLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Annotation_imageLinks_by_owner (Annotation_id, owner_id, count) AS select child, owner_id, count(*)
+    FROM imageannotationlink GROUP BY child, owner_id ORDER BY child;
+
+  DROP TABLE count_Annotation_wellLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Annotation_wellLinks_by_owner (Annotation_id, owner_id, count) AS select child, owner_id, count(*)
+    FROM wellannotationlink GROUP BY child, owner_id ORDER BY child;
+
   DROP TABLE count_Annotation_annotationLinks_by_owner;
 
   CREATE OR REPLACE VIEW count_Annotation_annotationLinks_by_owner (Annotation_id, owner_id, count) AS select parent, owner_id, count(*)
