@@ -47,7 +47,7 @@ class TestScriptUtils(lib.ITest):
             "select i from Image i join fetch i.pixels pixels\
             where pixels.id in (%s)" % imported_pix, None)
         scriptUtil.split_image(self.client, imported_img.id.getValue(), dir,
-                               unformattedImageName="a_T%05d_C%s_Z%d_S1.png")
+                               unformattedImageName="a_T%05d_C%s_Z%d_S1.tiff")
         files = [f for f in listdir(dir) if isfile(join(dir, f))]
         shutil.rmtree(dir)
         assert sizeZ*sizeC*sizeT == len(files)
