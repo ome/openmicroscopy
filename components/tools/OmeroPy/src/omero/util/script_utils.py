@@ -758,7 +758,11 @@ def split_image(client, imageId, dir,
     rawPixelsStore = session.createRawPixelsStore()
     pixelsService = session.getPixelsService()
 
-    from matplotlib.image import imsave
+    try:
+        from PIL import Image
+    except:
+        import Image
+    # from matplotlib.image import imsave
 
     query_string = "select p from Pixels p join fetch p.image as i join fetch " \
                    "p.pixelsType where i.id='%s'" % imageId
@@ -797,7 +801,9 @@ def split_image(client, imageId, dir,
                     "downloading plane z: %s c: %s t: %s  to  %s"
                     % (z, c, t, imageName))
                 plane = downloadPlane(rawPixelsStore, pixels, z, c, t)
-                imsave(imageName, plane)
+                img = Image.fromarray(plane)
+                img.save(imageName)
+                # imsave(imageName, plane)
 
 
 def createFileFromData(updateService, queryService, filename, data):
@@ -1246,7 +1252,10 @@ def numpyToImage(plane, minMax, dtype):
         import Image
 
     convArray = convertNumpyArray(plane, minMax, dtype)
-    return Image.frombytes('I', plane.shape, convArray)
+    if plane.dtype.name not in ('uint8', 'int8'):
+        return Image.frombytes('I', plane.shape, convArray)
+    else:
+        return Image.fromarray(convArray)
 
 
 def numpySaveAsImage(plane, minMax, type, name):
@@ -1258,10 +1267,8 @@ def numpySaveAsImage(plane, minMax, type, name):
     @param type the data type to use for scaling
     """
 
-    from matplotlib.image import imsave
-
-    convArray = convertNumpyArray(plane, minMax, type)
-    imsave(name, convArray)
+    image = numpyToImage(plane, minMax, type, name)
+    return image.save(name)
 
 
 def convertNumpyArray(plane, minMax, type):
