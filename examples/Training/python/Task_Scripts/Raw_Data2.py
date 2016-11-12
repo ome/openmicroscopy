@@ -72,14 +72,14 @@ for theT in range(sizeT):
 kymograph_data = hstack(col_data)
 print "kymograph_data", kymograph_data.shape
 
-name = "kymograph.png"
+name = "kymograph.tiff"
 minMax = (kymograph_data.min(), kymograph_data.max())
 scriptUtil.numpySaveAsImage(kymograph_data, minMax, uint8, name)
 
 # attach the png to the image
 fileAnn = conn.createFileAnnfromLocalFile(
-    "kymograph.png", mimetype="image/png")
-print "Attaching kymograph.png to image"
+    name, mimetype="image/tiff")
+print "Attaching kymograph.tiff to image"
 image.linkAnnotation(fileAnn)
 
 message = "Tile average value: %s" % average

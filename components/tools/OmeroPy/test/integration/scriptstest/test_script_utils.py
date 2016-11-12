@@ -122,6 +122,6 @@ class TestScriptUtils(lib.ITest):
         cIndex = 0
         for minMax in channelMinMax:
             plane = pixels.getPlane(theZ, cIndex, theT)
-            name = "test%s.png" % cIndex
+            name = "test%s.tiff" % cIndex
             scriptUtil.numpySaveAsImage(plane, minMax, int32, name)
             cIndex += 1
