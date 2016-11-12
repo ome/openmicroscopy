@@ -1,9 +1,21 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+#
+# Copyright (C) 2016 University of Dundee & Open Microscopy Environment.
+#                    All Rights Reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+
+"""
+FOR TRAINING PURPOSES ONLY!
+"""
+
 from omero.gateway import BlitzGateway
 import omero
-from omero.rtypes import rstring, rdouble
+from omero.rtypes import rstring, rdouble, rint
 from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
+from Parse_OMERO_Properties import datasetId
 
 # Create a connection
 # =================================================================
@@ -13,9 +25,36 @@ conn.connect()
 from random import random
 from numpy import array
 import math
-datasetId = 2651
 
+# The Dataset we want to Analyse
+# =================================================================
 dataset = conn.getObject("Dataset", datasetId)
+
+
+# We have a helper function for creating an ROI and linking it to new shapes
+def createROI(img):
+    # create an ROI, link it to Image
+    roi = omero.model.RoiI()
+    # use the omero.model.ImageI that underlies the 'image' wrapper
+    roi.setImage(img._obj)
+    # create an ROI with single line shape
+    line = omero.model.LineI()
+    line.x1 = rdouble(0)
+    line.x2 = rdouble(image.getSizeX())
+    line.y1 = rdouble(0)
+    line.y2 = rdouble(image.getSizeY())
+    line.theZ = rint(img.getSizeZ() / 2)
+    line.theT = rint(0)
+    line.textValue = rstring("test-Line")
+    roi.addShape(line)
+    # Save the ROI (saves any linked shapes too)
+    return conn.getUpdateService().saveAndReturnObject(roi)
+
+# Create Lines one per image in the dataset
+# =================================================================
+for image in dataset.listChildren():
+    # create an ROI, link it to Image
+    createROI(image)
 
 # first create our table...
 # columns we want are: imageId, roiId, shapeId, theZ, theT, lineLength,
@@ -128,3 +167,9 @@ else:
         print "Query Results for Column: ", col.name
         for v in col.values:
             print "   ", v
+
+
+# Close connection
+# ================
+# When you are done, close the session to free up server resources.
+conn._closeSession()
