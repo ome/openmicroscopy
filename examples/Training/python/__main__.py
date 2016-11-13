@@ -28,7 +28,7 @@ if __name__ == "__main__":
                  'Advanced/Create_Image_advanced.py'))
         execfile(os.path.join(training_dir, 'Advanced/Raw_Data_advanced.py'))
         execfile(os.path.join(training_dir, 'Advanced/Read_Data_advanced.py'))
-        execfile(os.path.join(training_dir, 'Advanced/Write_Data_advanced.py'))
+        execfile(os.path.join(training_dir, 'Advanced/Write_data_advanced.py'))
         execfile(os.path.join(training_dir, 'Task_Scripts/Raw_Data2.py'))
         execfile(os.path.join(training_dir, 'Task_Scripts/Raw_Data_Task.py'))
         execfile(os.path.join(training_dir, 'Task_Scripts/Write_Data_4.py'))
