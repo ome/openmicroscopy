@@ -178,6 +178,16 @@
                         OME.handleClickSelection(undefined, selected_wells.children("img"), "#spw td.well img");
                         $selected = $('td.ui-selected', wpv.self);
                         syncTreeSelection($selected, {{ index }}, '{{ manager.getPermsCss }}');
+                        var show = OME.getURLParameter('show');
+                        var imageIds = [];
+                        if (show) {
+                            // handle multiple images: show=image-1|image-2
+                            show = show.split('image-');
+                            if (show.length > 1) {
+                                imageIds = show.slice(1).map(function(iid){return parseInt(iid)});
+                            }
+                        }
+                        showImagesInWell(imageIds);
                     }
                 });
             {% endif %}
@@ -221,7 +231,7 @@
             }
 
             var wellBirdsEye = OME.WellBirdsEye({callback: selectImages});
-            var showImagesInWell = function() {
+            var showImagesInWell = function(selectImageIds) {
                 var $table = $("#wellImages table");
                 if (!imagesInWellVisible) {
                     $table.empty();
@@ -240,13 +250,20 @@
                         wellBirdsEye.addWell(data);
                         var imagesPerRow = parseInt($("#imagesPerRow").val(), 10);
                         var html = data.reduce(function(html, w, idx){
-                            html += '<li title="' + w.name + '" data-imageId="' + w.id + '"><img src="' + w.thumb_url + '" /></li>';
+                            var cls = '';
+                            if (selectImageIds && selectImageIds.indexOf(w.id) > -1) {
+                                cls = 'class="ui-selected"';
+                            }
+                            html += '<li ' + cls + ' title="' + w.name + '" data-imageId="' + w.id + '"><img src="' + w.thumb_url + '" /></li>';
                             if (!isNaN(imagesPerRow) && (idx+1)%imagesPerRow === 0) {
                                 html += '<br>';
                             }
                             return html;
                         }, "");
                         $('#wellImages-' + wellId).append("<td><ul>" + html + "</ul></tr>");
+                        if (selectImageIds) {
+                            triggerWellImagesSelection();
+                        }
                     });
                 });
             }
