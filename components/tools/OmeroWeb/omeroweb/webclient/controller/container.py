@@ -804,7 +804,7 @@ class BaseContainer(BaseController):
                 linksByType[objType] = []
             linksByType[objType].append(obj.id.val)
         for linkType, ids in linksByType.items():
-            self.conn.deleteObjects(linkType, ids, wait=False)
+            self.conn.deleteObjects(linkType, ids, wait=True)
         if len(notFound) > 0:
             raise AttributeError("Attribute not specified. Cannot be removed.")
 

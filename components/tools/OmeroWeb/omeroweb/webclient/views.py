@@ -1012,7 +1012,7 @@ def _api_links_DELETE(conn, json_data):
                 linkType, links = objLnks
                 linkIds = [r.id.val for r in links]
                 logger.info("api_link: Deleting %s links" % len(linkIds))
-                conn.deleteObjects(linkType, linkIds)
+                conn.deleteObjects(linkType, linkIds, wait=True)
                 # webclient needs to know what is orphaned
                 linkType, remainingLinks = get_object_links(conn,
                                                             parent_type,
