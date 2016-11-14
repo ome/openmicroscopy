@@ -18,7 +18,7 @@ Changes include:
 -  added support for Ice 3.6.3
 -  fixed graph issues when performing chown or moving between groups
 -  made web applications installable from PyPI
--  added "Option With" feature to OMERO.web
+-  added option "Open With" feature to OMERO.web
 
 
 5.3.0-m4 (September 2016)
@@ -61,7 +61,7 @@ updating code before the full public release of 5.3.0. Use at your own risk**.
 Changes include:
 
 -  added support for ROI folder at scale. Used IDR as a concrete example
--  cleaned up shape attributes names
+-  cleaned up shape attribute names
 
 5.3.0-m1 (February 2016)
 ------------------------
