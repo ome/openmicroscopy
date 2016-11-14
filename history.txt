@@ -9,14 +9,14 @@ updating code before the full public release of 5.3.0. Use at your own risk**.
 
 Changes include:
 
--  DB patches to add support for new administration roles.
--  Remove restriction on name length
--  Add support for enumeration changes
--  Add new Grid View to both UI clients
--  Introduce the new Web API
--  Reactivate codomain support in the rendering Engine
--  Support for Ice 3.6.3
--  Fix graph issues when performing chown or moving between groups.
+-  database patches to add support for new administration roles
+-  remove restriction on name length
+-  add support for enumeration changes
+-  add new Grid View to both UI clients
+-  introduce the new Web API
+-  reactivate codomain support in the rendering Engine
+-  add support for Ice 3.6.3
+-  fix graph issues when performing chown or moving between groups.
 
 5.2.6 (October 2016)
 ----------------------
