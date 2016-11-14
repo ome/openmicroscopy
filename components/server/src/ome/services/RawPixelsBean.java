@@ -713,7 +713,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
                     int pxy = i / imgWidth;
                     if (pxx >= x && pxx < (x + w) && pxy >= y
                             && pxy < (y + h)) {
-                        int bin = (int) (px.getPixelValue(i) / binRange);
+                        int bin = (int) ((px.getPixelValue(i) - min) / binRange);
                         data[bin]++;
                     }
                 }
