@@ -10,13 +10,13 @@ updating code before the full public release of 5.3.0. Use at your own risk**.
 Changes include:
 
 -  database patches to add support for new administration roles
--  remove restriction on name length
--  add support for enumeration changes
--  add new Grid View to both UI clients
--  introduce the new Web API
--  reactivate codomain support in the rendering Engine
--  add support for Ice 3.6.3
--  fix graph issues when performing chown or moving between groups.
+-  removed restriction on name length
+-  added support for enumeration changes
+-  added new Grid View to both UI clients
+-  introduced the new Web API
+-  reactivated codomain support in the rendering Engine
+-  added support for Ice 3.6.3
+-  fixed graph issues when performing chown or moving between groups.
 
 5.3.0-m4 (September 2016)
 -------------------------
@@ -26,9 +26,9 @@ updating code before the full public release of 5.3.0. Use at your own risk**.
 
 Changes include:
 
--  Web decoupling
--  CLI plugins improvements
--  Apache deprecation
+-  completed Web decoupling
+-  improved CLI plugins
+-  deprecated Apache
 
 5.3.0-m3 (August 2016)
 ----------------------
@@ -38,15 +38,15 @@ updating code before the full public release of 5.3.0. Use at your own risk**.
 
 Changes include:
 
--  DB patches including support new options in rendering
--  add support for LUT
--  windows deprecation
--  reorganize API documentation
--  enable plate download
--  allow customization of CSRF cookie
--  ROI related bug fixes
--  major cleanup
--  fix cleanse
+-  added DB patches including support new options in rendering
+-  added support for LUT
+-  deprecated windows
+-  reorganized API documentation
+-  enabled plate download
+-  allowed customization of CSRF cookie
+-  fixed ROI related bug
+-  performed major code cleanup
+-  fixed cleanse
 
 5.3.0-m2 (April 2016)
 ---------------------
@@ -56,7 +56,7 @@ updating code before the full public release of 5.3.0. Use at your own risk**.
 
 Changes include:
 
-- support for ROI folder at scale. Use IDR as a concrete example
+- added support for ROI folder at scale. Used IDR as a concrete example
 
 5.3.0-m1 (February 2016)
 ------------------------
@@ -66,11 +66,11 @@ updating code before the full public release of 5.3.0. Use at your own risk**.
 
 Changes include:
 
--  support for ROI folder in server and client
--  fix shape to match OME-XML schema 
--  improve build system integration with local Maven
--  improve graph operation performance
--  DB setup script required PostgreSQL 9.3 
+-  added support for ROI folder in server and client
+-  fixed shape to match OME-XML schema 
+-  improved build system integration with local Maven
+-  improved graph operation performance
+-  changed DB setup script to require PostgreSQL 9.3 
 
 5.2.6 (October 2016)
 ----------------------
