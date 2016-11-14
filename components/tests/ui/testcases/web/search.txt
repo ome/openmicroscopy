@@ -379,21 +379,21 @@ Test Key Word Search
     Clear Search Text Field
     Input Text     name=query           ${Search_Query1}
     Click Button    id=search_button
-    Wait Until Page Contains Element  id=dataTable  1
+    Wait Until Page Contains Element  id=dataTable  ${TIMEOUT}
     Page Should Contain Element         ${XpathTable}
     ${rows}=        Get Matching XPath Count    xpath=//table[@id='dataTable']/tbody/tr
 
     Clear Search Text Field
     Input Text     name=query           ${Search_Query1}*
     Click Button    id=search_button
-    Wait Until Page Contains Element  id=dataTable  1
+    Wait Until Page Contains Element  id=dataTable  ${TIMEOUT}
     Page Should Contain Element         ${XpathTable}
     ${rows1}=        Get Matching XPath Count    xpath=//table[@id='dataTable']/tbody/tr
 
     Clear Search Text Field
     Input Text     name=query           *${Search_Query1}*
     Click Button    id=search_button
-    Wait Until Page Contains Element  id=dataTable  1
+    Wait Until Page Contains Element  id=dataTable  ${TIMEOUT}
     Page Should Contain Element         ${XpathTable}
     ${rows2}=        Get Matching XPath Count    xpath=//table[@id='dataTable']/tbody/tr
 
