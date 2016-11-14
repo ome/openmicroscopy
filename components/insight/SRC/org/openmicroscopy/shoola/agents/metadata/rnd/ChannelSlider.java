@@ -26,7 +26,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Point;
-import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -333,6 +332,14 @@ class ChannelSlider
         }
     }
     
+    /** Handles changes in slider value. */
+    private void handleSliderChange() {
+        controller.setInputInterval(slider.getStartValue(),
+                slider.getEndValue(), channel.getIndex());
+        uiParent.updateHistogram(slider.getStartValue(), slider.getEndValue(),
+                channel.getIndex());
+    }
+    
 	/**
 	 * Reacts to property changes fired by the {@link #slider}.
 	 * 
@@ -345,13 +352,11 @@ class ChannelSlider
 			if (TwoKnobsSlider.LEFT_MOVED_PROPERTY.equals(name)
 					|| TwoKnobsSlider.RIGHT_MOVED_PROPERTY.equals(name) ||
 					TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name)) {
-				controller.setInputInterval(slider.getStartValue(),
-						slider.getEndValue(), channel.getIndex());
+			    handleSliderChange();
 			}
 		} else {
 			if (TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name)) {
-				controller.setInputInterval(slider.getStartValue(),
-						slider.getEndValue(), channel.getIndex());
+			    handleSliderChange();
 			} 
 		}
 		

@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -38,15 +38,18 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
 import org.apache.commons.collections.CollectionUtils;
-
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
+import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import org.openmicroscopy.shoola.util.ui.ChannelDataListRenderer;
+import org.openmicroscopy.shoola.util.ui.HistogramPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.WrapLayout;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
@@ -137,6 +140,12 @@ class GraphicsPane
     /** The selected item.*/
     private RndProxyDef selectedDef;
 
+    /** Component display the histogram. */
+    private HistogramPane histogram;
+
+    /** Channel selection for the histogram */
+    private JComboBox histogramChannel;
+    
     /**
      * Formats the specified value.
      * 
@@ -147,8 +156,7 @@ class GraphicsPane
     {
         if (model.isIntegerPixelData())
             return ""+(int) value;
-        else
-            return UIUtilities.formatToDecimal(value);
+        return UIUtilities.formatToDecimal(value);
     }
 
     /** Initializes the domain slider. */
@@ -171,9 +179,59 @@ class GraphicsPane
             domainSlider.setInterval(min, max);
     }
 
+    /**
+     * Builds the histogram component
+     * 
+     * @return See above.
+     */
+    private JPanel buildHistogramPane() {
+        ChannelData[] items = new ChannelData[model.getChannelData().size()];
+        items = model.getChannelData().toArray(items);
+        histogramChannel = new JComboBox(items);
+        RenderingControl rnd = model.getRenderingControls().iterator().next();
+        histogramChannel.setRenderer(new ChannelDataListRenderer(rnd));
+        histogramChannel.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ChannelData sel = (ChannelData) histogramChannel
+                        .getSelectedItem();
+                int channelIndex = sel.getIndex();
+                histogram.setImage(model.getHistogramImage(channelIndex));
+
+                double r = (model.getGlobalMax(channelIndex) - model
+                        .getGlobalMin(channelIndex));
+                double start = (rnd.getChannelWindowStart(channelIndex) - model
+                        .getGlobalMin(channelIndex)) / r;
+                double end = (rnd.getChannelWindowEnd(channelIndex) - model
+                        .getGlobalMin(channelIndex)) / r;
+                histogram.setInputWindow(start, end);
+            }
+        });
+
+        histogramChannel.setSelectedIndex(0);
+
+        JPanel p = new JPanel(new BorderLayout());
+        p.setBorder(BorderFactory.createLineBorder(Color.lightGray));
+        p.setBackground(UIUtilities.BACKGROUND);
+
+        JPanel n = new JPanel(new BorderLayout());
+        n.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+        n.setBackground(UIUtilities.BACKGROUND);
+        n.add(new JLabel("Histogram"), BorderLayout.WEST);
+        n.add(histogramChannel, BorderLayout.EAST);
+
+        p.add(n, BorderLayout.NORTH);
+        p.add(histogram, BorderLayout.CENTER);
+
+        return p;
+    }
+    
     /** Initializes the components. */
     private void initComponents()
     {
+        histogram = new HistogramPane();
+        histogram.setImage(null);
+        
         viewedBy = new JPanel();
         Font font = viewedBy.getFont();
         viewedBy.setFont(font.deriveFont(font.getSize2D()-2));
@@ -217,15 +275,13 @@ class GraphicsPane
         if (model.getModuloT() != null || !model.isLifetimeImage()) {
             List<ChannelData> channels = model.getChannelData();
             Iterator<ChannelData> i = channels.iterator();
-            ChannelSlider slider;
             while (i.hasNext()) {
-                slider = new ChannelSlider(this, model, controller, i.next());
-                sliders.add(slider);
+                sliders.add(new ChannelSlider(this, model, controller, i.next()));
             }
         }
         previewToolBar = new PreviewToolBar(controller, model);
     }
-
+    
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
@@ -283,6 +339,10 @@ class GraphicsPane
         
         content.add(greyScale, c);
         c.gridy++;
+        
+        content.add(buildHistogramPane(), c);
+        c.gridy++;
+        c.weighty = 0;
         
         Iterator<ChannelSlider> i = sliders.iterator();
         while (i.hasNext())  {
@@ -352,10 +412,8 @@ class GraphicsPane
     void setSelectedChannel()
     {
         Iterator<ChannelSlider> i = sliders.iterator();
-        ChannelSlider slider;
         while (i.hasNext()) {
-            slider = i.next();
-            slider.setSelectedChannel();
+            i.next().setSelectedChannel();
         }
     }
 
@@ -372,11 +430,38 @@ class GraphicsPane
             slider.setInterval(s, e);
         }
     }
+    
+    /**
+     * Update the histogram.
+     *
+     * @param start
+     *            The start value.
+     * @param end
+     *            The end value.
+     * @param channelIndex
+     *            The index of the channel.
+     */
+    void updateHistogram(double start, double end, int channelIndex) {
+        histogram.setImage(model.getHistogramImage(channelIndex));
+        double r = (model.getGlobalMax(channelIndex) - model
+                .getGlobalMin(channelIndex));
+        double s = (start - model.getGlobalMin(channelIndex)) / r;
+        double e = (end - model.getGlobalMin(channelIndex)) / r;
+        histogram.setInputWindow(s, e);
+
+        for (int i = 0; i < histogramChannel.getItemCount(); i++) {
+            ChannelData ch = (ChannelData) histogramChannel.getItemAt(i);
+            if (ch.getIndex() == channelIndex) {
+                histogramChannel.setSelectedIndex(i);
+                break;
+            }
+        }
+    }
 
     /** 
      * Modifies the input range of the channel sliders.
      * 
-     *  @param absolute Pass <code>true</code> to set it to the absolute value,
+     *  @param booleanValue Pass <code>true</code> to set it to the absolute value,
      *                  <code>false</code> to the minimum and maximum.
      */
     void setInputRange(boolean booleanValue)
@@ -566,6 +651,7 @@ class GraphicsPane
     /**
      * Wraps the ViewedByItem in a JPanel with empty border acting as inset
      * @param item The ViewedByItem
+     * @return  See above
      */
     private JPanel createViewedByPanel(ViewedByItem item) {
         JPanel viewedByPanel = new JPanel();
