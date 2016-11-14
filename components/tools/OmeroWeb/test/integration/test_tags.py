@@ -166,8 +166,7 @@ class TestTags(IWebTest):
         }
         _post_response(self.django_client, request_url, data)
         _csrf_post_response(self.django_client, request_url, data)
-        # Check that tag is removed - short delay to allow async delete
-        sleep(1)
+        # Check that tag is removed
         request_url = reverse("api_annotations")
         data = {'image': img.id.val, 'type': 'tag'}
         data = _get_response_json(self.django_client, request_url, data)
@@ -179,11 +178,17 @@ class TestTags(IWebTest):
         _post_response(self.django_client, request_url, {})
         _csrf_post_response(self.django_client, request_url, {})
         # Check that tag is deleted from image
-        sleep(1)
         request_url = reverse("api_annotations")
         data = {'image': img.id.val, 'type': 'tag'}
-        rsp = _get_response_json(self.django_client, request_url, data)
-        assert len(rsp['annotations']) == 0
+        completed = False
+        # Async delete - Keep checking until done
+        for t in range(20):
+            rsp = _get_response_json(self.django_client, request_url, data)
+            if len(rsp['annotations']) == 0:
+                completed = True
+                break
+            sleep(0.1)
+        assert completed
 
     def test_add_remove_tags(self):
         # Test performance with lots of tags.
@@ -213,7 +218,6 @@ class TestTags(IWebTest):
         query_string = '&'.join(['image=%s' % i for i in iids])
         query_string += '&type=tag'
         query_string += '&page=0'  # disable pagination
-        print query_string
         rsp = self.django_client.get('%s?%s' % (anns_url, query_string))
         rspJson = json.loads(rsp.content)
         assert len(rspJson['annotations']) == img_count * tag_count
@@ -229,20 +233,11 @@ class TestTags(IWebTest):
             'newtags-TOTAL_FORMS': 0,
             'tags': ''
         }
-        _post_response(self.django_client, request_url, data)
-        rsp = _csrf_post_response(self.django_client, request_url, data)
+        _csrf_post_response(self.django_client, request_url, data)
+        # Check tags removed
+        rsp = self.django_client.get('%s?%s' % (anns_url, query_string))
         rspJson = json.loads(rsp.content)
-
-        # Async delete - Keep checking until all removed
-        completed = False
-        for t in range(10):
-            rsp = self.django_client.get('%s?%s' % (anns_url, query_string))
-            rspJson = json.loads(rsp.content)
-            if len(rspJson['annotations']) == 0:
-                completed = True
-                break
-            sleep(1)
-        assert completed
+        assert len(rspJson['annotations']) == 0
 
 
 def _get_response_json(django_client, request_url, query_string):
