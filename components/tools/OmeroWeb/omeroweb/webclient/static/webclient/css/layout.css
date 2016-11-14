@@ -2210,7 +2210,7 @@ div.paging input.button_pagination {
     border-top: solid 1px #bbb;
 }
 .wellImages img {
-    margin: 2px;
+    margin: 5px;
     cursor: pointer;
 }
 #wellImages li {
