@@ -1,6 +1,23 @@
 OMERO version history
 =====================
 
+5.3.0-m5 (November 2016)
+------------------------
+
+Developer preview release - **only intended as a developer preview for
+updating code before the full public release of 5.3.0. Use at your own risk**.
+
+Changes include:
+
+-  DB patches to add support for new administration roles.
+-  Remove restriction on name length
+-  Add support for enumeration changes
+-  Add new Grid View to both UI clients
+-  Introduce the new Web API
+-  Reactivate codomain support in the rendering Engine
+-  Support for Ice 3.6.3
+-  Fix graph issues when performing chown or moving between groups.
+
 5.2.6 (October 2016)
 ----------------------
 
