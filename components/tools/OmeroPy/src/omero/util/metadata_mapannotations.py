@@ -25,7 +25,7 @@ Utilities for manipulating map-annotations used as metadata
 
 import logging
 from omero.model import NamedValue
-from omero.rtypes import rstring, unwrap
+from omero.rtypes import rstring, rlist, unwrap
 from omero.sys import ParametersI
 
 
@@ -206,9 +206,11 @@ class MapAnnotationManager(object):
         :param primary_keys: Primary keys
         """
         qs = session.getQueryService()
-        q = 'FROM MapAnnotation WHERE ns=:ns ORDER BY id DESC'
+        q = ('FROM MapAnnotation as a JOIN a.mapvalue mv'
+             'WHERE ns=:ns and mv.name in (:pks) ORDER BY id DESC')
         p = ParametersI()
         p.addString('ns', ns)
+        p.add('pks', rlist([rstring(str(pk)) for pk in primary_keys]))
         results = qs.findAllByQuery(q, p)
         log.debug('Found %d MapAnnotations in ns:%s', len(results), ns)
         for ma in results:
