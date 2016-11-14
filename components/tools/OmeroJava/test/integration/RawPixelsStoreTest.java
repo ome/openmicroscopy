@@ -368,37 +368,45 @@ public class RawPixelsStoreTest extends AbstractServerTest {
      */
     @Test
     public void testGetHistogram() throws Exception {
-        // Create an  UINT16 image with 3 channels
-        final int nChannels = 3;
+        // Create an  UINT16 image with 2 channels
+        // Possible px values: [0-65535]
+        final int nChannels = 2;
         localSetUp(nChannels);
         
         Assert.assertEquals(svc.getByteWidth(), 2, "Test assumes image of type UINT16");
         
         final int byteSize = (int) svc.getPlaneSize();
-        final int pxSize = (int) (byteSize/2);
+        
+        Assert.assertEquals(byteSize, 200, "Test assumes a 100px image");
+        
         final int binSize = 256;
         final int z = 0;
         final int t = 0;
         
-        // Only set data for the first z/t plane, where half of the pixels
-        // are set to 12800 (channel 0), 25600 (channel 1) or 38400 (channel 2),
-        // and the other half set to 25600 (channel 0), 38400 (channel 1) 
-        // or 51200 (channel 2)
-        // 12800 -> bin:50  
-        // 25600 -> bin:100 
-        // 38400 -> bin:150 
-        // 51200 -> bin:200 
+        // Only set data for the first z/t plane, where...
+        // channel 0 contains 10px with value 12800 and 10px 25600
+        // channel 1 contains 10px with value 25600 and 10px 51200
+        // all other pixels have value 0
+        //
+        // -> expected values for both channels are:
+        // bin[0] = 80, bin[127] = 10 and bin[255] = 10, all other bins = 0;
         
         for (int ch = 0; ch < nChannels; ch++) {
             byte[] buf = new byte[byteSize];
             for (int i = 0; i < byteSize; i += 2) {
                 int pxValue = 0;
-                if (ch == 0)
-                    pxValue = i < byteSize / 2 ? 12800 : 25600;
-                else if (ch == 1)
-                    pxValue = i < byteSize / 2 ? 25600 : 38400;
-                else
-                    pxValue = i < byteSize / 2 ? 38400 : 51200;
+                int pxCount = i / 2;
+                if (ch == 0) {
+                    if (pxCount < 10)
+                        pxValue = 12800;
+                    else if (pxCount < 20)
+                        pxValue = 25600;
+                } else if (ch == 1) {
+                    if (pxCount < 10)
+                        pxValue = 25600;
+                    else if (pxCount < 20)
+                        pxValue = 51200;
+                }
 
                 byte[] pxBytes = intTo2ByteArray(pxValue);
                 buf[i] = pxBytes[0];
@@ -407,7 +415,7 @@ public class RawPixelsStoreTest extends AbstractServerTest {
             svc.setPlane(buf, z, ch, t);
         }
 
-        int[] channels = new int[] { 0, 1, 2 };
+        int[] channels = new int[] { 0, 1 };
 
         PlaneDef plane = new PlaneDef(omeis.providers.re.data.PlaneDef.XY, 0, 0, z, t, null, -1);
         Map<Integer, int[]> data = svc.getHistogram(channels, binSize, plane);
@@ -415,46 +423,29 @@ public class RawPixelsStoreTest extends AbstractServerTest {
         Assert.assertEquals(data.size(), nChannels);
 
         Iterator<Entry<Integer, int[]>> it = data.entrySet().iterator();
-        while(it.hasNext()) {
+        while (it.hasNext()) {
             Entry<Integer, int[]> e = it.next();
-            int ch = e.getKey();
             int[] counts = e.getValue();
             Assert.assertEquals(counts.length, binSize);
-
-            if (ch == 0) {
-                for (int bin = 0; bin < binSize; bin++) {
-                    int exp = 0;
-                    if (bin == 50 || bin == 100)
-                        exp = pxSize / 2;
-
-                    Assert.assertEquals(counts[bin], exp);
-                }
-                it.remove();
-            } else if (ch == 1) {
-                for (int bin = 0; bin < binSize; bin++) {
-                    int exp = 0;
-                    if (bin == 100 || bin == 150)
-                        exp = pxSize / 2;
-
-                    Assert.assertEquals(counts[bin], exp);
-                }
-                it.remove();
-            } else if (ch == 2) {
-                for (int bin = 0; bin < binSize; bin++) {
-                    int exp = 0;
-                    if (bin == 150 || bin == 200)
-                        exp = pxSize / 2;
-
-                    Assert.assertEquals(counts[bin], exp);
-                }
-                it.remove();
+            for (int bin = 0; bin < binSize; bin++) {
+                int exp = 0;
+                if (bin == 0)
+                    exp = 80;
+                else if (bin == 127 || bin == 255)
+                    exp = 10;
+                Assert.assertEquals(counts[bin], exp);
             }
+
+            int ch = e.getKey();
+            if (ch == 0 || ch == 1)
+                it.remove();
         }
 
         Assert.assertTrue(data.isEmpty());
         
-        // Test a region, first channel only
-        // (first 5x5 pixels should all have value '12800' and therefore go into bin '50')
+        // Test a 5x5px region, first channel only;
+        // First row of pixels is 12800, second row = 25600, others = 0;
+        // -> expected bin[0] = 15, bin[127] = 5 and bin[255] = 5, all other bins = 0;
         RegionDef region = new RegionDef(0, 0, 5, 5);
         plane = new PlaneDef(omeis.providers.re.data.PlaneDef.XY, 0, 0, z, t, region, -1);
         
@@ -466,9 +457,10 @@ public class RawPixelsStoreTest extends AbstractServerTest {
         
         for (int bin = 0; bin < binSize; bin++) {
             int exp = 0;
-            if (bin == 50)
-                exp = 25;
-
+            if (bin == 0)
+                exp = 15;
+            else if (bin == 127 || bin == 255)
+                exp = 5;
             Assert.assertEquals(counts[bin], exp);
         }
     }
