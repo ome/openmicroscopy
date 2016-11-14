@@ -57,8 +57,8 @@ public class HistogramLoader extends BatchCallTree {
      * @param t
      *            T plane index
      */
-    public HistogramLoader(SecurityContext ctx, ImageData img, int[] channels,
-            int z, int t) {
+    public HistogramLoader(final SecurityContext ctx, final ImageData img, final int[] channels,
+            final int z, final int t) {
         loadCall = new BatchCall("Loading Histogram data") {
             public void doCall() throws Exception {
                 result = context
