@@ -16,7 +16,10 @@ Changes include:
 -  introduced the new Web API
 -  reactivated codomain support in the rendering Engine
 -  added support for Ice 3.6.3
--  fixed graph issues when performing chown or moving between groups.
+-  fixed graph issues when performing chown or moving between groups
+-  made web applications installable from PyPI
+-  added "Option With" feature to OMERO.web
+
 
 5.3.0-m4 (September 2016)
 -------------------------
@@ -38,7 +41,7 @@ updating code before the full public release of 5.3.0. Use at your own risk**.
 
 Changes include:
 
--  added DB patches including support new options in rendering
+-  added DB patches including support for new options in rendering engine
 -  added support for LUT
 -  deprecated windows
 -  reorganized API documentation
@@ -47,6 +50,7 @@ Changes include:
 -  fixed ROI related bug
 -  performed major code cleanup
 -  fixed cleanse
+-  deprecated some utils Python methods
 
 5.3.0-m2 (April 2016)
 ---------------------
@@ -56,7 +60,8 @@ updating code before the full public release of 5.3.0. Use at your own risk**.
 
 Changes include:
 
-- added support for ROI folder at scale. Used IDR as a concrete example
+-  added support for ROI folder at scale. Used IDR as a concrete example
+-  cleaned up shape attributes names
 
 5.3.0-m1 (February 2016)
 ------------------------
