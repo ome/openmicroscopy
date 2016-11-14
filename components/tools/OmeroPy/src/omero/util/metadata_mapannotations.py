@@ -191,7 +191,7 @@ class MapAnnotationManager(object):
 
     def add_from_namespace_query(self, session, ns, primary_keys):
         """
-        Fetches all map-annotations with the given namespace
+        Fetches all map-annotations with the given namespace and primary keys
         This will only work if there are no duplicates, otherwise an
         exception will be thrown
 
