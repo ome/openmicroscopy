@@ -626,7 +626,6 @@ class TestProjects(IWebTest):
         proj = conn.getObject('Project', project.id.val)
         assert proj.getName() == 'renamed Project'
         assert len(list(proj.listAnnotations())) == 1
-        assert False
 
     def test_project_delete(self, user1):
         conn = get_connection(user1)
