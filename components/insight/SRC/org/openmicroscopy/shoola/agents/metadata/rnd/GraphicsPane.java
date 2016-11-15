@@ -48,7 +48,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
-import org.openmicroscopy.shoola.util.ui.ChannelDataListRenderer;
+import org.openmicroscopy.shoola.env.ui.ChannelDataListRenderer;
 import org.openmicroscopy.shoola.util.ui.HistogramPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.WrapLayout;

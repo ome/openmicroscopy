@@ -18,7 +18,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui;
+package org.openmicroscopy.shoola.env.ui;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -31,6 +31,7 @@ import omero.gateway.model.ChannelData;
 
 import org.apache.commons.lang.StringUtils;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
+import org.openmicroscopy.shoola.util.ui.ColourIcon;
 
 /**
  * A {@link ListCellRenderer} for {@link ChannelData} items

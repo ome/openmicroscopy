@@ -61,7 +61,8 @@ public class RawDataFacility extends Facility {
     }
 
     /**
-     * Get the histogram data for the given image, using default 256 bins
+     * Get the histogram data for the given image, using default 256 bins and
+     * the channels global min/max for the histogram range.
      * 
      * @param ctx
      *            The {@link SecurityContext}
@@ -88,7 +89,7 @@ public class RawDataFacility extends Facility {
         t = t >= 0 ? t : 0;
         PlaneDef plane = new PlaneDef(omeis.providers.re.data.PlaneDef.XY, 0,
                 0, z, t, null, -1);
-        return getHistogram(ctx, pixels, channels, 256, plane);
+        return getHistogram(ctx, pixels, channels, 256, true, plane);
     }
 
     /**
@@ -102,6 +103,9 @@ public class RawDataFacility extends Facility {
      *            The channel indices
      * @param binSize
      *            The number of bins (optional, default: 256)
+     * @param globalRange
+     *            Use the global minimum/maximum to determine the histogram
+     *            range, otherwise use plane minimum/maximum value
      * @param plane
      *            The plane to specify z/t and/or a certain region (optional,
      *            default: whole region of the first z/t plane)
@@ -114,7 +118,8 @@ public class RawDataFacility extends Facility {
      *             service.
      */
     public Map<Integer, int[]> getHistogram(SecurityContext ctx,
-            PixelsData pixels, int[] channels, int binSize, PlaneDef plane)
+            PixelsData pixels, int[] channels, int binSize,
+            boolean globalRange, PlaneDef plane)
             throws DSOutOfServiceException, DSAccessException {
         try {
             RawPixelsStorePrx store = gateway.createPixelsStore(ctx);
@@ -123,7 +128,7 @@ public class RawDataFacility extends Facility {
             if (plane == null)
                 plane = new PlaneDef(omeis.providers.re.data.PlaneDef.XY, 0, 0,
                         0, 0, null, -1);
-            return store.getHistogram(channels, binSize, plane);
+            return store.getHistogram(channels, binSize, globalRange, plane);
         } catch (Exception e) {
             handleException(this, e, "Couldn't get histogram data.");
         }
