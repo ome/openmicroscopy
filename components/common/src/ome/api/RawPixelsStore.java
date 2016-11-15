@@ -90,7 +90,7 @@ public interface RawPixelsStore extends StatefulServiceInterface {
     
     public byte[] getCol(int x, int z, int c, int t);
     
-    public Map<Integer, int[]> getHistogram(int[] channels, int binSize, PlaneDef plane);
+    public Map<Integer, int[]> getHistogram(int[] channels, int binSize, boolean globalRange, PlaneDef plane);
 
     public byte[] getHypercube(@Validate(Integer.class) List<Integer> offset, @Validate(Integer.class) List<Integer> size, @Validate(Integer.class) List<Integer> step);
 

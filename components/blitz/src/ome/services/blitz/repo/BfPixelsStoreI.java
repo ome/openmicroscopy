@@ -346,7 +346,7 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
     }
     
     public void getHistogram_async(AMD_RawPixelsStore_getHistogram __cb,
-            int[] channels, int binSize, PlaneDef plane, Current __current) throws ServerError {
+            int[] channels, int binSize, boolean globalRange, PlaneDef plane, Current __current) throws ServerError {
         // TODO: !?!?
     }
 

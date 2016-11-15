@@ -380,6 +380,12 @@ public class RawPixelsStoreTest extends AbstractServerTest {
         Assert.assertEquals(byteSize, 200, "Test assumes a 100px image");
         
         final int binSize = 256;
+        
+        // channel stats are not calculated for the generated test image,
+        // so this does not test global min/max usage but rather the fallback
+        // to use the plane min/max
+        final boolean useGlobalRange = true;
+        
         final int z = 0;
         final int t = 0;
         
@@ -418,7 +424,7 @@ public class RawPixelsStoreTest extends AbstractServerTest {
         int[] channels = new int[] { 0, 1 };
 
         PlaneDef plane = new PlaneDef(omeis.providers.re.data.PlaneDef.XY, 0, 0, z, t, null, -1);
-        Map<Integer, int[]> data = svc.getHistogram(channels, binSize, plane);
+        Map<Integer, int[]> data = svc.getHistogram(channels, binSize, useGlobalRange, plane);
 
         Assert.assertEquals(data.size(), nChannels);
 
@@ -449,7 +455,7 @@ public class RawPixelsStoreTest extends AbstractServerTest {
         RegionDef region = new RegionDef(0, 0, 5, 5);
         plane = new PlaneDef(omeis.providers.re.data.PlaneDef.XY, 0, 0, z, t, region, -1);
         
-        data = svc.getHistogram(new int[] {0}, binSize, plane);
+        data = svc.getHistogram(new int[] {0}, binSize, useGlobalRange, plane);
         Assert.assertEquals(data.size(), 1);
         
         int[] counts = data.values().iterator().next();

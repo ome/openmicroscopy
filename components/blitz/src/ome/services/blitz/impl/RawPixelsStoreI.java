@@ -246,9 +246,9 @@ public class RawPixelsStoreI extends AbstractPyramidServant implements
     }
     
     public void getHistogram_async(AMD_RawPixelsStore_getHistogram __cb,
-            int[] channels, int binSize, PlaneDef plane,
+            int[] channels, int binSize, boolean globalRange, PlaneDef plane,
             Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, channels, binSize, plane);
+        callInvokerOnRawArgs(__cb, __current, channels, binSize, globalRange, plane);
     }
 
     public void getCol_async(AMD_RawPixelsStore_getCol __cb, int x, int z,

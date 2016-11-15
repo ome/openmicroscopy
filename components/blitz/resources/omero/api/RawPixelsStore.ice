@@ -331,9 +331,10 @@ module omero {
                  * @param channels the channels to generate the histogram data for
                  * @param binSize the number of the histogram bins (optional, default: 256)
                  * @param plane the plane (optional, default: whole region of first z/t plane)
+                 * @param globalRange use the global minimum/maximum to determine the histogram range, otherwise use plane minimum/maximum value
                  * @return See above.
                  **/
-                idempotent IntegerIntegerArrayMap getHistogram(IntegerArray channels, int binSize, omero::romio::PlaneDef plane) throws ServerError;
+                idempotent IntegerIntegerArrayMap getHistogram(IntegerArray channels, int binSize, bool globalRange, omero::romio::PlaneDef plane) throws ServerError;
                 
                 /**
                  * Returns the byte width for the pixel store.

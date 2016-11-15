@@ -31,6 +31,7 @@ import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.io.nio.RomioPixelBuffer;
+import ome.model.core.Channel;
 import ome.model.core.Pixels;
 import ome.parameters.Parameters;
 import ome.util.PixelData;
@@ -673,12 +674,12 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     
     @RolesAllowed("user")
     public synchronized Map<Integer, int[]> getHistogram(int[] channels,
-            int binSize, PlaneDef plane) {
+            int binSize, boolean globalRange, PlaneDef plane) {
         errorIfNotLoaded();
 
         if (binSize <= 0)
             binSize = DEFAULT_HISTOGRAM_BINSIZE;
-        
+
         int imgWidth = buffer.getSizeX();
 
         int z = (plane != null && plane.getZ() >= 0) ? plane.getZ() : 0;
@@ -698,23 +699,25 @@ public class RawPixelsBean extends AbstractStatefulBean implements
 
         try {
             for (int ch : channels) {
+                Channel channel = metadataService.retrievePixDescription(id)
+                        .getChannel(ch);
                 PixelData px = buffer.getPlane(z, ch, t);
                 int[] data = new int[binSize];
-                double min = Double.MAX_VALUE;
-                double max = 0;
-                for (int i = 0; i < px.size(); i++) {
-                    min = Math.min(px.getPixelValue(i), min);
-                    max = Math.max(px.getPixelValue(i), max);
-                }
+
+                double[] minmax = determineHistogramMinMax(px, channel,
+                        globalRange);
+                double min = minmax[0];
+                double max = minmax[1];
+
                 double range = (max - min) + 1;
                 double binRange = range / binSize;
                 for (int i = 0; i < px.size(); i++) {
                     int pxx = i % imgWidth;
                     int pxy = i / imgWidth;
-                    if (pxx >= x && pxx < (x + w) && pxy >= y
-                            && pxy < (y + h)) {
+                    if (pxx >= x && pxx < (x + w) && pxy >= y && pxy < (y + h)) {
                         int bin = (int) ((px.getPixelValue(i) - min) / binRange);
-                        data[bin]++;
+                        if (bin >= 0 && bin < binSize)
+                            data[bin]++;
                     }
                 }
                 result.put(ch, data);
@@ -728,7 +731,31 @@ public class RawPixelsBean extends AbstractStatefulBean implements
 
     // ~ Helpers
     // =========================================================================
+    
+    private double[] determineHistogramMinMax(PixelData px, Channel channel,
+            boolean useGlobal) {
+        double min, max;
 
+        if (useGlobal) {
+            min = channel.getStatsInfo().getGlobalMin();
+            max = channel.getStatsInfo().getGlobalMax();
+            // if max == 1.0 the global min/max probably has not been
+            // calculated; fall back to plane min/max
+            if (max > 1.0)
+                return new double[] { min, max };
+        }
+
+        min = Double.MAX_VALUE;
+        max = 0;
+
+        for (int i = 0; i < px.size(); i++) {
+            min = Math.min(min, px.getPixelValue(i));
+            max = Math.max(max, px.getPixelValue(i));
+        }
+
+        return new double[] { min, max };
+    }
+    
     private synchronized byte[] bufferAsByteArrayWithExceptionIfNull(ByteBuffer buffer) {
         byte[] b = new byte[buffer.capacity()];
         buffer.get(b, 0, buffer.capacity());
