@@ -736,7 +736,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
             boolean useGlobal) {
         double min, max;
 
-        if (useGlobal) {
+        if (useGlobal && channel != null && channel.getStatsInfo() != null) {
             min = channel.getStatsInfo().getGlobalMin();
             max = channel.getStatsInfo().getGlobalMax();
             // if max == 1.0 the global min/max probably has not been
