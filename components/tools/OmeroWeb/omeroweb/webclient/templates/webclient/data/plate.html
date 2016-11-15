@@ -261,7 +261,7 @@
                             return html;
                         }, "");
                         $('#wellImages-' + wellId).append("<td><ul>" + html + "</ul></tr>");
-                        if (selectImageIds) {
+                        if (selectImageIds && selectImageIds.length > 0) {
                             triggerWellImagesSelection();
                         }
                     });
