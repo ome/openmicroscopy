@@ -20,6 +20,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import omero
+import logging
 from library import ITest
 import uuid
 from omero import ApiUsageException
@@ -67,11 +68,12 @@ def runScript(client, scriptId, argMap, returnKey=None):
 
     if 'stdout' in results:
         origFile = results['stdout'].getValue()
-        print "Script generated StdOut in file:", origFile.getId().getValue()
+        v = "Script generated StdOut in file:", origFile.getId().getValue()
+        logging.debug(v)
     if 'stderr' in results:
         origFile = results['stderr'].getValue()
-        # But, we still get stderr from EMAN2 import (duplicate numpy etc.)
-        print "Script generated StdErr in file:", origFile.getId().getValue()
+        v = "Script generated StdErr in file:", origFile.getId().getValue()
+        logging.debug(v)
     if returnKey and returnKey in results:
         return results[returnKey]
 
@@ -87,7 +89,6 @@ def editScript(scriptService, scriptPath):
     #     [s for s in scripts if s.path.val + s.name.val == scriptPath]
     # script = namedScripts[-1]
     script = getScript(scriptService, scriptPath)
-    print "Editing script:", scriptPath
     scriptService.editScript(script, scriptText)
     return script.id.val
 
@@ -95,9 +96,6 @@ def editScript(scriptService, scriptPath):
 def getScript(scriptService, scriptPath):
 
     scripts = scriptService.getScripts()     # returns list of OriginalFiles
-
-    for s in scripts:
-        print s.id.val, s.path.val + s.name.val
 
     # make sure path starts with a slash.
     # ** If you are a Windows client - will need to convert all path separators
@@ -109,11 +107,11 @@ def getScript(scriptService, scriptPath):
         s for s in scripts if s.path.val + s.name.val == scriptPath]
 
     if len(namedScripts) == 0:
-        print "Didn't find any scripts with specified path: %s" % scriptPath
         return
 
     if len(namedScripts) > 1:
-        print "Found more than one script with specified path: %s" % scriptPath
+        v = "Found more than one script with specified path: %s" % scriptPath
+        logging.debug(v)
 
     return namedScripts[0]
 
