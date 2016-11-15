@@ -38,7 +38,9 @@ Test Spw Grid Layout
     Select First Plate With Name            ${PLATE_NAME}
     # Plate should auto-load, allowing click on Well
     Click Well By Name                      A1
-    ${wellId}=                              Wait For General Panel And Return Id            Well
+    Wait For General Panel And Return Id    Well
+    # Right panel should show Well
+    Page Should Contain Element             xpath=//div[contains(@class,'data_heading')]/h1[contains(text(), 'A1')]
 
     # Images from a single Well shown in bottom panel
     Wait Until Page Contains Element        xpath=//div[@id='wellImages']//li/img
@@ -47,11 +49,19 @@ Test Spw Grid Layout
     # Shift-Click to select 3 Wells - All images shown in bottom panel
     Shift Click Element                     "img[name='A3']"
     Wait Until Keyword Succeeds             ${TIMEOUT}    ${INTERVAL}     Xpath Should Match X Times    //div[@id='wellImages']//li/img     ${FIELD_COUNT3}
+    # Right Panel - batch annotate 3 Wells
+    Wait Until Page Contains Element        //h1[@id='batch_ann_title']/span[contains(text(), '3 objects')]
 
     # No Well-Images selected. Click to select
     Page Should Not Contain Element         xpath=//div[@id='wellImages']//li[contains(@class,'ui-selected')]
     Click Element                           xpath=//div[@id='wellImages']//li/img[1]
     Page Should Contain Element             xpath=//div[@id='wellImages']//li[1][contains(@class,'ui-selected')]
+    Wait For General Panel And Return Id    Image
+
+    # Shift-click 5th image
+    Shift Click Element                     "#wellImages img:eq(4)"
+    # Right Panel - batch annotate 5 Images
+    Wait Until Page Contains Element        //h1[@id='batch_ann_title']/span[contains(text(), '5 objects')]
 
     # Wrap rows of images by fixed column count
     Input Text                              id=imagesPerRow             2
