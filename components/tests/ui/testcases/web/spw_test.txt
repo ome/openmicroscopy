@@ -62,6 +62,54 @@ Test Spw Grid Layout
     Should Be Equal                         ${well1x}                   ${well5x}
 
 
+Test Spw Spacial Birds Eye
+    [Documentation]     Tests layout and clicking of 'spacial bird's eye' panel
+
+    Select Experimenter
+    Select First Plate With Name            ${PLATE_NAME}
+    # Plate should auto-load, allowing click on Well
+    Click Well By Name                      A1
+
+    # Birds eye panel shows all images/fields
+    Wait Until Page Contains Element        xpath=//div[@id='well_birds_eye']//img
+    Xpath Should Match X Times              //div[@id='well_birds_eye']//img                 ${FIELD_COUNT}
+
+    # Spacial layout: x and y
+    ${well1x}=                              Get Horizontal Position  xpath=//div[@id='well_birds_eye']//img[1]
+    ${well2x}=                              Get Horizontal Position  xpath=//div[@id='well_birds_eye']//img[2]
+    ${well3x}=                              Get Horizontal Position  xpath=//div[@id='well_birds_eye']//img[3]
+    ${well4x}=                              Get Horizontal Position  xpath=//div[@id='well_birds_eye']//img[4]
+    ${well1y}=                              Get Vertical Position  xpath=//div[@id='well_birds_eye']//img[1]
+    ${well2y}=                              Get Vertical Position  xpath=//div[@id='well_birds_eye']//img[2]
+    ${well4y}=                              Get Vertical Position  xpath=//div[@id='well_birds_eye']//img[4]
+    # First and 4th images should be aligned left (Not 2nd image)
+    Log     ${well1x}
+    Log     ${well2x}
+    Log     ${well3x}
+    Log     ${well4x}
+    Should Not Be Equal                     ${well1x}                   ${well2x}
+    Should Be Equal                         ${well1x}                   ${well4x}
+    # First and 2nd images should be aligned left (Not 4th image)
+    Should Not Be Equal                     ${well1y}                   ${well4y}
+    Should Be Equal                         ${well1y}                   ${well2y}
+
+    # Click image in birds eye - should select in wellImages bottom panel
+    Page Should Not Contain Element         xpath=//div[@id='wellImages']//li[contains(@class,'ui-selected')]
+    Click Element                           xpath=//div[@id='well_birds_eye']//img[1]
+    Page Should Contain Element             xpath=//div[@id='wellImages']//li[1][contains(@class,'ui-selected')]
+    Wait For General Panel And Return Id    Image
+
+    # Meta Click to select additional images
+    Meta Click Element                      "#well_birds_eye img:eq(2)"
+    Wait Until Page Contains Element        //h1[@id='batch_ann_title']/span[contains(text(), '2 objects')]
+    Xpath Should Match X Times              //div[@id='wellImages']//li[contains(@class,'ui-selected')]             2
+
+    # Shift-Click range in wellImages panel - updates selection in 'birds eye'
+    Shift Click Element                     "#wellImages img:eq(4)"
+    Wait Until Page Contains Element        //h1[@id='batch_ann_title']/span[contains(text(), '5 objects')]
+    Xpath Should Match X Times              //div[@id='well_birds_eye']//img[contains(@class,'ui-selected')]        5
+
+
 Test Bulk Annotations
     [Documentation]     Test display of bulk annotations added in setup
 
