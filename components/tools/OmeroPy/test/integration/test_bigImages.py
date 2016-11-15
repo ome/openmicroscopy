@@ -27,7 +27,6 @@
 import omero
 import logging
 from omero.testlib import ITest
-import library as lib
 import io
 
 try:
