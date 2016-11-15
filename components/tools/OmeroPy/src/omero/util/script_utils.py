@@ -40,6 +40,15 @@ except:
     import sha
     hash_sha1 = sha.new
 
+
+try:
+    from PIL import Image  # see ticket:2597
+except:  # pragma: nocover
+    try:
+        import Image  # see ticket:2597
+    except:
+        logging.error('No Pillow installed')
+
 # r,g,b,a colours for use in scripts.
 COLOURS = {
     'Red': (255, 0, 0, 255),
@@ -522,10 +531,6 @@ def getPlaneFromImage(imagePath, rgbIndex=None):
     @param imagePath   Path to image.
     """
     from numpy import asarray
-    try:
-        from PIL import Image  # see ticket:2597
-    except ImportError:
-        import Image  # see ticket:2597
 
     i = Image.open(imagePath)
     a = asarray(i)
@@ -757,11 +762,6 @@ def split_image(client, imageId, dir,
     queryService = session.getQueryService()
     rawPixelsStore = session.createRawPixelsStore()
     pixelsService = session.getPixelsService()
-
-    try:
-        from PIL import Image
-    except:
-        import Image
 
     query_string = "select p from Pixels p join fetch p.image as i join fetch " \
                    "p.pixelsType where i.id='%s'" % imageId
@@ -1243,11 +1243,6 @@ def numpyToImage(plane, minMax, dtype):
     @param minMax the min and the max values for the plane
     @param dtype the data type to use for scaling
     """
-
-    try:
-        from PIL import Image
-    except ImportError:
-        import Image
 
     convArray = convertNumpyArray(plane, minMax, dtype)
     if plane.dtype.name not in ('uint8', 'int8'):
