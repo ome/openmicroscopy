@@ -23,7 +23,7 @@ Test server config in decorator.
 
 import json
 
-import library as lib
+from omero.testlib import ITest
 
 import omero
 import omero.clients
@@ -72,7 +72,7 @@ def test_flattenProperties():
     assert set(d.keys()) - set(flatprop.keys()) == set()
 
 
-class TestConfig(lib.ITest):
+class TestConfig(ITest):
 
     def setup_method(self, method):
         # prepare session

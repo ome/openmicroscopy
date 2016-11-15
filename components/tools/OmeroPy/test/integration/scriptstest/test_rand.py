@@ -25,7 +25,7 @@
 
 """
 
-import library as lib
+from omero.testlib import ITest
 import omero
 import omero.processor
 import omero.scripts
@@ -77,7 +77,7 @@ print val
 """
 
 
-class TestRand(lib.ITest):
+class TestRand(ITest):
 
     def testRand(self):
         root_client = self.new_client(system=True)

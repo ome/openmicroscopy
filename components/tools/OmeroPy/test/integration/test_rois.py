@@ -8,11 +8,11 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-import library as lib
+from omero.testlib import ITest
 import omero
 
 
-class TestRois(lib.ITest):
+class TestRois(ITest):
 
     def teststats1(self):
         self.client.sf.getRoiService()

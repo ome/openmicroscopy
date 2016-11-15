@@ -22,8 +22,8 @@ Tests display of metadata in webclient
 """
 import omero
 
-from weblibrary import IWebTest
-from weblibrary import _get_response
+from omeroweb.testlib import IWebTest
+from omeroweb.testlib import _get_response
 
 from django.core.urlresolvers import reverse
 from omero.model.enums import UnitsLength
