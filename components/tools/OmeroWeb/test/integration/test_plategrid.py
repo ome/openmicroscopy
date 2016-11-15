@@ -309,7 +309,7 @@ class TestPlateGrid(object):
         """
         for well in plate_wells.copyWells():
             request_url = reverse('webgateway_listwellimages_json',
-                    args=[well.id.val])
+                                  args=[well.id.val])
             response = django_client.get(request_url)
             assert response.status_code == 200
             well_json = json.loads(response.content)
@@ -320,12 +320,12 @@ class TestPlateGrid(object):
                 assert ws_json['name'] == img.name.val
                 assert ws_json['id'] == img.id.val
                 assert ws_json['thumb_url'] ==\
-                        reverse('webgateway.views.render_thumbnail',
-                                args=[img.id.val])
+                    reverse('webgateway.views.render_thumbnail',
+                            args=[img.id.val])
                 assert ws_json['position'] == {'x': {'value': i,
                                                'unit': rf},
                                                'y': {'value': i + 1,
-                                               'unit': rf}
+                                                     'unit': rf}
                                                }
 
     def test_instantiation(self, plate_wells, conn):
