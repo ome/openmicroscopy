@@ -13,6 +13,7 @@ Suite Teardown      Close all browsers
 ${imageName1}                       testShowImage1
 ${imageName2}                       testShowImage2
 ${plateName}                        testShowPlate
+${FIELD_COUNT}              5
 # Full Well name may make test fragile?
 ${wellName}                         test&plates=1&plateAcqs=1&plateRows=2&plateCols=3&fields=1&screens=0.fake [test]
 ${runName}                          PlateAcquisition Name 0
@@ -24,7 +25,7 @@ Wait For Right Panel
     Wait Until Page Contains Element        xpath=//tr[contains(@class,'data_heading_id')]//th[contains(text(),'${dataType} ID:')]
     Wait Until Page Contains Element        xpath=//div[contains(@class,'data_heading')]//*[contains(text(),'${dataName}')]
     ${dataId}=                              Get Text                css=tr.data_heading_id strong
-    [Return]                                ${dataId}   
+    [Return]                                ${dataId}
 
 Check Well Selected
     [Arguments]                             ${wellName}       ${wellId}
@@ -42,7 +43,7 @@ Test Show Plate
     [Documentation]     Tests that ?show functionality works on pre-imported Plates
 
     # Load the Plate by show
-    Go To                               ${WELCOME URL}?show=plate.name-testShowPlate
+    Go To                               ${WELCOME URL}?show=plate.name-${plateName}
     ${plateId}=                         Wait For Right Panel            Plate               ${plateName}
     ${nodeId}=                          Plate Should Be Selected By Name                    ${plateName}
     # Check URL from the Link button
@@ -57,7 +58,7 @@ Test Show Plate
     # Check URL from the Link button
     ${wellUrl}=                         Get Link Button Url
     Should Be Equal                     ${wellUrl}                      ${WELCOME URL}?show=well-${wellId}
-    
+
     # Get Next Well IDs to Test multi-selection of Wells
     ${well-id-A2}=                      Get Element Attribute           xpath=//td[contains(@class, 'well')][descendant::img[@name='A2']]@id
     ${w}    ${wellA2Id}=                Split String                    ${well-id-A2}    -
@@ -77,6 +78,29 @@ Test Show Plate
     Wait For Right Panel                Plate                           ${plateName}
     ${nodeId}=                          Wait For Plate Node Text        ${plateName}
     Node Should Be Selected By Id       ${nodeId}
+
+Test Show Well Images
+    [Documentation]     Tests Show of multiple images in a Well
+
+    Select Experimenter
+    Select First Plate With Name            ${plateName}
+    Click Well By Name                      A1
+
+    # Images from a single Well shown in bottom panel
+    Wait Until Page Contains Element        xpath=//div[@id='wellImages']//li/img
+    Xpath Should Match X Times              //div[@id='wellImages']//li/img                 ${FIELD_COUNT}
+
+    # Select Range: Shift-click 5th image
+    Click Element                           xpath=//div[@id='wellImages']//li/img[1]
+    Shift Click Element                     "#wellImages img:eq(4)"
+    Wait Until Page Contains Element        //h1[@id='batch_ann_title']/span[contains(text(), '5 objects')]
+
+    # Use 'Link' button to get link
+    Click Element                           id=show_link_btn
+    ${imagesUrl}=                           Get Element Attribute                   id=link_info_popup_string@value
+    Go To                                   ${imagesUrl}
+    Wait Until Page Contains Element        //h1[@id='batch_ann_title']/span[contains(text(), '5 objects')]
+    Xpath Should Match X Times              //div[@id='wellImages']//li/img                 ${FIELD_COUNT}
 
 
 Test Show PDI

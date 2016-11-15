@@ -18,13 +18,6 @@ ${FIELD_COUNT3}             15
 
 *** Keywords ***
 
-Click Well By Name
-    [Arguments]    ${name}
-    Wait Until Page Contains Element    xpath=//td[contains(@class,'well')]/img[@name='${name}']
-    # Have to be sure that thumbnail itself has loaded before image is clickable!
-    Sleep                               1
-    Click Element                       xpath=//td[contains(@class,'well')]/img[@name='${name}']
-
 Bulk Annotation Should Contain Row
     [Arguments]    ${key}   ${value}
     Wait Until Page Contains Element    xpath=//table[@id='bulk_annotations_table']//tr[descendant::td[contains(text(), '${key}')]]/td[contains(text(), '${value}')]
@@ -57,11 +50,6 @@ Test Spw Grid Layout
     Click Element                           xpath=//div[@id='wellImages']//li/img[1]
     Page Should Contain Element             xpath=//div[@id='wellImages']//li[1][contains(@class,'ui-selected')]
     Wait For General Panel And Return Id    Image
-
-    # Shift-click 5th image
-    Shift Click Element                     "#wellImages img:eq(4)"
-    # Right Panel - batch annotate 5 Images
-    Wait Until Page Contains Element        //h1[@id='batch_ann_title']/span[contains(text(), '5 objects')]
 
     # Wrap rows of images by fixed column count
     Input Text                              id=imagesPerRow             2
