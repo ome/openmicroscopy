@@ -1801,34 +1801,6 @@ class RendererModel
                 || t.equals(OmeroImageService.UINT_32);
 	}
 
-    /**
-     * Get the available lookup tables
-     * @return See above.
-     */
-    public Collection<String> getAvailableLookupTables() {
-        if (rndControl == null)
-            return null;
-        return rndControl.getAvailableLookupTables();
-    }
-
-    /**
-     * Set the lookup table
-     * 
-     * @param index
-     *            The channel index
-     * @param lut
-     *            The lookup table
-     */
-    public void setLookupTable(int index, String lut) {
-        try {
-            rndControl.setLookupTable(index, lut);
-        } catch (Exception e) {
-            LogMessage msg = new LogMessage();
-            msg.append("Error while setting lookup table.");
-            msg.print(e);
-            MetadataViewerAgent.getRegistry().getLogger().error(this, msg);
-        }
-    }
     
     /**
      * Returns the image used to create the histogram. This is grey scale image.
@@ -1880,5 +1852,34 @@ class RendererModel
      */
     public int[] getHistogramData(int channelIndex) {
         return histogramData.get(channelIndex);
+    }
+    
+    /**
+     * Get the available lookup tables
+     * @return See above.
+     */
+    public Collection<String> getAvailableLookupTables() {
+        if (rndControl == null)
+            return null;
+        return rndControl.getAvailableLookupTables();
+    }
+
+    /**
+     * Set the lookup table
+     * 
+     * @param index
+     *            The channel index
+     * @param lut
+     *            The lookup table
+     */
+    public void setLookupTable(int index, String lut) {
+        try {
+            rndControl.setLookupTable(index, lut);
+        } catch (Exception e) {
+            LogMessage msg = new LogMessage();
+            msg.append("Error while setting lookup table.");
+            msg.print(e);
+            MetadataViewerAgent.getRegistry().getLogger().error(this, msg);
+        }
     }
 }
