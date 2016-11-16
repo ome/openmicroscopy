@@ -64,13 +64,11 @@ class TestUtilScripts(ScriptTest):
 
         client = self.root
 
-        image = self.createTestImage(100, 100, 2, 3, 4)    # x,y,z,c,t
-        image_id = image.getId().getValue()
         imageIds = []
-        imageIds.append(omero.rtypes.rlong(image_id))
-        image = self.createTestImage(100, 100, 2, 3, 4)    # x,y,z,c,t
-        image_id = image.getId().getValue()
-        imageIds.append(omero.rtypes.rlong(image_id))
+        for i in range(2):
+            image = self.createTestImage(100, 100, 2, 3, 4)    # x,y,z,c,t
+            imageIds.append(omero.rtypes.rlong(image.getId().getValue()))
+
         argMap = {
             "Data_Type": omero.rtypes.rstring("Image"),
             "IDs": omero.rtypes.rlist(imageIds)
