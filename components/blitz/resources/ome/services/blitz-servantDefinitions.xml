@@ -62,6 +62,8 @@
         <bean class="ome.services.blitz.impl.ScriptI">
             <constructor-arg ref="throttlingStrategy"/>
             <constructor-arg ref="scriptRepoHelper"/>
+            <constructor-arg ref="aclVoter"/>
+            <constructor-arg ref="omeroInterceptor"/>
             <constructor-arg ref="checksumProviderFactory"/>
             <constructor-arg ref="paramsCache"/>
         </bean>
