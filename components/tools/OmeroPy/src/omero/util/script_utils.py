@@ -27,6 +27,8 @@ import os
 import warnings
 
 from struct import unpack
+from numpy import add, array, asarray, fromstring, reshape, zeros
+from os.path import exists
 
 import omero.clients
 from omero.rtypes import unwrap
@@ -467,7 +469,6 @@ def readFileAsArray(rawFileService, iQuery, fileId, row, col, separator=' '):
     @param sep the column separator.
     @return The file as an NumPy array.
     """
-    from numpy import fromstring, reshape
     textBlock = readFromOriginalFile(rawFileService, iQuery, fileId)
     arrayFromFile = fromstring(textBlock, sep=separator)
     return reshape(arrayFromFile, (row, col))
@@ -480,7 +481,6 @@ def readFlimImageFile(rawPixelsStore, pixels):
     @param pixels The pixels of the image.
     @return The Contents of the image for z = 0, t = 0, all channels;
     """
-    from numpy import zeros
     sizeC = pixels.getSizeC().getValue()
     sizeX = pixels.getSizeX().getValue()
     sizeY = pixels.getSizeY().getValue()
@@ -508,7 +508,6 @@ def downloadPlane(rawPixelsStore, pixels, z, c, t):
     @param t The T-Section to retrieve.
     @return The Plane of the image for z, c, t
     """
-    from numpy import array
     rawPlane = rawPixelsStore.getPlane(z, c, t)
     sizeX = pixels.getSizeX().getValue()
     sizeY = pixels.getSizeY().getValue()
@@ -529,8 +528,6 @@ def getPlaneFromImage(imagePath, rgbIndex=None):
 
     @param imagePath   Path to image.
     """
-    from numpy import asarray
-
     i = Image.open(imagePath)
     a = asarray(i)
     if rgbIndex is None:
@@ -554,7 +551,6 @@ def uploadDirAsImages(sf, queryService, updateService,
     """
 
     import re
-    from numpy import zeros
 
     regex_token = re.compile(r'(?P<Token>.+)\.')
     regex_time = re.compile(r'T(?P<T>\d+)')
@@ -1257,10 +1253,19 @@ def numpySaveAsImage(plane, minMax, dtype, name):
     @param plane The plane to handle
     @param minMax the min and the max values for the plane
     @param type the data type to use for scaling
+    @param name the name of the image
     """
 
     image = numpyToImage(plane, minMax, dtype)
-    return image.save(name)
+    try:
+        image.save(name)
+    except (IOError, KeyError) as e:
+        msg = "Cannot save the array as an image: %s: %s" % (
+            name, e)
+        logging.error(msg)
+        # delete the file
+        if (exists(name)):
+            os.remove(name)
 
 
 def convertNumpyArray(plane, minMax, type):
@@ -1270,8 +1275,6 @@ def convertNumpyArray(plane, minMax, type):
     @param minMax the min and the max values for the plane
     @param type the data type to use for scaling
     """
-
-    from numpy import add, zeros
 
     if plane.dtype.name not in ('uint8', 'int8'):   # we need to scale...
         minVal, maxVal = minMax

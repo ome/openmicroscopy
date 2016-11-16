@@ -22,6 +22,7 @@
 
 """
 
+import pytest
 from omero.testlib import ITest
 import omero
 import omero.util.script_utils as scriptUtil
@@ -29,8 +30,13 @@ from omero.gateway import BlitzGateway
 import tempfile
 import shutil
 from os import listdir, remove
-from os.path import isfile, join
+from os.path import isfile, join, exists
 from numpy import int32, uint8
+
+try:
+    from PIL import Image  # see ticket:2597
+except:  # pragma: nocover
+    import Image  # see ticket:2597
 
 
 class TestScriptUtils(ITest):
@@ -116,7 +122,9 @@ class TestScriptUtils(ITest):
             assert i is not None
             cIndex += 1
 
-    def testNumpySaveAsImage(self):
+    @pytest.mark.parametrize('format', ['tiff', 'foo'])
+    @pytest.mark.parametrize('is_file', [True, False])
+    def testNumpySaveAsImage(self, format, is_file):
         imported_pix = ",".join(self.import_image())
         params = omero.sys.Parameters()
         params.map = {}
@@ -137,9 +145,25 @@ class TestScriptUtils(ITest):
         theZ = image.getSizeZ() / 2
         theT = 0
         cIndex = 0
+
         for minMax in channelMinMax:
             plane = pixels.getPlane(theZ, cIndex, theT)
-            name = "test%s.tiff" % cIndex
+
+            suffix = ".%s" % format
+            name = None
+            if is_file is True:
+                # create a temporary file
+                tf = tempfile.NamedTemporaryFile(mode='r+b', suffix=suffix)
+                name = tf.name
+            else:
+                name = "test%s.%s" % (cIndex, format)
             scriptUtil.numpySaveAsImage(plane, minMax, int32, name)
+            # try to open the image
+            try:
+                Image.open(name)
+                assert format == "tiff"
+                remove(name)
+            except IOError:
+                assert format != "tiff"
+                assert exists(name) is False
             cIndex += 1
-            remove(name)
