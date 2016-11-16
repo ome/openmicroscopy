@@ -42,6 +42,7 @@ class TestFigureExportScripts(ScriptTest):
     def testThumbnailFigure(self):
 
         sid = super(TestFigureExportScripts, self).getScript(thumbnail_figure)
+        assert sid > 0
 
         client = self.root
 
@@ -108,6 +109,7 @@ class TestFigureExportScripts(ScriptTest):
     def testSplitViewFigure(self):
 
         sid = super(TestFigureExportScripts, self).getScript(split_view_figure)
+        assert sid > 0
 
         client = self.root
 
@@ -177,6 +179,7 @@ class TestFigureExportScripts(ScriptTest):
     def testRoiFigure(self):
 
         sid = super(TestFigureExportScripts, self).getScript(roi_figure)
+        assert sid > 0
 
         client = self.root
 
@@ -248,6 +251,7 @@ class TestFigureExportScripts(ScriptTest):
     def testMovieRoiFigure(self):
 
         sid = super(TestFigureExportScripts, self).getScript(movie_ROI_figure)
+        assert sid > 0
 
         client = self.root
 
@@ -309,6 +313,7 @@ class TestFigureExportScripts(ScriptTest):
     def testMovieFigure(self):
 
         sid = super(TestFigureExportScripts, self).getScript(movie_figure)
+        assert sid > 0
 
         client = self.root
 

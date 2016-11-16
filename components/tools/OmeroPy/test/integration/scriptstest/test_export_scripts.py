@@ -38,6 +38,7 @@ class TestExportScripts(ScriptTest):
 
     def testBatchImageExport(self):
         scriptId = super(TestExportScripts, self).getScript(batch_image_export)
+        assert scriptId > 0
 
         client = self.root
         image = self.createTestImage(100, 100, 1, 1, 1)    # x,y,z,c,t
@@ -52,6 +53,8 @@ class TestExportScripts(ScriptTest):
 
     def testMakeMovie(self):
         scriptId = super(TestExportScripts, self).getScript(make_movie)
+        assert scriptId > 0
+
         client = self.root
         image = self.createTestImage(100, 100, 5, 2, 4)    # x,y,z,c,t
         imageIds = []

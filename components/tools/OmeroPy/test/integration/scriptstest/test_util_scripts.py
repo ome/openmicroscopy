@@ -37,6 +37,7 @@ class TestUtilScripts(ScriptTest):
 
     def testChannelOffsets(self):
         scriptId = super(TestUtilScripts, self).getScript(channel_offsets)
+        assert scriptId > 0
 
         client = self.root
 
@@ -61,7 +62,7 @@ class TestUtilScripts(ScriptTest):
 
     def testCombineImages(self):
         scriptId = super(TestUtilScripts, self).getScript(combine_images)
-
+        assert scriptId > 0
         client = self.root
 
         imageIds = []
@@ -80,7 +81,7 @@ class TestUtilScripts(ScriptTest):
 
     def testImagesFromROIs(self):
         scriptId = super(TestUtilScripts, self).getScript(images_from_rois)
-
+        assert scriptId > 0
         # root session is root.sf
         session = self.root.sf
         client = self.root

@@ -37,6 +37,7 @@ class TestAnalysisScripts(ScriptTest):
 
     def testKymograph(self):
         scriptId = super(TestAnalysisScripts, self).getScript(kymograph)
+        assert scriptId > 0
 
         # root session is root.sf
         session = self.root.sf
@@ -66,6 +67,7 @@ class TestAnalysisScripts(ScriptTest):
 
     def testPlotProfile(self):
         scriptId = super(TestAnalysisScripts, self).getScript(plot_profile)
+        assert scriptId > 0
         # root session is root.sf
         session = self.root.sf
         client = self.root

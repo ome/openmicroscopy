@@ -22,36 +22,17 @@
 import omero
 import logging
 from omero.testlib import ITest
-import uuid
-from omero import ApiUsageException
 from omero.gateway import BlitzGateway
 
 
 class ScriptTest(ITest):
 
-    def upload(self, path):
-        return uploadScript(self.root, path)
-
     def getScript(self, path):
         scriptService = self.root.sf.getScriptService()
-        script = getScript(scriptService, path)
+        script = _getScript(scriptService, path)
+        if script is None:
+            return -1
         return script.id.val
-
-
-def uploadScript(client, scriptPath):
-    scriptService = client.sf.getScriptService()
-    _uuid = str(uuid.uuid4())
-
-    with open(scriptPath) as file:
-        scriptText = file.read()
-
-    try:
-        scriptId = scriptService.uploadOfficialScript(
-            "/%s/%s" % (_uuid, scriptPath), scriptText)
-    except ApiUsageException:
-        raise  # The next line will never be run!
-        scriptId = editScript(scriptService, scriptPath)
-    return scriptId
 
 
 def runScript(client, scriptId, argMap, returnKey=None):
@@ -78,23 +59,8 @@ def runScript(client, scriptId, argMap, returnKey=None):
         return results[returnKey]
 
 
-def editScript(scriptService, scriptPath):
-    with open(scriptPath) as file:
-        scriptText = file.read()
-
-    # need the script Original File to edit
-    # scripts = scriptService.getScripts()
-    # if not scriptPath.startswith("/"): scriptPath =  "/" + scriptPath
-    # namedScripts =\
-    #     [s for s in scripts if s.path.val + s.name.val == scriptPath]
-    # script = namedScripts[-1]
-    script = getScript(scriptService, scriptPath)
-    scriptService.editScript(script, scriptText)
-    return script.id.val
-
-
-def getScript(scriptService, scriptPath):
-
+def _getScript(scriptService, scriptPath):
+    """ Utility method, return the script or None """
     scripts = scriptService.getScripts()     # returns list of OriginalFiles
 
     # make sure path starts with a slash.
@@ -107,7 +73,7 @@ def getScript(scriptService, scriptPath):
         s for s in scripts if s.path.val + s.name.val == scriptPath]
 
     if len(namedScripts) == 0:
-        return
+        return None
 
     if len(namedScripts) > 1:
         v = "Found more than one script with specified path: %s" % scriptPath
