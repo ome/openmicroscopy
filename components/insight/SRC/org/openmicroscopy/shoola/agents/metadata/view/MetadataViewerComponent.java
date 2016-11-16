@@ -1322,4 +1322,13 @@ class MetadataViewerComponent
     public void reloadROICount() {
         model.getEditor().reloadROICount();
     }
+
+    /**
+     * Implemented as specified by the {@link MetadataViewer} interface.
+     * @see MetadataViewer#setHistogramData(int, int[])
+     */
+    @Override
+    public void setHistogramData(int ch, int[] data) {
+        model.getEditor().getRenderer().setHistogramData(ch, data);
+    }
 }

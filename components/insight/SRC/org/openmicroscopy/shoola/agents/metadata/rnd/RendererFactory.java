@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -24,6 +24,7 @@ import java.util.Collection;
 
 import omero.gateway.SecurityContext;
 
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 
@@ -47,19 +48,21 @@ public class RendererFactory
     /**
      * Creates a new {@link Renderer}.
      * 
+     * @param ctx The {@link SecurityContext}
      * @param rndControl Reference to the component that controls the
      *                   rendering settings. Mustn't be <code>null</code>.
      * @param image The image the component is for.
      * @param rndIndex The index of the renderer.
      * @param modulo The modulo annotations if any.
      * @param def The alternative rendering settings if any.
+     * @param viewer Reference to the {@link MetadataViewer}
      * @return See above.
      */
     public static Renderer createRenderer(SecurityContext ctx,
     		RenderingControl rndControl, ImageData image, int rndIndex,
-    		Collection<XMLAnnotationData> modulo, RndProxyDef def)
+    		Collection<XMLAnnotationData> modulo, RndProxyDef def, MetadataViewer viewer)
     {
-        RendererModel model = new RendererModel(ctx, rndControl, rndIndex, def);
+        RendererModel model = new RendererModel(ctx, rndControl, rndIndex, def, viewer);
         model.setImage(image);
         model.setXMLAnnotations(modulo);
         RendererComponent rnd = new RendererComponent(model);

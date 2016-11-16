@@ -35,6 +35,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
@@ -45,6 +46,7 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.openmicroscopy.shoola.agents.metadata.HistogramLoader;
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
@@ -54,6 +56,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.WrapLayout;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
+
 import omero.gateway.model.ChannelData;
 
 /** 
@@ -188,16 +191,25 @@ class GraphicsPane
         ChannelData[] items = new ChannelData[model.getChannelData().size()];
         items = model.getChannelData().toArray(items);
         histogramChannel = new JComboBox(items);
-        RenderingControl rnd = model.getRenderingControls().iterator().next();
+        final RenderingControl rnd = model.getRenderingControls().iterator().next();
         histogramChannel.setRenderer(new ChannelDataListRenderer(rnd));
         histogramChannel.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {                
                 ChannelData sel = (ChannelData) histogramChannel
                         .getSelectedItem();
                 int channelIndex = sel.getIndex();
-                histogram.setImage(model.getHistogramImage(channelIndex));
 
+                int[] data = model.getHistogramData(channelIndex);
+                if (data == null) {
+                    HistogramLoader loader = new HistogramLoader(model
+                            .getViewer(), model.getSecurityContext(), model
+                            .getRefImage(), new int[] { channelIndex }, model
+                            .getDefaultZ(), model.getDefaultT());
+                    loader.load();
+                }
+                histogram.setData(data);
+                
                 double r = (model.getGlobalMax(channelIndex) - model
                         .getGlobalMin(channelIndex));
                 double start = (rnd.getChannelWindowStart(channelIndex) - model
@@ -209,11 +221,11 @@ class GraphicsPane
         });
 
         histogramChannel.setSelectedIndex(0);
-
+        
         JPanel p = new JPanel(new BorderLayout());
         p.setBorder(BorderFactory.createLineBorder(Color.lightGray));
         p.setBackground(UIUtilities.BACKGROUND);
-
+        
         JPanel n = new JPanel(new BorderLayout());
         n.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
         n.setBackground(UIUtilities.BACKGROUND);
@@ -230,7 +242,7 @@ class GraphicsPane
     private void initComponents()
     {
         histogram = new HistogramPane();
-        histogram.setImage(null);
+        histogram.setData(null);
         
         viewedBy = new JPanel();
         Font font = viewedBy.getFont();
@@ -340,10 +352,13 @@ class GraphicsPane
         content.add(greyScale, c);
         c.gridy++;
         
+        c.fill = GridBagConstraints.BOTH;
+        c.weighty = .1;
         content.add(buildHistogramPane(), c);
         c.gridy++;
-        c.weighty = 0;
         
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weighty = 0;
         Iterator<ChannelSlider> i = sliders.iterator();
         while (i.hasNext())  {
             content.add(i.next(), c);
@@ -365,7 +380,7 @@ class GraphicsPane
         c.gridy++;
       
         c.fill = GridBagConstraints.BOTH;
-        c.weighty = 1;
+        c.weighty = .9;
         content.add(viewedBy, c);
         
         return content;
@@ -442,18 +457,30 @@ class GraphicsPane
      *            The index of the channel.
      */
     void updateHistogram(double start, double end, int channelIndex) {
-        histogram.setImage(model.getHistogramImage(channelIndex));
+        int[] data = model.getHistogramData(channelIndex);
+        if (data == null) {
+            HistogramLoader loader = new HistogramLoader(model.getViewer(),
+                    model.getSecurityContext(), model.getRefImage(),
+                    new int[] { channelIndex }, model.getDefaultZ(),
+                    model.getDefaultT());
+            loader.load();
+        }
+        histogram.setData(data);
+        
         double r = (model.getGlobalMax(channelIndex) - model
-                .getGlobalMin(channelIndex));
+                .getGlobalMin(channelIndex)) + 1;
         double s = (start - model.getGlobalMin(channelIndex)) / r;
         double e = (end - model.getGlobalMin(channelIndex)) / r;
+        
         histogram.setInputWindow(s, e);
 
-        for (int i = 0; i < histogramChannel.getItemCount(); i++) {
-            ChannelData ch = (ChannelData) histogramChannel.getItemAt(i);
-            if (ch.getIndex() == channelIndex) {
-                histogramChannel.setSelectedIndex(i);
-                break;
+        if (histogramChannel.getSelectedIndex() != channelIndex) {
+            for (int i = 0; i < histogramChannel.getItemCount(); i++) {
+                ChannelData ch = (ChannelData) histogramChannel.getItemAt(i);
+                if (ch.getIndex() == channelIndex) {
+                    histogramChannel.setSelectedIndex(i);
+                    break;
+                }
             }
         }
     }
@@ -797,5 +824,17 @@ class GraphicsPane
             return name1.compareToIgnoreCase(name2);
         }
         
+    }
+
+    /**
+     * Updates the component when the histogram data has been loaded
+     * 
+     * @param ch
+     *            The channel index which histogram data has been loaded
+     */
+    public void onHistogramLoaded(int ch) {
+        double s = model.getWindowStart(ch);
+        double e = model.getWindowEnd(ch);
+        updateHistogram(s, e, ch);
     }
 }

@@ -712,4 +712,15 @@ public interface MetadataViewer
 	 * Reload the ROI count
 	 */
     void reloadROICount();
+
+    
+    /**
+     * Set the histogram data for the given channel
+     * 
+     * @param ch
+     *            The channel index
+     * @param data
+     *            The data
+     */
+    public void setHistogramData(int ch, int[] data);
 }

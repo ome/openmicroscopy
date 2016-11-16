@@ -20,6 +20,7 @@
  */
 package org.openmicroscopy.shoola.util.ui;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
@@ -37,6 +38,9 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYBarPainter;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.data.statistics.HistogramDataset;
+import org.jfree.data.statistics.SimpleHistogramBin;
+import org.jfree.data.statistics.SimpleHistogramDataset;
+import org.jfree.data.xy.IntervalXYDataset;
 
 /**
  * Creates an histogram from a buffered image.
@@ -60,11 +64,13 @@ public class HistogramPane extends JPanel {
     private ValueMarker markerEnd;
 
     /** The histogram. */
-    private HistogramDataset dataset;
+    private IntervalXYDataset dataset;
 
     /** Initializes the component. */
     private void initialize() {
-        dataset = new HistogramDataset();
+        dataset = new SimpleHistogramDataset("Data");
+        ((SimpleHistogramDataset)dataset).setAdjustForBinSize(false);
+        
         markerStart = new ValueMarker(0);
         markerStart.setPaint(MARKER_COLOR);
         markerEnd = new ValueMarker(SIZE);
@@ -74,7 +80,7 @@ public class HistogramPane extends JPanel {
     /** Lays out the components. */
     private void buildLayout() {
         setBackground(UIUtilities.BACKGROUND);
-
+        setLayout(new BorderLayout());
         JFreeChart jfreechart = ChartFactory.createHistogram("", null, null,
                 dataset, PlotOrientation.VERTICAL, false, false, false);
         XYPlot xyplot = (XYPlot) jfreechart.getPlot();
@@ -91,7 +97,8 @@ public class HistogramPane extends JPanel {
         xybarrenderer.setDrawBarOutline(false);
         ChartPanel jpanel = new ChartPanel(jfreechart);
         jpanel.setPreferredSize(new Dimension(300, 150));
-        add(jpanel);
+        jpanel.setSize(new Dimension(300, 150));
+        add(jpanel, BorderLayout.CENTER);
     }
 
     /** Creates a new instance. */
@@ -115,10 +122,37 @@ public class HistogramPane extends JPanel {
             final int h = image.getHeight();
             double[] r = new double[w * h];
             r = raster.getSamples(0, 0, w, h, 0, r);
-            dataset.addSeries("", r, SIZE);
+            ((HistogramDataset)dataset).addSeries("", r, SIZE);
         }
         buildLayout();
-        validate();
+        revalidate();
+    }
+    
+    /**
+     * Sets the data used to build the histogram.
+     *
+     * @param data
+     *            The data to use.
+     */
+    public void setData(int[] data) {
+        // create histogram
+        removeAll();
+        dataset = new SimpleHistogramDataset("Data");
+        ((SimpleHistogramDataset) dataset).setAdjustForBinSize(false);
+        if (data != null) {
+            for (int i = 0; i < data.length; i++) {
+                SimpleHistogramBin bin = new SimpleHistogramBin(i, (i + .999));
+                bin.setItemCount(data[i]);
+                ((SimpleHistogramDataset) dataset).addBin(bin);
+            }
+        }
+        buildLayout();
+        revalidate();
+    }
+
+    @Override
+    public Dimension getMinimumSize() {
+        return super.getPreferredSize();
     }
 
     /**

@@ -1077,6 +1077,16 @@ public class DomainPane
     }
 
     /**
+     * Updates the component when the histogram data has been loaded
+     * 
+     * @param ch
+     *            The channel index which histogram data has been loaded
+     */
+    void onHistogramLoaded(int ch) {
+        graphicsPane.onHistogramLoaded(ch);
+    }
+    
+    /**
      * Returns the selected rendering settings if any.
      *
      * @return See above.

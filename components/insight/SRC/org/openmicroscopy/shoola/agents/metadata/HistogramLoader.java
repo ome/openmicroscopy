@@ -20,9 +20,12 @@
  */
 package org.openmicroscopy.shoola.agents.metadata;
 
+import java.util.Map;
+
 import omero.gateway.SecurityContext;
 import omero.gateway.model.ImageData;
 
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
@@ -38,6 +41,9 @@ public class HistogramLoader extends DSCallAdapter {
 
     /** Reference to the {@link MetadataHandlerView} */
     private MetadataHandlerView view;
+    
+    /** The viewer this data loader is for. */
+    protected final MetadataViewer viewer;
 
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle handle;
@@ -60,6 +66,9 @@ public class HistogramLoader extends DSCallAdapter {
     /**
      * Creates a new instance
      * 
+     * @param viewer
+     *            Reference to the {@link MetadataViewer}
+     * 
      * @param ctx
      *            The {@link SecurityContext}
      * @param img
@@ -71,8 +80,9 @@ public class HistogramLoader extends DSCallAdapter {
      * @param t
      *            The T plane
      */
-    public HistogramLoader(SecurityContext ctx, ImageData img, int[] channels,
+    public HistogramLoader(MetadataViewer viewer, SecurityContext ctx, ImageData img, int[] channels,
             int z, int t) {
+        this.viewer = viewer;
         this.ctx = ctx;
         this.img = img;
         this.channels = channels;
@@ -96,7 +106,9 @@ public class HistogramLoader extends DSCallAdapter {
 
     @Override
     public void handleResult(Object result) {
-        // TODO: Update UI
+        Map<Integer, int[]> data = (Map<Integer, int[]>) result;
+        for (int ch : channels)
+            viewer.setHistogramData(ch, data.get(ch));
     }
 
 }

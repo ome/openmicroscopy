@@ -1422,4 +1422,15 @@ class RendererComponent
 	{
 	    return  view.getSelectedDef();
 	}
+
+    /**
+     * Implemented as specified by the {@link Renderer} interface.
+     * 
+     * @see Renderer#setHistogramData(int, int[])
+     */
+    @Override
+    public void setHistogramData(int ch, int[] data) {
+        model.setHistogramData(ch, data);
+        view.onHistogramLoaded(ch);
+    }
 }

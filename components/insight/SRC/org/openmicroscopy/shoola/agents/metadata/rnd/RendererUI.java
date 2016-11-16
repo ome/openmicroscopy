@@ -378,4 +378,15 @@ class RendererUI
     Collection<String> getAvailableLookupTables() {
         return model.getAvailableLookupTables();
     }
+
+    /**
+     * Updates the component when the histogram data has been loaded
+     * 
+     * @param ch
+     *            The channel index which histogram data has been loaded
+     */
+    public void onHistogramLoaded(int ch) {
+        DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
+        pane.onHistogramLoaded(ch);
+    }
 }
