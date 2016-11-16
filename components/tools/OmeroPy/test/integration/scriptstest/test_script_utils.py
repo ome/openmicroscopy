@@ -28,7 +28,7 @@ import omero.util.script_utils as scriptUtil
 from omero.gateway import BlitzGateway
 import tempfile
 import shutil
-from os import listdir
+from os import listdir, remove
 from os.path import isfile, join
 from numpy import int32, uint8
 
@@ -87,8 +87,6 @@ class TestScriptUtils(ITest):
                 assert True
             except IOError:
                 assert False
-            else:
-                i.close()
             cIndex += 1
 
     def testConvertNumpyArray(self):
@@ -144,3 +142,4 @@ class TestScriptUtils(ITest):
             name = "test%s.tiff" % cIndex
             scriptUtil.numpySaveAsImage(plane, minMax, int32, name)
             cIndex += 1
+            remove(name)
