@@ -23,6 +23,7 @@
 """
 
 import library as lib
+import omero
 import omero.util.script_utils as scriptUtil
 from omero.gateway import BlitzGateway
 import tempfile
@@ -37,15 +38,19 @@ class TestScriptUtils(lib.ITest):
     def testSplitImage(self):
         imported_pix = ",".join(self.import_image())
         dir = tempfile.mkdtemp()
-        query_string = "select p from Pixels p where p.id='%s'" % imported_pix
-        pixels = self.query.findByQuery(query_string, None)
+        params = omero.sys.Parameters()
+        params.map = {}
+        params.map["id"] = omero.rtypes.rlong(imported_pix)
+
+        query_string = "select p from Pixels p where p.id=:id" 
+        pixels = self.query.findByQuery(query_string, params)
         sizeZ = pixels.getSizeZ().getValue()
         sizeC = pixels.getSizeC().getValue()
         sizeT = pixels.getSizeT().getValue()
         # split the image into file
         imported_img = self.query.findByQuery(
             "select i from Image i join fetch i.pixels pixels\
-            where pixels.id in (%s)" % imported_pix, None)
+            where pixels.id=:id", params)
         scriptUtil.split_image(self.client, imported_img.id.getValue(), dir,
                                unformattedImageName="a_T%05d_C%s_Z%d_S1.tiff")
         files = [f for f in listdir(dir) if isfile(join(dir, f))]
@@ -54,9 +59,12 @@ class TestScriptUtils(lib.ITest):
 
     def testNumpyToImage(self):
         imported_pix = ",".join(self.import_image())
+        params = omero.sys.Parameters()
+        params.map = {}
+        params.map["id"] = omero.rtypes.rlong(imported_pix)
         imported_img = self.query.findByQuery(
             "select i from Image i join fetch i.pixels pixels\
-            where pixels.id in (%s)" % imported_pix, None)
+            where pixels.id=:id", params)
         conn = BlitzGateway(client_obj=self.client)
         image = conn.getObject("Image", imported_img.id.getValue())
         pixels = image.getPrimaryPixels()
@@ -84,9 +92,13 @@ class TestScriptUtils(lib.ITest):
 
     def testConvertNumpyArray(self):
         imported_pix = ",".join(self.import_image())
+        params = omero.sys.Parameters()
+        params.map = {}
+        params.map["id"] = omero.rtypes.rlong(imported_pix)
+
         imported_img = self.query.findByQuery(
             "select i from Image i join fetch i.pixels pixels\
-            where pixels.id in (%s)" % imported_pix, None)
+            where pixels.id=:id", params)
         conn = BlitzGateway(client_obj=self.client)
         image = conn.getObject("Image", imported_img.id.getValue())
         pixels = image.getPrimaryPixels()
@@ -106,9 +118,13 @@ class TestScriptUtils(lib.ITest):
 
     def testNumpySaveAsImage(self):
         imported_pix = ",".join(self.import_image())
+        params = omero.sys.Parameters()
+        params.map = {}
+        params.map["id"] = omero.rtypes.rlong(imported_pix)
+
         imported_img = self.query.findByQuery(
             "select i from Image i join fetch i.pixels pixels\
-            where pixels.id in (%s)" % imported_pix, None)
+            where pixels.id=:id", params)
         conn = BlitzGateway(client_obj=self.client)
         image = conn.getObject("Image", imported_img.id.getValue())
         pixels = image.getPrimaryPixels()
