@@ -5954,13 +5954,25 @@ class _WellWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         return self._childcache
 
     def simpleMarshal(self, xtra=None, parents=False):
+        """
+        Marshals the Well ID, label and Plate ID with
+        simple Marshal of the first image in the Well.
+        """
         rv = self.getImage().simpleMarshal(xtra=xtra)
+        rv['wellPos'] = self.getWellPos()
+        rv['plateId'] = self._obj.plate.id.val
+        rv['wellId'] = self.getId()
+        return rv
+
+    def getWellPos(self):
+        """
+        Gets the Well's label according to the row and column
+        naming convention on the Plate. E.g. 'A1'
+        """
         plate = self.getParent()
-        rv['wellPos'] = "%s%s" % (
+        rv = "%s%s" % (
             plate.getRowLabels()[self.row],
             plate.getColumnLabels()[self.column])
-        rv['plateId'] = plate.getId()
-        rv['wellId'] = self.getId()
         return rv
 
     def listParents(self, withlinks=False):
@@ -5968,7 +5980,10 @@ class _WellWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         Because wells are direct children of plates, with no links in between,
         a special listParents is needed
         """
-        rv = self._conn.getObject('Plate', self.plate.id.val)
+        # Create PlateWrapper with plate - will load plate if unloaded
+        rv = PlateWrapper(self._conn, self._obj.plate)
+        # Cache the loaded plate
+        self._obj.plate = rv._obj
         if withlinks:
             return [(rv, None)]
         return [rv]

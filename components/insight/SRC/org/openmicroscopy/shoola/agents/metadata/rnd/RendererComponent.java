@@ -35,7 +35,6 @@ import javax.swing.SwingUtilities;
 import omero.romio.PlaneDef;
 
 import org.openmicroscopy.shoola.agents.events.iviewer.RendererUnloadedEvent;
-import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsChanged;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
@@ -533,6 +532,23 @@ class RendererComponent
         }
     }
     
+    /**
+     * Implemented as specified by the {@link Renderer} interface.
+     * 
+     * @see Renderer#setReverseIntensity(int, boolean, boolean)
+     */
+    public void setReverseIntensity(int index, boolean revInt, boolean preview) {
+        try {
+            makeHistorySnapshot();
+            model.setReverseIntensity(index, revInt);
+            firePropertyChange(CHANNEL_COLOR_PROPERTY, -1, index);
+            firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.valueOf(false),
+                    Boolean.valueOf(true));
+        } catch (Exception e) {
+            handleException(e);
+        }
+    }
+    
     /** 
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#setChannelColor(int, Color, boolean)
@@ -727,7 +743,7 @@ class RendererComponent
 
     /** 
      * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#onSettingsApplied()
+     * @see Renderer#onSettingsApplied(RenderingControl)
      */
 	public void onSettingsApplied(RenderingControl rndControl)
 	{ 
@@ -816,6 +832,14 @@ class RendererComponent
     public String getLookupTable(int index)
     {
         return model.getLookupTable(index);
+    }
+    
+    /** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#getReverseIntensity(int)
+     */
+    public boolean getReverseIntensity(int index) {
+        return model.getReverseIntensity(index);
     }
     
     /** 

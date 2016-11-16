@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -59,7 +59,6 @@ import org.jhotdraw.draw.FigureListener;
 import org.jhotdraw.draw.FigureSelectionEvent;
 import org.jhotdraw.draw.FigureSelectionListener;
 import org.jhotdraw.draw.AttributeKey;
-
 import org.openmicroscopy.shoola.agents.events.measurement.SelectChannel;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.CreateFigureAction;
@@ -84,6 +83,7 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.colourpicker.ColourObject;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
 
 import omero.gateway.model.AnnotationData;
@@ -433,7 +433,7 @@ class MeasurementViewerControl
     {
 		if (color == null) return;
 		ColourPicker picker = new ColourPicker(view, color);
-		picker.addPropertyChangeListener(ColourPicker.COLOUR_PROPERTY, this);
+		picker.addPropertyChangeListener(ColourPicker.ACCEPT_PROPERTY, this);
 		UIUtilities.setLocationRelativeTo(view, picker);
 	}
     
@@ -487,8 +487,10 @@ class MeasurementViewerControl
 	public void propertyChange(PropertyChangeEvent evt)
 	{
 		String name = evt.getPropertyName();
-		if (ColourPicker.COLOUR_PROPERTY.equals(name))
-			view.setCellColor((Color) evt.getNewValue());
+		if (ColourPicker.ACCEPT_PROPERTY.equals(name)) {
+		    ColourObject co = (ColourObject) evt.getNewValue();
+			view.setCellColor(co.color);
+		}
 		else if (LoadingWindow.CLOSED_PROPERTY.equals(name)) 
             model.discard();
 		else if (PermissionMenu.SELECTED_LEVEL_PROPERTY.equals(name)) {

@@ -23,10 +23,10 @@
    Tests for the integration library.
 """
 
-import library as lib
+from omero.testlib import ITest
 
 
-class TestLibrary(lib.ITest):
+class TestLibrary(ITest):
 
     def test9188(self):
         self.createTestImage(10, 10, 1, 1, 1)

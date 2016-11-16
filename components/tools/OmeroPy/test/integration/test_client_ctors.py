@@ -25,14 +25,14 @@
 """
 
 import os
-import library as lib
+from omero.testlib import ITest
 import omero
 import Ice
 
 here = os.path.abspath(os.path.dirname(__file__))
 
 
-class TestClientConstructors(lib.ITest):
+class TestClientConstructors(ITest):
 
     def setup_method(self, method):
         c = omero.client(pmap=['--Ice.Config='+(os.environ.get("ICE_CONFIG"))])

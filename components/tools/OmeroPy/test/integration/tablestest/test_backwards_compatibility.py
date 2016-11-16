@@ -28,14 +28,14 @@ import tempfile
 import omero
 import omero.clients
 import omero.grid
-import library as lib
+from omero.testlib import ITest
 import pytest
 
 from omero import columns
 from omero.rtypes import rint
 
 
-class TestBackwardsCompatibility(lib.ITest):
+class TestBackwardsCompatibility(ITest):
 
     # def setUp(self):
     #     super(BackwardsCompatibilityTest, self).setUp()

@@ -24,11 +24,11 @@
 
 """
 
-import library as lib
+from omero.testlib import ITest
 import omero.processor
 
 
-class TestMakeMovie(lib.ITest):
+class TestMakeMovie(ITest):
 
     """
     Requires Pillow being installed

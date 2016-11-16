@@ -1000,6 +1000,20 @@ class ImViewerModel
         return rnd.getLookupTable(index);
 	}
 	
+    /**
+     * Return the reverse intensity flag for the given channel
+     * 
+     * @param index
+     *            The channel index
+     * @return See above
+     */
+    boolean getReverseIntensity(int index) {
+        Renderer rnd = metadataViewer.getRenderer();
+        if (rnd == null)
+            return false;
+        return rnd.getReverseIntensity(index);
+    }
+	
 	/**
 	 * Returns <code>true</code> if the channel is mapped, <code>false</code>
 	 * otherwise.
@@ -1251,6 +1265,21 @@ class ImViewerModel
         rnd.setLookupTable(index, lut, false);
     }
 
+    /**
+     * Sets reverse intensity flag for the specified channel.
+     * 
+     * @param index
+     *            The channel's index.
+     * @param revInt
+     *            The reverse intensity flag
+     */
+    void setReverseIntensity(int index, boolean revInt) {
+        Renderer rnd = metadataViewer.getRenderer();
+        if (rnd == null)
+            return;
+        rnd.setReverseIntensity(index, revInt, false);
+    }
+    
 	/**
 	 * Sets the channel active.
 	 * 

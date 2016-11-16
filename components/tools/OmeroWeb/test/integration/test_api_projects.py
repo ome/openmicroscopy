@@ -21,7 +21,7 @@
 Tests querying & editing Projects with webgateway json api
 """
 
-from weblibrary import IWebTest, _get_response_json, \
+from omeroweb.testlib import IWebTest, _get_response_json, \
     _csrf_post_json, _csrf_put_json, _csrf_delete_response_json
 from django.core.urlresolvers import reverse
 from django.conf import settings

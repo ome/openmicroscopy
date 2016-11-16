@@ -14,7 +14,7 @@
 """
 
 import pytest
-from library import ITest
+from omero.testlib import ITest
 
 from omero.model import ImageI, ChannelI, LogicalChannelI, LengthI
 from omero.rtypes import rstring, rtime

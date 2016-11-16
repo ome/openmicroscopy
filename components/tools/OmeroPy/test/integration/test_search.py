@@ -9,14 +9,14 @@
 
 """
 
-import library as lib
+from omero.testlib import ITest
 import pytest
 import omero
 import os
 import time
 
 
-class TestSearch(lib.ITest):
+class TestSearch(ITest):
 
     def test2541(self):
         """

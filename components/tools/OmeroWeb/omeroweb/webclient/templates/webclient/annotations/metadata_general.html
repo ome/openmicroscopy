@@ -30,9 +30,6 @@
                 // Delegate to sub-views to handle content of each collapsible panel
 
                 var selectedObjs = ["{{ manager.obj_type }}-{{ manager.obj_id }}"];
-                {% if manager.well.getWellSample.image %}
-                    selectedObjs = ["image-{{ manager.well.getWellSample.image.id }}"];
-                {% endif %}
                 var annPaneData = {
                     'selected': selectedObjs,
                     // canAnnotate used by map annotations and ratings panes
@@ -63,18 +60,13 @@
 
 
                 {% if manager.canEdit %}
-                // we may have well-index, if we are editing an image within a Well
-                var idx = "{{ index }}";
-                if (idx.length > 0) {
-                    idx = "?index=" + idx;
-                }
                 $( "#{{ manager.obj_type }}name-{{ manager.obj_id }} button" )      // E.g. imagename-123 button
-                    .editable('{% url 'manage_action_containers' "editname" manager.obj_type manager.obj_id %}'+idx,
-                        '{% url 'manage_action_containers' "savename" manager.obj_type manager.obj_id %}'+idx,
+                    .editable('{% url 'manage_action_containers' "editname" manager.obj_type manager.obj_id %}',
+                        '{% url 'manage_action_containers' "savename" manager.obj_type manager.obj_id %}',
                         "{{ manager.obj_type }}name-{{ manager.obj_id }}" );
                 $( "#{{ manager.obj_type }}description-{{ manager.obj_id }} button" )
-                    .editable('{% url 'manage_action_containers' "editdescription" manager.obj_type manager.obj_id %}'+idx,
-                        '{% url 'manage_action_containers' "savedescription" manager.obj_type manager.obj_id %}'+idx,
+                    .editable('{% url 'manage_action_containers' "editdescription" manager.obj_type manager.obj_id %}',
+                        '{% url 'manage_action_containers' "savedescription" manager.obj_type manager.obj_id %}',
                         "{{ manager.obj_type }}description-{{ manager.obj_id }}", { post_save: linkify });
                 OME.linkify_element($( "#{{ manager.obj_type }}description-{{ manager.obj_id }} > p > span" ));
                 {% else %}
@@ -190,7 +182,7 @@
                 {% if manager.image %}
                 hierarchy_url = "{% url 'load_metadata_hierarchy' 'image' manager.image.id %}";
                 {% elif manager.well %}
-                hierarchy_url = "{% url 'load_metadata_hierarchy' 'image' manager.well.getWellSample.image.id %}";
+                hierarchy_url = "{% url 'load_metadata_hierarchy' 'well' manager.well.id %}";
                 {% endif %}
                 
                 // show Image hierarchy Project/Dataset tree.
@@ -273,11 +265,12 @@
                 });
 
                 // Channel name editing
-            {% if manager.image or manager.well.getWellSample.image %}
+            {% if manager.image %}
 
                 var $chNameForm = $("#channel_names_edit");
                 // set up form with Parent
                 {% if manager.well %}
+                // TODO - Need to know if image is in Plate!
                 // If we're looking at a well we know parent is plate
                   var pid = "plate-{{ manager.well.plate.id.val }}";
                 {% else %}
@@ -464,7 +457,7 @@
         <!-- ANNOTATIONS "General" -->
         <div id="general_tab" class="right_tab_inner" >
            
-            {% if manager.image %}            
+        {% if manager.image %}
 
             {% with image=manager.image canDownload=manager.image.canDownload %}
                 {% include "webclient/annotations/includes/toolbar.html" %}
@@ -517,8 +510,8 @@
             </div>
 
 
-            {% else %}
-                {% if manager.dataset %}
+        {% else %}
+            {% if manager.dataset %}
 
                 {% include "webclient/annotations/includes/toolbar.html" %}
 
@@ -544,8 +537,8 @@
                     </tr>                    
                 </table>
                 </div>
-                {% else %}
-                    {% if manager.project %}
+            {% else %}
+                {% if manager.project %}
 
                     {% include "webclient/annotations/includes/toolbar.html" %}
 
@@ -571,50 +564,20 @@
                         </tr>
                     </table>
                     </div>
-                    {% endif %}
                 {% endif %}
             {% endif %}
+        {% endif %}
             
-            {% if manager.well %}            
-            {% with image=manager.well.getWellSample.image %}
+        {% if manager.well %}
+            {% include "webclient/annotations/includes/toolbar.html" %}
 
-            {% with canDownload=manager.well.canDownload omeTiffDisabled=True %}
-                {% include "webclient/annotations/includes/toolbar.html" %}
-            {% endwith %}
-
-
-            <!-- panel for extra info shown by toolbar buttons if needed - Duplicated under image above -->
-            <div id="toolbar_info_panel" style="display:none; background: #fff; border: solid 1px #ddd; margin:5px 0">
-                <img title="Close" src="{% static 'webgateway/img/close.gif' %}" style="float:right; margin:3px"/>
-                <div class="panel_title" style="margin: 4px">
-                    <!-- text loaded here -->
-                </div>
-                <div class="panel_div"></div>
-                <div style="clear:both"></div>
-            </div>
-
-            <!-- Image (in WellSample) Name, ID, Owner -->
-            {% with obj=image nameText=image.name wellImageId=image.id %}
+            <!-- Well Label (not editable), ID, Owner -->
+            {% with obj=manager.well nameText=manager.well.getWellPos %}
                 {% include "webclient/annotations/includes/name.html" %}
             {% endwith %}
 
-            
-            <!-- Image (in WellSample) Description -->
-            <h1 class="can-collapse defclose" data-name="details">
-                Well Details
-            </h1>
-            <div>
-            {% with obj=image %}
-                {% include "webclient/annotations/includes/description.html" %}
-            {% endwith %}
-
-            <!-- Include table of core metadata, Owner, SizeX,Y,Z, Channels etc -->
-            {% include "webclient/annotations/includes/core_metadata.html" %}
-            </div>
-            {% endwith %}{# "image=manager.well.getWellSample.image" #}
-
-            {% else %}
-                {% if manager.acquisition %}
+        {% else %}
+            {% if manager.acquisition %}
 
                 {% include "webclient/annotations/includes/toolbar.html" %}
 
@@ -641,8 +604,8 @@
                 </table>
                 </div>
 
-                {% else %}
-                    {% if manager.plate %}
+            {% else %}
+                {% if manager.plate %}
 
                     {% include "webclient/annotations/includes/toolbar.html" %}
 
@@ -675,8 +638,8 @@
                         {% endcomment %}-->
                     </table>
                     </div>
-                    {% else %}
-                        {% if manager.screen %}
+                {% else %}
+                    {% if manager.screen %}
 
                         {% include "webclient/annotations/includes/toolbar.html" %}
 
@@ -707,10 +670,10 @@
                             </tr>
                         </table>
                         </div>
-                        {% endif %}
                     {% endif %}
                 {% endif %}
             {% endif %}
+        {% endif %}
             
             
             
@@ -730,7 +693,7 @@
                 {% if manager.canAnnotate %}
                     <div>
                         <a id="launch_tags_form"
-                            href="{% url 'annotate_tags' %}?{{manager.obj_type}}={{ manager.obj_id }}&index={{ index }}" 
+                            href="{% url 'annotate_tags' %}?{{manager.obj_type}}={{ manager.obj_id }}" 
                             class="btn silver btn_add" title="Add tags"><span></span></a>
                     </div>
                 {% endif %}
@@ -782,7 +745,7 @@
 
                     {% if manager.canAnnotate %}
                         <a id="choose_file_anns"
-                            href="{% url 'annotate_file' %}?{{manager.obj_type}}={{ manager.obj_id }}&index={{ index }}"
+                            href="{% url 'annotate_file' %}?{{manager.obj_type}}={{ manager.obj_id }}"
                             class="btn silver btn_add" title="Attach a file">
                             <span></span>
                         </a>

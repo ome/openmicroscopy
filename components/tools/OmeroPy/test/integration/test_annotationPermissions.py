@@ -25,7 +25,7 @@
 
 """
 
-import library as lib
+from omero.testlib import ITest
 import pytest
 import omero
 from omero_model_ProjectAnnotationLinkI import ProjectAnnotationLinkI
@@ -33,7 +33,7 @@ from omero_model_TagAnnotationI import TagAnnotationI
 from omero.rtypes import rstring
 
 
-class AnnotationPermissions(lib.ITest):
+class AnnotationPermissions(ITest):
 
     @classmethod
     def setup_class(self):

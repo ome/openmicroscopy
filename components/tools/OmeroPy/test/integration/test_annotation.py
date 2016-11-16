@@ -23,7 +23,7 @@
    Integration test for adding annotations to Project.
 """
 
-import library as lib
+from omero.testlib import ITest
 import omero
 import omero.scripts
 from omero.rtypes import rstring, rbool, rtime, rlong, rdouble
@@ -31,7 +31,7 @@ import random
 from datetime import datetime
 
 
-class TestFigureExportScripts(lib.ITest):
+class TestFigureExportScripts(ITest):
 
     def testAddAnnotations(self):
 

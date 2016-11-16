@@ -30,10 +30,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.jhotdraw.draw.ArrowTip;
 import org.jhotdraw.draw.AttributeKeys;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureArrowFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.io.ServerROIStrategy;
@@ -133,6 +135,9 @@ public class ROIComponent
 				ShapeSettingsData.DEFAULT_FILL_COLOUR);
 		AttributeKeys.STROKE_COLOR.set(fig, 
 				ShapeSettingsData.DEFAULT_STROKE_COLOUR);
+        MeasurementAttributes.START_DECORATION.set(fig, null);
+        MeasurementAttributes.END_DECORATION.set(fig,
+                (fig instanceof MeasureArrowFigure) ? new ArrowTip() : null);
     }
         
     /**

@@ -1787,4 +1787,36 @@ class RendererModel
             MetadataViewerAgent.getRegistry().getLogger().error(this, msg);
         }
     }
+    
+    /**
+     * Set the reverse intensity flag
+     * 
+     * @param index
+     *            The channel index
+     * @param revInt
+     *            The reverse intensity flag
+     */
+    public void setReverseIntensity(int index, boolean revInt) {
+        try {
+            rndControl.setReverseIntensity(index, revInt);
+        } catch (Exception e) {
+            LogMessage msg = new LogMessage();
+            msg.append("Error while setting reverse intensity.");
+            msg.print(e);
+            MetadataViewerAgent.getRegistry().getLogger().error(this, msg);
+        }
+    }
+
+    /**
+     * Get the reverse intensity flag
+     * 
+     * @param index
+     *            The channel index
+     * @return See above.
+     */
+    public boolean getReverseIntensity(int index) {
+        if (rndControl == null)
+            return false;
+        return rndControl.getReverseIntensity(index);
+    }
 }

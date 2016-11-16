@@ -10,13 +10,13 @@
 """
 
 import omero
-import library as lib
+from omero.testlib import ITest
 import pytest
 
 from omero.rtypes import rstring, rlong
 
 
-class TestRFS(lib.ITest):
+class TestRFS(ITest):
 
     def file(self, client=None):
         if client is None:

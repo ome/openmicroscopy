@@ -1850,10 +1850,7 @@ class GraphControl(CmdControl):
         elif len(others) > 1:
             for req in others[1:]:
                 type, ids = req.targetObjects.items()[0]
-                if type in others[0].targetObjects:
-                    others[0].targetObjects[type].extend(ids)
-                else:
-                    others[0].targetObjects[type] = ids
+                others[0].targetObjects.setdefault(type, []).extend(ids)
             rv.append(others[0])
 
         # Group skipheads by their startFrom attribute.

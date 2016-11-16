@@ -25,11 +25,11 @@
 """
 
 import omero
-import library as lib
+from omero.testlib import ITest
 import pytest
 
 
-class TestExporter(lib.ITest):
+class TestExporter(ITest):
 
     def bigimage(self):
         pix = self.pix(x=4000, y=4000, z=1, t=1, c=1)
