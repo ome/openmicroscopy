@@ -21,7 +21,7 @@
 
 import omero
 import logging
-from library import ITest
+from omero.testlib import ITest
 import uuid
 from omero import ApiUsageException
 from omero.gateway import BlitzGateway

@@ -22,7 +22,7 @@
 
 """
 
-import library as lib
+from omero.testlib import ITest
 import omero
 import omero.util.script_utils as scriptUtil
 from omero.gateway import BlitzGateway
@@ -33,7 +33,7 @@ from os.path import isfile, join
 from numpy import int32, uint8
 
 
-class TestScriptUtils(lib.ITest):
+class TestScriptUtils(ITest):
 
     def testSplitImage(self):
         imported_pix = ",".join(self.import_image())
@@ -42,7 +42,7 @@ class TestScriptUtils(lib.ITest):
         params.map = {}
         params.map["id"] = omero.rtypes.rlong(imported_pix)
 
-        query_string = "select p from Pixels p where p.id=:id" 
+        query_string = "select p from Pixels p where p.id=:id"
         pixels = self.query.findByQuery(query_string, params)
         sizeZ = pixels.getSizeZ().getValue()
         sizeC = pixels.getSizeC().getValue()
