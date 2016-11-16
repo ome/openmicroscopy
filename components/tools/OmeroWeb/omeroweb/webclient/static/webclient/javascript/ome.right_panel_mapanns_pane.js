@@ -128,12 +128,13 @@ var MapAnnsPane = function MapAnnsPane($element, opts) {
                         }
                     }
                     // TODO: prevent from editing map annotations in batch_annotation pane
+                    var showParent = objects.length > 1;
                     html = mapAnnsTempl({'anns': my_client_map_annotations,
-                        'showTableHead': showHead, 'showNs': false, 'clientMapAnn': true});
+                        'showTableHead': showHead, 'showNs': false, 'clientMapAnn': true, 'showParent': showParent});
                     html = html + mapAnnsTempl({'anns': client_map_annotations,
-                        'showTableHead': false, 'showNs': false, 'clientMapAnn': true});
+                        'showTableHead': false, 'showNs': false, 'clientMapAnn': true, 'showParent': showParent});
                     html = html + mapAnnsTempl({'anns': map_annotations,
-                        'showTableHead': false, 'showNs': true, 'clientMapAnn': false});
+                        'showTableHead': false, 'showNs': true, 'clientMapAnn': false, 'showParent': showParent});
                     $mapAnnContainer.html(html);
 
                     // Finish up...
