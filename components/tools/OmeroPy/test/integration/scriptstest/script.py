@@ -134,6 +134,7 @@ def checkFileAnnotation(client, fileAnnotation, hasFileAnnotation=True,
         assert fileAnnotation.val._file._size._val > 0
         assert fileAnnotation.val._file._name._val is not None
         assert fileAnnotation.val.id.val > 0
+        # session is closed during teardown
         conn = BlitzGateway(client_obj=client)
 
         faWrapper = conn.getObject("FileAnnotation", fileAnnotation.val.id.val)
@@ -142,6 +143,6 @@ def checkFileAnnotation(client, fileAnnotation, hasFileAnnotation=True,
             assert nLinks == 1
         else:
             assert nLinks == 0
-        conn.close()
+
     else:
         assert fileAnnotation is None

@@ -65,6 +65,7 @@ class TestScriptUtils(ITest):
         imported_img = self.query.findByQuery(
             "select i from Image i join fetch i.pixels pixels\
             where pixels.id=:id", params)
+        # session is closed during teardown
         conn = BlitzGateway(client_obj=self.client)
         image = conn.getObject("Image", imported_img.id.getValue())
         pixels = image.getPrimaryPixels()
@@ -99,6 +100,7 @@ class TestScriptUtils(ITest):
         imported_img = self.query.findByQuery(
             "select i from Image i join fetch i.pixels pixels\
             where pixels.id=:id", params)
+        # session is closed during teardown
         conn = BlitzGateway(client_obj=self.client)
         image = conn.getObject("Image", imported_img.id.getValue())
         pixels = image.getPrimaryPixels()
@@ -125,6 +127,7 @@ class TestScriptUtils(ITest):
         imported_img = self.query.findByQuery(
             "select i from Image i join fetch i.pixels pixels\
             where pixels.id=:id", params)
+        # session is closed during teardown
         conn = BlitzGateway(client_obj=self.client)
         image = conn.getObject("Image", imported_img.id.getValue())
         pixels = image.getPrimaryPixels()
