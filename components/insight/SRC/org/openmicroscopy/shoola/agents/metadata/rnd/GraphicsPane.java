@@ -37,6 +37,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -149,6 +150,12 @@ class GraphicsPane
     /** Channel selection for the histogram */
     private JComboBox histogramChannel;
     
+    /** The panel holding all the histogram components */
+    private JPanel histogramPane;
+    
+    /** Button to show/hide histogram panel */
+    private JCheckBox showHistogram;
+    
     /**
      * Formats the specified value.
      * 
@@ -219,8 +226,6 @@ class GraphicsPane
                 histogram.setInputWindow(start, end);
             }
         });
-
-        histogramChannel.setSelectedIndex(0);
         
         JPanel p = new JPanel(new BorderLayout());
         p.setBorder(BorderFactory.createLineBorder(Color.lightGray));
@@ -235,6 +240,8 @@ class GraphicsPane
         p.add(n, BorderLayout.NORTH);
         p.add(histogram, BorderLayout.CENTER);
 
+        p.setVisible(false);
+        
         return p;
     }
     
@@ -292,6 +299,22 @@ class GraphicsPane
             }
         }
         previewToolBar = new PreviewToolBar(controller, model);
+        
+        showHistogram = new JCheckBox("Show Histogram");
+        showHistogram.setSelected(false);
+        showHistogram.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (showHistogram.isSelected()) {
+                    int ch = model.getSelectedChannel();
+                    double st = model.getWindowStart(ch);
+                    double end = model.getWindowEnd(ch);
+                    updateHistogram(st, end, ch);
+                }
+                histogramPane.setVisible(showHistogram.isSelected());
+            }
+        });
+        histogramPane = buildHistogramPane();
     }
     
     /** Builds and lays out the GUI. */
@@ -349,12 +372,18 @@ class GraphicsPane
         content.add(new JSeparator(), c);
         c.gridy++;
         
-        content.add(greyScale, c);
+        JPanel checkboxPanel = new JPanel();
+        checkboxPanel.setBackground(UIUtilities.BACKGROUND);
+        checkboxPanel.setLayout(new BoxLayout(checkboxPanel, BoxLayout.X_AXIS));
+        checkboxPanel.add(greyScale);
+        checkboxPanel.add(Box.createHorizontalGlue());
+        checkboxPanel.add(showHistogram);
+        content.add(checkboxPanel, c);
         c.gridy++;
         
         c.fill = GridBagConstraints.BOTH;
         c.weighty = .1;
-        content.add(buildHistogramPane(), c);
+        content.add(histogramPane, c);
         c.gridy++;
         
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -457,6 +486,9 @@ class GraphicsPane
      *            The index of the channel.
      */
     void updateHistogram(double start, double end, int channelIndex) {
+        if (!showHistogram.isSelected())
+            return;
+
         int[] data = model.getHistogramData(channelIndex);
         if (data == null) {
             HistogramLoader loader = new HistogramLoader(model.getViewer(),
