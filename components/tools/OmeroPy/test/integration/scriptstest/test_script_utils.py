@@ -64,15 +64,16 @@ class TestScriptUtils(ITest):
         assert sizeZ*sizeC*sizeT == len(files)
 
     def testNumpyToImage(self):
-        imported_pix = ",".join(self.import_image())
+        client = self.new_client()
+        imported_pix = ",".join(self.import_image(client=client))
         params = omero.sys.Parameters()
         params.map = {}
         params.map["id"] = omero.rtypes.rlong(imported_pix)
-        imported_img = self.query.findByQuery(
+        imported_img = client.getSession().getQueryService().findByQuery(
             "select i from Image i join fetch i.pixels pixels\
             where pixels.id=:id", params)
-        # session is closed during teardown
-        conn = BlitzGateway(client_obj=self.client)
+
+        conn = BlitzGateway(client_obj=client)
         image = conn.getObject("Image", imported_img.id.getValue())
         pixels = image.getPrimaryPixels()
         channelMinMax = []
@@ -83,29 +84,33 @@ class TestScriptUtils(ITest):
         theZ = image.getSizeZ() / 2
         theT = 0
         cIndex = 0
-        for minMax in channelMinMax:
-            plane = pixels.getPlane(theZ, cIndex, theT)
-            i = scriptUtil.numpyToImage(plane, minMax, int32)
-            assert i is not None
-            try:
-                # check if the image can be handled.
-                i.load()
-                assert True
-            except IOError:
-                assert False
-            cIndex += 1
+        try:
+            for minMax in channelMinMax:
+                plane = pixels.getPlane(theZ, cIndex, theT)
+                i = scriptUtil.numpyToImage(plane, minMax, int32)
+                assert i is not None
+                try:
+                    # check if the image can be handled.
+                    i.load()
+                    assert True
+                except IOError:
+                    assert False
+                cIndex += 1
+        finally:
+            conn.close()
 
     def testConvertNumpyArray(self):
-        imported_pix = ",".join(self.import_image())
+        client = self.new_client()
+        imported_pix = ",".join(self.import_image(client=client))
         params = omero.sys.Parameters()
         params.map = {}
         params.map["id"] = omero.rtypes.rlong(imported_pix)
 
-        imported_img = self.query.findByQuery(
+        imported_img = client.getSession().getQueryService().findByQuery(
             "select i from Image i join fetch i.pixels pixels\
             where pixels.id=:id", params)
         # session is closed during teardown
-        conn = BlitzGateway(client_obj=self.client)
+        conn = BlitzGateway(client_obj=client)
         image = conn.getObject("Image", imported_img.id.getValue())
         pixels = image.getPrimaryPixels()
         channelMinMax = []
@@ -116,25 +121,29 @@ class TestScriptUtils(ITest):
         theZ = image.getSizeZ() / 2
         theT = 0
         cIndex = 0
-        for minMax in channelMinMax:
-            plane = pixels.getPlane(theZ, cIndex, theT)
-            i = scriptUtil.convertNumpyArray(plane, minMax, uint8)
-            assert i is not None
-            cIndex += 1
+        try:
+            for minMax in channelMinMax:
+                plane = pixels.getPlane(theZ, cIndex, theT)
+                i = scriptUtil.convertNumpyArray(plane, minMax, uint8)
+                assert i is not None
+                cIndex += 1
+        finally:
+            conn.close()
 
     @pytest.mark.parametrize('format', ['tiff', 'foo'])
     @pytest.mark.parametrize('is_file', [True, False])
     def testNumpySaveAsImage(self, format, is_file):
-        imported_pix = ",".join(self.import_image())
+        client = self.new_client()
+        imported_pix = ",".join(self.import_image(client=client))
         params = omero.sys.Parameters()
         params.map = {}
         params.map["id"] = omero.rtypes.rlong(imported_pix)
 
-        imported_img = self.query.findByQuery(
+        imported_img = client.getSession().getQueryService().findByQuery(
             "select i from Image i join fetch i.pixels pixels\
             where pixels.id=:id", params)
         # session is closed during teardown
-        conn = BlitzGateway(client_obj=self.client)
+        conn = BlitzGateway(client_obj=client)
         image = conn.getObject("Image", imported_img.id.getValue())
         pixels = image.getPrimaryPixels()
         channelMinMax = []
@@ -146,26 +155,29 @@ class TestScriptUtils(ITest):
         theT = 0
         cIndex = 0
 
-        for minMax in channelMinMax:
-            plane = pixels.getPlane(theZ, cIndex, theT)
-
-            suffix = ".%s" % format
-            name = None
-            if is_file is True:
-                # create a temporary file
-                tf = tempfile.NamedTemporaryFile(mode='r+b', suffix=suffix)
-                name = tf.name
-            else:
-                name = "test%s.%s" % (cIndex, format)
-            scriptUtil.numpySaveAsImage(plane, minMax, int32, name)
-            # try to open the image
-            try:
-                Image.open(name)
-                assert format == "tiff"
-                # delete it since to handle case where it is not a tmp file
-                remove(name)
-            except IOError:
-                assert format != "tiff"
-                # file should have been deleted
-                assert exists(name) is False
-            cIndex += 1
+        try:
+            for minMax in channelMinMax:
+                plane = pixels.getPlane(theZ, cIndex, theT)
+                suffix = ".%s" % format
+                name = None
+                if is_file is True:
+                    # create a temporary file
+                    tf = tempfile.NamedTemporaryFile(mode='r+b', suffix=suffix)
+                    name = tf.name
+                else:
+                    name = "test%s.%s" % (cIndex, format)
+                scriptUtil.numpySaveAsImage(plane, minMax, int32, name)
+                # try to open the image
+                try:
+                    Image.open(name)
+                    assert format == "tiff"
+                    # delete it since to handle case where it is not a tmp file
+                    remove(name)
+                except IOError:
+                    # error expected for "foo"
+                    assert format != "tiff"
+                    # file should have been deleted
+                    assert exists(name) is False
+                cIndex += 1
+        finally:
+            conn.close()
