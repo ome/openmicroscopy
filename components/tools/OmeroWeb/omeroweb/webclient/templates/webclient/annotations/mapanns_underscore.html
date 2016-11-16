@@ -21,6 +21,9 @@
           <th colspan="2">
             <% if (ann.id) { %>
                 Added by: <%= ann.owner.firstName %> <%= ann.owner.lastName %>
+                <% if (showParent && ann.link.parent.name){ %>
+                  <br> To: <%= ann.link.parent.name %>
+                <% } %>
 
                 <span class="tooltip_html" style='display:none'>
                     <b>ID:</b> <%= ann.id %><br />
