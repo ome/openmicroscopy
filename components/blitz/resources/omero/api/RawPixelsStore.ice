@@ -326,7 +326,7 @@ module omero {
                  **/
                 idempotent void setTimepoint(Ice::ByteSeq buf, int t) throws ServerError;
 
-				/**
+                /**
                  * Retrieves the histogram data for the specified plane and channels
                  * @param channels the channels to generate the histogram data for
                  * @param binSize the number of the histogram bins (optional, default: 256)

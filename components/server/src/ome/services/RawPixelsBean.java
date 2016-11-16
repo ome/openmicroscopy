@@ -732,6 +732,20 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     // ~ Helpers
     // =========================================================================
     
+    /**
+     * Get the minimum and maximum value to use for the histogram. If useGlobal
+     * is <code>true</code> and the channel has stats calculated the global
+     * minimum and maximum will be used, otherwise the minimum and maximum value
+     * of the plane will be used.
+     * 
+     * @param px
+     *            The {@link PixelData}
+     * @param channel
+     *            The {@link Channel}
+     * @param useGlobal
+     *            Try to use the global minimum/maximum
+     * @return See above
+     */
     private double[] determineHistogramMinMax(PixelData px, Channel channel,
             boolean useGlobal) {
         double min, max;
@@ -741,12 +755,12 @@ public class RawPixelsBean extends AbstractStatefulBean implements
             max = channel.getStatsInfo().getGlobalMax();
             // if max == 1.0 the global min/max probably has not been
             // calculated; fall back to plane min/max
-            if (max > 1.0)
+            if (max != 1.0)
                 return new double[] { min, max };
         }
 
         min = Double.MAX_VALUE;
-        max = 0;
+        max = -Double.MAX_VALUE;
 
         for (int i = 0; i < px.size(); i++) {
             min = Math.min(min, px.getPixelValue(i));
