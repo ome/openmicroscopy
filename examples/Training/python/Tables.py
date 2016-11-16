@@ -153,4 +153,4 @@ os.remove('data.csv')
 # Close connection
 # ================
 # When you are done, close the session to free up server resources.
-conn._closeSession()
+conn.close()

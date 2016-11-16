@@ -27,9 +27,10 @@ import os
 import warnings
 
 from struct import unpack
+from numpy import add, array, asarray, fromstring, reshape, zeros
+from os.path import exists
 
 import omero.clients
-from omero.rtypes import rstring
 from omero.rtypes import unwrap
 import omero.util.pixelstypetopython as pixelstypetopython
 
@@ -39,6 +40,15 @@ try:
 except:
     import sha
     hash_sha1 = sha.new
+
+
+try:
+    from PIL import Image  # see ticket:2597
+except:  # pragma: nocover
+    try:
+        import Image  # see ticket:2597
+    except:
+        logging.error('No Pillow installed')
 
 # r,g,b,a colours for use in scripts.
 COLOURS = {
@@ -459,7 +469,6 @@ def readFileAsArray(rawFileService, iQuery, fileId, row, col, separator=' '):
     @param sep the column separator.
     @return The file as an NumPy array.
     """
-    from numpy import fromstring, reshape
     textBlock = readFromOriginalFile(rawFileService, iQuery, fileId)
     arrayFromFile = fromstring(textBlock, sep=separator)
     return reshape(arrayFromFile, (row, col))
@@ -472,7 +481,6 @@ def readFlimImageFile(rawPixelsStore, pixels):
     @param pixels The pixels of the image.
     @return The Contents of the image for z = 0, t = 0, all channels;
     """
-    from numpy import zeros
     sizeC = pixels.getSizeC().getValue()
     sizeX = pixels.getSizeX().getValue()
     sizeY = pixels.getSizeY().getValue()
@@ -500,7 +508,6 @@ def downloadPlane(rawPixelsStore, pixels, z, c, t):
     @param t The T-Section to retrieve.
     @return The Plane of the image for z, c, t
     """
-    from numpy import array
     rawPlane = rawPixelsStore.getPlane(z, c, t)
     sizeX = pixels.getSizeX().getValue()
     sizeY = pixels.getSizeY().getValue()
@@ -521,12 +528,6 @@ def getPlaneFromImage(imagePath, rgbIndex=None):
 
     @param imagePath   Path to image.
     """
-    from numpy import asarray
-    try:
-        from PIL import Image  # see ticket:2597
-    except ImportError:
-        import Image  # see ticket:2597
-
     i = Image.open(imagePath)
     a = asarray(i)
     if rgbIndex is None:
@@ -550,7 +551,6 @@ def uploadDirAsImages(sf, queryService, updateService,
     """
 
     import re
-    from numpy import zeros
 
     regex_token = re.compile(r'(?P<Token>.+)\.')
     regex_time = re.compile(r'T(?P<T>\d+)')
@@ -721,7 +721,7 @@ def uploadDirAsImages(sf, queryService, updateService,
     for c in pixels.iterateChannels():
         # returns omero.model.LogicalChannelI
         lc = c.getLogicalChannel()
-        lc.setName(rstring(channels[i]))
+        lc.setName(omero.rtypes.rstring(channels[i]))
         updateService.saveObject(lc)
         i += 1
 
@@ -757,11 +757,6 @@ def split_image(client, imageId, dir,
     queryService = session.getQueryService()
     rawPixelsStore = session.createRawPixelsStore()
     pixelsService = session.getPixelsService()
-
-    try:
-        from PIL import Image   # see ticket:2597
-    except:
-        import Image        # see ticket:2597
 
     query_string = "select p from Pixels p join fetch p.image as i join fetch " \
                    "p.pixelsType where i.id='%s'" % imageId
@@ -800,8 +795,8 @@ def split_image(client, imageId, dir,
                     "downloading plane z: %s c: %s t: %s  to  %s"
                     % (z, c, t, imageName))
                 plane = downloadPlane(rawPixelsStore, pixels, z, c, t)
-                i = Image.fromarray(plane)
-                i.save(imageName)
+                img = Image.fromarray(plane)
+                img.save(imageName)
 
 
 def createFileFromData(updateService, queryService, filename, data):
@@ -1234,3 +1229,64 @@ def findROIByImage(roiService, image, namespace):
     for roi in results.rois:
         roiList.append(ROIData(roi))
     return roiList
+
+
+def numpyToImage(plane, minMax, dtype):
+    """
+    Converts the numpy plane to a PIL Image, converting data type if necessary.
+    @param plane The plane to handle
+    @param minMax the min and the max values for the plane
+    @param dtype the data type to use for scaling
+    """
+
+    convArray = convertNumpyArray(plane, minMax, dtype)
+    if plane.dtype.name not in ('uint8', 'int8'):
+        return Image.frombytes('I', plane.shape, convArray)
+    else:
+        return Image.fromarray(convArray)
+
+
+def numpySaveAsImage(plane, minMax, dtype, name):
+    """
+    Converts the numpy plane, converting data type if necessary
+    and saves it as png, jpeg etc.
+    @param plane The plane to handle
+    @param minMax the min and the max values for the plane
+    @param type the data type to use for scaling
+    @param name the name of the image
+    """
+
+    image = numpyToImage(plane, minMax, dtype)
+    try:
+        image.save(name)
+    except (IOError, KeyError) as e:
+        msg = "Cannot save the array as an image: %s: %s" % (
+            name, e)
+        logging.error(msg)
+        # delete the file
+        if (exists(name)):
+            os.remove(name)
+
+
+def convertNumpyArray(plane, minMax, type):
+    """
+    Converts the numpy plane to a PIL Image, converting data type if necessary.
+    @param plane The plane to handle
+    @param minMax the min and the max values for the plane
+    @param type the data type to use for scaling
+    """
+
+    if plane.dtype.name not in ('uint8', 'int8'):   # we need to scale...
+        minVal, maxVal = minMax
+        valRange = maxVal - minVal
+        if (valRange <= 0):
+            valRange = 1
+        scaled = (plane - minVal) * (float(255) / valRange)
+        convArray = zeros(plane.shape, dtype=type)
+        try:
+            convArray += scaled
+        except TypeError:
+            add(convArray, scaled, out=convArray, casting="unsafe")
+        return convArray
+    else:
+        return plane

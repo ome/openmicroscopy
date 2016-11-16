@@ -16,18 +16,10 @@ from omero.rtypes import rstring
 from omero.gateway import BlitzGateway
 from Connect_To_OMERO import USERNAME, PASSWORD, HOST, PORT
 
-
 # Create a connection
 # =================================================================
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
-
-
-# Configuration
-# =================================================================
-datasetId = 101
-projectId = 51
-
 
 # Create a new Dataset
 # =================================================================
@@ -66,4 +58,4 @@ conn.getUpdateService().saveArray(link_list)
 # Close connection:
 # =================================================================
 # When you are done, close the session to free up server resources.
-conn._closeSession()
+conn.close()

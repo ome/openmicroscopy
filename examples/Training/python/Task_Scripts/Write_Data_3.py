@@ -7,10 +7,6 @@
 # Use is subject to license terms supplied in LICENSE.txt
 #
 
-import sys
-import os
-sys.path.append(os.path.join('..', 'python'))
-
 """
 FOR TRAINING PURPOSES ONLY!
 """
@@ -60,4 +56,4 @@ except ValidationException:
 # Close connection
 # ================
 # When you are done, close the session to free up server resources.
-conn._closeSession()
+conn.close()
