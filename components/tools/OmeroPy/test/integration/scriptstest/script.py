@@ -42,9 +42,9 @@ def uploadScript(client, scriptPath):
     scriptService = client.sf.getScriptService()
     _uuid = str(uuid.uuid4())
 
-    file = open(scriptPath)
-    scriptText = file.read()
-    file.close()
+    with open(scriptPath) as file:
+        scriptText = file.read()
+
     try:
         scriptId = scriptService.uploadOfficialScript(
             "/%s/%s" % (_uuid, scriptPath), scriptText)
@@ -79,9 +79,9 @@ def runScript(client, scriptId, argMap, returnKey=None):
 
 
 def editScript(scriptService, scriptPath):
-    file = open(scriptPath)
-    scriptText = file.read()
-    file.close()
+    with open(scriptPath) as file:
+        scriptText = file.read()
+
     # need the script Original File to edit
     # scripts = scriptService.getScripts()
     # if not scriptPath.startswith("/"): scriptPath =  "/" + scriptPath
