@@ -38,6 +38,7 @@ import ome.util.PixelData;
 import ome.util.ShallowCopy;
 import ome.util.SqlAction;
 import omeis.providers.re.data.PlaneDef;
+import omeis.providers.re.metadata.StatsFactory;
 
 import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
@@ -759,8 +760,11 @@ public class RawPixelsBean extends AbstractStatefulBean implements
                 return new double[] { min, max };
         }
 
-        min = Double.MAX_VALUE;
-        max = -Double.MAX_VALUE;
+        StatsFactory sf = new StatsFactory();
+        double[] pixelMinMax = sf.initPixelsRange(channel.getPixels());
+
+        min = pixelMinMax[1];
+        max = pixelMinMax[0];
 
         for (int i = 0; i < px.size(); i++) {
             min = Math.min(min, px.getPixelValue(i));
