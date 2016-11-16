@@ -29,7 +29,6 @@ import warnings
 from struct import unpack
 
 import omero.clients
-from omero.rtypes import rstring
 from omero.rtypes import unwrap
 import omero.util.pixelstypetopython as pixelstypetopython
 
@@ -726,7 +725,7 @@ def uploadDirAsImages(sf, queryService, updateService,
     for c in pixels.iterateChannels():
         # returns omero.model.LogicalChannelI
         lc = c.getLogicalChannel()
-        lc.setName(rstring(channels[i]))
+        lc.setName(omero.rtypes.rstring(channels[i]))
         updateService.saveObject(lc)
         i += 1
 
