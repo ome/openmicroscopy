@@ -44,32 +44,34 @@ class TestFigureExportScripts(ScriptTest):
         sid = super(TestFigureExportScripts, self).getScript(thumbnail_figure)
         assert sid > 0
 
-        client = self.root
+        client, user = self.new_client_and_user()
 
         # create several test images in a dataset
-        dataset = self.make_dataset("thumbnailFigure-test", client=self.root)
-        project = self.make_project("thumbnailFigure-test", client=self.root)
-        self.link(project, dataset, client=self.root)
+        dataset = self.make_dataset("thumbnailFigure-test", client=client)
+        project = self.make_project("thumbnailFigure-test", client=client)
+        self.link(project, dataset, client=client)
 
         # make some tags
         tagIds = []
+        session = client.getSession()
         for t in range(5):
             tag = omero.model.TagAnnotationI()
             tag.setTextValue(omero.rtypes.rstring("TestTag_%s" % t))
-            tag = self.root.sf.getUpdateService().saveAndReturnObject(tag)
+            tag = session.getUpdateService().saveAndReturnObject(tag)
             tagIds.append(tag.id)
 
         # put some images in dataset
         imageIds = []
         for i in range(10):
-            image = self.createTestImage(100, 100, 1, 1, 1)    # x,y,z,c,t
+            # x,y,z,c,t
+            image = self.createTestImage(100, 100, 1, 1, 1, session)
             imageIds.append(omero.rtypes.rlong(image.getId().getValue()))
-            self.link(dataset, image, client=self.root)
+            self.link(dataset, image, client=client)
 
             # add tag
             tIndex = i % 5
             tag = omero.model.TagAnnotationI(tagIds[tIndex].val, False)
-            self.link(image, tag, client=self.root)
+            self.link(image, tag, client=client)
 
         # run the script twice. First with all args...
         datasetIds = [omero.rtypes.rlong(dataset.id.val), ]
@@ -90,9 +92,11 @@ class TestFigureExportScripts(ScriptTest):
             "Image"), "IDs": omero.rtypes.rlist(imageIds)}
         fileAnnot2 = runScript(client, sid, args, "File_Annotation")
 
-        # should have figures attached to project and first image.
-        checkFileAnnotation(client, fileAnnot1, True, parentType="Dataset")
-        checkFileAnnotation(client, fileAnnot2, True)
+        # should have figures attached to dataset and first image.
+        c = self.new_client(user=user)
+        checkFileAnnotation(c, fileAnnot1, True, parentType="Dataset")
+        c = self.new_client(user=user)
+        checkFileAnnotation(c, fileAnnot2, True)
 
         # Run the script with invalid IDs
         args = {"Data_Type": omero.rtypes.rstring(
@@ -103,27 +107,30 @@ class TestFigureExportScripts(ScriptTest):
         fileAnnot4 = runScript(client, sid, args, "File_Annotation")
 
         # should have no annotation
-        checkFileAnnotation(client, fileAnnot3, False)
-        checkFileAnnotation(client, fileAnnot4, False)
+        c = self.new_client(user=user)
+        checkFileAnnotation(c, fileAnnot3, False)
+        c = self.new_client(user=user)
+        checkFileAnnotation(c, fileAnnot4, False)
 
     def testSplitViewFigure(self):
 
         sid = super(TestFigureExportScripts, self).getScript(split_view_figure)
         assert sid > 0
 
-        client = self.root
+        client, user = self.new_client_and_user()
 
         # create several test images in a dataset
-        dataset = self.make_dataset("thumbnailFigure-test", client=self.root)
-        project = self.make_project("thumbnailFigure-test", client=self.root)
-        self.link(project, dataset, client=self.root)
+        dataset = self.make_dataset("thumbnailFigure-test", client=client)
+        project = self.make_project("thumbnailFigure-test", client=client)
+        self.link(project, dataset, client=client)
 
         # put some images in dataset
+        session = client.getSession()
         imageIds = []
         for i in range(5):
-            image = self.createTestImage(256, 200, 5, 4, 1)    # x,y,z,c,t
+            image = self.createTestImage(256, 200, 5, 4, 1, session)
             imageIds.append(omero.rtypes.rlong(image.getId().getValue()))
-            self.link(dataset, image, client=self.root)
+            self.link(dataset, image, client=client)
 
         # run the script twice. First with all args...
         cNamesMap = omero.rtypes.rmap({'0': omero.rtypes.rstring("DAPI"),
@@ -166,35 +173,39 @@ class TestFigureExportScripts(ScriptTest):
         fileAnnot2 = runScript(client, sid, args, "File_Annotation")
 
         # should have figures attached to project and first image.
-        checkFileAnnotation(client, fileAnnot1, True)
-        checkFileAnnotation(client, fileAnnot2, True)
+        c = self.new_client(user=user)
+        checkFileAnnotation(c, fileAnnot1, True)
+        c = self.new_client(user=user)
+        checkFileAnnotation(c, fileAnnot2, True)
 
         # Run the script with invalid args
         args = {"Data_Type": omero.rtypes.rstring(
             "Image"), "IDs": omero.rtypes.rlist(omero.rtypes.rlong(-1))}
         fileAnnot3 = runScript(client, sid, args, "File_Annotation")
 
-        checkFileAnnotation(client, fileAnnot3, False)
+        c = self.new_client(user=user)
+        checkFileAnnotation(c, fileAnnot3, False)
 
     def testRoiFigure(self):
 
         sid = super(TestFigureExportScripts, self).getScript(roi_figure)
         assert sid > 0
 
-        client = self.root
+        client, user = self.new_client_and_user()
 
         # create several test images in a dataset
-        dataset = self.make_dataset("roiFig-test", client=self.root)
-        project = self.make_project("roiFig-test", client=self.root)
-        self.link(project, dataset, client=self.root)
+        dataset = self.make_dataset("roiFig-test", client=client)
+        project = self.make_project("roiFig-test", client=client)
+        self.link(project, dataset, client=client)
 
         # put some images in dataset
         imageIds = []
+        session = client.getSession()
         for i in range(5):
-            image = self.createTestImage(256, 200, 5, 4, 1)    # x,y,z,c,t
+            image = self.createTestImage(256, 200, 5, 4, 1, session)
             imageIds.append(omero.rtypes.rlong(image.getId().getValue()))
-            self.link(dataset, image, client=self.root)
-            addRectangleRoi(self.root.sf.getUpdateService(),
+            self.link(dataset, image, client=client)
+            addRectangleRoi(session.getUpdateService(),
                             50 + (i * 10), 100 - (i * 10),
                             50 + (i * 5), 100 - (i * 5),
                             image.getId().getValue())
@@ -238,37 +249,41 @@ class TestFigureExportScripts(ScriptTest):
         fileAnnot2 = runScript(client, sid, args, "File_Annotation")
 
         # should have figures attached to project and first image.
-        checkFileAnnotation(client, fileAnnot1, True)
-        checkFileAnnotation(client, fileAnnot2, True)
+        c = self.new_client(user=user)
+        checkFileAnnotation(c, fileAnnot1, True)
+        c = self.new_client(user=user)
+        checkFileAnnotation(c, fileAnnot2, True)
 
         # Run the script with invalid IDs
         args = {"Data_Type": omero.rtypes.rstring(
             "Image"), "IDs": omero.rtypes.rlist(omero.rtypes.rlong(-1))}
         fileAnnot3 = runScript(client, sid, args, "File_Annotation")
 
-        checkFileAnnotation(client, fileAnnot3, False)
+        c = self.new_client(user=user)
+        checkFileAnnotation(c, fileAnnot3, False)
 
     def testMovieRoiFigure(self):
 
         sid = super(TestFigureExportScripts, self).getScript(movie_ROI_figure)
         assert sid > 0
 
-        client = self.root
+        client, user = self.new_client_and_user()
 
         # create several test images in a dataset
-        dataset = self.make_dataset("movieRoiFig-test", client=self.root)
-        project = self.make_project("movieRoiFig-test", client=self.root)
-        self.link(project, dataset, client=self.root)
+        dataset = self.make_dataset("movieRoiFig-test", client=client)
+        project = self.make_project("movieRoiFig-test", client=client)
+        self.link(project, dataset, client=client)
 
         # put some images in dataset
         imageIds = []
+        session = client.getSession()
         for i in range(5):
-            image = self.createTestImage(256, 256, 10, 3, 1)    # x,y,z,c,t
+            image = self.createTestImage(256, 256, 10, 3, 1, session)
             imageIds.append(omero.rtypes.rlong(image.getId().getValue()))
-            self.link(dataset, image, client=self.root)
+            self.link(dataset, image, client=client)
 
             # add roi -   x, y, width, height
-            addRectangleRoi(self.root.sf.getUpdateService(),
+            addRectangleRoi(session.getUpdateService(),
                             50 + (i * 10), 100 - (i * 10),
                             50 + (i * 5), 100 - (i * 5), image.id.val)
 
@@ -300,34 +315,38 @@ class TestFigureExportScripts(ScriptTest):
         fileAnnot2 = runScript(client, sid, args, "File_Annotation")
 
         # should have figures attached to project and first image.
-        checkFileAnnotation(client, fileAnnot1, True)
-        checkFileAnnotation(client, fileAnnot2, True)
+        c = self.new_client(user=user)
+        checkFileAnnotation(c, fileAnnot1, True)
+        c = self.new_client(user=user)
+        checkFileAnnotation(c, fileAnnot2, True)
 
         # Run the script with invalid IDs
         args = {"Data_Type": omero.rtypes.rstring(
             "Image"), "IDs": omero.rtypes.rlist(omero.rtypes.rlong(-1))}
         fileAnnot3 = runScript(client, sid, args, "File_Annotation")
 
-        checkFileAnnotation(client, fileAnnot3, False)
+        c = self.new_client(user=user)
+        checkFileAnnotation(c, fileAnnot3, False)
 
     def testMovieFigure(self):
 
         sid = super(TestFigureExportScripts, self).getScript(movie_figure)
         assert sid > 0
 
-        client = self.root
+        client, user = self.new_client_and_user()
 
         # create several test images in a dataset
-        dataset = self.make_dataset("movieFig-test", client=self.root)
-        project = self.make_project("movieFig-test", client=self.root)
-        self.link(project, dataset, client=self.root)
+        dataset = self.make_dataset("movieFig-test", client=client)
+        project = self.make_project("movieFig-test", client=client)
+        self.link(project, dataset, client=client)
 
         # put some images in dataset
+        session = client.getSession()
         imageIds = []
         for i in range(5):
-            image = self.createTestImage(256, 256, 5, 3, 20)    # x,y,z,c,t
+            image = self.createTestImage(256, 256, 5, 3, 20, session)
             imageIds.append(omero.rtypes.rlong(image.getId().getValue()))
-            self.link(dataset, image, client=self.root)
+            self.link(dataset, image, client=client)
 
         # run the script twice. First with all args...
         red = omero.rtypes.rint(16711680)
@@ -360,15 +379,17 @@ class TestFigureExportScripts(ScriptTest):
         fileAnnot2 = runScript(client, sid, args, "File_Annotation")
 
         # should have figures attached to project and first image.
-        checkFileAnnotation(client, fileAnnot1, True)
-        checkFileAnnotation(client, fileAnnot2, True)
+        c = self.new_client(user=user)
+        checkFileAnnotation(c, fileAnnot1, True)
+        c = self.new_client(user=user)
+        checkFileAnnotation(c, fileAnnot2, True)
 
         # Run the script with invalid IDs
         args = {"Data_Type": omero.rtypes.rstring(
             "Image"), "IDs": omero.rtypes.rlist(omero.rtypes.rlong(-1))}
         fileAnnot3 = runScript(client, sid, args, "File_Annotation")
-
-        checkFileAnnotation(client, fileAnnot3, False)
+        c = self.new_client(user=user)
+        checkFileAnnotation(c, fileAnnot3, False)
 
 
 def addRectangleRoi(updateService, x, y, width, height, imageId):

@@ -39,18 +39,18 @@ class TestAnalysisScripts(ScriptTest):
         scriptId = super(TestAnalysisScripts, self).getScript(kymograph)
         assert scriptId > 0
 
-        # root session is root.sf
-        session = self.root.sf
-        client = self.root
+        client, user = self.new_client_and_user()
 
         # create a test image
         sizeT = 3
         sizeX = 100
         sizeY = 100
-        image = self.createTestImage(sizeX, sizeY, 1, 2, sizeT)    # x,y,z,c,t
+        # x,y,z,c,t
+        session = client.getSession()
+        image = self.createTestImage(sizeX, sizeY, 1, 2, sizeT, session)
         image_id = image.getId().getValue()
         roi = createROI(image_id, 0, sizeX / 2, 0, sizeY / 2, sizeT)
-        session.getUpdateService().saveAndReturnObject(roi)
+        client.getSession().getUpdateService().saveAndReturnObject(roi)
         imageIds = []
         imageIds.append(omero.rtypes.rlong(image_id))
         argMap = {
@@ -68,18 +68,18 @@ class TestAnalysisScripts(ScriptTest):
     def testPlotProfile(self):
         scriptId = super(TestAnalysisScripts, self).getScript(plot_profile)
         assert scriptId > 0
-        # root session is root.sf
-        session = self.root.sf
-        client = self.root
+
+        client, user = self.new_client_and_user()
 
         # create a test image
         sizeT = 3
         sizeX = 100
         sizeY = 100
-        image = self.createTestImage(sizeX, sizeY, 1, 2, sizeT)    # x,y,z,c,t
+        session = client.getSession()
+        image = self.createTestImage(sizeX, sizeY, 1, 2, sizeT, session)
         image_id = image.getId().getValue()
         roi = createROI(image_id, 0, sizeX / 2, 0, sizeY / 2, sizeT)
-        session.getUpdateService().saveAndReturnObject(roi)
+        client.getSession().getUpdateService().saveAndReturnObject(roi)
         imageIds = []
         imageIds.append(omero.rtypes.rlong(image_id))
         argMap = {
@@ -89,7 +89,8 @@ class TestAnalysisScripts(ScriptTest):
             "Sum_or_Average": omero.rtypes.rstring("Average")
         }
         ann = runScript(client, scriptId, argMap, "Line_Data")
-        checkFileAnnotation(client, ann, True)
+        c = self.new_client(user=user)
+        checkFileAnnotation(c, ann, True)
 
 
 def createROI(imageId, x1, x2, y1, y2, sizeT):

@@ -51,10 +51,12 @@ def runScript(client, scriptId, argMap, returnKey=None):
         origFile = results['stdout'].getValue()
         v = "Script generated StdOut in file:", origFile.getId().getValue()
         logging.debug(v)
+        print v
     if 'stderr' in results:
         origFile = results['stderr'].getValue()
         v = "Script generated StdErr in file:", origFile.getId().getValue()
         logging.debug(v)
+        print v
     if returnKey and returnKey in results:
         return results[returnKey]
 
@@ -109,6 +111,6 @@ def checkFileAnnotation(client, fileAnnotation, hasFileAnnotation=True,
             assert nLinks == 1
         else:
             assert nLinks == 0
-
+        conn.close()
     else:
         assert fileAnnotation is None

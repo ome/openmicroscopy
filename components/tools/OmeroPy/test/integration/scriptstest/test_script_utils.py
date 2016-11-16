@@ -162,8 +162,10 @@ class TestScriptUtils(ITest):
             try:
                 Image.open(name)
                 assert format == "tiff"
+                # delete it since to handle case where it is not a tmp file
                 remove(name)
             except IOError:
                 assert format != "tiff"
+                # file should have been deleted
                 assert exists(name) is False
             cIndex += 1

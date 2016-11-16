@@ -40,8 +40,9 @@ class TestExportScripts(ScriptTest):
         scriptId = super(TestExportScripts, self).getScript(batch_image_export)
         assert scriptId > 0
 
-        client = self.root
-        image = self.createTestImage(100, 100, 1, 1, 1)    # x,y,z,c,t
+        client, user = self.new_client_and_user()
+        # x,y,z,c,t
+        image = self.createTestImage(100, 100, 1, 1, 1, client.getSession())
         imageIds = []
         imageIds.append(omero.rtypes.rlong(image.getId().getValue()))
         argMap = {
@@ -49,14 +50,16 @@ class TestExportScripts(ScriptTest):
             "IDs": omero.rtypes.rlist(imageIds)
         }
         ann = runScript(client, scriptId, argMap, "File_Annotation")
-        checkFileAnnotation(client, ann, True)
+        c = self.new_client(user=user)
+        checkFileAnnotation(c, ann, True)
 
     def testMakeMovie(self):
         scriptId = super(TestExportScripts, self).getScript(make_movie)
         assert scriptId > 0
 
-        client = self.root
-        image = self.createTestImage(100, 100, 5, 2, 4)    # x,y,z,c,t
+        client, user = self.new_client_and_user()
+        # x,y,z,c,t
+        image = self.createTestImage(100, 100, 1, 1, 1, client.getSession())
         imageIds = []
         imageIds.append(omero.rtypes.rlong(image.getId().getValue()))
         argMap = {
@@ -64,4 +67,5 @@ class TestExportScripts(ScriptTest):
             "IDs": omero.rtypes.rlist(imageIds)
         }
         ann = runScript(client, scriptId, argMap, "File_Annotation")
-        checkFileAnnotation(client, ann, True)
+        c = self.new_client(user=user)
+        checkFileAnnotation(c, ann, True)
