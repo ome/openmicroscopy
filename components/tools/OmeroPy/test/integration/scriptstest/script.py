@@ -51,6 +51,7 @@ def runScript(client, scriptId, argMap, returnKey=None):
         origFile = results['stdout'].getValue()
         v = "Script generated StdOut in file:", origFile.getId().getValue()
         logging.debug(v)
+        print v
         assert origFile.getId().getValue() > 0
     if 'stderr' in results:
         origFile = results['stderr'].getValue()
@@ -76,10 +77,6 @@ def _getScript(scriptService, scriptPath):
 
     if len(namedScripts) == 0:
         return None
-
-    if len(namedScripts) > 1:
-        v = "Found more than one script with specified path: %s" % scriptPath
-        logging.debug(v)
 
     return namedScripts[0]
 
