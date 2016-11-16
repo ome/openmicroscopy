@@ -19,14 +19,21 @@
 
 package integration;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
+import ome.services.blitz.repo.path.FsFile;
+import omero.RLong;
+import omero.RString;
+import omero.RType;
 import omero.SecurityViolation;
 import omero.ServerError;
 import omero.api.IScriptPrx;
@@ -35,9 +42,13 @@ import omero.cmd.CmdCallbackI;
 import omero.cmd.HandlePrx;
 import omero.gateway.util.Requests;
 import omero.gateway.util.Requests.Delete2Builder;
+import omero.grid.ManagedRepositoryPrx;
+import omero.grid.ManagedRepositoryPrxHelper;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
 import omero.model.AdminPrivilege;
+import omero.model.ChecksumAlgorithm;
+import omero.model.ChecksumAlgorithmI;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
@@ -55,9 +66,12 @@ import omero.model.enums.AdminPrivilegeModifyUser;
 import omero.model.enums.AdminPrivilegeSudo;
 import omero.model.enums.AdminPrivilegeWriteFile;
 import omero.model.enums.AdminPrivilegeWriteOwned;
+import omero.model.enums.ChecksumAlgorithmMurmur3128;
+import omero.model.enums.ChecksumAlgorithmSHA1160;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 import omero.sys.Principal;
+import omero.util.TempFileManager;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -73,9 +87,14 @@ import com.google.common.collect.ImmutableSet;
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.3.0
  */
-public class LightAdminPrivilegesTest extends AbstractServerTest {
+public class LightAdminPrivilegesTest extends AbstractServerImportTest {
+
+    private static final TempFileManager TEMPORARY_FILE_MANAGER = new TempFileManager(
+            "test-" + LightAdminPrivilegesTest.class.getSimpleName());
 
     private ImmutableSet<AdminPrivilege> allPrivileges = null;
+
+    private File fakeImageFile = null;
 
     /**
      * Populate the set of available light administrator privileges.
@@ -88,6 +107,17 @@ public class LightAdminPrivilegesTest extends AbstractServerTest {
             privileges.add((AdminPrivilege) privilege);
         }
         allPrivileges = privileges.build();
+    }
+
+    /**
+     * Create a fake image file for use in import tests.
+     * @throws IOException unexpected
+     */
+    @BeforeClass
+    public void createFakeImageFile() throws IOException {
+        final File temporaryDirectory = TEMPORARY_FILE_MANAGER.createPath("images", null, true);
+        fakeImageFile = new File(temporaryDirectory, "image.fake");
+        fakeImageFile.createNewFile();
     }
 
     /**
@@ -620,6 +650,66 @@ public class LightAdminPrivilegesTest extends AbstractServerTest {
         fileContentCurrent = rfs.read(0, (int) rfs.size());
         rfs.close();
         Assert.assertEquals(fileContentCurrent, isExpectSuccess ? fileContentBlank : fileContentOriginal);
+    }
+
+    /**
+     * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
+     * have the <tt>WriteFile</tt> privilege.
+     * Attempts changing the file's checksum algorithm via
+     * {@link ManagedRepositoryPrx#setChecksumAlgorithm(ChecksumAlgorithm, List, java.util.Map)}.
+     * @param isAdmin if to test a member of the <tt>system</tt> group
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>WriteFile</tt> privilege
+     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "light administrator privilege test cases")
+    public void testWriteFilePrivilegeEditingViaRepoChecksum(boolean isAdmin, boolean isRestricted, boolean isSudo)
+            throws Exception {
+        final boolean isExpectSuccess = isAdmin && !isRestricted;
+        final EventContext normalUser = newUserAndGroup("rw----");
+        /* import a fake image and determine its hash and hasher */
+        final List<String> imageFilenames = Collections.singletonList(fakeImageFile.getPath());
+        final String repoPath = importFileset(imageFilenames).sharedPath + FsFile.separatorChar;
+        List<RType> results = iQuery.projection(
+                "SELECT id, hasher.value, hash FROM OriginalFile WHERE name = :name AND path = :path",
+                new ParametersI().add("name", omero.rtypes.rstring(fakeImageFile.getName()))
+                                 .add("path", omero.rtypes.rstring(repoPath))).get(0);
+        final long imageFileId = ((RLong) results.get(0)).getValue();
+        final String hasherOriginal = ((RString) results.get(1)).getValue();
+        final String hashOriginal = ((RString) results.get(2)).getValue();
+        /* try to change the image's hasher */
+        loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeWriteFile.value : null);
+        final HashMap<String, String> context = new HashMap<>(client.getImplicitContext().getContext());
+        context.put("omero.group", Long.toString(normalUser.groupId));
+        final ManagedRepositoryPrx repo = ManagedRepositoryPrxHelper.checkedCast(getRepository(Repository.MANAGED));
+        final String hasherChanged;
+        if (ChecksumAlgorithmSHA1160.value.equals(hasherOriginal)) {
+            hasherChanged = ChecksumAlgorithmMurmur3128.value;
+        } else {
+            hasherChanged = ChecksumAlgorithmSHA1160.value;
+        }
+        try {
+            final ChecksumAlgorithm hasherAlgorithm = new ChecksumAlgorithmI();
+            hasherAlgorithm.setValue(omero.rtypes.rstring(hasherChanged));
+            repo.setChecksumAlgorithm(hasherAlgorithm, Collections.singletonList(imageFileId), context);
+            Assert.assertTrue(isExpectSuccess);
+        } catch (Ice.LocalException | ServerError se) {
+            Assert.assertFalse(isExpectSuccess);
+        }
+        /* check the effect on the image's hash and hasher */
+        loginUser(normalUser);
+        results = iQuery.projection(
+                "SELECT hasher.value, hash FROM OriginalFile WHERE id = :id",
+                new ParametersI().addId(imageFileId)).get(0);
+        final String hasherNew = ((RString) results.get(0)).getValue();
+        final String hashNew = ((RString) results.get(1)).getValue();
+        if (isExpectSuccess) {
+            Assert.assertEquals(hasherNew, hasherChanged);
+            Assert.assertNotEquals(hashNew, hashOriginal);
+        } else {
+            Assert.assertEquals(hasherNew, hasherOriginal);
+            Assert.assertEquals(hashNew, hashOriginal);
+        }
     }
 
     /**
