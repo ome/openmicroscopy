@@ -81,4 +81,4 @@ for i, p in enumerate(planes):
 # Close connection
 # ================
 # When you are done, close the session to free up server resources.
-conn._closeSession()
+conn.close()
