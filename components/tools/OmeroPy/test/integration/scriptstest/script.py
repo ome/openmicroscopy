@@ -32,7 +32,7 @@ class ScriptTest(ITest):
         script = _get_script(script_service, path)
         if script is None:
             return -1
-        return script.id.val
+        return script.getId().getValue()
 
 
 def run_script(client, script_id, args, key=None):
@@ -72,7 +72,7 @@ def _get_script(script_service, script_path):
         script_path = "/" + script_path
 
     named_scripts = [
-        s for s in scripts if s.path.val + s.name.val == script_path]
+        s for s in scripts if s.getPath().getValue() + s.getName().getValue() == script_path ]
 
     if len(named_scripts) == 0:
         return None
@@ -94,13 +94,15 @@ def check_file_annotation(client, file_annotation,
     name and number of objects linked to the original file.
     """
     assert file_annotation is not None
-    assert file_annotation.val._file._size._val > 0
-    assert file_annotation.val._file._name._val is not None
-    assert file_annotation.val.id.val > 0
+    orig_file = file_annotation.getValue().getFile()
+    assert orig_file.getSize().getValue() > 0
+    assert orig_file.getName().getValue() is not None
+    id = file_annotation.getValue().getId().getValue()
+    assert  id > 0
     # session is closed during teardown
     conn = BlitzGateway(client_obj=client)
 
-    wrapper = conn.getObject("FileAnnotation", file_annotation.val.id.val)
+    wrapper = conn.getObject("FileAnnotation", id)
     links = sum(1 for i in wrapper.getParentLinks(parent_type))
     conn.close()
     if is_linked:

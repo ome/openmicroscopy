@@ -77,7 +77,7 @@ class TestUtilScripts(ScriptTest):
         combine_img = run_script(client, script_id, args, "Combined_Image")
         # check the result
         assert combine_img is not None
-        assert combine_img.val.id.val > 0
+        assert combine_img.getValue().getId().getValue() > 0
 
     def test_images_from_rois(self):
         script_id = super(TestUtilScripts, self).get_script(images_from_rois)
@@ -111,4 +111,4 @@ class TestUtilScripts(ScriptTest):
         img_from_rois = run_script(client, script_id, args, "Result")
         # check the result
         assert img_from_rois is not None
-        assert img_from_rois.val.id.val > 0
+        assert img_from_rois.getValue().getId().getValue() > 0
