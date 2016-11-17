@@ -65,12 +65,12 @@ print "Image: ", image,
 if image is not None:
     print "Group: ", image.getDetails().getGroup().getName(),
     # access groupId without loading group
-    print image.getDetails().getGroup().getId().getValue()
+    print image.getDetails().getGroup().getId()
 
 
 # To query only a single group (not necessarily your 'current' group)
 # ===================================================================
-group_id = image.getDetails().getGroup().getId().getValue()
+group_id = image.getDetails().getGroup().getId()
 # This is how we 'switch group' in webclient
 conn.SERVICE_OPTS.setOmeroGroup(group_id)
 projects = conn.listProjects()
