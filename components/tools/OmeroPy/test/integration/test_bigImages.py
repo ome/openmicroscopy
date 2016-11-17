@@ -41,9 +41,9 @@ except:  # pragma: nocover
 from numpy import asarray, array_equal
 
 
-class TestFigureExportScripts(ITest):
+class TestRendering(ITest):
 
-    def testRenderRegion(self):
+    def test_render_region(self):
         """
         Test attempts to compare a full image plane, cropped to a region, with
         a region retrieved from rendering engine.
@@ -54,26 +54,26 @@ class TestFigureExportScripts(ITest):
 
         session = self.root.sf
 
-        sizeX = 4
-        sizeY = 3
-        sizeZ = 1
-        sizeC = 1
-        sizeT = 1
-        image = self.createTestImage(sizeX, sizeY, sizeZ, sizeC, sizeT)
-        pixelsId = image.getPrimaryPixels().getId().getValue()
+        size_x = 4
+        size_y = 3
+        size_z = 1
+        size_c = 1
+        size_t = 1
+        image = self.createTestImage(size_x, size_y, size_z, size_c, size_t)
+        pixels_id = image.getPrimaryPixels().getId().getValue()
 
-        renderingEngine = session.createRenderingEngine()
-        renderingEngine.lookupPixels(pixelsId)
-        if not renderingEngine.lookupRenderingDef(pixelsId):
-            renderingEngine.resetDefaultSettings(save=True)
-        renderingEngine.lookupRenderingDef(pixelsId)
-        renderingEngine.load()
+        rendering_engine = session.createRenderingEngine()
+        rendering_engine.lookupPixels(pixels_id)
+        if not rendering_engine.lookupRenderingDef(pixels_id):
+            rendering_engine.resetDefaultSettings(save=True)
+        rendering_engine.lookupRenderingDef(pixels_id)
+        rendering_engine.load()
 
         # turn all channels on
-        for i in range(sizeC):
-            renderingEngine.setActive(i, True)
+        for i in range(size_c):
+            rendering_engine.setActive(i, True)
 
-        regionDef = omero.romio.RegionDef()
+        region_def = omero.romio.RegionDef()
         x = 0
         y = 0
         width = 2
@@ -81,26 +81,27 @@ class TestFigureExportScripts(ITest):
         x2 = x + width
         y2 = y + height
 
-        regionDef.x = x
-        regionDef.y = y
-        regionDef.width = width
-        regionDef.height = height
+        region_def.x = x
+        region_def.y = y
+        region_def.width = width
+        region_def.height = height
 
-        planeDef = omero.romio.PlaneDef()
-        planeDef.z = long(0)
-        planeDef.t = long(0)
+        plane_def = omero.romio.PlaneDef()
+        plane_def.z = long(0)
+        plane_def.t = long(0)
 
         # First, get the full rendered plane...
-        img = renderingEngine.renderCompressed(planeDef)  # compressed String
-        fullImage = Image.open(io.BytesIO(img))  # convert to numpy arr
-        img_array = asarray(fullImage)  # 3D array, since each pixel is [r,g,b]
+        img = rendering_engine.renderCompressed(plane_def)  # compressed String
+        full_image = Image.open(io.BytesIO(img))  # convert to numpy arr
+        # 3D array, since each pixel is [r,g,b]
+        img_array = asarray(full_image)
 
         # get the cropped image
         cropped = img_array[y:y2, x:x2, :]      # ... so we can crop to region
 
         # now get the region
-        planeDef.region = regionDef
-        img = renderingEngine.renderCompressed(planeDef)
+        plane_def.region = region_def
+        img = rendering_engine.renderCompressed(plane_def)
         region_image = Image.open(io.BytesIO(img))
         region_array = asarray(region_image)
 
