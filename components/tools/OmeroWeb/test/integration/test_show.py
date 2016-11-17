@@ -1712,14 +1712,36 @@ class TestShow(IWebTest):
 
         assert len(paths) == 0, 'More results than expected found\n %s' % paths
 
-        # Path to image in well...
+    def test_well_image(self, screen_plate_run_well_multi):
+        """
+        Test image paths for SPW image
+        """
+        # Create >1 page of orphaned images
+        imgCount = 210
+        imgs = [self.new_image(str(i)) for i in range(imgCount)]
+        imgs.append(self.new_image('z'))
+        imgs = self.update.saveAndReturnArray(imgs)
+
+        # Path to image in Well shouldn't fail with > 1 page of orphaned images
+        # See https://github.com/openmicroscopy/openmicroscopy/pull/4933
+        screen = screen_plate_run_well_multi
+        plate, = screen.linkedPlateList()
+        well_a, well_b, well_c = \
+            sorted(plate.copyWells(), cmp_well_column)
+        ws_a1, ws_b1, ws_a2, ws_b2 = well_a.copyWellSamples()
+        plate_acquisition1 = ws_a1.plateAcquisition
+
+        expected = [
+            [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+             {'type': 'screen', 'id': screen.id.val},
+             {'type': 'plate', 'id': plate.id.val},
+             {'type': 'acquisition', 'id': plate_acquisition1.id.val},
+             {'type': 'well', 'id': well_a.id.val}]]
+        # Path to image in well... (Image is only in ONE acquisition)
         paths = paths_to_object(self.conn, None, None, None,
                                 ws_a1.image.id.val, None, None, None, None)
-        # Image is only in ONE acquisition
         assert len(paths) == 1
-        pathToImg = expected[0]
-        pathToImg.append({'type': 'well', 'id': well_a.id.val})
-        assert paths[0] == pathToImg
+        assert paths[0] == expected[0]
 
     def test_well_restrict_acquisition_multi(self,
                                              screen_plate_run_well_multi):
