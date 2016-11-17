@@ -43,7 +43,7 @@ class TestFigureExportScripts(ScriptTest):
     @pytest.mark.parametrize('all_parameters', [True, False])
     def test_thumbnail_figure(self, data_type, all_parameters):
 
-        sid = super(TestFigureExportScripts, self).getScript(thumbnail_figure)
+        sid = super(TestFigureExportScripts, self).get_script(thumbnail_figure)
         assert sid > 0
 
         client, user = self.new_client_and_user()
@@ -97,12 +97,12 @@ class TestFigureExportScripts(ScriptTest):
 
         # should have figures attached to dataset and first image.
         c = self.new_client(user=user)
-        check_file_annotation(c, ann, True, parentType=data_type)
+        check_file_annotation(c, ann, parent_type=data_type)
 
     @pytest.mark.parametrize('all_parameters', [True, False])
     def test_split_view_figure(self, all_parameters):
 
-        sid = super(TestFigureExportScripts, self).getScript(split_view_figure)
+        sid = super(TestFigureExportScripts, self).get_script(split_view_figure)
         assert sid > 0
 
         client, user = self.new_client_and_user()
@@ -161,12 +161,12 @@ class TestFigureExportScripts(ScriptTest):
         ann = run_script(client, sid, args, "File_Annotation")
 
         c = self.new_client(user=user)
-        check_file_annotation(c, ann, True)
+        check_file_annotation(c, ann)
 
     @pytest.mark.parametrize('all_parameters', [True, False])
     def test_roi_figure(self, all_parameters):
 
-        sid = super(TestFigureExportScripts, self).getScript(roi_figure)
+        sid = super(TestFigureExportScripts, self).get_script(roi_figure)
         assert sid > 0
 
         client, user = self.new_client_and_user()
@@ -228,12 +228,12 @@ class TestFigureExportScripts(ScriptTest):
         ann = run_script(client, sid, args, "File_Annotation")
 
         c = self.new_client(user=user)
-        check_file_annotation(c, ann, True)
+        check_file_annotation(c, ann)
 
     @pytest.mark.parametrize('all_parameters', [True, False])
     def test_movie_roi_figure(self, all_parameters):
 
-        sid = super(TestFigureExportScripts, self).getScript(movie_roi_figure)
+        sid = super(TestFigureExportScripts, self).get_script(movie_roi_figure)
         assert sid > 0
 
         client, user = self.new_client_and_user()
@@ -284,12 +284,12 @@ class TestFigureExportScripts(ScriptTest):
         ann = run_script(client, sid, args, "File_Annotation")
 
         c = self.new_client(user=user)
-        check_file_annotation(c, ann, True)
+        check_file_annotation(c, ann)
 
     @pytest.mark.parametrize('all_parameters', [True, False])
     def test_movie_figure(self, all_parameters):
 
-        sid = super(TestFigureExportScripts, self).getScript(movie_figure)
+        sid = super(TestFigureExportScripts, self).get_script(movie_figure)
         assert sid > 0
 
         client, user = self.new_client_and_user()
@@ -339,7 +339,7 @@ class TestFigureExportScripts(ScriptTest):
         ann = run_script(client, sid, args, "File_Annotation")
 
         c = self.new_client(user=user)
-        check_file_annotation(c, ann, True)
+        check_file_annotation(c, ann)
 
 
 def add_rectangle_roi(update_service, x, y, width, height, image_id):

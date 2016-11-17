@@ -37,7 +37,7 @@ make_movie = "/omero/export_scripts/Make_Movie.py"
 class TestExportScripts(ScriptTest):
 
     def test_batch_image_export(self):
-        sid = super(TestExportScripts, self).getScript(batch_image_export)
+        sid = super(TestExportScripts, self).get_script(batch_image_export)
         assert sid > 0
 
         client, user = self.new_client_and_user()
@@ -51,10 +51,10 @@ class TestExportScripts(ScriptTest):
         }
         ann = run_script(client, sid, args, "File_Annotation")
         c = self.new_client(user=user)
-        check_file_annotation(c, ann, True)
+        check_file_annotation(c, ann)
 
     def test_make_movie(self):
-        script_id = super(TestExportScripts, self).getScript(make_movie)
+        script_id = super(TestExportScripts, self).get_script(make_movie)
         assert script_id > 0
 
         client, user = self.new_client_and_user()
@@ -68,4 +68,4 @@ class TestExportScripts(ScriptTest):
         }
         ann = run_script(client, script_id, args, "File_Annotation")
         c = self.new_client(user=user)
-        check_file_annotation(c, ann, True)
+        check_file_annotation(c, ann)

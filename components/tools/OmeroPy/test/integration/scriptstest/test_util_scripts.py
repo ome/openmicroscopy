@@ -36,7 +36,7 @@ images_from_rois = "/omero/util_scripts/Images_From_ROIs.py"
 class TestUtilScripts(ScriptTest):
 
     def test_channel_offsets(self):
-        script_id = super(TestUtilScripts, self).getScript(channel_offsets)
+        script_id = super(TestUtilScripts, self).get_script(channel_offsets)
         assert script_id > 0
 
         client = self.root
@@ -61,7 +61,7 @@ class TestUtilScripts(ScriptTest):
         assert offset_img.val.id.val > 0
 
     def test_combine_images(self):
-        script_id = super(TestUtilScripts, self).getScript(combine_images)
+        script_id = super(TestUtilScripts, self).get_script(combine_images)
         assert script_id > 0
         client = self.root
 
@@ -80,7 +80,7 @@ class TestUtilScripts(ScriptTest):
         assert combine_img.val.id.val > 0
 
     def test_images_from_rois(self):
-        script_id = super(TestUtilScripts, self).getScript(images_from_rois)
+        script_id = super(TestUtilScripts, self).get_script(images_from_rois)
         assert script_id > 0
         # root session is root.sf
         session = self.root.sf
