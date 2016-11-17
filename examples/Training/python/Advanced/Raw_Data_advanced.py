@@ -12,7 +12,7 @@ FOR TRAINING PURPOSES ONLY!
 """
 
 import omero.util.script_utils as scriptUtil
-from numpy import uint8
+from numpy import int32
 from omero.gateway import BlitzGateway
 from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
 from Parse_OMERO_Properties import imageId
@@ -46,7 +46,7 @@ c = 0
 for min_max in channel_min_max:
     plane = pixels.getPlane(z, c, t)
     name = "tiffPlaneInt8%s.tiff" % c
-    scriptUtil.numpy_save_as_image(plane, min_max, uint8, name)
+    scriptUtil.numpy_save_as_image(plane, min_max, int32, name)
 
 
 # Close connection:

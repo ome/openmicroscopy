@@ -22,7 +22,7 @@ FOR TRAINING PURPOSES ONLY!
 
 import omero.util.script_utils as scriptUtil
 from omero.gateway import BlitzGateway
-from numpy import hstack, uint8
+from numpy import hstack, int32
 from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
 from Parse_OMERO_Properties import imageId
 
@@ -74,7 +74,7 @@ print "kymograph_data", kymograph_data.shape
 
 name = "kymograph.png"
 min_max = (kymograph_data.min(), kymograph_data.max())
-scriptUtil.numpy_save_as_image(kymograph_data, min_max, uint8, name)
+scriptUtil.numpy_save_as_image(kymograph_data, min_max, int32, name)
 
 # attach the png to the image
 file_ann = conn.createFileAnnfromLocalFile(

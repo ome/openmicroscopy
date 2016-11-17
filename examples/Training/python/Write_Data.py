@@ -104,14 +104,11 @@ for ann in dataset.listAnnotations():
         print "File ID:", ann.getFile().getId(), ann.getFile().getName(), \
             "Size:", ann.getFile().getSize()
         file_path = os.path.join(path, ann.getFile().getName())
-        f = open(str(file_path), 'w')
-        print "\nDownloading file to", file_path, "..."
-        try:
+        with open(str(file_path), 'w') as f:
+            print "\nDownloading file to", file_path, "..."
             for chunk in ann.getFileInChunks():
                 f.write(chunk)
-        finally:
-            f.close()
-            print "File downloaded!"
+        print "File downloaded!"
 
 
 # Load all the file annotations with a given namespace

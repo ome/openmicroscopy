@@ -41,16 +41,11 @@ for ann in project.listAnnotations():
             ann.getFile().getId(), name, ann.getFile().getSize())
         if file_name == name:
             file_path = 'downloadFile'
-            f = open(file_path, 'w')
-            print "\nDownloading file ", file_name, "to", file_path, "..."
-            try:
+            with open(file_path, 'w') as f:
+                print "\nDownloading file ", file_name, "to", file_path, "..."
                 for chunk in ann.getFileInChunks():
                     f.write(chunk)
-            finally:
-                f.close()
-                print "File downloaded!"
-
-            message = "File Downloaded."
+            print "File Downloaded."
 
     elif isinstance(ann, omero.gateway.LongAnnotationWrapper):
         # This may be a 'Rating' annotation, so let's get it's namespace
@@ -61,6 +56,7 @@ if rating_ns is not None:
 else:
     message += " Project not rated."
 
+print message
 # Return some value(s).
 
 # Here, we return anything useful the script has produced.
