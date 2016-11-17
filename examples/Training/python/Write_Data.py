@@ -30,11 +30,11 @@ conn.connect()
 
 # Create a new Dataset
 # ====================
-datasetObj = omero.model.DatasetI()
-datasetObj.setName(rstring("New Dataset"))
-datasetObj = conn.getUpdateService().saveAndReturnObject(datasetObj)
-datasetId = datasetObj.getId().getValue()
-print "New dataset, Id:", datasetId
+dataset_obj = omero.model.DatasetI()
+dataset_obj.setName(rstring("New Dataset"))
+dataset_obj = conn.getUpdateService().saveAndReturnObject(dataset_obj)
+dataset_id = dataset_obj.getId().getValue()
+print "New dataset, Id:", dataset_id
 
 
 # Link to Project
@@ -46,50 +46,49 @@ if project is None:
     sys.exit(1)
 link = omero.model.ProjectDatasetLinkI()
 link.setParent(omero.model.ProjectI(project.getId(), False))
-link.setChild(datasetObj)
+link.setChild(dataset_obj)
 conn.getUpdateService().saveObject(link)
 
 
 # Annotate Project with a new 'tag'
 # =================================
-tagAnn = omero.gateway.TagAnnotationWrapper(conn)
-tagAnn.setValue("New Tag")
-tagAnn.save()
+tag_ann = omero.gateway.TagAnnotationWrapper(conn)
+tag_ann.setValue("New Tag")
+tag_ann.save()
 project = conn.getObject("Project", projectId)
-project.linkAnnotation(tagAnn)
+project.linkAnnotation(tag_ann)
 
 
 # Create a 'map' annotation (list of key: value pairs)
 # ====================================================
-keyValueData = [["Drug Name", "Monastrol"],
-                ["Concentration", "5 mg/ml"]]
-mapAnn = omero.gateway.MapAnnotationWrapper(conn)
+key_value_data = [["Drug Name", "Monastrol"], ["Concentration", "5 mg/ml"]]
+map_ann = omero.gateway.MapAnnotationWrapper(conn)
 # Use 'client' namespace to allow editing in Insight & web
 namespace = omero.constants.metadata.NSCLIENTMAPANNOTATION
-mapAnn.setNs(namespace)
-mapAnn.setValue(keyValueData)
-mapAnn.save()
+map_ann.setNs(namespace)
+map_ann.setValue(key_value_data)
+map_ann.save()
 project = conn.getObject("Project", projectId)
 # NB: only link a client map annotation to a single object
-project.linkAnnotation(mapAnn)
+project.linkAnnotation(map_ann)
 
 
 # How to create a file annotation and link to a Dataset
 # =====================================================
-dataset = conn.getObject("Dataset", datasetId)
+dataset = conn.getObject("Dataset", dataset_id)
 # Specify a local file e.g. could be result of some analysis
-fileToUpload = "README.txt"   # This file should already exist
-with open(fileToUpload, 'w') as f:
+file_to_upload = "README.txt"   # This file should already exist
+with open(file_to_upload, 'w') as f:
     f.write('annotation test')
 # create the original file and file annotation (uploads the file etc.)
 namespace = "imperial.training.demo"
 print "\nCreating an OriginalFile and FileAnnotation"
-fileAnn = conn.createFileAnnfromLocalFile(
-    fileToUpload, mimetype="text/plain", ns=namespace, desc=None)
-print "Attaching FileAnnotation to Dataset: ", "File ID:", fileAnn.getId(), \
-    ",", fileAnn.getFile().getName(), "Size:", fileAnn.getFile().getSize()
-dataset.linkAnnotation(fileAnn)     # link it to dataset.
-os.remove(fileToUpload)
+file_ann = conn.createFileAnnfromLocalFile(
+    file_to_upload, mimetype="text/plain", ns=namespace, desc=None)
+print "Attaching FileAnnotation to Dataset: ", "File ID:", file_ann.getId(), \
+    ",", file_ann.getFile().getName(), "Size:", file_ann.getFile().getSize()
+dataset.linkAnnotation(file_ann)     # link it to dataset.
+os.remove(file_to_upload)
 
 # Download a file annotation linked to a Dataset
 # ==============================================
@@ -117,13 +116,13 @@ for ann in dataset.listAnnotations():
 
 # Load all the file annotations with a given namespace
 # ====================================================
-nsToInclude = [namespace]
-nsToExclude = []
+ns_to_include = [namespace]
+ns_to_exclude = []
 metadataService = conn.getMetadataService()
 annotations = metadataService.loadSpecifiedAnnotations(
-    'omero.model.FileAnnotation', nsToInclude, nsToExclude, None)
+    'omero.model.FileAnnotation', ns_to_include, ns_to_exclude, None)
 for ann in annotations:
-    print ann.getId().getValue(), ann.file.name.val
+    print ann.getId().getValue(), ann.getFile().getName().getValue()
 
 
 # Get first annotation with specified namespace
@@ -135,4 +134,4 @@ print "Found Annotation with namespace: ", ann.getNs()
 # Close connection
 # ================
 # When you are done, close the session to free up server resources.
-conn._closeSession()
+conn.close()

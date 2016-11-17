@@ -34,9 +34,9 @@ conn.connect()
 # Numpy array can be used for various analysis routines
 #
 image = conn.getObject("Image", imageId)
-sizeZ = image.getSizeZ()
-sizeC = image.getSizeC()
-sizeT = image.getSizeT()
+size_z = image.getSizeZ()
+size_c = image.getSizeC()
+size_t = image.getSizeT()
 z, t, c = 0, 0, 0                     # first plane of the image
 pixels = image.getPrimaryPixels()
 plane = pixels.getPlane(z, c, t)      # get a numpy array.
@@ -57,28 +57,28 @@ c, t = 0, 0                 # First channel and timepoint
 tile = (50, 50, 10, 10)     # x, y, width, height of tile
 
 # list of [ (0,0,0,(x,y,w,h)), (1,0,0,(x,y,w,h)), (2,0,0,(x,y,w,h))... ]
-zctList = [(iz, c, t, tile) for iz in range(sizeZ)]
+zct_list = [(iz, c, t, tile) for iz in range(size_z)]
 print "\nZ stack of tiles:"
-planes = pixels.getTiles(zctList)
+planes = pixels.getTiles(zct_list)
 for i, p in enumerate(planes):
-    print "Tile:", zctList[i], " min:", p.min(),\
+    print "Tile:", zct_list[i], " min:", p.min(),\
         " max:", p.max(), " sum:", p.sum()
 
 
 # Retrieve a given hypercube
 # ==========================
-zctList = []
-for z in range(sizeZ / 2, sizeZ):     # get the top half of the Z-stack
-    for c in range(sizeC):          # all channels
-        for t in range(sizeT):      # all time-points
-            zctList.append((z, c, t))
+zct_list = []
+for z in range(size_z / 2, size_z):     # get the top half of the Z-stack
+    for c in range(size_c):          # all channels
+        for t in range(size_t):      # all time-points
+            zct_list.append((z, c, t))
 print "\nHyper stack of planes:"
-planes = pixels.getPlanes(zctList)
+planes = pixels.getPlanes(zct_list)
 for i, p in enumerate(planes):
-    print "plane zct:", zctList[i], " min:", p.min(), " max:", p.max()
+    print "plane zct:", zct_list[i], " min:", p.min(), " max:", p.max()
 
 
 # Close connection
 # ================
 # When you are done, close the session to free up server resources.
-conn._closeSession()
+conn.close()
