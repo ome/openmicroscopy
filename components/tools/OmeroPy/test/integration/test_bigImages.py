@@ -27,7 +27,6 @@
 import omero
 import logging
 from omero.testlib import ITest
-import library as lib
 import io
 
 try:
@@ -61,7 +60,7 @@ class TestFigureExportScripts(ITest):
         sizeC = 1
         sizeT = 1
         image = self.createTestImage(sizeX, sizeY, sizeZ, sizeC, sizeT)
-        pixelsId = image.getPrimaryPixels().id.val
+        pixelsId = image.getPrimaryPixels().getId().getValue()
 
         renderingEngine = session.createRenderingEngine()
         renderingEngine.lookupPixels(pixelsId)
