@@ -7,10 +7,6 @@
 # Use is subject to license terms supplied in LICENSE.txt
 #
 
-import sys
-import os
-sys.path.append(os.path.join('..', 'python'))
-
 """
 FOR TRAINING PURPOSES ONLY!
 """
@@ -36,16 +32,16 @@ conn.connect()
 
 # Create a new Image
 # ==================
-imageObj = omero.model.ImageI()
-imageObj.setName(rstring("New Image"))
-imageObj = conn.getUpdateService().saveAndReturnObject(imageObj)
-imageId = imageObj.getId().getValue()
-print "New image, Id:", imageId
+image_obj = omero.model.ImageI()
+image_obj.setName(rstring("New Image"))
+image_obj = conn.getUpdateService().saveAndReturnObject(image_obj)
+image_id = image_obj.getId().getValue()
+print "New image, Id:", image_id
 
 try:
     link = omero.model.DatasetImageLinkI()
     link.setParent(omero.model.DatasetI(datasetId, False))
-    link.setChild(omero.model.ImageI(imageId, False))
+    link.setChild(omero.model.ImageI(image_id, False))
     conn.getUpdateService().saveObject(link)
     message = "Added Image to Dataset"
 except ValidationException:
@@ -60,4 +56,4 @@ except ValidationException:
 # Close connection
 # ================
 # When you are done, close the session to free up server resources.
-conn._closeSession()
+conn.close()

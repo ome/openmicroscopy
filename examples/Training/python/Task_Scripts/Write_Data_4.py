@@ -7,10 +7,6 @@
 # Use is subject to license terms supplied in LICENSE.txt
 #
 
-import sys
-import os
-sys.path.append(os.path.join('..', 'python'))
-
 """
 FOR TRAINING PURPOSES ONLY!
 """
@@ -33,20 +29,20 @@ from Parse_OMERO_Properties import projectId
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
 
-fileName = "File_Name"
+file_name = "File_Name"
 
 project = conn.getObject('Project', projectId)
 message = "No file downloaded."
-ratingNs = None
+rating_ns = None
 for ann in project.listAnnotations():
     if isinstance(ann, omero.gateway.FileAnnotationWrapper):
         name = ann.getFile().getName()
         print "File ID: %s Name: %s Size: %s" % (
             ann.getFile().getId(), name, ann.getFile().getSize())
-        if fileName == name:
+        if file_name == name:
             file_path = 'downloadFile'
             f = open(file_path, 'w')
-            print "\nDownloading file ", fileName, "to", file_path, "..."
+            print "\nDownloading file ", file_name, "to", file_path, "..."
             try:
                 for chunk in ann.getFileInChunks():
                     f.write(chunk)
@@ -58,10 +54,10 @@ for ann in project.listAnnotations():
 
     elif isinstance(ann, omero.gateway.LongAnnotationWrapper):
         # This may be a 'Rating' annotation, so let's get it's namespace
-        ratingNs = ann.getNs()
+        rating_ns = ann.getNs()
 
-if ratingNs is not None:
-    message += " Rating Ns: %s" % ratingNs
+if rating_ns is not None:
+    message += " Rating Ns: %s" % rating_ns
 else:
     message += " Project not rated."
 
@@ -74,4 +70,4 @@ else:
 # Close connection
 # ================
 # When you are done, close the session to free up server resources.
-conn._closeSession()
+conn.close()
