@@ -303,18 +303,23 @@ class TestGetObject (object):
         # params limit query by owner
         params = omero.sys.Parameters()
         params.theFilter = omero.sys.Filter()
+        conn = gatewaywrapper.gateway
 
         # should be no Projects owned by root (in the current group)
         params.theFilter.ownerId = omero.rtypes.rlong(0)  # owned by 'root'
-        pros = gatewaywrapper.gateway.getObjects("Project", None, params)
+        pros = conn.getObjects("Project", None, params)
+        assert len(list(pros)) == 0, "Should be no Projects owned by root"
+
+        # Also filter by owner using params dict
+        pros = conn.getObjects("Project", None, {'owner': 0})
         assert len(list(pros)) == 0, "Should be no Projects owned by root"
 
         # filter by current user should get same as above. # owned by 'author'
         params.theFilter.ownerId = omero.rtypes.rlong(
-            gatewaywrapper.gateway.getEventContext().userId)
-        pros = list(gatewaywrapper.gateway.getObjects(
+            conn.getEventContext().userId)
+        pros = list(conn.getObjects(
             "Project", None, params))
-        projects = list(gatewaywrapper.gateway.listProjects())
+        projects = list(conn.listProjects())
         # check unordered lists are the same length & ids
         assert len(pros) == len(projects)
         projectIds = [p.getId() for p in projects]
@@ -329,6 +334,11 @@ class TestGetObject (object):
         params.page(0, limit)
         pros = list(gatewaywrapper.gateway.getObjects(
             "Project", None, params))
+        assert len(pros) == limit
+
+        # Also using params dict
+        pros = list(gatewaywrapper.gateway.getObjects(
+            "Project", None, {'page': 0, 'limit': 2}))
         assert len(pros) == limit
 
     def testGetDatasetsByProject(self, gatewaywrapper):
