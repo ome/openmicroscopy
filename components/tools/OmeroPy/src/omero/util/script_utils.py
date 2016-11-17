@@ -27,6 +27,8 @@ import os
 import warnings
 
 from struct import unpack
+from numpy import add, zeros
+from os.path import exists
 
 import omero.clients
 from omero.rtypes import rstring
@@ -39,6 +41,14 @@ try:
 except:
     import sha
     hash_sha1 = sha.new
+
+try:
+    from PIL import Image  # see ticket:2597
+except:  # pragma: nocover
+    try:
+        import Image  # see ticket:2597
+    except:
+        logging.error('No Pillow installed')
 
 # r,g,b,a colours for use in scripts.
 COLOURS = {
@@ -1234,3 +1244,64 @@ def findROIByImage(roiService, image, namespace):
     for roi in results.rois:
         roiList.append(ROIData(roi))
     return roiList
+
+
+def numpyToImage(plane, minMax, dtype):
+    """
+    Converts the numpy plane to a PIL Image, converting data type if necessary.
+    @param plane The plane to handle
+    @param minMax the min and the max values for the plane
+    @param dtype the data type to use for scaling
+    """
+
+    convArray = convertNumpyArray(plane, minMax, dtype)
+    if plane.dtype.name not in ('uint8', 'int8'):
+        return Image.frombytes('I', plane.shape, convArray)
+    else:
+        return Image.fromarray(convArray)
+
+
+def numpySaveAsImage(plane, minMax, dtype, name):
+    """
+    Converts the numpy plane, converting data type if necessary
+    and saves it as png, jpeg etc.
+    @param plane The plane to handle
+    @param minMax the min and the max values for the plane
+    @param type the data type to use for scaling
+    @param name the name of the image
+    """
+
+    image = numpyToImage(plane, minMax, dtype)
+    try:
+        image.save(name)
+    except (IOError, KeyError) as e:
+        msg = "Cannot save the array as an image: %s: %s" % (
+            name, e)
+        logging.error(msg)
+        # delete the file
+        if (exists(name)):
+            os.remove(name)
+
+
+def convertNumpyArray(plane, minMax, type):
+    """
+    Converts the numpy plane to a PIL Image, converting data type if necessary.
+    @param plane The plane to handle
+    @param minMax the min and the max values for the plane
+    @param type the data type to use for scaling
+    """
+
+    if plane.dtype.name not in ('uint8', 'int8'):   # we need to scale...
+        minVal, maxVal = minMax
+        valRange = maxVal - minVal
+        if (valRange <= 0):
+            valRange = 1
+        scaled = (plane - minVal) * (float(255) / valRange)
+        convArray = zeros(plane.shape, dtype=type)
+        try:
+            convArray += scaled
+        except TypeError:
+            add(convArray, scaled, out=convArray, casting="unsafe")
+        return convArray
+    else:
+        return plane
