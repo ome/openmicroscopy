@@ -102,8 +102,8 @@ class TestFigureExportScripts(ScriptTest):
     @pytest.mark.parametrize('all_parameters', [True, False])
     def test_split_view_figure(self, all_parameters):
 
-        sid = super(TestFigureExportScripts, self).get_script(split_view_figure)
-        assert sid > 0
+        id = super(TestFigureExportScripts, self).get_script(split_view_figure)
+        assert id > 0
 
         client, user = self.new_client_and_user()
 
@@ -158,7 +158,7 @@ class TestFigureExportScripts(ScriptTest):
                 "Format": omero.rtypes.rstring("PNG"),
                 "Figure_Name": omero.rtypes.rstring("splitViewTest")
             }
-        ann = run_script(client, sid, args, "File_Annotation")
+        ann = run_script(client, id, args, "File_Annotation")
 
         c = self.new_client(user=user)
         check_file_annotation(c, ann)

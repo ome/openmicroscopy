@@ -72,7 +72,8 @@ def _get_script(script_service, script_path):
         script_path = "/" + script_path
 
     named_scripts = [
-        s for s in scripts if s.getPath().getValue() + s.getName().getValue() == script_path ]
+        s for s in scripts if
+        s.getPath().getValue() + s.getName().getValue() == script_path]
 
     if len(named_scripts) == 0:
         return None
@@ -98,7 +99,7 @@ def check_file_annotation(client, file_annotation,
     assert orig_file.getSize().getValue() > 0
     assert orig_file.getName().getValue() is not None
     id = file_annotation.getValue().getId().getValue()
-    assert  id > 0
+    assert id > 0
     # session is closed during teardown
     conn = BlitzGateway(client_obj=client)
 
