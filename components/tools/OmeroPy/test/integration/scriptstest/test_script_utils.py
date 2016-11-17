@@ -41,7 +41,7 @@ except:  # pragma: nocover
 
 class TestScriptUtils(ITest):
 
-    def testSplitImage(self):
+    def test_split_image(self):
         imported_pix = ",".join(self.import_image())
         dir = tempfile.mkdtemp()
         params = omero.sys.Parameters()
@@ -50,20 +50,21 @@ class TestScriptUtils(ITest):
 
         query_string = "select p from Pixels p where p.id=:id"
         pixels = self.query.findByQuery(query_string, params)
-        sizeZ = pixels.getSizeZ().getValue()
-        sizeC = pixels.getSizeC().getValue()
-        sizeT = pixels.getSizeT().getValue()
+        size_z = pixels.getSizeZ().getValue()
+        size_c = pixels.getSizeC().getValue()
+        size_t = pixels.getSizeT().getValue()
         # split the image into file
         imported_img = self.query.findByQuery(
             "select i from Image i join fetch i.pixels pixels\
             where pixels.id=:id", params)
-        scriptUtil.split_image(self.client, imported_img.getId().getValue(), dir,
+        id = imported_img.getId().getValue()
+        scriptUtil.split_image(self.client, id, dir,
                                unformattedImageName="a_T%05d_C%s_Z%d_S1.tiff")
         files = [f for f in listdir(dir) if isfile(join(dir, f))]
         shutil.rmtree(dir)
-        assert sizeZ*sizeC*sizeT == len(files)
+        assert size_z*size_c*size_t == len(files)
 
-    def testNumpyToImage(self):
+    def test_numpy_to_image(self):
         client = self.new_client()
         imported_pix = ",".join(self.import_image(client=client))
         params = omero.sys.Parameters()
@@ -76,18 +77,18 @@ class TestScriptUtils(ITest):
         conn = BlitzGateway(client_obj=client)
         image = conn.getObject("Image", imported_img.getId().getValue())
         pixels = image.getPrimaryPixels()
-        channelMinMax = []
+        channel_min_max = []
         for c in image.getChannels():
-            minC = c.getWindowMin()
-            maxC = c.getWindowMax()
-            channelMinMax.append((minC, maxC))
-        theZ = image.getSizeZ() / 2
-        theT = 0
-        cIndex = 0
+            min_c = c.getWindowMin()
+            max_c = c.getWindowMax()
+            channel_min_max.append((min_c, max_c))
+        z = image.getSizeZ() / 2
+        t = 0
+        c = 0
         try:
-            for minMax in channelMinMax:
-                plane = pixels.getPlane(theZ, cIndex, theT)
-                i = scriptUtil.numpyToImage(plane, minMax, int32)
+            for min_max in channel_min_max:
+                plane = pixels.getPlane(z, c, t)
+                i = scriptUtil.numpy_to_image(plane, min_max, int32)
                 assert i is not None
                 try:
                     # check if the image can be handled.
@@ -95,11 +96,11 @@ class TestScriptUtils(ITest):
                     assert True
                 except IOError:
                     assert False
-                cIndex += 1
+                c += 1
         finally:
             conn.close()
 
-    def testConvertNumpyArray(self):
+    def test_convert_numpy_array(self):
         client = self.new_client()
         imported_pix = ",".join(self.import_image(client=client))
         params = omero.sys.Parameters()
@@ -113,26 +114,26 @@ class TestScriptUtils(ITest):
         conn = BlitzGateway(client_obj=client)
         image = conn.getObject("Image", imported_img.getId().getValue())
         pixels = image.getPrimaryPixels()
-        channelMinMax = []
+        channel_min_max = []
         for c in image.getChannels():
-            minC = c.getWindowMin()
-            maxC = c.getWindowMax()
-            channelMinMax.append((minC, maxC))
-        theZ = image.getSizeZ() / 2
-        theT = 0
-        cIndex = 0
+            min_c = c.getWindowMin()
+            max_c = c.getWindowMax()
+            channel_min_max.append((min_c, max_c))
+        z = image.getSizeZ() / 2
+        t = 0
+        c = 0
         try:
-            for minMax in channelMinMax:
-                plane = pixels.getPlane(theZ, cIndex, theT)
-                i = scriptUtil.convertNumpyArray(plane, minMax, uint8)
+            for min_max in channel_min_max:
+                plane = pixels.getPlane(z, c, t)
+                i = scriptUtil.convert_numpy_array(plane, min_max, uint8)
                 assert i is not None
-                cIndex += 1
+                c += 1
         finally:
             conn.close()
 
     @pytest.mark.parametrize('format', ['tiff', 'foo'])
     @pytest.mark.parametrize('is_file', [True, False])
-    def testNumpySaveAsImage(self, format, is_file):
+    def test_numpy_save_as_image(self, format, is_file):
         client = self.new_client()
         imported_pix = ",".join(self.import_image(client=client))
         params = omero.sys.Parameters()
@@ -146,18 +147,18 @@ class TestScriptUtils(ITest):
         conn = BlitzGateway(client_obj=client)
         image = conn.getObject("Image", imported_img.getId().getValue())
         pixels = image.getPrimaryPixels()
-        channelMinMax = []
+        channel_min_max = []
         for c in image.getChannels():
-            minC = c.getWindowMin()
-            maxC = c.getWindowMax()
-            channelMinMax.append((minC, maxC))
-        theZ = image.getSizeZ() / 2
-        theT = 0
-        cIndex = 0
+            min_c = c.getWindowMin()
+            max_c = c.getWindowMax()
+            channel_min_max.append((min_c, max_c))
+        z = image.getSizeZ() / 2
+        t = 0
+        c = 0
 
         try:
-            for minMax in channelMinMax:
-                plane = pixels.getPlane(theZ, cIndex, theT)
+            for min_max in channel_min_max:
+                plane = pixels.getPlane(z, c, t)
                 suffix = ".%s" % format
                 name = None
                 if is_file is True:
@@ -165,8 +166,8 @@ class TestScriptUtils(ITest):
                     tf = tempfile.NamedTemporaryFile(mode='r+b', suffix=suffix)
                     name = tf.name
                 else:
-                    name = "test%s.%s" % (cIndex, format)
-                scriptUtil.numpySaveAsImage(plane, minMax, int32, name)
+                    name = "test%s.%s" % (c, format)
+                scriptUtil.numpy_save_as_image(plane, min_max, int32, name)
                 # try to open the image
                 try:
                     Image.open(name)
@@ -178,6 +179,6 @@ class TestScriptUtils(ITest):
                     assert format != "tiff"
                     # file should have been deleted
                     assert exists(name) is False
-                cIndex += 1
+                c += 1
         finally:
             conn.close()

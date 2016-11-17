@@ -1235,32 +1235,32 @@ def findROIByImage(roiService, image, namespace):
     return roiList
 
 
-def numpyToImage(plane, minMax, dtype):
+def numpy_to_image(plane, min_max, dtype):
     """
     Converts the numpy plane to a PIL Image, converting data type if necessary.
     @param plane The plane to handle
-    @param minMax the min and the max values for the plane
+    @param min_max the min and the max values for the plane
     @param dtype the data type to use for scaling
     """
 
-    convArray = convertNumpyArray(plane, minMax, dtype)
+    conv_array = convert_numpy_array(plane, min_max, dtype)
     if plane.dtype.name not in ('uint8', 'int8'):
-        return Image.frombytes('I', plane.shape, convArray)
+        return Image.frombytes('I', plane.shape, conv_array)
     else:
-        return Image.fromarray(convArray)
+        return Image.fromarray(conv_array)
 
 
-def numpySaveAsImage(plane, minMax, dtype, name):
+def numpy_save_as_image(plane, min_max, dtype, name):
     """
     Converts the numpy plane, converting data type if necessary
     and saves it as png, jpeg etc.
     @param plane The plane to handle
-    @param minMax the min and the max values for the plane
+    @param min_max the min and the max values for the plane
     @param type the data type to use for scaling
     @param name the name of the image
     """
 
-    image = numpyToImage(plane, minMax, dtype)
+    image = numpy_to_image(plane, min_max, dtype)
     try:
         image.save(name)
     except (IOError, KeyError) as e:
@@ -1272,26 +1272,26 @@ def numpySaveAsImage(plane, minMax, dtype, name):
             os.remove(name)
 
 
-def convertNumpyArray(plane, minMax, type):
+def convert_numpy_array(plane, min_max, type):
     """
     Converts the numpy plane to a PIL Image, converting data type if necessary.
     @param plane The plane to handle
-    @param minMax the min and the max values for the plane
+    @param min_max the min and the max values for the plane
     @param type the data type to use for scaling
     """
 
     if plane.dtype.name not in ('uint8', 'int8'):   # we need to scale...
-        minVal, maxVal = minMax
-        valRange = maxVal - minVal
-        if (valRange == 0):
-            valRange = 1
-        scaled = (plane - minVal) * (float(255) / valRange)
-        convArray = zeros(plane.shape, dtype=type)
+        min_val, max_val = min_max
+        val_range = max_val - min_val
+        if (val_range == 0):
+            val_range = 1
+        scaled = (plane - min_val) * (float(255) / val_range)
+        conv_array = zeros(plane.shape, dtype=type)
         try:
-            convArray += scaled
+            conv_array += scaled
         except TypeError:
             # casting required with newer version of numpy
-            add(convArray, scaled, out=convArray, casting="unsafe")
-        return convArray
+            add(conv_array, scaled, out=conv_array, casting="unsafe")
+        return conv_array
     else:
         return plane
