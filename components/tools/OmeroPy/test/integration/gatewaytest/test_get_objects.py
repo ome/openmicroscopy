@@ -321,6 +321,35 @@ class TestGetObject (object):
         for p in pros:
             assert p.getId() in projectIds
 
+    def testPagination(self, gatewaywrapper):
+        gatewaywrapper.loginAsAuthor()
+        params = omero.sys.ParametersI()
+        # Only 3 images available
+        limit = 2
+        params.page(0, limit)
+        pros = list(gatewaywrapper.gateway.getObjects(
+            "Project", None, params))
+        assert len(pros) == limit
+
+    def testGetDatasetsByProject(self, gatewaywrapper):
+        gatewaywrapper.loginAsAuthor()
+        allDs = list(gatewaywrapper.gateway.getObjects("Dataset"))
+
+        # Get Datasets by project.listChildren()...
+        project = gatewaywrapper.getTestProject()
+        dsIds = [d.id for d in project.listChildren()]
+
+        # Get Datasets, filtering by project
+        p = {'project': project.id}
+        datasets = list(gatewaywrapper.gateway.getObjects("Dataset", params=p))
+
+        # Check that not all Datasets are in Project (or test is invalid)
+        assert len(allDs) > len(dsIds)
+        # Should get same result both methods
+        assert len(datasets) == len(dsIds)
+        for d in datasets:
+            assert d.id in dsIds
+
     def testListExperimentersAndGroups(self, gatewaywrapper):
         gatewaywrapper.loginAsAuthor()
         # experimenters
@@ -558,30 +587,25 @@ class TestGetObject (object):
         gatewaywrapper.loginAsUser()
         eid = gatewaywrapper.gateway.getUserId()
 
-        imageList = list()
+        # Create 5 images
         for i in range(0, 5):
-            imageList.append(gatewaywrapper.createTestImage(
-                imageName=(str(uuid.uuid1()))).getName())
+            gatewaywrapper.createTestImage(imageName=str(uuid.uuid1()))
 
-        findImages = list(gatewaywrapper.gateway.listOrphans("Image"))
-        assert len(findImages) == 5, "Did not find orphaned images"
-
-        for p in findImages:
-            assert not p._obj.pixelsLoaded
-            assert p.getName() in imageList, \
-                "All images should have queried name"
-
+        # Pagination, loading pixels
         params = omero.sys.ParametersI()
         params.page(1, 3)
         findImagesInPage = list(gatewaywrapper.gateway.listOrphans(
             "Image", eid=eid, params=params, loadPixels=True))
         assert len(findImagesInPage) == 3, \
             "Did not find orphaned images in page"
-
         for p in findImagesInPage:
             assert p._obj.pixelsLoaded
 
+        # All orphans, no pixels
+        findImages = list(gatewaywrapper.gateway.listOrphans("Image"))
+        orphanedCount = len(findImages)
         for p in findImages:
+            assert not p._obj.pixelsLoaded
             client = p._conn
             handle = client.deleteObjects(
                 'Image', [p.getId()], deleteAnns=True)
@@ -589,6 +613,11 @@ class TestGetObject (object):
                 client._waitOnCmd(handle)
             finally:
                 handle.close()
+
+        # Check this AFTER delete
+        # If test fails with previously undeleted images,
+        # it should pass when re-run since images are deleted above
+        assert orphanedCount == 5, "Did not find orphaned images"
 
     def testOrderById(self, gatewaywrapper):
         gatewaywrapper.loginAsUser()
