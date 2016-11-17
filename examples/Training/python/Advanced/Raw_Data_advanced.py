@@ -11,24 +11,16 @@
 FOR TRAINING PURPOSES ONLY!
 """
 
-from numpy import zeros, uint8
+import omero.util.script_utils as scriptUtil
+from numpy import uint8
 from omero.gateway import BlitzGateway
-from Connect_To_OMERO import USERNAME, PASSWORD, HOST, PORT
-try:
-    from PIL import Image
-except ImportError:
-    import Image
-
+from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
+from Parse_OMERO_Properties import imageId
 
 # Create a connection
 # =================================================================
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
-
-
-# Configuration
-# =================================================================
-imageId = 401
 
 
 # Save a plane (raw data) as tiff for analysis
@@ -37,40 +29,27 @@ image = conn.getObject("Image", imageId)  # first plane of the image
 pixels = image.getPrimaryPixels()
 # make a note of min max pixel values for each channel
 # so that we can scale all the planes from each channel to the same range
-channelMinMax = []
+channel_min_max = []
 for c in image.getChannels():
-    minC = c.getWindowMin()
-    maxC = c.getWindowMax()
-    channelMinMax.append((minC, maxC))
-print channelMinMax
+    min_c = c.getWindowMin()
+    max_c = c.getWindowMax()
+    channel_min_max.append((min_c, max_c))
+print channel_min_max
 
 
 # Go through each channel (looping through Z and T not shown - go for mid-Z
 # only)
 # =================================================================
-theZ = image.getSizeZ() / 2
-theT = 0
-cIndex = 0
-for minMax in channelMinMax:
-    plane = pixels.getPlane(theZ, cIndex, theT)
-    print "dtype:", plane.dtype.name
-    # need plane dtype to be uint8 (or int8) for conversion to tiff by PIL
-    if plane.dtype.name not in ('uint8', 'int8'):      # we need to scale...
-        minVal, maxVal = minMax
-        valRange = maxVal - minVal
-        scaled = (plane - minVal) * (float(255) / valRange)
-        convArray = zeros(plane.shape, dtype=uint8)
-        convArray += scaled
-        print ("using converted int8 plane: dtype: %s min: %s max: %s"
-               % (convArray.dtype.name, convArray.min(), convArray.max()))
-        i = Image.fromarray(convArray)
-    else:
-        i = Image.fromarray(plane)
-    i.save("tiffPlaneInt8%s.tiff" % cIndex)
-    cIndex += 1
+z = image.getSizeZ() / 2
+t = 0
+c = 0
+for min_max in channel_min_max:
+    plane = pixels.getPlane(z, c, t)
+    name = "tiffPlaneInt8%s.tiff" % c
+    scriptUtil.numpy_save_as_image(plane, min_max, uint8, name)
 
 
 # Close connection:
 # =================================================================
 # When you are done, close the session to free up server resources.
-conn._closeSession()
+conn.close()
