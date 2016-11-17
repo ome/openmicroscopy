@@ -69,13 +69,13 @@ def query_objects(conn, object_type,
     @param normalize:   If true, marshal groups and experimenters separately
     """
     params = {'page': page,
-          'limit': limit,
-          'owner': owner,
-          'child_count': childCount,
-          'order_by': 'name'}
+              'limit': limit,
+              'owner': owner,
+              'child_count': childCount,
+              'order_by': 'name'}
 
     if object_type == 'Dataset' and project is not None:
-      params['project'] = project
+        params['project'] = project
 
     # buildQuery is used by conn.getObjects()
     query, params, wrapper = conn.buildQuery(object_type, params=params)

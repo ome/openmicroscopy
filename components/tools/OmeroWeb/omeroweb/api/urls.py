@@ -106,8 +106,8 @@ GET Datasets in Project, using omero-marshal to generate json
 """
 
 api_screens = url(r'^v(?P<api_version>%s)/m/screens/$' % versions,
-                   views.ScreensView.as_view(),
-                   name='api_screens')
+                  views.ScreensView.as_view(),
+                  name='api_screens')
 """
 GET all projects, using omero-marshal to generate json
 """

@@ -258,12 +258,12 @@ class ScreensView(View):
 
         # Get the screens
         screens = query_objects(conn, 'Screen',
-                                  group=group,
-                                  owner=owner,
-                                  childCount=childCount,
-                                  page=page,
-                                  limit=limit,
-                                  normalize=normalize)
+                                group=group,
+                                owner=owner,
+                                childCount=childCount,
+                                page=page,
+                                limit=limit,
+                                normalize=normalize)
 
         return screens
 
