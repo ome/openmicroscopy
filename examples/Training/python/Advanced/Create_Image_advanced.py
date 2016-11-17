@@ -93,7 +93,7 @@ new_img.resetRDefs()  # reset based on colors above
 
 # Apply pixel sizes from original image
 # =================================================================
-new_pix = conn.getQueryService().get("Pixels", pixels2.getPixelsId())
+new_pix = conn.getQueryService().get("Pixels", new_img.getPixelsId())
 
 new_pix.setPhysicalSizeX(pixels.getPhysicalSizeX())
 new_pix.setPhysicalSizeY(pixels.getPhysicalSizeY())
