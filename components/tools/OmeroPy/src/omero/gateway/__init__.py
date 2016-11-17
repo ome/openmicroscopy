@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
@@ -13,7 +14,6 @@
 
 # Set up the python include paths
 import os
-THISPATH = os.path.dirname(os.path.abspath(__file__))
 
 import warnings
 from collections import defaultdict
@@ -44,7 +44,13 @@ from decimal import Decimal
 from gettext import gettext as _
 
 import logging
+from math import sqrt
+
+from omero.rtypes import rstring, rint, rlong, rbool
+from omero.rtypes import rtime, rlist, rdouble, unwrap
+
 logger = logging.getLogger(__name__)
+THISPATH = os.path.dirname(os.path.abspath(__file__))
 
 try:
     from PIL import Image, ImageDraw, ImageFont     # see ticket:2597
@@ -57,10 +63,6 @@ except:  # pragma: nocover
     except:
         logger.error(
             'No Pillow installed, line plots and split channel will fail!')
-from math import sqrt
-
-from omero.rtypes import rstring, rint, rlong, rbool
-from omero.rtypes import rtime, rlist, rdouble, unwrap
 
 
 def omero_type(val):
@@ -211,9 +213,9 @@ class BlitzObjectWrapper (object):
         :return:    True if objects are same - see above
         :rtype:     Boolean
         """
-        return (type(a) == type(self)
-                and self._obj.id == a._obj.id
-                and self.getName() == a.getName())
+        return (type(a) == type(self) and
+                self._obj.id == a._obj.id and
+                self.getName() == a.getName())
 
     def __bstrap__(self):
         """
@@ -334,8 +336,8 @@ class BlitzObjectWrapper (object):
         #     self.__class__.PARENT_WRAPPER_CLASS \
         #         = self.PARENT_WRAPPER_CLASS = g[self.PARENT_WRAPPER_CLASS]
         # return self.PARENT_WRAPPER_CLASS
-        if (pwc != self.PARENT_WRAPPER_CLASS
-                or pwc != self.__class__.PARENT_WRAPPER_CLASS):
+        if (pwc != self.PARENT_WRAPPER_CLASS or
+                pwc != self.__class__.PARENT_WRAPPER_CLASS):
             self.__class__.PARENT_WRAPPER_CLASS \
                 = self.PARENT_WRAPPER_CLASS = pwc
         return self.PARENT_WRAPPER_CLASS
@@ -394,9 +396,9 @@ class BlitzObjectWrapper (object):
         """
         for c in self.listChildren():
             if c.getName() == name:
-                if (description is None
-                        or omero_type(description)
-                        == omero_type(c.getDescription())):
+                if (description is None or
+                        omero_type(description) ==
+                        omero_type(c.getDescription())):
                     return c
         return None
 
@@ -422,8 +424,8 @@ class BlitzObjectWrapper (object):
         """
 
         try:
-            if (self._obj.acquisitionDate.val is not None
-                    and self._obj.acquisitionDate.val > 0):
+            if (self._obj.acquisitionDate.val is not None and
+                    self._obj.acquisitionDate.val > 0):
                 t = self._obj.acquisitionDate.val
                 return datetime.fromtimestamp(t/1000)
         except:
@@ -460,9 +462,9 @@ class BlitzObjectWrapper (object):
         """
         if self._conn.isAdmin():
             d = self.getDetails()
-            if (d.getOwner()
-                    and d.getOwner().omeName == details.getOwner().omeName
-                    and d.getGroup().name == details.getGroup().name):
+            if (d.getOwner() and
+                    d.getOwner().omeName == details.getOwner().omeName and
+                    d.getGroup().name == details.getGroup().name):
                 return self.save()
             else:
                 newConn = self._conn.suConn(
@@ -863,8 +865,8 @@ class BlitzObjectWrapper (object):
         rv = self.copyAnnotationLinks()
         if ns is not None:
             rv = filter(
-                lambda x: x.getChild().getNs()
-                and x.getChild().getNs().val == ns, rv)
+                lambda x: x.getChild().getNs() and
+                x.getChild().getNs().val == ns, rv)
         return rv
 
     def unlinkAnnotations(self, ns):
@@ -1019,12 +1021,12 @@ class BlitzObjectWrapper (object):
         if sameOwner:
             d = self.getDetails()
             ad = ann.getDetails()
-            if (self._conn.isAdmin()
-                    and self._conn.getUserId() != d.getOwner().id):
+            if (self._conn.isAdmin() and
+                    self._conn.getUserId() != d.getOwner().id):
                 # Keep the annotation owner the same as the linked of object's
-                if (ad.getOwner()
-                        and d.getOwner().omeName == ad.getOwner().omeName
-                        and d.getGroup().name == ad.getGroup().name):
+                if (ad.getOwner() and
+                        d.getOwner().omeName == ad.getOwner().omeName and
+                        d.getGroup().name == ad.getGroup().name):
                     newConn = ann._conn
                 else:
                     # p = omero.sys.Principal()
@@ -1174,9 +1176,9 @@ class BlitzObjectWrapper (object):
 
         # handle lookup of 'get' methods, using '_attrs' dict to define how we
         # wrap returned objects.
-        if (attr != 'get'
-                and attr.startswith('get')
-                and hasattr(self, '_attrs')):
+        if (attr != 'get' and
+                attr.startswith('get') and
+                hasattr(self, '_attrs')):
             tattr = attr[3].lower() + attr[4:]      # 'getName' -> 'name'
             # find attr with 'name'
             attrs = filter(lambda x: tattr in x, self._attrs)
@@ -1229,8 +1231,8 @@ class BlitzObjectWrapper (object):
                 # If this is a _unit, then we ignore val
                 # since it's not an rtype to unwrap.
                 if not hasattr(rv, "_unit"):
-                    return (isinstance(rv.val, StringType)
-                            and rv.val.decode('utf8') or rv.val)
+                    return (isinstance(rv.val, StringType) and
+                            rv.val.decode('utf8') or rv.val)
             return rv
         raise AttributeError(
             "'%s' object has no attribute '%s'"
@@ -2055,8 +2057,8 @@ class _BlitzGateway (object):
                         return self.connect()
                     else:  # pragma: no cover
                         logger.debug(
-                            "BlitzGateway.connect().createSession(): "
-                            + traceback.format_exc())
+                            "BlitzGateway.connect().createSession(): " +
+                            traceback.format_exc())
                         logger.info(
                             "first create session threw SecurityViolation, "
                             "retry (but only once)")
@@ -2078,8 +2080,8 @@ class _BlitzGateway (object):
                 except:
                     logger.info("Failed to create session.")
                     logger.debug(
-                        "BlitzGateway.connect().createSession(): "
-                        + traceback.format_exc())
+                        "BlitzGateway.connect().createSession(): " +
+                        traceback.format_exc())
                     # time.sleep(10)
                     self._createSession()
 
@@ -2235,9 +2237,9 @@ class _BlitzGateway (object):
         :return:    Boolean
         """
 
-        return (self.isAdmin()
-                or (self.getUserId() == obj.getDetails().getOwner().getId()
-                    and obj.getDetails().getPermissions().isUserWrite()))
+        return (self.isAdmin() or
+                (self.getUserId() == obj.getDetails().getOwner().getId() and
+                    obj.getDetails().getPermissions().isUserWrite()))
 
     def canOwnerWrite(self, obj):
         """
@@ -2285,8 +2287,8 @@ class _BlitzGateway (object):
         """
         if self.getEventContext().groupId == groupid:
             return None
-        if (groupid not in self._ctx.memberOfGroups
-                and 0 not in self._ctx.memberOfGroups):
+        if (groupid not in self._ctx.memberOfGroups and
+                0 not in self._ctx.memberOfGroups):
             return False
         self._lastGroupId = self._ctx.groupId
         self._ctx = None
@@ -2715,8 +2717,8 @@ class _BlitzGateway (object):
         group = omero.model.ExperimenterGroupI()
         group.name = rstring(str(name))
         group.description = (
-            (description != "" and description is not None)
-            and rstring(str(description)) or None)
+            (description != "" and description is not None) and
+            rstring(str(description)) or None)
         if perms is not None:
             group.details.permissions = omero.model.PermissionsI(perms)
         group.ldap = rbool(ldap)
@@ -3092,10 +3094,10 @@ class _BlitzGateway (object):
             params.map["ids"] = rlist([rlong(a) for a in ids])
 
         # support filtering by owner (not for some object types)
-        if (params.theFilter
-                and params.theFilter.ownerId
-                and obj_type.lower()
-                not in ["experimentergroup", "experimenter"]):
+        if (params.theFilter and
+                params.theFilter.ownerId and
+                obj_type.lower() not in
+                ["experimentergroup", "experimenter"]):
             clauses.append("owner.id = (:eid)")
             params.map["eid"] = params.theFilter.ownerId
 
@@ -4155,9 +4157,9 @@ class _BlitzGateway (object):
 
         d_from = parse_time(created, 0)
         d_to = parse_time(created, 1)
-        d_type = (useAcquisitionDate
-                  and "acquisitionDate"
-                  or "details.creationEvent.time")
+        d_type = (useAcquisitionDate and
+                  "acquisitionDate" or
+                  "details.creationEvent.time")
 
         try:
             rv = []
@@ -4507,19 +4509,26 @@ class AnnotationWrapper (BlitzObjectWrapper):
         :return:    True if annotations are the same - see above
         :rtype:     Boolean
         """
-        return (type(a) == type(self) and self._obj.id == a._obj.id
-                and self.getValue() == a.getValue()
-                and self.getNs() == a.getNs())
+        return (type(a) == type(self) and self._obj.id == a._obj.id and
+                self.getValue() == a.getValue() and
+                self.getNs() == a.getNs())
 
     def _getQueryString(self):
         """
         Used for building queries in generic methods such as
         getObjects("Annotation")
         """
+<<<<<<< HEAD
         return ("select obj from Annotation obj "
                 "join fetch obj.details.owner as owner "
                 "join fetch obj.details.group "
                 "join fetch obj.details.creationEvent")
+=======
+        query = ("select obj from Annotation obj "
+                 "join fetch obj.details.owner as owner "
+                 "join fetch obj.details.creationEvent")
+        return query, [], omero.sys.ParametersI()
+>>>>>>> 4ae50f5... Lots of flake8 fixes in Blitz Gateway
 
     @classmethod
     def _register(klass, regklass):
@@ -4676,10 +4685,17 @@ class FileAnnotationWrapper (AnnotationWrapper, OmeroRestrictionWrapper):
         Used for building queries in generic methods such as
         getObjects("FileAnnotation")
         """
+<<<<<<< HEAD
         return ("select obj from FileAnnotation obj "
                 "join fetch obj.details.owner as owner "
                 "join fetch obj.details.group "
                 "join fetch obj.details.creationEvent join fetch obj.file")
+=======
+        query = ("select obj from FileAnnotation obj "
+                 "join fetch obj.details.owner as owner "
+                 "join fetch obj.details.creationEvent join fetch obj.file")
+        return query, [], omero.sys.ParametersI()
+>>>>>>> 4ae50f5... Lots of flake8 fixes in Blitz Gateway
 
     def getValue(self):
         """ Not implemented """
@@ -4718,11 +4734,11 @@ class FileAnnotationWrapper (AnnotationWrapper, OmeroRestrictionWrapper):
         """
 
         try:
-            if (self._obj.ns is not None
-                    and self._obj.ns.val
-                    == omero.constants.namespaces.NSCOMPANIONFILE
-                    and self.getFile().getName()
-                    == omero.constants.annotation.file.ORIGINALMETADATA):
+            if (self._obj.ns is not None and
+                    self._obj.ns.val ==
+                    omero.constants.namespaces.NSCOMPANIONFILE and
+                    self.getFile().getName() ==
+                    omero.constants.annotation.file.ORIGINALMETADATA):
                 return True
         except:
             logger.info(traceback.format_exc())
@@ -4818,10 +4834,17 @@ class TimestampAnnotationWrapper (AnnotationWrapper):
         Used for building queries in generic methods such as
         getObjects("TimestampAnnotation")
         """
+<<<<<<< HEAD
         return ("select obj from TimestampAnnotation obj "
                 "join fetch obj.details.owner as owner "
                 "join fetch obj.details.group "
                 "join fetch obj.details.creationEvent")
+=======
+        query = ("select obj from TimestampAnnotation obj "
+                 "join fetch obj.details.owner as owner "
+                 "join fetch obj.details.creationEvent")
+        return query, [], omero.sys.ParametersI()
+>>>>>>> 4ae50f5... Lots of flake8 fixes in Blitz Gateway
 
     def getValue(self):
         """
@@ -4867,10 +4890,17 @@ class BooleanAnnotationWrapper (AnnotationWrapper):
         Used for building queries in generic methods such as
         getObjects("BooleanAnnotation")
         """
+<<<<<<< HEAD
         return ("select obj from BooleanAnnotation obj "
                 "join fetch obj.details.owner as owner "
                 "join fetch obj.details.group "
                 "join fetch obj.details.creationEvent")
+=======
+        query = ("select obj from BooleanAnnotation obj "
+                 "join fetch obj.details.owner as owner "
+                 "join fetch obj.details.creationEvent")
+        return query, [], omero.sys.ParametersI()
+>>>>>>> 4ae50f5... Lots of flake8 fixes in Blitz Gateway
 
     def getValue(self):
         """
@@ -4953,10 +4983,17 @@ class TagAnnotationWrapper (AnnotationWrapper):
         Used for building queries in generic methods such as
         getObjects("TagAnnotation")
         """
+<<<<<<< HEAD
         return ("select obj from TagAnnotation obj "
                 "join fetch obj.details.owner as owner "
                 "join fetch obj.details.group "
                 "join fetch obj.details.creationEvent")
+=======
+        query = ("select obj from TagAnnotation obj "
+                 "join fetch obj.details.owner as owner "
+                 "join fetch obj.details.creationEvent")
+        return query, [], omero.sys.ParametersI()
+>>>>>>> 4ae50f5... Lots of flake8 fixes in Blitz Gateway
 
     def getValue(self):
         """
@@ -4995,10 +5032,17 @@ class CommentAnnotationWrapper (AnnotationWrapper):
         Used for building queries in generic methods such as
         getObjects("CommentAnnotation")
         """
+<<<<<<< HEAD
         return ("select obj from CommentAnnotation obj "
                 "join fetch obj.details.owner as owner "
                 "join fetch obj.details.group "
                 "join fetch obj.details.creationEvent")
+=======
+        query = ("select obj from CommentAnnotation obj "
+                 "join fetch obj.details.owner as owner "
+                 "join fetch obj.details.creationEvent")
+        return query, [], omero.sys.ParametersI()
+>>>>>>> 4ae50f5... Lots of flake8 fixes in Blitz Gateway
 
     def getValue(self):
         """
@@ -5035,10 +5079,17 @@ class LongAnnotationWrapper (AnnotationWrapper):
         Used for building queries in generic methods such as
         getObjects("LongAnnotation")
         """
+<<<<<<< HEAD
         return ("select obj from LongAnnotation obj "
                 "join fetch obj.details.owner as owner "
                 "join fetch obj.details.group "
                 "join fetch obj.details.creationEvent")
+=======
+        query = ("select obj from LongAnnotation obj "
+                 "join fetch obj.details.owner as owner "
+                 "join fetch obj.details.creationEvent")
+        return query, [], omero.sys.ParametersI()
+>>>>>>> 4ae50f5... Lots of flake8 fixes in Blitz Gateway
 
     def getValue(self):
         """
@@ -5076,10 +5127,17 @@ class DoubleAnnotationWrapper (AnnotationWrapper):
         Used for building queries in generic methods such as
         getObjects("DoubleAnnotation")
         """
+<<<<<<< HEAD
         return ("select obj from DoubleAnnotation obj "
                 "join fetch obj.details.owner as owner "
                 "join fetch obj.details.group "
                 "join fetch obj.details.creationEvent")
+=======
+        query = ("select obj from DoubleAnnotation obj "
+                 "join fetch obj.details.owner as owner "
+                 "join fetch obj.details.creationEvent")
+        return query, [], omero.sys.ParametersI()
+>>>>>>> 4ae50f5... Lots of flake8 fixes in Blitz Gateway
 
     def getValue(self):
         """
@@ -5118,10 +5176,17 @@ class TermAnnotationWrapper (AnnotationWrapper):
         Used for building queries in generic methods such as
         getObjects("TermAnnotation")
         """
+<<<<<<< HEAD
         return ("select obj from TermAnnotation obj "
                 "join fetch obj.details.owner as owner "
                 "join fetch obj.details.group "
                 "join fetch obj.details.creationEvent")
+=======
+        query = ("select obj from TermAnnotation obj "
+                 "join fetch obj.details.owner as owner "
+                 "join fetch obj.details.creationEvent")
+        return query, [], omero.sys.ParametersI()
+>>>>>>> 4ae50f5... Lots of flake8 fixes in Blitz Gateway
 
     def getValue(self):
         """
@@ -5236,9 +5301,16 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         """
         Returns string for building queries, loading Experimenters only.
         """
+<<<<<<< HEAD
         return ("select distinct obj from Experimenter as obj "
                 "left outer join fetch obj.groupExperimenterMap as map "
                 "left outer join fetch map.parent g")
+=======
+        query = ("select distinct obj from Experimenter as obj "
+                 "left outer join fetch obj.groupExperimenterMap as map "
+                 "left outer join fetch map.parent g")
+        return query, [], omero.sys.ParametersI()
+>>>>>>> 4ae50f5... Lots of flake8 fixes in Blitz Gateway
 
     def getRawPreferences(self):
         """
@@ -5485,8 +5557,8 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
             userId = self._conn.getUserId()
         colleagues = []
         leaders = []
-        if (not self.isPrivate() or self._conn.isLeader(self.id)
-           or self._conn.isAdmin()):
+        if (not self.isPrivate() or self._conn.isLeader(self.id) or
+                self._conn.isAdmin()):
             for d in self.copyGroupExperimenterMap():
                 if d is None or d.child.id.val == userId:
                     continue
@@ -5761,8 +5833,8 @@ class _PlateWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         Returns a list of labels for the columns on this plate.
         E.g. [1, 2, 3...] or ['A', 'B', 'C'...] etc
         """
-        if (self.columnNamingConvention
-                and self.columnNamingConvention.lower() == 'letter'):
+        if (self.columnNamingConvention and
+                self.columnNamingConvention.lower() == 'letter'):
             # this should simply be precalculated!
             return [_letterGridLabel(x)
                     for x in range(self.getGridSize()['columns'])]
@@ -5774,8 +5846,8 @@ class _PlateWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         Returns a list of labels for the rows on this plate.
         E.g. [1, 2, 3...] or ['A', 'B', 'C'...] etc
         """
-        if (self.rowNamingConvention
-                and self.rowNamingConvention.lower() == 'number'):
+        if (self.rowNamingConvention and
+                self.rowNamingConvention.lower() == 'number'):
             return range(1, self.getGridSize()['rows']+1)
         else:
             # this should simply be precalculated!
@@ -7167,8 +7239,9 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                               'height': self.getSizeY(),
                               }
                 if rv['size']['height'] and rv['size']['width']:
-                    rv['tiled'] = ((rv['size']['height'] * rv['size']['width'])
-                                   > (maxplanesize[0] * maxplanesize[1]))
+                    rv['tiled'] = ((rv['size']['height'] *
+                                    rv['size']['width']) >
+                                   (maxplanesize[0] * maxplanesize[1]))
                 else:
                     rv['tiled'] = False
 
@@ -7724,9 +7797,9 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                 if (reverseMaps is not None and
                         reverseMaps[idx] is not None):
                     self.setReverseIntensity(c, reverseMaps[idx])
-                if (windows is not None
-                        and windows[idx][0] is not None
-                        and windows[idx][1] is not None):
+                if (windows is not None and
+                        windows[idx][0] is not None and
+                        windows[idx][1] is not None):
                     self._re.setChannelWindow(
                         c, float(windows[idx][0]), float(windows[idx][1]),
                         self._conn.SERVICE_OPTS)
@@ -7896,11 +7969,11 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                     (bw, rp.isFloat(), rp.isSigned()), None)
                 if key is None:
                     logger.error(
-                        "Unknown data type: "
-                        + str((bw, rp.isFloat(), rp.isSigned())))
-                plot = array.array(key, (axis == 'h'
-                                   and rp.getRow(pos, z, c, t)
-                                   or rp.getCol(pos, z, c, t)))
+                        "Unknown data type: " +
+                        str((bw, rp.isFloat(), rp.isSigned())))
+                plot = array.array(key, (axis == 'h' and
+                                   rp.getRow(pos, z, c, t) or
+                                   rp.getCol(pos, z, c, t)))
                 plot.byteswap()  # TODO: Assuming ours is a little endian
                 # system now move data into the windowMin..windowMax range
                 offset = -chw[c][0]
@@ -8285,8 +8358,8 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         while len(tokens) > 1:
             p1 = 0
             p2 = 1
-            while (p2 <= len(tokens)
-                   and font.getsize(' '.join(tokens[p1:p2]))[0] < width):
+            while (p2 <= len(tokens) and
+                   font.getsize(' '.join(tokens[p1:p2]))[0] < width):
                 p2 += 1
             rv.append(' '.join(tokens[p1:p2-1]))
             tokens = tokens[p2-1:]
