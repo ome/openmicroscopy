@@ -1283,13 +1283,14 @@ def convertNumpyArray(plane, minMax, type):
     if plane.dtype.name not in ('uint8', 'int8'):   # we need to scale...
         minVal, maxVal = minMax
         valRange = maxVal - minVal
-        if (valRange <= 0):
+        if (valRange == 0):
             valRange = 1
         scaled = (plane - minVal) * (float(255) / valRange)
         convArray = zeros(plane.shape, dtype=type)
         try:
             convArray += scaled
         except TypeError:
+            # casting required with newer version of numpy
             add(convArray, scaled, out=convArray, casting="unsafe")
         return convArray
     else:
