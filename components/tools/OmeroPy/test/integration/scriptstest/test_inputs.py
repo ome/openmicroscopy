@@ -24,7 +24,7 @@
     which all scripts might want to use.
 """
 
-import library as lib
+from omero.testlib import ITest
 import omero
 import omero.processor
 import omero.scripts
@@ -77,7 +77,7 @@ for method, inputs in (
 """
 
 
-class TestInputs(lib.ITest):
+class TestInputs(ITest):
 
     def output(self, root, results, which):
         out = results.get(which, None)

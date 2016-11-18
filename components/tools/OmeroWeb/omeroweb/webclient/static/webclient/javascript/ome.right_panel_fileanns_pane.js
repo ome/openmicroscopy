@@ -123,6 +123,9 @@ var FileAnnsPane = function FileAnnsPane($element, opts) {
     };
 
     var compareParentName = function(a, b){
+        if (!a.parent.name || !b.parent.name) {
+            return 1;
+        }
         return a.parent.name.toLowerCase() > b.parent.name.toLowerCase() ? 1 : -1;
     };
 

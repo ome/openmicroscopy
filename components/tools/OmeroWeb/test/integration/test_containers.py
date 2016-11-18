@@ -24,9 +24,9 @@ Tests creation, linking, editing & deletion of containers
 import omero
 import omero.clients
 from omero.rtypes import rtime
-from weblibrary import IWebTest
-from weblibrary import _csrf_post_response, _post_response
-from weblibrary import _csrf_delete_response, _delete_response
+from omeroweb.testlib import IWebTest
+from omeroweb.testlib import _csrf_post_response, _post_response
+from omeroweb.testlib import _csrf_delete_response, _delete_response
 
 import json
 

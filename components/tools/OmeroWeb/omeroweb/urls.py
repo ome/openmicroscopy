@@ -100,7 +100,7 @@ urlpatterns += patterns(
     (r'^(?i)url/', include('omeroweb.webredirect.urls')),
     (r'^(?i)feedback/', include('omeroweb.feedback.urls')),
 
-    (r'^(?i)api/', include('omeroweb.webgateway.urls_api')),
+    (r'^(?i)api/', include('omeroweb.api.urls')),
 
     url(r'^index/$', 'omeroweb.webclient.views.custom_index',
         name="webindex_custom"),

@@ -11,7 +11,7 @@
 
 import omero
 import threading
-import library as lib
+from omero.testlib import ITest
 import pytest
 __import__("sys")
 
@@ -20,7 +20,7 @@ from omero.util.tiles import RPSTileLoop
 from binascii import hexlify as hex
 
 
-class TestRPS(lib.ITest):
+class TestRPS(ITest):
 
     def check_pix(self, pix):
         pix = self.query.get("Pixels", pix.id.val)
@@ -221,7 +221,7 @@ class TestRPS(lib.ITest):
             rps.close()
 
 
-class TestTiles(lib.ITest):
+class TestTiles(ITest):
 
     @pytest.mark.skipif("sys.version_info < (2,7)",
                         reason="This fails with Python < 2.7 and Ice >= 3.5")

@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -20,8 +20,10 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -390,11 +392,31 @@ abstract class DataBrowserModel
      */
     boolean loadFields(int row, int column)
     {
-    	if (!(this instanceof WellsModel)) return false;
-    	fieldsLoader = ((WellsModel) this).createFieldsLoader(row, column);
-    	if (fieldsLoader == null) return false;
-    	fieldsLoader.load();
-    	return true;
+        if (!(this instanceof WellsModel))
+            return false;
+
+        fieldsLoader = ((WellsModel) this).createFieldsLoader(Arrays
+                .asList(new Point(row, column)));
+        if (fieldsLoader == null)
+            return false;
+        fieldsLoader.load();
+        return true;
+    }
+    
+    /**
+     * Loads the fields for the specified well. Returns <code>true</code>
+     * if a loader was created, <code>false</code> otherwise.
+     * 
+     * @param fields    The rows/columns identifying the well.
+     * @return See above.
+     */
+    boolean loadFields(List<Point> fields)
+    {
+        if (!(this instanceof WellsModel)) return false;
+        fieldsLoader = ((WellsModel) this).createFieldsLoader(fields);
+        if (fieldsLoader == null) return false;
+        fieldsLoader.load();
+        return true;
     }
     
     /** Cancels any-going fields loading. */

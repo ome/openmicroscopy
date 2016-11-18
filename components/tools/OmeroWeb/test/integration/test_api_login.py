@@ -22,7 +22,7 @@ Tests logging in with webgateway json api
 """
 
 import pytest
-from weblibrary import IWebTest, _get_response_json, _post_response_json, \
+from omeroweb.testlib import IWebTest, _get_response_json, _post_response_json, \
     _csrf_post_response_json
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.conf import settings

@@ -1082,6 +1082,33 @@ class ImViewerComponent
     /**
      * Implemented as specified by the {@link ImViewer} interface.
      * 
+     * @see ImViewer#setReverseIntensity(int, boolean, boolean)
+     */
+    public void setReverseIntensity(int index, boolean revInt, boolean preview) {
+        switch (model.getState()) {
+        case NEW:
+        case DISCARDED:
+            throw new IllegalStateException(
+                    "This method can't be invoked in the DISCARDED, "
+                            + "NEW or LOADING_RENDERING_CONTROL state.");
+        }
+
+        try {
+            model.setReverseIntensity(index, revInt);
+        } catch (Exception e) {
+            Registry reg = ImViewerAgent.getRegistry();
+            LogMessage msg = new LogMessage();
+            msg.println("Cannot set the reverse intensity of channel " + index);
+            msg.print(e);
+            reg.getLogger().error(this, msg);
+            reg.getUserNotifier().notifyError("Set reverse intensity",
+                    "Cannot set the reverse intensity of channel " + index, e);
+        }
+    }
+    
+    /**
+     * Implemented as specified by the {@link ImViewer} interface.
+     * 
      * @see ImViewer#resetLookupTable(int)
      */
     public void resetLookupTable(int index) {
@@ -1749,6 +1776,16 @@ class ImViewerComponent
     {
         if (model.getState() == DISCARDED) return null;
         return model.getLookupTable(index);
+    }
+    
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getReverseIntensity(int)
+     */
+    public boolean getReverseIntensity(int index) {
+        if (model.getState() == DISCARDED)
+            return false;
+        return model.getReverseIntensity(index);
     }
     
     /** 

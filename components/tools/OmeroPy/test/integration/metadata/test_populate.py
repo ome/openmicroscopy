@@ -24,7 +24,7 @@
    and populate_roi.py scripts.
 """
 
-import library as lib
+from omero.testlib import ITest
 import string
 import csv
 import os.path
@@ -70,7 +70,7 @@ def coord2offset(coord):
     return r - 1, c - 1
 
 
-class BasePopulate(lib.ITest):
+class BasePopulate(ITest):
 
     def createCsv(
         self,

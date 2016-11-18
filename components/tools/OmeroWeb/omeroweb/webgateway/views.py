@@ -23,25 +23,21 @@ from django.http import HttpResponse, HttpResponseBadRequest, \
 from django.http import HttpResponseRedirect, HttpResponseNotAllowed, Http404
 from django.template import loader as template_loader
 from django.views.decorators.http import require_POST
-from django.views.generic import View
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.conf import settings
 from django.template import RequestContext as Context
 from django.core.servers.basehttp import FileWrapper
-from django.middleware import csrf
-from django.utils.decorators import method_decorator
 from omero.rtypes import rlong, unwrap
 from omero.constants.namespaces import NSBULKANNOTATIONS
 from omero.util.ROI_utils import pointsStringToXYlist, xyListToBbox
 from plategrid import PlateGrid
 from omero_version import build_year
 from marshal import imageMarshal, shapeMarshal, rgb_int2rgba
-from api_query import query_projects
+from django.contrib.staticfiles.templatetags.staticfiles import static
+from django.views.generic import View
 from omeroweb.webadmin.forms import LoginForm
 from omeroweb.decorators import get_client_ip
 from omeroweb.webadmin.webadmin_utils import upgradeCheck
-from omero_marshal import get_encoder, get_decoder, OME_SCHEMA_URL
-from django.contrib.staticfiles.templatetags.staticfiles import static
 
 try:
     from hashlib import md5
@@ -51,9 +47,8 @@ except:
 from cStringIO import StringIO
 import tempfile
 
-from omero import ApiUsageException, ValidationException
+from omero import ApiUsageException
 from omero.util.decorators import timeit, TimeIt
-from omeroweb.connector import Server
 from omeroweb.http import HttpJavascriptResponse, \
     HttpJavascriptResponseServerError
 
@@ -76,8 +71,6 @@ import shutil
 from omeroweb.decorators import login_required, ConnCleaningHttpResponse
 from omeroweb.connector import Connector
 from omeroweb.webgateway.util import zip_archived_files, getIntOrDefault
-from omeroweb.webgateway.api_exceptions import BadRequestError, NotFoundError,\
-    CreatedObject
 
 cache = CacheBase()
 logger = logging.getLogger(__name__)
@@ -2640,99 +2633,21 @@ def object_table_query(request, objtype, objid, conn=None, **kwargs):
     return tableData
 
 
-def build_url(request, name, api_version, **kwargs):
-    """
-    Helper for generating urls within /api json responses
-    By default we use request.build_absolute_uri() but this
-    can be configured by setting "omero.web.api.absolute_url"
-    to a string or empty string, used to prefix relative urls.
-    Extra **kwargs are passed to reverse() function.
-
-    @param name:            Name of the url
-    @param api_version      Version string
-    """
-    kwargs['api_version'] = api_version
-    url = reverse(name, kwargs=kwargs)
-    if settings.API_ABSOLUTE_URL is None:
-        return request.build_absolute_uri(url)
-    else:
-        # remove trailing slash
-        prefix = settings.API_ABSOLUTE_URL.rstrip('/')
-        return "%s%s" % (prefix, url)
-
-
-@json_response()
-def api_versions(request, **kwargs):
-    """
-    Base url of the webgateway json api.
-    """
-    versions = []
-    for v in settings.API_VERSIONS:
-        versions.append({
-            'version': v,
-            'base_url': build_url(request, 'api_base', v)
-        })
-    return {'data': versions}
-
-
-@json_response()
-def api_base(request, api_version=None, **kwargs):
-    """
-    Base url of the webgateway json api for a specified version.
-    """
-    v = api_version
-    rv = {'projects_url': build_url(request, 'api_projects', v),
-          'token_url': build_url(request, 'api_token', v),
-          'servers_url': build_url(request, 'api_servers', v),
-          'login_url': build_url(request, 'api_login', v),
-          'save_url': build_url(request, 'api_save', v),
-          'schema_url': OME_SCHEMA_URL}
-    return rv
-
-
-@json_response()
-def api_token(request, api_version, **kwargs):
-    """
-    Provides CSRF token for current session
-    """
-    token = csrf.get_token(request)
-    return {'data': token}
-
-
-@json_response()
-def api_servers(request, api_version, **kwargs):
-    """
-    Lists the available servers to connect to
-    """
-    servers = []
-    for i, obj in enumerate(Server):
-        s = {'id': i + 1,
-             'host': obj.host,
-             'port': obj.port
-             }
-        if obj.server is not None:
-            s['server'] = obj.server
-        servers.append(s)
-    return {'data': servers}
-
-
 class LoginView(View):
-    """
-    Webgateway Login - Subclassed by WebclientLoginView
-    """
+    """Webgateway Login - Subclassed by WebclientLoginView."""
 
     form_class = LoginForm
     useragent = 'OMERO.webapi'
 
     def get(self, request, api_version=None):
-        """ Simply return a message to say GET not supported """
+        """Simply return a message to say GET not supported."""
         return JsonResponse({"message":
                             ("POST only with username, password, "
                              "server and csrftoken")},
                             status=405)
 
     def handle_logged_in(self, request, conn, connector):
-        """ Returns a response for successful login """
+        """Return a response for successful login."""
         c = conn.getEventContext()
         ctx = {}
         for a in ['sessionId', 'sessionUuid', 'userId', 'userName', 'groupId',
@@ -2744,7 +2659,8 @@ class LoginView(View):
 
     def handle_not_logged_in(self, request, error=None, form=None):
         """
-        Returns a response for failed login.
+        Return a response for failed login.
+
         Reason for failure may be due to server 'error' or because
         of form validation errors.
 
@@ -2766,8 +2682,9 @@ class LoginView(View):
 
     def post(self, request, api_version=None):
         """
-        Here we handle the main login logic, creating a connection to OMERO
-        and storing that on the request.session OR handling login failures
+        Here we handle the main login logic, creating a connection to OMERO.
+
+        and store that on the request.session OR handling login failures
         """
         error = None
         form = self.form_class(request.POST.copy())
@@ -2815,157 +2732,6 @@ class LoginView(View):
                     error = ("Connection not available, please check your"
                              " user name and password.")
         return self.handle_not_logged_in(request, error, form)
-
-
-class ProjectView(View):
-    """
-    Handles access to an individual Project to GET or DELETE it
-    """
-
-    @method_decorator(api_login_required(useragent='OMERO.webapi'))
-    @method_decorator(json_response())
-    def dispatch(self, *args, **kwargs):
-        return super(ProjectView, self).dispatch(*args, **kwargs)
-
-    def get(self, request, pid, conn=None, **kwargs):
-        """ Simply GET a single Project and marshal it or 404 if not found """
-        project = conn.getObject("Project", pid)
-        if project is None:
-            raise NotFoundError('Project %s not found' % pid)
-        encoder = get_encoder(project._obj.__class__)
-        return encoder.encode(project._obj)
-
-    def delete(self, request, pid, conn=None, **kwargs):
-        """
-        Deletes the Project and returns marshal of deleted Project or
-        returns 404 if not found
-        """
-        try:
-            project = conn.getQueryService().get('Project', long(pid))
-        except ValidationException:
-            raise NotFoundError('Project %s not found' % pid)
-        encoder = get_encoder(project.__class__)
-        json = encoder.encode(project)
-        conn.deleteObject(project)
-        return json
-
-
-class ProjectsView(View):
-    """
-    Handles GET for /projects/ to list available Projects
-    """
-
-    @method_decorator(api_login_required(useragent='OMERO.webapi'))
-    @method_decorator(json_response())
-    def dispatch(self, *args, **kwargs):
-        """ Use dispatch to add decorators to class methods """
-        return super(ProjectsView, self).dispatch(*args, **kwargs)
-
-    def get(self, request, conn=None, **kwargs):
-        """
-        GET a list of Projects, filtering by various request parameters
-        """
-        try:
-            page = getIntOrDefault(request, 'page', 1)
-            limit = getIntOrDefault(request, 'limit', settings.PAGE)
-            group = getIntOrDefault(request, 'group', -1)
-            owner = getIntOrDefault(request, 'owner', -1)
-            childCount = request.GET.get('childCount', False) == 'true'
-            normalize = request.GET.get('normalize', False) == 'true'
-        except ValueError as ex:
-            raise BadRequestError(str(ex))
-
-        # Get the projects
-        projects = query_projects(conn,
-                                  group=group,
-                                  owner=owner,
-                                  childCount=childCount,
-                                  page=page,
-                                  limit=limit,
-                                  normalize=normalize)
-
-        return projects
-
-
-class SaveView(View):
-    """
-    This view provides 'Save' functionality for all types of objects
-    POST to create a new Object and PUT to replace existing one.
-    """
-
-    @method_decorator(api_login_required(useragent='OMERO.webapi'))
-    @method_decorator(json_response())
-    def dispatch(self, *args, **kwargs):
-        """ Apply decorators for class methods below """
-        return super(SaveView, self).dispatch(*args, **kwargs)
-
-    def put(self, request, conn=None, **kwargs):
-        """
-        PUT handles saving of existing objects.
-        Therefore '@id' should be set.
-        """
-        object_json = json.loads(request.body)
-        if '@id' not in object_json:
-            raise BadRequestError(
-                "No '@id' attribute. Use POST to create new objects")
-        return self._save_object(request, conn, object_json, **kwargs)
-
-    def post(self, request, conn=None, **kwargs):
-        """
-        POST handles saving of NEW objects.
-        Therefore '@id' should not be set.
-        """
-        object_json = json.loads(request.body)
-        if '@id' in object_json:
-            raise BadRequestError(
-                "Object has '@id' attribute. Use PUT to update objects")
-        rsp = self._save_object(request, conn, object_json, **kwargs)
-        # will return 201 ('Created')
-        raise CreatedObject(rsp)
-
-    def _save_object(self, request, conn, object_json, **kwargs):
-        """
-        Here we handle the saving for PUT and POST
-        """
-        # Try to get group from request, OR from details below...
-        group = getIntOrDefault(request, 'group', None)
-        decoder = None
-        if '@type' not in object_json:
-            raise BadRequestError('Need to specify @type attribute')
-        objType = object_json['@type']
-        decoder = get_decoder(objType)
-        # If we are passed incomplete object, or decoder couldn't be found...
-        if decoder is None:
-            raise BadRequestError('No decoder found for type: %s' % objType)
-
-        # Any marshal errors most likely due to invalid input. status=400
-        try:
-            obj = decoder.decode(object_json)
-        except Exception:
-            msg = 'Error in decode of json data by omero_marshal'
-            raise BadRequestError(msg, traceback.format_exc())
-
-        if group is None:
-            try:
-                # group might be None or unloaded
-                group = obj.getDetails().group.id.val
-            except AttributeError:
-                # Instead of default stack trace, give nicer message:
-                msg = ("Specify Group in omero:details or "
-                       "query parameters ?group=:id")
-                raise BadRequestError(msg)
-
-        # If owner was unloaded (E.g. from get() above) or if missing
-        # ome.model.meta.Experimenter.ldap (not supported by omero_marshal)
-        # then saveObject() will give ValidationException.
-        # Therefore we ignore any details for now:
-        obj.unloadDetails()
-
-        conn.SERVICE_OPTS.setOmeroGroup(group)
-        obj = conn.getUpdateService().saveAndReturnObject(obj,
-                                                          conn.SERVICE_OPTS)
-        encoder = get_encoder(obj.__class__)
-        return encoder.encode(obj)
 
 
 @login_required()

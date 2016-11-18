@@ -94,6 +94,7 @@ from omero.model import ProjectI, DatasetI, ImageI, \
     ScreenPlateLinkI, AnnotationAnnotationLinkI, TagAnnotationI
 from omero import ApiUsageException, ServerError, CmdError
 from omero.rtypes import rlong, rlist
+from omeroweb.webgateway.views import LoginView
 
 import tree
 
@@ -174,7 +175,7 @@ def custom_index(request, conn=None, **kwargs):
 # views
 
 
-class WebclientLoginView(webgateway_views.LoginView):
+class WebclientLoginView(LoginView):
     """
     Webclient Login - Customises the superclass LoginView
     for webclient. Also can be used by other Apps to log in to OMERO. Uses
@@ -1094,6 +1095,7 @@ def api_tags_and_tagged_list_GET(request, conn=None, **kwargs):
         else:
             tagged = {}
 
+        # Get 'tags' under tag_id
         tagged['tags'] = tree.marshal_tags(conn=conn,
                                            orphaned=orphaned,
                                            experimenter_id=experimenter_id,
@@ -1157,6 +1159,7 @@ def api_annotations(request, conn=None, **kwargs):
     screen_ids = r.getlist('screen')
     plate_ids = r.getlist('plate')
     run_ids = r.getlist('acquisition')
+    well_ids = r.getlist('well')
     page = get_long_or_default(request, 'page', 1)
     limit = get_long_or_default(request, 'limit', settings.PAGE)
 
@@ -1168,6 +1171,7 @@ def api_annotations(request, conn=None, **kwargs):
                                           screen_ids=screen_ids,
                                           plate_ids=plate_ids,
                                           run_ids=run_ids,
+                                          well_ids=well_ids,
                                           ann_type=ann_type,
                                           page=page,
                                           limit=limit)
@@ -1452,9 +1456,6 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
 
     context = dict()
 
-    # the index of a field within a well
-    index = getIntOrDefault(request, 'index', 0)
-
     # we only expect a single object, but forms can take multiple objects
     images = (c_type == "image" and
               list(conn.getObjects("Image", [c_id])) or
@@ -1473,11 +1474,8 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
                     list())
     shares = ((c_type == "share" or c_type == "discussion") and
               [conn.getShare(c_id)] or list())
-    wells = list()
-    if c_type == "well":
-        for w in conn.getObjects("Well", [c_id]):
-            w.index = index
-            wells.append(w)
+    wells = (c_type == "well" and
+             list(conn.getObjects("Well", [c_id])) or list())
 
     # we simply set up the annotation form, passing the objects to be
     # annotated.
@@ -1508,7 +1506,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
     else:
         try:
             manager = BaseContainer(
-                conn, index=index, **{str(c_type): long(c_id)})
+                conn, **{str(c_type): long(c_id)})
         except AttributeError, x:
             return handlerInternalError(request, x)
         if share_id is not None:
@@ -1523,8 +1521,6 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
     if c_type in ("tag", "tagset"):
         context['insight_ns'] = omero.rtypes.rstring(
             omero.constants.metadata.NSINSIGHTTAGSET).val
-    else:
-        context['index'] = index
     if form_comment is not None:
         context['form_comment'] = form_comment
 
@@ -1543,15 +1539,9 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None,
     """
     context = {}
 
-    # the index of a field within a well
-    index = getIntOrDefault(request, 'index', 0)
-
-    manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
+    manager = BaseContainer(conn, **{str(c_type): long(c_id)})
     if share_id:
         context['share'] = BaseShare(conn, share_id)
-
-    if c_type == "well":
-        manager.image = manager.well.getImage(index)
 
     allRdefs = manager.image.getAllRenderingDefs()
     rdefs = {}
@@ -1603,11 +1593,7 @@ def load_metadata_hierarchy(request, c_type, c_id, conn=None, **kwargs):
     static tree.
     Used by an AJAX call from the metadata_general panel.
     """
-
-    # the index of a field within a well
-    index = getIntOrDefault(request, 'index', 0)
-
-    manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
+    manager = BaseContainer(conn, **{str(c_type): long(c_id)})
 
     context = {'manager': manager}
     context['template'] = "webclient/annotations/metadata_hierarchy.html"
@@ -1622,10 +1608,6 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None,
     The acquisition tab of the right-hand panel. Only loaded for images.
     TODO: urls regex should make sure that c_type is only 'image' OR 'well'
     """
-
-    # the index of a field within a well
-    index = getIntOrDefault(request, 'index', 0)
-
     try:
         if c_type in ("share", "discussion"):
             template = "webclient/annotations/annotations_share.html"
@@ -1635,7 +1617,7 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None,
         else:
             template = "webclient/annotations/metadata_acquisition.html"
             manager = BaseContainer(
-                conn, index=index, **{str(c_type): long(c_id)})
+                conn, **{str(c_type): long(c_id)})
     except AttributeError, x:
         return handlerInternalError(request, x)
 
@@ -1659,9 +1641,7 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None,
     immersions = None
     corrections = None
 
-    if c_type == 'well' or c_type == 'image':
-        if c_type == "well":
-            manager.image = manager.well.getImage(index)
+    if c_type == 'image':
         if share_id is None:
             manager.companionFiles()
         manager.channelMetadata()
@@ -1951,12 +1931,8 @@ def getObjects(request, conn=None):
         list())
     shares = (len(r.getlist('share')) > 0 and
               [conn.getShare(r.getlist('share')[0])] or list())
-    wells = list()
-    if len(r.getlist('well')) > 0:
-        index = getIntOrDefault(request, 'index', 0)
-        for w in conn.getObjects("Well", r.getlist('well')):
-            w.index = index
-            wells.append(w)
+    wells = (len(r.getlist('well')) > 0 and
+             list(conn.getObjects("Well", r.getlist('well'))) or list())
     return {
         'image': images, 'dataset': datasets, 'project': projects,
         'screen': screens, 'plate': plates, 'acquisition': acquisitions,
@@ -1990,7 +1966,6 @@ def batch_annotate(request, conn=None, **kwargs):
     """
 
     objs = getObjects(request, conn)
-    index = getIntOrDefault(request, 'index', 0)
 
     # get groups for selected objects - setGroup() and create links
     obj_ids = []
@@ -2024,8 +1999,6 @@ def batch_annotate(request, conn=None, **kwargs):
     canExportAsJpg = manager.canExportAsJpg(request, objs)
     filesetInfo = None
     iids = []
-    if 'well' in objs and len(objs['well']) > 0:
-        iids = [w.getWellSample(index).image().getId() for w in objs['well']]
     if 'image' in objs and len(objs['image']) > 0:
         iids = [i.getId() for i in objs['image']]
     if len(iids) > 0:
@@ -2040,7 +2013,6 @@ def batch_annotate(request, conn=None, **kwargs):
         'link_string': link_string,
         'obj_labels': obj_labels,
         'batch_ann': True,
-        'index': index,
         'figScripts': figScripts,
         'canExportAsJpg': canExportAsJpg,
         'filesetInfo': filesetInfo,
@@ -2065,7 +2037,6 @@ def annotate_file(request, conn=None, **kwargs):
     Otherwise it generates the form for choosing file-annotations & local
     files.
     """
-    index = getIntOrDefault(request, 'index', 0)
     oids = getObjects(request, conn)
     selected = getIds(request)
     initial = {
@@ -2087,8 +2058,8 @@ def annotate_file(request, conn=None, **kwargs):
 
     obj_count = sum([len(selected[types]) for types in selected])
 
-    # Get appropriate manager, either to list available Tags to add to single
-    # object, or list ALL Tags (multiple objects)
+    # Get appropriate manager, either to list available Files to add to single
+    # object, or list ALL Files (multiple objects)
     manager = None
     if obj_count == 1:
         for t in selected:
@@ -2102,7 +2073,7 @@ def annotate_file(request, conn=None, **kwargs):
             if o_type == 'tagset':
                 # TODO: this should be handled by the BaseContainer
                 o_type = 'tag'
-            kw = {'index': index}
+            kw = {}
             if o_type is not None and o_id > 0:
                 kw[str(o_type)] = long(o_id)
             try:
@@ -2134,13 +2105,13 @@ def annotate_file(request, conn=None, **kwargs):
             added_files = []
             if files is not None and len(files) > 0:
                 added_files = manager.createAnnotationsLinks(
-                    'file', files, oids, well_index=index)
+                    'file', files, oids)
             # upload new file
             fileupload = ('annotation_file' in request.FILES and
                           request.FILES['annotation_file'] or None)
             if fileupload is not None and fileupload != "":
                 newFileId = manager.createFileAnnotations(
-                    fileupload, oids, well_index=index)
+                    fileupload, oids)
                 added_files.append(newFileId)
             return JsonResponse({'fileIds': added_files})
         else:
@@ -2148,7 +2119,7 @@ def annotate_file(request, conn=None, **kwargs):
 
     else:
         form_file = FilesAnnotationForm(initial=initial)
-        context = {'form_file': form_file, 'index': index}
+        context = {'form_file': form_file}
         template = "webclient/annotations/files_form.html"
     context['template'] = template
     return context
@@ -2162,13 +2133,10 @@ def annotate_rating(request, conn=None, **kwargs):
     """
     rating = getIntOrDefault(request, 'rating', 0)
     oids = getObjects(request, conn)
-    well_index = getIntOrDefault(request, 'index', 0)
 
     # add / update rating
     for otype, objs in oids.items():
         for o in objs:
-            if isinstance(o._obj, omero.model.WellI):
-                o = o.getWellSample(well_index).image()
             o.setRating(rating)
 
     # return a summary of ratings
@@ -2186,7 +2154,6 @@ def annotate_comment(request, conn=None, **kwargs):
     if request.method != 'POST':
         raise Http404("Unbound instance of form not available.")
 
-    index = getIntOrDefault(request, 'index', 0)
     oids = getObjects(request, conn)
     selected = getIds(request)
     initial = {
@@ -2234,7 +2201,7 @@ def annotate_comment(request, conn=None, **kwargs):
                 # so we don't *need* to return anything
                 manager = BaseContainer(conn)
                 annId = manager.createCommentAnnotations(
-                    content, oids, well_index=index)
+                    content, oids)
                 context = {
                     'annId': annId,
                     'added_by': conn.getUserId()}
@@ -2281,8 +2248,6 @@ def annotate_map(request, conn=None, **kwargs):
         ann.save()
         for k, objs in oids.items():
             for obj in objs:
-                if k == "well":
-                    obj = obj.getWellSample(obj.index).image()
                 obj.linkAnnotation(ann)
         annId = ann.getId()
     # Or update existing annotation
@@ -2353,7 +2318,6 @@ def annotate_tags(request, conn=None, **kwargs):
     existing tags to one or more objects
     """
 
-    index = getIntOrDefault(request, 'index', 0)
     oids = getObjects(request, conn)
     selected = getIds(request)
     obj_count = sum([len(selected[types]) for types in selected])
@@ -2383,6 +2347,7 @@ def annotate_tags(request, conn=None, **kwargs):
         screen_ids=selected['screens'],
         plate_ids=selected['plates'],
         run_ids=selected['acquisitions'],
+        well_ids=selected['wells'],
         ann_type='tag',
         # If we reach this limit we'll get some tags not removed
         limit=100000)
@@ -2454,8 +2419,7 @@ def annotate_tags(request, conn=None, **kwargs):
                 manager.createAnnotationsLinks(
                     'tag',
                     tags,
-                    oids,
-                    well_index=index,
+                    oids
                 )
             new_tags = []
             for form in newtags_formset.forms:
@@ -2463,7 +2427,6 @@ def annotate_tags(request, conn=None, **kwargs):
                     form.cleaned_data['tag'],
                     form.cleaned_data['description'],
                     oids,
-                    well_index=index,
                     tag_group_id=form.cleaned_data['tagset'],
                 ))
             # only remove Tags where the link is owned by self_id
@@ -2472,7 +2435,7 @@ def annotate_tags(request, conn=None, **kwargs):
                 tag_manager.remove([
                     "%s-%s" % (dtype, obj.id)
                     for dtype, objs in oids.items()
-                    for obj in objs], index, tag_owner_id=self_id)
+                    for obj in objs], tag_owner_id=self_id)
             return JsonResponse({'added': tags,
                                  'removed': removed,
                                  'new': new_tags})
@@ -2486,7 +2449,6 @@ def annotate_tags(request, conn=None, **kwargs):
         context = {
             'form_tags': form_tags,
             'newtags_formset': newtags_formset,
-            'index': index,
             'selected_tags': selected_tags,
         }
         template = "webclient/annotations/tags_form.html"
@@ -2544,19 +2506,17 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
                         editing),
                         "removefromshare", (tree P/D/I moving etc)
                         "delete", "deletemany"      (delete objects)
+                        "remove" (remove tag/comment from object)
     @param o_type:      "dataset", "project", "image", "screen", "plate",
                         "acquisition", "well","comment", "file", "tag",
                         "tagset","share", "sharecomment"
     """
     template = None
 
-    # the index of a field within a well
-    index = getIntOrDefault(request, 'index', 0)
-
     manager = None
     if o_type in ("dataset", "project", "image", "screen", "plate",
                   "acquisition", "well", "comment", "file", "tag", "tagset"):
-        kw = {'index': index}
+        kw = {}
         if o_type is not None and o_id > 0:
             kw[str(o_type)] = long(o_id)
         try:
@@ -2729,8 +2689,6 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
         # start editing 'name' in-line
         if hasattr(manager, o_type) and o_id > 0:
             obj = getattr(manager, o_type)
-            if (o_type == "well"):
-                obj = obj.getWellSample(index).image()
             template = "webclient/ajax_form/container_form_ajax.html"
             if o_type == "tag":
                 txtValue = obj.textValue
@@ -2751,9 +2709,6 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
                 logger.debug("Update name form:" + str(form.cleaned_data))
                 name = form.cleaned_data['name']
                 rdict = {'bad': 'false', 'o_type': o_type}
-                if (o_type == "well"):
-                    manager.image = manager.well.getWellSample(index).image()
-                    o_type = "image"
                 manager.updateName(o_type, name)
                 return JsonResponse(rdict)
             else:
@@ -2768,8 +2723,6 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
         # start editing description in-line
         if hasattr(manager, o_type) and o_id > 0:
             obj = getattr(manager, o_type)
-            if (o_type == "well"):
-                obj = obj.getWellSample(index).image()
             template = "webclient/ajax_form/container_form_ajax.html"
             form = ContainerDescriptionForm(
                 initial={'description': obj.description})
@@ -2787,9 +2740,6 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
             if form.is_valid():
                 logger.debug("Update name form:" + str(form.cleaned_data))
                 description = form.cleaned_data['description']
-                if (o_type == "well"):
-                    manager.image = manager.well.getWellSample(index).image()
-                    o_type = "image"
                 manager.updateDescription(o_type, description)
                 rdict = {'bad': 'false'}
                 return JsonResponse(rdict)
@@ -2807,7 +2757,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
         # E.g. image-123  or image-1|image-2
         parents = request.POST['parent']
         try:
-            manager.remove(parents.split('|'), index)
+            manager.remove(parents.split('|'))
         except Exception, x:
             logger.error(traceback.format_exc())
             rdict = {'bad': 'true', 'errs': str(x)}
@@ -3104,14 +3054,6 @@ def download_placeholder(request, conn=None, **kwargs):
         # Get images...
         if imgIds:
             images = list(conn.getObjects("Image", imgIds))
-        elif wellIds:
-            try:
-                index = int(request.GET.get("index", 0))
-            except ValueError:
-                index = 0
-            wells = conn.getObjects("Well", wellIds)
-            for w in wells:
-                images.append(w.getWellSample(index).image())
 
         if len(images) == 0:
             raise Http404("No images found.")
@@ -3147,9 +3089,6 @@ def download_placeholder(request, conn=None, **kwargs):
     if format is not None:
         download_url = (download_url + "&format=%s"
                         % format)
-    if request.GET.get('index'):
-        download_url = (download_url + "&index=%s"
-                        % request.GET.get('index'))
 
     context = {
         'template': "webclient/annotations/download_placeholder.html",

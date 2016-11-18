@@ -10,7 +10,7 @@
 """
 
 import pytest
-from weblibrary import IWebTest
+from omeroweb.testlib import IWebTest
 
 from omero.model import PlateI, WellI, WellSampleI
 from omero.model import FileAnnotationI, OriginalFileI, PlateAnnotationLinkI
@@ -29,7 +29,7 @@ import time
 @pytest.fixture(scope='module')
 def itest(request):
     """
-    Returns a new L{weblibrary.IWebTest} instance. With attached
+    Returns a new L{omeroweb.testlib.IWebTest} instance. With attached
     finalizer so that pytest will clean it up.
     """
     class PlateGridIWebTest(IWebTest):
@@ -105,7 +105,7 @@ def well_grid_factory(well_factory):
 def plate_wells(itest, well_grid_factory, update_service):
     """
     Returns a new OMERO Plate, linked Wells, linked WellSamples, and linked
-    Images populated by an L{weblibrary.IWebTest} instance.
+    Images populated by an L{omeroweb.testlib.IWebTest} instance.
     """
     plate = PlateI()
     plate.name = rstring(itest.uuid())
@@ -122,7 +122,7 @@ def plate_wells(itest, well_grid_factory, update_service):
 def full_plate_wells(itest, update_service):
     """
     Returns a full OMERO Plate, linked Wells, linked WellSamples, and linked
-    Images populated by an L{weblibrary.IWebTest} instance.
+    Images populated by an L{omeroweb.testlib.IWebTest} instance.
     """
     lett = map(chr, range(ord('A'), ord('Z')+1))
     plate = PlateI()
@@ -201,7 +201,7 @@ def plate_wells_with_description(itest, well_grid_factory, update_service):
 def plate_well_table(itest, well_grid_factory, update_service, conn):
     """
     Returns a new OMERO Plate, linked Wells, linked WellSamples, and linked
-    Images populated by an L{weblibrary.IWebTest} instance.
+    Images populated by an L{omeroweb.testlib.IWebTest} instance.
     """
     plate = PlateI()
     plate.name = rstring(itest.uuid())

@@ -27,7 +27,7 @@ from omero.gateway import BlitzGateway
 
 import pytest
 import time
-from weblibrary import IWebTest, _get_response, _csrf_post_response
+from omeroweb.testlib import IWebTest, _get_response, _csrf_post_response
 from django.core.urlresolvers import reverse
 import json
 

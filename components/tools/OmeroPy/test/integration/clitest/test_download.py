@@ -28,6 +28,7 @@ from omero.cli import NonZeroReturnCode
 from test.integration.clitest.cli import CLITest
 from omero.rtypes import rstring
 from omero.model import NamedValue as NV
+from omero.util.temp_files import create_path
 
 
 class TestDownload(CLITest):
@@ -162,18 +163,20 @@ class TestDownload(CLITest):
             self.cli.invoke(self.args, strict=True)
 
     def testImage(self, tmpdir):
-        filename = self.OmeroPy / ".." / ".." / ".." / \
-            "components" / "common" / "test" / "tinyTest.d3d.dv"
-        with open(filename) as f:
+        append = "sizeT=10&sizeZ=5&sizeC=3"
+        fake = create_path("test", "&%s.fake" % append)
+        with open(fake.abspath(), 'w+') as f:
             bytes1 = f.read()
-        pix_ids = self.import_image(filename)
+        pix_ids = self.import_image(f.name)
         pixels = self.query.get("Pixels", long(pix_ids[0]))
         tmpfile = tmpdir.join('test')
         self.args += ["Image:%s" % pixels.getImage().id.val, str(tmpfile)]
         self.cli.invoke(self.args, strict=True)
+        f.close()
         with open(str(tmpfile)) as f:
             bytes2 = f.read()
         assert bytes1 == bytes2
+        f.close()
 
     def testSingleImageWithCompanion(self, tmpdir):
         image = self.importSingleImageWithCompanion()
@@ -201,19 +204,21 @@ class TestDownload(CLITest):
     def testImageMultipleGroups(self, tmpdir):
         user, group1, group2 = self.setup_user_and_two_groups()
         client = self.new_client(user=user)
-        filename = self.OmeroPy / ".." / ".." / ".." / \
-            "components" / "common" / "test" / "tinyTest.d3d.dv"
-        with open(filename) as f:
+        append = "sizeT=10&sizeZ=5&sizeC=3"
+        fake = create_path("test", "&%s.fake" % append)
+        with open(fake.abspath(), 'w+') as f:
             bytes1 = f.read()
-        pix_ids = self.import_image(filename)
+        pix_ids = self.import_image(f.name)
         pixels = self.query.get("Pixels", long(pix_ids[0]))
         tmpfile = tmpdir.join('test')
         self.set_context(client, group2.id.val)
         self.args += ["Image:%s" % pixels.getImage().id.val, str(tmpfile)]
         self.cli.invoke(self.args, strict=True)
+        f.close()
         with open(str(tmpfile)) as f:
             bytes2 = f.read()
         assert bytes1 == bytes2
+        f.close()
 
     # Download policy
     # ========================================================================

@@ -716,6 +716,7 @@ class EditorModel
         else if (refObject instanceof FileAnnotationData) {
         	return "File";
         } else if (refObject instanceof WellSampleData) return "Field";
+        else if (refObject instanceof WellData) return "Well";
         else if (refObject instanceof TagAnnotationData) {
         	TagAnnotationData tag = (TagAnnotationData) refObject;
         	if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(tag.getNameSpace()))
@@ -762,11 +763,9 @@ class EditorModel
 			description = ((PlateAcquisitionData) ref).getDescription();
 		else if (ref instanceof TagAnnotationData) {
 			description = ((TagAnnotationData) ref).getTagDescription();
-		} else if (ref instanceof WellSampleData) {
-			if (parentRefObject instanceof WellData) {
-				WellData ws = (WellData) parentRefObject;
-				description = ws.getWellType();
-			}
+		}
+		else if (ref instanceof WellData) { description = ""; }
+		else if (ref instanceof WellSampleData) {
 			ImageData img = ((WellSampleData) ref).getImage();
 			if (!CommonsLangUtils.isEmpty(img.getDescription()))
 			    description = img.getDescription();

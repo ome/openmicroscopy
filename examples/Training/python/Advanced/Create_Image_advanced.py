@@ -11,30 +11,36 @@
 FOR TRAINING PURPOSES ONLY!
 """
 
-from omero.rtypes import rdouble, rint
+from omero.rtypes import rint
 from omero.gateway import BlitzGateway
-from Connect_To_OMERO import USERNAME, PASSWORD, HOST, PORT
-
+from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
+from Parse_OMERO_Properties import imageId, datasetId
 
 # Create a connection
 # =================================================================
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
 
-
-# Configuration
+# Retrieve image in specified dataset
 # =================================================================
-imageId = 351
-imageId2 = 352
+dataset = conn.getObject("Dataset", datasetId)
+imageId2 = imageId
+for img in dataset.listChildren():
+    if img.getName() == "test.fake":
+        imageId2 = img.getId()
+        break
+
 replaceChannel = 0
 
 
 # Create an Image from 2 others
 # =================================================================
 # Replace one channel with a channel from another image.
+# orphaned image has sizeT=10
 image = conn.getObject('Image', imageId)
+# Use the image in dataset as source image
 image2 = conn.getObject('Image', imageId2)
-sizeZ, sizeC, sizeT = image.getSizeZ(), image.getSizeC(), image.getSizeT()
+sizeZ, sizeC, sizeT = image2.getSizeZ(), image2.getSizeC(), image2.getSizeT()
 dataset = image.getParent()
 pixels = image.getPrimaryPixels()
 pixels2 = image2.getPrimaryPixels()
@@ -47,13 +53,13 @@ def planeGen():
             for t in range(sizeT):      # all time-points
                 print "Plane: ", z, c, t
                 if c == replaceChannel:
-                    yield pixels2.getPlane(z, c, t)
-                else:
                     yield pixels.getPlane(z, c, t)
+                else:
+                    yield pixels2.getPlane(z, c, t)
 
 
 desc = ("Image created from Image ID: %s, replacing Channel %s from Image ID:"
-        " %s" % (imageId, replaceChannel, imageId2))
+        " %s" % (imageId2, replaceChannel, imageId))
 newImg = conn.createImageFromNumpySeq(
     planeGen(), "ImageFromTwo", sizeZ, sizeC, sizeT, description=desc,
     dataset=dataset)
@@ -89,18 +95,9 @@ newImg.resetRDefs()  # reset based on colors above
 # =================================================================
 newPix = conn.getQueryService().get("Pixels", newImg.getPixelsId())
 
-physicalSizeX = pixels.getPhysicalSizeX()
-if physicalSizeX is not None:
-    newPix.setPhysicalSizeX(rdouble(physicalSizeX))
-
-physicalSizeY = pixels.getPhysicalSizeY()
-if physicalSizeY is not None:
-    newPix.setPhysicalSizeY(rdouble(physicalSizeY))
-
-physicalSizeZ = pixels.getPhysicalSizeZ()
-if physicalSizeZ is not None:
-    newPix.setPhysicalSizeZ(rdouble(physicalSizeZ))
-
+newPix.setPhysicalSizeX(pixels.getPhysicalSizeX())
+newPix.setPhysicalSizeY(pixels.getPhysicalSizeY())
+newPix.setPhysicalSizeZ(pixels.getPhysicalSizeZ())
 conn.getUpdateService().saveObject(newPix)
 
 

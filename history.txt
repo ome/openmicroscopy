@@ -1,6 +1,98 @@
 OMERO version history
 =====================
 
+5.3.0-m5 (November 2016)
+------------------------
+
+Developer preview release - **only intended as a developer preview for
+updating code before the full public release of 5.3.0. Use at your own risk**.
+
+Changes include:
+
+-  database patches to add support for new administration roles
+-  removed restriction on name length
+-  added support for enumeration changes
+-  added new Grid View to both UI clients
+-  introduced the new Web API
+-  reactivated codomain support in the rendering Engine
+-  added support for Ice 3.6.3
+-  fixed graph issues when performing chown or moving between groups
+-  made web applications installable from PyPI
+-  added option "Open With" feature to OMERO.web
+
+
+5.3.0-m4 (September 2016)
+-------------------------
+
+Developer preview release - **only intended as a developer preview for
+updating code before the full public release of 5.3.0. Use at your own risk**.
+
+Changes include:
+
+-  completed Web decoupling
+-  improved CLI plugins
+-  deprecated Apache
+
+5.3.0-m3 (August 2016)
+----------------------
+
+Developer preview release - **only intended as a developer preview for
+updating code before the full public release of 5.3.0. Use at your own risk**.
+
+Changes include:
+
+-  added DB patches including support for new options in rendering engine
+-  added support for LUT
+-  deprecated windows
+-  reorganized API documentation
+-  enabled plate download
+-  allowed customization of CSRF cookie
+-  fixed ROI related bug
+-  performed major code cleanup
+-  fixed cleanse
+-  deprecated some utils Python methods
+
+5.3.0-m2 (April 2016)
+---------------------
+
+Developer preview release - **only intended as a developer preview for
+updating code before the full public release of 5.3.0. Use at your own risk**.
+
+Changes include:
+
+-  added support for ROI folder at scale. Used IDR as a concrete example
+-  cleaned up shape attribute names
+
+5.3.0-m1 (February 2016)
+------------------------
+
+Developer preview release - **only intended as a developer preview for
+updating code before the full public release of 5.3.0. Use at your own risk**.
+
+Changes include:
+
+-  added support for ROI folder in server and client
+-  fixed shape to match OME-XML schema 
+-  improved build system integration with local Maven
+-  improved graph operation performance
+-  changed DB setup script to require PostgreSQL 9.3 
+
+5.2.6 (October 2016)
+----------------------
+
+This is a bug-fix release focusing on services closure and a DB upgrade fix.
+Improvements include:
+
+-  fixed closure of session in Java when using Ice 3.5
+-  fixed memory leak where services were not correctly closed
+-  added a DB upgrade patch to fix errors only affecting DBs that have been
+   upgraded from OMERO 4.4
+-  fixed a MATLAB regression introduced in 5.2.2, casting error.
+-  fixed error in logs on getProjectedThumbnail
+
+Support for OMERO.web deployment using Apache has also been deprecated and is
+likely to be removed during the 5.3.x line.
+
 5.2.5 (August 2016)
 -------------------
 

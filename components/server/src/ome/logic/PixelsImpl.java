@@ -310,11 +310,13 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 	}
 
 	@RolesAllowed("user")
+	@Deprecated
 	public <T extends IObject> T getEnumeration(Class<T> klass, String value) {
 		return iQuery.findByString(klass, "value", value);
 	}
 
 	@RolesAllowed("user")
+	@Deprecated
 	public <T extends IObject> List<T> getAllEnumerations(Class<T> klass) {
 		return iQuery.findAll(klass, null);
 	}

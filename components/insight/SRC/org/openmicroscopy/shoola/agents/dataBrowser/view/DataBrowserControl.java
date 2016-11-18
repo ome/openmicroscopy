@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -40,7 +40,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ActivatedUserAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.DownloadAction;
-import org.openmicroscopy.shoola.agents.dataBrowser.actions.FieldsViewAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ManageObjectAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ManageRndSettingsAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.MoveToAction;
@@ -133,9 +132,6 @@ class DataBrowserControl
     static final Integer TAG = Integer.valueOf(11);
 
     /** Identifies the <code>Fields View</code> action. */
-    static final Integer FIELDS_VIEW = Integer.valueOf(13);
-
-    /** Identifies the <code>Fields View</code> action. */
     static final Integer OPEN_WITH = Integer.valueOf(14);
 
     /** 
@@ -207,7 +203,6 @@ class DataBrowserControl
                         ManageRndSettingsAction.SET_OWNER));
         actionsMap.put(SAVE_AS, new SaveAction(model));
         actionsMap.put(TAG, new TaggingAction(model));
-        actionsMap.put(FIELDS_VIEW, new FieldsViewAction(model));
         actionsMap.put(OPEN_WITH, new ViewOtherAction(model, null));
         actionsMap.put(SEND_FEEDBACK, new SendFeedbackAction(model));
         actionsMap.put(USER_ACTIVATED, new ActivatedUserAction(model));

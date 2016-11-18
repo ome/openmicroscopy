@@ -27,7 +27,7 @@
 
 import Ice
 import pytest
-import library as lib
+from omero.testlib import ITest
 import omero
 
 from omero.model import ExperimenterGroupI
@@ -35,7 +35,7 @@ from omero.rtypes import rint
 from test.integration.helpers import createTestImage
 
 
-class TestThumbnailPerms(lib.ITest):
+class TestThumbnailPerms(ITest):
 
     def testThumbs(self):
 

@@ -25,7 +25,7 @@ sensible usages of ImageWrapper.getThumbnail()
 """
 
 
-import library as lib
+from omero.testlib import ITest
 
 
 def generate_parameters():
@@ -41,7 +41,7 @@ def generate_parameters():
                         yield (perms, testertype, direct, grpctx, size)
 
 
-class Test10618(lib.ITest):
+class Test10618(ITest):
     """
     Holder for all of the generated methods.
     """
