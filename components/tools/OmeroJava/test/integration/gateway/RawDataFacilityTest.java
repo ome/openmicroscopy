@@ -98,7 +98,8 @@ public class RawDataFacilityTest extends GatewayTest {
 
         int[] exp = new int[256];
         for (byte b : rawData) {
-            exp[Byte.toUnsignedInt(b)]++;
+            int bin = ((int) b) & 0xFF;
+            exp[bin]++;
         }
 
         Map<Integer, int[]> histo = rawdataFacility.getHistogram(rootCtx,
