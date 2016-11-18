@@ -7824,7 +7824,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         }
 
     @assert_pixels
-    def getHistogram(self, channels, binSize, globalRange=True,
+    def getHistogram(self, channels, binCount, globalRange=True,
                      theZ=0, theT=0):
         """
         Get pixel intensity histogram of a single plane for specified channels.
@@ -7835,7 +7835,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         If False, use the pixel intensity range for the specified plane.
 
         :param channels:        List of channel integers we want
-        :param binSize:         Number of bins in the histogram
+        :param binCount:        Number of bins in the histogram
         :param globalRange:     If false, use min/max intensity for this plane
         :param theZ:            Z index of plane
         :param theT:            T index of plane
@@ -7849,7 +7849,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             plane = omero.romio.PlaneDef(self.PLANEDEF)
             plane.z = long(theZ)
             plane.t = long(theT)
-            histogram = rp.getHistogram(channels, binSize, globalRange, plane)
+            histogram = rp.getHistogram(channels, binCount, globalRange, plane)
             return histogram
         finally:
             rp.close()
