@@ -1270,6 +1270,8 @@ def load_plate(request, o1_type=None, o1_id=None, conn=None, **kwargs):
         context['form_well_index'] = form_well_index
         context['index'] = index
         template = "webclient/data/plate.html"
+        if o1_type == 'acquisition':
+            context['acquisition'] = o1_id
 
     context['isLeader'] = conn.isLeader()
     context['template'] = template

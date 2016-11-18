@@ -246,6 +246,9 @@
                     // create placeholders for each Well
                     $table.append("<tr id='wellImages-" + wellId + "'><td class='wellImagesLabel'><h1>" + label + "</h1></td></tr>");
                     var url = "{% url 'webgateway' %}well/" + wellId + "/children/";
+                    {% if acquisition %}
+                        url += '?run={{ acquisition }}'
+                    {% endif %}
                     $.getJSON(url, function(data){
                         wellBirdsEye.addWell(data);
                         var imagesPerRow = parseInt($("#imagesPerRow").val(), 10);
