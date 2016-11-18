@@ -346,8 +346,8 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
     }
     
     public void getHistogram_async(AMD_RawPixelsStore_getHistogram __cb,
-            int[] channels, int binSize, boolean globalRange, PlaneDef plane, Current __current) throws ServerError {
-        // TODO: !?!?
+            int[] channels, int binCount, boolean globalRange, PlaneDef plane, Current __current) throws ServerError {
+        throw new UnsupportedOperationException("NYI");
     }
 
     public void activate_async(AMD_StatefulServiceInterface_activate __cb,

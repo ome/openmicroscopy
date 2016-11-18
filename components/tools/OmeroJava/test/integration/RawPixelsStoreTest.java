@@ -379,7 +379,7 @@ public class RawPixelsStoreTest extends AbstractServerTest {
         
         Assert.assertEquals(byteSize, 200, "Test assumes a 100px image");
         
-        final int binSize = 256;
+        final int binCount = 256;
         
         // channel stats are not calculated for the generated test image,
         // so this does not test global min/max usage but rather the fallback
@@ -424,7 +424,7 @@ public class RawPixelsStoreTest extends AbstractServerTest {
         int[] channels = new int[] { 0, 1 };
 
         PlaneDef plane = new PlaneDef(omeis.providers.re.data.PlaneDef.XY, 0, 0, z, t, null, -1);
-        Map<Integer, int[]> data = svc.getHistogram(channels, binSize, useGlobalRange, plane);
+        Map<Integer, int[]> data = svc.getHistogram(channels, binCount, useGlobalRange, plane);
 
         Assert.assertEquals(data.size(), nChannels);
 
@@ -432,8 +432,8 @@ public class RawPixelsStoreTest extends AbstractServerTest {
         while (it.hasNext()) {
             Entry<Integer, int[]> e = it.next();
             int[] counts = e.getValue();
-            Assert.assertEquals(counts.length, binSize);
-            for (int bin = 0; bin < binSize; bin++) {
+            Assert.assertEquals(counts.length, binCount);
+            for (int bin = 0; bin < binCount; bin++) {
                 int exp = 0;
                 if (bin == 0)
                     exp = 80;
@@ -455,13 +455,13 @@ public class RawPixelsStoreTest extends AbstractServerTest {
         RegionDef region = new RegionDef(0, 0, 5, 5);
         plane = new PlaneDef(omeis.providers.re.data.PlaneDef.XY, 0, 0, z, t, region, -1);
         
-        data = svc.getHistogram(new int[] {0}, binSize, useGlobalRange, plane);
+        data = svc.getHistogram(new int[] {0}, binCount, useGlobalRange, plane);
         Assert.assertEquals(data.size(), 1);
         
         int[] counts = data.values().iterator().next();
-        Assert.assertEquals(counts.length, binSize);
+        Assert.assertEquals(counts.length, binCount);
         
-        for (int bin = 0; bin < binSize; bin++) {
+        for (int bin = 0; bin < binCount; bin++) {
             int exp = 0;
             if (bin == 0)
                 exp = 15;

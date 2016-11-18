@@ -675,11 +675,11 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     
     @RolesAllowed("user")
     public synchronized Map<Integer, int[]> getHistogram(int[] channels,
-            int binSize, boolean globalRange, PlaneDef plane) {
+            int binCount, boolean globalRange, PlaneDef plane) {
         errorIfNotLoaded();
 
-        if (binSize <= 0)
-            binSize = DEFAULT_HISTOGRAM_BINSIZE;
+        if (binCount <= 0)
+            binCount = DEFAULT_HISTOGRAM_BINSIZE;
 
         int imgWidth = buffer.getSizeX();
 
@@ -703,7 +703,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
                 Channel channel = metadataService.retrievePixDescription(id)
                         .getChannel(ch);
                 PixelData px = buffer.getPlane(z, ch, t);
-                int[] data = new int[binSize];
+                int[] data = new int[binCount];
 
                 double[] minmax = determineHistogramMinMax(px, channel,
                         globalRange);
@@ -711,13 +711,13 @@ public class RawPixelsBean extends AbstractStatefulBean implements
                 double max = minmax[1];
 
                 double range = (max - min) + 1;
-                double binRange = range / binSize;
+                double binRange = range / binCount;
                 for (int i = 0; i < px.size(); i++) {
                     int pxx = i % imgWidth;
                     int pxy = i / imgWidth;
                     if (pxx >= x && pxx < (x + w) && pxy >= y && pxy < (y + h)) {
                         int bin = (int) ((px.getPixelValue(i) - min) / binRange);
-                        if (bin >= 0 && bin < binSize)
+                        if (bin >= 0 && bin < binCount)
                             data[bin]++;
                     }
                 }
