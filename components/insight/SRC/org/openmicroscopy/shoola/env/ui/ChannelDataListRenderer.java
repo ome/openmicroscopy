@@ -52,6 +52,7 @@ public class ChannelDataListRenderer extends JLabel implements ListCellRenderer 
      */
     public ChannelDataListRenderer(RenderingControl rnd) {
         this.rnd = rnd;
+        setOpaque(true);
     }
 
     @Override
@@ -77,12 +78,12 @@ public class ChannelDataListRenderer extends JLabel implements ListCellRenderer 
         String lut = rnd.getLookupTable(ch.getIndex());
         Color col = rnd.getRGBA(ch.getIndex());
 
-        ColourIcon icon = new ColourIcon();
+        ColourIcon icon = new ColourIcon(14, 14);
         if (StringUtils.isNotBlank(lut))
             icon.setLookupTable(lut);
         else
             icon.setColour(col);
-
+        
         setIcon(icon);
         setText(ch.getName());
 
