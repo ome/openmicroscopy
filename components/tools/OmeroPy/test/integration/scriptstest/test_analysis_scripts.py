@@ -50,7 +50,7 @@ class TestAnalysisScripts(ScriptTest):
         image = self.createTestImage(size_x, size_y, 1, 2, size_t, session)
         image_id = image.getId().getValue()
         roi = create_roi(image_id, 0, size_x / 2, 0, size_y / 2, size_t)
-        client.getSession().getUpdateService().saveAndReturnObject(roi)
+        session.getUpdateService().saveAndReturnObject(roi)
         image_ids = []
         image_ids.append(omero.rtypes.rlong(image_id))
         args = {
@@ -63,7 +63,7 @@ class TestAnalysisScripts(ScriptTest):
 
         # check the result
         assert kymograph_img is not None
-        assert kymograph_img.val.id.val > 0
+        assert kymograph_img.getValue().getId().getValue() > 0
 
     def test_plot_profile(self):
         script_id = super(TestAnalysisScripts, self).get_script(plot_profile)
@@ -79,7 +79,7 @@ class TestAnalysisScripts(ScriptTest):
         image = self.createTestImage(size_x, size_y, 1, 2, size_t, session)
         image_id = image.getId().getValue()
         roi = create_roi(image_id, 0, size_x / 2, 0, size_y / 2, size_t)
-        client.getSession().getUpdateService().saveAndReturnObject(roi)
+        session.getUpdateService().saveAndReturnObject(roi)
         image_ids = []
         image_ids.append(omero.rtypes.rlong(image_id))
         args = {
