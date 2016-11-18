@@ -127,9 +127,9 @@ open_table.close()           # we're done
 # ===================================================
 orig_table_file = conn.getObject(
     "OriginalFile", attributes={'name': table_name})    # if name is unique
-saved_table = conn.c.sf.sharedResources().open_table(orig_table_file._obj)
+saved_table = conn.c.sf.sharedResources().openTable(orig_table_file._obj)
 print "Opened table with row-count:", saved_table.getNumberOfRows()
-
+saved_table.close()
 
 # Populate a table on a Plate from a csv file
 # ===========================================
