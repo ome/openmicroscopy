@@ -2382,20 +2382,23 @@ def histogram_json(request, iid, theC, conn=None, **kwargs):
     theC = int(theC)
     proj = request.REQUEST.get('p', None)
 
-    ch = image.getChannels()[theC]
-    wMin = ch.getWindowMin()
-    wMax = ch.getWindowMax()
+    if proj is not None:
+        ch = image.getChannels()[theC]
+        wMin = ch.getWindowMin()
+        wMax = ch.getWindowMax()
+        # Render Image (single channel white) and Use PIL for histogram
+        image.setActiveChannels((theC + 1,), ([wMin, wMax],), ('FFFFFF',))
+        if proj == 'intmean' or proj == 'intmax':
+            image.setProjection(proj)
+        pilImg = image.renderImage(theZ, theT)
+        rgbHistogram = pilImg.histogram()
+        hsize = len(rgbHistogram) / 3
+        histogram = rgbHistogram[0:hsize]
+    else:
+        data = image.getHistogram([theC], 256, theZ=theZ, theT=theT)
+        histogram = data[theC]
 
-    # Render Image (single channel white) and Use PIL for histogram
-    image.setActiveChannels((theC + 1,), ([wMin, wMax],), ('FFFFFF',))
-    if proj == 'intmean' or proj == 'intmax':
-        image.setProjection(proj)
-    pilImg = image.renderImage(theZ, theT)
-    rgbHistogram = pilImg.histogram()
-    hsize = len(rgbHistogram) / 3
-    histogram = rgbHistogram[0:hsize]
-
-    return JsonResponse(histogram)
+    return JsonResponse({'data': histogram})
 
 
 @login_required(isAdmin=True)

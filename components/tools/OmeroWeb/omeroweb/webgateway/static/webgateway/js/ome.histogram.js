@@ -108,7 +108,7 @@ window.OME.Histogram = function(element, webgatewayUrl, graphWidth, graphHeight)
             url += "&p=" + proj;
         }
         $.getJSON(url, function(data){
-            plotJson(data, color);
+            plotJson(data.data, color);
             this.plotStartEnd(window, color);
         }.bind(this));
     };
