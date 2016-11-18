@@ -12,6 +12,7 @@ Suite Teardown      Close all browsers
 *** Variables ***
 # robot_setup script has created data with these parameters
 ${PLATE_NAME}               spwTests
+${TINY_PLATE_NAME}          tinyPlate
 ${FIELD_COUNT}              5
 ${FIELD_COUNT3}             15
 
@@ -24,12 +25,20 @@ Bulk Annotation Should Contain Row
 
 *** Test Cases ***
 
-Test Spw Grid Layout
+Test Auto Load Single Run
     [Documentation]     Selecting Plate with single Run should load plate
+    Select Experimenter
+    Select First Plate With Name            ${TINY_PLATE_NAME}
+    # Plate should auto-load, allowing click on Well
+    Click Well By Name                      A1
+
+
+Test Spw Grid Layout
+    [Documentation]     Test loading of Well Images in bottom panel
 
     Select Experimenter
     Select First Plate With Name            ${PLATE_NAME}
-    # Plate should auto-load, allowing click on Well
+    Select First Run
     Click Well By Name                      A1
     Wait For General Panel And Return Id    Well
     # Right panel should show Well
@@ -67,7 +76,7 @@ Test Spw Spacial Birds Eye
 
     Select Experimenter
     Select First Plate With Name            ${PLATE_NAME}
-    # Plate should auto-load, allowing click on Well
+    Select First Run
     Click Well By Name                      A1
 
     # Birds eye panel shows all images/fields

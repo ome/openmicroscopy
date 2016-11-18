@@ -12,8 +12,8 @@ Suite Teardown      Close all browsers
 
 ${imageName1}                       testShowImage1
 ${imageName2}                       testShowImage2
-${plateName}                        testShowPlate
-${FIELD_COUNT}              5
+${plateName}                        spwTests
+${FIELD_COUNT}                      5
 # Full Well name may make test fragile?
 ${wellName}                         test&plates=1&plateAcqs=1&plateRows=2&plateCols=3&fields=1&screens=0.fake [test]
 ${runName}                          PlateAcquisition Name 0
@@ -84,6 +84,7 @@ Test Show Well Images
 
     Select Experimenter
     Select First Plate With Name            ${plateName}
+    Select And Expand Run
     Click Well By Name                      A1
 
     # Images from a single Well shown in bottom panel
