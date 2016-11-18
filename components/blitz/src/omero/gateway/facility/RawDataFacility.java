@@ -101,7 +101,7 @@ public class RawDataFacility extends Facility {
      *            The {@link PixelsData} object
      * @param channels
      *            The channel indices
-     * @param binSize
+     * @param binCount
      *            The number of bins (optional, default: 256)
      * @param globalRange
      *            Use the global minimum/maximum to determine the histogram
@@ -118,7 +118,7 @@ public class RawDataFacility extends Facility {
      *             service.
      */
     public Map<Integer, int[]> getHistogram(SecurityContext ctx,
-            PixelsData pixels, int[] channels, int binSize,
+            PixelsData pixels, int[] channels, int binCount,
             boolean globalRange, PlaneDef plane)
             throws DSOutOfServiceException, DSAccessException {
         try {
@@ -128,7 +128,7 @@ public class RawDataFacility extends Facility {
             if (plane == null)
                 plane = new PlaneDef(omeis.providers.re.data.PlaneDef.XY, 0, 0,
                         0, 0, null, -1);
-            return store.getHistogram(channels, binSize, globalRange, plane);
+            return store.getHistogram(channels, binCount, globalRange, plane);
         } catch (Exception e) {
             handleException(this, e, "Couldn't get histogram data.");
         }
