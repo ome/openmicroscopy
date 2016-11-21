@@ -126,9 +126,10 @@ var MapAnnsPane = function MapAnnsPane($element, opts) {
                             showHead = false;
                             my_client_map_annotations = [{}];   // placeholder
                         }
-                        html = mapAnnsTempl({'anns': my_client_map_annotations,
-                        'showTableHead': showHead, 'showNs': false, 'clientMapAnn': true});
                     }
+                    // TODO: prevent from editing map annotations in batch_annotation pane
+                    html = mapAnnsTempl({'anns': my_client_map_annotations,
+                        'showTableHead': showHead, 'showNs': false, 'clientMapAnn': true});
                     html = html + mapAnnsTempl({'anns': client_map_annotations,
                         'showTableHead': false, 'showNs': false, 'clientMapAnn': true});
                     html = html + mapAnnsTempl({'anns': map_annotations,
