@@ -94,8 +94,11 @@ public class HistogramPane extends JPanel {
         xyplot.setBackgroundPaint(UIUtilities.BACKGROUND);
         XYBarRenderer xybarrenderer = (XYBarRenderer) xyplot.getRenderer();
         xybarrenderer.setBarPainter(new StandardXYBarPainter());
+        xybarrenderer.setSeriesPaint(0, Color.gray);
         xybarrenderer.setDrawBarOutline(false);
         ChartPanel jpanel = new ChartPanel(jfreechart);
+        jpanel.setDomainZoomable(false);
+        jpanel.setRangeZoomable(false);
         jpanel.setPreferredSize(new Dimension(300, 150));
         jpanel.setSize(new Dimension(300, 150));
         add(jpanel, BorderLayout.CENTER);
