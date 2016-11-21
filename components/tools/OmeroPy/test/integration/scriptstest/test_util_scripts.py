@@ -58,7 +58,7 @@ class TestUtilScripts(ScriptTest):
         offset_img = run_script(client, script_id, args, "Image")
         # check the result
         assert offset_img is not None
-        assert offset_img.val.id.val > 0
+        assert offset_img.getValue().getId().getValue() > 0
 
     def test_combine_images(self):
         script_id = super(TestUtilScripts, self).get_script(combine_images)

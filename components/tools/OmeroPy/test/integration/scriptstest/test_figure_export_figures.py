@@ -148,7 +148,6 @@ class TestFigureExportScripts(ScriptTest):
                 "Scalebar": omero.rtypes.rint(10),
                 "Format": omero.rtypes.rstring("PNG"),
                 "Figure_Name": omero.rtypes.rstring("splitViewTest"),
-                # "overlayColour": red,
             }
         else:
             args = {
