@@ -327,7 +327,7 @@ module omero {
                 idempotent void setTimepoint(Ice::ByteSeq buf, int t) throws ServerError;
 
                 /**
-                 * Retrieves the histogram data for the specified plane and channels
+                 * Retrieves the histogram data for the specified plane and channels. This method can currently only handle non-pyramid images.
                  * @param channels the channels to generate the histogram data for
                  * @param binCount the number of the histogram bins (optional, default: 256)
                  * @param plane the plane (optional, default: whole region of first z/t plane)

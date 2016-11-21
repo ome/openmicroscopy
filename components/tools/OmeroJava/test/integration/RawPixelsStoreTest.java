@@ -28,6 +28,7 @@ import java.util.Map.Entry;
 
 import ome.api.RawPixelsStore;
 import ome.io.nio.RomioPixelBuffer;
+import omero.ApiUsageException;
 import omero.api.RawPixelsStorePrx;
 import omero.model.Image;
 import omero.model.Pixels;
@@ -75,7 +76,7 @@ public class RawPixelsStoreTest extends AbstractServerTest {
 
     @BeforeMethod
     public void localSetUp() throws Exception {
-        localSetUp(1);
+        localSetUp(1, ModelMockFactory.SIZE_X, ModelMockFactory.SIZE_Y);
     }
 
     /**
@@ -83,13 +84,17 @@ public class RawPixelsStoreTest extends AbstractServerTest {
      * 
      * @param nChannels
      *            Number of channels
+     * @param sizeX
+     *            The size of the image in X dimension
+     * @param sizeY
+     *            The size of the image in Y dimension
      * @throws Exception
      *             If an error occured.
      */
-    private void localSetUp(int nChannels) throws Exception {
-        Image image = mmFactory.createImage(ModelMockFactory.SIZE_X,
-                ModelMockFactory.SIZE_Y, ModelMockFactory.SIZE_Z,
-                ModelMockFactory.SIZE_T, nChannels);
+    private void localSetUp(int nChannels, int sizeX, int sizeY)
+            throws Exception {
+        Image image = mmFactory.createImage(sizeX, sizeY,
+                ModelMockFactory.SIZE_Z, ModelMockFactory.SIZE_T, nChannels);
         image = (Image) iUpdate.saveAndReturnObject(image);
         Pixels pixels = image.getPrimaryPixels();
         planeSize = pixels.getSizeX().getValue() * pixels.getSizeY().getValue();
@@ -368,10 +373,21 @@ public class RawPixelsStoreTest extends AbstractServerTest {
      */
     @Test
     public void testGetHistogram() throws Exception {
+        
+        // Test fail, if called on big images
+        localSetUp(1, 10000, 10000);
+        try {
+            svc.getHistogram(new int[] { 0 }, -1, true, new PlaneDef(
+                    omeis.providers.re.data.PlaneDef.XY, 0, 0, 0, 0, null, -1));
+            Assert.fail("The method getHistogram() can not handle big images and should have thrown an ApiUsageException.");
+        } catch (ApiUsageException ex) {
+            // expected
+        }
+
         // Create an  UINT16 image with 2 channels
         // Possible px values: [0-65535]
         final int nChannels = 2;
-        localSetUp(nChannels);
+        localSetUp(nChannels, 10, 10);
         
         Assert.assertEquals(svc.getByteWidth(), 2, "Test assumes image of type UINT16");
         

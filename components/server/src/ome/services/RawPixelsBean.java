@@ -678,6 +678,10 @@ public class RawPixelsBean extends AbstractStatefulBean implements
             int binCount, boolean globalRange, PlaneDef plane) {
         errorIfNotLoaded();
 
+        if (requiresPixelsPyramid())
+            throw new ApiUsageException(
+                    "This method can not handle tiled images yet.\n");
+
         if (binCount <= 0)
             binCount = DEFAULT_HISTOGRAM_BINSIZE;
 
