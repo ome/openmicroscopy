@@ -567,6 +567,16 @@ class GraphicsPane
     boolean isLiveUpdate() { return previewToolBar!=null ? previewToolBar.isLiveUpdate() : false; }
 
     /**
+     * Returns <code>true</code> if the histogram is displayed,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isShowHistogram() {
+        return showHistogram != null ? showHistogram.isSelected() : false;
+    }
+    
+    /**
      * Returns <code>true</code> if a vertical line has
      * to be painted, <code>false</code> otherwise.
      * 

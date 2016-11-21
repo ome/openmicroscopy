@@ -332,10 +332,19 @@ class ChannelSlider
         }
     }
     
-    /** Handles changes in slider value. */
-    private void handleSliderChange() {
-        controller.setInputInterval(slider.getStartValue(),
-                slider.getEndValue(), channel.getIndex());
+    /**
+     * Handles changes in slider value.
+     * 
+     * @param render
+     *            Pass <code>true</code> to pass on the change to the
+     *            {@link RendererControl}, which will re-render the preview;
+     *            <code> false </code> to only update the histogram
+     */
+    private void handleSliderChange(boolean render) {
+        if (render) {
+            controller.setInputInterval(slider.getStartValue(),
+                    slider.getEndValue(), channel.getIndex());
+        }
         uiParent.updateHistogram(slider.getStartValue(), slider.getEndValue(),
                 channel.getIndex());
     }
@@ -352,13 +361,21 @@ class ChannelSlider
 			if (TwoKnobsSlider.LEFT_MOVED_PROPERTY.equals(name)
 					|| TwoKnobsSlider.RIGHT_MOVED_PROPERTY.equals(name) ||
 					TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name)) {
-			    handleSliderChange();
+			    handleSliderChange(true);
 			}
 		} else {
 			if (TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name)) {
-			    handleSliderChange();
+			    handleSliderChange(true);
 			} 
 		}
+		
+        if (uiParent.isShowHistogram()) {
+            if (TwoKnobsSlider.LEFT_MOVED_PROPERTY.equals(name)
+                    || TwoKnobsSlider.RIGHT_MOVED_PROPERTY.equals(name)
+                    || TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name)) {
+                handleSliderChange(false);
+            }
+        }
 		
 		if (evt.getSource() == colorPicker && name.equals(JLabelButton.SELECTED_PROPERTY)) {
 		    Point p = colorPicker.getLocationOnScreen();
