@@ -107,8 +107,6 @@ def create_roi(image_id, x1, x2, y1, y2, size_t):
         line.x2 = omero.rtypes.rdouble(x2)
         line.y1 = omero.rtypes.rdouble(y1)
         line.y2 = omero.rtypes.rdouble(y2)
-        line.theZ = omero.rtypes.rint(0)
-        line.theT = omero.rtypes.rint(t)
         roi.addShape(line)
         # polylines
         polyline = omero.model.PolylineI()
