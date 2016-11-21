@@ -62,7 +62,8 @@ public class RawDataFacility extends Facility {
 
     /**
      * Get the histogram data for the given image, using default 256 bins and
-     * the channels global min/max for the histogram range.
+     * the channels global min/max for the histogram range. Currently only
+     * non-tiled images are supported.
      * 
      * @param ctx
      *            The {@link SecurityContext}
@@ -93,7 +94,8 @@ public class RawDataFacility extends Facility {
     }
 
     /**
-     * Get the histogram data for the given image
+     * Get the histogram data for the given image. Currently only non-tiled
+     * images are supported.
      * 
      * @param ctx
      *            The {@link SecurityContext}
