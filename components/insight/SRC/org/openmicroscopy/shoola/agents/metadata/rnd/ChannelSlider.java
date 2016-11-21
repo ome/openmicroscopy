@@ -30,6 +30,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JPanel;
 
@@ -41,6 +42,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colourpicker.LookupTableIconUtil;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
+
 import omero.gateway.model.ChannelData;
 
 /** 
@@ -157,7 +159,7 @@ class ChannelSlider
     	channelSelection.setSelected(model.isChannelActive(index));
     	channelSelection.setRightClickSupported(false);
     	channelSelection.addPropertyChangeListener(controller);
-        
+    	channelSelection.addPropertyChangeListener(this);
     	
     	colorPicker = new JLabelButton(IconManager.getInstance().getIcon(IconManager.COLOR_PICKER), true);
     	colorPicker.addPropertyChangeListener(this);
@@ -374,6 +376,22 @@ class ChannelSlider
                     || TwoKnobsSlider.RIGHT_MOVED_PROPERTY.equals(name)
                     || TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name)) {
                 handleSliderChange(false);
+            }
+
+            if (evt.getSource() == channelSelection
+                    && name.equals(ChannelButton.CHANNEL_SELECTED_PROPERTY)) {
+                boolean selected = (Boolean) (((Map) evt.getNewValue())
+                        .values().iterator().next());
+
+                if (selected)
+                    uiParent.updateHistogram(null, null, channel.getIndex());
+                else if (channel.getIndex() == uiParent
+                        .getHistogramChannelIndex()) {
+                    int index = channel.getIndex() + 1;
+                    if (index >= model.getMaxC())
+                        index = 0;
+                    uiParent.updateHistogram(null, null, index);
+                }
             }
         }
 		

@@ -476,19 +476,30 @@ class GraphicsPane
     }
     
     /**
+     * Get the channel index currently shown in in the histogram
+     * 
+     * @return See above.
+     */
+    int getHistogramChannelIndex() {
+        return histogramChannel.getSelectedIndex();
+    }
+    
+    /**
      * Update the histogram.
      *
      * @param start
-     *            The start value.
+     *            The start value. Pass <code>null</code> to use the currently
+     *            used start value instead.
      * @param end
-     *            The end value.
+     *            The end value. Pass <code>null</code> to use the currently
+     *            used end value instead.
      * @param channelIndex
      *            The index of the channel.
      */
-    void updateHistogram(double start, double end, int channelIndex) {
+    void updateHistogram(Double start, Double end, int channelIndex) {
         if (!showHistogram.isSelected())
             return;
-
+        
         int[] data = model.getHistogramData(channelIndex);
         if (data == null) {
             HistogramLoader loader = new HistogramLoader(model.getViewer(),
@@ -498,6 +509,12 @@ class GraphicsPane
             loader.load();
         }
         histogram.setData(data);
+        
+        if(start == null) 
+            start = model.getWindowStart();
+        
+        if(end == null) 
+            end = model.getWindowStart();
         
         double r = (model.getGlobalMax(channelIndex) - model
                 .getGlobalMin(channelIndex)) + 1;
