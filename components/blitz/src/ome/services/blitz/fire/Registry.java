@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -12,6 +10,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import omero.ApiUsageException;
+import omero.api.IAdminPrx;
 //import ome.services.blitz.repo.InternalRepositoryI;
 import omero.api.ServiceFactoryPrx;
 import omero.grid.ClusterNodePrx;
@@ -135,8 +135,23 @@ public interface Registry {
                     SessionManagerPrx blitz = Glacier2.SessionManagerPrxHelper
                             .checkedCast(prx);
                     SessionPrx sf = blitz.create(user, null, ctx);
-                    // Group currently unused.
-                    return omero.api.ServiceFactoryPrxHelper.checkedCast(sf);
+                    ServiceFactoryPrx services = omero.api.ServiceFactoryPrxHelper.checkedCast(sf);
+                    if (!(group == null || "unused".equals(group))) {
+                        try {
+                            final IAdminPrx iAdmin = services.getAdminService();
+                            final long groupId = iAdmin.lookupGroup(group).getId().getValue();
+                            ctx.put("omero.group", Long.toString(groupId));
+                            /* recreate service factory using group context */
+                            sf.destroy();
+                            sf = blitz.create(user, null, ctx);
+                            services = omero.api.ServiceFactoryPrxHelper.checkedCast(sf);
+                        } catch (ApiUsageException aue) {
+                            if (log.isDebugEnabled()) {
+                                log.debug("ignoring group name " + group);
+                            }
+                        }
+                    }
+                    return services;
                 } catch (Ice.ObjectAdapterDeactivatedException oade) {
                     // Server is going down. wait an interval and this may have
                     // been shutdown, too.
