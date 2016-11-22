@@ -330,6 +330,10 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
         req.location = location;
         req.settings = settings;
         req.logFile = logFile;
+        if (req instanceof ManagedImportRequestI && current.ctx != null) {
+            /* propagate this process' call context to the new import request */
+            ((ManagedImportRequestI) req).setCallContext(current.ctx);
+        }
         final AMD_submit submit = repo.submitRequest(sf, req, this.current);
         this.handle = submit.ret;
         // TODO: in 5.1 this should be added to the request object
