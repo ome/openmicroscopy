@@ -302,6 +302,10 @@ class GraphicsPane
         
         showHistogram = new JCheckBox("Show Histogram");
         showHistogram.setSelected(false);
+        if (model.isBigImage()) {
+            showHistogram.setEnabled(false);
+            showHistogram.setToolTipText("Not availabe for large images.");
+        }
         showHistogram.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
