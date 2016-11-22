@@ -451,6 +451,42 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
 
     /**
      * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
+     * have the <tt>WriteFile</tt> privilege. Attempts to write files via the import process.
+     * @param isAdmin if to test a member of the <tt>system</tt> group
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>WriteFile</tt> privilege
+     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "light administrator privilege test cases")
+    public void testWriteFilePrivilegeCreationViaRepoImport(boolean isAdmin, boolean isRestricted, boolean isSudo)
+            throws Exception {
+        final boolean isExpectSuccess = isAdmin && !isRestricted;
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
+        loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeWriteFile.value : null);
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
+        final List<List<RType>> result = iQuery.projection(
+                "SELECT id FROM OriginalFile WHERE name = :name ORDER BY id DESC LIMIT 1",
+                new ParametersI().add("name", imageName));
+        final long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
+        try {
+            importFileset(Collections.singletonList(fakeImageFile.getPath()));
+            Assert.assertTrue(isExpectSuccess);
+        } catch (ServerError se) {
+            Assert.assertFalse(isExpectSuccess);
+        }
+        final OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
+                "FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
+                new ParametersI().addId(previousId).add("name", imageName));
+        if (isExpectSuccess) {
+            Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+        } else {
+            Assert.assertNull(remoteFile);
+        }
+    }
+
+    /**
+     * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
      * have the <tt>WriteFile</tt> privilege.
      * Attempts creation of a directory in another user's directory via {@link RepositoryPrx#makeDir(String, boolean)}.
      * @param isAdmin if to test a member of the <tt>system</tt> group
