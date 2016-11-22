@@ -712,10 +712,8 @@ public class OmeroInterceptor implements Interceptor {
                                 + " for %s to %s", obj, source.getGroup()));
             }
         } else if (!(isPrivilegedCreator  || bec.getMemberOfGroupsList().contains(newDetails.getGroup().getId()))) {
-            throw new SecurityViolation(String.format(
-                    "You are not authorized to create objects like %s in the ExperimenterGroup %s", obj, source.getGroup()));
+            throw new SecurityViolation(String.format("You are not authorized to create %s", obj));
         }
-
 
         // PERMISSIONS: ticket:1434 and #1731 and #1779 (systypes)
         // before 4.2, users were allowed to manually set the permissions
