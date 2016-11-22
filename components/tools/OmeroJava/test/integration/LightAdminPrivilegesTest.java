@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
@@ -79,7 +78,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
 /**
@@ -128,7 +126,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
      * @throws Exception if the light administrator could not be created
      */
     private EventContext loginNewAdmin(boolean isAdmin, String restriction) throws Exception {
-        final EventContext ctx = isAdmin ? newUserInGroup(iAdmin.lookupGroup(SYSTEM_GROUP), false) : newUserAndGroup("rw----");
+        final EventContext ctx = isAdmin ? newUserInGroup(iAdmin.lookupGroup(SYSTEM_GROUP), false) : newUserAndGroup("rwr-r-");
         if (!(isAdmin && restriction == null)) {
             final List<AdminPrivilege> privileges = new ArrayList<>(allPrivileges);
             if (restriction != null) {
@@ -228,15 +226,15 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     @Test(dataProvider = "light administrator privilege test cases")
     public void testChgrpPrivilegeViaRequest(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
-        final EventContext normalUser = newUserAndGroup("rwr---");
-        final long otherGroupId = newGroupAddUser("rwr---", normalUser.userId).getId().getValue();
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
+        final long otherGroupId = newGroupAddUser("rwr-r-", normalUser.userId).getId().getValue();
         Folder folder = (Folder) iUpdate.saveAndReturnObject(mmFactory.simpleFolder());
         Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), normalUser.groupId);
         loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeChgrp.value : null);
+        client.getImplicitContext().put("omero.group", Long.toString(otherGroupId));
         doChange(client, factory, Requests.chgrp().target(folder).toGroup(otherGroupId).build(), isExpectSuccess);
         if (isExpectSuccess) {
-            final ImmutableMap<String, String> groupContext = ImmutableMap.of("omero.group", Long.toString(otherGroupId));
-            folder = (Folder) iQuery.get("Folder", folder.getId().getValue(), groupContext);
+            folder = (Folder) iQuery.get("Folder", folder.getId().getValue());
             Assert.assertEquals(folder.getDetails().getOwner().getId().getValue(), normalUser.userId);
             Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), otherGroupId);
         }
@@ -253,23 +251,16 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     @Test(dataProvider = "light administrator privilege test cases")
     public void testChgrpPrivilegeViaUpdate(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
-        final EventContext normalUser = newUserAndGroup("rwr---");
-        final ExperimenterGroup otherGroup = newGroupAddUser("rwr---", normalUser.userId);
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
+        final ExperimenterGroup otherGroup = newGroupAddUser("rwr-r-", normalUser.userId);
         Folder folder = (Folder) iUpdate.saveAndReturnObject(mmFactory.simpleFolder());
         Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), normalUser.groupId);
         loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeChgrp.value : null);
-        final ImmutableMap<String, String> groupContext = ImmutableMap.of("omero.group", Long.toString(normalUser.groupId));
-        try {
-            folder = (Folder) iQuery.get("Folder", folder.getId().getValue(), groupContext);
-            Assert.assertTrue(isAdmin, "normal users cannot read data from others' groups");
-        } catch (SecurityViolation sv) {
-            Assert.assertFalse(isAdmin, "admins can read data from others' groups");
-            /* cannot now make the attempt */
-            return;
-        }
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        folder = (Folder) iQuery.get("Folder", folder.getId().getValue());
         folder.getDetails().setGroup(otherGroup);
         try {
-            folder = (Folder) iUpdate.saveAndReturnObject(folder, groupContext);
+            folder = (Folder) iUpdate.saveAndReturnObject(folder);
             Assert.assertEquals(folder.getDetails().getOwner().getId().getValue(), normalUser.userId);
             Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), otherGroup.getId().getValue());
             Assert.assertTrue(isExpectSuccess);
@@ -289,15 +280,15 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     @Test(dataProvider = "light administrator privilege test cases")
     public void testChownPrivilegeViaRequest(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
-        final EventContext normalUser = newUserAndGroup("rwr---");
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
         Folder folder = (Folder) iUpdate.saveAndReturnObject(mmFactory.simpleFolder());
         Assert.assertEquals(folder.getDetails().getOwner().getId().getValue(), normalUser.userId);
         final EventContext otherUser = newUserInGroup(normalUser);
         loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeChown.value : null);
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         doChange(client, factory, Requests.chown().target(folder).toUser(otherUser.userId).build(), isExpectSuccess);
         if (isExpectSuccess) {
-            final ImmutableMap<String, String> groupContext = ImmutableMap.of("omero.group", Long.toString(normalUser.groupId));
-            folder = (Folder) iQuery.get("Folder", folder.getId().getValue(), groupContext);
+            folder = (Folder) iQuery.get("Folder", folder.getId().getValue());
             Assert.assertEquals(folder.getDetails().getOwner().getId().getValue(), otherUser.userId);
             Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), normalUser.groupId);
         }
@@ -314,23 +305,16 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     @Test(dataProvider = "light administrator privilege test cases")
     public void testChownPrivilegeViaUpdate(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
-        final EventContext normalUser = newUserAndGroup("rwr---");
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
         Folder folder = (Folder) iUpdate.saveAndReturnObject(mmFactory.simpleFolder());
         Assert.assertEquals(folder.getDetails().getOwner().getId().getValue(), normalUser.userId);
         final EventContext otherUser = newUserInGroup(normalUser);
         loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeChown.value : null);
-        final ImmutableMap<String, String> groupContext = ImmutableMap.of("omero.group", Long.toString(normalUser.groupId));
-        try {
-            folder = (Folder) iQuery.get("Folder", folder.getId().getValue(), groupContext);
-            Assert.assertTrue(isAdmin, "normal users cannot read data from others' groups");
-        } catch (SecurityViolation sv) {
-            Assert.assertFalse(isAdmin, "admins can read data from others' groups");
-            /* cannot now make the attempt */
-            return;
-        }
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        folder = (Folder) iQuery.get("Folder", folder.getId().getValue());
         folder.getDetails().setOwner(new ExperimenterI(otherUser.userId, false));
         try {
-            folder = (Folder) iUpdate.saveAndReturnObject(folder, groupContext);
+            folder = (Folder) iUpdate.saveAndReturnObject(folder);
             Assert.assertEquals(folder.getDetails().getOwner().getId().getValue(), otherUser.userId);
             Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), normalUser.groupId);
             Assert.assertTrue(isExpectSuccess);
@@ -350,7 +334,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     @Test(dataProvider = "light administrator privilege test cases")
     public void testModifyUserPrivilegeCreationViaUpdate(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
-        final long newGroupId = newUserAndGroup("rw----").groupId;
+        final long newGroupId = newUserAndGroup("rwr-r-").groupId;
         loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeModifyUser.value : null);
         final Experimenter newUser = new ExperimenterI();
         newUser.setOmeName(omero.rtypes.rstring(UUID.randomUUID().toString()));
@@ -386,7 +370,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     @Test(dataProvider = "light administrator privilege test cases")
     public void testModifyUserPrivilegeCreationViaAdmin(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
-        final long newGroupId = newUserAndGroup("rw----").groupId;
+        final long newGroupId = newUserAndGroup("rwr-r-").groupId;
         loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeModifyUser.value : null);
         final Experimenter newUser = new ExperimenterI();
         newUser.setOmeName(omero.rtypes.rstring(UUID.randomUUID().toString()));
@@ -414,7 +398,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     @Test(dataProvider = "light administrator privilege test cases")
     public void testModifyUserPrivilegeEditingViaUpdate(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
-        final long newUserId = newUserAndGroup("rw----").userId;
+        final long newUserId = newUserAndGroup("rwr-r-").userId;
         loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeModifyUser.value : null);
         final Experimenter newUser = (Experimenter) iQuery.get("Experimenter", newUserId);
         newUser.setConfig(ImmutableList.of(new NamedValue("color", "green")));
@@ -437,7 +421,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     @Test(dataProvider = "light administrator privilege test cases")
     public void testModifyUserPrivilegeEditingViaAdmin(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
-        final long newUserId = newUserAndGroup("rw----").userId;
+        final long newUserId = newUserAndGroup("rwr-r-").userId;
         loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeModifyUser.value : null);
         final Experimenter newUser = (Experimenter) iQuery.get("Experimenter", newUserId);
         newUser.setConfig(ImmutableList.of(new NamedValue("color", "green")));
@@ -455,43 +439,13 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
      */
     @Test
     public void testSudoPrivilege() throws Exception {
-        final EventContext normalUser = newUserAndGroup("rw----");
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
         loginNewAdmin(true, AdminPrivilegeSudo.value);
         try {
             sudo(new ExperimenterI(normalUser.userId, false));
             Assert.fail("Sudo-restricted administrators cannot sudo.");
         } catch (SecurityViolation sv) {
             /* expected */
-        }
-    }
-
-    /**
-     * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
-     * have the <tt>WriteFile</tt> privilege.
-     * Attempts creation of a file in another user's directory via {@link RepositoryPrx#register(String, omero.RString)}.
-     * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param isRestricted if to test a user who does <em>not</em> have the <tt>WriteFile</tt> privilege
-     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
-     * @throws Exception unexpected
-     */
-    @Test(dataProvider = "light administrator privilege test cases")
-    public void testWriteFilePrivilegeCreationViaRepoRegister(boolean isAdmin, boolean isRestricted, boolean isSudo)
-            throws Exception {
-        final boolean isExpectSuccess = isAdmin && !isRestricted;
-        final EventContext normalUser = newUserAndGroup("rwr---");
-        RepositoryPrx repo = getRepository(Repository.SCRIPT);
-        final String userDirectory = "/Test_" + getClass().getName() + "_" + UUID.randomUUID();
-        repo.makeDir(userDirectory, false);
-        loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeWriteFile.value : null);
-        repo = getRepository(Repository.SCRIPT);
-        final HashMap<String, String> context = new HashMap<>(client.getImplicitContext().getContext());
-        context.put("omero.group", Long.toString(normalUser.groupId));
-        final String filename = userDirectory + '/' + UUID.randomUUID();
-        try {
-            repo.register(filename, null, context);
-            Assert.assertTrue(isExpectSuccess);
-        } catch (ServerError se) {
-            Assert.assertFalse(isExpectSuccess);
         }
     }
 
@@ -508,17 +462,45 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     public void testWriteFilePrivilegeCreationViaRepoMakeDir(boolean isAdmin, boolean isRestricted, boolean isSudo)
             throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
-        final EventContext normalUser = newUserAndGroup("rwr---");
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
         RepositoryPrx repo = getRepository(Repository.SCRIPT);
         final String userDirectory = "/Test_" + getClass().getName() + "_" + UUID.randomUUID();
         repo.makeDir(userDirectory, false);
         loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeWriteFile.value : null);
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         repo = getRepository(Repository.SCRIPT);
-        final HashMap<String, String> context = new HashMap<>(client.getImplicitContext().getContext());
-        context.put("omero.group", Long.toString(normalUser.groupId));
         final String filename = userDirectory + '/' + UUID.randomUUID();
         try {
-            repo.makeDir(filename, false, context);
+            repo.makeDir(filename, false);
+            Assert.assertTrue(isExpectSuccess);
+        } catch (ServerError se) {
+            Assert.assertFalse(isExpectSuccess);
+        }
+    }
+
+    /**
+     * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
+     * have the <tt>WriteFile</tt> privilege.
+     * Attempts creation of a file in another user's directory via {@link RepositoryPrx#register(String, omero.RString)}.
+     * @param isAdmin if to test a member of the <tt>system</tt> group
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>WriteFile</tt> privilege
+     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "light administrator privilege test cases")
+    public void testWriteFilePrivilegeCreationViaRepoRegister(boolean isAdmin, boolean isRestricted, boolean isSudo)
+            throws Exception {
+        final boolean isExpectSuccess = isAdmin && !isRestricted;
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
+        RepositoryPrx repo = getRepository(Repository.SCRIPT);
+        final String userDirectory = "/Test_" + getClass().getName() + "_" + UUID.randomUUID();
+        repo.makeDir(userDirectory, false);
+        loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeWriteFile.value : null);
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        repo = getRepository(Repository.SCRIPT);
+        final String filename = userDirectory + '/' + UUID.randomUUID();
+        try {
+            repo.register(filename, null);
             Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccess);
@@ -537,7 +519,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     @Test(dataProvider = "light administrator privilege test cases")
     public void testWriteFilePrivilegeCreationViaScripts(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
-        final EventContext normalUser = newUserAndGroup("rwr---");
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
         IScriptPrx iScript = factory.getScriptService();
         /* fetch a script from the server */
         OriginalFile scriptFile = iScript.getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE).get(0);
@@ -546,13 +528,13 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         final String actualScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
         rfs.close();
         /* try uploading the script as a new script in the normal user's group */
-        final ImmutableMap<String, String> groupContext = ImmutableMap.of("omero.group", Long.toString(normalUser.groupId));
         loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeWriteFile.value : null);
-        iScript = factory.getScriptService(groupContext);
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        iScript = factory.getScriptService();
         final String testScriptName = "Test_" + getClass().getName() + "_" + UUID.randomUUID() + ".py";
         long testScriptId = -1;
         try {
-            testScriptId = iScript.uploadScript(testScriptName, actualScript, groupContext);
+            testScriptId = iScript.uploadScript(testScriptName, actualScript);
             Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccess);
@@ -574,7 +556,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     /**
      * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
      * have the <tt>WriteFile</tt> privilege.
-     * Attempts creation of another user's file via {@link omero.api.IUpdatePrx#saveAndReturnObject(IObject, java.util.Map)}.
+     * Attempts creation of another user's file via {@link omero.api.IUpdatePrx#saveAndReturnObject(IObject)}.
      * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param isRestricted if to test a user who does <em>not</em> have the <tt>WriteFile</tt> privilege
      * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
@@ -583,13 +565,13 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     @Test(dataProvider = "light administrator privilege test cases")
     public void testWriteFilePrivilegeCreationViaUpdate(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
-        final EventContext normalUser = newUserAndGroup("rw----");
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
         loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeWriteFile.value : null);
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         OriginalFile file = mmFactory.createOriginalFile();
         file.getDetails().setOwner(new ExperimenterI(normalUser.userId, false));
         try {
-            final ImmutableMap<String, String> groupContext = ImmutableMap.of("omero.group", Long.toString(normalUser.groupId));
-            file = (OriginalFile) iUpdate.saveAndReturnObject(file, groupContext);
+            file = (OriginalFile) iUpdate.saveAndReturnObject(file);
             Assert.assertEquals(file.getDetails().getOwner().getId().getValue(), normalUser.userId);
             Assert.assertEquals(file.getDetails().getGroup().getId().getValue(), normalUser.groupId);
             Assert.assertTrue(isExpectSuccess);
@@ -601,7 +583,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     /**
      * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
      * have the <tt>WriteFile</tt> privilege.
-     * Attempts writing file via {@link RawFileStorePrx#write(byte[], long, int, java.util.Map)}.
+     * Attempts writing file via {@link RawFileStorePrx#write(byte[], long, int)}.
      * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param isRestricted if to test a user who does <em>not</em> have the <tt>WriteFile</tt> privilege
      * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
@@ -610,7 +592,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     @Test(dataProvider = "light administrator privilege test cases")
     public void testWriteFilePrivilegeEditingViaRaw(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
-        final EventContext normalUser = newUserAndGroup("rw----");
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
         /* write a random file */
         final long fileId = iUpdate.saveAndReturnObject(mmFactory.createOriginalFile()).getId().getValue();
         final byte[] fileContentOriginal = new byte[64];
@@ -627,18 +609,18 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         Assert.assertEquals(fileContentCurrent, fileContentOriginal);
         /* try to overwrite with a blank file */
         loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeWriteFile.value : null);
-        final ImmutableMap<String, String> groupContext = ImmutableMap.of("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         final byte[] fileContentBlank = new byte[fileContentOriginal.length];
         try {
-            rfs = factory.createRawFileStore(groupContext);
-            rfs.setFileId(fileId, groupContext);
-            rfs.write(fileContentBlank, 0, fileContentBlank.length, groupContext);
+            rfs = factory.createRawFileStore();
+            rfs.setFileId(fileId);
+            rfs.write(fileContentBlank, 0, fileContentBlank.length);
             Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccess);
         } finally {
             try {
-                rfs.close(groupContext);
+                rfs.close();
             } catch (ServerError se) {
                 /* cannot try to close */
             }
@@ -656,7 +638,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
      * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
      * have the <tt>WriteFile</tt> privilege.
      * Attempts changing the file's checksum algorithm via
-     * {@link ManagedRepositoryPrx#setChecksumAlgorithm(ChecksumAlgorithm, List, java.util.Map)}.
+     * {@link ManagedRepositoryPrx#setChecksumAlgorithm(ChecksumAlgorithm, List)}.
      * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param isRestricted if to test a user who does <em>not</em> have the <tt>WriteFile</tt> privilege
      * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
@@ -666,7 +648,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     public void testWriteFilePrivilegeEditingViaRepoChecksum(boolean isAdmin, boolean isRestricted, boolean isSudo)
             throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
-        final EventContext normalUser = newUserAndGroup("rw----");
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
         /* import a fake image and determine its hash and hasher */
         final List<String> imageFilenames = Collections.singletonList(fakeImageFile.getPath());
         final String repoPath = importFileset(imageFilenames).sharedPath + FsFile.separatorChar;
@@ -679,8 +661,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         final String hashOriginal = ((RString) results.get(2)).getValue();
         /* try to change the image's hasher */
         loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeWriteFile.value : null);
-        final HashMap<String, String> context = new HashMap<>(client.getImplicitContext().getContext());
-        context.put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         final ManagedRepositoryPrx repo = ManagedRepositoryPrxHelper.checkedCast(getRepository(Repository.MANAGED));
         final String hasherChanged;
         if (ChecksumAlgorithmSHA1160.value.equals(hasherOriginal)) {
@@ -691,7 +672,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         try {
             final ChecksumAlgorithm hasherAlgorithm = new ChecksumAlgorithmI();
             hasherAlgorithm.setValue(omero.rtypes.rstring(hasherChanged));
-            repo.setChecksumAlgorithm(hasherAlgorithm, Collections.singletonList(imageFileId), context);
+            repo.setChecksumAlgorithm(hasherAlgorithm, Collections.singletonList(imageFileId));
             Assert.assertTrue(isExpectSuccess);
         } catch (Ice.LocalException | ServerError se) {
             Assert.assertFalse(isExpectSuccess);
@@ -715,8 +696,8 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     /**
      * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
      * have the <tt>WriteFile</tt> privilege.
-     * Attempts writing file via {@link RepositoryPrx#file(String, String, java.util.Map)}
-     * and {@link RawFileStorePrx#write(byte[], long, int, java.util.Map)}.
+     * Attempts writing file via {@link RepositoryPrx#file(String, String)}
+     * and {@link RawFileStorePrx#write(byte[], long, int)}.
      * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param isRestricted if to test a user who does <em>not</em> have the <tt>WriteFile</tt> privilege
      * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
@@ -725,7 +706,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     @Test(dataProvider = "light administrator privilege test cases")
     public void testWriteFilePrivilegeEditingViaRepoFile(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
-        final EventContext normalUser = newUserAndGroup("rwr---");
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
         /* fetch a script from the server */
         final List<OriginalFile> scripts = factory.getScriptService().getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE);
         RawFileStorePrx rfs = factory.createRawFileStore();
@@ -749,19 +730,18 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         Assert.assertEquals(fileContentCurrent, fileContentOriginal);
         /* try to edit the script */
         loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeWriteFile.value : null);
-        final HashMap<String, String> context = new HashMap<>(client.getImplicitContext().getContext());
-        context.put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         repo = getRepository(Repository.SCRIPT);
         final byte[] fileContentBlank = new byte[fileContentOriginal.length];
         try {
-            rfs = repo.file(testScriptName, "rw", context);
-            rfs.write(fileContentBlank, 0, fileContentBlank.length, context);
+            rfs = repo.file(testScriptName, "rw");
+            rfs.write(fileContentBlank, 0, fileContentBlank.length);
             Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccess);
         } finally {
             try {
-                rfs.close(context);
+                rfs.close();
             } catch (Ice.CommunicatorDestroyedException cde) {
                 /* cannot try to close */
             }
@@ -780,7 +760,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     /**
      * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
      * have the <tt>WriteFile</tt> privilege.
-     * Attempts changing an existing file via {@link omero.api.IScriptPrx#editScript(OriginalFile, String, java.util.Map)}.
+     * Attempts changing an existing file via {@link omero.api.IScriptPrx#editScript(OriginalFile, String)}.
      * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param isRestricted if to test a user who does <em>not</em> have the <tt>WriteFile</tt> privilege
      * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
@@ -789,7 +769,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     @Test(dataProvider = "light administrator privilege test cases")
     public void testWriteFilePrivilegeEditingViaScripts(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
-        final EventContext normalUser = newUserAndGroup("rw----");
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
         IScriptPrx iScript = factory.getScriptService();
         final List<OriginalFile> scripts = iScript.getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE);
         /* fetch a script from the server */
@@ -802,11 +782,11 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         final long testScriptId = iScript.uploadScript(testScriptName, originalScript);
         /* try replacing the content of the normal user's script */
         loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeWriteFile.value : null);
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         iScript = factory.getScriptService();
-        final ImmutableMap<String, String> groupContext = ImmutableMap.of("omero.group", Long.toString(normalUser.groupId));
         final String newScript = originalScript + "\n# this script is a copy of another";
         try {
-            iScript.editScript(new OriginalFileI(testScriptId, false), newScript, groupContext);
+            iScript.editScript(new OriginalFileI(testScriptId, false), newScript);
             Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccess);
@@ -827,7 +807,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     /**
      * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
      * have the <tt>WriteFile</tt> privilege.
-     * Attempts changing an existing file via {@link omero.api.IUpdatePrx#saveAndReturnObject(IObject, java.util.Map)}.
+     * Attempts changing an existing file via {@link omero.api.IUpdatePrx#saveAndReturnObject(IObject)}.
      * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param isRestricted if to test a user who does <em>not</em> have the <tt>WriteFile</tt> privilege
      * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
@@ -836,21 +816,14 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     @Test(dataProvider = "light administrator privilege test cases")
     public void testWriteFilePrivilegeEditingViaUpdate(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
-        final EventContext normalUser = newUserAndGroup("rw----");
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
         OriginalFile file = (OriginalFile) iUpdate.saveAndReturnObject(mmFactory.createOriginalFile());
         loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeWriteFile.value : null);
-        final ImmutableMap<String, String> groupContext = ImmutableMap.of("omero.group", Long.toString(normalUser.groupId));
-        try {
-            file = (OriginalFile) iQuery.get("OriginalFile", file.getId().getValue(), groupContext);
-            Assert.assertTrue(isAdmin, "normal users cannot read data from others' groups");
-        } catch (SecurityViolation sv) {
-            Assert.assertFalse(isAdmin, "admins can read data from others' groups");
-            /* cannot now make the attempt */
-            return;
-        }
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        file = (OriginalFile) iQuery.get("OriginalFile", file.getId().getValue());
         file.setName(omero.rtypes.rstring(getClass().getName()));
         try {
-            file = (OriginalFile) iUpdate.saveAndReturnObject(file, groupContext);
+            file = (OriginalFile) iUpdate.saveAndReturnObject(file);
             Assert.assertEquals(file.getName().getValue(), getClass().getName());
             Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
@@ -861,7 +834,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     /**
      * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
      * have the <tt>WriteFile</tt> privilege.
-     * Attempts deletion of another user's file via {@link RepositoryPrx#deletePaths(String[], boolean, boolean, java.util.Map)}.
+     * Attempts deletion of another user's file via {@link RepositoryPrx#deletePaths(String[], boolean, boolean)}.
      * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param isRestricted if to test a user who does <em>not</em> have the <tt>WriteFile</tt> privilege
      * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
@@ -870,7 +843,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     @Test(dataProvider = "light administrator privilege test cases")
     public void testWriteFilePrivilegeDeletionViaRepo(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
-        final EventContext normalUser = newUserAndGroup("rwr---");
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
         /* fetch a script from the server */
         final List<OriginalFile> scripts = factory.getScriptService().getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE);
         RawFileStorePrx rfs = factory.createRawFileStore();
@@ -894,11 +867,10 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         Assert.assertEquals(fileContentCurrent, fileContentOriginal);
         /* try to delete the script */
         loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeWriteFile.value : null);
-        final HashMap<String, String> context = new HashMap<>(client.getImplicitContext().getContext());
-        context.put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         repo = getRepository(Repository.SCRIPT);
         try {
-            final HandlePrx handle = repo.deletePaths(new String[] {testScriptName}, false, false, context);
+            final HandlePrx handle = repo.deletePaths(new String[] {testScriptName}, false, false);
             final CmdCallbackI callback = new CmdCallbackI(client, handle);
             callback.loop(20, scalingFactor);
             assertCmd(callback, isExpectSuccess);
@@ -937,16 +909,17 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     @Test(dataProvider = "light administrator privilege test cases")
     public void testWriteFilePrivilegeDeletionViaRequest(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
-        newUserAndGroup("rw----");
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
         final OriginalFile file = (OriginalFile) iUpdate.saveAndReturnObject(mmFactory.createOriginalFile());
         loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeWriteFile.value : null);
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         doChange(client, factory, Requests.delete().target(file).build(), isExpectSuccess);
     }
 
     /**
      * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
      * have the <tt>WriteFile</tt> privilege.
-     * Attempts deletion of another user's file via {@link IScriptPrx#deleteScript(long, java.util.Map)}.
+     * Attempts deletion of another user's file via {@link IScriptPrx#deleteScript(long)}.
      * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param isRestricted if to test a user who does <em>not</em> have the <tt>WriteFile</tt> privilege
      * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
@@ -955,7 +928,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     @Test(dataProvider = "light administrator privilege test cases")
     public void testWriteFilePrivilegeDeletionViaScripts(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
-        final EventContext normalUser = newUserAndGroup("rw----");
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
         IScriptPrx iScript = factory.getScriptService();
         /* fetch a script from the server */
         final OriginalFile scriptFile = iScript.getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE).get(0);
@@ -978,11 +951,11 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         final OriginalFile testScript = new OriginalFileI(testScriptId, false);
         assertExists(testScript);
         /* try deleting the script */
-        final ImmutableMap<String, String> groupContext = ImmutableMap.of("omero.group", Long.toString(normalUser.groupId));
         loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeWriteFile.value : null);
-        iScript = factory.getScriptService(groupContext);
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        iScript = factory.getScriptService();
         try {
-            iScript.deleteScript(testScriptId, groupContext);
+            iScript.deleteScript(testScriptId);
             Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccess);
@@ -1019,13 +992,13 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     @Test(dataProvider = "light administrator privilege test cases")
     public void testWriteOwnedPrivilegeCreation(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
-        final EventContext normalUser = newUserAndGroup("rw----");
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
         loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeWriteOwned.value : null);
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         Folder folder = mmFactory.simpleFolder();
         folder.getDetails().setOwner(new ExperimenterI(normalUser.userId, false));
         try {
-            final ImmutableMap<String, String> groupContext = ImmutableMap.of("omero.group", Long.toString(normalUser.groupId));
-            folder = (Folder) iUpdate.saveAndReturnObject(folder, groupContext);
+            folder = (Folder) iUpdate.saveAndReturnObject(folder);
             Assert.assertEquals(folder.getDetails().getOwner().getId().getValue(), normalUser.userId);
             Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), normalUser.groupId);
             Assert.assertTrue(isExpectSuccess);
@@ -1045,21 +1018,14 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     @Test(dataProvider = "light administrator privilege test cases")
     public void testWriteOwnedPrivilegeEditing(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
-        final EventContext normalUser = newUserAndGroup("rw----");
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
         Folder folder = (Folder) iUpdate.saveAndReturnObject(mmFactory.simpleFolder());
         loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeWriteOwned.value : null);
-        final ImmutableMap<String, String> groupContext = ImmutableMap.of("omero.group", Long.toString(normalUser.groupId));
-        try {
-            folder = (Folder) iQuery.get("Folder", folder.getId().getValue(), groupContext);
-            Assert.assertTrue(isAdmin, "normal users cannot read data from others' groups");
-        } catch (SecurityViolation sv) {
-            Assert.assertFalse(isAdmin, "admins can read data from others' groups");
-            /* cannot now make the attempt */
-            return;
-        }
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        folder = (Folder) iQuery.get("Folder", folder.getId().getValue());
         folder.setName(omero.rtypes.rstring(getClass().getName()));
         try {
-            folder = (Folder) iUpdate.saveAndReturnObject(folder, groupContext);
+            folder = (Folder) iUpdate.saveAndReturnObject(folder);
             Assert.assertEquals(folder.getName().getValue(), getClass().getName());
             Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
@@ -1078,9 +1044,10 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     @Test(dataProvider = "light administrator privilege test cases")
     public void testWriteOwnedPrivilegeDeletion(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
-        newUserAndGroup("rw----");
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
         final Folder folder = (Folder) iUpdate.saveAndReturnObject(mmFactory.simpleFolder());
         loginNewActor(isAdmin, isSudo, isRestricted ? AdminPrivilegeWriteOwned.value : null);
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         doChange(client, factory, Requests.delete().target(folder).build(), isExpectSuccess);
     }
 
