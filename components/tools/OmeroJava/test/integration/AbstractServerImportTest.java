@@ -23,6 +23,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import loci.formats.in.FakeReader;
+
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
@@ -79,7 +81,7 @@ public class AbstractServerImportTest extends AbstractServerTest {
         // This should also be simplified.
         ImportContainer container = new ImportContainer(new File(
                 srcPaths.get(0)), null /* target */, null /* user pixels */,
-                "FakeReader", srcPaths.toArray(new String[srcPaths.size()]),
+                FakeReader.class.getName(), srcPaths.toArray(new String[srcPaths.size()]),
                 false /* isspw */);
 
         // Now actually use the library.
