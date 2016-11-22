@@ -42,6 +42,7 @@ import ome.formats.importer.targets.ServerTemplateImportTarget;
 import ome.formats.importer.util.ErrorHandler;
 import ome.io.nio.TileSizes;
 import ome.services.blitz.fire.Registry;
+import ome.system.EventContext;
 import omero.ServerError;
 import omero.api.ServiceFactoryPrx;
 import omero.cmd.ERR;
@@ -123,6 +124,8 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
     private Resources.Entry resourcesEntry = null;
 
+    private Map<String, String> callContext = null;
+
     private OMEROWrapper reader = null;
 
     private CheckedPath file = null;
@@ -186,20 +189,28 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         this.resources = resources;
     }
 
+    /**
+     * @param callContext the call context to set
+     */
+    public void setCallContext(Map<String, String> callContext) {
+        this.callContext = callContext;
+    }
+
     //
     // IRequest methods
     //
 
     public Map<String, String> getCallContext() {
-        return null;
+        return callContext;
     }
 
     public void init(Helper helper) {
         this.helper = helper;
         helper.setSteps(5);
 
+        final EventContext ec = helper.getEventContext();
         final ImportConfig config = new ImportConfig();
-        final String sessionUuid = helper.getEventContext().getCurrentSessionUuid();
+        final String sessionUuid = ec.getCurrentSessionUuid();
 
         if (!(location instanceof ManagedImportLocationI)) {
             throw helper.cancel(new ERR(), null, "bad-location",
@@ -215,9 +226,10 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
         try {
             sf = reg.getInternalServiceFactory(
-                    sessionUuid, "unused", 3, 1, clientUuid);
+                    sessionUuid, ec.getCurrentGroupName(), 3, 1, clientUuid);
             store = new OMEROMetadataStoreClient();
             store.setCurrentLogFile(logFilename, token);
+            store.setGroup(ec.getCurrentGroupId());
             store.initialize(sf);
             registerKeepAlive();
 
