@@ -24,9 +24,11 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 
 import ome.services.blitz.repo.path.FsFile;
@@ -36,6 +38,7 @@ import omero.RType;
 import omero.SecurityViolation;
 import omero.ServerError;
 import omero.api.IScriptPrx;
+import omero.api.ISessionPrx;
 import omero.api.RawFileStorePrx;
 import omero.cmd.CmdCallbackI;
 import omero.cmd.HandlePrx;
@@ -62,6 +65,7 @@ import omero.model.Session;
 import omero.model.enums.AdminPrivilegeChgrp;
 import omero.model.enums.AdminPrivilegeChown;
 import omero.model.enums.AdminPrivilegeModifyUser;
+import omero.model.enums.AdminPrivilegeReadSession;
 import omero.model.enums.AdminPrivilegeSudo;
 import omero.model.enums.AdminPrivilegeWriteFile;
 import omero.model.enums.AdminPrivilegeWriteOwned;
@@ -73,6 +77,7 @@ import omero.sys.Principal;
 import omero.util.TempFileManager;
 
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -431,6 +436,98 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccess);
         }
+    }
+
+    /**
+     * Test that users read others' sessions only if they are a member of the <tt>system</tt> group and
+     * have the <tt>ReadSession</tt> privilege. Attempts reading via {@link omero.api.IQueryPrx#find(String, long)}
+     * and {@link omero.api.IQueryPrx#projection(String, omero.sys.Parameters)}.
+     * @param isAdmin if to test a member of the <tt>system</tt> group
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>ModifyUser</tt> privilege
+     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "light administrator privilege test cases")
+    public void testReadSessionPrivilegeViaIQuery(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
+        final boolean isExpectSuccess = isAdmin && !isRestricted;
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
+        /* if sudo, do so to the normal user, not a full administrator */
+        EventContext actor = loginNewActor(isAdmin, false, isRestricted ? AdminPrivilegeReadSession.value : null);
+        if (isSudo) {
+            try {
+                actor = sudo(new ExperimenterI(normalUser.userId, false));
+                Assert.assertTrue(isAdmin, "normal users cannot sudo");
+            } catch (SecurityViolation sv) {
+                Assert.assertFalse(isAdmin, "admins can sudo");
+                /* cannot proceed with the attempt */
+                return;
+            }
+        }
+        /* test fetching model object */
+        Session session = (Session) iQuery.find("Session", actor.sessionId);
+        Assert.assertEquals(session.getUuid().getValue(), actor.sessionUuid);
+        session = (Session) iQuery.find("Session", normalUser.sessionId);
+        if (isExpectSuccess) {
+            Assert.assertEquals(session.getUuid().getValue(), normalUser.sessionUuid);
+        } else {
+            Assert.assertFalse(session.isLoaded());
+        }
+        /* test projection onto property */
+        final String hql = "SELECT uuid FROM Session WHERE id = :id";
+        List<List<RType>> result = iQuery.projection(hql, new ParametersI().addId(actor.sessionId));
+        Assert.assertEquals(((RString) result.get(0).get(0)).getValue(), actor.sessionUuid);
+        result = iQuery.projection(hql, new ParametersI().addId(normalUser.sessionId));
+        if (isExpectSuccess) {
+            Assert.assertEquals(((RString) result.get(0).get(0)).getValue(), normalUser.sessionUuid);
+        } else {
+            Assert.assertTrue(result.isEmpty());
+        }
+    }
+
+    /**
+     * Test that users read others' sessions only if they are a member of the <tt>system</tt> group and
+     * have the <tt>ReadSession</tt> privilege. Attempts reading via {@link ISessionPrx#getMyOpenSessions()}.
+     * @param isAdmin if to test a member of the <tt>system</tt> group
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>ModifyUser</tt> privilege
+     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "light administrator privilege test cases")
+    public void testReadSessionPrivilegeViaISession(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
+        if (isSudo) {
+            throw new SkipException("this test always sudo's anyway");
+        }
+        final boolean isExpectSuccess = isAdmin && !isRestricted;
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
+        /* prevent the normal user's session from being closed yet */
+        final omero.client normalUserClient = client;
+        client = null;
+        /* sudo to the normal user, not to a full administrator */
+        final EventContext actor = loginNewAdmin(isAdmin, isRestricted ? AdminPrivilegeReadSession.value : null);
+        final EventContext actorAsNormalUser;
+        try {
+            actorAsNormalUser = sudo(new ExperimenterI(normalUser.userId, false));
+            Assert.assertTrue(isAdmin, "normal users cannot sudo");
+        } catch (SecurityViolation sv) {
+            Assert.assertFalse(isAdmin, "admins can sudo");
+            /* cannot proceed with the attempt */
+            normalUserClient.__del__();
+            return;
+        }
+        /* test current user's open sessions */
+        final ISessionPrx iSession = factory.getSessionService();
+        final Set<String> sessionUuids = new HashSet<>();
+        for (final Session session : iSession.getMyOpenSessions()) {
+            sessionUuids.add(session.getUuid().getValue());
+        }
+        Assert.assertFalse(sessionUuids.contains(actor.sessionUuid));
+        Assert.assertTrue(sessionUuids.contains(actorAsNormalUser.sessionUuid));
+        if (isExpectSuccess) {
+            Assert.assertTrue(sessionUuids.contains(normalUser.sessionUuid));
+        } else {
+            Assert.assertFalse(sessionUuids.contains(normalUser.sessionUuid));
+        }
+        normalUserClient.__del__();
     }
 
     /**
