@@ -59,6 +59,7 @@ import omero.util.TempFileManager;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -86,8 +87,9 @@ public class ManagedRepositoryTest extends AbstractServerImportTest {
     /* client file path transformer for comparing local and repo paths */
     private ClientFilePathTransformer cfpt = null;
 
-    @BeforeClass
+    @BeforeMethod
     public void setRepo() throws Exception {
+        newUserAndGroup("rw----");
         RepositoryMap rm = factory.sharedResources().repositories();
         for (int i = 0; i < rm.proxies.size(); i++) {
             final RepositoryPrx prx = rm.proxies.get(i);
@@ -574,7 +576,7 @@ public class ManagedRepositoryTest extends AbstractServerImportTest {
     @Test
     public void testAdminImportIntoAnotherGroup() throws Exception {
         /* prepare as admin to import into another group */
-        final long targetGroup = newUserAndGroup("rw----").groupId;
+        final long targetGroup = iAdmin.getEventContext().groupId;
         newUserInGroup(iAdmin.lookupGroup(SYSTEM_GROUP), false);
         client.getImplicitContext().put("omero.group", Long.toString(targetGroup));
 
