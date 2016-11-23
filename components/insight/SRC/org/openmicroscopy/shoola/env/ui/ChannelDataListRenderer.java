@@ -32,6 +32,7 @@ import omero.gateway.model.ChannelData;
 import org.apache.commons.lang.StringUtils;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.ColourIcon;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /**
  * A {@link ListCellRenderer} for {@link ChannelData} items
@@ -85,9 +86,9 @@ public class ChannelDataListRenderer extends JLabel implements ListCellRenderer 
             icon.setColour(col);
         
         setIcon(icon);
-        setText(ch.getName());
+        setText(UIUtilities.formatPartialName2(ch.getName(), 10));
 
         return this;
     }
-
+    
 }

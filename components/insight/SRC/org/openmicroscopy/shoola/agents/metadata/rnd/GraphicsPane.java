@@ -22,6 +22,7 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -197,9 +198,16 @@ class GraphicsPane
     private JPanel buildHistogramPane() {
         ChannelData[] items = new ChannelData[model.getChannelData().size()];
         items = model.getChannelData().toArray(items);
-        histogramChannel = new JComboBox(items);
         final RenderingControl rnd = model.getRenderingControls().iterator().next();
-        histogramChannel.setRenderer(new ChannelDataListRenderer(rnd));
+        ChannelDataListRenderer cellRnd = new ChannelDataListRenderer(rnd);
+        histogramChannel = new JComboBox(items) {
+            @Override
+            public Dimension getPreferredSize() {
+                // prevent combobox being squashed together on windows
+                return new Dimension(120, super.getPreferredSize().height);
+            }
+        };
+        histogramChannel.setRenderer(cellRnd);
         histogramChannel.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {                
@@ -226,6 +234,7 @@ class GraphicsPane
                 histogram.setInputWindow(start, end);
             }
         });
+        
         
         JPanel p = new JPanel(new BorderLayout());
         p.setBorder(BorderFactory.createLineBorder(Color.lightGray));
@@ -283,6 +292,7 @@ class GraphicsPane
         
         greyScale = new JCheckBox("Grayscale");
         greyScale.setSelected(model.isGreyScale());
+        greyScale.setBackground(UIUtilities.BACKGROUND);
         greyScale.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
@@ -301,6 +311,7 @@ class GraphicsPane
         previewToolBar = new PreviewToolBar(controller, model);
         
         showHistogram = new JCheckBox("Show Histogram");
+        showHistogram.setBackground(UIUtilities.BACKGROUND);
         showHistogram.setSelected(false);
         if (model.isBigImage()) {
             showHistogram.setEnabled(false);
