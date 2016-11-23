@@ -73,7 +73,6 @@
         <exclude org="org.slf4j"/>
         <exclude org="commons-logging"/>
     </dependency>
-    <dependency org="ome" name="lwf-stubs" rev="${versions.bioformats}" transitive="false"/>
     <!-- importer -->
     <dependency org="org.slf4j" name="slf4j-api" rev="${versions.slf4j}"/>
     <dependency org="ch.qos.logback" name="logback-classic" rev="${versions.logback}"/>
