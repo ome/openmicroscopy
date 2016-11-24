@@ -78,6 +78,10 @@
           m2compatible="true"
           root="http://artifacts.unidata.ucar.edu/content/repositories/unidata-releases/"/>
 
+      <ibiblio name="zeroc" cache="maven"
+          usepoms="true" useMavenMetadata="true"
+          m2compatible="true"
+          root="https://repo.zeroc.com/nexus/content/repositories/releases/"/>
 
     <!-- Main resolver which has as its first resolver the location
     where all our jars will be published -->
@@ -87,6 +91,7 @@
         <resolver ref="user-maven"/>
         <resolver ref="maven"/>
         <resolver ref="ome-artifactory"/>
+        <resolver ref="zeroc"/>
     </chain>
 
     <!-- Resolver for OME dependencies-->
