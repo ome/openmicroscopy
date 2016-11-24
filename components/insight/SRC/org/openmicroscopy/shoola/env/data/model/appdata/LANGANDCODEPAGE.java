@@ -1,7 +1,7 @@
 /*
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2016 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -21,6 +21,9 @@
  *------------------------------------------------------------------------------
  */
 package org.openmicroscopy.shoola.env.data.model.appdata;
+
+import java.util.Arrays;
+import java.util.List;
 
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
@@ -60,4 +63,8 @@ public class LANGANDCODEPAGE extends Structure {
 	public LANGANDCODEPAGE(Pointer pointer) {
 		super(pointer);
 	}
+	
+    protected List getFieldOrder() {
+        return Arrays.asList(new String[] { "wLanguage", "wCodePage" });
+    }
 }
