@@ -58,8 +58,6 @@ import glob
 # from models import StoredConnection
 
 from webgateway_cache import webgateway_cache, CacheBase, webgateway_tempfile
-from omeroweb.webgateway.decorators import login_required as \
-    api_login_required, json_response
 
 import logging
 import os
