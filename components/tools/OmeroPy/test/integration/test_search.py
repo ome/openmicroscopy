@@ -18,6 +18,23 @@ import time
 
 class TestSearch(lib.ITest):
 
+    def testMaxSize(self):
+        """
+        Search for a large number of items to test a cut-off
+        """
+        uuid = self.uuid().replace("-", "")
+        tags = []
+        for x in range(0, 1000):
+            tag = omero.model.TagAnnotationI()
+            tag.ns = omero.rtypes.rstring(uuid)
+            tags.append(tag)
+        for tag in self.update.saveAndReturnArray(tags):
+            self.root.sf.getUpdateService().indexObject(tag)
+        r = self.query.findAllByFullText("TagAnnotation", uuid, None)
+        # assert 1000  == len(r)
+        # On this branch, setMaxResults has been hard-coded to 500
+        assert 500  == len(r)
+
     def test2541(self):
         """
         Search for private data from another user
