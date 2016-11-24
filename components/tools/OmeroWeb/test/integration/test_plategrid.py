@@ -69,14 +69,14 @@ def update_service(client):
 @pytest.fixture()
 def well_sample_factory(itest):
 
-    def make_well_sample(xPos=None, yPos=None):
+    def make_well_sample(x_pos=None, y_pos=None):
         ws = WellSampleI()
         image = itest.new_image(name=itest.uuid())
         ws.image = image
-        if xPos is not None:
-            ws.posX = LengthI(xPos, UnitsLength.REFERENCEFRAME)
-        if yPos is not None:
-            ws.posY = LengthI(yPos, UnitsLength.REFERENCEFRAME)
+        if x_pos is not None:
+            ws.posX = LengthI(x_pos, UnitsLength.REFERENCEFRAME)
+        if y_pos is not None:
+            ws.posY = LengthI(y_pos, UnitsLength.REFERENCEFRAME)
         return ws
     return make_well_sample
 
