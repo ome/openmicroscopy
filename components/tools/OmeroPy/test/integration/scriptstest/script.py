@@ -100,7 +100,7 @@ def check_file_annotation(client, file_annotation,
     assert orig_file.getName().getValue() is not None
     id = file_annotation.getValue().getId().getValue()
     assert id > 0
-    # session is closed during teardown
+
     conn = BlitzGateway(client_obj=client)
 
     wrapper = conn.getObject("FileAnnotation", id)

@@ -99,16 +99,16 @@ def create_roi(image_id, x1, x2, y1, y2, size_t):
     """
     roi = omero.model.RoiI()
     roi.setImage(omero.model.ImageI(image_id, False))
-    # create lines and polylines on each timepoint
+    # create lines and polylines
     for t in range(size_t):
-        # lines
+        # lines no t and z set
         line = omero.model.LineI()
         line.x1 = omero.rtypes.rdouble(x1)
         line.x2 = omero.rtypes.rdouble(x2)
         line.y1 = omero.rtypes.rdouble(y1)
         line.y2 = omero.rtypes.rdouble(y2)
         roi.addShape(line)
-        # polylines
+        # polylines on each timepoint
         polyline = omero.model.PolylineI()
         polyline.theZ = omero.rtypes.rint(0)
         polyline.theT = omero.rtypes.rint(t)
