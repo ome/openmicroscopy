@@ -346,12 +346,11 @@ class ITest(object):
         query = client.sf.getQueryService()
         fake = create_path(name, "&%s.fake" % append)
         if with_companion:
-            ini = open(fake.abspath() + ".ini", "w")
-            if global_metadata:
-                ini.write("[GlobalMetadata]\n")
-                for k, v in global_metadata.items():
-                    ini.write("%s=%s\n" % (k, v))
-            ini.close()
+            with open(fake.abspath() + ".ini", "w") as ini:
+                if global_metadata:
+                    ini.write("[GlobalMetadata]\n")
+                    for k, v in global_metadata.items():
+                        ini.write("%s=%s\n" % (k, v))
 
         pixel_ids = self.import_image(
             filename=fake.abspath(), client=client, skip=skip, **kwargs)
