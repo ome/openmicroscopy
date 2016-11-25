@@ -41,7 +41,7 @@ class TestUtilScripts(ScriptTest):
 
         client = self.root
 
-        image = self.createTestImage(100, 100, 2, 3, 4)    # x,y,z,c,t
+        image = self.create_test_image(100, 100, 2, 3, 4)    # x,y,z,c,t
         image_id = image.getId().getValue()
         image_ids = []
         image_ids.append(omero.rtypes.rlong(image_id))
@@ -67,7 +67,7 @@ class TestUtilScripts(ScriptTest):
 
         image_ids = []
         for i in range(2):
-            image = self.createTestImage(100, 100, 2, 3, 4)    # x,y,z,c,t
+            image = self.create_test_image(100, 100, 2, 3, 4)    # x,y,z,c,t
             image_ids.append(omero.rtypes.rlong(image.getId().getValue()))
 
         args = {
@@ -88,7 +88,7 @@ class TestUtilScripts(ScriptTest):
 
         size_x = 100
         size_y = 100
-        image = self.createTestImage(size_x, size_y, 5, 1, 1)    # x,y,z,c,t
+        image = self.create_test_image(size_x, size_y, 5, 1, 1)    # x,y,z,c,t
         image_id = image.getId().getValue()
         image_ids = []
         image_ids.append(omero.rtypes.rlong(image_id))

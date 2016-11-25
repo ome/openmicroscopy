@@ -98,7 +98,7 @@ class TestRename(AbstractRepoTest):
             "user2": self.new_client(group=group),
             "root": self.root,
         }
-        orig_img = self.importMIF(name="rename",
+        orig_img = self.import_mif(name="rename",
                                   sizeX=16, sizeY=16,
                                   with_companion=True,
                                   client=clients[owner])[0]
@@ -127,7 +127,7 @@ class TestRename(AbstractRepoTest):
     def test_rename_annotation(self):
         ns = NSFSRENAME
         mrepo = self.client.getManagedRepository()
-        orig_img = self.importMIF(with_companion=True)
+        orig_img = self.import_mif(with_companion=True)
         orig_fs = self.get_fileset(orig_img)
         new_dir = prep_directory(self.client, mrepo)
         self.assert_rename(orig_fs, new_dir)

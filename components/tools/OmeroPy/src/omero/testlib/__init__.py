@@ -117,7 +117,7 @@ class ITest(object):
         cls.root = None
         cls.__clients.__del__()
 
-    def keepRootAlive(self):
+    def keep_root_alive(self):
         """
         Keeps root connection alive.
         """
@@ -286,16 +286,16 @@ class ITest(object):
     the file and then return the image.
     """
 
-    def importSingleImage(self, name=None, client=None,
-                          with_companion=False, **kwargs):
+    def import_single_image(self, name=None, client=None,
+                            with_companion=False, **kwargs):
         if client is None:
             client = self.client
         if name is None:
-            name = "importSingleImage"
+            name = "import_single_image"
 
-        images = self.importMIF(1, name=name, client=client,
-                                with_companion=with_companion,
-                                **kwargs)
+        images = self.import_mif(1, name=name, client=client,
+                                 with_companion=with_companion,
+                                 **kwargs)
         return images[0]
 
     """
@@ -303,14 +303,14 @@ class ITest(object):
     the file and then return the image..
     """
 
-    def importSingleImageWithCompanion(self, name=None, client=None):
+    def import_single_image_with_companion(self, name=None, client=None):
         if client is None:
             client = self.client
         if name is None:
-            name = "importSingleImageWithCompanion"
+            name = "import_single_image_with_companion"
 
-        images = self.importMIF(1, name=name, client=client,
-                                with_companion=True)
+        images = self.import_mif(1, name=name, client=client,
+                                 with_companion=True)
         return images[0]
 
     """
@@ -318,12 +318,12 @@ class ITest(object):
     the file and then return the list of images.
     """
 
-    def importMIF(self, seriesCount=0, name=None, client=None,
-                  with_companion=False, skip="all", **kwargs):
+    def import_mif(self, series_count=0, name=None, client=None,
+                   with_companion=False, skip="all", **kwargs):
         if client is None:
             client = self.client
         if name is None:
-            name = "importMIF"
+            name = "import_mif"
 
         try:
             global_metadata = kwargs.pop("GlobalMetadata")
@@ -336,8 +336,8 @@ class ITest(object):
 
         # Only include series count if enabled; in the case of plates,
         # this will be unused
-        if seriesCount >= 1:
-            append = "series=%d%s" % (seriesCount, append)
+        if series_count >= 1:
+            append = "series=%d%s" % (series_count, append)
 
         if kwargs:
             for k, v in kwargs.items():
@@ -355,8 +355,8 @@ class ITest(object):
         pixel_ids = self.import_image(
             filename=fake.abspath(), client=client, skip=skip, **kwargs)
 
-        if seriesCount >= 1:
-            assert seriesCount == len(pixel_ids)
+        if series_count >= 1:
+            assert series_count == len(pixel_ids)
 
         images = []
         for pix_id_str in pixel_ids:
@@ -364,10 +364,10 @@ class ITest(object):
             images.append(pixels.getImage())
         return images
 
-    def importPlates(
+    def import_plates(
         self, client=None,
-        plates=1, plateAcqs=1,
-        plateCols=1, plateRows=1,
+        plates=1, plate_acqs=1,
+        plate_cols=1, plate_rows=1,
         fields=1, **kwargs
     ):
 
@@ -375,11 +375,11 @@ class ITest(object):
             client = self.client
 
         kwargs["plates"] = plates
-        kwargs["plateAcqs"] = plateAcqs
-        kwargs["plateCols"] = plateCols
-        kwargs["plateRows"] = plateRows
+        kwargs["plateAcqs"] = plate_acqs
+        kwargs["plateCols"] = plate_cols
+        kwargs["plateRows"] = plate_rows
         kwargs["fields"] = fields
-        images = self.importMIF(client=client, **kwargs)
+        images = self.import_mif(client=client, **kwargs)
         images = [x.id.val for x in images]
 
         query = client.sf.getQueryService()
@@ -392,8 +392,8 @@ class ITest(object):
             omero.sys.ParametersI().addIds(images))
         return plates
 
-    def createTestImage(self, sizeX=16, sizeY=16, sizeZ=1, sizeC=1, sizeT=1,
-                        session=None):
+    def create_test_image(self, size_x=16, size_y=16, size_z=1, size_c=1,
+                          size_t=1, session=None):
         """
         Creates a test image of the required dimensions, where each pixel
         value is set to the value of x+y.
@@ -435,8 +435,8 @@ class ITest(object):
 
         # code below here is very similar to combineImages.py
         # create an image in OMERO and populate the planes with numpy 2D arrays
-        channel_list = range(1, sizeC + 1)
-        iid = pixels_service.createImage(sizeX, sizeY, sizeZ, sizeT,
+        channel_list = range(1, size_c + 1)
+        iid = pixels_service.createImage(size_x, size_y, size_z, size_t,
                                          channel_list, pixels_type,
                                          "testImage", "description")
         image_id = iid.getValue()
@@ -448,13 +448,13 @@ class ITest(object):
         colour_map = {0: (0, 0, 255, 255), 1: (0, 255, 0, 255),
                       2: (255, 0, 0, 255), 3: (255, 0, 255, 255)}
         f_list = [f1, f2, f3]
-        for the_c in range(sizeC):
+        for the_c in range(size_c):
             min_value = 0
             max_value = 0
             f = f_list[the_c % len(f_list)]
-            for the_z in range(sizeZ):
-                for the_t in range(sizeT):
-                    plane_2d = fromfunction(f, (sizeY, sizeX), dtype=int16)
+            for the_z in range(size_z):
+                for the_t in range(size_t):
+                    plane_2d = fromfunction(f, (size_y, size_x), dtype=int16)
                     script_utils.uploadPlane(
                         raw_pixel_store, plane_2d, the_z, the_c, the_t)
                     min_value = min(min_value, plane_2d.min())
@@ -464,7 +464,7 @@ class ITest(object):
             rgba = None
             if the_c in colour_map:
                 rgba = colour_map[the_c]
-        for the_c in range(sizeC):
+        for the_c in range(size_c):
             script_utils.resetRenderingSettings(
                 rendering_engine, pixels_id, the_c, min_value, max_value, rgba)
 
@@ -481,8 +481,7 @@ class ITest(object):
             tb.close()
 
         # Reloading image to prevent error on old pixels updateEvent
-        image = container_service.getImages("Image", [image_id], None)[0]
-        return image
+        return container_service.getImages("Image", [image_id], None)[0]
 
     def get_fileset(self, i, client=None):
         """
@@ -506,7 +505,7 @@ class ITest(object):
                 self.root.sf.getUpdateService().indexObject(
                     obj, {"omero.group": "-1"})
 
-    def waitOnCmd(self, client, handle, loops=10, ms=500, passes=True):
+    def wait_on_cmd(self, client, handle, loops=10, ms=500, passes=True):
         """
         Wait on an omero.cmd.HandlePrx to finish processing
         and then assert pass or fail. The callback is returned
@@ -760,7 +759,7 @@ class ITest(object):
         jpeg = Image.open(tfile)  # Raises if invalid
         return jpeg
 
-    def loginAttempt(self, name, t, pw="BAD", less=False):
+    def login_attempt(self, name, t, pw="BAD", less=False):
         """
         Checks that login happens in less than or greater than
         the given time. By default, the password "BAD" is used,
@@ -769,7 +768,7 @@ class ITest(object):
         To check that logins happen more quickly, pass the
         correct password and less=True:
 
-            loginAttempt("user", 0.15, pw="REALVALUE", less=True)
+            login_attempt("user", 0.15, pw="REALVALUE", less=True)
 
         See integration.tickets4000 and 5000
         """
@@ -792,8 +791,8 @@ class ITest(object):
         finally:
             c.__del__()
 
-    def doSubmit(self, request, client, test_should_pass=True,
-                 omero_group=None):
+    def do_submit(self, request, client, test_should_pass=True,
+                  omero_group=None):
         """
         Performs the request(s), waits on completion and checks that the
         result is not an error. The request can either be a single command
@@ -930,7 +929,7 @@ class ITest(object):
         tag = self.new_tag(name=name, ns=ns)
         return client.sf.getUpdateService().saveAndReturnObject(tag)
 
-    def createDatasets(self, count, baseName, client=None):
+    def create_datasets(self, count, base_name, client=None):
         """
         Creates a list of the given number of Dataset instances with names of
         the form "name [1]", "name [2]" etc and returns them in a list.
@@ -945,7 +944,7 @@ class ITest(object):
         update = client.sf.getUpdateService()
         dsets = []
         for i in range(count):
-            name = baseName + " [" + str(i + 1) + "]"
+            name = base_name + " [" + str(i + 1) + "]"
             dsets.append(self.new_dataset(name=name))
         return update.saveAndReturnArray(dsets)
 
@@ -1037,7 +1036,7 @@ class ITest(object):
         """
         Deletes a list of model entities (ProjectI, DatasetI or ImageI)
         by creating Delete2 commands and calling
-        :func:`~test.ITest.doSubmit`.
+        :func:`~test.ITest.do_submit`.
 
         :param obj: a list of objects to be deleted
         """
@@ -1053,14 +1052,14 @@ class ITest(object):
         ids = [i.id.val for i in obj]
         command = Delete2(targetObjects={t: ids})
 
-        self.doSubmit(command, self.client)
+        self.do_submit(command, self.client)
 
     def change_group(self, obj, target, client=None):
         """
         Moves a list of model entities (ProjectI, DatasetI or ImageI)
         to the target group. Accepts a client instance to guarantee calls
         in correct user contexts. Creates Chgrp2 commands and calls
-        :func:`~test.ITest.doSubmit`.
+        :func:`~test.ITest.do_submit`.
 
         :param obj: a list of objects to be moved
         :param target: the ID of the target group
@@ -1080,13 +1079,13 @@ class ITest(object):
         ids = [i.id.val for i in obj]
         command = Chgrp2(targetObjects={t: ids}, groupId=target)
 
-        self.doSubmit(command, client)
+        self.do_submit(command, client)
 
     def change_permissions(self, gid, perms, client=None):
         """
         Changes the permissions of an ExperimenterGroup object.
         Accepts a client instance to guarantee calls in correct user contexts.
-        Creates Chmod2 commands and calls :func:`~test.ITest.doSubmit`.
+        Creates Chmod2 commands and calls :func:`~test.ITest.do_submit`.
 
         :param gid: id of an ExperimenterGroup
         :param perms: permissions string
@@ -1098,7 +1097,7 @@ class ITest(object):
         command = Chmod2(
             targetObjects={'ExperimenterGroup': [gid]}, permissions=perms)
 
-        self.doSubmit(command, client)
+        self.do_submit(command, client)
 
     def create_share(self, description="", timeout=None,
                      objects=[], experimenters=[], guests=[],
@@ -1126,18 +1125,18 @@ class ProjectionFixture(object):
     """
 
     def __init__(self, perms, writer, reader,
-                 canRead,
-                 canAnnotate=False, canDelete=False,
-                 canEdit=False, canLink=False):
+                 can_read,
+                 can_annotate=False, can_delete=False,
+                 can_edit=False, can_link=False):
         self.perms = perms
         self.writer = writer
         self.reader = reader
 
-        self.canRead = canRead
-        self.canAnnotate = canAnnotate
-        self.canDelete = canDelete
-        self.canEdit = canEdit
-        self.canLink = canLink
+        self.canRead = can_read
+        self.canAnnotate = can_annotate
+        self.canDelete = can_delete
+        self.canEdit = can_edit
+        self.canLink = can_link
 
     def get_name(self):
         name = self.perms

@@ -39,8 +39,8 @@ class TestRendering(IWebTest):
 
     def test_copy_past_rendering_settings_from_image(self):
         # Create 2 images with 2 channels each
-        iid1 = self.createTestImage(sizeC=2, session=self.sf).id.val
-        iid2 = self.createTestImage(sizeC=2, session=self.sf).id.val
+        iid1 = self.create_test_image(size_c=2, session=self.sf).id.val
+        iid2 = self.create_test_image(size_c=2, session=self.sf).id.val
 
         conn = omero.gateway.BlitzGateway(client_obj=self.client)
 
@@ -79,8 +79,8 @@ class TestRendering(IWebTest):
 
     def test_copy_past_rendering_settings_from_url(self):
         # Create 2 images with 2 channels each
-        iid1 = self.createTestImage(sizeC=2, session=self.sf).id.val
-        iid2 = self.createTestImage(sizeC=2, session=self.sf).id.val
+        iid1 = self.create_test_image(size_c=2, session=self.sf).id.val
+        iid2 = self.create_test_image(size_c=2, session=self.sf).id.val
 
         conn = omero.gateway.BlitzGateway(client_obj=self.client)
 
@@ -163,7 +163,7 @@ class TestRendering(IWebTest):
     """
     def test_all_rendering_defs(self):
         # Create image with 3 channels
-        iid = self.createTestImage(sizeC=3, session=self.sf).id.val
+        iid = self.create_test_image(size_c=3, session=self.sf).id.val
 
         conn = omero.gateway.BlitzGateway(client_obj=self.client)
 
@@ -236,7 +236,7 @@ class TestRenderImageRegion(IWebTest):
         HTTP status code is used and that consequently, any and all
         rendering engines that were created servicing the request are closed.
         """
-        image_id = self.createTestImage(sizeC=1, session=self.sf).id.val
+        image_id = self.create_test_image(size_c=1, session=self.sf).id.val
 
         request_url = reverse(
             'webgateway.views.render_image_region',
@@ -259,7 +259,7 @@ class TestRenderImageRegion(IWebTest):
         consequently, any and all rendering engines that were created
         servicing the request are closed.
         """
-        image_id = self.createTestImage(sizeC=1, session=self.sf).id.val
+        image_id = self.create_test_image(size_c=1, session=self.sf).id.val
 
         request_url = reverse(
             'webgateway.views.render_image_region',
@@ -282,7 +282,7 @@ class TestRenderImageRegion(IWebTest):
         consequently, any and all rendering engines that were created
         servicing the request are closed.
         """
-        image_id = self.createTestImage(sizeC=1, session=self.sf).id.val
+        image_id = self.create_test_image(size_c=1, session=self.sf).id.val
 
         request_url = reverse(
             'webgateway.views.render_image_region',

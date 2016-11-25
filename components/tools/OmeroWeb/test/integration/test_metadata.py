@@ -36,7 +36,7 @@ class TestCoreMetadata(IWebTest):
 
     def test_pixel_size_units(self):
         # Create image
-        iid = self.createTestImage(sizeC=2, session=self.sf).id.val
+        iid = self.create_test_image(size_c=2, session=self.sf).id.val
 
         # show right panel for image
         request_url = reverse('load_metadata_details', args=['image', iid])

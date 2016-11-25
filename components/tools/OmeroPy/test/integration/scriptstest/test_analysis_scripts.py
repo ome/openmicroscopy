@@ -47,7 +47,7 @@ class TestAnalysisScripts(ScriptTest):
         size_y = 100
         # x,y,z,c,t
         session = client.getSession()
-        image = self.createTestImage(size_x, size_y, 1, 2, size_t, session)
+        image = self.create_test_image(size_x, size_y, 1, 2, size_t, session)
         image_id = image.getId().getValue()
         roi = create_roi(image_id, 0, size_x / 2, 0, size_y / 2, size_t)
         session.getUpdateService().saveAndReturnObject(roi)
@@ -76,7 +76,7 @@ class TestAnalysisScripts(ScriptTest):
         size_x = 100
         size_y = 100
         session = client.getSession()
-        image = self.createTestImage(size_x, size_y, 1, 2, size_t, session)
+        image = self.create_test_image(size_x, size_y, 1, 2, size_t, session)
         image_id = image.getId().getValue()
         roi = create_roi(image_id, 0, size_x / 2, 0, size_y / 2, size_t)
         session.getUpdateService().saveAndReturnObject(roi)

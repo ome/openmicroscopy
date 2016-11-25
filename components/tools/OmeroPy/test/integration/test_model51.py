@@ -35,7 +35,7 @@ from omero.rtypes import unwrap
 class TestModel51(ITest):
 
     def testExposureTime(self):
-        img = self.importMIF(name="testExposureTime", exposureTime=1.2)[0]
+        img = self.import_mif(name="testExposureTime", exposureTime=1.2)[0]
         plane_info = self.query.findByQuery((
             "select pi from PlaneInfo pi "
             "join fetch pi.exposureTime "
@@ -54,7 +54,7 @@ class TestModel51(ITest):
         assert omero.model.enums.UnitsTime.MICROSECOND == unit
 
     def testPhysicalSize(self):
-        img = self.importMIF(name="testPhysicalSize", physicalSizeZ=2.0)[0]
+        img = self.import_mif(name="testPhysicalSize", physicalSizeZ=2.0)[0]
         pixels = self.query.findByQuery((
             "select pix from Pixels pix "
             "join fetch pix.physicalSizeZ "
@@ -191,7 +191,7 @@ class TestModel51(ITest):
             u2.saveAndReturnObject(m2)
 
     def testUnitProjections(self):
-        img = self.importMIF(name="testUnitProjections", exposureTime=1.2)[0]
+        img = self.import_mif(name="testUnitProjections", exposureTime=1.2)[0]
 
         as_map = self.query.projection((
             "select pi.exposureTime from PlaneInfo pi "

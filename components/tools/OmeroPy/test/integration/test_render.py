@@ -59,7 +59,7 @@ class TestRendering(ITest):
         size_z = 1
         size_c = 1
         size_t = 1
-        image = self.createTestImage(size_x, size_y, size_z, size_c, size_t)
+        image = self.create_test_image(size_x, size_y, size_z, size_c, size_t)
         pixels_id = image.getPrimaryPixels().getId().getValue()
 
         rendering_engine = session.createRenderingEngine()

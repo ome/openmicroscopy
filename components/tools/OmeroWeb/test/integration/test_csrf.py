@@ -192,7 +192,7 @@ class TestCsrf(IWebTest):
         code.
         """
 
-        img = self.createTestImage(session=self.sf)
+        img = self.create_test_image(session=self.sf)
 
         # put image id into session
         session = self.django_client.session
@@ -217,7 +217,7 @@ class TestCsrf(IWebTest):
         code.
         """
 
-        img = self.createTestImage(session=self.sf)
+        img = self.create_test_image(session=self.sf)
 
         # Reset through webclient as it is calling directly
         # webgateway.reset_image_rdef_json
@@ -235,7 +235,7 @@ class TestCsrf(IWebTest):
 
     def test_apply_owners_rendering_settings(self):
 
-        img = self.createTestImage(session=self.sf)
+        img = self.create_test_image(session=self.sf)
 
         request_url = reverse('reset_owners_rdef_json')
         data = {
@@ -255,7 +255,7 @@ class TestCsrf(IWebTest):
         code.
         """
 
-        img = self.createTestImage(session=self.sf)
+        img = self.create_test_image(session=self.sf)
 
         request_url = reverse('ome_tiff_script', args=[img.id.val])
 
@@ -266,7 +266,7 @@ class TestCsrf(IWebTest):
 
     def test_script(self):
 
-        img = self.createTestImage(session=self.sf)
+        img = self.create_test_image(session=self.sf)
 
         script_path = "omero/export_scripts/Batch_Image_Export.py"
         script = self.sf.getScriptService().getScriptID(script_path)

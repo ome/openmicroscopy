@@ -64,7 +64,7 @@ class TestFigureExportScripts(ScriptTest):
         image_ids = []
         for i in range(2):
             # x,y,z,c,t
-            image = self.createTestImage(100, 100, 1, 1, 1, session)
+            image = self.create_test_image(100, 100, 1, 1, 1, session)
             image_ids.append(omero.rtypes.rlong(image.getId().getValue()))
             self.link(dataset, image, client=client)
 
@@ -116,7 +116,7 @@ class TestFigureExportScripts(ScriptTest):
         session = client.getSession()
         image_ids = []
         for i in range(2):
-            image = self.createTestImage(256, 200, 5, 4, 1, session)
+            image = self.create_test_image(256, 200, 5, 4, 1, session)
             image_ids.append(omero.rtypes.rlong(image.getId().getValue()))
             self.link(dataset, image, client=client)
 
@@ -179,7 +179,7 @@ class TestFigureExportScripts(ScriptTest):
         image_ids = []
         session = client.getSession()
         for i in range(2):
-            image = self.createTestImage(256, 200, 5, 4, 1, session)
+            image = self.create_test_image(256, 200, 5, 4, 1, session)
             image_ids.append(omero.rtypes.rlong(image.getId().getValue()))
             self.link(dataset, image, client=client)
             add_rectangle_roi(session.getUpdateService(),
@@ -246,7 +246,7 @@ class TestFigureExportScripts(ScriptTest):
         image_ids = []
         session = client.getSession()
         for i in range(2):
-            image = self.createTestImage(256, 256, 10, 3, 1, session)
+            image = self.create_test_image(256, 256, 10, 3, 1, session)
             image_ids.append(omero.rtypes.rlong(image.getId().getValue()))
             self.link(dataset, image, client=client)
 
@@ -302,7 +302,7 @@ class TestFigureExportScripts(ScriptTest):
         session = client.getSession()
         image_ids = []
         for i in range(2):
-            image = self.createTestImage(256, 256, 5, 3, 20, session)
+            image = self.create_test_image(256, 256, 5, 3, 20, session)
             image_ids.append(omero.rtypes.rlong(image.getId().getValue()))
             self.link(dataset, image, client=client)
 
