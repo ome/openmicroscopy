@@ -33,7 +33,7 @@ class TestSearch(lib.ITest):
         r = self.query.findAllByFullText("TagAnnotation", uuid, None)
         # assert 1000  == len(r)
         # On this branch, setMaxResults has been hard-coded to 500
-        assert 500  == len(r)
+        assert 500 == len(r)
 
     def test2541(self):
         """
