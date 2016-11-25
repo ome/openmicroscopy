@@ -273,10 +273,10 @@ class ITest(object):
         for x in out.split("\n"):
             if x and x.find("Created") < 0 and x.find("#") < 0:
                 try:    # if the line has an image ID...
-                    imageId = str(long(x.strip()))
+                    image_id = str(long(x.strip()))
                     # Occasionally during tests an id is duplicated on stdout
-                    if imageId not in pix_ids:
-                        pix_ids.append(imageId)
+                    if image_id not in pix_ids:
+                        pix_ids.append(image_id)
                 except:
                     pass
         return pix_ids
@@ -326,10 +326,10 @@ class ITest(object):
             name = "importMIF"
 
         try:
-            globalMetadata = kwargs.pop("GlobalMetadata")
+            global_metadata = kwargs.pop("GlobalMetadata")
         except:
-            globalMetadata = None
-        if globalMetadata:
+            global_metadata = None
+        if global_metadata:
             with_companion = True
 
         append = ""
@@ -347,21 +347,21 @@ class ITest(object):
         fake = create_path(name, "&%s.fake" % append)
         if with_companion:
             ini = open(fake.abspath() + ".ini", "w")
-            if globalMetadata:
+            if global_metadata:
                 ini.write("[GlobalMetadata]\n")
-                for k, v in globalMetadata.items():
+                for k, v in global_metadata.items():
                     ini.write("%s=%s\n" % (k, v))
             ini.close()
 
-        pixelIds = self.import_image(
+        pixel_ids = self.import_image(
             filename=fake.abspath(), client=client, skip=skip, **kwargs)
 
         if seriesCount >= 1:
-            assert seriesCount == len(pixelIds)
+            assert seriesCount == len(pixel_ids)
 
         images = []
-        for pixIdStr in pixelIds:
-            pixels = query.get("Pixels", long(pixIdStr))
+        for pix_id_str in pixel_ids:
+            pixels = query.get("Pixels", long(pix_id_str))
             images.append(pixels.getImage())
         return images
 
@@ -405,11 +405,11 @@ class ITest(object):
 
         if session is None:
             session = self.root.sf
-        renderingEngine = session.createRenderingEngine()
-        queryService = session.getQueryService()
-        pixelsService = session.getPixelsService()
-        rawPixelStore = session.createRawPixelsStore()
-        containerService = session.getContainerService()
+        rendering_engine = session.createRenderingEngine()
+        query_service = session.getQueryService()
+        pixels_service = session.getPixelsService()
+        raw_pixel_store = session.createRawPixelsStore()
+        container_service = session.getContainerService()
 
         def f1(x, y):
             return y
@@ -420,68 +420,69 @@ class ITest(object):
         def f3(x, y):
             return x
 
-        pType = "int16"
+        p_type = "int16"
         # look up the PixelsType object from DB
         # omero::model::PixelsType
-        pixelsType = queryService.findByQuery(
-            "from PixelsType as p where p.value='%s'" % pType, None)
-        if pixelsType is None and pType.startswith("float"):    # e.g. float32
+        pixels_type = query_service.findByQuery(
+            "from PixelsType as p where p.value='%s'" % p_type, None)
+        # if for example float32
+        if pixels_type is None and p_type.startswith("float"):
             # omero::model::PixelsType
-            pixelsType = queryService.findByQuery(
+            pixels_type = query_service.findByQuery(
                 "from PixelsType as p where p.value='%s'" % "float", None)
-        if pixelsType is None:
-            print "Unknown pixels type for: " % pType
-            raise Exception("Unknown pixels type for: " % pType)
+        if pixels_type is None:
+            print "Unknown pixels type for: " % p_type
+            raise Exception("Unknown pixels type for: " % p_type)
 
         # code below here is very similar to combineImages.py
         # create an image in OMERO and populate the planes with numpy 2D arrays
-        channelList = range(1, sizeC + 1)
-        iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT,
-                                        channelList, pixelsType,
-                                        "testImage", "description")
-        imageId = iId.getValue()
-        image = containerService.getImages("Image", [imageId], None)[0]
+        channel_list = range(1, sizeC + 1)
+        iid = pixels_service.createImage(sizeX, sizeY, sizeZ, sizeT,
+                                         channel_list, pixels_type,
+                                         "testImage", "description")
+        image_id = iid.getValue()
+        image = container_service.getImages("Image", [image_id], None)[0]
 
-        pixelsId = image.getPrimaryPixels().getId().getValue()
-        rawPixelStore.setPixelsId(pixelsId, True)
+        pixels_id = image.getPrimaryPixels().getId().getValue()
+        raw_pixel_store.setPixelsId(pixels_id, True)
 
-        colourMap = {0: (0, 0, 255, 255), 1: (0, 255, 0, 255),
-                     2: (255, 0, 0, 255), 3: (255, 0, 255, 255)}
-        fList = [f1, f2, f3]
-        for theC in range(sizeC):
-            minValue = 0
-            maxValue = 0
-            f = fList[theC % len(fList)]
-            for theZ in range(sizeZ):
-                for theT in range(sizeT):
-                    plane2D = fromfunction(f, (sizeY, sizeX), dtype=int16)
+        colour_map = {0: (0, 0, 255, 255), 1: (0, 255, 0, 255),
+                      2: (255, 0, 0, 255), 3: (255, 0, 255, 255)}
+        f_list = [f1, f2, f3]
+        for the_c in range(sizeC):
+            min_value = 0
+            max_value = 0
+            f = f_list[the_c % len(f_list)]
+            for the_z in range(sizeZ):
+                for the_t in range(sizeT):
+                    plane_2d = fromfunction(f, (sizeY, sizeX), dtype=int16)
                     script_utils.uploadPlane(
-                        rawPixelStore, plane2D, theZ, theC, theT)
-                    minValue = min(minValue, plane2D.min())
-                    maxValue = max(maxValue, plane2D.max())
-            pixelsService.setChannelGlobalMinMax(
-                pixelsId, theC, float(minValue), float(maxValue))
+                        raw_pixel_store, plane_2d, the_z, the_c, the_t)
+                    min_value = min(min_value, plane_2d.min())
+                    max_value = max(max_value, plane_2d.max())
+            pixels_service.setChannelGlobalMinMax(
+                pixels_id, the_c, float(min_value), float(max_value))
             rgba = None
-            if theC in colourMap:
-                rgba = colourMap[theC]
-        for theC in range(sizeC):
+            if the_c in colour_map:
+                rgba = colour_map[the_c]
+        for the_c in range(sizeC):
             script_utils.resetRenderingSettings(
-                renderingEngine, pixelsId, theC, minValue, maxValue, rgba)
+                rendering_engine, pixels_id, the_c, min_value, max_value, rgba)
 
-        renderingEngine.close()
-        rawPixelStore.close()
+        rendering_engine.close()
+        raw_pixel_store.close()
 
         # See #9070. Forcing a thumbnail creation
         tb = session.createThumbnailStore()
         try:
-            s = tb.getThumbnailByLongestSideSet(rint(16), [pixelsId])
-            assert s[pixelsId] != ''
+            s = tb.getThumbnailByLongestSideSet(rint(16), [pixels_id])
+            assert s[pixels_id] != ''
 
         finally:
             tb.close()
 
         # Reloading image to prevent error on old pixels updateEvent
-        image = containerService.getImages("Image", [imageId], None)[0]
+        image = container_service.getImages("Image", [image_id], None)[0]
         return image
 
     def get_fileset(self, i, client=None):
@@ -531,14 +532,14 @@ class ITest(object):
         if not self.root:
             raise Exception("No root client. Cannot create user")
 
-        adminService = self.root.getSession().getAdminService()
+        admin_service = self.root.getSession().getAdminService()
         if uname is None:
             uname = self.uuid()
 
         # Create group if necessary
         if not group:
             g = self.new_group(perms=perms)
-            group = g.name.val
+            group = g.getName().getValue()
         else:
             g, group = self.group_and_name(group)
 
@@ -549,17 +550,17 @@ class ITest(object):
         e.lastName = rstring(uname)
         e.ldap = rbool(False)
         e.email = rstring(email)
-        listOfGroups = list()
-        listOfGroups.append(adminService.lookupGroup('user'))
-        uid = adminService.createExperimenterWithPassword(
-            e, rstring(uname), g, listOfGroups)
-        e = adminService.lookupExperimenter(uname)
+        list_of_groups = list()
+        list_of_groups.append(admin_service.lookupGroup('user'))
+        uid = admin_service.createExperimenterWithPassword(
+            e, rstring(uname), g, list_of_groups)
+        e = admin_service.lookupExperimenter(uname)
         if owner:
-            adminService.setGroupOwner(g, e)
+            admin_service.setGroupOwner(g, e)
         if system:
-            adminService.addGroups(e, [ExperimenterGroupI(0, False)])
+            admin_service.addGroups(e, [ExperimenterGroupI(0, False)])
 
-        return adminService.getExperimenter(uid)
+        return admin_service.getExperimenter(uid)
 
     def new_client(self, group=None, user=None, perms=None,
                    owner=False, system=False, session=None,
@@ -679,9 +680,9 @@ class ITest(object):
             client = self.client
 
         fake = create_path("missing_pyramid", "&sizeX=4000&sizeY=4000.fake")
-        pixelsId = self.import_image(filename=fake.abspath(), client=client,
-                                     skip="all")
-        return pixelsId[0]
+        pixels_id = self.import_image(filename=fake.abspath(), client=client,
+                                      skip="all")
+        return pixels_id[0]
 
     def pix(self, x=10, y=10, z=10, c=3, t=50, client=None):
         """
@@ -784,11 +785,11 @@ class ITest(object):
                 if pw != "BAD":
                     raise
             t2 = time.time()
-            T = (t2 - t1)
+            diff = (t2 - t1)
             if less:
-                assert T < t, "%s > %s" % (T, t)
+                assert diff < t, "%s > %s" % (diff, t)
             else:
-                assert T > t, "%s < %s" % (T, t)
+                assert diff > t, "%s < %s" % (diff, t)
         finally:
             c.__del__()
 
@@ -972,24 +973,24 @@ class ITest(object):
         if name is None:
             name = str(self.uuid())
 
-        oFile = OriginalFileI()
-        oFile.setName(rstring(name))
-        oFile.setPath(rstring(str(self.uuid())))
-        oFile.setSize(rlong(len(binary)))
-        oFile.hasher = ChecksumAlgorithmI()
-        oFile.hasher.value = rstring("SHA1-160")
-        oFile.setMimetype(rstring(str(format)))
-        oFile = update.saveAndReturnObject(oFile)
+        ofile = OriginalFileI()
+        ofile.setName(rstring(name))
+        ofile.setPath(rstring(str(self.uuid())))
+        ofile.setSize(rlong(len(binary)))
+        ofile.hasher = ChecksumAlgorithmI()
+        ofile.hasher.value = rstring("SHA1-160")
+        ofile.setMimetype(rstring(str(format)))
+        ofile = update.saveAndReturnObject(ofile)
 
         # save binary
         store = client.sf.createRawFileStore()
-        store.setFileId(oFile.id.val)
+        store.setFileId(ofile.getId().getValue())
         store.write(binary, 0, 0)
-        oFile = store.save()  # See ticket:1501
+        ofile = store.save()  # See ticket:1501
         store.close()
 
         fa = FileAnnotationI()
-        fa.setFile(oFile)
+        fa.setFile(ofile)
         if ns is not None:
             fa.setNs(rstring(ns))
         return update.saveAndReturnObject(fa)
