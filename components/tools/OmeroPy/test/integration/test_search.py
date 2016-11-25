@@ -50,6 +50,7 @@ class TestSearch(lib.ITest):
         r = q.findAllByFullText("TagAnnotation", uuid, None)
         assert 0 == len(r)
 
+    @pytest.mark.skipif(True, reason="potentially fails with hard-limit")
     def test3164Private(self):
         group = self.new_group(perms="rw----")
         owner = self.new_client(group)
@@ -57,6 +58,7 @@ class TestSearch(lib.ITest):
         failed = self._3164_search(owner)
         self._3164_assert(failed)
 
+    @pytest.mark.skipif(True, reason="potentially fails with hard-limit")
     def test3164ReadOnlySelf(self):
         group = self.new_group(perms="rwr---")
         owner = self.new_client(group)
@@ -64,6 +66,7 @@ class TestSearch(lib.ITest):
         failed = self._3164_search(owner)
         self._3164_assert(failed)
 
+    @pytest.mark.skipif(True, reason="potentially fails with hard-limit")
     def test3164ReadOnlyOther(self):
         group = self.new_group(perms="rwr---")
         owner = self.new_client(group)
@@ -72,6 +75,7 @@ class TestSearch(lib.ITest):
         failed = self._3164_search(searcher)
         self._3164_assert(failed)
 
+    @pytest.mark.skipif(True, reason="potentially fails with hard-limit")
     def test3164CollabSelf(self):
         group = self.new_group(perms="rwrw--")
         owner = self.new_client(group)
@@ -79,6 +83,7 @@ class TestSearch(lib.ITest):
         failed = self._3164_search(owner)
         self._3164_assert(failed)
 
+    @pytest.mark.skipif(True, reason="potentially fails with hard-limit")
     def test3164CollabOther(self):
         group = self.new_group(perms="rwrw--")
         owner = self.new_client(group)
