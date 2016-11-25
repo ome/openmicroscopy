@@ -43,7 +43,7 @@ class TestThumbnails(IWebTest):
         """
         # Create a square image
         iId = self.create_test_image(size_x=125, size_y=125,
-                                   session=self.sf).id.val
+                                     session=self.sf).getId().getValue()
         args = [iId]
         if size is not None:
             args.append(size)

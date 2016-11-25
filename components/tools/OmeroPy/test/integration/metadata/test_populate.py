@@ -90,7 +90,7 @@ class BasePopulate(ITest):
 
     def createPlate(self, rowCount, colCount):
         plates = self.import_plates(plate_rows=rowCount,
-                                   plate_cols=colCount)
+                                    plate_cols=colCount)
         return plates[0]
 
     def createPlate1(self, rowCount, colCount):
