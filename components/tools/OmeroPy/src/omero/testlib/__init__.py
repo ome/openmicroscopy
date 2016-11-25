@@ -132,7 +132,7 @@ class ITest(object):
             raise
 
     @classmethod
-    def omeropydir(self):
+    def omeropydir(cls):
         count = 10
         searched = []
         p = path(".").abspath()
@@ -162,26 +162,26 @@ class ITest(object):
                         % (config_key, config_value))
 
     @classmethod
-    def uuid(self):
+    def uuid(cls):
         return str(uuid.uuid4())
 
     @classmethod
-    def login_args(self, client=None):
-        p = self.client.ic.getProperties()
+    def login_args(cls, client=None):
+        p = cls.client.ic.getProperties()
         host = p.getProperty("omero.host")
         port = p.getProperty("omero.port")
         if not client:
-            key = self.sf.ice_getIdentity().name
+            key = cls.sf.ice_getIdentity().name
         else:
             key = client.sf.ice_getIdentity().name
         return ["-q", "-s", host, "-k", key, "-p", port]
 
     @classmethod
-    def root_login_args(self):
-        p = self.root.ic.getProperties()
+    def root_login_args(cls):
+        p = cls.root.ic.getProperties()
         host = p.getProperty("omero.host")
         port = p.getProperty("omero.port")
-        key = self.root.sf.ice_getIdentity().name
+        key = cls.root.sf.ice_getIdentity().name
         return ["-s", host, "-k", key, "-p", port]
 
     def tmpfile(self):
@@ -189,11 +189,11 @@ class ITest(object):
 
     # Administrative methods
     @classmethod
-    def new_group(self, experimenters=None, perms=None,
+    def new_group(cls, experimenters=None, perms=None,
                   config=None, gname=None):
-        admin = self.root.sf.getAdminService()
+        admin = cls.root.sf.getAdminService()
         if gname is None:
-            gname = self.uuid()
+            gname = cls.uuid()
         group = ExperimenterGroupI()
         group.name = rstring(gname)
         group.ldap = rbool(False)
@@ -202,15 +202,15 @@ class ITest(object):
             group.details.permissions = PermissionsI(perms)
         gid = admin.createGroup(group)
         group = admin.getGroup(gid)
-        self.add_experimenters(group, experimenters)
+        cls.add_experimenters(group, experimenters)
         return group
 
     @classmethod
-    def add_experimenters(self, group, experimenters):
-        admin = self.root.sf.getAdminService()
+    def add_experimenters(cls, group, experimenters):
+        admin = cls.root.sf.getAdminService()
         if experimenters:
             for exp in experimenters:
-                user, name = self.user_and_name(exp)
+                user, name = cls.user_and_name(exp)
                 admin.addGroups(user, [group])
 
     def add_groups(self, experimenter, groups, owner=False):
@@ -520,7 +520,7 @@ class ITest(object):
         return callback
 
     @classmethod
-    def new_user(self, group=None, perms=None,
+    def new_user(cls, group=None, perms=None,
                  owner=False, system=False, uname=None,
                  email=None):
         """
@@ -528,19 +528,19 @@ class ITest(object):
         :system: If user is to be a system admin
         """
 
-        if not self.root:
+        if not cls.root:
             raise Exception("No root client. Cannot create user")
 
-        admin_service = self.root.getSession().getAdminService()
+        admin_service = cls.root.getSession().getAdminService()
         if uname is None:
-            uname = self.uuid()
+            uname = cls.uuid()
 
         # Create group if necessary
         if not group:
-            g = self.new_group(perms=perms)
+            g = cls.new_group(perms=perms)
             group = g.getName().getValue()
         else:
-            g, group = self.group_and_name(group)
+            g, group = cls.group_and_name(group)
 
         # Create user
         e = ExperimenterI()
@@ -611,9 +611,9 @@ class ITest(object):
         return elapsed, rv
 
     @classmethod
-    def group_and_name(self, group):
+    def group_and_name(cls, group):
         group = unwrap(group)
-        admin = self.root.sf.getAdminService()
+        admin = cls.root.sf.getAdminService()
         if isinstance(group, (int, long)):
             group = admin.getGroup(group)
             name = group.name.val
@@ -636,9 +636,9 @@ class ITest(object):
         return group, name
 
     @classmethod
-    def user_and_name(self, user):
+    def user_and_name(cls, user):
         user = unwrap(user)
-        admin = self.root.sf.getAdminService()
+        admin = cls.root.sf.getAdminService()
         if isinstance(user, omero.clients.BaseClient):
             admin = user.sf.getAdminService()
             ec = admin.getEventContext()
