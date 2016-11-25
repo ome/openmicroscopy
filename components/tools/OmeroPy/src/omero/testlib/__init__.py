@@ -755,8 +755,8 @@ class ITest(object):
                 import Image
             except ImportError:
                 assert False, "Pillow not installed"
-        from cStringIO import StringIO
-        tfile = StringIO(buf)
+        from io import BytesIO
+        tfile = BytesIO(buf)
         jpeg = Image.open(tfile)  # Raises if invalid
         return jpeg
 
