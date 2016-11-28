@@ -59,10 +59,7 @@ build_year = "${python_build_year}"
 
     <target name="python-test-suite" unless="TEST">
         <mkdir dir="${testreports.dir}"/>
-        <if>
-            <not>
-                <equals arg1="${MARK}" arg2=""/>
-            </not>
+        <if><isset property="MARK"/>
             <then>
                 <py_test target="${basedir}/test/unit">
                     <optionalArgs>
@@ -80,10 +77,7 @@ build_year = "${python_build_year}"
 
     <target name="python-integration" unless="env.NOPYTHON">
         <mkdir dir="${testreports.dir}"/>
-        <if>
-            <not>
-                <equals arg1="${MARK}" arg2=""/>
-            </not>
+        <if><isset property="MARK"/>
             <then>
                 <py_test target="${basedir}/test/integration">
                     <optionalArgs>

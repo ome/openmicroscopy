@@ -33,6 +33,7 @@ class PyTest(TestCommand):
         ('test-failfast', 'x', "Exit on first error"),
         ('test-verbose', 'v', "more verbose output"),
         ('test-quiet', 'q', "less verbose output"),
+        ('test-xdist', 'n', "parallel, requires pytest-xdist"),
         ('junitxml=', None, "create junit-xml style report file at 'path'"),
         ('pdb', None, "fallback to pdb on error"),
         ('markers', None, "list available markers'"),
@@ -52,6 +53,7 @@ class PyTest(TestCommand):
         self.junitxml = None
         self.pdb = False
         self.markers = False
+        self.test_xdist = None
 
     def finalize_options(self):
         TestCommand.finalize_options(self)
@@ -78,6 +80,8 @@ class PyTest(TestCommand):
         self.test_suite = True
         if self.markers:
             self.test_args = "--markers"
+        if self.test_xdist is not None:
+            self.test_args.extend(['-n', self.test_xdist])
         if self.test_ice_config is None:
             self.test_ice_config = os.path.abspath('ice.config')
         if 'ICE_CONFIG' not in os.environ:
