@@ -24,6 +24,7 @@
 
 """
 
+import os
 import sys
 import time
 import weakref
@@ -83,7 +84,7 @@ class ITest(object):
     @classmethod
     def setup_class(cls):
 
-        cls.OmeroPy = cls.omeropydir()
+        cls.omero_dist = cls.omerodistdir()
 
         cls.__clients = Clients()
 
@@ -132,26 +133,37 @@ class ITest(object):
             raise
 
     @classmethod
-    def omeropydir(cls):
+    def omerodistdir(cls):
+        def travers(p):
+            dist = None
+            for root, dirs, files in os.walk(p):
+                for f in files:
+                    a = path(os.path.join(root, f))
+                    # find OMERO dist by searching for bin/omero
+                    # exclude OmeroPy as is a source
+                    if (str(a.dirname().dirname().basename()) != 'OmeroPy' and
+                            str(a.basename()) == 'omero' and
+                            str(a.dirname().basename()) == 'bin'):
+                        dist = a.dirname().dirname()
+            return dist
         count = 10
         searched = []
         p = path(".").abspath()
         # "" means top of directory
-        while str(p.basename()) not in ("OmeroPy", ""):
+        dist_dir = None
+        while dist_dir is None:
+            dist_dir = travers(p)
             searched.append(p)
             p = p / ".."  # Walk up, in case test runner entered a subdirectory
-            try:
-                p, = p.dirs("OmeroPy")
-            except ValueError:
-                pass
             p = p.abspath()
             count -= 1
             if not count:
                 break
-        if str(p.basename()) == "OmeroPy":
-            return p
+        if dist_dir is not None:
+            return dist_dir
         else:
-            assert False, "Could not find OmeroPy/; searched %s" % searched
+            assert False, ("Could not find bin/omero executable; "
+                           "searched %s" % searched)
 
     def skip_if(self, config_key, condition, message=None):
         """Skip test if configuration does not meet condition"""
@@ -238,7 +250,7 @@ class ITest(object):
     def import_image(self, filename=None, client=None, extra_args=None,
                      skip="all", **kwargs):
         if filename is None:
-            filename = self.OmeroPy / ".." / ".." / ".." / \
+            filename = self.omero_dist / ".." / \
                 "components" / "common" / "test" / "tinyTest.d3d.dv"
         if client is None:
             client = self.client
@@ -246,9 +258,6 @@ class ITest(object):
         server = client.getProperty("omero.host")
         port = client.getProperty("omero.port")
         key = client.getSessionId()
-
-        # Search up until we find "OmeroPy"
-        dist_dir = self.OmeroPy / ".." / ".." / ".." / "dist"
 
         args = [sys.executable]
         args.append(str(path(".") / "bin" / "omero"))
@@ -262,7 +271,7 @@ class ITest(object):
             args.extend(extra_args)
         args.append(filename)
 
-        popen = subprocess.Popen(args, cwd=str(dist_dir),
+        popen = subprocess.Popen(args, cwd=str(self.omero_dist),
                                  stdout=subprocess.PIPE,
                                  stderr=subprocess.PIPE)
         out, err = popen.communicate()
