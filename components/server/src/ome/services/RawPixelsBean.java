@@ -680,7 +680,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
 
         if (requiresPixelsPyramid())
             throw new ApiUsageException(
-                    "This method can not handle tiled images yet.\n");
+                    "This method can not handle tiled images yet.");
 
         if (binCount <= 0)
             binCount = DEFAULT_HISTOGRAM_BINSIZE;
