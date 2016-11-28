@@ -1,6 +1,19 @@
 OMERO version history
 =====================
 
+5.3.0-m6 (November 2016)
+------------------------
+
+Developer preview release - **only intended as a developer preview for
+updating code before the full public release of 5.3.0. Use at your own risk**.
+
+Changes include:
+
+ - bumped Bio-Formats version to 5.3.0-m2. This includes JPEG-XR support for CZI.
+   `See whats-new for more information <https://www.openmicroscopy.org/site/support/bio-formats5.3/about/whats-new.html>`_. 
+ - fixed numpy-pillow version incompatibility
+ - made python testing package public so it can be used by external clients
+
 5.3.0-m5 (November 2016)
 ------------------------
 
