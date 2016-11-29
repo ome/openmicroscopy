@@ -144,14 +144,14 @@ class ITest(object):
             dist = None
             for root, dirs, files in os.walk(p):
                 for f in files:
-                    a = path(os.path.join(root, f))
+                    t = path(os.path.join(root, f))
                     # find OMERO dist by searching for bin/omero
                     # exclude OmeroPy as is a source
-                    if (str(a.dirname().dirname().basename())
+                    if (str(t.dirname().dirname().basename())
                             not in ('OmeroPy', 'build', 'target') and
-                            str(a.basename()) == 'omero' and
-                            str(a.dirname().basename()) == 'bin'):
-                        dist = a.dirname().dirname()
+                            str(t.basename()) == 'omero' and
+                            str(t.dirname().basename()) == 'bin'):
+                        dist = t.dirname().dirname()
             return dist
         count = 10
         searched = []
