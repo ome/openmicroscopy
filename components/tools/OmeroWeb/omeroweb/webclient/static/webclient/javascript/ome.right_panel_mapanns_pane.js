@@ -127,7 +127,8 @@ var MapAnnsPane = function MapAnnsPane($element, opts) {
                     // Update html...
                     var html = "";
                     var showHead = true;
-                    if (canAnnotate) {
+                    // If not batch_annotate, add placeholder to create map ann
+                    if (canAnnotate && !batchAnn) {
                         if (my_client_map_annotations.length === 0) {
                             showHead = false;
                             my_client_map_annotations = [{}];   // placeholder
