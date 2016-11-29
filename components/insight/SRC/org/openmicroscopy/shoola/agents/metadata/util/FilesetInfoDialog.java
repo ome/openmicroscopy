@@ -23,9 +23,9 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Point;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -70,7 +70,7 @@ public class FilesetInfoDialog extends TinyDialog {
      * @param importType
      *            The import type
      */
-    public void setData(Set<FilesetData> set, ImportType importType) {
+    public void setData(Collection<FilesetData> set, ImportType importType) {
         if (set == null)
             return;
 
@@ -137,7 +137,7 @@ public class FilesetInfoDialog extends TinyDialog {
      * @param set The fileset to extract the information from
      * @return See above
      */
-    private String getOriginPaths(Set<FilesetData> set) {
+    private String getOriginPaths(Collection<FilesetData> set) {
         StringBuilder sb = new StringBuilder();
         
         Iterator<FilesetData> i = set.iterator();
@@ -162,7 +162,7 @@ public class FilesetInfoDialog extends TinyDialog {
      * @param set The fileset to extract the information from
      * @return See above.
      */
-    private String getServerPaths(Set<FilesetData> set) {
+    private String getServerPaths(Collection<FilesetData> set) {
         StringBuilder sb = new StringBuilder();
 
         Iterator<FilesetData> i = set.iterator();
