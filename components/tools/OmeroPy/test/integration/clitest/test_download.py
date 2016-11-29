@@ -291,10 +291,10 @@ class TestDownload(CLITest):
         upper = self.new_client(group=group)
         upper_q = upper.sf.getQueryService()
 
-        pimage = self.importSingleImage(client=upper,
-                                        plates=1, plateRows=1,
-                                        plateCols=1, fields=1,
-                                        plateAcqs=1)
+        pimage = self.import_single_image(client=upper,
+                                          plates=1, plateRows=1,
+                                          plateCols=1, fields=1,
+                                          plateAcqs=1)
 
         pfile = upper_q.findByQuery((
             "select f from OriginalFile f join f.filesetEntries fe "
