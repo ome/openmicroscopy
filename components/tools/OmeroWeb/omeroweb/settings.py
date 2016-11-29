@@ -654,7 +654,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
           "\"query_string\": {\"experimenter\": -1}}, "
           "{\"title\": \"Repo\"}]'``")],
     "omero.web.ui.metadata_panes":
-        ["METADATA_PANE",
+        ["METADATA_PANES",
          ('['
           '{"name": "tag", "label": "Tags", "index": 1},'
           '{"name": "map", "label": "Key-Value Pairs", "index": 2},'
