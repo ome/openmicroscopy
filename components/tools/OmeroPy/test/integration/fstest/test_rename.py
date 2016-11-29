@@ -99,7 +99,7 @@ class TestRename(AbstractRepoTest):
             "root": self.root,
         }
         orig_img = self.import_mif(name="rename",
-                                   size_x=16, size_y=16,
+                                   sizeX=16, sizeY=16,
                                    with_companion=True,
                                    client=clients[owner])[0]
         orig_fs = self.get_fileset([orig_img], clients[owner])
