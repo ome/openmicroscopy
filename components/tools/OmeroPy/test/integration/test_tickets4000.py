@@ -28,11 +28,11 @@ class TestTickets4000(ITest):
         self.root.sf.getAdminService().changeUserPassword(
             name, rstring("GOOD"))
 
-        self.loginAttempt(name, 0.15, less=True)
-        self.loginAttempt(name, 3.0)
-        self.loginAttempt(name, 0.15, "GOOD", less=True)
-        self.loginAttempt(name, 0.15, less=True)
-        self.loginAttempt(name, 3.0)
+        self.login_attempt(name, 0.15, less=True)
+        self.login_attempt(name, 3.0)
+        self.login_attempt(name, 0.15, "GOOD", less=True)
+        self.login_attempt(name, 0.15, less=True)
+        self.login_attempt(name, 3.0)
 
     def testChangeActiveGroup(self):
         client = self.new_client()

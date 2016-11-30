@@ -44,7 +44,7 @@ class TestIShare(ITest):
         share.addObjects(share_id, [d])
         assert len(share.getContents(share_id)) == 1
 
-        ds = self.createDatasets(4, "Dataset")
+        ds = self.create_datasets(4, "Dataset")
         share.addObjects(share_id, ds)
         assert share.getContentSize(share_id) == 5
         assert len(share.getAllUsers(share_id)) == 2
