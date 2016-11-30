@@ -1,8 +1,14 @@
 OMERO version history
 =====================
 
+5.2.6 (December 2016)
+---------------------
+
+This is a release aimed at system administrators or developers willing to
+build OMERO with Ice 3.6.3
+
 5.2.6 (October 2016)
-----------------------
+--------------------
 
 This is a bug-fix release focusing on services closure and a DB upgrade fix.
 Improvements include:
