@@ -242,35 +242,35 @@ class BaseContainer(BaseController):
 
     def list_scripts(self, request):
         """
-        Get the file names of all available scripts 
+        Get the file names of all available scripts
         """
         scriptService = self.conn.getScriptService()
         scripts = scriptService.getScripts()
-        
+
         scriptlist = []
-        
+
         scripts_to_ignore = request.session.get('server_settings') \
-                                           .get('scripts_to_ignore').split(",")
+            .get('scripts_to_ignore').split(",")
         for s in scripts:
             path = s.path.val
             name = s.name.val
             fullpath = os.path.join(path, name)
             if fullpath in scripts_to_ignore:
                 continue
-            
+
             scriptlist.append(name)
 
         return scriptlist
-    
+
     def listFigureScripts(self, request, objDict=None):
         """
         This configures all the Figure Scripts, setting their enabled status
         given the currently selected object (self.image etc) or batch objects
         (uses objDict) and the script availability.
         """
-        
+
         availableScripts = self.list_scripts(request)
-        
+
         figureScripts = []
         # id is used in url and is mapped to full script path by
         # views.figure_script()
@@ -283,12 +283,14 @@ class BaseContainer(BaseController):
         # Split View Figure is enabled if we have at least one image with
         # SizeC > 1
         if self.image:
-            splitView['enabled'] = (self.image.getSizeC() > 1) and 'Split_View_Figure.py' in availableScripts
+            splitView['enabled'] = (self.image.getSizeC() > 1) and \
+                'Split_View_Figure.py' in availableScripts
         elif objDict is not None:
             if 'image' in objDict:
                 for i in objDict['image']:
                     if i.getSizeC() > 1:
-                        splitView['enabled'] = 'Split_View_Figure.py' in availableScripts
+                        splitView['enabled'] = 'Split_View_Figure.py' in \
+                            availableScripts
                         break
         thumbnailFig = {
             'id': 'Thumbnail',
@@ -301,7 +303,8 @@ class BaseContainer(BaseController):
             thumbnailFig['enabled'] = 'Thumbnail_Figure.py' in availableScripts
         elif objDict is not None:
             if 'image' in objDict or 'dataset' in objDict:
-                thumbnailFig['enabled'] = 'Thumbnail_Figure.py' in availableScripts
+                thumbnailFig['enabled'] = 'Thumbnail_Figure.py' in \
+                    availableScripts
 
         makeMovie = {
             'id': 'MakeMovie',
