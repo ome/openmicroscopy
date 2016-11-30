@@ -31,6 +31,7 @@ import omero.RType;
 import omero.SecurityViolation;
 import omero.ServerError;
 import omero.api.ServiceFactoryPrx;
+import omero.gateway.util.Requests;
 import omero.model.AdminPrivilege;
 import omero.model.AdminPrivilegeI;
 import omero.model.Dataset;
@@ -40,6 +41,8 @@ import omero.model.ExperimenterI;
 import omero.model.IObject;
 import omero.model.OriginalFile;
 import omero.model.Project;
+import omero.model.ProjectDatasetLink;
+import omero.model.ProjectDatasetLinkI;
 import omero.model.ProjectI;
 import omero.model.Session;
 import omero.model.enums.AdminPrivilegeSudo;
@@ -93,6 +96,20 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         fakeImageFile.createNewFile();
     }
 
+    private ProjectDatasetLink linkProjectDataset(Project project, Dataset dataset) throws ServerError {
+        if (project.isLoaded() && project.getId() != null) {
+            project = (Project) project.proxy();
+        }
+        if (dataset.isLoaded() && dataset.getId() != null) {
+            dataset = (Dataset) dataset.proxy();
+        }
+
+        final ProjectDatasetLink link = new ProjectDatasetLinkI();
+        link.setParent(project);
+        link.setChild(dataset);
+        return (ProjectDatasetLink) iUpdate.saveAndReturnObject(link);
+    }
+
     /**
      * Create a light administrator, with a specific privilege, and log in as them.
      * All the other privileges will be set to False.
@@ -142,7 +159,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * and import data on behalf of another user solely with <tt>Sudo</tt> privilege
      * into this Dataset. Further link the Dataset to the Project, check
      * that the link belongs to the user (not to the ImporterAs) and finally
-     * delete the Project, Dataset and Image.
+     * delete the links and the Project, Dataset and Image.
      * @throws Exception unexpected
      */
     @Test(dataProvider = "roles test cases")
@@ -162,7 +179,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         } catch (SecurityViolation sv) {
             /* sudo expected to fail if the user is not in system group */
         }
-        /* First, check that the light admin/importer As 
+        /* First, check that the light admin (=importer As)
          * can create Project and Dataset on behalf of the normalUser
          * in the group of the normalUser in anticipation of importing
          * data for the normalUser in the next step into these containers */
@@ -220,15 +237,53 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             Assert.assertEquals(remoteFile.getDetails().getOwner().getId().getValue(), normalUser.userId);
             Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), normalUser.groupId);
         } else {
+            /* finish the test in case the OriginalFile could not be created */
             Assert.assertNull(remoteFile);
+            return;
         }
-        if (isAdmin) {
-            final IObject image = iQuery.findByQuery(
-                    "FROM Image WHERE fileset IN "
-                    + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
-                    new ParametersI().addId(remoteFile.getId()));
-            System.out.println(image.getId().getValue());
+
+        /* check that the light admin can link the created Dataset
+         * to the created Project, check the ownership of the links
+         * is of the simple user and finally delete the objects as
+         * the light admin (tests the post-import organizing and cleaning
+         * abilities of the ImporterAs */
+
+        ProjectDatasetLink link = linkProjectDataset(sentProj, sentDat);
+
+        /* Now check the ownership of image and links
+         * between image and Dataset and Dataset and Project */
+        final IObject image = iQuery.findByQuery(
+                "FROM Image WHERE fileset IN "
+                + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
+                new ParametersI().addId(remoteFile.getId()));
+        final IObject imageDatasetLink = iQuery.findByQuery(
+                "FROM DatasetImageLink WHERE child.id = :id",
+                new ParametersI().addId(image.getId()));
+        final IObject retrievedProjectDatasetLink = iQuery.findByQuery(
+                "FROM ProjectDatasetLink WHERE id = :id",
+                new ParametersI().addId(link.getId()));
+        Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), normalUser.userId);
+        Assert.assertEquals(imageDatasetLink.getDetails().getOwner().getId().getValue(), normalUser.userId);
+        System.out.println(imageDatasetLink.getId().getValue());
+        Assert.assertEquals(retrievedProjectDatasetLink.getDetails().getOwner().getId().getValue(), normalUser.userId);
+        System.out.println(retrievedProjectDatasetLink.getId().getValue());
+
+        /* Now check that the ImporterAs can delete the objects
+         * created on behalf of the user */
+        try {
+            doChange(Requests.delete().target(imageDatasetLink).build());
+            doChange(Requests.delete().target(retrievedProjectDatasetLink).build());
+            doChange(Requests.delete().target(image).build());
+            doChange(Requests.delete().target(sentDat).build());
+            doChange(Requests.delete().target(sentProj).build());
+        } catch (ServerError se) {
+            /* not expected */
         }
+        /* check one of the objects for non-existence after deletion */
+        final IObject retrievedImageDatasetLink = iQuery.findByQuery(
+                "FROM DatasetImageLink WHERE child.id = :id",
+                new ParametersI().addId(image.getId()));
+        Assert.assertNull(retrievedImageDatasetLink);
     }
 
     /**
