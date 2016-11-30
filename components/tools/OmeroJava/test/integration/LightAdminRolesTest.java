@@ -21,72 +21,28 @@ package integration;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
-import java.util.UUID;
 
-import ome.formats.OMEROMetadataStoreClient;
-import ome.formats.importer.ImportConfig;
-import ome.formats.importer.ImportContainer;
-import ome.formats.importer.ImportLibrary;
-import ome.formats.importer.OMEROWrapper;
-import ome.formats.importer.ImportLibrary.ImportCallback;
-import ome.formats.importer.util.ProportionalTimeEstimatorImpl;
-import ome.formats.importer.util.TimeEstimator;
-import ome.services.blitz.repo.path.FsFile;
-import ome.util.checksum.ChecksumProviderFactory;
-import ome.util.checksum.ChecksumProviderFactoryImpl;
 import omero.RLong;
 import omero.RString;
 import omero.RType;
 import omero.SecurityViolation;
 import omero.ServerError;
-import omero.api.IScriptPrx;
-import omero.api.RawFileStorePrx;
 import omero.api.ServiceFactoryPrx;
-import omero.cmd.CmdCallbackI;
-import omero.cmd.HandlePrx;
-import omero.gateway.util.Requests;
-import omero.gateway.util.Requests.Delete2Builder;
-import omero.grid.ImportLocation;
-import omero.grid.ImportProcessPrx;
-import omero.grid.ImportRequest;
-import omero.grid.ManagedRepositoryPrx;
-import omero.grid.ManagedRepositoryPrxHelper;
-import omero.grid.RepositoryMap;
-import omero.grid.RepositoryPrx;
 import omero.model.AdminPrivilege;
 import omero.model.AdminPrivilegeI;
-import omero.model.ChecksumAlgorithm;
-import omero.model.ChecksumAlgorithmI;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.Experimenter;
-import omero.model.ExperimenterGroup;
-import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;
-import omero.model.Folder;
-import omero.model.GroupExperimenterMapI;
 import omero.model.IObject;
-import omero.model.NamedValue;
 import omero.model.OriginalFile;
-import omero.model.OriginalFileI;
 import omero.model.Project;
 import omero.model.ProjectI;
 import omero.model.Session;
-import omero.model.enums.AdminPrivilegeChgrp;
-import omero.model.enums.AdminPrivilegeChown;
-import omero.model.enums.AdminPrivilegeModifyUser;
-import omero.model.enums.AdminPrivilegeReadSession;
 import omero.model.enums.AdminPrivilegeSudo;
-import omero.model.enums.AdminPrivilegeWriteFile;
-import omero.model.enums.AdminPrivilegeWriteOwned;
-import omero.model.enums.ChecksumAlgorithmMurmur3128;
-import omero.model.enums.ChecksumAlgorithmSHA1160;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 import omero.sys.Principal;
@@ -97,14 +53,11 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
-import loci.formats.in.FakeReader;
-
 /**
- * Tests the effectiveness of light administrator privileges.
- * @author m.t.b.carroll@dundee.ac.uk
+ * Tests the concrete workflows of the light admins
+ * @author p.walczysko@dundee.ac.uk
  * @since 5.3.0
  */
 public class LightAdminRolesTest extends AbstractServerImportTest {
@@ -185,61 +138,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     }
 
     /**
-     * Create a light administrator, possibly without a specific privilege, and log in as them, possibly sudo'ing afterward.
-     * @param isAdmin if the user should be a member of the <tt>system</tt> group
-     * @param isSudo if the user should then sudo to be a member of the <tt>system</tt> group with all privileges
-     * @param restriction the privilege that the user should not have, or {@code null} if they should have all privileges
-     * @return the new user's context (may be a sudo session)
-     * @throws Exception if the light administrator actor could not be set up as specified
-     */
-    private EventContext loginNewActor(boolean isAdmin, boolean isSudo, String restriction) throws Exception {
-        final EventContext adminContext = loginNewAdmin(isAdmin, restriction);
-        if (isSudo) {
-            final EventContext fullAdminContext = loginNewAdmin(true, null);
-            loginUser(adminContext);
-            try {
-                final EventContext sudoContext = sudo(new ExperimenterI(fullAdminContext.userId, false));
-                Assert.assertTrue(isAdmin, "normal users cannot sudo");
-                return sudoContext;
-            } catch (SecurityViolation sv) {
-                Assert.assertFalse(isAdmin, "admins can sudo");
-                throw sv;
-            }
-        } else {
-            return adminContext;
-        }
-    }
-
-    /**
-     * Identifies expected repositories and provides their name for looking them up from the database.
-     * @author m.t.b.carroll@dundee.ac.uk
-     * @since 5.3.0
-     */
-    private static enum Repository {
-        MANAGED("ManagedRepository"), SCRIPT("scripts");
-
-        /* corresponds to OriginalFile.name */
-        final String name;
-
-        private Repository(String name) {
-            this.name = name;
-        }
-    }
-
-    /**
-     * Get a proxy for the given repository. It is assumed that such a repository exists.
-     * @param repository a repository
-     * @return a proxy for the repository
-     * @throws ServerError unexpected
-     */
-    private RepositoryPrx getRepository(Repository repository) throws ServerError {
-        final RepositoryMap repositories = factory.sharedResources().repositories();
-        int index;
-        for (index = 0; !repository.name.equals(repositories.descriptions.get(index).getName().getValue()); index++);
-        return repositories.proxies.get(index);
-    }
-
-    /**
      * Test that an ImporterAs can create new Project and Dataset
      * and import data on behalf of another user solely with <tt>Sudo</tt> privilege
      * into this Dataset. Further link the Dataset to the Project, check
@@ -252,7 +150,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         final EventContext normalUser = newUserAndGroup("rwr-r-");
         System.out.println("normalUser");
         System.out.println(normalUser.userId);
-        final EventContext ctx = loginNewAdmin(isAdmin, AdminPrivilegeSudo.value);
+        loginNewAdmin(isAdmin, AdminPrivilegeSudo.value);
         
         try {
             sudo(new ExperimenterI(normalUser.userId, false));
