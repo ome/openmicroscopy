@@ -2378,23 +2378,12 @@ def histogram_json(request, iid, theC, conn=None, **kwargs):
     theZ = int(request.REQUEST.get('theZ', 0))
     theT = int(request.REQUEST.get('theT', 0))
     theC = int(theC)
-    proj = request.REQUEST.get('p', None)
 
-    if proj is not None:
-        ch = image.getChannels()[theC]
-        wMin = ch.getWindowMin()
-        wMax = ch.getWindowMax()
-        # Render Image (single channel white) and Use PIL for histogram
-        image.setActiveChannels((theC + 1,), ([wMin, wMax],), ('FFFFFF',))
-        if proj == 'intmean' or proj == 'intmax':
-            image.setProjection(proj)
-        pilImg = image.renderImage(theZ, theT)
-        rgbHistogram = pilImg.histogram()
-        hsize = len(rgbHistogram) / 3
-        histogram = rgbHistogram[0:hsize]
-    else:
-        data = image.getHistogram([theC], 256, theZ=theZ, theT=theT)
-        histogram = data[theC]
+    # TODO: handle projection when supported by OMERO
+    # proj = request.REQUEST.get('p', None)
+
+    data = image.getHistogram([theC], 256, theZ=theZ, theT=theT)
+    histogram = data[theC]
 
     return JsonResponse({'data': histogram})
 
