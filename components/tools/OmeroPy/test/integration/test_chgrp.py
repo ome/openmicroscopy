@@ -56,12 +56,12 @@ class TestChgrp(ITest):
         client.sf.getAdminService().getEventContext()  # Reset session
 
         # Import an image into the client context
-        image = self.importSingleImage(
+        image = self.import_single_image(
             name="testChgrpImportedImage", client=client)
 
         # Chgrp
         chgrp = Chgrp2(targetObjects={'Image': [image.id.val]}, groupId=gid)
-        self.doSubmit(chgrp, client)
+        self.do_submit(chgrp, client)
 
         # Change our context to new group...
         admin = client.sf.getAdminService()
@@ -113,7 +113,7 @@ class TestChgrp(ITest):
         self.set_context(client, first_gid)
 
         # We have to be in destination group for link Save to work
-        self.doSubmit(requests, client)
+        self.do_submit(requests, client)
 
         # ...check image
         img = client.sf.getQueryService().get("Image", img.id.val)
@@ -146,7 +146,7 @@ class TestChgrp(ITest):
         # Move Project to new group
         chgrp = Chgrp2(
             targetObjects={'Project': [project.id.val]}, groupId=gid)
-        self.doSubmit(chgrp, client)
+        self.do_submit(chgrp, client)
 
         # Change our context to new group...
         admin = client.sf.getAdminService()
@@ -176,7 +176,8 @@ class TestChgrp(ITest):
         member = self.new_client(group=source_grp)
 
         # Create an image as the owner
-        image = self.importSingleImage(name="testChgrpRdef7825", client=owner)
+        image = self.import_single_image(name="testChgrpRdef7825",
+                                         client=owner)
 
         # Render as both users
         owner_g = omero.gateway.BlitzGateway(client_obj=owner)
@@ -191,12 +192,12 @@ class TestChgrp(ITest):
         # Now chgrp and try to delete
         chgrp = Chgrp2(
             targetObjects={'Image': [image.id.val]}, groupId=target_gid)
-        self.doSubmit(chgrp, owner)
+        self.do_submit(chgrp, owner)
 
         # Shouldn't be necessary to change group, but we're gonna
         owner_g.SERVICE_OPTS.setOmeroGroup("-1")
         handle = owner_g.deleteObjects("Image", [image.id.val])
-        self.waitOnCmd(owner_g.c, handle)
+        self.wait_on_cmd(owner_g.c, handle)
 
     def testChgrpOneImageFilesetErr(self):
         """
@@ -210,12 +211,12 @@ class TestChgrp(ITest):
         target_gid = target_grp.id.val
 
         # 2 images sharing a fileset
-        images = self.importMIF(2, client=client)
+        images = self.import_mif(2, client=client)
 
         # Now chgrp
         chgrp = Chgrp2(
             targetObjects={'Image': [images[0].id.val]}, groupId=target_gid)
-        self.doSubmit(chgrp, client, test_should_pass=False)
+        self.do_submit(chgrp, client, test_should_pass=False)
 
     def testChgrpAllImagesFilesetOK(self):
         """
@@ -228,12 +229,12 @@ class TestChgrp(ITest):
         target_grp = self.new_group([user], perms=PRIVATE)
         target_gid = target_grp.id.val
 
-        images = self.importMIF(2, client=client)
+        images = self.import_mif(2, client=client)
 
         # chgrp should succeed
         ids = [images[0].id.val, images[1].id.val]
         chgrp = Chgrp2(targetObjects={'Image': ids}, groupId=target_gid)
-        self.doSubmit(chgrp, client)
+        self.do_submit(chgrp, client)
 
         # Check both Images moved
         queryService = client.sf.getQueryService()
@@ -256,14 +257,14 @@ class TestChgrp(ITest):
         target_grp = self.new_group([user], perms=PRIVATE)
         target_gid = target_grp.id.val
 
-        images = self.importMIF(2, client=client)
+        images = self.import_mif(2, client=client)
 
         # chgrp should succeed
         chgrp1 = Chgrp2(
             targetObjects={'Image': [images[0].id.val]}, groupId=target_gid)
         chgrp2 = Chgrp2(
             targetObjects={'Image': [images[1].id.val]}, groupId=target_gid)
-        self.doSubmit([chgrp1, chgrp2], client, test_should_pass=False)
+        self.do_submit([chgrp1, chgrp2], client, test_should_pass=False)
 
     def testChgrpOneDatasetFilesetErr(self):
         """
@@ -277,9 +278,9 @@ class TestChgrp(ITest):
         target_grp = self.new_group([user], perms=PRIVATE)
         target_gid = target_grp.id.val
 
-        datasets = self.createDatasets(
+        datasets = self.create_datasets(
             2, "testChgrpOneDatasetFilesetErr", client=client)
-        images = self.importMIF(2, client=client)
+        images = self.import_mif(2, client=client)
         for i in range(2):
             self.link(datasets[i], images[i], client=client)
 
@@ -287,7 +288,7 @@ class TestChgrp(ITest):
         chgrp = Chgrp2(
             targetObjects={"Dataset": [datasets[0].id.val]},
             groupId=target_gid)
-        self.doSubmit(chgrp, client)
+        self.do_submit(chgrp, client)
 
         queryService = client.sf.getQueryService()
 
@@ -320,16 +321,16 @@ class TestChgrp(ITest):
         target_grp = self.new_group([user], perms=PRIVATE)
         target_gid = target_grp.id.val
 
-        datasets = self.createDatasets(
+        datasets = self.create_datasets(
             2, "testChgrpAllDatasetsFilesetOK", client=client)
-        images = self.importMIF(2, client=client)
+        images = self.import_mif(2, client=client)
         for i in range(2):
             self.link(datasets[i], images[i], client=client)
 
         # Now chgrp, should succeed
         ids = [datasets[0].id.val, datasets[1].id.val]
         chgrp = Chgrp2(targetObjects={"Dataset": ids}, groupId=target_gid)
-        self.doSubmit(chgrp, client)
+        self.do_submit(chgrp, client)
 
         # Check both Datasets and Images moved
         queryService = client.sf.getQueryService()
@@ -355,14 +356,14 @@ class TestChgrp(ITest):
 
         ds = self.make_dataset(name="testChgrpOneDatasetFilesetOK",
                                client=client)
-        images = self.importMIF(2, client=client)
+        images = self.import_mif(2, client=client)
         for i in range(2):
             self.link(ds, images[i], client=client)
 
         # Now chgrp, should succeed
         chgrp = Chgrp2(
             targetObjects={"Dataset": [ds.id.val]}, groupId=target_gid)
-        self.doSubmit(chgrp, client)
+        self.do_submit(chgrp, client)
 
         # Check Dataset and both Images moved
         queryService = client.sf.getQueryService()
@@ -386,13 +387,13 @@ class TestChgrp(ITest):
         target_grp = self.new_group([user], perms=PRIVATE)
         target_gid = target_grp.id.val
 
-        imagesFsOne = self.importMIF(2, client=client)
-        imagesFsTwo = self.importMIF(2, client=client)
+        imagesFsOne = self.import_mif(2, client=client)
+        imagesFsTwo = self.import_mif(2, client=client)
 
         # chgrp should fail...
         ids = [imagesFsOne[0].id.val, imagesFsTwo[0].id.val]
         chgrp = Chgrp2(targetObjects={"Image": ids}, groupId=target_gid)
-        self.doSubmit(chgrp, client, test_should_pass=False)
+        self.do_submit(chgrp, client, test_should_pass=False)
 
     def testChgrpDatasetTwoFilesetsErr(self):
         """
@@ -404,19 +405,19 @@ class TestChgrp(ITest):
         target_grp = self.new_group([user], perms=PRIVATE)
         target_gid = target_grp.id.val
 
-        imagesFsOne = self.importMIF(2, client=client)
-        imagesFsTwo = self.importMIF(2, client=client)
+        imagesFsOne = self.import_mif(2, client=client)
+        imagesFsTwo = self.import_mif(2, client=client)
 
         ds = self.make_dataset(name="testChgrpDatasetTwoFilesetsErr",
                                client=client)
-        self.importMIF(2, client=client)
+        self.import_mif(2, client=client)
         for i in (imagesFsOne, imagesFsTwo):
             self.link(ds, i[0], client=client)
 
         # chgrp should succeed with the Dataset only
         chgrp = Chgrp2(
             targetObjects={"Dataset": [ds.id.val]}, groupId=target_gid)
-        self.doSubmit(chgrp, client)
+        self.do_submit(chgrp, client)
 
         queryService = client.sf.getQueryService()
 
@@ -447,14 +448,14 @@ class TestChgrp(ITest):
 
         ds = self.make_dataset(name="testChgrpDatasetCheckFsGroup",
                                client=client)
-        images = self.importMIF(2, client=client)
+        images = self.import_mif(2, client=client)
         for i in range(2):
             self.link(ds, images[i], client=client)
 
         # Now chgrp, should succeed
         chgrp = Chgrp2(
             targetObjects={"Dataset": [ds.id.val]}, groupId=target_gid)
-        self.doSubmit(chgrp, client)
+        self.do_submit(chgrp, client)
 
         # Check the group of the fileset is in sync with image.
         ctx = {'omero.group': '-1'}
@@ -478,12 +479,12 @@ class TestChgrp(ITest):
         target_grp = self.new_group([user], perms=PRIVATE)
         target_gid = target_grp.id.val
 
-        images = self.importMIF(2, client=client)
+        images = self.import_mif(2, client=client)
         fsId = query.get("Image", images[0].id.val).fileset.id.val
 
         # Now chgrp, should succeed
         chgrp = Chgrp2(targetObjects={"Fileset": [fsId]}, groupId=target_gid)
-        self.doSubmit(chgrp, client)
+        self.do_submit(chgrp, client)
 
         # Check Fileset and both Images moved and
         # thus the Fileset is in sync with Images.
@@ -506,7 +507,7 @@ class TestChgrp(ITest):
         # One user in two groups
         client, user = self.new_client_and_user(perms=PRIVATE)
         ds = self.make_dataset(name="testChgrp11000", client=client)
-        images = self.importMIF(2, client=client)
+        images = self.import_mif(2, client=client)
         for i in range(2):
             self.link(ds, images[i], client=client)
 
@@ -547,7 +548,7 @@ class TestChgrp(ITest):
         # Now chgrp, should succeed
         chgrp = Chgrp2(
             targetObjects={"Plate": [link.child.id.val]}, groupId=target_gid)
-        self.doSubmit(chgrp, client)
+        self.do_submit(chgrp, client)
 
         # Check that the links have been destroyed
         query = client.sf.getQueryService()
@@ -667,7 +668,7 @@ class TestChgrp(ITest):
         chgrp = Chgrp2(
             targetObjects={"Dataset": [d1.id.val]}, childOptions=[hard],
             groupId=target_gid)
-        self.doSubmit(chgrp, client)
+        self.do_submit(chgrp, client)
 
         ctx = {'omero.group': '-1'}
         assert target_gid == query.get("Dataset",
@@ -738,7 +739,7 @@ class TestChgrp(ITest):
         chgrp = Chgrp2(
             targetObjects={"Project": [p.id.val]}, childOptions=[hard],
             groupId=target_gid)
-        self.doSubmit(chgrp, client)
+        self.do_submit(chgrp, client)
 
         ctx = {'omero.group': '-1'}
         assert target_gid == query.get("Project",
@@ -847,7 +848,7 @@ class TestChgrp(ITest):
         chgrp = Chgrp2(
             targetObjects={"Project": [p1.id.val]}, childOptions=[hard],
             groupId=target_gid)
-        self.doSubmit(chgrp, client)
+        self.do_submit(chgrp, client)
 
         ctx = {'omero.group': '-1'}
         assert target_gid == query.get("Project",
@@ -914,7 +915,7 @@ class TestChgrp(ITest):
         chgrp = Chgrp2(
             targetObjects={"Project": [p1.id.val]}, childOptions=[hard],
             groupId=target_gid)
-        self.doSubmit(chgrp, client)
+        self.do_submit(chgrp, client)
 
         ctx = {'omero.group': '-1'}
         assert target_gid == query.get("Project",
@@ -983,7 +984,7 @@ class TestChgrp(ITest):
         # import two images into 'read-annotate'
         images = []
         for x in range(0, 2):
-            images.append(self.importSingleImage(client=io_client))
+            images.append(self.import_single_image(client=io_client))
             image = io_client.sf.getQueryService().get("Image",
                                                        images[x].id.val)
             assert ra_group.id.val == image.details.group.id.val
@@ -1048,7 +1049,7 @@ class TestChgrpTarget(ITest):
         target_grp = self.new_group([user], perms=PRIVATE)
         target_gid = target_grp.id.val
 
-        images = self.importMIF(imgCount, client=client)
+        images = self.import_mif(imgCount, client=client)
         ds = self.createDSInGroup(target_gid, client=client)
 
         # each chgrp includes a 'save' link to target dataset
@@ -1066,7 +1067,7 @@ class TestChgrpTarget(ITest):
             targetObjects={"Image": ids}, groupId=target_gid)
         requests = [chgrp]
         requests.extend(saves)
-        self.doSubmit(requests, client, omero_group=target_gid)
+        self.do_submit(requests, client, omero_group=target_gid)
 
         # Check Images moved to correct group
         queryService = client.sf.getQueryService()
@@ -1103,7 +1104,7 @@ class TestChgrpTarget(ITest):
             self.chgrpImagesToTargetDataset(1)
         chgrp = Chgrp2(
             targetObjects={"Image": [images[0].id.val]}, groupId=old_gid)
-        self.doSubmit(chgrp, client, omero_group=old_gid)
+        self.do_submit(chgrp, client, omero_group=old_gid)
 
     def testChgrpImageToTargetDatasetAndBackDS(self):
         """
@@ -1122,7 +1123,7 @@ class TestChgrpTarget(ITest):
         chgrp = Chgrp2(
             targetObjects={"Image": [images[0].id.val]}, groupId=old_gid)
         save = Save(link)
-        self.doSubmit([chgrp, save], client, omero_group=old_gid)
+        self.do_submit([chgrp, save], client, omero_group=old_gid)
 
         dils = client.sf.getQueryService().findAllByQuery(
             "select dil from DatasetImageLink dil where dil.child.id = :id",
@@ -1171,7 +1172,7 @@ class TestChgrpTarget(ITest):
             c = client
         else:
             c = self.root
-        self.doSubmit(requests, c, omero_group=target_gid)
+        self.do_submit(requests, c, omero_group=target_gid)
 
         queryService = client.sf.getQueryService()
         ctx = {'omero.group': '-1'}  # query across groups

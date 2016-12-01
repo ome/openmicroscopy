@@ -661,7 +661,7 @@ class TestRecursiveDelete(AbstractRepoTest):
     # provide a method which enables recursive delete.
     def testRecursiveDeleteMethodAvailable(self):
         handle = self.mrepo.deletePaths([self.unique_dir], True, True)
-        self.waitOnCmd(self.client, handle, passes=True)
+        self.wait_on_cmd(self.client, handle, passes=True)
         rv = unwrap(self.mrepo.treeList(self.unique_dir))
         assert 0 == len(rv)
 

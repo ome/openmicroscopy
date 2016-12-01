@@ -49,7 +49,7 @@ class TestDelete(ITest):
 
         command = Delete2(targetObjects={"Image": [img.id.val]})
         handle = self.client.sf.submit(command)
-        self.waitOnCmd(self.client, handle)
+        self.wait_on_cmd(self.client, handle)
 
     def testDeleteMany(self):
         images = list()
@@ -64,7 +64,7 @@ class TestDelete(ITest):
         command = Delete2(targetObjects={"Image": ids})
 
         handle = self.client.sf.submit(command)
-        self.waitOnCmd(self.client, handle)
+        self.wait_on_cmd(self.client, handle)
 
     def testDeleteProjectWithoutContent(self):
         uuid = self.ctx.sessionUuid
@@ -95,7 +95,7 @@ class TestDelete(ITest):
         dc = Delete2(
             targetObjects={'Project': [project.id.val]}, childOptions=[keep])
         handle = self.client.sf.submit(dc)
-        self.waitOnCmd(self.client, handle)
+        self.wait_on_cmd(self.client, handle)
 
         assert not self.query.find('Project', project.id.val)
         assert dataset.id.val == self.query.find(
@@ -130,7 +130,7 @@ class TestDelete(ITest):
 
         cmd = Delete2(targetObjects={"Image": [iid]})
         handle = self.client.sf.submit(cmd)
-        callback = self.waitOnCmd(self.client, handle)
+        callback = self.wait_on_cmd(self.client, handle)
         cbString = str(handle)
 
         callback.close(True)  # Don't close handle
@@ -181,7 +181,7 @@ class TestDelete(ITest):
         command = Delete2(targetObjects={"Image": ids})
 
         handle = self.client.sf.submit(command)
-        callback = self.waitOnCmd(self.client, handle, ms=1000, loops=50)
+        callback = self.wait_on_cmd(self.client, handle, ms=1000, loops=50)
 
         callback.close(True)
 
@@ -228,7 +228,7 @@ class TestDelete(ITest):
         command = Delete2(targetObjects={"Image": images})
 
         handle = self.client.sf.submit(command)
-        callback = self.waitOnCmd(self.client, handle)
+        callback = self.wait_on_cmd(self.client, handle)
         callback.close(True)
 
     def testDeleteComment(self):
@@ -253,14 +253,14 @@ class TestDelete(ITest):
             linkIds.append(l.id.val)
         command = Delete2(targetObjects={"ImageAnnotationLink": linkIds})
         handle = self.client.sf.submit(command)
-        self.waitOnCmd(self.client, handle)
+        self.wait_on_cmd(self.client, handle)
         handle.close()
 
         # Delete Dry Run...
         command = Delete2(targetObjects={"CommentAnnotation": [cid]},
                           dryRun=True)
         handle = self.client.sf.submit(command)
-        self.waitOnCmd(self.client, handle)
+        self.wait_on_cmd(self.client, handle)
 
         # ...Should tell us that remaining links will be deleted
         rsp = handle.getResponse()
@@ -279,7 +279,7 @@ class TestDelete(ITest):
         # Finally, delete Comment
         command = Delete2(targetObjects={"CommentAnnotation": [cid]})
         handle = self.client.sf.submit(command)
-        self.waitOnCmd(self.client, handle)
+        self.wait_on_cmd(self.client, handle)
         handle.close()
         assert not self.query.find("CommentAnnotation", cid)
 
@@ -387,7 +387,7 @@ class TestDelete(ITest):
 
         command = Delete2(targetObjects={"Annotation": [tagset.id.val]})
         handle = self.client.sf.submit(command)
-        self.waitOnCmd(self.client, handle)
+        self.wait_on_cmd(self.client, handle)
 
         assert not self.query.find("TagAnnotation", tagset.id.val)
         assert tag.id.val == self.query.find(
@@ -404,7 +404,7 @@ class TestDelete(ITest):
 
         command = Delete2(targetObjects={"OriginalFile": [o.id.val]})
         handle = self.client.sf.submit(command)
-        self.waitOnCmd(self.client, handle)
+        self.wait_on_cmd(self.client, handle)
 
         with pytest.raises(omero.ServerError):
             self.query.get("FileAnnotation", fa.id.val)
@@ -415,14 +415,14 @@ class TestDelete(ITest):
         a single fileset containing 2 images is split among 2 datasets.
         Delete one dataset, delete fails.
         """
-        datasets = self.createDatasets(2, "testDeleteOneDatasetFilesetErr")
-        images = self.importMIF(2)
+        datasets = self.create_datasets(2, "testDeleteOneDatasetFilesetErr")
+        images = self.import_mif(2)
         for i in range(2):
             self.link(datasets[i], images[i])
 
         # Now delete one dataset
         delete = Delete2(targetObjects={"Dataset": [datasets[0].id.val]})
-        self.doSubmit(delete, self.client)
+        self.do_submit(delete, self.client)
 
         # The dataset should be deleted, but not any images.
         assert not self.query.find("Dataset", datasets[0].id.val)
@@ -437,11 +437,11 @@ class TestDelete(ITest):
         two images in a MIF.
         Delete one image, the delete should fail.
         """
-        images = self.importMIF(2)
+        images = self.import_mif(2)
 
         # Now delete one image
         delete = Delete2(targetObjects={"Image": [images[0].id.val]})
-        self.doSubmit(delete, self.client, test_should_pass=False)
+        self.do_submit(delete, self.client, test_should_pass=False)
 
         # Neither image should be deleted.
         assert images[0].id.val == self.query.find(
@@ -456,7 +456,7 @@ class TestDelete(ITest):
         Delete the dataset, the delete should succeed.
         """
         ds = self.make_dataset("testDeleteDatasetFilesetOK")
-        images = self.importMIF(2)
+        images = self.import_mif(2)
         fsId = self.query.get("Image", images[0].id.val).fileset.id.val
 
         for i in range(2):
@@ -464,7 +464,7 @@ class TestDelete(ITest):
 
         # Now delete the dataset, should succeed
         delete = Delete2(targetObjects={"Dataset": [ds.id.val]})
-        self.doSubmit(delete, self.client)
+        self.do_submit(delete, self.client)
 
         # The dataset, fileset and both images should be deleted.
         assert not self.query.find("Dataset", ds.id.val)
@@ -478,8 +478,8 @@ class TestDelete(ITest):
         a single fileset containing 2 images is split among 2 datasets.
         Delete all datasets, delete succeeds.
         """
-        datasets = self.createDatasets(2, "testDeleteAllDatasetsFilesetOK")
-        images = self.importMIF(2)
+        datasets = self.create_datasets(2, "testDeleteAllDatasetsFilesetOK")
+        images = self.import_mif(2)
         fsId = self.query.get("Image", images[0].id.val).fileset.id.val
 
         for i in range(2):
@@ -488,7 +488,7 @@ class TestDelete(ITest):
         # Now delete all datasets, should succeed
         dids = [datasets[0].id.val, datasets[1].id.val]
         delete = Delete2(targetObjects={"Dataset": dids})
-        self.doSubmit(delete, self.client)
+        self.do_submit(delete, self.client)
 
         # Both datasets, the fileset and both images should be deleted.
         assert not self.query.find("Dataset", datasets[0].id.val)
@@ -503,13 +503,13 @@ class TestDelete(ITest):
         two images in a MIF.
         Delete all images, the delete should succeed.
         """
-        images = self.importMIF(2)
+        images = self.import_mif(2)
         fsId = self.query.get("Image", images[0].id.val).fileset.id.val
 
         # Now delete all images, should succeed
         iids = [images[0].id.val, images[1].id.val]
         delete = Delete2(targetObjects={"Image": iids})
-        self.doSubmit(delete, self.client)
+        self.do_submit(delete, self.client)
 
         # The fileset and both images should be deleted.
         assert not self.query.find("Fileset", fsId)
@@ -522,12 +522,12 @@ class TestDelete(ITest):
         a single fileset containing 2 images.
         Delete the fileset, the delete should succeed.
         """
-        images = self.importMIF(2)
+        images = self.import_mif(2)
         fsId = self.query.get("Image", images[0].id.val).fileset.id.val
 
         # Now delete the fileset, should succeed
         delete = Delete2(targetObjects={"Fileset": [fsId]})
-        self.doSubmit(delete, self.client)
+        self.do_submit(delete, self.client)
 
         # The dataset, fileset and both images should be deleted.
         assert not self.query.find("Fileset", fsId)
@@ -540,13 +540,13 @@ class TestDelete(ITest):
         by the delete error
         """
         # 2 filesets, each with 2 images
-        imagesFsOne = self.importMIF(2)
-        imagesFsTwo = self.importMIF(2)
+        imagesFsOne = self.import_mif(2)
+        imagesFsTwo = self.import_mif(2)
 
         # delete should fail...
         iids = [imagesFsOne[0].id.val, imagesFsTwo[0].id.val]
         delete = Delete2(targetObjects={"Image": iids})
-        self.doSubmit(delete, self.client, test_should_pass=False)
+        self.do_submit(delete, self.client, test_should_pass=False)
 
     def testDeleteDatasetTwoFilesetsErr(self):
         """
@@ -554,17 +554,17 @@ class TestDelete(ITest):
         by the delete error
         """
         # 2 filesets, each with 2 images
-        imagesFsOne = self.importMIF(2)
-        imagesFsTwo = self.importMIF(2)
+        imagesFsOne = self.import_mif(2)
+        imagesFsTwo = self.import_mif(2)
 
         ds = self.make_dataset("testDeleteDatasetTwoFilesetsErr")
-        self.importMIF(2)
+        self.import_mif(2)
         for i in (imagesFsOne, imagesFsTwo):
             self.link(ds, i[0])
 
         # delete should remove only the Dataset
         delete = Delete2(targetObjects={"Dataset": [ds.id.val]})
-        self.doSubmit(delete, self.client)
+        self.do_submit(delete, self.client)
 
         # The dataset should be deleted.
         assert not self.query.find("Dataset", ds.id.val)
@@ -624,7 +624,7 @@ class TestDelete(ITest):
         hard = ChildOption(includeType=["Dataset"])
         delete = Delete2(
             targetObjects={"Project": [p1.id.val]}, childOptions=[hard])
-        self.doSubmit(delete, self.client)
+        self.do_submit(delete, self.client)
 
         assert self.query.find("Project", p2.id.val)
         assert not self.query.find("Project", p1.id.val)
@@ -711,7 +711,7 @@ class TestDelete(ITest):
         hard = ChildOption(includeType=["Image"])
         delete = Delete2(
             targetObjects={"Dataset": [d1.id.val]}, childOptions=[hard])
-        self.doSubmit(delete, self.client)
+        self.do_submit(delete, self.client)
 
         assert not self.query.find("Dataset", d1.id.val)
         assert self.query.find("Dataset", d2.id.val)

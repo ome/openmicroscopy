@@ -120,8 +120,8 @@ class TestReimportArchivedFiles(ITest):
         from omero.sys import ParametersI
 
         # Produce an FS image as our template
-        orig_img = self.importMIF(name="reimport", sizeX=16, sizeY=16,
-                                  with_companion=True, skip=None)
+        orig_img = self.import_mif(name="reimport", sizeX=16, sizeY=16,
+                                   with_companion=True, skip=None)
         orig_img = orig_img[0]
         orig_pix = self.query.findByQuery(
             "select p from Pixels p where p.image.id = :id",

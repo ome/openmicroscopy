@@ -21,5 +21,5 @@ class TestSimple(ITest):
         assert ec
 
     def testImport(self):
-        image = self.importSingleImage()
+        image = self.import_single_image()
         assert image.id.val

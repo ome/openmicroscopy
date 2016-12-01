@@ -780,9 +780,9 @@ class TestPermissions(ITest):
 
     def testAdminUseOfRawPixelsBean(self):
         owner = self.new_client()
-        image1 = self.createTestImage(session=owner.sf)
+        image1 = self.create_test_image(session=owner.sf)
         pixid1 = image1.getPrimaryPixels().getId().getValue()
-        image2 = self.createTestImage(session=owner.sf)
+        image2 = self.create_test_image(session=owner.sf)
         pixid2 = image2.getPrimaryPixels().getId().getValue()
 
         rps = self.root.sf.createRawPixelsStore()

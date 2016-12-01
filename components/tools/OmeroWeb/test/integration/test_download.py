@@ -78,7 +78,7 @@ class TestDownload(IWebTest):
         Download of archived files for a non-SPW orphaned Image.
         """
 
-        image = self.importSingleImage()
+        image = self.import_single_image()
 
         # download archived files
         request_url = reverse('webgateway.views.archived_files',
@@ -90,7 +90,7 @@ class TestDownload(IWebTest):
         Download of archived files for a non-SPW orphaned Image.
         """
 
-        image = self.importSingleImage()
+        image = self.import_single_image()
 
         # download archived files
         request_url = reverse('webgateway.views.archived_files')
@@ -104,7 +104,7 @@ class TestDownload(IWebTest):
         Download of archived files for a non-SPW Image in Dataset.
         """
 
-        image = self.importSingleImage()
+        image = self.import_single_image()
         ds = self.make_dataset()
         self.link(ds, image)
 
@@ -120,7 +120,7 @@ class TestDownload(IWebTest):
         Download of archived files for a non-SPW Image in Dataset in Project.
         """
 
-        image = self.importSingleImage()
+        image = self.import_single_image()
         ds = self.make_dataset()
         pr = self.make_project()
 
@@ -152,7 +152,7 @@ class TestDownload(IWebTest):
         Download of attachement.
         """
 
-        image = self.importSingleImage()
+        image = self.import_single_image()
         fa = self.make_file_annotation()
         self.link(image, fa)
 

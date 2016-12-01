@@ -89,8 +89,8 @@ class BasePopulate(ITest):
         return str(csvFileName)
 
     def createPlate(self, rowCount, colCount):
-        plates = self.importPlates(plateRows=rowCount,
-                                   plateCols=colCount)
+        plates = self.import_plates(plate_rows=rowCount,
+                                    plate_cols=colCount)
         return plates[0]
 
     def createPlate1(self, rowCount, colCount):
