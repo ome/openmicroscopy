@@ -7,6 +7,9 @@ OMERO version history
 This is a release aimed at system administrators or developers wanting to
 build OMERO with Ice 3.6.3.
 
+This release also upgrades the version of Bio-Formats which OMERO uses to
+5.1.10. `For more information <https://www.openmicroscopy.org/site/support/bio-formats5.1/about/whats-new.html>`_.
+
 5.2.6 (October 2016)
 --------------------
 
