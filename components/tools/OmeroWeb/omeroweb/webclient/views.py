@@ -141,13 +141,7 @@ def get_bool_or_default(request, name, default):
     This does not catch exceptions as it makes sense to throw exceptions if
     the arguments provided do not pass basic type validation
     """
-    val = default
-    val_raw = request.GET.get(name)
-    if val_raw is not None:
-        if val_raw.lower() == 'true' or int(val_raw) == 1:
-            val = True
-    return val
-
+    return toBoolean(request.GET.get(name, default))
 
 ##############################################################################
 # custom index page
