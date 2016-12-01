@@ -22,6 +22,7 @@ package integration;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -49,6 +50,7 @@ import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
 import omero.model.ProjectI;
 import omero.model.Session;
+import omero.model.enums.AdminPrivilegeChgrp;
 import omero.model.enums.AdminPrivilegeSudo;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
@@ -115,6 +117,16 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     }
 
     /**
+     * Assert that the given object is owned by the given owner.
+     * @param object a model object
+     * @param expectedOwner a user's event context
+     * @throws ServerError unexpected
+     */
+    private void loginNewAdmin(boolean isAdmin, String permission) throws Exception {
+        loginNewAdmin(isAdmin, Arrays.asList(permission));
+    }
+
+    /**
      * Create a light administrator, with a specific privilege, and log in as them.
      * All the other privileges will be set to False.
      * @param isAdmin if the user should be a member of the <tt>system</tt> group
@@ -122,16 +134,18 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @return the new user's context
      * @throws Exception if the light administrator could not be created
      */
-    private EventContext loginNewAdmin(boolean isAdmin, String permission) throws Exception {
+    private EventContext loginNewAdmin(boolean isAdmin, List <String> permissions) throws Exception {
         final EventContext ctx = isAdmin ? newUserInGroup(iAdmin.lookupGroup(SYSTEM_GROUP), false) : newUserAndGroup("rwr-r-");
         final ServiceFactoryPrx rootSession = root.getSession();
         Experimenter user = new ExperimenterI(ctx.userId, false);
         user = (Experimenter) rootSession.getQueryService().get("Experimenter", ctx.userId);
-        final AdminPrivilege privilege = new AdminPrivilegeI();
-        privilege.setValue(omero.rtypes.rstring(permission));
         final List<AdminPrivilege> privileges = new ArrayList<>();
         rootSession.getAdminService().setAdminPrivileges(user, privileges);
-        privileges.add(privilege);
+        for (final String permission : permissions) {
+            final AdminPrivilege privilege = new AdminPrivilegeI();
+            privilege.setValue(omero.rtypes.rstring(permission));
+            privileges.add(privilege);
+        }
         rootSession.getAdminService().setAdminPrivileges(user, privileges);
         /* avoid old session as privileges are briefly cached */
         loginUser(ctx);
@@ -166,7 +180,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * delete the links and the Project, Dataset and Image.
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "roles test cases")
+    @Test(dataProvider = "isAdmin cases")
     public void testImporterAsSudoPrivileges(boolean isAdmin) throws Exception {
         final EventContext normalUser = newUserAndGroup("rwr-r-");
         System.out.println("normalUser");
@@ -297,7 +311,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * on behalf of another user solely with <tt>Sudo</tt> privilege
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "roles test cases")
+    @Test(dataProvider = "isAdmin cases")
     public void testImporterAsSudoEdit(boolean isAdmin) throws Exception {
         final EventContext normalUser = newUserAndGroup("rwr-r-");
         System.out.println("normalUser");
@@ -331,17 +345,25 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     /**
      * Test that an ImporterAs can
      * chgrp on behalf of another user solely with <tt>Sudo</tt> privilege
+     * or with both <tt>Sudo</tt> privilege and <tt>Chgrp</tt> privilege
      * only when this user is a member of both original and target groups
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "roles test cases")
-    public void testImporterAsSudoChgrp(boolean isAdmin) throws Exception {
+    @Test(dataProvider = "combined privileges cases")
+    public void testImporterAsSudoChgrp(boolean isAdmin, boolean permChgrp) throws Exception {
         final EventContext normalUser = newUserAndGroup("rwr-r-");
         final long anotherGroupId = newUserAndGroup("rwr-r-").groupId;
         final long normalUsersOtherGroupId = newGroupAddUser("rwr-r-", normalUser.userId, false).getId().getValue();
         System.out.println("normalUser");
         System.out.println(normalUser.userId);
-        loginNewAdmin(isAdmin, AdminPrivilegeSudo.value);
+        final List <String> sudoChgrpPermissions = Arrays.asList(
+                AdminPrivilegeSudo.value, AdminPrivilegeChgrp.value);
+        if (permChgrp) {
+            loginNewAdmin(isAdmin, sudoChgrpPermissions);
+        } else {
+            loginNewAdmin(isAdmin, AdminPrivilegeSudo.value);
+        }
+
         try {
             sudo(new ExperimenterI(normalUser.userId, false));
                 if (!isAdmin) {
@@ -384,18 +406,20 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), normalUser.userId);
         Assert.assertEquals(image.getDetails().getGroup().getId().getValue(), normalUsersOtherGroupId);
         /* try to move into another group the normalUser
-        * is not a member of, which should fail because the light admin
-        * has no chgrp permission */
+        * is not a member of, which should fail both when the light admin
+        * has and has not the additional chgrp permission */
         client.getImplicitContext().put("omero.group", Long.toString(normalUsersOtherGroupId));
-        doChange(client, factory, Requests.chgrp().target(image).toGroup(anotherGroupId).build(), false);
+        doChange(client, factory, Requests.chgrp().target(image).toGroup(anotherGroupId).build(),
+                false /* expected to fail */);
         image = (Image) iQuery.get("Image", image.getId().getValue());
         Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), normalUser.userId);
         Assert.assertEquals(image.getDetails().getGroup().getId().getValue(), normalUsersOtherGroupId);
     }
+
     /**
-     * @return a variety of test cases for light administrator privileges
+     * @return two test cases for isAdmin (member of system group) case
      */
-    @DataProvider(name = "roles test cases")
+    @DataProvider(name = "isAdmin cases")
     public Object[][] provideAdminPrivilegeCases() {
         int index = 0;
         final int IS_ADMIN = index++;
@@ -411,6 +435,31 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                     testCases.add(testCase);
                 }
 
+        return testCases.toArray(new Object[testCases.size()][]);
+    }
+
+    /**
+     * @return test cases for adding the Chgrp privilege combined with isAdmin cases
+     */
+    @DataProvider(name = "combined privileges cases")
+    public Object[][] provideCombinedPrivilegesCases() {
+        int index = 0;
+        final int IS_ADMIN = index++;
+        final int PERM_CHGRP = index++;
+
+        final boolean[] booleanCases = new boolean[]{false, true};
+
+        final List<Object[]> testCases = new ArrayList<Object[]>();
+
+        for (final boolean isAdmin : booleanCases) {
+            for (final boolean permChgrp : booleanCases) {
+                final Object[] testCase = new Object[index];
+                testCase[IS_ADMIN] = isAdmin;
+                testCase[PERM_CHGRP] = permChgrp;
+                // DEBUG  if (isAdmin == false && isRestricted == true && isSudo == false)
+                testCases.add(testCase);
+            }
+        }
         return testCases.toArray(new Object[testCases.size()][]);
     }
 }
