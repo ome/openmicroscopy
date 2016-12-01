@@ -27,7 +27,6 @@ import omero
 from omero.rtypes import rstring, rlong, unwrap
 from django.utils.encoding import smart_str
 import logging
-import os
 
 from webclient.controller import BaseController
 
@@ -242,22 +241,15 @@ class BaseContainer(BaseController):
 
     def list_scripts(self, request):
         """
-        Get the file names of all available scripts
+        Get the file names of all scripts
         """
         scriptService = self.conn.getScriptService()
         scripts = scriptService.getScripts()
 
         scriptlist = []
 
-        scripts_to_ignore = request.session.get('server_settings') \
-            .get('scripts_to_ignore').split(",")
         for s in scripts:
-            path = s.path.val
             name = s.name.val
-            fullpath = os.path.join(path, name)
-            if fullpath in scripts_to_ignore:
-                continue
-
             scriptlist.append(name)
 
         return scriptlist
