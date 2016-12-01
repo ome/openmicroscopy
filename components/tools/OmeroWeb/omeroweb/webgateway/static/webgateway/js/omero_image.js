@@ -248,9 +248,12 @@
         if (on_batchCopyRDefs) {
             return batchCopyRDefs_action('ok');
         }
-        var revInt;
+        var revInt, active;
         for (var i=0; i<viewport.getCCount(); i++) {
-            viewport.setChannelActive(i, $('#rd-wblitz-ch'+i).get(0).checked, true);
+            active = $('#rd-wblitz-ch'+i).get(0).checked;
+            if (active !== viewport.loadedImg.channels[i].active) {
+                viewport.setChannelActive(i, active, true);
+            }
             viewport.setChannelColor(i, $('#wblitz-ch'+i+'-color').attr('data-color'), true);
             revInt = $('#wblitz-ch'+i+'-color').data('data-reverse-intensity');
             if (revInt !== undefined) {viewport.setChannelReverseIntensity(i, revInt, true);}
