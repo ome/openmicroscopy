@@ -42,7 +42,7 @@ class TestRois(ITest):
         group = self.new_group(perms="rwrw--")
         owner = self.new_client(group=group)  # Owner of share
         member = self.new_client(group=group)  # Member of group
-        img = self.createTestImage(session=owner.sf)
+        img = self.create_test_image(session=owner.sf)
 
         from omero.gateway import ImageWrapper, BlitzGateway
         conn = BlitzGateway(client_obj=owner)

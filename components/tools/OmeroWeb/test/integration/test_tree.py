@@ -1404,7 +1404,8 @@ class TestTree(ITest):
         Returns a new image with pixels of fixed dimensions
         """
         sf = userA[0].sf
-        image = self.createTestImage(sizeX=50, sizeY=50, sizeZ=5, session=sf)
+        image = self.create_test_image(size_x=50, size_y=50, size_z=5,
+                                       session=sf)
         return image
 
     @pytest.fixture(scope='function')

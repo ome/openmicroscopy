@@ -157,7 +157,7 @@ class TestDownload(CLITest):
     # Image tests
     # ========================================================================
     def testNonExistingImage(self, tmpdir):
-        image = self.importSingleImageWithCompanion()
+        image = self.import_single_image_with_companion()
         self.args += ["Image:%s" % str(image.id.val + 1), '-']
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
@@ -179,14 +179,14 @@ class TestDownload(CLITest):
         f.close()
 
     def testSingleImageWithCompanion(self, tmpdir):
-        image = self.importSingleImageWithCompanion()
+        image = self.import_single_image_with_companion()
         tmpfile = tmpdir.join('test')
         self.args += ["Image:%s" % image.id.val, str(tmpfile)]
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
 
     def testMIF(self, tmpdir):
-        images = self.importMIF(2)
+        images = self.import_mif(2)
         tmpfile = tmpdir.join('test')
         self.args += ["Image:%s" % images[0].id.val, str(tmpfile)]
         self.cli.invoke(self.args, strict=True)
@@ -291,10 +291,10 @@ class TestDownload(CLITest):
         upper = self.new_client(group=group)
         upper_q = upper.sf.getQueryService()
 
-        pimage = self.importSingleImage(client=upper,
-                                        plates=1, plateRows=1,
-                                        plateCols=1, fields=1,
-                                        plateAcqs=1)
+        pimage = self.import_single_image(client=upper,
+                                          plates=1, plateRows=1,
+                                          plateCols=1, fields=1,
+                                          plateAcqs=1)
 
         pfile = upper_q.findByQuery((
             "select f from OriginalFile f join f.filesetEntries fe "
@@ -306,7 +306,7 @@ class TestDownload(CLITest):
             "join w.wellSamples ws join ws.image img "
             "where img.id = %s") % pimage.id.val, None)
 
-        image = self.importSingleImage(client=upper)
+        image = self.import_single_image(client=upper)
 
         ofile = self.create_original_file("test", upper)
 

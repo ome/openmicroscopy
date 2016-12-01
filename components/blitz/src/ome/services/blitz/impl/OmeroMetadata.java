@@ -1886,7 +1886,11 @@ public class OmeroMetadata extends DummyMetadata {
         if (markerStart == null) {
             return null;
         }
-        return Marker.valueOf(markerStart.getValue());
+        try {
+            return Marker.fromString(markerStart.getValue());
+        } catch (EnumerationException ex) {
+            return null;
+        }
     }
 
     @Override
@@ -1899,7 +1903,11 @@ public class OmeroMetadata extends DummyMetadata {
         if (markerEnd == null) {
             return null;
         }
-        return Marker.valueOf(markerEnd.getValue());
+        try {
+            return Marker.fromString(markerEnd.getValue());
+        } catch (EnumerationException ex) {
+            return null;
+        }
     }
 
     @Override
@@ -2227,7 +2235,11 @@ public class OmeroMetadata extends DummyMetadata {
         if (markerStart == null) {
             return null;
         }
-        return Marker.valueOf(markerStart.getValue());
+        try {
+            return Marker.fromString(markerStart.getValue());
+        } catch (EnumerationException ex) {
+            return null;
+        }
     }
 
     @Override
@@ -2240,7 +2252,11 @@ public class OmeroMetadata extends DummyMetadata {
         if (markerEnd == null) {
             return null;
         }
-        return Marker.valueOf(markerEnd.getValue());
+        try {
+            return Marker.fromString(markerEnd.getValue());
+        } catch (EnumerationException ex) {
+            return null;
+        }
     }
 
     @Override

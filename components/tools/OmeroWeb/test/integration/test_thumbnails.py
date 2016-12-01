@@ -42,8 +42,8 @@ class TestThumbnails(IWebTest):
         Default size is 96.
         """
         # Create a square image
-        iId = self.createTestImage(sizeX=125, sizeY=125,
-                                   session=self.sf).id.val
+        iId = self.create_test_image(size_x=125, size_y=125,
+                                     session=self.sf).getId().getValue()
         args = [iId]
         if size is not None:
             args.append(size)

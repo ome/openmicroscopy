@@ -64,7 +64,7 @@ for perms, testertype, direct, grpctx, size in generate_parameters():
 
         group = self.new_group(perms=perms.ljust(6, "-"))
         owner = self.new_client(group=group)
-        image = self.createTestImage(session=owner.sf)
+        image = self.create_test_image(session=owner.sf)
 
         if testertype == "root":
             tester = self.root

@@ -120,7 +120,7 @@ class TestImport(CLITest):
         self.cli.register("import", plugin.ImportControl, "TEST")
         self.args += ["import"]
         self.add_client_dir()
-        self.keepRootAlive()
+        self.keep_root_alive()
 
     def set_conn_args(self):
         host = self.root.getProperty("omero.host")
@@ -149,8 +149,7 @@ class TestImport(CLITest):
         return o, e
 
     def add_client_dir(self):
-        dist_dir = self.OmeroPy / ".." / ".." / ".." / "dist"
-        client_dir = dist_dir / "lib" / "client"
+        client_dir = self.omero_dist / "lib" / "client"
         self.args += ["--clientdir", client_dir]
 
     def check_other_output(self, out):
