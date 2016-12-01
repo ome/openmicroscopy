@@ -37,8 +37,12 @@ import omero.model.AdminPrivilegeI;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.Experimenter;
+import omero.model.ExperimenterGroup;
+import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;
+import omero.model.Folder;
 import omero.model.IObject;
+import omero.model.Image;
 import omero.model.OriginalFile;
 import omero.model.Project;
 import omero.model.ProjectDatasetLink;
@@ -173,8 +177,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             sudo(new ExperimenterI(normalUser.userId, false));
             if (!isAdmin) {
                 Assert.fail("Sudo-permitted non-administrators cannot sudo.");
-            } else {
-                
             }
         } catch (SecurityViolation sv) {
             /* sudo expected to fail if the user is not in system group */
@@ -268,6 +270,9 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         Assert.assertEquals(retrievedProjectDatasetLink.getDetails().getOwner().getId().getValue(), normalUser.userId);
         System.out.println(retrievedProjectDatasetLink.getId().getValue());
 
+        /* Check that the ImporterAs can chown only if the Chown
+         * permission is True */
+
         /* Now check that the ImporterAs can delete the objects
          * created on behalf of the user */
         try {
@@ -286,6 +291,107 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         Assert.assertNull(retrievedImageDatasetLink);
     }
 
+    /**
+     * Test that an ImporterAs can
+     * edit the name of a dataset
+     * on behalf of another user solely with <tt>Sudo</tt> privilege
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "roles test cases")
+    public void testImporterAsSudoEdit(boolean isAdmin) throws Exception {
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
+        System.out.println("normalUser");
+        System.out.println(normalUser.userId);
+        loginNewAdmin(isAdmin, AdminPrivilegeSudo.value);
+        try {
+            sudo(new ExperimenterI(normalUser.userId, false));
+            if (!isAdmin) {
+                Assert.fail("Sudo-permitted non-administrators cannot sudo.");
+            }
+        } catch (SecurityViolation sv) {
+            /* sudo expected to fail if the user is not in system group */
+        }
+        if (isAdmin) {
+            client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+            Project proj = mmFactory.simpleProject();
+            final String name = "LightAdminsChangedName";
+            proj.setName(omero.rtypes.rstring(name));
+            Project sentProj = (Project) iUpdate.saveAndReturnObject(proj);
+            String savedName = sentProj.getName().getValue().toString();
+            long id = sentProj.getId().getValue();
+            final Project retrievedRenamedProject = (Project) iQuery.get("Project", id);
+            final String retrievedName = retrievedRenamedProject.getName().getValue().toString();
+            Assert.assertEquals(name, retrievedName);
+            Assert.assertEquals(name, savedName);
+            Assert.assertEquals(retrievedRenamedProject.getDetails().getOwner().getId().getValue()
+                    , normalUser.userId);
+        }
+    }
+
+    /**
+     * Test that an ImporterAs can
+     * chgrp on behalf of another user solely with <tt>Sudo</tt> privilege
+     * only when this user is a member of both original and target groups
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "roles test cases")
+    public void testImporterAsSudoChgrp(boolean isAdmin) throws Exception {
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
+        final long anotherGroupId = newUserAndGroup("rwr-r-").groupId;
+        final long normalUsersOtherGroupId = newGroupAddUser("rwr-r-", normalUser.userId, false).getId().getValue();
+        System.out.println("normalUser");
+        System.out.println(normalUser.userId);
+        loginNewAdmin(isAdmin, AdminPrivilegeSudo.value);
+        try {
+            sudo(new ExperimenterI(normalUser.userId, false));
+                if (!isAdmin) {
+                    Assert.fail("Sudo-permitted non-administrators cannot sudo.");
+                }
+            }catch (SecurityViolation sv) {
+                /* sudo expected to fail if the user is not in system group */
+            }
+        /* import an image for the normalUser into the normalUser's default group */
+        if (!isAdmin) return;
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
+        final List<List<RType>> result = iQuery.projection(
+                "SELECT id FROM OriginalFile WHERE name = :name ORDER BY id DESC LIMIT 1",
+                new ParametersI().add("name", imageName));
+        final long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
+        try {
+            List<String> path = Collections.singletonList(fakeImageFile.getPath());
+            importFileset(path);
+            Assert.assertTrue(isAdmin);
+        } catch (ServerError se) {
+            Assert.assertFalse(isAdmin);
+        }
+        final OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
+                "FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
+                new ParametersI().addId(previousId).add("name", imageName));
+        if (isAdmin) {
+            Assert.assertEquals(remoteFile.getDetails().getOwner().getId().getValue(), normalUser.userId);
+            Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+        }
+        /* try to move the image into another group of the normalUser
+         * which should succeed */
+        Image image = (Image) iQuery.findByQuery(
+                "FROM Image WHERE fileset IN "
+                + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
+                new ParametersI().addId(remoteFile.getId()));
+        client.getImplicitContext().put("omero.group", Long.toString(normalUsersOtherGroupId));
+        doChange(client, factory, Requests.chgrp().target(image).toGroup(normalUsersOtherGroupId).build(), true);
+        image = (Image) iQuery.get("Image", image.getId().getValue());
+        Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), normalUser.userId);
+        Assert.assertEquals(image.getDetails().getGroup().getId().getValue(), normalUsersOtherGroupId);
+        /* try to move into another group the normalUser
+        * is not a member of, which should fail because the light admin
+        * has no chgrp permission */
+        client.getImplicitContext().put("omero.group", Long.toString(normalUsersOtherGroupId));
+        doChange(client, factory, Requests.chgrp().target(image).toGroup(anotherGroupId).build(), false);
+        image = (Image) iQuery.get("Image", image.getId().getValue());
+        Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), normalUser.userId);
+        Assert.assertEquals(image.getDetails().getGroup().getId().getValue(), normalUsersOtherGroupId);
+    }
     /**
      * @return a variety of test cases for light administrator privileges
      */
