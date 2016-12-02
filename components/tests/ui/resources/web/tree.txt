@@ -72,14 +72,6 @@ Select And Expand Project Dataset Image
     ${imageId}=                         Select First Image
     [Return]                            ${projectId}    ${datasetId}    ${imageId}
 
-Select And Expand Plate
-    ${firstNodeId}    Select First Node By Type    plate
-    [Return]          ${firstNodeId}
-
-Select And Expand Run
-    ${firstNodeId}    Select First Node By Type    acquisition
-    [Return]          ${firstNodeId}
-
 Select And Expand Image
     ${pid}    ${did}    ${imageId}      Select And Expand Project Dataset Image
     [Return]                            ${imageId}

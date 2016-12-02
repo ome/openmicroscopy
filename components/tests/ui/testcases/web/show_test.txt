@@ -84,7 +84,7 @@ Test Show Well Images
 
     Select Experimenter
     Select First Plate With Name            ${plateName}
-    Select And Expand Run
+    Select First Run
     Click Well By Name                      A1
 
     # Images from a single Well shown in bottom panel
