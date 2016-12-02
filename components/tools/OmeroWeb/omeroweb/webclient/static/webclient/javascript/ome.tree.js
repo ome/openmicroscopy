@@ -135,13 +135,14 @@ $(function() {
         var inst = data.instance;
 
         // Global variable specifies what to select
-        var nodeIds = WEBCLIENT.initially_select;
+        var nodeIds = WEBCLIENT.initially_open;
         if (nodeIds.length === 0) {
             // If not found, just select root node
             inst.select_node('ul > li:first');
         } else {
-            // We load hierachy for first item...
-            var paramSplit = nodeIds[0].split('-');
+            // We load hierachy for last item (ignore 'well' since not in tree)
+            nodeIds = nodeIds.filter(function(n){return !n.startsWith('well')});
+            var paramSplit = nodeIds[nodeIds.length-1].split('-');
 
             var payload = {};
             payload[paramSplit[0]] = paramSplit[1];
@@ -192,8 +193,8 @@ $(function() {
                                 // we also focus the node, to scroll to it and setup hotkey events
                                 $("#" + node.id).children('.jstree-anchor').focus();
                                 // Handle multiple selection. E.g. extra images in same dataset
-                                for(var n=1; n<nodeIds.length; n++) {
-                                    node = inst.locate_node(nodeIds[n], parentNode)[0];
+                                for(var n=1; n<WEBCLIENT.initially_select.length; n++) {
+                                    node = inst.locate_node(WEBCLIENT.initially_select[n], parentNode)[0];
                                     if(node) {
                                         inst.select_node(node);
                                     }

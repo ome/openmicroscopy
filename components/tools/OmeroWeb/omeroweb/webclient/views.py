@@ -460,6 +460,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
         "ExperimenterGroup", long(active_group))
     context['active_user'] = conn.getObject("Experimenter", long(user_id))
     context['initially_select'] = show.initially_select
+    context['initially_open'] = show.initially_open
     context['isLeader'] = conn.isLeader()
     context['current_url'] = url
     context['page_size'] = settings.PAGE
