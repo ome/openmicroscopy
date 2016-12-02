@@ -36,12 +36,12 @@ class TestHistogram(IWebTest):
 
         Default size is 256 bins.
         """
-        sizeX = 125
-        sizeY = 125
-        iId = self.createTestImage(sizeX=sizeX, sizeY=sizeY,
-                                   session=self.sf).id.val
-        theC = 0
-        args = [iId, theC]
+        size_x = 125
+        size_y = 125
+        img_id = self.create_test_image(size_x=size_x, size_y=size_y,
+                                        session=self.sf).id.val
+        the_c = 0
+        args = [img_id, the_c]
         payload = {}
         if bins is not None:
             payload['bins'] = bins
@@ -50,7 +50,7 @@ class TestHistogram(IWebTest):
                                   status_code=200)
         data = json['data']
         # Sum of all pixel counts should equal number of pixels in image
-        assert sum(data) == sizeX * sizeY
+        assert sum(data) == size_x * size_y
         # Number of bins should equal the 'bins' parameter (256 by default)
         if bins is None:
             assert len(data) == 256
