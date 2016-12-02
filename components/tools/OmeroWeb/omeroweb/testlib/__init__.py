@@ -21,6 +21,8 @@
    Library for Web integration tests
 """
 
+import json
+
 from omero.testlib import ITest
 
 from django.test import Client
@@ -94,6 +96,15 @@ def _post_response(django_client, request_url, data, status_code=403,
                      **extra)
 
 
+def _post_response_json(django_client, request_url, data, status_code=403,
+                        content_type=MULTIPART_CONTENT, **extra):
+    rsp = _response(django_client, request_url, method='post', data=data,
+                    status_code=status_code, content_type=content_type,
+                    **extra)
+    assert rsp.get('Content-Type') == 'application/json'
+    return json.loads(rsp.content)
+
+
 def _csrf_post_response(django_client, request_url, data, status_code=200,
                         content_type=MULTIPART_CONTENT):
     csrf_token = django_client.cookies['csrftoken'].value
@@ -101,6 +112,41 @@ def _csrf_post_response(django_client, request_url, data, status_code=200,
     return _post_response(django_client, request_url, data=data,
                           status_code=status_code, content_type=content_type,
                           **extra)
+
+
+def _csrf_post_response_json(django_client, request_url,
+                             query_string, status_code=200):
+    rsp = _csrf_post_response(django_client, request_url,
+                              query_string, status_code)
+    assert rsp.get('Content-Type') == 'application/json'
+    return json.loads(rsp.content)
+
+
+# POST json encoded as a string
+def _csrf_post_json(django_client, request_url, data,
+                    status_code=200, content_type='application/json'):
+    csrf_token = django_client.cookies['csrftoken'].value
+    extra = {'HTTP_X_CSRFTOKEN': csrf_token}
+    rsp = django_client.post(request_url, json.dumps(data),
+                             status_code=status_code,
+                             content_type=content_type,
+                             **extra)
+    assert rsp.status_code == status_code
+    assert rsp.get('Content-Type') == 'application/json'
+    return json.loads(rsp.content)
+
+
+# PUT json encoded as a string
+def _csrf_put_json(django_client, request_url, data,
+                   status_code=200, content_type='application/json'):
+    csrf_token = django_client.cookies['csrftoken'].value
+    extra = {'HTTP_X_CSRFTOKEN': csrf_token}
+    rsp = django_client.put(request_url, json.dumps(data),
+                            status_code=status_code, content_type=content_type,
+                            **extra)
+    assert rsp.status_code == status_code
+    assert rsp.get('Content-Type') == 'application/json'
+    return json.loads(rsp.content)
 
 
 # DELETE
@@ -120,6 +166,13 @@ def _csrf_delete_response(django_client, request_url, data, status_code=200,
                             **extra)
 
 
+def _csrf_delete_response_json(django_client, request_url,
+                               data, status_code=200):
+    rsp = _csrf_delete_response(django_client, request_url, data, status_code)
+    assert rsp.get('Content-Type') == 'application/json'
+    return json.loads(rsp.content)
+
+
 # GET
 def _get_response(django_client, request_url, query_string, status_code=405):
     query_string = urlencode(query_string.items())
@@ -134,3 +187,10 @@ def _csrf_get_response(django_client, request_url, query_string,
     query_string['csrfmiddlewaretoken'] = csrf_token
     return _get_response(django_client, request_url, query_string,
                          status_code)
+
+
+def _get_response_json(django_client, request_url,
+                       query_string, status_code=200):
+    rsp = _get_response(django_client, request_url, query_string, status_code)
+    assert rsp.get('Content-Type') == 'application/json'
+    return json.loads(rsp.content)
