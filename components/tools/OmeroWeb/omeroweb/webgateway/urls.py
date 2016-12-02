@@ -321,8 +321,7 @@ histogram_json = url(
     name="histogram_json")
 """
 Gets a histogram of 256 columns (grey levels) for the chosen
-channel of an image. A single plane is specified by ?theT=1&theZ=2
-or use ?p=intmax for a projection.
+channel of an image. A single plane is specified by ?theT=1&theZ=2.
 """
 
 full_viewer = url(r'^img_detail/(?P<iid>[0-9]+)/$',

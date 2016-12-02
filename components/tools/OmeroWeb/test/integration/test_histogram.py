@@ -32,7 +32,7 @@ class TestHistogram(IWebTest):
     @pytest.mark.parametrize("bins", [None, 10])
     def test_histogram_bin_count(self, bins):
         """
-        Test that the we get histogram json of the expected size.
+        Test that we get histogram json of the expected size.
 
         Default size is 256 bins.
         """
