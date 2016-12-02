@@ -303,8 +303,8 @@ class BaseContainer(BaseController):
             'name': 'Make Movie',
             'enabled': False,
             'tooltip': "Create a movie of the image"}
-        if (self.image and (self.image.getSizeT() > 0 or
-                            self.image.getSizeZ() > 0)):
+        if (self.image and (self.image.getSizeT() > 1 or
+                            self.image.getSizeZ() > 1)):
             makeMovie['enabled'] = 'Make_Movie.py' in availableScripts
 
         figureScripts.append(splitView)
