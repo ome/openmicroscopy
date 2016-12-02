@@ -653,19 +653,20 @@ CUSTOM_SETTINGS_MAPPINGS = {
           " ] or [\"Repository\", {\"viewname\": \"webindex\", "
           "\"query_string\": {\"experimenter\": -1}}, "
           "{\"title\": \"Repo\"}]'``")],
-    "omero.web.ui.metadata_pane":
-        ["METADATA_PANE",
+    "omero.web.ui.metadata_panes":
+        ["METADATA_PANES",
          ('['
-          '{"name": "tag", "label": "Tags", "index": 0},'
-          '{"name": "map", "label": "Key-Value Pairs", "index": 1},'
-          '{"name": "table", "label": "Tables", "index": 2},'
-          '{"name": "file", "label": "Attachments", "index": 3},'
-          '{"name": "comment", "label": "Comments", "index": 4},'
-          '{"name": "rating", "label": "Ratings", "index": 5},'
-          '{"name": "other", "label": "Others", "index": 6}'
+          '{"name": "tag", "label": "Tags", "index": 1},'
+          '{"name": "map", "label": "Key-Value Pairs", "index": 2},'
+          '{"name": "table", "label": "Tables", "index": 3},'
+          '{"name": "file", "label": "Attachments", "index": 4},'
+          '{"name": "comment", "label": "Comments", "index": 5},'
+          '{"name": "rating", "label": "Ratings", "index": 6},'
+          '{"name": "other", "label": "Others", "index": 7}'
           ']'),
          json.loads,
-         ("Manage Metadata pane accordion.")],
+         ("Manage Metadata pane accordion. This functionality is limited to"
+          " the exiting sections.")],
     "omero.web.ui.right_plugins":
         ["RIGHT_PLUGINS",
          ('[["Acquisition",'

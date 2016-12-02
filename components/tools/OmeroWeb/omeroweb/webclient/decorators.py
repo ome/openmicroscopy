@@ -183,8 +183,8 @@ class render_response(omeroweb.decorators.render_response):
             links.append(l)
         context['ome']['top_links'] = links
 
-        metadata_pane = settings.METADATA_PANE
-        context['ome']['metadata_pane'] = metadata_pane
+        metadata_panes = settings.METADATA_PANES
+        context['ome']['metadata_panes'] = metadata_panes
 
         right_plugins = settings.RIGHT_PLUGINS
         r_plugins = []
