@@ -306,7 +306,9 @@ class Show(object):
             ]
         # support for multiple objects selected by ID,
         # E.g. show=image-1|image-2
-        if 'id' in attributes.keys() and len(self._initially_select) > 1:
+        if ('id' in attributes.keys() and len(self._initially_select) > 1 and
+                # but not for wells. PR #4924
+                'well' not in self._initially_select[0]):
             # 'image.id-1' -> 'image-1'
             self._initially_select = [
                 i.replace(".id", "") for i in self._initially_select]
