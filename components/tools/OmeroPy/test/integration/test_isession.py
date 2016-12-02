@@ -25,7 +25,7 @@
 """
 import os
 
-import library as lib
+from omero.testlib import ITest
 import pytest
 import traceback
 import omero
@@ -38,7 +38,7 @@ from omero.rtypes import unwrap
 from omero.cmd import UpdateSessionTimeoutRequest
 
 
-class TestISession(lib.ITest):
+class TestISession(ITest):
 
     def testBasicUsage(self):
         self.client.sf.getSessionService()

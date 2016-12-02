@@ -24,7 +24,7 @@
    and populate_roi.py scripts.
 """
 
-import library as lib
+from omero.testlib import ITest
 import string
 import csv
 import gzip
@@ -691,7 +691,7 @@ class Project2Datasets(Fixture):
                 raise Exception("Unknown dataset: %s" % ds)
 
 
-class TestPopulateMetadata(lib.ITest):
+class TestPopulateMetadata(ITest):
 
     METADATA_FIXTURES = (
         Screen2Plates(),
@@ -1058,7 +1058,7 @@ class ROICSV(Fixture):
         return self.plate
 
 
-class TestPopulateRois(lib.ITest):
+class TestPopulateRois(ITest):
 
     def testPopulateRoisPlate(self):
         """

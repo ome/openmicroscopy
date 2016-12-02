@@ -23,14 +23,14 @@
 Test of the yaml/json parameters file handling
 """
 
-import library as lib
+from omero.testlib import ITest
 from omero.rtypes import unwrap
 from omero.util import pydict_text_io
 
 import pytest
 
 
-class TestPydictTextIo(lib.ITest):
+class TestPydictTextIo(ITest):
 
     def getTestJson(self):
         # space after : is optional for json but required for yaml
