@@ -239,7 +239,7 @@ class BaseContainer(BaseController):
             return self.image.canDownload() or \
                 self.well.canDownload() or self.plate.canDownload()
 
-    def list_scripts(self, request):
+    def list_scripts(self):
         """
         Get the file names of all scripts
         """
@@ -254,14 +254,14 @@ class BaseContainer(BaseController):
 
         return scriptlist
 
-    def listFigureScripts(self, request, objDict=None):
+    def listFigureScripts(self, objDict=None):
         """
         This configures all the Figure Scripts, setting their enabled status
         given the currently selected object (self.image etc) or batch objects
         (uses objDict) and the script availability.
         """
 
-        availableScripts = self.list_scripts(request)
+        availableScripts = self.list_scripts()
 
         figureScripts = []
         # id is used in url and is mapped to full script path by

@@ -1515,7 +1515,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
         else:
             template = "webclient/annotations/metadata_general.html"
             context['canExportAsJpg'] = manager.canExportAsJpg(request)
-            figScripts = manager.listFigureScripts(request)
+            figScripts = manager.listFigureScripts()
     context['manager'] = manager
 
     if c_type in ("tag", "tagset"):
@@ -1991,7 +1991,7 @@ def batch_annotate(request, conn=None, **kwargs):
     conn.SERVICE_OPTS.setOmeroGroup(groupId)
 
     manager = BaseContainer(conn)
-    figScripts = manager.listFigureScripts(request, objs)
+    figScripts = manager.listFigureScripts(objs)
     canExportAsJpg = manager.canExportAsJpg(request, objs)
     filesetInfo = None
     iids = []
