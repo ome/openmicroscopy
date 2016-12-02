@@ -753,6 +753,8 @@ $(document).ready(function() {
             var nodeType = node.type;
             var nodeId = node.data.obj.id;
             var show = WEBCLIENT.initially_select.join("|");
+            // clear WEBCLIENT.initially_select so we don't select well next time user loads plate
+            WEBCLIENT.initially_select = [];
 
             switch(nodeType) {
                 case 'plate':
