@@ -682,147 +682,17 @@
         
     <!-- ANNOTATIONS -->
 
-
-            <!-- TAGS -->               
-            <div id="tagsPane">
-            <h1 class="can-collapse closed" data-name="tags">
-                Tags
-            </h1>
-            <div class="annotations_section" style="display:none">
-                
-                {% if manager.canAnnotate %}
-                    <div>
-                        <a id="launch_tags_form"
-                            href="{% url 'annotate_tags' %}?{{manager.obj_type}}={{ manager.obj_id }}" 
-                            class="btn silver btn_add" title="Add tags"><span></span></a>
-                    </div>
-                {% endif %}
-
-                <!-- display existing Tags -->
-                <div id="tags_container" class="lntags"></div>
- 
-            </div>
-            </div>
-
-
-
-            <!-- MAP ANNOTATIONS -->
-            <div id="mapAnnsPane">
-            <h1 class="can-collapse closed" data-name="keyvaluepairs">
-                Key-Value Pairs
-            </h1>
-            <div class="annotations_section" style="display:none">
-
-                {% include "webclient/annotations/mapannotations.html" %}
-
-            </div>
-            </div>
-
-
-
-            <!-- TABLES -->
-            {% if manager.well or manager.image %}
-            <h1 class="can-collapse closed" data-name="tables">
-                Tables
-            </h1>
-            <div class="annotations_section" style="display:none">
-
-                <h2 id="bulk-annotations" class="bulk_annotation" style="display: none;">Info</h2>
-                <div style="display: none;">
-                    <table id="bulk_annotations_table" class="bulk_annotations_table"></table>
-                </div>
-                <div style="clear:both; margin:8px"></div>
-            </div>
-            {% endif %}
-
-
-            <!-- FILES -->
-            <div id="fileannsPane">
-            <h1 class="can-collapse closed" data-name='attachments'>
-                Attachments
-            </h1>
-            <div class="annotations_section" style="display:none">
-
-                    {% if manager.canAnnotate %}
-                        <a id="choose_file_anns"
-                            href="{% url 'annotate_file' %}?{{manager.obj_type}}={{ manager.obj_id }}"
-                            class="btn silver btn_add" title="Attach a file">
-                            <span></span>
-                        </a>
-                    {% endif %}
-                    <div class="toolbar">
-                        <input type="button" title="Select files for scripts"
-                            class="btn silver btn_script_dark">
-                    </div>
-                    <img id='fileann_spinner' src="{% static "webgateway/img/spinner.gif" %}" style="display:none"/>
-
-                <div style="clear:both"></div>
-                    <!-- file annotations loaded by FileAnnsPane -->
-                    <ul id="fileanns_container" class="lnfiles"></ul>
-            </div>
-            </div>
-
-<!-- >>>>>>> origin/develop -->
-
-            <!-- RATING -->
-            <div id="ratingsPane">
-            <h1 class="can-collapse closed" data-name="ratings">
-                Ratings
-            </h1>
-            <div class="annotations_section" style="display: none">
-                <div id="rating_annotations" {% if manager.canAnnotate %}class="canAnnotate"{% endif %}></div>
-             </div>
-             </div>
-
-
-            
-            <!-- COMMENTS -->
-            <div id="commentsPane">
-            <h1 class="can-collapse closed" data-name="comments">
-                Comments
-            </h1>
-            <div class="annotations_section" style="display: none" data-name='comments'>
-
-                    {% if manager.canAnnotate %}
-                    <form id="add_comment_form" action="{% url 'annotate_comment' %}" method="post">{% csrf_token %}
-                    <table>
-                        <tr>
-                            <td>
-                                <div id="add_comment_wrapper" style="position: relative">
-                                    <label class="inline_label" for="id_comment">Add Comment:</label>
-                                    <textarea cols="39" id="id_comment" name="comment" rows="2"></textarea>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><input type="submit" value="{% trans 'Add Comment' %}" style="display:none" /></td>
-                        </tr>
-                    </table>
-                    </form>
-                    {% endif %}
-
-                    <div id="comments_container" class="lncomments"></div>
-            </div>
-            </div>
-            <div class="clear"></div>          
-            
-
-
-            <!-- 'OTHER' ANNOTATIONS -->
-            <div id="customAnnotationsPane">
-            <h1 class="can-collapse closed" data-name="others">
-                Others
-            </h1>
-            <div class="annotations_section" style="display: none">
-                <table id="custom_annotations"></table>
-            </div>
-            </div>
+        <!-- templates are loaded based on config -->
+        {% for t in ome.metadata_panes|dictsort:"index" %}
+            {% with "webclient/annotations/includes/metadata_general_"|add:t.name|add:".html" as metadata_templates_path %}
+            {% with label=t.label %}
+            {% include metadata_templates_path %}
+            {% endwith %}
+            {% endwith %}
+        {% endfor %}
 
         </div>
         {% endif %}
-
-
-
 
 
         {% if manager.tag %}
