@@ -21,7 +21,7 @@
    Library for Web integration tests
 """
 
-import library as lib
+from omero.testlib import ITest
 
 from django.test import Client
 from django.test.client import MULTIPART_CONTENT
@@ -29,7 +29,7 @@ from django.core.urlresolvers import reverse
 from urllib import urlencode
 
 
-class IWebTest(lib.ITest):
+class IWebTest(ITest):
     """
     Abstract class derived from ITest which implements helpers for creating
     Django clients using django.test

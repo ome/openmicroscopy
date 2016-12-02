@@ -24,8 +24,8 @@ Tests copying and pasting of rendering settings in webclient
 import omero
 import omero.clients
 
-from weblibrary import IWebTest
-from weblibrary import _csrf_post_response, _get_response
+from omeroweb.testlib import IWebTest
+from omeroweb.testlib import _csrf_post_response, _get_response
 
 from django.core.urlresolvers import reverse
 
