@@ -33,6 +33,7 @@ kymograph = "/omero/analysis_scripts/Kymograph.py"
 plot_profile = "/omero/analysis_scripts/Plot_Profile.py"
 kymograph_analysis = "/omero/analysis_scripts/Kymograph_Analysis.py"
 
+
 class TestAnalysisScripts(ScriptTest):
 
     def test_kymograph(self):
@@ -117,9 +118,8 @@ class TestAnalysisScripts(ScriptTest):
 
         kymograph_img = run_script(client, script_id, args, "New_Image")
         # now analyse the Kymograph image
-        script_id = super(TestAnalysisScripts, self).get_script(
-                        kymograph_analysis)
-        assert script_id > 0
+        sid = super(TestAnalysisScripts, self).get_script(kymograph_analysis)
+        assert sid > 0
 
         image_id = kymograph_img.getValue().getId().getValue()
         roi = create_roi(image_id, 0, 2, 0, 2, 1, False)
@@ -131,10 +131,10 @@ class TestAnalysisScripts(ScriptTest):
             "IDs": omero.rtypes.rlist(image_ids)
         }
 
-
-        ann = run_script(client, script_id, args, "Line_Data")
+        ann = run_script(client, sid, args, "Line_Data")
         c = self.new_client(user=user)
         check_file_annotation(c, ann)
+
 
 def create_roi(image_id, x1, x2, y1, y2, size_t, with_polylines):
     """
