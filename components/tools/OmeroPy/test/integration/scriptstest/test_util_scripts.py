@@ -31,6 +31,7 @@ from test.integration.scriptstest.script import run_script
 channel_offsets = "/omero/util_scripts/Channel_Offsets.py"
 combine_images = "/omero/util_scripts/Combine_Images.py"
 images_from_rois = "/omero/util_scripts/Images_From_ROIs.py"
+dataset_to_plate = "/omero/util_scripts/Dataset_To_Plate.py"
 
 
 class TestUtilScripts(ScriptTest):
@@ -112,3 +113,30 @@ class TestUtilScripts(ScriptTest):
         # check the result
         assert img_from_rois is not None
         assert img_from_rois.getValue().getId().getValue() > 0
+
+    def test_dataset_to_plate(self):
+        script_id = super(TestUtilScripts, self).get_script(dataset_to_plate)
+        assert script_id > 0
+        # root session is root.sf
+        session = self.root.sf
+        client = self.root
+
+        # create several test images in a dataset
+        dataset = self.make_dataset("dataset_to_plate-test", client=client)
+
+        for i in range(10):
+            # x,y,z,c,t
+            image = self.create_test_image(100, 100, 1, 1, 1, session)
+            self.link(dataset, image, client=client)
+
+        # run the script twice. First with all args...
+        dataset_ids = [omero.rtypes.rlong(dataset.getId().getValue())]
+        args = {
+            "Data_Type": omero.rtypes.rstring("Dataset"),
+            "IDs": omero.rtypes.rlist(dataset_ids)
+        }
+
+        d_to_p = run_script(client, script_id, args, "New_Object")
+        # check the result
+        assert d_to_p is not None
+        assert d_to_p.getValue().getId().getValue() > 0
