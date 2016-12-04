@@ -495,8 +495,6 @@ def addRectangleRoi(updateService, x, y, width, height, imageId):
     rect.y = omero.rtypes.rdouble(y)
     rect.width = omero.rtypes.rdouble(width)
     rect.height = omero.rtypes.rdouble(height)
-    rect.theZ = omero.rtypes.rint(0)
-    rect.theT = omero.rtypes.rint(0)
     rect.locked = omero.rtypes.rbool(True)        # don't allow editing
     rect.strokeWidth = omero.model.LengthI()
     rect.strokeWidth.setValue(1.0)
