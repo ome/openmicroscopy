@@ -58,7 +58,7 @@ class TestFigureExportScripts(ScriptTest):
             tag = omero.model.TagAnnotationI()
             tag.setTextValue(omero.rtypes.rstring("TestTag_%s" % t))
             tag = session.getUpdateService().saveAndReturnObject(tag)
-            tag_ids.append(tag.id)
+            tag_ids.append(tag.getId())
 
         # put some images in dataset
         image_ids = []
@@ -74,7 +74,7 @@ class TestFigureExportScripts(ScriptTest):
             self.link(image, tag, client=client)
 
         # run the script twice. First with all args...
-        dataset_ids = [omero.rtypes.rlong(dataset.id.val)]
+        dataset_ids = [omero.rtypes.rlong(dataset.getId().getValue())]
         ids = image_ids
         if data_type == "Dataset":
             ids = dataset_ids
@@ -253,7 +253,8 @@ class TestFigureExportScripts(ScriptTest):
             # add roi -   x, y, width, height
             add_rectangle_roi(session.getUpdateService(),
                               50 + (i * 10), 100 - (i * 10),
-                              50 + (i * 5), 100 - (i * 5), image.id.val)
+                              50 + (i * 5), 100 - (i * 5),
+                              image.getId().getValue())
 
         if all_parameters:
             args = {
