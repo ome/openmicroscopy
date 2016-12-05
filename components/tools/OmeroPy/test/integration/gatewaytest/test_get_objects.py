@@ -629,6 +629,11 @@ class TestGetObject (object):
         # it should pass when re-run since images are deleted above
         assert orphanedCount == 5, "Did not find orphaned images"
 
+        # Simply check this doesn't fail See https://github.com/
+        # openmicroscopy/openmicroscopy/pull/4950#issuecomment-264142956
+        datasets = list(gatewaywrapper.gateway.listOrphans("Dataset"))
+
+
     def testOrderById(self, gatewaywrapper):
         gatewaywrapper.loginAsUser()
         imageIds = list()
