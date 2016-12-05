@@ -4518,17 +4518,10 @@ class AnnotationWrapper (BlitzObjectWrapper):
         Used for building queries in generic methods such as
         getObjects("Annotation")
         """
-<<<<<<< HEAD
         return ("select obj from Annotation obj "
                 "join fetch obj.details.owner as owner "
                 "join fetch obj.details.group "
                 "join fetch obj.details.creationEvent")
-=======
-        query = ("select obj from Annotation obj "
-                 "join fetch obj.details.owner as owner "
-                 "join fetch obj.details.creationEvent")
-        return query, [], omero.sys.ParametersI()
->>>>>>> 4ae50f5... Lots of flake8 fixes in Blitz Gateway
 
     @classmethod
     def _register(klass, regklass):
@@ -4685,17 +4678,10 @@ class FileAnnotationWrapper (AnnotationWrapper, OmeroRestrictionWrapper):
         Used for building queries in generic methods such as
         getObjects("FileAnnotation")
         """
-<<<<<<< HEAD
         return ("select obj from FileAnnotation obj "
                 "join fetch obj.details.owner as owner "
                 "join fetch obj.details.group "
                 "join fetch obj.details.creationEvent join fetch obj.file")
-=======
-        query = ("select obj from FileAnnotation obj "
-                 "join fetch obj.details.owner as owner "
-                 "join fetch obj.details.creationEvent join fetch obj.file")
-        return query, [], omero.sys.ParametersI()
->>>>>>> 4ae50f5... Lots of flake8 fixes in Blitz Gateway
 
     def getValue(self):
         """ Not implemented """
@@ -4834,17 +4820,10 @@ class TimestampAnnotationWrapper (AnnotationWrapper):
         Used for building queries in generic methods such as
         getObjects("TimestampAnnotation")
         """
-<<<<<<< HEAD
         return ("select obj from TimestampAnnotation obj "
                 "join fetch obj.details.owner as owner "
                 "join fetch obj.details.group "
                 "join fetch obj.details.creationEvent")
-=======
-        query = ("select obj from TimestampAnnotation obj "
-                 "join fetch obj.details.owner as owner "
-                 "join fetch obj.details.creationEvent")
-        return query, [], omero.sys.ParametersI()
->>>>>>> 4ae50f5... Lots of flake8 fixes in Blitz Gateway
 
     def getValue(self):
         """
@@ -4890,17 +4869,10 @@ class BooleanAnnotationWrapper (AnnotationWrapper):
         Used for building queries in generic methods such as
         getObjects("BooleanAnnotation")
         """
-<<<<<<< HEAD
         return ("select obj from BooleanAnnotation obj "
                 "join fetch obj.details.owner as owner "
                 "join fetch obj.details.group "
                 "join fetch obj.details.creationEvent")
-=======
-        query = ("select obj from BooleanAnnotation obj "
-                 "join fetch obj.details.owner as owner "
-                 "join fetch obj.details.creationEvent")
-        return query, [], omero.sys.ParametersI()
->>>>>>> 4ae50f5... Lots of flake8 fixes in Blitz Gateway
 
     def getValue(self):
         """
@@ -4983,17 +4955,10 @@ class TagAnnotationWrapper (AnnotationWrapper):
         Used for building queries in generic methods such as
         getObjects("TagAnnotation")
         """
-<<<<<<< HEAD
         return ("select obj from TagAnnotation obj "
                 "join fetch obj.details.owner as owner "
                 "join fetch obj.details.group "
                 "join fetch obj.details.creationEvent")
-=======
-        query = ("select obj from TagAnnotation obj "
-                 "join fetch obj.details.owner as owner "
-                 "join fetch obj.details.creationEvent")
-        return query, [], omero.sys.ParametersI()
->>>>>>> 4ae50f5... Lots of flake8 fixes in Blitz Gateway
 
     def getValue(self):
         """
@@ -5032,17 +4997,10 @@ class CommentAnnotationWrapper (AnnotationWrapper):
         Used for building queries in generic methods such as
         getObjects("CommentAnnotation")
         """
-<<<<<<< HEAD
         return ("select obj from CommentAnnotation obj "
                 "join fetch obj.details.owner as owner "
                 "join fetch obj.details.group "
                 "join fetch obj.details.creationEvent")
-=======
-        query = ("select obj from CommentAnnotation obj "
-                 "join fetch obj.details.owner as owner "
-                 "join fetch obj.details.creationEvent")
-        return query, [], omero.sys.ParametersI()
->>>>>>> 4ae50f5... Lots of flake8 fixes in Blitz Gateway
 
     def getValue(self):
         """
@@ -5079,17 +5037,10 @@ class LongAnnotationWrapper (AnnotationWrapper):
         Used for building queries in generic methods such as
         getObjects("LongAnnotation")
         """
-<<<<<<< HEAD
         return ("select obj from LongAnnotation obj "
                 "join fetch obj.details.owner as owner "
                 "join fetch obj.details.group "
                 "join fetch obj.details.creationEvent")
-=======
-        query = ("select obj from LongAnnotation obj "
-                 "join fetch obj.details.owner as owner "
-                 "join fetch obj.details.creationEvent")
-        return query, [], omero.sys.ParametersI()
->>>>>>> 4ae50f5... Lots of flake8 fixes in Blitz Gateway
 
     def getValue(self):
         """
@@ -5127,17 +5078,10 @@ class DoubleAnnotationWrapper (AnnotationWrapper):
         Used for building queries in generic methods such as
         getObjects("DoubleAnnotation")
         """
-<<<<<<< HEAD
         return ("select obj from DoubleAnnotation obj "
                 "join fetch obj.details.owner as owner "
                 "join fetch obj.details.group "
                 "join fetch obj.details.creationEvent")
-=======
-        query = ("select obj from DoubleAnnotation obj "
-                 "join fetch obj.details.owner as owner "
-                 "join fetch obj.details.creationEvent")
-        return query, [], omero.sys.ParametersI()
->>>>>>> 4ae50f5... Lots of flake8 fixes in Blitz Gateway
 
     def getValue(self):
         """
@@ -5176,17 +5120,10 @@ class TermAnnotationWrapper (AnnotationWrapper):
         Used for building queries in generic methods such as
         getObjects("TermAnnotation")
         """
-<<<<<<< HEAD
         return ("select obj from TermAnnotation obj "
                 "join fetch obj.details.owner as owner "
                 "join fetch obj.details.group "
                 "join fetch obj.details.creationEvent")
-=======
-        query = ("select obj from TermAnnotation obj "
-                 "join fetch obj.details.owner as owner "
-                 "join fetch obj.details.creationEvent")
-        return query, [], omero.sys.ParametersI()
->>>>>>> 4ae50f5... Lots of flake8 fixes in Blitz Gateway
 
     def getValue(self):
         """
@@ -5301,16 +5238,9 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         """
         Returns string for building queries, loading Experimenters only.
         """
-<<<<<<< HEAD
         return ("select distinct obj from Experimenter as obj "
                 "left outer join fetch obj.groupExperimenterMap as map "
                 "left outer join fetch map.parent g")
-=======
-        query = ("select distinct obj from Experimenter as obj "
-                 "left outer join fetch obj.groupExperimenterMap as map "
-                 "left outer join fetch map.parent g")
-        return query, [], omero.sys.ParametersI()
->>>>>>> 4ae50f5... Lots of flake8 fixes in Blitz Gateway
 
     def getRawPreferences(self):
         """
