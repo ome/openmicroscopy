@@ -193,6 +193,7 @@ def _csrf_delete_response_json(django_client, request_url,
 def _get_response(django_client, request_url, query_string, status_code=405):
     query_string = urlencode(query_string.items())
     response = django_client.get('%s?%s' % (request_url, query_string))
+    print response
     assert response.status_code == status_code
     return response
 

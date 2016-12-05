@@ -33,6 +33,29 @@ from omero.rtypes import unwrap, rstring
 from omero_marshal import get_encoder, OME_SCHEMA_URL
 
 
+def build_url(name, api_version, **kwargs):
+    """
+    Helper for generating urls within /api json responses.
+
+    By default we use request.build_absolute_uri() but this
+    can be configured by setting "omero.web.api.absolute_url"
+    to a string or empty string, used to prefix relative urls.
+    Extra **kwargs are passed to reverse() function.
+
+    @param name:            Name of the url
+    @param api_version      Version string
+    """
+    kwargs['api_version'] = api_version
+    url = reverse(name, kwargs=kwargs)
+    return url
+    # if settings.API_ABSOLUTE_URL is None:
+    #     return request.build_absolute_uri(url)
+    # else:
+    #     # remove trailing slash
+    #     prefix = settings.API_ABSOLUTE_URL.rstrip('/')
+    #     return "%s%s" % (prefix, url)
+
+
 def get_update_service(user):
     """
     Get the update_service for the given user's client
@@ -156,7 +179,7 @@ def marshal_objects(objects):
 
 
 def assert_objects(conn, json_objects, omero_ids_objects, dtype="Project",
-                   group='-1'):
+                   group='-1', version=None):
     """
     Load objects from OMERO, via conn.getObjects(), marshal with
     omero_marshal and compare with json_objects.
@@ -172,8 +195,17 @@ def assert_objects(conn, json_objects, omero_ids_objects, dtype="Project",
     projects = conn.getObjects(dtype, pids, respect_order=True)
     projects = [p._obj for p in projects]
     expected = marshal_objects(projects)
+    if dtype == "Project":
+        for o in expected:
+            datasets_url = build_url('api_project_datasets',
+                                     version, pid=o['@id'])
+            o['omero:datasets_url'] = datasets_url
     assert len(json_objects) == len(expected)
     for o1, o2 in zip(json_objects, expected):
+        # Don't check absolute url
+        assert o2['omero:datasets_url'] in o1['omero:datasets_url']
+        del o1['omero:datasets_url']
+        del o2['omero:datasets_url']
         assert o1 == o2
 
 
@@ -291,7 +323,8 @@ class TestProjects(IWebTest):
         rsp = _get_response_json(django_client, request_url, {})
         # Reload projects with group '-1' to get same 'canLink' perms
         # on owner and group permissions
-        assert_objects(conn, rsp['data'], projects_user1_group1)
+        assert_objects(conn, rsp['data'], projects_user1_group1,
+                       version=version)
 
     def test_marshal_projects_another_user(self, user1, user2,
                                            projects_user2_group1):
@@ -306,7 +339,8 @@ class TestProjects(IWebTest):
         request_url = reverse('api_projects', kwargs={'api_version': version})
         rsp = _get_response_json(django_client, request_url, {})
         # user1 reloads user2's projects
-        assert_objects(conn, rsp['data'], projects_user2_group1)
+        assert_objects(conn, rsp['data'], projects_user2_group1,
+                       version=version)
 
     def test_marshal_projects_another_group(self, user1, group2,
                                             projects_user1_group2):
@@ -324,7 +358,8 @@ class TestProjects(IWebTest):
         # user1 reloads projects with group '-1' so that permissions on owner
         # are same as owner's default group Group 1 (rwra--) instead of
         # group that the data is in Group 2 (rwr--)
-        assert_objects(conn, rsp['data'], projects_user1_group2)
+        assert_objects(conn, rsp['data'], projects_user1_group2,
+                       version=version)
 
     def test_marshal_projects_all_groups(self, user1, group1, group2,
                                          projects_user1):
@@ -340,15 +375,17 @@ class TestProjects(IWebTest):
 
         # All groups
         rsp = _get_response_json(django_client, request_url, {})
-        assert_objects(conn, rsp['data'], projects_user1)
+        assert_objects(conn, rsp['data'], projects_user1, version=version)
         # Filter by group A...
         gid = group1.id.val
         rsp = _get_response_json(django_client, request_url, {'group': gid})
-        assert_objects(conn, rsp['data'], projects_user1, group=gid)
+        assert_objects(conn, rsp['data'], projects_user1, group=gid,
+                       version=version)
         # ...and group B
         gid = group2.id.val
         rsp = _get_response_json(django_client, request_url, {'group': gid})
-        assert_objects(conn, rsp['data'], projects_user1, group=gid)
+        assert_objects(conn, rsp['data'], projects_user1, group=gid,
+                       version=version)
 
     def test_marshal_projects_all_users(self, user1, user2,
                                         projects_user1_group1,
@@ -367,15 +404,17 @@ class TestProjects(IWebTest):
 
         # Both users
         rsp = _get_response_json(django_client, request_url, {})
-        assert_objects(conn, rsp['data'], projects)
+        assert_objects(conn, rsp['data'], projects, version=version)
 
         eid = user1[1].id.val
         rsp = _get_response_json(django_client, request_url, {'owner': eid})
-        assert_objects(conn, rsp['data'], projects_user1_group1)
+        assert_objects(conn, rsp['data'], projects_user1_group1,
+                       version=version)
 
         eid = user2[1].id.val
         rsp = _get_response_json(django_client, request_url, {'owner': eid})
-        assert_objects(conn, rsp['data'], projects_user2_group1)
+        assert_objects(conn, rsp['data'], projects_user2_group1,
+                       version=version)
 
     def test_marshal_projects_pagination(self, user1, user2,
                                          projects_user1_group1,
@@ -395,13 +434,14 @@ class TestProjects(IWebTest):
         limit = 2
         rsp = _get_response_json(django_client, request_url, {'limit': limit})
         assert len(rsp['data']) == limit
-        assert_objects(conn, rsp['data'], projects[0:limit])
+        assert_objects(conn, rsp['data'], projects[0:limit], version=version)
 
         # Check that page 2 gives next 2 projects
         page = 2
         payload = {'limit': limit, 'page': page}
         rsp = _get_response_json(django_client, request_url, payload)
-        assert_objects(conn, rsp['data'], projects[limit:limit * page])
+        assert_objects(conn, rsp['data'], projects[limit:limit * page],
+                       version=version)
 
     def test_marshal_projects_params(self, user1, user2,
                                      projects_user1_group1,
@@ -481,7 +521,7 @@ class TestProjects(IWebTest):
         rsp = _get_response_json(django_client, project_url, {})
         assert rsp['@id'] == project_id
         conn = BlitzGateway(client_obj=self.root)
-        assert_objects(conn, [rsp], [project_id])
+        assert_objects(conn, [rsp], [project_id], version=version)
 
     def test_project_create_other_group(self, user1, projects_user1_group2):
         """

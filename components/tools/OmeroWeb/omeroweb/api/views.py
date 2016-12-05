@@ -28,7 +28,7 @@ from django.conf import settings
 import traceback
 import json
 
-from api_query import query_projects
+from api_query import query_projects, query_datasets, query_objects
 from omero_marshal import get_encoder, get_decoder, OME_SCHEMA_URL
 from omero import ValidationException
 from omeroweb.connector import Server
@@ -107,22 +107,22 @@ def api_servers(request, api_version, **kwargs):
     return {'data': servers}
 
 
-class ProjectView(View):
+class ObjectView(View):
     """Handle access to an individual Project to GET or DELETE it."""
 
     @method_decorator(login_required(useragent='OMERO.webapi'))
     @method_decorator(json_response())
     def dispatch(self, *args, **kwargs):
         """Wrap other methods to add decorators."""
-        return super(ProjectView, self).dispatch(*args, **kwargs)
+        return super(ObjectView, self).dispatch(*args, **kwargs)
 
     def get(self, request, pid, conn=None, **kwargs):
-        """Simply GET a single Project and marshal it or 404 if not found."""
-        project = conn.getObject("Project", pid)
-        if project is None:
-            raise NotFoundError('Project %s not found' % pid)
-        encoder = get_encoder(project._obj.__class__)
-        return encoder.encode(project._obj)
+        """Simply GET a single Object and marshal it or 404 if not found."""
+        obj = conn.getObject(self.OMERO_TYPE, pid)
+        if obj is None:
+            raise NotFoundError('%s %s not found' % (self.OMERO_TYPE, pid))
+        encoder = get_encoder(obj._obj.__class__)
+        return encoder.encode(obj._obj)
 
     def delete(self, request, pid, conn=None, **kwargs):
         """
@@ -131,13 +131,33 @@ class ProjectView(View):
         Return 404 if not found.
         """
         try:
-            project = conn.getQueryService().get('Project', long(pid))
+            obj = conn.getQueryService().get(self.OMERO_TYPE, long(pid))
         except ValidationException:
-            raise NotFoundError('Project %s not found' % pid)
-        encoder = get_encoder(project.__class__)
-        json = encoder.encode(project)
-        conn.deleteObject(project)
+            raise NotFoundError('%s %s not found' % (self.OMERO_TYPE, pid))
+        encoder = get_encoder(obj.__class__)
+        json = encoder.encode(obj)
+        conn.deleteObject(obj)
         return json
+
+
+class ProjectView(ObjectView):
+    OMERO_TYPE = 'Project'
+
+    def get(self, request, pid, conn=None, **kwargs):
+        o = super(ProjectView, self).get(request, pid, conn, **kwargs)
+        version = kwargs['api_version']
+        datasets_url = build_url(request, 'api_project_datasets',
+                                 version, pid=o['@id'])
+        o['omero:datasets_url'] = datasets_url
+        return o
+
+
+class DatasetView(ObjectView):
+    OMERO_TYPE = 'Dataset'
+
+
+class ScreenView(ObjectView):
+    OMERO_TYPE = 'Dataset'
 
 
 class ProjectsView(View):
@@ -170,7 +190,82 @@ class ProjectsView(View):
                                   limit=limit,
                                   normalize=normalize)
 
+        version = kwargs['api_version']
+        for p in projects['data']:
+            url = build_url(request, 'api_project_datasets',
+                            version, pid=p['@id'])
+            p['omero:datasets_url'] = url
         return projects
+
+
+class DatasetsView(View):
+    """Handles GET for /datasets/ to list available Datasets."""
+
+    @method_decorator(login_required(useragent='OMERO.webapi'))
+    @method_decorator(json_response())
+    def dispatch(self, *args, **kwargs):
+        """Use dispatch to add decorators to class methods."""
+        return super(DatasetsView, self).dispatch(*args, **kwargs)
+
+    def get(self, request, pid=None, conn=None, **kwargs):
+        """GET a list of Datasets, filtering by various request parameters."""
+        try:
+            page = getIntOrDefault(request, 'page', 1)
+            limit = getIntOrDefault(request, 'limit', settings.PAGE)
+            group = getIntOrDefault(request, 'group', -1)
+            owner = getIntOrDefault(request, 'owner', -1)
+            childCount = request.GET.get('childCount', False) == 'true'
+            normalize = request.GET.get('normalize', False) == 'true'
+            # filter by ?project=pid instead of /projects/:pdi/datasets/
+            if pid is None:
+                pid = getIntOrDefault(request, 'project', None)
+        except ValueError as ex:
+            raise BadRequestError(str(ex))
+
+        # Get the datasets
+        datasets = query_datasets(conn,
+                                  project=pid,
+                                  group=group,
+                                  owner=owner,
+                                  childCount=childCount,
+                                  page=page,
+                                  limit=limit,
+                                  normalize=normalize)
+
+        return datasets
+
+
+class ScreensView(View):
+    """Handles GET for /screens/ to list available Screens."""
+
+    @method_decorator(login_required(useragent='OMERO.webapi'))
+    @method_decorator(json_response())
+    def dispatch(self, *args, **kwargs):
+        """Use dispatch to add decorators to class methods."""
+        return super(ScreensView, self).dispatch(*args, **kwargs)
+
+    def get(self, request, pid=None, conn=None, **kwargs):
+        """GET a list of Screens, filtering by various request parameters."""
+        try:
+            page = getIntOrDefault(request, 'page', 1)
+            limit = getIntOrDefault(request, 'limit', settings.PAGE)
+            group = getIntOrDefault(request, 'group', -1)
+            owner = getIntOrDefault(request, 'owner', -1)
+            childCount = request.GET.get('childCount', False) == 'true'
+            normalize = request.GET.get('normalize', False) == 'true'
+        except ValueError as ex:
+            raise BadRequestError(str(ex))
+
+        # Get the screens
+        screens = query_objects(conn, 'Screen',
+                                group=group,
+                                owner=owner,
+                                childCount=childCount,
+                                page=page,
+                                limit=limit,
+                                normalize=normalize)
+
+        return screens
 
 
 class SaveView(View):
