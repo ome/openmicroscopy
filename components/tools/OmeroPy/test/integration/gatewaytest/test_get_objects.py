@@ -631,8 +631,7 @@ class TestGetObject (object):
 
         # Simply check this doesn't fail See https://github.com/
         # openmicroscopy/openmicroscopy/pull/4950#issuecomment-264142956
-        datasets = list(gatewaywrapper.gateway.listOrphans("Dataset"))
-
+        list(gatewaywrapper.gateway.listOrphans("Dataset"))
 
     def testOrderById(self, gatewaywrapper):
         gatewaywrapper.loginAsUser()
