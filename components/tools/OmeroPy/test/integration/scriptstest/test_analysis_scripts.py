@@ -49,7 +49,7 @@ class TestAnalysisScripts(ScriptTest):
         # x,y,z,c,t
         session = client.getSession()
         image = self.create_test_image(size_x, size_y, 1, 2, size_t, session)
-        image_id = image.getId().getValue()
+        image_id = image.id.val
         roi = create_roi(image_id, 0, size_x / 2, 0, size_y / 2, size_t, True)
         session.getUpdateService().saveAndReturnObject(roi)
         image_ids = []
@@ -64,7 +64,7 @@ class TestAnalysisScripts(ScriptTest):
 
         # check the result
         assert kymograph_img is not None
-        assert kymograph_img.getValue().getId().getValue() > 0
+        assert kymograph_img.getValue().id.val > 0
 
     def test_plot_profile(self):
         script_id = super(TestAnalysisScripts, self).get_script(plot_profile)
@@ -78,7 +78,7 @@ class TestAnalysisScripts(ScriptTest):
         size_y = 100
         session = client.getSession()
         image = self.create_test_image(size_x, size_y, 1, 2, size_t, session)
-        image_id = image.getId().getValue()
+        image_id = image.id.val
         roi = create_roi(image_id, 0, size_x / 2, 0, size_y / 2, size_t, True)
         session.getUpdateService().saveAndReturnObject(roi)
         image_ids = []
@@ -105,7 +105,7 @@ class TestAnalysisScripts(ScriptTest):
         # x,y,z,c,t
         session = client.getSession()
         image = self.create_test_image(size_x, size_y, 1, 2, size_t, session)
-        image_id = image.getId().getValue()
+        image_id = image.id.val
         roi = create_roi(image_id, 0, size_x / 2, 0, size_y / 2, size_t, True)
         session.getUpdateService().saveAndReturnObject(roi)
         image_ids = []
@@ -121,7 +121,7 @@ class TestAnalysisScripts(ScriptTest):
         sid = super(TestAnalysisScripts, self).get_script(kymograph_analysis)
         assert sid > 0
 
-        image_id = kymograph_img.getValue().getId().getValue()
+        image_id = kymograph_img.getValue().id.val
         roi = create_roi(image_id, 0, 2, 0, 2, 1, False)
         session.getUpdateService().saveAndReturnObject(roi)
         image_ids = []

@@ -55,19 +55,19 @@ class TestImportScripts(ScriptTest):
         conn = BlitzGateway(client_obj=client)
         fa = conn.createFileAnnfromLocalFile(cvs_file, mimetype="text/csv")
         assert fa is not None
-        assert fa.getId() > 0
+        assert fa.id > 0
         l = omero.model.PlateAnnotationLinkI()
         l.setParent(plate)
-        l.setChild(omero.model.FileAnnotationI(fa.getId(), False))
+        l.setChild(omero.model.FileAnnotationI(fa.id, False))
         client.getSession().getUpdateService().saveAndReturnObject(l)
         # run the script
         plate_ids = []
-        plate_ids.append(omero.rtypes.rlong(plate.getId().getValue()))
+        plate_ids.append(omero.rtypes.rlong(plate.id.val))
 
         args = {
             "Data_Type": omero.rtypes.rstring("Plate"),
             "IDs": omero.rtypes.rlist(plate_ids),
-            "File_Annotation": omero.rtypes.rstring(str(fa.getId()))
+            "File_Annotation": omero.rtypes.rstring(str(fa.id))
         }
         message = run_script(client, sid, args, "Message")
         assert message is not None
@@ -82,16 +82,16 @@ class TestImportScripts(ScriptTest):
         update_service = client.getSession().getUpdateService()
         plates = self.import_plates(client, plate_cols=3, plate_rows=1)
         plate = plates[0]
-        name = plate.getName().getValue()
+        name = plate.name.val
         screen = omero.model.ScreenI()
         screen.name = omero.rtypes.rstring("test_for_screen")
         spl = omero.model.ScreenPlateLinkI()
         spl.setParent(screen)
         spl.setChild(plate)
         spl = update_service.saveAndReturnObject(spl)
-        screen_id = spl.getParent().getId().getValue()
+        screen_id = spl.getParent().id.val
         assert screen_id > 0
-        assert spl.getChild().getId().getValue() == plate.getId().getValue()
+        assert spl.getChild().id.val == plate.id.val
 
         cvs_file = create_path("test_screen", ".csv")
 
@@ -105,20 +105,20 @@ class TestImportScripts(ScriptTest):
         conn = BlitzGateway(client_obj=client)
         fa = conn.createFileAnnfromLocalFile(cvs_file, mimetype="text/csv")
         assert fa is not None
-        assert fa.getId() > 0
+        assert fa.id > 0
         l = omero.model.ScreenAnnotationLinkI()
         l.setParent(omero.model.ScreenI(screen_id, False))
-        l.setChild(omero.model.FileAnnotationI(fa.getId(), False))
+        l.setChild(omero.model.FileAnnotationI(fa.id, False))
         l = update_service.saveAndReturnObject(l)
-        assert l.getId().getValue() > 0
+        assert l.id.val > 0
         # run the script
         screen_ids = []
-        screen_ids.append(spl.getParent().getId())
+        screen_ids.append(spl.getParent().id)
 
         args = {
             "Data_Type": omero.rtypes.rstring("Screen"),
             "IDs": omero.rtypes.rlist(screen_ids),
-            "File_Annotation": omero.rtypes.rstring(str(fa.getId()))
+            "File_Annotation": omero.rtypes.rstring(str(fa.id))
         }
         message = run_script(client, sid, args, "Message")
         assert message is not None
