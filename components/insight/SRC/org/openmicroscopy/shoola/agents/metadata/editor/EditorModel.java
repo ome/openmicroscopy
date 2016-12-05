@@ -267,7 +267,7 @@ class EditorModel
     private boolean largeImage;
     
     /** The file set associated to the image if an image is selected.*/
-    private Set<FilesetData> set;
+    private Collection<FilesetData> set;
     
     /** Checks if the image is a large image or not. */
     private void fireLargeImageLoading()
@@ -716,6 +716,7 @@ class EditorModel
         else if (refObject instanceof FileAnnotationData) {
         	return "File";
         } else if (refObject instanceof WellSampleData) return "Field";
+        else if (refObject instanceof WellData) return "Well";
         else if (refObject instanceof TagAnnotationData) {
         	TagAnnotationData tag = (TagAnnotationData) refObject;
         	if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(tag.getNameSpace()))
@@ -762,11 +763,9 @@ class EditorModel
 			description = ((PlateAcquisitionData) ref).getDescription();
 		else if (ref instanceof TagAnnotationData) {
 			description = ((TagAnnotationData) ref).getTagDescription();
-		} else if (ref instanceof WellSampleData) {
-			if (parentRefObject instanceof WellData) {
-				WellData ws = (WellData) parentRefObject;
-				description = ws.getWellType();
-			}
+		}
+		else if (ref instanceof WellData) { description = ""; }
+		else if (ref instanceof WellSampleData) {
 			ImageData img = ((WellSampleData) ref).getImage();
 			if (!CommonsLangUtils.isEmpty(img.getDescription()))
 			    description = img.getDescription();
@@ -4426,14 +4425,14 @@ class EditorModel
 	 * 
 	 * @return See above.
 	 */
-	Set<FilesetData> getFileset() { return set; }
+	Collection<FilesetData> getFileset() { return set; }
 	
 	/**
 	 * Sets the file set associated to the image if any.
 	 * 
 	 * @param set The value to set.
 	 */
-	void setFileset(Set<FilesetData> set) { this.set = set; }
+	void setFileset(Collection<FilesetData> set) { this.set = set; }
 	
 	/** Loads the file set if the specified object is an image.*/
 	void fireFilesetLoading()

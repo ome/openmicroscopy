@@ -44,14 +44,17 @@ import static org.jhotdraw.draw.AttributeKeys.TEXT_COLOR;
 import static org.jhotdraw.draw.AttributeKeys.STROKE_WIDTH;
 
 import org.jhotdraw.draw.AttributeKey;
+import org.jhotdraw.draw.LineDecoration;
 import org.jhotdraw.geom.BezierPath.Node;
 
 import omero.model.Length;
 import omero.model.enums.UnitsLength;
 
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
+import org.openmicroscopy.shoola.util.roi.figures.Cap;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureEllipseFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
@@ -526,6 +529,23 @@ class InputServerStrategy
 		FONT_ITALIC.set(figure, data.isFontItalic());
 		FONT_BOLD.set(figure, data.isFontBold());
 		TEXT_COLOR.set(figure, data.getStroke());
+		
+        if (CommonsLangUtils.isNotBlank(data.getMarkerStart())) {
+            LineDecoration dec = null;
+            Cap c = Cap.findByValue(data.getMarkerStart());
+            if (c != null) {
+                dec = c.newLineDecorationInstance();
+            }
+            MeasurementAttributes.START_DECORATION.set(figure, dec);
+        }
+        if (CommonsLangUtils.isNotBlank(data.getMarkerEnd())) {
+            LineDecoration dec = null;
+            Cap c = Cap.findByValue(data.getMarkerEnd());
+            if (c != null) {
+                dec = c.newLineDecorationInstance();
+            }
+            MeasurementAttributes.END_DECORATION.set(figure, dec);
+        }
 	}
 
     /**

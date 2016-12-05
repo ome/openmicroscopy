@@ -24,6 +24,7 @@
 
 """
 
+import os
 import sys
 import time
 import weakref
@@ -83,7 +84,7 @@ class ITest(object):
     @classmethod
     def setup_class(cls):
 
-        cls.OmeroPy = cls.omeropydir()
+        cls.omero_dist = cls.omerodistdir()
 
         cls.__clients = Clients()
 
@@ -117,7 +118,7 @@ class ITest(object):
         cls.root = None
         cls.__clients.__del__()
 
-    def keepRootAlive(self):
+    def keep_root_alive(self):
         """
         Keeps root connection alive.
         """
@@ -132,26 +133,38 @@ class ITest(object):
             raise
 
     @classmethod
-    def omeropydir(self):
+    def omerodistdir(cls):
+        def travers(p):
+            dist = None
+            for root, dirs, files in os.walk(p):
+                for f in files:
+                    t = path(os.path.join(root, f))
+                    # find OMERO dist by searching for bin/omero
+                    # exclude OmeroPy as is a source
+                    if (str(t.dirname().dirname().basename())
+                            not in ('OmeroPy', 'build', 'target') and
+                            str(t.basename()) == 'omero' and
+                            str(t.dirname().basename()) == 'bin'):
+                        dist = t.dirname().dirname()
+            return dist
         count = 10
         searched = []
         p = path(".").abspath()
         # "" means top of directory
-        while str(p.basename()) not in ("OmeroPy", ""):
+        dist_dir = None
+        while dist_dir is None:
+            dist_dir = travers(p)
             searched.append(p)
             p = p / ".."  # Walk up, in case test runner entered a subdirectory
-            try:
-                p, = p.dirs("OmeroPy")
-            except ValueError:
-                pass
             p = p.abspath()
             count -= 1
             if not count:
                 break
-        if str(p.basename()) == "OmeroPy":
-            return p
+        if dist_dir is not None:
+            return dist_dir
         else:
-            assert False, "Could not find OmeroPy/; searched %s" % searched
+            assert False, ("Could not find bin/omero executable; "
+                           "searched %s" % searched)
 
     def skip_if(self, config_key, condition, message=None):
         """Skip test if configuration does not meet condition"""
@@ -162,26 +175,26 @@ class ITest(object):
                         % (config_key, config_value))
 
     @classmethod
-    def uuid(self):
+    def uuid(cls):
         return str(uuid.uuid4())
 
     @classmethod
-    def login_args(self, client=None):
-        p = self.client.ic.getProperties()
+    def login_args(cls, client=None):
+        p = cls.client.ic.getProperties()
         host = p.getProperty("omero.host")
         port = p.getProperty("omero.port")
         if not client:
-            key = self.sf.ice_getIdentity().name
+            key = cls.sf.ice_getIdentity().name
         else:
             key = client.sf.ice_getIdentity().name
         return ["-q", "-s", host, "-k", key, "-p", port]
 
     @classmethod
-    def root_login_args(self):
-        p = self.root.ic.getProperties()
+    def root_login_args(cls):
+        p = cls.root.ic.getProperties()
         host = p.getProperty("omero.host")
         port = p.getProperty("omero.port")
-        key = self.root.sf.ice_getIdentity().name
+        key = cls.root.sf.ice_getIdentity().name
         return ["-s", host, "-k", key, "-p", port]
 
     def tmpfile(self):
@@ -189,11 +202,11 @@ class ITest(object):
 
     # Administrative methods
     @classmethod
-    def new_group(self, experimenters=None, perms=None,
+    def new_group(cls, experimenters=None, perms=None,
                   config=None, gname=None):
-        admin = self.root.sf.getAdminService()
+        admin = cls.root.sf.getAdminService()
         if gname is None:
-            gname = self.uuid()
+            gname = cls.uuid()
         group = ExperimenterGroupI()
         group.name = rstring(gname)
         group.ldap = rbool(False)
@@ -202,15 +215,15 @@ class ITest(object):
             group.details.permissions = PermissionsI(perms)
         gid = admin.createGroup(group)
         group = admin.getGroup(gid)
-        self.add_experimenters(group, experimenters)
+        cls.add_experimenters(group, experimenters)
         return group
 
     @classmethod
-    def add_experimenters(self, group, experimenters):
-        admin = self.root.sf.getAdminService()
+    def add_experimenters(cls, group, experimenters):
+        admin = cls.root.sf.getAdminService()
         if experimenters:
             for exp in experimenters:
-                user, name = self.user_and_name(exp)
+                user, name = cls.user_and_name(exp)
                 admin.addGroups(user, [group])
 
     def add_groups(self, experimenter, groups, owner=False):
@@ -238,7 +251,7 @@ class ITest(object):
     def import_image(self, filename=None, client=None, extra_args=None,
                      skip="all", **kwargs):
         if filename is None:
-            filename = self.OmeroPy / ".." / ".." / ".." / \
+            filename = self.omero_dist / ".." / \
                 "components" / "common" / "test" / "tinyTest.d3d.dv"
         if client is None:
             client = self.client
@@ -246,9 +259,6 @@ class ITest(object):
         server = client.getProperty("omero.host")
         port = client.getProperty("omero.port")
         key = client.getSessionId()
-
-        # Search up until we find "OmeroPy"
-        dist_dir = self.OmeroPy / ".." / ".." / ".." / "dist"
 
         args = [sys.executable]
         args.append(str(path(".") / "bin" / "omero"))
@@ -262,7 +272,7 @@ class ITest(object):
             args.extend(extra_args)
         args.append(filename)
 
-        popen = subprocess.Popen(args, cwd=str(dist_dir),
+        popen = subprocess.Popen(args, cwd=str(self.omero_dist),
                                  stdout=subprocess.PIPE,
                                  stderr=subprocess.PIPE)
         out, err = popen.communicate()
@@ -273,10 +283,10 @@ class ITest(object):
         for x in out.split("\n"):
             if x and x.find("Created") < 0 and x.find("#") < 0:
                 try:    # if the line has an image ID...
-                    imageId = str(long(x.strip()))
+                    image_id = str(long(x.strip()))
                     # Occasionally during tests an id is duplicated on stdout
-                    if imageId not in pix_ids:
-                        pix_ids.append(imageId)
+                    if image_id not in pix_ids:
+                        pix_ids.append(image_id)
                 except:
                     pass
         return pix_ids
@@ -286,16 +296,16 @@ class ITest(object):
     the file and then return the image.
     """
 
-    def importSingleImage(self, name=None, client=None,
-                          with_companion=False, **kwargs):
+    def import_single_image(self, name=None, client=None,
+                            with_companion=False, **kwargs):
         if client is None:
             client = self.client
         if name is None:
-            name = "importSingleImage"
+            name = "import_single_image"
 
-        images = self.importMIF(1, name=name, client=client,
-                                with_companion=with_companion,
-                                **kwargs)
+        images = self.import_mif(1, name=name, client=client,
+                                 with_companion=with_companion,
+                                 **kwargs)
         return images[0]
 
     """
@@ -303,14 +313,14 @@ class ITest(object):
     the file and then return the image..
     """
 
-    def importSingleImageWithCompanion(self, name=None, client=None):
+    def import_single_image_with_companion(self, name=None, client=None):
         if client is None:
             client = self.client
         if name is None:
-            name = "importSingleImageWithCompanion"
+            name = "import_single_image_with_companion"
 
-        images = self.importMIF(1, name=name, client=client,
-                                with_companion=True)
+        images = self.import_mif(1, name=name, client=client,
+                                 with_companion=True)
         return images[0]
 
     """
@@ -318,26 +328,26 @@ class ITest(object):
     the file and then return the list of images.
     """
 
-    def importMIF(self, seriesCount=0, name=None, client=None,
-                  with_companion=False, skip="all", **kwargs):
+    def import_mif(self, series_count=0, name=None, client=None,
+                   with_companion=False, skip="all", **kwargs):
         if client is None:
             client = self.client
         if name is None:
-            name = "importMIF"
+            name = "import_mif"
 
         try:
-            globalMetadata = kwargs.pop("GlobalMetadata")
+            global_metadata = kwargs.pop("GlobalMetadata")
         except:
-            globalMetadata = None
-        if globalMetadata:
+            global_metadata = None
+        if global_metadata:
             with_companion = True
 
         append = ""
 
         # Only include series count if enabled; in the case of plates,
         # this will be unused
-        if seriesCount >= 1:
-            append = "series=%d%s" % (seriesCount, append)
+        if series_count >= 1:
+            append = "series=%d%s" % (series_count, append)
 
         if kwargs:
             for k, v in kwargs.items():
@@ -346,29 +356,28 @@ class ITest(object):
         query = client.sf.getQueryService()
         fake = create_path(name, "&%s.fake" % append)
         if with_companion:
-            ini = open(fake.abspath() + ".ini", "w")
-            if globalMetadata:
-                ini.write("[GlobalMetadata]\n")
-                for k, v in globalMetadata.items():
-                    ini.write("%s=%s\n" % (k, v))
-            ini.close()
+            with open(fake.abspath() + ".ini", "w") as ini:
+                if global_metadata:
+                    ini.write("[GlobalMetadata]\n")
+                    for k, v in global_metadata.items():
+                        ini.write("%s=%s\n" % (k, v))
 
-        pixelIds = self.import_image(
+        pixel_ids = self.import_image(
             filename=fake.abspath(), client=client, skip=skip, **kwargs)
 
-        if seriesCount >= 1:
-            assert seriesCount == len(pixelIds)
+        if series_count >= 1:
+            assert series_count == len(pixel_ids)
 
         images = []
-        for pixIdStr in pixelIds:
-            pixels = query.get("Pixels", long(pixIdStr))
+        for pix_id_str in pixel_ids:
+            pixels = query.get("Pixels", long(pix_id_str))
             images.append(pixels.getImage())
         return images
 
-    def importPlates(
+    def import_plates(
         self, client=None,
-        plates=1, plateAcqs=1,
-        plateCols=1, plateRows=1,
+        plates=1, plate_acqs=1,
+        plate_cols=1, plate_rows=1,
         fields=1, **kwargs
     ):
 
@@ -376,11 +385,11 @@ class ITest(object):
             client = self.client
 
         kwargs["plates"] = plates
-        kwargs["plateAcqs"] = plateAcqs
-        kwargs["plateCols"] = plateCols
-        kwargs["plateRows"] = plateRows
+        kwargs["plateAcqs"] = plate_acqs
+        kwargs["plateCols"] = plate_cols
+        kwargs["plateRows"] = plate_rows
         kwargs["fields"] = fields
-        images = self.importMIF(client=client, **kwargs)
+        images = self.import_mif(client=client, **kwargs)
         images = [x.id.val for x in images]
 
         query = client.sf.getQueryService()
@@ -393,8 +402,8 @@ class ITest(object):
             omero.sys.ParametersI().addIds(images))
         return plates
 
-    def createTestImage(self, sizeX=16, sizeY=16, sizeZ=1, sizeC=1, sizeT=1,
-                        session=None):
+    def create_test_image(self, size_x=16, size_y=16, size_z=1, size_c=1,
+                          size_t=1, session=None):
         """
         Creates a test image of the required dimensions, where each pixel
         value is set to the value of x+y.
@@ -405,11 +414,11 @@ class ITest(object):
 
         if session is None:
             session = self.root.sf
-        renderingEngine = session.createRenderingEngine()
-        queryService = session.getQueryService()
-        pixelsService = session.getPixelsService()
-        rawPixelStore = session.createRawPixelsStore()
-        containerService = session.getContainerService()
+        rendering_engine = session.createRenderingEngine()
+        query_service = session.getQueryService()
+        pixels_service = session.getPixelsService()
+        raw_pixel_store = session.createRawPixelsStore()
+        container_service = session.getContainerService()
 
         def f1(x, y):
             return y
@@ -420,69 +429,69 @@ class ITest(object):
         def f3(x, y):
             return x
 
-        pType = "int16"
+        p_type = "int16"
         # look up the PixelsType object from DB
         # omero::model::PixelsType
-        pixelsType = queryService.findByQuery(
-            "from PixelsType as p where p.value='%s'" % pType, None)
-        if pixelsType is None and pType.startswith("float"):    # e.g. float32
+        pixels_type = query_service.findByQuery(
+            "from PixelsType as p where p.value='%s'" % p_type, None)
+        # if for example float32
+        if pixels_type is None and p_type.startswith("float"):
             # omero::model::PixelsType
-            pixelsType = queryService.findByQuery(
+            pixels_type = query_service.findByQuery(
                 "from PixelsType as p where p.value='%s'" % "float", None)
-        if pixelsType is None:
-            print "Unknown pixels type for: " % pType
-            raise Exception("Unknown pixels type for: " % pType)
+        if pixels_type is None:
+            print "Unknown pixels type for: " % p_type
+            raise Exception("Unknown pixels type for: " % p_type)
 
         # code below here is very similar to combineImages.py
         # create an image in OMERO and populate the planes with numpy 2D arrays
-        channelList = range(1, sizeC + 1)
-        iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT,
-                                        channelList, pixelsType,
-                                        "testImage", "description")
-        imageId = iId.getValue()
-        image = containerService.getImages("Image", [imageId], None)[0]
+        channel_list = range(1, size_c + 1)
+        iid = pixels_service.createImage(size_x, size_y, size_z, size_t,
+                                         channel_list, pixels_type,
+                                         "testImage", "description")
+        image_id = iid.getValue()
+        image = container_service.getImages("Image", [image_id], None)[0]
 
-        pixelsId = image.getPrimaryPixels().getId().getValue()
-        rawPixelStore.setPixelsId(pixelsId, True)
+        pixels_id = image.getPrimaryPixels().getId().getValue()
+        raw_pixel_store.setPixelsId(pixels_id, True)
 
-        colourMap = {0: (0, 0, 255, 255), 1: (0, 255, 0, 255),
-                     2: (255, 0, 0, 255), 3: (255, 0, 255, 255)}
-        fList = [f1, f2, f3]
-        for theC in range(sizeC):
-            minValue = 0
-            maxValue = 0
-            f = fList[theC % len(fList)]
-            for theZ in range(sizeZ):
-                for theT in range(sizeT):
-                    plane2D = fromfunction(f, (sizeY, sizeX), dtype=int16)
+        colour_map = {0: (0, 0, 255, 255), 1: (0, 255, 0, 255),
+                      2: (255, 0, 0, 255), 3: (255, 0, 255, 255)}
+        f_list = [f1, f2, f3]
+        for the_c in range(size_c):
+            min_value = 0
+            max_value = 0
+            f = f_list[the_c % len(f_list)]
+            for the_z in range(size_z):
+                for the_t in range(size_t):
+                    plane_2d = fromfunction(f, (size_y, size_x), dtype=int16)
                     script_utils.uploadPlane(
-                        rawPixelStore, plane2D, theZ, theC, theT)
-                    minValue = min(minValue, plane2D.min())
-                    maxValue = max(maxValue, plane2D.max())
-            pixelsService.setChannelGlobalMinMax(
-                pixelsId, theC, float(minValue), float(maxValue))
+                        raw_pixel_store, plane_2d, the_z, the_c, the_t)
+                    min_value = min(min_value, plane_2d.min())
+                    max_value = max(max_value, plane_2d.max())
+            pixels_service.setChannelGlobalMinMax(
+                pixels_id, the_c, float(min_value), float(max_value))
             rgba = None
-            if theC in colourMap:
-                rgba = colourMap[theC]
-        for theC in range(sizeC):
+            if the_c in colour_map:
+                rgba = colour_map[the_c]
+        for the_c in range(size_c):
             script_utils.resetRenderingSettings(
-                renderingEngine, pixelsId, theC, minValue, maxValue, rgba)
+                rendering_engine, pixels_id, the_c, min_value, max_value, rgba)
 
-        renderingEngine.close()
-        rawPixelStore.close()
+        rendering_engine.close()
+        raw_pixel_store.close()
 
         # See #9070. Forcing a thumbnail creation
         tb = session.createThumbnailStore()
         try:
-            s = tb.getThumbnailByLongestSideSet(rint(16), [pixelsId])
-            assert s[pixelsId] != ''
+            s = tb.getThumbnailByLongestSideSet(rint(16), [pixels_id])
+            assert s[pixels_id] != ''
 
         finally:
             tb.close()
 
         # Reloading image to prevent error on old pixels updateEvent
-        image = containerService.getImages("Image", [imageId], None)[0]
-        return image
+        return container_service.getImages("Image", [image_id], None)[0]
 
     def get_fileset(self, i, client=None):
         """
@@ -506,7 +515,7 @@ class ITest(object):
                 self.root.sf.getUpdateService().indexObject(
                     obj, {"omero.group": "-1"})
 
-    def waitOnCmd(self, client, handle, loops=10, ms=500, passes=True):
+    def wait_on_cmd(self, client, handle, loops=10, ms=500, passes=True):
         """
         Wait on an omero.cmd.HandlePrx to finish processing
         and then assert pass or fail. The callback is returned
@@ -520,7 +529,7 @@ class ITest(object):
         return callback
 
     @classmethod
-    def new_user(self, group=None, perms=None,
+    def new_user(cls, group=None, perms=None,
                  owner=False, system=False, uname=None,
                  email=None):
         """
@@ -528,19 +537,19 @@ class ITest(object):
         :system: If user is to be a system admin
         """
 
-        if not self.root:
+        if not cls.root:
             raise Exception("No root client. Cannot create user")
 
-        adminService = self.root.getSession().getAdminService()
+        admin_service = cls.root.getSession().getAdminService()
         if uname is None:
-            uname = self.uuid()
+            uname = cls.uuid()
 
         # Create group if necessary
         if not group:
-            g = self.new_group(perms=perms)
-            group = g.name.val
+            g = cls.new_group(perms=perms)
+            group = g.getName().getValue()
         else:
-            g, group = self.group_and_name(group)
+            g, group = cls.group_and_name(group)
 
         # Create user
         e = ExperimenterI()
@@ -549,17 +558,17 @@ class ITest(object):
         e.lastName = rstring(uname)
         e.ldap = rbool(False)
         e.email = rstring(email)
-        listOfGroups = list()
-        listOfGroups.append(adminService.lookupGroup('user'))
-        uid = adminService.createExperimenterWithPassword(
-            e, rstring(uname), g, listOfGroups)
-        e = adminService.lookupExperimenter(uname)
+        list_of_groups = list()
+        list_of_groups.append(admin_service.lookupGroup('user'))
+        uid = admin_service.createExperimenterWithPassword(
+            e, rstring(uname), g, list_of_groups)
+        e = admin_service.lookupExperimenter(uname)
         if owner:
-            adminService.setGroupOwner(g, e)
+            admin_service.setGroupOwner(g, e)
         if system:
-            adminService.addGroups(e, [ExperimenterGroupI(0, False)])
+            admin_service.addGroups(e, [ExperimenterGroupI(0, False)])
 
-        return adminService.getExperimenter(uid)
+        return admin_service.getExperimenter(uid)
 
     def new_client(self, group=None, user=None, perms=None,
                    owner=False, system=False, session=None,
@@ -611,9 +620,9 @@ class ITest(object):
         return elapsed, rv
 
     @classmethod
-    def group_and_name(self, group):
+    def group_and_name(cls, group):
         group = unwrap(group)
-        admin = self.root.sf.getAdminService()
+        admin = cls.root.sf.getAdminService()
         if isinstance(group, (int, long)):
             group = admin.getGroup(group)
             name = group.name.val
@@ -636,9 +645,9 @@ class ITest(object):
         return group, name
 
     @classmethod
-    def user_and_name(self, user):
+    def user_and_name(cls, user):
         user = unwrap(user)
-        admin = self.root.sf.getAdminService()
+        admin = cls.root.sf.getAdminService()
         if isinstance(user, omero.clients.BaseClient):
             admin = user.sf.getAdminService()
             ec = admin.getEventContext()
@@ -679,9 +688,9 @@ class ITest(object):
             client = self.client
 
         fake = create_path("missing_pyramid", "&sizeX=4000&sizeY=4000.fake")
-        pixelsId = self.import_image(filename=fake.abspath(), client=client,
-                                     skip="all")
-        return pixelsId[0]
+        pixels_id = self.import_image(filename=fake.abspath(), client=client,
+                                      skip="all")
+        return pixels_id[0]
 
     def pix(self, x=10, y=10, z=10, c=3, t=50, client=None):
         """
@@ -755,12 +764,12 @@ class ITest(object):
                 import Image
             except ImportError:
                 assert False, "Pillow not installed"
-        from cStringIO import StringIO
-        tfile = StringIO(buf)
+        from io import BytesIO
+        tfile = BytesIO(buf)
         jpeg = Image.open(tfile)  # Raises if invalid
         return jpeg
 
-    def loginAttempt(self, name, t, pw="BAD", less=False):
+    def login_attempt(self, name, t, pw="BAD", less=False):
         """
         Checks that login happens in less than or greater than
         the given time. By default, the password "BAD" is used,
@@ -769,7 +778,7 @@ class ITest(object):
         To check that logins happen more quickly, pass the
         correct password and less=True:
 
-            loginAttempt("user", 0.15, pw="REALVALUE", less=True)
+            login_attempt("user", 0.15, pw="REALVALUE", less=True)
 
         See integration.tickets4000 and 5000
         """
@@ -784,16 +793,16 @@ class ITest(object):
                 if pw != "BAD":
                     raise
             t2 = time.time()
-            T = (t2 - t1)
+            diff = (t2 - t1)
             if less:
-                assert T < t, "%s > %s" % (T, t)
+                assert diff < t, "%s > %s" % (diff, t)
             else:
-                assert T > t, "%s < %s" % (T, t)
+                assert diff > t, "%s < %s" % (diff, t)
         finally:
             c.__del__()
 
-    def doSubmit(self, request, client, test_should_pass=True,
-                 omero_group=None):
+    def do_submit(self, request, client, test_should_pass=True,
+                  omero_group=None):
         """
         Performs the request(s), waits on completion and checks that the
         result is not an error. The request can either be a single command
@@ -930,7 +939,7 @@ class ITest(object):
         tag = self.new_tag(name=name, ns=ns)
         return client.sf.getUpdateService().saveAndReturnObject(tag)
 
-    def createDatasets(self, count, baseName, client=None):
+    def create_datasets(self, count, base_name, client=None):
         """
         Creates a list of the given number of Dataset instances with names of
         the form "name [1]", "name [2]" etc and returns them in a list.
@@ -945,7 +954,7 @@ class ITest(object):
         update = client.sf.getUpdateService()
         dsets = []
         for i in range(count):
-            name = baseName + " [" + str(i + 1) + "]"
+            name = base_name + " [" + str(i + 1) + "]"
             dsets.append(self.new_dataset(name=name))
         return update.saveAndReturnArray(dsets)
 
@@ -972,24 +981,24 @@ class ITest(object):
         if name is None:
             name = str(self.uuid())
 
-        oFile = OriginalFileI()
-        oFile.setName(rstring(name))
-        oFile.setPath(rstring(str(self.uuid())))
-        oFile.setSize(rlong(len(binary)))
-        oFile.hasher = ChecksumAlgorithmI()
-        oFile.hasher.value = rstring("SHA1-160")
-        oFile.setMimetype(rstring(str(format)))
-        oFile = update.saveAndReturnObject(oFile)
+        ofile = OriginalFileI()
+        ofile.setName(rstring(name))
+        ofile.setPath(rstring(str(self.uuid())))
+        ofile.setSize(rlong(len(binary)))
+        ofile.hasher = ChecksumAlgorithmI()
+        ofile.hasher.value = rstring("SHA1-160")
+        ofile.setMimetype(rstring(str(format)))
+        ofile = update.saveAndReturnObject(ofile)
 
         # save binary
         store = client.sf.createRawFileStore()
-        store.setFileId(oFile.id.val)
+        store.setFileId(ofile.getId().getValue())
         store.write(binary, 0, 0)
-        oFile = store.save()  # See ticket:1501
+        ofile = store.save()  # See ticket:1501
         store.close()
 
         fa = FileAnnotationI()
-        fa.setFile(oFile)
+        fa.setFile(ofile)
         if ns is not None:
             fa.setNs(rstring(ns))
         return update.saveAndReturnObject(fa)
@@ -1037,7 +1046,7 @@ class ITest(object):
         """
         Deletes a list of model entities (ProjectI, DatasetI or ImageI)
         by creating Delete2 commands and calling
-        :func:`~test.ITest.doSubmit`.
+        :func:`~test.ITest.do_submit`.
 
         :param obj: a list of objects to be deleted
         """
@@ -1053,14 +1062,14 @@ class ITest(object):
         ids = [i.id.val for i in obj]
         command = Delete2(targetObjects={t: ids})
 
-        self.doSubmit(command, self.client)
+        self.do_submit(command, self.client)
 
     def change_group(self, obj, target, client=None):
         """
         Moves a list of model entities (ProjectI, DatasetI or ImageI)
         to the target group. Accepts a client instance to guarantee calls
         in correct user contexts. Creates Chgrp2 commands and calls
-        :func:`~test.ITest.doSubmit`.
+        :func:`~test.ITest.do_submit`.
 
         :param obj: a list of objects to be moved
         :param target: the ID of the target group
@@ -1080,13 +1089,13 @@ class ITest(object):
         ids = [i.id.val for i in obj]
         command = Chgrp2(targetObjects={t: ids}, groupId=target)
 
-        self.doSubmit(command, client)
+        self.do_submit(command, client)
 
     def change_permissions(self, gid, perms, client=None):
         """
         Changes the permissions of an ExperimenterGroup object.
         Accepts a client instance to guarantee calls in correct user contexts.
-        Creates Chmod2 commands and calls :func:`~test.ITest.doSubmit`.
+        Creates Chmod2 commands and calls :func:`~test.ITest.do_submit`.
 
         :param gid: id of an ExperimenterGroup
         :param perms: permissions string
@@ -1098,7 +1107,7 @@ class ITest(object):
         command = Chmod2(
             targetObjects={'ExperimenterGroup': [gid]}, permissions=perms)
 
-        self.doSubmit(command, client)
+        self.do_submit(command, client)
 
     def create_share(self, description="", timeout=None,
                      objects=[], experimenters=[], guests=[],
@@ -1126,18 +1135,18 @@ class ProjectionFixture(object):
     """
 
     def __init__(self, perms, writer, reader,
-                 canRead,
-                 canAnnotate=False, canDelete=False,
-                 canEdit=False, canLink=False):
+                 can_read,
+                 can_annotate=False, can_delete=False,
+                 can_edit=False, can_link=False):
         self.perms = perms
         self.writer = writer
         self.reader = reader
 
-        self.canRead = canRead
-        self.canAnnotate = canAnnotate
-        self.canDelete = canDelete
-        self.canEdit = canEdit
-        self.canLink = canLink
+        self.canRead = can_read
+        self.canAnnotate = can_annotate
+        self.canDelete = can_delete
+        self.canEdit = can_edit
+        self.canLink = can_link
 
     def get_name(self):
         name = self.perms

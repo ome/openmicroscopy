@@ -24,13 +24,13 @@
 
 """
 
-import library as lib
+from omero.testlib import ITest
 import pytest
 
 import omero
 
 
-class TestCoverage(lib.ITest):
+class TestCoverage(ITest):
 
     @classmethod
     def setup_class(cls):

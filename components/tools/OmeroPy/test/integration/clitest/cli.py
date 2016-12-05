@@ -27,7 +27,7 @@ from omero.cli import CLI
 from omero.plugins.sessions import SessionsControl
 from omero.rtypes import rstring
 
-from library import ITest
+from omero.testlib import ITest
 from omero_ext.mox import Mox
 
 

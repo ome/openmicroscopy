@@ -24,12 +24,12 @@
 """
 
 import omero
-import library as lib
+from omero.testlib import ITest
 
 from omero.callbacks import CmdCallbackI
 
 
-class TestChgrp(lib.ITest):
+class TestChgrp(ITest):
 
     def testChgrpImage(self):
 

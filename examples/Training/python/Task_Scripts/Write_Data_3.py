@@ -19,37 +19,29 @@ FOR TRAINING PURPOSES ONLY!
 # A more complete template, for 'real-world' scripts, is also included in this
 # folder
 # This script takes an Image ID as a parameter from the scripting service.
-from omero.rtypes import rstring, unwrap
 from omero.gateway import BlitzGateway
 import omero
-import omero.scripts as scripts
+from omero.rtypes import rstring
 from omero import ValidationException
+from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
+from Parse_OMERO_Properties import datasetId
+
 # Script definition
+conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
+conn.connect()
 
-# Script name, description and 2 parameters are defined here.
-# These parameters will be recognised by the Insight and web clients and
-# populated with the currently selected Image(s)
-
-client = scripts.client(
-    "Write_Data_3.py",
-    """Adds Image to Dataset (if not alreay in the Dataset).""",
-    # first parameter
-    scripts.Long("ImageId", optional=False),
-    # second parameter
-    scripts.Long("DatasetId", optional=False),
-)
-# we can now create our Blitz Gateway by wrapping the client object
-conn = BlitzGateway(client_obj=client)
-
-# get the parameters
-imageId = unwrap(client.getInput("ImageId"))
-datasetId = unwrap(client.getInput("DatasetId"))
-
+# Create a new Image
+# ==================
+image_obj = omero.model.ImageI()
+image_obj.setName(rstring("New Image"))
+image_obj = conn.getUpdateService().saveAndReturnObject(image_obj)
+image_id = image_obj.getId().getValue()
+print "New image, Id:", image_id
 
 try:
     link = omero.model.DatasetImageLinkI()
     link.setParent(omero.model.DatasetI(datasetId, False))
-    link.setChild(omero.model.ImageI(imageId, False))
+    link.setChild(omero.model.ImageI(image_id, False))
     conn.getUpdateService().saveObject(link)
     message = "Added Image to Dataset"
 except ValidationException:
@@ -60,5 +52,8 @@ except ValidationException:
 # Here, we return anything useful the script has produced.
 # NB: The Insight and web clients will display the "Message" output.
 
-client.setOutput("Message", rstring(message))
-client.closeSession()
+
+# Close connection
+# ================
+# When you are done, close the session to free up server resources.
+conn.close()

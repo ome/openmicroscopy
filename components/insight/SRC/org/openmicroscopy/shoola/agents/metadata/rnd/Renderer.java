@@ -412,6 +412,15 @@ public interface Renderer
     String getLookupTable(int index);
     
     /**
+     * Return the reverse intensity flag for the given channel
+     * 
+     * @param index
+     *            The channel index
+     * @return See above
+     */
+    boolean getReverseIntensity(int index);
+    
+    /**
      * Returns <code>true</code> if the channel is mapped, <code>false</code>
      * otherwise.
      * 
@@ -831,6 +840,19 @@ public interface Renderer
      */
     void setLookupTable(int index, String lut, boolean preview);
 
+    /**
+     * Set the reverse intensity flag for the specified channel
+     * 
+     * @param index
+     *            The channel index
+     * @param revInt
+     *            The reverse intensity flag
+     * @param preview
+     *            Pass <code>true</code> to indicate that it is a color preview,
+     *            <code>false</code> otherwise.
+     */
+    void setReverseIntensity(int index, boolean revInt, boolean preview);
+    
     /**
      * Resets a previously previewed lookup table
      * 

@@ -20,7 +20,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
-import library as lib
+from omero.testlib import ITest
 
 from omero.callbacks import CmdCallbackI
 from omero.cmd import Delete2
@@ -40,7 +40,7 @@ from omero.sys import ParametersI
 from omero.util.temp_files import create_path
 
 
-class TestReimportArchivedFiles(lib.ITest):
+class TestReimportArchivedFiles(ITest):
 
     def setup_method(self, method):
         self.pixels = self.client.sf.getPixelsService()
@@ -120,8 +120,8 @@ class TestReimportArchivedFiles(lib.ITest):
         from omero.sys import ParametersI
 
         # Produce an FS image as our template
-        orig_img = self.importMIF(name="reimport", sizeX=16, sizeY=16,
-                                  with_companion=True, skip=None)
+        orig_img = self.import_mif(name="reimport", sizeX=16, sizeY=16,
+                                   with_companion=True, skip=None)
         orig_img = orig_img[0]
         orig_pix = self.query.findByQuery(
             "select p from Pixels p where p.image.id = :id",

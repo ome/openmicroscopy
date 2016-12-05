@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2006-2015 University of Dundee. All rights reserved.
+ *   Copyright 2006-2016 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,11 +31,14 @@ import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.io.nio.RomioPixelBuffer;
+import ome.model.core.Channel;
 import ome.model.core.Pixels;
 import ome.parameters.Parameters;
 import ome.util.PixelData;
 import ome.util.ShallowCopy;
 import ome.util.SqlAction;
+import omeis.providers.re.data.PlaneDef;
+import omeis.providers.re.metadata.StatsFactory;
 
 import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
@@ -61,6 +65,9 @@ public class RawPixelsBean extends AbstractStatefulBean implements
 
     private static final long serialVersionUID = -6640632220587930165L;
 
+    /** The default bin size used for histograms */
+    private static final int DEFAULT_HISTOGRAM_BINSIZE = 256;
+    
     private Long id;
 
     private transient Long reset = null;
@@ -665,10 +672,112 @@ public class RawPixelsBean extends AbstractStatefulBean implements
             handleException(e);
         }
     }
+    
+    @RolesAllowed("user")
+    public synchronized Map<Integer, int[]> getHistogram(int[] channels,
+            int binCount, boolean globalRange, PlaneDef plane) {
+        errorIfNotLoaded();
+
+        if (requiresPixelsPyramid())
+            throw new ApiUsageException(
+                    "This method can not handle tiled images yet.");
+
+        if (binCount <= 0)
+            binCount = DEFAULT_HISTOGRAM_BINSIZE;
+
+        int imgWidth = buffer.getSizeX();
+
+        int z = (plane != null && plane.getZ() >= 0) ? plane.getZ() : 0;
+        int t = (plane != null && plane.getT() >= 0) ? plane.getT() : 0;
+        int x = (plane != null && plane.getRegion() != null && plane
+                .getRegion().getX() >= 0) ? plane.getRegion().getX() : 0;
+        int y = (plane != null && plane.getRegion() != null && plane
+                .getRegion().getY() >= 0) ? plane.getRegion().getY() : 0;
+        int w = (plane != null && plane.getRegion() != null && plane
+                .getRegion().getWidth() > 0) ? plane.getRegion().getWidth()
+                : imgWidth;
+        int h = (plane != null && plane.getRegion() != null && plane
+                .getRegion().getHeight() > 0) ? plane.getRegion().getHeight()
+                : buffer.getSizeY();
+
+        Map<Integer, int[]> result = new HashMap<Integer, int[]>();
+
+        try {
+            for (int ch : channels) {
+                Channel channel = metadataService.retrievePixDescription(id)
+                        .getChannel(ch);
+                PixelData px = buffer.getPlane(z, ch, t);
+                int[] data = new int[binCount];
+
+                double[] minmax = determineHistogramMinMax(px, channel,
+                        globalRange);
+                double min = minmax[0];
+                double max = minmax[1];
+
+                double range = (max - min) + 1;
+                double binRange = range / binCount;
+                for (int i = 0; i < px.size(); i++) {
+                    int pxx = i % imgWidth;
+                    int pxy = i / imgWidth;
+                    if (pxx >= x && pxx < (x + w) && pxy >= y && pxy < (y + h)) {
+                        int bin = (int) ((px.getPixelValue(i) - min) / binRange);
+                        if (bin >= 0 && bin < binCount)
+                            data[bin]++;
+                    }
+                }
+                result.put(ch, data);
+            }
+        } catch (Exception e) {
+            handleException(e);
+        }
+
+        return result;
+    }
 
     // ~ Helpers
     // =========================================================================
+    
+    /**
+     * Get the minimum and maximum value to use for the histogram. If useGlobal
+     * is <code>true</code> and the channel has stats calculated the global
+     * minimum and maximum will be used, otherwise the minimum and maximum value
+     * of the plane will be used.
+     * 
+     * @param px
+     *            The {@link PixelData}
+     * @param channel
+     *            The {@link Channel}
+     * @param useGlobal
+     *            Try to use the global minimum/maximum
+     * @return See above
+     */
+    private double[] determineHistogramMinMax(PixelData px, Channel channel,
+            boolean useGlobal) {
+        double min, max;
 
+        if (useGlobal && channel != null && channel.getStatsInfo() != null) {
+            min = channel.getStatsInfo().getGlobalMin();
+            max = channel.getStatsInfo().getGlobalMax();
+            // if max == 1.0 the global min/max probably has not been
+            // calculated; fall back to plane min/max
+            if (max != 1.0)
+                return new double[] { min, max };
+        }
+
+        StatsFactory sf = new StatsFactory();
+        double[] pixelMinMax = sf.initPixelsRange(channel.getPixels());
+
+        min = pixelMinMax[1];
+        max = pixelMinMax[0];
+
+        for (int i = 0; i < px.size(); i++) {
+            min = Math.min(min, px.getPixelValue(i));
+            max = Math.max(max, px.getPixelValue(i));
+        }
+
+        return new double[] { min, max };
+    }
+    
     private synchronized byte[] bufferAsByteArrayWithExceptionIfNull(ByteBuffer buffer) {
         byte[] b = new byte[buffer.capacity()];
         buffer.get(b, 0, buffer.capacity());

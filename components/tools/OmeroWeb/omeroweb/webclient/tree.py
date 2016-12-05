@@ -1851,7 +1851,7 @@ def marshal_annotations(conn, project_ids=None, dataset_ids=None,
             join fetch ch.details.creationEvent
             join fetch ch.details.owner
             left outer join fetch ch.file as file
-            where %s
+            where %s order by ch.ns
             """ % (dtype, ' and '.join(where_clause))
 
         for link in qs.findAllByQuery(q, params, service_opts):

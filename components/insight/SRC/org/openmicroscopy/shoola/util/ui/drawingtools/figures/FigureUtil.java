@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -68,6 +68,9 @@ public class FigureUtil
 	
 	/** Identifies the <code>Line</code> type. */
 	public static final String LINE_TYPE = "Line";
+	
+	/** Identifies the <code>Line</code> type. */
+    public static final String ARROW_TYPE = "Arrow";
 	
 	/** Identifies the <code>LineConnection</code> type. */
 	public static final String LINE_CONNECTION_TYPE = "LineConnection";

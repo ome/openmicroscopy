@@ -24,7 +24,7 @@
     which all scripts might want to use.
 """
 
-import library as lib
+from omero.testlib import ITest
 import omero
 import omero.processor
 import omero.scripts
@@ -34,11 +34,8 @@ SENDFILE = """
 #!/usr/bin/env python
 
 # Setup to run as an integration test
-rundir = "%s"
 import os
 import sys
-sys.path.insert(0, rundir)
-sys.path.insert(0, os.path.join(rundir, "target"))
 
 import omero.scripts as s
 import omero.util.script_utils as su
@@ -77,7 +74,7 @@ for method, inputs in (
 """
 
 
-class TestInputs(lib.ITest):
+class TestInputs(ITest):
 
     def output(self, root, results, which):
         out = results.get(which, None)
@@ -97,9 +94,8 @@ class TestInputs(lib.ITest):
         logging.basicConfig(level=10)
         root_client = self.new_client(system=True)
         scripts = root_client.sf.getScriptService()
-        sendfile = SENDFILE % self.omeropydir()
         id = scripts.uploadScript(
-            "/tests/inputs_py/%s.py" % self.uuid(), sendfile)
+            "/tests/inputs_py/%s.py" % self.uuid(), SENDFILE)
         input = {"a": rint(100)}
         impl = omero.processor.usermode_processor(root_client)
         try:

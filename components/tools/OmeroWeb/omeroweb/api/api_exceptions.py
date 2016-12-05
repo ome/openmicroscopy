@@ -17,38 +17,51 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""Exceptions used by the api/views methods."""
+
 
 class BadRequestError(Exception):
     """
-    An exception that will result in a response status of 400
-    due to invalid client input
+    An exception that will result in a response status of 400.
+
+    Due to invalid client input
     """
+
     status = 400
 
     def __init__(self, message, stacktrace=None):
+        """Override init to handle message and stacktrace."""
         super(BadRequestError, self).__init__(message)
         self.stacktrace = stacktrace
 
 
 class NotFoundError(Exception):
     """
-    An exception that will result in a response status of 404
-    due to objects not being found
+    An exception that will result in a response status of 404.
+
+    Raised due to objects not being found.
     """
+
     status = 404
 
     def __init__(self, message, stacktrace=None):
+        """Override init to handle message and stacktrace."""
         super(NotFoundError, self).__init__(message)
         self.stacktrace = stacktrace
 
 
 class CreatedObject(Exception):
     """
-    An exception that is thrown when new object created
-    that returns a status of 201
+    An exception that is thrown when new object created.
+
+    This is not really an error but indicates to the handler
+    that a JsonResponse with status 201 should be returned.
+    The dict content is passed in as 'response'.
     """
+
     status = 201
 
     def __init__(self, response):
+        """Override init to include response dict."""
         super(CreatedObject, self).__init__(response)
         self.response = response
