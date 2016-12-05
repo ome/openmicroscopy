@@ -123,11 +123,13 @@ class TestUtilScripts(ScriptTest):
 
         # create several test images in a dataset
         dataset = self.make_dataset("dataset_to_plate-test", client=client)
-
-        for i in range(10):
+        n = 10
+        image_ids = []
+        for i in range(n):
             # x,y,z,c,t
             image = self.create_test_image(100, 100, 1, 1, 1, session)
             self.link(dataset, image, client=client)
+            image_ids.append(image.getId().getValue())
 
         # run the script twice. First with all args...
         dataset_ids = [omero.rtypes.rlong(dataset.getId().getValue())]
@@ -139,4 +141,24 @@ class TestUtilScripts(ScriptTest):
         d_to_p = run_script(client, script_id, args, "New_Object")
         # check the result
         assert d_to_p is not None
-        assert d_to_p.getValue().getId().getValue() > 0
+        plate_id = d_to_p.getValue().getId().getValue()
+        assert plate_id > 0
+        qs = client.getSession().getQueryService()
+        query = "select well from Well as well left outer join fetch well.plate \
+                 as pt left outer join fetch well.wellSamples as ws left \
+                 outer join fetch ws.image as img where well.plate.id = :oid"
+
+        params = omero.sys.ParametersI()
+        params.addLong('oid', omero.rtypes.rlong(plate_id))
+        wells = qs.findAllByQuery(query, params)
+        # check the plate
+        assert len(wells) == n
+        count = 0
+        for w in wells:
+            img = w.getWellSample(0).getImage()
+            assert img is not None
+            id = img.getId().getValue()
+            if id in image_ids:
+                count += 1
+
+        assert count == n
