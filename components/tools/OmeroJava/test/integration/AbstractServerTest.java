@@ -35,6 +35,7 @@ import omero.RType;
 import omero.ServerError;
 import omero.rtypes;
 import omero.api.IAdminPrx;
+import omero.api.IPixelsPrx;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
@@ -177,6 +178,9 @@ public class AbstractServerTest extends AbstractTest {
     /** Helper reference to the <code>IAdmin</code> service. */
     protected IAdminPrx iAdmin;
 
+    /** Helper reference to the <code>IPixels</code> service. */
+    protected IPixelsPrx iPix;
+    
     /** Reference to the importer store. */
     protected OMEROMetadataStoreClient importer;
 
@@ -741,6 +745,7 @@ public class AbstractServerTest extends AbstractTest {
         iQuery = factory.getQueryService();
         iUpdate = factory.getUpdateService();
         iAdmin = factory.getAdminService();
+        iPix = factory.getPixelsService();
         mmFactory = new ModelMockFactory(factory.getPixelsService());
 
         importer = new OMEROMetadataStoreClient();

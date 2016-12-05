@@ -30,8 +30,10 @@ import ome.api.RawPixelsStore;
 import ome.io.nio.RomioPixelBuffer;
 import omero.ApiUsageException;
 import omero.api.RawPixelsStorePrx;
+import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Pixels;
+import omero.model.PixelsType;
 import omero.romio.PlaneDef;
 import omero.romio.RegionDef;
 
@@ -364,47 +366,140 @@ public class RawPixelsStoreTest extends AbstractServerTest {
             }
         }
     }
-    
+
     /**
-     * Tests the histogram data generation
-     *
+     * Tests that the histogram generation fails for big images
+     * 
      * @throws Exception
      *             Thrown if an error occurred.
      */
     @Test
-    public void testGetHistogram() throws Exception {
-        
+    public void testGetHistogramFail() throws Exception {
         // Test fail, if called on big images
         localSetUp(1, 10000, 10000);
         try {
             svc.getHistogram(new int[] { 0 }, -1, true, new PlaneDef(
                     omeis.providers.re.data.PlaneDef.XY, 0, 0, 0, 0, null, -1));
-            Assert.fail("The method getHistogram() can not handle big images and should have thrown an ApiUsageException.");
+            Assert.fail("The method getHistogram() can not handle big images and should "
+                    + "have thrown an ApiUsageException.");
         } catch (ApiUsageException ex) {
             // expected
         }
+    }
+    
+    /**
+     * Tests the histogram data generation with an UNIT8 image
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testGetHistogramUINT8() throws Exception {
+        // Create an UINT8 image with 1 channels
+        // Possible px values: [0-255]
+        final int nChannels = 1;
+        localSetupUINT8();
 
-        // Create an  UINT16 image with 2 channels
-        // Possible px values: [0-65535]
-        final int nChannels = 2;
-        localSetUp(nChannels, 10, 10);
-        
-        Assert.assertEquals(svc.getByteWidth(), 2, "Test assumes image of type UINT16");
-        
+        Assert.assertEquals(svc.getByteWidth(), 1,
+                "Test assumes image of type UINT8");
+
         final int byteSize = (int) svc.getPlaneSize();
-        
-        Assert.assertEquals(byteSize, 200, "Test assumes a 100px image");
-        
+
+        Assert.assertEquals(byteSize, 100, "Test assumes a 100px image");
+
         final int binCount = 256;
-        
+
         // channel stats are not calculated for the generated test image,
         // so this does not test global min/max usage but rather the fallback
         // to use the plane min/max
         final boolean useGlobalRange = true;
-        
+
         final int z = 0;
         final int t = 0;
-        
+
+        // Only set data for the first z/t plane, where...
+        // channel 0 contains 10px with value 63 and 10px 127
+        // all other pixels have value 0
+        //
+        // -> expected values are:
+        // bin[0] = 80, bin[127] = 10 and bin[255] = 10, all other bins = 0;
+
+        for (int ch = 0; ch < nChannels; ch++) {
+            byte[] buf = new byte[byteSize];
+            for (int i = 0; i < byteSize; i++) {
+                int pxValue = 0;
+                if (ch == 0) {
+                    if (i < 10)
+                        pxValue = 63;
+                    else if (i < 20)
+                        pxValue = 127;
+                } 
+                buf[i] = (byte) pxValue;
+            }
+            svc.setPlane(buf, z, ch, t);
+        }
+
+        int[] channels = new int[] { 0 };
+
+        PlaneDef plane = new PlaneDef(omeis.providers.re.data.PlaneDef.XY, 0,
+                0, z, t, null, -1);
+        Map<Integer, int[]> data = svc.getHistogram(channels, binCount,
+                useGlobalRange, plane);
+
+        Assert.assertEquals(data.size(), nChannels);
+
+        Iterator<Entry<Integer, int[]>> it = data.entrySet().iterator();
+        while (it.hasNext()) {
+            Entry<Integer, int[]> e = it.next();
+            int[] counts = e.getValue();
+            Assert.assertEquals(counts.length, binCount);
+            for (int bin = 0; bin < binCount; bin++) {
+                int exp = 0;
+                if (bin == 0)
+                    exp = 80;
+                else if (bin == 127 || bin == 255)
+                    exp = 10;
+                Assert.assertEquals(counts[bin], exp);
+            }
+
+            int ch = e.getKey();
+            if (ch == 0 || ch == 1)
+                it.remove();
+        }
+
+        Assert.assertTrue(data.isEmpty());
+    }
+
+    /**
+     * Tests the histogram data generation an UNIT16 image
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testGetHistogramUINT16() throws Exception {
+        // Create an UINT16 image with 2 channels
+        // Possible px values: [0-65535]
+        final int nChannels = 2;
+        localSetUp(nChannels, 10, 10);
+
+        Assert.assertEquals(svc.getByteWidth(), 2,
+                "Test assumes image of type UINT16");
+
+        final int byteSize = (int) svc.getPlaneSize();
+
+        Assert.assertEquals(byteSize, 200, "Test assumes a 100px image");
+
+        final int binCount = 256;
+
+        // channel stats are not calculated for the generated test image,
+        // so this does not test global min/max usage but rather the fallback
+        // to use the plane min/max
+        final boolean useGlobalRange = true;
+
+        final int z = 0;
+        final int t = 0;
+
         // Only set data for the first z/t plane, where...
         // channel 0 contains 10px with value 12800 and 10px 25600
         // channel 1 contains 10px with value 25600 and 10px 51200
@@ -412,7 +507,7 @@ public class RawPixelsStoreTest extends AbstractServerTest {
         //
         // -> expected values for both channels are:
         // bin[0] = 80, bin[127] = 10 and bin[255] = 10, all other bins = 0;
-        
+
         for (int ch = 0; ch < nChannels; ch++) {
             byte[] buf = new byte[byteSize];
             for (int i = 0; i < byteSize; i += 2) {
@@ -439,8 +534,10 @@ public class RawPixelsStoreTest extends AbstractServerTest {
 
         int[] channels = new int[] { 0, 1 };
 
-        PlaneDef plane = new PlaneDef(omeis.providers.re.data.PlaneDef.XY, 0, 0, z, t, null, -1);
-        Map<Integer, int[]> data = svc.getHistogram(channels, binCount, useGlobalRange, plane);
+        PlaneDef plane = new PlaneDef(omeis.providers.re.data.PlaneDef.XY, 0,
+                0, z, t, null, -1);
+        Map<Integer, int[]> data = svc.getHistogram(channels, binCount,
+                useGlobalRange, plane);
 
         Assert.assertEquals(data.size(), nChannels);
 
@@ -464,19 +561,22 @@ public class RawPixelsStoreTest extends AbstractServerTest {
         }
 
         Assert.assertTrue(data.isEmpty());
-        
+
         // Test a 5x5px region, first channel only;
         // First row of pixels is 12800, second row = 25600, others = 0;
-        // -> expected bin[0] = 15, bin[127] = 5 and bin[255] = 5, all other bins = 0;
+        // -> expected bin[0] = 15, bin[127] = 5 and bin[255] = 5, all other
+        // bins = 0;
         RegionDef region = new RegionDef(0, 0, 5, 5);
-        plane = new PlaneDef(omeis.providers.re.data.PlaneDef.XY, 0, 0, z, t, region, -1);
-        
-        data = svc.getHistogram(new int[] {0}, binCount, useGlobalRange, plane);
+        plane = new PlaneDef(omeis.providers.re.data.PlaneDef.XY, 0, 0, z, t,
+                region, -1);
+
+        data = svc.getHistogram(new int[] { 0 }, binCount, useGlobalRange,
+                plane);
         Assert.assertEquals(data.size(), 1);
-        
+
         int[] counts = data.values().iterator().next();
         Assert.assertEquals(counts.length, binCount);
-        
+
         for (int bin = 0; bin < binCount; bin++) {
             int exp = 0;
             if (bin == 0)
@@ -541,6 +641,29 @@ public class RawPixelsStoreTest extends AbstractServerTest {
                 }
             }
         }
+    }
+    
+    /**
+     * Set up pixel service with an UINT8 image
+     * @throws Exception
+     */
+    private void localSetupUINT8() throws Exception {
+        List<IObject> l = iPix.getAllEnumerations(PixelsType.class.getName());
+        Iterator<IObject> i = l.iterator();
+        PixelsType type = null;
+        while (i.hasNext()) {
+            PixelsType o = (PixelsType) i.next();
+            if ("uint8".equalsIgnoreCase(o.getValue().getValue())) {
+                type = o;
+                break;
+            }
+        }
+        if (type == null)
+            throw new Exception("Pixels Type not valid.");
+
+        long id = iPix.createImage(10, 10, 1, 1, Arrays.asList(0), type,
+                "fake image", "").getValue();
+        svc.setPixelsId(id, true);
     }
 
 }
