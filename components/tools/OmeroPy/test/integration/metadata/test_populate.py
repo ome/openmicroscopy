@@ -53,8 +53,11 @@ from omero.constants.namespaces import NSBULKANNOTATIONS
 from omero.constants.namespaces import NSMEASUREMENT
 from omero.util.temp_files import create_path
 
+from omero.util.metadata_mapannotations import MapAnnotationPrimaryKeyException
+
 from pytest import skip
 from pytest import mark
+from pytest import raises
 
 
 def coord2offset(coord):
@@ -236,6 +239,7 @@ class Plate2Wells(Fixture):
     def get_target(self):
         if not self.plate:
             self.plate = self.createPlate(self.rowCount, self.colCount)
+        print self.plate.id.val
         return self.plate
 
     def get_annotations(self):
@@ -263,10 +267,10 @@ class Plate2WellsNs(Plate2Wells):
     # additional safeguard against changes in the test code
 
     def __init__(self):
-        self.count = 6
-        self.annCount = 6 * 2  # Two namespaces
+        self.count = 8
+        self.annCount = 8 * 2  # Two namespaces
         self.rowCount = 2
-        self.colCount = 3
+        self.colCount = 4
         d = os.path.dirname(__file__)
         self.csv = os.path.join(d, 'bulk_to_map_annotation_context_ns.csv')
         self.plate = None
@@ -287,17 +291,21 @@ class Plate2WellsNs(Plate2Wells):
         assert rowvalues[2][1:] == (
             "FBgn0011236", "ken", "ken and barbie;CG5575", "a3")
         assert rowvalues[3][1:] == (
+            "FBgn0086378", "", "Alg-2", "a4")
+        assert rowvalues[4][1:] == (
             "", "hh",
             "DHH;IHH;SHH;Desert hedgehog;Indian hedgehog;Sonic hedgehog", "b1")
-        assert rowvalues[4][1:] == (
+        assert rowvalues[5][1:] == (
             "", "sws",
             "PNPLA6;patatin like phospholipase domain containing 6", "b2")
-        assert rowvalues[5][1:] == (
+        assert rowvalues[6][1:] == (
             "", "ken", "BCL6;B-cell lymphoma 6 protein", "b3")
+        assert rowvalues[7][1:] == (
+            "", "", "Alg-2", "b4")
 
     def assert_child_annotations(self, oas):
         wellrcs = [coord2offset(c) for c in (
-            'a1', 'a2', 'a3', 'b1', 'b2', 'b3')]
+            'a1', 'a2', 'a3', 'a4', 'b1', 'b2', 'b3', 'b4')]
         nss = [NSBULKANNOTATIONS, 'openmicroscopy.org/mapr/gene']
         wellrc_ns = [(wrc, ns) for wrc in wellrcs for ns in nss]
         check = dict((k, None) for k in wellrc_ns)
@@ -351,12 +359,21 @@ class Plate2WellsNs(Plate2Wells):
             ('Gene name', 'CG5575'),
         ]
 
-        # Row b
-
         assert check[(wellrcs[3], nss[0])] == [
-            ('Gene', 'hh'),
+            ('Gene', ''),
+            ('FlyBase URL', 'http://flybase.org/reports/FBgn0086378.html'),
         ]
         assert check[(wellrcs[3], nss[1])] == [
+            ('Gene', ''),
+            ('Gene name', 'Alg-2'),
+        ]
+
+        # Row b
+
+        assert check[(wellrcs[4], nss[0])] == [
+            ('Gene', 'hh'),
+        ]
+        assert check[(wellrcs[4], nss[1])] == [
             ('Gene', 'hh'),
             ('Gene name', 'DHH'),
             ('Gene name', 'IHH'),
@@ -365,26 +382,34 @@ class Plate2WellsNs(Plate2Wells):
             ('Gene name', 'Indian hedgehog'),
             ('Gene name', 'Sonic hedgehog'),
         ]
-        assert check[(wellrcs[4], nss[0])] == [
+        assert check[(wellrcs[5], nss[0])] == [
             ('Gene', 'sws'),
         ]
-        assert check[(wellrcs[4], nss[1])] == [
+        assert check[(wellrcs[5], nss[1])] == [
             ('Gene', 'sws'),
             ('Gene name', 'PNPLA6'),
             ('Gene name', 'patatin like phospholipase domain containing 6'),
         ]
 
-        assert check[(wellrcs[5], nss[0])] == [
+        assert check[(wellrcs[6], nss[0])] == [
             ('Gene', 'ken'),
         ]
-        assert check[(wellrcs[5], nss[1])] == [
+        assert check[(wellrcs[6], nss[1])] == [
             ('Gene', 'ken'),
             ('Gene name', 'BCL6'),
             ('Gene name', 'B-cell lymphoma 6 protein'),
         ]
 
-        assert len(annids) == 12
-        assert len(set(annids)) == 12
+        assert check[(wellrcs[7], nss[0])] == [
+            ('Gene', ''),
+        ]
+        assert check[(wellrcs[7], nss[1])] == [
+            ('Gene', ''),
+            ('Gene name', 'Alg-2'),
+        ]
+
+        assert len(annids) == 16
+        assert len(set(annids)) == 16
 
 
 class Plate2WellsNs2(Plate2WellsNs):
@@ -400,7 +425,7 @@ class Plate2WellsNs2(Plate2WellsNs):
 
     def assert_child_annotations(self, oas):
         wellrcs = [coord2offset(c) for c in (
-            'a1', 'a2', 'a3', 'b1', 'b2', 'b3')]
+            'a1', 'a2', 'a3', 'a4', 'b1', 'b2', 'b3', 'b4')]
         nss = [NSBULKANNOTATIONS, 'openmicroscopy.org/mapr/gene']
         wellrc_ns = [(wrc, ns) for wrc in wellrcs for ns in nss]
         check = dict((k, None) for k in wellrc_ns)
@@ -463,25 +488,65 @@ class Plate2WellsNs2(Plate2WellsNs):
             ('Gene name', 'B-cell lymphoma 6 protein'),
         ]
 
+        assert check[(wellrcs[3], nss[0])] == [
+            ('Gene', ''),
+            ('FlyBase URL', 'http://flybase.org/reports/FBgn0086378.html'),
+        ]
+        assert check[(wellrcs[3], nss[1])] == [
+            ('Gene', ''),
+            ('Gene name', 'Alg-2'),
+        ]
+
         # Row b
 
-        assert check[(wellrcs[3], nss[0])] == [
+        assert check[(wellrcs[4], nss[0])] == [
             ('Gene', 'hh'),
         ]
-        assert check[(wellrcs[3], nss[1])] == check[(wellrcs[0], nss[1])]
-
-        assert check[(wellrcs[4], nss[0])] == [
-            ('Gene', 'sws'),
-        ]
-        assert check[(wellrcs[4], nss[1])] == check[(wellrcs[1], nss[1])]
+        assert check[(wellrcs[4], nss[1])] == check[(wellrcs[0], nss[1])]
 
         assert check[(wellrcs[5], nss[0])] == [
+            ('Gene', 'sws'),
+        ]
+        assert check[(wellrcs[5], nss[1])] == check[(wellrcs[1], nss[1])]
+
+        assert check[(wellrcs[6], nss[0])] == [
             ('Gene', 'ken'),
         ]
-        assert check[(wellrcs[5], nss[1])] == check[(wellrcs[2], nss[1])]
+        assert check[(wellrcs[6], nss[1])] == check[(wellrcs[2], nss[1])]
 
-        assert len(annids) == 12
-        assert len(set(annids)) == 9
+        assert check[(wellrcs[7], nss[0])] == [
+            ('Gene', ''),
+        ]
+        assert check[(wellrcs[7], nss[1])] == [
+            ('Gene', ''),
+            ('Gene name', 'Alg-2'),
+        ]
+
+        assert len(annids) == 16
+        assert len(set(annids)) == 12
+
+
+class Plate2WellsNs2Fail(Plate2WellsNs2):
+    # For this test use explicit files instead of generating them as an
+    # additional safeguard against changes in the test code
+
+    def __init__(self):
+        self.count = 4
+        self.annCount = 2
+        self.rowCount = 1
+        self.colCount = 2
+        self.csv = self.createCsv(
+            colNames="Well,Gene,Gene Names",
+            rowData=("a1,,ABC", "A2,,ABC")
+        )
+        self.plate = None
+
+    def get_cfg(self):
+        return os.path.join(os.path.dirname(__file__),
+                            'bulk_to_map_annotation_context_ns2_fail.yml')
+
+    def get_namespaces(self):
+        return 'openmicroscopy.org/mapr/gene_fail'
 
 
 class Dataset2Images(Fixture):
@@ -781,6 +846,23 @@ class TestPopulateMetadata(lib.ITest):
         # deleted even if they're multiply linked
         # self._test_delete_map_annotation_context_dedup(fixture1, fixture2)
 
+    def testPopulateMetadataNsAnnsFail(self):
+        """
+        Similar to testPopulateMetadataNsAnns but use two plates and check
+        MapAnnotations aren't duplicated
+        """
+        try:
+            import yaml
+            print yaml, "found"
+        except Exception:
+            skip("PyYAML not installed.")
+
+        fixture_fail = Plate2WellsNs2Fail()
+        fixture_fail.init(self)
+        self._test_parsing_context(fixture_fail, 2)
+        with raises(MapAnnotationPrimaryKeyException):
+            self._test_bulk_to_map_annotation_context(fixture_fail, 2)
+
     def _test_parsing_context(self, fixture, batch_size):
         """
             Create a small csv file, use populate_metadata.py to parse and
@@ -881,7 +963,7 @@ class TestPopulateMetadata(lib.ITest):
         # 6 of the mapannotations should be common
         ids1 = set(unwrap(o[0].getId()) for o in oas1)
         ids2 = set(unwrap(o[0].getId()) for o in oas2)
-        assert len(ids1.intersection(ids2)) == 3
+        assert len(ids1.intersection(ids2)) == 4
 
     def _test_delete_map_annotation_context(self, fixture, batch_size):
         # self._test_bulk_to_map_annotation_context()

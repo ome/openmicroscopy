@@ -1,0 +1,24 @@
+---
+name: test_bulk_to_map_annotation_context_ns2
+version: 2
+
+defaults:
+    include: yes
+
+columns:
+- group:
+    namespace: openmicroscopy.org/mapr/gene_fail
+    columns:
+    # Intentionally duplicate a column in a different group
+    - name: Gene
+      omitempty: yes
+    - name: Gene Names
+      clientname: Gene name
+      split: ;
+
+advanced:
+#    well_to_images: yes
+    primary_group_keys:
+    - namespace: openmicroscopy.org/mapr/gene_fail
+      keys:
+      - Gene
