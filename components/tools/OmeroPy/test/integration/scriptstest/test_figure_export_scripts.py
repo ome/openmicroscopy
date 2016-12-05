@@ -73,7 +73,6 @@ class TestFigureExportScripts(ScriptTest):
             tag = omero.model.TagAnnotationI(tag_ids[t].val, False)
             self.link(image, tag, client=client)
 
-        # run the script twice. First with all args...
         dataset_ids = [omero.rtypes.rlong(dataset.id.val)]
         ids = image_ids
         if data_type == "Dataset":
