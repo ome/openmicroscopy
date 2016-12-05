@@ -272,7 +272,15 @@ class BlitzObjectWrapper (object):
     def _getQueryString(self, opts=None):
         """
         Used for building queries in generic methods
-        such as getObjects("Project")
+        such as getObjects("Project").
+        Returns a tuple of (query, clauses, params).
+        Overridden by sub-classes to specify loading of different
+        portions of the graph.
+        Different sub-classes may allow some control over what's loaded
+        and filtering of the query using various opts arguments.
+
+        :param opts:        Dictionary of optional parameters.
+        :return:            Tuple of string, list, ParametersI
         """
         extra_select = ""
         child_count = False
@@ -4562,6 +4570,10 @@ class AnnotationWrapper (BlitzObjectWrapper):
         """
         Used for building queries in generic methods such as
         getObjects("Annotation")
+        Returns a tuple of (query, clauses, params).
+
+        :param opts:        Dictionary of optional parameters.
+        :return:            Tuple of string, list, ParametersI
         """
         query = ("select obj from Annotation obj "
                  "join fetch obj.details.owner as owner "
@@ -4721,7 +4733,11 @@ class FileAnnotationWrapper (AnnotationWrapper, OmeroRestrictionWrapper):
     def _getQueryString(self, opts=None):
         """
         Used for building queries in generic methods such as
-        getObjects("FileAnnotation")
+        getObjects("FileAnnotation").
+        Returns a tuple of (query, clauses, params).
+
+        :param opts:        Dictionary of optional parameters.
+        :return:            Tuple of string, list, ParametersI
         """
         query = ("select obj from FileAnnotation obj "
                  "join fetch obj.details.owner as owner "
@@ -4863,7 +4879,11 @@ class TimestampAnnotationWrapper (AnnotationWrapper):
     def _getQueryString(self, opts=None):
         """
         Used for building queries in generic methods such as
-        getObjects("TimestampAnnotation")
+        getObjects("TimestampAnnotation").
+        Returns a tuple of (query, clauses, params).
+
+        :param opts:        Dictionary of optional parameters.
+        :return:            Tuple of string, list, ParametersI
         """
         query = ("select obj from TimestampAnnotation obj "
                  "join fetch obj.details.owner as owner "
@@ -4912,7 +4932,11 @@ class BooleanAnnotationWrapper (AnnotationWrapper):
     def _getQueryString(self, opts=None):
         """
         Used for building queries in generic methods such as
-        getObjects("BooleanAnnotation")
+        getObjects("BooleanAnnotation").
+        Returns a tuple of (query, clauses, params).
+
+        :param opts:        Dictionary of optional parameters.
+        :return:            Tuple of string, list, ParametersI
         """
         query = ("select obj from BooleanAnnotation obj "
                  "join fetch obj.details.owner as owner "
@@ -4998,7 +5022,11 @@ class TagAnnotationWrapper (AnnotationWrapper):
     def _getQueryString(self, opts=None):
         """
         Used for building queries in generic methods such as
-        getObjects("TagAnnotation")
+        getObjects("TagAnnotation").
+        Returns a tuple of (query, clauses, params).
+
+        :param opts:        Dictionary of optional parameters.
+        :return:            Tuple of string, list, ParametersI
         """
         query = ("select obj from TagAnnotation obj "
                  "join fetch obj.details.owner as owner "
@@ -5040,7 +5068,11 @@ class CommentAnnotationWrapper (AnnotationWrapper):
     def _getQueryString(self, opts=None):
         """
         Used for building queries in generic methods such as
-        getObjects("CommentAnnotation")
+        getObjects("CommentAnnotation").
+        Returns a tuple of (query, clauses, params).
+
+        :param opts:        Dictionary of optional parameters.
+        :return:            Tuple of string, list, ParametersI
         """
         query = ("select obj from CommentAnnotation obj "
                  "join fetch obj.details.owner as owner "
@@ -5080,7 +5112,11 @@ class LongAnnotationWrapper (AnnotationWrapper):
     def _getQueryString(self, opts=None):
         """
         Used for building queries in generic methods such as
-        getObjects("LongAnnotation")
+        getObjects("LongAnnotation").
+        Returns a tuple of (query, clauses, params).
+
+        :param opts:        Dictionary of optional parameters.
+        :return:            Tuple of string, list, ParametersI
         """
         query = ("select obj from LongAnnotation obj "
                  "join fetch obj.details.owner as owner "
@@ -5121,7 +5157,11 @@ class DoubleAnnotationWrapper (AnnotationWrapper):
     def _getQueryString(self, opts=None):
         """
         Used for building queries in generic methods such as
-        getObjects("DoubleAnnotation")
+        getObjects("DoubleAnnotation").
+        Returns a tuple of (query, clauses, params).
+
+        :param opts:        Dictionary of optional parameters.
+        :return:            Tuple of string, list, ParametersI
         """
         query = ("select obj from DoubleAnnotation obj "
                  "join fetch obj.details.owner as owner "
@@ -5163,7 +5203,11 @@ class TermAnnotationWrapper (AnnotationWrapper):
     def _getQueryString(self, opts=None):
         """
         Used for building queries in generic methods such as
-        getObjects("TermAnnotation")
+        getObjects("TermAnnotation").
+        Returns a tuple of (query, clauses, params).
+
+        :param opts:        Dictionary of optional parameters.
+        :return:            Tuple of string, list, ParametersI
         """
         query = ("select obj from TermAnnotation obj "
                  "join fetch obj.details.owner as owner "
@@ -5282,6 +5326,11 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
     def _getQueryString(self, opts=None):
         """
         Returns string for building queries, loading Experimenters only.
+
+        Returns a tuple of (query, clauses, params).
+
+        :param opts:        Dictionary of optional parameters.
+        :return:            Tuple of string, list, ParametersI
         """
         query = ("select distinct obj from Experimenter as obj "
                  "left outer join fetch obj.groupExperimenterMap as map "
@@ -5512,6 +5561,10 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
         """
         Returns string for building queries, loading Experimenters for each
         group.
+        Returns a tuple of (query, clauses, params).
+
+        :param opts:        Dictionary of optional parameters.
+        :return:            Tuple of string, list, ParametersI
         """
         query = ("select distinct obj from ExperimenterGroup as obj "
                  "left outer join fetch obj.groupExperimenterMap as map "
@@ -5603,7 +5656,11 @@ class _DatasetWrapper (BlitzObjectWrapper):
 
     def _getQueryString(self, opts=None):
         """
-        Extend base query to handle filtering by Projects
+        Extend base query to handle filtering of Datasets by Projects.
+        Returns a tuple of (query, clauses, params).
+
+        :param opts:        Dictionary of optional parameters.
+        :return:            Tuple of string, list, ParametersI
         """
         query, clauses, params = super(
             _DatasetWrapper, self)._getQueryString(opts)
@@ -5869,6 +5926,10 @@ class _PlateWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         """
         Returns a query string for constructing custom queries,
         loading the screen for each plate.
+        Returns a tuple of (query, clauses, params).
+
+        :param opts:        Dictionary of optional parameters.
+        :return:            Tuple of string, list, ParametersI
         """
         query = ("select obj from Plate as obj "
                  "join fetch obj.details.owner as owner "
@@ -6636,7 +6697,11 @@ class _FilesetWrapper (BlitzObjectWrapper):
     def _getQueryString(self, opts=None):
         """
         Used for building queries in generic methods such as
-        getObjects("Fileset")
+        getObjects("Fileset").
+        Returns a tuple of (query, clauses, params).
+
+        :param opts:        Dictionary of optional parameters.
+        :return:            Tuple of string, list, ParametersI
         """
         query = "select obj from Fileset obj "\
             "left outer join fetch obj.images as image "\
