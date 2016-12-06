@@ -100,15 +100,15 @@ public class AdminServiceTest extends AbstractServerTest {
     @Test
     public void testLookupGroup() throws Exception {
         IAdminPrx svc = root.getSession().getAdminService();
-        ExperimenterGroup group = svc.lookupGroup(USER_GROUP);
+        ExperimenterGroup group = svc.lookupGroup(roles.userGroupName);
         Assert.assertNotNull(group);
-        Assert.assertEquals(USER_GROUP, group.getName().getValue());
+        Assert.assertEquals(roles.userGroupName, group.getName().getValue());
         GroupData data = new GroupData(group);
         Assert.assertEquals(data.getId(), group.getId().getValue());
         Assert.assertEquals(data.getName(), group.getName().getValue());
-        group = svc.lookupGroup(SYSTEM_GROUP);
+        group = svc.lookupGroup(roles.systemGroupName);
         Assert.assertNotNull(group);
-        Assert.assertEquals(SYSTEM_GROUP, group.getName().getValue());
+        Assert.assertEquals(roles.systemGroupName, group.getName().getValue());
         // Test the conversion into the corresponding POJO
         data = new GroupData(group);
         Assert.assertEquals(data.getId(), group.getId().getValue());
@@ -282,7 +282,7 @@ public class AdminServiceTest extends AbstractServerTest {
         long groupId = id;
         List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
         // method tested elsewhere
-        ExperimenterGroup userGroup = svc.lookupGroup(USER_GROUP);
+        ExperimenterGroup userGroup = svc.lookupGroup(roles.userGroupName);
         groups.add(eg);
         groups.add(userGroup);
         id = svc.createExperimenter(e, eg, groups);
@@ -347,7 +347,7 @@ public class AdminServiceTest extends AbstractServerTest {
         long groupId = id;
         List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
         // method tested elsewhere
-        ExperimenterGroup userGroup = svc.lookupGroup(USER_GROUP);
+        ExperimenterGroup userGroup = svc.lookupGroup(roles.userGroupName);
         groups.add(eg);
         groups.add(userGroup);
         id = svc.createExperimenterWithPassword(e, omero.rtypes.rstring(PASSWORD), eg,
@@ -413,7 +413,7 @@ public class AdminServiceTest extends AbstractServerTest {
         Assert.assertEquals(e.getOmeName().getValue(), uuid);
         // check if we are in the correct group i.e. user and uuid
         // now check if the user is in correct groups.
-        ExperimenterGroup userGroup = svc.lookupGroup(USER_GROUP);
+        ExperimenterGroup userGroup = svc.lookupGroup(roles.userGroupName);
         List<Long> ids = new ArrayList<Long>();
         ids.add(groupId);
         ids.add(userGroup.getId().getValue());
@@ -679,7 +679,7 @@ public class AdminServiceTest extends AbstractServerTest {
 
         List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
         // method tested elsewhere
-        ExperimenterGroup userGroup = svc.lookupGroup(USER_GROUP);
+        ExperimenterGroup userGroup = svc.lookupGroup(roles.userGroupName);
         groups.add(eg1);
         groups.add(eg2);
         groups.add(userGroup);
@@ -1696,7 +1696,7 @@ public class AdminServiceTest extends AbstractServerTest {
         groups.add(eg);
         svc.addGroups(e, groups);
         // now check that there are linked
-        ExperimenterGroup userGroup = svc.lookupGroup(USER_GROUP);
+        ExperimenterGroup userGroup = svc.lookupGroup(roles.userGroupName);
         List<Long> ids = new ArrayList<Long>();
         ids.add(groupId);
         ids.add(id2);

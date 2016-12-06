@@ -119,6 +119,7 @@ import omero.model.WellSample;
 import omero.sys.EventContext;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
+import omero.sys.Roles;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -144,15 +145,6 @@ public class AbstractServerTest extends AbstractTest {
     /** Performs the move as group owner. */
     public static final int ADMIN = 102;
 
-    /** Identifies the <code>system</code> group. */
-    public String SYSTEM_GROUP = "system";
-
-    /** Identifies the <code>user</code> group. */
-    public String USER_GROUP = "user";
-
-    /** Identifies the <code>guest</code> group. */
-    public String GUEST_GROUP = "guest";
-
     /** Scaling factor used for CmdCallbackI loop timings. */
     protected long scalingFactor;
 
@@ -177,6 +169,9 @@ public class AbstractServerTest extends AbstractTest {
     /** Helper reference to the <code>IAdmin</code> service. */
     protected IAdminPrx iAdmin;
 
+    /** Helper reference to the server's critical roles. */
+    protected Roles roles;
+
     /** Reference to the importer store. */
     protected OMEROMetadataStoreClient importer;
 
@@ -199,6 +194,16 @@ public class AbstractServerTest extends AbstractTest {
      * @see #newUserInGroup(ExperimenterGroup)
      */
     private final Set<omero.client> clients = new HashSet<omero.client>();
+
+    protected AbstractServerTest() {
+        final ome.system.Roles defaultRoles = new ome.system.Roles();
+        roles = new Roles(
+                defaultRoles.getRootId(), defaultRoles.getRootName(),
+                defaultRoles.getSystemGroupId(), defaultRoles.getSystemGroupName(),
+                defaultRoles.getUserGroupId(), defaultRoles.getUserGroupName(),
+                defaultRoles.getGuestId(), defaultRoles.getGuestName(),
+                defaultRoles.getGuestGroupId(), defaultRoles.getGuestGroupName());
+    }
 
     /**
      * Sole location where {@link omero.client#client()} or any other
@@ -565,7 +570,7 @@ public class AbstractServerTest extends AbstractTest {
     protected long newUserInGroupWithPassword(Experimenter experimenter,
             List<ExperimenterGroup> groups, String password) throws Exception {
         IAdminPrx rootAdmin = root.getSession().getAdminService();
-        ExperimenterGroup userGroup = rootAdmin.lookupGroup(USER_GROUP);
+        ExperimenterGroup userGroup = rootAdmin.lookupGroup(roles.userGroupName);
         return rootAdmin.createExperimenterWithPassword(experimenter,
                 omero.rtypes.rstring(password), userGroup, groups);
     }
@@ -741,6 +746,7 @@ public class AbstractServerTest extends AbstractTest {
         iQuery = factory.getQueryService();
         iUpdate = factory.getUpdateService();
         iAdmin = factory.getAdminService();
+        roles = iAdmin.getSecurityRoles();
         mmFactory = new ModelMockFactory(factory.getPixelsService());
 
         importer = new OMEROMetadataStoreClient();
