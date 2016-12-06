@@ -226,7 +226,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
         try {
             sf = reg.getInternalServiceFactory(
-                    sessionUuid, ec.getCurrentGroupName(), 3, 1, clientUuid);
+                    sessionUuid, ec.getCurrentGroupId(), 3, 1, clientUuid);
             store = new OMEROMetadataStoreClient();
             store.setCurrentLogFile(logFilename, token);
             store.setGroup(ec.getCurrentGroupId());
