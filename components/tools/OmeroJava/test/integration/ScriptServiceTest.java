@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -25,12 +25,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
+import omero.SecurityViolation;
 import omero.api.IScriptPrx;
 import omero.api.RawFileStorePrx;
+import omero.gateway.util.Requests;
 import omero.grid.JobParams;
+import omero.grid.RepositoryMap;
+import omero.grid.RepositoryPrx;
 import omero.model.IObject;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
+import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -52,6 +57,9 @@ public class ScriptServiceTest extends AbstractServerTest {
 
     /** The mimetype of the lookup table files.*/
     static final String LUT_MIMETYPE = "text/x-lut";
+
+    /** The mimetype of Python scripts. */
+    static final String PYTHON_MIMETYPE = "text/x-python";
 
     /**
      * Tests to make sure that a new entry for the same file is not added
@@ -270,6 +278,45 @@ public class ScriptServiceTest extends AbstractServerTest {
         Assert.assertEquals(svc.getScriptsByMimetype(LUT_MIMETYPE).size(),
                 n+1);
         deleteScript(id);
+    }
+
+    /**
+     * Test that writing to the script repository does not break the listing of scripts.
+     * @throws Exception unexpected
+     */
+    @Test(groups = "broken")
+    public void testGetScriptsFiltersUnreadable() throws Exception {
+        final EventContext scriptOwner = newUserAndGroup("rwr---");
+        /* get a list of the Python scripts */
+        final List<OriginalFile> scripts = factory.getScriptService().getScriptsByMimetype(PYTHON_MIMETYPE);
+        /* fetch a script from the server */
+        RawFileStorePrx rfs = factory.createRawFileStore();
+        rfs.setFileId(scripts.get(0).getId().getValue());
+        final byte[] scriptContent = rfs.read(0, (int) rfs.size());
+        rfs.close();
+        /* find the script repository */
+        final RepositoryMap repositories = factory.sharedResources().repositories();
+        int index;
+        for (index = 0; !"scripts".equals(repositories.descriptions.get(index).getName().getValue()); index++);
+        final RepositoryPrx repo = repositories.proxies.get(index);
+        /* write the new script directly via the repository */
+        final String scriptName = "Test_" + getClass().getName() + "_" + UUID.randomUUID() + ".py";
+        final OriginalFile scriptFile = repo.register(scriptName, omero.rtypes.rstring(PYTHON_MIMETYPE));
+        rfs = repo.file(scriptName, "rw");
+        rfs.write(scriptContent, 0, scriptContent.length);
+        rfs.close();
+        /* switch to a fresh user */
+        newUserAndGroup("rwr---");
+        /* try again to get a list of the Python scripts */
+        try {
+            factory.getScriptService().getScriptsByMimetype(PYTHON_MIMETYPE);
+        } catch (SecurityViolation sv) {
+            Assert.fail("should be able to get the list of accessible Python scripts", sv);
+        } finally {
+            /* clean up the troublesome upload */
+            loginUser(scriptOwner);
+            doChange(Requests.delete().target(scriptFile).build());
+        }
     }
 
     /**

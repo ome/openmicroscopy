@@ -10,36 +10,43 @@
             <% if (!ann.id || (ann.permissions.canEdit && clientMapAnn)){ %> editableKeyValueTable <% } %>
             ">
     <thead>
+      <% if (showNs && ann.ns) { %>
+      <tr title="<%= ann.ns %>">
+          <th colspan="2">
+              <%= ann.ns.slice(0, 50) %>
+          </th>
+      </tr>
+      <% } %>
       <tr class="tooltip">
           <th colspan="2">
             <% if (ann.id) { %>
                 Added by: <%= ann.owner.firstName %> <%= ann.owner.lastName %>
+                <% if (showParent && ann.link.parent.name){ %>
+                  <br> To: <%= ann.link.parent.name %>
+                <% } %>
 
                 <span class="tooltip_html" style='display:none'>
                     <b>ID:</b> <%= ann.id %><br />
                     <% if (ann.owner) { %>
-                        <b>Owner:</b> <%= ann.owner.firstName %> <%= ann.owner.lastName %><br />
+                        <b>Owner:</b> <%= ann.owner.firstName %> <%= ann.owner.lastName %>
                     <% } %>
                     <% if (ann.link) { %>
-                        <b>Linked by:</b> <%= ann.link.owner.firstName %> <%= ann.link.owner.lastName %><br />
-                        <b>On:</b> <% print(OME.formatDate(ann.link.date)) %>
+                        <br /><b>Linked by:</b> <%= ann.link.owner.firstName %> <%= ann.link.owner.lastName %>
+                        <% if (ann.link.date) { %>
+                            <br /><b>On:</b> <% print(OME.formatDate(ann.link.date)) %>
+                        <% } %>
                     <% } %>
                 </span>
             <% } %>
           </th>
-        </tr>
-        <% if (showTableHead) { %>
-        <tr>
-            <th>Key</th>
-            <th>Value</th>
-        </tr>
-        <% } %>
+    </tr>
+    <% if (showTableHead) { %>
+    <tr>
+        <th>Key</th>
+        <th>Value</th>
+    </tr>
+    <% } %>
 
-        <% if (showNs && ann.ns) { %>
-        <tr title="<%= ann.ns %>">
-            <th colspan="2"><%= ann.ns.slice(0, 50) %></th>
-        </tr>
-        <% } %>
     </thead>
 
     <!-- Last row always has empty key & value fields -->

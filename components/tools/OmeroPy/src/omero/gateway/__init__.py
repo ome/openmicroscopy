@@ -1,4 +1,5 @@
-#!/usr/bin/env python
+
+# !/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # blitz_gateway - python bindings and wrappers to access an OMERO blitz server
@@ -3143,10 +3144,10 @@ class _BlitzGateway (object):
             params.map["ids"] = rlist([rlong(a) for a in ids])
 
         # support filtering by owner (not for some object types)
-        if (owner is not None and
-                owner.val != -1 and
-                obj_type.lower()
-                not in ["experimentergroup", "experimenter"]):
+        if (params.theFilter and
+                params.theFilter.ownerId and
+                obj_type.lower() not in
+                ["experimentergroup", "experimenter"]):
             clauses.append("owner.id = (:eid)")
             params.map["eid"] = owner
 
@@ -7948,6 +7949,37 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         (1, False, False): 'B',  # unsigned char
         (1, False, True): 'b',  # signed char
         }
+
+    @assert_pixels
+    def getHistogram(self, channels, binCount, globalRange=True,
+                     theZ=0, theT=0):
+        """
+        Get pixel intensity histogram of a single plane for specified channels.
+
+        Returns a map of channelIndex: integer list.
+        If globalRange is True, use the min/max for that channel over ALL
+        planes.
+        If False, use the pixel intensity range for the specified plane.
+
+        :param channels:        List of channel integers we want
+        :param binCount:        Number of bins in the histogram
+        :param globalRange:     If false, use min/max intensity for this plane
+        :param theZ:            Z index of plane
+        :param theT:            T index of plane
+        :return:                Dict of channelIndex: integer list
+        """
+
+        pixels_id = self.getPixelsId()
+        rp = self._conn.createRawPixelsStore()
+        try:
+            rp.setPixelsId(pixels_id, True, self._conn.SERVICE_OPTS)
+            plane = omero.romio.PlaneDef(self.PLANEDEF)
+            plane.z = long(theZ)
+            plane.t = long(theT)
+            histogram = rp.getHistogram(channels, binCount, globalRange, plane)
+            return histogram
+        finally:
+            rp.close()
 
     def getPixelLine(self, z, t, pos, axis, channels=None, range=None):
         """

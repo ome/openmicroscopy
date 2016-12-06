@@ -161,7 +161,7 @@ class TestThumbnailPerms(ITest):
         group = self.new_group(perms="rw__--")
         owner = self.new_client(group=group, owner=True)  # Owner of group
         member = self.new_client(group=group)  # Member of group
-        privateImage = self.createTestImage(session=member.sf)
+        privateImage = self.create_test_image(session=member.sf)
         pId = privateImage.getPrimaryPixels().getId().getValue()
 
         # using owner session access thumbnailStore
@@ -202,7 +202,7 @@ class TestThumbnailPerms(ITest):
 
         # Create user in group with one image
         owner = self.new_client(group=group)
-        privateImage = self.createTestImage(session=owner.sf)
+        privateImage = self.create_test_image(session=owner.sf)
         pId = privateImage.getPrimaryPixels().getId().getValue()
 
         if preview:
@@ -279,7 +279,7 @@ class TestThumbnailPerms(ITest):
                     assert rnd is None
 
         # creation generates a first rendering image
-        image = self.createTestImage(session=owner.sf)
+        image = self.create_test_image(session=owner.sf)
         pixels = image.getPrimaryPixels().getId().getValue()
 
         owner_prx = owner.sf.createThumbnailStore()
@@ -322,7 +322,7 @@ class TestThumbnailPerms(ITest):
                     assert rnd is None
 
         # creation generates a first rendering image
-        image = self.createTestImage(session=owner.sf)
+        image = self.create_test_image(session=owner.sf)
         pixels = image.getPrimaryPixels().getId().getValue()
 
         owner_prx = owner.sf.createThumbnailStore()
@@ -378,7 +378,7 @@ class TestThumbnailPerms(ITest):
             other = self.new_client(group=group)
 
         # creation generates a first rendering image
-        image = self.createTestImage(session=owner.sf)
+        image = self.create_test_image(session=owner.sf)
         pixels = image.getPrimaryPixels().getId().getValue()
 
         def assert_rdef(sf=None, prx=None):
@@ -481,7 +481,7 @@ class TestThumbnailPerms(ITest):
             other = self.new_client(group=group)
 
         # creation generates a first rendering image
-        image = self.createTestImage(session=owner.sf)
+        image = self.create_test_image(session=owner.sf)
         pixels = image.getPrimaryPixels().getId().getValue()
         # create thumbnail for image owner 16x16
         tb = owner.sf.createThumbnailStore()
@@ -555,7 +555,7 @@ class TestThumbnailPerms(ITest):
             other = self.new_client(group=group)
 
         # creation generates a first rendering image
-        image = self.createTestImage(session=owner.sf)
+        image = self.create_test_image(session=owner.sf)
         pixels = image.getPrimaryPixels().getId().getValue()
         # create thumbnail for image owner 16x16
         tb = owner.sf.createThumbnailStore()

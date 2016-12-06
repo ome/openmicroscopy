@@ -704,7 +704,7 @@ public class ImporterTest extends AbstractServerTest {
     @Test
     public void testImportSimpleImageOddlyNamedUser() throws Exception {
         /* conceive a new user with an awkward name */
-        final String username = "a / strange \\ name";
+        final String username = "a / strange \\ name " + UUID.randomUUID();
         final String password = UUID.randomUUID().toString();
         Experimenter user = new ExperimenterI();
         user.setOmeName(omero.rtypes.rstring(username));

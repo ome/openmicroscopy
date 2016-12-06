@@ -21,7 +21,7 @@
  */
 package org.openmicroscopy.shoola.agents.metadata;
 
-import java.util.Set;
+import java.util.Collection;
 
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import omero.gateway.SecurityContext;
@@ -85,7 +85,7 @@ public class FilesetLoader
     public void handleResult(Object result)
     {
     	if (result == null) return;
-    	viewer.setFileset((Set<FilesetData>) result);
+    	viewer.setFileset((Collection<FilesetData>) result);
     }
 
 }

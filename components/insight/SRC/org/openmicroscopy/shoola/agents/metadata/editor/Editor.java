@@ -27,7 +27,6 @@ import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.swing.JComponent;
 
@@ -533,7 +532,7 @@ public interface Editor
 	 * 
 	 * @param result The value to set.
 	 */
-	void setFileset(Set<FilesetData> result);
+	void setFileset(Collection<FilesetData> result);
 
 	/** 
 	 * Loads the file set associated to the image.

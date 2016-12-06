@@ -241,7 +241,7 @@ class TestSearch(ITest):
     def testFilename(self):
         client = self.new_client()
         uuid = self.simple_uuid()
-        image = self.importSingleImage(uuid, client)
+        image = self.import_single_image(uuid, client)
         self.root.sf.getUpdateService().indexObject(image)
         search = client.sf.createSearchService()
         search.onlyType("Image")
@@ -272,7 +272,7 @@ class TestSearch(ITest):
 
     def attached_image(self, uuid, client, path, mimetype):
         _ = omero.rtypes.rstring
-        image = self.importSingleImage(uuid, client)
+        image = self.import_single_image(uuid, client)
         ofile = omero.model.OriginalFileI()
         ofile.mimetype = _(mimetype)
         ofile.path = _(os.path.dirname(path))
