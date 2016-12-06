@@ -133,6 +133,38 @@ public class BasicACLVoter implements ACLVoter {
     public boolean allowLoad(Session session, Class<? extends IObject> klass, Details d, long id) {
         Assert.notNull(klass);
 
+        final BasicEventContext ec = currentUser.current();
+
+        if (klass == ome.model.meta.Session.class) {
+            /* determine "real" owner of current and queried session, i.e. taking sudo into account */
+            final ome.model.meta.Session currentSession = (ome.model.meta.Session)
+                    session.get(ome.model.meta.Session.class, ec.getCurrentSessionId());
+            Experimenter sessionOwnerCurrent = currentSession.getSudoer();
+            if (sessionOwnerCurrent == null) {
+                sessionOwnerCurrent = currentSession.getOwner();
+            }
+            final ome.model.meta.Session queriedSession = (ome.model.meta.Session)
+                    session.get(ome.model.meta.Session.class, id);
+            Experimenter sessionOwnerQueried = queriedSession.getSudoer();
+            if (sessionOwnerQueried == null) {
+                sessionOwnerQueried = queriedSession.getOwner();
+            }
+            /* determine if the "real" owner is an administrator */
+            final Object systemMembership = session.createQuery(
+                    "FROM GroupExperimenterMap WHERE parent.id = :group AND child.id = :user")
+                    .setLong("group", roles.getSystemGroupId()).setLong("user", sessionOwnerCurrent.getId()).uniqueResult();
+            if (systemMembership != null) {
+                /* cannot yet cache privileges because Sessions may be loaded while still being constructed by the session bean */
+                final Set<AdminPrivilege> privileges = adminPrivileges.getSessionPrivileges(currentSession, false);
+                if (privileges.contains(adminPrivileges.getPrivilege("ReadSession"))) {
+                    /* only a full administrator may read all sessions */
+                    return true;
+                }
+            }
+            /* without ReadRession privilege may read only those sessions for which "real" owner matches */
+            return sessionOwnerCurrent.getId() == sessionOwnerQueried.getId();
+        }
+
         if (d == null || sysTypes.isSystemType(klass)) {
             // Here we're returning true because there
             // will be no group value that we can use
@@ -148,11 +180,11 @@ public class BasicACLVoter implements ACLVoter {
             rv = true;
         }
         else {
-            rv = securityFilter.passesFilter(session, d, currentUser.current());
+            rv = securityFilter.passesFilter(session, d, ec);
         }
 
         // Misusing this location to store the loaded objects perms for later.
-        if (this.currentUser.getCurrentEventContext().getCurrentGroupId() < 0) {
+        if (ec.getCurrentGroupId() < 0) {
             // For every object that gets loaded when omero.group = -1, we
             // cache its permissions in the session context so that when the
             // session is over we can re-apply all the permissions.
@@ -168,7 +200,7 @@ public class BasicACLVoter implements ACLVoter {
                     log.warn(String.format("Permissions null for group %s " +
                             "while loading %s:%s", gid, klass.getName(), id));
                 } else {
-                    this.currentUser.current().setPermissionsForGroup(gid, p);
+                    ec.setPermissionsForGroup(gid, p);
                 }
             }
         }
