@@ -310,8 +310,8 @@ class TestGetObject (object):
         pros = conn.getObjects("Project", None, params)
         assert len(list(pros)) == 0, "Should be no Projects owned by root"
 
-        # Also filter by owner using params dict
-        pros = conn.getObjects("Project", None, {'owner': 0})
+        # Also filter by owner using opts dict
+        pros = conn.getObjects("Project", None, opts={'owner': 0})
         assert len(list(pros)) == 0, "Should be no Projects owned by root"
 
         # filter by current user should get same as above. # owned by 'author'
@@ -336,9 +336,9 @@ class TestGetObject (object):
             "Project", None, params))
         assert len(pros) == limit
 
-        # Also using params dict
+        # Also using opts dict
         pros = list(gatewaywrapper.gateway.getObjects(
-            "Project", None, {'page': 0, 'limit': 2}))
+            "Project", None, opts={'page': 1, 'limit': 2}))
         assert len(pros) == limit
 
     def testGetDatasetsByProject(self, gatewaywrapper):
@@ -351,7 +351,7 @@ class TestGetObject (object):
 
         # Get Datasets, filtering by project
         p = {'project': project.id}
-        datasets = list(gatewaywrapper.gateway.getObjects("Dataset", params=p))
+        datasets = list(gatewaywrapper.gateway.getObjects("Dataset", opts=p))
 
         # Check that not all Datasets are in Project (or test is invalid)
         assert len(allDs) > len(dsIds)
