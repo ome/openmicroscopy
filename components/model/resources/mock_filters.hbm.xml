@@ -7,4 +7,5 @@
   <filter-def name="AllGroupsSecurityFilter" condition="1=1"/>
   <filter-def name="OneGroupSecurityFilter" condition="1=1"/>
   <filter-def name="SharingSecurityFilter" condition="1=1"/>
+  <filter-def name="LightAdminPrivilegesSecurityFilter" condition="1=1"/>
 </hibernate-mapping>

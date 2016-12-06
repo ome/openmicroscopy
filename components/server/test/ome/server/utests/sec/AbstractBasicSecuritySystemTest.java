@@ -103,7 +103,7 @@ public abstract class AbstractBasicSecuritySystemTest extends
                 new LightAdminPrivileges(roles));
         SecurityFilter filter = new OneGroupSecurityFilter();
         sec = new BasicSecuritySystem(oi, st, cd, mgr, roles, sf,
-                th, filter, new DefaultPolicyService());
+                th, Collections.singletonList(filter), new DefaultPolicyService());
         aclVoter = new BasicACLVoter(cd, st, th, filter,
                 new DefaultPolicyService());
     }

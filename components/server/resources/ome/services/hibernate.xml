@@ -139,6 +139,7 @@
             <ref bean="OneGroupSecurityFilter"/>
             <ref bean="AllGroupsSecurityFilter"/>
             <ref bean="SharingSecurityFilter"/>
+            <ref bean="LightAdminPrivilegesSecurityFilter"/>
         </list>
     </property>
     <property name="lobHandler" ref="lobHandler"/>
