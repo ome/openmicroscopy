@@ -365,7 +365,9 @@ public class DuplicationTest extends AbstractServerTest {
 
         /* create and save an image */
 
-        final Image originalImage = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage(1,2,3,4,5));
+        final Image originalImage = (Image) iUpdate
+                .saveAndReturnObject(mmFactory.createImage(1, 2, 3, 4, 5,
+                        ModelMockFactory.UINT16));
 
         /* note the objects (and their IDs) that were thus created and saved */
 
@@ -487,7 +489,9 @@ public class DuplicationTest extends AbstractServerTest {
 
         /* create and save an image */
 
-        final Image originalImage = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage(1,2,3,4,5));
+        final Image originalImage = (Image) iUpdate
+                .saveAndReturnObject(mmFactory.createImage(1, 2, 3, 4, 5,
+                        ModelMockFactory.UINT16));
 
         /* note the objects (and their IDs) that were thus created and saved */
 

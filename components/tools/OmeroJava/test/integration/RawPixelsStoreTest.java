@@ -30,10 +30,8 @@ import ome.api.RawPixelsStore;
 import ome.io.nio.RomioPixelBuffer;
 import omero.ApiUsageException;
 import omero.api.RawPixelsStorePrx;
-import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Pixels;
-import omero.model.PixelsType;
 import omero.romio.PlaneDef;
 import omero.romio.RegionDef;
 
@@ -78,7 +76,7 @@ public class RawPixelsStoreTest extends AbstractServerTest {
 
     @BeforeMethod
     public void localSetUp() throws Exception {
-        localSetUp(1, ModelMockFactory.SIZE_X, ModelMockFactory.SIZE_Y);
+        localSetUp(1, ModelMockFactory.SIZE_X, ModelMockFactory.SIZE_Y, ModelMockFactory.UINT16);
     }
 
     /**
@@ -90,14 +88,17 @@ public class RawPixelsStoreTest extends AbstractServerTest {
      *            The size of the image in X dimension
      * @param sizeY
      *            The size of the image in Y dimension
+     * @param pxType
+     *            The pixels type (e.g. unit16)
      * @throws Exception
      *             If an error occured.
      */
-    private void localSetUp(int nChannels, int sizeX, int sizeY)
+    private void localSetUp(int nChannels, int sizeX, int sizeY, String pxType)
             throws Exception {
         Image image = mmFactory.createImage(sizeX, sizeY,
-                ModelMockFactory.SIZE_Z, ModelMockFactory.SIZE_T, nChannels);
+                ModelMockFactory.SIZE_Z, ModelMockFactory.SIZE_T, nChannels, pxType);
         image = (Image) iUpdate.saveAndReturnObject(image);
+        
         Pixels pixels = image.getPrimaryPixels();
         planeSize = pixels.getSizeX().getValue() * pixels.getSizeY().getValue();
         planeSize = planeSize * 2; // UINT16
@@ -376,7 +377,7 @@ public class RawPixelsStoreTest extends AbstractServerTest {
     @Test
     public void testGetHistogramFail() throws Exception {
         // Test fail, if called on big images
-        localSetUp(1, 10000, 10000);
+        localSetUp(1, 10000, 10000, ModelMockFactory.UINT16);
         try {
             svc.getHistogram(new int[] { 0 }, -1, true, new PlaneDef(
                     omeis.providers.re.data.PlaneDef.XY, 0, 0, 0, 0, null, -1));
@@ -398,8 +399,8 @@ public class RawPixelsStoreTest extends AbstractServerTest {
         // Create an UINT8 image with 1 channels
         // Possible px values: [0-255]
         final int nChannels = 1;
-        localSetupUINT8();
-
+        localSetUp(nChannels, 10, 10, ModelMockFactory.UINT8);
+        
         Assert.assertEquals(svc.getByteWidth(), 1,
                 "Test assumes image of type UINT8");
 
@@ -481,7 +482,7 @@ public class RawPixelsStoreTest extends AbstractServerTest {
         // Create an UINT16 image with 2 channels
         // Possible px values: [0-65535]
         final int nChannels = 2;
-        localSetUp(nChannels, 10, 10);
+        localSetUp(nChannels, 10, 10, ModelMockFactory.UINT16);
 
         Assert.assertEquals(svc.getByteWidth(), 2,
                 "Test assumes image of type UINT16");
@@ -641,29 +642,6 @@ public class RawPixelsStoreTest extends AbstractServerTest {
                 }
             }
         }
-    }
-    
-    /**
-     * Set up pixel service with an UINT8 image
-     * @throws Exception
-     */
-    private void localSetupUINT8() throws Exception {
-        List<IObject> l = iPix.getAllEnumerations(PixelsType.class.getName());
-        Iterator<IObject> i = l.iterator();
-        PixelsType type = null;
-        while (i.hasNext()) {
-            PixelsType o = (PixelsType) i.next();
-            if ("uint8".equalsIgnoreCase(o.getValue().getValue())) {
-                type = o;
-                break;
-            }
-        }
-        if (type == null)
-            throw new Exception("Pixels Type not valid.");
-
-        long id = iPix.createImage(10, 10, 1, 1, Arrays.asList(0), type,
-                "fake image", "").getValue();
-        svc.setPixelsId(id, true);
     }
 
 }

@@ -264,7 +264,7 @@ public class PyramidMinMaxTest extends AbstractServerTest {
         int sizeT = 3;
         int sizeC = 4;
         Image image = mmFactory.createImage(sizeX, sizeY, sizeZ, sizeT,
-                sizeC);
+                sizeC, ModelMockFactory.UINT16);
         image = (Image) iUpdate.saveAndReturnObject(image);
         Pixels pixels = image.getPrimaryPixels();
      // first write to the image

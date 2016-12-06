@@ -1246,7 +1246,7 @@ public class AbstractServerTest extends AbstractTest {
     protected Image createBinaryImage(int sizeX, int sizeY, int sizeZ,
             int sizeT, int sizeC) throws Exception {
         Image image = mmFactory.createImage(sizeX, sizeY, sizeZ, sizeT,
-                sizeC);
+                sizeC, ModelMockFactory.UINT16);
         image = (Image) iUpdate.saveAndReturnObject(image);
         return createBinaryImage(image);
     }

@@ -2726,7 +2726,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         Image image = mmFactory.createImage(ModelMockFactory.SIZE_X,
                 ModelMockFactory.SIZE_Y, ModelMockFactory.SIZE_Z,
                 ModelMockFactory.SIZE_T,
-                ModelMockFactory.DEFAULT_CHANNELS_NUMBER);
+                ModelMockFactory.DEFAULT_CHANNELS_NUMBER, ModelMockFactory.UINT16);
         image = (Image) iUpdate.saveAndReturnObject(image);
         Pixels pixels = image.getPrimaryPixels();
         long id = pixels.getId().getValue();
@@ -2764,7 +2764,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         Image image = mmFactory.createImage(ModelMockFactory.SIZE_X,
                 ModelMockFactory.SIZE_Y, ModelMockFactory.SIZE_Z,
                 ModelMockFactory.SIZE_T,
-                ModelMockFactory.DEFAULT_CHANNELS_NUMBER);
+                ModelMockFactory.DEFAULT_CHANNELS_NUMBER, ModelMockFactory.UINT16);
         image = (Image) iUpdate.saveAndReturnObject(image);
         Pixels pixels = image.getPrimaryPixels();
         long id = pixels.getId().getValue();
