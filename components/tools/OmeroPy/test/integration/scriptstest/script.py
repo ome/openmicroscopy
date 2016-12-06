@@ -51,7 +51,7 @@ def run_script(client, script_id, args, key=None):
         orig_file = results['stdout'].getValue()
         v = "Script generated StdOut in file:", orig_file.getId().getValue()
         logging.debug(v)
-        assert orig_file.getId().getValue() > 0
+        assert orig_file.id.val > 0
     if 'stderr' in results:
         orig_file = results['stderr'].getValue()
         v = "Script generated StdErr in file:", orig_file.getId().getValue()

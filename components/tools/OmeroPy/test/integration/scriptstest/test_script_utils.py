@@ -57,7 +57,7 @@ class TestScriptUtils(ITest):
         imported_img = self.query.findByQuery(
             "select i from Image i join fetch i.pixels pixels\
             where pixels.id=:id", params)
-        id = imported_img.getId().getValue()
+        id = imported_img.id.val
         scriptUtil.split_image(self.client, id, dir,
                                unformattedImageName="a_T%05d_C%s_Z%d_S1.tiff")
         files = [f for f in listdir(dir) if isfile(join(dir, f))]
@@ -75,7 +75,7 @@ class TestScriptUtils(ITest):
             where pixels.id=:id", params)
 
         conn = BlitzGateway(client_obj=client)
-        image = conn.getObject("Image", imported_img.getId().getValue())
+        image = conn.getObject("Image", imported_img.id.val)
         pixels = image.getPrimaryPixels()
         channel_min_max = []
         for c in image.getChannels():
@@ -112,7 +112,7 @@ class TestScriptUtils(ITest):
             where pixels.id=:id", params)
         # session is closed during teardown
         conn = BlitzGateway(client_obj=client)
-        image = conn.getObject("Image", imported_img.getId().getValue())
+        image = conn.getObject("Image", imported_img.id.val)
         pixels = image.getPrimaryPixels()
         channel_min_max = []
         for c in image.getChannels():
@@ -145,7 +145,7 @@ class TestScriptUtils(ITest):
             where pixels.id=:id", params)
         # session is closed during teardown
         conn = BlitzGateway(client_obj=client)
-        image = conn.getObject("Image", imported_img.getId().getValue())
+        image = conn.getObject("Image", imported_img.id.val)
         pixels = image.getPrimaryPixels()
         channel_min_max = []
         for c in image.getChannels():
