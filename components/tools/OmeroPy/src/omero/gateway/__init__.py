@@ -3138,7 +3138,6 @@ class _BlitzGateway (object):
                 limit = lmt.val
             # Other params args will be ignored unless we handle here
 
-
         if limit is not None and offset is not None:
             print "offset, limit", offset, limit
             baseParams.page(offset, limit)
