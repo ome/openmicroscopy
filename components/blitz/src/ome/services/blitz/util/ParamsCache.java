@@ -336,7 +336,7 @@ public class ParamsCache implements ApplicationContextAware {
             Ice.Identity id;
 
             ServiceFactoryPrx prx = reg.getInternalServiceFactory(
-                 root, "unused", 3, 1,
+                 root, null, 3, 1,
                  UUID.randomUUID().toString());
             id = prx.ice_getIdentity();
             ServiceFactoryI sf = lookupFactory(new FindServiceFactoryMessage(this, id));
