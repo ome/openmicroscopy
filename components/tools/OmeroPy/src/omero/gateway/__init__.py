@@ -3035,7 +3035,7 @@ class _BlitzGateway (object):
             return wrapper(self, result)
 
     def getObjects(self, obj_type, ids=None, params=None, attributes=None,
-                   respect_order=False):
+                   respect_order=False, opts=None):
         """
         Retrieve Objects by type E.g. "Image"
         Returns generator of appropriate :class:`BlitzObjectWrapper` type.
@@ -3049,15 +3049,17 @@ class _BlitzGateway (object):
         :type ids:          List of Long
         :param params:      omero.sys.Parameters, can be used for pagination,
                             filtering etc.
-        :param attributes:  Map of key-value pairs to filter results by.
+        :param attributes:  Dict of key-value pairs to filter results by.
                             Key must be attribute of obj_type.
                             E.g. 'name', 'ns'
         :param respect_order:   Returned items will be ordered according
                                 to the order of ids
+        :param opts:        Dict of additional options for filtering or
+                            defining extra data to load. E.g. childCount
         :return:            Generator of :class:`BlitzObjectWrapper` subclasses
         """
         query, params, wrapper = self.buildQuery(
-            obj_type, ids, params, attributes)
+            obj_type, ids, params, attributes, opts)
         qs = self.getQueryService()
         # we do projection in case query has extra selects (E.g. child_count)
         result = qs.projection(query, params, self.SERVICE_OPTS)
@@ -3072,7 +3074,8 @@ class _BlitzGateway (object):
         for r in result:
             yield wrapper(self, r)
 
-    def buildQuery(self, obj_type, ids=None, params=None, attributes=None):
+    def buildQuery(self, obj_type, ids=None, params=None, attributes=None,
+                   opts=None):
         """
         Prepares a query for iQuery. Also prepares params and determines
         appropriate wrapper for result Returns (query, params, wrapper) which
@@ -3085,9 +3088,10 @@ class _BlitzGateway (object):
         :type ids:          List of Long
         :param params:      omero.sys.Parameters, can be used for pagination,
                             filtering etc.
-        :param attributes:  Map of key-value pairs to filter results by.
+        :param attributes:  Dict of key-value pairs to filter results by.
                             Key must be attribute of obj_type.
                             E.g. 'name', 'ns'
+        :param opts:        Dict of extra query options.
         :return:            (query, params, wrapper)
         """
 
@@ -3104,58 +3108,58 @@ class _BlitzGateway (object):
 
         owner = None
         order_by = None
-        opts = None
-        inputParams = None
-
-        if isinstance(params, dict):
-            opts = params
-        elif isinstance(params, omero.sys.Parameters):
-            inputParams = params
+        offset = None
+        limit = None
 
         # get the base query from the instantiated object itself. E.g "select
         # obj Project as obj"
-        query, clauses, params = wrapper()._getQueryString(opts)
+        query, clauses, baseParams = wrapper()._getQueryString(opts)
 
         # Handle dict of parameters -> convert to ParametersI()
         if opts is not None:
             # Parse opts dict to build params
             if 'page' in opts and 'limit' in opts:
                 limit = opts['limit']
-                params.page((opts['page']-1) * limit, limit)
+                offset = (opts['page']-1) * limit
             if 'owner' in opts:
                 owner = rlong(opts['owner'])
             if 'order_by' in opts:
                 order_by = opts['order_by']
-        # Handle existing Parameters - need to retrieve owner filter
-        elif inputParams is not None:
-            if inputParams.theFilter:
-                if inputParams.theFilter.ownerId is not None:
-                    owner = inputParams.theFilter.ownerId
-                # pagination
-                offset = inputParams.theFilter.offset
-                limit = inputParams.theFilter.limit
-                if limit is not None and offset is not None:
-                    params.page(offset.val, limit.val)
-                # Other params args will be ignored unless we handle here
+        # Handle additional Parameters - need to retrieve owner filter
+        if params is not None and params.theFilter is not None:
+            if params.theFilter.ownerId is not None:
+                owner = params.theFilter.ownerId
+            # pagination
+            ofs = params.theFilter.offset
+            lmt = params.theFilter.limit
+            print ofs, lmt
+            if ofs is not None and lmt is not None:
+                offset = ofs.val
+                limit = lmt.val
+            # Other params args will be ignored unless we handle here
+
+
+        if limit is not None and offset is not None:
+            print "offset, limit", offset, limit
+            baseParams.page(offset, limit)
 
         # getting object by ids
         if ids is not None:
             clauses.append("obj.id in (:ids)")
-            params.map["ids"] = rlist([rlong(a) for a in ids])
+            baseParams.map["ids"] = rlist([rlong(a) for a in ids])
 
         # support filtering by owner (not for some object types)
-        if (params.theFilter and
-                params.theFilter.ownerId and
+        if (owner is not None and
                 obj_type.lower() not in
                 ["experimentergroup", "experimenter"]):
             clauses.append("owner.id = (:eid)")
-            params.map["eid"] = owner
+            baseParams.map["eid"] = owner
 
         # finding by attributes
         if attributes is not None:
             for k, v in attributes.items():
                 clauses.append('obj.%s=:%s' % (k, k))
-                params.map[k] = omero_type(v)
+                baseParams.map[k] = omero_type(v)
         if clauses:
             query += " where " + (" and ".join(clauses))
 
@@ -3163,7 +3167,7 @@ class _BlitzGateway (object):
         if order_by is not None:
             query += " order by lower(obj.%s), obj.id" % order_by
 
-        return (query, params, wrapper)
+        return (query, baseParams, wrapper)
 
     def listFileAnnotations(self, eid=None, toInclude=[], toExclude=[]):
         """
