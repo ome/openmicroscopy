@@ -704,8 +704,12 @@ public class RawPixelsBean extends AbstractStatefulBean implements
 
         try {
             for (int ch : channels) {
-                Channel channel = metadataService.retrievePixDescription(id)
-                        .getChannel(ch);
+                Pixels pixels = metadataService.retrievePixDescription(id);
+                if (pixels == null)
+                    continue;
+                Channel channel = pixels.getChannel(ch);
+                if (channel == null)
+                    continue;
                 PixelData px = buffer.getPlane(z, ch, t);
                 int[] data = new int[binCount];
 
