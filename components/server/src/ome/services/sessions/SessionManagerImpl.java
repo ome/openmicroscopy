@@ -7,11 +7,13 @@ package ome.services.sessions;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -30,6 +32,7 @@ import ome.conditions.SessionTimeoutException;
 import ome.model.annotations.Annotation;
 import ome.model.annotations.CommentAnnotation;
 import ome.model.annotations.TextAnnotation;
+import ome.model.enums.AdminPrivilege;
 import ome.model.enums.EventType;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
@@ -40,6 +43,7 @@ import ome.model.meta.Session;
 import ome.model.meta.Share;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
+import ome.security.basic.LightAdminPrivileges;
 import ome.security.basic.PrincipalHolder;
 import ome.services.messages.CreateSessionMessage;
 import ome.services.messages.DestroySessionMessage;
@@ -57,6 +61,7 @@ import ome.system.Roles;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,6 +75,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.MapMaker;
 
 /**
@@ -104,6 +110,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
     // Injected
     protected OmeroContext context;
     protected Roles roles;
+    protected LightAdminPrivileges adminPrivileges;
     protected SessionCache cache;
     protected Executor executor;
     protected long defaultTimeToIdle;
@@ -149,6 +156,10 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
 
     public void setRoles(Roles securityRoles) {
         roles = securityRoles;
+    }
+
+    public void setAdminPrivileges(LightAdminPrivileges adminPrivileges) {
+        this.adminPrivileges = adminPrivileges;
     }
 
     public void setExecutor(Executor executor) {
@@ -557,13 +568,6 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
             }
         }
     }
-    private final static String findBy1 =
-        "select s.id, s.uuid from Session s " +
-        "join s.owner o where " +
-        "s.closed is null and o.omeName = :name ";
-
-    private final static String findByOrder =
-        "order by s.started desc";
 
     private List<Session> findByQuery(String query, Parameters p) {
         List<Object[]> ids_uuids = executeProjection(query, p);
@@ -580,24 +584,60 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         return rv;
     }
 
-    public List<Session> findByUser(String user) {
-        return findByQuery(findBy1 + findByOrder,
-                new Parameters().addString("name", user));
-    }
-
-    public List<Session> findByUserAndAgent(String user, String... agents) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(findBy1);
-        Parameters p = new Parameters().addString("name", user);
-        if (agents == null || agents.length == 0 ||
-                (agents.length == 1  && agents[0] == null)) {
-            sb.append("and s.userAgent is null ");
-        } else {
-            sb.append("and s.userAgent in (:agents) ");
-            p.addList("agents", Arrays.asList(agents));
+    public List<Session> findSameUser(String uuid, String... agents) {
+        /* determine the true originator of the current session and that user's privileges */
+        final Session session = find(uuid);
+        Experimenter realOwner = session.getSudoer();
+        if (realOwner == null) {
+            realOwner = session.getOwner();
         }
-        sb.append(findByOrder);
-        return findByQuery(sb.toString(), p);
+        final List<Object[]> results = executeProjection(
+                "SELECT id FROM GroupExperimenterMap WHERE parent.id = :group AND child.id = :user",
+                new Parameters().addLong("group", roles.getSystemGroupId()).addLong("user", realOwner.getId()));
+        final Set<AdminPrivilege> privileges;
+        if (realOwner.getId() == roles.getRootId() || CollectionUtils.isEmpty(results)) {
+            privileges = Collections.emptySet();
+        } else {
+            privileges = adminPrivileges.getSessionPrivileges(session);
+        }
+        /* determine which agent values should filter results */
+        final Set<String> agentSet = new HashSet<>();
+        boolean nullAgent = false;
+        for (final String agent : agents) {
+            if (agent == null) {
+                nullAgent = true;
+            } else {
+                agentSet.add(agent);
+            }
+        }
+        /* construct and perform the query */
+        final StringBuilder hql = new StringBuilder();
+        final Parameters params = new Parameters();
+        hql.append("SELECT id, uuid FROM Session WHERE closed IS NULL");
+        hql.append(" AND owner.id = :owner");
+        params.addLong("owner", session.getOwner().getId());
+        if (!privileges.contains(adminPrivileges.getPrivilege("ReadSession"))) {
+            /* user is not privileged so is limited to where sudoer is the same as their current session */
+            if (session.getSudoer() == null) {
+                hql.append(" AND sudoer IS NULL");
+            } else {
+                hql.append(" AND sudoer.id = :sudoer");
+                params.addLong("sudoer", session.getSudoer().getId());
+            }
+        }
+        final List<String> agentClauses = new ArrayList<String>();
+        if (!agentSet.isEmpty()) {
+            agentClauses.add("userAgent IN (:agents)");
+            params.addSet("agents", agentSet);
+        }
+        if (nullAgent) {
+            agentClauses.add("userAgent IS NULL");
+        }
+        if (!agentClauses.isEmpty()) {
+            hql.append(" AND (" + Joiner.on(" OR ").join(agentClauses) + ")");
+        }
+        hql.append(" ORDER BY started DESC");
+        return findByQuery(hql.toString(), params);
     }
 
     public int getReferenceCount(String uuid) {
