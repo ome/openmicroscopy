@@ -51,7 +51,10 @@ import omero.model.ProjectDatasetLinkI;
 import omero.model.ProjectI;
 import omero.model.Session;
 import omero.model.enums.AdminPrivilegeChgrp;
+import omero.model.enums.AdminPrivilegeChown;
 import omero.model.enums.AdminPrivilegeSudo;
+import omero.model.enums.AdminPrivilegeWriteFile;
+import omero.model.enums.AdminPrivilegeWriteOwned;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 import omero.sys.Principal;
@@ -122,8 +125,9 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @param expectedOwner a user's event context
      * @throws ServerError unexpected
      */
-    private void loginNewAdmin(boolean isAdmin, String permission) throws Exception {
-        loginNewAdmin(isAdmin, Arrays.asList(permission));
+    private EventContext loginNewAdmin(boolean isAdmin, String permission) throws Exception {
+        final EventContext ctx = loginNewAdmin(isAdmin, Arrays.asList(permission));
+        return ctx;
     }
 
     /**
@@ -417,6 +421,102 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     }
 
     /**
+     * Test that an ImporterAs cannot
+     * chown on behalf of another user solely with <tt>Sudo</tt> privilege
+     * but can with both <tt>Sudo</tt> privilege and <tt>Chown</tt> privilege
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "combined privileges cases")
+    public void testImporterAsSudoChown(boolean isAdmin, boolean isSudoing, boolean permChown,
+            boolean permWriteOwned, boolean permWriteFile) throws Exception {
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
+        final long anotherUserId = newUserAndGroup("rwr-r-").userId;
+        System.out.println("normalUser");
+        System.out.println(normalUser.userId);
+        final List <String> sudoChownPartialPermissions = Arrays.asList(
+                AdminPrivilegeSudo.value, AdminPrivilegeChown.value);
+        final List <String> sudoChownWriteOwnedWriteFilePermissions = Arrays.asList(
+                AdminPrivilegeSudo.value, AdminPrivilegeChown.value,
+                AdminPrivilegeWriteOwned.value, AdminPrivilegeWriteFile.value);
+        final EventContext lightAdmin;
+        if (permChown && permWriteOwned && permWriteFile) {
+            lightAdmin = loginNewAdmin(isAdmin, sudoChownWriteOwnedWriteFilePermissions);
+        } else {
+            lightAdmin = loginNewAdmin(isAdmin, AdminPrivilegeSudo.value);
+        }
+        try {
+            sudo(new ExperimenterI(normalUser.userId, false));
+                if (!isAdmin) {
+                    Assert.fail("Sudo-permitted non-administrators cannot sudo.");
+                }
+            }catch (SecurityViolation sv) {
+                /* sudo expected to fail if the user is not in system group */
+        }
+
+        /* import an image for the normalUser into the normalUser's default group */
+        if (!isAdmin) return;
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
+        final List<List<RType>> result = iQuery.projection(
+                "SELECT id FROM OriginalFile WHERE name = :name ORDER BY id DESC LIMIT 1",
+                new ParametersI().add("name", imageName));
+        final long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
+        try {
+            List<String> path = Collections.singletonList(fakeImageFile.getPath());
+            importFileset(path);
+            Assert.assertTrue(isAdmin);
+        } catch (ServerError se) {
+                Assert.assertFalse(isAdmin);
+        }
+        final OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
+                "FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
+                new ParametersI().addId(previousId).add("name", imageName));
+        if (isAdmin) {
+            System.out.println("remote file is empty?");
+            boolean remoteFileEmpty = (remoteFile == null);
+            System.out.println("remote file owner is empty?");
+            System.out.println(remoteFileEmpty);
+            
+            Assert.assertEquals(remoteFile.getDetails().getOwner().getId().getValue(), normalUser.userId);
+            Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+        }
+        Image image = (Image) iQuery.findByQuery(
+                "FROM Image WHERE fileset IN "
+                + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
+                new ParametersI().addId(remoteFile.getId()));
+        if (!isSudoing) {
+            loginUser(lightAdmin); // TODO
+        }
+
+        /* try to chown the image of the normalUser just being sudoed,
+         * which should fail in both cases you have no chown permissions or
+         * not */
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        if (isSudoing) {
+            doChange(client, factory, Requests.chown().target(image).toUser(anotherUserId).build(), false);
+            image = (Image) iQuery.get("Image", image.getId().getValue());
+            Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), normalUser.userId);
+            Assert.assertEquals(image.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+        } else {
+            /* when trying to chown the image NOT being sudoed,
+             * this should fail in case you have no chown & WriteOwned permissions */
+            if (permChown && permWriteOwned && permWriteFile) {
+                doChange(client, factory, Requests.chown().target(image).toUser(anotherUserId).build(), true);
+                image = (Image) iQuery.get("Image", image.getId().getValue());
+                Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), anotherUserId);
+                Assert.assertEquals(image.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+            } else {
+                doChange(client, factory, Requests.chown().target(image).toUser(anotherUserId).build(), false);
+                image = (Image) iQuery.get("Image", image.getId().getValue());
+                Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), normalUser.userId);
+                Assert.assertEquals(image.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+            }
+        }
+
+
+    }
+
+    /**
      * @return two test cases for isAdmin (member of system group) case
      */
     @DataProvider(name = "isAdmin cases")
@@ -445,20 +545,33 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     public Object[][] provideCombinedPrivilegesCases() {
         int index = 0;
         final int IS_ADMIN = index++;
-        final int PERM_CHGRP = index++;
+        final int IS_SUDOING = index++;
+        final int PERM_ADDITIONAL = index++;
+        final int PERM_ADDITIONAL2 = index++;
+        final int PERM_ADDITIONAL3 = index++;
 
         final boolean[] booleanCases = new boolean[]{false, true};
 
         final List<Object[]> testCases = new ArrayList<Object[]>();
 
         for (final boolean isAdmin : booleanCases) {
-            for (final boolean permChgrp : booleanCases) {
-                final Object[] testCase = new Object[index];
-                testCase[IS_ADMIN] = isAdmin;
-                testCase[PERM_CHGRP] = permChgrp;
-                // DEBUG  if (isAdmin == false && isRestricted == true && isSudo == false)
-                testCases.add(testCase);
+            for (final boolean isSudoing : booleanCases) {
+                for (final boolean permAdditional : booleanCases) {
+                    for (final boolean permAdditional2 : booleanCases) {
+                        for (final boolean permAdditional3 : booleanCases) {
+                            final Object[] testCase = new Object[index];
+                            testCase[IS_ADMIN] = isAdmin;
+                            testCase[IS_SUDOING] = isSudoing;
+                            testCase[PERM_ADDITIONAL] = permAdditional;
+                            testCase[PERM_ADDITIONAL2] = permAdditional2;
+                            testCase[PERM_ADDITIONAL3] = permAdditional3;
+                            // DEBUG  if (isAdmin == false && isRestricted == true && isSudo == false)
+                            testCases.add(testCase);
+                        }
+                    }
+                }
             }
+
         }
         return testCases.toArray(new Object[testCases.size()][]);
     }
