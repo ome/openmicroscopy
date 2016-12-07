@@ -3048,14 +3048,17 @@ class _BlitzGateway (object):
         :param ids:         object IDs
         :type ids:          List of Long
         :param params:      omero.sys.Parameters, can be used for pagination,
-                            filtering etc.
+                            & filtering by owner. Takes precedence over opts.
         :param attributes:  Dict of key-value pairs to filter results by.
                             Key must be attribute of obj_type.
                             E.g. 'name', 'ns'
         :param respect_order:   Returned items will be ordered according
                                 to the order of ids
         :param opts:        Dict of additional options for filtering or
-                            defining extra data to load. E.g. childCount
+                            defining extra data to load.
+                            offset, limit and owner for all objects.
+                            Additional opts handled in wrapper._getQueryString()
+                            E.g. 'childCount', or filter Dataset by 'project'
         :return:            Generator of :class:`BlitzObjectWrapper` subclasses
         """
         query, params, wrapper = self.buildQuery(
@@ -3087,11 +3090,15 @@ class _BlitzGateway (object):
         :param ids:         object IDs
         :type ids:          List of Long
         :param params:      omero.sys.Parameters, can be used for pagination,
-                            filtering etc.
+                            & filtering by owner. Takes precedence over opts.
         :param attributes:  Dict of key-value pairs to filter results by.
                             Key must be attribute of obj_type.
                             E.g. 'name', 'ns'
-        :param opts:        Dict of extra query options.
+        :param opts:        Dict of additional options for filtering or
+                            defining extra data to load.
+                            offset, limit and owner for all objects.
+                            Additional opts handled in wrapper._getQueryString()
+                            E.g. 'childCount', or filter Dataset by 'project'
         :return:            (query, params, wrapper)
         """
 
@@ -3132,14 +3139,12 @@ class _BlitzGateway (object):
             # pagination
             ofs = params.theFilter.offset
             lmt = params.theFilter.limit
-            print ofs, lmt
             if ofs is not None and lmt is not None:
                 offset = ofs.val
                 limit = lmt.val
             # Other params args will be ignored unless we handle here
 
         if limit is not None and offset is not None:
-            print "offset, limit", offset, limit
             baseParams.page(offset, limit)
 
         # getting object by ids
