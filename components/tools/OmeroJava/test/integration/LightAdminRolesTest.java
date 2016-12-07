@@ -349,25 +349,27 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     /**
      * Test that an ImporterAs can
      * chgrp on behalf of another user solely with <tt>Sudo</tt> privilege
-     * or with both <tt>Sudo</tt> privilege and <tt>Chgrp</tt> privilege
      * only when this user is a member of both original and target groups
+     * Also test that ImporterAs can, having the <tt>Chgrp</tt>
+     * privilege chgrp another users data into another group whether the
+     * owner of the data is member of target group or not.
      * @throws Exception unexpected
      */
     @Test(dataProvider = "combined privileges cases")
     public void testImporterAsSudoChgrp(boolean isAdmin, boolean isSudoing, boolean permChgrp,
             boolean permWriteOwned, boolean permWriteFile) throws Exception {
-        /* temporarily singling out the only case which should lead to successful
-         * chgrp without being sudoed, which fails atm because of server error,
-         * mtbc is on the case
+        /* define case where the Sudo is not being used post-import
+         * to perform the chgrp action. Such cases are all expected to fail
+         * except the light admin has Chgrp permission. WriteOwned and WriteFile
+         * are not important for the Chgrp success in such situation.
          */
-        boolean chgrpNoSudoing = (isAdmin && !isSudoing && permChgrp && permWriteOwned && permWriteFile);
-        if (!chgrpNoSudoing) return;
+        boolean chgrpNoSudoExpectSuccess = (isAdmin && !isSudoing && permChgrp);
         final EventContext normalUser = newUserAndGroup("rwr-r-");
         final long anotherGroupId = newUserAndGroup("rwr-r-").groupId;
         final long normalUsersOtherGroupId = newGroupAddUser("rwr-r-", normalUser.userId, false).getId().getValue();
         System.out.println("normalUser");
         System.out.println(normalUser.userId);
-        /* set up the basic permissions for this test */
+        /* set up the light admin's permissions for this test */
         ArrayList <String> permissions = new ArrayList <String>();
         permissions.add(AdminPrivilegeSudo.value);
         if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);;
@@ -407,49 +409,70 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             Assert.assertEquals(remoteFile.getDetails().getOwner().getId().getValue(), normalUser.userId);
             Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), normalUser.groupId);
         }
-        /* try to move the image into another group of the normalUser
-         * which should succeed */
         Image image = (Image) iQuery.findByQuery(
                 "FROM Image WHERE fileset IN "
                 + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
                 new ParametersI().addId(remoteFile.getId()));
         System.out.println(image.getId().getValue());
+        /* take care of post-import workflows which do not use sudo */
         if (!isSudoing) {
             loginUser(lightAdmin); // TODO
         }
+        /* remember in which group the image was before chgrp was attempted */
         long imageGroupId = image.getDetails().getGroup().getId().getValue();
-        client.getImplicitContext().put("omero.group", Long.toString(imageGroupId));
-        if (chgrpNoSudoing) {/* make this test temporarily pass by setting the value to false,
-        this is a server side bug to be fixed */
-            doChange(client, factory, Requests.chgrp().target(image).toGroup(normalUsersOtherGroupId).build(), false);
+        /*in order to find the image in whatever group, get context with group
+         * set to -1 (=all groups)
+         */
+        client.getImplicitContext().put("omero.group", Long.toString(-1));
+        /* try to move the image into another group of the normalUser
+         * which should succeed if not sudoing and also in case
+         * the light admin has Chgrp permissions
+         * (i.e. chgrpNoSudoExpectSuccess is true)
+         */
+        if (chgrpNoSudoExpectSuccess | isSudoing) {
+            doChange(client, factory, Requests.chgrp().target(image).toGroup(normalUsersOtherGroupId).build(), true);
             image = (Image) iQuery.get("Image", image.getId().getValue());
+            /* note in which group the image now is now */
             imageGroupId = image.getDetails().getGroup().getId().getValue();
-            Assert.assertEquals(image.getDetails().getGroup().getId().getValue(), normalUser.groupId);
-            return;
+            Assert.assertEquals(imageGroupId, normalUsersOtherGroupId);
         } else {
             doChange(client, factory, Requests.chgrp().target(image).toGroup(normalUsersOtherGroupId).build(), false);
             image = (Image) iQuery.get("Image", image.getId().getValue());
+            /* note in which group the image now is now */
             imageGroupId = image.getDetails().getGroup().getId().getValue();
             Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), normalUser.userId);
-            Assert.assertEquals(image.getDetails().getGroup().getId().getValue(), normalUsersOtherGroupId);
+            Assert.assertEquals(imageGroupId, normalUser.groupId);
         }
 
         /* try to move into another group the normalUser
-        * is not a member of, which should fail both when the light admin
-        * has and has not the additional chgrp permission */
-        client.getImplicitContext().put("omero.group", Long.toString(normalUsersOtherGroupId));
-        doChange(client, factory, Requests.chgrp().target(image).toGroup(anotherGroupId).build(),
-                false /* expected to fail */);
-        client.getImplicitContext().put("omero.group", Long.toString(-1));
-        image = (Image) iQuery.get("Image", image.getId().getValue());
-        Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), normalUser.userId);
-        Assert.assertEquals(image.getDetails().getGroup().getId().getValue(), normalUsersOtherGroupId);
+        * is not a member of, which should fail in all cases
+        * except the light admin has Chgrp, WriteFile and WriteOwned
+        * permissions (i.e. chgrpNoSudoExpectSuccess is true)
+        */
+        if (chgrpNoSudoExpectSuccess) {
+            doChange(client, factory, Requests.chgrp().target(image).toGroup(anotherGroupId).build(),
+                    true /* expect success */);
+            image = (Image) iQuery.get("Image", image.getId().getValue());
+            Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), normalUser.userId);
+            /* check that the image moved to another group
+             */
+            Assert.assertEquals(image.getDetails().getGroup().getId().getValue(), anotherGroupId);
+        } else {
+            doChange(client, factory, Requests.chgrp().target(image).toGroup(anotherGroupId).build(),
+                    false /* expected to fail */);
+            image = (Image) iQuery.get("Image", image.getId().getValue());
+            Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), normalUser.userId);
+            /* check that the image is still in its original group
+             * (stored in the imageGroupId variable)
+             */
+            Assert.assertEquals(image.getDetails().getGroup().getId().getValue(), imageGroupId);
+        }
     }
 
     /**
-     * Test that an ImporterAs cannot
+     * Test that an ImporterAs can
      * chown on behalf of another user in any combination of <tt>Sudo</tt> privilege
-     * with having or not having also the <tt>Chown</tt>, <tt>WriteOwned</tt> and
+     * with having or not having also the <tt>Chown</tt> . The <tt>WriteOwned</tt> and
      * <tt>WriteFile</tt> privileges except for having all of them (in which case
      * the chown action wiill succeed)
      * @throws Exception unexpected
