@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2010-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  *
@@ -171,6 +169,13 @@ module omero {
                  * @see omero.model.Details#getOwner
                  */
                 idempotent LongList getLeaderOfGroupIds(omero::model::Experimenter exp) throws ServerError;
+
+                /**
+                 * Gets the light administrator privileges for the current user.
+                 *
+                 * @return the current user's light administrator privileges
+                 */
+                idempotent AdminPrivilegeList getCurrentAdminPrivileges() throws ServerError;
 
                 /**
                  * Gets the light administrator privileges for the given user.

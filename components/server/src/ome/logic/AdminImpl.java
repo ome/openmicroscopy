@@ -646,7 +646,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             ExperimenterGroup defaultGroup, ExperimenterGroup... otherGroups) {
 
         adminOrPiOfNonUserGroups(defaultGroup, otherGroups);
-        if (!getCurrentAdminPrivileges().contains(new AdminPrivilege("ModifyUser"))) {
+        if (!getCurrentAdminPrivilegesForSession().contains(new AdminPrivilege("ModifyUser"))) {
             throwNonAdminOrPi();
         }
 
@@ -666,7 +666,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             final ExperimenterGroup... otherGroups) {
 
         adminOrPiOfNonUserGroups(defaultGroup, otherGroups);
-        if (!getCurrentAdminPrivileges().contains(new AdminPrivilege("ModifyUser"))) {
+        if (!getCurrentAdminPrivilegesForSession().contains(new AdminPrivilege("ModifyUser"))) {
             throwNonAdminOrPi();
         }
 
@@ -1244,6 +1244,12 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
     @Override
     @RolesAllowed("user")
+    public List<AdminPrivilege> getCurrentAdminPrivileges() {
+        return new ArrayList<>(getCurrentAdminPrivilegesForSession());
+    }
+
+    @Override
+    @RolesAllowed("user")
     public List<AdminPrivilege> getAdminPrivileges(Experimenter user) {
         if (!getMemberOfGroupIds(user).contains(getSecurityRoles().getSystemGroupId())) {
             return Collections.emptyList();
@@ -1486,7 +1492,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         if (!isAdmin() && ! isPiOf(user)) {
             throwNonAdminOrPi();
         }
-        if (!getCurrentAdminPrivileges().contains(new AdminPrivilege("ModifyUser"))) {
+        if (!getCurrentAdminPrivilegesForSession().contains(new AdminPrivilege("ModifyUser"))) {
             throwNonAdminOrPi();
         }
     }
@@ -1531,7 +1537,10 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                 nonUserGroupGroups.toArray(new ExperimenterGroup[0]));
     }
 
-    private Set<AdminPrivilege> getCurrentAdminPrivileges() {
+    /**
+     * @return the light administrator privileges that apply to the current session
+     */
+    private Set<AdminPrivilege> getCurrentAdminPrivilegesForSession() {
         if (isAdmin()) {
             final String hql = "FROM Session s LEFT OUTER JOIN FETCH s.sudoer WHERE s.id = :id";
             final Parameters params = new Parameters().addId(getEventContext().getCurrentSessionId());

@@ -1280,6 +1280,33 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     }
 
     /**
+     * Test that {@link omero.api.IAdminPrx#getCurrentAdminPrivileges()} returns the expected list of privileges.
+     * @param isAdmin if to test a member of the <tt>system</tt> group
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>ReadSession</tt> privilege
+     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "light administrator privilege test cases")
+    public void testGetCurrentPrivileges(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
+        loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
+                isRestricted ? AdminPrivilegeReadSession.value : null);
+        final Set<String> privileges = new HashSet<>();
+        for (final AdminPrivilege privilege : iAdmin.getCurrentAdminPrivileges()) {
+            privileges.add(privilege.getValue().getValue());
+        }
+        if (isAdmin) {
+            Assert.assertFalse(privileges.isEmpty());
+            if (isRestricted) {
+                Assert.assertFalse(privileges.contains(AdminPrivilegeReadSession.value));
+            } else {
+                Assert.assertTrue(privileges.contains(AdminPrivilegeReadSession.value));
+            }
+        } else {
+            Assert.assertTrue(privileges.isEmpty());
+        }
+    }
+
+    /**
      * @return a variety of test cases for light administrator privileges
      */
     @DataProvider(name = "light administrator privilege test cases")

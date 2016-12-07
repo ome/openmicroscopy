@@ -36,6 +36,7 @@ import omero.api.AMD_IAdmin_createSystemUser;
 import omero.api.AMD_IAdmin_createUser;
 import omero.api.AMD_IAdmin_deleteExperimenter;
 import omero.api.AMD_IAdmin_deleteGroup;
+import omero.api.AMD_IAdmin_getCurrentAdminPrivileges;
 import omero.api.AMD_IAdmin_getAdminPrivileges;
 import omero.api.AMD_IAdmin_getAdminsWithPrivileges;
 import omero.api.AMD_IAdmin_getDefaultGroup;
@@ -391,6 +392,12 @@ public class AdminI extends AbstractAmdServant implements _IAdminOperations {
     public void moveToCommonSpace_async(AMD_IAdmin_moveToCommonSpace __cb, List<IObject> objects,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, objects);
+    }
+
+    @Override
+    public void getCurrentAdminPrivileges_async(AMD_IAdmin_getCurrentAdminPrivileges __cb,
+            Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current);
     }
 
     @Override
