@@ -679,7 +679,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
         final EventContext normalUser = newUserAndGroup("rwr-r-");
         RepositoryPrx repo = getRepository(Repository.SCRIPT);
-        final String userDirectory = "/Test_" + getClass().getName() + "_" + UUID.randomUUID();
+        final String userDirectory = "/Test_" + getClass().getName() + '_' + UUID.randomUUID();
         repo.makeDir(userDirectory, false);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
@@ -712,7 +712,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
             throw new SkipException("tables are not enabled");
         }
         RepositoryPrx repo = getRepository(Repository.SCRIPT);
-        final String userDirectory = "/Test_" + getClass().getName() + "_" + UUID.randomUUID();
+        final String userDirectory = "/Test_" + getClass().getName() + '_' + UUID.randomUUID();
         repo.makeDir(userDirectory, false);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
@@ -742,7 +742,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
         final EventContext normalUser = newUserAndGroup("rwr-r-");
         RepositoryPrx repo = getRepository(Repository.SCRIPT);
-        final String userDirectory = "/Test_" + getClass().getName() + "_" + UUID.randomUUID();
+        final String userDirectory = "/Test_" + getClass().getName() + '_' + UUID.randomUUID();
         repo.makeDir(userDirectory, false);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
@@ -782,7 +782,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         iScript = factory.getScriptService();
-        final String testScriptName = "Test_" + getClass().getName() + "_" + UUID.randomUUID() + ".py";
+        final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
         long testScriptId = -1;
         try {
             testScriptId = iScript.uploadScript(testScriptName, actualScript);
@@ -968,7 +968,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         final byte[] fileContentOriginal = rfs.read(0, (int) rfs.size());
         rfs.close();
         /* upload the script as a new script */
-        final String testScriptName = "Test_" + getClass().getName() + "_" + UUID.randomUUID() + ".py";
+        final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
         RepositoryPrx repo = getRepository(Repository.SCRIPT);
         final OriginalFile testScript = repo.register(testScriptName, omero.rtypes.rstring(ScriptServiceTest.PYTHON_MIMETYPE));
         final long testScriptId = testScript.getId().getValue();
@@ -1033,7 +1033,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         final String originalScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
         rfs.close();
         /* upload the script as a new script */
-        final String testScriptName = "Test_" + getClass().getName() + "_" + UUID.randomUUID() + ".py";
+        final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
         final long testScriptId = iScript.uploadScript(testScriptName, originalScript);
         /* try replacing the content of the normal user's script */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
@@ -1108,7 +1108,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         final byte[] fileContentOriginal = rfs.read(0, (int) rfs.size());
         rfs.close();
         /* upload the script as a new script */
-        final String testScriptName = "Test_" + getClass().getName() + "_" + UUID.randomUUID() + ".py";
+        final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
         RepositoryPrx repo = getRepository(Repository.SCRIPT);
         final OriginalFile testScript = repo.register(testScriptName, omero.rtypes.rstring(ScriptServiceTest.PYTHON_MIMETYPE));
         final long testScriptId = testScript.getId().getValue();
@@ -1196,7 +1196,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         final String actualScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
         rfs.close();
         /* upload the script as a new script */
-        final String testScriptName = "Test_" + getClass().getName() + "_" + UUID.randomUUID() + ".py";
+        final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
         final long testScriptId = iScript.uploadScript(testScriptName, actualScript);
         /* delete any jobs associated with the script */
         final Delete2Builder delete = Requests.delete().option(Requests.option().excludeType("OriginalFile").build());
