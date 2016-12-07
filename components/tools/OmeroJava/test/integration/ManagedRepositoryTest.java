@@ -476,7 +476,7 @@ public class ManagedRepositoryTest extends AbstractServerImportTest {
         srcPaths.add(file2.getAbsolutePath());
         // TODO: due to verifyUpload one cannot obtain the import location
         // without uploading both files
-        ImportLocation data = importFileset(srcPaths, 2);
+        ImportLocation data = importFileset(srcPaths, 2, null);
 
         assertFileExists("Upload failed. File does not exist: ",
                 pathToUsedFile(data, 0));
