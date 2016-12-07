@@ -526,6 +526,69 @@ class Plate2WellsNs2(Plate2WellsNs):
         assert len(set(annids)) == 12
 
 
+class Plate2WellsNs2UnavailableHeader(Plate2WellsNs2):
+    # For this test use explicit files instead of generating them as an
+    # additional safeguard against changes in the test code
+
+    def __init__(self):
+        self.count = 4
+        self.annCount = 4*2
+        self.rowCount = 2
+        self.colCount = 2
+        self.csv = self.createCsv(
+            colNames="Well,Gene,Gene Names",
+            rowData=("a1,gene-a1,a1-name", "a2,gene-a2,a2-name",
+                     "b1,gene-a1,a1-name", "b2,gene-a2,a2-name")
+        )
+        self.plate = None
+
+    def get_cfg(self):
+        return os.path.join(os.path.dirname(__file__),
+                            'bulk_to_map_annotation_context_ns2_empty.yml')
+
+    def assert_child_annotations(self, oas):
+        wellrcs = [coord2offset(c) for c in (
+            'a1', 'a2', 'b1', 'b2')]
+        nss = [NSBULKANNOTATIONS, 'openmicroscopy.org/mapr/gene']
+        wellrc_ns = [(wrc, ns) for wrc in wellrcs for ns in nss]
+        check = dict((k, None) for k in wellrc_ns)
+        annids = []
+
+        for ma, wid, wr, wc in oas:
+            assert isinstance(ma, MapAnnotationI)
+            annids.append(unwrap(ma.getId()))
+            ns = unwrap(ma.getNs())
+            wrc = (wr, wc)
+
+            # Well names/ids aren't included in this test, because this also
+            # test that annotations are combined by primary key
+            assert (wrc, ns) in check, 'Unexpected well/namespace'
+            assert check[(wrc, ns)] is None, 'Duplicate annotation'
+
+            # Use getMapValue to check ordering and duplicates
+            check[(wrc, ns)] = [(p.name, p.value) for p in ma.getMapValue()]
+
+        # Row a
+
+        assert check[(wellrcs[0], nss[0])] == [
+            ('Gene', 'gene-a1'),
+            ('Gene name', 'a1-name'),
+            ('Gene ID', '')
+        ]
+
+        assert check[(wellrcs[1], nss[0])] == [
+            ('Gene', 'gene-a2'),
+            ('Gene name', 'a2-name'),
+            ('Gene ID', '')
+        ]
+
+        assert check[(wellrcs[0], nss[1])] == [
+            ('Gene', 'gene-a1'),
+            ('Gene name', 'a1-name'),
+            ('Gene ID', '')
+        ]
+
+
 class Plate2WellsNs2Fail(Plate2WellsNs2):
     # For this test use explicit files instead of generating them as an
     # additional safeguard against changes in the test code
@@ -845,6 +908,22 @@ class TestPopulateMetadata(lib.ITest):
         # TODO: This will currently fail because the MapAnnotations are
         # deleted even if they're multiply linked
         # self._test_delete_map_annotation_context_dedup(fixture1, fixture2)
+
+    def testPopulateMetadataNsAnnsUnavailableHeader(self):
+        """
+        Similar to testPopulateMetadataNsAnns but use two plates and check
+        MapAnnotations aren't duplicated
+        """
+        try:
+            import yaml
+            print yaml, "found"
+        except Exception:
+            skip("PyYAML not installed.")
+
+        fixture_empty = Plate2WellsNs2UnavailableHeader()
+        fixture_empty.init(self)
+        self._test_parsing_context(fixture_empty, 2)
+        self._test_bulk_to_map_annotation_context(fixture_empty, 2)
 
     def testPopulateMetadataNsAnnsFail(self):
         """

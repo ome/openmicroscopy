@@ -385,7 +385,7 @@ class KeyValueListTransformer(object):
             values = [v for v in values if v is not None and (
                 not isinstance(v, basestring) or v.strip())]
 
-        if cfg["clientvalue"]:
+        if cfg["clientvalue"] is not None:
             values = [valuesub(v, cfg["clientvalue"]) for v in values]
         return key, values
 
