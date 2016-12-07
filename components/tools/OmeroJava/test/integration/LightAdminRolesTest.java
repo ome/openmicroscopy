@@ -153,7 +153,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         rootSession.getAdminService().setAdminPrivileges(user, privileges);
         /* avoid old session as privileges are briefly cached */
         loginUser(ctx);
-        System.out.println(ctx.userId);
         return ctx;
     }
 
@@ -187,8 +186,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     @Test(dataProvider = "isAdmin cases")
     public void testImporterAsSudoPrivileges(boolean isAdmin) throws Exception {
         final EventContext normalUser = newUserAndGroup("rwr-r-");
-        System.out.println("normalUser");
-        System.out.println(normalUser.userId);
         loginNewAdmin(isAdmin, AdminPrivilegeSudo.value);
         
         try {
@@ -224,8 +221,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             final Project retrievedProject = (Project) iQuery.get("Project", projId);
             Assert.assertEquals(retrievedProject.getDetails().getOwner().getId().getValue(), normalUser.userId);
             long datId = sentDat.getId().getValue();
-            System.out.println("dataset Id");
-            System.out.println(datId);
             final Dataset retrievedDataset = (Dataset) iQuery.get("Dataset", datId);
             Assert.assertEquals(retrievedDataset.getDetails().getOwner().getId().getValue(), normalUser.userId);
         } else {
@@ -284,12 +279,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                 new ParametersI().addId(link.getId()));
         Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), normalUser.userId);
         Assert.assertEquals(imageDatasetLink.getDetails().getOwner().getId().getValue(), normalUser.userId);
-        System.out.println(imageDatasetLink.getId().getValue());
         Assert.assertEquals(retrievedProjectDatasetLink.getDetails().getOwner().getId().getValue(), normalUser.userId);
-        System.out.println(retrievedProjectDatasetLink.getId().getValue());
-
-        /* Check that the ImporterAs can chown only if the Chown
-         * permission is True */
 
         /* Now check that the ImporterAs can delete the objects
          * created on behalf of the user */
@@ -318,8 +308,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     @Test(dataProvider = "isAdmin cases")
     public void testImporterAsSudoEdit(boolean isAdmin) throws Exception {
         final EventContext normalUser = newUserAndGroup("rwr-r-");
-        System.out.println("normalUser");
-        System.out.println(normalUser.userId);
         loginNewAdmin(isAdmin, AdminPrivilegeSudo.value);
         try {
             sudo(new ExperimenterI(normalUser.userId, false));
@@ -351,7 +339,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * chgrp on behalf of another user solely with <tt>Sudo</tt> privilege
      * only when this user is a member of both original and target groups
      * Also test that ImporterAs can, having the <tt>Chgrp</tt>
-     * privilege chgrp another users data into another group whether the
+     * privilege move another user's data into another group whether the
      * owner of the data is member of target group or not.
      * @throws Exception unexpected
      */
@@ -367,15 +355,12 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         final EventContext normalUser = newUserAndGroup("rwr-r-");
         final long anotherGroupId = newUserAndGroup("rwr-r-").groupId;
         final long normalUsersOtherGroupId = newGroupAddUser("rwr-r-", normalUser.userId, false).getId().getValue();
-        System.out.println("normalUser");
-        System.out.println(normalUser.userId);
         /* set up the light admin's permissions for this test */
         ArrayList <String> permissions = new ArrayList <String>();
         permissions.add(AdminPrivilegeSudo.value);
         if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);;
         if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
         if (permWriteFile) permissions.add(AdminPrivilegeWriteFile.value);
-        System.out.println(permissions);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
 
@@ -413,7 +398,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                 "FROM Image WHERE fileset IN "
                 + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
                 new ParametersI().addId(remoteFile.getId()));
-        System.out.println(image.getId().getValue());
         /* take care of post-import workflows which do not use sudo */
         if (!isSudoing) {
             loginUser(lightAdmin); // TODO
@@ -470,10 +454,10 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     }
 
     /**
-     * Test that an ImporterAs can
+     * Test that an ImporterAs cannot
      * chown on behalf of another user in any combination of <tt>Sudo</tt> privilege
-     * with having or not having also the <tt>Chown</tt> . The <tt>WriteOwned</tt> and
-     * <tt>WriteFile</tt> privileges except for having all of them (in which case
+     * with having or not having also the <tt>Chown</tt>. <tt>WriteOwned</tt> and
+     * <tt>WriteFile</tt> privileges except for having all three of them (in which case
      * the chown action wiill succeed)
      * @throws Exception unexpected
      */
@@ -482,15 +466,12 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             boolean permWriteOwned, boolean permWriteFile) throws Exception {
         final EventContext normalUser = newUserAndGroup("rwr-r-");
         final long anotherUserId = newUserAndGroup("rwr-r-").userId;
-        System.out.println("normalUser");
-        System.out.println(normalUser.userId);
         /* set up the basic permissions for this test */
         ArrayList <String> permissions = new ArrayList <String>();
         permissions.add(AdminPrivilegeSudo.value);
         if (permChown) permissions.add(AdminPrivilegeChown.value);;
         if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
         if (permWriteFile) permissions.add(AdminPrivilegeWriteFile.value);
-        System.out.println(permissions);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
         try {
@@ -521,11 +502,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                 "FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
                 new ParametersI().addId(previousId).add("name", imageName));
         if (isAdmin) {
-            System.out.println("remote file is empty?");
-            boolean remoteFileEmpty = (remoteFile == null);
-            System.out.println("remote file owner is empty?");
-            System.out.println(remoteFileEmpty);
-            
             Assert.assertEquals(remoteFile.getDetails().getOwner().getId().getValue(), normalUser.userId);
             Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), normalUser.groupId);
         }
@@ -533,10 +509,10 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                 "FROM Image WHERE fileset IN "
                 + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
                 new ParametersI().addId(remoteFile.getId()));
+        /* stop sudoing for some test cases by logging in as light admin */
         if (!isSudoing) {
-            loginUser(lightAdmin); // TODO
+            loginUser(lightAdmin);
         }
-
         /* try to chown the image of the normalUser just being sudoed,
          * which should fail in both cases you have no chown permissions or
          * not */
@@ -548,7 +524,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             Assert.assertEquals(image.getDetails().getGroup().getId().getValue(), normalUser.groupId);
         } else {
             /* when trying to chown the image NOT being sudoed,
-             * this should fail in case you have no chown & WriteOwned permissions */
+             * this should fail in case you have not all of Chown & WriteOwned & WriteFile
+             * permissions */
             if (permChown && permWriteOwned && permWriteFile) {
                 doChange(client, factory, Requests.chown().target(image).toUser(anotherUserId).build(), true);
                 image = (Image) iQuery.get("Image", image.getId().getValue());
@@ -561,8 +538,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                 Assert.assertEquals(image.getDetails().getGroup().getId().getValue(), normalUser.groupId);
             }
         }
-
-
     }
 
     /**
