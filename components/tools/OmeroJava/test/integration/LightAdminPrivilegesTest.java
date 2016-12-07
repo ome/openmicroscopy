@@ -51,6 +51,7 @@ import omero.grid.ManagedRepositoryPrx;
 import omero.grid.ManagedRepositoryPrxHelper;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
+import omero.grid.SharedResourcesPrx;
 import omero.model.AdminPrivilege;
 import omero.model.ChecksumAlgorithm;
 import omero.model.ChecksumAlgorithmI;
@@ -80,6 +81,7 @@ import omero.sys.Principal;
 import omero.util.TempFileManager;
 
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -688,6 +690,39 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
             repo.makeDir(filename, false);
             Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
+            Assert.assertFalse(isExpectSuccess);
+        }
+    }
+
+    /**
+     * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
+     * have the <tt>WriteFile</tt> privilege.
+     * Attempts creation of a table in another user's directory via {@link SharedResourcesPrx#newTable(long, String)}.
+     * @param isAdmin if to test a member of the <tt>system</tt> group
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>WriteFile</tt> privilege
+     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "light administrator privilege test cases")
+    public void testWriteFilePrivilegeCreationViaRepoNewTable(boolean isAdmin, boolean isRestricted, boolean isSudo)
+            throws Exception {
+        final boolean isExpectSuccess = isAdmin && !isRestricted;
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
+        if (!factory.sharedResources().areTablesEnabled()) {
+            throw new SkipException("tables are not enabled");
+        }
+        RepositoryPrx repo = getRepository(Repository.SCRIPT);
+        final String userDirectory = "/Test_" + getClass().getName() + "_" + UUID.randomUUID();
+        repo.makeDir(userDirectory, false);
+        loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
+                isRestricted ? AdminPrivilegeWriteFile.value : null);
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        repo = getRepository(Repository.SCRIPT);
+        final String filename = userDirectory + '/' + UUID.randomUUID();
+        try {
+            factory.sharedResources().newTable(repo.root().getId().getValue(), filename).close();
+            Assert.assertTrue(isExpectSuccess);
+        } catch (Ice.LocalException se) {
             Assert.assertFalse(isExpectSuccess);
         }
     }
