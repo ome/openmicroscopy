@@ -139,7 +139,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @throws Exception if the light administrator could not be created
      */
     private EventContext loginNewAdmin(boolean isAdmin, List <String> permissions) throws Exception {
-        final EventContext ctx = isAdmin ? newUserInGroup(iAdmin.lookupGroup(SYSTEM_GROUP), false) : newUserAndGroup("rwr-r-");
+        final EventContext ctx = isAdmin ? newUserInGroup(iAdmin.lookupGroup(roles.systemGroupName), false) : newUserAndGroup("rwr-r-");
         final ServiceFactoryPrx rootSession = root.getSession();
         Experimenter user = new ExperimenterI(ctx.userId, false);
         user = (Experimenter) rootSession.getQueryService().get("Experimenter", ctx.userId);
