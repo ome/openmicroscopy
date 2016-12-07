@@ -267,7 +267,11 @@ public class RawPixelsBean extends AbstractStatefulBean implements
             {
             	pixelsInstance = iQuery.findByQuery(
             			"select p from Pixels as p " +
-            			"join fetch p.pixelsType where p.id = :id",
+            			"join fetch p.pixelsType "+ 
+            			"left outer join fetch p.channels as c " +
+            			"left outer join fetch c.logicalChannel as lc " +
+            			"left outer join fetch c.statsInfo " +
+            			"where p.id = :id",
             			new Parameters().addId(id));
             }
 
@@ -704,10 +708,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
 
         try {
             for (int ch : channels) {
-                Pixels pixels = metadataService.retrievePixDescription(id);
-                if (pixels == null)
-                    continue;
-                Channel channel = pixels.getChannel(ch);
+                Channel channel = pixelsInstance.getChannel(ch);
                 if (channel == null)
                     continue;
                 PixelData px = buffer.getPlane(z, ch, t);
