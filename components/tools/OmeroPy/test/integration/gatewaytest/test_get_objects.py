@@ -338,7 +338,7 @@ class TestGetObject (object):
 
         # Also using opts dict
         pros = list(gatewaywrapper.gateway.getObjects(
-            "Project", None, opts={'page': 1, 'limit': 2}))
+            "Project", None, opts={'offset': 0, 'limit': 2}))
         assert len(pros) == limit
 
     def testGetDatasetsByProject(self, gatewaywrapper):
