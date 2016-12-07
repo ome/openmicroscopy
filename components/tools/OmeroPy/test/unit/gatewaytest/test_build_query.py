@@ -28,10 +28,12 @@ from omero.rtypes import wrap
 
 
 class TestBuildQuery(object):
+    """Test the conn.buildQuery() method for all Object Wrappers."""
 
     @classmethod
     @pytest.fixture(autouse=True)
     def setup_class(cls, tmpdir, monkeypatch):
+        """Prepare BlitzGateway with ICE_CONFIG."""
         ice_config = tmpdir / "ice.config"
         ice_config.write("omero.host=localhost\nomero.port=4064")
         monkeypatch.setenv("ICE_CONFIG", ice_config)
