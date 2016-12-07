@@ -3057,7 +3057,7 @@ class _BlitzGateway (object):
         :param opts:        Dict of additional options for filtering or
                             defining extra data to load.
                             offset, limit and owner for all objects.
-                            Additional opts handled in wrapper._getQueryString()
+                            Additional opts handled by _getQueryString()
                             E.g. 'childCount', or filter Dataset by 'project'
         :return:            Generator of :class:`BlitzObjectWrapper` subclasses
         """
@@ -3097,7 +3097,7 @@ class _BlitzGateway (object):
         :param opts:        Dict of additional options for filtering or
                             defining extra data to load.
                             offset, limit and owner for all objects.
-                            Additional opts handled in wrapper._getQueryString()
+                            Additional opts handled by _getQueryString()
                             E.g. 'childCount', or filter Dataset by 'project'
         :return:            (query, params, wrapper)
         """
