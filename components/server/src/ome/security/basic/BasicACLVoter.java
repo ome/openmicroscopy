@@ -13,6 +13,7 @@ import static ome.model.internal.Permissions.Role.WORLD;
 
 import java.util.Set;
 
+import ome.conditions.ApiUsageException;
 import ome.conditions.GroupSecurityViolation;
 import ome.conditions.InternalException;
 import ome.conditions.SecurityViolation;
@@ -33,6 +34,7 @@ import ome.security.SystemTypes;
 import ome.security.policy.PolicyService;
 import ome.system.EventContext;
 import ome.system.Roles;
+import ome.tools.hibernate.HibernateUtils;
 
 import org.hibernate.Session;
 import org.slf4j.Logger;
@@ -113,11 +115,39 @@ public class BasicACLVoter implements ACLVoter {
     // ~ Interface methods
     // =========================================================================
 
-    /**
-     * 
-     */
     public boolean allowChmod(IObject iObject) {
-        return currentUser.isOwnerOrSupervisor(iObject);
+        if (iObject == null) {
+            throw new ApiUsageException("Object can't be null");
+        }
+        final Long ownerId = HibernateUtils.nullSafeOwnerId(iObject);
+        final Long groupId; // see 2874 and chmod
+        if (iObject instanceof ExperimenterGroup) {
+            groupId = iObject.getId();
+        } else {
+            groupId = HibernateUtils.nullSafeGroupId(iObject);
+        }
+        final EventContext ec = currentUser.getCurrentEventContext();
+        if (ec.getCurrentUserId().equals(ownerId) || ec.getLeaderOfGroupsList().contains(groupId)) {
+            return true;   // object owner or group owner
+        } else if (!ec.isCurrentUserAdmin()) {
+            return false;  // not an admin
+        } else if (currentUser.getEvent() == null) {
+            return true;   // no session to limit privileges
+        }
+        final Set<AdminPrivilege> privileges = adminPrivileges.getSessionPrivileges(currentUser.getEvent().getSession());
+        if (sysTypes.isSystemType(iObject.getClass())) {
+            if (iObject instanceof Experimenter) {
+                return privileges.contains(adminPrivileges.getPrivilege("ModifyUser"));
+            } else {
+                return true;
+            }
+        } else {
+            if (iObject instanceof OriginalFile) {
+                return privileges.contains(adminPrivileges.getPrivilege("WriteFile"));
+            } else {
+                return privileges.contains(adminPrivileges.getPrivilege("WriteOwned"));
+            }
+        }
     }
 
     /**
