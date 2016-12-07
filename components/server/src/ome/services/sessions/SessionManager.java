@@ -149,19 +149,13 @@ public interface SessionManager {
     Session find(String uuid);
 
     /**
-     *
-     * @param user
-     * @return See above.
+     * Returns a non-null, possibly empty list of session instances belonging
+     * to the same user as the given session with one of the given agents.
+     * Sudo is taken into account.
+     * If the agent list is empty then all are included.
+     * A {@code null} may be included in the list to include null agents.
      */
-    List<Session> findByUser(String user);
-
-    /**
-     * Returns a non-null, possibly empty list of session instances
-     * belonging to the given user and with one of the given agents.
-     * If the agent list is empty, then only sessions without agent values
-     * will be returned.
-     */
-    List<Session> findByUserAndAgent(String user, String... agent);
+    List<Session> findSameUser(String uuid, String... agent);
 
     /**
      * Return all sessions that are active with associated possibly varying

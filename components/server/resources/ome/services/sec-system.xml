@@ -42,7 +42,12 @@
     <constructor-arg ref="roles"/>
     <constructor-arg ref="internalServiceFactory"/>
     <constructor-arg ref="tokenHolder"/>
-    <constructor-arg ref="securityFilterHolder"/>
+    <constructor-arg>
+      <list>
+        <ref bean="securityFilterHolder"/>
+        <ref bean="&amp;LightAdminPrivilegesSecurityFilter"/>  <!-- filter is a factory -->
+      </list>
+    </constructor-arg>
     <constructor-arg ref="policyService"/>
   </bean>
 

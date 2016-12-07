@@ -66,6 +66,11 @@
     <constructor-arg ref="shareStore"/>
   </bean>
 
+  <bean id="LightAdminPrivilegesSecurityFilter" class="ome.security.basic.LightAdminPrivilegesSecurityFilter">
+    <constructor-arg ref="roles"/>
+    <constructor-arg ref="adminPrivileges"/>
+  </bean>
+
   <alias name="${omero.security.chmod_strategy}" alias="chmodStrategy"/>
 
   <bean id="groupChmodStrategy" class="ome.security.basic.GroupChmodStrategy">
@@ -132,6 +137,7 @@
     <property name="principalHolder" ref="principalHolder"/>
     <property name="sessionCache"    ref="sessionCache"/>
     <property name="roles"           ref="roles"/>
+    <property name="adminPrivileges" ref="adminPrivileges"/>
     <property name="executor"        ref="executor"/>
     <property name="defaultTimeToIdle" value="${omero.sessions.timeout}"/>
     <property name="defaultTimeToLive" value="${omero.sessions.maximum}"/>

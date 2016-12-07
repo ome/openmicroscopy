@@ -629,6 +629,13 @@ public interface IAdmin extends ServiceInterface {
     List<Experimenter> getAdminsWithPrivileges(@NotNull @Validate(AdminPrivilege.class) List<AdminPrivilege> privileges);
 
     /**
+     * Gets the light administrator privileges for the current user.
+     *
+     * @return the current user's light administrator privileges
+     */
+    List<AdminPrivilege> getCurrentAdminPrivileges();
+
+    /**
      * Gets the light administrator privileges for the given user.
      *
      * @param user the user whose privileges are being queried

@@ -76,7 +76,7 @@ public class SessionBean implements ISession {
             final long timeToIdleMs,
             String defaultGroup) {
 
-        final String user = currentUser();
+        final String user = currentContext().getCurrentUserName();
         if (user == null) {
             throw new SecurityViolation("No current user");
         }
@@ -216,30 +216,30 @@ public class SessionBean implements ISession {
 
     @RolesAllowed("user")
     public java.util.List<Session> getMyOpenSessions() {
-        final String user = currentUser();
+        final String uuid = currentContext().getCurrentSessionUuid();
         Future<List<Session>> future = ex.submit(new Callable<List<Session>>(){
             public List<Session> call() throws Exception {
-                return mgr.findByUser(user);
+                return mgr.findSameUser(uuid);
             }});
         return ex.get(future);
     }
 
     @RolesAllowed("user")
     public java.util.List<Session> getMyOpenAgentSessions(final String agent) {
-        final String user = currentUser();
+        final String uuid = currentContext().getCurrentSessionUuid();
         Future<List<Session>> future = ex.submit(new Callable<List<Session>>(){
             public List<Session> call() throws Exception {
-                return mgr.findByUserAndAgent(user, agent);
+                return mgr.findSameUser(uuid, agent);
             }});
         return ex.get(future);
     }
 
     @RolesAllowed("user")
     public java.util.List<Session> getMyOpenClientSessions() {
-        final String user = currentUser();
+        final String uuid = currentContext().getCurrentSessionUuid();
         Future<List<Session>> future = ex.submit(new Callable<List<Session>>(){
             public List<Session> call() throws Exception {
-                return mgr.findByUserAndAgent(user, "OMERO.insight",
+                return mgr.findSameUser(uuid, "OMERO.insight",
                         "OMERO.web", "OMERO.importer");
             }});
         return ex.get(future);
@@ -290,10 +290,6 @@ public class SessionBean implements ISession {
 
     // ~ Helpers
     // =========================================================================
-
-    String currentUser() {
-        return currentContext().getCurrentUserName();
-    }
 
     EventContext currentContext() {
         String user = cd.getLast().getName();

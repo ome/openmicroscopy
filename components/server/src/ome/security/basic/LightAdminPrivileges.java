@@ -111,12 +111,35 @@ public class LightAdminPrivileges {
      * If the session originates via <q>sudo</q>, takes that into account.
      * Does <em>not</em> take account of if the relevant user is a member of <tt>system</tt>:
      * calculates assuming that the user is an administrator.
+     * Caches newly fetched privileges for future lookups.
      * @param session an OMERO session
      * @return the light administrator privileges associated with the session
      */
     public ImmutableSet<AdminPrivilege> getSessionPrivileges(Session session) {
+        return getSessionPrivileges(session, true);
+    }
+
+    /**
+     * Determine the light administrator privileges associated with a session.
+     * If the session originates via <q>sudo</q>, takes that into account.
+     * Does <em>not</em> take account of if the relevant user is a member of <tt>system</tt>:
+     * calculates assuming that the user is an administrator.
+     * @param session an OMERO session
+     * @param isCache if newly fetched privileges should be cached for future lookups
+     * @return the light administrator privileges associated with the session
+     */
+    public ImmutableSet<AdminPrivilege> getSessionPrivileges(Session session, boolean isCache) {
         try {
-            return PRIVILEGE_CACHE.get(session);
+            if (isCache) {
+                return PRIVILEGE_CACHE.get(session);
+            } else {
+                final ImmutableSet<AdminPrivilege> privileges = PRIVILEGE_CACHE.getIfPresent(session);
+                if (privileges != null) {
+                    return privileges;
+                } else {
+                    return getPrivileges(session);
+                }
+            }
         } catch (ExecutionException ee) {
             LOGGER.warn("failed to check privileges for session " + session.getId(), ee.getCause());
             return ImmutableSet.of();
