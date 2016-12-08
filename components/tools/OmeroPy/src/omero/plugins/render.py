@@ -197,28 +197,6 @@ class RenderObject(object):
             self.levels = image._re.getResolutionLevels()
             self.zoomLevelScaling = image.getZoomLevelScaling()
 
-        """
-        self.nominalMagnification = \
-            image.getObjectiveSettings() is not None \
-            and image.getObjectiveSettings() \
-            .getObjective().getNominalMagnification() \
-        or None
-
-
-    try:
-        rv.update({
-            'interpolate': interpolate,
-            'size': {'width': image.getSizeX(),
-                     'height': image.getSizeY(),
-                     'z': image.getSizeZ(),
-                     't': image.getSizeT(),
-                     'c': image.getSizeC()},
-            'pixel_size': {'x': image.getPixelSizeX(),
-                           'y': image.getPixelSizeY(),
-                           'z': image.getPixelSizeZ()},
-            })
-        """
-
         self.range = image.getPixelRange()
         self.channels = map(lambda x: ChannelObject(x), image.getChannels())
         self.model = image.isGreyscaleRenderingModel() and \
