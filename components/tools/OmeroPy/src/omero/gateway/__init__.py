@@ -279,6 +279,11 @@ class BlitzObjectWrapper (object):
         portions of the graph.
         Different sub-classes may allow some control over what's loaded
         and filtering of the query using various opts arguments.
+        Opts:
+        'child_count': boolean      If true, this will produce a 'projection'
+                                    query that also selects child_count for
+                                    objects that have a LINK_CLASS
+        See different sub-classes for additional opts.
 
         :param opts:        Dictionary of optional parameters.
         :return:            Tuple of string, list, ParametersI
@@ -4582,6 +4587,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
         Returns a tuple of (query, clauses, params).
 
         :param opts:        Dictionary of optional parameters.
+                            NB: No options supported for this class.
         :return:            Tuple of string, list, ParametersI
         """
         query = ("select obj from Annotation obj "
@@ -4746,6 +4752,7 @@ class FileAnnotationWrapper (AnnotationWrapper, OmeroRestrictionWrapper):
         Returns a tuple of (query, clauses, params).
 
         :param opts:        Dictionary of optional parameters.
+                            NB: No options supported for this class.
         :return:            Tuple of string, list, ParametersI
         """
         query = ("select obj from FileAnnotation obj "
@@ -4892,6 +4899,7 @@ class TimestampAnnotationWrapper (AnnotationWrapper):
         Returns a tuple of (query, clauses, params).
 
         :param opts:        Dictionary of optional parameters.
+                            NB: No options supported for this class.
         :return:            Tuple of string, list, ParametersI
         """
         query = ("select obj from TimestampAnnotation obj "
@@ -4945,6 +4953,7 @@ class BooleanAnnotationWrapper (AnnotationWrapper):
         Returns a tuple of (query, clauses, params).
 
         :param opts:        Dictionary of optional parameters.
+                            NB: No options supported for this class.
         :return:            Tuple of string, list, ParametersI
         """
         query = ("select obj from BooleanAnnotation obj "
@@ -5035,6 +5044,7 @@ class TagAnnotationWrapper (AnnotationWrapper):
         Returns a tuple of (query, clauses, params).
 
         :param opts:        Dictionary of optional parameters.
+                            NB: No options supported for this class.
         :return:            Tuple of string, list, ParametersI
         """
         query = ("select obj from TagAnnotation obj "
@@ -5081,6 +5091,7 @@ class CommentAnnotationWrapper (AnnotationWrapper):
         Returns a tuple of (query, clauses, params).
 
         :param opts:        Dictionary of optional parameters.
+                            NB: No options supported for this class.
         :return:            Tuple of string, list, ParametersI
         """
         query = ("select obj from CommentAnnotation obj "
@@ -5125,6 +5136,7 @@ class LongAnnotationWrapper (AnnotationWrapper):
         Returns a tuple of (query, clauses, params).
 
         :param opts:        Dictionary of optional parameters.
+                            NB: No options supported for this class.
         :return:            Tuple of string, list, ParametersI
         """
         query = ("select obj from LongAnnotation obj "
@@ -5170,6 +5182,7 @@ class DoubleAnnotationWrapper (AnnotationWrapper):
         Returns a tuple of (query, clauses, params).
 
         :param opts:        Dictionary of optional parameters.
+                            NB: No options supported for this class.
         :return:            Tuple of string, list, ParametersI
         """
         query = ("select obj from DoubleAnnotation obj "
@@ -5216,6 +5229,7 @@ class TermAnnotationWrapper (AnnotationWrapper):
         Returns a tuple of (query, clauses, params).
 
         :param opts:        Dictionary of optional parameters.
+                            NB: No options supported for this class.
         :return:            Tuple of string, list, ParametersI
         """
         query = ("select obj from TermAnnotation obj "
@@ -5339,6 +5353,7 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         Returns a tuple of (query, clauses, params).
 
         :param opts:        Dictionary of optional parameters.
+                            NB: No options supported for this class.
         :return:            Tuple of string, list, ParametersI
         """
         query = ("select distinct obj from Experimenter as obj "
@@ -5573,6 +5588,7 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
         Returns a tuple of (query, clauses, params).
 
         :param opts:        Dictionary of optional parameters.
+                            NB: No options supported for this class.
         :return:            Tuple of string, list, ParametersI
         """
         query = ("select distinct obj from ExperimenterGroup as obj "
@@ -5667,6 +5683,7 @@ class _DatasetWrapper (BlitzObjectWrapper):
         """
         Extend base query to handle filtering of Datasets by Projects.
         Returns a tuple of (query, clauses, params).
+        Supported opts: 'project': <project_id> to filter by Project
 
         :param opts:        Dictionary of optional parameters.
         :return:            Tuple of string, list, ParametersI
@@ -5938,6 +5955,7 @@ class _PlateWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         Returns a tuple of (query, clauses, params).
 
         :param opts:        Dictionary of optional parameters.
+                            NB: No options supported for this class.
         :return:            Tuple of string, list, ParametersI
         """
         query = ("select obj from Plate as obj "
@@ -6710,6 +6728,7 @@ class _FilesetWrapper (BlitzObjectWrapper):
         Returns a tuple of (query, clauses, params).
 
         :param opts:        Dictionary of optional parameters.
+                            NB: No options supported for this class.
         :return:            Tuple of string, list, ParametersI
         """
         query = "select obj from Fileset obj "\
