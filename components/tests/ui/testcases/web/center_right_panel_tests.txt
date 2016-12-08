@@ -10,19 +10,6 @@ Suite Teardown      Close all browsers
 
 *** Keywords ***
 
-Get Id From Selected Item In Tree
-	# Wait Until Element Is Visible	xpath=//li::a[contains(@class, 'jstree-clicked')]
-	${dataId}=                      Get Element Attribute    xpath=//li[contains(@class,'jstree-leaf')][descendant::a[contains(@class, 'jstree-clicked')]]@data-id
-	[return]						${dataId}
-
-Get Id From Selected Thumbnail
-	${dataId}=						Get Element Attribute    xpath=//li[contains(@class,'ui-selected')]@data-id
-	[return]						${dataId}
-
-Get Id From Right Panel
-	${dataId}= 						Get Text                css=tr.data_heading_id strong
-	[return]						${dataId}
-
 Wait Until Right Panel Loads For MultiSelection
 	[arguments]						${numOfObjects}
 
@@ -74,7 +61,7 @@ Select First Dataset
 Check Center and Right Panel Sync For Image
 	${imageId}=						Select First Image
 	Wait Until Right Panel Loads Everything		Image 					 ${imageId}
-	
+
 	${imageId1}=					Get Id From Selected Item In Tree
 	${imageId2}						Get Id From Selected Thumbnail
 	${imageId3}						Get Id From Right Panel
@@ -93,7 +80,7 @@ Check Center and Right Panel Sync For Image
 	Should Be Equal 				${imageId3}		${imageId1}
 
 Check Multi Selections
-	
+
 	${imageId}						Select First Orphaned Image
 	Click Next Thumbnail
 	${imageId1}						Get Id From Selected Thumbnail

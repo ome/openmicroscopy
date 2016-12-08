@@ -48,18 +48,18 @@ Add File Annotation
     Click Element                               id=choose_file_anns
     Wait Until Page Contains Element            id=id_files
     # Click Element                          xpath=//select[@id='id_files']/option[contains(text(), ${fileName})]
-    Select From List By Label                   id=id_files     ${fileAnnotationName}    
+    Select From List By Label                   id=id_files     ${fileAnnotationName}
     Click Dialog Button                         Accept
     Check For File Annotation                   ${fileAnnotationName}
 
 Check For File Annotation
-    [Arguments]                                 ${fileAnnotationName} 
+    [Arguments]                                 ${fileAnnotationName}
     Wait Until Element Is Visible               xpath=//li[contains(@class, 'file_ann_wrapper')][descendant::a[contains(text(), '${fileAnnotationName}')]]//*[@class='removeFile action']
     Wait Until Element Is Visible               xpath=//li[contains(@class, 'file_ann_wrapper')][descendant::a[contains(text(), '${fileAnnotationName}')]]//a[@class='deleteFile action']
     Wait Until Element Is Visible               xpath=//ul[@id="fileanns_container"]//a[contains(text(), '${fileAnnotationName}')]
     Wait Until Element Is Visible               xpath=//li[contains(@class, 'file_ann_wrapper')][descendant::a[contains(text(), '${fileAnnotationName}')]]//span
     # Mouse Over                                  //ul[@id="fileanns_container"]//a[contains(@class, 'tooltip')]
-    # Wait Until Element Is Visible               //ul[@id="fileanns_container"]//a[contains(@class, 'tooltip')][contains(@aria-describedby, 'ui-tooltip')]     
+    # Wait Until Element Is Visible               //ul[@id="fileanns_container"]//a[contains(@class, 'tooltip')][contains(@aria-describedby, 'ui-tooltip')]
 
 Remove File Annotation
     [Arguments]                                 ${fileAnnotationName}
@@ -73,6 +73,23 @@ Remove File Annotation
 Check File Annotation Gone
     [Arguments]                                 ${fileAnnotationName}
     Page Should Not Contain Element             xpath=//ul[@id="fileanns_container"]//a[contains(text(), '${fileAnnotationName}')]
+
+Click Rating
+    [Arguments]                                 ${rating}
+    # Calculate offset from centre of img (84px wide)
+    ${xoffset}=                                 Evaluate    ${rating}*17 - 52
+    Click Element At Coordinates                xpath=//img[@title='Click to add rating']   ${xoffset}  5
+
+Filter Rating
+    [Arguments]                                 ${rating}
+    # Calculate offset from centre of img (84px wide)
+    ${xoffset}=                                 Evaluate    ${rating}*17 - 52
+    Click Element At Coordinates                xpath=//img[@title='Filter by rating (exact match)']   ${xoffset}  5
+
+
+Check For Rating
+    [Arguments]                                 ${rating}
+    Wait Until Element Is Visible               xpath=//img[@title='Click to add rating'][contains(@src, 'rating${rating}')]
 
 
 *** Test Cases ***
@@ -183,9 +200,51 @@ Test File Annotations
 
     Delete Container
     Select Screen By Id                         ${sId_One}
-    Delete Container                        
+    Delete Container
 
-# Test Rating
+
+Test Rating
+
+    Select Experimenter
+    Select And Expand Node                      Project 1
+    Select And Expand Node                      Dataset 1
+    ${imageId}=                                 Select First Image
+    ${nodeId}=                                  Wait For Image Node         ${imageId}
+
+    Click Element                               xpath=//h1[@data-name='ratings']
+    Wait Until Element Is Visible               id=rating_annotations
+    Check For Rating                            0
+    # Add Rating of 5 *****
+    Click Rating                                5
+    Check For Rating                            5
+
+    # Add Rating of 2 ****
+    Click Next Thumbnail
+    ${imageId2}=                                Get Id From Selected Thumbnail
+    Check For Rating                            0
+    Click Rating                                2
+    Check For Rating                            2
+
+    # Add Rating of 2 ***
+    Click Next Thumbnail
+    ${imageId3}=                                Get Id From Selected Thumbnail
+    Check For Rating                            0
+    Click Rating                                2
+    Check For Rating                            2
+
+    # Select 3 images - average rating of 3
+    Shift Click Node                            ${nodeId}
+    Wait Until Element Is Visible               xpath=//span[@id='ratingsAverage'][contains(text(), '3')]
+    Xpath Should Match X Times                  //ul[@id='dataIcons']/li[contains(@class, 'ui-selected')]     3
+
+    # Filter by Rating
+    Select From List By Label                   id=choosefilter         By Rating
+    Filter Rating                               2
+
+    # Only a 2 images should remain Visible
+    Wait Until Element Is Not Visible           id=image_icon-${imageId}
+    Xpath Should Match X Times                  //ul[@id='dataIcons']/li[contains(@class, 'ui-selected')]     2
+
 
 Test Search Results File Annotations
 
@@ -194,7 +253,7 @@ Test Search Results File Annotations
 
     # Annotate single Screen
     Add File Annotation                         ${fileNameTwo}
-    
+
     Input Text  id=id_search_query              ${fileNameTwo}
     Submit Form
     Location Should Be                          ${SEARCH URL}
@@ -215,7 +274,3 @@ Test Search Results File Annotations
     Select Experimenter
     Select Screen By Id                         ${sId_One}
     Delete Container
-
-
-
-    
