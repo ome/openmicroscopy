@@ -7036,7 +7036,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                 self._re = self._prepareRE(rdid=rdid)
             except omero.ValidationException:
                 logger.debug('on _prepareRE()', exc_info=True)
-                self._re = None
+                self._closeRE()
         return self._re is not None
 
     def resetRDefs(self):
@@ -7606,7 +7606,9 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             rv[i] = float(level)/sizeXList[0]
         return rv
 
-    def setActiveChannels(self, channels, windows=None, colors=None):
+    @assert_re()
+    def setActiveChannels(self, channels, windows=None, colors=None,
+                          noRE=False):
         """
         Sets the active channels on the rendering engine.
         Also sets rendering windows and channel colors
@@ -7633,7 +7635,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         """
         abs_channels = [abs(c) for c in channels]
         idx = 0     # index of windows/colors args above
-        for c in range(len(self.getChannels())):
+        for c in range(len(self.getChannels(noRE=noRE))):
             self._re.setActive(c, (c+1) in channels, self._conn.SERVICE_OPTS)
             if (c+1) in channels:
                 if (windows is not None
@@ -7943,43 +7945,46 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         """
         # Prepare the rendering engine parameters on the ImageWrapper.
         re = self._prepareRE()
-        z = re.getDefaultZ()
-        t = re.getDefaultT()
-        x = 0
-        y = 0
-        size_x = self.getSizeX()
-        size_y = self.getSizeY()
-        tile_width, tile_height = re.getTileSize()
-        tiles_wide = math.ceil(float(size_x) / tile_width)
-        tiles_high = math.ceil(float(size_y) / tile_height)
-        # Since the JPEG 2000 algorithm is iterative and rounds pixel counts
-        # at each resolution level we're doing the resulting tile size
-        # calculations in a loop. Also, since the image is physically tiled
-        # the resulting size is a multiple of the tile size and not the
-        # iterative quotient of a 2**(resolutionLevels - 1).
-        for i in range(1, re.getResolutionLevels()):
-            tile_width = round(tile_width / 2.0)
-            tile_height = round(tile_height / 2.0)
-        width = int(tiles_wide * tile_width)
-        height = int(tiles_high * tile_height)
-        jpeg_data = self.renderJpegRegion(z, t, x, y, width, height, level=0)
-        if size is None:
-            return jpeg_data
-        # We've been asked to scale the image by its longest side so we'll
-        # perform that operation until the server has the capability of
-        # doing so.
-        ratio = float(size) / max(width, height)
-        if width > height:
-            size = (int(size), int(height * ratio))
-        else:
-            size = (int(width * ratio), int(size))
-        jpeg_data = Image.open(StringIO(jpeg_data))
-        jpeg_data.thumbnail(size, Image.ANTIALIAS)
-        ImageDraw.Draw(jpeg_data)
-        f = StringIO()
-        jpeg_data.save(f, "JPEG")
-        f.seek(0)
-        return f.read()
+        try:
+            z = re.getDefaultZ()
+            t = re.getDefaultT()
+            x = 0
+            y = 0
+            size_x = self.getSizeX()
+            size_y = self.getSizeY()
+            tile_width, tile_height = re.getTileSize()
+            tiles_wide = math.ceil(float(size_x) / tile_width)
+            tiles_high = math.ceil(float(size_y) / tile_height)
+            # Since the JPEG 2000 algorithm is iterative and rounds pixel counts
+            # at each resolution level we're doing the resulting tile size
+            # calculations in a loop. Also, since the image is physically tiled
+            # the resulting size is a multiple of the tile size and not the
+            # iterative quotient of a 2**(resolutionLevels - 1).
+            for i in range(1, re.getResolutionLevels()):
+                tile_width = round(tile_width / 2.0)
+                tile_height = round(tile_height / 2.0)
+            width = int(tiles_wide * tile_width)
+            height = int(tiles_high * tile_height)
+            jpeg_data = self.renderJpegRegion(z, t, x, y, width, height, level=0)
+            if size is None:
+                return jpeg_data
+            # We've been asked to scale the image by its longest side so we'll
+            # perform that operation until the server has the capability of
+            # doing so.
+            ratio = float(size) / max(width, height)
+            if width > height:
+                size = (int(size), int(height * ratio))
+            else:
+                size = (int(width * ratio), int(size))
+            jpeg_data = Image.open(StringIO(jpeg_data))
+            jpeg_data.thumbnail(size, Image.ANTIALIAS)
+            ImageDraw.Draw(jpeg_data)
+            f = StringIO()
+            jpeg_data.save(f, "JPEG")
+            f.seek(0)
+            return f.read()
+        finally:
+            re.close()
 
     @assert_re()
     def renderJpegRegion(self, z, t, x, y, width, height, level=None,
@@ -8016,7 +8021,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                 except omero.SecurityViolation:  # pragma: no cover
                     self._obj.clearPixels()
                     self._obj.pixelsLoaded = False
-                    self._re = None
+                    self._closeRE()
                     return self.renderJpeg(z, t, None)
             rv = self._re.renderCompressed(self._pd, self._conn.SERVICE_OPTS)
             return rv
@@ -8029,8 +8034,17 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             # hangs
             self._obj.clearPixels()
             self._obj.pixelsLoaded = False
-            self._re = None
+            self._closeRE()
             raise
+
+    def _closeRE(self):
+        try:
+            if self._re:
+                self._re.close()
+        except Exception, e:
+            logger.warn("Failed to close " + self._re)
+        finally:
+            self._re = None  # This should be the ONLY location to null _re!
 
     @assert_re()
     def renderJpeg(self, z=None, t=None, compression=0.9):
@@ -8059,7 +8073,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                 except omero.SecurityViolation:  # pragma: no cover
                     self._obj.clearPixels()
                     self._obj.pixelsLoaded = False
-                    self._re = None
+                    self._closeRE()
                     return self.renderJpeg(z, t, None)
             projection = self.PROJECTIONS.get(self._pr, -1)
             if not isinstance(
@@ -8085,7 +8099,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             # hangs
             self._obj.clearPixels()
             self._obj.pixelsLoaded = False
-            self._re = None
+            self._closeRE()
             raise
 
     def exportOmeTiff(self, bufsize=0):
