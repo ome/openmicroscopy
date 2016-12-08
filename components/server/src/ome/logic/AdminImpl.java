@@ -640,6 +640,23 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                 groupProxy(sec.getSecurityRoles().getUserGroupName()));
     }
 
+    @Override
+    @RolesAllowed("system")
+    @Transactional(readOnly = false)
+    public long createLightSystemUser(Experimenter newSystemUser, List<AdminPrivilege> privileges) {
+        final long newSystemUserId = createSystemUser(newSystemUser);
+        newSystemUser = iQuery.get(Experimenter.class, newSystemUserId);
+        final Set<AdminPrivilege> restrictions = new HashSet<>(adminPrivileges.getAllPrivileges());
+        restrictions.removeAll(privileges);
+        final List<NamedValue> userConfig = new ArrayList<NamedValue>(restrictions.size());
+        for (final AdminPrivilege restriction : restrictions) {
+            userConfig.add(new NamedValue(restriction.getValue(), Boolean.toString(false)));
+        }
+        newSystemUser.setConfig(userConfig);
+        iUpdate.saveObject(newSystemUser);
+        return newSystemUserId;
+    }
+
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public long createExperimenter(final Experimenter experimenter,
