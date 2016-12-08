@@ -62,8 +62,11 @@ class TestRender(CLITest):
         for p in self.plates:
             for w in p.listChildren():
                 for i in range(w.countWellSample()):
-                    w.getImage(index=i).getThumbnail(
+                    img = w.getImage(index=i)
+                    img.getThumbnail(
                         size=(96,), direct=False)
+                    img._closeRE()
+        self.imgobj._closeRE()
 
     def get_target_imageids(self, target):
         if target in (self.idonly, self.imageid):
@@ -189,6 +192,7 @@ class TestRender(CLITest):
             for c in xrange(len(channels)):
                 self.assert_channel_rdef(channels[c], rd['channels'][c + 1])
             self.assert_image_rmodel(img, expected_greyscale)
+            img._closeRE()
 
     # Once testEdit is no longer broken testEditSingleC could be merged into
     # it with sizec and greyscale parameters
@@ -218,3 +222,4 @@ class TestRender(CLITest):
             for c in xrange(len(channels)):
                 self.assert_channel_rdef(channels[c], rd['channels'][c + 1])
             self.assert_image_rmodel(img, expected_greyscale)
+            img._closeRE()
