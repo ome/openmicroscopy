@@ -12,7 +12,7 @@
 import omero
 import omero.clients
 import pytest
-from weblibrary import IWebTest
+from omeroweb.testlib import IWebTest
 
 from omero.gateway import BlitzGateway, ProjectWrapper, DatasetWrapper, \
     ImageWrapper, TagAnnotationWrapper, ScreenWrapper, PlateWrapper, \
@@ -1717,7 +1717,9 @@ class TestShow(IWebTest):
                                 ws_a1.image.id.val, None, None, None, None)
         # Image is only in ONE acquisition
         assert len(paths) == 1
-        assert paths[0] == expected[0]
+        pathToImg = expected[0]
+        pathToImg.append({'type': 'well', 'id': well_a.id.val})
+        assert paths[0] == pathToImg
 
     def test_well_restrict_acquisition_multi(self,
                                              screen_plate_run_well_multi):

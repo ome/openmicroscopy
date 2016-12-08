@@ -56,6 +56,7 @@ import omero.api.IRenderingSettingsPrx;
 import omero.api.IRepositoryInfoPrx;
 import omero.api.IRoiPrx;
 import omero.api.IScriptPrx;
+import omero.api.ITypesPrx;
 import omero.api.IUpdatePrx;
 import omero.api.RawFileStorePrx;
 import omero.api.RawPixelsStorePrx;
@@ -294,7 +295,8 @@ public class Gateway {
         }
         Facility.clear();
         groupConnectorMap.clear();
-        keepAliveExecutor.shutdown();
+        if (keepAliveExecutor != null)
+            keepAliveExecutor.shutdown();
         connected = false;
         if (cacheService != null)
             cacheService.shutDown();
@@ -1534,6 +1536,23 @@ public class Gateway {
         }
     }
 
+    /**
+     * Returns the {@link ITypesPrx} service.
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @return See above.
+     * @throws DSOutOfServiceException
+     *             Thrown if the service cannot be initialized.
+     */
+    public ITypesPrx getTypesService(SecurityContext ctx)
+            throws DSOutOfServiceException {
+        Connector c = getConnector(ctx, true, false);
+        if (c != null)
+            return c.getTypesService();
+        return null;
+    }
+    
     /**
      * Create a {@link Connector} for a particular {@link SecurityContext}
      * 

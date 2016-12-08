@@ -344,6 +344,13 @@ Gets rendering definition from the 'session' if saved.
 Returns json dict of 'c', 'm', 'z', 't'.
 """
 
+listLuts_json = (r'^luts/$', 'webgateway.views.listLuts_json')
+"""
+json method: returning list of all lookup tables available
+for rendering engine.
+E.g. list of {path: "/luts/", size: 800, id: 37, name: "cool.lut"},
+"""
+
 list_compatible_imgs_json = (r'^compatImgRDef/(?P<iid>[0-9]+)/$',
                              'webgateway.views.list_compatible_imgs_json')
 """
@@ -406,6 +413,21 @@ Get a json dict of original file paths.
 'client' is a list of paths for original files on the client when imported
 """
 
+open_with_options = url(r'^open_with/$', 'webgateway.views.open_with_options',
+                        name='open_with_options')
+"""
+This makes the settings.OPEN_WITH configuration available via json
+"""
+
+
+get_image_rdefs_json = url(r'^get_image_rdefs_json/(?P<img_id>[0-9]+)/$',
+                           'webgateway.views.get_image_rdefs_json',
+                           name="webgateway_get_image_rdefs_json")
+"""
+This url will retrieve all rendering definitions for a given image (id)
+"""
+
+
 urlpatterns = patterns(
     '',
     webgateway,
@@ -440,6 +462,8 @@ urlpatterns = patterns(
     # rendering def methods
     save_image_rdef_json,
     get_image_rdef_json,
+    get_image_rdefs_json,
+    listLuts_json,
     list_compatible_imgs_json,
     copy_image_rdef_json,
     reset_rdef_json,
@@ -454,7 +478,5 @@ urlpatterns = patterns(
     annotations,
     table_query,
     object_table_query,
-
-    # Debug stuff
-
+    open_with_options,
 )

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.colourpicker.RGBModel
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -23,14 +23,10 @@
 
 package org.openmicroscopy.shoola.util.ui.colourpicker;
 
-//Java imports
 import java.awt.Color;
+import java.util.Collection;
 
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * The model of the RGB slider.
@@ -72,12 +68,31 @@ class RGBModel
 	/** Alpha component of the model, as float between [0..1]. */
 	private float 		alpha; 
 	
+	/** All available lookup tables */
+	private Collection<String> availableLUTs;
+	
+	/** The original lookup table */
+    private String originalLut;
+    
+	/** The lookup table */
+	private String lut;
+	
+	/** The reverse intensity flag */
+	private boolean revInt;
+	
+	/** The original reverse intensity flag */
+	private boolean originalRevInt;
+	
     /**
      * Sets the value of the model to v without firing an event.
      * 
-     * @param v value.
+     * @param v
+     *            value.
+     * @param reset
+     *            Pass <code>true</code> to also overwrite the original color
+     *            values (see {@link #revert()})
      */
-    private void setV(float v)
+    private void setV(float v, boolean reset)
     {
         float []vals = RGBtoHSV();
         vals[2] = v;
@@ -85,14 +100,23 @@ class RGBModel
         red = rgb[0];
         green = rgb[1];
         blue = rgb[2];
+        if (reset) {
+            originalRed = red;
+            originalGreen = green;
+            originalBlue = blue;
+            originalAlpha = alpha;
+        }
     }
     
     /**
      * Sets the hue of the model to h without firing an event.
      * 
      * @param h hue.
+     * @param reset
+     *            Pass <code>true</code> to also overwrite the original color
+     *            values (see {@link #revert()})
      */
-    private void setH(float h)
+    private void setH(float h, boolean reset)
     {
         float []vals = RGBtoHSV();
         vals[0] = h;
@@ -100,14 +124,22 @@ class RGBModel
         red = rgb[0];
         green = rgb[1];
         blue = rgb[2];
+        if (reset) {
+            originalRed = red;
+            originalGreen = green;
+            originalBlue = blue;
+        }
     }
     
     /**
      * Sets the saturation of the model to S without firing an event.
      * 
      * @param s saturation.
+     * @param reset
+     *            Pass <code>true</code> to also overwrite the original color
+     *            values (see {@link #revert()})
      */
-    private void setS(float s)
+    private void setS(float s, boolean reset)
     {
         float[] vals = RGBtoHSV();
         vals[1] = s;
@@ -115,6 +147,11 @@ class RGBModel
         red = rgb[0];
         green = rgb[1];
         blue = rgb[2];
+        if (reset) {
+            originalRed = red;
+            originalGreen = green;
+            originalBlue = blue;
+        }
     }
     
 	/**
@@ -124,17 +161,25 @@ class RGBModel
 	 * @param g  green channel.
 	 * @param b  blue channel.
 	 * @param a  alpha channel.
+	 * @param lut lookup table
+	 * @param availableLUTs available lookup tables
+	 * @param revInt reverse intensity flag
 	 */
-	RGBModel(float r, float g, float b, float a)
+	RGBModel(float r, float g, float b, float a, String lut, Collection<String> availableLUTs, boolean revInt)
 	{
 		originalRed = r;
 		originalGreen = g;
 		originalBlue = b;
 		originalAlpha = a;
+		originalLut = lut;
 		red = r;
 		green = g;
 		blue = b;
 		alpha = a;
+		this.lut = lut;
+		this.availableLUTs = availableLUTs;
+		this.revInt = revInt;
+		this.originalRevInt = revInt;
 	}
 	
 	/**
@@ -202,61 +247,140 @@ class RGBModel
 	 * Sets the value of the model (HSV) to v.
 	 * 
 	 * @param v  value.
+	 * @param reset Pass <code>true</code> to also reset the original value
 	 */
-	void setValue(float v) { setV(v); }
+	void setValue(float v, boolean reset) { setV(v, reset); }
+	
+	/**
+     * Sets the value of the model (HSV) to v.
+     * 
+     * @param v  value.
+     */
+	void setValue(float v) { setValue(v, false); }
 	
 	/**
 	 * Sets the hue of the model to h.
 	 * 
 	 * @param h hue.
+	 * @param reset Pass <code>true</code> to also reset the original value
 	 */
-	void setHue(float h) { setH(h); }
+	void setHue(float h, boolean reset) { setH(h, reset); }
+	
+	/**
+     * Sets the hue of the model to h.
+     * 
+     * @param h hue.
+     */
+	void setHue(float h) { setH(h, false); }
 	
 	/**
 	 * Sets the saturation of the model to s.
 	 * 
 	 * @param s saturation.
+	 * @param reset Pass <code>true</code> to also reset the original value
 	 */
-	void setSaturation(float s) { setS(s); }
+	void setSaturation(float s, boolean reset) { setS(s, reset); }
+	
+	/**
+     * Sets the saturation of the model to s.
+     * 
+     * @param s saturation.
+     */
+	void setSaturation(float s) { setSaturation(s, false); }
 	
 	/**
 	 * Sets the red channel of the model to r.
 	 * 
 	 * @param r red.
+	 * @param reset Pass <code>true</code> to also reset the original value
 	 */
-	void setRed(float r) { red = r; }
+	void setRed(float r, boolean reset) { red = r; if (reset) originalRed = red;}
+	
+	/**
+     * Sets the red channel of the model to r.
+     * 
+     * @param r red.
+     */
+	void setRed(float r) {
+	    setRed(r, false);
+	}
 	
 	/**
 	 * Sets the green channel of the model to g.
 	 * 
 	 * @param g green.
+	 * @param reset Pass <code>true</code> to also reset the original value
 	 */
-	void setGreen(float g) { green = g; }
+	void setGreen(float g, boolean reset) { green = g; if (reset) originalGreen = green;}
+	
+	/**
+     * Sets the green channel of the model to g.
+     * 
+     * @param g green.
+     */
+	void setGreen(float g) {
+	    setGreen(g, false);
+	}
 	
 	/**
 	 * Sets the blue channel of the model to b.
 	 * 
 	 * @param b blue.
+	 * @param reset Pass <code>true</code> to also reset the original value
 	 */
-	void setBlue(float b) { blue = b; }
+	void setBlue(float b, boolean reset) { blue = b; if (reset) originalBlue = blue;}
+	
+	/**
+     * Sets the blue channel of the model to b.
+     * 
+     * @param b blue.
+     */
+    void setBlue(float b) {
+        setBlue(b, false);
+    }
 	
 	/**
 	 * Sets the alpha of the model to a.
 	 * 
 	 * @param a alpha.
+	 * @param reset Pass <code>true</code> to also reset the original value
 	 */
-	void setAlpha(float a) { alpha = a; }
+	void setAlpha(float a, boolean reset) { alpha = a; if (reset) originalAlpha = alpha;}
+	
+	/**
+     * Sets the alpha of the model to a.
+     * 
+     * @param a alpha.
+     */
+    void setAlpha(float a) {
+        setAlpha(a, false);
+    }
 	
 	/**
 	 * Sets the colour to the new Color c.
 	 * 
 	 * @param c new Colour.
+	 * @param reset Pass <code>true</code> to also reset the original value
 	 */
-	void setColour(Color c)
+	void setColour(Color c, boolean reset)
 	{
 		red = (c.getRed()/255.0f);
 		green = (c.getGreen()/255.0f);
 		blue = (c.getBlue()/255.0f);
+        if (reset) {
+            originalRed = red;
+            originalGreen = green;
+            originalBlue = blue;
+        }
+	}
+	
+	/**
+     * Sets the colour to the new Color c.
+     * 
+     * @param c new Colour.
+     */
+	void setColour(Color c) {
+	    setColour(c, false);
 	}
 	
 	/** 
@@ -267,13 +391,33 @@ class RGBModel
 	 * @param g green.
 	 * @param b blue.
 	 * @param a alpha.
+	 * @param reset Pass <code>true</code> to also reset the original value
 	 */
-	void setRGBColour(float r, float g, float b, float a)
+	void setRGBColour(float r, float g, float b, float a, boolean reset)
 	{
 		red = r;
 		green = g;
 		blue = b;
 		alpha = a;
+        if (reset) {
+            originalRed = red;
+            originalGreen = green;
+            originalBlue = blue;
+            originalAlpha = alpha;
+        }
+	}
+	
+	/** 
+     * Sets the colour of the model based on the rgb values r, b, g and alpha 
+     * (a).
+     * 
+     * @param r red.
+     * @param g green.
+     * @param b blue.
+     * @param a alpha.
+     */
+	void setRGBColour(float r, float g, float b, float a) {
+	    setRGBColour(r, g, b, a, false);
 	}
 	
 	/**
@@ -283,14 +427,33 @@ class RGBModel
 	 * @param s saturation.
 	 * @param v value.
 	 * @param a alpha.
+	 * @param reset Pass <code>true</code> to also reset the original value
 	 */
-	void setHSVColour(float h, float s, float v, float a)
+	void setHSVColour(float h, float s, float v, float a, boolean reset)
 	{
 		float[] rgb = HSVtoRGB(h,s,v);
 		red = rgb[0];
 		green = rgb[1];
 		blue = rgb[2];
 		alpha = a;
+        if (reset) {
+            originalRed = red;
+            originalGreen = green;
+            originalBlue = blue;
+            originalAlpha = alpha;
+        }
+	}
+	
+	/**
+     * Sets the colour of the model based on the hsv values h, s, v and alpha a.
+     * 
+     * @param h hue.
+     * @param s saturation.
+     * @param v value.
+     * @param a alpha.
+     */
+	void setHSVColour(float h, float s, float v, float a) {
+	    setHSVColour(h, s, v, a, false);
 	}
 
 	/**
@@ -466,6 +629,8 @@ class RGBModel
 		green = originalGreen;
 		blue = originalBlue;
 		alpha = originalAlpha;
+		lut = originalLut;
+		revInt = originalRevInt;
 	}
 	
 	/**
@@ -484,6 +649,115 @@ class RGBModel
                 c.getAlpha() == color.getAlpha());
 	}
 	
+    /**
+     * Set the lookup table
+     * 
+     * @param lut
+     *            The lookup table
+     *  @param reset 
+     *            Pass <code>true</code> to also reset the original value
+     */
+    void setLUT(String lut, boolean reset) {
+        this.lut = lut;
+        if (reset)
+            originalLut = lut;
+    }
+
+    /**
+     * Set the lookup table
+     * 
+     * @param lut
+     *            The lookup table
+     */
+    void setLUT(String lut) {
+        setLUT(lut, false);
+    }
+    
+    /**
+     * Get the lookup table
+     * 
+     * @return See above
+     */
+    String getLUT() {
+        return lut;
+    }
+
+    /**
+     * Get the original lookup table
+     * 
+     * @return See above
+     */
+    String getOriginalLUT() {
+        return originalLut;
+    }
+
+    /**
+     * Set the reverse intensity flag
+     * 
+     * @param revInt
+     *            The reverse intensity flag
+     * @param reset
+     *            Pass <code>true</code> to also reset the original value
+     */
+    void setReverseIntensity(boolean revInt, boolean reset) {
+        this.revInt = revInt;
+        if (reset)
+            originalRevInt = revInt;
+    }
+    
+
+    /**
+     * Set the reverse intensity flag
+     * 
+     * @param revInt
+     *            The reverse intensity flag
+     */
+    void setReverseIntensity(boolean revInt) {
+        setReverseIntensity(revInt, false);
+    }
+
+    /**
+     * Get the reverse intensity flag
+     * 
+     * @return See above
+     */
+    boolean getReverseIntensity() {
+        return revInt;
+    }
+
+    /**
+     * Get the original reverse intensity flag
+     * 
+     * @return See above
+     */
+    boolean getOriginalReverseIntensity() {
+        return originalRevInt;
+    }
+    
+    /**
+     * Check if the provided lookup table is the same as the original lookup
+     * table
+     * 
+     * @param lut The
+     *            lookup table
+     * @return <code>true</code> if it is, <code>false</code> if it is not
+     */
+    boolean isOriginalLut(String lut) {
+        // treat null and empty Strings the same
+        if (lut == null)
+            lut = "";
+        if (originalLut == null)
+            originalLut = "";
+        return lut.equals(originalLut);
+    }
+
+    /**
+     * Get all available lookup tables
+     * @return See above
+     */
+    Collection<String> getAvailableLookupTables() {
+        return availableLUTs;
+    }
 }
 
 

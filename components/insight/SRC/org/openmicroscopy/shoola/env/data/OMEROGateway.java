@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -125,6 +125,7 @@ import omero.api.IRenderingSettingsPrx;
 import omero.api.IRepositoryInfoPrx;
 import omero.api.IRoiPrx;
 import omero.api.IScriptPrx;
+import omero.api.ITypesPrx;
 import omero.api.IUpdatePrx;
 import omero.api.RawFileStorePrx;
 import omero.api.RawPixelsStorePrx;
@@ -199,6 +200,7 @@ import omero.model.ScreenI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.model.Well;
+import omero.model.WellI;
 import omero.model.WellSample;
 import omero.model.WellSampleI;
 import omero.model.enums.ChecksumAlgorithmSHA1160;
@@ -366,12 +368,6 @@ class OMEROGateway
 		SCRIPTS_NOT_AVAILABLE_TO_USER = new ArrayList<String>();
 		SCRIPTS_NOT_AVAILABLE_TO_USER.add(
 				ScriptObject.IMPORT_PATH+"Populate_ROI.py");
-		SCRIPTS_NOT_AVAILABLE_TO_USER.add(
-				ScriptObject.ANALYSIS_PATH+"FLIM.py");
-		SCRIPTS_NOT_AVAILABLE_TO_USER.add(
-				ScriptObject.ANALYSIS_PATH+"flim-omero.py");
-		SCRIPTS_NOT_AVAILABLE_TO_USER.add(
-				ScriptObject.SETUP_PATH+"FLIM_initialise.py");
 	}
 
 	/**
@@ -977,6 +973,10 @@ class OMEROGateway
 		        WellSampleI.class.equals(klass) ||
 				WellSampleData.class.equals(klass))
 			table = "ScreenAnnotationLink";
+		else if (Well.class.equals(klass) ||
+                WellI.class.equals(klass) ||
+                WellData.class.equals(klass))
+            table = "WellAnnotationLink";
 		else if (RectangleData.class.equals(klass) || RectangleI.class.equals(klass) ||
 		        EllipseData.class.equals(klass) ||  EllipseI.class.equals(klass) ||
 		        PointData.class.equals(klass) || PointI.class.equals(klass) ||
@@ -1610,9 +1610,6 @@ class OMEROGateway
 	 * i.e. the requested node as root and all of its descendants.
 	 * The annotation for the current user is also linked to the object.
 	 * Annotations are currently possible only for Image and Dataset.
-	 * Wraps the call to the
-	 * {@link IPojos#loadContainerHierarchy(Class, List, Map)}
-	 * and maps the result calling {@link PojoMapper#asDataObjects(Set)}.
 	 *
 	 * @param ctx The security context, necessary to determine the service.
 	 * @param rootType  The top-most type which will be searched for
@@ -1628,15 +1625,14 @@ class OMEROGateway
 	 * retrieve data from OMERO service.
 	 * @see IPojos#loadContainerHierarchy(Class, List, Map)
 	 */
-	Set loadContainerHierarchy(SecurityContext ctx, Class rootType,
+	Collection<DataObject> loadContainerHierarchy(SecurityContext ctx, Class rootType,
 			List rootIDs, Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    try {
             BrowseFacility f = gw.getFacility(BrowseFacility.class);
-            // TODO: tmp solution, should be changed to Collection<DataObject> throughout
-           return new HashSet(f.loadHierarchy(ctx, rootType,
-                    rootIDs, options));
+           return f.getHierarchy(ctx, rootType,
+                    rootIDs, options);
         } catch (Throwable e) {
             handleException(e, "Cannot load hierarchy for "+rootType+".");
         }
@@ -1651,7 +1647,7 @@ class OMEROGateway
 	 * Annotations are currently possible only for Image and Dataset.
 	 * Wraps the call to the
 	 * {@link IPojos#findContainerHierarchies(Class, List, Map)}
-	 * and maps the result calling {@link PojoMapper#asDataObjects(Set)}.
+	 * and maps the result calling {@link PojoMapper#convertToDataObjects(Set)}.
 	 *
 	 * @param ctx The security context, necessary to determine the service.
 	 * @param rootNodeType  top-most type which will be searched for
@@ -1666,14 +1662,14 @@ class OMEROGateway
 	 * retrieve data from OMERO service.
 	 * @see IPojos#findContainerHierarchies(Class, List, Map)
 	 */
-	Set findContainerHierarchy(SecurityContext ctx, Class rootNodeType,
+	Collection<DataObject> findContainerHierarchy(SecurityContext ctx, Class rootNodeType,
 			List leavesIDs, Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
 		    IContainerPrx service = gw.getPojosService(ctx);
-			return PojoMapper.asDataObjects(service.findContainerHierarchies(
-					PojoMapper.getModelType(rootNodeType).getName(), leavesIDs, options));
+			return PojoMapper.convertToDataObjects((service.findContainerHierarchies(
+					PojoMapper.getModelType(rootNodeType).getName(), leavesIDs, options)));
 		} catch (Throwable t) {
 			handleException(t, "Cannot find hierarchy for "+rootNodeType+".");
 		}
@@ -1688,9 +1684,6 @@ class OMEROGateway
 	 * that were found for that node. If no annotations were found for that
 	 * node, then the entry will be <code>null</code>. Otherwise it will be a
 	 * <code>Set</code> containing <code>Annotation</code> objects.
-	 * Wraps the call to the
-	 * {@link IMetadataPrx#loadAnnotations(String, List, List, List)}
-	 * and maps the result calling {@link PojoMapper#asDataObjects(Parameters)}.
 	 *
 	 * @param ctx The security context.
 	 * @param nodeType      The type of the rootNodes.
@@ -1748,7 +1741,7 @@ class OMEROGateway
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.s
 	 */
-	Set<DataObject> loadAnnotation(SecurityContext ctx,
+	Collection<DataObject> loadAnnotation(SecurityContext ctx,
 			List<Long> annotationIds)
 		throws DSOutOfServiceException, DSAccessException
 	{
@@ -1757,7 +1750,7 @@ class OMEROGateway
 
 		try {
 		    IMetadataPrx service = gw.getMetadataService(ctx);
-			return PojoMapper.asDataObjects(
+			return PojoMapper.convertToDataObjects(
 					service.loadAnnotation(annotationIds));
 		} catch (Throwable t) {
 			handleException(t, "Cannot find the annotations.");
@@ -1801,7 +1794,7 @@ class OMEROGateway
 	 * Retrieves the images contained in containers specified by the
 	 * node type.
 	 * Wraps the call to the {@link IPojos#getImages(Class, List, Parameters)}
-	 * and maps the result calling {@link PojoMapper#asDataObjects(Set)}.
+	 * and maps the result calling {@link PojoMapper#convertToDataObjects(Set)}.
 	 *
 	 * @param ctx The security context.
 	 * @param nodeType  The type of container. Can be either Project, Dataset.
@@ -1813,13 +1806,13 @@ class OMEROGateway
 	 * retrieve data from OMERO service.
 	 * @see IPojos#getImages(Class, List, Map)
 	 */
-	Set getContainerImages(SecurityContext ctx, Class nodeType, List nodeIDs,
+	Collection<ImageData> getContainerImages(SecurityContext ctx, Class nodeType, List nodeIDs,
 			Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
 		    IContainerPrx service = gw.getPojosService(ctx);
-			return PojoMapper.asDataObjects(service.getImages(
+			return PojoMapper.<ImageData>convertToDataObjects(service.getImages(
 					PojoMapper.getModelType(nodeType).getName(), nodeIDs, options));
 		} catch (Throwable t) {
 			handleException(t, "Cannot find images for "+nodeType+".");
@@ -1828,10 +1821,7 @@ class OMEROGateway
 	}
 
     /**
-     * Retrieves the images imported by the current user. Wraps the call to the
-     * {@link IPojos#getUserImages(Parameters)} and maps the result calling
-     * {@link PojoMapper#asDataObjects(Set)}.
-     *
+     * Retrieves the images imported by the current user.
      * @param ctx
      *            The security context.
      * @param userID
@@ -3935,7 +3925,7 @@ class OMEROGateway
 		try {
 		    IContainerPrx service = gw.getPojosService(ctx);
 			List result = service.getImagesByOptions(map);
-			if (asDataObject) return PojoMapper.asDataObjects(result);
+			if (asDataObject) return PojoMapper.convertToDataObjects(result);
 			return result;
 		} catch (Exception e) {
 			handleException(e, "Cannot retrieve the images imported during " +
@@ -4241,14 +4231,14 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
-	Set loadSpecificAnnotation(SecurityContext ctx, Class type,
+	Collection<DataObject> loadSpecificAnnotation(SecurityContext ctx, Class type,
 			List<String> toInclude, List<String> toExclude, Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
 	   
 		try {
 		    IMetadataPrx service = gw.getMetadataService(ctx);
-			return PojoMapper.asDataObjects(
+			return PojoMapper.convertToDataObjects(
 					service.loadSpecifiedAnnotations(
 							PojoMapper.getModelType(type).getName(), toInclude,
 							toExclude, options));
@@ -4370,7 +4360,7 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
-	Set searchByTime(SecurityContext ctx, SearchDataContext context)
+	Collection<DataObject> searchByTime(SecurityContext ctx, SearchDataContext context)
 		throws DSOutOfServiceException, DSAccessException
 	{
 	   
@@ -4438,7 +4428,7 @@ class OMEROGateway
 			} else
 				buf.append("where owner.id in (:ids)");
 
-			return PojoMapper.asDataObjects(
+			return PojoMapper.convertToDataObjects(
 					service.findAllByQuery(buf.toString(), param));
 		} catch (Throwable e) {
 			handleException(e, "Cannot retrieve the images.");
@@ -4717,7 +4707,7 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
-	Set fetchContainers(SecurityContext ctx, Class type, long userID)
+	Collection<DataObject> fetchContainers(SecurityContext ctx, Class type, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 	   
@@ -4727,7 +4717,7 @@ class OMEROGateway
 			p.map = new HashMap<String, RType>();
 			p.map.put("id", omero.rtypes.rlong(userID));
 			String table = getTableForClass(type);
-			return PojoMapper.asDataObjects(service.findAllByQuery(
+			return PojoMapper.convertToDataObjects(service.findAllByQuery(
 	                "from "+table+" as p where p.details.owner.id = :id", p));
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the containers.");
@@ -4747,7 +4737,7 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
-	Set getAnnotatedObjects(SecurityContext ctx, Class type,
+	Collection<DataObject> getAnnotatedObjects(SecurityContext ctx, Class type,
 			Set<Long> annotationIds, Set<Long> ownerIds)
 		throws DSOutOfServiceException, DSAccessException
 	{
@@ -4770,7 +4760,7 @@ class OMEROGateway
 	            	sb.append(" and img.details.owner.id in (:ownerIds)");
 	            	param.addLongs("ownerIds", ownerIds);
 	            }
-	            return PojoMapper.asDataObjects(
+	            return PojoMapper.convertToDataObjects(
 	         			service.findAllByQuery(sb.toString(), param));
 			}
 		} catch (Exception e) {
@@ -4935,12 +4925,12 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
-			Set result = getContainerImages(ctx, ImageData.class,
+			Collection<ImageData> result = getContainerImages(ctx, ImageData.class,
 					Arrays.asList(imageID), options);
 			if (result != null && result.size() == 1) {
-				Iterator i = result.iterator();
+				Iterator<ImageData> i = result.iterator();
 				while (i.hasNext())
-					return (ImageData) i.next();
+					return i.next();
 			}
 			return null;
 		} catch (Exception e) {
@@ -5211,8 +5201,8 @@ class OMEROGateway
 	{
 	   
 		try {
-		    IQueryPrx service = gw.getQueryService(ctx);
-			return service.findByString(klass.getName(), "value", value);
+		    ITypesPrx service = gw.getTypesService(ctx);
+		    return service.getEnumeration(klass.getName(), value);
 		} catch (Exception e) {
 			handleException(e, "Cannot find the enumeration's value.");
 		}
@@ -5238,10 +5228,10 @@ class OMEROGateway
 	   
 		List<EnumerationObject> r;
 		try {
-		    IPixelsPrx service = gw.getPixelsService(ctx);
+		    ITypesPrx service = gw.getTypesService(ctx);
 			r = enumerations.get(klassName);
 			if (r != null) return r;
-			List<IObject> l = service.getAllEnumerations(klassName);
+			List<IObject> l = service.allEnumerations(klassName);
 			r = new ArrayList<EnumerationObject>();
 			if (l == null) return r;
 			Iterator<IObject> i = l.iterator();
@@ -5268,7 +5258,7 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
-	Collection loadTags(SecurityContext ctx, Long id, Parameters options)
+	Collection<DataObject> loadTags(SecurityContext ctx, Long id, Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
 	   
@@ -5279,7 +5269,7 @@ class OMEROGateway
 			Map m = service.loadTagContent(ids, options);
 			if (m == null || m.size() == 0)
 				return new ArrayList();
-			return PojoMapper.asDataObjects((Collection) m.get(id));
+			return PojoMapper.convertToDataObjects((Collection) m.get(id));
 		} catch (Exception e) {
 			handleException(e, "Cannot find the Tags.");
 		}
@@ -5303,7 +5293,7 @@ class OMEROGateway
 	   
 		try {
 		    IMetadataPrx service = gw.getMetadataService(ctx);
-			return PojoMapper.asDataObjects(service.loadTagSets(options));
+			return PojoMapper.convertToDataObjects(service.loadTagSets(options));
 		} catch (Exception e) {
 			handleException(e, "Cannot find the Tags.");
 		}
@@ -6171,7 +6161,7 @@ class OMEROGateway
 		    IRoiPrx svc = gw.getROIService(ctx);
 			RoiOptions options = new RoiOptions();
 			options.userId = omero.rtypes.rlong(userID);
-			Collection files = PojoMapper.asDataObjects(
+			Collection files = PojoMapper.convertToDataObjects(
 					svc.getRoiMeasurements(imageID, options));
 			List results = new ArrayList();
 			if (files != null) {
@@ -6669,7 +6659,7 @@ class OMEROGateway
 		                + "left outer join fetch m2.parent" +
 		                		" where g.id = :id", p);
 			}
-			pojos.addAll(PojoMapper.asDataObjects(groups));
+			pojos.addAll(PojoMapper.<GroupData>convertToDataObjects(groups));
 			return pojos;
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the available groups ");
@@ -6703,7 +6693,7 @@ class OMEROGateway
 	                + "left outer join fetch g.groupExperimenterMap m "
 	                + "left outer join fetch m.child u "
 	                + " where u.id = :id", p);
-			pojos.addAll(PojoMapper.asDataObjects(groups));
+			pojos.addAll(PojoMapper.<GroupData>convertToDataObjects(groups));
 			return pojos;
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the available groups ");
@@ -6731,7 +6721,7 @@ class OMEROGateway
 		try {
 		    IAdminPrx service = gw.getAdminService(ctx);
 			List<Experimenter> l = service.lookupExperimenters();
-			pojos.addAll(PojoMapper.asDataObjects(l));
+			pojos.addAll(PojoMapper.<ExperimenterData>convertToDataObjects(l));
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the existing groups.");
 		}
@@ -7367,7 +7357,7 @@ class OMEROGateway
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
-	Set<DataObject> getFileSet(SecurityContext ctx, Collection<Long> imageIds)
+	Collection<DataObject> getFileSet(SecurityContext ctx, Collection<Long> imageIds)
 		throws DSOutOfServiceException, DSAccessException
 	{
 	   
@@ -7379,7 +7369,7 @@ class OMEROGateway
 				l.add(omero.rtypes.rlong(j.next()));
 			ParametersI param = new ParametersI();
 			param.add("imageIds", omero.rtypes.rlist(l));
-			return PojoMapper.asDataObjects(service.findAllByQuery(
+			return PojoMapper.convertToDataObjects(service.findAllByQuery(
 					createFileSetQuery(), param));
 		} catch (Exception e) {
 			handleException(e, "Cannot retrieve the file set");
@@ -7419,7 +7409,7 @@ class OMEROGateway
 	 * retrieve data from OMERO service.
 	 */
 	Map<Long, Collection<AnnotationData>>
-	loadSpecifiedAnnotationsLinkedTo(SecurityContext ctx, Class<?> rootType,
+	loadSpecifiedAnnotationsLinkedTo(SecurityContext ctx, Class<? extends DataObject> rootType,
 			List<Long> rootIDs, Class<?> annotationType, List<String> nsInclude,
 			List<String> nsExclude, Parameters options)
 	throws DSOutOfServiceException, DSAccessException
@@ -7480,7 +7470,7 @@ class OMEROGateway
 	 * retrieve data from OMERO service.
 	 */
 	Map<Long, Map<Boolean, List<Long>>> getImagesBySplitFilesets(
-			SecurityContext ctx, Class<?> rootType, List<Long> rootIDs,
+			SecurityContext ctx, Class<? extends DataObject> rootType, List<Long> rootIDs,
 			Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
@@ -7530,7 +7520,7 @@ class OMEROGateway
      * retrieve data from OMERO service.
      */
     Map<Long, List<IObject>> loadLogFiles(SecurityContext ctx,
-            Class<?> rootType, List<Long> rootIDs)
+            Class<? extends DataObject> rootType, List<Long> rootIDs)
             throws DSOutOfServiceException, DSAccessException
     {
        

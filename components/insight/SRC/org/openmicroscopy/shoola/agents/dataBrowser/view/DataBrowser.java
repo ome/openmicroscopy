@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -20,6 +20,7 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Collection;
@@ -35,6 +36,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
+import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 
 import omero.gateway.SecurityContext;
@@ -702,9 +704,6 @@ public interface DataBrowser
 	/** Indicates to refresh when images are added to datasets. */
 	public void refresh();
 
-	/** Shows or hides the fields view. */
-	public void displayFieldsView();
-	
 	/** 
 	 * Loads all the fields for the specified well.
 	 * 
@@ -714,16 +713,20 @@ public interface DataBrowser
 	 * 		                 <code>false</code> otherwise.
 	 */
 	public void viewFieldsFor(int row, int column, boolean multiSelection);
-	
-	/**
-	 * Sets the thumbnails for all the fields of the specified well.
-	 * 
-	 * @param list 	 The collection of thumbnails.
-	 * @param row    The row identifying the well.
-	 * @param column The column identifying the well.
-	 */
-	public void setThumbnailsFieldsFor(List list, int row, int column);
 
+    /**
+     * Update the thumbnail for a particular field
+     * 
+     * @param well
+     *            The well coordinates
+     * @param td
+     *            The thumbnail
+     * @param complete
+     *            Flag to indicate that all fields have been loaded
+     */
+    public void updateThumbnailsFields(Point well, ThumbnailData td,
+            boolean complete);
+		
 	/**
 	 * Opens the currently selected object with an external application.
 	 * 

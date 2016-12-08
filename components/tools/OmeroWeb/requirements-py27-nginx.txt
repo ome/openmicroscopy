@@ -3,5 +3,6 @@
 #
 #     pip install -r requirements-py27-nginx.txt
 #
-Django>=1.8,<1.9
+
+-r requirements-common.txt
 gunicorn>=19.3

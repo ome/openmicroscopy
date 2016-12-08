@@ -24,9 +24,9 @@ Tests creation and deletion of links between e.g. Projects & Datasets etc.
 import omero
 
 from omero.rtypes import rstring
-from weblibrary import IWebTest
-from weblibrary import _csrf_post_response, _get_response
-from weblibrary import _csrf_delete_response
+from omeroweb.testlib import IWebTest
+from omeroweb.testlib import _csrf_post_response, _get_response
+from omeroweb.testlib import _csrf_delete_response
 
 import json
 from time import sleep

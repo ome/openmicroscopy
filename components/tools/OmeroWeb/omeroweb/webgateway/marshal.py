@@ -43,14 +43,19 @@ def channelMarshal(channel):
     @return:            Dict
     """
 
-    return {'emissionWave': channel.getEmissionWave(),
+    chan = {'emissionWave': channel.getEmissionWave(),
             'label': channel.getLabel(),
             'color': channel.getColor().getHtml(),
+            'reverseIntensity': channel.isReverseIntensity(),
             'window': {'min': channel.getWindowMin(),
                        'max': channel.getWindowMax(),
                        'start': channel.getWindowStart(),
                        'end': channel.getWindowEnd()},
             'active': channel.isActive()}
+    lut = channel.getLut()
+    if lut and len(lut) > 0:
+        chan['lut'] = lut
+    return chan
 
 
 def imageMarshal(image, key=None, request=None):
@@ -296,8 +301,15 @@ def shapeMarshal(shape):
         set_if('fontStyle', shape.getFontStyle())
         set_if('fontFamily', shape.getFontFamily())
 
-    set_if('transform', shape.getTransform(),
-           func=lambda a: a is not None and a != 'None')
+    if shape.getTransform() is not None:
+        transform = shape.getTransform()
+        tm = [unwrap(transform.a00),
+              unwrap(transform.a10),
+              unwrap(transform.a01),
+              unwrap(transform.a11),
+              unwrap(transform.a02),
+              unwrap(transform.a12)]
+        rv['transform'] = 'matrix(%s)' % (' '.join([str(t) for t in tm]))
     fill_color = unwrap(shape.getFillColor())
     if fill_color is not None:
         rv['fillColor'], rv['fillAlpha'] = rgb_int2css(fill_color)
@@ -307,6 +319,10 @@ def shapeMarshal(shape):
     if shape.getStrokeWidth() is not None:
         # FIXME: units ignored for stroke width
         set_if('strokeWidth', shape.getStrokeWidth().getValue())
+    if hasattr(shape, 'getMarkerStart') and shape.getMarkerStart() is not None:
+        rv['markerStart'] = shape.getMarkerStart().getValue()
+    if hasattr(shape, 'getMarkerEnd') and shape.getMarkerEnd() is not None:
+        rv['markerEnd'] = shape.getMarkerEnd().getValue()
     return rv
 
 

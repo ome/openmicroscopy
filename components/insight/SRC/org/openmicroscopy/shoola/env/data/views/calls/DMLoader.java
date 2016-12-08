@@ -20,13 +20,17 @@
  */
 package org.openmicroscopy.shoola.env.data.views.calls;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
+
 import omero.gateway.SecurityContext;
+
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ProjectData;
 import omero.gateway.model.ScreenData;
@@ -47,7 +51,7 @@ public class DMLoader
 {
 
     /** The results of the call. */
-    private Set results;
+    private Collection results;
     
     /** Loads the specified tree. */
     private BatchCall loadCall;

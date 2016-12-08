@@ -20,13 +20,17 @@
  */
 package org.openmicroscopy.shoola.env.data.views.calls;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
+
 import omero.gateway.SecurityContext;
+
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ProjectData;
 
@@ -59,7 +63,7 @@ public class HierarchyLoader
     private long        userID;
     
     /** The root nodes of the found trees. */
-    private Set         rootNodes;
+    private Collection         rootNodes;
     
     /** Loads the specified tree. */
     private BatchCall   loadCall;

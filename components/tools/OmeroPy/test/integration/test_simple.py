@@ -10,10 +10,10 @@
 
 """
 
-import library as lib
+from omero.testlib import ITest
 
 
-class TestSimple(lib.ITest):
+class TestSimple(ITest):
 
     DEFAULT_PERMS = 'rwra--'  # Override DEFAULT_PERMS of ITest
 

@@ -28,8 +28,8 @@
 
 
 import os.path
+import warnings
 import sys
-import platform
 import logging
 import omero
 import omero.config
@@ -41,8 +41,12 @@ import random
 import string
 
 from omero_ext import portalocker
+from omero.install.python_warning import py27_only, PYTHON_WARNING
 
 logger = logging.getLogger(__name__)
+
+if not py27_only():
+    warnings.warn("WARNING: %s" % PYTHON_WARNING, RuntimeWarning)
 
 # LOGS
 # NEVER DEPLOY a site into production with DEBUG turned on.
@@ -80,10 +84,7 @@ FULL_REQUEST_LOGFORMAT = (
     ' (proc.%(process)5.5d) %(funcName)s():%(lineno)d'
     ' HTTP %(status_code)d %(request)s')
 
-if platform.system() in ("Windows",):
-    LOGGING_CLASS = 'logging.handlers.RotatingFileHandler'
-else:
-    LOGGING_CLASS = 'omero_ext.cloghandler.ConcurrentRotatingFileHandler'
+LOGGING_CLASS = 'omero_ext.cloghandler.ConcurrentRotatingFileHandler'
 
 LOGGING = {
     'version': 1,
@@ -471,7 +472,15 @@ CUSTOM_SETTINGS_MAPPINGS = {
          ("Workers silent for more than this many seconds are killed "
           "and restarted. Check Gunicorn Documentation "
           "http://docs.gunicorn.org/en/stable/settings.html#timeout")],
-
+    "omero.web.api.absolute_url":
+        ["API_ABSOLUTE_URL",
+         None,
+         str_slash,
+         ("URL to use for generating urls within API json responses. "
+          "By default this is None, and we use Django's "
+          "request.build_absolute_uri() to generate absolute urls "
+          "based on each request. If set to a string or empty string, "
+          "this will be used as prefix to relative urls.")],
 
     # Public user
     "omero.web.public.enabled":
@@ -533,6 +542,21 @@ CUSTOM_SETTINGS_MAPPINGS = {
          ("Django view which handles display of, or redirection to, the "
           "desired full image viewer.")],
 
+    # OPEN WITH
+    "omero.web.open_with":
+        ["OPEN_WITH",
+         ('[["Image viewer", "webindex", {"supported_objects": ["image"],'
+          '"script_url": "webclient/javascript/ome.openwith_viewer.js"}]]'),
+         json.loads,
+         ("A list of viewers that can be used to display selected Images "
+          "or other objects. Each viewer is defined as "
+          "``[\"Name\", \"url\", options]``. Url is reverse(url). "
+          "Selected objects are added to the url as ?image=:1&image=2"
+          "Objects supported must be specified in options with"
+          "E.g. ``{\"supported_objects\":[\"images\"]}`` "
+          "to enable viewer for one or more images, "
+          "``{\"target\":\"_blank\"}`` to open in new tab.")],
+
     # PIPELINE 1.3.20
 
     # Pipeline is an asset packaging library for Django, providing both CSS
@@ -584,8 +608,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
          '[]',
          json.loads,
          ("List of locations of the template source files, in search order. "
-          "Note that these paths should use Unix-style forward slashes, even"
-          " on Windows.")],
+          "Note that these paths should use Unix-style forward slashes.")],
     "omero.web.index_template":
         ["INDEX_TEMPLATE",
          None,
@@ -602,7 +625,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
           " <ref/urlresolvers/#django.core.urlresolvers.reverse>`. "
           "For example: ``'{\"redirect\": [\"webindex\"], \"viewname\":"
           " \"load_template\", \"args\":[\"userdata\"], \"query_string\":"
-          " \"experimenter=-1\"}'``")],
+          " {\"experimenter\": -1}}'``")],
     "omero.web.apps":
         ["ADDITIONAL_APPS",
          '[]',
@@ -627,12 +650,30 @@ CUSTOM_SETTINGS_MAPPINGS = {
           '{"title":"Open OMERO user guide in a new tab", "target":"new"}]'
           ']'),
          json.loads,
-         ("Add links to the top header: links are ``['Link Text', 'link',"
-          " options]``, where "
-          "the url is reverse('link') OR simply 'link' (for external urls). "
-          "E.g. ``'[[\"Webtest\", \"webtest_index\"], [\"Homepage\","
+         ("Add links to the top header: links are ``['Link Text', "
+          "'link|lookup_view', options]``, where the url is reverse('link'), "
+          "simply 'link' (for external urls) or lookup_view is a detailed "
+          "dictionary {\"viewname\": \"str\", \"args\": [], \"query_string\": "
+          "{\"param\": \"value\" }], "
+          "E.g. ``'[\"Webtest\", \"webtest_index\"] or [\"Homepage\","
           " \"http://...\", {\"title\": \"Homepage\", \"target\": \"new\"}"
-          " ]]'``")],
+          " ] or [\"Repository\", {\"viewname\": \"webindex\", "
+          "\"query_string\": {\"experimenter\": -1}}, "
+          "{\"title\": \"Repo\"}]'``")],
+    "omero.web.ui.metadata_panes":
+        ["METADATA_PANES",
+         ('['
+          '{"name": "tag", "label": "Tags", "index": 1},'
+          '{"name": "map", "label": "Key-Value Pairs", "index": 2},'
+          '{"name": "table", "label": "Tables", "index": 3},'
+          '{"name": "file", "label": "Attachments", "index": 4},'
+          '{"name": "comment", "label": "Comments", "index": 5},'
+          '{"name": "rating", "label": "Ratings", "index": 6},'
+          '{"name": "other", "label": "Others", "index": 7}'
+          ']'),
+         json.loads,
+         ("Manage Metadata pane accordion. This functionality is limited to"
+          " the exiting sections.")],
     "omero.web.ui.right_plugins":
         ["RIGHT_PLUGINS",
          ('[["Acquisition",'
@@ -881,8 +922,6 @@ SITE_ID = 1
 # Local time zone for this installation. Choices can be found here:
 # http://www.postgresql.org/docs/8.1/static/datetime-keywords.html#DATETIME-TIMEZONE-SET-TABLE
 # although not all variations may be possible on all operating systems.
-# If running in a Windows environment this must be set to the same as your
-# system time zone.
 TIME_ZONE = 'Europe/London'
 FIRST_DAY_OF_WEEK = 0     # 0-Monday, ... 6-Sunday
 
@@ -1024,12 +1063,6 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
-    'omeroweb.feedback',
-    'omeroweb.webadmin',
-    'omeroweb.webclient',
-    'omeroweb.webgateway',
-    'omeroweb.webredirect',
-    'pipeline',
 )
 
 # ADDITONAL_APPS: We import any settings.py from apps. This allows them to
@@ -1055,6 +1088,15 @@ for app in ADDITIONAL_APPS:  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
         report_settings(module.settings)
     except ImportError:
         logger.debug("Couldn't import settings from app: %s" % app)
+
+INSTALLED_APPS += (
+    'omeroweb.feedback',
+    'omeroweb.webadmin',
+    'omeroweb.webclient',
+    'omeroweb.webgateway',
+    'omeroweb.webredirect',
+    'pipeline',
+)
 
 logger.debug('INSTALLED_APPS=%s' % [INSTALLED_APPS])
 
@@ -1134,6 +1176,12 @@ CSRF_FAILURE_VIEW = "omeroweb.feedback.views.csrf_failure"
 # comment messages to http://qa.openmicroscopy.org.uk.
 # FEEDBACK_APP: 6 = OMERO.web
 FEEDBACK_APP = 6
+
+# For any given release of api, we may support
+# one or more versions of the api.
+# E.g. /api/v1.0/
+# TODO - need to decide how this is configured, strategy for extending etc.
+API_VERSIONS = ('0.1',)
 
 # IGNORABLE_404_STARTS:
 # Default: ('/cgi-bin/', '/_vti_bin', '/_vti_inf')

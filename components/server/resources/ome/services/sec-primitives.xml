@@ -3,8 +3,6 @@
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# $Id$
-#
 # Copyright 2008 Glencoe Software, Inc. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
@@ -47,6 +45,7 @@
     <constructor-arg ref="currentDetails"/>
     <constructor-arg ref="&amp;OneGroupSecurityFilter"/><!-- filter is a factory -->
     <constructor-arg ref="&amp;AllGroupsSecurityFilter"/><!-- filter is a factory -->
+    <constructor-arg ref="&amp;SharingSecurityFilter"/><!-- filter is a factory -->
   </bean>
 
   <bean id="OneGroupSecurityFilter" class="ome.security.basic.OneGroupSecurityFilter">
@@ -56,6 +55,11 @@
   <bean id="AllGroupsSecurityFilter" class="ome.security.basic.AllGroupsSecurityFilter">
     <constructor-arg ref="simpleSqlAction"/>
     <constructor-arg ref="roles"/>
+  </bean>
+
+  <bean id="SharingSecurityFilter" class="ome.security.basic.SharingSecurityFilter">
+    <constructor-arg ref="roles"/>
+    <constructor-arg ref="shareStore"/>
   </bean>
 
   <alias name="${omero.security.chmod_strategy}" alias="chmodStrategy"/>

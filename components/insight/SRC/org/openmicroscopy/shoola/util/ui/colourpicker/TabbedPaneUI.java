@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.colourpicker.TabbedPaneUI
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -23,7 +23,6 @@
 
 package org.openmicroscopy.shoola.util.ui.colourpicker;
 
-//Java imports
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Dimension;
@@ -35,6 +34,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -46,12 +46,10 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import info.clearthought.layout.TableLayout; 
+import info.clearthought.layout.TableLayout;
 
+import org.apache.commons.lang.StringUtils;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -81,12 +79,9 @@ class TabbedPaneUI
 	/** Used by card layout to select colour wheel panel. */
 	private static final String COLOURWHEELPANE = "Color Wheel Pane";
 	
-	/** Used by card layout to select RGB Slider panel. */
-	private static final String RGBSLIDERPANE = "RGB Slider Pane"; 
-	
 	/** Used by card layout to select swatch panel. */
 	private static final String SWATCHPANE = "Swatch Pane";
-	
+    
 	/** Action id to preview the color changes.*/
 	private static final int	PREVIEW = 0;
 	
@@ -114,11 +109,11 @@ class TabbedPaneUI
 	/** Button to choose HSVColourWheelPanel. */
 	private JToggleButton 		colourWheelButton;
 	
-	/** Button to choose RGB Sliders panel. */
-	private JToggleButton		RGBSlidersButton;
-	
 	/** Button to choose colour swatch panel. */
 	private JToggleButton		colourSwatchButton;
+	
+	/** Button to reverse intensity. */
+	private JCheckBox           revIntButton;
 	
 	/** Accept the current colour choice. */
 	private JButton				acceptButton;
@@ -138,12 +133,9 @@ class TabbedPaneUI
 	/** ColourWheel panel, containing the HSVPickerUI. */
 	private HSVColourWheelUI	colourWheelPane;
 	
-	/** RGBPanel containing the ColourSlider UI. */
-	private RGBSliderUI 		RGBSliderPane;
-	
 	/** Containing the Swatch UI. */
 	private ColourSwatchUI 		swatchPane;
-	
+
 	/** Layout manager for the colourwheel, slider and swatch panels. */
 	private CardLayout 			tabPaneLayout;
 	
@@ -195,21 +187,7 @@ class TabbedPaneUI
         };
         
         colourWheelButton.addActionListener(action);
-        RGBSlidersButton = new JToggleButton(
-        icons.getIcon(IconManager.COLOUR_SLIDER_24));
-        UIUtilities.unifiedButtonLookAndFeel(RGBSlidersButton);
-        RGBSlidersButton.setBorderPainted(true);
-        RGBSlidersButton.setToolTipText("Show RGB Color Sliders.");
-        
-        action = new AbstractAction("RGB Slider Button") 
-        {
-            public void actionPerformed(ActionEvent evt) 
-            {
-            	clearToggleButtons();
-                pickRGBSliderPane();
-            }
-        };
-        RGBSlidersButton.addActionListener(action);
+
         colourSwatchButton = new JToggleButton(
         icons.getIcon(IconManager.COLOUR_SWATCH_24));
         colourSwatchButton.setToolTipText("Show Color List.");
@@ -225,11 +203,23 @@ class TabbedPaneUI
             }
         };
         colourSwatchButton.addActionListener(action);
+        
+        revIntButton = new JCheckBox("Reverse Intensity");
+        revIntButton.setToolTipText("Reverse this channel's intensity");
+        revIntButton.setSelected(control.getReverseIntensity());
+        revIntButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                control.setReverseIntensity(revIntButton.isSelected());
+            }
+        });
         toolbar.setFloatable(false);
         toolbar.setRollover(true);
-        toolbar.add(colourWheelButton);
-        toolbar.add(RGBSlidersButton);
+        toolbar.setLayout(new BoxLayout(toolbar, BoxLayout.LINE_AXIS));
         toolbar.add(colourSwatchButton);
+        toolbar.add(colourWheelButton);
+        toolbar.add(Box.createHorizontalGlue());
+        toolbar.add(revIntButton);
     }
     
     /** 
@@ -285,9 +275,8 @@ class TabbedPaneUI
     private void createPanels()
     {
         colourWheelPane = new HSVColourWheelUI(control);
-        paintPotPane = new PaintPotUI(control.getColour(), control);
-        RGBSliderPane = new RGBSliderUI(control);
         swatchPane = new ColourSwatchUI(control);
+        paintPotPane = new PaintPotUI(control.getColour(), control.getLUT(), control);
     }
     
     /** 
@@ -304,7 +293,7 @@ class TabbedPaneUI
                 
         JPanel container = new JPanel();
         container.setLayout(new BorderLayout());
-        container.add(toolbar, BorderLayout.WEST);
+        container.add(toolbar, BorderLayout.CENTER);
           
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         add(container);
@@ -315,9 +304,8 @@ class TabbedPaneUI
         tabPanel = new JPanel();
         tabPaneLayout = new CardLayout();
         tabPanel.setLayout(tabPaneLayout);
-        tabPanel.add(colourWheelPane, COLOURWHEELPANE);
-        tabPanel.add(RGBSliderPane, RGBSLIDERPANE);
         tabPanel.add(swatchPane, SWATCHPANE);
+        tabPanel.add(colourWheelPane, COLOURWHEELPANE);
         add(tabPanel);
         if (field) {
         	add(new JSeparator());
@@ -332,14 +320,17 @@ class TabbedPaneUI
         	add(p);
         }
         add(userActionPanel);
-        pickSwatchPane();
+        
+        if(control.isCustomColor())
+            pickWheelPane();
+        else
+            pickSwatchPane();
     }
     
     /** Clears all buttons. */
     private void clearToggleButtons()
     {
         colourWheelButton.setSelected(false);
-        RGBSlidersButton.setSelected(false);
         colourSwatchButton.setSelected(false);
     }
     
@@ -348,9 +339,7 @@ class TabbedPaneUI
     {   
         colourWheelButton.setSelected(true);
         colourWheelPane.setActive(true);
-
         tabPaneLayout.show(tabPanel,COLOURWHEELPANE);
-        RGBSliderPane.setActive(false);
         swatchPane.setActive(false);
         colourWheelPane.findPuck();
         colourWheelPane.refresh();
@@ -363,22 +352,9 @@ class TabbedPaneUI
         tabPaneLayout.show(tabPanel,SWATCHPANE);
         colourSwatchButton.setSelected(true);
         swatchPane.setActive(true);
-        RGBSliderPane.setActive(false);
         colourWheelPane.setActive(false);
         this.doLayout();
         swatchPane.refresh();
-    }
-    
-    /** Sets RGBSlider as picked and makes it visible. */
-    private void pickRGBSliderPane()
-    {
-        tabPaneLayout.show(tabPanel,RGBSLIDERPANE);
-        RGBSlidersButton.setSelected(true);
-        RGBSliderPane.setActive(true);
-        colourWheelPane.setActive(false);
-        swatchPane.setActive(false);
-        this.doLayout();
-        RGBSliderPane.refresh();
     }
     
 	/**
@@ -440,10 +416,21 @@ class TabbedPaneUI
 	{
 		if (fieldDescription == null) return null;
 		String text = fieldDescription.getText();
-		if (text == null) return null;
-		return text.trim();
+		if (StringUtils.isBlank(text))
+		    return null;
+		return text;
 	}
 	
+	/** 
+     * Returns the reverse intensity.
+     * 
+     * @return See above.
+     */
+    boolean getReverseIntensity()
+    {
+        return revIntButton.isSelected();
+    }
+    
 	/**
 	 * Sets the description associated to the color.
 	 * 
@@ -474,19 +461,22 @@ class TabbedPaneUI
 	 */
 	public void stateChanged(ChangeEvent evt) 
 	{
-		if (RGBSliderPane != null && RGBSliderPane.isVisible())
-			RGBSliderPane.refresh();
 		if (colourWheelPane != null && colourWheelPane.isVisible())
 			colourWheelPane.refresh();
 		if (swatchPane != null && swatchPane.isVisible())
 			swatchPane.refresh();
 		if (fieldDescription == null)
-			setButtonsEnabled(!control.isOriginalColour());
+			setButtonsEnabled(!control.isOriginalColour()
+			        || !control.isOriginalLut() 
+			        || !control.isOriginalRevInt());
 		else {
 			String text = fieldDescription.getText();
 			setButtonsEnabled(!text.equals(originalDescription) 
-					|| !control.isOriginalColour());
+					|| !control.isOriginalColour() 
+					|| !control.isOriginalLut() 
+					|| !control.isOriginalRevInt());
 		}
+		revIntButton.setSelected(control.getReverseIntensity());
 	}
 
 	/**
@@ -498,7 +488,8 @@ class TabbedPaneUI
 		if (fieldDescription == null) return;
 		String text = fieldDescription.getText();
 		setButtonsEnabled(!text.equals(originalDescription) 
-				|| !control.isOriginalColour());
+				|| !control.isOriginalColour() 
+				|| !control.isOriginalLut());
 	}
 
 	/**
@@ -510,7 +501,8 @@ class TabbedPaneUI
 		if (fieldDescription == null) return;
 		String text = fieldDescription.getText();
 		setButtonsEnabled(!text.equals(originalDescription) ||
-				!control.isOriginalColour());
+				!control.isOriginalColour()
+				|| !control.isOriginalLut());
 	}
 
 	/**

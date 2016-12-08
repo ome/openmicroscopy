@@ -39,7 +39,6 @@ import org.apache.commons.lang.StringUtils;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.MapMaker;
 import com.google.common.collect.Multimap;
@@ -74,6 +73,8 @@ import omero.api.IRoiPrxHelper;
 import omero.api.IScriptPrx;
 import omero.api.IScriptPrxHelper;
 import omero.api.ISessionPrx;
+import omero.api.ITypesPrx;
+import omero.api.ITypesPrxHelper;
 import omero.api.IUpdatePrx;
 import omero.api.IUpdatePrxHelper;
 import omero.api.RawFileStorePrx;
@@ -481,6 +482,20 @@ class Connector
                 get(omero.constants.PIXELSSERVICE.value,
                         unsecureClient == null));
     }
+
+     /**
+      * Returns the {@link ITypesPrx} service.
+      * 
+      * @return See above.
+      * @throws Throwable Thrown if the service cannot be initialized.
+      */
+      ITypesPrx getTypesService()
+             throws DSOutOfServiceException
+     {
+         return ITypesPrxHelper.uncheckedCast(
+                 get(omero.constants.TYPESSERVICE.value,
+                         unsecureClient == null));
+     }
 
     /**
      * Returns the {@link SearchPrx} service.

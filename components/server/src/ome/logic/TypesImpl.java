@@ -166,10 +166,11 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes {
     public <T extends IEnum> List<T> getOriginalEnumerations() {
         List<IEnum> original = new ArrayList<IEnum>();
         InputStream in = null;
+        JarFile jarFile = null;
         try {
             URL file = ResourceUtils.getURL("classpath:enums.properties");
             URL jar = ResourceUtils.extractJarFileURL(file);
-            JarFile jarFile = new JarFile(jar.getPath());
+            jarFile = new JarFile(jar.getPath());
             JarEntry entry = jarFile.getJarEntry("enums.properties");
             in = jarFile.getInputStream(entry);
             Properties property = new Properties();
@@ -212,7 +213,8 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes {
             throw new RuntimeException("No such method. " + e.getMessage());
         } finally {
             try {
-                in.close();
+                if (in != null) in.close();
+                if (jarFile != null) jarFile.close();
             } catch (IOException e) {
             }
         }

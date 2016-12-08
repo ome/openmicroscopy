@@ -40,13 +40,13 @@ if instrument is not None:
 # Load ObjectiveSettings
 # ======================
 if image.getObjectiveSettings():
-    objSet = image.getObjectiveSettings()
+    obj_set = image.getObjectiveSettings()
     print "Objective Settings:"
     print "  Correction Collar: %s Medium: %s Refractive Index: %s" % (
-        objSet.getCorrectionCollar(), objSet.getMedium(),
-        objSet.getRefractiveIndex())
-    if objSet.getObjective():
-        obj = objSet.getObjective()
+        obj_set.getCorrectionCollar(), obj_set.getMedium(),
+        obj_set.getRefractiveIndex())
+    if obj_set.getObjective():
+        obj = obj_set.getObjective()
         print "Objective:"
         print "  Model: %s Nominal Mag: %s Calibrated Mag: %s" % (
             obj.getModel(), obj.getNominalMagnification(),
@@ -62,48 +62,48 @@ if image.getObjectiveSettings():
 # =======================================================
 for ch in image.getChannels():
     print "Channel: ", ch.getLabel()
-    logicalChannel = ch.getLogicalChannel()
-    lightPath = logicalChannel.getLightPath()
-    if lightPath is not None:
-        lightPathDichroic = lightPath.getDichroic()
-        if (lightPathDichroic is not None and
-                lightPathDichroic._obj is not None):
+    logical_channel = ch.getLogicalChannel()
+    light_path = logical_channel.getLightPath()
+    if light_path is not None:
+        light_path_dichroic = light_path.getDichroic()
+        if (light_path_dichroic is not None and
+                light_path_dichroic._obj is not None):
             print "  Dichroic:"
-            print "    Model:", lightPathDichroic.getModel()
+            print "    Model:", light_path_dichroic.getModel()
         print "  Emission Filters:"
-        for f in lightPath.getEmissionFilters():
+        for f in light_path.getEmissionFilters():
             print "    Model:", f.getModel(),
             print "    Type:", f.getType() and f.getType().getValue(),
             tr = f.getTransmittanceRange()
             print "    Transmittance range:: %s-%s " % (
                 tr.getCutIn(), tr.getCutOut())
         print "  Excitation Filters:"
-        for f in lightPath.getExcitationFilters():
+        for f in light_path.getExcitationFilters():
             print "    Model:", f.getModel(),
             print "    Type:", f.getType() and f.getType().getValue(),
             tr = f.getTransmittanceRange()
             print "    Transmittance range: %s-%s " % (
                 tr.getCutIn(), tr.getCutOut())
-    if logicalChannel.getDetectorSettings()._obj is not None:
+    if logical_channel.getDetectorSettings()._obj is not None:
         print "  Detector Settings:"
-        dset = logicalChannel.getDetectorSettings()
+        dset = logical_channel.getDetectorSettings()
         print "    Voltage: %s Gain: %s Offset: %s" % (
             dset.getVoltage(), dset.getGain(), dset.getOffsetValue())
         print "Readout rate:", dset.getReadOutRate(),
         print "Binning:", (dset.getBinning()._obj is not None
                            and dset.getBinning().getValue())
-        if logicalChannel.getDetectorSettings().getDetector():
+        if logical_channel.getDetectorSettings().getDetector():
             print "  Detector:"
-            det = logicalChannel.getDetectorSettings().getDetector()
+            det = logical_channel.getDetectorSettings().getDetector()
             print "    Model: %s Gain: %s Voltage: %s Offset: %s" % (
                 det.getModel(), det.getGain(), det.getVoltage(),
                 det.getOffsetValue())
-    lightSourceSettings = logicalChannel.getLightSourceSettings()
-    if (lightSourceSettings is not None
-            and lightSourceSettings._obj is not None):
+    light_source_settings = logical_channel.getLightSourceSettings()
+    if (light_source_settings is not None
+            and light_source_settings._obj is not None):
         print "  Light Source:"
-        if lightSourceSettings.getLightSource() is not None:
-            ls = lightSourceSettings.getLightSource()
+        if light_source_settings.getLightSource() is not None:
+            ls = light_source_settings.getLightSource()
             print "    Model: %s Manufacturer: %s Power: %s" % (
                 ls.getModel(), ls.getManufacturer(), ls.getPower())
             # TODO: Check whether this is Arc etc.
@@ -121,20 +121,20 @@ om = image.loadOriginalMetadata()
 if om is not None:
     print "\n\noriginal_metadata"
     print "global_metadata"
-    for keyValue in om[1]:
-        if len(keyValue) > 1:
-            print "   ", keyValue[0], keyValue[1]
+    for key_value in om[1]:
+        if len(key_value) > 1:
+            print "   ", key_value[0], key_value[1]
         else:
-            print "   ", keyValue[0], "NOT FOUND"
+            print "   ", key_value[0], "NOT FOUND"
     print "series_metadata"
-    for keyValue in om[2]:
-        if len(keyValue) > 1:
-            print "   ", keyValue[0], keyValue[1]
+    for key_value in om[2]:
+        if len(key_value) > 1:
+            print "   ", key_value[0], key_value[1]
         else:
-            print "   ", keyValue[0], "NOT FOUND"
+            print "   ", key_value[0], "NOT FOUND"
 
 
 # Close connection
 # ================
 # When you are done, close the session to free up server resources.
-conn._closeSession()
+conn.close()

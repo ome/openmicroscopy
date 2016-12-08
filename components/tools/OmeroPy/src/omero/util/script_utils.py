@@ -27,11 +27,10 @@ import os
 import warnings
 
 from struct import unpack
+from numpy import add, array, asarray, fromstring, reshape, zeros
+from os.path import exists
 
 import omero.clients
-from omero.rtypes import rdouble
-from omero.rtypes import rint
-from omero.rtypes import rstring
 from omero.rtypes import unwrap
 import omero.util.pixelstypetopython as pixelstypetopython
 
@@ -41,6 +40,14 @@ try:
 except:
     import sha
     hash_sha1 = sha.new
+
+try:
+    from PIL import Image  # see ticket:2597
+except:  # pragma: nocover
+    try:
+        import Image  # see ticket:2597
+    except:
+        logging.error('No Pillow installed')
 
 # r,g,b,a colours for use in scripts.
 COLOURS = {
@@ -461,7 +468,6 @@ def readFileAsArray(rawFileService, iQuery, fileId, row, col, separator=' '):
     @param sep the column separator.
     @return The file as an NumPy array.
     """
-    from numpy import fromstring, reshape
     textBlock = readFromOriginalFile(rawFileService, iQuery, fileId)
     arrayFromFile = fromstring(textBlock, sep=separator)
     return reshape(arrayFromFile, (row, col))
@@ -474,7 +480,6 @@ def readFlimImageFile(rawPixelsStore, pixels):
     @param pixels The pixels of the image.
     @return The Contents of the image for z = 0, t = 0, all channels;
     """
-    from numpy import zeros
     sizeC = pixels.getSizeC().getValue()
     sizeX = pixels.getSizeX().getValue()
     sizeY = pixels.getSizeY().getValue()
@@ -502,7 +507,6 @@ def downloadPlane(rawPixelsStore, pixels, z, c, t):
     @param t The T-Section to retrieve.
     @return The Plane of the image for z, c, t
     """
-    from numpy import array
     rawPlane = rawPixelsStore.getPlane(z, c, t)
     sizeX = pixels.getSizeX().getValue()
     sizeY = pixels.getSizeY().getValue()
@@ -523,12 +527,6 @@ def getPlaneFromImage(imagePath, rgbIndex=None):
 
     @param imagePath   Path to image.
     """
-    from numpy import asarray
-    try:
-        from PIL import Image  # see ticket:2597
-    except ImportError:
-        import Image  # see ticket:2597
-
     i = Image.open(imagePath)
     a = asarray(i)
     if rgbIndex is None:
@@ -552,7 +550,6 @@ def uploadDirAsImages(sf, queryService, updateService,
     """
 
     import re
-    from numpy import zeros
 
     regex_token = re.compile(r'(?P<Token>.+)\.')
     regex_time = re.compile(r'T(?P<T>\d+)')
@@ -723,7 +720,7 @@ def uploadDirAsImages(sf, queryService, updateService,
     for c in pixels.iterateChannels():
         # returns omero.model.LogicalChannelI
         lc = c.getLogicalChannel()
-        lc.setName(rstring(channels[i]))
+        lc.setName(omero.rtypes.rstring(channels[i]))
         updateService.saveObject(lc)
         i += 1
 
@@ -735,90 +732,6 @@ def uploadDirAsImages(sf, queryService, updateService,
         updateService.saveAndReturnObject(link)
 
     return imageId
-
-
-def uploadCecogObjectDetails(updateService, imageId, filePath):
-    """
-    Parses a single line of cecog output and saves as a roi.
-
-    Adds a Rectangle (particle) to the current OMERO image, at point x, y.
-    Uses the self.image (OMERO image) and self.updateService
-    """
-
-    objects = {}
-    roi_ids = []
-
-    import fileinput
-    for line in fileinput.input([filePath]):
-
-        theT = None
-        x = None
-        y = None
-
-        parts = line.split("\t")
-        names = ("frame", "objID", "primaryClassLabel", "primaryClassName",
-                 "centerX", "centerY", "mean", "sd", "secondaryClassabel",
-                 "secondaryClassName", "secondaryMean", "secondarySd")
-        values = {}
-        for idx, name in enumerate(names):
-            if len(parts) >= idx:
-                values[name] = parts[idx]
-
-        frame = values["frame"]
-        try:
-            frame = long(frame)
-        except ValueError:
-            SU_LOG.debug("Non-roi line: %s " % line)
-            continue
-
-        theT = frame - 1
-        objID = values["objID"]
-        className = values["primaryClassName"]
-        x = float(values["centerX"])
-        y = float(values["centerY"])
-
-        description = ""
-        for name in names:
-            description += ("%s=%s\n" % (name, values.get(name, "(missing)")))
-
-        if theT and x and y:
-            SU_LOG.debug(
-                "Adding point '%s' to frame: %s, x: %s, y: %s"
-                % (className, theT, x, y))
-            try:
-                shapes = objects[objID]
-            except KeyError:
-                shapes = []
-                objects[objID] = shapes
-            shapes.append((theT, className, x, y, values, description))
-
-    for object, shapes in objects.items():
-
-        # create an ROI, add the point and save
-        roi = omero.model.RoiI()
-        roi.setImage(omero.model.ImageI(imageId, False))
-        roi.setDescription(omero.rtypes.rstring("objID: %s" % object))
-
-        # create and save a point
-        for shape in shapes:
-
-            theT, className, x, y, values, description = shape
-
-            point = omero.model.PointI()
-            point.x = rdouble(x)
-            point.y = rdouble(y)
-            point.theT = rint(theT)
-            point.theZ = rint(0)  # Workaround for shoola:ticket:1596
-            if className:
-                point.setTextValue(rstring(className))    # for display only
-
-            # link the point to the ROI and save it
-            roi.addShape(point)
-
-        roi = updateService.saveAndReturnObject(point)
-        roi_ids.append(roi.id.val)
-
-    return roi_ids
 
 
 def split_image(client, imageId, dir,
@@ -873,7 +786,6 @@ def split_image(client, imageId, dir,
         dd = tuple([dimMap[d] for d in dims])
         return unformatted % dd
 
-    # cecog does this, but other formats may want to start at 0
     zStart = 1
     tStart = 1
 
@@ -1279,7 +1191,8 @@ def registerNamespace(iQuery, iUpdate, namespace, keywords):
     @return see above.
     """
     from omero.util.OmeroPopo import WorkflowData as WorkflowData
-
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     # Support rstring and str namespaces
     namespace = unwrap(namespace)
     keywords = unwrap(keywords)
@@ -1311,6 +1224,8 @@ def findROIByImage(roiService, image, namespace):
     @return see above.
     """
     from omero.util.OmeroPopo import ROIData as ROIData
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     roiOptions = omero.api.RoiOptions()
     roiOptions.namespace = omero.rtypes.rstring(namespace)
     results = roiService.findByImage(image, roiOptions)
@@ -1318,3 +1233,65 @@ def findROIByImage(roiService, image, namespace):
     for roi in results.rois:
         roiList.append(ROIData(roi))
     return roiList
+
+
+def numpy_to_image(plane, min_max, dtype):
+    """
+    Converts the numpy plane to a PIL Image, converting data type if necessary.
+    @param plane The plane to handle
+    @param min_max the min and the max values for the plane
+    @param dtype the data type to use for scaling
+    """
+
+    conv_array = convert_numpy_array(plane, min_max, dtype)
+    if plane.dtype.name not in ('uint8', 'int8'):
+        return Image.frombytes('I', plane.shape, conv_array)
+    else:
+        return Image.fromarray(conv_array)
+
+
+def numpy_save_as_image(plane, min_max, dtype, name):
+    """
+    Converts the numpy plane, converting data type if necessary
+    and saves it as png, jpeg etc.
+    @param plane The plane to handle
+    @param min_max the min and the max values for the plane
+    @param type the data type to use for scaling
+    @param name the name of the image
+    """
+
+    image = numpy_to_image(plane, min_max, dtype)
+    try:
+        image.save(name)
+    except (IOError, KeyError) as e:
+        msg = "Cannot save the array as an image: %s: %s" % (
+            name, e)
+        logging.error(msg)
+        # delete the file
+        if (exists(name)):
+            os.remove(name)
+
+
+def convert_numpy_array(plane, min_max, type):
+    """
+    Converts the numpy plane to a PIL Image, converting data type if necessary.
+    @param plane The plane to handle
+    @param min_max the min and the max values for the plane
+    @param type the data type to use for scaling
+    """
+
+    if plane.dtype.name not in ('uint8', 'int8'):   # we need to scale...
+        min_val, max_val = min_max
+        val_range = max_val - min_val
+        if (val_range == 0):
+            val_range = 1
+        scaled = (plane - min_val) * (float(255) / val_range)
+        conv_array = zeros(plane.shape, dtype=type)
+        try:
+            conv_array += scaled
+        except TypeError:
+            # casting required with newer version of numpy
+            add(conv_array, scaled, out=conv_array, casting="unsafe")
+        return conv_array
+    else:
+        return plane

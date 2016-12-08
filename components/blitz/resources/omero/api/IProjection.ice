@@ -112,7 +112,7 @@ module omero {
                  *             <code>null</code> the name of the Image linked
                  *             to the Pixels qualified by
                  *             <code>pixelsId</code> will be used with a
-                 *             "Projection" suffix. For example,
+                 *             <i>Projection</i> suffix. For example,
                  *             <i>GFP-H2B Image of HeLa Cells</i> will have an
                  *             Image name of
                  *             <i>GFP-H2B Image of HeLa Cells Projection</i>

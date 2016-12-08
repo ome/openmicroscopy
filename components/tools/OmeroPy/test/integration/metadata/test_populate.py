@@ -24,7 +24,7 @@
    and populate_roi.py scripts.
 """
 
-import library as lib
+from omero.testlib import ITest
 import string
 import csv
 import os.path
@@ -70,7 +70,7 @@ def coord2offset(coord):
     return r - 1, c - 1
 
 
-class BasePopulate(lib.ITest):
+class BasePopulate(ITest):
 
     def createCsv(
         self,
@@ -89,8 +89,8 @@ class BasePopulate(lib.ITest):
         return str(csvFileName)
 
     def createPlate(self, rowCount, colCount):
-        plates = self.importPlates(plateRows=rowCount,
-                                   plateCols=colCount)
+        plates = self.import_plates(plate_rows=rowCount,
+                                    plate_cols=colCount)
         return plates[0]
 
     def createPlate1(self, rowCount, colCount):
@@ -154,8 +154,10 @@ class TestPopulateMetadata(BasePopulate):
         except Exception:
             skip("PyYAML not installed.")
         self._test_parsing_context()
-        self._test_bulk_to_map_annotation_context()
-        self._test_delete_map_annotation_context()
+        # Adding map annotations to wells AND images is currently disabled
+        # in commit d3a0b362 because they are duplicated in UI.
+        # self._test_bulk_to_map_annotation_context()
+        # self._test_delete_map_annotation_context()
 
     def _test_parsing_context(self):
         """

@@ -664,7 +664,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
          */
         @SuppressWarnings("unused")  /* used by create() via Method.invoke */
         public String expandUser(String prefix, String suffix) {
-            return prefix + ctx.userName + suffix;
+            return prefix + serverPaths.getPathSanitizer().apply(ctx.userName) + suffix;
         }
 
         /**
@@ -688,7 +688,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
          */
         @SuppressWarnings("unused")  /* used by create() via Method.invoke */
         public String expandGroup(String prefix, String suffix) {
-            return prefix + ctx.groupName + suffix;
+            return prefix + serverPaths.getPathSanitizer().apply(ctx.groupName) + suffix;
         }
 
         /**

@@ -35,9 +35,9 @@ conn.connect()
 print imageId
 image = conn.getObject("Image", imageId)
 img_data = image.getThumbnail()
-renderedThumb = Image.open(StringIO(img_data))
+rendered_thumb = Image.open(StringIO(img_data))
 # renderedThumb.show()           # shows a pop-up
-renderedThumb.save("thumbnail.jpg")
+rendered_thumb.save("thumbnail.jpg")
 
 
 # Get current settings
@@ -66,43 +66,43 @@ for rdef in image.getAllRenderingDefs():
 # Render each channel as a separate greyscale image
 # =================================================
 image.setGreyscaleRenderingModel()
-sizeC = image.getSizeC()
+size_c = image.getSizeC()
 z = image.getSizeZ() / 2
 t = 0
-for c in range(1, sizeC + 1):       # Channel index starts at 1
+for c in range(1, size_c + 1):       # Channel index starts at 1
     channels = [c]                  # Turn on a single channel at a time
     image.setActiveChannels(channels)
-    renderedImage = image.renderImage(z, t)
+    rendered_image = image.renderImage(z, t)
     # renderedImage.show()                        # popup (use for debug only)
-    renderedImage.save("channel%s.jpg" % c)     # save in the current folder
+    rendered_image.save("channel%s.jpg" % c)     # save in the current folder
 
 
 # Turn 3 channels on, setting their colors
 # ========================================
 image.setColorRenderingModel()
 channels = [1, 2, 3]
-colorList = ['F00', None, 'FFFF00']  # do not change color of 2nd channel
-image.setActiveChannels(channels, colors=colorList)
+color_list = ['F00', None, 'FFFF00']  # do not change color of 2nd channel
+image.setActiveChannels(channels, colors=color_list)
 # max intensity projection 'intmean' for mean-intensity
 image.setProjection('intmax')
-renderedImage = image.renderImage(z, t)  # z and t are ignored for projections
+rendered_image = image.renderImage(z, t)  # z and t are ignored for projections
 # renderedImage.show()
-renderedImage.save("all_channels.jpg")
+rendered_image.save("all_channels.jpg")
 image.setProjection('normal')               # turn off projection
 
 
 # Turn 2 channels on, setting levels of the first one
 # ===================================================
 channels = [1, 2]
-rangeList = [[100.0, 120.2], [None, None]]
-image.setActiveChannels(channels, windows=rangeList)
+range_list = [[100.0, 120.2], [None, None]]
+image.setActiveChannels(channels, windows=range_list)
 # Set default Z and T. These will be used as defaults for further rendering
 image.setDefaultZ(0)
 image.setDefaultT(0)
 # default compression is 0.9
-renderedImage = image.renderImage(z=None, t=None, compression=0.5)
-renderedImage.show()
-renderedImage.save("two_channels.jpg")
+rendered_image = image.renderImage(z=None, t=None, compression=0.5)
+rendered_image.show()
+rendered_image.save("two_channels.jpg")
 
 
 # Save the current rendering settings and default Z/T
@@ -118,4 +118,4 @@ image.resetDefaults(save=True)
 # Close connection
 # ================
 # When you are done, close the session to free up server resources.
-conn._closeSession()
+conn.close()

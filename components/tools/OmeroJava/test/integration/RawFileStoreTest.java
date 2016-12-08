@@ -1,21 +1,18 @@
 /*
- * $Id$
- *
- *   Copyright 2006-2010 University of Dundee. All rights reserved.
+ *   Copyright 2006-2016 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package integration;
 
-import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertTrue;
-
 import java.util.Iterator;
 import java.util.List;
 
+import omero.ServerError;
 import omero.api.IScriptPrx;
 import omero.api.RawFileStorePrx;
 import omero.model.OriginalFile;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
@@ -48,7 +45,7 @@ public class RawFileStoreTest extends AbstractServerTest {
         byte[] data = new byte[] { 1 };
         svc.write(data, 0, data.length);
         OriginalFile ff = svc.save(); // save
-        assertTrue(ff.getId().getValue() == f.getId().getValue());
+        Assert.assertEquals(f.getId().getValue(), ff.getId().getValue());
         svc.close();
     }
 
@@ -74,10 +71,10 @@ public class RawFileStoreTest extends AbstractServerTest {
 
         int size = (int) f.getSize().getValue();
         byte[] values = svc.read(0, size);
-        assertNotNull(values);
-        assertTrue(values.length == data.length);
+        Assert.assertNotNull(values);
+        Assert.assertEquals(data.length, values.length);
         for (int i = 0; i < values.length; i++) {
-            assertTrue(values[i] == data[i]);
+            Assert.assertEquals(data[i], values[i]);
         }
         svc.close();
     }
@@ -99,17 +96,32 @@ public class RawFileStoreTest extends AbstractServerTest {
         RawFileStorePrx store;
         byte[] values;
         int size;
-        assertTrue(scripts.size() > 0);
+        Assert.assertFalse(scripts.isEmpty());
         while (i.hasNext()) {
             f = i.next();
             store = factory.createRawFileStore();
             store.setFileId(f.getId().getValue());
             size = (int) f.getSize().getValue();
             values = store.read(0, size);
-            assertNotNull(values);
-            assertTrue(values.length > 0);
+            Assert.assertNotNull(values);
+            Assert.assertNotEquals(values.length, 0);
             store.close();
         }
     }
 
+    /**
+     * Test that a sensible exception is thrown when a bad file ID is set.
+     * @throws Exception for bad file ID
+     */
+    @Test(expectedExceptions = ServerError.class, groups = "broken")
+    public void testBadFileId() throws Exception {
+        newUserAndGroup("rw----");
+        final RawFileStorePrx rfs = factory.createRawFileStore();
+        try {
+            rfs.setFileId(-1);
+            Assert.fail("should not be able to open file with bad ID");
+        } finally {
+            rfs.close();
+        }
+    }
 }

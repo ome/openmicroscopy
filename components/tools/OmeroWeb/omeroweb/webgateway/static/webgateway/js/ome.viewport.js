@@ -20,6 +20,48 @@
 
 /* Public constructors */
 
+if (!OME) {
+  OME = {};
+}
+// these are the LUT Names we know about and are included in the lut preview
+OME.LUT_NAMES = ['16_colors.lut',
+                 '3-3-2_rgb.lut',
+                 '5_ramps.lut',
+                 '6_shades.lut',
+                 'blue_orange_icb.lut',
+                 'brgbcmyw.lut',
+                 'cool.lut',
+                 'cyan_hot.lut',
+                 'edges.lut',
+                 'fire.lut',
+                 'gem.lut',
+                 'glasbey.lut',
+                 'glasbey_inverted.lut',
+                 'glow.lut',
+                 'grays.lut',
+                 'green_fire_blue.lut',
+                 'hilo.lut',
+                 'ica.lut',
+                 'ica2.lut',
+                 'ica3.lut',
+                 'ice.lut',
+                 'magenta_hot.lut',
+                 'orange_hot.lut',
+                 'phase.lut',
+                 'physics.lut',
+                 'rainbow_rgb.lut',
+                 'red-green.lut',
+                 'red_hot.lut',
+                 'royal.lut',
+                 'sepia.lut',
+                 'smart.lut',
+                 'spectrum.lut',
+                 'thal.lut',
+                 'thallium.lut',
+                 'thermal.lut',
+                 'unionjack.lut',
+                 'yellow_hot.lut'];
+
 jQuery.fn.WeblitzViewport = function (server, options) {
   return this.each
   (
@@ -55,6 +97,13 @@ var Metadata = function () {
         this[i][j] = cached[i][j];
       }
     }
+    // If a channel has 'lut', overwrite color
+    this.channels = this.channels.map(function(ch){
+      if (ch.lut) {
+        ch.color = ch.lut;
+      }
+      return ch;
+    });
     this.defaultZ = this.rdefs.defaultZ;
     this.current.z = this.rdefs.defaultZ;
     this.defaultT = this.rdefs.defaultT;
@@ -279,6 +328,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
     _this.refresh(true);
     
     // Here we set up PanoJs Big image viewer...
+    _this.viewportimg.get(0).destroyTiles();
     if (_this.loadedImg.tiles) {
         // This is called for every tile, each time they move
         var hrefProvider = function() {
@@ -579,6 +629,16 @@ jQuery._WeblitzViewport = function (container, server, options) {
 
   this.toggleChannel = function (idx) {
     this.setChannelActive(idx, !_this.loadedImg.channels[idx].active);
+  };
+
+  this.setChannelReverseIntensity = function (idx, reverse, noreload) {
+    if (_this.loadedImg.channels[idx].reverseIntensity !== reverse) {
+      _this.loadedImg.channels[idx].reverseIntensity = reverse;
+      _this.self.trigger('channelChange', [_this, idx, _this.loadedImg.channels[idx]]);
+      if (!noreload) {
+        _load();
+      }
+    }
   };
 
   this.getCCount = function () {
@@ -897,9 +957,10 @@ jQuery._WeblitzViewport = function (container, server, options) {
     }
     for (var i=0; i<e1.channels.length; i++) {
       if (!(e1.channels[i].active == e2.channels[i].active &&
-            OME.rgbToHex(e1.channels[i].color) == OME.rgbToHex(e2.channels[i].color) &&
+            e1.channels[i].color == e2.channels[i].color &&
             e1.channels[i].windowStart == e2.channels[i].windowStart &&
             e1.channels[i].windowEnd == e2.channels[i].windowEnd &&
+            e1.channels[i].reverseIntensity == e2.channels[i].reverseIntensity &&
             e1.channels[i].metalabel == e2.channels[i].metalabel)) {
         return false;
       }
@@ -913,9 +974,10 @@ jQuery._WeblitzViewport = function (container, server, options) {
     var channels = _this.loadedImg.channels;
     for (i=0; i<channels.length; i++) {
       var channel = {active: channels[i].active,
-                     color: toRGB(channels[i].color),
+                     color: channels[i].color,
                      windowStart: channels[i].window.start,
                      windowEnd: channels[i].window.end,
+                     reverseIntensity: channels[i].reverseIntensity,
                      metalabel: channels[i].metalabel};
       entry.channels.push(channel);
     }
@@ -941,6 +1003,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
         this.setChannelColor(i, entry.channels[i].color, true);
         this.setChannelActive(i, entry.channels[i].active, true);
         this.setChannelLabel(i, entry.channels[i].metalabel, true);
+        this.setChannelReverseIntensity(i, entry.channels[i].reverseIntensity, true);
       }
       _load();
     }
@@ -1017,6 +1080,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
       var ch = channels[i].active ? '' : '-';
       ch += parseInt(i, 10)+1;
       ch += '|' + channels[i].window.start + ':' + channels[i].window.end;
+      ch += channels[i].reverseIntensity ? 'r' : '-r';
       ch += '$' + OME.rgbToHex(channels[i].color);
       chs.push(ch);
     }
@@ -1074,7 +1138,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
     if (query.m) this.setModel(query.m, true);
     if (query.c) {
       var chs = query.c.split(',');
-      for (j=0; j<chs.length; j++) {
+      for (var j=0; j<chs.length; j++) {
         var t = chs[j].split('|');
         var idx;
         if (t[0].substring(0,1) == '-') {
@@ -1086,13 +1150,19 @@ jQuery._WeblitzViewport = function (container, server, options) {
         }
         if (t.length > 1) {
           t = t[1].split('$');
-          var window = t[0].split(':');
-          if (window.length == 2) {
-            this.setChannelWindow(idx, parseFloat(window[0], 10), parseFloat(window[1], 10), true);
+          if (t[0].endsWith('-r')) {
+            this.setChannelReverseIntensity(idx, false, true);
+          } else if (t[0].endsWith('r')) {
+            this.setChannelReverseIntensity(idx, true, true);
+          }
+          t[0] = t[0].replace('-r', '').replace('r', '');  // remove 'r' if present
+          var range = t[0].split(':');
+          if (range.length == 2) {
+            this.setChannelWindow(idx, parseFloat(range[0], 10), parseFloat(range[1], 10), true);
           }
         }
         if (t.length > 1) {
-          this.setChannelColor(idx, toRGB(t[1]), true);
+          this.setChannelColor(idx, t[1], true);
         }
       }
     }

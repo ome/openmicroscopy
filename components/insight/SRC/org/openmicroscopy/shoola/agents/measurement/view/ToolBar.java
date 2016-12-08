@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -48,10 +48,10 @@ import javax.swing.event.ChangeListener;
 
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.DrawingEditor;
-
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.actions.DrawingAction;
 import org.openmicroscopy.shoola.agents.util.ui.PermissionMenu;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureArrowFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureEllipseFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineConnectionFigure;
@@ -67,7 +67,6 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.FigurePropertie
 import org.openmicroscopy.shoola.util.ui.drawingtools.creationtools.DrawingBezierTool;
 import org.openmicroscopy.shoola.util.ui.drawingtools.creationtools.DrawingConnectionTool;
 import org.openmicroscopy.shoola.util.ui.drawingtools.creationtools.DrawingObjectCreationTool;
-import org.openmicroscopy.shoola.util.ui.drawingtools.creationtools.DrawingPointCreationTool;
 import org.openmicroscopy.shoola.util.ui.drawingtools.creationtools.DrawingToolBarButtonFactory;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 
@@ -163,6 +162,9 @@ class ToolBar
     /** The line creation tool. */
     private DrawingObjectCreationTool	lineTool;
     
+    /** The arrow creation tool. */
+    private DrawingObjectCreationTool   arrowTool;
+    
     /** The text creation tool. */
     private DrawingObjectCreationTool	textTool;
 
@@ -253,6 +255,8 @@ class ToolBar
 				new MeasureTextFigure(false, true), p);
 		lineTool = new DrawingObjectCreationTool(
 				new MeasureLineFigure(false, true, true, true, true), p);
+		arrowTool = new DrawingObjectCreationTool(
+                new MeasureArrowFigure(false, true, true, true, true), p);
 		Map<AttributeKey, Object> m = lineConnectionProperties.getProperties();
 		m.put(MeasurementAttributes.FONT_SIZE, value);
 		connectionTool = new DrawingConnectionTool(
@@ -296,7 +300,7 @@ class ToolBar
 		{
 			JToggleButton button = (JToggleButton) component;
 			IconManager icons = IconManager.getInstance();
-			button.setIcon(icons.getIcon(IconManager.POINTICON_22));
+			button.setIcon(icons.getIcon(IconManager.POINT_16));
 			button.setToolTipText(FigureUtil.POINT_TYPE);
 			setUpToggleButton(button);
 		}
@@ -306,6 +310,12 @@ class ToolBar
 		if (component instanceof JToggleButton)
 			setUpToggleButton((JToggleButton) component);
 		
+		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, arrowTool, 
+                CREATE_KEY+FigureUtil.ARROW_TYPE);
+        component = toolBar.getComponent(toolBar.getComponentCount()-1);
+        if (component instanceof JToggleButton)
+            setUpToggleButton((JToggleButton) component);
+    
 		if (addPolyline)
 		{
 			DrawingToolBarButtonFactory.addToolTo(toolBar, editor, polylineTool, 
@@ -463,6 +473,7 @@ class ToolBar
 		rectTool.setResetToSelect(option);
 		textTool.setResetToSelect(option); 
 		lineTool.setResetToSelect(option); 
+		arrowTool.setResetToSelect(option); 
 		// TODO : connectionTool.setResetToSelect(option);
 		pointTool.setResetToSelect(option);
 	    if (addPolygon)
@@ -533,6 +544,7 @@ class ToolBar
         ellipseTool.setAttributes(p);
         pointTool.setAttributes(p);
         lineTool.setAttributes(p);
+        arrowTool.setAttributes(p);
         textTool.setAttributes(p);
         polygonTool.setAttributes(p);
         polylineTool.setAttributes(p);

@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -35,12 +35,12 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.util.PojosUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 
 import omero.gateway.model.DataObject;
 import omero.gateway.model.FileAnnotationData;
-import omero.gateway.model.ImageData;
 
 /** 
  * Action to download the selected file.
@@ -90,25 +90,25 @@ public class DownloadAction
             setEnabled(false);
             return;
         }
-        setEnabled(false);
+        enabled = false;
         Object ho = selectedDisplay.getUserObject();
+        
         if (ho instanceof FileAnnotationData) {
             setEnabled(true);
-        } else if (ho instanceof ImageData) {
+        } else {
             Browser browser = model.getSelectedBrowser();
             List<DataObject> list = browser.getSelectedDataObjects();
             Iterator<DataObject> i = list.iterator();
             DataObject data;
-            boolean enabled = false;
             while (i.hasNext()) {
                 data = i.next();
-                if (data instanceof ImageData) {
-                    ImageData img = (ImageData) data;
-                    if (img.isArchived()) enabled = true;
+                if (PojosUtil.isDownloadable(data)) {
+                    enabled = true;
+                    break;
                 }
             }
-            setEnabled(enabled);
         }
+        setEnabled(enabled);
     }
 
     /**
@@ -158,7 +158,7 @@ public class DownloadAction
                 FileChooser src = (FileChooser) evt.getSource();
                 if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
                     String path = (String) evt.getNewValue();
-                    model.download(new File(path), src.isOverride());
+                    model.download(new File(path), src.isOverride(), null);
                 }
             }
         });

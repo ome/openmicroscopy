@@ -30,6 +30,7 @@ import omero.RString;
 import omero.rtypes;
 import omero.model.Length;
 import omero.model.LengthI;
+import omero.model.Line;
 import omero.model.Shape;
 import omero.model.enums.UnitsLength;
 
@@ -455,8 +456,13 @@ public class ShapeSettingsData
      *
      * @return See above.
      */
-    public String getMarkerStart()
-    {
+    public String getMarkerStart() {
+        Shape shape = (Shape) asIObject();
+        if (shape instanceof Line) {
+            Line l = (Line) shape;
+            return l.getMarkerStart() != null ? l.getMarkerStart().getValue()
+                    : "";
+        }
         return "";
     }
 
@@ -467,27 +473,41 @@ public class ShapeSettingsData
      */
     public String getMarkerEnd()
     {
+        Shape shape = (Shape) asIObject();
+        if (shape instanceof Line) {
+            Line l = (Line) shape;
+            return l.getMarkerEnd() != null ? l.getMarkerEnd().getValue()
+                    : "";
+        }
         return "";
     }
 
     /**
-     * Returns the marker start.
+     * Sets the marker start.
      *
      * @param start The value to set.
      */
-    public String setMarkerStart(String start)
+    public void setMarkerStart(String start)
     {
-        return "";
+        Shape shape = (Shape) asIObject();
+        if (shape instanceof Line) {
+            Line l = (Line) shape;
+            l.setMarkerStart(rtypes.rstring(start));
+        }
     }
 
     /**
-     * Returns the marker end.
+     * Sets the marker end.
      *
      * @param end The value to set.
      */
-    public String setMarkerEnd(String end)
+    public void setMarkerEnd(String end)
     {
-        return "";
+        Shape shape = (Shape) asIObject();
+        if (shape instanceof Line) {
+            Line l = (Line) shape;
+            l.setMarkerEnd(rtypes.rstring(end));
+        }
     }
 
     /**

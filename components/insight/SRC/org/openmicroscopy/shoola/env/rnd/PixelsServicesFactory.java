@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -35,9 +35,11 @@ import java.util.Map.Entry;
 
 import omero.api.RenderingEnginePrx;
 import omero.model.ChannelBinding;
+import omero.model.CodomainMapContext;
 import omero.model.Pixels;
 import omero.model.QuantumDef;
 import omero.model.RenderingDef;
+import omero.model.ReverseIntensityContext;
 import omero.romio.PlaneDef;
 
 import org.openmicroscopy.shoola.env.Container;
@@ -143,6 +145,17 @@ public class PixelsServicesFactory
 				cb.setQuantization(c.getFamily().getValue().getValue(), 
 						c.getCoefficient().getValue(), 
 						c.getNoiseReduction().getValue());
+                if (c.getLookupTable() != null)
+                    cb.setLookupTable(c.getLookupTable().getValue());
+                
+                cb.setReverseIntensity(false);
+                List<CodomainMapContext> cdctx = c.copySpatialDomainEnhancement();
+                for (CodomainMapContext cd : cdctx) {
+                    if(cd instanceof ReverseIntensityContext) {
+                        cb.setReverseIntensity(true);
+                        break;
+                    }
+                }
 			}		
 			i++;
 		}

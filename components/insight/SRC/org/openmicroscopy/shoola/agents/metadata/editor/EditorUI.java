@@ -44,7 +44,6 @@ import javax.swing.SwingUtilities;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.JXTaskPane;
-
 import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
@@ -52,6 +51,7 @@ import org.openmicroscopy.shoola.agents.util.ui.PermissionMenu;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.util.ui.DummyPanel;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -68,6 +68,7 @@ import omero.gateway.model.LongAnnotationData;
 import omero.gateway.model.TagAnnotationData;
 import omero.gateway.model.TermAnnotationData;
 import omero.gateway.model.TextualAnnotationData;
+import omero.gateway.model.WellData;
 import omero.gateway.model.WellSampleData;
 import omero.gateway.model.XMLAnnotationData;
 
@@ -117,6 +118,15 @@ class EditorUI
 	private static final String			RENDERER_DESCRIPTION_SPECIFIC = 
 		"Adjust the rendering settings";
 	
+	/** Text shown when there's no preview available for big images */
+	private static final String BIG_IMAGE_TEXT = "Only available for non big images";
+	
+	/** Text shown when there's no preview available in general */
+	private static final String NO_PREVIEW_TEXT = "No preview available";
+	
+	/** Text shown while the object is loading */
+	private static final String LOADING_TEXT = "Loading...";
+	
 	/** Reference to the controller. */
 	private EditorControl				controller;
 	
@@ -154,7 +164,7 @@ class EditorUI
     private JPanel						defaultPane;
     
     /** The dummy panel displayed instead of the rendering component. */
-    private JPanel						dummyPanel;
+    private DummyPanel						dummyPanel;
 
     /** The menu showing the option to remove tags.*/
     private PermissionMenu tagMenu;
@@ -202,7 +212,7 @@ class EditorUI
 	/** Initializes the UI components. */
 	private void initComponents()
 	{
-		dummyPanel = new JPanel();
+		dummyPanel = new DummyPanel();
 		groupUI = new GroupProfile(model, this);
 		groupUI.addPropertyChangeListener(controller);
 		userUI = new UserUI(model, controller, this);
@@ -304,8 +314,14 @@ class EditorUI
         tabPane.setEnabledAt(RND_INDEX, preview && !multi);
         tabPane.setEnabledAt(ACQUISITION_INDEX, !multi && img.getId() > 0);
         if (!preview) {
-            tabPane.setToolTipTextAt(RND_INDEX, 
-                    "Only available for non big images.");
+            if(model.isLargeImage()) {
+                dummyPanel.setText(BIG_IMAGE_TEXT);
+                tabPane.setToolTipTextAt(RND_INDEX, BIG_IMAGE_TEXT);
+            }
+            else {
+                dummyPanel.setText(NO_PREVIEW_TEXT);
+                tabPane.setToolTipTextAt(RND_INDEX, NO_PREVIEW_TEXT);
+            }
         }
         
         if (getSelectedTab() == RND_INDEX) {
@@ -324,6 +340,7 @@ class EditorUI
 	void setRootObject(Object oldObject)
 	{
 		Object uo = model.getRefObject();
+		dummyPanel.setText(LOADING_TEXT, true);
 		tabPane.setComponentAt(RND_INDEX, dummyPanel);
 		toolBar.buildUI();
 		tabPane.setToolTipTextAt(RND_INDEX, RENDERER_DESCRIPTION);
@@ -350,14 +367,18 @@ class EditorUI
 				tabPane.setEnabledAt(ACQUISITION_INDEX, false);
 				tabPane.setEnabledAt(RND_INDEX, false);
 			} else {
-				if (uo instanceof ImageData || uo instanceof WellSampleData) {
-					handleImageSelection();
-				} else {
-					tabPane.setSelectedIndex(GENERAL_INDEX);
-					tabPane.setEnabledAt(ACQUISITION_INDEX, false);
-					tabPane.setEnabledAt(RND_INDEX, false);
-				}
-				load = true;
+                if (uo instanceof ImageData || uo instanceof WellSampleData) {
+                    handleImageSelection();
+                } 
+                else {
+                    dummyPanel.setText(NO_PREVIEW_TEXT);
+                    tabPane.setToolTipTextAt(RND_INDEX, NO_PREVIEW_TEXT);
+                    if (!(uo instanceof WellData))
+                        tabPane.setSelectedIndex(GENERAL_INDEX);
+                    tabPane.setEnabledAt(ACQUISITION_INDEX, false);
+                    tabPane.setEnabledAt(RND_INDEX, false);
+                }
+                load = true;
 			}
 			generalPane.setRootObject(oldObject);
 			acquisitionPane.setRootObject(load);
@@ -393,6 +414,7 @@ class EditorUI
 			metadata = acquisitionPane.prepareDataToSave();
 
 		model.fireAnnotationSaving(object, metadata, async);
+		toolBar.setStatus(true);
 	}
 
 	/** Shows the image's info. */
@@ -429,6 +451,7 @@ class EditorUI
 		userUI.clearData(null);
 		groupUI.clearData(null);
 		generalPane.clearData(null);
+		dummyPanel.setText("");
 		tabPane.setComponentAt(RND_INDEX, dummyPanel);
 		tabPane.repaint();
 		setCursor(Cursor.getDefaultCursor());
@@ -612,7 +635,9 @@ class EditorUI
 	 */
 	void handleObjectsSelection(Class<?> type, Collection objects)
 	{
-		if (objects == null) return;
+		if (objects == null)
+		    return;
+		
 		List<Object> selection = new ArrayList<Object>();
 		if (CollectionUtils.isNotEmpty(objects)) {
 		    selection.addAll(objects);
@@ -813,13 +838,6 @@ class EditorUI
 		tabPane.addChangeListener(controller);
 	}
 
-	/**
-	 * Analyzes the data. 
-	 * 
-	 * @param index The index identifying the analysis to perform.
-	 */
-	void analyse(int index) { model.analyse(index); }
-
 	/** Sets the instrument and its components. */
 	void setInstrumentData() { acquisitionPane.setInstrumentData(); }
 
@@ -861,7 +879,10 @@ class EditorUI
 	 */
 	void onSettingsApplied(boolean cleanup)
 	{ 
-		if (cleanup) tabPane.setComponentAt(RND_INDEX, dummyPanel);
+		if (cleanup)  {
+		    dummyPanel.setText("");
+		    tabPane.setComponentAt(RND_INDEX, dummyPanel);
+		}
 		else tabPane.setComponentAt(RND_INDEX, 
 				model.getRenderer().getUI());
 	}
@@ -1003,7 +1024,7 @@ class EditorUI
 	 * 
 	 * @return See above.
 	 */
-	Set<FilesetData> getFileset() { return model.getFileset(); }
+	Collection<FilesetData> getFileset() { return model.getFileset(); }
 	
 	/**
 	 * Returns the image or <code>null</code> if the primary select

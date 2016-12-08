@@ -97,7 +97,7 @@ class PressureI(_omero_model.Pressure, UnitBase):
         Mul(Mul(Int(101325), Pow(10, 12)), Sym("atm"))  # nopep8
     CONVERSIONS[UnitsPressure.ATMOSPHERE][UnitsPressure.PSI] = \
         Mul(Rat(Mul(Int(120625), Pow(10, 9)), Int("8208044396629")), Sym("atm"))  # nopep8
-    CONVERSIONS[UnitsPressure.ATMOSPHERE][UnitsPressure.Pascal] = \
+    CONVERSIONS[UnitsPressure.ATMOSPHERE][UnitsPressure.PASCAL] = \
         Mul(Int(101325), Sym("atm"))  # nopep8
     CONVERSIONS[UnitsPressure.ATMOSPHERE][UnitsPressure.TERAPASCAL] = \
         Mul(Rat(Int(4053), Mul(Int(4), Pow(10, 10))), Sym("atm"))  # nopep8
@@ -159,7 +159,7 @@ class PressureI(_omero_model.Pressure, UnitBase):
         Mul(Rat(Int(1), Pow(10, 6)), Sym("attopa"))  # nopep8
     CONVERSIONS[UnitsPressure.ATTOPASCAL][UnitsPressure.PSI] = \
         Mul(Rat(Int(1), Mul(Int("689475729316836"), Pow(10, 7))), Sym("attopa"))  # nopep8
-    CONVERSIONS[UnitsPressure.ATTOPASCAL][UnitsPressure.Pascal] = \
+    CONVERSIONS[UnitsPressure.ATTOPASCAL][UnitsPressure.PASCAL] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("attopa"))  # nopep8
     CONVERSIONS[UnitsPressure.ATTOPASCAL][UnitsPressure.TERAPASCAL] = \
         Mul(Rat(Int(1), Pow(10, 30)), Sym("attopa"))  # nopep8
@@ -221,7 +221,7 @@ class PressureI(_omero_model.Pressure, UnitBase):
         Mul(Pow(10, 17), Sym("bar"))  # nopep8
     CONVERSIONS[UnitsPressure.BAR][UnitsPressure.PSI] = \
         Mul(Rat(Mul(Int(25), Pow(10, 14)), Int("172368932329209")), Sym("bar"))  # nopep8
-    CONVERSIONS[UnitsPressure.BAR][UnitsPressure.Pascal] = \
+    CONVERSIONS[UnitsPressure.BAR][UnitsPressure.PASCAL] = \
         Mul(Pow(10, 5), Sym("bar"))  # nopep8
     CONVERSIONS[UnitsPressure.BAR][UnitsPressure.TERAPASCAL] = \
         Mul(Rat(Int(1), Pow(10, 7)), Sym("bar"))  # nopep8
@@ -283,7 +283,7 @@ class PressureI(_omero_model.Pressure, UnitBase):
         Mul(Pow(10, 15), Sym("cbar"))  # nopep8
     CONVERSIONS[UnitsPressure.CENTIBAR][UnitsPressure.PSI] = \
         Mul(Rat(Mul(Int(25), Pow(10, 12)), Int("172368932329209")), Sym("cbar"))  # nopep8
-    CONVERSIONS[UnitsPressure.CENTIBAR][UnitsPressure.Pascal] = \
+    CONVERSIONS[UnitsPressure.CENTIBAR][UnitsPressure.PASCAL] = \
         Mul(Int(1000), Sym("cbar"))  # nopep8
     CONVERSIONS[UnitsPressure.CENTIBAR][UnitsPressure.TERAPASCAL] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("cbar"))  # nopep8
@@ -345,7 +345,7 @@ class PressureI(_omero_model.Pressure, UnitBase):
         Mul(Pow(10, 10), Sym("centipa"))  # nopep8
     CONVERSIONS[UnitsPressure.CENTIPASCAL][UnitsPressure.PSI] = \
         Mul(Rat(Mul(Int(25), Pow(10, 7)), Int("172368932329209")), Sym("centipa"))  # nopep8
-    CONVERSIONS[UnitsPressure.CENTIPASCAL][UnitsPressure.Pascal] = \
+    CONVERSIONS[UnitsPressure.CENTIPASCAL][UnitsPressure.PASCAL] = \
         Mul(Rat(Int(1), Int(100)), Sym("centipa"))  # nopep8
     CONVERSIONS[UnitsPressure.CENTIPASCAL][UnitsPressure.TERAPASCAL] = \
         Mul(Rat(Int(1), Pow(10, 14)), Sym("centipa"))  # nopep8
@@ -407,7 +407,7 @@ class PressureI(_omero_model.Pressure, UnitBase):
         Mul(Pow(10, 13), Sym("decapa"))  # nopep8
     CONVERSIONS[UnitsPressure.DECAPASCAL][UnitsPressure.PSI] = \
         Mul(Rat(Mul(Int(25), Pow(10, 10)), Int("172368932329209")), Sym("decapa"))  # nopep8
-    CONVERSIONS[UnitsPressure.DECAPASCAL][UnitsPressure.Pascal] = \
+    CONVERSIONS[UnitsPressure.DECAPASCAL][UnitsPressure.PASCAL] = \
         Mul(Int(10), Sym("decapa"))  # nopep8
     CONVERSIONS[UnitsPressure.DECAPASCAL][UnitsPressure.TERAPASCAL] = \
         Mul(Rat(Int(1), Pow(10, 11)), Sym("decapa"))  # nopep8
@@ -469,7 +469,7 @@ class PressureI(_omero_model.Pressure, UnitBase):
         Mul(Pow(10, 16), Sym("dbar"))  # nopep8
     CONVERSIONS[UnitsPressure.DECIBAR][UnitsPressure.PSI] = \
         Mul(Rat(Mul(Int(25), Pow(10, 13)), Int("172368932329209")), Sym("dbar"))  # nopep8
-    CONVERSIONS[UnitsPressure.DECIBAR][UnitsPressure.Pascal] = \
+    CONVERSIONS[UnitsPressure.DECIBAR][UnitsPressure.PASCAL] = \
         Mul(Pow(10, 4), Sym("dbar"))  # nopep8
     CONVERSIONS[UnitsPressure.DECIBAR][UnitsPressure.TERAPASCAL] = \
         Mul(Rat(Int(1), Pow(10, 8)), Sym("dbar"))  # nopep8
@@ -531,7 +531,7 @@ class PressureI(_omero_model.Pressure, UnitBase):
         Mul(Pow(10, 11), Sym("decipa"))  # nopep8
     CONVERSIONS[UnitsPressure.DECIPASCAL][UnitsPressure.PSI] = \
         Mul(Rat(Mul(Int(25), Pow(10, 8)), Int("172368932329209")), Sym("decipa"))  # nopep8
-    CONVERSIONS[UnitsPressure.DECIPASCAL][UnitsPressure.Pascal] = \
+    CONVERSIONS[UnitsPressure.DECIPASCAL][UnitsPressure.PASCAL] = \
         Mul(Rat(Int(1), Int(10)), Sym("decipa"))  # nopep8
     CONVERSIONS[UnitsPressure.DECIPASCAL][UnitsPressure.TERAPASCAL] = \
         Mul(Rat(Int(1), Pow(10, 13)), Sym("decipa"))  # nopep8
@@ -593,7 +593,7 @@ class PressureI(_omero_model.Pressure, UnitBase):
         Mul(Pow(10, 30), Sym("exapa"))  # nopep8
     CONVERSIONS[UnitsPressure.EXAPASCAL][UnitsPressure.PSI] = \
         Mul(Rat(Mul(Int(25), Pow(10, 27)), Int("172368932329209")), Sym("exapa"))  # nopep8
-    CONVERSIONS[UnitsPressure.EXAPASCAL][UnitsPressure.Pascal] = \
+    CONVERSIONS[UnitsPressure.EXAPASCAL][UnitsPressure.PASCAL] = \
         Mul(Pow(10, 18), Sym("exapa"))  # nopep8
     CONVERSIONS[UnitsPressure.EXAPASCAL][UnitsPressure.TERAPASCAL] = \
         Mul(Pow(10, 6), Sym("exapa"))  # nopep8
@@ -655,7 +655,7 @@ class PressureI(_omero_model.Pressure, UnitBase):
         Mul(Rat(Int(1), Int(1000)), Sym("femtopa"))  # nopep8
     CONVERSIONS[UnitsPressure.FEMTOPASCAL][UnitsPressure.PSI] = \
         Mul(Rat(Int(1), Mul(Int("689475729316836"), Pow(10, 4))), Sym("femtopa"))  # nopep8
-    CONVERSIONS[UnitsPressure.FEMTOPASCAL][UnitsPressure.Pascal] = \
+    CONVERSIONS[UnitsPressure.FEMTOPASCAL][UnitsPressure.PASCAL] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("femtopa"))  # nopep8
     CONVERSIONS[UnitsPressure.FEMTOPASCAL][UnitsPressure.TERAPASCAL] = \
         Mul(Rat(Int(1), Pow(10, 27)), Sym("femtopa"))  # nopep8
@@ -717,7 +717,7 @@ class PressureI(_omero_model.Pressure, UnitBase):
         Mul(Pow(10, 21), Sym("gigapa"))  # nopep8
     CONVERSIONS[UnitsPressure.GIGAPASCAL][UnitsPressure.PSI] = \
         Mul(Rat(Mul(Int(25), Pow(10, 18)), Int("172368932329209")), Sym("gigapa"))  # nopep8
-    CONVERSIONS[UnitsPressure.GIGAPASCAL][UnitsPressure.Pascal] = \
+    CONVERSIONS[UnitsPressure.GIGAPASCAL][UnitsPressure.PASCAL] = \
         Mul(Pow(10, 9), Sym("gigapa"))  # nopep8
     CONVERSIONS[UnitsPressure.GIGAPASCAL][UnitsPressure.TERAPASCAL] = \
         Mul(Rat(Int(1), Int(1000)), Sym("gigapa"))  # nopep8
@@ -779,7 +779,7 @@ class PressureI(_omero_model.Pressure, UnitBase):
         Mul(Pow(10, 14), Sym("hectopa"))  # nopep8
     CONVERSIONS[UnitsPressure.HECTOPASCAL][UnitsPressure.PSI] = \
         Mul(Rat(Mul(Int(25), Pow(10, 11)), Int("172368932329209")), Sym("hectopa"))  # nopep8
-    CONVERSIONS[UnitsPressure.HECTOPASCAL][UnitsPressure.Pascal] = \
+    CONVERSIONS[UnitsPressure.HECTOPASCAL][UnitsPressure.PASCAL] = \
         Mul(Int(100), Sym("hectopa"))  # nopep8
     CONVERSIONS[UnitsPressure.HECTOPASCAL][UnitsPressure.TERAPASCAL] = \
         Mul(Rat(Int(1), Pow(10, 10)), Sym("hectopa"))  # nopep8
@@ -841,7 +841,7 @@ class PressureI(_omero_model.Pressure, UnitBase):
         Mul(Pow(10, 20), Sym("kbar"))  # nopep8
     CONVERSIONS[UnitsPressure.KILOBAR][UnitsPressure.PSI] = \
         Mul(Rat(Mul(Int(25), Pow(10, 17)), Int("172368932329209")), Sym("kbar"))  # nopep8
-    CONVERSIONS[UnitsPressure.KILOBAR][UnitsPressure.Pascal] = \
+    CONVERSIONS[UnitsPressure.KILOBAR][UnitsPressure.PASCAL] = \
         Mul(Pow(10, 8), Sym("kbar"))  # nopep8
     CONVERSIONS[UnitsPressure.KILOBAR][UnitsPressure.TERAPASCAL] = \
         Mul(Rat(Int(1), Pow(10, 4)), Sym("kbar"))  # nopep8
@@ -903,7 +903,7 @@ class PressureI(_omero_model.Pressure, UnitBase):
         Mul(Pow(10, 15), Sym("kilopa"))  # nopep8
     CONVERSIONS[UnitsPressure.KILOPASCAL][UnitsPressure.PSI] = \
         Mul(Rat(Mul(Int(25), Pow(10, 12)), Int("172368932329209")), Sym("kilopa"))  # nopep8
-    CONVERSIONS[UnitsPressure.KILOPASCAL][UnitsPressure.Pascal] = \
+    CONVERSIONS[UnitsPressure.KILOPASCAL][UnitsPressure.PASCAL] = \
         Mul(Int(1000), Sym("kilopa"))  # nopep8
     CONVERSIONS[UnitsPressure.KILOPASCAL][UnitsPressure.TERAPASCAL] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("kilopa"))  # nopep8
@@ -965,7 +965,7 @@ class PressureI(_omero_model.Pressure, UnitBase):
         Mul(Pow(10, 23), Sym("megabar"))  # nopep8
     CONVERSIONS[UnitsPressure.MEGABAR][UnitsPressure.PSI] = \
         Mul(Rat(Mul(Int(25), Pow(10, 20)), Int("172368932329209")), Sym("megabar"))  # nopep8
-    CONVERSIONS[UnitsPressure.MEGABAR][UnitsPressure.Pascal] = \
+    CONVERSIONS[UnitsPressure.MEGABAR][UnitsPressure.PASCAL] = \
         Mul(Pow(10, 11), Sym("megabar"))  # nopep8
     CONVERSIONS[UnitsPressure.MEGABAR][UnitsPressure.TERAPASCAL] = \
         Mul(Rat(Int(1), Int(10)), Sym("megabar"))  # nopep8
@@ -1027,7 +1027,7 @@ class PressureI(_omero_model.Pressure, UnitBase):
         Mul(Pow(10, 18), Sym("megapa"))  # nopep8
     CONVERSIONS[UnitsPressure.MEGAPASCAL][UnitsPressure.PSI] = \
         Mul(Rat(Mul(Int(25), Pow(10, 15)), Int("172368932329209")), Sym("megapa"))  # nopep8
-    CONVERSIONS[UnitsPressure.MEGAPASCAL][UnitsPressure.Pascal] = \
+    CONVERSIONS[UnitsPressure.MEGAPASCAL][UnitsPressure.PASCAL] = \
         Mul(Pow(10, 6), Sym("megapa"))  # nopep8
     CONVERSIONS[UnitsPressure.MEGAPASCAL][UnitsPressure.TERAPASCAL] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("megapa"))  # nopep8
@@ -1089,7 +1089,7 @@ class PressureI(_omero_model.Pressure, UnitBase):
         Mul(Pow(10, 6), Sym("micropa"))  # nopep8
     CONVERSIONS[UnitsPressure.MICROPASCAL][UnitsPressure.PSI] = \
         Mul(Rat(Int(25000), Int("172368932329209")), Sym("micropa"))  # nopep8
-    CONVERSIONS[UnitsPressure.MICROPASCAL][UnitsPressure.Pascal] = \
+    CONVERSIONS[UnitsPressure.MICROPASCAL][UnitsPressure.PASCAL] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("micropa"))  # nopep8
     CONVERSIONS[UnitsPressure.MICROPASCAL][UnitsPressure.TERAPASCAL] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("micropa"))  # nopep8
@@ -1151,7 +1151,7 @@ class PressureI(_omero_model.Pressure, UnitBase):
         Mul(Pow(10, 14), Sym("mbar"))  # nopep8
     CONVERSIONS[UnitsPressure.MILLIBAR][UnitsPressure.PSI] = \
         Mul(Rat(Mul(Int(25), Pow(10, 11)), Int("172368932329209")), Sym("mbar"))  # nopep8
-    CONVERSIONS[UnitsPressure.MILLIBAR][UnitsPressure.Pascal] = \
+    CONVERSIONS[UnitsPressure.MILLIBAR][UnitsPressure.PASCAL] = \
         Mul(Int(100), Sym("mbar"))  # nopep8
     CONVERSIONS[UnitsPressure.MILLIBAR][UnitsPressure.TERAPASCAL] = \
         Mul(Rat(Int(1), Pow(10, 10)), Sym("mbar"))  # nopep8
@@ -1213,7 +1213,7 @@ class PressureI(_omero_model.Pressure, UnitBase):
         Mul(Pow(10, 9), Sym("millipa"))  # nopep8
     CONVERSIONS[UnitsPressure.MILLIPASCAL][UnitsPressure.PSI] = \
         Mul(Rat(Mul(Int(25), Pow(10, 6)), Int("172368932329209")), Sym("millipa"))  # nopep8
-    CONVERSIONS[UnitsPressure.MILLIPASCAL][UnitsPressure.Pascal] = \
+    CONVERSIONS[UnitsPressure.MILLIPASCAL][UnitsPressure.PASCAL] = \
         Mul(Rat(Int(1), Int(1000)), Sym("millipa"))  # nopep8
     CONVERSIONS[UnitsPressure.MILLIPASCAL][UnitsPressure.TERAPASCAL] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("millipa"))  # nopep8
@@ -1275,7 +1275,7 @@ class PressureI(_omero_model.Pressure, UnitBase):
         Mul(Rat(Mul(Int(2533125), Pow(10, 12)), Int(19)), Sym("mtorr"))  # nopep8
     CONVERSIONS[UnitsPressure.MILLITORR][UnitsPressure.PSI] = \
         Mul(Rat(Mul(Int(3015625), Pow(10, 9)), Int("155952843535951")), Sym("mtorr"))  # nopep8
-    CONVERSIONS[UnitsPressure.MILLITORR][UnitsPressure.Pascal] = \
+    CONVERSIONS[UnitsPressure.MILLITORR][UnitsPressure.PASCAL] = \
         Mul(Rat(Int(2533125), Int(19)), Sym("mtorr"))  # nopep8
     CONVERSIONS[UnitsPressure.MILLITORR][UnitsPressure.TERAPASCAL] = \
         Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 8))), Sym("mtorr"))  # nopep8
@@ -1337,7 +1337,7 @@ class PressureI(_omero_model.Pressure, UnitBase):
         Mul(Int("133322387415000"), Sym("mmhg"))  # nopep8
     CONVERSIONS[UnitsPressure.MMHG][UnitsPressure.PSI] = \
         Mul(Rat(Int("158717127875"), Int("8208044396629")), Sym("mmhg"))  # nopep8
-    CONVERSIONS[UnitsPressure.MMHG][UnitsPressure.Pascal] = \
+    CONVERSIONS[UnitsPressure.MMHG][UnitsPressure.PASCAL] = \
         Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 8))), Sym("mmhg"))  # nopep8
     CONVERSIONS[UnitsPressure.MMHG][UnitsPressure.TERAPASCAL] = \
         Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 20))), Sym("mmhg"))  # nopep8
@@ -1399,7 +1399,7 @@ class PressureI(_omero_model.Pressure, UnitBase):
         Mul(Int(1000), Sym("nanopa"))  # nopep8
     CONVERSIONS[UnitsPressure.NANOPASCAL][UnitsPressure.PSI] = \
         Mul(Rat(Int(25), Int("172368932329209")), Sym("nanopa"))  # nopep8
-    CONVERSIONS[UnitsPressure.NANOPASCAL][UnitsPressure.Pascal] = \
+    CONVERSIONS[UnitsPressure.NANOPASCAL][UnitsPressure.PASCAL] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("nanopa"))  # nopep8
     CONVERSIONS[UnitsPressure.NANOPASCAL][UnitsPressure.TERAPASCAL] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("nanopa"))  # nopep8
@@ -1461,7 +1461,7 @@ class PressureI(_omero_model.Pressure, UnitBase):
         Mul(Pow(10, 27), Sym("petapa"))  # nopep8
     CONVERSIONS[UnitsPressure.PETAPASCAL][UnitsPressure.PSI] = \
         Mul(Rat(Mul(Int(25), Pow(10, 24)), Int("172368932329209")), Sym("petapa"))  # nopep8
-    CONVERSIONS[UnitsPressure.PETAPASCAL][UnitsPressure.Pascal] = \
+    CONVERSIONS[UnitsPressure.PETAPASCAL][UnitsPressure.PASCAL] = \
         Mul(Pow(10, 15), Sym("petapa"))  # nopep8
     CONVERSIONS[UnitsPressure.PETAPASCAL][UnitsPressure.TERAPASCAL] = \
         Mul(Int(1000), Sym("petapa"))  # nopep8
@@ -1523,7 +1523,7 @@ class PressureI(_omero_model.Pressure, UnitBase):
         Mul(Rat(Int(1), Pow(10, 27)), Sym("picopa"))  # nopep8
     CONVERSIONS[UnitsPressure.PICOPASCAL][UnitsPressure.PSI] = \
         Mul(Rat(Int(1), Int("6894757293168360")), Sym("picopa"))  # nopep8
-    CONVERSIONS[UnitsPressure.PICOPASCAL][UnitsPressure.Pascal] = \
+    CONVERSIONS[UnitsPressure.PICOPASCAL][UnitsPressure.PASCAL] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("picopa"))  # nopep8
     CONVERSIONS[UnitsPressure.PICOPASCAL][UnitsPressure.TERAPASCAL] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("picopa"))  # nopep8
@@ -1585,7 +1585,7 @@ class PressureI(_omero_model.Pressure, UnitBase):
         Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 24))), Sym("psi"))  # nopep8
     CONVERSIONS[UnitsPressure.PSI][UnitsPressure.PICOPASCAL] = \
         Mul(Int("6894757293168360"), Sym("psi"))  # nopep8
-    CONVERSIONS[UnitsPressure.PSI][UnitsPressure.Pascal] = \
+    CONVERSIONS[UnitsPressure.PSI][UnitsPressure.PASCAL] = \
         Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 9))), Sym("psi"))  # nopep8
     CONVERSIONS[UnitsPressure.PSI][UnitsPressure.TERAPASCAL] = \
         Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 21))), Sym("psi"))  # nopep8
@@ -1599,67 +1599,67 @@ class PressureI(_omero_model.Pressure, UnitBase):
         Mul(Mul(Int("689475729316836"), Pow(10, 10)), Sym("psi"))  # nopep8
     CONVERSIONS[UnitsPressure.PSI][UnitsPressure.ZETTAPASCAL] = \
         Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 30))), Sym("psi"))  # nopep8
-    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.ATMOSPHERE] = \
+    CONVERSIONS[UnitsPressure.PASCAL][UnitsPressure.ATMOSPHERE] = \
         Mul(Rat(Int(1), Int(101325)), Sym("pa"))  # nopep8
-    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.ATTOPASCAL] = \
+    CONVERSIONS[UnitsPressure.PASCAL][UnitsPressure.ATTOPASCAL] = \
         Mul(Pow(10, 18), Sym("pa"))  # nopep8
-    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.BAR] = \
+    CONVERSIONS[UnitsPressure.PASCAL][UnitsPressure.BAR] = \
         Mul(Rat(Int(1), Pow(10, 5)), Sym("pa"))  # nopep8
-    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.CENTIBAR] = \
+    CONVERSIONS[UnitsPressure.PASCAL][UnitsPressure.CENTIBAR] = \
         Mul(Rat(Int(1), Int(1000)), Sym("pa"))  # nopep8
-    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.CENTIPASCAL] = \
+    CONVERSIONS[UnitsPressure.PASCAL][UnitsPressure.CENTIPASCAL] = \
         Mul(Int(100), Sym("pa"))  # nopep8
-    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.DECAPASCAL] = \
+    CONVERSIONS[UnitsPressure.PASCAL][UnitsPressure.DECAPASCAL] = \
         Mul(Rat(Int(1), Int(10)), Sym("pa"))  # nopep8
-    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.DECIBAR] = \
+    CONVERSIONS[UnitsPressure.PASCAL][UnitsPressure.DECIBAR] = \
         Mul(Rat(Int(1), Pow(10, 4)), Sym("pa"))  # nopep8
-    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.DECIPASCAL] = \
+    CONVERSIONS[UnitsPressure.PASCAL][UnitsPressure.DECIPASCAL] = \
         Mul(Int(10), Sym("pa"))  # nopep8
-    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.EXAPASCAL] = \
+    CONVERSIONS[UnitsPressure.PASCAL][UnitsPressure.EXAPASCAL] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("pa"))  # nopep8
-    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.FEMTOPASCAL] = \
+    CONVERSIONS[UnitsPressure.PASCAL][UnitsPressure.FEMTOPASCAL] = \
         Mul(Pow(10, 15), Sym("pa"))  # nopep8
-    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.GIGAPASCAL] = \
+    CONVERSIONS[UnitsPressure.PASCAL][UnitsPressure.GIGAPASCAL] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("pa"))  # nopep8
-    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.HECTOPASCAL] = \
+    CONVERSIONS[UnitsPressure.PASCAL][UnitsPressure.HECTOPASCAL] = \
         Mul(Rat(Int(1), Int(100)), Sym("pa"))  # nopep8
-    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.KILOBAR] = \
+    CONVERSIONS[UnitsPressure.PASCAL][UnitsPressure.KILOBAR] = \
         Mul(Rat(Int(1), Pow(10, 8)), Sym("pa"))  # nopep8
-    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.KILOPASCAL] = \
+    CONVERSIONS[UnitsPressure.PASCAL][UnitsPressure.KILOPASCAL] = \
         Mul(Rat(Int(1), Int(1000)), Sym("pa"))  # nopep8
-    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.MEGABAR] = \
+    CONVERSIONS[UnitsPressure.PASCAL][UnitsPressure.MEGABAR] = \
         Mul(Rat(Int(1), Pow(10, 11)), Sym("pa"))  # nopep8
-    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.MEGAPASCAL] = \
+    CONVERSIONS[UnitsPressure.PASCAL][UnitsPressure.MEGAPASCAL] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("pa"))  # nopep8
-    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.MICROPASCAL] = \
+    CONVERSIONS[UnitsPressure.PASCAL][UnitsPressure.MICROPASCAL] = \
         Mul(Pow(10, 6), Sym("pa"))  # nopep8
-    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.MILLIBAR] = \
+    CONVERSIONS[UnitsPressure.PASCAL][UnitsPressure.MILLIBAR] = \
         Mul(Rat(Int(1), Int(100)), Sym("pa"))  # nopep8
-    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.MILLIPASCAL] = \
+    CONVERSIONS[UnitsPressure.PASCAL][UnitsPressure.MILLIPASCAL] = \
         Mul(Int(1000), Sym("pa"))  # nopep8
-    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.MILLITORR] = \
+    CONVERSIONS[UnitsPressure.PASCAL][UnitsPressure.MILLITORR] = \
         Mul(Rat(Int(19), Int(2533125)), Sym("pa"))  # nopep8
-    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.MMHG] = \
+    CONVERSIONS[UnitsPressure.PASCAL][UnitsPressure.MMHG] = \
         Mul(Rat(Mul(Int(2), Pow(10, 8)), Int("26664477483")), Sym("pa"))  # nopep8
-    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.NANOPASCAL] = \
+    CONVERSIONS[UnitsPressure.PASCAL][UnitsPressure.NANOPASCAL] = \
         Mul(Pow(10, 9), Sym("pa"))  # nopep8
-    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.PETAPASCAL] = \
+    CONVERSIONS[UnitsPressure.PASCAL][UnitsPressure.PETAPASCAL] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("pa"))  # nopep8
-    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.PICOPASCAL] = \
+    CONVERSIONS[UnitsPressure.PASCAL][UnitsPressure.PICOPASCAL] = \
         Mul(Pow(10, 12), Sym("pa"))  # nopep8
-    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.PSI] = \
+    CONVERSIONS[UnitsPressure.PASCAL][UnitsPressure.PSI] = \
         Mul(Rat(Mul(Int(25), Pow(10, 9)), Int("172368932329209")), Sym("pa"))  # nopep8
-    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.TERAPASCAL] = \
+    CONVERSIONS[UnitsPressure.PASCAL][UnitsPressure.TERAPASCAL] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("pa"))  # nopep8
-    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.TORR] = \
+    CONVERSIONS[UnitsPressure.PASCAL][UnitsPressure.TORR] = \
         Mul(Rat(Int(152), Int(20265)), Sym("pa"))  # nopep8
-    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.YOCTOPASCAL] = \
+    CONVERSIONS[UnitsPressure.PASCAL][UnitsPressure.YOCTOPASCAL] = \
         Mul(Pow(10, 24), Sym("pa"))  # nopep8
-    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.YOTTAPASCAL] = \
+    CONVERSIONS[UnitsPressure.PASCAL][UnitsPressure.YOTTAPASCAL] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("pa"))  # nopep8
-    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.ZEPTOPASCAL] = \
+    CONVERSIONS[UnitsPressure.PASCAL][UnitsPressure.ZEPTOPASCAL] = \
         Mul(Pow(10, 21), Sym("pa"))  # nopep8
-    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.ZETTAPASCAL] = \
+    CONVERSIONS[UnitsPressure.PASCAL][UnitsPressure.ZETTAPASCAL] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("pa"))  # nopep8
     CONVERSIONS[UnitsPressure.TERAPASCAL][UnitsPressure.ATMOSPHERE] = \
         Mul(Rat(Mul(Int(4), Pow(10, 10)), Int(4053)), Sym("terapa"))  # nopep8
@@ -1711,7 +1711,7 @@ class PressureI(_omero_model.Pressure, UnitBase):
         Mul(Pow(10, 24), Sym("terapa"))  # nopep8
     CONVERSIONS[UnitsPressure.TERAPASCAL][UnitsPressure.PSI] = \
         Mul(Rat(Mul(Int(25), Pow(10, 21)), Int("172368932329209")), Sym("terapa"))  # nopep8
-    CONVERSIONS[UnitsPressure.TERAPASCAL][UnitsPressure.Pascal] = \
+    CONVERSIONS[UnitsPressure.TERAPASCAL][UnitsPressure.PASCAL] = \
         Mul(Pow(10, 12), Sym("terapa"))  # nopep8
     CONVERSIONS[UnitsPressure.TERAPASCAL][UnitsPressure.TORR] = \
         Mul(Rat(Mul(Int(304), Pow(10, 11)), Int(4053)), Sym("terapa"))  # nopep8
@@ -1773,7 +1773,7 @@ class PressureI(_omero_model.Pressure, UnitBase):
         Mul(Rat(Mul(Int(2533125), Pow(10, 9)), Int(19)), Sym("torr"))  # nopep8
     CONVERSIONS[UnitsPressure.TORR][UnitsPressure.PSI] = \
         Mul(Rat(Mul(Int(3015625), Pow(10, 6)), Int("155952843535951")), Sym("torr"))  # nopep8
-    CONVERSIONS[UnitsPressure.TORR][UnitsPressure.Pascal] = \
+    CONVERSIONS[UnitsPressure.TORR][UnitsPressure.PASCAL] = \
         Mul(Rat(Int(20265), Int(152)), Sym("torr"))  # nopep8
     CONVERSIONS[UnitsPressure.TORR][UnitsPressure.TERAPASCAL] = \
         Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 11))), Sym("torr"))  # nopep8
@@ -1835,7 +1835,7 @@ class PressureI(_omero_model.Pressure, UnitBase):
         Mul(Rat(Int(1), Pow(10, 12)), Sym("yoctopa"))  # nopep8
     CONVERSIONS[UnitsPressure.YOCTOPASCAL][UnitsPressure.PSI] = \
         Mul(Rat(Int(1), Mul(Int("689475729316836"), Pow(10, 13))), Sym("yoctopa"))  # nopep8
-    CONVERSIONS[UnitsPressure.YOCTOPASCAL][UnitsPressure.Pascal] = \
+    CONVERSIONS[UnitsPressure.YOCTOPASCAL][UnitsPressure.PASCAL] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("yoctopa"))  # nopep8
     CONVERSIONS[UnitsPressure.YOCTOPASCAL][UnitsPressure.TERAPASCAL] = \
         Mul(Rat(Int(1), Pow(10, 36)), Sym("yoctopa"))  # nopep8
@@ -1897,7 +1897,7 @@ class PressureI(_omero_model.Pressure, UnitBase):
         Mul(Pow(10, 36), Sym("yottapa"))  # nopep8
     CONVERSIONS[UnitsPressure.YOTTAPASCAL][UnitsPressure.PSI] = \
         Mul(Rat(Mul(Int(25), Pow(10, 33)), Int("172368932329209")), Sym("yottapa"))  # nopep8
-    CONVERSIONS[UnitsPressure.YOTTAPASCAL][UnitsPressure.Pascal] = \
+    CONVERSIONS[UnitsPressure.YOTTAPASCAL][UnitsPressure.PASCAL] = \
         Mul(Pow(10, 24), Sym("yottapa"))  # nopep8
     CONVERSIONS[UnitsPressure.YOTTAPASCAL][UnitsPressure.TERAPASCAL] = \
         Mul(Pow(10, 12), Sym("yottapa"))  # nopep8
@@ -1959,7 +1959,7 @@ class PressureI(_omero_model.Pressure, UnitBase):
         Mul(Rat(Int(1), Pow(10, 9)), Sym("zeptopa"))  # nopep8
     CONVERSIONS[UnitsPressure.ZEPTOPASCAL][UnitsPressure.PSI] = \
         Mul(Rat(Int(1), Mul(Int("689475729316836"), Pow(10, 10))), Sym("zeptopa"))  # nopep8
-    CONVERSIONS[UnitsPressure.ZEPTOPASCAL][UnitsPressure.Pascal] = \
+    CONVERSIONS[UnitsPressure.ZEPTOPASCAL][UnitsPressure.PASCAL] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("zeptopa"))  # nopep8
     CONVERSIONS[UnitsPressure.ZEPTOPASCAL][UnitsPressure.TERAPASCAL] = \
         Mul(Rat(Int(1), Pow(10, 33)), Sym("zeptopa"))  # nopep8
@@ -2021,7 +2021,7 @@ class PressureI(_omero_model.Pressure, UnitBase):
         Mul(Pow(10, 33), Sym("zettapa"))  # nopep8
     CONVERSIONS[UnitsPressure.ZETTAPASCAL][UnitsPressure.PSI] = \
         Mul(Rat(Mul(Int(25), Pow(10, 30)), Int("172368932329209")), Sym("zettapa"))  # nopep8
-    CONVERSIONS[UnitsPressure.ZETTAPASCAL][UnitsPressure.Pascal] = \
+    CONVERSIONS[UnitsPressure.ZETTAPASCAL][UnitsPressure.PASCAL] = \
         Mul(Pow(10, 21), Sym("zettapa"))  # nopep8
     CONVERSIONS[UnitsPressure.ZETTAPASCAL][UnitsPressure.TERAPASCAL] = \
         Mul(Pow(10, 9), Sym("zettapa"))  # nopep8
@@ -2061,7 +2061,7 @@ class PressureI(_omero_model.Pressure, UnitBase):
     SYMBOLS["PETAPASCAL"] = "PPa"
     SYMBOLS["PICOPASCAL"] = "pPa"
     SYMBOLS["PSI"] = "psi"
-    SYMBOLS["Pascal"] = "Pa"
+    SYMBOLS["PASCAL"] = "Pa"
     SYMBOLS["TERAPASCAL"] = "TPa"
     SYMBOLS["TORR"] = "Torr"
     SYMBOLS["YOCTOPASCAL"] = "yPa"

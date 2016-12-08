@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,7 +22,9 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -34,7 +36,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
-
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserTranslator;
@@ -51,13 +52,19 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.DecoratorVisitor;
+
 import omero.gateway.model.TableResult;
 import omero.gateway.SecurityContext;
+
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.PlateGrid;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.WellGridElement;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourObject;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+
 import omero.gateway.model.DataObject;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.PlateData;
@@ -99,8 +106,11 @@ class WellsModel
 	/** The number of fields per well. */
 	private int					fieldsNumber;
 	
-	/** The selected field. */
-	private int					selectedField;
+    /**
+     * The selected field. (default field index which is selected in the
+     * toolbar)
+     */
+    private int defaultFieldIndex;
 	
 	/** Indicates how to display a row. */
 	private int					rowSequenceIndex;
@@ -114,8 +124,8 @@ class WellsModel
 	/** Flag indicating to load or not the thumbnails. */
 	private boolean				withThumbnails;
 	
-	/** The selected nodes. */
-	private List<WellImageSet> selectedNodes;
+	/** The selected nodes. Note: Can contain wells and fields! */
+	private List<WellSampleNode> selectedNodes;
 	
 	/** 
 	 * Sorts the passed nodes by row.
@@ -232,14 +242,14 @@ class WellsModel
 	 * @param withThumbnails Pass <code>true</code> to load the thumbnails,
      * 						 <code>false</code> otherwise.
 	 */
-	WellsModel(SecurityContext ctx, Object parent, Set<WellData> wells, 
+	WellsModel(SecurityContext ctx, Object parent, Collection<WellData> wells, 
 			boolean withThumbnails)
 	{
 		super(ctx);
 		if (wells == null)
 			throw new IllegalArgumentException("No wells.");
 		this.withThumbnails = withThumbnails;
-		selectedNodes = new ArrayList<WellImageSet>();
+		selectedNodes = new ArrayList<WellSampleNode>();
 		wellDimension = null;
 		this.parent = parent;
 		wellNodes = sortByRow(DataBrowserTranslator.transformHierarchy(wells));
@@ -247,8 +257,9 @@ class WellsModel
 		PlateData plate = (PlateData) parent;
 		columnSequenceIndex = plate.getColumnSequenceIndex();
 		rowSequenceIndex = plate.getRowSequenceIndex();
-		selectedField = plate.getDefaultSample();
-		if (selectedField < 0) selectedField = 0;
+		defaultFieldIndex = plate.getDefaultSample();
+		if (defaultFieldIndex < 0) 
+		    defaultFieldIndex = 0;
 		Set<ImageDisplay> samples = new HashSet<ImageDisplay>();
 		cells = new HashSet<CellDisplay>();
         rows = -1;
@@ -279,27 +290,33 @@ class WellsModel
 			if (cMap.containsKey(column)) {
 				co = cMap.get(column);
 				color = createColor(data);
-				if (!UIUtilities.isSameColors(co.getColor(), color, true) ||
-						!isSameDescription(co.getDescription(), type)) {
-					co.setColor(null);
-					co.setDescription(null);
+				if (!UIUtilities.isSameColors(co.color, color, true) ||
+						!isSameDescription(co.description, type)) {
+					co.color = null;
+					co.description = null;
 					cMap.put(column, co);
 				}
 			} else {
-				cMap.put(column, new ColourObject(createColor(data), type));
+			    ColourObject newco = new ColourObject();
+			    newco.color = createColor(data);
+			    newco.description = type;
+				cMap.put(column, newco);
 			}
 			
 			if (rMap.containsKey(row)) {
 				co = rMap.get(row);
 				color = createColor(data);
-				if (!UIUtilities.isSameColors(co.getColor(), color, true) ||
-						!isSameDescription(co.getDescription(), type)) {
-					co.setColor(null);
-					co.setDescription(null);
+				if (!UIUtilities.isSameColors(co.color, color, true) ||
+						!isSameDescription(co.description, type)) {
+					co.color = null;
+					co.description = null;
 					rMap.put(row, co);
 				}
 			} else {
-				rMap.put(row, new ColourObject(createColor(data), type));
+			    ColourObject newco = new ColourObject();
+                newco.color = createColor(data);
+                newco.description = type;
+				rMap.put(row, newco);
 			}
 			if (row > rows) rows = row;
 			if (column > columns) columns = column;
@@ -323,8 +340,9 @@ class WellsModel
 				rowSequence = ""+(row+1);
 			node.setCellDisplay(columnSequence, rowSequence);
 			f = node.getNumberOfSamples();
-			if (fieldsNumber < f) fieldsNumber = f;
-			node.setSelectedWellSample(selectedField);
+			if (fieldsNumber < f) 
+			    fieldsNumber = f;
+			node.setSelectedWellSample(defaultFieldIndex);
 			selected = node.getSelectedWellSample();
 			//set the title to Row/Column
 			node.formatWellSampleTitle();
@@ -362,8 +380,8 @@ class WellsModel
 			cell = new CellDisplay(k-1, columnSequence);
 			co = cMap.get(k-1);
 			if (co != null) {
-				cell.setHighlight(co.getColor());
-				cell.setDescription(co.getDescription());
+				cell.setHighlight(co.color);
+				cell.setDescription(co.description != null ? co.description : "");
 			}
 			//if (!isMac)
 			//samples.add(cell);
@@ -379,8 +397,8 @@ class WellsModel
 			cell = new CellDisplay(k-1, rowSequence, CellDisplay.TYPE_VERTICAL);
 			co = rMap.get(k-1);
 			if (co != null) {
-				cell.setHighlight(co.getColor());
-				cell.setDescription(co.getDescription());
+				cell.setHighlight(co.color);
+				cell.setDescription(co.description != null ? co.description : "");
 			}
 			//if (!isMac)
 			//samples.add(cell);
@@ -438,51 +456,50 @@ class WellsModel
 	 * 
 	 * @return See above.
 	 */
-	int getSelectedField() { return selectedField; }
-	
-	/**
-	 * Sets the selected well. This should only be needed for the fields
-	 * view.
-	 * 
-	 * @param node The selected node.
-	 */
-	void setSelectedWell(WellImageSet node)
-	{
-		if (selectedNodes != null) selectedNodes.clear();
-		List<WellImageSet> l = new ArrayList<WellImageSet>(1);
-		l.add(node);
-		setSelectedWells(l);
-	}
+	int getDefaultFieldIndex() { return defaultFieldIndex; }
 
-	/**
-	 * Sets the selected wells. This should only be needed for the fields
-	 * view.
-	 * 
-	 * @param node The selected node.
-	 */
-	void setSelectedWells(List<WellImageSet> nodes)
-	{
-		if (nodes == null) selectedNodes.clear();
-		else selectedNodes = nodes;
-	}
+    /**
+     * Sets the selected well.
+     * 
+     * @param node
+     *            The selected node.
+     */
+    void setSelectedWell(WellSampleNode node) {
+        setSelectedWells(Arrays.asList(new WellSampleNode[] { node }));
+    }
+
+    /**
+     * Sets the selected wells.
+     * 
+     * @param nodes
+     *            The selected nodes.
+     */
+    void setSelectedWells(List<WellSampleNode> nodes) {
+        selectedNodes.clear();
+        if (!CollectionUtils.isEmpty(nodes)) {
+            selectedNodes.addAll(nodes);
+        }
+    }
 	
-	/**
-	 * Returns the selected well.
-	 * 
-	 * @return See above.
-	 */
-	WellImageSet getSelectedWell()
-	{
-		if (selectedNodes == null || selectedNodes.size() == 0) return null;
-		return selectedNodes.get(0);
-	}
+    /**
+     * Returns the selected well. Note: Can be a well or a field (@see
+     * {@link WellSampleNode#isWell()} )!
+     * 
+     * @return See above.
+     */
+    WellSampleNode getSelectedWell() {
+        if (CollectionUtils.isEmpty(selectedNodes))
+            return null;
+
+        return selectedNodes.get(0);
+    }
 	
 	/**
 	 * Returns the collection of selected wells.
-	 * 
+	 * Note: Can contain wells and fields (@see {@link WellSampleNode#isWell()} )!
 	 * @return See above.
 	 */
-	List<WellImageSet> getSelectedWells() { return selectedNodes; }
+	List<WellSampleNode> getSelectedWells() { return selectedNodes; }
 	
 	/**
 	 * Views the selected field.
@@ -492,7 +509,7 @@ class WellsModel
 	void viewField(int index)
 	{
 		if (index < 0 || index >= fieldsNumber) return;
-		selectedField = index;
+		defaultFieldIndex = index;
 		Set<ImageDisplay> samples = new HashSet<ImageDisplay>();
 		List<ImageDisplay> l = getNodes();
 		Iterator<ImageDisplay> i = l.iterator();
@@ -533,7 +550,7 @@ class WellsModel
 		PlateData plate = (PlateData) parent;
 		long userID = DataBrowserAgent.getUserDetails().getId();
 		if (plate.getOwner().getId() == userID) {
-			plate.setDefaultSample(selectedField);
+			plate.setDefaultSample(defaultFieldIndex);
 			List<DataObject> list = new ArrayList<DataObject>();
 			list.add(plate);
 			DataBrowserLoader loader = new PlateSaver(component, ctx, list);
@@ -594,16 +611,6 @@ class WellsModel
 	}
 	
 	/**
-	 * Sets the passed node as the current node.
-	 * 
-	 * @param node See above.
-	 */
-	void setSelectedField(WellSampleNode node)
-	{
-		browser.setSelectedDisplay(node, false, true);
-	}
-	
-	/**
 	 * Returns the number of rows.
 	 * 
 	 * @return See above.
@@ -616,22 +623,6 @@ class WellsModel
 	 * @return See above.
 	 */
 	int getColumns() { return columns; }
-	
-	/**
-	 * Returns <code>true</code> is the selected well corresponds to the passed
-	 * one, <code>false</code> otherwise.
-	 * 
-	 * @param row 	 The row identifying the well.
-	 * @param column The column identifying the well.
-	 * @return See above.
-	 */
-	boolean isSameWell(int row, int column)
-	{
-		WellImageSet selectedNode = getSelectedWell();
-		if (selectedNode == null) return false;
-		return (selectedNode.getRow() == row 
-				&& selectedNode.getColumn() == column);
-	}
 	
 	/**
 	 * Returns the well corresponding to the passed location.
@@ -653,54 +644,64 @@ class WellsModel
 		return null;
 	}
 	
-	/**
-	 * Creates a concrete loader.
-	 * 
-	 * @param row The row identifying the well.
-	 * @param column The column identifying the well.
-	 * @return See above.
-	 */
-	DataBrowserLoader createFieldsLoader(int row, int column)
-	{
-		List<ImageDisplay> l = getNodes();
-		Iterator<ImageDisplay> i = l.iterator();
-		ImageSet node;
-		List<DataObject> images = new ArrayList<DataObject>();
-		WellSampleData data;
-		Thumbnail thumb;
-		WellImageSet wis;
-		List<WellSampleNode> nodes;
-		Iterator<WellSampleNode> j;
-		WellSampleNode n;
-		if (selectedNodes != null) selectedNodes.clear();
-		while (i.hasNext()) {
-			node = (ImageSet) i.next();
-			if (node instanceof WellImageSet) {
-				wis = (WellImageSet) node;
-				if (wis.getRow() == row && wis.getColumn() == column) {
-					setSelectedWell(wis);
-					nodes = wis.getWellSamples();
-					j = nodes.iterator();
-					while (j.hasNext()) {
-						n = j.next();
-						data = (WellSampleData) n.getHierarchyObject();
-						
-						if (data.getId() < 0) {
-							thumb = n.getThumbnail();
-							thumb.setValid(false);
-							thumb.setFullScaleThumb(
-								Factory.createDefaultImageThumbnail(
-									wellDimension.width, wellDimension.height));
-						} else 
-							images.add(data.getImage());
-					}
-				}
-			}
-		}
+    /**
+     * Creates a concrete loader.
+     * 
+     * @param fields
+     *            The rows/columns identifying the well.
+     * @return See above.
+     */
+    DataBrowserLoader createFieldsLoader(List<Point> fields) {
+        List<ImageDisplay> l = getNodes();
+        Iterator<ImageDisplay> i = l.iterator();
+        ImageSet node;
 
-		if (images.size() == 0) return null;
-		return new ThumbnailFieldsLoader(component, ctx, images, row, column);
-	}
+        Multimap<Point, ImageData> images = HashMultimap.create();
+
+        WellSampleData data;
+        Thumbnail thumb;
+        WellImageSet wis;
+        List<WellSampleNode> nodes;
+        Iterator<WellSampleNode> j;
+        WellSampleNode n;
+        while (i.hasNext()) {
+            node = (ImageSet) i.next();
+            if (node instanceof WellImageSet) {
+                wis = (WellImageSet) node;
+                Point targetField = null;
+                for (Point p : fields) {
+                    if (wis.getRow() == p.getX() && wis.getColumn() == p.getY()) {
+                        targetField = p;
+                        break;
+                    }
+                }
+                if (targetField != null) {
+                    nodes = wis.getWellSamples();
+                    j = nodes.iterator();
+                    while (j.hasNext()) {
+                        n = j.next();
+                        data = (WellSampleData) n.getHierarchyObject();
+
+                        if (data.getId() < 0) {
+                            thumb = n.getThumbnail();
+                            thumb.setValid(false);
+                            thumb.setFullScaleThumb(Factory
+                                    .createDefaultImageThumbnail(
+                                            wellDimension.width,
+                                            wellDimension.height));
+                        } else {
+                            images.put(targetField, data.getImage());
+                        }
+                    }
+                }
+            }
+        }
+
+        if (images.size() == 0)
+            return null;
+
+        return new ThumbnailFieldsLoader(component, ctx, images);
+    }
 	
 	/**
 	 * Creates a concrete loader.

@@ -336,7 +336,6 @@ class EditorComponent
 			return;
 		}
 		showSelectionWizard(TagAnnotationData.class, available, selected, true);
-		setStatus(false);
 	}
 
 	/** 
@@ -444,7 +443,6 @@ class EditorComponent
 		}
 		showSelectionWizard(FileAnnotationData.class, available, selected,
 							true);
-		setStatus(false);
 	}
 	
 	/** 
@@ -1182,7 +1180,7 @@ class EditorComponent
 	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#setFileset(Set)
 	 */
-	public void setFileset(Set<FilesetData> set)
+	public void setFileset(Collection<FilesetData> set)
 	{
 		model.setFileset(set);
 		view.displayFileset();

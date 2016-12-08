@@ -2,7 +2,6 @@
  *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-
 package integration.delete;
 
 import integration.AbstractServerTest;
@@ -21,6 +20,8 @@ import omero.cmd.Delete2;
 import omero.cmd.SkipHead;
 import omero.cmd.graphs.ChildOption;
 import omero.gateway.util.Requests;
+import omero.model.AffineTransform;
+import omero.model.AffineTransformI;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.AnnotationAnnotationLinkI;
 import omero.model.Dataset;
@@ -38,8 +39,12 @@ import omero.model.OriginalFileI;
 import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.PlateI;
+import omero.model.Point;
+import omero.model.PointI;
 import omero.model.Project;
 import omero.model.ProjectI;
+import omero.model.Roi;
+import omero.model.RoiI;
 import omero.model.Screen;
 import omero.model.ScreenAnnotationLink;
 import omero.model.ScreenAnnotationLinkI;
@@ -616,6 +621,60 @@ public class AdditionalDeleteTest extends AbstractServerTest {
 
         assertGone(object);
         assertGone(info);
+    }
+
+    /**
+     * Check that a shared ROI transform is not deleted prematurely.
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testDeleteTransformedRoi() throws Exception {
+        /* create ROIs whose shapes share a transform */
+
+        AffineTransform transformation = new AffineTransformI();
+        transformation.setA00(omero.rtypes.rdouble(0));
+        transformation.setA10(omero.rtypes.rdouble(1));
+        transformation.setA01(omero.rtypes.rdouble(1));
+        transformation.setA11(omero.rtypes.rdouble(0));
+        transformation.setA02(omero.rtypes.rdouble(0));
+        transformation.setA12(omero.rtypes.rdouble(0));
+        transformation = (AffineTransform) iUpdate.saveAndReturnObject(transformation).proxy();
+
+        Point point1 = new PointI();
+        point1.setX(omero.rtypes.rdouble(2));
+        point1.setY(omero.rtypes.rdouble(3));
+        point1.setTransform(transformation);
+        Roi roi1 = new RoiI();
+        roi1.addShape(point1);
+        roi1 = (Roi) iUpdate.saveAndReturnObject(roi1);
+        point1 = (Point) roi1.getShape(0);
+
+        Point point2 = new PointI();
+        point2.setX(omero.rtypes.rdouble(4));
+        point2.setY(omero.rtypes.rdouble(5));
+        point2.setTransform(transformation);
+        Roi roi2 = new RoiI();
+        roi2.addShape(point2);
+        roi2 = (Roi) iUpdate.saveAndReturnObject(roi2);
+        point2 = (Point) roi2.getShape(0);
+
+        /* delete first ROI */
+        doChange(Requests.delete().target(roi1).build());
+
+        /* check what remains */
+        assertDoesNotExist(roi1);
+        assertExists(roi2);
+        assertDoesNotExist(point1);
+        assertExists(point2);
+        assertExists(transformation);  // needed by second ROI
+
+        /* delete second ROI */
+        doChange(Requests.delete().target(roi2).build());
+
+        /* check what remains */
+        assertDoesNotExist(roi2);
+        assertDoesNotExist(point2);
+        assertDoesNotExist(transformation);  // no longer needed
     }
 
     private FileAnnotationI mockAnnotation()

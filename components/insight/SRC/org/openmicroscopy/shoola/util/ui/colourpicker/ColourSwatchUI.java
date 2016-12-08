@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.colourpicker.ColourMenuUI
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -30,6 +30,12 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map.Entry;
+
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -40,6 +46,10 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.ArrayUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 //Third-party libraries
 
@@ -97,7 +107,10 @@ public class ColourSwatchUI
 	 * to ignore refresh events.
 	 */
 	private boolean			active;
-
+	
+	/** All available items for selection */
+	private Object[] items;
+	
 	/**
 	 * Creates the Alpha slider, and changes listener, attaching the change
 	 * listener to the slider. 
@@ -154,77 +167,114 @@ public class ColourSwatchUI
 		alphaTextbox.addActionListener(alphaTextboxActionListener);
 	}
 	
-	/**
-	 * Returns the index of the selected color or 	<code>-1</code>.
-	 *  
-	 * @return See above.
-	 */
-	private int getColorIndex(Color color)
-	{
-		int r = color.getRed();
-		int g = color.getGreen();
-		int b = color.getBlue();
-		//check if we can set the index of the color.
-		//red
-		if (r == 255 && g == 0 && b == 0) return 0;
-		if (r == 0 && g == 255 && b == 0) return 1;
-		if (r == 0 && g == 0 && b == 255) return 2;
-		if (r == 255 && g == 255 && b == 255) return 3;
-		if (r == 0 && g == 0 && b == 0) return 4;
-		if (r == 128 && g == 128 && b == 128) return 5;
-		if (r == 255 && g == 230 && b == 0) return 6;
-		if (r == 255 && g == 255 && b == 0) return 7;
-		if (r == 75 && g == 0 && b == 130) return 8;
-		if (r == 238 && g == 130 && b == 238) return 9;
-		return -1;
-	}
+    /**
+     * Create the color items
+     * @return See above.
+     */
+    private LookupTableItem[] createColours() {
+        LookupTableItem[] result = new LookupTableItem[RGBControl.PREDEFINED_COLORS
+                .values().size()];
+        int i = 0;
+        for (Entry<String, Color> e : RGBControl.PREDEFINED_COLORS.entrySet()) {
+            result[i++] = new LookupTableItem(e.getValue(), e.getKey());
+        }
+        return result;
+    }
 	
 	/**
-	 * Create the colors and add the renderer {@link ColourListRenderer} to 
-	 * the JList object.
-	 */
-	private void createColours()
-	{
-		colourlist = new JList(
-				new Object[] {	
-						new Object[] {Color.red, "Red"},
-						new Object[] {Color.green, "Green"},
-						new Object[] {Color.blue, "Blue"},
-						new Object[] {Color.white, "White"},
-						new Object[] {Color.black, "Black"},
-						new Object[] {Color.gray, "Gray"},
-						new Object[] {Color.orange, "Orange"},
-						new Object[] {Color.yellow, "Yellow"},
-						new Object[] {new Color(75, 0, 130), "Indigo"},
-						new Object[] {new Color(238, 130, 238), "Violet"},
-						new Object[] {Color.cyan, "Cyan"},
-						new Object[] {Color.magenta, "Magenta"},
-				});
-		colourlist.setCellRenderer(new ColourListRenderer());
-	}
-	
-	
+     * Creates a sorted array of lookup table items based on the available lookup
+     * tables.
+     * 
+     * @return See above
+     */
+    private LookupTableItem[] createLutsArray() {
+        List<LookupTableItem> list = new ArrayList<LookupTableItem>();
+
+        if (CollectionUtils.isNotEmpty(control.getAvailableLookupTables())) {
+            Iterator<String> it = control.getAvailableLookupTables().iterator();
+            while (it.hasNext()) {
+                list.add(new LookupTableItem(it.next()));
+            }
+        }
+
+        Collections.sort(list);
+
+        LookupTableItem[] lutsArray = new LookupTableItem[list.size()];
+        lutsArray = list.toArray(lutsArray);
+        return lutsArray;
+    }
+    
+    /**
+     * Finds the item index which has to be selected according to the
+     * current control's state
+     * @return See above.
+     */
+    private int findIndex() {
+        if (CommonsLangUtils.isNotEmpty(control.getLUT())) {
+            String lut = control.getLUT();
+            for (int i = 0; i < items.length; i++) {
+                LookupTableItem item = (LookupTableItem) items[i];
+                if (!item.hasLookupTable())
+                    continue;
+                if (item.getFilename().equals(lut))
+                    return i;
+            }
+        } else {
+            Color c = control.getColour();
+            for (int i = 0; i < items.length; i++) {
+                LookupTableItem item = (LookupTableItem) items[i];
+                if (item.hasLookupTable())
+                    continue;
+                
+                if (item.getColor().getRed() == c.getRed()
+                        && item.getColor().getBlue() == c.getBlue()
+                        && item.getColor().getGreen() == c.getGreen())
+                    return i;
+            }
+        }
+
+        return -1;
+    }
+    
 	/**
 	 * Create the UI which includes adding the color list (JList) to the 
 	 * scroll pane.
 	 */
 	private void createUI()
 	{
-		createColours();
-		createAlphaSlider();
-		createAlphaTextbox();
+	    createAlphaSlider();
+        createAlphaTextbox();
+        
+        LookupTableItem[] colorItems = createColours();
+        LookupTableItem[] lutItems = createLutsArray();
+        items = ArrayUtils.add(colorItems, LookupTableItem.SEPARATOR);
+        items = ArrayUtils.addAll(items, lutItems);
+		colourlist = new JList(items);
+		
+		colourlist.setCellRenderer(new LookupTableListRenderer());
 		colourlist.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		colourlist.setLayoutOrientation(JList.VERTICAL);
 		colourlist.setVisibleRowCount(-1);
-		int index = getColorIndex(control.getColour());
-		colourlist.setSelectedIndex(index);
+		int index = findIndex();
+		if (index >= 0) {
+		    colourlist.setSelectedIndex(index);
+		    colourlist.ensureIndexIsVisible(index);
+		}
 		selectionListener = new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent e)
 			{
-				Object[] obj = (Object[]) 
-				colourlist.getModel().getElementAt(((JList) e.getSource()).
-						getLeadSelectionIndex());
-				control.setColour((Color) obj[0]);	
+			    if(colourlist.getValueIsAdjusting()) 
+			        return;
+			    
+			    LookupTableItem obj = (LookupTableItem) colourlist.getSelectedValue();
+			    
+			    if(obj.hasLookupTable()) {
+			        control.setLUT(obj.getFilename());
+			    }
+			    else  {
+			        control.setLUT(null);
+			        control.setColour(obj.getColor());	
+			    }
 			}
 
 		};
@@ -272,10 +322,13 @@ public class ColourSwatchUI
 	/** Resets the selection of the color. */
 	void revert()
 	{
-		int index = getColorIndex(control.getColour());
 		colourlist.removeListSelectionListener(selectionListener);
 		colourlist.clearSelection();
-		colourlist.setSelectedIndex(index);
+		int index = findIndex();
+		if(index >= 0) {
+		    colourlist.setSelectedIndex(index);
+		    colourlist.ensureIndexIsVisible(index);
+		}
 		colourlist.addListSelectionListener(selectionListener);
 	}
 	
@@ -326,20 +379,28 @@ public class ColourSwatchUI
 		alphaTextbox.removeActionListener(alphaTextboxActionListener);
 	}
 	
-	/**
-	 * Updates the alpha slider of the UI, including changing the color 
-     * gradient of the slider tracks.
-	 */
-	void updateAlphaSlider()
-	{
-		Color s, s1, e;
-		alphaSlider.setValue((int) (control.getAlpha()*255));
-		s1 = control.getColour();
-		s = new Color(s1.getRed(), s1.getGreen(), s1.getBlue(), 0);
-		e = new Color(s1.getRed(), s1.getGreen(), s1.getBlue(), 255);
-		alphaSlider.setRGBStart(s);
-		alphaSlider.setRGBEnd(e);
-	}
+    /**
+     * Updates the alpha slider of the UI, including changing the color gradient
+     * of the slider tracks.
+     */
+    void updateAlphaSlider() {
+        removeListeners();
+        boolean disable = CommonsLangUtils.isNotEmpty(control.getLUT());
+        if (disable) {
+            alphaSlider.setRGBStart(Color.WHITE);
+            alphaSlider.setRGBEnd(Color.WHITE);
+        } else {
+            Color c = control.getColour();
+            Color s = new Color(c.getRed(), c.getGreen(), c.getBlue(), 0);
+            Color e = new Color(c.getRed(), c.getGreen(), c.getBlue(), 255);
+            alphaSlider.setRGBStart(s);
+            alphaSlider.setRGBEnd(e);
+        }
+        alphaLabel.setEnabled(!disable);
+        alphaSlider.setEnabled(!disable);
+        alphaTextbox.setEnabled(!disable);
+        addListeners();
+    }
 	
 	/**
 	 * Updates the sliders of the UI, including changing the color gradient

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -29,12 +29,14 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Collection;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
 //Third-party libraries
+
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
@@ -68,13 +70,13 @@ public class ColourPicker
     public static final int     DEFAULT_HEIGHT = 310;
     
     /** Bounds property indicating that a new color is selected. */
-    public static final String COLOUR_PROPERTY = "colour";
+    public static final String ACCEPT_PROPERTY = "colour";
     
-    /** Bounds property indicating that a new color is selected. */
-    public static final String COLOUR_PREVIEW_PROPERTY = "colourPreview";
+    /** Bounds property indicating to cancel the dialog. */
+    public static final String CANCEL_PROPERTY = "cancelColourPicker";
     
     /** Bounds property indicating to close the dialog. */
-    public static final String CANCEL_PROPERTY = "closeColourPicker";
+    public static final String CLOSE = "closeColourPicker";
     
     /** The title of the window. */
     private static final String TITLE = "Color Picker Window";
@@ -123,41 +125,79 @@ public class ColourPicker
     void cancel()
     {
         setVisible(false);
-        dispose();
         firePropertyChange(CANCEL_PROPERTY, Boolean.valueOf(false),
         		Boolean.valueOf(true));
     }
 
-    /**  Returns the current colour to the user.*/
-    void accept()
-    {
-        Color c = model.getColour();
-        String description = tabbedPane.getDescription();
-        if (model.isOriginalColor(model.getColour()) && description == null) 
-        	return;
-        if (description == null)
-        	firePropertyChange(COLOUR_PROPERTY, model.getOriginalColor(), c);
-        else 
-        	firePropertyChange(COLOUR_PROPERTY, null, 
-        			new ColourObject(c, description));	
-        cancel();
+    /** Returns the current colour to the user. */
+    void accept() {
+        
+        ColourObject newColor = new ColourObject();
+        ColourObject oldColor = new ColourObject();
+        
+        newColor.color = model.getColour();
+        oldColor.color = model.getOriginalColor();
+        
+        newColor.lut = model.getLUT();
+        oldColor.lut = model.getOriginalLUT();
+        
+        newColor.revInt = model.getReverseIntensity();
+        oldColor.revInt = model.getOriginalReverseIntensity();
+        
+        newColor.description = tabbedPane.getDescription();
+        
+        firePropertyChange(ACCEPT_PROPERTY, oldColor, newColor);
+        
+        setVisible(false);
+        firePropertyChange(CLOSE, false, true);
     }
     
-    /**  Returns the current colour to the user.*/
-    void preview()
-    {
-        Color c = model.getColour();
-        String description = tabbedPane.getDescription();
-        if (model.isOriginalColor(model.getColour()) && description == null) 
-        	return;
-        firePropertyChange(COLOUR_PREVIEW_PROPERTY, model.getOriginalColor(),
-        		c);
+    /** Returns the current colour to the user. */
+    void preview() {
+        ColourObject newColor = new ColourObject();
+        ColourObject oldColor = new ColourObject();
+        
+        newColor.color = model.getColour();
+        oldColor.color = model.getOriginalColor();
+        
+        newColor.lut = model.getLUT();
+        oldColor.lut = model.getOriginalLUT();
+        
+        newColor.revInt = model.getReverseIntensity();
+        oldColor.revInt = model.getOriginalReverseIntensity();
+        
+        newColor.description = tabbedPane.getDescription();
+        
+        newColor.preview = true;
+        
+        firePropertyChange(ACCEPT_PROPERTY, oldColor, newColor);
     }
     
     /** Resets the color to the original.*/
     void reset()
     {
-    	firePropertyChange(COLOUR_PROPERTY, null, model.getOriginalColor());
+        ColourObject oldColor = new ColourObject();
+        oldColor.color = model.getOriginalColor();
+        oldColor.lut = model.getOriginalLUT();
+        oldColor.revInt = model.getOriginalReverseIntensity();
+        
+    	firePropertyChange(ACCEPT_PROPERTY, null,oldColor);
+    }
+    
+    /**
+     * Reinitializes the ColourPicker with the given values
+     * @param c The color
+     * @param desc The description
+     * @param lut The lookup table
+     * @param revInt The reverse intensity flag
+     */
+    public void reinit(Color c, String desc, String lut, boolean revInt) {
+        this.model.setColour(c, true);
+        if (desc != null)
+            tabbedPane.setColorDescription(desc);
+        this.model.setLUT(lut, true);
+        this.model.setReverseIntensity(revInt, true);
+        tabbedPane.stateChanged(null);
     }
     
 	/** 
@@ -168,15 +208,18 @@ public class ColourPicker
      *                  the default color.
      * @param field		Pass <code>true</code> to add a field, 
      * 					<code>false</code> otherwise.       
+	 * @param luts      The selected lookup table
+	 * @param revInt    The reverse intensity flag
+	 * @param selectedLUT  All available lookup tables
      */
-	public ColourPicker(JFrame owner, Color color, boolean field)
+	public ColourPicker(JFrame owner, Color color, boolean field, Collection<String> luts, String selectedLUT, boolean revInt)
 	{
 	    super(owner);
 	    if (color == null) color = DEFAULT_COLOR;
         setWindowProperties();
         float[] vals = new float[4];
         vals = color.getComponents(vals);
-        model = new RGBModel(vals[0], vals[1], vals[2], vals[3]);
+        model = new RGBModel(vals[0], vals[1], vals[2], vals[3], selectedLUT, luts, revInt);
         RGBControl control = new RGBControl(model);
         
         tabbedPane = new TabbedPaneUI(this, control, field);
@@ -200,9 +243,40 @@ public class ColourPicker
 	 */
 	public ColourPicker(JFrame owner, Color color)
 	{
-		this(owner, color, false);
+		this(owner, color, false, null, null, false);
 	}
 	
+    /**
+     * Creates a new instance with color set to <code>red</code>.
+     * 
+     * @param owner
+     *            The owner of the window.
+     * @param color
+     *            The original color. If <code>null</code>, sets to the default
+     *            color.
+     * @param field
+     *            Pass <code>true</code> to add a field, <code>false</code>
+     *            otherwise.
+     */
+    public ColourPicker(JFrame owner, Color color, boolean field) {
+        this(owner, color, field, null, null, false);
+    }
+	
+	/** 
+     * Creates a new instance with color set to <code>red</code>.
+     * 
+     * @param owner The owner of the window.
+     * @param color The original color. If <code>null</code>, sets to 
+     *              the default color.
+     * @param luts The available lookup tables
+     * @param selectedLUT The selected lookup table
+	 * @param revInt  The reverse intensity flag
+     */
+    public ColourPicker(JFrame owner, Color color, Collection<String> luts, String selectedLUT, boolean revInt)
+    {
+        this(owner, color, false, luts, selectedLUT, revInt);
+    }
+    
 	/** 
 	 * Creates a new instance with color set to <code>red</code>.
 	 * 
@@ -210,7 +284,7 @@ public class ColourPicker
 	 */
 	public ColourPicker(JFrame owner)
 	{
-		this(owner, null, false);
+		this(owner, null, false, null, null, false);
 	}
 	
 	/** 
@@ -222,7 +296,7 @@ public class ColourPicker
 	 */
 	public ColourPicker(JFrame owner, boolean field)
 	{
-		this(owner, null, field);
+		this(owner, null, field, null, null, false);
 	}
 	
 	/**

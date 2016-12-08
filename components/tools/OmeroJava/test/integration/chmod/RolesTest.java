@@ -19,16 +19,14 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package integration.chmod;
 
 import java.util.List;
 
+import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
-import static org.testng.AssertJUnit.*;
-import static omero.rtypes.rstring;
 import omero.cmd.Delete2;
 import omero.cmd.graphs.ChildOption;
 import omero.gateway.util.Requests;
@@ -86,10 +84,10 @@ public class RolesTest extends AbstractServerTest {
         Permissions perms = d.getDetails().getPermissions();
         long id = d.getId().getValue();
         // make sure data owner can do everything
-        assertTrue(perms.canEdit());
-        assertTrue(perms.canAnnotate());
-        assertTrue(perms.canDelete());
-        assertTrue(perms.canLink());
+        Assert.assertTrue(perms.canEdit());
+        Assert.assertTrue(perms.canAnnotate());
+        Assert.assertTrue(perms.canDelete());
+        Assert.assertTrue(perms.canLink());
 
         Image img = (Image) iUpdate
                 .saveAndReturnObject(mmFactory.createImage());
@@ -115,7 +113,7 @@ public class RolesTest extends AbstractServerTest {
         param.addId(id);
         List<IObject> datasets = iQuery.findAllByQuery(sql, param);
         // Cannot view the data.
-        assertEquals(datasets.size(), 0);
+        Assert.assertEquals(datasets.size(), 0);
 
         // Create a link canLink
         // Try to delete the link i.e. canDelete
@@ -124,7 +122,7 @@ public class RolesTest extends AbstractServerTest {
             callback(false, client, dc);
         } catch (Exception e) {
 
-            fail("Member should not be allowed to delete "
+            Assert.fail("Member should not be allowed to delete "
                     + "an image/dataset link.");
         }
 
@@ -132,7 +130,7 @@ public class RolesTest extends AbstractServerTest {
             Delete2 dc = Requests.delete().target(dl).option(KEEP_ANN).build();
             callback(false, client, dc);
         } catch (Exception e) {
-            fail("Member should not be allowed to delete "
+            Assert.fail("Member should not be allowed to delete "
                     + "an image/dataset link.");
         }
 
@@ -141,7 +139,7 @@ public class RolesTest extends AbstractServerTest {
             Delete2 dc = Requests.delete().target(ann).build();
             callback(false, client, dc);
         } catch (Exception e) {
-            fail("Member should not be allowed to delete the annotation.");
+            Assert.fail("Member should not be allowed to delete the annotation.");
         }
 
 
@@ -151,7 +149,7 @@ public class RolesTest extends AbstractServerTest {
             l = new DatasetImageLinkI();
             l.link(new DatasetI(id, false), img);
             iUpdate.saveAndReturnObject(l);
-            fail("Member should not be allowed to create an image/dataset link.");
+            Assert.fail("Member should not be allowed to create an image/dataset link.");
         } catch (Exception e) {
         }
 
@@ -163,15 +161,15 @@ public class RolesTest extends AbstractServerTest {
             dl = new DatasetAnnotationLinkI();
             dl.link(new DatasetI(d.getId().getValue(), false), ann);
             dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
-            fail("Member should not be allowed to annotate a dataset.");
+            Assert.fail("Member should not be allowed to annotate a dataset.");
         } catch (Exception e) {
         }
 
         // Try to edit i.e. canEdit
         try {
-            d.setName(rstring("newName"));
+            d.setName(omero.rtypes.rstring("newName"));
             iUpdate.saveAndReturnObject(d);
-            fail("Member should not be allowed to edit a dataset.");
+            Assert.fail("Member should not be allowed to edit a dataset.");
         } catch (Exception e) {
         }
     }
@@ -189,10 +187,10 @@ public class RolesTest extends AbstractServerTest {
                 .simpleDatasetData().asIObject());
         Permissions perms = d.getDetails().getPermissions();
         long id = d.getId().getValue();
-        assertTrue(perms.canEdit());
-        assertTrue(perms.canAnnotate());
-        assertTrue(perms.canDelete());
-        assertTrue(perms.canLink());
+        Assert.assertTrue(perms.canEdit());
+        Assert.assertTrue(perms.canAnnotate());
+        Assert.assertTrue(perms.canDelete());
+        Assert.assertTrue(perms.canLink());
 
         // create image link
 
@@ -219,14 +217,14 @@ public class RolesTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.addId(id);
         List<IObject> datasets = iQuery.findAllByQuery(sql, param);
-        assertEquals(datasets.size(), 1);
+        Assert.assertEquals(datasets.size(), 1);
         d = (Dataset) datasets.get(0);
         perms = d.getDetails().getPermissions();
 
-        assertTrue(perms.canEdit());
-        assertFalse(perms.canAnnotate());
-        assertTrue(perms.canDelete());
-        assertFalse(perms.canLink());
+        Assert.assertTrue(perms.canEdit());
+        Assert.assertFalse(perms.canAnnotate());
+        Assert.assertTrue(perms.canDelete());
+        Assert.assertFalse(perms.canLink());
 
         // Create a link canLink
         // Try to delete the link i.e. canDelete
@@ -247,7 +245,7 @@ public class RolesTest extends AbstractServerTest {
             l = new DatasetImageLinkI();
             l.link(new DatasetI(d.getId().getValue(), false), img);
             iUpdate.saveAndReturnObject(l);
-            fail("Group owner should not be allowed to create "
+            Assert.fail("Group owner should not be allowed to create "
                     + "an image/dataset link.");
         } catch (Exception e) {
         }
@@ -260,13 +258,13 @@ public class RolesTest extends AbstractServerTest {
             dl = new DatasetAnnotationLinkI();
             dl.link(new DatasetI(d.getId().getValue(), false), ann);
             dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
-            fail("Group owner should not be allowed to annotate "
+            Assert.fail("Group owner should not be allowed to annotate "
                     + "a dataset.");
         } catch (Exception e) {
         }
 
         // Try to edit i.e. canEdit
-        d.setName(rstring("newName"));
+        d.setName(omero.rtypes.rstring("newName"));
         iUpdate.saveAndReturnObject(d);
     }
 
@@ -284,10 +282,10 @@ public class RolesTest extends AbstractServerTest {
         Permissions perms = d.getDetails().getPermissions();
         long id = d.getId().getValue();
 
-        assertTrue(perms.canEdit());
-        assertTrue(perms.canAnnotate());
-        assertTrue(perms.canDelete());
-        assertTrue(perms.canLink());
+        Assert.assertTrue(perms.canEdit());
+        Assert.assertTrue(perms.canAnnotate());
+        Assert.assertTrue(perms.canDelete());
+        Assert.assertTrue(perms.canLink());
 
         // create image link
 
@@ -313,14 +311,14 @@ public class RolesTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.addId(id);
         List<IObject> datasets = iQuery.findAllByQuery(sql, param);
-        assertEquals(datasets.size(), 1);
+        Assert.assertEquals(datasets.size(), 1);
         d = (Dataset) datasets.get(0);
         perms = d.getDetails().getPermissions();
 
-        assertFalse(perms.canAnnotate());
-        assertTrue(perms.canDelete());
-        assertTrue(perms.canEdit());
-        assertFalse(perms.canLink());
+        Assert.assertFalse(perms.canAnnotate());
+        Assert.assertTrue(perms.canDelete());
+        Assert.assertTrue(perms.canEdit());
+        Assert.assertFalse(perms.canLink());
 
         // Create a link canLink
         // Try to delete the link i.e. canDelete
@@ -341,7 +339,7 @@ public class RolesTest extends AbstractServerTest {
             l = new DatasetImageLinkI();
             l.link(new DatasetI(id, false), img);
             iUpdate.saveAndReturnObject(l);
-            fail("Admin should not be allowed to create an image/dataset link.");
+            Assert.fail("Admin should not be allowed to create an image/dataset link.");
         } catch (Exception e) {
         }
 
@@ -353,12 +351,12 @@ public class RolesTest extends AbstractServerTest {
             dl = new DatasetAnnotationLinkI();
             dl.link(new DatasetI(id, false), ann);
             dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
-            fail("Admin should not be allowed to annotate a dataset.");
+            Assert.fail("Admin should not be allowed to annotate a dataset.");
         } catch (Exception e) {
         }
 
         // Try to edit i.e. canEdit
-        d.setName(rstring("newName"));
+        d.setName(omero.rtypes.rstring("newName"));
         iUpdate.saveAndReturnObject(d);
     }
 
@@ -378,10 +376,10 @@ public class RolesTest extends AbstractServerTest {
 
         Permissions perms = d.getDetails().getPermissions();
         // make sure data owner can do everything
-        assertTrue(perms.canEdit());
-        assertTrue(perms.canAnnotate());
-        assertTrue(perms.canDelete());
-        assertTrue(perms.canLink());
+        Assert.assertTrue(perms.canEdit());
+        Assert.assertTrue(perms.canAnnotate());
+        Assert.assertTrue(perms.canDelete());
+        Assert.assertTrue(perms.canLink());
 
         Image img = (Image) iUpdate
                 .saveAndReturnObject(mmFactory.createImage());
@@ -407,7 +405,7 @@ public class RolesTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.addId(id);
         List<IObject> datasets = iQuery.findAllByQuery(sql, param);
-        assertEquals(datasets.size(), 1);
+        Assert.assertEquals(datasets.size(), 1);
 
         // Just a member should be able to neither (for the moment)
         // Reload the perms (from the object that the member loaded)
@@ -416,16 +414,16 @@ public class RolesTest extends AbstractServerTest {
 
         perms = d.getDetails().getPermissions();
 
-        assertFalse(perms.canEdit());
-        assertFalse(perms.canAnnotate());
-        assertFalse(perms.canDelete());
-        assertFalse(perms.canLink());
+        Assert.assertFalse(perms.canEdit());
+        Assert.assertFalse(perms.canAnnotate());
+        Assert.assertFalse(perms.canDelete());
+        Assert.assertFalse(perms.canLink());
 
         DatasetData data = new DatasetData(d);
-        assertFalse(data.canEdit());
-        assertFalse(data.canAnnotate());
-        assertFalse(data.canDelete());
-        assertFalse(data.canLink());
+        Assert.assertFalse(data.canEdit());
+        Assert.assertFalse(data.canAnnotate());
+        Assert.assertFalse(data.canDelete());
+        Assert.assertFalse(data.canLink());
         // Create a link canLink
         // Try to delete the link i.e. canDelete
         try {
@@ -433,7 +431,7 @@ public class RolesTest extends AbstractServerTest {
             callback(false, client, dc);
         } catch (Exception e) {
 
-            fail("Member should not be allowed to delete "
+            Assert.fail("Member should not be allowed to delete "
                     + "an image/dataset link.");
         }
 
@@ -441,7 +439,7 @@ public class RolesTest extends AbstractServerTest {
             Delete2 dc = Requests.delete().target(dl).option(KEEP_ANN).build();
             callback(false, client, dc);
         } catch (Exception e) {
-            fail("Member should not be allowed to delete "
+            Assert.fail("Member should not be allowed to delete "
                     + "an image/dataset link.");
         }
 
@@ -450,7 +448,7 @@ public class RolesTest extends AbstractServerTest {
             Delete2 dc = Requests.delete().target(ann).build();
             callback(false, client, dc);
         } catch (Exception e) {
-            fail("Member should not be allowed to delete " + "the annotation.");
+            Assert.fail("Member should not be allowed to delete " + "the annotation.");
         }
 
         // Try to link an image i.e. canLink
@@ -459,7 +457,7 @@ public class RolesTest extends AbstractServerTest {
             l = new DatasetImageLinkI();
             l.link(new DatasetI(id, false), img);
             iUpdate.saveAndReturnObject(l);
-            fail("Member should not be allowed to create an image/dataset link.");
+            Assert.fail("Member should not be allowed to create an image/dataset link.");
         } catch (Exception e) {
         }
 
@@ -471,15 +469,15 @@ public class RolesTest extends AbstractServerTest {
             dl = new DatasetAnnotationLinkI();
             dl.link(new DatasetI(id, false), ann);
             dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
-            fail("Member should not be allowed to annotate a dataset.");
+            Assert.fail("Member should not be allowed to annotate a dataset.");
         } catch (Exception e) {
         }
 
         // Try to edit i.e. canEdit
         try {
-            d.setName(rstring("newName"));
+            d.setName(omero.rtypes.rstring("newName"));
             iUpdate.saveAndReturnObject(d);
-            fail("Member should not be allowed to edit a dataset.");
+            Assert.fail("Member should not be allowed to edit a dataset.");
         } catch (Exception e) {
         }
     }
@@ -498,10 +496,10 @@ public class RolesTest extends AbstractServerTest {
         long id = d.getId().getValue();
         Permissions perms = d.getDetails().getPermissions();
         // make sure owner can do everything
-        assertTrue(perms.canEdit());
-        assertTrue(perms.canAnnotate());
-        assertTrue(perms.canDelete());
-        assertTrue(perms.canLink());
+        Assert.assertTrue(perms.canEdit());
+        Assert.assertTrue(perms.canAnnotate());
+        Assert.assertTrue(perms.canDelete());
+        Assert.assertTrue(perms.canLink());
 
         // create image link
 
@@ -528,16 +526,16 @@ public class RolesTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.addId(id);
         List<IObject> datasets = iQuery.findAllByQuery(sql, param);
-        assertEquals(datasets.size(), 1);
+        Assert.assertEquals(datasets.size(), 1);
         d = (Dataset) datasets.get(0);
 
         perms = d.getDetails().getPermissions();
 
         // Check what the group owner can do
-        assertTrue(perms.canEdit());
-        assertTrue(perms.canAnnotate());
-        assertTrue(perms.canDelete());
-        assertTrue(perms.canLink());
+        Assert.assertTrue(perms.canEdit());
+        Assert.assertTrue(perms.canAnnotate());
+        Assert.assertTrue(perms.canDelete());
+        Assert.assertTrue(perms.canLink());
 
         // Try to delete the link i.e. canLink
         Delete2 dc = Requests.delete().target(l).build();
@@ -566,7 +564,7 @@ public class RolesTest extends AbstractServerTest {
         dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
 
         // Try to edit i.e. canEdit
-        d.setName(rstring("newName"));
+        d.setName(omero.rtypes.rstring("newName"));
         iUpdate.saveAndReturnObject(d);
     }
 
@@ -584,10 +582,10 @@ public class RolesTest extends AbstractServerTest {
         Permissions perms = d.getDetails().getPermissions();
         long id = d.getId().getValue();
 
-        assertTrue(perms.canEdit());
-        assertTrue(perms.canAnnotate());
-        assertTrue(perms.canDelete());
-        assertTrue(perms.canLink());
+        Assert.assertTrue(perms.canEdit());
+        Assert.assertTrue(perms.canAnnotate());
+        Assert.assertTrue(perms.canDelete());
+        Assert.assertTrue(perms.canLink());
 
         // create image link
         Image img = (Image) iUpdate
@@ -612,17 +610,17 @@ public class RolesTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.addId(id);
         List<IObject> datasets = iQuery.findAllByQuery(sql, param);
-        assertEquals(datasets.size(), 1);
+        Assert.assertEquals(datasets.size(), 1);
         d = (Dataset) datasets.get(0);
         id = d.getId().getValue();
 
         perms = d.getDetails().getPermissions();
 
         // Check what the group owner can do
-        assertTrue(perms.canEdit());
-        assertTrue(perms.canAnnotate());
-        assertTrue(perms.canDelete());
-        assertTrue(perms.canLink());
+        Assert.assertTrue(perms.canEdit());
+        Assert.assertTrue(perms.canAnnotate());
+        Assert.assertTrue(perms.canDelete());
+        Assert.assertTrue(perms.canLink());
 
         // Try to delete the link i.e. canLink
         Delete2 dc = Requests.delete().target(l).build();
@@ -651,7 +649,7 @@ public class RolesTest extends AbstractServerTest {
         dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
 
         // Try to edit i.e. canEdit
-        d.setName(rstring("newName"));
+        d.setName(omero.rtypes.rstring("newName"));
         iUpdate.saveAndReturnObject(d);
     }
 
@@ -670,10 +668,10 @@ public class RolesTest extends AbstractServerTest {
         Permissions perms = d.getDetails().getPermissions();
         long id = d.getId().getValue();
 
-        assertTrue(perms.canAnnotate());
-        assertTrue(perms.canEdit());
-        assertTrue(perms.canLink());
-        assertTrue(perms.canAnnotate());
+        Assert.assertTrue(perms.canAnnotate());
+        Assert.assertTrue(perms.canEdit());
+        Assert.assertTrue(perms.canLink());
+        Assert.assertTrue(perms.canAnnotate());
 
         Image img = (Image) iUpdate
                 .saveAndReturnObject(mmFactory.createImage());
@@ -699,7 +697,7 @@ public class RolesTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.addId(id);
         List<IObject> datasets = iQuery.findAllByQuery(sql, param);
-        assertEquals(datasets.size(), 1);
+        Assert.assertEquals(datasets.size(), 1);
 
         // Just a member should be able to neither (for the moment)
         // Reload the perms (from the object that the member loaded)
@@ -708,10 +706,10 @@ public class RolesTest extends AbstractServerTest {
 
         perms = d.getDetails().getPermissions();
 
-        assertFalse(perms.canEdit());
-        assertTrue(perms.canAnnotate());
-        assertFalse(perms.canDelete());
-        assertFalse(perms.canLink());
+        Assert.assertFalse(perms.canEdit());
+        Assert.assertTrue(perms.canAnnotate());
+        Assert.assertFalse(perms.canDelete());
+        Assert.assertFalse(perms.canLink());
 
         // Create a link canLink
         // Try to delete the link i.e. canDelete
@@ -720,7 +718,7 @@ public class RolesTest extends AbstractServerTest {
             callback(false, client, dc);
         } catch (Exception e) {
 
-            fail("Member should not be allowed to delete "
+            Assert.fail("Member should not be allowed to delete "
                     + "an image/dataset link.");
         }
 
@@ -728,7 +726,7 @@ public class RolesTest extends AbstractServerTest {
             Delete2 dc = Requests.delete().target(dl).option(KEEP_ANN).build();
             callback(false, client, dc);
         } catch (Exception e) {
-            fail("Member should not be allowed to delete "
+            Assert.fail("Member should not be allowed to delete "
                     + "an image/dataset link.");
         }
 
@@ -737,7 +735,7 @@ public class RolesTest extends AbstractServerTest {
             Delete2 dc = Requests.delete().target(ann).build();
             callback(false, client, dc);
         } catch (Exception e) {
-            fail("Member should not be allowed to delete " + "the annotation.");
+            Assert.fail("Member should not be allowed to delete " + "the annotation.");
         }
 
         // Try to link an image i.e. canLink
@@ -746,7 +744,7 @@ public class RolesTest extends AbstractServerTest {
             l = new DatasetImageLinkI();
             l.link(new DatasetI(d.getId().getValue(), false), img);
             iUpdate.saveAndReturnObject(l);
-            fail("Member should not be allowed to create an image/dataset link.");
+            Assert.fail("Member should not be allowed to create an image/dataset link.");
         } catch (Exception e) {
         }
 
@@ -760,9 +758,9 @@ public class RolesTest extends AbstractServerTest {
 
         // Try to edit i.e. canEdit
         try {
-            d.setName(rstring("newName"));
+            d.setName(omero.rtypes.rstring("newName"));
             iUpdate.saveAndReturnObject(d);
-            fail("Member should not be allowed to edit a dataset.");
+            Assert.fail("Member should not be allowed to edit a dataset.");
         } catch (Exception e) {
         }
     }
@@ -780,10 +778,10 @@ public class RolesTest extends AbstractServerTest {
                 .simpleDatasetData().asIObject());
         Permissions perms = d.getDetails().getPermissions();
         // make sure owner can do everything
-        assertTrue(perms.canEdit());
-        assertTrue(perms.canAnnotate());
-        assertTrue(perms.canDelete());
-        assertTrue(perms.canLink());
+        Assert.assertTrue(perms.canEdit());
+        Assert.assertTrue(perms.canAnnotate());
+        Assert.assertTrue(perms.canDelete());
+        Assert.assertTrue(perms.canLink());
 
         long id = d.getId().getValue();
 
@@ -811,16 +809,16 @@ public class RolesTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.addId(id);
         List<IObject> datasets = iQuery.findAllByQuery(sql, param);
-        assertEquals(datasets.size(), 1);
+        Assert.assertEquals(datasets.size(), 1);
         d = (Dataset) datasets.get(0);
 
         perms = d.getDetails().getPermissions();
 
         // Check what the group owner can do
-        assertTrue(perms.canEdit());
-        assertTrue(perms.canAnnotate());
-        assertTrue(perms.canDelete());
-        assertTrue(perms.canLink());
+        Assert.assertTrue(perms.canEdit());
+        Assert.assertTrue(perms.canAnnotate());
+        Assert.assertTrue(perms.canDelete());
+        Assert.assertTrue(perms.canLink());
 
         // Try to delete the link i.e. canLink
         Delete2 dc = Requests.delete().target(l).build();
@@ -849,7 +847,7 @@ public class RolesTest extends AbstractServerTest {
         dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
 
         // Try to edit i.e. canEdit
-        d.setName(rstring("newName"));
+        d.setName(omero.rtypes.rstring("newName"));
         iUpdate.saveAndReturnObject(d);
     }
 
@@ -883,10 +881,10 @@ public class RolesTest extends AbstractServerTest {
         dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
 
         Permissions perms = d.getDetails().getPermissions();
-        assertTrue(perms.canEdit());
-        assertTrue(perms.canAnnotate());
-        assertTrue(perms.canDelete());
-        assertTrue(perms.canLink());
+        Assert.assertTrue(perms.canEdit());
+        Assert.assertTrue(perms.canAnnotate());
+        Assert.assertTrue(perms.canDelete());
+        Assert.assertTrue(perms.canLink());
 
         disconnect();
         // Now a new member to the group.
@@ -896,16 +894,16 @@ public class RolesTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.addId(id);
         List<IObject> datasets = iQuery.findAllByQuery(sql, param);
-        assertEquals(datasets.size(), 1);
+        Assert.assertEquals(datasets.size(), 1);
 
         d = (Dataset) datasets.get(0);
 
         perms = d.getDetails().getPermissions();
         // Check what the group owner can do
-        assertTrue(perms.canEdit());
-        assertTrue(perms.canAnnotate());
-        assertTrue(perms.canDelete());
-        assertTrue(perms.canLink());
+        Assert.assertTrue(perms.canEdit());
+        Assert.assertTrue(perms.canAnnotate());
+        Assert.assertTrue(perms.canDelete());
+        Assert.assertTrue(perms.canLink());
 
         // Try to delete the link i.e. canLink
         Delete2 dc = Requests.delete().target(l).build();
@@ -934,7 +932,7 @@ public class RolesTest extends AbstractServerTest {
         dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
 
         // Try to edit i.e. canEdit
-        d.setName(rstring("newName"));
+        d.setName(omero.rtypes.rstring("newName"));
         iUpdate.saveAndReturnObject(d);
     }
 
@@ -952,10 +950,10 @@ public class RolesTest extends AbstractServerTest {
                 .simpleDatasetData().asIObject());
         Permissions perms = d.getDetails().getPermissions();
         long id = d.getId().getValue();
-        assertTrue(perms.canEdit());
-        assertTrue(perms.canAnnotate());
-        assertTrue(perms.canDelete());
-        assertTrue(perms.canLink());
+        Assert.assertTrue(perms.canEdit());
+        Assert.assertTrue(perms.canAnnotate());
+        Assert.assertTrue(perms.canDelete());
+        Assert.assertTrue(perms.canLink());
 
         Image img = (Image) iUpdate
                 .saveAndReturnObject(mmFactory.createImage());
@@ -980,16 +978,16 @@ public class RolesTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.addId(id);
         List<IObject> datasets = iQuery.findAllByQuery(sql, param);
-        assertEquals(datasets.size(), 1);
+        Assert.assertEquals(datasets.size(), 1);
         d = (Dataset) datasets.get(0);
 
         perms = d.getDetails().getPermissions();
 
         // Check what the group owner can do
-        assertTrue(perms.canEdit());
-        assertTrue(perms.canAnnotate());
-        assertTrue(perms.canDelete());
-        assertTrue(perms.canLink());
+        Assert.assertTrue(perms.canEdit());
+        Assert.assertTrue(perms.canAnnotate());
+        Assert.assertTrue(perms.canDelete());
+        Assert.assertTrue(perms.canLink());
 
         // Try to delete the link i.e. canLink
         Delete2 dc = Requests.delete().target(l).build();
@@ -1019,7 +1017,7 @@ public class RolesTest extends AbstractServerTest {
         dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
 
         // Try to edit i.e. canEdit
-        d.setName(rstring("newName"));
+        d.setName(omero.rtypes.rstring("newName"));
         iUpdate.saveAndReturnObject(d);
         dc = Requests.delete().target(d).build();
         callback(true, client, dc);
@@ -1040,10 +1038,10 @@ public class RolesTest extends AbstractServerTest {
         long id = d.getId().getValue();
 
         // make sure data owner can do everything
-        assertTrue(perms.canEdit());
-        assertTrue(perms.canAnnotate());
-        assertTrue(perms.canDelete());
-        assertTrue(perms.canLink());
+        Assert.assertTrue(perms.canEdit());
+        Assert.assertTrue(perms.canAnnotate());
+        Assert.assertTrue(perms.canDelete());
+        Assert.assertTrue(perms.canLink());
 
         Image img = (Image) iUpdate
                 .saveAndReturnObject(mmFactory.createImage());
@@ -1069,16 +1067,16 @@ public class RolesTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.addId(id);
         List<IObject> datasets = iQuery.findAllByQuery(sql, param);
-        assertEquals(datasets.size(), 1);
+        Assert.assertEquals(datasets.size(), 1);
         d = (Dataset) datasets.get(0);
 
         perms = d.getDetails().getPermissions();
 
         // Check what the group owner can do
-        assertTrue(perms.canEdit());
-        assertTrue(perms.canAnnotate());
-        assertTrue(perms.canDelete());
-        assertTrue(perms.canLink());
+        Assert.assertTrue(perms.canEdit());
+        Assert.assertTrue(perms.canAnnotate());
+        Assert.assertTrue(perms.canDelete());
+        Assert.assertTrue(perms.canLink());
 
         // Try to delete the link i.e. canLink
         Delete2 dc = Requests.delete().target(l).build();
@@ -1107,7 +1105,7 @@ public class RolesTest extends AbstractServerTest {
         dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
 
         // Try to edit i.e. canEdit
-        d.setName(rstring("newName"));
+        d.setName(omero.rtypes.rstring("newName"));
         iUpdate.saveAndReturnObject(d);
     }
 
@@ -1126,10 +1124,10 @@ public class RolesTest extends AbstractServerTest {
         long id = d.getId().getValue();
 
         // Check what the group owner can do
-        assertTrue(perms.canEdit());
-        assertTrue(perms.canAnnotate());
-        assertTrue(perms.canDelete());
-        assertTrue(perms.canLink());
+        Assert.assertTrue(perms.canEdit());
+        Assert.assertTrue(perms.canAnnotate());
+        Assert.assertTrue(perms.canDelete());
+        Assert.assertTrue(perms.canLink());
 
         Image img = (Image) iUpdate
                 .saveAndReturnObject(mmFactory.createImage());
@@ -1155,14 +1153,14 @@ public class RolesTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.addId(id);
         List<IObject> datasets = iQuery.findAllByQuery(sql, param);
-        assertEquals(datasets.size(), 1);
+        Assert.assertEquals(datasets.size(), 1);
         d = (Dataset) datasets.get(0);
 
         // Check what the group owner can do
-        assertTrue(perms.canEdit());
-        assertTrue(perms.canAnnotate());
-        assertTrue(perms.canDelete());
-        assertTrue(perms.canLink());
+        Assert.assertTrue(perms.canEdit());
+        Assert.assertTrue(perms.canAnnotate());
+        Assert.assertTrue(perms.canDelete());
+        Assert.assertTrue(perms.canLink());
 
         // Try to delete the link i.e. canLink
         Delete2 dc = Requests.delete().target(l).build();
@@ -1191,7 +1189,7 @@ public class RolesTest extends AbstractServerTest {
         dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
 
         // Try to edit i.e. canEdit
-        d.setName(rstring("newName"));
+        d.setName(omero.rtypes.rstring("newName"));
         iUpdate.saveAndReturnObject(d);
     }
 

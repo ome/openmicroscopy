@@ -25,7 +25,8 @@ Decorators for use with OMERO.web applications.
 
 import logging
 import traceback
-from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseRedirect, \
+    JsonResponse
 from django.http import HttpResponseForbidden, StreamingHttpResponse
 
 from django.conf import settings
@@ -36,8 +37,7 @@ from django.template import loader as template_loader
 from django.template import RequestContext
 from django.core.cache import cache
 
-from omeroweb.http import HttpJsonResponse
-
+from omeroweb.utils import reverse_with_params
 from omeroweb.connector import Connector
 from omero.gateway.utils import propertiesToDict
 
@@ -45,15 +45,15 @@ logger = logging.getLogger(__name__)
 
 
 def parse_url(lookup_view):
+    if not lookup_view:
+        raise ValueError("No lookup_view")
     url = None
     try:
-        if "args" in lookup_view.keys():
-            url = reverse(viewname=lookup_view["viewname"],
-                          args=lookup_view["args"])
-        else:
-            url = reverse(viewname=lookup_view["viewname"])
-        if "query_string" in lookup_view.keys():
-            url = url + "?" + lookup_view["query_string"]
+        url = reverse_with_params(
+            lookup_view['viewname'],
+            args=lookup_view['args'],
+            query_string=lookup_view['query_string']
+        )
     except KeyError:
         # assume we've been passed a url
         try:
@@ -558,7 +558,9 @@ class render_response(object):
             # allows us to return the dict as json  (NB: BlitzGateway objects
             # don't serialize)
             if template is None or template == 'json':
-                return HttpJsonResponse(context)
+                # We still need to support non-dict data:
+                safe = type(context) is dict
+                return JsonResponse(context, safe=safe)
             else:
                 # allow additional processing of context dict
                 ctx.prepare_context(request, context, *args, **kwargs)

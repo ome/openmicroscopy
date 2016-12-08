@@ -24,14 +24,14 @@
 
 """
 
-import library as lib
+from omero.testlib import ITest
 import omero
 from omero_model_CommentAnnotationI import CommentAnnotationI
 from omero.rtypes import rstring
 from uuid import uuid4
 
 
-class TestIContainer(lib.ITest):
+class TestIContainer(ITest):
 
     DEFAULT_PERMS = "rw----"
 
@@ -80,7 +80,7 @@ class TestIContainer(lib.ITest):
         assert -1 == o.sizeOfGroupExperimenterMap()
 
 
-class TestSplitFilesets(lib.ITest):
+class TestSplitFilesets(ITest):
 
     def checkSplitFilesets(self, dtypeIdsMap, expected):
         """
@@ -115,7 +115,7 @@ class TestSplitFilesets(lib.ITest):
         """
         Fileset of 2 Images, we test split using 1 Image ID
         """
-        images = self.importMIF(2)
+        images = self.import_mif(2)
 
         # Lookup the fileset
         imgId = images[0].id.val
@@ -129,7 +129,7 @@ class TestSplitFilesets(lib.ITest):
         """
         Fileset of 2 Images with No split (query with both Image IDs)
         """
-        images = self.importMIF(2)
+        images = self.import_mif(2)
 
         imgIds = [i.id.val for i in images]
 
@@ -142,7 +142,7 @@ class TestSplitFilesets(lib.ITest):
         Fileset of 2 Images, one in a Dataset. Test split using Dataset ID
         """
         # Dataset contains 1 image of a 2-image fileset
-        images = self.importMIF(2)
+        images = self.import_mif(2)
         ds = self.make_dataset("testFilesetSplitByDataset")
         self.link(ds, images[0])
 
@@ -173,8 +173,8 @@ class TestSplitFilesets(lib.ITest):
         Test Not split using Dataset IDs
         """
         # Datasets each contain 1 image of a 2-image fileset
-        datasets = self.createDatasets(2, "testFilesetNotSplitByDatasets")
-        images = self.importMIF(2)
+        datasets = self.create_datasets(2, "testFilesetNotSplitByDatasets")
+        images = self.import_mif(2)
         for i in range(2):
             self.link(datasets[i], images[i])
 

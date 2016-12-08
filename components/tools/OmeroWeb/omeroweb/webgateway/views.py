@@ -18,11 +18,12 @@ import json
 import omero
 import omero.clients
 
-from django.http import HttpResponse, HttpResponseServerError
+from django.http import HttpResponse, HttpResponseBadRequest, \
+    HttpResponseServerError, JsonResponse
 from django.http import HttpResponseRedirect, HttpResponseNotAllowed, Http404
 from django.template import loader as template_loader
 from django.views.decorators.http import require_POST
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, NoReverseMatch
 from django.conf import settings
 from django.template import RequestContext as Context
 from django.core.servers.basehttp import FileWrapper
@@ -32,6 +33,11 @@ from omero.util.ROI_utils import pointsStringToXYlist, xyListToBbox
 from plategrid import PlateGrid
 from omero_version import build_year
 from marshal import imageMarshal, shapeMarshal, rgb_int2rgba
+from django.contrib.staticfiles.templatetags.staticfiles import static
+from django.views.generic import View
+from omeroweb.webadmin.forms import LoginForm
+from omeroweb.decorators import get_client_ip
+from omeroweb.webadmin.webadmin_utils import upgradeCheck
 
 try:
     from hashlib import md5
@@ -43,7 +49,7 @@ import tempfile
 
 from omero import ApiUsageException
 from omero.util.decorators import timeit, TimeIt
-from omeroweb.http import HttpJavascriptResponse, HttpJsonResponse, \
+from omeroweb.http import HttpJavascriptResponse, \
     HttpJavascriptResponseServerError
 
 import glob
@@ -52,8 +58,6 @@ import glob
 # from models import StoredConnection
 
 from webgateway_cache import webgateway_cache, CacheBase, webgateway_tempfile
-
-cache = CacheBase()
 
 import logging
 import os
@@ -66,6 +70,7 @@ from omeroweb.decorators import login_required, ConnCleaningHttpResponse
 from omeroweb.connector import Connector
 from omeroweb.webgateway.util import zip_archived_files, getIntOrDefault
 
+cache = CacheBase()
 logger = logging.getLogger(__name__)
 
 try:
@@ -206,10 +211,16 @@ def _split_channel_info(rchannels):
     channels = []
     windows = []
     colors = []
+    reverses = []
     for chan in rchannels.split(','):
-        chan = chan.split('|')
+        # chan  1|12:1386r$0000FF
+        chan = chan.split('|', 1)
+        # chan ['1', '12:1386r$0000FF']
         t = chan[0].strip()
+        # t = '1'
         color = None
+        rev = None
+        # Not normally used...
         if t.find('$') >= 0:
             t, color = t.split('$')
         try:
@@ -217,8 +228,18 @@ def _split_channel_info(rchannels):
             ch_window = (None, None)
             if len(chan) > 1:
                 t = chan[1].strip()
+                # t = '12:1386r$0000FF'
                 if t.find('$') >= 0:
-                    t, color = t.split('$')
+                    t, color = t.split('$', 1)
+                    # color = '0000FF'
+                    # t = 12:1386r
+                # Optional flag to enable reverse codomain
+                if t.endswith('-r'):
+                    rev = False
+                    t = t[:-2]
+                elif t.endswith('r'):
+                    rev = True
+                    t = t[:-1]
                 t = t.split(':')
                 if len(t) == 2:
                     try:
@@ -227,10 +248,11 @@ def _split_channel_info(rchannels):
                         pass
             windows.append(ch_window)
             colors.append(color)
+            reverses.append(rev)
         except ValueError:
             pass
     logger.debug(str(channels)+","+str(windows)+","+str(colors))
-    return channels, windows, colors
+    return channels, windows, colors, reverses
 
 
 def getImgDetailsFromReq(request, as_string=False):
@@ -291,8 +313,6 @@ def render_birds_eye_view(request, iid, size=None,
                         bird's eye view.
     @return:            http response containing jpeg
     """
-    if size is None:
-        size = 96       # Use cached thumbnail
     return render_thumbnail(request, iid, w=size, **kwargs)
 
 
@@ -305,14 +325,14 @@ def render_thumbnail(request, iid, w=None, h=None, conn=None, _defcb=None,
 
     @param request:     http request
     @param iid:         Image ID
-    @param w:           Thumbnail max width. 64 by default
+    @param w:           Thumbnail max width. 96 by default
     @param h:           Thumbnail max height
     @return:            http response containing jpeg
     """
     server_id = request.session['connector'].server_id
     direct = True
     if w is None:
-        size = (64,)
+        size = (96,)
     else:
         if h is None:
             size = (int(w),)
@@ -754,8 +774,8 @@ def _get_prepared_image(request, iid, server_id=None, conn=None,
         return
     if 'c' in r:
         logger.debug("c="+r['c'])
-        channels, windows, colors = _split_channel_info(r['c'])
-        if not img.setActiveChannels(channels, windows, colors):
+        channels, windows, colors, reverses = _split_channel_info(r['c'])
+        if not img.setActiveChannels(channels, windows, colors, reverses):
             logger.debug(
                 "Something bad happened while setting the active channels...")
     if r.get('m', None) == 'g':
@@ -829,9 +849,10 @@ def render_image_region(request, iid, z, t, conn=None, **kwargs):
             x = int(zxyt[1])*w
             y = int(zxyt[2])*h
         except:
-            logger.debug("render_image_region: tile=%s" % tile)
-            logger.debug(traceback.format_exc())
-
+            logger.debug(
+                "render_image_region: tile=%s" % tile, exc_info=True
+            )
+            return HttpResponseBadRequest('malformed tile argument')
     elif region:
         try:
             xywh = region.split(",")
@@ -841,8 +862,12 @@ def render_image_region(request, iid, z, t, conn=None, **kwargs):
             w = int(xywh[2])
             h = int(xywh[3])
         except:
-            logger.debug("render_image_region: region=%s" % region)
-            logger.debug(traceback.format_exc())
+            logger.debug(
+                "render_image_region: region=%s" % region, exc_info=True
+            )
+            return HttpResponseBadRequest('malformed region argument')
+    else:
+        return HttpResponseBadRequest('tile or region argument required')
 
     # region details in request are used as key for caching.
     jpeg_data = webgateway_cache.getImage(request, server_id, img, z, t)
@@ -1059,8 +1084,8 @@ def render_ome_tiff(request, ctx, cid, conn=None, **kwargs):
         except:
             logger.debug(traceback.format_exc())
             raise
-        return HttpResponseRedirect(settings.STATIC_URL + 'webgateway/tfiles/'
-                                    + rpath)
+        return HttpResponseRedirect(settings.STATIC_URL +
+                                    'webgateway/tfiles/' + rpath)
 
 
 @login_required()
@@ -1219,24 +1244,35 @@ def jsonp(f):
                 return rv
             if isinstance(rv, HttpResponse):
                 return rv
-            rv = json.dumps(rv)
             c = request.GET.get('callback', None)
             if c is not None and not kwargs.get('_internal', False):
+                rv = json.dumps(rv)
                 rv = '%s(%s)' % (c, rv)
+                # mimetype for JSONP is application/javascript
+                return HttpJavascriptResponse(rv)
             if kwargs.get('_internal', False):
                 return rv
-            return HttpJavascriptResponse(rv)
-        except omero.ServerError:
+            # mimetype for JSON is application/json
+            # NB: To support old api E.g. /get_rois_json/
+            # We need to support lists
+            safe = type(rv) is dict
+            return JsonResponse(rv, safe=safe)
+        except Exception, ex:
+            # Default status is 500 'server error'
+            # But we try to handle all 'expected' errors appropriately
+            # TODO: handle omero.ConcurrencyException
+            status = 500
+            if isinstance(ex, omero.SecurityViolation):
+                status = 403
+            elif isinstance(ex, omero.ApiUsageException):
+                status = 400
+            trace = traceback.format_exc()
+            logger.debug(trace)
             if kwargs.get('_raw', False) or kwargs.get('_internal', False):
                 raise
-            return HttpJavascriptResponseServerError(
-                '("error in call","%s")' % traceback.format_exc())
-        except:
-            logger.debug(traceback.format_exc())
-            if kwargs.get('_raw', False) or kwargs.get('_internal', False):
-                raise
-            return HttpJavascriptResponseServerError(
-                '("error in call","%s")' % traceback.format_exc())
+            return JsonResponse(
+                {"message": str(ex), "stacktrace": trace},
+                status=status)
     wrap.func_name = f.func_name
     return wrap
 
@@ -1372,24 +1408,28 @@ def plateGrid_json(request, pid, field=0, conn=None, **kwargs):
     except ValueError:
         field = 0
     prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
-    thumbsize = int(request.GET.get('size', 96))
+    thumbsize = getIntOrDefault(request, 'size', None)
     logger.debug(thumbsize)
     server_id = kwargs['server_id']
 
-    def urlprefix(iid):
-        return reverse(prefix, args=(iid, thumbsize))
+    def get_thumb_url(iid):
+        if thumbsize is not None:
+            return reverse(prefix, args=(iid, thumbsize))
+        return reverse(prefix, args=(iid,))
+
     plateGrid = PlateGrid(conn, pid, field,
-                          kwargs.get('urlprefix', urlprefix))
+                          kwargs.get('urlprefix', get_thumb_url))
     plate = plateGrid.plate
     if plate is None:
         return Http404
 
-    rv = webgateway_cache.getJson(request, server_id, plate,
-                                  'plategrid-%d-%d' % (field, thumbsize))
+    cache_key = 'plategrid-%d-%s' % (field, thumbsize)
+    rv = webgateway_cache.getJson(request, server_id, plate, cache_key)
+
     if rv is None:
         rv = plateGrid.metadata
         webgateway_cache.setJson(request, server_id, plate, json.dumps(rv),
-                                 'plategrid-%d-%d' % (field, thumbsize))
+                                 cache_key)
     else:
         rv = json.loads(rv)
     return rv
@@ -1514,6 +1554,44 @@ def projectDetail_json(request, pid, conn=None, **kwargs):
     pr = conn.getObject("Project", pid)
     rv = pr.simpleMarshal()
     return rv
+
+
+@jsonp
+def open_with_options(request, **kwargs):
+    """
+    Make the settings.OPEN_WITH available via JSON
+    """
+    open_with = settings.OPEN_WITH
+    viewers = []
+    for ow in open_with:
+        if len(ow) < 2:
+            continue
+        viewer = {}
+        viewer['label'] = ow[0]
+        try:
+            viewer['url'] = reverse(ow[1])
+        except NoReverseMatch:
+            viewer['url'] = ow[1]
+        # try non-essential parameters...
+        # NB: Need supported_objects OR script_url to enable plugin
+        try:
+            if len(ow) > 2:
+                if 'supported_objects' in ow[2]:
+                    viewer['supported_objects'] = ow[2]['supported_objects']
+                if 'target' in ow[2]:
+                    viewer['target'] = ow[2]['target']
+                if 'script_url' in ow[2]:
+                    # If we have an absolute url, use it...
+                    if ow[2]['script_url'].startswith('http'):
+                        viewer['script_url'] = ow[2]['script_url']
+                    else:
+                        # ...otherwise, assume within static
+                        viewer['script_url'] = static(ow[2]['script_url'])
+        except:
+            # ignore invalid params
+            pass
+        viewers.append(viewer)
+    return {'open_with_options': viewers}
 
 
 def searchOptFromRequest(request):
@@ -1655,6 +1733,25 @@ def save_image_rdef_json(request, iid, conn=None, **kwargs):
 
 
 @login_required()
+@jsonp
+def listLuts_json(request, conn=None, **kwargs):
+    """
+    Lists lookup tables 'LUTs' availble for rendering
+    """
+    scriptService = conn.getScriptService()
+    luts = scriptService.getScriptsByMimetype("text/x-lut")
+    rv = []
+    for l in luts:
+        rv.append({'id': l.id.val,
+                   'path': l.path.val,
+                   'name': l.name.val,
+                   'size': unwrap(l.size)
+                   })
+    rv.sort(key=lambda x: x['name'].lower())
+    return {"luts": rv}
+
+
+@login_required()
 def list_compatible_imgs_json(request, iid, conn=None, **kwargs):
     """
     Lists the images on the same project that would be viable targets for
@@ -1692,8 +1789,8 @@ def list_compatible_imgs_json(request, iid, conn=None, **kwargs):
                 return False
             pp = i.getPrimaryPixels()
             if (pp is None or
-                i.getPrimaryPixels().getPixelsType().getValue() != img_ptype
-                    or i.getSizeC() != img_ccount):
+                i.getPrimaryPixels().getPixelsType().getValue() != img_ptype or
+                    i.getSizeC() != img_ccount):
                 return False
             ew = [x.getLabel() for x in i.getChannels()]
             ew.sort()
@@ -1828,8 +1925,11 @@ def copy_image_rdef_json(request, conn=None, **kwargs):
             act = "" if ch.isActive() else "-"
             start = ch.getWindowStart()
             end = ch.getWindowEnd()
-            color = ch.getColor().getHtml()
-            chs.append("%s%s|%s:%s$%s" % (act, i+1, start, end, color))
+            color = ch.getLut()
+            rev = 'r' if ch.isReverseIntensity() else ''
+            if not color or len(color) == 0:
+                color = ch.getColor().getHtml()
+            chs.append("%s%s|%s:%s%s$%s" % (act, i+1, start, end, rev, color))
         rv['c'] = ",".join(chs)
         rv['m'] = "g" if image.isGreyscaleRenderingModel() else "c"
         rv['z'] = image.getDefaultZ() + 1
@@ -1837,9 +1937,9 @@ def copy_image_rdef_json(request, conn=None, **kwargs):
         return rv
 
     def applyRenderingSettings(image, rdef):
-        channels, windows, colors = _split_channel_info(rdef['c'])
+        channels, windows, colors, reverse = _split_channel_info(rdef['c'])
         # also prepares _re
-        image.setActiveChannels(channels, windows, colors)
+        image.setActiveChannels(channels, windows, colors, reverse)
         if rdef['m'] == 'g':
             image.setGreyscaleRenderingModel()
         else:
@@ -2223,7 +2323,7 @@ def get_shape_json(request, roiId, shapeId, conn=None, **kwargs):
     if shape is None:
         logger.debug('No such shape: %r' % shapeId)
         raise Http404
-    return HttpJsonResponse(shapeMarshal(shape))
+    return JsonResponse(shapeMarshal(shape))
 
 
 @login_required()
@@ -2284,7 +2384,7 @@ def su(request, user, conn=None, **kwargs):
         connector.omero_session_key = conn.suConn(user, ttl=ttl)._sessionUuid
         request.session['connector'] = connector
         conn.revertGroupForSession()
-        conn.seppuku()
+        conn.close()
         return True
     else:
         context = {
@@ -2493,3 +2593,132 @@ def object_table_query(request, objtype, objid, conn=None, **kwargs):
     tableData['parentId'] = ann['parentId']
     tableData['addedOn'] = ann['addedOn']
     return tableData
+
+
+class LoginView(View):
+    """Webgateway Login - Subclassed by WebclientLoginView."""
+
+    form_class = LoginForm
+    useragent = 'OMERO.webapi'
+
+    def get(self, request, api_version=None):
+        """Simply return a message to say GET not supported."""
+        return JsonResponse({"message":
+                            ("POST only with username, password, "
+                             "server and csrftoken")},
+                            status=405)
+
+    def handle_logged_in(self, request, conn, connector):
+        """Return a response for successful login."""
+        c = conn.getEventContext()
+        ctx = {}
+        for a in ['sessionId', 'sessionUuid', 'userId', 'userName', 'groupId',
+                  'groupName', 'isAdmin', 'eventId', 'eventType',
+                  'memberOfGroups', 'leaderOfGroups']:
+            if (hasattr(c, a)):
+                ctx[a] = getattr(c, a)
+        return JsonResponse({"success": True, "eventContext": ctx})
+
+    def handle_not_logged_in(self, request, error=None, form=None):
+        """
+        Return a response for failed login.
+
+        Reason for failure may be due to server 'error' or because
+        of form validation errors.
+
+        @param request:     http request
+        @param error:       Error message
+        @param form:        Instance of Login Form, populated with data
+        """
+        if error is None and form is not None:
+            # If no error from server, maybe form wasn't valid
+            formErrors = []
+            for field in form:
+                for e in field.errors:
+                    formErrors.append("%s: %s" % (field.label, e))
+            error = " ".join(formErrors)
+        elif error is None:
+            # Just in case no error or invalid form is given
+            error = "Login failed. Reason unknown."
+        return JsonResponse({"message": error}, status=403)
+
+    def post(self, request, api_version=None):
+        """
+        Here we handle the main login logic, creating a connection to OMERO.
+
+        and store that on the request.session OR handling login failures
+        """
+        error = None
+        form = self.form_class(request.POST.copy())
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            server_id = form.cleaned_data['server']
+            is_secure = form.cleaned_data['ssl']
+
+            connector = Connector(server_id, is_secure)
+
+            # TODO: version check should be done on the low level, see #5983
+            compatible = True
+            if settings.CHECK_VERSION:
+                compatible = connector.check_version(self.useragent)
+            if (server_id is not None and username is not None and
+                    password is not None and compatible):
+                conn = connector.create_connection(
+                    self.useragent, username, password,
+                    userip=get_client_ip(request))
+                if conn is not None:
+                    request.session['connector'] = connector
+                    # UpgradeCheck URL should be loaded from the server or
+                    # loaded omero.web.upgrades.url allows to customize web
+                    # only
+                    try:
+                        upgrades_url = settings.UPGRADES_URL
+                    except:
+                        upgrades_url = conn.getUpgradesUrl()
+                    upgradeCheck(url=upgrades_url)
+                    return self.handle_logged_in(request, conn, connector)
+            # Once here, we are not logged in...
+            # Need correct error message
+            if not connector.is_server_up(self.useragent):
+                error = ("Server is not responding,"
+                         " please contact administrator.")
+            elif not settings.CHECK_VERSION:
+                error = ("Connection not available, please check your"
+                         " credentials and version compatibility.")
+            else:
+                if not compatible:
+                    error = ("Client version does not match server,"
+                             " please contact administrator.")
+                else:
+                    error = ("Connection not available, please check your"
+                             " user name and password.")
+        return self.handle_not_logged_in(request, error, form)
+
+
+@login_required()
+@jsonp
+def get_image_rdefs_json(request, img_id=None, conn=None, **kwargs):
+    """
+    Retrieves all rendering definitions for a given image (id).
+
+    Example:  /get_image_rdefs_json/1
+              Returns all rdefs for image with id 1
+
+    @param request:     http request.
+    @param img_id:      the id of the image in question
+    @param conn:        L{omero.gateway.BlitzGateway}
+    @param **kwargs:    unused
+    @return:            A dictionary with key 'rdefs' in the success case,
+                        one with key 'error' if something went wrong
+    """
+    try:
+        img = conn.getObject("Image", img_id)
+
+        if img is None:
+            return {'error': 'No image with id ' + str(img_id)}
+
+        return {'rdefs': img.getAllRenderingDefs()}
+    except:
+        logger.debug(traceback.format_exc())
+        return {'error': 'Failed to retrieve rdefs'}

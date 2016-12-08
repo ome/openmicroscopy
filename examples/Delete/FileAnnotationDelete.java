@@ -6,7 +6,6 @@ import omero.cmd.Response;
 import omero.gateway.util.Requests;
 import omero.api.ServiceFactoryPrx;
 import omero.model.*;
-import static omero.rtypes.*;
 
 import Glacier2.CannotCreateSessionException;
 import Glacier2.PermissionDeniedException;
@@ -31,7 +30,7 @@ public class FileAnnotationDelete {
             ServiceFactoryPrx s = c.createSession();
 
             Dataset d = new DatasetI();
-            d.setName(rstring("FileAnnotationDelete"));
+            d.setName(omero.rtypes.rstring("FileAnnotationDelete"));
             FileAnnotation fa = new FileAnnotationI();
             OriginalFile file = c.upload(new java.io.File(ice_config));
             fa.setFile(file);

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.rnd.RndProxyDef
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -319,6 +319,20 @@ public class RndProxyDef
         return new Color(rgba[0], rgba[1], rgba[2], rgba[3]);
     }
 
+    /**
+     * Returns the lookup table associated to channel.
+     * 
+     * @param index
+     *            The index of the channel.
+     * @return See above.
+     */
+    public String getLookupTable(int index) {
+        ChannelBindingsProxy channel = getChannel(index);
+        if (channel == null)
+            return null;
+        return channel.getLookupTable();
+    }
+    
     /**
      * Returns when the settings were last modified.
      * 

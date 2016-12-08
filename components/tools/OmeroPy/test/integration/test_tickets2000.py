@@ -10,7 +10,7 @@
 
 """
 import time
-import library as lib
+from omero.testlib import ITest
 import pytest
 import omero
 from omero.rtypes import rbool, rstring, rtime, rlong, rint
@@ -20,7 +20,7 @@ from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
 
 
-class TestTickets2000(lib.ITest):
+class TestTickets2000(ITest):
 
     def test1064(self):
         admin = self.client.sf.getAdminService()
@@ -270,7 +270,7 @@ class TestTickets2000(lib.ITest):
 
         # test
         exp = admin.getExperimenter(eid)
-        # print "exp: ", exp.id.val, " his default group is: ",
+        # print "exp: ", exp.id.val, " their default group is: ",
         # admin.getDefaultGroup(exp.id.val).id.val
 
         gr1 = admin.getGroup(2)

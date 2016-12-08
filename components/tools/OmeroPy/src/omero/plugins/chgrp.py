@@ -26,8 +26,9 @@ Examples:
     omero chgrp 101 Image:1
     omero chgrp Group:101 Image:2
     omero chgrp ExperimenterGroup:101 Image:3
-    # Move three images to the group named "My Lab"
-    omero chgrp "My Lab" Image:51,52,53
+    # In both cases move five images to the group named "My Lab"
+    omero chgrp "My Lab" Image:51,52,53,54,56
+    omero chgrp "My Lab" Image:51-54,56
 
     # Move a plate but leave all images in the original group
     omero chgrp 201 Plate:1 --exclude Image

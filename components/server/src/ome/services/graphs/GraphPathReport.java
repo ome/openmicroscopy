@@ -177,6 +177,7 @@ public class GraphPathReport {
         out.write("===================================\n\n");
         out.write("Overview\n");
         out.write("--------\n\n");
+        out.write(".. include:: EveryObjectOverview.inc\n\n");
         out.write("Reference\n");
         out.write("---------\n\n");
         final SortedMap<String, String> classNames = new TreeMap<String, String>();

@@ -339,7 +339,7 @@
 
     /* Right & Center Panel Headers */
     
-    #center_panel_header, #annotation_tabs_list {
+    #center_panel_header, #annotation_tabs_list, .toolbarBg {
   		background:hsl(215,10%,80%); /* Old browsers */
 		background-image:-moz-linear-gradient(top, rgba(255,255,255,.7) 0%, rgba(255,255,255,0) 100%); /* FF3.6+ */
 		background-image:-webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,.7)), color-stop(100%,rgba(255,255,255,0))); /* Chrome,Safari4+ */
@@ -482,7 +482,7 @@
     
         #right_panel th, #right_panel td {
             padding: 0 5px 5px 0;
-            white-space: nowrap;
+            overflow-wrap: break-word;
         }
     
         #right_panel th, #right_panel td.title{
@@ -1412,6 +1412,8 @@
         top: 0; 
         left: 0;
         position: relative;
+        width: 100%;
+        height: 100%;
     }
 
     #dataIcons .ratingFilter_hidden {
@@ -1438,15 +1440,16 @@
                 box-shadow: 0 1px 1px rgba(0,0,0,0.2); /* Opera 10.5, IE 9.0 */
     }
 
-    #thumb_size_slider {
+    .thumb_size_slider {
         border: 1px solid #aaa;
         height: 6px;
-        right: 95px;
-        position: absolute;
-        top: 11px;
+        right: 25px;
+        position: absolute !important;
+        bottom: 8px;
         width: 120px;
+        background: #eee;
     }
-    #thumb_size_slider .ui-slider-handle {
+    .thumb_size_slider .ui-slider-handle {
         background: #727C86;
         border-radius: 3px;
     }
@@ -2163,7 +2166,7 @@ div.paging input.button_pagination {
 #spw table td {
     padding: 1px;
     border: 1px solid #ccc;
-    width: 25px;
+    position: relative;
 }
 #spw table td.well {
     background: #eee;
@@ -2175,14 +2178,24 @@ div.paging input.button_pagination {
 #spw table td.ui-selecting { border: 1px dashed #555; padding: 1px; background-color:#87ABD2;}
 #spw table td.ui-selected { border: 1px dashed #555; padding: 1px; background-color:#87ABD2;}
 
-#spw .well .wellLabel {
+.wellLabel {
     display: none;
     position: absolute;
     background: #eee;
     padding: 2px;
     color: black;
+    top: 0;
+    left: 0;
+    bottom: auto;
+    right: auto;
 }
-#spw .well:hover .wellLabel {
+.wellLabelOffset .wellLabel {
+    top: auto;
+    left: auto;
+    bottom: 100%;
+    right: 100%;
+}
+.well:hover .wellLabel {
     display: block;
 }
 
@@ -2258,7 +2271,11 @@ width: 250px;
     color:white;
 }
 
-.ui-tooltip h3, .ui-tooltip div { margin: 0; }
+/* tooltip plugin */
+.ui-tooltip h3, .ui-tooltip div {
+	margin: 0;
+	word-wrap: break-word;
+}
 
 
 

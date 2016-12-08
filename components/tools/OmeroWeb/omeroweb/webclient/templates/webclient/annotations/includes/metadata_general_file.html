@@ -1,0 +1,57 @@
+{% comment %}
+<!--
+  Copyright (C) 2011-2016 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% endcomment %}
+
+    <!-- FILES -->
+    <div id="fileannsPane">
+    <h1 class="can-collapse closed" data-name='attachments'>
+        {{ label|default:"Attachments" }}
+    </h1>
+    <div class="annotations_section" style="display:none">
+
+        {% if obj_string %}
+            {% if not annotationBlocked %}
+                <a id="choose_file_anns" href="{% url 'annotate_file' %}?{{ obj_string }}&index={{ index }}" class="btn silver btn_add">
+                    <span></span>
+                </a>
+                <div class="toolbar">
+                    <input type="button" title="Select files for scripts"
+                        class="btn silver btn_script_dark">
+                </div>
+            {% endif %}
+        {% else %}
+            {% if manager.canAnnotate %}
+                <a id="choose_file_anns"
+                    href="{% url 'annotate_file' %}?{{manager.obj_type}}={{ manager.obj_id }}"
+                    class="btn silver btn_add" title="Attach a file">
+                    <span></span>
+                </a>
+                <div class="toolbar">
+                    <input type="button" title="Select files for scripts"
+                        class="btn silver btn_script_dark">
+                </div>
+            {% endif %}
+        {% endif %}
+        <img id='fileann_spinner' src="{% static "webgateway/img/spinner.gif" %}" style="display:none"/>
+
+        <div style="clear:both"></div>
+            <!-- file annotations loaded by FileAnnsPane -->
+            <ul id="fileanns_container" class="lnfiles"></ul>
+    </div>
+    </div>

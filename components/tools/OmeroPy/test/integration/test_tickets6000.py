@@ -11,12 +11,12 @@ Integration tests for tickets between 5000 and 5999
 """
 
 import pytest
-import library as lib
+from omero.testlib import ITest
 
 from omero.rtypes import rstring
 
 
-class TestTickets6000(lib.ITest):
+class TestTickets6000(ITest):
 
     @pytest.mark.broken(ticket="11539")
     def test5684(self):
@@ -36,13 +36,13 @@ class TestTickets6000(lib.ITest):
         admin.changeUserPassword(name, rstring("GOOD"))
 
         # First real password attempt is fast
-        self.loginAttempt(name, 0.15, "GOOD", less=True)
+        self.login_attempt(name, 0.15, "GOOD", less=True)
 
         # First attempt with UUID is fast
-        self.loginAttempt(uuid, 0.15, pw=uuid, less=True)
+        self.login_attempt(uuid, 0.15, pw=uuid, less=True)
 
         # Second attempt with UUID should still be fast
-        self.loginAttempt(uuid, 0.15, pw=uuid, less=True)
+        self.login_attempt(uuid, 0.15, pw=uuid, less=True)
 
         print client.sf
         print uuid

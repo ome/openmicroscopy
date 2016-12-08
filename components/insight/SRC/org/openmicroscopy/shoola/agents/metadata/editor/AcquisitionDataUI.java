@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -51,6 +51,7 @@ import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.ui.JLabelButton;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import omero.gateway.model.ChannelData;
@@ -422,7 +423,10 @@ class AcquisitionDataUI
 				entry = (Entry) i.next();
 				channel = (ChannelData) entry.getKey();
 				comp = new ChannelAcquisitionComponent(this, model, channel);
-				comp.setChannelColor((Color) entry.getValue()); 
+                if (entry.getValue() instanceof Color)
+                    comp.setChannelColor((Color) entry.getValue());
+                else
+                    comp.setLookupTable((String) entry.getValue());
 				p = EditorUtil.createTaskPane(DEFAULT_CHANNEL_TEXT+
 						channel.getChannelLabeling());
 				p.setIcon(comp.getIcon());
@@ -449,7 +453,20 @@ class AcquisitionDataUI
 		while (i.hasNext()) {
 			comp = i.next();
 			if (comp.getChannelIndex() == index) {
-				comp.setChannelColor(model.getChannelColor(index));
+                String lut = model.getLookupTable(index);
+                if (CommonsLangUtils.isNotEmpty(lut))
+                    comp.setLookupTable(lut);
+                else
+                    comp.setChannelColor(model.getChannelColor(index));
+
+                Iterator<Entry<JXTaskPane, ChannelData>> it = channelAcquisitionPanes
+                        .entrySet().iterator();
+                while (it.hasNext()) {
+                    Entry<JXTaskPane, ChannelData> next = it.next();
+                    if (next.getValue().getIndex() == index) {
+                        next.getKey().setIcon(comp.getIcon());
+                    }
+                }
 				comp.repaint();
 				break;
 			}

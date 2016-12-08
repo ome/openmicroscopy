@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.ColourIcon 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -30,7 +30,11 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+
 import javax.swing.Icon;
+
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
+import org.openmicroscopy.shoola.util.ui.colourpicker.LookupTableIconUtil;
 
 //Third-party libraries
 
@@ -65,6 +69,9 @@ public class ColourIcon
     /** Colour of the icon */
     private Color   colour;
     
+    /** The lookup table */
+    private String lut;
+    
 	/** The height of the icon. */
 	private int		height;
 	
@@ -94,13 +101,24 @@ public class ColourIcon
 	}
 	
 	/**
+     * Creates a new instance. 
+     * 
+     * @param lut The lookup table to paint.
+     */
+    public ColourIcon(String lut)
+    {
+        this(DEFAULT_WIDTH, DEFAULT_HEIGHT, lut);
+    }
+    
+    
+	/**
 	 * Creates a new instance. 
 	 * 
 	 * @param d The dimension of the icon.
 	 */
 	public ColourIcon(Dimension d)
 	{
-		this(d, null);
+		this(d, (Color)null);
 	}
 	
 	/**
@@ -111,7 +129,7 @@ public class ColourIcon
 	 */
 	public ColourIcon(int width, int height)
 	{
-		this(new Dimension(width, height), null);
+		this(new Dimension(width, height), (Color)null);
 	}
 
 	/**
@@ -125,6 +143,18 @@ public class ColourIcon
 	{
 		this(new Dimension(width, height), color);
 	}
+	
+	/**
+     * Creates a new instance. 
+     * 
+     * @param width     The width of the icon.
+     * @param height    The height of the icon.
+     * @param lut The lookup table to paint.
+     */
+    public ColourIcon(int width, int height, String lut)
+    {
+        this(new Dimension(width, height), lut);
+    }
 	
 	/**
 	 * Creates a new instance. 
@@ -149,6 +179,28 @@ public class ColourIcon
 	}
 	
 	/**
+     * Creates a new instance. 
+     * 
+     * @param d     The dimension of the icon.
+     * @param lut   The lookup table to paint.
+     */
+    public ColourIcon(Dimension d, String lut)
+    {
+        borderColor = BORDER_COLOR;
+        paintLineBorder = false;
+        if (d == null) {
+            width = DEFAULT_WIDTH;
+            height = DEFAULT_HEIGHT;
+        } else {
+            width = d.width;
+            height = d.height;
+        }
+        if (width <= 0) width = DEFAULT_WIDTH;
+        if (height <= 0) height = DEFAULT_HEIGHT;
+        setLookupTable(lut);
+    }
+    
+	/**
 	 * Sets to <code>true</code> if a line border is painted,
 	 * <code>false</code> otherwise.
 	 * 
@@ -168,10 +220,18 @@ public class ColourIcon
 	public void setColour(Color c)
 	{ 
 		colour = c; 
-		//if (colour != null && colour.getAlpha() == 0)
-		//	colour = new Color(c.getRGB());
 	}
 	
+	/**
+     * Sets the lookup table for the icon.
+     * 
+     * @param lut The lookup table to set.
+     */
+    public void setLookupTable(String lut)
+    { 
+        this.lut = lut;
+    }
+    
 	/** 
      * Overridden to return the set height of the icon.
 	 * @see Icon#getIconHeight()
@@ -191,7 +251,15 @@ public class ColourIcon
 	public void paintIcon(Component c, Graphics g, int x, int y) 
 	{
 		Graphics2D g2D = (Graphics2D) g;
-		if (colour != null) {
+        if (CommonsLangUtils.isNotEmpty(lut)) {
+            g2D.drawImage(LookupTableIconUtil.getLUTIconImage(lut), 4, 4,
+                    width - 1, height - 1, null);
+            if (paintLineBorder) {
+                g2D.setColor(borderColor);
+                g2D.drawRect(3, 3, width, height);
+            }
+        }
+		else if (colour != null) {
 			g2D.setColor(colour);
 			g2D.fillRect(4, 4, width-2, height-2);
 			g2D.drawRect(4, 4, width-2, height-2);
@@ -199,11 +267,6 @@ public class ColourIcon
 				g2D.setColor(borderColor);
 				g2D.drawRect(3, 3, width, height);
 			}
-			/*
-			g2D.fillRect(4, 4, width-3, height-3);
-			g2D.setColor(colour.darker());
-			g2D.drawRect(4, 4, width-3, height-3);
-			*/
 		}
 	}
 

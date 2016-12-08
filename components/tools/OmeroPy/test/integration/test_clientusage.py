@@ -25,16 +25,16 @@
 """
 
 import omero
-import library as lib
+from omero.testlib import ITest
 
 from omero.rtypes import rstring
 
 
-class TestClientUsage(lib.ITest):
+class TestClientUsage(ITest):
 
     """
     Note: this is the only test which should use 'omero.client()'
-    All others should use the new_client(user=) syntax from lib.ITest
+    All others should use the new_client(user=) syntax from ITest
     """
 
     def testClientClosedAutomatically(self):

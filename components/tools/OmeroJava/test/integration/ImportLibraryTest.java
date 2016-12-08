@@ -19,11 +19,7 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package integration;
-
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
 
 import java.io.File;
 import java.util.List;
@@ -38,6 +34,7 @@ import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import omero.model.Pixels;
 
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -47,7 +44,7 @@ import org.testng.annotations.Test;
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @since 4.5
+ * @since 5.0.0
  */
 @Test(groups = { "import", "integration", "fs" })
 public class ImportLibraryTest extends AbstractServerTest {
@@ -78,8 +75,8 @@ public class ImportLibraryTest extends AbstractServerTest {
                 config));
         ImportContainer ic = getCandidates(f).getContainers().get(0);
         List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
-        assertNotNull(pixels);
-        assertEquals(pixels.size(), 1);
+        Assert.assertNotNull(pixels);
+        Assert.assertEquals(1, pixels.size());
     }
 
     /**
@@ -103,8 +100,8 @@ public class ImportLibraryTest extends AbstractServerTest {
         mmFactory.createImageFile(f, ModelMockFactory.FORMATS[0]);
         f.deleteOnExit();
         ImportCandidates candidates = getCandidates(f);
-        assertNotNull(candidates);
-        assertNotNull(candidates.getContainers().get(0));
+        Assert.assertNotNull(candidates);
+        Assert.assertNotNull(candidates.getContainers().get(0));
     }
 
     /**
@@ -135,8 +132,8 @@ public class ImportLibraryTest extends AbstractServerTest {
         // FIXME: Using importImage here to keep the tests working
         // but this is not the method under test (which has been removed)
         List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
-        assertNotNull(pixels);
-        assertEquals(pixels.size(), 1);
+        Assert.assertNotNull(pixels);
+        Assert.assertEquals(1, pixels.size());
         // omero.grid.Import data = library.uploadFilesToRepository(ic);
         // List<Pixels> pixels = repo.importMetadata(data);
         // assertNotNull(pixels);
@@ -169,8 +166,8 @@ public class ImportLibraryTest extends AbstractServerTest {
         ImportContainer ic = getCandidates(f).getContainers().get(0);
         ic = new ImportContainer(f, null, null, null, ic.getUsedFiles(), null);
         List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
-        assertNotNull(pixels);
-        assertEquals(pixels.size(), 1);
+        Assert.assertNotNull(pixels);
+        Assert.assertEquals(1, pixels.size());
     }
 
     /**

@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -35,7 +35,6 @@ import javax.swing.SwingUtilities;
 import omero.romio.PlaneDef;
 
 import org.openmicroscopy.shoola.agents.events.iviewer.RendererUnloadedEvent;
-import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsChanged;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
@@ -113,6 +112,9 @@ class RendererComponent
 
 	/** The color changes preview.*/
     private Map<Integer, Color>	colorChanges;
+    
+    /** The original lookup table, in case a lut is previewed */
+    private String origLookupTable;
     
 	/**
 	 * Notifies the user than an error occurred while trying to modify the 
@@ -492,6 +494,61 @@ class RendererComponent
         view.setSelectedChannel();
 	}
 
+    /**
+     * Implemented as specified by the {@link Renderer} interface.
+     * 
+     * @see Renderer#resetLookupTable(int)
+     */
+    public void resetLookupTable(int index) {
+        if (origLookupTable != null) {
+            if (origLookupTable.equals("NONE"))
+                model.setLookupTable(index, null);
+            else
+                model.setLookupTable(index, origLookupTable);
+        }
+    }
+	
+    /**
+     * Implemented as specified by the {@link Renderer} interface.
+     * 
+     * @see Renderer#setLookupTable(int, String, boolean)
+     */
+    public void setLookupTable(int index, String lut, boolean preview) {
+        if (preview)
+            origLookupTable = model.getLookupTable(index) == null ? "NONE"
+                    : model.getLookupTable(index);
+        else
+            origLookupTable = null;
+        
+        try {
+            makeHistorySnapshot();
+            model.setLookupTable(index, lut);
+            view.setLookUpTable(index);
+            firePropertyChange(CHANNEL_COLOR_PROPERTY, -1, index);
+            firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.valueOf(false),
+                    Boolean.valueOf(true));
+        } catch (Exception e) {
+            handleException(e);
+        }
+    }
+    
+    /**
+     * Implemented as specified by the {@link Renderer} interface.
+     * 
+     * @see Renderer#setReverseIntensity(int, boolean, boolean)
+     */
+    public void setReverseIntensity(int index, boolean revInt, boolean preview) {
+        try {
+            makeHistorySnapshot();
+            model.setReverseIntensity(index, revInt);
+            firePropertyChange(CHANNEL_COLOR_PROPERTY, -1, index);
+            firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.valueOf(false),
+                    Boolean.valueOf(true));
+        } catch (Exception e) {
+            handleException(e);
+        }
+    }
+    
     /** 
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#setChannelColor(int, Color, boolean)
@@ -614,9 +671,6 @@ class RendererComponent
 			if (update)
 				firePropertyChange(RENDER_PLANE_PROPERTY,
 						Boolean.valueOf(false), Boolean.valueOf(true));
-			RndSettingsChanged evt = new RndSettingsChanged(
-                    model.getRefImage().getId());
-            MetadataViewerAgent.getRegistry().getEventBus().post(evt);
 		} catch (Exception e) {
 			handleException(e);
 		}
@@ -689,7 +743,7 @@ class RendererComponent
 
     /** 
      * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#onSettingsApplied()
+     * @see Renderer#onSettingsApplied(RenderingControl)
      */
 	public void onSettingsApplied(RenderingControl rndControl)
 	{ 
@@ -771,6 +825,23 @@ class RendererComponent
 		return model.getChannelColor(index);
 	}
 
+	/** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#getLookupTable(int)
+     */
+    public String getLookupTable(int index)
+    {
+        return model.getLookupTable(index);
+    }
+    
+    /** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#getReverseIntensity(int)
+     */
+    public boolean getReverseIntensity(int index) {
+        return model.getReverseIntensity(index);
+    }
+    
     /** 
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#getCompressionLevel()

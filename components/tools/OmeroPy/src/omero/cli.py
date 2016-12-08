@@ -16,7 +16,7 @@ arguments, sys.argv, and finally from standard-in using the
 cmd.Cmd.cmdloop method.
 
 Josh Moore, josh at glencoesoftware.com
-Copyright (c) 2007-2015, Glencoe Software, Inc.
+Copyright (c) 2007-2016, Glencoe Software, Inc.
 See LICENSE for details.
 
 """
@@ -891,6 +891,21 @@ class BaseControl(object):
         else:
             self.ctx.err(msg)
 
+    def _order_and_range_ids(self, ids):
+        from itertools import groupby
+        from operator import itemgetter
+        out = ""
+        ids = sorted(ids)
+        for k, g in groupby(enumerate(ids), lambda (i, x): i-x):
+            g = map(str, map(itemgetter(1), g))
+            out += g[0]
+            if len(g) > 2:
+                out += "-" + g[-1]
+            elif len(g) == 2:
+                out += "," + g[1]
+            out += ","
+        return out.rstrip(",")
+
 
 class CLI(cmd.Cmd, Context):
     """
@@ -1517,7 +1532,17 @@ class GraphArg(object):
             assert '+' not in parts[0]
             parts[0] = parts[0].lstrip("/")
             graph = parts[0].split("/")
-            ids = [long(id) for id in parts[1].split(",")]
+            ids = []
+            needsForce = False
+            for id in parts[1].split(","):
+                if "-" in id:
+                    needsForce = True
+                    low, high = map(long, id.split("-"))
+                    if high < low:
+                        raise ValueError("Bad range: %s", arg)
+                    ids.extend(range(low, high+1))
+                else:
+                    ids.append(long(id))
             targetObjects[graph[0]] = ids
             cmd.targetObjects = targetObjects
             if len(graph) > 1:
@@ -1526,7 +1551,7 @@ class GraphArg(object):
                 skiphead.targetObjects = targetObjects
                 skiphead.startFrom = [graph[-1]]
                 cmd = skiphead
-            return cmd
+            return cmd, needsForce
         except:
             raise ValueError("Bad object: %s", arg)
 
@@ -1687,6 +1712,9 @@ class GraphControl(CmdControl):
             "--dry-run", action="store_true",
             help=("Do a dry run of the command, providing a "
                   "report of what would have been done"))
+        parser.add_argument(
+            "--force", action="store_true",
+            help=("Force an action that otherwise defaults to a dry run"))
         self._pre_objects(parser)
         parser.add_argument(
             "obj", nargs="*", type=GraphArg(self.cmd_type()),
@@ -1747,9 +1775,12 @@ class GraphControl(CmdControl):
             if exc:
                 opt.excludeType = exc
 
-        commands = args.obj
+        commands, forces = zip(*args.obj)
+        needsForce = any(forces)
         for req in commands:
-            req.dryRun = args.dry_run
+            req.dryRun = args.dry_run or needsForce
+            if args.force:
+                req.dryRun = False
             if inc or exc:
                 req.childOptions = [opt]
             if isinstance(req, omero.cmd.SkipHead):
@@ -1763,7 +1794,7 @@ class GraphControl(CmdControl):
             self._check_command(command_check)
 
         if len(commands) == 1:
-            cmd = args.obj[0]
+            cmd = commands[0]
         else:
             cmd = omero.cmd.DoAll(commands)
 
@@ -1819,10 +1850,7 @@ class GraphControl(CmdControl):
         elif len(others) > 1:
             for req in others[1:]:
                 type, ids = req.targetObjects.items()[0]
-                if type in others[0].targetObjects:
-                    others[0].targetObjects[type].extend(ids)
-                else:
-                    others[0].targetObjects[type] = ids
+                others[0].targetObjects.setdefault(type, []).extend(ids)
             rv.append(others[0])
 
         # Group skipheads by their startFrom attribute.
@@ -1868,21 +1896,6 @@ class GraphControl(CmdControl):
             key = k[k.rfind('.')+1:]
             objIds[key] = newIds[k]
         return objIds
-
-    def _order_and_range_ids(self, ids):
-        from itertools import groupby
-        from operator import itemgetter
-        out = ""
-        ids = sorted(ids)
-        for k, g in groupby(enumerate(ids), lambda (i, x): i-x):
-            g = map(str, map(itemgetter(1), g))
-            out += g[0]
-            if len(g) > 2:
-                out += "-" + g[-1]
-            elif len(g) == 2:
-                out += "," + g[1]
-            out += ","
-        return out.rstrip(",")
 
 
 class UserGroupControl(BaseControl):

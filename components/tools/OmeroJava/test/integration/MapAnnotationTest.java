@@ -18,9 +18,6 @@
  */
 package integration;
 
-import static omero.rtypes.rbool;
-import static org.testng.AssertJUnit.assertEquals;
-
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
@@ -33,6 +30,7 @@ import omero.model.ExperimenterGroupI;
 import omero.model.MapAnnotation;
 import omero.model.NamedValue;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
@@ -54,15 +52,15 @@ public class MapAnnotationTest extends AbstractServerTest {
         IUpdatePrx updateService = root.getSession().getUpdateService();
         ExperimenterGroup group = new ExperimenterGroupI();
         group.setName(omero.rtypes.rstring(uuid));
-        group.setLdap(rbool(false));
+        group.setLdap(omero.rtypes.rbool(false));
         group.setConfig(new ArrayList<NamedValue>());
         group.getConfig().add(new NamedValue("foo", "bar"));
         group = (ExperimenterGroup) updateService.saveAndReturnObject(group);
         group = (ExperimenterGroup) queryService.findByQuery(
                 "select g from ExperimenterGroup g join fetch g.config " +
                 "where g.id = " + group.getId().getValue(), null);
-        assertEquals("foo", group.getConfig().get(0).name);
-        assertEquals("bar", group.getConfig().get(0).value);
+        Assert.assertEquals("foo", group.getConfig().get(0).name);
+        Assert.assertEquals("bar", group.getConfig().get(0).value);
     }
 
     /**
@@ -76,15 +74,15 @@ public class MapAnnotationTest extends AbstractServerTest {
         IUpdatePrx updateService = root.getSession().getUpdateService();
         ExperimenterGroup group = new ExperimenterGroupI();
         group.setName(omero.rtypes.rstring(uuid));
-        group.setLdap(rbool(false));
+        group.setLdap(omero.rtypes.rbool(false));
         group.setConfig(new ArrayList<NamedValue>());
         group.getConfig().add(new NamedValue("foo", ""));
         group = (ExperimenterGroup) updateService.saveAndReturnObject(group);
         group = (ExperimenterGroup) queryService.findByQuery(
                 "select g from ExperimenterGroup g join fetch g.config " +
                 "where g.id = " + group.getId().getValue(), null);
-        assertEquals("foo", group.getConfig().get(0).name);
-        assertEquals("", group.getConfig().get(0).value);
+        Assert.assertEquals("foo", group.getConfig().get(0).name);
+        Assert.assertEquals("", group.getConfig().get(0).value);
     }
 
     /**
@@ -97,12 +95,12 @@ public class MapAnnotationTest extends AbstractServerTest {
         IUpdatePrx updateService = root.getSession().getUpdateService();
         ExperimenterGroup group = new ExperimenterGroupI();
         group.setName(omero.rtypes.rstring(uuid));
-        group.setLdap(rbool(false));
+        group.setLdap(omero.rtypes.rbool(false));
         group.setConfig(new ArrayList<NamedValue>());
         group.getConfig().add(new NamedValue("foo", ""));
         group.getConfig().add(new NamedValue("bar", null));
         group = (ExperimenterGroup) updateService.saveAndReturnObject(group);
-        assertEquals("", group.getConfig().get(0).value);
+        Assert.assertEquals("", group.getConfig().get(0).value);
     }
 
     @Test

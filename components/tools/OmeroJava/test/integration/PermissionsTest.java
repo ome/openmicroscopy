@@ -4,8 +4,7 @@
  */
 package integration;
 
-import static org.testng.AssertJUnit.assertTrue;
-import static org.testng.AssertJUnit.fail;
+import org.testng.Assert;
 import omero.model.CommentAnnotationI;
 import omero.model.DetailsI;
 import omero.model.PermissionsI;
@@ -30,7 +29,7 @@ public class PermissionsTest extends AbstractServerTest {
         p.ice_postUnmarshal();
         try {
             p.setPerm1(1);
-            fail("throw!");
+            Assert.fail("throw!");
         } catch (omero.ClientError err) {
             // good
         }
@@ -48,18 +47,18 @@ public class PermissionsTest extends AbstractServerTest {
 
     public void testDisallow() {
         PermissionsI p = new omero.model.PermissionsI();
-        assertTrue(p.canAnnotate());
-        assertTrue(p.canEdit());
+        Assert.assertTrue(p.canAnnotate());
+        Assert.assertTrue(p.canEdit());
     }
 
     public void testClientSet() throws Exception {
         CommentAnnotationI c = new omero.model.CommentAnnotationI();
         c = (CommentAnnotationI) this.iUpdate.saveAndReturnObject(c);
         DetailsI d = (DetailsI) c.getDetails();
-        assertTrue(d.getClient() != null);
-        assertTrue(d.getSession() != null);
-        assertTrue(d.getCallContext() != null);
-        assertTrue(d.getEventContext() != null);
+        Assert.assertNotNull(d.getClient());
+        Assert.assertNotNull(d.getSession());
+        Assert.assertNotNull(d.getCallContext());
+        Assert.assertNotNull(d.getEventContext());
     }
 
 }

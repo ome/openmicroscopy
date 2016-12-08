@@ -61,7 +61,9 @@ OME.hexToRgb = function hexToRgb(hex) {
 
 // Calculate value, saturation and hue as in org.openmicroscopy.shoola.util.ui.colour.HSV
 OME.isDark = function(color) {
-
+    if (color.endsWith('.lut')) {
+        return false;
+    }
     var c = OME.hexToRgb(color);
 
     var min, max, delta;

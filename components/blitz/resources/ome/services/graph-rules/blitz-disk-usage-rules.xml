@@ -62,6 +62,7 @@
         <value>CodomainMapContext</value>
         <value>QuantumDef</value>
         <value>RenderingDef</value>
+        <value>ProjectionDef</value>
         <value>Thumbnail</value>
 
         <!-- experiment -->
@@ -86,6 +87,7 @@
         <value>ExternalInfo</value>
 
         <!-- roi -->
+        <value>AffineTransform</value>
         <value>Roi</value>
         <value>Shape</value>
 
@@ -189,9 +191,10 @@
 
         <!-- DISPLAY -->
 
+        <bean parent="graphPolicyRule" p:matches="RenderingDef[I].projections = PD:[E]" p:changes="PD:[I]"/>
         <bean parent="graphPolicyRule" p:matches="RenderingDef[I].quantization = Q:[E]" p:changes="Q:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="RenderingDef[I].spatialDomainEnhancement = SDE:[E]" p:changes="SDE:[I]"/>
         <bean parent="graphPolicyRule" p:matches="RenderingDef[I].waveRendering = CB:[E]" p:changes="CB:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="ChannelBinding[I].spatialDomainEnhancement = SDE:[E]" p:changes="SDE:[I]"/>
 
         <!-- EXPERIMENT -->
 
@@ -229,6 +232,7 @@
         <bean parent="graphPolicyRule" p:matches="X:PlaneInfo[E].details.owner = [I]" p:changes="X:[I]"/>
         <bean parent="graphPolicyRule" p:matches="X:ChannelBinding[E].details.owner = [I]" p:changes="X:[I]"/>
         <bean parent="graphPolicyRule" p:matches="X:CodomainMapContext[E].details.owner = [I]" p:changes="X:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="X:ProjectionDef[E].details.owner = [I]" p:changes="X:[I]"/>
         <bean parent="graphPolicyRule" p:matches="X:QuantumDef[E].details.owner = [I]" p:changes="X:[I]"/>
         <bean parent="graphPolicyRule" p:matches="X:RenderingDef[E].details.owner = [I]" p:changes="X:[I]"/>
         <bean parent="graphPolicyRule" p:matches="X:Thumbnail[E].details.owner = [I]" p:changes="X:[I]"/>
@@ -240,6 +244,7 @@
         <bean parent="graphPolicyRule" p:matches="X:ExternalInfo[E].details.owner = [I]" p:changes="X:[I]"/>
         <bean parent="graphPolicyRule" p:matches="X:Roi[E].details.owner = [I]" p:changes="X:[I]"/>
         <bean parent="graphPolicyRule" p:matches="X:Shape[E].details.owner = [I]" p:changes="X:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="X:AffineTransform[E].details.owner = [I]" p:changes="X:[I]"/>
         <bean parent="graphPolicyRule" p:matches="X:Plate[E].details.owner = [I]" p:changes="X:[I]"/>
         <bean parent="graphPolicyRule" p:matches="X:PlateAcquisition[E].details.owner = [I]" p:changes="X:[I]"/>
         <bean parent="graphPolicyRule" p:matches="X:Reagent[E].details.owner = [I]" p:changes="X:[I]"/>
@@ -262,6 +267,7 @@
         <bean parent="graphPolicyRule" p:matches="X:PlaneInfo[E].details.group = [I]" p:changes="X:[I]"/>
         <bean parent="graphPolicyRule" p:matches="X:ChannelBinding[E].details.group = [I]" p:changes="X:[I]"/>
         <bean parent="graphPolicyRule" p:matches="X:CodomainMapContext[E].details.group = [I]" p:changes="X:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="X:ProjectionDef[E].details.group = [I]" p:changes="X:[I]"/>
         <bean parent="graphPolicyRule" p:matches="X:QuantumDef[E].details.group = [I]" p:changes="X:[I]"/>
         <bean parent="graphPolicyRule" p:matches="X:RenderingDef[E].details.group = [I]" p:changes="X:[I]"/>
         <bean parent="graphPolicyRule" p:matches="X:Thumbnail[E].details.group = [I]" p:changes="X:[I]"/>
@@ -273,6 +279,7 @@
         <bean parent="graphPolicyRule" p:matches="X:ExternalInfo[E].details.group = [I]" p:changes="X:[I]"/>
         <bean parent="graphPolicyRule" p:matches="X:Roi[E].details.group = [I]" p:changes="X:[I]"/>
         <bean parent="graphPolicyRule" p:matches="X:Shape[E].details.group = [I]" p:changes="X:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="X:AffineTransform[E].details.group = [I]" p:changes="X:[I]"/>
         <bean parent="graphPolicyRule" p:matches="X:Plate[E].details.group = [I]" p:changes="X:[I]"/>
         <bean parent="graphPolicyRule" p:matches="X:PlateAcquisition[E].details.group = [I]" p:changes="X:[I]"/>
         <bean parent="graphPolicyRule" p:matches="X:Reagent[E].details.group = [I]" p:changes="X:[I]"/>
@@ -285,6 +292,7 @@
 
         <bean parent="graphPolicyRule" p:matches="Image[I].rois = ROI:[E]" p:changes="ROI:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Roi[I].shapes = S:[E]" p:changes="S:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="Shape[I].transform = T:[E]" p:changes="T:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Mask[I].pixels = P:[EI]" p:changes="P:[-]"/>
         <bean parent="graphPolicyRule" p:matches="Mask[I].pixels = P:[EI], P.image = I:[E]" p:changes="I:[I]"/>
 

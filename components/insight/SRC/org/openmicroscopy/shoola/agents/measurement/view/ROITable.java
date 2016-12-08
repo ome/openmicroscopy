@@ -55,11 +55,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
-import java.util.Map.Entry;
 
 import javax.swing.DropMode;
 import javax.swing.JFrame;
 import javax.swing.JPopupMenu;
+import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
@@ -72,13 +72,10 @@ import javax.swing.event.MouseInputListener;
 import javax.swing.plaf.basic.BasicTableUI;
 import javax.swing.tree.TreePath;
 
-
-
-
 //Third-party libraries
 import org.jdesktop.swingx.JXTreeTable;
+import org.jdesktop.swingx.treetable.TreeTableModel;
 import org.jhotdraw.draw.Figure;
-
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.util.roimenu.ROIPopupMenu;
@@ -92,6 +89,7 @@ import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIUtil.Select
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.TableRowTransferHandler;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.ShapeRenderer;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
+import org.openmicroscopy.shoola.agents.util.SelectionWizardDataSource;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.ui.SelectionDialog;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
@@ -102,6 +100,7 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.graphutils.ShapeType;
 import org.openmicroscopy.shoola.util.ui.treetable.OMETreeTable;
+import org.openmicroscopy.shoola.util.ui.treetable.renderers.BooleanCellRenderer;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 
@@ -161,16 +160,25 @@ public class ROITable
 	
 	/** If set, only Folders with the given Ids will be displayed */
 	private Collection<Long> onlyShowFolderIds = new HashSet<Long>();
-	
-	/** Overrides the filtering mechanisms */
-	private boolean ignoreFilters = false;
-	
+
     /**
      * Reference to folders which have been recently modified (ROIs
      * added/removed)
      */
     private Collection<FolderData> recentlyModifiedFolders = new ArrayList<FolderData>();
+
+    /** Name of the 'all folders' collection */
+    private final String DS_ALL_NAME = "All Folders";
+
+    /** Name of the 'displayed folders' collection */
+    private final String DS_DISPLAYED_NAMED = "Displayed Folders";
+
+    /** Name of the collection which is used as default */
+    private String defaultDS = DS_DISPLAYED_NAMED;
 	
+    /** The renderer for the 'Show' column */
+    private CheckboxRenderer checkboxRenderer = new CheckboxRenderer();
+    
 	// DnD Scroll
 	
 	/** DnD autoscroll insets (this defines the scroll sensitive area) */
@@ -515,16 +523,6 @@ public class ROITable
     public Collection<Long> getIDFilter() {
         return this.onlyShowFolderIds;
     }
-
-    /**
-     * Enable/Disable filtering
-     * 
-     * @param b
-     *            Pass <code>false</code> to disable filtering
-     */
-    public void setIgnoreFilters(boolean b) {
-        this.ignoreFilters = b;
-    }
 	
 	/**
 	 * Set the value of the object at row and column to value object, 
@@ -753,7 +751,14 @@ public class ROITable
 		this.setTreeTableModel(new ROITableModel(root, columnNames));
 	}
 	
-	
+    /**
+     * Overridden to undo the setting of the default renderers
+     */
+    public void setTreeTableModel(TreeTableModel model) {
+        super.setTreeTableModel(model);
+        setDefaultRenderer(Boolean.class, checkboxRenderer);
+    }
+    
     /**
      * Determines if the given Folder should be displayed or not, taking the
      * different filtering options into account
@@ -763,8 +768,7 @@ public class ROITable
      * @return See above.
      */
     private boolean displayFolder(FolderData folder) {
-        return ignoreFilters
-                || (checkIDFilter(folder) && checkNameFilter(folder));
+        return (checkIDFilter(folder) && checkNameFilter(folder));
     }
 
     /**
@@ -1197,16 +1201,44 @@ public class ROITable
     public void loadTags() {
         manager.loadTags();
     }
+    
+    /**
+     * Checks if the user is allowed to create folders
+     * 
+     * @return See above.
+     */
+    public boolean canCreateFolder() {
+        return manager.canCreateFolder();
+    }
 
     @Override
     public void addToFolder() {
         action = CreationActionType.ADD_TO_FOLDER;
-        Collection<Object> tmp = new ArrayList<Object>();
-        for(FolderData folder : manager.getFolders()) {
-            if(folder.canLink() && displayFolder(folder))    
-                tmp.add(folder);
+        
+        SelectionWizardDataSource dsAll = new SelectionWizardDataSource(
+                DS_ALL_NAME);
+        SelectionWizardDataSource dsDisplayed = new SelectionWizardDataSource(
+                DS_DISPLAYED_NAMED);
+        for (FolderData f : manager.getFolders()) {
+            if (f.canLink()) {
+                dsAll.getData().add(f);
+                if (displayFolder(f))
+                    dsDisplayed.getData().add(f);
+            }
         }
-        SelectionWizard wiz = new SelectionWizard(null, tmp, FolderData.class, manager.canEdit(), MeasurementAgent.getUserDetails());
+
+        // preserve the previous user selection (first item is selected by
+        // default)
+        SelectionWizardDataSource[] ds = new SelectionWizardDataSource[2];
+        if (defaultDS.equals(DS_ALL_NAME)) {
+            ds[0] = dsAll;
+            ds[1] = dsDisplayed;
+        } else {
+            ds[0] = dsDisplayed;
+            ds[1] = dsAll;
+        }
+            
+        SelectionWizard wiz = new SelectionWizard(null, null, FolderData.class, canCreateFolder(), MeasurementAgent.getUserDetails(), ds);
         wiz.setTitle("Add to ROI Folders", "Select the Folders to add the ROI(s) to", IconManager.getInstance().getIcon(IconManager.ROIFOLDER));
         wiz.addPropertyChangeListener(this);
         UIUtilities.centerAndShow(wiz);
@@ -1315,28 +1347,24 @@ public class ROITable
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         String name = evt.getPropertyName();
+        
+        if (SelectionWizard.DATASOURCE_PROPERTY.equals(name)) {
+            this.defaultDS = ((SelectionWizardDataSource) evt.getNewValue())
+                    .getName();
+        }
+        
         if (SelectionWizard.SELECTED_ITEMS_PROPERTY.equals(name)) {
 
             List<ROIShape> selectedObjects = getSelectedROIShapes();
-            Collection<FolderData> folders = null;
-
-            Map m = (Map) evt.getNewValue();
+           
+            Collection<FolderData> folders = Collections.EMPTY_LIST;
+            Map<Class<?>, Collection<FolderData>> m = (Map<Class<?>, Collection<FolderData>>) evt
+                    .getNewValue();
             if (m == null || m.size() != 1)
                 return;
-            Set set = m.entrySet();
-            Entry entry;
-            Iterator i = set.iterator();
-            Class type;
-            while (i.hasNext()) {
-                entry = (Entry) i.next();
-                type = (Class) entry.getKey();
-                if (FolderData.class.getName().equals(type.getName())) {
-                    folders = (Collection<FolderData>) entry.getValue();
-                    break;
-                }
-            }
+            folders = m.get(FolderData.class);
 
-            if (folders == null)
+            if (folders.isEmpty())
                 return;
 
             addRecentlyModifiedFolder(folders);
@@ -1606,6 +1634,24 @@ public class ROITable
         }
 
     }
-    
+
+    /**
+     * Customized {@link BooleanCellRenderer} which is en-/disabled depending on
+     * the state of the {@link ROINode} it represents
+     */
+    class CheckboxRenderer extends BooleanCellRenderer {
+        @Override
+        public Component getTableCellRendererComponent(JTable table,
+                Object value, boolean isSelected, boolean hasFocus, int row,
+                int column) {
+            Component c = super.getTableCellRendererComponent(table, value,
+                    isSelected, hasFocus, row, column);
+            ROINode node = (ROINode) ROITable.this.getNodeAtRow(row);
+            if (node != null) {
+                c.setEnabled(node.isShowEnabled());
+            }
+            return c;
+        }
+    }
 }
 

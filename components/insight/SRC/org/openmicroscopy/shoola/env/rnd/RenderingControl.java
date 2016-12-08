@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -18,15 +18,16 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.env.rnd;
 
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import omero.model.CodomainMapContext;
 import omero.model.Length;
 import omero.romio.PlaneDef;
 import omero.gateway.exception.DSOutOfServiceException;
@@ -184,8 +185,7 @@ public interface RenderingControl
      * mapped onto a color space.
      * 
      * @param model Identifies the color space model.
-     * @throws RenderingServiceException	If an error occurred while setting 
-     * 										the value.
+     * @throws RenderingServiceException	If an error occurred.
      * @throws DSOutOfServiceException  	If the connection is broken.
      */
     public void setModel(String model)
@@ -220,8 +220,7 @@ public interface RenderingControl
      * This index is used to define a default plane.
      *  
      * @param z The stack index.
-     * @throws RenderingServiceException 	If an error occurred while setting 
-     * 										the value.
+     * @throws RenderingServiceException 	If an error occurred.
 	 * @throws DSOutOfServiceException  	If the connection is broken.
      */
     public void setDefaultZ(int z)
@@ -232,8 +231,7 @@ public interface RenderingControl
      * This index is used to define a default plane.
      * 
      * @param t The time-point index.
-     * @throws RenderingServiceException 	If an error occurred while setting 
-     * 										the value.
+     * @throws RenderingServiceException 	If an error occurred.
      * @throws DSOutOfServiceException  	If the connection is broken. 
      */
     public void setDefaultT(int t)
@@ -243,8 +241,7 @@ public interface RenderingControl
      * Sets the mapping strategy used during the mapping process.
      * 
      * @param bitResolution The depth, in bits, of the rendered image.
-     * @throws RenderingServiceException 	If an error occurred while setting 
-     * 										the value. 
+     * @throws RenderingServiceException 	If an error occurred.
      * @throws DSOutOfServiceException  	If the connection is broken.
      */
     public void setQuantumStrategy(int bitResolution)
@@ -256,8 +253,7 @@ public interface RenderingControl
      * 
      * @param start The lower bound of the interval.
      * @param end   The upper bound of the interval.
-     * @throws RenderingServiceException 	If an error occurred while setting 
-     * 										the value.
+     * @throws RenderingServiceException 	If an error occurred.
      * @throws DSOutOfServiceException  	If the connection is broken.
      */
     public void setCodomainInterval(int start, int end)
@@ -287,18 +283,17 @@ public interface RenderingControl
     /**
      * Sets the values used during the mapping of the specified wavelength.
      * 
-     * @param w                 The index of the channel.
+     * @param index                 The index of the channel.
      * @param family            The mapping family.
      * @param coefficient       The coefficient identifying a curve in the
      *                          family.
      * @param noiseReduction    Pass <code>true</code> to select the 
      *                          mapping <code>NoiseReduction</code> algorithm,
      *                          <code>false</code> otherwise.
-     * @throws RenderingServiceException 	If an error occurred while setting 
-     * 										the value.       
+     * @throws RenderingServiceException 	If an error occurred.
      * @throws DSOutOfServiceException  	If the connection is broken.                   
      */ 
-    public void setQuantizationMap(int w, String family, double coefficient, 
+    public void setQuantizationMap(int index, String family, double coefficient, 
                                     boolean noiseReduction)
     	throws RenderingServiceException, DSOutOfServiceException;
     
@@ -306,148 +301,137 @@ public interface RenderingControl
      * Returns the family used to map the specified channel onto the device
      * space.
      * 
-     * @param w The index of the channel.
+     * @param index The index of the channel.
      * @return See above.
      */
-    public String getChannelFamily(int w);
+    public String getChannelFamily(int index);
     
     /**
      * Returns <code>true</code> is the <code>NoiseReduction</code> algorithm
      * is used when mapping the specified channel.
      * 
-     * @param w The index of the channel.
+     * @param index The index of the channel.
      * @return See above.
      */
-    public boolean getChannelNoiseReduction(int w);
+    public boolean getChannelNoiseReduction(int index);
 
     /**
      * Returns the coefficient that identifies a curve in the family of curves.
      *      
-     * @param w The index of the channel.
+     * @param index The index of the channel.
      * @return  See above.
      * @see #getChannelFamily(int)
      */
-    public double getChannelCurveCoefficient(int w);
+    public double getChannelCurveCoefficient(int index);
     
     /**
      * Sets the size of the pixel intensity interval for the specified channel.
      * 
-     * @param w     The index of the channel.
+     * @param index     The index of the channel.
      * @param start The lower bound of the interval.
      * @param end   The upper bound of the interval.
-     * @throws RenderingServiceException 	If an error occurred while setting 
-     * 										the value.
+     * @throws RenderingServiceException 	If an error occurred.
      * @throws DSOutOfServiceException  	If the connection is broken.
      */
-    public void setChannelWindow(int w, double start, double end)
+    public void setChannelWindow(int index, double start, double end)
     	throws RenderingServiceException, DSOutOfServiceException;
     
     /**
      * Returns the lower bound of the pixel intensity interval.
      * 
-     * @param w The index of the channel.
+     * @param index The index of the channel.
      * @return See above.
      * @see #setChannelWindow(int, double, double)
      */
-    public double getChannelWindowStart(int w);
+    public double getChannelWindowStart(int index);
     
     /**
      * Returns the upper bound of the pixel intensity interval.
      * 
-     * @param w The index of the channel.
+     * @param index The index of the channel.
      * @return See above.
      * @see #setChannelWindow(int, double, double)
      */
-    public double getChannelWindowEnd(int w);
+    public double getChannelWindowEnd(int index);
     
     /**
      * Sets the color on which the specified channel is mapped onto.
      * 
-     * @param w     The index of the channel.
+     * @param index     The index of the channel.
      * @param color The color to set.
-     * @throws RenderingServiceException 	If an error occurred while setting 
-     * 										the value. 
+     * @throws RenderingServiceException 	If an error occurred.
      * @throws DSOutOfServiceException  	If the connection is broken.
      */
-    public void setRGBA(int w, Color color)
+    public void setRGBA(int index, Color color)
     	throws RenderingServiceException, DSOutOfServiceException;
     
     /**
      * Returns the color the channel is mapped onto.
      * 
-     * @param w The index of the channel.
+     * @param index The index of the channel.
      * @return  See above.
      */
-    public Color getRGBA(int w);
+    public Color getRGBA(int index);
     
     /**
      * Sets the flag to map the channel, passed <code>true</code> to map the
      * channel, <code>false</code> otherwise.
      * 
-     * @param w         The index of the channel.
+     * @param index         The index of the channel.
      * @param active    Pass <code>true</code> to map the channel, 
      *                  <code>false</code> otherwise.
-     * @throws RenderingServiceException 	If an error occurred while setting 
-     * 										the value.  
+     * @throws RenderingServiceException 	If an error occurred.
      * @throws DSOutOfServiceException  	If the connection is broken.               
      */
-    public void setActive(int w, boolean active)
+    public void setActive(int index, boolean active)
     	throws RenderingServiceException, DSOutOfServiceException;
     
     /**
      * Returns <code>true</code> if the channel is mapped, <code>false</code>
      * otherwise.
      * 
-     * @param w The index of the channel.
+     * @param index The index of the channel.
      * @return  See above.
      */
-    public boolean isActive(int w);
+    public boolean isActive(int index);
     
     /**
      * Adds the <code>CodomainMapContext</code> to the list of transformations.
      * Only one codomain map can be added to the transformations list.
      * When a new element is added to the list, the look-up table
      * managing the codomain transformations is rebuilt. 
-     * 
+     *
      * @param mapCtx The context to add.
-     * @throws RenderingServiceException 	If an error occurred while setting 
-     * 										the value.
-     * @throws DSOutOfServiceException  	If the connection is broken.
+     * @param index The channel to add the context to.
+     * @throws RenderingServiceException If an error occurred.
+     * @throws DSOutOfServiceException If the connection is broken.
      */
-    //public void addCodomainMap(CodomainMapContext mapCtx)
-    //	throws RenderingServiceException, DSOutOfServiceException;
-    
-    /**
-     * Updates the specified <code>CodomainMapContext</code>.
-     * The transformation associated should already be in the transformations.
-     * 
-     * @param mapCtx The context to update.
-     * @throws RenderingServiceException 	If an error occurred while setting 
-     * 										the value.
-     * @throws DSOutOfServiceException  	If the connection is broken.
-     */
-    //public void updateCodomainMap(CodomainMapContext mapCtx)
-    //	throws RenderingServiceException, DSOutOfServiceException;
+    public void addCodomainMap(CodomainMapContext mapCtx, int index)
+            throws RenderingServiceException, DSOutOfServiceException;
     
     /**
      * Removed the <code>CodomainMapContext</code> from the list of
      * transformations.
      * 
-     * @param mapCtx    The context to remove.
-     * @throws RenderingServiceException 	If an error occurred while setting 
-     * 										the value.
-     * @throws DSOutOfServiceException  	If the connection is broken.
+     * @param mapCtx The context to remove.
+     * @param index The channel to remove the context from.
+     * @throws RenderingServiceException If an error occurred.
+     * @throws DSOutOfServiceException If the connection is broken.
      */
-   // public void removeCodomainMap(CodomainMapContext mapCtx)
-    //	throws RenderingServiceException, DSOutOfServiceException;
-    
+    public void removeCodomainMap(CodomainMapContext mapCtx, int index)
+            throws RenderingServiceException, DSOutOfServiceException;
+
     /**
      * Returns a read-only list of <code>CodomainMapContext</code>s using during
      * the mapping process in the device space.
-     * 
+     *
+     * @param index The channel
      * @return See above.
+     * @throws RenderingServiceException    If an error occurred.
+     * @throws DSOutOfServiceException      If the connection is broken. 
      */
-    public List getCodomainMaps();
+    public List<CodomainMapContext> getCodomainMaps(int index)
+        throws RenderingServiceException, DSOutOfServiceException;
 
     /**
      * Returns a list of string representing the mapping families supported by
@@ -462,8 +446,7 @@ public interface RenderingControl
      * Returns the copy of the saved rendering data.
      *  
      * @return See above.
-     * @throws RenderingServiceException 	If an error occurred while setting 
-     * 										the value.
+     * @throws RenderingServiceException 	If an error occurred.
      * @throws DSOutOfServiceException  	If the connection is broken.
      */
     public RndProxyDef saveCurrentSettings()
@@ -473,8 +456,7 @@ public interface RenderingControl
      * Resets the original default values. 
      * The default values aren't values previously saved.
      * 
-     * @throws RenderingServiceException 	If an error occurred while setting 
-     * 										the value.
+     * @throws RenderingServiceException 	If an error occurred.
      * @throws DSOutOfServiceException  	If the connection is broken.
      */
     public void resetDefaults()
@@ -484,10 +466,10 @@ public interface RenderingControl
      * Returns the <code>ChannelMetadata</code> object specified
      * by the passed index.
      * 
-     * @param w The channel index.
+     * @param index The channel index.
      * @return See above.
      */
-    public ChannelData getChannelData(int w);
+    public ChannelData getChannelData(int index);
     
     /**
      * Returns an array of <code>ChannelMetadata</code> objects.
@@ -558,8 +540,7 @@ public interface RenderingControl
      * Resets the rendering settings.
      * (Does not reset Z and T settings)
      * @param settings The settings to set.
-     * @throws RenderingServiceException 	If an error occurred while setting 
-     * 										the value.
+     * @throws RenderingServiceException 	If an error occurred.
      * @throws DSOutOfServiceException  	If the connection is broken.
      */
     public void resetSettings(RndProxyDef settings)
@@ -572,10 +553,8 @@ public interface RenderingControl
      *            The settings to set.
      * @param includeZT Pass <code>true</code> to also reset Z and T setting,
      *         <code>false</code> to ignore Z and T
-     * @throws RenderingServiceException
-     *             If an error occurred while setting the value.
-     * @throws DSOutOfServiceException
-     *             If the connection is broken.
+     * @throws RenderingServiceException If an error occurred.
+     * @throws DSOutOfServiceException If the connection is broken.
      */
     public void resetSettings(RndProxyDef rndDef, boolean includeZT)
             throws RenderingServiceException, DSOutOfServiceException;
@@ -592,19 +571,19 @@ public interface RenderingControl
      * Returns the minimum value for that channels depending on the pixels
      * type and the original range.
      * 
-     * @param w The channel's index.
+     * @param index The channel's index.
      * @return See above.
      */
-	public double getPixelsTypeLowerBound(int w);
+	public double getPixelsTypeLowerBound(int index);
 
 	/**
      * Returns the maximum value for that channels depending on the pixels
      * type and the original range.
      * 
-     * @param w The channel's index.
+     * @param index The channel's index.
      * @return See above.
      */
-	public double getPixelsTypeUpperBound(int w);
+	public double getPixelsTypeUpperBound(int index);
 	
 	/**
 	 * Controls if the passed set of pixels is compatible
@@ -636,8 +615,7 @@ public interface RenderingControl
 	 * 
 	 * @param pDef   Information about the plane to render.
 	 * @return See above.
-	 * @throws RenderingServiceException 	If an error occurred while setting 
-     * 										the value.
+	 * @throws RenderingServiceException 	If an error occurred.
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
 	public BufferedImage render(PlaneDef pDef)
@@ -649,8 +627,7 @@ public interface RenderingControl
 	 * @param pDef 	 Information about the plane to render.
 	 * @param compression The compression level.
 	 * @return See above.
-	 * @throws RenderingServiceException 	If an error occurred while setting 
-     * 										the value.
+	 * @throws RenderingServiceException 	If an error occurred.
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
 	public BufferedImage render(PlaneDef pDef, int compression)
@@ -666,8 +643,7 @@ public interface RenderingControl
 	/** 
      * Sets the original rendering settings. 
      * 
-     * @throws RenderingServiceException 	If an error occurred while setting 
-     * 										the value.
+     * @throws RenderingServiceException 	If an error occurred.
      * @throws DSOutOfServiceException  	If the connection is broken.
      */
     public void setOriginalRndSettings()
@@ -683,8 +659,7 @@ public interface RenderingControl
      * @param type 	   One of the projection type defined by this class.
      * @param channels The collection of channels to project.
      * @return See above.
-     * @throws RenderingServiceException 	If an error occurred while setting 
-     * 										the value.
+     * @throws RenderingServiceException 	If an error occurred.
      * @throws DSOutOfServiceException  	If the connection is broken.
      */
     public BufferedImage renderProjected(int startZ, int endZ, int stepping, 
@@ -698,8 +673,7 @@ public interface RenderingControl
      * @param rndToCopy The rendering settings to copy.
      * @param indexes   Collection of channel's indexes. 
      * 					Mustn't be <code>null</code>.
-     * @throws RenderingServiceException 	If an error occurred while setting 
-     * 										the value.
+     * @throws RenderingServiceException 	If an error occurred.
      * @throws DSOutOfServiceException  	If the connection is broken.
      */
     public void copyRenderingSettings(RndProxyDef rndToCopy, 
@@ -763,6 +737,8 @@ public interface RenderingControl
      * @param tableID  The id of the table.
      * @param overlays The overlays to set, or <code>null</code> to turn 
      * the overlays off.
+     * @throws RenderingServiceException    If an error occurred.
+     * @throws DSOutOfServiceException      If the connection is broken. 
      */
     public void setOverlays(long tableID, Map<Long, Integer> overlays)
     	throws RenderingServiceException, DSOutOfServiceException;
@@ -788,8 +764,7 @@ public interface RenderingControl
 	 * large images.
 	 * 
 	 * @param level The value to set.
-	 * @throws RenderingServiceException 	If an error occurred while setting 
-     * 										the value.
+	 * @throws RenderingServiceException 	If an error occurred.
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
 	public void setSelectedResolutionLevel(int level)
@@ -799,8 +774,7 @@ public interface RenderingControl
 	 * Returns the dimension of a tile.
 	 * 
 	 * @return See above.
-	 * @throws RenderingServiceException 	If an error occurred while setting 
-     * 										the value.
+	 * @throws RenderingServiceException 	If an error occurred.
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
 	public Dimension getTileSize()
@@ -811,8 +785,6 @@ public interface RenderingControl
 	 * otherwise.
 	 * 
 	 * @return See above.
-	 * @throws RenderingServiceException
-	 * @throws DSOutOfServiceException
 	 */
 	public boolean isBigImage();
 	
@@ -836,7 +808,69 @@ public interface RenderingControl
 	 * Returns the list of the levels.
 	 * 
 	 * @return See above.
+	 * @throws RenderingServiceException   If an error occurred.
+     * @throws DSOutOfServiceException      If the connection is broken.
 	 */
 	List<ResolutionLevel> getResolutionDescriptions()
 		throws RenderingServiceException, DSOutOfServiceException;
+	
+    /**
+     * Get all available lookup tables
+     * 
+     * @return See above
+     */
+    Collection<String> getAvailableLookupTables();
+	
+    /**
+     * Get the lookup table
+     * 
+     * @param index
+     *            The channel index
+     * @return See above
+     */
+    String getLookupTable(int index);
+
+    /**
+     * Set the lookup table
+     * 
+     * @param index
+     *            The channel index
+     * @param lut
+     *            The lookup table
+     * @throws RenderingServiceException    If an error occurred.
+     * @throws DSOutOfServiceException      If the connection is broken. 
+     */
+    void setLookupTable(int index, String lut) throws RenderingServiceException,
+            DSOutOfServiceException;
+
+    /**
+     * Set the available lookup tables
+     * 
+     * @param lookupTables
+     *            The lookup tables
+     */
+    void setAvailableLookupTables(Collection<String> lookupTables);
+
+    /**
+     * Set the reverse intensity flag
+     * 
+     * @param index
+     *            The channel index
+     * @param revInt
+     *            The reverse intensity flag
+     * @throws RenderingServiceException    If an error occurred.
+     * @throws DSOutOfServiceException      If the connection is broken. 
+     */
+    void setReverseIntensity(int index, boolean revInt)
+            throws RenderingServiceException, DSOutOfServiceException;
+
+    /**
+     * Get the reverse intensity flag
+     * 
+     * @param index
+     *            The channel index
+     * @return See above
+     */
+    boolean getReverseIntensity(int index);
+
 }

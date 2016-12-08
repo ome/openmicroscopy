@@ -1,7 +1,7 @@
 /*
 * ome.dsl.SaxReader
 *
-*   Copyright 2006 University of Dundee. All rights reserved.
+*   Copyright 2006-2016 University of Dundee. All rights reserved.
 *   Use is subject to license terms supplied in LICENSE.txt
 */
 
@@ -268,7 +268,7 @@ class DSLHandler extends DefaultHandler {
             if (named != null && named.booleanValue()) {
                 Properties p = new Properties();
                 p.setProperty("name", "name");
-                p.setProperty("type", "string");
+                p.setProperty("type", "text");
                 RequiredField r = new RequiredField(namedOrDescribed, p);
                 namedOrDescribed.getProperties().add(r);
             }

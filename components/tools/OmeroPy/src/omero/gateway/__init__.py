@@ -1,4 +1,5 @@
-#!/usr/bin/env python
+
+# !/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # blitz_gateway - python bindings and wrappers to access an OMERO blitz server
@@ -13,7 +14,6 @@
 
 # Set up the python include paths
 import os
-THISPATH = os.path.dirname(os.path.abspath(__file__))
 
 import warnings
 from collections import defaultdict
@@ -44,7 +44,13 @@ from decimal import Decimal
 from gettext import gettext as _
 
 import logging
+from math import sqrt
+
+from omero.rtypes import rstring, rint, rlong, rbool
+from omero.rtypes import rtime, rlist, rdouble, unwrap
+
 logger = logging.getLogger(__name__)
+THISPATH = os.path.dirname(os.path.abspath(__file__))
 
 try:
     from PIL import Image, ImageDraw, ImageFont     # see ticket:2597
@@ -57,10 +63,6 @@ except:  # pragma: nocover
     except:
         logger.error(
             'No Pillow installed, line plots and split channel will fail!')
-from math import sqrt
-
-from omero.rtypes import rstring, rint, rlong, rbool
-from omero.rtypes import rtime, rlist, rdouble, unwrap
 
 
 def omero_type(val):
@@ -211,9 +213,9 @@ class BlitzObjectWrapper (object):
         :return:    True if objects are same - see above
         :rtype:     Boolean
         """
-        return (type(a) == type(self)
-                and self._obj.id == a._obj.id
-                and self.getName() == a.getName())
+        return (type(a) == type(self) and
+                self._obj.id == a._obj.id and
+                self.getName() == a.getName())
 
     def __bstrap__(self):
         """
@@ -334,8 +336,8 @@ class BlitzObjectWrapper (object):
         #     self.__class__.PARENT_WRAPPER_CLASS \
         #         = self.PARENT_WRAPPER_CLASS = g[self.PARENT_WRAPPER_CLASS]
         # return self.PARENT_WRAPPER_CLASS
-        if (pwc != self.PARENT_WRAPPER_CLASS
-                or pwc != self.__class__.PARENT_WRAPPER_CLASS):
+        if (pwc != self.PARENT_WRAPPER_CLASS or
+                pwc != self.__class__.PARENT_WRAPPER_CLASS):
             self.__class__.PARENT_WRAPPER_CLASS \
                 = self.PARENT_WRAPPER_CLASS = pwc
         return self.PARENT_WRAPPER_CLASS
@@ -394,9 +396,9 @@ class BlitzObjectWrapper (object):
         """
         for c in self.listChildren():
             if c.getName() == name:
-                if (description is None
-                        or omero_type(description)
-                        == omero_type(c.getDescription())):
+                if (description is None or
+                        omero_type(description) ==
+                        omero_type(c.getDescription())):
                     return c
         return None
 
@@ -422,8 +424,8 @@ class BlitzObjectWrapper (object):
         """
 
         try:
-            if (self._obj.acquisitionDate.val is not None
-                    and self._obj.acquisitionDate.val > 0):
+            if (self._obj.acquisitionDate.val is not None and
+                    self._obj.acquisitionDate.val > 0):
                 t = self._obj.acquisitionDate.val
                 return datetime.fromtimestamp(t/1000)
         except:
@@ -460,9 +462,9 @@ class BlitzObjectWrapper (object):
         """
         if self._conn.isAdmin():
             d = self.getDetails()
-            if (d.getOwner()
-                    and d.getOwner().omeName == details.getOwner().omeName
-                    and d.getGroup().name == details.getGroup().name):
+            if (d.getOwner() and
+                    d.getOwner().omeName == details.getOwner().omeName and
+                    d.getGroup().name == details.getGroup().name):
                 return self.save()
             else:
                 newConn = self._conn.suConn(
@@ -863,8 +865,8 @@ class BlitzObjectWrapper (object):
         rv = self.copyAnnotationLinks()
         if ns is not None:
             rv = filter(
-                lambda x: x.getChild().getNs()
-                and x.getChild().getNs().val == ns, rv)
+                lambda x: x.getChild().getNs() and
+                x.getChild().getNs().val == ns, rv)
         return rv
 
     def unlinkAnnotations(self, ns):
@@ -1019,12 +1021,12 @@ class BlitzObjectWrapper (object):
         if sameOwner:
             d = self.getDetails()
             ad = ann.getDetails()
-            if (self._conn.isAdmin()
-                    and self._conn.getUserId() != d.getOwner().id):
+            if (self._conn.isAdmin() and
+                    self._conn.getUserId() != d.getOwner().id):
                 # Keep the annotation owner the same as the linked of object's
-                if (ad.getOwner()
-                        and d.getOwner().omeName == ad.getOwner().omeName
-                        and d.getGroup().name == ad.getGroup().name):
+                if (ad.getOwner() and
+                        d.getOwner().omeName == ad.getOwner().omeName and
+                        d.getGroup().name == ad.getGroup().name):
                     newConn = ann._conn
                 else:
                     # p = omero.sys.Principal()
@@ -1043,7 +1045,7 @@ class BlitzObjectWrapper (object):
                 clone = self.__class__(newConn, self._obj)
                 ann = clone._linkAnnotation(ann)
                 if newConn != self._conn:
-                    newConn.seppuku()
+                    newConn.close()
             elif d.getGroup():
                 # Try to match group
                 # TODO: Should switch session of this object to use group from
@@ -1174,9 +1176,9 @@ class BlitzObjectWrapper (object):
 
         # handle lookup of 'get' methods, using '_attrs' dict to define how we
         # wrap returned objects.
-        if (attr != 'get'
-                and attr.startswith('get')
-                and hasattr(self, '_attrs')):
+        if (attr != 'get' and
+                attr.startswith('get') and
+                hasattr(self, '_attrs')):
             tattr = attr[3].lower() + attr[4:]      # 'getName' -> 'name'
             # find attr with 'name'
             attrs = filter(lambda x: tattr in x, self._attrs)
@@ -1229,8 +1231,8 @@ class BlitzObjectWrapper (object):
                 # If this is a _unit, then we ignore val
                 # since it's not an rtype to unwrap.
                 if not hasattr(rv, "_unit"):
-                    return (isinstance(rv.val, StringType)
-                            and rv.val.decode('utf8') or rv.val)
+                    return (isinstance(rv.val, StringType) and
+                            rv.val.decode('utf8') or rv.val)
             return rv
         raise AttributeError(
             "'%s' object has no attribute '%s'"
@@ -1748,10 +1750,16 @@ class _BlitzGateway (object):
     def seppuku(self, softclose=False):  # pragma: no cover
         """
         Terminates connection with killSession(). If softclose is False, the
-        session is really terminate disregarding its connection refcount.
+        session is really terminated disregarding its connection refcount.
+        If softclose is True then the connection refcount is decremented by 1.
 
         :param softclose:   Boolean
+
+        ** Deprecated ** Use :meth:`close`.
+        Our apologies for any offense caused by this previous method name.
         """
+        warnings.warn("Deprecated. Use close()",
+                      DeprecationWarning)
         self._connected = False
         oldC = self.c
         if oldC is not None:
@@ -1767,6 +1775,24 @@ class _BlitzGateway (object):
                         oldC.closeSession()
                 else:
                     self._closeSession()
+            finally:
+                oldC.__del__()
+                oldC = None
+                self.c = None
+
+        self._proxies = NoProxies()
+        logger.info("closed connecion (uuid=%s)" % str(self._sessionUuid))
+
+    def close(self):  # pragma: no cover
+        """
+        Terminates connection with killSession(). The session is terminated
+        regardless of its connection refcount.
+        """
+        self._connected = False
+        oldC = self.c
+        if oldC is not None:
+            try:
+                self._closeSession()
             finally:
                 oldC.__del__()
                 oldC = None
@@ -2031,8 +2057,8 @@ class _BlitzGateway (object):
                         return self.connect()
                     else:  # pragma: no cover
                         logger.debug(
-                            "BlitzGateway.connect().createSession(): "
-                            + traceback.format_exc())
+                            "BlitzGateway.connect().createSession(): " +
+                            traceback.format_exc())
                         logger.info(
                             "first create session threw SecurityViolation, "
                             "retry (but only once)")
@@ -2054,8 +2080,8 @@ class _BlitzGateway (object):
                 except:
                     logger.info("Failed to create session.")
                     logger.debug(
-                        "BlitzGateway.connect().createSession(): "
-                        + traceback.format_exc())
+                        "BlitzGateway.connect().createSession(): " +
+                        traceback.format_exc())
                     # time.sleep(10)
                     self._createSession()
 
@@ -2211,9 +2237,9 @@ class _BlitzGateway (object):
         :return:    Boolean
         """
 
-        return (self.isAdmin()
-                or (self.getUserId() == obj.getDetails().getOwner().getId()
-                    and obj.getDetails().getPermissions().isUserWrite()))
+        return (self.isAdmin() or
+                (self.getUserId() == obj.getDetails().getOwner().getId() and
+                    obj.getDetails().getPermissions().isUserWrite()))
 
     def canOwnerWrite(self, obj):
         """
@@ -2261,8 +2287,8 @@ class _BlitzGateway (object):
         """
         if self.getEventContext().groupId == groupid:
             return None
-        if (groupid not in self._ctx.memberOfGroups
-                and 0 not in self._ctx.memberOfGroups):
+        if (groupid not in self._ctx.memberOfGroups and
+                0 not in self._ctx.memberOfGroups):
             return False
         self._lastGroupId = self._ctx.groupId
         self._ctx = None
@@ -2691,8 +2717,8 @@ class _BlitzGateway (object):
         group = omero.model.ExperimenterGroupI()
         group.name = rstring(str(name))
         group.description = (
-            (description != "" and description is not None)
-            and rstring(str(description)) or None)
+            (description != "" and description is not None) and
+            rstring(str(description)) or None)
         if perms is not None:
             group.details.permissions = omero.model.PermissionsI(perms)
         group.ldap = rbool(ldap)
@@ -3068,10 +3094,10 @@ class _BlitzGateway (object):
             params.map["ids"] = rlist([rlong(a) for a in ids])
 
         # support filtering by owner (not for some object types)
-        if (params.theFilter
-                and params.theFilter.ownerId
-                and obj_type.lower()
-                not in ["experimentergroup", "experimenter"]):
+        if (params.theFilter and
+                params.theFilter.ownerId and
+                obj_type.lower() not in
+                ["experimentergroup", "experimenter"]):
             clauses.append("owner.id = (:eid)")
             params.map["eid"] = params.theFilter.ownerId
 
@@ -3111,7 +3137,6 @@ class _BlitzGateway (object):
             toExclude.append(omero.constants.namespaces.NSCOMPANIONFILE)
             toExclude.append(omero.constants.annotation.file.ORIGINALMETADATA)
             toExclude.append(omero.constants.namespaces.NSEXPERIMENTERPHOTO)
-            toExclude.append(omero.constants.analysis.flim.NSFLIM)
 
         anns = self.getMetadataService().loadSpecifiedAnnotations(
             "FileAnnotation", toInclude, toExclude, params, self.SERVICE_OPTS)
@@ -4132,9 +4157,9 @@ class _BlitzGateway (object):
 
         d_from = parse_time(created, 0)
         d_to = parse_time(created, 1)
-        d_type = (useAcquisitionDate
-                  and "acquisitionDate"
-                  or "details.creationEvent.time")
+        d_type = (useAcquisitionDate and
+                  "acquisitionDate" or
+                  "details.creationEvent.time")
 
         try:
             rv = []
@@ -4484,9 +4509,9 @@ class AnnotationWrapper (BlitzObjectWrapper):
         :return:    True if annotations are the same - see above
         :rtype:     Boolean
         """
-        return (type(a) == type(self) and self._obj.id == a._obj.id
-                and self.getValue() == a.getValue()
-                and self.getNs() == a.getNs())
+        return (type(a) == type(self) and self._obj.id == a._obj.id and
+                self.getValue() == a.getValue() and
+                self.getNs() == a.getNs())
 
     def _getQueryString(self):
         """
@@ -4695,11 +4720,11 @@ class FileAnnotationWrapper (AnnotationWrapper, OmeroRestrictionWrapper):
         """
 
         try:
-            if (self._obj.ns is not None
-                    and self._obj.ns.val
-                    == omero.constants.namespaces.NSCOMPANIONFILE
-                    and self.getFile().getName()
-                    == omero.constants.annotation.file.ORIGINALMETADATA):
+            if (self._obj.ns is not None and
+                    self._obj.ns.val ==
+                    omero.constants.namespaces.NSCOMPANIONFILE and
+                    self.getFile().getName() ==
+                    omero.constants.annotation.file.ORIGINALMETADATA):
                 return True
         except:
             logger.info(traceback.format_exc())
@@ -5462,8 +5487,8 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
             userId = self._conn.getUserId()
         colleagues = []
         leaders = []
-        if (not self.isPrivate() or self._conn.isLeader(self.id)
-           or self._conn.isAdmin()):
+        if (not self.isPrivate() or self._conn.isLeader(self.id) or
+                self._conn.isAdmin()):
             for d in self.copyGroupExperimenterMap():
                 if d is None or d.child.id.val == userId:
                     continue
@@ -5738,8 +5763,8 @@ class _PlateWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         Returns a list of labels for the columns on this plate.
         E.g. [1, 2, 3...] or ['A', 'B', 'C'...] etc
         """
-        if (self.columnNamingConvention
-                and self.columnNamingConvention.lower() == 'letter'):
+        if (self.columnNamingConvention and
+                self.columnNamingConvention.lower() == 'letter'):
             # this should simply be precalculated!
             return [_letterGridLabel(x)
                     for x in range(self.getGridSize()['columns'])]
@@ -5751,8 +5776,8 @@ class _PlateWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         Returns a list of labels for the rows on this plate.
         E.g. [1, 2, 3...] or ['A', 'B', 'C'...] etc
         """
-        if (self.rowNamingConvention
-                and self.rowNamingConvention.lower() == 'number'):
+        if (self.rowNamingConvention and
+                self.rowNamingConvention.lower() == 'number'):
             return range(1, self.getGridSize()['rows']+1)
         else:
             # this should simply be precalculated!
@@ -5873,13 +5898,25 @@ class _WellWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         return self._childcache
 
     def simpleMarshal(self, xtra=None, parents=False):
+        """
+        Marshals the Well ID, label and Plate ID with
+        simple Marshal of the first image in the Well.
+        """
         rv = self.getImage().simpleMarshal(xtra=xtra)
+        rv['wellPos'] = self.getWellPos()
+        rv['plateId'] = self._obj.plate.id.val
+        rv['wellId'] = self.getId()
+        return rv
+
+    def getWellPos(self):
+        """
+        Gets the Well's label according to the row and column
+        naming convention on the Plate. E.g. 'A1'
+        """
         plate = self.getParent()
-        rv['wellPos'] = "%s%s" % (
+        rv = "%s%s" % (
             plate.getRowLabels()[self.row],
             plate.getColumnLabels()[self.column])
-        rv['plateId'] = plate.getId()
-        rv['wellId'] = self.getId()
         return rv
 
     def listParents(self, withlinks=False):
@@ -5887,7 +5924,10 @@ class _WellWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         Because wells are direct children of plates, with no links in between,
         a special listParents is needed
         """
-        rv = self._conn.getObject('Plate', self.plate.id.val)
+        # Create PlateWrapper with plate - will load plate if unloaded
+        rv = PlateWrapper(self._conn, self._obj.plate)
+        # Cache the loaded plate
+        self._obj.plate = rv._obj
         if withlinks:
             return [(rv, None)]
         return [rv]
@@ -6695,6 +6735,22 @@ class _ChannelWrapper (BlitzObjectWrapper):
         return ColorHolder.fromRGBA(
             *self._re.getRGBA(self._idx, self._conn.SERVICE_OPTS))
 
+    def getLut(self):
+        """
+        Returns the Lookup Table name for the Channel.
+        E.g. "cool.lut" or None if no LUT.
+
+        :return:    Lut name.
+        :rtype:     String
+        """
+
+        if self._re is None:
+            return None
+        lut = self._re.getChannelLookupTable(self._idx)
+        if not lut or len(lut) == 0:
+            return None
+        return lut
+
     def getWindowStart(self):
         """
         Returns the rendering settings window-start of this channel
@@ -6772,6 +6828,23 @@ class _ChannelWrapper (BlitzObjectWrapper):
             except:     # Just in case we don't support pixType above
                 return None
         return si.getGlobalMax().val
+
+    def isReverseIntensity(self):
+        """
+        Returns True if this channel has ReverseIntensityContext
+        set on it.
+
+        :return:    True if ReverseIntensityContext found
+        :rtype:     Boolean
+        """
+        if self._re is None:
+            return None
+        ctx = self._re.getCodomainMapContext(self._idx)
+        reverse = False
+        for c in ctx:
+            if isinstance(c, omero.model.ReverseIntensityContext):
+                reverse = True
+        return reverse
 
 ChannelWrapper = _ChannelWrapper
 
@@ -6913,7 +6986,10 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
 
         t = unwrap(self._obj.acquisitionDate)
         if t is not None and t > 0:
-            return datetime.fromtimestamp(t/1000)
+            try:
+                return datetime.fromtimestamp(t/1000)
+            except ValueError:
+                return None
 
     def getInstrument(self):
         """
@@ -7093,8 +7169,9 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                               'height': self.getSizeY(),
                               }
                 if rv['size']['height'] and rv['size']['width']:
-                    rv['tiled'] = ((rv['size']['height'] * rv['size']['width'])
-                                   > (maxplanesize[0] * maxplanesize[1]))
+                    rv['tiled'] = ((rv['size']['height'] *
+                                    rv['size']['width']) >
+                                   (maxplanesize[0] * maxplanesize[1]))
                 else:
                     rv['tiled'] = False
 
@@ -7366,6 +7443,8 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             else:
                 w = w * size[0] / h
                 h = size[0]
+        elif len(size) == 2:
+            w, h = size
         img = img.resize((w, h), Image.NEAREST)
         rv = StringIO()
         img.save(rv, 'jpeg', quality=70)
@@ -7472,19 +7551,25 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
 
         pixels_id = self._obj.getPrimaryPixels().getId().val
         rp = self._conn.createRawPixelsStore()
-        rp.setPixelsId(pixels_id, True, self._conn.SERVICE_OPTS)
-        pmax = 2 ** (8 * rp.getByteWidth())
-        if rp.isSigned():
-            return (-(pmax / 2), pmax / 2 - 1)
-        else:
-            return (0, pmax-1)
+        try:
+            rp.setPixelsId(pixels_id, True, self._conn.SERVICE_OPTS)
+            pmax = 2 ** (8 * rp.getByteWidth())
+            if rp.isSigned():
+                return (-(pmax / 2), pmax / 2 - 1)
+            else:
+                return (0, pmax-1)
+        finally:
+            rp.close()
 
     @assert_pixels
     def requiresPixelsPyramid(self):
         pixels_id = self._obj.getPrimaryPixels().getId().val
         rp = self._conn.createRawPixelsStore()
-        rp.setPixelsId(pixels_id, True, self._conn.SERVICE_OPTS)
-        return rp.requiresPixelsPyramid()
+        try:
+            rp.setPixelsId(pixels_id, True, self._conn.SERVICE_OPTS)
+            return rp.requiresPixelsPyramid()
+        finally:
+            rp.close()
 
     @assert_pixels
     def getPrimaryPixels(self):
@@ -7606,7 +7691,8 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             rv[i] = float(level)/sizeXList[0]
         return rv
 
-    def setActiveChannels(self, channels, windows=None, colors=None):
+    def setActiveChannels(self, channels, windows=None, colors=None,
+                          reverseMaps=None):
         """
         Sets the active channels on the rendering engine.
         Also sets rendering windows and channel colors
@@ -7630,23 +7716,33 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                             Must be list for each channel
         :param colors:      List of colors. ['F00', None, '00FF00'].
                             Must be item for each channel
+        :param reverseMaps: List of boolean (or None). If True/False then
+                            set/remove reverseIntensityMap on channel
         """
         abs_channels = [abs(c) for c in channels]
         idx = 0     # index of windows/colors args above
         for c in range(len(self.getChannels())):
             self._re.setActive(c, (c+1) in channels, self._conn.SERVICE_OPTS)
             if (c+1) in channels:
-                if (windows is not None
-                        and windows[idx][0] is not None
-                        and windows[idx][1] is not None):
+                if (reverseMaps is not None and
+                        reverseMaps[idx] is not None):
+                    self.setReverseIntensity(c, reverseMaps[idx])
+                if (windows is not None and
+                        windows[idx][0] is not None and
+                        windows[idx][1] is not None):
                     self._re.setChannelWindow(
                         c, float(windows[idx][0]), float(windows[idx][1]),
                         self._conn.SERVICE_OPTS)
                 if colors is not None and colors[idx]:
-                    rgba = splitHTMLColor(colors[idx])
-                    if rgba:
-                        self._re.setRGBA(
-                            c, *(rgba + [self._conn.SERVICE_OPTS]))
+                    if colors[idx].endswith('.lut'):
+                        self._re.setChannelLookupTable(c, colors[idx])
+                    else:
+                        rgba = splitHTMLColor(colors[idx])
+                        if rgba:
+                            self._re.setRGBA(
+                                c, *(rgba + [self._conn.SERVICE_OPTS]))
+                            # disable LUT
+                            self._re.setChannelLookupTable(c, None)
             if (c+1 in abs_channels):
                 idx += 1
         return True
@@ -7730,6 +7826,37 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         (1, False, True): 'b',  # signed char
         }
 
+    @assert_pixels
+    def getHistogram(self, channels, binCount, globalRange=True,
+                     theZ=0, theT=0):
+        """
+        Get pixel intensity histogram of a single plane for specified channels.
+
+        Returns a map of channelIndex: integer list.
+        If globalRange is True, use the min/max for that channel over ALL
+        planes.
+        If False, use the pixel intensity range for the specified plane.
+
+        :param channels:        List of channel integers we want
+        :param binCount:        Number of bins in the histogram
+        :param globalRange:     If false, use min/max intensity for this plane
+        :param theZ:            Z index of plane
+        :param theT:            T index of plane
+        :return:                Dict of channelIndex: integer list
+        """
+
+        pixels_id = self.getPixelsId()
+        rp = self._conn.createRawPixelsStore()
+        try:
+            rp.setPixelsId(pixels_id, True, self._conn.SERVICE_OPTS)
+            plane = omero.romio.PlaneDef(self.PLANEDEF)
+            plane.z = long(theZ)
+            plane.t = long(theT)
+            histogram = rp.getHistogram(channels, binCount, globalRange, plane)
+            return histogram
+        finally:
+            rp.close()
+
     def getPixelLine(self, z, t, pos, axis, channels=None, range=None):
         """
         Grab a horizontal or vertical line from the image pixel data, for the
@@ -7764,34 +7891,37 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         rv = []
         pixels_id = self._obj.getPrimaryPixels().getId().val
         rp = self._conn.createRawPixelsStore()
-        rp.setPixelsId(pixels_id, True, self._conn.SERVICE_OPTS)
-        for c in channels:
-            bw = rp.getByteWidth()
-            key = self.LINE_PLOT_DTYPES.get(
-                (bw, rp.isFloat(), rp.isSigned()), None)
-            if key is None:
-                logger.error(
-                    "Unknown data type: "
-                    + str((bw, rp.isFloat(), rp.isSigned())))
-            plot = array.array(key, (axis == 'h'
-                               and rp.getRow(pos, z, c, t)
-                               or rp.getCol(pos, z, c, t)))
-            plot.byteswap()  # TODO: Assuming ours is a little endian system
-            # now move data into the windowMin..windowMax range
-            offset = -chw[c][0]
-            if offset != 0:
-                plot = map(lambda x: x+offset, plot)
-            try:
-                normalize = 1.0/chw[c][1]*(range-1)
-            except ZeroDivisionError:
-                # This channel has zero sized window, no plot here
-                continue
-            if normalize != 1.0:
-                plot = map(lambda x: x*normalize, plot)
-            if isinstance(plot, array.array):
-                plot = plot.tolist()
-            rv.append(plot)
-        return rv
+        try:
+            rp.setPixelsId(pixels_id, True, self._conn.SERVICE_OPTS)
+            for c in channels:
+                bw = rp.getByteWidth()
+                key = self.LINE_PLOT_DTYPES.get(
+                    (bw, rp.isFloat(), rp.isSigned()), None)
+                if key is None:
+                    logger.error(
+                        "Unknown data type: " +
+                        str((bw, rp.isFloat(), rp.isSigned())))
+                plot = array.array(key, (axis == 'h' and
+                                   rp.getRow(pos, z, c, t) or
+                                   rp.getCol(pos, z, c, t)))
+                plot.byteswap()  # TODO: Assuming ours is a little endian
+                # system now move data into the windowMin..windowMax range
+                offset = -chw[c][0]
+                if offset != 0:
+                    plot = map(lambda x: x+offset, plot)
+                try:
+                    normalize = 1.0/chw[c][1]*(range-1)
+                except ZeroDivisionError:
+                    # This channel has zero sized window, no plot here
+                    continue
+                if normalize != 1.0:
+                    plot = map(lambda x: x*normalize, plot)
+                if isinstance(plot, array.array):
+                    plot = plot.tolist()
+                rv.append(plot)
+            return rv
+        finally:
+            rp.close()
 
     def getRow(self, z, t, y, channels=None, range=None):
         """
@@ -7874,6 +8004,24 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         """
         return self.getRenderingModel().value.lower() == 'greyscale'
 
+    @assert_re()
+    def setReverseIntensity(self, channelIndex, reverse=True):
+        """
+        Sets or removes a ReverseIntensityMapContext from the
+        specified channel. If set, the intensity of the channel
+        is mapped in reverse: brightest -> darkest.
+
+        :param channelIndex:    The index of channel (int)
+        :param reverse:         If True, set reverse intensity (boolean)
+        """
+        r = omero.romio.ReverseIntensityMapContext()
+        # Always remove map from channel
+        # (doesn't throw exception, even if not on channel)
+        self._re.removeCodomainMapFromChannel(r, channelIndex)
+        # If we want to reverse, add it to the channel (again)
+        if reverse:
+            self._re.addCodomainMapToChannel(r, channelIndex)
+
     @assert_re(ignoreExceptions=(omero.ConcurrencyException))
     def getRenderingDefId(self):
         """
@@ -7918,17 +8066,26 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             waves = rdef.iterateWaveRendering()
             d['c'] = []
             for w in waves:
+                reverse = False
+                for c in w.copySpatialDomainEnhancement():
+                    if isinstance(c, omero.model.ReverseIntensityContext):
+                        reverse = True
                 color = ColorHolder.fromRGBA(
                     w.getRed().val, w.getGreen().val, w.getBlue().val, 255)
-                d['c'].append({
+                r = {
                     'active': w.getActive().val,
                     'start': w.getInputStart().val,
                     'end': w.getInputEnd().val,
                     'color': color.getHtml(),
+                    'reverseIntensity': reverse,
                     'rgb': {'red': w.getRed().val,
                             'green': w.getGreen().val,
                             'blue': w.getBlue().val}
-                    })
+                    }
+                lut = unwrap(w.getLookupTable())
+                if lut is not None and len(lut) > 0:
+                    r['lut'] = lut
+                d['c'].append(r)
             rv.append(d)
         return rv
 
@@ -8131,8 +8288,8 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         while len(tokens) > 1:
             p1 = 0
             p2 = 1
-            while (p2 <= len(tokens)
-                   and font.getsize(' '.join(tokens[p1:p2]))[0] < width):
+            while (p2 <= len(tokens) and
+                   font.getsize(' '.join(tokens[p1:p2]))[0] < width):
                 p2 += 1
             rv.append(' '.join(tokens[p1:p2-1]))
             tokens = tokens[p2-1:]

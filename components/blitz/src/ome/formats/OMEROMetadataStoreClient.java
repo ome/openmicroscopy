@@ -992,46 +992,25 @@ public class OMEROMetadataStoreClient
 
     /**
      * Transforms a Java type into the corresponding OMERO RType.
-     * @param value Java concrete type value.
+     * @param schemaTransform Java concrete type value.
      * @return RType or <code>null</code> if <code>value</code> is
      * <code>null</code>.
      */
-    public RString toRType(AffineTransform value)
+    public omero.model.AffineTransform toRType(AffineTransform schemaTransform)
     {
-        if (value == null) {
+        if (schemaTransform == null ||
+                schemaTransform.getA00() == null || schemaTransform.getA01() == null || schemaTransform.getA02() == null ||
+                schemaTransform.getA10() == null || schemaTransform.getA11() == null || schemaTransform.getA12() == null) {
             return null;
         }
-        try {
-            // AffineTransform from ROI.xsd:
-            // A matrix used to transform the shape.
-            // ⎡ A00, A01, A02 ⎤
-            // ⎢ A10, A11, A12 ⎥
-            // ⎣ 0,   0,   1   ⎦
-            String a00 = value.getA00().toString();
-            String a01 = value.getA01().toString();
-            String a02 = value.getA02().toString();
-            String a10 = value.getA10().toString();
-            String a11 = value.getA11().toString();
-            String a12 = value.getA12().toString();
-            StringBuilder sb = new StringBuilder();
-            sb.append("[ ");
-            sb.append(a00);
-            sb.append(" ");
-            sb.append(a01);
-            sb.append(" ");
-            sb.append(a02);
-            sb.append(" ");
-            sb.append(a10);
-            sb.append(" ");
-            sb.append(a11);
-            sb.append(" ");
-            sb.append(a12);
-            sb.append(" ]");
-            return rstring(sb.toString());
-        } catch (NullPointerException npe) {
-            log.warn("Failed to parse transform: {}", value);
-            return null;
-        }
+        final omero.model.AffineTransform omeroTransform = new omero.model.AffineTransformI();
+        omeroTransform.setA00(toRType(schemaTransform.getA00()));
+        omeroTransform.setA01(toRType(schemaTransform.getA01()));
+        omeroTransform.setA02(toRType(schemaTransform.getA02()));
+        omeroTransform.setA10(toRType(schemaTransform.getA10()));
+        omeroTransform.setA11(toRType(schemaTransform.getA11()));
+        omeroTransform.setA12(toRType(schemaTransform.getA12()));
+        return omeroTransform;
     }
 
     /**
@@ -1889,7 +1868,7 @@ public class OMEROMetadataStoreClient
         try {
             return delegate.postProcess();
         } catch (Exception e) {
-            // Becasuse this method is evolving, we're going to
+            // Because this method is evolving, we're going to
             // permit an exception to not stop import. Eventually,
             // this could be dangerous. ~Josh.
             log.warn("Failed to launch post-processing", e);

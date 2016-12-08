@@ -25,7 +25,7 @@
 """
 import os
 
-import library as lib
+from omero.testlib import ITest
 import pytest
 import traceback
 import omero
@@ -38,7 +38,7 @@ from omero.rtypes import unwrap
 from omero.cmd import UpdateSessionTimeoutRequest
 
 
-class TestISession(lib.ITest):
+class TestISession(ITest):
 
     def testBasicUsage(self):
         self.client.sf.getSessionService()
@@ -288,7 +288,11 @@ class TestISession(lib.ITest):
         finally:
             c1.__del__()
 
-    def testSessionWithIP(self):
+    @pytest.mark.parametrize("client_ip", [
+        "127.0.0.1",
+        "2400:cb00:2048:1::6814:55",
+        "1234:5678:1234:5678:1234:5678:121.212.121.212"])
+    def testSessionWithIP(self, client_ip):
         c1 = omero.client(
             pmap=['--Ice.Config='+(os.environ.get("ICE_CONFIG"))])
         try:
@@ -301,7 +305,7 @@ class TestISession(lib.ITest):
         c = omero.client(host=host, port=port)
         try:
             c.setAgent("OMERO.py.root_test")
-            c.setIP("127.0.0.1")
+            c.setIP(client_ip)
             s = c.createSession("root", rootpass)
 
             p = omero.sys.ParametersI()
@@ -311,9 +315,45 @@ class TestISession(lib.ITest):
             res = s.getQueryService().findByQuery(
                 "from Session where uuid=:uuid", p)
 
-            assert "127.0.0.1" == res.getUserIP().val
+            assert client_ip == res.getUserIP().val
 
             s.closeOnDestroy()
             c.closeSession()
         finally:
             c.__del__()
+
+    # Test that ISession.createUserSession can be used from a normal session.
+    def testCreateUserSession(self):
+        iSession = self.client.sf.getSessionService()
+        newSession = iSession.createUserSession(
+            10 * 1000, 10 * 1000, self.ctx.groupName)
+        c = omero.client(self.client.getPropertyMap())
+        c.joinSession(newSession.uuid.val)
+
+    # Test that ISession.createUserSession cannot be used from a session that
+    # is a sudo from somebody else.
+    @pytest.mark.parametrize("to_root", [True, False])
+    def testCreateUserSessionFromSudo(self, to_root):
+        principal = omero.sys.Principal()
+        principal.eventType = "Test"
+
+        if to_root:
+            iAdmin_root = self.root.sf.getAdminService()
+            ctx_root = iAdmin_root.getEventContext()
+            principal.name = ctx_root.userName
+            principal.group = ctx_root.groupName
+        else:
+            principal.name = self.ctx.userName
+            principal.group = self.ctx.groupName
+
+        iSession_root = self.root.sf.getSessionService()
+        sudo_session = iSession_root.createSessionWithTimeout(
+            principal, 10 * 1000)
+
+        c = omero.client(self.client.getPropertyMap())
+        c.joinSession(sudo_session.uuid.val)
+
+        iSession = c.sf.getSessionService()
+        with pytest.raises(omero.SecurityViolation):
+            iSession.createUserSession(
+                10 * 1000, 10 * 1000, self.ctx.groupName)
