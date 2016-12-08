@@ -176,6 +176,9 @@ class RenderObject(object):
     def __init__(self, image):
         """
         Based on omeroweb.webgateway.marshal
+
+        Note: this loads a RenderingEngine and will need to
+        have the instance closed.
         """
         assert image
         image.loadRenderOptions()
@@ -198,7 +201,8 @@ class RenderObject(object):
             self.zoomLevelScaling = image.getZoomLevelScaling()
 
         self.range = image.getPixelRange()
-        self.channels = map(lambda x: ChannelObject(x), image.getChannels())
+        self.channels = map(lambda x: ChannelObject(x),
+                            image.getChannels(noRE=True))
         self.model = image.isGreyscaleRenderingModel() and \
             'greyscale' or 'color'
         self.projection = image.getProjection()
@@ -237,6 +241,9 @@ class RenderObject(object):
         # self.projection
         # self.invertAxis
         return d
+
+    def close(self):
+        self.image._closeRE()
 
 
 class RenderControl(BaseControl):
@@ -279,6 +286,12 @@ class RenderControl(BaseControl):
         edit.add_argument(
             "channels",
             help="Rendering definition, local file or OriginalFile:ID")
+
+    def _check_services(self, client):
+        for s in client.getStatefulServices():
+            # FIXME: it's not currently clear if these services
+            # were created by the current process
+            self.ctx.err("Service left open! - %s" % s)
 
     def _lookup(self, gateway, type, oid):
         # TODO: move _lookup to a _configure type
@@ -327,27 +340,45 @@ class RenderControl(BaseControl):
         first = True
         for img in self.render_images(gateway, args.object, batch=1):
             ro = RenderObject(img)
-            if args.style == 'plain':
-                self.ctx.out(ro)
-            else:
-                if not first:
-                    self.ctx.die(
-                        103, "Output styles not supported for multiple images")
-                self.ctx.out(pydict_text_io.dump(ro.to_dict(), args.style))
-                first = False
+            try:
+                if args.style == 'plain':
+                    self.ctx.out(ro)
+                else:
+                    if not first:
+                        self.ctx.die(
+                            103,
+                            "Output styles not supported for multiple images")
+                    self.ctx.out(pydict_text_io.dump(ro.to_dict(), args.style))
+                    first = False
+            finally:
+                ro.close()
+        self._check_services(client)
 
     def copy(self, args):
         client = self.ctx.conn(args)
         gateway = BlitzGateway(client_obj=client)
         self._copy(gateway, args.object, args.target, args.skipthumbs)
+        self._check_services(client)
 
-    def _copy(self, gateway, obj, target, skipthumbs):
+    def _copy(self, gateway, obj, target, skipthumbs, close=True):
+        """
+            close - whether or not to close the source image
+        """
         for src_img in self.render_images(gateway, obj, batch=1):
-            for targets in self.render_images(gateway, target):
+            try:
+                self._copy_single(gateway, src_img, target, skipthumbs)
+            finally:
+                if close:
+                    src_img._closeRE()
+
+    def _copy_single(self, gateway, src_img, target, skipthumbs):
+        for targets in self.render_images(gateway, target):
+            try:
                 batch = dict()
                 for target in targets:
                     if target.id == src_img.id:
-                        self.ctx.err("Skipping: Image:%s itself" % target.id)
+                        self.ctx.err(
+                            "Skipping: Image:%s itself" % target.id)
                     else:
                         batch[target.id] = target
 
@@ -362,10 +393,16 @@ class RenderControl(BaseControl):
 
                 if not skipthumbs:
                     self._generate_thumbs(batch.values())
+            finally:
+                for target in targets:
+                    target._closeRE()
 
     def update_channel_names(self, gateway, obj, namedict):
         for targets in self.render_images(gateway, obj):
             iids = [img.id for img in targets]
+            self._update_channel_names(self, iids, namedict)
+
+    def _update_channel_names(self, gateway, iids, namedict):
             counts = gateway.setChannelNames("Image", iids, namedict)
             if counts:
                 self.ctx.dbg("Updated channel names for %d/%d images" % (
@@ -425,27 +462,36 @@ class RenderControl(BaseControl):
             rangelist.append([c.min, c.max])
             colourlist.append(c.color)
 
-        if namedict:
-            self.update_channel_names(gateway, args.object, namedict)
-
+        iids = []
         for img in self.render_images(gateway, args.object, batch=1):
-            img.setActiveChannels(
-                cindices, windows=rangelist, colors=colourlist)
-            if greyscale is not None:
-                if greyscale:
-                    img.setGreyscaleRenderingModel()
-                else:
-                    img.setColorRenderingModel()
+            iids.append(img.id)
+            try:
+                img.setActiveChannels(
+                    cindices, windows=rangelist, colors=colourlist, noRE=True)
+                if greyscale is not None:
+                    if greyscale:
+                        img.setGreyscaleRenderingModel()
+                    else:
+                        img.setColorRenderingModel()
 
-            img.saveDefaults()
-            self.ctx.dbg("Updated rendering settings for Image:%s" % img.id)
-            if not args.skipthumbs:
-                self._generate_thumbs([img])
+                img.saveDefaults()
+                self.ctx.dbg("Updated rendering settings for Image:%s" % img.id)
+                if not args.skipthumbs:
+                    self._generate_thumbs([img])
 
-            if args.copy:
-                # Edit first image only, copy to rest
-                self._copy(gateway, img._obj, args.object, args.skipthumbs)
-                break
+                if args.copy:
+                    # Edit first image only, copy to rest
+                    # Don't close source image until outer
+                    # loop is done.
+                    self._copy_single(gateway, img, args.object, args.skipthumbs)
+                    break
+            finally:
+                img._closeRE()
+
+        if namedict:
+            self._update_channel_names(gateway, iids, namedict)
+
+        self._check_services(client)
 
 
 try:
