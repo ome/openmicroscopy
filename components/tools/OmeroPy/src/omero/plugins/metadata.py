@@ -151,6 +151,7 @@ class MetadataControl(BaseControl):
                               type=long,
                               default=1000,
                               help="Number of objects to process at once")
+        self._add_wait(populate)
 
         for x in (summary, original, bulkanns, measures, mapanns, allanns,
                   rois, populate, populateroi):
@@ -428,7 +429,14 @@ class MetadataControl(BaseControl):
                             cfg=args.cfg, cfgid=cfgid, attach=args.attach)
         ctx.parse()
         if not args.dry_run:
-            ctx.write_to_omero(batch_size=args.batch)
+            wait = args.wait
+            if not wait:
+                loops = 0
+                ms = 0
+            else:
+                ms = 5000
+                loops = int((wait * 1000) / ms) + 1
+            ctx.write_to_omero(batch_size=args.batch, loops=loops, ms=ms)
 
     def rois(self, args):
         "Manage ROIs"
