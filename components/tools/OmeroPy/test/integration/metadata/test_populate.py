@@ -800,7 +800,7 @@ class TestPopulateMetadata(lib.ITest):
         if batch_size is None:
             ctx.write_to_omero()
         else:
-            ctx.write_to_omero(batch_size=batch_size)
+            ctx.write_to_omero(batch_size=batch_size, loops=10, ms=250)
 
         # Get file annotations
         anns = fixture.get_annotations()
@@ -908,14 +908,14 @@ class TestPopulateMetadata(lib.ITest):
         ctx = DeleteMapAnnotationContext(
             self.client, fixture1.get_target(), cfg=fixture1.get_cfg())
         ctx.parse()
-        ctx.write_to_omero()
+        ctx.write_to_omero(loops=10, ms=250)
         assert len(fixture1.get_child_annotations()) == 0
         assert len(fixture2.get_child_annotations()) == fixture2.annCount
 
         ctx = DeleteMapAnnotationContext(
             self.client, fixture2.get_target(), cfg=fixture2.get_cfg())
         ctx.parse()
-        ctx.write_to_omero()
+        ctx.write_to_omero(loops=10, ms=250)
         assert len(fixture2.get_child_annotations()) == 0
         assert len(fixture1.get_all_map_annotations()) == 0
         assert len(fixture2.get_all_map_annotations()) == 0
