@@ -287,12 +287,6 @@ class RenderControl(BaseControl):
             "channels",
             help="Rendering definition, local file or OriginalFile:ID")
 
-    def _check_services(self, client):
-        for s in client.getStatefulServices():
-            # FIXME: it's not currently clear if these services
-            # were created by the current process
-            self.ctx.err("Service left open! - %s" % s)
-
     def _lookup(self, gateway, type, oid):
         # TODO: move _lookup to a _configure type
         obj = gateway.getObject(type, oid)
@@ -352,13 +346,13 @@ class RenderControl(BaseControl):
                     first = False
             finally:
                 ro.close()
-        self._check_services(client)
+        gateway._assert_unregistered("info")
 
     def copy(self, args):
         client = self.ctx.conn(args)
         gateway = BlitzGateway(client_obj=client)
         self._copy(gateway, args.object, args.target, args.skipthumbs)
-        self._check_services(client)
+        gateway._assert_unregistered("copy")
 
     def _copy(self, gateway, obj, target, skipthumbs, close=True):
         """
@@ -491,7 +485,7 @@ class RenderControl(BaseControl):
         if namedict:
             self._update_channel_names(gateway, iids, namedict)
 
-        self._check_services(client)
+        gateway._assert_unregistered("edit")
 
 
 try:
