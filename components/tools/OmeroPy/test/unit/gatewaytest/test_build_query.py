@@ -27,22 +27,19 @@ import pytest
 from omero.rtypes import wrap
 
 
+@pytest.fixture(scope='function')
+def gateway():
+    """Create a BlitzGateway object."""
+    return _BlitzGateway()
+
+
 class TestBuildQuery(object):
     """Test the conn.buildQuery() method for all Object Wrappers."""
 
-    @classmethod
-    @pytest.fixture(autouse=True)
-    def setup_class(cls, tmpdir, monkeypatch):
-        """Prepare BlitzGateway with ICE_CONFIG."""
-        ice_config = tmpdir / "ice.config"
-        ice_config.write("omero.host=localhost\nomero.port=4064")
-        monkeypatch.setenv("ICE_CONFIG", ice_config)
-        cls.g = _BlitzGateway()
-
     @pytest.mark.parametrize("dtype", KNOWN_WRAPPERS.keys())
-    def test_no_clauses(self, dtype):
+    def test_no_clauses(self, gateway, dtype):
         """Expect a query with no 'where' clauses."""
-        result = self.g.buildQuery(dtype)
+        result = gateway.buildQuery(dtype)
         query, params, wrapper = result
         assert isinstance(query, str)
         assert isinstance(params, Parameters)
@@ -51,15 +48,15 @@ class TestBuildQuery(object):
         assert "where" not in query
 
     @pytest.mark.parametrize("dtype", KNOWN_WRAPPERS.keys())
-    def test_filter_by_owner(self, dtype):
+    def test_filter_by_owner(self, gateway, dtype):
         """Query should filter by owner."""
         p = ParametersI()
         p.theFilter = Filter()
         p.theFilter.ownerId = wrap(2)
         # Test using 'params' argument
-        with_params = self.g.buildQuery(dtype, params=p)
+        with_params = gateway.buildQuery(dtype, params=p)
         # Test using 'opts' dictionary
-        with_opts = self.g.buildQuery(dtype, opts={'owner': 1})
+        with_opts = gateway.buildQuery(dtype, opts={'owner': 1})
         for result in [with_params, with_opts]:
             query, params, wrapper = result
             assert isinstance(query, str)
@@ -71,17 +68,17 @@ class TestBuildQuery(object):
                 assert "where owner" not in query
 
     @pytest.mark.parametrize("dtype", KNOWN_WRAPPERS.keys())
-    def test_pagination(self, dtype):
+    def test_pagination(self, gateway, dtype):
         """Query should paginate."""
         offset = 1
         limit = 100
         p = ParametersI()
         p.page(offset, limit)
         # Test using 'params' argument
-        with_params = self.g.buildQuery(dtype, params=p)
+        with_params = gateway.buildQuery(dtype, params=p)
         # Test using 'opts' dictionary
         opts = {'offset': offset, 'limit': limit}
-        with_opts = self.g.buildQuery(dtype, opts=opts)
+        with_opts = gateway.buildQuery(dtype, opts=opts)
         for result in [with_params, with_opts]:
             query, params, wrapper = result
             assert isinstance(query, str)
