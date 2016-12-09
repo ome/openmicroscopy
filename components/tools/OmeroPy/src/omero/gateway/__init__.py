@@ -1475,6 +1475,7 @@ class _BlitzGateway (object):
         self._user = None
         self._userid = None
         self._proxies = NoProxies()
+        self._tracked_services = dict()
         if self.c is None:
             self._resetOmeroClient()
         else:
@@ -1491,6 +1492,51 @@ class _BlitzGateway (object):
 
         # The properties we are setting through the interface
         self.setIdentity(username, passwd, not clone)
+
+    def _register_service(self, service_string, stack):
+        """
+        Register the results of traceback.extract_stack() at the time
+        that a service was created.
+        """
+        service_string = str(service_string)
+        self._tracked_services[service_string] = stack
+        logger.info("Registered %s" % service_string)
+
+    def _unregister_service(self, service_string):
+        """
+        Called on close of a service.
+        """
+        service_string = str(service_string)
+        if service_string in self._tracked_services:
+            del self._tracked_services[service_string]
+            logger.info("Unregistered %s" % service_string)
+        else:
+            logger.warn("Cannot find registered service %s" % service_string)
+
+    def _assert_unregistered(self, prefix="Service left open!"):
+        """
+        Log an ERROR for every stateful service that is open
+        and was registered by this BlitzGateway instance.
+
+        Return the number of unclosed services found.
+        """
+
+        try:
+            stateful_services = self.c.getStatefulServices()
+        except Exception, e:
+            logger.warn("No services could be found.", e)
+            stateful_services = []
+
+        count = 0
+        for s in stateful_services:
+            service_string = str(s)
+            stack_list = self._tracked_services.get(service_string, [])
+            if stack_list:
+                count += 1
+                stack_msg = "".join(traceback.format_list(stack_list))
+                logger.error("%s - %s\n%s" % (
+                    prefix, service_string, stack_msg))
+        return count
 
     def createServiceOptsDict(self):
         serviceOpts = ServiceOptsDict(self.c.getImplicitContext().getContext())
@@ -1775,8 +1821,9 @@ class _BlitzGateway (object):
         self._proxies = NoProxies()
         logger.info("closed connecion (uuid=%s)" % str(self._sessionUuid))
 
-#    def __del__ (self):
-#        logger.debug("##GARBAGE COLLECTOR KICK IN")
+    def __del__ (self):
+        logger.debug("##GARBAGE COLLECTOR KICK IN")
+        self._assert_unregistered()
 
     def _createProxies(self):
         """
@@ -4340,6 +4387,7 @@ class ProxyObjectWrapper (object):
 
         if self._obj and isinstance(
                 self._obj, omero.api.StatefulServiceInterfacePrx):
+            self._conn._unregister_service(str(self._obj))
             self._obj.close(*args, **kwargs)
         self._obj = None
 
@@ -4360,7 +4408,10 @@ class ProxyObjectWrapper (object):
             if self._func_str is None:
                 return self._cast_to(self._sf.getByName(self._service_name))
             else:
-                return getattr(self._sf, self._func_str)()
+                obj = getattr(self._sf, self._func_str)()
+                if isinstance(obj, omero.api.StatefulServiceInterfacePrx):
+                    conn._register_service(str(obj), traceback.extract_stack())
+                return obj
         self._create_func = cf
         if self._obj is not None:
             try:
