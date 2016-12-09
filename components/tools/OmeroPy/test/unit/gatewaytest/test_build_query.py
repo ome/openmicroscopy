@@ -46,6 +46,7 @@ class TestBuildQuery(object):
         assert isinstance(wrapper(), BlitzObjectWrapper)
         assert query.startswith("select ")
         assert "where" not in query
+        assert 'None' not in query
 
     @pytest.mark.parametrize("dtype", KNOWN_WRAPPERS.keys())
     def test_filter_by_owner(self, gateway, dtype):
