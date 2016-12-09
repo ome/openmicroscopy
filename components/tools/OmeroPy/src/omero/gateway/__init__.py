@@ -1921,7 +1921,7 @@ class _BlitzGateway (object):
         self._proxies = NoProxies()
         logger.info("closed connecion (uuid=%s)" % str(self._sessionUuid))
 
-    def __del__ (self):
+    def __del__(self):
         logger.debug("##GARBAGE COLLECTOR KICK IN")
         self._assert_unregistered()
 
@@ -8959,17 +8959,18 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             tile_width, tile_height = re.getTileSize()
             tiles_wide = math.ceil(float(size_x) / tile_width)
             tiles_high = math.ceil(float(size_y) / tile_height)
-            # Since the JPEG 2000 algorithm is iterative and rounds pixel counts
-            # at each resolution level we're doing the resulting tile size
-            # calculations in a loop. Also, since the image is physically tiled
-            # the resulting size is a multiple of the tile size and not the
-            # iterative quotient of a 2**(resolutionLevels - 1).
+            # Since the JPEG 2000 algorithm is iterative and rounds pixel
+            # counts at each resolution level we're doing the resulting tile
+            # size calculations in a loop. Also, since the image is physically
+            # tiled the resulting size is a multiple of the tile size and not
+            # the iterative quotient of a 2**(resolutionLevels - 1).
             for i in range(1, re.getResolutionLevels()):
                 tile_width = round(tile_width / 2.0)
                 tile_height = round(tile_height / 2.0)
             width = int(tiles_wide * tile_width)
             height = int(tiles_high * tile_height)
-            jpeg_data = self.renderJpegRegion(z, t, x, y, width, height, level=0)
+            jpeg_data = self.renderJpegRegion(
+                z, t, x, y, width, height, level=0)
             if size is None:
                 return jpeg_data
             # We've been asked to scale the image by its longest side so we'll
@@ -9034,8 +9035,8 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             logger.debug(traceback.format_exc())
             return None
         except Ice.MemoryLimitException:  # pragma: no cover
-            # Make sure renderCompressed isn't called again on this re, as it
-            # hangs
+            # Make sure renderCompressed isn't called again on this re,
+            # as it hangs
             self._obj.clearPixels()
             self._obj.pixelsLoaded = False
             self._closeRE()
@@ -9043,10 +9044,11 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
 
     def _closeRE(self):
         try:
-            if self._re:
+            if self._re is not None:
                 self._re.close()
         except Exception, e:
             logger.warn("Failed to close " + self._re)
+            logger.debug(e)
         finally:
             self._re = None  # This should be the ONLY location to null _re!
 
