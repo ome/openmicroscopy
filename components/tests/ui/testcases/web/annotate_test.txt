@@ -86,11 +86,19 @@ Filter Rating
     ${xoffset}=                                 Evaluate    ${rating}*17 - 52
     Click Element At Coordinates                xpath=//img[@title='Filter by rating (exact match)']   ${xoffset}  5
 
-
 Check For Rating
     [Arguments]                                 ${rating}
     Wait Until Element Is Visible               xpath=//img[@title='Click to add rating'][contains(@src, 'rating${rating}')]
 
+Count Thumbs With Class
+    # Check that the number of thumbnails with this class is the expected number
+    [Arguments]                                 ${className}    ${expectedCount}
+    Xpath Should Match X Times                  //ul[@id='dataIcons']/li[contains(@class, 'row')][contains(@class, '${className}')]       ${expectedCount}
+
+Count Thumbs Without Class
+    # Check that the number of thumbnails *without* this class is the expected number
+    [Arguments]                                 ${className}    ${expectedCount}
+    Xpath Should Match X Times                  //ul[@id='dataIcons']/li[contains(@class, 'row')][not(contains(@class, '${className}'))]       ${expectedCount}
 
 *** Test Cases ***
 
@@ -228,6 +236,7 @@ Test Rating
     # Add Rating of 2 ***
     Click Next Thumbnail
     ${imageId3}=                                Get Id From Selected Thumbnail
+    ${nodeId3}=                                  Wait For Image Node         ${imageId3}
     Check For Rating                            0
     Click Rating                                2
     Check For Rating                            2
@@ -237,13 +246,36 @@ Test Rating
     Wait Until Element Is Visible               xpath=//span[@id='ratingsAverage'][contains(text(), '3')]
     Xpath Should Match X Times                  //ul[@id='dataIcons']/li[contains(@class, 'ui-selected')]     3
 
-    # Filter by Rating
+    # Filter by Rating 2 **
     Select From List By Label                   id=choosefilter         By Rating
     Filter Rating                               2
-
-    # Only a 2 images should remain Visible
+    # Only 2 thumbnails should remain Visible and Selected
     Wait Until Element Is Not Visible           id=image_icon-${imageId}
-    Xpath Should Match X Times                  //ul[@id='dataIcons']/li[contains(@class, 'ui-selected')]     2
+    Count Thumbs Without Class                  ratingFilter_hidden     2
+    Count Thumbs With Class                     ui-selected             2
+
+    # Filter by 5 *****
+    Filter Rating                               5
+    Wait Until Element Is Not Visible           id=image_icon-${imageId2}
+    Count Thumbs Without Class                  ratingFilter_hidden     1
+    # Now, no images sected (only visible image was de-selected above)
+    Count Thumbs With Class                     ui-selected             0
+
+    # Clear filtering
+    Click Element                               xpath=//div[@id='filterrating']/span[contains(@class, 'removefilter')]
+    Wait Until Element Is Visible               id=image_icon-${imageId2}
+    Count Thumbs With Class                     ratingFilter_hidden     0
+
+    # Finally, select the original images and remove rating from ALL (so repeat test doesn't fail)
+    Click Node                                  ${nodeId}
+    Shift Click Node                            ${nodeId3}
+    Wait Until Element Is Visible               xpath=//span[@id='ratingsAverage'][contains(text(), '3')]
+    Mouse Over                                  xpath=//div[@id='rating_annotations']//li[contains(@class, 'myRating')]
+    Click Element                               xpath=//div[@id='rating_annotations']//a[contains(@class, 'removeRating')]
+    # Check rating was removed from first image
+    Click Node                                  ${nodeId}
+    Wait Until Element Is Visible               id=rating_annotations
+    Check For Rating                            0
 
 
 Test Search Results File Annotations
