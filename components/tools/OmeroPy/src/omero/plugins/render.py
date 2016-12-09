@@ -469,7 +469,8 @@ class RenderControl(BaseControl):
                         img.setColorRenderingModel()
 
                 img.saveDefaults()
-                self.ctx.dbg("Updated rendering settings for Image:%s" % img.id)
+                self.ctx.dbg(
+                    "Updated rendering settings for Image:%s" % img.id)
                 if not args.skipthumbs:
                     self._generate_thumbs([img])
 
@@ -477,7 +478,9 @@ class RenderControl(BaseControl):
                     # Edit first image only, copy to rest
                     # Don't close source image until outer
                     # loop is done.
-                    self._copy_single(gateway, img, args.object, args.skipthumbs)
+                    self._copy_single(gateway,
+                                      img, args.object,
+                                      args.skipthumbs)
                     break
             finally:
                 img._closeRE()
