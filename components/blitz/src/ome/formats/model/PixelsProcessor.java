@@ -125,8 +125,6 @@ public class PixelsProcessor implements ModelProcessor {
       }
 
       // Ensure that the Image name is set
-
-      // name supplied by user
       String userSpecifiedName = store.getUserSpecifiedName();
       if (userSpecifiedName != null) {
         userSpecifiedName = userSpecifiedName.trim();
@@ -134,9 +132,11 @@ public class PixelsProcessor implements ModelProcessor {
           userSpecifiedName = null;
         }
       }
-      // name that will actually be set on the Image
+      if (userSpecifiedName == null) {
+        File originalFile = new File(reader.getCurrentFile());
+        userSpecifiedName = originalFile.getName();
+      }
       String saveName = "";
-      // name supplied by the reader
       String imageName;
       if (image.getName() != null && image.getName().getValue() != null) {
         imageName = image.getName().getValue().trim();
@@ -155,17 +155,9 @@ public class PixelsProcessor implements ModelProcessor {
           }
           saveName += " [" + imageName + "]";
         }
-      } else if (imageName != null) {
+      } else {
         saveName = imageName;
       }
-      else {
-        saveName = reader.getCurrentFile();
-        saveName = saveName.substring(saveName.lastIndexOf(File.separator) + 1);
-        if (reader.getSeriesCount() > 1) {
-          saveName += " [" + imageIndex + "]";
-        }
-      }
-      // TODO: remove this if/when name is switched to TEXT in the DB
       if (saveName != null && saveName.length() > 255) {
         saveName = '…' + saveName.substring(saveName.length() - 254);
       }
