@@ -352,6 +352,7 @@ def rgb_int2css(rgbint):
     E.g. -1006567680 to '#00ff00', 0.5
     """
     alpha = rgbint % 256
+    alpha = float(alpha) / 256
     b = rgbint / 256 % 256
     g = rgbint / 256 / 256 % 256
     r = rgbint / 256 / 256 /256 % 256
@@ -364,6 +365,7 @@ def rgb_int2rgba(rgbint):
     E.g. 1694433280 to (255, 0, 0, 0.390625)
     """
     alpha = rgbint % 256
+    alpha = float(alpha) / 256
     b = rgbint / 256 % 256
     g = rgbint / 256 / 256 % 256
     r = rgbint / 256 / 256 /256 % 256
