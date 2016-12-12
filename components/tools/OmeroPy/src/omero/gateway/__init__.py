@@ -6205,7 +6205,7 @@ class _WellSampleWrapper (BlitzObjectWrapper):
     PARENT_WRAPPER_CLASS = 'WellWrapper'
     LINK_CLASS = 'WellSample'
     LINK_CHILD = 'image'
-    
+
     @staticmethod
     def LINK_PARENT(link):
         """Direct parent is Well. No Link between Well and WellSample."""
