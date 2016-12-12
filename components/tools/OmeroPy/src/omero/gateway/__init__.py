@@ -3123,12 +3123,14 @@ class _BlitzGateway (object):
         offset = None
         limit = None
 
-        # get the base query from the instantiated object itself. E.g "select
-        # obj Project as obj"
-        # NB: _getQueryString() is a classmethod BUT we still need to
-        # call wrapper() to instantiate the base Wrapper Classes that have
-        # the OMERO_CLASS defined
-        query, clauses, baseParams = wrapper()._getQueryString(opts)
+        # We get the query from the ObjectWrapper class:
+        if wrapper.__name__ == "_wrap":
+            # If wrapper is the AnnotationWrapper._wrap class method, we
+            # need to get the underlying AnnotationWrapper class
+            klass = wrapper()
+        else:
+            klass = wrapper
+        query, clauses, baseParams = klass._getQueryString(opts)
 
         # Handle dict of parameters -> convert to ParametersI()
         if opts is not None:
