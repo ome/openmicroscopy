@@ -20,6 +20,9 @@ import pytest
 
 from omero.gateway.scripts import dbhelpers
 from omero.rtypes import wrap
+from omero.testlib import ITest
+from omero.gateway import BlitzGateway, KNOWN_WRAPPERS
+from omero.model import ScreenI, PlateI, WellI, WellSampleI
 
 
 class TestDeleteObject (object):
@@ -794,3 +797,100 @@ class TestLeaderAndMemberOfGroup(object):
         assert len(summary["leaders"]) == 1
         assert summary["leaders"][0].omeName == "group_owner"
         assert len(summary["colleagues"]) == 0
+
+
+class TestListParents(ITest):
+
+    def testSupportedObjects(self):
+        """
+        Check that we are testing all objects where listParents() is supported.
+
+        If this test fails, need to update tested_wrappers and add
+        corresponding tests below
+        """
+        tested_wrappers = ['plate', 'image', 'dataset', 'experimenter', 'well']
+        for key, wrapper in KNOWN_WRAPPERS.items():
+            if (hasattr(wrapper, 'PARENT_WRAPPER_CLASS') and
+                    wrapper.PARENT_WRAPPER_CLASS is not None):
+                assert key in tested_wrappers
+
+
+    def testListParentsPDI(self):
+        """Test listParents() for Image in Dataset"""
+
+        # Set up PDI
+        client, exp = self.new_client_and_user()
+        p = self.make_project(name="ListParents Test", client=client)
+        d = self.make_dataset(name="ListParents Test", client=client)
+        i = self.make_image(name="ListParents Test", client=client)
+        self.link(p, d, client=client)
+        self.link(d, i, client=client)
+
+        conn = BlitzGateway(client_obj=client)
+        image = conn.getObject("Image", i.id.val)
+
+        # Traverse from Image -> Project
+        dataset = image.listParents()[0]
+        assert dataset.id == d.id.val
+
+        project = dataset.listParents()[0]
+        assert project.id == p.id.val
+        # Project has no parent
+        assert len(project.listParents()) == 0
+
+    def testListParentsSPW(self):
+        """Test listParents() for Image in WellSample"""
+
+        client, exp = self.new_client_and_user()
+        conn = BlitzGateway(client_obj=client)
+
+        # setup SPW-WS-Img...
+        s = ScreenI()
+        s.name = wrap('ScreenA')
+        p = PlateI()
+        p.name = wrap('PlateA')
+        s.linkPlate(p)
+        w = WellI()
+        w.column = wrap(0)
+        w.row = wrap(0)
+        p.addWell(w)
+        s = client.sf.getUpdateService().saveAndReturnObject(s)
+        p = s.linkedPlateList()[0]
+        w = p.copyWells()[0]
+        i = self.make_image(name="SPW listParents", client=client)
+        ws = WellSampleI()
+        ws.image = i
+        ws.well = WellI(w.id.val, False)
+        w.addWellSample(ws)
+        ws = client.sf.getUpdateService().saveAndReturnObject(ws)
+
+        # Traverse from Image -> Screen
+        image = conn.getObject("Image", i.id.val)
+        wellSample = image.listParents()[0]
+
+        well = wellSample.listParents()[0]
+        assert well.id == w.id.val
+
+        plate = well.listParents()[0]
+        assert plate.id == p.id.val
+
+        screen = plate.listParents()[0]
+        assert screen.id == s.id.val
+        # Screen has no parent
+        assert len(screen.listParents()) == 0
+
+    def testExperimenterListParents(self):
+        """Test listParents() for Experimenter in ExperimenterGroup."""
+
+        client, exp = self.new_client_and_user()
+        conn = BlitzGateway(client_obj=client)
+
+        userGroupId = conn.getAdminService().getSecurityRoles().userGroupId
+        exp = conn.getUser()
+        groups = exp.listParents()
+        assert len(groups) == 2
+        gIds = [g.id for g in groups]
+        assert userGroupId in gIds
+
+        # ExperimenterGroup has no parent
+        assert len(groups[0].listParents()) == 0
