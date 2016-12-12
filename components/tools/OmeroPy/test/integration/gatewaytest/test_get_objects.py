@@ -814,7 +814,6 @@ class TestListParents(ITest):
                     wrapper.PARENT_WRAPPER_CLASS is not None):
                 assert key in tested_wrappers
 
-
     def testListParentsPDI(self):
         """Test listParents() for Image in Dataset"""
 
