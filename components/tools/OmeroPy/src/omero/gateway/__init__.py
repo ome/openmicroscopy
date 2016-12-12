@@ -354,14 +354,7 @@ class BlitzObjectWrapper (object):
                     raise NotImplementedError
                 pwc[i] = g[pwc[i]]
 
-        # if type(self.PARENT_WRAPPER_CLASS) is type(''):
-        #     # resolve class
-        #     g = globals()
-        #     if not g.has_key(self.PARENT_WRAPPER_CLASS): #pragma: no cover
-        #         raise NotImplementedError
-        #     self.__class__.PARENT_WRAPPER_CLASS \
-        #         = self.PARENT_WRAPPER_CLASS = g[self.PARENT_WRAPPER_CLASS]
-        # return self.PARENT_WRAPPER_CLASS
+        # Cache this so we don't need to resolve classes again
         if (pwc != self.PARENT_WRAPPER_CLASS or
                 pwc != self.__class__.PARENT_WRAPPER_CLASS):
             self.__class__.PARENT_WRAPPER_CLASS \
