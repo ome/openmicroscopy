@@ -6211,8 +6211,12 @@ class _WellSampleWrapper (BlitzObjectWrapper):
     CHILD_WRAPPER_CLASS = 'ImageWrapper'
     PARENT_WRAPPER_CLASS = 'WellWrapper'
     LINK_CLASS = 'WellSample'
-    LINK_PARENT = lambda x: x
     LINK_CHILD = 'image'
+    
+    @staticmethod
+    def LINK_PARENT(link):
+        """Direct parent is Well. No Link between Well and WellSample."""
+        return link
 
     def listParents(self, withlinks=False):
         """
