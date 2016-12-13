@@ -37,6 +37,7 @@ import omero.model.AdminPrivilege;
 import omero.model.AdminPrivilegeI;
 import omero.model.Dataset;
 import omero.model.DatasetI;
+import omero.model.DatasetImageLink;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
@@ -464,7 +465,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     public void testImporterAsSudoChown(boolean isAdmin, boolean isSudoing, boolean permChown,
             boolean permWriteOwned, boolean permWriteFile) throws Exception {
         final EventContext normalUser = newUserAndGroup("rwr-r-");
-        System.out.println(normalUser.userId);
         final long anotherUserId = newUserAndGroup("rwr-r-").userId;
         /* set up the basic permissions for this test */
         ArrayList <String> permissions = new ArrayList <String>();
@@ -474,9 +474,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         if (permWriteFile) permissions.add(AdminPrivilegeWriteFile.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
-        System.out.println("light admin");
-        System.out.println(lightAdmin.userId);
-        System.out.println(permissions);
         try {
             sudo(new ExperimenterI(normalUser.userId, false));
                 if (!isAdmin) {
@@ -544,21 +541,20 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     }
 
     /**
-     * Test that an ImporterAs workflow without using Sudo
+     * Test that an ImporterAs workflow without using Sudo.
      * The data will be imported into a group the user/(future owner of the data)
-     * is a member of, then just chowned to the user. 
-     * This workflow is possible only if * PR#4957 dealing with
+     * is a member of, then just chowned to the user.
+     * This workflow is possible only if PR#4957 dealing with
      * admins importing data into groups they are not member of will get
-     * merged. 
-     * In another workflow the data will be imported to the group
-     * of the light admin (where the user is not a member)
-     * and chgrp-ed and chowned into the correct group/user afterwards.
-     * For this test, combinations of  <tt>Chown</tt>, <tt>Chgrp</tt>,. <tt>WriteOwned</tt> and
+     * merged. For this test, combinations of  <tt>Chown</tt>, <tt>Chgrp</tt>,. <tt>WriteOwned</tt>
      * and <tt>WriteFile</tt> privileges will be explored for the light admin.
+     * For this workflow the creation and targeting of a Dataset
+     * is tested too.
      * @throws Exception unexpected
      */
+
     @Test(dataProvider = "combined privileges cases")
-    public void testImporterAsNoSudo(boolean isAdmin, boolean permChgrp, boolean permChown,
+    public void testImporterAsNoSudoChownOnlyWorkflow(boolean isAdmin, boolean permChgrp, boolean permChown,
             boolean permWriteOwned, boolean permWriteFile) throws Exception {
         /* define case where the import without any sudo importing into a group
          * the light admin is not a member of is expected to succeed
@@ -574,8 +570,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
          * them to the normal user will succeed if Chgrp and Chown is possible,
          * which needs permChgrp, permChown, permWriteFile and permWriteOwned
          */
-        boolean importYourGroupAndChgrpAndChownExpectSuccess =
-                (isAdmin && permWriteOwned && permWriteFile && permChgrp && permChown);
         final EventContext normalUser = newUserAndGroup("rwr-r-");
         /* set up the light admin's permissions for this test */
         ArrayList <String> permissions = new ArrayList <String>();
@@ -585,22 +579,31 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         if (permWriteFile) permissions.add(AdminPrivilegeWriteFile.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
-        /* import an image as lightAdmin into a group you are not a member of */
         if (!isAdmin) return;
+        /* First create a Dataset in the normalUser's group (you are not 
+         * a member of this goup) */
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
-        RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
+        Dataset dat = mmFactory.simpleDataset();
+        Dataset sentDat = new DatasetI();
+        sentDat = null;
+        if (importNotYourGroupExpectSuccess) {/* you are allowed to create the dataset only
+        with sufficient permissions, which are the same as permissions for importing */
+            sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
+        }
+        /* import an image into the created Dataset */
+        final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
         List<List<RType>> result = iQuery.projection(
                 "SELECT id FROM OriginalFile WHERE name = :name ORDER BY id DESC LIMIT 1",
                 new ParametersI().add("name", imageName));
-        long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
+        final long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
         try { /* only succeeds if permissions are sufficient or more */
             List<String> path = Collections.singletonList(fakeImageFile.getPath());
-            importFileset(path);
+            importFileset(path, path.size(), sentDat);
             Assert.assertTrue(importNotYourGroupExpectSuccess);
         } catch (ServerError se) { /* fails if permissions are insufficient */
             Assert.assertFalse(importNotYourGroupExpectSuccess);
         }
-        OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
+        final OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
                 "FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
                 new ParametersI().addId(previousId).add("name", imageName));
         if (importNotYourGroupExpectSuccess) {
@@ -624,43 +627,98 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
              */
             return;
         }
-        /* now, having the image in the group of normalUser already,
-         * try to change the ownership of the image to the normalUser */
-        /* Chowning the image should fail in case you have not all of
+        /* now, having the image linked to the dataset in the group of normalUser already,
+         * try to change the ownership of the dataset to the normalUser */
+        /* Chowning the dataset should fail in case you have not all of
          * isAdmin & Chown & WriteOwned & WriteFile permissions which are
          * captured in the boolean importNotYourGroupAndChownExpectSuccess */
         if (importNotYourGroupAndChownExpectSuccess) {
-            doChange(client, factory, Requests.chown().target(image).toUser(normalUser.userId).build(), true);
+            doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(), true);
             image = (Image) iQuery.get("Image", image.getId().getValue());
+            dat = (Dataset) iQuery.get("Dataset", sentDat.getId().getValue());
+            DatasetImageLink link = (DatasetImageLink) iQuery.findByQuery(
+                    "FROM DatasetImageLink WHERE parent.id  = :id",
+                    new ParametersI().addId(sentDat.getId()));
+            /* image, dataset and link are in the normalUser's group and belong to normalUser */
             Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), normalUser.userId);
             Assert.assertEquals(image.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+            Assert.assertEquals(dat.getDetails().getOwner().getId().getValue(), normalUser.userId);
+            Assert.assertEquals(dat.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+            Assert.assertEquals(link.getDetails().getOwner().getId().getValue(), normalUser.userId);
+            Assert.assertEquals(link.getDetails().getGroup().getId().getValue(), normalUser.groupId);
         } else {
-            doChange(client, factory, Requests.chown().target(image).toUser(normalUser.userId).build(), false);
+            doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(), false);
             image = (Image) iQuery.get("Image", image.getId().getValue());
-            /* check that the image still belongs to the light admin as the chown failed */
+            dat = (Dataset) iQuery.get("Dataset", sentDat.getId().getValue());
+            DatasetImageLink link = (DatasetImageLink) iQuery.findByQuery(
+                    "FROM DatasetImageLink WHERE parent.id  = :id",
+                    new ParametersI().addId(sentDat.getId()));
+            /* check that the image, dataset and link still belongs
+             * to the light admin as the chown failed, but are in the group of normalUser */
             Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), lightAdmin.userId);
             Assert.assertEquals(image.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+            Assert.assertEquals(dat.getDetails().getOwner().getId().getValue(), lightAdmin.userId);
+            Assert.assertEquals(dat.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+            Assert.assertEquals(link.getDetails().getOwner().getId().getValue(), lightAdmin.userId);
+            Assert.assertEquals(link.getDetails().getGroup().getId().getValue(), normalUser.groupId);
         }
+    }
+        /** Test a workflow of ImporterAs without using Sudo.
+         * The data will be imported to the group
+         * of the light admin (where the user is not a member)
+         * and chgrp-ed and chowned into the correct group/user afterwards.
+         * For this test, combinations of  <tt>Chown</tt>, <tt>Chgrp</tt>,. <tt>WriteOwned</tt> and
+         * and <tt>WriteFile</tt> privileges will be explored for the light admin.
+         * For this workflow the creation and targeting of a Dataset
+         * is tested too.
+         * @throws Exception unexpected
+         */
+        @Test(dataProvider = "combined privileges cases")
+        public void testImporterAsNoSudoChgrpChownWorkflow(boolean isAdmin, boolean permChgrp, boolean permChown,
+                boolean permWriteOwned, boolean permWriteFile) throws Exception {
+            /* the second workflow with importing into the group of the light admin and
+             * subsequent moving the data into the group of normalUser and chowning
+             * them to the normal user will succeed if Chgrp and Chown is possible,
+             * which needs permChgrp, permChown, but not WriteFile and WriteOwned,
+             * because the light admin is the owner of the data which he is chowning
+             */
+            boolean importYourGroupAndChgrpAndChownExpectSuccess =
+                    (isAdmin && permChgrp && permChown);
+            final EventContext normalUser = newUserAndGroup("rwr-r-");
+            /* set up the light admin's permissions for this test */
+            ArrayList <String> permissions = new ArrayList <String>();
+            if (permChown) permissions.add(AdminPrivilegeChown.value);;
+            if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);;
+            if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
+            if (permWriteFile) permissions.add(AdminPrivilegeWriteFile.value);
+            final EventContext lightAdmin;
+            lightAdmin = loginNewAdmin(isAdmin, permissions);
         /* Workflow2: import an image as lightAdmin into a group you are a member of */
         if (!isAdmin) return;
+        /* First create a Dataset in your (light admin's) group */
         client.getImplicitContext().put("omero.group", Long.toString(lightAdmin.groupId));
-        imageName = omero.rtypes.rstring(fakeImageFile.getName());
-        result = iQuery.projection(
+        Dataset dat = mmFactory.simpleDataset();
+        Dataset sentDat = new DatasetI();
+        sentDat = null;
+        sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
+        /* import an image into the created Dataset */
+        final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
+        List<List<RType>> result = iQuery.projection(
                 "SELECT id FROM OriginalFile WHERE name = :name ORDER BY id DESC LIMIT 1",
                 new ParametersI().add("name", imageName));
-        previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
+        final long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
         try { /* expected */
             List<String> path = Collections.singletonList(fakeImageFile.getPath());
-            importFileset(path);
+            importFileset(path, path.size(), sentDat);
         } catch (ServerError se) { /* not expected */}
 
-        remoteFile = (OriginalFile) iQuery.findByQuery(
+        OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
                 "FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
                 new ParametersI().addId(previousId).add("name", imageName));
         Assert.assertEquals(remoteFile.getDetails().getOwner().getId().getValue(), lightAdmin.userId);
         Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), lightAdmin.groupId);
         /* check that also the image corresponding to the original file is in the right group */
-        image = null;
+        Image image = null;
         if (!(remoteFile == null)) {
             image = (Image) iQuery.findByQuery("FROM Image WHERE fileset IN "
                     + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
@@ -669,66 +727,114 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), lightAdmin.userId);
         Assert.assertEquals(image.getDetails().getGroup().getId().getValue(), lightAdmin.groupId);
 
-        /* now try to move the image into the group of the user */
+        /* now try to move the dataset into the group of the user */
         long imageGroupId = image.getDetails().getGroup().getId().getValue();
         /*in order to find the image in whatever group, get context with group
          * set to -1 (=all groups)
          */
         client.getImplicitContext().put("omero.group", Long.toString(-1));
-        /* try to move the image from light admin's default group
+        /* try to move the dataset (and with it the linked image)
+         * from light admin's default group
          * into the default group of the normalUser
          * which should succeed in case the light admin has Chgrp permissions
          */
         if (isAdmin && permChgrp) {
-            doChange(client, factory, Requests.chgrp().target(image).toGroup(normalUser.groupId).build(), true);
-            image = (Image) iQuery.get("Image", image.getId().getValue());
-            /* note in which group the image now is now */
-            imageGroupId = image.getDetails().getGroup().getId().getValue();
-            Assert.assertEquals(imageGroupId, normalUser.groupId);
+            doChange(client, factory, Requests.chgrp().target(sentDat).toGroup(normalUser.groupId).build(), true);
+
         } else {
-            doChange(client, factory, Requests.chgrp().target(image).toGroup(normalUser.groupId).build(), false);
-            image = (Image) iQuery.get("Image", image.getId().getValue());
-            /* note in which group the image now is now */
-            imageGroupId = image.getDetails().getGroup().getId().getValue();
-            Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), lightAdmin.userId);
-            /* check that the image is still in lightAdmins group as the move failed */
-            Assert.assertEquals(imageGroupId, lightAdmin.groupId);
+            doChange(client, factory, Requests.chgrp().target(sentDat).toGroup(normalUser.groupId).build(), false);
         }
-        /* now, having moved the image in the group of normalUser,
-         * try to change the ownership of the image to the normalUser */
-        /* Chowning the image should fail in case you have not all of
-         * isAdmin & Chown & WriteOwned & WriteFile permissions which are
+        /* retrieve again the image, dataset and link */
+        image = (Image) iQuery.get("Image", image.getId().getValue());
+        dat = (Dataset) iQuery.get("Dataset", sentDat.getId().getValue());
+        DatasetImageLink link = (DatasetImageLink) iQuery.findByQuery(
+                "FROM DatasetImageLink WHERE parent.id  = :id",
+                new ParametersI().addId(sentDat.getId()));
+        /* note in which group the image now is now */
+        imageGroupId = image.getDetails().getGroup().getId().getValue();
+        /* check that the image, dataset, and their link was moved too if the permissions
+         * were sufficient */
+        if (isAdmin && permChgrp) {
+            Assert.assertEquals(imageGroupId, normalUser.groupId);
+            Assert.assertEquals(dat.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+            Assert.assertEquals(link.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+        /* check that the image, dataset and their link were not moved if
+         * the permissions were not sufficient
+         */
+        } else {
+            Assert.assertEquals(imageGroupId, lightAdmin.groupId);
+            Assert.assertEquals(dat.getDetails().getGroup().getId().getValue(), lightAdmin.groupId);
+            Assert.assertEquals(link.getDetails().getGroup().getId().getValue(), lightAdmin.groupId);
+        }
+        /* now, having moved the dataset, image and link in the group of normalUser,
+         * try to change the ownership of the dataset to the normalUser */
+        /* Chowning the dataset should fail in case you have not both of
+         * isAdmin & Chown permissions which are
          * captured in the boolean importYourGroupAndChgrpAndChownExpectSuccess.
          * Additionally, in this boolean is permChgrp, which was necessary for the
-         * previous step of moving the data into normalUser's group */
+         * previous step of moving the data into normalUser's group.
+         * A successful chowning of the dataset will chown the linked image
+         * and the link too.*/
         if (importYourGroupAndChgrpAndChownExpectSuccess) {/* whole workflow2 succeeded */
-            doChange(client, factory, Requests.chown().target(image).toUser(normalUser.userId).build(), true);
+            doChange(client, factory, Requests.chown().target(dat).toUser(normalUser.userId).build(), true);
             image = (Image) iQuery.get("Image", image.getId().getValue());
-            /* image is in the normalUser's group and belongs to normalUser */
+            dat = (Dataset) iQuery.get("Dataset", sentDat.getId().getValue());
+            link = (DatasetImageLink) iQuery.findByQuery(
+                    "FROM DatasetImageLink WHERE parent.id  = :id",
+                    new ParametersI().addId(sentDat.getId()));
+            /* image, dataset and link are in the normalUser's group and belong to normalUser */
             Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), normalUser.userId);
             Assert.assertEquals(image.getDetails().getGroup().getId().getValue(), normalUser.groupId);
-        } else if (permChown && permWriteOwned && permWriteFile) {
+            Assert.assertEquals(dat.getDetails().getOwner().getId().getValue(), normalUser.userId);
+            Assert.assertEquals(dat.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+            Assert.assertEquals(link.getDetails().getOwner().getId().getValue(), normalUser.userId);
+            Assert.assertEquals(link.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+        } else if (permChown) {
             /* even if the workflow2 as a whole failed, the chown might be successful */
-            doChange(client, factory, Requests.chown().target(image).toUser(normalUser.userId).build(), true);
+            doChange(client, factory, Requests.chown().target(dat).toUser(normalUser.userId).build(), true);
             image = (Image) iQuery.get("Image", image.getId().getValue());
-            /* the image belongs to the normalUser, but is in the light admin's group */
+            dat = (Dataset) iQuery.get("Dataset", sentDat.getId().getValue());
+            link = (DatasetImageLink) iQuery.findByQuery(
+                    "FROM DatasetImageLink WHERE parent.id  = :id",
+                    new ParametersI().addId(sentDat.getId()));
+            /* the image, dataset and link belong to the normalUser, but is in the light admin's group */
             Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), normalUser.userId);
             Assert.assertEquals(image.getDetails().getGroup().getId().getValue(), lightAdmin.groupId);
+            Assert.assertEquals(dat.getDetails().getOwner().getId().getValue(), normalUser.userId);
+            Assert.assertEquals(dat.getDetails().getGroup().getId().getValue(), lightAdmin.groupId);
+            Assert.assertEquals(link.getDetails().getOwner().getId().getValue(), normalUser.userId);
+            Assert.assertEquals(link.getDetails().getGroup().getId().getValue(), lightAdmin.groupId);
         } else if (permChgrp) {
             /* as workflow2 as a whole failed, in case the chgrp was successful,
              * the chown must be failing */
-            doChange(client, factory, Requests.chown().target(image).toUser(normalUser.userId).build(), false);
+            doChange(client, factory, Requests.chown().target(dat).toUser(normalUser.userId).build(), false);
             image = (Image) iQuery.get("Image", image.getId().getValue());
-            /* the image is in normalUser's group but still belongs to light admin */
+            dat = (Dataset) iQuery.get("Dataset", sentDat.getId().getValue());
+            link = (DatasetImageLink) iQuery.findByQuery(
+                    "FROM DatasetImageLink WHERE parent.id  = :id",
+                    new ParametersI().addId(sentDat.getId()));
+            /* the image, dataset and link are in normalUser's group but still belong to light admin */
             Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), lightAdmin.userId);
             Assert.assertEquals(image.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+            Assert.assertEquals(dat.getDetails().getOwner().getId().getValue(), lightAdmin.userId);
+            Assert.assertEquals(dat.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+            Assert.assertEquals(link.getDetails().getOwner().getId().getValue(), lightAdmin.userId);
+            Assert.assertEquals(link.getDetails().getGroup().getId().getValue(), normalUser.groupId);
         } else {
             /* the remaining option when the previous chgrp as well as this chown fail */
-            doChange(client, factory, Requests.chown().target(image).toUser(normalUser.userId).build(), false);
+            doChange(client, factory, Requests.chown().target(dat).toUser(normalUser.userId).build(), false);
             image = (Image) iQuery.get("Image", image.getId().getValue());
-            /* image is in light admin's group and belongs to light admin */
+            dat = (Dataset) iQuery.get("Dataset", sentDat.getId().getValue());
+            link = (DatasetImageLink) iQuery.findByQuery(
+                    "FROM DatasetImageLink WHERE parent.id  = :id",
+                    new ParametersI().addId(sentDat.getId()));
+            /* the image, dataset and link are in light admin's group and belong to light admin */
             Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), lightAdmin.userId);
             Assert.assertEquals(image.getDetails().getGroup().getId().getValue(), lightAdmin.groupId);
+            Assert.assertEquals(dat.getDetails().getOwner().getId().getValue(), lightAdmin.userId);
+            Assert.assertEquals(dat.getDetails().getGroup().getId().getValue(), lightAdmin.groupId);
+            Assert.assertEquals(link.getDetails().getOwner().getId().getValue(), lightAdmin.userId);
+            Assert.assertEquals(link.getDetails().getGroup().getId().getValue(), lightAdmin.groupId);
         }
     }
     /**
