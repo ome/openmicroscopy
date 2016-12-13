@@ -904,7 +904,7 @@
                     onclick="viewport.setZoomToFit()"></button>
           </div>
           <div class="odd row">
-            <label for="wblitz-lp-enable">Line Plot</label> <input id="wblitz-lp-enable" type="checkbox" onclick="editLinePlot(this.checked)" />
+            <label for="wblitz-lp-enable">Line Plot</label> <input id="wblitz-lp-enable" type="checkbox" {% if tiledImage %}disabled{% endif %} onclick="editLinePlot(this.checked)" />
             <div id="wblitz-lp-wrap" style="display: none">
               <div>Axis:
                 <select id="wblitz-lp-axis-select" onchange="prepLinePlot(this.options[this.options.selectedIndex].value)">
