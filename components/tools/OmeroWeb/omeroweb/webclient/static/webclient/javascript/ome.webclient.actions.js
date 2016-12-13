@@ -967,10 +967,10 @@ OME.setOpenWithEnabledHandler = function(label, fn) {
 };
 // Helper can be used by 'open with' plugins to provide
 // a url for the selected objects
-OME.setOpenWithUrlProvider = function(label, fn) {
+OME.setOpenWithUrlProvider = function(id, fn) {
     // look for label in OPEN_WITH
     WEBCLIENT.OPEN_WITH.forEach(function(ow){
-        if (ow.label === label) {
+        if (ow.id === id) {
             ow.getUrl = fn;
         }
     });

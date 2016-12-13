@@ -1009,7 +1009,7 @@ $(function() {
                     // build a submenu of viewers...
                     var viewers = WEBCLIENT.OPEN_WITH.map(function(v){
                         return {
-                            "label": v.label,
+                            "label": v.label || v.id,
                             "action": function() {
                                 var inst = $.jstree.reference('#dataTree'),
                                     sel = inst.get_selected(true),
