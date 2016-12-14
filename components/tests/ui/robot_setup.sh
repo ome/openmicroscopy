@@ -39,6 +39,10 @@ touch $PLATE_NAME
 touch $TINY_PLATE_NAME
 touch $MIF_IMAGE_NAME
 
+# Python script for setting posX and posY on wellsamples
+# Used below after importing a plate
+WELLSCRIPT="../components/tests/ui/resources/well_sample_posXY.py"
+
 # Create batch annotation csv
 echo "Well,Well Type,Concentration" > "$BULK_ANNOTATION_CSV"
 echo "A1,Control,0" >> "$BULK_ANNOTATION_CSV"
@@ -46,34 +50,6 @@ echo "A2,Treatment,10" >> "$BULK_ANNOTATION_CSV"
 
 # Create file for upload as File Annotation
 echo "Robot test file annotations" > "$FILE_ANNOTATION"
-
-# Create a python script for setting posX and posY on wellsamples
-# Used below after importing a plate
-WELLSCRIPT="wsScript.py"
-echo "import argparse
-import omero
-from omero.gateway import BlitzGateway
-from omero.model.enums import UnitsLength
-parser = argparse.ArgumentParser()
-parser.add_argument('host', help='OMERO host')
-parser.add_argument('port', help='OMERO port')
-parser.add_argument('key', help='OMERO session key')
-parser.add_argument('plateId', help='Plate ID to process', type=int)
-args = parser.parse_args()
-conn = BlitzGateway(host=args.host, port=args.port)
-conn.connect(args.key)
-update = conn.getUpdateService()
-plate = conn.getObject('Plate', args.plateId)
-r = UnitsLength.REFERENCEFRAME
-cols = 3
-for well in plate.listChildren():
-    for i, ws in enumerate(well.listChildren()):
-        x = i % cols
-        y = i / cols
-        ws = conn.getQueryService().get('WellSample', ws.id)
-        ws.posY = omero.model.LengthI(y, r)
-        ws.posX = omero.model.LengthI(x, r)
-        update.saveObject(ws)" > "$WELLSCRIPT"
 
 # Create robot setup
 bin/omero login $USER_NAME@$HOSTNAME:$PORT -w $USER_PASSWORD
@@ -170,4 +146,3 @@ echo "omero.datasetid=${dataset##*:}" >> "$CONFIG_FILENAME"
 rm *.fake
 rm plate_import.log
 rm show_import.log
-rm $WELLSCRIPT
