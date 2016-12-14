@@ -2216,7 +2216,7 @@ div.paging input.button_pagination {
 #wellImages li {
     display: inline-block;
 }
-#wellImages ul,  #wellImages h1{
+#wellImages ul, #wellImages h1 {
     margin: 5px;
 }
 #wellImages .ui-selected {

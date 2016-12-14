@@ -71,7 +71,7 @@ Test Spw Grid Layout
     Should Be Equal                         ${well1x}                   ${well5x}
 
 
-Test Spw Spacial Birds Eye
+Test Spw Spatial Birds Eye
     [Documentation]     Tests layout and clicking of 'spacial bird's eye' panel
 
     Select Experimenter
@@ -83,7 +83,7 @@ Test Spw Spacial Birds Eye
     Wait Until Page Contains Element        xpath=//div[@id='well_birds_eye']//img
     Xpath Should Match X Times              //div[@id='well_birds_eye']//img                 ${FIELD_COUNT}
 
-    # Spacial layout: x and y
+    # Spatial layout: x and y
     ${well1x}=                              Get Horizontal Position  xpath=//div[@id='well_birds_eye']//img[1]
     ${well2x}=                              Get Horizontal Position  xpath=//div[@id='well_birds_eye']//img[2]
     ${well3x}=                              Get Horizontal Position  xpath=//div[@id='well_birds_eye']//img[3]
