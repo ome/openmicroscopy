@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.browser.BrowserComponent
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -257,6 +257,15 @@ class BrowserComponent
     	}
     }
 
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * 
+     * @see Browser#setSelectedResolutionLevelZoomFactor(double)
+     */
+    public void setSelectedResolutionLevelZoomFactor(double ratio) {
+        model.setZoomFactor(ratio);
+    }
+    
     /** 
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#getZoomFactor()

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.browser.Browser
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -418,5 +418,13 @@ public interface Browser
         * @param interpolation The value to set.
         */
         public void setInterpolation(boolean interpolation);
+
+    /**
+     * Set the zoom factor for the selected resolution level
+     * 
+     * @param ratio
+     *            The zoom factor
+     */
+    void setSelectedResolutionLevelZoomFactor(double ratio);
 
 }

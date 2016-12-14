@@ -2936,6 +2936,8 @@ class ImViewerModel
 		tiles.clear();
 		rnd.setSelectedResolutionLevel(level);
 		initializeTiles();
+		
+		browser.setSelectedResolutionLevelZoomFactor(getResolutionDescription().getRatio());
 	}
 	
 	/**
