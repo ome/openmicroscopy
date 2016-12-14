@@ -361,9 +361,9 @@ $(document).ready(function() {
     }
 
     var setupFiltering = function() {
-        // All the image filtering functionaliy setup here...
+        // All the image filtering functionality setup here...
         // Chooser for revealing various filter components
-        $("#choosefilter").change(function(){
+        $("#choosefilter").change(function() {
             var $this = $(this),
                 filterby = $this.val();
             // reset chooser
@@ -469,7 +469,6 @@ $(document).ready(function() {
             $.getJSON("{% url 'api_annotations' %}?type=rating&" + query, function(data){
                 // map imageId to rating... rdata = {'iid': show?}
                 var rdata = data.annotations.reduce(function(prev, r){
-                    // if (r.link.owner.id === WEBCLIENT.USER.id) {
                     // we don't care who owns the rating/link
                     var iid = "" + r.link.parent.id,
                         longValue = r.longValue;
@@ -478,7 +477,7 @@ $(document).ready(function() {
                     }
                     return prev;
                 }, {});
-                $("#dataIcons li.row").each(function(){
+                $("#dataIcons li.row").each(function() {
                     var $this = $(this),
                         iid = $this.attr("data-id");
                     if (rating === 0 || rdata[iid]) {
