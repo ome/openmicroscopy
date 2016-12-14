@@ -2,6 +2,9 @@
 """
 Script used by robot_setup.py to set posX and posY on Well Samples.
 
+Usage:
+$ python well_sample_posXY.py host port sessionKey plateId
+
 Used after import of SPW data to provide spatial settings on well
 samples. Tested by spw_test.
 """
