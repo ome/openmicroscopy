@@ -27,7 +27,7 @@
       .ui-slider-handle.ui-state-default {
         background: #FEE7D6 none repeat scroll 0 0;
         border: solid #A9A916 1px;
-        transition-duration: 0;
+        transition-duration: 0s;
       }
       .rangeslider {
         border: solid #333333 1px;
@@ -82,6 +82,10 @@
       .rdef .owner {
         color: blue;
       }
+      /* histogram svg */
+      .line {
+        fill: none;
+      }
     </style>
 
 
@@ -89,9 +93,6 @@
 
         var PLATE_LINKS_URL_999 = '{% url 'webgateway_object_table_query' 'Screen.plateLinks.child.wells' 999 %}';
         var PLATE_WELLS_URL_999 = '{% url 'webgateway_object_table_query' 'Plate.wells' 999 %}';
-
-        // not needed, but prevents error message
-        var rdChanSelHelper = function() {};
 
         $(document).ready(function() {
 
@@ -120,6 +121,9 @@
             OME.preview_viewport.bind('imageChange', function(){
               imageChange(OME.preview_viewport);
             });
+
+            // Create Histogram - displayed when #showhistogram checkbox is checked
+            OME.createViewportHistogram(OME.preview_viewport, "#histogram", "#showhistogram", "{% url 'webgateway' %}");
 
             // Load image
             {% if share and not share.share.isOwned %}
@@ -336,7 +340,6 @@
               OME.openPopup(url + "?" + vpQuery);
               return false;
             });
-
         });
     </script>
 
@@ -417,6 +420,17 @@
       <div id="rdef-active-area">
         <input id="rd-wblitz-rmodel" type="checkbox" />
         <label for="rd-wblitz-rmodel">Grayscale</label>
+        <div style="float:right {% if tiledImage %}; color:#bbb{%endif%}"
+          {% if tiledImage %}
+            title="Histogram not supported for tiled images"
+          {%else%}
+            title="Show histogram of pixel intensities for selected channel"
+          {% endif %} >
+          <!-- histogram (not supported for Big images) -->
+          <input id="showhistogram" type="checkbox" {% if tiledImage %}disabled{% endif %}/>
+          <label for="showhistogram">Show Histogram</label>
+        </div>
+        <div id="histogram" style="display:none; width: 100%; height: 125px; background:white; border: solid #ccc 1px; margin-bottom: 6px"></div>
         <table cellspacing="0" style="font-size:0.9em">
           <tr>
           </tr>
