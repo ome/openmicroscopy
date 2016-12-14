@@ -122,8 +122,8 @@ def basic_ellipse(default_id):
     shape.y = rdouble(.1)
     shape.radiusX = rdouble(1.0)
     shape.radiusY = rdouble(.5)
-    shape.fillColor = rlong(287454020)  #0x11223344 , r=17 ,g=34 ,b=51, a=68
-    shape.strokeColor = rlong(1432778632) #0x55667788, r=85 ,g=102 ,b=119, a=136
+    shape.fillColor = rlong(287454020)     # 0x11223344,r=17,g=34,b=51,a=68
+    shape.strokeColor = rlong(1432778632)  # 0x55667788,r=85,g=102,b=119,a=136
     return shape
 
 
@@ -188,13 +188,13 @@ class TestShapeMarshal(object):
 
     def test_rgba(self, basic_ellipse):
         color = unwrap(basic_ellipse.getFillColor())
-        result = rgb_int2rgba(color) # 0x11223344
-        assert result[0] == 17 # r
-        assert result[1] == 34 # g
-        assert result[2] == 51 # b
-        assert result[3] == float(68) / 256 # a (as fraction)
+        result = rgb_int2rgba(color)         # 0x11223344
+        assert result[0] == 17               # r
+        assert result[1] == 34               # g
+        assert result[2] == 51               # b
+        assert result[3] == float(68) / 256  # a (as fraction)
 
         color = unwrap(basic_ellipse.getStrokeColor())
-        result = rgb_int2css(color) # 0x55667788
-        assert result[0] == "#556677" # rgb
-        assert result[1] == float(136) / 256 # a (as fraction)
+        result = rgb_int2css(color)            # 0x55667788
+        assert result[0] == "#556677"          # rgb
+        assert result[1] == float(136) / 256   # a (as fraction)
