@@ -21,6 +21,9 @@
 // jQuery load callback...
 $(function() {
 
+    // Flag holding curent single / multi selection status
+    var multiselection = false;
+
     // Select jstree and then cascade handle events and setup the tree.
     var jstree = $("#dataTree")
     .on('changed.jstree', function (e, data) {
@@ -34,6 +37,8 @@ $(function() {
             !inst.is_loading(data.node)) {
             inst.load_node(data.node);
         }
+
+        multiselection = data.selected.length > 1;
 
         OME.tree_selection_changed(data, e);
     })
@@ -1170,10 +1175,10 @@ $(function() {
                         config['renderingsettings']["submenu"]['owner_rdef']['_disabled'] = false;
                     }
                 }
-                // Only enable copying if an image is the node
+                // Only enable copying if an image is the node and only one node is selected
                 if (node.type === 'image') {
                     config['renderingsettings']['_disabled'] = false;
-                    config['renderingsettings']["submenu"]['copy_rdef']['_disabled'] = false;
+                    config['renderingsettings']["submenu"]['copy_rdef']['_disabled'] = multiselection;
                 }
                 return config;
             }
