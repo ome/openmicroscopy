@@ -10,11 +10,11 @@
 Integration test focused on the omero.api.IUpdate interface.
 """
 
-import library as lib
+from omero.testlib import ITest
 import omero
 
 
-class TestIUpdate(lib.ITest):
+class TestIUpdate(ITest):
     """
     Basic test of all IUpdate functionality
     """

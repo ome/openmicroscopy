@@ -25,8 +25,9 @@
 """
 
 import pytest
-import library as lib
+from omero.testlib import ITest
 import omero
+from omero.testlib import PFS
 from omero_model_PermissionsI import PermissionsI
 from omero_model_TagAnnotationI import TagAnnotationI
 from omero_model_ExperimenterI import ExperimenterI
@@ -105,7 +106,7 @@ class CallContextFixture(object):
         assert img is not None
 
 
-class TestPermissions(lib.ITest):
+class TestPermissions(ITest):
 
     def testLoginToPublicGroupTicket1940(self):
         # As root create a new group
@@ -833,7 +834,7 @@ class TestPermissions(lib.ITest):
         })
 
 
-class TestPermissionProjections(lib.ITest):
+class TestPermissionProjections(ITest):
 
     _group = None
     _other = dict()
@@ -872,8 +873,8 @@ class TestPermissionProjections(lib.ITest):
             expected_arr.append(expected)
         assert expected_arr == found_arr
 
-    @pytest.mark.parametrize("fixture", lib.PFS,
-                             ids=[x.get_name() for x in lib.PFS])
+    @pytest.mark.parametrize("fixture", PFS,
+                             ids=[x.get_name() for x in PFS])
     def testProjectionPermissions(self, fixture):
         writer = self.writer(fixture)
         reader = self.reader(fixture)
@@ -902,8 +903,8 @@ class TestPermissionProjections(lib.ITest):
             self.assertPerms(perms1, fixture)
             self.assertPerms(perms2, fixture)
 
-    @pytest.mark.parametrize("fixture", lib.PFS,
-                             ids=[x.get_name() for x in lib.PFS])
+    @pytest.mark.parametrize("fixture", PFS,
+                             ids=[x.get_name() for x in PFS])
     def testProjectionPermissionsWorkaround(self, fixture):
         writer = self.writer(fixture)
         reader = self.reader(fixture)

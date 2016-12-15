@@ -24,8 +24,8 @@
 Simple integration tests to ensure that the CSRF middleware is enabled and
 working correctly.
 """
-from weblibrary import IWebTest
-from weblibrary import _get_response
+from omeroweb.testlib import IWebTest
+from omeroweb.testlib import _get_response
 
 from django.core.urlresolvers import reverse
 

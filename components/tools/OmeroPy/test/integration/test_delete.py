@@ -25,7 +25,7 @@
 """
 
 import traceback
-import library as lib
+from omero.testlib import ITest
 import pytest
 import omero
 import omero.callbacks
@@ -38,7 +38,7 @@ from omero.cmd.graphs import ChildOption
 from omero.rtypes import rstring, rlist, rlong
 
 
-class TestDelete(lib.ITest):
+class TestDelete(ITest):
 
     def testBasicUsage(self):
         img = self.new_image(name="delete test")

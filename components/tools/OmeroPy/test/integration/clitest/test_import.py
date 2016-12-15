@@ -141,8 +141,7 @@ class TestImport(CLITest):
         return capfd.readouterr()
 
     def add_client_dir(self):
-        dist_dir = self.OmeroPy / ".." / ".." / ".." / "dist"
-        client_dir = dist_dir / "lib" / "client"
+        client_dir = self.omero_dist / "lib" / "client"
         self.args += ["--clientdir", client_dir]
 
     def get_object(self, err, obj_type, query=None):

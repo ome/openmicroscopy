@@ -25,7 +25,7 @@
 
 """
 
-import library as lib
+from omero.testlib import ITest
 import pytest
 import os
 
@@ -118,7 +118,7 @@ class CallbackI(omero.grid.ProcessCallback):
         self.kill.append(rv)
 
 
-class TestPing(lib.ITest):
+class TestPing(ITest):
 
     """
     Tests which use the trivial script defined by PINGFILE to

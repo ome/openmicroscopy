@@ -8,11 +8,11 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-import library as lib
+from omero.testlib import ITest
 import omero
 
 
-class TestMetdataStore(lib.ITest):
+class TestMetdataStore(ITest):
 
     def testBasicUsage(self):
 

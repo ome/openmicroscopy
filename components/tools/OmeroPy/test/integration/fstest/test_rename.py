@@ -22,7 +22,7 @@
 
 import pytest
 
-from test.integration.test_repository import AbstractRepoTest
+from omero.testlib import AbstractRepoTest
 from omero.constants.namespaces import NSFSRENAME
 from omero.plugins.fs import contents
 from omero.plugins.fs import prep_directory

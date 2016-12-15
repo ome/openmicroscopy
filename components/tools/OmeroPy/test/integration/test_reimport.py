@@ -20,7 +20,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
-import library as lib
+from omero.testlib import ITest
 
 from omero.callbacks import CmdCallbackI
 from omero.cmd import Delete2
@@ -40,7 +40,7 @@ from omero.sys import ParametersI
 from omero.util.temp_files import create_path
 
 
-class TestReimportArchivedFiles(lib.ITest):
+class TestReimportArchivedFiles(ITest):
 
     def setup_method(self, method):
         self.pixels = self.client.sf.getPixelsService()

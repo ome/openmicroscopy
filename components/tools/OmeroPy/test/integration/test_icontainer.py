@@ -24,14 +24,14 @@
 
 """
 
-import library as lib
+from omero.testlib import ITest
 import omero
 from omero_model_CommentAnnotationI import CommentAnnotationI
 from omero.rtypes import rstring
 from uuid import uuid4
 
 
-class TestIContainer(lib.ITest):
+class TestIContainer(ITest):
 
     DEFAULT_PERMS = "rw----"
 
@@ -80,7 +80,7 @@ class TestIContainer(lib.ITest):
         assert -1 == o.sizeOfGroupExperimenterMap()
 
 
-class TestSplitFilesets(lib.ITest):
+class TestSplitFilesets(ITest):
 
     def checkSplitFilesets(self, dtypeIdsMap, expected):
         """

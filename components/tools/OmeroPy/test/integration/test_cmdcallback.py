@@ -25,7 +25,7 @@ Test of the CmdCallbackI object
 
 import threading
 
-import library as lib
+from omero.testlib import ITest
 import omero
 import omero.all
 from omero.util.concurrency import get_event
@@ -91,7 +91,7 @@ class CmdCallback(omero.callbacks.CmdCallbackI):
             self.t_lock.release()
 
 
-class TestCmdCallback(lib.ITest):
+class TestCmdCallback(ITest):
 
     def mktestcb(self, req):
         """

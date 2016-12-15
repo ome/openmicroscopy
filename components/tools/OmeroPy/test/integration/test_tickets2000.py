@@ -10,7 +10,7 @@
 
 """
 import time
-import library as lib
+from omero.testlib import ITest
 import pytest
 import omero
 from omero.rtypes import rbool, rstring, rtime, rlong, rint
@@ -20,7 +20,7 @@ from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
 
 
-class TestTickets2000(lib.ITest):
+class TestTickets2000(ITest):
 
     def test1064(self):
         admin = self.client.sf.getAdminService()

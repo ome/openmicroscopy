@@ -26,7 +26,7 @@
 
 import omero
 import omero.gateway
-import library as lib
+from omero.testlib import ITest
 import pytest
 from omero.cmd import Chgrp2
 from omero.cmd.graphs import ChildOption
@@ -43,7 +43,7 @@ READANNOTATE = 'rwra--'
 COLLAB = 'rwrw--'
 
 
-class TestChgrp(lib.ITest):
+class TestChgrp(ITest):
 
     def testChgrpImportedImage(self):
         """
@@ -1026,7 +1026,7 @@ class TestChgrp(lib.ITest):
             assert link[0] == link[1]
 
 
-class TestChgrpTarget(lib.ITest):
+class TestChgrpTarget(ITest):
 
     def createDSInGroup(self, gid, name=None, client=None):
         if name is None:

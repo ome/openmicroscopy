@@ -24,7 +24,7 @@
 
 """
 
-import library as lib
+from omero.testlib import ITest
 import omero
 import omero.scripts
 from omero.gateway import BlitzGateway
@@ -38,7 +38,7 @@ movieFigurePath = "scripts/omero/figure_scripts/Movie_Figure.py"
 movieROIFigurePath = "scripts/omero/figure_scripts/Movie_ROI_Figure.py"
 
 
-class TestFigureExportScripts(lib.ITest):
+class TestFigureExportScripts(ITest):
 
     def testThumbnailFigure(self):
 

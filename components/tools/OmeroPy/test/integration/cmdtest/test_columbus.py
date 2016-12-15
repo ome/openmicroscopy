@@ -36,10 +36,10 @@ except that they should be able to delete users and data from their group."
 
 """
 
-import library as lib
+from omero.testlib import ITest
 
 
-class TestColumbus(lib.ITest):
+class TestColumbus(ITest):
     """
     The following tests all assume the following
     user configuration:

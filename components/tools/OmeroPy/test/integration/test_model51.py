@@ -23,7 +23,7 @@
 Basic tests for additions/changes to the 5.1 model.
 """
 
-import library as lib
+from omero.testlib import ITest
 import pytest
 import omero
 import omero.model
@@ -32,7 +32,7 @@ from omero.model import NamedValue as NV
 from omero.rtypes import unwrap
 
 
-class TestModel51(lib.ITest):
+class TestModel51(ITest):
 
     def testExposureTime(self):
         img = self.importMIF(name="testExposureTime", exposureTime=1.2)[0]

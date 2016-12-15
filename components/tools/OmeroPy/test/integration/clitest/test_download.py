@@ -162,7 +162,7 @@ class TestDownload(CLITest):
             self.cli.invoke(self.args, strict=True)
 
     def testImage(self, tmpdir):
-        filename = self.OmeroPy / ".." / ".." / ".." / \
+        filename = self.omero_dist / ".." / \
             "components" / "common" / "test" / "tinyTest.d3d.dv"
         with open(filename) as f:
             bytes1 = f.read()
@@ -201,7 +201,7 @@ class TestDownload(CLITest):
     def testImageMultipleGroups(self, tmpdir):
         user, group1, group2 = self.setup_user_and_two_groups()
         client = self.new_client(user=user)
-        filename = self.OmeroPy / ".." / ".." / ".." / \
+        filename = self.omero_dist / ".." / \
             "components" / "common" / "test" / "tinyTest.d3d.dv"
         with open(filename) as f:
             bytes1 = f.read()

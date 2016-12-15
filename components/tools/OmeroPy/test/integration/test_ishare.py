@@ -10,7 +10,7 @@
 
 """
 import time
-import library as lib
+from omero.testlib import ITest
 import pytest
 import omero
 import Glacier2
@@ -21,7 +21,7 @@ from omero.gateway import BlitzGateway
 from test.integration.helpers import createTestImage
 
 
-class TestIShare(lib.ITest):
+class TestIShare(ITest):
 
     def test_that_permissions_are_default_private(self):
         i = self.make_image()

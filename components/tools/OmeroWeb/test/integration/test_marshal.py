@@ -25,7 +25,7 @@ import json
 
 from django.core.urlresolvers import reverse
 
-from weblibrary import IWebTest, _get_response
+from omeroweb.testlib import IWebTest, _get_response
 
 
 class TestImgDetail(IWebTest):

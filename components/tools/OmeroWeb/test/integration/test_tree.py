@@ -22,7 +22,7 @@ Simple integration tests for the "tree" module.
 """
 
 import pytest
-import library as lib
+from omero.testlib import ITest
 
 from omero.gateway import BlitzGateway
 from omero.constants.metadata import NSINSIGHTTAGSET
@@ -1250,7 +1250,7 @@ def tagset_hierarchy_userB_groupA(request, userA,
     return tagsets + tags + [link.parent for link in links]
 
 
-class TestTree(lib.ITest):
+class TestTree(ITest):
     """
     Tests to ensure that OMERO.web "tree" infrastructure is working
     correctly.

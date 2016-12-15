@@ -12,7 +12,7 @@
 import omero
 import omero.clients
 import pytest
-from weblibrary import IWebTest
+from omeroweb.testlib import IWebTest
 
 from omero.gateway import BlitzGateway, ProjectWrapper, DatasetWrapper, \
     ImageWrapper, TagAnnotationWrapper, ScreenWrapper, PlateWrapper, \

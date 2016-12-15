@@ -19,8 +19,8 @@
 
 """Tests rendering of thumbnails."""
 
-from weblibrary import IWebTest
-from weblibrary import _get_response
+from omeroweb.testlib import IWebTest
+from omeroweb.testlib import _get_response
 
 from cStringIO import StringIO
 import pytest

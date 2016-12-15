@@ -10,10 +10,10 @@
 
 """
 
-import library as lib
+from omero.testlib import ITest
 
 
-class TestSimple(lib.ITest):
+class TestSimple(ITest):
 
     def testCurrentUser(self):
         admin = self.client.sf.getAdminService()

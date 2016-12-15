@@ -22,7 +22,7 @@ Integration tests for annotations methods in the "tree" module.
 """
 
 import pytest
-import library as lib
+from omero.testlib import ITest
 from datetime import datetime
 
 import omero
@@ -231,7 +231,7 @@ def expected_annotations(user, links):
     return annotations, experimenters
 
 
-class TestTreeAnnotations(lib.ITest):
+class TestTreeAnnotations(ITest):
     """
     Tests to ensure that OMERO.web "tree" infrastructure is working
     correctly.

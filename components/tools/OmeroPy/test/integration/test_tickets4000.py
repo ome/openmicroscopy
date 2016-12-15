@@ -9,13 +9,13 @@
 
 """
 import omero
-import library as lib
+from omero.testlib import ITest
 import pytest
 
 from omero.rtypes import rstring
 
 
-class TestTickets4000(lib.ITest):
+class TestTickets4000(ITest):
 
     @pytest.mark.broken(ticket="11539")
     def test3138(self):

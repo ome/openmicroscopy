@@ -11,12 +11,12 @@ Integration tests for tickets between 5000 and 5999
 """
 
 import pytest
-import library as lib
+from omero.testlib import ITest
 
 from omero.rtypes import rstring
 
 
-class TestTickets6000(lib.ITest):
+class TestTickets6000(ITest):
 
     @pytest.mark.broken(ticket="11539")
     def test5684(self):
