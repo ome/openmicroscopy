@@ -303,23 +303,62 @@ class TestGetObject (object):
         # params limit query by owner
         params = omero.sys.Parameters()
         params.theFilter = omero.sys.Filter()
+        conn = gatewaywrapper.gateway
 
         # should be no Projects owned by root (in the current group)
         params.theFilter.ownerId = omero.rtypes.rlong(0)  # owned by 'root'
-        pros = gatewaywrapper.gateway.getObjects("Project", None, params)
+        pros = conn.getObjects("Project", None, params)
+        assert len(list(pros)) == 0, "Should be no Projects owned by root"
+
+        # Also filter by owner using opts dict
+        pros = conn.getObjects("Project", None, opts={'owner': 0})
         assert len(list(pros)) == 0, "Should be no Projects owned by root"
 
         # filter by current user should get same as above. # owned by 'author'
         params.theFilter.ownerId = omero.rtypes.rlong(
-            gatewaywrapper.gateway.getEventContext().userId)
-        pros = list(gatewaywrapper.gateway.getObjects(
+            conn.getEventContext().userId)
+        pros = list(conn.getObjects(
             "Project", None, params))
-        projects = list(gatewaywrapper.gateway.listProjects())
+        projects = list(conn.listProjects())
         # check unordered lists are the same length & ids
         assert len(pros) == len(projects)
         projectIds = [p.getId() for p in projects]
         for p in pros:
             assert p.getId() in projectIds
+
+    def testPagination(self, gatewaywrapper):
+        gatewaywrapper.loginAsAuthor()
+        params = omero.sys.ParametersI()
+        # Only 3 images available
+        limit = 2
+        params.page(0, limit)
+        pros = list(gatewaywrapper.gateway.getObjects(
+            "Project", None, params))
+        assert len(pros) == limit
+
+        # Also using opts dict
+        pros = list(gatewaywrapper.gateway.getObjects(
+            "Project", None, opts={'offset': 0, 'limit': 2}))
+        assert len(pros) == limit
+
+    def testGetDatasetsByProject(self, gatewaywrapper):
+        gatewaywrapper.loginAsAuthor()
+        allDs = list(gatewaywrapper.gateway.getObjects("Dataset"))
+
+        # Get Datasets by project.listChildren()...
+        project = gatewaywrapper.getTestProject()
+        dsIds = [d.id for d in project.listChildren()]
+
+        # Get Datasets, filtering by project
+        p = {'project': project.id}
+        datasets = list(gatewaywrapper.gateway.getObjects("Dataset", opts=p))
+
+        # Check that not all Datasets are in Project (or test is invalid)
+        assert len(allDs) > len(dsIds)
+        # Should get same result both methods
+        assert len(datasets) == len(dsIds)
+        for d in datasets:
+            assert d.id in dsIds
 
     def testListExperimentersAndGroups(self, gatewaywrapper):
         gatewaywrapper.loginAsAuthor()
@@ -558,30 +597,25 @@ class TestGetObject (object):
         gatewaywrapper.loginAsUser()
         eid = gatewaywrapper.gateway.getUserId()
 
-        imageList = list()
+        # Create 5 images
         for i in range(0, 5):
-            imageList.append(gatewaywrapper.createTestImage(
-                imageName=(str(uuid.uuid1()))).getName())
+            gatewaywrapper.createTestImage(imageName=str(uuid.uuid1()))
 
-        findImages = list(gatewaywrapper.gateway.listOrphans("Image"))
-        assert len(findImages) == 5, "Did not find orphaned images"
-
-        for p in findImages:
-            assert not p._obj.pixelsLoaded
-            assert p.getName() in imageList, \
-                "All images should have queried name"
-
+        # Pagination, loading pixels
         params = omero.sys.ParametersI()
         params.page(1, 3)
         findImagesInPage = list(gatewaywrapper.gateway.listOrphans(
             "Image", eid=eid, params=params, loadPixels=True))
         assert len(findImagesInPage) == 3, \
             "Did not find orphaned images in page"
-
         for p in findImagesInPage:
             assert p._obj.pixelsLoaded
 
+        # All orphans, no pixels
+        findImages = list(gatewaywrapper.gateway.listOrphans("Image"))
+        orphanedCount = len(findImages)
         for p in findImages:
+            assert not p._obj.pixelsLoaded
             client = p._conn
             handle = client.deleteObjects(
                 'Image', [p.getId()], deleteAnns=True)
@@ -589,6 +623,15 @@ class TestGetObject (object):
                 client._waitOnCmd(handle)
             finally:
                 handle.close()
+
+        # Check this AFTER delete
+        # If test fails with previously undeleted images,
+        # it should pass when re-run since images are deleted above
+        assert orphanedCount == 5, "Did not find orphaned images"
+
+        # Simply check this doesn't fail See https://github.com/
+        # openmicroscopy/openmicroscopy/pull/4950#issuecomment-264142956
+        list(gatewaywrapper.gateway.listOrphans("Dataset"))
 
     def testOrderById(self, gatewaywrapper):
         gatewaywrapper.loginAsUser()

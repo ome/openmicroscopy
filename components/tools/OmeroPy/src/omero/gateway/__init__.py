@@ -270,14 +270,39 @@ class BlitzObjectWrapper (object):
             return obj
         return obj.getValue()
 
-    def _getQueryString(self):
+    def _getQueryString(self, opts=None):
         """
         Used for building queries in generic methods
-        such as getObjects("Project")
+        such as getObjects("Project").
+        Returns a tuple of (query, clauses, params).
+        Overridden by sub-classes to specify loading of different
+        portions of the graph.
+        Different sub-classes may allow some control over what's loaded
+        and filtering of the query using various opts arguments.
+        Opts:
+        'child_count': boolean      If true, this will produce a 'projection'
+                                    query that also selects child_count for
+                                    objects that have a LINK_CLASS
+        See different sub-classes for additional opts.
+
+        :param opts:        Dictionary of optional parameters.
+        :return:            Tuple of string, list, ParametersI
         """
-        return ("select obj from %s obj join fetch obj.details.owner "
-                "as owner join fetch obj.details.group "
-                "join fetch obj.details.creationEvent" % self.OMERO_CLASS)
+        extra_select = ""
+        child_count = False
+        if opts is not None and 'child_count' in opts:
+            child_count = opts['child_count']
+        if child_count and self.LINK_CLASS is not None:
+            extra_select = """, (select count(id) from %s chl
+                      where chl.parent=obj.id)""" % self.LINK_CLASS
+        query = ("select obj %s from %s obj "
+                 "join fetch obj.details.owner as owner "
+                 "join fetch obj.details.creationEvent" %
+                 (extra_select, self.OMERO_CLASS))
+
+        params = omero.sys.ParametersI()
+        clauses = []
+        return (query, clauses, params)
 
     def _getChildWrapper(self):
         """
@@ -2586,6 +2611,7 @@ class _BlitzGateway (object):
 
         wrapper = KNOWN_WRAPPERS.get(obj_type.lower(), None)
         query = wrapper()._getQueryString()
+        query = wrapper()._getQueryString()[0]
 
         if loadPixels and obj_type == 'Image':
             # left outer join so we don't exclude
@@ -3014,7 +3040,7 @@ class _BlitzGateway (object):
             return wrapper(self, result)
 
     def getObjects(self, obj_type, ids=None, params=None, attributes=None,
-                   respect_order=False):
+                   respect_order=False, opts=None):
         """
         Retrieve Objects by type E.g. "Image"
         Returns generator of appropriate :class:`BlitzObjectWrapper` type.
@@ -3027,18 +3053,26 @@ class _BlitzGateway (object):
         :param ids:         object IDs
         :type ids:          List of Long
         :param params:      omero.sys.Parameters, can be used for pagination,
-                            filtering etc.
-        :param attributes:  Map of key-value pairs to filter results by.
+                            & filtering by owner. Takes precedence over opts.
+        :param attributes:  Dict of key-value pairs to filter results by.
                             Key must be attribute of obj_type.
                             E.g. 'name', 'ns'
         :param respect_order:   Returned items will be ordered according
                                 to the order of ids
+        :param opts:        Dict of additional options for filtering or
+                            defining extra data to load.
+                            offset, limit and owner for all objects.
+                            Additional opts handled by _getQueryString()
+                            E.g. 'childCount', or filter Dataset by 'project'
         :return:            Generator of :class:`BlitzObjectWrapper` subclasses
         """
         query, params, wrapper = self.buildQuery(
-            obj_type, ids, params, attributes)
-        result = self.getQueryService().findAllByQuery(
-            query, params, self.SERVICE_OPTS)
+            obj_type, ids, params, attributes, opts)
+        qs = self.getQueryService()
+        # we do projection in case query has extra selects (E.g. child_count)
+        result = qs.projection(query, params, self.SERVICE_OPTS)
+        # unwrap projected objects
+        result = [unwrap(r[0]) for r in result]
         if respect_order and ids is not None:
             idMap = {}
             for r in result:
@@ -3048,7 +3082,8 @@ class _BlitzGateway (object):
         for r in result:
             yield wrapper(self, r)
 
-    def buildQuery(self, obj_type, ids=None, params=None, attributes=None):
+    def buildQuery(self, obj_type, ids=None, params=None, attributes=None,
+                   opts=None):
         """
         Prepares a query for iQuery. Also prepares params and determines
         appropriate wrapper for result Returns (query, params, wrapper) which
@@ -3060,10 +3095,15 @@ class _BlitzGateway (object):
         :param ids:         object IDs
         :type ids:          List of Long
         :param params:      omero.sys.Parameters, can be used for pagination,
-                            filtering etc.
-        :param attributes:  Map of key-value pairs to filter results by.
+                            & filtering by owner. Takes precedence over opts.
+        :param attributes:  Dict of key-value pairs to filter results by.
                             Key must be attribute of obj_type.
                             E.g. 'name', 'ns'
+        :param opts:        Dict of additional options for filtering or
+                            defining extra data to load.
+                            offset, limit and owner for all objects.
+                            Additional opts handled by _getQueryString()
+                            E.g. 'childCount', or filter Dataset by 'project'
         :return:            (query, params, wrapper)
         """
 
@@ -3078,38 +3118,65 @@ class _BlitzGateway (object):
                 "getObjects uses a string to define obj_type, E.g. "
                 "'Image' not %r" % obj_type)
 
-        if params is None:
-            params = omero.sys.Parameters()
-        if params.map is None:
-            params.map = {}
+        owner = None
+        order_by = None
+        offset = None
+        limit = None
 
         # get the base query from the instantiated object itself. E.g "select
         # obj Project as obj"
-        query = wrapper()._getQueryString()
+        query, clauses, baseParams = wrapper()._getQueryString(opts)
 
-        clauses = []
+        # Handle dict of parameters -> convert to ParametersI()
+        if opts is not None:
+            # Parse opts dict to build params
+            if 'offset' in opts and 'limit' in opts:
+                limit = opts['limit']
+                offset = opts['offset']
+            if 'owner' in opts:
+                owner = rlong(opts['owner'])
+            if 'order_by' in opts:
+                order_by = opts['order_by']
+        # Handle additional Parameters - need to retrieve owner filter
+        if params is not None and params.theFilter is not None:
+            if params.theFilter.ownerId is not None:
+                owner = params.theFilter.ownerId
+            # pagination
+            ofs = params.theFilter.offset
+            lmt = params.theFilter.limit
+            if ofs is not None and lmt is not None:
+                offset = ofs.val
+                limit = lmt.val
+            # Other params args will be ignored unless we handle here
+
+        if limit is not None and offset is not None:
+            baseParams.page(offset, limit)
+
         # getting object by ids
         if ids is not None:
             clauses.append("obj.id in (:ids)")
-            params.map["ids"] = rlist([rlong(a) for a in ids])
+            baseParams.map["ids"] = rlist([rlong(a) for a in ids])
 
         # support filtering by owner (not for some object types)
-        if (params.theFilter and
-                params.theFilter.ownerId and
+        if (owner is not None and
                 obj_type.lower() not in
                 ["experimentergroup", "experimenter"]):
             clauses.append("owner.id = (:eid)")
-            params.map["eid"] = params.theFilter.ownerId
+            baseParams.map["eid"] = owner
 
         # finding by attributes
         if attributes is not None:
             for k, v in attributes.items():
                 clauses.append('obj.%s=:%s' % (k, k))
-                params.map[k] = omero_type(v)
+                baseParams.map[k] = omero_type(v)
         if clauses:
             query += " where " + (" and ".join(clauses))
 
-        return (query, params, wrapper)
+        # Order by...
+        if order_by is not None:
+            query += " order by lower(obj.%s), obj.id" % order_by
+
+        return (query, baseParams, wrapper)
 
     def listFileAnnotations(self, eid=None, toInclude=[], toExclude=[]):
         """
@@ -4513,15 +4580,20 @@ class AnnotationWrapper (BlitzObjectWrapper):
                 self.getValue() == a.getValue() and
                 self.getNs() == a.getNs())
 
-    def _getQueryString(self):
+    def _getQueryString(self, opts=None):
         """
         Used for building queries in generic methods such as
         getObjects("Annotation")
+        Returns a tuple of (query, clauses, params).
+
+        :param opts:        Dictionary of optional parameters.
+                            NB: No options supported for this class.
+        :return:            Tuple of string, list, ParametersI
         """
-        return ("select obj from Annotation obj "
-                "join fetch obj.details.owner as owner "
-                "join fetch obj.details.group "
-                "join fetch obj.details.creationEvent")
+        query = ("select obj from Annotation obj "
+                 "join fetch obj.details.owner as owner "
+                 "join fetch obj.details.creationEvent")
+        return query, [], omero.sys.ParametersI()
 
     @classmethod
     def _register(klass, regklass):
@@ -4673,15 +4745,20 @@ class FileAnnotationWrapper (AnnotationWrapper, OmeroRestrictionWrapper):
 
     _attrs = ('file|OriginalFileWrapper',)
 
-    def _getQueryString(self):
+    def _getQueryString(self, opts=None):
         """
         Used for building queries in generic methods such as
-        getObjects("FileAnnotation")
+        getObjects("FileAnnotation").
+        Returns a tuple of (query, clauses, params).
+
+        :param opts:        Dictionary of optional parameters.
+                            NB: No options supported for this class.
+        :return:            Tuple of string, list, ParametersI
         """
-        return ("select obj from FileAnnotation obj "
-                "join fetch obj.details.owner as owner "
-                "join fetch obj.details.group "
-                "join fetch obj.details.creationEvent join fetch obj.file")
+        query = ("select obj from FileAnnotation obj "
+                 "join fetch obj.details.owner as owner "
+                 "join fetch obj.details.creationEvent join fetch obj.file")
+        return query, [], omero.sys.ParametersI()
 
     def getValue(self):
         """ Not implemented """
@@ -4815,15 +4892,20 @@ class TimestampAnnotationWrapper (AnnotationWrapper):
 
     OMERO_TYPE = TimestampAnnotationI
 
-    def _getQueryString(self):
+    def _getQueryString(self, opts=None):
         """
         Used for building queries in generic methods such as
-        getObjects("TimestampAnnotation")
+        getObjects("TimestampAnnotation").
+        Returns a tuple of (query, clauses, params).
+
+        :param opts:        Dictionary of optional parameters.
+                            NB: No options supported for this class.
+        :return:            Tuple of string, list, ParametersI
         """
-        return ("select obj from TimestampAnnotation obj "
-                "join fetch obj.details.owner as owner "
-                "join fetch obj.details.group "
-                "join fetch obj.details.creationEvent")
+        query = ("select obj from TimestampAnnotation obj "
+                 "join fetch obj.details.owner as owner "
+                 "join fetch obj.details.creationEvent")
+        return query, [], omero.sys.ParametersI()
 
     def getValue(self):
         """
@@ -4864,15 +4946,20 @@ class BooleanAnnotationWrapper (AnnotationWrapper):
 
     OMERO_TYPE = BooleanAnnotationI
 
-    def _getQueryString(self):
+    def _getQueryString(self, opts=None):
         """
         Used for building queries in generic methods such as
-        getObjects("BooleanAnnotation")
+        getObjects("BooleanAnnotation").
+        Returns a tuple of (query, clauses, params).
+
+        :param opts:        Dictionary of optional parameters.
+                            NB: No options supported for this class.
+        :return:            Tuple of string, list, ParametersI
         """
-        return ("select obj from BooleanAnnotation obj "
-                "join fetch obj.details.owner as owner "
-                "join fetch obj.details.group "
-                "join fetch obj.details.creationEvent")
+        query = ("select obj from BooleanAnnotation obj "
+                 "join fetch obj.details.owner as owner "
+                 "join fetch obj.details.creationEvent")
+        return query, [], omero.sys.ParametersI()
 
     def getValue(self):
         """
@@ -4950,15 +5037,20 @@ class TagAnnotationWrapper (AnnotationWrapper):
                         self._conn, l.parent, l))
         return rv
 
-    def _getQueryString(self):
+    def _getQueryString(self, opts=None):
         """
         Used for building queries in generic methods such as
-        getObjects("TagAnnotation")
+        getObjects("TagAnnotation").
+        Returns a tuple of (query, clauses, params).
+
+        :param opts:        Dictionary of optional parameters.
+                            NB: No options supported for this class.
+        :return:            Tuple of string, list, ParametersI
         """
-        return ("select obj from TagAnnotation obj "
-                "join fetch obj.details.owner as owner "
-                "join fetch obj.details.group "
-                "join fetch obj.details.creationEvent")
+        query = ("select obj from TagAnnotation obj "
+                 "join fetch obj.details.owner as owner "
+                 "join fetch obj.details.creationEvent")
+        return query, [], omero.sys.ParametersI()
 
     def getValue(self):
         """
@@ -4992,15 +5084,20 @@ class CommentAnnotationWrapper (AnnotationWrapper):
 
     OMERO_TYPE = CommentAnnotationI
 
-    def _getQueryString(self):
+    def _getQueryString(self, opts=None):
         """
         Used for building queries in generic methods such as
-        getObjects("CommentAnnotation")
+        getObjects("CommentAnnotation").
+        Returns a tuple of (query, clauses, params).
+
+        :param opts:        Dictionary of optional parameters.
+                            NB: No options supported for this class.
+        :return:            Tuple of string, list, ParametersI
         """
-        return ("select obj from CommentAnnotation obj "
-                "join fetch obj.details.owner as owner "
-                "join fetch obj.details.group "
-                "join fetch obj.details.creationEvent")
+        query = ("select obj from CommentAnnotation obj "
+                 "join fetch obj.details.owner as owner "
+                 "join fetch obj.details.creationEvent")
+        return query, [], omero.sys.ParametersI()
 
     def getValue(self):
         """
@@ -5032,15 +5129,20 @@ class LongAnnotationWrapper (AnnotationWrapper):
     """
     OMERO_TYPE = LongAnnotationI
 
-    def _getQueryString(self):
+    def _getQueryString(self, opts=None):
         """
         Used for building queries in generic methods such as
-        getObjects("LongAnnotation")
+        getObjects("LongAnnotation").
+        Returns a tuple of (query, clauses, params).
+
+        :param opts:        Dictionary of optional parameters.
+                            NB: No options supported for this class.
+        :return:            Tuple of string, list, ParametersI
         """
-        return ("select obj from LongAnnotation obj "
-                "join fetch obj.details.owner as owner "
-                "join fetch obj.details.group "
-                "join fetch obj.details.creationEvent")
+        query = ("select obj from LongAnnotation obj "
+                 "join fetch obj.details.owner as owner "
+                 "join fetch obj.details.creationEvent")
+        return query, [], omero.sys.ParametersI()
 
     def getValue(self):
         """
@@ -5073,15 +5175,20 @@ class DoubleAnnotationWrapper (AnnotationWrapper):
     """
     OMERO_TYPE = DoubleAnnotationI
 
-    def _getQueryString(self):
+    def _getQueryString(self, opts=None):
         """
         Used for building queries in generic methods such as
-        getObjects("DoubleAnnotation")
+        getObjects("DoubleAnnotation").
+        Returns a tuple of (query, clauses, params).
+
+        :param opts:        Dictionary of optional parameters.
+                            NB: No options supported for this class.
+        :return:            Tuple of string, list, ParametersI
         """
-        return ("select obj from DoubleAnnotation obj "
-                "join fetch obj.details.owner as owner "
-                "join fetch obj.details.group "
-                "join fetch obj.details.creationEvent")
+        query = ("select obj from DoubleAnnotation obj "
+                 "join fetch obj.details.owner as owner "
+                 "join fetch obj.details.creationEvent")
+        return query, [], omero.sys.ParametersI()
 
     def getValue(self):
         """
@@ -5115,15 +5222,20 @@ class TermAnnotationWrapper (AnnotationWrapper):
     """
     OMERO_TYPE = TermAnnotationI
 
-    def _getQueryString(self):
+    def _getQueryString(self, opts=None):
         """
         Used for building queries in generic methods such as
-        getObjects("TermAnnotation")
+        getObjects("TermAnnotation").
+        Returns a tuple of (query, clauses, params).
+
+        :param opts:        Dictionary of optional parameters.
+                            NB: No options supported for this class.
+        :return:            Tuple of string, list, ParametersI
         """
-        return ("select obj from TermAnnotation obj "
-                "join fetch obj.details.owner as owner "
-                "join fetch obj.details.group "
-                "join fetch obj.details.creationEvent")
+        query = ("select obj from TermAnnotation obj "
+                 "join fetch obj.details.owner as owner "
+                 "join fetch obj.details.creationEvent")
+        return query, [], omero.sys.ParametersI()
 
     def getValue(self):
         """
@@ -5234,13 +5346,20 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
              'isAdmin': isAdmin, })
         return rv
 
-    def _getQueryString(self):
+    def _getQueryString(self, opts=None):
         """
         Returns string for building queries, loading Experimenters only.
+
+        Returns a tuple of (query, clauses, params).
+
+        :param opts:        Dictionary of optional parameters.
+                            NB: No options supported for this class.
+        :return:            Tuple of string, list, ParametersI
         """
-        return ("select distinct obj from Experimenter as obj "
-                "left outer join fetch obj.groupExperimenterMap as map "
-                "left outer join fetch map.parent g")
+        query = ("select distinct obj from Experimenter as obj "
+                 "left outer join fetch obj.groupExperimenterMap as map "
+                 "left outer join fetch map.parent g")
+        return query, [], omero.sys.ParametersI()
 
     def getRawPreferences(self):
         """
@@ -5462,15 +5581,20 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
         self.CHILD_WRAPPER_CLASS = 'ExperimenterWrapper'
         self.PARENT_WRAPPER_CLASS = None
 
-    def _getQueryString(self):
+    def _getQueryString(self, opts=None):
         """
         Returns string for building queries, loading Experimenters for each
         group.
+        Returns a tuple of (query, clauses, params).
+
+        :param opts:        Dictionary of optional parameters.
+                            NB: No options supported for this class.
+        :return:            Tuple of string, list, ParametersI
         """
         query = ("select distinct obj from ExperimenterGroup as obj "
                  "left outer join fetch obj.groupExperimenterMap as map "
                  "left outer join fetch map.child e")
-        return query
+        return query, [], omero.sys.ParametersI()
 
     def groupSummary(self, exclude_self=False):
         """
@@ -5554,6 +5678,23 @@ class _DatasetWrapper (BlitzObjectWrapper):
         self.LINK_CLASS = "DatasetImageLink"
         self.CHILD_WRAPPER_CLASS = 'ImageWrapper'
         self.PARENT_WRAPPER_CLASS = 'ProjectWrapper'
+
+    def _getQueryString(self, opts=None):
+        """
+        Extend base query to handle filtering of Datasets by Projects.
+        Returns a tuple of (query, clauses, params).
+        Supported opts: 'project': <project_id> to filter by Project
+
+        :param opts:        Dictionary of optional parameters.
+        :return:            Tuple of string, list, ParametersI
+        """
+        query, clauses, params = super(
+            _DatasetWrapper, self)._getQueryString(opts)
+        if opts is not None and 'project' in opts:
+            query += ' join obj.projectLinks plink'
+            clauses.append('plink.parent.id = :pid')
+            params.add('pid', rlong(opts['project']))
+        return (query, clauses, params)
 
     def __loadedHotSwap__(self):
         """
@@ -5807,18 +5948,22 @@ class _PlateWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         """
         return None
 
-    def _getQueryString(self):
+    def _getQueryString(self, opts=None):
         """
         Returns a query string for constructing custom queries,
         loading the screen for each plate.
+        Returns a tuple of (query, clauses, params).
+
+        :param opts:        Dictionary of optional parameters.
+                            NB: No options supported for this class.
+        :return:            Tuple of string, list, ParametersI
         """
         query = ("select obj from Plate as obj "
                  "join fetch obj.details.owner as owner "
-                 "join fetch obj.details.group "
                  "join fetch obj.details.creationEvent "
                  "left outer join fetch obj.screenLinks spl "
                  "left outer join fetch spl.parent sc")
-        return query
+        return query, [], omero.sys.ParametersI()
 
 PlateWrapper = _PlateWrapper
 
@@ -6576,15 +6721,21 @@ class _FilesetWrapper (BlitzObjectWrapper):
     def __bstrap__(self):
         self.OMERO_CLASS = 'Fileset'
 
-    def _getQueryString(self):
+    def _getQueryString(self, opts=None):
         """
         Used for building queries in generic methods such as
-        getObjects("Fileset")
+        getObjects("Fileset").
+        Returns a tuple of (query, clauses, params).
+
+        :param opts:        Dictionary of optional parameters.
+                            NB: No options supported for this class.
+        :return:            Tuple of string, list, ParametersI
         """
-        return "select obj from Fileset obj "\
+        query = "select obj from Fileset obj "\
             "left outer join fetch obj.images as image "\
             "left outer join fetch obj.usedFiles as usedFile " \
             "join fetch usedFile.originalFile"
+        return query, [], omero.sys.ParametersI()
 
     def copyImages(self):
         """ Returns a list of :class:`ImageWrapper` linked to this Fileset """
