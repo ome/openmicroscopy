@@ -512,6 +512,7 @@ $(function() {
                 $.ajax({
                     url: url,
                     data: payload,
+                    cache: false,
                     success: function (data, textStatus, jqXHR) {
                         callback.call(this, data);
                     },

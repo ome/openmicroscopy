@@ -202,6 +202,7 @@ var tagging_form = function(
             }
             $.ajax({
                 url: url,
+                cache: false,
                 dataType: 'json',
                 success: callback
             });
