@@ -540,6 +540,16 @@ Click Next Thumbnail
 Click Next Well
     Click Element  xpath=//td[contains(@class, 'well')][contains(@class, 'ui-selected')]/following-sibling::td/img
 
+
+Thumbnail Should Be Selected
+    [Arguments]     ${imageId}    ${expected}=${true}
+    Run Keyword If  ${expected}   Wait Until Page Contains Element    xpath=//li[@id='image_icon-${imageId}' and contains(@class, 'ui-selected')]
+    ...             ELSE          Wait Until Page Contains Element    xpath=//li[@id='image_icon-${imageId}' and not(contains(@class, 'ui-selected'))]
+
+Thumbnail Should Not Be Selected
+    [Arguments]                     ${imageId}
+    Thumbnail Should Be Selected    ${imageId}    ${false}
+
 Get Id From Selected Item In Tree
     # Wait Until Element Is Visible xpath=//li::a[contains(@class, 'jstree-clicked')]
     ${dataId}=                      Get Element Attribute    xpath=//li[contains(@class,'jstree-leaf')][descendant::a[contains(@class, 'jstree-clicked')]]@data-id
@@ -552,15 +562,6 @@ Get Id From Selected Thumbnail
 Get Id From Right Panel
     ${dataId}=                      Get Text                css=tr.data_heading_id strong
     [return]                        ${dataId}
-
-Thumbnail Should Be Selected
-    [Arguments]     ${imageId}    ${expected}=${true}
-    Run Keyword If  ${expected}   Wait Until Page Contains Element    xpath=//li[@id='image_icon-${imageId}' and contains(@class, 'ui-selected')]
-    ...             ELSE          Wait Until Page Contains Element    xpath=//li[@id='image_icon-${imageId}' and not(contains(@class, 'ui-selected'))]
-
-Thumbnail Should Not Be Selected
-    [Arguments]                     ${imageId}
-    Thumbnail Should Be Selected    ${imageId}    ${false}
 
 Shift Click Node
     [Arguments]                     ${nodeId}
