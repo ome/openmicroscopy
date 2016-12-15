@@ -35,7 +35,6 @@ import org.apache.commons.collections.CollectionUtils;
 
 import omero.romio.PlaneDef;
 
-import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsChanged;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlShutDown;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
@@ -180,6 +179,15 @@ class RendererModel
     /** he alternative rendering settings if any.*/
     private RndProxyDef def;
 
+    /** The images used to create the histogram. */
+    private Map<Integer, BufferedImage> histogramImages;
+
+    /** The data used to create the histogram. */
+    private Map<Integer, int[]> histogramData = new HashMap<Integer, int[]>();
+    
+    /** Reference to the {@link MetadataViewer} */
+    private MetadataViewer viewer;
+    
 	/**
 	 * Creates a new instance.
 	 *
@@ -188,13 +196,15 @@ class RendererModel
 	 *                   rendering settings. Mustn't be <code>null</code>.
 	 * @param rndIndex The index associated to the renderer.
 	 * @param def The alternative rendering settings if any.
+	 * @param viewer Reference to the {@link MetadataViewer}
 	 */
 	RendererModel(SecurityContext ctx, RenderingControl rndControl,
-			int rndIndex, RndProxyDef def)
+			int rndIndex, RndProxyDef def, MetadataViewer viewer)
 	{
 		if (rndControl == null)
 			throw new NullPointerException("No rendering control.");
 		setRenderingControl(rndControl);
+		this.viewer = viewer;
 		this.ctx = ctx;
 		this.rndIndex = rndIndex;
 		visible = false;
@@ -203,6 +213,12 @@ class RendererModel
 		plane = new PlaneDef();
 		plane.slice = omero.romio.XY.value;
 		this.def = def;
+		
+        try {
+            renderHistogramImages();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 	}
 
 	/**
@@ -212,6 +228,15 @@ class RendererModel
 	 */
 	SecurityContext getSecurityContext() { return ctx; }
 
+    /**
+     * Get the reference to the {@link MetadataViewer}
+     * 
+     * @return See above
+     */
+    MetadataViewer getViewer() {
+        return viewer;
+    }
+	
 	/**
 	 * Sets the image the component is for.
 	 * 
@@ -850,12 +875,14 @@ class RendererModel
 		return rndControl.isActive(w);
 	}
 
-	/**
-         * Returns the reference to the history
-         */
-	RenderingDefinitionHistory getRndDefHistory() {
-	    return history;
-	}
+    /**
+     * Returns the reference to the history
+     * 
+     * @return See above
+     */
+    RenderingDefinitionHistory getRndDefHistory() {
+        return history;
+    }
 	
 	/**
 	 * Returns a list of active channels.
@@ -1266,8 +1293,8 @@ class RendererModel
 	
 	/**
 	 * Undoes the last change to the rendering settings
-	 * @throws RenderingServiceException
-	 * @throws DSOutOfServiceException
+	 * @throws RenderingServiceException If an error occurred
+     * @throws DSOutOfServiceException If the connection is broken.
 	 */
 	void historyBack() throws RenderingServiceException, DSOutOfServiceException {
 	        if (rndControl == null)
@@ -1286,8 +1313,8 @@ class RendererModel
 	
 	/**
 	 * Redoes the previous change to the rendering settings
-	 * @throws RenderingServiceException
-	 * @throws DSOutOfServiceException
+	 * @throws RenderingServiceException If an error occurred
+     * @throws DSOutOfServiceException If the connection is broken.
 	 */
 	void historyForward() throws RenderingServiceException, DSOutOfServiceException {
 	        RndProxyDef def = history.forward();
@@ -1427,6 +1454,7 @@ class RendererModel
     /**
      * Returns <code>true</code> if the image with the active channels
      * is an RGB image, <code>false</code> otherwise.
+     * @param channels  The channels
      * 
      * @return See above.
      */
@@ -1442,6 +1470,8 @@ class RendererModel
      * @param tableID  The id of the table.
      * @param overlays The overlays to set, or <code>null</code> to turn
      * the overlays off.
+     * @throws RenderingServiceException If an error occurred
+     * @throws DSOutOfServiceException If the connection is broken.
      */
     void setOverlays(long tableID, Map<Long, Integer> overlays)
     	throws RenderingServiceException, DSOutOfServiceException
@@ -1580,6 +1610,8 @@ class RendererModel
 	 *
 	 * @param bin The selected bin.
 	 * @param t The selected t.
+	 * @throws RenderingServiceException If an error occurred.
+     * @throws DSOutOfServiceException If the connection is broken. 
 	 */
 	void setSelectedBin(int bin, int t)
 		throws RenderingServiceException, DSOutOfServiceException
@@ -1605,6 +1637,8 @@ class RendererModel
 	 * Returns the dimension of a tile.
 	 * 
 	 * @return See above.
+	 * @throws RenderingServiceException If an error occurred
+     * @throws DSOutOfServiceException If the connection is broken.
 	 */
 	Dimension getTileSize()
 		throws RenderingServiceException, DSOutOfServiceException
@@ -1642,6 +1676,8 @@ class RendererModel
 	 * large images.
 	 *
 	 * @param level The value to set.
+	 * @throws RenderingServiceException If an error occurred
+     * @throws DSOutOfServiceException If the connection is broken.
 	 */
 	void setSelectedResolutionLevel(int level)
 		throws RenderingServiceException, DSOutOfServiceException
@@ -1694,6 +1730,8 @@ class RendererModel
 	 * Returns the list of the levels.
 	 * 
 	 * @return See above.
+	 * @throws RenderingServiceException If an error occurred.
+     * @throws DSOutOfServiceException If the connection is broken.
 	 */
 	List<ResolutionLevel> getResolutionDescriptions()
 	throws RenderingServiceException, DSOutOfServiceException
@@ -1763,6 +1801,63 @@ class RendererModel
                 || t.equals(OmeroImageService.UINT_32);
 	}
 
+    
+    /**
+     * Returns the image used to create the histogram. This is grey scale image.
+     *
+     * @param channelIndex
+     *            The index of the channel.
+     * @return See above.
+     */
+    BufferedImage getHistogramImage(int channelIndex) {
+        return histogramImages.get(channelIndex);
+    }
+
+    /**
+     * Renders the images used to build an histogram. The global min and global
+     * max are used for the full range.
+     * @throws RenderingServiceException If an error occurred.
+     * @throws DSOutOfServiceException If the connection is broken. 
+     */
+    void renderHistogramImages() throws RenderingServiceException,
+            DSOutOfServiceException {
+        histogramImages = new HashMap<Integer, BufferedImage>();
+        int maxC = getMaxC();
+        rndControl.setModel(Renderer.GREY_SCALE_MODEL);
+        plane.t = getDefaultT();
+        plane.z = getDefaultZ();
+        for (int j = 0; j < maxC; j++) {
+            for (int i = 0; i < maxC; i++) {
+                rndControl.setActive(i, j == i);
+            }
+            rndControl.setChannelWindow(j, getGlobalMin(j), getGlobalMax(j));
+            histogramImages.put(j, rndControl.render(plane));
+        }
+        resetRenderingSettings();
+    }
+
+    /**
+     * Set the histogram data for the given channel
+     * @param channelIndex The channel index
+     * @param data The data
+     */
+    public void setHistogramData(int channelIndex, int[] data) {
+        histogramData.put(channelIndex, data);
+    }
+
+    /**
+     * Get the histogram data for the given channel
+     * @param channelIndex The channel index
+     * @return See above.
+     */
+    public int[] getHistogramData(int channelIndex) {
+        return histogramData.get(channelIndex);
+    }
+    
+    /**
+     * Get the available lookup tables
+     * @return See above.
+     */
     public Collection<String> getAvailableLookupTables() {
         if (rndControl == null)
             return null;

@@ -44,7 +44,7 @@ class TestExportScripts(ScriptTest):
         # x,y,z,c,t
         image = self.create_test_image(100, 100, 1, 1, 1, client.getSession())
         image_ids = []
-        image_ids.append(omero.rtypes.rlong(image.getId().getValue()))
+        image_ids.append(omero.rtypes.rlong(image.id.val))
         args = {
             "Data_Type": omero.rtypes.rstring("Image"),
             "IDs": omero.rtypes.rlist(image_ids)
@@ -61,7 +61,7 @@ class TestExportScripts(ScriptTest):
         # x,y,z,c,t
         image = self.create_test_image(100, 100, 1, 1, 1, client.getSession())
         image_ids = []
-        image_ids.append(omero.rtypes.rlong(image.getId().getValue()))
+        image_ids.append(omero.rtypes.rlong(image.id.val))
         args = {
             "Data_Type": omero.rtypes.rstring("Image"),
             "IDs": omero.rtypes.rlist(image_ids)

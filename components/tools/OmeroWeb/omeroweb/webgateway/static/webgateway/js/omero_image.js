@@ -248,9 +248,12 @@
         if (on_batchCopyRDefs) {
             return batchCopyRDefs_action('ok');
         }
-        var revInt;
+        var revInt, active;
         for (var i=0; i<viewport.getCCount(); i++) {
-            viewport.setChannelActive(i, $('#rd-wblitz-ch'+i).get(0).checked, true);
+            active = $('#rd-wblitz-ch'+i).get(0).checked;
+            if (active !== viewport.loadedImg.channels[i].active) {
+                viewport.setChannelActive(i, active, true);
+            }
             viewport.setChannelColor(i, $('#wblitz-ch'+i+'-color').attr('data-color'), true);
             revInt = $('#wblitz-ch'+i+'-color').data('data-reverse-intensity');
             if (revInt !== undefined) {viewport.setChannelReverseIntensity(i, revInt, true);}
@@ -300,9 +303,9 @@
 
 
     // Used in the Image viewer and in metadata general panel
-    window.loadBulkAnnotations = function(url, wellId, callback) {
+    window.loadBulkAnnotations = function(url, query, callback) {
         // Load bulk annotations for screen or plate
-        $.getJSON(url + '?query=Well-' + wellId + '&callback=?',
+        $.getJSON(url + '?query=' + query + '&callback=?',
             function(result) {
                 if (result.data && result.data.rows) {
                     var table = $("#bulk-annotations").show().next().show().children("table");
@@ -351,6 +354,7 @@
                 viewport.toggleChannel(index);
                 viewport.save_channels();
                 updateUndoRedo(viewport);
+                viewport.self.trigger('channelToggle', [viewport, index, viewport.loadedImg.channels[index]]);
             };
         };
         for (i=0; i<channels.length; i++) {
@@ -399,6 +403,12 @@
           '<td><button id="wblitz-ch$idx0-color" class="picker squarred" title="Choose Color">&nbsp;</button></td>' +
           '</tr>';
 
+        $('#rdef-postit table').on('focus', '.rangewidget input', function(){
+            // id is wblitz-ch1-cw-start or wblitz-ch1-cw-end
+            var chIdx = this.id.replace('wblitz-ch', '').split('-')[0];
+            chIdx = parseInt(chIdx, 10);
+            viewport.self.trigger('channelFocus', [viewport, chIdx, viewport.loadedImg.channels[i]]);
+        });
         tmp = $('#rdef-postit table tr:first');
         tmp.siblings().remove();
 
@@ -410,7 +420,6 @@
                     min = $sl.slider( "option", "min" );
                 $sl.slider('values', 0, Math.min(new_start, end));    // ensure start < end
                 $sl.slider( "option", "min", Math.min(min, new_start) );   // extend range if needed
-                show_change($('#wblitz-ch'+i+'-cw-start').get(0), channels[i].window.start, 'changed');
             };
         };
         var end_cb = function (i) {
@@ -421,7 +430,6 @@
                     max = $sl.slider( "option", "max" );
                 $sl.slider('values', 1, Math.max(new_end, start));    // ensure end > start
                 $sl.slider( "option", "max", Math.max(max, new_end) );   // extend range if needed
-                show_change($('#wblitz-ch'+i+'-cw-end').get(0), channels[i].window.end, 'changed');
             };
         };
         var slide_start_cb = function() {
@@ -442,6 +450,7 @@
                 } else if (ui.values[1] !== e) {
                     $('#wblitz-ch'+$(event.target).data('channel-idx')+'-cw-end').val(ui.values[1]).change();
                 }
+                viewport.self.trigger("channelSlide", [viewport, $(event.target).data('channel-idx'), ui.values[0], ui.values[1]]);
             };
         };
         var stop_cb = function() {
@@ -502,12 +511,8 @@
                 .replace(/\$cwl/g, channels[i].label) // Wavelength
                 .replace(/\$cls/g, i/2!=parseInt(i/2, 10)?'even':'odd') // class
             );
-            $('#wblitz-ch'+(i)+'-cw').rangewidget({
-                min: channels[i].window.min,
-                max: channels[i].window.max,
-                template: '<td width="10%"><span class="min" title="min: $min">$start</span></td><td><div class="rangeslider" id="wblitz-ch'+i+'-cwslider"></div></td> <td width="10%"><span class="max" title="max: $max">$end</span></td>',
-                lblStart: '',
-                lblEnd: ''});
+
+            $('#wblitz-ch'+(i)+'-cw').append('<td width="10%"><span class="min" title="min: ' + channels[i].window.min + '"><input type="text" id="wblitz-ch' + i + '-cw-start" /></span></td><td><div class="rangeslider" id="wblitz-ch' + i + '-cwslider"></div></td> <td width="10%"><span class="max" title="max: ' + channels[i].window.max + '"><input type="text" id="wblitz-ch' + i + '-cw-end" /></span></td>');
             init_ch_slider(i, channels);
             $('#wblitz-ch'+i+'-cw-start').val(channels[i].window.start).unbind('change').bind('change', start_cb(i));
             $('#wblitz-ch'+i+'-cw-start').keyup(keyup_cb());
@@ -523,7 +528,6 @@
 
         /* Prepare color picker buttons */
         $(".picker").each(function(i, pickerBtn) {
-            console.log(this, channels[i].reverseIntensity);
             $(pickerBtn).data('data-reverse-intensity', channels[i].reverseIntensity);
         });
         $(".picker")

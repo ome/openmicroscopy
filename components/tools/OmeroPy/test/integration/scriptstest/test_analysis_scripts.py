@@ -31,6 +31,7 @@ from test.integration.scriptstest.script import check_file_annotation
 
 kymograph = "/omero/analysis_scripts/Kymograph.py"
 plot_profile = "/omero/analysis_scripts/Plot_Profile.py"
+kymograph_analysis = "/omero/analysis_scripts/Kymograph_Analysis.py"
 
 
 class TestAnalysisScripts(ScriptTest):
@@ -48,8 +49,8 @@ class TestAnalysisScripts(ScriptTest):
         # x,y,z,c,t
         session = client.getSession()
         image = self.create_test_image(size_x, size_y, 1, 2, size_t, session)
-        image_id = image.getId().getValue()
-        roi = create_roi(image_id, 0, size_x / 2, 0, size_y / 2, size_t)
+        image_id = image.id.val
+        roi = create_roi(image_id, 0, size_x / 2, 0, size_y / 2, size_t, True)
         session.getUpdateService().saveAndReturnObject(roi)
         image_ids = []
         image_ids.append(omero.rtypes.rlong(image_id))
@@ -63,7 +64,7 @@ class TestAnalysisScripts(ScriptTest):
 
         # check the result
         assert kymograph_img is not None
-        assert kymograph_img.getValue().getId().getValue() > 0
+        assert kymograph_img.getValue().id.val > 0
 
     def test_plot_profile(self):
         script_id = super(TestAnalysisScripts, self).get_script(plot_profile)
@@ -77,8 +78,8 @@ class TestAnalysisScripts(ScriptTest):
         size_y = 100
         session = client.getSession()
         image = self.create_test_image(size_x, size_y, 1, 2, size_t, session)
-        image_id = image.getId().getValue()
-        roi = create_roi(image_id, 0, size_x / 2, 0, size_y / 2, size_t)
+        image_id = image.id.val
+        roi = create_roi(image_id, 0, size_x / 2, 0, size_y / 2, size_t, True)
         session.getUpdateService().saveAndReturnObject(roi)
         image_ids = []
         image_ids.append(omero.rtypes.rlong(image_id))
@@ -92,8 +93,50 @@ class TestAnalysisScripts(ScriptTest):
         c = self.new_client(user=user)
         check_file_annotation(c, ann)
 
+    def test_kymograph_analysis(self):
+        script_id = super(TestAnalysisScripts, self).get_script(kymograph)
 
-def create_roi(image_id, x1, x2, y1, y2, size_t):
+        client, user = self.new_client_and_user()
+
+        # create a test image
+        size_t = 3
+        size_x = 100
+        size_y = 100
+        # x,y,z,c,t
+        session = client.getSession()
+        image = self.create_test_image(size_x, size_y, 1, 2, size_t, session)
+        image_id = image.id.val
+        roi = create_roi(image_id, 0, size_x / 2, 0, size_y / 2, size_t, True)
+        session.getUpdateService().saveAndReturnObject(roi)
+        image_ids = []
+        image_ids.append(omero.rtypes.rlong(image_id))
+        args = {
+            "Data_Type": omero.rtypes.rstring("Image"),
+            "IDs": omero.rtypes.rlist(image_ids),
+            "Line_Width": omero.rtypes.rint(5)
+        }
+
+        kymograph_img = run_script(client, script_id, args, "New_Image")
+        # now analyse the Kymograph image
+        sid = super(TestAnalysisScripts, self).get_script(kymograph_analysis)
+        assert sid > 0
+
+        image_id = kymograph_img.getValue().id.val
+        roi = create_roi(image_id, 0, 2, 0, 2, 1, False)
+        session.getUpdateService().saveAndReturnObject(roi)
+        image_ids = []
+        image_ids.append(omero.rtypes.rlong(image_id))
+        args = {
+            "Data_Type": omero.rtypes.rstring("Image"),
+            "IDs": omero.rtypes.rlist(image_ids)
+        }
+
+        ann = run_script(client, sid, args, "Line_Data")
+        c = self.new_client(user=user)
+        check_file_annotation(c, ann)
+
+
+def create_roi(image_id, x1, x2, y1, y2, size_t, with_polylines):
     """
     Create an ROI with lines and polylines.
     """
@@ -109,10 +152,11 @@ def create_roi(image_id, x1, x2, y1, y2, size_t):
         line.y2 = omero.rtypes.rdouble(y2)
         roi.addShape(line)
         # polylines on each timepoint
-        polyline = omero.model.PolylineI()
-        polyline.theZ = omero.rtypes.rint(0)
-        polyline.theT = omero.rtypes.rint(t)
-        points = [[10, 20], [50, 50], [75, 60]]
-        polyline.points = omero.rtypes.rstring(points_to_string(points))
-        roi.addShape(polyline)
+        if with_polylines:
+            polyline = omero.model.PolylineI()
+            polyline.theZ = omero.rtypes.rint(0)
+            polyline.theT = omero.rtypes.rint(t)
+            points = [[10, 20], [50, 50], [75, 60]]
+            polyline.points = omero.rtypes.rstring(points_to_string(points))
+            roi.addShape(polyline)
     return roi

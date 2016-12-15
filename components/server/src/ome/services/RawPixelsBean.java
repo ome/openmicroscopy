@@ -267,7 +267,11 @@ public class RawPixelsBean extends AbstractStatefulBean implements
             {
             	pixelsInstance = iQuery.findByQuery(
             			"select p from Pixels as p " +
-            			"join fetch p.pixelsType where p.id = :id",
+            			"join fetch p.pixelsType "+ 
+            			"left outer join fetch p.channels as c " +
+            			"left outer join fetch c.logicalChannel as lc " +
+            			"left outer join fetch c.statsInfo " +
+            			"where p.id = :id",
             			new Parameters().addId(id));
             }
 
@@ -704,8 +708,9 @@ public class RawPixelsBean extends AbstractStatefulBean implements
 
         try {
             for (int ch : channels) {
-                Channel channel = metadataService.retrievePixDescription(id)
-                        .getChannel(ch);
+                Channel channel = pixelsInstance.getChannel(ch);
+                if (channel == null)
+                    continue;
                 PixelData px = buffer.getPlane(z, ch, t);
                 int[] data = new int[binCount];
 
@@ -714,13 +719,19 @@ public class RawPixelsBean extends AbstractStatefulBean implements
                 double min = minmax[0];
                 double max = minmax[1];
 
-                double range = (max - min) + 1;
+                double range = max - min + 1;
                 double binRange = range / binCount;
                 for (int i = 0; i < px.size(); i++) {
                     int pxx = i % imgWidth;
                     int pxy = i / imgWidth;
                     if (pxx >= x && pxx < (x + w) && pxy >= y && pxy < (y + h)) {
                         int bin = (int) ((px.getPixelValue(i) - min) / binRange);
+                        // if there are more bins than values (binRange < 1) the bin will be offset by -1.
+                        // e.g. min=0.0, max=127.0, binCount=256: a pixel with max value 127.0 would go
+                        // into bin 254 (expected: 255). Therefore increment by one for these cases.
+                        if (bin > 0 && binRange < 1)
+                            bin++;
+
                         if (bin >= 0 && bin < binCount)
                             data[bin]++;
                     }

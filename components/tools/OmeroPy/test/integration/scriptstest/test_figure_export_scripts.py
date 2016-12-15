@@ -65,7 +65,7 @@ class TestFigureExportScripts(ScriptTest):
         for i in range(2):
             # x,y,z,c,t
             image = self.create_test_image(100, 100, 1, 1, 1, session)
-            image_ids.append(omero.rtypes.rlong(image.getId().getValue()))
+            image_ids.append(omero.rtypes.rlong(image.id.val))
             self.link(dataset, image, client=client)
 
             # add tag
@@ -73,7 +73,6 @@ class TestFigureExportScripts(ScriptTest):
             tag = omero.model.TagAnnotationI(tag_ids[t].val, False)
             self.link(image, tag, client=client)
 
-        # run the script twice. First with all args...
         dataset_ids = [omero.rtypes.rlong(dataset.id.val)]
         ids = image_ids
         if data_type == "Dataset":
@@ -117,7 +116,7 @@ class TestFigureExportScripts(ScriptTest):
         image_ids = []
         for i in range(2):
             image = self.create_test_image(256, 200, 5, 4, 1, session)
-            image_ids.append(omero.rtypes.rlong(image.getId().getValue()))
+            image_ids.append(omero.rtypes.rlong(image.id.val))
             self.link(dataset, image, client=client)
 
         c_names_map = omero.rtypes.rmap({'0': omero.rtypes.rstring("DAPI"),
@@ -180,12 +179,12 @@ class TestFigureExportScripts(ScriptTest):
         session = client.getSession()
         for i in range(2):
             image = self.create_test_image(256, 200, 5, 4, 1, session)
-            image_ids.append(omero.rtypes.rlong(image.getId().getValue()))
+            image_ids.append(omero.rtypes.rlong(image.id.val))
             self.link(dataset, image, client=client)
             add_rectangle_roi(session.getUpdateService(),
                               50 + (i * 10), 100 - (i * 10),
                               50 + (i * 5), 100 - (i * 5),
-                              image.getId().getValue())
+                              image.id.val)
 
         c_names_map = omero.rtypes.rmap({'0': omero.rtypes.rstring("DAPI"),
                                          '1': omero.rtypes.rstring("GFP"),
@@ -247,13 +246,14 @@ class TestFigureExportScripts(ScriptTest):
         session = client.getSession()
         for i in range(2):
             image = self.create_test_image(256, 256, 10, 3, 1, session)
-            image_ids.append(omero.rtypes.rlong(image.getId().getValue()))
+            image_ids.append(omero.rtypes.rlong(image.id.val))
             self.link(dataset, image, client=client)
 
             # add roi -   x, y, width, height
             add_rectangle_roi(session.getUpdateService(),
                               50 + (i * 10), 100 - (i * 10),
-                              50 + (i * 5), 100 - (i * 5), image.id.val)
+                              50 + (i * 5), 100 - (i * 5),
+                              image.id.val)
 
         if all_parameters:
             args = {
@@ -303,7 +303,7 @@ class TestFigureExportScripts(ScriptTest):
         image_ids = []
         for i in range(2):
             image = self.create_test_image(256, 256, 5, 3, 20, session)
-            image_ids.append(omero.rtypes.rlong(image.getId().getValue()))
+            image_ids.append(omero.rtypes.rlong(image.id.val))
             self.link(dataset, image, client=client)
 
         red = omero.rtypes.rint(16711680)

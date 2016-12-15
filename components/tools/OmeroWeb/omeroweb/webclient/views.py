@@ -981,7 +981,7 @@ def _api_links_DELETE(conn, json_data):
                 linkType, links = objLnks
                 linkIds = [r.id.val for r in links]
                 logger.info("api_link: Deleting %s links" % len(linkIds))
-                conn.deleteObjects(linkType, linkIds)
+                conn.deleteObjects(linkType, linkIds, wait=True)
                 # webclient needs to know what is orphaned
                 linkType, remainingLinks = get_object_links(conn,
                                                             parent_type,
@@ -1570,7 +1570,11 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None,
             'c': ",".join(chs),
             'm': r['model'] == 'greyscale' and 'g' or 'c'
             })
+    max_w, max_h = conn.getMaxPlaneSize()
+    size_x = manager.image.getSizeX()
+    size_y = manager.image.getSizeY()
 
+    context['tiledImage'] = (size_x * size_y) > (max_w * max_h)
     context['manager'] = manager
     context['rdefsJson'] = json.dumps(rdefQueries)
     context['rdefs'] = rdefs
