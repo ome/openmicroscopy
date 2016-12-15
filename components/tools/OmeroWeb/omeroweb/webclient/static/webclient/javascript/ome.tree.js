@@ -42,6 +42,9 @@ $(function() {
 
         OME.tree_selection_changed(data, e);
     })
+    .on('selection_change.ome', function(e, nElements) {
+        multiselection = nElements > 1;
+    })
     .on('copy_node.jstree', function(e, data) {
         /**
         * Fired when a node is pasted
@@ -130,6 +133,7 @@ $(function() {
         * is updated to match another instance of itself elsewhere in the tree
         */
         var inst = data.instance;
+
         // Update the child count
         OME.updateNodeChildCount(inst, data.parent);
     })
@@ -138,7 +142,6 @@ $(function() {
         * Fired when the tree is loaded and ready for action
         */
         var inst = data.instance;
-
         // Global variable specifies what to select
         var nodeIds = WEBCLIENT.initially_select;
         if (nodeIds.length === 0) {

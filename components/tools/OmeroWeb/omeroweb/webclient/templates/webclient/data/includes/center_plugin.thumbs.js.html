@@ -538,6 +538,10 @@ $(document).ready(function() {
         if (buttonsShowHide) {
             buttonsShowHide(inst.get_selected(true), inst);
         }
+
+        // Tell jsTree how many elements are selected
+        $("#dataTree").trigger('selection_change.ome', inst.get_selected(true).length);
+
         // Trigger the selection changed event
         $("body").trigger('selection_change.ome');
 
