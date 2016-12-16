@@ -30,6 +30,7 @@ import java.awt.image.BufferedImage;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 
+import omero.model.Length;
 import omero.model.enums.UnitsLength;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
@@ -426,5 +427,12 @@ public interface Browser
      *            The zoom factor
      */
     void setSelectedResolutionLevelZoomFactor(double ratio);
+
+    /**
+     * Get the length of the scale bar
+     * 
+     * @return See above
+     */
+    public Length getUnitBarLength();
 
 }

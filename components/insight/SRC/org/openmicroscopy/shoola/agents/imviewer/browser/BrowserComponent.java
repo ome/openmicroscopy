@@ -32,6 +32,7 @@ import java.awt.image.BufferedImage;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 
+import omero.model.Length;
 import omero.model.enums.UnitsLength;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
@@ -684,5 +685,13 @@ class BrowserComponent
             model.setInterpolation(interpolation);
             paintImage();
         }
-	    
+        
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * 
+     * @see Browser#getUnitBarLength()
+     */
+    public Length getUnitBarLength() {
+        return model.getUnitBarLength();
+    }
 }

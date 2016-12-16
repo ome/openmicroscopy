@@ -663,20 +663,30 @@ class BrowserModel
     /**
      * Sets the value of the flag controlling if the unit bar is painted or not.
      * 
-     * @param unitBar   Pass <code>true</code> to paint the unit bar, 
-     *                  <code>false</code> otherwise.
+     * @param unitBar
+     *            Pass <code>true</code> to paint the unit bar,
+     *            <code>false</code> otherwise.
      */
-    void setUnitBar(boolean unitBar)
-    {
+    void setUnitBar(boolean unitBar) {
         if (unitBar) {
-            int unitBarLenghtValue = UnitBarSizeAction.getDefaultValue();
-            // Guess the unit to use by assuming a 100px wide scalebar
-            Length tmp = new LengthI(getPixelsSizeX().getValue() * 100,
-                    getPixelsSizeX().getUnit());
-            tmp = UIUtilities.transformSize(tmp);
-            this.unitBarLength = new LengthI(unitBarLenghtValue, tmp.getUnit());
+            // Determine a reasonable size by assuming a 100px wide scalebar
+            Length tmp = new LengthI(getPixelsSizeX().getValue() * 100
+                    / zoomFactor, getPixelsSizeX().getUnit());
+
+            if (tmp.getValue() > 999) {
+                int dec = (int) Math.log10(tmp.getValue());
+                this.unitBarLength = new LengthI(Math.pow(10, dec),
+                        getPixelsSizeX().getUnit());
+            } else {
+                int index = UnitBarSizeAction.getIndex(tmp.getValue());
+                this.unitBarLength = new LengthI(
+                        UnitBarSizeAction.getValue(index), getPixelsSizeX()
+                                .getUnit());
+            }
+
+            this.parent.updateUnitBarMenu(this.unitBarLength);
         }
-    	this.unitBar = unitBar;
+        this.unitBar = unitBar;
     }
     
     /**
@@ -887,7 +897,7 @@ class BrowserModel
      */
 	Length getPixelsSizeZ() { return parent.getPixelsSizeZ(); }
    
-	Length getUnitBarLength() {
+	public Length getUnitBarLength() {
 	    return unitBarLength;
 	}
 	
