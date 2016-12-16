@@ -281,24 +281,170 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), normalUser.userId);
         Assert.assertEquals(imageDatasetLink.getDetails().getOwner().getId().getValue(), normalUser.userId);
         Assert.assertEquals(retrievedProjectDatasetLink.getDetails().getOwner().getId().getValue(), normalUser.userId);
-
-        /* Now check that the ImporterAs can delete the objects
-         * created on behalf of the user */
-        try {
-            doChange(Requests.delete().target(imageDatasetLink).build());
-            doChange(Requests.delete().target(retrievedProjectDatasetLink).build());
-            doChange(Requests.delete().target(image).build());
-            doChange(Requests.delete().target(sentDat).build());
-            doChange(Requests.delete().target(sentProj).build());
-        } catch (ServerError se) {
-            /* not expected */
-        }
-        /* check one of the objects for non-existence after deletion */
-        final IObject retrievedImageDatasetLink = iQuery.findByQuery(
-                "FROM DatasetImageLink WHERE child.id = :id",
-                new ParametersI().addId(image.getId()));
-        Assert.assertNull(retrievedImageDatasetLink);
     }
+
+    /**
+     * Test whether an ImporterAs can delete image, Project and Dataset
+     * and their respective links belonging to another
+     * user. Behaviors of the system are explored when ImporterAs
+     * is and is not using <tt>Sudo</tt> privilege
+     * for this action.
+     * @throws Exception unexpected
+     */
+   @Test(dataProvider = "combined privileges cases")
+   public void testImporterDelete(boolean isAdmin, boolean isSudoing, boolean permChgrp,
+           boolean permWriteOwned, boolean permWriteFile) throws Exception {
+       //if (!(!isSudoing && permWriteOwned && !permWriteFile)) return;
+       /* define case where the Sudo is not being used post-import
+        * to perform the chgrp action. Such cases are all expected to fail
+        * except the light admin has Chgrp permission. WriteOwned and WriteFile
+        * are not important for the Chgrp success in such situation.
+        */
+       final EventContext normalUser = newUserAndGroup("rwr-r-");
+       /* set up the light admin's permissions for this test */
+       ArrayList <String> permissions = new ArrayList <String>();
+       permissions.add(AdminPrivilegeSudo.value);
+       if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);;
+       if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
+       if (permWriteFile) permissions.add(AdminPrivilegeWriteFile.value);
+       final EventContext lightAdmin;
+       lightAdmin = loginNewAdmin(isAdmin, permissions);
+       try {
+           sudo(new ExperimenterI(normalUser.userId, false));
+               if (!isAdmin) {
+                   Assert.fail("Sudo-permitted non-administrators cannot sudo.");
+               }
+           }catch (SecurityViolation sv) {
+               /* sudo expected to fail if the user is not in system group */
+           }
+       /* create a Dataset and Project being sudoed as normalUser */
+       if (!isAdmin) return;
+       client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+       Project proj = mmFactory.simpleProject();
+       Dataset dat = mmFactory.simpleDataset();
+       Project sentProj = new ProjectI();
+       sentProj = null;
+       Dataset sentDat = new DatasetI();
+       sentDat = null;
+       try {
+           sentProj = (Project) iUpdate.saveAndReturnObject(proj);
+           sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
+           Assert.assertTrue(isAdmin);
+       } catch (ServerError se) {
+           Assert.assertFalse(isAdmin);
+       }
+       /* import an image for the normalUser into the normalUser's default group 
+        * and target it into the created Dataset*/
+       final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
+       final List<List<RType>> result = iQuery.projection(
+               "SELECT id FROM OriginalFile WHERE name = :name ORDER BY id DESC LIMIT 1",
+               new ParametersI().add("name", imageName));
+       final long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
+       try {
+           List<String> path = Collections.singletonList(fakeImageFile.getPath());
+           importFileset(path, path.size(), sentDat);
+           Assert.assertTrue(isAdmin);
+       } catch (ServerError se) {
+           Assert.assertFalse(isAdmin);
+       }
+       OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
+               "FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
+               new ParametersI().addId(previousId).add("name", imageName));
+       if (isAdmin) {
+           Assert.assertEquals(remoteFile.getDetails().getOwner().getId().getValue(), normalUser.userId);
+           Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+       }
+       /* link the Project and the Dataset */
+       ProjectDatasetLink link = linkProjectDataset(sentProj, sentDat);
+       Image image = (Image) iQuery.findByQuery(
+               "FROM Image WHERE fileset IN "
+               + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
+               new ParametersI().addId(remoteFile.getId()));
+       IObject datasetImageLink = iQuery.findByQuery(
+               "FROM DatasetImageLink WHERE child.id = :id",
+               new ParametersI().addId(image.getId()));
+       IObject projectDatasetLink = iQuery.findByQuery(
+               "FROM ProjectDatasetLink WHERE id = :id",
+               new ParametersI().addId(link.getId()));
+       /* take care of post-import workflows which do not use sudo */
+       if (!isSudoing) {
+           loginUser(lightAdmin);
+       }
+       /* Now check that the ImporterAs can delete the objects
+        * created on behalf of the user */
+       if ((!isSudoing && permWriteOwned && permWriteFile) || isSudoing ) {
+           try {
+               doChange(Requests.delete().target(datasetImageLink).build());
+               doChange(Requests.delete().target(projectDatasetLink).build());
+               doChange(Requests.delete().target(image).build());
+               doChange(Requests.delete().target(sentDat).build());
+               doChange(Requests.delete().target(sentProj).build());
+           } catch (ServerError se) {
+           /* not expected */
+           }
+       } else if (!isSudoing && permWriteOwned && !permWriteFile) {
+           try {
+               doChange(Requests.delete().target(datasetImageLink).build());
+               doChange(Requests.delete().target(projectDatasetLink).build());
+               doChange(Requests.delete().target(image).build());
+               doChange(Requests.delete().target(sentDat).build());
+               doChange(Requests.delete().target(sentProj).build());
+           } catch (ServerError se) {
+           /* not expected */
+           }
+       }
+       /* Check one of the objects for non-existence after deletion. First, logging
+        * in as root, retrieve all the objects to check them later*/
+       logRootIntoGroup(normalUser.groupId);
+       OriginalFile retrievedRemoteFile = (OriginalFile) iQuery.findByQuery(
+               "FROM OriginalFile WHERE id = :id",
+               new ParametersI().addId(remoteFile.getId()));
+       Image retrievedImage = (Image) iQuery.findByQuery(
+               "FROM Image WHERE fileset IN "
+               + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
+               new ParametersI().addId(remoteFile.getId()));
+       Dataset retrievedDat = (Dataset) iQuery.findByQuery(
+               "FROM Dataset WHERE id = :id",
+               new ParametersI().addId(sentDat.getId()));
+       Project retrievedProj = (Project) iQuery.findByQuery(
+               "FROM Project WHERE id = :id",
+               new ParametersI().addId(sentProj.getId()));
+       DatasetImageLink retrievedDatasetImageLink = (DatasetImageLink) iQuery.findByQuery(
+               "FROM DatasetImageLink WHERE child.id = :id",
+               new ParametersI().addId(image.getId()));
+       ProjectDatasetLink retrievedProjectDatasetLink = (ProjectDatasetLink) iQuery.findByQuery(
+               "FROM ProjectDatasetLink WHERE child.id = :id",
+               new ParametersI().addId(sentDat.getId()));
+       /* now check the existence/non-existence of the objects as appropriate */
+       if ((!isSudoing && permWriteOwned && permWriteFile) || isSudoing ) {
+           /* successful delete expected */
+           Assert.assertNull(retrievedRemoteFile, "original file should be deleted");
+           Assert.assertNull(retrievedImage, "image should be deleted");
+           Assert.assertNull(retrievedDat, "dataset should be deleted");
+           Assert.assertNull(retrievedProj, "project should be deleted");
+           Assert.assertNull(retrievedDatasetImageLink, "Dat-Image link should be deleted");
+           Assert.assertNull(retrievedProjectDatasetLink, "Proj-Dat link should be deleted");
+       } else if (!isSudoing && permWriteOwned && !permWriteFile){
+           /* only deletions of OMERO objects should have been successful, but
+            * not the original file and the image
+            */
+           Assert.assertNull(retrievedRemoteFile, "original file deleted - this is surprising, because WriteFile is false");
+           Assert.assertNull(retrievedImage, "image deleted - this is surprising, because WriteFile is false");
+           Assert.assertNull(retrievedDat, "dataset should be deleted");
+           Assert.assertNull(retrievedProj, "project should be deleted");
+           Assert.assertNull(retrievedDatasetImageLink, "Dat-Image link should be deleted");
+           Assert.assertNull(retrievedProjectDatasetLink, "Proj-Dat link should be deleted");
+       } else {
+           /* no deletion should have been successful without permWriteOwned
+            * and permWriteFile permissions */
+           Assert.assertNotNull(retrievedRemoteFile, "original file not deleted");
+           Assert.assertNotNull(retrievedImage, "image not deleted");
+           Assert.assertNotNull(retrievedDat, "dataset not deleted");
+           Assert.assertNotNull(retrievedProj, "project not deleted");
+           Assert.assertNotNull(retrievedDatasetImageLink, "Dat-Image link not deleted");
+           Assert.assertNotNull(retrievedProjectDatasetLink, "Proj-Dat link not deleted");
+       }
+   }
 
     /**
      * Test that an ImporterAs can
