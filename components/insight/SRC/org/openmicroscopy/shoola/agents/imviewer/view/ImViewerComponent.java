@@ -3573,10 +3573,6 @@ class ImViewerComponent
      * @see ImViewer#updateUnitBarMenu(Length)
      */
     public void updateUnitBarMenu(Length unitBarLength) {
-        int index = UnitBarSizeAction.CUSTOMIZED;
-        if (unitBarLength.getValue() < 999) {
-            index = UnitBarSizeAction.getIndex(unitBarLength.getValue());
-        }
-        view.setScaleBarIndex(index);
+        view.setScaleBarLength(unitBarLength);
     }
 }

@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -407,7 +407,6 @@ class BrowserModel
      * 
      * @param parent    The parent of this component.
      *                  Mustn't be <code>null</code>.
-     * @param imageID	The id of the image.
      * @param pref		The preferences for the viewer.
      */
     BrowserModel(ImViewer parent, ViewerPreferences pref)
@@ -669,19 +668,31 @@ class BrowserModel
      */
     void setUnitBar(boolean unitBar) {
         if (unitBar) {
-            // Determine a reasonable size by assuming a 100px wide scalebar
-            Length tmp = new LengthI(getPixelsSizeX().getValue() * 100
+            // Determine a reasonable unit
+            Length tmp = new LengthI(getPixelsSizeX().getValue() / zoomFactor,
+                    getPixelsSizeX().getUnit());
+            tmp = UIUtilities.transformSize(tmp);
+            UnitsLength unit = tmp.getUnit();
+
+            // Determine a reasonable size by assuming a scalebar with length of
+            // 1/10th of image width
+            int barLengthInPx = (int) (getMaxY() * zoomFactor / 10);
+            tmp = new LengthI(getPixelsSizeX().getValue() * barLengthInPx
                     / zoomFactor, getPixelsSizeX().getUnit());
+
+            try {
+                tmp = new LengthI(tmp, unit);
+            } catch (BigResult e) {
+            }
 
             if (tmp.getValue() > 999) {
                 int dec = (int) Math.log10(tmp.getValue());
                 this.unitBarLength = new LengthI(Math.pow(10, dec),
-                        getPixelsSizeX().getUnit());
+                        tmp.getUnit());
             } else {
                 int index = UnitBarSizeAction.getIndex(tmp.getValue());
                 this.unitBarLength = new LengthI(
-                        UnitBarSizeAction.getValue(index), getPixelsSizeX()
-                                .getUnit());
+                        UnitBarSizeAction.getValue(index), tmp.getUnit());
             }
 
             this.parent.updateUnitBarMenu(this.unitBarLength);
@@ -1276,7 +1287,7 @@ class BrowserModel
      * En-/Disables interpolation; value will be stored in user
      * preferences
      * 
-     * @param interpolation
+     * @param interpolation The interpolation flag
      */
     void setInterpolation(boolean interpolation) {
         ImViewerFactory.setInterpolation(interpolation);
