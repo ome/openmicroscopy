@@ -950,7 +950,7 @@ class ParsingContext(object):
             else:
                 log.info('Missing plate name column, skipping.')
 
-    def write_to_omero(self, batch_size=1000):
+    def write_to_omero(self, batch_size=1000, loops=10, ms=500):
         sf = self.client.getSession()
         group = str(self.value_resolver.target_group)
         sr = sf.sharedResources()
@@ -1380,7 +1380,7 @@ class BulkToMapAnnotationContext(_QueryContext):
     def _write_log(self, text):
         log.debug("BulkToMapAnnotation:write_to_omero - %s" % text)
 
-    def write_to_omero(self, batch_size=1000):
+    def write_to_omero(self, batch_size=1000, loops=10, ms=500):
         i = 0
         cur = 0
         links = []
@@ -1584,17 +1584,19 @@ class DeleteMapAnnotationContext(_QueryContext):
             log.info("Total: %d FileAnnotation(s) in %s",
                      len(set(self.fileannids)), nss)
 
-    def write_to_omero(self, batch_size=1000):
+    def write_to_omero(self, batch_size=1000, loops=10, ms=500):
         for batch in self._batch(self.mapannids, sz=batch_size):
-            self._write_to_omero_batch({"MapAnnotation": batch})
+            self._write_to_omero_batch({"MapAnnotation": batch},
+                                       loops, ms)
         for batch in self._batch(self.fileannids, sz=batch_size):
-            self._write_to_omero_batch({"FileAnnotation": batch})
+            self._write_to_omero_batch({"FileAnnotation": batch},
+                                       loops, ms)
 
-    def _write_to_omero_batch(self, to_delete):
+    def _write_to_omero_batch(self, to_delete, loops=10, ms=500):
         delCmd = omero.cmd.Delete2(targetObjects=to_delete)
         try:
             callback = self.client.submit(
-                delCmd, loops=100, failontimeout=True)
+                delCmd, loops=loops, ms=ms, failontimeout=True)
         except CmdError, ce:
             log.error("Failed to delete: %s" % to_delete)
             raise Exception(ce.err)
