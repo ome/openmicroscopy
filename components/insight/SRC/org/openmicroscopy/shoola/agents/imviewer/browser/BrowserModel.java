@@ -897,9 +897,14 @@ class BrowserModel
      */
 	Length getPixelsSizeZ() { return parent.getPixelsSizeZ(); }
    
-	public Length getUnitBarLength() {
-	    return unitBarLength;
-	}
+    /**
+     * Get the length of the unit bar
+     * 
+     * @return See above.
+     */
+    public Length getUnitBarLength() {
+        return unitBarLength;
+    }
 	
     /** 
      * Returns the number of column for the grid.
