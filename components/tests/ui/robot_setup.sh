@@ -41,7 +41,7 @@ touch $MIF_IMAGE_NAME
 
 # Python script for setting posX and posY on wellsamples
 # Used below after importing a plate
-WELLSCRIPT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/resources/well_sample_posXY.py)"
+WELLSCRIPT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/resources/well_sample_posXY.py"
 
 # Create batch annotation csv
 echo "Well,Well Type,Concentration" > "$BULK_ANNOTATION_CSV"
