@@ -680,6 +680,16 @@ class ImViewerModel
         }
         return scaleBarUnit;
     }
+    
+    /**
+     * Set the unit used for the scalebar
+     * 
+     * @param unit
+     *            The unit
+     */
+    public void setScaleBarUnit(UnitsLength unit) {
+        this.scaleBarUnit = unit;
+    }
 	
 	/**
 	 * Returns the current user's details.

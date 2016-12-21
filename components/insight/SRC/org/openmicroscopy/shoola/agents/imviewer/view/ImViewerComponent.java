@@ -3574,5 +3574,6 @@ class ImViewerComponent
      */
     public void updateUnitBarMenu(Length unitBarLength) {
         view.setScaleBarLength(unitBarLength);
+        model.setScaleBarUnit(unitBarLength.getUnit());
     }
 }

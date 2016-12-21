@@ -675,11 +675,11 @@ class BrowserModel
             UnitsLength unit = tmp.getUnit();
 
             // Determine a reasonable size by assuming a scalebar with length of
-            // 1/10th of image width
-            int barLengthInPx = (int) (getMaxY() * zoomFactor / 10);
+            // up to 1/5th of current image display size
+            Rectangle visSize = ((BrowserUI)component.getUI()).getVisibleRect();
+            int barLengthInPx = (int)(visSize.getWidth() / 5d);
             tmp = new LengthI(getPixelsSizeX().getValue() * barLengthInPx
                     / zoomFactor, getPixelsSizeX().getUnit());
-
             try {
                 tmp = new LengthI(tmp, unit);
             } catch (BigResult e) {
@@ -705,22 +705,13 @@ class BrowserModel
      * 
      * @param size
      *            The size of the unit bar.
-     * @param unit The unit
+     * @param unit
+     *            The unit
      */
     void setUnitBarSize(double size, UnitsLength unit) {
-        if (unitBarLength != null) {
-            try {
-                LengthI tmp = new LengthI(size, unit);
-                tmp = new LengthI(tmp, unitBarLength.getUnit());
-                unitBarLength.setValue(tmp.getValue());
-            } catch (BigResult e) {
-            }
-        }
-        else {
-            unitBarLength = new LengthI(size, unit);
-        }
+        unitBarLength = new LengthI(size, unit);
     }
-    
+
     /**
      * Returns the unit used to determine the size of the unit bar. The unit
      * depends on the size stored. The unit of reference in the OME model is in
