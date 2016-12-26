@@ -2,7 +2,7 @@
  * #%L
  * OME database I/O package for communicating with OME and OMERO servers.
  * %%
- * Copyright (C) 2005 - 2013 Open Microscopy Environment:
+ * Copyright (C) 2005 - 2016 Open Microscopy Environment:
  *   - Board of Regents of the University of Wisconsin-Madison
  *   - Glencoe Software, Inc.
  *   - University of Dundee
@@ -47,6 +47,7 @@ import loci.formats.FormatTools;
 import loci.formats.MetadataTools;
 import loci.formats.meta.MetadataStore;
 import ome.units.UNITS;
+import ome.xml.model.primitives.Color;
 import ome.xml.model.primitives.NonNegativeInteger;
 import ome.xml.model.primitives.Timestamp;
 import omero.RInt;
@@ -54,11 +55,13 @@ import omero.RString;
 import omero.RTime;
 import omero.ServerError;
 import omero.api.IAdminPrx;
+import omero.api.IPixelsPrx;
 import omero.api.RawPixelsStorePrx;
 import omero.api.RoiOptions;
 import omero.api.RoiResult;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Channel;
+import omero.model.ChannelBinding;
 import omero.model.EllipseI;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
@@ -74,6 +77,7 @@ import omero.model.PolygonI;
 import omero.model.PolylineI;
 import omero.model.RectangleI;
 import omero.model.MaskI;
+import omero.model.RenderingDef;
 import omero.model.Roi;
 import omero.model.Shape;
 import omero.model.Time;
@@ -101,6 +105,7 @@ public class OmeroReader extends FormatReader {
     private String sessionID;
     private String group;
     private Long groupID = null;
+    private boolean isUseRenderingSettings = false;
     private boolean encrypted = true;
 
     private omero.client client;
@@ -146,6 +151,15 @@ public class OmeroReader extends FormatReader {
 
     public void setGroupID(Long groupID) {
         this.groupID = groupID;
+    }
+
+    /**
+     * If rendering settings should be used to complement other metadata, e.g., for channel color.
+     * Defaults to {@code false}.
+     * @param isUseRenderingSettings if to use rendering settings
+     */
+    public void setUseRenderingSettings(boolean isUseRenderingSettings) {
+        this.isUseRenderingSettings = isUseRenderingSettings;
     }
 
     // -- IFormatReader methods --
@@ -319,7 +333,8 @@ public class OmeroReader extends FormatReader {
 
             long pixelsId = img.getPixels(0).getId().getValue();
 
-            pix = serviceFactory.getPixelsService().retrievePixDescription(pixelsId);
+            final IPixelsPrx iPixels = serviceFactory.getPixelsService();
+            pix = iPixels.retrievePixDescription(pixelsId);
             store.setPixelsId(pixelsId, false);
 
             final int sizeX = pix.getSizeX().getValue();
@@ -394,14 +409,52 @@ public class OmeroReader extends FormatReader {
                 store.setPixelsTimeIncrement(t2, 0);
             }
 
+            final RenderingDef renderingSettings;
+            if (isUseRenderingSettings) {
+                renderingSettings = iPixels.retrieveRndSettings(pixelsId);
+            } else {
+                renderingSettings = null;
+            }
+            final List<ChannelBinding> channelBindings;
+            if (renderingSettings != null) {
+                channelBindings = renderingSettings.copyWaveRendering();
+            } else {
+                channelBindings = null;
+            }
+
             List<Channel> channels = pix.copyChannels();
             for (int c=0; c<channels.size(); c++) {
-                LogicalChannel channel = channels.get(c).getLogicalChannel();
+                final Channel channel = channels.get(c);
 
-                Length emWave = channel.getEmissionWave();
-                Length exWave = channel.getExcitationWave();
-                Length pinholeSize = channel.getPinHoleSize();
-                RString cname = channel.getName();
+                final RInt red, green, blue, alpha;
+                if (channelBindings == null) {
+                    red = channel.getRed();
+                    green = channel.getGreen();
+                    blue = channel.getBlue();
+                    alpha = channel.getAlpha();
+                } else {
+                    final ChannelBinding waveRendering = channelBindings.get(c);
+                    red = waveRendering.getRed();
+                    green = waveRendering.getGreen();
+                    blue = waveRendering.getBlue();
+                    alpha = waveRendering.getAlpha();
+                }
+                if (red != null && green != null && blue != null) {
+                    final Color color;
+                    if (alpha == null) {
+                        color = new Color(red.getValue(), green.getValue(), blue.getValue(), 255);
+                    } else {
+                        color = new Color(red.getValue(), green.getValue(), blue.getValue(), alpha.getValue());
+                    }
+                    store.setChannelColor(color, 0, c);
+                }
+
+                final LogicalChannel logicalChannel = channel.getLogicalChannel();
+
+                final Length emWave = logicalChannel.getEmissionWave();
+                final Length exWave = logicalChannel.getExcitationWave();
+                final Length pinholeSize = logicalChannel.getPinHoleSize();
+                final RString cname = logicalChannel.getName();
 
                 ome.units.quantity.Length emission = convertLength(emWave);
                 ome.units.quantity.Length excitation = convertLength(exWave);
