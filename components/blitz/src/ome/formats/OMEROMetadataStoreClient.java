@@ -84,6 +84,7 @@ import ome.units.quantity.Temperature;
 import ome.units.quantity.Time;
 import ome.util.LSID;
 import ome.xml.meta.MetadataRoot;
+import ome.xml.meta.MetadataModel;
 import ome.xml.model.AffineTransform;
 import ome.xml.model.MapPair;
 import ome.xml.model.enums.Compression;
@@ -228,7 +229,7 @@ import Glacier2.PermissionDeniedException;
  * @author Chris Allan, callan at lifesci.dundee.ac.uk
  */
 public class OMEROMetadataStoreClient
-    implements MetadataStore, IMinMaxStore, IObjectContainerStore
+    implements MetadataStore, MetadataModel, IMinMaxStore, IObjectContainerStore
 {
 
     /** Logger for this class */
@@ -1163,6 +1164,11 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#createRoot()
      */
     @Override
+    public void createModel()
+    {
+    }
+
+    @Override
     public void createRoot()
     {
         try
@@ -1194,6 +1200,14 @@ public class OMEROMetadataStoreClient
         {
             existingMetadata = null;
         }
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#getModel(omx.xml.meta.MetadataModel)
+     */
+    public MetadataModel getModel()
+    {
+        return this;
     }
 
     /* (non-Javadoc)
@@ -6845,6 +6859,15 @@ public class OMEROMetadataStoreClient
     {
         Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setY(toRType(y));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setModel(MetadataModel)
+     */
+    @Override
+    public void setModel(MetadataModel model)
+    {
+        ignoreUnneeded("setModel", model);
     }
 
     /* (non-Javadoc)
