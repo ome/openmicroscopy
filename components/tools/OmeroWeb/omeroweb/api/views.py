@@ -126,12 +126,13 @@ class ObjectView(View):
 
     def delete(self, request, pid, conn=None, **kwargs):
         """
-        Delete the Project and return marshal of deleted Project.
+        Delete the Object and return marshal of deleted Object.
 
         Return 404 if not found.
         """
         try:
-            obj = conn.getQueryService().get(self.OMERO_TYPE, long(pid))
+            obj = conn.getQueryService().get(self.OMERO_TYPE, long(pid),
+                                             conn.SERVICE_OPTS)
         except ValidationException:
             raise NotFoundError('%s %s not found' % (self.OMERO_TYPE, pid))
         encoder = get_encoder(obj.__class__)
