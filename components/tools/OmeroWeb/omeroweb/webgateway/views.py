@@ -774,8 +774,16 @@ def _get_prepared_image(request, iid, server_id=None, conn=None,
         return
     if 'c' in r:
         logger.debug("c="+r['c'])
-        channels, windows, colors, reverses = _split_channel_info(r['c'])
-        if not img.setActiveChannels(channels, windows, colors, reverses):
+        activechannels, windows, colors, reverses = _split_channel_info(r['c'])
+        allchannels = []
+        for ch in activechannels:
+            allchannels.append(abs(int(ch)))
+        # First save properties of all channels
+        if not img.setActiveChannels(allchannels, windows, colors, reverses):
+            logger.debug(
+                "Something bad happened while setting the active channels...")
+        # Save the active/inactive state of the channels
+        if not img.setActiveChannels(activechannels):
             logger.debug(
                 "Something bad happened while setting the active channels...")
     if r.get('m', None) == 'g':
