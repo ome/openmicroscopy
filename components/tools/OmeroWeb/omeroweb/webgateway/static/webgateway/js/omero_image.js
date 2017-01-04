@@ -458,11 +458,18 @@
                 applyRDCW(viewport);
             };
         };
+
         var keyup_cb = function() {
             return function(event){
                 if (event.keyCode === 13){
                     applyRDCW(viewport);
                 }
+            };
+        };
+
+        var focusout_cb = function() {
+            return function(event){
+                applyRDCW(viewport);
             };
         };
 
@@ -516,8 +523,10 @@
             init_ch_slider(i, channels);
             $('#wblitz-ch'+i+'-cw-start').val(channels[i].window.start).unbind('change').bind('change', start_cb(i));
             $('#wblitz-ch'+i+'-cw-start').keyup(keyup_cb());
+            $('#wblitz-ch'+i+'-cw-start').focusout(focusout_cb());
             $('#wblitz-ch'+i+'-cw-end').val(channels[i].window.end).unbind('change').bind('change', end_cb(i));
             $('#wblitz-ch'+i+'-cw-end').keyup(keyup_cb());
+            $('#wblitz-ch'+i+'-cw-end').focusout(focusout_cb());
         }
 
         // bind clicking on channel checkboxes
