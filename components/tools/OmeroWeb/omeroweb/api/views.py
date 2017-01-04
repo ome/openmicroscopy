@@ -107,22 +107,22 @@ def api_servers(request, api_version, **kwargs):
     return {'data': servers}
 
 
-class ProjectView(View):
-    """Handle access to an individual Project to GET or DELETE it."""
+class ObjectView(View):
+    """Handle access to an individual Object to GET or DELETE it."""
 
     @method_decorator(login_required(useragent='OMERO.webapi'))
     @method_decorator(json_response())
     def dispatch(self, *args, **kwargs):
         """Wrap other methods to add decorators."""
-        return super(ProjectView, self).dispatch(*args, **kwargs)
+        return super(ObjectView, self).dispatch(*args, **kwargs)
 
     def get(self, request, pid, conn=None, **kwargs):
-        """Simply GET a single Project and marshal it or 404 if not found."""
-        project = conn.getObject("Project", pid)
-        if project is None:
-            raise NotFoundError('Project %s not found' % pid)
-        encoder = get_encoder(project._obj.__class__)
-        return encoder.encode(project._obj)
+        """Simply GET a single Object and marshal it or 404 if not found."""
+        obj = conn.getObject(self.OMERO_TYPE, pid)
+        if obj is None:
+            raise NotFoundError('%s %s not found' % (self.OMERO_TYPE, pid))
+        encoder = get_encoder(obj._obj.__class__)
+        return encoder.encode(obj._obj)
 
     def delete(self, request, pid, conn=None, **kwargs):
         """
@@ -131,13 +131,31 @@ class ProjectView(View):
         Return 404 if not found.
         """
         try:
-            project = conn.getQueryService().get('Project', long(pid))
+            obj = conn.getQueryService().get(self.OMERO_TYPE, long(pid))
         except ValidationException:
-            raise NotFoundError('Project %s not found' % pid)
-        encoder = get_encoder(project.__class__)
-        json = encoder.encode(project)
-        conn.deleteObject(project)
+            raise NotFoundError('%s %s not found' % (self.OMERO_TYPE, pid))
+        encoder = get_encoder(obj.__class__)
+        json = encoder.encode(obj)
+        conn.deleteObject(obj)
         return json
+
+
+class ProjectView(ObjectView):
+    """Handle access to an individual Project to GET or DELETE it."""
+
+    OMERO_TYPE = 'Project'
+
+
+class DatasetView(ObjectView):
+    """Handle access to an individual Dataset to GET or DELETE it."""
+
+    OMERO_TYPE = 'Dataset'
+
+
+class ScreenView(ObjectView):
+    """Handle access to an individual Screen to GET or DELETE it."""
+
+    OMERO_TYPE = 'Screen'
 
 
 class ProjectsView(View):
