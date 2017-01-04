@@ -3566,4 +3566,14 @@ class ImViewerComponent
     public void reloadROICount() {
         model.reloadROICount();
     }
+    
+    /**
+     * Implemented as specified by the {@link ImViewer} interface.
+     * 
+     * @see ImViewer#updateUnitBarMenu(Length)
+     */
+    public void updateUnitBarMenu(Length unitBarLength) {
+        view.setScaleBarLength(unitBarLength);
+        model.setScaleBarUnit(unitBarLength.getUnit());
+    }
 }

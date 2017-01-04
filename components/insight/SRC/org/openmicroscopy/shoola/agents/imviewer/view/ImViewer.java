@@ -1396,4 +1396,12 @@ public interface ImViewer
      */
     void reloadROICount();
 
+    /**
+     * Update the scale bar menu, according to the given length
+     * 
+     * @param unitBarLength
+     *            The current scale bar length
+     */
+    public void updateUnitBarMenu(Length unitBarLength);
+
 }

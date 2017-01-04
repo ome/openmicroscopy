@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.browser.Browser
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -30,6 +30,7 @@ import java.awt.image.BufferedImage;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 
+import omero.model.Length;
 import omero.model.enums.UnitsLength;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
@@ -418,5 +419,20 @@ public interface Browser
         * @param interpolation The value to set.
         */
         public void setInterpolation(boolean interpolation);
+
+    /**
+     * Set the zoom factor for the selected resolution level
+     * 
+     * @param ratio
+     *            The zoom factor
+     */
+    void setSelectedResolutionLevelZoomFactor(double ratio);
+
+    /**
+     * Get the length of the scale bar
+     * 
+     * @return See above
+     */
+    public Length getUnitBarLength();
 
 }
