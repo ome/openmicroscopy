@@ -32,12 +32,14 @@ import omero.RType;
 import omero.SecurityViolation;
 import omero.ServerError;
 import omero.api.ServiceFactoryPrx;
+import omero.cmd.Chown2;
 import omero.gateway.util.Requests;
 import omero.model.AdminPrivilege;
 import omero.model.AdminPrivilegeI;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
+import omero.model.DatasetImageLinkI;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
@@ -118,6 +120,20 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         link.setParent(project);
         link.setChild(dataset);
         return (ProjectDatasetLink) iUpdate.saveAndReturnObject(link);
+    }
+
+    private DatasetImageLink linkDatasetImage(Dataset dataset, Image image) throws ServerError {
+        if (dataset.isLoaded() && dataset.getId() != null) {
+            dataset = (Dataset) dataset.proxy();
+        }
+        if (image.isLoaded() && image.getId() != null) {
+            image = (Image) image.proxy();
+        }
+
+        final DatasetImageLink link = new DatasetImageLinkI();
+        link.setParent(dataset);
+        link.setChild(image);
+        return (DatasetImageLink) iUpdate.saveAndReturnObject(link);
     }
 
     /**
@@ -809,6 +825,83 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             Assert.assertEquals(link.getDetails().getGroup().getId().getValue(), normalUser.groupId);
         }
     }
+
+    /** Additonal test of ImporterAs without using Sudo.
+     * The workflow deals with the eventuality of pre-existing container
+     * in the target group and linking of the image or dataset to this container
+     * (dataset or project). The image import has been tested in other tests,
+     * here the image and/or dataset will be created and saved instead and just
+     * the linking to a container will be tested. Only when the light admin has
+     * WriteOwned privilege is the linking possible.
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "combined privileges cases")
+    public void testImporterAsNoSudoLinkInTargetGroup(boolean isAdmin, boolean permChgrp, boolean permChown,
+            boolean permWriteOwned, boolean permWriteFile) throws Exception {
+        /* linking should be always permitted as long as light admin is in System Group */
+        boolean isExpectSuccess = isAdmin && permWriteOwned;
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
+        /* set up the light admin's permissions for this test */
+        ArrayList <String> permissions = new ArrayList <String>();
+        if (permChown) permissions.add(AdminPrivilegeChown.value);;
+        if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);;
+        if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
+        if (permWriteFile) permissions.add(AdminPrivilegeWriteFile.value);
+        final EventContext lightAdmin;
+        lightAdmin = loginNewAdmin(isAdmin, permissions);
+        /* create an image, dataset and project as normalUser in a group of the normalUser */
+        if (!isAdmin) return;
+        loginUser(normalUser);
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        Image image = mmFactory.simpleImage();
+        Image sentImage = (Image) iUpdate.saveAndReturnObject(image);
+        Dataset dat = mmFactory.simpleDataset();
+        Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
+        Project proj = mmFactory.simpleProject();
+        Project sentProj = (Project) iUpdate.saveAndReturnObject(proj);
+        /* now login as light admin and create links between the image and dataset
+         * and the dataset and the project
+         */
+        loginUser(lightAdmin);
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        if (!isExpectSuccess) return; /* further testing not necessary in case links could not be created */
+        DatasetImageLink linkOfDatasetImage = linkDatasetImage(sentDat, sentImage);
+        ProjectDatasetLink linkOfProjectDataset = linkProjectDataset(sentProj, sentDat);
+        /* after successful linkage, transfer the ownership
+         * of both links to the normalUser. For that the light admin
+         * needs additonally the Chown permission. Note that if you transfer
+         * the whole project to normalUser expecting the links to
+         * be transferred too, this will fail, probably because the Project
+         * already belongs to normalUser and the transfer of the links does not proceed */
+        Project retrievedProject = (Project) iQuery.get("Project", sentProj.getId().getValue());
+        Chown2 chown = Requests.chown().target(linkOfDatasetImage).toUser(normalUser.userId).build();
+        doChange(client, factory, chown, permChown);
+        chown = Requests.chown().target(linkOfProjectDataset).toUser(normalUser.userId).build();
+        doChange(client, factory, chown, permChown);
+
+        /* now retrieve and check that the links, image, dataset and project
+         * are owned by normalUser */
+        Image retrievedImage = (Image) iQuery.get("Image", sentImage.getId().getValue());
+        Dataset retrievedDataset = (Dataset) iQuery.get("Dataset", sentDat.getId().getValue());
+        retrievedProject = (Project) iQuery.get("Project", sentProj.getId().getValue());
+        DatasetImageLink retrievedDatasetImageLink = (DatasetImageLink) iQuery.findByQuery(
+                "FROM DatasetImageLink WHERE parent.id  = :id",
+                new ParametersI().addId(sentDat.getId()));
+        ProjectDatasetLink retrievedProjectDatasetLink = (ProjectDatasetLink) iQuery.findByQuery(
+                "FROM ProjectDatasetLink WHERE parent.id  = :id",
+                new ParametersI().addId(sentProj.getId()));
+        Assert.assertEquals(retrievedImage.getDetails().getOwner().getId().getValue(), normalUser.userId);
+        Assert.assertEquals(retrievedDataset.getDetails().getOwner().getId().getValue(), normalUser.userId);
+        Assert.assertEquals(retrievedProject.getDetails().getOwner().getId().getValue(), normalUser.userId);
+        if (permChown) {
+            Assert.assertEquals(retrievedDatasetImageLink.getDetails().getOwner().getId().getValue(), normalUser.userId);
+            Assert.assertEquals(retrievedProjectDatasetLink.getDetails().getOwner().getId().getValue(), normalUser.userId);
+        } else {
+            Assert.assertEquals(retrievedDatasetImageLink.getDetails().getOwner().getId().getValue(), lightAdmin.userId);
+            Assert.assertEquals(retrievedProjectDatasetLink.getDetails().getOwner().getId().getValue(), lightAdmin.userId);
+        }
+    }
+
         /** Test a workflow of ImporterAs without using Sudo.
          * The data will be imported to the group
          * of the light admin (where the user is not a member)
