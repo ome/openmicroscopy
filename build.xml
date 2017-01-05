@@ -73,7 +73,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         </then></if>
         <installIvy/>
         <ivy:buildlist reference="all.buildpath" settingsRef="ivy.toplevel">
-            <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/tools/**, **/tests/**, **/bioformats/**"/>
+            <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/tools/**, **/tests/**"/>
         </ivy:buildlist>
         <ivy:buildlist reference="blitzserver.buildpath" settingsRef="ivy.toplevel">
             <fileset dir="${omero.home}/components/blitz/" includes="build.xml"/>
@@ -315,7 +315,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
 
     <macrodef name="launchSuite">
         <attribute name="suite"/>
-        <attribute name="excludes" default="**/tools/build.xml,**/tests/build.xml,**/bioformats/**"/>
+        <attribute name="excludes" default="**/tools/build.xml,**/tests/build.xml"/>
         <sequential>
         <ivy:settings id="ivy.@{suite}"  file="${etc.dir}/ivysettings.xml"/>
         <ivy:buildlist reference="@{suite}.buildpath" settingsRef="ivy.@{suite}" ivyfilepath="test.xml">
