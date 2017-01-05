@@ -197,7 +197,7 @@
             $('#wblitz-ch' + i).css('background-color', '#' + color)
                 .find('.lutBackground').css('background-position', lutBgPos);
             // Slider background
-            $('#wblitz-ch'+i+'-cwslider').addClass('lutBackground')
+            $('#wblitz-ch'+i+'-cwslider').find('.ui-slider-range').addClass('lutBackground')
                 .css({'background-position': lutBgPos, 'background-color': '#' + color});
             // Channel button beside slider
             $('#rd-wblitz-ch'+i)
