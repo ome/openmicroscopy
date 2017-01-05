@@ -28,21 +28,6 @@ from omero.gateway import BlitzGateway
 from omero_marshal import get_encoder
 
 
-def get_update_service(user):
-    """Get the update_service for the given user's client."""
-    return user[0].getSession().getUpdateService()
-
-
-def get_connection(user, group_id=None):
-    """Get a BlitzGateway connection for the given user's client."""
-    connection = BlitzGateway(client_obj=user[0])
-    # Refresh the session context
-    connection.getEventContext()
-    if group_id is not None:
-        connection.SERVICE_OPTS.setOmeroGroup(group_id)
-    return connection
-
-
 def marshal_objects(objects):
     """Marshal objects using omero_marshal."""
     expected = []
@@ -77,14 +62,6 @@ def assert_objects(conn, json_objects, omero_ids_objects, dtype="Project",
 
 class TestContainers(IWebTest):
     """Tests querying & editing Datasets, Screens etc."""
-
-    # Create users in the read-only group
-    @pytest.fixture()
-    def user1(self):
-        """Return a new user in the group1 group and also add to group2."""
-        group = self.new_group(perms='rwra--')
-        user = self.new_client_and_user(group=group)
-        return user
 
     @pytest.mark.parametrize("dtype", ['Project', 'Dataset', 'Screen'])
     def test_container_crud(self, dtype):
