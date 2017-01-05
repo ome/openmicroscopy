@@ -6,4 +6,8 @@
 
 Django>=1.8,<1.9
 django-pipeline==1.3.20
-omero-marshal==0.4.1
+
+# Until Screens are supported in release, we need to use master branch
+# See https://github.com/openmicroscopy/openmicroscopy/pull/5006
+# omero-marshal==0.4.1
+git+git://github.com/openmicroscopy/omero-marshal.git@master#egg=omero-marshal
