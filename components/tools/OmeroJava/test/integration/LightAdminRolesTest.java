@@ -838,7 +838,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     @Test(dataProvider = "combined privileges cases")
     public void testImporterAsNoSudoLinkInTargetGroup(boolean isAdmin, boolean permChgrp, boolean permChown,
             boolean permWriteOwned, boolean permWriteFile) throws Exception {
-        /* linking should be always permitted as long as light admin is in System Group */
+        /* linking should be always permitted as long as light admin is in System Group
+         * and has WriteOwned permissions */
         boolean isExpectSuccess = isAdmin && permWriteOwned;
         final EventContext normalUser = newUserAndGroup("rwr-r-");
         /* set up the light admin's permissions for this test */
@@ -853,7 +854,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         if (!isAdmin) return;
         loginUser(normalUser);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
-        Image image = mmFactory.simpleImage();
+        Image image = mmFactory.createImage();
         Image sentImage = (Image) iUpdate.saveAndReturnObject(image);
         Dataset dat = mmFactory.simpleDataset();
         Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
@@ -1076,6 +1077,104 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             Assert.assertEquals(link.getDetails().getGroup().getId().getValue(), lightAdmin.groupId);
         }
     }
+
+    /** Test of DataOrganizer.
+     * The workflow deals with the possibility of having to transfer all the data
+     * to another user using the Chown privilege and using the targetUser
+     * option of the Chown2 command which transfers all the data owned by one
+     * user to another user. The data are in 2 groups, of which the original data owner
+     * is a member of, the recipient of the data is just a member of one of the groups
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "combined privileges cases")
+    public void testDataOrganizerChownAll(boolean isAdmin, boolean permChgrp, boolean permChown,
+            boolean permWriteOwned, boolean permWriteFile) throws Exception {
+        final boolean isExpectSuccess = isAdmin && permChown && permWriteOwned && permWriteFile;
+        final boolean chownPassing = isAdmin && permChown && permWriteOwned;
+        if (!isExpectSuccess) return;
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
+        ExperimenterGroup otherGroup = newGroupAddUser("rwr-r-", normalUser.userId, false);
+        final EventContext recipient = newUserInGroup(otherGroup, false);
+        /* set up the light admin's permissions for this test */
+        ArrayList <String> permissions = new ArrayList <String>();
+        if (permChown) permissions.add(AdminPrivilegeChown.value);;
+        if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);;
+        if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
+        if (permWriteFile) permissions.add(AdminPrivilegeWriteFile.value);
+        final EventContext lightAdmin;
+        lightAdmin = loginNewAdmin(isAdmin, permissions);
+        final EventContext fullAdmin = newUserInGroup(iAdmin.lookupGroup(roles.systemGroupName), false);
+        System.out.println("full admins ID");
+        System.out.println(fullAdmin.userId);
+        System.out.println("light admins ID");
+        System.out.println(lightAdmin.userId);
+        /* create two sets of P/D/I hierarchy as normalUser in the default
+         * group of the normalUser */
+        if (!isAdmin) return;
+        loginUser(lightAdmin);
+        loginUser(normalUser); /* comment out this line in order to let the light admin own the hierarchy */
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        Image image1 = mmFactory.createImage();
+        Image image2 = mmFactory.createImage();
+        Image sentImage1 = (Image) iUpdate.saveAndReturnObject(image1);
+        Image sentImage2 = (Image) iUpdate.saveAndReturnObject(image2);
+        Dataset dat1 = mmFactory.simpleDataset();
+        Dataset dat2 = mmFactory.simpleDataset();
+        Dataset sentDat1 = (Dataset) iUpdate.saveAndReturnObject(dat1);
+        Dataset sentDat2 = (Dataset) iUpdate.saveAndReturnObject(dat2);
+        Project proj1 = mmFactory.simpleProject();
+        Project proj2 = mmFactory.simpleProject();
+        Project sentProj1 = (Project) iUpdate.saveAndReturnObject(proj1);
+        Project sentProj2 = (Project) iUpdate.saveAndReturnObject(proj2);
+        DatasetImageLink linkOfDatasetImage1 = linkDatasetImage(sentDat1, sentImage1);
+        DatasetImageLink linkOfDatasetImage2 = linkDatasetImage(sentDat2, sentImage2);
+        ProjectDatasetLink linkOfProjectDataset1 = linkProjectDataset(sentProj1, sentDat1);
+        ProjectDatasetLink linkOfProjectDataset2 = linkProjectDataset(sentProj2, sentDat2);
+        System.out.println("linkofDatasetImage1 ID before chown");
+        System.out.println(linkOfDatasetImage1.getId().getValue());
+        System.out.println(sentImage1.getId().getValue());
+        System.out.println(sentDat1.getId().getValue());
+        System.out.println(recipient.userId);
+        /* now also create this hierarchy in the other group as the normalUser */
+        client.getImplicitContext().put("omero.group", Long.toString(otherGroup.getId().getValue()));
+        Image image1OtherGroup = mmFactory.createImage();
+        Image image2OtherGroup = mmFactory.createImage();
+        Image sentImage1OtherGroup = (Image) iUpdate.saveAndReturnObject(image1OtherGroup);
+        Image sentImage2OtherGroup = (Image) iUpdate.saveAndReturnObject(image2OtherGroup);
+        Dataset dat1OtherGroup = mmFactory.simpleDataset();
+        Dataset dat2OtherGroup = mmFactory.simpleDataset();
+        Dataset sentDat1OtherGroup = (Dataset) iUpdate.saveAndReturnObject(dat1OtherGroup);
+        Dataset sentDat2OtherGroup = (Dataset) iUpdate.saveAndReturnObject(dat2OtherGroup);
+        Project proj1OtherGroup = mmFactory.simpleProject();
+        Project proj2OtherGroup = mmFactory.simpleProject();
+        Project sentProj1OtherGroup = (Project) iUpdate.saveAndReturnObject(proj1OtherGroup);
+        Project sentProj2OtherGroup = (Project) iUpdate.saveAndReturnObject(proj2OtherGroup);
+        DatasetImageLink linkOfDatasetImage1OtherGroup = linkDatasetImage(sentDat1OtherGroup, sentImage1OtherGroup);
+        DatasetImageLink linkOfDatasetImage2OtherGroup = linkDatasetImage(sentDat2OtherGroup, sentImage2OtherGroup);
+        ProjectDatasetLink linkOfProjectDataset1OtherGroup = linkProjectDataset(sentProj1OtherGroup, sentDat1OtherGroup);
+        ProjectDatasetLink linkOfProjectDataset2OtherGroup = linkProjectDataset(sentProj2OtherGroup, sentDat2OtherGroup);
+        /* now transfer all the data of normalUser to recipient */
+        init(lightAdmin);
+        init(fullAdmin); /* comment out this line in order to let lightAdmin do the chown */
+        client.getImplicitContext().put("omero.group", Long.toString(-1));
+        if (chownPassing) {
+            doChange(client, factory, Requests.chown().target(sentDat1).toUser(recipient.userId).build(), true);
+        }
+        if (!isExpectSuccess) {
+            return;
+        }
+        client.getImplicitContext().put("omero.group", Long.toString(-1));
+        Dataset retrievedDataset = (Dataset) iQuery.get("Dataset", sentDat1.getId().getValue());
+        Image retrievedImage = (Image) iQuery.get("Image", sentImage1.getId().getValue());
+        DatasetImageLink retrievedDatasetImageLink = (DatasetImageLink) iQuery.findByQuery(
+                "FROM DatasetImageLink WHERE parent.id  = :id",
+                new ParametersI().addId(sentDat1.getId()));
+        Assert.assertEquals(retrievedDataset.getDetails().getOwner().getId().getValue(), recipient.userId);
+        Assert.assertEquals(retrievedImage.getDetails().getOwner().getId().getValue(), recipient.userId);
+        Assert.assertEquals(retrievedDatasetImageLink.getDetails().getOwner().getId().getValue(), recipient.userId);
+
+    }
+
     /**
      * @return two test cases for isAdmin (member of system group) case
      */
