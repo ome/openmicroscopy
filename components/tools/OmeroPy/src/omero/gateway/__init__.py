@@ -4595,7 +4595,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
         return query, [], omero.sys.ParametersI()
 
     @classmethod
-    def _register(klass, regklass):
+    def _register(cls, regklass):
         """
         Adds the AnnotationWrapper regklass to class registry
 
@@ -4604,10 +4604,10 @@ class AnnotationWrapper (BlitzObjectWrapper):
         :type regklass:     :class:`AnnotationWrapper` subclass
         """
 
-        klass.registry[regklass.OMERO_TYPE] = regklass
+        cls.registry[regklass.OMERO_TYPE] = regklass
 
     @classmethod
-    def _wrap(klass, conn=None, obj=None, link=None):
+    def _wrap(cls, conn=None, obj=None, link=None):
         """
         Class method for creating :class:`AnnotationWrapper` subclasses based
         on the type of annotation object, using previously registered mapping
@@ -4626,17 +4626,17 @@ class AnnotationWrapper (BlitzObjectWrapper):
         """
         if obj is None:
             return AnnotationWrapper()
-        if obj.__class__ in klass.registry:
+        if obj.__class__ in cls.registry:
             kwargs = dict()
             if link is not None:
                 kwargs['link'] = BlitzObjectWrapper(conn, link)
-            return klass.registry[obj.__class__](conn, obj, **kwargs)
+            return cls.registry[obj.__class__](conn, obj, **kwargs)
         else:  # pragma: no cover
             logger.error("Failed to _wrap() annotation: %s" % obj.__class__)
             return None
 
     @classmethod
-    def createAndLink(klass, target, ns, val=None, sameOwner=False):
+    def createAndLink(cls, target, ns, val=None, sameOwner=False):
         """
         Class method for creating an instance of this AnnotationWrapper,
         setting ns and value and linking to the target.
@@ -4648,7 +4648,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
         :param val:         Value of annotation. E.g Long, Text, Boolean etc.
         """
 
-        this = klass()
+        this = cls()
         this.setNs(ns)
         if val is not None:
             this.setValue(val)
@@ -6287,7 +6287,7 @@ class ColorHolder (object):
             self._color[colorname.lower()] = 255
 
     @classmethod
-    def fromRGBA(klass, r, g, b, a):
+    def fromRGBA(cls, r, g, b, a):
         """
         Class method for creating a ColorHolder from r,g,b,a values
 
@@ -6303,7 +6303,7 @@ class ColorHolder (object):
         :rtype:     :class:`ColorHolder`
         """
 
-        rv = klass()
+        rv = cls()
         rv.setRed(r)
         rv.setGreen(g)
         rv.setBlue(b)
@@ -7083,7 +7083,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
     PLANEDEF = omero.romio.XY
 
     @classmethod
-    def fromPixelsId(self, conn, pid):
+    def fromPixelsId(cls, conn, pid):
         """
         Creates a new Image wrapper with the image specified by pixels ID
 
@@ -7096,7 +7096,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         """
 
         q = conn.getQueryService()
-        p = q.find('Pixels', pid, self._conn.SERVICE_OPTS)
+        p = q.find('Pixels', pid, conn.SERVICE_OPTS)
         if p is None:
             return None
         return ImageWrapper(conn, p.image)
