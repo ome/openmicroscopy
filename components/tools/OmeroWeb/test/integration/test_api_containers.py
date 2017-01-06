@@ -26,6 +26,28 @@ from django.conf import settings
 import pytest
 from omero.gateway import BlitzGateway
 from omero_marshal import get_encoder
+from omero.model import DatasetI, ProjectI
+from omero.rtypes import rstring, unwrap
+
+
+def get_update_service(user):
+    """Get the update_service for the given user's client."""
+    return user[0].getSession().getUpdateService()
+
+
+def get_connection(user, group_id=None):
+    """Get a BlitzGateway connection for the given user's client."""
+    connection = BlitzGateway(client_obj=user[0])
+    # Refresh the session context
+    connection.getEventContext()
+    if group_id is not None:
+        connection.SERVICE_OPTS.setOmeroGroup(group_id)
+    return connection
+
+
+def cmp_name_insensitive(x, y):
+    """Case-insensitive name comparator."""
+    return cmp(unwrap(x.name).lower(), unwrap(y.name).lower())
 
 
 def marshal_objects(objects):
@@ -110,3 +132,65 @@ class TestContainers(IWebTest):
         # Get should now return 404
         rsp = _get_response_json(django_client, object_url, {},
                                  status_code=404)
+
+
+class TestDatasets(IWebTest):
+    """Tests querying Datasets."""
+
+    @pytest.fixture()
+    def user1(self):
+        """Return a new user in a read-annotate group."""
+        group = self.new_group(perms='rwra--')
+        user = self.new_client_and_user(group=group)
+        return user
+
+    @pytest.fixture()
+    def project_datasets(self, user1):
+        """Return Project with Datasets and an orphaned Dataset."""
+        # Create and name all the objects
+        project = ProjectI()
+        project.name = rstring('Project')
+
+        for i in range(5):
+            dataset1 = DatasetI()
+            dataset1.name = rstring('Dataset%s' % i)
+            project.linkDataset(dataset1)
+
+        dataset = DatasetI()
+        dataset.name = rstring('Dataset')
+
+        project = get_update_service(user1).saveAndReturnObject(project)
+        dataset = get_update_service(user1).saveAndReturnObject(dataset)
+
+        return project, dataset
+
+    def test_project_datasets(self, user1, project_datasets):
+        """Test listing of Datasets in a Project."""
+        conn = get_connection(user1)
+        user_name = conn.getUser().getName()
+        django_client = self.new_django_client(user_name, user_name)
+        version = settings.API_VERSIONS[-1]
+        request_url = reverse('api_datasets', kwargs={'api_version': version})
+
+        # List ALL Datasets
+        rsp = _get_response_json(django_client, request_url, {})
+        assert len(rsp['data']) == 6
+
+        # Filter Datasets by Project
+        project = project_datasets[0]
+        datasets = project.linkedDatasetList()
+        datasets.sort(cmp_name_insensitive)
+        payload = {'project': project.id.val}
+        rsp = _get_response_json(django_client, request_url, payload)
+        assert len(rsp['data']) == 5
+        assert_objects(conn, rsp['data'], datasets, dtype="Dataset")
+
+        # Pagination
+        limit = 3
+        payload['limit'] = limit
+        rsp = _get_response_json(django_client, request_url, payload)
+        assert_objects(conn, rsp['data'], datasets[0:limit], dtype="Dataset")
+        payload['page'] = 2
+        rsp = _get_response_json(django_client, request_url, payload)
+        assert_objects(conn, rsp['data'], datasets[limit:limit * 2],
+                       dtype="Dataset")
