@@ -93,7 +93,6 @@ class TestContainers(IWebTest):
 
         # Read Object
         object_url = "%sm/%ss/%s/" % (base_url, dtype.lower(), object_id)
-        print object_url
         object_json = _get_response_json(django_client, object_url, {})
         assert object_json['@id'] == object_id
         conn = BlitzGateway(client_obj=self.root)
