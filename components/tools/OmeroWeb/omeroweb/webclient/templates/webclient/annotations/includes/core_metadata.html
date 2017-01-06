@@ -59,9 +59,13 @@
                             {% if vYd != '-' %} ({{ uY }}) {% endif %}
                         {% endif %}
                     {% endwith %}
-                    {% if vZ %}
-                        x {{ vZ|floatformat:2|default:'-' }} {% if uX != uY or uX != uZ %}({{ uZ }}){% endif %}
-                    {% endif %}
+                    x 
+                    {% with vZd=vZ|floatformat:2|default:'-' %}
+                        {{ vZd }}
+                        {% if uX != uY or uX != uZ %}
+                            {% if vZd != '-' %} ({{ uZ }}) {% endif %}
+                        {% endif %}
+                    {% endwith %}
                 {% else %}-{% endif %}
             </div>
             <span class="tooltip_html" style='display:none'>
@@ -75,9 +79,11 @@
                         {{ vYd }}
                         {% if vYd != '-' %} ({{ uY }}) {% endif %}
                     {% endwith %}
-                    {% if vZ %}
-                        x {{ vZ|default:'-' }} ({{ uZ }})
-                    {% endif %}
+                    x
+                    {% with vZd=vZ|default:'-' %}
+                        {{ vZd }}
+                        {% if vZd != '-' %} ({{ uZ }}) {% endif %}
+                    {% endwith %}
                 {% else %}
                 Physical pixel sizes not available
                 {% endif %}
