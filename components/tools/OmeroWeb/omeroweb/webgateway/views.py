@@ -1567,7 +1567,7 @@ def open_with_options(request, **kwargs):
         if len(ow) < 2:
             continue
         viewer = {}
-        viewer['label'] = ow[0]
+        viewer['id'] = ow[0]
         try:
             viewer['url'] = reverse(ow[1])
         except NoReverseMatch:
@@ -1587,6 +1587,8 @@ def open_with_options(request, **kwargs):
                     else:
                         # ...otherwise, assume within static
                         viewer['script_url'] = static(ow[2]['script_url'])
+                if 'label' in ow[2]:
+                    viewer['label'] = ow[2]['label']
         except:
             # ignore invalid params
             pass
