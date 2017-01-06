@@ -28,7 +28,7 @@ from django.conf import settings
 import traceback
 import json
 
-from api_query import query_projects
+from api_query import query_projects, query_datasets
 from omero_marshal import get_encoder, get_decoder, OME_SCHEMA_URL
 from omero import ValidationException
 from omeroweb.connector import Server
@@ -191,6 +191,42 @@ class ProjectsView(View):
 
         return projects
 
+
+class DatasetsView(View):
+    """Handles GET for /datasets/ to list available Datasets."""
+
+    @method_decorator(login_required(useragent='OMERO.webapi'))
+    @method_decorator(json_response())
+    def dispatch(self, *args, **kwargs):
+        """Use dispatch to add decorators to class methods."""
+        return super(DatasetsView, self).dispatch(*args, **kwargs)
+
+    def get(self, request, pid=None, conn=None, **kwargs):
+        """GET a list of Datasets, filtering by various request parameters."""
+        try:
+            page = getIntOrDefault(request, 'page', 1)
+            limit = getIntOrDefault(request, 'limit', settings.PAGE)
+            group = getIntOrDefault(request, 'group', -1)
+            owner = getIntOrDefault(request, 'owner', None)
+            child_count = request.GET.get('child_count', False) == 'true'
+            normalize = request.GET.get('normalize', False) == 'true'
+            # filter by ?project=pid instead of /projects/:pdi/datasets/
+            if pid is None:
+                pid = getIntOrDefault(request, 'project', None)
+        except ValueError as ex:
+            raise BadRequestError(str(ex))
+
+        # Get the datasets
+        datasets = query_datasets(conn,
+                                  project=pid,
+                                  group=group,
+                                  owner=owner,
+                                  child_count=child_count,
+                                  page=page,
+                                  limit=limit,
+                                  normalize=normalize)
+
+        return datasets
 
 class SaveView(View):
     """

@@ -37,6 +37,16 @@ def query_projects(conn, child_count=False,
                          page=page, limit=limit, normalize=normalize)
 
 
+def query_datasets(conn, project=None, child_count=False,
+                   group=None, owner=None,
+                   page=1, limit=settings.PAGE,
+                   normalize=False):
+    """Query OMERO and marshal omero.model.Datasets."""
+    return query_objects(conn, 'Dataset', project=project,
+                         child_count=child_count, group=group, owner=owner,
+                         page=page, limit=limit, normalize=normalize)
+
+
 def query_objects(conn, object_type,
                   project=None,
                   child_count=False,
