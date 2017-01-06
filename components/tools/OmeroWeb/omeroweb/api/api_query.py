@@ -19,70 +19,72 @@
 
 """Helper functions for views that handle object trees."""
 
-import omero
 
-from omero.rtypes import unwrap, rlong
+from omero.rtypes import unwrap
 from django.conf import settings
 
 from api_marshal import marshal_objects
 from copy import deepcopy
 
 
-def query_projects(conn, childCount=False,
+def query_projects(conn, child_count=False,
                    group=None, owner=None,
                    page=1, limit=settings.PAGE,
                    normalize=False):
-    """
-    Query OMERO and marshal omero.model.Projects.
+    """Query OMERO and marshal omero.model.Projects."""
+    return query_objects(conn, 'Project',
+                         child_count=child_count, group=group, owner=owner,
+                         page=page, limit=limit, normalize=normalize)
 
-    Build a query based on a number of parameters,
-    queries OMERO with the query service and
-    marshals Projects with omero_marshal.
+
+def query_objects(conn, object_type,
+                  project=None,
+                  child_count=False,
+                  group=None, owner=None,
+                  page=1, limit=settings.PAGE,
+                  normalize=False):
+    """
+    Base query method, handles different object_types.
+
+    Builds a query and adds common
+    parameters and filters such as by owner or group.
 
     @param conn:        BlitzGateway
-    @param childCount:  If true, also load Dataset counts as omero:childCount
+    @param object_type: Type to query. E.g. Project
+    @param child_count:  If true, also load Dataset counts as omero:childCount
     @param group:       Filter by group Id
     @param owner:       Filter by owner Id
     @param page:        Pagination page. Default is 1
     @param limit:       Page size
     @param normalize:   If true, marshal groups and experimenters separately
     """
-    qs = conn.getQueryService()
-    params = omero.sys.ParametersI()
-    if page:
-        params.page((page-1) * limit, limit)
-    ctx = deepcopy(conn.SERVICE_OPTS)
+    opts = {'offset': (page - 1) * limit,
+            'limit': limit,
+            'owner': owner,
+            'child_count': child_count,
+            'order_by': 'name'}
+    if object_type == 'Dataset' and project is not None:
+        opts['project'] = project
 
-    # Set the desired group context and owner
+    # buildQuery is used by conn.getObjects()
+    query, params, wrapper = conn.buildQuery(object_type, opts=opts)
+
+    # Set the desired group context
+    ctx = deepcopy(conn.SERVICE_OPTS)
     if group is None:
         group = -1
     ctx.setOmeroGroup(group)
-    where_clause = ''
-    if owner is not None and owner != -1:
-        params.add('owner', rlong(owner))
-        where_clause = 'where project.details.owner.id = :owner'
 
-    withChildCount = ""
-    if childCount:
-        withChildCount = """, (select count(id) from ProjectDatasetLink pdl
-                 where pdl.parent=project.id)"""
-
-    # Need to load owners specifically, else can be unloaded if group != -1
-    query = """
-            select project %s from Project project
-            join fetch project.details.owner
-            %s
-            order by lower(project.name), project.id
-            """ % (withChildCount, where_clause)
+    qs = conn.getQueryService()
 
     projects = []
     extras = {}
-    if childCount:
+    if child_count:
         result = qs.projection(query, params, ctx)
         for p in result:
-            project = unwrap(p[0])
-            projects.append(project)
-            extras[project.id.val] = {'omero:childCount': unwrap(p[1])}
+            object = unwrap(p[0])
+            projects.append(object)
+            extras[object.id.val] = {'omero:childCount': unwrap(p[1])}
     else:
         extras = None
         result = qs.findAllByQuery(query, params, ctx)

@@ -174,8 +174,8 @@ class ProjectsView(View):
             page = getIntOrDefault(request, 'page', 1)
             limit = getIntOrDefault(request, 'limit', settings.PAGE)
             group = getIntOrDefault(request, 'group', -1)
-            owner = getIntOrDefault(request, 'owner', -1)
-            childCount = request.GET.get('childCount', False) == 'true'
+            owner = getIntOrDefault(request, 'owner', None)
+            child_count = request.GET.get('childCount', False) == 'true'
             normalize = request.GET.get('normalize', False) == 'true'
         except ValueError as ex:
             raise BadRequestError(str(ex))
@@ -184,7 +184,7 @@ class ProjectsView(View):
         projects = query_projects(conn,
                                   group=group,
                                   owner=owner,
-                                  childCount=childCount,
+                                  child_count=child_count,
                                   page=page,
                                   limit=limit,
                                   normalize=normalize)
