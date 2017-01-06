@@ -66,8 +66,15 @@
             </div>
             <span class="tooltip_html" style='display:none'>
                 {% if vX or vY or vZ %}
-                    {{ vX|default:'-' }} ({{ uX }})
-                    x {{ vY|default:'-' }} ({{ uY }})
+                    {% with vXd=vX|default:'-' %}
+                        {{ vXd }}
+                        {% if vXd != '-' %} ({{ uX }}) {% endif %}
+                    {% endwith %}
+                    x
+                    {% with vYd=vY|default:'-' %}
+                        {{ vYd }}
+                        {% if vYd != '-' %} ({{ uY }}) {% endif %}
+                    {% endwith %}
                     {% if vZ %}
                         x {{ vZ|default:'-' }} ({{ uZ }})
                     {% endif %}
