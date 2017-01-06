@@ -46,8 +46,19 @@
         <td id='pixels_size'>
             <div class='tooltip'>
                 {% if vX or vY or vZ %}
-                    {{ vX|floatformat:2|default:'-' }} {% if uX != uY or uX != uZ %}({{ uX }}){% endif %}
-                    x {{ vY|floatformat:2|default:'-' }} {% if uX != uY or uX != uZ %}({{ uY }}){% endif %}
+                    {% with vXd=vX|floatformat:2|default:'-' %}
+                        {{ vXd }}
+                        {% if uX != uY or uX != uZ %}
+                            {% if vXd != '-' %} ({{ uX }}) {% endif %}
+                        {% endif %}
+                    {% endwith %}
+                    x 
+                    {% with vYd=vY|floatformat:2|default:'-' %}
+                        {{ vYd }}
+                        {% if uX != uY or uX != uZ %}
+                            {% if vYd != '-' %} ({{ uY }}) {% endif %}
+                        {% endif %}
+                    {% endwith %}
                     {% if vZ %}
                         x {{ vZ|floatformat:2|default:'-' }} {% if uX != uY or uX != uZ %}({{ uZ }}){% endif %}
                     {% endif %}
