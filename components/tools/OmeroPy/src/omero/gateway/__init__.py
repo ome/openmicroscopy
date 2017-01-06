@@ -271,7 +271,7 @@ class BlitzObjectWrapper (object):
         return obj.getValue()
 
     @classmethod
-    def _getQueryString(klass, opts=None):
+    def _getQueryString(cls, opts=None):
         """
         Used for building queries in generic methods
         such as getObjects("Project").
@@ -293,13 +293,13 @@ class BlitzObjectWrapper (object):
         child_count = False
         if opts is not None and 'child_count' in opts:
             child_count = opts['child_count']
-        if child_count and klass.LINK_CLASS is not None:
+        if child_count and cls.LINK_CLASS is not None:
             extra_select = """, (select count(id) from %s chl
-                      where chl.parent=obj.id)""" % klass.LINK_CLASS
+                      where chl.parent=obj.id)""" % cls.LINK_CLASS
         query = ("select obj %s from %s obj "
                  "join fetch obj.details.owner as owner "
                  "join fetch obj.details.creationEvent" %
-                 (extra_select, klass.OMERO_CLASS))
+                 (extra_select, cls.OMERO_CLASS))
 
         params = omero.sys.ParametersI()
         clauses = []
@@ -3120,10 +3120,10 @@ class _BlitzGateway (object):
         if wrapper.__name__ == "_wrap":
             # If wrapper is the AnnotationWrapper._wrap class method, we
             # need to get the underlying AnnotationWrapper class
-            klass = wrapper()
+            cls = wrapper()
         else:
-            klass = wrapper
-        query, clauses, baseParams = klass._getQueryString(opts)
+            cls = wrapper
+        query, clauses, baseParams = cls._getQueryString(opts)
 
         # Handle dict of parameters -> convert to ParametersI()
         if opts is not None:
@@ -4579,7 +4579,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
                 self.getNs() == a.getNs())
 
     @classmethod
-    def _getQueryString(klass, opts=None):
+    def _getQueryString(cls, opts=None):
         """
         Used for building queries in generic methods such as
         getObjects("Annotation")
@@ -4745,7 +4745,7 @@ class FileAnnotationWrapper (AnnotationWrapper, OmeroRestrictionWrapper):
     _attrs = ('file|OriginalFileWrapper',)
 
     @classmethod
-    def _getQueryString(klass, opts=None):
+    def _getQueryString(cls, opts=None):
         """
         Used for building queries in generic methods such as
         getObjects("FileAnnotation").
@@ -4892,7 +4892,7 @@ class TimestampAnnotationWrapper (AnnotationWrapper):
     OMERO_TYPE = TimestampAnnotationI
 
     @classmethod
-    def _getQueryString(klass, opts=None):
+    def _getQueryString(cls, opts=None):
         """
         Used for building queries in generic methods such as
         getObjects("TimestampAnnotation").
@@ -4947,7 +4947,7 @@ class BooleanAnnotationWrapper (AnnotationWrapper):
     OMERO_TYPE = BooleanAnnotationI
 
     @classmethod
-    def _getQueryString(klass, opts=None):
+    def _getQueryString(cls, opts=None):
         """
         Used for building queries in generic methods such as
         getObjects("BooleanAnnotation").
@@ -5039,7 +5039,7 @@ class TagAnnotationWrapper (AnnotationWrapper):
         return rv
 
     @classmethod
-    def _getQueryString(klass, opts=None):
+    def _getQueryString(cls, opts=None):
         """
         Used for building queries in generic methods such as
         getObjects("TagAnnotation").
@@ -5087,7 +5087,7 @@ class CommentAnnotationWrapper (AnnotationWrapper):
     OMERO_TYPE = CommentAnnotationI
 
     @classmethod
-    def _getQueryString(klass, opts=None):
+    def _getQueryString(cls, opts=None):
         """
         Used for building queries in generic methods such as
         getObjects("CommentAnnotation").
@@ -5133,7 +5133,7 @@ class LongAnnotationWrapper (AnnotationWrapper):
     OMERO_TYPE = LongAnnotationI
 
     @classmethod
-    def _getQueryString(klass, opts=None):
+    def _getQueryString(cls, opts=None):
         """
         Used for building queries in generic methods such as
         getObjects("LongAnnotation").
@@ -5180,7 +5180,7 @@ class DoubleAnnotationWrapper (AnnotationWrapper):
     OMERO_TYPE = DoubleAnnotationI
 
     @classmethod
-    def _getQueryString(klass, opts=None):
+    def _getQueryString(cls, opts=None):
         """
         Used for building queries in generic methods such as
         getObjects("DoubleAnnotation").
@@ -5228,7 +5228,7 @@ class TermAnnotationWrapper (AnnotationWrapper):
     OMERO_TYPE = TermAnnotationI
 
     @classmethod
-    def _getQueryString(klass, opts=None):
+    def _getQueryString(cls, opts=None):
         """
         Used for building queries in generic methods such as
         getObjects("TermAnnotation").
@@ -5352,7 +5352,7 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         return rv
 
     @classmethod
-    def _getQueryString(klass, opts=None):
+    def _getQueryString(cls, opts=None):
         """
         Returns string for building queries, loading Experimenters only.
 
@@ -5587,7 +5587,7 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
     PARENT_WRAPPER_CLASS = None
 
     @classmethod
-    def _getQueryString(klass, opts=None):
+    def _getQueryString(cls, opts=None):
         """
         Returns string for building queries, loading Experimenters for each
         group.
@@ -5685,7 +5685,7 @@ class _DatasetWrapper (BlitzObjectWrapper):
     PARENT_WRAPPER_CLASS = 'ProjectWrapper'
 
     @classmethod
-    def _getQueryString(klass, opts=None):
+    def _getQueryString(cls, opts=None):
         """
         Extend base query to handle filtering of Datasets by Projects.
         Returns a tuple of (query, clauses, params).
@@ -5695,7 +5695,7 @@ class _DatasetWrapper (BlitzObjectWrapper):
         :return:            Tuple of string, list, ParametersI
         """
         query, clauses, params = super(
-            _DatasetWrapper, klass)._getQueryString(opts)
+            _DatasetWrapper, cls)._getQueryString(opts)
         if opts is not None and 'project' in opts:
             query += ' join obj.projectLinks plink'
             clauses.append('plink.parent.id = :pid')
@@ -5952,7 +5952,7 @@ class _PlateWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         return None
 
     @classmethod
-    def _getQueryString(klass, opts=None):
+    def _getQueryString(cls, opts=None):
         """
         Returns a query string for constructing custom queries,
         loading the screen for each plate.
@@ -6712,7 +6712,7 @@ class _FilesetWrapper (BlitzObjectWrapper):
     OMERO_CLASS = 'Fileset'
 
     @classmethod
-    def _getQueryString(klass, opts=None):
+    def _getQueryString(cls, opts=None):
         """
         Used for building queries in generic methods such as
         getObjects("Fileset").
