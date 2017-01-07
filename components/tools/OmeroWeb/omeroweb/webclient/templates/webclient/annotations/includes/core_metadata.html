@@ -46,44 +46,16 @@
         <td id='pixels_size'>
             <div class='tooltip'>
                 {% if vX or vY or vZ %}
-                    {% with vXd=vX|floatformat:2|default:'-' %}
-                        {{ vXd }}
-                        {% if uX != uY or uX != uZ %}
-                            {% if vXd != '-' %} ({{ uX }}) {% endif %}
-                        {% endif %}
-                    {% endwith %}
-                    x 
-                    {% with vYd=vY|floatformat:2|default:'-' %}
-                        {{ vYd }}
-                        {% if uX != uY or uX != uZ %}
-                            {% if vYd != '-' %} ({{ uY }}) {% endif %}
-                        {% endif %}
-                    {% endwith %}
-                    x 
-                    {% with vZd=vZ|floatformat:2|default:'-' %}
-                        {{ vZd }}
-                        {% if uX != uY or uX != uZ %}
-                            {% if vZd != '-' %} ({{ uZ }}) {% endif %}
-                        {% endif %}
-                    {% endwith %}
+                    {{ vX|floatformat:2|default:'-' }} {% if vX %}{% if uX != uY or uX != uZ %}({{ uX }}){% endif %}{% endif %}
+                    x {{ vY|floatformat:2|default:'-' }} {% if vY %}{% if uX != uY or uX != uZ %}({{ uY }}){% endif %}{% endif %}
+                    x {{ vZ|floatformat:2|default:'-' }} {% if vZ %}{% if uX != uY or uX != uZ %}({{ uZ }}){% endif %}{% endif %}
                 {% else %}-{% endif %}
             </div>
             <span class="tooltip_html" style='display:none'>
                 {% if vX or vY or vZ %}
-                    {% with vXd=vX|default:'-' %}
-                        {{ vXd }}
-                        {% if vXd != '-' %} ({{ uX }}) {% endif %}
-                    {% endwith %}
-                    x
-                    {% with vYd=vY|default:'-' %}
-                        {{ vYd }}
-                        {% if vYd != '-' %} ({{ uY }}) {% endif %}
-                    {% endwith %}
-                    x
-                    {% with vZd=vZ|default:'-' %}
-                        {{ vZd }}
-                        {% if vZd != '-' %} ({{ uZ }}) {% endif %}
-                    {% endwith %}
+                    {{ vX|default:'-' }} {% if vX %}({{ uX }}){% endif %}
+                    x {{ vY|default:'-' }} {% if vY %}({{ uY }}){% endif %}
+                    x {{ vZ|default:'-' }} {% if vZ %}({{ uZ }}){% endif %}
                 {% else %}
                 Physical pixel sizes not available
                 {% endif %}
