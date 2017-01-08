@@ -1413,7 +1413,6 @@
         left: 0;
         position: relative;
         width: 100%;
-        height: 100%;
     }
 
 
@@ -1501,6 +1500,9 @@
         display: none;
     }
 
+    .iconLayout {
+        height: 100%;
+    }
     .iconLayout li {
         display: inline-block;
         background-color:hsl(0,0%,95%);
@@ -2199,6 +2201,67 @@ div.paging input.button_pagination {
 }
 .well:hover .wellLabel {
     display: block;
+}
+
+
+#content_details .fillSpace {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    overflow: auto;
+}
+.wellImages {
+    border-top: solid 1px #bbb;
+}
+.wellImages img {
+    margin: 5px;
+    cursor: pointer;
+}
+#wellImages li {
+    display: inline-block;
+}
+#wellImages ul, #wellImages h1 {
+    margin: 5px;
+}
+#wellImages .ui-selected {
+    background-color: #87ABD2;
+}
+.wellImagesLabel {
+    width: 30px;
+    vertical-align: middle;
+}
+#wellImages td {
+    border-bottom: solid #bbb 1px;
+}
+#well_birds_eye img {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border: solid black 1px;
+    z-index: 0;
+    background: #bbb;
+    cursor: pointer;
+}
+#well_birds_eye .ui-selected {
+    width: 6px;
+    height: 6px;
+    border: solid 3px #87ABD2;
+    z-index: 10;
+}
+#well_birds_eye {
+    height: 200px;
+    width: 200px;
+}
+#well_birds_eye_container {
+    margin: auto;
+    margin-top: 10px;
+    height: 220px;
+    width: 220px;
+    position: relative;
+    border: solid #bbb 1px;
+}
+#wellImagesContainer span {
+	font-size: 12px;
 }
 
 
