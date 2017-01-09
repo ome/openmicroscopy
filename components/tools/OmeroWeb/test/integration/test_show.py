@@ -699,7 +699,7 @@ class TestShow(IWebTest):
 
     def assert_instantiation(self, show):
         assert show.conn == self.conn
-        assert show.initially_open is None
+        assert len(show.initially_open) == 0
         assert show.initially_open_owner is None
         assert show._first_selected is None
 
@@ -1085,7 +1085,7 @@ class TestShow(IWebTest):
 
         first_selected = show.first_selected
         assert first_selected is None
-        assert show.initially_open is None
+        assert len(show.initially_open) == 0
         assert show.initially_select == \
             screen_plate_run_illegal_run_request['initially_select']
 
