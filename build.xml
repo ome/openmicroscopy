@@ -154,7 +154,6 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
 
     <target name="build-default" description="Default build calls build" depends="build"/>
     <target name="build" description="Build all components" depends="init">
-        <property name="env.NOMAKE" value="1"/>
         <iterate buildpathref="all.buildpath" target="dist"/>
         <iterate buildpathref="all-tools.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
@@ -278,7 +277,6 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
     </macrodef>
 
     <target name="test-compile" description="Compile all tests" depends="init">
-        <property name="env.NOMAKE" value="1"/>
         <launchSuite suite="test-compile"/>
     </target>
 
@@ -286,7 +284,6 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
     </target>
 
     <target name="test-unit" description="Run all unit tests" depends="init">
-        <property name="env.NOMAKE" value="1"/>
         <launchSuite suite="test"/>
     </target>
 
@@ -294,7 +291,6 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
     </target>
 
     <target name="test-integration" description="Run all integration tests" depends="init">
-        <property name="env.NOMAKE" value="1"/>
         <launchSuite suite="integration"/>
     </target>
 
