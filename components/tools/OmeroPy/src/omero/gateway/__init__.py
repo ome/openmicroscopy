@@ -7119,6 +7119,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                         'load_pixels': <bool> to load Pixel objects.
                         'load_channels': <bool> to load Channels and
                                                     Logical Channels
+                        'orphaned': <bool>. Images not in Dataset or WellSample
 
         :param opts:        Dictionary of optional parameters.
         :return:            Tuple of string, list, ParametersI
@@ -7131,15 +7132,34 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             params.add('did', rlong(opts['dataset']))
         load_pixels = False
         load_channels = False
+        orphaned = False
         if opts is not None:
             load_pixels = 'load_pixels' in opts and opts['load_pixels']
             load_channels = 'load_channels' in opts and opts['load_channels']
+            orphaned = 'orphaned' in opts and opts['orphaned']
         if load_pixels or load_channels:
             # We use 'left outer join', since we still want images if no pixels
             query += ' left outer join fetch obj.pixels pixels'
         if load_channels:
             query += ' join fetch pixels.channels as channels' \
                      ' join fetch channels.logicalChannel'
+        if orphaned:
+            clauses.append(
+                """
+                not exists (
+                    select dilink from DatasetImageLink as dilink
+                    where dilink.child = obj.id
+                )
+                """
+            )
+            clauses.append(
+                """
+                not exists (
+                    select ws from WellSample ws
+                    where ws.image.id = obj.id
+                )
+                """
+            )
         return (query, clauses, params)
 
     @classmethod
