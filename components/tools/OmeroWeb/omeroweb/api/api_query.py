@@ -37,21 +37,12 @@ def query_projects(conn, child_count=False,
                          page=page, limit=limit, normalize=normalize)
 
 
-def query_datasets(conn, project=None, child_count=False,
-                   group=None, owner=None,
-                   page=1, limit=settings.PAGE,
-                   normalize=False):
-    """Query OMERO and marshal omero.model.Datasets."""
-    return query_objects(conn, 'Dataset', project=project,
-                         child_count=child_count, group=group, owner=owner,
-                         page=page, limit=limit, normalize=normalize)
-
-
 def query_objects(conn, object_type,
                   project=None,
                   child_count=False,
                   group=None, owner=None,
                   page=1, limit=settings.PAGE,
+                  orphaned=False,
                   normalize=False):
     """
     Base query method, handles different object_types.
@@ -75,6 +66,8 @@ def query_objects(conn, object_type,
             'order_by': 'name'}
     if object_type == 'Dataset' and project is not None:
         opts['project'] = project
+    if orphaned:
+        opts['orphaned'] = True
 
     # buildQuery is used by conn.getObjects()
     query, params, wrapper = conn.buildQuery(object_type, opts=opts)

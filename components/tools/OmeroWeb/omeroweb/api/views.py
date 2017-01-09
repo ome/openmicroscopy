@@ -28,7 +28,7 @@ from django.conf import settings
 import traceback
 import json
 
-from api_query import query_projects, query_datasets
+from api_query import query_projects, query_objects
 from omero_marshal import get_encoder, get_decoder, OME_SCHEMA_URL
 from omero import ValidationException
 from omeroweb.connector import Server
@@ -211,6 +211,7 @@ class DatasetsView(View):
             owner = getIntOrDefault(request, 'owner', None)
             child_count = request.GET.get('child_count', False) == 'true'
             normalize = request.GET.get('normalize', False) == 'true'
+            orphaned = request.GET.get('orphaned', False) == 'true'
             # filter by ?project=pid instead of /projects/:pdi/datasets/
             if pid is None:
                 pid = getIntOrDefault(request, 'project', None)
@@ -218,14 +219,16 @@ class DatasetsView(View):
             raise BadRequestError(str(ex))
 
         # Get the datasets
-        datasets = query_datasets(conn,
-                                  project=pid,
-                                  group=group,
-                                  owner=owner,
-                                  child_count=child_count,
-                                  page=page,
-                                  limit=limit,
-                                  normalize=normalize)
+        datasets = query_objects(conn,
+                                 'Dataset',
+                                 project=pid,
+                                 group=group,
+                                 owner=owner,
+                                 child_count=child_count,
+                                 page=page,
+                                 limit=limit,
+                                 orphaned=orphaned,
+                                 normalize=normalize)
 
         return datasets
 
