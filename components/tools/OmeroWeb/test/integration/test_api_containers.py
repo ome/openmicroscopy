@@ -176,6 +176,12 @@ class TestDatasets(IWebTest):
         rsp = _get_response_json(django_client, request_url, {})
         assert len(rsp['data']) == 6
 
+        # Filter Datasets by Orphaned
+        dataset = project_datasets[1]
+        payload = {'orphaned': 'true'}
+        rsp = _get_response_json(django_client, request_url, payload)
+        assert_objects(conn, rsp['data'], [dataset], dtype="Dataset")
+
         # Filter Datasets by Project
         project = project_datasets[0]
         datasets = project.linkedDatasetList()
