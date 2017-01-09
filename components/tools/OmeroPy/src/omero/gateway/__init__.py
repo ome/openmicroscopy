@@ -7111,6 +7111,24 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
     PLANEDEF = omero.romio.XY
 
     @classmethod
+    def _getQueryString(cls, opts=None):
+        """
+        Extend base query to handle filtering of Images by Datasets.
+        Returns a tuple of (query, clauses, params).
+        Supported opts: 'dataset': <dataset_id> to filter by Dataset
+
+        :param opts:        Dictionary of optional parameters.
+        :return:            Tuple of string, list, ParametersI
+        """
+        query, clauses, params = super(
+            _ImageWrapper, cls)._getQueryString(opts)
+        if opts is not None and 'dataset' in opts:
+            query += ' join obj.datasetLinks dlink'
+            clauses.append('dlink.parent.id = :did')
+            params.add('did', rlong(opts['dataset']))
+        return (query, clauses, params)
+
+    @classmethod
     def fromPixelsId(cls, conn, pid):
         """
         Creates a new Image wrapper with the image specified by pixels ID
