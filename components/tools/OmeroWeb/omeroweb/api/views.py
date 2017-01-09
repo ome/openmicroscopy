@@ -119,9 +119,14 @@ class ObjectView(View):
         """Wrap other methods to add decorators."""
         return super(ObjectView, self).dispatch(*args, **kwargs)
 
+    def get_opts(self, request):
+        """Return a dict for use in conn.getObjects() based on request."""
+        return {}
+
     def get(self, request, pid, conn=None, **kwargs):
         """Simply GET a single Object and marshal it or 404 if not found."""
-        obj = conn.getObject(self.OMERO_TYPE, pid)
+        opts = self.get_opts(request)
+        obj = conn.getObject(self.OMERO_TYPE, pid, opts=opts)
         if obj is None:
             raise NotFoundError('%s %s not found' % (self.OMERO_TYPE, pid))
         encoder = get_encoder(obj._obj.__class__)
@@ -154,6 +159,21 @@ class DatasetView(ObjectView):
     """Handle access to an individual Dataset to GET or DELETE it."""
 
     OMERO_TYPE = 'Dataset'
+
+
+class ImageView(ObjectView):
+    """Handle access to an individual Image to GET or DELETE it."""
+
+    OMERO_TYPE = 'Image'
+
+    def get_opts(self, request):
+        """Add support for load_pixels and load_channels."""
+        opts = super(ImageView, self).get_opts(request)
+        for p in ['load_pixels', 'load_channels']:
+            load = request.GET.get(p, False) == 'true'
+            if load:
+                opts[p] = True
+        return opts
 
 
 class ScreenView(ObjectView):

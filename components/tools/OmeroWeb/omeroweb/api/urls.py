@@ -106,6 +106,21 @@ api_dataset = url(
 Dataset url to GET or DELETE a single Dataset
 """
 
+api_images = url(r'^v(?P<api_version>%s)/m/images/$' % versions,
+                   views.ImagesView.as_view(),
+                   name='api_images')
+"""
+GET all images, using omero-marshal to generate json
+"""
+
+api_image = url(
+    r'^v(?P<api_version>%s)/m/images/(?P<pid>[0-9]+)/$' % versions,
+    views.ImageView.as_view(),
+    name='api_image')
+"""
+Image url to GET or DELETE a single Image
+"""
+
 api_screen = url(
     r'^v(?P<api_version>%s)/m/screens/(?P<pid>[0-9]+)/$' % versions,
     views.ScreenView.as_view(),
@@ -145,13 +160,6 @@ api_plate = url(
 Plate url to GET or DELETE a single Plate
 """
 
-api_images = url(r'^v(?P<api_version>%s)/m/images/$' % versions,
-                 views.ImagesView.as_view(),
-                 name='api_images')
-"""
-GET all images, using omero-marshal to generate json
-"""
-
 urlpatterns = patterns(
     '',
     api_versions,
@@ -165,10 +173,11 @@ urlpatterns = patterns(
     api_datasets,
     api_project_datasets,
     api_dataset,
+    api_images,
+    api_image,
     api_screen,
     api_screens,
     api_plates,
     api_screen_plates,
     api_plate,
-    api_images,
 )
