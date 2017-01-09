@@ -77,6 +77,7 @@ def api_base(request, api_version=None, **kwargs):
     """Base url of the webgateway json api for a specified version."""
     v = api_version
     rv = {'projects_url': build_url(request, 'api_projects', v),
+          'datasets_url': build_url(request, 'api_datasets', v),
           'token_url': build_url(request, 'api_token', v),
           'servers_url': build_url(request, 'api_servers', v),
           'login_url': build_url(request, 'api_login', v),
