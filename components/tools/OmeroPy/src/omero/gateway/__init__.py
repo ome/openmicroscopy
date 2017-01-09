@@ -5684,6 +5684,7 @@ class _DatasetWrapper (BlitzObjectWrapper):
         Extend base query to handle filtering of Datasets by Projects.
         Returns a tuple of (query, clauses, params).
         Supported opts: 'project': <project_id> to filter by Project
+                        'orphaned': <bool>. Filter by 'not in Project'
 
         :param opts:        Dictionary of optional parameters.
         :return:            Tuple of string, list, ParametersI
@@ -5694,6 +5695,15 @@ class _DatasetWrapper (BlitzObjectWrapper):
             query += ' join obj.projectLinks plink'
             clauses.append('plink.parent.id = :pid')
             params.add('pid', rlong(opts['project']))
+        if opts is not None and 'orphaned' in opts and opts['orphaned']:
+            clauses.append(
+                """
+                not exists (
+                    select pdlink from ProjectDatasetLink as pdlink
+                    where pdlink.child = obj.id
+                )
+                """
+            )
         return (query, clauses, params)
 
     def __loadedHotSwap__(self):
