@@ -2,7 +2,7 @@
 
 <!--
 #
-# Copyright (C) 2015-2016 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2015-2017 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -679,9 +679,14 @@
 
         <!-- If a screen is given then also give the plate if it is used in no other screen. -->
 
-        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink.parent = [I], L.child = P:[E]{i}/o" p:changes="P:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink.parent = S:[I], L.child = P:[E]{i}, S =/o P"
+                                       p:changes="P:{r}"/>
         <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[E].parent = [E]{ia}, L.child = P:[E]{r}" p:changes="P:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="P:Plate[E]{o}" p:changes="P:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink.parent = S:[I];perms=???-??, L.child = P:[E]{r}, S =/!o P"
+                                       p:changes="P:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink.parent = S:[I];perms=???a??, L.child = P:[E]{r}, S =/!o P"
+                                       p:changes="P:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="P:Plate[E]{o}/o" p:changes="P:[I]"/>
 
         <!--
              If a screen and plate are given for both sides of a link then, regardless of permissions, give the link if same owners
@@ -693,11 +698,18 @@
         <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[E].parent = [I];perms=??r???, L.child = [I]"
                                        p:changes="L:[I]/n"/>
 
-        <!-- If a screen or plate are given then delete their remaining links regardless of permissions in a private group. -->
+        <!--
+             If a screen or plate is given then delete any remaining cross-owner links regardless of permissions outside
+             read-write groups.
+          -->
 
-        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[E].parent = [I];perms=??-???, L.child = [E]{ia}"
+        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[E].parent = [I];perms=???-??, L.child = [E]{ia}"
                                        p:changes="L:[D]/n"/>
-        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[E].parent = [E];perms=??-???, L.child = [I]"
+        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[E].parent = [E];perms=???-??, L.child = [I]"
+                                       p:changes="L:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[E].parent = [I];perms=???a??, L.child = [E]{ia}"
+                                       p:changes="L:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[E].parent = [E];perms=???a??, L.child = [I]"
                                        p:changes="L:[D]/n"/>
 
         <!-- Give contained objects: wells and runs of plates, fields of wells and runs. -->
