@@ -7116,6 +7116,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         Extend base query to handle filtering of Images by Datasets.
         Returns a tuple of (query, clauses, params).
         Supported opts: 'dataset': <dataset_id> to filter by Dataset
+                        'load_pixels': <bool> to load Pixel objects.
 
         :param opts:        Dictionary of optional parameters.
         :return:            Tuple of string, list, ParametersI
@@ -7126,6 +7127,9 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             query += ' join obj.datasetLinks dlink'
             clauses.append('dlink.parent.id = :did')
             params.add('did', rlong(opts['dataset']))
+        if opts is not None and 'load_pixels' in opts:
+            # We use 'left outer join', since we still want images if no pixels
+            query += ' left outer join fetch obj.pixels pixels'
         return (query, clauses, params)
 
     @classmethod
