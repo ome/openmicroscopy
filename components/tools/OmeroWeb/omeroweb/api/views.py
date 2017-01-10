@@ -28,7 +28,7 @@ from django.conf import settings
 import traceback
 import json
 
-from api_query import query_projects, query_objects
+from api_query import query_objects
 from omero_marshal import get_encoder, get_decoder, OME_SCHEMA_URL
 from omero import ValidationException
 from omeroweb.connector import Server
@@ -160,77 +160,67 @@ class ScreenView(ObjectView):
     OMERO_TYPE = 'Screen'
 
 
-class ProjectsView(View):
-    """Handles GET for /projects/ to list available Projects."""
+class ObjectsView(View):
+    """Base class for listing objects."""
 
     @method_decorator(login_required(useragent='OMERO.webapi'))
     @method_decorator(json_response())
     def dispatch(self, *args, **kwargs):
         """Use dispatch to add decorators to class methods."""
-        return super(ProjectsView, self).dispatch(*args, **kwargs)
+        return super(ObjectsView, self).dispatch(*args, **kwargs)
+
+    def get_opts(self, request, **kwargs):
+        """Return an options dict based on request parameters."""
+        try:
+            page = getIntOrDefault(request, 'page', 1)
+            limit = getIntOrDefault(request, 'limit', settings.PAGE)
+            owner = getIntOrDefault(request, 'owner', None)
+            child_count = request.GET.get('childCount', False) == 'true'
+            orphaned = request.GET.get('orphaned', False) == 'true'
+        except ValueError as ex:
+            raise BadRequestError(str(ex))
+
+        # orphaned and child_count not used by every subclass
+        opts = {'offset': (page - 1) * limit,
+                'limit': limit,
+                'owner': owner,
+                'orphaned': orphaned,
+                'child_count': child_count,
+                'order_by': 'name',     # NB: will break if object has no name
+                }
+        return opts
 
     def get(self, request, conn=None, **kwargs):
         """GET a list of Projects, filtering by various request parameters."""
-        try:
-            page = getIntOrDefault(request, 'page', 1)
-            limit = getIntOrDefault(request, 'limit', settings.PAGE)
-            group = getIntOrDefault(request, 'group', -1)
-            owner = getIntOrDefault(request, 'owner', None)
-            child_count = request.GET.get('childCount', False) == 'true'
-            normalize = request.GET.get('normalize', False) == 'true'
-        except ValueError as ex:
-            raise BadRequestError(str(ex))
-
-        # Get the projects
-        projects = query_projects(conn,
-                                  group=group,
-                                  owner=owner,
-                                  child_count=child_count,
-                                  page=page,
-                                  limit=limit,
-                                  normalize=normalize)
-
-        return projects
+        opts = self.get_opts(request, **kwargs)
+        group = getIntOrDefault(request, 'group', -1)
+        normalize = request.GET.get('normalize', False) == 'true'
+        # Get the data
+        marshalled = query_objects(conn, self.OMERO_TYPE,
+                                   group, opts, normalize)
+        return marshalled
 
 
-class DatasetsView(View):
+class ProjectsView(ObjectsView):
+    """Handles GET for /projects/ to list available Projects."""
+
+    OMERO_TYPE = 'Project'
+
+
+class DatasetsView(ObjectsView):
     """Handles GET for /datasets/ to list available Datasets."""
 
-    @method_decorator(login_required(useragent='OMERO.webapi'))
-    @method_decorator(json_response())
-    def dispatch(self, *args, **kwargs):
-        """Use dispatch to add decorators to class methods."""
-        return super(DatasetsView, self).dispatch(*args, **kwargs)
+    OMERO_TYPE = 'Dataset'
 
-    def get(self, request, pid=None, conn=None, **kwargs):
-        """GET a list of Datasets, filtering by various request parameters."""
-        try:
-            page = getIntOrDefault(request, 'page', 1)
-            limit = getIntOrDefault(request, 'limit', settings.PAGE)
-            group = getIntOrDefault(request, 'group', -1)
-            owner = getIntOrDefault(request, 'owner', None)
-            child_count = request.GET.get('child_count', False) == 'true'
-            normalize = request.GET.get('normalize', False) == 'true'
-            orphaned = request.GET.get('orphaned', False) == 'true'
-            # filter by ?project=pid instead of /projects/:pdi/datasets/
-            if pid is None:
-                pid = getIntOrDefault(request, 'project', None)
-        except ValueError as ex:
-            raise BadRequestError(str(ex))
+    def get_opts(self, request, **kwargs):
+        """Add filtering by 'project' to the opts dict."""
+        opts = super(DatasetsView, self).get_opts(request)
+        # filter by query /datasets/?project=:id
+        project = getIntOrDefault(request, 'project', None)
+        if project is not None:
+            opts['project'] = project
+        return opts
 
-        # Get the datasets
-        datasets = query_objects(conn,
-                                 'Dataset',
-                                 project=pid,
-                                 group=group,
-                                 owner=owner,
-                                 child_count=child_count,
-                                 page=page,
-                                 limit=limit,
-                                 orphaned=orphaned,
-                                 normalize=normalize)
-
-        return datasets
 
 class SaveView(View):
     """

@@ -21,28 +21,14 @@
 
 
 from omero.rtypes import unwrap
-from django.conf import settings
 
 from api_marshal import marshal_objects
 from copy import deepcopy
 
 
-def query_projects(conn, child_count=False,
-                   group=None, owner=None,
-                   page=1, limit=settings.PAGE,
-                   normalize=False):
-    """Query OMERO and marshal omero.model.Projects."""
-    return query_objects(conn, 'Project',
-                         child_count=child_count, group=group, owner=owner,
-                         page=page, limit=limit, normalize=normalize)
-
-
 def query_objects(conn, object_type,
-                  project=None,
-                  child_count=False,
-                  group=None, owner=None,
-                  page=1, limit=settings.PAGE,
-                  orphaned=False,
+                  group=None,
+                  opts=None,
                   normalize=False):
     """
     Base query method, handles different object_types.
@@ -52,23 +38,8 @@ def query_objects(conn, object_type,
 
     @param conn:        BlitzGateway
     @param object_type: Type to query. E.g. Project
-    @param child_count:  If true, also load Dataset counts as omero:childCount
-    @param group:       Filter by group Id
-    @param owner:       Filter by owner Id
-    @param page:        Pagination page. Default is 1
-    @param limit:       Page size
-    @param normalize:   If true, marshal groups and experimenters separately
+    @param opts:        Options dict for conn.buildQuery()
     """
-    opts = {'offset': (page - 1) * limit,
-            'limit': limit,
-            'owner': owner,
-            'child_count': child_count,
-            'order_by': 'name'}
-    if object_type == 'Dataset' and project is not None:
-        opts['project'] = project
-    if orphaned:
-        opts['orphaned'] = True
-
     # buildQuery is used by conn.getObjects()
     query, params, wrapper = conn.buildQuery(object_type, opts=opts)
 
@@ -80,18 +51,18 @@ def query_objects(conn, object_type,
 
     qs = conn.getQueryService()
 
-    projects = []
+    objects = []
     extras = {}
-    if child_count:
+    if opts is not None and 'child_count' in opts and opts['child_count']:
         result = qs.projection(query, params, ctx)
         for p in result:
-            object = unwrap(p[0])
-            projects.append(object)
-            extras[object.id.val] = {'omero:childCount': unwrap(p[1])}
+            obj = unwrap(p[0])
+            objects.append(obj)
+            extras[obj.id.val] = {'omero:childCount': unwrap(p[1])}
     else:
         extras = None
         result = qs.findAllByQuery(query, params, ctx)
-        for p in result:
-            projects.append(p)
+        for obj in result:
+            objects.append(obj)
 
-    return marshal_objects(projects, extras=extras, normalize=normalize)
+    return marshal_objects(objects, extras=extras, normalize=normalize)
