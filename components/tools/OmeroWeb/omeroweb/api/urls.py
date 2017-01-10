@@ -90,7 +90,8 @@ GET all datasets, using omero-marshal to generate json
 """
 
 api_project_datasets = url(
-    r'^v(?P<api_version>%s)/m/projects/(?P<project_id>[0-9]+)/datasets/$' % versions,
+    r'^v(?P<api_version>%s)/m/projects/'
+    '(?P<project_id>[0-9]+)/datasets/$' % versions,
     views.DatasetsView.as_view(),
     name='api_project_datasets')
 """
@@ -114,15 +115,15 @@ Screen url to GET or DELETE a single Screen
 """
 
 api_screens = url(r'^v(?P<api_version>%s)/m/screens/$' % versions,
-                   views.ScreensView.as_view(),
-                   name='api_screens')
+                  views.ScreensView.as_view(),
+                  name='api_screens')
 """
 GET all screens, using omero-marshal to generate json
 """
 
 api_plates = url(r'^v(?P<api_version>%s)/m/plates/$' % versions,
-                   views.PlatesView.as_view(),
-                   name='api_plates')
+                 views.PlatesView.as_view(),
+                 name='api_plates')
 """
 GET all plates, using omero-marshal to generate json
 """
