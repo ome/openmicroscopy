@@ -201,6 +201,59 @@ class BaseContainer(BaseController):
         elif self.acquisition:
             return self.acquisition._obj.plate.id.val
 
+    def getAnnotationCounts(self):
+        """ Loads the annotion counts """
+        qs = self.conn.getQueryService()
+
+        params = omero.sys.ParametersI()
+        params.addId(long(self.obj_id()))
+        
+        atypes = {omero.model.TagAnnotationI : "TagAnnotation",
+            omero.model.FileAnnotationI : "FileAnnotation",
+            omero.model.CommentAnnotationI : "CommentAnnotation",
+            omero.model.LongAnnotationI : "LongAnnotation",
+            omero.model.MapAnnotationI : "MapAnnotation"}
+                  
+        objtype = ""
+        if self.obj_type == "project":
+            objtype = "Project"
+        if self.obj_type == "dataset":
+            objtype = "Dataset"
+        if self.obj_type == "image":
+            objtype = "Image"
+        if self.obj_type == "screen":
+            objtype = "Screen"
+        if self.obj_type == "plate":
+            objtype = "Plate"
+        if self.obj_type == "plateacquisition":
+            objtype = "PlateAcquisition"
+        if self.obj_type == "well":
+            objtype = "Well"
+
+        counts = {"TagAnnotation" : 0,
+            "FileAnnotation" : 0,
+            "CommentAnnotation" : 0,
+            "LongAnnotation" : 0,
+            "MapAnnotation" : 0}
+
+        q = """
+            select al from %sAnnotationLink al
+            left outer join fetch al.parent as pa
+            left outer join fetch al.child as an
+            """ % (objtype)
+            
+        total = 0
+        regAnnotations = 0
+        for al in qs.findAllByQuery(q, params):
+            total += 1
+            annoType = atypes[type(al._child)]
+            if annoType == "LongAnnotation" and\
+                al._child._ns._val != "openmicroscopy.org/omero/insight/rating":
+                continue
+            counts[annoType] += 1
+
+        return counts
+        
     def canExportAsJpg(self, request, objDict=None):
         """
         Can't export as Jpg, Png, Tiff if bigger than approx 12k * 12k.

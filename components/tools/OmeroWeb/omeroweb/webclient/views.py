@@ -1517,6 +1517,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
         else:
             template = "webclient/annotations/metadata_general.html"
             context['canExportAsJpg'] = manager.canExportAsJpg(request)
+            context['annotationCounts'] = manager.getAnnotationCounts()
             figScripts = manager.listFigureScripts()
     context['manager'] = manager
 
@@ -1585,7 +1586,6 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None,
     context['rdefs'] = rdefs
     context['template'] = "webclient/annotations/metadata_preview.html"
     return context
-
 
 @login_required()
 @render_response()

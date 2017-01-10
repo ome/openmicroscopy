@@ -22,6 +22,11 @@
     <div id="commentsPane">
     <h1 class="can-collapse closed" data-name="comments">
         {{ label|default:"Comments" }}
+        {% for key, value in annotationCounts.items %}
+            {% if key == 'CommentAnnotation' %}
+                ({{ value }})
+            {% endif %}
+        {% endfor %}
     </h1>
     <div class="annotations_section" style="display: none" data-name='comments'>
 
