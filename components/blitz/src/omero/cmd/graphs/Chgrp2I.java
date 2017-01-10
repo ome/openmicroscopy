@@ -166,6 +166,10 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
         graphTraversal = graphHelper.prepareGraphTraversal(childOptions, requiredAbilities, graphPolicy, graphPolicyAdjusters,
                 aclVoter, systemTypes, graphPathBean, unnullable, new InternalProcessor(requiredAbilities), dryRun);
 
+        if (isChgrpPrivilege) {
+            graphTraversal.setOwnsAll();
+        }
+
         graphPolicyAdjusters = null;
     }
 
