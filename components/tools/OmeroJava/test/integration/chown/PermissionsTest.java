@@ -471,7 +471,7 @@ public class PermissionsTest extends AbstractServerTest {
     }
 
     /**
-     * Test a specific case of using {@link Chown2} with targetUsers option, transferring everything 
+     * Test a specific case of using {@link Chown2} with targetUsers option, transferring everything
      * belonging to a targetUser (importerTargetUser) to a recipient completely,
      * where targetUser's shared annotations, images and tag sets are in a read-annotate group,
      * as well as leaving the otherImporter's images, which targetUser annotated, not transferred.
@@ -493,7 +493,7 @@ public class PermissionsTest extends AbstractServerTest {
             boolean isExpectSuccessOneTargetUser, boolean isExpectSuccessTwoTargetUsers,
             String groupPermissions) throws Exception {
 
-        /* set up the users and group for this test case 
+        /* Set up the users and group for this test case.
          * Note that two pairs of importers (1 and 2) are
          * necessary, because also the multi-argument for targetUser
          * (i.e. two users' data will be chowned in one command)
@@ -517,13 +517,13 @@ public class PermissionsTest extends AbstractServerTest {
             otherImporter2 = newUserInGroup(importerTargetUser2, false);
         }
 
-        /*setup of cross-linked annotations will succeed only for RA and RW groups
+        /* setup of cross-linked annotations will succeed only for RA and RW groups
          * for first pair of users (importerTargetUser1 and otherImporter1) this
          * is checked by checking the groupPermissions variable */
 
         final boolean users1CanAnnotateOthers = (groupPermissions == "rwra--" || groupPermissions == "rwrw--");
 
-        /*second pair of users (importerTargetUser2 and otherUser2) have to be
+        /* second pair of users (importerTargetUser2 and otherUser2) have to be
          * checked via importerTargetUser2's group permissions, their group per-
          * mission might differ from the first pair of users according to
          * the areDataOwnersInOneGroup variable */
@@ -534,9 +534,7 @@ public class PermissionsTest extends AbstractServerTest {
         recipient = newUserInGroup(isRecipientInGroup ? dataGroup1 : otherGroup, false);
 
         /* Add importerTargetUser1 also to "otherGroup" in order to be able
-         * to test the case where a user has data in two different groups
-         * in this test
-         */
+         * to test the case where a user has data in two different groups */
 
         addUsers(otherGroup, Collections.singletonList(importerTargetUser1.userId), false);
 
@@ -562,9 +560,7 @@ public class PermissionsTest extends AbstractServerTest {
         final List<ImageAnnotationLink> linksOthersToOwnAnnOwnImage1 = new ArrayList<ImageAnnotationLink>();
         final List<ImageAnnotationLink> linksOthersToOwnAnnOthersImage1 = new ArrayList<ImageAnnotationLink>();
         
-        /*now note the second set of the objects for image
-         * annotations
-         */
+        /*now note the second set of the objects for image annotations */
         final List<IObject> annotationsAndLinksOwnAnnForTripleLinking2;
         final List<IObject> annotationsAndLinksOwnToOthersImage2;
         final List<IObject> annotationsAndLinksOthersToOwnImage2;
@@ -580,7 +576,7 @@ public class PermissionsTest extends AbstractServerTest {
 
         /* First pair of importers imports their respective images, note
          * that importerTargetUser1 is member of 2 groups (dataGroup1 and otherGroup),
-         * so care has to be taken to import an image for this user in 
+         * so care has to be taken to import an image for this user in
          * each of his groups.*/
         loginUser(importerTargetUser1, dataGroup1);
         final Image image1 = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage()).proxy();
@@ -594,7 +590,7 @@ public class PermissionsTest extends AbstractServerTest {
         final Image otherImage1 = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage()).proxy();
         testImages.add(otherImage1.getId().getValue());
 
-        /* Second pair of importers imports their respective images*/
+        /* Second pair of importers imports their respective images */
         loginUser(importerTargetUser2);
         final Image image2 = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage()).proxy();
         final long imageId2 = image2.getId().getValue();
@@ -605,7 +601,7 @@ public class PermissionsTest extends AbstractServerTest {
 
         /* First user/importer (importerTargetUser) annotates both images
          * (image, otherImage) which belongs to the first user/importer (importerTargetUser)
-         * and the second user (otherImporter) respectively. 
+         * and the second user (otherImporter) respectively.
          * Note that the "...ForTripleLinking" annotations have to be sorted out
          * from the links in the variable and later will be used to be linked again by
          * the other user to both first and second images (image and other image)
@@ -624,9 +620,9 @@ public class PermissionsTest extends AbstractServerTest {
         }else annotationsAndLinksOwnToOthersImage2 = null;
 
 
-        /* Now sort out the annotations from the links out of the 
+        /* Now sort out the annotations from the links out of the
          * annotationsAndLinksOwnAnnForTripleLinking bag of annotations and links,
-         * and again do it for both sets of annotations, 1 and 2. */
+         * and again do it for both sets of annotations, 1 and 2.*/
         for (final IObject annotation : annotationsAndLinksOwnAnnForTripleLinking1) {
             if (annotation instanceof ImageAnnotationLink) {
                 linksOwnToOwnAnnOwnImage1.add(annotation.proxy());
@@ -661,9 +657,9 @@ public class PermissionsTest extends AbstractServerTest {
         } else annotationsAndLinksOthersToOwnImage2 = null;
         annotationsAndLinksOthersAnnForTripleLinking2 = annotateImage(otherImage2);
 
-        /* Now sort out the annotations from the links out of the 
+        /* Now sort out the annotations from the links out of the
          * annotationsAndLinksOthersAnnForTripleLinking bag of annotations and links
-         * Again, do this for both sets of annotations, 1, and 2 */
+         * Again, do this for both sets of annotations, 1, and 2.*/
         for (final IObject annotation : annotationsAndLinksOthersAnnForTripleLinking1) {
             if (annotation instanceof ImageAnnotationLink) {
                 linksOthersToOthersAnnOtherImage1.add(annotation.proxy());
@@ -714,13 +710,12 @@ public class PermissionsTest extends AbstractServerTest {
             }
         }
 
-        /* Another user (otherImporter) links the first user/importer's 
-         * annotationsOwnForTripleLinking to a second image (otherImage) 
+        /* Another user (otherImporter) links the first user/importer's
+         * annotationsOwnForTripleLinking to a second image (otherImage)
          * which belongs to this other user (otherImporter).
          * as well as to the first image (image) which belongs to the importerTargetUser
          * Note that ROI and thumbnail cannot be multiply linked, and thus will
-         * remain just singly linked objects in the annotationsOwnForTripleLinking batch
-         * of annotations
+         * remain just singly linked objects in the annotationsOwnForTripleLinking batch of annotations
          * Again, do the same sequence of linking for both sets of annotations/images, 1 and 2.*/
         loginUser(otherImporter1);
         /* check group permissions */
@@ -746,7 +741,7 @@ public class PermissionsTest extends AbstractServerTest {
             }
         }
 
-        /* chown all what belongs to importerTargetUser1 to recipient 
+        /* chown all what belongs to importerTargetUser1 to recipient
          * This chown has just one user (importerTargetUser1) in the argument*/
 
         loginUser(chowner);
@@ -805,7 +800,7 @@ public class PermissionsTest extends AbstractServerTest {
         /* check that all the others' (=belonging to otherImporter) links
          * still belong to otherImporter, irrespective of ownership of the objects
          * they were linking. If the permissions were not right, no links at
-         * all were made between tags and tag sets. */
+         * all were made between tags and tag sets.*/
         if (users1CanAnnotateOthers) {
             assertOwnedBy(linksOthersToOthersAnnOtherImage1, otherImporter1);
             assertOwnedBy(linksOthersToOwnAnnOwnImage1, otherImporter1);
@@ -815,16 +810,15 @@ public class PermissionsTest extends AbstractServerTest {
         /* Test for targetUser method having two users. For that,
          * first chown everything from the "recipient" back to
          * importerTargerUser1, in order to get the original setup
-         * with two users, two images and cross-linked annotations 
-         */
+         * with two users, two images and cross-linked annotations */
         loginUser(chowner);
         Chown2 chownBack = Requests.chown().targetUsers(recipient.userId).toUser(importerTargetUser1.userId).build();
         doChange(client, factory, chownBack, true);
 
-        /* Now chown both importerTargetUser1's as well as 
+        /* Now chown both importerTargetUser1's as well as
          * importerTargetUser2's data in one go to recipient.
          * This covers a chown with 2 arguments (two target users)
-         * where each of the users is in a different group. */
+         * where each of the users is in a different group.*/
         loginUser(chowner);
         Chown2 chownTwoUsers = Requests.chown().
                 targetUsers(importerTargetUser1.userId, importerTargetUser2.userId).toUser(recipient.userId).build();
@@ -835,19 +829,18 @@ public class PermissionsTest extends AbstractServerTest {
         }
 
         /* check that the ownership of images is as expected
-         * Note that in case
-         * chowner is just a GroupOwner, not an admin, the image in the otherGroup
-         * must still belong to the importerTargetUser1, because GroupOwner has
-         * no power to perform chown outside his group. Cases where chowner is
-         * both admin and GroupOwner are not tested here and are not provided by
-         * data provider for this test.*/
+         * Note that in case chowner is just a GroupOwner, not an admin,
+         * the image in the otherGroup must still belong to the importerTargetUser1,
+         * because GroupOwner has no power to perform chown outside his group.
+         * Cases where chowner is both admin and GroupOwner are not tested here
+         * and are not provided by data provider for this test.*/
 
         logRootIntoGroup(otherGroup.getId().getValue());
         if (isGroupOwner) {
             assertOwnedBy(imageOtherGroup1, importerTargetUser1);
         } else assertOwnedBy(imageOtherGroup1, recipient);
 
-        /* in case chowner is GroupOwner, and the areTargetUsersInOneGroup is false,
+        /* In case chowner is GroupOwner, and the areTargetUsersInOneGroup is false,
          * the whole chown().targetUsers operation with the two users in different
          * groups must fail. Thus it is possible to assert that both importerTargetUser1's
          * and importerTargetUser2's images have the same ownership after
@@ -858,9 +851,9 @@ public class PermissionsTest extends AbstractServerTest {
         logRootIntoGroup(importerTargetUser2.groupId);
         assertOwnedBy(image2, recipient);
 
-        /* check that all the own (=belonging to targetUserImporter)
+        /* Check that all the own (=belonging to targetUserImporter)
          * triply linked annotations and the own mixed bag of annotations
-         * (singly linked) were transferred to recipient 
+         * (singly linked) were transferred to recipient.
          * Do this check in both groups for both sets of annotations, 1 and 2.*/
 
         logRootIntoGroup(dataGroupId1);
@@ -874,10 +867,10 @@ public class PermissionsTest extends AbstractServerTest {
             assertOwnedBy(annotationsAndLinksOwnToOthersImage2, recipient);
         }
 
-        /* check that all the others' (=belonging to otherImporter)
+        /* Check that all the others' (=belonging to otherImporter)
          * triply linked annotations and the others' mixed bag of annotations
          * (singly linked) are still belonging to otherImporter
-         * Do this check in both groups for both sets of annotations, 1 and 2. */
+         * Do this check in both groups for both sets of annotations, 1 and 2.*/
 
         logRootIntoGroup(dataGroupId1);
         assertOwnedBy(annotationsOthersForTripleLinking1, otherImporter1);
@@ -890,10 +883,10 @@ public class PermissionsTest extends AbstractServerTest {
             assertOwnedBy(annotationsAndLinksOthersToOwnImage2, otherImporter2);
         }
 
-        /* check that all the own (=belonging to targetUserImporter) links
+        /* Check that all the own (=belonging to targetUserImporter) links
          * were transferred to recipient, irrespective of ownership of the objects
-         * they were linking 
-         * Do this check in both groups for both sets of annotations, 1 and 2. */
+         * they were linking.
+         * Do this check in both groups for both sets of annotations, 1 and 2.*/
 
         logRootIntoGroup(dataGroupId1);
         assertOwnedBy(linksOwnToOwnAnnOwnImage1, recipient);
@@ -909,10 +902,10 @@ public class PermissionsTest extends AbstractServerTest {
             assertOwnedBy(linksOwnToOthersAnnOwnImage2, recipient);
         }
         
-        /* check that all the others' (=belonging to otherImporter) links
+        /* Check that all the others' (=belonging to otherImporter) links
          * still belong to otherImporter, irrespective of ownership of the objects
          * they were linking
-         * Do this check in both groups for both sets of annotations, 1 and 2. */
+         * Do this check in both groups for both sets of annotations, 1 and 2.*/
 
         logRootIntoGroup(dataGroupId1);
         assertOwnedBy(linksOthersToOthersAnnOtherImage1, otherImporter1);
@@ -927,7 +920,7 @@ public class PermissionsTest extends AbstractServerTest {
             assertOwnedBy(linksOthersToOwnAnnOthersImage2, otherImporter2);
         }
 
-        /* now do a negative test for violating link uniqueness in case
+        /* Now do a negative test for violating link uniqueness in case
          * of non-unique image-annotation links. The reason for the error
          * is that after the chown action on 2 users which linked doubly identical
          * annotations to their images, these links become non-unique as
@@ -937,7 +930,7 @@ public class PermissionsTest extends AbstractServerTest {
         Chown2 chownTwoUsersExpectFail = Requests.chown().
                 targetUsers(importerTargetUser1.userId, otherImporter1.userId).toUser(recipient.userId).build();
 
-        /*perform the chown and catch the response*/
+        /* perform the chown and catch the response */
         Response response = new Response();
         if (users1CanAnnotateOthers) {
             response = doChange(client, factory, chownTwoUsersExpectFail, false);
@@ -947,14 +940,14 @@ public class PermissionsTest extends AbstractServerTest {
         boolean isGraphException = response instanceof omero.cmd.GraphException;
         boolean isError = response instanceof omero.cmd.ERR;
 
-        /* in case of chowner being an admin, the error is just omero.cmd.ERR and the message
+        /* In case of chowner being an admin, the error is just omero.cmd.ERR and the message
          * returned is not too friendly, it is just "could not execute update query" */
         if (isAdmin) {
             Assert.assertEquals(isError, true,
                     "in case of Admin only a general Error is expected");
         }
 
-        /* in case of chowner being an GroupOwner, omero.cmd.GraphException
+        /* In case of chowner being an GroupOwner, omero.cmd.GraphException
          * is returned, with explicit pointing out which user (recipient in our case)
          * and the ID number of the link whose duplication is impossible to execute */
         if (isGroupOwner) {
@@ -975,7 +968,7 @@ public class PermissionsTest extends AbstractServerTest {
             if (m.find( )) {
                 long linkIdFromError = Long.parseLong(m.group(2));
                 Assert.assertNotEquals(iQuery.get("ImageAnnotationLink", linkIdFromError), null);
-             }
+            }
         }
     }
 
