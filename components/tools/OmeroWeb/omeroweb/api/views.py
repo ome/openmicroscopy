@@ -78,6 +78,7 @@ def api_base(request, api_version=None, **kwargs):
     v = api_version
     rv = {'projects_url': build_url(request, 'api_projects', v),
           'datasets_url': build_url(request, 'api_datasets', v),
+          'screens_url': build_url(request, 'api_screens', v),
           'token_url': build_url(request, 'api_token', v),
           'servers_url': build_url(request, 'api_servers', v),
           'login_url': build_url(request, 'api_login', v),
