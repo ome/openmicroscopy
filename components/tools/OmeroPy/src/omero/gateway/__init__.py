@@ -5984,8 +5984,7 @@ class _PlateWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         clauses = []
         params = omero.sys.ParametersI()
         if opts is not None and 'screen' in opts:
-            query += ' join obj.screenLinks slink'
-            clauses.append('slink.parent.id = :sid')
+            clauses.append('spl.parent.id = :sid')
             params.add('sid', rlong(opts['screen']))
         if opts is not None and 'orphaned' in opts and opts['orphaned']:
             clauses.append(
