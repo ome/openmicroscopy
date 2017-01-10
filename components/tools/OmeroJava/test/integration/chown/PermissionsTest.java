@@ -747,51 +747,6 @@ public class PermissionsTest extends AbstractServerTest {
             }
         }
 
-        /* create two tag sets, one as the first user
-         * (importerTargetUser) and another one as the other user
-         * and create two tags as the first user and one tag
-         * as the other user */
-        init(importerTargetUser1);
-        final List<TagAnnotation> tagsetOwn = createTagsets(1);
-        init(otherImporter1);
-        final List<TagAnnotation> tagsetOthers = createTagsets(1);
-        init(importerTargetUser1);
-        final List<TagAnnotation> tagsOwn = createTags(2);
-        init(otherImporter1);
-        final List<TagAnnotation> tagsOthers = createTags(1);
-
-        /* group the tagsets to one pot in order to be able to reuse the 
-         * definteLinikingTags method
-         */
-        final List<TagAnnotation> tagsets = new ArrayList<TagAnnotation>();
-        for (final TagAnnotation tagset : tagsetOwn) {
-            tagsets.add(tagset);
-        }
-        for (final TagAnnotation tagset : tagsetOthers) {
-            tagsets.add(tagset);
-        }
-
-        final List<TagAnnotation> tags = new ArrayList<TagAnnotation>();
-        for (final TagAnnotation tag : tagsOwn) {
-            tags.add(tag);
-        }
-        for (final TagAnnotation tag : tagsOthers) {
-            tags.add(tag);
-        }
-
-        /* define how to link the tag sets to the tags and link them,
-         * one own tag to the own tagset, the second own tag to the own
-         * tagset and to the other user's tagset, and link the other user's
-         * tag to the other users tagset (all being importerTargetUser, so all
-         * links are "own" */
-        init(importerTargetUser1);
-        final SetMultimap<TagAnnotation, TagAnnotation> members = defineLinkingTags(tags, tagsets);
-        /* check group permissions*/
-        if (users1CanAnnotateOthers) {
-            linkTagsTagsets(members);
-        }
-
-
         /* chown all what belongs to importerTargetUser1 to recipient 
          * This chown has just one user (importerTargetUser1) in the argument*/
 
@@ -857,16 +812,6 @@ public class PermissionsTest extends AbstractServerTest {
             assertOwnedBy(linksOthersToOwnAnnOwnImage1, otherImporter1);
             assertOwnedBy(linksOthersToOwnAnnOthersImage1, otherImporter1);
         }
-
-         /* check that own tag set was transferred to recipient,
-          * the others' tag set still belongs to other user */
-        assertOwnedBy(tagsetOwn, recipient);
-        assertOwnedBy(tagsetOthers, otherImporter1);
-
-        /* check that own tags were transferred to recipient,
-         * the others' tag still belongs to other user */
-        assertOwnedBy(tagsOwn, recipient);
-        assertOwnedBy(tagsOthers, otherImporter1);
 
         /* Test for targetUser method having two users. For that,
          * first chown everything from the "recipient" back to
