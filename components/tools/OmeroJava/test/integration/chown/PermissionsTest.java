@@ -489,7 +489,7 @@ public class PermissionsTest extends AbstractServerTest {
      * @throws Exception unexpected
      */
     @Test(dataProvider = "chown targetUser test cases")
-    public void testChownAllBelongingToUserReadAnnotate(boolean areDataOwnersInOneGroup, boolean isAdmin, boolean isGroupOwner, boolean isRecipientInGroup,
+    public void testChownAllBelongingToUser(boolean areDataOwnersInOneGroup, boolean isAdmin, boolean isGroupOwner, boolean isRecipientInGroup,
             boolean isExpectSuccessOneTargetUser, boolean isExpectSuccessTwoTargetUsers,
             String groupPermissions) throws Exception {
 
