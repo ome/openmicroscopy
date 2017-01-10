@@ -464,7 +464,7 @@
             
             
             <!-- Include table of core metadata, Owner, SizeX,Y,Z, Channels etc -->
-            {% with image=manager.image parent=manager.image.getParent %}
+            {% with image=manager.image %}
                 {% include "webclient/annotations/includes/core_metadata.html" %}
             {% endwith %}
 
