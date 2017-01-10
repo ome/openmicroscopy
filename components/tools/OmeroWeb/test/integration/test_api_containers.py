@@ -26,7 +26,7 @@ from django.conf import settings
 import pytest
 from omero.gateway import BlitzGateway
 from omero_marshal import get_encoder
-from omero.model import DatasetI, ProjectI, ScreenI
+from omero.model import DatasetI, ProjectI, ScreenI, PlateI
 from omero.rtypes import rstring, unwrap
 
 
@@ -110,8 +110,27 @@ class TestContainers(IWebTest):
 
         project = get_update_service(user1).saveAndReturnObject(project)
         dataset = get_update_service(user1).saveAndReturnObject(dataset)
-
         return project, dataset
+
+    @pytest.fixture()
+    def screen_plates(self, user1):
+        """Return Screen with Plates and an orphaned Plate."""
+        # Create and name all the objects
+        screen = ScreenI()
+        screen.name = rstring('screen')
+
+        for i in range(5):
+            plate1 = PlateI()
+            plate1.name = rstring('Plate%s' % i)
+            screen.linkPlate(plate1)
+
+        # Create single orphaned Plate
+        plate = PlateI()
+        plate.name = rstring('plate')
+
+        screen = get_update_service(user1).saveAndReturnObject(screen)
+        plate = get_update_service(user1).saveAndReturnObject(plate)
+        return screen, plate
 
     @pytest.fixture()
     def user_screens(self, user1):
@@ -125,7 +144,8 @@ class TestContainers(IWebTest):
         screens.sort(cmp_name_insensitive)
         return screens
 
-    @pytest.mark.parametrize("dtype", ['Project', 'Dataset', 'Screen'])
+    @pytest.mark.parametrize("dtype", ['Project', 'Dataset',
+                                       'Screen', 'Plate'])
     def test_container_crud(self, dtype):
         """
         Test create, read, update and delete of Containers.
@@ -173,42 +193,56 @@ class TestContainers(IWebTest):
         rsp = _get_response_json(django_client, object_url, {},
                                  status_code=404)
 
-    def test_project_datasets(self, user1, project_datasets):
-        """Test listing of Datasets in a Project."""
+    @pytest.mark.parametrize("dtype", ['Dataset', 'Plate'])
+    def test_datasets_plates(self, user1, dtype, project_datasets,
+                             screen_plates):
+        """Test listing of Datasets in a Project and Plates in Screen."""
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
         version = settings.API_VERSIONS[-1]
-        request_url = reverse('api_datasets', kwargs={'api_version': version})
 
-        # List ALL Datasets
+        # Handle parametrized dtype, setting up other variables
+        if dtype == 'Dataset':
+            parent = project_datasets[0]
+            children = parent.linkedDatasetList()
+            orphaned = project_datasets[1]
+            url_name = 'api_datasets'
+            ptype = 'project'
+        else:
+            parent = screen_plates[0]
+            children = parent.linkedPlateList()
+            orphaned = screen_plates[1]
+            url_name = 'api_plates'
+            ptype = 'screen'
+
+        request_url = reverse(url_name, kwargs={'api_version': version})
+
+        # List ALL Datasets or Plates
         rsp = _get_response_json(django_client, request_url, {})
         assert len(rsp['data']) == 6
 
-        # Filter Datasets by Orphaned
-        dataset = project_datasets[1]
+        # Filter Datasets or Plates by Orphaned
         payload = {'orphaned': 'true'}
         rsp = _get_response_json(django_client, request_url, payload)
-        assert_objects(conn, rsp['data'], [dataset], dtype="Dataset")
+        assert_objects(conn, rsp['data'], [orphaned], dtype=dtype)
 
-        # Filter Datasets by Project
-        project = project_datasets[0]
-        datasets = project.linkedDatasetList()
-        datasets.sort(cmp_name_insensitive)
-        payload = {'project': project.id.val}
+        # Filter Datasets by Project or Plates by Screen
+        children.sort(cmp_name_insensitive)
+        payload = {ptype: parent.id.val}
         rsp = _get_response_json(django_client, request_url, payload)
         assert len(rsp['data']) == 5
-        assert_objects(conn, rsp['data'], datasets, dtype="Dataset")
+        assert_objects(conn, rsp['data'], children, dtype=dtype)
 
         # Pagination
         limit = 3
         payload['limit'] = limit
         rsp = _get_response_json(django_client, request_url, payload)
-        assert_objects(conn, rsp['data'], datasets[0:limit], dtype="Dataset")
+        assert_objects(conn, rsp['data'], children[0:limit], dtype=dtype)
         payload['page'] = 2
         rsp = _get_response_json(django_client, request_url, payload)
-        assert_objects(conn, rsp['data'], datasets[limit:limit * 2],
-                       dtype="Dataset")
+        assert_objects(conn, rsp['data'], children[limit:limit * 2],
+                       dtype=dtype)
 
     def test_screens(self, user1, user_screens):
         """Test listing of Screens."""
