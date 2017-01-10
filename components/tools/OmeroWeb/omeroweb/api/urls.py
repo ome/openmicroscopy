@@ -82,6 +82,22 @@ api_project = url(
 Project url to GET or DELETE a single Project
 """
 
+api_dataset = url(
+    r'^v(?P<api_version>%s)/m/datasets/(?P<pid>[0-9]+)/$' % versions,
+    views.DatasetView.as_view(),
+    name='api_dataset')
+"""
+Dataset url to GET or DELETE a single Dataset
+"""
+
+api_screen = url(
+    r'^v(?P<api_version>%s)/m/screens/(?P<pid>[0-9]+)/$' % versions,
+    views.ScreenView.as_view(),
+    name='api_screen')
+"""
+Screen url to GET or DELETE a single Screen
+"""
+
 urlpatterns = patterns(
     '',
     api_versions,
@@ -92,4 +108,6 @@ urlpatterns = patterns(
     api_save,
     api_projects,
     api_project,
+    api_dataset,
+    api_screen,
 )
