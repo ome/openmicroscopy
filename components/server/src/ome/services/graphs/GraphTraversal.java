@@ -733,7 +733,7 @@ public class GraphTraversal {
                 }
             }
             final Experimenter objectOwner = objectDetails.getOwner();
-            if (objectOwner != null && eventContext.getCurrentUserId().equals(objectOwner.getId())) {
+            if (objectOwner != null && (isOwnsAll || eventContext.getCurrentUserId().equals(objectOwner.getId()))) {
                 planning.owns.add(object);
             }
         }
@@ -1652,5 +1652,17 @@ public class GraphTraversal {
             linkers.put(linker.className, linker.id);
         }
         return linkers;
+    }
+
+    @Deprecated
+    private boolean isOwnsAll = false;
+
+    /**
+     * Causes {@link Ability#OWN} to always be included among {@link Details#permissions}.
+     * @deprecated An ugly expedient hack that requires review and may be removed without notice.
+     */
+    @Deprecated
+    public void setOwnsAll() {
+        isOwnsAll = true;
     }
 }
