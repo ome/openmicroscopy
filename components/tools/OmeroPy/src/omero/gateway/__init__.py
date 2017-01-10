@@ -5960,12 +5960,14 @@ class _PlateWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
 
     def _getQueryString(self, opts=None):
         """
-        Returns a query string for constructing custom queries,
-        loading the screen for each plate.
+        Custom query to load Screen with Plate.
+
+        Also handles filtering of Plates by Screens.
         Returns a tuple of (query, clauses, params).
+        Supported opts: 'plate': <screen_id> to filter by Screen
+                        'orphaned': <bool>. Filter by 'not in Screen'
 
         :param opts:        Dictionary of optional parameters.
-                            NB: No options supported for this class.
         :return:            Tuple of string, list, ParametersI
         """
         query = ("select obj from Plate as obj "
@@ -5973,7 +5975,24 @@ class _PlateWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                  "join fetch obj.details.creationEvent "
                  "left outer join fetch obj.screenLinks spl "
                  "left outer join fetch spl.parent sc")
-        return query, [], omero.sys.ParametersI()
+        # NB: we don't use base _getQueryString.
+        # since child_count wouldn't be supported anyway (no LINK_CLASS)
+        clauses = []
+        params = omero.sys.ParametersI()
+        if opts is not None and 'screen' in opts:
+            query += ' join obj.screenLinks slink'
+            clauses.append('slink.parent.id = :sid')
+            params.add('sid', rlong(opts['screen']))
+        if opts is not None and 'orphaned' in opts and opts['orphaned']:
+            clauses.append(
+                """
+                not exists (
+                    select splink from ScreenPlateLink as splink
+                    where splink.child = obj.id
+                )
+                """
+            )
+        return (query, clauses, params)
 
 PlateWrapper = _PlateWrapper
 
