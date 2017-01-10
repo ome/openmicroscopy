@@ -89,6 +89,14 @@ api_datasets = url(r'^v(?P<api_version>%s)/m/datasets/$' % versions,
 GET all datasets, using omero-marshal to generate json
 """
 
+api_project_datasets = url(
+    r'^v(?P<api_version>%s)/m/projects/(?P<project_id>[0-9]+)/datasets/$' % versions,
+    views.DatasetsView.as_view(),
+    name='api_project_datasets')
+"""
+GET Datasets in Project, using omero-marshal to generate json
+"""
+
 api_dataset = url(
     r'^v(?P<api_version>%s)/m/datasets/(?P<pid>[0-9]+)/$' % versions,
     views.DatasetView.as_view(),
@@ -116,6 +124,7 @@ urlpatterns = patterns(
     api_projects,
     api_project,
     api_datasets,
+    api_project_datasets,
     api_dataset,
     api_screen,
 )

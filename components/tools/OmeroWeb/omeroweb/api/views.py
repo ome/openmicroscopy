@@ -215,10 +215,14 @@ class DatasetsView(ObjectsView):
     def get_opts(self, request, **kwargs):
         """Add filtering by 'project' to the opts dict."""
         opts = super(DatasetsView, self).get_opts(request)
-        # filter by query /datasets/?project=:id
-        project = getIntOrDefault(request, 'project', None)
-        if project is not None:
-            opts['project'] = project
+        # at /projects/:project_id/datasets/ we have 'project_id' in kwargs
+        if 'project_id' in kwargs:
+            opts['project'] = long(kwargs['project_id'])
+        else:
+            # otherwise we filter by query /datasets/?project=:id
+            project = getIntOrDefault(request, 'project', None)
+            if project is not None:
+                opts['project'] = project
         return opts
 
 
