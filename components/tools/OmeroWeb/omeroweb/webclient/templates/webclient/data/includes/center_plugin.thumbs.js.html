@@ -165,6 +165,7 @@ $(document).ready(function() {
             parentNode = inst.get_node(inst.get_parent(selected[0]));
         } else if (dtype === "plate" || dtype === "acquisition") {
             parentId = undefined;
+            clearThumbnailsPanel();
             load_spw(event, data);
             return;
         // All other types have blank centre panel
@@ -756,6 +757,8 @@ $(document).ready(function() {
             var nodeType = node.type;
             var nodeId = node.data.obj.id;
             var show = WEBCLIENT.initially_select.join("|");
+            // clear WEBCLIENT.initially_select so we don't select well next time user loads plate
+            WEBCLIENT.initially_select = [];
 
             switch(nodeType) {
                 case 'plate':
@@ -815,6 +818,10 @@ $(document).ready(function() {
         $contentDetails.removeData('path');
         $("div#page").removeData('page');
         $contentDetails.removeData('field');
+        // empty SPW 'spatial' birds eye view below tree
+        if (OME.emptyWellBirdsEye) {
+            OME.emptyWellBirdsEye();
+        }
     };
     // Allows other web apps to access this method
     OME.clearThumbnailsPanel = clearThumbnailsPanel;

@@ -452,6 +452,7 @@ def _load_template(request, menu, conn=None, url=None, **kwargs):
         "ExperimenterGroup", long(active_group))
     context['active_user'] = conn.getObject("Experimenter", long(user_id))
     context['initially_select'] = show.initially_select
+    context['initially_open'] = show.initially_open
     context['isLeader'] = conn.isLeader()
     context['current_url'] = url
     context['page_size'] = settings.PAGE
@@ -1268,6 +1269,8 @@ def load_plate(request, o1_type=None, o1_id=None, conn=None, **kwargs):
         context['form_well_index'] = form_well_index
         context['index'] = index
         template = "webclient/data/plate.html"
+        if o1_type == 'acquisition':
+            context['acquisition'] = o1_id
 
     context['isLeader'] = conn.isLeader()
     context['template'] = template

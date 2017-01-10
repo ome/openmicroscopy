@@ -1475,6 +1475,7 @@ def listWellImages_json(request, did, conn=None, **kwargs):
     """
 
     well = conn.getObject("Well", did)
+    acq = getIntOrDefault(request, 'run', None)
     if well is None:
         return HttpJavascriptResponseServerError('""')
     prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
@@ -1482,9 +1483,27 @@ def listWellImages_json(request, did, conn=None, **kwargs):
     def urlprefix(iid):
         return reverse(prefix, args=(iid,))
     xtra = {'thumbUrlPrefix': kwargs.get('urlprefix', urlprefix)}
-    return map(lambda x: x.getImage() and
-               x.getImage().simpleMarshal(xtra=xtra),
-               well.listChildren())
+
+    def marshal_pos(w):
+        d = {}
+        for x, p in (['x', w.getPosX()], ['y', w.getPosY()]):
+            if p is not None:
+                d[x] = {'value': p.getValue(), 'unit': str(p.getUnit())}
+        return d
+
+    wellImgs = []
+    for ws in well.listChildren():
+        # optionally filter by acquisition 'run'
+        if acq is not None and ws.plateAcquisition.id.val != acq:
+            continue
+        img = ws.getImage()
+        if img is not None:
+            m = img.simpleMarshal(xtra=xtra)
+            pos = marshal_pos(ws)
+            if len(pos.keys()) > 0:
+                m['position'] = pos
+            wellImgs.append(m)
+    return wellImgs
 
 
 @login_required()
@@ -1567,7 +1586,7 @@ def open_with_options(request, **kwargs):
         if len(ow) < 2:
             continue
         viewer = {}
-        viewer['label'] = ow[0]
+        viewer['id'] = ow[0]
         try:
             viewer['url'] = reverse(ow[1])
         except NoReverseMatch:
@@ -1587,6 +1606,8 @@ def open_with_options(request, **kwargs):
                     else:
                         # ...otherwise, assume within static
                         viewer['script_url'] = static(ow[2]['script_url'])
+                if 'label' in ow[2]:
+                    viewer['label'] = ow[2]['label']
         except:
             # ignore invalid params
             pass

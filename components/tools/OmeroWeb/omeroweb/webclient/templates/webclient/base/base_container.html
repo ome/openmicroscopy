@@ -138,6 +138,10 @@
     <link rel="stylesheet" href="{% static "webgateway/css/ome.gs_slider.css"|add:url_suffix %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% static "webgateway/css/ome.viewport.css"|add:url_suffix %}" type="text/css" media="screen"/>
 
+    <!-- scripts for SPW plate.html -->
+    <script type="text/javascript" src="{% static "webgateway/js/ome.plateview.js"|add:url_suffix %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/ome.spwgridview.js"|add:url_suffix %}"></script>
+
     <script>
 
         // OMERO constants
@@ -181,6 +185,7 @@
         // jsTree code in ome.tree.js and center panel code in center_plugin.thumbs.js.html uses initially_select
         // instead of browser URL since URL may be /webclient/?path=plate.name-barcode|well.name-A1
         WEBCLIENT.initially_select = [{% for o in initially_select %}"{{ o }}"{% if not forloop.last %},{% endif %}{% endfor %}];
+        WEBCLIENT.initially_open = [{% for o in initially_open %}"{{ o }}"{% if not forloop.last %},{% endif %}{% endfor %}];
 
         {% ifequal menu 'usertags' %}
             WEBCLIENT.TAG_TREE = true;

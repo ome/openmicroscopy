@@ -270,7 +270,8 @@ class BlitzObjectWrapper (object):
             return obj
         return obj.getValue()
 
-    def _getQueryString(self, opts=None):
+    @classmethod
+    def _getQueryString(cls, opts=None):
         """
         Used for building queries in generic methods
         such as getObjects("Project").
@@ -292,13 +293,13 @@ class BlitzObjectWrapper (object):
         child_count = False
         if opts is not None and 'child_count' in opts:
             child_count = opts['child_count']
-        if child_count and self.LINK_CLASS is not None:
+        if child_count and cls.LINK_CLASS is not None:
             extra_select = """, (select count(id) from %s chl
-                      where chl.parent=obj.id)""" % self.LINK_CLASS
+                      where chl.parent=obj.id)""" % cls.LINK_CLASS
         query = ("select obj %s from %s obj "
                  "join fetch obj.details.owner as owner "
                  "join fetch obj.details.creationEvent" %
-                 (extra_select, self.OMERO_CLASS))
+                 (extra_select, cls.OMERO_CLASS))
 
         params = omero.sys.ParametersI()
         clauses = []
@@ -353,14 +354,7 @@ class BlitzObjectWrapper (object):
                     raise NotImplementedError
                 pwc[i] = g[pwc[i]]
 
-        # if type(self.PARENT_WRAPPER_CLASS) is type(''):
-        #     # resolve class
-        #     g = globals()
-        #     if not g.has_key(self.PARENT_WRAPPER_CLASS): #pragma: no cover
-        #         raise NotImplementedError
-        #     self.__class__.PARENT_WRAPPER_CLASS \
-        #         = self.PARENT_WRAPPER_CLASS = g[self.PARENT_WRAPPER_CLASS]
-        # return self.PARENT_WRAPPER_CLASS
+        # Cache this so we don't need to resolve classes again
         if (pwc != self.PARENT_WRAPPER_CLASS or
                 pwc != self.__class__.PARENT_WRAPPER_CLASS):
             self.__class__.PARENT_WRAPPER_CLASS \
@@ -2610,8 +2604,7 @@ class _BlitzGateway (object):
             params = omero.sys.ParametersI()
 
         wrapper = KNOWN_WRAPPERS.get(obj_type.lower(), None)
-        query = wrapper()._getQueryString()
-        query = wrapper()._getQueryString()[0]
+        query = wrapper._getQueryString()[0]
 
         if loadPixels and obj_type == 'Image':
             # left outer join so we don't exclude
@@ -3123,9 +3116,14 @@ class _BlitzGateway (object):
         offset = None
         limit = None
 
-        # get the base query from the instantiated object itself. E.g "select
-        # obj Project as obj"
-        query, clauses, baseParams = wrapper()._getQueryString(opts)
+        # We get the query from the ObjectWrapper class:
+        if wrapper.__name__ == "_wrap":
+            # If wrapper is the AnnotationWrapper._wrap class method, we
+            # need to get the underlying AnnotationWrapper class
+            cls = wrapper()
+        else:
+            cls = wrapper
+        query, clauses, baseParams = cls._getQueryString(opts)
 
         # Handle dict of parameters -> convert to ParametersI()
         if opts is not None:
@@ -4580,7 +4578,8 @@ class AnnotationWrapper (BlitzObjectWrapper):
                 self.getValue() == a.getValue() and
                 self.getNs() == a.getNs())
 
-    def _getQueryString(self, opts=None):
+    @classmethod
+    def _getQueryString(cls, opts=None):
         """
         Used for building queries in generic methods such as
         getObjects("Annotation")
@@ -4596,7 +4595,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
         return query, [], omero.sys.ParametersI()
 
     @classmethod
-    def _register(klass, regklass):
+    def _register(cls, regklass):
         """
         Adds the AnnotationWrapper regklass to class registry
 
@@ -4605,10 +4604,10 @@ class AnnotationWrapper (BlitzObjectWrapper):
         :type regklass:     :class:`AnnotationWrapper` subclass
         """
 
-        klass.registry[regklass.OMERO_TYPE] = regklass
+        cls.registry[regklass.OMERO_TYPE] = regklass
 
     @classmethod
-    def _wrap(klass, conn=None, obj=None, link=None):
+    def _wrap(cls, conn=None, obj=None, link=None):
         """
         Class method for creating :class:`AnnotationWrapper` subclasses based
         on the type of annotation object, using previously registered mapping
@@ -4627,17 +4626,17 @@ class AnnotationWrapper (BlitzObjectWrapper):
         """
         if obj is None:
             return AnnotationWrapper()
-        if obj.__class__ in klass.registry:
+        if obj.__class__ in cls.registry:
             kwargs = dict()
             if link is not None:
                 kwargs['link'] = BlitzObjectWrapper(conn, link)
-            return klass.registry[obj.__class__](conn, obj, **kwargs)
+            return cls.registry[obj.__class__](conn, obj, **kwargs)
         else:  # pragma: no cover
             logger.error("Failed to _wrap() annotation: %s" % obj.__class__)
             return None
 
     @classmethod
-    def createAndLink(klass, target, ns, val=None, sameOwner=False):
+    def createAndLink(cls, target, ns, val=None, sameOwner=False):
         """
         Class method for creating an instance of this AnnotationWrapper,
         setting ns and value and linking to the target.
@@ -4649,7 +4648,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
         :param val:         Value of annotation. E.g Long, Text, Boolean etc.
         """
 
-        this = klass()
+        this = cls()
         this.setNs(ns)
         if val is not None:
             this.setValue(val)
@@ -4745,7 +4744,8 @@ class FileAnnotationWrapper (AnnotationWrapper, OmeroRestrictionWrapper):
 
     _attrs = ('file|OriginalFileWrapper',)
 
-    def _getQueryString(self, opts=None):
+    @classmethod
+    def _getQueryString(cls, opts=None):
         """
         Used for building queries in generic methods such as
         getObjects("FileAnnotation").
@@ -4852,8 +4852,7 @@ class _OriginalFileWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
     omero_model_OriginalFileI class wrapper extends BlitzObjectWrapper.
     """
 
-    def __bstrap__(self):
-        self.OMERO_CLASS = 'OriginalFile'
+    OMERO_CLASS = 'OriginalFile'
 
     def getFileInChunks(self, buf=2621440):
         """
@@ -4892,7 +4891,8 @@ class TimestampAnnotationWrapper (AnnotationWrapper):
 
     OMERO_TYPE = TimestampAnnotationI
 
-    def _getQueryString(self, opts=None):
+    @classmethod
+    def _getQueryString(cls, opts=None):
         """
         Used for building queries in generic methods such as
         getObjects("TimestampAnnotation").
@@ -4946,7 +4946,8 @@ class BooleanAnnotationWrapper (AnnotationWrapper):
 
     OMERO_TYPE = BooleanAnnotationI
 
-    def _getQueryString(self, opts=None):
+    @classmethod
+    def _getQueryString(cls, opts=None):
         """
         Used for building queries in generic methods such as
         getObjects("BooleanAnnotation").
@@ -5037,7 +5038,8 @@ class TagAnnotationWrapper (AnnotationWrapper):
                         self._conn, l.parent, l))
         return rv
 
-    def _getQueryString(self, opts=None):
+    @classmethod
+    def _getQueryString(cls, opts=None):
         """
         Used for building queries in generic methods such as
         getObjects("TagAnnotation").
@@ -5084,7 +5086,8 @@ class CommentAnnotationWrapper (AnnotationWrapper):
 
     OMERO_TYPE = CommentAnnotationI
 
-    def _getQueryString(self, opts=None):
+    @classmethod
+    def _getQueryString(cls, opts=None):
         """
         Used for building queries in generic methods such as
         getObjects("CommentAnnotation").
@@ -5129,7 +5132,8 @@ class LongAnnotationWrapper (AnnotationWrapper):
     """
     OMERO_TYPE = LongAnnotationI
 
-    def _getQueryString(self, opts=None):
+    @classmethod
+    def _getQueryString(cls, opts=None):
         """
         Used for building queries in generic methods such as
         getObjects("LongAnnotation").
@@ -5175,7 +5179,8 @@ class DoubleAnnotationWrapper (AnnotationWrapper):
     """
     OMERO_TYPE = DoubleAnnotationI
 
-    def _getQueryString(self, opts=None):
+    @classmethod
+    def _getQueryString(cls, opts=None):
         """
         Used for building queries in generic methods such as
         getObjects("DoubleAnnotation").
@@ -5222,7 +5227,8 @@ class TermAnnotationWrapper (AnnotationWrapper):
     """
     OMERO_TYPE = TermAnnotationI
 
-    def _getQueryString(self, opts=None):
+    @classmethod
+    def _getQueryString(cls, opts=None):
         """
         Used for building queries in generic methods such as
         getObjects("TermAnnotation").
@@ -5326,11 +5332,10 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
     omero_model_ExperimenterI class wrapper extends BlitzObjectWrapper.
     """
 
-    def __bstrap__(self):
-        self.OMERO_CLASS = 'Experimenter'
-        self.LINK_CLASS = "GroupExperimenterMap"
-        self.CHILD_WRAPPER_CLASS = None
-        self.PARENT_WRAPPER_CLASS = 'ExperimenterGroupWrapper'
+    OMERO_CLASS = 'Experimenter'
+    LINK_CLASS = "GroupExperimenterMap"
+    CHILD_WRAPPER_CLASS = None
+    PARENT_WRAPPER_CLASS = 'ExperimenterGroupWrapper'
 
     def simpleMarshal(self, xtra=None, parents=False):
         rv = super(_ExperimenterWrapper, self).simpleMarshal(
@@ -5346,7 +5351,8 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
              'isAdmin': isAdmin, })
         return rv
 
-    def _getQueryString(self, opts=None):
+    @classmethod
+    def _getQueryString(cls, opts=None):
         """
         Returns string for building queries, loading Experimenters only.
 
@@ -5575,13 +5581,13 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
     omero_model_ExperimenterGroupI class wrapper extends BlitzObjectWrapper.
     """
 
-    def __bstrap__(self):
-        self.OMERO_CLASS = 'ExperimenterGroup'
-        self.LINK_CLASS = "GroupExperimenterMap"
-        self.CHILD_WRAPPER_CLASS = 'ExperimenterWrapper'
-        self.PARENT_WRAPPER_CLASS = None
+    OMERO_CLASS = 'ExperimenterGroup'
+    LINK_CLASS = "GroupExperimenterMap"
+    CHILD_WRAPPER_CLASS = 'ExperimenterWrapper'
+    PARENT_WRAPPER_CLASS = None
 
-    def _getQueryString(self, opts=None):
+    @classmethod
+    def _getQueryString(cls, opts=None):
         """
         Returns string for building queries, loading Experimenters for each
         group.
@@ -5673,13 +5679,13 @@ class _DatasetWrapper (BlitzObjectWrapper):
     omero_model_DatasetI class wrapper extends BlitzObjectWrapper.
     """
 
-    def __bstrap__(self):
-        self.OMERO_CLASS = 'Dataset'
-        self.LINK_CLASS = "DatasetImageLink"
-        self.CHILD_WRAPPER_CLASS = 'ImageWrapper'
-        self.PARENT_WRAPPER_CLASS = 'ProjectWrapper'
+    OMERO_CLASS = 'Dataset'
+    LINK_CLASS = "DatasetImageLink"
+    CHILD_WRAPPER_CLASS = 'ImageWrapper'
+    PARENT_WRAPPER_CLASS = 'ProjectWrapper'
 
-    def _getQueryString(self, opts=None):
+    @classmethod
+    def _getQueryString(cls, opts=None):
         """
         Extend base query to handle filtering of Datasets by Projects.
         Returns a tuple of (query, clauses, params).
@@ -5690,7 +5696,7 @@ class _DatasetWrapper (BlitzObjectWrapper):
         :return:            Tuple of string, list, ParametersI
         """
         query, clauses, params = super(
-            _DatasetWrapper, self)._getQueryString(opts)
+            _DatasetWrapper, cls)._getQueryString(opts)
         if opts is not None and 'project' in opts:
             query += ' join obj.projectLinks plink'
             clauses.append('plink.parent.id = :pid')
@@ -5728,11 +5734,10 @@ class _ProjectWrapper (BlitzObjectWrapper):
     omero_model_ProjectI class wrapper extends BlitzObjectWrapper.
     """
 
-    def __bstrap__(self):
-        self.OMERO_CLASS = 'Project'
-        self.LINK_CLASS = "ProjectDatasetLink"
-        self.CHILD_WRAPPER_CLASS = 'DatasetWrapper'
-        self.PARENT_WRAPPER_CLASS = None
+    OMERO_CLASS = 'Project'
+    LINK_CLASS = "ProjectDatasetLink"
+    CHILD_WRAPPER_CLASS = 'DatasetWrapper'
+    PARENT_WRAPPER_CLASS = None
 
 ProjectWrapper = _ProjectWrapper
 
@@ -5742,11 +5747,10 @@ class _ScreenWrapper (BlitzObjectWrapper):
     omero_model_ScreenI class wrapper extends BlitzObjectWrapper.
     """
 
-    def __bstrap__(self):
-        self.OMERO_CLASS = 'Screen'
-        self.LINK_CLASS = "ScreenPlateLink"
-        self.CHILD_WRAPPER_CLASS = 'PlateWrapper'
-        self.PARENT_WRAPPER_CLASS = None
+    OMERO_CLASS = 'Screen'
+    LINK_CLASS = "ScreenPlateLink"
+    CHILD_WRAPPER_CLASS = 'PlateWrapper'
+    PARENT_WRAPPER_CLASS = None
 
 ScreenWrapper = _ScreenWrapper
 
@@ -5767,11 +5771,10 @@ class _PlateWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
     omero_model_PlateI class wrapper extends BlitzObjectWrapper.
     """
 
-    def __bstrap__(self):
-        self.OMERO_CLASS = 'Plate'
-        self.LINK_CLASS = None
-        self.CHILD_WRAPPER_CLASS = 'WellWrapper'
-        self.PARENT_WRAPPER_CLASS = 'ScreenWrapper'
+    OMERO_CLASS = 'Plate'
+    LINK_CLASS = None
+    CHILD_WRAPPER_CLASS = 'WellWrapper'
+    PARENT_WRAPPER_CLASS = 'ScreenWrapper'
 
     def __prepare__(self):
         self.__reset__()
@@ -5958,7 +5961,8 @@ class _PlateWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         """
         return None
 
-    def _getQueryString(self, opts=None):
+    @classmethod
+    def _getQueryString(cls, opts=None):
         """
         Custom query to load Screen with Plate.
 
@@ -5999,8 +6003,7 @@ PlateWrapper = _PlateWrapper
 
 class _PlateAcquisitionWrapper (BlitzObjectWrapper):
 
-    def __bstrap__(self):
-        self.OMERO_CLASS = 'PlateAcquisition'
+    OMERO_CLASS = 'PlateAcquisition'
 
     def getName(self):
         name = super(_PlateAcquisitionWrapper, self).getName()
@@ -6032,11 +6035,10 @@ class _WellWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
     omero_model_WellI class wrapper extends BlitzObjectWrapper.
     """
 
-    def __bstrap__(self):
-        self.OMERO_CLASS = 'Well'
-        self.LINK_CLASS = None
-        self.CHILD_WRAPPER_CLASS = 'WellSampleWrapper'
-        self.PARENT_WRAPPER_CLASS = 'PlateWrapper'
+    OMERO_CLASS = 'Well'
+    LINK_CLASS = None
+    CHILD_WRAPPER_CLASS = 'WellSampleWrapper'
+    PARENT_WRAPPER_CLASS = 'PlateWrapper'
 
     def __prepare__(self, **kwargs):
         try:
@@ -6227,13 +6229,16 @@ class _WellSampleWrapper (BlitzObjectWrapper):
     omero_model_WellSampleI class wrapper extends BlitzObjectWrapper.
     """
 
-    def __bstrap__(self):
-        self.OMERO_CLASS = 'WellSample'
-        self.CHILD_WRAPPER_CLASS = 'ImageWrapper'
-        self.PARENT_WRAPPER_CLASS = 'WellWrapper'
-        self.LINK_CLASS = 'WellSample'
-        self.LINK_PARENT = lambda x: x
-        self.LINK_CHILD = 'image'
+    OMERO_CLASS = 'WellSample'
+    CHILD_WRAPPER_CLASS = 'ImageWrapper'
+    PARENT_WRAPPER_CLASS = 'WellWrapper'
+    LINK_CLASS = 'WellSample'
+    LINK_CHILD = 'image'
+
+    @staticmethod
+    def LINK_PARENT(link):
+        """Direct parent is Well. No Link between Well and WellSample."""
+        return link
 
     def listParents(self, withlinks=False):
         """
@@ -6285,17 +6290,6 @@ class _WellSampleWrapper (BlitzObjectWrapper):
 
 WellSampleWrapper = _WellSampleWrapper
 
-# class CategoryWrapper (BlitzObjectWrapper):
-#     def __bstrap__ (self):
-#         self.LINK_CLASS = "CategoryImageLink"
-#         self.CHILD_WRAPPER_CLASS = ImageWrapper
-#         self.PARENT_WRAPPER_CLASS= 'CategoryGroupWrapper'
-#
-# class CategoryGroupWrapper (BlitzObjectWrapper):
-#     def __bstrap__ (self):
-#         self.LINK_CLASS = "CategoryGroupCategoryLink"
-#         self.CHILD_WRAPPER_CLASS = CategoryWrapper
-#         self.PARENT_WRAPPER_CLASS = None
 
 # IMAGE #
 
@@ -6322,7 +6316,7 @@ class ColorHolder (object):
             self._color[colorname.lower()] = 255
 
     @classmethod
-    def fromRGBA(klass, r, g, b, a):
+    def fromRGBA(cls, r, g, b, a):
         """
         Class method for creating a ColorHolder from r,g,b,a values
 
@@ -6338,7 +6332,7 @@ class ColorHolder (object):
         :rtype:     :class:`ColorHolder`
         """
 
-        rv = klass()
+        rv = cls()
         rv.setRed(r)
         rv.setGreen(g)
         rv.setBlue(b)
@@ -6524,8 +6518,7 @@ class _LightPathWrapper (BlitzObjectWrapper):
               '()emissionFilters|',
               '()excitationFilters|')
 
-    def __bstrap__(self):
-        self.OMERO_CLASS = 'LightPath'
+    OMERO_CLASS = 'LightPath'
 
     def getExcitationFilters(self):
         """ Returns list of excitation :class:`FilterWrapper`. Ordered
@@ -6547,8 +6540,7 @@ class _PlaneInfoWrapper (BlitzObjectWrapper):
     omero_model_PlaneInfo class wrapper extends BlitzObjectWrapper.
     """
 
-    def __bstrap__(self):
-        self.OMERO_CLASS = "PlaneInfo"
+    OMERO_CLASS = "PlaneInfo"
 
     def getDeltaT(self, units=None):
         """
@@ -6584,8 +6576,7 @@ class _PixelsWrapper (BlitzObjectWrapper):
     omero_model_PixelsI class wrapper extends BlitzObjectWrapper.
     """
 
-    def __bstrap__(self):
-        self.OMERO_CLASS = 'Pixels'
+    OMERO_CLASS = 'Pixels'
 
     def _prepareRawPixelsStore(self):
         """
@@ -6747,10 +6738,10 @@ class _FilesetWrapper (BlitzObjectWrapper):
     omero_model_FilesetI class wrapper extends BlitzObjectWrapper
     """
 
-    def __bstrap__(self):
-        self.OMERO_CLASS = 'Fileset'
+    OMERO_CLASS = 'Fileset'
 
-    def _getQueryString(self, opts=None):
+    @classmethod
+    def _getQueryString(cls, opts=None):
         """
         Used for building queries in generic methods such as
         getObjects("Fileset").
@@ -6797,8 +6788,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
                  (RED_MIN, RED_MAX, ColorHolder('Red')),
                  )
 
-    def __bstrap__(self):
-        self.OMERO_CLASS = 'Channel'
+    OMERO_CLASS = 'Channel'
 
     def __prepare__(self, idx=-1, re=None, img=None):
         """
@@ -7122,7 +7112,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
     PLANEDEF = omero.romio.XY
 
     @classmethod
-    def fromPixelsId(self, conn, pid):
+    def fromPixelsId(cls, conn, pid):
         """
         Creates a new Image wrapper with the image specified by pixels ID
 
@@ -7135,17 +7125,16 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         """
 
         q = conn.getQueryService()
-        p = q.find('Pixels', pid, self._conn.SERVICE_OPTS)
+        p = q.find('Pixels', pid, conn.SERVICE_OPTS)
         if p is None:
             return None
         return ImageWrapper(conn, p.image)
 
-    def __bstrap__(self):
-        self.OMERO_CLASS = 'Image'
-        self.LINK_CLASS = None
-        self.CHILD_WRAPPER_CLASS = None
-        self.PARENT_WRAPPER_CLASS = ['DatasetWrapper', 'WellSampleWrapper']
-        self._thumbInProgress = False
+    OMERO_CLASS = 'Image'
+    LINK_CLASS = None
+    CHILD_WRAPPER_CLASS = None
+    PARENT_WRAPPER_CLASS = ['DatasetWrapper', 'WellSampleWrapper']
+    _thumbInProgress = False
 
     def __del__(self):
         self._re and self._re.untaint()
@@ -9428,8 +9417,7 @@ class _ImagingEnviromentWrapper (BlitzObjectWrapper):
               'co2percent',
               'version')
 
-    def __bstrap__(self):
-        self.OMERO_CLASS = 'ImagingEnvironment'
+    OMERO_CLASS = 'ImagingEnvironment'
 
 ImagingEnviromentWrapper = _ImagingEnviromentWrapper
 
@@ -9445,8 +9433,7 @@ class _TransmittanceRangeWrapper (BlitzObjectWrapper):
               'transmittance',
               'version')
 
-    def __bstrap__(self):
-        self.OMERO_CLASS = 'TransmittanceRange'
+    OMERO_CLASS = 'TransmittanceRange'
 
 TransmittanceRangeWrapper = _TransmittanceRangeWrapper
 
@@ -9463,8 +9450,7 @@ class _DetectorSettingsWrapper (BlitzObjectWrapper):
               'detector|DetectorWrapper',
               'version')
 
-    def __bstrap__(self):
-        self.OMERO_CLASS = 'DetectorSettings'
+    OMERO_CLASS = 'DetectorSettings'
 
 DetectorSettingsWrapper = _DetectorSettingsWrapper
 
@@ -9474,8 +9460,7 @@ class _BinningWrapper (BlitzObjectWrapper):
     omero_model_BinningI class wrapper extends BlitzObjectWrapper.
     """
 
-    def __bstrap__(self):
-        self.OMERO_CLASS = 'Binning'
+    OMERO_CLASS = 'Binning'
 
 BinningWrapper = _BinningWrapper
 
@@ -9495,8 +9480,7 @@ class _DetectorWrapper (BlitzObjectWrapper):
               '#type;detectorType',
               'version')
 
-    def __bstrap__(self):
-        self.OMERO_CLASS = 'Detector'
+    OMERO_CLASS = 'Detector'
 
     def getDetectorType(self):
         """
@@ -9532,8 +9516,7 @@ class _ObjectiveWrapper (BlitzObjectWrapper):
               'iris',
               'version')
 
-    def __bstrap__(self):
-        self.OMERO_CLASS = 'Objective'
+    OMERO_CLASS = 'Objective'
 
     def getImmersion(self):
         """
@@ -9593,8 +9576,7 @@ class _ObjectiveSettingsWrapper (BlitzObjectWrapper):
               'objective|ObjectiveWrapper',
               'version')
 
-    def __bstrap__(self):
-        self.OMERO_CLASS = 'ObjectiveSettings'
+    OMERO_CLASS = 'ObjectiveSettings'
 
     def getObjective(self):
         """
@@ -9641,8 +9623,7 @@ class _FilterWrapper (BlitzObjectWrapper):
               'transmittanceRange|TransmittanceRangeWrapper',
               'version')
 
-    def __bstrap__(self):
-        self.OMERO_CLASS = 'Filter'
+    OMERO_CLASS = 'Filter'
 
     def getFilterType(self):
         """
@@ -9671,8 +9652,7 @@ class _DichroicWrapper (BlitzObjectWrapper):
               'lotNumber',
               'version')
 
-    def __bstrap__(self):
-        self.OMERO_CLASS = 'Dichroic'
+    OMERO_CLASS = 'Dichroic'
 
 DichroicWrapper = _DichroicWrapper
 
@@ -9687,8 +9667,7 @@ class _FilterSetWrapper (BlitzObjectWrapper):
               'dichroic|DichroicWrapper',
               'version')
 
-    def __bstrap__(self):
-        self.OMERO_CLASS = 'FilterSet'
+    OMERO_CLASS = 'FilterSet'
 
     def copyEmissionFilters(self):
         """ TODO: not implemented """
@@ -9714,8 +9693,7 @@ class _OTFWrapper (BlitzObjectWrapper):
               'objective|ObjectiveWrapper',
               'version')
 
-    def __bstrap__(self):
-        self.OMERO_CLASS = 'OTF'
+    OMERO_CLASS = 'OTF'
 
 OTFWrapper = _OTFWrapper
 
@@ -9730,8 +9708,7 @@ class _LightSettingsWrapper (BlitzObjectWrapper):
               'microbeamManipulation',
               'version')
 
-    def __bstrap__(self):
-        self.OMERO_CLASS = 'LightSettings'
+    OMERO_CLASS = 'LightSettings'
 
     def getLightSource(self):
         if self._obj.lightSource is None:
@@ -9803,9 +9780,7 @@ class _FilamentWrapper (_LightSourceWrapper):
     omero_model_FilamentI class wrapper extends LightSourceWrapper.
     """
 
-    def __bstrap__(self):
-        super(_FilamentWrapper, self).__bstrap__()
-        self.OMERO_CLASS = 'Filament'
+    OMERO_CLASS = 'Filament'
 
 FilamentWrapper = _FilamentWrapper
 _LightSourceClasses[omero.model.FilamentI] = 'FilamentWrapper'
@@ -9816,9 +9791,7 @@ class _ArcWrapper (_FilamentWrapper):
     omero_model_ArcI class wrapper extends FilamentWrapper.
     """
 
-    def __bstrap__(self):
-        super(_ArcWrapper, self).__bstrap__()
-        self.OMERO_CLASS = 'Arc'
+    OMERO_CLASS = 'Arc'
 
 ArcWrapper = _ArcWrapper
 _LightSourceClasses[omero.model.ArcI] = 'ArcWrapper'
@@ -9829,9 +9802,10 @@ class _LaserWrapper (_LightSourceWrapper):
     omero_model_LaserI class wrapper extends LightSourceWrapper.
     """
 
+    OMERO_CLASS = 'Laser'
+
     def __bstrap__(self):
         super(_LaserWrapper, self).__bstrap__()
-        self.OMERO_CLASS = 'Laser'
         self._attrs += (
             '#laserMedium',
             'frequencyMultiplication',
@@ -9877,9 +9851,7 @@ class _LightEmittingDiodeWrapper (_LightSourceWrapper):
     omero_model_LightEmittingDiodeI class wrapper extends LightSourceWrapper.
     """
 
-    def __bstrap__(self):
-        super(_LightEmittingDiodeWrapper, self).__bstrap__()
-        self.OMERO_CLASS = 'LightEmittingDiode'
+    OMERO_CLASS = 'LightEmittingDiode'
 
 LightEmittingDiodeWrapper = _LightEmittingDiodeWrapper
 _LightSourceClasses[
@@ -9896,8 +9868,7 @@ class _MicroscopeWrapper (BlitzObjectWrapper):
               '#type;microscopeType',
               'version')
 
-    def __bstrap__(self):
-        self.OMERO_CLASS = 'Microscope'
+    OMERO_CLASS = 'Microscope'
 
     def getMicroscopeType(self):
         """
@@ -9926,8 +9897,7 @@ class _InstrumentWrapper (BlitzObjectWrapper):
 
     _attrs = ('microscope|MicroscopeWrapper',)
 
-    def __bstrap__(self):
-        self.OMERO_CLASS = 'Instrument'
+    OMERO_CLASS = 'Instrument'
 
     def getMicroscope(self):
         """
