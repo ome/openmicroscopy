@@ -113,6 +113,13 @@ api_screen = url(
 Screen url to GET or DELETE a single Screen
 """
 
+api_screens = url(r'^v(?P<api_version>%s)/m/screens/$' % versions,
+                   views.ScreensView.as_view(),
+                   name='api_screens')
+"""
+GET all screens, using omero-marshal to generate json
+"""
+
 urlpatterns = patterns(
     '',
     api_versions,
@@ -127,4 +134,5 @@ urlpatterns = patterns(
     api_project_datasets,
     api_dataset,
     api_screen,
+    api_screens,
 )

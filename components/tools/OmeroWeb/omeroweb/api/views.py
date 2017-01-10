@@ -226,6 +226,12 @@ class DatasetsView(ObjectsView):
         return opts
 
 
+class ScreensView(ObjectsView):
+    """Handles GET for /screens/ to list available Screens."""
+
+    OMERO_TYPE = 'Screen'
+
+
 class SaveView(View):
     """
     This view provides 'Save' functionality for all types of objects.
