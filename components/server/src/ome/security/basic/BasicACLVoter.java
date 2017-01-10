@@ -131,10 +131,12 @@ public class BasicACLVoter implements ACLVoter {
             return true;   // object owner or group owner
         } else if (!ec.isCurrentUserAdmin()) {
             return false;  // not an admin
-        } else if (currentUser.getEvent() == null) {
+        }
+        final Event event = currentUser.getEvent();
+        if (event == null || !event.isLoaded()) {
             return true;   // no session to limit privileges
         }
-        final Set<AdminPrivilege> privileges = adminPrivileges.getSessionPrivileges(currentUser.getEvent().getSession());
+        final Set<AdminPrivilege> privileges = adminPrivileges.getSessionPrivileges(event.getSession());
         if (sysTypes.isSystemType(iObject.getClass())) {
             if (iObject instanceof Experimenter) {
                 return privileges.contains(adminPrivileges.getPrivilege("ModifyUser"));
@@ -263,7 +265,7 @@ public class BasicACLVoter implements ACLVoter {
         } else if (currentUser.getCurrentEventContext().isCurrentUserAdmin()) {
             final Set<AdminPrivilege> privileges;
             final Event event = currentUser.current().getEvent();
-            if (event == null) {
+            if (event == null || !event.isLoaded()) {
                 privileges = adminPrivileges.getAllPrivileges();
             } else {
                 privileges = adminPrivileges.getSessionPrivileges(event.getSession());
@@ -416,10 +418,11 @@ public class BasicACLVoter implements ACLVoter {
         }
 
         final Set<AdminPrivilege> privileges;
-        if (c.getEvent() == null) {
+        final Event event = c.getEvent();
+        if (event == null || !event.isLoaded()) {
             privileges = adminPrivileges.getAllPrivileges();
         } else {
-            privileges = adminPrivileges.getSessionPrivileges(c.getEvent().getSession());
+            privileges = adminPrivileges.getSessionPrivileges(event.getSession());
         }
         if (c.isCurrentUserAdmin()) {
             /* see trac ticket 10691 re. enum values */
