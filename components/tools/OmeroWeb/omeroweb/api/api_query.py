@@ -58,7 +58,9 @@ def query_objects(conn, object_type,
         for p in result:
             obj = unwrap(p[0])
             objects.append(obj)
-            extras[obj.id.val] = {'omero:childCount': unwrap(p[1])}
+            if len(p) > 1:
+                # in case child_count not supported by conn.buildQuery()
+                extras[obj.id.val] = {'omero:childCount': unwrap(p[1])}
     else:
         extras = None
         result = qs.findAllByQuery(query, params, ctx)

@@ -221,7 +221,7 @@ class DatasetsView(ObjectsView):
 
     def get_opts(self, request, **kwargs):
         """Add filtering by 'project' to the opts dict."""
-        opts = super(DatasetsView, self).get_opts(request)
+        opts = super(DatasetsView, self).get_opts(request, **kwargs)
         # at /projects/:project_id/datasets/ we have 'project_id' in kwargs
         if 'project_id' in kwargs:
             opts['project'] = long(kwargs['project_id'])
@@ -243,6 +243,15 @@ class PlatesView(ObjectsView):
     """Handles GET for /plates/ to list available Plates."""
 
     OMERO_TYPE = 'Plate'
+
+    def get_opts(self, request, **kwargs):
+        """Add filtering by 'screen' to the opts dict."""
+        opts = super(PlatesView, self).get_opts(request, **kwargs)
+        # filter by query /plates/?screen=:id
+        screen = getIntOrDefault(request, 'screen', None)
+        if screen is not None:
+            opts['screen'] = screen
+        return opts
 
 
 class SaveView(View):
