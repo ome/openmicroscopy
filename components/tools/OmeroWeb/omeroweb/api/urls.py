@@ -120,6 +120,21 @@ api_screens = url(r'^v(?P<api_version>%s)/m/screens/$' % versions,
 GET all screens, using omero-marshal to generate json
 """
 
+api_plates = url(r'^v(?P<api_version>%s)/m/plates/$' % versions,
+                   views.PlatesView.as_view(),
+                   name='api_plates')
+"""
+GET all plates, using omero-marshal to generate json
+"""
+
+api_plate = url(
+    r'^v(?P<api_version>%s)/m/plates/(?P<pid>[0-9]+)/$' % versions,
+    views.PlateView.as_view(),
+    name='api_plate')
+"""
+Plate url to GET or DELETE a single Plate
+"""
+
 urlpatterns = patterns(
     '',
     api_versions,
@@ -135,4 +150,7 @@ urlpatterns = patterns(
     api_dataset,
     api_screen,
     api_screens,
+    api_plates,
+    api_plate,
+
 )

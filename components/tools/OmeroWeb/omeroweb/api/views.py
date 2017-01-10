@@ -161,6 +161,12 @@ class ScreenView(ObjectView):
     OMERO_TYPE = 'Screen'
 
 
+class PlateView(ObjectView):
+    """Handle access to an individual Plate to GET or DELETE it."""
+
+    OMERO_TYPE = 'Plate'
+
+
 class ObjectsView(View):
     """Base class for listing objects."""
 
@@ -231,6 +237,12 @@ class ScreensView(ObjectsView):
     """Handles GET for /screens/ to list available Screens."""
 
     OMERO_TYPE = 'Screen'
+
+
+class PlatesView(ObjectsView):
+    """Handles GET for /plates/ to list available Plates."""
+
+    OMERO_TYPE = 'Plate'
 
 
 class SaveView(View):
