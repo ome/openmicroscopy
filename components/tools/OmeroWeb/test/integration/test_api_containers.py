@@ -26,7 +26,7 @@ from django.conf import settings
 import pytest
 from omero.gateway import BlitzGateway
 from omero_marshal import get_encoder
-from omero.model import DatasetI, ProjectI
+from omero.model import DatasetI, ProjectI, ScreenI
 from omero.rtypes import rstring, unwrap
 
 
@@ -85,6 +85,46 @@ def assert_objects(conn, json_objects, omero_ids_objects, dtype="Project",
 class TestContainers(IWebTest):
     """Tests querying & editing Datasets, Screens etc."""
 
+    @pytest.fixture()
+    def user1(self):
+        """Return a new user in a read-annotate group."""
+        group = self.new_group(perms='rwra--')
+        user = self.new_client_and_user(group=group)
+        return user
+
+    @pytest.fixture()
+    def project_datasets(self, user1):
+        """Return Project with Datasets and an orphaned Dataset."""
+        # Create and name all the objects
+        project = ProjectI()
+        project.name = rstring('Project')
+
+        for i in range(5):
+            dataset1 = DatasetI()
+            dataset1.name = rstring('Dataset%s' % i)
+            project.linkDataset(dataset1)
+
+        # Create single orphaned Dataset
+        dataset = DatasetI()
+        dataset.name = rstring('Dataset')
+
+        project = get_update_service(user1).saveAndReturnObject(project)
+        dataset = get_update_service(user1).saveAndReturnObject(dataset)
+
+        return project, dataset
+
+    @pytest.fixture()
+    def user_screens(self, user1):
+        """Create screens belonging to user1."""
+        screens = []
+        for i in range(5):
+            screen = ScreenI()
+            screen.name = rstring('Screen%s' % i)
+            screens.append(screen)
+        screens = get_update_service(user1).saveAndReturnArray(screens)
+        screens.sort(cmp_name_insensitive)
+        return screens
+
     @pytest.mark.parametrize("dtype", ['Project', 'Dataset', 'Screen'])
     def test_container_crud(self, dtype):
         """
@@ -133,37 +173,6 @@ class TestContainers(IWebTest):
         rsp = _get_response_json(django_client, object_url, {},
                                  status_code=404)
 
-
-class TestDatasets(IWebTest):
-    """Tests querying Datasets."""
-
-    @pytest.fixture()
-    def user1(self):
-        """Return a new user in a read-annotate group."""
-        group = self.new_group(perms='rwra--')
-        user = self.new_client_and_user(group=group)
-        return user
-
-    @pytest.fixture()
-    def project_datasets(self, user1):
-        """Return Project with Datasets and an orphaned Dataset."""
-        # Create and name all the objects
-        project = ProjectI()
-        project.name = rstring('Project')
-
-        for i in range(5):
-            dataset1 = DatasetI()
-            dataset1.name = rstring('Dataset%s' % i)
-            project.linkDataset(dataset1)
-
-        dataset = DatasetI()
-        dataset.name = rstring('Dataset')
-
-        project = get_update_service(user1).saveAndReturnObject(project)
-        dataset = get_update_service(user1).saveAndReturnObject(dataset)
-
-        return project, dataset
-
     def test_project_datasets(self, user1, project_datasets):
         """Test listing of Datasets in a Project."""
         conn = get_connection(user1)
@@ -200,3 +209,15 @@ class TestDatasets(IWebTest):
         rsp = _get_response_json(django_client, request_url, payload)
         assert_objects(conn, rsp['data'], datasets[limit:limit * 2],
                        dtype="Dataset")
+
+    def test_screens(self, user1, user_screens):
+        """Test listing of Screens."""
+        conn = get_connection(user1)
+        user_name = conn.getUser().getName()
+        django_client = self.new_django_client(user_name, user_name)
+        version = settings.API_VERSIONS[-1]
+        request_url = reverse('api_screens', kwargs={'api_version': version})
+
+        # List ALL Screens
+        rsp = _get_response_json(django_client, request_url, {})
+        assert_objects(conn, rsp['data'], user_screens, dtype="Screen")
