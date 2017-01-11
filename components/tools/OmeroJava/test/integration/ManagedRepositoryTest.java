@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2013 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2012-2017 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -611,7 +611,7 @@ public class ManagedRepositoryTest extends AbstractServerImportTest {
     }
 
     /**
-     * Assert that the destination path ends with the used file.
+     * Assert that the used file ends with the destination path.
      *
      * @param usedFile
      *            the used file
