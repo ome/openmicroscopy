@@ -204,9 +204,7 @@ class ObjectsView(View):
         group = getIntOrDefault(request, 'group', -1)
         normalize = request.GET.get('normalize', False) == 'true'
         # Get the data
-        marshalled = query_objects(conn, self.OMERO_TYPE,
-                                   group, opts, normalize)
-        return marshalled
+        return query_objects(conn, self.OMERO_TYPE, group, opts, normalize)
 
 
 class ProjectsView(ObjectsView):

@@ -68,7 +68,7 @@ def assert_objects(conn, json_objects, omero_ids_objects, dtype="Project",
     omero_ids_objects can be IDs or list of omero.model objects.
 
     @param: extra       List of dicts containing expected extra json data
-                        E.g. {'omero:childCount': 1}
+                        e.g. {'omero:childCount': 1}
     """
     pids = []
     for p in omero_ids_objects:

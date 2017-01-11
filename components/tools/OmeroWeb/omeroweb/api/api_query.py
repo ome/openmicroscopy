@@ -38,7 +38,9 @@ def query_objects(conn, object_type,
 
     @param conn:        BlitzGateway
     @param object_type: Type to query. E.g. Project
+    @param group:       Filter query by ExperimenterGroup ID
     @param opts:        Options dict for conn.buildQuery()
+    @param normalize:   If true, marshal groups and experimenters separately
     """
     # buildQuery is used by conn.getObjects()
     query, params, wrapper = conn.buildQuery(object_type, opts=opts)
@@ -53,7 +55,7 @@ def query_objects(conn, object_type,
 
     objects = []
     extras = {}
-    if opts is not None and 'child_count' in opts and opts['child_count']:
+    if opts is not None and opts.get('child_count'):
         result = qs.projection(query, params, ctx)
         for p in result:
             obj = unwrap(p[0])
