@@ -22,11 +22,7 @@
     <div id="tagsPane">
     <h1 class="can-collapse closed" data-name="tags">
         {{ label|default:"Tags" }}
-        {% for key, value in annotationCounts.items %}
-            {% if key == 'TagAnnotation' %}
-                ({{ value }})
-            {% endif %}
-        {% endfor %}
+        ({{ annotationCounts.TagAnnotation }})
     </h1>
     <div class="annotations_section" style="display:none">
         

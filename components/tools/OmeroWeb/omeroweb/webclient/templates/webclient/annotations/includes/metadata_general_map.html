@@ -22,11 +22,7 @@
     <div id="mapAnnsPane">
     <h1 class="can-collapse closed" data-name="keyvaluepairs">
         {{ label|default:"Key-Value Pairs" }}
-        {% for key, value in annotationCounts.items %}
-            {% if key == 'MapAnnotation' %}
-                ({{ value }})
-            {% endif %}
-        {% endfor %}
+        ({{ annotationCounts.MapAnnotation }})
     </h1>
     <div class="annotations_section" style="display:none">
 

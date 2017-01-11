@@ -22,11 +22,7 @@
     <div id="fileannsPane">
     <h1 class="can-collapse closed" data-name='attachments'>
         {{ label|default:"Attachments" }}
-        {% for key, value in annotationCounts.items %}
-            {% if key == 'FileAnnotation' %}
-                ({{ value }})
-            {% endif %}
-        {% endfor %}
+        ({{ annotationCounts.FileAnnotation }})
     </h1>
     <div class="annotations_section" style="display:none">
 

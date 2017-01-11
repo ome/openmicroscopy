@@ -22,11 +22,7 @@
     <div id="customAnnotationsPane">
     <h1 class="can-collapse closed" data-name="others">
         {{ label|default:"Others" }}
-        {% for key, value in annotationCounts.items %}
-            {% if key == 'OtherAnnotation' %}
-                ({{ value }})
-            {% endif %}
-        {% endfor %}
+        ({{ annotationCounts.OtherAnnotation }})
     </h1>
     <div class="annotations_section" style="display: none">
         <table id="custom_annotations"></table>
