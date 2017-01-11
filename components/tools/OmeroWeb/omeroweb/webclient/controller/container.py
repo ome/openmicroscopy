@@ -206,7 +206,8 @@ class BaseContainer(BaseController):
             "FileAnnotation" : 0,
             "CommentAnnotation" : 0,
             "LongAnnotation" : 0,
-            "MapAnnotation" : 0}
+            "MapAnnotation" : 0,
+            "OtherAnnotation" : 0}
 
         obj_type = None
         obj_ids = []
@@ -253,12 +254,14 @@ class BaseContainer(BaseController):
         regAnnotations = 0
         for al in qs.findAllByQuery(q, params):
             total += 1
-            annoType = atypes[type(al._child)]
-            if annoType == "LongAnnotation" and\
-                al._child._ns._val != "openmicroscopy.org/omero/insight/rating":
-                continue
-            counts[annoType] += 1
-
+            if type(al._child) in atypes:
+                annoType = atypes[type(al._child)]
+                if annoType == "LongAnnotation" and\
+                    al._child._ns._val != "openmicroscopy.org/omero/insight/rating":
+                    continue
+                counts[annoType] += 1
+                regAnnotations += 1
+        counts["OtherAnnotation"] = total - regAnnotations
         return counts
         
     def getAnnotationCounts(self):
@@ -294,7 +297,8 @@ class BaseContainer(BaseController):
             "FileAnnotation" : 0,
             "CommentAnnotation" : 0,
             "LongAnnotation" : 0,
-            "MapAnnotation" : 0}
+            "MapAnnotation" : 0,
+            "OtherAnnotation" : 0}
 
         q = """
             select al from %sAnnotationLink al
@@ -307,12 +311,14 @@ class BaseContainer(BaseController):
         regAnnotations = 0
         for al in qs.findAllByQuery(q, params):
             total += 1
-            annoType = atypes[type(al._child)]
-            if annoType == "LongAnnotation" and\
-                al._child._ns._val != "openmicroscopy.org/omero/insight/rating":
-                continue
-            counts[annoType] += 1
-
+            if type(al._child) in atypes:
+                annoType = atypes[type(al._child)]
+                if annoType == "LongAnnotation" and\
+                    al._child._ns._val != "openmicroscopy.org/omero/insight/rating":
+                    continue
+                counts[annoType] += 1
+                regAnnotations += 1
+        counts["OtherAnnotation"] = total - regAnnotations
         return counts
         
     def canExportAsJpg(self, request, objDict=None):
