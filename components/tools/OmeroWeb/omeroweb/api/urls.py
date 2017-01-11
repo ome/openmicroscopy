@@ -128,6 +128,15 @@ api_plates = url(r'^v(?P<api_version>%s)/m/plates/$' % versions,
 GET all plates, using omero-marshal to generate json
 """
 
+api_screen_plates = url(
+    r'^v(?P<api_version>%s)/m/screens/'
+    '(?P<screen_id>[0-9]+)/plates/$' % versions,
+    views.PlatesView.as_view(),
+    name='api_screen_plates')
+"""
+GET Datasets in Project, using omero-marshal to generate json
+"""
+
 api_plate = url(
     r'^v(?P<api_version>%s)/m/plates/(?P<pid>[0-9]+)/$' % versions,
     views.PlateView.as_view(),
@@ -152,6 +161,7 @@ urlpatterns = patterns(
     api_screen,
     api_screens,
     api_plates,
+    api_screen_plates,
     api_plate,
 
 )

@@ -246,10 +246,14 @@ class PlatesView(ObjectsView):
     def get_opts(self, request, **kwargs):
         """Add filtering by 'screen' to the opts dict."""
         opts = super(PlatesView, self).get_opts(request, **kwargs)
-        # filter by query /plates/?screen=:id
-        screen = getIntOrDefault(request, 'screen', None)
-        if screen is not None:
-            opts['screen'] = screen
+        # at /screens/:screen_id/plates/ we have 'screen_id' in kwargs
+        if 'screen_id' in kwargs:
+            opts['screen'] = long(kwargs['screen_id'])
+        else:
+            # filter by query /plates/?screen=:id
+            screen = getIntOrDefault(request, 'screen', None)
+            if screen is not None:
+                opts['screen'] = screen
         return opts
 
 
