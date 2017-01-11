@@ -86,6 +86,10 @@ import Glacier2.PermissionDeniedException;
  * for use in export from an OMERO Beta 4.2.x database.
  *
  */
+/**
+ * @deprecated  As of release 5.3.0
+ */
+@Deprecated
 public class OmeroReader extends FormatReader {
 
     // -- Constants --
