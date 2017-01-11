@@ -169,7 +169,7 @@ class ImageView(ObjectView):
     def get_opts(self, request):
         """Add support for load_pixels and load_channels."""
         opts = super(ImageView, self).get_opts(request)
-        for p in ['load_pixels', 'load_channels']:
+        for p in ['load_pixels', 'load_channels', 'orphaned']:
             load = request.GET.get(p, False) == 'true'
             if load:
                 opts[p] = True
