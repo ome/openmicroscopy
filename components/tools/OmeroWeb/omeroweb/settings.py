@@ -6,7 +6,7 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
 #
-# Copyright (c) 2008-2014 University of Dundee.
+# Copyright (c) 2008-2017 University of Dundee.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -208,6 +208,21 @@ SESSION_ENGINE_VALUES = ('omeroweb.filesessionstore',
                          'django.contrib.sessions.backends.cache',
                          'django.contrib.sessions.backends.cached_db')
 
+DEFAULT_SESSION_SERILIZER = \
+    'django.contrib.sessions.serializers.PickleSerializer'
+SESSION_SERILIZER_VALUES = (
+    'django.contrib.sessions.serializers.PickleSerializer',
+    'django.contrib.sessions.serializers.JSONSerializer',
+)
+
+
+def check_settings_value(s, values):
+    if s not in values:
+        raise ValueError(
+            "Unknown value: %s. Valid values are: %s"
+            % (s, values))
+    return s
+
 
 def parse_boolean(s):
     s = s.strip().lower()
@@ -229,11 +244,11 @@ def check_server_type(s):
 
 
 def check_session_engine(s):
-    if s not in SESSION_ENGINE_VALUES:
-        raise ValueError(
-            "Unknown session engine: %s. Valid values are: %s"
-            % (s, SESSION_ENGINE_VALUES))
-    return s
+    return check_settings_value(s, SESSION_ENGINE_VALUES)
+
+
+def check_serilizers(s):
+    return check_settings_value(s, SESSION_SERILIZER_VALUES)
 
 
 def identity(x):
@@ -262,6 +277,7 @@ def leave_none_unset_int(s):
     s = leave_none_unset(s)
     if s is not None:
         return int(s)
+
 
 CUSTOM_HOST = CUSTOM_SETTINGS.get("Ice.Default.Host", "localhost")
 CUSTOM_HOST = CUSTOM_SETTINGS.get("omero.master.host", CUSTOM_HOST)
@@ -327,6 +343,11 @@ INTERNAL_SETTINGS_MAPPING = {
          parse_boolean,
          ("Whether to use a TLS (secure) connection when talking to the SMTP"
           " server.")],
+    "omero.web.session_serializer":
+        ["SESSION_SERIALIZER",
+         DEFAULT_SESSION_SERILIZER,
+         check_serilizers,
+         "Session serialization. For redis use JSONSerializer."],
 }
 
 CUSTOM_SETTINGS_MAPPINGS = {
@@ -786,6 +807,7 @@ def check_threading(t):
                               "multiple threads. Install futures")
     return int(t)
 
+
 # DEVELOPMENT_SETTINGS_MAPPINGS - WARNING: For each setting developer MUST open
 # a ticket that needs to be resolved before a release either by moving the
 # setting to CUSTOM_SETTINGS_MAPPINGS or by removing the setting at all.
@@ -879,6 +901,7 @@ def process_custom_settings(
         except LeaveUnset:
             pass
 
+
 process_custom_settings(sys.modules[__name__], 'INTERNAL_SETTINGS_MAPPING')
 process_custom_settings(sys.modules[__name__], 'CUSTOM_SETTINGS_MAPPINGS',
                         'DEPRECATED_SETTINGS_MAPPINGS')
@@ -914,6 +937,7 @@ def report_settings(module):
             logger.debug(
                 "%s = %r (deprecated:%s, %s)", global_name,
                 cleanse_setting(global_name, global_value), key, description)
+
 
 report_settings(sys.modules[__name__])
 
@@ -1222,11 +1246,6 @@ DEFAULT_USER = os.path.join(
 # broken-link notifications when
 # SEND_BROKEN_LINK_EMAILS=True.
 MANAGERS = ADMINS  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
-
-# https://docs.djangoproject.com/en/1.6/releases/1.6/#default-session-serialization-switched-to-json
-# JSON serializer, which is now the default, cannot handle
-# omeroweb.connector.Connector object
-SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
 
 # Load server list and freeze
 from connector import Server
