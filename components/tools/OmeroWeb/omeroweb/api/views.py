@@ -262,6 +262,19 @@ class ImagesView(ObjectsView):
 
     OMERO_TYPE = 'Image'
 
+    def get_opts(self, request, **kwargs):
+        """Add filtering by 'dataset' and other params to the opts dict."""
+        opts = super(ImagesView, self).get_opts(request, **kwargs)
+        # filter by query /images/?dataset=:id
+        dataset = getIntOrDefault(request, 'dataset', None)
+        if dataset is not None:
+            opts['dataset'] = dataset
+        # handle 'boolean' params
+        for param in ['load_pixels', 'load_channels']:
+            if request.GET.get(param, False) == 'true':
+                opts[param] = True
+        return opts
+
 
 class SaveView(View):
     """
