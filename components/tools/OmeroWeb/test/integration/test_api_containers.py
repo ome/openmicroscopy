@@ -26,7 +26,7 @@ from django.conf import settings
 import pytest
 from omero.gateway import BlitzGateway
 from omero_marshal import get_encoder
-from omero.model import DatasetI, ProjectI, ScreenI, PlateI
+from omero.model import DatasetI, ProjectI, ScreenI, PlateI, ImageI
 from omero.rtypes import rstring, unwrap
 
 
@@ -60,12 +60,15 @@ def marshal_objects(objects):
 
 
 def assert_objects(conn, json_objects, omero_ids_objects, dtype="Project",
-                   group='-1'):
+                   group='-1', extra=None):
     """
     Load objects from OMERO, via conn.getObjects().
 
     marshal with omero_marshal and compare with json_objects.
     omero_ids_objects can be IDs or list of omero.model objects.
+
+    @param: extra       List of dicts containing expected extra json data
+                        E.g. {'omero:childCount': 1}
     """
     pids = []
     for p in omero_ids_objects:
@@ -74,11 +77,13 @@ def assert_objects(conn, json_objects, omero_ids_objects, dtype="Project",
         except TypeError:
             pids.append(p.id.val)
     conn.SERVICE_OPTS.setOmeroGroup(group)
-    projects = conn.getObjects(dtype, pids, respect_order=True)
-    projects = [p._obj for p in projects]
-    expected = marshal_objects(projects)
+    objs = conn.getObjects(dtype, pids, respect_order=True)
+    objs = [p._obj for p in objs]
+    expected = marshal_objects(objs)
     assert len(json_objects) == len(expected)
-    for o1, o2 in zip(json_objects, expected):
+    for i, o1, o2 in zip(range(len(expected)), json_objects, expected):
+        if extra is not None and i < len(extra):
+            o2.update(extra[i])
         assert o1 == o2
 
 
@@ -99,9 +104,14 @@ class TestContainers(IWebTest):
         project = ProjectI()
         project.name = rstring('Project')
 
-        for i in range(5):
+        # Create 5 Datasets, each with 0-4 images.
+        for d in range(5):
             dataset1 = DatasetI()
-            dataset1.name = rstring('Dataset%s' % i)
+            dataset1.name = rstring('Dataset%s' % d)
+            for i in range(d):
+                image = ImageI()
+                image.name = rstring('Image%s' % i)
+                dataset1.linkImage(image)
             project.linkDataset(dataset1)
 
         # Create single orphaned Dataset
@@ -209,12 +219,14 @@ class TestContainers(IWebTest):
             orphaned = project_datasets[1]
             url_name = 'api_datasets'
             ptype = 'project'
+            child_counts = [{'omero:childCount': c} for c in range(5)]
         else:
             parent = screen_plates[0]
             children = parent.linkedPlateList()
             orphaned = screen_plates[1]
             url_name = 'api_plates'
             ptype = 'screen'
+            child_counts = None
 
         request_url = reverse(url_name, kwargs={'api_version': version})
 
@@ -229,14 +241,16 @@ class TestContainers(IWebTest):
 
         # Filter Datasets by Project or Plates by Screen
         children.sort(cmp_name_insensitive)
-        payload = {ptype: parent.id.val}
+        # Also testing childCount
+        payload = {ptype: parent.id.val, 'childCount': 'true'}
         rsp = _get_response_json(django_client, request_url, payload)
         assert len(rsp['data']) == 5
-        assert_objects(conn, rsp['data'], children, dtype=dtype)
+        assert_objects(conn, rsp['data'], children, dtype=dtype,
+            extra=child_counts)
 
         # Pagination
         limit = 3
-        payload['limit'] = limit
+        payload = {ptype: parent.id.val, 'limit': limit}
         rsp = _get_response_json(django_client, request_url, payload)
         assert_objects(conn, rsp['data'], children[0:limit], dtype=dtype)
         payload['page'] = 2
