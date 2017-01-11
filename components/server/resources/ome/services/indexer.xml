@@ -90,7 +90,6 @@
         <ref bean="securityFilterHolder"/>
       </list>
     </constructor-arg>
-    <constructor-arg ref="securityFilterHolder"/>
     <constructor-arg><bean class="ome.security.policy.DefaultPolicyService"/></constructor-arg>
   </bean>
 
