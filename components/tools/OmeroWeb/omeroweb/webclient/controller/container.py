@@ -201,7 +201,12 @@ class BaseContainer(BaseController):
         elif self.acquisition:
             return self.acquisition._obj.plate.id.val
 
-    def getBatchAnnotationCounts(self, objects):
+    def countAnnotations(self, annotationlinks):
+        """
+        Count the different (unique) annotions from the
+        provided annotation links
+        """
+        
         counts = {"TagAnnotation" : 0,
             "FileAnnotation" : 0,
             "CommentAnnotation" : 0,
@@ -209,118 +214,103 @@ class BaseContainer(BaseController):
             "MapAnnotation" : 0,
             "OtherAnnotation" : 0}
 
+        atypes = {omero.model.TagAnnotationI : "TagAnnotation",
+            omero.model.FileAnnotationI : "FileAnnotation",
+            omero.model.CommentAnnotationI : "CommentAnnotation",
+            omero.model.LongAnnotationI : "LongAnnotation",
+            omero.model.MapAnnotationI : "MapAnnotation"}
+
+        uniqueIds = []
+        total = 0
+        regAnnotations = 0
+        for al in annotationlinks:
+            # Avoid counting the same annotations multiple times
+            annoId = str(type(al._child))+"_"+str(al._child._id._val)
+            if annoId not in uniqueIds:
+                uniqueIds.append(annoId)
+            else:
+                continue
+                
+            total += 1
+            if type(al._child) in atypes:
+                annoType = atypes[type(al._child)]
+                if annoType == "LongAnnotation" and al._child._ns._val !=\
+                        omero.constants.metadata.NSINSIGHTRATING:
+                    continue
+                    
+                counts[annoType] += 1
+                regAnnotations += 1
+                
+        counts["OtherAnnotation"] = total - regAnnotations
+        return counts
+
+    def getAnnotationLinkTable(self, annotationtype):
+        """ 
+        Get the name of the *AnnotationLink table 
+        for the given annotationtype
+        """
+        annotationtype = annotationtype.lower()
+        
+        if annotationtype == "project":
+            return "ProjectAnnotationLink"
+        if annotationtype == "dataset":
+            return"DatasetAnnotationLink"
+        if annotationtype == "image":
+            return"ImageAnnotationLink"
+        if annotationtype == "screen":
+            return "ScreenAnnotationLink"
+        if annotationtype == "plate":
+            return  "PlateAnnotationLink"
+        if annotationtype == "plateacquisition":
+            return "PlateAcquisitionAnnotationLink"
+        if annotationtype == "well":
+            return "WellAnnotationLink"
+        return None
+
+    def getBatchAnnotationCounts(self, objects):
+        """ 
+        Loads the annotion counts for multi selection
+        """
+
         obj_type = None
         obj_ids = []
-        for object in objects:
-            objtype = object.split('=')[0]
-            objid = object.split('=')[1]
+        for obj in objects:
+            objtype = obj.split('=')[0]
+            objid = obj.split('=')[1]
             if obj_type is None:
                 obj_type = objtype
             obj_ids.append(long(objid))
 
-        if obj_type == "project":
-            obj_type = "Project"
-        if obj_type == "dataset":
-            obj_type = "Dataset"
-        if obj_type == "image":
-            obj_type = "Image"
-        if obj_type == "screen":
-            obj_type = "Screen"
-        if obj_type == "plate":
-            obj_type = "Plate"
-        if obj_type == "plateacquisition":
-            obj_type = "PlateAcquisition"
-        if obj_type == "well":
-            obj_type = "Well"
-
-        atypes = {omero.model.TagAnnotationI : "TagAnnotation",
-            omero.model.FileAnnotationI : "FileAnnotation",
-            omero.model.CommentAnnotationI : "CommentAnnotation",
-            omero.model.LongAnnotationI : "LongAnnotation",
-            omero.model.MapAnnotationI : "MapAnnotation"}
-
-        qs = self.conn.getQueryService()
-
         params = omero.sys.ParametersI()
         params.addIds(obj_ids)
         q = """
-            select al from %sAnnotationLink al
+            select al from %s al
             left outer join al.parent as pa
             left outer join fetch al.child as an
             where pa.id in (:ids)
-            """ % (obj_type)
+            """ % (self.getAnnotationLinkTable(obj_type))
 
-        total = 0
-        regAnnotations = 0
-        for al in qs.findAllByQuery(q, params, self.conn.SERVICE_OPTS):
-            total += 1
-            if type(al._child) in atypes:
-                annoType = atypes[type(al._child)]
-                if annoType == "LongAnnotation" and\
-                    al._child._ns._val != "openmicroscopy.org/omero/insight/rating":
-                    continue
-                counts[annoType] += 1
-                regAnnotations += 1
-        counts["OtherAnnotation"] = total - regAnnotations
-        return counts
-        
+        return self.countAnnotations(self.conn.getQueryService()\
+            .findAllByQuery(q, params, self.conn.SERVICE_OPTS))
+
     def getAnnotationCounts(self):
-        """ Loads the annotion counts """
-        qs = self.conn.getQueryService()
+        """ 
+        Loads the annotion counts for the current object
+        """
 
         params = omero.sys.ParametersI()
         params.addId(long(self.obj_id()))
-        
-        atypes = {omero.model.TagAnnotationI : "TagAnnotation",
-            omero.model.FileAnnotationI : "FileAnnotation",
-            omero.model.CommentAnnotationI : "CommentAnnotation",
-            omero.model.LongAnnotationI : "LongAnnotation",
-            omero.model.MapAnnotationI : "MapAnnotation"}
-                  
-        objtype = ""
-        if self.obj_type == "project":
-            objtype = "Project"
-        if self.obj_type == "dataset":
-            objtype = "Dataset"
-        if self.obj_type == "image":
-            objtype = "Image"
-        if self.obj_type == "screen":
-            objtype = "Screen"
-        if self.obj_type == "plate":
-            objtype = "Plate"
-        if self.obj_type == "plateacquisition":
-            objtype = "PlateAcquisition"
-        if self.obj_type == "well":
-            objtype = "Well"
-
-        counts = {"TagAnnotation" : 0,
-            "FileAnnotation" : 0,
-            "CommentAnnotation" : 0,
-            "LongAnnotation" : 0,
-            "MapAnnotation" : 0,
-            "OtherAnnotation" : 0}
 
         q = """
-            select al from %sAnnotationLink al
+            select al from %s al
             left outer join al.parent as pa
             left outer join fetch al.child as an
             where pa.id = :id
-            """ % (objtype)
-            
-        total = 0
-        regAnnotations = 0
-        for al in qs.findAllByQuery(q, params, self.conn.SERVICE_OPTS):
-            total += 1
-            if type(al._child) in atypes:
-                annoType = atypes[type(al._child)]
-                if annoType == "LongAnnotation" and\
-                    al._child._ns._val != "openmicroscopy.org/omero/insight/rating":
-                    continue
-                counts[annoType] += 1
-                regAnnotations += 1
-        counts["OtherAnnotation"] = total - regAnnotations
-        return counts
-        
+            """ % (self.getAnnotationLinkTable(self.obj_type))
+
+        return self.countAnnotations(self.conn.getQueryService()\
+            .findAllByQuery(q, params, self.conn.SERVICE_OPTS))
+
     def canExportAsJpg(self, request, objDict=None):
         """
         Can't export as Jpg, Png, Tiff if bigger than approx 12k * 12k.
