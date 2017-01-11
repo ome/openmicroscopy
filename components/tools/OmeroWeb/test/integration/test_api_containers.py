@@ -246,7 +246,7 @@ class TestContainers(IWebTest):
         rsp = _get_response_json(django_client, request_url, payload)
         assert len(rsp['data']) == 5
         assert_objects(conn, rsp['data'], children, dtype=dtype,
-            extra=child_counts)
+                       extra=child_counts)
 
         # Pagination
         limit = 3
