@@ -245,14 +245,14 @@ class BaseContainer(BaseController):
         params.addIds(obj_ids)
         q = """
             select al from %sAnnotationLink al
-            left outer join fetch al.parent as pa
+            left outer join al.parent as pa
             left outer join fetch al.child as an
             where pa.id in (:ids)
             """ % (obj_type)
 
         total = 0
         regAnnotations = 0
-        for al in qs.findAllByQuery(q, params):
+        for al in qs.findAllByQuery(q, params, self.conn.SERVICE_OPTS):
             total += 1
             if type(al._child) in atypes:
                 annoType = atypes[type(al._child)]
@@ -302,14 +302,14 @@ class BaseContainer(BaseController):
 
         q = """
             select al from %sAnnotationLink al
-            left outer join fetch al.parent as pa
+            left outer join al.parent as pa
             left outer join fetch al.child as an
             where pa.id = :id
             """ % (objtype)
             
         total = 0
         regAnnotations = 0
-        for al in qs.findAllByQuery(q, params):
+        for al in qs.findAllByQuery(q, params, self.conn.SERVICE_OPTS):
             total += 1
             if type(al._child) in atypes:
                 annoType = atypes[type(al._child)]
