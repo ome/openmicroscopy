@@ -194,10 +194,6 @@ public class ManagedRepositoryTest extends AbstractServerImportTest {
                 .toString() + ".fake");
         final File file2 = ensureFileExists(uniquePath, UUID.randomUUID()
                 .toString() + ".fake");
-        final String destPath1 = cfpt.getFsFileFromClientFile(file1, 2)
-                .toString();
-        final String destPath2 = cfpt.getFsFileFromClientFile(file2, 2)
-                .toString();
 
         final List<String> srcPaths = new ArrayList<String>();
         final Set<String> usedFile2s = new HashSet<String>();
@@ -205,13 +201,13 @@ public class ManagedRepositoryTest extends AbstractServerImportTest {
         // Completely new file
         srcPaths.add(file1.getAbsolutePath());
         ImportLocation data = importFileset(srcPaths);
-        assertEndsWith(pathToUsedFile(data, 0), destPath1);
+        assertEndsWith(pathToUsedFile(data, 0), file1.getName());
 
         // Different files that should go in same directory
         srcPaths.add(file2.getAbsolutePath());
         data = importFileset(srcPaths);
-        assertEndsWith(pathToUsedFile(data, 0), destPath1);
-        assertEndsWith(pathToUsedFile(data, 1), destPath2);
+        assertEndsWith(pathToUsedFile(data, 0), file1.getName());
+        assertEndsWith(pathToUsedFile(data, 1), file2.getName());
         for (final String usedFile : data.usedFiles) {
             /* all in the same directory below data.sharedPath */
             Assert.assertEquals(-1, usedFile.indexOf(FsFile.separatorChar));
@@ -221,12 +217,12 @@ public class ManagedRepositoryTest extends AbstractServerImportTest {
         // Same file that should go in new directory
         srcPaths.remove(0);
         data = importFileset(srcPaths);
-        assertEndsWith(pathToUsedFile(data, 0), destPath2);
+        assertEndsWith(pathToUsedFile(data, 0), file2.getName());
         Assert.assertTrue(usedFile2s.add(pathToUsedFile(data, 0)));
 
         // Same file again that should go in new directory
         data = importFileset(srcPaths);
-        assertEndsWith(pathToUsedFile(data, 0), destPath2);
+        assertEndsWith(pathToUsedFile(data, 0), file2.getName());
         Assert.assertTrue(usedFile2s.add(pathToUsedFile(data, 0)));
     }
 
@@ -251,16 +247,6 @@ public class ManagedRepositoryTest extends AbstractServerImportTest {
                 .toString() + ".fake");
         final File file5 = ensureFileExists(uniquePath, UUID.randomUUID()
                 .toString() + ".fake");
-        final String destPath1 = cfpt.getFsFileFromClientFile(file1, 2)
-                .toString();
-        final String destPath2 = cfpt.getFsFileFromClientFile(file2, 2)
-                .toString();
-        final String destPath3 = cfpt.getFsFileFromClientFile(file3, 2)
-                .toString();
-        final String destPath4 = cfpt.getFsFileFromClientFile(file4, 2)
-                .toString();
-        final String destPath5 = cfpt.getFsFileFromClientFile(file5, 2)
-                .toString();
 
         final List<String> srcPaths = new ArrayList<String>();
         final List<String> destPaths = new ArrayList<String>();
@@ -269,8 +255,8 @@ public class ManagedRepositoryTest extends AbstractServerImportTest {
         // Completely new files
         srcPaths.add(file1.getAbsolutePath());
         srcPaths.add(file2.getAbsolutePath());
-        destPaths.add(destPath1);
-        destPaths.add(destPath2);
+        destPaths.add(file1.getName());
+        destPaths.add(file2.getName());
         ImportLocation data = importFileset(srcPaths);
         Assert.assertEquals(data.usedFiles.size(), destPaths.size());
         for (int i = 0; i < data.usedFiles.size(); i++) {
@@ -284,7 +270,7 @@ public class ManagedRepositoryTest extends AbstractServerImportTest {
 
         // One identical file both should go in a new directory
         srcPaths.set(1, file3.getAbsolutePath());
-        destPaths.set(1, destPath3);
+        destPaths.set(1, file3.getName());
         data = importFileset(srcPaths);
         Assert.assertEquals(data.usedFiles.size(), destPaths.size());
         for (int i = 0; i < data.usedFiles.size(); i++) {
@@ -299,8 +285,8 @@ public class ManagedRepositoryTest extends AbstractServerImportTest {
         // Two different files that should go in new directory
         srcPaths.set(0, file4.getAbsolutePath());
         srcPaths.set(1, file5.getAbsolutePath());
-        destPaths.set(0, destPath4);
-        destPaths.set(1, destPath5);
+        destPaths.set(0, file4.getName());
+        destPaths.set(1, file5.getName());
         data = importFileset(srcPaths);
         Assert.assertEquals(data.usedFiles.size(), destPaths.size());
         for (int i = 0; i < data.usedFiles.size(); i++) {
@@ -348,19 +334,14 @@ public class ManagedRepositoryTest extends AbstractServerImportTest {
                 .toString() + ".fake");
         final File file3 = ensureFileExists(uniquePathSubSubDir, UUID
                 .randomUUID().toString() + ".fake");
-        final FsFile destFsFile1 = cfpt.getFsFileFromClientFile(file1, 2);
-        final FsFile destFsFile2 = cfpt.getFsFileFromClientFile(file2, 3);
-        final FsFile destFsFile3 = cfpt.getFsFileFromClientFile(file3, 4);
+        final FsFile destFsFile1 = cfpt.getFsFileFromClientFile(file1, 1);
+        final FsFile destFsFile2 = cfpt.getFsFileFromClientFile(file2, 2);
+        final FsFile destFsFile3 = cfpt.getFsFileFromClientFile(file3, 3);
 
-        Assert.assertEquals(2, destFsFile1.getComponents().size());
-        Assert.assertEquals(3, destFsFile2.getComponents().size());
-        Assert.assertEquals(4, destFsFile3.getComponents().size());
-        Assert.assertEquals(destFsFile1.getComponents().get(0), destFsFile2
-                .getComponents().get(0));
-        Assert.assertEquals(destFsFile1.getComponents().get(0), destFsFile3
-                .getComponents().get(0));
-        Assert.assertEquals(destFsFile2.getComponents().get(1), destFsFile3
-                .getComponents().get(1));
+        Assert.assertEquals(destFsFile1.getComponents().size(), 1);
+        Assert.assertEquals(destFsFile2.getComponents().size(), 2);
+        Assert.assertEquals(destFsFile3.getComponents().size(), 3);
+        Assert.assertEquals(destFsFile2.getComponents().get(0), destFsFile3.getComponents().get(0));
 
         final List<String> srcPaths = new ArrayList<String>();
         final List<String> destPaths = new ArrayList<String>();
