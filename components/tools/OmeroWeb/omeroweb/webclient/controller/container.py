@@ -246,26 +246,26 @@ class BaseContainer(BaseController):
         counts["OtherAnnotation"] = total - regAnnotations
         return counts
 
-    def getAnnotationLinkTable(self, annotationtype):
+    def getAnnotationLinkTable(self, objecttype):
         """
         Get the name of the *AnnotationLink table
-        for the given annotationtype
+        for the given objecttype
         """
-        annotationtype = annotationtype.lower()
+        objecttype = objecttype.lower()
 
-        if annotationtype == "project":
+        if objecttype == "project":
             return "ProjectAnnotationLink"
-        if annotationtype == "dataset":
+        if objecttype == "dataset":
             return"DatasetAnnotationLink"
-        if annotationtype == "image":
+        if objecttype == "image":
             return"ImageAnnotationLink"
-        if annotationtype == "screen":
+        if objecttype == "screen":
             return "ScreenAnnotationLink"
-        if annotationtype == "plate":
+        if objecttype == "plate":
             return "PlateAnnotationLink"
-        if annotationtype == "plateacquisition":
+        if objecttype == "plateacquisition":
             return "PlateAcquisitionAnnotationLink"
-        if annotationtype == "well":
+        if objecttype == "well":
             return "WellAnnotationLink"
         return None
 
