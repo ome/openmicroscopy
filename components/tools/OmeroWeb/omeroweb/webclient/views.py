@@ -1587,6 +1587,7 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None,
     context['template'] = "webclient/annotations/metadata_preview.html"
     return context
 
+
 @login_required()
 @render_response()
 def load_metadata_hierarchy(request, c_type, c_id, conn=None, **kwargs):

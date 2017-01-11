@@ -206,19 +206,21 @@ class BaseContainer(BaseController):
         Count the different (unique) annotions from the
         provided annotation links
         """
-        
-        counts = {"TagAnnotation" : 0,
-            "FileAnnotation" : 0,
-            "CommentAnnotation" : 0,
-            "LongAnnotation" : 0,
-            "MapAnnotation" : 0,
-            "OtherAnnotation" : 0}
 
-        atypes = {omero.model.TagAnnotationI : "TagAnnotation",
-            omero.model.FileAnnotationI : "FileAnnotation",
-            omero.model.CommentAnnotationI : "CommentAnnotation",
-            omero.model.LongAnnotationI : "LongAnnotation",
-            omero.model.MapAnnotationI : "MapAnnotation"}
+        counts = {
+            "TagAnnotation": 0,
+            "FileAnnotation": 0,
+            "CommentAnnotation": 0,
+            "LongAnnotation": 0,
+            "MapAnnotation": 0,
+            "OtherAnnotation": 0}
+
+        atypes = {
+            omero.model.TagAnnotationI: "TagAnnotation",
+            omero.model.FileAnnotationI: "FileAnnotation",
+            omero.model.CommentAnnotationI: "CommentAnnotation",
+            omero.model.LongAnnotationI: "LongAnnotation",
+            omero.model.MapAnnotationI: "MapAnnotation"}
 
         uniqueIds = []
         total = 0
@@ -230,27 +232,27 @@ class BaseContainer(BaseController):
                 uniqueIds.append(annoId)
             else:
                 continue
-                
+
             total += 1
             if type(al._child) in atypes:
                 annoType = atypes[type(al._child)]
                 if annoType == "LongAnnotation" and al._child._ns._val !=\
                         omero.constants.metadata.NSINSIGHTRATING:
                     continue
-                    
+
                 counts[annoType] += 1
                 regAnnotations += 1
-                
+
         counts["OtherAnnotation"] = total - regAnnotations
         return counts
 
     def getAnnotationLinkTable(self, annotationtype):
-        """ 
-        Get the name of the *AnnotationLink table 
+        """
+        Get the name of the *AnnotationLink table
         for the given annotationtype
         """
         annotationtype = annotationtype.lower()
-        
+
         if annotationtype == "project":
             return "ProjectAnnotationLink"
         if annotationtype == "dataset":
@@ -260,7 +262,7 @@ class BaseContainer(BaseController):
         if annotationtype == "screen":
             return "ScreenAnnotationLink"
         if annotationtype == "plate":
-            return  "PlateAnnotationLink"
+            return "PlateAnnotationLink"
         if annotationtype == "plateacquisition":
             return "PlateAcquisitionAnnotationLink"
         if annotationtype == "well":
@@ -268,7 +270,7 @@ class BaseContainer(BaseController):
         return None
 
     def getBatchAnnotationCounts(self, objects):
-        """ 
+        """
         Loads the annotion counts for multi selection
         """
 
@@ -290,11 +292,12 @@ class BaseContainer(BaseController):
             where pa.id in (:ids)
             """ % (self.getAnnotationLinkTable(obj_type))
 
-        return self.countAnnotations(self.conn.getQueryService()\
-            .findAllByQuery(q, params, self.conn.SERVICE_OPTS))
+        return self.countAnnotations(
+            self.conn.getQueryService().findAllByQuery(
+                q, params, self.conn.SERVICE_OPTS))
 
     def getAnnotationCounts(self):
-        """ 
+        """
         Loads the annotion counts for the current object
         """
 
@@ -308,7 +311,8 @@ class BaseContainer(BaseController):
             where pa.id = :id
             """ % (self.getAnnotationLinkTable(self.obj_type))
 
-        return self.countAnnotations(self.conn.getQueryService()\
+        return self.countAnnotations(
+            self.conn.getQueryService()
             .findAllByQuery(q, params, self.conn.SERVICE_OPTS))
 
     def canExportAsJpg(self, request, objDict=None):
