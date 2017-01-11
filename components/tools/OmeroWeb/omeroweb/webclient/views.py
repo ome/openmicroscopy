@@ -2027,6 +2027,7 @@ def batch_annotate(request, conn=None, **kwargs):
     context['canDownload'] = manager.canDownload(objs)
     context['template'] = "webclient/annotations/batch_annotate.html"
     context['webclient_path'] = reverse('webindex')
+    context['annotationCounts'] = manager.getBatchAnnotationCounts(obj_ids)
     return context
 
 

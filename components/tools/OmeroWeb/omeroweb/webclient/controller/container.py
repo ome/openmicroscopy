@@ -201,6 +201,66 @@ class BaseContainer(BaseController):
         elif self.acquisition:
             return self.acquisition._obj.plate.id.val
 
+    def getBatchAnnotationCounts(self, objects):
+        counts = {"TagAnnotation" : 0,
+            "FileAnnotation" : 0,
+            "CommentAnnotation" : 0,
+            "LongAnnotation" : 0,
+            "MapAnnotation" : 0}
+
+        obj_type = None
+        obj_ids = []
+        for object in objects:
+            objtype = object.split('=')[0]
+            objid = object.split('=')[1]
+            if obj_type is None:
+                obj_type = objtype
+            obj_ids.append(long(objid))
+
+        if obj_type == "project":
+            obj_type = "Project"
+        if obj_type == "dataset":
+            obj_type = "Dataset"
+        if obj_type == "image":
+            obj_type = "Image"
+        if obj_type == "screen":
+            obj_type = "Screen"
+        if obj_type == "plate":
+            obj_type = "Plate"
+        if obj_type == "plateacquisition":
+            obj_type = "PlateAcquisition"
+        if obj_type == "well":
+            obj_type = "Well"
+
+        atypes = {omero.model.TagAnnotationI : "TagAnnotation",
+            omero.model.FileAnnotationI : "FileAnnotation",
+            omero.model.CommentAnnotationI : "CommentAnnotation",
+            omero.model.LongAnnotationI : "LongAnnotation",
+            omero.model.MapAnnotationI : "MapAnnotation"}
+
+        qs = self.conn.getQueryService()
+
+        params = omero.sys.ParametersI()
+        params.addIds(obj_ids)
+        q = """
+            select al from %sAnnotationLink al
+            left outer join fetch al.parent as pa
+            left outer join fetch al.child as an
+            where pa.id in (:ids)
+            """ % (obj_type)
+
+        total = 0
+        regAnnotations = 0
+        for al in qs.findAllByQuery(q, params):
+            total += 1
+            annoType = atypes[type(al._child)]
+            if annoType == "LongAnnotation" and\
+                al._child._ns._val != "openmicroscopy.org/omero/insight/rating":
+                continue
+            counts[annoType] += 1
+
+        return counts
+        
     def getAnnotationCounts(self):
         """ Loads the annotion counts """
         qs = self.conn.getQueryService()
