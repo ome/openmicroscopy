@@ -300,6 +300,7 @@ class BaseContainer(BaseController):
             select al from %sAnnotationLink al
             left outer join fetch al.parent as pa
             left outer join fetch al.child as an
+            where pa.id = :id
             """ % (objtype)
             
         total = 0
