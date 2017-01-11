@@ -291,7 +291,7 @@ class BlitzObjectWrapper (object):
         """
         extra_select = ""
         child_count = False
-        if opts is not None and 'child_count' in opts:
+        if opts is not None and opts.get('child_count'):
             child_count = opts['child_count']
         if child_count and cls.LINK_CLASS is not None:
             extra_select = """, (select count(id) from %s chl
@@ -5701,7 +5701,7 @@ class _DatasetWrapper (BlitzObjectWrapper):
             query += ' join obj.projectLinks plink'
             clauses.append('plink.parent.id = :pid')
             params.add('pid', rlong(opts['project']))
-        if opts is not None and 'orphaned' in opts and opts['orphaned']:
+        if opts is not None and opts.get('orphaned'):
             clauses.append(
                 """
                 not exists (
@@ -5968,7 +5968,7 @@ class _PlateWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
 
         Also handles filtering of Plates by Screens.
         Returns a tuple of (query, clauses, params).
-        Supported opts: 'plate': <screen_id> to filter by Screen
+        Supported opts: 'screen': <screen_id> to filter by Screen
                         'orphaned': <bool>. Filter by 'not in Screen'
 
         :param opts:        Dictionary of optional parameters.
@@ -5986,7 +5986,7 @@ class _PlateWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         if opts is not None and 'screen' in opts:
             clauses.append('spl.parent.id = :sid')
             params.add('sid', rlong(opts['screen']))
-        if opts is not None and 'orphaned' in opts and opts['orphaned']:
+        if opts is not None and opts.get('orphaned'):
             clauses.append(
                 """
                 not exists (
