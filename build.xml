@@ -21,31 +21,11 @@ build-* targets.
 -->
     <description>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Top-level OMERO build. "./build.py" alone will suffice for most builds.
-If you need OmeroCpp (the C++ bindings for OMERO) use "build-all"
-or "build-cpp" targets:
-
-  ./build.py build-all
-
-Relative paths
---------------
-./build.py can be executed from any directory. All builds are proceeded by
-changing the current working directory to the top of the source code.
-
-If a "build.xml" is present in the current working directory, then
-"-f `pwd`/build.xml" will be added to the command-line. Otherwise, the top-level
-build.xml will be used. If you would like to force use of the top-level
-build.xml add "-top" as your first argument. Similarly, you can use "-py", "-java"
-"-web", "-cpp", or "-fs" to choose specific components.
-
-Examples:
-  cd components/server &amp;&amp; ../../build.py install
-  cd components/server &amp;&amp; ../../build.py -top hot-server
-  cd components/tools/OmeroPy &amp;&amp; ../../../build.py -py tools-dist
+Top-level OMERO build.
 
 Eclipse
 -------
-To get started using Eclipse, execute "./build.py build-dev" and import the top-level
+To get started using Eclipse, execute "ant build-dev" and import the top-level
 .project file. Eclipse projects also exist for each individual java component.
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -173,8 +153,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     </target>
 
     <target name="build-default" description="Default build calls build" depends="build"/>
-    <target name="build" description="Build all components except for C++" depends="init">
-        <property name="env.NOMAKE" value="1"/>
+    <target name="build" description="Build all components" depends="init">
         <iterate buildpathref="all.buildpath" target="dist"/>
         <iterate buildpathref="all-tools.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
@@ -183,20 +162,14 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
     </target>
 
-    <!-- includes C++ -->
-    <target name="build-all" description="Build everything and copy to dist" depends="init">
-        <iterate buildpathref="all.buildpath" target="dist"/>
-        <iterate buildpathref="tools.buildpath" target="build"/>
-        <iterate buildpathref="tools.buildpath" target="dist"/>
-        <iterate buildpathref="tests.buildpath" target="build"/>
-        <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
+    <target name="build-all" description="Build all components" depends="build">
     </target>
 
     <target name="build-dev" description="build-default, then test-compile and build-eclipse"
         depends="clean,init,build-default,test-compile,build-eclipse"/>
 
-    <target name="build-all-dev" description="build-all, then test-compile and build-eclipse"
-        depends="clean,init,build-all,test-compile-all,build-eclipse"/>
+    <target name="build-all-dev" description="build, then test-compile and build-eclipse"
+        depends="clean,init,build,test-compile,build-eclipse"/>
 
     <target name="build-blitz" description="Alias for 'build-server'" depends="build-server"/>
 
@@ -254,30 +227,6 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <antcall target="update-version" inheritRefs="true" inheritAll="true"/>
     </target>
 
-    <target name="build-cpp" description="Build OmeroCpp bindings" depends="init">
-        <iterate buildpathref="blitzserver.buildpath" target="dist"/>
-        <iterate buildpathref="OmeroCpp.buildpath" target="tools-dist"/>
-        <iterate buildpathref="tools.buildpath" target="dist"/>
-        <!-- Parts of build-dist -->
-        <antcall target="copy-etc" inheritRefs="true" inheritAll="true"/>
-        <if><isset property="env.NOMAKE"/><then>
-            <echo>
-+------------------------------------------------------------------------+
-|                                                                        |
-|  ====================================================================  |
-|                                                                        |
-|  WARNING: NOMAKE was set. C++ bindings will not have built correctly.  |
-|                                                                        |
-|           If you used, 'build-default build-cpp' either use two        |
-|           commands './build.py build-default; ./build.py build-cpp'    |
-|           or use './build.py build-all'                                |
-|  ====================================================================  |
-|                                                                        |
-+-------------------------------------------------------------------------
-            </echo></then>
-        </if>
-    </target>
-
     <target name="build-schema" description="Build new DB schema and copy to sql/" depends="init">
         <iterate buildpathref="dsl.buildpath" target="clean"/>
         <iterate buildpathref="model.buildpath" target="clean"/>
@@ -327,31 +276,25 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         </sequential>
     </macrodef>
 
-    <target name="test-compile" description="Compile all non-native tests" depends="init">
-        <property name="env.NOMAKE" value="1"/>
+    <target name="test-compile" description="Compile all tests" depends="init">
         <launchSuite suite="test-compile"/>
     </target>
 
-    <target name="test-compile-all" description="Compile all tests (including C++)" depends="init">
-        <launchSuite suite="test-compile"/>
+    <target name="test-compile-all" description="Compile all tests" depends="test-compile">
     </target>
 
-    <target name="test-unit" description="Run all non-native unit tests" depends="init">
-        <property name="env.NOMAKE" value="1"/>
+    <target name="test-unit" description="Run all unit tests" depends="init">
         <launchSuite suite="test"/>
     </target>
 
-    <target name="test-unit-all" description="Run all unit (including C++) tests" depends="init">
-        <launchSuite suite="test"/>
+    <target name="test-unit-all" description="Run all unit tests" depends="test-unit">
     </target>
 
-    <target name="test-integration" description="Run all non-native integration tests" depends="init">
-        <property name="env.NOMAKE" value="1"/>
+    <target name="test-integration" description="Run all integration tests" depends="init">
         <launchSuite suite="integration"/>
     </target>
 
-    <target name="test-integration-all" description="Run all integration (including C++) tests" depends="init">
-        <launchSuite suite="integration"/>
+    <target name="test-integration-all" description="Run all integration tests" depends="test-integration">
     </target>
 
     <target name="test-server" description="Run all non-tools/ tests" depends="init">
@@ -390,21 +333,15 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <ivy:retrieve conf="test" pattern="${dist.dir}/lib/client/[artifact].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>
     </target>
 
-    <target name="examples-cpp" description="Build and run OmeroCpp examples"
-        depends="build-cpp">
-    </target>
-
     <target name="examples-java" description="Build and run OmeroJava examples">
         <scons_py dir="${basedir}/examples">
             <arg value="run_java=1"/>
-            <arg value="no_cpp=1"/>
         </scons_py>
     </target>
 
     <target name="examples-py" description="Build and run OmeroPy examples">
         <scons_py dir="${basedir}/examples" pythonpath="${env.PYTHONPATH}"><!-- omit OmeroPy/src -->
             <arg value="run_py=1"/>
-            <arg value="no_cpp=1"/>
             <arg value="no_java=1"/>
         </scons_py>
     </target>
@@ -420,12 +357,6 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <zipfileset dir="${dist.dir}" prefix="${product.name}-${omero.version}"
                 includes="bin/omero"
                 filemode="755"/>
-        </zip>
-    </target>
-
-    <target name="release-cpp" depends="build-cpp" description="Package built C++ library, headers and examples">
-        <zip destfile="${omero.home}//target/OMERO.cpp-${omero.version}-${platform}.zip">
-            <zipfileset dir="${target.dir}/OMERO.cpp-${omero.version}-${platform}" prefix="/target/OMERO.cpp-${omero.version}-${platform}"/>
         </zip>
     </target>
 
