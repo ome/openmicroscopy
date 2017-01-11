@@ -3007,7 +3007,8 @@ class _BlitzGateway (object):
     ###########################
     # Specific Object Getters #
 
-    def getObject(self, obj_type, oid=None, params=None, attributes=None):
+    def getObject(self, obj_type, oid=None, params=None, attributes=None,
+                  opts=None):
         """
         Retrieve single Object by type E.g. "Image" or None if not found.
         If more than one object found, raises ome.conditions.ApiUsageException
@@ -3026,7 +3027,7 @@ class _BlitzGateway (object):
         """
         oids = (oid is not None) and [oid] or None
         query, params, wrapper = self.buildQuery(
-            obj_type, oids, params, attributes)
+            obj_type, oids, params, attributes, opts)
         result = self.getQueryService().findByQuery(
             query, params, self.SERVICE_OPTS)
         if result is not None:
