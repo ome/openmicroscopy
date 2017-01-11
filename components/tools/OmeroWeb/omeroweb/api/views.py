@@ -257,6 +257,12 @@ class PlatesView(ObjectsView):
         return opts
 
 
+class ImagesView(ObjectsView):
+    """Handles GET for /images/ to list available Images."""
+
+    OMERO_TYPE = 'Image'
+
+
 class SaveView(View):
     """
     This view provides 'Save' functionality for all types of objects.

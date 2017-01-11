@@ -145,6 +145,13 @@ api_plate = url(
 Plate url to GET or DELETE a single Plate
 """
 
+api_images = url(r'^v(?P<api_version>%s)/m/images/$' % versions,
+                 views.ImagesView.as_view(),
+                 name='api_images')
+"""
+GET all images, using omero-marshal to generate json
+"""
+
 urlpatterns = patterns(
     '',
     api_versions,
@@ -163,5 +170,5 @@ urlpatterns = patterns(
     api_plates,
     api_screen_plates,
     api_plate,
-
+    api_images,
 )
