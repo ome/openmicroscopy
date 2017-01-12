@@ -208,9 +208,9 @@ SESSION_ENGINE_VALUES = ('omeroweb.filesessionstore',
                          'django.contrib.sessions.backends.cache',
                          'django.contrib.sessions.backends.cached_db')
 
-DEFAULT_SESSION_SERILIZER = \
-    'django.contrib.sessions.serializers.PickleSerializer'
+DEFAULT_SESSION_SERILIZER = 'serializers.JSONPickleSerializer'
 SESSION_SERILIZER_VALUES = (
+    'serializers.JSONPickleSerializer',
     'django.contrib.sessions.serializers.PickleSerializer',
     'django.contrib.sessions.serializers.JSONSerializer',
 )
