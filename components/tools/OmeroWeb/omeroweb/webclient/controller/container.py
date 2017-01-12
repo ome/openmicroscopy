@@ -203,16 +203,14 @@ class BaseContainer(BaseController):
 
     def getAnnotationCounts(self):
         """
-        Count the different (unique) annotions from the
-        provided annotation links
+        Get the annotion counts for the current object
         """
         obj = self._get_object()
         return obj.getAnnotationCount()
 
     def getBatchAnnotationCounts(self, objects):
         """
-        Count the different (unique) annotions from the
-        provided annotation links
+        Get the annotion counts for the given objects
         """
         return self.conn.countAnnotations(objects)
 

@@ -1021,7 +1021,7 @@ class BlitzObjectWrapper (object):
 
     def getAnnotationCount(self):
         """
-        Loads the annotion counts for the current object
+        Get the annotion counts for the current object
         """
 
         params = omero.sys.ParametersI()
@@ -3478,7 +3478,7 @@ class _BlitzGateway (object):
 
     def countAnnotations(self, objects):
         """
-        Loads the annotion counts for the given objects
+        Get the annotion counts for the given objects
         """
 
         obj_type = None
