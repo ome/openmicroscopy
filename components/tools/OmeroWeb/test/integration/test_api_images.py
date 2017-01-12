@@ -19,14 +19,13 @@
 
 """Tests querying Images with web json api."""
 
-from omeroweb.testlib import IWebTest, _get_response_json, \
-    _csrf_post_json, _csrf_put_json, _csrf_delete_response_json
+from omeroweb.testlib import IWebTest, _get_response_json
 from django.core.urlresolvers import reverse
 from django.conf import settings
 import pytest
 from omero.gateway import BlitzGateway
 from omero_marshal import get_encoder
-from omero.model import DatasetI, ProjectI, ScreenI, PlateI, ImageI
+from omero.model import DatasetI, ImageI
 from omero.rtypes import rstring, unwrap
 import json
 
@@ -34,6 +33,7 @@ import json
 def get_update_service(user):
     """Get the update_service for the given user's client."""
     return user[0].getSession().getUpdateService()
+
 
 def get_query_service(user):
     """Get the query_service for the given user's client."""
@@ -155,7 +155,8 @@ class TestImages(IWebTest):
         images.sort(cmp_name_insensitive)
         payload = {'dataset': dataset.id.val}
         rsp = _get_response_json(django_client, images_url, payload)
-        assert len(rsp['data']) == 5
+        # Manual check that Pixels is loaded but Channels are not
+        assert 'Channels' not in rsp['data'][0]['Pixels']
         assert_objects(conn, rsp['data'], images, dtype='Image',
                        opts={'load_pixels': True})
 
@@ -173,5 +174,7 @@ class TestImages(IWebTest):
         # Show ONLY the orphaned image (channels are loaded by default)
         img_url = images_url + '%s/' % orphaned.id.val
         rsp = _get_response_json(django_client, img_url, {})
+        # Manual check that Channels is loaded
+        assert len(rsp['Pixels']['Channels']) == 1
         assert_objects(conn, [rsp], [orphaned], dtype='Image',
                        opts={'load_channels': True})
