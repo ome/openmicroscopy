@@ -169,10 +169,9 @@ class ImageView(ObjectView):
     def get_opts(self, request):
         """Add support for load_pixels and load_channels."""
         opts = super(ImageView, self).get_opts(request)
-        for p in ['load_pixels', 'load_channels', 'orphaned']:
-            load = request.GET.get(p, False) == 'true'
-            if load:
-                opts[p] = True
+        opts['orphaned'] = request.GET.get('orphaned', False) == 'true'
+        # for single image, we always load channels
+        opts['load_channels'] = True
         return opts
 
 
@@ -289,10 +288,8 @@ class ImagesView(ObjectsView):
         dataset = getIntOrDefault(request, 'dataset', None)
         if dataset is not None:
             opts['dataset'] = dataset
-        # handle 'boolean' params
-        for param in ['load_pixels', 'load_channels']:
-            if request.GET.get(param, False) == 'true':
-                opts[param] = True
+        # When listing images, always load pixels by defualt
+        opts['load_pixels'] = True
         return opts
 
 
