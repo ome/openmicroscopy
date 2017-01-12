@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2016-2017 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -200,7 +200,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
      * @since 5.3.0
      */
     private static enum Repository {
-        MANAGED("ManagedRepository"), SCRIPT("scripts");
+        MANAGED("ManagedRepository"), OMERO("omero"), SCRIPT("scripts");
 
         /* corresponds to OriginalFile.name */
         final String name;
@@ -678,13 +678,13 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
             throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
         final EventContext normalUser = newUserAndGroup("rwr-r-");
-        RepositoryPrx repo = getRepository(Repository.SCRIPT);
+        RepositoryPrx repo = getRepository(Repository.OMERO);
         final String userDirectory = "/Test_" + getClass().getName() + '_' + UUID.randomUUID();
         repo.makeDir(userDirectory, false);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
-        repo = getRepository(Repository.SCRIPT);
+        repo = getRepository(Repository.OMERO);
         final String filename = userDirectory + '/' + UUID.randomUUID();
         try {
             repo.makeDir(filename, false);
@@ -711,13 +711,13 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         if (!factory.sharedResources().areTablesEnabled()) {
             throw new SkipException("tables are not enabled");
         }
-        RepositoryPrx repo = getRepository(Repository.SCRIPT);
+        RepositoryPrx repo = getRepository(Repository.OMERO);
         final String userDirectory = "/Test_" + getClass().getName() + '_' + UUID.randomUUID();
         repo.makeDir(userDirectory, false);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
-        repo = getRepository(Repository.SCRIPT);
+        repo = getRepository(Repository.OMERO);
         final String filename = userDirectory + '/' + UUID.randomUUID();
         try {
             factory.sharedResources().newTable(repo.root().getId().getValue(), filename).close();
@@ -741,13 +741,13 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
             throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
         final EventContext normalUser = newUserAndGroup("rwr-r-");
-        RepositoryPrx repo = getRepository(Repository.SCRIPT);
+        RepositoryPrx repo = getRepository(Repository.OMERO);
         final String userDirectory = "/Test_" + getClass().getName() + '_' + UUID.randomUUID();
         repo.makeDir(userDirectory, false);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
-        repo = getRepository(Repository.SCRIPT);
+        repo = getRepository(Repository.OMERO);
         final String filename = userDirectory + '/' + UUID.randomUUID();
         try {
             repo.register(filename, null);
@@ -969,7 +969,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         rfs.close();
         /* upload the script as a new script */
         final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
-        RepositoryPrx repo = getRepository(Repository.SCRIPT);
+        RepositoryPrx repo = getRepository(Repository.OMERO);
         final OriginalFile testScript = repo.register(testScriptName, omero.rtypes.rstring(ScriptServiceTest.PYTHON_MIMETYPE));
         final long testScriptId = testScript.getId().getValue();
         rfs = repo.file(testScriptName, "rw");
@@ -986,7 +986,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
-        repo = getRepository(Repository.SCRIPT);
+        repo = getRepository(Repository.OMERO);
         final byte[] fileContentBlank = new byte[fileContentOriginal.length];
         try {
             rfs = repo.file(testScriptName, "rw");
@@ -1109,7 +1109,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         rfs.close();
         /* upload the script as a new script */
         final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
-        RepositoryPrx repo = getRepository(Repository.SCRIPT);
+        RepositoryPrx repo = getRepository(Repository.OMERO);
         final OriginalFile testScript = repo.register(testScriptName, omero.rtypes.rstring(ScriptServiceTest.PYTHON_MIMETYPE));
         final long testScriptId = testScript.getId().getValue();
         rfs = repo.file(testScriptName, "rw");
@@ -1126,7 +1126,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
-        repo = getRepository(Repository.SCRIPT);
+        repo = getRepository(Repository.OMERO);
         try {
             final HandlePrx handle = repo.deletePaths(new String[] {testScriptName}, false, false);
             final CmdCallbackI callback = new CmdCallbackI(client, handle);
