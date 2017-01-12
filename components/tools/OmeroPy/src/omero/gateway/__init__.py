@@ -140,6 +140,73 @@ def fileread_gen(fin, fsize, bufsize):
         p += s
     fin.close()
 
+def countAnnotations(annotationlinks):
+    """
+    Count the different (unique) annotions from the
+    provided annotation links
+    """
+
+    counts = {
+        "TagAnnotation": 0,
+        "FileAnnotation": 0,
+        "CommentAnnotation": 0,
+        "LongAnnotation": 0,
+        "MapAnnotation": 0,
+        "OtherAnnotation": 0}
+
+    atypes = {
+        omero.model.TagAnnotationI: "TagAnnotation",
+        omero.model.FileAnnotationI: "FileAnnotation",
+        omero.model.CommentAnnotationI: "CommentAnnotation",
+        omero.model.LongAnnotationI: "LongAnnotation",
+        omero.model.MapAnnotationI: "MapAnnotation"}
+
+    uniqueIds = []
+    total = 0
+    regAnnotations = 0
+    for al in annotationlinks:
+        # Avoid counting the same annotations multiple times
+        annoId = str(type(al._child))+"_"+str(al._child._id._val)
+        if annoId not in uniqueIds:
+            uniqueIds.append(annoId)
+        else:
+            continue
+
+        total += 1
+        if type(al._child) in atypes:
+            annoType = atypes[type(al._child)]
+            if annoType == "LongAnnotation" and al._child._ns._val !=\
+                    omero.constants.metadata.NSINSIGHTRATING:
+                continue
+
+            counts[annoType] += 1
+            regAnnotations += 1
+
+    counts["OtherAnnotation"] = total - regAnnotations
+    return counts
+
+def getAnnotationLinkTableName(objecttype):
+    """
+    Get the name of the *AnnotationLink table
+    for the given objecttype
+    """
+    objecttype = objecttype.lower()
+
+    if objecttype == "project":
+        return "ProjectAnnotationLink"
+    if objecttype == "dataset":
+        return"DatasetAnnotationLink"
+    if objecttype == "image":
+        return"ImageAnnotationLink"
+    if objecttype == "screen":
+        return "ScreenAnnotationLink"
+    if objecttype == "plate":
+        return "PlateAnnotationLink"
+    if objecttype == "plateacquisition":
+        return "PlateAcquisitionAnnotationLink"
+    if objecttype == "well":
+        return "WellAnnotationLink"
+    return None
 
 def getPixelsQuery(imageName):
     """Helper for building Query for Images or Wells & Images"""
@@ -951,6 +1018,28 @@ class BlitzObjectWrapper (object):
         if len(rv):
             return AnnotationWrapper._wrap(self._conn, rv[0].child, link=rv[0])
         return None
+
+    def getAnnotationCount(self):
+        """
+        Loads the annotion counts for the current object
+        """
+
+        params = omero.sys.ParametersI()
+        params.addId(long(self._oid))
+
+        q = """
+            select al from %s al
+            left outer join al.parent as pa
+            left outer join fetch al.child as an
+            where pa.id = :id
+            """ % (getAnnotationLinkTableName(self.OMERO_CLASS))
+
+        ctx = self._conn.SERVICE_OPTS.copy()
+        ctx.setOmeroGroup(self.details.group.id.val)
+
+        return countAnnotations(
+            self._conn.getQueryService()
+            .findAllByQuery(q, params, ctx))
 
     def listAnnotations(self, ns=None):
         """
@@ -3386,6 +3475,36 @@ class _BlitzGateway (object):
 
         for e in q.findAllByQuery(sql, p, self.SERVICE_OPTS):
             yield AnnotationWrapper._wrap(self, e)
+
+    def countAnnotations(self, objects):
+        """
+        Loads the annotion counts for the given objects
+        """
+
+        obj_type = None
+        obj_ids = []
+        for obj in objects:
+            objtype = obj.split('=')[0]
+            objid = obj.split('=')[1]
+            if obj_type is None:
+                obj_type = objtype
+            obj_ids.append(long(objid))
+
+        params = omero.sys.ParametersI()
+        params.addIds(obj_ids)
+        q = """
+            select al from %s al
+            left outer join al.parent as pa
+            left outer join fetch al.child as an
+            where pa.id in (:ids)
+            """ % (getAnnotationLinkTableName(obj_type))
+
+        ctx = self.SERVICE_OPTS.copy()
+        ctx.setOmeroGroup(self.group)
+
+        return countAnnotations(
+            self.getQueryService().findAllByQuery(
+                q, params, ctx))
 
     def createImageFromNumpySeq(self, zctPlanes, imageName, sizeZ=1, sizeC=1,
                                 sizeT=1, description=None, dataset=None,

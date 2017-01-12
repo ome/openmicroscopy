@@ -201,119 +201,20 @@ class BaseContainer(BaseController):
         elif self.acquisition:
             return self.acquisition._obj.plate.id.val
 
-    def countAnnotations(self, annotationlinks):
+    def getAnnotationCounts(self):
         """
         Count the different (unique) annotions from the
         provided annotation links
         """
-
-        counts = {
-            "TagAnnotation": 0,
-            "FileAnnotation": 0,
-            "CommentAnnotation": 0,
-            "LongAnnotation": 0,
-            "MapAnnotation": 0,
-            "OtherAnnotation": 0}
-
-        atypes = {
-            omero.model.TagAnnotationI: "TagAnnotation",
-            omero.model.FileAnnotationI: "FileAnnotation",
-            omero.model.CommentAnnotationI: "CommentAnnotation",
-            omero.model.LongAnnotationI: "LongAnnotation",
-            omero.model.MapAnnotationI: "MapAnnotation"}
-
-        uniqueIds = []
-        total = 0
-        regAnnotations = 0
-        for al in annotationlinks:
-            # Avoid counting the same annotations multiple times
-            annoId = str(type(al._child))+"_"+str(al._child._id._val)
-            if annoId not in uniqueIds:
-                uniqueIds.append(annoId)
-            else:
-                continue
-
-            total += 1
-            if type(al._child) in atypes:
-                annoType = atypes[type(al._child)]
-                if annoType == "LongAnnotation" and al._child._ns._val !=\
-                        omero.constants.metadata.NSINSIGHTRATING:
-                    continue
-
-                counts[annoType] += 1
-                regAnnotations += 1
-
-        counts["OtherAnnotation"] = total - regAnnotations
-        return counts
-
-    def getAnnotationLinkTable(self, objecttype):
-        """
-        Get the name of the *AnnotationLink table
-        for the given objecttype
-        """
-        objecttype = objecttype.lower()
-
-        if objecttype == "project":
-            return "ProjectAnnotationLink"
-        if objecttype == "dataset":
-            return"DatasetAnnotationLink"
-        if objecttype == "image":
-            return"ImageAnnotationLink"
-        if objecttype == "screen":
-            return "ScreenAnnotationLink"
-        if objecttype == "plate":
-            return "PlateAnnotationLink"
-        if objecttype == "plateacquisition":
-            return "PlateAcquisitionAnnotationLink"
-        if objecttype == "well":
-            return "WellAnnotationLink"
-        return None
+        obj = self._get_object()
+        return obj.getAnnotationCount()
 
     def getBatchAnnotationCounts(self, objects):
         """
-        Loads the annotion counts for multi selection
+        Count the different (unique) annotions from the
+        provided annotation links
         """
-
-        obj_type = None
-        obj_ids = []
-        for obj in objects:
-            objtype = obj.split('=')[0]
-            objid = obj.split('=')[1]
-            if obj_type is None:
-                obj_type = objtype
-            obj_ids.append(long(objid))
-
-        params = omero.sys.ParametersI()
-        params.addIds(obj_ids)
-        q = """
-            select al from %s al
-            left outer join al.parent as pa
-            left outer join fetch al.child as an
-            where pa.id in (:ids)
-            """ % (self.getAnnotationLinkTable(obj_type))
-
-        return self.countAnnotations(
-            self.conn.getQueryService().findAllByQuery(
-                q, params, self.conn.SERVICE_OPTS))
-
-    def getAnnotationCounts(self):
-        """
-        Loads the annotion counts for the current object
-        """
-
-        params = omero.sys.ParametersI()
-        params.addId(long(self.obj_id()))
-
-        q = """
-            select al from %s al
-            left outer join al.parent as pa
-            left outer join fetch al.child as an
-            where pa.id = :id
-            """ % (self.getAnnotationLinkTable(self.obj_type))
-
-        return self.countAnnotations(
-            self.conn.getQueryService()
-            .findAllByQuery(q, params, self.conn.SERVICE_OPTS))
+        return self.conn.countAnnotations(objects)
 
     def canExportAsJpg(self, request, objDict=None):
         """
