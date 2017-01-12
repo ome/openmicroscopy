@@ -175,7 +175,7 @@ public class OmeroReader extends FormatReader {
         catch (ServerError e) {
             throw new FormatException(e);
         } finally {
-            // cannot use try-with-statements
+            // cannot use try-with-resources
             // RawPixelsStorePrx does not implement autocloseable
             if (store != null) {
                 try {
