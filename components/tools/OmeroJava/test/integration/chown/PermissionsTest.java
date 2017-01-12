@@ -956,7 +956,7 @@ public class PermissionsTest extends AbstractServerTest {
             /* parse the GraphException response and check that it delivers a valid
              * ImageAnnotationLink ID */
             omero.cmd.ERR graphExc = (omero.cmd.ERR) response;
-            /* make the regex pattern as lenient as possible to accomodate for future
+            /* make the regex pattern as lenient as possible to accommodate for future
              * changes in the GraphException syntax */
             String pattern = "(ImageAnnotationLink\\D*)([0-9]+)";
             Matcher m = Pattern.compile(pattern).
