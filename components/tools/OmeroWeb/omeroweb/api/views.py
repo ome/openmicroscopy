@@ -284,10 +284,14 @@ class ImagesView(ObjectsView):
     def get_opts(self, request, **kwargs):
         """Add filtering by 'dataset' and other params to the opts dict."""
         opts = super(ImagesView, self).get_opts(request, **kwargs)
-        # filter by query /images/?dataset=:id
-        dataset = getIntOrDefault(request, 'dataset', None)
-        if dataset is not None:
-            opts['dataset'] = dataset
+        # at /datasets/:dataset_id/images/ we have 'dataset_id' in kwargs
+        if 'dataset_id' in kwargs:
+            opts['dataset'] = long(kwargs['dataset_id'])
+        else:
+            # filter by query /images/?dataset=:id
+            dataset = getIntOrDefault(request, 'dataset', None)
+            if dataset is not None:
+                opts['dataset'] = dataset
         # When listing images, always load pixels by defualt
         opts['load_pixels'] = True
         return opts

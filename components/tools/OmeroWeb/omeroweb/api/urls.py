@@ -113,6 +113,15 @@ api_images = url(r'^v(?P<api_version>%s)/m/images/$' % versions,
 GET all images, using omero-marshal to generate json
 """
 
+api_dataset_images = url(
+    r'^v(?P<api_version>%s)/m/datasets/'
+    '(?P<dataset_id>[0-9]+)/images/$' % versions,
+    views.ImagesView.as_view(),
+    name='api_dataset_imagess')
+"""
+GET Images in Dataset, using omero-marshal to generate json
+"""
+
 api_image = url(
     r'^v(?P<api_version>%s)/m/images/(?P<pid>[0-9]+)/$' % versions,
     views.ImageView.as_view(),
@@ -174,6 +183,7 @@ urlpatterns = patterns(
     api_project_datasets,
     api_dataset,
     api_images,
+    api_dataset_images,
     api_image,
     api_screen,
     api_screens,
