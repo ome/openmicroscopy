@@ -104,7 +104,7 @@ public class OmeroReader extends FormatReader {
     private boolean encrypted = true;
 
     private omero.client client;
-    private RawPixelsStorePrx store;
+    private ServiceFactoryPrx serviceFactory;
     private Image img;
     private Pixels pix;
 
@@ -166,11 +166,24 @@ public class OmeroReader extends FormatReader {
         final int[] zct = FormatTools.getZCTCoords(this, no);
 
         final byte[] plane;
+        RawPixelsStorePrx store = null;
         try {
+            store = serviceFactory.createRawPixelsStore();
+            store.setPixelsId(pix.getId().getValue(), false);
             plane = store.getPlane(zct[0], zct[1], zct[2]);
         }
         catch (ServerError e) {
             throw new FormatException(e);
+        } finally {
+            // cannot use try-with-statements
+            // RawPixelsStorePrx does not implement autocloseable
+            if (store != null) {
+                try {
+                    store.close();
+                } catch (Exception ex) {
+                    throw new FormatException(ex);
+                }
+            }
         }
 
         try (RandomAccessInputStream s = new RandomAccessInputStream(plane)) {
@@ -257,7 +270,7 @@ public class OmeroReader extends FormatReader {
             LOGGER.info("Logging in");
 
             client = new omero.client(address, port);
-            ServiceFactoryPrx serviceFactory = null;
+            serviceFactory = null;
             if (user != null && pass != null) {
                 serviceFactory = client.createSession(user, pass);
             }
@@ -305,10 +318,6 @@ public class OmeroReader extends FormatReader {
                 }
             }
 
-            // get raw pixels store and pixels
-
-            store = serviceFactory.createRawPixelsStore();
-
             img = (Image) serviceFactory.getContainerService()
                     .getImages("Image", Arrays.asList(iid), null).get(0);
 
@@ -320,7 +329,6 @@ public class OmeroReader extends FormatReader {
             long pixelsId = img.getPixels(0).getId().getValue();
 
             pix = serviceFactory.getPixelsService().retrievePixDescription(pixelsId);
-            store.setPixelsId(pixelsId, false);
 
             final int sizeX = pix.getSizeX().getValue();
             final int sizeY = pix.getSizeY().getValue();
@@ -422,7 +430,7 @@ public class OmeroReader extends FormatReader {
                 }
             }
 
-            //            store.setImageID("omero:iid=", (int) img.getId().getValue());
+            //store.setImageID("omero:iid=", (int) img.getId().getValue());
             //Load ROIs to the img -->
             RoiOptions options = new RoiOptions();
             options.userId = omero.rtypes.rlong(iAdmin.getEventContext().userId);
