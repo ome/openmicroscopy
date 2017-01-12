@@ -140,6 +140,7 @@ class TestImages(IWebTest):
         orphaned = dataset_images[1]
 
         images_url = reverse('api_images', kwargs={'api_version': version})
+        datasets_url = reverse('api_datasets', kwargs={'api_version': version})
 
         # List ALL Images
         rsp = _get_response_json(django_client, images_url, {})
@@ -160,10 +161,11 @@ class TestImages(IWebTest):
         assert_objects(conn, rsp['data'], images, dtype='Image',
                        opts={'load_pixels': True})
 
-        # Pagination
+        # Pagination, listing images via /datasets/:id/images/
         limit = 3
+        dataset_images_url = datasets_url + "%s/images/" % dataset.id.val
         payload = {'dataset': dataset.id.val, 'limit': limit}
-        rsp = _get_response_json(django_client, images_url, payload)
+        rsp = _get_response_json(django_client, dataset_images_url, payload)
         assert_objects(conn, rsp['data'], images[0:limit], dtype='Image',
                        opts={'load_pixels': True})
         payload['page'] = 2
