@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2016-2017 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -53,30 +53,17 @@ public class LightAdminPrivileges {
 
     // NOTE THE SET OF LIGHT ADMINISTRATOR PRIVILEGES AND THEIR ASSOCIATED VALUE STRINGS
 
-    /* see trac ticket 10691 re. enum values */
-    private enum Privilege {
-        CHGRP("Chgrp"),
-        CHOWN("Chown"),
-        MODIFY_USER("ModifyUser"),
-        READ_SESSION("ReadSession"),
-        SUDO("Sudo"),
-        WRITE_FILE("WriteFile"),
-        WRITE_OWNED("WriteOwned");
-
-        public final String value;
-
-        Privilege(String value) {
-            this.value = value;
-        }
-    };
-
     private static final ImmutableSet<AdminPrivilege> ADMIN_PRIVILEGES;
     private static final ImmutableMap<String, AdminPrivilege> ADMIN_PRIVILEGES_BY_VALUE;
 
     static {
+        /* see trac ticket 10691 re. enum values */
+        final ImmutableSet<String> privilegeValues = ImmutableSet.of(
+                "Chgrp", "Chown", "ModifyUser", "ReadSession", "Sudo", "WriteFile", "WriteOwned");
+
         final ImmutableMap.Builder<String, AdminPrivilege> builder = ImmutableMap.builder();
-        for (final Privilege privilege : Privilege.values()) {
-            builder.put(privilege.value, new AdminPrivilege(privilege.value));
+        for (final String privilegeValue : privilegeValues) {
+            builder.put(privilegeValue, new AdminPrivilege(privilegeValue));
         }
         ADMIN_PRIVILEGES_BY_VALUE = builder.build();
         ADMIN_PRIVILEGES = ImmutableSet.copyOf(ADMIN_PRIVILEGES_BY_VALUE.values());
