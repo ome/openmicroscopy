@@ -134,7 +134,7 @@ api_screen_plates = url(
     views.PlatesView.as_view(),
     name='api_screen_plates')
 """
-GET Datasets in Project, using omero-marshal to generate json
+GET Plates in Screen, using omero-marshal to generate json
 """
 
 api_plate = url(
