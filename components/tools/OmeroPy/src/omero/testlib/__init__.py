@@ -403,7 +403,7 @@ class ITest(object):
         return plates
 
     def create_test_image(self, size_x=16, size_y=16, size_z=1, size_c=1,
-                          size_t=1, session=None):
+                          size_t=1, session=None, name="testImage"):
         """
         Creates a test image of the required dimensions, where each pixel
         value is set to the value of x+y.
@@ -448,7 +448,7 @@ class ITest(object):
         channel_list = range(1, size_c + 1)
         iid = pixels_service.createImage(size_x, size_y, size_z, size_t,
                                          channel_list, pixels_type,
-                                         "testImage", "description")
+                                         name, "description")
         image_id = iid.getValue()
         image = container_service.getImages("Image", [image_id], None)[0]
 
