@@ -40,7 +40,7 @@ class TestDeleteObject (object):
         tagId = tag.getId()
         handle = gateway.deleteObjects("Annotation", [tagId])
         gateway._waitOnCmd(handle)
-        assert None == gateway.getObject("Annotation", tagId)
+        assert gateway.getObject("Annotation", tagId) is None
 
     def testDeleteImage(self, gatewaywrapper, author_testimg_generated):
         image = author_testimg_generated
