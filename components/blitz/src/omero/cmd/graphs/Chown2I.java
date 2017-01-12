@@ -159,6 +159,10 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
         graphTraversal = graphHelper.prepareGraphTraversal(childOptions, REQUIRED_ABILITIES, graphPolicy, graphPolicyAdjusters,
                 aclVoter, systemTypes, graphPathBean, unnullable, new InternalProcessor(), dryRun);
 
+        if (acceptableGroupsFrom == null) {
+            graphTraversal.setOwnsAll();
+        }
+
         graphPolicyAdjusters = null;
     }
 

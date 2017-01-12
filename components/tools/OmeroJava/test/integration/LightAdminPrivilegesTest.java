@@ -304,7 +304,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
 
     /**
      * Test that users may give others' data only if they are a member of the <tt>system</tt> group and
-     * have the <tt>Chown</tt> privilege. Attempts giving data via {@link AbstractServerTest#iUpdate}.
+     * have the <tt>Chown</tt> privilege. Attempts giving data via {@link omero.api.IUpdatePrx}.
      * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param isRestricted if to test a user who does <em>not</em> have the <tt>Chown</tt> privilege
      * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
@@ -333,7 +333,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
 
     /**
      * Test that users may modify other users only if they are a member of the <tt>system</tt> group and
-     * have the <tt>ModifyUser</tt> privilege. Attempts creation of new user via {@link AbstractServerTest#iUpdate}.
+     * have the <tt>ModifyUser</tt> privilege. Attempts creation of new user via {@link omero.api.IUpdatePrx}.
      * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param isRestricted if to test a user who does <em>not</em> have the <tt>ModifyUser</tt> privilege
      * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
@@ -370,7 +370,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
 
     /**
      * Test that users may modify other users only if they are a member of the <tt>system</tt> group and
-     * have the <tt>ModifyUser</tt> privilege. Attempts creation of new user via {@link AbstractServerTest#iAdmin}.
+     * have the <tt>ModifyUser</tt> privilege. Attempts creation of new user via {@link omero.api.IAdminPrx}.
      * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param isRestricted if to test a user who does <em>not</em> have the <tt>ModifyUser</tt> privilege
      * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
@@ -399,7 +399,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
 
     /**
      * Test that users may modify other users only if they are a member of the <tt>system</tt> group and
-     * have the <tt>ModifyUser</tt> privilege. Attempts change of existing user via {@link AbstractServerTest#iUpdate}.
+     * have the <tt>ModifyUser</tt> privilege. Attempts change of existing user via {@link omero.api.IUpdatePrx}.
      * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param isRestricted if to test a user who does <em>not</em> have the <tt>ModifyUser</tt> privilege
      * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
@@ -423,7 +423,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
 
     /**
      * Test that users may modify other users only if they are a member of the <tt>system</tt> group and
-     * have the <tt>ModifyUser</tt> privilege. Attempts change of existing user via {@link AbstractServerTest#iAdmin}.
+     * have the <tt>ModifyUser</tt> privilege. Attempts change of existing user via {@link omero.api.IAdminPrx}.
      * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param isRestricted if to test a user who does <em>not</em> have the <tt>ModifyUser</tt> privilege
      * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group

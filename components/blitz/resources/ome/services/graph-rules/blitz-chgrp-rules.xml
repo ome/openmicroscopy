@@ -2,7 +2,7 @@
 
 <!--
 #
-# Copyright (C) 2015-2016 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2015-2017 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -685,11 +685,15 @@
 
         <!-- If a screen is moved then also move the plate if it is used in no other screen. -->
 
-        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink.parent = [I], L.child = P:[E]{i}/o" p:changes="P:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink.parent = S:[I], L.child = P:[E]{i}, S =/o P"
+                                       p:changes="P:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="!$to_private, L:ScreenPlateLink.parent = S:[I], L.child = P:[E]{i}/d"
+                                       p:changes="P:{r}"/>
         <bean parent="graphPolicyRule" p:matches="$to_private, L:ScreenPlateLink.parent = S:[I], L.child = P:[E]{r}, S =/!o P"
                                        p:changes="P:{a}"/>
         <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[E].parent = [E]{ia}, L.child = P:[E]{r}" p:changes="P:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="P:Plate[E]{o}" p:changes="P:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="P:Plate[E]{o}/o" p:changes="P:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="!$to_private, P:Plate[E]{o}/d" p:changes="P:[I]/n"/>
 
         <!--
              If a screen and plate are moved for both sides of a link then, regardless of permissions, move the link if same owners

@@ -1910,4 +1910,48 @@ public class AdminServiceTest extends AbstractServerTest {
         actualUsers.retainAll(allUsers);
         Assert.assertEquals(actualUsers, expectedUsers);
     }
+
+    /**
+     * Test creating a light administrator.
+     * @throws ServerError unexpected
+     */
+    @Test
+    public void testCreateLightSystemUser() throws ServerError {
+        final IAdminPrx svc = root.getSession().getAdminService();
+        boolean useNext = false;
+        final List<AdminPrivilege> expectedPrivileges = new ArrayList<>();
+        boolean addedSome = false;
+        boolean skippedSome = false;
+        for (final IObject privilege : root.getSession().getTypesService().allEnumerations("AdminPrivilege")) {
+            if (useNext) {
+                expectedPrivileges.add((AdminPrivilege) privilege);
+                addedSome = true;
+            } else {
+                skippedSome = true;
+            }
+            useNext = !useNext;
+        }
+        Assert.assertTrue(addedSome);
+        Assert.assertTrue(skippedSome);
+        final Set<String> expectedPrivilegeNames = new HashSet<>();
+        for (final AdminPrivilege privilege : expectedPrivileges) {
+            expectedPrivilegeNames.add(privilege.getValue().getValue());
+        }
+        final String lightAdminName = UUID.randomUUID().toString();
+        Experimenter lightAdmin = createExperimenterI(lightAdminName, "test", "user");
+        final long lightAdminId = svc.createLightSystemUser(lightAdmin, expectedPrivileges);
+        final List<AdminPrivilege> actualPrivileges = svc.getAdminPrivileges(new ExperimenterI(lightAdminId, false));
+        final Set<String> actualPrivilegeNames = new HashSet<>();
+        for (final AdminPrivilege privilege : actualPrivileges) {
+            actualPrivilegeNames.add(privilege.getValue().getValue());
+        }
+        Assert.assertEquals(actualPrivilegeNames, expectedPrivilegeNames);
+        lightAdmin = svc.lookupExperimenter(lightAdminName);
+        for (final GroupExperimenterMap group : lightAdmin.copyGroupExperimenterMap()) {
+            if (group.getParent().getId().getValue() == roles.systemGroupId) {
+                return;
+            }
+        }
+        Assert.fail("new light system user must be member of system group");
+    }
 }

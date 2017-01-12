@@ -313,6 +313,20 @@ module omero {
                 long createSystemUser(omero::model::Experimenter experimenter) throws ServerError;
 
                 /**
+                 * Creates and returns a new system user. This user will be
+                 * created with the <i>System</i> (administration) group as
+                 * default and will also be in the <i>user</i> group. Their
+                 * light administrator privileges will be set as given.
+                 *
+                 * @param experimenter a new {@link omero.model.Experimenter}
+                 *        instance
+                 * @param privileges the privileges to set for the user
+                 * @return id of the newly created
+                 *         {@link omero.model.Experimenter}
+                 */
+                long createLightSystemUser(omero::model::Experimenter experimenter, AdminPrivilegeList privileges) throws ServerError;
+
+                /**
                  * Creates and returns a new user in the given groups.
                  *
                  * @param user A new {@link omero.model.Experimenter}

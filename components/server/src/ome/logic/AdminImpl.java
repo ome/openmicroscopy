@@ -640,6 +640,24 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                 groupProxy(sec.getSecurityRoles().getUserGroupName()));
     }
 
+    @Override
+    @RolesAllowed("system")
+    @Transactional(readOnly = false)
+    public long createLightSystemUser(Experimenter newSystemUser, List<AdminPrivilege> privileges) {
+        assertKnownPrivileges(privileges);
+        final long newSystemUserId = createSystemUser(newSystemUser);
+        newSystemUser = iQuery.get(Experimenter.class, newSystemUserId);
+        final Set<AdminPrivilege> restrictions = new HashSet<>(adminPrivileges.getAllPrivileges());
+        restrictions.removeAll(privileges);
+        final List<NamedValue> userConfig = new ArrayList<NamedValue>(restrictions.size());
+        for (final AdminPrivilege restriction : restrictions) {
+            userConfig.add(new NamedValue(restriction.getValue(), Boolean.toString(false)));
+        }
+        newSystemUser.setConfig(userConfig);
+        iUpdate.saveObject(newSystemUser);
+        return newSystemUserId;
+    }
+
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public long createExperimenter(final Experimenter experimenter,
@@ -1222,6 +1240,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     @Override
     @RolesAllowed("user")
     public List<Experimenter> getAdminsWithPrivileges(List<AdminPrivilege> privileges) {
+        assertKnownPrivileges(privileges);
         final List<Experimenter> admins = new ArrayList<Experimenter>();
         final long systemGroupId = getSecurityRoles().getSystemGroupId();
         final Iterator<GroupExperimenterMap> memberships = getGroup(systemGroupId).iterateGroupExperimenterMap();
@@ -1270,6 +1289,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     @RolesAllowed("system")
     @Transactional(readOnly = false)
     public void setAdminPrivileges(Experimenter user, List<AdminPrivilege> privileges) {
+        assertKnownPrivileges(privileges);
         final Set<AdminPrivilege> privilegesToRemove = new HashSet<AdminPrivilege>(adminPrivileges.getAllPrivileges());
         privilegesToRemove.removeAll(privileges);
         user = userProxy(user.getId());
@@ -1535,6 +1555,18 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         }
         adminOrPiOfGroups(defaultGroup,
                 nonUserGroupGroups.toArray(new ExperimenterGroup[0]));
+    }
+
+    /**
+     * @param privileges the privileges that are expected to be among those of the {@link AdminPrivilege} enumeration values
+     * @throws ApiUsageException if passed an unknown privilege
+     */
+    private void assertKnownPrivileges(Iterable<AdminPrivilege> privileges) {
+        for (final AdminPrivilege privilege : privileges) {
+            if (adminPrivileges.getPrivilege(privilege.getValue()) == null) {
+                throw new ApiUsageException("unknown light administrator privilege: " + privilege.getValue());
+            }
+        }
     }
 
     /**

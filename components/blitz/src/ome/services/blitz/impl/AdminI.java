@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -32,6 +30,7 @@ import omero.api.AMD_IAdmin_containedGroups;
 import omero.api.AMD_IAdmin_createExperimenter;
 import omero.api.AMD_IAdmin_createExperimenterWithPassword;
 import omero.api.AMD_IAdmin_createGroup;
+import omero.api.AMD_IAdmin_createLightSystemUser;
 import omero.api.AMD_IAdmin_createSystemUser;
 import omero.api.AMD_IAdmin_createUser;
 import omero.api.AMD_IAdmin_deleteExperimenter;
@@ -194,6 +193,13 @@ public class AdminI extends AbstractAmdServant implements _IAdminOperations {
     public void createSystemUser_async(AMD_IAdmin_createSystemUser __cb,
             Experimenter experimenter, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, experimenter);
+    }
+
+    @Override
+    public void createLightSystemUser_async(AMD_IAdmin_createLightSystemUser __cb,
+            Experimenter experimenter, List<AdminPrivilege> privileges,
+            Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, experimenter, privileges);
     }
 
     public void createUser_async(AMD_IAdmin_createUser __cb,
