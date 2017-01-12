@@ -107,8 +107,8 @@ Dataset url to GET or DELETE a single Dataset
 """
 
 api_images = url(r'^v(?P<api_version>%s)/m/images/$' % versions,
-                   views.ImagesView.as_view(),
-                   name='api_images')
+                 views.ImagesView.as_view(),
+                 name='api_images')
 """
 GET all images, using omero-marshal to generate json
 """
