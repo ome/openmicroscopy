@@ -571,6 +571,23 @@ class TestGetObject (object):
         assert image.getOwnerOmeName == testImage.getOwnerOmeName
         assert image.getThumbVersion() is not None
 
+    def testGetImageLoadPixels(self, gatewaywrapper, author_testimg_tiny):
+        testImage = author_testimg_tiny
+        conn = gatewaywrapper.gateway
+        # By default, don't load pixels
+        image = conn.getObject("Image", testImage.id)
+        assert not image._obj.pixelsLoaded
+        # Load just the pixels
+        image = conn.getObject("Image", testImage.id,
+                               opts={'load_pixels': True})
+        assert image._obj.pixelsLoaded
+        assert not image._obj._pixelsSeq[0].channelsLoaded
+        # Load pixels and channels
+        image = conn.getObject("Image", testImage.id,
+                               opts={'load_channels': True})
+        assert image._obj.pixelsLoaded
+        assert image._obj._pixelsSeq[0].channelsLoaded
+
     def testGetProject(self, gatewaywrapper):
         gatewaywrapper.loginAsAuthor()
         testProj = gatewaywrapper.getTestProject()
