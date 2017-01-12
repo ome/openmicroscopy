@@ -614,8 +614,10 @@ class TestGetObject (object):
         assert len(pr.listParents()) == 0
 
     def testListOrphans(self, gatewaywrapper):
-        gatewaywrapper.loginAsUser()
-        eid = gatewaywrapper.gateway.getUserId()
+        # We login as Author, since they have other non-orphan images
+        gatewaywrapper.loginAsAuthor()
+        conn = gatewaywrapper.gateway
+        eid = conn.getUserId()
 
         # Create 5 images
         for i in range(0, 5):
@@ -624,34 +626,35 @@ class TestGetObject (object):
         # Pagination, loading pixels
         params = omero.sys.ParametersI()
         params.page(1, 3)
-        findImagesInPage = list(gatewaywrapper.gateway.listOrphans(
+        findImagesInPage = list(conn.listOrphans(
             "Image", eid=eid, params=params, loadPixels=True))
         assert len(findImagesInPage) == 3, \
             "Did not find orphaned images in page"
         for p in findImagesInPage:
             assert p._obj.pixelsLoaded
 
-        # All orphans, no pixels
-        findImages = list(gatewaywrapper.gateway.listOrphans("Image"))
+        # All orphans, without loading pixels
+        findImages = list(conn.listOrphans("Image"))
         orphanedCount = len(findImages)
         for p in findImages:
             assert not p._obj.pixelsLoaded
-            client = p._conn
-            handle = client.deleteObjects(
-                'Image', [p.getId()], deleteAnns=True)
-            try:
-                client._waitOnCmd(handle)
-            finally:
-                handle.close()
+
+        # Test getObjects() with 'orphaned' option
+        getImages = list(conn.getObjects("Image", opts={'orphaned': True}))
+        getObjectsCount = len(getImages)
+
+        iids = [i.id for i in findImages]
+        conn.deleteObjects('Image', iids, deleteAnns=True, wait=True)
 
         # Check this AFTER delete
         # If test fails with previously undeleted images,
         # it should pass when re-run since images are deleted above
         assert orphanedCount == 5, "Did not find orphaned images"
+        assert getObjectsCount == 5
 
         # Simply check this doesn't fail See https://github.com/
         # openmicroscopy/openmicroscopy/pull/4950#issuecomment-264142956
-        list(gatewaywrapper.gateway.listOrphans("Dataset"))
+        list(conn.listOrphans("Dataset"))
 
     def testOrderById(self, gatewaywrapper):
         gatewaywrapper.loginAsUser()
