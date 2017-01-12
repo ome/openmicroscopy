@@ -140,6 +140,7 @@ def fileread_gen(fin, fsize, bufsize):
         p += s
     fin.close()
 
+
 def countAnnotations(annotationlinks):
     """
     Count the different (unique) annotions from the
@@ -185,6 +186,7 @@ def countAnnotations(annotationlinks):
     counts["OtherAnnotation"] = total - regAnnotations
     return counts
 
+
 def getAnnotationLinkTableName(objecttype):
     """
     Get the name of the *AnnotationLink table
@@ -207,6 +209,7 @@ def getAnnotationLinkTableName(objecttype):
     if objecttype == "well":
         return "WellAnnotationLink"
     return None
+
 
 def getPixelsQuery(imageName):
     """Helper for building Query for Images or Wells & Images"""
