@@ -407,7 +407,7 @@ class TestProjects(IWebTest):
                                      projects_user1_group1,
                                      projects_user2_group1):
         """
-        Tests normalize, childCount and callback params of projects
+        Tests normalize and childCount params of projects
         """
         projects = projects_user1_group1 + projects_user2_group1
         projects.sort(cmp_name_insensitive)

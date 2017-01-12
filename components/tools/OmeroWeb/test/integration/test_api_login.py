@@ -60,6 +60,9 @@ class TestLogin(IWebTest):
         assert 'servers_url' in rsp
         assert 'login_url' in rsp
         assert 'projects_url' in rsp
+        assert 'datasets_url' in rsp
+        assert 'screens_url' in rsp
+        assert 'plates_url' in rsp
         assert 'save_url' in rsp
         assert rsp['schema_url'] == OME_SCHEMA_URL
 

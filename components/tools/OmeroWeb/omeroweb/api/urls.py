@@ -82,6 +82,22 @@ api_project = url(
 Project url to GET or DELETE a single Project
 """
 
+api_datasets = url(r'^v(?P<api_version>%s)/m/datasets/$' % versions,
+                   views.DatasetsView.as_view(),
+                   name='api_datasets')
+"""
+GET all datasets, using omero-marshal to generate json
+"""
+
+api_project_datasets = url(
+    r'^v(?P<api_version>%s)/m/projects/'
+    '(?P<project_id>[0-9]+)/datasets/$' % versions,
+    views.DatasetsView.as_view(),
+    name='api_project_datasets')
+"""
+GET Datasets in Project, using omero-marshal to generate json
+"""
+
 api_dataset = url(
     r'^v(?P<api_version>%s)/m/datasets/(?P<pid>[0-9]+)/$' % versions,
     views.DatasetView.as_view(),
@@ -98,6 +114,37 @@ api_screen = url(
 Screen url to GET or DELETE a single Screen
 """
 
+api_screens = url(r'^v(?P<api_version>%s)/m/screens/$' % versions,
+                  views.ScreensView.as_view(),
+                  name='api_screens')
+"""
+GET all screens, using omero-marshal to generate json
+"""
+
+api_plates = url(r'^v(?P<api_version>%s)/m/plates/$' % versions,
+                 views.PlatesView.as_view(),
+                 name='api_plates')
+"""
+GET all plates, using omero-marshal to generate json
+"""
+
+api_screen_plates = url(
+    r'^v(?P<api_version>%s)/m/screens/'
+    '(?P<screen_id>[0-9]+)/plates/$' % versions,
+    views.PlatesView.as_view(),
+    name='api_screen_plates')
+"""
+GET Plates in Screen, using omero-marshal to generate json
+"""
+
+api_plate = url(
+    r'^v(?P<api_version>%s)/m/plates/(?P<pid>[0-9]+)/$' % versions,
+    views.PlateView.as_view(),
+    name='api_plate')
+"""
+Plate url to GET or DELETE a single Plate
+"""
+
 urlpatterns = patterns(
     '',
     api_versions,
@@ -108,6 +155,13 @@ urlpatterns = patterns(
     api_save,
     api_projects,
     api_project,
+    api_datasets,
+    api_project_datasets,
     api_dataset,
     api_screen,
+    api_screens,
+    api_plates,
+    api_screen_plates,
+    api_plate,
+
 )

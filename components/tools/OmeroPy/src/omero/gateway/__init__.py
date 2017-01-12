@@ -291,7 +291,7 @@ class BlitzObjectWrapper (object):
         """
         extra_select = ""
         child_count = False
-        if opts is not None and 'child_count' in opts:
+        if opts is not None and opts.get('child_count'):
             child_count = opts['child_count']
         if child_count and cls.LINK_CLASS is not None:
             extra_select = """, (select count(id) from %s chl
@@ -5690,6 +5690,7 @@ class _DatasetWrapper (BlitzObjectWrapper):
         Extend base query to handle filtering of Datasets by Projects.
         Returns a tuple of (query, clauses, params).
         Supported opts: 'project': <project_id> to filter by Project
+                        'orphaned': <bool>. Filter by 'not in Project'
 
         :param opts:        Dictionary of optional parameters.
         :return:            Tuple of string, list, ParametersI
@@ -5700,6 +5701,15 @@ class _DatasetWrapper (BlitzObjectWrapper):
             query += ' join obj.projectLinks plink'
             clauses.append('plink.parent.id = :pid')
             params.add('pid', rlong(opts['project']))
+        if opts is not None and opts.get('orphaned'):
+            clauses.append(
+                """
+                not exists (
+                    select pdlink from ProjectDatasetLink as pdlink
+                    where pdlink.child = obj.id
+                )
+                """
+            )
         return (query, clauses, params)
 
     def __loadedHotSwap__(self):
@@ -5954,12 +5964,14 @@ class _PlateWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
     @classmethod
     def _getQueryString(cls, opts=None):
         """
-        Returns a query string for constructing custom queries,
-        loading the screen for each plate.
+        Custom query to load Screen with Plate.
+
+        Also handles filtering of Plates by Screens.
         Returns a tuple of (query, clauses, params).
+        Supported opts: 'screen': <screen_id> to filter by Screen
+                        'orphaned': <bool>. Filter by 'not in Screen'
 
         :param opts:        Dictionary of optional parameters.
-                            NB: No options supported for this class.
         :return:            Tuple of string, list, ParametersI
         """
         query = ("select obj from Plate as obj "
@@ -5967,7 +5979,23 @@ class _PlateWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                  "join fetch obj.details.creationEvent "
                  "left outer join fetch obj.screenLinks spl "
                  "left outer join fetch spl.parent sc")
-        return query, [], omero.sys.ParametersI()
+        # NB: we don't use base _getQueryString.
+        # since child_count wouldn't be supported anyway (no LINK_CLASS)
+        clauses = []
+        params = omero.sys.ParametersI()
+        if opts is not None and 'screen' in opts:
+            clauses.append('spl.parent.id = :sid')
+            params.add('sid', rlong(opts['screen']))
+        if opts is not None and opts.get('orphaned'):
+            clauses.append(
+                """
+                not exists (
+                    select splink from ScreenPlateLink as splink
+                    where splink.child = obj.id
+                )
+                """
+            )
+        return (query, clauses, params)
 
 PlateWrapper = _PlateWrapper
 

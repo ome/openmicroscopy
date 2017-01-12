@@ -19,74 +19,54 @@
 
 """Helper functions for views that handle object trees."""
 
-import omero
 
-from omero.rtypes import unwrap, rlong
-from django.conf import settings
+from omero.rtypes import unwrap
 
 from api_marshal import marshal_objects
 from copy import deepcopy
 
 
-def query_projects(conn, childCount=False,
-                   group=None, owner=None,
-                   page=1, limit=settings.PAGE,
-                   normalize=False):
+def query_objects(conn, object_type,
+                  group=None,
+                  opts=None,
+                  normalize=False):
     """
-    Query OMERO and marshal omero.model.Projects.
+    Base query method, handles different object_types.
 
-    Build a query based on a number of parameters,
-    queries OMERO with the query service and
-    marshals Projects with omero_marshal.
+    Builds a query and adds common
+    parameters and filters such as by owner or group.
 
     @param conn:        BlitzGateway
-    @param childCount:  If true, also load Dataset counts as omero:childCount
-    @param group:       Filter by group Id
-    @param owner:       Filter by owner Id
-    @param page:        Pagination page. Default is 1
-    @param limit:       Page size
+    @param object_type: Type to query. E.g. Project
+    @param group:       Filter query by ExperimenterGroup ID
+    @param opts:        Options dict for conn.buildQuery()
     @param normalize:   If true, marshal groups and experimenters separately
     """
-    qs = conn.getQueryService()
-    params = omero.sys.ParametersI()
-    if page:
-        params.page((page-1) * limit, limit)
-    ctx = deepcopy(conn.SERVICE_OPTS)
+    # buildQuery is used by conn.getObjects()
+    query, params, wrapper = conn.buildQuery(object_type, opts=opts)
 
-    # Set the desired group context and owner
+    # Set the desired group context
+    ctx = deepcopy(conn.SERVICE_OPTS)
     if group is None:
         group = -1
     ctx.setOmeroGroup(group)
-    where_clause = ''
-    if owner is not None and owner != -1:
-        params.add('owner', rlong(owner))
-        where_clause = 'where project.details.owner.id = :owner'
 
-    withChildCount = ""
-    if childCount:
-        withChildCount = """, (select count(id) from ProjectDatasetLink pdl
-                 where pdl.parent=project.id)"""
+    qs = conn.getQueryService()
 
-    # Need to load owners specifically, else can be unloaded if group != -1
-    query = """
-            select project %s from Project project
-            join fetch project.details.owner
-            %s
-            order by lower(project.name), project.id
-            """ % (withChildCount, where_clause)
-
-    projects = []
+    objects = []
     extras = {}
-    if childCount:
+    if opts is not None and opts.get('child_count'):
         result = qs.projection(query, params, ctx)
         for p in result:
-            project = unwrap(p[0])
-            projects.append(project)
-            extras[project.id.val] = {'omero:childCount': unwrap(p[1])}
+            obj = unwrap(p[0])
+            objects.append(obj)
+            if len(p) > 1:
+                # in case child_count not supported by conn.buildQuery()
+                extras[obj.id.val] = {'omero:childCount': unwrap(p[1])}
     else:
         extras = None
         result = qs.findAllByQuery(query, params, ctx)
-        for p in result:
-            projects.append(p)
+        for obj in result:
+            objects.append(obj)
 
-    return marshal_objects(projects, extras=extras, normalize=normalize)
+    return marshal_objects(objects, extras=extras, normalize=normalize)
