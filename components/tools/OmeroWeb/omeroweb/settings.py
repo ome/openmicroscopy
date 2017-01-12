@@ -247,7 +247,7 @@ def check_session_engine(s):
     return check_settings_value(s, SESSION_ENGINE_VALUES)
 
 
-def check_serilizers(s):
+def check_session_serilizers(s):
     return check_settings_value(s, SESSION_SERILIZER_VALUES)
 
 
@@ -346,7 +346,7 @@ INTERNAL_SETTINGS_MAPPING = {
     "omero.web.session_serializer":
         ["SESSION_SERIALIZER",
          DEFAULT_SESSION_SERILIZER,
-         check_serilizers,
+         check_session_serilizers,
          "Session serialization. For redis use JSONSerializer."],
 }
 
