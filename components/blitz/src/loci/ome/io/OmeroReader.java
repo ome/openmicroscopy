@@ -103,7 +103,19 @@ public class OmeroReader extends FormatReader {
     private Long groupID = null;
     private boolean encrypted = true;
 
-    private omero.client client;
+    //private omero.client client;
+    /** 
+     * The Blitz client object, this is the entry point to the
+     * OMERO Server using a secure connection.
+     */
+    private omero.client secureClient;
+
+    /** 
+     * The client object, this is the entry point to the
+     * OMERO Server using non secure data transfer
+     */
+    private omero.client unsecureClient;
+
     private ServiceFactoryPrx serviceFactory;
     private Image img;
     private Pixels pix;
@@ -196,8 +208,13 @@ public class OmeroReader extends FormatReader {
     @Override
     public void close(boolean fileOnly) throws IOException {
         super.close(fileOnly);
-        if (!fileOnly && client != null) {
-            client.closeSession();
+        if (!fileOnly) {
+            if (secureClient != null) {
+                secureClient.__del__();
+            }
+            if (unsecureClient != null) {
+                unsecureClient.__del__();
+            }
         }
     }
 
@@ -269,18 +286,18 @@ public class OmeroReader extends FormatReader {
 
             LOGGER.info("Logging in");
 
-            client = new omero.client(address, port);
+            secureClient = new omero.client(address, port);
             serviceFactory = null;
             if (user != null && pass != null) {
-                serviceFactory = client.createSession(user, pass);
+                serviceFactory = secureClient.createSession(user, pass);
             }
             else {
-                serviceFactory = client.createSession(sessionID, sessionID);
+                serviceFactory = secureClient.createSession(sessionID, sessionID);
             }
 
             if (!encrypted) {
-                client = client.createClient(false);
-                serviceFactory = client.getSession();
+                unsecureClient = secureClient.createClient(false);
+                serviceFactory = unsecureClient.getSession();
             }
 
             IAdminPrx iAdmin = serviceFactory.getAdminService();
@@ -444,13 +461,7 @@ public class OmeroReader extends FormatReader {
                 }
             }
         }
-        catch (CannotCreateSessionException e) {
-            throw new FormatException(e);
-        }
-        catch (PermissionDeniedException e) {
-            throw new FormatException(e);
-        }
-        catch (ServerError e) {
+        catch (CannotCreateSessionException|PermissionDeniedException|ServerError e) {
             throw new FormatException(e);
         }
     }
