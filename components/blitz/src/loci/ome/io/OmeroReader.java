@@ -173,9 +173,9 @@ public class OmeroReader extends FormatReader {
             throw new FormatException(e);
         }
 
-        RandomAccessInputStream s = new RandomAccessInputStream(plane);
-        readPlane(s, x, y, w, h, buf);
-        s.close();
+        try (RandomAccessInputStream s = new RandomAccessInputStream(plane)) {
+            readPlane(s, x, y, w, h, buf);
+        }
 
         return buf;
     }
