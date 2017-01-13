@@ -580,7 +580,7 @@ public class PermissionsTest extends AbstractServerTest {
         /* First pair of importers imports their respective images, note
          * that importerTargetUser1 is member of 2 groups (dataGroup1 and otherGroup),
          * so care has to be taken to import an image for this user in
-         * each of his groups.*/
+         * each of his/her groups.*/
         loginUser(importerTargetUser1, dataGroup1);
         final Image image1 = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage()).proxy();
         final long imageId1 = image1.getId().getValue();
@@ -760,7 +760,7 @@ public class PermissionsTest extends AbstractServerTest {
          * has in otherGroup. Note that in case
          * chowner is just a GroupOwner, not an admin, the image in the otherGroup
          * must still belong to the importerTargetUser1, because GroupOwner has
-         * no power to perform chown outside his group. Cases where chowner is
+         * no power to perform chown outside his/her group. Cases where chowner is
          * both admin and GroupOwner are not tested here and are not provided by
          * data provider for this test.*/
         logRootIntoGroup(otherGroup.getId().getValue());
@@ -832,7 +832,7 @@ public class PermissionsTest extends AbstractServerTest {
         /* check that the ownership of images is as expected
          * Note that in case chowner is just a GroupOwner, not an admin,
          * the image in the otherGroup must still belong to the importerTargetUser1,
-         * because GroupOwner has no power to perform chown outside his group.
+         * because GroupOwner has no power to perform chown outside his/her group.
          * Cases where chowner is both admin and GroupOwner are not tested here
          * and are not provided by data provider for this test.*/
 
