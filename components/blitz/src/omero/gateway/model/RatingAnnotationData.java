@@ -131,7 +131,7 @@ public class RatingAnnotationData extends AnnotationData {
     public void setRating(int value) {
         checkValue(value);
         setDirty(true);
-        omero.RLong l = rlong(value);
+        omero.RLong l = omero.rtypes.rlong(value);
         ((LongAnnotation) asAnnotation()).setLongValue(l);
     }
 
