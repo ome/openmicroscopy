@@ -626,7 +626,7 @@ class TestGetObject (object):
     @pytest.mark.parametrize("orphaned", [True, False])
     @pytest.mark.parametrize("load_pixels", [False, False])
     def testListOrphans(self, orphaned, load_pixels, gatewaywrapper):
-        # We login as 'User', since they have no other orphan images
+        # We login as 'User', since they have no other orphaned images
         gatewaywrapper.loginAsUser()
         conn = gatewaywrapper.gateway
         eid = conn.getUserId()
