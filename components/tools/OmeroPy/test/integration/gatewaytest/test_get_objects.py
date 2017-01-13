@@ -571,22 +571,32 @@ class TestGetObject (object):
         assert image.getOwnerOmeName == testImage.getOwnerOmeName
         assert image.getThumbVersion() is not None
 
-    def testGetImageLoadPixels(self, gatewaywrapper, author_testimg_tiny):
+    @pytest.mark.parametrize("load_pixels", [True, False])
+    @pytest.mark.parametrize("load_channels", [True, False])
+    def testGetImageLoadPixels(self, load_pixels, load_channels,
+                               gatewaywrapper, author_testimg_tiny):
         testImage = author_testimg_tiny
         conn = gatewaywrapper.gateway
-        # By default, don't load pixels
+        # By default (no opts), don't load pixels
         image = conn.getObject("Image", testImage.id)
-        assert not image._obj.pixelsLoaded
-        # Load just the pixels
-        image = conn.getObject("Image", testImage.id,
-                               opts={'load_pixels': True})
-        assert image._obj.pixelsLoaded
-        assert not image._obj._pixelsSeq[0].channelsLoaded
-        # Load pixels and channels
-        image = conn.getObject("Image", testImage.id,
-                               opts={'load_channels': True})
-        assert image._obj.pixelsLoaded
-        assert image._obj._pixelsSeq[0].channelsLoaded
+        assert not image._obj.isPixelsLoaded()
+
+        # parametrized opts...
+        opts = {'load_pixels': load_pixels, 'load_channels': load_channels}
+        image = conn.getObject("Image", testImage.id, opts=opts)
+        # pixels are also loaded if load_channels
+        pix_loaded = load_pixels or load_channels
+        assert image._obj.isPixelsLoaded() == pix_loaded
+        if pix_loaded:
+            pixels = image._obj._pixelsSeq[0]
+            assert pixels.getPixelsType().isLoaded()
+            if load_channels:
+                assert pixels.isChannelsLoaded()
+                for c in pixels.copyChannels():
+                    lc = c.getLogicalChannel()
+                    assert lc.getPhotometricInterpretation().isLoaded()
+            else:
+                assert not pixels.isChannelsLoaded()
 
     def testGetProject(self, gatewaywrapper):
         gatewaywrapper.loginAsAuthor()
