@@ -99,7 +99,7 @@ class Show(object):
         self._initially_select = list()
         # The nodes of the tree that will be initially open based on the
         # nodes that are initially selected.
-        self._initially_open = None
+        self._initially_open = list()
         # The owner of the node closest to the root of the tree from the
         # list of initially open nodes.
         self._initially_open_owner = None
