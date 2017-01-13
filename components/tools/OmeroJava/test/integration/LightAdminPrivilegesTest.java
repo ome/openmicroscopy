@@ -173,7 +173,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     /**
      * Create a light administrator, possibly without a specific privilege, and log in as them, possibly sudo'ing afterward.
      * @param isAdmin if the user should be a member of the <tt>system</tt> group
-     * @param isSudo if the user should then sudo to be a member of the <tt>system</tt> group with all privileges
+     * @param sudoTo the name of the user to whom the new user should then sudo or {@code null} for no sudo
      * @param restriction the privilege that the user should not have, or {@code null} if they should have all privileges
      * @return the new user's context (may be a sudo session)
      * @throws Exception if the light administrator actor could not be set up as specified
