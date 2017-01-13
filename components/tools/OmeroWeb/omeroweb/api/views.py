@@ -198,19 +198,39 @@ class ObjectsView(View):
                 }
         return opts
 
+    def add_data(self, marshalled, request, **kwargs):
+        """Post-process marshalled objects to add any extra data."""
+        return marshalled
+
     def get(self, request, conn=None, **kwargs):
         """GET a list of Projects, filtering by various request parameters."""
         opts = self.get_opts(request, **kwargs)
         group = getIntOrDefault(request, 'group', -1)
         normalize = request.GET.get('normalize', False) == 'true'
         # Get the data
-        return query_objects(conn, self.OMERO_TYPE, group, opts, normalize)
+        marshalled = query_objects(conn, self.OMERO_TYPE, group,
+                                   opts, normalize)
+        for m in marshalled['data']:
+            self.add_data(m, request, **kwargs)
+        return marshalled
 
 
 class ProjectsView(ObjectsView):
     """Handles GET for /projects/ to list available Projects."""
 
     OMERO_TYPE = 'Project'
+
+    def add_data(self, marshalled, request, **kwargs):
+        """Add urls to the marshalled Projects."""
+        marshalled = super(ProjectsView, self).add_data(
+                marshalled, request, **kwargs)
+        project_id = marshalled['@id']
+        v = kwargs['api_version']
+        marshalled['datasets_url'] = build_url(request, 'api_project_datasets',
+                                               v, project_id=project_id)
+        marshalled['project_url'] = build_url(request, 'api_project',
+                                              v, pid=project_id)
+        return marshalled
 
 
 class DatasetsView(ObjectsView):
