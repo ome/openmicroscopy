@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static omero.rtypes.rstring;
 import omero.RInt;
 import omero.RTime;
 import omero.model.Annotation;
@@ -266,7 +265,7 @@ public class ImageData extends DataObject {
             throw new IllegalArgumentException("The name cannot be null.");
         }
         setDirty(true);
-        asImage().setName(rstring(name));
+        asImage().setName(omero.rtypes.rstring(name));
     }
 
     /**
@@ -292,7 +291,7 @@ public class ImageData extends DataObject {
     public void setDescription(String description) {
         setDirty(true);
         asImage().setDescription(
-                description == null ? null : rstring(description));
+                description == null ? null : omero.rtypes.rstring(description));
     }
 
     /**

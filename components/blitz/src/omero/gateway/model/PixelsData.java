@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,6 @@
 
 package omero.gateway.model;
 
-import static omero.rtypes.*;
 import ome.model.units.BigResult;
 import omero.model.Length;
 import omero.model.LengthI;
@@ -140,7 +139,7 @@ public class PixelsData extends DataObject {
      */
     public void setSizeX(int sizeX) {
         setDirty(true);
-        asPixels().setSizeX(rint(sizeX));
+        asPixels().setSizeX(omero.rtypes.rint(sizeX));
     }
 
     /**
@@ -160,7 +159,7 @@ public class PixelsData extends DataObject {
      */
     public void setSizeY(int sizeY) {
         setDirty(true);
-        asPixels().setSizeY(rint(sizeY));
+        asPixels().setSizeY(omero.rtypes.rint(sizeY));
     }
 
     /**
@@ -180,7 +179,7 @@ public class PixelsData extends DataObject {
      */
     public void setSizeZ(int sizeZ) {
         setDirty(true);
-        asPixels().setSizeZ(rint(sizeZ));
+        asPixels().setSizeZ(omero.rtypes.rint(sizeZ));
     }
 
     /**
@@ -200,7 +199,7 @@ public class PixelsData extends DataObject {
      */
     public void setSizeC(int sizeC) {
         setDirty(true);
-        asPixels().setSizeC(rint(sizeC));
+        asPixels().setSizeC(omero.rtypes.rint(sizeC));
     }
 
     /**
@@ -220,7 +219,7 @@ public class PixelsData extends DataObject {
      */
     public void setSizeT(int sizeT) {
         setDirty(true);
-        asPixels().setSizeT(rint(sizeT));
+        asPixels().setSizeT(omero.rtypes.rint(sizeT));
     }
 
     /**

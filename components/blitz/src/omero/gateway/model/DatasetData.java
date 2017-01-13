@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static omero.rtypes.rstring;
 import omero.model.Annotation;
 import omero.model.CommentAnnotation;
 import omero.model.Dataset;
@@ -132,7 +131,7 @@ public class DatasetData extends DataObject {
             throw new IllegalArgumentException("The name cannot be null.");
         }
         setDirty(true);
-        asDataset().setName(rstring(name));
+        asDataset().setName(omero.rtypes.rstring(name));
     }
 
     /**
@@ -157,7 +156,7 @@ public class DatasetData extends DataObject {
      */
     public void setDescription(String description) {
         setDirty(true);
-        asDataset().setDescription(rstring(description));
+        asDataset().setDescription(omero.rtypes.rstring(description));
     }
 
     /**
