@@ -650,7 +650,8 @@ class TestGetObject (object):
                 # Pagination
                 params = omero.sys.ParametersI()
                 params.page(1, 3)
-                findImagesInPage = list(conn.listOrphans("Image", eid=eid, params=params))
+                findImagesInPage = list(conn.listOrphans("Image", eid=eid,
+                                                         params=params))
                 assert len(findImagesInPage) == 3
 
                 # No pagination (all orphans)
