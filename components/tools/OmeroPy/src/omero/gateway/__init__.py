@@ -141,7 +141,7 @@ def fileread_gen(fin, fsize, bufsize):
     fin.close()
 
 
-def countAnnotations(annotationlinks):
+def countAnnotations(annotationlinks=None):
     """
     Count the different (unique) annotions from the
     provided annotation links
@@ -154,6 +154,9 @@ def countAnnotations(annotationlinks):
         "LongAnnotation": 0,
         "MapAnnotation": 0,
         "OtherAnnotation": 0}
+
+    if annotationlinks is None:
+        return counts
 
     atypes = {
         omero.model.TagAnnotationI: "TagAnnotation",
@@ -3489,10 +3492,18 @@ class _BlitzGateway (object):
         """
         obj_type = None
         obj_ids = []
-        for key in objDict:
-            for o in objDict[key]:
-                obj_type = key
-                obj_ids.append(o.id)
+        if objDict is not None:
+            for key in objDict:
+                for o in objDict[key]:
+                    if obj_type is not None and obj_type != key:
+                        raise AttributeError(
+                            "getAnnotationCounts cannot be used with "
+                            "different types of objects")
+                    obj_type = key
+                    obj_ids.append(o.id)
+
+        if obj_type is None:
+            return countAnnotations()
 
         if obj_type == "project":
             obj_type = "Project"
