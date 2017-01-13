@@ -46,13 +46,13 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
 
     /** The logger for this class. */
     private static Logger log = LoggerFactory.getLogger(ProjectionBean.class);
-    
+
     /** Reference to the service used to retrieve the pixels metadata. */
     protected transient IPixels iPixels;
-    
+
     /** Reference to the service used to retrieve the pixels data. */
     protected transient PixelsService pixelsService;
-    
+
     /**
      * Returns the interface this implementation is for.
      * @see AbstractLevel2Service#getServiceInterface()
@@ -61,7 +61,7 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
     {
         return IProjection.class;
     }
-    
+
     /**
      * IPixels bean injector. For use during configuration. Can only be called 
      * once.
@@ -71,7 +71,7 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
         getBeanHelper().throwIfAlreadySet(this.iPixels, iPixels);
         this.iPixels = iPixels;
     }
-    
+
     /**
      * PixelsService bean injector. For use during configuration. Can only be 
      * called once.
@@ -127,7 +127,7 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
                 pixelsType = iQuery.get(PixelsType.class, pixelsType.getId());
             }
 
-            ctx.planeSizeInPixels = 
+            ctx.planeSizeInPixels =
                 ctx.pixels.getSizeX() * ctx.pixels.getSizeY();
             int planeSize = 
                 ctx.planeSizeInPixels * (iPixels.getBitDepth(pixelsType) / 8);
@@ -194,7 +194,6 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
         }
     }
 
-    
     /* (non-Javadoc)
      * @see ome.api.IProjection#project(long, ome.model.enums.PixelsType, int, int, int, int, java.util.List, int, int, int, java.lang.String)
      */
@@ -273,7 +272,6 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
         if (start >= max || end >= max)
             throw new ValidationException("Interval value cannot be >= "+max);
     }
-
 
     /**
      * Projects a stack based on the maximum intensity at each XY coordinate.
@@ -432,19 +430,19 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
     {
         /** The Pixels set we're currently working on. */
         public Pixels pixels;
-        
+
         /** Count of the number of pixels per plane for <code>pixels</code>. */
         public int planeSizeInPixels;
-        
+
         /** Current minimum for the projected pixel data. */
         public double minimum = Double.MAX_VALUE;
-        
+
         /** Current maximum for the projected pixel data. */
         public double maximum = Double.MIN_VALUE;
-        
+
         /** The raw pixel data from the stack to project from. */
         public PixelData from;
-        
+
         /** The raw pixel data buffer to project into. */
         public PixelData to;
     }
@@ -489,7 +487,7 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
         if (sizeT <= 0) sizeT = null;
 
         //Channels and timepoint validation done there
-        long newImageId = 
+        long newImageId =
             iPixels.copyAndResizeImage(image.getId(), null, null, 1, sizeT,
                                        channels, name, false);
         Image newImage = iQuery.get(Image.class, newImageId);
@@ -503,7 +501,7 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
             pixelsType = iQuery.get(PixelsType.class, pixelsType.getId());
         }
         newPixels.setPixelsType(pixelsType);
-        
+
         // Project each stack for each channel and each timepoint in the
         // entire image, copying into the pixel buffer the projected pixels.
         PixelBuffer sourceBuffer = pixelsService.getPixelBuffer(
@@ -643,7 +641,7 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
             List<Integer> channels, int stepping, int start, int end,
             String name)
     {
-     // First, copy and resize our image with sizeT = 1.
+        // First, copy and resize our image with sizeT = 1.
         ProjectionContext ctx = new ProjectionContext();
         ctx.pixels = iQuery.get(Pixels.class, pixelsId);
         Image image = ctx.pixels.getImage();
