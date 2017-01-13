@@ -1,7 +1,6 @@
-/*
- *   $Id$
+/**
  *
- *   Copyright 2008-2013 University of Dundee. All rights reserved.
+ *   Copyright 2008-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -44,6 +43,7 @@ import ome.model.stats.StatsInfo;
 @Transactional(readOnly = true)
 public class ProjectionBean extends AbstractLevel2Service implements IProjection
 {
+
     /** The logger for this class. */
     private static Logger log = LoggerFactory.getLogger(ProjectionBean.class);
     
@@ -231,7 +231,7 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
     }
 
     /**
-     * Ensures that a particular dimension value is not out of range (ex. less
+     * Ensures that a particular dimension value is not out of range (e.g. less
      * than zero).
      * @param value The value to check.
      * @param name The name of the value to be used for error reporting.
@@ -259,7 +259,7 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
     }
 
     /**
-     * Ensures that a particular dimension value is not out of range (ex. less
+     * Ensures that a particular dimension value is not out of range (e.g. less
      * than zero).
      * @param start The lower bound of the interval.
      * @param end The upper bound of the interval.
@@ -449,6 +449,25 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
         public PixelData to;
     }
 
+    /**
+     * Performs a projection through selected optical sections and optical
+     * sections for a given set of time points of a Pixels set.
+     * @param pixelsId The source Pixels set Id.
+     * @param pixelsType The destination Pixels type. If <code>null</code>, the
+     * source Pixels set pixels type will be used.
+     * @param algorithm the selected algorithm
+     * @param tStart Timepoint to start projecting from.
+     * @param tEnd Timepoint to finish projecting.
+     * @param channels List of the channel indexes to use while calculating the
+     * projection.
+     * @param stepping Stepping value to use while calculating the projection.
+     * @param zStart Optical section to start projecting from.
+     * @param zEnd Optical section to finish projecting.
+     * @param name Name for the newly created image. If <code>null</code> the
+     * name of the Image linked to the Pixels qualified by pixelsId will be used
+     * with a "Projection" suffix.
+     * @return The Id of the newly created Image which has been projected.
+     */
     private long projectPixelsAlongZ(long pixelsId, PixelsType pixelsType,
                               int algorithm, int tStart, int tEnd,
                               List<Integer> channels, int stepping,
@@ -596,6 +615,29 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
         return newImage.getId();
     }
 
+    /**
+     * Performs a projection through selected optical sections and optical
+     * sections for a given set of time points of a Pixels set.
+     * @param pixelsId The source Pixels set Id.
+     * @param pixelsType The destination Pixels type. If <code>null</code>, the
+     * source Pixels set pixels type will be used.
+     * @param algorithm the selected algorithm
+     * @param planeStart The Optical section to start projecting from.
+     * @param planeEnd The Optical section to finish projecting.
+     * @param channels List of the channel indexes to use while calculating the
+     * projection.
+     * @param stepping Stepping value to use while calculating the projection.
+     * For example, <code>stepping=1</code> will use every optical section from
+     * <code>start</code> to <code>end</code> where <code>stepping=2</code> will
+     * use every other section from <code>start</code> to <code>end</code> to
+     * perform the projection.
+     * @param start The timepoint section to start projecting from.
+     * @param end The timepoint to finish projecting.
+     * @param name Name for the newly created image. If <code>null</code> the
+     * name of the Image linked to the Pixels qualified by pixelsId will be used
+     * with a "Projection" suffix.
+     * @return The Id of the newly created Image which has been projected.
+     */
     private long projectPixelsAlongT(long pixelsId, PixelsType pixelsType,
             int algorithm, int planeStart, int planeEnd,
             List<Integer> channels, int stepping, int start, int end,
