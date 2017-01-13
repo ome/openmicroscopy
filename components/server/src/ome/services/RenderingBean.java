@@ -533,8 +533,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
     public byte[] renderCompressed(PlaneDef pd) {
         rwl.writeLock().lock();
 
-        ByteArrayOutputStream byteStream = null;
-        try {
+        try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
             final Map<byte[], Integer> overlays = getMasks(pd);
             if (overlays.size() > 0) {
                 renderer.setOverlays(overlays);
@@ -554,7 +553,6 @@ public class RenderingBean implements RenderingEngine, Serializable {
             sizeY = sizeY/stride;
             BufferedImage image = ImageUtil.createBufferedImage(buf, sizeX,
                     sizeY);
-            byteStream = new ByteArrayOutputStream();
             compressionSrv.compressToStream(image, byteStream);
             return byteStream.toByteArray();
         } catch (IOException e) {
@@ -562,14 +560,6 @@ public class RenderingBean implements RenderingEngine, Serializable {
             throw new ResourceError(e.getMessage());
         } finally {
             rwl.writeLock().unlock();
-            try {
-                if (byteStream != null) {
-                    byteStream.close();
-                }
-            } catch (IOException e) {
-                log.error("Could not close byte stream.", e);
-                throw new ResourceError(e.getMessage());
-            }
         }
     }
 
@@ -648,8 +638,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
     {
         rwl.writeLock().lock();
 
-        ByteArrayOutputStream byteStream = null;
-        try {
+        try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()){
             if (resolutionLevel != null)
             {
                 renderer.setResolutionLevel(resolutionLevel);
@@ -660,7 +649,6 @@ public class RenderingBean implements RenderingEngine, Serializable {
             int sizeY = pixelsObj.getSizeY();
             BufferedImage image = ImageUtil.createBufferedImage(buf, sizeX,
                     sizeY);
-            byteStream = new ByteArrayOutputStream();
             compressionSrv.compressToStream(image, byteStream);
             return byteStream.toByteArray();
         } catch (IOException e) {
@@ -668,14 +656,6 @@ public class RenderingBean implements RenderingEngine, Serializable {
             throw new ResourceError(e.getMessage());
         } finally {
             rwl.writeLock().unlock();
-            try {
-                if (byteStream != null) {
-                    byteStream.close();
-                }
-            } catch (IOException e) {
-                log.error("Could not close byte stream.", e);
-                throw new ResourceError(e.getMessage());
-            }
         }
     }
 
