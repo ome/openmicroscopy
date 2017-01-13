@@ -102,8 +102,7 @@ class TestImages(IWebTest):
     def user1(self):
         """Return a new user in a read-annotate group."""
         group = self.new_group(perms='rwra--')
-        user = self.new_client_and_user(group=group)
-        return user
+        return self.new_client_and_user(group=group)
 
     @pytest.fixture()
     def dataset_images(self, user1):
