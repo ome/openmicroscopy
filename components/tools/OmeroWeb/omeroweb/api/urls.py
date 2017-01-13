@@ -117,7 +117,7 @@ api_dataset_images = url(
     r'^v(?P<api_version>%s)/m/datasets/'
     '(?P<dataset_id>[0-9]+)/images/$' % versions,
     views.ImagesView.as_view(),
-    name='api_dataset_imagess')
+    name='api_dataset_images')
 """
 GET Images in Dataset, using omero-marshal to generate json
 """

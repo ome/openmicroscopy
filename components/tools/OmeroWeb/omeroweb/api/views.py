@@ -293,7 +293,7 @@ class ImagesView(ObjectsView):
             dataset = getIntOrDefault(request, 'dataset', None)
             if dataset is not None:
                 opts['dataset'] = dataset
-        # When listing images, always load pixels by defualt
+        # When listing images, always load pixels by default
         opts['load_pixels'] = True
         return opts
 
