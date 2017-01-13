@@ -7135,15 +7135,20 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         load_channels = False
         orphaned = False
         if opts is not None:
-            load_pixels = 'load_pixels' in opts and opts['load_pixels']
-            load_channels = 'load_channels' in opts and opts['load_channels']
-            orphaned = 'orphaned' in opts and opts['orphaned']
+            load_pixels = opts.get('load_pixels')
+            load_channels = opts.get('load_channels')
+            orphaned = opts.get('orphaned')
         if load_pixels or load_channels:
             # We use 'left outer join', since we still want images if no pixels
-            query += ' left outer join fetch obj.pixels pixels'
+            query += ' left outer join fetch obj.pixels pixels' \
+                     ' join fetch pixels.pixelsType'
         if load_channels:
             query += ' join fetch pixels.channels as channels' \
-                     ' join fetch channels.logicalChannel'
+                     ' join fetch channels.logicalChannel as logicalChannel' \
+                     ' left outer join fetch logicalChannel.photometricInterpretation' \
+                     ' left outer join fetch logicalChannel.illumination' \
+                     ' left outer join fetch logicalChannel.mode' \
+                     ' left outer join fetch logicalChannel.contrastMethod'
         if orphaned:
             clauses.append(
                 """
