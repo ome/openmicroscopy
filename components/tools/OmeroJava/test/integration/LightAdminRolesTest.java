@@ -872,14 +872,12 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         ProjectDatasetLink linkOfProjectDataset = linkProjectDataset(sentProj, sentDat);
         /* after successful linkage, transfer the ownership
          * of both links to the normalUser. For that the light admin
-         * needs additonally the Chown permission. Note that if you transfer
-         * the whole project to normalUser expecting the links to
-         * be transferred too, this will fail, probably because the Project
-         * already belongs to normalUser and the transfer of the links does not proceed */
+         * needs additonally the Chown permission. Note that as you transfer
+         * the whole project to normalUser, all the objects contained
+         * under this project will be transferred too. This enables a one-step
+         * transfer of both the links to be transferred in one step. */
         Project retrievedProject = (Project) iQuery.get("Project", sentProj.getId().getValue());
-        Chown2 chown = Requests.chown().target(linkOfDatasetImage).toUser(normalUser.userId).build();
-        doChange(client, factory, chown, permChown);
-        chown = Requests.chown().target(linkOfProjectDataset).toUser(normalUser.userId).build();
+        Chown2 chown = Requests.chown().target(retrievedProject).toUser(normalUser.userId).build();
         doChange(client, factory, chown, permChown);
 
         /* now retrieve and check that the links, image, dataset and project
@@ -1105,15 +1103,9 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         if (permWriteFile) permissions.add(AdminPrivilegeWriteFile.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
-        final EventContext fullAdmin = newUserInGroup(iAdmin.lookupGroup(roles.systemGroupName), false);
-        System.out.println("full admins ID");
-        System.out.println(fullAdmin.userId);
-        System.out.println("light admins ID");
-        System.out.println(lightAdmin.userId);
         /* create two sets of P/D/I hierarchy as normalUser in the default
          * group of the normalUser */
         if (!isAdmin) return;
-        loginUser(lightAdmin);
         loginUser(normalUser); /* comment out this line in order to let the light admin own the hierarchy */
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         Image image1 = mmFactory.createImage();
@@ -1132,11 +1124,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         DatasetImageLink linkOfDatasetImage2 = linkDatasetImage(sentDat2, sentImage2);
         ProjectDatasetLink linkOfProjectDataset1 = linkProjectDataset(sentProj1, sentDat1);
         ProjectDatasetLink linkOfProjectDataset2 = linkProjectDataset(sentProj2, sentDat2);
-        System.out.println("linkofDatasetImage1 ID before chown");
-        System.out.println(linkOfDatasetImage1.getId().getValue());
-        System.out.println(sentImage1.getId().getValue());
-        System.out.println(sentDat1.getId().getValue());
-        System.out.println(recipient.userId);
         /* now also create this hierarchy in the other group as the normalUser */
         client.getImplicitContext().put("omero.group", Long.toString(otherGroup.getId().getValue()));
         Image image1OtherGroup = mmFactory.createImage();
@@ -1155,9 +1142,10 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         DatasetImageLink linkOfDatasetImage2OtherGroup = linkDatasetImage(sentDat2OtherGroup, sentImage2OtherGroup);
         ProjectDatasetLink linkOfProjectDataset1OtherGroup = linkProjectDataset(sentProj1OtherGroup, sentDat1OtherGroup);
         ProjectDatasetLink linkOfProjectDataset2OtherGroup = linkProjectDataset(sentProj2OtherGroup, sentDat2OtherGroup);
-        /* now transfer all the data of normalUser to recipient */
-        init(lightAdmin);
-        init(fullAdmin); /* comment out this line in order to let lightAdmin do the chown */
+        /* now transfer all the data of normalUser to recipient
+         * but note that because of the lack of the targetUser feature at
+         * this branch I am transferring by now only the first dataset */
+        loginUser(lightAdmin);
         client.getImplicitContext().put("omero.group", Long.toString(-1));
         if (chownPassing) {
             doChange(client, factory, Requests.chown().target(sentDat1).toUser(recipient.userId).build(), true);
