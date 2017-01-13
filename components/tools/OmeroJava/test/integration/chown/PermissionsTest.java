@@ -473,9 +473,10 @@ public class PermissionsTest extends AbstractServerTest {
     /**
      * Test a specific case of using {@link Chown2} with targetUsers option, transferring everything
      * belonging to a targetUser (importerTargetUser) to a recipient completely,
-     * where targetUser's shared annotations, images and tag sets are in a read-annotate group,
-     * as well as leaving the otherImporter's images, which targetUser annotated, not transferred.
-     * The target user has also additional data in a different group, which are to be transferred too, in case
+     * where targetUser's shared annotations and images are in one group (permutations over all group
+     * permission types are performed). The test is also checking that the otherImporter's images,
+     * which targetUser annotated, were not transferred.
+     * The targetUser has also additional data in a different group (read-annotate), which are to be transferred too, in case
      * Admin does the action, whereas in case of GroupOwner being a chowner the data from other group
      * will not be transferred.
      * Further, the test deals also with 2 users being passed to the argument of targetUsers (in 2 variations:
@@ -789,8 +790,7 @@ public class PermissionsTest extends AbstractServerTest {
 
         /* check that all the own (=belonging to targetUserImporter) links
          * were transferred to recipient, irrespective of ownership of the objects
-         * they were linking. If the permissions were not right, no links at
-         * all were made between tags and tag sets.*/
+         * they were linking.*/
         if (users1CanAnnotateOthers) {
             assertOwnedBy(linksOwnToOwnAnnOwnImage1, recipient);
             assertOwnedBy(linksOwnToOthersAnnOthersImage1, recipient);
@@ -799,8 +799,7 @@ public class PermissionsTest extends AbstractServerTest {
 
         /* check that all the others' (=belonging to otherImporter) links
          * still belong to otherImporter, irrespective of ownership of the objects
-         * they were linking. If the permissions were not right, no links at
-         * all were made between tags and tag sets.*/
+         * they were linking.*/
         if (users1CanAnnotateOthers) {
             assertOwnedBy(linksOthersToOthersAnnOtherImage1, otherImporter1);
             assertOwnedBy(linksOthersToOwnAnnOwnImage1, otherImporter1);
