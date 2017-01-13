@@ -108,7 +108,6 @@ class TestImages(IWebTest):
     @pytest.fixture()
     def dataset_images(self, user1):
         """Return Dataset with Images and an orphaned Image."""
-        query = get_query_service(user1)
         dataset = DatasetI()
         dataset.name = rstring('Dataset')
 
@@ -120,10 +119,9 @@ class TestImages(IWebTest):
             img = ImageI(img.id.val, False)
             dataset.linkImage(img)
 
-        # Import a single orphaned Image "tinyTest.d3d.dv" and get ImageID
-        pids = self.import_image(client=user1[0], skip=None)
-        pixels = query.get("Pixels", long(pids[0]))
-        image = query.get("Image", pixels.image.id.val)
+        # Create a single orphaned Image
+        image = self.create_test_image(size_x=125, size_y=125,
+                                       session=user1[0].getSession())
 
         dataset = get_update_service(user1).saveAndReturnObject(dataset)
         return dataset, image
@@ -156,7 +154,8 @@ class TestImages(IWebTest):
         images.sort(cmp_name_insensitive)
         payload = {'dataset': dataset.id.val}
         rsp = _get_response_json(django_client, images_url, payload)
-        # Manual check that Pixels is loaded but Channels are not
+        # Manual check that Pixels & Type are loaded but Channels are not
+        assert 'Type' in rsp['data'][0]['Pixels']
         assert 'Channels' not in rsp['data'][0]['Pixels']
         assert_objects(conn, rsp['data'], images, dtype='Image',
                        opts={'load_pixels': True})
@@ -176,7 +175,7 @@ class TestImages(IWebTest):
         # Show ONLY the orphaned image (channels are loaded by default)
         img_url = images_url + '%s/' % orphaned.id.val
         rsp = _get_response_json(django_client, img_url, {})
-        # Manual check that Channels is loaded
+        # Manual check that Channels are loaded
         assert len(rsp['Pixels']['Channels']) == 1
         assert_objects(conn, [rsp], [orphaned], dtype='Image',
                        opts={'load_channels': True})
