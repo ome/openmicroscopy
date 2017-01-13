@@ -1022,7 +1022,7 @@ class BlitzObjectWrapper (object):
             return AnnotationWrapper._wrap(self._conn, rv[0].child, link=rv[0])
         return None
 
-    def getAnnotationCount(self):
+    def getAnnotationCounts(self, ns=None):
         """
         Get the annotion counts for the current object
         """
@@ -1031,11 +1031,15 @@ class BlitzObjectWrapper (object):
         params.addId(long(self._oid))
 
         q = """
-            select al from %s al
+            select al from %sAnnotationLink al
             left outer join al.parent as pa
             left outer join fetch al.child as an
             where pa.id = :id
-            """ % (getAnnotationLinkTableName(self.OMERO_CLASS))
+            """ % self.OMERO_CLASS
+
+        if ns:
+            q = q+" and an.ns in (:ns)"
+            params.map["ns"] = rstring(ns)
 
         ctx = self._conn.SERVICE_OPTS.copy()
         ctx.setOmeroGroup(self.details.group.id.val)
@@ -3479,28 +3483,40 @@ class _BlitzGateway (object):
         for e in q.findAllByQuery(sql, p, self.SERVICE_OPTS):
             yield AnnotationWrapper._wrap(self, e)
 
-    def countAnnotations(self, objects):
+    def getAnnotationCounts(self, objDict=None):
         """
         Get the annotion counts for the given objects
         """
-
         obj_type = None
         obj_ids = []
-        for obj in objects:
-            objtype = obj.split('=')[0]
-            objid = obj.split('=')[1]
-            if obj_type is None:
-                obj_type = objtype
-            obj_ids.append(long(objid))
+        for key in objDict:
+            for o in objDict[key]:
+                obj_type = key
+                obj_ids.append(o.id)
+
+        if obj_type == "project":
+            obj_type = "Project"
+        if obj_type == "dataset":
+            obj_type = "Dataset"
+        if obj_type == "image":
+            obj_type = "Image"
+        if obj_type == "screen":
+            obj_type = "Screen"
+        if obj_type == "plate":
+            obj_type = "Plate"
+        if obj_type == "plateacquisition":
+            obj_type = "PlateAcquisition"
+        if obj_type == "well":
+            obj_type = "Well"
 
         params = omero.sys.ParametersI()
         params.addIds(obj_ids)
         q = """
-            select al from %s al
+            select al from %sAnnotationLink al
             left outer join al.parent as pa
             left outer join fetch al.child as an
             where pa.id in (:ids)
-            """ % (getAnnotationLinkTableName(obj_type))
+            """ % (obj_type)
 
         ctx = self.SERVICE_OPTS.copy()
         ctx.setOmeroGroup(self.group)

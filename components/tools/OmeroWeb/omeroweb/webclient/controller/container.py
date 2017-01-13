@@ -205,14 +205,13 @@ class BaseContainer(BaseController):
         """
         Get the annotion counts for the current object
         """
-        obj = self._get_object()
-        return obj.getAnnotationCount()
+        return self._get_object().getAnnotationCounts()
 
-    def getBatchAnnotationCounts(self, objects):
+    def getBatchAnnotationCounts(self, objDict):
         """
         Get the annotion counts for the given objects
         """
-        return self.conn.countAnnotations(objects)
+        return self.conn.getAnnotationCounts(objDict)
 
     def canExportAsJpg(self, request, objDict=None):
         """
