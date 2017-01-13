@@ -469,7 +469,7 @@ public class OmeroReader extends FormatReader {
     public static void main(String[] args) throws Exception {
         try (BufferedReader con = new BufferedReader(
                 new InputStreamReader(System.in, Constants.ENCODING));
-             OmeroReader omeroReader = new OmeroReader()) {
+            OmeroReader omeroReader = new OmeroReader()) {
             // parse OMERO credentials
             System.out.print("Server? ");
             final String server = con.readLine();
