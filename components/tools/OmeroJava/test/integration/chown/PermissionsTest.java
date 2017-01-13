@@ -692,7 +692,7 @@ public class PermissionsTest extends AbstractServerTest {
         /* check group permissions */
         if (users1CanAnnotateOthers) {
             for (final IObject annotation : annotationsOthersForTripleLinking1) {
-                if (!(annotation instanceof Roi) & !(annotation instanceof Thumbnail) & !(annotation instanceof RectangleI)) {
+                if (!(annotation instanceof Roi || annotation instanceof Thumbnail || annotation instanceof RectangleI)) {
                     final ImageAnnotationLink linkOwnImage = (ImageAnnotationLink) annotateImage(image1, (Annotation) annotation);
                     linksOwnToOthersAnnOwnImage1.add((ImageAnnotationLink) linkOwnImage.proxy());
                     final ImageAnnotationLink linkOtherImage = (ImageAnnotationLink) annotateImage(otherImage1, (Annotation) annotation);
@@ -704,7 +704,7 @@ public class PermissionsTest extends AbstractServerTest {
         loginUser(importerTargetUser2);
         if (users2CanAnnotateOthers) {
             for (final IObject annotation : annotationsOthersForTripleLinking2) {
-                if (!(annotation instanceof Roi) & !(annotation instanceof Thumbnail) & !(annotation instanceof RectangleI)) {
+                if (!(annotation instanceof Roi || annotation instanceof Thumbnail || annotation instanceof RectangleI)) {
                     final ImageAnnotationLink linkOwnImage = (ImageAnnotationLink) annotateImage(image2, (Annotation) annotation);
                     linksOwnToOthersAnnOwnImage2.add((ImageAnnotationLink) linkOwnImage.proxy());
                     final ImageAnnotationLink linkOtherImage = (ImageAnnotationLink) annotateImage(otherImage2, (Annotation) annotation);
@@ -724,7 +724,7 @@ public class PermissionsTest extends AbstractServerTest {
         /* check group permissions */
         if (users1CanAnnotateOthers) {
             for (final IObject annotation : annotationsOwnForTripleLinking1) {
-                if (!(annotation instanceof Roi) & !(annotation instanceof Thumbnail) & !(annotation instanceof RectangleI)) {
+                if (!(annotation instanceof Roi || annotation instanceof Thumbnail || annotation instanceof RectangleI)) {
                     final ImageAnnotationLink linkOtherImage = (ImageAnnotationLink) annotateImage(otherImage1, (Annotation) annotation);
                     linksOthersToOwnAnnOthersImage1.add((ImageAnnotationLink) linkOtherImage.proxy());
                     final ImageAnnotationLink linkOwnImage = (ImageAnnotationLink) annotateImage(image1, (Annotation) annotation);
@@ -735,7 +735,7 @@ public class PermissionsTest extends AbstractServerTest {
         loginUser(otherImporter2);
         if (users2CanAnnotateOthers) {
             for (final IObject annotation : annotationsOwnForTripleLinking2) {
-                if (!(annotation instanceof Roi) & !(annotation instanceof Thumbnail) & !(annotation instanceof RectangleI)) {
+                if (!(annotation instanceof Roi || annotation instanceof Thumbnail || annotation instanceof RectangleI)) {
                     final ImageAnnotationLink linkOtherImage = (ImageAnnotationLink) annotateImage(otherImage2, (Annotation) annotation);
                     linksOthersToOwnAnnOthersImage2.add((ImageAnnotationLink) linkOtherImage.proxy());
                     final ImageAnnotationLink linkOwnImage = (ImageAnnotationLink) annotateImage(image2, (Annotation) annotation);
