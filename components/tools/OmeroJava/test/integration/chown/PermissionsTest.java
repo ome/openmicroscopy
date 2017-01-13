@@ -514,6 +514,8 @@ public class PermissionsTest extends AbstractServerTest {
             importerTargetUser2 = newUserInGroup(dataGroup1, false);
             otherImporter2 = newUserInGroup(dataGroup1, false);
         }else {
+            /* The otherGroup is read-annotate only, possible extension point
+             * for future improvement of this test is to parametrize the group permissions here.*/
             importerTargetUser2 = newUserAndGroup("rwra--", false);
             otherImporter2 = newUserInGroup(importerTargetUser2, false);
         }
