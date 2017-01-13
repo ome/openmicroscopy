@@ -7141,7 +7141,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         if load_pixels or load_channels:
             # We use 'left outer join', since we still want images if no pixels
             query += ' left outer join fetch obj.pixels pixels' \
-                     ' join fetch pixels.pixelsType'
+                     ' left outer join fetch pixels.pixelsType'
         if load_channels:
             query += ' join fetch pixels.channels as channels' \
                      ' join fetch channels.logicalChannel as logicalChannel' \
