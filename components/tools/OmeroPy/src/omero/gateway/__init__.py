@@ -165,15 +165,13 @@ def countAnnotations(annotationlinks=None):
         omero.model.LongAnnotationI: "LongAnnotation",
         omero.model.MapAnnotationI: "MapAnnotation"}
 
-    uniqueIds = []
+    # Avoid counting the same annotations multiple times
+    uniqueIds = set([al._child._id._val for al in annotationlinks])
+
     total = 0
     regAnnotations = 0
     for al in annotationlinks:
-        # Avoid counting the same annotations multiple times
-        annoId = str(type(al._child))+"_"+str(al._child._id._val)
-        if annoId not in uniqueIds:
-            uniqueIds.append(annoId)
-        else:
+        if al._child._id._val not in uniqueIds:
             continue
 
         total += 1
@@ -1041,7 +1039,7 @@ class BlitzObjectWrapper (object):
             """ % self.OMERO_CLASS
 
         if ns:
-            q = q+" and an.ns in (:ns)"
+            q = q + " and an.ns in (:ns)"
             params.map["ns"] = rstring(ns)
 
         ctx = self._conn.SERVICE_OPTS.copy()
@@ -3505,20 +3503,8 @@ class _BlitzGateway (object):
         if obj_type is None:
             return countAnnotations()
 
-        if obj_type == "project":
-            obj_type = "Project"
-        if obj_type == "dataset":
-            obj_type = "Dataset"
-        if obj_type == "image":
-            obj_type = "Image"
-        if obj_type == "screen":
-            obj_type = "Screen"
-        if obj_type == "plate":
-            obj_type = "Plate"
-        if obj_type == "plateacquisition":
-            obj_type = "PlateAcquisition"
-        if obj_type == "well":
-            obj_type = "Well"
+        obj_type = obj_type.title().replace("Plateacquisition",
+        "PlateAcquisition")
 
         params = omero.sys.ParametersI()
         params.addIds(obj_ids)
