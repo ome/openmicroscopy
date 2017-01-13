@@ -514,7 +514,7 @@ public class PermissionsTest extends AbstractServerTest {
             importerTargetUser2 = newUserInGroup(dataGroup1, false);
             otherImporter2 = newUserInGroup(dataGroup1, false);
         }else {
-            /* The otherGroup is read-annotate only, possible extension point
+            /* This group read-annotate only, possible extension point
              * for future improvement of this test is to parametrize the group permissions here.*/
             importerTargetUser2 = newUserAndGroup("rwra--", false);
             otherImporter2 = newUserInGroup(importerTargetUser2, false);
@@ -537,7 +537,7 @@ public class PermissionsTest extends AbstractServerTest {
         recipient = newUserInGroup(isRecipientInGroup ? dataGroup1 : otherGroup, false);
 
         /* Add importerTargetUser1 also to "otherGroup" in order to be able
-         * to test the case where a user has data in two different groups */
+         * to test the case when a user has data in two different groups */
 
         addUsers(otherGroup, Collections.singletonList(importerTargetUser1.userId), false);
 
@@ -902,7 +902,7 @@ public class PermissionsTest extends AbstractServerTest {
             assertOwnedBy(linksOwnToOthersAnnOthersImage2, recipient);
             assertOwnedBy(linksOwnToOthersAnnOwnImage2, recipient);
         }
-        
+
         /* Check that all the others' (=belonging to otherImporter) links
          * still belong to otherImporter, irrespective of ownership of the objects
          * they were linking
