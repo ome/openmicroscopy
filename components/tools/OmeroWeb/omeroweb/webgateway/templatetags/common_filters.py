@@ -274,3 +274,9 @@ def timeformat(value):
         value = round(value)        # Avoids '1h 60min'
         return u'%d\u00A0h\u00A0%d\u00A0min' % (value / 3600,
                                                 round((value % 3600)/60))
+
+
+# taken from https://code.djangoproject.com/ticket/17419
+@register.filter
+def json_dumps(value):
+    return json.dumps(value)
