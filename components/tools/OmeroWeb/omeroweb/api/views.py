@@ -119,25 +119,27 @@ class ObjectView(View):
         """Wrap other methods to add decorators."""
         return super(ObjectView, self).dispatch(*args, **kwargs)
 
-    def get(self, request, pid, conn=None, **kwargs):
+    def get(self, request, object_id, conn=None, **kwargs):
         """Simply GET a single Object and marshal it or 404 if not found."""
-        obj = conn.getObject(self.OMERO_TYPE, pid)
+        obj = conn.getObject(self.OMERO_TYPE, object_id)
         if obj is None:
-            raise NotFoundError('%s %s not found' % (self.OMERO_TYPE, pid))
+            raise NotFoundError('%s %s not found' % (self.OMERO_TYPE,
+                                                     object_id))
         encoder = get_encoder(obj._obj.__class__)
         return encoder.encode(obj._obj)
 
-    def delete(self, request, pid, conn=None, **kwargs):
+    def delete(self, request, object_id, conn=None, **kwargs):
         """
         Delete the Object and return marshal of deleted Object.
 
         Return 404 if not found.
         """
         try:
-            obj = conn.getQueryService().get(self.OMERO_TYPE, long(pid),
+            obj = conn.getQueryService().get(self.OMERO_TYPE, long(object_id),
                                              conn.SERVICE_OPTS)
         except ValidationException:
-            raise NotFoundError('%s %s not found' % (self.OMERO_TYPE, pid))
+            raise NotFoundError('%s %s not found' % (self.OMERO_TYPE,
+                                                     object_id))
         encoder = get_encoder(obj.__class__)
         json = encoder.encode(obj)
         conn.deleteObject(obj)
