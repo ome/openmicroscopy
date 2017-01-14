@@ -46,20 +46,16 @@
         <td id='pixels_size'>
             <div class='tooltip'>
                 {% if vX or vY or vZ %}
-                    {{ vX|floatformat:2|default:'-' }} {% if uX != uY or uX != uZ %}({{ uX }}){% endif %}
-                    x {{ vY|floatformat:2|default:'-' }} {% if uX != uY or uX != uZ %}({{ uY }}){% endif %}
-                    {% if vZ %}
-                        x {{ vZ|floatformat:2|default:'-' }} {% if uX != uY or uX != uZ %}({{ uZ }}){% endif %}
-                    {% endif %}
+                    {{ vX|floatformat:2|default:'-' }} {% if vX %}{% if uX != uY or uX != uZ %}({{ uX }}){% endif %}{% endif %}
+                    x {{ vY|floatformat:2|default:'-' }} {% if vY %}{% if uX != uY or uX != uZ %}({{ uY }}){% endif %}{% endif %}
+                    x {{ vZ|floatformat:2|default:'-' }} {% if vZ %}{% if uX != uY or uX != uZ %}({{ uZ }}){% endif %}{% endif %}
                 {% else %}-{% endif %}
             </div>
             <span class="tooltip_html" style='display:none'>
                 {% if vX or vY or vZ %}
-                    {{ vX|default:'-' }} ({{ uX }})
-                    x {{ vY|default:'-' }} ({{ uY }})
-                    {% if vZ %}
-                        x {{ vZ|default:'-' }} ({{ uZ }})
-                    {% endif %}
+                    {{ vX|default:'-' }} {% if vX %}({{ uX }}){% endif %}
+                    x {{ vY|default:'-' }} {% if vY %}({{ uY }}){% endif %}
+                    x {{ vZ|default:'-' }} {% if vZ %}({{ uZ }}){% endif %}
                 {% else %}
                 Physical pixel sizes not available
                 {% endif %}
