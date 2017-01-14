@@ -173,6 +173,9 @@ class PlateView(ObjectView):
 class ObjectsView(View):
     """Base class for listing objects."""
 
+    # urls extended by subclasses to add urls to marshalled objects
+    urls = {}
+
     @method_decorator(login_required(useragent='OMERO.webapi'))
     @method_decorator(json_response())
     def dispatch(self, *args, **kwargs):
@@ -201,7 +204,24 @@ class ObjectsView(View):
         return opts
 
     def add_data(self, marshalled, request, **kwargs):
-        """Post-process marshalled objects to add any extra data."""
+        """
+        Post-process marshalled objects to add any extra data.
+
+        Used to add urls to marshalled json.
+        Subclasses can configure self.urls to specify urls to add.
+        See ProjectsView urls as example
+        """
+        object_id = marshalled['@id']
+        version = kwargs['api_version']
+        for key, args in self.urls.items():
+            name = args['name']
+            kwargs = args['kwargs'].copy()
+            # If kwargs has 'OBJECT_ID' placeholder, we replace with id
+            for k, v in kwargs.items():
+                if v == 'OBJECT_ID':
+                    kwargs[k] = object_id
+            url = build_url(request, name, version, **kwargs)
+            marshalled[key] = url
         return marshalled
 
     def get(self, request, conn=None, **kwargs):
@@ -222,18 +242,16 @@ class ProjectsView(ObjectsView):
 
     OMERO_TYPE = 'Project'
 
-    def add_data(self, marshalled, request, **kwargs):
-        """Add urls to the marshalled Projects."""
-        marshalled = super(ProjectsView, self).add_data(
-                marshalled, request, **kwargs)
-        project_id = marshalled['@id']
-        v = kwargs['api_version']
-        marshalled['datasets_url'] = build_url(request, 'api_project_datasets',
-                                               v, project_id=project_id)
-        marshalled['project_url'] = build_url(request, 'api_project',
-                                              v, pid=project_id)
-        return marshalled
-
+    # To add a url to marshalled object add to this dict
+    # 'name' is url name, kwargs are passed to reverse()
+    # If any kwargs values are 'OBJECT_ID' then this placeholder will be
+    # filled with the actual project_id
+    urls = {
+        'datasets_url': {'name': 'api_project_datasets',
+                         'kwargs': {'project_id': 'OBJECT_ID'}},
+        'project_url': {'name': 'api_project',
+                        'kwargs': {'object_id': 'OBJECT_ID'}}
+    }
 
 class DatasetsView(ObjectsView):
     """Handles GET for /datasets/ to list available Datasets."""
@@ -253,11 +271,25 @@ class DatasetsView(ObjectsView):
                 opts['project'] = project
         return opts
 
+    # Urls to add to marshalled object. See ProjectsView for more details
+    urls = {
+        'dataset_url': {'name': 'api_dataset',
+                        'kwargs': {'object_id': 'OBJECT_ID'}}
+    }
+
 
 class ScreensView(ObjectsView):
     """Handles GET for /screens/ to list available Screens."""
 
     OMERO_TYPE = 'Screen'
+
+    # Urls to add to marshalled object. See ProjectsView for more details
+    urls = {
+        'plates_url': {'name': 'api_screen_plates',
+                       'kwargs': {'screen_id': 'OBJECT_ID'}},
+        'screen_url': {'name': 'api_screen',
+                       'kwargs': {'object_id': 'OBJECT_ID'}}
+    }
 
 
 class PlatesView(ObjectsView):
@@ -277,6 +309,12 @@ class PlatesView(ObjectsView):
             if screen is not None:
                 opts['screen'] = screen
         return opts
+
+    # Urls to add to marshalled object. See ProjectsView for more details
+    urls = {
+        'plate_url': {'name': 'api_plate',
+                      'kwargs': {'object_id': 'OBJECT_ID'}}
+    }
 
 
 class SaveView(View):
