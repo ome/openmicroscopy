@@ -22,7 +22,12 @@ from omero.gateway.scripts import dbhelpers
 from omero.rtypes import wrap
 from omero.testlib import ITest
 from omero.gateway import BlitzGateway, KNOWN_WRAPPERS
-from omero.model import ScreenI, PlateI, WellI, WellSampleI, DatasetI, ImageI
+from omero.model import DatasetI, \
+    ImageI, \
+    PlateI, \
+    ScreenI, \
+    WellI, \
+    WellSampleI
 
 
 class TestDeleteObject (object):
