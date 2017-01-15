@@ -446,7 +446,6 @@ public class OmeroReader extends FormatReader {
                 }
             }
 
-            //store.setImageID("omero:iid=", (int) img.getId().getValue());
             //Load ROIs to the img -->
             RoiOptions options = new RoiOptions();
             options.userId = omero.rtypes.rlong(iAdmin.getEventContext().userId);
