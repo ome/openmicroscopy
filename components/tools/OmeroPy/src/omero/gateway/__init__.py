@@ -7117,10 +7117,10 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         Extend base query to handle filtering of Images by Datasets.
         Returns a tuple of (query, clauses, params).
         Supported opts: 'dataset': <dataset_id> to filter by Dataset
-                        'load_pixels': <bool> to load Pixel objects.
+                        'load_pixels': <bool> to load Pixel objects
                         'load_channels': <bool> to load Channels and
                                                     Logical Channels
-                        'orphaned': <bool>. Images not in Dataset or WellSample
+                        'orphaned': <bool> Images not in Dataset or WellSample
 
         :param opts:        Dictionary of optional parameters.
         :return:            Tuple of string, list, ParametersI
