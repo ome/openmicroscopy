@@ -1,6 +1,24 @@
 OMERO version history
 =====================
 
+5.3.0-m7 (January 2017)
+-----------------------
+
+Developer preview release - **only intended as a developer preview for
+updating code before the full public release of 5.3.0. Use at your own risk**.
+
+Changes include:
+
+ - bumped Bio-Formats version to 5.3.2. This includes several bug fixes.
+   See `Bio-Formats release history <https://www.openmicroscopy.org/site/support/bio-formats5.3/about/whats-new.html>`_
+ - work on the Web API
+ - handled shapes color in clients according to model specification
+ - improved open_with option in web
+ - added histogram support in clients and server
+ - added integration of all official scripts
+ - improved SPW grid view in web
+ - bug fixes
+
 5.3.0-m6 (November 2016)
 ------------------------
 
