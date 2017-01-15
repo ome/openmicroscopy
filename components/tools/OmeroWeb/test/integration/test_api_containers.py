@@ -268,4 +268,14 @@ class TestContainers(IWebTest):
 
         # List ALL Screens
         rsp = _get_response_json(django_client, request_url, {})
-        assert_objects(conn, rsp['data'], user_screens, dtype="Screen")
+        extra = []
+        for screen in user_screens:
+            extra.append({
+                'screen_url': reverse('api_screen', kwargs={'api_version': version,
+                                                            'object_id': screen.id.val}),
+                'plates_url': reverse('api_screen_plates', kwargs={'api_version': version,
+                                                            'screen_id': screen.id.val})
+            })
+        print extra
+        assert_objects(conn, rsp['data'], user_screens,
+                       dtype="Screen", extra=extra)
