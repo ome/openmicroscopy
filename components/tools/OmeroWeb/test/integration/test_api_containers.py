@@ -94,6 +94,10 @@ def assert_objects(conn, json_objects, omero_ids_objects, dtype="Project",
     for i, o1, o2 in zip(range(len(expected)), json_objects, expected):
         if extra is not None and i < len(extra):
             o2.update(extra[i])
+        # remove any urls from json
+        for key in o1.keys():
+            if key.endswith('_url') and key not in o2:
+                del(o1[key])
         assert o1 == o2
 
 
