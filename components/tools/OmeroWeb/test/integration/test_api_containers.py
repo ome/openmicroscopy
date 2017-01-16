@@ -50,6 +50,16 @@ def cmp_name_insensitive(x, y):
     return cmp(unwrap(x.name).lower(), unwrap(y.name).lower())
 
 
+def build_url(client, url_name, url_kwargs):
+    """Build an absolute url using client response url"""
+    response = client.request()
+    # http://testserver/webclient/
+    webclint_url = response.url
+    url = reverse(url_name, kwargs=url_kwargs)
+    url = webclint_url.replace('/webclient/', url)
+    return url
+
+
 def marshal_objects(objects):
     """Marshal objects using omero_marshal."""
     expected = []
@@ -262,23 +272,20 @@ class TestContainers(IWebTest):
         """Test listing of Screens."""
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
-        django_client = self.new_django_client(user_name, user_name)
+        client = self.new_django_client(user_name, user_name)
         version = settings.API_VERSIONS[-1]
         request_url = reverse('api_screens', kwargs={'api_version': version})
 
         # List ALL Screens
-        rsp = _get_response_json(django_client, request_url, {})
+        rsp = _get_response_json(client, request_url, {})
         extra = []
-        r = django_client.request()
-        webclint_url = r.url        # http://testserver/webclient/
         for screen in user_screens:
-            s_url = reverse('api_screen', kwargs={'api_version': version,
-                                                  'object_id': screen.id.val})
-            p_url = reverse('api_screen_plates',
-                            kwargs={'api_version': version,
-                                    'screen_id': screen.id.val})
-            s_url = webclint_url.replace('/webclient/', s_url)
-            p_url = webclint_url.replace('/webclient/', p_url)
+            s_url = build_url(client, 'api_screen',
+                              {'api_version': version,
+                               'object_id': screen.id.val})
+            p_url = build_url(client, 'api_screen_plates',
+                              {'api_version': version,
+                               'screen_id': screen.id.val})
             extra.append({
                 'screen_url': s_url,
                 'plates_url': p_url
