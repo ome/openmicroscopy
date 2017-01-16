@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -223,6 +223,7 @@ public class LoginCredentials {
      * Sets the groupID to use for the connection
      * 
      * @param groupID
+     *            The group id
      */
     public void setGroupID(long groupID) {
         this.groupID = groupID;

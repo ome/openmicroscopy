@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2016 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2017 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -43,8 +43,10 @@ public class SecurityContext {
     /** Indicates to generate session for another user. */
     private boolean sudo;
 
+    /** Host/port of the server */
     private ServerInformation serverInformation;
 
+    /** The compression level */
     private float compression;
 
     /**

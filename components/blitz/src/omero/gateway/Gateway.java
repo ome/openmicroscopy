@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -979,6 +979,7 @@ public class Gateway {
      *            The login credentials
      * @return The client
      * @throws DSOutOfServiceException
+     *             Thrown if the service cannot be initialized.
      */
     private client createSession(LoginCredentials c)
             throws DSOutOfServiceException {
@@ -1079,6 +1080,7 @@ public class Gateway {
      *            The login credentials
      * @return The user which is logged in
      * @throws DSOutOfServiceException
+     *             Thrown if the service cannot be initialized.
      */
     private ExperimenterData login(client client, LoginCredentials cred)
             throws DSOutOfServiceException {
@@ -1154,6 +1156,7 @@ public class Gateway {
      * session.
      * 
      * @throws DSOutOfServiceException
+     *             Thrown if the service cannot be initialized.
      */
     private void keepSessionAlive() throws DSOutOfServiceException {
         // Check if network is up before keeping service otherwise
@@ -1185,6 +1188,7 @@ public class Gateway {
      * @param groupID
      *            The new group of the user
      * @throws DSOutOfServiceException
+     *             Thrown if the service cannot be initialized.
      */
     private void changeCurrentGroup(SecurityContext ctx, ExperimenterData exp,
             long groupID) throws DSOutOfServiceException {
@@ -1292,8 +1296,10 @@ public class Gateway {
      * 
      * @param ctx
      *            The {@link SecurityContext}
+     * @throws Exception
+     *             If the connector is cannot be closed.
      */
-    public void closeConnector(SecurityContext ctx) {
+    public void closeConnector(SecurityContext ctx) throws Exception {
         List<Connector> clist = groupConnectorMap.removeAll(ctx.getGroupID());
         if (CollectionUtils.isEmpty(clist))
             return;
@@ -1302,7 +1308,7 @@ public class Gateway {
             try {
                 c.close(isNetworkUp(true));
             } catch (Throwable e) {
-                new Exception("Cannot close the connector", e);
+                throw new Exception("Cannot close the connector", e);
             }
         }
     }
@@ -1504,7 +1510,7 @@ public class Gateway {
         try {
             c.closeDerived(isNetworkUp(true));
         } catch (Throwable e) {
-            new Exception("Cannot close the derived connectors", e);
+            throw new Exception("Cannot close the derived connectors", e);
         }
     }
 

@@ -2,7 +2,7 @@
  * ome.formats.importer.util.HtmlMessenger
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -107,7 +107,7 @@ public class HtmlMessenger
             sslcontext = SSLContext.getInstance("TLS");
             sslcontext.init(null, managers, null);
         } catch (Exception e) {
-            new HtmlMessengerException("Cannot create security context", e);
+            throw new HtmlMessengerException("Cannot create security context", e);
         }
         return new SSLConnectionSocketFactory(sslcontext,
                 SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
