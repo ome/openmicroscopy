@@ -58,16 +58,19 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         this.bfReader = bfReader;
     }
 
+    /**
+     * Do not call this method when looking to close the reader.
+     * Instead, call `reader.get()` directly.
+     **/
     protected BfPixelsWrapper reader() {
         BfPixelsWrapper wrapper = reader.get();
         if (wrapper == null) {
+
             try {
                 // Note: the call to bfReader.setid inside the BfPixelsWrapper
                 // ctor should be a no-op since the filePath is the same for
                 // both calls.
-                if (reader.compareAndSet(null, new BfPixelsWrapper(filePath, bfReader))) {
-                    wrapper = reader.get();
-                }
+                wrapper = new BfPixelsWrapper(filePath, bfReader);
             } catch (FormatException fe) {
                 log.debug("FormatException: " + filePath, fe);
                 throw new ResourceError("FormatException: " + filePath + "\n" + fe.getMessage());
@@ -75,6 +78,23 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
                 log.error("Failed to instantiate BfPixelsWrapper with " + filePath);
                 throw new RuntimeException(e);
             }
+
+            boolean wasSet = reader.compareAndSet(null, wrapper);
+            if (!wasSet) {
+                // In this case, another thread created an instance,
+                // the one created here is no longer used. There's
+                // still the chance that the following get will return
+                // a null but considering only close should null the
+                // atomic reference, this is considered sufficiently unlikely.
+                try {
+                    wrapper.close();
+                } catch (IOException ex) {
+                    log.error("Failed to close BfPixelsWrapper", ex);
+                    throw new RuntimeException(ex);
+                }
+                wrapper = reader.get();
+            }
+
             // Ensure that we're using the highest resolution level (100%) by
             // default.
             setSeries(seriesIndex);
@@ -127,8 +147,17 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
     }
 
     public void close() throws IOException {
-        reader().close();
-        reader.set(null);
+        BfPixelsWrapper wrapper = reader.get();
+        if (wrapper != null) {
+            try {
+                wrapper.close();
+            } catch (RuntimeException|IOException ex) {
+                log.error("Failed to close BfPixelsWrapper", ex);
+                throw ex;
+            } finally {
+                reader.set(null);
+            }
+        }
     }
 
     public int getByteWidth() {
