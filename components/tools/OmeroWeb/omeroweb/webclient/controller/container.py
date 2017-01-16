@@ -213,12 +213,16 @@ class BaseContainer(BaseController):
         except:
             limit = 144000000
         if self.image:
-            if (self.image.getSizeX() * self.image.getSizeY()) > limit:
+            if self.image.getSizeX() is None or\
+                    self.image.getSizeY() is None or\
+                    (self.image.getSizeX() * self.image.getSizeY()) > limit:
                 can = False
         elif objDict is not None:
             if 'image' in objDict:
                 for i in objDict['image']:
-                    if (i.getSizeX() * i.getSizeY()) > limit:
+                    if i.getSizeX() is None or\
+                            i.getSizeY() is None or\
+                            (i.getSizeX() * i.getSizeY()) > limit:
                         can = False
         return can
 
