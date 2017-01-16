@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -21,7 +21,6 @@
 package omero.gateway.model;
 
 
-import static omero.rtypes.*;
 import omero.model.LongAnnotation;
 import omero.model.LongAnnotationI;
 
@@ -72,7 +71,7 @@ public class LongAnnotationData extends AnnotationData {
      */
     public void setDataValue(long value) {
         setDirty(true);
-        omero.RLong l = rlong(value);
+        omero.RLong l = omero.rtypes.rlong(value);
         ((LongAnnotation) asAnnotation()).setLongValue(l);
     }
 

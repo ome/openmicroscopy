@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,6 @@
  */
 package omero.gateway.model;
 
-import static omero.rtypes.rstring;
 import omero.model.CommentAnnotation;
 import omero.model.CommentAnnotationI;
 
@@ -125,7 +124,7 @@ public class TextualAnnotationData extends AnnotationData {
                     "Annotation value cannot be null.");
         }
         setDirty(true);
-        ((CommentAnnotation) asAnnotation()).setTextValue(rstring(value));
+        ((CommentAnnotation) asAnnotation()).setTextValue(omero.rtypes.rstring(value));
     }
 
 }

@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -26,7 +26,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import static omero.rtypes.rstring;
 import omero.RString;
 import omero.model.Annotation;
 import omero.model.CommentAnnotation;
@@ -242,7 +241,7 @@ public class TagAnnotationData extends AnnotationData {
             return;
         }
         setDirty(true);
-        asAnnotation().setDescription(rstring(value));
+        asAnnotation().setDescription(omero.rtypes.rstring(value));
     }
 
     /**
@@ -317,7 +316,7 @@ public class TagAnnotationData extends AnnotationData {
             throw new IllegalArgumentException("Tag value cannot be null.");
         }
         setDirty(true);
-        ((TagAnnotation) asAnnotation()).setTextValue(rstring(tag));
+        ((TagAnnotation) asAnnotation()).setTextValue(omero.rtypes.rstring(tag));
     }
 
 }

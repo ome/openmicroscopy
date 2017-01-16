@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -28,7 +28,6 @@ import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
 
-import static omero.rtypes.*;
 import omero.RBool;
 import omero.model.Experimenter;
 import omero.model.ExperimenterI;
@@ -104,7 +103,7 @@ public class ExperimenterData extends DataObject {
      */
     public void setFirstName(String firstName) {
         setDirty(true);
-        asExperimenter().setFirstName(rstring(firstName));
+        asExperimenter().setFirstName(omero.rtypes.rstring(firstName));
     }
 
     /**
@@ -126,7 +125,7 @@ public class ExperimenterData extends DataObject {
      */
     public void setLastName(String lastName) {
         setDirty(true);
-        asExperimenter().setLastName(rstring(lastName));
+        asExperimenter().setLastName(omero.rtypes.rstring(lastName));
     }
 
     /**
@@ -162,7 +161,7 @@ public class ExperimenterData extends DataObject {
      */
     public void setEmail(String email) {
         setDirty(true);
-        asExperimenter().setEmail(rstring(email));
+        asExperimenter().setEmail(omero.rtypes.rstring(email));
     }
 
     /**
@@ -185,7 +184,7 @@ public class ExperimenterData extends DataObject {
     public void setInstitution(String institution) {
         setDirty(true);
         asExperimenter().setInstitution(
-                institution == null ? null : rstring(institution));
+                institution == null ? null : omero.rtypes.rstring(institution));
     }
 
     /**
@@ -284,7 +283,7 @@ public class ExperimenterData extends DataObject {
      */
     public void setMiddleName(String middleName) {
         setDirty(true);
-        asExperimenter().setMiddleName(rstring(middleName));
+        asExperimenter().setMiddleName(omero.rtypes.rstring(middleName));
     }
 
     /**
