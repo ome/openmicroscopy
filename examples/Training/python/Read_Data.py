@@ -46,8 +46,8 @@ def print_obj(obj, indent=0):
 # visible in the current group are returned.
 print "\nList Projects:"
 print "=" * 50
-my_expId = conn.getUser().getId()
-for project in conn.listProjects(my_expId):
+my_exp_id = conn.getUser().getId()
+for project in conn.listProjects(my_exp_id):
     print_obj(project)
     for dataset in project.listChildren():
         print_obj(dataset, 2)
@@ -102,15 +102,15 @@ renderedImage = image.renderImage(z, t)
 
 # Get Pixel Sizes for the above Image
 # ===================================
-sizeX = image.getPixelSizeX()       # e.g. 0.132
-print " Pixel Size X:", sizeX
-if sizeX:
+size_x = image.getPixelSizeX()       # e.g. 0.132
+print " Pixel Size X:", size_x
+if size_x:
     # Units support, new in OMERO 5.1.0
-    sizeXobj = image.getPixelSizeX(units=True)
-    print " Pixel Size X:", sizeXobj.getValue(), "(%s)" % sizeXobj.getSymbol()
+    size_x_obj = image.getPixelSizeX(units=True)
+    print "Size X:", size_x_obj.getValue(), "(%s)" % size_x_obj.getSymbol()
     # To get the size with different units, e.g. Angstroms
-    sizeXang = image.getPixelSizeX(units="ANGSTROM")
-    print " Pixel Size X:", sizeXang.getValue(), "(%s)" % sizeXang.getSymbol()
+    size_x_ang = image.getPixelSizeX(units="ANGSTROM")
+    print "Size X:", size_x_ang.getValue(), "(%s)" % size_x_ang.getSymbol()
 
 
 # Retrieve Screening data
@@ -143,4 +143,4 @@ if plateId >= 0:
 # Close connection
 # ================
 # When you are done, close the session to free up server resources.
-conn._closeSession()
+conn.close()

@@ -64,14 +64,15 @@ image = conn.getObject("Image", imageId)     # Will query across all my groups
 print "Image: ", image,
 if image is not None:
     print "Group: ", image.getDetails().getGroup().getName(),
-    print image.details.group.id.val    # access groupId without loading group
+    # access groupId without loading group
+    print image.getDetails().getGroup().getId()
 
 
 # To query only a single group (not necessarily your 'current' group)
 # ===================================================================
-groupId = image.details.group.id.val
+group_id = image.getDetails().getGroup().getId()
 # This is how we 'switch group' in webclient
-conn.SERVICE_OPTS.setOmeroGroup(groupId)
+conn.SERVICE_OPTS.setOmeroGroup(group_id)
 projects = conn.listProjects()
 image = conn.getObject("Image", imageId)
 print "Image: ", image,
@@ -80,4 +81,4 @@ print "Image: ", image,
 # Close connection
 # ================
 # When you are done, close the session to free up server resources.
-conn._closeSession()
+conn.close()

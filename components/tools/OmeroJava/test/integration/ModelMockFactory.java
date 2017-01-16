@@ -91,6 +91,9 @@ public class ModelMockFactory {
     /** The unsigned int 16 pixels Type. */
     static String UINT16 = "uint16";
 
+    /** The unsigned int 8 pixels Type. */
+    static String UINT8 = "uint8";
+    
     /** The bit pixels Type. */
     static String BIT = "bit";
 
@@ -830,12 +833,14 @@ public class ModelMockFactory {
      *            The number of time-points.
      * @param sizeC
      *            The number of channels.
+     * @param pxType
+     *            The pixels type (e.g. unit16)
      * @return See above.
      * @throws Exception
      *             Thrown if an error occurred.
      */
     public Pixels createPixels(int sizeX, int sizeY, int sizeZ, int sizeT,
-            int sizeC) throws Exception {
+            int sizeC, String pxType) throws Exception {
         List<IObject> types = pixelsService.getAllEnumerations(PixelsType.class
                 .getName());
         Iterator<IObject> i = types.iterator();
@@ -843,7 +848,7 @@ public class ModelMockFactory {
         PixelsType type = null;
         while (i.hasNext()) {
             object = (PixelsType) i.next();
-            if (UINT16.equals(object.getValue().getValue())) {
+            if (pxType.equals(object.getValue().getValue())) {
                 type = object;
                 break;
             }
@@ -939,7 +944,7 @@ public class ModelMockFactory {
      */
     public Pixels createPixels() throws Exception {
         return createPixels(SIZE_X, SIZE_Y, SIZE_Z, SIZE_T,
-                DEFAULT_CHANNELS_NUMBER);
+                DEFAULT_CHANNELS_NUMBER, UINT16);
     }
 
     /**
@@ -951,7 +956,7 @@ public class ModelMockFactory {
      *             Thrown if an error occurred.
      */
     public Image createImage() throws Exception {
-        return createImage(1, 1, 1, 1, 1);
+        return createImage(1, 1, 1, 1, 1, UINT16);
     }
 
     /**
@@ -967,14 +972,16 @@ public class ModelMockFactory {
      *            The number of time-points.
      * @param sizeC
      *            The number of channels.
+     * @param pxType
+     *            The pixels type (e.g. unit16)
      * @return See above.
      * @throws Exception
      *             Thrown if an error occurred.
      */
     public Image createImage(int sizeX, int sizeY, int sizeZ, int sizeT,
-            int sizeC) throws Exception {
+            int sizeC, String pxType) throws Exception {
         Image image = simpleImage();
-        Pixels pixels = createPixels(sizeX, sizeY, sizeZ, sizeT, sizeC);
+        Pixels pixels = createPixels(sizeX, sizeY, sizeZ, sizeT, sizeC, pxType);
         image.addPixels(pixels);
         return image;
     }
@@ -1059,7 +1066,7 @@ public class ModelMockFactory {
                     for (int field = 0; field < fields; field++) {
                         sample = new WellSampleI();
                         if (fullImage)
-                            sample.setImage(createImage(sizeX, sizeY, sizeZ, sizeT, sizeC));
+                            sample.setImage(createImage(sizeX, sizeY, sizeZ, sizeT, sizeC, UINT16));
                         else
                             sample.setImage(simpleImage());
                         well.addWellSample(sample);
@@ -1071,7 +1078,7 @@ public class ModelMockFactory {
                         for (int field = 0; field < fields; field++) {
                             sample = new WellSampleI();
                             if (fullImage)
-                                sample.setImage(createImage(sizeX, sizeY, sizeZ, sizeT, sizeC));
+                                sample.setImage(createImage(sizeX, sizeY, sizeZ, sizeT, sizeC, UINT16));
                             else
                                 sample.setImage(simpleImage());
                             well.addWellSample(sample);

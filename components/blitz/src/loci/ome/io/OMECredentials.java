@@ -35,6 +35,10 @@ import loci.common.Constants;
  * Stores credentials for logging into an OME/OMERO server.
  *
  */
+/**
+ * @deprecated  As of release 5.3.0
+ */
+@Deprecated
 public class OMECredentials {
 
   // -- Fields --

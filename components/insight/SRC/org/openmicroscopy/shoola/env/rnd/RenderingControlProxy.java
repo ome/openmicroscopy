@@ -49,9 +49,9 @@ import omero.model.Pixels;
 import omero.model.QuantumDef;
 import omero.model.RenderingModel;
 import omero.model.ReverseIntensityContext;
-import omero.model.ReverseIntensityContextI;
 import omero.model.enums.UnitsLength;
 import omero.romio.PlaneDef;
+import omero.romio.ReverseIntensityMapContext;
 
 import org.openmicroscopy.shoola.env.LookupNames;
 
@@ -486,6 +486,15 @@ class RenderingControlProxy
     			cb.setLowerBound(servant.getPixelsTypeLowerBound(i));
     			cb.setUpperBound(servant.getPixelsTypeUpperBound(i));
     			cb.setLookupTable(servant.getChannelLookupTable(i));
+    			
+                cb.setReverseIntensity(false);
+                List<IObject> cdctx = servant.getCodomainMapContext(i);
+                for (IObject cd : cdctx) {
+                    if (cd instanceof ReverseIntensityContext) {
+                        cb.setReverseIntensity(true);
+                        break;
+                    }
+                }
     		}
     		tmpSolutionForNoiseReduction();
 		} catch (Exception e) {
@@ -513,22 +522,22 @@ class RenderingControlProxy
     /** 
      * Sets the color.
      * 
-     * @param w The index of the channel.
+     * @param index The index of the channel.
      * @param rgba The color to set.
      * @throws RenderingServiceException If an error occurred while setting
      * the value.
      * @throws DSOutOfServiceException If the connection is broken.
      * @see RenderingControl#setRGBA(int, Color)
      */
-    private void setRGBA(int w, int[] rgba)
+    private void setRGBA(int index, int[] rgba)
     	throws RenderingServiceException, DSOutOfServiceException
     {
     	try {
-    		servant.setRGBA(w, rgba[0], rgba[1], rgba[2], rgba[3]);
-    		rndDef.getChannel(w).setRGBA(rgba[0], rgba[1], rgba[2], rgba[3]);
+    		servant.setRGBA(index, rgba[0], rgba[1], rgba[2], rgba[3]);
+    		rndDef.getChannel(index).setRGBA(rgba[0], rgba[1], rgba[2], rgba[3]);
     		invalidateCache();
 		} catch (Exception e) {
-			handleException(e, ERROR+"color for: "+w+".");
+			handleException(e, ERROR+"color for: "+index+".");
 		}
     }
 
@@ -760,6 +769,15 @@ class RenderingControlProxy
                     cb.setLowerBound(servant.getPixelsTypeLowerBound(i));
                     cb.setUpperBound(servant.getPixelsTypeUpperBound(i));
                     cb.setLookupTable(servant.getChannelLookupTable(i));
+                    
+                    cb.setReverseIntensity(false);
+                    List<IObject> cdctx = servant.getCodomainMapContext(i);
+                    for (IObject cd : cdctx) {
+                        if (cd instanceof ReverseIntensityContext) {
+                            cb.setReverseIntensity(true);
+                            break;
+                        }
+                    }
                 }
             }
             tmpSolutionForNoiseReduction();
@@ -844,6 +862,15 @@ class RenderingControlProxy
                     cb.setLowerBound(servant.getPixelsTypeLowerBound(i));
                     cb.setUpperBound(servant.getPixelsTypeUpperBound(i));
                     cb.setLookupTable(servant.getChannelLookupTable(i));
+                    
+                    cb.setReverseIntensity(false);
+                    List<IObject> cdctx = servant.getCodomainMapContext(i);
+                    for (IObject cd : cdctx) {
+                        if (cd instanceof ReverseIntensityContext) {
+                            cb.setReverseIntensity(true);
+                            break;
+                        }
+                    }
                 }
             }
 		} catch (Exception e) {
@@ -1083,7 +1110,7 @@ class RenderingControlProxy
      * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#setQuantizationMap(int, String, double, boolean)
      */
-    public void setQuantizationMap(int w, String value, double coefficient,
+    public void setQuantizationMap(int index, String value, double coefficient,
                                     boolean noiseReduction)
     	throws RenderingServiceException, DSOutOfServiceException
     {
@@ -1095,16 +1122,16 @@ class RenderingControlProxy
             while (i.hasNext()) {
                 family = (Family) i.next();
                 if (family.getValue().getValue().equals(value)) {
-                    servant.setQuantizationMap(w, family, coefficient,
+                    servant.setQuantizationMap(index, family, coefficient,
                                                 noiseReduction);
-                    rndDef.getChannel(w).setQuantization(value, coefficient,
+                    rndDef.getChannel(index).setQuantization(value, coefficient,
                                                 noiseReduction);
                     invalidateCache();
                 }
             }
             Iterator<RenderingControl> j = slaves.iterator();
 			while (j.hasNext())
-				j.next().setQuantizationMap(w, value, coefficient,
+				j.next().setQuantizationMap(index, value, coefficient,
 						noiseReduction);
 		} catch (Exception e) {
 			handleException(e, ERROR+"quantization map.");
@@ -1115,20 +1142,20 @@ class RenderingControlProxy
      * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getChannelFamily(int)
      */
-    public String getChannelFamily(int w)
+    public String getChannelFamily(int index)
     { 
-    	ChannelBindingsProxy channel = rndDef.getChannel(w);
+    	ChannelBindingsProxy channel = rndDef.getChannel(index);
     	if (channel == null) return "";
-        return rndDef.getChannel(w).getFamily();
+        return rndDef.getChannel(index).getFamily();
     }
 
     /** 
      * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getChannelNoiseReduction(int)
      */
-    public boolean getChannelNoiseReduction(int w)
+    public boolean getChannelNoiseReduction(int index)
     {
-    	ChannelBindingsProxy channel = rndDef.getChannel(w);
+    	ChannelBindingsProxy channel = rndDef.getChannel(index);
     	if (channel == null) return false;
         return channel.isNoiseReduction();
     }
@@ -1137,9 +1164,9 @@ class RenderingControlProxy
      * Implemented as specified by {@link RenderingControl}. 
      * @see RenderingControl#getChannelCurveCoefficient(int)
      */
-    public double getChannelCurveCoefficient(int w)
+    public double getChannelCurveCoefficient(int index)
     {
-    	ChannelBindingsProxy channel = rndDef.getChannel(w);
+    	ChannelBindingsProxy channel = rndDef.getChannel(index);
     	if (channel == null) return 1;
         return channel.getCurveCoefficient();
     }
@@ -1148,19 +1175,19 @@ class RenderingControlProxy
      * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#setChannelWindow(int, double, double)
      */
-    public void setChannelWindow(int w, double start, double end)
+    public void setChannelWindow(int index, double start, double end)
     	throws RenderingServiceException, DSOutOfServiceException
     {
     	isSessionAlive();
     	try {
-    		servant.setChannelWindow(w, start, end);
-            rndDef.getChannel(w).setInterval(start, end);
+    		servant.setChannelWindow(index, start, end);
+            rndDef.getChannel(index).setInterval(start, end);
             Iterator<RenderingControl> i = slaves.iterator();
     		while (i.hasNext())
-    			i.next().setChannelWindow(w, start, end);
+    			i.next().setChannelWindow(index, start, end);
             invalidateCache();
 		} catch (Exception e) {
-			handleException(e, ERROR+"input channel for: "+w+".");
+			handleException(e, ERROR+"input channel for: "+index+".");
 		}  
     }
 
@@ -1168,9 +1195,9 @@ class RenderingControlProxy
      * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getChannelWindowStart(int)
      */
-    public double getChannelWindowStart(int w)
+    public double getChannelWindowStart(int index)
     {
-    	ChannelBindingsProxy channel = rndDef.getChannel(w);
+    	ChannelBindingsProxy channel = rndDef.getChannel(index);
     	if (channel == null) return 0;
         return channel.getInputStart();
     }
@@ -1179,9 +1206,9 @@ class RenderingControlProxy
      * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getChannelWindowEnd(int)
      */
-    public double getChannelWindowEnd(int w)
+    public double getChannelWindowEnd(int index)
     {
-    	ChannelBindingsProxy channel = rndDef.getChannel(w);
+    	ChannelBindingsProxy channel = rndDef.getChannel(index);
     	if (channel == null) return 0;
         return channel.getInputEnd();
     }
@@ -1190,21 +1217,21 @@ class RenderingControlProxy
      * Implemented as specified by {@link RenderingControl}. 
      * @see RenderingControl#setRGBA(int, Color)
      */
-    public void setRGBA(int w, Color c)
+    public void setRGBA(int index, Color c)
     	throws RenderingServiceException, DSOutOfServiceException
     {
     	isSessionAlive();
     	try {
-    		servant.setRGBA(w, c.getRed(), c.getGreen(), c.getBlue(),
+    		servant.setRGBA(index, c.getRed(), c.getGreen(), c.getBlue(),
     						c.getAlpha());
-    		rndDef.getChannel(w).setRGBA(c.getRed(), c.getGreen(), c.getBlue(),
+    		rndDef.getChannel(index).setRGBA(c.getRed(), c.getGreen(), c.getBlue(),
     						c.getAlpha());
     		invalidateCache();
     		Iterator<RenderingControl> j = slaves.iterator();
 			while (j.hasNext())
-				j.next().setRGBA(w, c);
+				j.next().setRGBA(index, c);
 		} catch (Exception e) {
-			handleException(e, ERROR+"color for: "+w+".");
+			handleException(e, ERROR+"color for: "+index+".");
 		}
     }
 
@@ -1212,9 +1239,9 @@ class RenderingControlProxy
      * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getRGBA(int)
      */
-    public Color getRGBA(int w)
+    public Color getRGBA(int index)
     {
-    	ChannelBindingsProxy channel = rndDef.getChannel(w);
+    	ChannelBindingsProxy channel = rndDef.getChannel(index);
     	if (channel == null) return Color.black;
         int[] rgba = channel.getRGBA();
         return new Color(rgba[0], rgba[1], rgba[2], rgba[3]);
@@ -1224,19 +1251,19 @@ class RenderingControlProxy
      * Implemented as specified by {@link RenderingControl}. 
      * @see RenderingControl#setActive(int, boolean)
      */
-    public void setActive(int w, boolean active)
+    public void setActive(int index, boolean active)
     	throws RenderingServiceException, DSOutOfServiceException
     { 
     	isSessionAlive();
     	try {
-    		servant.setActive(w, active);
-            rndDef.getChannel(w).setActive(active);
+    		servant.setActive(index, active);
+            rndDef.getChannel(index).setActive(active);
             Iterator<RenderingControl> i = slaves.iterator();
     		while (i.hasNext())
-    			i.next().setActive(w, active);
+    			i.next().setActive(index, active);
             invalidateCache();
 		} catch (Exception e) {
-			handleException(e, ERROR+"active channel for: "+w+".");
+			handleException(e, ERROR+"active channel for: "+index+".");
 		}
     }
 
@@ -1244,9 +1271,9 @@ class RenderingControlProxy
      * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#isActive(int)
      */
-    public boolean isActive(int w)
+    public boolean isActive(int index)
     { 
-    	ChannelBindingsProxy channel = rndDef.getChannel(w);
+    	ChannelBindingsProxy channel = rndDef.getChannel(index);
     	if (channel == null) return false;
         return channel.isActive();
     }
@@ -1255,7 +1282,7 @@ class RenderingControlProxy
      * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#addCodomainMap(CodomainMapContext, int)
      */
-    public void addCodomainMap(CodomainMapContext mapCtx, int w)
+    public void addCodomainMap(CodomainMapContext mapCtx, int index)
             throws RenderingServiceException, DSOutOfServiceException
     {
         if (!(mapCtx instanceof ReverseIntensityContext)){
@@ -1264,7 +1291,7 @@ class RenderingControlProxy
         isSessionAlive();
         try {
             omero.romio.ReverseIntensityMapContext c = new omero.romio.ReverseIntensityMapContext();
-            servant.addCodomainMapToChannel(c, w);
+            servant.addCodomainMapToChannel(c, index);
             invalidateCache();
         } catch (Exception e) {
             handleException(e, ERROR+"cannot set the map context.");
@@ -1288,7 +1315,7 @@ class RenderingControlProxy
      * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#removeCodomainMap(CodomainMapContext, int)
      */
-    public void removeCodomainMap(CodomainMapContext mapCtx, int w)
+    public void removeCodomainMap(CodomainMapContext mapCtx, int index)
         throws RenderingServiceException, DSOutOfServiceException
     {
         if (!(mapCtx instanceof ReverseIntensityContext)){
@@ -1297,7 +1324,7 @@ class RenderingControlProxy
         isSessionAlive();
         try {
             omero.romio.ReverseIntensityMapContext c = new omero.romio.ReverseIntensityMapContext();
-            servant.removeCodomainMapFromChannel(c, w);
+            servant.removeCodomainMapFromChannel(c, index);
             invalidateCache();
         } catch (Exception e) {
             handleException(e, ERROR+"cannot set the map context.");
@@ -1308,13 +1335,13 @@ class RenderingControlProxy
      * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getCodomainMaps()
      */
-    public List<CodomainMapContext> getCodomainMaps(int w)
+    public List<CodomainMapContext> getCodomainMaps(int index)
             throws RenderingServiceException, DSOutOfServiceException
     {
         isSessionAlive();
         List<CodomainMapContext> l = new ArrayList<CodomainMapContext>();
         try {
-            List<IObject> ll = servant.getCodomainMapContext(w);
+            List<IObject> ll = servant.getCodomainMapContext(index);
             Iterator<IObject> i = ll.iterator();
             while (i.hasNext()) {
                 l.add((CodomainMapContext) i.next());
@@ -1458,7 +1485,7 @@ class RenderingControlProxy
      * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getChannelData(int)
      */
-    public ChannelData getChannelData(int w) { return metadata[w]; }
+    public ChannelData getChannelData(int index) { return metadata[index]; }
     
     /** 
      * Implemented as specified by {@link RenderingControl}.
@@ -1570,6 +1597,7 @@ class RenderingControlProxy
 			if (c != null) {
 				setRGBA(i, c.getRGBA());
 				setLookupTable(i, c.getLookupTable());
+				setReverseIntensity(i, c.getReverseIntensity());
 				setChannelWindow(i, c.getInputStart(), c.getInputEnd());
 				setQuantizationMap(i, c.getFamily(), c.getCurveCoefficient(),
 									c.isNoiseReduction());
@@ -1585,9 +1613,9 @@ class RenderingControlProxy
 	 * Implemented as specified by {@link RenderingControl}.
 	 * @see RenderingControl#getPixelsTypeLowerBound(int)
 	 */
-	public double getPixelsTypeLowerBound(int w)
+	public double getPixelsTypeLowerBound(int index)
 	{
-		ChannelBindingsProxy channel = rndDef.getChannel(w);
+		ChannelBindingsProxy channel = rndDef.getChannel(index);
     	if (channel == null) return 0;
 		return channel.getLowerBound();
 	}
@@ -1596,9 +1624,9 @@ class RenderingControlProxy
 	 * Implemented as specified by {@link RenderingControl}.
 	 * @see RenderingControl#getPixelsTypeUpperBound(int)
 	 */
-	public double getPixelsTypeUpperBound(int w)
+	public double getPixelsTypeUpperBound(int index)
 	{
-		ChannelBindingsProxy channel = rndDef.getChannel(w);
+		ChannelBindingsProxy channel = rndDef.getChannel(index);
     	if (channel == null) return 0;
 		return channel.getUpperBound();
 	}
@@ -1897,6 +1925,9 @@ class RenderingControlProxy
 			if (rgba[1] != color.getGreen()) return false;
 			if (rgba[2] != color.getBlue()) return false;
 			if (rgba[3] != color.getAlpha()) return false;
+			
+            if (channel.getReverseIntensity() != getReverseIntensity(i))
+                return false;
 		}
 		return true;
 	}
@@ -2110,8 +2141,8 @@ class RenderingControlProxy
      * @see RenderingControl#getLookupTable(int)
      */
     @Override
-    public String getLookupTable(int w) {
-        ChannelBindingsProxy channel = rndDef.getChannel(w);
+    public String getLookupTable(int index) {
+        ChannelBindingsProxy channel = rndDef.getChannel(index);
         if (channel == null)
             return null;
         return channel.getLookupTable();
@@ -2120,23 +2151,78 @@ class RenderingControlProxy
     /**
      * Implemented as specified by {@link RenderingControl}.
      * 
-     * @see RenderingControl#setLookupTable(int, String)
+     * @see RenderingControl#getReverseIntensity(int)
      */
     @Override
-    public void setLookupTable(int w, String lut)
+    public boolean getReverseIntensity(int index) {
+        ChannelBindingsProxy channel = rndDef.getChannel(index);
+        if (channel == null)
+            return false;
+        return channel.getReverseIntensity();
+    }
+
+    /**
+     * Implemented as specified by {@link RenderingControl}.
+     * 
+     * @see RenderingControl#setReverseIntensity(int, boolean)
+     */
+    @Override
+    public void setReverseIntensity(int index, boolean revInt)
             throws RenderingServiceException, DSOutOfServiceException {
         isSessionAlive();
         try {
-            servant.setChannelLookupTable(w, lut);
+            boolean currentRevInt = false;
+            List<IObject> cdctx = servant.getCodomainMapContext(index);
+            for (IObject cd : cdctx) {
+                if (cd instanceof ReverseIntensityContext) {
+                    currentRevInt = true;
+                    break;
+                }
+            }
+
+            if (currentRevInt == revInt)
+                return;
+
+            if (revInt)
+                servant.addCodomainMapToChannel(
+                        new ReverseIntensityMapContext(), index);
+            else
+                servant.removeCodomainMapFromChannel(
+                        new ReverseIntensityMapContext(), index);
+
             Iterator<RenderingControl> i = slaves.iterator();
             while (i.hasNext())
-                i.next().setLookupTable(w, lut);
+                i.next().setReverseIntensity(index, revInt);
             invalidateCache();
-            ChannelBindingsProxy channel = rndDef.getChannel(w);
+            ChannelBindingsProxy channel = rndDef.getChannel(index);
+            if (channel != null)
+                channel.setReverseIntensity(revInt);
+        } catch (Exception e) {
+            handleException(e, ERROR
+                    + " setting reverse intensity for channel: " + index + ".");
+        }
+    }
+    
+    /**
+     * Implemented as specified by {@link RenderingControl}.
+     * 
+     * @see RenderingControl#setLookupTable(int, String)
+     */
+    @Override
+    public void setLookupTable(int index, String lut)
+            throws RenderingServiceException, DSOutOfServiceException {
+        isSessionAlive();
+        try {
+            servant.setChannelLookupTable(index, lut);
+            Iterator<RenderingControl> i = slaves.iterator();
+            while (i.hasNext())
+                i.next().setLookupTable(index, lut);
+            invalidateCache();
+            ChannelBindingsProxy channel = rndDef.getChannel(index);
             if (channel != null)
                 channel.setLookupTable(lut);
         } catch (Exception e) {
-            handleException(e, ERROR + " lookup up table for channel: " + w
+            handleException(e, ERROR + " lookup up table for channel: " + index
                     + ".");
         }
     }

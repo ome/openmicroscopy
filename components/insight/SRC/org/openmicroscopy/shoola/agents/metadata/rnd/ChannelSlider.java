@@ -26,11 +26,11 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Point;
-import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JPanel;
 
@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colourpicker.LookupTableIconUtil;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
+
 import omero.gateway.model.ChannelData;
 
 /** 
@@ -158,7 +159,7 @@ class ChannelSlider
     	channelSelection.setSelected(model.isChannelActive(index));
     	channelSelection.setRightClickSupported(false);
     	channelSelection.addPropertyChangeListener(controller);
-        
+    	channelSelection.addPropertyChangeListener(this);
     	
     	colorPicker = new JLabelButton(IconManager.getInstance().getIcon(IconManager.COLOR_PICKER), true);
     	colorPicker.addPropertyChangeListener(this);
@@ -333,6 +334,23 @@ class ChannelSlider
         }
     }
     
+    /**
+     * Handles changes in slider value.
+     * 
+     * @param render
+     *            Pass <code>true</code> to pass on the change to the
+     *            {@link RendererControl}, which will re-render the preview;
+     *            <code> false </code> to only update the histogram
+     */
+    private void handleSliderChange(boolean render) {
+        if (render) {
+            controller.setInputInterval(slider.getStartValue(),
+                    slider.getEndValue(), channel.getIndex());
+        }
+        uiParent.updateHistogram(slider.getStartValue(), slider.getEndValue(),
+                channel.getIndex());
+    }
+    
 	/**
 	 * Reacts to property changes fired by the {@link #slider}.
 	 * 
@@ -345,15 +363,37 @@ class ChannelSlider
 			if (TwoKnobsSlider.LEFT_MOVED_PROPERTY.equals(name)
 					|| TwoKnobsSlider.RIGHT_MOVED_PROPERTY.equals(name) ||
 					TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name)) {
-				controller.setInputInterval(slider.getStartValue(),
-						slider.getEndValue(), channel.getIndex());
+			    handleSliderChange(true);
 			}
 		} else {
 			if (TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name)) {
-				controller.setInputInterval(slider.getStartValue(),
-						slider.getEndValue(), channel.getIndex());
+			    handleSliderChange(true);
 			} 
 		}
+		
+        if (uiParent.isShowHistogram()) {
+            if (TwoKnobsSlider.LEFT_MOVED_PROPERTY.equals(name)
+                    || TwoKnobsSlider.RIGHT_MOVED_PROPERTY.equals(name)
+                    || TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name)) {
+                handleSliderChange(false);
+            }
+
+            if (evt.getSource() == channelSelection
+                    && name.equals(ChannelButton.CHANNEL_SELECTED_PROPERTY)) {
+                boolean selected = (Boolean) (((Map) evt.getNewValue())
+                        .values().iterator().next());
+
+                if (selected)
+                    uiParent.updateHistogram(null, null, channel.getIndex());
+                else if (channel.getIndex() == uiParent
+                        .getHistogramChannelIndex()) {
+                    int index = channel.getIndex() + 1;
+                    if (index >= model.getMaxC())
+                        index = 0;
+                    uiParent.updateHistogram(null, null, index);
+                }
+            }
+        }
 		
 		if (evt.getSource() == colorPicker && name.equals(JLabelButton.SELECTED_PROPERTY)) {
 		    Point p = colorPicker.getLocationOnScreen();

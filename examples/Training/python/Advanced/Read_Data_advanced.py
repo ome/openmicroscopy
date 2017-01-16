@@ -60,9 +60,9 @@ for d in datasets:
 
 # Find the tag by textValue
 # =================================================================
-Tags = conn.getObjects("TagAnnotation", attributes={'textValue': tag_name})
+tags = conn.getObjects("TagAnnotation", attributes={'textValue': tag_name})
 print "\nList Tags:"
-for t in Tags:
+for t in tags:
     print "ID: %s Text: %s Desc: %s" % (
         t.getId(), t.getTextValue(), t.getDescription())
 
@@ -70,4 +70,4 @@ for t in Tags:
 # Close connection:
 # =================================================================
 # When you are done, close the session to free up server resources.
-conn._closeSession()
+conn.close()

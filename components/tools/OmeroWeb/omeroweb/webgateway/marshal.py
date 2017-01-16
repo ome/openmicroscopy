@@ -46,6 +46,7 @@ def channelMarshal(channel):
     chan = {'emissionWave': channel.getEmissionWave(),
             'label': channel.getLabel(),
             'color': channel.getColor().getHtml(),
+            'reverseIntensity': channel.isReverseIntensity(),
             'window': {'min': channel.getWindowMin(),
                        'max': channel.getWindowMax(),
                        'start': channel.getWindowStart(),
@@ -318,6 +319,10 @@ def shapeMarshal(shape):
     if shape.getStrokeWidth() is not None:
         # FIXME: units ignored for stroke width
         set_if('strokeWidth', shape.getStrokeWidth().getValue())
+    if hasattr(shape, 'getMarkerStart') and shape.getMarkerStart() is not None:
+        rv['markerStart'] = shape.getMarkerStart().getValue()
+    if hasattr(shape, 'getMarkerEnd') and shape.getMarkerEnd() is not None:
+        rv['markerEnd'] = shape.getMarkerEnd().getValue()
     return rv
 
 
@@ -346,9 +351,11 @@ def rgb_int2css(rgbint):
     converts a bin int number into css colour and alpha fraction.
     E.g. -1006567680 to '#00ff00', 0.5
     """
-    alpha = rgbint // 256 // 256 // 256 % 256
+    alpha = rgbint % 256
     alpha = float(alpha) / 256
-    r, g, b = (rgbint // 256 // 256 % 256, rgbint // 256 % 256, rgbint % 256)
+    b = rgbint / 256 % 256
+    g = rgbint / 256 / 256 % 256
+    r = rgbint / 256 / 256 / 256 % 256
     return "#%02x%02x%02x" % (r, g, b), alpha
 
 
@@ -357,9 +364,11 @@ def rgb_int2rgba(rgbint):
     converts a bin int number into (r, g, b, alpha) tuple.
     E.g. 1694433280 to (255, 0, 0, 0.390625)
     """
-    alpha = rgbint // 256 // 256 // 256 % 256
+    alpha = rgbint % 256
     alpha = float(alpha) / 256
-    r, g, b = (rgbint // 256 // 256 % 256, rgbint // 256 % 256, rgbint % 256)
+    b = rgbint / 256 % 256
+    g = rgbint / 256 / 256 % 256
+    r = rgbint / 256 / 256 / 256 % 256
     return (r, g, b, alpha)
 
 

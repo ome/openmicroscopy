@@ -24,11 +24,11 @@
 
 """
 
-import library as lib
+from omero.testlib import ITest
 from omero_model_TagAnnotationI import TagAnnotationI
 
 
-class TestCounts(lib.ITest):
+class TestCounts(ITest):
 
     def testBasicUsage(self):
 

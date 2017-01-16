@@ -25,7 +25,7 @@ import json
 
 from django.core.urlresolvers import reverse
 
-from weblibrary import IWebTest, _get_response
+from omeroweb.testlib import IWebTest, _get_response
 
 
 class TestImgDetail(IWebTest):
@@ -69,6 +69,7 @@ class TestImgDetail(IWebTest):
                 'start': 88,
                 'min': 88
             },
+            'reverseIntensity': False,
             'emissionWave': 500,
             'label': "500"
         }

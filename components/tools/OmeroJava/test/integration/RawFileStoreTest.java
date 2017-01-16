@@ -1,7 +1,5 @@
 /*
- * $Id$
- *
- *   Copyright 2006-2010 University of Dundee. All rights reserved.
+ *   Copyright 2006-2016 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package integration;
@@ -9,6 +7,7 @@ package integration;
 import java.util.Iterator;
 import java.util.List;
 
+import omero.ServerError;
 import omero.api.IScriptPrx;
 import omero.api.RawFileStorePrx;
 import omero.model.OriginalFile;
@@ -110,4 +109,19 @@ public class RawFileStoreTest extends AbstractServerTest {
         }
     }
 
+    /**
+     * Test that a sensible exception is thrown when a bad file ID is set.
+     * @throws Exception for bad file ID
+     */
+    @Test(expectedExceptions = ServerError.class, groups = "broken")
+    public void testBadFileId() throws Exception {
+        newUserAndGroup("rw----");
+        final RawFileStorePrx rfs = factory.createRawFileStore();
+        try {
+            rfs.setFileId(-1);
+            Assert.fail("should not be able to open file with bad ID");
+        } finally {
+            rfs.close();
+        }
+    }
 }

@@ -145,7 +145,6 @@ import omero.gateway.model.PlateData;
 import omero.gateway.model.ProjectData;
 import omero.gateway.model.ScreenData;
 import omero.gateway.model.TagAnnotationData;
-import omero.gateway.model.WellData;
 import omero.gateway.model.WellSampleData;
 
 /** 
@@ -1110,7 +1109,7 @@ class TreeViewerComponent
 				}
 			}
 			removeEditor();
-			model.getMetadataViewer().setSelectionMode(false);
+			model.getMetadataViewer().setSelectionMode(true);
 			firePropertyChange(SELECTED_BROWSER_PROPERTY, oldBrowser, browser);
 		}
 		Browser b = model.getSelectedBrowser();
@@ -1376,8 +1375,15 @@ class TreeViewerComponent
 		List selection = (List) l.get(0);
 		Object parent = null;
 		if (n == 2) parent = l.get(1);
-		if (selection == null || selection.size() == 0) return;
+		if (CollectionUtils.isEmpty(selection))
+		    return;
 		Object selected = selection.get(0);
+		
+        Iterator it = selection.iterator();
+        while (it.hasNext()) {
+            if (!(it.next().getClass().equals(selected.getClass())))
+                it.remove();
+        }
 		
 		MetadataViewer mv = model.getMetadataViewer();
 		if (hasDataToSave()) {
@@ -1400,6 +1406,7 @@ class TreeViewerComponent
 			if (browser != null) last = browser.getLastSelectedDisplay();
 			if (last != null) exp = browser.getNodeOwner(last);
 			if (exp == null) exp = model.getUserDetails();
+			mv.setSelectionMode(true);
 			mv.setRootObject(selected, exp.getId(), 
 					browser.getSecurityContext(last));
 			mv.setParentRootObject(parent, null);
@@ -1481,10 +1488,6 @@ class TreeViewerComponent
         if (last != null) exp = browser.getNodeOwner(last);
         if (exp == null) exp = model.getUserDetails();
         Object grandParent = null;
-        if (selected instanceof WellSampleData) {
-            if (parent instanceof WellData) 
-                grandParent = ((WellData) parent).getPlate();
-        }
 
         if (!sameSelection) {
             if (browser == null) {
@@ -1500,34 +1503,9 @@ class TreeViewerComponent
             mv.setParentRootObject(parent, grandParent);
         }
         
-        if (view.getDisplayMode() == SEARCH_MODE) {
-            siblings.add(selected);
-            mv.setRelatedNodes(siblings);
-        }
-        else {
-            TreeImageDisplay[] selection = null;
-            if (browser != null) selection = browser.getSelectedDisplays();
-            if (selection != null && selection.length > 0) {
-                if (selected instanceof WellSampleData) {
-                    siblings.add(selected);
-                    if (siblings.size() > 1 && !sameSelection)
-                        mv.setRelatedNodes(siblings);
-                } else {
-                    siblings = new ArrayList<Object>(selection.length);
-                    for (int i = 0; i < selection.length; i++) {
-                        siblings.add(selection[i].getUserObject());
-                    }
-                    if (siblings.size() > 1 && !sameSelection)
-                        mv.setRelatedNodes(siblings);
-                }
-            } else {
-                if (selected instanceof WellSampleData) {
-                    siblings.add(selected);
-                    if (siblings.size() > 1 && !sameSelection)
-                        mv.setRelatedNodes(siblings);
-                }
-            }
-        }
+        siblings.add(selected);
+        mv.setRelatedNodes(siblings);
+        
         if (model.getDataViewer() != null)
             model.getDataViewer().setApplications(
                     TreeViewerFactory.getApplications(

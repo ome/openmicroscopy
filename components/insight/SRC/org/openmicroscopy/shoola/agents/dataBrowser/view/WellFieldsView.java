@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -25,23 +25,27 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionAdapter;
-import java.awt.event.MouseMotionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
 
-import org.jdesktop.swingx.JXTaskPane;
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.RollOverNode;
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageSet;
+import omero.gateway.model.WellSampleData;
+
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Displays all the fields of a given well.
@@ -65,15 +69,6 @@ class WellFieldsView
 	
 	/** The maximum value for the magnification w/o respect of distance. */
 	static final int 			MAGNIFICATION_UNSCALED_MAX = 4;
-	
-	/** Indicates to lay out the fields in a row. */
-	static final int			ROW_LAYOUT = 0;
-	
-	/** Indicates to lay out the fields in a spatial position. */
-	static final int			SPATIAL_LAYOUT = 1;
-	
-	/** Indicates the default layout. */
-	static final int			DEFAULT_LAYOUT = SPATIAL_LAYOUT;
 	
 	/** The width of the canvas. */
 	static final int 			DEFAULT_WIDTH = 512;
@@ -101,10 +96,7 @@ class WellFieldsView
 	
 	/** The collection of nodes to display. */
 	private List<WellSampleNode> nodes;
-	
-	/** The type of layout of the fields. */
-	private int					 layoutFields;
-	
+
 	/** The currently selected well. */
 	private JLabel				 selectedNode;
 	
@@ -117,122 +109,81 @@ class WellFieldsView
 	/** The magnification not preserving the scale. */
 	private double				 magnificationUnscaled;
 	
-	/** The component displaying the plate grid. */
-	private JXTaskPane			plateTask;
+	/** Flag to indicate if thumbnails are loading */
+	private boolean loading = false;
 	
-	/** Initializes the components. */
-	private void initComponents()
-	{
-		magnificationUnscaled = MAGNIFICATION_UNSCALED_MIN;
-		layoutFields = DEFAULT_LAYOUT;
-		selectedField = new JLabel();
-		WellImageSet node = model.getSelectedWell();
-		selectedNode = new JLabel();
-		if (node != null) {
-			selectedNode.setText(DEFAULT_WELL_TEXT+node.getWellLocation());
-		}
-		/*
-		grid = new PlateGrid(model.getRowSequenceIndex(), 
-				model.getColumnSequenceIndex(), model.getValidWells(), 
-				model.getRows(), model.getColumns());
-		grid.addPropertyChangeListener(controller);
-		
-		WellImageSet node = model.getSelectedWell();
-		selectedNode = new JLabel();
-		if (node != null) {
-			selectedNode.setText(DEFAULT_WELL_TEXT+node.getWellLocation());
-			grid.selectCell(node.getRow(), node.getColumn());
-		}
-		*/
-		canvas = new WellFieldsCanvas(this);
-		canvas.addMouseListener(new MouseAdapter() {
+	/** The scroll pane */
+	private JScrollPane pane;
+	
+    /** Initializes the components. */
+    private void initComponents() {
+        magnificationUnscaled = MAGNIFICATION_UNSCALED_MIN;
+        selectedField = new JLabel();
+        WellSampleNode node = model.getSelectedWell();
+        selectedNode = new JLabel();
+        if (node != null && node.isWell()) {
+            selectedNode.setText(DEFAULT_WELL_TEXT
+                    + node.getParentWell().getWellLocation());
+        }
+        nodes = null;
 
-			/**
-			 * Launches the viewer if the number of click is <code>2</code>.
-			 * @see MouseListener#mouseEntered(MouseEvent)
-			 */
-			public void mouseReleased(MouseEvent e) {
-				WellSampleNode node = canvas.getNode(e.getPoint());
-				if (node != null) {
-					model.setSelectedField(node);
-					if (e.getClickCount() == 2)
-						controller.viewDisplay(node);
-				}
-			}
+        canvas = new RowFieldCanvas(this, model);
 
-			/**
-			 * Displays the field's metadata.
-			 * @see MouseListener#mouseEntered(MouseEvent)
-			 */
-			public void mousePressed(MouseEvent e)
-			{
-				//WellSampleNode node = canvas.getNode(e.getPoint());
-				//if (node != null) model.setSelectedField(node);
-			}
-
-		});
-		canvas.addMouseMotionListener(new MouseMotionAdapter() {
-
-			/**
-			 * Sets the node which has to be zoomed when the roll over flag
-			 * is turned on. Note that the {@link ImageNode}s are the only nodes
-			 * considered.
-			 * @see MouseMotionListener#mouseMoved(MouseEvent)
-			 */
-			public void mouseMoved(MouseEvent e) {
-				if (model.getBrowser().isRollOver()) {
-					Point p = e.getPoint();
-					WellSampleNode node = canvas.getNode(p);
-					SwingUtilities.convertPointToScreen(p, canvas);
-					model.getBrowser().setRollOverNode(
-							new RollOverNode(node, p));
-				} else {
-					Point p = e.getPoint();
-					WellSampleNode node = canvas.getNode(p);
-					if (node != null) {
-						StringBuffer buffer = new StringBuffer();
-						buffer.append(DEFAULT_FIELD_TEXT+node.getIndex());
-						buffer.append("\n");
-						buffer.append("x="+node.getPositionX()+", " +
-								"y="+node.getPositionY());
-						String s = buffer.toString();
-						canvas.setToolTipText(s);
-						selectedField.setText(s);
-					} else {
-						canvas.setToolTipText("");
-						selectedField.setText("");
-					}
-				}
-			}
-
-
-		});
-		nodes = null;
-	}
+        canvas.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (WellFieldsCanvas.SELECTION_PROPERTY.equals(evt
+                        .getPropertyName())) {
+                    
+                    List<WellSampleNode> selection = (List<WellSampleNode>) evt
+                            .getNewValue();
+                    
+                    List<ImageDisplay> l = new ArrayList<ImageDisplay>(selection.size());
+                    l.addAll(selection);
+                    
+                    firePropertyChange(
+                            Browser.SELECTED_DATA_BROWSER_NODES_DISPLAY_PROPERTY,
+                            null, l);
+                    
+                    canvas.refreshUI();
+                }
+                else if (WellFieldsCanvas.VIEW_PROPERTY.equals(evt
+                        .getPropertyName())) {
+                    List<WellSampleNode> selection = (List<WellSampleNode>) evt
+                            .getNewValue();
+                    if (!selection.isEmpty()) {
+                        WellSampleNode n = selection.get(0);
+                        controller.viewDisplay(n);
+                    }
+                }
+            }
+        });
+    }
+	
+    /**
+     * Checks if the provided field is the currently selected field
+     * 
+     * @param n
+     *            The field
+     * @return See above.
+     */
+    boolean isSelected(WellSampleNode n) {
+        for (WellSampleNode n2 : model.getSelectedWells()) {
+            if (n2.isSame(n))
+                return true;
+        }
+        return false;
+    }
 	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
+	    removeAll();
 		setBorder(new LineBorder(new Color(99, 130, 191)));
 		setLayout(new BorderLayout(0, 0));
-		JScrollPane pane = new JScrollPane(canvas);
-		pane.setPreferredSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
+		setBackground(UIUtilities.BACKGROUND);
+		pane = new JScrollPane(canvas);
 		add(pane, BorderLayout.CENTER);
-		/*
-		JPanel p = new JPanel();
-		double[][] size = {{TableLayout.PREFERRED, 5, TableLayout.PREFERRED},
-				{TableLayout.PREFERRED, TableLayout.PREFERRED, 
-				TableLayout.FILL}};
-		p.setLayout(new TableLayout(size));
-		p.add(grid, "0, 0, 0, 2");
-		p.add(selectedNode, "2, 0, LEFT, TOP");
-		p.add(selectedField, "2, 1, LEFT, TOP");
-		
-		plateTask = EditorUtil.createTaskPane("Plate");
-		plateTask.add(UIUtilities.buildComponentPanel(p));
-		plateTask.setCollapsed(false);
-		add(plateTask, BorderLayout.SOUTH);
-		*/
 	}
 	
 	/**
@@ -247,50 +198,124 @@ class WellFieldsView
 	{
 		this.model = model;
 		this.controller = controller;
+		addPropertyChangeListener(controller);
 		this.magnification = magnification;
 		initComponents();
 		buildGUI();
 	}
+
+    /**
+     * Returns the fields to display if any.
+     * 
+     * @return See above.
+     */
+    List<WellSampleNode> getNodes() {
+        return nodes;
+    }
 	
-	/**
-	 * Sets the index indicating how to layout the fields.
-	 * 
-	 * @param layoutFields The value to set.
-	 */
-	void setLayoutFields(int layoutFields) { this.layoutFields = layoutFields; }
+    /**
+     * Load the thumbnails for the selected wells
+     * 
+     * @param wells
+     *            The selected wells
+     */
+    void loadFields(List<WellSampleNode> wells) {
+        Dimension thumbDim = magnification > 0 ? new Dimension(
+                (int) (Factory.THUMB_DEFAULT_WIDTH * magnification),
+                (int) (Factory.THUMB_DEFAULT_HEIGHT * magnification)) : null;
+
+        if (wells == null || wells.isEmpty()) {
+            canvas.clear(Collections.EMPTY_LIST, -1, thumbDim);
+        }
+
+        // sort
+        Collections.sort(wells, new Comparator<WellSampleNode>() {
+            @Override
+            public int compare(WellSampleNode o1, WellSampleNode o2) {
+                if (o1.getRow() > o2.getRow())
+                    return 1;
+                else if (o1.getRow() < o2.getRow())
+                    return -1;
+                else {
+                    if (o1.getColumn() > o2.getColumn())
+                        return 1;
+                    else if (o1.getColumn() < o2.getColumn())
+                        return -1;
+                }
+                return 0;
+            }
+        });
+
+        if (loading) {
+            boolean selectionChanged = false;
+            Set<Long> ids = new HashSet<Long>();
+            for (WellSampleNode well : wells) {
+                if (!well.isWell())
+                    continue;
+                for (WellSampleNode n : well.getParentWell().getWellSamples()) {
+                    WellSampleData d = (WellSampleData) n.getHierarchyObject();
+                    ids.add(d.getImage().getId());
+                }
+            }
+
+            for (WellSampleNode n : this.nodes) {
+                WellSampleData d = (WellSampleData) n.getHierarchyObject();
+                if (!ids.contains(d.getImage().getId())) {
+                    selectionChanged = true;
+                    break;
+                }
+                ids.remove(d.getImage().getId());
+            }
+
+            selectionChanged = !ids.isEmpty();
+
+            if (!selectionChanged)
+                return;
+        }
+
+        int nFields = 0;
+        nodes = new ArrayList<WellSampleNode>();
+        List<String> titles = new ArrayList<String>();
+        for (WellSampleNode well : wells) {
+            if (!well.isWell())
+                continue;
+            nodes.addAll(well.getParentWell().getWellSamples());
+            nFields = Math.max(nFields, well.getParentWell().getWellSamples()
+                    .size());
+            titles.add(well.getTitle());
+        }
+
+        canvas.clear(titles, nFields, thumbDim);
+
+        HashSet<Point> toLoad = new HashSet<Point>();
+        for (WellSampleNode node : nodes) {
+            if (!node.getThumbnail().isThumbnailLoaded()) {
+                Point p = new Point(node.getRow(), node.getColumn());
+                toLoad.add(p);
+            }
+        }
+
+        if (!toLoad.isEmpty()) {
+            loading = true;
+            ArrayList<Point> tmp = new ArrayList<Point>(toLoad.size());
+            tmp.addAll(toLoad);
+            model.loadFields(tmp);
+            return;
+        }
+    }
 	
-	/**
-	 * Returns the index identifying the type of layout of the fields.
-	 * 
-	 * @return See above
-	 */
-	int getLayoutFields() { return layoutFields; }
-	
-	/** 
-	 * Returns the fields to display if any.
-	 * 
-	 * @return See above.
-	 */
-	List<WellSampleNode> getNodes() { return nodes; }
-	
-	/**
-	 * Displays the passed fields.
-	 * 
-	 * @param nodes The nodes hosting the fields.
-	 */
-	void displayFields(List<WellSampleNode> nodes)
-	{
-		this.nodes = nodes;
-		if (nodes != null && nodes.size() > 0) {
-			WellSampleNode node = nodes.get(0);
-			if (node != null) {
-				selectedNode.setText(DEFAULT_WELL_TEXT+
-						node.getParentWell().getWellLocation());
-				selectedNode.repaint();
-			}
-		}
-		canvas.repaint();
-	}
+    /**
+     * Update the thumbnail for a particular field
+     * 
+     * @param node
+     *            The field
+     * @param complete
+     *            Flag to indicate that all fields have been loaded
+     */
+    void updateFieldThumb(WellSampleNode node, boolean complete) {
+        loading = !complete;
+        canvas.updateFieldThumb(node);
+    }
 	
 	/** 
 	 * Sets the magnification factor.
@@ -300,7 +325,7 @@ class WellFieldsView
 	void setMagnificationFactor(double factor)
 	{
 		magnification = factor;
-		canvas.repaint();
+		canvas.refreshUI();
 	}
 	
 	/**
@@ -318,7 +343,7 @@ class WellFieldsView
 	void setMagnificationUnscaled(double factor)
 	{
 		magnificationUnscaled = factor;
-		canvas.repaint();
+		canvas.refreshUI();
 	}
 	
 	/**

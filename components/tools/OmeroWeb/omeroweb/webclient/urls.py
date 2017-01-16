@@ -47,7 +47,7 @@ urlpatterns = patterns(
         views.load_template, {'menu': 'history'},
         name="history"),
 
-    url(r'^login/$', views.login, name="weblogin"),
+    url(r'^login/$', views.WebclientLoginView.as_view(), name="weblogin"),
     url(r'^logout/$', views.logout, name="weblogout"),
     url(r'^active_group/$',
         views.change_active_group,

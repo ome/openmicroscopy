@@ -30,6 +30,7 @@ import omero.RString;
 import omero.rtypes;
 import omero.model.Length;
 import omero.model.LengthI;
+import omero.model.Line;
 import omero.model.Shape;
 import omero.model.enums.UnitsLength;
 
@@ -79,6 +80,37 @@ public class ShapeSettingsData
     /** Set if font bold. */
     public final static String FONT_REGULAR = "Normal";
 
+    /**
+     * Returns the Color's RGBA value as integer
+     * 
+     * @param c
+     *            The {@link Color}
+     * @return See above.
+     */
+    public static int getRGBA(Color c) {
+        int rgba = 0;
+        rgba |= (c.getRed() & 255) << 24;
+        rgba |= (c.getGreen() & 255) << 16;
+        rgba |= (c.getBlue() & 255) << 8;
+        rgba |= (c.getAlpha() & 255);
+        return rgba;
+    }
+
+    /**
+     * Creates a {@link Color} object from an RGBA integer value
+     * 
+     * @param rgba
+     *            The RGBA value
+     * @return See above.
+     */
+    public static Color getColor(int rgba) {
+        int r = (rgba >> 24) & 0xFF;
+        int g = (rgba >> 16) & 0xFF;
+        int b = (rgba >> 8) & 0xFF;
+        int a = rgba & 0xFF;
+        return new Color(r, g, b, a);
+    }
+    
     /**
      * Returns the font style is supported.
      *
@@ -146,8 +178,7 @@ public class ShapeSettingsData
         Shape shape = (Shape) asIObject();
         RInt value = shape.getFillColor();
         if (value == null) return DEFAULT_FILL_COLOUR;
-        Color c = new Color(value.getValue(), true);
-        if (c.getAlpha() == 0) return new Color(value.getValue(), false);
+        Color c = getColor(value.getValue()); 
         return c;
     }
 
@@ -161,8 +192,10 @@ public class ShapeSettingsData
         Shape shape = (Shape) asIObject();
         if (shape == null) 
             throw new IllegalArgumentException("No shape specified.");
-        if (fillColour == null) return;
-        shape.setFillColor(rtypes.rint(fillColour.getRGB()));
+        if (fillColour == null) 
+            return;
+        
+       shape.setFillColor(rtypes.rint(getRGBA(fillColour)));
         setDirty(true);
     }
 
@@ -176,8 +209,7 @@ public class ShapeSettingsData
         Shape shape = (Shape) asIObject();
         RInt value = shape.getStrokeColor();
         if (value == null) return DEFAULT_STROKE_COLOUR;
-        Color c = new Color(value.getValue(), true);
-        if (c.getAlpha() == 0) return new Color(value.getValue(), false);
+        Color c =  getColor(value.getValue()); 
         return c;
     }
 
@@ -192,7 +224,7 @@ public class ShapeSettingsData
         if (shape == null) 
             throw new IllegalArgumentException("No shape specified.");
         if (strokeColour == null) return;
-        shape.setStrokeColor(rtypes.rint(strokeColour.getRGB()));
+        shape.setStrokeColor(rtypes.rint(getRGBA(strokeColour)));
         setDirty(true);
     }
 
@@ -455,8 +487,13 @@ public class ShapeSettingsData
      *
      * @return See above.
      */
-    public String getMarkerStart()
-    {
+    public String getMarkerStart() {
+        Shape shape = (Shape) asIObject();
+        if (shape instanceof Line) {
+            Line l = (Line) shape;
+            return l.getMarkerStart() != null ? l.getMarkerStart().getValue()
+                    : "";
+        }
         return "";
     }
 
@@ -467,27 +504,41 @@ public class ShapeSettingsData
      */
     public String getMarkerEnd()
     {
+        Shape shape = (Shape) asIObject();
+        if (shape instanceof Line) {
+            Line l = (Line) shape;
+            return l.getMarkerEnd() != null ? l.getMarkerEnd().getValue()
+                    : "";
+        }
         return "";
     }
 
     /**
-     * Returns the marker start.
+     * Sets the marker start.
      *
      * @param start The value to set.
      */
-    public String setMarkerStart(String start)
+    public void setMarkerStart(String start)
     {
-        return "";
+        Shape shape = (Shape) asIObject();
+        if (shape instanceof Line) {
+            Line l = (Line) shape;
+            l.setMarkerStart(rtypes.rstring(start));
+        }
     }
 
     /**
-     * Returns the marker end.
+     * Sets the marker end.
      *
      * @param end The value to set.
      */
-    public String setMarkerEnd(String end)
+    public void setMarkerEnd(String end)
     {
-        return "";
+        Shape shape = (Shape) asIObject();
+        if (shape instanceof Line) {
+            Line l = (Line) shape;
+            l.setMarkerEnd(rtypes.rstring(end));
+        }
     }
 
     /**

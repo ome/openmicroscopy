@@ -132,6 +132,9 @@ public interface MetadataHandlerView
 	public CallHandle loadStructuredData(SecurityContext ctx, Object dataObject,
 			long userID, AgentEventListener observer);
 	
+    public CallHandle loadHistogram(SecurityContext ctx, ImageData img,
+            int[] channels, int z, int t, AgentEventListener observer);
+	
 	/**
 	 * Loads all annotations related the specified objects.
 	 * Retrieves the files if the userID is not <code>-1</code>.

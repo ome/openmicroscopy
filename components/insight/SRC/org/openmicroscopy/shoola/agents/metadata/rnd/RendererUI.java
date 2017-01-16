@@ -267,6 +267,17 @@ class RendererUI
     }
 
     /**
+     * Returns the reverse intensity flag associated to the channel.
+     *
+     * @param channel
+     *            The index of the channel.
+     * @return See above.
+     */
+    boolean getReverseIntensity(int channel) {
+        return model.getReverseIntensity(channel);
+    };
+    
+    /**
      * Updates UI components when a new z-section is selected.
      *
      * @param z The selected z-section.
@@ -377,5 +388,16 @@ class RendererUI
      */
     Collection<String> getAvailableLookupTables() {
         return model.getAvailableLookupTables();
+    }
+
+    /**
+     * Updates the component when the histogram data has been loaded
+     * 
+     * @param ch
+     *            The channel index which histogram data has been loaded
+     */
+    public void onHistogramLoaded(int ch) {
+        DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
+        pane.onHistogramLoaded(ch);
     }
 }

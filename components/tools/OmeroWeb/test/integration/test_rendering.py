@@ -26,8 +26,8 @@ import json
 import omero
 import omero.clients
 
-from weblibrary import IWebTest
-from weblibrary import _csrf_post_response, _get_response
+from omeroweb.testlib import IWebTest
+from omeroweb.testlib import _csrf_post_response, _get_response
 
 from django.core.urlresolvers import reverse
 
@@ -39,8 +39,8 @@ class TestRendering(IWebTest):
 
     def test_copy_past_rendering_settings_from_image(self):
         # Create 2 images with 2 channels each
-        iid1 = self.createTestImage(sizeC=2, session=self.sf).id.val
-        iid2 = self.createTestImage(sizeC=2, session=self.sf).id.val
+        iid1 = self.create_test_image(size_c=2, session=self.sf).id.val
+        iid2 = self.create_test_image(size_c=2, session=self.sf).id.val
 
         conn = omero.gateway.BlitzGateway(client_obj=self.client)
 
@@ -79,8 +79,8 @@ class TestRendering(IWebTest):
 
     def test_copy_past_rendering_settings_from_url(self):
         # Create 2 images with 2 channels each
-        iid1 = self.createTestImage(sizeC=2, session=self.sf).id.val
-        iid2 = self.createTestImage(sizeC=2, session=self.sf).id.val
+        iid1 = self.create_test_image(size_c=2, session=self.sf).id.val
+        iid2 = self.create_test_image(size_c=2, session=self.sf).id.val
 
         conn = omero.gateway.BlitzGateway(client_obj=self.client)
 
@@ -88,6 +88,8 @@ class TestRendering(IWebTest):
         image1 = conn.getObject("Image", iid1)
         image1.resetDefaults()
         image1.setColorRenderingModel()
+        image1.setActiveChannels([1, 2], [[20, 300], [50, 100]],
+                                 ['00FF00', 'FF0000'], [True, False])
         image1.saveDefaults()
         image1 = conn.getObject("Image", iid1)
 
@@ -104,14 +106,18 @@ class TestRendering(IWebTest):
             chs = []
             for i, ch in enumerate(im.getChannels()):
                 act = "" if ch.isActive() else "-"
-                start = ch.getWindowStart()
-                end = ch.getWindowEnd()
+                start = int(ch.getWindowStart())
+                end = int(ch.getWindowEnd())
+                rev = 'r' if ch.isReverseIntensity() else '-r'
                 color = ch.getColor().getHtml()
-                chs.append("%s%s|%s:%s$%s" % (act, i+1, start, end, color))
+                chs.append("%s%s|%s:%s%s$%s" % (act, i+1, start, end,
+                                                rev, color))
             return ",".join(chs)
 
         # build channel parameter e.g. 1|0:15$FF0000...
         old_c1 = buildParamC(image1)
+        # Check it is what we expect
+        assert old_c1 == "1|20:300r$00FF00,2|50:100-r$FF0000"
 
         # copy rendering settings from image1 via URL
         request_url = reverse('webgateway.views.copy_image_rdef_json')
@@ -157,13 +163,14 @@ class TestRendering(IWebTest):
     """
     def test_all_rendering_defs(self):
         # Create image with 3 channels
-        iid = self.createTestImage(sizeC=3, session=self.sf).id.val
+        iid = self.create_test_image(size_c=3, session=self.sf).id.val
 
         conn = omero.gateway.BlitzGateway(client_obj=self.client)
 
         image = conn.getObject("Image", iid)
         image.resetDefaults()
         image.setColorRenderingModel()
+        image.setReverseIntensity(0, True)
         image.saveDefaults()
         image = conn.getObject("Image", iid)
 
@@ -191,11 +198,13 @@ class TestRendering(IWebTest):
 
         # channel info is supposed to match
         expChannels = image.getChannels()
+        revs = [True, False, False]    # expected reverse intensity flags
         for i, c in enumerate(channels):
             assert c['active'] == expChannels[i].isActive()
             assert c['start'] == expChannels[i].getWindowStart()
             assert c['end'] == expChannels[i].getWindowEnd()
             assert c['color'] == expChannels[i].getColor().getHtml()
+            assert c['reverseIntensity'] == revs[i]
 
         # id and owner check
         assert rdefs[0].get("id") is not None
@@ -227,7 +236,7 @@ class TestRenderImageRegion(IWebTest):
         HTTP status code is used and that consequently, any and all
         rendering engines that were created servicing the request are closed.
         """
-        image_id = self.createTestImage(sizeC=1, session=self.sf).id.val
+        image_id = self.create_test_image(size_c=1, session=self.sf).id.val
 
         request_url = reverse(
             'webgateway.views.render_image_region',
@@ -250,7 +259,7 @@ class TestRenderImageRegion(IWebTest):
         consequently, any and all rendering engines that were created
         servicing the request are closed.
         """
-        image_id = self.createTestImage(sizeC=1, session=self.sf).id.val
+        image_id = self.create_test_image(size_c=1, session=self.sf).id.val
 
         request_url = reverse(
             'webgateway.views.render_image_region',
@@ -273,7 +282,7 @@ class TestRenderImageRegion(IWebTest):
         consequently, any and all rendering engines that were created
         servicing the request are closed.
         """
-        image_id = self.createTestImage(sizeC=1, session=self.sf).id.val
+        image_id = self.create_test_image(size_c=1, session=self.sf).id.val
 
         request_url = reverse(
             'webgateway.views.render_image_region',

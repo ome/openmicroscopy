@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,7 +22,6 @@ package omero.gateway.model;
 
 import java.sql.Timestamp;
 
-import static omero.rtypes.rtime;
 import omero.model.TimestampAnnotation;
 
 /**
@@ -98,7 +97,7 @@ public class TimeAnnotationData extends AnnotationData {
                     + "Timestamp");
         }
         long time = ((Timestamp) content).getTime();
-        ((TimestampAnnotation) asAnnotation()).setTimeValue(rtime(
+        ((TimestampAnnotation) asAnnotation()).setTimeValue(omero.rtypes.rtime(
                 time));
     }
 

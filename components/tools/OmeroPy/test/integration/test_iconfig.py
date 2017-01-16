@@ -26,10 +26,10 @@
 
 import omero
 import pytest
-import library as lib
+from omero.testlib import ITest
 
 
-class TestConfig(lib.ITest):
+class TestConfig(ITest):
 
     EXPECTS = (
         (".*", ("omero.router.insecure",)),

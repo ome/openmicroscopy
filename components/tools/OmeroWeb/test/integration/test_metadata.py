@@ -22,8 +22,8 @@ Tests display of metadata in webclient
 """
 import omero
 
-from weblibrary import IWebTest
-from weblibrary import _get_response
+from omeroweb.testlib import IWebTest
+from omeroweb.testlib import _get_response
 
 from django.core.urlresolvers import reverse
 from omero.model.enums import UnitsLength
@@ -36,7 +36,7 @@ class TestCoreMetadata(IWebTest):
 
     def test_pixel_size_units(self):
         # Create image
-        iid = self.createTestImage(sizeC=2, session=self.sf).id.val
+        iid = self.create_test_image(size_c=2, session=self.sf).id.val
 
         # show right panel for image
         request_url = reverse('load_metadata_details', args=['image', iid])

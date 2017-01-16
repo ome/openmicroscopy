@@ -17,29 +17,139 @@
   table-layout: fixed;
 }
 
-.weblitz-plateview td {
-  padding: 5px;
-  border: 1px solid;
-  background-color: white;
-}
-
 .weblitz-plateview .pv-focus {
   margin: -4px;
   padding: 1px;
   border: solid 3px red;
 }
 
-.weblitz-plateview .placeholder {
-}
-
-.weblitz-plateview div.loading {
-}
-
 .weblitz-plateview .waiting {
   background-color: #eee;
 }
 
-.weblitz-plateview img.loading {
+.weblitz-plateview .loading {
   display: none;
 }
+
+.wellSize10 img {width: 10px; max-height: 10px;}
+.wellSize11 img {width: 11px; max-height: 11px;}
+.wellSize12 img {width: 12px; max-height: 12px;}
+.wellSize13 img {width: 13px; max-height: 13px;}
+.wellSize14 img {width: 14px; max-height: 14px;}
+.wellSize15 img {width: 15px; max-height: 15px;}
+.wellSize16 img {width: 16px; max-height: 16px;}
+.wellSize17 img {width: 17px; max-height: 17px;}
+.wellSize18 img {width: 18px; max-height: 18px;}
+.wellSize19 img {width: 19px; max-height: 19px;}
+.wellSize20 img {width: 20px; max-height: 20px;}
+.wellSize21 img {width: 21px; max-height: 21px;}
+.wellSize22 img {width: 22px; max-height: 22px;}
+.wellSize23 img {width: 23px; max-height: 23px;}
+.wellSize24 img {width: 24px; max-height: 24px;}
+.wellSize25 img {width: 25px; max-height: 25px;}
+.wellSize26 img {width: 26px; max-height: 26px;}
+.wellSize27 img {width: 27px; max-height: 27px;}
+.wellSize28 img {width: 28px; max-height: 28px;}
+.wellSize29 img {width: 29px; max-height: 29px;}
+.wellSize30 img {width: 30px; max-height: 30px;}
+.wellSize31 img {width: 31px; max-height: 31px;}
+.wellSize32 img {width: 32px; max-height: 32px;}
+.wellSize33 img {width: 33px; max-height: 33px;}
+.wellSize34 img {width: 34px; max-height: 34px;}
+.wellSize35 img {width: 35px; max-height: 35px;}
+.wellSize36 img {width: 36px; max-height: 36px;}
+.wellSize37 img {width: 37px; max-height: 37px;}
+.wellSize38 img {width: 38px; max-height: 38px;}
+.wellSize39 img {width: 39px; max-height: 39px;}
+.wellSize40 img {width: 40px; max-height: 40px;}
+.wellSize41 img {width: 41px; max-height: 41px;}
+.wellSize42 img {width: 42px; max-height: 42px;}
+.wellSize43 img {width: 43px; max-height: 43px;}
+.wellSize44 img {width: 44px; max-height: 44px;}
+.wellSize45 img {width: 45px; max-height: 45px;}
+.wellSize46 img {width: 46px; max-height: 46px;}
+.wellSize47 img {width: 47px; max-height: 47px;}
+.wellSize48 img {width: 48px; max-height: 48px;}
+.wellSize49 img {width: 49px; max-height: 49px;}
+.wellSize50 img {width: 50px; max-height: 50px;}
+.wellSize51 img {width: 51px; max-height: 51px;}
+.wellSize52 img {width: 52px; max-height: 52px;}
+.wellSize53 img {width: 53px; max-height: 53px;}
+.wellSize54 img {width: 54px; max-height: 54px;}
+.wellSize55 img {width: 55px; max-height: 55px;}
+.wellSize56 img {width: 56px; max-height: 56px;}
+.wellSize57 img {width: 57px; max-height: 57px;}
+.wellSize58 img {width: 58px; max-height: 58px;}
+.wellSize59 img {width: 59px; max-height: 59px;}
+.wellSize60 img {width: 60px; max-height: 60px;}
+.wellSize61 img {width: 61px; max-height: 61px;}
+.wellSize62 img {width: 62px; max-height: 62px;}
+.wellSize63 img {width: 63px; max-height: 63px;}
+.wellSize64 img {width: 64px; max-height: 64px;}
+.wellSize65 img {width: 65px; max-height: 65px;}
+.wellSize66 img {width: 66px; max-height: 66px;}
+.wellSize67 img {width: 67px; max-height: 67px;}
+.wellSize68 img {width: 68px; max-height: 68px;}
+.wellSize69 img {width: 69px; max-height: 69px;}
+.wellSize70 img {width: 70px; max-height: 70px;}
+.wellSize71 img {width: 71px; max-height: 71px;}
+.wellSize72 img {width: 72px; max-height: 72px;}
+.wellSize73 img {width: 73px; max-height: 73px;}
+.wellSize74 img {width: 74px; max-height: 74px;}
+.wellSize75 img {width: 75px; max-height: 75px;}
+.wellSize76 img {width: 76px; max-height: 76px;}
+.wellSize77 img {width: 77px; max-height: 77px;}
+.wellSize78 img {width: 78px; max-height: 78px;}
+.wellSize79 img {width: 79px; max-height: 79px;}
+.wellSize80 img {width: 80px; max-height: 80px;}
+.wellSize81 img {width: 81px; max-height: 81px;}
+.wellSize82 img {width: 82px; max-height: 82px;}
+.wellSize83 img {width: 83px; max-height: 83px;}
+.wellSize84 img {width: 84px; max-height: 84px;}
+.wellSize85 img {width: 85px; max-height: 85px;}
+.wellSize86 img {width: 86px; max-height: 86px;}
+.wellSize87 img {width: 87px; max-height: 87px;}
+.wellSize88 img {width: 88px; max-height: 88px;}
+.wellSize89 img {width: 89px; max-height: 89px;}
+.wellSize90 img {width: 90px; max-height: 90px;}
+.wellSize91 img {width: 91px; max-height: 91px;}
+.wellSize92 img {width: 92px; max-height: 92px;}
+.wellSize93 img {width: 93px; max-height: 93px;}
+.wellSize94 img {width: 94px; max-height: 94px;}
+.wellSize95 img {width: 95px; max-height: 95px;}
+.wellSize96 img {width: 96px; max-height: 96px;}
+.wellSize97 img {width: 97px; max-height: 97px;}
+.wellSize98 img {width: 98px; max-height: 98px;}
+.wellSize99 img {width: 99px; max-height: 99px;}
+.wellSize100 img {width: 100px; max-height: 100px;}
+.wellSize101 img {width: 101px; max-height: 101px;}
+.wellSize102 img {width: 102px; max-height: 102px;}
+.wellSize103 img {width: 103px; max-height: 103px;}
+.wellSize104 img {width: 104px; max-height: 104px;}
+.wellSize105 img {width: 105px; max-height: 105px;}
+.wellSize106 img {width: 106px; max-height: 106px;}
+.wellSize107 img {width: 107px; max-height: 107px;}
+.wellSize108 img {width: 108px; max-height: 108px;}
+.wellSize109 img {width: 109px; max-height: 109px;}
+.wellSize110 img {width: 110px; max-height: 110px;}
+.wellSize111 img {width: 111px; max-height: 111px;}
+.wellSize112 img {width: 112px; max-height: 112px;}
+.wellSize113 img {width: 113px; max-height: 113px;}
+.wellSize114 img {width: 114px; max-height: 114px;}
+.wellSize115 img {width: 115px; max-height: 115px;}
+.wellSize116 img {width: 116px; max-height: 116px;}
+.wellSize117 img {width: 117px; max-height: 117px;}
+.wellSize118 img {width: 118px; max-height: 118px;}
+.wellSize119 img {width: 119px; max-height: 119px;}
+.wellSize120 img {width: 120px; max-height: 120px;}
+.wellSize121 img {width: 121px; max-height: 121px;}
+.wellSize122 img {width: 122px; max-height: 122px;}
+.wellSize123 img {width: 123px; max-height: 123px;}
+.wellSize124 img {width: 124px; max-height: 124px;}
+.wellSize125 img {width: 125px; max-height: 125px;}
+.wellSize126 img {width: 126px; max-height: 126px;}
+.wellSize127 img {width: 127px; max-height: 127px;}
+.wellSize128 img {width: 128px; max-height: 128px;}
+.wellSize129 img {width: 129px; max-height: 129px;}
+.wellSize130 img {width: 130px; max-height: 130px;}
 

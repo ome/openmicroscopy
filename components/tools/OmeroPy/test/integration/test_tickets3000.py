@@ -9,14 +9,14 @@
 
 """
 import omero
-import library as lib
+from omero.testlib import ITest
 import pytest
 import Ice
 
 from omero.rtypes import rint, rlong, rstring
 
 
-class TestTickets3000(lib.ITest):
+class TestTickets3000(ITest):
 
     def test2396(self):
         # create image

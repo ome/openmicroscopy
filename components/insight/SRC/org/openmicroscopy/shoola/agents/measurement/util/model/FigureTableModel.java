@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -29,9 +29,10 @@ import javax.swing.table.AbstractTableModel;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.jhotdraw.draw.AttributeKey;
+import org.jhotdraw.draw.LineDecoration;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
+import org.openmicroscopy.shoola.util.roi.figures.Cap;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
@@ -124,13 +125,14 @@ public class FigureTableModel
 				if (key.equals(fieldName.getKey()))
 				{
 				    Object value = figure.getAttribute(key);
-					if (MeasurementAttributes.TEXT.equals(key) ||
-							MeasurementAttributes.WIDTH.equals(key) ||
-							MeasurementAttributes.HEIGHT.equals(key)) {
-						if (figure.isReadOnly())
-							fieldName.setEditable(false);
-						else fieldName.setEditable(figure.canEdit());
-					} else if (AnnotationKeys.TAG.equals(key)) {
+                    if (MeasurementAttributes.TEXT.equals(key)
+                            || MeasurementAttributes.WIDTH.equals(key)
+                            || MeasurementAttributes.HEIGHT.equals(key)) {
+                        if (figure.isReadOnly())
+                            fieldName.setEditable(false);
+                        else
+                            fieldName.setEditable(figure.canEdit());
+                    } else if (AnnotationKeys.TAG.equals(key)) {
 	                    
 	                    StructuredDataResults sd = (StructuredDataResults) figure.getAttribute(key);
 	                    if (sd != null) {
@@ -164,7 +166,20 @@ public class FigureTableModel
 					                value += "; ";
 					        }
 					    }
-					}
+                    } else if (MeasurementAttributes.START_DECORATION
+                            .equals(key)) {
+                        if (value instanceof LineDecoration) {
+                            Cap c = Cap.findByPrototype((LineDecoration) value);
+                            if (c != null)
+                                value = c.getValue();
+                        }
+                    } else if (MeasurementAttributes.END_DECORATION.equals(key)) {
+                        if (value instanceof LineDecoration) {
+                            Cap c = Cap.findByPrototype((LineDecoration) value);
+                            if (c != null)
+                                value = c.getValue();
+                        }
+                    }
 					keys.add(key);
 					values.add(value);
 					found = true;
@@ -281,6 +296,22 @@ public class FigureTableModel
 				}
 			}
 		}
+		else if (MeasurementAttributes.START_DECORATION.equals(key)) {
+            LineDecoration dec = null;
+            Cap c = Cap.findByValue(value.toString());
+            if (c != null) {
+                dec = c.newLineDecorationInstance();
+            }
+            figure.setAttribute(key, dec);
+		}
+		else if (MeasurementAttributes.END_DECORATION.equals(key)) {
+		    LineDecoration dec = null;
+            Cap c = Cap.findByValue(value.toString());
+            if (c != null) {
+                dec = c.newLineDecorationInstance();
+            }
+            figure.setAttribute(key, dec);
+        }
 		else  
 			figure.setAttribute(key, value);
 		values.set(row, value);
