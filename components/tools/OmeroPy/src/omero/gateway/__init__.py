@@ -3007,7 +3007,8 @@ class _BlitzGateway (object):
     ###########################
     # Specific Object Getters #
 
-    def getObject(self, obj_type, oid=None, params=None, attributes=None):
+    def getObject(self, obj_type, oid=None, params=None, attributes=None,
+                  opts=None):
         """
         Retrieve single Object by type E.g. "Image" or None if not found.
         If more than one object found, raises ome.conditions.ApiUsageException
@@ -3026,7 +3027,7 @@ class _BlitzGateway (object):
         """
         oids = (oid is not None) and [oid] or None
         query, params, wrapper = self.buildQuery(
-            obj_type, oids, params, attributes)
+            obj_type, oids, params, attributes, opts)
         result = self.getQueryService().findByQuery(
             query, params, self.SERVICE_OPTS)
         if result is not None:
@@ -7109,6 +7110,63 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         }
 
     PLANEDEF = omero.romio.XY
+
+    @classmethod
+    def _getQueryString(cls, opts=None):
+        """
+        Extend base query to handle filtering of Images by Datasets.
+        Returns a tuple of (query, clauses, params).
+        Supported opts: 'dataset': <dataset_id> to filter by Dataset
+                        'load_pixels': <bool> to load Pixel objects
+                        'load_channels': <bool> to load Channels and
+                                                    Logical Channels
+                        'orphaned': <bool> Images not in Dataset or WellSample
+
+        :param opts:        Dictionary of optional parameters.
+        :return:            Tuple of string, list, ParametersI
+        """
+        query, clauses, params = super(
+            _ImageWrapper, cls)._getQueryString(opts)
+        if opts is not None and 'dataset' in opts:
+            query += ' join obj.datasetLinks dlink'
+            clauses.append('dlink.parent.id = :did')
+            params.add('did', rlong(opts['dataset']))
+        load_pixels = False
+        load_channels = False
+        orphaned = False
+        if opts is not None:
+            load_pixels = opts.get('load_pixels')
+            load_channels = opts.get('load_channels')
+            orphaned = opts.get('orphaned')
+        if load_pixels or load_channels:
+            # We use 'left outer join', since we still want images if no pixels
+            query += ' left outer join fetch obj.pixels pixels' \
+                     ' left outer join fetch pixels.pixelsType'
+        if load_channels:
+            query += ' join fetch pixels.channels as channels' \
+                     ' join fetch channels.logicalChannel as logicalChannel' \
+                     ' left outer join fetch logicalChannel.photometricInterpretation' \
+                     ' left outer join fetch logicalChannel.illumination' \
+                     ' left outer join fetch logicalChannel.mode' \
+                     ' left outer join fetch logicalChannel.contrastMethod'
+        if orphaned:
+            clauses.append(
+                """
+                not exists (
+                    select dilink from DatasetImageLink as dilink
+                    where dilink.child = obj.id
+                )
+                """
+            )
+            clauses.append(
+                """
+                not exists (
+                    select ws from WellSample ws
+                    where ws.image.id = obj.id
+                )
+                """
+            )
+        return (query, clauses, params)
 
     @classmethod
     def fromPixelsId(cls, conn, pid):

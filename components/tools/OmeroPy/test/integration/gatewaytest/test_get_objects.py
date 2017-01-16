@@ -22,7 +22,12 @@ from omero.gateway.scripts import dbhelpers
 from omero.rtypes import wrap
 from omero.testlib import ITest
 from omero.gateway import BlitzGateway, KNOWN_WRAPPERS
-from omero.model import ScreenI, PlateI, WellI, WellSampleI
+from omero.model import DatasetI, \
+    ImageI, \
+    PlateI, \
+    ScreenI, \
+    WellI, \
+    WellSampleI
 
 
 class TestDeleteObject (object):
@@ -40,7 +45,7 @@ class TestDeleteObject (object):
         tagId = tag.getId()
         handle = gateway.deleteObjects("Annotation", [tagId])
         gateway._waitOnCmd(handle)
-        assert None == gateway.getObject("Annotation", tagId)
+        assert gateway.getObject("Annotation", tagId) is None
 
     def testDeleteImage(self, gatewaywrapper, author_testimg_generated):
         image = author_testimg_generated
@@ -571,6 +576,33 @@ class TestGetObject (object):
         assert image.getOwnerOmeName == testImage.getOwnerOmeName
         assert image.getThumbVersion() is not None
 
+    @pytest.mark.parametrize("load_pixels", [True, False])
+    @pytest.mark.parametrize("load_channels", [True, False])
+    def testGetImageLoadPixels(self, load_pixels, load_channels,
+                               gatewaywrapper, author_testimg_tiny):
+        testImage = author_testimg_tiny
+        conn = gatewaywrapper.gateway
+        # By default (no opts), don't load pixels
+        image = conn.getObject("Image", testImage.id)
+        assert not image._obj.isPixelsLoaded()
+
+        # parametrized opts...
+        opts = {'load_pixels': load_pixels, 'load_channels': load_channels}
+        image = conn.getObject("Image", testImage.id, opts=opts)
+        # pixels are also loaded if load_channels
+        pix_loaded = load_pixels or load_channels
+        assert image._obj.isPixelsLoaded() == pix_loaded
+        if pix_loaded:
+            pixels = image._obj._pixelsSeq[0]
+            assert pixels.getPixelsType().isLoaded()
+            if load_channels:
+                assert pixels.isChannelsLoaded()
+                for c in pixels.copyChannels():
+                    lc = c.getLogicalChannel()
+                    assert lc.getPhotometricInterpretation().isLoaded()
+            else:
+                assert not pixels.isChannelsLoaded()
+
     def testGetProject(self, gatewaywrapper):
         gatewaywrapper.loginAsAuthor()
         testProj = gatewaywrapper.getTestProject()
@@ -596,45 +628,60 @@ class TestGetObject (object):
         assert pr.getParent() is None
         assert len(pr.listParents()) == 0
 
-    def testListOrphans(self, gatewaywrapper):
+    @pytest.mark.parametrize("orphaned", [True, False])
+    @pytest.mark.parametrize("load_pixels", [False, False])
+    def testListOrphans(self, orphaned, load_pixels, gatewaywrapper):
+        # We login as 'User', since they have no other orphaned images
         gatewaywrapper.loginAsUser()
-        eid = gatewaywrapper.gateway.getUserId()
+        conn = gatewaywrapper.gateway
+        eid = conn.getUserId()
 
-        # Create 5 images
+        # Create 5 orphaned images
+        iids = []
         for i in range(0, 5):
-            gatewaywrapper.createTestImage(imageName=str(uuid.uuid1()))
+            img = gatewaywrapper.createTestImage(imageName=str(uuid.uuid1()))
+            iids.append(img.id)
+        # Create image in Dataset, to check this isn't found
+        dataset = DatasetI()
+        dataset.name = wrap('testListOrphans')
+        image = ImageI()
+        image.name = wrap('testListOrphans')
+        dataset.linkImage(image)
+        dataset = conn.getUpdateService().saveAndReturnObject(dataset)
 
-        # Pagination, loading pixels
-        params = omero.sys.ParametersI()
-        params.page(1, 3)
-        findImagesInPage = list(gatewaywrapper.gateway.listOrphans(
-            "Image", eid=eid, params=params, loadPixels=True))
-        assert len(findImagesInPage) == 3, \
-            "Did not find orphaned images in page"
-        for p in findImagesInPage:
-            assert p._obj.pixelsLoaded
+        try:
+            # Only test listOrphans() if orphaned
+            if orphaned:
+                # Pagination
+                params = omero.sys.ParametersI()
+                params.page(1, 3)
+                findImagesInPage = list(conn.listOrphans("Image", eid=eid,
+                                                         params=params))
+                assert len(findImagesInPage) == 3
 
-        # All orphans, no pixels
-        findImages = list(gatewaywrapper.gateway.listOrphans("Image"))
-        orphanedCount = len(findImages)
-        for p in findImages:
-            assert not p._obj.pixelsLoaded
-            client = p._conn
-            handle = client.deleteObjects(
-                'Image', [p.getId()], deleteAnns=True)
-            try:
-                client._waitOnCmd(handle)
-            finally:
-                handle.close()
+                # No pagination (all orphans)
+                findImages = list(conn.listOrphans("Image",
+                                                   loadPixels=load_pixels))
+                assert len(findImages) == 5
+                for p in findImages:
+                    assert p._obj.pixelsLoaded == load_pixels
 
-        # Check this AFTER delete
-        # If test fails with previously undeleted images,
-        # it should pass when re-run since images are deleted above
-        assert orphanedCount == 5, "Did not find orphaned images"
+            # Test getObjects() with 'orphaned' option
+            opts = {'orphaned': orphaned, 'load_pixels': load_pixels}
+            getImages = list(conn.getObjects("Image", opts=opts))
+            assert orphaned == (len(getImages) == 5)
+            for p in getImages:
+                assert p._obj.pixelsLoaded == load_pixels
 
-        # Simply check this doesn't fail See https://github.com/
-        # openmicroscopy/openmicroscopy/pull/4950#issuecomment-264142956
-        list(gatewaywrapper.gateway.listOrphans("Dataset"))
+            # Simply check this doesn't fail See https://github.com/
+            # openmicroscopy/openmicroscopy/pull/4950#issuecomment-264142956
+            dsIds = [d.id for d in conn.listOrphans("Dataset")]
+            assert dataset.id.val in dsIds
+        finally:
+            # Cleanup - Delete what we created
+            conn.deleteObjects('Image', iids, deleteAnns=True, wait=True)
+            conn.deleteObjects('Dataset', [dataset.id.val],
+                               deleteChildren=True, wait=True)
 
     def testOrderById(self, gatewaywrapper):
         gatewaywrapper.loginAsUser()
