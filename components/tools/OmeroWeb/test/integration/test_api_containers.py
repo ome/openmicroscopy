@@ -23,6 +23,7 @@ from omeroweb.testlib import IWebTest, _get_response_json, \
     _csrf_post_json, _csrf_put_json, _csrf_delete_response_json
 from django.core.urlresolvers import reverse
 from django.conf import settings
+from django.http import HttpRequest
 import pytest
 from omero.gateway import BlitzGateway
 from omero_marshal import get_encoder
@@ -269,16 +270,19 @@ class TestContainers(IWebTest):
         # List ALL Screens
         rsp = _get_response_json(django_client, request_url, {})
         extra = []
-        r = django_client.request()
-        webclint_url = r.url        # http://testserver/webclient/
+        r = HttpRequest()
+        r.META = {
+            "SERVER_NAME": "testserver",
+            "SERVER_PORT": "80",
+        }
         for screen in user_screens:
             s_url = reverse('api_screen', kwargs={'api_version': version,
                                                   'object_id': screen.id.val})
             p_url = reverse('api_screen_plates',
                             kwargs={'api_version': version,
                                     'screen_id': screen.id.val})
-            s_url = webclint_url.replace('/webclient/', s_url)
-            p_url = webclint_url.replace('/webclient/', p_url)
+            s_url = r.build_absolute_uri(s_url)
+            p_url = r.build_absolute_uri(p_url)
             extra.append({
                 'screen_url': s_url,
                 'plates_url': p_url
