@@ -100,7 +100,9 @@ public class WellProcessor implements ModelProcessor {
     if (userSpecifiedPlateName != null) {
       plate.setName(rstring(userSpecifiedPlateName));
     }
-    if (plate.getName() == null) {
+    if (plate.getName() == null || plate.getName().getValue() == null ||
+      plate.getName().getValue().isEmpty())
+    {
       log.warn("Missing plate name for: " + container.LSID);
       String filename = store.getReader().getCurrentFile();
       filename = new File(filename).getName();
