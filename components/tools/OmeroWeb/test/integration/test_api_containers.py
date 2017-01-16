@@ -269,13 +269,19 @@ class TestContainers(IWebTest):
         # List ALL Screens
         rsp = _get_response_json(django_client, request_url, {})
         extra = []
+        r = django_client.request()
+        webclint_url = r.url        # http://testserver/webclient/
         for screen in user_screens:
+            s_url = reverse('api_screen', kwargs={'api_version': version,
+                                                  'object_id': screen.id.val})
+            p_url = reverse('api_screen_plates',
+                            kwargs={'api_version': version,
+                                    'screen_id': screen.id.val})
+            s_url = webclint_url.replace('/webclient/', s_url)
+            p_url = webclint_url.replace('/webclient/', p_url)
             extra.append({
-                'screen_url': reverse('api_screen', kwargs={'api_version': version,
-                                                            'object_id': screen.id.val}),
-                'plates_url': reverse('api_screen_plates', kwargs={'api_version': version,
-                                                            'screen_id': screen.id.val})
+                'screen_url': s_url,
+                'plates_url': p_url
             })
-        print extra
         assert_objects(conn, rsp['data'], user_screens,
                        dtype="Screen", extra=extra)
