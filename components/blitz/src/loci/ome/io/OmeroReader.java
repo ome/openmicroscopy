@@ -209,10 +209,10 @@ public class OmeroReader extends FormatReader {
         super.close(fileOnly);
         if (!fileOnly) {
             if (secureClient != null) {
-                secureClient.__del__();
+                secureClient.closeSession();
             }
             if (unsecureClient != null) {
-                unsecureClient.__del__();
+                unsecureClient.closeSession();
             }
         }
     }
