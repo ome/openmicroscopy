@@ -129,9 +129,39 @@ public interface RenderingEngine extends StatefulServiceInterface {
      * </ul>
      * @see ome.api.IProjection#projectPixels(long, PixelsType, int, int, int, List, int, int, int, String)
      */
+    @Deprecated
     public int[] renderProjectedAsPackedInt(int algorithm, int timepoint,
                                             int stepping, int start, int end);
-    
+
+    /**
+     * Performs a projection through selected planes with the currently
+     * active channels and renders the data for display.
+     * @param algorithm {@link ome.api.IProjection#MAXIMUM_INTENSITY},
+     * {@link ome.api.IProjection#MEAN_INTENSITY} or
+     * {@link ome.api.IProjection#SUM_INTENSITY}.
+     * @param axis The axis to project along
+     * @param stepping Stepping value to use while calculating the projection.
+     * For example, <code>stepping=1</code> will use every optical section from
+     * <code>start</code> to <code>end</code> where <code>stepping=2</code> will
+     * use every other section from <code>start</code> to <code>end</code> to
+     * perform the projection.
+     * @param start Optical section to start projecting from.
+     * @param end Optical section to finish projecting.
+     * @return A packed-integer <i>RGBA</i> rendered image of the projected
+     * pixels.
+     * @throws ValidationException Where:
+     * <ul>
+     *   <li><code>algorithm</code> is unknown</li>
+     *   <li><code>axis</code> is unknown</li>
+     *   <li><code>plane</code> is out of range</li>
+     *   <li><code>start</code> is out of range</li>
+     *   <li><code>end</code> is out of range</li>
+     *   <li><code>start > end</code></li>
+     * </ul>
+     */
+    public int[] renderProjectedAsPackedInt2(int algorithm, int axis,
+            int plane, int stepping, int start, int end);
+
     /**
      * Performs a projection through selected optical sections of a particular 
      * timepoint with the currently active channels, renders the data for
@@ -158,9 +188,39 @@ public interface RenderingEngine extends StatefulServiceInterface {
      * </ul>
      * @see ome.api.IProjection#projectPixels(long, PixelsType, int, int, int, List, int, int, int, String)
      */
+    @Deprecated
     public byte[] renderProjectedCompressed(int algorithm, int timepoint,
                                             int stepping, int start, int end);
 
+    /**
+     * Performs a projection through selected planes with the currently
+     * active channels, renders the data for
+     * display and compresses the resulting RGBA composite image.
+     * @param algorithm {@link ome.api.IProjection#MAXIMUM_INTENSITY},
+     * {@link ome.api.IProjection#MEAN_INTENSITY} or
+     * {@link ome.api.IProjection#SUM_INTENSITY}.
+     * @param axis The selected axis
+     * @param stepping Stepping value to use while calculating the projection.
+     * For example, <code>stepping=1</code> will use every optical section from
+     * <code>start</code> to <code>end</code> where <code>stepping=2</code> will
+     * use every other section from <code>start</code> to <code>end</code> to
+     * perform the projection.
+     * @param start Optical section to start projecting from.
+     * @param end Optical section to finish projecting.
+     * @return A compressed <i>RGBA</i> rendered JPEG image of the projected
+     * pixels.
+     * @throws ValidationException Where:
+     * <ul>
+     *   <li><code>algorithm</code> is unknown</li>
+     *   <li><code>axis</code> is unknown</li>
+     *   <li><code>plane</code> is out of range</li>
+     *   <li><code>start</code> is out of range</li>
+     *   <li><code>end</code> is out of range</li>
+     *   <li><code>start > end</code></li>
+     * </ul>
+     */
+    public byte[] renderProjectedCompressed2(int algorithm, int axis,
+            int plane, int stepping, int start, int end);
     /**
      * Loads the <code>Pixels</code> set this Rendering Engine is for.
      * 
