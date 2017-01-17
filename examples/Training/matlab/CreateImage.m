@@ -41,7 +41,7 @@ try
     
     % Retrieve pixel type
     pixelsService = session.getPixelsService();
-    pixelTypes = toMatlabList(pixelsService.getAllEnumerations('omero.model.PixelsType'));
+    pixelTypes = toMatlabList(session.getTypesService().allEnumerations('omero.model.PixelsType'));
     pixelTypeValues = arrayfun(@(x) char(x.getValue().getValue()),...
         pixelTypes, 'Unif', false);
     pixelType = pixelTypes(strcmp(pixelTypeValues, type));
