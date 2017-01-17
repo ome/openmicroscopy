@@ -962,14 +962,14 @@ class OmeroMetadataServiceImpl
                         results.getObjectId(), annotationIds, -1);
                 formatAnnotationLinks(links, results);
             }
-            results.setOtherAnnotation(other);
-            results.setXMLAnnotations(xml);
-            results.setTextualAnnotations(texts);
-            results.setTerms(terms);
-            results.setTags(tags);
-            results.setRatings(ratings);
-            results.setAttachments(attachments);
-            results.setMapAnnotations(maps);
+            results.getOtherAnnotations().addAll(other);
+            results.getXMLAnnotations().addAll(xml);
+            results.getTextualAnnotations().addAll(texts);
+            results.getTerms().addAll(terms);
+            results.getTags().addAll(tags);
+            results.getRatings().addAll(ratings);
+            results.getAttachments().addAll(attachments);
+            results.getMapAnnotations().addAll(maps);
         }
     }
     
@@ -1009,7 +1009,7 @@ class OmeroMetadataServiceImpl
 					loadAnnotations(ctx, FilesetData.class, Arrays.asList(fID),
 						TextualAnnotationData.class,
 						Arrays.asList(AnnotationData.FILE_TRANSFER_NS), null);
-				results.setTransferlinks(map.get(fID));
+				results.getTransferLinks().addAll(map.get(fID));
 			}
 		}
 		return results;
@@ -1120,7 +1120,8 @@ class OmeroMetadataServiceImpl
                 results.put(n, r);
                 if (n instanceof ImageData) {
                     ImageData img = (ImageData) n;
-                    r.setTransferlinks(filesetMap.get(img.getFilesetId()));
+                    if(filesetMap.get(img.getFilesetId()) != null)
+                        r.getTransferLinks().addAll(filesetMap.get(img.getFilesetId()));
                 }
                 formatAnnotationLinks(linkMap.get(n.getId()), r);
             }
@@ -1155,8 +1156,8 @@ class OmeroMetadataServiceImpl
 	            m.put(d, (ExperimenterData) PojoMapper.asDataObject(
 	                    link.getDetails().getOwner()));
 	    }
-	    results.setLinks(m);
-	    results.setAnnotationLinks(l);
+	    results.getLinks().putAll(m);
+	    results.getAnnotationLinks().addAll(l);
 	}
 
 	/**

@@ -10,10 +10,12 @@
 """
 
 import pytest
-from weblibrary import IWebTest
+from omeroweb.testlib import IWebTest
 
 from omero.model import PlateI, WellI, WellSampleI
 from omero.model import FileAnnotationI, OriginalFileI, PlateAnnotationLinkI
+from omero.model import LengthI
+from omero.model.enums import UnitsLength
 from omero.rtypes import rint, rstring, rtime
 from omero.gateway import BlitzGateway
 from omero.grid import WellColumn, StringColumn
@@ -29,7 +31,7 @@ import time
 @pytest.fixture(scope='module')
 def itest(request):
     """
-    Returns a new L{weblibrary.IWebTest} instance. With attached
+    Returns a new L{omeroweb.testlib.IWebTest} instance. With attached
     finalizer so that pytest will clean it up.
     """
     class PlateGridIWebTest(IWebTest):
@@ -67,10 +69,14 @@ def update_service(client):
 @pytest.fixture()
 def well_sample_factory(itest):
 
-    def make_well_sample():
+    def make_well_sample(x_pos=None, y_pos=None):
         ws = WellSampleI()
         image = itest.new_image(name=itest.uuid())
         ws.image = image
+        if x_pos is not None:
+            ws.posX = LengthI(x_pos, UnitsLength.REFERENCEFRAME)
+        if y_pos is not None:
+            ws.posY = LengthI(y_pos, UnitsLength.REFERENCEFRAME)
         return ws
     return make_well_sample
 
@@ -80,8 +86,8 @@ def well_factory(well_sample_factory):
 
     def make_well(ws_count=0):
         well = WellI()
-        for _ in range(ws_count):
-            well.addWellSample(well_sample_factory())
+        for i in range(ws_count):
+            well.addWellSample(well_sample_factory(i, i + 1))
         return well
     return make_well
 
@@ -105,7 +111,7 @@ def well_grid_factory(well_factory):
 def plate_wells(itest, well_grid_factory, update_service):
     """
     Returns a new OMERO Plate, linked Wells, linked WellSamples, and linked
-    Images populated by an L{weblibrary.IWebTest} instance.
+    Images populated by an L{omeroweb.testlib.IWebTest} instance.
     """
     plate = PlateI()
     plate.name = rstring(itest.uuid())
@@ -122,7 +128,7 @@ def plate_wells(itest, well_grid_factory, update_service):
 def full_plate_wells(itest, update_service):
     """
     Returns a full OMERO Plate, linked Wells, linked WellSamples, and linked
-    Images populated by an L{weblibrary.IWebTest} instance.
+    Images populated by an L{omeroweb.testlib.IWebTest} instance.
     """
     lett = map(chr, range(ord('A'), ord('Z')+1))
     plate = PlateI()
@@ -201,7 +207,7 @@ def plate_wells_with_description(itest, well_grid_factory, update_service):
 def plate_well_table(itest, well_grid_factory, update_service, conn):
     """
     Returns a new OMERO Plate, linked Wells, linked WellSamples, and linked
-    Images populated by an L{weblibrary.IWebTest} instance.
+    Images populated by an L{omeroweb.testlib.IWebTest} instance.
     """
     plate = PlateI()
     plate.name = rstring(itest.uuid())
@@ -296,6 +302,31 @@ class TestPlateGrid(object):
                     assert well_metadata['thumb_url'] ==\
                         reverse('webgateway.views.render_thumbnail',
                                 args=[img.id.val])
+
+    def test_well_images(self, django_client, plate_wells, conn):
+        """
+        Test listing of wellSamples/images in a Well
+        """
+        for well in plate_wells.copyWells():
+            request_url = reverse('webgateway_listwellimages_json',
+                                  args=[well.id.val])
+            response = django_client.get(request_url)
+            assert response.status_code == 200
+            well_json = json.loads(response.content)
+            rf = str(UnitsLength.REFERENCEFRAME)
+            for i, ws in enumerate(well.copyWellSamples()):
+                ws_json = well_json[i]
+                img = ws.getImage()
+                assert ws_json['name'] == img.name.val
+                assert ws_json['id'] == img.id.val
+                assert ws_json['thumb_url'] ==\
+                    reverse('webgateway.views.render_thumbnail',
+                            args=[img.id.val])
+                assert ws_json['position'] == {'x': {'value': i,
+                                               'unit': rf},
+                                               'y': {'value': i + 1,
+                                                     'unit': rf}
+                                               }
 
     def test_instantiation(self, plate_wells, conn):
         """

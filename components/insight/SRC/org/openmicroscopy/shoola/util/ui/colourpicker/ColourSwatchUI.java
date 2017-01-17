@@ -169,6 +169,7 @@ public class ColourSwatchUI
 	
     /**
      * Create the color items
+     * @return See above.
      */
     private LookupTableItem[] createColours() {
         LookupTableItem[] result = new LookupTableItem[RGBControl.PREDEFINED_COLORS
@@ -206,6 +207,7 @@ public class ColourSwatchUI
     /**
      * Finds the item index which has to be selected according to the
      * current control's state
+     * @return See above.
      */
     private int findIndex() {
         if (CommonsLangUtils.isNotEmpty(control.getLUT())) {

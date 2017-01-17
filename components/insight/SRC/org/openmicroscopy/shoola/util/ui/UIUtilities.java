@@ -2571,6 +2571,30 @@ public class UIUtilities
 		return buffer.toString();
 	}
 	
+    /**
+     * Displays the beginning of the name if the name is longer that the number
+     * of specified characters.
+     * 
+     * @param name
+     *            The name of handle.
+     * @param numberOfCharacters
+     *            The number of characters.
+     * @return See above.
+     */
+    public static String formatPartialName2(String name, int numberOfCharacters) {
+        if (name == null)
+            return null;
+        
+        if(name.length() <= numberOfCharacters)
+            return name;
+        
+        StringBuilder sb = new StringBuilder();
+        for(int i=0; i<numberOfCharacters-3; i++)
+            sb.append(name.charAt(i));
+        sb.append("...");
+        return sb.toString();
+    }
+    
 	/**
 	 * Displays the end of the name if the name is longer that the number
 	 * of specified characters.

@@ -25,13 +25,13 @@
 
 """
 
-import library as lib
+from omero.testlib import ITest
 import pytest
 import omero
 import omero.all
 
 
-class TestScriptRepo(lib.ITest):
+class TestScriptRepo(ITest):
 
     def testScriptRepo(self):
         sr = self.client.sf.sharedResources()

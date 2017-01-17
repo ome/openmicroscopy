@@ -155,9 +155,9 @@ $(document).ready(function() {
             return;
         }
 
-        // parent node cannot be "screen", "plate", "acquisition", "project", "image"
-        // see ome.tree.js
-        var parentTypes = ["screen", "plate", "acquisition", "project", "image", "tagset", "tag"],
+        // parent node could be dataset, orphaned, share or tag
+        // see WEBCLIENT.UI.TREE.pagination_nodes and ome.tree.js
+        var parentTypes = WEBCLIENT.UI.TREE.pagination_nodes,
             imgNodes = [];
         if (parentTypes.indexOf(dtype) < 0) {
             parentNode = selected[0];
@@ -165,6 +165,7 @@ $(document).ready(function() {
             parentNode = inst.get_node(inst.get_parent(selected[0]));
         } else if (dtype === "plate" || dtype === "acquisition") {
             parentId = undefined;
+            clearThumbnailsPanel();
             load_spw(event, data);
             return;
         // All other types have blank centre panel
@@ -538,6 +539,10 @@ $(document).ready(function() {
         if (buttonsShowHide) {
             buttonsShowHide(inst.get_selected(true), inst);
         }
+
+        // Tell jsTree how many elements are selected
+        $("#dataTree").trigger('selection_change.ome', inst.get_selected(true).length);
+
         // Trigger the selection changed event
         $("body").trigger('selection_change.ome');
 
@@ -752,6 +757,8 @@ $(document).ready(function() {
             var nodeType = node.type;
             var nodeId = node.data.obj.id;
             var show = WEBCLIENT.initially_select.join("|");
+            // clear WEBCLIENT.initially_select so we don't select well next time user loads plate
+            WEBCLIENT.initially_select = [];
 
             switch(nodeType) {
                 case 'plate':
@@ -811,6 +818,10 @@ $(document).ready(function() {
         $contentDetails.removeData('path');
         $("div#page").removeData('page');
         $contentDetails.removeData('field');
+        // empty SPW 'spatial' birds eye view below tree
+        if (OME.emptyWellBirdsEye) {
+            OME.emptyWellBirdsEye();
+        }
     };
     // Allows other web apps to access this method
     OME.clearThumbnailsPanel = clearThumbnailsPanel;

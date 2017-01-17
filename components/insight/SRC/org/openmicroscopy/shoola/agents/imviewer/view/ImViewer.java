@@ -392,6 +392,19 @@ public interface ImViewer
      */
     public void setLookupTable(int index, String lut, boolean preview);
     
+    /**
+     * Set the reverse intensity flag
+     * 
+     * @param index
+     *            The channel index
+     * @param revInt
+     *            The reverse intensity flag
+     * @param preview
+     *            Pass <code>true</code> to indicate that it is a color preview,
+     *            <code>false</code> otherwise.
+     */
+    public void setReverseIntensity(int index, boolean revInt, boolean preview);
+    
 	/**
 	 * Selects or deselects the specified channel.
 	 * The selection process depends on the currently selected color model.
@@ -588,6 +601,15 @@ public interface ImViewer
      */
     public String getLookupTable(int index);
 
+    /**
+     * Get the reverse intensity flag for the given channel
+     * 
+     * @param index
+     *            The channel index
+     * @return See above
+     */
+    boolean getReverseIntensity(int index);
+    
     /**
      * Get all available lookup tables
      * 
@@ -1373,5 +1395,13 @@ public interface ImViewer
      * Reload the ROI count
      */
     void reloadROICount();
+
+    /**
+     * Update the scale bar menu, according to the given length
+     * 
+     * @param unitBarLength
+     *            The current scale bar length
+     */
+    public void updateUnitBarMenu(Length unitBarLength);
 
 }

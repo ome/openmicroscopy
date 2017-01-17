@@ -12,6 +12,8 @@
 # http://code.activestate.com/recipes/577202-render-tables-for-text-interface/
 #
 
+import json
+
 
 class Style(object):
 
@@ -89,6 +91,26 @@ class CSVStyle(PlainStyle):
             yield row
 
 
+class JSONStyle(Style):
+
+    NAME = "json"
+
+    def format(self, width, align):
+        return '%s'
+
+    def get_rows(self, table):
+        headers = list(table.get_row(None))
+
+        if table.length == 0:
+            yield '[]'
+
+        for i in range(0, table.length):
+            prefix = '[' if i == 0 else ''
+            suffix = ']' if i == table.length - 1 else ','
+            d = dict(zip(headers, table.get_row(i)))
+            yield prefix + json.dumps(d) + suffix
+
+
 class StyleRegistry(dict):
 
     def __init__(self):
@@ -96,6 +118,7 @@ class StyleRegistry(dict):
         self["csv"] = CSVStyle()
         self["sql"] = SQLStyle()
         self["plain"] = PlainStyle()
+        self["json"] = JSONStyle()
 
 
 STYLE_REGISTRY = StyleRegistry()

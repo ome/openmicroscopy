@@ -89,7 +89,7 @@ class TestChgrp(CLITest):
 
     def testFileset(self):
         # 2 images sharing a fileset
-        images = self.importMIF(2)
+        images = self.import_mif(2)
         img = self.query.get('Image', images[0].id.val)
         filesetId = img.fileset.id.val
         fileset = self.query.get('Fileset', filesetId)
@@ -107,7 +107,7 @@ class TestChgrp(CLITest):
             assert img.details.group.id.val == target_group.id.val
 
     def testFilesetPartialFailing(self):
-        images = self.importMIF(2)  # 2 images sharing a fileset
+        images = self.import_mif(2)  # 2 images sharing a fileset
 
         # try to move only one image to the new group
         target_group = self.target_groups['rw----']
@@ -123,7 +123,7 @@ class TestChgrp(CLITest):
             assert img.details.group.id.val == gid
 
     def testFilesetOneImage(self):
-        images = self.importMIF(1)  # One image in a fileset
+        images = self.import_mif(1)  # One image in a fileset
 
         # try to move only one image to the new group
         target_group = self.target_groups['rw----']
@@ -138,7 +138,7 @@ class TestChgrp(CLITest):
             assert img.details.group.id.val == target_group.id.val
 
     def testFilesetAllImagesMoveImages(self):
-        images = self.importMIF(2)  # 2 images sharing a fileset
+        images = self.import_mif(2)  # 2 images sharing a fileset
 
         # try to move both the images to the new group
         target_group = self.target_groups['rw----']
@@ -153,7 +153,7 @@ class TestChgrp(CLITest):
             assert img.details.group.id.val == target_group.id.val
 
     def testFilesetAllImagesMoveDataset(self):
-        images = self.importMIF(2)  # 2 images sharing a fileset
+        images = self.import_mif(2)  # 2 images sharing a fileset
         dataset_id = self.create_object('Dataset')  # ... in a dataset
 
         # put the images into the dataset

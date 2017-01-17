@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2016-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -21,7 +21,6 @@
 
 package omero.gateway.model;
 
-import static omero.rtypes.rstring;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -104,7 +103,7 @@ public class FolderData extends DataObject {
             throw new IllegalArgumentException("The name cannot be null.");
         }
         setDirty(true);
-        asFolder().setName(rstring(name));
+        asFolder().setName(omero.rtypes.rstring(name));
     }
 
     /**
@@ -125,7 +124,7 @@ public class FolderData extends DataObject {
      */
     public void setDescription(String desc) {
         setDirty(true);
-        asFolder().setDescription(rstring(desc));
+        asFolder().setDescription(omero.rtypes.rstring(desc));
     }
 
     /**

@@ -156,6 +156,12 @@ public class TwoKnobsSlider
 	/** The background image */
 	private BufferedImage      image;
 
+    /**
+     * Flag to indicate that the background image/color should be only drawn
+     * within the start and end slider knob
+     */
+    private boolean squeezeBackground = true;
+	
 	/** Computes the preferred size of this component. */
 	private void calculatePreferredSize()
 	{
@@ -727,10 +733,25 @@ public class TwoKnobsSlider
 	 */
 	Color[] getGradientColors() { return gradients; }
 	
-	BufferedImage getImage() {
-	    return this.image;
-	}
+    /**
+     * Get the background image
+     * 
+     * @return The current background image
+     */
+    BufferedImage getImage() {
+        return this.image;
+    }
 	
+    /**
+     * Returns if the background image/color is supposed to be only drawn within
+     * the start and end slider knob (instead of the full range)
+     * 
+     * @return See above.
+     */
+    boolean isSqueezeBackground() {
+        return squeezeBackground;
+    }
+    
 	/**
 	 * Returns <code>True</code> if the color gradient is set,
 	 * <code>false</code> otherwise.

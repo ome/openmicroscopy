@@ -35,6 +35,7 @@ import omero.RType;
 import omero.ServerError;
 import omero.rtypes;
 import omero.api.IAdminPrx;
+import omero.api.IPixelsPrx;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
@@ -172,6 +173,9 @@ public class AbstractServerTest extends AbstractTest {
     /** Helper reference to the server's critical roles. */
     protected Roles roles;
 
+    /** Helper reference to the <code>IPixels</code> service. */
+    protected IPixelsPrx iPix;
+    
     /** Reference to the importer store. */
     protected OMEROMetadataStoreClient importer;
 
@@ -747,6 +751,7 @@ public class AbstractServerTest extends AbstractTest {
         iUpdate = factory.getUpdateService();
         iAdmin = factory.getAdminService();
         roles = iAdmin.getSecurityRoles();
+        iPix = factory.getPixelsService();
         mmFactory = new ModelMockFactory(factory.getPixelsService());
 
         importer = new OMEROMetadataStoreClient();
@@ -1247,7 +1252,7 @@ public class AbstractServerTest extends AbstractTest {
     protected Image createBinaryImage(int sizeX, int sizeY, int sizeZ,
             int sizeT, int sizeC) throws Exception {
         Image image = mmFactory.createImage(sizeX, sizeY, sizeZ, sizeT,
-                sizeC);
+                sizeC, ModelMockFactory.UINT16);
         image = (Image) iUpdate.saveAndReturnObject(image);
         return createBinaryImage(image);
     }

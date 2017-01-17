@@ -29,7 +29,9 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.data.model.TableParameters;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
+
 import omero.gateway.SecurityContext;
+
 import org.openmicroscopy.shoola.env.data.views.calls.ArchivedFilesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ArchivedFilesSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ArchivedImageLoader;
@@ -39,6 +41,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.FileAnnotationCheckLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.FileUploader;
 import org.openmicroscopy.shoola.env.data.views.calls.FilesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.FilesetLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.HistogramLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.RelatedContainersLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ScriptsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.StructuredAnnotationLoader;
@@ -120,6 +123,12 @@ class MetadataHandlerViewImpl
 		return cmd.exec(observer);
 	}
 
+    public CallHandle loadHistogram(SecurityContext ctx, ImageData img,
+            int[] channels, int z, int t, AgentEventListener observer) {
+        BatchCallTree cmd = new HistogramLoader(ctx, img, channels, z, t);
+        return cmd.exec(observer);
+    }
+            
 	/**
 	 * Implemented as specified by the view interface.
 	 * @see MetadataHandlerView#loadExistingAnnotations(SecurityContext, Class,

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.measurement.util.InspectorCellRenderer 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.measurement.util.ui;
 import java.awt.Color;
 import java.awt.Component;
 import java.util.List;
+
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -129,13 +130,14 @@ public class InspectorCellRenderer
 				for (int i = 0 ; i < valueRange.size(); i++)
 				{
 					comboBox.addItem(valueRange.get(i));
-					if (value.equals(valueRange.get(i)))
+					if (valueRange.get(i).equals(value))
 						index = i;
 				}
 				comboBox.setSelectedIndex(index);
 			}
 			thisComponent = comboBox;
 		}
+		
 		return thisComponent;
 	}
 	

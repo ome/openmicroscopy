@@ -27,14 +27,14 @@
 import path
 import omero
 import omero.tables
-import library as lib
+from omero.testlib import ITest
 import pytest
 
 from omero import columns
 from omero.rtypes import rfloat, rint, rlong, rstring, unwrap, wrap
 
 
-class TestTables(lib.ITest):
+class TestTables(ITest):
 
     def createMaskCol(self):
         mask = columns.MaskColumnI('mask', 'desc', None)

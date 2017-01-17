@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -21,7 +21,9 @@
 package org.openmicroscopy.shoola.env.data.util;
 
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.openmicroscopy.shoola.env.data.model.AnnotationLinkData;
@@ -50,34 +52,34 @@ public class StructuredDataResults
 {
 	
 	/** The tags related to the object. */
-	private Collection<TagAnnotationData>	tags;
+	private Collection<TagAnnotationData>	tags = new ArrayList<TagAnnotationData>();
 	
 	/** The attachments related to the object. */
-	private Collection<FileAnnotationData>	attachments;
+	private Collection<FileAnnotationData>	attachments = new ArrayList<FileAnnotationData>();
 	
 	/** The terms related to the object. */
-	private Collection<TermAnnotationData>	terms;
+	private Collection<TermAnnotationData>	terms = new ArrayList<TermAnnotationData>();
 	
 	/** The textual annotations. */
-	private Collection<TextualAnnotationData> texts;
+	private Collection<TextualAnnotationData> texts = new ArrayList<TextualAnnotationData>();
 
 	/** The ratings of the objects. */
-	private Collection<RatingAnnotationData>  ratings;
+	private Collection<RatingAnnotationData>  ratings = new ArrayList<RatingAnnotationData>();
 	
 	/** The XML type of the objects. */
-	private Collection<XMLAnnotationData>  xmlAnnotations;
+	private Collection<XMLAnnotationData>  xmlAnnotations = new ArrayList<XMLAnnotationData>();
 	
 	/** Collection of annotations not already stored. */
-	private Collection<AnnotationData>     otherAnnotation;
+	private Collection<AnnotationData>     otherAnnotation = new ArrayList<AnnotationData>();
 	
 	/** The MapAnnotations. */
-	private Collection<MapAnnotationData>     mapAnnotations;
+	private Collection<MapAnnotationData>     mapAnnotations = new ArrayList<MapAnnotationData>();
 	
 	/** The object the results are for. */
 	private DataObject					relatedObject;
 	
 	/** The collection of links  for in-place imports.*/
-	private Collection<AnnotationData> transferlinks;
+	private Collection<AnnotationData> transferlinks = new ArrayList<AnnotationData>();
 
 	/** 
 	 * Collection of parents. 
@@ -87,10 +89,10 @@ public class StructuredDataResults
 	private Collection					parents;
 
 	/** The tags and documents links. */
-	private Map							links;
+	private Map							links = new HashMap();
 	
 	/** The concrete links.*/
-	private Collection<AnnotationLinkData> annotationLinks;
+	private Collection<AnnotationLinkData> annotationLinks = new ArrayList<AnnotationLinkData>();
 	
 	/** Flag indicating if the annotations have been loaded or not.*/
 	private boolean loaded;
@@ -169,16 +171,6 @@ public class StructuredDataResults
 	}
 
 	/**
-	 * Sets the collection of annotations.
-	 * 
-	 * @param texts The value to set.
-	 */
-	public void setTextualAnnotations(Collection<TextualAnnotationData> texts)
-	{
-		this.texts = texts;
-	}
-
-	/**
 	 * Returns the collection of attachments.
 	 * 
 	 * @return See above.
@@ -186,16 +178,6 @@ public class StructuredDataResults
 	public Collection<FileAnnotationData> getAttachments()
 	{ 
 		return attachments; 
-	}
-
-	/**
-	 * Sets the collections of attachments.
-	 * 
-	 * @param attachments The value to set.
-	 */
-	public void setAttachments(Collection<FileAnnotationData> attachments)
-	{
-		this.attachments = attachments;
 	}
 
 	/**
@@ -209,31 +191,11 @@ public class StructuredDataResults
 	}
 	
 	/**
-	 * Sets the collections of <code>XML</code> annotations.
-	 * 
-	 * @param xmlAnnotations The value to set.
-	 */
-	public void setXMLAnnotations(Collection<XMLAnnotationData> xmlAnnotations)
-	{
-		this.xmlAnnotations = xmlAnnotations;
-	}
-	
-	/**
 	 * Returns the ratings.
 	 * 
 	 * @return See above.
 	 */
 	public Collection<RatingAnnotationData> getRatings() { return ratings; }
-
-	/**
-	 * Sets the ratings.
-	 * 
-	 * @param ratings The value to set.
-	 */
-	public void setRatings(Collection<RatingAnnotationData> ratings)
-	{ 
-		this.ratings = ratings; 
-	}
 
 	/**
 	 * Returns the collection of tags.
@@ -243,31 +205,12 @@ public class StructuredDataResults
 	public Collection<TagAnnotationData> getTags() { return tags; }
 
 	/**
-	 * Sets the collections of tags.
-	 * 
-	 * @param tags The value to set.
-	 */
-	public void setTags(Collection<TagAnnotationData> tags)
-	{ 
-		this.tags = tags;
-	}
-
-	/**
 	 * Returns the collection of terms.
 	 * 
 	 * @return See above.
 	 */
 	public Collection<TermAnnotationData> getTerms() { return terms; }
 
-	/**
-	 * Sets the collections of terms.
-	 * 
-	 * @param terms The value to set.
-	 */
-	public void setTerms(Collection<TermAnnotationData> terms)
-	{ 
-		this.terms = terms; 
-	}
 	
 	/**
 	 * Returns the collection of annotations.
@@ -278,16 +221,6 @@ public class StructuredDataResults
 	{ 
 		return otherAnnotation; 
 	}
-
-	/**
-	 * Sets the collections of annotations.
-	 * 
-	 * @param otherAnnotation The value to set.
-	 */
-	public void setOtherAnnotation(Collection<AnnotationData> otherAnnotation)
-	{ 
-		this.otherAnnotation = otherAnnotation; 
-	}
 	
 	/**
 	 * Returns the collection of links.
@@ -297,13 +230,6 @@ public class StructuredDataResults
 	public Map getLinks() { return links; }
 	
 	/**
-	 * Sets the collection.
-	 * 
-	 * @param links The collection to set.
-	 */
-	public void setLinks(Map links) { this.links = links; }
-	
-	/**
 	 * Returns the collection of links.
 	 * 
 	 * @return See above.
@@ -311,25 +237,6 @@ public class StructuredDataResults
 	public Collection<AnnotationLinkData> getAnnotationLinks()
 	{
 		return annotationLinks;
-	}
-	
-	/**
-	 * Sets the collection.
-	 * 
-	 * @param annotationLinks The collection to set.
-	 */
-	public void setAnnotationLinks(Collection<AnnotationLinkData> annotationLinks)
-	{
-		this.annotationLinks = annotationLinks;
-	}
-	
-	/**
-	 * Sets the collection of transferlink annotations (in-place imports)
-	 * @param transferlinks Transferlink annotations to set
-	 */
-	public void setTransferlinks(Collection<AnnotationData> transferlinks)
-	{
-		this.transferlinks = transferlinks;
 	}
 	
 	/**
@@ -350,15 +257,4 @@ public class StructuredDataResults
 	public Collection<MapAnnotationData> getMapAnnotations() {
 		return mapAnnotations;
 	}
-
-	/**
-	 * Sets the collection of {@link MapAnnotationData}.
-	 * 
-	 * @param mapAnnotations The value to set.
-	 */
-	public void setMapAnnotations(Collection<MapAnnotationData> mapAnnotations)
-	{
-		this.mapAnnotations = mapAnnotations;
-	}
-
 }

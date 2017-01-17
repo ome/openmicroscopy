@@ -323,7 +323,7 @@ class RGBControl
      */
     void setLUT(String lut) {
         model.setLUT(lut);
-        fireChangeEvent(true);
+        fireChangeEvent(PaintPotUI.LUT_PROPERTY);
     }
 
     /**
@@ -336,12 +336,42 @@ class RGBControl
     }
 
     /**
+     * Set the reverse intensity
+     * 
+     * @param revInt
+     *            The reverse intensity
+     */
+    void setReverseIntensity(boolean revInt) {
+        model.setReverseIntensity(revInt);
+        fireChangeEvent(null);
+    }
+
+    /**
+     * Get the reverse intensity
+     * 
+     * @return See above
+     */
+    boolean getReverseIntensity() {
+        return model.getReverseIntensity();
+    }
+
+    
+    /**
      * Check if the lookup table has been changed
      * 
      * @return <code>true</code> if it has not, <code>false</code> if it has
      */
     boolean isOriginalLut() {
         return model.isOriginalLut(getLUT());
+    }
+    
+    /**
+     * Check if the reverse intensity has been changed
+     * 
+     * @return <code>true</code> if it has not, <code>false</code> if it has
+     */
+    boolean isOriginalRevInt() {
+        return model.getOriginalReverseIntensity() == getReverseIntensity();
     }
 
     /**
@@ -362,25 +392,28 @@ class RGBControl
 	
     /** Fires Changed event to all listeners stating the model has changed. */
     void fireChangeEvent() {
-        fireChangeEvent(false);
+        fireChangeEvent(PaintPotUI.COLOUR_CHANGED_PROPERTY);
     }
 
     /**
      * Fires Changed event to all listeners stating the model has changed.
      * 
-     * @param lut
-     *            Pass <code>true</code> if only the lookup table has changed
+     * @param property
+     *            An optional property to fire (see {@link
+     *            PaintPotUI#LUT_PROPERTY} ,
+     *            {@link PaintPotUI#COLOUR_CHANGED_PROPERTY}
      */
-    void fireChangeEvent(boolean lut) {
+    void fireChangeEvent(String property) {
         ChangeListener e;
         for (int i = 0; i < listeners.size(); i++) {
             e = listeners.get(i);
             e.stateChanged(new ColourChangedEvent(this));
         }
-        if (lut)
+
+        if (PaintPotUI.LUT_PROPERTY.equals(property))
             firePropertyChange(PaintPotUI.LUT_PROPERTY, null, model.getLUT());
 
-        else
+        else if (PaintPotUI.COLOUR_CHANGED_PROPERTY.equals(property))
             firePropertyChange(PaintPotUI.COLOUR_CHANGED_PROPERTY, null,
                     model.getColour());
     }

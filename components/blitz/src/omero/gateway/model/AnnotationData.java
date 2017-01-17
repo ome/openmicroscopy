@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -23,7 +23,6 @@ package omero.gateway.model;
 
 import java.sql.Timestamp;
 
-import static omero.rtypes.*;
 import omero.model.Annotation;
 
 /**
@@ -88,7 +87,7 @@ public abstract class AnnotationData extends DataObject {
      *            The value to set.
      */
     public void setNameSpace(String name) {
-        asAnnotation().setNs(name == null ? null : rstring(name));
+        asAnnotation().setNs(name == null ? null : omero.rtypes.rstring(name));
     }
 
     /**
@@ -133,7 +132,7 @@ public abstract class AnnotationData extends DataObject {
      */
     public void setDescription(String description) {
         asAnnotation().setDescription(
-                description == null ? null : rstring(description));
+                description == null ? null : omero.rtypes.rstring(description));
     }
 
     /**

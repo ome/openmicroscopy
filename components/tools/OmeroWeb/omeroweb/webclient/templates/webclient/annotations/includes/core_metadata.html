@@ -41,21 +41,23 @@
     </tr>
     <tr>
         {% with psX=image.getPixelSizeXWithUnits psY=image.getPixelSizeYWithUnits psZ=image.getPixelSizeZWithUnits %}
-            {% with uX=psX.1 uY=psY.1 uZ=psZ.1 %}
+            {% with vX=psX.0 vY=psY.0 vZ=psZ.0 uX=psX.1 uY=psY.1 uZ=psZ.1 %}
         <th>Pixels Size (XYZ){% if uX == uY and uX == uZ %} ({{ uX }}){% endif %}:</th>
         <td id='pixels_size'>
             <div class='tooltip'>
-                {{ psX.0|floatformat:2 }} {% if uX != uY or uX != uZ %}({{ uX }}){% endif %}
-                x {{ psY.0|floatformat:2 }} {% if uX != uY or uX != uZ %}({{ uY }}){% endif %}
-                {% if psZ.0 %}
-                    x {{ psZ.0|floatformat:2 }} {% if uX != uY or uX != uZ %}({{ uZ }}){% endif %}
-                {% endif %}
+                {% if vX or vY or vZ %}
+                    {{ vX|floatformat:2|default:'-' }} {% if vX %}{% if uX != uY or uX != uZ %}({{ uX }}){% endif %}{% endif %}
+                    x {{ vY|floatformat:2|default:'-' }} {% if vY %}{% if uX != uY or uX != uZ %}({{ uY }}){% endif %}{% endif %}
+                    x {{ vZ|floatformat:2|default:'-' }} {% if vZ %}{% if uX != uY or uX != uZ %}({{ uZ }}){% endif %}{% endif %}
+                {% else %}-{% endif %}
             </div>
             <span class="tooltip_html" style='display:none'>
-                {{ psX.0 }} ({{ uX }})
-                x {{ psY.0 }} ({{ uY }})
-                {% if psZ.0 %}
-                    x {{ psZ.0 }} ({{ uZ }})
+                {% if vX or vY or vZ %}
+                    {{ vX|default:'-' }} {% if vX %}({{ uX }}){% endif %}
+                    x {{ vY|default:'-' }} {% if vY %}({{ uY }}){% endif %}
+                    x {{ vZ|default:'-' }} {% if vZ %}({{ uZ }}){% endif %}
+                {% else %}
+                Physical pixel sizes not available
                 {% endif %}
             </span>
         </td>

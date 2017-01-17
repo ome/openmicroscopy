@@ -26,14 +26,14 @@
 """
 
 import omero.cli
-import library as lib
+from omero.testlib import ITest
 
 
 def call(*args):
     omero.cli.argv(["omero", "script"] + list(args))
 
 
-class TestScriptsViaOmeroCli(lib.ITest):
+class TestScriptsViaOmeroCli(ITest):
 
     def testDefinition(self):
         call("test/scripts/definition.py",

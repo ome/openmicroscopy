@@ -45,6 +45,7 @@ import javax.swing.border.Border;
  */
 public class LookupTableListRenderer extends JLabel implements ListCellRenderer {
 
+    /** The icon dimension */
     private static final Dimension ICON_DIM = new Dimension(96, 24);
 
     /** Create the colouricon which will hold the colours. */
@@ -57,6 +58,7 @@ public class LookupTableListRenderer extends JLabel implements ListCellRenderer 
     /** Border colour of the cell when the icon is not selected. */
     private Border emptyBorder = BorderFactory.createEmptyBorder(2, 2, 2, 2);
 
+    /** Default renderer */
     protected DefaultListCellRenderer defaultRenderer = new DefaultListCellRenderer();
 
     public Component getListCellRendererComponent(JList list, Object value,

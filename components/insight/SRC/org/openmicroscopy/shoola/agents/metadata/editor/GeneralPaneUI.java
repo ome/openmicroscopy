@@ -204,6 +204,7 @@ class GeneralPaneUI extends JPanel
         });
        
        idLabel = new JTextField();
+       idLabel.setBackground(UIUtilities.BACKGROUND);
        idLabel.setFont(idLabel.getFont().deriveFont(Font.BOLD));
        idLabel.setEditable(false);
        idLabel.setBorder(BorderFactory.createEmptyBorder());

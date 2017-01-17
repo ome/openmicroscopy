@@ -472,7 +472,15 @@ CUSTOM_SETTINGS_MAPPINGS = {
          ("Workers silent for more than this many seconds are killed "
           "and restarted. Check Gunicorn Documentation "
           "http://docs.gunicorn.org/en/stable/settings.html#timeout")],
-
+    "omero.web.api.absolute_url":
+        ["API_ABSOLUTE_URL",
+         None,
+         str_slash,
+         ("URL to use for generating urls within API json responses. "
+          "By default this is None, and we use Django's "
+          "request.build_absolute_uri() to generate absolute urls "
+          "based on each request. If set to a string or empty string, "
+          "this will be used as prefix to relative urls.")],
 
     # Public user
     "omero.web.public.enabled":
@@ -533,6 +541,21 @@ CUSTOM_SETTINGS_MAPPINGS = {
          str,
          ("Django view which handles display of, or redirection to, the "
           "desired full image viewer.")],
+
+    # OPEN WITH
+    "omero.web.open_with":
+        ["OPEN_WITH",
+         ('[["Image viewer", "webindex", {"supported_objects": ["image"],'
+          '"script_url": "webclient/javascript/ome.openwith_viewer.js"}]]'),
+         json.loads,
+         ("A list of viewers that can be used to display selected Images "
+          "or other objects. Each viewer is defined as "
+          "``[\"Name\", \"url\", options]``. Url is reverse(url). "
+          "Selected objects are added to the url as ?image=:1&image=2"
+          "Objects supported must be specified in options with"
+          "E.g. ``{\"supported_objects\":[\"images\"]}`` "
+          "to enable viewer for one or more images, "
+          "``{\"target\":\"_blank\"}`` to open in new tab.")],
 
     # PIPELINE 1.3.20
 
@@ -637,6 +660,20 @@ CUSTOM_SETTINGS_MAPPINGS = {
           " ] or [\"Repository\", {\"viewname\": \"webindex\", "
           "\"query_string\": {\"experimenter\": -1}}, "
           "{\"title\": \"Repo\"}]'``")],
+    "omero.web.ui.metadata_panes":
+        ["METADATA_PANES",
+         ('['
+          '{"name": "tag", "label": "Tags", "index": 1},'
+          '{"name": "map", "label": "Key-Value Pairs", "index": 2},'
+          '{"name": "table", "label": "Tables", "index": 3},'
+          '{"name": "file", "label": "Attachments", "index": 4},'
+          '{"name": "comment", "label": "Comments", "index": 5},'
+          '{"name": "rating", "label": "Ratings", "index": 6},'
+          '{"name": "other", "label": "Others", "index": 7}'
+          ']'),
+         json.loads,
+         ("Manage Metadata pane accordion. This functionality is limited to"
+          " the exiting sections.")],
     "omero.web.ui.right_plugins":
         ["RIGHT_PLUGINS",
          ('[["Acquisition",'
@@ -1076,7 +1113,6 @@ PIPELINE_CSS = {
             'webgateway/css/base.css',
             'webgateway/css/ome.snippet_header_logo.css',
             'webgateway/css/ome.postit.css',
-            'webgateway/css/ome.rangewidget.css',
             '3rdparty/farbtastic-1.2/farbtastic.css',
             'webgateway/css/ome.colorbtn.css',
             '3rdparty/JQuerySpinBtn-1.3a/JQuerySpinBtn.css',
@@ -1123,7 +1159,6 @@ PIPELINE_JS = {
             'webgateway/js/ome.colorbtn.js',
             'webgateway/js/ome.postit.js',
             '3rdparty/jquery.selectboxes-2.2.6.js',
-            'webgateway/js/ome.rangewidget.js',
             '3rdparty/farbtastic-1.2/farbtastic.js',
             '3rdparty/jquery.mousewheel-3.0.6.js',
         ),
@@ -1139,6 +1174,12 @@ CSRF_FAILURE_VIEW = "omeroweb.feedback.views.csrf_failure"
 # comment messages to http://qa.openmicroscopy.org.uk.
 # FEEDBACK_APP: 6 = OMERO.web
 FEEDBACK_APP = 6
+
+# For any given release of api, we may support
+# one or more versions of the api.
+# E.g. /api/v1.0/
+# TODO - need to decide how this is configured, strategy for extending etc.
+API_VERSIONS = ('0.1',)
 
 # IGNORABLE_404_STARTS:
 # Default: ('/cgi-bin/', '/_vti_bin', '/_vti_inf')

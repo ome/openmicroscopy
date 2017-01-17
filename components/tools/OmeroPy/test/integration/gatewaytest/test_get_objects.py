@@ -20,6 +20,14 @@ import pytest
 
 from omero.gateway.scripts import dbhelpers
 from omero.rtypes import wrap
+from omero.testlib import ITest
+from omero.gateway import BlitzGateway, KNOWN_WRAPPERS
+from omero.model import DatasetI, \
+    ImageI, \
+    PlateI, \
+    ScreenI, \
+    WellI, \
+    WellSampleI
 
 
 class TestDeleteObject (object):
@@ -37,7 +45,7 @@ class TestDeleteObject (object):
         tagId = tag.getId()
         handle = gateway.deleteObjects("Annotation", [tagId])
         gateway._waitOnCmd(handle)
-        assert None == gateway.getObject("Annotation", tagId)
+        assert gateway.getObject("Annotation", tagId) is None
 
     def testDeleteImage(self, gatewaywrapper, author_testimg_generated):
         image = author_testimg_generated
@@ -303,23 +311,62 @@ class TestGetObject (object):
         # params limit query by owner
         params = omero.sys.Parameters()
         params.theFilter = omero.sys.Filter()
+        conn = gatewaywrapper.gateway
 
         # should be no Projects owned by root (in the current group)
         params.theFilter.ownerId = omero.rtypes.rlong(0)  # owned by 'root'
-        pros = gatewaywrapper.gateway.getObjects("Project", None, params)
+        pros = conn.getObjects("Project", None, params)
+        assert len(list(pros)) == 0, "Should be no Projects owned by root"
+
+        # Also filter by owner using opts dict
+        pros = conn.getObjects("Project", None, opts={'owner': 0})
         assert len(list(pros)) == 0, "Should be no Projects owned by root"
 
         # filter by current user should get same as above. # owned by 'author'
         params.theFilter.ownerId = omero.rtypes.rlong(
-            gatewaywrapper.gateway.getEventContext().userId)
-        pros = list(gatewaywrapper.gateway.getObjects(
+            conn.getEventContext().userId)
+        pros = list(conn.getObjects(
             "Project", None, params))
-        projects = list(gatewaywrapper.gateway.listProjects())
+        projects = list(conn.listProjects())
         # check unordered lists are the same length & ids
         assert len(pros) == len(projects)
         projectIds = [p.getId() for p in projects]
         for p in pros:
             assert p.getId() in projectIds
+
+    def testPagination(self, gatewaywrapper):
+        gatewaywrapper.loginAsAuthor()
+        params = omero.sys.ParametersI()
+        # Only 3 images available
+        limit = 2
+        params.page(0, limit)
+        pros = list(gatewaywrapper.gateway.getObjects(
+            "Project", None, params))
+        assert len(pros) == limit
+
+        # Also using opts dict
+        pros = list(gatewaywrapper.gateway.getObjects(
+            "Project", None, opts={'offset': 0, 'limit': 2}))
+        assert len(pros) == limit
+
+    def testGetDatasetsByProject(self, gatewaywrapper):
+        gatewaywrapper.loginAsAuthor()
+        allDs = list(gatewaywrapper.gateway.getObjects("Dataset"))
+
+        # Get Datasets by project.listChildren()...
+        project = gatewaywrapper.getTestProject()
+        dsIds = [d.id for d in project.listChildren()]
+
+        # Get Datasets, filtering by project
+        p = {'project': project.id}
+        datasets = list(gatewaywrapper.gateway.getObjects("Dataset", opts=p))
+
+        # Check that not all Datasets are in Project (or test is invalid)
+        assert len(allDs) > len(dsIds)
+        # Should get same result both methods
+        assert len(datasets) == len(dsIds)
+        for d in datasets:
+            assert d.id in dsIds
 
     def testListExperimentersAndGroups(self, gatewaywrapper):
         gatewaywrapper.loginAsAuthor()
@@ -529,6 +576,33 @@ class TestGetObject (object):
         assert image.getOwnerOmeName == testImage.getOwnerOmeName
         assert image.getThumbVersion() is not None
 
+    @pytest.mark.parametrize("load_pixels", [True, False])
+    @pytest.mark.parametrize("load_channels", [True, False])
+    def testGetImageLoadPixels(self, load_pixels, load_channels,
+                               gatewaywrapper, author_testimg_tiny):
+        testImage = author_testimg_tiny
+        conn = gatewaywrapper.gateway
+        # By default (no opts), don't load pixels
+        image = conn.getObject("Image", testImage.id)
+        assert not image._obj.isPixelsLoaded()
+
+        # parametrized opts...
+        opts = {'load_pixels': load_pixels, 'load_channels': load_channels}
+        image = conn.getObject("Image", testImage.id, opts=opts)
+        # pixels are also loaded if load_channels
+        pix_loaded = load_pixels or load_channels
+        assert image._obj.isPixelsLoaded() == pix_loaded
+        if pix_loaded:
+            pixels = image._obj._pixelsSeq[0]
+            assert pixels.getPixelsType().isLoaded()
+            if load_channels:
+                assert pixels.isChannelsLoaded()
+                for c in pixels.copyChannels():
+                    lc = c.getLogicalChannel()
+                    assert lc.getPhotometricInterpretation().isLoaded()
+            else:
+                assert not pixels.isChannelsLoaded()
+
     def testGetProject(self, gatewaywrapper):
         gatewaywrapper.loginAsAuthor()
         testProj = gatewaywrapper.getTestProject()
@@ -554,41 +628,60 @@ class TestGetObject (object):
         assert pr.getParent() is None
         assert len(pr.listParents()) == 0
 
-    def testListOrphans(self, gatewaywrapper):
+    @pytest.mark.parametrize("orphaned", [True, False])
+    @pytest.mark.parametrize("load_pixels", [False, False])
+    def testListOrphans(self, orphaned, load_pixels, gatewaywrapper):
+        # We login as 'User', since they have no other orphaned images
         gatewaywrapper.loginAsUser()
-        eid = gatewaywrapper.gateway.getUserId()
+        conn = gatewaywrapper.gateway
+        eid = conn.getUserId()
 
-        imageList = list()
+        # Create 5 orphaned images
+        iids = []
         for i in range(0, 5):
-            imageList.append(gatewaywrapper.createTestImage(
-                imageName=(str(uuid.uuid1()))).getName())
+            img = gatewaywrapper.createTestImage(imageName=str(uuid.uuid1()))
+            iids.append(img.id)
+        # Create image in Dataset, to check this isn't found
+        dataset = DatasetI()
+        dataset.name = wrap('testListOrphans')
+        image = ImageI()
+        image.name = wrap('testListOrphans')
+        dataset.linkImage(image)
+        dataset = conn.getUpdateService().saveAndReturnObject(dataset)
 
-        findImages = list(gatewaywrapper.gateway.listOrphans("Image"))
-        assert len(findImages) == 5, "Did not find orphaned images"
+        try:
+            # Only test listOrphans() if orphaned
+            if orphaned:
+                # Pagination
+                params = omero.sys.ParametersI()
+                params.page(1, 3)
+                findImagesInPage = list(conn.listOrphans("Image", eid=eid,
+                                                         params=params))
+                assert len(findImagesInPage) == 3
 
-        for p in findImages:
-            assert not p._obj.pixelsLoaded
-            assert p.getName() in imageList, \
-                "All images should have queried name"
+                # No pagination (all orphans)
+                findImages = list(conn.listOrphans("Image",
+                                                   loadPixels=load_pixels))
+                assert len(findImages) == 5
+                for p in findImages:
+                    assert p._obj.pixelsLoaded == load_pixels
 
-        params = omero.sys.ParametersI()
-        params.page(1, 3)
-        findImagesInPage = list(gatewaywrapper.gateway.listOrphans(
-            "Image", eid=eid, params=params, loadPixels=True))
-        assert len(findImagesInPage) == 3, \
-            "Did not find orphaned images in page"
+            # Test getObjects() with 'orphaned' option
+            opts = {'orphaned': orphaned, 'load_pixels': load_pixels}
+            getImages = list(conn.getObjects("Image", opts=opts))
+            assert orphaned == (len(getImages) == 5)
+            for p in getImages:
+                assert p._obj.pixelsLoaded == load_pixels
 
-        for p in findImagesInPage:
-            assert p._obj.pixelsLoaded
-
-        for p in findImages:
-            client = p._conn
-            handle = client.deleteObjects(
-                'Image', [p.getId()], deleteAnns=True)
-            try:
-                client._waitOnCmd(handle)
-            finally:
-                handle.close()
+            # Simply check this doesn't fail See https://github.com/
+            # openmicroscopy/openmicroscopy/pull/4950#issuecomment-264142956
+            dsIds = [d.id for d in conn.listOrphans("Dataset")]
+            assert dataset.id.val in dsIds
+        finally:
+            # Cleanup - Delete what we created
+            conn.deleteObjects('Image', iids, deleteAnns=True, wait=True)
+            conn.deleteObjects('Dataset', [dataset.id.val],
+                               deleteChildren=True, wait=True)
 
     def testOrderById(self, gatewaywrapper):
         gatewaywrapper.loginAsUser()
@@ -751,3 +844,99 @@ class TestLeaderAndMemberOfGroup(object):
         assert len(summary["leaders"]) == 1
         assert summary["leaders"][0].omeName == "group_owner"
         assert len(summary["colleagues"]) == 0
+
+
+class TestListParents(ITest):
+
+    def testSupportedObjects(self):
+        """
+        Check that we are testing all objects where listParents() is supported.
+
+        If this test fails, need to update tested_wrappers and add
+        corresponding tests below
+        """
+        tested_wrappers = ['plate', 'image', 'dataset', 'experimenter', 'well']
+        for key, wrapper in KNOWN_WRAPPERS.items():
+            if (hasattr(wrapper, 'PARENT_WRAPPER_CLASS') and
+                    wrapper.PARENT_WRAPPER_CLASS is not None):
+                assert key in tested_wrappers
+
+    def testListParentsPDI(self):
+        """Test listParents() for Image in Dataset"""
+
+        # Set up PDI
+        client, exp = self.new_client_and_user()
+        p = self.make_project(name="ListParents Test", client=client)
+        d = self.make_dataset(name="ListParents Test", client=client)
+        i = self.make_image(name="ListParents Test", client=client)
+        self.link(p, d, client=client)
+        self.link(d, i, client=client)
+
+        conn = BlitzGateway(client_obj=client)
+        image = conn.getObject("Image", i.id.val)
+
+        # Traverse from Image -> Project
+        dataset = image.listParents()[0]
+        assert dataset.id == d.id.val
+
+        project = dataset.listParents()[0]
+        assert project.id == p.id.val
+        # Project has no parent
+        assert len(project.listParents()) == 0
+
+    def testListParentsSPW(self):
+        """Test listParents() for Image in WellSample"""
+
+        client, exp = self.new_client_and_user()
+        conn = BlitzGateway(client_obj=client)
+
+        # setup SPW-WS-Img...
+        s = ScreenI()
+        s.name = wrap('ScreenA')
+        p = PlateI()
+        p.name = wrap('PlateA')
+        s.linkPlate(p)
+        w = WellI()
+        w.column = wrap(0)
+        w.row = wrap(0)
+        p.addWell(w)
+        s = client.sf.getUpdateService().saveAndReturnObject(s)
+        p = s.linkedPlateList()[0]
+        w = p.copyWells()[0]
+        i = self.make_image(name="SPW listParents", client=client)
+        ws = WellSampleI()
+        ws.image = i
+        ws.well = WellI(w.id.val, False)
+        w.addWellSample(ws)
+        ws = client.sf.getUpdateService().saveAndReturnObject(ws)
+
+        # Traverse from Image -> Screen
+        image = conn.getObject("Image", i.id.val)
+        wellSample = image.listParents()[0]
+
+        well = wellSample.listParents()[0]
+        assert well.id == w.id.val
+
+        plate = well.listParents()[0]
+        assert plate.id == p.id.val
+
+        screen = plate.listParents()[0]
+        assert screen.id == s.id.val
+        # Screen has no parent
+        assert len(screen.listParents()) == 0
+
+    def testExperimenterListParents(self):
+        """Test listParents() for Experimenter in ExperimenterGroup."""
+
+        client, exp = self.new_client_and_user()
+        conn = BlitzGateway(client_obj=client)
+
+        userGroupId = conn.getAdminService().getSecurityRoles().userGroupId
+        exp = conn.getUser()
+        groups = exp.listParents()
+        assert len(groups) == 2
+        gIds = [g.id for g in groups]
+        assert userGroupId in gIds
+
+        # ExperimenterGroup has no parent
+        assert len(groups[0].listParents()) == 0

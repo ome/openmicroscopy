@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -122,6 +122,9 @@ public class MeasureLineFigure
 	/** Flag indicating if the user can move or resize the shape.*/
 	private boolean interactable;
 	
+	/** Flat indicating if the user can split the line */
+	private boolean allowSplitSegment = true;
+	
 	/**
 	 * Returns the point i in pixels or microns depending on the units used.
 	 * 
@@ -174,6 +177,8 @@ public class MeasureLineFigure
 		setAttribute(MeasurementAttributes.FONT_FACE, DEFAULT_FONT);
 		setAttribute(MeasurementAttributes.FONT_SIZE, new Double(FONT_SIZE));
         setAttribute(MeasurementAttributes.SCALE_PROPORTIONALLY, Boolean.FALSE);
+        setAttribute(MeasurementAttributes.START_DECORATION, null);
+        setAttribute(MeasurementAttributes.END_DECORATION, null);
 		boundsArray = new ArrayList<Rectangle2D>();
 		lengthArray = new ArrayList<Length>();
 		angleArray = new ArrayList<Double>();
@@ -826,7 +831,8 @@ public class MeasureLineFigure
 	 */
 	public int splitSegment(Point2D.Double split) 
 	{
-		if (isReadOnly() || !interactable) return -1;
+	    if (!canBeSplit())
+		    return -1;
 		this.setObjectDirty(true);
 		return super.splitSegment(split);
 	}
@@ -838,7 +844,8 @@ public class MeasureLineFigure
 	 */
 	public int splitSegment(Point2D.Double split, float tolerance) 
 	{
-		if (isReadOnly() || !interactable) return -1;
+	    if (!canBeSplit())
+		    return -1;
 		this.setObjectDirty(true);
 		return super.splitSegment(split, tolerance);
 	}
@@ -850,10 +857,20 @@ public class MeasureLineFigure
 	 */
 	public int joinSegments(Point2D.Double join, float tolerance) 
 	{
-		if (isReadOnly() || !interactable) return -1;
+		if (!canBeSplit())
+		    return -1;
 		this.setObjectDirty(true);
 		return super.joinSegments(join, tolerance);
 	}
+	
+    /**
+     * Checks if the line can be split into segments (polyline)
+     * 
+     * @return See above.
+     */
+    private boolean canBeSplit() {
+        return !isReadOnly() && interactable && allowSplitSegment;
+    }
 	
 	/**
 	 * Overridden to mark the object has dirty.
