@@ -95,6 +95,12 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
         ctx.pixels = iQuery.get(Pixels.class, pixelsId);
         Integer v = 0;
         switch (axis) {
+            case IProjection.MODULO_T_AXIS:
+                throw new IllegalArgumentException("Projection along modulo T "
+                        + "not supported yet");
+            case IProjection.MODULO_Z_AXIS:
+                throw new IllegalArgumentException("Projection along modulo Z "
+                        + "not supported yet");
             case IProjection.Z_AXIS:
             default:
                 v = ctx.pixels.getSizeT();
@@ -223,6 +229,12 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
                               int start, int end, String name)
     {
         switch (axis) {
+            case IProjection.MODULO_T_AXIS:
+                throw new IllegalArgumentException("Projection along modulo T "
+                        + "not supported yet");
+            case IProjection.MODULO_Z_AXIS:
+                throw new IllegalArgumentException("Projection along modulo Z "
+                        + "not supported yet");
             case IProjection.Z_AXIS:
             default:
                 return projectPixelsAlongZ(pixelsId, pixelsType, algorithm, planeStart,
