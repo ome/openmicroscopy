@@ -141,7 +141,7 @@ def fileread_gen(fin, fsize, bufsize):
     fin.close()
 
 
-def countAnnotations(annotationlinks=None):
+def countAnnotations(annotationlinks=[]):
     """
     Count the different (unique) annotions from the
     provided annotation links
@@ -154,9 +154,6 @@ def countAnnotations(annotationlinks=None):
         "LongAnnotation": 0,
         "MapAnnotation": 0,
         "OtherAnnotation": 0}
-
-    if annotationlinks is None:
-        return counts
 
     atypes = {
         omero.model.TagAnnotationI: "TagAnnotation",
@@ -1033,9 +1030,8 @@ class BlitzObjectWrapper (object):
 
         q = """
             select al from %sAnnotationLink al
-            left outer join al.parent as pa
             left outer join fetch al.child as an
-            where pa.id = :id
+            where al.parent.id = :id
             """ % self.OMERO_CLASS
 
         if ns:
@@ -3484,21 +3480,20 @@ class _BlitzGateway (object):
         for e in q.findAllByQuery(sql, p, self.SERVICE_OPTS):
             yield AnnotationWrapper._wrap(self, e)
 
-    def getAnnotationCounts(self, objDict=None):
+    def getAnnotationCounts(self, objDict={}):
         """
         Get the annotion counts for the given objects
         """
         obj_type = None
         obj_ids = []
-        if objDict is not None:
-            for key in objDict:
-                for o in objDict[key]:
-                    if obj_type is not None and obj_type != key:
-                        raise AttributeError(
-                            "getAnnotationCounts cannot be used with "
-                            "different types of objects")
-                    obj_type = key
-                    obj_ids.append(o.id)
+        for key in objDict:
+            for o in objDict[key]:
+                if obj_type is not None and obj_type != key:
+                    raise AttributeError(
+                        "getAnnotationCounts cannot be used with "
+                        "different types of objects")
+                obj_type = key
+                obj_ids.append(o.id)
 
         if obj_type is None:
             return countAnnotations()
@@ -3510,9 +3505,8 @@ class _BlitzGateway (object):
         params.addIds(obj_ids)
         q = """
             select al from %sAnnotationLink al
-            left outer join al.parent as pa
             left outer join fetch al.child as an
-            where pa.id in (:ids)
+            where al.parent.id in (:ids)
             """ % (obj_type)
 
         ctx = self.SERVICE_OPTS.copy()
