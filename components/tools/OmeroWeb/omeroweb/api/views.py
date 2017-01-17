@@ -294,7 +294,9 @@ class DatasetsView(ObjectsView):
     # Urls to add to marshalled object. See ProjectsView for more details
     urls = {
         'dataset_url': {'name': 'api_dataset',
-                        'kwargs': {'object_id': 'OBJECT_ID'}}
+                        'kwargs': {'object_id': 'OBJECT_ID'}},
+        'images_url': {'name': 'api_dataset_images',
+                       'kwargs': {'dataset_id': 'OBJECT_ID'}},
     }
 
 
