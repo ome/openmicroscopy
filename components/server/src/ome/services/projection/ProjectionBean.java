@@ -682,8 +682,8 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
                 ctx.to = new PixelData(pixelsType.getValue(), ByteBuffer.wrap(buf));
                 int newC = 0;
                 List<Integer> step = Arrays.asList(new Integer[]{1,1,1,1,1});
-                Integer sizeT = end-start;
-                List<Integer> size = Arrays.asList(new Integer[]{sizeX,sizeY, 1, 1, sizeT});
+                List<Integer> size = Arrays.asList(new Integer[]{sizeX, sizeY,
+                        1, 1, ctx.pixels.getSizeT()});
                 for (Integer c : channels)
                 {
                     ctx.minimum = Double.MAX_VALUE;
