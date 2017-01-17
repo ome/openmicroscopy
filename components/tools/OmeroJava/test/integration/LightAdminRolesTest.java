@@ -201,7 +201,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isAdmin cases")
-    public void testImporterAsSudoCreateImportDelete(boolean isAdmin) throws Exception {
+    public void testImporterAsSudoCreateImport(boolean isAdmin) throws Exception {
         final EventContext normalUser = newUserAndGroup("rwr-r-");
         loginNewAdmin(isAdmin, AdminPrivilegeSudo.value);
         
