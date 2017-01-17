@@ -189,11 +189,23 @@ class ProjectView(ObjectView):
 
     OMERO_TYPE = 'Project'
 
+    # Urls to add to marshalled object. See ProjectsView for more details
+    urls = {
+        'datasets_url': {'name': 'api_project_datasets',
+                         'kwargs': {'project_id': 'OBJECT_ID'}},
+    }
+
 
 class DatasetView(ObjectView):
     """Handle access to an individual Dataset to GET or DELETE it."""
 
     OMERO_TYPE = 'Dataset'
+
+    # Urls to add to marshalled object. See ProjectsView for more details
+    urls = {
+        'images_url': {'name': 'api_dataset_images',
+                       'kwargs': {'dataset_id': 'OBJECT_ID'}},
+    }
 
 
 class ImageView(ObjectView):
@@ -214,6 +226,12 @@ class ScreenView(ObjectView):
     """Handle access to an individual Screen to GET or DELETE it."""
 
     OMERO_TYPE = 'Screen'
+
+    # Urls to add to marshalled object. See ProjectsView for more details
+    urls = {
+        'plates_url': {'name': 'api_screen_plates',
+                       'kwargs': {'screen_id': 'OBJECT_ID'}},
+    }
 
 
 class PlateView(ObjectView):
