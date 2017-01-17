@@ -349,7 +349,6 @@ public class ModelMockFactory {
      *             Thrown if an error occurred.
      */
     public Detector createDetector() throws Exception {
-        // already tested see PixelsService enumeration.
         List<IObject> types = typesService
                 .allEnumerations(DetectorType.class.getName());
         Detector detector = new DetectorI();
@@ -377,7 +376,6 @@ public class ModelMockFactory {
      */
     public OTF createOTF(FilterSet filterSet, Objective objective)
             throws Exception {
-        // already tested see PixelsService enumeration.
         List<IObject> types = typesService.allEnumerations(PixelsType.class
                 .getName());
         OTF otf = new OTFI();
@@ -404,7 +402,6 @@ public class ModelMockFactory {
      *             Thrown if an error occurred.
      */
     public Filter createFilter(int cutIn, int cutOut) throws Exception {
-        // already tested see PixelsService enumeration.
         List<IObject> types = typesService.allEnumerations(FilterType.class
                 .getName());
         Filter filter = new FilterI();
@@ -470,7 +467,6 @@ public class ModelMockFactory {
         objective.setLotNumber(omero.rtypes.rstring("lot number"));
         objective.setCalibratedMagnification(omero.rtypes.rdouble(1));
         // correction
-        // already tested see PixelsService enumeration.
         List<IObject> types = typesService.allEnumerations(Correction.class
                 .getName());
         objective.setCorrection((Correction) types.get(0));
@@ -496,7 +492,6 @@ public class ModelMockFactory {
      */
     public ObjectiveSettings createObjectiveSettings(Objective objective)
             throws Exception {
-        // already tested see PixelsService enumeration.
         List<IObject> types = typesService.allEnumerations(Medium.class
                 .getName());
         ObjectiveSettings settings = new ObjectiveSettingsI();
@@ -545,7 +540,6 @@ public class ModelMockFactory {
      *             Thrown if an error occurred.
      */
     DetectorSettings createDetectorSettings(Detector detector) throws Exception {
-        // already tested see Types enumeration.
         List<IObject> types = typesService.allEnumerations(Binning.class
                 .getName());
         DetectorSettings settings = new DetectorSettingsI();
@@ -629,7 +623,7 @@ public class ModelMockFactory {
      *             Thrown if an error occurred.
      */
     public Arc createArc() throws Exception {
-        List<IObject> types =typesService.allEnumerations(ArcType.class
+        List<IObject> types = typesService.allEnumerations(ArcType.class
                 .getName());
         Arc arc = new ArcI();
         arc.setManufacturer(omero.rtypes.rstring("manufacturer"));
