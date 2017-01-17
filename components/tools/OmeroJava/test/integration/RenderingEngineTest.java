@@ -32,6 +32,8 @@ import omero.api.ITypesPrx;
 import omero.api.RenderingEnginePrx;
 import omero.cmd.Chgrp2;
 import omero.cmd.Delete2;
+import omero.constants.projection.ProjectionAxis;
+import omero.constants.projection.ProjectionType;
 import omero.gateway.util.Requests;
 import omero.model.Channel;
 import omero.model.ChannelBinding;
@@ -58,6 +60,7 @@ import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.testng.annotations.Test;
 import org.testng.Assert;
@@ -3366,5 +3369,121 @@ public class RenderingEngineTest extends AbstractServerTest {
             byte[] after = re.renderCompressed(pDef);
             Assert.assertFalse(Arrays.equals(after, before));
         }
+    }
+
+    /**
+     * Tests to render a plane using the <code>renderProjectedAsPackedInt2</code> method.
+     * Projects the image along the Z-axis.
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testRenderProjectedAsPackedIntAlongZ() throws Exception {
+        //First import an image
+        int sizeZ = 5;
+        Image image = createBinaryImage(1, 1, sizeZ, 1, 1);
+        Pixels p = image.getPrimaryPixels();
+        long id = p.getId().getValue();
+        factory.getRenderingSettingsService().setOriginalSettingsInSet(
+                Pixels.class.getName(), Arrays.asList(id));
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        int[] projection = re.renderProjectedAsPackedInt2(
+                ProjectionType.MAXIMUMINTENSITY,
+                ProjectionAxis.Z, 0, 1, 0, sizeZ-1);
+        Assert.assertTrue(ArrayUtils.isNotEmpty(projection));
+        re.close();
+    }
+
+    /**
+     * Tests to render a plane using the <code>renderProjectedCompressed2</code> method.
+     * Projects the image along the Z-axis.
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testRenderProjectedCompressed2AlongZ() throws Exception {
+        //First import an image
+        int sizeZ = 5;
+        Image image = createBinaryImage(1, 1, sizeZ, 1, 1);
+        Pixels p = image.getPrimaryPixels();
+        long id = p.getId().getValue();
+        factory.getRenderingSettingsService().setOriginalSettingsInSet(
+                Pixels.class.getName(), Arrays.asList(id));
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        byte[] projection = re.renderProjectedCompressed2(
+                ProjectionType.MAXIMUMINTENSITY,
+                ProjectionAxis.Z, 0, 1, 0, sizeZ-1);
+        Assert.assertTrue(ArrayUtils.isNotEmpty(projection));
+        re.close();
+    }
+
+    /**
+     * Tests to render a plane using the <code>renderProjectedAsPackedInt2</code> method.
+     * Projects the image along the T-axis.
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testRenderProjectedAsPackedIntAlongT() throws Exception {
+        //First import an image
+        int sizeT = 5;
+        Image image = createBinaryImage(1, 1, 1, sizeT, 1);
+        Pixels p = image.getPrimaryPixels();
+        long id = p.getId().getValue();
+        factory.getRenderingSettingsService().setOriginalSettingsInSet(
+                Pixels.class.getName(), Arrays.asList(id));
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        int[] projection = re.renderProjectedAsPackedInt2(
+                ProjectionType.MAXIMUMINTENSITY,
+                ProjectionAxis.T, 0, 1, 0, sizeT-1);
+        Assert.assertTrue(ArrayUtils.isNotEmpty(projection));
+        re.close();
+    }
+
+    /**
+     * Tests to render a plane using the <code>renderProjectedCompressed2</code> method.
+     * Projects the image along the T-axis.
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testRenderProjectedCompressed2AlongT() throws Exception {
+        //First import an image
+        int sizeT = 5;
+        Image image = createBinaryImage(1, 1, 1, sizeT, 1);
+        Pixels p = image.getPrimaryPixels();
+        long id = p.getId().getValue();
+        factory.getRenderingSettingsService().setOriginalSettingsInSet(
+                Pixels.class.getName(), Arrays.asList(id));
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        byte[] projection = re.renderProjectedCompressed2(
+                ProjectionType.MAXIMUMINTENSITY,
+                ProjectionAxis.T, 0, 1, 0, sizeT-1);
+        Assert.assertTrue(ArrayUtils.isNotEmpty(projection));
+        re.close();
     }
 }
