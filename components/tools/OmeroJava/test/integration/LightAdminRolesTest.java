@@ -872,19 +872,20 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         ProjectDatasetLink linkOfProjectDataset = linkProjectDataset(sentProj, sentDat);
         /* after successful linkage, transfer the ownership
          * of both links to the normalUser. For that the light admin
-         * needs additonally the Chown permission. Note that as you transfer
-         * the whole project to normalUser, all the objects contained
-         * under this project will be transferred too. This enables a one-step
-         * transfer of both the links to be transferred in one step. */
-        Project retrievedProject = (Project) iQuery.get("Project", sentProj.getId().getValue());
-        Chown2 chown = Requests.chown().target(retrievedProject).toUser(normalUser.userId).build();
+         * needs additonally the Chown permission. Note that the links
+         * have to be transferred step by step, as the Chown feature
+         * of whole hierarchy does not transfer links owned by non-owners
+         * of the P/D?I objects. */
+        Chown2 chown = Requests.chown().target(linkOfDatasetImage).toUser(normalUser.userId).build();
+        doChange(client, factory, chown, permChown);
+        chown = Requests.chown().target(linkOfProjectDataset).toUser(normalUser.userId).build();
         doChange(client, factory, chown, permChown);
 
         /* now retrieve and check that the links, image, dataset and project
          * are owned by normalUser */
         Image retrievedImage = (Image) iQuery.get("Image", sentImage.getId().getValue());
         Dataset retrievedDataset = (Dataset) iQuery.get("Dataset", sentDat.getId().getValue());
-        retrievedProject = (Project) iQuery.get("Project", sentProj.getId().getValue());
+        Project retrievedProject = (Project) iQuery.get("Project", sentProj.getId().getValue());
         DatasetImageLink retrievedDatasetImageLink = (DatasetImageLink) iQuery.findByQuery(
                 "FROM DatasetImageLink WHERE parent.id  = :id",
                 new ParametersI().addId(sentDat.getId()));
