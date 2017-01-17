@@ -196,8 +196,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * Test that an ImporterAs can create new Project and Dataset
      * and import data on behalf of another user solely with <tt>Sudo</tt> privilege
      * into this Dataset. Further link the Dataset to the Project, check
-     * that the link belongs to the user (not to the ImporterAs) and finally
-     * delete the links and the Project, Dataset and Image.
+     * that the link belongs to the user (not to the ImporterAs).
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isAdmin cases")
