@@ -26,6 +26,8 @@ import javax.imageio.ImageIO;
 
 import ome.specification.XMLMockObjects;
 import ome.specification.XMLWriter;
+
+import omero.api.IProjectionPrx;
 import omero.api.IRenderingSettingsPrx;
 import omero.api.IScriptPrx;
 import omero.api.ITypesPrx;
@@ -3485,5 +3487,262 @@ public class RenderingEngineTest extends AbstractServerTest {
                 ProjectionAxis.T, 0, 1, 0, sizeT-1);
         Assert.assertTrue(ArrayUtils.isNotEmpty(projection));
         re.close();
+    }
+
+    /**
+     * Compares the result of the <code>renderProjectedAsPackedInt2</code>
+     * and the rendered image of the projected image.
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testProjectImageAndRenderProjectedAsPackedIntAlongT() throws Exception {
+        //First import an image
+        int sizeT = 5;
+        Image image = createBinaryImage(1, 1, 1, sizeT, 1);
+        Pixels p = image.getPrimaryPixels();
+        long id = p.getId().getValue();
+        factory.getRenderingSettingsService().setOriginalSettingsInSet(
+                Pixels.class.getName(), Arrays.asList(id));
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        int[] projection = re.renderProjectedAsPackedInt2(
+                ProjectionType.MAXIMUMINTENSITY,
+                ProjectionAxis.T, 0, 1, 0, sizeT-1);
+        Assert.assertTrue(ArrayUtils.isNotEmpty(projection));
+        re.close();
+
+        // Project and render the projected image
+        List<Integer> channels = Arrays.asList(0);
+        int step = 1;
+        int end = 0;
+        int start = 0;
+        IProjectionPrx svc = factory.getProjectionService();
+        long imageID = svc.project(id,
+                null, ProjectionType.MAXIMUMINTENSITY,
+                ProjectionAxis.T, start, end,
+                channels, step, 0, sizeT-1,
+                "testProjectImageAndRenderProjectedAsPackedIntAlongT");
+        List<Long> ids = new ArrayList<Long>(1);
+        ids.add(imageID);
+        List<Image> images = factory.getContainerService().getImages(
+                Image.class.getName(), ids, new ParametersI());
+        image = images.get(0);
+        p = image.getPrimaryPixels();
+        id = p.getId().getValue();
+        factory.getRenderingSettingsService().setOriginalSettingsInSet(
+                Pixels.class.getName(), Arrays.asList(id));
+        re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        PlaneDef pDef = new PlaneDef();
+        pDef.t = re.getDefaultT();
+        pDef.z = re.getDefaultZ();
+        pDef.slice = omero.romio.XY.value;
+        int[] projected = re.renderAsPackedInt(pDef);
+        re.close();
+        Assert.assertTrue(Arrays.equals(projection, projected));
+    }
+
+    /**
+     * Compares the result of the <code>renderProjectedAsPackedInt2</code>
+     * and the rendered image of the projected image.
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testProjectImageAndRenderProjectedAsPackedIntAlongZ() throws Exception {
+        //First import an image
+        int sizeT = 5;
+        int sizeZ = 3;
+        Image image = createBinaryImage(1, 1, sizeZ, sizeT, 1);
+        Pixels p = image.getPrimaryPixels();
+        long id = p.getId().getValue();
+        factory.getRenderingSettingsService().setOriginalSettingsInSet(
+                Pixels.class.getName(), Arrays.asList(id));
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        int[] projection = re.renderProjectedAsPackedInt2(
+                ProjectionType.MAXIMUMINTENSITY,
+                ProjectionAxis.Z, 0, sizeT-1, 0, sizeZ-1);
+        Assert.assertTrue(ArrayUtils.isNotEmpty(projection));
+        re.close();
+
+        // Project and render the projected image
+        List<Integer> channels = Arrays.asList(0);
+        int step = 1;
+        int end = sizeT-1;
+        int start = 0;
+        IProjectionPrx svc = factory.getProjectionService();
+        long imageID = svc.project(id,
+                null, ProjectionType.MAXIMUMINTENSITY,
+                ProjectionAxis.Z, start, end,
+                channels, step, 0, sizeZ-1,
+                "testProjectImageAndRenderProjectedAsPackedIntAlongZ");
+        List<Long> ids = new ArrayList<Long>(1);
+        ids.add(imageID);
+        List<Image> images = factory.getContainerService().getImages(
+                Image.class.getName(), ids, new ParametersI());
+        image = images.get(0);
+        p = image.getPrimaryPixels();
+        id = p.getId().getValue();
+        factory.getRenderingSettingsService().setOriginalSettingsInSet(
+                Pixels.class.getName(), Arrays.asList(id));
+        re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        PlaneDef pDef = new PlaneDef();
+        pDef.t = re.getDefaultT();
+        pDef.z = re.getDefaultZ();
+        pDef.slice = omero.romio.XY.value;
+        int[] projected = re.renderAsPackedInt(pDef);
+        re.close();
+        Assert.assertTrue(Arrays.equals(projection, projected));
+    }
+
+    /**
+     * Compares the result of the <code>renderProjectedCompressed2</code>
+     * and the rendered image of the projected image.
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testProjectImageAndRenderProjectedCompressed2AlongT() throws Exception {
+        //First import an image
+        int sizeT = 5;
+        Image image = createBinaryImage(1, 1, 1, sizeT, 1);
+        Pixels p = image.getPrimaryPixels();
+        long id = p.getId().getValue();
+        factory.getRenderingSettingsService().setOriginalSettingsInSet(
+                Pixels.class.getName(), Arrays.asList(id));
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        byte[] projection = re.renderProjectedCompressed2(
+                ProjectionType.MAXIMUMINTENSITY,
+                ProjectionAxis.T, 0, 1, 0, sizeT-1);
+        Assert.assertTrue(ArrayUtils.isNotEmpty(projection));
+        re.close();
+
+        // Project and render the projected image
+        List<Integer> channels = Arrays.asList(0);
+        int step = 1;
+        int end = 0;
+        int start = 0;
+        IProjectionPrx svc = factory.getProjectionService();
+        long imageID = svc.project(id,
+                null, ProjectionType.MAXIMUMINTENSITY,
+                ProjectionAxis.T, start, end,
+                channels, step, 0, sizeT-1,
+                "testProjectImageAndRenderProjectedCompressed2AlongT");
+        List<Long> ids = new ArrayList<Long>(1);
+        ids.add(imageID);
+        List<Image> images = factory.getContainerService().getImages(
+                Image.class.getName(), ids, new ParametersI());
+        image = images.get(0);
+        p = image.getPrimaryPixels();
+        id = p.getId().getValue();
+        factory.getRenderingSettingsService().setOriginalSettingsInSet(
+                Pixels.class.getName(), Arrays.asList(id));
+        re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        PlaneDef pDef = new PlaneDef();
+        pDef.t = re.getDefaultT();
+        pDef.z = re.getDefaultZ();
+        pDef.slice = omero.romio.XY.value;
+        byte[] projected = re.renderCompressed(pDef);
+        re.close();
+        Assert.assertTrue(Arrays.equals(projection, projected));
+    }
+
+    /**
+     * Compares the result of the <code>renderProjectedCompressed2</code>
+     * and the rendered image of the projected image.
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testProjectImageAndRenderProjectedCompressed2AlongZ() throws Exception {
+        int sizeT = 5;
+        int sizeZ = 3;
+        Image image = createBinaryImage(1, 1, sizeZ, sizeT, 1);
+        Pixels p = image.getPrimaryPixels();
+        long id = p.getId().getValue();
+        factory.getRenderingSettingsService().setOriginalSettingsInSet(
+                Pixels.class.getName(), Arrays.asList(id));
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        byte[] projection = re.renderProjectedCompressed2(
+                ProjectionType.MAXIMUMINTENSITY,
+                ProjectionAxis.Z, 0, sizeT-1, 0, sizeZ-1);
+        Assert.assertTrue(ArrayUtils.isNotEmpty(projection));
+        re.close();
+
+        // Project and render the projected image
+        List<Integer> channels = Arrays.asList(0);
+        int step = 1;
+        int end = sizeT-1;
+        int start = 0;
+        IProjectionPrx svc = factory.getProjectionService();
+        long imageID = svc.project(id,
+                null, ProjectionType.MAXIMUMINTENSITY,
+                ProjectionAxis.Z, start, end,
+                channels, step, 0, sizeZ-1,
+                "testProjectImageAndRenderProjectedCompressed2AlongT");
+        List<Long> ids = new ArrayList<Long>(1);
+        ids.add(imageID);
+        List<Image> images = factory.getContainerService().getImages(
+                Image.class.getName(), ids, new ParametersI());
+        image = images.get(0);
+        p = image.getPrimaryPixels();
+        id = p.getId().getValue();
+        factory.getRenderingSettingsService().setOriginalSettingsInSet(
+                Pixels.class.getName(), Arrays.asList(id));
+        re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        PlaneDef pDef = new PlaneDef();
+        pDef.t = re.getDefaultT();
+        pDef.z = re.getDefaultZ();
+        pDef.slice = omero.romio.XY.value;
+        byte[] projected = re.renderCompressed(pDef);
+        re.close();
+        Assert.assertTrue(Arrays.equals(projection, projected));
     }
 }
