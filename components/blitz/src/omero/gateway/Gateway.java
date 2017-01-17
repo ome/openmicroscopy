@@ -1296,20 +1296,14 @@ public class Gateway {
      * 
      * @param ctx
      *            The {@link SecurityContext}
-     * @throws Exception
-     *             If the connector is cannot be closed.
      */
-    public void closeConnector(SecurityContext ctx) throws Exception {
+    public void closeConnector(SecurityContext ctx) {
         List<Connector> clist = groupConnectorMap.removeAll(ctx.getGroupID());
         if (CollectionUtils.isEmpty(clist))
             return;
 
         for (Connector c : clist) {
-            try {
-                c.close(isNetworkUp(true));
-            } catch (Throwable e) {
-                throw new Exception("Cannot close the connector", e);
-            }
+            c.close(isNetworkUp(true));
         }
     }
 
