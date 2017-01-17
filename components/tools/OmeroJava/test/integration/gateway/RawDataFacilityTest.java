@@ -118,8 +118,8 @@ public class RawDataFacilityTest extends GatewayTest {
 
         String name = UUID.randomUUID().toString();
         IPixelsPrx svc = gw.getPixelsService(rootCtx);
-        List<IObject> types = svc
-                .getAllEnumerations(PixelsType.class.getName());
+        List<IObject> types = gw.getTypesService(rootCtx)
+                .allEnumerations(PixelsType.class.getName());
         PixelsType type = (PixelsType) types.get(2); // unit8
         List<Integer> channels = new ArrayList<Integer>();
         for (int i = 0; i < 3; i++) {
