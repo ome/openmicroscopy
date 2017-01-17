@@ -51,7 +51,7 @@ def cmp_name_insensitive(x, y):
 
 
 def build_url(client, url_name, url_kwargs):
-    """Build an absolute url using client response url"""
+    """Build an absolute url using client response url."""
     response = client.request()
     # http://testserver/webclient/
     webclint_url = response.url
@@ -70,7 +70,7 @@ def marshal_objects(objects):
 
 
 def assert_objects(conn, json_objects, omero_ids_objects, dtype="Project",
-                   group='-1', extra=None):
+                   group='-1', extra=None, opts=None):
     """
     Load objects from OMERO, via conn.getObjects().
 
@@ -87,7 +87,7 @@ def assert_objects(conn, json_objects, omero_ids_objects, dtype="Project",
         except TypeError:
             pids.append(p.id.val)
     conn.SERVICE_OPTS.setOmeroGroup(group)
-    objs = conn.getObjects(dtype, pids, respect_order=True)
+    objs = conn.getObjects(dtype, pids, respect_order=True, opts=opts)
     objs = [p._obj for p in objs]
     expected = marshal_objects(objs)
     assert len(json_objects) == len(expected)
@@ -123,8 +123,10 @@ class TestContainers(IWebTest):
             dataset1 = DatasetI()
             dataset1.name = rstring('Dataset%s' % d)
             for i in range(d):
-                image = ImageI()
-                image.name = rstring('Image%s' % i)
+                image = self.create_test_image(size_x=5, size_y=5,
+                                               session=user1[0].getSession(),
+                                               name="Image%s" % i)
+                image = ImageI(image.id.val, False)
                 dataset1.linkImage(image)
             project.linkDataset(dataset1)
 
@@ -296,3 +298,74 @@ class TestContainers(IWebTest):
             })
         assert_objects(conn, rsp['data'], user_screens,
                        dtype="Screen", extra=extra)
+
+    def test_pdi_urls(self, user1, project_datasets):
+        """Test browsing via urls in json /api/->PDI."""
+        conn = get_connection(user1)
+        user_name = conn.getUser().getName()
+        client = self.new_django_client(user_name, user_name)
+        version = settings.API_VERSIONS[-1]
+        base_url = reverse('api_base', kwargs={'api_version': version})
+        base_rsp = _get_response_json(client, base_url, {})
+
+        # List projects
+        project, dataset = project_datasets
+        projects_url = base_rsp['projects_url']
+        rsp = _get_response_json(client, projects_url, {})
+        projects_json = rsp['data']
+        extra = [{
+            'project_url': build_url(client, 'api_project',
+                                     {'api_version': version,
+                                      'object_id': project.id.val}),
+            'datasets_url': build_url(client, 'api_project_datasets',
+                                      {'api_version': version,
+                                       'project_id': project.id.val})
+        }]
+        assert_objects(conn, projects_json, [project], extra=extra)
+        # View single Project
+        rsp = _get_response_json(client, projects_json[0]['project_url'], {})
+        assert_objects(conn, [rsp], [project],
+                       extra=[{'datasets_url': extra[0]['datasets_url']}])
+
+        # List datasets
+        datasets_url = projects_json[0]['datasets_url']
+        datasets = project.linkedDatasetList()
+        datasets.sort(cmp_name_insensitive)
+        rsp = _get_response_json(client, datasets_url, {})
+        datasets_json = rsp['data']
+        extra = []
+        for d in datasets:
+            extra.append({
+                'dataset_url': build_url(client, 'api_dataset',
+                                         {'api_version': version,
+                                          'object_id': d.id.val}),
+                'images_url': build_url(client, 'api_dataset_images',
+                                        {'api_version': version,
+                                         'dataset_id': d.id.val})
+            })
+        assert_objects(conn, datasets_json, datasets,
+                       dtype='Dataset', extra=extra)
+        # View single Dataset
+        rsp = _get_response_json(client, datasets_json[0]['dataset_url'], {})
+        assert_objects(conn, [rsp], datasets[0:1], dtype='Dataset',
+                       extra=[{'images_url': extra[0]['images_url']}])
+
+        # List images (from last Dataset)
+        images_url = datasets_json[-1]['images_url']
+        images = datasets[-1].linkedImageList()
+        images.sort(cmp_name_insensitive)
+        rsp = _get_response_json(client, images_url, {})
+        images_json = rsp['data']
+        extra = []
+        for i in images:
+            extra.append({
+                'image_url': build_url(client, 'api_image',
+                                       {'api_version': version,
+                                        'object_id': i.id.val}),
+            })
+        assert_objects(conn, images_json, images,
+                       dtype='Image', extra=extra, opts={'load_pixels': True})
+        # View single Image
+        rsp = _get_response_json(client, images_json[0]['image_url'], {})
+        assert_objects(conn, [rsp], images[0:1], dtype='Image',
+                       opts={'load_channels': True})

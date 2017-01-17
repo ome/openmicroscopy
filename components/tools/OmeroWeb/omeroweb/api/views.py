@@ -365,6 +365,12 @@ class ImagesView(ObjectsView):
 
     OMERO_TYPE = 'Image'
 
+    # Urls to add to marshalled object. See ProjectsView for more details
+    urls = {
+        'image_url': {'name': 'api_image',
+                      'kwargs': {'object_id': 'OBJECT_ID'}},
+    }
+
     def get_opts(self, request, **kwargs):
         """Add filtering by 'dataset' and other params to the opts dict."""
         opts = super(ImagesView, self).get_opts(request, **kwargs)
