@@ -109,7 +109,8 @@ class OMEROEntry
 		}
 		if (value == null) return true;
 		value = value.toLowerCase();
-		if (AgentInfo.TRUE.equals(value))
+		if (AgentInfo.TRUE.equals(value) ||
+                AgentInfo.TRUE_SHORT.equals(value))
 			return true;
 		else if (AgentInfo.FALSE.equals(value) ||
 				AgentInfo.FALSE_SHORT.equals(value))

@@ -2203,6 +2203,7 @@ public class OMEROMetadataStore
     			&& lc.getLightSourceSettings() == lc2.getLightSourceSettings()
     			&& compare(lc.getName(), lc2.getName())
     			&& compare(lc.getNdFilter(), lc2.getNdFilter())
+    			&& lc.getOtf() == lc2.getOtf()
     			&& compare(lc.getPinHoleSize(), lc2.getPinHoleSize())
     			&& compare(lc.getPockelCellSetting(), lc2.getPockelCellSetting())
     			&& compare(lc.getSamplesPerPixel(), lc2.getSamplesPerPixel())

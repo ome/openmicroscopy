@@ -105,7 +105,8 @@ public class OMEROInfo
         if (encrypted == null) this.encrypted = false; 
 		else {
 			encrypted = encrypted.toLowerCase();
-			if (AgentInfo.TRUE.equals(encrypted))
+			if (AgentInfo.TRUE.equals(encrypted) ||
+            AgentInfo.TRUE_SHORT.equals(encrypted))
 				this.encrypted = true;
 			else if (AgentInfo.FALSE.equals(encrypted) ||
 				AgentInfo.FALSE_SHORT.equals(encrypted))
