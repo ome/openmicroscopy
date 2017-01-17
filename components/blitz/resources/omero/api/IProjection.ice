@@ -54,7 +54,7 @@ module omero {
                  * @param end Optical section to finish projecting.
                  * @return A byte array of projected pixel values whose length
                  *         is equal to the Pixels set
-                 8         <code>sizeX * sizeY * bytesPerPixel</code> in
+                 *         <code>sizeX * sizeY * bytesPerPixel</code> in
                  *         big-endian format.
                  * @throws ValidationException Where:
                  * <ul>
@@ -76,12 +76,62 @@ module omero {
                                           int timepoint, int channelIndex, int stepping,
                                           int start, int end) throws ServerError;
 
+                /**
+                 * Performs a projection through the optical sections of a
+                 * particular wavelength at a given time point of a Pixels set.
+                 * @param pixelsId The source Pixels set Id.
+                 * @param pixelsType The destination Pixels type. If
+                 *                   <code>null</code>, the source Pixels set
+                 *                   pixels type will be used.
+                 * @param algorithm <code>MAXIMUM_INTENSITY</code>,
+                 *                  <code>MEAN_INTENSITY</code> or
+                 *                  <code>SUM_INTENSITY</code>. <b>NOTE:</b>
+                 *                  When performing a
+                 *                  <code>SUM_INTENSITY</code> projection,
+                 *                  pixel values will be <i>pinned</i> to the
+                 *                  maximum pixel value of the destination
+                 *                  Pixels type.
+                 * @param axis The axis to project along
+                 * @param plane Plane to perform the projection e.g.
+                 *              timepoint when projecting along Z-axis
+                 * @param channelIndex Index of the channel to perform the
+                 *                     projection.
+                 * @param stepping Stepping value to use while calculating the
+                 *                 projection.
+                 *                 For example, <code>stepping=1</code> will
+                 *                 use every optical section from
+                 *                 <code>start</code> to <code>end</code> where
+                 *                 <code>stepping=2</code> will use every
+                 *                 other section from <code>start</code> to
+                 *                 <code>end</code> to perform the projection.
+                 * @param start Plane to start projecting from e.g.
+                 *                   z-section when projecting along Z-axis
+                 * @param end Plane to finish projecting.
+                 * @return A byte array of projected pixel values whose length
+                 *         is equal to the Pixels set
+                 *         <code>sizeX * sizeY * bytesPerPixel</code> in
+                 *         big-endian format.
+                 * @throws ValidationException Where:
+                 * <ul>
+                 *   <li><code>algorithm</code> is unknown</li>
+                 *   <li><code>axis</code> is unknown</li>
+                 *   <li><code>plane</code> is out of range</li>
+                 *   <li><code>channelIndex</code> is out of range</li>
+                 *   <li><code>start</code> is out of range</li>
+                 *   <li><code>end</code> is out of range</li>
+                 *   <li><code>start > end</code></li>
+                 *   <li>the Pixels set qualified by <code>pixelsId</code> is
+                 *       unlocatable.</li>
+                 * </ul>
+                 * @see #project
+                 **/
                 Ice::ByteSeq projectPlanes(long pixelsId,
-                                          omero::model::PixelsType pixelsType,
-                                          omero::constants::projection::ProjectionType algorithm,
-                                          omero::constants::projection::ProjectionAxis axis,
-                                          int plane, int channelIndex, int stepping,
-                                          int start, int end) throws ServerError;
+                                           omero::model::PixelsType pixelsType,
+                                           omero::constants::projection::ProjectionType algorithm,
+                                           omero::constants::projection::ProjectionAxis axis,
+                                           int plane, int channelIndex, int stepping,
+                                           int start, int end) throws ServerError;
+
                 /**
                  * Performs a projection through selected optical sections and
                  * optical sections for a given set of time points of a Pixels
@@ -150,12 +200,76 @@ module omero {
                                    int zStart, int zEnd, string name)
                     throws ServerError;
 
-                 long project(long pixelsId, omero::model::PixelsType pixelsType,
-                                   omero::constants::projection::ProjectionType algorithm,
-                                   omero::constants::projection::ProjectionAxis axis,
-                                   int planeStart, int planeEnd,
-                                   omero::sys::IntList channelList, int stepping,
-                                   int start, int end, string name)
+                /**
+                 * Performs a projection through selected optical sections and
+                 * optical sections for a given set of time points of a Pixels
+                 * set. The Image which is linked to the Pixels set will be
+                 * copied using
+                 * {@link omero.api.IPixels#copyAndResizeImage}.
+                 *
+                 * @param pixelsId The source Pixels set Id.
+                 * @param pixelsType The destination Pixels type. If
+                 *                   <code>null</code>, the source Pixels set
+                 *                   pixels type will be used.
+                 * @param algorithm <code>MAXIMUM_INTENSITY</code>,
+                 *                  <code>MEAN_INTENSITY</code> or
+                 *                  <code>SUM_INTENSITY</code>. <b>NOTE:</b>
+                 *                  When performing a
+                 *                  <code>SUM_INTENSITY</code> projection,
+                 *                  pixel values will be <i>pinned</i> to the
+                 *                  maximum pixel value of the destination
+                 *                  Pixels type.
+                 * @param axis The axis to project along
+                 * @param planeStart Plane to start projecting from e.g.
+                 *                   timepoint when projecting along Z-axis
+                 * @param planeEnd Plane to finish projecting.
+                 * @param channels List of the channel indexes to use while
+                 *                 calculating the projection.
+                 * @param stepping Stepping value to use while calculating the
+                 *                 projection. For example,
+                 *                 <code>stepping=1</code> will use every
+                 *                 optical section from <code>start</code> to
+                 *                 <code>end</code> where
+                 *                 <code>stepping=2</code> will use every
+                 *                 other section from <code>start</code> to
+                 *                 <code>end</code> to perform the projection.
+                 * @param start Plane to start projecting from e.g. z-section
+                 *              when projecting along Z-axis
+                 * @param end Plane to finish projecting.
+                 * @param name Plane for the newly created image. If
+                 *             <code>null</code> the name of the Image linked
+                 *             to the Pixels qualified by
+                 *             <code>pixelsId</code> will be used with a
+                 *             <i>Projection</i> suffix. For example,
+                 *             <i>GFP-H2B Image of HeLa Cells</i> will have an
+                 *             Image name of
+                 *             <i>GFP-H2B Image of HeLa Cells Projection</i>
+                 *             used for the projection.
+                 * @return The Id of the newly created Image which has been
+                 *         projected.
+                 * @throws ValidationException Where:
+                 * <ul>
+                 *   <li><code>algorithm</code> is unknown</li>
+                 *   <li><code>axis</code> is unknown</li>
+                 *   <li><code>planeStart</code> is out of range</li>
+                 *   <li><code>planeEnd</code> is out of range</li>
+                 *   <li><code>planeStart > planeEnd</code></li>
+                 *   <li><code>channels</code> is null or has indexes out of
+                 *       range</li>
+                 *   <li><code>start</code> is out of range</li>
+                 *   <li><code>end</code> is out of range</li>
+                 *   <li><code>start > end</code></li>
+                 *   <li>the Pixels set qualified by <code>pixelsId</code> is
+                 *       unlocatable.</li>
+                 * </ul>
+                 * @see #projectPlanes
+                 **/
+                long project(long pixelsId, omero::model::PixelsType pixelsType,
+                             omero::constants::projection::ProjectionType algorithm,
+                             omero::constants::projection::ProjectionAxis axis,
+                             int planeStart, int planeEnd,
+                             omero::sys::IntList channelList, int stepping,
+                             int start, int end, string name)
                     throws ServerError;
             };
 
