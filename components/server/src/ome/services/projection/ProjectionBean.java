@@ -30,6 +30,7 @@ import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
+import ome.model.enums.ProjectionAxis;
 import ome.model.stats.StatsInfo;
 
 /**
@@ -90,26 +91,26 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
                                int algorithm, int axis, int plane, int channelIndex,
                                int stepping, int start, int end)
     {
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see ome.api.IProjection#projectStack(long, ome.model.enums.PixelsType, int, int, int, int, int, int)
-     */
-    @RolesAllowed("user")
-    public byte[] projectStack(long pixelsId, PixelsType pixelsType,
-                               int algorithm, int timepoint, int channelIndex, 
-                               int stepping, int start, int end)
-    {
         ProjectionContext ctx = new ProjectionContext();
         ctx.pixels = iQuery.get(Pixels.class, pixelsId);
-        intervalBoundsCheck(start, end, ctx.pixels.getSizeZ());
+        Integer v = 0;
+        switch (axis) {
+            case IProjection.Z_AXIS:
+            default:
+                v = ctx.pixels.getSizeT();
+                intervalBoundsCheck(start, end, ctx.pixels.getSizeZ());
+                outOfBoundsCheck(plane, "timepoint");
+                break;
+            case IProjection.T_AXIS:
+                v = ctx.pixels.getSizeZ();
+                intervalBoundsCheck(start, end, ctx.pixels.getSizeT());
+                outOfBoundsCheck(plane, "z-section");
+                break;
+        }
         outOfBoundsStepping(stepping);
         outOfBoundsCheck(channelIndex, "channel");
-        outOfBoundsCheck(timepoint, "timepoint");
-        Integer v = ctx.pixels.getSizeT();
-        if (timepoint >= v)
-            throw new ValidationException("timepoint must be <"+v);
+        if (plane >= v)
+            throw new ValidationException("plane must be <"+v);
         v = ctx.pixels.getSizeC();
         if (channelIndex >= v)
             throw new ValidationException("channel index must be <"+v);
@@ -131,7 +132,22 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
             int planeSize = 
                 ctx.planeSizeInPixels * (iPixels.getBitDepth(pixelsType) / 8);
             byte[] buf = new byte[planeSize];
-            ctx.from = pixelBuffer.getStack(channelIndex, timepoint);
+            
+            switch (axis) {
+                case IProjection.Z_AXIS:
+                    ctx.from = pixelBuffer.getStack(channelIndex, plane);
+                default:
+                    break;
+                case IProjection.T_AXIS:
+                    //retrieve the hypercube
+                    List<Integer> offset = Arrays.asList(new Integer[]{
+                            0, 0, plane, channelIndex, 0});
+                    List<Integer> size = Arrays.asList(new Integer[]{
+                            ctx.pixels.getSizeX(),
+                            ctx.pixels.getSizeY(), 1, 1,ctx.pixels.getSizeT()});
+                    List<Integer> step = Arrays.asList(new Integer[]{1,1,1,1,1});
+                    ctx.from = pixelBuffer.getHypercube(offset, size, step);
+            }
             ctx.to = new PixelData(pixelsType.getValue(), ByteBuffer.wrap(buf));
 
             switch (algorithm)
@@ -163,7 +179,7 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
         {
             String error = String.format(
                     "I/O error retrieving stack C=%d T=%d: %s",
-                    channelIndex, timepoint, e.getMessage());
+                    channelIndex, plane, e.getMessage());
             log.error(error, e);
             throw new ResourceError(error);
         }
@@ -171,7 +187,7 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
         {
             String error = String.format(
                     "C=%d or T=%d out of range for Pixels Id %d: %s",
-                    channelIndex, timepoint, ctx.pixels.getId(), e.getMessage());
+                    channelIndex, plane, ctx.pixels.getId(), e.getMessage());
             log.error(error, e);
             throw new ValidationException(error);
         }
@@ -181,6 +197,19 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
                 ctx.from.dispose();
             }
         }
+    }
+
+    /* (non-Javadoc)
+     * @see ome.api.IProjection#projectStack(long, ome.model.enums.PixelsType, int, int, int, int, int, int)
+     */
+    @RolesAllowed("user")
+    public byte[] projectStack(long pixelsId, PixelsType pixelsType,
+                               int algorithm, int timepoint, int channelIndex, 
+                               int stepping, int start, int end)
+    {
+        return projectPlanes(pixelsId, pixelsType, algorithm,
+                IProjection.Z_AXIS, timepoint, channelIndex, stepping,
+                start, end);
     }
 
     /* (non-Javadoc)
