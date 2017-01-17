@@ -11,6 +11,7 @@ import java.util.List;
 
 import omero.ValidationException;
 import omero.api.IProjectionPrx;
+import omero.constants.projection.ProjectionAxis;
 import omero.constants.projection.ProjectionType;
 import omero.model.Image;
 import omero.model.Pixels;
@@ -571,5 +572,53 @@ public class ProjectionServiceTest extends AbstractServerTest
     @Test
     public void testProjectImageByAdminRWRW() throws Exception {
         projectImage("rwrw--", AbstractServerTest.ADMIN);
+    }
+
+    /**
+     * Tests the projection along the T-axis.
+     * @throws Exception
+     */
+    @Test
+    public void testProjectImageAlongT() throws Exception {
+        Pixels pixels = importImage();
+        List<Integer> channels = Arrays.asList(0);
+        int step = 1;
+        int start = 0;
+        int end = pixels.getSizeZ().getValue()-1;
+        IProjectionPrx svc = factory.getProjectionService();
+        long imageID = svc.project(pixels.getId().getValue(),
+                null, ProjectionType.MAXIMUMINTENSITY,
+                ProjectionAxis.T, start, end,
+                channels, step, 0, pixels.getSizeT().getValue()-1,
+                "testProjectImageAlongT");
+        Assert.assertNotEquals(imageID, 0);
+        List<Image> images =
+                factory.getContainerService().getImages(Image.class.getName(),
+                Arrays.asList(imageID), new ParametersI());
+        Assert.assertEquals(1, images.size());
+        Pixels p = images.get(0).getPixels(0);
+        Assert.assertEquals(channels.size(), p.getSizeC().getValue());
+        Assert.assertEquals(Math.abs(start-end)+1, p.getSizeZ().getValue());
+        Assert.assertEquals(p.getSizeT().getValue(), 1);
+        Assert.assertEquals(pixels.getPixelsType().getValue().getValue(),
+                p.getPixelsType().getValue().getValue());
+    }
+
+    /**
+     * Tests the projection along the T-axis.
+     * @throws Exception
+     */
+    @Test
+    public void testProjectPlanesAlongT() throws Exception {
+        Pixels pixels = importImage();
+        int z = 0;
+        int channel = 0;
+        int step = 1;
+        IProjectionPrx svc = factory.getProjectionService();
+        byte[] value = svc.projectPlanes(pixels.getId().getValue(),
+                null, ProjectionType.MAXIMUMINTENSITY,
+                ProjectionAxis.T, z,
+                channel, step, 0, pixels.getSizeT().getValue()-1);
+        Assert.assertNotEquals(value.length, 0);
     }
 }
