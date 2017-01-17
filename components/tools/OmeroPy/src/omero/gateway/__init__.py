@@ -3499,7 +3499,7 @@ class _BlitzGateway (object):
             return countAnnotations()
 
         obj_type = obj_type.title().replace("Plateacquisition",
-        "PlateAcquisition")
+                                            "PlateAcquisition")
 
         params = omero.sys.ParametersI()
         params.addIds(obj_ids)
