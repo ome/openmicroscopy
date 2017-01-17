@@ -98,6 +98,8 @@ from omeroweb.webgateway.views import LoginView
 
 import tree
 
+import warnings
+
 logger = logging.getLogger(__name__)
 
 logger.info("INIT '%s'" % os.getpid())
@@ -2886,6 +2888,8 @@ def image_as_map(request, imageId, conn=None, **kwargs):
     Converts OMERO image into mrc.map file (using tiltpicker utils) and
     returns the file
     """
+    warnings.warn(
+        "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
 
     from omero_ext.tiltpicker.pyami import mrc
     from numpy import dstack, zeros, int8
