@@ -86,6 +86,10 @@ import Glacier2.PermissionDeniedException;
  * for use in export from an OMERO Beta 4.2.x database.
  *
  */
+/**
+ * @deprecated  As of release 5.3.0
+ */
+@Deprecated
 public class OmeroReader extends FormatReader {
 
     // -- Constants --
@@ -103,8 +107,19 @@ public class OmeroReader extends FormatReader {
     private Long groupID = null;
     private boolean encrypted = true;
 
-    private omero.client client;
-    private RawPixelsStorePrx store;
+    /** 
+     * The Blitz client object, this is the entry point to the
+     * OMERO Server using a secure connection.
+     */
+    private omero.client secureClient;
+
+    /** 
+     * The client object, this is the entry point to the
+     * OMERO Server using non secure data transfer
+     */
+    private omero.client unsecureClient;
+
+    private ServiceFactoryPrx serviceFactory;
     private Image img;
     private Pixels pix;
 
@@ -166,16 +181,29 @@ public class OmeroReader extends FormatReader {
         final int[] zct = FormatTools.getZCTCoords(this, no);
 
         final byte[] plane;
+        RawPixelsStorePrx store = null;
         try {
+            store = serviceFactory.createRawPixelsStore();
+            store.setPixelsId(pix.getId().getValue(), false);
             plane = store.getPlane(zct[0], zct[1], zct[2]);
         }
         catch (ServerError e) {
             throw new FormatException(e);
+        } finally {
+            // cannot use try-with-resources
+            // RawPixelsStorePrx does not implement autocloseable
+            if (store != null) {
+                try {
+                    store.close();
+                } catch (Exception ex) {
+                    throw new FormatException(ex);
+                }
+            }
         }
 
-        RandomAccessInputStream s = new RandomAccessInputStream(plane);
-        readPlane(s, x, y, w, h, buf);
-        s.close();
+        try (RandomAccessInputStream s = new RandomAccessInputStream(plane)) {
+            readPlane(s, x, y, w, h, buf);
+        }
 
         return buf;
     }
@@ -183,8 +211,13 @@ public class OmeroReader extends FormatReader {
     @Override
     public void close(boolean fileOnly) throws IOException {
         super.close(fileOnly);
-        if (!fileOnly && client != null) {
-            client.closeSession();
+        if (!fileOnly) {
+            if (secureClient != null) {
+                secureClient.closeSession();
+            }
+            if (unsecureClient != null) {
+                unsecureClient.closeSession();
+            }
         }
     }
 
@@ -256,18 +289,18 @@ public class OmeroReader extends FormatReader {
 
             LOGGER.info("Logging in");
 
-            client = new omero.client(address, port);
-            ServiceFactoryPrx serviceFactory = null;
+            secureClient = new omero.client(address, port);
+            serviceFactory = null;
             if (user != null && pass != null) {
-                serviceFactory = client.createSession(user, pass);
+                serviceFactory = secureClient.createSession(user, pass);
             }
             else {
-                serviceFactory = client.createSession(sessionID, sessionID);
+                serviceFactory = secureClient.createSession(sessionID, sessionID);
             }
 
             if (!encrypted) {
-                client = client.createClient(false);
-                serviceFactory = client.getSession();
+                unsecureClient = secureClient.createClient(false);
+                serviceFactory = unsecureClient.getSession();
             }
 
             IAdminPrx iAdmin = serviceFactory.getAdminService();
@@ -305,10 +338,6 @@ public class OmeroReader extends FormatReader {
                 }
             }
 
-            // get raw pixels store and pixels
-
-            store = serviceFactory.createRawPixelsStore();
-
             img = (Image) serviceFactory.getContainerService()
                     .getImages("Image", Arrays.asList(iid), null).get(0);
 
@@ -320,7 +349,6 @@ public class OmeroReader extends FormatReader {
             long pixelsId = img.getPixels(0).getId().getValue();
 
             pix = serviceFactory.getPixelsService().retrievePixDescription(pixelsId);
-            store.setPixelsId(pixelsId, false);
 
             final int sizeX = pix.getSizeX().getValue();
             final int sizeY = pix.getSizeY().getValue();
@@ -422,7 +450,6 @@ public class OmeroReader extends FormatReader {
                 }
             }
 
-            //            store.setImageID("omero:iid=", (int) img.getId().getValue());
             //Load ROIs to the img -->
             RoiOptions options = new RoiOptions();
             options.userId = omero.rtypes.rlong(iAdmin.getEventContext().userId);
@@ -436,60 +463,48 @@ public class OmeroReader extends FormatReader {
                 }
             }
         }
-        catch (CannotCreateSessionException e) {
-            throw new FormatException(e);
-        }
-        catch (PermissionDeniedException e) {
-            throw new FormatException(e);
-        }
-        catch (ServerError e) {
+        catch (CannotCreateSessionException|PermissionDeniedException|ServerError e) {
             throw new FormatException(e);
         }
     }
 
     /** A simple command line tool for downloading images from OMERO. */
     public static void main(String[] args) throws Exception {
-        // parse OMERO credentials
-        BufferedReader con = new BufferedReader(
+        try (BufferedReader con = new BufferedReader(
                 new InputStreamReader(System.in, Constants.ENCODING));
+            OmeroReader omeroReader = new OmeroReader()) {
+            // parse OMERO credentials
+            System.out.print("Server? ");
+            final String server = con.readLine();
 
-        System.out.print("Server? ");
-        final String server = con.readLine();
+            System.out.printf("Port [%d]? ", DEFAULT_PORT);
+            final String portString = con.readLine();
+            final int port = portString.equals("") ? DEFAULT_PORT :
+                Integer.parseInt(portString);
 
-        System.out.printf("Port [%d]? ", DEFAULT_PORT);
-        final String portString = con.readLine();
-        final int port = portString.equals("") ? DEFAULT_PORT :
-            Integer.parseInt(portString);
+            System.out.print("Username? ");
+            final String user = con.readLine();
 
-        System.out.print("Username? ");
-        final String user = con.readLine();
+            System.out.print("Password? ");
+            final String pass = new String(con.readLine());
 
-        System.out.print("Password? ");
-        final String pass = new String(con.readLine());
+            System.out.print("Group? ");
+            final String group = con.readLine();
 
-        System.out.print("Group? ");
-        final String group = con.readLine();
-
-        System.out.print("Image ID? ");
-        final int imageId = Integer.parseInt(con.readLine());
-        System.out.print("\n\n");
-
-        // construct the OMERO reader
-        final OmeroReader omeroReader = new OmeroReader();
-        omeroReader.setUsername(user);
-        omeroReader.setPassword(pass);
-        omeroReader.setServer(server);
-        omeroReader.setPort(port);
-        omeroReader.setGroupName(group);
-        final String id = "omero:iid=" + imageId;
-        try {
+            System.out.print("Image ID? ");
+            final int imageId = Integer.parseInt(con.readLine());
+            System.out.print("\n\n");
+            // construct the OMERO reader
+            final String id = "omero:iid=" + imageId;
+            omeroReader.setUsername(user);
+            omeroReader.setPassword(pass);
+            omeroReader.setServer(server);
+            omeroReader.setPort(port);
+            omeroReader.setGroupName(group);
             omeroReader.setId(id);
-        }
-        catch (Exception e) {
-            omeroReader.close();
+        } catch (Exception e) {
             throw e;
         }
-        omeroReader.close();
     }
     /** Converts omero.model.Roi to ome.xml.model.* and updates the MetadataStore */
     public static void saveOmeroRoiToMetadataStore(List<omero.model.Roi> rois,

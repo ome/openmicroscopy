@@ -89,8 +89,6 @@
   <logger name="omero.cmd" level="INFO"/>
   <logger name="omero.cmd.graphs" level="INFO"/>
   <logger name="ome.services.graphs" level="INFO"/>
-  <logger name="ome.services.chgrp" level="INFO"/>
-  <logger name="ome.services.chmod" level="INFO"/>
   <logger name="ome.services.delete" level="INFO"/>
   <!-- Adapters are also too so is a bit verbose -->
   <logger name="ome.adapters" level="ERROR"/>

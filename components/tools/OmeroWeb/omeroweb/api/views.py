@@ -78,6 +78,7 @@ def api_base(request, api_version=None, **kwargs):
     v = api_version
     rv = {'projects_url': build_url(request, 'api_projects', v),
           'datasets_url': build_url(request, 'api_datasets', v),
+          'images_url': build_url(request, 'api_images', v),
           'screens_url': build_url(request, 'api_screens', v),
           'plates_url': build_url(request, 'api_plates', v),
           'token_url': build_url(request, 'api_token', v),
@@ -119,9 +120,14 @@ class ObjectView(View):
         """Wrap other methods to add decorators."""
         return super(ObjectView, self).dispatch(*args, **kwargs)
 
+    def get_opts(self, request):
+        """Return a dict for use in conn.getObjects() based on request."""
+        return {}
+
     def get(self, request, object_id, conn=None, **kwargs):
         """Simply GET a single Object and marshal it or 404 if not found."""
-        obj = conn.getObject(self.OMERO_TYPE, object_id)
+        opts = self.get_opts(request)
+        obj = conn.getObject(self.OMERO_TYPE, pid, opts=opts)
         if obj is None:
             raise NotFoundError('%s %s not found' % (self.OMERO_TYPE,
                                                      object_id))
@@ -156,6 +162,20 @@ class DatasetView(ObjectView):
     """Handle access to an individual Dataset to GET or DELETE it."""
 
     OMERO_TYPE = 'Dataset'
+
+
+class ImageView(ObjectView):
+    """Handle access to an individual Image to GET or DELETE it."""
+
+    OMERO_TYPE = 'Image'
+
+    def get_opts(self, request):
+        """Add support for load_pixels and load_channels."""
+        opts = super(ImageView, self).get_opts(request)
+        opts['orphaned'] = request.GET.get('orphaned', False) == 'true'
+        # for single image, we always load channels
+        opts['load_channels'] = True
+        return opts
 
 
 class ScreenView(ObjectView):
@@ -315,6 +335,27 @@ class PlatesView(ObjectsView):
         'plate_url': {'name': 'api_plate',
                       'kwargs': {'object_id': 'OBJECT_ID'}}
     }
+
+
+class ImagesView(ObjectsView):
+    """Handles GET for /images/ to list available Images."""
+
+    OMERO_TYPE = 'Image'
+
+    def get_opts(self, request, **kwargs):
+        """Add filtering by 'dataset' and other params to the opts dict."""
+        opts = super(ImagesView, self).get_opts(request, **kwargs)
+        # at /datasets/:dataset_id/images/ we have 'dataset_id' in kwargs
+        if 'dataset_id' in kwargs:
+            opts['dataset'] = long(kwargs['dataset_id'])
+        else:
+            # filter by query /images/?dataset=:id
+            dataset = getIntOrDefault(request, 'dataset', None)
+            if dataset is not None:
+                opts['dataset'] = dataset
+        # When listing images, always load pixels by default
+        opts['load_pixels'] = True
+        return opts
 
 
 class SaveView(View):

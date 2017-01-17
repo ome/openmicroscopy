@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,6 @@
  */
 package omero.gateway.model;
 
-import static omero.rtypes.*;
 import omero.model.BooleanAnnotation;
 import omero.model.BooleanAnnotationI;
 
@@ -131,7 +130,7 @@ public class BooleanAnnotationData extends AnnotationData {
                     + "Boolean");
         }
         setDirty(true);
-        omero.RBool b = rbool(((Boolean) content).booleanValue());
+        omero.RBool b = omero.rtypes.rbool(((Boolean) content).booleanValue());
         ((BooleanAnnotation) asAnnotation()).setBoolValue(b);
     }
 

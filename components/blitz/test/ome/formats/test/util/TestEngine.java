@@ -145,7 +145,7 @@ public class TestEngine
 
 		String[] fileTypes = iniFile.getFileTypes();
 
-		if (populate = true && fileTypes != null)
+		if (populate == true && fileTypes != null)
 		{
 			// get all files in the directory
 			File[] datasetFiles = directory.listFiles();
@@ -163,7 +163,7 @@ public class TestEngine
 				}
 			}
 		}
-		else if (populate = true && fileTypes == null)
+		else if (populate == true && fileTypes == null)
 		{
 			log.error("No filetypes for " + iniFilePath);
 		}
