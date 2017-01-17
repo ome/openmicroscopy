@@ -519,8 +519,9 @@ class TestProjects(IWebTest):
         new_project_id = rsp['@id']
         assert rsp['omero:details']['group']['@id'] == group2_id
         # Read Project
-        project_url = reverse('api_project', kwargs={'api_version': version,
-                                                     'pid': new_project_id})
+        project_url = reverse('api_project',
+                              kwargs={'api_version': version,
+                                      'object_id': new_project_id})
         rsp = _get_response_json(django_client, project_url, {})
         assert rsp['omero:details']['group']['@id'] == group2_id
 
@@ -537,8 +538,9 @@ class TestProjects(IWebTest):
 
         # Update Project in 2 ways...
         version = settings.API_VERSIONS[-1]
-        project_url = reverse('api_project', kwargs={'api_version': version,
-                                                     'pid': project.id.val})
+        project_url = reverse('api_project',
+                              kwargs={'api_version': version,
+                                      'object_id': project.id.val})
         save_url = reverse('api_save', kwargs={'api_version': version})
         # 1) Get Project, update and save back
         project_json = _get_response_json(django_client, project_url, {})
@@ -577,8 +579,9 @@ class TestProjects(IWebTest):
         project.description = rstring('Test update')
         project = get_update_service(user1).saveAndReturnObject(project)
         version = settings.API_VERSIONS[-1]
-        project_url = reverse('api_project', kwargs={'api_version': version,
-                                                     'pid': project.id.val})
+        project_url = reverse('api_project',
+                              kwargs={'api_version': version,
+                                      'object_id': project.id.val})
         # Before delete, we can read
         pr_json = _get_response_json(django_client, project_url, {})
         assert pr_json['Name'] == 'test_project_delete'
