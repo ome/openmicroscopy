@@ -621,4 +621,50 @@ public class ProjectionServiceTest extends AbstractServerTest
                 channel, step, 0, pixels.getSizeT().getValue()-1);
         Assert.assertNotEquals(value.length, 0);
     }
+
+    /**
+     * Tests the projection along the ModuloT axis.
+     * @throws Exception
+     */
+    @Test
+    public void testProjectPlanesAlongInvalidAxis() throws Exception {
+        Pixels pixels = importImage();
+        int z = 0;
+        int channel = 0;
+        int step = 1;
+        IProjectionPrx svc = factory.getProjectionService();
+        try {
+            svc.projectPlanes(pixels.getId().getValue(),
+                    null, ProjectionType.MAXIMUMINTENSITY,
+                    ProjectionAxis.MODULOT, z,
+                    channel, step, 0, pixels.getSizeT().getValue()-1);
+            Assert.fail("An error should have been thrown");
+        } catch (Exception e) {
+            // An exception should have been thrown.
+        }
+    }
+
+    /**
+     * Tests the projection along the modulo Z axis.
+     * @throws Exception
+     */
+    @Test
+    public void testProjectImageAlongInvalidAxis() throws Exception {
+        Pixels pixels = importImage();
+        List<Integer> channels = Arrays.asList(0);
+        int step = 1;
+        int start = 0;
+        int end = pixels.getSizeZ().getValue()-1;
+        IProjectionPrx svc = factory.getProjectionService();
+        try {
+            svc.project(pixels.getId().getValue(),
+                    null, ProjectionType.MAXIMUMINTENSITY,
+                    ProjectionAxis.MODULOZ, start, end,
+                    channels, step, 0, pixels.getSizeT().getValue()-1,
+                    "testProjectImageAlongT");
+            Assert.fail("An error should have been thrown");
+        } catch (Exception e) {
+         // An exception should have been thrown.
+        }
+    }
 }
