@@ -22,7 +22,7 @@ import com.google.common.collect.ImmutableList.Builder;
 import ome.formats.model.UnitsFactory;
 import ome.units.UNITS;
 import omero.ServerError;
-import omero.api.IPixelsPrx;
+import omero.api.ITypesPrx;
 import omero.model.*;
 import omero.model.enums.UnitsLength;
 import omero.model.enums.UnitsTime;
@@ -97,8 +97,8 @@ public class ModelMockFactory {
     /** The bit pixels Type. */
     static String BIT = "bit";
 
-    /** Helper reference to the <code>IPixels</code> service. */
-    private IPixelsPrx pixelsService;
+    /** Helper reference to the <code>ITypes</code> service. */
+    private ITypesPrx typesService;
 
     /** all {@link ExperimentType}s */
     private ImmutableList<ExperimentType> experimentTypes;
@@ -118,11 +118,11 @@ public class ModelMockFactory {
     /**
      * Creates a new instance.
      *
-     * @param pixelsService
+     * @param typesService
      * @throws ServerError unexpected
      */
-    public ModelMockFactory(IPixelsPrx pixelsService) throws ServerError {
-        this.pixelsService = pixelsService;
+    public ModelMockFactory(ITypesPrx typesService) throws ServerError {
+        this.typesService = typesService;
         getExperimentTypes();
     }
 
@@ -132,7 +132,7 @@ public class ModelMockFactory {
      */
     public void getExperimentTypes() throws ServerError {
         final Builder<ExperimentType> builder = ImmutableList.builder();
-        for (final IObject experimentType : pixelsService.getAllEnumerations(ExperimentType.class.getName())) {
+        for (final IObject experimentType : typesService.allEnumerations(ExperimentType.class.getName())) {
             builder.add((ExperimentType) experimentType);
         }
         experimentTypes = builder.build();
@@ -350,8 +350,8 @@ public class ModelMockFactory {
      */
     public Detector createDetector() throws Exception {
         // already tested see PixelsService enumeration.
-        List<IObject> types = pixelsService
-                .getAllEnumerations(DetectorType.class.getName());
+        List<IObject> types = typesService
+                .allEnumerations(DetectorType.class.getName());
         Detector detector = new DetectorI();
         detector.setAmplificationGain(omero.rtypes.rdouble(0));
         detector.setGain(omero.rtypes.rdouble(1));
@@ -378,7 +378,7 @@ public class ModelMockFactory {
     public OTF createOTF(FilterSet filterSet, Objective objective)
             throws Exception {
         // already tested see PixelsService enumeration.
-        List<IObject> types = pixelsService.getAllEnumerations(PixelsType.class
+        List<IObject> types = typesService.allEnumerations(PixelsType.class
                 .getName());
         OTF otf = new OTFI();
         otf.setFilterSet(filterSet);
@@ -405,7 +405,7 @@ public class ModelMockFactory {
      */
     public Filter createFilter(int cutIn, int cutOut) throws Exception {
         // already tested see PixelsService enumeration.
-        List<IObject> types = pixelsService.getAllEnumerations(FilterType.class
+        List<IObject> types = typesService.allEnumerations(FilterType.class
                 .getName());
         Filter filter = new FilterI();
         filter.setLotNumber(omero.rtypes.rstring("lot number"));
@@ -471,11 +471,11 @@ public class ModelMockFactory {
         objective.setCalibratedMagnification(omero.rtypes.rdouble(1));
         // correction
         // already tested see PixelsService enumeration.
-        List<IObject> types = pixelsService.getAllEnumerations(Correction.class
+        List<IObject> types = typesService.allEnumerations(Correction.class
                 .getName());
         objective.setCorrection((Correction) types.get(0));
         // immersion
-        types = pixelsService.getAllEnumerations(Immersion.class.getName());
+        types = typesService.allEnumerations(Immersion.class.getName());
         objective.setImmersion((Immersion) types.get(0));
 
         objective.setIris(omero.rtypes.rbool(true));
@@ -497,7 +497,7 @@ public class ModelMockFactory {
     public ObjectiveSettings createObjectiveSettings(Objective objective)
             throws Exception {
         // already tested see PixelsService enumeration.
-        List<IObject> types = pixelsService.getAllEnumerations(Medium.class
+        List<IObject> types = typesService.allEnumerations(Medium.class
                 .getName());
         ObjectiveSettings settings = new ObjectiveSettingsI();
         settings.setCorrectionCollar(omero.rtypes.rdouble(1));
@@ -545,8 +545,8 @@ public class ModelMockFactory {
      *             Thrown if an error occurred.
      */
     DetectorSettings createDetectorSettings(Detector detector) throws Exception {
-        // already tested see PixelsService enumeration.
-        List<IObject> types = pixelsService.getAllEnumerations(Binning.class
+        // already tested see Types enumeration.
+        List<IObject> types = typesService.allEnumerations(Binning.class
                 .getName());
         DetectorSettings settings = new DetectorSettingsI();
         settings.setBinning((Binning) types.get(0));
@@ -569,9 +569,7 @@ public class ModelMockFactory {
      */
     public LightSettings createLightSettings(LightSource light)
             throws Exception {
-        // already tested see PixelsService enumeration.
-        List<IObject> types = pixelsService
-                .getAllEnumerations(MicrobeamManipulationType.class.getName());
+        List<IObject> types = typesService.allEnumerations(MicrobeamManipulationType.class.getName());
         LightSettings settings = new LightSettingsI();
         settings.setLightSource(light);
         settings.setAttenuation(omero.rtypes.rdouble(1));
@@ -611,8 +609,7 @@ public class ModelMockFactory {
      *             Thrown if an error occurred.
      */
     public Filament createFilament() throws Exception {
-        List<IObject> types = pixelsService
-                .getAllEnumerations(FilamentType.class.getName());
+        List<IObject> types = typesService.allEnumerations(FilamentType.class.getName());
         Filament filament = new FilamentI();
         filament.setManufacturer(omero.rtypes.rstring("manufacturer"));
         filament.setModel(omero.rtypes.rstring("model"));
@@ -632,7 +629,7 @@ public class ModelMockFactory {
      *             Thrown if an error occurred.
      */
     public Arc createArc() throws Exception {
-        List<IObject> types = pixelsService.getAllEnumerations(ArcType.class
+        List<IObject> types =typesService.allEnumerations(ArcType.class
                 .getName());
         Arc arc = new ArcI();
         arc.setManufacturer(omero.rtypes.rstring("manufacturer"));
@@ -677,15 +674,15 @@ public class ModelMockFactory {
         laser.setLotNumber(omero.rtypes.rstring("lot number"));
         laser.setSerialNumber(omero.rtypes.rstring("serial number"));
         // type
-        List<IObject> types = pixelsService.getAllEnumerations(LaserType.class
+        List<IObject> types = typesService.allEnumerations(LaserType.class
                 .getName());
         laser.setType((LaserType) types.get(0));
         // laser medium
-        types = pixelsService.getAllEnumerations(LaserMedium.class.getName());
+        types = typesService.allEnumerations(LaserMedium.class.getName());
         laser.setLaserMedium((LaserMedium) types.get(0));
 
         // pulse
-        types = pixelsService.getAllEnumerations(Pulse.class.getName());
+        types = typesService.allEnumerations(Pulse.class.getName());
         laser.setPulse((Pulse) types.get(0));
 
         laser.setFrequencyMultiplication(omero.rtypes.rint(1));
@@ -705,8 +702,7 @@ public class ModelMockFactory {
      *             Thrown if an error occurred.
      */
     public Instrument createInstrument() throws Exception {
-        List<IObject> types = pixelsService
-                .getAllEnumerations(MicroscopeType.class.getName());
+        List<IObject> types = typesService.allEnumerations(MicroscopeType.class.getName());
         Instrument instrument = new InstrumentI();
         MicroscopeI microscope = new MicroscopeI();
         microscope.setManufacturer(omero.rtypes.rstring("manufacturer"));
@@ -841,7 +837,7 @@ public class ModelMockFactory {
      */
     public Pixels createPixels(int sizeX, int sizeY, int sizeZ, int sizeT,
             int sizeC, String pxType) throws Exception {
-        List<IObject> types = pixelsService.getAllEnumerations(PixelsType.class
+        List<IObject> types = typesService.allEnumerations(PixelsType.class
                 .getName());
         Iterator<IObject> i = types.iterator();
         PixelsType object;
@@ -855,8 +851,7 @@ public class ModelMockFactory {
         }
         if (type == null)
             type = (PixelsType) types.get(0);
-        types = pixelsService
-                .getAllEnumerations(DimensionOrder.class.getName());
+        types = typesService.allEnumerations(DimensionOrder.class.getName());
         i = types.iterator();
         DimensionOrder o;
         DimensionOrder order = null;
@@ -915,13 +910,12 @@ public class ModelMockFactory {
         Channel channel = new ChannelI();
         LogicalChannel lc = new LogicalChannelI();
         lc.setEmissionWave(new LengthI(200.1, UnitsFactory.Channel_EmissionWavelength));
-        List<IObject> types = pixelsService
-                .getAllEnumerations(ContrastMethod.class.getName());
+        List<IObject> types = typesService.allEnumerations(ContrastMethod.class.getName());
         ContrastMethod cm = (ContrastMethod) types.get(0);
 
-        types = pixelsService.getAllEnumerations(Illumination.class.getName());
+        types = typesService.allEnumerations(Illumination.class.getName());
         Illumination illumination = (Illumination) types.get(0);
-        types = pixelsService.getAllEnumerations(AcquisitionMode.class
+        types = typesService.allEnumerations(AcquisitionMode.class
                 .getName());
         AcquisitionMode mode = (AcquisitionMode) types.get(0);
         lc.setContrastMethod(cm);
