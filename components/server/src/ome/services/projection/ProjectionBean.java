@@ -97,12 +97,11 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
         switch (axis) {
             case IProjection.MODULO_T_AXIS:
                 throw new IllegalArgumentException("Projection along modulo T "
-                        + "not supported yet");
+                        + "not implemented yet");
             case IProjection.MODULO_Z_AXIS:
                 throw new IllegalArgumentException("Projection along modulo Z "
-                        + "not supported yet");
+                        + "not implemented yet");
             case IProjection.Z_AXIS:
-            default:
                 v = ctx.pixels.getSizeT();
                 intervalBoundsCheck(start, end, ctx.pixels.getSizeZ());
                 outOfBoundsCheck(plane, "timepoint");
@@ -229,14 +228,16 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
                               int start, int end, String name)
     {
         switch (axis) {
+            default:
+                throw new IllegalArgumentException("Projection axis "
+                        + "not supported");
             case IProjection.MODULO_T_AXIS:
                 throw new IllegalArgumentException("Projection along modulo T "
-                        + "not supported yet");
+                        + "not implemented yet");
             case IProjection.MODULO_Z_AXIS:
                 throw new IllegalArgumentException("Projection along modulo Z "
-                        + "not supported yet");
+                        + "not implemented yet");
             case IProjection.Z_AXIS:
-            default:
                 return projectPixelsAlongZ(pixelsId, pixelsType, algorithm, planeStart,
                         planeEnd, channels, stepping, start, end, name);
             case IProjection.T_AXIS:
