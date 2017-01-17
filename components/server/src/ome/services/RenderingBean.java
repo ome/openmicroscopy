@@ -643,7 +643,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
             {
                 renderer.setResolutionLevel(resolutionLevel);
             }
-            int[] buf = renderProjectedAsPackedInt(algorithm, plane,
+            int[] buf = renderProjectedAsPackedInt2(algorithm, axis, plane,
                     stepping, start, end);
             int sizeX = pixelsObj.getSizeX();
             int sizeY = pixelsObj.getSizeY();
