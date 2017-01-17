@@ -46,7 +46,10 @@ public class SecurityContext {
     /** Host/port of the server */
     private ServerInformation serverInformation;
 
-    /** The compression level */
+    /**
+     * A percentage compression level from 1.00 (100%) to 0.01 (1%) (the default
+     * is 85%)
+     */
     private float compression;
 
     /**
@@ -131,7 +134,9 @@ public class SecurityContext {
     }
 
     /**
-     * Get the compression level
+     * Get the compression level (A percentage compression level from 1.00
+     * (100%) to 0.01 (1%) (the default is 85%))
+     * 
      * @return See above.
      */
     public float getCompression() {
@@ -140,7 +145,10 @@ public class SecurityContext {
 
     /**
      * Set the compression level
-     * @param compression The compression ratio
+     * 
+     * @param compression
+     *            A percentage compression level from 1.00 (100%) to 0.01 (1%)
+     *            (the default is 85%)
      */
     public void setCompression(float compression) {
         this.compression = compression;

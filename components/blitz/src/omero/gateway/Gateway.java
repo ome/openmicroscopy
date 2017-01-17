@@ -1499,19 +1499,17 @@ public class Gateway {
      * Shuts down the connectors created while creating/importing data for other
      * users.
      *
-     * @param ctx The {@link SecurityContext}
-     * @throws Exception
-     *             Thrown if the connector cannot be closed.
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      */
-    public void shutDownDerivedConnector(SecurityContext ctx) throws Exception {
+    public void shutDownDerivedConnector(SecurityContext ctx)
+            throws DSOutOfServiceException {
         Connector c = getConnector(ctx, true, true);
         if (c == null)
             return;
-        try {
-            c.closeDerived(isNetworkUp(true));
-        } catch (Throwable e) {
-            throw new Exception("Cannot close the derived connectors", e);
-        }
+        c.closeDerived(isNetworkUp(true));
     }
 
     /**
