@@ -123,7 +123,7 @@ GET Images in Dataset, using omero-marshal to generate json
 """
 
 api_image = url(
-    r'^v(?P<api_version>%s)/m/images/(?P<pid>[0-9]+)/$' % versions,
+    r'^v(?P<api_version>%s)/m/images/(?P<object_id>[0-9]+)/$' % versions,
     views.ImageView.as_view(),
     name='api_image')
 """
