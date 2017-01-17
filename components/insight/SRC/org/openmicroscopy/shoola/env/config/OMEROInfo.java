@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.config.OMEROInfo
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -105,8 +105,7 @@ public class OMEROInfo
         if (encrypted == null) this.encrypted = false; 
 		else {
 			encrypted = encrypted.toLowerCase();
-			if (AgentInfo.TRUE.equals(encrypted) ||
-				AgentInfo.TRUE.equals(encrypted))
+			if (AgentInfo.TRUE.equals(encrypted))
 				this.encrypted = true;
 			else if (AgentInfo.FALSE.equals(encrypted) ||
 				AgentInfo.FALSE_SHORT.equals(encrypted))
