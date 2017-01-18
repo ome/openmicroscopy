@@ -237,6 +237,12 @@ class PlateView(ObjectView):
 
     OMERO_TYPE = 'Plate'
 
+    # Urls to add to marshalled object. See ProjectsView for more details
+    urls = {
+        'wells_url': {'name': 'api_plate_wells',
+                      'kwargs': {'plate_id': 'OBJECT_ID'}}
+    }
+
 
 class ObjectsView(ApiView):
     """Base class for listing objects."""
