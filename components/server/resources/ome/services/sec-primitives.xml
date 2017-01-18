@@ -84,6 +84,8 @@
 
   <bean id="tokenHolder" class="ome.security.basic.TokenHolder"/>
 
+  <bean id="scriptRepoUuids" class="com.google.common.collect.Sets" factory-method="newConcurrentHashSet"/>
+
   <alias name="${omero.policy.bean}" alias="policyService"/>
 
   <bean id="defaultPolicyService" class="ome.security.policy.DefaultPolicyService"/>
@@ -123,6 +125,7 @@
     <constructor-arg ref="policyService"/>
     <constructor-arg ref="roles"/>
     <constructor-arg ref="adminPrivileges"/>
+    <constructor-arg ref="scriptRepoUuids"/>
   </bean>
 
   <bean name="sessionCache" class="ome.services.sessions.state.SessionCache">

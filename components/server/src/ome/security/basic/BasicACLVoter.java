@@ -1,7 +1,7 @@
 /*
  * ome.security.BasicACLVoter
  *
- *   Copyright 2006-2016 University of Dundee. All rights reserved.
+ *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -11,6 +11,7 @@ import static ome.model.internal.Permissions.Role.GROUP;
 import static ome.model.internal.Permissions.Role.USER;
 import static ome.model.internal.Permissions.Role.WORLD;
 
+import java.util.Collections;
 import java.util.Set;
 
 import ome.conditions.ApiUsageException;
@@ -84,6 +85,9 @@ public class BasicACLVoter implements ACLVoter {
 
     private final LightAdminPrivileges adminPrivileges;
 
+    /* thread-safe */
+    private final Set<String> scriptRepoUuids;
+
     public BasicACLVoter(CurrentDetails cd, SystemTypes sysTypes,
         TokenHolder tokenHolder, SecurityFilter securityFilter,
         PolicyService policyService) {
@@ -96,13 +100,13 @@ public class BasicACLVoter implements ACLVoter {
             PolicyService policyService,
             Roles roles) {
         this(cd, sysTypes, tokenHolder, securityFilter, policyService,
-                roles, new LightAdminPrivileges(roles));
+                roles, new LightAdminPrivileges(roles), Collections.<String>emptySet());
     }
 
     public BasicACLVoter(CurrentDetails cd, SystemTypes sysTypes,
         TokenHolder tokenHolder, SecurityFilter securityFilter,
         PolicyService policyService,
-        Roles roles, LightAdminPrivileges adminPrivileges) {
+        Roles roles, LightAdminPrivileges adminPrivileges, Set<String> scriptRepoUuids) {
         this.currentUser = cd;
         this.sysTypes = sysTypes;
         this.securityFilter = securityFilter;
@@ -110,6 +114,7 @@ public class BasicACLVoter implements ACLVoter {
         this.roles = roles;
         this.policyService = policyService;
         this.adminPrivileges = adminPrivileges;
+        this.scriptRepoUuids = scriptRepoUuids;
     }
 
     // ~ Interface methods

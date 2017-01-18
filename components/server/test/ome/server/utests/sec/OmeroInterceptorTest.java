@@ -4,6 +4,8 @@
  */
 package ome.server.utests.sec;
 
+import java.util.Collections;
+
 import ome.security.SystemTypes;
 import ome.security.basic.BasicSecuritySystem;
 import ome.security.basic.LightAdminPrivileges;
@@ -34,7 +36,7 @@ public class OmeroInterceptorTest extends MockObjectTestCase {
         TokenHolder tokenHolder = new TokenHolder();
         final Roles roles = new Roles();
         oi = new OmeroInterceptor(roles, new SystemTypes(), null, null, tokenHolder, new NullSessionStats(),
-                new LightAdminPrivileges(roles));
+                new LightAdminPrivileges(roles), Collections.<String>emptySet());
     }
 
     // ~ TESTS
