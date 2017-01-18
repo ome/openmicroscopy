@@ -92,6 +92,10 @@ def assert_objects(conn, json_objects, omero_ids_objects, dtype="Project",
         # dumping to json and loading (same as test data) means that
         # unicode has been handled in same way, e.g. Pixel size symbols.
         o2 = json.loads(json.dumps(o2))
+        # remove any urls from json (tested elsewhere)
+        for key in o1.keys():
+            if key.endswith('_url'):
+                del(o1[key])
         assert o1 == o2
 
 
