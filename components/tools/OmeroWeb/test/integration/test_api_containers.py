@@ -299,6 +299,53 @@ class TestContainers(IWebTest):
         assert_objects(conn, rsp['data'], user_screens,
                        dtype="Screen", extra=extra)
 
+    def test_spw_urls(self, user1, screen_plates):
+        """Test browsing via urls in json /api/->SPW."""
+        conn = get_connection(user1)
+        user_name = conn.getUser().getName()
+        client = self.new_django_client(user_name, user_name)
+        version = settings.API_VERSIONS[-1]
+        base_url = reverse('api_base', kwargs={'api_version': version})
+        base_rsp = _get_response_json(client, base_url, {})
+
+        # List screens
+        screen, plate = screen_plates
+        screens_url = base_rsp['screens_url']
+        rsp = _get_response_json(client, screens_url, {})
+        screens_json = rsp['data']
+        extra = [{
+            'screen_url': build_url(client, 'api_screen',
+                                    {'api_version': version,
+                                     'object_id': screen.id.val}),
+            'plates_url': build_url(client, 'api_screen_plates',
+                                    {'api_version': version,
+                                     'screen_id': screen.id.val})
+        }]
+        assert_objects(conn, screens_json, [screen], dtype='Screen',
+                       extra=extra)
+        # View single screen
+        rsp = _get_response_json(client, screens_json[0]['screen_url'], {})
+        assert_objects(conn, [rsp], [screen], dtype='Screen',
+                       extra=[{'plates_url': extra[0]['plates_url']}])
+
+        # List plates
+        plates_url = screens_json[0]['plates_url']
+        plates = screen.linkedPlateList()
+        plates.sort(cmp_name_insensitive)
+        rsp = _get_response_json(client, plates_url, {})
+        plates_json = rsp['data']
+        extra = []
+        for p in plates:
+            extra.append({
+                'plate_url': build_url(client, 'api_plate',
+                                       {'api_version': version,
+                                        'object_id': p.id.val}),
+            })
+        assert_objects(conn, plates_json, plates, dtype='Plate', extra=extra)
+        # View single plate
+        rsp = _get_response_json(client, plates_json[0]['plate_url'], {})
+        assert_objects(conn, [rsp], plates[0:1], dtype='Plate')
+
     def test_pdi_urls(self, user1, project_datasets):
         """Test browsing via urls in json /api/->PDI."""
         conn = get_connection(user1)
