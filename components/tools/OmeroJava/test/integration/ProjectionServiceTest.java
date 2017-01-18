@@ -35,7 +35,7 @@ public class ProjectionServiceTest extends AbstractServerTest
      * Creates a binary image with
      * 5 z-sections, 6 timepoints, 1 channel.
      * 
-     * @return The id of the pixels set.
+     * @return The pixels set.
      * @throws Exception Thrown if an error occurred.
      */
     private Pixels importImage() throws Exception
