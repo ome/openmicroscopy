@@ -50,7 +50,7 @@ public class SecurityContext {
      * A percentage compression level from 1.00 (100%) to 0.01 (1%) (the default
      * is 85%)
      */
-    private float compression;
+    private float compression = .85f;
 
     /**
      * Creates a new instance.
@@ -151,7 +151,8 @@ public class SecurityContext {
      *            (the default is 85%)
      */
     public void setCompression(float compression) {
-        this.compression = compression;
+        this.compression = compression >= .01f && compression <= 1f ? compression
+                : .85f;
     }
 
     /**
