@@ -123,7 +123,7 @@ class ApiView(View):
         """Wrap other methods to add decorators."""
         return super(ApiView, self).dispatch(*args, **kwargs)
 
-    def add_data(self, marshalled, request, **kwargs):
+    def add_data(self, marshalled, request, urls={}, **kwargs):
         """
         Post-process marshalled object to add any extra data.
 
@@ -133,7 +133,7 @@ class ApiView(View):
         """
         object_id = marshalled['@id']
         version = kwargs['api_version']
-        for key, args in self.urls.items():
+        for key, args in urls.items():
             name = args['name']
             kwargs = args['kwargs'].copy()
             # If kwargs has 'OBJECT_ID' placeholder, we replace with id
@@ -161,7 +161,7 @@ class ObjectView(ApiView):
                                                      object_id))
         encoder = get_encoder(obj._obj.__class__)
         marshalled = encoder.encode(obj._obj)
-        self.add_data(marshalled, request, **kwargs)
+        self.add_data(marshalled, request, self.urls, **kwargs)
         return marshalled
 
     def delete(self, request, object_id, conn=None, **kwargs):
@@ -276,7 +276,7 @@ class ObjectsView(ApiView):
         marshalled = query_objects(conn, self.OMERO_TYPE, group,
                                    opts, normalize)
         for m in marshalled['data']:
-            self.add_data(m, request, **kwargs)
+            self.add_data(m, request, self.urls, **kwargs)
         return marshalled
 
 
