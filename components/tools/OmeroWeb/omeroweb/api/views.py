@@ -131,8 +131,6 @@ class ApiView(View):
         Subclasses can configure self.urls to specify urls to add.
         See ProjectsView urls as example
         """
-        # if self.urls is None:
-        #     return marshalled
         object_id = marshalled['@id']
         version = kwargs['api_version']
         for key, args in self.urls.items():
@@ -314,10 +312,10 @@ class DatasetsView(ObjectsView):
 
     # Urls to add to marshalled object. See ProjectsView for more details
     urls = {
-        'dataset_url': {'name': 'api_dataset',
-                        'kwargs': {'object_id': 'OBJECT_ID'}},
         'images_url': {'name': 'api_dataset_images',
                        'kwargs': {'dataset_id': 'OBJECT_ID'}},
+        'dataset_url': {'name': 'api_dataset',
+                        'kwargs': {'object_id': 'OBJECT_ID'}},
     }
 
 
