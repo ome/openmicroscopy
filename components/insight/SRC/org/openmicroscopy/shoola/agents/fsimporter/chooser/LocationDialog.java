@@ -894,7 +894,8 @@ class LocationDialog extends JDialog implements ActionListener,
 	private void close()
 	{
 	    int plugin = ImporterAgent.runAsPlugin();
-        if (plugin == LookupNames.IMAGE_J_IMPORT) {
+        if (plugin == LookupNames.IMAGE_J
+                || plugin == LookupNames.IMAGE_J_IMPORT) {
             return;
         }
 		setVisible(false);
