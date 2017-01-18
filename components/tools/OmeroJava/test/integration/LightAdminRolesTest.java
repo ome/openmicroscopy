@@ -1165,27 +1165,74 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         DatasetImageLink linkOfDatasetImage2OtherGroup = linkDatasetImage(sentDat2OtherGroup, sentImage2OtherGroup);
         ProjectDatasetLink linkOfProjectDataset1OtherGroup = linkProjectDataset(sentProj1OtherGroup, sentDat1OtherGroup);
         ProjectDatasetLink linkOfProjectDataset2OtherGroup = linkProjectDataset(sentProj2OtherGroup, sentDat2OtherGroup);
-        /* now transfer all the data of normalUser to recipient
-         * but note that because of the lack of the targetUser feature at
-         * this branch I am transferring by now only the first dataset */
+        /* now transfer all the data of normalUser to recipient */
         loginUser(lightAdmin);
         client.getImplicitContext().put("omero.group", Long.toString(-1));
         if (chownPassing) {
-            doChange(client, factory, Requests.chown().target(sentDat1).toUser(recipient.userId).build(), true);
+            doChange(client, factory, Requests.chown().targetUsers(normalUser.userId).toUser(recipient.userId).build(), true);
         }
         if (!isExpectSuccess) {
             return;
         }
+        /* check the transfer of all the data in the first group was successful */
         client.getImplicitContext().put("omero.group", Long.toString(-1));
-        Dataset retrievedDataset = (Dataset) iQuery.get("Dataset", sentDat1.getId().getValue());
-        Image retrievedImage = (Image) iQuery.get("Image", sentImage1.getId().getValue());
-        DatasetImageLink retrievedDatasetImageLink = (DatasetImageLink) iQuery.findByQuery(
+        Project retrievedProject1 = (Project) iQuery.get("Project", sentProj1.getId().getValue());
+        Dataset retrievedDataset1 = (Dataset) iQuery.get("Dataset", sentDat1.getId().getValue());
+        Image retrievedImage1 = (Image) iQuery.get("Image", sentImage1.getId().getValue());
+        DatasetImageLink retrievedDatasetImageLink1 = (DatasetImageLink) iQuery.findByQuery(
                 "FROM DatasetImageLink WHERE parent.id  = :id",
                 new ParametersI().addId(sentDat1.getId()));
-        Assert.assertEquals(retrievedDataset.getDetails().getOwner().getId().getValue(), recipient.userId);
-        Assert.assertEquals(retrievedImage.getDetails().getOwner().getId().getValue(), recipient.userId);
-        Assert.assertEquals(retrievedDatasetImageLink.getDetails().getOwner().getId().getValue(), recipient.userId);
-
+        ProjectDatasetLink retrievedProjectDatasetLink1 = (ProjectDatasetLink) iQuery.findByQuery(
+                "FROM ProjectDatasetLink WHERE child.id  = :id",
+                new ParametersI().addId(sentDat1.getId()));
+        Assert.assertEquals(retrievedProject1.getDetails().getOwner().getId().getValue(), recipient.userId);
+        Assert.assertEquals(retrievedDataset1.getDetails().getOwner().getId().getValue(), recipient.userId);
+        Assert.assertEquals(retrievedImage1.getDetails().getOwner().getId().getValue(), recipient.userId);
+        Assert.assertEquals(retrievedDatasetImageLink1.getDetails().getOwner().getId().getValue(), recipient.userId);
+        Assert.assertEquals(retrievedProjectDatasetLink1.getDetails().getOwner().getId().getValue(), recipient.userId);
+        Project retrievedProject2 = (Project) iQuery.get("Project", sentProj2.getId().getValue());
+        Dataset retrievedDataset2 = (Dataset) iQuery.get("Dataset", sentDat2.getId().getValue());
+        Image retrievedImage2 = (Image) iQuery.get("Image", sentImage2.getId().getValue());
+        DatasetImageLink retrievedDatasetImageLink2 = (DatasetImageLink) iQuery.findByQuery(
+                "FROM DatasetImageLink WHERE parent.id  = :id",
+                new ParametersI().addId(sentDat2.getId()));
+        ProjectDatasetLink retrievedProjectDatasetLink2 = (ProjectDatasetLink) iQuery.findByQuery(
+                "FROM ProjectDatasetLink WHERE child.id  = :id",
+                new ParametersI().addId(sentDat2.getId()));
+        Assert.assertEquals(retrievedProject2.getDetails().getOwner().getId().getValue(), recipient.userId);
+        Assert.assertEquals(retrievedDataset2.getDetails().getOwner().getId().getValue(), recipient.userId);
+        Assert.assertEquals(retrievedImage2.getDetails().getOwner().getId().getValue(), recipient.userId);
+        Assert.assertEquals(retrievedDatasetImageLink2.getDetails().getOwner().getId().getValue(), recipient.userId);
+        Assert.assertEquals(retrievedProjectDatasetLink2.getDetails().getOwner().getId().getValue(), recipient.userId);
+        /* check ownership of the objects in otherGroup */
+        Project retrievedProjectOtherGroup1 = (Project) iQuery.get("Project", sentProj1OtherGroup.getId().getValue());
+        Dataset retrievedDatasetOtherGroup1 = (Dataset) iQuery.get("Dataset", sentDat1OtherGroup.getId().getValue());
+        Image retrievedImageOtherGroup1 = (Image) iQuery.get("Image", sentImage1OtherGroup.getId().getValue());
+        DatasetImageLink retrievedDatasetImageLinkOtherGroup1 = (DatasetImageLink) iQuery.findByQuery(
+                "FROM DatasetImageLink WHERE parent.id  = :id",
+                new ParametersI().addId(sentDat1OtherGroup.getId()));
+        ProjectDatasetLink retrievedProjectDatasetLinkOtherGroup1 = (ProjectDatasetLink) iQuery.findByQuery(
+                "FROM ProjectDatasetLink WHERE child.id  = :id",
+                new ParametersI().addId(sentDat1OtherGroup.getId()));
+        Assert.assertEquals(retrievedProjectOtherGroup1.getDetails().getOwner().getId().getValue(), recipient.userId);
+        Assert.assertEquals(retrievedDatasetOtherGroup1.getDetails().getOwner().getId().getValue(), recipient.userId);
+        Assert.assertEquals(retrievedImageOtherGroup1.getDetails().getOwner().getId().getValue(), recipient.userId);
+        Assert.assertEquals(retrievedDatasetImageLinkOtherGroup1.getDetails().getOwner().getId().getValue(), recipient.userId);
+        Assert.assertEquals(retrievedProjectDatasetLinkOtherGroup1.getDetails().getOwner().getId().getValue(), recipient.userId);
+        Project retrievedProjectOtherGroup2 = (Project) iQuery.get("Project", sentProj2OtherGroup.getId().getValue());
+        Dataset retrievedDatasetOtherGroup2 = (Dataset) iQuery.get("Dataset", sentDat2OtherGroup.getId().getValue());
+        Image retrievedImageOtherGroup2 = (Image) iQuery.get("Image", sentImage2OtherGroup.getId().getValue());
+        DatasetImageLink retrievedDatasetImageLinkOtherGroup2 = (DatasetImageLink) iQuery.findByQuery(
+                "FROM DatasetImageLink WHERE parent.id  = :id",
+                new ParametersI().addId(sentDat2OtherGroup.getId()));
+        ProjectDatasetLink retrievedProjectDatasetLinkOtherGroup2 = (ProjectDatasetLink) iQuery.findByQuery(
+                "FROM ProjectDatasetLink WHERE child.id  = :id",
+                new ParametersI().addId(sentDat2OtherGroup.getId()));
+        Assert.assertEquals(retrievedProjectOtherGroup2.getDetails().getOwner().getId().getValue(), recipient.userId);
+        Assert.assertEquals(retrievedDatasetOtherGroup2.getDetails().getOwner().getId().getValue(), recipient.userId);
+        Assert.assertEquals(retrievedImageOtherGroup2.getDetails().getOwner().getId().getValue(), recipient.userId);
+        Assert.assertEquals(retrievedDatasetImageLinkOtherGroup2.getDetails().getOwner().getId().getValue(), recipient.userId);
+        Assert.assertEquals(retrievedProjectDatasetLinkOtherGroup2.getDetails().getOwner().getId().getValue(), recipient.userId);
     }
 
     /**
