@@ -170,8 +170,8 @@ Plate url to GET or DELETE a single Plate
 """
 
 api_wells = url(r'^v(?P<api_version>%s)/m/wells/$' % versions,
-                 views.WellsView.as_view(),
-                 name='api_wells')
+                views.WellsView.as_view(),
+                name='api_wells')
 """
 GET all wells, using omero-marshal to generate json
 """

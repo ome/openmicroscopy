@@ -242,6 +242,7 @@ class PlateView(ObjectView):
                       'kwargs': {'plate_id': 'OBJECT_ID'}}
     }
 
+
 class WellView(ObjectView):
     """Handle access to an individual Well to GET or DELETE it."""
 
