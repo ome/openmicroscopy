@@ -214,7 +214,6 @@ class ImageView(ObjectView):
     def get_opts(self, request):
         """Add support for load_pixels and load_channels."""
         opts = super(ImageView, self).get_opts(request)
-        opts['orphaned'] = request.GET.get('orphaned', False) == 'true'
         # for single image, we always load channels
         opts['load_channels'] = True
         return opts
@@ -242,6 +241,33 @@ class PlateView(ObjectView):
         'wells_url': {'name': 'api_plate_wells',
                       'kwargs': {'plate_id': 'OBJECT_ID'}}
     }
+
+class WellView(ObjectView):
+    """Handle access to an individual Well to GET or DELETE it."""
+
+    OMERO_TYPE = 'Well'
+
+    def get_opts(self, request):
+        """Add support for load_images."""
+        opts = super(WellView, self).get_opts(request)
+        # for single well, we always load images
+        opts['load_pixels'] = True
+        return opts
+
+    def add_data(self, marshalled, request, urls={}, **kwargs):
+        """Add 'image_url' to any 'Image' in 'WellSamples'."""
+        marshalled = super(WellView, self).add_data(marshalled, request,
+                                                    urls=urls, **kwargs)
+        image_urls = {
+            'image_url': {'name': 'api_image',
+                          'kwargs': {'object_id': 'OBJECT_ID'}},
+        }
+        if 'WellSamples' in marshalled:
+            # For each WellSample, add image_urls to Image
+            for ws in marshalled['WellSamples']:
+                if 'Image' in ws:
+                    self.add_data(ws['Image'], request, image_urls, **kwargs)
+        return marshalled
 
 
 class ObjectsView(ApiView):
@@ -412,6 +438,12 @@ class WellsView(ObjectsView):
 
     OMERO_TYPE = 'Well'
 
+    # Urls to add to marshalled object. See ProjectsView for more details
+    urls = {
+        'well_url': {'name': 'api_well',
+                     'kwargs': {'object_id': 'OBJECT_ID'}},
+    }
+
     def get_opts(self, request, **kwargs):
         """Add extra parameters to the opts dict."""
         opts = super(WellsView, self).get_opts(request, **kwargs)
@@ -424,6 +456,8 @@ class WellsView(ObjectsView):
             plate = getIntOrDefault(request, 'plate', None)
             if plate is not None:
                 opts['plate'] = plate
+        # Listing Wells, load Images with Pixels
+        opts['load_pixels'] = True
         return opts
 
 
