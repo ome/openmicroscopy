@@ -1,7 +1,7 @@
 /*
  * util.mocks.MethodSignature
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -242,8 +242,10 @@ public class MethodSignature {
         boolean b = methodSignature != null && methodSignature.getClass() == MethodSignature.class;
         if (b) {
             MethodSignature ms = (MethodSignature) methodSignature;
+            String nameNotNull = name == null ? "" : name;
+            String msNameNotNull = ms.name == null ? "" : ms.name;
             b = ms.visibility == visibility && ms.returnType == returnType
-                    && ms.name == name && ms.paramTypes.length == paramTypes.length;
+                    && msNameNotNull.equals(nameNotNull) && ms.paramTypes.length == paramTypes.length;
             if (b) {
                 for (int i = 0; i < paramTypes.length; ++i) {
                     if (paramTypes[i] != ms.paramTypes[i]) {

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.UIUtilities
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -38,7 +38,6 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
-import java.awt.Window;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
@@ -1413,7 +1412,7 @@ public class UIUtilities
     public static File getDefaultFolder()
     {
     	String f = UIUtilities.getDefaultFolderAsString();
-    	if (f == null || f == "") return null; 
+    	if (CommonsLangUtils.isEmpty(f)) return null; 
     	return new File(f);
     }
     

@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2008 University of Dundee. All rights reserved.
+ *   Copyright 2008-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -17,7 +17,8 @@ public class SmtpAuthenticator extends Authenticator {
 
     public SmtpAuthenticator(String username, String password) {
         super();
-        if (!"".equals(username) && !"".equals(password)) {
+        if (username != null && !username.isEmpty() && password != null
+                && !password.isEmpty()) {
             this.username = username;
             this.password = password;
         }
@@ -25,7 +26,7 @@ public class SmtpAuthenticator extends Authenticator {
 
     @Override
     public PasswordAuthentication getPasswordAuthentication() {
-        if (this.username != "" && this.password != "") {
+        if (!this.username.isEmpty() && !this.password.isEmpty()) {
             return new PasswordAuthentication(username, password);
         } else {
             return super.getPasswordAuthentication();
