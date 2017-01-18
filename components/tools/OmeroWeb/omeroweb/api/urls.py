@@ -176,6 +176,15 @@ api_wells = url(r'^v(?P<api_version>%s)/m/wells/$' % versions,
 GET all wells, using omero-marshal to generate json
 """
 
+api_plate_wells = url(
+    r'^v(?P<api_version>%s)/m/plates/'
+    '(?P<plate_id>[0-9]+)/wells/$' % versions,
+    views.WellsView.as_view(),
+    name='api_plate_wells')
+"""
+GET Wells in Plate, using omero-marshal to generate json
+"""
+
 urlpatterns = patterns(
     '',
     api_versions,
@@ -198,4 +207,5 @@ urlpatterns = patterns(
     api_screen_plates,
     api_plate,
     api_wells,
+    api_plate_wells,
 )
