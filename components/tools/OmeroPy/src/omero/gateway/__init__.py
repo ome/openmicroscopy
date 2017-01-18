@@ -3096,6 +3096,7 @@ class _BlitzGateway (object):
         :param opts:        Dict of additional options for filtering or
                             defining extra data to load.
                             offset, limit and owner for all objects.
+                            Also 'order_by': 'obj.name' to order results.
                             Additional opts handled by _getQueryString()
                             E.g. 'childCount', or filter Dataset by 'project'
         :return:            (query, params, wrapper)
@@ -3171,9 +3172,9 @@ class _BlitzGateway (object):
         if clauses:
             query += " where " + (" and ".join(clauses))
 
-        # Order by...
+        # Order by... e.g. 'lower(obj.name)' or 'obj.column, obj.row' for wells
         if order_by is not None:
-            query += " order by lower(obj.%s), obj.id" % order_by
+            query += " order by %s, obj.id" % order_by
 
         return (query, baseParams, wrapper)
 
