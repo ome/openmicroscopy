@@ -6070,10 +6070,28 @@ class _WellWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         if opts is not None and 'plate' in opts:
             clauses.append('obj.plate.id = :pid')
             params.add('pid', rlong(opts['plate']))
-        if opts is not None and opts.get('load_images'):
+        load_images = False
+        load_pixels = False
+        load_channels = False
+        if opts is not None:
+            load_images = opts.get('load_images')
+            load_pixels = opts.get('load_pixels')
+            load_channels = opts.get('load_channels')
+        if load_images or load_pixels or load_channels:
             # NB: Using left outer join, we may get Wells with no Images
             query += " left outer join fetch obj.wellSamples as wellSamples"\
                      " left outer join fetch wellSamples.image as image"
+        if load_pixels or load_channels:
+            query += ' left outer join fetch image.pixels pixels' \
+                     ' left outer join fetch pixels.pixelsType'
+        if load_channels:
+            query += ' join fetch pixels.channels as channels' \
+                     ' join fetch channels.logicalChannel as logicalChannel' \
+                     ' left outer join fetch logicalChannel.photometricInterpretation' \
+                     ' left outer join fetch logicalChannel.illumination' \
+                     ' left outer join fetch logicalChannel.mode' \
+                     ' left outer join fetch logicalChannel.contrastMethod'
+
         return (query, clauses, params)
 
     def __loadedHotSwap__(self):
