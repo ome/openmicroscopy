@@ -258,7 +258,6 @@ class ObjectsView(ApiView):
                 'owner': owner,
                 'orphaned': orphaned,
                 'child_count': child_count,
-                'order_by': 'name',     # NB: will break if object has no name
                 }
         return opts
 
@@ -280,6 +279,12 @@ class ProjectsView(ObjectsView):
 
     OMERO_TYPE = 'Project'
 
+    def get_opts(self, request, **kwargs):
+        """Add extra parameters to the opts dict."""
+        opts = super(ProjectsView, self).get_opts(request, **kwargs)
+        opts['order_by'] = 'lower(name)'
+        return opts
+
     # To add a url to marshalled object add to this dict
     # 'name' is url name, kwargs are passed to reverse()
     # If any kwargs values are 'OBJECT_ID' then this placeholder will be
@@ -298,8 +303,9 @@ class DatasetsView(ObjectsView):
     OMERO_TYPE = 'Dataset'
 
     def get_opts(self, request, **kwargs):
-        """Add filtering by 'project' to the opts dict."""
+        """Add extra parameters to the opts dict."""
         opts = super(DatasetsView, self).get_opts(request, **kwargs)
+        opts['order_by'] = 'lower(name)'
         # at /projects/:project_id/datasets/ we have 'project_id' in kwargs
         if 'project_id' in kwargs:
             opts['project'] = long(kwargs['project_id'])
@@ -324,6 +330,12 @@ class ScreensView(ObjectsView):
 
     OMERO_TYPE = 'Screen'
 
+    def get_opts(self, request, **kwargs):
+        """Add extra parameters to the opts dict."""
+        opts = super(ScreensView, self).get_opts(request, **kwargs)
+        opts['order_by'] = 'lower(name)'
+        return opts
+
     # Urls to add to marshalled object. See ProjectsView for more details
     urls = {
         'url:plates': {'name': 'api_screen_plates',
@@ -339,8 +351,9 @@ class PlatesView(ObjectsView):
     OMERO_TYPE = 'Plate'
 
     def get_opts(self, request, **kwargs):
-        """Add filtering by 'screen' to the opts dict."""
+        """Add extra parameters to the opts dict."""
         opts = super(PlatesView, self).get_opts(request, **kwargs)
+        opts['order_by'] = 'lower(name)'
         # at /screens/:screen_id/plates/ we have 'screen_id' in kwargs
         if 'screen_id' in kwargs:
             opts['screen'] = long(kwargs['screen_id'])
@@ -370,8 +383,9 @@ class ImagesView(ObjectsView):
     }
 
     def get_opts(self, request, **kwargs):
-        """Add filtering by 'dataset' and other params to the opts dict."""
+        """Add extra parameters to the opts dict."""
         opts = super(ImagesView, self).get_opts(request, **kwargs)
+        opts['order_by'] = 'lower(name)'
         # at /datasets/:dataset_id/images/ we have 'dataset_id' in kwargs
         if 'dataset_id' in kwargs:
             opts['dataset'] = long(kwargs['dataset_id'])
@@ -382,6 +396,18 @@ class ImagesView(ObjectsView):
                 opts['dataset'] = dataset
         # When listing images, always load pixels by default
         opts['load_pixels'] = True
+        return opts
+
+
+class WellsView(ObjectsView):
+    """Handles GET for /wells/ to list available Images."""
+
+    OMERO_TYPE = 'Well'
+
+    def get_opts(self, request, **kwargs):
+        """Add extra parameters to the opts dict."""
+        opts = super(WellsView, self).get_opts(request, **kwargs)
+        opts['order_by'] = 'column, row'
         return opts
 
 
