@@ -298,14 +298,6 @@ module omero {
       };
 
       /**
-       * The projection axis
-       **/
-       const string TAXIS = "T";
-       const string ZAXIS = "Z";
-       const string MODULOTAXIS = "Modulo_T";
-       const string MODULOZAXIS = "Modulo_Z";
-
-      /**
        * Used by the IProjection methods to declare along which axis to perform
        * the projection.
        **/
