@@ -6,6 +6,7 @@ package integration;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import omero.ValidationException;
@@ -45,8 +46,7 @@ public class ProjectionServiceTest extends AbstractServerTest
         int sizeC = 1;
         Image image = createBinaryImage(20, 20, sizeZ, sizeT, sizeC);
         //load the image so the pixels type is loaded
-        List<Long> ids = new ArrayList<Long>(1);
-        ids.add(image.getId().getValue());
+        List<Long> ids = Collections.singletonList(image.getId().getValue());
         List<Image> images = factory.getContainerService().getImages(
                 Image.class.getName(), ids, new ParametersI());
         image = images.get(0);
