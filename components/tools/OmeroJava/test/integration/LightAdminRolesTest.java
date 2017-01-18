@@ -462,13 +462,14 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
    }
 
     /**
-     * Test that an ImporterAs can
+     * Test that a light admin can
      * edit the name of a dataset
      * on behalf of another user solely with <tt>Sudo</tt> privilege
+     * or without it, using permWriteOwned privilege
      * @throws Exception unexpected
      */
     @Test(dataProvider = "combined privileges cases")
-    public void testImporterAsSudoEdit(boolean isAdmin, boolean isSudoing, boolean permChgrp,
+    public void testLightAdminEdit(boolean isAdmin, boolean isSudoing, boolean permChgrp,
             boolean permWriteOwned, boolean permWriteFile, String groupPermissions) throws Exception {
         final boolean isExpectSuccess = (isAdmin && isSudoing) || (isAdmin && permWriteOwned);
         final EventContext normalUser = newUserAndGroup(groupPermissions);
@@ -500,18 +501,22 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                 /* sudo expected to fail if the user is not in system group */
             }
         }
+        if (!isAdmin) return; /* if the light admin is not an admin, exit the test, not interesting case */
         /* try to rename the Project as the light admin, either sudoed as normalUser or not */
         final String changedName = "ChangedNameOfLightAdmin";
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
-        proj.setName(omero.rtypes.rstring(changedName));
-        if (isExpectSuccess) {
-            sentProj = (Project) iUpdate.saveAndReturnObject(proj);
+        long id = sentProj.getId().getValue();
+        final Project retrievedUnrenamedProject = (Project) iQuery.get("Project", id);
+        retrievedUnrenamedProject.setName(omero.rtypes.rstring(changedName));
+        if (isExpectSuccess) {/* in case no WriteOwned permission is give to light admin, and he/she is
+        not sudoing, following line would throw a Security violation */
+            sentProj = (Project) iUpdate.saveAndReturnObject(retrievedUnrenamedProject);
         }
         String savedChangedName = sentProj.getName().getValue().toString();
-        long id = sentProj.getId().getValue();
         logRootIntoGroup(normalUser.groupId);
         final Project retrievedRenamedProject = (Project) iQuery.get("Project", id);
         final String retrievedName = retrievedRenamedProject.getName().getValue().toString();
+        Assert.assertEquals(retrievedRenamedProject.getDetails().getOwner().getId().getValue(), normalUser.userId);
         /* check that the name was changed and saved or original name is retained as appropriate */
         if (isExpectSuccess) {
             Assert.assertEquals(savedChangedName, retrievedName);
