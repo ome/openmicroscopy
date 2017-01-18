@@ -1,7 +1,7 @@
 /*
  * ome.security.basic.BasicSecuritySystem
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -126,7 +126,7 @@ public class BasicSecuritySystem implements SecuritySystem,
         final OmeroInterceptor oi = new OmeroInterceptor(roles,
                 st, new ExtendedMetadata.Impl(),
                 cd, th, new PerSessionStats(cd),
-                new LightAdminPrivileges(roles));
+                new LightAdminPrivileges(roles), Collections.<String>emptySet());
         SecurityFilterHolder holder = new SecurityFilterHolder(
                 cd, new OneGroupSecurityFilter(roles),
                 new AllGroupsSecurityFilter(null, roles),
