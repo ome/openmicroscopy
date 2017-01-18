@@ -282,7 +282,7 @@ class ProjectsView(ObjectsView):
     def get_opts(self, request, **kwargs):
         """Add extra parameters to the opts dict."""
         opts = super(ProjectsView, self).get_opts(request, **kwargs)
-        opts['order_by'] = 'lower(name)'
+        opts['order_by'] = 'lower(obj.name)'
         return opts
 
     # To add a url to marshalled object add to this dict
@@ -305,7 +305,7 @@ class DatasetsView(ObjectsView):
     def get_opts(self, request, **kwargs):
         """Add extra parameters to the opts dict."""
         opts = super(DatasetsView, self).get_opts(request, **kwargs)
-        opts['order_by'] = 'lower(name)'
+        opts['order_by'] = 'lower(obj.name)'
         # at /projects/:project_id/datasets/ we have 'project_id' in kwargs
         if 'project_id' in kwargs:
             opts['project'] = long(kwargs['project_id'])
@@ -333,7 +333,7 @@ class ScreensView(ObjectsView):
     def get_opts(self, request, **kwargs):
         """Add extra parameters to the opts dict."""
         opts = super(ScreensView, self).get_opts(request, **kwargs)
-        opts['order_by'] = 'lower(name)'
+        opts['order_by'] = 'lower(obj.name)'
         return opts
 
     # Urls to add to marshalled object. See ProjectsView for more details
@@ -353,7 +353,7 @@ class PlatesView(ObjectsView):
     def get_opts(self, request, **kwargs):
         """Add extra parameters to the opts dict."""
         opts = super(PlatesView, self).get_opts(request, **kwargs)
-        opts['order_by'] = 'lower(name)'
+        opts['order_by'] = 'lower(obj.name)'
         # at /screens/:screen_id/plates/ we have 'screen_id' in kwargs
         if 'screen_id' in kwargs:
             opts['screen'] = long(kwargs['screen_id'])
@@ -385,7 +385,7 @@ class ImagesView(ObjectsView):
     def get_opts(self, request, **kwargs):
         """Add extra parameters to the opts dict."""
         opts = super(ImagesView, self).get_opts(request, **kwargs)
-        opts['order_by'] = 'lower(name)'
+        opts['order_by'] = 'lower(obj.name)'
         # at /datasets/:dataset_id/images/ we have 'dataset_id' in kwargs
         if 'dataset_id' in kwargs:
             opts['dataset'] = long(kwargs['dataset_id'])
@@ -407,7 +407,7 @@ class WellsView(ObjectsView):
     def get_opts(self, request, **kwargs):
         """Add extra parameters to the opts dict."""
         opts = super(WellsView, self).get_opts(request, **kwargs)
-        opts['order_by'] = 'column, row'
+        opts['order_by'] = 'obj.column, obj.row'
         return opts
 
 
