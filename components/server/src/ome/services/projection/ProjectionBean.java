@@ -30,7 +30,6 @@ import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
-import ome.model.enums.ProjectionAxis;
 import ome.model.stats.StatsInfo;
 
 /**
