@@ -10,6 +10,8 @@ package ome.security;
 import javax.mail.Authenticator;
 import javax.mail.PasswordAuthentication;
 
+import org.apache.commons.lang.StringUtils;
+
 public class SmtpAuthenticator extends Authenticator {
 
     private String username = "";
@@ -17,8 +19,7 @@ public class SmtpAuthenticator extends Authenticator {
 
     public SmtpAuthenticator(String username, String password) {
         super();
-        if (username != null && !username.isEmpty() && password != null
-                && !password.isEmpty()) {
+        if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
             this.username = username;
             this.password = password;
         }
