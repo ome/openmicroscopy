@@ -467,32 +467,58 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * on behalf of another user solely with <tt>Sudo</tt> privilege
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "isAdmin cases")
-    public void testImporterAsSudoEdit(boolean isAdmin) throws Exception {
-        final EventContext normalUser = newUserAndGroup("rwr-r-");
-        loginNewAdmin(isAdmin, AdminPrivilegeSudo.value);
-        try {
-            sudo(new ExperimenterI(normalUser.userId, false));
-            if (!isAdmin) {
-                Assert.fail("Sudo-permitted non-administrators cannot sudo.");
+    @Test(dataProvider = "combined privileges cases")
+    public void testImporterAsSudoEdit(boolean isAdmin, boolean isSudoing, boolean permChgrp,
+            boolean permWriteOwned, boolean permWriteFile, String groupPermissions) throws Exception {
+        final boolean isExpectSuccess = (isAdmin && isSudoing) || (isAdmin && permWriteOwned);
+        final EventContext normalUser = newUserAndGroup(groupPermissions);
+        /* set up the light admin's permissions for this test */
+        ArrayList <String> permissions = new ArrayList <String>();
+        permissions.add(AdminPrivilegeSudo.value);
+        if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);;
+        if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
+        if (permWriteFile) permissions.add(AdminPrivilegeWriteFile.value);
+        final EventContext lightAdmin;
+        lightAdmin = loginNewAdmin(isAdmin, permissions);
+        /* set up the project as the normalUser */
+        loginUser(normalUser);
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        Project proj = mmFactory.simpleProject();
+        final String originalName = "OriginalNameOfNormalUser";
+        proj.setName(omero.rtypes.rstring(originalName));
+        Project sentProj = (Project) iUpdate.saveAndReturnObject(proj);
+        String savedOriginalName = sentProj.getName().getValue().toString();
+        loginUser(lightAdmin);
+        /* being the light admin, sudo as the normalUser if this should be the case */
+        if (isSudoing) {
+            try {
+                sudo(new ExperimenterI(normalUser.userId, false));
+                if (!isAdmin) {
+                    Assert.fail("Sudo-permitted non-administrators cannot sudo.");
+                }
+            } catch (SecurityViolation sv) {
+                /* sudo expected to fail if the user is not in system group */
             }
-        } catch (SecurityViolation sv) {
-            /* sudo expected to fail if the user is not in system group */
         }
-        if (isAdmin) {
-            client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
-            Project proj = mmFactory.simpleProject();
-            final String name = "LightAdminsChangedName";
-            proj.setName(omero.rtypes.rstring(name));
-            Project sentProj = (Project) iUpdate.saveAndReturnObject(proj);
-            String savedName = sentProj.getName().getValue().toString();
-            long id = sentProj.getId().getValue();
-            final Project retrievedRenamedProject = (Project) iQuery.get("Project", id);
-            final String retrievedName = retrievedRenamedProject.getName().getValue().toString();
-            Assert.assertEquals(name, retrievedName);
-            Assert.assertEquals(name, savedName);
-            Assert.assertEquals(retrievedRenamedProject.getDetails().getOwner().getId().getValue()
-                    , normalUser.userId);
+        /* try to rename the Project as the light admin, either sudoed as normalUser or not */
+        final String changedName = "ChangedNameOfLightAdmin";
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        proj.setName(omero.rtypes.rstring(changedName));
+        if (isExpectSuccess) {
+            sentProj = (Project) iUpdate.saveAndReturnObject(proj);
+        }
+        String savedChangedName = sentProj.getName().getValue().toString();
+        long id = sentProj.getId().getValue();
+        logRootIntoGroup(normalUser.groupId);
+        final Project retrievedRenamedProject = (Project) iQuery.get("Project", id);
+        final String retrievedName = retrievedRenamedProject.getName().getValue().toString();
+        /* check that the name was changed and saved or original name is retained as appropriate */
+        if (isExpectSuccess) {
+            Assert.assertEquals(savedChangedName, retrievedName);
+            Assert.assertEquals(savedChangedName, changedName);
+        } else {
+            Assert.assertEquals(savedOriginalName, retrievedName);
+            Assert.assertEquals(savedOriginalName, originalName);
         }
     }
 
