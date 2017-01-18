@@ -6060,6 +6060,7 @@ class _WellWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         Extend base query to handle filtering of Wells by Plate.
         Returns a tuple of (query, clauses, params).
         Supported opts: 'plate': <plate_id> to filter by Plate
+                        'load_images': <bool> to load wellSamples and images
 
         :param opts:        Dictionary of optional parameters.
         :return:            Tuple of string, list, ParametersI
@@ -6069,6 +6070,10 @@ class _WellWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         if opts is not None and 'plate' in opts:
             clauses.append('obj.plate.id = :pid')
             params.add('pid', rlong(opts['plate']))
+        if opts is not None and opts.get('load_images'):
+            # NB: Using left outer join, we may get Wells with no Images
+            query += " left outer join fetch obj.wellSamples as wellSamples"\
+                     " left outer join fetch wellSamples.image as image"
         return (query, clauses, params)
 
     def __loadedHotSwap__(self):
