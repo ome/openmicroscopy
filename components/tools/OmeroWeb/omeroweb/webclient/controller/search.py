@@ -88,7 +88,6 @@ class BaseSearch(BaseController):
         def doSearch(searchType):
             """ E.g. searchType is 'images' """
             objType = searchType[0:-1]  # remove 's'
-
             obj_list = list(self.conn.searchObjects(
                 [objType],
                 query,
@@ -108,7 +107,7 @@ class BaseSearch(BaseController):
             for dt in onlyTypes:
                 dt = str(dt)
                 if dt in ['projects', 'datasets', 'images', 'screens',
-                          'plateacquisitions', 'plates']:
+                          'plateacquisitions', 'plates', 'wells']:
                     self.containers[dt] = doSearch(dt)
                     # If we get a full page of results, we know there are more
                     if len(self.containers[dt]) == batchSize:
