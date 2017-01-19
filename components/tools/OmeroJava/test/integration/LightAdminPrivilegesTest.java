@@ -68,6 +68,9 @@ import omero.model.OriginalFileI;
 import omero.model.Session;
 import omero.model.enums.AdminPrivilegeChgrp;
 import omero.model.enums.AdminPrivilegeChown;
+import omero.model.enums.AdminPrivilegeDeleteFile;
+import omero.model.enums.AdminPrivilegeDeleteOwned;
+import omero.model.enums.AdminPrivilegeDeleteScriptRepo;
 import omero.model.enums.AdminPrivilegeModifyUser;
 import omero.model.enums.AdminPrivilegeReadSession;
 import omero.model.enums.AdminPrivilegeSudo;
@@ -1092,15 +1095,15 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
 
     /**
      * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
-     * have the <tt>WriteFile</tt> privilege.
+     * have the <tt>DeleteFile</tt> privilege.
      * Attempts deletion of another user's file via {@link RepositoryPrx#deletePaths(String[], boolean, boolean)}.
      * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param isRestricted if to test a user who does <em>not</em> have the <tt>WriteFile</tt> privilege
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>DeleteFile</tt> privilege
      * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
      * @throws Exception unexpected
      */
     @Test(dataProvider = "light administrator privilege test cases")
-    public void testWriteFilePrivilegeDeletionViaRepo(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
+    public void testDeleteFilePrivilegeDeletionViaRepo(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
         final EventContext normalUser = newUserAndGroup("rwr-r-");
         /* fetch a script from the server */
@@ -1126,7 +1129,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         Assert.assertEquals(fileContentCurrent, fileContentOriginal);
         /* try to delete the script */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
-                isRestricted ? AdminPrivilegeWriteFile.value : null);
+                isRestricted ? AdminPrivilegeDeleteFile.value : null);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         repo = getRepository(Repository.OMERO);
         try {
@@ -1159,35 +1162,35 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
 
     /**
      * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
-     * have the <tt>WriteFile</tt> privilege.
+     * have the <tt>DeleteFile</tt> privilege.
      * Attempts deletion of another user's file via {@link omero.cmd.Delete2}.
      * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param isRestricted if to test a user who does <em>not</em> have the <tt>WriteFile</tt> privilege
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>DeleteFile</tt> privilege
      * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
      * @throws Exception unexpected
      */
     @Test(dataProvider = "light administrator privilege test cases")
-    public void testWriteFilePrivilegeDeletionViaRequest(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
+    public void testDeleteFilePrivilegeDeletionViaRequest(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
         final EventContext normalUser = newUserAndGroup("rwr-r-");
         final OriginalFile file = (OriginalFile) iUpdate.saveAndReturnObject(mmFactory.createOriginalFile());
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
-                isRestricted ? AdminPrivilegeWriteFile.value : null);
+                isRestricted ? AdminPrivilegeDeleteFile.value : null);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         doChange(client, factory, Requests.delete().target(file).build(), isExpectSuccess);
     }
 
     /**
      * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
-     * have the <tt>WriteFile</tt> privilege.
+     * have the <tt>DeleteFile</tt> privilege.
      * Attempts deletion of another user's file via {@link IScriptPrx#deleteScript(long)}.
      * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param isRestricted if to test a user who does <em>not</em> have the <tt>WriteFile</tt> privilege
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>DeleteFile</tt> privilege
      * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
      * @throws Exception unexpected
      */
     @Test(dataProvider = "light administrator privilege test cases")
-    public void testWriteFilePrivilegeDeletionViaScripts(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
+    public void testDeleteFilePrivilegeDeletionViaScripts(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
         final EventContext normalUser = newUserAndGroup("rwr-r-");
         IScriptPrx iScript = factory.getScriptService();
@@ -1213,7 +1216,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         assertExists(testScript);
         /* try deleting the script */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
-                isRestricted ? AdminPrivilegeWriteFile.value : null);
+                isRestricted ? AdminPrivilegeDeleteFile.value : null);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         iScript = factory.getScriptService();
         try {
@@ -1300,19 +1303,19 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
 
     /**
      * Test that users may write other users' data only if they are a member of the <tt>system</tt> group and
-     * have the <tt>WriteOwned</tt> privilege. Attempts deletion of another user's data.
+     * have the <tt>DeleteOwned</tt> privilege. Attempts deletion of another user's data.
      * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param isRestricted if to test a user who does <em>not</em> have the <tt>WriteOwned</tt> privilege
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>DeleteOwned</tt> privilege
      * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
      * @throws Exception unexpected
      */
     @Test(dataProvider = "light administrator privilege test cases")
-    public void testWriteOwnedPrivilegeDeletion(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
+    public void testDeleteOwnedPrivilegeDeletion(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
         final EventContext normalUser = newUserAndGroup("rwr-r-");
         final Folder folder = (Folder) iUpdate.saveAndReturnObject(mmFactory.simpleFolder());
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
-                isRestricted ? AdminPrivilegeWriteOwned.value : null);
+                isRestricted ? AdminPrivilegeDeleteOwned.value : null);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         doChange(client, factory, Requests.delete().target(folder).build(), isExpectSuccess);
     }
@@ -1611,15 +1614,15 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
 
     /**
      * Test that users may write official scripts only if they are a member of the <tt>system</tt> group and
-     * have the <tt>WriteScriptRepo</tt> privilege.
+     * have the <tt>DeleteScriptRepo</tt> privilege.
      * Attempts deletion of another user's file via {@link RepositoryPrx#deletePaths(String[], boolean, boolean)}.
      * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param isRestricted if to test a user who does <em>not</em> have the <tt>WriteScriptRepo</tt> privilege
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>DeleteScriptRepo</tt> privilege
      * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
      * @throws Exception unexpected
      */
     @Test(dataProvider = "light administrator privilege test cases")
-    public void testWriteScriptRepoPrivilegeDeletionViaRepo(boolean isAdmin, boolean isRestricted, boolean isSudo)
+    public void testDeleteScriptRepoPrivilegeDeletionViaRepo(boolean isAdmin, boolean isRestricted, boolean isSudo)
             throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
         final EventContext normalUser = newUserAndGroup("rwr-r-");
@@ -1646,7 +1649,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         Assert.assertEquals(fileContentCurrent, fileContentOriginal);
         /* try to delete the script */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
-                isRestricted ? AdminPrivilegeWriteScriptRepo.value : null);
+                isRestricted ? AdminPrivilegeDeleteScriptRepo.value : null);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         repo = getRepository(Repository.SCRIPT);
         try {
@@ -1679,36 +1682,36 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
 
     /**
      * Test that users may write official scripts only if they are a member of the <tt>system</tt> group and
-     * have the <tt>WriteScriptRepo</tt> privilege.
+     * have the <tt>DeleteScriptRepo</tt> privilege.
      * Attempts deletion of another user's file via {@link omero.cmd.Delete2}.
      * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param isRestricted if to test a user who does <em>not</em> have the <tt>WriteScriptRepo</tt> privilege
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>DeleteScriptRepo</tt> privilege
      * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
      * @throws Exception unexpected
      */
     @Test(dataProvider = "light administrator privilege test cases")
-    public void testWriteScriptRepoPrivilegeDeletionViaRequest(boolean isAdmin, boolean isRestricted, boolean isSudo)
+    public void testDeleteScriptRepoPrivilegeDeletionViaRequest(boolean isAdmin, boolean isRestricted, boolean isSudo)
             throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
         final EventContext normalUser = newUserAndGroup("rwr-r-");
         final OriginalFile file = (OriginalFile) iUpdate.saveAndReturnObject(mmFactory.createOriginalFile());
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
-                isRestricted ? AdminPrivilegeWriteScriptRepo.value : null);
+                isRestricted ? AdminPrivilegeDeleteScriptRepo.value : null);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         doChange(client, factory, Requests.delete().target(file).build(), isExpectSuccess);
     }
 
     /**
      * Test that users may write official scripts only if they are a member of the <tt>system</tt> group and
-     * have the <tt>WriteScriptRepo</tt> privilege.
+     * have the <tt>DeleteScriptRepo</tt> privilege.
      * Attempts deletion of another user's file via {@link IScriptPrx#deleteScript(long)}.
      * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param isRestricted if to test a user who does <em>not</em> have the <tt>WriteScriptRepo</tt> privilege
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>DeleteScriptRepo</tt> privilege
      * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
      * @throws Exception unexpected
      */
     @Test(dataProvider = "light administrator privilege test cases")
-    public void testWriteScriptRepoPrivilegeDeletionViaScripts(boolean isAdmin, boolean isRestricted, boolean isSudo)
+    public void testDeleteScriptRepoPrivilegeDeletionViaScripts(boolean isAdmin, boolean isRestricted, boolean isSudo)
             throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
         final EventContext normalUser = newUserAndGroup("rwr-r-");
@@ -1737,7 +1740,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         assertExists(testScript);
         /* try deleting the script */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
-                isRestricted ? AdminPrivilegeWriteScriptRepo.value : null);
+                isRestricted ? AdminPrivilegeDeleteScriptRepo.value : null);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         iScript = factory.getScriptService();
         try {
