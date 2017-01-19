@@ -1078,10 +1078,11 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         file = (OriginalFile) iQuery.get("OriginalFile", file.getId().getValue());
-        file.setName(omero.rtypes.rstring(getClass().getName()));
+        final String newFilename = "Test_" + getClass().getName() + '_' + UUID.randomUUID();
+        file.setName(omero.rtypes.rstring(newFilename));
         try {
             file = (OriginalFile) iUpdate.saveAndReturnObject(file);
-            Assert.assertEquals(file.getName().getValue(), getClass().getName());
+            Assert.assertEquals(file.getName().getValue(), newFilename);
             Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccess);
@@ -1285,10 +1286,11 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
                 isRestricted ? AdminPrivilegeWriteOwned.value : null);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         folder = (Folder) iQuery.get("Folder", folder.getId().getValue());
-        folder.setName(omero.rtypes.rstring(getClass().getName()));
+        final String newFolderName = "Test_" + getClass().getName() + '_' + UUID.randomUUID();
+        folder.setName(omero.rtypes.rstring(newFolderName));
         try {
             folder = (Folder) iUpdate.saveAndReturnObject(folder);
-            Assert.assertEquals(folder.getName().getValue(), getClass().getName());
+            Assert.assertEquals(folder.getName().getValue(), newFolderName);
             Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccess);
