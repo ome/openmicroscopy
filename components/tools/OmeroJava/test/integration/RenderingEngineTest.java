@@ -1167,7 +1167,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         int sizeX = p.getSizeX().getValue();
         int sizeY = p.getSizeY().getValue();
         PlaneDef pDef;
-        BufferedImage imageRegion, imagePlane, cropImage;
+        BufferedImage imageRegion;
         int[] region, plane;
         for (int i = 0; i < values.length; i++) {
             v = values[i];
@@ -1745,11 +1745,11 @@ public class RenderingEngineTest extends AbstractServerTest {
             re.lookupRenderingDef(id);
         }
         re.load();
-        int n = 5;
-        int diff = 20;
-        long start, end;
-        long time = 0;
         /*
+         *  int n = 5;
+         *  int diff = 20;
+         *  long start, end;
+         *  long time = 0;
          * for (int i = 0; i < n; i++) { start = System.currentTimeMillis();
          * re.saveCurrentSettings(); end = System.currentTimeMillis()-start; if
          * (i == 0) time = end; else Assert.assertTrue(end >= (time-diff) & end <=
@@ -3135,7 +3135,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         re.close();
         disconnect();
         // login as another user.
-        EventContext ctx2 = newUserInGroup(ec);
+        newUserInGroup(ec);
         makeGroupOwner();
         re = factory.createRenderingEngine();
         re.lookupPixels(id);
@@ -3217,7 +3217,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         re.close();
         disconnect();
         // login as another user.
-        EventContext ctx2 = newUserInGroup(ec);
+        newUserInGroup(ec);
         makeGroupOwner();
         re = factory.createRenderingEngine();
         re.lookupPixels(id);
