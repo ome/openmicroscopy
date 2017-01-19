@@ -248,7 +248,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
          * the import into the just created Dataset.
          * Check thus that the light admin can import and write the original file
          * on behalf of the normalUser and into the group of normalUser */
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
         if (!isAdmin) return;/* exit the test in case light admin is not an admin,
         too complicated and uninteresting case */
@@ -475,7 +474,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         lightAdmin = loginNewAdmin(isAdmin, permissions);
         /* set up the project as the normalUser */
         loginUser(normalUser);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         Project proj = mmFactory.simpleProject();
         final String originalName = "OriginalNameOfNormalUser";
         proj.setName(omero.rtypes.rstring(originalName));
