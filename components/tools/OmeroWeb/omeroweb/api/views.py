@@ -251,7 +251,7 @@ class WellView(ObjectView):
     def get_opts(self, request):
         """Add support for load_images."""
         opts = super(WellView, self).get_opts(request)
-        # for single well, we always load images
+        # for single well, we load images with pixels
         opts['load_pixels'] = True
         return opts
 
@@ -457,8 +457,8 @@ class WellsView(ObjectsView):
             plate = getIntOrDefault(request, 'plate', None)
             if plate is not None:
                 opts['plate'] = plate
-        # Listing Wells, load Images with Pixels
-        opts['load_pixels'] = True
+        # Listing Wells, load Images
+        opts['load_images'] = True
         return opts
 
 
