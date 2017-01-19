@@ -94,9 +94,9 @@ def assert_objects(conn, json_objects, omero_ids_objects, dtype="Project",
     for i, o1, o2 in zip(range(len(expected)), json_objects, expected):
         if extra is not None and i < len(extra):
             o2.update(extra[i])
-        # remove any urls from json
+        # remove any urls from json, if not in both objects
         for key in o1.keys():
-            if key.endswith('_url') and key not in o2:
+            if key.startswith('url:') and key not in o2:
                 del(o1[key])
         assert o1 == o2
 
@@ -187,9 +187,9 @@ class TestContainers(IWebTest):
         # Need to get the Schema url to create @type
         base_url = reverse('api_base', kwargs={'api_version': version})
         rsp = _get_response_json(django_client, base_url, {})
-        schema_url = rsp['schema_url']
+        schema_url = rsp['url:schema']
         # specify group via query params
-        save_url = "%s?group=%s" % (rsp['save_url'], group)
+        save_url = "%s?group=%s" % (rsp['url:save'], group)
         project_name = 'test_container_create_read'
         payload = {'Name': project_name,
                    '@type': '%s#%s' % (schema_url, dtype)}
@@ -293,8 +293,8 @@ class TestContainers(IWebTest):
                               {'api_version': version,
                                'screen_id': screen.id.val})
             extra.append({
-                'screen_url': s_url,
-                'plates_url': p_url
+                'url:screen': s_url,
+                'url:plates': p_url
             })
         assert_objects(conn, rsp['data'], user_screens,
                        dtype="Screen", extra=extra)
@@ -310,26 +310,26 @@ class TestContainers(IWebTest):
 
         # List screens
         screen, plate = screen_plates
-        screens_url = base_rsp['screens_url']
+        screens_url = base_rsp['url:screens']
         rsp = _get_response_json(client, screens_url, {})
         screens_json = rsp['data']
         extra = [{
-            'screen_url': build_url(client, 'api_screen',
+            'url:screen': build_url(client, 'api_screen',
                                     {'api_version': version,
                                      'object_id': screen.id.val}),
-            'plates_url': build_url(client, 'api_screen_plates',
+            'url:plates': build_url(client, 'api_screen_plates',
                                     {'api_version': version,
                                      'screen_id': screen.id.val})
         }]
         assert_objects(conn, screens_json, [screen], dtype='Screen',
                        extra=extra)
         # View single screen
-        rsp = _get_response_json(client, screens_json[0]['screen_url'], {})
+        rsp = _get_response_json(client, screens_json[0]['url:screen'], {})
         assert_objects(conn, [rsp], [screen], dtype='Screen',
-                       extra=[{'plates_url': extra[0]['plates_url']}])
+                       extra=[{'url:plates': extra[0]['url:plates']}])
 
         # List plates
-        plates_url = screens_json[0]['plates_url']
+        plates_url = screens_json[0]['url:plates']
         plates = screen.linkedPlateList()
         plates.sort(cmp_name_insensitive)
         rsp = _get_response_json(client, plates_url, {})
@@ -337,13 +337,13 @@ class TestContainers(IWebTest):
         extra = []
         for p in plates:
             extra.append({
-                'plate_url': build_url(client, 'api_plate',
+                'url:plate': build_url(client, 'api_plate',
                                        {'api_version': version,
                                         'object_id': p.id.val}),
             })
         assert_objects(conn, plates_json, plates, dtype='Plate', extra=extra)
         # View single plate
-        rsp = _get_response_json(client, plates_json[0]['plate_url'], {})
+        rsp = _get_response_json(client, plates_json[0]['url:plate'], {})
         assert_objects(conn, [rsp], plates[0:1], dtype='Plate')
 
     def test_pdi_urls(self, user1, project_datasets):
@@ -357,25 +357,25 @@ class TestContainers(IWebTest):
 
         # List projects
         project, dataset = project_datasets
-        projects_url = base_rsp['projects_url']
+        projects_url = base_rsp['url:projects']
         rsp = _get_response_json(client, projects_url, {})
         projects_json = rsp['data']
         extra = [{
-            'project_url': build_url(client, 'api_project',
+            'url:project': build_url(client, 'api_project',
                                      {'api_version': version,
                                       'object_id': project.id.val}),
-            'datasets_url': build_url(client, 'api_project_datasets',
+            'url:datasets': build_url(client, 'api_project_datasets',
                                       {'api_version': version,
                                        'project_id': project.id.val})
         }]
         assert_objects(conn, projects_json, [project], extra=extra)
         # View single Project
-        rsp = _get_response_json(client, projects_json[0]['project_url'], {})
+        rsp = _get_response_json(client, projects_json[0]['url:project'], {})
         assert_objects(conn, [rsp], [project],
-                       extra=[{'datasets_url': extra[0]['datasets_url']}])
+                       extra=[{'url:datasets': extra[0]['url:datasets']}])
 
         # List datasets
-        datasets_url = projects_json[0]['datasets_url']
+        datasets_url = projects_json[0]['url:datasets']
         datasets = project.linkedDatasetList()
         datasets.sort(cmp_name_insensitive)
         rsp = _get_response_json(client, datasets_url, {})
@@ -383,22 +383,22 @@ class TestContainers(IWebTest):
         extra = []
         for d in datasets:
             extra.append({
-                'dataset_url': build_url(client, 'api_dataset',
+                'url:dataset': build_url(client, 'api_dataset',
                                          {'api_version': version,
                                           'object_id': d.id.val}),
-                'images_url': build_url(client, 'api_dataset_images',
+                'url:images': build_url(client, 'api_dataset_images',
                                         {'api_version': version,
                                          'dataset_id': d.id.val})
             })
         assert_objects(conn, datasets_json, datasets,
                        dtype='Dataset', extra=extra)
         # View single Dataset
-        rsp = _get_response_json(client, datasets_json[0]['dataset_url'], {})
+        rsp = _get_response_json(client, datasets_json[0]['url:dataset'], {})
         assert_objects(conn, [rsp], datasets[0:1], dtype='Dataset',
-                       extra=[{'images_url': extra[0]['images_url']}])
+                       extra=[{'url:images': extra[0]['url:images']}])
 
         # List images (from last Dataset)
-        images_url = datasets_json[-1]['images_url']
+        images_url = datasets_json[-1]['url:images']
         images = datasets[-1].linkedImageList()
         images.sort(cmp_name_insensitive)
         rsp = _get_response_json(client, images_url, {})
@@ -406,13 +406,13 @@ class TestContainers(IWebTest):
         extra = []
         for i in images:
             extra.append({
-                'image_url': build_url(client, 'api_image',
+                'url:image': build_url(client, 'api_image',
                                        {'api_version': version,
                                         'object_id': i.id.val}),
             })
         assert_objects(conn, images_json, images,
                        dtype='Image', extra=extra, opts={'load_pixels': True})
         # View single Image
-        rsp = _get_response_json(client, images_json[0]['image_url'], {})
+        rsp = _get_response_json(client, images_json[0]['url:image'], {})
         assert_objects(conn, [rsp], images[0:1], dtype='Image',
                        opts={'load_channels': True})
