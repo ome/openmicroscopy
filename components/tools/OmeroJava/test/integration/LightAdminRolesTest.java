@@ -647,6 +647,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     public void testImporterAsSudoChown(boolean isAdmin, boolean isSudoing, boolean permChown,
             boolean permWriteOwned, boolean permWriteFile, String groupPermissions) throws Exception {
         final EventContext normalUser = newUserAndGroup(groupPermissions);
+        final boolean chownPassing = isAdmin && permChown && permWriteOwned && permWriteFile;
         final long anotherUserId = newUserAndGroup(groupPermissions).userId;
         /* set up the basic permissions for this test */
         ArrayList <String> permissions = new ArrayList <String>();
@@ -680,7 +681,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         } catch (ServerError se) {
                 Assert.assertFalse(isAdmin);
         }
-        final OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
+        OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
                 "FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
                 new ParametersI().addId(previousId).add("name", imageName));
         if (isAdmin) {
@@ -702,23 +703,30 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         if (isSudoing) {
             doChange(client, factory, Requests.chown().target(image).toUser(anotherUserId).build(), false);
             image = (Image) iQuery.get("Image", image.getId().getValue());
+            remoteFile = (OriginalFile) iQuery.findByQuery(
+                    "FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
+                    new ParametersI().addId(previousId).add("name", imageName));
             Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), normalUser.userId);
             Assert.assertEquals(image.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+            Assert.assertEquals(remoteFile.getDetails().getOwner().getId().getValue(), normalUser.userId);
         } else {
             /* when trying to chown the image NOT being sudoed,
              * this should fail in case you have not all of Chown & WriteOwned & WriteFile
-             * permissions */
-            if (permChown && permWriteOwned && permWriteFile) {
-                doChange(client, factory, Requests.chown().target(image).toUser(anotherUserId).build(), true);
-                image = (Image) iQuery.get("Image", image.getId().getValue());
+             * permissions, collated in "chownPassing" boolean */
+            doChange(client, factory, Requests.chown().target(image).toUser(anotherUserId).build(), chownPassing);
+            image = (Image) iQuery.get("Image", image.getId().getValue());
+            remoteFile = (OriginalFile) iQuery.findByQuery(
+                    "FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
+                    new ParametersI().addId(previousId).add("name", imageName));
+            if (chownPassing) {
                 Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), anotherUserId);
-                Assert.assertEquals(image.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+                Assert.assertEquals(remoteFile.getDetails().getOwner().getId().getValue(), anotherUserId);
             } else {
-                doChange(client, factory, Requests.chown().target(image).toUser(anotherUserId).build(), false);
-                image = (Image) iQuery.get("Image", image.getId().getValue());
                 Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), normalUser.userId);
-                Assert.assertEquals(image.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+                Assert.assertEquals(remoteFile.getDetails().getOwner().getId().getValue(), normalUser.userId);
             }
+            /* in any case, the image must be in the right group */
+            Assert.assertEquals(image.getDetails().getGroup().getId().getValue(), normalUser.groupId);
         }
     }
 
@@ -1104,13 +1112,17 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * to another user using the Chown privilege and using the targetUser
      * option of the Chown2 command which transfers all the data owned by one
      * user to another user. The data are in 2 groups, of which the original data owner
-     * is a member of, the recipient of the data is just a member of one of the groups
+     * is a member of, the recipient of the data is just a member of one of the groups.
      * @throws Exception unexpected
      */
     @Test(dataProvider = "combined privileges cases")
     public void testDataOrganizerChownAll(boolean isAdmin, boolean permChgrp, boolean permChown,
             boolean permWriteOwned, boolean permWriteFile, String groupPermissions) throws Exception {
         final boolean isExpectSuccess = isAdmin && permChown && permWriteOwned && permWriteFile;
+        /* chown is passing in this test with isAdmin, permChown and permWriteOwned only,
+         * the permWriteFile is not necessary, but note that this is just because we have
+         * images with no original files linked to them. If there would be original files, then
+         * chown would work only with permWriteFile, just as in testImporterAsSudoChown.*/
         final boolean chownPassing = isAdmin && permChown && permWriteOwned;
         if (!isExpectSuccess) return;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
