@@ -569,7 +569,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         } catch (ServerError se) {
             Assert.assertFalse(isAdmin);
         }
-        final OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
+        OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
                 "FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
                 new ParametersI().addId(previousId).add("name", imageName));
         if (isAdmin) {
@@ -587,22 +587,23 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         /* remember in which group the image was before chgrp was attempted */
         long imageGroupId = image.getDetails().getGroup().getId().getValue();
         /*in order to find the image in whatever group, get context with group
-         * set to -1 (=all groups)
-         */
+         * set to -1 (=all groups) */
         client.getImplicitContext().put("omero.group", Long.toString(-1));
         /* try to move the image into another group of the normalUser
          * which should succeed if sudoing and also in case
          * the light admin has Chgrp permissions
-         * (i.e. isExpectSuccess is true)
-         */
+         * (i.e. isExpectSuccess is true) */
         doChange(client, factory, Requests.chgrp().target(image).toGroup(normalUsersOtherGroupId).build(), isExpectSuccessInMemberGroup);
         image = (Image) iQuery.get("Image", image.getId().getValue());
+        remoteFile = (OriginalFile) iQuery.get("OriginalFile", remoteFile.getId().getValue());
         /* note in which group the image now is now */
         imageGroupId = image.getDetails().getGroup().getId().getValue();
         if (isExpectSuccessInMemberGroup) {
             Assert.assertEquals(imageGroupId, normalUsersOtherGroupId);
+            Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), normalUsersOtherGroupId);
         } else {
             Assert.assertEquals(imageGroupId, normalUser.groupId);
+            Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), normalUser.groupId);
         }
         /* in any case, the image should still belong to normalUser */
         Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), normalUser.userId);
@@ -614,14 +615,16 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         doChange(client, factory, Requests.chgrp().target(image).toGroup(anotherGroupId).build(),
                 chgrpNoSudoExpectSuccessAnyGroup);
         image = (Image) iQuery.get("Image", image.getId().getValue());
-        Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), normalUser.userId);
+        remoteFile = (OriginalFile) iQuery.get("OriginalFile", remoteFile.getId().getValue());
         if(chgrpNoSudoExpectSuccessAnyGroup) {
             /* check that the image moved to another group */
             Assert.assertEquals(image.getDetails().getGroup().getId().getValue(), anotherGroupId);
+            Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), anotherGroupId);
         } else {
             /* check that the image is still in its original group
              * (stored in the imageGroupId variable) */
             Assert.assertEquals(image.getDetails().getGroup().getId().getValue(), imageGroupId);
+            Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), imageGroupId);
         }
         /* in any case, the image should still belong to normalUser */
         Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), normalUser.userId);
