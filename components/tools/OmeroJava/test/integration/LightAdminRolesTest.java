@@ -300,12 +300,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
    @Test(dataProvider = "combined privileges cases")
    public void testImporterDelete(boolean isAdmin, boolean isSudoing, boolean permChgrp,
            boolean permWriteOwned, boolean permWriteFile, String groupPermissions) throws Exception {
-       //if (!(!isSudoing && permWriteOwned && !permWriteFile)) return;
-       /* define case where the Sudo is not being used post-import
-        * to perform the chgrp action. Such cases are all expected to fail
-        * except the light admin has Chgrp permission. WriteOwned and WriteFile
-        * are not important for the Chgrp success in such situation.
-        */
        final EventContext normalUser = newUserAndGroup(groupPermissions);
        /* set up the light admin's permissions for this test */
        ArrayList <String> permissions = new ArrayList <String>();
@@ -431,9 +425,11 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
            Assert.assertNull(retrievedDatasetImageLink, "Dat-Image link should be deleted");
            Assert.assertNull(retrievedProjectDatasetLink, "Proj-Dat link should be deleted");
        } else if (!isSudoing && permWriteOwned && !permWriteFile){
-           /* only deletions of OMERO objects should have been successful, but
-            * not the original file and the image
-            */
+           /* When WriteFile permission is missing, general expectation is that only OMERO objects
+            * would be successfully deleted, except image, because image has under itself original file,
+            * for deletion of which WriteFile is necessary. Unfortunately, in actual fact, slightly non-standard
+            * functionality in the back end (considering the original file orphaned after image
+            * was deleted first) allows the deletion of the image and original file also in this case.*/
            Assert.assertNull(retrievedRemoteFile, "original file deleted - this is surprising, because WriteFile is false");
            Assert.assertNull(retrievedImage, "image deleted - this is surprising, because WriteFile is false");
            Assert.assertNull(retrievedDat, "dataset should be deleted");
