@@ -337,7 +337,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
                     f = _internalRegister(repoUuid,
                             Arrays.asList(checked), Arrays.asList(parent),
                             null, PublicRepositoryI.DIRECTORY_MIMETYPE,
-                            sf, sql).get(0);
+                            sf, sql, s).get(0);
                     sw.stop("omero.repo.file.register");
                 } else {
                     // Make sure the file is in the user group
@@ -531,7 +531,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
                     List<ome.model.core.OriginalFile> ofs =
                                 _internalRegister(repoUuid, paths, parents,
                                         checksumAlgorithm, null,
-                                        sf, getSqlAction());
+                                        sf, getSqlAction(), session);
                     sw.stop("omero.repo.save_fileset.register");
 
                     sw = new Slf4JStopWatch();
@@ -603,7 +603,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
                 public Object doWork(Session session, ServiceFactory sf) {
                     return _internalRegister(repoUuid,
                             Arrays.asList(checked), Arrays.asList(parent),
-                            null, mimetype, sf, getSqlAction()).get(0);
+                            null, mimetype, sf, getSqlAction(), session).get(0);
                 }
             });
 
@@ -621,11 +621,12 @@ public class RepositoryDaoImpl implements RepositoryDao {
      * @param mimetype
      * @param sf
      * @param sql
+     * @param session
      * @return See above.
      * @throws ServerError
      */
     public ome.model.core.OriginalFile register(final String repoUuid, final CheckedPath checked,
-            final String mimetype, final ServiceFactory sf, final SqlAction sql)
+            final String mimetype, final ServiceFactory sf, final SqlAction sql, Session session)
                     throws ServerError {
 
         if (checked.isRoot) {
@@ -637,7 +638,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
 
         return _internalRegister(repoUuid,
                 Arrays.asList(checked), Arrays.asList(parent),
-                null, mimetype, sf, sql).get(0);
+                null, mimetype, sf, sql, session).get(0);
 
     }
 
@@ -773,12 +774,13 @@ public class RepositoryDaoImpl implements RepositoryDao {
      * @param parent
      * @param sf non-null
      * @param sql non-null
+     * @param session
      * @return
      */
     private List<ome.model.core.OriginalFile> _internalRegister(final String repoUuid,
             final List<CheckedPath> checked, final List<CheckedPath> parents,
             ChecksumAlgorithm checksumAlgorithm, final String mimetype,
-            ServiceFactory sf, SqlAction sql) {
+            ServiceFactory sf, SqlAction sql, Session session) {
 
         final List<ome.model.core.OriginalFile> toReturn = new ArrayList<ome.model.core.OriginalFile>();
         final ListMultimap<CheckedPath, CheckedPath> levels = ArrayListMultimap.create();
@@ -815,7 +817,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
                 canWriteParentDirectory(sf, sql,
                     repoUuid, parent);
                 List<ome.model.core.OriginalFile> created = createOriginalFile(sf, sql,
-                    repoUuid, toCreate, checksumAlgorithm, mimetype);
+                    repoUuid, toCreate, checksumAlgorithm, mimetype, session);
                 toReturn.addAll(created);
             }
 
@@ -954,11 +956,12 @@ public class RepositoryDaoImpl implements RepositoryDao {
      * @param checked
      * @param checksumAlgorithm 
      * @param mimetype
+     * @param session
      * @return See above.
      */
     protected List<ome.model.core.OriginalFile> createOriginalFile(
             ServiceFactory sf, SqlAction sql, String repoUuid,
-            List<CheckedPath> checked, ChecksumAlgorithm checksumAlgorithm, String mimetype) {
+            List<CheckedPath> checked, ChecksumAlgorithm checksumAlgorithm, String mimetype, Session session) {
 
         ome.model.enums.ChecksumAlgorithm ca = null;
         if (checksumAlgorithm != null) {
@@ -987,9 +990,11 @@ public class RepositoryDaoImpl implements RepositoryDao {
             }
         }
         sw.stop("omero.repo.create_original_file.internal_mkdir");
-
         sw = new Slf4JStopWatch();
         sql.setFileRepo(ids, repoUuid);
+        for (final ome.model.core.OriginalFile file : rv) {
+            session.refresh(file);
+        }
         sw.stop("omero.repo.create_original_file.set_file_repo");
         return rv;
     }
