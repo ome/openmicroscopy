@@ -256,15 +256,15 @@ class WellView(ObjectView):
         return opts
 
     def add_data(self, marshalled, request, urls={}, **kwargs):
-        """Add 'image_url' to any 'Image' in 'WellSamples'."""
+        """Add 'url:image' to any 'Image' in 'WellSamples'."""
         marshalled = super(WellView, self).add_data(marshalled, request,
                                                     urls=urls, **kwargs)
         image_urls = {
-            'image_url': {'name': 'api_image',
+            'url:image': {'name': 'api_image',
                           'kwargs': {'object_id': 'OBJECT_ID'}},
         }
         if 'WellSamples' in marshalled:
-            # For each WellSample, add image_urls to Image
+            # For each WellSample, add image urls to Image
             for ws in marshalled['WellSamples']:
                 if 'Image' in ws:
                     self.add_data(ws['Image'], request, image_urls, **kwargs)
@@ -441,7 +441,7 @@ class WellsView(ObjectsView):
 
     # Urls to add to marshalled object. See ProjectsView for more details
     urls = {
-        'well_url': {'name': 'api_well',
+        'url:well': {'name': 'api_well',
                      'kwargs': {'object_id': 'OBJECT_ID'}},
     }
 
@@ -460,6 +460,21 @@ class WellsView(ObjectsView):
         # Listing Wells, load Images
         opts['load_images'] = True
         return opts
+
+    def add_data(self, marshalled, request, urls={}, **kwargs):
+        """Add 'url:image' to any 'Image' in 'WellSamples'."""
+        marshalled = super(WellsView, self).add_data(marshalled, request,
+                                                     urls=urls, **kwargs)
+        image_urls = {
+            'url:image': {'name': 'api_image',
+                          'kwargs': {'object_id': 'OBJECT_ID'}},
+        }
+        if 'WellSamples' in marshalled:
+            # For each WellSample, add image urls to Image
+            for ws in marshalled['WellSamples']:
+                if 'Image' in ws:
+                    self.add_data(ws['Image'], request, image_urls, **kwargs)
+        return marshalled
 
 
 class SaveView(View):
