@@ -181,6 +181,9 @@
 		<!-- Note: AdminPrivilege is not in model-->
 		<entry name="Chgrp"/>
 		<entry name="Chown"/>
+		<entry name="DeleteFile"/>
+		<entry name="DeleteOwned"/>
+		<entry name="DeleteScriptRepo"/>
 		<entry name="ModifyUser"/>
 		<entry name="ReadSession"/>
 		<entry name="Sudo"/>

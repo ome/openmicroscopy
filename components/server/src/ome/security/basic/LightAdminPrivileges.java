@@ -59,7 +59,8 @@ public class LightAdminPrivileges {
     static {
         /* see trac ticket 10691 re. enum values */
         final ImmutableSet<String> privilegeValues = ImmutableSet.of(
-                "Chgrp", "Chown", "ModifyUser", "ReadSession", "Sudo", "WriteFile", "WriteOwned", "WriteScriptRepo");
+                "Chgrp", "Chown", "DeleteFile", "DeleteOwned", "DeleteScriptRepo", "ModifyUser", "ReadSession", "Sudo",
+                "WriteFile", "WriteOwned", "WriteScriptRepo");
 
         final ImmutableMap.Builder<String, AdminPrivilege> builder = ImmutableMap.builder();
         for (final String privilegeValue : privilegeValues) {
