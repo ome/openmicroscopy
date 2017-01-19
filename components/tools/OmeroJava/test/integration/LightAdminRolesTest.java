@@ -528,9 +528,13 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         /* define case where the Sudo is not being used post-import
          * to perform the chgrp action. Such cases are all expected to fail
          * except the light admin has Chgrp permission. WriteOwned and WriteFile
-         * are not important for the Chgrp success in such situation.
-         */
-        boolean chgrpNoSudoExpectSuccess = (isAdmin && !isSudoing && permChgrp);
+         * are not important for the Chgrp success in such situation. Note that sudoing
+         * cannot lead to a successful Chgrp in case the owner of the data is not a member
+         * of the target group.*/
+        boolean chgrpNoSudoExpectSuccessAnyGroup = (isAdmin && !isSudoing && permChgrp);
+        /* Define successfull case when data are moved into group which the owner
+         * of the data is a member of.*/
+        boolean isExpectSuccessInMemberGroup = chgrpNoSudoExpectSuccessAnyGroup || isSudoing;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         final long anotherGroupId = newUserAndGroup(groupPermissions).groupId;
         final long normalUsersOtherGroupId = newGroupAddUser(groupPermissions, normalUser.userId, false).getId().getValue();
@@ -578,7 +582,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                 new ParametersI().addId(remoteFile.getId()));
         /* take care of post-import workflows which do not use sudo */
         if (!isSudoing) {
-            loginUser(lightAdmin); // TODO
+            loginUser(lightAdmin);
         }
         /* remember in which group the image was before chgrp was attempted */
         long imageGroupId = image.getDetails().getGroup().getId().getValue();
@@ -587,48 +591,40 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
          */
         client.getImplicitContext().put("omero.group", Long.toString(-1));
         /* try to move the image into another group of the normalUser
-         * which should succeed if not sudoing and also in case
+         * which should succeed if sudoing and also in case
          * the light admin has Chgrp permissions
-         * (i.e. chgrpNoSudoExpectSuccess is true)
+         * (i.e. isExpectSuccess is true)
          */
-        if (chgrpNoSudoExpectSuccess | isSudoing) {
-            doChange(client, factory, Requests.chgrp().target(image).toGroup(normalUsersOtherGroupId).build(), true);
-            image = (Image) iQuery.get("Image", image.getId().getValue());
-            /* note in which group the image now is now */
-            imageGroupId = image.getDetails().getGroup().getId().getValue();
+        doChange(client, factory, Requests.chgrp().target(image).toGroup(normalUsersOtherGroupId).build(), isExpectSuccessInMemberGroup);
+        image = (Image) iQuery.get("Image", image.getId().getValue());
+        /* note in which group the image now is now */
+        imageGroupId = image.getDetails().getGroup().getId().getValue();
+        if (isExpectSuccessInMemberGroup) {
             Assert.assertEquals(imageGroupId, normalUsersOtherGroupId);
         } else {
-            doChange(client, factory, Requests.chgrp().target(image).toGroup(normalUsersOtherGroupId).build(), false);
-            image = (Image) iQuery.get("Image", image.getId().getValue());
-            /* note in which group the image now is now */
-            imageGroupId = image.getDetails().getGroup().getId().getValue();
-            Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), normalUser.userId);
             Assert.assertEquals(imageGroupId, normalUser.groupId);
         }
+        /* in any case, the image should still belong to normalUser */
+        Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), normalUser.userId);
 
         /* try to move into another group the normalUser
-        * is not a member of, which should fail in all cases
-        * except the light admin has Chgrp, WriteFile and WriteOwned
-        * permissions (i.e. chgrpNoSudoExpectSuccess is true)
-        */
-        if (chgrpNoSudoExpectSuccess) {
-            doChange(client, factory, Requests.chgrp().target(image).toGroup(anotherGroupId).build(),
-                    true /* expect success */);
-            image = (Image) iQuery.get("Image", image.getId().getValue());
-            Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), normalUser.userId);
-            /* check that the image moved to another group
-             */
+         * is not a member of, which should fail in all cases
+         * except the light admin has Chgrp permission and is not sudoing
+         * (i.e. chgrpNoSudoExpectSuccessAnyGroup is true) */
+        doChange(client, factory, Requests.chgrp().target(image).toGroup(anotherGroupId).build(),
+                chgrpNoSudoExpectSuccessAnyGroup);
+        image = (Image) iQuery.get("Image", image.getId().getValue());
+        Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), normalUser.userId);
+        if(chgrpNoSudoExpectSuccessAnyGroup) {
+            /* check that the image moved to another group */
             Assert.assertEquals(image.getDetails().getGroup().getId().getValue(), anotherGroupId);
         } else {
-            doChange(client, factory, Requests.chgrp().target(image).toGroup(anotherGroupId).build(),
-                    false /* expected to fail */);
-            image = (Image) iQuery.get("Image", image.getId().getValue());
-            Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), normalUser.userId);
             /* check that the image is still in its original group
-             * (stored in the imageGroupId variable)
-             */
+             * (stored in the imageGroupId variable) */
             Assert.assertEquals(image.getDetails().getGroup().getId().getValue(), imageGroupId);
         }
+        /* in any case, the image should still belong to normalUser */
+        Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), normalUser.userId);
     }
 
     /**
