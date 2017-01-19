@@ -67,7 +67,7 @@ def api_versions(request, **kwargs):
     for v in settings.API_VERSIONS:
         versions.append({
             'version': v,
-            'base_url': build_url(request, 'api_base', v)
+            'url:base': build_url(request, 'api_base', v)
         })
     return {'data': versions}
 
@@ -76,16 +76,16 @@ def api_versions(request, **kwargs):
 def api_base(request, api_version=None, **kwargs):
     """Base url of the webgateway json api for a specified version."""
     v = api_version
-    rv = {'projects_url': build_url(request, 'api_projects', v),
-          'datasets_url': build_url(request, 'api_datasets', v),
-          'images_url': build_url(request, 'api_images', v),
-          'screens_url': build_url(request, 'api_screens', v),
-          'plates_url': build_url(request, 'api_plates', v),
-          'token_url': build_url(request, 'api_token', v),
-          'servers_url': build_url(request, 'api_servers', v),
-          'login_url': build_url(request, 'api_login', v),
-          'save_url': build_url(request, 'api_save', v),
-          'schema_url': OME_SCHEMA_URL}
+    rv = {'url:projects': build_url(request, 'api_projects', v),
+          'url:datasets': build_url(request, 'api_datasets', v),
+          'url:images': build_url(request, 'api_images', v),
+          'url:screens': build_url(request, 'api_screens', v),
+          'url:plates': build_url(request, 'api_plates', v),
+          'url:token': build_url(request, 'api_token', v),
+          'url:servers': build_url(request, 'api_servers', v),
+          'url:login': build_url(request, 'api_login', v),
+          'url:save': build_url(request, 'api_save', v),
+          'url:schema': OME_SCHEMA_URL}
     return rv
 
 
@@ -189,7 +189,7 @@ class ProjectView(ObjectView):
 
     # Urls to add to marshalled object. See ProjectsView for more details
     urls = {
-        'datasets_url': {'name': 'api_project_datasets',
+        'url:datasets': {'name': 'api_project_datasets',
                          'kwargs': {'project_id': 'OBJECT_ID'}},
     }
 
@@ -201,7 +201,7 @@ class DatasetView(ObjectView):
 
     # Urls to add to marshalled object. See ProjectsView for more details
     urls = {
-        'images_url': {'name': 'api_dataset_images',
+        'url:images': {'name': 'api_dataset_images',
                        'kwargs': {'dataset_id': 'OBJECT_ID'}},
     }
 
@@ -227,7 +227,7 @@ class ScreenView(ObjectView):
 
     # Urls to add to marshalled object. See ProjectsView for more details
     urls = {
-        'plates_url': {'name': 'api_screen_plates',
+        'url:plates': {'name': 'api_screen_plates',
                        'kwargs': {'screen_id': 'OBJECT_ID'}},
     }
 
@@ -285,9 +285,9 @@ class ProjectsView(ObjectsView):
     # If any kwargs values are 'OBJECT_ID' then this placeholder will be
     # filled with the actual project_id
     urls = {
-        'datasets_url': {'name': 'api_project_datasets',
+        'url:datasets': {'name': 'api_project_datasets',
                          'kwargs': {'project_id': 'OBJECT_ID'}},
-        'project_url': {'name': 'api_project',
+        'url:project': {'name': 'api_project',
                         'kwargs': {'object_id': 'OBJECT_ID'}}
     }
 
@@ -312,9 +312,9 @@ class DatasetsView(ObjectsView):
 
     # Urls to add to marshalled object. See ProjectsView for more details
     urls = {
-        'images_url': {'name': 'api_dataset_images',
+        'url:images': {'name': 'api_dataset_images',
                        'kwargs': {'dataset_id': 'OBJECT_ID'}},
-        'dataset_url': {'name': 'api_dataset',
+        'url:dataset': {'name': 'api_dataset',
                         'kwargs': {'object_id': 'OBJECT_ID'}},
     }
 
@@ -326,9 +326,9 @@ class ScreensView(ObjectsView):
 
     # Urls to add to marshalled object. See ProjectsView for more details
     urls = {
-        'plates_url': {'name': 'api_screen_plates',
+        'url:plates': {'name': 'api_screen_plates',
                        'kwargs': {'screen_id': 'OBJECT_ID'}},
-        'screen_url': {'name': 'api_screen',
+        'url:screen': {'name': 'api_screen',
                        'kwargs': {'object_id': 'OBJECT_ID'}}
     }
 
@@ -353,7 +353,7 @@ class PlatesView(ObjectsView):
 
     # Urls to add to marshalled object. See ProjectsView for more details
     urls = {
-        'plate_url': {'name': 'api_plate',
+        'url:plate': {'name': 'api_plate',
                       'kwargs': {'object_id': 'OBJECT_ID'}}
     }
 
@@ -365,7 +365,7 @@ class ImagesView(ObjectsView):
 
     # Urls to add to marshalled object. See ProjectsView for more details
     urls = {
-        'image_url': {'name': 'api_image',
+        'url:image': {'name': 'api_image',
                       'kwargs': {'object_id': 'OBJECT_ID'}},
     }
 
