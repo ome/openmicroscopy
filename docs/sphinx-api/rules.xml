@@ -93,7 +93,7 @@ Type "ant -p" for a list of targets.
         <runlatex file="@{file}"/>
       </sequential>
     </for>
-    <copy file="_build/latex/Bio-Formats.pdf" tofile="${dist.dir}/docs/omero-${omero.release}.pdf"/>
+    <copy file="_build/latex/omero.pdf" tofile="${dist.dir}/docs/omero-${omero.release}.pdf"/>
   </target>
 
   <target name="pdf" depends="latexpdf"/>
