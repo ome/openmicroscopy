@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -7341,11 +7341,28 @@ class OMEROGateway
 		return null;
 	}
 
-	void removeGroup(SecurityContext ctx) {
-	    if (ctx == null)
-	        return;
-	    gw.closeConnector(ctx);
-	}
+    /**
+     * Remove the security group.
+     *
+     * @param ctx
+     *            The security context.
+     * @return See above.
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    void removeGroup(SecurityContext ctx) throws DSOutOfServiceException,
+            DSAccessException {
+        if (ctx == null)
+            return;
+        try {
+            gw.closeConnector(ctx);
+        } catch (Throwable t) {
+            handleException(t, "Cannot close connector");
+        }
+    }
 
 	/**
 	 * Loads the file set corresponding to the specified image.
