@@ -336,6 +336,336 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     }
 
     /**
+     * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
+     * have the <tt>DeleteFile</tt> privilege.
+     * Attempts deletion of another user's file via {@link RepositoryPrx#deletePaths(String[], boolean, boolean)}.
+     * @param isAdmin if to test a member of the <tt>system</tt> group
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>DeleteFile</tt> privilege
+     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "light administrator privilege test cases")
+    public void testDeleteFilePrivilegeDeletionViaRepo(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
+        final boolean isExpectSuccess = isAdmin && !isRestricted;
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
+        /* fetch a script from the server */
+        final List<OriginalFile> scripts = factory.getScriptService().getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE);
+        RawFileStorePrx rfs = factory.createRawFileStore();
+        rfs.setFileId(scripts.get(0).getId().getValue());
+        final byte[] fileContentOriginal = rfs.read(0, (int) rfs.size());
+        rfs.close();
+        /* upload the script as a new script */
+        final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
+        RepositoryPrx repo = getRepository(Repository.OMERO);
+        final OriginalFile testScript = repo.register(testScriptName, omero.rtypes.rstring(ScriptServiceTest.PYTHON_MIMETYPE));
+        final long testScriptId = testScript.getId().getValue();
+        rfs = repo.file(testScriptName, "rw");
+        rfs.write(fileContentOriginal, 0, fileContentOriginal.length);
+        rfs.close();
+        /* check that script is readable */
+        byte[] fileContentCurrent;
+        rfs = factory.createRawFileStore();
+        rfs.setFileId(testScriptId);
+        fileContentCurrent = rfs.read(0, (int) rfs.size());
+        rfs.close();
+        Assert.assertEquals(fileContentCurrent, fileContentOriginal);
+        /* try to delete the script */
+        loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
+                isRestricted ? AdminPrivilegeDeleteFile.value : null);
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        repo = getRepository(Repository.OMERO);
+        try {
+            final HandlePrx handle = repo.deletePaths(new String[] {testScriptName}, false, false);
+            final CmdCallbackI callback = new CmdCallbackI(client, handle);
+            callback.loop(20, scalingFactor);
+            assertCmd(callback, isExpectSuccess);
+        } catch (Ice.LocalException ue) {
+            Assert.assertFalse(isExpectSuccess);
+        }
+        /* check the content of the script */
+        loginUser(normalUser);
+        rfs = factory.createRawFileStore();
+        try {
+            rfs.setFileId(testScriptId);
+            fileContentCurrent = rfs.read(0, (int) rfs.size());
+            Assert.assertEquals(fileContentCurrent, fileContentOriginal);
+            Assert.assertFalse(isExpectSuccess);
+        } catch (Ice.LocalException | ServerError se) {
+            /* can catch only ServerError once RawFileStoreTest.testBadFileId is fixed */
+            Assert.assertTrue(isExpectSuccess);
+        } finally {
+            rfs.close();
+        }
+        if (!isExpectSuccess) {
+            /* avoid the problem captured by ScriptServiceTest.testGetScriptsFiltersUnreadable */
+            doChange(Requests.delete().target(testScript).build());
+        }
+    }
+
+    /**
+     * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
+     * have the <tt>DeleteFile</tt> privilege.
+     * Attempts deletion of another user's file via {@link omero.cmd.Delete2}.
+     * @param isAdmin if to test a member of the <tt>system</tt> group
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>DeleteFile</tt> privilege
+     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "light administrator privilege test cases")
+    public void testDeleteFilePrivilegeDeletionViaRequest(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
+        final boolean isExpectSuccess = isAdmin && !isRestricted;
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
+        final OriginalFile file = (OriginalFile) iUpdate.saveAndReturnObject(mmFactory.createOriginalFile());
+        loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
+                isRestricted ? AdminPrivilegeDeleteFile.value : null);
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        doChange(client, factory, Requests.delete().target(file).build(), isExpectSuccess);
+    }
+
+    /**
+     * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
+     * have the <tt>DeleteFile</tt> privilege.
+     * Attempts deletion of another user's file via {@link IScriptPrx#deleteScript(long)}.
+     * @param isAdmin if to test a member of the <tt>system</tt> group
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>DeleteFile</tt> privilege
+     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "light administrator privilege test cases")
+    public void testDeleteFilePrivilegeDeletionViaScripts(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
+        final boolean isExpectSuccess = isAdmin && !isRestricted;
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
+        IScriptPrx iScript = factory.getScriptService();
+        /* fetch a script from the server */
+        final OriginalFile scriptFile = iScript.getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE).get(0);
+        RawFileStorePrx rfs = factory.createRawFileStore();
+        rfs.setFileId(scriptFile.getId().getValue());
+        final String actualScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
+        rfs.close();
+        /* upload the script as a new script */
+        final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
+        final long testScriptId = iScript.uploadScript(testScriptName, actualScript);
+        /* delete any jobs associated with the script */
+        final Delete2Builder delete = Requests.delete().option(Requests.option().excludeType("OriginalFile").build());
+        for (final IObject scriptJob : iQuery.findAllByQuery(
+                "SELECT DISTINCT link.parent FROM JobOriginalFileLink link WHERE link.child.id = :id",
+                new ParametersI().addId(testScriptId))) {
+            delete.target(scriptJob);
+        }
+        doChange(delete.build());
+        /* check that the new script exists */
+        final OriginalFile testScript = new OriginalFileI(testScriptId, false);
+        assertExists(testScript);
+        /* try deleting the script */
+        loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
+                isRestricted ? AdminPrivilegeDeleteFile.value : null);
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        iScript = factory.getScriptService();
+        try {
+            iScript.deleteScript(testScriptId);
+            Assert.assertTrue(isExpectSuccess);
+        } catch (ServerError se) {
+            Assert.assertFalse(isExpectSuccess);
+        }
+        /* check if the script was deleted or left intact */
+        loginUser(normalUser);
+        if (isExpectSuccess) {
+            assertDoesNotExist(testScript);
+        } else {
+            assertExists(testScript);
+        }
+        rfs = factory.createRawFileStore();
+        try {
+            rfs.setFileId(testScriptId);
+            final String currentScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
+            Assert.assertEquals(currentScript, actualScript);
+            Assert.assertFalse(isExpectSuccess);
+        } catch (Ice.LocalException | ServerError se) {
+            /* can catch only ServerError once RawFileStoreTest.testBadFileId is fixed */
+            Assert.assertTrue(isExpectSuccess);
+        } finally {
+            rfs.close();
+        }
+    }
+
+    /**
+     * Test that users may write other users' data only if they are a member of the <tt>system</tt> group and
+     * have the <tt>DeleteOwned</tt> privilege. Attempts deletion of another user's data.
+     * @param isAdmin if to test a member of the <tt>system</tt> group
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>DeleteOwned</tt> privilege
+     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "light administrator privilege test cases")
+    public void testDeleteOwnedPrivilegeDeletion(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
+        final boolean isExpectSuccess = isAdmin && !isRestricted;
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
+        final Folder folder = (Folder) iUpdate.saveAndReturnObject(mmFactory.simpleFolder());
+        loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
+                isRestricted ? AdminPrivilegeDeleteOwned.value : null);
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        doChange(client, factory, Requests.delete().target(folder).build(), isExpectSuccess);
+    }
+
+    /**
+     * Test that users may write official scripts only if they are a member of the <tt>system</tt> group and
+     * have the <tt>DeleteScriptRepo</tt> privilege.
+     * Attempts deletion of another user's file via {@link RepositoryPrx#deletePaths(String[], boolean, boolean)}.
+     * @param isAdmin if to test a member of the <tt>system</tt> group
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>DeleteScriptRepo</tt> privilege
+     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "light administrator privilege test cases")
+    public void testDeleteScriptRepoPrivilegeDeletionViaRepo(boolean isAdmin, boolean isRestricted, boolean isSudo)
+            throws Exception {
+        final boolean isExpectSuccess = isAdmin && !isRestricted;
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
+        /* fetch a script from the server */
+        final List<OriginalFile> scripts = factory.getScriptService().getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE);
+        RawFileStorePrx rfs = factory.createRawFileStore();
+        rfs.setFileId(scripts.get(0).getId().getValue());
+        final byte[] fileContentOriginal = rfs.read(0, (int) rfs.size());
+        rfs.close();
+        /* upload the script as a new script */
+        final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
+        RepositoryPrx repo = getRepository(Repository.SCRIPT);
+        final OriginalFile testScript = repo.register(testScriptName, omero.rtypes.rstring(ScriptServiceTest.PYTHON_MIMETYPE));
+        final long testScriptId = testScript.getId().getValue();
+        rfs = repo.file(testScriptName, "rw");
+        rfs.write(fileContentOriginal, 0, fileContentOriginal.length);
+        rfs.close();
+        /* check that script is readable */
+        byte[] fileContentCurrent;
+        rfs = factory.createRawFileStore();
+        rfs.setFileId(testScriptId);
+        fileContentCurrent = rfs.read(0, (int) rfs.size());
+        rfs.close();
+        Assert.assertEquals(fileContentCurrent, fileContentOriginal);
+        /* try to delete the script */
+        loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
+                isRestricted ? AdminPrivilegeDeleteScriptRepo.value : null);
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        repo = getRepository(Repository.SCRIPT);
+        try {
+            final HandlePrx handle = repo.deletePaths(new String[] {testScriptName}, false, false);
+            final CmdCallbackI callback = new CmdCallbackI(client, handle);
+            callback.loop(20, scalingFactor);
+            assertCmd(callback, isExpectSuccess);
+        } catch (Ice.LocalException ue) {
+            Assert.assertFalse(isExpectSuccess);
+        }
+        /* check the content of the script */
+        loginUser(normalUser);
+        rfs = factory.createRawFileStore();
+        try {
+            rfs.setFileId(testScriptId);
+            fileContentCurrent = rfs.read(0, (int) rfs.size());
+            Assert.assertEquals(fileContentCurrent, fileContentOriginal);
+            Assert.assertFalse(isExpectSuccess);
+        } catch (Ice.LocalException | ServerError se) {
+            /* can catch only ServerError once RawFileStoreTest.testBadFileId is fixed */
+            Assert.assertTrue(isExpectSuccess);
+        } finally {
+            rfs.close();
+        }
+        if (!isExpectSuccess) {
+            /* avoid the problem captured by ScriptServiceTest.testGetScriptsFiltersUnreadable */
+            doChange(Requests.delete().target(testScript).build());
+        }
+    }
+
+    /**
+     * Test that users may write official scripts only if they are a member of the <tt>system</tt> group and
+     * have the <tt>DeleteScriptRepo</tt> privilege.
+     * Attempts deletion of another user's file via {@link omero.cmd.Delete2}.
+     * @param isAdmin if to test a member of the <tt>system</tt> group
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>DeleteScriptRepo</tt> privilege
+     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "light administrator privilege test cases")
+    public void testDeleteScriptRepoPrivilegeDeletionViaRequest(boolean isAdmin, boolean isRestricted, boolean isSudo)
+            throws Exception {
+        final boolean isExpectSuccess = isAdmin && !isRestricted;
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
+        final OriginalFile file = (OriginalFile) iUpdate.saveAndReturnObject(mmFactory.createOriginalFile());
+        loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
+                isRestricted ? AdminPrivilegeDeleteScriptRepo.value : null);
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        doChange(client, factory, Requests.delete().target(file).build(), isExpectSuccess);
+    }
+
+    /**
+     * Test that users may write official scripts only if they are a member of the <tt>system</tt> group and
+     * have the <tt>DeleteScriptRepo</tt> privilege.
+     * Attempts deletion of another user's file via {@link IScriptPrx#deleteScript(long)}.
+     * @param isAdmin if to test a member of the <tt>system</tt> group
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>DeleteScriptRepo</tt> privilege
+     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "light administrator privilege test cases")
+    public void testDeleteScriptRepoPrivilegeDeletionViaScripts(boolean isAdmin, boolean isRestricted, boolean isSudo)
+            throws Exception {
+        final boolean isExpectSuccess = isAdmin && !isRestricted;
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
+        IScriptPrx iScript = factory.getScriptService();
+        /* fetch a script from the server */
+        final OriginalFile scriptFile = iScript.getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE).get(0);
+        RawFileStorePrx rfs = factory.createRawFileStore();
+        rfs.setFileId(scriptFile.getId().getValue());
+        final String actualScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
+        rfs.close();
+        /* upload the script as a new script */
+        loginNewAdmin(true, null);
+        iScript = factory.getScriptService();
+        final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
+        final long testScriptId = iScript.uploadOfficialScript(testScriptName, actualScript);
+        /* delete any jobs associated with the script */
+        final Delete2Builder delete = Requests.delete().option(Requests.option().excludeType("OriginalFile").build());
+        for (final IObject scriptJob : iQuery.findAllByQuery(
+                "SELECT DISTINCT link.parent FROM JobOriginalFileLink link WHERE link.child.id = :id",
+                new ParametersI().addId(testScriptId))) {
+            delete.target(scriptJob);
+        }
+        doChange(delete.build());
+        /* check that the new script exists */
+        final OriginalFile testScript = new OriginalFileI(testScriptId, false);
+        assertExists(testScript);
+        /* try deleting the script */
+        loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
+                isRestricted ? AdminPrivilegeDeleteScriptRepo.value : null);
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        iScript = factory.getScriptService();
+        try {
+            iScript.deleteScript(testScriptId);
+            Assert.assertTrue(isExpectSuccess);
+        } catch (ServerError se) {
+            Assert.assertFalse(isExpectSuccess);
+        }
+        /* check if the script was deleted or left intact */
+        loginUser(normalUser);
+        if (isExpectSuccess) {
+            assertDoesNotExist(testScript);
+        } else {
+            assertExists(testScript);
+        }
+        rfs = factory.createRawFileStore();
+        try {
+            rfs.setFileId(testScriptId);
+            final String currentScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
+            Assert.assertEquals(currentScript, actualScript);
+            Assert.assertFalse(isExpectSuccess);
+        } catch (Ice.LocalException | ServerError se) {
+            /* can catch only ServerError once RawFileStoreTest.testBadFileId is fixed */
+            Assert.assertTrue(isExpectSuccess);
+        } finally {
+            rfs.close();
+        }
+    }
+
+    /**
      * Test that users may modify other users only if they are a member of the <tt>system</tt> group and
      * have the <tt>ModifyUser</tt> privilege. Attempts creation of new user via {@link omero.api.IUpdatePrx}.
      * @param isAdmin if to test a member of the <tt>system</tt> group
@@ -1094,159 +1424,6 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     }
 
     /**
-     * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
-     * have the <tt>DeleteFile</tt> privilege.
-     * Attempts deletion of another user's file via {@link RepositoryPrx#deletePaths(String[], boolean, boolean)}.
-     * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param isRestricted if to test a user who does <em>not</em> have the <tt>DeleteFile</tt> privilege
-     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
-     * @throws Exception unexpected
-     */
-    @Test(dataProvider = "light administrator privilege test cases")
-    public void testDeleteFilePrivilegeDeletionViaRepo(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
-        final boolean isExpectSuccess = isAdmin && !isRestricted;
-        final EventContext normalUser = newUserAndGroup("rwr-r-");
-        /* fetch a script from the server */
-        final List<OriginalFile> scripts = factory.getScriptService().getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE);
-        RawFileStorePrx rfs = factory.createRawFileStore();
-        rfs.setFileId(scripts.get(0).getId().getValue());
-        final byte[] fileContentOriginal = rfs.read(0, (int) rfs.size());
-        rfs.close();
-        /* upload the script as a new script */
-        final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
-        RepositoryPrx repo = getRepository(Repository.OMERO);
-        final OriginalFile testScript = repo.register(testScriptName, omero.rtypes.rstring(ScriptServiceTest.PYTHON_MIMETYPE));
-        final long testScriptId = testScript.getId().getValue();
-        rfs = repo.file(testScriptName, "rw");
-        rfs.write(fileContentOriginal, 0, fileContentOriginal.length);
-        rfs.close();
-        /* check that script is readable */
-        byte[] fileContentCurrent;
-        rfs = factory.createRawFileStore();
-        rfs.setFileId(testScriptId);
-        fileContentCurrent = rfs.read(0, (int) rfs.size());
-        rfs.close();
-        Assert.assertEquals(fileContentCurrent, fileContentOriginal);
-        /* try to delete the script */
-        loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
-                isRestricted ? AdminPrivilegeDeleteFile.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
-        repo = getRepository(Repository.OMERO);
-        try {
-            final HandlePrx handle = repo.deletePaths(new String[] {testScriptName}, false, false);
-            final CmdCallbackI callback = new CmdCallbackI(client, handle);
-            callback.loop(20, scalingFactor);
-            assertCmd(callback, isExpectSuccess);
-        } catch (Ice.LocalException ue) {
-            Assert.assertFalse(isExpectSuccess);
-        }
-        /* check the content of the script */
-        loginUser(normalUser);
-        rfs = factory.createRawFileStore();
-        try {
-            rfs.setFileId(testScriptId);
-            fileContentCurrent = rfs.read(0, (int) rfs.size());
-            Assert.assertEquals(fileContentCurrent, fileContentOriginal);
-            Assert.assertFalse(isExpectSuccess);
-        } catch (Ice.LocalException | ServerError se) {
-            /* can catch only ServerError once RawFileStoreTest.testBadFileId is fixed */
-            Assert.assertTrue(isExpectSuccess);
-        } finally {
-            rfs.close();
-        }
-        if (!isExpectSuccess) {
-            /* avoid the problem captured by ScriptServiceTest.testGetScriptsFiltersUnreadable */
-            doChange(Requests.delete().target(testScript).build());
-        }
-    }
-
-    /**
-     * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
-     * have the <tt>DeleteFile</tt> privilege.
-     * Attempts deletion of another user's file via {@link omero.cmd.Delete2}.
-     * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param isRestricted if to test a user who does <em>not</em> have the <tt>DeleteFile</tt> privilege
-     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
-     * @throws Exception unexpected
-     */
-    @Test(dataProvider = "light administrator privilege test cases")
-    public void testDeleteFilePrivilegeDeletionViaRequest(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
-        final boolean isExpectSuccess = isAdmin && !isRestricted;
-        final EventContext normalUser = newUserAndGroup("rwr-r-");
-        final OriginalFile file = (OriginalFile) iUpdate.saveAndReturnObject(mmFactory.createOriginalFile());
-        loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
-                isRestricted ? AdminPrivilegeDeleteFile.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
-        doChange(client, factory, Requests.delete().target(file).build(), isExpectSuccess);
-    }
-
-    /**
-     * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
-     * have the <tt>DeleteFile</tt> privilege.
-     * Attempts deletion of another user's file via {@link IScriptPrx#deleteScript(long)}.
-     * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param isRestricted if to test a user who does <em>not</em> have the <tt>DeleteFile</tt> privilege
-     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
-     * @throws Exception unexpected
-     */
-    @Test(dataProvider = "light administrator privilege test cases")
-    public void testDeleteFilePrivilegeDeletionViaScripts(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
-        final boolean isExpectSuccess = isAdmin && !isRestricted;
-        final EventContext normalUser = newUserAndGroup("rwr-r-");
-        IScriptPrx iScript = factory.getScriptService();
-        /* fetch a script from the server */
-        final OriginalFile scriptFile = iScript.getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE).get(0);
-        RawFileStorePrx rfs = factory.createRawFileStore();
-        rfs.setFileId(scriptFile.getId().getValue());
-        final String actualScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
-        rfs.close();
-        /* upload the script as a new script */
-        final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
-        final long testScriptId = iScript.uploadScript(testScriptName, actualScript);
-        /* delete any jobs associated with the script */
-        final Delete2Builder delete = Requests.delete().option(Requests.option().excludeType("OriginalFile").build());
-        for (final IObject scriptJob : iQuery.findAllByQuery(
-                "SELECT DISTINCT link.parent FROM JobOriginalFileLink link WHERE link.child.id = :id",
-                new ParametersI().addId(testScriptId))) {
-            delete.target(scriptJob);
-        }
-        doChange(delete.build());
-        /* check that the new script exists */
-        final OriginalFile testScript = new OriginalFileI(testScriptId, false);
-        assertExists(testScript);
-        /* try deleting the script */
-        loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
-                isRestricted ? AdminPrivilegeDeleteFile.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
-        iScript = factory.getScriptService();
-        try {
-            iScript.deleteScript(testScriptId);
-            Assert.assertTrue(isExpectSuccess);
-        } catch (ServerError se) {
-            Assert.assertFalse(isExpectSuccess);
-        }
-        /* check if the script was deleted or left intact */
-        loginUser(normalUser);
-        if (isExpectSuccess) {
-            assertDoesNotExist(testScript);
-        } else {
-            assertExists(testScript);
-        }
-        rfs = factory.createRawFileStore();
-        try {
-            rfs.setFileId(testScriptId);
-            final String currentScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
-            Assert.assertEquals(currentScript, actualScript);
-            Assert.assertFalse(isExpectSuccess);
-        } catch (Ice.LocalException | ServerError se) {
-            /* can catch only ServerError once RawFileStoreTest.testBadFileId is fixed */
-            Assert.assertTrue(isExpectSuccess);
-        } finally {
-            rfs.close();
-        }
-    }
-
-    /**
      * Test that users may write other users' data only if they are a member of the <tt>system</tt> group and
      * have the <tt>WriteOwned</tt> privilege. Attempts creation of another user's data.
      * @param isAdmin if to test a member of the <tt>system</tt> group
@@ -1299,25 +1476,6 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccess);
         }
-    }
-
-    /**
-     * Test that users may write other users' data only if they are a member of the <tt>system</tt> group and
-     * have the <tt>DeleteOwned</tt> privilege. Attempts deletion of another user's data.
-     * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param isRestricted if to test a user who does <em>not</em> have the <tt>DeleteOwned</tt> privilege
-     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
-     * @throws Exception unexpected
-     */
-    @Test(dataProvider = "light administrator privilege test cases")
-    public void testDeleteOwnedPrivilegeDeletion(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
-        final boolean isExpectSuccess = isAdmin && !isRestricted;
-        final EventContext normalUser = newUserAndGroup("rwr-r-");
-        final Folder folder = (Folder) iUpdate.saveAndReturnObject(mmFactory.simpleFolder());
-        loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
-                isRestricted ? AdminPrivilegeDeleteOwned.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
-        doChange(client, factory, Requests.delete().target(folder).build(), isExpectSuccess);
     }
 
     /**
@@ -1609,164 +1767,6 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
             Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccess);
-        }
-    }
-
-    /**
-     * Test that users may write official scripts only if they are a member of the <tt>system</tt> group and
-     * have the <tt>DeleteScriptRepo</tt> privilege.
-     * Attempts deletion of another user's file via {@link RepositoryPrx#deletePaths(String[], boolean, boolean)}.
-     * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param isRestricted if to test a user who does <em>not</em> have the <tt>DeleteScriptRepo</tt> privilege
-     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
-     * @throws Exception unexpected
-     */
-    @Test(dataProvider = "light administrator privilege test cases")
-    public void testDeleteScriptRepoPrivilegeDeletionViaRepo(boolean isAdmin, boolean isRestricted, boolean isSudo)
-            throws Exception {
-        final boolean isExpectSuccess = isAdmin && !isRestricted;
-        final EventContext normalUser = newUserAndGroup("rwr-r-");
-        /* fetch a script from the server */
-        final List<OriginalFile> scripts = factory.getScriptService().getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE);
-        RawFileStorePrx rfs = factory.createRawFileStore();
-        rfs.setFileId(scripts.get(0).getId().getValue());
-        final byte[] fileContentOriginal = rfs.read(0, (int) rfs.size());
-        rfs.close();
-        /* upload the script as a new script */
-        final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
-        RepositoryPrx repo = getRepository(Repository.SCRIPT);
-        final OriginalFile testScript = repo.register(testScriptName, omero.rtypes.rstring(ScriptServiceTest.PYTHON_MIMETYPE));
-        final long testScriptId = testScript.getId().getValue();
-        rfs = repo.file(testScriptName, "rw");
-        rfs.write(fileContentOriginal, 0, fileContentOriginal.length);
-        rfs.close();
-        /* check that script is readable */
-        byte[] fileContentCurrent;
-        rfs = factory.createRawFileStore();
-        rfs.setFileId(testScriptId);
-        fileContentCurrent = rfs.read(0, (int) rfs.size());
-        rfs.close();
-        Assert.assertEquals(fileContentCurrent, fileContentOriginal);
-        /* try to delete the script */
-        loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
-                isRestricted ? AdminPrivilegeDeleteScriptRepo.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
-        repo = getRepository(Repository.SCRIPT);
-        try {
-            final HandlePrx handle = repo.deletePaths(new String[] {testScriptName}, false, false);
-            final CmdCallbackI callback = new CmdCallbackI(client, handle);
-            callback.loop(20, scalingFactor);
-            assertCmd(callback, isExpectSuccess);
-        } catch (Ice.LocalException ue) {
-            Assert.assertFalse(isExpectSuccess);
-        }
-        /* check the content of the script */
-        loginUser(normalUser);
-        rfs = factory.createRawFileStore();
-        try {
-            rfs.setFileId(testScriptId);
-            fileContentCurrent = rfs.read(0, (int) rfs.size());
-            Assert.assertEquals(fileContentCurrent, fileContentOriginal);
-            Assert.assertFalse(isExpectSuccess);
-        } catch (Ice.LocalException | ServerError se) {
-            /* can catch only ServerError once RawFileStoreTest.testBadFileId is fixed */
-            Assert.assertTrue(isExpectSuccess);
-        } finally {
-            rfs.close();
-        }
-        if (!isExpectSuccess) {
-            /* avoid the problem captured by ScriptServiceTest.testGetScriptsFiltersUnreadable */
-            doChange(Requests.delete().target(testScript).build());
-        }
-    }
-
-    /**
-     * Test that users may write official scripts only if they are a member of the <tt>system</tt> group and
-     * have the <tt>DeleteScriptRepo</tt> privilege.
-     * Attempts deletion of another user's file via {@link omero.cmd.Delete2}.
-     * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param isRestricted if to test a user who does <em>not</em> have the <tt>DeleteScriptRepo</tt> privilege
-     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
-     * @throws Exception unexpected
-     */
-    @Test(dataProvider = "light administrator privilege test cases")
-    public void testDeleteScriptRepoPrivilegeDeletionViaRequest(boolean isAdmin, boolean isRestricted, boolean isSudo)
-            throws Exception {
-        final boolean isExpectSuccess = isAdmin && !isRestricted;
-        final EventContext normalUser = newUserAndGroup("rwr-r-");
-        final OriginalFile file = (OriginalFile) iUpdate.saveAndReturnObject(mmFactory.createOriginalFile());
-        loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
-                isRestricted ? AdminPrivilegeDeleteScriptRepo.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
-        doChange(client, factory, Requests.delete().target(file).build(), isExpectSuccess);
-    }
-
-    /**
-     * Test that users may write official scripts only if they are a member of the <tt>system</tt> group and
-     * have the <tt>DeleteScriptRepo</tt> privilege.
-     * Attempts deletion of another user's file via {@link IScriptPrx#deleteScript(long)}.
-     * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param isRestricted if to test a user who does <em>not</em> have the <tt>DeleteScriptRepo</tt> privilege
-     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
-     * @throws Exception unexpected
-     */
-    @Test(dataProvider = "light administrator privilege test cases")
-    public void testDeleteScriptRepoPrivilegeDeletionViaScripts(boolean isAdmin, boolean isRestricted, boolean isSudo)
-            throws Exception {
-        final boolean isExpectSuccess = isAdmin && !isRestricted;
-        final EventContext normalUser = newUserAndGroup("rwr-r-");
-        IScriptPrx iScript = factory.getScriptService();
-        /* fetch a script from the server */
-        final OriginalFile scriptFile = iScript.getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE).get(0);
-        RawFileStorePrx rfs = factory.createRawFileStore();
-        rfs.setFileId(scriptFile.getId().getValue());
-        final String actualScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
-        rfs.close();
-        /* upload the script as a new script */
-        loginNewAdmin(true, null);
-        iScript = factory.getScriptService();
-        final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
-        final long testScriptId = iScript.uploadOfficialScript(testScriptName, actualScript);
-        /* delete any jobs associated with the script */
-        final Delete2Builder delete = Requests.delete().option(Requests.option().excludeType("OriginalFile").build());
-        for (final IObject scriptJob : iQuery.findAllByQuery(
-                "SELECT DISTINCT link.parent FROM JobOriginalFileLink link WHERE link.child.id = :id",
-                new ParametersI().addId(testScriptId))) {
-            delete.target(scriptJob);
-        }
-        doChange(delete.build());
-        /* check that the new script exists */
-        final OriginalFile testScript = new OriginalFileI(testScriptId, false);
-        assertExists(testScript);
-        /* try deleting the script */
-        loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
-                isRestricted ? AdminPrivilegeDeleteScriptRepo.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
-        iScript = factory.getScriptService();
-        try {
-            iScript.deleteScript(testScriptId);
-            Assert.assertTrue(isExpectSuccess);
-        } catch (ServerError se) {
-            Assert.assertFalse(isExpectSuccess);
-        }
-        /* check if the script was deleted or left intact */
-        loginUser(normalUser);
-        if (isExpectSuccess) {
-            assertDoesNotExist(testScript);
-        } else {
-            assertExists(testScript);
-        }
-        rfs = factory.createRawFileStore();
-        try {
-            rfs.setFileId(testScriptId);
-            final String currentScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
-            Assert.assertEquals(currentScript, actualScript);
-            Assert.assertFalse(isExpectSuccess);
-        } catch (Ice.LocalException | ServerError se) {
-            /* can catch only ServerError once RawFileStoreTest.testBadFileId is fixed */
-            Assert.assertTrue(isExpectSuccess);
-        } finally {
-            rfs.close();
         }
     }
 
