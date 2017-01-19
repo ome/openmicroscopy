@@ -1,7 +1,7 @@
 /*
  * util.mocks.MethodSignature
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -9,6 +9,8 @@ package util.mocks;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.commons.lang.ObjectUtils;
 
 /**
  * Helper class to represent a method signature in a {@link MockedCall}.
@@ -243,7 +245,7 @@ public class MethodSignature {
         if (b) {
             MethodSignature ms = (MethodSignature) methodSignature;
             b = ms.visibility == visibility && ms.returnType == returnType
-                    && ms.name == name && ms.paramTypes.length == paramTypes.length;
+                    && ObjectUtils.equals(name, ms.name) && ms.paramTypes.length == paramTypes.length;
             if (b) {
                 for (int i = 0; i < paramTypes.length; ++i) {
                     if (paramTypes[i] != ms.paramTypes[i]) {
