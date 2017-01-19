@@ -265,7 +265,12 @@ public class BasicACLVoter implements ACLVoter {
         if (tokenHolder.hasPrivilegedToken(iObject)) {
             return true;
         } else if (!sysType) {
-            /* checked by OmeroInterceptor.newTransientDetails */
+            if (iObject instanceof OriginalFile && ((OriginalFile) iObject).getRepo() != null) {
+                /* Cannot yet set OriginalFile.repo except via SQL.
+                 * TODO: Need to first work through implications before permitting this. */
+                return false;
+            }
+            /* also checked by OmeroInterceptor.newTransientDetails */
             return true;
         } else if (currentUser.getCurrentEventContext().isCurrentUserAdmin()) {
             final Set<AdminPrivilege> privileges;
@@ -293,14 +298,17 @@ public class BasicACLVoter implements ACLVoter {
         boolean sysType = sysTypes.isSystemType(iObject.getClass()) ||
             sysTypes.isInSystemGroup(iObject.getDetails());
 
-        if (!sysType && currentUser.isGraphCritical(iObject.getDetails())) { // ticket:1769
+        if (sysType) {
+            throw new SecurityViolation(iObject + " is a System-type, and may be created only through privileged APIs.");
+        } else if (currentUser.isGraphCritical(iObject.getDetails())) { // ticket:1769
             throw new GroupSecurityViolation(iObject + "-insertion violates " +
                     "group-security.");
+        } else if (iObject instanceof OriginalFile) {
+            /* Cannot yet set OriginalFile.repo except via SQL. */
+            throw new SecurityViolation("cannot set repo property of " + iObject + " via ORM");
+        } else {
+            throw new SecurityViolation("not permitted to create " + iObject);
         }
-
-        throw new SecurityViolation(iObject
-                + " is a System-type, and may only be "
-                + "created through privileged APIs.");
     }
 
     public boolean allowAnnotate(IObject iObject, Details trustedDetails) {

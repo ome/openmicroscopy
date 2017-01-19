@@ -15,6 +15,7 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.commons.lang.ObjectUtils;
 import org.hibernate.CallbackException;
 import org.hibernate.EmptyInterceptor;
 import org.hibernate.EntityMode;
@@ -63,6 +64,7 @@ import ome.system.EventContext;
 import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.HibernateUtils;
+import ome.tools.lsid.LsidUtils;
 
 /**
  * implements {@link org.hibernate.Interceptor} for controlling various aspects
@@ -83,6 +85,9 @@ public class OmeroInterceptor implements Interceptor {
     static volatile int count = 1;
 
     private static Logger log = LoggerFactory.getLogger(OmeroInterceptor.class);
+
+    /* array index for OriginalFile property "repo" */
+    private static final String IDX_FILE_REPO = LsidUtils.parseField(OriginalFile.REPO);
 
     private final Interceptor EMPTY = EmptyInterceptor.INSTANCE;
 
@@ -195,6 +200,15 @@ public class OmeroInterceptor implements Interceptor {
             altered |= resetDetails(iobj, currentState, previousState, idx,
                     newDetails);
 
+        }
+        /* Cannot yet change OriginalFile.repo except via SQL.
+         * TODO: Need to first work through implications before permitting this. */
+        if (entity instanceof OriginalFile) {
+            final int repoIndex = HibernateUtils.index(IDX_FILE_REPO, propertyNames);
+            if (previousState != null && !ObjectUtils.equals(previousState[repoIndex], currentState[repoIndex])) {
+                log.warn("reverting change to OriginalFile.repo");
+                currentState[repoIndex] = previousState[repoIndex];
+            }
         }
         return altered;
     }
