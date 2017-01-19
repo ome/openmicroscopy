@@ -318,12 +318,12 @@ public class BasicACLVoter implements ACLVoter {
 
     public boolean allowAnnotate(IObject iObject, Details trustedDetails) {
         BasicEventContext c = currentUser.current();
-        return 1 == allowUpdateOrDelete(c, iObject, trustedDetails, Scope.ANNOTATE);
+        return 1 == allowUpdateOrDelete(c, iObject, trustedDetails, true, Scope.ANNOTATE);
     }
 
     public boolean allowUpdate(IObject iObject, Details trustedDetails) {
         BasicEventContext c = currentUser.current();
-        return 1 == allowUpdateOrDelete(c, iObject, trustedDetails, Scope.EDIT);
+        return 1 == allowUpdateOrDelete(c, iObject, trustedDetails, true, Scope.EDIT);
     }
 
     public void throwUpdateViolation(IObject iObject) throws SecurityViolation {
@@ -342,7 +342,7 @@ public class BasicACLVoter implements ACLVoter {
 
     public boolean allowDelete(IObject iObject, Details trustedDetails) {
         BasicEventContext c = currentUser.current();
-        return 1 == allowUpdateOrDelete(c, iObject, trustedDetails, Scope.DELETE);
+        return 1 == allowUpdateOrDelete(c, iObject, trustedDetails, false, Scope.DELETE);
     }
 
     public void throwDeleteViolation(IObject iObject) throws SecurityViolation {
@@ -391,7 +391,7 @@ public class BasicACLVoter implements ACLVoter {
      *     which should be allowed.
      */
     private int allowUpdateOrDelete(BasicEventContext c, IObject iObject,
-        Details trustedDetails, Scope...scopes) {
+        Details trustedDetails, boolean isUpdate, Scope...scopes) {
 
         int rv = 0;
 
@@ -445,20 +445,21 @@ public class BasicACLVoter implements ACLVoter {
         if (c.isCurrentUserAdmin()) {
             /* see trac ticket 10691 re. enum values */
             boolean isLightAdminRestricted = false;
+            final String prefix = isUpdate ? "Write" : "Delete";
             if (!sysType) {
                 if (iObject instanceof OriginalFile) {
                     final String repo = ((OriginalFile) iObject).getRepo();
                     if (repo != null && scriptRepoUuids.contains(repo)) {
-                        if (!privileges.contains(adminPrivileges.getPrivilege("WriteScriptRepo"))) {
+                        if (!privileges.contains(adminPrivileges.getPrivilege(prefix + "ScriptRepo"))) {
                             isLightAdminRestricted = true;
                         }
                     } else {
-                        if (!privileges.contains(adminPrivileges.getPrivilege("WriteFile"))) {
+                        if (!privileges.contains(adminPrivileges.getPrivilege(prefix + "File"))) {
                             isLightAdminRestricted = true;
                         }
                     }
                 } else {
-                    if (!privileges.contains(adminPrivileges.getPrivilege("WriteOwned"))) {
+                    if (!privileges.contains(adminPrivileges.getPrivilege(prefix + "Owned"))) {
                         isLightAdminRestricted = true;
                     }
                 }
@@ -543,7 +544,7 @@ public class BasicACLVoter implements ACLVoter {
 
             final BasicEventContext c = currentUser.current();
             final Permissions p = details.getPermissions();
-            final int allow = allowUpdateOrDelete(c, object, details,
+            final int allow = allowUpdateOrDelete(c, object, details, true,
                 // This order must match the ordered of restrictions[]
                 // expected by p.copyRestrictions
                 Scope.LINK, Scope.EDIT, Scope.DELETE, Scope.ANNOTATE);
