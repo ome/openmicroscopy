@@ -10,9 +10,6 @@ Type "ant -p" for a list of targets.
   <description>Common sphinx targets</description>
   <dirname property="imported.basedir" file="${ant.file.rules}"/>
   <import file="${imported.basedir}/sphinx.xml"/>
-  <property name="root.dir" location="../.."/>
-  <import file="${root.dir}/components/antlib/resources/global.xml"/>
-
 
   <!-- Ant-Contrib Tasks: http://ant-contrib.sourceforge.net/ -->
   <taskdef resource="net/sf/antcontrib/antcontrib.properties"
@@ -65,17 +62,6 @@ Type "ant -p" for a list of targets.
             srcdir="."
             destdir="${sphinx.builddir}/html"
             opts="${sphinx.opts}"/>
-    <delete dir="${dist.dir}/docs/omero-doc-${omero.release}"/>
-    <copy todir="${dist.dir}/docs/omero-doc-${omero.release}">
-      <!--
-        include (none) to prevent problems if component.resources-bin is empty
-      -->
-      <fileset dir="_build/html"/>
-    </copy>
-    <zip destfile="${dist.dir}/docs/omero-doc-${omero.release}.zip">
-      <zipfileset dir="_build/html" includes="**/*" prefix="omero-doc-${omero.release}"/>
-    </zip>
-    <delete dir="${dist.dir}/docs/omero-doc-${omero.release}"/>
   </target>
 
   <target name="latexpdf" depends="sphinx-deps, init">
