@@ -1234,7 +1234,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     }
 
     /**
-     * @return two test cases for isAdmin (member of system group) case
+     * @return test cases for isAdmin (member of system group) all group permissions cases
      */
     @DataProvider(name = "isAdmin and groupPerms cases")
     public Object[][] provideAdminPrivilegeCases() {
