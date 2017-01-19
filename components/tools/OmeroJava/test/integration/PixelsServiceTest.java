@@ -14,6 +14,7 @@ import java.util.List;
 import omero.RLong;
 import omero.api.IPixelsPrx;
 import omero.api.IRenderingSettingsPrx;
+import omero.api.ITypesPrx;
 import omero.model.AcquisitionMode;
 import omero.model.ArcType;
 import omero.model.Binning;
@@ -202,8 +203,8 @@ public class PixelsServiceTest extends AbstractServerTest {
      *            The number of objects to retrieve.
      */
     private void checkEnumeration(String name, int max) throws Exception {
-        IPixelsPrx svc = factory.getPixelsService();
-        List<IObject> values = svc.getAllEnumerations(name);
+        ITypesPrx svc = factory.getTypesService();
+        List<IObject> values = svc.allEnumerations(name);
         Assert.assertNotNull(values);
         Assert.assertTrue(values.size() >= max);
         Iterator<IObject> i = values.iterator();
@@ -378,15 +379,15 @@ public class PixelsServiceTest extends AbstractServerTest {
      */
     @Test
     public void testCreateImage() throws Exception {
-        IPixelsPrx svc = factory.getPixelsService();
+        ITypesPrx svc = factory.getTypesService();
         List<IObject> types = svc
-                .getAllEnumerations(PixelsType.class.getName());
+                .allEnumerations(PixelsType.class.getName());
         List<Integer> channels = new ArrayList<Integer>();
         for (int i = 0; i < 3; i++) {
             channels.add(i);
         }
-        RLong id = svc.createImage(10, 10, 10, 10, channels,
-                (PixelsType) types.get(1), "test", "");
+        RLong id = factory.getPixelsService().createImage(10, 10, 10, 10,
+                channels, (PixelsType) types.get(1), "test", "");
         Assert.assertNotNull(id);
         // Retrieve the image.
         ParametersI param = new ParametersI();

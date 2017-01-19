@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -466,8 +466,8 @@ public class DataManagerFacilityTest extends GatewayTest {
     
     private long createImage(SecurityContext ctx) throws Exception {
         IPixelsPrx svc = gw.getPixelsService(ctx);
-        List<IObject> types = svc
-                .getAllEnumerations(PixelsType.class.getName());
+        List<IObject> types = gw.getTypesService(ctx)
+                .allEnumerations(PixelsType.class.getName());
         List<Integer> channels = new ArrayList<Integer>();
         for (int i = 0; i < 3; i++) {
             channels.add(i);
@@ -526,8 +526,8 @@ public class DataManagerFacilityTest extends GatewayTest {
     private long createImage() throws ServerError, DSOutOfServiceException {
         String name = UUID.randomUUID().toString();
         IPixelsPrx svc = gw.getPixelsService(rootCtx);
-        List<IObject> types = svc
-                .getAllEnumerations(PixelsType.class.getName());
+        List<IObject> types = gw.getTypesService(rootCtx)
+                .allEnumerations(PixelsType.class.getName());
         List<Integer> channels = new ArrayList<Integer>();
         for (int i = 0; i < 3; i++) {
             channels.add(i);
