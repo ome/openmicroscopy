@@ -673,7 +673,12 @@ public class OmeroInterceptor implements Interceptor {
         } else if (obj instanceof Experimenter) {
             isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege("ModifyUser"));
         } else if (obj instanceof OriginalFile) {
-            isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege("WriteFile"));
+            final String repo = ((OriginalFile) obj).getRepo();
+            if (repo != null && scriptRepoUuids.contains(repo)) {
+                isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege("WriteScriptRepo"));
+            } else {
+                isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege("WriteFile"));
+            }
         } else {
             isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege("WriteOwned"));
         }

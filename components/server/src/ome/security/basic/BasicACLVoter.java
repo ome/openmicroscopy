@@ -150,7 +150,12 @@ public class BasicACLVoter implements ACLVoter {
             }
         } else {
             if (iObject instanceof OriginalFile) {
-                return privileges.contains(adminPrivileges.getPrivilege("WriteFile"));
+                final String repo = ((OriginalFile) iObject).getRepo();
+                if (repo != null && scriptRepoUuids.contains(repo)) {
+                    return privileges.contains(adminPrivileges.getPrivilege("WriteScriptRepo"));
+                } else {
+                    return privileges.contains(adminPrivileges.getPrivilege("WriteFile"));
+                }
             } else {
                 return privileges.contains(adminPrivileges.getPrivilege("WriteOwned"));
             }
@@ -442,8 +447,15 @@ public class BasicACLVoter implements ACLVoter {
             boolean isLightAdminRestricted = false;
             if (!sysType) {
                 if (iObject instanceof OriginalFile) {
-                    if (!privileges.contains(adminPrivileges.getPrivilege("WriteFile"))) {
-                        isLightAdminRestricted = true;
+                    final String repo = ((OriginalFile) iObject).getRepo();
+                    if (repo != null && scriptRepoUuids.contains(repo)) {
+                        if (!privileges.contains(adminPrivileges.getPrivilege("WriteScriptRepo"))) {
+                            isLightAdminRestricted = true;
+                        }
+                    } else {
+                        if (!privileges.contains(adminPrivileges.getPrivilege("WriteFile"))) {
+                            isLightAdminRestricted = true;
+                        }
                     }
                 } else {
                     if (!privileges.contains(adminPrivileges.getPrivilege("WriteOwned"))) {
