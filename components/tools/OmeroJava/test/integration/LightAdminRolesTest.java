@@ -1166,9 +1166,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         /* now transfer all the data of normalUser to recipient */
         loginUser(lightAdmin);
         client.getImplicitContext().put("omero.group", Long.toString(-1));
-        if (chownPassing) {
-            doChange(client, factory, Requests.chown().targetUsers(normalUser.userId).toUser(recipient.userId).build(), true);
-        }
+        /* transfer can proceed only if chownPassing boolean is true */
+        doChange(client, factory, Requests.chown().targetUsers(normalUser.userId).toUser(recipient.userId).build(), chownPassing);
         if (!isExpectSuccess) {
             return;
         }
