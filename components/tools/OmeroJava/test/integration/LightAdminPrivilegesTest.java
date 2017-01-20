@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import ome.services.blitz.repo.path.FsFile;
+import ome.services.scripts.ScriptRepoHelper;
 import omero.RLong;
 import omero.RString;
 import omero.RType;
@@ -199,32 +200,39 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     }
 
     /**
-     * Identifies expected repositories and provides their name for looking them up from the database.
+     * Identifies the expected kinds of repository.
      * @author m.t.b.carroll@dundee.ac.uk
      * @since 5.3.0
      */
     private static enum Repository {
-        MANAGED("ManagedRepository"), OMERO("omero"), SCRIPT("scripts");
-
-        /* corresponds to OriginalFile.name */
-        final String name;
-
-        private Repository(String name) {
-            this.name = name;
-        }
+        MANAGED, SCRIPT, OTHER;
     }
 
     /**
-     * Get a proxy for the given repository. It is assumed that such a repository exists.
-     * @param repository a repository
-     * @return a proxy for the repository
-     * @throws ServerError unexpected
+     * Get a proxy for an instance of the given kind of repository.
+     * @param repository a kind of repository
+     * @return a proxy for the repository, or {@code null} if such a repository does not exist
+     * @throws ServerError if the repositories could not be queried
      */
     private RepositoryPrx getRepository(Repository repository) throws ServerError {
         final RepositoryMap repositories = factory.sharedResources().repositories();
-        int index;
-        for (index = 0; !repository.name.equals(repositories.descriptions.get(index).getName().getValue()); index++);
-        return repositories.proxies.get(index);
+        RepositoryPrx latestProxy = null;
+        long latestRepoId = 0;
+        for (int index = repositories.descriptions.size() - 1; index >= 0; index--) {
+            final boolean isManaged = ManagedRepositoryPrxHelper.checkedCast(repositories.proxies.get(index)) != null;
+            final boolean isScript = ScriptRepoHelper.SCRIPT_REPO.equals(repositories.descriptions.get(index).getHash().getValue());
+            if (repository == Repository.MANAGED && isManaged ||
+                repository == Repository.SCRIPT && isScript ||
+                repository == Repository.OTHER && !(isManaged || isScript)) {
+                final RepositoryPrx currentProxy = repositories.proxies.get(index);
+                final long currentRepoId = repositories.descriptions.get(index).getId().getValue();
+                if (latestProxy == null || latestRepoId < currentRepoId) {
+                    latestProxy = currentProxy;
+                    latestRepoId = currentRepoId;
+                }
+            }
+        }
+        return latestProxy;
     }
 
     /**
@@ -356,7 +364,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         rfs.close();
         /* upload the script as a new script */
         final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
-        RepositoryPrx repo = getRepository(Repository.OMERO);
+        RepositoryPrx repo = getRepository(Repository.OTHER);
         final OriginalFile testScript = repo.register(testScriptName, omero.rtypes.rstring(ScriptServiceTest.PYTHON_MIMETYPE));
         final long testScriptId = testScript.getId().getValue();
         rfs = repo.file(testScriptName, "rw");
@@ -373,7 +381,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeDeleteFile.value : null);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
-        repo = getRepository(Repository.OMERO);
+        repo = getRepository(Repository.OTHER);
         try {
             final HandlePrx handle = repo.deletePaths(new String[] {testScriptName}, false, false);
             final CmdCallbackI callback = new CmdCallbackI(client, handle);
@@ -1012,13 +1020,13 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
             throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
         final EventContext normalUser = newUserAndGroup("rwr-r-");
-        RepositoryPrx repo = getRepository(Repository.OMERO);
+        RepositoryPrx repo = getRepository(Repository.OTHER);
         final String userDirectory = "/Test_" + getClass().getName() + '_' + UUID.randomUUID();
         repo.makeDir(userDirectory, false);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
-        repo = getRepository(Repository.OMERO);
+        repo = getRepository(Repository.OTHER);
         final String filename = userDirectory + '/' + UUID.randomUUID();
         try {
             repo.makeDir(filename, false);
@@ -1045,13 +1053,13 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         if (!factory.sharedResources().areTablesEnabled()) {
             throw new SkipException("tables are not enabled");
         }
-        RepositoryPrx repo = getRepository(Repository.OMERO);
+        RepositoryPrx repo = getRepository(Repository.OTHER);
         final String userDirectory = "/Test_" + getClass().getName() + '_' + UUID.randomUUID();
         repo.makeDir(userDirectory, false);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
-        repo = getRepository(Repository.OMERO);
+        repo = getRepository(Repository.OTHER);
         final String filename = userDirectory + '/' + UUID.randomUUID();
         try {
             factory.sharedResources().newTable(repo.root().getId().getValue(), filename).close();
@@ -1075,13 +1083,13 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
             throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
         final EventContext normalUser = newUserAndGroup("rwr-r-");
-        RepositoryPrx repo = getRepository(Repository.OMERO);
+        RepositoryPrx repo = getRepository(Repository.OTHER);
         final String userDirectory = "/Test_" + getClass().getName() + '_' + UUID.randomUUID();
         repo.makeDir(userDirectory, false);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
-        repo = getRepository(Repository.OMERO);
+        repo = getRepository(Repository.OTHER);
         final String filename = userDirectory + '/' + UUID.randomUUID();
         try {
             repo.register(filename, null);
@@ -1303,7 +1311,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         rfs.close();
         /* upload the script as a new script */
         final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
-        RepositoryPrx repo = getRepository(Repository.OMERO);
+        RepositoryPrx repo = getRepository(Repository.OTHER);
         final OriginalFile testScript = repo.register(testScriptName, omero.rtypes.rstring(ScriptServiceTest.PYTHON_MIMETYPE));
         final long testScriptId = testScript.getId().getValue();
         rfs = repo.file(testScriptName, "rw");
@@ -1320,7 +1328,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
-        repo = getRepository(Repository.OMERO);
+        repo = getRepository(Repository.OTHER);
         final byte[] fileContentBlank = new byte[fileContentOriginal.length];
         try {
             rfs = repo.file(testScriptName, "rw");
