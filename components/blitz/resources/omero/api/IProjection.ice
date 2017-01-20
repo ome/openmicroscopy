@@ -56,7 +56,7 @@ module omero {
                  *         is equal to the Pixels set
                  *         <code>sizeX * sizeY * bytesPerPixel</code> in
                  *         big-endian format.
-                 * @throws ValidationException Where:
+                 * @throws ValidationException where:
                  * <ul>
                  *   <li><code>algorithm</code> is unknown</li>
                  *   <li><code>timepoint</code> is out of range</li>
@@ -111,7 +111,7 @@ module omero {
                  *         is equal to the Pixels set
                  *         <code>sizeX * sizeY * bytesPerPixel</code> in
                  *         big-endian format.
-                 * @throws ValidationException Where:
+                 * @throws ValidationException where:
                  * <ul>
                  *   <li><code>algorithm</code> is unknown</li>
                  *   <li><code>axis</code> is unknown</li>
@@ -176,7 +176,7 @@ module omero {
                  *             used for the projection.
                  * @return The Id of the newly created Image which has been
                  *         projected.
-                 * @throws ValidationException Where:
+                 * @throws ValidationException where:
                  * <ul>
                  *   <li><code>algorithm</code> is unknown</li>
                  *   <li><code>tStart</code> is out of range</li>
@@ -247,7 +247,7 @@ module omero {
                  *             used for the projection.
                  * @return The Id of the newly created Image which has been
                  *         projected.
-                 * @throws ValidationException Where:
+                 * @throws ValidationException where:
                  * <ul>
                  *   <li><code>algorithm</code> is unknown</li>
                  *   <li><code>axis</code> is unknown</li>
