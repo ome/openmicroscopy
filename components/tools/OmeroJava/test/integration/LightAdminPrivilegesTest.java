@@ -211,7 +211,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     /**
      * Get a proxy for an instance of the given kind of repository.
      * @param repository a kind of repository
-     * @return a proxy for the repository, or {@code null} if such a repository does not exist
+     * @return a proxy for the repository
      * @throws ServerError if the repositories could not be queried
      */
     private RepositoryPrx getRepository(Repository repository) throws ServerError {
@@ -232,6 +232,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
                 }
             }
         }
+        Assert.assertNotNull(latestProxy);
         return latestProxy;
     }
 
