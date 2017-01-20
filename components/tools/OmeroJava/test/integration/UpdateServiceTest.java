@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import ome.services.scripts.ScriptRepoHelper;
 import omero.ServerError;
 import omero.ValidationException;
 import omero.api.IQueryPrx;
@@ -126,6 +127,7 @@ import omero.gateway.model.TagAnnotationData;
 import omero.gateway.model.TermAnnotationData;
 import omero.gateway.model.TextualAnnotationData;
 import omero.gateway.model.XMLAnnotationData;
+import omero.grid.ManagedRepositoryPrx;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
 
@@ -2111,11 +2113,12 @@ public class UpdateServiceTest extends AbstractServerTest {
         newUserAndGroup("rwr---");
         final RepositoryMap repositories = factory.sharedResources().repositories();
         int repoIndex;
-        for (repoIndex = 0; !"omero".equals(repositories.descriptions.get(repoIndex).getName().getValue()); repoIndex++);
+        for (repoIndex = 0; !ScriptRepoHelper.SCRIPT_REPO.equals(repositories.descriptions.get(repoIndex).getHash().getValue());
+                repoIndex++);
         final RepositoryPrx repo =  repositories.proxies.get(repoIndex);
         final String userDirectory = "Test_" + getClass().getName() + '_' + UUID.randomUUID();
         repo.makeDir("/" + userDirectory, false);
         final OriginalFile file = (OriginalFile) iQuery.findByString("OriginalFile", "name", userDirectory);
-        Assert.assertEquals(file.getRepo().getValue(), repositories.descriptions.get(repoIndex).getHash().getValue());
+        Assert.assertEquals(file.getRepo().getValue(), ScriptRepoHelper.SCRIPT_REPO);
     }
 }
