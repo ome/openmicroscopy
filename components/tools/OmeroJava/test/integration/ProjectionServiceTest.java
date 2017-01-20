@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import omero.ApiUsageException;
 import omero.ValidationException;
 import omero.api.IProjectionPrx;
 import omero.constants.projection.ProjectionAxis;
@@ -639,8 +640,8 @@ public class ProjectionServiceTest extends AbstractServerTest
                     ProjectionAxis.MODULOT, z,
                     channel, step, 0, pixels.getSizeT().getValue()-1);
             Assert.fail("An error should have been thrown");
-        } catch (Exception e) {
-            // An exception should have been thrown.
+        } catch (ApiUsageException e) {
+            // An ApiUsageException should have been thrown.
         }
     }
 
@@ -663,8 +664,8 @@ public class ProjectionServiceTest extends AbstractServerTest
                     channels, step, 0, pixels.getSizeT().getValue()-1,
                     "testProjectImageAlongT");
             Assert.fail("An error should have been thrown");
-        } catch (Exception e) {
-         // An exception should have been thrown.
+        } catch (ApiUsageException e) {
+         // An ApiUsageException should have been thrown.
         }
     }
 }
