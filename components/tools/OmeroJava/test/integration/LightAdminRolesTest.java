@@ -199,19 +199,30 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * that the link belongs to the user (not to the ImporterAs).
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "isAdmin and groupPerms cases")
-    public void testImporterAsSudoCreateImport(boolean isAdmin, String groupPermissions) throws Exception {
+    @Test(dataProvider = "combined privileges cases")
+    public void testImporterAsSudoCreateImport(boolean isAdmin, boolean isSudoing, boolean permChgrp,
+            boolean permWriteOwned, boolean permWriteFile, String groupPermissions) throws Exception {
         final EventContext normalUser = newUserAndGroup(groupPermissions);
-        loginNewAdmin(isAdmin, AdminPrivilegeSudo.value);
-        
-        try {
-            sudo(new ExperimenterI(normalUser.userId, false));
-            if (!isAdmin) {
-                Assert.fail("Sudo-permitted non-administrators cannot sudo.");
-            }
-        } catch (SecurityViolation sv) {
-            /* sudo expected to fail if the user is not in system group */
+        final boolean isExpectSuccessCreate = (isAdmin && permWriteOwned) || (isAdmin && isSudoing);
+        /* set up the light admin's permissions for this test */
+        ArrayList <String> permissions = new ArrayList <String>();
+        permissions.add(AdminPrivilegeSudo.value);
+        if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);;
+        if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
+        if (permWriteFile) permissions.add(AdminPrivilegeWriteFile.value);
+        final EventContext lightAdmin;
+        lightAdmin = loginNewAdmin(isAdmin, permissions);
+        if (isSudoing) {
+            try {
+                sudo(new ExperimenterI(normalUser.userId, false));
+                    if (!isAdmin) {
+                        Assert.fail("Sudo-permitted non-administrators cannot sudo.");
+                    }
+                }catch (SecurityViolation sv) {
+                    /* sudo expected to fail if the user is not in system group */
+                }
         }
+
         /* First, check that the light admin (=importer As)
          * can create Project and Dataset on behalf of the normalUser
          * in the group of the normalUser in anticipation of importing
@@ -220,19 +231,26 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         Project proj = mmFactory.simpleProject();
         Dataset dat = mmFactory.simpleDataset();
         Project sentProj = new ProjectI();
-        sentProj = null;
         Dataset sentDat = new DatasetI();
         sentDat = null;
+        sentProj = null;
+        /* set the normalUser as the owner of the newly created P/D but do this only
+         * when the light admin is not sudoing (if sudoing, this step is not necessary
+         * because the created P/D already belongs to the normalUser) */
+        if (!isSudoing) {
+            proj.getDetails().setOwner(new ExperimenterI(normalUser.userId, false));
+            dat.getDetails().setOwner(new ExperimenterI(normalUser.userId, false));
+        }
         try {
             sentProj = (Project) iUpdate.saveAndReturnObject(proj);
             sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
-            Assert.assertTrue(isAdmin);
+            Assert.assertTrue(isExpectSuccessCreate);
         } catch (ServerError se) {
-            Assert.assertFalse(isAdmin);
+            Assert.assertFalse(isExpectSuccessCreate);
         }
         /* Check the owner of the project and dataset is the normalUser in case
          * these were created */
-        if (isAdmin) {
+        if (isExpectSuccessCreate) {
             long projId = sentProj.getId().getValue();
             final Project retrievedProject = (Project) iQuery.get("Project", projId);
             Assert.assertEquals(retrievedProject.getDetails().getOwner().getId().getValue(), normalUser.userId);
@@ -243,6 +261,10 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             Assert.assertNull(sentProj);
             Assert.assertNull(sentDat);
         }
+        /* finish the test if light admin is not sudoing, the firther part
+        of the test deals with the imports. Imports when not sudoing workflows are covered in
+        other tests in this class */
+        if (!isSudoing) return;
 
         /* check that after sudo, the light admin is able to ImportAs and target
          * the import into the just created Dataset.
@@ -264,11 +286,9 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), normalUser.groupId);
 
 
-        /* check that the light admin can link the created Dataset
+        /* check that the light admin when sudoed, can link the created Dataset
          * to the created Project, check the ownership of the links
-         * is of the simple user and finally delete the objects as
-         * the light admin (tests the post-import organizing and cleaning
-         * abilities of the ImporterAs */
+         * is of the simple user */
 
         ProjectDatasetLink link = linkProjectDataset(sentProj, sentDat);
 
