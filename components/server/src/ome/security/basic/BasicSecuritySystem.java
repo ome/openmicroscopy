@@ -203,7 +203,7 @@ public class BasicSecuritySystem implements SecuritySystem,
 
     /**
      * tests whether or not the current user is either the owner of this entity,
-     * or the superivsor of this entity, for example as root or as group owner.
+     * or the supervisor of this entity, for example as root or as group owner.
      * 
      * @param iObject
      *            Non-null managed entity.
