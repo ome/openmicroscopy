@@ -28,6 +28,7 @@ from omero.gateway import BlitzGateway
 from omero.model import Image
 from omero.model import Plate
 from omero.model import Screen
+from omero.rtypes import rint
 from omero.util import pydict_text_io
 
 
@@ -37,6 +38,7 @@ DESC = {
     "EDIT": "Edit a rendering setting",
     "LIST": "List available rendering settings",
     "JPEG": "Render as JPEG",
+    "TEST": "Test that ",
 }
 
 HELP = """Tools for working with rendering settings
@@ -254,6 +256,7 @@ class RenderControl(BaseControl):
         info = parser.add(sub, self.info, DESC["INFO"])
         copy = parser.add(sub, self.copy, DESC["COPY"])
         edit = parser.add(sub, self.edit, DESC["EDIT"])
+        test = parser.add(sub, self.test, DESC["TEST"])
         # list = parser.add(sub, self.list, DESC["LIST"])
         # jpeg = parser.add(sub, self.jpeg, DESC["JPEG"])
         # jpeg.add_argument(
@@ -264,8 +267,9 @@ class RenderControl(BaseControl):
         render_help = ("rendering def source of form <object>:<id>. "
                        "Image is assumed if <object>: is omitted.")
 
-        for x in (info, copy, edit):
+        for x in (info, copy, edit, test):
             x.add_argument("object", type=render_type, help=render_help)
+
         edit.add_argument(
             "--copy", help="Batch edit images by copying rendering settings",
             action="store_true")
@@ -286,6 +290,9 @@ class RenderControl(BaseControl):
         edit.add_argument(
             "channels",
             help="Rendering definition, local file or OriginalFile:ID")
+
+        test.add_argument("--force", action="store_true")
+        test.add_argument("--thumb", action="store_true")
 
     def _lookup(self, gateway, type, oid):
         # TODO: move _lookup to a _configure type
@@ -489,6 +496,61 @@ class RenderControl(BaseControl):
             self._update_channel_names(gateway, iids, namedict)
 
         gateway._assert_unregistered("edit")
+
+    def test(self, args):
+        client = self.ctx.conn(args)
+        gateway = BlitzGateway(client_obj=client)
+        for img in self.render_images(gateway, args.object, batch=1):
+            try:
+                self.test_per_pixel(
+                    client, img.getPrimaryPixels().id, args.force, args.thumb)
+            finally:
+                img._closeRE()
+
+    def test_per_pixel(self, client, pixid, force, thumb):
+        fail = {"omero.pixeldata.fail_if_missing": "true"}
+        make = {"omero.pixeldata.fail_if_missing": "false"}
+
+        start = time.time()
+        error = ""
+        rps = client.sf.createRawPixelsStore()
+        msg = None
+
+        try:
+            rps.setPixelsId(long(pixid), False, fail)
+            msg = "ok:"
+        except Exception, e:
+            error = e
+            msg = "miss:"
+
+        if msg == "ok:" or not force:
+            rps.close()
+        else:
+            try:
+                rps.setPixelsId(long(pixid), False, make)
+                msg = "fill:"
+            except KeyboardInterrupt:
+                msg = "cancel:"
+                pass
+            except Exception, e:
+                msg = "fail:"
+                error = e
+            finally:
+                rps.close()
+
+        if error:
+            error = str(error).split("\n")[0]
+        elif thumb:
+            tb = client.sf.createThumbnailStore()
+            try:
+                tb.setPixelsId(long(pixid))
+                tb.getThumbnailByLongestSide(rint(96))
+            finally:
+                tb.close()
+
+        stop = time.time()
+        self.ctx.out("%s %s %s %s" % (msg, pixid, stop-start, error))
+        return msg
 
 
 try:
