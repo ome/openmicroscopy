@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
+import ome.services.scripts.ScriptRepoHelper;
 import omero.SecurityViolation;
 import omero.api.IScriptPrx;
 import omero.api.RawFileStorePrx;
@@ -297,7 +298,7 @@ public class ScriptServiceTest extends AbstractServerTest {
         /* find the script repository */
         final RepositoryMap repositories = factory.sharedResources().repositories();
         int index;
-        for (index = 0; !"scripts".equals(repositories.descriptions.get(index).getName().getValue()); index++);
+        for (index = 0; !ScriptRepoHelper.SCRIPT_REPO.equals(repositories.descriptions.get(index).getHash().getValue()); index++);
         final RepositoryPrx repo = repositories.proxies.get(index);
         /* write the new script directly via the repository */
         final String scriptName = "Test_" + getClass().getName() + "_" + UUID.randomUUID() + ".py";
