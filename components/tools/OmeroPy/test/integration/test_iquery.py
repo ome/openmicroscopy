@@ -150,3 +150,16 @@ class TestQuery(ITest):
         for idx in range(len(result1)-1):
             # Omit final since == isn't defined for Ice objects.
             assert result1[idx] == result2[idx]
+
+    def testClassType(self):
+        created = []
+        for x in (CommentAnnotationI, TagAnnotationI):
+            x = self.update.saveAndReturnObject(x())
+            created.append(x)
+        query_string = """
+        select type(a.class) from Annotation a
+        """
+        rv = [x[0] for x in unwrap(self.query.projection(query_string, None))]
+        assert len(rv) == 2
+        assert "ome.model.annotations.CommentAnnotation" in rv
+        assert "ome.model.annotations.TagAnnotation" in rv
