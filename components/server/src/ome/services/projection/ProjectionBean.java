@@ -148,8 +148,8 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
                             0, 0, plane, channelIndex, 0});
                     List<Integer> size = Arrays.asList(new Integer[]{
                             ctx.pixels.getSizeX(),
-                            ctx.pixels.getSizeY(), 1, 1,ctx.pixels.getSizeT()});
-                    List<Integer> step = Arrays.asList(new Integer[]{1,1,1,1,1});
+                            ctx.pixels.getSizeY(), 1, 1, ctx.pixels.getSizeT()});
+                    List<Integer> step = Arrays.asList(new Integer[]{1, 1, 1, 1, 1});
                     ctx.from = pixelBuffer.getHypercube(offset, size, step);
             }
             ctx.to = new PixelData(pixelsType.getValue(), ByteBuffer.wrap(buf));
