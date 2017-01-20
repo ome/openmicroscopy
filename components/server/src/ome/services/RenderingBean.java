@@ -2000,11 +2000,11 @@ public class RenderingBean implements RenderingEngine, Serializable {
      */
     private List getAllEnumerations(final Class k) {
         return (List) ex.execute(/*ex*/null/*principal*/, 
-        		new Executor.SimpleWork(this,
+            new Executor.SimpleWork(this,
                 "getAllEnumerations") {
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
-                return sf.getPixelsService().getAllEnumerations(k);
+                return sf.getTypesService().allEnumerations(k);
             }
         });
     }
