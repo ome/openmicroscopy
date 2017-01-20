@@ -467,10 +467,10 @@ class TestProjects(IWebTest):
         # Need to get the Schema url to create @type
         base_url = reverse('api_base', kwargs={'api_version': version})
         rsp = _get_response_json(django_client, base_url, {})
-        schema_url = rsp['schema_url']
+        schema_url = rsp['url:schema']
         # specify group via query params
-        save_url = "%s?group=%s" % (rsp['save_url'], group)
-        projects_url = rsp['projects_url']
+        save_url = "%s?group=%s" % (rsp['url:save'], group)
+        projects_url = rsp['url:projects']
         project_name = 'test_api_projects'
         payload = {'Name': project_name,
                    '@type': schema_url + '#Project'}
