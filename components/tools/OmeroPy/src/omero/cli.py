@@ -1433,7 +1433,6 @@ def cli_login(*args, **kwargs):
                 keep_alive = int(keep_alive)
                 client.enableKeepAlive(keep_alive)
             else:
-                cli.close()
                 raise Exception("Failed to login")
         yield cli
     finally:
