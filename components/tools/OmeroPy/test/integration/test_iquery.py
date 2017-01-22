@@ -26,6 +26,7 @@
 
 from omero.testlib import ITest
 from omero.rtypes import unwrap, wrap
+from omero.model import CommentAnnotationI
 from omero.model import TagAnnotationI, ImageI, ImageAnnotationLinkI
 from omero.model import PermissionsI
 from omero.sys import ParametersI
@@ -153,9 +154,9 @@ class TestQuery(ITest):
 
     def testClassType(self):
         created = []
-        for x in (CommentAnnotationI, TagAnnotationI):
-            x = self.update.saveAndReturnObject(x())
-            created.append(x)
+        for Ann in (CommentAnnotationI, TagAnnotationI):
+            ann = self.update.saveAndReturnObject(Ann())
+            created.append(ann)
         query_string = """
         select type(a.class) from Annotation a
         """
