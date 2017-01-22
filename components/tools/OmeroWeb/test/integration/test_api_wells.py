@@ -55,12 +55,14 @@ def cmp_name_insensitive(x, y):
     """Case-insensitive name comparator."""
     return cmp(unwrap(x.name).lower(), unwrap(y.name).lower())
 
+
 def cmp_column_row(x, y):
     """Sort wells by row, then column."""
     sort_by_column = cmp(unwrap(x.column), unwrap(y.column))
     if sort_by_column == 0:
         return cmp(unwrap(x.row), unwrap(y.row))
     return sort_by_column
+
 
 def marshal_objects(objects):
     """Marshal objects using omero_marshal."""
@@ -114,7 +116,7 @@ def assert_objects(conn, json_objects, omero_ids_objects, dtype="Project",
         o2 = json.loads(json.dumps(o2))
         # remove any urls from json (tested elsewhere)
         remove_urls(o1)
-        
+
         assert o1 == o2
 
 
@@ -224,6 +226,6 @@ class TestWells(IWebTest):
             assert ('WellSamples' in rsp) == has_image
             if has_image:
                 assert len(rsp['WellSamples']) == 3
-                assert 'Pixels' in rsp['WellSamples'][0]['Image'] 
+                assert 'Pixels' in rsp['WellSamples'][0]['Image']
             assert_objects(conn, [rsp], [well], dtype='Well',
                            opts={'load_pixels': True})
