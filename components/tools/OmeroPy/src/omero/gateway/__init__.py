@@ -6081,14 +6081,16 @@ class _WellWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             # NB: Using left outer join, we may get Wells with no Images
             query += " left outer join fetch obj.wellSamples as wellSamples"\
                      " left outer join fetch wellSamples.image as image"\
-                     " join fetch wellSamples.plateAcquisition as plateAcquisition"
+                     " left outer join fetch wellSamples.plateAcquisition"\
+                     " as plateAcquisition"
         if load_pixels or load_channels:
             query += ' left outer join fetch image.pixels pixels' \
                      ' left outer join fetch pixels.pixelsType'
         if load_channels:
             query += ' join fetch pixels.channels as channels' \
                      ' join fetch channels.logicalChannel as logicalChannel' \
-                     ' left outer join fetch logicalChannel.photometricInterpretation' \
+                     ' left outer join fetch ' \
+                     ' logicalChannel.photometricInterpretation' \
                      ' left outer join fetch logicalChannel.illumination' \
                      ' left outer join fetch logicalChannel.mode' \
                      ' left outer join fetch logicalChannel.contrastMethod'
