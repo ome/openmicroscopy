@@ -55,9 +55,9 @@ def build_url(client, url_name, url_kwargs):
     """Build an absolute url using client response url."""
     response = client.request()
     # http://testserver/webclient/
-    webclint_url = response.url
+    webclient_url = response.url
     url = reverse(url_name, kwargs=url_kwargs)
-    url = webclint_url.replace('/webclient/', url)
+    url = webclient_url.replace('/webclient/', url)
     return url
 
 

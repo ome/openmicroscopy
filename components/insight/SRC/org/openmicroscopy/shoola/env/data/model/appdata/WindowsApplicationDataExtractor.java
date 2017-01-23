@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.model.appdata.WindowsApplicationDataExtractor 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2017 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -247,9 +247,9 @@ public class WindowsApplicationDataExtractor implements
 					fileVersionInfoSize, translation,
 					APPLICATION_PROPERTY_KEY_PRODUCT_NAME);
 
-			if (fileDescription != "")
+			if (!fileDescription.isEmpty())
 				applicationName = fileDescription;
-			else if (productName != "")
+			else if (!productName.isEmpty())
 				applicationName = productName;
 		}
 

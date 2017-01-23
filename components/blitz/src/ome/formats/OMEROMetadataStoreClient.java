@@ -2,7 +2,7 @@
  * ome.formats.OMEROMetadataStoreClient
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -1719,8 +1719,7 @@ public class OMEROMetadataStoreClient
             else groupLevel = ImportEvent.GROUP_COLLAB_READ;
         }
         else if (perm.isWorldRead()) {
-            if (perm.isWorldWrite())  groupLevel = ImportEvent.GROUP_PUBLIC;
-            else groupLevel = ImportEvent.GROUP_PUBLIC;
+            groupLevel = ImportEvent.GROUP_PUBLIC;
         } else {
             groupLevel = ImportEvent.GROUP_PRIVATE;
         }

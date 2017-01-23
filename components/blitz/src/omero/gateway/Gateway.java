@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -979,6 +979,7 @@ public class Gateway {
      *            The login credentials
      * @return The client
      * @throws DSOutOfServiceException
+     *             Thrown if the service cannot be initialized.
      */
     private client createSession(LoginCredentials c)
             throws DSOutOfServiceException {
@@ -1079,6 +1080,7 @@ public class Gateway {
      *            The login credentials
      * @return The user which is logged in
      * @throws DSOutOfServiceException
+     *             Thrown if the service cannot be initialized.
      */
     private ExperimenterData login(client client, LoginCredentials cred)
             throws DSOutOfServiceException {
@@ -1154,6 +1156,7 @@ public class Gateway {
      * session.
      * 
      * @throws DSOutOfServiceException
+     *             Thrown if the service cannot be initialized.
      */
     private void keepSessionAlive() throws DSOutOfServiceException {
         // Check if network is up before keeping service otherwise
@@ -1185,6 +1188,7 @@ public class Gateway {
      * @param groupID
      *            The new group of the user
      * @throws DSOutOfServiceException
+     *             Thrown if the service cannot be initialized.
      */
     private void changeCurrentGroup(SecurityContext ctx, ExperimenterData exp,
             long groupID) throws DSOutOfServiceException {
@@ -1299,11 +1303,7 @@ public class Gateway {
             return;
 
         for (Connector c : clist) {
-            try {
-                c.close(isNetworkUp(true));
-            } catch (Throwable e) {
-                new Exception("Cannot close the connector", e);
-            }
+            c.close(isNetworkUp(true));
         }
     }
 
@@ -1493,19 +1493,17 @@ public class Gateway {
      * Shuts down the connectors created while creating/importing data for other
      * users.
      *
-     * @param ctx The {@link SecurityContext}
-     * @throws Exception
-     *             Thrown if the connector cannot be closed.
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      */
-    public void shutDownDerivedConnector(SecurityContext ctx) throws Exception {
+    public void shutDownDerivedConnector(SecurityContext ctx)
+            throws DSOutOfServiceException {
         Connector c = getConnector(ctx, true, true);
         if (c == null)
             return;
-        try {
-            c.closeDerived(isNetworkUp(true));
-        } catch (Throwable e) {
-            new Exception("Cannot close the derived connectors", e);
-        }
+        c.closeDerived(isNetworkUp(true));
     }
 
     /**

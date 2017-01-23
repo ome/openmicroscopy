@@ -746,7 +746,7 @@ public class AbstractServerTest extends AbstractTest {
         iUpdate = factory.getUpdateService();
         iAdmin = factory.getAdminService();
         iPix = factory.getPixelsService();
-        mmFactory = new ModelMockFactory(factory.getPixelsService());
+        mmFactory = new ModelMockFactory(factory.getTypesService());
 
         importer = new OMEROMetadataStoreClient();
         importer.initialize(factory);

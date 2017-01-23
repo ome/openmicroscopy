@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -611,9 +611,8 @@ public class PojoMapper
             pojoClass = Class.forName(pojoType);
             return getModelType(pojoClass);
         } catch (ClassNotFoundException e) {
-            new IllegalArgumentException(pojoType + " not found");
+            throw new IllegalArgumentException(pojoType + " not found");
         }
-        return null;
     }
     
     /**

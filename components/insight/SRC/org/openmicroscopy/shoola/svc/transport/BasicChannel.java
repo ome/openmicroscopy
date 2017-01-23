@@ -103,7 +103,7 @@ class BasicChannel
             sslcontext = SSLContext.getInstance("TLS");
             sslcontext.init(null, managers, null);
         } catch (Exception e) {
-            new TransportException("Cannot create security context", e);
+            throw new TransportException("Cannot create security context", e);
         }
         return new SSLConnectionSocketFactory(sslcontext,
                 SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
