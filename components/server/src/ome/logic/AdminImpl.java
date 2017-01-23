@@ -1509,10 +1509,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     }
 
     private void adminOrPiOfUser(Experimenter user) {
-        if (!isAdmin() && ! isPiOf(user)) {
-            throwNonAdminOrPi();
-        }
-        if (!getCurrentAdminPrivilegesForSession().contains(new AdminPrivilege("ModifyUser"))) {
+        if (!(isAdmin() && getCurrentAdminPrivilegesForSession().contains(new AdminPrivilege("ModifyUser")) || isPiOf(user))) {
             throwNonAdminOrPi();
         }
     }
