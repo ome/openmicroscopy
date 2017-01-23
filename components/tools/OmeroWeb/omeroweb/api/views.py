@@ -67,7 +67,7 @@ def api_versions(request, **kwargs):
     for v in settings.API_VERSIONS:
         versions.append({
             'version': v,
-            'base_url': build_url(request, 'api_base', v)
+            'url:base': build_url(request, 'api_base', v)
         })
     return {'data': versions}
 
@@ -76,16 +76,16 @@ def api_versions(request, **kwargs):
 def api_base(request, api_version=None, **kwargs):
     """Base url of the webgateway json api for a specified version."""
     v = api_version
-    rv = {'projects_url': build_url(request, 'api_projects', v),
-          'datasets_url': build_url(request, 'api_datasets', v),
-          'images_url': build_url(request, 'api_images', v),
-          'screens_url': build_url(request, 'api_screens', v),
-          'plates_url': build_url(request, 'api_plates', v),
-          'token_url': build_url(request, 'api_token', v),
-          'servers_url': build_url(request, 'api_servers', v),
-          'login_url': build_url(request, 'api_login', v),
-          'save_url': build_url(request, 'api_save', v),
-          'schema_url': OME_SCHEMA_URL}
+    rv = {'url:projects': build_url(request, 'api_projects', v),
+          'url:datasets': build_url(request, 'api_datasets', v),
+          'url:images': build_url(request, 'api_images', v),
+          'url:screens': build_url(request, 'api_screens', v),
+          'url:plates': build_url(request, 'api_plates', v),
+          'url:token': build_url(request, 'api_token', v),
+          'url:servers': build_url(request, 'api_servers', v),
+          'url:login': build_url(request, 'api_login', v),
+          'url:save': build_url(request, 'api_save', v),
+          'url:schema': OME_SCHEMA_URL}
     return rv
 
 
@@ -111,39 +111,71 @@ def api_servers(request, api_version, **kwargs):
     return {'data': servers}
 
 
-class ObjectView(View):
-    """Handle access to an individual Object to GET or DELETE it."""
+class ApiView(View):
+    """Base class extended by ObjectView and ObjectsView."""
+
+    # urls extended by subclasses to add urls to marshalled objects
+    urls = {}
 
     @method_decorator(login_required(useragent='OMERO.webapi'))
     @method_decorator(json_response())
     def dispatch(self, *args, **kwargs):
         """Wrap other methods to add decorators."""
-        return super(ObjectView, self).dispatch(*args, **kwargs)
+        return super(ApiView, self).dispatch(*args, **kwargs)
+
+    def add_data(self, marshalled, request, **kwargs):
+        """
+        Post-process marshalled object to add any extra data.
+
+        Used to add urls to marshalled json.
+        Subclasses can configure self.urls to specify urls to add.
+        See ProjectsView urls as example
+        """
+        object_id = marshalled['@id']
+        version = kwargs['api_version']
+        for key, args in self.urls.items():
+            name = args['name']
+            kwargs = args['kwargs'].copy()
+            # If kwargs has 'OBJECT_ID' placeholder, we replace with id
+            for k, v in kwargs.items():
+                if v == 'OBJECT_ID':
+                    kwargs[k] = object_id
+            url = build_url(request, name, version, **kwargs)
+            marshalled[key] = url
+        return marshalled
+
+
+class ObjectView(ApiView):
+    """Handle access to an individual Object to GET or DELETE it."""
 
     def get_opts(self, request):
         """Return a dict for use in conn.getObjects() based on request."""
         return {}
 
-    def get(self, request, pid, conn=None, **kwargs):
+    def get(self, request, object_id, conn=None, **kwargs):
         """Simply GET a single Object and marshal it or 404 if not found."""
         opts = self.get_opts(request)
-        obj = conn.getObject(self.OMERO_TYPE, pid, opts=opts)
+        obj = conn.getObject(self.OMERO_TYPE, object_id, opts=opts)
         if obj is None:
-            raise NotFoundError('%s %s not found' % (self.OMERO_TYPE, pid))
+            raise NotFoundError('%s %s not found' % (self.OMERO_TYPE,
+                                                     object_id))
         encoder = get_encoder(obj._obj.__class__)
-        return encoder.encode(obj._obj)
+        marshalled = encoder.encode(obj._obj)
+        self.add_data(marshalled, request, **kwargs)
+        return marshalled
 
-    def delete(self, request, pid, conn=None, **kwargs):
+    def delete(self, request, object_id, conn=None, **kwargs):
         """
         Delete the Object and return marshal of deleted Object.
 
         Return 404 if not found.
         """
         try:
-            obj = conn.getQueryService().get(self.OMERO_TYPE, long(pid),
+            obj = conn.getQueryService().get(self.OMERO_TYPE, long(object_id),
                                              conn.SERVICE_OPTS)
         except ValidationException:
-            raise NotFoundError('%s %s not found' % (self.OMERO_TYPE, pid))
+            raise NotFoundError('%s %s not found' % (self.OMERO_TYPE,
+                                                     object_id))
         encoder = get_encoder(obj.__class__)
         json = encoder.encode(obj)
         conn.deleteObject(obj)
@@ -155,11 +187,23 @@ class ProjectView(ObjectView):
 
     OMERO_TYPE = 'Project'
 
+    # Urls to add to marshalled object. See ProjectsView for more details
+    urls = {
+        'url:datasets': {'name': 'api_project_datasets',
+                         'kwargs': {'project_id': 'OBJECT_ID'}},
+    }
+
 
 class DatasetView(ObjectView):
     """Handle access to an individual Dataset to GET or DELETE it."""
 
     OMERO_TYPE = 'Dataset'
+
+    # Urls to add to marshalled object. See ProjectsView for more details
+    urls = {
+        'url:images': {'name': 'api_dataset_images',
+                       'kwargs': {'dataset_id': 'OBJECT_ID'}},
+    }
 
 
 class ImageView(ObjectView):
@@ -181,6 +225,12 @@ class ScreenView(ObjectView):
 
     OMERO_TYPE = 'Screen'
 
+    # Urls to add to marshalled object. See ProjectsView for more details
+    urls = {
+        'url:plates': {'name': 'api_screen_plates',
+                       'kwargs': {'screen_id': 'OBJECT_ID'}},
+    }
+
 
 class PlateView(ObjectView):
     """Handle access to an individual Plate to GET or DELETE it."""
@@ -188,14 +238,8 @@ class PlateView(ObjectView):
     OMERO_TYPE = 'Plate'
 
 
-class ObjectsView(View):
+class ObjectsView(ApiView):
     """Base class for listing objects."""
-
-    @method_decorator(login_required(useragent='OMERO.webapi'))
-    @method_decorator(json_response())
-    def dispatch(self, *args, **kwargs):
-        """Use dispatch to add decorators to class methods."""
-        return super(ObjectsView, self).dispatch(*args, **kwargs)
 
     def get_opts(self, request, **kwargs):
         """Return an options dict based on request parameters."""
@@ -224,13 +268,28 @@ class ObjectsView(View):
         group = getIntOrDefault(request, 'group', -1)
         normalize = request.GET.get('normalize', False) == 'true'
         # Get the data
-        return query_objects(conn, self.OMERO_TYPE, group, opts, normalize)
+        marshalled = query_objects(conn, self.OMERO_TYPE, group,
+                                   opts, normalize)
+        for m in marshalled['data']:
+            self.add_data(m, request, **kwargs)
+        return marshalled
 
 
 class ProjectsView(ObjectsView):
     """Handles GET for /projects/ to list available Projects."""
 
     OMERO_TYPE = 'Project'
+
+    # To add a url to marshalled object add to this dict
+    # 'name' is url name, kwargs are passed to reverse()
+    # If any kwargs values are 'OBJECT_ID' then this placeholder will be
+    # filled with the actual project_id
+    urls = {
+        'url:datasets': {'name': 'api_project_datasets',
+                         'kwargs': {'project_id': 'OBJECT_ID'}},
+        'url:project': {'name': 'api_project',
+                        'kwargs': {'object_id': 'OBJECT_ID'}}
+    }
 
 
 class DatasetsView(ObjectsView):
@@ -251,11 +310,27 @@ class DatasetsView(ObjectsView):
                 opts['project'] = project
         return opts
 
+    # Urls to add to marshalled object. See ProjectsView for more details
+    urls = {
+        'url:images': {'name': 'api_dataset_images',
+                       'kwargs': {'dataset_id': 'OBJECT_ID'}},
+        'url:dataset': {'name': 'api_dataset',
+                        'kwargs': {'object_id': 'OBJECT_ID'}},
+    }
+
 
 class ScreensView(ObjectsView):
     """Handles GET for /screens/ to list available Screens."""
 
     OMERO_TYPE = 'Screen'
+
+    # Urls to add to marshalled object. See ProjectsView for more details
+    urls = {
+        'url:plates': {'name': 'api_screen_plates',
+                       'kwargs': {'screen_id': 'OBJECT_ID'}},
+        'url:screen': {'name': 'api_screen',
+                       'kwargs': {'object_id': 'OBJECT_ID'}}
+    }
 
 
 class PlatesView(ObjectsView):
@@ -276,11 +351,23 @@ class PlatesView(ObjectsView):
                 opts['screen'] = screen
         return opts
 
+    # Urls to add to marshalled object. See ProjectsView for more details
+    urls = {
+        'url:plate': {'name': 'api_plate',
+                      'kwargs': {'object_id': 'OBJECT_ID'}}
+    }
+
 
 class ImagesView(ObjectsView):
     """Handles GET for /images/ to list available Images."""
 
     OMERO_TYPE = 'Image'
+
+    # Urls to add to marshalled object. See ProjectsView for more details
+    urls = {
+        'url:image': {'name': 'api_image',
+                      'kwargs': {'object_id': 'OBJECT_ID'}},
+    }
 
     def get_opts(self, request, **kwargs):
         """Add filtering by 'dataset' and other params to the opts dict."""

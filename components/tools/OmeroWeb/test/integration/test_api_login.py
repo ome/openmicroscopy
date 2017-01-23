@@ -22,8 +22,8 @@ Tests logging in with webgateway json api
 """
 
 import pytest
-from omeroweb.testlib import IWebTest, _get_response_json, _post_response_json, \
-    _csrf_post_response_json
+from omeroweb.testlib import IWebTest, _get_response_json, \
+    _post_response_json, _csrf_post_response_json
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.conf import settings
 from django.test import Client
@@ -57,15 +57,15 @@ class TestLogin(IWebTest):
         version = settings.API_VERSIONS[-1]
         request_url = reverse('api_base', kwargs={'api_version': version})
         rsp = _get_response_json(django_client, request_url, {})
-        assert 'servers_url' in rsp
-        assert 'login_url' in rsp
-        assert 'projects_url' in rsp
-        assert 'datasets_url' in rsp
-        assert 'images_url' in rsp
-        assert 'screens_url' in rsp
-        assert 'plates_url' in rsp
-        assert 'save_url' in rsp
-        assert rsp['schema_url'] == OME_SCHEMA_URL
+        assert 'url:servers' in rsp
+        assert 'url:login' in rsp
+        assert 'url:projects' in rsp
+        assert 'url:datasets' in rsp
+        assert 'url:images' in rsp
+        assert 'url:screens' in rsp
+        assert 'url:plates' in rsp
+        assert 'url:save' in rsp
+        assert rsp['url:schema'] == OME_SCHEMA_URL
 
     def test_base_url_versions_404(self):
         """
@@ -147,13 +147,13 @@ class TestLogin(IWebTest):
         rsp = _get_response_json(django_client, request_url, {})
         # Pick the last version
         version = rsp['data'][-1]
-        base_url = version['base_url']
+        base_url = version['url:base']
         # Base url will give a bunch of other urls
         base_rsp = _get_response_json(django_client, base_url, {})
-        login_url = base_rsp['login_url']
-        servers_url = base_rsp['servers_url']
-        login_url = base_rsp['login_url']
-        token_url = base_rsp['token_url']
+        login_url = base_rsp['url:login']
+        servers_url = base_rsp['url:servers']
+        login_url = base_rsp['url:login']
+        token_url = base_rsp['url:token']
         # See what servers we can log in to
         servers_rsp = _get_response_json(django_client, servers_url, {})
         server_id = servers_rsp['data'][0]['id']
