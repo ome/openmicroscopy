@@ -386,12 +386,10 @@ class TestContainers(IWebTest):
         wells_json = rsp['data']
         well_id = wells_json[0]['@id']
         extra = [{'url:well': build_url(client, 'api_well',
-                                        {'api_version': version,
-                                         'object_id': well_id})
-                }]
+                  {'api_version': version, 'object_id': well_id})}
+                 ]
         assert_objects(conn, wells_json, [well_id], dtype='Well',
                        extra=extra, opts={'load_images': True}, client=client)
-
 
     def test_pdi_urls(self, user1, project_datasets):
         """Test browsing via urls in json /api/->PDI."""
