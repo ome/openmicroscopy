@@ -26,8 +26,9 @@ from django.conf import settings
 import pytest
 from omero.gateway import BlitzGateway
 from omero_marshal import get_encoder
-from omero.model import DatasetI, ProjectI, ScreenI, PlateI, ImageI
-from omero.rtypes import rstring, unwrap
+from omero.model import DatasetI, ProjectI, ScreenI, PlateI, ImageI, \
+    WellSampleI, WellI
+from omero.rtypes import rstring, unwrap, rint
 
 
 def get_update_service(user):
@@ -69,8 +70,20 @@ def marshal_objects(objects):
     return expected
 
 
+def add_image_urls(expected, client):
+    """Add urls to expected Images within Well dict."""
+    version = settings.API_VERSIONS[-1]
+    if 'WellSamples' in expected:
+        for ws in expected['WellSamples']:
+            image_id = ws['Image']['@id']
+            url = build_url(client, 'api_image', {'api_version': version,
+                                                  'object_id': image_id})
+            ws['Image']['url:image'] = url
+    return expected
+
+
 def assert_objects(conn, json_objects, omero_ids_objects, dtype="Project",
-                   group='-1', extra=None, opts=None):
+                   group='-1', extra=None, opts=None, client=None):
     """
     Load objects from OMERO, via conn.getObjects().
 
@@ -98,6 +111,8 @@ def assert_objects(conn, json_objects, omero_ids_objects, dtype="Project",
         for key in o1.keys():
             if key.startswith('url:') and key not in o2:
                 del(o1[key])
+        # add urls to any 'Image' in expected 'Wells' dict
+        add_image_urls(o2, client)
         assert o1 == o2
 
 
@@ -156,6 +171,22 @@ class TestContainers(IWebTest):
 
         screen = get_update_service(user1).saveAndReturnObject(screen)
         plate = get_update_service(user1).saveAndReturnObject(plate)
+
+        # Add well to first plate
+        plates = screen.linkedPlateList()
+        plates.sort(cmp_name_insensitive)
+        plate_id = plates[0].id.val
+        well = WellI()
+        well.column = rint(0)
+        well.row = rint(0)
+        well.plate = PlateI(plate_id, False)
+        image = self.create_test_image(
+            size_x=5, size_y=5, session=user1[0].getSession())
+        ws = WellSampleI()
+        ws.image = ImageI(image.id, False)
+        ws.well = well
+        well.addWellSample(ws)
+        well = get_update_service(user1).saveAndReturnObject(well)
         return screen, plate
 
     @pytest.fixture()
@@ -340,11 +371,27 @@ class TestContainers(IWebTest):
                 'url:plate': build_url(client, 'api_plate',
                                        {'api_version': version,
                                         'object_id': p.id.val}),
+                'url:wells': build_url(client, 'api_plate_wells',
+                                       {'api_version': version,
+                                        'plate_id': p.id.val})
             })
         assert_objects(conn, plates_json, plates, dtype='Plate', extra=extra)
         # View single plate
         rsp = _get_response_json(client, plates_json[0]['url:plate'], {})
         assert_objects(conn, [rsp], plates[0:1], dtype='Plate')
+
+        # List wells of first plate
+        wells_url = plates_json[0]['url:wells']
+        rsp = _get_response_json(client, wells_url, {})
+        wells_json = rsp['data']
+        well_id = wells_json[0]['@id']
+        extra = [{'url:well': build_url(client, 'api_well',
+                                        {'api_version': version,
+                                         'object_id': well_id})
+                }]
+        assert_objects(conn, wells_json, [well_id], dtype='Well',
+                       extra=extra, opts={'load_images': True}, client=client)
+
 
     def test_pdi_urls(self, user1, project_datasets):
         """Test browsing via urls in json /api/->PDI."""
