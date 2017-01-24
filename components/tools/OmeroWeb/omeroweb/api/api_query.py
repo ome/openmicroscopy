@@ -20,10 +20,12 @@
 """Helper functions for views that handle object trees."""
 
 
-from omero.rtypes import unwrap
+from omero.rtypes import unwrap, wrap
+from omero.sys import ParametersI
 
 from api_marshal import marshal_objects
 from copy import deepcopy
+from time import time
 
 
 def query_objects(conn, object_type,
@@ -44,7 +46,7 @@ def query_objects(conn, object_type,
     """
     # buildQuery is used by conn.getObjects()
     query, params, wrapper = conn.buildQuery(object_type, opts=opts)
-
+    print query
     # Set the desired group context
     ctx = deepcopy(conn.SERVICE_OPTS)
     if group is None:
@@ -55,6 +57,9 @@ def query_objects(conn, object_type,
 
     objects = []
     extras = {}
+
+    t_start = time()
+    
     if opts is not None and opts.get('child_count'):
         result = qs.projection(query, params, ctx)
         for p in result:
@@ -63,10 +68,23 @@ def query_objects(conn, object_type,
             if len(p) > 1:
                 # in case child_count not supported by conn.buildQuery()
                 extras[obj.id.val] = {'omero:childCount': unwrap(p[1])}
+        print 'Combined query took:', time() - t_start
     else:
-        extras = None
+        # extras = None
         result = qs.findAllByQuery(query, params, ctx)
         for obj in result:
             objects.append(obj)
+        print 'first queriy...', time() - t_start
+        obj_ids = [r.id.val for r in result]
+        print 'obj_ids', len(obj_ids)
+        params = ParametersI()
+        params.add('ids', wrap(obj_ids))
+        query = "select d.id, size(l) from Dataset d join d.imageLinks as l where d.id in (:ids) group by d.id"
+        result = qs.projection(query, params, ctx)
+        print 'found', len(result)
+        for d in result:
+            extras[d[0].val] = {'omero:childCount': unwrap(d[1])}
+
+        print 'Separate queries took:', time() - t_start
 
     return marshal_objects(objects, extras=extras, normalize=normalize)
