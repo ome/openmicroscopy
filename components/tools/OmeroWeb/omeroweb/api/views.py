@@ -28,7 +28,7 @@ from django.conf import settings
 import traceback
 import json
 
-from api_query import query_objects
+from api_query import query_objects,get_child_counts
 from omero_marshal import get_encoder, get_decoder, OME_SCHEMA_URL
 from omero import ValidationException
 from omeroweb.connector import Server
@@ -155,12 +155,25 @@ class ObjectView(ApiView):
     def get(self, request, object_id, conn=None, **kwargs):
         """Simply GET a single Object and marshal it or 404 if not found."""
         opts = self.get_opts(request)
-        obj = conn.getObject(self.OMERO_TYPE, object_id, opts=opts)
-        if obj is None:
+        object_id = long(object_id)
+        query, params, wrapper = conn.buildQuery(
+            self.OMERO_TYPE, [object_id], opts=opts)
+        result = conn.getQueryService().findByQuery(
+            query, params, conn.SERVICE_OPTS)
+
+        if result is None:
             raise NotFoundError('%s %s not found' % (self.OMERO_TYPE,
                                                      object_id))
-        encoder = get_encoder(obj._obj.__class__)
-        marshalled = encoder.encode(obj._obj)
+        encoder = get_encoder(result.__class__)
+        marshalled = encoder.encode(result)
+
+        # Optionally lookup child counts
+        child_count = request.GET.get('childCount', False) == 'true'
+        if child_count and wrapper.LINK_CLASS:
+            counts = get_child_counts(conn, wrapper.LINK_CLASS, [object_id])
+            ch_count = counts[object_id] if object_id in counts else 0
+            marshalled['omero:childCount'] = ch_count
+
         self.add_data(marshalled, request, self.urls, **kwargs)
         return {'data': marshalled}
 

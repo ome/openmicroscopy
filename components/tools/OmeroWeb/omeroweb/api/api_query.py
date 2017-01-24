@@ -25,7 +25,29 @@ from omero.sys import ParametersI
 
 from api_marshal import marshal_objects
 from copy import deepcopy
-from time import time
+
+
+def get_child_counts(conn, link_class, parent_ids):
+    """
+    Count child links for the specified parent_ids.
+
+    @param conn:        BlitzGateway
+    @param link_class:  E.g. 'ProjectDatasetLink'
+    @param parent_ids:  List of Parent IDs
+    @return             A dict of parent_id: child_count
+    """
+    ctx = deepcopy(conn.SERVICE_OPTS)
+    ctx.setOmeroGroup(-1)
+    params = ParametersI()
+    params.add('ids', wrap(parent_ids))
+    query = ("select chl.parent.id, count(chl.id) from %s chl"
+             " where chl.parent.id in (:ids) group by chl.parent.id"
+             % link_class)
+    result = conn.getQueryService().projection(query, params, ctx)
+    counts = {}
+    for d in result:
+        counts[d[0].val] = unwrap(d[1])
+    return counts
 
 
 def query_objects(conn, object_type,
@@ -46,7 +68,6 @@ def query_objects(conn, object_type,
     """
     # buildQuery is used by conn.getObjects()
     query, params, wrapper = conn.buildQuery(object_type, opts=opts)
-    print query
     # Set the desired group context
     ctx = deepcopy(conn.SERVICE_OPTS)
     if group is None:
@@ -58,33 +79,16 @@ def query_objects(conn, object_type,
     objects = []
     extras = {}
 
-    t_start = time()
-    
-    if opts is not None and opts.get('child_count'):
-        result = qs.projection(query, params, ctx)
-        for p in result:
-            obj = unwrap(p[0])
-            objects.append(obj)
-            if len(p) > 1:
-                # in case child_count not supported by conn.buildQuery()
-                extras[obj.id.val] = {'omero:childCount': unwrap(p[1])}
-        print 'Combined query took:', time() - t_start
-    else:
-        # extras = None
-        result = qs.findAllByQuery(query, params, ctx)
-        for obj in result:
-            objects.append(obj)
-        print 'first queriy...', time() - t_start
-        obj_ids = [r.id.val for r in result]
-        print 'obj_ids', len(obj_ids)
-        params = ParametersI()
-        params.add('ids', wrap(obj_ids))
-        query = "select d.id, size(l) from Dataset d join d.imageLinks as l where d.id in (:ids) group by d.id"
-        result = qs.projection(query, params, ctx)
-        print 'found', len(result)
-        for d in result:
-            extras[d[0].val] = {'omero:childCount': unwrap(d[1])}
+    result = qs.findAllByQuery(query, params, ctx)
+    for obj in result:
+        objects.append(obj)
 
-        print 'Separate queries took:', time() - t_start
+    # Optionally get child counts...
+    if opts and opts.get('child_count') and wrapper.LINK_CLASS:
+        obj_ids = [r.id.val for r in result]
+        counts = get_child_counts(conn, wrapper.LINK_CLASS, obj_ids)
+        for obj_id in obj_ids:
+            count = counts[obj_id] if obj_id in counts else 0
+            extras[obj_id] = {'omero:childCount': count}
 
     return marshal_objects(objects, extras=extras, normalize=normalize)
