@@ -52,6 +52,7 @@ class BaseSearch(BaseController):
 
     def search(self, query, onlyTypes, fields, searchGroup, ownedBy,
                useAcquisitionDate, date=None):
+
         # If fields contains 'annotation', we really want to search files too
         fields = set(fields)
         if "annotation" in fields:
@@ -87,6 +88,7 @@ class BaseSearch(BaseController):
         def doSearch(searchType):
             """ E.g. searchType is 'images' """
             objType = searchType[0:-1]  # remove 's'
+
             obj_list = list(self.conn.searchObjects(
                 [objType],
                 query,
