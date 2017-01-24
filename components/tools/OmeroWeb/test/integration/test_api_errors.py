@@ -17,14 +17,11 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-Tests querying & editing Projects with webgateway json api
-"""
+"""Tests querying & editing Projects with webgateway json api."""
 
 from omeroweb.testlib import IWebTest, _csrf_post_json, _csrf_put_json
 from django.core.urlresolvers import reverse
 from django.conf import settings
-from omero.gateway import BlitzGateway
 import pytest
 from test_api_projects import get_connection
 from omero.model import ProjectI
@@ -34,32 +31,30 @@ from omero import ValidationException
 
 
 class TestErrors(IWebTest):
-    """
-    Tests the response status with various error types
-    """
+    """Tests the response status with various error types."""
 
     # Create a read-annotate group
     @pytest.fixture(scope='function')
     def group_A(self):
-        """Returns a new read-only group."""
+        """Return a new read-only group."""
         return self.new_group(perms='rwra--')
 
     # Create a read-only group
     @pytest.fixture(scope='function')
     def group_B(self):
-        """Returns a new read-only group."""
+        """Return a new read-only group."""
         return self.new_group(perms='rwr---')
 
     # Create users in the read-only group
     @pytest.fixture()
     def user_A(self, group_A, group_B):
-        """Returns a new user in the group_A group and also add to group_B"""
+        """Return a new user in the group_A group and also add to group_B."""
         user = self.new_client_and_user(group=group_A)
         self.add_groups(user[1], [group_B])
         return user
 
     def test_save_post_no_id(self):
-        """ If POST to /save/ data shouldn't contain @id """
+        """If POST to /save/ data shouldn't contain @id."""
         django_client = self.django_root_client
         version = settings.API_VERSIONS[-1]
         save_url = reverse('api_save', kwargs={'api_version': version})
@@ -71,7 +66,7 @@ class TestErrors(IWebTest):
                 "Object has '@id' attribute. Use PUT to update objects")
 
     def test_save_put_id(self):
-        """ If PUT to /save/ to update, data must contain @id """
+        """If PUT to /save/ to update, data must contain @id."""
         django_client = self.django_root_client
         version = settings.API_VERSIONS[-1]
         save_url = reverse('api_save', kwargs={'api_version': version})
@@ -82,7 +77,7 @@ class TestErrors(IWebTest):
                 "No '@id' attribute. Use POST to create new objects")
 
     def test_marshal_type(self):
-        """ If no decoder found for @type, get suitable message"""
+        """If no decoder found for @type, get suitable message."""
         django_client = self.django_root_client
         version = settings.API_VERSIONS[-1]
         save_url = reverse('api_save', kwargs={'api_version': version})
@@ -95,6 +90,7 @@ class TestErrors(IWebTest):
                 'No decoder found for type: %s' % objType)
 
     def test_marshal_validation(self):
+        """Test we get expected error with invalid @type in json."""
         django_client = self.django_root_client
         version = settings.API_VERSIONS[-1]
         save_url = reverse('api_save', kwargs={'api_version': version})
@@ -109,6 +105,7 @@ class TestErrors(IWebTest):
             'Traceback (most recent call last):')
 
     def test_security_violation(self, group_B, user_A):
+        """Test saving to incorrect group."""
         conn = get_connection(user_A)
         groupAid = conn.getEventContext().groupId
         userName = conn.getUser().getName()
@@ -133,21 +130,8 @@ class TestErrors(IWebTest):
         assert rsp['stacktrace'].startswith(
             'Traceback (most recent call last):')
 
-    def test_marshal_exception(self):
-        django_client = self.django_root_client
-        version = settings.API_VERSIONS[-1]
-        save_url = reverse('api_save', kwargs={'api_version': version})
-        payload = {'Name': 'test_type_error',
-                   '@type': OME_SCHEMA_URL + '#Project',
-                   'omero:details': {'@type': 'foo'}}
-        rsp = _csrf_post_json(django_client, save_url, payload,
-                              status_code=400)
-        assert (rsp['message'] ==
-                "Error in decode of json data by omero_marshal")
-        assert rsp['stacktrace'].startswith(
-            'Traceback (most recent call last):')
-
     def test_validation_exception(self, user_A):
+        """Test handling when we try to save something invalid."""
         conn = get_connection(user_A)
         group = conn.getEventContext().groupId
         userName = conn.getUser().getName()
@@ -176,7 +160,9 @@ class TestErrors(IWebTest):
 
     def test_project_validation(self, user_A):
         """
-        This test illustrates the ValidationException we see when
+        Test to demonstrate details bug on encode->deconde.
+
+        Test illustrates the ValidationException we see when
         Project is encoded to dict then decoded back to Project
         and saved.
         No exception is seen if the original Project is simply

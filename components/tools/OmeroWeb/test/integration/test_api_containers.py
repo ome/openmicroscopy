@@ -37,7 +37,6 @@ from omero.model import DatasetI, \
 from omero.rtypes import rstring, rint
 
 
-
 def build_url(client, url_name, url_kwargs):
     """Build an absolute url using client response url."""
     response = client.request()
