@@ -25,14 +25,14 @@ from django.conf import settings
 import pytest
 from test_api_projects import get_update_service, \
     get_connection, marshal_objects
-from omero_marshal import get_encoder
 from omero.model import ImageI, \
     LengthI, \
+    PlateAcquisitionI, \
     PlateI, \
     WellI, \
     WellSampleI
 from omero.model.enums import UnitsLength
-from omero.rtypes import rstring, rint, unwrap
+from omero.rtypes import rstring, rint, unwrap, rtime
 import json
 
 
@@ -112,6 +112,16 @@ class TestWells(IWebTest):
         plate.name = rstring('plate')
         plate = updateService.saveAndReturnObject(plate)
 
+        # Single PlateAcquisition for plate
+        plate_acq = PlateAcquisitionI()
+        plate_acq.name = rstring('plateacquisition')
+        plate_acq.description = rstring('plateacquisition_description')
+        plate_acq.maximumFieldCount = rint(3)
+        plate_acq.startTime = rtime(1L)
+        plate_acq.endTime = rtime(2L)
+        plate_acq.plate = PlateI(plate.id.val, False)
+        plate_acq = updateService.saveAndReturnObject(plate_acq)
+
         # Create Wells for plate
         for row in range(rows):
             for col in range(cols):
@@ -131,6 +141,8 @@ class TestWells(IWebTest):
                         ws.well = well
                         ws.posX = LengthI(i * 10, UnitsLength.REFERENCEFRAME)
                         ws.posY = LengthI(i, UnitsLength.REFERENCEFRAME)
+                        ws.setPlateAcquisition(
+                                PlateAcquisitionI(plate_acq.id.val, False))
                         well.addWellSample(ws)
                 updateService.saveObject(well)
         return plate
@@ -176,8 +188,10 @@ class TestWells(IWebTest):
         payload = {'plate': bigger_plate.id}
         rsp = _get_response_json(django_client, wells_url, payload)
         # Manual check that Images are loaded but Pixels are not
-        assert 'Image' in rsp['data'][0]['WellSamples'][0]
-        assert 'Pixels' not in rsp['data'][0]['WellSamples'][0]['Image']
+        well_sample = rsp['data'][0]['WellSamples'][0]
+        assert 'Image' in well_sample
+        assert 'PlateAcquisition' in well_sample
+        assert 'Pixels' not in well_sample['Image']
         assert len(wells) == 6
         assert_objects(conn, rsp['data'], wells, dtype='Well',
                        opts={'load_images': True})
