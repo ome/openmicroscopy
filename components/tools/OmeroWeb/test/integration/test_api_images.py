@@ -179,6 +179,7 @@ class TestImages(IWebTest):
         img_url = images_url + '%s/' % orphaned.id.val
         rsp = _get_response_json(django_client, img_url, {})
         # Manual check that Channels are loaded
-        assert len(rsp['Pixels']['Channels']) == 1
-        assert_objects(conn, [rsp], [orphaned], dtype='Image',
+        img_json = rsp['data']
+        assert len(img_json['Pixels']['Channels']) == 1
+        assert_objects(conn, [img_json], [orphaned], dtype='Image',
                        opts={'load_channels': True})

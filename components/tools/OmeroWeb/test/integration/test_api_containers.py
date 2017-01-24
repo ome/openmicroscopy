@@ -226,13 +226,15 @@ class TestContainers(IWebTest):
                    '@type': '%s#%s' % (schema_url, dtype)}
         rsp = _csrf_post_json(django_client, save_url, payload,
                               status_code=201)
+        new_obj = rsp['data']
         # We get the complete new Object returned
-        assert rsp['Name'] == project_name
-        object_id = rsp['@id']
+        assert new_obj['Name'] == project_name
+        object_id = new_obj['@id']
 
         # Read Object
         object_url = "%sm/%ss/%s/" % (base_url, dtype.lower(), object_id)
-        object_json = _get_response_json(django_client, object_url, {})
+        rsp = _get_response_json(django_client, object_url, {})
+        object_json = rsp['data']
         assert object_json['@id'] == object_id
         conn = BlitzGateway(client_obj=self.root)
         assert_objects(conn, [object_json], [object_id], dtype=dtype)
@@ -241,7 +243,8 @@ class TestContainers(IWebTest):
         object_json['Name'] = 'new name'
         rsp = _csrf_put_json(django_client, save_url, object_json)
         # ...and read again to check
-        updated_json = _get_response_json(django_client, object_url, {})
+        rsp = _get_response_json(django_client, object_url, {})
+        updated_json = rsp['data']
         assert updated_json['Name'] == 'new name'
 
         # Delete
@@ -356,7 +359,7 @@ class TestContainers(IWebTest):
                        extra=extra)
         # View single screen
         rsp = _get_response_json(client, screens_json[0]['url:screen'], {})
-        assert_objects(conn, [rsp], [screen], dtype='Screen',
+        assert_objects(conn, [rsp['data']], [screen], dtype='Screen',
                        extra=[{'url:plates': extra[0]['url:plates']}])
 
         # List plates
@@ -378,7 +381,7 @@ class TestContainers(IWebTest):
         assert_objects(conn, plates_json, plates, dtype='Plate', extra=extra)
         # View single plate
         rsp = _get_response_json(client, plates_json[0]['url:plate'], {})
-        assert_objects(conn, [rsp], plates[0:1], dtype='Plate')
+        assert_objects(conn, [rsp['data']], plates[0:1], dtype='Plate')
 
         # List wells of first plate
         wells_url = plates_json[0]['url:wells']
@@ -416,7 +419,7 @@ class TestContainers(IWebTest):
         assert_objects(conn, projects_json, [project], extra=extra)
         # View single Project
         rsp = _get_response_json(client, projects_json[0]['url:project'], {})
-        assert_objects(conn, [rsp], [project],
+        assert_objects(conn, [rsp['data']], [project],
                        extra=[{'url:datasets': extra[0]['url:datasets']}])
 
         # List datasets
@@ -439,7 +442,7 @@ class TestContainers(IWebTest):
                        dtype='Dataset', extra=extra)
         # View single Dataset
         rsp = _get_response_json(client, datasets_json[0]['url:dataset'], {})
-        assert_objects(conn, [rsp], datasets[0:1], dtype='Dataset',
+        assert_objects(conn, [rsp['data']], datasets[0:1], dtype='Dataset',
                        extra=[{'url:images': extra[0]['url:images']}])
 
         # List images (from last Dataset)
@@ -459,5 +462,5 @@ class TestContainers(IWebTest):
                        dtype='Image', extra=extra, opts={'load_pixels': True})
         # View single Image
         rsp = _get_response_json(client, images_json[0]['url:image'], {})
-        assert_objects(conn, [rsp], images[0:1], dtype='Image',
+        assert_objects(conn, [rsp['data']], images[0:1], dtype='Image',
                        opts={'load_channels': True})

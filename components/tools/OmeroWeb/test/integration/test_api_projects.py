@@ -476,16 +476,18 @@ class TestProjects(IWebTest):
                    '@type': schema_url + '#Project'}
         rsp = _csrf_post_json(django_client, save_url, payload,
                               status_code=201)
+        new_proj = rsp['data']
         # We get the complete new Project returned
-        assert rsp['Name'] == project_name
-        project_id = rsp['@id']
+        assert new_proj['Name'] == project_name
+        project_id = new_proj['@id']
 
         # Read Project
         project_url = "%s%s/" % (projects_url, project_id)
         rsp = _get_response_json(django_client, project_url, {})
-        assert rsp['@id'] == project_id
+        new_proj = rsp['data']
+        assert new_proj['@id'] == project_id
         conn = BlitzGateway(client_obj=self.root)
-        assert_objects(conn, [rsp], [project_id])
+        assert_objects(conn, [new_proj], [project_id])
 
     def test_project_create_other_group(self, user1, projects_user1_group2):
         """
@@ -516,14 +518,15 @@ class TestProjects(IWebTest):
         payload['omero:details'] = group2_details
         rsp = _csrf_post_json(django_client, save_url, payload,
                               status_code=201)
-        new_project_id = rsp['@id']
-        assert rsp['omero:details']['group']['@id'] == group2_id
+        new_proj = rsp['data']
+        new_project_id = new_proj['@id']
+        assert new_proj['omero:details']['group']['@id'] == group2_id
         # Read Project
         project_url = reverse('api_project',
                               kwargs={'api_version': version,
                                       'object_id': new_project_id})
         rsp = _get_response_json(django_client, project_url, {})
-        assert rsp['omero:details']['group']['@id'] == group2_id
+        assert rsp['data']['omero:details']['group']['@id'] == group2_id
 
     def test_project_update(self, user1):
         conn = get_connection(user1)
@@ -543,13 +546,15 @@ class TestProjects(IWebTest):
                                       'object_id': project.id.val})
         save_url = reverse('api_save', kwargs={'api_version': version})
         # 1) Get Project, update and save back
-        project_json = _get_response_json(django_client, project_url, {})
+        rsp = _get_response_json(django_client, project_url, {})
+        project_json = rsp['data']
         assert project_json['Name'] == 'test_project_update'
         project_json['Name'] = 'new name'
         rsp = _csrf_put_json(django_client, save_url, project_json)
-        assert rsp['@id'] == project.id.val
-        assert rsp['Name'] == 'new name'    # Name has changed
-        assert rsp['Description'] == 'Test update'  # No change
+        project_json = rsp['data']
+        assert project_json['@id'] == project.id.val
+        assert project_json['Name'] == 'new name'    # Name has changed
+        assert project_json['Description'] == 'Test update'  # No change
 
         # 2) Put from scratch (will delete empty fields, E.g. Description)
         save_url += '?group=' + str(group)
@@ -561,11 +566,13 @@ class TestProjects(IWebTest):
         # Add @type and try again
         payload['@type'] = project_json['@type']
         rsp = _csrf_put_json(django_client, save_url, payload)
-        assert rsp['@id'] == project.id.val
-        assert rsp['Name'] == 'updated name'
-        assert 'Description' not in rsp
+        project_json = rsp['data']
+        assert project_json['@id'] == project.id.val
+        assert project_json['Name'] == 'updated name'
+        assert 'Description' not in project_json
         # Get project again to check update
-        pr_json = _get_response_json(django_client, project_url, {})
+        rsp = _get_response_json(django_client, project_url, {})
+        pr_json = rsp['data']
         assert pr_json['Name'] == 'updated name'
         assert 'Description' not in pr_json
 
@@ -584,7 +591,7 @@ class TestProjects(IWebTest):
                                       'object_id': project.id.val})
         # Before delete, we can read
         pr_json = _get_response_json(django_client, project_url, {})
-        assert pr_json['Name'] == 'test_project_delete'
+        assert pr_json['data']['Name'] == 'test_project_delete'
         # Delete
         _csrf_delete_response_json(django_client, project_url, {})
         # Get should now return 404
