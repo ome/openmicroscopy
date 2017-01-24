@@ -40,6 +40,7 @@ import java.util.Set;
 import omero.LockTimeout;
 import omero.api.RenderingEnginePrx;
 import omero.api.ResolutionDescription;
+import omero.constants.projection.ProjectionAxis;
 import omero.model.CodomainMapContext;
 import omero.model.Family;
 import omero.model.IObject;
@@ -622,9 +623,9 @@ class RenderingControlProxy
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		try {
-			byte[] values = servant.renderProjectedCompressed(
-					ProjectionParam.convertType(type), 
-					getDefaultT(), stepping, startZ, endZ);
+			byte[] values = servant.renderProjectedCompressed2(
+					ProjectionParam.convertType(type), ProjectionAxis.T,
+					getDefaultZ(), stepping, startZ, endZ);
 			
 			return WriterImage.bytesToImage(values);
 		} catch (Throwable e) {
@@ -656,9 +657,9 @@ class RenderingControlProxy
 	{
         BufferedImage img = null;
         try {
-            int[] buf = servant.renderProjectedAsPackedInt(
-            		ProjectionParam.convertType(type), 
-					getDefaultT(), stepping, startZ, endZ);
+            int[] buf = servant.renderProjectedAsPackedInt2(
+            		ProjectionParam.convertType(type), ProjectionAxis.T,
+					getDefaultZ(), stepping, startZ, endZ);
             int sizeX1 = pixs.getSizeX().getValue();
             int sizeX2 = pixs.getSizeY().getValue();
             img = Factory.createImage(buf, 32, sizeX1, sizeX2);
