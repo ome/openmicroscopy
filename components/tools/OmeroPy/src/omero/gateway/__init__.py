@@ -143,12 +143,12 @@ def fileread_gen(fin, fsize, bufsize):
 
 def getChannelsQuery():
     """Helper for building Query for Images or Wells & Images"""
-    return (' join fetch pixels.channels as channels' \
-            ' join fetch channels.logicalChannel as logicalChannel' \
-            ' left outer join fetch ' \
-            ' logicalChannel.photometricInterpretation' \
-            ' left outer join fetch logicalChannel.illumination' \
-            ' left outer join fetch logicalChannel.mode' \
+    return (' join fetch pixels.channels as channels'
+            ' join fetch channels.logicalChannel as logicalChannel'
+            ' left outer join fetch '
+            ' logicalChannel.photometricInterpretation'
+            ' left outer join fetch logicalChannel.illumination'
+            ' left outer join fetch logicalChannel.mode'
             ' left outer join fetch logicalChannel.contrastMethod')
 
 
