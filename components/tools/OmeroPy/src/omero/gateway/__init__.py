@@ -1026,8 +1026,9 @@ class BlitzObjectWrapper (object):
             select sum( case when an.ns = :ratingns
                         and an.class = LongAnnotation
                         then 1 else 0 end),
-                sum( case when an.ns != :ratingns and an.class = LongAnnotation
-                        then 1 else 0 end),
+                sum( case when (an.ns is null or an.ns != :ratingns)
+                               and an.class = LongAnnotation
+                               then 1 else 0 end),
                sum( case when an.class != LongAnnotation
                         then 1 else 0 end ), an.class
                from Annotation an where an.id in
