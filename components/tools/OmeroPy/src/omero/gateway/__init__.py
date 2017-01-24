@@ -141,10 +141,10 @@ def fileread_gen(fin, fsize, bufsize):
     fin.close()
 
 
-def countAnnotations(annotationlinks=[]):
+def countAnnotations(queryResult=[]):
     """
-    Count the different (unique) annotions from the
-    provided annotation links
+    Count the different the annotions from the
+    provided projection query result
     """
 
     counts = {
@@ -155,33 +155,22 @@ def countAnnotations(annotationlinks=[]):
         "MapAnnotation": 0,
         "OtherAnnotation": 0}
 
-    atypes = {
-        omero.model.TagAnnotationI: "TagAnnotation",
-        omero.model.FileAnnotationI: "FileAnnotation",
-        omero.model.CommentAnnotationI: "CommentAnnotation",
-        omero.model.LongAnnotationI: "LongAnnotation",
-        omero.model.MapAnnotationI: "MapAnnotation"}
+    for r in queryResult:
+        ur = unwrap(r)
+        if ur[3] == '/basic/num/long/':
+            counts['LongAnnotation'] += int(ur[0])
+            counts['OtherAnnotation'] += int(ur[1])
+        elif ur[3] == '/basic/text/comment/':
+            counts['CommentAnnotation'] += int(ur[2])
+        elif ur[3] == '/basic/text/tag/':
+            counts['TagAnnotation'] += int(ur[2])
+        elif ur[3] == '/type/OriginalFile/':
+            counts['FileAnnotation'] += int(ur[2])
+        elif ur[3] == '/map/':
+            counts['MapAnnotation'] += int(ur[2])
+        else:
+            counts['OtherAnnotation'] += int(ur[2])
 
-    # Avoid counting the same annotations multiple times
-    uniqueIds = set([al._child._id._val for al in annotationlinks])
-
-    total = 0
-    regAnnotations = 0
-    for al in annotationlinks:
-        if al._child._id._val not in uniqueIds:
-            continue
-
-        total += 1
-        if type(al._child) in atypes:
-            annoType = atypes[type(al._child)]
-            if annoType == "LongAnnotation" and al._child._ns._val !=\
-                    omero.constants.metadata.NSINSIGHTRATING:
-                continue
-
-            counts[annoType] += 1
-            regAnnotations += 1
-
-    counts["OtherAnnotation"] = total - regAnnotations
     return counts
 
 
@@ -1025,25 +1014,32 @@ class BlitzObjectWrapper (object):
         Get the annotion counts for the current object
         """
 
-        params = omero.sys.ParametersI()
-        params.addId(long(self._oid))
-
-        q = """
-            select al from %sAnnotationLink al
-            left outer join fetch al.child as an
-            where al.parent.id = :id
-            """ % self.OMERO_CLASS
-
-        if ns:
-            q = q + " and an.ns in (:ns)"
-            params.map["ns"] = rstring(ns)
-
         ctx = self._conn.SERVICE_OPTS.copy()
         ctx.setOmeroGroup(self.details.group.id.val)
 
-        return countAnnotations(
-            self._conn.getQueryService()
-            .findAllByQuery(q, params, ctx))
+        params = omero.sys.ParametersI()
+        params.addId(long(self._oid))
+        params.add('ratingns',
+                   rstring(omero.constants.metadata.NSINSIGHTRATING))
+
+        q = """
+            select sum( case when an.ns = :ratingns
+                        and an.class = LongAnnotation
+                        then 1 else 0 end),
+                sum( case when an.ns != :ratingns and an.class = LongAnnotation
+                        then 1 else 0 end),
+               sum( case when an.class != LongAnnotation
+                        then 1 else 0 end ), an.class
+               from Annotation an where an.id in
+                    (select distinct(ann.id) from %sAnnotationLink ial
+                        join ial.child as ann
+                        join ial.parent as i
+                where i.id = :id)
+                    group by an.class
+            """ % self.OMERO_CLASS
+
+        return countAnnotations(self._conn.getQueryService().projection(q,
+                                params, ctx))
 
     def listAnnotations(self, ns=None):
         """
@@ -3484,6 +3480,7 @@ class _BlitzGateway (object):
         """
         Get the annotion counts for the given objects
         """
+
         obj_type = None
         obj_ids = []
         for key in objDict:
@@ -3501,20 +3498,32 @@ class _BlitzGateway (object):
         obj_type = obj_type.title().replace("Plateacquisition",
                                             "PlateAcquisition")
 
-        params = omero.sys.ParametersI()
-        params.addIds(obj_ids)
-        q = """
-            select al from %sAnnotationLink al
-            left outer join fetch al.child as an
-            where al.parent.id in (:ids)
-            """ % (obj_type)
-
         ctx = self.SERVICE_OPTS.copy()
         ctx.setOmeroGroup(self.group)
 
-        return countAnnotations(
-            self.getQueryService().findAllByQuery(
-                q, params, ctx))
+        params = omero.sys.ParametersI()
+        params.addIds(obj_ids)
+        params.add('ratingns',
+                   rstring(omero.constants.metadata.NSINSIGHTRATING))
+
+        q = """
+            select sum( case when an.ns = :ratingns
+                        and an.class = LongAnnotation
+                        then 1 else 0 end),
+                sum( case when an.ns != :ratingns and an.class = LongAnnotation
+                        then 1 else 0 end),
+               sum( case when an.class != LongAnnotation
+                        then 1 else 0 end ), an.class
+               from Annotation an where an.id in
+                    (select distinct(ann.id) from %sAnnotationLink ial
+                        join ial.child as ann
+                        join ial.parent as i
+                where i.id in (:ids))
+                    group by an.class
+            """ % obj_type
+
+        return countAnnotations(self.getQueryService().projection(q,
+                                params, ctx))
 
     def createImageFromNumpySeq(self, zctPlanes, imageName, sizeZ=1, sizeC=1,
                                 sizeT=1, description=None, dataset=None,
