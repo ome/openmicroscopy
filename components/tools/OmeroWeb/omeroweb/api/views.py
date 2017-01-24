@@ -162,7 +162,7 @@ class ObjectView(ApiView):
         encoder = get_encoder(obj._obj.__class__)
         marshalled = encoder.encode(obj._obj)
         self.add_data(marshalled, request, self.urls, **kwargs)
-        return marshalled
+        return {'data': marshalled}
 
     def delete(self, request, object_id, conn=None, **kwargs):
         """
@@ -179,7 +179,7 @@ class ObjectView(ApiView):
         encoder = get_encoder(obj.__class__)
         json = encoder.encode(obj)
         conn.deleteObject(obj)
-        return json
+        return {'data': json}
 
 
 class ProjectView(ObjectView):
@@ -556,4 +556,4 @@ class SaveView(View):
         obj = conn.getUpdateService().saveAndReturnObject(obj,
                                                           conn.SERVICE_OPTS)
         encoder = get_encoder(obj.__class__)
-        return encoder.encode(obj)
+        return {'data': encoder.encode(obj)}
