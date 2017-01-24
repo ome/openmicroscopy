@@ -26,22 +26,11 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 from omero.gateway import BlitzGateway
 import pytest
+from test_api_projects import get_connection
 from omero.model import ProjectI
 from omero.rtypes import rstring
 from omero_marshal import get_encoder, get_decoder, OME_SCHEMA_URL
 from omero import ValidationException
-
-
-def get_connection(user, group_id=None):
-    """
-    Get a BlitzGateway connection for the given user's client
-    """
-    connection = BlitzGateway(client_obj=user[0])
-    # Refresh the session context
-    connection.getEventContext()
-    if group_id is not None:
-        connection.SERVICE_OPTS.setOmeroGroup(group_id)
-    return connection
 
 
 class TestErrors(IWebTest):
