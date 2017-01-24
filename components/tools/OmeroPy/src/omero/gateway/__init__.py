@@ -141,6 +141,17 @@ def fileread_gen(fin, fsize, bufsize):
     fin.close()
 
 
+def getChannelsQuery():
+    """Helper for building Query for Images or Wells & Images"""
+    return (' join fetch pixels.channels as channels' \
+            ' join fetch channels.logicalChannel as logicalChannel' \
+            ' left outer join fetch ' \
+            ' logicalChannel.photometricInterpretation' \
+            ' left outer join fetch logicalChannel.illumination' \
+            ' left outer join fetch logicalChannel.mode' \
+            ' left outer join fetch logicalChannel.contrastMethod')
+
+
 class OmeroRestrictionWrapper (object):
 
     def canDownload(self):
@@ -6084,16 +6095,10 @@ class _WellWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                      " left outer join fetch wellSamples.plateAcquisition"\
                      " as plateAcquisition"
         if load_pixels or load_channels:
-            query += ' left outer join fetch image.pixels pixels' \
+            query += ' left outer join fetch image.pixels as pixels' \
                      ' left outer join fetch pixels.pixelsType'
         if load_channels:
-            query += ' join fetch pixels.channels as channels' \
-                     ' join fetch channels.logicalChannel as logicalChannel' \
-                     ' left outer join fetch ' \
-                     ' logicalChannel.photometricInterpretation' \
-                     ' left outer join fetch logicalChannel.illumination' \
-                     ' left outer join fetch logicalChannel.mode' \
-                     ' left outer join fetch logicalChannel.contrastMethod'
+            query += getChannelsQuery()
 
         return (query, clauses, params)
 
@@ -7187,12 +7192,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             query += ' left outer join fetch obj.pixels pixels' \
                      ' left outer join fetch pixels.pixelsType'
         if load_channels:
-            query += ' join fetch pixels.channels as channels' \
-                     ' join fetch channels.logicalChannel as logicalChannel' \
-                     ' left outer join fetch logicalChannel.photometricInterpretation' \
-                     ' left outer join fetch logicalChannel.illumination' \
-                     ' left outer join fetch logicalChannel.mode' \
-                     ' left outer join fetch logicalChannel.contrastMethod'
+            query += getChannelsQuery()
         if orphaned:
             clauses.append(
                 """
