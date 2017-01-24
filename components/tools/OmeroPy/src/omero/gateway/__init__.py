@@ -281,25 +281,14 @@ class BlitzObjectWrapper (object):
         Different sub-classes may allow some control over what's loaded
         and filtering of the query using various opts arguments.
         Opts:
-        'child_count': boolean      If true, this will produce a 'projection'
-                                    query that also selects child_count for
-                                    objects that have a LINK_CLASS
         See different sub-classes for additional opts.
 
         :param opts:        Dictionary of optional parameters.
         :return:            Tuple of string, list, ParametersI
         """
-        extra_select = ""
-        child_count = False
-        if opts is not None and opts.get('child_count'):
-            child_count = opts['child_count']
-        if child_count and cls.LINK_CLASS is not None:
-            extra_select = """, (select count(id) from %s chl
-                      where chl.parent=obj.id)""" % cls.LINK_CLASS
-        query = ("select obj %s from %s obj "
+        query = ("select obj from %s obj "
                  "join fetch obj.details.owner as owner "
-                 "join fetch obj.details.creationEvent" %
-                 (extra_select, cls.OMERO_CLASS))
+                 "join fetch obj.details.creationEvent" % cls.OMERO_CLASS)
 
         params = omero.sys.ParametersI()
         clauses = []
@@ -3057,16 +3046,13 @@ class _BlitzGateway (object):
                             defining extra data to load.
                             offset, limit and owner for all objects.
                             Additional opts handled by _getQueryString()
-                            E.g. 'childCount', or filter Dataset by 'project'
+                            E.g. filter Dataset by 'project'
         :return:            Generator of :class:`BlitzObjectWrapper` subclasses
         """
         query, params, wrapper = self.buildQuery(
             obj_type, ids, params, attributes, opts)
         qs = self.getQueryService()
-        # we do projection in case query has extra selects (E.g. child_count)
-        result = qs.projection(query, params, self.SERVICE_OPTS)
-        # unwrap projected objects
-        result = [unwrap(r[0]) for r in result]
+        result = qs.findAllByQuery(query, params, self.SERVICE_OPTS)
         if respect_order and ids is not None:
             idMap = {}
             for r in result:
@@ -3098,7 +3084,7 @@ class _BlitzGateway (object):
                             offset, limit and owner for all objects.
                             Also 'order_by': 'obj.name' to order results.
                             Additional opts handled by _getQueryString()
-                            E.g. 'childCount', or filter Dataset by 'project'
+                            E.g. filter Dataset by 'project'
         :return:            (query, params, wrapper)
         """
 
@@ -5982,7 +5968,6 @@ class _PlateWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                  "left outer join fetch obj.screenLinks spl "
                  "left outer join fetch spl.parent sc")
         # NB: we don't use base _getQueryString.
-        # since child_count wouldn't be supported anyway (no LINK_CLASS)
         clauses = []
         params = omero.sys.ParametersI()
         if opts is not None and 'screen' in opts:
