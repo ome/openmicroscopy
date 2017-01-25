@@ -1,5 +1,5 @@
 /*
- *   Copyright 2006-2016 University of Dundee. All rights reserved.
+ *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -588,7 +588,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     @Transactional(readOnly = false)
     public void updateGroup(@NotNull final
     ExperimenterGroup group) {
-        adminOrPiOfGroup(group);
+        adminOrPiOfGroups(adminPrivileges.getPrivilege("ModifyGroup"), group);
         Permissions p = group.getDetails().getPermissions();
         if (p != null) {
             // Setting permissions is not allowed via IUpdate
@@ -664,7 +664,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             ExperimenterGroup defaultGroup, ExperimenterGroup... otherGroups) {
 
         adminOrPiOfNonUserGroups(defaultGroup, otherGroups);
-        if (!getCurrentAdminPrivilegesForSession().contains(new AdminPrivilege("ModifyUser"))) {
+        if (!getCurrentAdminPrivilegesForSession().contains(adminPrivileges.getPrivilege("ModifyUser"))) {
             throwNonAdminOrPi();
         }
 
@@ -684,7 +684,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             final ExperimenterGroup... otherGroups) {
 
         adminOrPiOfNonUserGroups(defaultGroup, otherGroups);
-        if (!getCurrentAdminPrivilegesForSession().contains(new AdminPrivilege("ModifyUser"))) {
+        if (!getCurrentAdminPrivilegesForSession().contains(adminPrivileges.getPrivilege("ModifyUser"))) {
             throwNonAdminOrPi();
         }
 
@@ -700,6 +700,10 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     @RolesAllowed("system")
     @Transactional(readOnly = false)
     public long createGroup(ExperimenterGroup group) {
+        if (!getCurrentAdminPrivilegesForSession().contains(adminPrivileges.getPrivilege("ModifyGroup"))) {
+            throwNonAdminOrPi();
+        }
+
         long gid = roleProvider.createGroup(group);
         getBeanHelper().getLogger().info("Created group: " + group.getName());
         return gid;
@@ -719,7 +723,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             assertManaged(group);
         }
 
-        adminOrPiOfGroups(null, groups);
+        adminOrPiOfGroups(adminPrivileges.getPrivilege("ModifyGroupMembership"), groups);
         roleProvider.addGroups(user, groups);
 
         getBeanHelper().getLogger().info(
@@ -737,7 +741,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             return;
         }
 
-        adminOrPiOfGroups(null, groups);
+        adminOrPiOfGroups(adminPrivileges.getPrivilege("ModifyGroupMembership"), groups);
 
         final Roles roles = getSecurityRoles();
         final boolean removeSystemOrUser =
@@ -791,8 +795,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         }
 
         EventContext ec = getSecuritySystem().getEventContext();
-        if (!ec.isCurrentUserAdmin()
-                && !ec.getCurrentUserId().equals(user.getId())) {
+        if (!(isAdmin() && getCurrentAdminPrivilegesForSession().contains(adminPrivileges.getPrivilege("ModifyUser")) ||
+                ec.getCurrentUserId().equals(user.getId()))) {
             throw new SecurityViolation("User " + user.getId()
                     + " can only set own default group.");
         }
@@ -812,21 +816,21 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public void setGroupOwner(final ExperimenterGroup group, final Experimenter owner) {
-        adminOrPiOfGroup(group);
+        adminOrPiOfGroups(adminPrivileges.getPrivilege("ModifyGroupMembership"), group);
         toggleGroupOwner(group, owner, Boolean.TRUE);
     }
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public void unsetGroupOwner(final ExperimenterGroup group, final Experimenter owner) {
-        adminOrPiOfGroup(group);
+        adminOrPiOfGroups(adminPrivileges.getPrivilege("ModifyGroupMembership"), group);
         toggleGroupOwner(group, owner, Boolean.FALSE);
     }
     
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public void addGroupOwners(final ExperimenterGroup group, final Experimenter... owner) {
-        adminOrPiOfGroup(group);
+        adminOrPiOfGroups(adminPrivileges.getPrivilege("ModifyGroupMembership"), group);
         for (Experimenter o : owner) {
             toggleGroupOwner(group, o, Boolean.TRUE);
         }
@@ -835,7 +839,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public void removeGroupOwners(final ExperimenterGroup group, final Experimenter... owner) {
-        adminOrPiOfGroup(group);
+        adminOrPiOfGroups(adminPrivileges.getPrivilege("ModifyGroupMembership"), group);
         for (Experimenter o : owner) {
             toggleGroupOwner(group, o, Boolean.FALSE);
         }
@@ -935,7 +939,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     @Transactional(readOnly = false)
     public void deleteGroup(ExperimenterGroup group) {
 
-        adminOrPiOfGroup(group);
+        adminOrPiOfGroups(adminPrivileges.getPrivilege("ModifyGroup"), group);
 
         final ExperimenterGroup g = groupProxy(group.getId());
 
@@ -1058,6 +1062,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     @Transactional(readOnly = false)
     public void moveToCommonSpace(IObject... iObjects) {
         // ticket:1794
+        final AdminPrivilege modifyGroup = adminPrivileges.getPrivilege("ModifyGroup");
         for (IObject object : iObjects) {
             if (object != null) {
                 Long id = object.getId();
@@ -1065,7 +1070,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                 IObject o = iQuery.get(c, id);
                 ExperimenterGroup g = o.getDetails().getGroup();
                 if (!g.getId().equals(getSecurityRoles().getUserGroupId())) {
-                    adminOrPiOfGroup(g);
+                    adminOrPiOfGroups(modifyGroup, g);
                     internalMoveToCommonSpace(o);
                 }
             }
@@ -1509,29 +1514,18 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     }
 
     private void adminOrPiOfUser(Experimenter user) {
-        if (!(isAdmin() && getCurrentAdminPrivilegesForSession().contains(new AdminPrivilege("ModifyUser")) || isPiOf(user))) {
+        if (!(isAdmin() && getCurrentAdminPrivilegesForSession().contains(adminPrivileges.getPrivilege("ModifyUser")) || isPiOf(user))) {
             throwNonAdminOrPi();
         }
     }
 
-    private void adminOrPiOfGroup(ExperimenterGroup group) {
-        if (!isAdmin() && ! isPiOf(group)) {
-            throwNonAdminOrPi();
-        }
-    }
-
-    private void adminOrPiOfGroups(ExperimenterGroup group, ExperimenterGroup ... groups) {
-        if (!isAdmin()) {
-            if (!isPiOf(group)) {
-                throwNonAdminOrPi();
-            } else {
-                for (ExperimenterGroup g : groups) {
-                    if (!isPiOf(g)) {
-                        throwNonAdminOrPi();
-                    }
+    private void adminOrPiOfGroups(AdminPrivilege overridingPrivilege, ExperimenterGroup... groups) {
+        if (!(isAdmin() && getCurrentAdminPrivilegesForSession().contains(overridingPrivilege))) {
+            for (final ExperimenterGroup group : groups) {
+                if (!isPiOf(group)) {
+                    throwNonAdminOrPi();
                 }
             }
-
         }
     }
 
@@ -1550,8 +1544,9 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                 nonUserGroupGroups.add(eg);
             }
         }
-        adminOrPiOfGroups(defaultGroup,
-                nonUserGroupGroups.toArray(new ExperimenterGroup[0]));
+        final AdminPrivilege modifyUser = adminPrivileges.getPrivilege("ModifyUser");
+        adminOrPiOfGroups(modifyUser, defaultGroup);
+        adminOrPiOfGroups(modifyUser, nonUserGroupGroups.toArray(new ExperimenterGroup[0]));
     }
 
     /**
