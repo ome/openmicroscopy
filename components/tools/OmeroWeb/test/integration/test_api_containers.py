@@ -291,12 +291,17 @@ class TestContainers(IWebTest):
             orph_ds_pl_children = None
             pr_or_sc_children = None
 
-        # Check child_count in Project or Screen
+        # Check child_count in Projects or Screens
         base_url = reverse('api_base', kwargs={'api_version': version})
         parents_url = "%sm/%ss/" % (base_url, ptype)
         payload = {'childCount': str(child_count).lower()}
         rsp = _get_response_json(django_client, parents_url, payload)
         assert_objects(conn, rsp['data'], [parent], dtype=ptype,
+                       extra=pr_or_sc_children)
+        # And for single Project or Screen
+        parent_url = "%sm/%ss/%s/" % (base_url, ptype, parent.id.val)
+        rsp = _get_response_json(django_client, parent_url, payload)
+        assert_objects(conn, [rsp['data']], [parent], dtype=ptype,
                        extra=pr_or_sc_children)
 
         request_url = reverse(url_name, kwargs={'api_version': version})
@@ -318,6 +323,14 @@ class TestContainers(IWebTest):
         rsp = _get_response_json(django_client, request_url, payload)
         assert len(rsp['data']) == 5
         assert_objects(conn, rsp['data'], children, dtype=dtype,
+                       extra=ds_or_pl_children)
+
+        # Single (first) Dataset or Plate
+        payload = {'childCount': str(child_count).lower()}
+        object_url = "%sm/%ss/%s/" % (base_url, dtype.lower(),
+                                      children[0].id.val)
+        rsp = _get_response_json(django_client, object_url, payload)
+        assert_objects(conn, [rsp['data']], [children[0]], dtype=dtype,
                        extra=ds_or_pl_children)
 
         # Pagination
