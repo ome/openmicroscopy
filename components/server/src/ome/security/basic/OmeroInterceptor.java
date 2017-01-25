@@ -56,6 +56,7 @@ import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.ExternalInfo;
+import ome.model.meta.GroupExperimenterMap;
 import ome.model.roi.Roi;
 import ome.security.SecuritySystem;
 import ome.security.SystemTypes;
@@ -672,6 +673,10 @@ public class OmeroInterceptor implements Interceptor {
             isPrivilegedCreator = true;
         } else if (obj instanceof Experimenter) {
             isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege("ModifyUser"));
+        } else if (obj instanceof ExperimenterGroup) {
+            isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege("ModifyGroup"));
+        } else if (obj instanceof GroupExperimenterMap) {
+            isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege("ModifyGroupMembership"));
         } else if (obj instanceof OriginalFile) {
             final String repo = ((OriginalFile) obj).getRepo();
             if (repo != null && scriptRepoUuids.contains(repo)) {
