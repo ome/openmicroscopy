@@ -105,7 +105,7 @@ class TestWells(IWebTest):
         group = self.new_group(perms='rwra--')
         return self.new_client_and_user(group=group)
 
-    def create_plate_wells(self, user1, rows, cols):
+    def create_plate_wells(self, user1, rows, cols, with_plate_acq=True):
         """Return Plate with Wells."""
         updateService = get_update_service(user1)
         plate = PlateI()
@@ -113,14 +113,15 @@ class TestWells(IWebTest):
         plate = updateService.saveAndReturnObject(plate)
 
         # Single PlateAcquisition for plate
-        plate_acq = PlateAcquisitionI()
-        plate_acq.name = rstring('plateacquisition')
-        plate_acq.description = rstring('plateacquisition_description')
-        plate_acq.maximumFieldCount = rint(3)
-        plate_acq.startTime = rtime(1L)
-        plate_acq.endTime = rtime(2L)
-        plate_acq.plate = PlateI(plate.id.val, False)
-        plate_acq = updateService.saveAndReturnObject(plate_acq)
+        if with_plate_acq:
+            plate_acq = PlateAcquisitionI()
+            plate_acq.name = rstring('plateacquisition')
+            plate_acq.description = rstring('plateacquisition_description')
+            plate_acq.maximumFieldCount = rint(3)
+            plate_acq.startTime = rtime(1L)
+            plate_acq.endTime = rtime(2L)
+            plate_acq.plate = PlateI(plate.id.val, False)
+            plate_acq = updateService.saveAndReturnObject(plate_acq)
 
         # Create Wells for plate
         for row in range(rows):
@@ -141,8 +142,9 @@ class TestWells(IWebTest):
                         ws.well = well
                         ws.posX = LengthI(i * 10, UnitsLength.REFERENCEFRAME)
                         ws.posY = LengthI(i, UnitsLength.REFERENCEFRAME)
-                        ws.setPlateAcquisition(
-                            PlateAcquisitionI(plate_acq.id.val, False))
+                        if with_plate_acq:
+                            ws.setPlateAcquisition(
+                                PlateAcquisitionI(plate_acq.id.val, False))
                         well.addWellSample(ws)
                 updateService.saveObject(well)
         return plate
@@ -154,7 +156,7 @@ class TestWells(IWebTest):
 
         Two wells are created, but only the first has any Images (3).
         """
-        return self.create_plate_wells(user1, 1, 2)
+        return self.create_plate_wells(user1, 1, 2, with_plate_acq=False)
 
     @pytest.fixture()
     def bigger_plate(self, user1):
@@ -173,11 +175,6 @@ class TestWells(IWebTest):
         django_client = self.new_django_client(user_name, user_name)
         version = settings.API_VERSIONS[-1]
 
-        # Use Blitz Plates for listing Wells etc.
-        bigger_plate = conn.getObject('Plate', bigger_plate.id.val)
-        wells = [w._obj for w in bigger_plate.listChildren()]
-        wells.sort(cmp_column_row)
-
         wells_url = reverse('api_wells', kwargs={'api_version': version})
 
         # List ALL Wells in both plates
@@ -185,16 +182,24 @@ class TestWells(IWebTest):
         assert len(rsp['data']) == 8
 
         # Filter Wells by Plate
-        payload = {'plate': bigger_plate.id}
-        rsp = _get_response_json(django_client, wells_url, payload)
-        # Manual check that Images are loaded but Pixels are not
-        well_sample = rsp['data'][0]['WellSamples'][0]
-        assert 'Image' in well_sample
-        assert 'PlateAcquisition' in well_sample
-        assert 'Pixels' not in well_sample['Image']
-        assert len(wells) == 6
-        assert_objects(conn, rsp['data'], wells, dtype='Well',
-                       opts={'load_images': True})
+        for plate, with_acq, well_count in zip([small_plate, bigger_plate],
+                                               [False, True],
+                                               [2, 6]):
+            # Use Blitz Plates for listing Wells etc.
+            plate_wrapper = conn.getObject('Plate', plate.id.val)
+            wells = [w._obj for w in plate_wrapper.listChildren()]
+            wells.sort(cmp_column_row)
+            payload = {'plate': plate.id.val}
+            rsp = _get_response_json(django_client, wells_url, payload)
+            # Manual check that Images are loaded but Pixels are not
+            assert len(rsp['data']) == well_count
+            well_sample = rsp['data'][0]['WellSamples'][0]
+            assert 'Image' in well_sample
+            assert ('PlateAcquisition' in well_sample) == with_acq
+            assert 'Pixels' not in well_sample['Image']
+
+            assert_objects(conn, rsp['data'], wells, dtype='Well',
+                           opts={'load_images': True})
 
     def test_well(self, user1, small_plate):
         """Test loading a single Well, with or without WellSamples."""
