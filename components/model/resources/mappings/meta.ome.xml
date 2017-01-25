@@ -184,6 +184,8 @@
 		<entry name="DeleteFile"/>
 		<entry name="DeleteOwned"/>
 		<entry name="DeleteScriptRepo"/>
+		<entry name="ModifyGroup"/>
+		<entry name="ModifyGroupMembership"/>
 		<entry name="ModifyUser"/>
 		<entry name="ReadSession"/>
 		<entry name="Sudo"/>
