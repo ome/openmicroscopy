@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2016 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2017 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -145,7 +145,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
         /* if the current user is not an administrator then find of which groups the target user is a member */
         final EventContext eventContext = helper.getEventContext();
         /* see trac ticket 10691 re. enum values */
-        if (graphHelper.checkIsAdministrator(new AdminPrivilege("Chown"))) {
+        if (graphHelper.checkIsAdministrator(adminPrivileges.getPrivilege("Chown"))) {
             acceptableGroupsFrom = null;
             acceptableGroupsTo = null;
         } else {
