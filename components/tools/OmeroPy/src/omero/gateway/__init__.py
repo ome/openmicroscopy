@@ -146,6 +146,7 @@ def getPixelsQuery(imageName):
     return (' left outer join fetch %s.pixels as pixels'
             ' left outer join fetch pixels.pixelsType' % imageName)
 
+
 def getChannelsQuery():
     """Helper for building Query for Images or Wells & Images"""
     return (' join fetch pixels.channels as channels'
