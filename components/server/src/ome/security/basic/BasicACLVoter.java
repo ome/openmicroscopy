@@ -28,6 +28,7 @@ import ome.model.internal.Token;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.model.meta.GroupExperimenterMap;
 import ome.security.ACLVoter;
 import ome.security.SecurityFilter;
 import ome.security.SecuritySystem;
@@ -45,7 +46,6 @@ import org.springframework.util.Assert;
 /**
  * 
  * @author Josh Moore, josh.moore at gmx.de
- * @version $Revision$, $Date$
  * @see Token
  * @see SecuritySystem
  * @see Details
@@ -145,6 +145,10 @@ public class BasicACLVoter implements ACLVoter {
         if (sysTypes.isSystemType(iObject.getClass())) {
             if (iObject instanceof Experimenter) {
                 return privileges.contains(adminPrivileges.getPrivilege("ModifyUser"));
+            } else if (iObject instanceof ExperimenterGroup) {
+                return privileges.contains(adminPrivileges.getPrivilege("ModifyGroup"));
+            } else if (iObject instanceof GroupExperimenterMap) {
+                return privileges.contains(adminPrivileges.getPrivilege("ModifyGroupMembership"));
             } else {
                 return true;
             }
@@ -288,6 +292,10 @@ public class BasicACLVoter implements ACLVoter {
             /* see trac ticket 10691 re. enum values */
             if (iObject instanceof Experimenter) {
                 return privileges.contains(adminPrivileges.getPrivilege("ModifyUser"));
+            } else if (iObject instanceof ExperimenterGroup) {
+                return privileges.contains(adminPrivileges.getPrivilege("ModifyGroup"));
+            } else if (iObject instanceof GroupExperimenterMap) {
+                return privileges.contains(adminPrivileges.getPrivilege("ModifyGroupMembership"));
             } else {
                 return true;
             }
@@ -465,6 +473,14 @@ public class BasicACLVoter implements ACLVoter {
                 }
             } else if (iObject instanceof Experimenter) {
                 if (!privileges.contains(adminPrivileges.getPrivilege("ModifyUser"))) {
+                    isLightAdminRestricted = true;
+                }
+            } else if (iObject instanceof ExperimenterGroup) {
+                if (!privileges.contains(adminPrivileges.getPrivilege("ModifyGroup"))) {
+                    isLightAdminRestricted = true;
+                }
+            } else if (iObject instanceof GroupExperimenterMap) {
+                if (!privileges.contains(adminPrivileges.getPrivilege("ModifyGroupMembership"))) {
                     isLightAdminRestricted = true;
                 }
             }
