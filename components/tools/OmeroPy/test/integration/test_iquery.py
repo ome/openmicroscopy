@@ -25,6 +25,7 @@
 """
 
 from omero.testlib import ITest
+from omero.rtypes import rstring
 from omero.rtypes import unwrap, wrap
 from omero.model import CommentAnnotationI
 from omero.model import TagAnnotationI, ImageI, ImageAnnotationLinkI
@@ -153,14 +154,20 @@ class TestQuery(ITest):
             assert result1[idx] == result2[idx]
 
     def testClassType(self):
+        uuid = self.uuid()
         created = []
         for Ann in (CommentAnnotationI, TagAnnotationI):
-            ann = self.update.saveAndReturnObject(Ann())
+            ann = Ann()
+            ann.setNs(rstring(uuid))
+            ann = self.update.saveAndReturnObject(ann)
             created.append(ann)
         query_string = """
         select type(a.class) from Annotation a
+        where a.ns = :uuid
         """
-        rv = [x[0] for x in unwrap(self.query.projection(query_string, None))]
+        params = ParametersI()
+        params.addString("uuid", uuid)
+        rv = [x[0] for x in unwrap(self.query.projection(query_string, params))]
         assert len(rv) == 2
         assert "ome.model.annotations.CommentAnnotation" in rv
         assert "ome.model.annotations.TagAnnotation" in rv
