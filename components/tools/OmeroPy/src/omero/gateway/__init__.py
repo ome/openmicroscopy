@@ -141,6 +141,11 @@ def fileread_gen(fin, fsize, bufsize):
     fin.close()
 
 
+def getPixelsQuery(imageName):
+    """Helper for building Query for Images or Wells & Images"""
+    return (' left outer join fetch %s.pixels as pixels'
+            ' left outer join fetch pixels.pixelsType' % imageName)
+
 def getChannelsQuery():
     """Helper for building Query for Images or Wells & Images"""
     return (' join fetch pixels.channels as channels'
@@ -6095,8 +6100,7 @@ class _WellWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                      " left outer join fetch wellSamples.plateAcquisition"\
                      " as plateAcquisition"
         if load_pixels or load_channels:
-            query += ' left outer join fetch image.pixels as pixels' \
-                     ' left outer join fetch pixels.pixelsType'
+            query += getPixelsQuery("image")
         if load_channels:
             query += getChannelsQuery()
 
@@ -7189,8 +7193,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             orphaned = opts.get('orphaned')
         if load_pixels or load_channels:
             # We use 'left outer join', since we still want images if no pixels
-            query += ' left outer join fetch obj.pixels pixels' \
-                     ' left outer join fetch pixels.pixelsType'
+            query += getPixelsQuery("obj")
         if load_channels:
             query += getChannelsQuery()
         if orphaned:
