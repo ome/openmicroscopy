@@ -963,6 +963,35 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
 
     /**
      * Test that users may modify other users only if they are a member of the <tt>system</tt> group and
+     * have the <tt>ModifyUser</tt> privilege. Attempts creation of new user via {@link omero.api.IAdminPrx}.
+     * @param isAdmin if to test a member of the <tt>system</tt> group
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>ModifyUser</tt> privilege
+     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "light administrator privilege test cases")
+    public void testModifyUserPrivilegeCreationViaAdmin(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
+        final boolean isExpectSuccess = isAdmin && !isRestricted;
+        final long newGroupId = newUserAndGroup("rwr-r-").groupId;
+        loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
+                isRestricted ? AdminPrivilegeModifyUser.value : null);
+        final Experimenter newUser = new ExperimenterI();
+        newUser.setOmeName(omero.rtypes.rstring(UUID.randomUUID().toString()));
+        newUser.setFirstName(omero.rtypes.rstring("August"));
+        newUser.setLastName(omero.rtypes.rstring("Köhler"));
+        newUser.setLdap(omero.rtypes.rbool(false));
+        try {
+            final long userGroupId = iAdmin.getSecurityRoles().userGroupId;
+            final List<ExperimenterGroup> groups = ImmutableList.<ExperimenterGroup>of(new ExperimenterGroupI(userGroupId, false));
+            iAdmin.createExperimenter(newUser, new ExperimenterGroupI(newGroupId, false), groups);
+            Assert.assertTrue(isExpectSuccess);
+        } catch (ServerError se) {
+            Assert.assertFalse(isExpectSuccess);
+        }
+    }
+
+    /**
+     * Test that users may modify other users only if they are a member of the <tt>system</tt> group and
      * have the <tt>ModifyUser</tt> privilege. Attempts creation of new user via {@link omero.api.IUpdatePrx}.
      * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param isRestricted if to test a user who does <em>not</em> have the <tt>ModifyUser</tt> privilege
@@ -1000,51 +1029,23 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
 
     /**
      * Test that users may modify other users only if they are a member of the <tt>system</tt> group and
-     * have the <tt>ModifyUser</tt> privilege. Attempts creation of new user via {@link omero.api.IAdminPrx}.
+     * have the <tt>ModifyUser</tt> privilege.
+     * Attempts change of existing user via {@link omero.api.IAdminPrx#setDefaultGroup(Experimenter, ExperimenterGroup)}.
      * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param isRestricted if to test a user who does <em>not</em> have the <tt>ModifyUser</tt> privilege
      * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
      * @throws Exception unexpected
      */
     @Test(dataProvider = "light administrator privilege test cases")
-    public void testModifyUserPrivilegeCreationViaAdmin(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
-        final boolean isExpectSuccess = isAdmin && !isRestricted;
-        final long newGroupId = newUserAndGroup("rwr-r-").groupId;
-        loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
-                isRestricted ? AdminPrivilegeModifyUser.value : null);
-        final Experimenter newUser = new ExperimenterI();
-        newUser.setOmeName(omero.rtypes.rstring(UUID.randomUUID().toString()));
-        newUser.setFirstName(omero.rtypes.rstring("August"));
-        newUser.setLastName(omero.rtypes.rstring("Köhler"));
-        newUser.setLdap(omero.rtypes.rbool(false));
-        try {
-            final long userGroupId = iAdmin.getSecurityRoles().userGroupId;
-            final List<ExperimenterGroup> groups = ImmutableList.<ExperimenterGroup>of(new ExperimenterGroupI(userGroupId, false));
-            iAdmin.createExperimenter(newUser, new ExperimenterGroupI(newGroupId, false), groups);
-            Assert.assertTrue(isExpectSuccess);
-        } catch (ServerError se) {
-            Assert.assertFalse(isExpectSuccess);
-        }
-    }
-
-    /**
-     * Test that users may modify other users only if they are a member of the <tt>system</tt> group and
-     * have the <tt>ModifyUser</tt> privilege. Attempts change of existing user via {@link omero.api.IUpdatePrx}.
-     * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param isRestricted if to test a user who does <em>not</em> have the <tt>ModifyUser</tt> privilege
-     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
-     * @throws Exception unexpected
-     */
-    @Test(dataProvider = "light administrator privilege test cases")
-    public void testModifyUserPrivilegeEditingViaUpdate(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
+    public void testModifyUserPrivilegeEditingViaAdminSetGroup(boolean isAdmin, boolean isRestricted, boolean isSudo)
+            throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
         final long newUserId = newUserAndGroup("rwr-r-").userId;
+        final ExperimenterGroup otherGroup = newGroupAddUser("rwr-r-", newUserId);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeModifyUser.value : null);
-        final Experimenter newUser = (Experimenter) iQuery.get("Experimenter", newUserId);
-        newUser.setConfig(ImmutableList.of(new NamedValue("color", "green")));
         try {
-            iUpdate.saveObject(newUser);
+            iAdmin.setDefaultGroup(new ExperimenterI(newUserId, false), otherGroup);
             Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccess);
@@ -1079,23 +1080,22 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
 
     /**
      * Test that users may modify other users only if they are a member of the <tt>system</tt> group and
-     * have the <tt>ModifyUser</tt> privilege.
-     * Attempts change of existing user via {@link omero.api.IAdminPrx#setDefaultGroup(Experimenter, ExperimenterGroup)}.
+     * have the <tt>ModifyUser</tt> privilege. Attempts change of existing user via {@link omero.api.IUpdatePrx}.
      * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param isRestricted if to test a user who does <em>not</em> have the <tt>ModifyUser</tt> privilege
      * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
      * @throws Exception unexpected
      */
     @Test(dataProvider = "light administrator privilege test cases")
-    public void testModifyUserPrivilegeEditingViaAdminSetGroup(boolean isAdmin, boolean isRestricted, boolean isSudo)
-            throws Exception {
+    public void testModifyUserPrivilegeEditingViaUpdate(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
         final long newUserId = newUserAndGroup("rwr-r-").userId;
-        final ExperimenterGroup otherGroup = newGroupAddUser("rwr-r-", newUserId);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeModifyUser.value : null);
+        final Experimenter newUser = (Experimenter) iQuery.get("Experimenter", newUserId);
+        newUser.setConfig(ImmutableList.of(new NamedValue("color", "green")));
         try {
-            iAdmin.setDefaultGroup(new ExperimenterI(newUserId, false), otherGroup);
+            iUpdate.saveObject(newUser);
             Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccess);
