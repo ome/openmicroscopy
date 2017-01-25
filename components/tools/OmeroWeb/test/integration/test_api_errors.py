@@ -90,7 +90,7 @@ class TestErrors(IWebTest):
                 'No decoder found for type: %s' % objType)
 
     def test_marshal_validation(self):
-        """Test we get expected error with invalid @type in json."""
+        """Test that we get expected error with invalid @type in json."""
         django_client = self.django_root_client
         version = settings.API_VERSIONS[-1]
         save_url = reverse('api_save', kwargs={'api_version': version})
@@ -160,7 +160,7 @@ class TestErrors(IWebTest):
 
     def test_project_validation(self, user_A):
         """
-        Test to demonstrate details bug on encode->deconde.
+        Test to demonstrate details bug on encode->decode.
 
         Test illustrates the ValidationException we see when
         Project is encoded to dict then decoded back to Project

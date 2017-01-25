@@ -55,9 +55,9 @@ def remove_urls(marshalled):
         if key.startswith('url:'):
             del(marshalled[key])
         # We only traverse paths where we know urls are
-        elif key == 'Image':        # isinstance(val, dict):
+        elif key == 'Image':
             remove_urls(val)
-        elif key == 'WellSamples':  # isinstance(val, list):
+        elif key == 'WellSamples':
             for i in val:
                 remove_urls(i)
 
@@ -87,7 +87,7 @@ def assert_objects(conn, json_objects, omero_ids_objects, dtype="Project",
     for i, o1, o2 in zip(range(len(expected)), json_objects, expected):
         if extra is not None and i < len(extra):
             o2.update(extra[i])
-        # dumping to json and loading (same as test data) means that
+        # We dump to json and re-load (same as test data). This means that
         # unicode has been handled in same way, e.g. Pixel size symbols.
         o2 = json.loads(json.dumps(o2))
         # remove any urls from json (tested elsewhere)
