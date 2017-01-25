@@ -392,11 +392,26 @@ class SaveView(View):
     POST to create a new Object and PUT to replace existing one.
     """
 
+    can_put = ['Project', 'Dataset', 'Screen']
+
+    can_post = []
+
     @method_decorator(login_required(useragent='OMERO.webapi'))
     @method_decorator(json_response())
     def dispatch(self, *args, **kwargs):
         """Apply decorators for class methods below."""
         return super(SaveView, self).dispatch(*args, **kwargs)
+
+    def get_type_name(self, marshalled):
+        """Get the '@type' name from marshalled data."""
+        if '@type' not in marshalled:
+            return None
+        schema_type = marshalled['@type']
+        # NB: Do we support saving from old SCHEMA to newer one?
+        if '#' not in schema_type:
+            return None
+        return schema_type.split('#')[1]
+
 
     def put(self, request, conn=None, **kwargs):
         """
@@ -417,6 +432,9 @@ class SaveView(View):
         Therefore '@id' should not be set.
         """
         object_json = json.loads(request.body)
+        obj_type = self.get_type_name(object_json)
+        if obj_type not in self.can_post:
+            raise BadRequestError("Creation of %s not supported" % obj_type)
         if '@id' in object_json:
             raise BadRequestError(
                 "Object has '@id' attribute. Use PUT to update objects")
