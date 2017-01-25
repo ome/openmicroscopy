@@ -142,7 +142,7 @@ class TestWells(IWebTest):
                         ws.posX = LengthI(i * 10, UnitsLength.REFERENCEFRAME)
                         ws.posY = LengthI(i, UnitsLength.REFERENCEFRAME)
                         ws.setPlateAcquisition(
-                                PlateAcquisitionI(plate_acq.id.val, False))
+                            PlateAcquisitionI(plate_acq.id.val, False))
                         well.addWellSample(ws)
                 updateService.saveObject(well)
         return plate
