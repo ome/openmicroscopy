@@ -253,9 +253,10 @@ class TestContainers(IWebTest):
         rsp = _get_response_json(django_client, object_url, {},
                                  status_code=404)
 
+    @pytest.mark.parametrize("child_count", [True, False])
     @pytest.mark.parametrize("dtype", ['Dataset', 'Plate'])
-    def test_datasets_plates(self, user1, dtype, project_datasets,
-                             screen_plates):
+    def test_datasets_plates(self, user1, dtype, child_count,
+                             project_datasets, screen_plates):
         """Test listing of Datasets in a Project and Plates in Screen."""
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
@@ -269,44 +270,73 @@ class TestContainers(IWebTest):
             orphaned = project_datasets[1]
             url_name = 'api_datasets'
             ptype = 'project'
-            child_counts = [{'omero:childCount': c} for c in range(5)]
+            # Counts of Images in Dataset / orphaned Dataset
+            ds_or_pl_children = [{'omero:childCount': c} for c in range(5)]
+            orph_ds_pl_children = [{'omero:childCount': 0}]
+            pr_or_sc_children = [{'omero:childCount': 5}]
+
         else:
             parent = screen_plates[0]
             children = parent.linkedPlateList()
             orphaned = screen_plates[1]
             url_name = 'api_plates'
             ptype = 'screen'
-            child_counts = None
+            # Plates don't support childCount.
+            ds_or_pl_children = None
+            orph_ds_pl_children = None
+            pr_or_sc_children = [{'omero:childCount': 5}]
+
+        if not child_count:
+            ds_or_pl_children = None
+            orph_ds_pl_children = None
+            pr_or_sc_children = None
+
+        # Check child_count in Project or Screen
+        base_url = reverse('api_base', kwargs={'api_version': version})
+        parents_url = "%sm/%ss/" % (base_url, ptype)
+        payload = {'childCount': str(child_count).lower()}
+        rsp = _get_response_json(django_client, parents_url, payload)
+        assert_objects(conn, rsp['data'], [parent], dtype=ptype,
+                       extra=pr_or_sc_children)
 
         request_url = reverse(url_name, kwargs={'api_version': version})
 
         # List ALL Datasets or Plates
-        rsp = _get_response_json(django_client, request_url, {})
+        rsp = _get_response_json(django_client, request_url, payload)
         assert len(rsp['data']) == 6
 
         # Filter Datasets or Plates by Orphaned
-        payload = {'orphaned': 'true'}
+        payload = {'orphaned': 'true', 'childCount': str(child_count).lower()}
         rsp = _get_response_json(django_client, request_url, payload)
-        assert_objects(conn, rsp['data'], [orphaned], dtype=dtype)
+        assert_objects(conn, rsp['data'], [orphaned], dtype=dtype,
+                       extra=orph_ds_pl_children)
 
         # Filter Datasets by Project or Plates by Screen
         children.sort(cmp_name_insensitive)
-        # Also testing childCount
-        payload = {ptype: parent.id.val, 'childCount': 'true'}
+        payload = {ptype: parent.id.val,
+                   'childCount': str(child_count).lower()}
         rsp = _get_response_json(django_client, request_url, payload)
         assert len(rsp['data']) == 5
         assert_objects(conn, rsp['data'], children, dtype=dtype,
-                       extra=child_counts)
+                       extra=ds_or_pl_children)
 
         # Pagination
         limit = 3
-        payload = {ptype: parent.id.val, 'limit': limit}
+        payload = {ptype: parent.id.val,
+                   'limit': limit,
+                   'childCount': str(child_count).lower()}
         rsp = _get_response_json(django_client, request_url, payload)
-        assert_objects(conn, rsp['data'], children[0:limit], dtype=dtype)
+        extra = None
+        if ds_or_pl_children is not None:
+            extra = ds_or_pl_children[0:limit]
+        assert_objects(conn, rsp['data'], children[0:limit], dtype=dtype,
+                       extra=extra)
         payload['page'] = 2
         rsp = _get_response_json(django_client, request_url, payload)
+        if ds_or_pl_children is not None:
+            extra = ds_or_pl_children[limit:limit * 2]
         assert_objects(conn, rsp['data'], children[limit:limit * 2],
-                       dtype=dtype)
+                       dtype=dtype, extra=extra)
 
     def test_screens(self, user1, user_screens):
         """Test listing of Screens."""
