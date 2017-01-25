@@ -78,12 +78,14 @@ Click Rating
     [Arguments]                                 ${rating}
     # Calculate offset from centre of img (84px wide)
     ${xoffset}=                                 Evaluate    ${rating}*17 - 52
+    Wait Until Element Is Visible               xpath=//img[@title='Click to add rating']
     Click Element At Coordinates                xpath=//img[@title='Click to add rating']   ${xoffset}  5
 
 Filter Rating
     [Arguments]                                 ${rating}
     # Calculate offset from centre of img (84px wide)
     ${xoffset}=                                 Evaluate    ${rating}*17 - 52
+    Wait Until Element Is Visible               xpath=//img[@title='Filter by rating (exact match)']
     Click Element At Coordinates                xpath=//img[@title='Filter by rating (exact match)']   ${xoffset}  5
 
 Check For Rating
@@ -221,23 +223,20 @@ Test Rating
 
     Click Element                               xpath=//h1[@data-name='ratings']
     Wait Until Element Is Visible               id=rating_annotations
-    Check For Rating                            0
     # Add Rating of 5 *****
     Click Rating                                5
     Check For Rating                            5
 
-    # Add Rating of 2 ****
+    # Add Rating of 2 **
     Click Next Thumbnail
     ${imageId2}=                                Get Id From Selected Thumbnail
-    Check For Rating                            0
     Click Rating                                2
     Check For Rating                            2
 
-    # Add Rating of 2 ***
+    # Add Rating of 2 **
     Click Next Thumbnail
     ${imageId3}=                                Get Id From Selected Thumbnail
     ${nodeId3}=                                  Wait For Image Node         ${imageId3}
-    Check For Rating                            0
     Click Rating                                2
     Check For Rating                            2
 
@@ -266,7 +265,7 @@ Test Rating
     Wait Until Element Is Visible               id=image_icon-${imageId2}
     Count Thumbs With Class                     ratingFilter_hidden     0
 
-    # Finally, select the original images and remove rating from ALL (so repeat test doesn't fail)
+    # Finally, select the original images and remove rating from ALL
     Click Node                                  ${nodeId}
     Shift Click Node                            ${nodeId3}
     Wait Until Element Is Visible               xpath=//span[@id='ratingsAverage'][contains(text(), '3')]
