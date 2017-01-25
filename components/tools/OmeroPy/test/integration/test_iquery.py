@@ -167,7 +167,8 @@ class TestQuery(ITest):
         """
         params = ParametersI()
         params.addString("uuid", uuid)
-        rv = [x[0] for x in unwrap(self.query.projection(query_string, params))]
+        rv = self.query.projection(query_string, params)
+        rv = [x[0] for x in unwrap(rv)]
         assert len(rv) == 2
         assert "ome.model.annotations.CommentAnnotation" in rv
         assert "ome.model.annotations.TagAnnotation" in rv
