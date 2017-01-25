@@ -1014,6 +1014,9 @@ class BlitzObjectWrapper (object):
         Get the annotion counts for the current object
         """
 
+        if self.OMERO_CLASS is None:
+            return countAnnotations()
+
         ctx = self._conn.SERVICE_OPTS.copy()
         ctx.setOmeroGroup(self.details.group.id.val)
 
