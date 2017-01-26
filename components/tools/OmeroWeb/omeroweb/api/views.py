@@ -405,7 +405,7 @@ class SaveView(View):
     def get_type_name(self, marshalled):
         """Get the '@type' name from marshalled data."""
         if '@type' not in marshalled:
-            return None
+            raise BadRequestError('Need to specify @type attribute')
         schema_type = marshalled['@type']
         # NB: Do we support saving from old SCHEMA to newer one?
         if '#' not in schema_type:
@@ -420,6 +420,9 @@ class SaveView(View):
         Therefore '@id' should be set.
         """
         object_json = json.loads(request.body)
+        obj_type = self.get_type_name(object_json)
+        if obj_type not in self.can_put:
+            raise BadRequestError("Update of %s not supported" % obj_type)
         if '@id' not in object_json:
             raise BadRequestError(
                 "No '@id' attribute. Use POST to create new objects")
@@ -447,8 +450,6 @@ class SaveView(View):
         # Try to get group from request, OR from details below...
         group = getIntOrDefault(request, 'group', None)
         decoder = None
-        if '@type' not in object_json:
-            raise BadRequestError('Need to specify @type attribute')
         objType = object_json['@type']
         decoder = get_decoder(objType)
         # If we are passed incomplete object, or decoder couldn't be found...
