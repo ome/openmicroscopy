@@ -1061,11 +1061,14 @@ public class AdminServiceTest extends AbstractServerTest {
         proxy = client1.getSession().getAdminService();
         /* test that the same group can be renamed if no longer current */
         proxy.updateGroup(normalGroup1);
+        client1.closeSession();
+        client1.__del__();
+
         /* test the viability of another user still logged in with the renamed group as current */
         proxy = client2.getSession().getAdminService();
         proxy.setDefaultGroup(experimenter2, normalGroup2);
-        client1.closeSession();
         client2.closeSession();
+        client2.__del__();
     }
 
     /**
