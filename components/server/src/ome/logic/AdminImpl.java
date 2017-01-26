@@ -651,7 +651,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         restrictions.removeAll(privileges);
         final List<NamedValue> userConfig = new ArrayList<NamedValue>(restrictions.size());
         for (final AdminPrivilege restriction : restrictions) {
-            userConfig.add(new NamedValue(restriction.getValue(), Boolean.toString(false)));
+            userConfig.add(new NamedValue(adminPrivileges.getConfigNameForPrivilege(restriction), Boolean.toString(false)));
         }
         newSystemUser.setConfig(userConfig);
         iUpdate.saveObject(newSystemUser);
@@ -1283,7 +1283,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         if (CollectionUtils.isNotEmpty(userConfig)) {
             for (final NamedValue configProperty : userConfig) {
                 if (!Boolean.parseBoolean(configProperty.getValue())) {
-                    privileges.remove(new AdminPrivilege(configProperty.getName()));
+                    privileges.remove(adminPrivileges.getPrivilegeForConfigName(configProperty.getName()));
                 }
             }
         }
@@ -1305,7 +1305,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         } else {
             userConfig = user.getConfig();
             for (final NamedValue configProperty : userConfig) {
-                final AdminPrivilege currentPrivilege = adminPrivileges.getPrivilege(configProperty.getName());
+                final AdminPrivilege currentPrivilege = adminPrivileges.getPrivilegeForConfigName(configProperty.getName());
                 if (currentPrivilege != null) {
                     final boolean hasPrivilege = privileges.contains(currentPrivilege);
                     if (hasPrivilege != Boolean.parseBoolean(configProperty.getValue())) {
@@ -1316,7 +1316,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             }
         }
         for (final AdminPrivilege privilege : privilegesToRemove) {
-            userConfig.add(new NamedValue(privilege.getValue(), Boolean.toString(false)));
+            userConfig.add(new NamedValue(adminPrivileges.getConfigNameForPrivilege(privilege), Boolean.toString(false)));
         }
         iUpdate.saveObject(user);
     }
