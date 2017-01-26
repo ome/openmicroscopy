@@ -10,6 +10,7 @@ package ome.security.basic;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 import ome.api.local.LocalAdmin;
@@ -126,7 +127,7 @@ public class BasicSecuritySystem implements SecuritySystem,
         final OmeroInterceptor oi = new OmeroInterceptor(roles,
                 st, new ExtendedMetadata.Impl(),
                 cd, th, new PerSessionStats(cd),
-                new LightAdminPrivileges(roles), Collections.<String>emptySet());
+                new LightAdminPrivileges(roles), new HashSet<String>(), new HashSet<String>());
         SecurityFilterHolder holder = new SecurityFilterHolder(
                 cd, new OneGroupSecurityFilter(roles),
                 new AllGroupsSecurityFilter(null, roles),

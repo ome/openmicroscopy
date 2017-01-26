@@ -6,6 +6,7 @@ package ome.server.utests.sec;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -109,7 +110,7 @@ public abstract class AbstractBasicSecuritySystemTest extends
         OmeroInterceptor oi = new OmeroInterceptor(roles,
                 st, new ExtendedMetadata.Impl(),
                 cd, th, new NullSessionStats(),
-                mockAdminPrivileges, Collections.<String>emptySet());
+                mockAdminPrivileges, new HashSet<String>(), new HashSet<String>());
         SecurityFilter filter = new OneGroupSecurityFilter();
         sec = new BasicSecuritySystem(oi, st, cd, mgr, roles, sf,
                 th, Collections.singletonList(filter), new DefaultPolicyService());

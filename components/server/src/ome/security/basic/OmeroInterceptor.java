@@ -107,11 +107,11 @@ public class OmeroInterceptor implements Interceptor {
     private final LightAdminPrivileges adminPrivileges;
 
     /* thread-safe */
-    private final Set<String> scriptRepoUuids;
+    private final Set<String> managedRepoUuids, scriptRepoUuids;
 
     public OmeroInterceptor(Roles roles, SystemTypes sysTypes, ExtendedMetadata em,
             CurrentDetails cd, TokenHolder tokenHolder, SessionStats stats,
-            LightAdminPrivileges adminPrivileges, Set<String> scriptRepoUuids) {
+            LightAdminPrivileges adminPrivileges, Set<String> managedRepoUuids, Set<String> scriptRepoUuids) {
         Assert.notNull(tokenHolder);
         Assert.notNull(sysTypes);
         // Assert.notNull(em); Permitting null for testing
@@ -125,6 +125,7 @@ public class OmeroInterceptor implements Interceptor {
         this.roles = roles;
         this.em = em;
         this.adminPrivileges = adminPrivileges;
+        this.managedRepoUuids = managedRepoUuids;
         this.scriptRepoUuids = scriptRepoUuids;
     }
 

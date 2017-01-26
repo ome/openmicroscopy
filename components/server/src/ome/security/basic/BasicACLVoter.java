@@ -11,7 +11,7 @@ import static ome.model.internal.Permissions.Role.GROUP;
 import static ome.model.internal.Permissions.Role.USER;
 import static ome.model.internal.Permissions.Role.WORLD;
 
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import ome.conditions.ApiUsageException;
@@ -86,7 +86,7 @@ public class BasicACLVoter implements ACLVoter {
     private final LightAdminPrivileges adminPrivileges;
 
     /* thread-safe */
-    private final Set<String> scriptRepoUuids;
+    private final Set<String> managedRepoUuids, scriptRepoUuids;
 
     public BasicACLVoter(CurrentDetails cd, SystemTypes sysTypes,
         TokenHolder tokenHolder, SecurityFilter securityFilter,
@@ -100,13 +100,13 @@ public class BasicACLVoter implements ACLVoter {
             PolicyService policyService,
             Roles roles) {
         this(cd, sysTypes, tokenHolder, securityFilter, policyService,
-                roles, new LightAdminPrivileges(roles), Collections.<String>emptySet());
+                roles, new LightAdminPrivileges(roles), new HashSet<String>(), new HashSet<String>());
     }
 
     public BasicACLVoter(CurrentDetails cd, SystemTypes sysTypes,
         TokenHolder tokenHolder, SecurityFilter securityFilter,
         PolicyService policyService,
-        Roles roles, LightAdminPrivileges adminPrivileges, Set<String> scriptRepoUuids) {
+        Roles roles, LightAdminPrivileges adminPrivileges, Set<String> managedRepoUuids, Set<String> scriptRepoUuids) {
         this.currentUser = cd;
         this.sysTypes = sysTypes;
         this.securityFilter = securityFilter;
@@ -114,6 +114,7 @@ public class BasicACLVoter implements ACLVoter {
         this.roles = roles;
         this.policyService = policyService;
         this.adminPrivileges = adminPrivileges;
+        this.managedRepoUuids = managedRepoUuids;
         this.scriptRepoUuids = scriptRepoUuids;
     }
 
