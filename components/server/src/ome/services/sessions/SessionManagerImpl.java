@@ -1052,13 +1052,17 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
      */
     @SuppressWarnings({"rawtypes" })
     public SessionContext reload(final SessionContext ctx) {
-        final Principal p = new Principal(ctx.getCurrentUserName(), ctx
-                .getCurrentGroupName(), ctx.getCurrentEventType());
         List list = (List) executor.execute(asroot, new Executor.SimpleWork(
                 this, "reload", ctx.getSession().getUuid()) {
             @Transactional(readOnly = true)
             public Object doWork(org.hibernate.Session session,
                     ServiceFactory sf) {
+                /* user and group names may change while the session is open */
+                final String userName = (String) session.createQuery(
+                        "SELECT omeName FROM Experimenter WHERE id = :id").setLong("id", ctx.getCurrentUserId()).uniqueResult();
+                final String groupName = (String) session.createQuery(
+                        "SELECT name FROM ExperimenterGroup WHERE id = :id").setLong("id", ctx.getCurrentGroupId()).uniqueResult();
+                final Principal p = new Principal(userName, groupName, ctx.getCurrentEventType());
                 return executeSessionContextLookup(sf, p, ctx.getSession());
             }
         });
