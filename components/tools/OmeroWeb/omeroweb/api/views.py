@@ -392,9 +392,9 @@ class SaveView(View):
     POST to create a new Object and PUT to replace existing one.
     """
 
-    can_put = ['Project', 'Dataset', 'Screen']
+    CAN_PUT = ['Project', 'Dataset', 'Screen']
 
-    can_post = []
+    CAN_POST = ['Project', 'Dataset', 'Screen']
 
     @method_decorator(login_required(useragent='OMERO.webapi'))
     @method_decorator(json_response())
@@ -421,7 +421,7 @@ class SaveView(View):
         """
         object_json = json.loads(request.body)
         obj_type = self.get_type_name(object_json)
-        if obj_type not in self.can_put:
+        if obj_type not in self.CAN_PUT:
             raise BadRequestError("Update of %s not supported" % obj_type)
         if '@id' not in object_json:
             raise BadRequestError(
@@ -436,7 +436,7 @@ class SaveView(View):
         """
         object_json = json.loads(request.body)
         obj_type = self.get_type_name(object_json)
-        if obj_type not in self.can_post:
+        if obj_type not in self.CAN_POST:
             raise BadRequestError("Creation of %s not supported" % obj_type)
         if '@id' in object_json:
             raise BadRequestError(
