@@ -500,7 +500,7 @@ public class GraphTraversal {
             final Experimenter sudoer = omeroSession.getSudoer();
             final Long userId = sudoer == null ? omeroSession.getOwner().getId() : sudoer.getId();
             final String queryConfig = "SELECT COUNT(config.value) FROM Experimenter user JOIN user.config AS config " +
-                    "WHERE user.id = :id AND config.name IN (SELECT value FROM AdminPrivilege)";
+                    "WHERE user.id = :id AND config.name IN (SELECT 'AdminPrivilege:' || value FROM AdminPrivilege)";
             final Long count = (Long) session.createQuery(queryConfig).setParameter("id", userId).uniqueResult();
             if (count != null && count > 0) {
                 this.isCheckUserPermissions = true;
