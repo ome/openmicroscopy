@@ -67,6 +67,7 @@
               <constructor-arg value="${omero.fs.repo.path_rules}"/>
               <constructor-arg ref="uuid"/>
               <constructor-arg ref="roles"/>
+              <constructor-arg ref="managedRepoUuids"/>
           </bean>
       </constructor-arg>
   </bean>

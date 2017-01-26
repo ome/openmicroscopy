@@ -92,6 +92,7 @@
     <constructor-arg ref="extendedMetadata"/>
     <constructor-arg ref="delegatingStats"/>
     <constructor-arg ref="adminPrivileges"/>
+    <constructor-arg ref="managedRepoUuids"/>
     <constructor-arg ref="scriptRepoUuids"/>
   </bean>
 

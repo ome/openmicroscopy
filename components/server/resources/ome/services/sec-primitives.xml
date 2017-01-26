@@ -84,6 +84,8 @@
 
   <bean id="tokenHolder" class="ome.security.basic.TokenHolder"/>
 
+  <bean id="managedRepoUuids" class="com.google.common.collect.Sets" factory-method="newConcurrentHashSet"/>
+
   <bean id="scriptRepoUuids" class="com.google.common.collect.Sets" factory-method="newConcurrentHashSet"/>
 
   <alias name="${omero.policy.bean}" alias="policyService"/>
@@ -125,6 +127,7 @@
     <constructor-arg ref="policyService"/>
     <constructor-arg ref="roles"/>
     <constructor-arg ref="adminPrivileges"/>
+    <constructor-arg ref="managedRepoUuids"/>
     <constructor-arg ref="scriptRepoUuids"/>
   </bean>
 
