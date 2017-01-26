@@ -182,14 +182,16 @@
 		<entry name="Chgrp"/>
 		<entry name="Chown"/>
 		<entry name="DeleteFile"/>
+        <entry name="DeleteManagedRepo"/>
 		<entry name="DeleteOwned"/>
-		<entry name="DeleteScriptRepo"/>
+        <entry name="DeleteScriptRepo"/>
 		<entry name="ModifyGroup"/>
 		<entry name="ModifyGroupMembership"/>
 		<entry name="ModifyUser"/>
 		<entry name="ReadSession"/>
 		<entry name="Sudo"/>
 		<entry name="WriteFile"/>
+		<entry name="WriteManagedRepo"/>
 		<entry name="WriteOwned"/>
 		<entry name="WriteScriptRepo"/>
 	</enum>
