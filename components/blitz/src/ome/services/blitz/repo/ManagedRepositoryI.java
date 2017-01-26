@@ -61,6 +61,7 @@ import ome.util.checksum.ChecksumProviderFactoryImpl;
 import ome.util.checksum.ChecksumType;
 import omero.ResourceError;
 import omero.ServerError;
+import omero.ValidationException;
 import omero.grid.ImportLocation;
 import omero.grid.ImportProcessPrx;
 import omero.grid.ImportSettings;
@@ -196,6 +197,12 @@ public class ManagedRepositoryI extends PublicRepositoryI
     @Override
     public Ice.Object tie() {
         return new _ManagedRepositoryTie(this);
+    }
+
+    @Override
+    public void initialize(FileMaker fileMaker, Long id, String repoUuid) throws ValidationException {
+        super.initialize(fileMaker, id, repoUuid);
+        managedRepoUuids.add(repoUuid);
     }
 
     //
