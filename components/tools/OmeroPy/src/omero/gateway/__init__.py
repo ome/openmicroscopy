@@ -141,10 +141,15 @@ def fileread_gen(fin, fsize, bufsize):
     fin.close()
 
 
-def countAnnotations(queryResult=[]):
+def countAnnotations(queryService, ctx, obj_type, obj_ids=[]):
     """
-    Count the different the annotions from the
-    provided projection query result
+    Count the annotions linked to the given object
+
+    :param queryService:  Reference to the query service
+    :param ctx:           The security context
+    :param obj_type:      The type of the object the annotations are linked to
+    :param obj_ids:       List of object ids
+    :return:              Dictionary of annotation counts per annotation type
     """
 
     counts = {
@@ -154,6 +159,33 @@ def countAnnotations(queryResult=[]):
         "LongAnnotation": 0,
         "MapAnnotation": 0,
         "OtherAnnotation": 0}
+
+    if obj_type is None or not obj_ids:
+        return counts
+
+    params = omero.sys.ParametersI()
+    params.addIds(obj_ids)
+    params.add('ratingns',
+               rstring(omero.constants.metadata.NSINSIGHTRATING))
+
+    q = """
+        select sum( case when an.ns = :ratingns
+                    and an.class = LongAnnotation
+                    then 1 else 0 end),
+            sum( case when (an.ns is null or an.ns != :ratingns)
+                           and an.class = LongAnnotation
+                           then 1 else 0 end),
+           sum( case when an.class != LongAnnotation
+                    then 1 else 0 end ), an.class
+           from Annotation an where an.id in
+                (select distinct(ann.id) from %sAnnotationLink ial
+                    join ial.child as ann
+                    join ial.parent as i
+            where i.id in (:ids))
+                group by an.class
+        """ % obj_type
+
+    queryResult = queryService.projection(q, params, ctx)
 
     for r in queryResult:
         ur = unwrap(r)
@@ -1009,41 +1041,16 @@ class BlitzObjectWrapper (object):
             return AnnotationWrapper._wrap(self._conn, rv[0].child, link=rv[0])
         return None
 
-    def getAnnotationCounts(self, ns=None):
+    def getAnnotationCounts(self):
         """
         Get the annotion counts for the current object
         """
 
-        if self.OMERO_CLASS is None:
-            return countAnnotations()
-
         ctx = self._conn.SERVICE_OPTS.copy()
         ctx.setOmeroGroup(self.details.group.id.val)
 
-        params = omero.sys.ParametersI()
-        params.addId(long(self._oid))
-        params.add('ratingns',
-                   rstring(omero.constants.metadata.NSINSIGHTRATING))
-
-        q = """
-            select sum( case when an.ns = :ratingns
-                        and an.class = LongAnnotation
-                        then 1 else 0 end),
-                sum( case when (an.ns is null or an.ns != :ratingns)
-                               and an.class = LongAnnotation
-                               then 1 else 0 end),
-               sum( case when an.class != LongAnnotation
-                        then 1 else 0 end ), an.class
-               from Annotation an where an.id in
-                    (select distinct(ann.id) from %sAnnotationLink ial
-                        join ial.child as ann
-                        join ial.parent as i
-                where i.id = :id)
-                    group by an.class
-            """ % self.OMERO_CLASS
-
-        return countAnnotations(self._conn.getQueryService().projection(q,
-                                params, ctx))
+        return countAnnotations(self._conn.getQueryService(), ctx,
+                                self.OMERO_CLASS, [self._oid])
 
     def listAnnotations(self, ns=None):
         """
@@ -3505,29 +3512,7 @@ class _BlitzGateway (object):
         ctx = self.SERVICE_OPTS.copy()
         ctx.setOmeroGroup(self.group)
 
-        params = omero.sys.ParametersI()
-        params.addIds(obj_ids)
-        params.add('ratingns',
-                   rstring(omero.constants.metadata.NSINSIGHTRATING))
-
-        q = """
-            select sum( case when an.ns = :ratingns
-                        and an.class = LongAnnotation
-                        then 1 else 0 end),
-                sum( case when an.ns != :ratingns and an.class = LongAnnotation
-                        then 1 else 0 end),
-               sum( case when an.class != LongAnnotation
-                        then 1 else 0 end ), an.class
-               from Annotation an where an.id in
-                    (select distinct(ann.id) from %sAnnotationLink ial
-                        join ial.child as ann
-                        join ial.parent as i
-                where i.id in (:ids))
-                    group by an.class
-            """ % obj_type
-
-        return countAnnotations(self.getQueryService().projection(q,
-                                params, ctx))
+        return countAnnotations(self.getQueryService(), ctx, obj_type, obj_ids)
 
     def createImageFromNumpySeq(self, zctPlanes, imageName, sizeZ=1, sizeC=1,
                                 sizeT=1, description=None, dataset=None,
