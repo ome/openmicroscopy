@@ -46,6 +46,7 @@ import omero.cmd.CmdCallbackI;
 import omero.cmd.CurrentSessionsRequest;
 import omero.cmd.CurrentSessionsResponse;
 import omero.cmd.HandlePrx;
+import omero.cmd.graphs.ChildOption;
 import omero.gateway.util.Requests;
 import omero.gateway.util.Requests.Delete2Builder;
 import omero.grid.ManagedRepositoryPrx;
@@ -60,6 +61,7 @@ import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;
+import omero.model.Fileset;
 import omero.model.Folder;
 import omero.model.GroupExperimenterMap;
 import omero.model.GroupExperimenterMapI;
@@ -71,6 +73,7 @@ import omero.model.Session;
 import omero.model.enums.AdminPrivilegeChgrp;
 import omero.model.enums.AdminPrivilegeChown;
 import omero.model.enums.AdminPrivilegeDeleteFile;
+import omero.model.enums.AdminPrivilegeDeleteManagedRepo;
 import omero.model.enums.AdminPrivilegeDeleteOwned;
 import omero.model.enums.AdminPrivilegeDeleteScriptRepo;
 import omero.model.enums.AdminPrivilegeModifyGroup;
@@ -79,6 +82,7 @@ import omero.model.enums.AdminPrivilegeModifyUser;
 import omero.model.enums.AdminPrivilegeReadSession;
 import omero.model.enums.AdminPrivilegeSudo;
 import omero.model.enums.AdminPrivilegeWriteFile;
+import omero.model.enums.AdminPrivilegeWriteManagedRepo;
 import omero.model.enums.AdminPrivilegeWriteOwned;
 import omero.model.enums.AdminPrivilegeWriteScriptRepo;
 import omero.model.enums.ChecksumAlgorithmMurmur3128;
@@ -348,7 +352,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     }
 
     /**
-     * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
+     * Test that users may delete other users' files only if they are a member of the <tt>system</tt> group and
      * have the <tt>DeleteFile</tt> privilege.
      * Attempts deletion of another user's file via {@link RepositoryPrx#deletePaths(String[], boolean, boolean)}.
      * @param isAdmin if to test a member of the <tt>system</tt> group
@@ -415,7 +419,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     }
 
     /**
-     * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
+     * Test that users may delete other users' files only if they are a member of the <tt>system</tt> group and
      * have the <tt>DeleteFile</tt> privilege.
      * Attempts deletion of another user's file via {@link omero.cmd.Delete2}.
      * @param isAdmin if to test a member of the <tt>system</tt> group
@@ -435,7 +439,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     }
 
     /**
-     * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
+     * Test that users may delete other users' files only if they are a member of the <tt>system</tt> group and
      * have the <tt>DeleteFile</tt> privilege.
      * Attempts deletion of another user's file via {@link IScriptPrx#deleteScript(long)}.
      * @param isAdmin if to test a member of the <tt>system</tt> group
@@ -501,7 +505,98 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     }
 
     /**
-     * Test that users may write other users' data only if they are a member of the <tt>system</tt> group and
+     * Test that users may delete other users' files only if they are a member of the <tt>system</tt> group and
+     * have the <tt>DeleteManagedRepo</tt> privilege.
+     * Attempts deletion of another user's file via {@link RepositoryPrx#deletePaths(String[], boolean, boolean)}.
+     * @param isAdmin if to test a member of the <tt>system</tt> group
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>DeleteManagedRepo</tt> privilege
+     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "light administrator privilege test cases")
+    public void testDeleteManagedRepoPrivilegeDeletionViaRepo(boolean isAdmin, boolean isRestricted, boolean isSudo)
+            throws Exception {
+        /* import a fake image file as a normal user */
+        final boolean isExpectSuccess = isAdmin && !isRestricted;
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
+        final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
+        final List<List<RType>> result = iQuery.projection(
+                "SELECT id FROM OriginalFile WHERE name = :name AND details.group.id = :group_id ORDER BY id DESC LIMIT 1",
+                new ParametersI().add("name", imageName).addLong("group_id", normalUser.groupId));
+        final long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
+        importFileset(Collections.singletonList(fakeImageFile.getPath()));
+        final OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
+                "FROM OriginalFile o WHERE o.id > :id AND o.name = :name AND o.details.group.id = :group_id",
+                new ParametersI().addId(previousId).add("name", imageName).addLong("group_id", normalUser.groupId));
+        /* delete the model objects related to the file */
+        final Fileset fileset = (Fileset) iQuery.findByQuery(
+                "SELECT fe.fileset FROM FilesetEntry fe WHERE fe.originalFile.id = :id",
+                new ParametersI().addId(remoteFile.getId()));
+        final ChildOption excludeFiles = Requests.option().excludeType(OriginalFile.class.getSimpleName()).build();
+        doChange(Requests.delete().target(fileset).option(excludeFiles).build());
+        /* try to delete the file */
+        loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
+                isRestricted ? AdminPrivilegeDeleteManagedRepo.value : null);
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        final RepositoryPrx repo = getRepository(Repository.MANAGED);
+        try {
+            final String remoteFilename = remoteFile.getPath().getValue() + remoteFile.getName().getValue();
+            final HandlePrx handle = repo.deletePaths(new String[] {remoteFilename}, false, false);
+            final CmdCallbackI callback = new CmdCallbackI(client, handle);
+            callback.loop(20, scalingFactor);
+            assertCmd(callback, isExpectSuccess);
+        } catch (Ice.LocalException ue) {
+            Assert.assertFalse(isExpectSuccess);
+        }
+        /* check the existence of the file */
+        loginUser(normalUser);
+        try {
+            iQuery.get("OriginalFile", remoteFile.getId().getValue());
+            Assert.assertFalse(isExpectSuccess);
+        } catch (ServerError se) {
+            Assert.assertTrue(isExpectSuccess);
+        }
+    }
+
+    /**
+     * Test that users may delete other users' files only if they are a member of the <tt>system</tt> group and
+     * have the <tt>DeleteManagedRepo</tt> privilege.
+     * Attempts deletion of another user's file via {@link omero.cmd.Delete2}.
+     * @param isAdmin if to test a member of the <tt>system</tt> group
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>DeleteManagedRepo</tt> privilege
+     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "light administrator privilege test cases")
+    public void testDeleteManagedRepoPrivilegeDeletionViaRequest(boolean isAdmin, boolean isRestricted, boolean isSudo)
+            throws Exception {
+        /* import a fake image file as a normal user */
+        final boolean isExpectSuccess = isAdmin && !isRestricted;
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
+        final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
+        final List<List<RType>> result = iQuery.projection(
+                "SELECT id FROM OriginalFile WHERE name = :name AND details.group.id = :group_id ORDER BY id DESC LIMIT 1",
+                new ParametersI().add("name", imageName).addLong("group_id", normalUser.groupId));
+        final long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
+        importFileset(Collections.singletonList(fakeImageFile.getPath()));
+        final OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
+                "FROM OriginalFile o WHERE o.id > :id AND o.name = :name AND o.details.group.id = :group_id",
+                new ParametersI().addId(previousId).add("name", imageName).addLong("group_id", normalUser.groupId));
+        /* delete the model objects related to the file */
+        final Fileset fileset = (Fileset) iQuery.findByQuery(
+                "SELECT fe.fileset FROM FilesetEntry fe WHERE fe.originalFile.id = :id",
+                new ParametersI().addId(remoteFile.getId()));
+        final ChildOption excludeFiles = Requests.option().excludeType(OriginalFile.class.getSimpleName()).build();
+        doChange(Requests.delete().target(fileset).option(excludeFiles).build());
+        /* try to delete the file */
+        loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
+                isRestricted ? AdminPrivilegeDeleteManagedRepo.value : null);
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        doChange(client, factory, Requests.delete().target(remoteFile).build(), isExpectSuccess);
+    }
+
+    /**
+     * Test that users may delete other users' data only if they are a member of the <tt>system</tt> group and
      * have the <tt>DeleteOwned</tt> privilege. Attempts deletion of another user's data.
      * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param isRestricted if to test a user who does <em>not</em> have the <tt>DeleteOwned</tt> privilege
@@ -520,7 +615,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     }
 
     /**
-     * Test that users may write official scripts only if they are a member of the <tt>system</tt> group and
+     * Test that users may delete official scripts only if they are a member of the <tt>system</tt> group and
      * have the <tt>DeleteScriptRepo</tt> privilege.
      * Attempts deletion of another user's file via {@link RepositoryPrx#deletePaths(String[], boolean, boolean)}.
      * @param isAdmin if to test a member of the <tt>system</tt> group
@@ -588,7 +683,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     }
 
     /**
-     * Test that users may write official scripts only if they are a member of the <tt>system</tt> group and
+     * Test that users may delete official scripts only if they are a member of the <tt>system</tt> group and
      * have the <tt>DeleteScriptRepo</tt> privilege.
      * Attempts deletion of another user's file via {@link omero.cmd.Delete2}.
      * @param isAdmin if to test a member of the <tt>system</tt> group
@@ -609,7 +704,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     }
 
     /**
-     * Test that users may write official scripts only if they are a member of the <tt>system</tt> group and
+     * Test that users may delete official scripts only if they are a member of the <tt>system</tt> group and
      * have the <tt>DeleteScriptRepo</tt> privilege.
      * Attempts deletion of another user's file via {@link IScriptPrx#deleteScript(long)}.
      * @param isAdmin if to test a member of the <tt>system</tt> group
@@ -1286,24 +1381,24 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
 
     /**
      * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
-     * have the <tt>WriteFile</tt> privilege. Attempts to write files via the import process.
+     * have the <tt>WriteManagedRepo</tt> privilege. Attempts to write files via the import process.
      * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param isRestricted if to test a user who does <em>not</em> have the <tt>WriteFile</tt> privilege
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>WriteManagedRepo</tt> privilege
      * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
      * @throws Exception unexpected
      */
     @Test(dataProvider = "light administrator privilege test cases")
-    public void testWriteFilePrivilegeCreationViaRepoImport(boolean isAdmin, boolean isRestricted, boolean isSudo)
+    public void testWriteManagedRepoPrivilegeCreationViaRepoImport(boolean isAdmin, boolean isRestricted, boolean isSudo)
             throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
         final EventContext normalUser = newUserAndGroup("rwr-r-");
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
-                isRestricted ? AdminPrivilegeWriteFile.value : null);
+                isRestricted ? AdminPrivilegeWriteManagedRepo.value : null);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
         final List<List<RType>> result = iQuery.projection(
-                "SELECT id FROM OriginalFile WHERE name = :name ORDER BY id DESC LIMIT 1",
-                new ParametersI().add("name", imageName));
+                "SELECT id FROM OriginalFile WHERE name = :name AND details.group.id = :group_id ORDER BY id DESC LIMIT 1",
+                new ParametersI().add("name", imageName).addLong("group_id", normalUser.groupId));
         final long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
         try {
             importFileset(Collections.singletonList(fakeImageFile.getPath()));
@@ -1312,8 +1407,8 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
             Assert.assertFalse(isExpectSuccess);
         }
         final OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
-                "FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
-                new ParametersI().addId(previousId).add("name", imageName));
+                "FROM OriginalFile o WHERE o.id > :id AND o.name = :name AND o.details.group.id = :group_id",
+                new ParametersI().addId(previousId).add("name", imageName).addLong("group_id", normalUser.groupId));
         if (isExpectSuccess) {
             Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), normalUser.groupId);
         } else {
@@ -1546,16 +1641,16 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
 
     /**
      * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
-     * have the <tt>WriteFile</tt> privilege.
+     * have the <tt>WriteManagedRepo</tt> privilege.
      * Attempts changing the file's checksum algorithm via
      * {@link ManagedRepositoryPrx#setChecksumAlgorithm(ChecksumAlgorithm, List)}.
      * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param isRestricted if to test a user who does <em>not</em> have the <tt>WriteFile</tt> privilege
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>WriteManagedRepo</tt> privilege
      * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
      * @throws Exception unexpected
      */
     @Test(dataProvider = "light administrator privilege test cases")
-    public void testWriteFilePrivilegeEditingViaRepoChecksum(boolean isAdmin, boolean isRestricted, boolean isSudo)
+    public void testWriteManagedRepoPrivilegeEditingViaRepoChecksum(boolean isAdmin, boolean isRestricted, boolean isSudo)
             throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
         final EventContext normalUser = newUserAndGroup("rwr-r-");
@@ -1563,15 +1658,17 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         final List<String> imageFilenames = Collections.singletonList(fakeImageFile.getPath());
         final String repoPath = importFileset(imageFilenames).sharedPath + FsFile.separatorChar;
         List<RType> results = iQuery.projection(
-                "SELECT id, hasher.value, hash FROM OriginalFile WHERE name = :name AND path = :path",
+                "SELECT id, hasher.value, hash FROM OriginalFile " +
+                "WHERE name = :name AND path = :path AND details.group.id = :group_id",
                 new ParametersI().add("name", omero.rtypes.rstring(fakeImageFile.getName()))
-                                 .add("path", omero.rtypes.rstring(repoPath))).get(0);
+                                 .add("path", omero.rtypes.rstring(repoPath))
+                                 .add("group_id", omero.rtypes.rlong(normalUser.groupId))).get(0);
         final long imageFileId = ((RLong) results.get(0)).getValue();
         final String hasherOriginal = ((RString) results.get(1)).getValue();
         final String hashOriginal = ((RString) results.get(2)).getValue();
         /* try to change the image's hasher */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
-                isRestricted ? AdminPrivilegeWriteFile.value : null);
+                isRestricted ? AdminPrivilegeWriteManagedRepo.value : null);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         final ManagedRepositoryPrx repo = ManagedRepositoryPrxHelper.checkedCast(getRepository(Repository.MANAGED));
         final String hasherChanged;
@@ -1744,6 +1841,59 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccess);
         }
+    }
+
+    /**
+     * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
+     * have the <tt>WriteManagedRepo</tt> privilege.
+     * Attempts writing file via {@link RepositoryPrx#file(String, String)}
+     * and {@link RawFileStorePrx#write(byte[], long, int)}.
+     * @param isAdmin if to test a member of the <tt>system</tt> group
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>WriteManagedRepo</tt> privilege
+     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "light administrator privilege test cases")
+    public void testWriteManagedRepoPrivilegeEditingViaRepoFile(boolean isAdmin, boolean isRestricted, boolean isSudo)
+            throws Exception {
+        /* import a fake image file as a normal user */
+        final boolean isExpectSuccess = isAdmin && !isRestricted;
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
+        final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
+        final List<List<RType>> result = iQuery.projection(
+                "SELECT id FROM OriginalFile WHERE name = :name AND details.group.id = :group_id ORDER BY id DESC LIMIT 1",
+                new ParametersI().add("name", imageName).addLong("group_id", normalUser.groupId));
+        final long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
+        importFileset(Collections.singletonList(fakeImageFile.getPath()));
+        OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
+                "FROM OriginalFile o WHERE o.id > :id AND o.name = :name AND o.details.group.id = :group_id",
+                new ParametersI().addId(previousId).add("name", imageName).addLong("group_id", normalUser.groupId));
+        /* try to edit the file */
+        loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
+                isRestricted ? AdminPrivilegeWriteManagedRepo.value : null);
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        final RepositoryPrx repo = getRepository(Repository.MANAGED);
+        final byte[] fileContentBlank = new byte[(int) (fakeImageFile.length() + 16)];
+        RawFileStorePrx rfs = null;
+        try {
+            rfs = repo.file(remoteFile.getPath().getValue() + remoteFile.getName().getValue(), "rw");
+            rfs.write(fileContentBlank, 0, fileContentBlank.length);
+            Assert.assertTrue(isExpectSuccess);
+        } catch (ServerError se) {
+            Assert.assertFalse(isExpectSuccess);
+        } finally {
+            try {
+                if (rfs != null) {
+                    rfs.close();
+                }
+            } catch (Ice.CommunicatorDestroyedException cde) {
+                /* cannot try to close */
+            }
+        }
+        /* check the resulting file size */
+        loginUser(normalUser);
+        remoteFile = (OriginalFile) iQuery.get("OriginalFile", remoteFile.getId().getValue());
+        Assert.assertEquals(remoteFile.getSize().getValue(), isExpectSuccess ? fileContentBlank.length : fakeImageFile.length());
     }
 
     /**
