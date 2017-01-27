@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import ome.api.IQuery;
+import ome.api.IUpdate;
 import ome.api.JobHandle;
 import ome.api.RawFileStore;
 import ome.api.local.LocalAdmin;
@@ -17,6 +18,7 @@ import ome.io.nio.FileBuffer;
 import ome.model.IObject;
 import ome.model.fs.FilesetJobLink;
 import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Parameters;
 import ome.security.basic.OmeroInterceptor;
 import ome.services.RawFileBean;
@@ -971,7 +973,8 @@ public class RepositoryDaoImpl implements RepositoryDao {
 
 
         StopWatch sw = new Slf4JStopWatch();
-        IObject[] saved = sf.getUpdateService().saveAndReturnArray(rv.toArray(new IObject[rv.size()]));
+        final IUpdate iUpdate = sf.getUpdateService();
+        IObject[] saved = iUpdate.saveAndReturnArray(rv.toArray(new IObject[rv.size()]));
         sw.stop("omero.repo.create_original_file.save");
         final List<Long> ids = new ArrayList<Long>(saved.length);
         sw = new Slf4JStopWatch();
@@ -988,7 +991,15 @@ public class RepositoryDaoImpl implements RepositoryDao {
         sw = new Slf4JStopWatch();
         sql.setFileRepo(ids, repoUuid);
         for (final ome.model.core.OriginalFile file : rv) {
+            /* now repo is set, update proxy and recheck permissions */
             session.refresh(file);
+            final Experimenter owner = file.getDetails().getOwner();
+            final ExperimenterGroup group = file.getDetails().getGroup();
+            file.getDetails().setOwner(null);
+            file.getDetails().setGroup(null);
+            interceptor.newTransientDetails(file);
+            file.getDetails().setOwner(owner);
+            file.getDetails().setGroup(group);
         }
         sw.stop("omero.repo.create_original_file.set_file_repo");
         return rv;
