@@ -1,5 +1,6 @@
 package ome.services.blitz.repo;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -965,9 +966,11 @@ public class RepositoryDaoImpl implements RepositoryDao {
              ca = new ome.model.enums.ChecksumAlgorithm(checksumAlgorithm.getValue().getValue());
         }
         List<ome.model.core.OriginalFile> rv = new ArrayList<ome.model.core.OriginalFile>();
+        final Timestamp now = new Timestamp(System.currentTimeMillis());
         for (CheckedPath path : checked) {
             ome.model.core.OriginalFile ofile = path.asOriginalFile(mimetype);
             rv.add(ofile);
+            ofile.setCtime(now);
             ofile.setHasher(ca);
         }
 
