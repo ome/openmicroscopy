@@ -132,11 +132,13 @@ Test Rdef Save
     Wait For BlockUI
     Wait Until Page Contains Element    xpath=//button[@class="rdef clicked"]/img[@src!='${thumbSrc}']
 
-    # Check that 'Save' has worked by switching to other image and back
-    Click Next Thumbnail
-    Wait For BlockUI
+    # Check that 'Save' has worked by switching to the dataset and back again to the image
+    Select And Expand Node              nodeText=${multic_dataset}
+    Click Link                          General
+    Wait Until Element Is Visible       xpath=//div[@id="general_tab"]
     Select Image By Id                  ${imageId}
-    Wait For BlockUI
+    Click Link                          Preview
+    ${status}    ${oldId}               Wait For Preview Load       FAIL      '1'
 
     # Check that all values have been saved, including deactivated channels
     Textfield Value Should Be           wblitz-ch0-cw-end           50
@@ -148,10 +150,8 @@ Test Rdef Save
 
     # Reset rendering settings again
     Click Element                       id=rdef-reset-btn
-    Wait For BlockUI
+    Wait Until Element Is Enabled       id=rdef-setdef-btn
     Click Element                       id=rdef-setdef-btn
-    Wait For BlockUI
-
 
 Test Rdef Copy Paste Save
     [Documentation]     Tests Copy and Paste rdef, then Save and 'Save All'
@@ -316,7 +316,7 @@ Test Owners Rdef
     Pick Color                              FFFFFF
     Click Element                           xpath=//button[@id='rdef-copy-btn']
     Wait For Toolbar Button Enabled         rdef-paste-btn
-    
+
     # Test 'Paste and Save' with right-click on different Image in tree
     # (check thumb refresh by change of src)
     ${thumbSrc}=                            Get Element Attribute      xpath=//li[@id="image_icon-${imageId_2}"]/div[@class="image"]/a/img@src
