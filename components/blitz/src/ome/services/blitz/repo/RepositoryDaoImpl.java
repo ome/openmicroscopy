@@ -18,6 +18,7 @@ import ome.model.IObject;
 import ome.model.fs.FilesetJobLink;
 import ome.model.meta.Experimenter;
 import ome.parameters.Parameters;
+import ome.security.basic.OmeroInterceptor;
 import ome.services.RawFileBean;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.util.Executor;
@@ -105,34 +106,28 @@ public class RepositoryDaoImpl implements RepositoryDao {
     protected final Roles roles;
     protected final Executor executor;
     protected final Executor statefulExecutor;
+    protected final OmeroInterceptor interceptor;
 
     /**
      * Primary constructor which takes all final fields.
-     *
-     * @param principal
-     * @param roles
-     * @param executor
-     * @param statefulExecutor
      */
     public RepositoryDaoImpl(Principal principal, Roles roles,
-            Executor executor, Executor statefulExecutor) {
+            Executor executor, Executor statefulExecutor, OmeroInterceptor interceptor) {
         this.principal = principal;
         this.roles = roles;
         this.executor = executor;
         this.statefulExecutor = statefulExecutor;
+        this.interceptor = interceptor;
     }
 
     /**
      * Previous constructor which should no longer be used. Primarily for
      * simplicity of testing.
-     *
-     * @param principal
-     * @param executor
      */
     public RepositoryDaoImpl(Principal principal, Executor executor) {
         this(principal, new Roles(), executor,
-                executor.getContext().getBean(
-                        "statefulExecutor", Executor.class));
+                executor.getContext().getBean("statefulExecutor", Executor.class),
+                executor.getContext().getBean("omeroInterceptor", OmeroInterceptor.class));
     }
 
     /**
