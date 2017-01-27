@@ -422,6 +422,7 @@
     <constructor-arg index="1" ref="roles"/>
     <constructor-arg index="2" ref="executor"/>
     <constructor-arg index="3" ref="statefulExecutor"/>
+    <constructor-arg index="4" ref="omeroInterceptor"/>
   </bean>
 
   <bean id="scheduledExecutorService" class="java.util.concurrent.ScheduledThreadPoolExecutor">
