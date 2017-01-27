@@ -19,12 +19,13 @@
 
 """Tests querying Images with web json api."""
 
-from omeroweb.testlib import IWebTest, _get_response_json
+from omeroweb.testlib import IWebTest, _get_response_json, \
+    _csrf_post_json, _csrf_put_json, _csrf_delete_response_json
 from django.core.urlresolvers import reverse
 from django.conf import settings
 import pytest
 from omero.gateway import BlitzGateway
-from omero_marshal import get_encoder
+from omero_marshal import get_encoder, OME_SCHEMA_URL
 from omero.model import DatasetI, ImageI
 from omero.rtypes import rstring, unwrap
 import json
@@ -182,3 +183,28 @@ class TestImages(IWebTest):
         assert len(rsp['Pixels']['Channels']) == 1
         assert_objects(conn, [rsp], [orphaned], dtype='Image',
                        opts={'load_channels': True})
+
+
+    def test_image_create_update_delete(self, user1):
+        """Test that create, update & delete are NOT supported for Images."""
+        conn = get_connection(user1)
+        user_name = conn.getUser().getName()
+        django_client = self.new_django_client(user_name, user_name)
+        version = settings.API_VERSIONS[-1]
+        save_url = reverse('api_save', kwargs={'api_version': version})
+        payload = {'Name': 'Image test',
+                   '@type': OME_SCHEMA_URL + '#Image'}
+        # Test POST creation
+        rsp = _csrf_post_json(django_client, save_url, payload,
+                              status_code=405)
+        assert rsp['message'] == 'Creation of Image not supported'
+        # Test PUT update
+        rsp = _csrf_put_json(django_client, save_url, payload,
+                             status_code=405)
+        assert rsp['message'] == 'Update of Image not supported'
+        # Delete (fake url - image doesn't need to exist for test)
+        delete_url = reverse('api_image', kwargs={'api_version': version,
+                                                  'object_id': 1})
+        rsp = _csrf_delete_response_json(django_client, delete_url, {},
+                                         status_code=405)
+        assert rsp['message'] == 'Delete of Image not supported'
