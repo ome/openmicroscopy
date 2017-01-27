@@ -148,6 +148,8 @@ class ApiView(View):
 class ObjectView(ApiView):
     """Handle access to an individual Object to GET or DELETE it."""
 
+    CAN_DELETE = True
+
     def get_opts(self, request):
         """Return a dict for use in conn.getObjects() based on request."""
         return {}
@@ -170,6 +172,9 @@ class ObjectView(ApiView):
 
         Return 404 if not found.
         """
+        if not self.CAN_DELETE:
+            raise BadRequestError(
+                "Delete of %s not supported" % self.OMERO_TYPE)
         try:
             obj = conn.getQueryService().get(self.OMERO_TYPE, long(object_id),
                                              conn.SERVICE_OPTS)
@@ -210,6 +215,8 @@ class ImageView(ObjectView):
     """Handle access to an individual Image to GET or DELETE it."""
 
     OMERO_TYPE = 'Image'
+
+    CAN_DELETE = False
 
     def get_opts(self, request):
         """Add support for load_pixels and load_channels."""
