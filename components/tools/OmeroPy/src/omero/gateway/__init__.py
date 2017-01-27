@@ -3454,18 +3454,18 @@ class _BlitzGateway (object):
         for r in queryResult:
             ur = unwrap(r)
             if ur[3] == '/basic/num/long/':
-                counts['LongAnnotation'] += int(ur[0])
-                counts['OtherAnnotation'] += int(ur[1])
+                counts['LongAnnotation'] += ur[0]
+                counts['OtherAnnotation'] += ur[1]
             elif ur[3] == '/basic/text/comment/':
-                counts['CommentAnnotation'] += int(ur[2])
+                counts['CommentAnnotation'] += ur[2]
             elif ur[3] == '/basic/text/tag/':
-                counts['TagAnnotation'] += int(ur[2])
+                counts['TagAnnotation'] += ur[2]
             elif ur[3] == '/type/OriginalFile/':
-                counts['FileAnnotation'] += int(ur[2])
+                counts['FileAnnotation'] += ur[2]
             elif ur[3] == '/map/':
-                counts['MapAnnotation'] += int(ur[2])
+                counts['MapAnnotation'] += ur[2]
             else:
-                counts['OtherAnnotation'] += int(ur[2])
+                counts['OtherAnnotation'] += ur[2]
 
         return counts
 
