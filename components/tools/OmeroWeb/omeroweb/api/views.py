@@ -33,7 +33,7 @@ from omero_marshal import get_encoder, get_decoder, OME_SCHEMA_URL
 from omero import ValidationException
 from omeroweb.connector import Server
 from omeroweb.api.api_exceptions import BadRequestError, NotFoundError, \
-    CreatedObject
+    CreatedObject, MethodNotSupportedError
 from omeroweb.api.decorators import login_required, json_response
 from omeroweb.webgateway.util import getIntOrDefault
 
@@ -173,7 +173,7 @@ class ObjectView(ApiView):
         Return 404 if not found.
         """
         if not self.CAN_DELETE:
-            raise BadRequestError(
+            raise MethodNotSupportedError(
                 "Delete of %s not supported" % self.OMERO_TYPE)
         try:
             obj = conn.getQueryService().get(self.OMERO_TYPE, long(object_id),
@@ -429,7 +429,8 @@ class SaveView(View):
         object_json = json.loads(request.body)
         obj_type = self.get_type_name(object_json)
         if obj_type not in self.CAN_PUT:
-            raise BadRequestError("Update of %s not supported" % obj_type)
+            raise MethodNotSupportedError(
+                "Update of %s not supported" % obj_type)
         if '@id' not in object_json:
             raise BadRequestError(
                 "No '@id' attribute. Use POST to create new objects")
@@ -444,7 +445,8 @@ class SaveView(View):
         object_json = json.loads(request.body)
         obj_type = self.get_type_name(object_json)
         if obj_type not in self.CAN_POST:
-            raise BadRequestError("Creation of %s not supported" % obj_type)
+            raise MethodNotSupportedError(
+                "Creation of %s not supported" % obj_type)
         if '@id' in object_json:
             raise BadRequestError(
                 "Object has '@id' attribute. Use PUT to update objects")

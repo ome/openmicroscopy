@@ -50,6 +50,22 @@ class NotFoundError(Exception):
         self.stacktrace = stacktrace
 
 
+class MethodNotSupportedError(Exception):
+    """
+    An exception that will result in a response status of 405.
+
+    Raised if user tries to DELETE, POST or PUT for an Object
+    where we don't support those methods.
+    """
+
+    status = 405
+
+    def __init__(self, message, stacktrace=None):
+        """Override init to handle message and stacktrace."""
+        super(MethodNotSupportedError, self).__init__(message)
+        self.stacktrace = stacktrace
+
+
 class CreatedObject(Exception):
     """
     An exception that is thrown when new object created.
