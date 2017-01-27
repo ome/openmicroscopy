@@ -419,7 +419,6 @@ class SaveView(View):
             return None
         return schema_type.split('#')[1]
 
-
     def put(self, request, conn=None, **kwargs):
         """
         PUT handles saving of existing objects.

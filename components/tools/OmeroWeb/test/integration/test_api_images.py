@@ -184,7 +184,6 @@ class TestImages(IWebTest):
         assert_objects(conn, [rsp], [orphaned], dtype='Image',
                        opts={'load_channels': True})
 
-
     def test_image_create_update_delete(self, user1):
         """Test that create, update & delete are NOT supported for Images."""
         conn = get_connection(user1)
