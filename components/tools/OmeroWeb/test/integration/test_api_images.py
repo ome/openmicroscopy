@@ -171,7 +171,7 @@ class TestImages(IWebTest):
         rsp = _get_response_json(django_client, dataset_images_url, payload)
         assert_objects(conn, rsp['data'], images[0:limit], dtype='Image',
                        opts={'load_pixels': True})
-        payload['page'] = 2
+        payload['offset'] = limit   # page 2
         rsp = _get_response_json(django_client, images_url, payload)
         assert_objects(conn, rsp['data'], images[limit:limit * 2],
                        dtype='Image', opts={'load_pixels': True})

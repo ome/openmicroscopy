@@ -251,7 +251,7 @@ class ObjectsView(ApiView):
     def get_opts(self, request, **kwargs):
         """Return an options dict based on request parameters."""
         try:
-            page = getIntOrDefault(request, 'page', 1)
+            offset = getIntOrDefault(request, 'offset', 0)
             limit = getIntOrDefault(request, 'limit', settings.PAGE)
             owner = getIntOrDefault(request, 'owner', None)
             child_count = request.GET.get('childCount', False) == 'true'
@@ -260,7 +260,7 @@ class ObjectsView(ApiView):
             raise BadRequestError(str(ex))
 
         # orphaned and child_count not used by every subclass
-        opts = {'offset': (page - 1) * limit,
+        opts = {'offset': offset,
                 'limit': limit,
                 'owner': owner,
                 'orphaned': orphaned,

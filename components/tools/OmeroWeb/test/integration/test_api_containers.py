@@ -269,7 +269,7 @@ class TestContainers(IWebTest):
         payload = {ptype: parent.id.val, 'limit': limit}
         rsp = _get_response_json(django_client, request_url, payload)
         assert_objects(conn, rsp['data'], children[0:limit], dtype=dtype)
-        payload['page'] = 2
+        payload['offset'] = limit   # page 2
         rsp = _get_response_json(django_client, request_url, payload)
         assert_objects(conn, rsp['data'], children[limit:limit * 2],
                        dtype=dtype)
