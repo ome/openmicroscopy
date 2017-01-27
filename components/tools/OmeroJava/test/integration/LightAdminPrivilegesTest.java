@@ -1381,43 +1381,6 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
 
     /**
      * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
-     * have the <tt>WriteManagedRepo</tt> privilege. Attempts to write files via the import process.
-     * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param isRestricted if to test a user who does <em>not</em> have the <tt>WriteManagedRepo</tt> privilege
-     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
-     * @throws Exception unexpected
-     */
-    @Test(dataProvider = "light administrator privilege test cases")
-    public void testWriteManagedRepoPrivilegeCreationViaRepoImport(boolean isAdmin, boolean isRestricted, boolean isSudo)
-            throws Exception {
-        final boolean isExpectSuccess = isAdmin && !isRestricted;
-        final EventContext normalUser = newUserAndGroup("rwr-r-");
-        loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
-                isRestricted ? AdminPrivilegeWriteManagedRepo.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
-        final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
-        final List<List<RType>> result = iQuery.projection(
-                "SELECT id FROM OriginalFile WHERE name = :name AND details.group.id = :group_id ORDER BY id DESC LIMIT 1",
-                new ParametersI().add("name", imageName).addLong("group_id", normalUser.groupId));
-        final long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
-        try {
-            importFileset(Collections.singletonList(fakeImageFile.getPath()));
-            Assert.assertTrue(isExpectSuccess);
-        } catch (ServerError se) {
-            Assert.assertFalse(isExpectSuccess);
-        }
-        final OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
-                "FROM OriginalFile o WHERE o.id > :id AND o.name = :name AND o.details.group.id = :group_id",
-                new ParametersI().addId(previousId).add("name", imageName).addLong("group_id", normalUser.groupId));
-        if (isExpectSuccess) {
-            Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), normalUser.groupId);
-        } else {
-            Assert.assertNull(remoteFile);
-        }
-    }
-
-    /**
-     * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
      * have the <tt>WriteFile</tt> privilege.
      * Attempts creation of a directory in another user's directory via {@link RepositoryPrx#makeDir(String, boolean)}.
      * @param isAdmin if to test a member of the <tt>system</tt> group
@@ -1641,68 +1604,6 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
 
     /**
      * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
-     * have the <tt>WriteManagedRepo</tt> privilege.
-     * Attempts changing the file's checksum algorithm via
-     * {@link ManagedRepositoryPrx#setChecksumAlgorithm(ChecksumAlgorithm, List)}.
-     * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param isRestricted if to test a user who does <em>not</em> have the <tt>WriteManagedRepo</tt> privilege
-     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
-     * @throws Exception unexpected
-     */
-    @Test(dataProvider = "light administrator privilege test cases")
-    public void testWriteManagedRepoPrivilegeEditingViaRepoChecksum(boolean isAdmin, boolean isRestricted, boolean isSudo)
-            throws Exception {
-        final boolean isExpectSuccess = isAdmin && !isRestricted;
-        final EventContext normalUser = newUserAndGroup("rwr-r-");
-        /* import a fake image and determine its hash and hasher */
-        final List<String> imageFilenames = Collections.singletonList(fakeImageFile.getPath());
-        final String repoPath = importFileset(imageFilenames).sharedPath + FsFile.separatorChar;
-        List<RType> results = iQuery.projection(
-                "SELECT id, hasher.value, hash FROM OriginalFile " +
-                "WHERE name = :name AND path = :path AND details.group.id = :group_id",
-                new ParametersI().add("name", omero.rtypes.rstring(fakeImageFile.getName()))
-                                 .add("path", omero.rtypes.rstring(repoPath))
-                                 .add("group_id", omero.rtypes.rlong(normalUser.groupId))).get(0);
-        final long imageFileId = ((RLong) results.get(0)).getValue();
-        final String hasherOriginal = ((RString) results.get(1)).getValue();
-        final String hashOriginal = ((RString) results.get(2)).getValue();
-        /* try to change the image's hasher */
-        loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
-                isRestricted ? AdminPrivilegeWriteManagedRepo.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
-        final ManagedRepositoryPrx repo = ManagedRepositoryPrxHelper.checkedCast(getRepository(Repository.MANAGED));
-        final String hasherChanged;
-        if (ChecksumAlgorithmSHA1160.value.equals(hasherOriginal)) {
-            hasherChanged = ChecksumAlgorithmMurmur3128.value;
-        } else {
-            hasherChanged = ChecksumAlgorithmSHA1160.value;
-        }
-        try {
-            final ChecksumAlgorithm hasherAlgorithm = new ChecksumAlgorithmI();
-            hasherAlgorithm.setValue(omero.rtypes.rstring(hasherChanged));
-            repo.setChecksumAlgorithm(hasherAlgorithm, Collections.singletonList(imageFileId));
-            Assert.assertTrue(isExpectSuccess);
-        } catch (Ice.LocalException | ServerError se) {
-            Assert.assertFalse(isExpectSuccess);
-        }
-        /* check the effect on the image's hash and hasher */
-        loginUser(normalUser);
-        results = iQuery.projection(
-                "SELECT hasher.value, hash FROM OriginalFile WHERE id = :id",
-                new ParametersI().addId(imageFileId)).get(0);
-        final String hasherNew = ((RString) results.get(0)).getValue();
-        final String hashNew = ((RString) results.get(1)).getValue();
-        if (isExpectSuccess) {
-            Assert.assertEquals(hasherNew, hasherChanged);
-            Assert.assertNotEquals(hashNew, hashOriginal);
-        } else {
-            Assert.assertEquals(hasherNew, hasherOriginal);
-            Assert.assertEquals(hashNew, hashOriginal);
-        }
-    }
-
-    /**
-     * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
      * have the <tt>WriteFile</tt> privilege.
      * Attempts writing file via {@link RepositoryPrx#file(String, String)}
      * and {@link RawFileStorePrx#write(byte[], long, int)}.
@@ -1840,6 +1741,105 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
             Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccess);
+        }
+    }
+
+    /**
+     * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
+     * have the <tt>WriteManagedRepo</tt> privilege. Attempts to write files via the import process.
+     * @param isAdmin if to test a member of the <tt>system</tt> group
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>WriteManagedRepo</tt> privilege
+     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "light administrator privilege test cases")
+    public void testWriteManagedRepoPrivilegeCreationViaRepoImport(boolean isAdmin, boolean isRestricted, boolean isSudo)
+            throws Exception {
+        final boolean isExpectSuccess = isAdmin && !isRestricted;
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
+        loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
+                isRestricted ? AdminPrivilegeWriteManagedRepo.value : null);
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
+        final List<List<RType>> result = iQuery.projection(
+                "SELECT id FROM OriginalFile WHERE name = :name AND details.group.id = :group_id ORDER BY id DESC LIMIT 1",
+                new ParametersI().add("name", imageName).addLong("group_id", normalUser.groupId));
+        final long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
+        try {
+            importFileset(Collections.singletonList(fakeImageFile.getPath()));
+            Assert.assertTrue(isExpectSuccess);
+        } catch (ServerError se) {
+            Assert.assertFalse(isExpectSuccess);
+        }
+        final OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
+                "FROM OriginalFile o WHERE o.id > :id AND o.name = :name AND o.details.group.id = :group_id",
+                new ParametersI().addId(previousId).add("name", imageName).addLong("group_id", normalUser.groupId));
+        if (isExpectSuccess) {
+            Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+        } else {
+            Assert.assertNull(remoteFile);
+        }
+    }
+
+    /**
+     * Test that users may write other users' files only if they are a member of the <tt>system</tt> group and
+     * have the <tt>WriteManagedRepo</tt> privilege.
+     * Attempts changing the file's checksum algorithm via
+     * {@link ManagedRepositoryPrx#setChecksumAlgorithm(ChecksumAlgorithm, List)}.
+     * @param isAdmin if to test a member of the <tt>system</tt> group
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>WriteManagedRepo</tt> privilege
+     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "light administrator privilege test cases")
+    public void testWriteManagedRepoPrivilegeEditingViaRepoChecksum(boolean isAdmin, boolean isRestricted, boolean isSudo)
+            throws Exception {
+        final boolean isExpectSuccess = isAdmin && !isRestricted;
+        final EventContext normalUser = newUserAndGroup("rwr-r-");
+        /* import a fake image and determine its hash and hasher */
+        final List<String> imageFilenames = Collections.singletonList(fakeImageFile.getPath());
+        final String repoPath = importFileset(imageFilenames).sharedPath + FsFile.separatorChar;
+        List<RType> results = iQuery.projection(
+                "SELECT id, hasher.value, hash FROM OriginalFile " +
+                "WHERE name = :name AND path = :path AND details.group.id = :group_id",
+                new ParametersI().add("name", omero.rtypes.rstring(fakeImageFile.getName()))
+                                 .add("path", omero.rtypes.rstring(repoPath))
+                                 .add("group_id", omero.rtypes.rlong(normalUser.groupId))).get(0);
+        final long imageFileId = ((RLong) results.get(0)).getValue();
+        final String hasherOriginal = ((RString) results.get(1)).getValue();
+        final String hashOriginal = ((RString) results.get(2)).getValue();
+        /* try to change the image's hasher */
+        loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
+                isRestricted ? AdminPrivilegeWriteManagedRepo.value : null);
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        final ManagedRepositoryPrx repo = ManagedRepositoryPrxHelper.checkedCast(getRepository(Repository.MANAGED));
+        final String hasherChanged;
+        if (ChecksumAlgorithmSHA1160.value.equals(hasherOriginal)) {
+            hasherChanged = ChecksumAlgorithmMurmur3128.value;
+        } else {
+            hasherChanged = ChecksumAlgorithmSHA1160.value;
+        }
+        try {
+            final ChecksumAlgorithm hasherAlgorithm = new ChecksumAlgorithmI();
+            hasherAlgorithm.setValue(omero.rtypes.rstring(hasherChanged));
+            repo.setChecksumAlgorithm(hasherAlgorithm, Collections.singletonList(imageFileId));
+            Assert.assertTrue(isExpectSuccess);
+        } catch (Ice.LocalException | ServerError se) {
+            Assert.assertFalse(isExpectSuccess);
+        }
+        /* check the effect on the image's hash and hasher */
+        loginUser(normalUser);
+        results = iQuery.projection(
+                "SELECT hasher.value, hash FROM OriginalFile WHERE id = :id",
+                new ParametersI().addId(imageFileId)).get(0);
+        final String hasherNew = ((RString) results.get(0)).getValue();
+        final String hashNew = ((RString) results.get(1)).getValue();
+        if (isExpectSuccess) {
+            Assert.assertEquals(hasherNew, hasherChanged);
+            Assert.assertNotEquals(hashNew, hashOriginal);
+        } else {
+            Assert.assertEquals(hasherNew, hasherOriginal);
+            Assert.assertEquals(hashNew, hashOriginal);
         }
     }
 
