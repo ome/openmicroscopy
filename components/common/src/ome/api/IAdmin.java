@@ -486,6 +486,7 @@ public interface IAdmin extends ServiceInterface {
      *            The user name who should gain ownership of this entity. Not
      *            null.
      */
+    @Deprecated
     void changeOwner(@NotNull
     IObject iObject, @NotNull
     String omeName);
@@ -503,6 +504,7 @@ public interface IAdmin extends ServiceInterface {
      *            The group name who should gain ownership of this entity. Not
      *            null.
      */
+    @Deprecated
     void changeGroup(@NotNull
     IObject iObject, @NotNull
     String groupName);
@@ -519,6 +521,7 @@ public interface IAdmin extends ServiceInterface {
      * @param perms
      *            The permissions value for this entity. Not null.
      */
+    @Deprecated
     void changePermissions(@NotNull
     IObject iObject, @NotNull
     Permissions perms);
@@ -530,6 +533,7 @@ public interface IAdmin extends ServiceInterface {
      * @param iObjects
      * @see <a href="https://trac.openmicroscopy.org/ome/ticket/1794">ticket 1794</a>
      */
+    @Deprecated
     void moveToCommonSpace(IObject... iObjects);
 
     // ~ Authentication and Authorization
