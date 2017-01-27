@@ -182,9 +182,9 @@
 		<entry name="Chgrp"/>
 		<entry name="Chown"/>
 		<entry name="DeleteFile"/>
-        <entry name="DeleteManagedRepo"/>
+		<entry name="DeleteManagedRepo"/>
 		<entry name="DeleteOwned"/>
-        <entry name="DeleteScriptRepo"/>
+		<entry name="DeleteScriptRepo"/>
 		<entry name="ModifyGroup"/>
 		<entry name="ModifyGroupMembership"/>
 		<entry name="ModifyUser"/>
