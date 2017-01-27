@@ -680,9 +680,17 @@ public class OmeroInterceptor implements Interceptor {
             isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege("ModifyGroupMembership"));
         } else if (obj instanceof OriginalFile) {
             final String repo = ((OriginalFile) obj).getRepo();
-            if (repo != null && scriptRepoUuids.contains(repo)) {
-                isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege("WriteScriptRepo"));
+            if (repo != null) {
+                if (managedRepoUuids.contains(repo)) {
+                    isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege("WriteManagedRepo"));
+                } else if (scriptRepoUuids.contains(repo)) {
+                    isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege("WriteScriptRepo"));
+                } else {
+                    /* other repository */
+                    isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege("WriteFile"));
+                }
             } else {
+                /* not in repository */
                 isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege("WriteFile"));
             }
         } else {

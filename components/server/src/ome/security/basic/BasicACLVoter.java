@@ -156,11 +156,14 @@ public class BasicACLVoter implements ACLVoter {
         } else {
             if (iObject instanceof OriginalFile) {
                 final String repo = ((OriginalFile) iObject).getRepo();
-                if (repo != null && scriptRepoUuids.contains(repo)) {
-                    return privileges.contains(adminPrivileges.getPrivilege("WriteScriptRepo"));
-                } else {
-                    return privileges.contains(adminPrivileges.getPrivilege("WriteFile"));
+                if (repo != null) {
+                    if (managedRepoUuids.contains(repo)) {
+                        return privileges.contains(adminPrivileges.getPrivilege("WriteManagedRepo"));
+                    } else if (scriptRepoUuids.contains(repo)) {
+                        return privileges.contains(adminPrivileges.getPrivilege("WriteScriptRepo"));
+                    }
                 }
+                return privileges.contains(adminPrivileges.getPrivilege("WriteFile"));
             } else {
                 return privileges.contains(adminPrivileges.getPrivilege("WriteOwned"));
             }
@@ -458,11 +461,23 @@ public class BasicACLVoter implements ACLVoter {
             if (!sysType) {
                 if (iObject instanceof OriginalFile) {
                     final String repo = ((OriginalFile) iObject).getRepo();
-                    if (repo != null && scriptRepoUuids.contains(repo)) {
-                        if (!privileges.contains(adminPrivileges.getPrivilege(prefix + "ScriptRepo"))) {
-                            isLightAdminRestricted = true;
+                    if (repo != null) {
+                        if (managedRepoUuids.contains(repo)) {
+                            if (!privileges.contains(adminPrivileges.getPrivilege(prefix + "ManagedRepo"))) {
+                                isLightAdminRestricted = true;
+                            }
+                        } else if (scriptRepoUuids.contains(repo)) {
+                            if (!privileges.contains(adminPrivileges.getPrivilege(prefix + "ScriptRepo"))) {
+                                isLightAdminRestricted = true;
+                            }
+                        } else {
+                            /* other repository */
+                            if (!privileges.contains(adminPrivileges.getPrivilege(prefix + "File"))) {
+                                isLightAdminRestricted = true;
+                            }
                         }
                     } else {
+                        /* not in repository */
                         if (!privileges.contains(adminPrivileges.getPrivilege(prefix + "File"))) {
                             isLightAdminRestricted = true;
                         }
