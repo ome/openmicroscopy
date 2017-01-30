@@ -171,7 +171,7 @@ class TestContainers(IWebTest):
         return screens
 
     @pytest.mark.parametrize("dtype", ['Project', 'Dataset',
-                                       'Screen', 'Plate'])
+                                       'Screen'])
     def test_container_crud(self, dtype):
         """
         Test create, read, update and delete of Containers.
