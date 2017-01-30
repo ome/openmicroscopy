@@ -395,9 +395,13 @@ public class BasicSecuritySystem implements SecuritySystem,
             // tickets:2950, 1940, 3529
             if (!isAdmin && !ec.getMemberOfGroupsList().contains(groupId)) {
                 if (!callPerms.isGranted(Role.WORLD, Right.READ)) {
-                    throw new SecurityViolation(String.format(
-                        "User %s is not a member of group %s and cannot login",
+                    /* reload to address problems with PR 4957: user wrongly thought not to be in group */
+                    ec = sessionManager.reload(ec.getCurrentSessionUuid());
+                    if (!ec.getMemberOfGroupsList().contains(groupId)) {
+                        throw new SecurityViolation(String.format(
+                                "User %s is not a member of group %s and cannot login",
                                 ec.getCurrentUserId(), groupId));
+                    }
                 }
             }
 
