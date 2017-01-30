@@ -69,4 +69,17 @@ def query_objects(conn, object_type,
         for obj in result:
             objects.append(obj)
 
-    return marshal_objects(objects, extras=extras, normalize=normalize)
+    # Query the count() of objects & add to 'meta' dict
+    count_query, params = conn.buildCountQuery(object_type, opts=opts)
+    result = qs.projection(count_query, params, ctx)
+
+    meta = {}
+    if 'offset' in opts:
+        meta['offset'] = opts['offset']
+    if 'limit' in opts:
+        meta['limit'] = opts['limit']
+    meta['totalCount'] = result[0][0].val
+
+    marshalled = marshal_objects(objects, extras=extras, normalize=normalize)
+    marshalled['meta'] = meta
+    return marshalled
