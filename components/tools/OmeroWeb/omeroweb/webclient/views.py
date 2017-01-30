@@ -32,6 +32,7 @@ import traceback
 import json
 import re
 import sys
+import warnings
 
 from time import time
 
@@ -78,6 +79,7 @@ from omeroweb.webadmin.forms import LoginForm
 
 from omeroweb.webgateway import views as webgateway_views
 from omeroweb.webgateway.marshal import chgrpMarshal
+from omeroweb.webgateway.util import get_longs as webgateway_get_longs
 
 from omeroweb.feedback.views import handlerInternalError
 
@@ -121,18 +123,10 @@ def get_long_or_default(request, name, default):
 
 
 def get_longs(request, name):
-    """
-    Retrieves parameters from the request. If the parameters are not present
-    an empty list is returned
-
-    This does not catch exceptions as it makes sense to throw exceptions if
-    the arguments provided do not pass basic type validation
-    """
-    vals = []
-    vals_raw = request.GET.getlist(name)
-    for val_raw in vals_raw:
-        vals.append(long(val_raw))
-    return vals
+    warnings.warn(
+        "Deprecated. Use omeroweb.webgateway.util.get_longs()",
+        DeprecationWarning)
+    return webgateway_get_longs(request, name)
 
 
 def get_bool_or_default(request, name, default):
