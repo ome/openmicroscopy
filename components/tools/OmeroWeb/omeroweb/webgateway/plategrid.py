@@ -11,6 +11,7 @@
 """
 
 import logging
+import base64
 
 import omero.sys
 from omero.rtypes import rint
@@ -54,9 +55,11 @@ class PlateGrid(object):
                     "where well.plate.id = :id "\
                     "and index(ws) = :wsidx"
 
+            image_ids = []
             for res in q.projection(query, params, self._conn.SERVICE_OPTS):
                 row, col, img_id, img_name, author, well_id, acq_date, \
                     create_date, description = res
+                image_ids.append(img_id)
 
                 if acq_date is not None and acq_date.val > 0:
                     date = acq_date.val / 1000
@@ -79,6 +82,19 @@ class PlateGrid(object):
                     wellmeta['thumb_url'] = self._thumbprefix + str(img_id.val)
 
                 grid[row.val][col.val] = wellmeta
+
+            # replace thumbnail urls by base64 encoded image
+            thumbnails = self._conn.getThumbnailSet(image_ids, 96)
+            for row in grid:
+                for col in row:
+                    thumbnails[col['id']]
+                    try:
+                        t = thumbnails[col['id']]
+                        col['thumb_url'] =
+                            ("data:image/jpeg;base64, "
+                             "%s" % base64.b64encode(t))
+                    except KeyError:
+                        pass
 
             self._metadata = {'grid': grid,
                               'collabels': self.plate.getColumnLabels(),
