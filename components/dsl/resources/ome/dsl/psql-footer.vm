@@ -1,5 +1,5 @@
 --
--- Copyright 2006-2016 University of Dundee. All rights reserved.
+-- Copyright 2006-2017 University of Dundee. All rights reserved.
 -- Use is subject to license terms supplied in LICENSE.txt
 --
 
@@ -785,7 +785,7 @@ create index pixels_repo_index on pixels (repo);
 -- No unique index on (path, repo, name) since it depends on params
 
 alter  table originalfile alter column mimetype set default 'application/octet-stream';
-alter  table originalfile add column repo varchar(36);
+alter  table originalfile alter column repo type varchar(36);
 create index originalfile_mime_index on originalfile (mimetype);
 create index originalfile_path_index on originalfile (path);
 create index originalfile_repo_index on originalfile (repo);

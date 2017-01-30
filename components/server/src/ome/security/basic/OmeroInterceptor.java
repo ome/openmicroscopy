@@ -15,6 +15,7 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.commons.lang.ObjectUtils;
 import org.hibernate.CallbackException;
 import org.hibernate.EmptyInterceptor;
 import org.hibernate.EntityMode;
@@ -55,6 +56,7 @@ import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.ExternalInfo;
+import ome.model.meta.GroupExperimenterMap;
 import ome.model.roi.Roi;
 import ome.security.SecuritySystem;
 import ome.security.SystemTypes;
@@ -63,6 +65,7 @@ import ome.system.EventContext;
 import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.HibernateUtils;
+import ome.tools.lsid.LsidUtils;
 
 /**
  * implements {@link org.hibernate.Interceptor} for controlling various aspects
@@ -84,6 +87,9 @@ public class OmeroInterceptor implements Interceptor {
 
     private static Logger log = LoggerFactory.getLogger(OmeroInterceptor.class);
 
+    /* array index for OriginalFile property "repo" */
+    private static final String IDX_FILE_REPO = LsidUtils.parseField(OriginalFile.REPO);
+
     private final Interceptor EMPTY = EmptyInterceptor.INSTANCE;
 
     private final SystemTypes sysTypes;
@@ -100,9 +106,12 @@ public class OmeroInterceptor implements Interceptor {
 
     private final LightAdminPrivileges adminPrivileges;
 
+    /* thread-safe */
+    private final Set<String> managedRepoUuids, scriptRepoUuids;
+
     public OmeroInterceptor(Roles roles, SystemTypes sysTypes, ExtendedMetadata em,
             CurrentDetails cd, TokenHolder tokenHolder, SessionStats stats,
-            LightAdminPrivileges adminPrivileges) {
+            LightAdminPrivileges adminPrivileges, Set<String> managedRepoUuids, Set<String> scriptRepoUuids) {
         Assert.notNull(tokenHolder);
         Assert.notNull(sysTypes);
         // Assert.notNull(em); Permitting null for testing
@@ -116,6 +125,8 @@ public class OmeroInterceptor implements Interceptor {
         this.roles = roles;
         this.em = em;
         this.adminPrivileges = adminPrivileges;
+        this.managedRepoUuids = managedRepoUuids;
+        this.scriptRepoUuids = scriptRepoUuids;
     }
 
     /**
@@ -191,6 +202,15 @@ public class OmeroInterceptor implements Interceptor {
             altered |= resetDetails(iobj, currentState, previousState, idx,
                     newDetails);
 
+        }
+        /* Cannot yet change OriginalFile.repo except via SQL.
+         * TODO: Need to first work through implications before permitting this. */
+        if (entity instanceof OriginalFile) {
+            final int repoIndex = HibernateUtils.index(IDX_FILE_REPO, propertyNames);
+            if (previousState != null && !ObjectUtils.equals(previousState[repoIndex], currentState[repoIndex])) {
+                log.warn("reverting change to OriginalFile.repo");
+                currentState[repoIndex] = previousState[repoIndex];
+            }
         }
         return altered;
     }
@@ -654,8 +674,25 @@ public class OmeroInterceptor implements Interceptor {
             isPrivilegedCreator = true;
         } else if (obj instanceof Experimenter) {
             isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege("ModifyUser"));
+        } else if (obj instanceof ExperimenterGroup) {
+            isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege("ModifyGroup"));
+        } else if (obj instanceof GroupExperimenterMap) {
+            isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege("ModifyGroupMembership"));
         } else if (obj instanceof OriginalFile) {
-            isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege("WriteFile"));
+            final String repo = ((OriginalFile) obj).getRepo();
+            if (repo != null) {
+                if (managedRepoUuids.contains(repo)) {
+                    isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege("WriteManagedRepo"));
+                } else if (scriptRepoUuids.contains(repo)) {
+                    isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege("WriteScriptRepo"));
+                } else {
+                    /* other repository */
+                    isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege("WriteFile"));
+                }
+            } else {
+                /* not in repository */
+                isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege("WriteFile"));
+            }
         } else {
             isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege("WriteOwned"));
         }
@@ -711,7 +748,11 @@ public class OmeroInterceptor implements Interceptor {
                         "You are not authorized to set the ExperimenterGroup"
                                 + " for %s to %s", obj, source.getGroup()));
             }
-        } else if (!(isPrivilegedCreator  || bec.getMemberOfGroupsList().contains(newDetails.getGroup().getId()))) {
+        } else if (!(isPrivilegedCreator ||  // administrator
+                   bec.getMemberOfGroupsList().contains(newDetails.getGroup().getId()) ||  // group member
+                   bec.getCurrentGroupPermissions().isGranted(Role.WORLD, Right.WRITE)     // public group
+                   /* TODO: may need to loosen for rwrwra groups */
+                )) {
             throw new SecurityViolation(String.format("You are not authorized to create %s", obj));
         }
 

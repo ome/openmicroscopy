@@ -51,6 +51,8 @@ public class LightAdminPrivileges {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LightAdminPrivileges.class);
 
+    private static final String USER_CONFIG_NAME_PREFIX = AdminPrivilege.class.getSimpleName() + ':';
+
     // NOTE THE SET OF LIGHT ADMINISTRATOR PRIVILEGES AND THEIR ASSOCIATED VALUE STRINGS
 
     private static final ImmutableSet<AdminPrivilege> ADMIN_PRIVILEGES;
@@ -59,7 +61,11 @@ public class LightAdminPrivileges {
     static {
         /* see trac ticket 10691 re. enum values */
         final ImmutableSet<String> privilegeValues = ImmutableSet.of(
-                "Chgrp", "Chown", "ModifyUser", "ReadSession", "Sudo", "WriteFile", "WriteOwned");
+                "Chgrp", "Chown",
+                "DeleteFile", "DeleteManagedRepo", "DeleteOwned", "DeleteScriptRepo",
+                "ModifyGroup", "ModifyGroupMembership", "ModifyUser",
+                "ReadSession", "Sudo",
+                "WriteFile", "WriteManagedRepo", "WriteOwned", "WriteScriptRepo");
 
         final ImmutableMap.Builder<String, AdminPrivilege> builder = ImmutableMap.builder();
         for (final String privilegeValue : privilegeValues) {
@@ -76,6 +82,26 @@ public class LightAdminPrivileges {
      */
     public ImmutableSet<AdminPrivilege> getAllPrivileges() {
         return ADMIN_PRIVILEGES;
+    }
+
+    /**
+     * @param value the string value of a light administrator privilege as recorded in {@code Experimenter.config.name}
+     * @return the corresponding privilege, or {@code null} if there is no privilege with that string value
+     */
+    public AdminPrivilege getPrivilegeForConfigName(String value) {
+        if (value.startsWith(USER_CONFIG_NAME_PREFIX)) {
+            return getPrivilege(value.substring(USER_CONFIG_NAME_PREFIX.length()));
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * @param privilege a light administrator privilege
+     * @return the string value of the given privilege as recorded in {@code Experimenter.config.name}
+     */
+    public String getConfigNameForPrivilege(AdminPrivilege privilege) {
+        return USER_CONFIG_NAME_PREFIX + privilege.getValue();
     }
 
     /**
@@ -175,7 +201,11 @@ public class LightAdminPrivileges {
             if (CollectionUtils.isNotEmpty(config)) {
                 for (final NamedValue configProperty : config) {
                     if (!Boolean.parseBoolean(configProperty.getValue())) {
-                        privileges.remove(ADMIN_PRIVILEGES_BY_VALUE.get(configProperty.getName()));
+                        final String configPropertyName = configProperty.getName();
+                        if (configPropertyName.startsWith(USER_CONFIG_NAME_PREFIX)) {
+                            final String adminPrivilegeName = configPropertyName.substring(USER_CONFIG_NAME_PREFIX.length());
+                            privileges.remove(ADMIN_PRIVILEGES_BY_VALUE.get(adminPrivilegeName));
+                        }
                     }
                 }
             }

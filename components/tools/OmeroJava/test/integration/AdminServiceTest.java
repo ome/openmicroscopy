@@ -1,5 +1,5 @@
 /*
- *   Copyright 2006-2016 University of Dundee. All rights reserved.
+ *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package integration;
@@ -1061,12 +1061,14 @@ public class AdminServiceTest extends AbstractServerTest {
         proxy = client1.getSession().getAdminService();
         /* test that the same group can be renamed if no longer current */
         proxy.updateGroup(normalGroup1);
+        client1.closeSession();
+        client1.__del__();
+
         /* test the viability of another user still logged in with the renamed group as current */
         proxy = client2.getSession().getAdminService();
         proxy.setDefaultGroup(experimenter2, normalGroup2);
-
-        client1.closeSession();
         client2.closeSession();
+        client2.__del__();
     }
 
     /**
@@ -1781,8 +1783,8 @@ public class AdminServiceTest extends AbstractServerTest {
         /* set the light administrator's privileges */
         user = (Experimenter) rootSession.getQueryService().get("Experimenter", user.getId().getValue());
         final List<NamedValue> config = new ArrayList<NamedValue>();
-        config.add(new NamedValue(AdminPrivilegeModifyUser.value, "true"));
-        config.add(new NamedValue(AdminPrivilegeReadSession.value, "nonsense"));
+        config.add(new NamedValue("AdminPrivilege:" + AdminPrivilegeModifyUser.value, "true"));
+        config.add(new NamedValue("AdminPrivilege:" + AdminPrivilegeReadSession.value, "nonsense"));
         config.add(new NamedValue("nonsense", "true"));
         user.setConfig(config);
         rootSession.getUpdateService().saveObject(user);
@@ -1813,7 +1815,8 @@ public class AdminServiceTest extends AbstractServerTest {
         /* set the user's original configuration */
         Experimenter user = (Experimenter) rootSession.getQueryService().get("Experimenter", ctx.userId);
         List<NamedValue> config = new ArrayList<NamedValue>();
-        config.add(new NamedValue(AdminPrivilegeModifyUser.value, "nonsense"));
+        config.add(new NamedValue("AdminPrivilege:" + AdminPrivilegeModifyUser.value, "nonsense"));
+        config.add(new NamedValue("AdminPrivilege:nonsense", "false"));
         config.add(new NamedValue("nonsense", "true"));
         user.setConfig(config);
         rootSession.getUpdateService().saveObject(user);
@@ -1822,17 +1825,19 @@ public class AdminServiceTest extends AbstractServerTest {
         /* check if ModifyUser was added to the configuration without affecting the other entries */
         user = (Experimenter) iQuery.get("Experimenter", ctx.userId);
         ImmutableMultimap<String, String> configMap = getUserConfig(user);
-        Assert.assertEquals(configMap.get(AdminPrivilegeModifyUser.value), Collections.singleton("true"));
+        Assert.assertEquals(configMap.get("AdminPrivilege:" + AdminPrivilegeModifyUser.value), Collections.singleton("true"));
+        Assert.assertEquals(configMap.get("AdminPrivilege:nonsense"), Collections.singleton("false"));
         Assert.assertEquals(configMap.get("nonsense"), Collections.singleton("true"));
-        Assert.assertEquals(configMap.get(AdminPrivilegeReadSession.value), Collections.singleton("false"));
+        Assert.assertEquals(configMap.get("AdminPrivilege:" + AdminPrivilegeReadSession.value), Collections.singleton("false"));
         /* now set ReadSession */
         rootSession.getAdminService().setAdminPrivileges((Experimenter) user, Collections.singletonList(readSession));
         /* check if ReadSession was set and ModifyUser was cleared through only minimal changes to the configuration */
         user = (Experimenter) iQuery.get("Experimenter", ctx.userId);
         configMap = getUserConfig(user);
-        Assert.assertEquals(configMap.get(AdminPrivilegeModifyUser.value), Collections.singleton("false"));
+        Assert.assertEquals(configMap.get("AdminPrivilege:" + AdminPrivilegeModifyUser.value), Collections.singleton("false"));
+        Assert.assertEquals(configMap.get("AdminPrivilege:nonsense"), Collections.singleton("false"));
         Assert.assertEquals(configMap.get("nonsense"), Collections.singleton("true"));
-        Assert.assertEquals(configMap.get(AdminPrivilegeReadSession.value), Collections.singleton("true"));
+        Assert.assertEquals(configMap.get("AdminPrivilege:" + AdminPrivilegeReadSession.value), Collections.singleton("true"));
     }
 
     /**
@@ -1854,19 +1859,21 @@ public class AdminServiceTest extends AbstractServerTest {
         final EventContext ctx = newUserAndGroup("rw----");
         final ExperimenterGroup systemGroup = new ExperimenterGroupI(iAdmin.getSecurityRoles().systemGroupId, false);
         final Boolean[] booleanValues = new Boolean[] {null, true, false};
+        final String sudoConfigName = "AdminPrivilege:" + sudo.getValue().getValue();
+        final String writeOwnedConfigName = "AdminPrivilege:" + writeOwned.getValue().getValue();
         for (final Boolean isSudo : booleanValues) {
             for (final Boolean isWriteOwned : booleanValues) {
                 final Long newUserId = newUserInGroup().userId;
                 final Experimenter user = (Experimenter) rootSession.getQueryService().get("Experimenter", newUserId);
                 final List<NamedValue> config = new ArrayList<NamedValue>();
                 if (isSudo != null) {
-                    config.add(new NamedValue(sudo.getValue().getValue(), Boolean.toString(isSudo)));
+                    config.add(new NamedValue(sudoConfigName, Boolean.toString(isSudo)));
                 }
                 if (!Boolean.FALSE.equals(isSudo)) {
                     canSudo.add(newUserId);
                 }
                 if (isWriteOwned != null) {
-                    config.add(new NamedValue(writeOwned.getValue().getValue(), Boolean.toString(isWriteOwned)));
+                    config.add(new NamedValue(writeOwnedConfigName, Boolean.toString(isWriteOwned)));
                 }
                 if (!Boolean.FALSE.equals(isWriteOwned)) {
                     canWriteOwned.add(newUserId);

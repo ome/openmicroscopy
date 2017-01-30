@@ -1,5 +1,5 @@
 /*
- *  Copyright 2006-2016 University of Dundee. All rights reserved.
+ *  Copyright 2006-2017 University of Dundee. All rights reserved.
  *  Use is subject to license terms supplied in LICENSE.txt
  */
 package integration;
@@ -319,7 +319,7 @@ public class ModelMockFactory {
      */
     public OriginalFile createOriginalFile() throws Exception {
         OriginalFileI oFile = new OriginalFileI();
-        oFile.setName(omero.rtypes.rstring("of1"));
+        oFile.setName(omero.rtypes.rstring("Test_" + UUID.randomUUID().toString()));
         oFile.setPath(omero.rtypes.rstring("/omero/"));
         oFile.setSize(omero.rtypes.rlong(0));
         oFile.setHash(omero.rtypes.rstring("pending"));

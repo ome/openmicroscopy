@@ -1,7 +1,7 @@
 /*
  * ome.security.basic.BasicSecuritySystem
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -10,6 +10,7 @@ package ome.security.basic;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 import ome.api.local.LocalAdmin;
@@ -126,7 +127,7 @@ public class BasicSecuritySystem implements SecuritySystem,
         final OmeroInterceptor oi = new OmeroInterceptor(roles,
                 st, new ExtendedMetadata.Impl(),
                 cd, th, new PerSessionStats(cd),
-                new LightAdminPrivileges(roles));
+                new LightAdminPrivileges(roles), new HashSet<String>(), new HashSet<String>());
         SecurityFilterHolder holder = new SecurityFilterHolder(
                 cd, new OneGroupSecurityFilter(roles),
                 new AllGroupsSecurityFilter(null, roles),
@@ -203,7 +204,7 @@ public class BasicSecuritySystem implements SecuritySystem,
 
     /**
      * tests whether or not the current user is either the owner of this entity,
-     * or the superivsor of this entity, for example as root or as group owner.
+     * or the supervisor of this entity, for example as root or as group owner.
      * 
      * @param iObject
      *            Non-null managed entity.

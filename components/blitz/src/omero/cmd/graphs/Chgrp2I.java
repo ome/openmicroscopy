@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2016 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2017 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -141,7 +141,7 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
 
         /* check that the user is a member of the destination group */
         final EventContext eventContext = helper.getEventContext();
-        final boolean isChgrpPrivilege = graphHelper.checkIsAdministrator(new AdminPrivilege("Chgrp"));
+        final boolean isChgrpPrivilege = graphHelper.checkIsAdministrator(adminPrivileges.getPrivilege("Chgrp"));
         /* see trac ticket 10691 re. enum values */
         if (!(isChgrpPrivilege || eventContext.getMemberOfGroupsList().contains(groupId))) {
             final Exception e = new IllegalArgumentException("not a member of the chgrp destination group");
