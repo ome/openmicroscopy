@@ -29,6 +29,7 @@ module omero {
                 idempotent Ice::ByteSeq getThumbnail(omero::RInt sizeX, omero::RInt sizeY) throws ServerError;
                 idempotent omero::sys::IdByteMap getThumbnailSet(omero::RInt sizeX, omero::RInt sizeY, omero::sys::LongList pixelsIds) throws ServerError;
                 idempotent omero::sys::IdByteMap getThumbnailByLongestSideSet(omero::RInt size, omero::sys::LongList pixelsIds) throws ServerError;
+                idempotent omero::sys::IdByteMap getThumbnailByLongestSideSetAndRdef(omero::RInt size, omero::api::LongLongMap pixelsRdefMap) throws ServerError;
                 idempotent Ice::ByteSeq getThumbnailByLongestSide(omero::RInt size) throws ServerError;
                 idempotent Ice::ByteSeq getThumbnailByLongestSideDirect(omero::RInt size) throws ServerError;
                 idempotent Ice::ByteSeq getThumbnailDirect(omero::RInt sizeX, omero::RInt sizeY) throws ServerError;

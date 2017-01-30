@@ -191,6 +191,16 @@ public class ThumbnailCtx
     /**
      * Bulk loads a set of rendering settings for a  group of pixels sets and
      * prepares our internal data structures.
+     * @param pixelsIds Set of Pixels IDs to prepare rendering settings for.
+     */
+    public void retrieveRenderingSettings(Set<Long> rdefIds)
+    {
+        loadAndPrepareRenderingSettings(RenderingDef.class, rdefIds);
+    }
+
+    /**
+     * Bulk loads a set of rendering settings for a group of pixels sets and
+     * prepares our internal data structures.
      * @param ids Set of IDs to prepare rendering settings for.
      * @param klass Either <code>Image</code> or <code>Pixels</code> qualifying
      * the type that <code>ids</code> are identifiers for.
@@ -218,6 +228,16 @@ public class ThumbnailCtx
         {
             // Populate our hash maps asking for our settings by Image ID
             settingsList = bulkLoadRenderingSettingsByImageId(ids);
+            pixelsIds = new HashSet<Long>();
+            for (RenderingDef def : settingsList)
+            {
+                pixelsIds.add(def.getPixels().getId());
+            }
+        }
+        else if (klass.equals((RenderingDef.class)))
+        {
+            // Populate our hash maps asking for our settings by Image ID
+            settingsList = bulkLoadRenderingSettingsById(ids);
             pixelsIds = new HashSet<Long>();
             for (RenderingDef def : settingsList)
             {
@@ -808,6 +828,25 @@ public class ThumbnailCtx
                     "order by r.details.updateEvent.time asc",
                     new Parameters().addId(userId).addIds(pixelsIds));
         }
+        s1.stop();
+        return toReturn;
+    }
+
+    /**
+     * Bulk loads a set of rendering sets for given ids.
+     * @param rdefIds the RenderingDef sets to retrieve thumbnails for.
+     * @return Loaded rendering settings for <code>rdefIds</code>.
+     */
+    private List<RenderingDef> bulkLoadRenderingSettingsById(
+            Set<Long> rdefIds)
+    {
+        StopWatch s1 = new Slf4JStopWatch(
+                "omero.bulkLoadRenderingSettings");
+        List<RenderingDef> toReturn = queryService.findAllByQuery(
+                "select r from RenderingDef as r " +
+                "join fetch r.pixels as p " +
+                "where r.id in (:ids) ",
+                new Parameters().addIds(rdefIds));
         s1.stop();
         return toReturn;
     }
