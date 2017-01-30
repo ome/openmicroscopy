@@ -55,6 +55,7 @@ import omero.model.ProjectI;
 import omero.model.Session;
 import omero.model.enums.AdminPrivilegeChgrp;
 import omero.model.enums.AdminPrivilegeChown;
+import omero.model.enums.AdminPrivilegeDeleteOwned;
 import omero.model.enums.AdminPrivilegeSudo;
 import omero.model.enums.AdminPrivilegeWriteFile;
 import omero.model.enums.AdminPrivilegeWriteOwned;
@@ -1132,13 +1133,13 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      */
     @Test(dataProvider = "combined privileges cases")
     public void testDataOrganizerChownAll(boolean isAdmin, boolean permChgrp, boolean permChown,
-            boolean permWriteOwned, boolean permWriteFile, String groupPermissions) throws Exception {
-        final boolean isExpectSuccess = isAdmin && permChown && permWriteOwned && permWriteFile;
+            boolean permWriteOwned, boolean permWriteFile, boolean permDeleteOwned, String groupPermissions) throws Exception {
+        final boolean isExpectSuccess = isAdmin && permChown && permWriteOwned && permWriteFile && permDeleteOwned;
         /* chown is passing in this test with isAdmin, permChown and permWriteOwned only,
          * the permWriteFile is not necessary, but note that this is just because we have
          * images with no original files linked to them. If there would be original files, then
          * chown would work only with permWriteFile, just as in testImporterAsSudoChown.*/
-        final boolean chownPassing = isAdmin && permChown && permWriteOwned;
+        final boolean chownPassing = isAdmin && permChown && permWriteOwned && permDeleteOwned;
         if (!isExpectSuccess) return;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         ExperimenterGroup otherGroup = newGroupAddUser(groupPermissions, normalUser.userId, false);
@@ -1149,6 +1150,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);;
         if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
         if (permWriteFile) permissions.add(AdminPrivilegeWriteFile.value);
+        if (permDeleteOwned) permissions.add(AdminPrivilegeDeleteOwned.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
         /* create two sets of P/D/I hierarchy as normalUser in the default
@@ -1296,6 +1298,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         final int PERM_ADDITIONAL = index++;
         final int PERM_ADDITIONAL2 = index++;
         final int PERM_ADDITIONAL3 = index++;
+        final int PERM_ADDITIONAL4 = index++;
         final int GROUP_PERMS = index++;
 
         final boolean[] booleanCases = new boolean[]{false, true};
@@ -1307,22 +1310,24 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                 for (final boolean permAdditional : booleanCases) {
                     for (final boolean permAdditional2 : booleanCases) {
                         for (final boolean permAdditional3 : booleanCases) {
-                            for (final String groupPerms : permsCases) {
-                            final Object[] testCase = new Object[index];
-                            testCase[IS_ADMIN] = isAdmin;
-                            testCase[IS_SUDOING] = isSudoing;
-                            testCase[PERM_ADDITIONAL] = permAdditional;
-                            testCase[PERM_ADDITIONAL2] = permAdditional2;
-                            testCase[PERM_ADDITIONAL3] = permAdditional3;
-                            testCase[GROUP_PERMS] = groupPerms;
-                            // DEBUG  if (isAdmin == false && isRestricted == true && isSudo == false)
-                            testCases.add(testCase);
+                            for (final boolean permAdditional4 : booleanCases) {
+                                for (final String groupPerms : permsCases) {
+                                    final Object[] testCase = new Object[index];
+                                    testCase[IS_ADMIN] = isAdmin;
+                                    testCase[IS_SUDOING] = isSudoing;
+                                    testCase[PERM_ADDITIONAL] = permAdditional;
+                                    testCase[PERM_ADDITIONAL2] = permAdditional2;
+                                    testCase[PERM_ADDITIONAL3] = permAdditional3;
+                                    testCase[PERM_ADDITIONAL4] = permAdditional4;
+                                    testCase[GROUP_PERMS] = groupPerms;
+                                    // DEBUG  if (isAdmin == false && isRestricted == true && isSudo == false)
+                                    testCases.add(testCase);
+                                }
                             }
                         }
                     }
                 }
             }
-
         }
         return testCases.toArray(new Object[testCases.size()][]);
     }
