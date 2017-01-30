@@ -123,7 +123,7 @@ class ApiView(View):
         """Wrap other methods to add decorators."""
         return super(ApiView, self).dispatch(*args, **kwargs)
 
-    def add_data(self, marshalled, request, urls={}, **kwargs):
+    def add_data(self, marshalled, request, urls=None, **kwargs):
         """
         Post-process marshalled object to add any extra data.
 
@@ -133,15 +133,16 @@ class ApiView(View):
         """
         object_id = marshalled['@id']
         version = kwargs['api_version']
-        for key, args in urls.items():
-            name = args['name']
-            kwargs = args['kwargs'].copy()
-            # If kwargs has 'OBJECT_ID' placeholder, we replace with id
-            for k, v in kwargs.items():
-                if v == 'OBJECT_ID':
-                    kwargs[k] = object_id
-            url = build_url(request, name, version, **kwargs)
-            marshalled[key] = url
+        if urls is not None:
+            for key, args in urls.items():
+                name = args['name']
+                kwargs = args['kwargs'].copy()
+                # If kwargs has 'OBJECT_ID' placeholder, we replace with id
+                for k, v in kwargs.items():
+                    if v == 'OBJECT_ID':
+                        kwargs[k] = object_id
+                url = build_url(request, name, version, **kwargs)
+                marshalled[key] = url
         return marshalled
 
 
@@ -255,7 +256,7 @@ class WellView(ObjectView):
         opts['load_pixels'] = True
         return opts
 
-    def add_data(self, marshalled, request, urls={}, **kwargs):
+    def add_data(self, marshalled, request, urls=None, **kwargs):
         """Add 'url:image' to any 'Image' in 'WellSamples'."""
         marshalled = super(WellView, self).add_data(marshalled, request,
                                                     urls=urls, **kwargs)
@@ -461,7 +462,7 @@ class WellsView(ObjectsView):
         opts['load_images'] = True
         return opts
 
-    def add_data(self, marshalled, request, urls={}, **kwargs):
+    def add_data(self, marshalled, request, urls=None, **kwargs):
         """Add 'url:image' to any 'Image' in 'WellSamples'."""
         marshalled = super(WellsView, self).add_data(marshalled, request,
                                                      urls=urls, **kwargs)
