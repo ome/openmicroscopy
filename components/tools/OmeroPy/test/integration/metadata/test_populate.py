@@ -153,7 +153,7 @@ class Fixture(object):
             os.path.dirname(__file__), 'bulk_to_map_annotation_context.yml')
 
     def get_namespaces(self):
-        return NSBULKANNOTATIONS
+        return [NSBULKANNOTATIONS]
 
     def assert_rows(self, rows):
         assert rows == self.rowCount * self.colCount
