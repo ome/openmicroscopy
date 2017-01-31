@@ -905,9 +905,7 @@ class TestPopulateMetadata(ITest):
         fixture2.init(self)
         self._test_parsing_context(fixture2, 2)
         self._test_bulk_to_map_annotation_dedup(fixture1, fixture2)
-        # TODO: This will currently fail because the MapAnnotations are
-        # deleted even if they're multiply linked
-        # self._test_delete_map_annotation_context_dedup(fixture1, fixture2)
+        self._test_delete_map_annotation_context_dedup(fixture1, fixture2)
 
     def testPopulateMetadataNsAnnsUnavailableHeader(self):
         """
