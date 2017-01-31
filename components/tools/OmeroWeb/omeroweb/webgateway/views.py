@@ -779,11 +779,11 @@ def _get_prepared_image(request, iid, server_id=None, conn=None,
         for ch in activechannels:
             allchannels.append(abs(int(ch)))
         # First save properties of all channels
-        if not img.setActiveChannels(allchannels, windows, colors, reverses):
+        if saveDefs and not img.setActiveChannels(allchannels, windows, colors, reverses):
             logger.debug(
                 "Something bad happened while setting the active channels...")
         # Save the active/inactive state of the channels
-        if not img.setActiveChannels(activechannels):
+        if not img.setActiveChannels(activechannels, windows, colors, reverses):
             logger.debug(
                 "Something bad happened while setting the active channels...")
     if r.get('m', None) == 'g':
