@@ -111,6 +111,11 @@ class TestPydictTextIo(ITest):
             fileobj, session=self.client.getSession())
         assert data == {'a': 2}
 
+    def test_load_fromstring(self):
+        content = self.getTestJson()
+        data = pydict_text_io.load(content)
+        assert data == {'a': 2}
+
     @pytest.mark.parametrize('format', ['json', 'yaml'])
     def test_dump(data, tmpdir, format):
         d = {'a': 2}
