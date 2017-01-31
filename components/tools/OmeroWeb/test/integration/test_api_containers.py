@@ -263,16 +263,25 @@ class TestContainers(IWebTest):
         assert len(rsp['data']) == 5
         assert_objects(conn, rsp['data'], children, dtype=dtype,
                        extra=child_counts)
+        assert rsp['meta'] == {'totalCount': 5,
+                               'limit': settings.PAGE,
+                               'offset': 0}
 
         # Pagination
         limit = 3
         payload = {ptype: parent.id.val, 'limit': limit}
         rsp = _get_response_json(django_client, request_url, payload)
         assert_objects(conn, rsp['data'], children[0:limit], dtype=dtype)
+        assert rsp['meta'] == {'totalCount': 5,
+                               'limit': limit,
+                               'offset': 0}
         payload['offset'] = limit   # page 2
         rsp = _get_response_json(django_client, request_url, payload)
         assert_objects(conn, rsp['data'], children[limit:limit * 2],
                        dtype=dtype)
+        assert rsp['meta'] == {'totalCount': 5,
+                               'limit': limit,
+                               'offset': limit}
 
     def test_screens(self, user1, user_screens):
         """Test listing of Screens."""
