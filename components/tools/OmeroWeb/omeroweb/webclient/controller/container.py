@@ -28,6 +28,7 @@ from omero.rtypes import rstring, rlong, unwrap
 from django.conf import settings
 from django.utils.encoding import smart_str
 import logging
+from omero.cmd import Delete2
 
 from webclient.controller import BaseController
 
