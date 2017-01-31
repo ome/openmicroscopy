@@ -472,7 +472,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
 
     /**
      * Test that a light admin can
-     * edit the name of a dataset
+     * edit the name of a project
      * on behalf of another user solely with <tt>Sudo</tt> privilege
      * or without it, using permWriteOwned privilege
      * @throws Exception unexpected
@@ -768,16 +768,11 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
          * the light admin is not a member of is expected to succeed
          */
         boolean importNotYourGroupExpectSuccess = (isAdmin && permWriteOwned && permWriteFile && permWriteManagedRepo);
-        /* the first workflow with importing into the group of the normalUser directly
+        /* importing into the group of the normalUser directly
          * will succeed if the import will succeed and the subsequent Chown is possible
          */
         boolean importNotYourGroupAndChownExpectSuccess =
                 (isAdmin && permWriteOwned && permWriteFile && permChown && permWriteManagedRepo);
-        /* the second workflow with importing into the group of the light admin and
-         * subsequent moving the data into the group of normalUser and chowning
-         * them to the normal user will succeed if Chgrp and Chown is possible,
-         * which needs permChgrp, permChown, permWriteFile and permWriteOwned
-         */
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         /* set up the light admin's permissions for this test */
         ArrayList <String> permissions = new ArrayList <String>();
