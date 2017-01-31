@@ -1432,13 +1432,18 @@ class DeleteMapAnnotationContext(_QueryContext):
     def parse(self):
         return self.populate()
 
-    def _get_annotations_for_deletion(self, objtype, objids, anntype, nss):
+    def _get_annotations_for_deletion(
+            self, objtype, objids, anntype, nss, getlink=False):
         r = []
+        if getlink:
+            fetch = ''
+        else:
+            fetch = 'child.'
         if objids:
-            q = ("SELECT child.id FROM %sAnnotationLink WHERE "
+            q = ("SELECT %sid FROM %sAnnotationLink WHERE "
                  "child.class=%s AND parent.id in (:ids) "
                  "AND child.ns in (:nss)")
-            r = self.projection(q % (objtype, anntype), objids, nss,
+            r = self.projection(q % (fetch, objtype, anntype), objids, nss,
                                 batch_size=10000)
             log.debug("%s: %d %s(s)", objtype, len(set(r)), anntype)
         return r
@@ -1538,20 +1543,28 @@ class DeleteMapAnnotationContext(_QueryContext):
                   ["%s:%s" % (k, v is not None and len(v) or "NA")
                    for k, v in parentids.items()])
 
-        self.mapannids = set()
+        self.mapannids = dict()
         self.fileannids = set()
         not_annotatable = ('WellSample',)
 
+        # Currently deleting AnnotationLinks should automatically delete
+        # orphaned MapAnnotations:
+        # https://github.com/openmicroscopy/openmicroscopy/pull/4907
+        # Note this may change in future:
+        # https://trello.com/c/Gnoi9mTM/141-never-delete-orphaned-map-annotations
         nss = self._get_configured_namespaces()
         for objtype, objids in parentids.iteritems():
             if objtype in not_annotatable:
                 continue
             r = self._get_annotations_for_deletion(
-                objtype, objids, 'MapAnnotation', nss)
-            self.mapannids.update(r)
+                objtype, objids, 'MapAnnotation', nss, getlink=True)
+            if r:
+                try:
+                    self.mapannids[objtype].update(r)
+                except KeyError:
+                    self.mapannids[objtype] = set(r)
 
-        log.info("Total: %d MapAnnotation(s) in %s",
-                 len(set(self.mapannids)), nss)
+        log.info("Total: [%s] MapAnnotationLink(s) in %s", self.mapannids, nss)
 
         if self.attach:
             nss = [NSBULKANNOTATIONSCONFIG]
@@ -1566,9 +1579,10 @@ class DeleteMapAnnotationContext(_QueryContext):
                      len(set(self.fileannids)), nss)
 
     def write_to_omero(self, batch_size=1000, loops=10, ms=500):
-        for batch in self._batch(self.mapannids, sz=batch_size):
-            self._write_to_omero_batch({"MapAnnotation": batch},
-                                       loops, ms)
+        for objtype, maids in self.mapannids.iteritems():
+            for batch in self._batch(maids, sz=batch_size):
+                self._write_to_omero_batch(
+                    {"%sAnnotationLink" % objtype: batch}, loops, ms)
         for batch in self._batch(self.fileannids, sz=batch_size):
             self._write_to_omero_batch({"FileAnnotation": batch},
                                        loops, ms)
@@ -1586,10 +1600,14 @@ class DeleteMapAnnotationContext(_QueryContext):
         # an exception has been thrown (likely LockTimeout)
         rsp = callback.getResponse()
         if isinstance(rsp, omero.cmd.OK):
+            ndal = len(rsp.deletedObjects.get(
+                "ome.model.annotations.AnnotationLink", []))
             ndma = len(rsp.deletedObjects.get(
                 "ome.model.annotations.MapAnnotation", []))
             ndfa = len(rsp.deletedObjects.get(
                 "ome.model.annotations.FileAnnotation", []))
+            if ndal:
+                log.info("Deleted %d AnnotationLink(s)", ndal)
             if ndma:
                 log.info("Deleted %d MapAnnotation(s)", ndma)
             if ndfa:
