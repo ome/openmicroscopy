@@ -25,7 +25,9 @@
 """
 
 from omero.testlib import ITest
+from omero.rtypes import rstring
 from omero.rtypes import unwrap, wrap
+from omero.model import CommentAnnotationI
 from omero.model import TagAnnotationI, ImageI, ImageAnnotationLinkI
 from omero.model import PermissionsI
 from omero.sys import ParametersI
@@ -150,3 +152,23 @@ class TestQuery(ITest):
         for idx in range(len(result1)-1):
             # Omit final since == isn't defined for Ice objects.
             assert result1[idx] == result2[idx]
+
+    def testClassType(self):
+        uuid = self.uuid()
+        created = []
+        for Ann in (CommentAnnotationI, TagAnnotationI):
+            ann = Ann()
+            ann.setNs(rstring(uuid))
+            ann = self.update.saveAndReturnObject(ann)
+            created.append(ann)
+        query_string = """
+        select type(a.class) from Annotation a
+        where a.ns = :uuid
+        """
+        params = ParametersI()
+        params.addString("uuid", uuid)
+        rv = self.query.projection(query_string, params)
+        rv = [x[0] for x in unwrap(rv)]
+        assert len(rv) == 2
+        assert "ome.model.annotations.CommentAnnotation" in rv
+        assert "ome.model.annotations.TagAnnotation" in rv
