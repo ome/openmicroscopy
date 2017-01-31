@@ -51,15 +51,10 @@ from omero.util.metadata_mapannotations import (
     MapAnnotationManager)
 from omero.util.metadata_utils import (
     KeyValueListPassThrough, KeyValueGroupList, NSBULKANNOTATIONSCONFIG)
+from omero.util import pydict_text_io
 from omero import client
 
 from populate_roi import ThreadPool
-
-try:
-    import yaml
-    YAML_ENABLED = True
-except ImportError:
-    YAML_ENABLED = False
 
 
 log = logging.getLogger("omero.util.populate_metadata")
@@ -1087,31 +1082,16 @@ class _QueryContext(object):
 
 
 def get_config(session, cfg=None, cfgid=None):
-    if not YAML_ENABLED:
-        raise ImportError("yaml (PyYAML) module required")
-
     if cfgid:
-        try:
-            rfs = session.createRawFileStore()
-            rfs.setFileId(cfgid)
-            rawdata = rfs.read(0, rfs.size())
-        finally:
-            rfs.close()
+        cfgdict = pydict_text_io.load(cfgid)
     elif cfg:
-        with open(cfg, 'r') as f:
-            rawdata = f.read()
+        cfgdict = pydict_text_io.load(cfg)
     else:
         raise Exception("Configuration file required")
 
-    cfg = list(yaml.load_all(rawdata))
-    if len(cfg) != 1:
-        raise Exception(
-            "Expected YAML file with one document, found %d" % len(cfg))
-    cfg = cfg[0]
-
-    default_cfg = cfg.get("defaults")
-    column_cfgs = cfg.get("columns")
-    advanced_cfgs = cfg.get("advanced", {})
+    default_cfg = cfgdict.get("defaults")
+    column_cfgs = cfgdict.get("columns")
+    advanced_cfgs = cfgdict.get("advanced", {})
     if not default_cfg and not column_cfgs:
         raise Exception(
             "Configuration defaults and columns were both empty")
@@ -1432,7 +1412,8 @@ class DeleteMapAnnotationContext(_QueryContext):
         """
         :param client: OMERO client object
         :param target_object: The object to be processed
-        :param file, fileid, cfg, cfgid: Ignored
+        :param file, fileid: Ignored
+        :param cfg, cfgid: Configuration file
         :param attach: Delete all attached config files (recursive,
                default False)
         """
