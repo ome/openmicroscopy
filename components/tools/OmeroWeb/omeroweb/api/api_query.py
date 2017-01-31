@@ -24,6 +24,27 @@ from omero.rtypes import unwrap
 
 from api_marshal import marshal_objects
 from copy import deepcopy
+from omero.sys import ParametersI
+from omero.rtypes import wrap
+
+
+def get_wellsample_indices(conn, plate_id):
+    """
+    Return min and max WellSample index for a Plate.
+
+    @param conn:        BlitzGateway
+    @param plate_id:    Plate ID
+    @return             A dict of parent_id: child_count
+    """
+    ctx = deepcopy(conn.SERVICE_OPTS)
+    ctx.setOmeroGroup(-1)
+    params = ParametersI()
+    params.add('id', wrap(plate_id))
+    query = "select minIndex(ws), maxIndex(ws) from Well well " \
+            "join well.wellSamples ws where well.plate.id=:id"
+    result = conn.getQueryService().projection(query, params, ctx)
+    result = [r for r in unwrap(result)[0] if r is not None]
+    return result
 
 
 def query_objects(conn, object_type,

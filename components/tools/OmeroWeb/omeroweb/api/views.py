@@ -28,7 +28,7 @@ from django.conf import settings
 import traceback
 import json
 
-from api_query import query_objects
+from api_query import query_objects, get_wellsample_indices
 from omero_marshal import get_encoder, get_decoder, OME_SCHEMA_URL
 from omero import ValidationException
 from omeroweb.connector import Server
@@ -123,7 +123,7 @@ class ApiView(View):
         """Wrap other methods to add decorators."""
         return super(ApiView, self).dispatch(*args, **kwargs)
 
-    def add_data(self, marshalled, request, urls=None, **kwargs):
+    def add_data(self, marshalled, request, conn, urls=None, **kwargs):
         """
         Post-process marshalled object to add any extra data.
 
@@ -162,7 +162,7 @@ class ObjectView(ApiView):
                                                      object_id))
         encoder = get_encoder(obj._obj.__class__)
         marshalled = encoder.encode(obj._obj)
-        self.add_data(marshalled, request, self.urls, **kwargs)
+        self.add_data(marshalled, request, conn, self.urls, **kwargs)
         return marshalled
 
     def delete(self, request, object_id, conn=None, **kwargs):
@@ -243,6 +243,15 @@ class PlateView(ObjectView):
                       'kwargs': {'plate_id': 'OBJECT_ID'}}
     }
 
+    def add_data(self, marshalled, request, conn, urls=None, **kwargs):
+        """Add min/max WellSampleIndex."""
+        marshalled = super(PlateView, self).add_data(marshalled, request, conn,
+                                                     urls=urls, **kwargs)
+        idx = get_wellsample_indices(conn, marshalled['@id'])
+
+        marshalled['omero:wellsampleIndex'] = idx
+        return marshalled
+
 
 class WellView(ObjectView):
     """Handle access to an individual Well to GET or DELETE it."""
@@ -256,9 +265,9 @@ class WellView(ObjectView):
         opts['load_pixels'] = True
         return opts
 
-    def add_data(self, marshalled, request, urls=None, **kwargs):
+    def add_data(self, marshalled, request, conn, urls=None, **kwargs):
         """Add 'url:image' to any 'Image' in 'WellSamples'."""
-        marshalled = super(WellView, self).add_data(marshalled, request,
+        marshalled = super(WellView, self).add_data(marshalled, request, conn,
                                                     urls=urls, **kwargs)
         image_urls = {
             'url:image': {'name': 'api_image',
@@ -268,7 +277,8 @@ class WellView(ObjectView):
             # For each WellSample, add image urls to Image
             for ws in marshalled['WellSamples']:
                 if 'Image' in ws:
-                    self.add_data(ws['Image'], request, image_urls, **kwargs)
+                    self.add_data(ws['Image'], request, conn,
+                                  image_urls, **kwargs)
         return marshalled
 
 
@@ -304,7 +314,7 @@ class ObjectsView(ApiView):
         marshalled = query_objects(conn, self.OMERO_TYPE, group,
                                    opts, normalize)
         for m in marshalled['data']:
-            self.add_data(m, request, self.urls, **kwargs)
+            self.add_data(m, request, conn, self.urls, **kwargs)
         return marshalled
 
 
@@ -462,7 +472,7 @@ class WellsView(ObjectsView):
         opts['load_images'] = True
         return opts
 
-    def add_data(self, marshalled, request, urls=None, **kwargs):
+    def add_data(self, marshalled, request, conn, urls=None, **kwargs):
         """Add 'url:image' to any 'Image' in 'WellSamples'."""
         marshalled = super(WellsView, self).add_data(marshalled, request,
                                                      urls=urls, **kwargs)
@@ -474,7 +484,8 @@ class WellsView(ObjectsView):
             # For each WellSample, add image urls to Image
             for ws in marshalled['WellSamples']:
                 if 'Image' in ws:
-                    self.add_data(ws['Image'], request, image_urls, **kwargs)
+                    self.add_data(ws['Image'], request, conn,
+                                  image_urls, **kwargs)
         return marshalled
 
 
