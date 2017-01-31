@@ -47,11 +47,21 @@ def load(fileobj, filetype=None, single=True, session=None):
     """
     Try and load a file in a format that is convertible to a Python dictionary
 
-    fileobj: Either a file-path or OriginalFile:ID
+    fileobj: Either a single json object string, file-path, or OriginalFile:ID
     single: If True file should only contain a single document, otherwise a
-        list of documents will always be returned.
+        list of documents will always be returned. Multiple documents are not
+        supported for JSON strings.
     session: If fileobj is an OriginalFile:ID a valid session is required
     """
+
+    try:
+        data = json.loads(fileobj)
+        if isinstance(data, dict):
+            if single:
+                return data
+            return [data]
+    except ValueError:
+        pass
 
     m = re.match('originalfile:(\d+)$', fileobj, re.I)
     if m:
