@@ -298,19 +298,23 @@ public class FigureTableModel
 		}
 		else if (MeasurementAttributes.START_DECORATION.equals(key)) {
             LineDecoration dec = null;
-            Cap c = Cap.findByValue(value.toString());
-            if (c != null) {
-                dec = c.newLineDecorationInstance();
+            if (value != null) {
+                Cap c = Cap.findByValue(value.toString());
+                if (c != null) {
+                    dec = c.newLineDecorationInstance();
+                }
+                figure.setAttribute(key, dec);
             }
-            figure.setAttribute(key, dec);
 		}
 		else if (MeasurementAttributes.END_DECORATION.equals(key)) {
 		    LineDecoration dec = null;
-            Cap c = Cap.findByValue(value.toString());
-            if (c != null) {
-                dec = c.newLineDecorationInstance();
-            }
-            figure.setAttribute(key, dec);
+		    if (value != null) {
+		        Cap c = Cap.findByValue(value.toString());
+	            if (c != null) {
+	                dec = c.newLineDecorationInstance();
+	            }
+	            figure.setAttribute(key, dec);
+		    }
         }
 		else  
 			figure.setAttribute(key, value);
