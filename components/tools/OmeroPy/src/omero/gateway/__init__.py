@@ -6462,7 +6462,10 @@ class ColorHolder (object):
         g = self.getGreen() << 16
         b = self.getBlue() << 8
         a = self.getAlpha() << 0
-        return r+g+b+a
+        rgba_int = r+g+b+a
+        if (rgba_int > (2**31-1)):       # convert to signed 32-bit int
+            rgba_int = rgba_int - 2**32
+        return int(rgba_int)
 
 
 class _LogicalChannelWrapper (BlitzObjectWrapper):
