@@ -307,14 +307,14 @@ public class FigureTableModel
             }
 		}
 		else if (MeasurementAttributes.END_DECORATION.equals(key)) {
-		    LineDecoration dec = null;
-		    if (value != null) {
-		        Cap c = Cap.findByValue(value.toString());
-	            if (c != null) {
-	                dec = c.newLineDecorationInstance();
-	            }
-	            figure.setAttribute(key, dec);
-		    }
+            LineDecoration dec = null;
+            if (value != null) {
+                Cap c = Cap.findByValue(value.toString());
+                if (c != null) {
+                    dec = c.newLineDecorationInstance();
+                }
+                figure.setAttribute(key, dec);
+            }
         }
 		else  
 			figure.setAttribute(key, value);
