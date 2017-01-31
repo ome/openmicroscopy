@@ -20,7 +20,7 @@ from omero.cli import CLI
 from omero.cli import ProxyStringType
 from omero.constants import namespaces
 from omero.gateway import BlitzGateway
-from omero.util import populate_metadata, populate_roi
+from omero.util import populate_metadata, populate_roi, pydict_text_io
 from omero.util.metadata_utils import NSBULKANNOTATIONSCONFIG
 from omero.util.metadata_utils import NSBULKANNOTATIONSRAW
 
@@ -201,6 +201,9 @@ class MetadataControl(BaseControl):
 
         populate.add_argument("--attach", action="store_true", help=(
             "Upload input or configuration files and attach to parent object"))
+
+        populate.add_argument("--localcfg", help=(
+            "Local configuration file or a JSON object string"))
 
         populateroi.add_argument(
             "--measurement", type=int, default=None,
@@ -406,6 +409,11 @@ class MetadataControl(BaseControl):
 
         context_class = dict(self.POPULATE_CONTEXTS)[args.context]
 
+        if args.localcfg:
+            localcfg = pydict_text_io.load(args.localcfg)
+        else:
+            localcfg = {}
+
         fileid = args.fileid
         cfgid = args.cfgid
 
@@ -426,7 +434,8 @@ class MetadataControl(BaseControl):
 
         # Note some contexts only support a subset of these args
         ctx = context_class(client, args.obj, file=args.file, fileid=fileid,
-                            cfg=args.cfg, cfgid=cfgid, attach=args.attach)
+                            cfg=args.cfg, cfgid=cfgid, attach=args.attach,
+                            options=localcfg)
         ctx.parse()
         if not args.dry_run:
             wait = args.wait

@@ -747,7 +747,8 @@ class ParsingContext(object):
     """Generic parsing context for CSV files."""
 
     def __init__(self, client, target_object, file=None, fileid=None,
-                 cfg=None, cfgid=None, attach=False, column_types=None):
+                 cfg=None, cfgid=None, attach=False, column_types=None,
+                 options=None):
         '''
         This lines should be handled outside of the constructor:
 
@@ -1104,7 +1105,7 @@ class BulkToMapAnnotationContext(_QueryContext):
     """
 
     def __init__(self, client, target_object, file=None, fileid=None,
-                 cfg=None, cfgid=None, attach=False):
+                 cfg=None, cfgid=None, attach=False, options=None):
         """
         :param client: OMERO client object
         :param target_object: The object to be annotated
@@ -1408,7 +1409,7 @@ class DeleteMapAnnotationContext(_QueryContext):
     """
 
     def __init__(self, client, target_object, file=None, fileid=None,
-                 cfg=None, cfgid=None, attach=False):
+                 cfg=None, cfgid=None, attach=False, options=None):
         """
         :param client: OMERO client object
         :param target_object: The object to be processed
@@ -1428,6 +1429,10 @@ class DeleteMapAnnotationContext(_QueryContext):
             self.default_cfg = None
             self.column_cfgs = None
             self.advanced_cfgs = None
+
+        self.options = {}
+        if options:
+            self.options = options
 
     def parse(self):
         return self.populate()
@@ -1449,6 +1454,14 @@ class DeleteMapAnnotationContext(_QueryContext):
         return r
 
     def _get_configured_namespaces(self):
+        try:
+            nss = self.options['ns']
+            if isinstance(nss, list):
+                return nss
+            return [nss]
+        except KeyError:
+            pass
+
         nss = set([omero.constants.namespaces.NSBULKANNOTATIONS])
         if self.column_cfgs:
             for c in self.column_cfgs:
