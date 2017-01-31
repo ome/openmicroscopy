@@ -6487,10 +6487,10 @@ class ColorHolder (object):
         :rtype:     int
         """
 
-        r = self.getRed() << 24
-        g = self.getGreen() << 16
-        b = self.getBlue() << 8
-        a = self.getAlpha() << 0
+        a = self.getAlpha() << 24
+        r = self.getRed() << 16
+        g = self.getGreen() << 8
+        b = self.getBlue() << 0
         return r+g+b+a
 
 
