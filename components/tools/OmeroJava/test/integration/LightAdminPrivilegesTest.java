@@ -696,11 +696,50 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
             throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
         final EventContext normalUser = newUserAndGroup("rwr-r-");
-        final OriginalFile file = (OriginalFile) iUpdate.saveAndReturnObject(mmFactory.createOriginalFile());
+        /* fetch a script from the server */
+        final List<OriginalFile> scripts = factory.getScriptService().getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE);
+        RawFileStorePrx rfs = factory.createRawFileStore();
+        rfs.setFileId(scripts.get(0).getId().getValue());
+        final byte[] fileContentOriginal = rfs.read(0, (int) rfs.size());
+        rfs.close();
+        /* upload the script as a new script */
+        final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
+        RepositoryPrx repo = getRepository(Repository.SCRIPT);
+        final OriginalFile testScript = repo.register(testScriptName, omero.rtypes.rstring(ScriptServiceTest.PYTHON_MIMETYPE));
+        final long testScriptId = testScript.getId().getValue();
+        rfs = repo.file(testScriptName, "rw");
+        rfs.write(fileContentOriginal, 0, fileContentOriginal.length);
+        rfs.close();
+        /* check that script is readable */
+        byte[] fileContentCurrent;
+        rfs = factory.createRawFileStore();
+        rfs.setFileId(testScriptId);
+        fileContentCurrent = rfs.read(0, (int) rfs.size());
+        rfs.close();
+        Assert.assertEquals(fileContentCurrent, fileContentOriginal);
+        /* try to delete the script */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeDeleteScriptRepo.value : null);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
-        doChange(client, factory, Requests.delete().target(file).build(), isExpectSuccess);
+        doChange(client, factory, Requests.delete().target(testScript).build(), isExpectSuccess);
+        /* check the content of the script */
+        loginUser(normalUser);
+        rfs = factory.createRawFileStore();
+        try {
+            rfs.setFileId(testScriptId);
+            fileContentCurrent = rfs.read(0, (int) rfs.size());
+            Assert.assertEquals(fileContentCurrent, fileContentOriginal);
+            Assert.assertFalse(isExpectSuccess);
+        } catch (Ice.LocalException | ServerError se) {
+            /* can catch only ServerError once RawFileStoreTest.testBadFileId is fixed */
+            Assert.assertTrue(isExpectSuccess);
+        } finally {
+            rfs.close();
+        }
+        if (!isExpectSuccess) {
+            /* avoid the problem captured by ScriptServiceTest.testGetScriptsFiltersUnreadable */
+            doChange(Requests.delete().target(testScript).build());
+        }
     }
 
     /**
