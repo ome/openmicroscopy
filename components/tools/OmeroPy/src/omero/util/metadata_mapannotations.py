@@ -26,8 +26,8 @@ Utilities for manipulating map-annotations used as metadata
 import logging
 from omero.model import NamedValue
 from omero.rtypes import rstring, unwrap
-from omero.sys import ParametersI
-
+# For complicated reasons `from omero.sys import ParametersI` doesn't work
+from omero_sys_ParametersI import ParametersI
 
 log = logging.getLogger("omero.util.metadata_mapannotations")
 
