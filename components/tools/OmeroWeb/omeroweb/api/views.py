@@ -445,6 +445,21 @@ class ImagesView(ObjectsView):
         return opts
 
 
+class PlateAcquisitionsView(ObjectsView):
+    """Handles GET for /plates/:plate_id/plateacquisitions."""
+
+    OMERO_TYPE = 'PlateAcquisition'
+
+    def get_opts(self, request, **kwargs):
+        """Add extra parameters to the opts dict."""
+        opts = super(PlateAcquisitionsView, self).get_opts(request, **kwargs)
+        opts['order_by'] = 'lower(obj.name)'
+        # at /plates/:plate_id/plateacquisitions/ we have 'plate_id' in kwargs
+        if 'plate_id' in kwargs:
+            opts['plate'] = long(kwargs['plate_id'])
+        return opts
+
+
 class WellsView(ObjectsView):
     """Handles GET for /wells/ to list available Images."""
 
