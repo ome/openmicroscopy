@@ -662,9 +662,9 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      */
     @Test(dataProvider = "combined privileges cases")
     public void testImporterAsSudoChown(boolean isAdmin, boolean isSudoing, boolean permChown,
-            boolean permWriteOwned, boolean permWriteFile, String groupPermissions) throws Exception {
+            boolean permWriteOwned, boolean permWriteFile, boolean permDeleteOwned, String groupPermissions) throws Exception {
         final EventContext normalUser = newUserAndGroup(groupPermissions);
-        final boolean chownPassing = isAdmin && permChown && permWriteOwned && permWriteFile;
+        final boolean chownPassing = isAdmin && permChown && permWriteOwned && permWriteFile && permDeleteOwned;
         final long anotherUserId = newUserAndGroup(groupPermissions).userId;
         /* set up the basic permissions for this test */
         ArrayList <String> permissions = new ArrayList <String>();
@@ -672,6 +672,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         if (permChown) permissions.add(AdminPrivilegeChown.value);;
         if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
         if (permWriteFile) permissions.add(AdminPrivilegeWriteFile.value);
+        if (permDeleteOwned) permissions.add(AdminPrivilegeDeleteOwned.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
         try {
@@ -766,8 +767,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         /* define case where the import without any sudo importing into a group
          * the light admin is not a member of is expected to succeed
          */
-        boolean permDeleteOwned = true;
-        if (!isAdmin) return;
         boolean importNotYourGroupExpectSuccess = (isAdmin && permWriteOwned && permWriteFile && permWriteManagedRepo);
         /* the first workflow with importing into the group of the normalUser directly
          * will succeed if the import will succeed and the subsequent Chown is possible
@@ -786,7 +785,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);;
         if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
         if (permWriteFile) permissions.add(AdminPrivilegeWriteFile.value);
-        if (permDeleteOwned) permissions.add(AdminPrivilegeWriteFile.value);
         if (permWriteManagedRepo) permissions.add(AdminPrivilegeWriteManagedRepo.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
