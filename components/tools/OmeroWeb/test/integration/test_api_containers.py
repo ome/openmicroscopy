@@ -249,11 +249,17 @@ class TestContainers(IWebTest):
         # List ALL Datasets or Plates
         rsp = _get_response_json(django_client, request_url, {})
         assert len(rsp['data']) == 6
+        assert rsp['meta'] == {'totalCount': 6,
+                               'limit': settings.PAGE,
+                               'offset': 0}
 
         # Filter Datasets or Plates by Orphaned
         payload = {'orphaned': 'true'}
         rsp = _get_response_json(django_client, request_url, payload)
         assert_objects(conn, rsp['data'], [orphaned], dtype=dtype)
+        assert rsp['meta'] == {'totalCount': 1,
+                               'limit': settings.PAGE,
+                               'offset': 0}
 
         # Filter Datasets by Project or Plates by Screen
         children.sort(cmp_name_insensitive)

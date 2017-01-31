@@ -147,12 +147,18 @@ class TestImages(IWebTest):
         # List ALL Images
         rsp = _get_response_json(django_client, images_url, {})
         assert len(rsp['data']) == 6
+        assert rsp['meta'] == {'totalCount': 6,
+                               'limit': settings.PAGE,
+                               'offset': 0}
 
         # Filter Images by Orphaned
         payload = {'orphaned': 'true'}
         rsp = _get_response_json(django_client, images_url, payload)
         assert_objects(conn, rsp['data'], [orphaned], dtype='Image',
                        opts={'load_pixels': True})
+        assert rsp['meta'] == {'totalCount': 1,
+                               'limit': settings.PAGE,
+                               'offset': 0}
 
         # Filter Images by Dataset
         images.sort(cmp_name_insensitive)
@@ -163,6 +169,9 @@ class TestImages(IWebTest):
         assert 'Channels' not in rsp['data'][0]['Pixels']
         assert_objects(conn, rsp['data'], images, dtype='Image',
                        opts={'load_pixels': True})
+        assert rsp['meta'] == {'totalCount': 5,
+                               'limit': settings.PAGE,
+                               'offset': 0}
 
         # Pagination, listing images via /datasets/:id/images/
         limit = 3
@@ -171,10 +180,16 @@ class TestImages(IWebTest):
         rsp = _get_response_json(django_client, dataset_images_url, payload)
         assert_objects(conn, rsp['data'], images[0:limit], dtype='Image',
                        opts={'load_pixels': True})
+        assert rsp['meta'] == {'totalCount': 5,
+                               'limit': limit,
+                               'offset': 0}
         payload['offset'] = limit   # page 2
         rsp = _get_response_json(django_client, images_url, payload)
         assert_objects(conn, rsp['data'], images[limit:limit * 2],
                        dtype='Image', opts={'load_pixels': True})
+        assert rsp['meta'] == {'totalCount': 5,
+                               'limit': limit,
+                               'offset': limit}
 
         # Show ONLY the orphaned image (channels are loaded by default)
         img_url = images_url + '%s/' % orphaned.id.val
