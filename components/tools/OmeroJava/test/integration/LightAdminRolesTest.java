@@ -58,6 +58,7 @@ import omero.model.enums.AdminPrivilegeChown;
 import omero.model.enums.AdminPrivilegeDeleteOwned;
 import omero.model.enums.AdminPrivilegeSudo;
 import omero.model.enums.AdminPrivilegeWriteFile;
+import omero.model.enums.AdminPrivilegeWriteManagedRepo;
 import omero.model.enums.AdminPrivilegeWriteOwned;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
@@ -761,16 +762,18 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
 
     @Test(dataProvider = "combined privileges cases")
     public void testImporterAsNoSudoChownOnlyWorkflow(boolean isAdmin, boolean permChgrp, boolean permChown,
-            boolean permWriteOwned, boolean permWriteFile, String groupPermissions) throws Exception {
+            boolean permWriteOwned, boolean permWriteFile, boolean permWriteManagedRepo, String groupPermissions) throws Exception {
         /* define case where the import without any sudo importing into a group
          * the light admin is not a member of is expected to succeed
          */
-        boolean importNotYourGroupExpectSuccess = (isAdmin && permWriteOwned && permWriteFile);
+        boolean permDeleteOwned = true;
+        if (!isAdmin) return;
+        boolean importNotYourGroupExpectSuccess = (isAdmin && permWriteOwned && permWriteFile && permWriteManagedRepo);
         /* the first workflow with importing into the group of the normalUser directly
          * will succeed if the import will succeed and the subsequent Chown is possible
          */
         boolean importNotYourGroupAndChownExpectSuccess =
-                (isAdmin && permWriteOwned && permWriteFile && permChown);
+                (isAdmin && permWriteOwned && permWriteFile && permChown && permWriteManagedRepo);
         /* the second workflow with importing into the group of the light admin and
          * subsequent moving the data into the group of normalUser and chowning
          * them to the normal user will succeed if Chgrp and Chown is possible,
@@ -783,6 +786,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);;
         if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
         if (permWriteFile) permissions.add(AdminPrivilegeWriteFile.value);
+        if (permDeleteOwned) permissions.add(AdminPrivilegeWriteFile.value);
+        if (permWriteManagedRepo) permissions.add(AdminPrivilegeWriteManagedRepo.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
         if (!isAdmin) return;
