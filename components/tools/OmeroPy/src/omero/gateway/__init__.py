@@ -6023,6 +6023,23 @@ class _PlateAcquisitionWrapper (BlitzObjectWrapper):
 
     OMERO_CLASS = 'PlateAcquisition'
 
+    @classmethod
+    def _getQueryString(cls, opts=None):
+        """
+        Extend base query to handle filtering of PlateAcquisitions by Plate.
+        Returns a tuple of (query, clauses, params).
+        Supported opts: 'plate': <plate_id> to filter by Plate
+
+        :param opts:        Dictionary of optional parameters.
+        :return:            Tuple of string, list, ParametersI
+        """
+        query, clauses, params = super(
+            _PlateAcquisitionWrapper, cls)._getQueryString(opts)
+        if opts is not None and 'plate' in opts:
+            clauses.append('obj.plate.id = :pid')
+            params.add('pid', rlong(opts['plate']))
+        return (query, clauses, params)
+
     def getName(self):
         name = super(_PlateAcquisitionWrapper, self).getName()
         if name is None:
