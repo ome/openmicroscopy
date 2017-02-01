@@ -1,6 +1,6 @@
 language: java
 
-sudo: required
+#sudo: required
 dist: trusty
 group: edge
 jdk: oraclejdk9
