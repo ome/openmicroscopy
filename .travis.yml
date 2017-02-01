@@ -1,7 +1,7 @@
 language: java
 
 dist: trusty
-jdk: oraclejdk8
+jdk: oraclejdk9
 
 # This (sudo: false) is needed to "run on container-based infrastructure" on
 # which cache: is available
