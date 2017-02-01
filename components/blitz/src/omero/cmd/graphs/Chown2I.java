@@ -22,6 +22,7 @@ package omero.cmd.graphs;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -160,7 +161,8 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
         /* if the current user is not an administrator then find of which groups the target user is a member */
         final EventContext eventContext = helper.getEventContext();
         /* see trac ticket 10691 re. enum values */
-        if (graphHelper.checkIsAdministrator(adminPrivileges.getPrivilege("Chown"))) {
+        final boolean isChownPrivilege = graphHelper.checkIsAdministrator(adminPrivileges.getPrivilege("Chown"));
+        if (isChownPrivilege) {
             acceptableGroupsFrom = null;
             acceptableGroupsTo = null;
         } else {
@@ -186,10 +188,17 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
 
         graphPolicy.registerPredicate(new PermissionsPredicate());
 
-        graphTraversal = graphHelper.prepareGraphTraversal(childOptions, REQUIRED_ABILITIES, graphPolicy, graphPolicyAdjusters,
-                aclVoter, systemTypes, graphPathBean, unnullable, new InternalProcessor(), dryRun);
+        final Set<GraphPolicy.Ability> requiredAbilities;
+        if (isChownPrivilege) {
+            requiredAbilities = Collections.<GraphPolicy.Ability>emptySet();
+        } else {
+            requiredAbilities = REQUIRED_ABILITIES;
+        }
 
-        if (acceptableGroupsFrom == null) {
+        graphTraversal = graphHelper.prepareGraphTraversal(childOptions, REQUIRED_ABILITIES, graphPolicy, graphPolicyAdjusters,
+                aclVoter, systemTypes, graphPathBean, unnullable, new InternalProcessor(requiredAbilities), dryRun);
+
+        if (isChownPrivilege) {
             graphTraversal.setOwnsAll();
         }
 
@@ -459,10 +468,13 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
         private final Long userFromId = helper.getEventContext().getCurrentUserId();
         private final Experimenter userTo = new Experimenter(userId, false);
 
+        private final Set<GraphPolicy.Ability> requiredAbilities;
+
         private final Set<LinkDetails> linksToChown = new HashSet<LinkDetails>();
 
-        public InternalProcessor() {
+        public InternalProcessor(Set<GraphPolicy.Ability> requiredAbilities) {
             super(helper.getSession());
+            this.requiredAbilities = requiredAbilities;
         }
 
         @Override
@@ -477,7 +489,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
 
         @Override
         public Set<GraphPolicy.Ability> getRequiredPermissions() {
-            return REQUIRED_ABILITIES;
+            return requiredAbilities;
         }
 
         /**
