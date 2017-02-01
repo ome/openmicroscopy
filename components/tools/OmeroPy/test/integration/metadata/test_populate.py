@@ -252,11 +252,13 @@ class Plate2Wells(Fixture):
         anns = plate.linkedAnnotationList()
         return anns
 
-    def get_child_annotations(self):
+    def get_child_annotations(self, ns=None):
         query = """
             SELECT wal.child,wal.parent.id,wal.parent.row,wal.parent.column
             FROM WellAnnotationLink wal
             WHERE wal.parent.plate.id=%d""" % self.plate.id.val
+        if ns is not None:
+            query += (" AND wal.child.ns='%s'" % ns)
         qs = self.test.client.sf.getQueryService()
         was = unwrap(qs.projection(query, None))
         return was
@@ -885,10 +887,13 @@ class TestPopulateMetadata(ITest):
         self._test_bulk_to_map_annotation_context(fixture, 2)
         self._test_delete_map_annotation_context(fixture, 2)
 
-    def testPopulateMetadataNsAnnsDedup(self):
+    @mark.parametrize("ns", [
+        None, NSBULKANNOTATIONS, 'openmicroscopy.org/mapr/gene'])
+    def testPopulateMetadataNsAnnsDedup(self, ns):
         """
-        Similar to testPopulateMetadataNsAnns but use two plates and check
-        MapAnnotations aren't duplicated
+        Similar to testPopulateMetadataNsAnns but use two plates, check
+        MapAnnotations aren't duplicated, and filter by namespace
+        TODO: Only delete by namespace is currently implemented
         """
         try:
             import yaml
@@ -906,7 +911,7 @@ class TestPopulateMetadata(ITest):
         self._test_parsing_context(fixture2, 2)
         self._test_bulk_to_map_annotation_dedup(fixture1, fixture2)
         self._test_delete_map_annotation_context_dedup(
-            fixture1, fixture2, None)
+            fixture1, fixture2, ns)
 
     def testPopulateMetadataNsAnnsUnavailableHeader(self):
         """
@@ -1063,30 +1068,28 @@ class TestPopulateMetadata(ITest):
 
     def _test_delete_map_annotation_context_dedup(
             self, fixture1, fixture2, ns):
-        # Hard-code the number of expected map-annotations since the code in
-        # this file is complicated enough
-        ns_count = {
-            NSBULKANNOTATIONS: 8,
-            'openmicroscopy.org/mapr/gene': 8,
-            None: 16,
-        }
-        ns_unique = {
-            NSBULKANNOTATIONS: 8,
-            'openmicroscopy.org/mapr/gene': 4,
-            None: 12,
-        }
+        # Hard-code the number of expected map-annotations in the asserts
+        # since the code in this file is complicated enough without trying
+        # to parameterise this
 
         # Sanity checks in case the test code or fixtures are modified
         assert fixture1.annCount == 16
         assert fixture2.annCount == 16
-        assert ns in ns_count
 
         options = {}
         if ns:
             options['ns'] = ns
 
+        MAPR_NS_GENE = 'openmicroscopy.org/mapr/gene'
         assert len(fixture1.get_child_annotations()) == 16
+        assert len(fixture1.get_child_annotations(NSBULKANNOTATIONS)) == 8
+        assert len(fixture1.get_child_annotations(MAPR_NS_GENE)) == 8
+
         assert len(fixture2.get_child_annotations()) == 16
+        assert len(fixture2.get_child_annotations(NSBULKANNOTATIONS)) == 8
+        assert len(fixture2.get_child_annotations(MAPR_NS_GENE)) == 8
+
+        assert len(fixture2.get_all_map_annotations()) == 20
 
         ctx = DeleteMapAnnotationContext(
             self.client, fixture1.get_target(), cfg=fixture1.get_cfg(),
@@ -1094,9 +1097,18 @@ class TestPopulateMetadata(ITest):
         ctx.parse()
         ctx.write_to_omero(loops=10, ms=250)
 
-        assert len(fixture1.get_child_annotations()) == 16 - ns_count[ns]
-        assert len(fixture2.get_child_annotations()) == 16
-        assert len(fixture2.get_all_map_annotations()) == 12
+        if ns == NSBULKANNOTATIONS:
+            assert len(fixture1.get_child_annotations()) == 8
+            assert len(fixture2.get_child_annotations()) == 16
+            assert len(fixture2.get_all_map_annotations()) == 12
+        if ns == MAPR_NS_GENE:
+            assert len(fixture1.get_child_annotations()) == 8
+            assert len(fixture2.get_child_annotations()) == 16
+            assert len(fixture2.get_all_map_annotations()) == 20
+        if ns is None:
+            assert len(fixture1.get_child_annotations()) == 0
+            assert len(fixture2.get_child_annotations()) == 16
+            assert len(fixture2.get_all_map_annotations()) == 12
 
         ctx = DeleteMapAnnotationContext(
             self.client, fixture2.get_target(), cfg=fixture2.get_cfg(),
@@ -1104,9 +1116,22 @@ class TestPopulateMetadata(ITest):
         ctx.parse()
         ctx.write_to_omero(loops=10, ms=250)
 
-        assert len(fixture1.get_child_annotations()) == 16 - ns_count[ns]
-        assert len(fixture2.get_child_annotations()) == 16 - ns_count[ns]
-        assert len(fixture2.get_all_map_annotations()) == 12 - ns_unique[ns]
+        if ns == NSBULKANNOTATIONS:
+            assert len(fixture1.get_child_annotations()) == 8
+            assert len(fixture1.get_child_annotations(MAPR_NS_GENE)) == 8
+            assert len(fixture2.get_child_annotations()) == 8
+            assert len(fixture2.get_child_annotations(MAPR_NS_GENE)) == 8
+            assert len(fixture2.get_all_map_annotations()) == 4
+        if ns == MAPR_NS_GENE:
+            assert len(fixture1.get_child_annotations()) == 8
+            assert len(fixture1.get_child_annotations(NSBULKANNOTATIONS)) == 8
+            assert len(fixture2.get_child_annotations()) == 8
+            assert len(fixture2.get_child_annotations(NSBULKANNOTATIONS)) == 8
+            assert len(fixture2.get_all_map_annotations()) == 16
+        if ns is None:
+            assert len(fixture1.get_child_annotations()) == 0
+            assert len(fixture2.get_child_annotations()) == 0
+            assert len(fixture2.get_all_map_annotations()) == 0
 
 
 class MockMeasurementCtx(AbstractMeasurementCtx):
