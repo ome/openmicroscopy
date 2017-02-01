@@ -20,7 +20,7 @@ matrix:
 addons:
   apt_packages:
     - git
-    - zeroc-ice34
+    - zeroc-ice35
     - python-imaging
     - python-numpy
     - python-tables
