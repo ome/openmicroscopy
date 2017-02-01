@@ -1,5 +1,6 @@
 language: java
 
+dist: trusty
 jdk: oraclejdk8
 
 # This (sudo: false) is needed to "run on container-based infrastructure" on
@@ -19,7 +20,7 @@ matrix:
 addons:
   apt_packages:
     - git
-    - zeroc-ice34
+    - zeroc-ice35
     - python-imaging
     - python-numpy
     - python-tables
