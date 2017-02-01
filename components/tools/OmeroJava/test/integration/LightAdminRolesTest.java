@@ -666,20 +666,17 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * the chown action wiill succeed)
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "widened combined privileges cases")
+    @Test(dataProvider = "narrowed combined privileges cases")
     public void testImporterAsSudoChown(boolean isAdmin, boolean isSudoing, boolean permChown,
-            boolean permWriteOwned, boolean permWriteFile, boolean permDeleteOwned, boolean permDeleteManagedRepo, String groupPermissions) throws Exception {
-        final boolean chownPassing = isAdmin && permChown && permWriteOwned && permWriteFile && permDeleteOwned && permDeleteManagedRepo;
+            String groupPermissions) throws Exception {
+        final boolean chownPassing = isAdmin && permChown;
+        if (!isAdmin) return;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         final long anotherUserId = newUserAndGroup(groupPermissions).userId;
         /* set up the basic permissions for this test */
         ArrayList <String> permissions = new ArrayList <String>();
         permissions.add(AdminPrivilegeSudo.value);
         if (permChown) permissions.add(AdminPrivilegeChown.value);;
-        if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
-        if (permWriteFile) permissions.add(AdminPrivilegeWriteFile.value);
-        if (permDeleteOwned) permissions.add(AdminPrivilegeDeleteOwned.value);
-        if (permDeleteManagedRepo) permissions.add(AdminPrivilegeDeleteManagedRepo.value);
 
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
@@ -1334,6 +1331,38 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                                 }
                             }
                         }
+                    }
+                }
+            }
+        }
+        return testCases.toArray(new Object[testCases.size()][]);
+    }
+    /**
+     * @return narrowed test cases for adding the privileges combined with isAdmin cases
+     */
+    @DataProvider(name = "narrowed combined privileges cases")
+    public Object[][] provideNarrowedCombinedPrivilegesCases() {
+        int index = 0;
+        final int IS_ADMIN = index++;
+        final int IS_SUDOING = index++;
+        final int PERM_ADDITIONAL = index++;
+        final int GROUP_PERMS = index++;
+
+        final boolean[] booleanCases = new boolean[]{false, true};
+        final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
+        final List<Object[]> testCases = new ArrayList<Object[]>();
+
+        for (final boolean isAdmin : booleanCases) {
+            for (final boolean isSudoing : booleanCases) {
+                for (final boolean permAdditional : booleanCases) {
+                    for (final String groupPerms : permsCases) {
+                        final Object[] testCase = new Object[index];
+                        testCase[IS_ADMIN] = isAdmin;
+                        testCase[IS_SUDOING] = isSudoing;
+                        testCase[PERM_ADDITIONAL] = permAdditional;
+                        testCase[GROUP_PERMS] = groupPerms;
+                        // DEBUG  if (isAdmin == false && isRestricted == true && isSudo == false)
+                        testCases.add(testCase);
                     }
                 }
             }
