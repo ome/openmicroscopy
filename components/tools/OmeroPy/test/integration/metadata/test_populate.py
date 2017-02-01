@@ -241,7 +241,6 @@ class Plate2Wells(Fixture):
     def get_target(self):
         if not self.plate:
             self.plate = self.createPlate(self.rowCount, self.colCount)
-        print self.plate.id.val
         return self.plate
 
     def get_annotations(self):
@@ -961,12 +960,6 @@ class TestPopulateMetadata(TestPopulateMetadataHelper):
         but in practice each one uses data created by the others, so for
         now just run them all together
         """
-        try:
-            import yaml
-            print yaml, "found"
-        except Exception:
-            skip("PyYAML not installed.")
-
         fixture.init(self)
         t = self._test_parsing_context(fixture, batch_size)
         self._assert_parsing_context_values(t, fixture)
@@ -980,12 +973,6 @@ class TestPopulateMetadata(TestPopulateMetadataHelper):
         data type, as opposed to testPopulateMetadata which tests simple
         annotations on multiple OMERO data types
         """
-        try:
-            import yaml
-            print yaml, "found"
-        except Exception:
-            skip("PyYAML not installed.")
-
         fixture.init(self)
         t = self._test_parsing_context(fixture, 2)
 
@@ -1005,12 +992,6 @@ class TestPopulateMetadata(TestPopulateMetadataHelper):
         Similar to testPopulateMetadataNsAnns but use two plates and check
         MapAnnotations aren't duplicated
         """
-        try:
-            import yaml
-            print yaml, "found"
-        except Exception:
-            skip("PyYAML not installed.")
-
         fixture_empty = Plate2WellsNs2UnavailableHeader()
         fixture_empty.init(self)
         self._test_parsing_context(fixture_empty, 2)
@@ -1021,12 +1002,6 @@ class TestPopulateMetadata(TestPopulateMetadataHelper):
         Similar to testPopulateMetadataNsAnns but use two plates and check
         MapAnnotations aren't duplicated
         """
-        try:
-            import yaml
-            print yaml, "found"
-        except Exception:
-            skip("PyYAML not installed.")
-
         fixture_fail = Plate2WellsNs2Fail()
         fixture_fail.init(self)
         self._test_parsing_context(fixture_fail, 2)
@@ -1173,12 +1148,6 @@ class TestPopulateMetadataDedup(TestPopulateMetadataHelper):
         Similar to testPopulateMetadataNsAnns but use two plates, check
         MapAnnotations aren't duplicated, and filter by namespace
         """
-        try:
-            import yaml
-            print yaml, "found"
-        except Exception:
-            skip("PyYAML not installed.")
-
         fixture1 = Plate2WellsNs2()
         fixture1.init(self)
         self._test_parsing_context(fixture1, 2)
@@ -1195,12 +1164,6 @@ class TestPopulateMetadataDedup(TestPopulateMetadataHelper):
         Similar to testPopulateMetadataNsAnns but use two plates, check
         MapAnnotations aren't duplicated, and delete by namespace
         """
-        try:
-            import yaml
-            print yaml, "found"
-        except Exception:
-            skip("PyYAML not installed.")
-
         fixture1 = Plate2WellsNs2()
         fixture1.init(self)
         self._test_parsing_context(fixture1, 2)
