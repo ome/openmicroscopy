@@ -55,7 +55,6 @@ from omero.util.temp_files import create_path
 
 from omero.util.metadata_mapannotations import MapAnnotationPrimaryKeyException
 
-from pytest import skip
 from pytest import mark
 from pytest import raises
 
