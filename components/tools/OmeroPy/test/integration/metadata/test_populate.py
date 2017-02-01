@@ -840,6 +840,21 @@ class TestPopulateMetadata(ITest):
     )
     METADATA_NS_IDS = [x.__class__.__name__ for x in METADATA_NS_FIXTURES]
 
+    # This class includes counting map-annotations, so create a clean
+    # environment
+
+    def setup_class(cls):
+        pass
+
+    def teardown_class(cls):
+        pass
+
+    def setup_method(self, method):
+        super(TestPopulateMetadata, self).setup_class()
+
+    def teardown_method(self, method):
+        super(TestPopulateMetadata, self).teardown_class()
+
     @mark.parametrize("fixture", METADATA_FIXTURES, ids=METADATA_IDS)
     @mark.parametrize("batch_size", (None, 1, 10))
     def testPopulateMetadata(self, fixture, batch_size):
