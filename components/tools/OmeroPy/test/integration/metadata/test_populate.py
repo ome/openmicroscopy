@@ -427,10 +427,15 @@ class Plate2WellsNs2(Plate2WellsNs):
         return os.path.join(os.path.dirname(__file__),
                             'bulk_to_map_annotation_context_ns2.yml')
 
-    def assert_child_annotations(self, oas):
+    def assert_child_annotations(self, oas, onlyns=None):
+        """
+        Pass onlyns to check that only annotations in that namespace exist
+        """
         wellrcs = [coord2offset(c) for c in (
             'a1', 'a2', 'a3', 'a4', 'b1', 'b2', 'b3', 'b4')]
         nss = [NSBULKANNOTATIONS, MAPR_NS_GENE]
+        if onlyns:
+            nss = [onlyns]
         wellrc_ns = [(wrc, ns) for wrc in wellrcs for ns in nss]
         check = dict((k, None) for k in wellrc_ns)
         annids = []
@@ -449,13 +454,55 @@ class Plate2WellsNs2(Plate2WellsNs):
             # Use getMapValue to check ordering and duplicates
             check[(wrc, ns)] = [(p.name, p.value) for p in ma.getMapValue()]
 
-        # Row a
+        if onlyns == NSBULKANNOTATIONS:
+            self._assert_nsbulkann(check, wellrcs)
+            assert len(annids) == 8
+            assert len(set(annids)) == 8
+        if onlyns == MAPR_NS_GENE:
+            self._assert_nsgeneann(check, wellrcs)
+            assert len(annids) == 8
+            assert len(set(annids)) == 4
+        if not onlyns:
+            self._assert_nsgeneann(check, wellrcs)
+            assert len(annids) == 16
+            assert len(set(annids)) == 12
 
-        assert check[(wellrcs[0], nss[0])] == [
+    def _assert_nsbulkann(self, check, wellrcs):
+        # Row a
+        assert check[(wellrcs[0], NSBULKANNOTATIONS)] == [
             ('Gene', 'hh'),
             ('FlyBase URL', 'http://flybase.org/reports/FBgn0004644.html'),
         ]
-        assert check[(wellrcs[0], nss[1])] == [
+        assert check[(wellrcs[1], NSBULKANNOTATIONS)] == [
+            ('Gene', 'sws'),
+            ('FlyBase URL', 'http://flybase.org/reports/FBgn0003656.html'),
+        ]
+        assert check[(wellrcs[2], NSBULKANNOTATIONS)] == [
+            ('Gene', 'ken'),
+            ('FlyBase URL', 'http://flybase.org/reports/FBgn0011236.html'),
+        ]
+        assert check[(wellrcs[3], NSBULKANNOTATIONS)] == [
+            ('Gene', ''),
+            ('FlyBase URL', 'http://flybase.org/reports/FBgn0086378.html'),
+        ]
+
+        # Row b
+        assert check[(wellrcs[4], NSBULKANNOTATIONS)] == [
+            ('Gene', 'hh'),
+        ]
+        assert check[(wellrcs[5], NSBULKANNOTATIONS)] == [
+            ('Gene', 'sws'),
+        ]
+        assert check[(wellrcs[6], NSBULKANNOTATIONS)] == [
+            ('Gene', 'ken'),
+        ]
+        assert check[(wellrcs[7], NSBULKANNOTATIONS)] == [
+            ('Gene', ''),
+        ]
+
+    def _assert_nsgeneann(self, check, wellrcs):
+        # Row a
+        assert check[(wellrcs[0], MAPR_NS_GENE)] == [
             ('Gene', 'hh'),
             ('Gene name', 'hedgehog'),
             ('Gene name', 'bar-3'),
@@ -467,11 +514,7 @@ class Plate2WellsNs2(Plate2WellsNs):
             ('Gene name', 'Indian hedgehog'),
             ('Gene name', 'Sonic hedgehog'),
         ]
-        assert check[(wellrcs[1], nss[0])] == [
-            ('Gene', 'sws'),
-            ('FlyBase URL', 'http://flybase.org/reports/FBgn0003656.html'),
-        ]
-        assert check[(wellrcs[1], nss[1])] == [
+        assert check[(wellrcs[1], MAPR_NS_GENE)] == [
             ('Gene', 'sws'),
             ('Gene name', 'swiss cheese'),
             ('Gene name', 'olfE'),
@@ -480,11 +523,7 @@ class Plate2WellsNs2(Plate2WellsNs):
             ('Gene name', 'patatin like phospholipase domain containing 6'),
         ]
 
-        assert check[(wellrcs[2], nss[0])] == [
-            ('Gene', 'ken'),
-            ('FlyBase URL', 'http://flybase.org/reports/FBgn0011236.html'),
-        ]
-        assert check[(wellrcs[2], nss[1])] == [
+        assert check[(wellrcs[2], MAPR_NS_GENE)] == [
             ('Gene', 'ken'),
             ('Gene name', 'ken and barbie'),
             ('Gene name', 'CG5575'),
@@ -492,42 +531,22 @@ class Plate2WellsNs2(Plate2WellsNs):
             ('Gene name', 'B-cell lymphoma 6 protein'),
         ]
 
-        assert check[(wellrcs[3], nss[0])] == [
-            ('Gene', ''),
-            ('FlyBase URL', 'http://flybase.org/reports/FBgn0086378.html'),
-        ]
-        assert check[(wellrcs[3], nss[1])] == [
+        assert check[(wellrcs[3], MAPR_NS_GENE)] == [
             ('Gene', ''),
             ('Gene name', 'Alg-2'),
         ]
 
         # Row b
-
-        assert check[(wellrcs[4], nss[0])] == [
-            ('Gene', 'hh'),
-        ]
-        assert check[(wellrcs[4], nss[1])] == check[(wellrcs[0], nss[1])]
-
-        assert check[(wellrcs[5], nss[0])] == [
-            ('Gene', 'sws'),
-        ]
-        assert check[(wellrcs[5], nss[1])] == check[(wellrcs[1], nss[1])]
-
-        assert check[(wellrcs[6], nss[0])] == [
-            ('Gene', 'ken'),
-        ]
-        assert check[(wellrcs[6], nss[1])] == check[(wellrcs[2], nss[1])]
-
-        assert check[(wellrcs[7], nss[0])] == [
-            ('Gene', ''),
-        ]
-        assert check[(wellrcs[7], nss[1])] == [
+        assert check[(wellrcs[4], MAPR_NS_GENE)] == check[
+            (wellrcs[0], MAPR_NS_GENE)]
+        assert check[(wellrcs[5], MAPR_NS_GENE)] == check[
+            (wellrcs[1], MAPR_NS_GENE)]
+        assert check[(wellrcs[6], MAPR_NS_GENE)] == check[
+            (wellrcs[2], MAPR_NS_GENE)]
+        assert check[(wellrcs[7], MAPR_NS_GENE)] == [
             ('Gene', ''),
             ('Gene name', 'Alg-2'),
         ]
-
-        assert len(annids) == 16
-        assert len(set(annids)) == 12
 
 
 class Plate2WellsNs2UnavailableHeader(Plate2WellsNs2):
@@ -1032,7 +1051,15 @@ class TestPopulateMetadataDedup(TestPopulateMetadataHelper):
     def teardown_method(self, method):
         super(TestPopulateMetadataDedup, self).teardown_class()
 
-    def _test_bulk_to_map_annotation_dedup(self, fixture1, fixture2):
+    # Hard-code the number of expected map-annotations in these tests
+    # since the code in this file is complicated enough without trying
+    # to parameterise this
+
+    def _test_bulk_to_map_annotation_dedup(self, fixture1, fixture2, ns):
+        options = {}
+        if ns:
+            options['ns'] = ns
+
         ann_count = fixture1.annCount
         assert fixture2.annCount == ann_count
         assert len(fixture1.get_child_annotations()) == ann_count
@@ -1044,7 +1071,7 @@ class TestPopulateMetadataDedup(TestPopulateMetadataHelper):
         anns = fixture2.get_annotations()
         fileid = anns[0].file.id.val
         ctx = BulkToMapAnnotationContext(
-            self.client, target, fileid=fileid, cfg=cfg)
+            self.client, target, fileid=fileid, cfg=cfg, options=options)
         ctx.parse()
         assert len(fixture1.get_child_annotations()) == ann_count
         assert len(fixture2.get_child_annotations()) == 0
@@ -1054,20 +1081,31 @@ class TestPopulateMetadataDedup(TestPopulateMetadataHelper):
         oas1 = fixture1.get_child_annotations()
         oas2 = fixture2.get_child_annotations()
         assert len(oas1) == ann_count
-        assert len(oas2) == ann_count
-        fixture1.assert_child_annotations(oas1)
-        fixture2.assert_child_annotations(oas2)
 
-        # 4 of the mapannotations should be common
+        if ns == NSBULKANNOTATIONS:
+            assert len(oas2) == 8
+            fixture1.assert_child_annotations(oas1)
+            fixture2.assert_child_annotations(oas2, ns)
+        if ns == MAPR_NS_GENE:
+            assert len(oas2) == 8
+            fixture1.assert_child_annotations(oas1)
+            fixture2.assert_child_annotations(oas2, ns)
+        if ns is None:
+            assert len(oas2) == ann_count
+            fixture1.assert_child_annotations(oas1)
+            fixture2.assert_child_annotations(oas2)
+
+        # The gene mapannotations should be common
         ids1 = set(unwrap(o[0].getId()) for o in oas1)
         ids2 = set(unwrap(o[0].getId()) for o in oas2)
-        assert len(ids1.intersection(ids2)) == 4
+        common = ids1.intersection(ids2)
+        if ns == NSBULKANNOTATIONS:
+            assert len(common) == 0
+        else:
+            assert len(common) == 4
 
     def _test_delete_map_annotation_context_dedup(
             self, fixture1, fixture2, ns):
-        # Hard-code the number of expected map-annotations in the asserts
-        # since the code in this file is complicated enough without trying
-        # to parameterise this
 
         # Sanity checks in case the test code or fixtures are modified
         assert fixture1.annCount == 16
@@ -1134,7 +1172,6 @@ class TestPopulateMetadataDedup(TestPopulateMetadataHelper):
         """
         Similar to testPopulateMetadataNsAnns but use two plates, check
         MapAnnotations aren't duplicated, and filter by namespace
-        TODO: Only delete by namespace is currently implemented
         """
         try:
             import yaml
@@ -1150,7 +1187,29 @@ class TestPopulateMetadataDedup(TestPopulateMetadataHelper):
         fixture2 = Plate2WellsNs2()
         fixture2.init(self)
         self._test_parsing_context(fixture2, 2)
-        self._test_bulk_to_map_annotation_dedup(fixture1, fixture2)
+        self._test_bulk_to_map_annotation_dedup(fixture1, fixture2, ns)
+
+    @mark.parametrize("ns", [None, NSBULKANNOTATIONS, MAPR_NS_GENE])
+    def testPopulateMetadataNsAnnsDedupDelete(self, ns):
+        """
+        Similar to testPopulateMetadataNsAnns but use two plates, check
+        MapAnnotations aren't duplicated, and delete by namespace
+        """
+        try:
+            import yaml
+            print yaml, "found"
+        except Exception:
+            skip("PyYAML not installed.")
+
+        fixture1 = Plate2WellsNs2()
+        fixture1.init(self)
+        self._test_parsing_context(fixture1, 2)
+        self._test_bulk_to_map_annotation_context(fixture1, 2)
+
+        fixture2 = Plate2WellsNs2()
+        fixture2.init(self)
+        self._test_parsing_context(fixture2, 2)
+        self._test_bulk_to_map_annotation_dedup(fixture1, fixture2, None)
         self._test_delete_map_annotation_context_dedup(
             fixture1, fixture2, ns)
 

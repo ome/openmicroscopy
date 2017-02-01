@@ -1138,6 +1138,10 @@ class BulkToMapAnnotationContext(_QueryContext):
         self.mapannotations = MapAnnotationManager()
         self._init_namespace_primarykeys()
 
+        self.options = {}
+        if options:
+            self.options = options
+
     def _init_namespace_primarykeys(self):
         try:
             pkcfg = self.advanced_cfgs['primary_group_keys']
@@ -1163,6 +1167,15 @@ class BulkToMapAnnotationContext(_QueryContext):
 
     def _get_ns_primary_keys(self, ns):
         return self.pkmap.get(ns, None)
+
+    def _get_selected_namespaces(self):
+        try:
+            nss = self.options['ns']
+            if isinstance(nss, list):
+                return nss
+            return [nss]
+        except KeyError:
+            return None
 
     def get_target(self, target_object):
         qs = self.client.getSession().getQueryService()
@@ -1323,6 +1336,7 @@ class BulkToMapAnnotationContext(_QueryContext):
         else:
             trs = [KeyValueListPassThrough(headers)]
 
+        selected_nss = self._get_selected_namespaces()
         for row in izip(*(c.values for c in data.columns)):
             targets = []
             for omerotype, n in idcols:
@@ -1341,6 +1355,9 @@ class BulkToMapAnnotationContext(_QueryContext):
                     ns = tr.name
                     if not ns:
                         ns = omero.constants.namespaces.NSBULKANNOTATIONS
+                    if (selected_nss is not None) and (ns not in selected_nss):
+                        log.debug('Skipping namespace: %s', ns)
+                        continue
                     try:
                         cma = self._create_cmap_annotation(targets, rowkvs, ns)
                         if cma:
