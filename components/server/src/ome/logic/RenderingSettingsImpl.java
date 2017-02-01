@@ -423,7 +423,31 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         for (RenderingDef settings : settingsList)
         {
             settingsMap.put(settings.getPixels().getId(), settings);
+            pixelsIds.remove(settings.getPixels().getId());
         }
+        
+        if (!pixelsIds.isEmpty()) {
+            // if the user doesn't have own rendering settings
+            // load the rendering settings of the pixels owner
+            p = new Parameters();
+            p.addIds(pixelsIds);
+
+            sql = PixelsImpl.RENDERING_DEF_QUERY_PREFIX
+                    + "rdef.pixels.id in (:ids) and "
+                    + "rdef.details.owner.id = rdef.pixels.details.owner.id";
+
+            settingsMap = new HashMap<Long, RenderingDef>();
+            settingsList = iQuery.findAllByQuery(sql, p);
+            for (RenderingDef settings : settingsList) {
+                settingsMap.put(settings.getPixels().getId(), settings);
+                pixelsIds.remove(settings.getPixels().getId());
+            }
+
+            if (!pixelsIds.isEmpty())
+                log.debug("Could not find rendering settings for all pixel ids (missing: "
+                        + pixelsIds + ")");
+        }
+        
         s1.stop();
         return settingsMap;
     }
