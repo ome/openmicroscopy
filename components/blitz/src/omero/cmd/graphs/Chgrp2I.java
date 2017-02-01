@@ -38,7 +38,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.SetMultimap;
 
 import ome.model.IObject;
-import ome.model.enums.AdminPrivilege;
 import ome.model.internal.Permissions;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.ACLVoter;
