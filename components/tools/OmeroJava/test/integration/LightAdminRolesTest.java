@@ -322,15 +322,19 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @throws Exception unexpected
      */
    @Test(dataProvider = "combined privileges cases")
-   public void testImporterDelete(boolean isAdmin, boolean isSudoing, boolean permChgrp,
-           boolean permWriteOwned, boolean permWriteFile, String groupPermissions) throws Exception {
+   public void testImporterDelete(boolean isAdmin, boolean isSudoing, boolean permWriteOwned, boolean permWriteFile, 
+           boolean permDeleteOwned, boolean permDeleteManagedRepo, String groupPermissions) throws Exception {
+       boolean deletePassing = (!isSudoing && permWriteOwned && permWriteFile && permDeleteOwned && permDeleteManagedRepo) || isSudoing;
+       boolean deletePassingWithoutWriteFile = !isSudoing && permWriteOwned && !permWriteFile && permDeleteOwned && permDeleteManagedRepo;
+       if (!isAdmin) return;
        final EventContext normalUser = newUserAndGroup(groupPermissions);
        /* set up the light admin's permissions for this test */
        ArrayList <String> permissions = new ArrayList <String>();
        permissions.add(AdminPrivilegeSudo.value);
-       if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);;
        if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
        if (permWriteFile) permissions.add(AdminPrivilegeWriteFile.value);
+       if (permDeleteOwned) permissions.add(AdminPrivilegeDeleteOwned.value);
+       if (permDeleteManagedRepo) permissions.add(AdminPrivilegeDeleteManagedRepo.value);
        final EventContext lightAdmin;
        lightAdmin = loginNewAdmin(isAdmin, permissions);
        try {
@@ -396,7 +400,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
        }
        /* Now check that the ImporterAs can delete the objects
         * created on behalf of the user */
-       if ((!isSudoing && permWriteOwned && permWriteFile) || isSudoing ) {
+       if (deletePassing) {
            try {
                doChange(Requests.delete().target(datasetImageLink).build());
                doChange(Requests.delete().target(projectDatasetLink).build());
@@ -406,7 +410,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
            } catch (ServerError se) {
            /* not expected */
            }
-       } else if (!isSudoing && permWriteOwned && !permWriteFile) {
+       } else if (deletePassingWithoutWriteFile) {
            try {
                doChange(Requests.delete().target(datasetImageLink).build());
                doChange(Requests.delete().target(projectDatasetLink).build());
@@ -440,7 +444,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                "FROM ProjectDatasetLink WHERE child.id = :id",
                new ParametersI().addId(sentDat.getId()));
        /* now check the existence/non-existence of the objects as appropriate */
-       if ((!isSudoing && permWriteOwned && permWriteFile) || isSudoing ) {
+       if (deletePassing) {
            /* successful delete expected */
            Assert.assertNull(retrievedRemoteFile, "original file should be deleted");
            Assert.assertNull(retrievedImage, "image should be deleted");
@@ -448,7 +452,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
            Assert.assertNull(retrievedProj, "project should be deleted");
            Assert.assertNull(retrievedDatasetImageLink, "Dat-Image link should be deleted");
            Assert.assertNull(retrievedProjectDatasetLink, "Proj-Dat link should be deleted");
-       } else if (!isSudoing && permWriteOwned && !permWriteFile){
+       } else if (deletePassingWithoutWriteFile){
            /* When WriteFile permission is missing, general expectation is that only OMERO objects
             * would be successfully deleted, except image, because image has under itself original file,
             * for deletion of which WriteFile is necessary. Unfortunately, in actual fact, slightly non-standard
