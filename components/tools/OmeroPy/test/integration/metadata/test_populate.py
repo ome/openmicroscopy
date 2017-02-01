@@ -821,145 +821,7 @@ class Project2Datasets(Fixture):
                 raise Exception("Unknown dataset: %s" % ds)
 
 
-class TestPopulateMetadata(ITest):
-
-    METADATA_FIXTURES = (
-        Screen2Plates(),
-        Plate2Wells(),
-        Dataset2Images(),
-        Dataset2Images1Missing(),
-        Dataset101Images(),
-        Project2Datasets(),
-        GZIP(),
-    )
-    METADATA_IDS = [x.__class__.__name__ for x in METADATA_FIXTURES]
-
-    METADATA_NS_FIXTURES = (
-        Plate2WellsNs(),
-        Plate2WellsNs2(),
-    )
-    METADATA_NS_IDS = [x.__class__.__name__ for x in METADATA_NS_FIXTURES]
-
-    # This class includes counting map-annotations, so create a clean
-    # environment
-
-    def setup_class(cls):
-        pass
-
-    def teardown_class(cls):
-        pass
-
-    def setup_method(self, method):
-        super(TestPopulateMetadata, self).setup_class()
-
-    def teardown_method(self, method):
-        super(TestPopulateMetadata, self).teardown_class()
-
-    @mark.parametrize("fixture", METADATA_FIXTURES, ids=METADATA_IDS)
-    @mark.parametrize("batch_size", (None, 1, 10))
-    def testPopulateMetadata(self, fixture, batch_size):
-        """
-        We should really test each of the parsing contexts in separate tests
-        but in practice each one uses data created by the others, so for
-        now just run them all together
-        """
-        try:
-            import yaml
-            print yaml, "found"
-        except Exception:
-            skip("PyYAML not installed.")
-
-        fixture.init(self)
-        t = self._test_parsing_context(fixture, batch_size)
-        self._assert_parsing_context_values(t, fixture)
-        self._test_bulk_to_map_annotation_context(fixture, batch_size)
-        self._test_delete_map_annotation_context(fixture, batch_size)
-
-    @mark.parametrize("fixture", METADATA_NS_FIXTURES, ids=METADATA_NS_IDS)
-    def testPopulateMetadataNsAnns(self, fixture):
-        """
-        Test complicated annotations (multiple ns/groups) on a single OMERO
-        data type, as opposed to testPopulateMetadata which tests simple
-        annotations on multiple OMERO data types
-        """
-        try:
-            import yaml
-            print yaml, "found"
-        except Exception:
-            skip("PyYAML not installed.")
-
-        fixture.init(self)
-        t = self._test_parsing_context(fixture, 2)
-
-        cols = t.getHeaders()
-        rows = t.getNumberOfRows()
-        fixture.assert_rows(rows)
-        data = [c.values for c in t.read(range(len(cols)), 0, rows).columns]
-        rowValues = zip(*data)
-        assert len(rowValues) == fixture.count
-        fixture.assert_row_values(rowValues)
-
-        self._test_bulk_to_map_annotation_context(fixture, 2)
-        self._test_delete_map_annotation_context(fixture, 2)
-
-    @mark.parametrize("ns", [
-        None, NSBULKANNOTATIONS, 'openmicroscopy.org/mapr/gene'])
-    def testPopulateMetadataNsAnnsDedup(self, ns):
-        """
-        Similar to testPopulateMetadataNsAnns but use two plates, check
-        MapAnnotations aren't duplicated, and filter by namespace
-        TODO: Only delete by namespace is currently implemented
-        """
-        try:
-            import yaml
-            print yaml, "found"
-        except Exception:
-            skip("PyYAML not installed.")
-
-        fixture1 = Plate2WellsNs2()
-        fixture1.init(self)
-        self._test_parsing_context(fixture1, 2)
-        self._test_bulk_to_map_annotation_context(fixture1, 2)
-
-        fixture2 = Plate2WellsNs2()
-        fixture2.init(self)
-        self._test_parsing_context(fixture2, 2)
-        self._test_bulk_to_map_annotation_dedup(fixture1, fixture2)
-        self._test_delete_map_annotation_context_dedup(
-            fixture1, fixture2, ns)
-
-    def testPopulateMetadataNsAnnsUnavailableHeader(self):
-        """
-        Similar to testPopulateMetadataNsAnns but use two plates and check
-        MapAnnotations aren't duplicated
-        """
-        try:
-            import yaml
-            print yaml, "found"
-        except Exception:
-            skip("PyYAML not installed.")
-
-        fixture_empty = Plate2WellsNs2UnavailableHeader()
-        fixture_empty.init(self)
-        self._test_parsing_context(fixture_empty, 2)
-        self._test_bulk_to_map_annotation_context(fixture_empty, 2)
-
-    def testPopulateMetadataNsAnnsFail(self):
-        """
-        Similar to testPopulateMetadataNsAnns but use two plates and check
-        MapAnnotations aren't duplicated
-        """
-        try:
-            import yaml
-            print yaml, "found"
-        except Exception:
-            skip("PyYAML not installed.")
-
-        fixture_fail = Plate2WellsNs2Fail()
-        fixture_fail.init(self)
-        self._test_parsing_context(fixture_fail, 2)
-        with raises(MapAnnotationPrimaryKeyException):
-            self._test_bulk_to_map_annotation_context(fixture_fail, 2)
+class TestPopulateMetadataHelper(ITest):
 
     def _test_parsing_context(self, fixture, batch_size):
         """
@@ -1032,6 +894,142 @@ class TestPopulateMetadata(ITest):
         assert len(oas) == fixture.annCount
         fixture.assert_child_annotations(oas)
 
+    def _test_delete_map_annotation_context(self, fixture, batch_size):
+        # self._test_bulk_to_map_annotation_context()
+        assert len(fixture.get_child_annotations()) == fixture.annCount
+
+        cfg = fixture.get_cfg()
+
+        target = fixture.get_target()
+        ctx = DeleteMapAnnotationContext(self.client, target, cfg=cfg)
+        ctx.parse()
+        assert len(fixture.get_child_annotations()) == fixture.annCount
+
+        if batch_size is None:
+            ctx.write_to_omero()
+        else:
+            ctx.write_to_omero(batch_size=batch_size)
+        assert len(fixture.get_child_annotations()) == 0
+        assert len(fixture.get_all_map_annotations()) == 0
+
+
+class TestPopulateMetadata(TestPopulateMetadataHelper):
+
+    METADATA_FIXTURES = (
+        Screen2Plates(),
+        Plate2Wells(),
+        Dataset2Images(),
+        Dataset2Images1Missing(),
+        Dataset101Images(),
+        Project2Datasets(),
+        GZIP(),
+    )
+    METADATA_IDS = [x.__class__.__name__ for x in METADATA_FIXTURES]
+
+    METADATA_NS_FIXTURES = (
+        Plate2WellsNs(),
+        Plate2WellsNs2(),
+    )
+    METADATA_NS_IDS = [x.__class__.__name__ for x in METADATA_NS_FIXTURES]
+
+    @mark.parametrize("fixture", METADATA_FIXTURES, ids=METADATA_IDS)
+    @mark.parametrize("batch_size", (None, 1, 10))
+    def testPopulateMetadata(self, fixture, batch_size):
+        """
+        We should really test each of the parsing contexts in separate tests
+        but in practice each one uses data created by the others, so for
+        now just run them all together
+        """
+        try:
+            import yaml
+            print yaml, "found"
+        except Exception:
+            skip("PyYAML not installed.")
+
+        fixture.init(self)
+        t = self._test_parsing_context(fixture, batch_size)
+        self._assert_parsing_context_values(t, fixture)
+        self._test_bulk_to_map_annotation_context(fixture, batch_size)
+        self._test_delete_map_annotation_context(fixture, batch_size)
+
+    @mark.parametrize("fixture", METADATA_NS_FIXTURES, ids=METADATA_NS_IDS)
+    def testPopulateMetadataNsAnns(self, fixture):
+        """
+        Test complicated annotations (multiple ns/groups) on a single OMERO
+        data type, as opposed to testPopulateMetadata which tests simple
+        annotations on multiple OMERO data types
+        """
+        try:
+            import yaml
+            print yaml, "found"
+        except Exception:
+            skip("PyYAML not installed.")
+
+        fixture.init(self)
+        t = self._test_parsing_context(fixture, 2)
+
+        cols = t.getHeaders()
+        rows = t.getNumberOfRows()
+        fixture.assert_rows(rows)
+        data = [c.values for c in t.read(range(len(cols)), 0, rows).columns]
+        rowValues = zip(*data)
+        assert len(rowValues) == fixture.count
+        fixture.assert_row_values(rowValues)
+
+        self._test_bulk_to_map_annotation_context(fixture, 2)
+        self._test_delete_map_annotation_context(fixture, 2)
+
+    def testPopulateMetadataNsAnnsUnavailableHeader(self):
+        """
+        Similar to testPopulateMetadataNsAnns but use two plates and check
+        MapAnnotations aren't duplicated
+        """
+        try:
+            import yaml
+            print yaml, "found"
+        except Exception:
+            skip("PyYAML not installed.")
+
+        fixture_empty = Plate2WellsNs2UnavailableHeader()
+        fixture_empty.init(self)
+        self._test_parsing_context(fixture_empty, 2)
+        self._test_bulk_to_map_annotation_context(fixture_empty, 2)
+
+    def testPopulateMetadataNsAnnsFail(self):
+        """
+        Similar to testPopulateMetadataNsAnns but use two plates and check
+        MapAnnotations aren't duplicated
+        """
+        try:
+            import yaml
+            print yaml, "found"
+        except Exception:
+            skip("PyYAML not installed.")
+
+        fixture_fail = Plate2WellsNs2Fail()
+        fixture_fail.init(self)
+        self._test_parsing_context(fixture_fail, 2)
+        with raises(MapAnnotationPrimaryKeyException):
+            self._test_bulk_to_map_annotation_context(fixture_fail, 2)
+
+
+class TestPopulateMetadataDedup(TestPopulateMetadataHelper):
+
+    # This class includes counting map-annotations, so create a clean
+    # environment
+
+    def setup_class(cls):
+        pass
+
+    def teardown_class(cls):
+        pass
+
+    def setup_method(self, method):
+        super(TestPopulateMetadataDedup, self).setup_class()
+
+    def teardown_method(self, method):
+        super(TestPopulateMetadataDedup, self).teardown_class()
+
     def _test_bulk_to_map_annotation_dedup(self, fixture1, fixture2):
         ann_count = fixture1.annCount
         assert fixture2.annCount == ann_count
@@ -1062,24 +1060,6 @@ class TestPopulateMetadata(ITest):
         ids1 = set(unwrap(o[0].getId()) for o in oas1)
         ids2 = set(unwrap(o[0].getId()) for o in oas2)
         assert len(ids1.intersection(ids2)) == 4
-
-    def _test_delete_map_annotation_context(self, fixture, batch_size):
-        # self._test_bulk_to_map_annotation_context()
-        assert len(fixture.get_child_annotations()) == fixture.annCount
-
-        cfg = fixture.get_cfg()
-
-        target = fixture.get_target()
-        ctx = DeleteMapAnnotationContext(self.client, target, cfg=cfg)
-        ctx.parse()
-        assert len(fixture.get_child_annotations()) == fixture.annCount
-
-        if batch_size is None:
-            ctx.write_to_omero()
-        else:
-            ctx.write_to_omero(batch_size=batch_size)
-        assert len(fixture.get_child_annotations()) == 0
-        assert len(fixture.get_all_map_annotations()) == 0
 
     def _test_delete_map_annotation_context_dedup(
             self, fixture1, fixture2, ns):
@@ -1147,6 +1127,32 @@ class TestPopulateMetadata(ITest):
             assert len(fixture1.get_child_annotations()) == 0
             assert len(fixture2.get_child_annotations()) == 0
             assert len(fixture2.get_all_map_annotations()) == 0
+
+    @mark.parametrize("ns", [
+        None, NSBULKANNOTATIONS, 'openmicroscopy.org/mapr/gene'])
+    def testPopulateMetadataNsAnnsDedup(self, ns):
+        """
+        Similar to testPopulateMetadataNsAnns but use two plates, check
+        MapAnnotations aren't duplicated, and filter by namespace
+        TODO: Only delete by namespace is currently implemented
+        """
+        try:
+            import yaml
+            print yaml, "found"
+        except Exception:
+            skip("PyYAML not installed.")
+
+        fixture1 = Plate2WellsNs2()
+        fixture1.init(self)
+        self._test_parsing_context(fixture1, 2)
+        self._test_bulk_to_map_annotation_context(fixture1, 2)
+
+        fixture2 = Plate2WellsNs2()
+        fixture2.init(self)
+        self._test_parsing_context(fixture2, 2)
+        self._test_bulk_to_map_annotation_dedup(fixture1, fixture2)
+        self._test_delete_map_annotation_context_dedup(
+            fixture1, fixture2, ns)
 
 
 class MockMeasurementCtx(AbstractMeasurementCtx):
