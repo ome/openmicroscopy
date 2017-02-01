@@ -59,6 +59,8 @@ from pytest import skip
 from pytest import mark
 from pytest import raises
 
+MAPR_NS_GENE = 'openmicroscopy.org/mapr/gene'
+
 
 def coord2offset(coord):
     """
@@ -282,7 +284,7 @@ class Plate2WellsNs(Plate2Wells):
                             'bulk_to_map_annotation_context_ns.yml')
 
     def get_namespaces(self):
-        return [NSBULKANNOTATIONS, 'openmicroscopy.org/mapr/gene']
+        return [NSBULKANNOTATIONS, MAPR_NS_GENE]
 
     def assert_row_values(self, rowvalues):
         # First column is the WellID
@@ -308,7 +310,7 @@ class Plate2WellsNs(Plate2Wells):
     def assert_child_annotations(self, oas):
         wellrcs = [coord2offset(c) for c in (
             'a1', 'a2', 'a3', 'a4', 'b1', 'b2', 'b3', 'b4')]
-        nss = [NSBULKANNOTATIONS, 'openmicroscopy.org/mapr/gene']
+        nss = [NSBULKANNOTATIONS, MAPR_NS_GENE]
         wellrc_ns = [(wrc, ns) for wrc in wellrcs for ns in nss]
         check = dict((k, None) for k in wellrc_ns)
         annids = []
@@ -428,7 +430,7 @@ class Plate2WellsNs2(Plate2WellsNs):
     def assert_child_annotations(self, oas):
         wellrcs = [coord2offset(c) for c in (
             'a1', 'a2', 'a3', 'a4', 'b1', 'b2', 'b3', 'b4')]
-        nss = [NSBULKANNOTATIONS, 'openmicroscopy.org/mapr/gene']
+        nss = [NSBULKANNOTATIONS, MAPR_NS_GENE]
         wellrc_ns = [(wrc, ns) for wrc in wellrcs for ns in nss]
         check = dict((k, None) for k in wellrc_ns)
         annids = []
@@ -551,7 +553,7 @@ class Plate2WellsNs2UnavailableHeader(Plate2WellsNs2):
     def assert_child_annotations(self, oas):
         wellrcs = [coord2offset(c) for c in (
             'a1', 'a2', 'b1', 'b2')]
-        nss = [NSBULKANNOTATIONS, 'openmicroscopy.org/mapr/gene']
+        nss = [NSBULKANNOTATIONS, MAPR_NS_GENE]
         wellrc_ns = [(wrc, ns) for wrc in wellrcs for ns in nss]
         check = dict((k, None) for k in wellrc_ns)
         annids = []
@@ -1075,7 +1077,6 @@ class TestPopulateMetadataDedup(TestPopulateMetadataHelper):
         if ns:
             options['ns'] = ns
 
-        MAPR_NS_GENE = 'openmicroscopy.org/mapr/gene'
         assert len(fixture1.get_child_annotations()) == 16
         assert len(fixture1.get_child_annotations(NSBULKANNOTATIONS)) == 8
         assert len(fixture1.get_child_annotations(MAPR_NS_GENE)) == 8
@@ -1128,8 +1129,7 @@ class TestPopulateMetadataDedup(TestPopulateMetadataHelper):
             assert len(fixture2.get_child_annotations()) == 0
             assert len(fixture2.get_all_map_annotations()) == 0
 
-    @mark.parametrize("ns", [
-        None, NSBULKANNOTATIONS, 'openmicroscopy.org/mapr/gene'])
+    @mark.parametrize("ns", [None, NSBULKANNOTATIONS, MAPR_NS_GENE])
     def testPopulateMetadataNsAnnsDedup(self, ns):
         """
         Similar to testPopulateMetadataNsAnns but use two plates, check
