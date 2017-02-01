@@ -478,6 +478,8 @@ class WellsView(ObjectsView):
         # at /plates/:plate_id/wells/ we have 'plate_id' in kwargs
         if 'plate_id' in kwargs:
             opts['plate'] = long(kwargs['plate_id'])
+        elif 'plateacquisition_id' in kwargs:
+            opts['plateacquisition'] = long(kwargs['plateacquisition_id'])
         else:
             # filter by query /wells/?plate=:id
             plate = getIntOrDefault(request, 'plate', None)
@@ -489,7 +491,7 @@ class WellsView(ObjectsView):
 
     def add_data(self, marshalled, request, conn, urls=None, **kwargs):
         """Add 'url:image' to any 'Image' in 'WellSamples'."""
-        marshalled = super(WellsView, self).add_data(marshalled, request,
+        marshalled = super(WellsView, self).add_data(marshalled, request, conn,
                                                      urls=urls, **kwargs)
         image_urls = {
             'url:image': {'name': 'api_image',
