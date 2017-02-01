@@ -38,7 +38,6 @@ import com.google.common.collect.SetMultimap;
 
 import ome.api.IAdmin;
 import ome.model.IObject;
-import ome.model.enums.AdminPrivilege;
 import ome.model.internal.Details;
 import ome.model.meta.Experimenter;
 import ome.security.ACLVoter;
