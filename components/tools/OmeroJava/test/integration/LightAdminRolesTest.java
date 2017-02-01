@@ -55,6 +55,8 @@ import omero.model.ProjectI;
 import omero.model.Session;
 import omero.model.enums.AdminPrivilegeChgrp;
 import omero.model.enums.AdminPrivilegeChown;
+import omero.model.enums.AdminPrivilegeDeleteFile;
+import omero.model.enums.AdminPrivilegeDeleteManagedRepo;
 import omero.model.enums.AdminPrivilegeDeleteOwned;
 import omero.model.enums.AdminPrivilegeSudo;
 import omero.model.enums.AdminPrivilegeWriteFile;
@@ -660,11 +662,11 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * the chown action wiill succeed)
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "combined privileges cases")
+    @Test(dataProvider = "widened combined privileges cases")
     public void testImporterAsSudoChown(boolean isAdmin, boolean isSudoing, boolean permChown,
-            boolean permWriteOwned, boolean permWriteFile, boolean permDeleteOwned, String groupPermissions) throws Exception {
+            boolean permWriteOwned, boolean permWriteFile, boolean permDeleteOwned, boolean permDeleteManagedRepo, String groupPermissions) throws Exception {
+        final boolean chownPassing = isAdmin && permChown && permWriteOwned && permWriteFile && permDeleteOwned && permDeleteManagedRepo;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
-        final boolean chownPassing = isAdmin && permChown && permWriteOwned && permWriteFile && permDeleteOwned;
         final long anotherUserId = newUserAndGroup(groupPermissions).userId;
         /* set up the basic permissions for this test */
         ArrayList <String> permissions = new ArrayList <String>();
@@ -673,6 +675,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
         if (permWriteFile) permissions.add(AdminPrivilegeWriteFile.value);
         if (permDeleteOwned) permissions.add(AdminPrivilegeDeleteOwned.value);
+        if (permDeleteManagedRepo) permissions.add(AdminPrivilegeDeleteManagedRepo.value);
+
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
         try {
@@ -807,7 +811,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         } catch (ServerError se) { /* fails if permissions are insufficient */
             Assert.assertFalse(importNotYourGroupExpectSuccess);
         }
-        final OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
+        OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
                 "FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
                 new ParametersI().addId(previousId).add("name", imageName));
         if (importNotYourGroupExpectSuccess) {
@@ -843,6 +847,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             DatasetImageLink link = (DatasetImageLink) iQuery.findByQuery(
                     "FROM DatasetImageLink WHERE parent.id  = :id",
                     new ParametersI().addId(sentDat.getId()));
+            remoteFile = (OriginalFile) iQuery.findByQuery("FROM OriginalFile WHERE id = :id",
+                    new ParametersI().addId(remoteFile.getId()));
             /* image, dataset and link are in the normalUser's group and belong to normalUser */
             Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), normalUser.userId);
             Assert.assertEquals(image.getDetails().getGroup().getId().getValue(), normalUser.groupId);
@@ -850,6 +856,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             Assert.assertEquals(dat.getDetails().getGroup().getId().getValue(), normalUser.groupId);
             Assert.assertEquals(link.getDetails().getOwner().getId().getValue(), normalUser.userId);
             Assert.assertEquals(link.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+            Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), normalUser.groupId);
         } else {
             doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(), false);
             image = (Image) iQuery.get("Image", image.getId().getValue());
@@ -1320,6 +1327,54 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                                     testCase[GROUP_PERMS] = groupPerms;
                                     // DEBUG  if (isAdmin == false && isRestricted == true && isSudo == false)
                                     testCases.add(testCase);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return testCases.toArray(new Object[testCases.size()][]);
+    }
+    /**
+     * @return widened test cases for adding the privileges combined with isAdmin cases
+     */
+    @DataProvider(name = "widened combined privileges cases")
+    public Object[][] provideWidenedCombinedPrivilegesCases() {
+        int index = 0;
+        final int IS_ADMIN = index++;
+        final int IS_SUDOING = index++;
+        final int PERM_ADDITIONAL = index++;
+        final int PERM_ADDITIONAL2 = index++;
+        final int PERM_ADDITIONAL3 = index++;
+        final int PERM_ADDITIONAL4 = index++;
+        final int PERM_ADDITIONAL5 = index++;
+        final int GROUP_PERMS = index++;
+
+        final boolean[] booleanCases = new boolean[]{false, true};
+        final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
+        final List<Object[]> testCases = new ArrayList<Object[]>();
+
+        for (final boolean isAdmin : booleanCases) {
+            for (final boolean isSudoing : booleanCases) {
+                for (final boolean permAdditional : booleanCases) {
+                    for (final boolean permAdditional2 : booleanCases) {
+                        for (final boolean permAdditional3 : booleanCases) {
+                            for (final boolean permAdditional4 : booleanCases) {
+                                for (final boolean permAdditional5 : booleanCases) {
+                                    for (final String groupPerms : permsCases) {
+                                        final Object[] testCase = new Object[index];
+                                        testCase[IS_ADMIN] = isAdmin;
+                                        testCase[IS_SUDOING] = isSudoing;
+                                        testCase[PERM_ADDITIONAL] = permAdditional;
+                                        testCase[PERM_ADDITIONAL2] = permAdditional2;
+                                        testCase[PERM_ADDITIONAL3] = permAdditional3;
+                                        testCase[PERM_ADDITIONAL4] = permAdditional4;
+                                        testCase[PERM_ADDITIONAL5] = permAdditional5;
+                                        testCase[GROUP_PERMS] = groupPerms;
+                                        // DEBUG  if (isAdmin == false && isRestricted == true && isSudo == false)
+                                        testCases.add(testCase);
+                                    }
                                 }
                             }
                         }
