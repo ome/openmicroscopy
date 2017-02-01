@@ -905,7 +905,8 @@ class TestPopulateMetadata(ITest):
         fixture2.init(self)
         self._test_parsing_context(fixture2, 2)
         self._test_bulk_to_map_annotation_dedup(fixture1, fixture2)
-        self._test_delete_map_annotation_context_dedup(fixture1, fixture2)
+        self._test_delete_map_annotation_context_dedup(
+            fixture1, fixture2, None)
 
     def testPopulateMetadataNsAnnsUnavailableHeader(self):
         """
@@ -1037,7 +1038,7 @@ class TestPopulateMetadata(ITest):
         fixture1.assert_child_annotations(oas1)
         fixture2.assert_child_annotations(oas2)
 
-        # 6 of the mapannotations should be common
+        # 4 of the mapannotations should be common
         ids1 = set(unwrap(o[0].getId()) for o in oas1)
         ids2 = set(unwrap(o[0].getId()) for o in oas2)
         assert len(ids1.intersection(ids2)) == 4
@@ -1060,24 +1061,52 @@ class TestPopulateMetadata(ITest):
         assert len(fixture.get_child_annotations()) == 0
         assert len(fixture.get_all_map_annotations()) == 0
 
-    def _test_delete_map_annotation_context_dedup(self, fixture1, fixture2):
-        assert len(fixture1.get_child_annotations()) == fixture1.annCount
-        assert len(fixture2.get_child_annotations()) == fixture2.annCount
+    def _test_delete_map_annotation_context_dedup(
+            self, fixture1, fixture2, ns):
+        # Hard-code the number of expected map-annotations since the code in
+        # this file is complicated enough
+        ns_count = {
+            NSBULKANNOTATIONS: 8,
+            'openmicroscopy.org/mapr/gene': 8,
+            None: 16,
+        }
+        ns_unique = {
+            NSBULKANNOTATIONS: 8,
+            'openmicroscopy.org/mapr/gene': 4,
+            None: 12,
+        }
+
+        # Sanity checks in case the test code or fixtures are modified
+        assert fixture1.annCount == 16
+        assert fixture2.annCount == 16
+        assert ns in ns_count
+
+        options = {}
+        if ns:
+            options['ns'] = ns
+
+        assert len(fixture1.get_child_annotations()) == 16
+        assert len(fixture2.get_child_annotations()) == 16
 
         ctx = DeleteMapAnnotationContext(
-            self.client, fixture1.get_target(), cfg=fixture1.get_cfg())
+            self.client, fixture1.get_target(), cfg=fixture1.get_cfg(),
+            options=options)
         ctx.parse()
         ctx.write_to_omero(loops=10, ms=250)
-        assert len(fixture1.get_child_annotations()) == 0
-        assert len(fixture2.get_child_annotations()) == fixture2.annCount
+
+        assert len(fixture1.get_child_annotations()) == 16 - ns_count[ns]
+        assert len(fixture2.get_child_annotations()) == 16
+        assert len(fixture2.get_all_map_annotations()) == 12
 
         ctx = DeleteMapAnnotationContext(
-            self.client, fixture2.get_target(), cfg=fixture2.get_cfg())
+            self.client, fixture2.get_target(), cfg=fixture2.get_cfg(),
+            options=options)
         ctx.parse()
         ctx.write_to_omero(loops=10, ms=250)
-        assert len(fixture2.get_child_annotations()) == 0
-        assert len(fixture1.get_all_map_annotations()) == 0
-        assert len(fixture2.get_all_map_annotations()) == 0
+
+        assert len(fixture1.get_child_annotations()) == 16 - ns_count[ns]
+        assert len(fixture2.get_child_annotations()) == 16 - ns_count[ns]
+        assert len(fixture2.get_all_map_annotations()) == 12 - ns_unique[ns]
 
 
 class MockMeasurementCtx(AbstractMeasurementCtx):
