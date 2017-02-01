@@ -491,9 +491,10 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
      * @throws ServerError if the import log's size could not be updated in the database
      */
     private void setLogFileSize() throws ServerError {
-        final OriginalFile logFile = (OriginalFile) sf.getQueryService().get(OriginalFile.class.getSimpleName(), logPath.getId());
+        final OriginalFile logFile =
+                (OriginalFile) sf.getQueryService().get(OriginalFile.class.getSimpleName(), logPath.getId(), callContext);
         logFile.setSize(omero.rtypes.rlong(logPath.size()));
-        sf.getUpdateService().saveObject(logFile);
+        sf.getUpdateService().saveObject(logFile, callContext);
     }
 
     public Object step(int step) {

@@ -718,20 +718,27 @@ public class GraphTraversal {
         }
 
         if (isCheckUserPermissions) {
+            final IObject objectToCheck;
+            /* BasicACLVoter needs to check fuller instances of some objects */
+            if (objectInstance instanceof OriginalFile) {
+                objectToCheck = (IObject) session.get(OriginalFile.class, object.id);
+            } else if (objectInstance instanceof ExperimenterGroup) {
+                objectToCheck = (IObject) session.load(ExperimenterGroup.class, object.id);
+            } else {
+                objectToCheck = objectInstance;
+            }
+
             /* allowLoad ensures that BasicEventContext.groupPermissionsMap is populated */
             aclVoter.allowLoad(session, objectInstance.getClass(), objectDetails, object.id);
 
-            if (aclVoter.allowUpdate(objectInstance, objectDetails)) {
+            if (aclVoter.allowUpdate(objectToCheck, objectDetails)) {
                 planning.mayUpdate.add(object);
             }
-            if (aclVoter.allowDelete(objectInstance, objectDetails)) {
+            if (aclVoter.allowDelete(objectToCheck, objectDetails)) {
                 planning.mayDelete.add(object);
             }
-            if (objectInstance instanceof ExperimenterGroup) {
-                final ExperimenterGroup loadedGroup = (ExperimenterGroup) session.load(ExperimenterGroup.class, object.id);
-                if (aclVoter.allowChmod(loadedGroup)) {
-                    planning.mayChmod.add(object);
-                }
+            if (objectInstance instanceof ExperimenterGroup && aclVoter.allowChmod(objectToCheck)) {
+                planning.mayChmod.add(object);
             }
             final Experimenter objectOwner = objectDetails.getOwner();
             if (objectOwner != null && (isOwnsAll || eventContext.getCurrentUserId().equals(objectOwner.getId()))) {
