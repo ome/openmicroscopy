@@ -46,7 +46,6 @@ import ome.api.IQuery;
 import ome.model.IAnnotationLink;
 import ome.model.ILink;
 import ome.model.IObject;
-import ome.model.enums.AdminPrivilege;
 import ome.model.containers.DatasetImageLink;
 import ome.model.containers.FolderImageLink;
 import ome.model.containers.FolderRoiLink;
