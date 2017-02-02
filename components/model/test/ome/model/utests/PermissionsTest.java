@@ -10,21 +10,16 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import junit.framework.TestCase;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Flag;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class PermissionsTest {
-
-    private static Logger log = LoggerFactory.getLogger(PermissionsTest.class);
 
     Permissions p;
 
@@ -398,13 +393,7 @@ public class PermissionsTest {
     private void bitCompare(Role role, Right right) {
         Perms pp = new Perms().revoke(role, right);
         long l = pp.toLong();
-        if (log.isDebugEnabled()) {
-            log.debug(l + ":" + Long.toBinaryString(l));
-        }
         long bit = Perms.bit(role, right);
-        if (log.isDebugEnabled()) {
-            log.debug(bit + ":" + Long.toBinaryString(bit));
-        }
         Assert.assertTrue((l ^ bit) == -1L);
 
     }
