@@ -96,63 +96,6 @@ Right Click Rendering Settings
 
 *** Test Cases ***
 
-Test Rdef Save
-    [Documentation]     Tests saving rendering settings, including inactive channels
-
-    Select Experimenter
-
-    Select And Expand Node              nodeText=${multic_dataset} 
-    ${imageId}=                         Select First Image
-
-    Click Link                          Preview
-    ${status}    ${oldId}               Wait For Preview Load       FAIL      '1'
-
-    # Undo, Redo & Save should be disabled
-    Element Should Be Disabled          id=rdef-undo-btn
-    Element Should Be Disabled          id=rdef-redo-btn
-    Element Should Be Disabled          id=rdef-setdef-btn
-
-    Edit Channel End                    0   50
-
-    # Undo & Save should be enabled now
-    Element Should Be Enabled           id=rdef-undo-btn
-    Element Should Be Enabled           id=rdef-setdef-btn
-
-    # Deactivate second and third channel
-    Toggle Channel Active               1
-    Toggle Channel Active               2
-
-    Edit Channel End                    1   50
-    Edit Channel End                    2   50
-
-    # Save rendering settings
-    ${thumbSrc}=                        Get Element Attribute      xpath=//button[@class="rdef clicked"]/img@src
-    Click Element                       id=rdef-setdef-btn
-    # Wait for response
-    Wait For BlockUI
-    Wait Until Page Contains Element    xpath=//button[@class="rdef clicked"]/img[@src!='${thumbSrc}']
-
-    # Check that 'Save' has worked by switching to the dataset and back again to the image
-    Select And Expand Node              nodeText=${multic_dataset}
-    Click Link                          General
-    Wait Until Element Is Visible       xpath=//div[@id="general_tab"]
-    Select Image By Id                  ${imageId}
-    Click Link                          Preview
-    ${status}    ${oldId}               Wait For Preview Load       FAIL      '1'
-
-    # Check that all values have been saved, including deactivated channels
-    Textfield Value Should Be           wblitz-ch0-cw-end           50
-    Textfield Value Should Be           wblitz-ch1-cw-end           50
-    Textfield Value Should Be           wblitz-ch2-cw-end           50
-    Channel Should Be Active            0
-    Channel Should Not Be Active        1
-    Channel Should Not Be Active        2
-
-    # Reset rendering settings again
-    Click Element                       id=rdef-reset-btn
-    Wait Until Element Is Enabled       id=rdef-setdef-btn
-    Click Element                       id=rdef-setdef-btn
-
 Test Rdef Copy Paste Save
     [Documentation]     Tests Copy and Paste rdef, then Save and 'Save All'
 
@@ -375,3 +318,62 @@ Test Owners Rdef
     Wait Until Page Contains Element        id=wblitz-ch0
     Click Link                              Edit
     Textfield Value Should Be               wblitz-ch0-cw-end    200
+
+
+Test Rdef Save
+    [Documentation]     Tests saving rendering settings, including inactive channels
+    
+    Go To                                   ${WELCOME URL}
+    Select Experimenter
+
+    Select And Expand Node              nodeText=${multic_dataset} 
+    ${imageId}=                         Select First Image
+
+    Click Link                          Preview
+    ${status}    ${oldId}               Wait For Preview Load       FAIL      '1'
+
+    # Undo, Redo & Save should be disabled
+    Element Should Be Disabled          id=rdef-undo-btn
+    Element Should Be Disabled          id=rdef-redo-btn
+    Element Should Be Disabled          id=rdef-setdef-btn
+
+    Edit Channel End                    0   50
+
+    # Undo & Save should be enabled now
+    Element Should Be Enabled           id=rdef-undo-btn
+    Element Should Be Enabled           id=rdef-setdef-btn
+
+    # Deactivate second and third channel
+    Toggle Channel Active               1
+    Toggle Channel Active               2
+
+    Edit Channel End                    1   50
+    Edit Channel End                    2   50
+
+    # Save rendering settings
+    ${thumbSrc}=                        Get Element Attribute      xpath=//button[@class="rdef clicked"]/img@src
+    Click Element                       id=rdef-setdef-btn
+    # Wait for response
+    Wait For BlockUI
+    Wait Until Page Contains Element    xpath=//button[@class="rdef clicked"]/img[@src!='${thumbSrc}']
+
+    # Check that 'Save' has worked by switching to the dataset and back again to the image
+    Select And Expand Node              nodeText=${multic_dataset}
+    Click Link                          General
+    Wait Until Element Is Visible       xpath=//div[@id="general_tab"]
+    Select Image By Id                  ${imageId}
+    Click Link                          Preview
+    ${status}    ${oldId}               Wait For Preview Load       FAIL      '1'
+
+    # Check that all values have been saved, including deactivated channels
+    Textfield Value Should Be           wblitz-ch0-cw-end           50
+    Textfield Value Should Be           wblitz-ch1-cw-end           50
+    Textfield Value Should Be           wblitz-ch2-cw-end           50
+    Channel Should Be Active            0
+    Channel Should Not Be Active        1
+    Channel Should Not Be Active        2
+
+    # Reset rendering settings again
+    Click Element                       id=rdef-reset-btn
+    Wait Until Element Is Enabled       id=rdef-setdef-btn
+    Click Element                       id=rdef-setdef-btn
