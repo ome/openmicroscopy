@@ -458,17 +458,15 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * or without it, using permWriteOwned privilege
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "combined privileges cases")
-    public void testLightAdminEdit(boolean isAdmin, boolean isSudoing, boolean permChgrp,
-            boolean permWriteOwned, boolean permWriteFile, String groupPermissions) throws Exception {
+    @Test(dataProvider = "narrowed combined privileges cases")
+    public void testLightAdminEdit(boolean isAdmin, boolean isSudoing,
+            boolean permWriteOwned, String groupPermissions) throws Exception {
         final boolean isExpectSuccess = (isAdmin && isSudoing) || (isAdmin && permWriteOwned);
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         /* set up the light admin's permissions for this test */
         ArrayList <String> permissions = new ArrayList <String>();
         permissions.add(AdminPrivilegeSudo.value);
-        if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);;
         if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
-        if (permWriteFile) permissions.add(AdminPrivilegeWriteFile.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
         /* set up the project as the normalUser */
