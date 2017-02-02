@@ -49,7 +49,8 @@ public class OutOfBoundsUnitTest {
         pixels.setSizeT(50);
 
         PixelsType type = new PixelsType();
-        pixels.setPixelsType(type); // FIXME
+        type.setValue("int8");
+        pixels.setPixelsType(type);
 
         PixelsService service = new PixelsService(ROOT);
         pixelBuffer = service.createPixelBuffer(pixels);
