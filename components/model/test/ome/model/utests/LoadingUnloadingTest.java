@@ -49,7 +49,7 @@ public class LoadingUnloadingTest{
 
     }
 
-    @Test
+    @Test(expectedExceptions = Error.class)
     public void test_model_mapping_events() throws Exception {
         ModelMapper m = new ModelMapper() {
             @Override
