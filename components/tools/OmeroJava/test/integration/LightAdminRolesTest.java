@@ -1256,76 +1256,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     }
 
     /**
-     * @return test cases for isAdmin (member of system group) all group permissions cases
-     */
-    @DataProvider(name = "isAdmin and groupPerms cases")
-    public Object[][] provideAdminPrivilegeCases() {
-        int index = 0;
-        final int IS_ADMIN = index++;
-        final int GROUP_PERMS = index++;
-
-        final boolean[] booleanCases = new boolean[]{false, true};
-        final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
-        final List<Object[]> testCases = new ArrayList<Object[]>();
-
-        for (final boolean isAdmin : booleanCases) {
-            for (final String groupPerms : permsCases) {
-                final Object[] testCase = new Object[index];
-                testCase[IS_ADMIN] = isAdmin;
-                testCase[GROUP_PERMS] = groupPerms;
-                // DEBUG  if (isAdmin == false && isRestricted == true && isSudo == false)
-                testCases.add(testCase);
-            }
-        }
-
-        return testCases.toArray(new Object[testCases.size()][]);
-    }
-
-    /**
-     * @return test cases for adding the privileges combined with isAdmin cases
-     */
-    @DataProvider(name = "combined privileges cases")
-    public Object[][] provideCombinedPrivilegesCases() {
-        int index = 0;
-        final int IS_ADMIN = index++;
-        final int IS_SUDOING = index++;
-        final int PERM_ADDITIONAL = index++;
-        final int PERM_ADDITIONAL2 = index++;
-        final int PERM_ADDITIONAL3 = index++;
-        final int PERM_ADDITIONAL4 = index++;
-        final int GROUP_PERMS = index++;
-
-        final boolean[] booleanCases = new boolean[]{false, true};
-        final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
-        final List<Object[]> testCases = new ArrayList<Object[]>();
-
-        for (final boolean isAdmin : booleanCases) {
-            for (final boolean isSudoing : booleanCases) {
-                for (final boolean permAdditional : booleanCases) {
-                    for (final boolean permAdditional2 : booleanCases) {
-                        for (final boolean permAdditional3 : booleanCases) {
-                            for (final boolean permAdditional4 : booleanCases) {
-                                for (final String groupPerms : permsCases) {
-                                    final Object[] testCase = new Object[index];
-                                    testCase[IS_ADMIN] = isAdmin;
-                                    testCase[IS_SUDOING] = isSudoing;
-                                    testCase[PERM_ADDITIONAL] = permAdditional;
-                                    testCase[PERM_ADDITIONAL2] = permAdditional2;
-                                    testCase[PERM_ADDITIONAL3] = permAdditional3;
-                                    testCase[PERM_ADDITIONAL4] = permAdditional4;
-                                    testCase[GROUP_PERMS] = groupPerms;
-                                    // DEBUG  if (isAdmin == false && isRestricted == true && isSudo == false)
-                                    testCases.add(testCase);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return testCases.toArray(new Object[testCases.size()][]);
-    }
-    /**
      * @return test cases for adding the privileges combined with isAdmin cases
      */
     @DataProvider(name = "6 privileges cases")
@@ -1391,54 +1321,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                         testCase[GROUP_PERMS] = groupPerms;
                         // DEBUG  if (isAdmin == false && isRestricted == true && isSudo == false)
                         testCases.add(testCase);
-                    }
-                }
-            }
-        }
-        return testCases.toArray(new Object[testCases.size()][]);
-    }
-    /**
-     * @return widened test cases for adding the privileges combined with isAdmin cases
-     */
-    @DataProvider(name = "widened combined privileges cases")
-    public Object[][] provideWidenedCombinedPrivilegesCases() {
-        int index = 0;
-        final int IS_ADMIN = index++;
-        final int IS_SUDOING = index++;
-        final int PERM_ADDITIONAL = index++;
-        final int PERM_ADDITIONAL2 = index++;
-        final int PERM_ADDITIONAL3 = index++;
-        final int PERM_ADDITIONAL4 = index++;
-        final int PERM_ADDITIONAL5 = index++;
-        final int GROUP_PERMS = index++;
-
-        final boolean[] booleanCases = new boolean[]{false, true};
-        final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
-        final List<Object[]> testCases = new ArrayList<Object[]>();
-
-        for (final boolean isAdmin : booleanCases) {
-            for (final boolean isSudoing : booleanCases) {
-                for (final boolean permAdditional : booleanCases) {
-                    for (final boolean permAdditional2 : booleanCases) {
-                        for (final boolean permAdditional3 : booleanCases) {
-                            for (final boolean permAdditional4 : booleanCases) {
-                                for (final boolean permAdditional5 : booleanCases) {
-                                    for (final String groupPerms : permsCases) {
-                                        final Object[] testCase = new Object[index];
-                                        testCase[IS_ADMIN] = isAdmin;
-                                        testCase[IS_SUDOING] = isSudoing;
-                                        testCase[PERM_ADDITIONAL] = permAdditional;
-                                        testCase[PERM_ADDITIONAL2] = permAdditional2;
-                                        testCase[PERM_ADDITIONAL3] = permAdditional3;
-                                        testCase[PERM_ADDITIONAL4] = permAdditional4;
-                                        testCase[PERM_ADDITIONAL5] = permAdditional5;
-                                        testCase[GROUP_PERMS] = groupPerms;
-                                        // DEBUG  if (isAdmin == false && isRestricted == true && isSudo == false)
-                                        testCases.add(testCase);
-                                    }
-                                }
-                            }
-                        }
                     }
                 }
             }
