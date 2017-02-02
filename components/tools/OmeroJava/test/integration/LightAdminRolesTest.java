@@ -660,15 +660,15 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
 
     /**
      * Test that an ImporterAs cannot
-     * chown on behalf of another user in any combination of <tt>Sudo</tt> privilege
-     * with having or not having also the <tt>Chown</tt>. <tt>WriteOwned</tt> and
-     * <tt>WriteFile</tt> privileges except for having all three of them (in which case
-     * the chown action wiill succeed)
+     * chown on behalf of another user if sudoed in as that user.
+     * Chown will be successful only when not sudoed and having
+     * the <tt>Chown</tt> privilege.
      * @throws Exception unexpected
      */
     @Test(dataProvider = "narrowed combined privileges cases")
     public void testImporterAsSudoChown(boolean isAdmin, boolean isSudoing, boolean permChown,
             String groupPermissions) throws Exception {
+        /* define the conditions for the chown passing (when not sudoing) */
         final boolean chownPassing = isAdmin && permChown;
         if (!isAdmin) return;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
@@ -734,8 +734,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             Assert.assertEquals(remoteFile.getDetails().getOwner().getId().getValue(), normalUser.userId);
         } else {
             /* when trying to chown the image NOT being sudoed,
-             * this should fail in case you have not all of Chown & WriteOwned & WriteFile
-             * permissions, collated in "chownPassing" boolean */
+             * this should fail in case you have not Chown
+             * privilege, collated in "chownPassing" boolean together with isAdmin */
             doChange(client, factory, Requests.chown().target(image).toUser(anotherUserId).build(), chownPassing);
             image = (Image) iQuery.get("Image", image.getId().getValue());
             remoteFile = (OriginalFile) iQuery.findByQuery(
