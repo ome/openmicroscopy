@@ -525,9 +525,9 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * owner of the data is member of target group or not.
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "combined privileges cases")
+    @Test(dataProvider = "narrowed combined privileges cases")
     public void testImporterAsSudoChgrp(boolean isAdmin, boolean isSudoing, boolean permChgrp,
-            boolean permWriteOwned, boolean permWriteFile, String groupPermissions) throws Exception {
+            String groupPermissions) throws Exception {
         /* define case where the Sudo is not being used post-import
          * to perform the chgrp action. Such cases are all expected to fail
          * except the light admin has Chgrp permission. WriteOwned and WriteFile
@@ -545,8 +545,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         ArrayList <String> permissions = new ArrayList <String>();
         permissions.add(AdminPrivilegeSudo.value);
         if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);;
-        if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
-        if (permWriteFile) permissions.add(AdminPrivilegeWriteFile.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
         try {
