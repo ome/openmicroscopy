@@ -54,6 +54,10 @@ def load(fileobj, filetype=None, single=True, session=None):
     session: If fileobj is an OriginalFile:ID a valid session is required
     """
 
+    if not isinstance(fileobj, basestring):
+        raise Exception(
+            'Invalid type: fileobj must be a filename or json string')
+
     try:
         data = json.loads(fileobj)
         if isinstance(data, dict):
