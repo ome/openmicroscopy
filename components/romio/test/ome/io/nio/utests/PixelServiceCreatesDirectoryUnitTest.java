@@ -1,12 +1,10 @@
 /*
- *   $Id$
- *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.io.nio.utests;
 
-import static org.testng.AssertJUnit.*;
+
 
 import java.io.File;
 import java.io.IOException;
@@ -17,6 +15,7 @@ import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
 
 import org.apache.commons.io.FileUtils;
+import org.testng.AssertJUnit;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -53,7 +52,7 @@ public class PixelServiceCreatesDirectoryUnitTest {
     @Test
     public void testLargeId() throws Exception {
         PixelBuffer pixelBuffer = service.createPixelBuffer(pixels);
-        assertNotNull(pixelBuffer);
+        AssertJUnit.assertNotNull(pixelBuffer);
     }
 
 }

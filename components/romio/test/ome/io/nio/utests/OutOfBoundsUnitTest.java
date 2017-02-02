@@ -1,12 +1,9 @@
 /*
- * ome.io.nio.utests.OutOfBoundsUnitTest
- *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.io.nio.utests;
 
-import static org.testng.AssertJUnit.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +15,7 @@ import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
 
 import org.apache.commons.io.FileUtils;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -65,7 +63,7 @@ public class OutOfBoundsUnitTest {
             return;
         }
 
-        fail("Out of bounds dimension was not caught.");
+        Assert.fail("Out of bounds dimension was not caught.");
     }
 
     @Test
@@ -76,7 +74,7 @@ public class OutOfBoundsUnitTest {
             return;
         }
 
-        fail("Out of bounds dimension was not caught.");
+        Assert.fail("Out of bounds dimension was not caught.");
     }
 
     @Test
@@ -87,7 +85,7 @@ public class OutOfBoundsUnitTest {
             return;
         }
 
-        fail("Out of bounds dimension was not caught.");
+        Assert.fail("Out of bounds dimension was not caught.");
     }
 
     @Test
@@ -98,7 +96,7 @@ public class OutOfBoundsUnitTest {
             return;
         }
 
-        fail("Out of bounds dimension was not caught.");
+        Assert.fail("Out of bounds dimension was not caught.");
     }
 
     @Test
@@ -109,7 +107,7 @@ public class OutOfBoundsUnitTest {
             return;
         }
 
-        fail("Out of bounds dimension was not caught.");
+        Assert.fail("Out of bounds dimension was not caught.");
     }
 
     @Test
@@ -120,7 +118,7 @@ public class OutOfBoundsUnitTest {
             return;
         }
 
-        fail("Out of bounds dimension was not caught.");
+        Assert.fail("Out of bounds dimension was not caught.");
     }
 
     @Test
@@ -131,7 +129,7 @@ public class OutOfBoundsUnitTest {
             return;
         }
 
-        fail("Out of bounds dimension was not caught.");
+        Assert.fail("Out of bounds dimension was not caught.");
     }
 
     @Test
@@ -142,6 +140,6 @@ public class OutOfBoundsUnitTest {
             return;
         }
 
-        fail("Out of bounds dimension was not caught.");
+        Assert.fail("Out of bounds dimension was not caught.");
     }
 }
