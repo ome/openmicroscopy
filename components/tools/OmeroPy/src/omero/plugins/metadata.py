@@ -410,7 +410,8 @@ class MetadataControl(BaseControl):
         context_class = dict(self.POPULATE_CONTEXTS)[args.context]
 
         if args.localcfg:
-            localcfg = pydict_text_io.load(args.localcfg)
+            localcfg = pydict_text_io.load(
+                args.localcfg, session=client.getSession())
         else:
             localcfg = {}
 
