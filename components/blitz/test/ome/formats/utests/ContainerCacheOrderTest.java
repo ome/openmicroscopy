@@ -1,11 +1,27 @@
+/*
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2017 University of Dundee. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ */
 package ome.formats.utests;
-
-import static ome.formats.model.UnitsFactory.convertLength;
-import static ome.formats.model.UnitsFactory.convertPower;
 
 import java.util.Map;
 
-import junit.framework.TestCase;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
@@ -23,10 +39,11 @@ import omero.model.LengthI;
 import omero.model.Plate;
 import omero.model.PowerI;
 
+import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class ContainerCacheOrderTest extends TestCase
+public class ContainerCacheOrderTest
 {
 	private OMEROWrapper wrapper;
 
@@ -43,11 +60,11 @@ public class ContainerCacheOrderTest extends TestCase
 	private static final int OBJECTIVE_INDEX = 0;
 
 	private static ome.units.quantity.Length makeWave(double d) {
-	    return convertLength(new LengthI(d, UnitsFactory.Channel_EmissionWavelength));
+	    return UnitsFactory.convertLength(new LengthI(d, UnitsFactory.Channel_EmissionWavelength));
 	}
 
 	Power watt(double d) {
-	    return convertPower(new PowerI(d, UnitsFactory.LightSource_Power));
+	    return UnitsFactory.convertPower(new PowerI(d, UnitsFactory.LightSource_Power));
 	}
 
 	@BeforeMethod
@@ -146,8 +163,8 @@ public class ContainerCacheOrderTest extends TestCase
 	{
 		LSID a = new LSID(Plate.class, 0);
 		LSID b = new LSID("omero.model.Plate:0");
-		assertEquals(a, b);
-		assertEquals(b, a);
+		Assert.assertEquals(a, b);
+		Assert.assertEquals(b, a);
 	}
 
 	@Test
@@ -155,7 +172,7 @@ public class ContainerCacheOrderTest extends TestCase
 	{
 		Map<LSID, IObjectContainer> containerCache =
 			store.getContainerCache();
-		assertNotNull(containerCache.get(new LSID("omero.model.Plate:0", true)));
+		Assert.assertNotNull(containerCache.get(new LSID("omero.model.Plate:0", true)));
 	}
 
 	@Test
@@ -163,6 +180,6 @@ public class ContainerCacheOrderTest extends TestCase
 	{
 		Map<LSID, IObjectContainer> containerCache =
 			store.getContainerCache();
-		assertNotNull(containerCache.get(new LSID(Plate.class, 0)));
+		Assert.assertNotNull(containerCache.get(new LSID(Plate.class, 0)));
 	}
 }
