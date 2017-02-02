@@ -90,7 +90,7 @@ class PlateGrid(object):
                     thumbnails[col['id']]
                     try:
                         t = thumbnails[col['id']]
-                        col['thumb_url'] =
+                        col['thumb_url'] = \
                             ("data:image/jpeg;base64, "
                              "%s" % base64.b64encode(t))
                     except KeyError:
