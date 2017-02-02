@@ -759,33 +759,38 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * is a member of, then just chowned to the user.
      * This workflow is possible only if PR#4957 dealing with
      * admins importing data into groups they are not member of will get
-     * merged. For this test, combinations of  <tt>Chown</tt>, <tt>Chgrp</tt>,. <tt>WriteOwned</tt>
-     * and <tt>WriteFile</tt> privileges will be explored for the light admin.
-     * For this workflow the creation and targeting of a Dataset
+     * merged. For this test, combinations of  <tt>Chown</tt>, <tt>WriteOwned</tt>,
+     *  <tt>WriteFile</tt> and <tt>WriteManagedRepo</tt> privileges will be explored
+     * for the light admin. For this workflow the creation and targeting of a Dataset
      * is tested too.
      * @throws Exception unexpected
      */
 
-    @Test(dataProvider = "combined privileges cases")
-    public void testImporterAsNoSudoChownOnlyWorkflow(boolean isAdmin, boolean permChgrp, boolean permChown,
-            boolean permWriteOwned, boolean permWriteFile, boolean permWriteManagedRepo, String groupPermissions) throws Exception {
+    @Test(dataProvider = "6 privileges cases")
+    public void testImporterAsNoSudoChownOnlyWorkflow(boolean isAdmin, boolean permWriteOwned, boolean permWriteManagedRepo, boolean permWriteFile, boolean permChown,
+            String groupPermissions) throws Exception {
         /* define case where the import without any sudo importing into a group
          * the light admin is not a member of is expected to succeed
          */
-        boolean importNotYourGroupExpectSuccess = (isAdmin && permWriteOwned && permWriteFile && permWriteManagedRepo);
-        /* importing into the group of the normalUser directly
-         * will succeed if the import will succeed and the subsequent Chown is possible
+        boolean importNotYourGroupExpectSuccess = isAdmin && permWriteManagedRepo && permWriteOwned && permWriteFile;
+        /* define case where the creation of a dataset belonging to light admin
+         * in the group where light admin is not a member
+         * without any sudo is expected to succeed */
+        boolean createDatasetExpectSuccess = isAdmin && permWriteOwned;
+        /* define case where the whole workflow is possible (i.e. create
+         * dataset, import into it, then chown the dataset with the imported
+         * image to the user)
          */
-        boolean importNotYourGroupAndChownExpectSuccess =
-                (isAdmin && permWriteOwned && permWriteFile && permChown && permWriteManagedRepo);
+        boolean createDatasetImportNotYourGroupAndChownExpectSuccess =
+                isAdmin && permChown && permWriteManagedRepo && permWriteOwned && permWriteFile;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         /* set up the light admin's permissions for this test */
         ArrayList <String> permissions = new ArrayList <String>();
-        if (permChown) permissions.add(AdminPrivilegeChown.value);;
-        if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);;
+        if (permChown) permissions.add(AdminPrivilegeChown.value);
         if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
         if (permWriteFile) permissions.add(AdminPrivilegeWriteFile.value);
         if (permWriteManagedRepo) permissions.add(AdminPrivilegeWriteManagedRepo.value);
+        //permissions.add(AdminPrivilegeWriteFile.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
         if (!isAdmin) return;
@@ -795,7 +800,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         Dataset dat = mmFactory.simpleDataset();
         Dataset sentDat = new DatasetI();
         sentDat = null;
-        if (importNotYourGroupExpectSuccess) {/* you are allowed to create the dataset only
+        if (createDatasetExpectSuccess) {/* you are allowed to create the dataset only
         with sufficient permissions, which are the same as permissions for importing */
             sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
         }
@@ -841,7 +846,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         /* Chowning the dataset should fail in case you have not all of
          * isAdmin & Chown & WriteOwned & WriteFile permissions which are
          * captured in the boolean importNotYourGroupAndChownExpectSuccess */
-        if (importNotYourGroupAndChownExpectSuccess) {
+        if (createDatasetImportNotYourGroupAndChownExpectSuccess) {
             doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(), true);
             image = (Image) iQuery.get("Image", image.getId().getValue());
             dat = (Dataset) iQuery.get("Dataset", sentDat.getId().getValue());
@@ -1329,6 +1334,46 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                                     // DEBUG  if (isAdmin == false && isRestricted == true && isSudo == false)
                                     testCases.add(testCase);
                                 }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return testCases.toArray(new Object[testCases.size()][]);
+    }
+    /**
+     * @return test cases for adding the privileges combined with isAdmin cases
+     */
+    @DataProvider(name = "6 privileges cases")
+    public Object[][] provide6CombinedPrivilegesCases() {
+        int index = 0;
+        final int IS_ADMIN = index++;
+        final int IS_SUDOING = index++;
+        final int PERM_ADDITIONAL = index++;
+        final int PERM_ADDITIONAL2 = index++;
+        final int PERM_ADDITIONAL3 = index++;
+        final int GROUP_PERMS = index++;
+
+        final boolean[] booleanCases = new boolean[]{false, true};
+        final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
+        final List<Object[]> testCases = new ArrayList<Object[]>();
+
+        for (final boolean isAdmin : booleanCases) {
+            for (final boolean isSudoing : booleanCases) {
+                for (final boolean permAdditional : booleanCases) {
+                    for (final boolean permAdditional2 : booleanCases) {
+                        for (final boolean permAdditional3 : booleanCases) {
+                            for (final String groupPerms : permsCases) {
+                                final Object[] testCase = new Object[index];
+                                testCase[IS_ADMIN] = isAdmin;
+                                testCase[IS_SUDOING] = isSudoing;
+                                testCase[PERM_ADDITIONAL] = permAdditional;
+                                testCase[PERM_ADDITIONAL2] = permAdditional2;
+                                testCase[PERM_ADDITIONAL3] = permAdditional3;
+                                testCase[GROUP_PERMS] = groupPerms;
+                                // DEBUG  if (isAdmin == false && isRestricted == true && isSudo == false)
+                                testCases.add(testCase);
                             }
                         }
                     }
