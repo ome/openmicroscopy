@@ -44,7 +44,11 @@ from omero.rtypes import rdouble, rlist, rstring, unwrap
 from omero.sys import ParametersI
 
 from omero.util.populate_metadata import (
-    ParsingContext, BulkToMapAnnotationContext, DeleteMapAnnotationContext)
+    get_config,
+    ParsingContext,
+    BulkToMapAnnotationContext,
+    DeleteMapAnnotationContext,
+)
 from omero.util.populate_roi import AbstractMeasurementCtx
 from omero.util.populate_roi import AbstractPlateAnalysisCtx
 from omero.util.populate_roi import MeasurementParsingResult
@@ -838,6 +842,30 @@ class Project2Datasets(Fixture):
                     raise Exception("Unknown img: %s" % img)
             else:
                 raise Exception("Unknown dataset: %s" % ds)
+
+
+class TestPopulateMetadataConfigLoad(ITest):
+
+    def get_cfg_filepath(self):
+        return os.path.join(os.path.dirname(__file__),
+                            'bulk_to_map_annotation_context.yml')
+
+    def _assert_configs(self, default_cfg, column_cfgs, advanced_cfgs):
+        assert default_cfg == {"include": True}
+        assert column_cfgs is None
+        assert advanced_cfgs == {}
+
+    def test_get_config_local(self):
+        default_cfg, column_cfgs, advanced_cfgs = get_config(
+            None, cfg=self.get_cfg_filepath())
+        self._assert_configs(default_cfg, column_cfgs, advanced_cfgs)
+
+    def test_get_config_remote(self):
+        ofile = self.client.upload(self.get_cfg_filepath()).proxy()
+        cfgid = unwrap(ofile.getId())
+        default_cfg, column_cfgs, advanced_cfgs = get_config(
+            self.client.getSession(), cfgid=cfgid)
+        self._assert_configs(default_cfg, column_cfgs, advanced_cfgs)
 
 
 class TestPopulateMetadataHelper(ITest):
