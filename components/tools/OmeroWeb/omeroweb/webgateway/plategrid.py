@@ -87,13 +87,12 @@ class PlateGrid(object):
             thumbnails = self._conn.getThumbnailSet(image_ids, 96)
             for row in grid:
                 for col in row:
-                    thumbnails[col['id']]
                     try:
                         t = thumbnails[col['id']]
                         col['thumb_url'] = \
-                            ("data:image/jpeg;base64, "
+                            ("data:image/jpeg;base64,"
                              "%s" % base64.b64encode(t))
-                    except KeyError:
+                    except Exception:  # TypeError, KeyError
                         pass
 
             self._metadata = {'grid': grid,
