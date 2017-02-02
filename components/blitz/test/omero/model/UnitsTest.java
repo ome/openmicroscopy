@@ -21,28 +21,28 @@ package omero.model;
 
 import java.io.IOException;
 
-import junit.framework.TestCase;
 import ome.model.units.BigResult;
 import omero.model.enums.UnitsLength;
 import omero.model.enums.UnitsTemperature;
 import omero.model.enums.UnitsPower;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 @Test(groups = "unit")
-public class UnitsTest extends TestCase {
+public class UnitsTest {
 
     @Test
     public void testPowerConversion() throws IOException, BigResult {
         Power p1 = new PowerI(100.1, UnitsPower.CENTIWATT);
         Power p2 = new PowerI(p1, UnitsPower.WATT);
-        assertEquals(1.001, p2.getValue());
+        Assert.assertEquals(1.001, p2.getValue());
     }
 
     @Test
     public void testLengthSymbol() throws IOException {
         LengthI l = new LengthI(100.1, UnitsLength.MICROMETER);
-        assertEquals("µm", l.getSymbol());
+        Assert.assertEquals("µm", l.getSymbol());
     }
 
     @Test
@@ -51,7 +51,7 @@ public class UnitsTest extends TestCase {
         Temperature c = new TemperatureI(f, UnitsTemperature.CELSIUS);
         Temperature k = new TemperatureI(c, UnitsTemperature.KELVIN);
 
-        assertEquals(0, c.getValue(), 1e-5);
-        assertEquals(273.15, k.getValue(), 1e-5);
+        Assert.assertEquals(0, c.getValue(), 1e-5);
+        Assert.assertEquals(273.15, k.getValue(), 1e-5);
     }
 }
