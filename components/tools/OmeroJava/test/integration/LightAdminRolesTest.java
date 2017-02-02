@@ -1142,16 +1142,11 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * is a member of, the recipient of the data is just a member of one of the groups.
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "combined privileges cases")
+    @Test(dataProvider = "narrowed combined privileges cases")
     public void testDataOrganizerChownAll(boolean isAdmin, boolean permChgrp, boolean permChown,
-            boolean permWriteOwned, boolean permWriteFile, boolean permDeleteOwned, String groupPermissions) throws Exception {
-        final boolean isExpectSuccess = isAdmin && permChown && permWriteOwned && permWriteFile && permDeleteOwned;
-        /* chown is passing in this test with isAdmin, permChown and permWriteOwned only,
-         * the permWriteFile is not necessary, but note that this is just because we have
-         * images with no original files linked to them. If there would be original files, then
-         * chown would work only with permWriteFile, just as in testImporterAsSudoChown.*/
-        final boolean chownPassing = isAdmin && permChown && permWriteOwned && permDeleteOwned;
-        if (!isExpectSuccess) return;
+            String groupPermissions) throws Exception {
+        /* chown is passing in this test with isAdmin and permChown only.*/
+        final boolean chownPassing = isAdmin && permChown;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         ExperimenterGroup otherGroup = newGroupAddUser(groupPermissions, normalUser.userId, false);
         final EventContext recipient = newUserInGroup(otherGroup, false);
@@ -1159,9 +1154,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         ArrayList <String> permissions = new ArrayList <String>();
         if (permChown) permissions.add(AdminPrivilegeChown.value);;
         if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);;
-        if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
-        if (permWriteFile) permissions.add(AdminPrivilegeWriteFile.value);
-        if (permDeleteOwned) permissions.add(AdminPrivilegeDeleteOwned.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
         /* create two sets of P/D/I hierarchy as normalUser in the default
@@ -1208,7 +1200,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         client.getImplicitContext().put("omero.group", Long.toString(-1));
         /* transfer can proceed only if chownPassing boolean is true */
         doChange(client, factory, Requests.chown().targetUsers(normalUser.userId).toUser(recipient.userId).build(), chownPassing);
-        if (!isExpectSuccess) {
+        if (!chownPassing) {
             return;
         }
         /* check the transfer of all the data in the first group was successful */
