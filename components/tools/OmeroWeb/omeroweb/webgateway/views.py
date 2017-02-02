@@ -211,7 +211,6 @@ def _split_channel_info(rchannels):
     channels = []
     windows = []
     colors = []
-    reverses = []
     for chan in rchannels.split(','):
         # chan  1|12:1386r$0000FF
         chan = chan.split('|', 1)
@@ -219,7 +218,6 @@ def _split_channel_info(rchannels):
         t = chan[0].strip()
         # t = '1'
         color = None
-        rev = None
         # Not normally used...
         if t.find('$') >= 0:
             t, color = t.split('$')
@@ -232,14 +230,7 @@ def _split_channel_info(rchannels):
                 if t.find('$') >= 0:
                     t, color = t.split('$', 1)
                     # color = '0000FF'
-                    # t = 12:1386r
-                # Optional flag to enable reverse codomain
-                if t.endswith('-r'):
-                    rev = False
-                    t = t[:-2]
-                elif t.endswith('r'):
-                    rev = True
-                    t = t[:-1]
+                    # t = 12:1386
                 t = t.split(':')
                 if len(t) == 2:
                     try:
@@ -248,11 +239,10 @@ def _split_channel_info(rchannels):
                         pass
             windows.append(ch_window)
             colors.append(color)
-            reverses.append(rev)
         except ValueError:
             pass
     logger.debug(str(channels)+","+str(windows)+","+str(colors))
-    return channels, windows, colors, reverses
+    return channels, windows, colors
 
 
 def getImgDetailsFromReq(request, as_string=False):
@@ -750,6 +740,31 @@ def _get_signature_from_request(request):
     return rv
 
 
+def _get_maps_enabled(request, name, sizeC=0):
+    """
+    Parses 'maps' query string from request
+    """
+    codomains = None
+    if 'maps' in request:
+        mapping = request['maps']
+        codomains = []
+        try:
+            map_json = json.loads(mapping)
+            sizeC = max(len(map_json), sizeC)
+            for c in range(sizeC):
+                enabled = None
+                if len(map_json) > c:
+                    m = map_json[c].get(name)
+                    # If None, no change to saved status
+                    if m is not None:
+                        enabled = m.get('enabled') in (True, 'true')
+                codomains.append(enabled)
+        except:
+            logger.debug('Invalid json for query ?maps=%s' % mapping)
+            codomains = None
+    return codomains
+
+
 def _get_prepared_image(request, iid, server_id=None, conn=None,
                         saveDefs=False, retry=True):
     """
@@ -772,9 +787,10 @@ def _get_prepared_image(request, iid, server_id=None, conn=None,
     img = conn.getObject("Image", iid)
     if img is None:
         return
+    reverses = _get_maps_enabled(r, 'reverse', img.getSizeC())
     if 'c' in r:
         logger.debug("c="+r['c'])
-        channels, windows, colors, reverses = _split_channel_info(r['c'])
+        channels, windows, colors = _split_channel_info(r['c'])
         if not img.setActiveChannels(channels, windows, colors, reverses):
             logger.debug(
                 "Something bad happened while setting the active channels...")
@@ -1958,7 +1974,8 @@ def copy_image_rdef_json(request, conn=None, **kwargs):
         return rv
 
     def applyRenderingSettings(image, rdef):
-        channels, windows, colors, reverse = _split_channel_info(rdef['c'])
+        reverse = None
+        channels, windows, colors = _split_channel_info(rdef['c'])
         # also prepares _re
         image.setActiveChannels(channels, windows, colors, reverse)
         if rdef['m'] == 'g':
