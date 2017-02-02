@@ -321,20 +321,17 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * for this action.
      * @throws Exception unexpected
      */
-   @Test(dataProvider = "combined privileges cases")
-   public void testImporterDelete(boolean isAdmin, boolean isSudoing, boolean permWriteOwned, boolean permWriteFile, 
-           boolean permDeleteOwned, boolean permDeleteManagedRepo, String groupPermissions) throws Exception {
-       boolean deletePassing = (!isSudoing && permWriteOwned && permWriteFile && permDeleteOwned && permDeleteManagedRepo) || isSudoing;
-       boolean deletePassingWithoutWriteFile = !isSudoing && permWriteOwned && !permWriteFile && permDeleteOwned && permDeleteManagedRepo;
-       if (!isAdmin) return;
+   @Test(dataProvider = "narrowed combined privileges cases")
+   public void testImporterDelete(boolean isAdmin, boolean isSudoing, boolean permDeleteOwned,
+           String groupPermissions) throws Exception {
+       /* only DeleteOwned permission is truly needed for deletion of links, dataset
+        * and image (with original file) when not sudoing */
+       boolean deletePassing = (!isSudoing && permDeleteOwned) || isSudoing;
        final EventContext normalUser = newUserAndGroup(groupPermissions);
        /* set up the light admin's permissions for this test */
        ArrayList <String> permissions = new ArrayList <String>();
        permissions.add(AdminPrivilegeSudo.value);
-       if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
-       if (permWriteFile) permissions.add(AdminPrivilegeWriteFile.value);
        if (permDeleteOwned) permissions.add(AdminPrivilegeDeleteOwned.value);
-       if (permDeleteManagedRepo) permissions.add(AdminPrivilegeDeleteManagedRepo.value);
        final EventContext lightAdmin;
        lightAdmin = loginNewAdmin(isAdmin, permissions);
        try {
@@ -410,16 +407,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
            } catch (ServerError se) {
            /* not expected */
            }
-       } else if (deletePassingWithoutWriteFile) {
-           try {
-               doChange(Requests.delete().target(datasetImageLink).build());
-               doChange(Requests.delete().target(projectDatasetLink).build());
-               doChange(Requests.delete().target(image).build());
-               doChange(Requests.delete().target(sentDat).build());
-               doChange(Requests.delete().target(sentProj).build());
-           } catch (ServerError se) {
-           /* not expected */
-           }
        }
        /* Check one of the objects for non-existence after deletion. First, logging
         * in as root, retrieve all the objects to check them later*/
@@ -448,18 +435,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
            /* successful delete expected */
            Assert.assertNull(retrievedRemoteFile, "original file should be deleted");
            Assert.assertNull(retrievedImage, "image should be deleted");
-           Assert.assertNull(retrievedDat, "dataset should be deleted");
-           Assert.assertNull(retrievedProj, "project should be deleted");
-           Assert.assertNull(retrievedDatasetImageLink, "Dat-Image link should be deleted");
-           Assert.assertNull(retrievedProjectDatasetLink, "Proj-Dat link should be deleted");
-       } else if (deletePassingWithoutWriteFile){
-           /* When WriteFile permission is missing, general expectation is that only OMERO objects
-            * would be successfully deleted, except image, because image has under itself original file,
-            * for deletion of which WriteFile is necessary. Unfortunately, in actual fact, slightly non-standard
-            * functionality in the back end (considering the original file orphaned after image
-            * was deleted first) allows the deletion of the image and original file also in this case.*/
-           Assert.assertNull(retrievedRemoteFile, "original file deleted - this is surprising, because WriteFile is false");
-           Assert.assertNull(retrievedImage, "image deleted - this is surprising, because WriteFile is false");
            Assert.assertNull(retrievedDat, "dataset should be deleted");
            Assert.assertNull(retrievedProj, "project should be deleted");
            Assert.assertNull(retrievedDatasetImageLink, "Dat-Image link should be deleted");
