@@ -137,7 +137,10 @@ def get_format_originalfileid(originalfileid, filetype, session):
             'OMERO session required: OriginalFile:%d' % originalfileid)
     f = session.getQueryService().get('OriginalFile', originalfileid)
     if not filetype:
-        mt = unwrap(f.getMimetype()).lower()
+        try:
+            mt = unwrap(f.getMimetype()).lower()
+        except AttributeError:
+            mt = ''
         if mt == 'application/x-yaml':
             filetype = 'yaml'
         if mt == 'application/json':
