@@ -859,20 +859,19 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * WriteOwned privilege is the linking possible.
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "combined privileges cases")
-    public void testImporterAsNoSudoLinkInTargetGroup(boolean isAdmin, boolean permChgrp, boolean permChown,
-            boolean permWriteOwned, boolean permWriteFile, String groupPermissions) throws Exception {
+    @Test(dataProvider = "narrowed combined privileges cases")
+    public void testImporterAsNoSudoLinkInTargetGroup(boolean isAdmin, boolean permChown,
+            boolean permWriteOwned, String groupPermissions) throws Exception {
         /* linking should be always permitted as long as light admin is in System Group
          * and has WriteOwned permissions. Exception is Private group, where linking will
          * always fail.*/
-        boolean isExpectSuccess = isAdmin && permWriteOwned;
+        boolean isExpectLinkingSuccess = isAdmin && permWriteOwned;
+        boolean isExpectSuccessLinkAndChown = isAdmin && permWriteOwned && permChown;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         /* set up the light admin's permissions for this test */
         ArrayList <String> permissions = new ArrayList <String>();
         if (permChown) permissions.add(AdminPrivilegeChown.value);;
-        if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);;
         if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
-        if (permWriteFile) permissions.add(AdminPrivilegeWriteFile.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
         /* create an image, dataset and project as normalUser in a group of the normalUser */
@@ -890,7 +889,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
          */
         loginUser(lightAdmin);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
-        if (!isExpectSuccess) return; /* further testing not necessary in case links could not be created */
+        if (!isExpectLinkingSuccess) return; /* further testing not necessary in case links could not be created */
         if (groupPermissions == "rw----") return; /* in private group linking not possible */
         DatasetImageLink linkOfDatasetImage = linkDatasetImage(sentDat, sentImage);
         ProjectDatasetLink linkOfProjectDataset = linkProjectDataset(sentProj, sentDat);
