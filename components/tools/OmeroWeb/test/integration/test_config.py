@@ -34,6 +34,8 @@ from omeroweb.decorators import login_required
 
 from omero.gateway.utils import propertiesToDict
 
+import pytest
+
 
 def default_view(request):
     pass
@@ -119,3 +121,22 @@ class TestConfig(ITest):
 
         assert isinstance(ss['viewer']['roi_limit'], int)
         assert ss['viewer']['roi_limit'] == json.loads(default[key2])
+
+    @pytest.mark.parametrize("prop", ["colleagues.label", "leaders.label",
+                                      "everyone.label"])
+    @pytest.mark.parametrize("label", ["foo"])
+    def testUpgradeDropdownMenuConfig(self, prop, label):
+        """ Test to set and get DropdownMenuConfig """
+        d = self.rs.getClientConfigDefaults()
+        key = "omero.client.ui.menu.dropdown.%s" % prop
+        try:
+            self.rs.setConfigValue(key, label)
+            print "set %s to %s " % (key, label)
+            # test load_server_settings directly
+            login_required(default_view).load_server_settings(
+                self.conn, self.r)
+            s = self.r.session.get('server_settings', {})
+            prop = prop.replace(".label", "")
+            assert s['ui']['menu']['dropdown'][prop]['label'] == label
+        finally:
+            self.rs.setConfigValue(key, d[key])
