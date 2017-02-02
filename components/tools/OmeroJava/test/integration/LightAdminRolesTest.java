@@ -203,17 +203,15 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * that the link belongs to the user (not to the ImporterAs).
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "combined privileges cases")
-    public void testImporterAsSudoCreateImport(boolean isAdmin, boolean isSudoing, boolean permChgrp,
-            boolean permWriteOwned, boolean permWriteFile, String groupPermissions) throws Exception {
+    @Test(dataProvider = "narrowed combined privileges cases")
+    public void testImporterAsSudoCreateImport(boolean isAdmin, boolean isSudoing, boolean permWriteOwned,
+            String groupPermissions) throws Exception {
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         final boolean isExpectSuccessCreate = (isAdmin && permWriteOwned) || (isAdmin && isSudoing);
         /* set up the light admin's permissions for this test */
         ArrayList <String> permissions = new ArrayList <String>();
         permissions.add(AdminPrivilegeSudo.value);
-        if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);;
         if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
-        if (permWriteFile) permissions.add(AdminPrivilegeWriteFile.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
         if (isSudoing) {
