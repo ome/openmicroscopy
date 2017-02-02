@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -11,7 +9,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import junit.framework.TestCase;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
@@ -20,10 +17,11 @@ import ome.model.display.Thumbnail;
 import ome.model.meta.Event;
 import ome.util.ModelMapper;
 
+import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class LoadingUnloadingTest extends TestCase {
+public class LoadingUnloadingTest{
 
     Project p;
 
@@ -33,7 +31,6 @@ public class LoadingUnloadingTest extends TestCase {
 
     Pixels pix;
 
-    @Override
     @BeforeMethod
     protected void setUp() throws Exception {
         p = new Project();
@@ -96,11 +93,11 @@ public class LoadingUnloadingTest extends TestCase {
             try {
                 p.retrieve(field);
                 if (!Project.ID.equals(field)) {
-                    fail("Should have thrown an exception on:" + field);
+                    Assert.fail("Should have thrown an exception on:" + field);
                 }
             } catch (IllegalStateException stateExc) {
                 if (Project.ID.equals(field)) {
-                    fail("Should NOT throw an exception on id");
+                    Assert.fail("Should NOT throw an exception on id");
                 }
             }
 
