@@ -1084,7 +1084,7 @@ class _QueryContext(object):
 
 def get_config(session, cfg=None, cfgid=None):
     if cfgid:
-        cfgdict = pydict_text_io.load(cfgid)
+        cfgdict = pydict_text_io.load('OriginalFile:%d' % cfgid)
     elif cfg:
         cfgdict = pydict_text_io.load(cfg)
     else:
