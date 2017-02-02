@@ -17,10 +17,6 @@
  */
 package ome.formats.importer;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
-
 import java.io.File;
 
 import loci.formats.ChannelSeparator;
@@ -31,6 +27,7 @@ import loci.formats.meta.DummyMetadata;
 import loci.formats.ome.OMEXMLMetadataImpl;
 
 import org.apache.commons.io.FileUtils;
+import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -116,11 +113,11 @@ public class OMEROWrapperTest {
         try {
             m.setId(png.getAbsolutePath());
             m.close();
-            assertTrue(m.isSavedToMemo());
+            Assert.assertTrue(m.isSavedToMemo());
 
             m = new Memoizer(new ChannelSeparator());
             m.setId(png.getAbsolutePath());
-            assertTrue(m.isLoadedFromMemo());
+            Assert.assertTrue(m.isLoadedFromMemo());
         } finally {
             m.close();
         }
@@ -133,11 +130,11 @@ public class OMEROWrapperTest {
         try {
             m.setId(fake.getAbsolutePath());
             m.close();
-            assertTrue(m.isSavedToMemo());
+            Assert.assertTrue(m.isSavedToMemo());
 
             m = new Memoizer(new MinMaxCalculator(), 0L /* min elapsed */);
             m.setId(fake.getAbsolutePath());
-            assertFalse(m.isLoadedFromMemo());
+            Assert.assertFalse(m.isLoadedFromMemo());
         } finally {
             m.close();
         }
@@ -148,14 +145,14 @@ public class OMEROWrapperTest {
     public void testOMEXMLMetadataStore() throws Exception {
         wrapper.setMetadataStore(new OMEXMLMetadataImpl());
         wrapper.setId(png.getAbsolutePath());
-        assertFalse(((Memoizer)wrapper.getReader()).isLoadedFromMemo());
-        assertTrue(((Memoizer)wrapper.getReader()).isSavedToMemo());
+        Assert.assertFalse(((Memoizer)wrapper.getReader()).isLoadedFromMemo());
+        Assert.assertTrue(((Memoizer)wrapper.getReader()).isSavedToMemo());
 
         wrapper.setId(png.getAbsolutePath());
-        assertTrue(((Memoizer)wrapper.getReader()).isLoadedFromMemo());
-        assertTrue(((Memoizer)wrapper.getReader()).isSavedToMemo());
-        assertEquals(OMEXMLMetadataImpl.class,
-                wrapper.getMetadataStore().getClass());
+        Assert.assertTrue(((Memoizer)wrapper.getReader()).isLoadedFromMemo());
+        Assert.assertTrue(((Memoizer)wrapper.getReader()).isSavedToMemo());
+        Assert.assertEquals(wrapper.getMetadataStore().getClass(),
+                OMEXMLMetadataImpl.class);
 
     }
 
