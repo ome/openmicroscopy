@@ -46,7 +46,8 @@
             }
             // only pick what we need
             var pasteData = {'c': data.c,
-                'm': data.m};
+                'm': data.m,
+                'maps': data.maps};
             viewport.setQuery(pasteData);
             viewport.doload();        // loads image
             syncRDCW(viewport);       // update rdef table

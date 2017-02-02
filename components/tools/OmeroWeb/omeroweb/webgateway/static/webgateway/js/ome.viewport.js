@@ -1184,6 +1184,13 @@ jQuery._WeblitzViewport = function (container, server, options) {
         }
       }
     }
+    if (query.maps) {
+      query.maps.map(function(m, idx){
+        if (m.reverse) {
+          this.setChannelReverseIntensity(idx, m.reverse.enabled, true);
+        }
+      }.bind(this));
+    }
     if (query.q) this.setQuality(query.q, true);
     if (query.p) this.setProjection(query.p, true);
     if (query.p) this.setInvertedAxis(query.ia, true);

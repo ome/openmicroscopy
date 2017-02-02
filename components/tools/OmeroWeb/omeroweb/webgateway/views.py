@@ -746,10 +746,12 @@ def _get_maps_enabled(request, name, sizeC=0):
     """
     codomains = None
     if 'maps' in request:
-        mapping = request['maps']
+        map_json = request['maps']
         codomains = []
         try:
-            map_json = json.loads(mapping)
+            # If coming from request string, need to load -> json
+            if isinstance(map_json, (unicode, str)):
+                map_json = json.loads(map_json)
             sizeC = max(len(map_json), sizeC)
             for c in range(sizeC):
                 enabled = None
@@ -1930,6 +1932,11 @@ def copy_image_rdef_json(request, conn=None, **kwargs):
         rdef = {
             'c': str(r.get('c'))    # channels
         }
+        if r.get('maps'):
+            try:
+                rdef['maps'] = json.loads(r.get('maps'))
+            except:
+                pass
         if r.get('pixel_range'):
             rdef['pixel_range'] = str(r.get('pixel_range'))
         if r.get('m'):
@@ -1958,26 +1965,28 @@ def copy_image_rdef_json(request, conn=None, **kwargs):
     def getRenderingSettings(image):
         rv = {}
         chs = []
+        maps = []
         for i, ch in enumerate(image.getChannels()):
             act = "" if ch.isActive() else "-"
             start = ch.getWindowStart()
             end = ch.getWindowEnd()
             color = ch.getLut()
-            rev = 'r' if ch.isReverseIntensity() else ''
+            maps.append({'reverse':{'enabled': ch.isReverseIntensity()}})
             if not color or len(color) == 0:
                 color = ch.getColor().getHtml()
-            chs.append("%s%s|%s:%s%s$%s" % (act, i+1, start, end, rev, color))
+            chs.append("%s%s|%s:%s$%s" % (act, i+1, start, end, color))
         rv['c'] = ",".join(chs)
+        rv['maps'] = maps
         rv['m'] = "g" if image.isGreyscaleRenderingModel() else "c"
         rv['z'] = image.getDefaultZ() + 1
         rv['t'] = image.getDefaultT() + 1
         return rv
 
     def applyRenderingSettings(image, rdef):
-        reverse = None
+        reverses = _get_maps_enabled(rdef, 'reverse', image.getSizeC())
         channels, windows, colors = _split_channel_info(rdef['c'])
         # also prepares _re
-        image.setActiveChannels(channels, windows, colors, reverse)
+        image.setActiveChannels(channels, windows, colors, reverses)
         if rdef['m'] == 'g':
             image.setGreyscaleRenderingModel()
         else:
