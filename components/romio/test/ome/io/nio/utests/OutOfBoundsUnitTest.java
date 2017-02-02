@@ -38,7 +38,7 @@ public class OutOfBoundsUnitTest {
     }
 
     @BeforeMethod
-    public void setUp() {
+    public void setUp() throws IOException {
         pixels = new Pixels();
 
         pixels.setId(1L);
@@ -52,7 +52,7 @@ public class OutOfBoundsUnitTest {
         pixels.setPixelsType(type); // FIXME
 
         PixelsService service = new PixelsService(ROOT);
-        pixelBuffer = service.getPixelBuffer(pixels);
+        pixelBuffer = service.createPixelBuffer(pixels);
     }
 
     @Test
