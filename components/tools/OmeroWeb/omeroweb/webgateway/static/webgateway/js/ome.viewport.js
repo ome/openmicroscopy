@@ -1092,14 +1092,16 @@ jQuery._WeblitzViewport = function (container, server, options) {
     /* Channels (verbose as IE7 does not support Array.filter */
     var chs = [];
     var channels = this.loadedImg.channels;
+    var maps_json = [];
     for (var i=0; i<channels.length; i++) {
       var ch = channels[i].active ? '' : '-';
       ch += parseInt(i, 10)+1;
       ch += '|' + channels[i].window.start + ':' + channels[i].window.end;
-      ch += channels[i].reverseIntensity ? 'r' : '-r';
       ch += '$' + OME.rgbToHex(channels[i].color);
       chs.push(ch);
+      maps_json.push({'reverse': {'enabled': channels[i].reverseIntensity}});
     }
+    query.push('maps=' + JSON.stringify(maps_json));
     query.push('c=' + chs.join(','));
     /* Rendering Model */
     query.push('m=' + this.loadedImg.rdefs.model.toLowerCase().substring(0,1));
