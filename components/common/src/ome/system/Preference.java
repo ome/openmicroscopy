@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -77,7 +75,8 @@ public class Preference implements BeanNameAware {
      * {@link PropertyPlaceholderConfigurer#SYSTEM_PROPERTIES_MODE_OVERRIDE} as
      * well as ignoring unfound resources. The
      * {@link PreferencesPlaceholderConfigurer#setUserTreePath(String)}
-     * user-tree is set according to a similar logic as in the {@link prefs}
+     * user-tree is set according to a similar logic as in the
+     * {@link ome.util.prefs}
      * command-line tool, using first from the environment if
      * present, otherwise the value of "omero.prefs.default".
      */
