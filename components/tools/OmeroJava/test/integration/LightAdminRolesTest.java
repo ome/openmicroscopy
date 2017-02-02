@@ -938,32 +938,30 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
          * The data will be imported to the group
          * of the light admin (where the user is not a member)
          * and chgrp-ed and chowned into the correct group/user afterwards.
-         * For this test, combinations of  <tt>Chown</tt>, <tt>Chgrp</tt>,. <tt>WriteOwned</tt> and
-         * and <tt>WriteFile</tt> privileges will be explored for the light admin.
+         * For this test, combinations of  <tt>Chown</tt>, <tt>Chgrp</tt>,
+         * privileges is explored for the light admin.
          * For this workflow the creation and targeting of a Dataset
          * is tested too.
          * @throws Exception unexpected
          */
-        @Test(dataProvider = "combined privileges cases")
+        @Test(dataProvider = "narrowed combined privileges cases")
         public void testImporterAsNoSudoChgrpChownWorkflow(boolean isAdmin, boolean permChgrp, boolean permChown,
-                boolean permWriteOwned, boolean permWriteFile, String groupPermissions) throws Exception {
-            /* the second workflow with importing into the group of the light admin and
-             * subsequent moving the data into the group of normalUser and chowning
-             * them to the normal user will succeed if Chgrp and Chown is possible,
-             * which needs permChgrp, permChown, but not WriteFile and WriteOwned,
-             * because the light admin is the owner of the data which he is chowning
-             */
-            boolean importYourGroupAndChgrpAndChownExpectSuccess =
-                    (isAdmin && permChgrp && permChown);
-            final EventContext normalUser = newUserAndGroup(groupPermissions);
-            /* set up the light admin's permissions for this test */
-            ArrayList <String> permissions = new ArrayList <String>();
-            if (permChown) permissions.add(AdminPrivilegeChown.value);;
-            if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);;
-            if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
-            if (permWriteFile) permissions.add(AdminPrivilegeWriteFile.value);
-            final EventContext lightAdmin;
-            lightAdmin = loginNewAdmin(isAdmin, permissions);
+                String groupPermissions) throws Exception {
+        /* importing into the group of the light admin and
+         * subsequent moving the data into the group of normalUser and chowning
+         * them to the normal user will succeed if Chgrp and Chown is possible,
+         * which needs permChgrp, permChown, but not WriteFile and WriteOwned,
+         */
+        boolean importYourGroupAndChgrpAndChownExpectSuccess =
+                (isAdmin && permChgrp && permChown);
+        final EventContext normalUser = newUserAndGroup(groupPermissions);
+        /* set up the light admin's permissions for this test */
+        ArrayList <String> permissions = new ArrayList <String>();
+        if (permChown) permissions.add(AdminPrivilegeChown.value);
+        if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);
+        permissions.add(AdminPrivilegeWriteFile.value);
+        final EventContext lightAdmin;
+        lightAdmin = loginNewAdmin(isAdmin, permissions);
         /* Workflow2: import an image as lightAdmin into a group you are a member of */
         if (!isAdmin) return;
         /* First create a Dataset in your (light admin's) group */
@@ -1021,11 +1019,15 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         DatasetImageLink link = (DatasetImageLink) iQuery.findByQuery(
                 "FROM DatasetImageLink WHERE parent.id  = :id",
                 new ParametersI().addId(sentDat.getId()));
+        remoteFile = (OriginalFile) iQuery.findByQuery(
+                "FROM OriginalFile WHERE id = :id",
+                new ParametersI().addId(remoteFile.getId()));
         /* note in which group the image now is now */
         imageGroupId = image.getDetails().getGroup().getId().getValue();
         /* check that the image, dataset, and their link was moved too if the permissions
          * were sufficient */
         if (isAdmin && permChgrp) {
+            Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), normalUser.groupId);
             Assert.assertEquals(imageGroupId, normalUser.groupId);
             Assert.assertEquals(dat.getDetails().getGroup().getId().getValue(), normalUser.groupId);
             Assert.assertEquals(link.getDetails().getGroup().getId().getValue(), normalUser.groupId);
@@ -1033,11 +1035,12 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
          * the permissions were not sufficient
          */
         } else {
+            Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), lightAdmin.groupId);
             Assert.assertEquals(imageGroupId, lightAdmin.groupId);
             Assert.assertEquals(dat.getDetails().getGroup().getId().getValue(), lightAdmin.groupId);
             Assert.assertEquals(link.getDetails().getGroup().getId().getValue(), lightAdmin.groupId);
         }
-        /* now, having moved the dataset, image and link in the group of normalUser,
+        /* now, having moved the dataset, image, original file and link in the group of normalUser,
          * try to change the ownership of the dataset to the normalUser */
         /* Chowning the dataset should fail in case you have not both of
          * isAdmin & Chown permissions which are
@@ -1053,7 +1056,12 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             link = (DatasetImageLink) iQuery.findByQuery(
                     "FROM DatasetImageLink WHERE parent.id  = :id",
                     new ParametersI().addId(sentDat.getId()));
+            remoteFile = (OriginalFile) iQuery.findByQuery(
+                    "FROM OriginalFile WHERE id = :id",
+                    new ParametersI().addId(remoteFile.getId()));
             /* image, dataset and link are in the normalUser's group and belong to normalUser */
+            Assert.assertEquals(remoteFile.getDetails().getOwner().getId().getValue(), normalUser.userId);
+            Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), normalUser.groupId);
             Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), normalUser.userId);
             Assert.assertEquals(image.getDetails().getGroup().getId().getValue(), normalUser.groupId);
             Assert.assertEquals(dat.getDetails().getOwner().getId().getValue(), normalUser.userId);
@@ -1068,7 +1076,12 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             link = (DatasetImageLink) iQuery.findByQuery(
                     "FROM DatasetImageLink WHERE parent.id  = :id",
                     new ParametersI().addId(sentDat.getId()));
+            remoteFile = (OriginalFile) iQuery.findByQuery(
+                    "FROM OriginalFile WHERE id = :id",
+                    new ParametersI().addId(remoteFile.getId()));
             /* the image, dataset and link belong to the normalUser, but is in the light admin's group */
+            Assert.assertEquals(remoteFile.getDetails().getOwner().getId().getValue(), normalUser.userId);
+            Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), lightAdmin.groupId);
             Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), normalUser.userId);
             Assert.assertEquals(image.getDetails().getGroup().getId().getValue(), lightAdmin.groupId);
             Assert.assertEquals(dat.getDetails().getOwner().getId().getValue(), normalUser.userId);
@@ -1084,7 +1097,12 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             link = (DatasetImageLink) iQuery.findByQuery(
                     "FROM DatasetImageLink WHERE parent.id  = :id",
                     new ParametersI().addId(sentDat.getId()));
+            remoteFile = (OriginalFile) iQuery.findByQuery(
+                    "FROM OriginalFile WHERE id = :id",
+                    new ParametersI().addId(remoteFile.getId()));
             /* the image, dataset and link are in normalUser's group but still belong to light admin */
+            Assert.assertEquals(remoteFile.getDetails().getOwner().getId().getValue(), lightAdmin.userId);
+            Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), normalUser.groupId);
             Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), lightAdmin.userId);
             Assert.assertEquals(image.getDetails().getGroup().getId().getValue(), normalUser.groupId);
             Assert.assertEquals(dat.getDetails().getOwner().getId().getValue(), lightAdmin.userId);
@@ -1099,7 +1117,12 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             link = (DatasetImageLink) iQuery.findByQuery(
                     "FROM DatasetImageLink WHERE parent.id  = :id",
                     new ParametersI().addId(sentDat.getId()));
+            remoteFile = (OriginalFile) iQuery.findByQuery(
+                    "FROM OriginalFile WHERE id = :id",
+                    new ParametersI().addId(remoteFile.getId()));
             /* the image, dataset and link are in light admin's group and belong to light admin */
+            Assert.assertEquals(remoteFile.getDetails().getOwner().getId().getValue(), lightAdmin.userId);
+            Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), lightAdmin.groupId);
             Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), lightAdmin.userId);
             Assert.assertEquals(image.getDetails().getGroup().getId().getValue(), lightAdmin.groupId);
             Assert.assertEquals(dat.getDetails().getOwner().getId().getValue(), lightAdmin.userId);
