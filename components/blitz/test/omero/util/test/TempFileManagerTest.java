@@ -56,7 +56,7 @@ public class TempFileManagerTest {
         File p = TempFileManager.create_path("write", ".txt");
         FileUtils.writeLines(p, Arrays.asList("hi"));
         String hi = FileUtils.readFileToString(p).trim();
-        Assert.assertEquals("hi", hi);
+        Assert.assertEquals(hi, "hi");
     }
 
     @Test
@@ -65,7 +65,7 @@ public class TempFileManagerTest {
         FileUtils.writeLines(p, Arrays.asList("hi"));
         File f = new File(p.getAbsolutePath());
         String hi = FileUtils.readFileToString(f).trim();
-        Assert.assertEquals("hi", hi);
+        Assert.assertEquals(hi, "hi");
     }
 
     @Test

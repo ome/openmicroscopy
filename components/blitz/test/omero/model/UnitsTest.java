@@ -36,13 +36,13 @@ public class UnitsTest {
     public void testPowerConversion() throws IOException, BigResult {
         Power p1 = new PowerI(100.1, UnitsPower.CENTIWATT);
         Power p2 = new PowerI(p1, UnitsPower.WATT);
-        Assert.assertEquals(1.001, p2.getValue());
+        Assert.assertEquals(p2.getValue(), 1.001);
     }
 
     @Test
     public void testLengthSymbol() throws IOException {
         LengthI l = new LengthI(100.1, UnitsLength.MICROMETER);
-        Assert.assertEquals("µm", l.getSymbol());
+        Assert.assertEquals(l.getSymbol(), "µm");
     }
 
     @Test
@@ -51,7 +51,7 @@ public class UnitsTest {
         Temperature c = new TemperatureI(f, UnitsTemperature.CELSIUS);
         Temperature k = new TemperatureI(c, UnitsTemperature.KELVIN);
 
-        Assert.assertEquals(0, c.getValue(), 1e-5);
-        Assert.assertEquals(273.15, k.getValue(), 1e-5);
+        Assert.assertEquals(c.getValue(), 0, 1e-5);
+        Assert.assertEquals(k.getValue(), 273.15, 1e-5);
     }
 }
