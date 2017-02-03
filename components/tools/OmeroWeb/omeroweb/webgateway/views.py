@@ -2063,8 +2063,9 @@ def get_image_rdef_json(request, conn=None, **kwargs):
             maps = []
             for i, ch in enumerate(rv['channels']):
                 act = ch['active'] and str(i+1) or "-%s" % (i+1)
+                color = ch.get('lut') or ch['color']
                 chs.append("%s|%s:%s$%s" % (act, ch['window']['start'],
-                                            ch['window']['end'], ch['color']))
+                                            ch['window']['end'], color))
                 maps.append({'reverse':{'enabled': ch['reverseIntensity']}})
             rdef = {'c': (",".join(chs)),
                     'm': rv['rdefs']['model'],

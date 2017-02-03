@@ -1101,7 +1101,8 @@ jQuery._WeblitzViewport = function (container, server, options) {
       chs.push(ch);
       maps_json.push({'reverse': {'enabled': channels[i].reverseIntensity}});
     }
-    query.push('maps=' + JSON.stringify(maps_json));
+    // We can 'stringify' json for url. Nicer if we remove all spaces
+    query.push('maps=' + JSON.stringify(maps_json).replace(/ /g, ""));
     query.push('c=' + chs.join(','));
     /* Rendering Model */
     query.push('m=' + this.loadedImg.rdefs.model.toLowerCase().substring(0,1));
