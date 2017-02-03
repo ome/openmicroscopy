@@ -16,6 +16,7 @@ import java.util.Map;
 import omero.api.IRenderingSettingsPrx;
 import omero.api.IScriptPrx;
 import omero.api.RenderingEnginePrx;
+import omero.gateway.model.ChannelData;
 import omero.model.Channel;
 import omero.model.ChannelBinding;
 import omero.model.CodomainMapContext;
@@ -1630,6 +1631,51 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
             cb = channels.get(k);
             l = cb.copySpatialDomainEnhancement();
             Assert.assertEquals(l.size(), 0);
+        }
+    }
+
+    /**
+     * Tests to the default color assigned.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testDefaultColor() throws Exception {
+        Image image = createBinaryImage(128, 128, 1, 1, 6);
+        Pixels pixels = image.getPrimaryPixels();
+        long id = pixels.getId().getValue();
+        IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+        prx.setOriginalSettingsInSet(Image.class.getName(),
+                Arrays.asList(image.getId().getValue()));
+        RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+        List<ChannelBinding> channels = def.copyWaveRendering();
+        for (int i = 0; i < channels.size(); i++) {
+            ChannelBinding cb = channels.get(i);
+            int r = cb.getRed().getValue();
+            int g = cb.getGreen().getValue();
+            int b = cb.getBlue().getValue();
+            int a = cb.getAlpha().getValue();
+            Assert.assertEquals(a, 255);
+            switch (i%3) {
+                case 0:
+                    //red
+                    Assert.assertEquals(r, 255);
+                    Assert.assertEquals(g, 0);
+                    Assert.assertEquals(b, 0);
+                    break;
+                case 1:
+                    //green
+                    Assert.assertEquals(r, 0);
+                    Assert.assertEquals(g, 255);
+                    Assert.assertEquals(b, 0);
+                    break;
+                case 2:
+                    //green
+                    Assert.assertEquals(r, 0);
+                    Assert.assertEquals(g, 0);
+                    Assert.assertEquals(b, 255);
+            }
         }
     }
 }
