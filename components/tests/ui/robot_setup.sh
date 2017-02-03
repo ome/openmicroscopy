@@ -17,6 +17,7 @@ USER_NAME=${USER_NAME:-robot_user}-$now
 USER_PASSWORD=${USER_PASSWORD:-ome}
 CONFIG_FILENAME=${CONFIG_FILENAME:-robot_ice.config}
 IMAGE_NAME=${IMAGE_NAME:-test&acquisitionDate=2012-01-01_00-00-00&sizeZ=3&sizeT=10.fake}
+MULTI_C_IMAGE_NAME=${MULTI_C_IMAGE_NAME:-test&acquisitionDate=2012-01-01_00-00-00&sizeC=3&sizeZ=3&sizeT=10.fake}
 TINY_IMAGE_NAME=${TINY_IMAGE_NAME:-test&acquisitionDate=2012-01-01_00-00-00.fake}
 MIF_IMAGE_NAME=${MIF_IMAGE_NAME:-test&series=3.fake}
 PLATE_NAME=${PLATE_NAME:-test&plates=1&plateAcqs=2&plateRows=2&plateCols=3&fields=5&screens=0.fake}
@@ -34,6 +35,7 @@ bin/omero logout
 
 # Create fake files
 touch $IMAGE_NAME
+touch $MULTI_C_IMAGE_NAME
 touch $TINY_IMAGE_NAME
 touch $PLATE_NAME
 touch $TINY_PLATE_NAME
@@ -87,6 +89,13 @@ mifDs=$(bin/omero obj new Dataset name='MIF Images')
 for (( k=1; k<=2; k++ ))
 do
   bin/omero import -d $mifDs $MIF_IMAGE_NAME --debug ERROR
+done
+
+# Create Dataset with multi channel images
+mcDs=$(bin/omero obj new Dataset name='MultiChannel Images')
+for (( k=1; k<=2; k++ ))
+do
+  bin/omero import -d $mcDs $MULTI_C_IMAGE_NAME --debug ERROR
 done
 
 # Import Plate and rename
