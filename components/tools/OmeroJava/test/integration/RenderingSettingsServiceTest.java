@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  *   Copyright 2006-2010 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -16,7 +14,6 @@ import java.util.Map;
 import omero.api.IRenderingSettingsPrx;
 import omero.api.IScriptPrx;
 import omero.api.RenderingEnginePrx;
-import omero.gateway.model.ChannelData;
 import omero.model.Channel;
 import omero.model.ChannelBinding;
 import omero.model.CodomainMapContext;
