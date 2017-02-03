@@ -1,12 +1,9 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.model.utests;
 
-import junit.framework.TestCase;
 import ome.model.core.Image;
 import ome.model.screen.Plate;
 import ome.model.screen.Reagent;
@@ -17,7 +14,7 @@ import ome.model.screen.WellSample;
 
 import org.testng.annotations.Test;
 
-public class ScreenPlateWellTest extends TestCase {
+public class ScreenPlateWellTest {
 
     // Public since used by integration test for simple save
 
