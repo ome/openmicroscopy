@@ -2059,16 +2059,18 @@ def get_image_rdef_json(request, conn=None, **kwargs):
             image = conn.getObject("Image", fromid)
         if image is not None:
             rv = imageMarshal(image, request=request)
-            # return rv
             chs = []
+            maps = []
             for i, ch in enumerate(rv['channels']):
                 act = ch['active'] and str(i+1) or "-%s" % (i+1)
                 chs.append("%s|%s:%s$%s" % (act, ch['window']['start'],
                                             ch['window']['end'], ch['color']))
+                maps.append({'reverse':{'enabled': ch['reverseIntensity']}})
             rdef = {'c': (",".join(chs)),
                     'm': rv['rdefs']['model'],
                     'pixel_range': "%s:%s" % (rv['pixel_range'][0],
-                                              rv['pixel_range'][1])}
+                                              rv['pixel_range'][1]),
+                    'maps': maps}
 
     return {'rdef': rdef}
 
