@@ -792,8 +792,16 @@ def _get_prepared_image(request, iid, server_id=None, conn=None,
     reverses = _get_maps_enabled(r, 'reverse', img.getSizeC())
     if 'c' in r:
         logger.debug("c="+r['c'])
-        channels, windows, colors = _split_channel_info(r['c'])
-        if not img.setActiveChannels(channels, windows, colors, reverses):
+        activechannels, windows, colors = _split_channel_info(r['c'])
+        allchannels = range(1, img.getSizeC() + 1)
+        # If saving, apply to all channels
+        if saveDefs and not img.setActiveChannels(allchannels, windows,
+                                                  colors, reverses):
+            logger.debug(
+                "Something bad happened while setting the active channels...")
+        # Save the active/inactive state of the channels
+        if not img.setActiveChannels(activechannels, windows, colors,
+                                     reverses):
             logger.debug(
                 "Something bad happened while setting the active channels...")
     if r.get('m', None) == 'g':

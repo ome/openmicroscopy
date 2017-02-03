@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -8,7 +6,6 @@ package ome.model.utests;
 
 import java.util.List;
 
-import junit.framework.TestCase;
 import ome.conditions.ApiUsageException;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
@@ -25,10 +22,11 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
 
+import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class SetsAndLinksTest extends TestCase {
+public class SetsAndLinksTest {
 
     Project p;
 
@@ -38,7 +36,6 @@ public class SetsAndLinksTest extends TestCase {
 
     Pixels pix;
 
-    @Override
     @BeforeMethod
     protected void setUp() throws Exception {
         p = new Project();
@@ -51,8 +48,8 @@ public class SetsAndLinksTest extends TestCase {
     public void test_linking() throws Exception {
         p.linkDataset(d);
 
-        assertTrue(p.linkedDatasetList().size() == 1);
-        assertTrue(p.linkedDatasetIterator().next().equals(d));
+        Assert.assertEquals(p.linkedDatasetList().size(), 1);
+        Assert.assertTrue(p.linkedDatasetIterator().next().equals(d));
 
     }
 
@@ -60,20 +57,20 @@ public class SetsAndLinksTest extends TestCase {
     public void test_unlinking() throws Exception {
         p.linkDataset(d);
         p.unlinkDataset(d);
-        assertTrue(p.linkedDatasetList().size() == 0);
+        Assert.assertEquals(p.linkedDatasetList().size(), 0);
 
         p.linkDataset(d);
         p.clearDatasetLinks();
-        assertTrue(p.linkedDatasetList().size() == 0);
+        Assert.assertEquals(p.linkedDatasetList().size(), 0);
 
     }
 
     @Test
     public void test_retrieving() throws Exception {
         p.linkDataset(d);
-        List l = p.eachLinkedDataset(null);
-        assertTrue(l.size() == 1);
-        assertTrue(l.get(0).equals(d));
+        List<Object> l = p.eachLinkedDataset(null);
+        Assert.assertEquals(l.size(), 1);
+        Assert.assertTrue(l.get(0).equals(d));
     }
 
     @Test
@@ -89,7 +86,7 @@ public class SetsAndLinksTest extends TestCase {
         p.putAt(Project.DATASETLINKS, null); // This is a workaround.
         try {
             p.linkDataset(d);
-            fail("Should not be allowed.");
+            Assert.fail("Should not be allowed.");
         } catch (ApiUsageException api) {
             // ok.
         }
@@ -107,7 +104,7 @@ public class SetsAndLinksTest extends TestCase {
         d.putAt(Dataset.PROJECTLINKS, null); // This is a workaround.
         try {
             p.linkDataset(d);
-            fail("Should not be allowed.");
+            Assert.fail("Should not be allowed.");
         } catch (ApiUsageException api) {
             // ok.
         }
@@ -134,7 +131,7 @@ public class SetsAndLinksTest extends TestCase {
         Pixels p = new Pixels();
         Thumbnail tb = new Thumbnail();
         tb.setPixels(p);
-        assertTrue(p.iterateThumbnails().hasNext());
+        Assert.assertTrue(p.iterateThumbnails().hasNext());
     }
 
     @Test(groups = { "broken", "ticket:346" })
@@ -143,10 +140,10 @@ public class SetsAndLinksTest extends TestCase {
         Dataset d = new Dataset();
         ProjectDatasetLink link = new ProjectDatasetLink();
         link.link(p, d);
-        assertNotNull(link.parent());
-        assertNotNull(link.child());
-        assertTrue(link.parent().sizeOfDatasetLinks() == 1);
-        assertTrue(link.child().sizeOfProjectLinks() == 1);
+        Assert.assertNotNull(link.parent());
+        Assert.assertNotNull(link.child());
+        Assert.assertEquals(link.parent().sizeOfDatasetLinks(), 1);
+        Assert.assertEquals(link.child().sizeOfProjectLinks(), 1);
     }
 
     @Test(groups = "jobs")
@@ -154,15 +151,15 @@ public class SetsAndLinksTest extends TestCase {
         ImportJob job = new ImportJob();
         OriginalFile file = new OriginalFile();
         job.linkOriginalFile(file);
-        assertTrue(job.sizeOfOriginalFileLinks() == 1);
+        Assert.assertEquals(job.sizeOfOriginalFileLinks(), 1);
         job.unlinkOriginalFile(file);
-        assertTrue(job.sizeOfOriginalFileLinks() == 0);
+        Assert.assertEquals(job.sizeOfOriginalFileLinks(), 0);
         JobOriginalFileLink link = new JobOriginalFileLink();
         link.link(job, file);
         job.addJobOriginalFileLink(link, true);
-        assertTrue(job.sizeOfOriginalFileLinks() == 1);
+        Assert.assertEquals(job.sizeOfOriginalFileLinks(), 1);
         job.clearOriginalFileLinks();
-        assertTrue(job.sizeOfOriginalFileLinks() == 0);
+        Assert.assertEquals(job.sizeOfOriginalFileLinks(), 0);
     }
 
     @Test
@@ -174,7 +171,7 @@ public class SetsAndLinksTest extends TestCase {
         PlaneInfo pi = new PlaneInfo(1L, false);
         try {
             p.addPlaneInfo(pi);
-            fail("This should not be accepted.");
+            Assert.fail("This should not be accepted.");
         } catch (IllegalStateException ise) {
             // good.
         }
@@ -186,14 +183,14 @@ public class SetsAndLinksTest extends TestCase {
     public void testNullArentAddableToOrderedCollections() {
         Pixels p = new Pixels();
         p.addChannel(null);
-        assertEquals(1, p.sizeOfChannels());
+        Assert.assertEquals(p.sizeOfChannels(), 1);
     }
 
     // ~ Private helpers
     // ===========================================================================
     private void testIsDefault(Experimenter user, ExperimenterGroup group) {
         ExperimenterGroup t = user.getPrimaryGroupExperimenterMap().parent();
-        assertEquals(group, t);
+        Assert.assertEquals(group, t);
     }
 
 }
