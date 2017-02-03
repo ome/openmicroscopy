@@ -92,8 +92,8 @@ public class LightSourceSettingsFilamentTest
 	{
         LSID lsid = new LSID(Pixels.class, IMAGE_INDEX);
         Assert.assertNotNull(store.getSourceObject(lsid));
-        Assert.assertEquals(2, store.countCachedContainers(Filament.class));
-        Assert.assertEquals(5, store.countCachedContainers(null));
+        Assert.assertEquals(store.countCachedContainers(Filament.class), 2);
+        Assert.assertEquals(store.countCachedContainers(null), 5);
 	}
 
 	@Test
@@ -101,8 +101,8 @@ public class LightSourceSettingsFilamentTest
 	{
         LSID lsid = new LSID(Pixels.class, IMAGE_INDEX);
         Assert.assertNotNull(store.getSourceObject(lsid));
-        Assert.assertEquals(2, store.countCachedContainers(Filament.class));
-        Assert.assertEquals(5, store.countCachedContainers(null));
+        Assert.assertEquals(store.countCachedContainers(Filament.class), 2);
+        Assert.assertEquals(store.countCachedContainers(null), 5);
 	}
 
 	@Test
@@ -113,6 +113,6 @@ public class LightSourceSettingsFilamentTest
             LSID imageLsid = new LSID(LightSettings.class, IMAGE_INDEX, i);
             Assert.assertTrue(store.hasReference(imageLsid, new LSID("Filament:" + i)));
         }
-        Assert.assertEquals(2, store.countCachedReferences(null, null));
+        Assert.assertEquals(store.countCachedReferences(null, null), 2);
 	}
 }

@@ -112,8 +112,8 @@ public class LightSourceSettingsLaserTest
 	{
         LSID lsid = new LSID(Pixels.class, IMAGE_INDEX);
         Assert.assertNotNull(store.getSourceObject(lsid));
-        Assert.assertEquals(3, store.countCachedContainers(Laser.class));
-        Assert.assertEquals(7, store.countCachedContainers(null));
+        Assert.assertEquals(store.countCachedContainers(Laser.class), 3);
+        Assert.assertEquals(store.countCachedContainers(null), 7);
 	}
 
 	@Test
@@ -121,8 +121,8 @@ public class LightSourceSettingsLaserTest
 	{
         LSID lsid = new LSID(Pixels.class, IMAGE_INDEX);
         Assert.assertNotNull(store.getSourceObject(lsid));
-        Assert.assertEquals(3, store.countCachedContainers(Laser.class));
-        Assert.assertEquals(7, store.countCachedContainers(null));
+        Assert.assertEquals(store.countCachedContainers(Laser.class), 3);
+        Assert.assertEquals(store.countCachedContainers(null), 7);
 	}
 
 	@Test
@@ -133,6 +133,6 @@ public class LightSourceSettingsLaserTest
             LSID imageLsid = new LSID(LightSettings.class, IMAGE_INDEX, i);
             Assert.assertTrue(store.hasReference(imageLsid, new LSID("Laser:" + i)));
         }
-        Assert.assertEquals(3, store.countCachedReferences(null, null));
+        Assert.assertEquals(store.countCachedReferences(null, null), 3);
 	}
 }

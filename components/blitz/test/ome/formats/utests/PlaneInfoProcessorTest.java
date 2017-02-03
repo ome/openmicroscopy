@@ -67,7 +67,7 @@ public class PlaneInfoProcessorTest
     @Test
     public void testPlaneInfoExists()
     {
-        Assert.assertEquals(3, store.countCachedContainers(PlaneInfo.class, null));
+        Assert.assertEquals(store.countCachedContainers(PlaneInfo.class, null), 3);
         LSID planeInfoLSID1 = new LSID(PlaneInfo.class, IMAGE_INDEX, PLANE_INFO_INDEX);
         LSID planeInfoLSID2 = new LSID(PlaneInfo.class, IMAGE_INDEX, PLANE_INFO_INDEX + 1);
         LSID planeInfoLSID3 = new LSID(PlaneInfo.class, IMAGE_INDEX, PLANE_INFO_INDEX + 2);
@@ -77,16 +77,16 @@ public class PlaneInfoProcessorTest
         Assert.assertNotNull(pi1);
         Assert.assertNotNull(pi2);
         Assert.assertNotNull(pi3);
-        Assert.assertEquals(0, pi1.getTheC().getValue());
-        Assert.assertEquals(0, pi1.getTheZ().getValue());
-        Assert.assertEquals(0, pi1.getTheT().getValue());
-        Assert.assertEquals(1, pi2.getTheC().getValue());
-        Assert.assertEquals(1, pi2.getTheZ().getValue());
-        Assert.assertEquals(1, pi2.getTheT().getValue());
-        Assert.assertEquals(2, pi3.getTheC().getValue());
-        Assert.assertEquals(2, pi3.getTheZ().getValue());
-        Assert.assertEquals(2, pi3.getTheT().getValue());
-        Assert.assertEquals(1.0, pi3.getDeltaT().getValue());
+        Assert.assertEquals(pi1.getTheC().getValue(), 0);
+        Assert.assertEquals(pi1.getTheZ().getValue(), 0);
+        Assert.assertEquals(pi1.getTheT().getValue(), 0);
+        Assert.assertEquals(pi2.getTheC().getValue(), 1);
+        Assert.assertEquals(pi2.getTheZ().getValue(), 1);
+        Assert.assertEquals(pi2.getTheT().getValue(), 1);
+        Assert.assertEquals(pi3.getTheC().getValue(), 2);
+        Assert.assertEquals(pi3.getTheZ().getValue(), 2);
+        Assert.assertEquals(pi3.getTheT().getValue(), 2);
+        Assert.assertEquals(pi3.getDeltaT().getValue(), 1.0);
     }
 
     @Test
@@ -97,9 +97,9 @@ public class PlaneInfoProcessorTest
         LSID planeInfoLSID = new LSID(PlaneInfo.class, IMAGE_INDEX, PLANE_INFO_INDEX + 2);
         PlaneInfo pi = (PlaneInfo) store.getSourceObject(planeInfoLSID);
         Assert.assertNotNull(pi);
-        Assert.assertEquals(2, pi.getTheC().getValue());
-        Assert.assertEquals(2, pi.getTheZ().getValue());
-        Assert.assertEquals(2, pi.getTheT().getValue());
-        Assert.assertEquals(1.0, pi.getDeltaT().getValue());
+        Assert.assertEquals(pi.getTheC().getValue(), 2);
+        Assert.assertEquals(pi.getTheZ().getValue(), 2);
+        Assert.assertEquals(pi.getTheT().getValue(), 2);
+        Assert.assertEquals(pi.getDeltaT().getValue(), 1.0);
     }
 }

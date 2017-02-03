@@ -41,7 +41,7 @@ import org.testng.annotations.Test;
  *
  * @since Beta4.1
  */
-public class ImportCandidatesTest{
+public class ImportCandidatesTest {
 
     final List<SCANNING> scannings = new ArrayList<SCANNING>();
     Logger log = LoggerFactory.getLogger(ImportCandidatesTest.class);
@@ -99,8 +99,8 @@ public class ImportCandidatesTest{
     public void testCancelFunctions() throws Exception {
         Canceler cancel = new Canceler();
         basic(cancel);
-        Assert.assertEquals(0, c.size());
-        Assert.assertEquals(1, cancel.count);
+        Assert.assertEquals(c.size(), 0);
+        Assert.assertEquals(cancel.count, 1);
         Assert.assertTrue(c.wasCancelled());
     }
 

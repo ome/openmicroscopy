@@ -96,16 +96,16 @@ public class InstrumentTest
 	public void testImageInstrumentLightSourceModelPreserved()
 	{
         Laser ls = store.getLaser(INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
-        Assert.assertEquals(LIGHTSOURCE_MODEL, ls.getModel().getValue());
+        Assert.assertEquals(ls.getModel().getValue(), LIGHTSOURCE_MODEL);
 	}
 
 	@Test
 	public void testContainerCount()
 	{
-	    Assert.assertEquals(1, store.countCachedContainers(Laser.class));
-	    Assert.assertEquals(1, store.countCachedContainers(Instrument.class));
-	    Assert.assertEquals(3, store.countCachedContainers(Pixels.class));
-	    Assert.assertEquals(5, store.countCachedContainers(null));
+	    Assert.assertEquals(store.countCachedContainers(Laser.class), 1);
+	    Assert.assertEquals(store.countCachedContainers(Instrument.class), 1);
+	    Assert.assertEquals(store.countCachedContainers(Pixels.class), 3);
+	    Assert.assertEquals(store.countCachedContainers(null), 5);
 	}
 
 	@Test
@@ -116,6 +116,6 @@ public class InstrumentTest
             LSID imageLsid = new LSID(Image.class, i);
             Assert.assertTrue(store.hasReference(imageLsid, new LSID("Instrument:0")));
         }
-        Assert.assertEquals(3, store.countCachedReferences(null, null));
+        Assert.assertEquals(store.countCachedReferences(null, null), 3);
     }
 }

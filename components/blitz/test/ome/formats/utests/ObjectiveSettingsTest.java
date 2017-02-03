@@ -105,7 +105,7 @@ public class ObjectiveSettingsTest
 		Assert.assertNotNull(o);
 		// Test enumeration provider always returns "Unknown", in reality this
 		// should be "Other".
-		Assert.assertEquals("Unknown", o.getCorrection().getValue().getValue());
+		Assert.assertEquals(o.getCorrection().getValue().getValue(), "Unknown");
 	}
 
 	@Test
@@ -117,7 +117,7 @@ public class ObjectiveSettingsTest
 		Assert.assertNotNull(o);
 		// Test enumeration provider always returns "Unknown", in reality this
 		// should be "Other".
-		Assert.assertEquals("Unknown", o.getCorrection().getValue().getValue());
+		Assert.assertEquals(o.getCorrection().getValue().getValue(), "Unknown");
 	}
 
 	@Test
@@ -137,16 +137,16 @@ public class ObjectiveSettingsTest
 	{
 	    Objective objective = store.getObjective(INSTRUMENT_INDEX,
 			                                 OBJECTIVE_INDEX);
-	    Assert.assertEquals(OBJECTIVE_MODEL, objective.getModel().getValue());
+	    Assert.assertEquals(objective.getModel().getValue(), OBJECTIVE_MODEL);
 	}
 
 	@Test
 	public void testContainerCount()
 	{
-	    Assert.assertEquals(1, store.countCachedContainers(Objective.class));
-	    Assert.assertEquals(1, store.countCachedContainers(Instrument.class));
-	    Assert.assertEquals(3, store.countCachedContainers(Pixels.class));
-	    Assert.assertEquals(5, store.countCachedContainers(null));
+	    Assert.assertEquals(store.countCachedContainers(Objective.class), 1);
+	    Assert.assertEquals(store.countCachedContainers(Instrument.class), 1);
+	    Assert.assertEquals(store.countCachedContainers(Pixels.class), 3);
+	    Assert.assertEquals(store.countCachedContainers(null), 5);
 	}
 
 	@Test
@@ -160,6 +160,6 @@ public class ObjectiveSettingsTest
 	        Assert.assertTrue(store.hasReference(osLsid, new LSID("Objective:0")));
 	        Assert.assertTrue(store.hasReference(imageLsid, new LSID("Instrument:0")));
 	    }
-	    Assert.assertEquals(6, store.countCachedReferences(null, null));
+	    Assert.assertEquals(store.countCachedReferences(null, null), 6);
 	}
 }

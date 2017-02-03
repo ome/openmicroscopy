@@ -49,7 +49,7 @@ public class ImportConfigTest {
         ImportConfig config = new ImportConfig();
         config.hostname.set("foo");
         Map<String, String> dump = config.map();
-        Assert.assertEquals("foo", dump.get("hostname"));
+        Assert.assertEquals(dump.get("hostname"), "foo");
     }
 
     @Test
@@ -57,7 +57,7 @@ public class ImportConfigTest {
         basic();
         ImportConfig.StrValue str = new ImportConfig.StrValue("foo", config, "default");
         str.store();
-        Assert.assertEquals(null, p.getProperty("foo"));
+        Assert.assertNull(p.getProperty("foo"));
     }
 
     @Test
@@ -67,7 +67,7 @@ public class ImportConfigTest {
         ImportConfig.StrValue str = new ImportConfig.StrValue("src", config);
         str.set("set");
         str.load();
-        Assert.assertEquals("set", str.get());
+        Assert.assertEquals(str.get(), "set");
     }
 
     @Test
@@ -75,14 +75,14 @@ public class ImportConfigTest {
         basic();
         ImportConfig.PassValue pass = new ImportConfig.PassValue("pass", config);
         pass.store();
-        Assert.assertEquals("", p.getProperty("pass",""));
+        Assert.assertEquals(p.getProperty("pass",""), "");
     }
 
     @Test
     public void testDefaultGetsLoaded() {
         basic();
         ImportConfig.IntValue port = new ImportConfig.IntValue("port", config, 1111);
-        Assert.assertEquals(1111, port.get().intValue());
+        Assert.assertEquals(port.get().intValue(), 1111);
     }
 
 }

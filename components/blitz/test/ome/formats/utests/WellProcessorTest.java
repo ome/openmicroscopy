@@ -58,8 +58,8 @@ public class WellProcessorTest
 	@Test
 	public void testWellExists()
 	{
-		Assert.assertEquals(3, store.countCachedContainers(Well.class, null));
-		Assert.assertEquals(1, store.countCachedContainers(Plate.class, null));
+		Assert.assertEquals(store.countCachedContainers(Well.class, null), 3);
+		Assert.assertEquals(store.countCachedContainers(Plate.class, null), 1);
 		LSID wellLSID1 = new LSID(Well.class, PLATE_INDEX, WELL_INDEX);
 		LSID wellLSID2 = new LSID(Well.class, PLATE_INDEX, WELL_INDEX + 1);
 		LSID wellLSID3 = new LSID(Well.class, PLATE_INDEX + 1, WELL_INDEX);
@@ -72,25 +72,25 @@ public class WellProcessorTest
 		Assert.assertNotNull(well2);
 		Assert.assertNotNull(well3);
 		Assert.assertNotNull(plate1);
-		Assert.assertEquals(0, well1.getColumn().getValue());
-		Assert.assertEquals(1, well2.getColumn().getValue());
-		Assert.assertEquals(0, well3.getColumn().getValue());
-		Assert.assertEquals("setUp Plate", plate1.getName().getValue());
+		Assert.assertEquals(well1.getColumn().getValue(), 0);
+		Assert.assertEquals(well2.getColumn().getValue(), 1);
+		Assert.assertEquals(well3.getColumn().getValue(), 0);
+		Assert.assertEquals(plate1.getName().getValue(), "setUp Plate");
 	}
 
 	@Test
 	public void testWellPostProcess()
 	{
 		store.postProcess();
-		Assert.assertEquals(3, store.countCachedContainers(Well.class, null));
-		Assert.assertEquals(2, store.countCachedContainers(Plate.class, null));
+		Assert.assertEquals(store.countCachedContainers(Well.class, null), 3);
+		Assert.assertEquals(store.countCachedContainers(Plate.class, null), 2);
 		LSID plateLSID1 = new LSID(Plate.class, PLATE_INDEX);
 		LSID plateLSID2 = new LSID(Plate.class, PLATE_INDEX + 1);
 		Plate plate1 = (Plate) store.getSourceObject(plateLSID1);
 		Plate plate2 = (Plate) store.getSourceObject(plateLSID2);
 		Assert.assertNotNull(plate1);
 		Assert.assertNotNull(plate2);
-		Assert.assertEquals("Plate", plate1.getName().getValue());
-		Assert.assertEquals("setUp Plate", plate2.getName().getValue());
+		Assert.assertEquals(plate1.getName().getValue(), "Plate");
+		Assert.assertEquals(plate2.getName().getValue(), "setUp Plate");
 	}
 }

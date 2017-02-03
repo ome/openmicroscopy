@@ -92,7 +92,7 @@ public class IObjectContainerStoreTest
 	@Test
 	public void testGetSourceObjects()
 	{
-	    Assert.assertEquals(2, store.getSourceObjects(Image.class).size());
+	    Assert.assertEquals(store.getSourceObjects(Image.class).size(), 2);
 	}
 
 	@Test
@@ -102,18 +102,18 @@ public class IObjectContainerStoreTest
 			new LinkedHashMap<Index, Integer>();
 		indexes.put(Index.IMAGE_INDEX, IMAGE_INDEX + 2);
 		store.getIObjectContainer(Image.class, indexes);
-		Assert.assertEquals(3, store.countCachedContainers(Image.class));
+		Assert.assertEquals(store.countCachedContainers(Image.class), 3);
 	}
 
 	@Test
 	public void testCachedContainers()
 	{
-	    Assert.assertEquals(2, store.countCachedContainers(Image.class));
-	    Assert.assertEquals(2, store.countCachedContainers(Pixels.class));
-	    Assert.assertEquals(1, store.countCachedContainers(
-				Pixels.class, IMAGE_INDEX));
-	    Assert.assertEquals(1, store.countCachedContainers(
-				Pixels.class, IMAGE_INDEX + 1));
+	    Assert.assertEquals(2, store.countCachedContainers(Image.class), 2);
+	    Assert.assertEquals(store.countCachedContainers(Pixels.class), 2);
+	    Assert.assertEquals(store.countCachedContainers(
+				Pixels.class, IMAGE_INDEX), 1);
+	    Assert.assertEquals(store.countCachedContainers(
+				Pixels.class, IMAGE_INDEX + 1), 1);
 	}
 
 	@Test

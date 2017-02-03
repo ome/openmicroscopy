@@ -179,31 +179,33 @@ public class MetadataValidatorTest
     public void testMetadataLevel()
         throws FormatException, IOException
     {
-        Assert.assertEquals(MetadataLevel.MINIMUM,
-                minimalWrapper.getMetadataOptions().getMetadataLevel());
-        Assert.assertEquals(MetadataLevel.ALL,
-                wrapper.getMetadataOptions().getMetadataLevel());
-        Assert.assertNotEquals(0, (wrapper.getSeriesMetadata().size()
-                          + wrapper.getGlobalMetadata().size()));
+        Assert.assertEquals(
+                minimalWrapper.getMetadataOptions().getMetadataLevel(),
+                MetadataLevel.MINIMUM);
+        Assert.assertEquals(
+                wrapper.getMetadataOptions().getMetadataLevel(),
+                MetadataLevel.ALL);
+        Assert.assertNotEquals((wrapper.getSeriesMetadata().size()
+                          + wrapper.getGlobalMetadata().size()), 0);
     }
 
     @Test(dependsOnMethods={"testMetadataLevel"})
     public void testMetadataLevelEquivalentDimensions()
     {
-        Assert.assertEquals(wrapper.getSeriesCount(), minimalWrapper.getSeriesCount());
+        Assert.assertEquals(minimalWrapper.getSeriesCount(), wrapper.getSeriesCount());
         for (int i = 0; i < minimalWrapper.getSeriesCount(); i++)
         {
             wrapper.setSeries(i);
             minimalWrapper.setSeries(i);
-            Assert.assertEquals(wrapper.getSizeX(), minimalWrapper.getSizeX());
-            Assert.assertEquals(wrapper.getSizeY(), minimalWrapper.getSizeY());
-            Assert.assertEquals(wrapper.getSizeZ(), minimalWrapper.getSizeZ());
-            Assert.assertEquals(wrapper.getSizeC(), minimalWrapper.getSizeC());
-            Assert.assertEquals(wrapper.getSizeT(), minimalWrapper.getSizeT());
-            Assert.assertEquals(wrapper.getPixelType(),
-                         minimalWrapper.getPixelType());
-            Assert.assertEquals(wrapper.isLittleEndian(),
-                         minimalWrapper.isLittleEndian());
+            Assert.assertEquals(minimalWrapper.getSizeX(), wrapper.getSizeX());
+            Assert.assertEquals(minimalWrapper.getSizeY(), wrapper.getSizeY());
+            Assert.assertEquals(minimalWrapper.getSizeZ(), wrapper.getSizeZ());
+            Assert.assertEquals(minimalWrapper.getSizeC(), wrapper.getSizeC());
+            Assert.assertEquals(minimalWrapper.getSizeT(), wrapper.getSizeT());
+            Assert.assertEquals(minimalWrapper.getPixelType(),
+                    wrapper.getPixelType());
+            Assert.assertEquals(minimalWrapper.isLittleEndian(),
+                    wrapper.isLittleEndian());
         }
     }
 
@@ -219,14 +221,14 @@ public class MetadataValidatorTest
             String[] pixelsOnlyFiles = minimalWrapper.getSeriesUsedFiles();
             String[] allFiles = wrapper.getSeriesUsedFiles();
 
-            Assert.assertEquals(allFiles.length, pixelsOnlyFiles.length);
+            Assert.assertEquals(pixelsOnlyFiles.length, allFiles.length);
 
             Arrays.sort(allFiles);
             Arrays.sort(pixelsOnlyFiles);
 
             for (int j = 0; j < pixelsOnlyFiles.length; j++)
             {
-                Assert.assertEquals(allFiles[j], pixelsOnlyFiles[j]);
+                Assert.assertEquals(pixelsOnlyFiles[j], allFiles[j]);
             }
         }
     }
@@ -239,8 +241,8 @@ public class MetadataValidatorTest
         {
             minimalWrapper.setSeries(i);
             wrapper.setSeries(i);
-            Assert.assertEquals(wrapper.getImageCount(),
-                         minimalWrapper.getImageCount());
+            Assert.assertEquals(minimalWrapper.getImageCount(),
+                    wrapper.getImageCount());
             for (int j = 0; j < minimalWrapper.getImageCount(); j++)
             {
                 byte[] pixelsOnlyPlane = minimalWrapper.openBytes(j);
@@ -288,7 +290,7 @@ public class MetadataValidatorTest
                     wrapper.openPlane2D(fileName, planeNumber, block, 0, 0,
                                         sizeX, sizeY);
                     blockDigest = sha1(block);
-                    Assert.assertEquals(planarDigest, blockDigest);
+                    Assert.assertEquals(blockDigest, planarDigest);
                 }
             }
         }
@@ -467,7 +469,7 @@ public class MetadataValidatorTest
                 e = String.format(
                         "Missing channel object; imageIndex=%d " +
                         "channelIndex=%d", imageIndex, c);
-                Assert.assertEquals(1, count, e);
+                Assert.assertEquals(count, 1, e);
             }
         }
     }
@@ -489,7 +491,7 @@ public class MetadataValidatorTest
             String e = String.format(
                     "Pixels sizeC %d != logical channel object count %d",
                     sizeC, count);
-            Assert.assertEquals(sizeC, count, e);
+            Assert.assertEquals(count, sizeC, e);
             for (int c = 0; c < sizeC; c++)
             {
                 count = store.countCachedContainers(
@@ -497,7 +499,7 @@ public class MetadataValidatorTest
                 e = String.format(
                         "Missing logical channel object; imageIndex=%d " +
                         "channelIndex=%d", imageIndex, c);
-                Assert.assertEquals(1, count, e);
+                Assert.assertEquals(count, 1, e);
             }
         }
     }
@@ -532,7 +534,7 @@ public class MetadataValidatorTest
                     "Well %d not found in container cache", wellIndex);
             int count = store.countCachedContainers(Well.class, plateIndex,
                     wellIndex);
-            Assert.assertEquals(1, count, e);
+            Assert.assertEquals(count, 1, e);
         }
     }
 

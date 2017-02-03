@@ -90,15 +90,15 @@ public class LightSourceSettingsArcTest
 	{
         LSID lsid = new LSID(Pixels.class, IMAGE_INDEX);
         Assert.assertNotNull(store.getSourceObject(lsid));
-        Assert.assertEquals(2, store.countCachedContainers(Arc.class));
-        Assert.assertEquals(5, store.countCachedContainers(null));
+        Assert.assertEquals(store.countCachedContainers(Arc.class), 2);
+        Assert.assertEquals(store.countCachedContainers(null), 5);
 	}
 
 	@Test
 	public void testLightSourceSettingsCount()
 	{
-	    Assert.assertEquals(2, store.countCachedContainers(LightSettings.class));
-	    Assert.assertEquals(5, store.countCachedContainers(null));
+	    Assert.assertEquals(store.countCachedContainers(LightSettings.class), 2);
+	    Assert.assertEquals(store.countCachedContainers(null), 5);
 	}
 
 	@Test
@@ -109,6 +109,6 @@ public class LightSourceSettingsArcTest
             LSID imageLsid = new LSID(LightSettings.class, IMAGE_INDEX, i);
             Assert.assertTrue(store.hasReference(imageLsid, new LSID("Arc:" + i)));
         }
-        Assert.assertEquals(2, store.countCachedReferences(null, null));
+        Assert.assertEquals(store.countCachedReferences(null, null), 2);
 	}
 }

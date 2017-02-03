@@ -67,8 +67,8 @@ public class ErrorHandlerTest {
         protected void onUpdate(IObservable observable, ImportEvent event) {
             if (event instanceof ImportEvent.DEBUG_SEND) {
                 ImportEvent.DEBUG_SEND send = (ImportEvent.DEBUG_SEND) event;
-                Assert.assertEquals(_sendFiles, send.sendFiles);
-                Assert.assertEquals(_sendLog, send.sendLogs);
+                Assert.assertEquals(send.sendFiles, _sendFiles);
+                Assert.assertEquals(send.sendLogs, _sendLog);
 
                 // Copied from cli ErrorHandler.onUpdate.
                 sendFiles = send.sendFiles;
@@ -102,8 +102,8 @@ public class ErrorHandlerTest {
         MyErrorHandler handler = new MyErrorHandler(cfg, true, true);
         handler.update(null, err());
         handler.update(null, new ImportEvent.DEBUG_SEND(true, true));
-        Assert.assertEquals(new Integer(2), handler.uploads);
-        Assert.assertEquals(new Integer(1), handler.posts);
+        Assert.assertEquals(handler.uploads, new Integer(2));
+        Assert.assertEquals(handler.posts, new Integer(1));
     }
 
     @Test
@@ -112,8 +112,8 @@ public class ErrorHandlerTest {
         MyErrorHandler handler = new MyErrorHandler(cfg, false, true);
         handler.update(null, err());
         handler.update(null, new ImportEvent.DEBUG_SEND(false, true));
-        Assert.assertEquals(new Integer(1), handler.uploads);
-        Assert.assertEquals(new Integer(0), handler.posts);
+        Assert.assertEquals(handler.uploads, new Integer(1));
+        Assert.assertEquals(handler.posts, new Integer(0));
     }
 
     @Test
@@ -122,8 +122,8 @@ public class ErrorHandlerTest {
         MyErrorHandler handler = new MyErrorHandler(cfg, true, false);
         handler.update(null, err());
         handler.update(null, new ImportEvent.DEBUG_SEND(true, false));
-        Assert.assertEquals(new Integer(1), handler.uploads);
-        Assert.assertEquals(new Integer(1), handler.posts);
+        Assert.assertEquals(handler.uploads, new Integer(1));
+        Assert.assertEquals(handler.posts, new Integer(1));
     }
 
     @Test
@@ -132,8 +132,8 @@ public class ErrorHandlerTest {
         MyErrorHandler handler = new MyErrorHandler(cfg, false, false);
         handler.update(null, err());
         handler.update(null, new ImportEvent.DEBUG_SEND(false, false));
-        Assert.assertEquals(null, handler.uploads);
-        Assert.assertEquals(new Integer(0), handler.posts);
+        Assert.assertNull(handler.uploads);
+        Assert.assertEquals(handler.posts, new Integer(0));
     }
 
 }

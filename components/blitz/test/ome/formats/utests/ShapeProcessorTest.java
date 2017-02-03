@@ -55,16 +55,16 @@ public class ShapeProcessorTest
 	@Test
 	public void testShapeExists()
 	{
-		Assert.assertEquals(1, store.countCachedContainers(Roi.class, null));
-		Assert.assertEquals(1, store.countCachedContainers(Rectangle.class, null));
+		Assert.assertEquals(store.countCachedContainers(Roi.class, null), 1);
+		Assert.assertEquals(store.countCachedContainers(Rectangle.class, null), 1);
 		LSID roiLSID1 = new LSID(Roi.class, ROI_INDEX);
 		LSID shapeLSID1 = new LSID(Rectangle.class, ROI_INDEX + 1, SHAPE_INDEX);
 		Roi roi = (Roi) store.getSourceObject(roiLSID1);
 		Rectangle shape = (Rectangle) store.getSourceObject(shapeLSID1);
 		Assert.assertNotNull(roi);
 		Assert.assertNotNull(shape);
-		Assert.assertEquals("Foobar", roi.getDescription().getValue());
-		Assert.assertEquals(25.0, shape.getX().getValue());
+		Assert.assertEquals(roi.getDescription().getValue(), "Foobar");
+		Assert.assertEquals(shape.getX().getValue(), 25.0);
 	}
 
 	@Test
@@ -79,7 +79,7 @@ public class ShapeProcessorTest
 		Roi roi2 = (Roi) store.getSourceObject(roiLSID2);
 		Assert.assertNotNull(roi1);
 		Assert.assertNotNull(roi2);
-		Assert.assertEquals("Foobar", roi1.getDescription().getValue());
+		Assert.assertEquals(roi1.getDescription().getValue(), "Foobar");
 		Assert.assertNull(roi2.getDescription());
 	}
 }

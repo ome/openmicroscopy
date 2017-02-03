@@ -96,8 +96,7 @@ public class LaserTest
       indexes.put(Index.LIGHT_SOURCE_INDEX, i);
       IObjectContainer laserContainer =
           store.getIObjectContainer(Laser.class, indexes);
-      Assert.assertEquals("LightSource:100", laserContainer.LSID);
-      Assert.assertEquals(laserContainer.sourceObject, laserContainer.sourceObject);
+      Assert.assertEquals(laserContainer.LSID, "LightSource:100");
 	}
 
 	@Test
@@ -112,8 +111,7 @@ public class LaserTest
         indexes.put(Index.LIGHT_SOURCE_INDEX, i);
         IObjectContainer laserContainer =
             store.getIObjectContainer(Laser.class, indexes);
-        Assert.assertEquals("LightSource:100", laserContainer.LSID);
-        Assert.assertEquals(laserContainer.sourceObject, laserContainer.sourceObject);
+        Assert.assertEquals(laserContainer.LSID, "LightSource:100");
     }
 
 	@Test
@@ -129,7 +127,6 @@ public class LaserTest
         indexes.put(Index.LIGHT_SOURCE_INDEX, i);
         IObjectContainer laserContainer =
             store.getIObjectContainer(Laser.class, indexes);
-        Assert.assertEquals("LightSource:100", laserContainer.LSID);
-        Assert.assertEquals(laserContainer.sourceObject, laserContainer.sourceObject);
+        Assert.assertEquals(laserContainer.LSID, "LightSource:100");
     }
 }

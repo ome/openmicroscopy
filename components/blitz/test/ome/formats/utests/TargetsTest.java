@@ -78,9 +78,9 @@ public class TargetsTest {
     public void testModelImportTarget() throws Exception {
         TargetBuilder b = new TargetBuilder();
         ModelImportTarget t = (ModelImportTarget) b.parse("Screen:1").build();
-        Assert.assertEquals(Screen.class, t.getObjectType());
+        Assert.assertEquals(t.getObjectType(), Screen.class);
         IObject obj = t.load(null, null);
-        Assert.assertEquals(1L, obj.getId().getValue());
+        Assert.assertEquals(obj.getId().getValue(), 1L);
     }
 
     @Test
@@ -91,20 +91,20 @@ public class TargetsTest {
         p = Pattern.compile("(?<Container1>.*)");
         m = p.matcher("everything");
         Assert.assertTrue(m.matches());
-        Assert.assertEquals("everything", m.group("Container1"));
+        Assert.assertEquals(m.group("Container1"), "everything");
 
         p = Pattern.compile("(?<Ignore>/home)/(?<Container1>.*)");
         m = p.matcher("/home/user/MyLab/2015-01-01/");
         Assert.assertTrue(m.matches());
-        Assert.assertEquals("/home", m.group("Ignore"));
-        Assert.assertEquals("user/MyLab/2015-01-01/", m.group("Container1"));
+        Assert.assertEquals(m.group("Ignore"), "/home");
+        Assert.assertEquals(m.group("Container1"), "user/MyLab/2015-01-01/");
 
         // Explicit "ignore"
         p = Pattern.compile("(?<Ignore>(/[^/]+){2})/(?<Container1>.*?)");
         m = p.matcher("/home/user/MyLab/2015-01-01/");
         Assert.assertTrue(m.matches());
-        Assert.assertEquals("/home/user", m.group("Ignore"));
-        Assert.assertEquals("MyLab/2015-01-01/", m.group("Container1"));
+        Assert.assertEquals(m.group("Ignore"), "/home/user");
+        Assert.assertEquals(m.group("Container1"), "MyLab/2015-01-01/");
 
         // Implicit "ignore"
         p = Pattern.compile("^.*user/(?<Container1>.*?)");
@@ -115,24 +115,24 @@ public class TargetsTest {
         } catch (IllegalArgumentException iae) {
             // good
         }
-        Assert.assertEquals("MyLab/2015-01-01/", m.group("Container1"));
+        Assert.assertEquals(m.group("Container1"), "MyLab/2015-01-01/");
 
         // Group
         p = Pattern.compile("^.*user/(?<Group>[^/]+)/(?<Container1>.*?)");
         m = p.matcher("/home/user/MyLab/2015-01-01/");
         Assert.assertTrue(m.matches());
-        Assert.assertEquals("MyLab", m.group("Group"));
-        Assert.assertEquals("2015-01-01/", m.group("Container1"));
+        Assert.assertEquals(m.group("Group"), "MyLab");
+        Assert.assertEquals(m.group("Container1"), "2015-01-01/");
 
         // Container2 takes all extra paths
         p = Pattern.compile("^.*user/(?<Container2>([^/]+/)*)(?<Container1>([^/]+/))");
         m = p.matcher("/home/user/MyLab/2015-01-01/foo/");
         Assert.assertTrue(m.matches());
-        Assert.assertEquals("MyLab/2015-01-01/", m.group("Container2"));
-        Assert.assertEquals("foo/", m.group("Container1"));
+        Assert.assertEquals(m.group("Container2"), "MyLab/2015-01-01/");
+        Assert.assertEquals(m.group("Container1"), "foo/");
         m = p.matcher("/home/user/MyLab/");
         Assert.assertTrue(m.matches());
-        Assert.assertEquals("MyLab/", m.group("Container1"));
+        Assert.assertEquals(m.group("Container1"), "MyLab/");
 
         // TODO:
         // Guarantee whether all paths will end in / or not

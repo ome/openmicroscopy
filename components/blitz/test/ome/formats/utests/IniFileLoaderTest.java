@@ -64,7 +64,6 @@ public class IniFileLoaderTest {
     @BeforeMethod
     public void setUp() throws Exception {
         temporaryFile = TempFileManager.create_path("initest");
-        System.err.println("Temporary file: " + temporaryFile.getAbsolutePath());
         ini = new IniFileLoader(null);
         maps = Preferences.userNodeForPackage(getClass());
     }
@@ -77,14 +76,14 @@ public class IniFileLoaderTest {
     protected void assertMaps(Map<String, List<String>> rv) {
         Assert.assertEquals(1, rv.size());
         List<String> list = rv.get("A");
-        Assert.assertEquals(2, list.size());
+        Assert.assertEquals(list.size(), 2);
         String first = list.get(0);
         if (!"\\\\hostname1\\path1".equals(first)
             && !"/hostname1/path1".equals(first)) {
             Assert.fail(String.format("%s does not equal %s or %s",
                     first, "\\\\hostname1\\path1", "/hostname1/path1"));
         }
-        Assert.assertEquals("\\\\hostname2\\path2", list.get(1));
+        Assert.assertEquals(list.get(1), "\\\\hostname2\\path2");
     }
 
     @Test
@@ -95,11 +94,11 @@ public class IniFileLoaderTest {
         Preferences test = new IniFile(temporaryFile, Mode.RW);
         Preferences maps = test.node("FlexReaderServerMaps");
         Map<String, List<String>> parsedMaps = ini.parseFlexMaps(maps);
-        Assert.assertEquals(1, parsedMaps.size());
+        Assert.assertEquals(parsedMaps.size(), 1);
         List<String> serverPaths = parsedMaps.get("CIA-1");
-        Assert.assertEquals(2, serverPaths.size());
-        Assert.assertEquals("\\\\hostname1\\path1", serverPaths.get(0));
-        Assert.assertEquals("\\\\hostname1\\path2", serverPaths.get(1));
+        Assert.assertEquals(serverPaths.size(), 2);
+        Assert.assertEquals(serverPaths.get(0), "\\\\hostname1\\path1");
+        Assert.assertEquals(serverPaths.get(1), "\\\\hostname1\\path2");
     }
 
     @Test
@@ -110,11 +109,11 @@ public class IniFileLoaderTest {
         Preferences test = new IniFile(temporaryFile, Mode.RW);
         Preferences maps = test.node("FlexReaderServerMaps");
         Map<String, List<String>> parsedMaps = ini.parseFlexMaps(maps);
-        Assert.assertEquals(1, parsedMaps.size());
+        Assert.assertEquals(parsedMaps.size(), 1);
         List<String> serverPaths = parsedMaps.get("CIA-1");
-        Assert.assertEquals(2, serverPaths.size());
-        Assert.assertEquals("/mnt/path1", serverPaths.get(0));
-        Assert.assertEquals("/mnt/path2", serverPaths.get(1));
+        Assert.assertEquals(serverPaths.size(), 2);
+        Assert.assertEquals(serverPaths.get(0), "/mnt/path1");
+        Assert.assertEquals(serverPaths.get(1), "/mnt/path2");
     }
 
     @Test
@@ -134,7 +133,7 @@ public class IniFileLoaderTest {
                 "A=2"));
         Preferences test = new IniFile(temporaryFile, Mode.RW);
         String a1 = test.node("Section").get("A", "missing");
-        Assert.assertEquals("2", a1);
+        Assert.assertEquals(a1, "2");
     }
 
     @Test
@@ -145,7 +144,7 @@ public class IniFileLoaderTest {
                 "A=1"));
         Preferences test = new IniFile(temporaryFile, Mode.RW);
         String a1 = test.node("Section").get("A", "missing");
-        Assert.assertEquals("1", a1);
+        Assert.assertEquals(a1, "1");
     }
 
     @Test

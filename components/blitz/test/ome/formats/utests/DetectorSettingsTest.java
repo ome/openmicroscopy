@@ -112,10 +112,10 @@ public class DetectorSettingsTest
 	@Test
 	public void testContainerCount()
 	{
-	    Assert.assertEquals(1, store.countCachedContainers(Detector.class));
-	    Assert.assertEquals(1, store.countCachedContainers(Instrument.class));
-	    Assert.assertEquals(3, store.countCachedContainers(Pixels.class));
-	    Assert.assertEquals(5, store.countCachedContainers(null));
+	    Assert.assertEquals(store.countCachedContainers(Detector.class), 1);
+	    Assert.assertEquals(store.countCachedContainers(Instrument.class), 1);
+	    Assert.assertEquals(store.countCachedContainers(Pixels.class), 3);
+	    Assert.assertEquals(store.countCachedContainers(null), 5);
 	}
 
 	@Test
@@ -129,6 +129,6 @@ public class DetectorSettingsTest
 	        Assert.assertTrue(store.hasReference(dsLsid, new LSID("Detector:0")));
 	        Assert.assertTrue(store.hasReference(imageLsid, new LSID("Instrument:0")));
 	    }
-	    Assert.assertEquals(6, store.countCachedReferences(null, null));
+	    Assert.assertEquals(store.countCachedReferences(null, null), 6);
 	}
 }
