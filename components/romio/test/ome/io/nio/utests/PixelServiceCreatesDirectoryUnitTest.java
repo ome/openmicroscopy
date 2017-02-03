@@ -15,7 +15,7 @@ import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
 
 import org.apache.commons.io.FileUtils;
-import org.testng.AssertJUnit;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -52,7 +52,7 @@ public class PixelServiceCreatesDirectoryUnitTest {
     @Test
     public void testLargeId() throws Exception {
         PixelBuffer pixelBuffer = service.createPixelBuffer(pixels);
-        AssertJUnit.assertNotNull(pixelBuffer);
+        Assert.assertNotNull(pixelBuffer);
     }
 
 }
