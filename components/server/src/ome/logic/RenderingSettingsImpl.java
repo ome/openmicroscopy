@@ -1229,7 +1229,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     			list.add(pixelsFrom);
     			Map<Long, RenderingDef> map = loadRenderingSettings(list);
     			if (!map.containsKey(from)) {
-    			    // user doens't have own rendering settings, load the rendering
+    			    // user doesn't have own rendering settings, load the rendering
     			    // settings of the image owner instead
     			    map = loadRenderingSettings(list, -1l);
     			}
