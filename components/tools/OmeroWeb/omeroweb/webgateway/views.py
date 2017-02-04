@@ -762,7 +762,7 @@ def _get_maps_enabled(request, name, sizeC=0):
                         enabled = m.get('enabled') in (True, 'true')
                 codomains.append(enabled)
         except:
-            logger.debug('Invalid json for query ?maps=%s' % mapping)
+            logger.debug('Invalid json for query ?maps=%s' % map_json)
             codomains = None
     return codomains
 
@@ -1979,7 +1979,7 @@ def copy_image_rdef_json(request, conn=None, **kwargs):
             start = ch.getWindowStart()
             end = ch.getWindowEnd()
             color = ch.getLut()
-            maps.append({'reverse':{'enabled': ch.isReverseIntensity()}})
+            maps.append({'reverse': {'enabled': ch.isReverseIntensity()}})
             if not color or len(color) == 0:
                 color = ch.getColor().getHtml()
             chs.append("%s%s|%s:%s$%s" % (act, i+1, start, end, color))
@@ -2074,7 +2074,7 @@ def get_image_rdef_json(request, conn=None, **kwargs):
                 color = ch.get('lut') or ch['color']
                 chs.append("%s|%s:%s$%s" % (act, ch['window']['start'],
                                             ch['window']['end'], color))
-                maps.append({'reverse':{'enabled': ch['reverseIntensity']}})
+                maps.append({'reverse': {'enabled': ch['reverseIntensity']}})
             rdef = {'c': (",".join(chs)),
                     'm': rv['rdefs']['model'],
                     'pixel_range': "%s:%s" % (rv['pixel_range'][0],
