@@ -419,8 +419,8 @@ Test LUTs Reverse Intensity
     [Documentation]     Tests LUTs and Reverse
     # Go To                                   ${WELCOME URL}
     Select Experimenter
-    Select And Expand Node                  MultiChannel Images
-    ${nodeId}                               Wait For Dataset Node Text      MultiChannel Images
+    Select And Expand Node                  ${multic_dataset}
+    ${nodeId}                               Wait For Dataset Node Text      ${multic_dataset}
     Right Click Rendering Settings          ${nodeId}                       Set Imported and Save
     Select First Image
     ${imageId}=                             Wait For General Panel And Return Id    Image
