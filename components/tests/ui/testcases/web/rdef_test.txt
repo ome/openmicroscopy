@@ -416,8 +416,8 @@ Test Rdef Save
 
 
 Test LUTs Reverse Intensity
-    [Documentation]     Tests LUTs and Reverse
-    # Go To                                   ${WELCOME URL}
+    [Documentation]     Tests LUTs and Reverse, Copying and Pasting.
+    Go To                                   ${WELCOME URL}
     Select Experimenter
     Select And Expand Node                  ${multic_dataset}
     ${nodeId}                               Wait For Dataset Node Text      ${multic_dataset}
