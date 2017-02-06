@@ -5,6 +5,7 @@
 #
 
 Django>=1.8,<1.9
+jsonpickle
 django-pipeline==1.3.20
 
 # Until Screens are supported in release, we need to use master branch
