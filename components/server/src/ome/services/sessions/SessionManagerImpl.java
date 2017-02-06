@@ -1058,12 +1058,11 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
             public Object doWork(org.hibernate.Session session,
                     ServiceFactory sf) {
                 /* user and group names may change while the session is open */
-                final String userName = (String) session.createQuery(
-                        "SELECT omeName FROM Experimenter WHERE id = :id").setLong("id", ctx.getCurrentUserId()).uniqueResult();
-                final String groupName = (String) session.createQuery(
-                        "SELECT name FROM ExperimenterGroup WHERE id = :id").setLong("id", ctx.getCurrentGroupId()).uniqueResult();
-                final Principal p = new Principal(userName, groupName, ctx.getCurrentEventType());
-                return executeSessionContextLookup(sf, p, ctx.getSession());
+                final LocalAdmin admin = (LocalAdmin) sf.getAdminService();
+                final Experimenter exp = admin.userProxy(ctx.getCurrentUserId());
+                final ExperimenterGroup grp = admin.groupProxy(ctx.getCurrentGroupId());
+                final Principal p = new Principal(exp.getOmeName(), grp.getName(), ctx.getCurrentEventType());
+                return executeSessionContextLookup(sf, p, exp, grp, ctx.getSession());
             }
         });
         if (list == null) {
@@ -1444,12 +1443,22 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
      */
     private List<Object> executeSessionContextLookup(ServiceFactory sf,
             Principal principal, Session session) {
+        final LocalAdmin admin = (LocalAdmin) sf.getAdminService();
+        final Experimenter exp = admin.userProxy(principal.getName());
+        final ExperimenterGroup grp = admin.groupProxy(principal.getGroup());
+        return executeSessionContextLookup(sf, principal, exp, grp, session);
+    }
+
+    /**
+     * Returns a List of state for creating a new {@link SessionContext}. If an
+     * exception is thrown, return nulls since throwing an exception within the
+     * Work will set our transaction to rollback only.
+     */
+    private List<Object> executeSessionContextLookup(ServiceFactory sf,
+            Principal principal, Experimenter exp, ExperimenterGroup grp, Session session) {
         try {
             List<Object> list = new ArrayList<Object>();
             LocalAdmin admin = (LocalAdmin) sf.getAdminService();
-            final Experimenter exp = admin.userProxy(principal.getName());
-            final ExperimenterGroup grp = admin
-                    .groupProxy(principal.getGroup());
             final List<Long> memberOfGroupsIds = admin.getMemberOfGroupIds(exp);
             final List<Long> leaderOfGroupsIds = admin.getLeaderOfGroupIds(exp);
             final List<String> userRoles = admin.getUserRoles(exp);
