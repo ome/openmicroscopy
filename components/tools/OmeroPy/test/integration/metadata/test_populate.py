@@ -58,6 +58,7 @@ from omero.constants.namespaces import NSMEASUREMENT
 from omero.util.temp_files import create_path
 
 from omero.util.metadata_mapannotations import MapAnnotationPrimaryKeyException
+from omero.util.metadata_utils import NSBULKANNOTATIONSCONFIG
 
 from pytest import mark
 from pytest import raises
@@ -960,6 +961,24 @@ class TestPopulateMetadataHelper(ITest):
         assert len(fixture.get_all_map_annotations()) == 0
 
 
+class TestPopulateMetadataHelperPerMethod(TestPopulateMetadataHelper):
+
+    # Some tests in this file check the counts of annotations in a fixed
+    # namespace, and therefore require a new client for each test method
+
+    def setup_class(cls):
+        pass
+
+    def teardown_class(cls):
+        pass
+
+    def setup_method(self, method):
+        super(TestPopulateMetadataHelperPerMethod, self).setup_class()
+
+    def teardown_method(self, method):
+        super(TestPopulateMetadataHelperPerMethod, self).teardown_class()
+
+
 class TestPopulateMetadata(TestPopulateMetadataHelper):
 
     METADATA_FIXTURES = (
@@ -1036,22 +1055,7 @@ class TestPopulateMetadata(TestPopulateMetadataHelper):
             self._test_bulk_to_map_annotation_context(fixture_fail, 2)
 
 
-class TestPopulateMetadataDedup(TestPopulateMetadataHelper):
-
-    # This class includes counting map-annotations, so create a clean
-    # environment
-
-    def setup_class(cls):
-        pass
-
-    def teardown_class(cls):
-        pass
-
-    def setup_method(self, method):
-        super(TestPopulateMetadataDedup, self).setup_class()
-
-    def teardown_method(self, method):
-        super(TestPopulateMetadataDedup, self).teardown_class()
+class TestPopulateMetadataDedup(TestPopulateMetadataHelperPerMethod):
 
     # Hard-code the number of expected map-annotations in these tests
     # since the code in this file is complicated enough without trying
@@ -1202,6 +1206,57 @@ class TestPopulateMetadataDedup(TestPopulateMetadataHelper):
         self._test_bulk_to_map_annotation_dedup(fixture1, fixture2, None)
         self._test_delete_map_annotation_context_dedup(
             fixture1, fixture2, ns)
+
+
+class TestPopulateMetadataConfigFiles(TestPopulateMetadataHelperPerMethod):
+
+    def _init_fixture_attach_cfg(self):
+        fixture = Plate2Wells()
+        fixture.init(self)
+        target = fixture.get_target()
+        ofile = self.client.upload(fixture.get_cfg()).proxy()
+        link = PlateAnnotationLinkI()
+        link.parent = target.proxy()
+        link.child = FileAnnotationI()
+        link.child.ns = rstring(NSBULKANNOTATIONSCONFIG)
+        link.child.file = ofile
+        link = self.client.sf.getUpdateService().saveAndReturnObject(link)
+        return fixture
+
+    def _get_annotations_config(self, fixture):
+        anns = []
+        for ann in fixture.get_annotations():
+            if not isinstance(ann, FileAnnotationI):
+                pass
+            if unwrap(ann.getNs()) == NSBULKANNOTATIONS:
+                continue
+
+            assert unwrap(ann.ns) == NSBULKANNOTATIONSCONFIG
+            anns.append(ann)
+        return anns
+
+    @mark.parametrize("ns", [None, NSBULKANNOTATIONS, NSBULKANNOTATIONSCONFIG])
+    @mark.parametrize("attach", [True, False])
+    def test_delete_attach(self, ns, attach):
+        fixture = self._init_fixture_attach_cfg()
+        target = fixture.get_target()
+        before = self._get_annotations_config(fixture)
+        assert len(before) == 1
+
+        options = {}
+        if ns:
+            options['ns'] = ns
+        ctx = DeleteMapAnnotationContext(
+            self.client, target, attach=attach, options=options)
+        ctx.parse()
+        ctx.write_to_omero()
+        after = self._get_annotations_config(fixture)
+
+        if attach and ns != NSBULKANNOTATIONS:
+            assert len(after) == 0
+        else:
+            assert before[0].id == after[0].id
+            assert before[0].file.id == after[0].file.id
 
 
 class MockMeasurementCtx(AbstractMeasurementCtx):
