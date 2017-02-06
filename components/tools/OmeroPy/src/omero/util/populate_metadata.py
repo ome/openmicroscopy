@@ -1480,7 +1480,10 @@ class DeleteMapAnnotationContext(_QueryContext):
         except KeyError:
             pass
 
-        nss = set([omero.constants.namespaces.NSBULKANNOTATIONS])
+        nss = set([
+            omero.constants.namespaces.NSBULKANNOTATIONS,
+            NSBULKANNOTATIONSCONFIG,
+        ])
         if self.column_cfgs:
             for c in self.column_cfgs:
                 try:
@@ -1599,17 +1602,19 @@ class DeleteMapAnnotationContext(_QueryContext):
                  nss, sum(len(v) for v in self.mapannids.values()))
         log.debug("MapAnnotationLinks in %s: %s", nss, self.mapannids)
 
-        if self.attach:
-            nss = [NSBULKANNOTATIONSCONFIG]
+        if self.attach and NSBULKANNOTATIONSCONFIG in nss:
             for objtype, objids in parentids.iteritems():
                 if objtype in not_annotatable:
                     continue
                 r = self._get_annotations_for_deletion(
-                    objtype, objids, 'FileAnnotation', nss)
+                    objtype, objids, 'FileAnnotation',
+                    [NSBULKANNOTATIONSCONFIG])
                 self.fileannids.update(r)
 
-            log.info("Total: %d FileAnnotation(s) in %s",
-                     len(set(self.fileannids)), nss)
+            log.info("Total FileAnnotations in %s: %d",
+                     [NSBULKANNOTATIONSCONFIG], len(set(self.fileannids)))
+            log.debug("FileAnnotations in %s: %s",
+                      [NSBULKANNOTATIONSCONFIG], self.fileannids)
 
     def write_to_omero(self, batch_size=1000, loops=10, ms=500):
         for objtype, maids in self.mapannids.iteritems():
