@@ -7,6 +7,7 @@
 package ome.io.nio.utests;
 
 import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import java.nio.ByteBuffer;
 
@@ -25,7 +26,8 @@ public class PixelDataBitTest
     	byte[] byteArray = new byte[] { (byte) 0xFF, (byte) 193 }; 
 	data = new PixelData("bit", ByteBuffer.wrap(byteArray));
     }
- 
+
+    @Test
     public void testGetBits()
     {
         Assert.assertEquals(data.getPixelValue(0), 1.0, 0.0);  // Start byte 1
@@ -45,7 +47,8 @@ public class PixelDataBitTest
         Assert.assertEquals(data.getPixelValue(14), 0.0, 0.0);
         Assert.assertEquals(data.getPixelValue(15), 1.0, 0.0);
     }
-    
+
+    @Test
     public void testSetAndGetBits()
     {
     	// 0
@@ -65,7 +68,8 @@ public class PixelDataBitTest
     	data.setPixelValue(14, 1.0);
     	Assert.assertEquals(data.getPixelValue(14), 1.0, 0.0);
     }
-    
+
+    @Test
     public void testSize()
     {
         Assert.assertEquals(data.size(), 2);
