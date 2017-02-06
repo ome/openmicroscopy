@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2011 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -10,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.TestCase;
 import ome.formats.importer.IObservable;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportEvent;
@@ -18,6 +15,7 @@ import ome.formats.importer.util.ErrorContainer;
 import ome.formats.importer.util.ErrorHandler;
 import ome.formats.importer.util.HtmlMessengerException;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
@@ -27,7 +25,7 @@ import org.testng.annotations.Test;
  * @since Beta4.4
  */
 @Test
-public class ErrorHandlerTest extends TestCase {
+public class ErrorHandlerTest {
 
     class MyErrorHandler extends ErrorHandler {
 
@@ -69,8 +67,8 @@ public class ErrorHandlerTest extends TestCase {
         protected void onUpdate(IObservable observable, ImportEvent event) {
             if (event instanceof ImportEvent.DEBUG_SEND) {
                 ImportEvent.DEBUG_SEND send = (ImportEvent.DEBUG_SEND) event;
-                assertEquals(_sendFiles, send.sendFiles);
-                assertEquals(_sendLog, send.sendLogs);
+                Assert.assertEquals(send.sendFiles, _sendFiles);
+                Assert.assertEquals(send.sendLogs, _sendLog);
 
                 // Copied from cli ErrorHandler.onUpdate.
                 sendFiles = send.sendFiles;
@@ -80,7 +78,7 @@ public class ErrorHandlerTest extends TestCase {
             } else if (event instanceof ErrorHandler.UNKNOWN_FORMAT){
                 // ignore this one.
             } else {
-                fail("Bad event: " + event);
+                Assert.fail("Bad event: " + event);
             }
         }
 
@@ -98,40 +96,44 @@ public class ErrorHandlerTest extends TestCase {
                 new RuntimeException("test"), null);
     }
 
+    @Test
     public void testLogsAndFiles() {
         ImportConfig cfg = cfg(true, true);
         MyErrorHandler handler = new MyErrorHandler(cfg, true, true);
         handler.update(null, err());
         handler.update(null, new ImportEvent.DEBUG_SEND(true, true));
-        assertEquals(new Integer(2), handler.uploads);
-        assertEquals(new Integer(1), handler.posts);
+        Assert.assertEquals(handler.uploads, new Integer(2));
+        Assert.assertEquals(handler.posts, new Integer(1));
     }
 
+    @Test
     public void testLogsNotFiles() {
         ImportConfig cfg = cfg(false, true);
         MyErrorHandler handler = new MyErrorHandler(cfg, false, true);
         handler.update(null, err());
         handler.update(null, new ImportEvent.DEBUG_SEND(false, true));
-        assertEquals(new Integer(1), handler.uploads);
-        assertEquals(new Integer(0), handler.posts);
+        Assert.assertEquals(handler.uploads, new Integer(1));
+        Assert.assertEquals(handler.posts, new Integer(0));
     }
 
+    @Test
     public void testFilesNotLogs() {
         ImportConfig cfg = cfg(true, false);
         MyErrorHandler handler = new MyErrorHandler(cfg, true, false);
         handler.update(null, err());
         handler.update(null, new ImportEvent.DEBUG_SEND(true, false));
-        assertEquals(new Integer(1), handler.uploads);
-        assertEquals(new Integer(1), handler.posts);
+        Assert.assertEquals(handler.uploads, new Integer(1));
+        Assert.assertEquals(handler.posts, new Integer(1));
     }
 
+    @Test
     public void testNeitherFilesNorLogs() {
         ImportConfig cfg = cfg(false, false);
         MyErrorHandler handler = new MyErrorHandler(cfg, false, false);
         handler.update(null, err());
         handler.update(null, new ImportEvent.DEBUG_SEND(false, false));
-        assertEquals(null, handler.uploads);
-        assertEquals(new Integer(0), handler.posts);
+        Assert.assertNull(handler.uploads);
+        Assert.assertEquals(handler.posts, new Integer(0));
     }
 
 }

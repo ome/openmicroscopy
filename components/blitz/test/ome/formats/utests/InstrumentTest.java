@@ -1,6 +1,25 @@
+/*
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2017 University of Dundee. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ */
 package ome.formats.utests;
 
-import junit.framework.TestCase;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
@@ -13,10 +32,11 @@ import omero.model.Instrument;
 import omero.model.Laser;
 import omero.model.Pixels;
 
+import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class InstrumentTest extends TestCase
+public class InstrumentTest
 {
 	private OMEROWrapper wrapper;
 
@@ -64,28 +84,28 @@ public class InstrumentTest extends TestCase
 	    for (int i = 0; i < 3; i++)
 	    {
 	        LSID lsid = new LSID(Pixels.class, i);
-	        assertNotNull(store.getSourceObject(lsid));
+	        Assert.assertNotNull(store.getSourceObject(lsid));
 	    }
 	    LSID lsid = new LSID(Laser.class,
 	                           INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
-	    assertNotNull(store.getSourceObject(lsid));
-	    assertNotNull(store.getSourceObject(new LSID(Instrument.class, 0)));
+	    Assert.assertNotNull(store.getSourceObject(lsid));
+	    Assert.assertNotNull(store.getSourceObject(new LSID(Instrument.class, 0)));
 	}
 
 	@Test
 	public void testImageInstrumentLightSourceModelPreserved()
 	{
         Laser ls = store.getLaser(INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
-        assertEquals(LIGHTSOURCE_MODEL, ls.getModel().getValue());
+        Assert.assertEquals(ls.getModel().getValue(), LIGHTSOURCE_MODEL);
 	}
 
 	@Test
 	public void testContainerCount()
 	{
-	    assertEquals(1, store.countCachedContainers(Laser.class));
-	    assertEquals(1, store.countCachedContainers(Instrument.class));
-	    assertEquals(3, store.countCachedContainers(Pixels.class));
-	    assertEquals(5, store.countCachedContainers(null));
+	    Assert.assertEquals(store.countCachedContainers(Laser.class), 1);
+	    Assert.assertEquals(store.countCachedContainers(Instrument.class), 1);
+	    Assert.assertEquals(store.countCachedContainers(Pixels.class), 3);
+	    Assert.assertEquals(store.countCachedContainers(null), 5);
 	}
 
 	@Test
@@ -94,8 +114,8 @@ public class InstrumentTest extends TestCase
         for (int i = 0; i < 3; i++)
         {
             LSID imageLsid = new LSID(Image.class, i);
-            assertTrue(store.hasReference(imageLsid, new LSID("Instrument:0")));
+            Assert.assertTrue(store.hasReference(imageLsid, new LSID("Instrument:0")));
         }
-        assertEquals(3, store.countCachedReferences(null, null));
+        Assert.assertEquals(store.countCachedReferences(null, null), 3);
     }
 }
