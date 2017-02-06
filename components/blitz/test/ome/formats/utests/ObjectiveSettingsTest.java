@@ -1,6 +1,25 @@
+/*
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2017 University of Dundee. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ */
 package ome.formats.utests;
 
-import junit.framework.TestCase;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
@@ -15,10 +34,11 @@ import omero.model.Objective;
 import omero.model.ObjectiveSettings;
 import omero.model.Pixels;
 
+import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class ObjectiveSettingsTest extends TestCase
+public class ObjectiveSettingsTest
 {
 	private OMEROWrapper wrapper;
 
@@ -72,8 +92,8 @@ public class ObjectiveSettingsTest extends TestCase
 	{
 		Objective o =
 			(Objective) store.getSourceObject(new LSID(Objective.class, 0, 0));
-		assertNotNull(o);
-		assertNotNull(o.getCorrection());
+		Assert.assertNotNull(o);
+		Assert.assertNotNull(o.getCorrection());
 	}
 
 	@Test
@@ -82,10 +102,10 @@ public class ObjectiveSettingsTest extends TestCase
 		store.setObjectiveCorrection(FL, INSTRUMENT_INDEX, OBJECTIVE_INDEX);
 		Objective o =
 			(Objective) store.getSourceObject(new LSID(Objective.class, 0, 0));
-		assertNotNull(o);
+		Assert.assertNotNull(o);
 		// Test enumeration provider always returns "Unknown", in reality this
 		// should be "Other".
-		assertEquals("Unknown", o.getCorrection().getValue().getValue());
+		Assert.assertEquals(o.getCorrection().getValue().getValue(), "Unknown");
 	}
 
 	@Test
@@ -94,10 +114,10 @@ public class ObjectiveSettingsTest extends TestCase
 		store.setObjectiveCorrection(FL, INSTRUMENT_INDEX, OBJECTIVE_INDEX);
 		Objective o =
 			(Objective) store.getSourceObject(new LSID(Objective.class, 0, 0));
-		assertNotNull(o);
+		Assert.assertNotNull(o);
 		// Test enumeration provider always returns "Unknown", in reality this
 		// should be "Other".
-		assertEquals("Unknown", o.getCorrection().getValue().getValue());
+		Assert.assertEquals(o.getCorrection().getValue().getValue(), "Unknown");
 	}
 
 	@Test
@@ -106,10 +126,10 @@ public class ObjectiveSettingsTest extends TestCase
 	    for (int i = 0; i < 3; i++)
 	    {
 	        LSID lsid = new LSID(Pixels.class, i);
-	        assertNotNull(store.getSourceObject(lsid));
+	        Assert.assertNotNull(store.getSourceObject(lsid));
 	    }
-	    assertNotNull(store.getSourceObject(new LSID(Instrument.class, 0)));
-	    assertNotNull(store.getSourceObject(new LSID(Objective.class, 0, 0)));
+	    Assert.assertNotNull(store.getSourceObject(new LSID(Instrument.class, 0)));
+	    Assert.assertNotNull(store.getSourceObject(new LSID(Objective.class, 0, 0)));
 	}
 
 	@Test
@@ -117,16 +137,16 @@ public class ObjectiveSettingsTest extends TestCase
 	{
 	    Objective objective = store.getObjective(INSTRUMENT_INDEX,
 			                                 OBJECTIVE_INDEX);
-	    assertEquals(OBJECTIVE_MODEL, objective.getModel().getValue());
+	    Assert.assertEquals(objective.getModel().getValue(), OBJECTIVE_MODEL);
 	}
 
 	@Test
 	public void testContainerCount()
 	{
-	    assertEquals(1, store.countCachedContainers(Objective.class));
-	    assertEquals(1, store.countCachedContainers(Instrument.class));
-	    assertEquals(3, store.countCachedContainers(Pixels.class));
-	    assertEquals(5, store.countCachedContainers(null));
+	    Assert.assertEquals(store.countCachedContainers(Objective.class), 1);
+	    Assert.assertEquals(store.countCachedContainers(Instrument.class), 1);
+	    Assert.assertEquals(store.countCachedContainers(Pixels.class), 3);
+	    Assert.assertEquals(store.countCachedContainers(null), 5);
 	}
 
 	@Test
@@ -137,9 +157,9 @@ public class ObjectiveSettingsTest extends TestCase
 	        LSID imageLsid = new LSID(Image.class, i);
 	        LSID osLsid = new LSID(ObjectiveSettings.class,
 	                               IMAGE_INDEX + i);
-	        assertTrue(store.hasReference(osLsid, new LSID("Objective:0")));
-	        assertTrue(store.hasReference(imageLsid, new LSID("Instrument:0")));
+	        Assert.assertTrue(store.hasReference(osLsid, new LSID("Objective:0")));
+	        Assert.assertTrue(store.hasReference(imageLsid, new LSID("Instrument:0")));
 	    }
-	    assertEquals(6, store.countCachedReferences(null, null));
+	    Assert.assertEquals(store.countCachedReferences(null, null), 6);
 	}
 }

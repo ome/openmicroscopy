@@ -1,3 +1,23 @@
+/*
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2017 University of Dundee. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ */
 package ome.formats.utests;
 
 import ome.formats.OMEROMetadataStoreClient;
@@ -7,12 +27,12 @@ import ome.xml.model.primitives.NonNegativeInteger;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Plate;
 import omero.model.Well;
-import junit.framework.TestCase;
 
+import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class WellProcessorTest extends TestCase
+public class WellProcessorTest
 {
 	private OMEROMetadataStoreClient store;
 
@@ -38,8 +58,8 @@ public class WellProcessorTest extends TestCase
 	@Test
 	public void testWellExists()
 	{
-		assertEquals(3, store.countCachedContainers(Well.class, null));
-		assertEquals(1, store.countCachedContainers(Plate.class, null));
+		Assert.assertEquals(store.countCachedContainers(Well.class, null), 3);
+		Assert.assertEquals(store.countCachedContainers(Plate.class, null), 1);
 		LSID wellLSID1 = new LSID(Well.class, PLATE_INDEX, WELL_INDEX);
 		LSID wellLSID2 = new LSID(Well.class, PLATE_INDEX, WELL_INDEX + 1);
 		LSID wellLSID3 = new LSID(Well.class, PLATE_INDEX + 1, WELL_INDEX);
@@ -48,29 +68,29 @@ public class WellProcessorTest extends TestCase
 		Well well2 = (Well) store.getSourceObject(wellLSID2);
 		Well well3 = (Well) store.getSourceObject(wellLSID3);
 		Plate plate1 = (Plate) store.getSourceObject(plateLSID1);
-		assertNotNull(well1);
-		assertNotNull(well2);
-		assertNotNull(well3);
-		assertNotNull(plate1);
-		assertEquals(0, well1.getColumn().getValue());
-		assertEquals(1, well2.getColumn().getValue());
-		assertEquals(0, well3.getColumn().getValue());
-		assertEquals("setUp Plate", plate1.getName().getValue());
+		Assert.assertNotNull(well1);
+		Assert.assertNotNull(well2);
+		Assert.assertNotNull(well3);
+		Assert.assertNotNull(plate1);
+		Assert.assertEquals(well1.getColumn().getValue(), 0);
+		Assert.assertEquals(well2.getColumn().getValue(), 1);
+		Assert.assertEquals(well3.getColumn().getValue(), 0);
+		Assert.assertEquals(plate1.getName().getValue(), "setUp Plate");
 	}
 
 	@Test
 	public void testWellPostProcess()
 	{
 		store.postProcess();
-		assertEquals(3, store.countCachedContainers(Well.class, null));
-		assertEquals(2, store.countCachedContainers(Plate.class, null));
+		Assert.assertEquals(store.countCachedContainers(Well.class, null), 3);
+		Assert.assertEquals(store.countCachedContainers(Plate.class, null), 2);
 		LSID plateLSID1 = new LSID(Plate.class, PLATE_INDEX);
 		LSID plateLSID2 = new LSID(Plate.class, PLATE_INDEX + 1);
 		Plate plate1 = (Plate) store.getSourceObject(plateLSID1);
 		Plate plate2 = (Plate) store.getSourceObject(plateLSID2);
-		assertNotNull(plate1);
-		assertNotNull(plate2);
-		assertEquals("Plate", plate1.getName().getValue());
-		assertEquals("setUp Plate", plate2.getName().getValue());
+		Assert.assertNotNull(plate1);
+		Assert.assertNotNull(plate2);
+		Assert.assertEquals(plate1.getName().getValue(), "Plate");
+		Assert.assertEquals(plate2.getName().getValue(), "setUp Plate");
 	}
 }

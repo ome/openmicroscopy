@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -11,7 +9,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
@@ -26,6 +23,7 @@ import ome.formats.importer.ImportCandidates.SCANNING;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
@@ -43,7 +41,7 @@ import org.testng.annotations.Test;
  *
  * @since Beta4.1
  */
-public class ImportCandidatesTest extends TestCase {
+public class ImportCandidatesTest {
 
     final List<SCANNING> scannings = new ArrayList<SCANNING>();
     Logger log = LoggerFactory.getLogger(ImportCandidatesTest.class);
@@ -82,7 +80,6 @@ public class ImportCandidatesTest extends TestCase {
 
     private ImportContainer container(String...usedFiles) {
         File file = new File("a");
-        String imageName = "";
         String reader = "";
         Boolean isSPW = false;
         omero.model.IObject target = null;
@@ -95,16 +92,16 @@ public class ImportCandidatesTest extends TestCase {
     public void testTwoPasses() throws Exception {
         basic(o);
         // Nothing valid. assertTrue(c.size() > 0);
-        assertTrue(scannings.size() > 0);
+        Assert.assertTrue(scannings.size() > 0);
     }
 
     @Test
     public void testCancelFunctions() throws Exception {
         Canceler cancel = new Canceler();
         basic(cancel);
-        assertEquals(0, c.size());
-        assertEquals(1, cancel.count);
-        assertTrue(c.wasCancelled());
+        Assert.assertEquals(c.size(), 0);
+        Assert.assertEquals(cancel.count, 1);
+        Assert.assertTrue(c.wasCancelled());
     }
 
     @Test
