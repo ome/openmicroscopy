@@ -1595,7 +1595,9 @@ class DeleteMapAnnotationContext(_QueryContext):
                 except KeyError:
                     self.mapannids[objtype] = set(r)
 
-        log.info("Total: [%s] MapAnnotationLink(s) in %s", self.mapannids, nss)
+        log.info("Total MapAnnotationLinks in %s: %d",
+                 nss, sum(len(v) for v in self.mapannids.values()))
+        log.debug("MapAnnotationLinks in %s: %s", nss, self.mapannids)
 
         if self.attach:
             nss = [NSBULKANNOTATIONSCONFIG]
@@ -1630,20 +1632,12 @@ class DeleteMapAnnotationContext(_QueryContext):
         # At this point, we're sure that there's a response OR
         # an exception has been thrown (likely LockTimeout)
         rsp = callback.getResponse()
-        if isinstance(rsp, omero.cmd.OK):
-            ndal = len(rsp.deletedObjects.get(
-                "ome.model.annotations.AnnotationLink", []))
-            ndma = len(rsp.deletedObjects.get(
-                "ome.model.annotations.MapAnnotation", []))
-            ndfa = len(rsp.deletedObjects.get(
-                "ome.model.annotations.FileAnnotation", []))
-            if ndal:
-                log.info("Deleted %d AnnotationLink(s)", ndal)
-            if ndma:
-                log.info("Deleted %d MapAnnotation(s)", ndma)
-            if ndfa:
-                log.info("Deleted %d FileAnnotation(s)", ndfa)
-        else:
+        try:
+            deleted = rsp.deletedObjects
+            for k, v in deleted.iteritems():
+                log.info("Deleted: %s %d", k, len(v))
+                log.debug("Deleted: %s %s", k, v)
+        except AttributeError:
             log.error("Delete failed: %s", rsp)
 
 
