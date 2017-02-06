@@ -19,12 +19,12 @@ import ome.util.PixelData;
  */
 public class PixelDataBitTest
 {
-	private PixelData data;
+    private PixelData data;
 
     public void setUp()
     {
-    	byte[] byteArray = new byte[] { (byte) 0xFF, (byte) 193 }; 
-	data = new PixelData("bit", ByteBuffer.wrap(byteArray));
+        byte[] byteArray = new byte[] { (byte) 0xFF, (byte) 193 };
+        data = new PixelData("bit", ByteBuffer.wrap(byteArray));
     }
 
     @Test
@@ -51,22 +51,22 @@ public class PixelDataBitTest
     @Test
     public void testSetAndGetBits()
     {
-    	// 0
+        // 0
         Assert.assertEquals(data.getPixelValue(0), 1.0, 0.0);
-    	data.setPixelValue(0, 0.0);
-    	Assert.assertEquals(data.getPixelValue(0), 0.0, 0.0);
-    	// 7
-    	Assert.assertEquals(data.getPixelValue(7), 1.0, 0.0);
-    	data.setPixelValue(7, 0.0);
-    	Assert.assertEquals(data.getPixelValue(7), 0.0, 0.0);
-    	// 8
-    	Assert.assertEquals(data.getPixelValue(8), 1.0, 0.0);
-    	data.setPixelValue(8, 1.0);
-    	Assert.assertEquals(data.getPixelValue(8), 1.0, 0.0);
-    	// 14
-    	Assert.assertEquals(data.getPixelValue(14), 0.0, 0.0);
-    	data.setPixelValue(14, 1.0);
-    	Assert.assertEquals(data.getPixelValue(14), 1.0, 0.0);
+        data.setPixelValue(0, 0.0);
+        Assert.assertEquals(data.getPixelValue(0), 0.0, 0.0);
+        // 7
+        Assert.assertEquals(data.getPixelValue(7), 1.0, 0.0);
+        data.setPixelValue(7, 0.0);
+        Assert.assertEquals(data.getPixelValue(7), 0.0, 0.0);
+        // 8
+        Assert.assertEquals(data.getPixelValue(8), 1.0, 0.0);
+        data.setPixelValue(8, 1.0);
+        Assert.assertEquals(data.getPixelValue(8), 1.0, 0.0);
+        // 14
+        Assert.assertEquals(data.getPixelValue(14), 0.0, 0.0);
+        data.setPixelValue(14, 1.0);
+        Assert.assertEquals(data.getPixelValue(14), 1.0, 0.0);
     }
 
     @Test
