@@ -56,8 +56,8 @@ Wait For Channel Color
     Wait Until Element Is Visible           xpath=//button[@id="wblitz-ch0-color"][@data-color="${hexColor}"]
 
 Pick Lut
-    [Arguments]                             ${lutName}
-    Click Element                           xpath=//button[@id="wblitz-ch0-color"]
+    [Arguments]                             ${lutName}      ${channelIdx}
+    Click Element                           xpath=//button[@id="wblitz-ch${channelIdx}-color"]
     Wait Until Element Is Visible           id=cbpicker-box
     Click Element                           xpath=//div[contains(@class, 'lutpicker')]//label[contains(text(), '${lutName}')]
     Wait For Image Src                      ${lutName}
@@ -65,7 +65,7 @@ Pick Lut
 
 Check Image Src
     [Arguments]                             ${findInImgSrc}
-    ${imageSrc}=                            Get Element Attribute       xpath=//img[@id='viewport-img']@src
+    ${imageSrc}=                            Get Element Attribute       xpath=//img[contains(@class, 'weblitz-viewport-img')]@src
     Should Contain                          ${imageSrc}                 ${findInImgSrc}
 
 Wait For Image Src
@@ -427,7 +427,7 @@ Test LUTs Reverse Intensity
     Click Link                              Preview
     ${status}   ${oldId}                    Wait For Preview Load                   FAIL      '1'
 
-    Pick Lut                                16_colors
+    Pick Lut                                16_colors                       0
 
     # Reverse Intensity of first channel
     Toggle Reverse Intensity                0
@@ -462,7 +462,7 @@ Test LUTs Reverse Intensity
     Check Reverse Intensity                 0                           ${True}
 
     # Pick a different LUT and Save
-    Pick Lut                                5_ramps
+    Pick Lut                                5_ramps                     0
     Click Element                           id=rdef-setdef-btn
     Wait For BlockUI
 
@@ -486,3 +486,29 @@ Test LUTs Reverse Intensity
     Right Click Rendering Settings          ${imgNodeId}                Paste and Save
     Wait For Image Src                      5_ramps
     Check Reverse Intensity                 0                           ${True}
+
+
+Test Launch Full Viewer
+    [Documentation]     Tests viewer launched from Preview panel with current settings
+    Go To                                   ${WELCOME URL}
+    Select Experimenter
+    Select And Expand Node                  ${multic_dataset}
+    ${nodeId}                               Wait For Dataset Node Text      ${multic_dataset}
+    Right Click Rendering Settings          ${nodeId}                       Set Imported and Save
+    Select First Image
+    ${imageName}=                           Wait For General Panel And Return Name              Image
+    Click Link                              Preview
+    Wait For Preview Load                   FAIL      '1'
+
+    # Change settings
+    Pick Lut                                16_colors       1
+    Toggle Reverse Intensity                0
+    Pick Color                              FFFF00
+    Toggle Channel Active                   2
+
+    Click Link                              id=preview_open_viewer
+    Wait Until Keyword Succeeds             ${TIMEOUT}     ${INTERVAL}     Select Window     title=${imageName}
+    Wait Until Page Contains Element        id=wblitz-ch0
+    # Check various channel settings and reverse map are applied
+    Wait For Image Src                      c=1|0:255$FFFF00,2|0:255$16_colors.lut,-3|0:255$0000FF
+    Wait For Image Src                      maps=[{%22reverse%22:{%22enabled%22:false}
