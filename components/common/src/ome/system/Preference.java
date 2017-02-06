@@ -7,7 +7,6 @@ package ome.system;
 
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
-import org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer;
 
 /**
  * Definition of a server configuration variable ("preference") along with its
@@ -73,12 +72,7 @@ public class Preference implements BeanNameAware {
     /**
      * By default, configures this instance for
      * {@link PropertyPlaceholderConfigurer#SYSTEM_PROPERTIES_MODE_OVERRIDE} as
-     * well as ignoring unfound resources. The
-     * {@link PreferencesPlaceholderConfigurer#setUserTreePath(String)}
-     * user-tree is set according to a similar logic as in the
-     * {@link ome.util.prefs}
-     * command-line tool, using first from the environment if
-     * present, otherwise the value of "omero.prefs.default".
+     * well as ignoring unfound resources.
      */
     public Preference() {
 
