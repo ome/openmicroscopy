@@ -7,6 +7,7 @@
 package ome.io.nio.utests;
 
 import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.nio.ByteBuffer;
@@ -21,6 +22,7 @@ public class PixelDataBitTest
 {
     private PixelData data;
 
+    @BeforeMethod
     public void setUp()
     {
         byte[] byteArray = new byte[] { (byte) 0xFF, (byte) 193 };
