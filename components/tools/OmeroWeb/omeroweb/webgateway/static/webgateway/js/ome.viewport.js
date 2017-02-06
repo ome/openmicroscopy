@@ -322,7 +322,12 @@ jQuery._WeblitzViewport = function (container, server, options) {
     _this.loadedImg._load(data);
     _this.loadedImg_def = jQuery.extend(true, {}, _this.loadedImg);
     if (_this.loadedImg.current.query) {
-      _this.setQuery(_this.loadedImg.current.query);
+      // setQuery expects 'maps' to be json
+      var query_rdef = $.extend({}, _this.loadedImg.current.query);
+      if (query_rdef.maps) {
+        query_rdef.maps = JSON.parse(query_rdef.maps);
+      }
+      _this.setQuery(query_rdef);
     }
     // refresh allow_resize = true, seems to *prevent* resize (good) but don't fully understand
     _this.refresh(true);
