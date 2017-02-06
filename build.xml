@@ -454,7 +454,7 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
 
     <target name="release-docs" depends="release-javadoc,release-sphinx-api,release-slice2html" description="Generate Docs for all components under dist/docs/api">
         <zip destfile="${omero.home}/target/OMERO.javadoc-${omero.version}.zip">
-            <zipfileset dir="${dist.dir}/docs" prefix="OMERO.docs-${omero.version}"/>
+            <zipfileset dir="${dist.dir}/docs" prefix="OMERO.javadoc-${omero.version}"/>
         </zip>
     </target>
 
