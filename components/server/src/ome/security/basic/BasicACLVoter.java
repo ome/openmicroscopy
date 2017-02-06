@@ -211,7 +211,7 @@ public class BasicACLVoter implements ACLVoter {
                     return true;
                 }
             }
-            /* without ReadRession privilege may read only those sessions for which "real" owner matches */
+            /* without ReadSession privilege may read only those sessions for which "real" owner matches */
             return sessionOwnerCurrent.getId() == sessionOwnerQueried.getId();
         }
 
