@@ -3208,7 +3208,6 @@ class _BlitzGateway (object):
         query = query.split("order by")[0]
         return query, params
 
-
     def listFileAnnotations(self, eid=None, toInclude=[], toExclude=[]):
         """
         Lists FileAnnotations created by users, filtering by namespaces if
