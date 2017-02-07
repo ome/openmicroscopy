@@ -952,7 +952,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         ArrayList <String> permissions = new ArrayList <String>();
         if (permChown) permissions.add(AdminPrivilegeChown.value);
         if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);
-        permissions.add(AdminPrivilegeWriteFile.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
         /* Workflow2: import an image as lightAdmin into a group you are a member of */
