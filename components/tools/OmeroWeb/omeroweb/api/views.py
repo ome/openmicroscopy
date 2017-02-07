@@ -429,6 +429,19 @@ class ScreensView(ObjectsView):
                        'kwargs': {'object_id': 'OBJECT_ID'}}
     }
 
+    def get_opts(self, request, **kwargs):
+        """Add filtering by 'plate' to the opts dict."""
+        opts = super(ScreensView, self).get_opts(request, **kwargs)
+        # at /plate/:plate_id/screens/ we have 'plate_id' in kwargs
+        if 'plate_id' in kwargs:
+            opts['plate'] = long(kwargs['plate_id'])
+        else:
+            # filter by query /screens/?plate=:id
+            plate = getIntOrDefault(request, 'plate', None)
+            if plate is not None:
+                opts['plate'] = plate
+        return opts
+
 
 class PlatesView(ObjectsView):
     """Handles GET for /plates/ to list available Plates."""

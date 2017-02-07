@@ -211,6 +211,15 @@ api_well = url(
 Well url to GET or DELETE a single Well
 """
 
+api_plate_screens = url(
+    r'^v(?P<api_version>%s)/m/plates/'
+    '(?P<plate_id>[0-9]+)/screens/$' % versions,
+    views.ScreensView.as_view(),
+    name='api_plate_screens')
+"""
+GET Screens for child Plate, using omero-marshal to generate json
+"""
+
 urlpatterns = patterns(
     '',
     api_versions,
@@ -237,4 +246,5 @@ urlpatterns = patterns(
     api_wells,
     api_plate_wells,
     api_well,
+    api_plate_screens,
 )
