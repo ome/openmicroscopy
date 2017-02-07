@@ -201,10 +201,14 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * and import data on behalf of another user solely with <tt>Sudo</tt> privilege
      * into this Dataset. Further link the Dataset to the Project, check
      * that the link belongs to the user (not to the ImporterAs).
+     * All workflows are tested here both when light admin is sudoing
+     * and when he/she is not sudoing, except for Link and Import (both tested
+     * only when sudoing, as the non-sudoing workflows are too complicated
+     * for those two actions and thus covered by separate tests.
      * @throws Exception unexpected
      */
     @Test(dataProvider = "narrowed combined privileges cases")
-    public void testImporterAsSudoCreateImport(boolean isAdmin, boolean isSudoing, boolean permWriteOwned,
+    public void testCreateLinkImportSudo(boolean isAdmin, boolean isSudoing, boolean permWriteOwned,
             String groupPermissions) throws Exception {
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         final boolean isExpectSuccessCreate = (isAdmin && permWriteOwned) || (isAdmin && isSudoing);
@@ -320,7 +324,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @throws Exception unexpected
      */
    @Test(dataProvider = "narrowed combined privileges cases")
-   public void testImporterDelete(boolean isAdmin, boolean isSudoing, boolean permDeleteOwned,
+   public void testDelete(boolean isAdmin, boolean isSudoing, boolean permDeleteOwned,
            String groupPermissions) throws Exception {
        /* only DeleteOwned permission is truly needed for deletion of links, dataset
         * and image (with original file) when not sudoing */
@@ -457,7 +461,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @throws Exception unexpected
      */
     @Test(dataProvider = "narrowed combined privileges cases")
-    public void testLightAdminEdit(boolean isAdmin, boolean isSudoing,
+    public void testEdit(boolean isAdmin, boolean isSudoing,
             boolean permWriteOwned, String groupPermissions) throws Exception {
         final boolean isExpectSuccess = (isAdmin && isSudoing) || (isAdmin && permWriteOwned);
         final EventContext normalUser = newUserAndGroup(groupPermissions);
@@ -522,7 +526,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @throws Exception unexpected
      */
     @Test(dataProvider = "narrowed combined privileges cases")
-    public void testImporterAsSudoChgrp(boolean isAdmin, boolean isSudoing, boolean permChgrp,
+    public void testChgrp(boolean isAdmin, boolean isSudoing, boolean permChgrp,
             String groupPermissions) throws Exception {
         /* define case where the Sudo is not being used post-import
          * to perform the chgrp action. Such cases are all expected to fail
@@ -635,7 +639,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @throws Exception unexpected
      */
     @Test(dataProvider = "narrowed combined privileges cases")
-    public void testImporterAsSudoChown(boolean isAdmin, boolean isSudoing, boolean permChown,
+    public void testChown(boolean isAdmin, boolean isSudoing, boolean permChown,
             String groupPermissions) throws Exception {
         /* define the conditions for the chown passing (when not sudoing) */
         final boolean chownPassing = isAdmin && permChown;
@@ -860,7 +864,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @throws Exception unexpected
      */
     @Test(dataProvider = "narrowed combined privileges cases")
-    public void testImporterAsNoSudoLinkInTargetGroup(boolean isAdmin, boolean permChown,
+    public void testLinkNoSudo(boolean isAdmin, boolean permChown,
             boolean permWriteOwned, String groupPermissions) throws Exception {
         /* linking should be always permitted as long as light admin is in System Group
          * and has WriteOwned permissions. Exception is Private group, where linking will
@@ -1133,7 +1137,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @throws Exception unexpected
      */
     @Test(dataProvider = "narrowed combined privileges cases")
-    public void testDataOrganizerChownAll(boolean isAdmin, boolean permChgrp, boolean permChown,
+    public void testChownAllBelongingToUser(boolean isAdmin, boolean permChgrp, boolean permChown,
             String groupPermissions) throws Exception {
         /* chown is passing in this test with isAdmin and permChown only.*/
         final boolean chownPassing = isAdmin && permChown;
