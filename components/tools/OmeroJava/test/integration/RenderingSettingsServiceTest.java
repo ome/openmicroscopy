@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import ome.formats.model.UnitsFactory;
 import omero.api.IRenderingSettingsPrx;
 import omero.api.IScriptPrx;
 import omero.api.RenderingEnginePrx;
@@ -23,6 +24,8 @@ import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.LengthI;
+import omero.model.LogicalChannel;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.Plate;
@@ -1642,9 +1645,20 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
         Image image = createBinaryImage(128, 128, 1, 1, 6);
         Pixels pixels = image.getPrimaryPixels();
         long id = pixels.getId().getValue();
+        //Do not set emission wavelength
+        pixels = factory.getPixelsService().retrievePixDescription(id);
+        List<IObject> toUpdate = new ArrayList<IObject>();
+        for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
+            LogicalChannel lc = pixels.getChannel(i).getLogicalChannel();
+            lc.unloadChannels();
+            lc.setEmissionWave(null);
+            toUpdate.add(lc);
+        }
+        factory.getUpdateService().saveAndReturnArray(toUpdate);
+
         IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
-        prx.setOriginalSettingsInSet(Image.class.getName(),
-                Arrays.asList(image.getId().getValue()));
+        prx.setOriginalSettingsInSet(Pixels.class.getName(),
+                Arrays.asList(id));
         RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
         List<ChannelBinding> channels = def.copyWaveRendering();
         for (int i = 0; i < channels.size(); i++) {
@@ -1654,7 +1668,8 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
             int b = cb.getBlue().getValue();
             int a = cb.getAlpha().getValue();
             Assert.assertEquals(a, 255);
-            switch (i%3) {
+            int v = i%3;
+            switch (v) {
                 case 0:
                     //red
                     Assert.assertEquals(r, 255);
@@ -1668,10 +1683,80 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
                     Assert.assertEquals(b, 0);
                     break;
                 case 2:
-                    //green
+                    //blue
                     Assert.assertEquals(r, 0);
                     Assert.assertEquals(g, 0);
                     Assert.assertEquals(b, 255);
+            }
+        }
+    }
+
+    /**
+     * Tests that the color assigned to the channel matches the range
+     * of the emission wavelength.
+     * First channel should be blue.
+     * Second channel should be red.
+     * Third channel should be green.
+     *
+     * By default the emission wavelength is set to 200.1. This will be mapped
+     * to blue.
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testEmissionWavelengthRange() throws Exception {
+        Image image = createBinaryImage(128, 128, 1, 1, 3);
+        Pixels pixels = image.getPrimaryPixels();
+        long id = pixels.getId().getValue();
+        //Do not set emission wavelength
+        pixels = factory.getPixelsService().retrievePixDescription(id);
+        List<IObject> toUpdate = new ArrayList<IObject>();
+        for (int i = 1; i < pixels.getSizeC().getValue(); i++) {
+            LogicalChannel lc = pixels.getChannel(i).getLogicalChannel();
+            lc.unloadChannels();
+            if (i == 1) {
+                //should be mapped to red
+                lc.setEmissionWave(new LengthI(600.1, UnitsFactory.Channel_EmissionWavelength));
+            } else {
+                //should be mapped to green
+                lc.setEmissionWave(new LengthI(510.1, UnitsFactory.Channel_EmissionWavelength));
+            }
+            
+            toUpdate.add(lc);
+        }
+        factory.getUpdateService().saveAndReturnArray(toUpdate);
+
+        IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+        prx.setOriginalSettingsInSet(Pixels.class.getName(),
+                Arrays.asList(id));
+        RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+        List<ChannelBinding> channels = def.copyWaveRendering();
+        for (int i = 0; i < channels.size(); i++) {
+            ChannelBinding cb = channels.get(i);
+            int r = cb.getRed().getValue();
+            int g = cb.getGreen().getValue();
+            int b = cb.getBlue().getValue();
+            int a = cb.getAlpha().getValue();
+            Assert.assertEquals(a, 255);
+            int v = i%3;
+            switch (v) {
+                case 0:
+                    //should be mapped to blue
+                    Assert.assertEquals(r, 0);
+                    Assert.assertEquals(g, 0);
+                    Assert.assertEquals(b, 255);
+                    break;
+                case 1:
+                    //should be mapped to red
+                    Assert.assertEquals(r, 255);
+                    Assert.assertEquals(g, 0);
+                    Assert.assertEquals(b, 0);
+                    break;
+                case 2:
+                    //should be mapped to green
+                    Assert.assertEquals(r, 0);
+                    Assert.assertEquals(g, 255);
+                    Assert.assertEquals(b, 0);
             }
         }
     }
