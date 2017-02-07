@@ -24,6 +24,7 @@ from omero.rtypes import unwrap
 
 from api_marshal import marshal_objects
 from copy import deepcopy
+from django.conf import settings
 
 
 def query_objects(conn, object_type,
@@ -78,6 +79,7 @@ def query_objects(conn, object_type,
         meta['offset'] = opts['offset']
     if 'limit' in opts:
         meta['limit'] = opts['limit']
+    meta['maxLimit'] = settings.MAX_PAGE
     meta['totalCount'] = result[0][0].val
 
     marshalled = marshal_objects(objects, extras=extras, normalize=normalize)

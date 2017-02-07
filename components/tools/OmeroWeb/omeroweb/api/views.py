@@ -261,7 +261,7 @@ class ObjectsView(ApiView):
 
         # orphaned and child_count not used by every subclass
         opts = {'offset': offset,
-                'limit': limit,
+                'limit': min(limit, settings.MAX_PAGE),
                 'owner': owner,
                 'orphaned': orphaned,
                 'child_count': child_count,
