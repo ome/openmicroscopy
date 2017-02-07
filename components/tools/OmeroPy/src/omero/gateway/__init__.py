@@ -5814,6 +5814,26 @@ class _ScreenWrapper (BlitzObjectWrapper):
     CHILD_WRAPPER_CLASS = 'PlateWrapper'
     PARENT_WRAPPER_CLASS = None
 
+    @classmethod
+    def _getQueryString(cls, opts=None):
+        """
+        Extend base query to handle filtering of Screens by Plate.
+        Returns a tuple of (query, clauses, params).
+        Supported opts: 'plate': <plate_id> to filter by Plate
+
+        :param opts:        Dictionary of optional parameters.
+        :return:            Tuple of string, list, ParametersI
+        """
+        query, clauses, params = super(
+            _ScreenWrapper, cls)._getQueryString(opts)
+        if opts is None:
+            opts = {}
+        if 'plate' in opts:
+            query += ' join obj.plateLinks plateLinks'
+            clauses.append('plateLinks.child.id = :plate_id')
+            params.add('plate_id', rlong(opts['plate']))
+        return (query, clauses, params)
+
 ScreenWrapper = _ScreenWrapper
 
 
