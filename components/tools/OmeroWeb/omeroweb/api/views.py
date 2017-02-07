@@ -343,6 +343,10 @@ class ProjectsView(ObjectsView):
         """Add extra parameters to the opts dict."""
         opts = super(ProjectsView, self).get_opts(request, **kwargs)
         opts['order_by'] = 'lower(obj.name)'
+        # Filter Projects by child 'dataset'
+        dataset = getIntOrDefault(request, 'dataset', None)
+        if dataset is not None:
+            opts['dataset'] = dataset
         return opts
 
     # To add a url to marshalled object add to this dict
