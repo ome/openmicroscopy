@@ -224,6 +224,8 @@ class DatasetView(ObjectView):
     urls = {
         'url:images': {'name': 'api_dataset_images',
                        'kwargs': {'dataset_id': 'OBJECT_ID'}},
+        'url:projects': {'name': 'api_dataset_projects',
+                         'kwargs': {'dataset_id': 'OBJECT_ID'}},
     }
 
 
@@ -233,6 +235,12 @@ class ImageView(ObjectView):
     OMERO_TYPE = 'Image'
 
     CAN_DELETE = False
+
+    # Urls to add to marshalled object. See ProjectsView for more details
+    urls = {
+        'url:datasets': {'name': 'api_image_datasets',
+                         'kwargs': {'image_id': 'OBJECT_ID'}},
+    }
 
     def get_opts(self, request):
         """Add support for load_pixels and load_channels."""
@@ -343,10 +351,14 @@ class ProjectsView(ObjectsView):
         """Add extra parameters to the opts dict."""
         opts = super(ProjectsView, self).get_opts(request, **kwargs)
         opts['order_by'] = 'lower(obj.name)'
-        # Filter Projects by child 'dataset'
-        dataset = getIntOrDefault(request, 'dataset', None)
-        if dataset is not None:
-            opts['dataset'] = dataset
+        # at /datasets/:dataset_id/projects/ we have 'dataset_id' in kwargs
+        if 'dataset_id' in kwargs:
+            opts['dataset'] = long(kwargs['dataset_id'])
+        else:
+            # Filter Projects by child 'dataset'
+            dataset = getIntOrDefault(request, 'dataset', None)
+            if dataset is not None:
+                opts['dataset'] = dataset
         return opts
 
     # To add a url to marshalled object add to this dict
@@ -379,9 +391,12 @@ class DatasetsView(ObjectsView):
             if project is not None:
                 opts['project'] = project
         # Filter Datasets by child 'image'
-        image = getIntOrDefault(request, 'image', None)
-        if image is not None:
-            opts['image'] = image
+        if 'image_id' in kwargs:
+            opts['image'] = long(kwargs['image_id'])
+        else:
+            image = getIntOrDefault(request, 'image', None)
+            if image is not None:
+                opts['image'] = image
         return opts
 
     # Urls to add to marshalled object. See ProjectsView for more details
@@ -390,6 +405,8 @@ class DatasetsView(ObjectsView):
                        'kwargs': {'dataset_id': 'OBJECT_ID'}},
         'url:dataset': {'name': 'api_dataset',
                         'kwargs': {'object_id': 'OBJECT_ID'}},
+        'url:projects': {'name': 'api_dataset_projects',
+                         'kwargs': {'dataset_id': 'OBJECT_ID'}},
     }
 
 
@@ -450,6 +467,8 @@ class ImagesView(ObjectsView):
     urls = {
         'url:image': {'name': 'api_image',
                       'kwargs': {'object_id': 'OBJECT_ID'}},
+        'url:datasets': {'name': 'api_image_datasets',
+                         'kwargs': {'image_id': 'OBJECT_ID'}},
     }
 
     def get_opts(self, request, **kwargs):

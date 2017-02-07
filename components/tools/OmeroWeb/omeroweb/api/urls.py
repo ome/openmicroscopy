@@ -122,12 +122,30 @@ api_dataset_images = url(
 GET Images in Dataset, using omero-marshal to generate json
 """
 
+api_dataset_projects = url(
+    r'^v(?P<api_version>%s)/m/datasets/'
+    '(?P<dataset_id>[0-9]+)/projects/$' % versions,
+    views.ProjectsView.as_view(),
+    name='api_dataset_projects')
+"""
+GET Projects in Dataset, using omero-marshal to generate json
+"""
+
 api_image = url(
     r'^v(?P<api_version>%s)/m/images/(?P<object_id>[0-9]+)/$' % versions,
     views.ImageView.as_view(),
     name='api_image')
 """
 Image url to GET or DELETE a single Image
+"""
+
+api_image_datasets = url(
+    r'^v(?P<api_version>%s)/m/images/'
+    '(?P<image_id>[0-9]+)/datasets/$' % versions,
+    views.DatasetsView.as_view(),
+    name='api_image_datasets')
+"""
+GET Datasets parents of Image, using omero-marshal to generate json
 """
 
 api_screen = url(
@@ -208,7 +226,9 @@ urlpatterns = patterns(
     api_dataset,
     api_images,
     api_dataset_images,
+    api_dataset_projects,
     api_image,
+    api_image_datasets,
     api_screen,
     api_screens,
     api_plates,
