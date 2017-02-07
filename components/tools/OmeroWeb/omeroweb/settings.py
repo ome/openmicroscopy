@@ -639,7 +639,12 @@ CUSTOM_SETTINGS_MAPPINGS = {
          200,
          int,
          ("Number of images displayed within a dataset or 'orphaned'"
-          " container to prevent from loading them all at once.")],
+          " container or default number of items returned from json api.")],
+    "omero.web.max_page_size":
+        ["MAX_PAGE",
+         500,
+         int,
+         ("Maximum number of items returned from json api.")],
     "omero.web.ui.top_links":
         ["TOP_LINKS",
          ('['
