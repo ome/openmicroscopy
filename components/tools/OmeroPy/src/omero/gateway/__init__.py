@@ -5732,11 +5732,17 @@ class _DatasetWrapper (BlitzObjectWrapper):
         """
         query, clauses, params = super(
             _DatasetWrapper, cls)._getQueryString(opts)
-        if opts is not None and 'project' in opts:
+        if opts is None:
+            opts = {}
+        if 'project' in opts:
             query += ' join obj.projectLinks plink'
             clauses.append('plink.parent.id = :pid')
             params.add('pid', rlong(opts['project']))
-        if opts is not None and opts.get('orphaned'):
+        if 'image' in opts:
+            query += ' join obj.imageLinks imagelinks'
+            clauses.append('imagelinks.child.id = :iid')
+            params.add('iid', rlong(opts['image']))
+        if opts.get('orphaned'):
             clauses.append(
                 """
                 not exists (
