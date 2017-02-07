@@ -272,7 +272,9 @@ class PlateView(ObjectView):
     # Urls to add to marshalled object. See ProjectsView for more details
     urls = {
         'url:wells': {'name': 'api_plate_wells',
-                      'kwargs': {'plate_id': 'OBJECT_ID'}}
+                      'kwargs': {'plate_id': 'OBJECT_ID'}},
+        'url:screens': {'name': 'api_plate_screens',
+                        'kwargs': {'plate_id': 'OBJECT_ID'}},
     }
 
 
@@ -419,19 +421,6 @@ class ScreensView(ObjectsView):
         """Add extra parameters to the opts dict."""
         opts = super(ScreensView, self).get_opts(request, **kwargs)
         opts['order_by'] = 'lower(obj.name)'
-        return opts
-
-    # Urls to add to marshalled object. See ProjectsView for more details
-    urls = {
-        'url:plates': {'name': 'api_screen_plates',
-                       'kwargs': {'screen_id': 'OBJECT_ID'}},
-        'url:screen': {'name': 'api_screen',
-                       'kwargs': {'object_id': 'OBJECT_ID'}}
-    }
-
-    def get_opts(self, request, **kwargs):
-        """Add filtering by 'plate' to the opts dict."""
-        opts = super(ScreensView, self).get_opts(request, **kwargs)
         # at /plate/:plate_id/screens/ we have 'plate_id' in kwargs
         if 'plate_id' in kwargs:
             opts['plate'] = long(kwargs['plate_id'])
@@ -441,6 +430,14 @@ class ScreensView(ObjectsView):
             if plate is not None:
                 opts['plate'] = plate
         return opts
+
+    # Urls to add to marshalled object. See ProjectsView for more details
+    urls = {
+        'url:plates': {'name': 'api_screen_plates',
+                       'kwargs': {'screen_id': 'OBJECT_ID'}},
+        'url:screen': {'name': 'api_screen',
+                       'kwargs': {'object_id': 'OBJECT_ID'}}
+    }
 
 
 class PlatesView(ObjectsView):
@@ -467,7 +464,9 @@ class PlatesView(ObjectsView):
         'url:wells': {'name': 'api_plate_wells',
                       'kwargs': {'plate_id': 'OBJECT_ID'}},
         'url:plate': {'name': 'api_plate',
-                      'kwargs': {'object_id': 'OBJECT_ID'}}
+                      'kwargs': {'object_id': 'OBJECT_ID'}},
+        'url:screens': {'name': 'api_plate_screens',
+                        'kwargs': {'plate_id': 'OBJECT_ID'}},
     }
 
 
