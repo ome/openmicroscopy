@@ -29,6 +29,7 @@ from omero.model import MapAnnotationI, NamedValue
 from omero.rtypes import unwrap, wrap
 from omero.util.metadata_mapannotations import (
     CanonicalMapAnnotation, MapAnnotationManager)
+import pytest
 
 
 def assert_equal_map_value(mva, mvb):
@@ -83,6 +84,16 @@ class TestMapAnnotationManager(ITest):
         assert cma2.parents == set()
         mv2 = cma2.get_mapann().getMapValue()
         assert_equal_map_value(mv2, [NamedValue('a', '2')])
+
+    def test_add_from_namespace_query_duplicate(self):
+        ns1, ns3, mids = self.create_mas()
+        pks = ['a']
+        mgr = MapAnnotationManager()
+        mgr.add_from_namespace_query(self.sf, ns1, pks)
+        with pytest.raises(Exception) as exc_info:
+            mgr.add_from_namespace_query(self.sf, ns1, pks)
+        assert exc_info.value.message.startswith(
+            'Duplicate MapAnnotation primary key')
 
     def test_update_existing_mapann(self):
         ns1, ns3, mids = self.create_mas()
