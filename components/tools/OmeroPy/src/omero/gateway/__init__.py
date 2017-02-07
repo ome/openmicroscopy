@@ -5725,6 +5725,7 @@ class _DatasetWrapper (BlitzObjectWrapper):
         Extend base query to handle filtering of Datasets by Projects.
         Returns a tuple of (query, clauses, params).
         Supported opts: 'project': <project_id> to filter by Project
+                        'image': <image_id> to filter by child Image
                         'orphaned': <bool>. Filter by 'not in Project'
 
         :param opts:        Dictionary of optional parameters.
@@ -5779,6 +5780,26 @@ class _ProjectWrapper (BlitzObjectWrapper):
     LINK_CLASS = "ProjectDatasetLink"
     CHILD_WRAPPER_CLASS = 'DatasetWrapper'
     PARENT_WRAPPER_CLASS = None
+
+    @classmethod
+    def _getQueryString(cls, opts=None):
+        """
+        Extend base query to handle filtering of Projects by Datasets.
+        Returns a tuple of (query, clauses, params).
+        Supported opts: 'dataset': <dataset_id> to filter by Dataset
+
+        :param opts:        Dictionary of optional parameters.
+        :return:            Tuple of string, list, ParametersI
+        """
+        query, clauses, params = super(
+            _ProjectWrapper, cls)._getQueryString(opts)
+        if opts is None:
+            opts = {}
+        if 'dataset' in opts:
+            query += ' join obj.datasetLinks datasetLinks'
+            clauses.append('datasetLinks.child.id = :dataset_id')
+            params.add('dataset_id', rlong(opts['dataset']))
+        return (query, clauses, params)
 
 ProjectWrapper = _ProjectWrapper
 
