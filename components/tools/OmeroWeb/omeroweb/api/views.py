@@ -374,6 +374,10 @@ class DatasetsView(ObjectsView):
             project = getIntOrDefault(request, 'project', None)
             if project is not None:
                 opts['project'] = project
+        # Filter Datasets by child 'image'
+        image = getIntOrDefault(request, 'image', None)
+        if image is not None:
+            opts['image'] = image
         return opts
 
     # Urls to add to marshalled object. See ProjectsView for more details
