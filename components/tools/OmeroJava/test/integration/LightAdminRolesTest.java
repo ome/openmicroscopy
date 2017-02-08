@@ -516,9 +516,14 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * Test that an ImporterAs can
      * chgrp on behalf of another user solely with <tt>Sudo</tt> privilege
      * only when this user is a member of both original and target groups
-     * Also test that ImporterAs can, having the <tt>Chgrp</tt>
+     * Also test that light admin can, having the <tt>Chgrp</tt>
      * privilege move another user's data into another group whether the
      * owner of the data is member of target group or not.
+     * Also tests the ability of the <tt>Chgrp</tt> privilege and chgrp command
+     * to sever necessary links for performing the chgrp. This is achieved by
+     * having the image which is getting moved into a different group in a dataset
+     * in the original group (the chgrp has to sever the DatasetImageLink to perform
+     * the move (chgrp).
      * @throws Exception unexpected
      */
     @Test(dataProvider = "narrowed combined privileges cases")
@@ -537,10 +542,30 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         final long anotherGroupId = newUserAndGroup(groupPermissions).groupId;
         final long normalUsersOtherGroupId = newGroupAddUser(groupPermissions, normalUser.userId, false).getId().getValue();
+        /* create a Dataset as the normalUser and import into it */
+        loginUser(normalUser);
+        Dataset dat = mmFactory.simpleDataset();
+        Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
+        final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
+        final List<List<RType>> result = iQuery.projection(
+                "SELECT id FROM OriginalFile WHERE name = :name ORDER BY id DESC LIMIT 1",
+                new ParametersI().add("name", imageName));
+        final long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
+        List<String> path = Collections.singletonList(fakeImageFile.getPath());
+        importFileset(path, path.size(), sentDat);
+        OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
+                "FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
+                new ParametersI().addId(previousId).add("name", imageName));
+        Assert.assertEquals(remoteFile.getDetails().getOwner().getId().getValue(), normalUser.userId);
+        Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+        Image image = (Image) iQuery.findByQuery(
+                "FROM Image WHERE fileset IN "
+                + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
+                new ParametersI().addId(remoteFile.getId()));
         /* set up the light admin's permissions for this test */
         ArrayList <String> permissions = new ArrayList <String>();
         permissions.add(AdminPrivilegeSudo.value);
-        if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);;
+        if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
         try {
@@ -551,33 +576,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             }catch (SecurityViolation sv) {
                 /* sudo expected to fail if the user is not in system group */
             }
-        /* import an image for the normalUser into the normalUser's default group */
-        if (!isAdmin) return;
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
-        final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
-        final List<List<RType>> result = iQuery.projection(
-                "SELECT id FROM OriginalFile WHERE name = :name ORDER BY id DESC LIMIT 1",
-                new ParametersI().add("name", imageName));
-        final long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
-        try {
-            List<String> path = Collections.singletonList(fakeImageFile.getPath());
-            importFileset(path);
-            Assert.assertTrue(isAdmin);
-        } catch (ServerError se) {
-            Assert.assertFalse(isAdmin);
-        }
-        OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
-                "FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
-                new ParametersI().addId(previousId).add("name", imageName));
-        if (isAdmin) {
-            Assert.assertEquals(remoteFile.getDetails().getOwner().getId().getValue(), normalUser.userId);
-            Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), normalUser.groupId);
-        }
-        Image image = (Image) iQuery.findByQuery(
-                "FROM Image WHERE fileset IN "
-                + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
-                new ParametersI().addId(remoteFile.getId()));
-        /* take care of post-import workflows which do not use sudo */
+        if (!isAdmin) return; /* do not further test cases where the light admin is not an admin */
+        /* take care of workflows which do not use sudo */
         if (!isSudoing) {
             loginUser(lightAdmin);
         }
