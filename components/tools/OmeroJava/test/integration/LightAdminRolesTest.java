@@ -632,6 +632,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * chown on behalf of another user if sudoed in as that user.
      * Chown will be successful only when not sudoed and having
      * the <tt>Chown</tt> privilege.
+     * Test is in case of private group severing the link between the Dataset and Image.
+     * For this, only the Chown permissions are sufficient, no other permissions are necessary.
      * @throws Exception unexpected
      */
     @Test(dataProvider = "narrowed combined privileges cases")
@@ -639,9 +641,28 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             String groupPermissions) throws Exception {
         /* define the conditions for the chown passing (when not sudoing) */
         final boolean chownPassing = isAdmin && permChown;
-        if (!isAdmin) return;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         final long anotherUserId = newUserAndGroup(groupPermissions).userId;
+        /* create a Dataset as the normalUser and import into it */
+        loginUser(normalUser);
+        Dataset dat = mmFactory.simpleDataset();
+        Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
+        final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
+        final List<List<RType>> result = iQuery.projection(
+                "SELECT id FROM OriginalFile WHERE name = :name ORDER BY id DESC LIMIT 1",
+                new ParametersI().add("name", imageName));
+        final long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
+        List<String> path = Collections.singletonList(fakeImageFile.getPath());
+        importFileset(path, path.size(), sentDat);
+        OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
+                "FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
+                new ParametersI().addId(previousId).add("name", imageName));
+        Assert.assertEquals(remoteFile.getDetails().getOwner().getId().getValue(), normalUser.userId);
+        Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+        Image image = (Image) iQuery.findByQuery(
+                "FROM Image WHERE fileset IN "
+                + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
+                new ParametersI().addId(remoteFile.getId()));
         /* set up the basic permissions for this test */
         ArrayList <String> permissions = new ArrayList <String>();
         permissions.add(AdminPrivilegeSudo.value);
@@ -657,34 +678,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             }catch (SecurityViolation sv) {
                 /* sudo expected to fail if the user is not in system group */
         }
-
-        /* import an image for the normalUser into the normalUser's default group */
-        if (!isAdmin) return;
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
-        final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
-        final List<List<RType>> result = iQuery.projection(
-                "SELECT id FROM OriginalFile WHERE name = :name ORDER BY id DESC LIMIT 1",
-                new ParametersI().add("name", imageName));
-        final long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
-        try {
-            List<String> path = Collections.singletonList(fakeImageFile.getPath());
-            importFileset(path);
-            Assert.assertTrue(isAdmin);
-        } catch (ServerError se) {
-                Assert.assertFalse(isAdmin);
-        }
-        OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
-                "FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
-                new ParametersI().addId(previousId).add("name", imageName));
-        if (isAdmin) {
-            Assert.assertEquals(remoteFile.getDetails().getOwner().getId().getValue(), normalUser.userId);
-            Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), normalUser.groupId);
-        }
-        Image image = (Image) iQuery.findByQuery(
-                "FROM Image WHERE fileset IN "
-                + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
-                new ParametersI().addId(remoteFile.getId()));
-        /* stop sudoing for some test cases by logging in as light admin */
+        if (!isAdmin) return; /* do not further test cases where the light admin is not an admin */
+        /* take care of workflows which do not use sudo */
         if (!isSudoing) {
             loginUser(lightAdmin);
         }
