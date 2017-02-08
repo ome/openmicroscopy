@@ -306,8 +306,9 @@ public class ChannelProcessor implements ModelProcessor {
    */
   private void setDefaultChannelColor(Channel channel, int index) {
     //not been able to set the color
+    int value = index % 3;
     int[] defaultColor;
-    switch (index) {
+    switch (value) {
     case 0: //red
       defaultColor = ColorsFactory.newRedColor();
       break;

@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  *   Copyright 2006-2010 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -13,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import ome.formats.model.UnitsFactory;
 import omero.api.IRenderingSettingsPrx;
 import omero.api.IScriptPrx;
 import omero.api.RenderingEnginePrx;
@@ -25,6 +24,8 @@ import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.LengthI;
+import omero.model.LogicalChannel;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.Plate;
@@ -1631,5 +1632,228 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
             l = cb.copySpatialDomainEnhancement();
             Assert.assertEquals(l.size(), 0);
         }
+    }
+
+    /**
+     * Tests to the default color assigned.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testDefaultColor() throws Exception {
+        Image image = createBinaryImage(128, 128, 1, 1, 6);
+        Pixels pixels = image.getPrimaryPixels();
+        long id = pixels.getId().getValue();
+        //Do not set emission wavelength
+        pixels = factory.getPixelsService().retrievePixDescription(id);
+        List<IObject> toUpdate = new ArrayList<IObject>();
+        for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
+            LogicalChannel lc = pixels.getChannel(i).getLogicalChannel();
+            lc.unloadChannels();
+            lc.setEmissionWave(null);
+            toUpdate.add(lc);
+        }
+        factory.getUpdateService().saveAndReturnArray(toUpdate);
+
+        IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+        prx.setOriginalSettingsInSet(Pixels.class.getName(),
+                Arrays.asList(id));
+        RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+        List<ChannelBinding> channels = def.copyWaveRendering();
+        for (int i = 0; i < channels.size(); i++) {
+            ChannelBinding cb = channels.get(i);
+            int r = cb.getRed().getValue();
+            int g = cb.getGreen().getValue();
+            int b = cb.getBlue().getValue();
+            int a = cb.getAlpha().getValue();
+            Assert.assertEquals(a, 255);
+            int v = i%3;
+            switch (v) {
+                case 0:
+                    //red
+                    Assert.assertEquals(r, 255);
+                    Assert.assertEquals(g, 0);
+                    Assert.assertEquals(b, 0);
+                    break;
+                case 1:
+                    //green
+                    Assert.assertEquals(r, 0);
+                    Assert.assertEquals(g, 255);
+                    Assert.assertEquals(b, 0);
+                    break;
+                case 2:
+                    //blue
+                    Assert.assertEquals(r, 0);
+                    Assert.assertEquals(g, 0);
+                    Assert.assertEquals(b, 255);
+            }
+        }
+    }
+
+    /**
+     * Tests that the color assigned to the channel matches the range
+     * of the emission wavelength.
+     * First channel should be blue.
+     * Second channel should be red.
+     * Third channel should be green.
+     *
+     * By default the emission wavelength is set to 200.1. This will be mapped
+     * to blue.
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testEmissionWavelengthRange() throws Exception {
+        Image image = createBinaryImage(128, 128, 1, 1, 3);
+        Pixels pixels = image.getPrimaryPixels();
+        long id = pixels.getId().getValue();
+        //Do not set emission wavelength
+        pixels = factory.getPixelsService().retrievePixDescription(id);
+        List<IObject> toUpdate = new ArrayList<IObject>();
+        for (int i = 1; i < pixels.getSizeC().getValue(); i++) {
+            LogicalChannel lc = pixels.getChannel(i).getLogicalChannel();
+            lc.unloadChannels();
+            if (i == 1) {
+                //should be mapped to red
+                lc.setEmissionWave(new LengthI(600.1, UnitsFactory.Channel_EmissionWavelength));
+            } else {
+                //should be mapped to green
+                lc.setEmissionWave(new LengthI(510.1, UnitsFactory.Channel_EmissionWavelength));
+            }
+            
+            toUpdate.add(lc);
+        }
+        factory.getUpdateService().saveAndReturnArray(toUpdate);
+
+        IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+        prx.setOriginalSettingsInSet(Pixels.class.getName(),
+                Arrays.asList(id));
+        RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+        List<ChannelBinding> channels = def.copyWaveRendering();
+        for (int i = 0; i < channels.size(); i++) {
+            ChannelBinding cb = channels.get(i);
+            int r = cb.getRed().getValue();
+            int g = cb.getGreen().getValue();
+            int b = cb.getBlue().getValue();
+            int a = cb.getAlpha().getValue();
+            Assert.assertEquals(a, 255);
+            int v = i%3;
+            switch (v) {
+                case 0:
+                    //should be mapped to blue
+                    Assert.assertEquals(r, 0);
+                    Assert.assertEquals(g, 0);
+                    Assert.assertEquals(b, 255);
+                    break;
+                case 1:
+                    //should be mapped to red
+                    Assert.assertEquals(r, 255);
+                    Assert.assertEquals(g, 0);
+                    Assert.assertEquals(b, 0);
+                    break;
+                case 2:
+                    //should be mapped to green
+                    Assert.assertEquals(r, 0);
+                    Assert.assertEquals(g, 255);
+                    Assert.assertEquals(b, 0);
+            }
+        }
+    }
+
+    /**
+     * Tests to the default color assigned.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testColorSetAtImport() throws Exception {
+        //This creates an image with a wavelength that will set the color to
+        //blue
+        Image image = createBinaryImage(128, 128, 1, 1, 1);
+        Pixels pixels = image.getPrimaryPixels();
+        long id = pixels.getId().getValue();
+        pixels = factory.getPixelsService().retrievePixDescription(id);
+        Channel channel = pixels.getChannel(0);
+        //set the color as red
+        channel.setRed(omero.rtypes.rint(255));
+        channel.setGreen(omero.rtypes.rint(0));
+        channel.setBlue(omero.rtypes.rint(0));
+        channel.setAlpha(omero.rtypes.rint(255));
+        factory.getUpdateService().saveAndReturnObject(channel);
+        //now set the rendering settings.
+        IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+        prx.setOriginalSettingsInSet(Pixels.class.getName(),
+                Arrays.asList(id));
+        RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+        List<ChannelBinding> channels = def.copyWaveRendering();
+        ChannelBinding cb = channels.get(0);
+        //color should be red
+        int r = cb.getRed().getValue();
+        int g = cb.getGreen().getValue();
+        int b = cb.getBlue().getValue();
+        int a = cb.getAlpha().getValue();
+        Assert.assertEquals(a, 255);
+        Assert.assertEquals(r, 255);
+        Assert.assertEquals(g, 0);
+        Assert.assertEquals(b, 0);
+    }
+
+    /**
+     * Tests to the default color assigned.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testColorSetAtImportReset() throws Exception {
+        //This creates an image with a wavelength that will set the color to
+        //blue
+        Image image = createBinaryImage(128, 128, 1, 1, 1);
+        Pixels pixels = image.getPrimaryPixels();
+        long id = pixels.getId().getValue();
+        pixels = factory.getPixelsService().retrievePixDescription(id);
+        Channel channel = pixels.getChannel(0);
+        //set the color as red
+        channel.setRed(omero.rtypes.rint(255));
+        channel.setGreen(omero.rtypes.rint(0));
+        channel.setBlue(omero.rtypes.rint(0));
+        channel.setAlpha(omero.rtypes.rint(255));
+        factory.getUpdateService().saveAndReturnObject(channel);
+        //now set the rendering settings.
+        IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+        prx.setOriginalSettingsInSet(Pixels.class.getName(),
+                Arrays.asList(id));
+        RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+        List<ChannelBinding> channels = def.copyWaveRendering();
+        ChannelBinding cb = channels.get(0);
+        cb.setGreen(omero.rtypes.rint(255));
+        cb.unloadCollections();
+        factory.getUpdateService().saveAndReturnObject(cb);
+        def = factory.getPixelsService().retrieveRndSettings(id);
+        channels = def.copyWaveRendering();
+        cb = channels.get(0);
+        int r = cb.getRed().getValue();
+        int g = cb.getGreen().getValue();
+        int b = cb.getBlue().getValue();
+        int a = cb.getAlpha().getValue();
+        Assert.assertEquals(a, 255);
+        Assert.assertEquals(r, 255);
+        Assert.assertEquals(g, 255);
+        Assert.assertEquals(b, 0);
+        prx.resetDefaultsForPixels(id);
+        //should be back to red
+        def = factory.getPixelsService().retrieveRndSettings(id);
+        channels = def.copyWaveRendering();
+        cb = channels.get(0);
+        r = cb.getRed().getValue();
+        g = cb.getGreen().getValue();
+        b = cb.getBlue().getValue();
+        a = cb.getAlpha().getValue();
+        Assert.assertEquals(a, 255);
+        Assert.assertEquals(r, 255);
+        Assert.assertEquals(g, 0);
+        Assert.assertEquals(b, 0);
     }
 }

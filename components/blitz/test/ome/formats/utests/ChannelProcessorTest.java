@@ -33,6 +33,7 @@ import ome.xml.model.enums.LaserType;
 import ome.xml.model.primitives.PercentFraction;
 import ome.xml.model.primitives.PositiveInteger;
 import omero.api.ServiceFactoryPrx;
+import omero.model.Channel;
 import omero.model.LengthI;
 import omero.model.enums.UnitsLength;
 
@@ -105,7 +106,7 @@ public class ChannelProcessorTest
         // Need to populate at least one pixels and image field.
         store.setImageName("Image", IMAGE_INDEX);
         store.setPixelsSizeX(new PositiveInteger(1), IMAGE_INDEX);
-        store.setPixelsSizeC(new PositiveInteger(2), IMAGE_INDEX);
+        store.setPixelsSizeC(new PositiveInteger(6), IMAGE_INDEX);
 
         // First Laser, First LightSourceSettings
 		store.setLaserID(
@@ -182,48 +183,94 @@ public class ChannelProcessorTest
         CHANNEL_INDEX + 1, CHANNEL_INDEX + 1);
 	}
 
-	/** Tests the color of the base channel.  */
-	@Test
-	public void testBaseDataChannelOne()
-	{
-		ChannelProcessor processor = new ChannelProcessor();
-		processor.process(store);
-		ChannelData data = ChannelData.fromObjectContainerStore(
-				store, IMAGE_INDEX, CHANNEL_INDEX);
-		Assert.assertNotNull(data.getChannel());
-		Assert.assertNotNull(data.getChannel().getRed());
-		Assert.assertEquals(data.getChannel().getRed().getValue(), 255);
-		Assert.assertNotNull(data.getChannel().getGreen());
-		Assert.assertEquals(data.getChannel().getGreen().getValue(), 0);
-		Assert.assertNotNull(data.getChannel().getBlue());
-		Assert.assertEquals(data.getChannel().getBlue().getValue(), 0);
-		Assert.assertNotNull(data.getChannel().getAlpha());
-		Assert.assertEquals(data.getChannel().getAlpha().getValue(), 255);
-		Assert.assertNotNull(data.getLogicalChannel());
-		Assert.assertNull(data.getLogicalChannel().getName());
-	}
+    private void checkChannelColor(Channel channel, int r, int g, int b)
+    {
+        Assert.assertNotNull(channel.getRed());
+        Assert.assertEquals(channel.getRed().getValue(), r);
+        Assert.assertNotNull(channel.getGreen());
+        Assert.assertEquals(channel.getGreen().getValue(), g);
+        Assert.assertNotNull(channel.getBlue());
+        Assert.assertEquals(channel.getBlue().getValue(), b);
+        Assert.assertNotNull(channel.getAlpha());
+        Assert.assertEquals(channel.getAlpha().getValue(), 255);
+    }
+
+    /** Tests the color of the base channel.*/
+    @Test
+    public void testBaseDataChannelOne()
+    {
+        ChannelProcessor processor = new ChannelProcessor();
+        processor.process(store);
+        ChannelData data = ChannelData.fromObjectContainerStore(
+                store, IMAGE_INDEX, CHANNEL_INDEX);
+        Assert.assertNotNull(data.getChannel());
+        checkChannelColor(data.getChannel(), 255, 0, 0);
+        Assert.assertNotNull(data.getLogicalChannel());
+        Assert.assertNull(data.getLogicalChannel().getName());
+    }
 
 
-	/** Tests the color of the base channel two.  */
-	@Test
-	public void testBaseDataChannelTwo()
-	{
-		ChannelProcessor processor = new ChannelProcessor();
-		processor.process(store);
-		ChannelData data = ChannelData.fromObjectContainerStore(
-				store, IMAGE_INDEX, CHANNEL_INDEX + 1);
-		Assert.assertNotNull(data.getChannel());
-		Assert.assertNotNull(data.getChannel().getRed());
-		Assert.assertEquals(data.getChannel().getRed().getValue(), 0);
-		Assert.assertNotNull(data.getChannel().getGreen());
-		Assert.assertEquals(data.getChannel().getGreen().getValue(), 255);
-		Assert.assertNotNull(data.getChannel().getBlue());
-		Assert.assertEquals(data.getChannel().getBlue().getValue(), 0);
-		Assert.assertNotNull(data.getChannel().getAlpha());
-		Assert.assertEquals(data.getChannel().getAlpha().getValue(), 255);
-		Assert.assertNotNull(data.getLogicalChannel());
-		Assert.assertNull(data.getLogicalChannel().getName());
-	}
+    /** Tests the color of the base channel two.*/
+    @Test
+    public void testBaseDataChannelTwo()
+    {
+        ChannelProcessor processor = new ChannelProcessor();
+        processor.process(store);
+        ChannelData data = ChannelData.fromObjectContainerStore(
+                store, IMAGE_INDEX, CHANNEL_INDEX + 1);
+        Assert.assertNotNull(data.getChannel());
+        checkChannelColor(data.getChannel(), 0, 255, 0);
+        Assert.assertNotNull(data.getLogicalChannel());
+        Assert.assertNull(data.getLogicalChannel().getName());
+    }
+
+    /** Tests the color of the base channel three.*/
+    @Test
+    public void testBaseDataChannelThree()
+    {
+        ChannelProcessor processor = new ChannelProcessor();
+        processor.process(store);
+        ChannelData data = ChannelData.fromObjectContainerStore(
+                store, IMAGE_INDEX, CHANNEL_INDEX + 2);
+        Assert.assertNotNull(data.getChannel());
+        checkChannelColor(data.getChannel(), 0, 0, 255);
+    }
+
+    /** Tests the color of the base channel four.*/
+    @Test
+    public void testBaseDataChannelFour()
+    {
+        ChannelProcessor processor = new ChannelProcessor();
+        processor.process(store);
+        ChannelData data = ChannelData.fromObjectContainerStore(
+                store, IMAGE_INDEX, CHANNEL_INDEX + 3);
+        Assert.assertNotNull(data.getChannel());
+        checkChannelColor(data.getChannel(), 255, 0, 0);
+    }
+
+    /** Tests the color of the base channel five.*/
+    @Test
+    public void testBaseDataChannelFive()
+    {
+        ChannelProcessor processor = new ChannelProcessor();
+        processor.process(store);
+        ChannelData data = ChannelData.fromObjectContainerStore(
+                store, IMAGE_INDEX, CHANNEL_INDEX + 4);
+        Assert.assertNotNull(data.getChannel());
+        checkChannelColor(data.getChannel(), 0, 255, 0);
+    }
+
+    /** Tests the color of the base channel six.*/
+    @Test
+    public void testBaseDataChannelSix()
+    {
+        ChannelProcessor processor = new ChannelProcessor();
+        processor.process(store);
+        ChannelData data = ChannelData.fromObjectContainerStore(
+                store, IMAGE_INDEX, CHANNEL_INDEX + 5);
+        Assert.assertNotNull(data.getChannel());
+        checkChannelColor(data.getChannel(), 0, 0, 255);
+    }
 
 	/** Tests a graphic image. */
 	@Test
