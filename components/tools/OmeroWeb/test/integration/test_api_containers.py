@@ -538,3 +538,63 @@ class TestContainers(IWebTest):
         rsp = _get_response_json(client, images_json[0]['url:image'], {})
         assert_objects(conn, [rsp['data']], images[0:1], dtype='Image',
                        opts={'load_channels': True})
+
+    def test_pdi_parent_urls(self, user1, project_datasets):
+        """Test browsing via urls in json /api/image -> project."""
+        conn = get_connection(user1)
+        user_name = conn.getUser().getName()
+        client = self.new_django_client(user_name, user_name)
+        version = settings.API_VERSIONS[-1]
+
+        # Get image...
+        project, dataset = project_datasets
+        datasets = project.linkedDatasetList()
+        datasets.sort(cmp_name_insensitive)
+        # ...from last dataset
+        images = datasets[-1].linkedImageList()
+        dataset_id = datasets[-1].id.val
+
+        # Listing images - all have link to parents
+        imgs_url = reverse('api_images', kwargs={'api_version': version})
+        rsp = _get_response_json(client, imgs_url, {'dataset': dataset_id})
+        for i in rsp['data']:
+            datasets_url = build_url(client, 'api_image_datasets',
+                                     {'api_version': version,
+                                      'image_id': i['@id']})
+            assert i['url:datasets'] == datasets_url
+
+        # Single Image has link to parents...
+        img_url = imgs_url + '%s/' % images[0].id.val
+        rsp = _get_response_json(client, img_url, {})
+        img_json = rsp
+        image_datasets_url = build_url(client, 'api_image_datasets',
+                                       {'api_version': version,
+                                        'image_id': images[0].id.val})
+        assert img_json['url:datasets'] == image_datasets_url
+
+        # List parent datasets
+        rsp = _get_response_json(client, image_datasets_url, {})
+        assert_objects(conn, rsp['data'], [datasets[-1]], dtype='Dataset')
+
+        # Listing Datasets (in Project) - all have link to parents
+        datasets_url = reverse('api_datasets', kwargs={'api_version': version})
+        rsp = _get_response_json(client, datasets_url,
+                                 {'project': project.id.val})
+        for d in rsp['data']:
+            projects_url = build_url(client, 'api_dataset_projects',
+                                     {'api_version': version,
+                                      'dataset_id': d['@id']})
+            assert d['url:projects'] == projects_url
+
+        # Single Dataset has link to parents...
+        dataset_url = datasets_url + '%s/' % dataset_id
+        rsp = _get_response_json(client, dataset_url, {})
+        dataset_json = rsp
+        dataset_projects_url = build_url(client, 'api_dataset_projects',
+                                         {'api_version': version,
+                                          'dataset_id': dataset_id})
+        assert dataset_json['url:projects'] == dataset_projects_url
+
+        # List parent Projects
+        rsp = _get_response_json(client, dataset_projects_url, {})
+        assert_objects(conn, rsp['data'], [project])
