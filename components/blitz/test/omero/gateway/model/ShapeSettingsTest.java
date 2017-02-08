@@ -42,26 +42,16 @@ public class ShapeSettingsTest {
     @DataProvider(name = "colors")
     public static Object[][] colors() {
        return new Integer[][] {
-               {Integer.valueOf(255), Integer.valueOf(0), Integer.valueOf(0),
-                   Integer.valueOf(255), Integer.valueOf(-16776961)}, //Red
-               {Integer.valueOf(0), Integer.valueOf(255), Integer.valueOf(0),
-                   Integer.valueOf(255), Integer.valueOf(16711935)}, //Green
-               {Integer.valueOf(0), Integer.valueOf(0), Integer.valueOf(255),
-                   Integer.valueOf(255), Integer.valueOf(65535)}, //Blue
-               {Integer.valueOf(0), Integer.valueOf(255), Integer.valueOf(255),
-                   Integer.valueOf(255), Integer.valueOf(16777215)}, //Cyan
-               {Integer.valueOf(255), Integer.valueOf(0), Integer.valueOf(255),
-                   Integer.valueOf(255), Integer.valueOf(-16711681)}, //Magenta
-               {Integer.valueOf(255), Integer.valueOf(255), Integer.valueOf(0),
-                   Integer.valueOf(255), Integer.valueOf(-65281)}, //Yellow
-               {Integer.valueOf(0), Integer.valueOf(0), Integer.valueOf(0),
-                   Integer.valueOf(255), Integer.valueOf(255)}, //Black
-               {Integer.valueOf(255), Integer.valueOf(255), Integer.valueOf(255),
-                   Integer.valueOf(255), Integer.valueOf(-1)}, //White
-               {Integer.valueOf(0), Integer.valueOf(0), Integer.valueOf(0),
-                   Integer.valueOf(127), Integer.valueOf(127)}, //Transparent black
-               {Integer.valueOf(127), Integer.valueOf(127), Integer.valueOf(127),
-                   Integer.valueOf(127), Integer.valueOf(2139062143)} //Grey
+               {255, 0, 0, 255, -16776961}, //Red
+               {0, 255, 0, 255, 16711935}, //Green
+               {0, 0, 255, 255, 65535}, //Blue
+               {0, 255, 255, 255, 16777215}, //Cyan
+               {255, 0, 255, 255, -16711681}, //Magenta
+               {255, 255, 0, 255, -65281}, //Yellow
+               {0, 0, 0, 255, 255}, //Black
+               {255, 255, 255, 255, -1}, //White
+               {0, 0, 0, 127, 127}, //Transparent black
+               {127, 127, 127, 127, 2139062143} //Grey
                };
     }
 
