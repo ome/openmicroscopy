@@ -24,6 +24,7 @@
       </package>
       <package name="omero.cmd.graphs.*"/>
       <package name="omero.model.*"/>
+      <package name="omero.gateway.model.*"/>
       <package name="omero.util.*"/>
     </packages>
   </test>
