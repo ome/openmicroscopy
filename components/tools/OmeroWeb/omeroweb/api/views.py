@@ -23,7 +23,7 @@ from django.views.generic import View
 from django.middleware import csrf
 from django.utils.decorators import method_decorator
 from django.core.urlresolvers import reverse
-from django.conf import settings
+from . import api_settings
 
 import traceback
 import json
@@ -52,11 +52,11 @@ def build_url(request, name, api_version, **kwargs):
     """
     kwargs['api_version'] = api_version
     url = reverse(name, kwargs=kwargs)
-    if settings.API_ABSOLUTE_URL is None:
+    if api_settings.API_ABSOLUTE_URL is None:
         return request.build_absolute_uri(url)
     else:
         # remove trailing slash
-        prefix = settings.API_ABSOLUTE_URL.rstrip('/')
+        prefix = api_settings.API_ABSOLUTE_URL.rstrip('/')
         return "%s%s" % (prefix, url)
 
 
@@ -64,7 +64,7 @@ def build_url(request, name, api_version, **kwargs):
 def api_versions(request, **kwargs):
     """Base url of the webgateway json api."""
     versions = []
-    for v in settings.API_VERSIONS:
+    for v in api_settings.API_VERSIONS:
         versions.append({
             'version': v,
             'url:base': build_url(request, 'api_base', v)
@@ -252,7 +252,7 @@ class ObjectsView(ApiView):
         """Return an options dict based on request parameters."""
         try:
             offset = getIntOrDefault(request, 'offset', 0)
-            limit = getIntOrDefault(request, 'limit', settings.PAGE)
+            limit = getIntOrDefault(request, 'limit', api_settings.API_LIMIT)
             owner = getIntOrDefault(request, 'owner', None)
             child_count = request.GET.get('childCount', False) == 'true'
             orphaned = request.GET.get('orphaned', False) == 'true'
@@ -261,7 +261,7 @@ class ObjectsView(ApiView):
 
         # orphaned and child_count not used by every subclass
         opts = {'offset': offset,
-                'limit': min(limit, settings.MAX_PAGE),
+                'limit': min(limit, api_settings.API_MAX_LIMIT),
                 'owner': owner,
                 'orphaned': orphaned,
                 'child_count': child_count,
