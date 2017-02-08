@@ -491,6 +491,16 @@ class PlateAcquisitionsView(ObjectsView):
         idx = get_wellsample_indices(conn,
                                      plateacquisition_id=marshalled['@id'])
         marshalled['omero:wellsampleIndex'] = idx
+
+        # Add link to Wells for each WellSample index in this PlateAcquisition
+        for ws_index in range(idx[0], idx[1]+1):
+            version = kwargs['api_version']
+            extra = {'plateacquisition_id': marshalled['@id'],
+                     'index': ws_index}
+            url = build_url(request, 'api_plateacquisition_index_wells',
+                            version, **extra)
+            marshalled['url:index_%s' % ws_index] = url
+
         return marshalled
 
 
