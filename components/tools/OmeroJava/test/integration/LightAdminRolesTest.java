@@ -31,6 +31,7 @@ import omero.RString;
 import omero.RType;
 import omero.SecurityViolation;
 import omero.ServerError;
+import omero.api.IRenderingSettingsPrx;
 import omero.api.ServiceFactoryPrx;
 import omero.cmd.Chown2;
 import omero.gateway.util.Requests;
@@ -48,10 +49,13 @@ import omero.model.Folder;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.OriginalFile;
+import omero.model.Pixels;
 import omero.model.Project;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
 import omero.model.ProjectI;
+import omero.model.RenderingDef;
+import omero.model.RenderingDefI;
 import omero.model.Session;
 import omero.model.enums.AdminPrivilegeChgrp;
 import omero.model.enums.AdminPrivilegeChown;
@@ -1247,6 +1251,59 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         Assert.assertEquals(retrievedImageOtherGroup2.getDetails().getOwner().getId().getValue(), recipient.userId);
         Assert.assertEquals(retrievedDatasetImageLinkOtherGroup2.getDetails().getOwner().getId().getValue(), recipient.userId);
         Assert.assertEquals(retrievedProjectDatasetLinkOtherGroup2.getDetails().getOwner().getId().getValue(), recipient.userId);
+    }
+
+    /** Test of light amdin without using Sudo.
+     * The workflow deals with the eventuality of putting Rendering Settings on an
+     * image of the user and then transferring the ownership of these settings
+     * to the user.
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "narrowed combined privileges cases")
+    public void testRenderingSettingsNoSudo(boolean isAdmin, boolean permChown,
+            boolean permWriteOwned, String groupPermissions) throws Exception {
+        /* creation of rendering settings should be always permitted as long as light admin is in System Group
+         * and has WriteOwned permissions. Exception is Private group, where it will
+         * always fail.*/
+        if (!isAdmin) return;
+        boolean isExpectSuccessCreateRndSettings = isAdmin && permWriteOwned && !(groupPermissions == "rw----") ;
+        boolean isExpectSuccessCreateAndChown = isExpectSuccessCreateRndSettings && permChown;
+        final EventContext normalUser = newUserAndGroup(groupPermissions);
+        /* set up the light admin's permissions for this test */
+        ArrayList <String> permissions = new ArrayList <String>();
+        if (permChown) permissions.add(AdminPrivilegeChown.value);;
+        if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
+        final EventContext lightAdmin;
+        lightAdmin = loginNewAdmin(isAdmin, permissions);
+        /* create an image with pixels as normalUser in a group of the normalUser */
+        loginUser(normalUser);
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        Image image1 = mmFactory.createImage();
+        Image sentImage1 = (Image) iUpdate.saveAndReturnObject(image1);
+        Pixels pixelsOfImage1 = sentImage1.getPrimaryPixels();
+        /* login as light admin */
+        loginUser(lightAdmin);
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        /* set the rendering settings using setOriginalSettingsInSet method as light admin
+         * on the image of the user */
+        IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+        if (isExpectSuccessCreateRndSettings) {
+            prx.setOriginalSettingsInSet(Pixels.class.getName(),
+                    Arrays.asList(pixelsOfImage1.getId().getValue()));
+        }
+        RenderingDef rDef = (RenderingDef) iQuery.findByQuery("FROM RenderingDef WHERE pixels.id = :id",
+                new ParametersI().addId(pixelsOfImage1.getId()));
+        /* retrieve those rendering settings and check they belong to light admin */
+        if (isExpectSuccessCreateRndSettings) {
+            Assert.assertEquals(rDef.getDetails().getOwner().getId().getValue(), lightAdmin.userId);
+        }
+        /* after this, as light admin try to chown the rendering settings to normalUser */
+        if (isExpectSuccessCreateAndChown) {
+            doChange(client, factory, Requests.chown().target(rDef).toUser(normalUser.userId).build(), isExpectSuccessCreateAndChown);
+            rDef = (RenderingDef) iQuery.findByQuery("FROM RenderingDef WHERE pixels.id = :id",
+                    new ParametersI().addId(pixelsOfImage1.getId()));
+            Assert.assertEquals(rDef.getDetails().getOwner().getId().getValue(), normalUser.userId);
+        }
     }
 
     /**
