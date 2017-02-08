@@ -261,5 +261,5 @@ class TestRois(ITest):
                 assert s.getFillColor().val == colorInt
                 assert s.getStrokeColor().val == colorInt
                 shapeCount += 1
-        # Check we fount 4 shapes
+        # Check we found 4 shapes
         assert shapeCount == 4
