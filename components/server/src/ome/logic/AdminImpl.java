@@ -664,9 +664,6 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             ExperimenterGroup defaultGroup, ExperimenterGroup... otherGroups) {
 
         adminOrPiOfNonUserGroups(defaultGroup, otherGroups);
-        if (!getCurrentAdminPrivilegesForSession().contains(adminPrivileges.getPrivilege("ModifyUser"))) {
-            throwNonAdminOrPi();
-        }
 
         long uid = roleProvider.createExperimenter(experimenter, defaultGroup, otherGroups);
         // If this method passes, then the Experimenter is valid.
@@ -684,9 +681,6 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             final ExperimenterGroup... otherGroups) {
 
         adminOrPiOfNonUserGroups(defaultGroup, otherGroups);
-        if (!getCurrentAdminPrivilegesForSession().contains(adminPrivileges.getPrivilege("ModifyUser"))) {
-            throwNonAdminOrPi();
-        }
 
         long uid = roleProvider.createExperimenter(experimenter,
                         defaultGroup, otherGroups);
