@@ -328,7 +328,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
            String groupPermissions) throws Exception {
        /* only DeleteOwned permission is truly needed for deletion of links, dataset
         * and image (with original file) when not sudoing */
-       boolean deletePassing = (!isSudoing && permDeleteOwned) || isSudoing;
+       boolean deletePassing = permDeleteOwned || isSudoing;
        final EventContext normalUser = newUserAndGroup(groupPermissions);
        /* set up the light admin's permissions for this test */
        ArrayList <String> permissions = new ArrayList <String>();
@@ -400,15 +400,11 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
        /* Now check that the ImporterAs can delete the objects
         * created on behalf of the user */
        if (deletePassing) {
-           try {
-               doChange(Requests.delete().target(datasetImageLink).build());
-               doChange(Requests.delete().target(projectDatasetLink).build());
-               doChange(Requests.delete().target(image).build());
-               doChange(Requests.delete().target(sentDat).build());
-               doChange(Requests.delete().target(sentProj).build());
-           } catch (ServerError se) {
-           /* not expected */
-           }
+           doChange(Requests.delete().target(datasetImageLink).build());
+           doChange(Requests.delete().target(projectDatasetLink).build());
+           doChange(Requests.delete().target(image).build());
+           doChange(Requests.delete().target(sentDat).build());
+           doChange(Requests.delete().target(sentProj).build());
        }
        /* Check one of the objects for non-existence after deletion. First, logging
         * in as root, retrieve all the objects to check them later*/
