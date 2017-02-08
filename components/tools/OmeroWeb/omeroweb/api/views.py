@@ -255,6 +255,21 @@ class PlateView(ObjectView):
         return marshalled
 
 
+class PlateAcquisitionView(ObjectView):
+    """Handles GET for /plates/:plate_id/plateacquisitions."""
+
+    OMERO_TYPE = 'PlateAcquisition'
+
+    def add_data(self, marshalled, request, conn, urls=None, **kwargs):
+        """Add min/max WellSampleIndex."""
+        marshalled = super(PlateAcquisitionView, self).add_data(
+            marshalled, request, conn, urls=urls, **kwargs)
+        idx = get_wellsample_indices(conn,
+                                     plateacquisition_id=marshalled['@id'])
+        marshalled['omero:wellsampleIndex'] = idx
+        return marshalled
+
+
 class WellView(ObjectView):
     """Handle access to an individual Well to GET or DELETE it."""
 
@@ -454,6 +469,12 @@ class PlateAcquisitionsView(ObjectsView):
 
     OMERO_TYPE = 'PlateAcquisition'
 
+    # Urls to add to marshalled object. See ProjectsView for more details
+    urls = {
+        'url:plateacquisition': {'name': 'api_plateacquisition',
+                                 'kwargs': {'object_id': 'OBJECT_ID'}},
+    }
+
     def get_opts(self, request, **kwargs):
         """Add extra parameters to the opts dict."""
         opts = super(PlateAcquisitionsView, self).get_opts(request, **kwargs)
@@ -462,6 +483,15 @@ class PlateAcquisitionsView(ObjectsView):
         if 'plate_id' in kwargs:
             opts['plate'] = long(kwargs['plate_id'])
         return opts
+
+    def add_data(self, marshalled, request, conn, urls=None, **kwargs):
+        """Add min/max WellSampleIndex."""
+        marshalled = super(PlateAcquisitionsView, self).add_data(
+            marshalled, request, conn, urls=urls, **kwargs)
+        idx = get_wellsample_indices(conn,
+                                     plateacquisition_id=marshalled['@id'])
+        marshalled['omero:wellsampleIndex'] = idx
+        return marshalled
 
 
 class WellsView(ObjectsView):

@@ -185,6 +185,14 @@ api_plate_plateacquisitions = url(
 GET PlateAcquisitions in Plate, using omero-marshal to generate json
 """
 
+api_plateacquisition = url(
+    r'^v(?P<api_version>%s)/m/plateacquisitions/(?P<object_id>[0-9]+)/$' % versions,
+    views.PlateAcquisitionView.as_view(),
+    name='api_plateacquisition')
+"""
+Well url to GET or DELETE a single Well
+"""
+
 api_plate_wells = url(
     r'^v(?P<api_version>%s)/m/plates/'
     '(?P<plate_id>[0-9]+)/wells/$' % versions,
@@ -234,6 +242,7 @@ urlpatterns = patterns(
     api_plate,
     api_wells,
     api_plate_plateacquisitions,
+    api_plateacquisition,
     api_plate_wells,
     api_plateacquisition_wells,
     api_well,

@@ -28,20 +28,26 @@ from omero.sys import ParametersI
 from omero.rtypes import wrap
 
 
-def get_wellsample_indices(conn, plate_id):
+def get_wellsample_indices(conn, plate_id=None, plateacquisition_id=None):
     """
-    Return min and max WellSample index for a Plate.
+    Return min and max WellSample index for a Plate OR PlateAcquisition
 
     @param conn:        BlitzGateway
     @param plate_id:    Plate ID
+    @param plateacquisition_id:    PlateAcquisition ID
     @return             A dict of parent_id: child_count
     """
     ctx = deepcopy(conn.SERVICE_OPTS)
     ctx.setOmeroGroup(-1)
     params = ParametersI()
-    params.add('id', wrap(plate_id))
     query = "select minIndex(ws), maxIndex(ws) from Well well " \
-            "join well.wellSamples ws where well.plate.id=:id"
+            "join well.wellSamples ws"
+    if plate_id is not None:
+        query += " where well.plate.id=:plate_id "
+        params.add('plate_id', wrap(plate_id))
+    elif plateacquisition_id is not None:
+        query += " where ws.plateAcquisition.id=:plateacquisition_id"
+        params.add('plateacquisition_id', wrap(plateacquisition_id))
     result = conn.getQueryService().projection(query, params, ctx)
     result = [r for r in unwrap(result)[0] if r is not None]
     return result
