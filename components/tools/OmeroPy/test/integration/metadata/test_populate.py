@@ -44,7 +44,11 @@ from omero.rtypes import rdouble, rlist, rstring, unwrap
 from omero.sys import ParametersI
 
 from omero.util.populate_metadata import (
-    ParsingContext, BulkToMapAnnotationContext, DeleteMapAnnotationContext)
+    get_config,
+    ParsingContext,
+    BulkToMapAnnotationContext,
+    DeleteMapAnnotationContext,
+)
 from omero.util.populate_roi import AbstractMeasurementCtx
 from omero.util.populate_roi import AbstractPlateAnalysisCtx
 from omero.util.populate_roi import MeasurementParsingResult
@@ -54,10 +58,12 @@ from omero.constants.namespaces import NSMEASUREMENT
 from omero.util.temp_files import create_path
 
 from omero.util.metadata_mapannotations import MapAnnotationPrimaryKeyException
+from omero.util.metadata_utils import NSBULKANNOTATIONSCONFIG
 
-from pytest import skip
 from pytest import mark
 from pytest import raises
+
+MAPR_NS_GENE = 'openmicroscopy.org/mapr/gene'
 
 
 def coord2offset(coord):
@@ -153,7 +159,7 @@ class Fixture(object):
             os.path.dirname(__file__), 'bulk_to_map_annotation_context.yml')
 
     def get_namespaces(self):
-        return NSBULKANNOTATIONS
+        return [NSBULKANNOTATIONS]
 
     def assert_rows(self, rows):
         assert rows == self.rowCount * self.colCount
@@ -239,7 +245,6 @@ class Plate2Wells(Fixture):
     def get_target(self):
         if not self.plate:
             self.plate = self.createPlate(self.rowCount, self.colCount)
-        print self.plate.id.val
         return self.plate
 
     def get_annotations(self):
@@ -252,11 +257,13 @@ class Plate2Wells(Fixture):
         anns = plate.linkedAnnotationList()
         return anns
 
-    def get_child_annotations(self):
+    def get_child_annotations(self, ns=None):
         query = """
             SELECT wal.child,wal.parent.id,wal.parent.row,wal.parent.column
             FROM WellAnnotationLink wal
             WHERE wal.parent.plate.id=%d""" % self.plate.id.val
+        if ns is not None:
+            query += (" AND wal.child.ns='%s'" % ns)
         qs = self.test.client.sf.getQueryService()
         was = unwrap(qs.projection(query, None))
         return was
@@ -280,7 +287,7 @@ class Plate2WellsNs(Plate2Wells):
                             'bulk_to_map_annotation_context_ns.yml')
 
     def get_namespaces(self):
-        return [NSBULKANNOTATIONS, 'openmicroscopy.org/mapr/gene']
+        return [NSBULKANNOTATIONS, MAPR_NS_GENE]
 
     def assert_row_values(self, rowvalues):
         # First column is the WellID
@@ -306,7 +313,7 @@ class Plate2WellsNs(Plate2Wells):
     def assert_child_annotations(self, oas):
         wellrcs = [coord2offset(c) for c in (
             'a1', 'a2', 'a3', 'a4', 'b1', 'b2', 'b3', 'b4')]
-        nss = [NSBULKANNOTATIONS, 'openmicroscopy.org/mapr/gene']
+        nss = [NSBULKANNOTATIONS, MAPR_NS_GENE]
         wellrc_ns = [(wrc, ns) for wrc in wellrcs for ns in nss]
         check = dict((k, None) for k in wellrc_ns)
         annids = []
@@ -423,10 +430,15 @@ class Plate2WellsNs2(Plate2WellsNs):
         return os.path.join(os.path.dirname(__file__),
                             'bulk_to_map_annotation_context_ns2.yml')
 
-    def assert_child_annotations(self, oas):
+    def assert_child_annotations(self, oas, onlyns=None):
+        """
+        Pass onlyns to check that only annotations in that namespace exist
+        """
         wellrcs = [coord2offset(c) for c in (
             'a1', 'a2', 'a3', 'a4', 'b1', 'b2', 'b3', 'b4')]
-        nss = [NSBULKANNOTATIONS, 'openmicroscopy.org/mapr/gene']
+        nss = [NSBULKANNOTATIONS, MAPR_NS_GENE]
+        if onlyns:
+            nss = [onlyns]
         wellrc_ns = [(wrc, ns) for wrc in wellrcs for ns in nss]
         check = dict((k, None) for k in wellrc_ns)
         annids = []
@@ -445,13 +457,55 @@ class Plate2WellsNs2(Plate2WellsNs):
             # Use getMapValue to check ordering and duplicates
             check[(wrc, ns)] = [(p.name, p.value) for p in ma.getMapValue()]
 
-        # Row a
+        if onlyns == NSBULKANNOTATIONS:
+            self._assert_nsbulkann(check, wellrcs)
+            assert len(annids) == 8
+            assert len(set(annids)) == 8
+        if onlyns == MAPR_NS_GENE:
+            self._assert_nsgeneann(check, wellrcs)
+            assert len(annids) == 8
+            assert len(set(annids)) == 4
+        if not onlyns:
+            self._assert_nsgeneann(check, wellrcs)
+            assert len(annids) == 16
+            assert len(set(annids)) == 12
 
-        assert check[(wellrcs[0], nss[0])] == [
+    def _assert_nsbulkann(self, check, wellrcs):
+        # Row a
+        assert check[(wellrcs[0], NSBULKANNOTATIONS)] == [
             ('Gene', 'hh'),
             ('FlyBase URL', 'http://flybase.org/reports/FBgn0004644.html'),
         ]
-        assert check[(wellrcs[0], nss[1])] == [
+        assert check[(wellrcs[1], NSBULKANNOTATIONS)] == [
+            ('Gene', 'sws'),
+            ('FlyBase URL', 'http://flybase.org/reports/FBgn0003656.html'),
+        ]
+        assert check[(wellrcs[2], NSBULKANNOTATIONS)] == [
+            ('Gene', 'ken'),
+            ('FlyBase URL', 'http://flybase.org/reports/FBgn0011236.html'),
+        ]
+        assert check[(wellrcs[3], NSBULKANNOTATIONS)] == [
+            ('Gene', ''),
+            ('FlyBase URL', 'http://flybase.org/reports/FBgn0086378.html'),
+        ]
+
+        # Row b
+        assert check[(wellrcs[4], NSBULKANNOTATIONS)] == [
+            ('Gene', 'hh'),
+        ]
+        assert check[(wellrcs[5], NSBULKANNOTATIONS)] == [
+            ('Gene', 'sws'),
+        ]
+        assert check[(wellrcs[6], NSBULKANNOTATIONS)] == [
+            ('Gene', 'ken'),
+        ]
+        assert check[(wellrcs[7], NSBULKANNOTATIONS)] == [
+            ('Gene', ''),
+        ]
+
+    def _assert_nsgeneann(self, check, wellrcs):
+        # Row a
+        assert check[(wellrcs[0], MAPR_NS_GENE)] == [
             ('Gene', 'hh'),
             ('Gene name', 'hedgehog'),
             ('Gene name', 'bar-3'),
@@ -463,11 +517,7 @@ class Plate2WellsNs2(Plate2WellsNs):
             ('Gene name', 'Indian hedgehog'),
             ('Gene name', 'Sonic hedgehog'),
         ]
-        assert check[(wellrcs[1], nss[0])] == [
-            ('Gene', 'sws'),
-            ('FlyBase URL', 'http://flybase.org/reports/FBgn0003656.html'),
-        ]
-        assert check[(wellrcs[1], nss[1])] == [
+        assert check[(wellrcs[1], MAPR_NS_GENE)] == [
             ('Gene', 'sws'),
             ('Gene name', 'swiss cheese'),
             ('Gene name', 'olfE'),
@@ -476,11 +526,7 @@ class Plate2WellsNs2(Plate2WellsNs):
             ('Gene name', 'patatin like phospholipase domain containing 6'),
         ]
 
-        assert check[(wellrcs[2], nss[0])] == [
-            ('Gene', 'ken'),
-            ('FlyBase URL', 'http://flybase.org/reports/FBgn0011236.html'),
-        ]
-        assert check[(wellrcs[2], nss[1])] == [
+        assert check[(wellrcs[2], MAPR_NS_GENE)] == [
             ('Gene', 'ken'),
             ('Gene name', 'ken and barbie'),
             ('Gene name', 'CG5575'),
@@ -488,42 +534,22 @@ class Plate2WellsNs2(Plate2WellsNs):
             ('Gene name', 'B-cell lymphoma 6 protein'),
         ]
 
-        assert check[(wellrcs[3], nss[0])] == [
-            ('Gene', ''),
-            ('FlyBase URL', 'http://flybase.org/reports/FBgn0086378.html'),
-        ]
-        assert check[(wellrcs[3], nss[1])] == [
+        assert check[(wellrcs[3], MAPR_NS_GENE)] == [
             ('Gene', ''),
             ('Gene name', 'Alg-2'),
         ]
 
         # Row b
-
-        assert check[(wellrcs[4], nss[0])] == [
-            ('Gene', 'hh'),
-        ]
-        assert check[(wellrcs[4], nss[1])] == check[(wellrcs[0], nss[1])]
-
-        assert check[(wellrcs[5], nss[0])] == [
-            ('Gene', 'sws'),
-        ]
-        assert check[(wellrcs[5], nss[1])] == check[(wellrcs[1], nss[1])]
-
-        assert check[(wellrcs[6], nss[0])] == [
-            ('Gene', 'ken'),
-        ]
-        assert check[(wellrcs[6], nss[1])] == check[(wellrcs[2], nss[1])]
-
-        assert check[(wellrcs[7], nss[0])] == [
-            ('Gene', ''),
-        ]
-        assert check[(wellrcs[7], nss[1])] == [
+        assert check[(wellrcs[4], MAPR_NS_GENE)] == check[
+            (wellrcs[0], MAPR_NS_GENE)]
+        assert check[(wellrcs[5], MAPR_NS_GENE)] == check[
+            (wellrcs[1], MAPR_NS_GENE)]
+        assert check[(wellrcs[6], MAPR_NS_GENE)] == check[
+            (wellrcs[2], MAPR_NS_GENE)]
+        assert check[(wellrcs[7], MAPR_NS_GENE)] == [
             ('Gene', ''),
             ('Gene name', 'Alg-2'),
         ]
-
-        assert len(annids) == 16
-        assert len(set(annids)) == 12
 
 
 class Plate2WellsNs2UnavailableHeader(Plate2WellsNs2):
@@ -549,7 +575,7 @@ class Plate2WellsNs2UnavailableHeader(Plate2WellsNs2):
     def assert_child_annotations(self, oas):
         wellrcs = [coord2offset(c) for c in (
             'a1', 'a2', 'b1', 'b2')]
-        nss = [NSBULKANNOTATIONS, 'openmicroscopy.org/mapr/gene']
+        nss = [NSBULKANNOTATIONS, MAPR_NS_GENE]
         wellrc_ns = [(wrc, ns) for wrc in wellrcs for ns in nss]
         check = dict((k, None) for k in wellrc_ns)
         annids = []
@@ -819,128 +845,31 @@ class Project2Datasets(Fixture):
                 raise Exception("Unknown dataset: %s" % ds)
 
 
-class TestPopulateMetadata(ITest):
+class TestPopulateMetadataConfigLoad(ITest):
 
-    METADATA_FIXTURES = (
-        Screen2Plates(),
-        Plate2Wells(),
-        Dataset2Images(),
-        Dataset2Images1Missing(),
-        Dataset101Images(),
-        Project2Datasets(),
-        GZIP(),
-    )
-    METADATA_IDS = [x.__class__.__name__ for x in METADATA_FIXTURES]
+    def get_cfg_filepath(self):
+        return os.path.join(os.path.dirname(__file__),
+                            'bulk_to_map_annotation_context.yml')
 
-    METADATA_NS_FIXTURES = (
-        Plate2WellsNs(),
-        Plate2WellsNs2(),
-    )
-    METADATA_NS_IDS = [x.__class__.__name__ for x in METADATA_NS_FIXTURES]
+    def _assert_configs(self, default_cfg, column_cfgs, advanced_cfgs):
+        assert default_cfg == {"include": True}
+        assert column_cfgs is None
+        assert advanced_cfgs == {}
 
-    @mark.parametrize("fixture", METADATA_FIXTURES, ids=METADATA_IDS)
-    @mark.parametrize("batch_size", (None, 1, 10))
-    def testPopulateMetadata(self, fixture, batch_size):
-        """
-        We should really test each of the parsing contexts in separate tests
-        but in practice each one uses data created by the others, so for
-        now just run them all together
-        """
-        try:
-            import yaml
-            print yaml, "found"
-        except Exception:
-            skip("PyYAML not installed.")
+    def test_get_config_local(self):
+        default_cfg, column_cfgs, advanced_cfgs = get_config(
+            None, cfg=self.get_cfg_filepath())
+        self._assert_configs(default_cfg, column_cfgs, advanced_cfgs)
 
-        fixture.init(self)
-        t = self._test_parsing_context(fixture, batch_size)
-        self._assert_parsing_context_values(t, fixture)
-        self._test_bulk_to_map_annotation_context(fixture, batch_size)
-        self._test_delete_map_annotation_context(fixture, batch_size)
+    def test_get_config_remote(self):
+        ofile = self.client.upload(self.get_cfg_filepath()).proxy()
+        cfgid = unwrap(ofile.getId())
+        default_cfg, column_cfgs, advanced_cfgs = get_config(
+            self.client.getSession(), cfgid=cfgid)
+        self._assert_configs(default_cfg, column_cfgs, advanced_cfgs)
 
-    @mark.parametrize("fixture", METADATA_NS_FIXTURES, ids=METADATA_NS_IDS)
-    def testPopulateMetadataNsAnns(self, fixture):
-        """
-        Test complicated annotations (multiple ns/groups) on a single OMERO
-        data type, as opposed to testPopulateMetadata which tests simple
-        annotations on multiple OMERO data types
-        """
-        try:
-            import yaml
-            print yaml, "found"
-        except Exception:
-            skip("PyYAML not installed.")
 
-        fixture.init(self)
-        t = self._test_parsing_context(fixture, 2)
-
-        cols = t.getHeaders()
-        rows = t.getNumberOfRows()
-        fixture.assert_rows(rows)
-        data = [c.values for c in t.read(range(len(cols)), 0, rows).columns]
-        rowValues = zip(*data)
-        assert len(rowValues) == fixture.count
-        fixture.assert_row_values(rowValues)
-
-        self._test_bulk_to_map_annotation_context(fixture, 2)
-        self._test_delete_map_annotation_context(fixture, 2)
-
-    def testPopulateMetadataNsAnnsDedup(self):
-        """
-        Similar to testPopulateMetadataNsAnns but use two plates and check
-        MapAnnotations aren't duplicated
-        """
-        try:
-            import yaml
-            print yaml, "found"
-        except Exception:
-            skip("PyYAML not installed.")
-
-        fixture1 = Plate2WellsNs2()
-        fixture1.init(self)
-        self._test_parsing_context(fixture1, 2)
-        self._test_bulk_to_map_annotation_context(fixture1, 2)
-
-        fixture2 = Plate2WellsNs2()
-        fixture2.init(self)
-        self._test_parsing_context(fixture2, 2)
-        self._test_bulk_to_map_annotation_dedup(fixture1, fixture2)
-        # TODO: This will currently fail because the MapAnnotations are
-        # deleted even if they're multiply linked
-        # self._test_delete_map_annotation_context_dedup(fixture1, fixture2)
-
-    def testPopulateMetadataNsAnnsUnavailableHeader(self):
-        """
-        Similar to testPopulateMetadataNsAnns but use two plates and check
-        MapAnnotations aren't duplicated
-        """
-        try:
-            import yaml
-            print yaml, "found"
-        except Exception:
-            skip("PyYAML not installed.")
-
-        fixture_empty = Plate2WellsNs2UnavailableHeader()
-        fixture_empty.init(self)
-        self._test_parsing_context(fixture_empty, 2)
-        self._test_bulk_to_map_annotation_context(fixture_empty, 2)
-
-    def testPopulateMetadataNsAnnsFail(self):
-        """
-        Similar to testPopulateMetadataNsAnns but use two plates and check
-        MapAnnotations aren't duplicated
-        """
-        try:
-            import yaml
-            print yaml, "found"
-        except Exception:
-            skip("PyYAML not installed.")
-
-        fixture_fail = Plate2WellsNs2Fail()
-        fixture_fail.init(self)
-        self._test_parsing_context(fixture_fail, 2)
-        with raises(MapAnnotationPrimaryKeyException):
-            self._test_bulk_to_map_annotation_context(fixture_fail, 2)
+class TestPopulateMetadataHelper(ITest):
 
     def _test_parsing_context(self, fixture, batch_size):
         """
@@ -1013,37 +942,6 @@ class TestPopulateMetadata(ITest):
         assert len(oas) == fixture.annCount
         fixture.assert_child_annotations(oas)
 
-    def _test_bulk_to_map_annotation_dedup(self, fixture1, fixture2):
-        ann_count = fixture1.annCount
-        assert fixture2.annCount == ann_count
-        assert len(fixture1.get_child_annotations()) == ann_count
-        assert len(fixture2.get_child_annotations()) == 0
-
-        cfg = fixture2.get_cfg()
-
-        target = fixture2.get_target()
-        anns = fixture2.get_annotations()
-        fileid = anns[0].file.id.val
-        ctx = BulkToMapAnnotationContext(
-            self.client, target, fileid=fileid, cfg=cfg)
-        ctx.parse()
-        assert len(fixture1.get_child_annotations()) == ann_count
-        assert len(fixture2.get_child_annotations()) == 0
-
-        ctx.write_to_omero()
-
-        oas1 = fixture1.get_child_annotations()
-        oas2 = fixture2.get_child_annotations()
-        assert len(oas1) == ann_count
-        assert len(oas2) == ann_count
-        fixture1.assert_child_annotations(oas1)
-        fixture2.assert_child_annotations(oas2)
-
-        # 6 of the mapannotations should be common
-        ids1 = set(unwrap(o[0].getId()) for o in oas1)
-        ids2 = set(unwrap(o[0].getId()) for o in oas2)
-        assert len(ids1.intersection(ids2)) == 4
-
     def _test_delete_map_annotation_context(self, fixture, batch_size):
         # self._test_bulk_to_map_annotation_context()
         assert len(fixture.get_child_annotations()) == fixture.annCount
@@ -1062,24 +960,303 @@ class TestPopulateMetadata(ITest):
         assert len(fixture.get_child_annotations()) == 0
         assert len(fixture.get_all_map_annotations()) == 0
 
-    def _test_delete_map_annotation_context_dedup(self, fixture1, fixture2):
-        assert len(fixture1.get_child_annotations()) == fixture1.annCount
-        assert len(fixture2.get_child_annotations()) == fixture2.annCount
 
-        ctx = DeleteMapAnnotationContext(
-            self.client, fixture1.get_target(), cfg=fixture1.get_cfg())
-        ctx.parse()
-        ctx.write_to_omero(loops=10, ms=250)
-        assert len(fixture1.get_child_annotations()) == 0
-        assert len(fixture2.get_child_annotations()) == fixture2.annCount
+class TestPopulateMetadataHelperPerMethod(TestPopulateMetadataHelper):
 
-        ctx = DeleteMapAnnotationContext(
-            self.client, fixture2.get_target(), cfg=fixture2.get_cfg())
-        ctx.parse()
-        ctx.write_to_omero(loops=10, ms=250)
+    # Some tests in this file check the counts of annotations in a fixed
+    # namespace, and therefore require a new client for each test method
+
+    def setup_class(cls):
+        pass
+
+    def teardown_class(cls):
+        pass
+
+    def setup_method(self, method):
+        super(TestPopulateMetadataHelperPerMethod, self).setup_class()
+
+    def teardown_method(self, method):
+        super(TestPopulateMetadataHelperPerMethod, self).teardown_class()
+
+
+class TestPopulateMetadata(TestPopulateMetadataHelper):
+
+    METADATA_FIXTURES = (
+        Screen2Plates(),
+        Plate2Wells(),
+        Dataset2Images(),
+        Dataset2Images1Missing(),
+        Dataset101Images(),
+        Project2Datasets(),
+        GZIP(),
+    )
+    METADATA_IDS = [x.__class__.__name__ for x in METADATA_FIXTURES]
+
+    METADATA_NS_FIXTURES = (
+        Plate2WellsNs(),
+        Plate2WellsNs2(),
+    )
+    METADATA_NS_IDS = [x.__class__.__name__ for x in METADATA_NS_FIXTURES]
+
+    @mark.parametrize("fixture", METADATA_FIXTURES, ids=METADATA_IDS)
+    @mark.parametrize("batch_size", (None, 1, 10))
+    def testPopulateMetadata(self, fixture, batch_size):
+        """
+        We should really test each of the parsing contexts in separate tests
+        but in practice each one uses data created by the others, so for
+        now just run them all together
+        """
+        fixture.init(self)
+        t = self._test_parsing_context(fixture, batch_size)
+        self._assert_parsing_context_values(t, fixture)
+        self._test_bulk_to_map_annotation_context(fixture, batch_size)
+        self._test_delete_map_annotation_context(fixture, batch_size)
+
+    @mark.parametrize("fixture", METADATA_NS_FIXTURES, ids=METADATA_NS_IDS)
+    def testPopulateMetadataNsAnns(self, fixture):
+        """
+        Test complicated annotations (multiple ns/groups) on a single OMERO
+        data type, as opposed to testPopulateMetadata which tests simple
+        annotations on multiple OMERO data types
+        """
+        fixture.init(self)
+        t = self._test_parsing_context(fixture, 2)
+
+        cols = t.getHeaders()
+        rows = t.getNumberOfRows()
+        fixture.assert_rows(rows)
+        data = [c.values for c in t.read(range(len(cols)), 0, rows).columns]
+        rowValues = zip(*data)
+        assert len(rowValues) == fixture.count
+        fixture.assert_row_values(rowValues)
+
+        self._test_bulk_to_map_annotation_context(fixture, 2)
+        self._test_delete_map_annotation_context(fixture, 2)
+
+    def testPopulateMetadataNsAnnsUnavailableHeader(self):
+        """
+        Similar to testPopulateMetadataNsAnns but use two plates and check
+        MapAnnotations aren't duplicated
+        """
+        fixture_empty = Plate2WellsNs2UnavailableHeader()
+        fixture_empty.init(self)
+        self._test_parsing_context(fixture_empty, 2)
+        self._test_bulk_to_map_annotation_context(fixture_empty, 2)
+
+    def testPopulateMetadataNsAnnsFail(self):
+        """
+        Similar to testPopulateMetadataNsAnns but use two plates and check
+        MapAnnotations aren't duplicated
+        """
+        fixture_fail = Plate2WellsNs2Fail()
+        fixture_fail.init(self)
+        self._test_parsing_context(fixture_fail, 2)
+        with raises(MapAnnotationPrimaryKeyException):
+            self._test_bulk_to_map_annotation_context(fixture_fail, 2)
+
+
+class TestPopulateMetadataDedup(TestPopulateMetadataHelperPerMethod):
+
+    # Hard-code the number of expected map-annotations in these tests
+    # since the code in this file is complicated enough without trying
+    # to parameterise this
+
+    def _test_bulk_to_map_annotation_dedup(self, fixture1, fixture2, ns):
+        options = {}
+        if ns:
+            options['ns'] = ns
+
+        ann_count = fixture1.annCount
+        assert fixture2.annCount == ann_count
+        assert len(fixture1.get_child_annotations()) == ann_count
         assert len(fixture2.get_child_annotations()) == 0
-        assert len(fixture1.get_all_map_annotations()) == 0
-        assert len(fixture2.get_all_map_annotations()) == 0
+
+        cfg = fixture2.get_cfg()
+
+        target = fixture2.get_target()
+        anns = fixture2.get_annotations()
+        fileid = anns[0].file.id.val
+        ctx = BulkToMapAnnotationContext(
+            self.client, target, fileid=fileid, cfg=cfg, options=options)
+        ctx.parse()
+        assert len(fixture1.get_child_annotations()) == ann_count
+        assert len(fixture2.get_child_annotations()) == 0
+
+        ctx.write_to_omero()
+
+        oas1 = fixture1.get_child_annotations()
+        oas2 = fixture2.get_child_annotations()
+        assert len(oas1) == ann_count
+
+        if ns == NSBULKANNOTATIONS:
+            assert len(oas2) == 8
+            fixture1.assert_child_annotations(oas1)
+            fixture2.assert_child_annotations(oas2, ns)
+        if ns == MAPR_NS_GENE:
+            assert len(oas2) == 8
+            fixture1.assert_child_annotations(oas1)
+            fixture2.assert_child_annotations(oas2, ns)
+        if ns is None:
+            assert len(oas2) == ann_count
+            fixture1.assert_child_annotations(oas1)
+            fixture2.assert_child_annotations(oas2)
+
+        # The gene mapannotations should be common
+        ids1 = set(unwrap(o[0].getId()) for o in oas1)
+        ids2 = set(unwrap(o[0].getId()) for o in oas2)
+        common = ids1.intersection(ids2)
+        if ns == NSBULKANNOTATIONS:
+            assert len(common) == 0
+        else:
+            assert len(common) == 4
+
+    def _test_delete_map_annotation_context_dedup(
+            self, fixture1, fixture2, ns):
+
+        # Sanity checks in case the test code or fixtures are modified
+        assert fixture1.annCount == 16
+        assert fixture2.annCount == 16
+
+        options = {}
+        if ns:
+            options['ns'] = ns
+
+        assert len(fixture1.get_child_annotations()) == 16
+        assert len(fixture1.get_child_annotations(NSBULKANNOTATIONS)) == 8
+        assert len(fixture1.get_child_annotations(MAPR_NS_GENE)) == 8
+
+        assert len(fixture2.get_child_annotations()) == 16
+        assert len(fixture2.get_child_annotations(NSBULKANNOTATIONS)) == 8
+        assert len(fixture2.get_child_annotations(MAPR_NS_GENE)) == 8
+
+        assert len(fixture2.get_all_map_annotations()) == 20
+
+        ctx = DeleteMapAnnotationContext(
+            self.client, fixture1.get_target(), cfg=fixture1.get_cfg(),
+            options=options)
+        ctx.parse()
+        ctx.write_to_omero(loops=10, ms=250)
+
+        if ns == NSBULKANNOTATIONS:
+            assert len(fixture1.get_child_annotations()) == 8
+            assert len(fixture2.get_child_annotations()) == 16
+            assert len(fixture2.get_all_map_annotations()) == 12
+        if ns == MAPR_NS_GENE:
+            assert len(fixture1.get_child_annotations()) == 8
+            assert len(fixture2.get_child_annotations()) == 16
+            assert len(fixture2.get_all_map_annotations()) == 20
+        if ns is None:
+            assert len(fixture1.get_child_annotations()) == 0
+            assert len(fixture2.get_child_annotations()) == 16
+            assert len(fixture2.get_all_map_annotations()) == 12
+
+        ctx = DeleteMapAnnotationContext(
+            self.client, fixture2.get_target(), cfg=fixture2.get_cfg(),
+            options=options)
+        ctx.parse()
+        ctx.write_to_omero(loops=10, ms=250)
+
+        if ns == NSBULKANNOTATIONS:
+            assert len(fixture1.get_child_annotations()) == 8
+            assert len(fixture1.get_child_annotations(MAPR_NS_GENE)) == 8
+            assert len(fixture2.get_child_annotations()) == 8
+            assert len(fixture2.get_child_annotations(MAPR_NS_GENE)) == 8
+            assert len(fixture2.get_all_map_annotations()) == 4
+        if ns == MAPR_NS_GENE:
+            assert len(fixture1.get_child_annotations()) == 8
+            assert len(fixture1.get_child_annotations(NSBULKANNOTATIONS)) == 8
+            assert len(fixture2.get_child_annotations()) == 8
+            assert len(fixture2.get_child_annotations(NSBULKANNOTATIONS)) == 8
+            assert len(fixture2.get_all_map_annotations()) == 16
+        if ns is None:
+            assert len(fixture1.get_child_annotations()) == 0
+            assert len(fixture2.get_child_annotations()) == 0
+            assert len(fixture2.get_all_map_annotations()) == 0
+
+    @mark.parametrize("ns", [None, NSBULKANNOTATIONS, MAPR_NS_GENE])
+    def testPopulateMetadataNsAnnsDedup(self, ns):
+        """
+        Similar to testPopulateMetadataNsAnns but use two plates, check
+        MapAnnotations aren't duplicated, and filter by namespace
+        """
+        fixture1 = Plate2WellsNs2()
+        fixture1.init(self)
+        self._test_parsing_context(fixture1, 2)
+        self._test_bulk_to_map_annotation_context(fixture1, 2)
+
+        fixture2 = Plate2WellsNs2()
+        fixture2.init(self)
+        self._test_parsing_context(fixture2, 2)
+        self._test_bulk_to_map_annotation_dedup(fixture1, fixture2, ns)
+
+    @mark.parametrize("ns", [None, NSBULKANNOTATIONS, MAPR_NS_GENE])
+    def testPopulateMetadataNsAnnsDedupDelete(self, ns):
+        """
+        Similar to testPopulateMetadataNsAnns but use two plates, check
+        MapAnnotations aren't duplicated, and delete by namespace
+        """
+        fixture1 = Plate2WellsNs2()
+        fixture1.init(self)
+        self._test_parsing_context(fixture1, 2)
+        self._test_bulk_to_map_annotation_context(fixture1, 2)
+
+        fixture2 = Plate2WellsNs2()
+        fixture2.init(self)
+        self._test_parsing_context(fixture2, 2)
+        self._test_bulk_to_map_annotation_dedup(fixture1, fixture2, None)
+        self._test_delete_map_annotation_context_dedup(
+            fixture1, fixture2, ns)
+
+
+class TestPopulateMetadataConfigFiles(TestPopulateMetadataHelperPerMethod):
+
+    def _init_fixture_attach_cfg(self):
+        fixture = Plate2Wells()
+        fixture.init(self)
+        target = fixture.get_target()
+        ofile = self.client.upload(fixture.get_cfg()).proxy()
+        link = PlateAnnotationLinkI()
+        link.parent = target.proxy()
+        link.child = FileAnnotationI()
+        link.child.ns = rstring(NSBULKANNOTATIONSCONFIG)
+        link.child.file = ofile
+        link = self.client.sf.getUpdateService().saveAndReturnObject(link)
+        return fixture
+
+    def _get_annotations_config(self, fixture):
+        anns = []
+        for ann in fixture.get_annotations():
+            if not isinstance(ann, FileAnnotationI):
+                pass
+            if unwrap(ann.getNs()) == NSBULKANNOTATIONS:
+                continue
+
+            assert unwrap(ann.ns) == NSBULKANNOTATIONSCONFIG
+            anns.append(ann)
+        return anns
+
+    @mark.parametrize("ns", [None, NSBULKANNOTATIONS, NSBULKANNOTATIONSCONFIG])
+    @mark.parametrize("attach", [True, False])
+    def test_delete_attach(self, ns, attach):
+        fixture = self._init_fixture_attach_cfg()
+        target = fixture.get_target()
+        before = self._get_annotations_config(fixture)
+        assert len(before) == 1
+
+        options = {}
+        if ns:
+            options['ns'] = ns
+        ctx = DeleteMapAnnotationContext(
+            self.client, target, attach=attach, options=options)
+        ctx.parse()
+        ctx.write_to_omero()
+        after = self._get_annotations_config(fixture)
+
+        if attach and ns != NSBULKANNOTATIONS:
+            assert len(after) == 0
+        else:
+            assert before[0].id == after[0].id
+            assert before[0].file.id == after[0].file.id
 
 
 class MockMeasurementCtx(AbstractMeasurementCtx):
