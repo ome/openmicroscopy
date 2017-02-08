@@ -6113,6 +6113,9 @@ class _WellWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             clauses.append('plateAcquisition.id = :plateAcq')
             params.add('plateAcq', rlong(opts['plateacquisition']))
             load_images = True
+        if 'wellsample_index' in opts:
+            clauses.append('index(wellSamples) = :wellsample_index')
+            params.add('wellsample_index', rint(opts['wellsample_index']))
         if load_images or load_pixels or load_channels:
             # NB: Using left outer join, we may get Wells with no Images
             query += " left outer join fetch obj.wellSamples as wellSamples"\
