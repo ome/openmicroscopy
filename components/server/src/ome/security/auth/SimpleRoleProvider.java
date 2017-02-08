@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2009-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -292,6 +290,7 @@ public class SimpleRoleProvider implements RoleProvider {
         copy.setEmail(e.getEmail());
         copy.setInstitution(e.getInstitution());
         copy.setLdap(e.getLdap());
+        copy.setConfig(e.getConfig());
         if (e.getDetails() != null && e.getDetails().getPermissions() != null) {
             copy.getDetails().setPermissions(e.getDetails().getPermissions());
         }
