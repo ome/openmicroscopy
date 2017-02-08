@@ -27,12 +27,11 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import omero.model.RectangleI;
 import omero.model.Shape;
 
 
 /**
- * 
+ * Tests the encoding/decoding of some properties of ShapeSettingsData
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since 5.3
