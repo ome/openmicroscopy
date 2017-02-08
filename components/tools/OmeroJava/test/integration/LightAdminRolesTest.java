@@ -845,7 +845,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         }
     }
 
-    /** Additonal test of ImporterAs without using Sudo.
+    /** Additonal test of light amdin without using Sudo.
      * The workflow deals with the eventuality of pre-existing container
      * in the target group and linking of the image or dataset to this container
      * (dataset or project). The image import has been tested in other tests,
