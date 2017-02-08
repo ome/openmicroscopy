@@ -748,11 +748,11 @@ public class OmeroInterceptor implements Interceptor {
                         "You are not authorized to set the ExperimenterGroup"
                                 + " for %s to %s", obj, source.getGroup()));
             }
-        } else if (!(isPrivilegedCreator ||  // administrator
-                   bec.getMemberOfGroupsList().contains(newDetails.getGroup().getId()) ||  // group member
-                   bec.getCurrentGroupPermissions().isGranted(Role.WORLD, Right.WRITE)     // public group
-                   /* TODO: may need to loosen for rwrwra groups */
-                )) {
+        } else if (isPrivilegedCreator || bec.getMemberOfGroupsList().contains(newDetails.getGroup().getId())) {
+            // admin or group member so okay
+        } else if (!bec.getCurrentGroupPermissions().isGranted(Role.WORLD,
+                obj instanceof IAnnotationLink ? Right.ANNOTATE : Right.WRITE)) {
+            /* TODO: may need to loosen further for rwrwra groups */
             throw new SecurityViolation(String.format("You are not authorized to create %s", obj));
         }
 
