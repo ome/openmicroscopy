@@ -240,7 +240,9 @@ class PlateView(ObjectView):
     # Urls to add to marshalled object. See ProjectsView for more details
     urls = {
         'url:wells': {'name': 'api_plate_wells',
-                      'kwargs': {'plate_id': 'OBJECT_ID'}}
+                      'kwargs': {'plate_id': 'OBJECT_ID'}},
+        'url:plateacquisitions': {'name': 'api_plate_plateacquisitions',
+                                  'kwargs': {'plate_id': 'OBJECT_ID'}},
     }
 
     def add_data(self, marshalled, request, conn, urls=None, **kwargs):
@@ -413,7 +415,9 @@ class PlatesView(ObjectsView):
         'url:wells': {'name': 'api_plate_wells',
                       'kwargs': {'plate_id': 'OBJECT_ID'}},
         'url:plate': {'name': 'api_plate',
-                      'kwargs': {'object_id': 'OBJECT_ID'}}
+                      'kwargs': {'object_id': 'OBJECT_ID'}},
+        'url:plateacquisitions': {'name': 'api_plate_plateacquisitions',
+                                  'kwargs': {'plate_id': 'OBJECT_ID'}},
     }
 
 
