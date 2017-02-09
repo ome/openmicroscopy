@@ -1282,8 +1282,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         List<String> permissions = new ArrayList<String>();
         if (permChown) permissions.add(AdminPrivilegeChown.value);
         if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
-        final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(isAdmin, permissions);
+
         /* create an image with pixels as normalUser in a group of the normalUser */
         loginUser(normalUser);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
@@ -1292,7 +1291,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         Pixels pixelsOfImage = sentImage.getPrimaryPixels();
 
         /* login as light admin */
-        loginUser(lightAdmin);
+        final EventContext lightAdmin;
+        lightAdmin = loginNewAdmin(isAdmin, permissions);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
 
         /* set the ROI as light admin on the image of the user */
