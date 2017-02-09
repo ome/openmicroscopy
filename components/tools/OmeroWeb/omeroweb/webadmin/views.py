@@ -454,10 +454,14 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                         elif long(og) == g.id:
                             listOfOtherGroups.add(g)
 
-                conn.createExperimenter(
+                expId = conn.createExperimenter(
                     omename, firstName, lastName, email, admin, active,
                     dGroup, listOfOtherGroups, password, middleName,
                     institution)
+
+                # Update 'AdminPrivilege' config roles for user
+                conn.setConfigRoles(expId, form)
+
                 return HttpResponseRedirect(reverse("waexperimenters"))
             context = {'form': form}
     elif action == 'edit':
@@ -481,6 +485,30 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
             'my_groups': otherGroups,
             'other_groups': [g.id for g in otherGroups],
             'groups': otherGroupsInitialList(groups)}
+
+        # Load 'AdminPrivilege' roles for 'initial'
+        user = conn.getQueryService().get("Experimenter", experimenter.id)
+        deletePerms = []
+        writePerms = []
+        for key, value in user.getConfigAsMap().items():
+            # key is e.g. 'AdminPrivilege:Chgrp'
+            role = key.replace("AdminPrivilege:", "")
+            if value != 'true':
+                continue
+            if role in ('DeleteOwned', 'DeleteFile', 'DeleteManagedRepo'):
+                deletePerms.append(role)
+            elif role in ('WriteOwned', 'WriteFile', 'WriteManagedRepo'):
+                writePerms.append(role)
+            else:
+                initial[role] = True
+        # if ALL the Delete/Write permissions are found, Delete/Write is True
+        if set(deletePerms) == \
+                set(('DeleteOwned', 'DeleteFile', 'DeleteManagedRepo')):
+            initial['Delete'] = True
+        if set(writePerms) == \
+                set(('WriteOwned', 'WriteFile', 'WriteManagedRepo')):
+            initial['Write'] = True
+
         system_users = [conn.getAdminService().getSecurityRoles().rootId,
                         conn.getAdminService().getSecurityRoles().guestId]
         experimenter_is_me_or_system = (
@@ -556,6 +584,9 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                             pass
                         elif long(og) == g.id:
                             listOfOtherGroups.add(g)
+
+                # Update 'AdminPrivilege' config roles for user
+                conn.setConfigRoles(long(eid), form)
 
                 conn.updateExperimenter(
                     experimenter, omename, firstName, lastName, email, admin,

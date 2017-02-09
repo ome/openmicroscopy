@@ -1225,6 +1225,38 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         if len(rmGroups) > 0:
             admin_serv.removeGroups(up_exp, rmGroups)
 
+    def setConfigRoles(self, experimenter_id, experimenter_form):
+        """
+        Save 'AdminPrivilege' roles from Experimenter Form
+        """
+        # Handle individual Roles...
+        roles = ['Chgrp',
+                 'Chown',
+                 'DeleteScriptRepo',
+                 'ModifyGroup',
+                 'ModifyGroupMembership',
+                 'ModifyUser',
+                 'ReadSession',
+                 'Sudo',
+                 'WriteScriptRepo']
+        roles_config = []
+        for role in roles:
+            if experimenter_form.cleaned_data[role]:
+                roles_config.append(omero.model.NamedValue("AdminPrivilege:%s" % role, "true"))
+        # 'Delete' and 'Write' checkboxes update several roles
+        if experimenter_form.cleaned_data['Delete']:
+            roles_config.append(omero.model.NamedValue("AdminPrivilege:DeleteFile", "true"))
+            roles_config.append(omero.model.NamedValue("AdminPrivilege:DeleteManagedRepo", "true"))
+            roles_config.append(omero.model.NamedValue("AdminPrivilege:DeleteOwned", "true"))
+        if experimenter_form.cleaned_data['Write']:
+            roles_config.append(omero.model.NamedValue("AdminPrivilege:WriteFile", "true"))
+            roles_config.append(omero.model.NamedValue("AdminPrivilege:WriteManagedRepo", "true"))
+            roles_config.append(omero.model.NamedValue("AdminPrivilege:WriteOwned", "true"))
+        # Save config...
+        user = self.getQueryService().get("Experimenter", experimenter_id);
+        user.setConfig(roles_config)
+        self.getUpdateService().saveObject(user)
+
     def setMembersOfGroup(self, group, new_members):
         """
         Change members of the group. Returns a list of existing group members

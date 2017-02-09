@@ -138,10 +138,26 @@ class ExperimenterForm(NonASCIIForm):
                 'email', 'institution', 'administrator', 'active',
                 'default_group', 'other_groups']
 
+        ordered_fields = [(k, self.fields[k]) for k in fields_key_order]
+
+        roles = ['Chgrp',
+                 'Chown',
+                 # combine DeleteFile/MagangedRepo/Owned roles into 'Delete'
+                 'Delete',
+                 'DeleteScriptRepo',
+                 'ModifyGroup',
+                 'ModifyGroupMembership',
+                 'ModifyUser',
+                 'ReadSession',
+                 'Sudo',
+                 # combine WriteFile/MagangedRepo/Owned roles into 'Write'
+                 'Write',
+                 'WriteScriptRepo']
+        for role in roles:
+            ordered_fields.append((role, forms.BooleanField(required=False)))
+
         # Django 1.8: Form.fields uses OrderedDict from the collections module.
-        self.fields = OrderedDict(
-            (k, self.fields[k])
-            for k in fields_key_order)
+        self.fields = OrderedDict(ordered_fields)
 
         if experimenter_is_me_or_system:
             self.fields['omename'].widget.attrs['readonly'] = True
