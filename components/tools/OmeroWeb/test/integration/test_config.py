@@ -131,7 +131,6 @@ class TestConfig(ITest):
         key = "omero.client.ui.menu.dropdown.%s" % prop
         try:
             self.rs.setConfigValue(key, label)
-            print "set %s to %s " % (key, label)
             # test load_server_settings directly
             login_required(default_view).load_server_settings(
                 self.conn, self.r)
