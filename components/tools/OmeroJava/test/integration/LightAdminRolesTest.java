@@ -1254,7 +1254,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         Assert.assertEquals(retrievedProjectDatasetLinkOtherGroup2.getDetails().getOwner().getId().getValue(), recipient.userId);
     }
 
-    /** Test of light amdin without using Sudo.
+    /** Test of light admin without using Sudo.
      * The workflow deals with the eventuality of putting Rendering Settings on an
      * image of the user and then transferring the ownership of these settings
      * to the user.
