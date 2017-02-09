@@ -511,4 +511,4 @@ Test Launch Full Viewer
     Wait Until Page Contains Element        id=wblitz-ch0
     # Check various channel settings and reverse map are applied
     Wait For Image Src                      c=1|0:255$FFFF00,2|0:255$16_colors.lut,-3|0:255$0000FF
-    Wait For Image Src                      maps=[{%22reverse%22:{%22enabled%22:false}
+    Wait For Image Src                      maps=[{%22reverse%22:{%22enabled%22:true}
