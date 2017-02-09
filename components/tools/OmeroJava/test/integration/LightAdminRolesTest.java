@@ -48,6 +48,7 @@ import omero.model.ExperimenterI;
 import omero.model.Folder;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.ImageI;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.Project;
@@ -1287,22 +1288,44 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         /* set the rendering settings using setOriginalSettingsInSet method as light admin
          * on the image of the user */
         IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
-        if (isExpectSuccessCreateRndSettings) {
+        try {
             prx.setOriginalSettingsInSet(Pixels.class.getName(),
                     Arrays.asList(pixelsOfImage1.getId().getValue()));
+            Assert.assertTrue(isExpectSuccessCreateRndSettings);
+        } catch (SecurityViolation sv) {
+            /* will not work in private group or when the permissions are unsufficient */
+            Assert.assertFalse(isExpectSuccessCreateRndSettings);
         }
+        /* retrieve those rendering settings (if they exist) and the corresponding image
+         * and check the rendering settings belong to light admin,
+         * whereas the image belongs to normalUser */
         RenderingDef rDef = (RenderingDef) iQuery.findByQuery("FROM RenderingDef WHERE pixels.id = :id",
                 new ParametersI().addId(pixelsOfImage1.getId()));
-        /* retrieve those rendering settings and check they belong to light admin */
+        Image retrievedImage = new ImageI();
         if (isExpectSuccessCreateRndSettings) {
+            retrievedImage = (Image) iQuery.findByQuery("SELECT rdef.pixels.image FROM RenderingDef rdef WHERE rdef.id = :id",
+                    new ParametersI().addId(rDef.getId()));
             Assert.assertEquals(rDef.getDetails().getOwner().getId().getValue(), lightAdmin.userId);
+            Assert.assertEquals(retrievedImage.getDetails().getOwner().getId().getValue(), normalUser.userId);
+        } else {/* as the permissions were not sufficient, no rendering settings were created */
+            Assert.assertNull(rDef);
         }
         /* after this, as light admin try to chown the rendering settings to normalUser */
-        if (isExpectSuccessCreateAndChown) {
+        if (isExpectSuccessCreateRndSettings) {/* only attempt the chown if the rendering settings exist */
             doChange(client, factory, Requests.chown().target(rDef).toUser(normalUser.userId).build(), isExpectSuccessCreateAndChown);
             rDef = (RenderingDef) iQuery.findByQuery("FROM RenderingDef WHERE pixels.id = :id",
                     new ParametersI().addId(pixelsOfImage1.getId()));
-            Assert.assertEquals(rDef.getDetails().getOwner().getId().getValue(), normalUser.userId);
+            retrievedImage = (Image) iQuery.findByQuery("SELECT rdef.pixels.image FROM RenderingDef rdef WHERE rdef.id = :id",
+                    new ParametersI().addId(rDef.getId()));
+            if (isExpectSuccessCreateAndChown) {/* whole workflow succeeded, all belongs to normalUser */
+                Assert.assertEquals(rDef.getDetails().getOwner().getId().getValue(), normalUser.userId);
+                Assert.assertEquals(retrievedImage.getDetails().getOwner().getId().getValue(), normalUser.userId);
+            } else {/* the creation of the Rnd settings succeeded, but the chown failed */
+                Assert.assertEquals(rDef.getDetails().getOwner().getId().getValue(), lightAdmin.userId);
+                Assert.assertEquals(retrievedImage.getDetails().getOwner().getId().getValue(), normalUser.userId);
+            }
+        } else {/* rendering settings were not created, and chown was attempted */
+            Assert.assertNull(rDef);
         }
     }
 
