@@ -55,8 +55,11 @@ import omero.model.Project;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
 import omero.model.ProjectI;
+import omero.model.RectangleI;
 import omero.model.RenderingDef;
 import omero.model.RenderingDefI;
+import omero.model.Roi;
+import omero.model.RoiI;
 import omero.model.Session;
 import omero.model.enums.AdminPrivilegeChgrp;
 import omero.model.enums.AdminPrivilegeChown;
@@ -1261,14 +1264,19 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @throws Exception unexpected
      */
     @Test(dataProvider = "narrowed combined privileges cases")
-    public void testRenderingSettingsNoSudo(boolean isAdmin, boolean permChown,
+    public void testROIAndRenderingSettingsNoSudo(boolean isAdmin, boolean permChown,
             boolean permWriteOwned, String groupPermissions) throws Exception {
         /* creation of rendering settings should be always permitted as long as light admin is in System Group
          * and has WriteOwned permissions. Exception is Private group, where it will
          * always fail.*/
         if (!isAdmin) return;
-        boolean isExpectSuccessCreateRndSettings = isAdmin && permWriteOwned && !(groupPermissions == "rw----") ;
-        boolean isExpectSuccessCreateAndChown = isExpectSuccessCreateRndSettings && permChown;
+        boolean isExpectSuccessCreateROIRndSettings = isAdmin && permWriteOwned && !(groupPermissions == "rw----") ;
+        /* When attempting to chown ROI without the image the ROI is on in read-only and private groups,
+         * the server says that this is not allowed. Unintended behaviour, the bug was filed.
+         * The boolean isExpectSuccessCreateAndChownROI had to be adjusted accordingly for this test to pass.
+         * Note that the private groups were already excluded in the boolean isExpectSuccessCreateROIRndSettings */
+        boolean isExpectSuccessCreateAndChownROI = isExpectSuccessCreateROIRndSettings && permChown && !(groupPermissions == "rwr---");
+        boolean isExpectSuccessCreateAndChownRndSettings = isExpectSuccessCreateROIRndSettings && permChown;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         /* set up the light admin's permissions for this test */
         ArrayList <String> permissions = new ArrayList <String>();
@@ -1279,52 +1287,81 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         /* create an image with pixels as normalUser in a group of the normalUser */
         loginUser(normalUser);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
-        Image image1 = mmFactory.createImage();
-        Image sentImage1 = (Image) iUpdate.saveAndReturnObject(image1);
-        Pixels pixelsOfImage1 = sentImage1.getPrimaryPixels();
+        Image image = mmFactory.createImage();
+        Image sentImage = (Image) iUpdate.saveAndReturnObject(image);
+        Pixels pixelsOfImage = sentImage.getPrimaryPixels();
+
         /* login as light admin */
         loginUser(lightAdmin);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
-        /* set the rendering settings using setOriginalSettingsInSet method as light admin
-         * on the image of the user */
+
+        /* set the ROI as light admin on the image of the user */
+        Roi roi = new RoiI();
+        roi.addShape(new RectangleI());
+        roi.setImage((Image) sentImage.proxy());
+        try {
+            roi = (Roi) iUpdate.saveAndReturnObject(roi);
+            Assert.assertTrue(isExpectSuccessCreateROIRndSettings);
+        } catch (SecurityViolation sv) {
+            /* will not work in private group or when the permissions are unsufficient */
+            Assert.assertFalse(isExpectSuccessCreateROIRndSettings);
+        }
+
+        /* set rendering settings as light admin using setOriginalSettingsInSet method */
         IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
         try {
             prx.setOriginalSettingsInSet(Pixels.class.getName(),
-                    Arrays.asList(pixelsOfImage1.getId().getValue()));
-            Assert.assertTrue(isExpectSuccessCreateRndSettings);
+                    Arrays.asList(pixelsOfImage.getId().getValue()));
+            Assert.assertTrue(isExpectSuccessCreateROIRndSettings);
         } catch (SecurityViolation sv) {
             /* will not work in private group or when the permissions are unsufficient */
-            Assert.assertFalse(isExpectSuccessCreateRndSettings);
+            Assert.assertFalse(isExpectSuccessCreateROIRndSettings);
         }
-        /* retrieve those rendering settings (if they exist) and the corresponding image
+        /* retrieve the ROI and rendering settings (if they exist) and the corresponding image
          * and check the rendering settings belong to light admin,
          * whereas the image belongs to normalUser */
+        roi = (Roi) iQuery.findByQuery("FROM Roi WHERE image.id = :id",
+                new ParametersI().addId(sentImage.getId()));
         RenderingDef rDef = (RenderingDef) iQuery.findByQuery("FROM RenderingDef WHERE pixels.id = :id",
-                new ParametersI().addId(pixelsOfImage1.getId()));
+                new ParametersI().addId(pixelsOfImage.getId()));
         Image retrievedImage = new ImageI();
-        if (isExpectSuccessCreateRndSettings) {
+        if (isExpectSuccessCreateROIRndSettings) {
             retrievedImage = (Image) iQuery.findByQuery("SELECT rdef.pixels.image FROM RenderingDef rdef WHERE rdef.id = :id",
                     new ParametersI().addId(rDef.getId()));
+            Assert.assertEquals(roi.getDetails().getOwner().getId().getValue(), lightAdmin.userId);
             Assert.assertEquals(rDef.getDetails().getOwner().getId().getValue(), lightAdmin.userId);
             Assert.assertEquals(retrievedImage.getDetails().getOwner().getId().getValue(), normalUser.userId);
         } else {/* as the permissions were not sufficient, no rendering settings were created */
+            Assert.assertNull(roi);
             Assert.assertNull(rDef);
         }
-        /* after this, as light admin try to chown the rendering settings to normalUser */
-        if (isExpectSuccessCreateRndSettings) {/* only attempt the chown if the rendering settings exist */
-            doChange(client, factory, Requests.chown().target(rDef).toUser(normalUser.userId).build(), isExpectSuccessCreateAndChown);
+        /* after this, as light admin try to chown the ROI and the rendering settings to normalUser */
+        if (isExpectSuccessCreateROIRndSettings) {/* only attempt the chown if the ROI and rendering settings exist
+             and also in case of ROIs cannot chown in read-only group (see definition of boolean isExpectSuccessCreateAndChownROI */
+            doChange(client, factory, Requests.chown().target(roi).toUser(normalUser.userId).build(), isExpectSuccessCreateAndChownROI);
+            doChange(client, factory, Requests.chown().target(rDef).toUser(normalUser.userId).build(), isExpectSuccessCreateAndChownRndSettings);
+            roi = (Roi) iQuery.findByQuery("FROM Roi WHERE image.id = :id",
+                    new ParametersI().addId(sentImage.getId()));
             rDef = (RenderingDef) iQuery.findByQuery("FROM RenderingDef WHERE pixels.id = :id",
-                    new ParametersI().addId(pixelsOfImage1.getId()));
+                    new ParametersI().addId(pixelsOfImage.getId()));
             retrievedImage = (Image) iQuery.findByQuery("SELECT rdef.pixels.image FROM RenderingDef rdef WHERE rdef.id = :id",
                     new ParametersI().addId(rDef.getId()));
-            if (isExpectSuccessCreateAndChown) {/* whole workflow succeeded, all belongs to normalUser */
+            if (isExpectSuccessCreateAndChownROI) {/* whole workflow succeeded for ROI, all belongs to normalUser */
+                Assert.assertEquals(roi.getDetails().getOwner().getId().getValue(), normalUser.userId);
+                Assert.assertEquals(retrievedImage.getDetails().getOwner().getId().getValue(), normalUser.userId);
+            } else {/* the creation of ROI succeeded, but the chown failed */
+                Assert.assertEquals(roi.getDetails().getOwner().getId().getValue(), lightAdmin.userId);
+                Assert.assertEquals(retrievedImage.getDetails().getOwner().getId().getValue(), normalUser.userId);
+            }
+            if (isExpectSuccessCreateAndChownRndSettings) {/* whole workflow succeeded for Rnd settings, all belongs to normalUser */
                 Assert.assertEquals(rDef.getDetails().getOwner().getId().getValue(), normalUser.userId);
                 Assert.assertEquals(retrievedImage.getDetails().getOwner().getId().getValue(), normalUser.userId);
             } else {/* the creation of the Rnd settings succeeded, but the chown failed */
                 Assert.assertEquals(rDef.getDetails().getOwner().getId().getValue(), lightAdmin.userId);
                 Assert.assertEquals(retrievedImage.getDetails().getOwner().getId().getValue(), normalUser.userId);
             }
-        } else {/* rendering settings were not created, and chown was attempted */
+        } else {/* neither ROI nor rendering settings were not created, and chown was not attempted */
+            Assert.assertNull(roi);
             Assert.assertNull(rDef);
         }
     }
