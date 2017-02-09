@@ -21,8 +21,10 @@ import java.io.File;
 
 import loci.formats.ChannelSeparator;
 import loci.formats.FormatTools;
+import loci.formats.IFormatReader;
 import loci.formats.Memoizer;
 import loci.formats.MinMaxCalculator;
+import loci.formats.in.FakeReader;
 import loci.formats.meta.DummyMetadata;
 import loci.formats.ome.OMEXMLMetadataImpl;
 
@@ -78,7 +80,7 @@ public class OMEROWrapperTest {
     @BeforeMethod
     public void setUp() {
         config = new ImportConfig();
-        wrapper = new OMEROWrapper(config);
+        wrapper = new OMEROWrapper(config, 0, null);
     }
 
     @AfterMethod
@@ -102,57 +104,55 @@ public class OMEROWrapperTest {
     public void testReuse() throws Exception {
         wrapper.setId(fake.getAbsolutePath());
         wrapper.close();
-        // wrapper.setMetadataStore(null);
-        // wrapper.setMinMaxStore(null);
         wrapper.setId(png.getAbsolutePath());
     }
 
     @Test
     public void testMatchedWrappers() throws Exception {
-        Memoizer m = new Memoizer(new ChannelSeparator());
-        try {
-            m.setId(png.getAbsolutePath());
+        try (FakeReader r = new FakeReader();
+             Memoizer m = new Memoizer(r, 0)) {
+            m.setId(fake.getAbsolutePath());
             m.close();
             Assert.assertTrue(m.isSavedToMemo());
-
-            m = new Memoizer(new ChannelSeparator());
-            m.setId(png.getAbsolutePath());
+            m.setId(fake.getAbsolutePath());
             Assert.assertTrue(m.isLoadedFromMemo());
-        } finally {
-            m.close();
         }
     }
 
     @Test
     public void testMismatchedWrappers() throws Exception {
-        for (int i = 0; i < 100; i++) {
-        Memoizer m = new Memoizer(0L /* min elapsed */);
-        try {
-            m.setId(fake.getAbsolutePath());
-            m.close();
-            Assert.assertTrue(m.isSavedToMemo());
-
-            m = new Memoizer(new MinMaxCalculator(), 0L /* min elapsed */);
-            m.setId(fake.getAbsolutePath());
-            Assert.assertFalse(m.isLoadedFromMemo());
-        } finally {
-            m.close();
-        }
+        for (int i = 0; i < 10; i++) {
+            try (IFormatReader r = new MinMaxCalculator();
+                 Memoizer m = new Memoizer(0L);
+                 Memoizer m1 = new Memoizer(r, 0L)) {
+                m.setId(fake.getAbsolutePath());
+                m.close();
+                Assert.assertTrue(m.isSavedToMemo());
+                m1.setId(fake.getAbsolutePath());
+                Assert.assertFalse(m1.isLoadedFromMemo());
+            }
         }
     }
 
     @Test
     public void testOMEXMLMetadataStore() throws Exception {
         wrapper.setMetadataStore(new OMEXMLMetadataImpl());
-        wrapper.setId(png.getAbsolutePath());
-        Assert.assertFalse(((Memoizer)wrapper.getReader()).isLoadedFromMemo());
-        Assert.assertTrue(((Memoizer)wrapper.getReader()).isSavedToMemo());
-
-        wrapper.setId(png.getAbsolutePath());
-        Assert.assertTrue(((Memoizer)wrapper.getReader()).isLoadedFromMemo());
-        Assert.assertTrue(((Memoizer)wrapper.getReader()).isSavedToMemo());
+        wrapper.setId(fake.getAbsolutePath());
+        wrapper.close();
+        Memoizer m = new Memoizer(wrapper.getImageReader(), 0L);
+        m.setId(fake.getAbsolutePath());
+        Assert.assertFalse(m.isLoadedFromMemo());
+        Assert.assertTrue(m.isSavedToMemo());
+        m.close();
+        wrapper.setId(fake.getAbsolutePath());
+        wrapper.close();
+        m = new Memoizer(wrapper.getImageReader(), 0L);
+        m.setId(fake.getAbsolutePath());
+        Assert.assertTrue(m.isLoadedFromMemo());
+        Assert.assertFalse(m.isSavedToMemo());
         Assert.assertEquals(wrapper.getMetadataStore().getClass(),
                 OMEXMLMetadataImpl.class);
+        m.close();
 
     }
 
