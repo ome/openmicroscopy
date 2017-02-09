@@ -19,7 +19,6 @@ package ome.formats.importer;
 
 import java.io.File;
 
-import loci.formats.ChannelSeparator;
 import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
 import loci.formats.Memoizer;
