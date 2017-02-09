@@ -26,7 +26,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// Based on https://docs.djangoproject.com/en/1.6/ref/contrib/csrf/#ajax
+// Based on https://docs.djangoproject.com/en/1.8/ref/contrib/csrf/#ajax
 
 // using jQuery
 function getCookie(name) {
