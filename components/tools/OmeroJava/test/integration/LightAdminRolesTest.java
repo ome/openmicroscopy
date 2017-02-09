@@ -1285,7 +1285,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
 
         /* create an image with pixels as normalUser in a group of the normalUser */
         loginUser(normalUser);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         Image image = mmFactory.createImage();
         Image sentImage = (Image) iUpdate.saveAndReturnObject(image);
         Pixels pixelsOfImage = sentImage.getPrimaryPixels();
