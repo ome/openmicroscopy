@@ -674,7 +674,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         /* set up the basic permissions for this test */
         List<String> permissions = new ArrayList<String>();
         permissions.add(AdminPrivilegeSudo.value);
-        if (permChown) permissions.add(AdminPrivilegeChown.value);;
+        if (permChown) permissions.add(AdminPrivilegeChown.value);
 
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
@@ -873,7 +873,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         /* set up the light admin's permissions for this test */
         List<String> permissions = new ArrayList<String>();
-        if (permChown) permissions.add(AdminPrivilegeChown.value);;
+        if (permChown) permissions.add(AdminPrivilegeChown.value);
         if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
@@ -1145,8 +1145,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         final EventContext recipient = newUserInGroup(otherGroup, false);
         /* set up the light admin's permissions for this test */
         List<String> permissions = new ArrayList<String>();
-        if (permChown) permissions.add(AdminPrivilegeChown.value);;
-        if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);;
+        if (permChown) permissions.add(AdminPrivilegeChown.value);
+        if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
         /* create two sets of P/D/I hierarchy as normalUser in the default
@@ -1280,7 +1280,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         /* set up the light admin's permissions for this test */
         List<String> permissions = new ArrayList<String>();
-        if (permChown) permissions.add(AdminPrivilegeChown.value);;
+        if (permChown) permissions.add(AdminPrivilegeChown.value);
         if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
