@@ -221,7 +221,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         final boolean isExpectSuccessCreate = (isAdmin && permWriteOwned) || (isAdmin && isSudoing);
         /* set up the light admin's permissions for this test */
-        ArrayList <String> permissions = new ArrayList <String>();
+        List<String> permissions = new ArrayList<String>();
         permissions.add(AdminPrivilegeSudo.value);
         if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
         final EventContext lightAdmin;
@@ -339,7 +339,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
        boolean deletePassing = permDeleteOwned || isSudoing;
        final EventContext normalUser = newUserAndGroup(groupPermissions);
        /* set up the light admin's permissions for this test */
-       ArrayList <String> permissions = new ArrayList <String>();
+       List<String> permissions = new ArrayList<String>();
        permissions.add(AdminPrivilegeSudo.value);
        if (permDeleteOwned) permissions.add(AdminPrivilegeDeleteOwned.value);
        final EventContext lightAdmin;
@@ -470,7 +470,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         final boolean isExpectSuccess = (isAdmin && isSudoing) || (isAdmin && permWriteOwned);
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         /* set up the light admin's permissions for this test */
-        ArrayList <String> permissions = new ArrayList <String>();
+        List<String> permissions = new ArrayList<String>();
         permissions.add(AdminPrivilegeSudo.value);
         if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
         final EventContext lightAdmin;
@@ -571,7 +571,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                 + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
                 new ParametersI().addId(remoteFile.getId()));
         /* set up the light admin's permissions for this test */
-        ArrayList <String> permissions = new ArrayList <String>();
+        List<String> permissions = new ArrayList<String>();
         permissions.add(AdminPrivilegeSudo.value);
         if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);
         final EventContext lightAdmin;
@@ -672,7 +672,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                 + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
                 new ParametersI().addId(remoteFile.getId()));
         /* set up the basic permissions for this test */
-        ArrayList <String> permissions = new ArrayList <String>();
+        List<String> permissions = new ArrayList<String>();
         permissions.add(AdminPrivilegeSudo.value);
         if (permChown) permissions.add(AdminPrivilegeChown.value);;
 
@@ -757,7 +757,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                 isAdmin && permChown && permWriteManagedRepo && permWriteOwned && permWriteFile;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         /* set up the light admin's permissions for this test */
-        ArrayList <String> permissions = new ArrayList <String>();
+        List<String> permissions = new ArrayList<String>();
         if (permChown) permissions.add(AdminPrivilegeChown.value);
         if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
         if (permWriteFile) permissions.add(AdminPrivilegeWriteFile.value);
@@ -872,7 +872,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         boolean isExpectSuccessLinkAndChown = isAdmin && permWriteOwned && permChown;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         /* set up the light admin's permissions for this test */
-        ArrayList <String> permissions = new ArrayList <String>();
+        List<String> permissions = new ArrayList<String>();
         if (permChown) permissions.add(AdminPrivilegeChown.value);;
         if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
         final EventContext lightAdmin;
@@ -952,7 +952,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                 (isAdmin && permChgrp && permChown);
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         /* set up the light admin's permissions for this test */
-        ArrayList <String> permissions = new ArrayList <String>();
+        List<String> permissions = new ArrayList<String>();
         if (permChown) permissions.add(AdminPrivilegeChown.value);
         if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);
         final EventContext lightAdmin;
@@ -1144,7 +1144,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         ExperimenterGroup otherGroup = newGroupAddUser(groupPermissions, normalUser.userId, false);
         final EventContext recipient = newUserInGroup(otherGroup, false);
         /* set up the light admin's permissions for this test */
-        ArrayList <String> permissions = new ArrayList <String>();
+        List<String> permissions = new ArrayList<String>();
         if (permChown) permissions.add(AdminPrivilegeChown.value);;
         if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);;
         final EventContext lightAdmin;
@@ -1279,7 +1279,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         boolean isExpectSuccessCreateAndChownRndSettings = isExpectSuccessCreateROIRndSettings && permChown;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         /* set up the light admin's permissions for this test */
-        ArrayList <String> permissions = new ArrayList <String>();
+        List<String> permissions = new ArrayList<String>();
         if (permChown) permissions.add(AdminPrivilegeChown.value);;
         if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
         final EventContext lightAdmin;
