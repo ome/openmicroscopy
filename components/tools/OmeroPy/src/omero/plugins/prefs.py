@@ -288,7 +288,8 @@ class PrefsControl(WriteableConfigControl):
                 k in keys and keys.remove(k)
 
         hide_password = 'hide_password' in args and args.hide_password
-        is_password = lambda x: x.endswith('.pass') or x.endswith('.password')
+        is_password = (lambda x: x.lower().endswith('pass') or
+                       x.lower().endswith('password'))
         for k in keys:
             if k not in orig:
                 continue
