@@ -1,14 +1,14 @@
 <!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
-  
+
 <suite name="blitz.unit" time-out="1000">
-  
+
   <test name="blitz.unit.active">
     <groups>
       <run>
         <exclude name="broken"/>
         <exclude name="ignore"/>
         <exclude name="integration"/>
-      </run>        
+      </run>
     </groups>
     <packages>
       <package name="ome.formats.*">
