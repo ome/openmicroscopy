@@ -37,6 +37,8 @@ import omero.cmd.Chown2;
 import omero.gateway.util.Requests;
 import omero.model.AdminPrivilege;
 import omero.model.AdminPrivilegeI;
+import omero.model.Annotation;
+import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
@@ -45,11 +47,16 @@ import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;
+import omero.model.FileAnnotation;
+import omero.model.FileAnnotationI;
 import omero.model.Folder;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.ImageAnnotationLink;
+import omero.model.ImageAnnotationLinkI;
 import omero.model.ImageI;
 import omero.model.OriginalFile;
+import omero.model.OriginalFileI;
 import omero.model.Pixels;
 import omero.model.Project;
 import omero.model.ProjectDatasetLink;
@@ -61,6 +68,7 @@ import omero.model.RenderingDefI;
 import omero.model.Roi;
 import omero.model.RoiI;
 import omero.model.Session;
+import omero.model.TagAnnotationI;
 import omero.model.enums.AdminPrivilegeChgrp;
 import omero.model.enums.AdminPrivilegeChown;
 import omero.model.enums.AdminPrivilegeDeleteFile;
@@ -1258,8 +1266,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     }
 
     /** Test of light admin without using Sudo.
-     * The workflow deals with the eventuality of putting Rendering Settings on an
-     * image of the user and then transferring the ownership of these settings
+     * The workflow deals with the eventuality of putting ROI and Rendering Settings on an
+     * image of the user and then transferring the ownership of the ROI and settings
      * to the user.
      * @throws Exception unexpected
      */
@@ -1365,6 +1373,95 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         }
     }
 
+    /** Test of light admin without using Sudo.
+     * The workflow deals with the eventuality of uploading a File Attachment
+     * and linking it to an image of the user and then transferring
+     * the ownership of the attachment and link
+     * to the user.
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "fileAttachment privileges cases")
+    public void testFileAttachmentAndTagNoSudo(boolean isAdmin, boolean permChown,
+            boolean permWriteOwned, boolean permWriteFile, String groupPermissions) throws Exception {
+        /* upload/creation of File Attachment should be always permitted as long as light admin is in System Group
+         * and has WriteOwned and WriteFile permissions. */
+        if (!isAdmin) return;
+        boolean isExpectSuccessCreateFileAttachment = isAdmin && permWriteOwned && permWriteFile;
+        boolean isExpectSuccessLinkFileAttachemnt = isExpectSuccessCreateFileAttachment && !(groupPermissions == "rw----");
+        boolean isExpectSuccessCreateFileAttAndChown = isExpectSuccessCreateFileAttachment && permChown;
+        boolean isExpectSuccessCreateLinkAndChown = isExpectSuccessLinkFileAttachemnt && permChown;
+        final EventContext normalUser = newUserAndGroup(groupPermissions);
+        /* set up the light admin's permissions for this test */
+        List<String> permissions = new ArrayList<String>();
+        if (permChown) permissions.add(AdminPrivilegeChown.value);
+        if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
+        if (permWriteFile) permissions.add(AdminPrivilegeWriteFile.value);
+
+        /* create an image with pixels as normalUser in a group of the normalUser */
+        loginUser(normalUser);
+        Image image = mmFactory.createImage();
+        Image sentImage = (Image) iUpdate.saveAndReturnObject(image);
+        /* login as light admin */
+        final EventContext lightAdmin;
+        lightAdmin = loginNewAdmin(isAdmin, permissions);
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        /* create a file attachment as light admin */
+        final OriginalFile originalFile = mmFactory.createOriginalFile();
+        FileAnnotation fileAnnotation = new FileAnnotationI();
+        fileAnnotation.setFile(originalFile);
+        try {
+            fileAnnotation = (FileAnnotation) iUpdate.saveAndReturnObject(fileAnnotation);
+            Assert.assertTrue(isExpectSuccessCreateFileAttachment);
+        } catch (SecurityViolation sv) {
+            Assert.assertFalse(isExpectSuccessCreateFileAttachment);
+            return; /* finish the test in case we have no FileAttachment */
+        }
+        /* link the file attachment to the image of the user as light admin
+         * This will not work in private group. See definition of the boolean
+         * isExpectSuccessLinkFileAttachemnt */
+        ImageAnnotationLink link = new ImageAnnotationLinkI();
+        link.setParent(sentImage);
+        link.setChild(fileAnnotation);
+        try {
+            link = (ImageAnnotationLink) iUpdate.saveAndReturnObject(link);
+            Assert.assertTrue(isExpectSuccessLinkFileAttachemnt);
+        } catch (SecurityViolation sv) {
+            Assert.assertFalse(isExpectSuccessLinkFileAttachemnt);
+            return; /* finish the test in case we have no Link */
+        }
+
+        /* transfer the ownership of the attachment and the link to the user */
+        /* The attachment was certainly created. In cases in which it was not created,
+         * the test was terminated (see above). */
+        doChange(client, factory, Requests.chown().target(fileAnnotation).toUser(normalUser.userId).build(), isExpectSuccessCreateFileAttAndChown);
+        fileAnnotation = (FileAnnotation) iQuery.findByQuery("FROM FileAnnotation WHERE id = :id",
+                new ParametersI().addId(fileAnnotation.getId()));
+        if (isExpectSuccessCreateFileAttAndChown) {/* file ann creation and chowning succeeded */
+            Assert.assertEquals(fileAnnotation.getDetails().getOwner().getId().getValue(), normalUser.userId);
+        } else {/* the creation of file annotation succeeded, but the chown failed */
+            Assert.assertEquals(fileAnnotation.getDetails().getOwner().getId().getValue(), lightAdmin.userId);
+        }
+        /* The link was certainly created. In cases where the creation was not successful,
+         * the test was terminated (see above).*/
+        doChange(client, factory, Requests.chown().target(link).toUser(normalUser.userId).build(), isExpectSuccessCreateLinkAndChown);
+        if (isExpectSuccessCreateLinkAndChown) {/* if the link could
+        be both created and chowned, this means also the attachment was created and chowned
+        and thus the whole workflow succeeded (see declaration of
+        isExpectSuccessCreateLinkAndChown boolean).*/
+            link = (ImageAnnotationLink) iQuery.findByQuery("FROM ImageAnnotationLink l JOIN FETCH"
+                    + " l.child JOIN FETCH l.parent WHERE l.child.id = :id",
+                    new ParametersI().addId(fileAnnotation.getId()));
+            fileAnnotation = (FileAnnotation) iQuery.findByQuery("FROM FileAnnotation WHERE id = :id",
+                    new ParametersI().addId(fileAnnotation.getId()));
+            Assert.assertEquals(link.getDetails().getOwner().getId().getValue(), normalUser.userId);
+            Assert.assertEquals(fileAnnotation.getDetails().getOwner().getId().getValue(), normalUser.userId);
+        } else {/* link was created but could not be chowned */
+            link = (ImageAnnotationLink) iQuery.findByQuery("FROM ImageAnnotationLink l JOIN FETCH"
+                    + " l.child JOIN FETCH l.parent WHERE l.child.id = :id",
+                    new ParametersI().addId(fileAnnotation.getId()));
+            Assert.assertEquals(link.getDetails().getOwner().getId().getValue(), lightAdmin.userId);
+        }
+    }
     /**
      * @return test cases for adding the privileges combined with isAdmin cases
      */
@@ -1398,6 +1495,42 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                                 // DEBUG  if (isAdmin == false && isRestricted == true && isSudo == false)
                                 testCases.add(testCase);
                             }
+                        }
+                    }
+                }
+            }
+        }
+        return testCases.toArray(new Object[testCases.size()][]);
+    }
+    /**
+     * @return test cases for adding the privileges combined with isAdmin cases
+     */
+    @DataProvider(name = "fileAttachment privileges cases")
+    public Object[][] provideFileAttachmentPrivilegesCases() {
+        int index = 0;
+        final int IS_ADMIN = index++;
+        final int PERM_ADDITIONAL = index++;
+        final int PERM_ADDITIONAL2 = index++;
+        final int PERM_ADDITIONAL3 = index++;
+        final int GROUP_PERMS = index++;
+
+        final boolean[] booleanCases = new boolean[]{false, true};
+        final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
+        final List<Object[]> testCases = new ArrayList<Object[]>();
+
+        for (final boolean isAdmin : booleanCases) {
+            for (final boolean permAdditional : booleanCases) {
+                for (final boolean permAdditional2 : booleanCases) {
+                    for (final boolean permAdditional3 : booleanCases) {
+                        for (final String groupPerms : permsCases) {
+                            final Object[] testCase = new Object[index];
+                            testCase[IS_ADMIN] = isAdmin;
+                            testCase[PERM_ADDITIONAL] = permAdditional;
+                            testCase[PERM_ADDITIONAL2] = permAdditional2;
+                            testCase[PERM_ADDITIONAL3] = permAdditional3;
+                            testCase[GROUP_PERMS] = groupPerms;
+                            //DEBUG if (isAdmin == true && permAdditional == true && permAdditional2 == true && permAdditional3 == true)
+                            testCases.add(testCase);
                         }
                     }
                 }
