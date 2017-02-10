@@ -119,19 +119,17 @@ public class OMEROWrapperTest {
         }
     }
 
-    @Test
+    @Test(invocationCount = 10)
     public void testMismatchedWrappers() throws Exception {
-        for (int i = 0; i < 10; i++) {
-            try (IFormatReader r = new MinMaxCalculator();
-                 Memoizer m = new Memoizer(0L);
-                 Memoizer m1 = new Memoizer(r, 0L)) {
-                m.setId(fake.getAbsolutePath());
-                m.close();
-                Assert.assertTrue(m.isSavedToMemo());
-                m1.setId(fake.getAbsolutePath());
-                Assert.assertFalse(m1.isLoadedFromMemo());
-                m1.close();
-            }
+        try (IFormatReader r = new MinMaxCalculator();
+                Memoizer m = new Memoizer(0L);
+                Memoizer m1 = new Memoizer(r, 0L)) {
+            m.setId(fake.getAbsolutePath());
+            m.close();
+            Assert.assertTrue(m.isSavedToMemo());
+            m1.setId(fake.getAbsolutePath());
+            Assert.assertFalse(m1.isLoadedFromMemo());
+            m1.close();
         }
     }
 
