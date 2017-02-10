@@ -1381,7 +1381,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @throws Exception unexpected
      */
     @Test(dataProvider = "fileAttachment privileges cases")
-    public void testFileAttachmentAndTagNoSudo(boolean isAdmin, boolean permChown,
+    public void testFileAttachmentNoSudo(boolean isAdmin, boolean permChown,
             boolean permWriteOwned, boolean permWriteFile, String groupPermissions) throws Exception {
         /* upload/creation of File Attachment should be always permitted as long as light admin is in System Group
          * and has WriteOwned and WriteFile permissions. */
