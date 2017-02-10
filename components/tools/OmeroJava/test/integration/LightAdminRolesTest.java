@@ -21,10 +21,12 @@ package integration;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import omero.RLong;
 import omero.RString;
@@ -32,6 +34,8 @@ import omero.RType;
 import omero.SecurityViolation;
 import omero.ServerError;
 import omero.api.IRenderingSettingsPrx;
+import omero.api.IScriptPrx;
+import omero.api.RawFileStorePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.cmd.Chown2;
 import omero.gateway.util.Requests;
@@ -78,6 +82,7 @@ import omero.model.enums.AdminPrivilegeSudo;
 import omero.model.enums.AdminPrivilegeWriteFile;
 import omero.model.enums.AdminPrivilegeWriteManagedRepo;
 import omero.model.enums.AdminPrivilegeWriteOwned;
+import omero.model.enums.AdminPrivilegeWriteScriptRepo;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 import omero.sys.Principal;
@@ -1462,6 +1467,57 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             Assert.assertEquals(link.getDetails().getOwner().getId().getValue(), lightAdmin.userId);
         }
     }
+    /** Test of light admin without using Sudo.
+     * The workflow tries to upload an official script.
+     * The only permission light admin needs for this is zWriteScriptRepo
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "script privileges cases")
+    public void testOfficialSciptUploadNoSudo(boolean isAdmin, boolean permWriteScriptRepo,
+            String groupPermissions) throws Exception {
+        /* upload/creation of File Attachment should be always permitted as long as light admin is in System Group
+         * and has WriteOwned and WriteFile permissions. */
+        if (!isAdmin) return;
+        boolean isExpectSuccessUploadOfficialScript = isAdmin && permWriteScriptRepo;
+        final EventContext normalUser = newUserAndGroup(groupPermissions);
+        /* set up the light admin's permissions for this test */
+        List<String> permissions = new ArrayList<String>();
+        if (permWriteScriptRepo) permissions.add(AdminPrivilegeWriteScriptRepo.value);
+        final EventContext lightAdmin;
+        lightAdmin = loginNewAdmin(isAdmin, permissions);
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        IScriptPrx iScript = factory.getScriptService();
+        /* fetch a script from the server */
+        OriginalFile scriptFile = iScript.getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE).get(0);
+        RawFileStorePrx rfs = factory.createRawFileStore();
+        rfs.setFileId(scriptFile.getId().getValue());
+        final String actualScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
+        rfs.close();
+        /* try uploading the script as a new script in the normal user's group */
+        iScript = factory.getScriptService();
+        final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
+        long testScriptId = -1;
+        try {
+            testScriptId = iScript.uploadOfficialScript(testScriptName, actualScript);
+            Assert.assertTrue(isExpectSuccessUploadOfficialScript);
+        } catch (ServerError se) {
+            Assert.assertFalse(isExpectSuccessUploadOfficialScript);
+            /* upload failed so finish here */
+            return;
+        }
+        /* check that the new script exists in the "user" group */
+        loginUser(normalUser);
+        scriptFile = (OriginalFile) iQuery.get("OriginalFile", testScriptId);
+        Assert.assertEquals(scriptFile.getDetails().getOwner().getId().getValue(), roles.rootId);
+        Assert.assertEquals(scriptFile.getDetails().getGroup().getId().getValue(), roles.userGroupId);
+        /* check if the script is correctly uploaded */
+        rfs = factory.createRawFileStore();
+        rfs.setFileId(testScriptId);
+        final String currentScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
+        rfs.close();
+        Assert.assertEquals(currentScript, actualScript);
+    }
+
     /**
      * @return test cases for adding the privileges combined with isAdmin cases
      */
@@ -1565,6 +1621,34 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                         // DEBUG  if (isAdmin == false && isRestricted == true && isSudo == false)
                         testCases.add(testCase);
                     }
+                }
+            }
+        }
+        return testCases.toArray(new Object[testCases.size()][]);
+    }
+    /**
+     * @return upload script test cases for adding the privileges combined with isAdmin cases
+     */
+    @DataProvider(name = "script privileges cases")
+    public Object[][] provideScriptPrivilegesCases() {
+        int index = 0;
+        final int IS_ADMIN = index++;
+        final int PERM_ADDITIONAL = index++;
+        final int GROUP_PERMS = index++;
+
+        final boolean[] booleanCases = new boolean[]{false, true};
+        final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
+        final List<Object[]> testCases = new ArrayList<Object[]>();
+
+        for (final boolean isAdmin : booleanCases) {
+            for (final boolean permAdditional : booleanCases) {
+                for (final String groupPerms : permsCases) {
+                    final Object[] testCase = new Object[index];
+                    testCase[IS_ADMIN] = isAdmin;
+                    testCase[PERM_ADDITIONAL] = permAdditional;
+                    testCase[GROUP_PERMS] = groupPerms;
+                    // DEBUG  if (isAdmin == false && isRestricted == true && isSudo == false)
+                    testCases.add(testCase);
                 }
             }
         }
