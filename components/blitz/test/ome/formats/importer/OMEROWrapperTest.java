@@ -115,6 +115,7 @@ public class OMEROWrapperTest {
             Assert.assertTrue(m.isSavedToMemo());
             m.setId(fake.getAbsolutePath());
             Assert.assertTrue(m.isLoadedFromMemo());
+            m.close();
         }
     }
 
@@ -129,6 +130,7 @@ public class OMEROWrapperTest {
                 Assert.assertTrue(m.isSavedToMemo());
                 m1.setId(fake.getAbsolutePath());
                 Assert.assertFalse(m1.isLoadedFromMemo());
+                m1.close();
             }
         }
     }
@@ -152,7 +154,6 @@ public class OMEROWrapperTest {
         Assert.assertEquals(wrapper.getMetadataStore().getClass(),
                 OMEXMLMetadataImpl.class);
         m.close();
-
     }
 
     @Test
