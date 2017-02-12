@@ -15,6 +15,7 @@
 
 import re
 import json
+import base64
 import omero
 import omero.clients
 
@@ -68,7 +69,8 @@ import shutil
 
 from omeroweb.decorators import login_required, ConnCleaningHttpResponse
 from omeroweb.connector import Connector
-from omeroweb.webgateway.util import zip_archived_files, getIntOrDefault
+from omeroweb.webgateway.util import zip_archived_files
+from omeroweb.webgateway.util import get_longs, getIntOrDefault
 
 cache = CacheBase()
 logger = logging.getLogger(__name__)
@@ -1465,6 +1467,36 @@ def plateGrid_json(request, pid, field=0, conn=None, **kwargs):
         rv = json.loads(rv)
     return rv
 
+
+@login_required()
+@jsonp
+def get_thumbnails_json(request, w=None, conn=None, **kwargs):
+    """
+    Returns base64 encoded jpeg with the rendered thumbnail for images
+    'id'
+
+    @param request:     http request
+    @param w:           Thumbnail max width. 96 by default
+    @return:            http response containing jpeg
+    """
+    if w is None:
+        w = 96
+    image_ids = get_longs(request, 'id')
+    thumbnails = conn.getThumbnailSet(
+        [rlong(i) for i in image_ids], w)
+
+    rv = dict()
+    for i in image_ids:
+        try:
+            t = thumbnails[i]
+            # replace thumbnail urls by base64 encoded image
+            rv['id']= \
+                ("data:image/jpeg;base64,"
+                 "%s" % base64.b64encode(t))
+        except Exception:  # TypeError, KeyError
+            logger.error(traceback.format_exc())
+
+    return rv
 
 @login_required()
 @jsonp
