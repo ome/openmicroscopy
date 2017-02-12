@@ -269,6 +269,17 @@ webgateway_plategrid_json = url(
 """
 """
 
+webgateway_get_thumbnails_json = url(
+    r'^get_thumbnails/(?:(?P<w>[0-9]+)/)?$',
+    'webgateway.views.get_thumbnails_json')
+"""
+Returns a set of thumbnail base64 encoded of the OMERO Images, optionally scaled to max-width and max-height.
+Params in get_thumbnails/<w>/ are:
+    - iid:  Image ID
+    - w:    Optional max width
+"""
+
+
 imageData_json = (r'^imgData/(?P<iid>[0-9]+)/(?:(?P<key>[^/]+)/)?$',
                   'webgateway.views.imageData_json')
 """
@@ -452,6 +463,7 @@ urlpatterns = patterns(
     render_birds_eye_view,
     render_ome_tiff,
     render_movie,
+    webgateway_get_thumbnails_json,
     # Template views
     # JSON methods
     listProjects_json,
