@@ -263,6 +263,7 @@ L{views.listWellImages_json}. Returns E.g list of
     - did:  Well ID
 """
 
+
 webgateway_plategrid_json = url(
     r'^plate/(?P<pid>[0-9]+)/(?:(?P<field>[0-9]+)/)?$',
     'webgateway.views.plateGrid_json', name="webgateway_plategrid_json")
@@ -273,7 +274,8 @@ webgateway_get_thumbnails_json = url(
     r'^get_thumbnails/(?:(?P<w>[0-9]+)/)?$',
     'webgateway.views.get_thumbnails_json')
 """
-Returns a set of thumbnail base64 encoded of the OMERO Images, optionally scaled to max-width and max-height.
+Returns a set of thumbnail base64 encoded of the OMERO Images,
+optionally scaled to max-width and max-height.
 Params in get_thumbnails/<w>/ are:
     - iid:  Image ID
     - w:    Optional max width
