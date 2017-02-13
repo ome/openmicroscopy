@@ -1440,18 +1440,11 @@ def plateGrid_json(request, pid, field=0, conn=None, **kwargs):
         field = long(field or 0)
     except ValueError:
         field = 0
-    prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
     thumbsize = getIntOrDefault(request, 'size', None)
     logger.debug(thumbsize)
     server_id = kwargs['server_id']
 
-    def get_thumb_url(iid):
-        if thumbsize is not None:
-            return reverse(prefix, args=(iid, thumbsize))
-        return reverse(prefix, args=(iid,))
-
-    plateGrid = PlateGrid(conn, pid, field,
-                          kwargs.get('urlprefix', get_thumb_url))
+    plateGrid = PlateGrid(conn, pid, field, kwargs.get('urlprefix', ''))
     plate = plateGrid.plate
     if plate is None:
         return Http404
@@ -1482,15 +1475,15 @@ def get_thumbnails_json(request, w=None, conn=None, **kwargs):
     if w is None:
         w = 96
     image_ids = get_longs(request, 'id')
+    logger.debug("Image ids: %r" % image_ids)
     thumbnails = conn.getThumbnailSet(
         [rlong(i) for i in image_ids], w)
-
     rv = dict()
     for i in image_ids:
         try:
             t = thumbnails[i]
             # replace thumbnail urls by base64 encoded image
-            rv['id'] = ("data:image/jpeg;base64,%s" % base64.b64encode(t))
+            rv[i] = ("data:image/jpeg;base64,%s" % base64.b64encode(t))
         except Exception:  # TypeError, KeyError
             logger.error(traceback.format_exc())
     return rv
