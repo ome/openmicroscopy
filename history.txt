@@ -9,15 +9,15 @@ updating code before the full public release of 5.3.0. Use at your own risk**.
 
 Changes include:
 
- - bumped Bio-Formats version to 5.3.3. This includes several bug fixes.
-   See `Bio-Formats 5.3.3 release history <https://www.openmicroscopy.org/site/support/bio-formats5.3/about/whats-new.html>`_
- - work on the Web API
- - removal pdf doc generation
- - improvement to how colors are assigned to channels
- - disabled jquery cache
- - support for projection along T
- - fixed numerous tests
- - bug fixes in OMERO.web
+- bumped Bio-Formats version to 5.3.3. This includes several bug fixes.
+  See `Bio-Formats 5.3.3 release history <https://www.openmicroscopy.org/site/support/bio-formats5.3/about/whats-new.html>`_
+- work on the Web API
+- removal pdf doc generation
+- improvement to how colors are assigned to channels
+- disabled jquery cache
+- support for projection along T
+- fixed numerous tests
+- bug fixes in OMERO.web
 
 
 5.3.0-m7 (January 2017)
@@ -28,15 +28,15 @@ updating code before the full public release of 5.3.0. Use at your own risk**.
 
 Changes include:
 
- - bumped Bio-Formats version to 5.3.2. This includes several bug fixes.
-   See `Bio-Formats release history <https://www.openmicroscopy.org/site/support/bio-formats5.3/about/whats-new.html>`_
- - work on the Web API
- - handled shapes color in clients according to model specification
- - improved open_with option in web
- - added histogram support in clients and server
- - added integration of all official scripts
- - improved SPW grid view in web
- - bug fixes
+- bumped Bio-Formats version to 5.3.2. This includes several bug fixes.
+  See `Bio-Formats release history <https://www.openmicroscopy.org/site/support/bio-formats5.3/about/whats-new.html>`_
+- work on the Web API
+- handled shapes color in clients according to model specification
+- improved open_with option in web
+- added histogram support in clients and server
+- added integration of all official scripts
+- improved SPW grid view in web
+- bug fixes
 
 5.3.0-m6 (November 2016)
 ------------------------
@@ -46,10 +46,10 @@ updating code before the full public release of 5.3.0. Use at your own risk**.
 
 Changes include:
 
- - bumped Bio-Formats version to 5.3.0-m2. This includes JPEG-XR support for CZI.
-   See the `Bio-Formats version history <https://www.openmicroscopy.org/site/support/bio-formats5.3/about/whats-new.html>`_ for more information.
- - fixed numpy-pillow version incompatibility
- - made python testing package public so it can be used by external clients
+- bumped Bio-Formats version to 5.3.0-m2. This includes JPEG-XR support for CZI.
+  See the `Bio-Formats version history <https://www.openmicroscopy.org/site/support/bio-formats5.3/about/whats-new.html>`_ for more information.
+- fixed numpy-pillow version incompatibility
+- made python testing package public so it can be used by external clients
 
 5.3.0-m5 (November 2016)
 ------------------------
