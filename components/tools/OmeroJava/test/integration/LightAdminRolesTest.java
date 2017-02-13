@@ -1622,7 +1622,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         }
     }
 
-
     /**
      * Test that light admin can modify group membership when he/she has
      * only the <tt>ModifyGroupMembership</tt> privilege.
@@ -1648,6 +1647,32 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             Assert.assertTrue(isExpectSuccessRemoveUserFromGroup);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccessRemoveUserFromGroup);
+        }
+    }
+
+    /**
+     * Test that light admin can make a user an owner of a group
+     * when the light admin has only the <tt>ModifyGroupMembership</tt> privilege.
+     */
+    @Test(dataProvider = "script privileges cases")
+    public void testModifyGroupMembershipMakeOwner(boolean isAdmin, boolean permModifyGroupMembership,
+            String groupPermissions) throws Exception {
+        if (!isAdmin) return;
+        /* the permModifyGroupMembership should be a sufficient permission to perform
+         * the setting of a new group owner */
+        boolean isExpectSuccessMakeOwnerOfGroup= isAdmin && permModifyGroupMembership;
+        final EventContext normalUser = newUserAndGroup(groupPermissions);
+        List<String> permissions = new ArrayList<String>();
+        if (permModifyGroupMembership) permissions.add(AdminPrivilegeModifyGroupMembership.value);
+        final EventContext lightAdmin;
+        lightAdmin = loginNewAdmin(isAdmin, permissions);
+        final Experimenter user = new ExperimenterI(normalUser.userId, false);
+        final ExperimenterGroup group = new ExperimenterGroupI(normalUser.groupId, false);
+        try {
+            iAdmin.setGroupOwner(group, user);
+            Assert.assertTrue(isExpectSuccessMakeOwnerOfGroup);
+        } catch (ServerError se) {
+            Assert.assertFalse(isExpectSuccessMakeOwnerOfGroup);
         }
     }
 
