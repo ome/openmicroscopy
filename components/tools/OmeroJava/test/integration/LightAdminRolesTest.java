@@ -1622,6 +1622,35 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         }
     }
 
+
+    /**
+     * Test that light admin can modify group membership when he/she has
+     * only the <tt>ModifyGroupMembership</tt> privilege.
+     * The removal of a user is being attempted here.
+     */
+    @Test(dataProvider = "script privileges cases")
+    public void testModifyGroupMembershipRemoveUser(boolean isAdmin, boolean permModifyGroupMembership,
+            String groupPermissions) throws Exception {
+        if (!isAdmin) return;
+        /* the permModifyGroupMembership should be a sufficient permission to perform
+         * the user removal from a group */
+        boolean isExpectSuccessRemoveUserFromGroup = isAdmin && permModifyGroupMembership;
+        final EventContext normalUser = newUserAndGroup(groupPermissions);
+        /* one extra group is needed which the normalUser is also a member of */
+        final ExperimenterGroup otherGroup = newGroupAddUser("rwr-r-", normalUser.userId);
+        List<String> permissions = new ArrayList<String>();
+        if (permModifyGroupMembership) permissions.add(AdminPrivilegeModifyGroupMembership.value);
+        final EventContext lightAdmin;
+        lightAdmin = loginNewAdmin(isAdmin, permissions);
+        final Experimenter user = new ExperimenterI(normalUser.userId, false);
+        try {
+            iAdmin.removeGroups(user, Collections.singletonList(otherGroup));
+            Assert.assertTrue(isExpectSuccessRemoveUserFromGroup);
+        } catch (ServerError se) {
+            Assert.assertFalse(isExpectSuccessRemoveUserFromGroup);
+        }
+    }
+
     /**
      * @return test cases for adding the privileges combined with isAdmin cases
      */
