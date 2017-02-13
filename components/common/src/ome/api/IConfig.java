@@ -1,6 +1,4 @@
 /*
- * ome.api.IConfig
- *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -9,6 +7,7 @@ package ome.api;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.prefs.Preferences;
 
 import ome.annotations.NotNull;
 import ome.conditions.ApiUsageException;
@@ -28,7 +27,7 @@ import ome.conditions.SecurityViolation;
  * Manages synchronization of the various configuration sources internally. It
  * is therefore important that as far as possible all configuration changes
  * take place via this interface and not, for example, directly via
- * {@link java.util.prefs.Preferences}.
+ * {@link Preferences}.
  * 
  * Also used as the main developer example for developing (stateless) ome.api
  * interfaces. See source code documentation for more.
