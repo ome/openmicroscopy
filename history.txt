@@ -12,12 +12,12 @@ Changes include:
  - bumped Bio-Formats version to 5.3.3. This includes several bug fixes.
    See `Bio-Formats 5.3.3 release history <https://www.openmicroscopy.org/site/support/bio-formats5.3/about/whats-new.html>`_
  - work on the Web API
- - removal pdf dog generation
- - improvement on how colors are assigned to channels
- - disable jquery cache
- - support for projection along t
- - fix numerous tests
- - bug fixes in web
+ - removal pdf doc generation
+ - improvement to how colors are assigned to channels
+ - disabled jquery cache
+ - support for projection along T
+ - fixed numerous tests
+ - bug fixes in OMERO.web
 
 
 5.3.0-m7 (January 2017)
