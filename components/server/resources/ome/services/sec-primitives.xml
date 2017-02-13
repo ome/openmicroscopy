@@ -134,6 +134,10 @@
     <property name="readOnly"       value="${omero.cluster.read_only}"/>
   </bean>
 
+  <bean id="eventProvider" class="ome.security.basic.BasicEventProvider">
+    <constructor-arg ref="internalServiceFactory"/>
+  </bean>
+
   <bean id="methodSecurity" class="ome.security.basic.BasicMethodSecurity">
     <property name="sessionManager" ref="sessionManager"/>
   </bean>
