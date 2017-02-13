@@ -85,6 +85,13 @@ class ForgottonPasswordForm(NonASCIIForm):
         widget=forms.TextInput(attrs={'size': 28, 'autocomplete': 'off'}))
 
 
+ROLE_CHOICES = (
+    ('user','User'),
+    ('administrator','Administrator'),
+    ('restricted_administrator','Restricted Admin')
+)
+
+
 class ExperimenterForm(NonASCIIForm):
 
     def __init__(self, name_check=False, email_check=False,
@@ -131,30 +138,32 @@ class ExperimenterForm(NonASCIIForm):
             fields_key_order = [
                 'omename', 'password', 'confirmation', 'first_name',
                 'middle_name', 'last_name', 'email', 'institution',
-                'administrator', 'active', 'default_group', 'other_groups']
+                'role', 'active', 'default_group', 'other_groups']
         else:
             fields_key_order = [
                 'omename', 'first_name', 'middle_name', 'last_name',
-                'email', 'institution', 'administrator', 'active',
+                'email', 'institution', 'role', 'active',
                 'default_group', 'other_groups']
 
         ordered_fields = [(k, self.fields[k]) for k in fields_key_order]
 
-        roles = ['Chgrp',
-                 'Chown',
-                 # combine DeleteFile/MagangedRepo/Owned roles into 'Delete'
-                 'Delete',
-                 'DeleteScriptRepo',
-                 'ModifyGroup',
-                 'ModifyGroupMembership',
-                 'ModifyUser',
-                 'ReadSession',
-                 'Sudo',
+        roles = [('Sudo', 'Sudo'),
                  # combine WriteFile/MagangedRepo/Owned roles into 'Write'
-                 'Write',
-                 'WriteScriptRepo']
+                 ('Write', 'Write'),
+                 # combine DeleteFile/MagangedRepo/Owned roles into 'Delete'
+                 ('Delete', 'Delete'),
+                 ('Chgrp', 'Chgrp'),
+                 ('Chown', 'Chown'),
+                 ('ModifyGroup', 'Edit Group'),
+                 ('ModifyUser', 'Edit User'),
+                 ('ModifyGroupMembership', 'Add User to Group'),
+                 ('ReadSession', 'Read Session'),
+                 ('WriteScriptRepo', 'Write Script'),
+                 ('DeleteScriptRepo', 'Delete Script')]
         for role in roles:
-            ordered_fields.append((role, forms.BooleanField(required=False)))
+            ordered_fields.append(
+                (role[0], forms.BooleanField(required=False, label=role[1]))
+            )
 
         # Django 1.8: Form.fields uses OrderedDict from the collections module.
         self.fields = OrderedDict(ordered_fields)
@@ -163,8 +172,8 @@ class ExperimenterForm(NonASCIIForm):
             self.fields['omename'].widget.attrs['readonly'] = True
             self.fields['omename'].widget.attrs['title'] = \
                 "Changing of system username would be un-doable"
-            self.fields['administrator'].widget.attrs['disabled'] = True
-            self.fields['administrator'].widget.attrs['title'] = \
+            self.fields['role'].widget.attrs['disabled'] = True
+            self.fields['role'].widget.attrs['title'] = \
                 "Removal of your own admin rights would be un-doable"
             self.fields['active'].widget.attrs['disabled'] = True
             self.fields['active'].widget.attrs['title'] = \
@@ -189,7 +198,8 @@ class ExperimenterForm(NonASCIIForm):
         max_length=250,
         widget=forms.TextInput(attrs={'size': 30, 'autocomplete': 'off'}),
         required=False)
-    administrator = forms.BooleanField(required=False)
+
+    role = forms.ChoiceField(choices=ROLE_CHOICES, widget=forms.RadioSelect)
     active = forms.BooleanField(required=False)
 
     def clean_confirmation(self):

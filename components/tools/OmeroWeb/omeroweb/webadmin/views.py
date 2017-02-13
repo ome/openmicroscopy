@@ -429,7 +429,8 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                 lastName = form.cleaned_data['last_name']
                 email = form.cleaned_data['email']
                 institution = form.cleaned_data['institution']
-                admin = form.cleaned_data['administrator']
+                role = form.cleaned_data['role']
+                admin = role in ('administrator', 'restricted_administrator')
                 active = form.cleaned_data['active']
                 defaultGroup = form.cleaned_data['default_group']
                 otherGroups = form.cleaned_data['other_groups']
@@ -479,7 +480,6 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
             'last_name': experimenter.lastName,
             'email': experimenter.email,
             'institution': experimenter.institution,
-            'administrator': experimenter.isAdmin(),
             'active': experimenter.isActive(),
             'default_group': defaultGroupId,
             'my_groups': otherGroups,
@@ -488,26 +488,38 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
 
         # Load 'AdminPrivilege' roles for 'initial'
         user = conn.getQueryService().get("Experimenter", experimenter.id)
-        deletePerms = []
-        writePerms = []
-        for key, value in user.getConfigAsMap().items():
-            # key is e.g. 'AdminPrivilege:Chgrp'
-            role = key.replace("AdminPrivilege:", "")
-            if value != 'true':
+        delete_perms = []
+        write_perms = []
+        privilege_count = 0
+        config_map = user.getConfigAsMap()
+        for key, value in config_map.items():
+            # We only want 'AdminPrivilege' configs that are 'true'
+            if 'AdminPrivilege' not in key or value != 'true':
                 continue
-            if role in ('DeleteOwned', 'DeleteFile', 'DeleteManagedRepo'):
-                deletePerms.append(role)
-            elif role in ('WriteOwned', 'WriteFile', 'WriteManagedRepo'):
-                writePerms.append(role)
+            print 'key', key
+            privilege_count += 1
+            privilege = key.replace("AdminPrivilege:", "")
+            if privilege in ('DeleteOwned', 'DeleteFile', 'DeleteManagedRepo'):
+                delete_perms.append(privilege)
+            elif privilege in ('WriteOwned', 'WriteFile', 'WriteManagedRepo'):
+                write_perms.append(privilege)
             else:
-                initial[role] = True
+                initial[privilege] = True
         # if ALL the Delete/Write permissions are found, Delete/Write is True
-        if set(deletePerms) == \
+        if set(delete_perms) == \
                 set(('DeleteOwned', 'DeleteFile', 'DeleteManagedRepo')):
             initial['Delete'] = True
-        if set(writePerms) == \
+        if set(write_perms) == \
                 set(('WriteOwned', 'WriteFile', 'WriteManagedRepo')):
             initial['Write'] = True
+
+        role = 'user'
+        if experimenter.isAdmin():
+            if privilege_count > 0:
+                role = 'restricted_administrator'
+            else:
+                role = 'administrator'
+        initial['role'] = role
 
         system_users = [conn.getAdminService().getSecurityRoles().rootId,
                         conn.getAdminService().getSecurityRoles().guestId]
@@ -556,7 +568,8 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                 lastName = form.cleaned_data['last_name']
                 email = form.cleaned_data['email']
                 institution = form.cleaned_data['institution']
-                admin = form.cleaned_data['administrator']
+                role = form.cleaned_data['role']
+                admin = role in ('administrator', 'restricted_administrator')
                 active = form.cleaned_data['active']
                 rootId = conn.getAdminService().getSecurityRoles().rootId
                 # User can't disable themselves or 'root'
