@@ -33,6 +33,7 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
 import ome.security.AdminAction;
+import ome.security.EventProvider;
 import ome.security.SecureAction;
 import ome.security.SecurityFilter;
 import ome.security.SecurityFilterHolder;
@@ -73,7 +74,7 @@ import com.google.common.collect.Multimap;
  * simplest implementation of {@link SecuritySystem}. Uses an ctor-injected
  * {@link EventContext} and the {@link ThreadLocal ThreadLocal-}based
  * {@link CurrentDetails} to provide the security infrastructure.
- * 
+ *
  * @author Josh Moore, josh.moore at gmx.de
  * @see Token
  * @see SecuritySystem
@@ -98,6 +99,8 @@ public class BasicSecuritySystem implements SecuritySystem,
 
     protected final SessionManager sessionManager;
 
+    protected final EventProvider eventProvider;
+
     protected final ServiceFactory sf;
 
     protected final SecurityFilter filter;
@@ -117,7 +120,7 @@ public class BasicSecuritySystem implements SecuritySystem,
      * @return a configured security system
      */
     public static BasicSecuritySystem selfConfigure(SessionManager sm,
-            ServiceFactory sf, SessionCache cache) {
+            EventProvider ep, ServiceFactory sf, SessionCache cache) {
         CurrentDetails cd = new CurrentDetails(cache);
         SystemTypes st = new SystemTypes();
         TokenHolder th = new TokenHolder();
@@ -128,7 +131,7 @@ public class BasicSecuritySystem implements SecuritySystem,
         SecurityFilterHolder holder = new SecurityFilterHolder(
                 cd, new OneGroupSecurityFilter(roles),
                 new AllGroupsSecurityFilter(null, roles));
-        BasicSecuritySystem sec = new BasicSecuritySystem(oi, st, cd, sm,
+        BasicSecuritySystem sec = new BasicSecuritySystem(oi, st, cd, sm, ep,
                 roles, sf, new TokenHolder(), holder, new DefaultPolicyService());
         return sec;
     }
@@ -147,10 +150,11 @@ public class BasicSecuritySystem implements SecuritySystem,
      */
     public BasicSecuritySystem(OmeroInterceptor interceptor,
             SystemTypes sysTypes, CurrentDetails cd,
-            SessionManager sessionManager, Roles roles, ServiceFactory sf,
-            TokenHolder tokenHolder, SecurityFilter filter,
-            PolicyService policyService) {
+            SessionManager sessionManager, EventProvider eventProvider,
+            Roles roles, ServiceFactory sf, TokenHolder tokenHolder,
+            SecurityFilter filter, PolicyService policyService) {
         this.sessionManager = sessionManager;
+        this.eventProvider = eventProvider;
         this.policyService = policyService;
         this.tokenHolder = tokenHolder;
         this.interceptor = interceptor;
@@ -190,7 +194,7 @@ public class BasicSecuritySystem implements SecuritySystem,
 
     /**
      * classes which cannot be created by regular users.
-     * 
+     *
      * @see <a
      *      href="http://trac.openmicroscopy.org.uk/ome/ticket/156">ticket156</a>
      */
@@ -201,7 +205,7 @@ public class BasicSecuritySystem implements SecuritySystem,
     /**
      * tests whether or not the current user is either the owner of this entity,
      * or the superivsor of this entity, for example as root or as group owner.
-     * 
+     *
      * @param iObject
      *            Non-null managed entity.
      * @return true if the current user is owner or supervisor of this entity
@@ -218,12 +222,12 @@ public class BasicSecuritySystem implements SecuritySystem,
      * not</em>
      * apply to single value loads from the database. See
      * {@link ome.security.ACLVoter#allowLoad(Session, Class, Details, long)} for more.
-     * 
+     *
      * Note: this filter must be disabled on logout, otherwise the necessary
      * parameters (current user, current group, etc.) for building the filters
      * will not be available. Similarly, while enabling this filter, no calls
      * should be made on the given session object.
-     * 
+     *
      * @param session
      *            a generic session object which can be used to enable this
      *            filter. Each {@link SecuritySystem} implementation will
@@ -254,7 +258,7 @@ public class BasicSecuritySystem implements SecuritySystem,
     /**
      * disable this filer. All future queries will have no security context
      * associated with them and all items will be visible.
-     * 
+     *
      * @param session
      *            a generic session object which can be used to disable this
      *            filter. Each {@link SecuritySystem} implementation will
@@ -325,7 +329,6 @@ public class BasicSecuritySystem implements SecuritySystem,
     public void loadEventContext(boolean isReadOnly, boolean isClose) {
 
         final LocalAdmin admin = (LocalAdmin) sf.getAdminService();
-        final LocalUpdate update = (LocalUpdate) sf.getUpdateService();
 
         // Call to session manager throws an exception on failure
         final Principal p = clearAndCheckPrincipal();
@@ -445,7 +448,7 @@ public class BasicSecuritySystem implements SecuritySystem,
             if (event.getExperimenterGroup().getId() < 0) {
                 event.setExperimenterGroup(eventGroup);
             }
-            cd.updateEvent(update.saveAndReturnObject(event)); // TODO use merge
+            cd.updateEvent(eventProvider.updateEvent(event)); // TODO use merge
         }
     }
 
@@ -508,7 +511,7 @@ public class BasicSecuritySystem implements SecuritySystem,
                 this.ctx.publishEvent(new EventLogsMessage(this, map));
             }
         }
-        
+
         cd.clearLogs();
     }
 
@@ -523,13 +526,13 @@ public class BasicSecuritySystem implements SecuritySystem,
     // =========================================================================
 
     /**
-     * 
+     *
      * It would be better to catch the
      * {@link SecureAction#updateObject(IObject...)} method in a try/finally block,
      * but since flush can be so poorly controlled that's not possible. instead,
      * we use the one time token which is removed this Object is checked for
      * {@link #hasPrivilegedToken(IObject) privileges}.
-     * 
+     *
      * @param objs
      *            A managed (non-detached) entity. Not null.
      * @param action
