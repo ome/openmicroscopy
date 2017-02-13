@@ -120,7 +120,7 @@
     <property name="updateInterval" value="${omero.sessions.sync_force}"/><!-- ms -->
   </bean>
 
-  <bean name="sessionManager" class="ome.services.sessions.SessionManagerImpl"
+  <bean name="sessionManager" class="${omero.sessions.session_manager}"
     depends-on="dbPatchCheck"
     init-method="init"><!-- Init called to add root login method. -->
     <property name="uuid"            ref="uuid"/>
