@@ -136,7 +136,6 @@ module omero {
 
         dictionary<long,   string>                     LongStringMap;
         dictionary<long,   int>                        LongIntMap;
-        dictionary<long,   long>                       LongLongMap;
         dictionary<long,   ByteArray>                  LongByteArrayMap;
         dictionary<long,   omero::model::Pixels>       LongPixelsMap;
         dictionary<int,    string>                     IntStringMap;
