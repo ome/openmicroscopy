@@ -132,10 +132,16 @@
     <property name="defaultTimeToLive" value="${omero.sessions.maximum}"/>
     <property name="counterFactory" ref="sessionCounterFactory"/>
     <property name="readOnly"       value="${omero.cluster.read_only}"/>
+    <property name="nodeProvider"   ref="nodeProvider"/>
   </bean>
 
   <bean id="eventProvider" class="${omero.security.event_provider}">
     <constructor-arg ref="internalServiceFactory"/>
+  </bean>
+
+  <bean id="nodeProvider" class="${omero.cluster.node_provider}">
+    <constructor-arg ref="uuid"/>
+    <constructor-arg ref="executor"/>
   </bean>
 
   <bean id="methodSecurity" class="ome.security.basic.BasicMethodSecurity">

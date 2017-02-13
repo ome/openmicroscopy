@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import ome.security.NodeProvider;
+import ome.security.basic.BasicNodeProvider;
 import ome.services.blitz.redirect.NullRedirector;
 import ome.services.blitz.redirect.Redirector;
 import ome.services.blitz.util.BlitzConfiguration;
@@ -55,7 +57,7 @@ public class Ring extends _ClusterNodeDisp implements Redirector.Context {
 
     private final Redirector redirector;
 
-    private final NodeProviderI nodeProvider;
+    private final NodeProvider nodeProvider;
 
     private/* final */Ice.Communicator communicator;
 
@@ -73,11 +75,11 @@ public class Ring extends _ClusterNodeDisp implements Redirector.Context {
 
     public Ring(String uuid, Executor executor) {
         this(uuid, executor, new NullRedirector(),
-                new NodeProvider(uuid, executor));
+                new BasicNodeProvider(uuid, executor));
     }
 
     public Ring(String uuid, Executor executor, Redirector redirector,
-            NodeProviderI nodeProvider) {
+            NodeProvider nodeProvider) {
         this.uuid = uuid;
         this.executor = executor;
         this.redirector = redirector;

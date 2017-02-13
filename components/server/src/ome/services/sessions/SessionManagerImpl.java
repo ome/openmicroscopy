@@ -40,6 +40,7 @@ import ome.model.meta.Session;
 import ome.model.meta.Share;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
+import ome.security.NodeProvider;
 import ome.security.basic.PrincipalHolder;
 import ome.services.messages.CreateSessionMessage;
 import ome.services.messages.DestroySessionMessage;
@@ -99,13 +100,13 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
      * value may be overwritten by an injector with a value which is used
      * throughout this server instance.
      */
-    private String internal_uuid = UUID.randomUUID().toString();
+    protected String internal_uuid = UUID.randomUUID().toString();
 
     // Injected
     protected OmeroContext context;
     protected Roles roles;
     protected SessionCache cache;
-    protected Executor executor;
+    private Executor executor;
     protected long defaultTimeToIdle;
     protected long maxUserTimeToIdle;
     protected long defaultTimeToLive;
@@ -113,6 +114,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
     protected PrincipalHolder principalHolder;
     protected CounterFactory factory;
     protected boolean readOnly = false;
+    protected NodeProvider nodeProvider;
 
     // Local state
 
@@ -180,6 +182,10 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
 
     public void setReadOnly(boolean readOnly) {
         this.readOnly = readOnly;
+    }
+
+    public void setNodeProvider(NodeProvider nodeProvider) {
+        this.nodeProvider = nodeProvider;
     }
 
     /**
@@ -1045,12 +1051,9 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         return executeCheckPassword(new Principal(name), credentials);
     }
 
-    private Session executeUpdate(ServiceFactory sf, Session session,
+    protected Session executeUpdate(ServiceFactory sf, Session session,
             long userId) {
-        Node node = sf.getQueryService().findByQuery(
-                "select n from Node n where uuid = :uuid",
-                new Parameters().addString("uuid", internal_uuid).setFilter(
-                        new Filter().page(0, 1)));
+        Node node = nodeProvider.getManagerByUuid(internal_uuid, sf);
         if (node == null) {
             node = new Node(0L, false); // Using default node.
         }
@@ -1387,7 +1390,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
      * exception is thrown, return nulls since throwing an exception within the
      * Work will set our transaction to rollback only.
      */
-    private List<Object> executeSessionContextLookup(ServiceFactory sf,
+    protected List<Object> executeSessionContextLookup(ServiceFactory sf,
             Principal principal, Session session) {
         try {
             List<Object> list = new ArrayList<Object>();

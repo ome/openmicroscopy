@@ -17,17 +17,24 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package ome.services.blitz.fire;
+package ome.security.basic;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
-import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import ome.model.meta.Node;
+import ome.model.meta.Session;
+import ome.parameters.Filter;
+import ome.parameters.Parameters;
+import ome.security.NodeProvider;
 import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
@@ -40,7 +47,7 @@ import ome.system.ServiceFactory;
  * @see Ring
  * @since 5.3.0
  */
-public class NodeProvider implements NodeProviderI {
+public class BasicInMemoryNodeProvider implements NodeProvider {
 
     /**
      * UUID for this cluster node. Used to uniquely identify the session manager
@@ -49,13 +56,15 @@ public class NodeProvider implements NodeProviderI {
      */
     public final String uuid;
 
-    private final Executor executor;
-
     private final Principal principal;
 
-    public NodeProvider(String uuid, Executor executor) {
+    private final List<Node> currentNodes =
+            Collections.synchronizedList(new ArrayList<Node>());
+
+    private final AtomicLong currentNodeId = new AtomicLong(-1L);
+
+    public BasicInMemoryNodeProvider(String uuid, Executor executor) {
         this.uuid = uuid;
-        this.executor = executor;
         this.principal = new Principal(uuid, "system", "Internal");
     }
 
@@ -70,57 +79,71 @@ public class NodeProvider implements NodeProviderI {
     // =========================================================================
 
     /* (non-Javadoc)
+     * @see ome.security.NodeProvider#getManagerByUuid(java.lang.String, ome.system.ServiceFactory)
+     */
+    public Node getManagerByUuid(final String managerUuid, ServiceFactory sf) {
+        for (Node node : currentNodes) {
+            if (managerUuid.equals(node.getUuid())) {
+                return node;
+            }
+        }
+        return null;
+    };
+
+    /* (non-Javadoc)
      * @see ome.services.blitz.fire.NodeProviderI#getManagerList(boolean)
      */
-    @SuppressWarnings("unchecked")
     public Set<String> getManagerList(final boolean onlyActive) {
-        return (Set<String>) executor.execute(principal,
-                new Executor.SimpleWork(this, "getManagerList") {
-                    @Transactional(readOnly = true)
-                    public Object doWork(Session session, ServiceFactory sf) {
-                        List<Node> nodes = sf.getQueryService().findAll(
-                                Node.class, null);
-                        Set<String> nodeIds = new HashSet<String>();
-                        for (Node node : nodes) {
-                            if (onlyActive && node.getDown() != null) {
-                                continue; // Remove none active managers
-                            }
-                            nodeIds.add(node.getUuid());
-                        }
-                        return nodeIds;
-                    }
-                });
+        Set<String> nodeIds = new HashSet<String>();
+        for (Node node : currentNodes) {
+            if (onlyActive && node.getDown() != null) {
+                continue; // Remove none active managers
+            }
+            nodeIds.add(node.getUuid());
+        }
+        return nodeIds;
     }
 
     /**
-     * Assumes that the given manager is no longer available and so will not
-     * attempt to call cache.removeSession() since that requires the session to
-     * be in memory. Instead directly modifies the database to set the session
-     * to closed.
+     * Assumes that the given manager is no longer available and will clean up
+     * all in memory sessions.
      */
     public int closeSessionsForManager(final String managerUuid) {
-
-        // First look up the sessions in on transaction
-        return (Integer) executor.execute(principal, new Executor.SimpleWork(
-                this, "executeUpdate - set closed = now()") {
-            @Transactional(readOnly = false)
-            public Object doWork(Session session, ServiceFactory sf) {
-                return getSqlAction().closeNodeSessions(managerUuid);
+        // Implementation of the following SQL query in memory:
+        //
+        // update session set closed = now()
+        //     where closed is null and node in
+        //         (select id from Node where uuid = ?)
+        int modificationCount = 0;
+        for (Node node : currentNodes) {
+            if (!uuid.equals(node.getUuid())) {
+                continue;
             }
-        });
+            Iterator<Session> i = node.iterateSessions();
+            while (i.hasNext()) {
+                Session session = i.next();
+                if (session.getClosed() == null) {
+                    session.setClosed(
+                            new Timestamp(System.currentTimeMillis()));
+                    modificationCount++;
+                }
+            }
+        }
+        return modificationCount;
     }
 
     /* (non-Javadoc)
      * @see ome.services.blitz.fire.NodeProviderI#setManagerDown(java.lang.String)
      */
     public void setManagerDown(final String managerUuid) {
-        executor.execute(principal, new Executor.SimpleWork(this,
-                "setManagerDown") {
-            @Transactional(readOnly = false)
-            public Object doWork(Session session, ServiceFactory sf) {
-                return getSqlAction().closeNode(managerUuid);
+        // Implement of the following SQL query in memory:
+        //
+        // update Node set down = now() where uuid = ?
+        for (Node node : currentNodes) {
+            if (uuid.equals(node.getUuid())) {
+                node.setDown(new Timestamp(System.currentTimeMillis()));
             }
-        });
+        }
     }
 
     /* (non-Javadoc)
@@ -128,16 +151,12 @@ public class NodeProvider implements NodeProviderI {
      */
     public Node addManager(String managerUuid, String proxyString) {
         final Node node = new Node();
+        node.setId(currentNodeId.getAndDecrement());
         node.setConn(proxyString);
         node.setUuid(managerUuid);
         node.setUp(new Timestamp(System.currentTimeMillis()));
-        return (Node) executor.execute(principal, new Executor.SimpleWork(this,
-                "addManager") {
-            @Transactional(readOnly = false)
-            public Object doWork(Session session, ServiceFactory sf) {
-                return sf.getUpdateService().saveAndReturnObject(node);
-            }
-        });
+        currentNodes.add(node);
+        return node;
     }
 
 }
