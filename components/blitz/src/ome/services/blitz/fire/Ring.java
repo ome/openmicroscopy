@@ -5,20 +5,16 @@
 
 package ome.services.blitz.fire;
 
-import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-import ome.model.meta.Node;
 import ome.services.blitz.redirect.NullRedirector;
 import ome.services.blitz.redirect.Redirector;
 import ome.services.blitz.util.BlitzConfiguration;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
 import ome.system.Principal;
-import ome.system.ServiceFactory;
 import ome.util.SqlAction;
 import omero.grid.ClusterNodePrx;
 import omero.grid.ClusterNodePrxHelper;
@@ -26,7 +22,6 @@ import omero.grid._ClusterNodeDisp;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
 
 import Glacier2.CannotCreateSessionException;
@@ -56,11 +51,11 @@ public class Ring extends _ClusterNodeDisp implements Redirector.Context {
      */
     public final String uuid;
 
-    public final Principal principal;
-
     private final Executor executor;
 
     private final Redirector redirector;
+
+    private final NodeProvider nodeProvider;
 
     private/* final */Ice.Communicator communicator;
 
@@ -77,14 +72,16 @@ public class Ring extends _ClusterNodeDisp implements Redirector.Context {
     private/* final */String directProxy;
 
     public Ring(String uuid, Executor executor) {
-        this(uuid, executor, new NullRedirector());
+        this(uuid, executor, new NullRedirector(),
+                new NodeProvider(uuid, executor));
     }
 
-    public Ring(String uuid, Executor executor, Redirector redirector) {
+    public Ring(String uuid, Executor executor, Redirector redirector,
+            NodeProvider nodeProvider) {
         this.uuid = uuid;
         this.executor = executor;
         this.redirector = redirector;
-        this.principal = new Principal(uuid, "system", "Internal");
+        this.nodeProvider = nodeProvider;
     }
 
     /**
@@ -103,7 +100,11 @@ public class Ring extends _ClusterNodeDisp implements Redirector.Context {
     }
 
     public Principal principal() {
-        return this.principal;
+        return nodeProvider.principal();
+    }
+
+    public Set<String> getManagerList(final boolean onlyActive) {
+        return nodeProvider.getManagerList(onlyActive);
     }
 
     /**
@@ -143,7 +144,7 @@ public class Ring extends _ClusterNodeDisp implements Redirector.Context {
             Ice.Identity clusterNode = this.communicator
                     .stringToIdentity("ClusterNode/" + uuid);
             this.adapter.add(this, clusterNode); // OK ADAPTER USAGE
-            addManager(uuid, directProxy);
+            nodeProvider.addManager(uuid, directProxy);
             registry.addObject(this.adapter.createDirectProxy(clusterNode));
             nodeUuids.add(uuid);
             redirector.chooseNextRedirect(this, nodeUuids);
@@ -199,7 +200,7 @@ public class Ring extends _ClusterNodeDisp implements Redirector.Context {
                     + uuid);
             registry.removeObjectSafely(id);
             redirector.handleRingShutdown(this, this.uuid);
-            int count = closeSessionsForManager(uuid);
+            int count = nodeProvider.closeSessionsForManager(uuid);
             log.info("Removed " + count + " entries for " + uuid);
             log.info("Disconnected from OMERO.cluster");
         } catch (Exception e) {
@@ -300,84 +301,15 @@ public class Ring extends _ClusterNodeDisp implements Redirector.Context {
             Ice.Identity id = this.communicator.stringToIdentity("ClusterNode/"
                     + manager);
             registry.removeObjectSafely(id);
-            int count = closeSessionsForManager(manager);
+            int count = nodeProvider.closeSessionsForManager(manager);
             log.info("Removed " + count + " entries with value " + manager);
-            setManagerDown(manager);
+            nodeProvider.setManagerDown(manager);
             log.info("Removed manager: " + manager);
             redirector.handleRingShutdown(this, manager);
             log.info("handleRingShutdown: " + manager);
         } catch (Exception e) {
             log.error("Failed to purge node " + manager, e);
         }
-    }
-
-    // Database interactions
-    // =========================================================================
-
-    @SuppressWarnings("unchecked")
-    public Set<String> getManagerList(final boolean onlyActive) {
-        return (Set<String>) executor.execute(principal,
-                new Executor.SimpleWork(this, "getManagerList") {
-                    @Transactional(readOnly = true)
-                    public Object doWork(Session session, ServiceFactory sf) {
-                        List<Node> nodes = sf.getQueryService().findAll(
-                                Node.class, null);
-                        Set<String> nodeIds = new HashSet<String>();
-                        for (Node node : nodes) {
-                            if (onlyActive && node.getDown() != null) {
-                                continue; // Remove none active managers
-                            }
-                            nodeIds.add(node.getUuid());
-                        }
-                        return nodeIds;
-                    }
-                });
-    }
-
-    /**
-     * Assumes that the given manager is no longer available and so will not
-     * attempt to call cache.removeSession() since that requires the session to
-     * be in memory. Instead directly modifies the database to set the session
-     * to closed.
-     * 
-     * @param managerUuid
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    private int closeSessionsForManager(final String managerUuid) {
-
-        // First look up the sessions in on transaction
-        return (Integer) executor.execute(principal, new Executor.SimpleWork(
-                this, "executeUpdate - set closed = now()") {
-            @Transactional(readOnly = false)
-            public Object doWork(Session session, ServiceFactory sf) {
-                return getSqlAction().closeNodeSessions(managerUuid);
-            }
-        });
-    }
-
-    private void setManagerDown(final String managerUuid) {
-        executor.execute(principal, new Executor.SimpleWork(this,
-                "setManagerDown") {
-            @Transactional(readOnly = false)
-            public Object doWork(Session session, ServiceFactory sf) {
-                return getSqlAction().closeNode(managerUuid);
-            }
-        });
-    }
-
-    private Node addManager(String managerUuid, String proxyString) {
-        final Node node = new Node();
-        node.setConn(proxyString);
-        node.setUuid(managerUuid);
-        node.setUp(new Timestamp(System.currentTimeMillis()));
-        return (Node) executor.execute(principal, new Executor.SimpleWork(this,
-                "addManager") {
-            @Transactional(readOnly = false)
-            public Object doWork(Session session, ServiceFactory sf) {
-                return sf.getUpdateService().saveAndReturnObject(node);
-            }
-        });
     }
 
 }

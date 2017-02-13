@@ -33,10 +33,16 @@
     <constructor-arg value="${omero.throttling.servants_per_session}"/>
   </bean>
 
+  <bean id="nodeProvider" class="ome.services.blitz.fire.NodeProvider">
+    <constructor-arg ref="uuid"/>
+    <constructor-arg ref="executor"/>
+  </bean>
+
   <bean id="ring" class="ome.services.blitz.fire.Ring">
     <constructor-arg ref="uuid"/>
     <constructor-arg ref="executor"/>
     <constructor-arg ref="redirector"/>
+    <constructor-arg ref="nodeProvider"/>
   </bean>
 
   <!-- Redirector configuration -->
