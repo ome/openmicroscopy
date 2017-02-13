@@ -17,12 +17,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package ome.services.blitz.fire;
+package ome.security;
 
 import java.util.Set;
 
 import ome.model.meta.Node;
 import ome.system.Principal;
+import ome.system.ServiceFactory;
 
 /**
  * Provider for {@link Node} objects which is responsible for persisting and
@@ -32,9 +33,17 @@ import ome.system.Principal;
  * @see Ring
  * @since 5.3.0
  */
-public interface NodeProviderI {
+public interface NodeProvider {
 
     Set<String> getManagerList(final boolean onlyActive);
+
+    /**
+     * Retrieves a given manager node.
+     * @param managerUuid manager node UUID to retrieve
+     * @param sf current session's service factory
+     * @return See above.
+     */
+    Node getManagerByUuid(String managerUuid, ServiceFactory sf);
 
     /**
      * Closes all sessions for a given manager node.
