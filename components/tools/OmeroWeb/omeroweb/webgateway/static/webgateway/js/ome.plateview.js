@@ -127,12 +127,22 @@ jQuery._WeblitzPlateview = function (container, options) {
       };
     };
     for (i=0; i < data.rowlabels.length; i++) {
+      for (var j=0; j<data.grid[i].length; j++) {
+        if (data.grid[i][j] !== null) {
+            //console.log(data.grid[i][j].id)
+        }
+      }
+    }
+
+    var imgIds = new Array();
+    for (i=0; i < data.rowlabels.length; i++) {
       tr = $('<tr></tr>').appendTo(table);
       tr.append('<th>'+data.rowlabels[i]+'</th>');
       for (var j=0; j<data.grid[i].length; j++) {
         if (data.grid[i][j] === null) {
         tr.append('<td class="placeholder"><div class="placeholder" style="width:'+opts.width+'px;height:'+opts.height+'px;line-height:'+opts.height+'px;">&nbsp;</div></td>');
         } else {
+          imgIds.push(data.grid[i][j].id);
           data.grid[i][j]._wellpos = data.rowlabels[i]+data.collabels[j];
           var parentPrefix = '';
           if (opts.useParentPrefix) {
@@ -141,7 +151,7 @@ jQuery._WeblitzPlateview = function (container, options) {
           var td = $('<td class="well" id="'+parentPrefix+'well-'+data.grid[i][j].wellId+'">' +
             '<div class="waiting" style="width:'+opts.width+'px;height:'+opts.height+'px;"></div>' +
             '<div class="wellLabel">' + data.rowlabels[i] + data.collabels[j] + '</div>' +
-            '<img id="'+parentPrefix+'image-'+data.grid[i][j].id+'" class="loading" style="width:'+opts.width+'px;height:'+opts.height+'px;" src="'+ data.grid[i][j].thumb_url+'" name="'+(data.rowlabels[i] + data.collabels[j])+'"></td>');
+            '<img id="'+parentPrefix+'image-'+data.grid[i][j].id+'" class="loading" style="width:'+opts.width+'px;height:'+opts.height+'px;" name="'+(data.rowlabels[i] + data.collabels[j])+'"></td>');
           $('img', td)
             .click(tclick(data.grid[i][j]))
             .load(function() { 
@@ -154,6 +164,15 @@ jQuery._WeblitzPlateview = function (container, options) {
         }
       }
     }
+
+    // load thumbnails to the grid
+    var thumbnails_url = opts.baseurl+'/get_thumbnails/?' + $.param( { id: imgIds }, true);
+    var _load_thumbnails = function (result, data) {
+      $.each(data, function(key, value) {
+        $("img#"+parentPrefix+"image-"+key).attr("src", value);
+      });
+    }
+    gs_json(thumbnails_url, null, _load_thumbnails);
     _this.self.trigger('_resetLoaded');
   };
 
