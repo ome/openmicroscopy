@@ -4423,25 +4423,21 @@ class _BlitzGateway (object):
             tb = self.createThumbnailStore()
             p = omero.sys.ParametersI().addIds(image_ids)
             sql = """select new map(
-                        i.id as im_id, r.pixels.id as pix_id, r.id as rdef_id
+                        i.id as im_id, r.pixels.id as pix_id
                      )
                      from RenderingDef as r
                          join r.pixels.image as i
                      where i.id in (:ids) """
 
-            rdefs_ids = self.getQueryService().projection(
+            img_pixel_ids = self.getQueryService().projection(
                 sql, p, self.SERVICE_OPTS)
-            pixrdef = dict()
             _temp = dict()
-            for e in rdefs_ids:
+            for e in img_pixel_ids:
                 e = unwrap(e)
                 _temp[e[0]['pix_id']] = e[0]['im_id']
-                pixrdef[e[0]['pix_id']] = e[0]['rdef_id']
 
-            # thumb = tb.getThumbnailByLongestSideSet(
-            #    rint(max_size), image_ids)
-            thumbs_map = tb.getThumbnailByLongestSideSetAndRdef(
-                size=rint(max_size), pixelsRdefMap=pixrdef)
+            thumbs_map = tb.getThumbnailByLongestSideSet(
+                rint(max_size), list(_temp))
             for (pix, thumb) in thumbs_map.items():
                 _resp[_temp[pix]] = thumb
         except Exception:
