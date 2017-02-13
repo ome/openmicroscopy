@@ -1229,33 +1229,41 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         """
         Save 'AdminPrivilege' roles from Experimenter Form
         """
-        # Handle individual Roles...
-        roles = ['Chgrp',
-                 'Chown',
-                 'DeleteScriptRepo',
-                 'ModifyGroup',
-                 'ModifyGroupMembership',
-                 'ModifyUser',
-                 'ReadSession',
-                 'Sudo',
-                 'WriteScriptRepo']
-        roles_config = []
-        for role in roles:
-            if experimenter_form.cleaned_data[role]:
-                roles_config.append(omero.model.NamedValue("AdminPrivilege:%s" % role, "true"))
-        # 'Delete' and 'Write' checkboxes update several roles
-        if experimenter_form.cleaned_data['Delete']:
-            roles_config.append(omero.model.NamedValue("AdminPrivilege:DeleteFile", "true"))
-            roles_config.append(omero.model.NamedValue("AdminPrivilege:DeleteManagedRepo", "true"))
-            roles_config.append(omero.model.NamedValue("AdminPrivilege:DeleteOwned", "true"))
-        if experimenter_form.cleaned_data['Write']:
-            roles_config.append(omero.model.NamedValue("AdminPrivilege:WriteFile", "true"))
-            roles_config.append(omero.model.NamedValue("AdminPrivilege:WriteManagedRepo", "true"))
-            roles_config.append(omero.model.NamedValue("AdminPrivilege:WriteOwned", "true"))
+        def createPrivilege(value):
+            privilege = omero.model.AdminPrivilegeI()
+            privilege.setValue(rstring(value))
+            return privilege
+        privileges = []
+        # If user is Admin, we give them ALL privileges!
+        if experimenter_form.cleaned_data['role'] == 'administrator':
+            for p in self.getEnumerationEntries('AdminPrivilege'):
+                privileges.append(createPrivilege(p.getValue()))
+        else:
+            # Otherwise, restrict to 'checked' privileges on form
+            form_privileges = ['Chgrp',
+                               'Chown',
+                               'ModifyGroup',
+                               'ModifyGroupMembership',
+                               'ModifyUser',
+                               'Sudo']
+            for p in form_privileges:
+                if experimenter_form.cleaned_data[p]:
+                    privileges.append(createPrivilege(p))
+            # 'Delete', 'Write' and 'Script' checkboxes update several roles
+            if experimenter_form.cleaned_data['Delete']:
+                privileges.append(createPrivilege('DeleteFile'))
+                privileges.append(createPrivilege('DeleteManagedRepo'))
+                privileges.append(createPrivilege('DeleteOwned'))
+            if experimenter_form.cleaned_data['Write']:
+                privileges.append(createPrivilege('WriteFile'))
+                privileges.append(createPrivilege('WriteManagedRepo'))
+                privileges.append(createPrivilege('WriteOwned'))
+            if experimenter_form.cleaned_data['Script']:
+                privileges.append(createPrivilege('WriteScriptRepo'))
+                privileges.append(createPrivilege('DeleteScriptRepo'))
         # Save config...
-        user = self.getQueryService().get("Experimenter", experimenter_id);
-        user.setConfig(roles_config)
-        self.getUpdateService().saveObject(user)
+        self.getAdminService().setAdminPrivileges(
+            ExperimenterI(experimenter_id, False), privileges)
 
     def setMembersOfGroup(self, group, new_members):
         """

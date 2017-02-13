@@ -86,9 +86,9 @@ class ForgottonPasswordForm(NonASCIIForm):
 
 
 ROLE_CHOICES = (
-    ('user','User'),
-    ('administrator','Administrator'),
-    ('restricted_administrator','Restricted Admin')
+    ('user', 'User'),
+    ('administrator', 'Administrator'),
+    ('restricted_administrator', 'Restricted Admin')
 )
 
 
@@ -154,12 +154,10 @@ class ExperimenterForm(NonASCIIForm):
                  ('Delete', 'Delete'),
                  ('Chgrp', 'Chgrp'),
                  ('Chown', 'Chown'),
-                 ('ModifyGroup', 'Edit Group'),
-                 ('ModifyUser', 'Edit User'),
-                 ('ModifyGroupMembership', 'Add User to Group'),
-                 ('ReadSession', 'Read Session'),
-                 ('WriteScriptRepo', 'Write Script'),
-                 ('DeleteScriptRepo', 'Delete Script')]
+                 ('ModifyGroup', 'Edit Groups'),
+                 ('ModifyUser', 'Edit Users'),
+                 ('ModifyGroupMembership', 'Add Users to Groups'),
+                 ('Script', 'Upload Scripts')]
         for role in roles:
             ordered_fields.append(
                 (role[0], forms.BooleanField(required=False, label=role[1]))

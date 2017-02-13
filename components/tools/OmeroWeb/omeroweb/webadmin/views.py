@@ -490,19 +490,16 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
         user = conn.getQueryService().get("Experimenter", experimenter.id)
         delete_perms = []
         write_perms = []
-        privilege_count = 0
-        config_map = user.getConfigAsMap()
-        for key, value in config_map.items():
-            # We only want 'AdminPrivilege' configs that are 'true'
-            if 'AdminPrivilege' not in key or value != 'true':
-                continue
-            print 'key', key
-            privilege_count += 1
-            privilege = key.replace("AdminPrivilege:", "")
+        script_perms = []
+        privileges = [p.getValue().val for p in
+                      conn.getAdminService().getAdminPrivileges(user)]
+        for privilege in privileges:
             if privilege in ('DeleteOwned', 'DeleteFile', 'DeleteManagedRepo'):
                 delete_perms.append(privilege)
             elif privilege in ('WriteOwned', 'WriteFile', 'WriteManagedRepo'):
                 write_perms.append(privilege)
+            elif privilege in ('WriteScriptRepo', 'DeleteScriptRepo'):
+                script_perms.append(privilege)
             else:
                 initial[privilege] = True
         # if ALL the Delete/Write permissions are found, Delete/Write is True
@@ -512,13 +509,16 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
         if set(write_perms) == \
                 set(('WriteOwned', 'WriteFile', 'WriteManagedRepo')):
             initial['Write'] = True
+        if set(script_perms) == \
+                set(('WriteScriptRepo', 'DeleteScriptRepo')):
+            initial['Script'] = True
 
         role = 'user'
         if experimenter.isAdmin():
-            if privilege_count > 0:
-                role = 'restricted_administrator'
-            else:
+            if 'ReadSession' in privileges:
                 role = 'administrator'
+            else:
+                role = 'restricted_administrator'
         initial['role'] = role
 
         system_users = [conn.getAdminService().getSecurityRoles().rootId,
