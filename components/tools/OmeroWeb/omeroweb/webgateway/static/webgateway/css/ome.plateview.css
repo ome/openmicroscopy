@@ -24,7 +24,7 @@
 }
 
 .weblitz-plateview .waiting {
-  background-color: #eee;
+  background:url(../img/spinner.gif) #eee 50% center no-repeat;
 }
 
 .weblitz-plateview .loading {
