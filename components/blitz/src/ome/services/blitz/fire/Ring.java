@@ -55,7 +55,7 @@ public class Ring extends _ClusterNodeDisp implements Redirector.Context {
 
     private final Redirector redirector;
 
-    private final NodeProvider nodeProvider;
+    private final NodeProviderI nodeProvider;
 
     private/* final */Ice.Communicator communicator;
 
@@ -77,7 +77,7 @@ public class Ring extends _ClusterNodeDisp implements Redirector.Context {
     }
 
     public Ring(String uuid, Executor executor, Redirector redirector,
-            NodeProvider nodeProvider) {
+            NodeProviderI nodeProvider) {
         this.uuid = uuid;
         this.executor = executor;
         this.redirector = redirector;
