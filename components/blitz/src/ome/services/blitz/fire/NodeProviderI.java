@@ -37,19 +37,33 @@ public interface NodeProviderI {
     Set<String> getManagerList(final boolean onlyActive);
 
     /**
-     * Assumes that the given manager is no longer available and so will not
-     * attempt to call cache.removeSession() since that requires the session to
-     * be in memory. Instead directly modifies the database to set the session
-     * to closed.
-     * 
-     * @param managerUuid
-     * @return
+     * Closes all sessions for a given manager node.
+     *
+     * @param managerUuid manager node UUID to close sessions for
+     * @return number of sessions affected by the closure
      */
     int closeSessionsForManager(final String managerUuid);
 
+    /**
+     * Sets a given manager node as down.
+     *
+     * @param managerUuid manager node UUID to set as down
+     */
     void setManagerDown(final String managerUuid);
 
+    /**
+     * Adds a manager node.
+     *
+     * @param managerUuid manager node UUID to add
+     * @param proxyString manager node proxy connection string
+     * @return populated node entity.
+     */
     Node addManager(String managerUuid, String proxyString);
 
+    /**
+     * Retrieves the current active principal.
+     *
+     * @return See above.
+     */
     Principal principal();
 }
