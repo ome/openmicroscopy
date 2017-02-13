@@ -33,7 +33,7 @@
     <constructor-arg value="${omero.throttling.servants_per_session}"/>
   </bean>
 
-  <bean id="nodeProvider" class="ome.services.blitz.fire.NodeProvider">
+  <bean id="nodeProvider" class="${omero.cluster.node_provider}">
     <constructor-arg ref="uuid"/>
     <constructor-arg ref="executor"/>
   </bean>
