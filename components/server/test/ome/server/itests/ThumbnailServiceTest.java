@@ -5,7 +5,6 @@
 
 package ome.server.itests;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -26,15 +25,11 @@ import omeis.providers.re.RenderingEngine;
 
 import org.testng.annotations.Test;
 
-import java.lang.reflect.Method;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 /**
  *
  * @author Josh Moore, josh at glencoesoftware.com
  *
  */
-@RunWith(Parameterized.class)
 public class ThumbnailServiceTest extends AbstractManagedContextTest {
 
     class Fixture {
@@ -59,20 +54,6 @@ public class ThumbnailServiceTest extends AbstractManagedContextTest {
         }
     }
 
-    @Parameterized.Parameters()
-    public static Iterable<Object []> data() {
-    	return Arrays.asList(new Object[][] {
-            {"getThumbnailByLongestSideSet"},
-            {"getThumbnailByLongestSideSetAndRdef"}
-       });
-    }	
-    
-    private String input;
-
-    public ThumbnailServiceTest(String input) {
-        this.input = input;
-    }
-    
     //
     // XXX: Many other *basic* thumbnail tests are in RenderingSessionTest
     //
@@ -91,14 +72,8 @@ public class ThumbnailServiceTest extends AbstractManagedContextTest {
         final ServiceFactory sf = this.factory;
         RenderingEngine re = sf.createRenderingEngine();
         ThumbnailStore tb = sf.createThumbnailService();
-        
-        //Map<Long, byte[]> before = 
-        //    tb.getThumbnailByLongestSideSet(96, pixelsIds);
-        Class<?> c = Class.forName("ThumbnailStore");
-        Method method = c.getDeclaredMethod(input, Integer.class, Set.class);
-        Map<Long, byte[]> before =
-        	(Map<Long, byte[]>) method.invoke(tb, 96, pixelsIds);
-        
+        Map<Long, byte[]> before = 
+            tb.getThumbnailByLongestSideSet(96, pixelsIds);
         // Retrieve RGB rendering model
         List<RenderingModel> models = re.getAvailableModels();
         RenderingModel rgbModel = getModel(models, "rgb");
@@ -123,12 +98,8 @@ public class ThumbnailServiceTest extends AbstractManagedContextTest {
         re.setModel(rgbModel);
         re.setRGBA(0, 0, 0, 255, 255);
         re.saveCurrentSettings();
-        
-        //Map<Long, byte[]> after =
-        //    tb.getThumbnailByLongestSideSet(96, pixelsIds);
         Map<Long, byte[]> after =
-        	(Map<Long, byte[]>) method.invoke(tb, 96, pixelsIds);
-
+            tb.getThumbnailByLongestSideSet(96, pixelsIds);
         assertEquals(before.size(), after.size());
         assertTrue(before.keySet().equals(after.keySet()));
         Set<Integer> afterThumbnailLengths = new HashSet<Integer>();
