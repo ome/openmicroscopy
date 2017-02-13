@@ -59,6 +59,9 @@ public class NodeProvider implements NodeProviderI {
         this.principal = new Principal(uuid, "system", "Internal");
     }
 
+    /* (non-Javadoc)
+     * @see ome.services.blitz.fire.NodeProviderI#principal()
+     */
     public Principal principal() {
         return this.principal;
     }
@@ -66,6 +69,9 @@ public class NodeProvider implements NodeProviderI {
     // Database interactions
     // =========================================================================
 
+    /* (non-Javadoc)
+     * @see ome.services.blitz.fire.NodeProviderI#getManagerList(boolean)
+     */
     @SuppressWarnings("unchecked")
     public Set<String> getManagerList(final boolean onlyActive) {
         return (Set<String>) executor.execute(principal,
@@ -91,9 +97,6 @@ public class NodeProvider implements NodeProviderI {
      * attempt to call cache.removeSession() since that requires the session to
      * be in memory. Instead directly modifies the database to set the session
      * to closed.
-     * 
-     * @param managerUuid
-     * @return
      */
     public int closeSessionsForManager(final String managerUuid) {
 
@@ -107,6 +110,9 @@ public class NodeProvider implements NodeProviderI {
         });
     }
 
+    /* (non-Javadoc)
+     * @see ome.services.blitz.fire.NodeProviderI#setManagerDown(java.lang.String)
+     */
     public void setManagerDown(final String managerUuid) {
         executor.execute(principal, new Executor.SimpleWork(this,
                 "setManagerDown") {
@@ -117,6 +123,9 @@ public class NodeProvider implements NodeProviderI {
         });
     }
 
+    /* (non-Javadoc)
+     * @see ome.services.blitz.fire.NodeProviderI#addManager(java.lang.String, java.lang.String)
+     */
     public Node addManager(String managerUuid, String proxyString) {
         final Node node = new Node();
         node.setConn(proxyString);
