@@ -80,6 +80,7 @@ import omero.model.enums.AdminPrivilegeDeleteFile;
 import omero.model.enums.AdminPrivilegeDeleteManagedRepo;
 import omero.model.enums.AdminPrivilegeDeleteOwned;
 import omero.model.enums.AdminPrivilegeDeleteScriptRepo;
+import omero.model.enums.AdminPrivilegeModifyGroupMembership;
 import omero.model.enums.AdminPrivilegeSudo;
 import omero.model.enums.AdminPrivilegeWriteFile;
 import omero.model.enums.AdminPrivilegeWriteManagedRepo;
@@ -1591,6 +1592,36 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             rfs.close();
         }
     }
+
+    /**
+     * Test that light admin can modify group membership when he/she has
+     * only the <tt>ModifyGroupMembership</tt> privilege.
+     * The addition of a user is being attempted here.
+     */
+    @Test(dataProvider = "script privileges cases")
+    public void testModifyGroupMembershipAddUser(boolean isAdmin, boolean permModifyGroupMembership,
+            String groupPermissions) throws Exception {
+        if (!isAdmin) return;
+        /* the permModifyGroupMembership should be a sufficient permission to perform
+         * the user addition into a group */
+        boolean isExpectSuccessAddUserToGroup = isAdmin && permModifyGroupMembership;
+        final EventContext normalUser = newUserAndGroup(groupPermissions);
+        /* one extra group is needed to add the existing normalUser to */
+        final EventContext otherUser = newUserAndGroup(groupPermissions);
+        List<String> permissions = new ArrayList<String>();
+        if (permModifyGroupMembership) permissions.add(AdminPrivilegeModifyGroupMembership.value);
+        final EventContext lightAdmin;
+        lightAdmin = loginNewAdmin(isAdmin, permissions);
+        final Experimenter user = new ExperimenterI(normalUser.userId, false);
+        final ExperimenterGroup group = new ExperimenterGroupI(otherUser.groupId, false);
+        try {
+            iAdmin.addGroups(user, Collections.singletonList(group));
+            Assert.assertTrue(isExpectSuccessAddUserToGroup);
+        } catch (ServerError se) {
+            Assert.assertFalse(isExpectSuccessAddUserToGroup);
+        }
+    }
+
     /**
      * @return test cases for adding the privileges combined with isAdmin cases
      */
