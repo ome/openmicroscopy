@@ -932,28 +932,6 @@ public class ThumbnailBean extends AbstractLevel2Service
         iQuery.clear();
         return values;
     }
-    
-    @RolesAllowed("user")
-    @Transactional(readOnly = false)
-    public Map<Long, byte[]> getThumbnailByLongestSideSetAndRdef(Integer size,
-    		Map<Long, Long> pixelsRdefMap)
-    {
-    	Set<Long> pixelsIds = pixelsRdefMap.keySet();
-    	Set<Long> rdefsIds = new HashSet<Long>(pixelsRdefMap.values());
-    	
-        // Set defaults and sanity check thumbnail sizes
-        Dimension checkedDimensions = sanityCheckThumbnailSizes(size, size);
-        size = (int) checkedDimensions.getWidth();
-
-        // Prepare our thumbnail context
-        newContext();
-        ctx.retrieveRenderingSettings(rdefsIds);
-        ctx.createAndPrepareMissingRenderingSettings(pixelsIds);
-        ctx.loadAndPrepareMetadata(pixelsIds, size);
-        Map<Long, byte[]> values = retrieveThumbnailSet(pixelsIds);
-        iQuery.clear();
-        return values;
-    }
 
     /**
      * Performs the logic of retrieving a set of thumbnails.

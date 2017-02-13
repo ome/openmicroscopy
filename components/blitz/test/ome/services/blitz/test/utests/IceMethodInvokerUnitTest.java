@@ -193,11 +193,6 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
             return null;
         }
 
-        public Map<Long, byte[]> getThumbnailByLongestSideSetAndRdef(Integer size,
-        		Map<Long, Long> pixelsRdefMap) {
-            return null;
-        }
-
         public void resetDefaults() {
         }
 

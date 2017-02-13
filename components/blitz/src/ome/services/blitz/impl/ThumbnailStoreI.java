@@ -6,7 +6,6 @@
 package ome.services.blitz.impl;
 
 import java.util.List;
-import java.util.Map;
 
 import ome.api.ThumbnailStore;
 import ome.services.blitz.util.BlitzExecutor;
@@ -20,7 +19,6 @@ import omero.api.AMD_ThumbnailStore_getThumbnail;
 import omero.api.AMD_ThumbnailStore_getThumbnailByLongestSide;
 import omero.api.AMD_ThumbnailStore_getThumbnailByLongestSideDirect;
 import omero.api.AMD_ThumbnailStore_getThumbnailByLongestSideSet;
-import omero.api.AMD_ThumbnailStore_getThumbnailByLongestSideSetAndRdef;
 import omero.api.AMD_ThumbnailStore_getThumbnailDirect;
 import omero.api.AMD_ThumbnailStore_getThumbnailForSectionByLongestSideDirect;
 import omero.api.AMD_ThumbnailStore_getThumbnailForSectionDirect;
@@ -31,6 +29,7 @@ import omero.api.AMD_ThumbnailStore_setPixelsId;
 import omero.api.AMD_ThumbnailStore_setRenderingDefId;
 import omero.api.AMD_ThumbnailStore_thumbnailExists;
 import omero.api._ThumbnailStoreOperations;
+
 import Ice.Current;
 
 /**
@@ -81,13 +80,6 @@ public class ThumbnailStoreI extends AbstractCloseableAmdServant implements
             AMD_ThumbnailStore_getThumbnailByLongestSideSet __cb, RInt size,
             List<Long> pixelsIds, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, size, pixelsIds);
-
-    }
-
-    public void getThumbnailByLongestSideSetAndRdef_async(
-    		AMD_ThumbnailStore_getThumbnailByLongestSideSetAndRdef __cb, RInt size,
-            Map<Long, Long> pixelsRdefMap, Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, size, pixelsRdefMap);
 
     }
 

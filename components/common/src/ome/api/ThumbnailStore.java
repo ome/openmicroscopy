@@ -154,8 +154,6 @@ public interface ThumbnailStore extends StatefulServiceInterface {
     public Map<Long, byte[]> getThumbnailByLongestSideSet(Integer size,
     		@NotNull @Validate(Long.class) Set<Long> pixelsIds);
 
-    public Map<Long, byte[]> getThumbnailByLongestSideSetAndRdef(Integer size,
-    		@NotNull Map<Long, Long> pixelsRdefMap);
     /**
      * Retrieves a thumbnail for a pixels set using a given set of rendering
      * settings (RenderingDef). If the thumbnail exists in the on-disk cache it 
