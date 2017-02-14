@@ -1,12 +1,9 @@
 /*
- *   $Id$
- *
  *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.formats.utests;
 
-import junit.framework.TestCase;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
@@ -34,7 +31,7 @@ import org.testng.annotations.Test;
  * @since Beta4.1
  */
 @Test(groups={"manual"})
-public class BasicImporterClientTest extends TestCase {
+public class BasicImporterClientTest {
 
     Logger log = LoggerFactory.getLogger(BasicImporterClientTest.class);
 

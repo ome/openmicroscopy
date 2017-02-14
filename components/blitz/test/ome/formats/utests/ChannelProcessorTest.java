@@ -1,6 +1,4 @@
 /*
- * ome.formats.utests.ChannelProcessorTest
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
@@ -22,7 +20,6 @@
  */
 package ome.formats.utests;
 
-import junit.framework.TestCase;
 import loci.formats.FormatTools;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
@@ -36,9 +33,11 @@ import ome.xml.model.enums.LaserType;
 import ome.xml.model.primitives.PercentFraction;
 import ome.xml.model.primitives.PositiveInteger;
 import omero.api.ServiceFactoryPrx;
+import omero.model.Channel;
 import omero.model.LengthI;
 import omero.model.enums.UnitsLength;
 
+import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -48,7 +47,6 @@ import org.testng.annotations.Test;
  * @author Chris Allan <callan at blackcat dot ca>
  */
 public class ChannelProcessorTest
-	extends TestCase
 {
 
 	/** Reference to the wrapper. */
@@ -108,7 +106,7 @@ public class ChannelProcessorTest
         // Need to populate at least one pixels and image field.
         store.setImageName("Image", IMAGE_INDEX);
         store.setPixelsSizeX(new PositiveInteger(1), IMAGE_INDEX);
-        store.setPixelsSizeC(new PositiveInteger(2), IMAGE_INDEX);
+        store.setPixelsSizeC(new PositiveInteger(6), IMAGE_INDEX);
 
         // First Laser, First LightSourceSettings
 		store.setLaserID(
@@ -185,48 +183,94 @@ public class ChannelProcessorTest
         CHANNEL_INDEX + 1, CHANNEL_INDEX + 1);
 	}
 
-	/** Tests the color of the base channel.  */
-	@Test
-	public void testBaseDataChannelOne()
-	{
-		ChannelProcessor processor = new ChannelProcessor();
-		processor.process(store);
-		ChannelData data = ChannelData.fromObjectContainerStore(
-				store, IMAGE_INDEX, CHANNEL_INDEX);
-		assertNotNull(data.getChannel());
-		assertNotNull(data.getChannel().getRed());
-		assertEquals(255, data.getChannel().getRed().getValue());
-		assertNotNull(data.getChannel().getGreen());
-		assertEquals(0, data.getChannel().getGreen().getValue());
-		assertNotNull(data.getChannel().getBlue());
-		assertEquals(0, data.getChannel().getBlue().getValue());
-		assertNotNull(data.getChannel().getAlpha());
-		assertEquals(255, data.getChannel().getAlpha().getValue());
-		assertNotNull(data.getLogicalChannel());
-		assertNull(data.getLogicalChannel().getName());
-	}
+    private void checkChannelColor(Channel channel, int r, int g, int b)
+    {
+        Assert.assertNotNull(channel.getRed());
+        Assert.assertEquals(channel.getRed().getValue(), r);
+        Assert.assertNotNull(channel.getGreen());
+        Assert.assertEquals(channel.getGreen().getValue(), g);
+        Assert.assertNotNull(channel.getBlue());
+        Assert.assertEquals(channel.getBlue().getValue(), b);
+        Assert.assertNotNull(channel.getAlpha());
+        Assert.assertEquals(channel.getAlpha().getValue(), 255);
+    }
+
+    /** Tests the color of the base channel.*/
+    @Test
+    public void testBaseDataChannelOne()
+    {
+        ChannelProcessor processor = new ChannelProcessor();
+        processor.process(store);
+        ChannelData data = ChannelData.fromObjectContainerStore(
+                store, IMAGE_INDEX, CHANNEL_INDEX);
+        Assert.assertNotNull(data.getChannel());
+        checkChannelColor(data.getChannel(), 255, 0, 0);
+        Assert.assertNotNull(data.getLogicalChannel());
+        Assert.assertNull(data.getLogicalChannel().getName());
+    }
 
 
-	/** Tests the color of the base channel two.  */
-	@Test
-	public void testBaseDataChannelTwo()
-	{
-		ChannelProcessor processor = new ChannelProcessor();
-		processor.process(store);
-		ChannelData data = ChannelData.fromObjectContainerStore(
-				store, IMAGE_INDEX, CHANNEL_INDEX + 1);
-		assertNotNull(data.getChannel());
-		assertNotNull(data.getChannel().getRed());
-		assertEquals(0, data.getChannel().getRed().getValue());
-		assertNotNull(data.getChannel().getGreen());
-		assertEquals(255, data.getChannel().getGreen().getValue());
-		assertNotNull(data.getChannel().getBlue());
-		assertEquals(0, data.getChannel().getBlue().getValue());
-		assertNotNull(data.getChannel().getAlpha());
-		assertEquals(255, data.getChannel().getAlpha().getValue());
-		assertNotNull(data.getLogicalChannel());
-		assertNull(data.getLogicalChannel().getName());
-	}
+    /** Tests the color of the base channel two.*/
+    @Test
+    public void testBaseDataChannelTwo()
+    {
+        ChannelProcessor processor = new ChannelProcessor();
+        processor.process(store);
+        ChannelData data = ChannelData.fromObjectContainerStore(
+                store, IMAGE_INDEX, CHANNEL_INDEX + 1);
+        Assert.assertNotNull(data.getChannel());
+        checkChannelColor(data.getChannel(), 0, 255, 0);
+        Assert.assertNotNull(data.getLogicalChannel());
+        Assert.assertNull(data.getLogicalChannel().getName());
+    }
+
+    /** Tests the color of the base channel three.*/
+    @Test
+    public void testBaseDataChannelThree()
+    {
+        ChannelProcessor processor = new ChannelProcessor();
+        processor.process(store);
+        ChannelData data = ChannelData.fromObjectContainerStore(
+                store, IMAGE_INDEX, CHANNEL_INDEX + 2);
+        Assert.assertNotNull(data.getChannel());
+        checkChannelColor(data.getChannel(), 0, 0, 255);
+    }
+
+    /** Tests the color of the base channel four.*/
+    @Test
+    public void testBaseDataChannelFour()
+    {
+        ChannelProcessor processor = new ChannelProcessor();
+        processor.process(store);
+        ChannelData data = ChannelData.fromObjectContainerStore(
+                store, IMAGE_INDEX, CHANNEL_INDEX + 3);
+        Assert.assertNotNull(data.getChannel());
+        checkChannelColor(data.getChannel(), 255, 0, 0);
+    }
+
+    /** Tests the color of the base channel five.*/
+    @Test
+    public void testBaseDataChannelFive()
+    {
+        ChannelProcessor processor = new ChannelProcessor();
+        processor.process(store);
+        ChannelData data = ChannelData.fromObjectContainerStore(
+                store, IMAGE_INDEX, CHANNEL_INDEX + 4);
+        Assert.assertNotNull(data.getChannel());
+        checkChannelColor(data.getChannel(), 0, 255, 0);
+    }
+
+    /** Tests the color of the base channel six.*/
+    @Test
+    public void testBaseDataChannelSix()
+    {
+        ChannelProcessor processor = new ChannelProcessor();
+        processor.process(store);
+        ChannelData data = ChannelData.fromObjectContainerStore(
+                store, IMAGE_INDEX, CHANNEL_INDEX + 5);
+        Assert.assertNotNull(data.getChannel());
+        checkChannelColor(data.getChannel(), 0, 0, 255);
+    }
 
 	/** Tests a graphic image. */
 	@Test
@@ -239,17 +283,17 @@ public class ChannelProcessorTest
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
-		assertNotNull(data.getChannel());
-		assertNotNull(data.getChannel().getRed());
-		assertEquals(255, data.getChannel().getRed().getValue());
-		assertNotNull(data.getChannel().getGreen());
-		assertEquals(0, data.getChannel().getGreen().getValue());
-		assertNotNull(data.getChannel().getBlue());
-		assertEquals(0, data.getChannel().getBlue().getValue());
-		assertNotNull(data.getChannel().getAlpha());
-		assertEquals(255, data.getChannel().getAlpha().getValue());
-		assertNotNull(data.getLogicalChannel().getName());
-		assertEquals(ChannelProcessor.RED_TEXT,
+		Assert.assertNotNull(data.getChannel());
+		Assert.assertNotNull(data.getChannel().getRed());
+		Assert.assertEquals(data.getChannel().getRed().getValue(), 255);
+		Assert.assertNotNull(data.getChannel().getGreen());
+		Assert.assertEquals(data.getChannel().getGreen().getValue(), 0);
+		Assert.assertNotNull(data.getChannel().getBlue());
+		Assert.assertEquals(data.getChannel().getBlue().getValue(), 0);
+		Assert.assertNotNull(data.getChannel().getAlpha());
+		Assert.assertEquals(data.getChannel().getAlpha().getValue(), 255);
+		Assert.assertNotNull(data.getLogicalChannel().getName());
+		Assert.assertEquals(ChannelProcessor.RED_TEXT,
 				data.getLogicalChannel().getName().getValue());
 	}
 
@@ -263,18 +307,18 @@ public class ChannelProcessorTest
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
-		assertNotNull(data.getChannel());
-		assertNotNull(data.getChannel().getRed());
-		assertEquals(0, data.getChannel().getRed().getValue());
-		assertNotNull(data.getChannel().getGreen());
-		assertEquals(255, data.getChannel().getGreen().getValue());
-		assertNotNull(data.getChannel().getBlue());
-		assertEquals(0, data.getChannel().getBlue().getValue());
-		assertNotNull(data.getChannel().getAlpha());
-		assertEquals(255, data.getChannel().getAlpha().getValue());
-		assertNotNull(data.getLogicalChannel());
-		assertNotNull(data.getLogicalChannel().getName());
-		assertEquals("525.5", data.getLogicalChannel().getName().getValue());
+		Assert.assertNotNull(data.getChannel());
+		Assert.assertNotNull(data.getChannel().getRed());
+		Assert.assertEquals(data.getChannel().getRed().getValue(), 0);
+		Assert.assertNotNull(data.getChannel().getGreen());
+		Assert.assertEquals(data.getChannel().getGreen().getValue(), 255);
+		Assert.assertNotNull(data.getChannel().getBlue());
+		Assert.assertEquals(data.getChannel().getBlue().getValue(), 0);
+		Assert.assertNotNull(data.getChannel().getAlpha());
+		Assert.assertEquals(data.getChannel().getAlpha().getValue(), 255);
+		Assert.assertNotNull(data.getLogicalChannel());
+		Assert.assertNotNull(data.getLogicalChannel().getName());
+		Assert.assertEquals(data.getLogicalChannel().getName().getValue(), "525.5");
 	}
 
 	/** Tests an image with a logical channel with emission wavelength. */
@@ -287,18 +331,18 @@ public class ChannelProcessorTest
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
-		assertNotNull(data.getChannel());
-		assertNotNull(data.getChannel().getRed());
-		assertEquals(0, data.getChannel().getRed().getValue());
-		assertNotNull(data.getChannel().getGreen());
-		assertEquals(0, data.getChannel().getGreen().getValue());
-		assertNotNull(data.getChannel().getBlue());
-		assertEquals(255, data.getChannel().getBlue().getValue());
-		assertNotNull(data.getChannel().getAlpha());
-		assertEquals(255, data.getChannel().getAlpha().getValue());
-		assertNotNull(data.getLogicalChannel());
-		assertNotNull(data.getLogicalChannel().getName());
-		assertEquals("450.1", data.getLogicalChannel().getName().getValue());
+		Assert.assertNotNull(data.getChannel());
+		Assert.assertNotNull(data.getChannel().getRed());
+		Assert.assertEquals(data.getChannel().getRed().getValue(), 0);
+		Assert.assertNotNull(data.getChannel().getGreen());
+		Assert.assertEquals(data.getChannel().getGreen().getValue(), 0);
+		Assert.assertNotNull(data.getChannel().getBlue());
+		Assert.assertEquals(data.getChannel().getBlue().getValue(), 255);
+		Assert.assertNotNull(data.getChannel().getAlpha());
+		Assert.assertEquals(data.getChannel().getAlpha().getValue(), 255);
+		Assert.assertNotNull(data.getLogicalChannel());
+		Assert.assertNotNull(data.getLogicalChannel().getName());
+		Assert.assertEquals(data.getLogicalChannel().getName().getValue(), "450.1");
 	}
 
 	/** Tests an image with a logical channel with emission wavelength. */
@@ -311,18 +355,18 @@ public class ChannelProcessorTest
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
-		assertNotNull(data.getChannel());
-		assertNotNull(data.getChannel().getRed());
-		assertEquals(255, data.getChannel().getRed().getValue());
-		assertNotNull(data.getChannel().getGreen());
-		assertEquals(0, data.getChannel().getGreen().getValue());
-		assertNotNull(data.getChannel().getBlue());
-		assertEquals(0, data.getChannel().getBlue().getValue());
-		assertNotNull(data.getChannel().getAlpha());
-		assertEquals(255, data.getChannel().getAlpha().getValue());
-		assertNotNull(data.getLogicalChannel());
-		assertNotNull(data.getLogicalChannel().getName());
-		assertEquals("625.5", data.getLogicalChannel().getName().getValue());
+		Assert.assertNotNull(data.getChannel());
+		Assert.assertNotNull(data.getChannel().getRed());
+		Assert.assertEquals(data.getChannel().getRed().getValue(), 255);
+		Assert.assertNotNull(data.getChannel().getGreen());
+		Assert.assertEquals(data.getChannel().getGreen().getValue(), 0);
+		Assert.assertNotNull(data.getChannel().getBlue());
+		Assert.assertEquals(data.getChannel().getBlue().getValue(), 0);
+		Assert.assertNotNull(data.getChannel().getAlpha());
+		Assert.assertEquals(data.getChannel().getAlpha().getValue(), 255);
+		Assert.assertNotNull(data.getLogicalChannel());
+		Assert.assertNotNull(data.getLogicalChannel().getName());
+		Assert.assertEquals(data.getLogicalChannel().getName().getValue(), "625.5");
 	}
 
 	/**
@@ -338,18 +382,18 @@ public class ChannelProcessorTest
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
-		assertNotNull(data.getChannel());
-		assertNotNull(data.getChannel().getRed());
-		assertEquals(0, data.getChannel().getRed().getValue());
-		assertNotNull(data.getChannel().getGreen());
-		assertEquals(0, data.getChannel().getGreen().getValue());
-		assertNotNull(data.getChannel().getBlue());
-		assertEquals(255, data.getChannel().getBlue().getValue());
-		assertNotNull(data.getChannel().getAlpha());
-		assertEquals(255, data.getChannel().getAlpha().getValue());
-		assertNotNull(data.getLogicalChannel());
-		assertNotNull(data.getLogicalChannel().getName());
-		assertEquals("425", data.getLogicalChannel().getName().getValue());
+		Assert.assertNotNull(data.getChannel());
+		Assert.assertNotNull(data.getChannel().getRed());
+		Assert.assertEquals(data.getChannel().getRed().getValue(), 0);
+		Assert.assertNotNull(data.getChannel().getGreen());
+		Assert.assertEquals(data.getChannel().getGreen().getValue(), 0);
+		Assert.assertNotNull(data.getChannel().getBlue());
+		Assert.assertEquals(data.getChannel().getBlue().getValue(), 255);
+		Assert.assertNotNull(data.getChannel().getAlpha());
+		Assert.assertEquals(data.getChannel().getAlpha().getValue(), 255);
+		Assert.assertNotNull(data.getLogicalChannel());
+		Assert.assertNotNull(data.getLogicalChannel().getName());
+		Assert.assertEquals(data.getLogicalChannel().getName().getValue(), "425");
 	}
 
 	/**
@@ -364,18 +408,18 @@ public class ChannelProcessorTest
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
-		assertNotNull(data.getChannel());
-		assertNotNull(data.getChannel().getRed());
-		assertEquals(0, data.getChannel().getRed().getValue());
-		assertNotNull(data.getChannel().getGreen());
-		assertEquals(0, data.getChannel().getGreen().getValue());
-		assertNotNull(data.getChannel().getBlue());
-		assertEquals(255, data.getChannel().getBlue().getValue());
-		assertNotNull(data.getChannel().getAlpha());
-		assertEquals(255, data.getChannel().getAlpha().getValue());
-		assertNotNull(data.getLogicalChannel());
-		assertNotNull(data.getLogicalChannel().getName());
-		assertEquals("435.5", data.getLogicalChannel().getName().getValue());
+		Assert.assertNotNull(data.getChannel());
+		Assert.assertNotNull(data.getChannel().getRed());
+		Assert.assertEquals(data.getChannel().getRed().getValue(), 0);
+		Assert.assertNotNull(data.getChannel().getGreen());
+		Assert.assertEquals(data.getChannel().getGreen().getValue(), 0);
+		Assert.assertNotNull(data.getChannel().getBlue());
+		Assert.assertEquals(data.getChannel().getBlue().getValue(), 255);
+		Assert.assertNotNull(data.getChannel().getAlpha());
+		Assert.assertEquals(data.getChannel().getAlpha().getValue(), 255);
+		Assert.assertNotNull(data.getLogicalChannel());
+		Assert.assertNotNull(data.getLogicalChannel().getName());
+		Assert.assertEquals(data.getLogicalChannel().getName().getValue(), "435.5");
 	}
 
 	/**
@@ -390,18 +434,18 @@ public class ChannelProcessorTest
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
-		assertNotNull(data.getChannel());
-		assertNotNull(data.getChannel().getRed());
-		assertEquals(0, data.getChannel().getRed().getValue());
-		assertNotNull(data.getChannel().getGreen());
-		assertEquals(255, data.getChannel().getGreen().getValue());
-		assertNotNull(data.getChannel().getBlue());
-		assertEquals(0, data.getChannel().getBlue().getValue());
-		assertNotNull(data.getChannel().getAlpha());
-		assertEquals(255, data.getChannel().getAlpha().getValue());
-		assertNotNull(data.getLogicalChannel());
-		assertNotNull(data.getLogicalChannel().getName());
-		assertEquals("525.5", data.getLogicalChannel().getName().getValue());
+		Assert.assertNotNull(data.getChannel());
+		Assert.assertNotNull(data.getChannel().getRed());
+		Assert.assertEquals(data.getChannel().getRed().getValue(), 0);
+		Assert.assertNotNull(data.getChannel().getGreen());
+		Assert.assertEquals(data.getChannel().getGreen().getValue(), 255);
+		Assert.assertNotNull(data.getChannel().getBlue());
+		Assert.assertEquals(data.getChannel().getBlue().getValue(), 0);
+		Assert.assertNotNull(data.getChannel().getAlpha());
+		Assert.assertEquals(data.getChannel().getAlpha().getValue(), 255);
+		Assert.assertNotNull(data.getLogicalChannel());
+		Assert.assertNotNull(data.getLogicalChannel().getName());
+		Assert.assertEquals(data.getLogicalChannel().getName().getValue(), "525.5");
 	}
 
 	/**
@@ -416,18 +460,18 @@ public class ChannelProcessorTest
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
-		assertNotNull(data.getChannel());
-		assertNotNull(data.getChannel().getRed());
-		assertEquals(0, data.getChannel().getRed().getValue());
-		assertNotNull(data.getChannel().getGreen());
-		assertEquals(0, data.getChannel().getGreen().getValue());
-		assertNotNull(data.getChannel().getBlue());
-		assertEquals(255, data.getChannel().getBlue().getValue());
-		assertNotNull(data.getChannel().getAlpha());
-		assertEquals(255, data.getChannel().getAlpha().getValue());
-		assertNotNull(data.getLogicalChannel());
-		assertNotNull(data.getLogicalChannel().getName());
-		assertEquals("450.1", data.getLogicalChannel().getName().getValue());
+		Assert.assertNotNull(data.getChannel());
+		Assert.assertNotNull(data.getChannel().getRed());
+		Assert.assertEquals(data.getChannel().getRed().getValue(), 0);
+		Assert.assertNotNull(data.getChannel().getGreen());
+		Assert.assertEquals(data.getChannel().getGreen().getValue(), 0);
+		Assert.assertNotNull(data.getChannel().getBlue());
+		Assert.assertEquals(data.getChannel().getBlue().getValue(), 255);
+		Assert.assertNotNull(data.getChannel().getAlpha());
+		Assert.assertEquals(data.getChannel().getAlpha().getValue(), 255);
+		Assert.assertNotNull(data.getLogicalChannel());
+		Assert.assertNotNull(data.getLogicalChannel().getName());
+		Assert.assertEquals(data.getLogicalChannel().getName().getValue(), "450.1");
 	}
 
 	/**
@@ -442,18 +486,18 @@ public class ChannelProcessorTest
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
-		assertNotNull(data.getChannel());
-		assertNotNull(data.getChannel().getRed());
-		assertEquals(255, data.getChannel().getRed().getValue());
-		assertNotNull(data.getChannel().getGreen());
-		assertEquals(0, data.getChannel().getGreen().getValue());
-		assertNotNull(data.getChannel().getBlue());
-		assertEquals(0, data.getChannel().getBlue().getValue());
-		assertNotNull(data.getChannel().getAlpha());
-		assertEquals(255, data.getChannel().getAlpha().getValue());
-		assertNotNull(data.getLogicalChannel());
-		assertNotNull(data.getLogicalChannel().getName());
-		assertEquals("625.5", data.getLogicalChannel().getName().getValue());
+		Assert.assertNotNull(data.getChannel());
+		Assert.assertNotNull(data.getChannel().getRed());
+		Assert.assertEquals(data.getChannel().getRed().getValue(), 255);
+		Assert.assertNotNull(data.getChannel().getGreen());
+		Assert.assertEquals(data.getChannel().getGreen().getValue(), 0);
+		Assert.assertNotNull(data.getChannel().getBlue());
+		Assert.assertEquals(data.getChannel().getBlue().getValue(), 0);
+		Assert.assertNotNull(data.getChannel().getAlpha());
+		Assert.assertEquals(data.getChannel().getAlpha().getValue(), 255);
+		Assert.assertNotNull(data.getLogicalChannel());
+		Assert.assertNotNull(data.getLogicalChannel().getName());
+		Assert.assertEquals(data.getLogicalChannel().getName().getValue(), "625.5");
 	}
 
 	/**
@@ -469,18 +513,18 @@ public class ChannelProcessorTest
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
-		assertNotNull(data.getChannel());
-		assertNotNull(data.getChannel().getRed());
-		assertEquals(0, data.getChannel().getRed().getValue());
-		assertNotNull(data.getChannel().getGreen());
-		assertEquals(0, data.getChannel().getGreen().getValue());
-		assertNotNull(data.getChannel().getBlue());
-		assertEquals(255, data.getChannel().getBlue().getValue());
-		assertNotNull(data.getChannel().getAlpha());
-		assertEquals(255, data.getChannel().getAlpha().getValue());
-		assertNotNull(data.getLogicalChannel());
-		assertNotNull(data.getLogicalChannel().getName());
-		assertEquals("425", data.getLogicalChannel().getName().getValue());
+		Assert.assertNotNull(data.getChannel());
+		Assert.assertNotNull(data.getChannel().getRed());
+		Assert.assertEquals(data.getChannel().getRed().getValue(), 0);
+		Assert.assertNotNull(data.getChannel().getGreen());
+		Assert.assertEquals(data.getChannel().getGreen().getValue(), 0);
+		Assert.assertNotNull(data.getChannel().getBlue());
+		Assert.assertEquals(data.getChannel().getBlue().getValue(), 255);
+		Assert.assertNotNull(data.getChannel().getAlpha());
+		Assert.assertEquals(data.getChannel().getAlpha().getValue(), 255);
+		Assert.assertNotNull(data.getLogicalChannel());
+		Assert.assertNotNull(data.getLogicalChannel().getName());
+		Assert.assertEquals(data.getLogicalChannel().getName().getValue(), "425");
 	}
 
 	/**
@@ -495,18 +539,18 @@ public class ChannelProcessorTest
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
-		assertNotNull(data.getChannel());
-		assertNotNull(data.getChannel().getRed());
-		assertEquals(0, data.getChannel().getRed().getValue());
-		assertNotNull(data.getChannel().getGreen());
-		assertEquals(0, data.getChannel().getGreen().getValue());
-		assertNotNull(data.getChannel().getBlue());
-		assertEquals(255, data.getChannel().getBlue().getValue());
-		assertNotNull(data.getChannel().getAlpha());
-		assertEquals(255, data.getChannel().getAlpha().getValue());
-		assertNotNull(data.getLogicalChannel());
-		assertNotNull(data.getLogicalChannel().getName());
-		assertEquals("430", data.getLogicalChannel().getName().getValue());
+		Assert.assertNotNull(data.getChannel());
+		Assert.assertNotNull(data.getChannel().getRed());
+		Assert.assertEquals(data.getChannel().getRed().getValue(), 0);
+		Assert.assertNotNull(data.getChannel().getGreen());
+		Assert.assertEquals(data.getChannel().getGreen().getValue(), 0);
+		Assert.assertNotNull(data.getChannel().getBlue());
+		Assert.assertEquals(data.getChannel().getBlue().getValue(), 255);
+		Assert.assertNotNull(data.getChannel().getAlpha());
+		Assert.assertEquals(data.getChannel().getAlpha().getValue(), 255);
+		Assert.assertNotNull(data.getLogicalChannel());
+		Assert.assertNotNull(data.getLogicalChannel().getName());
+		Assert.assertEquals(data.getLogicalChannel().getName().getValue(), "430");
 	}
 
 	/**
@@ -521,18 +565,18 @@ public class ChannelProcessorTest
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
-		assertNotNull(data.getChannel());
-		assertNotNull(data.getChannel().getRed());
-		assertEquals(0, data.getChannel().getRed().getValue());
-		assertNotNull(data.getChannel().getGreen());
-		assertEquals(0, data.getChannel().getGreen().getValue());
-		assertNotNull(data.getChannel().getBlue());
-		assertEquals(255, data.getChannel().getBlue().getValue());
-		assertNotNull(data.getChannel().getAlpha());
-		assertEquals(255, data.getChannel().getAlpha().getValue());
-		assertNotNull(data.getLogicalChannel());
-		assertNotNull(data.getLogicalChannel().getName());
-		assertEquals("430", data.getLogicalChannel().getName().getValue());
+		Assert.assertNotNull(data.getChannel());
+		Assert.assertNotNull(data.getChannel().getRed());
+		Assert.assertEquals(data.getChannel().getRed().getValue(), 0);
+		Assert.assertNotNull(data.getChannel().getGreen());
+		Assert.assertEquals(data.getChannel().getGreen().getValue(), 0);
+		Assert.assertNotNull(data.getChannel().getBlue());
+		Assert.assertEquals(data.getChannel().getBlue().getValue(), 255);
+		Assert.assertNotNull(data.getChannel().getAlpha());
+		Assert.assertEquals(data.getChannel().getAlpha().getValue(), 255);
+		Assert.assertNotNull(data.getLogicalChannel());
+		Assert.assertNotNull(data.getLogicalChannel().getName());
+		Assert.assertEquals(data.getLogicalChannel().getName().getValue(), "430");
 	}
 
 	/**
@@ -552,18 +596,18 @@ public class ChannelProcessorTest
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
-		assertNotNull(data.getChannel());
-		assertNotNull(data.getChannel().getRed());
-		assertEquals(0, data.getChannel().getRed().getValue());
-		assertNotNull(data.getChannel().getGreen());
-		assertEquals(0, data.getChannel().getGreen().getValue());
-		assertNotNull(data.getChannel().getBlue());
-		assertEquals(255, data.getChannel().getBlue().getValue());
-		assertNotNull(data.getChannel().getAlpha());
-		assertEquals(255, data.getChannel().getAlpha().getValue());
-		assertNotNull(data.getLogicalChannel());
-		assertNotNull(data.getLogicalChannel().getName());
-		assertEquals("430", data.getLogicalChannel().getName().getValue());
+		Assert.assertNotNull(data.getChannel());
+		Assert.assertNotNull(data.getChannel().getRed());
+		Assert.assertEquals(data.getChannel().getRed().getValue(), 0);
+		Assert.assertNotNull(data.getChannel().getGreen());
+		Assert.assertEquals(data.getChannel().getGreen().getValue(), 0);
+		Assert.assertNotNull(data.getChannel().getBlue());
+		Assert.assertEquals(data.getChannel().getBlue().getValue(), 255);
+		Assert.assertNotNull(data.getChannel().getAlpha());
+		Assert.assertEquals(data.getChannel().getAlpha().getValue(), 255);
+		Assert.assertNotNull(data.getLogicalChannel());
+		Assert.assertNotNull(data.getLogicalChannel().getName());
+		Assert.assertEquals(data.getLogicalChannel().getName().getValue(), "430");
 	}
 
 	/**
@@ -583,18 +627,18 @@ public class ChannelProcessorTest
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
-		assertNotNull(data.getChannel());
-		assertNotNull(data.getChannel().getRed());
-		assertEquals(0, data.getChannel().getRed().getValue());
-		assertNotNull(data.getChannel().getGreen());
-		assertEquals(0, data.getChannel().getGreen().getValue());
-		assertNotNull(data.getChannel().getBlue());
-		assertEquals(255, data.getChannel().getBlue().getValue());
-		assertNotNull(data.getChannel().getAlpha());
-		assertEquals(255, data.getChannel().getAlpha().getValue());
-		assertNotNull(data.getLogicalChannel());
-		assertNotNull(data.getLogicalChannel().getName());
-		assertEquals("430", data.getLogicalChannel().getName().getValue());
+		Assert.assertNotNull(data.getChannel());
+		Assert.assertNotNull(data.getChannel().getRed());
+		Assert.assertEquals(data.getChannel().getRed().getValue(), 0);
+		Assert.assertNotNull(data.getChannel().getGreen());
+		Assert.assertEquals(data.getChannel().getGreen().getValue(), 0);
+		Assert.assertNotNull(data.getChannel().getBlue());
+		Assert.assertEquals(data.getChannel().getBlue().getValue(), 255);
+		Assert.assertNotNull(data.getChannel().getAlpha());
+		Assert.assertEquals(data.getChannel().getAlpha().getValue(), 255);
+		Assert.assertNotNull(data.getLogicalChannel());
+		Assert.assertNotNull(data.getLogicalChannel().getName());
+		Assert.assertEquals(data.getLogicalChannel().getName().getValue(), "430");
 	}
 
 	/**
@@ -614,18 +658,18 @@ public class ChannelProcessorTest
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
-		assertNotNull(data.getChannel());
-		assertNotNull(data.getChannel().getRed());
-		assertEquals(255, data.getChannel().getRed().getValue());
-		assertNotNull(data.getChannel().getGreen());
-		assertEquals(0, data.getChannel().getGreen().getValue());
-		assertNotNull(data.getChannel().getBlue());
-		assertEquals(0, data.getChannel().getBlue().getValue());
-		assertNotNull(data.getChannel().getAlpha());
-		assertEquals(255, data.getChannel().getAlpha().getValue());
-		assertNotNull(data.getLogicalChannel());
-		assertNotNull(data.getLogicalChannel().getName());
-		assertEquals("625", data.getLogicalChannel().getName().getValue());
+		Assert.assertNotNull(data.getChannel());
+		Assert.assertNotNull(data.getChannel().getRed());
+		Assert.assertEquals(data.getChannel().getRed().getValue(), 255);
+		Assert.assertNotNull(data.getChannel().getGreen());
+		Assert.assertEquals(data.getChannel().getGreen().getValue(), 0);
+		Assert.assertNotNull(data.getChannel().getBlue());
+		Assert.assertEquals(data.getChannel().getBlue().getValue(), 0);
+		Assert.assertNotNull(data.getChannel().getAlpha());
+		Assert.assertEquals(data.getChannel().getAlpha().getValue(), 255);
+		Assert.assertNotNull(data.getLogicalChannel());
+		Assert.assertNotNull(data.getLogicalChannel().getName());
+		Assert.assertEquals(data.getLogicalChannel().getName().getValue(), "625");
 	}
 
 	/**
@@ -642,27 +686,27 @@ public class ChannelProcessorTest
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
-		assertNotNull(data.getChannel());
-		assertNotNull(data.getChannel().getRed());
-		assertEquals(0, data.getChannel().getRed().getValue());
-		assertNotNull(data.getChannel().getGreen());
-		assertEquals(0, data.getChannel().getGreen().getValue());
-		assertNotNull(data.getChannel().getBlue());
-		assertEquals(255, data.getChannel().getBlue().getValue());
-		assertNotNull(data.getChannel().getAlpha());
-		assertEquals(255, data.getChannel().getAlpha().getValue());
+		Assert.assertNotNull(data.getChannel());
+		Assert.assertNotNull(data.getChannel().getRed());
+		Assert.assertEquals(data.getChannel().getRed().getValue(), 0);
+		Assert.assertNotNull(data.getChannel().getGreen());
+		Assert.assertEquals(data.getChannel().getGreen().getValue(), 0);
+		Assert.assertNotNull(data.getChannel().getBlue());
+		Assert.assertEquals(data.getChannel().getBlue().getValue(), 255);
+		Assert.assertNotNull(data.getChannel().getAlpha());
+		Assert.assertEquals(data.getChannel().getAlpha().getValue(), 255);
 		//
 		data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX+1);
-		assertNotNull(data.getChannel());
-		assertNotNull(data.getChannel().getRed());
-		assertEquals(255, data.getChannel().getRed().getValue());
-		assertNotNull(data.getChannel().getGreen());
-		assertEquals(255, data.getChannel().getGreen().getValue());
-		assertNotNull(data.getChannel().getBlue());
-		assertEquals(255, data.getChannel().getBlue().getValue());
-		assertNotNull(data.getChannel().getAlpha());
-		assertEquals(255, data.getChannel().getAlpha().getValue());
+		Assert.assertNotNull(data.getChannel());
+		Assert.assertNotNull(data.getChannel().getRed());
+		Assert.assertEquals(data.getChannel().getRed().getValue(), 255);
+		Assert.assertNotNull(data.getChannel().getGreen());
+		Assert.assertEquals(data.getChannel().getGreen().getValue(), 255);
+		Assert.assertNotNull(data.getChannel().getBlue());
+		Assert.assertEquals(data.getChannel().getBlue().getValue(), 255);
+		Assert.assertNotNull(data.getChannel().getAlpha());
+		Assert.assertEquals(data.getChannel().getAlpha().getValue(), 255);
 	}
 
 	/**
@@ -679,27 +723,27 @@ public class ChannelProcessorTest
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
-		assertNotNull(data.getChannel());
-		assertNotNull(data.getChannel().getRed());
-		assertEquals(255, data.getChannel().getRed().getValue());
-		assertNotNull(data.getChannel().getGreen());
-		assertEquals(0, data.getChannel().getGreen().getValue());
-		assertNotNull(data.getChannel().getBlue());
-		assertEquals(0, data.getChannel().getBlue().getValue());
-		assertNotNull(data.getChannel().getAlpha());
-		assertEquals(255, data.getChannel().getAlpha().getValue());
+		Assert.assertNotNull(data.getChannel());
+		Assert.assertNotNull(data.getChannel().getRed());
+		Assert.assertEquals(data.getChannel().getRed().getValue(), 255);
+		Assert.assertNotNull(data.getChannel().getGreen());
+		Assert.assertEquals(data.getChannel().getGreen().getValue(), 0);
+		Assert.assertNotNull(data.getChannel().getBlue());
+		Assert.assertEquals(data.getChannel().getBlue().getValue(), 0);
+		Assert.assertNotNull(data.getChannel().getAlpha());
+		Assert.assertEquals(data.getChannel().getAlpha().getValue(), 255);
 		//
 		data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX+1);
-		assertNotNull(data.getChannel());
-		assertNotNull(data.getChannel().getRed());
-		assertEquals(255, data.getChannel().getRed().getValue());
-		assertNotNull(data.getChannel().getGreen());
-		assertEquals(255, data.getChannel().getGreen().getValue());
-		assertNotNull(data.getChannel().getBlue());
-		assertEquals(255, data.getChannel().getBlue().getValue());
-		assertNotNull(data.getChannel().getAlpha());
-		assertEquals(255, data.getChannel().getAlpha().getValue());
+		Assert.assertNotNull(data.getChannel());
+		Assert.assertNotNull(data.getChannel().getRed());
+		Assert.assertEquals(data.getChannel().getRed().getValue(), 255);
+		Assert.assertNotNull(data.getChannel().getGreen());
+		Assert.assertEquals(data.getChannel().getGreen().getValue(), 255);
+		Assert.assertNotNull(data.getChannel().getBlue());
+		Assert.assertEquals(data.getChannel().getBlue().getValue(), 255);
+		Assert.assertNotNull(data.getChannel().getAlpha());
+		Assert.assertEquals(data.getChannel().getAlpha().getValue(), 255);
 	}
 
 	/**
@@ -716,27 +760,27 @@ public class ChannelProcessorTest
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
-		assertNotNull(data.getChannel());
-		assertNotNull(data.getChannel().getRed());
-		assertEquals(0, data.getChannel().getRed().getValue());
-		assertNotNull(data.getChannel().getGreen());
-		assertEquals(255, data.getChannel().getGreen().getValue());
-		assertNotNull(data.getChannel().getBlue());
-		assertEquals(0, data.getChannel().getBlue().getValue());
-		assertNotNull(data.getChannel().getAlpha());
-		assertEquals(255, data.getChannel().getAlpha().getValue());
+		Assert.assertNotNull(data.getChannel());
+		Assert.assertNotNull(data.getChannel().getRed());
+		Assert.assertEquals(data.getChannel().getRed().getValue(), 0);
+		Assert.assertNotNull(data.getChannel().getGreen());
+		Assert.assertEquals(data.getChannel().getGreen().getValue(), 255);
+		Assert.assertNotNull(data.getChannel().getBlue());
+		Assert.assertEquals(data.getChannel().getBlue().getValue(), 0);
+		Assert.assertNotNull(data.getChannel().getAlpha());
+		Assert.assertEquals(data.getChannel().getAlpha().getValue(), 255);
 		//
 		data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX+1);
-		assertNotNull(data.getChannel());
-		assertNotNull(data.getChannel().getRed());
-		assertEquals(255, data.getChannel().getRed().getValue());
-		assertNotNull(data.getChannel().getGreen());
-		assertEquals(255, data.getChannel().getGreen().getValue());
-		assertNotNull(data.getChannel().getBlue());
-		assertEquals(255, data.getChannel().getBlue().getValue());
-		assertNotNull(data.getChannel().getAlpha());
-		assertEquals(255, data.getChannel().getAlpha().getValue());
+		Assert.assertNotNull(data.getChannel());
+		Assert.assertNotNull(data.getChannel().getRed());
+		Assert.assertEquals(data.getChannel().getRed().getValue(), 255);
+		Assert.assertNotNull(data.getChannel().getGreen());
+		Assert.assertEquals(data.getChannel().getGreen().getValue(), 255);
+		Assert.assertNotNull(data.getChannel().getBlue());
+		Assert.assertEquals(data.getChannel().getBlue().getValue(), 255);
+		Assert.assertNotNull(data.getChannel().getAlpha());
+		Assert.assertEquals(data.getChannel().getAlpha().getValue(), 255);
 	}
 
 	/**
@@ -753,27 +797,27 @@ public class ChannelProcessorTest
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
-		assertNotNull(data.getChannel());
-		assertNotNull(data.getChannel().getRed());
-		assertEquals(0, data.getChannel().getRed().getValue());
-		assertNotNull(data.getChannel().getGreen());
-		assertEquals(255, data.getChannel().getGreen().getValue());
-		assertNotNull(data.getChannel().getBlue());
-		assertEquals(0, data.getChannel().getBlue().getValue());
-		assertNotNull(data.getChannel().getAlpha());
-		assertEquals(255, data.getChannel().getAlpha().getValue());
+		Assert.assertNotNull(data.getChannel());
+		Assert.assertNotNull(data.getChannel().getRed());
+		Assert.assertEquals(data.getChannel().getRed().getValue(), 0);
+		Assert.assertNotNull(data.getChannel().getGreen());
+		Assert.assertEquals(data.getChannel().getGreen().getValue(), 255);
+		Assert.assertNotNull(data.getChannel().getBlue());
+		Assert.assertEquals(data.getChannel().getBlue().getValue(), 0);
+		Assert.assertNotNull(data.getChannel().getAlpha());
+		Assert.assertEquals(data.getChannel().getAlpha().getValue(), 255);
 		//
 		data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX+1);
-		assertNotNull(data.getChannel());
-		assertNotNull(data.getChannel().getRed());
-		assertEquals(255, data.getChannel().getRed().getValue());
-		assertNotNull(data.getChannel().getGreen());
-		assertEquals(255, data.getChannel().getGreen().getValue());
-		assertNotNull(data.getChannel().getBlue());
-		assertEquals(255, data.getChannel().getBlue().getValue());
-		assertNotNull(data.getChannel().getAlpha());
-		assertEquals(255, data.getChannel().getAlpha().getValue());
+		Assert.assertNotNull(data.getChannel());
+		Assert.assertNotNull(data.getChannel().getRed());
+		Assert.assertEquals(data.getChannel().getRed().getValue(), 255);
+		Assert.assertNotNull(data.getChannel().getGreen());
+		Assert.assertEquals(data.getChannel().getGreen().getValue(), 255);
+		Assert.assertNotNull(data.getChannel().getBlue());
+		Assert.assertEquals(data.getChannel().getBlue().getValue(), 255);
+		Assert.assertNotNull(data.getChannel().getAlpha());
+		Assert.assertEquals(data.getChannel().getAlpha().getValue(), 255);
 	}
 
 }

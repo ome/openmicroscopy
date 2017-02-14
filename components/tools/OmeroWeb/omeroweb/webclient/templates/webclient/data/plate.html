@@ -193,8 +193,17 @@
             {% endif %}
 
             // Need to apply correct thumb size once loaded
+            // and scroll to selected well
             wpv.self.bind('_resetLoaded', function(){
                 setSpwThumbSize(spw_thumb_size);
+                // scroll to selected well:
+                var selection = $("td.ui-selected").first();
+                if (selection) {
+                    var spwContainer = $("#spwContainer");
+                    var fillSpace = $("#spwContainer .fillSpace").first();
+                    fillSpace.scrollTop(selection.position().top - (spwContainer.height()/2) + selection.height()/2);
+                    fillSpace.scrollLeft(selection.position().left - (spwContainer.width()/2) + selection.width()/2);
+                }
             });
 
             // Kick-off loading...

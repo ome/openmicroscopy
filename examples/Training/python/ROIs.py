@@ -65,7 +65,7 @@ def create_roi(img, shapes):
 # Another helper for generating the color integers for shapes
 def rgba_to_int(red, green, blue, alpha=255):
     """ Convert an R,G,B,A value to an int """
-    rgba_int = (alpha << 24) + (red << 16) + (green << 8) + blue
+    rgba_int = (red << 24) + (green << 16) + (blue << 8) + alpha
     if (rgba_int > (2**31-1)):       # convert to signed 32-bit int
         rgba_int = rgba_int - 2**32
     return int(rgba_int)
@@ -82,6 +82,8 @@ rect.height = rdouble(height)
 rect.theZ = rint(z)
 rect.theT = rint(t)
 rect.textValue = rstring("test-Rectangle")
+rect.fillColor = rint(rgba_to_int(255, 255, 255, 255))
+rect.strokeColor = rint(rgba_to_int(255, 255, 0, 255))
 
 # create an Ellipse shape (added to ROI below)
 ellipse = omero.model.EllipseI()
