@@ -164,8 +164,8 @@ public class CmdCallbackTest extends AbstractServerTest {
 
     @Test
     public void testDoAllTimingFinishesOnLoop() throws Exception {
-        TestCB cb = doAllTiming(5);
-        cb.loop(5, scalingFactor);
+        TestCB cb = doAllTiming(3);
+        cb.loop(3, scalingFactor);
         cb.assertFinished();
         // For some reason the number of steps is varying between 10 and 15
     }
