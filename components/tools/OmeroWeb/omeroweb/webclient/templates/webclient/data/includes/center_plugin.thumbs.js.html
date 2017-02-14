@@ -280,6 +280,37 @@ $(document).ready(function() {
         var html = iconTmpl(json);
         $("#icon_table").html(html);
 
+        iids = $.map(imgJson, function(img){
+            return img.id;
+        });
+
+        // load thumbnails in a batches
+        var load_thumbnails = function(input, batch) {
+            if (input.length > 0 && batch > 0) {
+                var iids = input.slice(0 , batch)
+                if (iids.length > 0) {
+                    var thumbnails_url = "{% url 'get_thumbnails_json' %}";
+                    $.ajax({
+                        type: "GET",
+                        url: thumbnails_url,
+                        data: $.param( { id: iids }, true),
+                        dataType:'json',
+                        success: function(data){
+                            $.each(data, function(key, value) {
+                                $("li#image_icon-"+key+ " img").attr("src", value);
+                            });
+                        }
+                    });
+                    input = input.filter(function(x) {
+                        return iids.indexOf(x) < 0;
+                    });
+                    load_thumbnails(input, batch);
+                }
+            }
+        }
+        batch = 50;
+        load_thumbnails(iids, batch);
+
         // populate arrays etc for speedy icon zooming
         setupIconZooming();
 
