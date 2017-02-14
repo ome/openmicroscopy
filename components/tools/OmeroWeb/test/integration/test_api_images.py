@@ -25,10 +25,11 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 import pytest
 from omero.gateway import BlitzGateway
-from omero_marshal import get_encoder, OME_SCHEMA_URL
+from omero_marshal import get_encoder
 from omero.model import DatasetI, ImageI
 from omero.rtypes import rstring, unwrap
 import json
+from omero_marshal import OME_SCHEMA_URL
 
 
 def get_update_service(user):
