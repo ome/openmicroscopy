@@ -1782,9 +1782,9 @@ class TestTree(ITest):
         Test marshalling image, loading thumbnail version
         """
         conn = get_connection(userA)
-        # Thumbnail not yet created: version will be -1
+        # Thumbnail is created, see testlib.ITest.createTestImage
         expected = expected_images(userA, [image_pixels_userA],
-                                   extraValues={'thumbVersion': -1})
+                                   extraValues={'thumbVersion': 0})
         marshaled = marshal_images(conn=conn,
                                    thumb_version=True,
                                    experimenter_id=userA[1].id.val)
