@@ -132,15 +132,8 @@ jQuery._WeblitzPlateview = function (container, options) {
     // NB: don't add other classes here - will get removed on slider change.
     table.addClass('showWellLabel wellSize' + opts.width);
 
-    for (i=0; i < data.rowlabels.length; i++) {
-      for (var j=0; j<data.grid[i].length; j++) {
-        if (data.grid[i][j] !== null) {
-            //console.log(data.grid[i][j].id)
-        }
-      }
-    }
-
     var imgIds = new Array();
+    var dim = 0;
     for (i=0; i < data.rowlabels.length; i++) {
       tr = $('<tr></tr>').appendTo(table);
       tr.append('<th>'+data.rowlabels[i]+'</th>');
@@ -148,6 +141,7 @@ jQuery._WeblitzPlateview = function (container, options) {
         if (data.grid[i][j] === null) {
         tr.append('<td class="placeholder"><img src="' + '' + '/static/webgateway/img/spacer.gif" /></td>');
         } else {
+          dim++
           imgIds.push(data.grid[i][j].id);
           data.grid[i][j]._wellpos = data.rowlabels[i]+data.collabels[j];
           var parentPrefix = '';
@@ -171,14 +165,29 @@ jQuery._WeblitzPlateview = function (container, options) {
       }
     }
 
-    // load thumbnails to the grid
-    var thumbnails_url = opts.baseurl+'/get_thumbnails/?' + $.param( { id: imgIds }, true);
-    var _load_thumbnails = function (result, data) {
-      $.each(data, function(key, value) {
-        $("img#"+parentPrefix+"image-"+key).attr("src", value);
-      });
+    // load thumbnails in a batches
+    var load_thumbnails = function(input, batch) {
+      if (input.length > 0 && batch > 0) {
+        var iids = input.slice(0 , batch)
+        if (iids.length > 0) {
+          var thumbnails_url = opts.baseurl+'/get_thumbnails/';
+          thumbnails_url += '?' + $.param( { id: iids }, true);
+          var _load_thumbnails = function (result, data) {
+            $.each(data, function(key, value) {
+              $("img#"+parentPrefix+"image-"+key).attr("src", value);
+            });
+          }
+          gs_json(thumbnails_url, null, _load_thumbnails);
+          input = input.filter(function(x) {
+              return iids.indexOf(x) < 0;
+          });
+          load_thumbnails(input, batch);
+        }
+      }
     }
-    gs_json(thumbnails_url, null, _load_thumbnails);
+
+    batch = 50; //dim > 100 ? Math.ceil(dim / 5) : 100;
+    load_thumbnails(imgIds, batch);
     _this.self.trigger('_resetLoaded');
   };
 
