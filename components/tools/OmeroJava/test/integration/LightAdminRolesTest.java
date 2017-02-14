@@ -1677,6 +1677,40 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     }
 
     /**
+     * Test that light admin can unset a user to be an owner of a group
+     * when the light admin has only the <tt>ModifyGroupMembership</tt> privilege.
+     */
+    @Test(dataProvider = "script privileges cases")
+    public void testModifyGroupMembershipUnsetOwner(boolean isAdmin, boolean permModifyGroupMembership,
+            String groupPermissions) throws Exception {
+        if (!isAdmin) return;
+        /* the permModifyGroupMembership should be a sufficient permission to perform
+         * the unsetting of a new group owner */
+        boolean isExpectSuccessUnsetOwnerOfGroup= isAdmin && permModifyGroupMembership;
+        /* set up the normalUser and make him an Owner by passing "true" in the
+         * newUserAndGroup method argument */
+        final EventContext normalUser = newUserAndGroup(groupPermissions, true);
+        List<String> permissions = new ArrayList<String>();
+        if (permModifyGroupMembership) permissions.add(AdminPrivilegeModifyGroupMembership.value);
+        final EventContext lightAdmin;
+        lightAdmin = loginNewAdmin(isAdmin, permissions);
+        final Experimenter user = new ExperimenterI(normalUser.userId, false);
+        final ExperimenterGroup group = new ExperimenterGroupI(normalUser.groupId, false);
+        try {
+            iAdmin.unsetGroupOwner(group, user);
+            Assert.assertTrue(isExpectSuccessUnsetOwnerOfGroup);
+        } catch (ServerError se) {
+            Assert.assertFalse(isExpectSuccessUnsetOwnerOfGroup);
+        }
+        /* check that the normalUser was unset as the owner of group when appropriate */
+        if (isExpectSuccessUnsetOwnerOfGroup) {
+            Assert.assertTrue(iAdmin.getLeaderOfGroupIds(user).isEmpty());
+        } else {
+            Assert.assertEquals((long) iAdmin.getLeaderOfGroupIds(user).get(0), group.getId().getValue());
+        }
+    }
+
+    /**
      * @return test cases for adding the privileges combined with isAdmin cases
      */
     @DataProvider(name = "6 privileges cases")
