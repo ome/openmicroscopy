@@ -244,6 +244,8 @@ class PlateView(ObjectView):
 
     OMERO_TYPE = 'Plate'
 
+    CAN_DELETE = False
+
     # Urls to add to marshalled object. See ProjectsView for more details
     urls = {
         'url:wells': {'name': 'api_plate_wells',
@@ -255,6 +257,8 @@ class WellView(ObjectView):
     """Handle access to an individual Well to GET or DELETE it."""
 
     OMERO_TYPE = 'Well'
+
+    CAN_DELETE = False
 
     def get_opts(self, request):
         """Add support for load_images."""

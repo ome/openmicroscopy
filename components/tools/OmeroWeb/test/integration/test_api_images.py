@@ -156,26 +156,29 @@ class TestImages(IWebTest):
         assert_objects(conn, [rsp], [orphaned], dtype='Image',
                        opts={'load_channels': True})
 
-    def test_image_create_update_delete(self, user1):
-        """Test that create, update & delete are NOT supported for Images."""
+    @pytest.mark.parametrize("dtype", ['Plate', 'Image', 'Well', 'Channel', 'foo'])
+    def test_create_update_delete_405(self, user1, dtype):
+        """Test create, update & delete are rejected for unsupported types."""
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
         version = settings.API_VERSIONS[-1]
         save_url = reverse('api_save', kwargs={'api_version': version})
-        payload = {'Name': 'Image test',
-                   '@type': OME_SCHEMA_URL + '#Image'}
+        payload = {'Name': 'test',
+                   '@type': OME_SCHEMA_URL + '#%s' % dtype}
         # Test POST creation
         rsp = _csrf_post_json(django_client, save_url, payload,
                               status_code=405)
-        assert rsp['message'] == 'Creation of Image not supported'
+        assert rsp['message'] == 'Creation of %s not supported' % dtype
         # Test PUT update
         rsp = _csrf_put_json(django_client, save_url, payload,
                              status_code=405)
-        assert rsp['message'] == 'Update of Image not supported'
+        assert rsp['message'] == 'Update of %s not supported' % dtype
         # Delete (fake url - image doesn't need to exist for test)
-        delete_url = reverse('api_image', kwargs={'api_version': version,
-                                                  'object_id': 1})
-        rsp = _csrf_delete_response_json(django_client, delete_url, {},
-                                         status_code=405)
-        assert rsp['message'] == 'Delete of Image not supported'
+        if dtype in ('Plate', 'Image', 'Well'):
+            url_name = 'api_%s' % dtype.lower()
+            delete_url = reverse(url_name, kwargs={'api_version': version,
+                                                   'object_id': 1})
+            rsp = _csrf_delete_response_json(django_client, delete_url, {},
+                                             status_code=405)
+            assert rsp['message'] == 'Delete of %s not supported' % dtype
