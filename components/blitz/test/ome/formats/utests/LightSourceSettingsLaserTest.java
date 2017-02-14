@@ -1,7 +1,25 @@
+/*
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2017 University of Dundee. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ */
 package ome.formats.utests;
 
-import static ome.formats.model.UnitsFactory.convertPower;
-import junit.framework.TestCase;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
@@ -19,10 +37,11 @@ import omero.model.LightSettings;
 import omero.model.Pixels;
 import omero.model.PowerI;
 
+import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class LightSourceSettingsLaserTest extends TestCase
+public class LightSourceSettingsLaserTest
 {
 	private OMEROWrapper wrapper;
 
@@ -37,7 +56,7 @@ public class LightSourceSettingsLaserTest extends TestCase
 	private static final int CHANNEL_INDEX = 0;
 
 	Power watt(double d) {
-	    return convertPower(new PowerI(d, UnitsFactory.LightSource_Power));
+	    return UnitsFactory.convertPower(new PowerI(d, UnitsFactory.LightSource_Power));
 	}
 
 	@BeforeMethod
@@ -92,18 +111,18 @@ public class LightSourceSettingsLaserTest extends TestCase
 	public void testLightSourceCount()
 	{
         LSID lsid = new LSID(Pixels.class, IMAGE_INDEX);
-        assertNotNull(store.getSourceObject(lsid));
-        assertEquals(3, store.countCachedContainers(Laser.class));
-        assertEquals(7, store.countCachedContainers(null));
+        Assert.assertNotNull(store.getSourceObject(lsid));
+        Assert.assertEquals(store.countCachedContainers(Laser.class), 3);
+        Assert.assertEquals(store.countCachedContainers(null), 7);
 	}
 
 	@Test
 	public void testLightSourceSettingsCount()
 	{
         LSID lsid = new LSID(Pixels.class, IMAGE_INDEX);
-        assertNotNull(store.getSourceObject(lsid));
-        assertEquals(3, store.countCachedContainers(Laser.class));
-        assertEquals(7, store.countCachedContainers(null));
+        Assert.assertNotNull(store.getSourceObject(lsid));
+        Assert.assertEquals(store.countCachedContainers(Laser.class), 3);
+        Assert.assertEquals(store.countCachedContainers(null), 7);
 	}
 
 	@Test
@@ -112,8 +131,8 @@ public class LightSourceSettingsLaserTest extends TestCase
         for (int i = 0; i < 3; i++)
         {
             LSID imageLsid = new LSID(LightSettings.class, IMAGE_INDEX, i);
-            assertTrue(store.hasReference(imageLsid, new LSID("Laser:" + i)));
+            Assert.assertTrue(store.hasReference(imageLsid, new LSID("Laser:" + i)));
         }
-        assertEquals(3, store.countCachedReferences(null, null));
+        Assert.assertEquals(store.countCachedReferences(null, null), 3);
 	}
 }

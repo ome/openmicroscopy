@@ -30,9 +30,6 @@ import javax.persistence.Column;
 import javax.persistence.Transient;
 
 import ome.conditions.ApiUsageException;
-import static ome.model.internal.Permissions.Role.*;
-import static ome.model.internal.Permissions.Right.*;
-import static ome.model.internal.Permissions.Flag.*;
 
 /**
  * class responsible for storing all Right/Role-based information for entities
@@ -234,36 +231,36 @@ public class Permissions implements Serializable {
 
         c = rwrwrw.charAt(0);
         if (c == 'r' || c == 'R') {
-            p.grant(USER, READ);
+            p.grant(Role.USER, Right.READ);
         }
         c = rwrwrw.charAt(1);
         if (c == 'a' || c == 'A') {
-            p.grant(USER, ANNOTATE);
+            p.grant(Role.USER, Right.ANNOTATE);
         } else if (c == 'w' || c == 'W') {
-            p.grant(USER, ANNOTATE);
-            p.grant(USER, WRITE);
+            p.grant(Role.USER, Right.ANNOTATE);
+            p.grant(Role.USER, Right.WRITE);
         }
         c = rwrwrw.charAt(2);
         if (c == 'r' || c == 'R') {
-            p.grant(GROUP, READ);
+            p.grant(Role.GROUP, Right.READ);
         }
         c = rwrwrw.charAt(3);
         if (c == 'a' || c == 'A') {
-            p.grant(GROUP, ANNOTATE);
+            p.grant(Role.GROUP, Right.ANNOTATE);
         } else if (c == 'w' || c == 'W') {
-            p.grant(GROUP, ANNOTATE);
-            p.grant(GROUP, WRITE);
+            p.grant(Role.GROUP, Right.ANNOTATE);
+            p.grant(Role.GROUP, Right.WRITE);
         }
         c = rwrwrw.charAt(4);
         if (c == 'r' || c == 'R') {
-            p.grant(WORLD, READ);
+            p.grant(Role.WORLD, Right.READ);
         }
         c = rwrwrw.charAt(5);
         if (c == 'a' || c == 'A') {
-            p.grant(WORLD, ANNOTATE);
+            p.grant(Role.WORLD, Right.ANNOTATE);
         } else if (c == 'w' || c == 'W') {
-            p.grant(WORLD, ANNOTATE);
-            p.grant(WORLD, WRITE);
+            p.grant(Role.WORLD, Right.ANNOTATE);
+            p.grant(Role.WORLD, Right.WRITE);
         }
 
         return p;
@@ -556,19 +553,19 @@ public class Permissions implements Serializable {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(16);
-        sb.append(isGranted(USER, READ) ? "r" : "-");
-        sb.append(annotateOrWorld(USER));
-        sb.append(isGranted(GROUP, READ) ? "r" : "-");
-        sb.append(annotateOrWorld(GROUP));
-        sb.append(isGranted(WORLD, READ) ? "r" : "-");
-        sb.append(annotateOrWorld(WORLD));
+        sb.append(isGranted(Role.USER, Right.READ) ? "r" : "-");
+        sb.append(annotateOrWorld(Role.USER));
+        sb.append(isGranted(Role.GROUP, Right.READ) ? "r" : "-");
+        sb.append(annotateOrWorld(Role.GROUP));
+        sb.append(isGranted(Role.WORLD, Right.READ) ? "r" : "-");
+        sb.append(annotateOrWorld(Role.WORLD));
         return sb.toString();
     }
 
     private String annotateOrWorld(Role role) {
-        if (isGranted(role, WRITE)) {
+        if (isGranted(role, Right.WRITE)) {
             return "w";
-        } else if (isGranted(role, ANNOTATE)) {
+        } else if (isGranted(role, Right.ANNOTATE)) {
             return "a";
         } else {
             return "-";
@@ -837,8 +834,10 @@ public class Permissions implements Serializable {
      * turned off.
      */
     public final static Permissions EMPTY = new ImmutablePermissions(
-            new Permissions().revoke(USER, READ, ANNOTATE, WRITE).revoke(GROUP, READ,
-                    ANNOTATE, WRITE).revoke(WORLD, READ, ANNOTATE, WRITE));
+            new Permissions().revoke(Role.USER, Right.READ,
+                    Right.ANNOTATE, Right.WRITE).revoke(Role.GROUP, Right.READ,
+                            Right.ANNOTATE, Right.WRITE).revoke(
+                                    Role.WORLD, Right.READ, Right.ANNOTATE, Right.WRITE));
 
     /**
      * Marker object which can be set on objects to show that the Permissions
@@ -860,56 +859,56 @@ public class Permissions implements Serializable {
      * R______ : user and only the user can only read
      */
     public final static Permissions USER_IMMUTABLE = new ImmutablePermissions(
-            new Permissions(EMPTY).grant(USER, READ));
+            new Permissions(EMPTY).grant(Role.USER, Right.READ));
 
     /**
      * RW____ : user and only user can read and write
      */
     public final static Permissions USER_PRIVATE = new ImmutablePermissions(
-            new Permissions(EMPTY).grant(USER, READ, ANNOTATE, WRITE));
+            new Permissions(EMPTY).grant(Role.USER, Right.READ, Right.ANNOTATE, Right.WRITE));
 
     /**
      * RWR___ : user can read and write, group can read
      */
     public final static Permissions GROUP_READABLE = new ImmutablePermissions(
-            new Permissions(USER_PRIVATE).grant(GROUP, READ));
+            new Permissions(USER_PRIVATE).grant(Role.GROUP, Right.READ));
 
     /**
      * RWRW__ : user and group can read and write
      */
     public final static Permissions GROUP_PRIVATE = new ImmutablePermissions(
-            new Permissions(GROUP_READABLE).grant(GROUP, ANNOTATE, WRITE));
+            new Permissions(GROUP_READABLE).grant(Role.GROUP, Right.ANNOTATE, Right.WRITE));
 
     /**
      * RWRWR_ : user and group can read and write, world can read
      */
 
     public final static Permissions GROUP_WRITEABLE = new ImmutablePermissions(
-            new Permissions(GROUP_PRIVATE).grant(WORLD, READ));
+            new Permissions(GROUP_PRIVATE).grant(Role.WORLD, Right.READ));
 
     /**
      * RWRWRW : everyone can read and write
      */
     public final static Permissions WORLD_WRITEABLE = new ImmutablePermissions(
-            new Permissions(GROUP_WRITEABLE).grant(WORLD, ANNOTATE, WRITE));
+            new Permissions(GROUP_WRITEABLE).grant(Role.WORLD, Right.ANNOTATE, Right.WRITE));
 
     /**
      * RWR_R_ : all can read, user can write
      */
     public final static Permissions USER_WRITEABLE = new ImmutablePermissions(
-            new Permissions(GROUP_READABLE).grant(WORLD, READ));
+            new Permissions(GROUP_READABLE).grant(Role.WORLD, Right.READ));
 
     /**
      * R_R_R_ : all can only read
      */
     public final static Permissions WORLD_IMMUTABLE = new ImmutablePermissions(
-            new Permissions(USER_WRITEABLE).revoke(USER, ANNOTATE, WRITE));
+            new Permissions(USER_WRITEABLE).revoke(Role.USER, Right.ANNOTATE, Right.WRITE));
 
     /**
      * R_R___ : user and group can only read
      */
     public final static Permissions GROUP_IMMUTABLE = new ImmutablePermissions(
-            new Permissions(WORLD_IMMUTABLE).revoke(WORLD, READ));
+            new Permissions(WORLD_IMMUTABLE).revoke(Role.WORLD, Right.READ));
 
     // ~ Non-systematic (easy to remember)
     // =========================================================================

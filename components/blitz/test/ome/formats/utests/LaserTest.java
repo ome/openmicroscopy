@@ -1,12 +1,27 @@
+/*
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2017 University of Dundee. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ */
 package ome.formats.utests;
-
-import static ome.formats.model.UnitsFactory.convertFrequency;
-import static ome.formats.model.UnitsFactory.convertLength;
-import static ome.formats.model.UnitsFactory.makeFrequency;
 
 import java.util.LinkedHashMap;
 
-import junit.framework.TestCase;
 import ome.formats.Index;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.model.BlitzInstanceProvider;
@@ -22,10 +37,11 @@ import omero.metadatastore.IObjectContainer;
 import omero.model.Laser;
 import omero.model.LengthI;
 
+import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class LaserTest extends TestCase
+public class LaserTest
 {
 
 	private OMEROMetadataStoreClient store;
@@ -35,11 +51,12 @@ public class LaserTest extends TestCase
 	private static final int INSTRUMENT_INDEX = 0;
 	
 	private static Length makeWave(double d) {
-	    return convertLength(new LengthI(d, UnitsFactory.Channel_EmissionWavelength));
+	    return UnitsFactory.convertLength(new LengthI(d, UnitsFactory.Channel_EmissionWavelength));
 	}
 
 	private static Frequency hz(double d) {
-	    return convertFrequency(makeFrequency(d, UNITS.HZ));
+	    return UnitsFactory.convertFrequency(
+	            UnitsFactory.makeFrequency(d, UNITS.HERTZ));
 	}
 
 	@BeforeMethod
@@ -79,8 +96,7 @@ public class LaserTest extends TestCase
       indexes.put(Index.LIGHT_SOURCE_INDEX, i);
       IObjectContainer laserContainer =
           store.getIObjectContainer(Laser.class, indexes);
-      assertEquals("LightSource:100", laserContainer.LSID);
-      assertEquals(laserContainer.sourceObject, laserContainer.sourceObject);
+      Assert.assertEquals(laserContainer.LSID, "LightSource:100");
 	}
 
 	@Test
@@ -95,8 +111,7 @@ public class LaserTest extends TestCase
         indexes.put(Index.LIGHT_SOURCE_INDEX, i);
         IObjectContainer laserContainer =
             store.getIObjectContainer(Laser.class, indexes);
-        assertEquals("LightSource:100", laserContainer.LSID);
-        assertEquals(laserContainer.sourceObject, laserContainer.sourceObject);
+        Assert.assertEquals(laserContainer.LSID, "LightSource:100");
     }
 
 	@Test
@@ -112,7 +127,6 @@ public class LaserTest extends TestCase
         indexes.put(Index.LIGHT_SOURCE_INDEX, i);
         IObjectContainer laserContainer =
             store.getIObjectContainer(Laser.class, indexes);
-        assertEquals("LightSource:100", laserContainer.LSID);
-        assertEquals(laserContainer.sourceObject, laserContainer.sourceObject);
+        Assert.assertEquals(laserContainer.LSID, "LightSource:100");
     }
 }

@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -9,7 +7,6 @@ package ome.formats.utests;
 import java.util.Map;
 import java.util.Properties;
 
-import junit.framework.TestCase;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
@@ -19,6 +16,7 @@ import ome.formats.importer.OMEROWrapper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
@@ -35,7 +33,7 @@ import org.testng.annotations.Test;
  *
  * @since Beta4.1
  */
-public class ImportConfigTest extends TestCase {
+public class ImportConfigTest {
 
     Logger log = LoggerFactory.getLogger(ImportConfigTest.class);
     ImportConfig config;
@@ -51,7 +49,7 @@ public class ImportConfigTest extends TestCase {
         ImportConfig config = new ImportConfig();
         config.hostname.set("foo");
         Map<String, String> dump = config.map();
-        assertEquals("foo", dump.get("hostname"));
+        Assert.assertEquals(dump.get("hostname"), "foo");
     }
 
     @Test
@@ -59,7 +57,7 @@ public class ImportConfigTest extends TestCase {
         basic();
         ImportConfig.StrValue str = new ImportConfig.StrValue("foo", config, "default");
         str.store();
-        assertEquals(null, p.getProperty("foo"));
+        Assert.assertNull(p.getProperty("foo"));
     }
 
     @Test
@@ -69,7 +67,7 @@ public class ImportConfigTest extends TestCase {
         ImportConfig.StrValue str = new ImportConfig.StrValue("src", config);
         str.set("set");
         str.load();
-        assertEquals("set", str.get());
+        Assert.assertEquals(str.get(), "set");
     }
 
     @Test
@@ -77,14 +75,14 @@ public class ImportConfigTest extends TestCase {
         basic();
         ImportConfig.PassValue pass = new ImportConfig.PassValue("pass", config);
         pass.store();
-        assertEquals("", p.getProperty("pass",""));
+        Assert.assertEquals(p.getProperty("pass",""), "");
     }
 
     @Test
     public void testDefaultGetsLoaded() {
         basic();
         ImportConfig.IntValue port = new ImportConfig.IntValue("port", config, 1111);
-        assertEquals(1111, port.get().intValue());
+        Assert.assertEquals(port.get().intValue(), 1111);
     }
 
 }

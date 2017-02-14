@@ -23,45 +23,16 @@ from omeroweb.testlib import IWebTest, _get_response_json
 from django.core.urlresolvers import reverse
 from django.conf import settings
 import pytest
-from omero.gateway import BlitzGateway
-from omero_marshal import get_encoder
+from test_api_projects import cmp_name_insensitive, get_update_service, \
+    get_connection, marshal_objects
 from omero.model import DatasetI, ImageI
-from omero.rtypes import rstring, unwrap
+from omero.rtypes import rstring
 import json
-
-
-def get_update_service(user):
-    """Get the update_service for the given user's client."""
-    return user[0].getSession().getUpdateService()
 
 
 def get_query_service(user):
     """Get the query_service for the given user's client."""
     return user[0].getSession().getQueryService()
-
-
-def get_connection(user, group_id=None):
-    """Get a BlitzGateway connection for the given user's client."""
-    connection = BlitzGateway(client_obj=user[0])
-    # Refresh the session context
-    connection.getEventContext()
-    if group_id is not None:
-        connection.SERVICE_OPTS.setOmeroGroup(group_id)
-    return connection
-
-
-def cmp_name_insensitive(x, y):
-    """Case-insensitive name comparator."""
-    return cmp(unwrap(x.name).lower(), unwrap(y.name).lower())
-
-
-def marshal_objects(objects):
-    """Marshal objects using omero_marshal."""
-    expected = []
-    for obj in objects:
-        encoder = get_encoder(obj.__class__)
-        expected.append(encoder.encode(obj))
-    return expected
 
 
 def assert_objects(conn, json_objects, omero_ids_objects, dtype="Project",

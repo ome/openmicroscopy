@@ -11,6 +11,7 @@ Type "ant -p" for a list of targets.
 
   <property name="sphinx.build" value="sphinx-build"/>
   <property name="sphinx.opts" value=""/>
+  <property name="sphinx.warnopts" value=""/>
   <property name="sphinx.builddir" location="_build"/>
   <property name="latex.opts" value=""/>
 

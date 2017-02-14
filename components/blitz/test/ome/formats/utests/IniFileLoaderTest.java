@@ -1,12 +1,8 @@
 /*
- *   $Id$
- *
  *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.formats.utests;
-
-import static org.testng.AssertJUnit.*;
 
 import java.io.File;
 import java.util.Arrays;
@@ -28,6 +24,7 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.LoggerFactory;
 import org.ini4j.IniFile;
 import org.ini4j.IniFile.Mode;
+import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -67,7 +64,6 @@ public class IniFileLoaderTest {
     @BeforeMethod
     public void setUp() throws Exception {
         temporaryFile = TempFileManager.create_path("initest");
-        System.err.println("Temporary file: " + temporaryFile.getAbsolutePath());
         ini = new IniFileLoader(null);
         maps = Preferences.userNodeForPackage(getClass());
     }
@@ -78,16 +74,16 @@ public class IniFileLoaderTest {
     }
 
     protected void assertMaps(Map<String, List<String>> rv) {
-        assertEquals(1, rv.size());
+        Assert.assertEquals(1, rv.size());
         List<String> list = rv.get("A");
-        assertEquals(2, list.size());
+        Assert.assertEquals(list.size(), 2);
         String first = list.get(0);
         if (!"\\\\hostname1\\path1".equals(first)
             && !"/hostname1/path1".equals(first)) {
-            fail(String.format("%s does not equal %s or %s",
+            Assert.fail(String.format("%s does not equal %s or %s",
                     first, "\\\\hostname1\\path1", "/hostname1/path1"));
         }
-        assertEquals("\\\\hostname2\\path2", list.get(1));
+        Assert.assertEquals(list.get(1), "\\\\hostname2\\path2");
     }
 
     @Test
@@ -98,11 +94,11 @@ public class IniFileLoaderTest {
         Preferences test = new IniFile(temporaryFile, Mode.RW);
         Preferences maps = test.node("FlexReaderServerMaps");
         Map<String, List<String>> parsedMaps = ini.parseFlexMaps(maps);
-        assertEquals(1, parsedMaps.size());
+        Assert.assertEquals(parsedMaps.size(), 1);
         List<String> serverPaths = parsedMaps.get("CIA-1");
-        assertEquals(2, serverPaths.size());
-        assertEquals("\\\\hostname1\\path1", serverPaths.get(0));
-        assertEquals("\\\\hostname1\\path2", serverPaths.get(1));
+        Assert.assertEquals(serverPaths.size(), 2);
+        Assert.assertEquals(serverPaths.get(0), "\\\\hostname1\\path1");
+        Assert.assertEquals(serverPaths.get(1), "\\\\hostname1\\path2");
     }
 
     @Test
@@ -113,11 +109,11 @@ public class IniFileLoaderTest {
         Preferences test = new IniFile(temporaryFile, Mode.RW);
         Preferences maps = test.node("FlexReaderServerMaps");
         Map<String, List<String>> parsedMaps = ini.parseFlexMaps(maps);
-        assertEquals(1, parsedMaps.size());
+        Assert.assertEquals(parsedMaps.size(), 1);
         List<String> serverPaths = parsedMaps.get("CIA-1");
-        assertEquals(2, serverPaths.size());
-        assertEquals("/mnt/path1", serverPaths.get(0));
-        assertEquals("/mnt/path2", serverPaths.get(1));
+        Assert.assertEquals(serverPaths.size(), 2);
+        Assert.assertEquals(serverPaths.get(0), "/mnt/path1");
+        Assert.assertEquals(serverPaths.get(1), "/mnt/path2");
     }
 
     @Test
@@ -137,7 +133,7 @@ public class IniFileLoaderTest {
                 "A=2"));
         Preferences test = new IniFile(temporaryFile, Mode.RW);
         String a1 = test.node("Section").get("A", "missing");
-        assertEquals("2",a1);
+        Assert.assertEquals(a1, "2");
     }
 
     @Test
@@ -148,7 +144,7 @@ public class IniFileLoaderTest {
                 "A=1"));
         Preferences test = new IniFile(temporaryFile, Mode.RW);
         String a1 = test.node("Section").get("A", "missing");
-        assertEquals("1",a1);
+        Assert.assertEquals(a1, "1");
     }
 
     @Test
@@ -156,7 +152,7 @@ public class IniFileLoaderTest {
         ch.qos.logback.classic.Logger lociLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("loci");
         lociLogger.setLevel(ch.qos.logback.classic.Level.DEBUG);
         Location loc = new Location("/");
-        assertTrue(loc.exists());
+        Assert.assertTrue(loc.exists());
     }
 
 }

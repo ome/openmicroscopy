@@ -23,37 +23,22 @@ from omeroweb.testlib import IWebTest, _get_response_json
 from django.core.urlresolvers import reverse
 from django.conf import settings
 import pytest
-from omero.gateway import BlitzGateway
-from omero_marshal import get_encoder
-from omero.model import PlateI, WellI, WellSampleI, ImageI, LengthI
+from test_api_projects import get_update_service, \
+    get_connection, marshal_objects
+from omero.model import ImageI, \
+    LengthI, \
+    PlateAcquisitionI, \
+    PlateI, \
+    WellI, \
+    WellSampleI
 from omero.model.enums import UnitsLength
-from omero.rtypes import rstring, rint, unwrap
+from omero.rtypes import rstring, rint, unwrap, rtime
 import json
-
-
-def get_update_service(user):
-    """Get the update_service for the given user's client."""
-    return user[0].getSession().getUpdateService()
 
 
 def get_query_service(user):
     """Get the query_service for the given user's client."""
     return user[0].getSession().getQueryService()
-
-
-def get_connection(user, group_id=None):
-    """Get a BlitzGateway connection for the given user's client."""
-    connection = BlitzGateway(client_obj=user[0])
-    # Refresh the session context
-    connection.getEventContext()
-    if group_id is not None:
-        connection.SERVICE_OPTS.setOmeroGroup(group_id)
-    return connection
-
-
-def cmp_name_insensitive(x, y):
-    """Case-insensitive name comparator."""
-    return cmp(unwrap(x.name).lower(), unwrap(y.name).lower())
 
 
 def cmp_column_row(x, y):
@@ -64,24 +49,15 @@ def cmp_column_row(x, y):
     return sort_by_column
 
 
-def marshal_objects(objects):
-    """Marshal objects using omero_marshal."""
-    expected = []
-    for obj in objects:
-        encoder = get_encoder(obj.__class__)
-        expected.append(encoder.encode(obj))
-    return expected
-
-
 def remove_urls(marshalled):
     """Traverse a dict (Well) removing 'url:' values."""
     for key, val in marshalled.items():
         if key.startswith('url:'):
             del(marshalled[key])
         # We only traverse paths where we know urls are
-        elif key == 'Image':        # isinstance(val, dict):
+        elif key == 'Image':
             remove_urls(val)
-        elif key == 'WellSamples':  # isinstance(val, list):
+        elif key == 'WellSamples':
             for i in val:
                 remove_urls(i)
 
@@ -111,7 +87,7 @@ def assert_objects(conn, json_objects, omero_ids_objects, dtype="Project",
     for i, o1, o2 in zip(range(len(expected)), json_objects, expected):
         if extra is not None and i < len(extra):
             o2.update(extra[i])
-        # dumping to json and loading (same as test data) means that
+        # We dump to json and re-load (same as test data). This means that
         # unicode has been handled in same way, e.g. Pixel size symbols.
         o2 = json.loads(json.dumps(o2))
         # remove any urls from json (tested elsewhere)
@@ -129,12 +105,23 @@ class TestWells(IWebTest):
         group = self.new_group(perms='rwra--')
         return self.new_client_and_user(group=group)
 
-    def create_plate_wells(self, user1, rows, cols):
+    def create_plate_wells(self, user1, rows, cols, with_plate_acq=True):
         """Return Plate with Wells."""
         updateService = get_update_service(user1)
         plate = PlateI()
         plate.name = rstring('plate')
         plate = updateService.saveAndReturnObject(plate)
+
+        # Single PlateAcquisition for plate
+        if with_plate_acq:
+            plate_acq = PlateAcquisitionI()
+            plate_acq.name = rstring('plateacquisition')
+            plate_acq.description = rstring('plateacquisition_description')
+            plate_acq.maximumFieldCount = rint(3)
+            plate_acq.startTime = rtime(1L)
+            plate_acq.endTime = rtime(2L)
+            plate_acq.plate = PlateI(plate.id.val, False)
+            plate_acq = updateService.saveAndReturnObject(plate_acq)
 
         # Create Wells for plate
         for row in range(rows):
@@ -144,7 +131,7 @@ class TestWells(IWebTest):
                 well.column = rint(col)
                 well.row = rint(row)
                 well.plate = PlateI(plate.id.val, False)
-                # Only wells in first Column have well-samples etc
+                # Only wells in first Column have well-samples etc.
                 if col == 0:
                     # Have 3 images/well-samples in these wells
                     for i in range(3):
@@ -155,6 +142,9 @@ class TestWells(IWebTest):
                         ws.well = well
                         ws.posX = LengthI(i * 10, UnitsLength.REFERENCEFRAME)
                         ws.posY = LengthI(i, UnitsLength.REFERENCEFRAME)
+                        if with_plate_acq:
+                            ws.setPlateAcquisition(
+                                PlateAcquisitionI(plate_acq.id.val, False))
                         well.addWellSample(ws)
                 updateService.saveObject(well)
         return plate
@@ -166,7 +156,7 @@ class TestWells(IWebTest):
 
         Two wells are created, but only the first has any Images (3).
         """
-        return self.create_plate_wells(user1, 1, 2)
+        return self.create_plate_wells(user1, 1, 2, with_plate_acq=False)
 
     @pytest.fixture()
     def bigger_plate(self, user1):
@@ -185,11 +175,6 @@ class TestWells(IWebTest):
         django_client = self.new_django_client(user_name, user_name)
         version = settings.API_VERSIONS[-1]
 
-        # Use Blitz Plates for listing Wells etc.
-        bigger_plate = conn.getObject('Plate', bigger_plate.id.val)
-        wells = [w._obj for w in bigger_plate.listChildren()]
-        wells.sort(cmp_column_row)
-
         wells_url = reverse('api_wells', kwargs={'api_version': version})
 
         # List ALL Wells in both plates
@@ -197,14 +182,24 @@ class TestWells(IWebTest):
         assert len(rsp['data']) == 8
 
         # Filter Wells by Plate
-        payload = {'plate': bigger_plate.id}
-        rsp = _get_response_json(django_client, wells_url, payload)
-        # Manual check that Images are loaded but Pixels are not
-        assert 'Image' in rsp['data'][0]['WellSamples'][0]
-        assert 'Pixels' not in rsp['data'][0]['WellSamples'][0]['Image']
-        assert len(wells) == 6
-        assert_objects(conn, rsp['data'], wells, dtype='Well',
-                       opts={'load_images': True})
+        for plate, with_acq, well_count in zip([small_plate, bigger_plate],
+                                               [False, True],
+                                               [2, 6]):
+            # Use Blitz Plates for listing Wells etc.
+            plate_wrapper = conn.getObject('Plate', plate.id.val)
+            wells = [w._obj for w in plate_wrapper.listChildren()]
+            wells.sort(cmp_column_row)
+            payload = {'plate': plate.id.val}
+            rsp = _get_response_json(django_client, wells_url, payload)
+            # Manual check that Images are loaded but Pixels are not
+            assert len(rsp['data']) == well_count
+            well_sample = rsp['data'][0]['WellSamples'][0]
+            assert 'Image' in well_sample
+            assert ('PlateAcquisition' in well_sample) == with_acq
+            assert 'Pixels' not in well_sample['Image']
+
+            assert_objects(conn, rsp['data'], wells, dtype='Well',
+                           opts={'load_images': True})
 
     def test_well(self, user1, small_plate):
         """Test loading a single Well, with or without WellSamples."""

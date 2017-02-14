@@ -6,7 +6,9 @@
  */
 package ome.io.nio.utests;
 
-import static org.testng.AssertJUnit.*;
+import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import java.nio.ByteBuffer;
 
@@ -18,56 +20,60 @@ import ome.util.PixelData;
  */
 public class PixelDataBitTest
 {
-	private PixelData data;
+    private PixelData data;
 
+    @BeforeMethod
     public void setUp()
     {
-    	byte[] byteArray = new byte[] { (byte) 0xFF, (byte) 193 }; 
-	data = new PixelData("bit", ByteBuffer.wrap(byteArray));
+        byte[] byteArray = new byte[] { (byte) 0xFF, (byte) 193 };
+        data = new PixelData("bit", ByteBuffer.wrap(byteArray));
     }
- 
+
+    @Test
     public void testGetBits()
     {
-    	assertEquals(1.0, data.getPixelValue(0));  // Start byte 1
-    	assertEquals(1.0, data.getPixelValue(1));
-    	assertEquals(1.0, data.getPixelValue(2));
-    	assertEquals(1.0, data.getPixelValue(3));
-    	assertEquals(1.0, data.getPixelValue(4));
-    	assertEquals(1.0, data.getPixelValue(5));
-    	assertEquals(1.0, data.getPixelValue(6));
-    	assertEquals(1.0, data.getPixelValue(7));
-    	assertEquals(1.0, data.getPixelValue(8));  // Start byte 2 
-    	assertEquals(1.0, data.getPixelValue(9));
-    	assertEquals(0.0, data.getPixelValue(10));
-    	assertEquals(0.0, data.getPixelValue(11));
-    	assertEquals(0.0, data.getPixelValue(12));
-    	assertEquals(0.0, data.getPixelValue(13));
-    	assertEquals(0.0, data.getPixelValue(14));
-    	assertEquals(1.0, data.getPixelValue(15));
+        Assert.assertEquals(data.getPixelValue(0), 1.0, 0.0);  // Start byte 1
+        Assert.assertEquals(data.getPixelValue(1), 1.0, 0.0);
+        Assert.assertEquals(data.getPixelValue(2), 1.0, 0.0);
+        Assert.assertEquals(data.getPixelValue(3), 1.0, 0.0);
+        Assert.assertEquals(data.getPixelValue(4), 1.0, 0.0);
+        Assert.assertEquals(data.getPixelValue(5), 1.0, 0.0);
+        Assert.assertEquals(data.getPixelValue(6), 1.0, 0.0);
+        Assert.assertEquals(data.getPixelValue(7), 1.0, 0.0);
+        Assert.assertEquals(data.getPixelValue(8), 1.0, 0.0);  // Start byte 2 
+        Assert.assertEquals(data.getPixelValue(9), 1.0, 0.0);
+        Assert.assertEquals(data.getPixelValue(10), 0.0, 0.0);
+        Assert.assertEquals(data.getPixelValue(11), 0.0, 0.0);
+        Assert.assertEquals(data.getPixelValue(12), 0.0, 0.0);
+        Assert.assertEquals(data.getPixelValue(13), 0.0, 0.0);
+        Assert.assertEquals(data.getPixelValue(14), 0.0, 0.0);
+        Assert.assertEquals(data.getPixelValue(15), 1.0, 0.0);
     }
-    
+
+    @Test
     public void testSetAndGetBits()
     {
-    	// 0
-    	assertEquals(1.0, data.getPixelValue(0));
-    	data.setPixelValue(0, 0.0);
-    	assertEquals(0.0, data.getPixelValue(0));
-    	// 7
-    	assertEquals(1.0, data.getPixelValue(7));
-    	data.setPixelValue(7, 0.0);
-    	assertEquals(0.0, data.getPixelValue(7));
-    	// 8
-    	assertEquals(1.0, data.getPixelValue(8));
-    	data.setPixelValue(8, 1.0);
-    	assertEquals(1.0, data.getPixelValue(8));
-    	// 14
-    	assertEquals(0.0, data.getPixelValue(14));
-    	data.setPixelValue(14, 1.0);
-    	assertEquals(1.0, data.getPixelValue(14));
+        // 0
+        Assert.assertEquals(data.getPixelValue(0), 1.0, 0.0);
+        data.setPixelValue(0, 0.0);
+        Assert.assertEquals(data.getPixelValue(0), 0.0, 0.0);
+        // 7
+        Assert.assertEquals(data.getPixelValue(7), 1.0, 0.0);
+        data.setPixelValue(7, 0.0);
+        Assert.assertEquals(data.getPixelValue(7), 0.0, 0.0);
+        // 8
+        Assert.assertEquals(data.getPixelValue(8), 1.0, 0.0);
+        data.setPixelValue(8, 1.0);
+        Assert.assertEquals(data.getPixelValue(8), 1.0, 0.0);
+        // 14
+        Assert.assertEquals(data.getPixelValue(14), 0.0, 0.0);
+        data.setPixelValue(14, 1.0);
+        Assert.assertEquals(data.getPixelValue(14), 1.0, 0.0);
     }
-    
+
+    @Test
     public void testSize()
     {
-    	assertEquals(2, data.size());
+        Assert.assertEquals(data.size(), 2);
     }
 }

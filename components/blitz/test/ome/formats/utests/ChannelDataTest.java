@@ -1,6 +1,4 @@
 /*
- * ome.formats.utests.ChannelDataTest
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
@@ -25,7 +23,6 @@ package ome.formats.utests;
 import java.util.Iterator;
 import java.util.List;
 
-import junit.framework.TestCase;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
@@ -37,6 +34,7 @@ import omero.api.ServiceFactoryPrx;
 import omero.model.Filament;
 import omero.model.Filter;
 
+import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -45,7 +43,7 @@ import org.testng.annotations.Test;
  *
  * @author Chris Allan <callan at blackcat dot ca>
  */
-public class ChannelDataTest extends TestCase
+public class ChannelDataTest
 {
 
 	/** Reference to the wrapper. */
@@ -180,43 +178,43 @@ public class ChannelDataTest extends TestCase
 	{
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
-		assertNotNull(data);
-		assertNotNull(data.getChannel());
-		assertNotNull(data.getLogicalChannel());
-		assertNotNull(data.getFilterSet());
-		assertEquals("0", data.getFilterSet().getLotNumber().getValue());
-		assertNotNull(data.getFilterSetEmissionFilter());
-		assertEquals("0",
-				data.getFilterSetEmissionFilter().getLotNumber().getValue());
-		assertNotNull(data.getFilterSetExcitationFilter());
-		assertEquals("1",
-				data.getFilterSetExcitationFilter().getLotNumber().getValue());
+		Assert.assertNotNull(data);
+		Assert.assertNotNull(data.getChannel());
+		Assert.assertNotNull(data.getLogicalChannel());
+		Assert.assertNotNull(data.getFilterSet());
+		Assert.assertEquals(data.getFilterSet().getLotNumber().getValue(), "0");
+		Assert.assertNotNull(data.getFilterSetEmissionFilter());
+		Assert.assertEquals(data.getFilterSetEmissionFilter().getLotNumber().getValue(),
+		        "0");
+		Assert.assertNotNull(data.getFilterSetExcitationFilter());
+		Assert.assertEquals(
+				data.getFilterSetExcitationFilter().getLotNumber().getValue(), "1");
 		List<Filter> filters = data.getLightPathEmissionFilters();
-		assertNotNull(filters);
+		Assert.assertNotNull(filters);
 		Iterator<Filter> i = filters.iterator();
-		assertTrue(filters.size() == 1);
+		Assert.assertEquals(filters.size(), 1);
 		Filter f;
 		while (i.hasNext()) {
 			f = i.next();
-			assertEquals("2", f.getLotNumber().getValue());
+			Assert.assertEquals(f.getLotNumber().getValue(), "2");
 		}
 		filters = data.getLightPathExcitationFilters();
-		assertNotNull(filters);
+		Assert.assertNotNull(filters);
 		i = filters.iterator();
 
-		assertTrue(filters.size() == 1);
+		Assert.assertEquals(filters.size(), 1);
 
 		while (i.hasNext()) {
 			f = i.next();
-			assertEquals("3", f.getLotNumber().getValue());
+			Assert.assertEquals(f.getLotNumber().getValue(), "3");
 		}
-		assertNotNull(data.getLightSource());
-		assertTrue(data.getLightSource() instanceof Filament);
-		assertEquals("0",
-				data.getLightSource().getManufacturer().getValue());
-		assertNotNull(data.getLightSourceSettings());
-		assertEquals(1.0,
-				data.getLightSourceSettings().getAttenuation().getValue());
+		Assert.assertNotNull(data.getLightSource());
+		Assert.assertTrue(data.getLightSource() instanceof Filament);
+		Assert.assertEquals(
+				data.getLightSource().getManufacturer().getValue(), "0");
+		Assert.assertNotNull(data.getLightSourceSettings());
+		Assert.assertEquals(
+				data.getLightSourceSettings().getAttenuation().getValue(), 1.0);
 	}
 
 	/** Tests the creation of the second channel. */
@@ -225,46 +223,46 @@ public class ChannelDataTest extends TestCase
 	{
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX + 1);
-		assertNotNull(data);
-		assertNotNull(data.getChannel());
-		assertNotNull(data.getLogicalChannel());
-		assertNotNull(data.getFilterSet());
-		assertEquals("1", data.getFilterSet().getLotNumber().getValue());
-		assertNotNull(data.getFilterSetEmissionFilter());
-		assertEquals("6",
-				data.getFilterSetEmissionFilter().getLotNumber().getValue());
-		assertNotNull(data.getFilterSetExcitationFilter());
-		assertEquals("7",
-				data.getFilterSetExcitationFilter().getLotNumber().getValue());
+		Assert.assertNotNull(data);
+		Assert.assertNotNull(data.getChannel());
+		Assert.assertNotNull(data.getLogicalChannel());
+		Assert.assertNotNull(data.getFilterSet());
+		Assert.assertEquals(data.getFilterSet().getLotNumber().getValue(), "1");
+		Assert.assertNotNull(data.getFilterSetEmissionFilter());
+		Assert.assertEquals(
+				data.getFilterSetEmissionFilter().getLotNumber().getValue(), "6");
+		Assert.assertNotNull(data.getFilterSetExcitationFilter());
+		Assert.assertEquals(
+				data.getFilterSetExcitationFilter().getLotNumber().getValue(), "7");
 		List<Filter> filters = data.getLightPathEmissionFilters();
-		assertNotNull(filters);
+		Assert.assertNotNull(filters);
 		Iterator<Filter> i = filters.iterator();
 
-		assertTrue(filters.size() == 1);
+		Assert.assertEquals(filters.size(), 1);
 
 		Filter f;
 		while (i.hasNext()) {
 			f = i.next();
-			assertEquals("4", f.getLotNumber().getValue());
+			Assert.assertEquals(f.getLotNumber().getValue(), "4");
 		}
 		filters = data.getLightPathExcitationFilters();
-		assertNotNull(filters);
+		Assert.assertNotNull(filters);
 		i = filters.iterator();
 
-		assertTrue(filters.size() == 1);
+		Assert.assertEquals(filters.size(), 1);
 
 		while (i.hasNext()) {
 			f = i.next();
-			assertEquals("5", f.getLotNumber().getValue());
+			Assert.assertEquals(f.getLotNumber().getValue(), "5");
 		}
 
-		assertNotNull(data.getLightSource());
-		assertTrue(data.getLightSource() instanceof Filament);
-		assertEquals("1",
-				data.getLightSource().getManufacturer().getValue());
-		assertNotNull(data.getLightSourceSettings());
-		assertEquals(1.0,
-				data.getLightSourceSettings().getAttenuation().getValue());
+		Assert.assertNotNull(data.getLightSource());
+		Assert.assertTrue(data.getLightSource() instanceof Filament);
+		Assert.assertEquals(
+				data.getLightSource().getManufacturer().getValue(), "1");
+		Assert.assertNotNull(data.getLightSourceSettings());
+		Assert.assertEquals(
+				data.getLightSourceSettings().getAttenuation().getValue(), 1.0);
 	}
 
 }

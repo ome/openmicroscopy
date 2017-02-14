@@ -44,6 +44,7 @@ import omero.model.PixelsType;
 import omero.model.Pulse;
 import omero.model.RenderingDef;
 import omero.model.RenderingModel;
+import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
 import org.testng.Assert;
@@ -429,4 +430,27 @@ public class PixelsServiceTest extends AbstractServerTest {
         Assert.assertEquals(def.getDefaultZ().getValue(), v);
     }
 
+    /**
+     * Tests the retrieval of the pixels description by root for an image
+     * owned by another user in a private group.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testRetrievePixelsDescriptionAsRoot() throws Exception {
+        //Create a private group
+        EventContext ctx = newUserAndGroup("rw----");
+        Image image = createBinaryImage();
+        Pixels pixels = image.getPrimaryPixels();
+        long id = pixels.getId().getValue();
+        Pixels p = factory.getPixelsService().retrievePixDescription(id);
+        Assert.assertNotNull(p);
+        Assert.assertEquals(p.getDetails().getOwner().getId().getValue(), ctx.userId);
+        disconnect();
+        logRootIntoGroup(ctx);
+        p = factory.getPixelsService().retrievePixDescription(id);
+        Assert.assertNotNull(p);
+        Assert.assertEquals(p.getDetails().getOwner().getId().getValue(), ctx.userId);
+    }
 }

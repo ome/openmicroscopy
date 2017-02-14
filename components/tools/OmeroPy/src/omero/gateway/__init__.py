@@ -141,6 +141,23 @@ def fileread_gen(fin, fsize, bufsize):
     fin.close()
 
 
+def getPixelsQuery(imageName):
+    """Helper for building Query for Images or Wells & Images"""
+    return (' left outer join fetch %s.pixels as pixels'
+            ' left outer join fetch pixels.pixelsType' % imageName)
+
+
+def getChannelsQuery():
+    """Helper for building Query for Images or Wells & Images"""
+    return (' join fetch pixels.channels as channels'
+            ' join fetch channels.logicalChannel as logicalChannel'
+            ' left outer join fetch '
+            ' logicalChannel.photometricInterpretation'
+            ' left outer join fetch logicalChannel.illumination'
+            ' left outer join fetch logicalChannel.mode'
+            ' left outer join fetch logicalChannel.contrastMethod')
+
+
 class OmeroRestrictionWrapper (object):
 
     def canDownload(self):
@@ -6069,16 +6086,9 @@ class _WellWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                      " left outer join fetch wellSamples.plateAcquisition"\
                      " as plateAcquisition"
         if load_pixels or load_channels:
-            query += ' left outer join fetch image.pixels pixels' \
-                     ' left outer join fetch pixels.pixelsType'
+            query += getPixelsQuery("image")
         if load_channels:
-            query += ' join fetch pixels.channels as channels' \
-                     ' join fetch channels.logicalChannel as logicalChannel' \
-                     ' left outer join fetch ' \
-                     ' logicalChannel.photometricInterpretation' \
-                     ' left outer join fetch logicalChannel.illumination' \
-                     ' left outer join fetch logicalChannel.mode' \
-                     ' left outer join fetch logicalChannel.contrastMethod'
+            query += getChannelsQuery()
 
         return (query, clauses, params)
 
@@ -6487,11 +6497,14 @@ class ColorHolder (object):
         :rtype:     int
         """
 
-        a = self.getAlpha() << 24
-        r = self.getRed() << 16
-        g = self.getGreen() << 8
-        b = self.getBlue() << 0
-        return r+g+b+a
+        r = self.getRed() << 24
+        g = self.getGreen() << 16
+        b = self.getBlue() << 8
+        a = self.getAlpha()
+        rgba_int = r+g+b+a
+        if (rgba_int > (2**31-1)):       # convert to signed 32-bit int
+            rgba_int = rgba_int - 2**32
+        return int(rgba_int)
 
 
 class _LogicalChannelWrapper (BlitzObjectWrapper):
@@ -7169,15 +7182,9 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             orphaned = opts.get('orphaned')
         if load_pixels or load_channels:
             # We use 'left outer join', since we still want images if no pixels
-            query += ' left outer join fetch obj.pixels pixels' \
-                     ' left outer join fetch pixels.pixelsType'
+            query += getPixelsQuery("obj")
         if load_channels:
-            query += ' join fetch pixels.channels as channels' \
-                     ' join fetch channels.logicalChannel as logicalChannel' \
-                     ' left outer join fetch logicalChannel.photometricInterpretation' \
-                     ' left outer join fetch logicalChannel.illumination' \
-                     ' left outer join fetch logicalChannel.mode' \
-                     ' left outer join fetch logicalChannel.contrastMethod'
+            query += getChannelsQuery()
         if orphaned:
             clauses.append(
                 """
