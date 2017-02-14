@@ -511,7 +511,6 @@ class SaveView(View):
         if '@type' not in marshalled:
             raise BadRequestError('Need to specify @type attribute')
         schema_type = marshalled['@type']
-        # NB: Do we support saving from old SCHEMA to newer one?
         if '#' not in schema_type:
             return None
         return schema_type.split('#')[1]
