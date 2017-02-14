@@ -60,6 +60,7 @@ import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
 import omero.model.ImageI;
+import omero.model.NamedValue;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.model.Pixels;
@@ -1740,6 +1741,32 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             Assert.assertTrue(isExpectSuccessCreateUser);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccessCreateUser);
+        }
+    }
+
+    /**
+     * Test that light admin can edit an existing user
+     * when the light admin has only the <tt>ModifyUser</tt> privilege.
+     */
+    @Test(dataProvider = "script privileges cases")
+    public void testModifyUserEdit(boolean isAdmin, boolean permModifyUser,
+            String groupPermissions) throws Exception {
+        if (!isAdmin) return;
+        /* the permModifyUser should be a sufficient permission to perform
+         * the editing of a user */
+        boolean isExpectSuccessEditUser= isAdmin && permModifyUser;
+        final long newUserId = newUserAndGroup(groupPermissions).userId;
+        List<String> permissions = new ArrayList<String>();
+        if (isExpectSuccessEditUser) permissions.add(AdminPrivilegeModifyUser.value);
+        final EventContext lightAdmin;
+        lightAdmin = loginNewAdmin(isAdmin, permissions);
+        final Experimenter newUser = (Experimenter) iQuery.get("Experimenter", newUserId);
+        newUser.setConfig(ImmutableList.of(new NamedValue("color", "green")));
+        try {
+            iAdmin.updateExperimenter(newUser);
+            Assert.assertTrue(isExpectSuccessEditUser);
+        } catch (ServerError se) {
+            Assert.assertFalse(isExpectSuccessEditUser);
         }
     }
 
