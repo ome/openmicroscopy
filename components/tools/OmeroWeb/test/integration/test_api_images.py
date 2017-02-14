@@ -19,8 +19,7 @@
 
 """Tests querying Images with web json api."""
 
-from omeroweb.testlib import IWebTest, _get_response_json, \
-    _csrf_post_json, _csrf_put_json, _csrf_delete_response_json
+from omeroweb.testlib import IWebTest, _get_response_json
 from django.core.urlresolvers import reverse
 from django.conf import settings
 import pytest
