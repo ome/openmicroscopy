@@ -61,53 +61,63 @@
             }
         }
 
+        // Sync the 'default group' <select> when specified group is added OR removed from selected groups
         var syncDefaultGroupOptions = function(id) {
-            var $df = $('#id_default_group'), currentDefaultGroup = $df.val()
-            if (id === currentDefaultGroup) {
-                $("#id_default_group option[value='"+id+"']").removeAttr("selected");
-            } else if (currentDefaultGroup=='') {
-                $("#id_default_group option[value='']").removeAttr("selected");
-            }
-            if ($("#id_default_group option[value='"+id+"']").length > 0) {
+            var $df = $('#id_default_group'),
+                currentDefaultGroup = $df.val();
+            var groupSelected = $("#id_other_groups option[value='"+id+"']").prop('selected');
+
+            if (!groupSelected) {
                 $("#id_default_group option[value='"+id+"']").remove();
             } else {
-                $df.append($("#id_other_groups option[value='"+id+"']").clone().removeAttr("selected"));
+                // make sure it's available in 'default_group' <select>
+                if ($("#id_default_group option[value='"+id+"']").length == 0) {
+                    // ADD it (by cloning corresponding <option> from 'groups' <select>)
+                    $df.append($("#id_other_groups option[value='"+id+"']").clone().removeProp('selected'));
+                }
             }
             // if only one group
             if( $( "#id_other_groups" ).val() && $( "#id_other_groups" ).val().length === 1) {
                 $df.selectOptions($( "#id_other_groups" ).val()[0], true);
             }
             $df.trigger("chosen:updated");
-            //$df.selectOptions(currentDefaultGroup, true);
         }
 
-        $("#id_default_group").chosen({disable_search_threshold:5, placeholder_text:'Choose default group'});
+        // Setup chosen plugin on 'Default Group' chooser (only select singe group)
+        $("#id_default_group").chosen({
+            disable_search_threshold:5,
+            placeholder_text:'Choose default group'
+        });
 
         // Setup chosen plugin on 'Groups' chooser
-        $("#id_other_groups").chosen({placeholder_text:'Type group names to add...'}).change(function(evt, data) {
+        $("#id_other_groups")
+            .chosen({placeholder_text:'Type group names to add...'})
+            .change(function(evt, data) {
+                // update 'default_group' <select>
+                // syncDefaultGroupOptions(data.selected);
+                // In case we've added the system group:
+                hideSystemGroupX();
 
-            if (data && data.deselected) {
-                if (data.deselected === "0") {
-                    $("input[name='administrator']").prop('checked', false);
+                if (data && data.deselected) {
+                    syncDefaultGroupOptions(data.deselected);
+                } else if (data && data.selected) {
+                    syncDefaultGroupOptions(data.selected);
                 }
-                syncDefaultGroupOptions(data.deselected);
-            } else if (data && data.selected) {
-                if (data.selected === "0") {
-                    $("input[name='administrator']").prop('checked', true);
+
+                // If 'system' group chosen, 'role' is now 'administrator'
+                if (data && data.selected === "0") {
+                    $("input[name='role'][value='administrator']").prop('checked', true);
                 }
-                syncDefaultGroupOptions(data.selected);
-            }
-            // In case we've added the system group:
-            hideSystemGroupX();
-        });
-        
-        $("input[name='administrator']").click( function(evt) {
+            });
+
+        // When 'role' is changed, might need to add/remove 'system' group from choosers
+        $("input[name='role']").click( function(evt) {
             evt.stopPropagation();
-            if($("input[name='administrator']").is(':checked')) {
-                $("#id_other_groups option[value='0']").attr('selected','selected');
+            // If role of 'user' is picked, de-select 'system' from the 'default group' chooser
+            if($("input[name='role'][value='user']").is(':checked')) {
+                $("#id_other_groups option[value='0']").removeProp("selected");
             } else {
-                $("#id_other_groups option[value='0']").removeAttr("selected");
-                // also remove 'system' from the 'default group' chooser
+                $("#id_other_groups option[value='0']").prop('selected', true);
             }
             $("#id_other_groups").trigger("chosen:updated");
             syncDefaultGroupOptions(0);

@@ -531,10 +531,8 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
             initial=initial)
         password_form = ChangePassword()
 
-        admin_groups = (
-            experimenter_is_me_or_system and
-            [conn.getAdminService().getSecurityRoles().systemGroupId] or
-            list())
+        admin_groups = [
+            conn.getAdminService().getSecurityRoles().systemGroupId]
         context = {'form': form, 'eid': eid, 'ldapAuth': isLdapUser,
                    'password_form': password_form,
                    'admin_groups': admin_groups}

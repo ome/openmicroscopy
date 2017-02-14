@@ -197,7 +197,13 @@ class ExperimenterForm(NonASCIIForm):
         widget=forms.TextInput(attrs={'size': 30, 'autocomplete': 'off'}),
         required=False)
 
-    role = forms.ChoiceField(choices=ROLE_CHOICES, widget=forms.RadioSelect)
+    # 'Role' is disabled if experimenter is 'admin' or self,
+    # so required=False to avoid validation error.
+    role = forms.ChoiceField(
+        choices=ROLE_CHOICES,
+        widget=forms.RadioSelect,
+        required=False,
+        initial='user')
     active = forms.BooleanField(required=False)
 
     def clean_confirmation(self):
