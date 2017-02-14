@@ -65,11 +65,11 @@ public class CmdCallbackTest extends AbstractServerTest {
         }
 
         public void assertSteps(int expected) {
-            Assert.assertEquals(expected, steps.get());
+            Assert.assertEquals(steps.get(), expected);
         }
 
         public void assertFinished() {
-            Assert.assertEquals(0, finished.getCount());
+            Assert.assertEquals(finished.getCount(), 0);
             Assert.assertFalse(isCancelled());
             Assert.assertFalse(isFailure());
             Response rsp = getResponse();
@@ -89,7 +89,7 @@ public class CmdCallbackTest extends AbstractServerTest {
         }
 
         public void assertCancelled() {
-            Assert.assertEquals(0, finished.getCount());
+            Assert.assertEquals(finished.getCount(), 0);
             Assert.assertTrue(isCancelled());
         }
     }
@@ -115,7 +115,7 @@ public class CmdCallbackTest extends AbstractServerTest {
     public void testTimingFinishesOnLatch() throws Exception {
         TestCB cb = timing(25, 4 * 10); // Runs 1 second
         cb.finished.await(1500, TimeUnit.MILLISECONDS);
-        Assert.assertEquals(0, cb.finished.getCount());
+        Assert.assertEquals(cb.finished.getCount(), 0);
         cb.assertFinished(10); // Modulus-10
     }
 
