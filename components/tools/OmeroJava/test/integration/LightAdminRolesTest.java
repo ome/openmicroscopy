@@ -81,6 +81,7 @@ import omero.model.enums.AdminPrivilegeDeleteManagedRepo;
 import omero.model.enums.AdminPrivilegeDeleteOwned;
 import omero.model.enums.AdminPrivilegeDeleteScriptRepo;
 import omero.model.enums.AdminPrivilegeModifyGroupMembership;
+import omero.model.enums.AdminPrivilegeModifyUser;
 import omero.model.enums.AdminPrivilegeSudo;
 import omero.model.enums.AdminPrivilegeWriteFile;
 import omero.model.enums.AdminPrivilegeWriteManagedRepo;
@@ -97,6 +98,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
 /**
@@ -1707,6 +1709,37 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             Assert.assertTrue(iAdmin.getLeaderOfGroupIds(user).isEmpty());
         } else {
             Assert.assertEquals((long) iAdmin.getLeaderOfGroupIds(user).get(0), group.getId().getValue());
+        }
+    }
+
+    /**
+     * Test that light admin can create a new user
+     * when the light admin has only the <tt>ModifyUser</tt> privilege.
+     */
+    @Test(dataProvider = "script privileges cases")
+    public void testModifyUserCreate(boolean isAdmin, boolean permModifyUser,
+            String groupPermissions) throws Exception {
+        if (!isAdmin) return;
+        /* the permModifyUser should be a sufficient permission to perform
+         * the creation of a new user */
+        boolean isExpectSuccessCreateUser= isAdmin && permModifyUser;
+        final long newGroupId = newUserAndGroup(groupPermissions).groupId;
+        List<String> permissions = new ArrayList<String>();
+        if (isExpectSuccessCreateUser) permissions.add(AdminPrivilegeModifyUser.value);
+        final EventContext lightAdmin;
+        lightAdmin = loginNewAdmin(isAdmin, permissions);
+        final Experimenter newUser = new ExperimenterI();
+        newUser.setOmeName(omero.rtypes.rstring(UUID.randomUUID().toString()));
+        newUser.setFirstName(omero.rtypes.rstring("August"));
+        newUser.setLastName(omero.rtypes.rstring("Köhler"));
+        newUser.setLdap(omero.rtypes.rbool(false));
+        try {
+            final long userGroupId = iAdmin.getSecurityRoles().userGroupId;
+            final List<ExperimenterGroup> groups = ImmutableList.<ExperimenterGroup>of(new ExperimenterGroupI(userGroupId, false));
+            iAdmin.createExperimenter(newUser, new ExperimenterGroupI(newGroupId, false), groups);
+            Assert.assertTrue(isExpectSuccessCreateUser);
+        } catch (ServerError se) {
+            Assert.assertFalse(isExpectSuccessCreateUser);
         }
     }
 
