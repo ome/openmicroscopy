@@ -1,5 +1,5 @@
 {% load i18n %}
-
+{% load common_filters %}
 
 
 {% comment %}
@@ -143,7 +143,8 @@
             var wpv = $.WeblitzPlateview($('#spw'), {baseurl: '{{ baseurl }}',
                                                      width: spw_thumb_size,
                                                      staticurl: staticurl,
-                                                     useParentPrefix: false});
+                                                     useParentPrefix: false,
+                                                     thumbnails_batch:  {{ thumbnails_batch|default:50|json_dumps|safe }} });
             var $selected;
             // delegated click and dblclick handlers for wells
             $( '#spw' ).on( "click", "td.well img", function(event) {
