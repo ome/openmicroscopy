@@ -403,7 +403,9 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
         form = ExperimenterForm(initial={
             'with_password': True, 'active': True,
             'groups': otherGroupsInitialList(groups)})
-        context = {'form': form}
+        admin_groups = [
+            conn.getAdminService().getSecurityRoles().systemGroupId]
+        context = {'form': form, 'admin_groups': admin_groups}
     elif action == 'create':
         if request.method != 'POST':
             return HttpResponseRedirect(
