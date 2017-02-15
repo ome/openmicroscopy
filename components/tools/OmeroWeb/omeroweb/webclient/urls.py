@@ -116,6 +116,11 @@ urlpatterns = patterns(
     url(r'^get_thumbnails/(?:(?P<share_id>[0-9]+)/)?$',
         webgateway.get_thumbnails_json,
         name="get_thumbnails_json"),
+    url(r'^get_thumbnail/(?P<iid>[0-9]+)/'
+        r'(?:(?P<share_id>[0-9]+)/)?$',
+        webgateway.get_thumbnail_json,
+        {'_defcb': defaultThumbnail},
+        name="get_thumbnail_json"),
     url(r'^render_thumbnail/(?P<iid>[0-9]+)/'
         r'(?:(?P<share_id>[0-9]+)/)?$',
         webgateway.render_thumbnail,
