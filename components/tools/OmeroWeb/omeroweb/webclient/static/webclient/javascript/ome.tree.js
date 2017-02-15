@@ -474,10 +474,10 @@ $(function() {
                 // Extra data needed for showing thumbs in centre panel
                 if (node.type === 'dataset' || node.type === 'orphaned' || node.type === 'tag') {
                     payload['sizeXYZ'] = true;
-                    payload['date'] = true;
-                    if (node.type !== 'tag') {
-                        payload['thumbVersion'] = true;
-                    }
+                    //payload['date'] = true;
+                    //if (node.type !== 'tag') {
+                    //    payload['thumbVersion'] = true;
+                    //}
                 }
 
                 // Always add the group_id from the current context
