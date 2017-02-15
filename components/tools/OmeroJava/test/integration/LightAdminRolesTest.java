@@ -63,6 +63,8 @@ import omero.model.ImageI;
 import omero.model.NamedValue;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
+import omero.model.Permissions;
+import omero.model.PermissionsI;
 import omero.model.Pixels;
 import omero.model.Project;
 import omero.model.ProjectDatasetLink;
@@ -81,6 +83,7 @@ import omero.model.enums.AdminPrivilegeDeleteFile;
 import omero.model.enums.AdminPrivilegeDeleteManagedRepo;
 import omero.model.enums.AdminPrivilegeDeleteOwned;
 import omero.model.enums.AdminPrivilegeDeleteScriptRepo;
+import omero.model.enums.AdminPrivilegeModifyGroup;
 import omero.model.enums.AdminPrivilegeModifyGroupMembership;
 import omero.model.enums.AdminPrivilegeModifyUser;
 import omero.model.enums.AdminPrivilegeSudo;
@@ -1770,6 +1773,33 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         }
     }
 
+    /**
+     * Test that light admin can create a new group
+     * when the light admin has only the <tt>ModifyGroup</tt> privilege.
+     */
+    @Test(dataProvider = "script privileges cases")
+    public void testModifyGroupCreate(boolean isAdmin, boolean permModifyGroup,
+            String groupPermissions) throws Exception {
+        if (!isAdmin) return;
+        /* the permModifyGroup should be a sufficient permission to perform
+         * a group creation */
+        boolean isExpectSuccessCreateGroup = isAdmin && permModifyGroup;
+        final ExperimenterGroup newGroup = new ExperimenterGroupI();
+        newGroup.setLdap(omero.rtypes.rbool(false));
+        newGroup.setName(omero.rtypes.rstring(UUID.randomUUID().toString()));
+        newGroup.getDetails().setPermissions(new PermissionsI(groupPermissions));
+        /* set up the permissions for the light admin */
+        List<String> permissions = new ArrayList<String>();
+        if (isExpectSuccessCreateGroup) permissions.add(AdminPrivilegeModifyGroup.value);
+        final EventContext lightAdmin;
+        lightAdmin = loginNewAdmin(isAdmin, permissions);
+        try {
+            iAdmin.createGroup(newGroup);
+            Assert.assertTrue(isExpectSuccessCreateGroup);
+        } catch (ServerError se) {
+            Assert.assertFalse(isExpectSuccessCreateGroup);
+        }
+    }
     /**
      * @return test cases for adding the privileges combined with isAdmin cases
      */
