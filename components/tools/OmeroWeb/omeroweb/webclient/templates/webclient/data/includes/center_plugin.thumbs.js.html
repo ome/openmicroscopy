@@ -283,7 +283,11 @@ $(document).ready(function() {
         iids = $.map(imgJson, function(img){
             return img.id;
         });
-        OME.load_thumbnails("{% url 'get_thumbnails_json' %}", iids, batch);
+        OME.load_thumbnails(
+            "{% url 'get_thumbnails_json' %}",
+            iids, batch,
+            "{% static 'webgateway/img/image128.png' %}"
+        );
 
         // populate arrays etc for speedy icon zooming
         setupIconZooming();
