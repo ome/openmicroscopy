@@ -285,8 +285,8 @@ webgateway_get_thumbnail_json = url(
     '/(?:(?P<w>[0-9]+)/)?(?:(?P<h>[0-9]+)/)?$',
     'webgateway.views.get_thumbnail_json')
 """
-Returns a thumbnail jpeg of the OMERO Image, optionally scaled to max-width
-and max-height.
+Returns a thumbnail base64 encoded of the OMERO Images,
+optionally scaled to max-width and max-height.
 See L{views.render_thumbnail}. Uses current rendering settings.
 Query string can be used to specify Z or T section. E.g. ?z=10.
 Params in render_thumbnail/<iid>/<w>/<h> are:
