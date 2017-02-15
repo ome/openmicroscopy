@@ -3063,7 +3063,7 @@ class _BlitzGateway (object):
                             defining extra data to load.
                             offset, limit and owner for all objects.
                             Additional opts handled by _getQueryString()
-                            E.g. filter Dataset by 'project'
+                            e.g. filter Dataset by 'project'
         :return:            Generator of :class:`BlitzObjectWrapper` subclasses
         """
         query, params, wrapper = self.buildQuery(
