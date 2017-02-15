@@ -1,5 +1,5 @@
 {% load i18n %}
-
+{% load common_filters %}
 
 
 {% comment %}
@@ -110,7 +110,8 @@
                 OME.well_selection_changed(selected, idx, perms);
             };
 
-            wpv = $.WeblitzPlateview($('#spw'), {baseurl: '{{ baseurl }}', useParentPrefix: false});
+            wpv = $.WeblitzPlateview($('#spw'), { baseurl: '{{ baseurl }}', useParentPrefix: false,
+                thumbnails_batch: {{ thumbnails_batch|default:50|json_dumps|safe }} });
             var $selected;
             // delegated click and dblclick handlers for wells
             $( '#spw' ).on( "click", "td.well img", function(event) {

@@ -103,6 +103,7 @@ jQuery._WeblitzPlateview = function (container, options) {
       width: 64,
       height: 48,
       useParentPrefix: true,
+      thumbnails_batch: 50,
     }, options);
 
   // if options.size is set, it will be used below, otherwise thumbs will be default size
@@ -128,7 +129,6 @@ jQuery._WeblitzPlateview = function (container, options) {
     };
 
     var imgIds = new Array();
-    var dim = 0;
     for (i=0; i < data.rowlabels.length; i++) {
       tr = $('<tr></tr>').appendTo(table);
       tr.append('<th>'+data.rowlabels[i]+'</th>');
@@ -136,7 +136,6 @@ jQuery._WeblitzPlateview = function (container, options) {
         if (data.grid[i][j] === null) {
         tr.append('<td class="placeholder"><div class="placeholder" style="width:'+opts.width+'px;height:'+opts.height+'px;line-height:'+opts.height+'px;">&nbsp;</div></td>');
         } else {
-          dim++
           imgIds.push(data.grid[i][j].id);
           data.grid[i][j]._wellpos = data.rowlabels[i]+data.collabels[j];
           var parentPrefix = '';
@@ -181,7 +180,7 @@ jQuery._WeblitzPlateview = function (container, options) {
       }
     }
 
-    batch = 50; //dim > 100 ? Math.ceil(dim / 5) : 100;
+    batch = parseInt(opts.thumbnails_batch);
     load_thumbnails(imgIds, batch);
     _this.self.trigger('_resetLoaded');
   };
