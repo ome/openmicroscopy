@@ -25,6 +25,7 @@ import org.springframework.context.ApplicationEvent;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
+@Deprecated
 public class PersistentEventLogLoader extends ome.services.eventlogs.PersistentEventLogLoader {
 
     private final static Logger log = LoggerFactory

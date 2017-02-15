@@ -36,6 +36,7 @@ import org.springframework.context.ApplicationEventPublisherAware;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
+@Deprecated
 public abstract class BridgeHelper implements FieldBridge,
         ApplicationEventPublisherAware {
 
