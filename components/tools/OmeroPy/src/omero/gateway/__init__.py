@@ -4423,10 +4423,9 @@ class _BlitzGateway (object):
             tb = self.createThumbnailStore()
             p = omero.sys.ParametersI().addIds(image_ids)
             sql = """select new map(
-                        i.id as im_id, r.pixels.id as pix_id
+                        i.id as im_id, p.id as pix_id
                      )
-                     from RenderingDef as r
-                         join r.pixels.image as i
+                     from Pixels as p join p.image as i
                      where i.id in (:ids) """
 
             img_pixel_ids = self.getQueryService().projection(
