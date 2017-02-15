@@ -308,9 +308,8 @@ def render_birds_eye_view(request, iid, size=None,
     return render_thumbnail(request, iid, w=size, **kwargs)
 
 
-@login_required()
-def render_thumbnail(request, iid, w=None, h=None, conn=None, _defcb=None,
-                     **kwargs):
+def _render_thumbnail(request, iid, w=None, h=None, conn=None, _defcb=None,
+                      **kwargs):
     """
     Returns an HttpResponse wrapped jpeg with the rendered thumbnail for image
     'iid'
@@ -363,7 +362,7 @@ def render_thumbnail(request, iid, w=None, h=None, conn=None, _defcb=None,
                     jpeg_data = _defcb(size=size)
                     prevent_cache = True
                 else:
-                    return HttpResponseServerError(
+                    raise HttpResponseServerError(
                         'Failed to render thumbnail')
             else:
                 prevent_cache = img._thumbInProgress
@@ -372,6 +371,24 @@ def render_thumbnail(request, iid, w=None, h=None, conn=None, _defcb=None,
                                       jpeg_data, size)
     else:
         pass
+    return jpeg_data
+
+
+@login_required()
+def render_thumbnail(request, iid, w=None, h=None, conn=None, _defcb=None,
+                     **kwargs):
+    """
+    Returns an HttpResponse wrapped jpeg with the rendered thumbnail for image
+    'iid'
+
+    @param request:     http request
+    @param iid:         Image ID
+    @param w:           Thumbnail max width. 96 by default
+    @param h:           Thumbnail max height
+    @return:            http response containing jpeg
+    """
+    jpeg_data = _render_thumbnail(request=request, iid=iid, w=w, h=h,
+                                  conn=conn, _defcb=_defcb, **kwargs)
     rsp = HttpResponse(jpeg_data, content_type='image/jpeg')
     return rsp
 
@@ -1488,6 +1505,27 @@ def get_thumbnails_json(request, w=None, conn=None, **kwargs):
             rv[i] = ("data:image/jpeg;base64,%s" % base64.b64encode(t))
         except Exception:  # TypeError, KeyError
             logger.error(traceback.format_exc())
+    return rv
+
+
+@login_required()
+@jsonp
+def get_thumbnail_json(request, iid, w=None, h=None, conn=None, _defcb=None,
+                       **kwargs):
+    """
+    Returns an HttpResponse wrapped jpeg with the rendered thumbnail for image
+    'iid'
+
+    @param request:     http request
+    @param iid:         Image ID
+    @param w:           Thumbnail max width. 96 by default
+    @param h:           Thumbnail max height
+    @return:            http response containing jpeg
+    """
+    jpeg_data = _render_thumbnail(
+        request=request, iid=iid, w=w, h=h,
+        conn=conn, _defcb=_defcb, **kwargs)
+    rv = "data:image/jpeg;base64,%s" % base64.b64encode(jpeg_data)
     return rv
 
 

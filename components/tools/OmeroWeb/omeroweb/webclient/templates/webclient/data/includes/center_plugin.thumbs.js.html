@@ -195,6 +195,17 @@ $(document).ready(function() {
 
             return;
         }
+        // update single thumbnail, see OME.refreshThumbnails
+        if (event.type === "refreshThumb") {
+            OME.load_thumbnail(
+                data.imageId,
+                "{% url 'webindex' %}get_thumbnail/"+data.imageId+"/",
+                function(thumb) {
+                    $("li#image_icon-"+data.imageId+ " img").attr("src", thumb);
+                }
+            );
+            return;
+        }
 
         parentId = newParentId;
 
@@ -229,21 +240,6 @@ $(document).ready(function() {
                 if (fsId) {
                     selFileSets.push(fsId);
                 }
-            }
-            // Thumb version: random to break cache if thumbnails are -1 'in progress'
-            // or we're refresing 1 or all thumbnails
-            if (node.data.obj.thumbVersion != undefined ||
-                    event.type === "refreshThumbnails" ||
-                    event.type === "refreshThumb") {
-                var thumbVersion = node.data.obj.thumbVersion;
-                if (thumbVersion === -1 || event.type === "refreshThumbnails" || (
-                        event.type === "refreshThumb" && data.imageId === iData.id)) {
-                    thumbVersion = getRandom();
-                    // We cache this to prevent new thumbnails requested on every
-                    // selection change. Refreshing of tree will reset thumbVersion.
-                    node.data.obj.thumbVersion = thumbVersion;
-                }
-                iData.thumbVersion = thumbVersion;
             }
             // If image is in share and share is not owned by user...
             if (node.data.obj.shareId && !parentNode.data.obj.isOwned) {
@@ -282,36 +278,12 @@ $(document).ready(function() {
         var html = iconTmpl(json);
         $("#icon_table").html(html);
 
+        // load thumbnails in a batches
+        batch = {{ thumbnails_batch|default:50|json_dumps|safe }};
         iids = $.map(imgJson, function(img){
             return img.id;
         });
-
-        // load thumbnails in a batches
-        var load_thumbnails = function(input, batch) {
-            if (input.length > 0 && batch > 0) {
-                var iids = input.slice(0 , batch)
-                if (iids.length > 0) {
-                    var thumbnails_url = "{% url 'get_thumbnails_json' %}";
-                    $.ajax({
-                        type: "GET",
-                        url: thumbnails_url,
-                        data: $.param( { id: iids }, true),
-                        dataType:'json',
-                        success: function(data){
-                            $.each(data, function(key, value) {
-                                $("li#image_icon-"+key+ " img").attr("src", value);
-                            });
-                        }
-                    });
-                    input = input.filter(function(x) {
-                        return iids.indexOf(x) < 0;
-                    });
-                    load_thumbnails(input, batch);
-                }
-            }
-        }
-        batch = {{ thumbnails_batch|default:50|json_dumps|safe }};
-        load_thumbnails(iids, batch);
+        OME.load_thumbnails("{% url 'get_thumbnails_json' %}", iids, batch);
 
         // populate arrays etc for speedy icon zooming
         setupIconZooming();
