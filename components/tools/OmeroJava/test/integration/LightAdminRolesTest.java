@@ -1800,6 +1800,39 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             Assert.assertFalse(isExpectSuccessCreateGroup);
         }
     }
+
+    /**
+     * Test that light admin can edit an existing group
+     * when the light admin has only the <tt>ModifyGroup</tt> privilege.
+     */
+    @Test(dataProvider = "script privileges cases")
+    public void testModifyGroupEdit(boolean isAdmin, boolean permModifyGroup,
+            String groupPermissions) throws Exception {
+        if (!isAdmin) return;
+        /* the permModifyGroup should be a sufficient permission to perform
+         * group editing */
+        boolean isExpectSuccessEditGroup = isAdmin && permModifyGroup;
+        /* set up the new group as Read-Write as the downgrade (edit) to all group
+         * types by the light admin will be tested later in the test */
+        final long newGroupId = newUserAndGroup("rwrw--").groupId;
+        /* set up the permissions for the light admin */
+        List<String> permissions = new ArrayList<String>();
+        if (permModifyGroup) permissions.add(AdminPrivilegeModifyGroup.value);
+        final EventContext lightAdmin;
+        lightAdmin = loginNewAdmin(isAdmin, permissions);
+        /* light admin will downgrade the group to all possible permission levels and
+         * also will edit the ldap settings */
+        final ExperimenterGroup newGroup = (ExperimenterGroup) iQuery.get("ExperimenterGroup", newGroupId);
+        newGroup.getDetails().setPermissions(new PermissionsI(groupPermissions));
+        newGroup.setLdap(omero.rtypes.rbool(true));
+        try {
+            iAdmin.updateGroup(newGroup);
+            Assert.assertTrue(isExpectSuccessEditGroup);
+        } catch (ServerError se) {
+            Assert.assertFalse(isExpectSuccessEditGroup);
+        }
+    }
+
     /**
      * @return test cases for adding the privileges combined with isAdmin cases
      */
