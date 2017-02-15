@@ -1476,8 +1476,10 @@ def get_thumbnails_json(request, w=None, conn=None, **kwargs):
         w = 96
     image_ids = get_longs(request, 'id')
     logger.debug("Image ids: %r" % image_ids)
-    thumbnails = conn.getThumbnailSet(
-        [rlong(i) for i in image_ids], w)
+    if len(image_ids) > settings.THUMBNAILS_BATCH:
+        return HttpJavascriptResponseServerError(
+            'Max 50 thumbnails at a time.')
+    thumbnails = conn.getThumbnailSet([rlong(i) for i in image_ids], w)
     rv = dict()
     for i in image_ids:
         try:
