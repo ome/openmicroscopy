@@ -1729,7 +1729,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         boolean isExpectSuccessCreateUser= isAdmin && permModifyUser;
         final long newGroupId = newUserAndGroup(groupPermissions).groupId;
         List<String> permissions = new ArrayList<String>();
-        if (isExpectSuccessCreateUser) permissions.add(AdminPrivilegeModifyUser.value);
+        if (permModifyUser) permissions.add(AdminPrivilegeModifyUser.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
         final Experimenter newUser = new ExperimenterI();
@@ -1760,7 +1760,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         boolean isExpectSuccessEditUser= isAdmin && permModifyUser;
         final long newUserId = newUserAndGroup(groupPermissions).userId;
         List<String> permissions = new ArrayList<String>();
-        if (isExpectSuccessEditUser) permissions.add(AdminPrivilegeModifyUser.value);
+        if (permModifyUser) permissions.add(AdminPrivilegeModifyUser.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
         final Experimenter newUser = (Experimenter) iQuery.get("Experimenter", newUserId);
@@ -1790,7 +1790,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         newGroup.getDetails().setPermissions(new PermissionsI(groupPermissions));
         /* set up the permissions for the light admin */
         List<String> permissions = new ArrayList<String>();
-        if (isExpectSuccessCreateGroup) permissions.add(AdminPrivilegeModifyGroup.value);
+        if (permModifyGroup) permissions.add(AdminPrivilegeModifyGroup.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
         try {
