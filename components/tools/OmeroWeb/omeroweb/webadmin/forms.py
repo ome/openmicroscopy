@@ -88,7 +88,7 @@ class ForgottonPasswordForm(NonASCIIForm):
 ROLE_CHOICES = (
     ('user', 'User'),
     ('administrator', 'Administrator'),
-    ('restricted_administrator', 'Restricted Admin')
+    ('restricted_administrator', 'Administrator with restricted privileges')
 )
 
 
@@ -160,7 +160,11 @@ class ExperimenterForm(NonASCIIForm):
                  ('Script', 'Upload Scripts')]
         for role in roles:
             ordered_fields.append(
-                (role[0], forms.BooleanField(required=False, label=role[1]))
+                (role[0], forms.BooleanField(
+                    required=False,
+                    label=role[1],
+                    widget=forms.CheckboxInput(attrs={'class':'privilege'})
+                ))
             )
 
         # Django 1.8: Form.fields uses OrderedDict from the collections module.
