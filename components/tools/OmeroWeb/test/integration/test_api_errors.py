@@ -116,8 +116,8 @@ class TestErrors(IWebTest):
         # Create project in group_A (default group)
         payload = {'Name': 'test_security_violation',
                    '@type': OME_SCHEMA_URL + '#Project'}
-        save_url_grpA = save_url + '?group=' + str(groupAid)
-        rsp = _csrf_post_json(django_client, save_url_grpA, payload,
+        save_url_grp_a = save_url + '?group=' + str(groupAid)
+        rsp = _csrf_post_json(django_client, save_url_grp_a, payload,
                               status_code=201)
         pr_json = rsp['data']
         projectId = pr_json['@id']

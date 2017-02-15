@@ -575,6 +575,13 @@ class TestProjects(IWebTest):
         pr_json = rsp['data']
         assert pr_json['Name'] == 'updated name'
         assert 'Description' not in pr_json
+        # Now add description and save again
+        pr_json['Description'] = 'New test description update'
+        _csrf_put_json(django_client, save_url, pr_json)
+        # Read to check
+        rsp = _get_response_json(django_client, project_url, {})
+        assert rsp['data']['Description'] == 'New test description update'
+
 
     def test_project_delete(self, user1):
         conn = get_connection(user1)
