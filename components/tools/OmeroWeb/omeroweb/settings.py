@@ -637,7 +637,10 @@ CUSTOM_SETTINGS_MAPPINGS = {
          50,
          int,
          ("Number of thumbnails retrieved to prevent from loading them"
-          " all at once.")],
+          " all at once. Make sure the size is not too big, otherwise"
+          " you may excede limit request line, see"
+          " http://docs.gunicorn.org/en/latest/settings.html"
+          "?highlight=limit_request_line")],
     "omero.web.ui.top_links":
         ["TOP_LINKS",
          ('['
