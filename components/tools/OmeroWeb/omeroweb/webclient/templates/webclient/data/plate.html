@@ -144,7 +144,8 @@
                                                      width: spw_thumb_size,
                                                      staticurl: staticurl,
                                                      useParentPrefix: false,
-                                                     thumbnails_batch:  {{ thumbnails_batch|default:50|json_dumps|safe }} });
+                                                     thumbnailsBatch: {{ thumbnails_batch|default:50|json_dumps|safe }},
+                                                     defaultThumb: "{% static 'webgateway/img/image128.png' %}" });
             var $selected;
             // delegated click and dblclick handlers for wells
             $( '#spw' ).on( "click", "td.well img", function(event) {

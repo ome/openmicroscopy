@@ -105,6 +105,7 @@ jQuery._WeblitzPlateview = function (container, options) {
       height: 48,
       useParentPrefix: true,
       thumbnails_batch: 50,
+      defaultThumb: ''
     }, options);
 
   // if options.size is set, it will be used below, otherwise thumbs will be default size
@@ -173,6 +174,9 @@ jQuery._WeblitzPlateview = function (container, options) {
           thumbnails_url += '?' + $.param( { id: iids }, true);
           var _load_thumbnails = function (result, data) {
             $.each(data, function(key, value) {
+              if (value === null) {
+                value = opts.defaultThumb;
+              }
               $("img#"+parentPrefix+"image-"+key).attr("src", value);
             });
           }
@@ -185,7 +189,7 @@ jQuery._WeblitzPlateview = function (container, options) {
       }
     }
 
-    batch = parseInt(opts.thumbnails_batch);
+    batch = parseInt(opts.thumbnailsBatch);
     load_thumbnails(imgIds, batch);
     _this.self.trigger('_resetLoaded');
   };
