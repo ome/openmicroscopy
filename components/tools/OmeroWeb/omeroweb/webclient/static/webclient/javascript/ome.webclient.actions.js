@@ -369,8 +369,7 @@ OME.initToolbarDropdowns = function() {
 // By default we do ALL thumbnails, but can also specify ID
 OME.refreshThumbnails = function(options) {
     options = options || {};
-    var rdm = Math.random(),
-        search_selector = ".search_thumb",
+    var search_selector = ".search_thumb",
         // In SPW, we select spw grid and Well images in bottom panel
         spw_selector = "#spw img, #wellImages img";
     // handle search results and SPW thumbs
@@ -382,9 +381,13 @@ OME.refreshThumbnails = function(options) {
     var $thumbs = $(spw_selector + ", " + search_selector);
     if ($thumbs.length > 0){
         $thumbs.each(function(){
-            var $this = $(this),
-                base_src = $this.attr('src').split('?')[0];
-            $this.attr('src', base_src + "?_="+rdm);
+            var _t = $(this);
+                OME.load_thumbnail(
+                    options.imageId, options.thumbnail_url,
+                    function(thumb) {
+                        _t.attr('src', thumb);
+                    }
+                );
         });
     } else if (window.update_thumbnails_panel) {
         // ...Otherwise update thumbs via jsTree
@@ -405,6 +408,42 @@ OME.refreshThumbnails = function(options) {
     }
 };
 
+OME.load_thumbnails = function(thumbnails_url, input, batch) {
+    // load thumbnails in a batches
+    if (input.length > 0 && batch > 0) {
+        var iids = input.slice(0 , batch)
+        if (iids.length > 0) {
+            $.ajax({
+                type: "GET",
+                url: thumbnails_url,
+                data: $.param( { id: iids }, true),
+                dataType:'json',
+                success: function(data){
+                    $.each(data, function(key, value) {
+                        $("li#image_icon-"+key+ " img").attr("src", value);
+                    });
+                }
+            });
+            input = input.filter(function(x) {
+                return iids.indexOf(x) < 0;
+            });
+            OME.load_thumbnails(thumbnails_url, input, batch);
+        }
+    }
+}
+OME.load_thumbnail = function(iid, thumbnails_url, callback) {
+    // load thumbnails in a batches
+    $.ajax({
+        type: "GET",
+        url: thumbnails_url,
+        dataType:'json',
+        success: function(data){
+        if (data.length > 0) {
+            callback(data);
+        }
+    }
+    });
+}
 
 OME.truncateNames = (function(){
     var insHtml;
