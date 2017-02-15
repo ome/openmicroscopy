@@ -408,7 +408,7 @@ OME.refreshThumbnails = function(options) {
     }
 };
 
-OME.load_thumbnails = function(thumbnails_url, input, batch) {
+OME.load_thumbnails = function(thumbnails_url, input, batch, dthumb) {
     // load thumbnails in a batches
     if (input.length > 0 && batch > 0) {
         var iids = input.slice(0 , batch)
@@ -417,17 +417,21 @@ OME.load_thumbnails = function(thumbnails_url, input, batch) {
                 type: "GET",
                 url: thumbnails_url,
                 data: $.param( { id: iids }, true),
-                dataType:'json',
+                dataType: 'json',
                 success: function(data){
                     $.each(data, function(key, value) {
-                        $("li#image_icon-"+key+ " img").attr("src", value);
+                        if (value !== null) {
+                            $("li#image_icon-"+key+ " img").attr("src", value);
+                        } else {
+                            $("li#image_icon-"+key+ " img").attr("src", dthumb);
+                        }
                     });
                 }
             });
             input = input.filter(function(x) {
                 return iids.indexOf(x) < 0;
             });
-            OME.load_thumbnails(thumbnails_url, input, batch);
+            OME.load_thumbnails(thumbnails_url, input, batch, dthumb);
         }
     }
 }
