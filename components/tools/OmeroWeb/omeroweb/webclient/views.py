@@ -453,6 +453,7 @@ def _load_template(request, menu, conn=None, url=None, **kwargs):
     context['current_url'] = url
     context['page_size'] = settings.PAGE
     context['template'] = template
+    context['thumbnails_batch'] = settings.THUMBNAILS_BATCH
 
     return context
 
@@ -1266,6 +1267,7 @@ def load_plate(request, o1_type=None, o1_id=None, conn=None, **kwargs):
         context['baseurl'] = reverse('webgateway').rstrip('/')
         context['form_well_index'] = form_well_index
         context['index'] = index
+        context['thumbnails_batch'] = settings.THUMBNAILS_BATCH
         template = "webclient/data/plate.html"
         if o1_type == 'acquisition':
             context['acquisition'] = o1_id

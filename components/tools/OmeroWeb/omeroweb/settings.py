@@ -632,6 +632,12 @@ CUSTOM_SETTINGS_MAPPINGS = {
          int,
          ("Number of images displayed within a dataset or 'orphaned'"
           " container to prevent from loading them all at once.")],
+    "omero.web.thumbnails_batch":
+        ["THUMBNAILS_BATCH",
+         50,
+         int,
+         ("Number of thumbnails retrieved to prevent from loading them"
+          " all at once.")],
     "omero.web.ui.top_links":
         ["TOP_LINKS",
          ('['
