@@ -179,7 +179,12 @@
             // Save settings
             $("#rdef-setdef-btn").click(function(){
               setImageDefaults(OME.preview_viewport, this, function() {
-                OME.refreshThumbnails({'imageId':{{ manager.image.id }}, 'ignorePreview': true});
+                OME.refreshThumbnails(
+                    {'imageId':{{ manager.image.id }},
+                     'ignorePreview': true,
+                     'thumbnail_url': "{% url 'get_thumbnail_json' manager.image.id %}"
+                    }
+                );
                 updateMyRdef(OME.preview_viewport.getQuery());
               });
             });
