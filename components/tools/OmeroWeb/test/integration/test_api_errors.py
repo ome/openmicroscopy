@@ -24,7 +24,7 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 import pytest
 from test_api_projects import get_connection
-from omero.model import ProjectI
+from omero.model import ProjectI, TagAnnotationI
 from omero.rtypes import rstring
 from omero_marshal import get_encoder, get_decoder, OME_SCHEMA_URL
 from omero import ValidationException
@@ -59,6 +59,7 @@ class TestErrors(IWebTest):
         version = settings.API_VERSIONS[-1]
         save_url = reverse('api_save', kwargs={'api_version': version})
         payload = {'Name': 'test_save_post_no_id',
+                   '@type': '%s#Project' % OME_SCHEMA_URL,
                    '@id': 1}
         rsp = _csrf_post_json(django_client, save_url, payload,
                               status_code=400)
@@ -70,7 +71,8 @@ class TestErrors(IWebTest):
         django_client = self.django_root_client
         version = settings.API_VERSIONS[-1]
         save_url = reverse('api_save', kwargs={'api_version': version})
-        payload = {'Name': 'test_save_put_id'}
+        payload = {'Name': 'test_save_put_id',
+                   '@type': '%s#Project' % OME_SCHEMA_URL,}
         rsp = _csrf_put_json(django_client, save_url, payload,
                              status_code=400)
         assert (rsp['message'] ==
@@ -81,7 +83,7 @@ class TestErrors(IWebTest):
         django_client = self.django_root_client
         version = settings.API_VERSIONS[-1]
         save_url = reverse('api_save', kwargs={'api_version': version})
-        objType = 'SomeInvalid#Type'
+        objType = 'SomeInvalidSchema#Project'
         payload = {'Name': 'test_marshal_type',
                    '@type': objType}
         rsp = _csrf_post_json(django_client, save_url, payload,
@@ -141,16 +143,17 @@ class TestErrors(IWebTest):
         save_url += '?group=' + str(group)
 
         # Create Tag
-        tag = {'Value': 'test_tag',
-               '@type': OME_SCHEMA_URL + '#TagAnnotation'}
-        tag_rsp = _csrf_post_json(django_client, save_url, tag,
-                                  status_code=201)
+        tag = TagAnnotationI()
+        tag.textValue = rstring('test_tag')
+        tag = conn.getUpdateService().saveAndReturnObject(tag)
+        tag_json = {'Value': 'test_tag',
+                    '@id': tag.id.val,
+                    '@type': OME_SCHEMA_URL + '#TagAnnotation'}
 
         # Add Tag twice to Project to get Validation Exception
-        del tag_rsp['omero:details']
         payload = {'Name': 'test_validation',
                    '@type': OME_SCHEMA_URL + '#Project',
-                   'Annotations': [tag_rsp, tag_rsp]}
+                   'Annotations': [tag_json, tag_json]}
         rsp = _csrf_post_json(django_client, save_url, payload,
                               status_code=400)
         # NB: message contains whole stack trace
