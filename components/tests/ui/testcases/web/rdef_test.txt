@@ -409,11 +409,6 @@ Test Rdef Save
     Channel Should Not Be Active        1
     Channel Should Not Be Active        2
 
-    # Reset rendering settings again
-    Click Element                       id=rdef-reset-btn
-    Wait Until Element Is Enabled       id=rdef-setdef-btn
-    Click Element                       id=rdef-setdef-btn
-
 
 Test LUTs Reverse Intensity
     [Documentation]     Tests LUTs and Reverse, Copying and Pasting.
