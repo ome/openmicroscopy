@@ -79,6 +79,13 @@ public class BasicInMemoryNodeProvider implements NodeProvider {
     // =========================================================================
 
     /* (non-Javadoc)
+     * @see ome.security.NodeProvider#getManagerIdByUuid(java.lang.String, ome.util.SqlAction)
+     */
+    public long getManagerIdByUuid(String managerUuid, ome.util.SqlAction sql) {
+        return getManagerByUuid(managerUuid, null).getId();
+    };
+
+    /* (non-Javadoc)
      * @see ome.security.NodeProvider#getManagerByUuid(java.lang.String, ome.system.ServiceFactory)
      */
     public Node getManagerByUuid(final String managerUuid, ServiceFactory sf) {

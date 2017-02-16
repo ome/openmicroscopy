@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.hibernate.Session;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 
 import ome.model.meta.Node;
@@ -71,6 +72,19 @@ public class BasicNodeProvider implements NodeProvider {
 
     // Database interactions
     // =========================================================================
+
+    /* (non-Javadoc)
+     * @see ome.security.NodeProvider#getManagerIdByUuid(java.lang.String, ome.util.SqlAction)
+     */
+    public long getManagerIdByUuid(String managerUuid, ome.util.SqlAction sql) {
+        long nodeId = 0L;
+        try {
+            nodeId = sql.nodeId(managerUuid);
+        } catch (EmptyResultDataAccessException erdae) {
+            // Using default node
+        }
+        return nodeId;
+    };
 
     /* (non-Javadoc)
      * @see ome.security.NodeProvider#getManagerByUuid(java.lang.String, ome.system.ServiceFactory)
