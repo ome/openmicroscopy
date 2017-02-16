@@ -1156,12 +1156,8 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
                                 "Sessions", "Internal", null);
 
                         // Set the owner and node specially for an internal sess
-                        long nodeId = 0L;
-                        try {
-                            nodeId = sql.nodeId(internal_uuid);
-                        } catch (EmptyResultDataAccessException erdae) {
-                            // Using default node
-                        }
+                        long nodeId = nodeProvider.getManagerIdByUuid(
+                                internal_uuid, sql);
 
                         // SQL defined in data.vm for creating original session
                         // (id,permissions,timetoidle,timetolive,started,closed,defaulteventtype,uuid,owner,node)
