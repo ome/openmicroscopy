@@ -3101,7 +3101,7 @@ class _BlitzGateway (object):
                             offset, limit and owner for all objects.
                             Also 'order_by': 'obj.name' to order results.
                             Additional opts handled by _getQueryString()
-                            E.g. filter Dataset by 'project'
+                            e.g. filter Dataset by 'project'
         :return:            (query, params, wrapper)
         """
 
