@@ -181,8 +181,10 @@ class TestContainers(IWebTest):
 
     @pytest.mark.parametrize("dtype", ['Plate', 'Image', 'Well',
                                        'Channel', 'foo'])
-    def test_crud_unsupported(self, user1, dtype):
-        """Test create, update & delete are rejected for unsupported types."""
+    @pytest.mark.parametrize("method", [(_csrf_post_json, 'Creation'),
+                                        (_csrf_put_json, 'Update')])
+    def test_create_update_unsupported(self, user1, dtype, method):
+        """Test create and update are rejected for unsupported types."""
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
@@ -190,22 +192,25 @@ class TestContainers(IWebTest):
         save_url = reverse('api_save', kwargs={'api_version': version})
         payload = {'Name': 'test',
                    '@type': OME_SCHEMA_URL + '#%s' % dtype}
-        # Test POST creation
-        rsp = _csrf_post_json(django_client, save_url, payload,
+        # Test PUT/POST
+        rsp = method[0](django_client, save_url, payload,
                               status_code=405)
-        assert rsp['message'] == 'Creation of %s not supported' % dtype
-        # Test PUT update
-        rsp = _csrf_put_json(django_client, save_url, payload,
-                             status_code=405)
-        assert rsp['message'] == 'Update of %s not supported' % dtype
+        assert rsp['message'] == '%s of %s not supported' % (method[1], dtype)
+
+    @pytest.mark.parametrize("dtype", ['Plate', 'Image', 'Well'])
+    def test_delete_unsupported(self, user1, dtype):
+        """Test delete is rejected for unsupported types."""
+        conn = get_connection(user1)
+        user_name = conn.getUser().getName()
+        django_client = self.new_django_client(user_name, user_name)
+        version = settings.API_VERSIONS[-1]
         # Delete (fake url - image doesn't need to exist for test)
-        if dtype in ('Plate', 'Image', 'Well'):
-            url_name = 'api_%s' % dtype.lower()
-            delete_url = reverse(url_name, kwargs={'api_version': version,
-                                                   'object_id': 1})
-            rsp = _csrf_delete_response_json(django_client, delete_url, {},
-                                             status_code=405)
-            assert rsp['message'] == 'Delete of %s not supported' % dtype
+        url_name = 'api_%s' % dtype.lower()
+        delete_url = reverse(url_name, kwargs={'api_version': version,
+                                               'object_id': 1})
+        rsp = _csrf_delete_response_json(django_client, delete_url, {},
+                                         status_code=405)
+        assert rsp['message'] == 'Delete of %s not supported' % dtype
 
     @pytest.mark.parametrize("dtype", ['Project', 'Dataset',
                                        'Screen'])
