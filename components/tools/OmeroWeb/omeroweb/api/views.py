@@ -32,8 +32,10 @@ from api_query import query_objects
 from omero_marshal import get_encoder, get_decoder, OME_SCHEMA_URL
 from omero import ValidationException
 from omeroweb.connector import Server
-from omeroweb.api.api_exceptions import BadRequestError, NotFoundError, \
-    CreatedObject, MethodNotSupportedError
+from api_exceptions import BadRequestError, \
+    CreatedObject, \
+    MethodNotSupportedError, \
+    NotFoundError
 from omeroweb.api.decorators import login_required, json_response
 from omeroweb.webgateway.util import getIntOrDefault
 
