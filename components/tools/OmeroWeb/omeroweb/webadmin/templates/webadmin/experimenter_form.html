@@ -57,7 +57,10 @@
             text-align: right;
             margin: 20px;
             margin-top: 80px;
-            font-size: 15px;
+            font-size: 14px;
+        }
+        #privilege_info b {
+            font-weight: bold;
         }
         #privilege_list {
             width: 40%;
@@ -90,7 +93,8 @@
         var showPrivilegeInfo = function(privilegeId) {
             var privilegeName = privilegeId.replace('id_', '');
             var info = PRIVILEGE_INFO[privilegeName] || " ";
-            $('#privilege_info').text(info);
+            var labelText = $("label[for='" + privilegeId + "']").text();
+            $('#privilege_info').html("<b>" + labelText + "</b> " + info);
         }
         $("#privileges label").on( "mouseover", function() {
             showPrivilegeInfo($(this).prop('for'));
