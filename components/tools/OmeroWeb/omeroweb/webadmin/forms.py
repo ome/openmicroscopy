@@ -149,13 +149,13 @@ class ExperimenterForm(NonASCIIForm):
 
         roles = [('Sudo', 'Sudo'),
                  # combine WriteFile/MagangedRepo/Owned roles into 'Write'
-                 ('Write', 'Write'),
+                 ('Write', 'Write Data'),
                  # combine DeleteFile/MagangedRepo/Owned roles into 'Delete'
-                 ('Delete', 'Delete'),
+                 ('Delete', 'Delete Data'),
                  ('Chgrp', 'Chgrp'),
                  ('Chown', 'Chown'),
-                 ('ModifyGroup', 'Edit Groups'),
-                 ('ModifyUser', 'Edit Users'),
+                 ('ModifyGroup', 'Create and Edit Groups'),
+                 ('ModifyUser', 'Create and Edit Users'),
                  ('ModifyGroupMembership', 'Add Users to Groups'),
                  ('Script', 'Upload Scripts')]
         for role in roles:
