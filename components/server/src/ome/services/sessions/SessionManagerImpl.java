@@ -1117,7 +1117,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
      * {@link #onApplicationEvent(ApplicationEvent)} when a
      * {@link DestroySessionMessage} is received.
      */
-    private Session executeCloseSession(final String uuid) {
+    protected Session executeCloseSession(final String uuid) {
         return (Session) executor
                 .executeSql(new Executor.SimpleSqlWork(this,
                         "executeCloseSession") {
@@ -1141,7 +1141,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
                 });
     }
 
-    private Session executeInternalSession() {
+    protected Session executeInternalSession() {
         final Long sessionId = executeNextSessionId();
         return (Session) executor
                 .executeSql(new Executor.SimpleSqlWork(this,
@@ -1196,7 +1196,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
      *
      * @return
      */
-    private Long executeNextSessionId() {
+    protected Long executeNextSessionId() {
         return (Long) executor
                 .executeSql(new Executor.SimpleSqlWork(this,
                         "executeNextSessionId") {
