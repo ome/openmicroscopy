@@ -1384,6 +1384,20 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
     }
 
     /**
+     * Retrieves a session by ID.
+     * @param id session ID to lookup
+     * @param sf active service factory
+     * @return See above.
+     */
+    protected Session findSessionById(Long id, ServiceFactory sf) {
+        return (Session) sf.getQueryService().findByQuery(
+                "select s from Session s "
+                + "left outer join fetch s.annotationLinks l "
+                + "left outer join fetch l.child a where s.id = :id",
+                    new Parameters().addId(id));
+    }
+
+    /**
      * Returns a List of state for creating a new {@link SessionContext}. If an
      * exception is thrown, return nulls since throwing an exception within the
      * Work will set our transaction to rollback only.
@@ -1399,12 +1413,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
             final List<Long> memberOfGroupsIds = admin.getMemberOfGroupIds(exp);
             final List<Long> leaderOfGroupsIds = admin.getLeaderOfGroupIds(exp);
             final List<String> userRoles = admin.getUserRoles(exp);
-            final Session reloaded = (Session)
-                    sf.getQueryService().findByQuery(
-                            "select s from Session s "
-                            + "left outer join fetch s.annotationLinks l "
-                            + "left outer join fetch l.child a where s.id = :id",
-                            new Parameters().addId(session.getId()));
+            final Session reloaded = findSessionById(session.getId(), sf);
             list.add(exp);
             list.add(grp);
             list.add(memberOfGroupsIds);
