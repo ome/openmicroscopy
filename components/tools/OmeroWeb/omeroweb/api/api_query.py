@@ -32,7 +32,7 @@ def get_child_counts(conn, link_class, parent_ids):
     Count child links for the specified parent_ids.
 
     @param conn:        BlitzGateway
-    @param link_class:  E.g. 'ProjectDatasetLink'
+    @param link_class:  Type of link, e.g. 'ProjectDatasetLink'
     @param parent_ids:  List of Parent IDs
     @return             A dict of parent_id: child_count
     """
@@ -61,7 +61,7 @@ def query_objects(conn, object_type,
     parameters and filters such as by owner or group.
 
     @param conn:        BlitzGateway
-    @param object_type: Type to query. E.g. Project
+    @param object_type: Type to query, e.g. Project
     @param group:       Filter query by ExperimenterGroup ID
     @param opts:        Options dict for conn.buildQuery()
     @param normalize:   If true, marshal groups and experimenters separately
