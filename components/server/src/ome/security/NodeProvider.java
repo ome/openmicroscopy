@@ -24,6 +24,7 @@ import java.util.Set;
 import ome.model.meta.Node;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
+import ome.util.SqlAction;
 
 /**
  * Provider for {@link Node} objects which is responsible for persisting and
@@ -36,6 +37,14 @@ import ome.system.ServiceFactory;
 public interface NodeProvider {
 
     Set<String> getManagerList(final boolean onlyActive);
+
+    /**
+     * Retrieves a given manager node ID.
+     * @param managerUuid manager node UUID to retrieve
+     * @param sql active SQL context which can be used to make queries
+     * @return See above.
+     */
+    long getManagerIdByUuid(String managerUuid, SqlAction sql);
 
     /**
      * Retrieves a given manager node.
