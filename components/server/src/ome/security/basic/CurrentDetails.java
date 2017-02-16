@@ -302,7 +302,7 @@ public class CurrentDetails implements PrincipalHolder {
         // Proxied if necessary
         e.setExperimenter(c.getOwner());
         e.setExperimenterGroup(c.getGroup());
-        e.setSession(session);
+        e.setSession(new Session(session.getId(), false));
 
         c.setEvent(e);
         return e;
