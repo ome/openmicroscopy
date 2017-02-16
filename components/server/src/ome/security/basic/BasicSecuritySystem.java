@@ -423,7 +423,7 @@ public class BasicSecuritySystem implements SecuritySystem,
         if (isReadOnly) {
             sess = new ome.model.meta.Session(sessionId, false);
         } else {
-            sess = sf.getQueryService().get(ome.model.meta.Session.class, sessionId);
+            sess = sessionManager.find(ec.getCurrentSessionUuid());
         }
 
         tokenHolder.setToken(callGroup.getGraphHolder());
