@@ -99,7 +99,7 @@
             function(success, rv) {
                 $(obj).html(old).prop('disabled', false);
                 if (!(success && rv)) {
-                    alert('Setting image defaults failed.' + success + " " + rv);
+                    alert('Setting image defaults failed. Success: ' + success + ' Response: ' + rv);
                 }
                 if (callback) {
                     callback();
