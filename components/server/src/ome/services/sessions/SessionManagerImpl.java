@@ -106,7 +106,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
     protected OmeroContext context;
     protected Roles roles;
     protected SessionCache cache;
-    private Executor executor;
+    protected Executor executor;
     protected long defaultTimeToIdle;
     protected long maxUserTimeToIdle;
     protected long defaultTimeToLive;
