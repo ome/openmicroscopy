@@ -194,7 +194,7 @@ class TestContainers(IWebTest):
                    '@type': OME_SCHEMA_URL + '#%s' % dtype}
         # Test PUT/POST
         rsp = method[0](django_client, save_url, payload,
-                              status_code=405)
+                        status_code=405)
         assert rsp['message'] == '%s of %s not supported' % (method[1], dtype)
 
     @pytest.mark.parametrize("dtype", ['Plate', 'Image', 'Well'])
