@@ -163,7 +163,7 @@ class ExperimenterForm(NonASCIIForm):
                 (role[0], forms.BooleanField(
                     required=False,
                     label=role[1],
-                    widget=forms.CheckboxInput(attrs={'class':'privilege'})
+                    widget=forms.CheckboxInput(attrs={'class': 'privilege'})
                 ))
             )
 
