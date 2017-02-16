@@ -1182,6 +1182,8 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
                         }
                         Long id = sql.sessionId(s.getUuid());
                         s.setId(id);
+                        s.setNode(new Node(nodeId, false));
+                        s.setOwner(new Experimenter(roles.getRootId(), false));
                         return s;
                     }
                 });
