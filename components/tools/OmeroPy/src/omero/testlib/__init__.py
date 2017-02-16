@@ -40,7 +40,7 @@ import Glacier2
 import omero
 import omero.gateway
 from omero_version import omero_version
-from collections import defaultdict
+
 from omero.cmd import DoAll, State, ERR, OK, Chmod2, Chgrp2, Delete2
 from omero.callbacks import CmdCallbackI
 from omero.model import DatasetI, DatasetImageLinkI, ImageI, ProjectI
