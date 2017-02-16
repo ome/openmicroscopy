@@ -72,7 +72,7 @@ class TestErrors(IWebTest):
         version = settings.API_VERSIONS[-1]
         save_url = reverse('api_save', kwargs={'api_version': version})
         payload = {'Name': 'test_save_put_id',
-                   '@type': '%s#Project' % OME_SCHEMA_URL,}
+                   '@type': '%s#Project' % OME_SCHEMA_URL}
         rsp = _csrf_put_json(django_client, save_url, payload,
                              status_code=400)
         assert (rsp['message'] ==
