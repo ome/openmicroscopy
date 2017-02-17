@@ -183,9 +183,6 @@ public class DomainPane
     /** Field displaying the <code>Bit Depth</code> value. */
     private JTextField bitDepthLabel;
 
-    /** Box to select the mapping algorithm. */
-    private JCheckBox noiseReduction;
-
     /** Button to bring up the histogram widget on screen. */
     private JButton histogramButton;
 
@@ -357,11 +354,6 @@ public class DomainPane
         bitDepthLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
         bitDepthLabel.setEnabled(false);
         bitDepthLabel.setEditable(false);
-        noiseReduction = new JCheckBox();
-        noiseReduction.setBackground(UIUtilities.BACKGROUND_COLOR);
-        noiseReduction.setSelected(model.isNoiseReduction());
-        noiseReduction.setAction(
-                controller.getAction(RendererControl.NOISE_REDUCTION));
         histogramButton = new JButton(
                 controller.getAction(RendererControl.HISTOGRAM));
         
@@ -650,8 +642,6 @@ public class DomainPane
 		comp = buildSliderPane(bitDepthSlider, bitDepthLabel);
 		comp.setBackground(UIUtilities.BACKGROUND_COLOR);
 		addComponent(c, "Bit Depth", comp, p);
-		c.gridy++;
-		addComponent(c, "", noiseReduction, p);
 		c.gridx = 0;
 		c.gridy++;
 		comp = new SeparatorPane();
@@ -851,7 +841,6 @@ public class DomainPane
 			gammaLabel.setEnabled(enabled);
 		}
 		if (bitDepthSlider != null) bitDepthSlider.setEnabled(b);
-		if (noiseReduction != null) noiseReduction.setEnabled(b);
 		if (channelList != null) {
 			Iterator<ChannelButton> i = channelList.iterator();
 			while (i.hasNext()) 

@@ -2809,7 +2809,7 @@ class ImViewerComponent
 					}
 				}
 			} else {
-				model.getBrowser().setZoomFactor(model.getZoomFactor(), false);
+				model.getBrowser().setZoomFactor(f, false);
 			}
 		} else {
 			renderXYPlane();

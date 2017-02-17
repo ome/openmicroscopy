@@ -217,10 +217,11 @@ class TestWells(IWebTest):
             well_url = reverse('api_well', kwargs={'api_version': version,
                                                    'object_id': well.id.val})
             rsp = _get_response_json(django_client, well_url, {})
+            well_json = rsp['data']
             # Manually check for image and Pixels loaded
-            assert ('WellSamples' in rsp) == has_image
+            assert ('WellSamples' in well_json) == has_image
             if has_image:
-                assert len(rsp['WellSamples']) == 3
-                assert 'Pixels' in rsp['WellSamples'][0]['Image']
-            assert_objects(conn, [rsp], [well], dtype='Well',
+                assert len(well_json['WellSamples']) == 3
+                assert 'Pixels' in well_json['WellSamples'][0]['Image']
+            assert_objects(conn, [well_json], [well], dtype='Well',
                            opts={'load_pixels': True})
