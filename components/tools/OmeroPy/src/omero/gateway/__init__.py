@@ -141,6 +141,23 @@ def fileread_gen(fin, fsize, bufsize):
     fin.close()
 
 
+def getPixelsQuery(imageName):
+    """Helper for building Query for Images or Wells & Images"""
+    return (' left outer join fetch %s.pixels as pixels'
+            ' left outer join fetch pixels.pixelsType' % imageName)
+
+
+def getChannelsQuery():
+    """Helper for building Query for Images or Wells & Images"""
+    return (' join fetch pixels.channels as channels'
+            ' join fetch channels.logicalChannel as logicalChannel'
+            ' left outer join fetch '
+            ' logicalChannel.photometricInterpretation'
+            ' left outer join fetch logicalChannel.illumination'
+            ' left outer join fetch logicalChannel.mode'
+            ' left outer join fetch logicalChannel.contrastMethod')
+
+
 class OmeroRestrictionWrapper (object):
 
     def canDownload(self):
@@ -281,25 +298,14 @@ class BlitzObjectWrapper (object):
         Different sub-classes may allow some control over what's loaded
         and filtering of the query using various opts arguments.
         Opts:
-        'child_count': boolean      If true, this will produce a 'projection'
-                                    query that also selects child_count for
-                                    objects that have a LINK_CLASS
         See different sub-classes for additional opts.
 
         :param opts:        Dictionary of optional parameters.
         :return:            Tuple of string, list, ParametersI
         """
-        extra_select = ""
-        child_count = False
-        if opts is not None and opts.get('child_count'):
-            child_count = opts['child_count']
-        if child_count and cls.LINK_CLASS is not None:
-            extra_select = """, (select count(id) from %s chl
-                      where chl.parent=obj.id)""" % cls.LINK_CLASS
-        query = ("select obj %s from %s obj "
+        query = ("select obj from %s obj "
                  "join fetch obj.details.owner as owner "
-                 "join fetch obj.details.creationEvent" %
-                 (extra_select, cls.OMERO_CLASS))
+                 "join fetch obj.details.creationEvent" % cls.OMERO_CLASS)
 
         params = omero.sys.ParametersI()
         clauses = []
@@ -3057,16 +3063,13 @@ class _BlitzGateway (object):
                             defining extra data to load.
                             offset, limit and owner for all objects.
                             Additional opts handled by _getQueryString()
-                            E.g. 'childCount', or filter Dataset by 'project'
+                            e.g. filter Dataset by 'project'
         :return:            Generator of :class:`BlitzObjectWrapper` subclasses
         """
         query, params, wrapper = self.buildQuery(
             obj_type, ids, params, attributes, opts)
         qs = self.getQueryService()
-        # we do projection in case query has extra selects (E.g. child_count)
-        result = qs.projection(query, params, self.SERVICE_OPTS)
-        # unwrap projected objects
-        result = [unwrap(r[0]) for r in result]
+        result = qs.findAllByQuery(query, params, self.SERVICE_OPTS)
         if respect_order and ids is not None:
             idMap = {}
             for r in result:
@@ -3096,8 +3099,9 @@ class _BlitzGateway (object):
         :param opts:        Dict of additional options for filtering or
                             defining extra data to load.
                             offset, limit and owner for all objects.
+                            Also 'order_by': 'obj.name' to order results.
                             Additional opts handled by _getQueryString()
-                            E.g. 'childCount', or filter Dataset by 'project'
+                            e.g. filter Dataset by 'project'
         :return:            (query, params, wrapper)
         """
 
@@ -3171,9 +3175,9 @@ class _BlitzGateway (object):
         if clauses:
             query += " where " + (" and ".join(clauses))
 
-        # Order by...
+        # Order by... e.g. 'lower(obj.name)' or 'obj.column, obj.row' for wells
         if order_by is not None:
-            query += " order by lower(obj.%s), obj.id" % order_by
+            query += " order by %s, obj.id" % order_by
 
         return (query, baseParams, wrapper)
 
@@ -6012,7 +6016,6 @@ class _PlateWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                  "left outer join fetch obj.screenLinks spl "
                  "left outer join fetch spl.parent sc")
         # NB: we don't use base _getQueryString.
-        # since child_count wouldn't be supported anyway (no LINK_CLASS)
         clauses = []
         params = omero.sys.ParametersI()
         if opts is not None and 'screen' in opts:
@@ -6083,6 +6086,42 @@ class _WellWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         Clears child cache, so next _listChildren will query the server
         """
         self._childcache = None
+
+    @classmethod
+    def _getQueryString(cls, opts=None):
+        """
+        Extend base query to handle filtering of Wells by Plate.
+        Returns a tuple of (query, clauses, params).
+        Supported opts: 'plate': <plate_id> to filter by Plate
+                        'load_images': <bool> to load wellSamples and images
+
+        :param opts:        Dictionary of optional parameters.
+        :return:            Tuple of string, list, ParametersI
+        """
+        query, clauses, params = super(
+            _WellWrapper, cls)._getQueryString(opts)
+        if opts is not None and 'plate' in opts:
+            clauses.append('obj.plate.id = :pid')
+            params.add('pid', rlong(opts['plate']))
+        load_images = False
+        load_pixels = False
+        load_channels = False
+        if opts is not None:
+            load_images = opts.get('load_images')
+            load_pixels = opts.get('load_pixels')
+            load_channels = opts.get('load_channels')
+        if load_images or load_pixels or load_channels:
+            # NB: Using left outer join, we may get Wells with no Images
+            query += " left outer join fetch obj.wellSamples as wellSamples"\
+                     " left outer join fetch wellSamples.image as image"\
+                     " left outer join fetch wellSamples.plateAcquisition"\
+                     " as plateAcquisition"
+        if load_pixels or load_channels:
+            query += getPixelsQuery("image")
+        if load_channels:
+            query += getChannelsQuery()
+
+        return (query, clauses, params)
 
     def __loadedHotSwap__(self):
         query = ("select well from Well as well "
@@ -6489,11 +6528,14 @@ class ColorHolder (object):
         :rtype:     int
         """
 
-        a = self.getAlpha() << 24
-        r = self.getRed() << 16
-        g = self.getGreen() << 8
-        b = self.getBlue() << 0
-        return r+g+b+a
+        r = self.getRed() << 24
+        g = self.getGreen() << 16
+        b = self.getBlue() << 8
+        a = self.getAlpha()
+        rgba_int = r+g+b+a
+        if (rgba_int > (2**31-1)):       # convert to signed 32-bit int
+            rgba_int = rgba_int - 2**32
+        return int(rgba_int)
 
 
 class _LogicalChannelWrapper (BlitzObjectWrapper):
@@ -7171,15 +7213,9 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             orphaned = opts.get('orphaned')
         if load_pixels or load_channels:
             # We use 'left outer join', since we still want images if no pixels
-            query += ' left outer join fetch obj.pixels pixels' \
-                     ' left outer join fetch pixels.pixelsType'
+            query += getPixelsQuery("obj")
         if load_channels:
-            query += ' join fetch pixels.channels as channels' \
-                     ' join fetch channels.logicalChannel as logicalChannel' \
-                     ' left outer join fetch logicalChannel.photometricInterpretation' \
-                     ' left outer join fetch logicalChannel.illumination' \
-                     ' left outer join fetch logicalChannel.mode' \
-                     ' left outer join fetch logicalChannel.contrastMethod'
+            query += getChannelsQuery()
         if orphaned:
             clauses.append(
                 """

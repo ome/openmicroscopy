@@ -243,11 +243,12 @@ def expected_wells(user, wells):
     for well in wells:
         rName = unwrap(well.plate.rowNamingConvention)
         cName = unwrap(well.plate.columnNamingConvention)
+        pName = unwrap(well.plate.name)
         row = well.row.val
         col = well.column.val
         rowname = str(row + 1) if rName == 'number' else _letterGridLabel(row)
         colname = _letterGridLabel(col) if cName == 'letter' else str(col + 1)
-        name = "%s%s" % (rowname, colname)
+        name = "%s - %s%s" % (pName, rowname, colname)
         expected.append({
             'id': well.id.val,
             'name': name,

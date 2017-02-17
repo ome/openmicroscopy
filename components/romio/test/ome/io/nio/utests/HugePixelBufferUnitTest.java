@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -9,10 +7,12 @@ package ome.io.nio.utests;
 import java.io.File;
 import java.io.IOException;
 
-import static org.testng.AssertJUnit.*;
 
 import org.apache.commons.io.FileUtils;
-import org.testng.annotations.*;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
@@ -62,35 +62,35 @@ public class HugePixelBufferUnitTest {
 
     @Test
     public void testGetPlaneSize() {
-        assertEquals(pixelBuffer.getPlaneSize().intValue(), planeSize);
+        Assert.assertEquals(pixelBuffer.getPlaneSize().intValue(), planeSize);
     }
 
     @Test
     public void testGetStackSize() {
-        assertEquals(pixelBuffer.getStackSize().intValue(), stackSize);
+        Assert.assertEquals(pixelBuffer.getStackSize().intValue(), stackSize);
     }
 
     @Test
     public void testGetTimepointSize() {
-        assertEquals(pixelBuffer.getTimepointSize().intValue(), timepointSize);
+        Assert.assertEquals(pixelBuffer.getTimepointSize().intValue(), timepointSize);
     }
 
     @Test
     public void testGetInitialPlaneOffset()
             throws DimensionsOutOfBoundsException {
-        assertEquals(pixelBuffer.getPlaneOffset(0, 0, 0).longValue(), 0L);
+        Assert.assertEquals(pixelBuffer.getPlaneOffset(0, 0, 0).longValue(), 0L);
     }
 
     @Test
     public void testGetPlaneOffset1() throws DimensionsOutOfBoundsException {
         long offset = (long) timepointSize * 25 + (long) planeSize * 25;
-        assertEquals(pixelBuffer.getPlaneOffset(25, 0, 25).longValue(), offset);
+        Assert.assertEquals(pixelBuffer.getPlaneOffset(25, 0, 25).longValue(), offset);
     }
 
     @Test
     public void testGetPlaneOffset2() throws DimensionsOutOfBoundsException {
         long offset = (long) timepointSize * 25 + (long) stackSize * 1
                 + (long) planeSize * 25;
-        assertEquals(pixelBuffer.getPlaneOffset(25, 1, 25).longValue(), offset);
+        Assert.assertEquals(pixelBuffer.getPlaneOffset(25, 1, 25).longValue(), offset);
     }
 }

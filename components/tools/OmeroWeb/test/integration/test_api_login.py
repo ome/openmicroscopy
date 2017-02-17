@@ -71,7 +71,7 @@ class TestLogin(IWebTest):
         """
         Tests that the base url gives 404 for invalid versions
         """
-        version = '0'
+        version = settings.API_VERSIONS[-1] + "1"
         with pytest.raises(NoReverseMatch):
             reverse('api_base', kwargs={'api_version': version})
 

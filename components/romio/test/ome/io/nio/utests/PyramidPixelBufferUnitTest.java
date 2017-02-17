@@ -1,13 +1,10 @@
 /*
- *   $Id$
- *
  *   Copyright 2011 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.io.nio.utests;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.fail;
+
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,6 +18,7 @@ import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumProviderFactoryImpl;
 import ome.util.checksum.ChecksumType;
 
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -55,7 +53,7 @@ public class PyramidPixelBufferUnitTest extends AbstractPyramidPixelBufferUnitTe
     @Test(dependsOnMethods={"testTruePyramidCreation"}, enabled=true)
     public void testPyramidWriteTiles() throws Exception {
         short tileCount = writeTiles(hashDigests);
-        assertEquals(tileCount, 768);
+        Assert.assertEquals(tileCount, 768);
         pixelBuffer.close();
         // close now nulls the reader to free file descriptors
         pixelBuffer = service._getPixelBuffer(pixels, true);
@@ -77,7 +75,7 @@ public class PyramidPixelBufferUnitTest extends AbstractPyramidPixelBufferUnitTe
                     String writtenDigest = hashDigests.get(tileCount);
                     if (!writtenDigest.equals(readDigest))
                     {
-                        fail(String.format(
+                        Assert.fail(String.format(
                                 "Hash digest mismatch z:%d c:%d t:%d " +
                                 "x:%d y:%d -- %s != %s",
                                 z, c, t, x, y,
@@ -90,30 +88,30 @@ public class PyramidPixelBufferUnitTest extends AbstractPyramidPixelBufferUnitTe
                 }
             }
         }, pixelBuffer, tileWidth, tileHeight);
-        assertEquals(tileCount, 768);
+        Assert.assertEquals(tileCount, 768);
     }
 
     @Test(dependsOnMethods={"testPyramidWriteTiles"}, enabled=true)
     public void testGetPixelBufferResolutionLevels() {
-        assertEquals(pixelBuffer.getResolutionLevels(), 6);
+        Assert.assertEquals(pixelBuffer.getResolutionLevels(), 6);
     }
 
     @Test(dependsOnMethods={"testPyramidWriteTiles"}, enabled=true)
     public void testGetPixelBufferResolutionLevel() {
-        assertEquals(pixelBuffer.getResolutionLevel(), 5);
+        Assert.assertEquals(pixelBuffer.getResolutionLevel(), 5);
     }
 
     @Test(dependsOnMethods={"testPyramidWriteTiles"}, enabled=true)
     public void testSetPixelBufferResolutionLevel() {
         pixelBuffer.setResolutionLevel(0);
-        assertEquals(pixelBuffer.getResolutionLevel(), 0);
+        Assert.assertEquals(pixelBuffer.getResolutionLevel(), 0);
     }
 
     @Test(dependsOnMethods={"testPyramidWriteTiles"}, enabled=true)
     public void testSetPixelBufferResolutionLevelChangeOfDimensions() {
         pixelBuffer.setResolutionLevel(pixelBuffer.getResolutionLevels() - 2);
-        assertEquals(pixelBuffer.getSizeX(), sizeX / 2);
-        assertEquals(pixelBuffer.getSizeY(), sizeY / 2);
+        Assert.assertEquals(pixelBuffer.getSizeX(), sizeX / 2);
+        Assert.assertEquals(pixelBuffer.getSizeY(), sizeY / 2);
     }
 
     @Test(dependsOnMethods={"testPyramidWriteTiles"}, enabled=true)
@@ -126,7 +124,7 @@ public class PyramidPixelBufferUnitTest extends AbstractPyramidPixelBufferUnitTe
                 {
                     final PixelData tile = pixelBuffer.getTile(z, c, t, x, y,
                             tileWidth, tileHeight);
-                    assertEquals(tile.size(), tileWidth * tileHeight);
+                    Assert.assertEquals(tile.size(), tileWidth * tileHeight);
                 }
                 catch (IOException e)
                 {
@@ -134,7 +132,7 @@ public class PyramidPixelBufferUnitTest extends AbstractPyramidPixelBufferUnitTe
                 }
             }
         }, pixelBuffer, tileWidth, tileHeight);
-        assertEquals(tileCount, 192);
+        Assert.assertEquals(tileCount, 192);
     }
 
 }

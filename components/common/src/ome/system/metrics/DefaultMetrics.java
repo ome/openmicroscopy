@@ -18,8 +18,6 @@
 
 package ome.system.metrics;
 
-import static com.codahale.metrics.MetricRegistry.name;
-
 import java.lang.management.ManagementFactory;
 import java.net.InetSocketAddress;
 import java.util.Collection;
@@ -153,15 +151,15 @@ public class DefaultMetrics implements Metrics, InitializingBean {
     }
 
     public Counter counter(Object obj, String name) {
-        return new DefaultCounter(registry.counter(name(obj.getClass(), name)));
+        return new DefaultCounter(registry.counter(MetricRegistry.name(obj.getClass(), name)));
     }
 
     public Timer timer(Object obj, String name) {
-        return new DefaultTimer(registry.timer(name(obj.getClass(), name)));
+        return new DefaultTimer(registry.timer(MetricRegistry.name(obj.getClass(), name)));
     }
 
     public Histogram histogram(Object obj, String name) {
-        return new DefaultHistogram(registry.histogram(name(obj.getClass(), name)));
+        return new DefaultHistogram(registry.histogram(MetricRegistry.name(obj.getClass(), name)));
     }
 
     private void registerAll(String prefix, MetricSet metrics, MetricRegistry registry) {

@@ -28,7 +28,7 @@ from . import api_settings
 import traceback
 import json
 
-from api_query import query_objects
+from api_query import query_objects, get_child_counts
 from omero_marshal import get_encoder, get_decoder, OME_SCHEMA_URL
 from omero import ValidationException
 from omeroweb.connector import Server
@@ -123,7 +123,7 @@ class ApiView(View):
         """Wrap other methods to add decorators."""
         return super(ApiView, self).dispatch(*args, **kwargs)
 
-    def add_data(self, marshalled, request, **kwargs):
+    def add_data(self, marshalled, request, urls=None, **kwargs):
         """
         Post-process marshalled object to add any extra data.
 
@@ -133,15 +133,16 @@ class ApiView(View):
         """
         object_id = marshalled['@id']
         version = kwargs['api_version']
-        for key, args in self.urls.items():
-            name = args['name']
-            kwargs = args['kwargs'].copy()
-            # If kwargs has 'OBJECT_ID' placeholder, we replace with id
-            for k, v in kwargs.items():
-                if v == 'OBJECT_ID':
-                    kwargs[k] = object_id
-            url = build_url(request, name, version, **kwargs)
-            marshalled[key] = url
+        if urls is not None:
+            for key, args in urls.items():
+                name = args['name']
+                kwargs = args['kwargs'].copy()
+                # If kwargs has 'OBJECT_ID' placeholder, we replace with id
+                for k, v in kwargs.items():
+                    if v == 'OBJECT_ID':
+                        kwargs[k] = object_id
+                url = build_url(request, name, version, **kwargs)
+                marshalled[key] = url
         return marshalled
 
 
@@ -157,14 +158,27 @@ class ObjectView(ApiView):
     def get(self, request, object_id, conn=None, **kwargs):
         """Simply GET a single Object and marshal it or 404 if not found."""
         opts = self.get_opts(request)
-        obj = conn.getObject(self.OMERO_TYPE, object_id, opts=opts)
-        if obj is None:
+        object_id = long(object_id)
+        query, params, wrapper = conn.buildQuery(
+            self.OMERO_TYPE, [object_id], opts=opts)
+        result = conn.getQueryService().findByQuery(
+            query, params, conn.SERVICE_OPTS)
+
+        if result is None:
             raise NotFoundError('%s %s not found' % (self.OMERO_TYPE,
                                                      object_id))
-        encoder = get_encoder(obj._obj.__class__)
-        marshalled = encoder.encode(obj._obj)
-        self.add_data(marshalled, request, **kwargs)
-        return marshalled
+        encoder = get_encoder(result.__class__)
+        marshalled = encoder.encode(result)
+
+        # Optionally lookup child counts
+        child_count = request.GET.get('childCount', False) == 'true'
+        if child_count and wrapper.LINK_CLASS:
+            counts = get_child_counts(conn, wrapper.LINK_CLASS, [object_id])
+            ch_count = counts[object_id] if object_id in counts else 0
+            marshalled['omero:childCount'] = ch_count
+
+        self.add_data(marshalled, request, self.urls, **kwargs)
+        return {'data': marshalled}
 
     def delete(self, request, object_id, conn=None, **kwargs):
         """
@@ -184,7 +198,7 @@ class ObjectView(ApiView):
         encoder = get_encoder(obj.__class__)
         json = encoder.encode(obj)
         conn.deleteObject(obj)
-        return json
+        return {'data': json}
 
 
 class ProjectView(ObjectView):
@@ -221,7 +235,6 @@ class ImageView(ObjectView):
     def get_opts(self, request):
         """Add support for load_pixels and load_channels."""
         opts = super(ImageView, self).get_opts(request)
-        opts['orphaned'] = request.GET.get('orphaned', False) == 'true'
         # for single image, we always load channels
         opts['load_channels'] = True
         return opts
@@ -244,6 +257,40 @@ class PlateView(ObjectView):
 
     OMERO_TYPE = 'Plate'
 
+    # Urls to add to marshalled object. See ProjectsView for more details
+    urls = {
+        'url:wells': {'name': 'api_plate_wells',
+                      'kwargs': {'plate_id': 'OBJECT_ID'}}
+    }
+
+
+class WellView(ObjectView):
+    """Handle access to an individual Well to GET or DELETE it."""
+
+    OMERO_TYPE = 'Well'
+
+    def get_opts(self, request):
+        """Add support for load_images."""
+        opts = super(WellView, self).get_opts(request)
+        # for single well, we load images with pixels
+        opts['load_pixels'] = True
+        return opts
+
+    def add_data(self, marshalled, request, urls=None, **kwargs):
+        """Add 'url:image' to any 'Image' in 'WellSamples'."""
+        marshalled = super(WellView, self).add_data(marshalled, request,
+                                                    urls=urls, **kwargs)
+        image_urls = {
+            'url:image': {'name': 'api_image',
+                          'kwargs': {'object_id': 'OBJECT_ID'}},
+        }
+        if 'WellSamples' in marshalled:
+            # For each WellSample, add image urls to Image
+            for ws in marshalled['WellSamples']:
+                if 'Image' in ws:
+                    self.add_data(ws['Image'], request, image_urls, **kwargs)
+        return marshalled
+
 
 class ObjectsView(ApiView):
     """Base class for listing objects."""
@@ -265,7 +312,6 @@ class ObjectsView(ApiView):
                 'owner': owner,
                 'orphaned': orphaned,
                 'child_count': child_count,
-                'order_by': 'name',     # NB: will break if object has no name
                 }
         return opts
 
@@ -278,7 +324,7 @@ class ObjectsView(ApiView):
         marshalled = query_objects(conn, self.OMERO_TYPE, group,
                                    opts, normalize)
         for m in marshalled['data']:
-            self.add_data(m, request, **kwargs)
+            self.add_data(m, request, self.urls, **kwargs)
         return marshalled
 
 
@@ -286,6 +332,12 @@ class ProjectsView(ObjectsView):
     """Handles GET for /projects/ to list available Projects."""
 
     OMERO_TYPE = 'Project'
+
+    def get_opts(self, request, **kwargs):
+        """Add extra parameters to the opts dict."""
+        opts = super(ProjectsView, self).get_opts(request, **kwargs)
+        opts['order_by'] = 'lower(obj.name)'
+        return opts
 
     # To add a url to marshalled object add to this dict
     # 'name' is url name, kwargs are passed to reverse()
@@ -305,8 +357,9 @@ class DatasetsView(ObjectsView):
     OMERO_TYPE = 'Dataset'
 
     def get_opts(self, request, **kwargs):
-        """Add filtering by 'project' to the opts dict."""
+        """Add extra parameters to the opts dict."""
         opts = super(DatasetsView, self).get_opts(request, **kwargs)
+        opts['order_by'] = 'lower(obj.name)'
         # at /projects/:project_id/datasets/ we have 'project_id' in kwargs
         if 'project_id' in kwargs:
             opts['project'] = long(kwargs['project_id'])
@@ -331,6 +384,12 @@ class ScreensView(ObjectsView):
 
     OMERO_TYPE = 'Screen'
 
+    def get_opts(self, request, **kwargs):
+        """Add extra parameters to the opts dict."""
+        opts = super(ScreensView, self).get_opts(request, **kwargs)
+        opts['order_by'] = 'lower(obj.name)'
+        return opts
+
     # Urls to add to marshalled object. See ProjectsView for more details
     urls = {
         'url:plates': {'name': 'api_screen_plates',
@@ -346,8 +405,9 @@ class PlatesView(ObjectsView):
     OMERO_TYPE = 'Plate'
 
     def get_opts(self, request, **kwargs):
-        """Add filtering by 'screen' to the opts dict."""
+        """Add extra parameters to the opts dict."""
         opts = super(PlatesView, self).get_opts(request, **kwargs)
+        opts['order_by'] = 'lower(obj.name)'
         # at /screens/:screen_id/plates/ we have 'screen_id' in kwargs
         if 'screen_id' in kwargs:
             opts['screen'] = long(kwargs['screen_id'])
@@ -360,6 +420,8 @@ class PlatesView(ObjectsView):
 
     # Urls to add to marshalled object. See ProjectsView for more details
     urls = {
+        'url:wells': {'name': 'api_plate_wells',
+                      'kwargs': {'plate_id': 'OBJECT_ID'}},
         'url:plate': {'name': 'api_plate',
                       'kwargs': {'object_id': 'OBJECT_ID'}}
     }
@@ -377,8 +439,9 @@ class ImagesView(ObjectsView):
     }
 
     def get_opts(self, request, **kwargs):
-        """Add filtering by 'dataset' and other params to the opts dict."""
+        """Add extra parameters to the opts dict."""
         opts = super(ImagesView, self).get_opts(request, **kwargs)
+        opts['order_by'] = 'lower(obj.name)'
         # at /datasets/:dataset_id/images/ we have 'dataset_id' in kwargs
         if 'dataset_id' in kwargs:
             opts['dataset'] = long(kwargs['dataset_id'])
@@ -390,6 +453,49 @@ class ImagesView(ObjectsView):
         # When listing images, always load pixels by default
         opts['load_pixels'] = True
         return opts
+
+
+class WellsView(ObjectsView):
+    """Handles GET for /wells/ to list available Images."""
+
+    OMERO_TYPE = 'Well'
+
+    # Urls to add to marshalled object. See ProjectsView for more details
+    urls = {
+        'url:well': {'name': 'api_well',
+                     'kwargs': {'object_id': 'OBJECT_ID'}},
+    }
+
+    def get_opts(self, request, **kwargs):
+        """Add extra parameters to the opts dict."""
+        opts = super(WellsView, self).get_opts(request, **kwargs)
+        opts['order_by'] = 'obj.column, obj.row'
+        # at /plates/:plate_id/wells/ we have 'plate_id' in kwargs
+        if 'plate_id' in kwargs:
+            opts['plate'] = long(kwargs['plate_id'])
+        else:
+            # filter by query /wells/?plate=:id
+            plate = getIntOrDefault(request, 'plate', None)
+            if plate is not None:
+                opts['plate'] = plate
+        # Listing Wells, load Images
+        opts['load_images'] = True
+        return opts
+
+    def add_data(self, marshalled, request, urls=None, **kwargs):
+        """Add 'url:image' to any 'Image' in 'WellSamples'."""
+        marshalled = super(WellsView, self).add_data(marshalled, request,
+                                                     urls=urls, **kwargs)
+        image_urls = {
+            'url:image': {'name': 'api_image',
+                          'kwargs': {'object_id': 'OBJECT_ID'}},
+        }
+        if 'WellSamples' in marshalled:
+            # For each WellSample, add image urls to Image
+            for ws in marshalled['WellSamples']:
+                if 'Image' in ws:
+                    self.add_data(ws['Image'], request, image_urls, **kwargs)
+        return marshalled
 
 
 class SaveView(View):
@@ -491,4 +597,4 @@ class SaveView(View):
         obj = conn.getUpdateService().saveAndReturnObject(obj,
                                                           conn.SERVICE_OPTS)
         encoder = get_encoder(obj.__class__)
-        return encoder.encode(obj)
+        return {'data': encoder.encode(obj)}

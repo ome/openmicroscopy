@@ -418,14 +418,10 @@ public class ColorsFactory {
     	if (lc == null) lc = channel.getLogicalChannel();
         int[] c = ColorsFactory.getColor(channel, lc);
         if (c != null) return c;
-        switch (index) {
+        switch (index%3) {
             case 0: return newRedColor();
             case 1: return newGreenColor();
             default: return newBlueColor();
-            /*
-            case 1: return newBlueColor();
-            default: return newGreenColor();
-            */
         }
     }
 
