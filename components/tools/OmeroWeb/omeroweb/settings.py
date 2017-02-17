@@ -556,8 +556,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
           "Selected objects are added to the url as ?image=:1&image=2"
           "Objects supported must be specified in options with"
           "E.g. ``{\"supported_objects\":[\"images\"]}`` "
-          "to enable viewer for one or more images, "
-          "``{\"target\":\"_blank\"}`` to open in new tab.")],
+          "to enable viewer for one or more images.")],
 
     # PIPELINE 1.3.20
 
