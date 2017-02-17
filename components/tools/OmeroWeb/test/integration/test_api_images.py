@@ -22,13 +22,14 @@
 from omeroweb.testlib import IWebTest, _get_response_json, \
     _csrf_post_json, _csrf_put_json, _csrf_delete_response_json
 from django.core.urlresolvers import reverse
-from django.conf import settings
+from omeroweb.api import api_settings
 import pytest
 from test_api_projects import cmp_name_insensitive, get_update_service, \
     get_connection, marshal_objects
 from omero.model import DatasetI, ImageI
 from omero.rtypes import rstring
 import json
+from omero_marshal import OME_SCHEMA_URL
 
 
 def get_query_service(user):
@@ -106,7 +107,7 @@ class TestImages(IWebTest):
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
 
         dataset = dataset_images[0]
         images = dataset.linkedImageList()
@@ -119,7 +120,8 @@ class TestImages(IWebTest):
         rsp = _get_response_json(django_client, images_url, {})
         assert len(rsp['data']) == 6
         assert rsp['meta'] == {'totalCount': 6,
-                               'limit': settings.PAGE,
+                               'limit': api_settings.API_LIMIT,
+                               'maxLimit': api_settings.API_MAX_LIMIT,
                                'offset': 0}
 
         # Filter Images by Orphaned
@@ -128,7 +130,8 @@ class TestImages(IWebTest):
         assert_objects(conn, rsp['data'], [orphaned], dtype='Image',
                        opts={'load_pixels': True})
         assert rsp['meta'] == {'totalCount': 1,
-                               'limit': settings.PAGE,
+                               'limit': api_settings.API_LIMIT,
+                               'maxLimit': api_settings.API_MAX_LIMIT,
                                'offset': 0}
 
         # Filter Images by Dataset
@@ -141,7 +144,8 @@ class TestImages(IWebTest):
         assert_objects(conn, rsp['data'], images, dtype='Image',
                        opts={'load_pixels': True})
         assert rsp['meta'] == {'totalCount': 5,
-                               'limit': settings.PAGE,
+                               'limit': api_settings.API_LIMIT,
+                               'maxLimit': api_settings.API_MAX_LIMIT,
                                'offset': 0}
 
         # Pagination, listing images via /datasets/:id/images/
@@ -153,6 +157,7 @@ class TestImages(IWebTest):
                        opts={'load_pixels': True})
         assert rsp['meta'] == {'totalCount': 5,
                                'limit': limit,
+                               'maxLimit': api_settings.API_MAX_LIMIT,
                                'offset': 0}
         payload['offset'] = limit   # page 2
         rsp = _get_response_json(django_client, images_url, payload)
@@ -160,6 +165,7 @@ class TestImages(IWebTest):
                        dtype='Image', opts={'load_pixels': True})
         assert rsp['meta'] == {'totalCount': 5,
                                'limit': limit,
+                               'maxLimit': api_settings.API_MAX_LIMIT,
                                'offset': limit}
 
         # Show ONLY the orphaned image (channels are loaded by default)
@@ -176,7 +182,7 @@ class TestImages(IWebTest):
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         save_url = reverse('api_save', kwargs={'api_version': version})
         payload = {'Name': 'Image test',
                    '@type': OME_SCHEMA_URL + '#Image'}
