@@ -138,12 +138,12 @@ class ExperimenterForm(NonASCIIForm):
             fields_key_order = [
                 'omename', 'password', 'confirmation', 'first_name',
                 'middle_name', 'last_name', 'email', 'institution',
-                'role', 'active', 'default_group', 'other_groups']
+                'role', 'active', 'other_groups', 'default_group']
         else:
             fields_key_order = [
                 'omename', 'first_name', 'middle_name', 'last_name',
                 'email', 'institution', 'role', 'active',
-                'default_group', 'other_groups']
+                'other_groups', 'default_group']
 
         ordered_fields = [(k, self.fields[k]) for k in fields_key_order]
 
