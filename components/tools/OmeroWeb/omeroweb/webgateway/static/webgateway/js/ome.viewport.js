@@ -1106,8 +1106,6 @@ jQuery._WeblitzViewport = function (container, server, options) {
       chs.push(ch);
       maps_json.push({'reverse': {'enabled': channels[i].reverseIntensity}});
     }
-    // We can 'stringify' json for url. Nicer if we remove all spaces
-    query.push('maps=' + JSON.stringify(maps_json).replace(/ /g, ""));
     query.push('c=' + chs.join(','));
     /* Rendering Model */
     query.push('m=' + this.loadedImg.rdefs.model.toLowerCase().substring(0,1));
@@ -1154,6 +1152,8 @@ jQuery._WeblitzViewport = function (container, server, options) {
     if (this.loadedImg.current.query.debug !== undefined) {
       query.push('debug='+this.loadedImg.current.query.debug);
     }
+    // We can 'stringify' json for url. Nicer if we remove all spaces
+    query.push('maps=' + JSON.stringify(maps_json).replace(/ /g, ""));
     return query.join('&');
   };
 
