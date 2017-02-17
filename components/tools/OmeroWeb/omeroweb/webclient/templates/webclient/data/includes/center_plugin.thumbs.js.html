@@ -96,7 +96,7 @@ $(document).ready(function() {
             url = "{% url 'web_image_viewer' 0 %}";
         }
         url = url.replace('/0/', "/" + iid + "/" );
-        OME.openPopup(url);
+        window.open(url, '_blank');
     });
 
     // Set up the centre panel header.
