@@ -397,10 +397,13 @@ public class BasicSecuritySystem implements SecuritySystem,
                 if (!callPerms.isGranted(Role.WORLD, Right.READ)) {
                     /* recheck memberships to address problems with PR 4957: user wrongly thought not to be in group */
                     final Experimenter currentUser = new Experimenter(ec.getCurrentUserId(), false);
-                    if (!sf.getAdminService().getMemberOfGroupIds(currentUser).contains(groupId)) {
+                    final List<Long> groupIds = sf.getAdminService().getMemberOfGroupIds(currentUser);
+                    if (!groupIds.contains(groupId)) {
                         throw new SecurityViolation(String.format(
                                 "User %s is not a member of group %s and cannot login",
                                 ec.getCurrentUserId(), groupId));
+                    } else if (ec instanceof BasicEventContext) {
+                        ((BasicEventContext) ec).setMemberOfGroups(groupIds);
                     }
                 }
             }
