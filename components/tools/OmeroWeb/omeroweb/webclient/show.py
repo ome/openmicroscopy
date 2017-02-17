@@ -862,7 +862,7 @@ def paths_to_well_image(conn, params, well_id=None, image_id=None,
         from WellSample wellsample
         left outer join wellsample.details.owner wsowner
         left outer join wellsample.plateAcquisition acquisition
-        left outer join wellsample.details.owner aowner
+        left outer join acquisition.details.owner aowner
         join wellsample.well well
         left outer join well.plate plate
         left outer join plate.details.owner plowner
