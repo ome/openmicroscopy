@@ -3197,11 +3197,10 @@ class _BlitzGateway (object):
                             E.g. filter Dataset by 'project'
         :return:            (query, params)
         """
-        # We disable pagination & loading of child_counts
+        # We disable pagination since we want to count ALL results
         opts_copy = opts.copy()
         if 'limit' in opts_copy:
             del opts_copy['limit']
-        opts_copy['child_count'] = False
 
         # Get query with other options
         query, params, wrapper = self.buildQuery(obj_type, opts=opts_copy)
