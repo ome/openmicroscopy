@@ -24,7 +24,6 @@ from omeroweb.testlib import IWebTest, _get_response_json, \
 from django.core.urlresolvers import reverse
 from django.conf import settings
 import pytest
-from omero_marshal import get_encoder
 from test_api_projects import cmp_name_insensitive, get_update_service, \
     get_connection, marshal_objects
 from omero.model import DatasetI, ImageI
