@@ -421,9 +421,9 @@ OME.load_thumbnails = function(thumbnails_url, input, batch, dthumb) {
                 success: function(data){
                     $.each(data, function(key, value) {
                         if (value !== null) {
-                            $("li#image_icon-"+key+ " img").attr("src", value);
+                            $("#image_icon-"+key+ " img").attr("src", value);
                         } else {
-                            $("li#image_icon-"+key+ " img").attr("src", dthumb);
+                            $("#image_icon-"+key+ " img").attr("src", dthumb);
                         }
                     });
                 }
