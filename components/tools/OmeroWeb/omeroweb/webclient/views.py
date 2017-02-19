@@ -1438,6 +1438,7 @@ def load_searching(request, form=None, conn=None, **kwargs):
         'foundById': foundById,
         'resultCount': manager.c_size + len(foundById)}
     context['template'] = template
+    context['thumbnails_batch'] = settings.THUMBNAILS_BATCH
     return context
 
 
