@@ -54,4 +54,4 @@ report_settings(sys.modules[__name__])
 # one or more versions of the api.
 # E.g. /api/v1.0/
 # TODO - need to decide how this is configured, strategy for extending etc.
-API_VERSIONS = ('0.1',)
+API_VERSIONS = ('0',)
