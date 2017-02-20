@@ -274,8 +274,19 @@ class PlateView(ObjectView):
         marshalled = super(PlateView, self).add_data(marshalled, request, conn,
                                                      urls=urls, **kwargs)
         idx = get_wellsample_indices(conn, marshalled['@id'])
-
         marshalled['omero:wellsampleIndex'] = idx
+
+        # Add link to Wells for each WellSample index in this Plate
+        ws_urls = []
+        for ws_index in range(idx[0], idx[1]+1):
+            version = kwargs['api_version']
+            extra = {'plate_id': marshalled['@id'],
+                     'index': ws_index}
+            url = build_url(request, 'api_plate_index_wells',
+                            version, **extra)
+            ws_urls.append(url)
+        marshalled['urls:wellsampleindex_wells'] = ws_urls
+
         return marshalled
 
 
@@ -291,6 +302,17 @@ class PlateAcquisitionView(ObjectView):
         idx = get_wellsample_indices(conn,
                                      plateacquisition_id=marshalled['@id'])
         marshalled['omero:wellsampleIndex'] = idx
+
+        # Add link to Wells for each WellSample index in this PlateAcquisition
+        ws_urls = []
+        for ws_index in range(idx[0], idx[1]+1):
+            version = kwargs['api_version']
+            extra = {'plateacquisition_id': marshalled['@id'],
+                     'index': ws_index}
+            url = build_url(request, 'api_plateacquisition_index_wells',
+                            version, **extra)
+            ws_urls.append(url)
+        marshalled['urls:wellsampleindex_wells'] = ws_urls
         return marshalled
 
 
@@ -519,13 +541,15 @@ class PlateAcquisitionsView(ObjectsView):
         marshalled['omero:wellsampleIndex'] = idx
 
         # Add link to Wells for each WellSample index in this PlateAcquisition
+        ws_urls = []
         for ws_index in range(idx[0], idx[1]+1):
             version = kwargs['api_version']
             extra = {'plateacquisition_id': marshalled['@id'],
                      'index': ws_index}
             url = build_url(request, 'api_plateacquisition_index_wells',
                             version, **extra)
-            marshalled['url:index_%s' % ws_index] = url
+            ws_urls.append(url)
+        marshalled['urls:wellsampleindex_wells'] = ws_urls
 
         return marshalled
 
