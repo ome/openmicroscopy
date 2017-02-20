@@ -13,7 +13,7 @@ import pytest
 
 import omero
 
-from library import AbstractRepoTest
+from omero.testlib import AbstractRepoTest
 from omero import CmdError
 from omero.callbacks import CmdCallbackI
 from omero.gateway import BlitzGateway

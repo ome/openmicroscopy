@@ -20,7 +20,7 @@ import omero
 import omero.gateway
 
 from path import path
-from test.integration.test_repository import AbstractRepoTest
+from omero.testlib import AbstractRepoTest
 
 
 class TestRepoRawFileStore(AbstractRepoTest):
