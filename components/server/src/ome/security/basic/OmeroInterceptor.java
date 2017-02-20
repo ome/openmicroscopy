@@ -615,16 +615,20 @@ public class OmeroInterceptor implements Interceptor {
     }
 
     /**
-     * Determine the light administrator privileges associated with an event.
-     * If the event is {@code null} then returns the full set of privileges.
-     * @param event an event, may be {@code null}
-     * @return the light administrator privileges associated with the event
+     * Determine the light administrator privileges associated with the current event.
+     * If the event is {@code null} but the user is an administrator then return the full set of privileges.
+     * @return the light administrator privileges associated with the current event
      */
-    private ImmutableSet<AdminPrivilege> getAdminPrivileges(Event event) {
-        if (event == null || !event.isLoaded()) {
-            return adminPrivileges.getAllPrivileges();
+    private ImmutableSet<AdminPrivilege> getAdminPrivileges() {
+        if (currentUser.getCurrentEventContext().isCurrentUserAdmin()) {
+            final Event event = currentUser.current().getEvent();
+            if (event == null || !event.isLoaded()) {
+                return adminPrivileges.getAllPrivileges();
+            } else {
+                return adminPrivileges.getSessionPrivileges(event.getSession());
+            }
         } else {
-            return adminPrivileges.getSessionPrivileges(event.getSession());
+            return ImmutableSet.of();
         }
     }
 
@@ -665,7 +669,7 @@ public class OmeroInterceptor implements Interceptor {
         final boolean isPrivilegedCreator;
         final boolean sysType = sysTypes.isSystemType(obj.getClass())
                 || sysTypes.isInSystemGroup(obj.getDetails());
-        final Set<AdminPrivilege> privileges = getAdminPrivileges(currentUser.current().getEvent());
+        final Set<AdminPrivilege> privileges = getAdminPrivileges();
 
         /* see trac ticket 10691 re. enum values */
         if (!bec.isCurrentUserAdmin()) {
@@ -990,7 +994,7 @@ public class OmeroInterceptor implements Interceptor {
             IObject obj, Details previousDetails, Details currentDetails,
             Details newDetails, final BasicEventContext bec) {
 
-        final Set<AdminPrivilege> privileges = getAdminPrivileges(currentUser.current().getEvent());
+        final Set<AdminPrivilege> privileges = getAdminPrivileges();
 
         if (!HibernateUtils.idEqual(previousDetails.getOwner(), currentDetails
                 .getOwner())) {
@@ -1042,7 +1046,7 @@ public class OmeroInterceptor implements Interceptor {
             }
         }
 
-        final Set<AdminPrivilege> privileges = getAdminPrivileges(currentUser.current().getEvent());
+        final Set<AdminPrivilege> privileges = getAdminPrivileges();
 
         // previous and current have different ids. either change it and return
         // true if permitted, or throw an exception.
