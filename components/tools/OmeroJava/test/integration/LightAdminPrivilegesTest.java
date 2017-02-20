@@ -2653,7 +2653,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
      * @param isCreatesAdmin if the created user should be an administrator
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "privilege elevation test cases", groups = "broken")
+    @Test(dataProvider = "privilege elevation test cases")
     public void testAdminCreatesUserViaUpdate(boolean isHasSudo, boolean isGrantsSudo, boolean isCreatesAdmin) throws Exception {
         final boolean isExpectSuccess = isHasSudo || !isGrantsSudo || !isCreatesAdmin;
         final long groupId = isCreatesAdmin ? roles.systemGroupId : newUserAndGroup("rwr---", false).groupId;
@@ -2674,7 +2674,6 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         link.setOwner(omero.rtypes.rbool(false));
         newUser.addGroupExperimenterMap(link);
         try {
-            // TODO: test is broken because update service does not yet check for privilege elevation
             final long newUserId = iUpdate.saveAndReturnObject(newUser).getId().getValue();
             Assert.assertTrue(isExpectSuccess);
             boolean newUserHasSudo = false;
@@ -2756,7 +2755,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
      * @param isEditsAdmin if the target user should be an administrator
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "privilege elevation test cases", groups = "broken")
+    @Test(dataProvider = "privilege elevation test cases")
     public void testAdminEditsAdminPrivilegesViaUpdate(boolean isHasSudo, boolean isGrantsSudo, boolean isEditsAdmin) throws Exception {
         final boolean isExpectSuccess = isHasSudo || !isGrantsSudo || !isEditsAdmin;
         final EventContext actor = loginNewAdmin(true, isHasSudo ? null : AdminPrivilegeSudo.value);
@@ -2775,7 +2774,6 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
             newUser.setConfig(Collections.singletonList(new NamedValue(sudoConfigName, Boolean.toString(true))));
         }
         try {
-            // TODO: test is broken because update service does not yet check for privilege elevation
             iUpdate.saveObject(newUser);
             Assert.assertTrue(isExpectSuccess);
             boolean newUserHasSudo = false;
@@ -2836,7 +2834,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
      * @param isGroupSystem if to test editing membership of the <tt>system</tt> group
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "privilege elevation test cases", groups = "broken")
+    @Test(dataProvider = "privilege elevation test cases")
     public void testAdminEditsMembershipViaUpdate(boolean isHasSudo, boolean isTargetSudo, boolean isGroupSystem) throws Exception {
         final boolean isExpectSuccess = isHasSudo || !isTargetSudo || !isGroupSystem;
         final ExperimenterGroup otherGroup = new ExperimenterGroupI(newUserAndGroup("rwr---", false).groupId, false);
@@ -2863,7 +2861,6 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
                 new ParametersI().addLong("group_id", target.groupId).addLong("user_id", target.userId));
         link.setParent(groupForAdjustment);
         try {
-            // TODO: test is broken because update service does not yet check for privilege elevation
             iUpdate.saveObject(link);
             Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
