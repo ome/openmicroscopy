@@ -28,7 +28,6 @@ from test_api_projects import cmp_name_insensitive, get_update_service, \
 from omero.model import DatasetI, ImageI
 from omero.rtypes import rstring
 import json
-from omero_marshal import OME_SCHEMA_URL
 
 
 def get_query_service(user):

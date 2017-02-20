@@ -188,7 +188,7 @@ class TestContainers(IWebTest):
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         save_url = reverse('api_save', kwargs={'api_version': version})
         payload = {'Name': 'test',
                    '@type': OME_SCHEMA_URL + '#%s' % dtype}
@@ -203,7 +203,7 @@ class TestContainers(IWebTest):
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         # Delete (fake url - image doesn't need to exist for test)
         url_name = 'api_%s' % dtype.lower()
         delete_url = reverse(url_name, kwargs={'api_version': version,
