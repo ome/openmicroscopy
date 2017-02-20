@@ -25,8 +25,6 @@ from omero.sys import ParametersI
 
 from api_marshal import marshal_objects
 from copy import deepcopy
-from omero.sys import ParametersI
-from omero.rtypes import wrap
 
 
 def get_wellsample_indices(conn, plate_id=None, plateacquisition_id=None):
