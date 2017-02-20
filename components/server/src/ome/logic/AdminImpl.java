@@ -21,6 +21,7 @@ import javax.persistence.Table;
 import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Sets;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.hibernate.Criteria;
@@ -645,17 +646,14 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     @Transactional(readOnly = false)
     public long createLightSystemUser(Experimenter newSystemUser, List<AdminPrivilege> privileges) {
         assertKnownPrivileges(privileges);
-        final long newSystemUserId = createSystemUser(newSystemUser);
-        newSystemUser = iQuery.get(Experimenter.class, newSystemUserId);
-        final Set<AdminPrivilege> restrictions = new HashSet<>(adminPrivileges.getAllPrivileges());
-        restrictions.removeAll(privileges);
-        final List<NamedValue> userConfig = new ArrayList<NamedValue>(restrictions.size());
-        for (final AdminPrivilege restriction : restrictions) {
-            userConfig.add(new NamedValue(adminPrivileges.getConfigNameForPrivilege(restriction), Boolean.toString(false)));
+        final List<NamedValue> userConfig = new ArrayList<>();
+        for (final AdminPrivilege privilege : adminPrivileges.getAllPrivileges()) {
+            if (!privileges.contains(privilege)) {
+                userConfig.add(new NamedValue(adminPrivileges.getConfigNameForPrivilege(privilege), Boolean.toString(false)));
+            }
         }
         newSystemUser.setConfig(userConfig);
-        iUpdate.saveObject(newSystemUser);
-        return newSystemUserId;
+        return createSystemUser(newSystemUser);
     }
 
     @RolesAllowed("user")
@@ -668,6 +666,9 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         long uid = roleProvider.createExperimenter(experimenter, defaultGroup, otherGroups);
         // If this method passes, then the Experimenter is valid.
         changeUserPassword(experimenter.getOmeName(), " ");
+
+        assertNoPrivilegeElevation(new Experimenter(uid, false), Collections.<AdminPrivilege>emptySet());
+
         getBeanHelper().getLogger().info(
                 "Created user with blank password: "
                 + experimenter.getOmeName());
@@ -686,6 +687,9 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                         defaultGroup, otherGroups);
         // If this method passes, then the Experimenter is valid.
         changeUserPassword(experimenter.getOmeName(), password);
+
+        assertNoPrivilegeElevation(new Experimenter(uid, false), Collections.<AdminPrivilege>emptySet());
+
         getBeanHelper().getLogger().info(
                 "Created user with password: " + experimenter.getOmeName());
         return uid;
@@ -717,8 +721,12 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             assertManaged(group);
         }
 
+        final Set<AdminPrivilege> targetUserPrivilegesBefore = ImmutableSet.copyOf(getAdminPrivileges(user));
+
         adminOrPiOfGroups(adminPrivileges.getPrivilege("ModifyGroupMembership"), groups);
         roleProvider.addGroups(user, groups);
+
+        assertNoPrivilegeElevation(user, targetUserPrivilegesBefore);
 
         getBeanHelper().getLogger().info(
                 String.format("Added user %s to groups %s", userProxy(
@@ -1289,6 +1297,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     @Transactional(readOnly = false)
     public void setAdminPrivileges(Experimenter user, List<AdminPrivilege> privileges) {
         assertKnownPrivileges(privileges);
+        final Set<AdminPrivilege> targetUserPrivilegesBefore = ImmutableSet.copyOf(getAdminPrivileges(user));
+
         final Set<AdminPrivilege> privilegesToRemove = new HashSet<AdminPrivilege>(adminPrivileges.getAllPrivileges());
         privilegesToRemove.removeAll(privileges);
         user = userProxy(user.getId());
@@ -1313,6 +1323,9 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             userConfig.add(new NamedValue(adminPrivileges.getConfigNameForPrivilege(privilege), Boolean.toString(false)));
         }
         iUpdate.saveObject(user);
+
+        assertNoPrivilegeElevation(user, targetUserPrivilegesBefore);
+
     }
 
     // ~ Security context
@@ -1552,6 +1565,19 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             if (adminPrivileges.getPrivilege(privilege.getValue()) == null) {
                 throw new ApiUsageException("unknown light administrator privilege: " + privilege.getValue());
             }
+        }
+    }
+
+    /**
+     * Assert that a user's current light administrator privileges are not now elevated beyond those of the present user.
+     * @param user an experimenter
+     * @param privilegesInitial the experimenter's previous privileges
+     */
+    private void assertNoPrivilegeElevation(Experimenter user, Set<AdminPrivilege> privilegesInitial) {
+        final Set<AdminPrivilege> privilegesNow = ImmutableSet.copyOf(getAdminPrivileges(user));
+        final Set<AdminPrivilege> privilegesGained = Sets.difference(privilegesNow, privilegesInitial);
+        if (!Sets.difference(privilegesGained, getCurrentAdminPrivilegesForSession()).isEmpty()) {
+            throw new SecurityViolation("cannot give administrator privileges that current user does not have");
         }
     }
 
