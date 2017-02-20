@@ -435,7 +435,19 @@ class TestContainers(IWebTest):
         assert_objects(conn, plates_json, plates, dtype='Plate', extra=extra)
         # View single plate
         rsp = _get_response_json(client, plates_json[0]['url:plate'], {})
-        assert_objects(conn, [rsp['data']], plates[0:1], dtype='Plate')
+        plate_json = rsp['data']
+        minMaxIndex = [0, 0]
+        links = []
+        for idx in range(minMaxIndex[0], minMaxIndex[1]+1):
+            l = build_url(client, 'api_plate_index_wells',
+                          {'api_version': version,
+                           'plate_id': plate_json['@id'],
+                           'index': idx})
+            links.append(l)
+        extra = [{'urls:wellsampleindex_wells': links,
+                  'omero:wellsampleIndex': minMaxIndex}]
+        assert_objects(conn, [plate_json], plates[0:1], dtype='Plate',
+                       extra=extra)
 
         # List wells of first plate
         wells_url = plates_json[0]['url:wells']

@@ -278,13 +278,14 @@ class PlateView(ObjectView):
 
         # Add link to Wells for each WellSample index in this Plate
         ws_urls = []
-        for ws_index in range(idx[0], idx[1]+1):
-            version = kwargs['api_version']
-            extra = {'plate_id': marshalled['@id'],
-                     'index': ws_index}
-            url = build_url(request, 'api_plate_index_wells',
-                            version, **extra)
-            ws_urls.append(url)
+        if len(idx) == 2:
+            for ws_index in range(idx[0], idx[1]+1):
+                version = kwargs['api_version']
+                extra = {'plate_id': marshalled['@id'],
+                         'index': ws_index}
+                url = build_url(request, 'api_plate_index_wells',
+                                version, **extra)
+                ws_urls.append(url)
         marshalled['urls:wellsampleindex_wells'] = ws_urls
 
         return marshalled
