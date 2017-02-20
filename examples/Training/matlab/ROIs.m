@@ -179,18 +179,18 @@ try
     % and y dimensions in this example)
     % create rectangle (shape object)
     rectangle = createRectangle(0, 0, 10, 20);
-    rectangle = setShapeCoordinates(rectangle, 0, 0, 0);    
+    rectangle = setShapeCoordinates(rectangle, 0, 0, 0);
     % x and y shear factors
     xShear = 10;
-    yShear = 10;    
+    yShear = 10;
     % create transform object
     newTform = omero.model.AffineTransformI;
-    newTform.A00(1);
-    newTform.A10(yShear);
-    newTform.A01(xShear);
-    newTform.A11(1);
-    newTform.A02(0);
-    newTform.A12(0);    
+    newTform.setA00(rdouble(1));
+    newTform.setA10(rdouble(yShear));
+    newTform.setA01(rdouble(xShear));
+    newTform.setA11(rdouble(1));
+    newTform.setA02(rdouble(0));
+    newTform.setA12(rdouble(0));
     % apply transform
     rectangle.setTransform(newTform);
     
@@ -198,17 +198,17 @@ try
     % (angle of rotation set to 10 degrees)
     % create ellipse (shape object)
     ellipse = createEllipse(0, 0, 10, 20);
-    setShapeCoordinates(ellipse, 0, 0, 0);    
+    setShapeCoordinates(ellipse, 0, 0, 0);
     % set angle of rotation
-    theta = 10;    
+    theta = 10;
     % create transform object
     newTform = omero.model.AffineTransformI;
-    newTform.A00(cos(theta));
-    newTform.A10(-sin(theta));
-    newTform.A01(sin(theta));
-    newTform.A11(cos(theta));
-    newTform.A02(0);
-    newTform.A12(0);
+    newTform.setA00(rdouble(cos(theta)));
+    newTform.setA10(rdouble(-sin(theta)));
+    newTform.setA01(rdouble(sin(theta)));
+    newTform.setA11(rdouble(cos(theta)));
+    newTform.setA02(rdouble(0));
+    newTform.setA12(rdouble(0));
     % apply transform
     ellipse.setTransform(newTform);
     
@@ -222,12 +222,12 @@ try
     yTranslate = 10;
     % create transform object
     newTform = omero.model.AffineTransformI;
-    newTform.A00(1);
-    newTform.A10(0);
-    newTform.A01(0);
-    newTform.A11(1);
-    newTform.A02(xTranslate);
-    newTform.A12(yTranslate);
+    newTform.setA00(rdouble(1));
+    newTform.setA10(rdouble(0));
+    newTform.setA01(rdouble(0));
+    newTform.setA11(rdouble(1));
+    newTform.setA02(rdouble(xTranslate));
+    newTform.setA12(rdouble(yTranslate));
     % apply transform
     point.setTransform(newTform);
     
@@ -241,12 +241,12 @@ try
     yScale = 10;
     % create transform object
     newTform = omero.model.AffineTransformI;
-    newTform.A00(xScale);
-    newTform.A10(0);
-    newTform.A01(0);
-    newTform.A11(yScale);
-    newTform.A02(0);
-    newTform.A12(0);
+    newTform.setA00(rdouble(xScale));
+    newTform.setA10(rdouble(0));
+    newTform.setA01(rdouble(0));
+    newTform.setA11(rdouble(yScale));
+    newTform.setA02(rdouble(0));
+    newTform.setA12(rdouble(0));
     % apply transform
     polygon.setTransform(newTform);
     
