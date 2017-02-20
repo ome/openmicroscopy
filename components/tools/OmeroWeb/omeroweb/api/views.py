@@ -32,8 +32,10 @@ from api_query import query_objects, get_child_counts
 from omero_marshal import get_encoder, get_decoder, OME_SCHEMA_URL
 from omero import ValidationException
 from omeroweb.connector import Server
-from omeroweb.api.api_exceptions import BadRequestError, NotFoundError, \
-    CreatedObject, MethodNotSupportedError
+from api_exceptions import BadRequestError, \
+    CreatedObject, \
+    MethodNotSupportedError, \
+    NotFoundError
 from omeroweb.api.decorators import login_required, json_response
 from omeroweb.webgateway.util import getIntOrDefault
 
@@ -257,6 +259,8 @@ class PlateView(ObjectView):
 
     OMERO_TYPE = 'Plate'
 
+    CAN_DELETE = False
+
     # Urls to add to marshalled object. See ProjectsView for more details
     urls = {
         'url:wells': {'name': 'api_plate_wells',
@@ -268,6 +272,8 @@ class WellView(ObjectView):
     """Handle access to an individual Well to GET or DELETE it."""
 
     OMERO_TYPE = 'Well'
+
+    CAN_DELETE = False
 
     def get_opts(self, request):
         """Add support for load_images."""
@@ -520,7 +526,6 @@ class SaveView(View):
         if '@type' not in marshalled:
             raise BadRequestError('Need to specify @type attribute')
         schema_type = marshalled['@type']
-        # NB: Do we support saving from old SCHEMA to newer one?
         if '#' not in schema_type:
             return None
         return schema_type.split('#')[1]

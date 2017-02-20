@@ -20,7 +20,16 @@
 """Exceptions used by the api/views methods."""
 
 
-class BadRequestError(Exception):
+class ApiException(Exception):
+    """A base exception class that handles message and stactrace."""
+
+    def __init__(self, message, stacktrace=None):
+        """Override init to handle message and stacktrace."""
+        super(ApiException, self).__init__(message)
+        self.stacktrace = stacktrace
+
+
+class BadRequestError(ApiException):
     """
     An exception that will result in a response status of 400.
 
@@ -29,13 +38,8 @@ class BadRequestError(Exception):
 
     status = 400
 
-    def __init__(self, message, stacktrace=None):
-        """Override init to handle message and stacktrace."""
-        super(BadRequestError, self).__init__(message)
-        self.stacktrace = stacktrace
 
-
-class NotFoundError(Exception):
+class NotFoundError(ApiException):
     """
     An exception that will result in a response status of 404.
 
@@ -44,13 +48,8 @@ class NotFoundError(Exception):
 
     status = 404
 
-    def __init__(self, message, stacktrace=None):
-        """Override init to handle message and stacktrace."""
-        super(NotFoundError, self).__init__(message)
-        self.stacktrace = stacktrace
 
-
-class MethodNotSupportedError(Exception):
+class MethodNotSupportedError(ApiException):
     """
     An exception that will result in a response status of 405.
 
@@ -59,11 +58,6 @@ class MethodNotSupportedError(Exception):
     """
 
     status = 405
-
-    def __init__(self, message, stacktrace=None):
-        """Override init to handle message and stacktrace."""
-        super(MethodNotSupportedError, self).__init__(message)
-        self.stacktrace = stacktrace
 
 
 class CreatedObject(Exception):

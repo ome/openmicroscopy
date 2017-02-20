@@ -27,8 +27,10 @@ import logging
 import traceback
 from django.http import JsonResponse
 from functools import update_wrapper
-from api_exceptions import NotFoundError, BadRequestError, CreatedObject, \
-    MethodNotSupportedError
+from api_exceptions import BadRequestError, \
+    CreatedObject, \
+    MethodNotSupportedError, \
+    NotFoundError
 
 
 logger = logging.getLogger(__name__)
