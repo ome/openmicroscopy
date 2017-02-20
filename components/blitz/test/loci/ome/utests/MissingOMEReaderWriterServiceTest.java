@@ -25,12 +25,11 @@
 
 package loci.ome.utests;
 
-import static org.testng.AssertJUnit.assertNotNull;
-
 import loci.common.services.DependencyException;
 import loci.common.services.ServiceFactory;
 import loci.ome.io.services.OMEReaderWriterService;
 
+import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -51,7 +50,7 @@ public class MissingOMEReaderWriterServiceTest {
   public void testInstantiate() throws DependencyException {
     OMEReaderWriterService service = 
       sf.getInstance(OMEReaderWriterService.class);
-    assertNotNull(service);
+    Assert.assertNotNull(service);
   }
 
 }

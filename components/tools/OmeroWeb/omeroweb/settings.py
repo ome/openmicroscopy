@@ -6,7 +6,7 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
 #
-# Copyright (c) 2008-2014 University of Dundee.
+# Copyright (c) 2008-2016 University of Dundee.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -119,7 +119,7 @@ LOGGING = {
             'level': 'DEBUG',
             'class': LOGGING_CLASS,
             'filename': os.path.join(
-                LOGDIR, 'OMEROweb_brokenrequest.log').replace('\\', '/'),
+                LOGDIR, 'OMEROweb.log').replace('\\', '/'),
             'maxBytes': 1024*1024*5,  # 5 MB
             'backupCount': 10,
             'filters': ['require_debug_false'],
@@ -159,6 +159,7 @@ LOGGING = {
         }
     }
 }
+
 
 # Load custom settings from etc/grid/config.xml
 # Tue  2 Nov 2010 11:03:18 GMT -- ticket:3228
@@ -263,6 +264,7 @@ def leave_none_unset_int(s):
     if s is not None:
         return int(s)
 
+
 CUSTOM_HOST = CUSTOM_SETTINGS.get("Ice.Default.Host", "localhost")
 CUSTOM_HOST = CUSTOM_SETTINGS.get("omero.master.host", CUSTOM_HOST)
 # DO NOT EDIT!
@@ -275,7 +277,7 @@ INTERNAL_SETTINGS_MAPPING = {
         ["CHECK_VERSION", "true", parse_boolean, None],
 
     # Allowed hosts:
-    # https://docs.djangoproject.com/en/1.6/ref/settings/#allowed-hosts
+    # https://docs.djangoproject.com/en/1.8/ref/settings/#allowed-hosts
     "omero.web.allowed_hosts":
         ["ALLOWED_HOSTS", '["*"]', json.loads, None],
 
@@ -786,6 +788,7 @@ def check_threading(t):
                               "multiple threads. Install futures")
     return int(t)
 
+
 # DEVELOPMENT_SETTINGS_MAPPINGS - WARNING: For each setting developer MUST open
 # a ticket that needs to be resolved before a release either by moving the
 # setting to CUSTOM_SETTINGS_MAPPINGS or by removing the setting at all.
@@ -879,6 +882,7 @@ def process_custom_settings(
         except LeaveUnset:
             pass
 
+
 process_custom_settings(sys.modules[__name__], 'INTERNAL_SETTINGS_MAPPING')
 process_custom_settings(sys.modules[__name__], 'CUSTOM_SETTINGS_MAPPINGS',
                         'DEPRECATED_SETTINGS_MAPPINGS')
@@ -914,6 +918,7 @@ def report_settings(module):
             logger.debug(
                 "%s = %r (deprecated:%s, %s)", global_name,
                 cleanse_setting(global_name, global_value), key, description)
+
 
 report_settings(sys.modules[__name__])
 
@@ -968,7 +973,7 @@ except NameError:
 USE_I18N = True
 
 # MIDDLEWARE_CLASSES: A tuple of middleware classes to use.
-# See https://docs.djangoproject.com/en/1.6/topics/http/middleware/.
+# See https://docs.djangoproject.com/en/1.8/topics/http/middleware/.
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.BrokenLinkEmailsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -1027,31 +1032,6 @@ TEMPLATES = [
         },
     },
 ]
-
-# Django 1.6 only
-# TEMPLATE_DEBUG: A boolean that turns on/off template debug mode. If this is
-# True, the fancy error page will display a detailed report for any
-# TemplateSyntaxError. This report contains
-# the relevant snippet of the template, with the appropriate line highlighted.
-# Note that Django only displays fancy error pages if DEBUG is True,
-# alternatively error is handled by:
-#    handler404 = "omeroweb.feedback.views.handler404"
-#    handler500 = "omeroweb.feedback.views.handler500"
-TEMPLATE_DEBUG = DEBUG  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
-
-# Django 1.6 only
-# TEMPLATE_CONTEXT_PROCESSORS: A tuple of callables that are used to populate
-# the context in RequestContext. These callables take a request object as
-# their argument and return a dictionary of items to be merged into the
-# context.
-TEMPLATE_CONTEXT_PROCESSORS = (
-    "django.core.context_processors.debug",
-    "django.core.context_processors.i18n",
-    "django.core.context_processors.media",
-    "django.core.context_processors.static",
-    "django.contrib.messages.context_processors.messages",
-    "omeroweb.custom_context_processor.url_suffix"
-)
 
 # INSTALLED_APPS: A tuple of strings designating all applications that are
 # enabled in this Django installation. Each string should be a full Python
@@ -1179,7 +1159,7 @@ FEEDBACK_APP = 6
 # one or more versions of the api.
 # E.g. /api/v1.0/
 # TODO - need to decide how this is configured, strategy for extending etc.
-API_VERSIONS = ('0.1',)
+API_VERSIONS = ('0',)
 
 # IGNORABLE_404_STARTS:
 # Default: ('/cgi-bin/', '/_vti_bin', '/_vti_inf')
@@ -1235,4 +1215,6 @@ def load_server_list():
         server = (len(s) > 2) and unicode(s[2]) or None
         Server(host=unicode(s[0]), port=int(s[1]), server=server)
     Server.freeze()
+
+
 load_server_list()

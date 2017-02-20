@@ -20,7 +20,8 @@
 """Helper functions for views that handle object trees."""
 
 
-from omero.rtypes import unwrap
+from omero.rtypes import unwrap, wrap
+from omero.sys import ParametersI
 
 from api_marshal import marshal_objects
 from copy import deepcopy
@@ -53,6 +54,29 @@ def get_wellsample_indices(conn, plate_id=None, plateacquisition_id=None):
     return result
 
 
+def get_child_counts(conn, link_class, parent_ids):
+    """
+    Count child links for the specified parent_ids.
+
+    @param conn:        BlitzGateway
+    @param link_class:  Type of link, e.g. 'ProjectDatasetLink'
+    @param parent_ids:  List of Parent IDs
+    @return             A dict of parent_id: child_count
+    """
+    ctx = deepcopy(conn.SERVICE_OPTS)
+    ctx.setOmeroGroup(-1)
+    params = ParametersI()
+    params.add('ids', wrap(parent_ids))
+    query = ("select chl.parent.id, count(chl.id) from %s chl"
+             " where chl.parent.id in (:ids) group by chl.parent.id"
+             % link_class)
+    result = conn.getQueryService().projection(query, params, ctx)
+    counts = {}
+    for d in result:
+        counts[d[0].val] = unwrap(d[1])
+    return counts
+
+
 def query_objects(conn, object_type,
                   group=None,
                   opts=None,
@@ -64,14 +88,13 @@ def query_objects(conn, object_type,
     parameters and filters such as by owner or group.
 
     @param conn:        BlitzGateway
-    @param object_type: Type to query. E.g. Project
+    @param object_type: Type to query, e.g. Project
     @param group:       Filter query by ExperimenterGroup ID
     @param opts:        Options dict for conn.buildQuery()
     @param normalize:   If true, marshal groups and experimenters separately
     """
     # buildQuery is used by conn.getObjects()
     query, params, wrapper = conn.buildQuery(object_type, opts=opts)
-
     # Set the desired group context
     ctx = deepcopy(conn.SERVICE_OPTS)
     if group is None:
@@ -82,18 +105,17 @@ def query_objects(conn, object_type,
 
     objects = []
     extras = {}
-    if opts is not None and opts.get('child_count'):
-        result = qs.projection(query, params, ctx)
-        for p in result:
-            obj = unwrap(p[0])
-            objects.append(obj)
-            if len(p) > 1:
-                # in case child_count not supported by conn.buildQuery()
-                extras[obj.id.val] = {'omero:childCount': unwrap(p[1])}
-    else:
-        extras = None
-        result = qs.findAllByQuery(query, params, ctx)
-        for obj in result:
-            objects.append(obj)
+
+    result = qs.findAllByQuery(query, params, ctx)
+    for obj in result:
+        objects.append(obj)
+
+    # Optionally get child counts...
+    if opts and opts.get('child_count') and wrapper.LINK_CLASS:
+        obj_ids = [r.id.val for r in result]
+        counts = get_child_counts(conn, wrapper.LINK_CLASS, obj_ids)
+        for obj_id in obj_ids:
+            count = counts[obj_id] if obj_id in counts else 0
+            extras[obj_id] = {'omero:childCount': count}
 
     return marshal_objects(objects, extras=extras, normalize=normalize)

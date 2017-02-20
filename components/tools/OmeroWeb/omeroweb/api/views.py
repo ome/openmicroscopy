@@ -28,12 +28,14 @@ from django.conf import settings
 import traceback
 import json
 
-from api_query import query_objects, get_wellsample_indices
+from api_query import query_objects, get_child_counts, get_wellsample_indices
 from omero_marshal import get_encoder, get_decoder, OME_SCHEMA_URL
 from omero import ValidationException
 from omeroweb.connector import Server
-from omeroweb.api.api_exceptions import BadRequestError, NotFoundError, \
-    CreatedObject
+from api_exceptions import BadRequestError, \
+    CreatedObject, \
+    MethodNotSupportedError, \
+    NotFoundError
 from omeroweb.api.decorators import login_required, json_response
 from omeroweb.webgateway.util import getIntOrDefault
 
@@ -149,6 +151,8 @@ class ApiView(View):
 class ObjectView(ApiView):
     """Handle access to an individual Object to GET or DELETE it."""
 
+    CAN_DELETE = True
+
     def get_opts(self, request):
         """Return a dict for use in conn.getObjects() based on request."""
         return {}
@@ -156,14 +160,27 @@ class ObjectView(ApiView):
     def get(self, request, object_id, conn=None, **kwargs):
         """Simply GET a single Object and marshal it or 404 if not found."""
         opts = self.get_opts(request)
-        obj = conn.getObject(self.OMERO_TYPE, object_id, opts=opts)
-        if obj is None:
+        object_id = long(object_id)
+        query, params, wrapper = conn.buildQuery(
+            self.OMERO_TYPE, [object_id], opts=opts)
+        result = conn.getQueryService().findByQuery(
+            query, params, conn.SERVICE_OPTS)
+
+        if result is None:
             raise NotFoundError('%s %s not found' % (self.OMERO_TYPE,
                                                      object_id))
-        encoder = get_encoder(obj._obj.__class__)
-        marshalled = encoder.encode(obj._obj)
+        encoder = get_encoder(result.__class__)
+        marshalled = encoder.encode(result)
+
+        # Optionally lookup child counts
+        child_count = request.GET.get('childCount', False) == 'true'
+        if child_count and wrapper.LINK_CLASS:
+            counts = get_child_counts(conn, wrapper.LINK_CLASS, [object_id])
+            ch_count = counts[object_id] if object_id in counts else 0
+            marshalled['omero:childCount'] = ch_count
+
         self.add_data(marshalled, request, conn, self.urls, **kwargs)
-        return marshalled
+        return {'data': marshalled}
 
     def delete(self, request, object_id, conn=None, **kwargs):
         """
@@ -171,6 +188,9 @@ class ObjectView(ApiView):
 
         Return 404 if not found.
         """
+        if not self.CAN_DELETE:
+            raise MethodNotSupportedError(
+                "Delete of %s not supported" % self.OMERO_TYPE)
         try:
             obj = conn.getQueryService().get(self.OMERO_TYPE, long(object_id),
                                              conn.SERVICE_OPTS)
@@ -180,7 +200,7 @@ class ObjectView(ApiView):
         encoder = get_encoder(obj.__class__)
         json = encoder.encode(obj)
         conn.deleteObject(obj)
-        return json
+        return {'data': json}
 
 
 class ProjectView(ObjectView):
@@ -212,6 +232,8 @@ class ImageView(ObjectView):
 
     OMERO_TYPE = 'Image'
 
+    CAN_DELETE = False
+
     def get_opts(self, request):
         """Add support for load_pixels and load_channels."""
         opts = super(ImageView, self).get_opts(request)
@@ -236,6 +258,8 @@ class PlateView(ObjectView):
     """Handle access to an individual Plate to GET or DELETE it."""
 
     OMERO_TYPE = 'Plate'
+
+    CAN_DELETE = False
 
     # Urls to add to marshalled object. See ProjectsView for more details
     urls = {
@@ -274,6 +298,8 @@ class WellView(ObjectView):
     """Handle access to an individual Well to GET or DELETE it."""
 
     OMERO_TYPE = 'Well'
+
+    CAN_DELETE = False
 
     def get_opts(self, request):
         """Add support for load_images."""
@@ -559,11 +585,24 @@ class SaveView(View):
     POST to create a new Object and PUT to replace existing one.
     """
 
+    CAN_PUT = ['Project', 'Dataset', 'Screen']
+
+    CAN_POST = ['Project', 'Dataset', 'Screen']
+
     @method_decorator(login_required(useragent='OMERO.webapi'))
     @method_decorator(json_response())
     def dispatch(self, *args, **kwargs):
         """Apply decorators for class methods below."""
         return super(SaveView, self).dispatch(*args, **kwargs)
+
+    def get_type_name(self, marshalled):
+        """Get the '@type' name from marshalled data."""
+        if '@type' not in marshalled:
+            raise BadRequestError('Need to specify @type attribute')
+        schema_type = marshalled['@type']
+        if '#' not in schema_type:
+            return None
+        return schema_type.split('#')[1]
 
     def put(self, request, conn=None, **kwargs):
         """
@@ -572,6 +611,10 @@ class SaveView(View):
         Therefore '@id' should be set.
         """
         object_json = json.loads(request.body)
+        obj_type = self.get_type_name(object_json)
+        if obj_type not in self.CAN_PUT:
+            raise MethodNotSupportedError(
+                "Update of %s not supported" % obj_type)
         if '@id' not in object_json:
             raise BadRequestError(
                 "No '@id' attribute. Use POST to create new objects")
@@ -584,6 +627,10 @@ class SaveView(View):
         Therefore '@id' should not be set.
         """
         object_json = json.loads(request.body)
+        obj_type = self.get_type_name(object_json)
+        if obj_type not in self.CAN_POST:
+            raise MethodNotSupportedError(
+                "Creation of %s not supported" % obj_type)
         if '@id' in object_json:
             raise BadRequestError(
                 "Object has '@id' attribute. Use PUT to update objects")
@@ -596,8 +643,6 @@ class SaveView(View):
         # Try to get group from request, OR from details below...
         group = getIntOrDefault(request, 'group', None)
         decoder = None
-        if '@type' not in object_json:
-            raise BadRequestError('Need to specify @type attribute')
         objType = object_json['@type']
         decoder = get_decoder(objType)
         # If we are passed incomplete object, or decoder couldn't be found...
@@ -631,4 +676,4 @@ class SaveView(View):
         obj = conn.getUpdateService().saveAndReturnObject(obj,
                                                           conn.SERVICE_OPTS)
         encoder = get_encoder(obj.__class__)
-        return encoder.encode(obj)
+        return {'data': encoder.encode(obj)}

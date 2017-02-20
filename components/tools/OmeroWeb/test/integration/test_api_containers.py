@@ -35,6 +35,7 @@ from omero.model import DatasetI, \
     WellI, \
     WellSampleI
 from omero.rtypes import rstring, rint
+from omero_marshal import OME_SCHEMA_URL
 
 
 def build_url(client, url_name, url_kwargs):
@@ -178,8 +179,41 @@ class TestContainers(IWebTest):
         screens.sort(cmp_name_insensitive)
         return screens
 
+    @pytest.mark.parametrize("dtype", ['Plate', 'Image', 'Well',
+                                       'Channel', 'foo'])
+    @pytest.mark.parametrize("method", [(_csrf_post_json, 'Creation'),
+                                        (_csrf_put_json, 'Update')])
+    def test_create_update_unsupported(self, user1, dtype, method):
+        """Test create and update are rejected for unsupported types."""
+        conn = get_connection(user1)
+        user_name = conn.getUser().getName()
+        django_client = self.new_django_client(user_name, user_name)
+        version = settings.API_VERSIONS[-1]
+        save_url = reverse('api_save', kwargs={'api_version': version})
+        payload = {'Name': 'test',
+                   '@type': OME_SCHEMA_URL + '#%s' % dtype}
+        # Test PUT/POST
+        rsp = method[0](django_client, save_url, payload,
+                        status_code=405)
+        assert rsp['message'] == '%s of %s not supported' % (method[1], dtype)
+
+    @pytest.mark.parametrize("dtype", ['Plate', 'Image', 'Well'])
+    def test_delete_unsupported(self, user1, dtype):
+        """Test delete is rejected for unsupported types."""
+        conn = get_connection(user1)
+        user_name = conn.getUser().getName()
+        django_client = self.new_django_client(user_name, user_name)
+        version = settings.API_VERSIONS[-1]
+        # Delete (fake url - image doesn't need to exist for test)
+        url_name = 'api_%s' % dtype.lower()
+        delete_url = reverse(url_name, kwargs={'api_version': version,
+                                               'object_id': 1})
+        rsp = _csrf_delete_response_json(django_client, delete_url, {},
+                                         status_code=405)
+        assert rsp['message'] == 'Delete of %s not supported' % dtype
+
     @pytest.mark.parametrize("dtype", ['Project', 'Dataset',
-                                       'Screen', 'Plate'])
+                                       'Screen'])
     def test_container_crud(self, dtype):
         """
         Test create, read, update and delete of Containers.
@@ -203,13 +237,15 @@ class TestContainers(IWebTest):
                    '@type': '%s#%s' % (schema_url, dtype)}
         rsp = _csrf_post_json(django_client, save_url, payload,
                               status_code=201)
+        new_obj = rsp['data']
         # We get the complete new Object returned
-        assert rsp['Name'] == project_name
-        object_id = rsp['@id']
+        assert new_obj['Name'] == project_name
+        object_id = new_obj['@id']
 
         # Read Object
         object_url = "%sm/%ss/%s/" % (base_url, dtype.lower(), object_id)
-        object_json = _get_response_json(django_client, object_url, {})
+        rsp = _get_response_json(django_client, object_url, {})
+        object_json = rsp['data']
         assert object_json['@id'] == object_id
         conn = BlitzGateway(client_obj=self.root)
         assert_objects(conn, [object_json], [object_id], dtype=dtype)
@@ -218,7 +254,8 @@ class TestContainers(IWebTest):
         object_json['Name'] = 'new name'
         rsp = _csrf_put_json(django_client, save_url, object_json)
         # ...and read again to check
-        updated_json = _get_response_json(django_client, object_url, {})
+        rsp = _get_response_json(django_client, object_url, {})
+        updated_json = rsp['data']
         assert updated_json['Name'] == 'new name'
 
         # Delete
@@ -227,9 +264,10 @@ class TestContainers(IWebTest):
         rsp = _get_response_json(django_client, object_url, {},
                                  status_code=404)
 
+    @pytest.mark.parametrize("child_count", [True, False])
     @pytest.mark.parametrize("dtype", ['Dataset', 'Plate'])
-    def test_datasets_plates(self, user1, dtype, project_datasets,
-                             screen_plates):
+    def test_datasets_plates(self, user1, dtype, child_count,
+                             project_datasets, screen_plates):
         """Test listing of Datasets in a Project and Plates in Screen."""
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
@@ -243,44 +281,86 @@ class TestContainers(IWebTest):
             orphaned = project_datasets[1]
             url_name = 'api_datasets'
             ptype = 'project'
-            child_counts = [{'omero:childCount': c} for c in range(5)]
+            # Counts of Images in Dataset / orphaned Dataset
+            ds_or_pl_children = [{'omero:childCount': c} for c in range(5)]
+            orph_ds_pl_children = [{'omero:childCount': 0}]
+            pr_or_sc_children = [{'omero:childCount': 5}]
+
         else:
             parent = screen_plates[0]
             children = parent.linkedPlateList()
             orphaned = screen_plates[1]
             url_name = 'api_plates'
             ptype = 'screen'
-            child_counts = None
+            # Plates don't support childCount.
+            ds_or_pl_children = None
+            orph_ds_pl_children = None
+            pr_or_sc_children = [{'omero:childCount': 5}]
+
+        if not child_count:
+            ds_or_pl_children = None
+            orph_ds_pl_children = None
+            pr_or_sc_children = None
+
+        # Check child_count in Projects or Screens
+        base_url = reverse('api_base', kwargs={'api_version': version})
+        parents_url = "%sm/%ss/" % (base_url, ptype)
+        payload = {'childCount': str(child_count).lower()}
+        rsp = _get_response_json(django_client, parents_url, payload)
+        assert_objects(conn, rsp['data'], [parent], dtype=ptype,
+                       extra=pr_or_sc_children)
+        # And for single Project or Screen
+        parent_url = "%sm/%ss/%s/" % (base_url, ptype, parent.id.val)
+        rsp = _get_response_json(django_client, parent_url, payload)
+        assert_objects(conn, [rsp['data']], [parent], dtype=ptype,
+                       extra=pr_or_sc_children)
 
         request_url = reverse(url_name, kwargs={'api_version': version})
 
         # List ALL Datasets or Plates
-        rsp = _get_response_json(django_client, request_url, {})
+        rsp = _get_response_json(django_client, request_url, payload)
         assert len(rsp['data']) == 6
 
         # Filter Datasets or Plates by Orphaned
-        payload = {'orphaned': 'true'}
+        payload = {'orphaned': 'true', 'childCount': str(child_count).lower()}
         rsp = _get_response_json(django_client, request_url, payload)
-        assert_objects(conn, rsp['data'], [orphaned], dtype=dtype)
+        assert_objects(conn, rsp['data'], [orphaned], dtype=dtype,
+                       extra=orph_ds_pl_children)
 
         # Filter Datasets by Project or Plates by Screen
         children.sort(cmp_name_insensitive)
-        # Also testing childCount
-        payload = {ptype: parent.id.val, 'childCount': 'true'}
+        payload = {ptype: parent.id.val,
+                   'childCount': str(child_count).lower()}
         rsp = _get_response_json(django_client, request_url, payload)
         assert len(rsp['data']) == 5
         assert_objects(conn, rsp['data'], children, dtype=dtype,
-                       extra=child_counts)
+                       extra=ds_or_pl_children)
+
+        # Single (first) Dataset or Plate
+        payload = {'childCount': str(child_count).lower()}
+        object_url = "%sm/%ss/%s/" % (base_url, dtype.lower(),
+                                      children[0].id.val)
+        rsp = _get_response_json(django_client, object_url, payload)
+        assert_objects(conn, [rsp['data']], [children[0]], dtype=dtype,
+                       extra=ds_or_pl_children)
 
         # Pagination
         limit = 3
-        payload = {ptype: parent.id.val, 'limit': limit}
+        payload = {ptype: parent.id.val,
+                   'limit': limit,
+                   'childCount': str(child_count).lower()}
         rsp = _get_response_json(django_client, request_url, payload)
-        assert_objects(conn, rsp['data'], children[0:limit], dtype=dtype)
+        extra = None
+        if ds_or_pl_children is not None:
+            extra = ds_or_pl_children[0:limit]
+        assert_objects(conn, rsp['data'], children[0:limit], dtype=dtype,
+                       extra=extra)
         payload['page'] = 2
         rsp = _get_response_json(django_client, request_url, payload)
+        if ds_or_pl_children is not None:
+            extra = ds_or_pl_children[limit:limit * 2]
         assert_objects(conn, rsp['data'], children[limit:limit * 2],
-                       dtype=dtype)
+                       dtype=dtype, extra=extra)
 
     def test_screens(self, user1, user_screens):
         """Test listing of Screens."""
@@ -333,7 +413,7 @@ class TestContainers(IWebTest):
                        extra=extra)
         # View single screen
         rsp = _get_response_json(client, screens_json[0]['url:screen'], {})
-        assert_objects(conn, [rsp], [screen], dtype='Screen',
+        assert_objects(conn, [rsp['data']], [screen], dtype='Screen',
                        extra=[{'url:plates': extra[0]['url:plates']}])
 
         # List plates
@@ -355,7 +435,7 @@ class TestContainers(IWebTest):
         assert_objects(conn, plates_json, plates, dtype='Plate', extra=extra)
         # View single plate
         rsp = _get_response_json(client, plates_json[0]['url:plate'], {})
-        assert_objects(conn, [rsp], plates[0:1], dtype='Plate')
+        assert_objects(conn, [rsp['data']], plates[0:1], dtype='Plate')
 
         # List wells of first plate
         wells_url = plates_json[0]['url:wells']
@@ -393,7 +473,7 @@ class TestContainers(IWebTest):
         assert_objects(conn, projects_json, [project], extra=extra)
         # View single Project
         rsp = _get_response_json(client, projects_json[0]['url:project'], {})
-        assert_objects(conn, [rsp], [project],
+        assert_objects(conn, [rsp['data']], [project],
                        extra=[{'url:datasets': extra[0]['url:datasets']}])
 
         # List datasets
@@ -416,7 +496,7 @@ class TestContainers(IWebTest):
                        dtype='Dataset', extra=extra)
         # View single Dataset
         rsp = _get_response_json(client, datasets_json[0]['url:dataset'], {})
-        assert_objects(conn, [rsp], datasets[0:1], dtype='Dataset',
+        assert_objects(conn, [rsp['data']], datasets[0:1], dtype='Dataset',
                        extra=[{'url:images': extra[0]['url:images']}])
 
         # List images (from last Dataset)
@@ -436,5 +516,5 @@ class TestContainers(IWebTest):
                        dtype='Image', extra=extra, opts={'load_pixels': True})
         # View single Image
         rsp = _get_response_json(client, images_json[0]['url:image'], {})
-        assert_objects(conn, [rsp], images[0:1], dtype='Image',
+        assert_objects(conn, [rsp['data']], images[0:1], dtype='Image',
                        opts={'load_channels': True})
