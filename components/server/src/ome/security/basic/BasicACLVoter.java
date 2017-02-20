@@ -447,14 +447,14 @@ public class BasicACLVoter implements ACLVoter {
             // Don't return. Need further processing for delete.
         }
 
-        final Set<AdminPrivilege> privileges;
-        final Event event = c.getEvent();
-        if (event == null || !event.isLoaded()) {
-            privileges = adminPrivileges.getAllPrivileges();
-        } else {
-            privileges = adminPrivileges.getSessionPrivileges(event.getSession());
-        }
         if (c.isCurrentUserAdmin()) {
+            final Set<AdminPrivilege> privileges;
+            final Event event = c.getEvent();
+            if (event == null || !event.isLoaded()) {
+                privileges = adminPrivileges.getAllPrivileges();
+            } else {
+                privileges = adminPrivileges.getSessionPrivileges(event.getSession());
+            }
             /* see trac ticket 10691 re. enum values */
             boolean isLightAdminRestricted = false;
             final String prefix = isUpdate ? "Write" : "Delete";
