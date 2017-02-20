@@ -243,6 +243,8 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         return latestProxy;
     }
 
+    /* -=-=- TEST NECESSITY OF LIGHT ADMINISTRATOR PRIVILEGES -=-=- */
+
     /**
      * Test that users may move others' data only if they are a member of the <tt>system</tt> group and
      * have the <tt>Chgrp</tt> privilege. Attempts moving data via {@link omero.cmd.Chgrp2}.
@@ -2353,6 +2355,625 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
                 testCases.add(Arrays.copyOfRange(testCase, 0, 2));
             }
         }
+        return testCases.toArray(new Object[testCases.size()][]);
+    }
+
+    /* -=-=- TEST PERMISSIONS SURROUNDING USER AND GROUP MANAGEMENT FOR NON-ADMINISTRATORS -=-=- */
+
+    /**
+     * Test that normal users may create users only in groups that they own.
+     * Attempts creation via {@link omero.api.IAdminPrx}.
+     * @param isGroupOwner if to test a user who is a group owner
+     * @param isSameGroup if to test creating a user in the normal user's own group
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "at least group owner or same group test cases")
+    public void testNormalUserCreatesUserViaAdmin(boolean isGroupOwner, boolean isSameGroup) throws Exception {
+        final boolean isExpectSuccess = isGroupOwner && isSameGroup;
+        final EventContext actor = newUserAndGroup("rwr---", isGroupOwner);
+        final Experimenter newUser = createExperimenterI(UUID.randomUUID().toString(), getClass().getSimpleName(), "Test");
+        final String groupName = isSameGroup ? actor.groupName : newGroupAddUser("rwr---", actor.userId).getName().getValue();
+        try {
+            iAdmin.createUser(newUser, groupName);
+            Assert.assertTrue(isExpectSuccess);
+        } catch (SecurityViolation sv) {
+            Assert.assertFalse(isExpectSuccess);
+        }
+    }
+
+    /**
+     * Test that normal users may create users only in groups that they own.
+     * Attempts creation via {@link omero.api.IUpdatePrx}.
+     * In fact, normal users <em>cannot</em> use {@link omero.api.IUpdatePrx} to create users.
+     * @param isGroupOwner if to test a user who is a group owner
+     * @param isSameGroup if to test creating a user in the normal user's own group
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "both group owner and same group test case")
+    public void testNormalUserCreatesUserViaUpdate(boolean isGroupOwner, boolean isSameGroup) throws Exception {
+        final boolean isExpectSuccess = false;  // not isGroupOwner && isSameGroup
+        final EventContext actor = newUserAndGroup("rwr---", isGroupOwner);
+        final Experimenter newUser = createExperimenterI(UUID.randomUUID().toString(), getClass().getSimpleName(), "Test");
+        final ExperimenterGroup group;
+        if (isSameGroup) {
+            group = new ExperimenterGroupI(actor.groupId, false);
+        } else {
+            group = (ExperimenterGroup) newGroupAddUser("rwr---", actor.userId).proxy();
+        }
+        GroupExperimenterMapI link = new GroupExperimenterMapI();
+        link.setParent(group);
+        link.setChild(newUser);
+        link.setOwner(omero.rtypes.rbool(false));
+        newUser.addGroupExperimenterMap(link);
+        link  = new GroupExperimenterMapI();
+        link.setParent(new ExperimenterGroupI(roles.userGroupId, false));
+        link.setChild(newUser);
+        link.setOwner(omero.rtypes.rbool(false));
+        newUser.addGroupExperimenterMap(link);
+        try {
+            /* a normal user never may use this method to create users */
+            iUpdate.saveObject(newUser);
+            Assert.assertTrue(isExpectSuccess);
+            throw new SecurityViolation();
+        } catch (SecurityViolation sv) {
+            Assert.assertFalse(isExpectSuccess);
+        }
+    }
+
+    /**
+     * Test that normal users may add and remove members of groups that they own.
+     * Attempts adding or removing member via {@link omero.api.IAdminPrx}.
+     * @param isGroupOwner if to test a user who is a group owner
+     * @param isSameGroup if to test adding or removing a user in the normal user's own group
+     * @param isAddsLink if to test adding, otherwise removing
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "at least group owner or same group with adds link test cases")
+    public void testNormalUserAdjustsMembershipViaAdmin(boolean isGroupOwner, boolean isSameGroup, boolean isAddsLink) throws Exception {
+        final boolean isExpectSuccess = isGroupOwner && isSameGroup;
+        final EventContext target = newUserAndGroup("rwr---", false);
+        final EventContext actor = newUserAndGroup("rwr---", isGroupOwner);
+        final ExperimenterGroup groupForAdjustment;
+        if (isSameGroup) {
+            groupForAdjustment = new ExperimenterGroupI(actor.groupId, false);
+        } else {
+            groupForAdjustment = new ExperimenterGroupI(newUserAndGroup("rwr---", false).groupId, false);
+        }
+        if (!isAddsLink) {
+            addUsers(groupForAdjustment, Collections.singletonList(target.userId), false);
+        }
+        final Experimenter targetUser = new ExperimenterI(target.userId, false);
+        try {
+            if (isAddsLink) {
+                iAdmin.addGroups(targetUser, Collections.singletonList(groupForAdjustment));
+            } else {
+                iAdmin.removeGroups(targetUser, Collections.singletonList(groupForAdjustment));
+            }
+            Assert.assertTrue(isExpectSuccess);
+        } catch (SecurityViolation sv) {
+            Assert.assertFalse(isExpectSuccess);
+        }
+    }
+
+    /**
+     * Test that normal users may add members of groups that they own.
+     * Attempts adding member via {@link omero.api.IUpdatePrx}.
+     * In fact, normal users <em>cannot</em> use {@link omero.api.IUpdatePrx} to add group members.
+     * @param isGroupOwner if to test a user who is a group owner
+     * @param isSameGroup if to test adding a user in the normal user's own group
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "both group owner and same group test case")
+    public void testNormalUserAdjustsMembershipViaUpdate(boolean isGroupOwner, boolean isSameGroup) throws Exception {
+        final boolean isExpectSuccess = false;  // not isGroupOwner && isSameGroup
+        final EventContext target = newUserAndGroup("rwr---", false);
+        final EventContext actor = newUserAndGroup("rwr---", isGroupOwner);
+        final ExperimenterGroup groupForAdjustment;
+        if (isSameGroup) {
+            groupForAdjustment = new ExperimenterGroupI(actor.groupId, false);
+        } else {
+            groupForAdjustment = new ExperimenterGroupI(newUserAndGroup("rwr---", false).groupId, false);
+        }
+        final GroupExperimenterMap link = (GroupExperimenterMap) iQuery.findByQuery(
+                "FROM GroupExperimenterMap WHERE parent.id = :group_id AND child.id = :user_id",
+                new ParametersI().addLong("group_id", target.groupId).addLong("user_id", target.userId));
+        link.setParent(groupForAdjustment);
+        try {
+            /* a normal user never may use this method to create users */
+            iUpdate.saveObject(link);
+            Assert.assertTrue(isExpectSuccess);
+            throw new SecurityViolation();
+        } catch (SecurityViolation sv) {
+            Assert.assertFalse(isExpectSuccess);
+        }
+    }
+
+    /**
+     * Test that normal users may remove members of groups that they own.
+     * Attempts removing member via {@link omero.cmd.Delete2}.
+     * In fact, normal users <em>cannot</em> use {@link omero.cmd.Delete2} to remove group members.
+     * @param isGroupOwner if to test a user who is a group owner
+     * @param isSameGroup if to test removing a user in the normal user's own group
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "both group owner and same group test case")
+    public void testNormalUserDeletesMembershipViaRequest(boolean isGroupOwner, boolean isSameGroup) throws Exception {
+        final boolean isExpectSuccess = false;  // not isGroupOwner && isSameGroup
+        final EventContext target = newUserAndGroup("rwr---", false);
+        final EventContext actor = newUserAndGroup("rwr---", isGroupOwner);
+        final ExperimenterGroup groupForAdjustment;
+        if (isSameGroup) {
+            groupForAdjustment = new ExperimenterGroupI(actor.groupId, false);
+        } else {
+            groupForAdjustment = new ExperimenterGroupI(newUserAndGroup("rwr---", false).groupId, false);
+        }
+        addUsers(groupForAdjustment, Collections.singletonList(target.userId), false);
+        final GroupExperimenterMap link = (GroupExperimenterMap) iQuery.findByQuery(
+                "FROM GroupExperimenterMap WHERE parent.id = :group_id AND child.id = :user_id",
+                new ParametersI().addLong("group_id", groupForAdjustment.getId()).addLong("user_id", target.userId));
+        /* a normal user never may use this method to remove group memberships */
+        doChange(client, factory, Requests.delete().target(link).build(), isExpectSuccess);
+    }
+
+    /**
+     * @return test cases with <q>group owner</q> or <q>same group</q> set
+     */
+    @DataProvider(name = "at least group owner or same group test cases")
+    public Object[][] provideGroupOwnerOrSameGroupTestCases() {
+        int index = 0;
+        final int IS_GROUP_OWNER = index++;
+        final int IS_SAME_GROUP = index++;
+
+        final boolean[] booleanCases = new boolean[]{false, true};
+
+        final List<Object[]> testCases = new ArrayList<Object[]>();
+
+        for (final boolean isGroupOwner : booleanCases) {
+            for (final boolean isSameGroup : booleanCases) {
+                if (!(isGroupOwner || isSameGroup)) {
+                    /* not interesting */
+                    continue;
+                }
+                final Object[] testCase = new Object[index];
+                testCase[IS_GROUP_OWNER] = isGroupOwner;
+                testCase[IS_SAME_GROUP] = isSameGroup;
+                // DEBUG  if (isGroupOwner == false && isSameGroup == true)
+                testCases.add(testCase);
+            }
+        }
+
+        return testCases.toArray(new Object[testCases.size()][]);
+    }
+
+    /**
+     * @return test cases with <q>group owner</q> or <q>same group</q> set and also <q>adds link</q>
+     */
+    @DataProvider(name = "at least group owner or same group with adds link test cases")
+    public Object[][] provideGroupOwnerOrSameGroupWithAddsLinkTestCases() {
+        int index = 0;
+        final int IS_GROUP_OWNER = index++;
+        final int IS_SAME_GROUP = index++;
+        final int IS_ADDS_LINK = index++;
+
+        final boolean[] booleanCases = new boolean[]{false, true};
+
+        final List<Object[]> testCases = new ArrayList<Object[]>();
+
+        for (final boolean isGroupOwner : booleanCases) {
+            for (final boolean isSameGroup : booleanCases) {
+                for (final boolean isAddsLink : booleanCases) {
+                    if (!(isGroupOwner || isSameGroup)) {
+                        /* not interesting */
+                        continue;
+                    }
+                    final Object[] testCase = new Object[index];
+                    testCase[IS_GROUP_OWNER] = isGroupOwner;
+                    testCase[IS_SAME_GROUP] = isSameGroup;
+                    testCase[IS_ADDS_LINK] = isAddsLink;
+                    // DEBUG  if (isGroupOwner == false && isSameGroup == true && isAddsLink == true)
+                    testCases.add(testCase);
+                }
+            }
+        }
+
+        return testCases.toArray(new Object[testCases.size()][]);
+    }
+
+    /**
+     * @return test case with <q>group owner</q> and <q>same group</q> set
+     */
+    @DataProvider(name = "both group owner and same group test case")
+    public Object[][] provideGroupOwnerAndSameGroupTestCases() {
+        int index = 0;
+        final int IS_GROUP_OWNER = index++;
+        final int IS_SAME_GROUP = index++;
+
+        final boolean[] booleanCases = new boolean[]{false, true};
+
+        final List<Object[]> testCases = new ArrayList<Object[]>();
+
+        for (final boolean isGroupOwner : booleanCases) {
+            for (final boolean isSameGroup : booleanCases) {
+                if (!(isGroupOwner && isSameGroup)) {
+                    /* not interesting */
+                    continue;
+                }
+                final Object[] testCase = new Object[index];
+                testCase[IS_GROUP_OWNER] = isGroupOwner;
+                testCase[IS_SAME_GROUP] = isSameGroup;
+                // DEBUG  if (isGroupOwner == true && isSameGroup == true)
+                testCases.add(testCase);
+            }
+        }
+
+        return testCases.toArray(new Object[testCases.size()][]);
+    }
+
+    /* -=-=- TEST PERMISSIONS SURROUNDING USER AND GROUP MANAGEMENT FOR ADMINISTRATORS -=-=- */
+
+    /**
+     * Test that administrators may create users only with no more privileges than they themselves have.
+     * Attempts creating user via {@link omero.api.IAdminPrx}.
+     * @param isHasSudo if the administrator has the <tt>Sudo</tt> privilege
+     * @param isGrantsSudo if the created user should be given the <tt>Sudo</tt> privilege
+     * @param isCreatesAdmin if the created user should be an administrator
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "privilege elevation test cases")
+    public void testAdminCreatesUserViaAdmin(boolean isHasSudo, boolean isGrantsSudo, boolean isCreatesAdmin) throws Exception {
+        final boolean isExpectSuccess = isHasSudo || !isGrantsSudo || !isCreatesAdmin;
+        final String groupName = isCreatesAdmin ? roles.systemGroupName : newUserAndGroup("rwr---", false).groupName;
+        loginNewAdmin(true, isHasSudo ? null : AdminPrivilegeSudo.value);
+        final Experimenter newUser = createExperimenterI(UUID.randomUUID().toString(), getClass().getSimpleName(), "Test");
+        final String sudoConfigName = AdminPrivilege.class.getSimpleName() + ':' + AdminPrivilegeSudo.value;
+        if (!isGrantsSudo) {
+            newUser.setConfig(Collections.singletonList(new NamedValue(sudoConfigName, Boolean.toString(false))));
+        }
+        try {
+            final long newUserId = iAdmin.createUser(newUser, groupName);
+            Assert.assertTrue(isExpectSuccess);
+            boolean newUserHasSudo = false;
+            for (final AdminPrivilege privilege : iAdmin.getAdminPrivileges(new ExperimenterI(newUserId, false))) {
+                if (AdminPrivilegeSudo.value.equals(privilege.getValue().getValue())) {
+                    newUserHasSudo = true;
+                    break;
+                }
+            }
+            Assert.assertEquals(newUserHasSudo, isGrantsSudo && isCreatesAdmin);
+        } catch (SecurityViolation sv) {
+            Assert.assertFalse(isExpectSuccess);
+        }
+    }
+
+    /**
+     * Test that administrators may create users only with no more privileges than they themselves have.
+     * Attempts creating user via {@link omero.api.IUpdatePrx}.
+     * @param isHasSudo if the administrator has the <tt>Sudo</tt> privilege
+     * @param isGrantsSudo if the created user should be given the <tt>Sudo</tt> privilege
+     * @param isCreatesAdmin if the created user should be an administrator
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "privilege elevation test cases", groups = "broken")
+    public void testAdminCreatesUserViaUpdate(boolean isHasSudo, boolean isGrantsSudo, boolean isCreatesAdmin) throws Exception {
+        final boolean isExpectSuccess = isHasSudo || !isGrantsSudo || !isCreatesAdmin;
+        final long groupId = isCreatesAdmin ? roles.systemGroupId : newUserAndGroup("rwr---", false).groupId;
+        loginNewAdmin(true, isHasSudo ? null : AdminPrivilegeSudo.value);
+        final Experimenter newUser = createExperimenterI(UUID.randomUUID().toString(), getClass().getSimpleName(), "Test");
+        final String sudoConfigName = AdminPrivilege.class.getSimpleName() + ':' + AdminPrivilegeSudo.value;
+        if (!isGrantsSudo) {
+            newUser.setConfig(Collections.singletonList(new NamedValue(sudoConfigName, Boolean.toString(false))));
+        }
+        GroupExperimenterMapI link = new GroupExperimenterMapI();
+        link.setParent(new ExperimenterGroupI(groupId, false));
+        link.setChild(newUser);
+        link.setOwner(omero.rtypes.rbool(false));
+        newUser.addGroupExperimenterMap(link);
+        link  = new GroupExperimenterMapI();
+        link.setParent(new ExperimenterGroupI(roles.userGroupId, false));
+        link.setChild(newUser);
+        link.setOwner(omero.rtypes.rbool(false));
+        newUser.addGroupExperimenterMap(link);
+        try {
+            // TODO: test is broken because update service does not yet check for privilege elevation
+            final long newUserId = iUpdate.saveAndReturnObject(newUser).getId().getValue();
+            Assert.assertTrue(isExpectSuccess);
+            boolean newUserHasSudo = false;
+            for (final AdminPrivilege privilege : iAdmin.getAdminPrivileges(new ExperimenterI(newUserId, false))) {
+                if (AdminPrivilegeSudo.value.equals(privilege.getValue().getValue())) {
+                    newUserHasSudo = true;
+                    break;
+                }
+            }
+            Assert.assertEquals(newUserHasSudo, isGrantsSudo && isCreatesAdmin);
+        } catch (ServerError se) {
+            Assert.assertFalse(isExpectSuccess);
+        }
+    }
+
+    /**
+     * Test that administrators may remove members of groups.
+     * Attempts removing member via {@link omero.cmd.Delete2}.
+     * @param isHasSudo if the administrator has the <tt>Sudo</tt> privilege
+     * @param isTargetSudo if the user to be removed has the <tt>Sudo</tt> privilege
+     * @param isGroupSystem if to remove the user from the <tt>system</tt> group, otherwise another
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "privilege elevation expecting always pass test cases")
+    public void testAdminDeletesMembershipViaRequest(boolean isHasSudo, boolean isTargetSudo, boolean isGroupSystem) throws Exception {
+        final boolean isExpectSuccess = true;
+        final ExperimenterGroup otherGroup = new ExperimenterGroupI(newUserAndGroup("rwr---", false).groupId, false);
+        final ExperimenterGroup groupForAdjustment;
+        if (isGroupSystem) {
+            groupForAdjustment = new ExperimenterGroupI(roles.systemGroupId, false);
+        } else {
+            groupForAdjustment = otherGroup;
+        }
+        final EventContext target = loginNewAdmin(true, isTargetSudo ? null : AdminPrivilegeSudo.value);
+        addUsers(otherGroup, Collections.singletonList(target.userId), false);
+        loginNewAdmin(true, isHasSudo ? null : AdminPrivilegeSudo.value);
+        addUsers(groupForAdjustment, Collections.singletonList(target.userId), false);
+        final GroupExperimenterMap link = (GroupExperimenterMap) iQuery.findByQuery(
+                "FROM GroupExperimenterMap WHERE parent.id = :group_id AND child.id = :user_id",
+                new ParametersI().addLong("group_id", groupForAdjustment.getId()).addLong("user_id", target.userId));
+        doChange(client, factory, Requests.delete().target(link).build(), isExpectSuccess);
+    }
+
+    /**
+     * Test that administrators may give users only privileges that they themselves have.
+     * Attempts editing privileges via {@link omero.api.IAdminPrx}.
+     * @param isHasSudo if the administrator has the <tt>Sudo</tt> privilege
+     * @param isGrantsSudo if the target user should be given the <tt>Sudo</tt> privilege
+     * @param isEditsAdmin if the target user should be an administrator
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "privilege elevation test cases")
+    public void testAdminEditsAdminPrivilegesViaAdmin(boolean isHasSudo, boolean isGrantsSudo, boolean isEditsAdmin) throws Exception {
+        final boolean isExpectSuccess = isHasSudo || !isGrantsSudo || !isEditsAdmin;
+        final EventContext target = loginNewAdmin(isEditsAdmin, AdminPrivilegeSudo.value);
+        final Experimenter targetUser = new ExperimenterI(target.userId, false);
+        loginNewAdmin(true, isHasSudo ? null : AdminPrivilegeSudo.value);
+        final List<AdminPrivilege> privileges = iAdmin.getAdminPrivileges(targetUser);
+        for (final AdminPrivilege privilege : allPrivileges) {
+            if (isGrantsSudo && AdminPrivilegeSudo.value.equals(privilege.getValue().getValue())) {
+                privileges.add(privilege);
+            } else if (AdminPrivilegeWriteFile.value.equals(privilege.getValue().getValue())) {
+                privileges.remove(privilege);
+            }
+        }
+        try {
+            iAdmin.setAdminPrivileges(targetUser, privileges);
+            Assert.assertTrue(isExpectSuccess);
+        } catch (ServerError sv) {
+            Assert.assertFalse(isExpectSuccess);
+        }
+    }
+
+    /**
+     * Test that administrators may give users only privileges that they themselves have.
+     * Attempts editng privileges via {@link omero.api.IUpdatePrx}.
+     * @param isHasSudo if the administrator has the <tt>Sudo</tt> privilege
+     * @param isGrantsSudo if the target user should be given the <tt>Sudo</tt> privilege
+     * @param isEditsAdmin if the target user should be an administrator
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "privilege elevation test cases", groups = "broken")
+    public void testAdminEditsAdminPrivilegesViaUpdate(boolean isHasSudo, boolean isGrantsSudo, boolean isEditsAdmin) throws Exception {
+        final boolean isExpectSuccess = isHasSudo || !isGrantsSudo || !isEditsAdmin;
+        final EventContext actor = loginNewAdmin(true, isHasSudo ? null : AdminPrivilegeSudo.value);
+        Experimenter newUser = createExperimenterI(UUID.randomUUID().toString(), getClass().getSimpleName(), "Test");
+        final long newUserId;
+        if (isEditsAdmin) {
+            newUserId = iAdmin.createLightSystemUser(newUser, Collections.<AdminPrivilege>emptyList());
+        } else {
+            final String groupName = newUserAndGroup("rwr---", false).groupName;
+            loginUser(actor);
+            newUserId = iAdmin.createUser(newUser, groupName);
+        }
+        newUser = (Experimenter) iQuery.get("Experimenter", newUserId);
+        final String sudoConfigName = AdminPrivilege.class.getSimpleName() + ':' + AdminPrivilegeSudo.value;
+        if (isGrantsSudo) {
+            newUser.setConfig(Collections.singletonList(new NamedValue(sudoConfigName, Boolean.toString(true))));
+        }
+        try {
+            // TODO: test is broken because update service does not yet check for privilege elevation
+            iUpdate.saveObject(newUser);
+            Assert.assertTrue(isExpectSuccess);
+            boolean newUserHasSudo = false;
+            for (final AdminPrivilege privilege : iAdmin.getAdminPrivileges(new ExperimenterI(newUserId, false))) {
+                if (AdminPrivilegeSudo.value.equals(privilege.getValue().getValue())) {
+                    newUserHasSudo = true;
+                    break;
+                }
+            }
+            Assert.assertEquals(newUserHasSudo, isGrantsSudo && isEditsAdmin);
+        } catch (ServerError se) {
+            Assert.assertFalse(isExpectSuccess);
+        }
+    }
+
+    /**
+     * Test that administrators may give users only privileges that they themselves have.
+     * Attempts adjusting group membership via {@link omero.api.IAdminPrx}.
+     * @param isHasSudo if the administrator has the <tt>Sudo</tt> privilege
+     * @param isTargetSudo if the target user should have the <tt>Sudo</tt> privilege
+     * @param isGroupSystem if to test editing membership of the <tt>system</tt> group
+     * @param isAddsLink if to test adding, otherwise removing
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "privilege elevation test cases with adds link")
+    public void testAdminEditsMembershipViaAdmin(boolean isHasSudo, boolean isTargetSudo, boolean isGroupSystem, boolean isAddsLink) throws Exception {
+        final boolean isExpectSuccess = isHasSudo || !isTargetSudo || !isGroupSystem || !isAddsLink;
+        final ExperimenterGroup otherGroup = new ExperimenterGroupI(newUserAndGroup("rwr---", false).groupId, false);
+        final ExperimenterGroup groupForAdjustment;
+        if (isGroupSystem) {
+            groupForAdjustment = new ExperimenterGroupI(roles.systemGroupId, false);
+        } else {
+            groupForAdjustment = otherGroup;
+        }
+        final EventContext target = loginNewAdmin(false, isTargetSudo ? null : AdminPrivilegeSudo.value);
+        if (!isAddsLink) {
+            addUsers(otherGroup, Collections.singletonList(target.userId), false);
+        }
+        loginNewAdmin(true, isHasSudo ? null : AdminPrivilegeSudo.value);
+        final Experimenter targetUser = new ExperimenterI(target.userId, false);
+        try {
+            if (isAddsLink) {
+                iAdmin.addGroups(targetUser, Collections.singletonList(groupForAdjustment));
+            } else {
+                iAdmin.removeGroups(targetUser, Collections.singletonList(groupForAdjustment));
+            }
+            Assert.assertTrue(isExpectSuccess);
+        } catch (SecurityViolation sv) {
+            Assert.assertFalse(isExpectSuccess);
+        }
+    }
+
+    /**
+     * Test that administrators may give users only privileges that they themselves have.
+     * Attempts adjusting group membership via {@link omero.api.IUpdatePrx}.
+     * @param isHasSudo if the administrator has the <tt>Sudo</tt> privilege
+     * @param isTargetSudo if the target user should have the <tt>Sudo</tt> privilege
+     * @param isGroupSystem if to test editing membership of the <tt>system</tt> group
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "privilege elevation test cases", groups = "broken")
+    public void testAdminEditsMembershipViaUpdate(boolean isHasSudo, boolean isTargetSudo, boolean isGroupSystem) throws Exception {
+        final boolean isExpectSuccess = isHasSudo || !isTargetSudo || !isGroupSystem;
+        final ExperimenterGroup otherGroup = new ExperimenterGroupI(newUserAndGroup("rwr---", false).groupId, false);
+        final ExperimenterGroup groupForAdjustment;
+        if (isGroupSystem) {
+            groupForAdjustment = new ExperimenterGroupI(roles.systemGroupId, false);
+        } else {
+            groupForAdjustment = otherGroup;
+        }
+        final EventContext target = newUserAndGroup("rwr---", false);
+        final List<AdminPrivilege> privileges = new ArrayList<>();
+        if (isTargetSudo) {
+            for (final AdminPrivilege privilege : allPrivileges) {
+                if (AdminPrivilegeSudo.value.equals(privilege.getValue().getValue())) {
+                    privileges.add(privilege);
+                    break;
+                }
+            }
+        }
+        root.getSession().getAdminService().setAdminPrivileges(new ExperimenterI(target.userId, false), privileges);
+        loginNewAdmin(true, isHasSudo ? null : AdminPrivilegeSudo.value);
+        final GroupExperimenterMap link = (GroupExperimenterMap) iQuery.findByQuery(
+                "FROM GroupExperimenterMap WHERE parent.id = :group_id AND child.id = :user_id",
+                new ParametersI().addLong("group_id", target.groupId).addLong("user_id", target.userId));
+        link.setParent(groupForAdjustment);
+        try {
+            // TODO: test is broken because update service does not yet check for privilege elevation
+            iUpdate.saveObject(link);
+            Assert.assertTrue(isExpectSuccess);
+        } catch (ServerError se) {
+            Assert.assertFalse(isExpectSuccess);
+        }
+    }
+
+    /**
+     * @return test cases that explore privilege elevation risk
+     */
+    @DataProvider(name = "privilege elevation test cases")
+    public Object[][] providePrivilegeElevationTestCases() {
+        int index = 0;
+        final int IS_ACTOR_SUDO = index++;
+        final int IS_TARGET_SUDO = index++;
+        final int IS_TARGET_SYSTEM = index++;
+
+        final boolean[] booleanCases = new boolean[]{false, true};
+
+        final List<Object[]> testCases = new ArrayList<Object[]>();
+
+        for (final boolean isActorSudo : booleanCases) {
+            for (final boolean isTargetSudo : booleanCases) {
+                for (final boolean isTargetSystem : booleanCases) {
+                    if ((isActorSudo || !isTargetSudo) && !isTargetSystem) {
+                        /* not interesting */
+                        continue;
+                    }
+                    final Object[] testCase = new Object[index];
+                    testCase[IS_ACTOR_SUDO] = isActorSudo;
+                    testCase[IS_TARGET_SUDO] = isTargetSudo;
+                    testCase[IS_TARGET_SYSTEM] = isTargetSystem;
+                    // DEBUG  if (isActorSudo == false && isTargetSudo == false && isTargetSystem == true)
+                    testCases.add(testCase);
+                }
+            }
+        }
+
+        return testCases.toArray(new Object[testCases.size()][]);
+    }
+
+    /**
+     * @return test cases that explore privilege elevation risk also with <q>adds link</q>
+     */
+    @DataProvider(name = "privilege elevation test cases with adds link")
+    public Object[][] providePrivilegeElevationWithAddsLinkTestCases() {
+        int index = 0;
+        final int IS_ACTOR_SUDO = index++;
+        final int IS_TARGET_SUDO = index++;
+        final int IS_TARGET_SYSTEM = index++;
+        final int IS_ADDS_LINK = index++;
+
+        final boolean[] booleanCases = new boolean[]{false, true};
+
+        final List<Object[]> testCases = new ArrayList<Object[]>();
+
+        for (final boolean isActorSudo : booleanCases) {
+            for (final boolean isTargetSudo : booleanCases) {
+                for (final boolean isTargetSystem : booleanCases) {
+                    for (final boolean isAddsLink : booleanCases) {
+                        if ((isActorSudo || !isTargetSudo) && !isTargetSystem) {
+                            /* not interesting */
+                            continue;
+                        }
+                        final Object[] testCase = new Object[index];
+                        testCase[IS_ACTOR_SUDO] = isActorSudo;
+                        testCase[IS_TARGET_SUDO] = isTargetSudo;
+                        testCase[IS_TARGET_SYSTEM] = isTargetSystem;
+                        testCase[IS_ADDS_LINK] = isAddsLink;
+                        // DEBUG  if (isActorSudo == false && isTargetSudo == false && isTargetSystem == true && isAddsLink == true)
+                        testCases.add(testCase);
+                    }
+                }
+            }
+        }
+
+        return testCases.toArray(new Object[testCases.size()][]);
+    }
+
+    /**
+     * @return test cases that explore privilege elevation risk for safe operations
+     */
+    @DataProvider(name = "privilege elevation expecting always pass test cases")
+    public Object[][] providePrivilegeElevationAlwaysPassTestCases() {
+        int index = 0;
+        final int IS_ACTOR_SUDO = index++;
+        final int IS_TARGET_SUDO = index++;
+        final int IS_TARGET_SYSTEM = index++;
+
+        final boolean[] booleanCases = new boolean[]{false, true};
+
+        final List<Object[]> testCases = new ArrayList<Object[]>();
+
+        for (final boolean isActorSudo : booleanCases) {
+            for (final boolean isTargetSudo : booleanCases) {
+                for (final boolean isTargetSystem : booleanCases) {
+                    if (isActorSudo || !isTargetSudo) {
+                        /* not interesting */
+                        continue;
+                    }
+                    final Object[] testCase = new Object[index];
+                    testCase[IS_ACTOR_SUDO] = isActorSudo;
+                    testCase[IS_TARGET_SUDO] = isTargetSudo;
+                    testCase[IS_TARGET_SYSTEM] = isTargetSystem;
+                    // DEBUG  if (isActorSudo == false && isTargetSudo == true && isTargetSystem == true)
+                    testCases.add(testCase);
+                }
+            }
+        }
+
         return testCases.toArray(new Object[testCases.size()][]);
     }
 }
