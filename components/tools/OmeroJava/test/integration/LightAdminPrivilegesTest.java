@@ -1109,15 +1109,10 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         final long newGroupId = newUserAndGroup("rwr-r-").groupId;
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeModifyUser.value : null);
-        final Experimenter newUser = new ExperimenterI();
-        newUser.setOmeName(omero.rtypes.rstring(UUID.randomUUID().toString()));
-        newUser.setFirstName(omero.rtypes.rstring("August"));
-        newUser.setLastName(omero.rtypes.rstring("Köhler"));
-        newUser.setLdap(omero.rtypes.rbool(false));
+        final Experimenter newUser = createExperimenterI(UUID.randomUUID().toString(), getClass().getSimpleName(), "Test");
         try {
-            final long userGroupId = iAdmin.getSecurityRoles().userGroupId;
-            final List<ExperimenterGroup> groups = ImmutableList.<ExperimenterGroup>of(new ExperimenterGroupI(userGroupId, false));
-            iAdmin.createExperimenter(newUser, new ExperimenterGroupI(newGroupId, false), groups);
+            final ExperimenterGroup userGroup = new ExperimenterGroupI(roles.userGroupId, false);
+            iAdmin.createExperimenter(newUser, new ExperimenterGroupI(newGroupId, false), Collections.singletonList(userGroup));
             Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccess);
@@ -1138,21 +1133,17 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         final long newGroupId = newUserAndGroup("rwr-r-").groupId;
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeModifyUser.value : null);
-        final Experimenter newUser = new ExperimenterI();
-        newUser.setOmeName(omero.rtypes.rstring(UUID.randomUUID().toString()));
-        newUser.setFirstName(omero.rtypes.rstring("August"));
-        newUser.setLastName(omero.rtypes.rstring("Köhler"));
-        newUser.setLdap(omero.rtypes.rbool(false));
-        GroupExperimenterMapI gem = new GroupExperimenterMapI();
-        gem.setParent(new ExperimenterGroupI(newGroupId, false));
-        gem.setChild(newUser);
-        gem.setOwner(omero.rtypes.rbool(false));
-        newUser.addGroupExperimenterMap(gem);
-        gem  = new GroupExperimenterMapI();
-        gem.setParent(new ExperimenterGroupI(iAdmin.getSecurityRoles().userGroupId, false));
-        gem.setChild(newUser);
-        gem.setOwner(omero.rtypes.rbool(false));
-        newUser.addGroupExperimenterMap(gem);
+        final Experimenter newUser = createExperimenterI(UUID.randomUUID().toString(), getClass().getSimpleName(), "Test");
+        GroupExperimenterMapI link = new GroupExperimenterMapI();
+        link.setParent(new ExperimenterGroupI(newGroupId, false));
+        link.setChild(newUser);
+        link.setOwner(omero.rtypes.rbool(false));
+        newUser.addGroupExperimenterMap(link);
+        link  = new GroupExperimenterMapI();
+        link.setParent(new ExperimenterGroupI(roles.userGroupId, false));
+        link.setChild(newUser);
+        link.setOwner(omero.rtypes.rbool(false));
+        newUser.addGroupExperimenterMap(link);
         try {
             iUpdate.saveObject(newUser);
             Assert.assertTrue(isExpectSuccess);
