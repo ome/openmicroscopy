@@ -201,7 +201,17 @@ api_plateacquisition_index_wells = url(
     views.WellsView.as_view(),
     name='api_plateacquisition_index_wells')
 """
-GET PlateAcquisitions in Plate, using omero-marshal to generate json
+GET Wells from a single Index in PlateAcquisition
+"""
+
+api_plate_index_wells = url(
+    r'^v(?P<api_version>%s)/m/plates/'
+    '(?P<plate_id>[0-9]+)/index/'
+    '(?P<index>[0-9]+)/wells/$' % versions,
+    views.WellsView.as_view(),
+    name='api_plate_index_wells')
+"""
+GET Wells from a single Index in Plate
 """
 
 api_plate_wells = url(
@@ -255,6 +265,7 @@ urlpatterns = patterns(
     api_plate_plateacquisitions,
     api_plateacquisition,
     api_plateacquisition_index_wells,
+    api_plate_index_wells,
     api_plate_wells,
     api_plateacquisition_wells,
     api_well,

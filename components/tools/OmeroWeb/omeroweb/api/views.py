@@ -550,13 +550,14 @@ class WellsView(ObjectsView):
             opts['plate'] = long(kwargs['plate_id'])
         elif 'plateacquisition_id' in kwargs:
             opts['plateacquisition'] = long(kwargs['plateacquisition_id'])
-            if 'index' in kwargs:
-                opts['wellsample_index'] = int(kwargs['index'])
         else:
             # filter by query /wells/?plate=:id
             plate = getIntOrDefault(request, 'plate', None)
             if plate is not None:
                 opts['plate'] = plate
+        # When filtering by plate or plateacquisition, can filter by ws index
+        if 'index' in kwargs:
+            opts['wellsample_index'] = int(kwargs['index'])
         # Listing Wells, load Images
         opts['load_images'] = True
         return opts
