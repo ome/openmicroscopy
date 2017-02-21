@@ -192,13 +192,13 @@ class TestWells(IWebTest):
         """Test listing of Wells in a Plate."""
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
-        client = self.new_django_client(user_name, user_name)
+        django_client = self.new_django_client(user_name, user_name)
         version = settings.API_VERSIONS[-1]
 
         wells_url = reverse('api_wells', kwargs={'api_version': version})
 
         # List ALL Wells in both plates
-        rsp = _get_response_json(client, wells_url, {})
+        rsp = _get_response_json(django_client, wells_url, {})
         assert len(rsp['data']) == 8
 
         # Filter Wells by Plate
@@ -210,14 +210,14 @@ class TestWells(IWebTest):
             wells = [w._obj for w in plate_wrapper.listChildren()]
             wells.sort(cmp_column_row)
             payload = {'plate': plate.id.val}
-            rsp = _get_response_json(client, wells_url, payload)
+            rsp = _get_response_json(django_client, wells_url, payload)
             # Manual check that Images are loaded but Pixels are not
             assert len(rsp['data']) == well_count
             well_sample = rsp['data'][0]['WellSamples'][0]
             assert 'Image' in well_sample
             assert ('PlateAcquisition' in well_sample) == with_acq
             assert 'Pixels' not in well_sample['Image']
-            extra = [{'url:well': build_url(client, 'api_well',
+            extra = [{'url:well': build_url(django_client, 'api_well',
                                             {'object_id': w.id.val,
                                              'api_version': version})}
                      for w in wells]
