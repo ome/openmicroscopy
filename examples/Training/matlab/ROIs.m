@@ -235,7 +235,7 @@ try
     % in the x  and y direction)
     % create polygon (shape object)
     polygon = createPolygon([1 5 10 8], [1 5 5 10]);
-    setShapeCoordinates(point, 0, 0, 0);
+    setShapeCoordinates(polygon, 0, 0, 0);
     % scaling parameters
     xScale = 10;
     yScale = 10;
