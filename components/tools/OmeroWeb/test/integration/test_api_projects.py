@@ -372,14 +372,17 @@ class TestProjects(IWebTest):
         # Both users
         rsp = _get_response_json(django_client, request_url, {})
         assert_objects(conn, rsp['data'], projects)
+        assert rsp['meta']['totalCount'] == len(projects)
 
         eid = user1[1].id.val
         rsp = _get_response_json(django_client, request_url, {'owner': eid})
         assert_objects(conn, rsp['data'], projects_user1_group1)
+        assert rsp['meta']['totalCount'] == len(projects_user1_group1)
 
         eid = user2[1].id.val
         rsp = _get_response_json(django_client, request_url, {'owner': eid})
         assert_objects(conn, rsp['data'], projects_user2_group1)
+        assert rsp['meta']['totalCount'] == len(projects_user2_group1)
 
     def test_marshal_projects_pagination(self, user1, user2,
                                          projects_user1_group1,
