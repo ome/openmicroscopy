@@ -293,9 +293,8 @@ class TestProjects(IWebTest):
         version = api_settings.API_VERSIONS[-1]
         request_url = reverse('api_projects', kwargs={'api_version': version})
         rsp = _get_response_json(django_client, request_url, {})
-        # Reload projects with group '-1' to get same 'canLink' perms
-        # on owner and group permissions
         assert_objects(conn, rsp['data'], projects_user1_group1)
+        assert rsp['meta']['totalCount'] == len(rsp['data'])
 
     def test_marshal_projects_another_user(self, user1, user2,
                                            projects_user2_group1):
@@ -311,6 +310,7 @@ class TestProjects(IWebTest):
         rsp = _get_response_json(django_client, request_url, {})
         # user1 reloads user2's projects
         assert_objects(conn, rsp['data'], projects_user2_group1)
+        assert rsp['meta']['totalCount'] == len(rsp['data'])
 
     def test_marshal_projects_another_group(self, user1, group2,
                                             projects_user1_group2):
@@ -329,6 +329,7 @@ class TestProjects(IWebTest):
         # are same as owner's default group Group 1 (rwra--) instead of
         # group that the data is in Group 2 (rwr--)
         assert_objects(conn, rsp['data'], projects_user1_group2)
+        assert rsp['meta']['totalCount'] == len(rsp['data'])
 
     def test_marshal_projects_all_groups(self, user1, group1, group2,
                                          projects_user1):
@@ -407,11 +408,13 @@ class TestProjects(IWebTest):
                                      {'limit': limit})
             assert len(rsp['data']) == limit
             assert_objects(conn, rsp['data'], projects[0:limit])
+            assert rsp['meta']['totalCount'] == len(projects)
 
             # Check that page 2 gives next n projects
             payload = {'limit': limit, 'offset': limit}
             rsp = _get_response_json(django_client, request_url, payload)
             assert_objects(conn, rsp['data'], projects[limit:limit * 2])
+            assert rsp['meta']['totalCount'] == len(projects)
 
     def test_marshal_projects_params(self, user1, user2,
                                      projects_user1_group1,
@@ -446,6 +449,7 @@ class TestProjects(IWebTest):
         # Test 'normalize' parameter.
         payload = {'normalize': 'true'}
         rsp = _get_response_json(django_client, request_url, payload)
+        assert rsp['meta']['totalCount'] == len(rsp['data'])
         for p in rsp['data']:
             details = p['omero:details']
             owner = details['owner']

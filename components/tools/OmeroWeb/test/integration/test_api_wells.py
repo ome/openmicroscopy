@@ -193,6 +193,7 @@ class TestWells(IWebTest):
             rsp = _get_response_json(django_client, wells_url, payload)
             # Manual check that Images are loaded but Pixels are not
             assert len(rsp['data']) == well_count
+            assert rsp['meta']['totalCount'] == well_count
             well_sample = rsp['data'][0]['WellSamples'][0]
             assert 'Image' in well_sample
             assert ('PlateAcquisition' in well_sample) == with_acq
