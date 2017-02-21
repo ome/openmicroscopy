@@ -286,7 +286,7 @@ class PlateView(ObjectView):
                 url = build_url(request, 'api_plate_index_wells',
                                 version, **extra)
                 ws_urls.append(url)
-        marshalled['urls:wellsampleindex_wells'] = ws_urls
+        marshalled['url:wellsampleindex_wells'] = ws_urls
 
         return marshalled
 
@@ -313,7 +313,7 @@ class PlateAcquisitionView(ObjectView):
             url = build_url(request, 'api_plateacquisition_index_wells',
                             version, **extra)
             ws_urls.append(url)
-        marshalled['urls:wellsampleindex_wells'] = ws_urls
+        marshalled['url:wellsampleindex_wells'] = ws_urls
         return marshalled
 
 
@@ -550,7 +550,7 @@ class PlateAcquisitionsView(ObjectsView):
             url = build_url(request, 'api_plateacquisition_index_wells',
                             version, **extra)
             ws_urls.append(url)
-        marshalled['urls:wellsampleindex_wells'] = ws_urls
+        marshalled['url:wellsampleindex_wells'] = ws_urls
 
         return marshalled
 

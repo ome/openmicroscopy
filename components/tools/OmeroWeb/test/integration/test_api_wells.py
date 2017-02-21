@@ -264,7 +264,7 @@ class TestWells(IWebTest):
         assert_objects(conn, [plate_json], [multi_acquisition_plate],
                        dtype='Plate',
                        extra=[{'url:plateacquisitions': plate_acq_link,
-                               'urls:wellsampleindex_wells': index_links,
+                               'url:wellsampleindex_wells': index_links,
                                'url:wells': well_link,
                                'omero:wellsampleIndex': list(idx)}])
 
@@ -285,7 +285,7 @@ class TestWells(IWebTest):
                                'plateacquisition_id': plate_acq.id,
                                'index': i})
                 index_links.append(l)
-            extra.append({'urls:wellsampleindex_wells': index_links,
+            extra.append({'url:wellsampleindex_wells': index_links,
                           'omero:wellsampleIndex': [p * 3, (p + 1) * 3 - 1]})
         # ...and compare
         assert_objects(conn, plate_acq_json, paq_ids,

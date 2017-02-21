@@ -341,6 +341,9 @@ class TestContainers(IWebTest):
         object_url = "%sm/%ss/%s/" % (base_url, dtype.lower(),
                                       children[0].id.val)
         rsp = _get_response_json(django_client, object_url, payload)
+        if dtype == 'Plate':
+            # When we get a single Plate, expect this (not when listing plates)
+            ds_or_pl_children= [{'omero:wellsampleIndex': [0, 0]}]
         assert_objects(conn, [rsp['data']], [children[0]], dtype=dtype,
                        extra=ds_or_pl_children)
 
@@ -351,13 +354,13 @@ class TestContainers(IWebTest):
                    'childCount': str(child_count).lower()}
         rsp = _get_response_json(django_client, request_url, payload)
         extra = None
-        if ds_or_pl_children is not None:
+        if ds_or_pl_children is not None and len(ds_or_pl_children) > 1:
             extra = ds_or_pl_children[0:limit]
         assert_objects(conn, rsp['data'], children[0:limit], dtype=dtype,
                        extra=extra)
         payload['page'] = 2
         rsp = _get_response_json(django_client, request_url, payload)
-        if ds_or_pl_children is not None:
+        if ds_or_pl_children is not None and len(ds_or_pl_children) > 1:
             extra = ds_or_pl_children[limit:limit * 2]
         assert_objects(conn, rsp['data'], children[limit:limit * 2],
                        dtype=dtype, extra=extra)
