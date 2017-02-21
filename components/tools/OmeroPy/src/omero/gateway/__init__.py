@@ -3206,7 +3206,7 @@ class _BlitzGateway (object):
         query, params, wrapper = self.buildQuery(obj_type, opts=opts_copy)
 
         # Modify query to only select count()
-        query = query.replace("select obj ", "select count(obj) ")
+        query = query.replace("select obj ", "select count(distinct obj) ")
         query = query.replace("fetch", "")
         query = query.split("order by")[0]
         return query, params
