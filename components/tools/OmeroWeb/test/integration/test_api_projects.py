@@ -395,16 +395,17 @@ class TestProjects(IWebTest):
         version = api_settings.API_VERSIONS[-1]
         request_url = reverse('api_projects', kwargs={'api_version': version})
 
-        # First page, just 2 projects. offset = 0 by default
-        limit = 2
-        rsp = _get_response_json(django_client, request_url, {'limit': limit})
-        assert len(rsp['data']) == limit
-        assert_objects(conn, rsp['data'], projects[0:limit])
+        # Test a range of limits. offset = 0 by default
+        for limit in range(1, 4):
+            rsp = _get_response_json(django_client, request_url,
+                                     {'limit': limit})
+            assert len(rsp['data']) == limit
+            assert_objects(conn, rsp['data'], projects[0:limit])
 
-        # Check that page 2 gives next 2 projects
-        payload = {'limit': limit, 'offset': limit}
-        rsp = _get_response_json(django_client, request_url, payload)
-        assert_objects(conn, rsp['data'], projects[limit:limit * 2])
+            # Check that page 2 gives next n projects
+            payload = {'limit': limit, 'offset': limit}
+            rsp = _get_response_json(django_client, request_url, payload)
+            assert_objects(conn, rsp['data'], projects[limit:limit * 2])
 
     def test_marshal_projects_params(self, user1, user2,
                                      projects_user1_group1,

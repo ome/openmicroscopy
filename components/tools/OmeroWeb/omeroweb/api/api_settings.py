@@ -52,6 +52,6 @@ report_settings(sys.modules[__name__])
 
 # For any given release of api, we may support
 # one or more versions of the api.
-# E.g. /api/v1.0/
+# E.g. /api/v0/
 # TODO - need to decide how this is configured, strategy for extending etc.
 API_VERSIONS = ('0',)
