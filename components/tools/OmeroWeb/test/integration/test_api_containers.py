@@ -343,7 +343,7 @@ class TestContainers(IWebTest):
         rsp = _get_response_json(django_client, object_url, payload)
         if dtype == 'Plate':
             # When we get a single Plate, expect this (not when listing plates)
-            ds_or_pl_children= [{'omero:wellsampleIndex': [0, 0]}]
+            ds_or_pl_children = [{'omero:wellsampleIndex': [0, 0]}]
         assert_objects(conn, [rsp['data']], [children[0]], dtype=dtype,
                        extra=ds_or_pl_children)
 

@@ -23,8 +23,10 @@ from omeroweb.testlib import IWebTest, _get_response_json
 from django.core.urlresolvers import reverse
 from django.conf import settings
 import pytest
-from test_api_projects import get_update_service, \
-    get_connection, marshal_objects, cmp_name_insensitive
+from test_api_projects import cmp_name_insensitive, \
+    get_connection, \
+    get_update_service, \
+    marshal_objects
 from test_api_containers import build_url
 from omero.model import ImageI, \
     LengthI, \
