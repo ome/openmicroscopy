@@ -24,10 +24,9 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
- * Collections of tests for the <code>IUpdate</code> service.
+ * Collections of tests for the Table handling.
  *
  * @author Brian loranger &nbsp;&nbsp;&nbsp;&nbsp;
- * @version 3.0 <small> (<b>Internal version:</b> $Revision: $Date: $) </small>
  * @since 3.0-Beta4
  */
 public class TableTest extends AbstractServerTest {
@@ -163,7 +162,7 @@ public class TableTest extends AbstractServerTest {
      */
     @Test
     public void testGetNumberOfRows() throws Exception {
-        Assert.assertEquals(0, myTable.getNumberOfRows());
+        Assert.assertEquals(myTable.getNumberOfRows(), 0);
 
         Column[] newRow = createColumns(1);
 
@@ -177,7 +176,7 @@ public class TableTest extends AbstractServerTest {
 
         myTable.addData(newRow);
 
-        Assert.assertEquals(1, myTable.getNumberOfRows());
+        Assert.assertEquals(myTable.getNumberOfRows(), 1);
     }
 
     /**
@@ -191,7 +190,7 @@ public class TableTest extends AbstractServerTest {
         long[] ids = myTable.getWhereList("(Uid==" + 0 + ")", null, 0,
                 myTable.getNumberOfRows(), 1);
 
-        Assert.assertEquals(0, ids.length);
+        Assert.assertEquals(ids.length, 0);
     }
 
     /**
@@ -224,7 +223,7 @@ public class TableTest extends AbstractServerTest {
                 myTable.getNumberOfRows(), 1);
 
         // getWhereList should have returned one row
-        Assert.assertEquals(1, ids.length);
+        Assert.assertEquals(ids.length, 1);
 
         // Retrieve data again
         Data myData = myTable.read(ColNumbers, 0L,
@@ -234,8 +233,8 @@ public class TableTest extends AbstractServerTest {
         myLongs = (LongColumn) myData.columns[LONG_COLUMN];
 
         // Row's time string and value should be the same
-        Assert.assertEquals(1, (myLongs.values[(int) ids[0]]));
-        Assert.assertEquals("one", myStrings.values[(int) ids[0]]);
+        Assert.assertEquals((myLongs.values[(int) ids[0]]), 1);
+        Assert.assertEquals(myStrings.values[(int) ids[0]], "one");
     }
 
     /**
@@ -305,8 +304,7 @@ public class TableTest extends AbstractServerTest {
      */
     @Test
     public void testRead0Rows() throws Exception {
-        if (myTable != null)
-            myTable.read(ColNumbers, 0L, myTable.getNumberOfRows());
+        myTable.read(ColNumbers, 0L, myTable.getNumberOfRows());
     }
 
     /**
@@ -317,20 +315,18 @@ public class TableTest extends AbstractServerTest {
      */
     @Test
     public void testRead1Rows() throws Exception {
-        if (myTable != null) {
-            Column[] newRow = createColumns(1);
+        Column[] newRow = createColumns(1);
 
-            LongColumn uids = (LongColumn) newRow[UID_COLUMN];
-            LongColumn myLongs = (LongColumn) newRow[LONG_COLUMN];
-            StringColumn myStrings = (StringColumn) newRow[STRING_COLUMN];
+        LongColumn uids = (LongColumn) newRow[UID_COLUMN];
+        LongColumn myLongs = (LongColumn) newRow[LONG_COLUMN];
+        StringColumn myStrings = (StringColumn) newRow[STRING_COLUMN];
 
-            uids.values[0] = 0;
-            myLongs.values[0] = 0;
-            myStrings.values[0] = "none";
+        uids.values[0] = 0;
+        myLongs.values[0] = 0;
+        myStrings.values[0] = "none";
 
-            myTable.addData(newRow);
-            myTable.read(ColNumbers, 0L, myTable.getNumberOfRows());
-        }
+        myTable.addData(newRow);
+        myTable.read(ColNumbers, 0L, myTable.getNumberOfRows());
     }
 
     /**
@@ -341,23 +337,21 @@ public class TableTest extends AbstractServerTest {
      */
     @Test
     public void testRead2Rows() throws Exception {
-        if (myTable != null) {
-            Column[] newRow = createColumns(2);
+        Column[] newRow = createColumns(2);
 
-            LongColumn uids = (LongColumn) newRow[UID_COLUMN];
-            LongColumn myLongs = (LongColumn) newRow[LONG_COLUMN];
-            StringColumn myStrings = (StringColumn) newRow[STRING_COLUMN];
+        LongColumn uids = (LongColumn) newRow[UID_COLUMN];
+        LongColumn myLongs = (LongColumn) newRow[LONG_COLUMN];
+        StringColumn myStrings = (StringColumn) newRow[STRING_COLUMN];
 
-            uids.values[0] = 0;
-            myLongs.values[0] = 0;
-            myStrings.values[0] = "zero";
-            uids.values[1] = 1;
-            myLongs.values[1] = 1;
-            myStrings.values[1] = "one";
+        uids.values[0] = 0;
+        myLongs.values[0] = 0;
+        myStrings.values[0] = "zero";
+        uids.values[1] = 1;
+        myLongs.values[1] = 1;
+        myStrings.values[1] = "one";
 
-            myTable.addData(newRow);
-            myTable.read(ColNumbers, 0L, myTable.getNumberOfRows());
-        }
+        myTable.addData(newRow);
+        myTable.read(ColNumbers, 0L, myTable.getNumberOfRows());
     }
 
     /**
@@ -427,7 +421,7 @@ public class TableTest extends AbstractServerTest {
      */
     @Test
     public void testUpdateTableWith1Rows() throws Exception {
-     // Add a new row to table
+        // Add a new row to table
         Column[] newRow = createColumns(1);
 
         LongColumn uids = (LongColumn) newRow[UID_COLUMN];
@@ -451,7 +445,7 @@ public class TableTest extends AbstractServerTest {
                 myTable.getNumberOfRows(), 1);
 
         // getWhereList should have returned one row
-        Assert.assertEquals(1, ids.length);
+        Assert.assertEquals(ids.length, 1);
 
         // Update the row with new data
         Long newTime = new Date().getTime();
@@ -469,9 +463,9 @@ public class TableTest extends AbstractServerTest {
         myLongs = (LongColumn) myData.columns[LONG_COLUMN];
 
         // Row's time string and value should be the same
-        Assert.assertEquals(newTime.toString(),
-                myStrings.values[(int) ids[0]]);
-        Assert.assertEquals(newTime.longValue(), myLongs.values[(int) ids[0]]);
+        Assert.assertEquals(
+                myStrings.values[(int) ids[0]], newTime.toString());
+        Assert.assertEquals(myLongs.values[(int) ids[0]], newTime.longValue());
     }
 
     /**
@@ -510,7 +504,7 @@ public class TableTest extends AbstractServerTest {
                 myTable.getNumberOfRows(), 1);
 
         // getWhereList should have returned one row
-        Assert.assertEquals(1, ids.length);
+        Assert.assertEquals(ids.length, 1);
 
         // Update the row with new data
         Long newTime = new Date().getTime();
@@ -528,9 +522,9 @@ public class TableTest extends AbstractServerTest {
         myLongs = (LongColumn) myData.columns[LONG_COLUMN];
 
         // Row's time string and value should be the same
-        Assert.assertEquals(newTime.toString(),
-                myStrings.values[(int) ids[0]]);
-        Assert.assertEquals(newTime.longValue(), myLongs.values[(int) ids[0]]);
+        Assert.assertEquals(
+                myStrings.values[(int) ids[0]], newTime.toString());
+        Assert.assertEquals(myLongs.values[(int) ids[0]], newTime.longValue());
     }
 
 }
