@@ -3020,7 +3020,7 @@ class _BlitzGateway (object):
         If more than one object found, raises ome.conditions.ApiUsageException
         See :meth:`getObjects` for more info.
 
-        :param obj_type:    Object type. E.g. "Project" see above
+        :param obj_type:    Object type, e.g. "Project" see above
         :type obj_type:     String
         :param ids:         object IDs
         :type ids:          List of Long
@@ -3048,7 +3048,7 @@ class _BlitzGateway (object):
         be returned. i.e. listObjects() Filter objects by attributes. E.g.
         attributes={'name':name}
 
-        :param obj_type:    Object type. E.g. "Project" see above
+        :param obj_type:    Object type, e.g. "Project" see above
         :type obj_type:     String
         :param ids:         object IDs
         :type ids:          List of Long
@@ -3087,7 +3087,7 @@ class _BlitzGateway (object):
         can be used with the appropriate query method. Used by
         :meth:`getObjects` and :meth:`getObject` above.
 
-        :param obj_type:    Object type. E.g. "Project" see above
+        :param obj_type:    Object type, e.g. "Project" see above
         :type obj_type:     String
         :param ids:         object IDs
         :type ids:          List of Long
@@ -3190,11 +3190,11 @@ class _BlitzGateway (object):
         unnecessary objects to query.
         We return just the query and omero.sys.ParametersI for the query.
 
-        :param obj_type:    Object type. E.g. "Project" see above
+        :param obj_type:    Object type, e.g. "Project" see above
         :param opts:        Dict of options for filtering by
                             offset, limit and owner for all objects.
                             Additional opts handled by _getQueryString()
-                            E.g. filter Dataset by 'project'
+                            e.g. filter Dataset by 'project'
         :return:            (query, params)
         """
         # We disable pagination since we want to count ALL results
@@ -3252,7 +3252,7 @@ class _BlitzGateway (object):
         If parent_ids is None, all available objects will be returned.
         i.e. listObjects()
 
-        :param obj_type:    Object type. E.g. "Project" see above
+        :param obj_type:    Object type, e.g. "Project" see above
         :type obj_type:     String
         :param ids:         object IDs
         :type ids:          List of Long
