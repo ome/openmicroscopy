@@ -24,7 +24,7 @@ Tests querying & editing Projects with webgateway json api
 from omeroweb.testlib import IWebTest, _get_response_json, \
     _csrf_post_json, _csrf_put_json, _csrf_delete_response_json
 from django.core.urlresolvers import reverse
-from django.conf import settings
+from omeroweb.api import api_settings
 from django.test import Client
 import pytest
 from omero.gateway import BlitzGateway
@@ -265,7 +265,7 @@ class TestProjects(IWebTest):
         Test marshalling projects without log-in
         """
         django_client = Client()
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         request_url = reverse('api_projects', kwargs={'api_version': version})
         rsp = _get_response_json(django_client, request_url, {},
                                  status_code=403)
@@ -278,7 +278,7 @@ class TestProjects(IWebTest):
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         request_url = reverse('api_projects', kwargs={'api_version': version})
         rsp = _get_response_json(django_client, request_url, {})
         assert rsp['data'] == []
@@ -290,7 +290,7 @@ class TestProjects(IWebTest):
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         request_url = reverse('api_projects', kwargs={'api_version': version})
         rsp = _get_response_json(django_client, request_url, {})
         # Reload projects with group '-1' to get same 'canLink' perms
@@ -306,7 +306,7 @@ class TestProjects(IWebTest):
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         request_url = reverse('api_projects', kwargs={'api_version': version})
         rsp = _get_response_json(django_client, request_url, {})
         # user1 reloads user2's projects
@@ -320,7 +320,7 @@ class TestProjects(IWebTest):
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         request_url = reverse('api_projects', kwargs={'api_version': version})
         rsp = _get_response_json(django_client, request_url, {})
 
@@ -339,7 +339,7 @@ class TestProjects(IWebTest):
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         request_url = reverse('api_projects', kwargs={'api_version': version})
 
         # All groups
@@ -366,7 +366,7 @@ class TestProjects(IWebTest):
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         request_url = reverse('api_projects', kwargs={'api_version': version})
 
         # Both users
@@ -392,7 +392,7 @@ class TestProjects(IWebTest):
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         request_url = reverse('api_projects', kwargs={'api_version': version})
 
         # First page, just 2 projects. offset = 0 by default
@@ -417,7 +417,7 @@ class TestProjects(IWebTest):
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         request_url = reverse('api_projects', kwargs={'api_version': version})
 
         # Test 'childCount' parameter
@@ -462,7 +462,7 @@ class TestProjects(IWebTest):
         """
         django_client = self.django_root_client
         group = self.ctx.groupId
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         # Need to get the Schema url to create @type
         base_url = reverse('api_base', kwargs={'api_version': version})
         rsp = _get_response_json(django_client, base_url, {})
@@ -495,7 +495,7 @@ class TestProjects(IWebTest):
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         # We're only using projects_user1_group2 to get group2 id
         group2_id = projects_user1_group2[0].getDetails().group.id.val
         # This seems to be the minimum details needed to pass group ID
@@ -539,7 +539,7 @@ class TestProjects(IWebTest):
         project = get_update_service(user1).saveAndReturnObject(project)
 
         # Update Project in 2 ways...
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         project_url = reverse('api_project',
                               kwargs={'api_version': version,
                                       'object_id': project.id.val})
@@ -590,7 +590,7 @@ class TestProjects(IWebTest):
         project.name = rstring('test_project_delete')
         project.description = rstring('Test update')
         project = get_update_service(user1).saveAndReturnObject(project)
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         project_url = reverse('api_project',
                               kwargs={'api_version': version,
                                       'object_id': project.id.val})

@@ -21,7 +21,7 @@
 
 from omeroweb.testlib import IWebTest, _csrf_post_json, _csrf_put_json
 from django.core.urlresolvers import reverse
-from django.conf import settings
+from omeroweb.api import api_settings
 import pytest
 from test_api_projects import get_connection
 from omero.model import ProjectI, TagAnnotationI
@@ -56,7 +56,7 @@ class TestErrors(IWebTest):
     def test_save_post_no_id(self):
         """If POST to /save/ data shouldn't contain @id."""
         django_client = self.django_root_client
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         save_url = reverse('api_save', kwargs={'api_version': version})
         payload = {'Name': 'test_save_post_no_id',
                    '@type': '%s#Project' % OME_SCHEMA_URL,
@@ -69,7 +69,7 @@ class TestErrors(IWebTest):
     def test_save_put_id(self):
         """If PUT to /save/ to update, data must contain @id."""
         django_client = self.django_root_client
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         save_url = reverse('api_save', kwargs={'api_version': version})
         payload = {'Name': 'test_save_put_id',
                    '@type': '%s#Project' % OME_SCHEMA_URL}
@@ -81,7 +81,7 @@ class TestErrors(IWebTest):
     def test_marshal_type(self):
         """If no decoder found for @type, get suitable message."""
         django_client = self.django_root_client
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         save_url = reverse('api_save', kwargs={'api_version': version})
         objType = 'SomeInvalidSchema#Project'
         payload = {'Name': 'test_marshal_type',
@@ -94,7 +94,7 @@ class TestErrors(IWebTest):
     def test_marshal_validation(self):
         """Test that we get expected error with invalid @type in json."""
         django_client = self.django_root_client
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         save_url = reverse('api_save', kwargs={'api_version': version})
         payload = {'Name': 'test_marshal_validation',
                    '@type': OME_SCHEMA_URL + '#Project',
@@ -112,7 +112,7 @@ class TestErrors(IWebTest):
         group_A_id = conn.getEventContext().groupId
         userName = conn.getUser().getName()
         django_client = self.new_django_client(userName, userName)
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         group_B_id = group_B.id.val
         save_url = reverse('api_save', kwargs={'api_version': version})
         # Create project in group_A (default group)
@@ -139,7 +139,7 @@ class TestErrors(IWebTest):
         group = conn.getEventContext().groupId
         userName = conn.getUser().getName()
         django_client = self.new_django_client(userName, userName)
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         save_url = reverse('api_save', kwargs={'api_version': version})
         save_url += '?group=' + str(group)
 
