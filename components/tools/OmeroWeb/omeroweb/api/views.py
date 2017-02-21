@@ -311,6 +311,10 @@ class ObjectsView(ApiView):
             orphaned = request.GET.get('orphaned', False) == 'true'
         except ValueError as ex:
             raise BadRequestError(str(ex))
+        if limit < 0:
+            limit = api_settings.API_LIMIT
+        if offset < 0:
+            offset = 0
 
         # orphaned and child_count not used by every subclass
         opts = {'offset': offset,
