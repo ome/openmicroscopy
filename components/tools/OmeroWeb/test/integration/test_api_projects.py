@@ -345,14 +345,17 @@ class TestProjects(IWebTest):
         # All groups
         rsp = _get_response_json(django_client, request_url, {})
         assert_objects(conn, rsp['data'], projects_user1)
+        assert rsp['meta']['totalCount'] == len(projects_user1)
         # Filter by group A...
         gid = group1.id.val
         rsp = _get_response_json(django_client, request_url, {'group': gid})
         assert_objects(conn, rsp['data'], projects_user1, group=gid)
+        assert rsp['meta']['totalCount'] == len(rsp['data'])
         # ...and group B
         gid = group2.id.val
         rsp = _get_response_json(django_client, request_url, {'group': gid})
         assert_objects(conn, rsp['data'], projects_user1, group=gid)
+        assert rsp['meta']['totalCount'] == len(rsp['data'])
 
     def test_marshal_projects_all_users(self, user1, user2,
                                         projects_user1_group1,
