@@ -228,7 +228,7 @@ class TestWells(IWebTest):
 
     def test_plate_index_wells(self, user1, multi_acquisition_plate):
         """
-        Test filtering of Wells by Plate/Acquisition AND index.
+        Test filtering of Wells by Plate/PlateAcquisition AND index.
 
         Browse urls Plate -> PlateAcquisitions -> Wells
         OR Plate -> Wells (filtering by Index)
