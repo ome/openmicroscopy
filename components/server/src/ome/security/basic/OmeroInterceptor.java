@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -20,12 +22,18 @@ import org.hibernate.CallbackException;
 import org.hibernate.EmptyInterceptor;
 import org.hibernate.EntityMode;
 import org.hibernate.Interceptor;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.collection.PersistentList;
 import org.hibernate.engine.CollectionEntry;
 import org.hibernate.engine.PersistenceContext;
+import org.hibernate.jdbc.Work;
 import org.hibernate.type.ComponentType;
 import org.hibernate.type.Type;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.orm.hibernate3.SessionFactoryUtils;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableSet;
@@ -66,6 +74,7 @@ import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.HibernateUtils;
 import ome.tools.lsid.LsidUtils;
+import ome.util.SqlAction;
 
 /**
  * implements {@link org.hibernate.Interceptor} for controlling various aspects
@@ -79,7 +88,7 @@ import ome.tools.lsid.LsidUtils;
  * @see Interceptor
  * @since 3.0-M3
  */
-public class OmeroInterceptor implements Interceptor {
+public class OmeroInterceptor implements Interceptor, ApplicationContextAware {
 
     static volatile String last = null;
 
@@ -106,12 +115,17 @@ public class OmeroInterceptor implements Interceptor {
 
     private final LightAdminPrivileges adminPrivileges;
 
+    private final SqlAction sqlAction;
+
     /* thread-safe */
     private final Set<String> managedRepoUuids, scriptRepoUuids;
 
+    /* used to obtain the session factory bean despite the cyclic dependency */
+    private ApplicationContext applicationContext = null;
+
     public OmeroInterceptor(Roles roles, SystemTypes sysTypes, ExtendedMetadata em,
             CurrentDetails cd, TokenHolder tokenHolder, SessionStats stats,
-            LightAdminPrivileges adminPrivileges, Set<String> managedRepoUuids, Set<String> scriptRepoUuids) {
+            LightAdminPrivileges adminPrivileges, SqlAction sqlAction, Set<String> managedRepoUuids, Set<String> scriptRepoUuids) {
         Assert.notNull(tokenHolder);
         Assert.notNull(sysTypes);
         // Assert.notNull(em); Permitting null for testing
@@ -125,8 +139,14 @@ public class OmeroInterceptor implements Interceptor {
         this.roles = roles;
         this.em = em;
         this.adminPrivileges = adminPrivileges;
+        this.sqlAction = sqlAction;
         this.managedRepoUuids = managedRepoUuids;
         this.scriptRepoUuids = scriptRepoUuids;
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
     }
 
     /**
@@ -309,11 +329,42 @@ public class OmeroInterceptor implements Interceptor {
         }
     }
 
+    /**
+     * Test if a database connection is read-only.
+     * @todo in Hibernate 4 use <code>doReturningWork</code> instead
+     * @author m.t.b.carroll@dundee.ac.uk
+     * @since 5.3.0
+     */
+    private static final class ReadOnlyCheck implements Work {
+
+        private boolean isReadOnly = false;
+
+        @Override
+        public void execute(Connection connection) throws SQLException {
+            isReadOnly = connection.isReadOnly();
+        }
+    }
+
     // ~ Flush (currently unclear semantics)
     // =========================================================================
     public void preFlush(Iterator entities) throws CallbackException {
         debug("Intercepted preFlush.");
-        EMPTY.preFlush(entities);
+
+        final SessionFactory sessionFactory = applicationContext.getBean("sessionFactory", SessionFactory.class);
+        final Session session = SessionFactoryUtils.getSession(sessionFactory, false);
+        final ReadOnlyCheck readOnlyCheck = new ReadOnlyCheck();
+        session.doWork(readOnlyCheck);
+        if (readOnlyCheck.isReadOnly) {
+            debug("detected read-only transaction");
+            /* read-only transactions do not trigger checks */
+            return;
+        }
+
+        if (sqlAction != null) {
+            debug("updating current light administrator privileges");
+            sqlAction.deleteCurrentAdminPrivileges();
+            sqlAction.insertCurrentAdminPrivileges(getAdminPrivileges());
+        }
     }
 
     public void postFlush(Iterator entities) throws CallbackException {
