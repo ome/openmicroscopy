@@ -1301,6 +1301,11 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
         final Set<AdminPrivilege> privilegesToRemove = new HashSet<AdminPrivilege>(adminPrivileges.getAllPrivileges());
         privilegesToRemove.removeAll(privileges);
+
+        if (user.getId() == getSecurityRoles().getRootId() && !privilegesToRemove.isEmpty()) {
+            throw new ApiUsageException("cannot remove light administrator privileges from the root user");
+        }
+
         user = userProxy(user.getId());
         final List<NamedValue> userConfig;
         if (user.getConfig() == null) {
