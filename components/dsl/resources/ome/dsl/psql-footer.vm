@@ -881,7 +881,7 @@ CREATE TRIGGER _fs_protected_mimetype
 CREATE FUNCTION prevent_root_deactivate_delete() RETURNS "trigger" AS $$
 
     DECLARE
-        roles _roles%ROWTYPE;
+        roles _roles%%ROWTYPE;
 
     BEGIN
         SELECT * INTO STRICT roles FROM _roles;
@@ -905,7 +905,7 @@ CREATE TRIGGER prevent_root_deactivate_delete
 CREATE FUNCTION prevent_root_deactivate_update() RETURNS "trigger" AS $$
 
     DECLARE
-        roles _roles%ROWTYPE;
+        roles _roles%%ROWTYPE;
 
     BEGIN
         SELECT * INTO STRICT roles FROM _roles;
@@ -931,7 +931,7 @@ CREATE TRIGGER prevent_root_deactivate_update
 CREATE FUNCTION prevent_experimenter_rename() RETURNS "trigger" AS $$
 
     DECLARE
-        roles _roles%ROWTYPE;
+        roles _roles%%ROWTYPE;
 
     BEGIN
         SELECT * INTO STRICT roles FROM _roles;
@@ -955,7 +955,7 @@ CREATE TRIGGER prevent_experimenter_rename
 CREATE FUNCTION prevent_experimenter_group_rename() RETURNS "trigger" AS $$
 
     DECLARE
-        roles _roles%ROWTYPE;
+        roles _roles%%ROWTYPE;
 
     BEGIN
         SELECT * INTO STRICT roles FROM _roles;
@@ -980,12 +980,12 @@ CREATE TRIGGER prevent_experimenter_group_rename
 CREATE FUNCTION prevent_root_privilege_restriction() RETURNS "trigger" AS $$
 
     DECLARE
-        roles _roles%ROWTYPE;
+        roles _roles%%ROWTYPE;
 
     BEGIN
         SELECT * INTO STRICT roles FROM _roles;
 
-        IF NEW.experimenter_id = roles.root_user_id AND NEW.name LIKE 'AdminPrivilege:%' AND NEW.value NOT ILIKE 'true' THEN
+        IF NEW.experimenter_id = roles.root_user_id AND NEW.name LIKE 'AdminPrivilege:%%' AND NEW.value NOT ILIKE 'true' THEN
             RAISE EXCEPTION 'cannot restrict admin privileges of root experimenter';
         END IF;
         RETURN NEW;
@@ -1212,7 +1212,7 @@ CREATE INDEX i_current_admin_privileges_transactions ON _current_admin_privilege
 CREATE OR REPLACE FUNCTION group_link_insert_check() RETURNS "trigger" AS $$
 
     DECLARE
-        roles _roles%ROWTYPE;
+        roles _roles%%ROWTYPE;
 
     BEGIN
         SELECT * INTO STRICT roles FROM _roles;
@@ -1229,7 +1229,7 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION group_link_update_check() RETURNS "trigger" AS $$
 
     DECLARE
-        roles _roles%ROWTYPE;
+        roles _roles%%ROWTYPE;
 
     BEGIN
         SELECT * INTO STRICT roles FROM _roles;
@@ -1248,12 +1248,12 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION user_config_delete_check() RETURNS "trigger" AS $$
 
     DECLARE
-        roles _roles%ROWTYPE;
+        roles _roles%%ROWTYPE;
 
     BEGIN
         SELECT * INTO STRICT roles FROM _roles;
 
-        IF OLD.name LIKE 'AdminPrivilege:%' AND OLD.value NOT ILIKE 'true' AND
+        IF OLD.name LIKE 'AdminPrivilege:%%' AND OLD.value NOT ILIKE 'true' AND
        EXISTS (SELECT 1 FROM groupexperimentermap WHERE parent = roles.system_group_id AND child = OLD.experimenter_id) AND
        NOT EXISTS (SELECT 1 FROM _current_admin_privileges p WHERE p.transaction = txid_current() AND 'AdminPrivilege:' || p.privilege = OLD.name) THEN
             RAISE EXCEPTION 'cannot give administrator privileges that current user does not have';
@@ -1266,13 +1266,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION user_config_update_check() RETURNS "trigger" AS $$
 
     DECLARE
-        roles _roles%ROWTYPE;
+        roles _roles%%ROWTYPE;
 
     BEGIN
         SELECT * INTO STRICT roles FROM _roles;
 
         IF (OLD.experimenter_id <> NEW.experimenter_id OR OLD.name <> NEW.name OR OLD.value <> NEW.value) AND 
-       OLD.name LIKE 'AdminPrivilege:%' AND OLD.value NOT ILIKE 'true' AND
+       OLD.name LIKE 'AdminPrivilege:%%' AND OLD.value NOT ILIKE 'true' AND
        EXISTS (SELECT 1 FROM groupexperimentermap WHERE parent = roles.system_group_id AND child = OLD.experimenter_id) AND
        NOT EXISTS (SELECT 1 FROM _current_admin_privileges p WHERE p.transaction = txid_current() AND 'AdminPrivilege:' || p.privilege = OLD.name) THEN
             RAISE EXCEPTION 'cannot give administrator privileges that current user does not have';
