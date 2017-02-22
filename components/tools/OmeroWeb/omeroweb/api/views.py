@@ -305,20 +305,16 @@ class ObjectsView(ApiView):
         """Return an options dict based on request parameters."""
         try:
             offset = getIntOrDefault(request, 'offset', 0)
-            limit = getIntOrDefault(request, 'limit', api_settings.API_LIMIT)
+            limit = getIntOrDefault(request, 'limit', None)
             owner = getIntOrDefault(request, 'owner', None)
             child_count = request.GET.get('childCount', False) == 'true'
             orphaned = request.GET.get('orphaned', False) == 'true'
         except ValueError as ex:
             raise BadRequestError(str(ex))
-        if limit < 0:
-            limit = api_settings.API_LIMIT
-        if offset < 0:
-            offset = 0
 
         # orphaned and child_count not used by every subclass
         opts = {'offset': offset,
-                'limit': min(limit, api_settings.API_MAX_LIMIT),
+                'limit': limit,
                 'owner': owner,
                 'orphaned': orphaned,
                 'child_count': child_count,

@@ -28,6 +28,10 @@ from api_marshal import marshal_objects
 from copy import deepcopy
 
 
+MAX_LIMIT = max(1, api_settings.API_MAX_LIMIT)
+DEFAULT_LIMIT = max(1, api_settings.API_LIMIT)
+
+
 def get_child_counts(conn, link_class, parent_ids):
     """
     Count child links for the specified parent_ids.
@@ -51,6 +55,18 @@ def get_child_counts(conn, link_class, parent_ids):
     return counts
 
 
+def validate_opts(opts):
+    """Check that opts dict has valid 'limit' and 'offset'."""
+    if opts is None:
+        opts = {}
+    if opts.get('limit') is None or opts.get('limit') < 0:
+        opts['limit'] = DEFAULT_LIMIT
+    opts['limit'] = min(opts['limit'], MAX_LIMIT)
+    if opts.get('offset') is None or opts.get('offset') < 0:
+        opts['offset'] = 0
+    return opts
+
+
 def query_objects(conn, object_type,
                   group=None,
                   opts=None,
@@ -67,6 +83,7 @@ def query_objects(conn, object_type,
     @param opts:        Options dict for conn.buildQuery()
     @param normalize:   If true, marshal groups and experimenters separately
     """
+    opts = validate_opts(opts)
     # buildQuery is used by conn.getObjects()
     query, params, wrapper = conn.buildQuery(object_type, opts=opts)
     # Set the desired group context
@@ -97,11 +114,9 @@ def query_objects(conn, object_type,
     result = qs.projection(count_query, params, ctx)
 
     meta = {}
-    if 'offset' in opts:
-        meta['offset'] = opts['offset']
-    if 'limit' in opts:
-        meta['limit'] = opts['limit']
-    meta['maxLimit'] = api_settings.API_MAX_LIMIT
+    meta['offset'] = opts['offset']
+    meta['limit'] = opts['limit']
+    meta['maxLimit'] = MAX_LIMIT
     meta['totalCount'] = result[0][0].val
 
     marshalled = marshal_objects(objects, extras=extras, normalize=normalize)
