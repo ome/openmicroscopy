@@ -1,4 +1,4 @@
-% Copyright (C) 2011-2014 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2017 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -44,7 +44,8 @@ try
     columns(2) = omero.grid.StringColumn('MyStringColumn', '', 64, valuesString);
     
     % Create a new table.
-    table = session.sharedResources().newTable(1, name);
+    id = session.sharedResources().repositories().descriptions.get(0).getId().getValue();
+    table = session.sharedResources().newTable(id, name);
     
     % Initialize the table
     table.initialize(columns);
@@ -64,7 +65,7 @@ try
     
     % fetch the OMERO Table and check if the original FileIds match
     fa1 = getImageFileAnnotations(session, imageId);
-    assert(fa1(1).getFile.getId.equals(file.getId),'Original File Ids not matching')
+    assert(fa1(1).getFile.getId().equals(file.getId),'Original File Ids not matching')
     
     
     of = omero.model.OriginalFileI(file.getId(), false);
@@ -92,6 +93,5 @@ catch err
     client.closeSession();
     throw(err);
 end
-
 % Close the session
 client.closeSession();
