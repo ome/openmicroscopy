@@ -881,7 +881,7 @@ CREATE TRIGGER _fs_protected_mimetype
 CREATE FUNCTION prevent_root_deactivate_delete() RETURNS "trigger" AS $$
 
     DECLARE
-        roles _roles%ROWTYPE;
+        roles _roles%%ROWTYPE;
 
     BEGIN
         SELECT * INTO STRICT roles FROM _roles;
@@ -905,7 +905,7 @@ CREATE TRIGGER prevent_root_deactivate_delete
 CREATE FUNCTION prevent_root_deactivate_update() RETURNS "trigger" AS $$
 
     DECLARE
-        roles _roles%ROWTYPE;
+        roles _roles%%ROWTYPE;
 
     BEGIN
         SELECT * INTO STRICT roles FROM _roles;
@@ -931,7 +931,7 @@ CREATE TRIGGER prevent_root_deactivate_update
 CREATE FUNCTION prevent_experimenter_rename() RETURNS "trigger" AS $$
 
     DECLARE
-        roles _roles%ROWTYPE;
+        roles _roles%%ROWTYPE;
 
     BEGIN
         SELECT * INTO STRICT roles FROM _roles;
@@ -955,7 +955,7 @@ CREATE TRIGGER prevent_experimenter_rename
 CREATE FUNCTION prevent_experimenter_group_rename() RETURNS "trigger" AS $$
 
     DECLARE
-        roles _roles%ROWTYPE;
+        roles _roles%%ROWTYPE;
 
     BEGIN
         SELECT * INTO STRICT roles FROM _roles;
@@ -981,12 +981,12 @@ CREATE TRIGGER prevent_experimenter_group_rename
 CREATE FUNCTION prevent_root_privilege_restriction() RETURNS "trigger" AS $$
 
     DECLARE
-        roles _roles%ROWTYPE;
+        roles _roles%%ROWTYPE;
 
     BEGIN
         SELECT * INTO STRICT roles FROM _roles;
 
-        IF NEW.experimenter_id = roles.root_user_id AND NEW.name LIKE 'AdminPrivilege:%' AND NEW.value NOT ILIKE 'true' THEN
+        IF NEW.experimenter_id = roles.root_user_id AND NEW.name LIKE 'AdminPrivilege:%%' AND NEW.value NOT ILIKE 'true' THEN
             RAISE EXCEPTION 'cannot restrict admin privileges of root experimenter';
         END IF;
         RETURN NEW;
@@ -1200,6 +1200,104 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER preserve_folder_tree
     AFTER INSERT OR UPDATE ON folder
     FOR EACH ROW EXECUTE PROCEDURE preserve_folder_tree();
+
+-- Set up the current administrative privileges table and use it to prevent privilege elevation.
+
+CREATE TABLE _current_admin_privileges (
+    transaction BIGINT,
+    privilege VARCHAR(255)
+);
+
+CREATE INDEX i_current_admin_privileges_transactions ON _current_admin_privileges(transaction);
+
+CREATE OR REPLACE FUNCTION group_link_insert_check() RETURNS "trigger" AS $$
+
+    DECLARE
+        roles _roles%%ROWTYPE;
+
+    BEGIN
+        SELECT * INTO STRICT roles FROM _roles;
+        IF NEW.parent = roles.system_group_id AND EXISTS (SELECT 1 FROM adminprivilege p WHERE NOT
+                (EXISTS (SELECT 1 FROM experimenter_config WHERE experimenter_id = NEW.child AND name = 'AdminPrivilege:' || p.value AND value NOT ILIKE 'true') OR
+                 EXISTS (SELECT 1 FROM _current_admin_privileges WHERE transaction = txid_current() AND privilege = p.value))) THEN
+            RAISE EXCEPTION 'cannot give administrator privileges that current user does not have';
+        END IF;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION group_link_update_check() RETURNS "trigger" AS $$
+
+    DECLARE
+        roles _roles%%ROWTYPE;
+
+    BEGIN
+        SELECT * INTO STRICT roles FROM _roles;
+
+        IF (OLD.parent <> NEW.parent OR OLD.child <> NEW.child) AND NEW.parent = roles.system_group_id AND
+        EXISTS (SELECT 1 FROM adminprivilege p WHERE NOT
+                (EXISTS (SELECT 1 FROM experimenter_config WHERE experimenter_id = NEW.child AND name = 'AdminPrivilege:' || p.value AND value NOT ILIKE 'true') OR
+                 EXISTS (SELECT 1 FROM _current_admin_privileges WHERE transaction = txid_current() AND privilege = p.value))) THEN
+            RAISE EXCEPTION 'cannot give administrator privileges that current user does not have';
+        END IF;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION user_config_delete_check() RETURNS "trigger" AS $$
+
+    DECLARE
+        roles _roles%%ROWTYPE;
+
+    BEGIN
+        SELECT * INTO STRICT roles FROM _roles;
+
+        IF OLD.name LIKE 'AdminPrivilege:%%' AND OLD.value NOT ILIKE 'true' AND
+       EXISTS (SELECT 1 FROM groupexperimentermap WHERE parent = roles.system_group_id AND child = OLD.experimenter_id) AND
+       NOT EXISTS (SELECT 1 FROM _current_admin_privileges p WHERE p.transaction = txid_current() AND 'AdminPrivilege:' || p.privilege = OLD.name) THEN
+            RAISE EXCEPTION 'cannot give administrator privileges that current user does not have';
+        END IF;
+
+        RETURN OLD;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION user_config_update_check() RETURNS "trigger" AS $$
+
+    DECLARE
+        roles _roles%%ROWTYPE;
+
+    BEGIN
+        SELECT * INTO STRICT roles FROM _roles;
+
+        IF (OLD.experimenter_id <> NEW.experimenter_id OR OLD.name <> NEW.name OR OLD.value <> NEW.value) AND
+       OLD.name LIKE 'AdminPrivilege:%%' AND OLD.value NOT ILIKE 'true' AND
+       EXISTS (SELECT 1 FROM groupexperimentermap WHERE parent = roles.system_group_id AND child = OLD.experimenter_id) AND
+       NOT EXISTS (SELECT 1 FROM _current_admin_privileges p WHERE p.transaction = txid_current() AND 'AdminPrivilege:' || p.privilege = OLD.name) THEN
+            RAISE EXCEPTION 'cannot give administrator privileges that current user does not have';
+        END IF;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE CONSTRAINT TRIGGER group_link_insert_trigger
+    AFTER INSERT ON groupexperimentermap DEFERRABLE INITIALLY DEFERRED
+    FOR EACH ROW EXECUTE PROCEDURE group_link_insert_check();
+
+CREATE CONSTRAINT TRIGGER group_link_update_trigger
+    AFTER UPDATE ON groupexperimentermap DEFERRABLE INITIALLY DEFERRED
+    FOR EACH ROW EXECUTE PROCEDURE group_link_update_check();
+
+CREATE CONSTRAINT TRIGGER user_config_delete_trigger
+    AFTER DELETE ON experimenter_config DEFERRABLE INITIALLY DEFERRED
+    FOR EACH ROW EXECUTE PROCEDURE user_config_delete_check();
+
+CREATE CONSTRAINT TRIGGER user_config_update_trigger
+    AFTER UPDATE ON experimenter_config DEFERRABLE INITIALLY DEFERRED
+    FOR EACH ROW EXECUTE PROCEDURE user_config_update_check();
 
 -- Here we have finished initializing this database.
 
