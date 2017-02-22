@@ -127,7 +127,7 @@ public class BasicSecuritySystem implements SecuritySystem,
         final OmeroInterceptor oi = new OmeroInterceptor(roles,
                 st, new ExtendedMetadata.Impl(),
                 cd, th, new PerSessionStats(cd),
-                new LightAdminPrivileges(roles), new HashSet<String>(), new HashSet<String>());
+                new LightAdminPrivileges(roles), null, new HashSet<String>(), new HashSet<String>());
         SecurityFilterHolder holder = new SecurityFilterHolder(
                 cd, new OneGroupSecurityFilter(roles),
                 new AllGroupsSecurityFilter(null, roles),

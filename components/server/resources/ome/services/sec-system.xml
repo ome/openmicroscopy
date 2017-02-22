@@ -81,7 +81,7 @@
     <property name="debugAll" value="false"/>
   </bean>
 
-  <bean id="omeroInterceptor" class="ome.security.basic.OmeroInterceptor">
+  <bean id="omeroInterceptor" class="ome.security.basic.OmeroInterceptor" depends-on="adminPrivilegesCleanup">
     <description>
     Scope: private
     </description>
@@ -92,6 +92,7 @@
     <constructor-arg ref="extendedMetadata"/>
     <constructor-arg ref="delegatingStats"/>
     <constructor-arg ref="adminPrivileges"/>
+    <constructor-arg ref="simpleSqlAction"/>
     <constructor-arg ref="managedRepoUuids"/>
     <constructor-arg ref="scriptRepoUuids"/>
   </bean>

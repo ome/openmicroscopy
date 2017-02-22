@@ -36,7 +36,7 @@ public class OmeroInterceptorTest extends MockObjectTestCase {
         TokenHolder tokenHolder = new TokenHolder();
         final Roles roles = new Roles();
         oi = new OmeroInterceptor(roles, new SystemTypes(), null, null, tokenHolder, new NullSessionStats(),
-                new LightAdminPrivileges(roles), new HashSet<String>(), new HashSet<String>());
+                new LightAdminPrivileges(roles), null, new HashSet<String>(), new HashSet<String>());
     }
 
     // ~ TESTS

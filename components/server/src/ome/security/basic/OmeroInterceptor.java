@@ -26,6 +26,7 @@ import org.hibernate.engine.CollectionEntry;
 import org.hibernate.engine.PersistenceContext;
 import org.hibernate.type.ComponentType;
 import org.hibernate.type.Type;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableSet;
@@ -66,6 +67,7 @@ import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.HibernateUtils;
 import ome.tools.lsid.LsidUtils;
+import ome.util.SqlAction;
 
 /**
  * implements {@link org.hibernate.Interceptor} for controlling various aspects
@@ -106,12 +108,14 @@ public class OmeroInterceptor implements Interceptor {
 
     private final LightAdminPrivileges adminPrivileges;
 
+    private final SqlAction sqlAction;
+
     /* thread-safe */
     private final Set<String> managedRepoUuids, scriptRepoUuids;
 
     public OmeroInterceptor(Roles roles, SystemTypes sysTypes, ExtendedMetadata em,
             CurrentDetails cd, TokenHolder tokenHolder, SessionStats stats,
-            LightAdminPrivileges adminPrivileges, Set<String> managedRepoUuids, Set<String> scriptRepoUuids) {
+            LightAdminPrivileges adminPrivileges, SqlAction sqlAction, Set<String> managedRepoUuids, Set<String> scriptRepoUuids) {
         Assert.notNull(tokenHolder);
         Assert.notNull(sysTypes);
         // Assert.notNull(em); Permitting null for testing
@@ -125,6 +129,7 @@ public class OmeroInterceptor implements Interceptor {
         this.roles = roles;
         this.em = em;
         this.adminPrivileges = adminPrivileges;
+        this.sqlAction = sqlAction;
         this.managedRepoUuids = managedRepoUuids;
         this.scriptRepoUuids = scriptRepoUuids;
     }
@@ -313,7 +318,15 @@ public class OmeroInterceptor implements Interceptor {
     // =========================================================================
     public void preFlush(Iterator entities) throws CallbackException {
         debug("Intercepted preFlush.");
-        EMPTY.preFlush(entities);
+
+        if (TransactionSynchronizationManager.isCurrentTransactionReadOnly()) {
+            debug("detected read-only transaction");
+        } else if (sqlAction != null) {
+            /* read-write transactions may trigger checks */
+            debug("updating current light administrator privileges");
+            sqlAction.deleteCurrentAdminPrivileges();
+            sqlAction.insertCurrentAdminPrivileges(getAdminPrivileges());
+        }
     }
 
     public void postFlush(Iterator entities) throws CallbackException {

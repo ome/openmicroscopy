@@ -110,7 +110,7 @@ public abstract class AbstractBasicSecuritySystemTest extends
         OmeroInterceptor oi = new OmeroInterceptor(roles,
                 st, new ExtendedMetadata.Impl(),
                 cd, th, new NullSessionStats(),
-                mockAdminPrivileges, new HashSet<String>(), new HashSet<String>());
+                mockAdminPrivileges, null, new HashSet<String>(), new HashSet<String>());
         SecurityFilter filter = new OneGroupSecurityFilter();
         sec = new BasicSecuritySystem(oi, st, cd, mgr, roles, sf,
                 th, Collections.singletonList(filter), new DefaultPolicyService());
