@@ -2041,6 +2041,9 @@ CREATE TABLE _roles (
     guest_group_id BIGINT NOT NULL
 );
 
+INSERT INTO _roles (root_user_id, guest_user_id, system_group_id, user_group_id, guest_group_id)
+    VALUES (0, 1, 0, 1, 2);
+
 CREATE OR REPLACE FUNCTION prevent_root_deactivate_delete() RETURNS "trigger" AS $$
 
     DECLARE

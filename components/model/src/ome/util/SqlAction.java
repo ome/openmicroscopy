@@ -709,8 +709,7 @@ public interface SqlAction {
 
         @Override
         public void setRoles(long rootUserId, long guestUserId, long systemGroupId, long userGroupId, long guestGroupId) {
-            _jdbc().update(_lookup("roles_delete"));
-            _jdbc().update(_lookup("roles_insert"), rootUserId, guestUserId, systemGroupId, userGroupId, guestGroupId);
+            _jdbc().update(_lookup("roles_update_ids"), rootUserId, guestUserId, systemGroupId, userGroupId, guestGroupId);
         }
 
         @Override
