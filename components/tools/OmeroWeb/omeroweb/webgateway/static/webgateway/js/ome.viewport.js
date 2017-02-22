@@ -325,7 +325,12 @@ jQuery._WeblitzViewport = function (container, server, options) {
       // setQuery expects 'maps' to be json
       var query_rdef = $.extend({}, _this.loadedImg.current.query);
       if (query_rdef.maps) {
-        query_rdef.maps = JSON.parse(query_rdef.maps);
+        try {
+          query_rdef.maps = JSON.parse(query_rdef.maps);
+        } catch(err) {
+          alert('maps query string is not valid json: ' + query_rdef.maps);
+          query_rdef.maps = [];
+        }
       }
       _this.setQuery(query_rdef);
     }
