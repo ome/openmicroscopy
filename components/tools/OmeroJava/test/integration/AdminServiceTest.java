@@ -1961,4 +1961,15 @@ public class AdminServiceTest extends AbstractServerTest {
         }
         Assert.fail("new light system user must be member of system group");
     }
+
+    /**
+     * Test that removing root's light administrator privileges is not possible.
+     * @throws ServerError expected
+     */
+    @Test(expectedExceptions = ServerError.class)
+    public void testMakeRootUserLight() throws ServerError {
+        final IAdminPrx svc = root.getSession().getAdminService();
+        final Experimenter rootUser = new ExperimenterI(roles.rootId, false);
+        svc.setAdminPrivileges(rootUser, Collections.<AdminPrivilege>emptyList());
+    }
 }
