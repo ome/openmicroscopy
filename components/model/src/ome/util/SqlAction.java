@@ -1,4 +1,3 @@
-
 /*
  *   Copyright 2010-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -10,6 +9,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -23,6 +23,7 @@ import java.util.UUID;
 
 import ome.conditions.InternalException;
 import ome.model.core.Channel;
+import ome.model.enums.AdminPrivilege;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.meta.ExperimenterGroup;
@@ -564,6 +565,32 @@ public interface SqlAction {
      */
     boolean clearPermissionsBit(String table, long id, int bit);
 
+    /**
+     * Note the roles in the database.
+     * @param rootUserId the root user's ID
+     * @param guestUserId the guest user's ID
+     * @param systemGroupId the system group's ID
+     * @param userGroupId the user group's ID
+     * @param guestGroupId the guest group's ID
+     */
+    void setRoles(long rootUserId, long guestUserId, long systemGroupId, long userGroupId, long guestGroupId);
+
+    /**
+     * Delete the current light administrator privileges for completed transactions.
+     */
+    void deleteOldAdminPrivileges();
+
+    /**
+     * Delete the current light administrator privileges for the current transaction.
+     */
+    void deleteCurrentAdminPrivileges();
+
+    /**
+     * Insert the current light administrator privileges for the current transaction.
+     * @param privileges some light administrator privileges
+     */
+    void insertCurrentAdminPrivileges(Iterable<AdminPrivilege> privileges);
+
     //
     // End PgArrayHelper
     //
@@ -678,6 +705,31 @@ public interface SqlAction {
             String sql = _lookup("clear_permissions_bit");
             sql = String.format(sql, table);
             return _jdbc().update(sql, bit, id) > 0;
+        }
+
+        @Override
+        public void setRoles(long rootUserId, long guestUserId, long systemGroupId, long userGroupId, long guestGroupId) {
+            _jdbc().update(_lookup("roles_delete"));
+            _jdbc().update(_lookup("roles_insert"), rootUserId, guestUserId, systemGroupId, userGroupId, guestGroupId);
+        }
+
+        @Override
+        public void deleteOldAdminPrivileges() {
+            _jdbc().update(_lookup("old_privileges_delete"));
+        }
+
+        @Override
+        public void deleteCurrentAdminPrivileges() {
+            _jdbc().update(_lookup("curr_privileges_delete"));
+        }
+
+        @Override
+        public void insertCurrentAdminPrivileges(Iterable<AdminPrivilege> privileges) {
+            final List<Object[]> batchArguments = new ArrayList<>();
+            for (final AdminPrivilege privilege : privileges) {
+                batchArguments.add(new String[] {privilege.getValue()});
+            }
+            _jdbc().batchUpdate(_lookup("curr_privileges_insert"), batchArguments, new int[] {Types.VARCHAR});
         }
 
         //
