@@ -158,6 +158,13 @@ def getChannelsQuery():
             ' left outer join fetch logicalChannel.contrastMethod')
 
 
+def add_plate_filter(clauses, params, opts):
+    """Helper for adding 'plate' to filtering clauses and parameters."""
+    if opts is not None and 'plate' in opts:
+        clauses.append('obj.plate.id = :pid')
+        params.add('pid', rlong(opts['plate']))
+
+
 class OmeroRestrictionWrapper (object):
 
     def canDownload(self):
@@ -6020,9 +6027,7 @@ class _PlateAcquisitionWrapper (BlitzObjectWrapper):
         """
         query, clauses, params = super(
             _PlateAcquisitionWrapper, cls)._getQueryString(opts)
-        if opts is not None and 'plate' in opts:
-            clauses.append('obj.plate.id = :pid')
-            params.add('pid', rlong(opts['plate']))
+        add_plate_filter(clauses, params, opts)
         return (query, clauses, params)
 
     def getName(self):
@@ -6088,9 +6093,7 @@ class _WellWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             _WellWrapper, cls)._getQueryString(opts)
         if opts is None:
             opts = {}
-        if 'plate' in opts:
-            clauses.append('obj.plate.id = :pid')
-            params.add('pid', rlong(opts['plate']))
+        add_plate_filter(clauses, params, opts)
         load_images = opts.get('load_images')
         load_pixels = opts.get('load_pixels')
         load_channels = opts.get('load_channels')
