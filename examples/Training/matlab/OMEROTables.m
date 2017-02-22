@@ -56,6 +56,16 @@ try
     data(2) = omero.grid.StringColumn('MyStringColumn', '', 64, valuesString);
     table.addData(data);
     file = table.getOriginalFile(); % if you need to interact with the table
+
+    % link table to an Image
+    fa = omero.model.FileAnnotationI;
+    fa.setFile(file);
+    link = linkAnnotation(session, fa, 'image', imageId);
+    
+    % fetch the OMERO Table and check if the original FileIds match
+    fa1 = getImageFileAnnotations(session, imageId);
+    assert(fa1(1).getFile.getId.equals(file.getId),'Original File Ids not matching')
+    
     
     of = omero.model.OriginalFileI(file.getId(), false);
     tablePrx = session.sharedResources().openTable(of);
