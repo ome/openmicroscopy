@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import omero.ApiUsageException;
 import omero.RString;
 import omero.ServerError;
 import omero.ValidationException;
@@ -1964,9 +1965,9 @@ public class AdminServiceTest extends AbstractServerTest {
 
     /**
      * Test that removing root's light administrator privileges is not possible.
-     * @throws ServerError expected
+     * @throws ServerError unexpected
      */
-    @Test(expectedExceptions = ServerError.class)
+    @Test(expectedExceptions = ApiUsageException.class)
     public void testMakeRootUserLight() throws ServerError {
         final IAdminPrx svc = root.getSession().getAdminService();
         final Experimenter rootUser = new ExperimenterI(roles.rootId, false);
