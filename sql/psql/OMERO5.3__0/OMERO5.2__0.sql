@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.2__0 to OMERO5.3DEV__14.
+--- OMERO5 release upgrade from OMERO5.2__0 to OMERO5.3__0.
 ---
 
 BEGIN;
@@ -95,7 +95,7 @@ DROP FUNCTION db_pretty_version(INTEGER);
 --
 
 INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
-             VALUES ('OMERO5.3DEV',  14,           'OMERO5.2',      0);
+             VALUES ('OMERO5.3',     0,            'OMERO5.2',      0);
 
 -- ... up to patch 0:
 
@@ -2030,6 +2030,211 @@ ALTER TABLE adminprivilege
 CREATE SEQUENCE seq_adminprivilege;
 
 INSERT INTO _lock_ids (name, id) SELECT 'seq_adminprivilege', nextval('_lock_seq');
+
+-- ... up to final version:
+
+CREATE TABLE _roles (
+    root_user_id BIGINT NOT NULL,
+    guest_user_id BIGINT NOT NULL,
+    system_group_id BIGINT NOT NULL,
+    user_group_id BIGINT NOT NULL,
+    guest_group_id BIGINT NOT NULL
+);
+
+CREATE OR REPLACE FUNCTION prevent_root_deactivate_delete() RETURNS "trigger" AS $$
+
+    DECLARE
+        roles _roles%ROWTYPE;
+
+    BEGIN
+        SELECT * INTO STRICT roles FROM _roles;
+
+        IF OLD.child = roles.root_user_id THEN
+            IF OLD.parent = roles.system_group_id THEN
+                RAISE EXCEPTION 'cannot remove system group membership for root';
+            ELSIF OLD.parent = roles.user_group_id THEN
+                RAISE EXCEPTION 'cannot remove user group membership for root';
+            END IF;
+        END IF;
+        RETURN OLD;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION prevent_root_deactivate_update() RETURNS "trigger" AS $$
+
+    DECLARE
+        roles _roles%ROWTYPE;
+
+    BEGIN
+        SELECT * INTO STRICT roles FROM _roles;
+
+        IF OLD.child != NEW.child OR OLD.parent != NEW.parent THEN
+            IF OLD.child = roles.root_user_id THEN
+                IF OLD.parent = roles.system_group_id THEN
+                    RAISE EXCEPTION 'cannot remove system group membership for root';
+                ELSIF OLD.parent = roles.user_group_id THEN
+                    RAISE EXCEPTION 'cannot remove user group membership for root';
+                END IF;
+            END IF;
+        END IF;
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION prevent_experimenter_rename() RETURNS "trigger" AS $$
+
+    DECLARE
+        roles _roles%ROWTYPE;
+
+    BEGIN
+        SELECT * INTO STRICT roles FROM _roles;
+
+        IF OLD.omename != NEW.omename THEN
+            IF OLD.id = roles.root_user_id THEN
+                RAISE EXCEPTION 'cannot rename root experimenter';
+            ELSIF OLD.id = roles.guest_user_id THEN
+                RAISE EXCEPTION 'cannot rename guest experimenter';
+            END IF;
+        END IF;
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION prevent_experimenter_group_rename() RETURNS "trigger" AS $$
+
+    DECLARE
+        roles _roles%ROWTYPE;
+
+    BEGIN
+        SELECT * INTO STRICT roles FROM _roles;
+
+        IF OLD.name != NEW.name THEN
+            IF OLD.id = roles.system_group_id THEN
+                RAISE EXCEPTION 'cannot rename system experimenter group';
+            ELSIF OLD.id = roles.user_group_id THEN
+                RAISE EXCEPTION 'cannot rename user experimenter group';
+            ELSIF OLD.id = roles.guest_group_id THEN
+                RAISE EXCEPTION 'cannot rename guest experimenter group';
+            END IF;
+        END IF;
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE FUNCTION prevent_root_privilege_restriction() RETURNS "trigger" AS $$
+
+    DECLARE
+        roles _roles%ROWTYPE;
+
+    BEGIN
+        SELECT * INTO STRICT roles FROM _roles;
+
+        IF NEW.experimenter_id = roles.root_user_id AND NEW.name LIKE 'AdminPrivilege:%' AND NEW.value NOT ILIKE 'true' THEN
+            RAISE EXCEPTION 'cannot restrict admin privileges of root experimenter';
+        END IF;
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER prevent_root_privilege_restriction
+    BEFORE INSERT OR UPDATE ON experimenter_config
+    FOR EACH ROW EXECUTE PROCEDURE prevent_root_privilege_restriction();
+
+CREATE TABLE _current_admin_privileges (
+    transaction BIGINT,
+    privilege VARCHAR(255)
+);
+
+CREATE INDEX i_current_admin_privileges_transactions ON _current_admin_privileges(transaction);
+
+CREATE OR REPLACE FUNCTION group_link_insert_check() RETURNS "trigger" AS $$
+
+    DECLARE
+        roles _roles%ROWTYPE;
+
+    BEGIN
+        SELECT * INTO STRICT roles FROM _roles;
+        IF NEW.parent = roles.system_group_id AND EXISTS (SELECT 1 FROM adminprivilege p WHERE NOT
+                (EXISTS (SELECT 1 FROM experimenter_config WHERE experimenter_id = NEW.child AND name = 'AdminPrivilege:' || p.value AND value NOT ILIKE 'true') OR
+                 EXISTS (SELECT 1 FROM _current_admin_privileges WHERE transaction = txid_current() AND privilege = p.value))) THEN
+            RAISE EXCEPTION 'cannot give administrator privileges that current user does not have';
+        END IF;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION group_link_update_check() RETURNS "trigger" AS $$
+
+    DECLARE
+        roles _roles%ROWTYPE;
+
+    BEGIN
+        SELECT * INTO STRICT roles FROM _roles;
+
+        IF (OLD.parent <> NEW.parent OR OLD.child <> NEW.child) AND NEW.parent = roles.system_group_id AND
+        EXISTS (SELECT 1 FROM adminprivilege p WHERE NOT
+                (EXISTS (SELECT 1 FROM experimenter_config WHERE experimenter_id = NEW.child AND name = 'AdminPrivilege:' || p.value AND value NOT ILIKE 'true') OR
+                 EXISTS (SELECT 1 FROM _current_admin_privileges WHERE transaction = txid_current() AND privilege = p.value))) THEN
+            RAISE EXCEPTION 'cannot give administrator privileges that current user does not have';
+        END IF;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION user_config_delete_check() RETURNS "trigger" AS $$
+
+    DECLARE
+        roles _roles%ROWTYPE;
+
+    BEGIN
+        SELECT * INTO STRICT roles FROM _roles;
+
+        IF OLD.name LIKE 'AdminPrivilege:%' AND OLD.value NOT ILIKE 'true' AND
+       EXISTS (SELECT 1 FROM groupexperimentermap WHERE parent = roles.system_group_id AND child = OLD.experimenter_id) AND
+       NOT EXISTS (SELECT 1 FROM _current_admin_privileges p WHERE p.transaction = txid_current() AND 'AdminPrivilege:' || p.privilege = OLD.name) THEN
+            RAISE EXCEPTION 'cannot give administrator privileges that current user does not have';
+        END IF;
+
+        RETURN OLD;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION user_config_update_check() RETURNS "trigger" AS $$
+
+    DECLARE
+        roles _roles%ROWTYPE;
+
+    BEGIN
+        SELECT * INTO STRICT roles FROM _roles;
+
+        IF (OLD.experimenter_id <> NEW.experimenter_id OR OLD.name <> NEW.name OR OLD.value <> NEW.value) AND 
+       OLD.name LIKE 'AdminPrivilege:%' AND OLD.value NOT ILIKE 'true' AND
+       EXISTS (SELECT 1 FROM groupexperimentermap WHERE parent = roles.system_group_id AND child = OLD.experimenter_id) AND
+       NOT EXISTS (SELECT 1 FROM _current_admin_privileges p WHERE p.transaction = txid_current() AND 'AdminPrivilege:' || p.privilege = OLD.name) THEN
+            RAISE EXCEPTION 'cannot give administrator privileges that current user does not have';
+        END IF;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE CONSTRAINT TRIGGER group_link_insert_trigger
+    AFTER INSERT ON groupexperimentermap DEFERRABLE INITIALLY DEFERRED
+    FOR EACH ROW EXECUTE PROCEDURE group_link_insert_check();
+
+CREATE CONSTRAINT TRIGGER group_link_update_trigger
+    AFTER UPDATE ON groupexperimentermap DEFERRABLE INITIALLY DEFERRED
+    FOR EACH ROW EXECUTE PROCEDURE group_link_update_check();
+
+CREATE CONSTRAINT TRIGGER user_config_delete_trigger
+    AFTER DELETE ON experimenter_config DEFERRABLE INITIALLY DEFERRED
+    FOR EACH ROW EXECUTE PROCEDURE user_config_delete_check();
+
+CREATE CONSTRAINT TRIGGER user_config_update_trigger
+    AFTER UPDATE ON experimenter_config DEFERRABLE INITIALLY DEFERRED
+    FOR EACH ROW EXECUTE PROCEDURE user_config_update_check();
 
 
 --
