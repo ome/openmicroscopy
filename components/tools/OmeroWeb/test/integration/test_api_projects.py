@@ -168,6 +168,9 @@ def assert_objects(conn, json_objects, omero_ids_objects, dtype="Project",
             pids.append(long(p))
         except TypeError:
             pids.append(p.id.val)
+    if len(pids) == 0:
+        assert len(json_objects) == 0
+        return
     conn.SERVICE_OPTS.setOmeroGroup(group)
     projects = conn.getObjects(dtype, pids, respect_order=True)
     projects = [p._obj for p in projects]
@@ -403,12 +406,17 @@ class TestProjects(IWebTest):
         request_url = reverse('api_projects', kwargs={'api_version': version})
 
         # Test a range of limits. offset = 0 by default
-        for limit in range(1, 4):
+        for limit in range(-1, 4):
             rsp = _get_response_json(django_client, request_url,
                                      {'limit': limit})
-            assert len(rsp['data']) == limit
-            assert_objects(conn, rsp['data'], projects[0:limit])
             assert rsp['meta']['totalCount'] == len(projects)
+            if limit == -1:
+                # if we passed a negative number, expect the default to be used
+                limit = api_settings.API_LIMIT
+            else:
+                assert len(rsp['data']) == limit
+            assert rsp['meta']['limit'] == limit
+            assert_objects(conn, rsp['data'], projects[0:limit])
 
             # Check that page 2 gives next n projects
             payload = {'limit': limit, 'offset': limit}
