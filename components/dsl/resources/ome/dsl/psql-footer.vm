@@ -977,6 +977,7 @@ CREATE TRIGGER prevent_experimenter_group_rename
     BEFORE UPDATE ON experimentergroup
     FOR EACH ROW EXECUTE PROCEDURE prevent_experimenter_group_rename();
 
+-- Prevent light administrator privileges from restricting the root experimenter.
 CREATE FUNCTION prevent_root_privilege_restriction() RETURNS "trigger" AS $$
 
     DECLARE
