@@ -19,7 +19,8 @@
 
 """Tests querying & editing Projects with webgateway json api."""
 
-from omeroweb.testlib import IWebTest, _csrf_post_json, _csrf_put_json
+from omeroweb.testlib import IWebTest, _csrf_post_json, _csrf_put_json, \
+    _get_response_json
 from django.core.urlresolvers import reverse
 from omeroweb.api import api_settings
 import pytest
@@ -90,6 +91,17 @@ class TestErrors(IWebTest):
                               status_code=400)
         assert (rsp['message'] ==
                 'No decoder found for type: %s' % objType)
+
+    def test_invalid_parameter(self):
+        """Test that invalid query parameter gives suitable message."""
+        django_client = self.django_root_client
+        version = api_settings.API_VERSIONS[-1]
+        projects_url = reverse('api_projects', kwargs={'api_version': version})
+        payload = {'limit': 'foo'}
+        rsp = _get_response_json(django_client, projects_url, payload,
+                                 status_code=400)
+        assert (rsp['message'] ==
+                "invalid literal for int() with base 10: 'foo'")
 
     def test_marshal_validation(self):
         """Test that we get expected error with invalid @type in json."""
