@@ -1328,22 +1328,15 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     @RolesAllowed("user")
     public boolean applySettingsToPixels(long from, long to)
     {
-        Pixels pixelsFrom = pixelsMetadata.retrievePixDescription(from);
-        Pixels pixelsTo = pixelsMetadata.retrievePixDescription(to);
-        List<Pixels> pixelsList = new ArrayList<Pixels>(2);
-        pixelsList.add(pixelsFrom);
-        pixelsList.add(pixelsTo);
-        Map<Long, RenderingDef> settingsMap = loadRenderingSettings(pixelsList);
-        RenderingDef settingsFrom = settingsMap.get(from);
-        RenderingDef settingsTo = settingsMap.get(to);
-        settingsTo = applySettings(pixelsFrom, pixelsTo,
-        		                   settingsFrom, settingsTo);
-        if (settingsTo == null)
+        Set<Long> nodeIds = new HashSet<Long>();
+        nodeIds.add(to);
+        Map<Boolean, List<Long>> returnValue = 
+            applySettingsToSet(from, Pixels.class, nodeIds);
+        if (returnValue.get(Boolean.TRUE).contains(to))
         {
-        	return false;
+            return true;
         }
-        iUpdate.saveObject(settingsTo);
-        return true;
+        return false;
     }
 
     /**
