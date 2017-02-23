@@ -552,6 +552,7 @@ button::-moz-focus-inner {
 			font-size:1.2em;
 			text-shadow: 0 1px 0 white;
 			vertical-align: top;
+			margin-top: 3px;
 		}
 		
 		.standard_form input, .standard_form select, .standard_form textarea {
