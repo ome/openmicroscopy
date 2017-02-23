@@ -97,7 +97,10 @@ def query_objects(conn, object_type,
     objects = []
     extras = {}
 
-    result = qs.findAllByQuery(query, params, ctx)
+    if opts['limit'] == 0:
+        result = []
+    else:
+        result = qs.findAllByQuery(query, params, ctx)
     for obj in result:
         objects.append(obj)
 
