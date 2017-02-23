@@ -294,9 +294,9 @@ class TestDownload(CLITest):
         upper_q = upper.sf.getQueryService()
 
         images = self.import_mif(1, client=upper,
-                                          plates=1, plateRows=1,
-                                          plateCols=1, fields=1,
-                                          plateAcqs=1)
+                                 plates=1, plateRows=1,
+                                 plateCols=1, fields=1,
+                                 plateAcqs=1)
         pimage = images[0]
 
         pfile = upper_q.findByQuery((

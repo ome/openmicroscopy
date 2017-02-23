@@ -56,8 +56,8 @@ class TestChgrp(ITest):
         client.sf.getAdminService().getEventContext()  # Reset session
 
         # Import an image into the client context
-        images = self.import_mif(1,
-            name="testChgrpImportedImage", client=client)
+        images = self.import_mif(1, name="testChgrpImportedImage",
+                                 client=client)
         image = images[0]
 
         # Chgrp
