@@ -691,7 +691,7 @@ class ITest(object):
         image = update.saveAndReturnObject(image)
         return image.getPrimaryPixels()
 
-    def write(self, pix, rps):
+    def write(self, pixels, rps):
         """
         Writes byte arrays consisting of [5] to as
         either planes or tiles depending on the pixel
@@ -699,27 +699,27 @@ class ITest(object):
         """
         if not rps.requiresPixelsPyramid():
             # By plane
-            bytes_per_plane = pix.sizeX.val * pix.sizeY.val  # Assuming int8
-            for z in range(pix.sizeZ.val):
-                for c in range(pix.sizeC.val):
-                    for t in range(pix.sizeT.val):
+            bytes_per_plane = pixels.sizeX.val * pixels.sizeY.val  # Assuming int8
+            for z in range(pixels.sizeZ.val):
+                for c in range(pixels.sizeC.val):
+                    for t in range(pixels.sizeT.val):
                         rps.setPlane([5] * bytes_per_plane, z, c, t)
         else:
             # By tile
             w, h = rps.getTileSize()
             bytes_per_tile = w * h  # Assuming int8
-            for z in range(pix.sizeZ.val):
-                for c in range(pix.sizeC.val):
-                    for t in range(pix.sizeT.val):
-                        for x in range(0, pix.sizeX.val, w):
-                            for y in range(0, pix.sizeY.val, h):
+            for z in range(pixels.sizeZ.val):
+                for c in range(pixels.sizeC.val):
+                    for t in range(pixels.sizeT.val):
+                        for x in range(0, pixels.sizeX.val, w):
+                            for y in range(0, pixels.sizeY.val, h):
 
                                 changed = False
-                                if x + w > pix.sizeX.val:
+                                if x + w > pixels.sizeX.val:
                                     w = pix.sizeX.val - x
                                     changed = True
-                                if y + h > pix.sizeY.val:
-                                    h = pix.sizeY.val - y
+                                if y + h > pixels.sizeY.val:
+                                    h = pixels.sizeY.val - y
                                     changed = True
                                 if changed:
                                     # Again assuming int8
