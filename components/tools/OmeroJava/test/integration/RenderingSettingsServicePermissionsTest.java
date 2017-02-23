@@ -1418,4 +1418,37 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
         long ownerId = def.getDetails().getOwner().getId().getValue();
         Assert.assertEquals(ownerId, ctx.userId);
     }
+
+    /**
+     * Test the copying of rendering settings by a user who do not have rendering
+     * settings for that image.
+     * The source image does not have any settings.
+     * No copy occurs
+     * Use the applySettingsToImage
+     * @throws Exception
+     */
+    @Test
+    public void testCopyPasteNoSettingsUsingApplySettingsToImage() throws Exception {
+        EventContext ctx = newUserAndGroup("rwra--");
+        Image image = createBinaryImage();
+        Image image2 = createBinaryImage();
+        Pixels pixels = image.getPrimaryPixels();
+        IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+        //Image has no settings
+        disconnect();
+        //Add log in as a new user
+        newUserInGroup(ctx);
+        // Same image
+        prx = factory.getRenderingSettingsService();
+        boolean v = prx.applySettingsToImage(pixels.getId().getValue(), image2.getId().getValue());
+
+        Assert.assertFalse(v);
+        ParametersI param = new ParametersI();
+        param.addLong("pid", pixels.getId().getValue());
+        String sql = "select rdef from RenderingDef as rdef "
+                + "where rdef.pixels.id = :pid";
+        List<IObject> values = iQuery.findAllByQuery(sql, param);
+        Assert.assertNotNull(values);
+        Assert.assertEquals(values.size(), 0);
+    }
 }
