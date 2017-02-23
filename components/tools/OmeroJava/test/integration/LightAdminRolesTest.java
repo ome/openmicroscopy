@@ -565,22 +565,28 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "narrowed combined privileges cases")
+    @Test(dataProvider = "isSudoing and Chgrp privileges cases")
     public void testChgrp(boolean isAdmin, boolean isSudoing, boolean permChgrp,
             String groupPermissions) throws Exception {
-        /* define case where the Sudo is not being used post-import
-         * to perform the chgrp action. Such cases are all expected to fail
-         * except the light admin has Chgrp permission. WriteOwned and WriteFile
-         * are not important for the Chgrp success in such situation. Note that sudoing
-         * cannot lead to a successful Chgrp in case the owner of the data is not a member
-         * of the target group.*/
-        boolean chgrpNoSudoExpectSuccessAnyGroup = (isAdmin && !isSudoing && permChgrp);
-        /* Define successfull case when data are moved into group which the owner
-         * of the data is a member of.*/
-        boolean isExpectSuccessInMemberGroup = chgrpNoSudoExpectSuccessAnyGroup || isSudoing;
+        /* Set up a user and three groups, the user being a member of
+         * two of the groups.
+         */
         final EventContext normalUser = newUserAndGroup(groupPermissions);
-        final long anotherGroupId = newUserAndGroup(groupPermissions).groupId;
+        /* Group where the user is a member */
         final long normalUsersOtherGroupId = newGroupAddUser(groupPermissions, normalUser.userId, false).getId().getValue();
+        /* Group where the user is not member */
+        final long anotherGroupId = newUserAndGroup(groupPermissions).groupId;
+        /* Define cases:
+         * When data owner is not member of the target group,
+         * Chgrp action passes only when light admin has Chgrp permission
+         * and is not Sudoing (Sudoing can be thought of as destroyer of the
+         * privileges, because it forces the permissions of the Sudoed-as user
+         * onto the light admin).*/
+        boolean chgrpNoSudoExpectSuccessAnyGroup = (isAdmin && !isSudoing && permChgrp);
+        /* When data owner is member of the target group,
+         * Chgrp action passes also when light admin is
+         * Sudoed as the data owner */
+        boolean isExpectSuccessInMemberGroup = chgrpNoSudoExpectSuccessAnyGroup || isSudoing;
         /* create a Dataset as the normalUser and import into it */
         loginUser(normalUser);
         Dataset dat = mmFactory.simpleDataset();
@@ -628,7 +634,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         /* try to move the image into another group of the normalUser
          * which should succeed if sudoing and also in case
          * the light admin has Chgrp permissions
-         * (i.e. isExpectSuccess is true) */
+         * (i.e. isExpectSuccessInMemberGroup is true) */
         doChange(client, factory, Requests.chgrp().target(image).toGroup(normalUsersOtherGroupId).build(), isExpectSuccessInMemberGroup);
         image = (Image) iQuery.get("Image", image.getId().getValue());
         remoteFile = (OriginalFile) iQuery.get("OriginalFile", remoteFile.getId().getValue());
@@ -2088,6 +2094,43 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                         testCase[IS_ADMIN] = isAdmin;
                         testCase[IS_SUDOING] = isSudoing;
                         testCase[PERM_DELETEOWNED] = permDeleteOwned;
+                        testCase[GROUP_PERMS] = groupPerms;
+                        // DEBUG  if (isAdmin == false && isRestricted == true && isSudo == false)
+                        testCases.add(testCase);
+                    }
+                }
+            }
+        }
+        return testCases.toArray(new Object[testCases.size()][]);
+    }
+
+    /**
+     * @return isSudoing and Chgrp test cases for adding the privileges combined with
+     * groupPermission cases
+     */
+    @DataProvider(name = "isSudoing and Chgrp privileges cases")
+    public Object[][] provideIsSudoingAndChgrpOwned() {
+        int index = 0;
+        final int IS_ADMIN = index++;
+        final int IS_SUDOING = index++;
+        final int PERM_CHGRP = index++;
+        final int GROUP_PERMS = index++;
+
+        final boolean[] booleanCases = new boolean[]{false, true};
+        final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
+        final List<Object[]> testCases = new ArrayList<Object[]>();
+
+        for (final boolean isAdmin : booleanCases) {
+            for (final boolean isSudoing : booleanCases) {
+                for (final boolean permChgrp : booleanCases) {
+                    for (final String groupPerms : permsCases) {
+                        final Object[] testCase = new Object[index];
+                        /* no test cases are excluded here, because isSudoing
+                         * is in a sense acting to annule Chgrp permission
+                         * which is tested in the testChgrp and is an interesting case.*/
+                        testCase[IS_ADMIN] = isAdmin;
+                        testCase[IS_SUDOING] = isSudoing;
+                        testCase[PERM_CHGRP] = permChgrp;
                         testCase[GROUP_PERMS] = groupPerms;
                         // DEBUG  if (isAdmin == false && isRestricted == true && isSudo == false)
                         testCases.add(testCase);
