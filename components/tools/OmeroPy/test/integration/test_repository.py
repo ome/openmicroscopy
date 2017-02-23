@@ -84,7 +84,7 @@ class TestRepository(AbstractRepoTest):
                         assert a.val == b.val
 
     def testManagedRepoAsPubliRepo(self):
-        mrepo = self.getManagedRepo(self.client)
+        mrepo = self.get_managed_repo(self.client)
 
         # Create a file in the repo
         base = self.unique_dir
@@ -116,14 +116,14 @@ class TestFileExists(AbstractRepoTest):
     # to launch our own FS instance locally.
 
     def testFileExistsForDirectory(self):
-        mrepo = self.getManagedRepo(self.client)
+        mrepo = self.get_managed_repo(self.client)
         base = self.unique_dir + "/t"
         assert not mrepo.fileExists(base)
         mrepo.makeDir(base, True)
         assert mrepo.fileExists(base)
 
     def testFileExistsForFile(self):
-        mrepo = self.getManagedRepo(self.client)
+        mrepo = self.get_managed_repo(self.client)
         base = self.unique_dir + "/t"
         file = base + "/myfile.txt"
         assert not mrepo.fileExists(file)
@@ -149,8 +149,8 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
         client1, user1 = self.new_client_and_user(group=group)
         client2, user2 = self.new_client_and_user(group=group)
 
-        mrepo1 = self.getManagedRepo(client1)
-        mrepo2 = self.getManagedRepo(client2)
+        mrepo1 = self.get_managed_repo(client1)
+        mrepo2 = self.get_managed_repo(client2)
 
         testdir1 = self.test_dir(client1)
         testdir2 = self.test_dir(client2)
@@ -163,7 +163,7 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
         filename = f1.testdir + "/file.txt"
 
         # No intermediate directories
-        ofile = self.createFile(f1.repo, filename)
+        ofile = self.create_file(f1.repo, filename)
 
         self.assertRead(f1.repo, filename, ofile)
         self.assertRead(f1.repo, filename, ofile, self.all(f1.client))
@@ -179,7 +179,7 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
         filename = dirname + "/file.txt"
 
         f1.repo.makeDir(dirname, True)
-        ofile = self.createFile(f1.repo, filename)
+        ofile = self.create_file(f1.repo, filename)
 
         self.assertRead(f1.repo, filename, ofile)
         self.assertRead(f1.repo, filename, ofile, self.all(f1.client))
@@ -195,7 +195,7 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
         filename = dirname + "/file.txt"
 
         f1.repo.makeDir(dirname, True)
-        ofile = self.createFile(f1.repo, filename)
+        ofile = self.create_file(f1.repo, filename)
 
         self.assertRead(f1.repo, filename, ofile)
         self.assertRead(f1.repo, filename, ofile, self.all(f1.client))
@@ -214,7 +214,7 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
         filename = dirname + "/file.txt"
 
         f1.repo.makeDir(dirname, True)
-        ofile = self.createFile(f1.repo, filename)
+        ofile = self.create_file(f1.repo, filename)
 
         self.assertRead(f1.repo, filename, ofile)
         self.assertRead(f1.repo, filename, ofile, self.all(f1.client))
@@ -233,7 +233,7 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
         filename = dirname + "/file.txt"
 
         f1.repo.makeDir(dirname, True)
-        ofile = self.createFile(f1.repo, filename)
+        ofile = self.create_file(f1.repo, filename)
 
         self.assertRead(f1.repo, filename, ofile)
         self.assertRead(f1.repo, filename, ofile, self.all(f1.client))
@@ -258,11 +258,11 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
         client2 = self.new_client(group=group2, user=user)
         client2.sf.setSecurityContext(group2)
 
-        mrepo1 = self.getManagedRepo(client1)
-        mrepo2 = self.getManagedRepo(client2)
+        mrepo1 = self.get_managed_repo(client1)
+        mrepo2 = self.get_managed_repo(client2)
 
         mrepo1.makeDir(dirname, True)
-        ofile = self.createFile(mrepo1, filename)
+        ofile = self.create_file(mrepo1, filename)
 
         self.assertRead(mrepo1, filename, ofile)
         self.assertRead(mrepo1, filename, ofile, self.all(client1))
@@ -277,12 +277,12 @@ class TestPythonImporter(AbstractRepoTest):
 
     def testImportFileset(self):
         client = self.new_client()
-        self.fullImport(client)
+        self.full_import(client)
 
     # Tests the alternative importPaths method
     def testImportPaths(self):
         client = self.new_client()
-        mrepo = self.getManagedRepo(client)
+        mrepo = self.get_managed_repo(client)
         folder = self.create_test_dir()
         paths = folder.files()
 
@@ -291,7 +291,7 @@ class TestPythonImporter(AbstractRepoTest):
 
     def testReopenRawFileStoresPR2542(self):
         client = self.new_client()
-        mrepo = self.getManagedRepo(client)
+        mrepo = self.get_managed_repo(client)
         folder = self.create_test_dir()
         paths = folder.files()
 
@@ -312,11 +312,11 @@ class TestPythonImporter(AbstractRepoTest):
         admin = client.sf.getAdminService()
         # from group1
         assert group1.id.val == admin.getEventContext().groupId
-        self.fullImport(client)
+        self.full_import(client)
 
         # then group 2
         client.sf.setSecurityContext(group2)
-        self.fullImport(client)
+        self.full_import(client)
 
 
 class TestRawAccess(AbstractRepoTest):
@@ -336,17 +336,17 @@ class TestDbSync(AbstractRepoTest):
 
     def testMtime(self):
         filename = self.unique_dir + "/file.txt"
-        mrepo = self.getManagedRepo()
+        mrepo = self.get_managed_repo()
 
-        ofile = self.createFile(mrepo, filename)
+        ofile = self.create_file(mrepo, filename)
         assert ofile.mtime is not None
 
     def testFileExists(self):
         filename = self.unique_dir + "/file.txt"
-        mrepo = self.getManagedRepo()
+        mrepo = self.get_managed_repo()
 
         assert not mrepo.fileExists(filename)
-        self.createFile(mrepo, filename)
+        self.create_file(mrepo, filename)
         assert mrepo.fileExists(filename)
         assert "file.txt" in mrepo.list(self.unique_dir)[0]
 
@@ -354,9 +354,9 @@ class TestDbSync(AbstractRepoTest):
         filename = self.unique_dir + "/file.txt"
         fooname = self.unique_dir + "/foo.txt"
         mydir = self.unique_dir + "/mydir"
-        mrepo = self.getManagedRepo()
+        mrepo = self.get_managed_repo()
 
-        self.createFile(mrepo, filename)
+        self.create_file(mrepo, filename)
 
         # foo.txt is created on the backend but doesn't show up.
         assert ['%s/file.txt' % self.unique_dir] == mrepo.list(self.unique_dir)
@@ -365,7 +365,7 @@ class TestDbSync(AbstractRepoTest):
 
         # If we try to create such a file, we should receive an exception
         try:
-            self.createFile(mrepo, fooname)
+            self.create_file(mrepo, fooname)
             assert False, "Should have thrown"
         except omero.grid.UnregisteredFileException, ufe:
             file = mrepo.register(fooname, None)
@@ -376,7 +376,7 @@ class TestDbSync(AbstractRepoTest):
         # And if the file is a Dir, we should have a mimetype
         self.assertPasses(self.raw("mkdir", ["-p", mydir], client=self.root))
         try:
-            self.createFile(mrepo, mydir)
+            self.create_file(mrepo, mydir)
             assert False, "Should have thrown"
         except omero.grid.UnregisteredFileException, ufe:
             file = mrepo.register(mydir, None)
@@ -388,8 +388,8 @@ class TestRecursiveDelete(AbstractRepoTest):
     def setup_method(self, method):
         super(TestRecursiveDelete, self).setup_method(method)
         self.filename = self.unique_dir + "/file.txt"
-        self.mrepo = self.getManagedRepo()
-        self.ofile = self.createFile(self.mrepo, self.filename)
+        self.mrepo = self.get_managed_repo()
+        self.ofile = self.create_file(self.mrepo, self.filename)
 
         # There should me one key in each of the files
         # NB: globs not currently supported.
@@ -441,8 +441,8 @@ class TestDeleteLog(AbstractRepoTest):
 
     def testSimpleDelete(self):
         filename = self.unique_dir + "/file.txt"
-        mrepo = self.getManagedRepo()
-        ofile = self.createFile(mrepo, filename)
+        mrepo = self.get_managed_repo()
+        ofile = self.create_file(mrepo, filename)
         gateway = BlitzGateway(client_obj=self.client)
 
         # Assert contents of file
@@ -478,16 +478,16 @@ class TestUserTemplate(AbstractRepoTest):
 
     def testCreateUuidFails(self):
         uuid = self.uuid()  # ok
-        mrepo = self.getManagedRepo()
+        mrepo = self.get_managed_repo()
         pytest.raises(omero.ValidationException, mrepo.makeDir, uuid, True)
 
     def testCreateUserDirPasses(self):
-        mrepo = self.getManagedRepo()
+        mrepo = self.get_managed_repo()
         user_dir = self.user_dir()
         mrepo.makeDir(user_dir, True)
 
     def testCreateUuidUnderUserDirPasses(self):
-        mrepo = self.getManagedRepo()
+        mrepo = self.get_managed_repo()
         user_dir = self.user_dir()
         uuid = self.uuid()  # ok
         mydir = "%s/%s" % (user_dir, uuid)
@@ -497,14 +497,14 @@ class TestUserTemplate(AbstractRepoTest):
     # under her/his own directory regardless of
     # which group s/he is in.
     def testUserDirShouldBeGloballyWriteable(self):
-        mrepo = self.getManagedRepo()
+        mrepo = self.get_managed_repo()
         user_dir = self.user_dir()
         aDir = user_dir + "/" + self.uuid()  # ok
         aFile = aDir + "/a.txt"
 
         # Create a first file in one group
         mrepo.makeDir(aDir, True)
-        self.createFile(mrepo, aFile)
+        self.create_file(mrepo, aFile)
 
         uid = self.client.sf.getAdminService().getEventContext().userId
         users = [omero.model.ExperimenterI(uid, False)]
@@ -516,7 +516,7 @@ class TestUserTemplate(AbstractRepoTest):
         bDir = user_dir + "/" + self.uuid()  # ok
         bFile = bDir + "/b.txt"
         mrepo.makeDir(bDir, True)
-        self.createFile(mrepo, bFile)
+        self.create_file(mrepo, bFile)
 
 
 class TestFilesetQueries(AbstractRepoTest):
@@ -557,7 +557,7 @@ class TestOriginalMetadata(AbstractRepoTest):
         req = omero.cmd.OriginalMetadataRequest()
 
         client = self.new_client()
-        rsp = self.fullImport(client)  # Note: fake test produces no metadata!
+        rsp = self.full_import(client)  # Note: fake test produces no metadata!
         image = rsp.objects[0]
 
         req.imageId = image.id.val
@@ -585,7 +585,7 @@ class TestDeletePerformance(AbstractRepoTest):
         import time
         s1 = time.time()
         client = self.new_client()
-        mrepo = self.getManagedRepo(client)
+        mrepo = self.get_managed_repo(client)
         folder = create_path(folder=True)
         for x in range(200):
             name = "%s.unknown" % x

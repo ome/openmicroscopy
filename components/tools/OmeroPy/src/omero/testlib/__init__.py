@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2008-2014 Glencoe Software, Inc. All Rights Reserved.
+# Copyright (C) 2008-2017 Glencoe Software, Inc. All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 # This program is free software; you can redistribute it and/or modify
@@ -1195,7 +1195,7 @@ class AbstractRepoTest(ITest):
     def test_dir(self, client=None):
         if client is None:
             client = self.client
-        mrepo = self.getManagedRepo(client=client)
+        mrepo = self.get_managed_repo(client=client)
         user_dir = self.user_dir(client=client)
         unique_dir = user_dir + "/" + self.uuid()  # ok
         mrepo.makeDir(unique_dir, True)
@@ -1212,14 +1212,14 @@ class AbstractRepoTest(ITest):
         ctx["omero.group"] = "-1"
         return ctx
 
-    def getManagedRepo(self, client=None):
+    def get_managed_repo(self, client=None):
         if client is None:
             client = self.client
         mrepo = client.getManagedRepository()
         assert mrepo
         return mrepo
 
-    def createFile(self, mrepo1, filename):
+    def create_file(self, mrepo1, filename):
         rfs = mrepo1.file(filename, "rw")
         try:
             rfs.write("hi", 0, 2)
@@ -1267,13 +1267,13 @@ class AbstractRepoTest(ITest):
                       mrepo2.file, filename, "rw")
 
     def assertDirWrite(self, mrepo2, dirname):
-        self.createFile(mrepo2, dirname + "/file2.txt")
+        self.create_file(mrepo2, dirname + "/file2.txt")
 
     def assertNoDirWrite(self, mrepo2, dirname):
         # Also check that it's not possible to write
         # in someone else's directory.
         pytest.raises(omero.SecurityViolation,
-                      self.createFile, mrepo2, dirname + "/file2.txt")
+                      self.create_file, mrepo2, dirname + "/file2.txt")
 
     def assertNoRead(self, mrepo2, filename, ofile):
         pytest.raises(omero.SecurityViolation,
@@ -1303,7 +1303,7 @@ class AbstractRepoTest(ITest):
     def raw(self, command, args, client=None):
         if client is None:
             client = self.client
-        mrepo = self.getManagedRepo(self.client)
+        mrepo = self.get_managed_repo(self.client)
         obj = mrepo.root()
         sha = obj.hash.val
         raw_access = omero.grid.RawAccessRequest()
@@ -1394,11 +1394,11 @@ class AbstractRepoTest(ITest):
                 rfs.close()
         return ret_val
 
-    def fullImport(self, client):
+    def full_import(self, client):
         """
         Re-usable method for a basic import
         """
-        mrepo = self.getManagedRepo(client)
+        mrepo = self.get_managed_repo(client)
         folder = self.create_test_dir()
         fileset = self.create_fileset(folder)
         settings = self.create_settings()
