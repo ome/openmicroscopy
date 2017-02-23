@@ -156,9 +156,17 @@
                     syncDefaultGroupOptions(data.selected);
                 }
 
-                // If 'system' group chosen, 'role' is now 'administrator'
+                // If 'system' group added...
                 if (data && data.selected === "0") {
-                    $("input[name='role'][value='administrator']").prop('checked', true);
+                    // If role is disabled...
+                    if ($("#id_role_0").prop('disabled')) {
+                        // we want to revert change
+                        $("#id_other_groups option[value='0']").removeProp('selected');
+                        $('#id_other_groups').trigger("chosen:updated");
+                    } else {
+                        // otherwise 'role' is now 'administrator'
+                        $("input[name='role'][value='administrator']").prop('checked', true);
+                    }
                 }
             });
 

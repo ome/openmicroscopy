@@ -38,6 +38,8 @@ import omeroweb.webclient.views
 from omero_version import build_year
 from omero_version import omero_version
 
+from omero.model import ExperimenterI
+
 from django.template import loader as template_loader
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
@@ -523,13 +525,22 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                 role = 'restricted_administrator'
         initial['role'] = role
 
-        system_users = [conn.getAdminService().getSecurityRoles().rootId,
-                        conn.getAdminService().getSecurityRoles().guestId]
-        experimenter_is_me_or_system = (
-            (conn.getEventContext().userId == long(eid)) or
-            (long(eid) in system_users))
+        root_id = [conn.getAdminService().getSecurityRoles().rootId]
+        user_id = conn.getUserId()
+        user_privileges = [p.getValue().val for p in
+                           conn.getAdminService().getAdminPrivileges(
+                           ExperimenterI(user_id, False))]
+
+        experimenter_root = long(eid) == root_id
+        experimenter_me = long(eid) == user_id
+        user_full_admin = 'ReadSession' in user_privileges
+        # Only Full Admin can edit 'Role' of experimenter
+        can_edit_role = user_full_admin and not (experimenter_me
+                                                 or experimenter_root)
         form = ExperimenterForm(
-            experimenter_is_me_or_system=experimenter_is_me_or_system,
+            can_edit_role=can_edit_role,
+            experimenter_me=experimenter_me,
+            experimenter_root=experimenter_root,
             initial=initial)
         password_form = ChangePassword()
 

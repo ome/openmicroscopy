@@ -95,7 +95,10 @@ ROLE_CHOICES = (
 class ExperimenterForm(NonASCIIForm):
 
     def __init__(self, name_check=False, email_check=False,
-                 experimenter_is_me_or_system=False, *args, **kwargs):
+                 experimenter_is_me_or_system=False,
+                 experimenter_me=False,
+                 experimenter_root=False,
+                 can_edit_role=True, *args, **kwargs):
         super(ExperimenterForm, self).__init__(*args, **kwargs)
         self.name_check = name_check
         self.email_check = email_check
@@ -159,27 +162,38 @@ class ExperimenterForm(NonASCIIForm):
                  ('ModifyGroupMembership', 'Add Users to Groups'),
                  ('Script', 'Upload Scripts')]
         for role in roles:
+            disabled = not can_edit_role
             ordered_fields.append(
                 (role[0], forms.BooleanField(
                     required=False,
                     label=role[1],
-                    widget=forms.CheckboxInput(attrs={'class': 'privilege'})
+                    widget=forms.CheckboxInput(attrs={'class': 'privilege',
+                        'disabled': disabled})
                 ))
             )
 
         # Django 1.8: Form.fields uses OrderedDict from the collections module.
         self.fields = OrderedDict(ordered_fields)
 
-        if experimenter_is_me_or_system:
+        if experimenter_me or experimenter_root:
             self.fields['omename'].widget.attrs['readonly'] = True
+            name = "yourself"
+            if experimenter_root:
+                name = "'root' user"
             self.fields['omename'].widget.attrs['title'] = \
-                "Changing of system username would be un-doable"
-            self.fields['role'].widget.attrs['disabled'] = True
-            self.fields['role'].widget.attrs['title'] = \
-                "Removal of your own admin rights would be un-doable"
+                "You can't edit Username of %s" % name
             self.fields['active'].widget.attrs['disabled'] = True
             self.fields['active'].widget.attrs['title'] = \
-                "You cannot disable yourself"
+                "You cannot disable %s" % name
+        if not can_edit_role:
+            self.fields['role'].widget.attrs['disabled'] = True
+            reason = "You don't have permissions to edit user's Role"
+            if experimenter_me:
+                reason = "You can't edit your own admin privileges"
+            elif experimenter_root:
+                reason = "You can't edit 'root' user's admin privileges"
+            self.fields['role'].widget.attrs['title'] = \
+                "Removal of your own admin rights would be un-doable"
 
     omename = OmeNameField(
         max_length=250,
