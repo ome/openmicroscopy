@@ -56,7 +56,7 @@ class TestChgrp(ITest):
         client.sf.getAdminService().getEventContext()  # Reset session
 
         # Import an image into the client context
-        images = self.import_mif(1, name="testChgrpImportedImage",
+        images = self.import_fake_file(name="testChgrpImportedImage",
                                  client=client)
         image = images[0]
 
@@ -177,8 +177,8 @@ class TestChgrp(ITest):
         member = self.new_client(group=source_grp)
 
         # Create an image as the owner
-        images = self.import_mif(1, name="testChgrpRdef7825",
-                                         client=owner)
+        images = self.import_fake_file(name="testChgrpRdef7825",
+                                       client=owner)
         image = images[0]
 
         # Render as both users
@@ -213,7 +213,7 @@ class TestChgrp(ITest):
         target_gid = target_grp.id.val
 
         # 2 images sharing a fileset
-        images = self.import_mif(2, client=client)
+        images = self.import_fake_file(2, client=client)
 
         # Now chgrp
         chgrp = Chgrp2(
@@ -231,7 +231,7 @@ class TestChgrp(ITest):
         target_grp = self.new_group([user], perms=PRIVATE)
         target_gid = target_grp.id.val
 
-        images = self.import_mif(2, client=client)
+        images = self.import_fake_file(2, client=client)
 
         # chgrp should succeed
         ids = [images[0].id.val, images[1].id.val]
@@ -259,7 +259,7 @@ class TestChgrp(ITest):
         target_grp = self.new_group([user], perms=PRIVATE)
         target_gid = target_grp.id.val
 
-        images = self.import_mif(2, client=client)
+        images = self.import_fake_file(2, client=client)
 
         # chgrp should succeed
         chgrp1 = Chgrp2(
@@ -282,7 +282,7 @@ class TestChgrp(ITest):
 
         datasets = self.create_datasets(
             2, "testChgrpOneDatasetFilesetErr", client=client)
-        images = self.import_mif(2, client=client)
+        images = self.import_fake_file(2, client=client)
         for i in range(2):
             self.link(datasets[i], images[i], client=client)
 
@@ -325,7 +325,7 @@ class TestChgrp(ITest):
 
         datasets = self.create_datasets(
             2, "testChgrpAllDatasetsFilesetOK", client=client)
-        images = self.import_mif(2, client=client)
+        images = self.import_fake_file(2, client=client)
         for i in range(2):
             self.link(datasets[i], images[i], client=client)
 
@@ -358,7 +358,7 @@ class TestChgrp(ITest):
 
         ds = self.make_dataset(name="testChgrpOneDatasetFilesetOK",
                                client=client)
-        images = self.import_mif(2, client=client)
+        images = self.import_fake_file(2, client=client)
         for i in range(2):
             self.link(ds, images[i], client=client)
 
@@ -389,8 +389,8 @@ class TestChgrp(ITest):
         target_grp = self.new_group([user], perms=PRIVATE)
         target_gid = target_grp.id.val
 
-        imagesFsOne = self.import_mif(2, client=client)
-        imagesFsTwo = self.import_mif(2, client=client)
+        imagesFsOne = self.import_fake_file(2, client=client)
+        imagesFsTwo = self.import_fake_file(2, client=client)
 
         # chgrp should fail...
         ids = [imagesFsOne[0].id.val, imagesFsTwo[0].id.val]
@@ -407,12 +407,12 @@ class TestChgrp(ITest):
         target_grp = self.new_group([user], perms=PRIVATE)
         target_gid = target_grp.id.val
 
-        imagesFsOne = self.import_mif(2, client=client)
-        imagesFsTwo = self.import_mif(2, client=client)
+        imagesFsOne = self.import_fake_file(2, client=client)
+        imagesFsTwo = self.import_fake_file(2, client=client)
 
         ds = self.make_dataset(name="testChgrpDatasetTwoFilesetsErr",
                                client=client)
-        self.import_mif(2, client=client)
+        self.import_fake_file(2, client=client)
         for i in (imagesFsOne, imagesFsTwo):
             self.link(ds, i[0], client=client)
 
@@ -450,7 +450,7 @@ class TestChgrp(ITest):
 
         ds = self.make_dataset(name="testChgrpDatasetCheckFsGroup",
                                client=client)
-        images = self.import_mif(2, client=client)
+        images = self.import_fake_file(2, client=client)
         for i in range(2):
             self.link(ds, images[i], client=client)
 
@@ -481,7 +481,7 @@ class TestChgrp(ITest):
         target_grp = self.new_group([user], perms=PRIVATE)
         target_gid = target_grp.id.val
 
-        images = self.import_mif(2, client=client)
+        images = self.import_fake_file(2, client=client)
         fsId = query.get("Image", images[0].id.val).fileset.id.val
 
         # Now chgrp, should succeed
@@ -509,7 +509,7 @@ class TestChgrp(ITest):
         # One user in two groups
         client, user = self.new_client_and_user(perms=PRIVATE)
         ds = self.make_dataset(name="testChgrp11000", client=client)
-        images = self.import_mif(2, client=client)
+        images = self.import_fake_file(2, client=client)
         for i in range(2):
             self.link(ds, images[i], client=client)
 
@@ -986,7 +986,7 @@ class TestChgrp(ITest):
         # import two images into 'read-annotate'
         images = []
         for x in range(0, 2):
-            values = self.import_mif(1, client=io_client)
+            values = self.import_fake_file(client=io_client)
             images.append(values[0])
             image = io_client.sf.getQueryService().get("Image",
                                                        images[x].id.val)
@@ -1052,7 +1052,7 @@ class TestChgrpTarget(ITest):
         target_grp = self.new_group([user], perms=PRIVATE)
         target_gid = target_grp.id.val
 
-        images = self.import_mif(imgCount, client=client)
+        images = self.import_fake_file(imgCount, client=client)
         ds = self.createDSInGroup(target_gid, client=client)
 
         # each chgrp includes a 'save' link to target dataset

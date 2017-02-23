@@ -296,18 +296,17 @@ class ITest(object):
                     pass
         return pix_ids
 
-    """
-    Creates a fake file with a seriesCount of images, imports
-    the file and then return the list of images.
-    To import a single image, pass a images_count value of 1.
-    """
-
-    def import_mif(self, images_count=0, name=None, client=None,
+    def import_fake_file(self, images_count=1, name=None, client=None,
                    with_companion=False, skip="all", **kwargs):
+        """
+        Creates a fake file with a seriesCount of images, imports
+        the file and then return the list of images.
+        By default a single image is imported.
+        """
         if client is None:
             client = self.client
         if name is None:
-            name = "import_mif_%s" % images_count
+            name = "import_fake_file_%s" % images_count
 
         try:
             global_metadata = kwargs.pop("GlobalMetadata")
@@ -318,7 +317,7 @@ class ITest(object):
 
         append = ""
 
-        # Only include series count if enabled; in the case of plates,
+        # Only include images count if enabled; in the case of plates,
         # this will be unused
         if images_count >= 1:
             append = "series=%d%s" % (images_count, append)
@@ -348,12 +347,11 @@ class ITest(object):
             images.append(pixels.getImage())
         return images
 
-    def import_plates(
-        self, client=None,
-        plates=1, plate_acqs=1,
-        plate_cols=1, plate_rows=1,
-        fields=1, **kwargs
-    ):
+    def import_plates(self, client=None, plates=1, plate_acqs=1, plate_cols=1,
+                      plate_rows=1, fields=1, **kwargs):
+        """
+        Creates fake plates and imports them.
+        """
 
         if client is None:
             client = self.client
@@ -363,7 +361,7 @@ class ITest(object):
         kwargs["plateCols"] = plate_cols
         kwargs["plateRows"] = plate_rows
         kwargs["fields"] = fields
-        images = self.import_mif(client=client, **kwargs)
+        images = self.import_fake_file(images_count=0, client=client, **kwargs)
         images = [x.id.val for x in images]
 
         query = client.sf.getQueryService()

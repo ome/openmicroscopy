@@ -157,7 +157,7 @@ class TestDownload(CLITest):
     # Image tests
     # ========================================================================
     def testNonExistingImage(self, tmpdir):
-        images = self.import_mif(1, with_companion=True)
+        images = self.import_fake_file(with_companion=True)
         image = images[0]
         self.args += ["Image:%s" % str(image.id.val + 1), '-']
         with pytest.raises(NonZeroReturnCode):
@@ -180,7 +180,7 @@ class TestDownload(CLITest):
         f.close()
 
     def testSingleImageWithCompanion(self, tmpdir):
-        images = self.import_mif(1, with_companion=True)
+        images = self.import_fake_file(with_companion=True)
         image = images[0]
         tmpfile = tmpdir.join('test')
         self.args += ["Image:%s" % image.id.val, str(tmpfile)]
@@ -188,7 +188,7 @@ class TestDownload(CLITest):
             self.cli.invoke(self.args, strict=True)
 
     def testMIF(self, tmpdir):
-        images = self.import_mif(2)
+        images = self.import_fake_file(2)
         tmpfile = tmpdir.join('test')
         self.args += ["Image:%s" % images[0].id.val, str(tmpfile)]
         self.cli.invoke(self.args, strict=True)
@@ -293,7 +293,7 @@ class TestDownload(CLITest):
         upper = self.new_client(group=group)
         upper_q = upper.sf.getQueryService()
 
-        images = self.import_mif(1, client=upper,
+        images = self.import_fake_file(0, client=upper,
                                  plates=1, plateRows=1,
                                  plateCols=1, fields=1,
                                  plateAcqs=1)
@@ -309,7 +309,7 @@ class TestDownload(CLITest):
             "join w.wellSamples ws join ws.image img "
             "where img.id = %s") % pimage.id.val, None)
 
-        images = self.import_mif(1, client=upper)
+        images = self.import_fake_file(client=upper)
         image = images[0]
 
         ofile = self.create_original_file("test", upper)

@@ -74,11 +74,11 @@ class TestFS(CLITest):
         """Test --with-transfer option of fs sets subcommand"""
 
         f = {}
-        i0 = self.import_mif(1)
+        i0 = self.import_fake_file()
         f[None] = self.get_fileset(i0)
 
         for transfer in transfers:
-            i = self.import_mif(1, extra_args=['--transfer=%s' % transfer])
+            i = self.import_fake_file(extra_args=['--transfer=%s' % transfer])
             f[transfer] = self.get_fileset(i)
 
         self.args += ["sets", "--style=plain"]

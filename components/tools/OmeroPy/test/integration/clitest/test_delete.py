@@ -53,7 +53,7 @@ class TestDelete(CLITest):
     @pytest.mark.parametrize('arguments', ['image', 'fileset'])
     def testFileset(self, nimages, arguments):
         # 2 images sharing a fileset
-        images = self.import_mif(nimages)
+        images = self.import_fake_file(nimages)
         img = self.query.get('Image', images[0].id.val)
         filesetId = img.fileset.id.val
         fileset = self.query.get('Fileset', filesetId)
@@ -73,7 +73,7 @@ class TestDelete(CLITest):
             assert not self.query.find('Image', i.id.val)
 
     def testFilesetPartialFailing(self):
-        images = self.import_mif(2)  # 2 images sharing a fileset
+        images = self.import_fake_file(2)  # 2 images sharing a fileset
 
         # try to delete only one image
         self.args += ['/Image:%s' % images[0].id.val]
@@ -84,7 +84,7 @@ class TestDelete(CLITest):
             assert self.query.get('Image', i.id.val) is not None
 
     def testFilesetAllImagesDeleteDataset(self):
-        images = self.import_mif(2)  # 2 images sharing a fileset
+        images = self.import_fake_file(2)  # 2 images sharing a fileset
         dataset_id = self.create_object('Dataset')  # ... in a dataset
 
         # put the images into the dataset
@@ -517,7 +517,7 @@ class TestDelete(CLITest):
         # Import several images
         ids = []
         for i in range(IMAGES):
-            images = self.import_mif(1)
+            images = self.import_fake_file()
             image = images[0]
             ids.append(image.getId().getValue())
         ids = sorted(ids)

@@ -115,7 +115,7 @@ class TestSplitFilesets(ITest):
         """
         Fileset of 2 Images, we test split using 1 Image ID
         """
-        images = self.import_mif(2)
+        images = self.import_fake_file(2)
 
         # Lookup the fileset
         imgId = images[0].id.val
@@ -129,7 +129,7 @@ class TestSplitFilesets(ITest):
         """
         Fileset of 2 Images with No split (query with both Image IDs)
         """
-        images = self.import_mif(2)
+        images = self.import_fake_file(2)
 
         imgIds = [i.id.val for i in images]
 
@@ -142,7 +142,7 @@ class TestSplitFilesets(ITest):
         Fileset of 2 Images, one in a Dataset. Test split using Dataset ID
         """
         # Dataset contains 1 image of a 2-image fileset
-        images = self.import_mif(2)
+        images = self.import_fake_file(2)
         ds = self.make_dataset("testFilesetSplitByDataset")
         self.link(ds, images[0])
 
@@ -174,7 +174,7 @@ class TestSplitFilesets(ITest):
         """
         # Datasets each contain 1 image of a 2-image fileset
         datasets = self.create_datasets(2, "testFilesetNotSplitByDatasets")
-        images = self.import_mif(2)
+        images = self.import_fake_file(2)
         for i in range(2):
             self.link(datasets[i], images[i])
 
