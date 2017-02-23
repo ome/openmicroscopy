@@ -255,6 +255,9 @@ class ITest(object):
     # Import methods
     def import_image(self, filename=None, client=None, extra_args=None,
                      skip="all", **kwargs):
+        """
+        Imports the specified file.
+        """
         if filename is None:
             filename = self.omero_dist / ".." / \
                 "components" / "common" / "test" / "tinyTest.d3d.dv"

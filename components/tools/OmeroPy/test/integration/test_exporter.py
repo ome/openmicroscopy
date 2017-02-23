@@ -46,12 +46,10 @@ class TestExporter(ITest):
         Runs a simple export through to completion
         as a smoke test.
         """
-        pix_ids = self.import_image()
-        image_id = self.client.sf.getQueryService().projection(
-            "select i.id from Image i join i.pixels p where p.id = :id",
-            omero.sys.ParametersI().addId(pix_ids[0]))[0][0].val
+        session = self.client.getSession()
+        image = self.create_test_image(100, 100, 1, 1, 1, session)
         exporter = self.client.sf.createExporter()
-        exporter.addImage(image_id)
+        exporter.addImage(image.id.val)
         length = exporter.generateTiff()
         offset = 0
         while True:
