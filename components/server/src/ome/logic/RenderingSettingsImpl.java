@@ -1,5 +1,5 @@
 /*
- *  Copyright 2006-2016 University of Dundee. All rights reserved.
+ *  Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.logic;
@@ -397,33 +397,50 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 
     /**
      * Retrieves all rendering settings associated with a given set of Pixels.
-     * @param pixels List of Pixels to retrieve settings for.
-     * @param userId User ID of the owner of the settings to query for.
+     * 
+     * @param pixels
+     *            List of Pixels to retrieve settings for.
+     * @param ownerId
+     *            User ID of the owner of the settings to query for. Pass
+     *            <code>-1</code> to load the rendering settings of the Pixels
+     *            owner instead.
      * @return A map of &lt;Pixels.Id,RenderingDef&gt; for the list of Pixels
-     * given. 
+     *         given.
      */
     private Map<Long, RenderingDef> loadRenderingSettings(List<Pixels> pixels,
-                                                          Long ownerId)
-    {
-        StopWatch s1 = new Slf4JStopWatch(
-                "omero.loadRenderingSettingsByUser");
+            Long ownerId) {
+        StopWatch s1 = new Slf4JStopWatch("omero.loadRenderingSettingsByUser");
         Set<Long> pixelsIds = new HashSet<Long>();
-        for (Pixels p : pixels)
-        {
+        for (Pixels p : pixels) {
             pixelsIds.add(p.getId());
         }
-        Parameters p = new Parameters();
-        p.addIds(pixelsIds);
-        p.addId(ownerId);
-        String sql = PixelsImpl.RENDERING_DEF_QUERY_PREFIX +
-            "rdef.pixels.id in (:ids) and " +
-            "rdef.details.owner.id = :id";
+
+        Parameters p;
+        String sql;
+        if (ownerId >= 0) {
+            // Load the rendering settings of the specified owner
+            p = new Parameters();
+            p.addIds(pixelsIds);
+            p.addId(ownerId);
+            sql = PixelsImpl.RENDERING_DEF_QUERY_PREFIX
+                    + "rdef.pixels.id in (:ids) and "
+                    + "rdef.details.owner.id = :id";
+        } else {
+            // Load the rendering settings of the pixels owner
+            p = new Parameters();
+            p.addIds(pixelsIds);
+
+            sql = PixelsImpl.RENDERING_DEF_QUERY_PREFIX
+                    + "rdef.pixels.id in (:ids) and "
+                    + "rdef.details.owner.id = rdef.pixels.details.owner.id";
+        }
+
         Map<Long, RenderingDef> settingsMap = new HashMap<Long, RenderingDef>();
         List<RenderingDef> settingsList = iQuery.findAllByQuery(sql, p);
-        for (RenderingDef settings : settingsList)
-        {
+        for (RenderingDef settings : settingsList) {
             settingsMap.put(settings.getPixels().getId(), settings);
         }
+
         s1.stop();
         return settingsMap;
     }
@@ -1211,6 +1228,11 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     			List<Pixels> list = new ArrayList<Pixels>(1);
     			list.add(pixelsFrom);
     			Map<Long, RenderingDef> map = loadRenderingSettings(list);
+    			if (!map.containsKey(from)) {
+    			    // user doesn't have own rendering settings, load the rendering
+    			    // settings of the image owner instead
+    			    map = loadRenderingSettings(list, -1l);
+    			}
             	settingsFrom = map.get(from);
     		}
     	}
