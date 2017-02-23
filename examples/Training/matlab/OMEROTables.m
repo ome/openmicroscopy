@@ -61,12 +61,15 @@ try
     % link table to an Image
     fa = omero.model.FileAnnotationI;
     fa.setFile(file);
+    % Currently OMERO.tables are displayed only for Screen/plate/wells
+    % and in all cases the file annotation contains the following name
+    % space
+    fa.setNs(rstring('NSBULKANNOTATIONS'));
     link = linkAnnotation(session, fa, 'image', imageId);
     
     % fetch the OMERO Table and check if the original FileIds match
     fa1 = getImageFileAnnotations(session, imageId);
     assert(fa1(1).getFile.getId().equals(file.getId),'Original File Ids not matching')
-    
     
     of = omero.model.OriginalFileI(file.getId(), false);
     tablePrx = session.sharedResources().openTable(of);
