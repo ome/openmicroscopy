@@ -1341,20 +1341,20 @@ class AbstractRepoTest(ITest):
         # Fill version info
         system, node, release, version, machine, processor = platform.uname()
 
-        clientVersionInfo = [
+        client_version_info = [
             NV('omero.version', omero_version),
             NV('os.name', system),
             NV('os.version', release),
             NV('os.architecture', machine)
         ]
         try:
-            clientVersionInfo.append(
+            client_version_info.append(
                 NV('locale', locale.getdefaultlocale()[0]))
         except:
             pass
 
         upload = omero.model.UploadJobI()
-        upload.setVersionInfo(clientVersionInfo)
+        upload.setVersionInfo(client_version_info)
         fileset.linkJob(upload)
         return fileset
 
