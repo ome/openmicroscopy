@@ -353,7 +353,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
      */
-   @Test(dataProvider = "narrowed combined privileges cases")
+   @Test(dataProvider = "isSudoing and Delete privileges cases")
    public void testDelete(boolean isAdmin, boolean isSudoing, boolean permDeleteOwned,
            String groupPermissions) throws Exception {
        /* only DeleteOwned permission is truly needed for deletion of links, dataset
@@ -428,7 +428,9 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
            loginUser(lightAdmin);
        }
        /* Now check that the ImporterAs can delete the objects
-        * created on behalf of the user */
+        * created on behalf of the user. Note that deletion of the Project
+        * would delete the whole hierarchy, which was successfully tested
+        * during writing of this test.*/
        if (deletePassing) {
            doChange(Requests.delete().target(datasetImageLink).build());
            doChange(Requests.delete().target(projectDatasetLink).build());
@@ -468,8 +470,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
            Assert.assertNull(retrievedDatasetImageLink, "Dat-Image link should be deleted");
            Assert.assertNull(retrievedProjectDatasetLink, "Proj-Dat link should be deleted");
        } else {
-           /* no deletion should have been successful without permWriteOwned
-            * and permWriteFile permissions */
+           /* no deletion should have been successful without permDeleteOwned */
            Assert.assertNotNull(retrievedRemoteFile, "original file not deleted");
            Assert.assertNotNull(retrievedImage, "image not deleted");
            Assert.assertNotNull(retrievedDat, "dataset not deleted");
@@ -2051,6 +2052,42 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                         testCase[IS_ADMIN] = isAdmin;
                         testCase[IS_SUDOING] = isSudoing;
                         testCase[PERM_WRITEOWNED] = permWriteOwned;
+                        testCase[GROUP_PERMS] = groupPerms;
+                        // DEBUG  if (isAdmin == false && isRestricted == true && isSudo == false)
+                        testCases.add(testCase);
+                    }
+                }
+            }
+        }
+        return testCases.toArray(new Object[testCases.size()][]);
+    }
+
+    /**
+     * @return narrowed test cases for adding the privileges combined with isAdmin cases
+     */
+    @DataProvider(name = "isSudoing and Delete privileges cases")
+    public Object[][] provideIsSudoingAndDeleteOwned() {
+        int index = 0;
+        final int IS_ADMIN = index++;
+        final int IS_SUDOING = index++;
+        final int PERM_DELETEOWNED = index++;
+        final int GROUP_PERMS = index++;
+
+        final boolean[] booleanCases = new boolean[]{false, true};
+        final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
+        final List<Object[]> testCases = new ArrayList<Object[]>();
+
+        for (final boolean isAdmin : booleanCases) {
+            for (final boolean isSudoing : booleanCases) {
+                for (final boolean permDeleteOwned : booleanCases) {
+                    for (final String groupPerms : permsCases) {
+                        final Object[] testCase = new Object[index];
+                        if (isSudoing && permDeleteOwned)
+                            /* not an interesting case */
+                            continue;
+                        testCase[IS_ADMIN] = isAdmin;
+                        testCase[IS_SUDOING] = isSudoing;
+                        testCase[PERM_DELETEOWNED] = permDeleteOwned;
                         testCase[GROUP_PERMS] = groupPerms;
                         // DEBUG  if (isAdmin == false && isRestricted == true && isSudo == false)
                         testCases.add(testCase);
