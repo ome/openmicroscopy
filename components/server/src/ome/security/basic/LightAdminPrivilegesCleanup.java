@@ -19,6 +19,9 @@
 
 package ome.security.basic;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -37,6 +40,8 @@ public class LightAdminPrivilegesCleanup implements Runnable {
     private final SqlAction sqlAction;
     private final ThreadPoolTaskScheduler scheduler;
 
+    private Collection<Long> transactionIds = Collections.emptyList();
+
     /**
      * Start a new scheduled repeating task for cleaning up the <tt>_current_admin_privileges</tt> database table.
      * @param sqlAction the SQL action to use for executing the cleanup JDBC
@@ -46,21 +51,23 @@ public class LightAdminPrivilegesCleanup implements Runnable {
         this.sqlAction = sqlAction;
 
         scheduler = new ThreadPoolTaskScheduler();
-        scheduler.setWaitForTasksToCompleteOnShutdown(true);
         scheduler.initialize();
         scheduler.scheduleWithFixedDelay(this, 1000L * delay);
+        LOGGER.debug("scheduled periodic cleanup of _current_admin_privileges table");
     }
 
     /**
      * Do not execute the repeating cleanup task any more times.
      */
     public void close() {
+        LOGGER.debug("shutting down periodic cleanup of _current_admin_privileges table");
         scheduler.shutdown();
     }
 
     @Override
     public void run() {
-        LOGGER.debug("running periodic cleanup of _current_admin_privileges");
-        sqlAction.deleteOldAdminPrivileges();
+        LOGGER.debug("running periodic cleanup of _current_admin_privileges table");
+        sqlAction.deleteOldAdminPrivileges(transactionIds);
+        transactionIds = sqlAction.findOldAdminPrivileges();
     }
 }
