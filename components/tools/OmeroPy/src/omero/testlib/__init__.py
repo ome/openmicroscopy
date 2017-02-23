@@ -297,7 +297,7 @@ class ITest(object):
         return pix_ids
 
     def import_fake_file(self, images_count=1, name=None, client=None,
-                   with_companion=False, skip="all", **kwargs):
+                         with_companion=False, skip="all", **kwargs):
         """
         Creates a fake file with a seriesCount of images, imports
         the file and then return the list of images.
@@ -664,7 +664,8 @@ class ITest(object):
                                       skip="all")
         return pixels_id[0]
 
-    def create_pixels(self, x=10, y=10, z=10, c=3, t=50, pixels_type="int8", client=None):
+    def create_pixels(self, x=10, y=10, z=10, c=3, t=50, pixels_type="int8",
+                      client=None):
         """
         Creates an int8 pixel of the given size in the database.
         No data is written.
@@ -697,7 +698,8 @@ class ITest(object):
         """
         if not rps.requiresPixelsPyramid():
             # By plane
-            bytes_per_plane = pixels.sizeX.val * pixels.sizeY.val  # Assuming int8
+            # Assuming int8
+            bytes_per_plane = pixels.sizeX.val * pixels.sizeY.val
             for z in range(pixels.sizeZ.val):
                 for c in range(pixels.sizeC.val):
                     for t in range(pixels.sizeT.val):
@@ -714,7 +716,7 @@ class ITest(object):
 
                                 changed = False
                                 if x + w > pixels.sizeX.val:
-                                    w = pix.sizeX.val - x
+                                    w = pixels.sizeX.val - x
                                     changed = True
                                 if y + h > pixels.sizeY.val:
                                     h = pixels.sizeY.val - y

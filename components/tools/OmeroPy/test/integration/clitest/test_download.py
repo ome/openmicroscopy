@@ -293,10 +293,8 @@ class TestDownload(CLITest):
         upper = self.new_client(group=group)
         upper_q = upper.sf.getQueryService()
 
-        images = self.import_fake_file(0, client=upper,
-                                 plates=1, plateRows=1,
-                                 plateCols=1, fields=1,
-                                 plateAcqs=1)
+        images = self.import_fake_file(0, client=upper, plates=1, plateRows=1,
+                                       plateCols=1, fields=1, plateAcqs=1)
         pimage = images[0]
 
         pfile = upper_q.findByQuery((
