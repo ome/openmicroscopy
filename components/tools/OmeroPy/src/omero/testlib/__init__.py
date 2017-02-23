@@ -412,7 +412,6 @@ class ITest(object):
             pixels_type = query_service.findByQuery(
                 "from PixelsType as p where p.value='%s'" % "float", None)
         if pixels_type is None:
-            print "Unknown pixels type for: " % p_type
             raise Exception("Unknown pixels type for: " % p_type)
 
         # code below here is very similar to combineImages.py
