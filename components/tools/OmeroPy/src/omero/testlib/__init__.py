@@ -297,40 +297,9 @@ class ITest(object):
         return pix_ids
 
     """
-    Creates a fake file with one image, imports
-    the file and then return the image.
-    """
-
-    def import_single_image(self, name=None, client=None,
-                            with_companion=False, **kwargs):
-        if client is None:
-            client = self.client
-        if name is None:
-            name = "import_single_image"
-
-        images = self.import_mif(1, name=name, client=client,
-                                 with_companion=with_companion,
-                                 **kwargs)
-        return images[0]
-
-    """
-    Creates a fake file with one image and a companion file, imports
-    the file and then return the image..
-    """
-
-    def import_single_image_with_companion(self, name=None, client=None):
-        if client is None:
-            client = self.client
-        if name is None:
-            name = "import_single_image_with_companion"
-
-        images = self.import_mif(1, name=name, client=client,
-                                 with_companion=True)
-        return images[0]
-
-    """
     Creates a fake file with a seriesCount of images, imports
     the file and then return the list of images.
+    To import a single image, pass a series_count value of 1.
     """
 
     def import_mif(self, series_count=0, name=None, client=None,
@@ -338,7 +307,7 @@ class ITest(object):
         if client is None:
             client = self.client
         if name is None:
-            name = "import_mif"
+            name = "import_mif_%s" % series_count
 
         try:
             global_metadata = kwargs.pop("GlobalMetadata")
