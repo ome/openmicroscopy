@@ -576,9 +576,16 @@ public interface SqlAction {
     void setRoles(long rootUserId, long guestUserId, long systemGroupId, long userGroupId, long guestGroupId);
 
     /**
-     * Delete the current light administrator privileges for completed transactions.
+     * Find the completed transactions among the current light administrator privileges.
+     * @return the transaction IDs
      */
-    void deleteOldAdminPrivileges();
+    Collection<Long> findOldAdminPrivileges();
+
+    /**
+     * Delete the current light administrator privileges for the given transactions.
+     * @param transactionIds the transaction IDs to delete
+     */
+    void deleteOldAdminPrivileges(Collection<Long> transactionIds);
 
     /**
      * Delete the current light administrator privileges for the current transaction.
@@ -713,8 +720,26 @@ public interface SqlAction {
         }
 
         @Override
-        public void deleteOldAdminPrivileges() {
-            _jdbc().update(_lookup("old_privileges_delete"));
+        public Collection<Long> findOldAdminPrivileges() {
+            final List<Long> transactionIds = new ArrayList<>();
+            for (final Map<String, Object> resultRow :_jdbc().queryForList(_lookup("old_privileges_select"))) {
+                for (final Object transactionId : resultRow.values()) {
+                    transactionIds.add((Long) transactionId);
+                }
+            }
+            return transactionIds;
+        }
+
+        @Override
+        public void deleteOldAdminPrivileges(Collection<Long> transactionIds) {
+            if (transactionIds.isEmpty()) {
+                return;
+            }
+            final List<Object[]> transactionIdArrays = new ArrayList<>(transactionIds.size());
+            for (final Long transactionId : transactionIds) {
+                transactionIdArrays.add(new Long[] {transactionId});
+            }
+            _jdbc().batchUpdate(_lookup("old_privileges_delete"), transactionIdArrays, new int[] {Types.BIGINT});
         }
 
         @Override
