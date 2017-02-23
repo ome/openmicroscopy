@@ -35,8 +35,9 @@ class MetadataTestBase(CLITest):
     def setup_method(self, method):
         super(MetadataTestBase, self).setup_method(method)
         self.name = self.uuid()
-        self.image = self.import_single_image(
+        images = self.import_mif(1,
             GlobalMetadata={'gmd-' + self.name: 'gmd-' + self.name})
+        self.image = images[0]
 
         conn = BlitzGateway(client_obj=self.client)
         self.imageid = unwrap(self.image.getId())

@@ -56,8 +56,9 @@ class TestChgrp(ITest):
         client.sf.getAdminService().getEventContext()  # Reset session
 
         # Import an image into the client context
-        image = self.import_single_image(
+        images = self.import_mif(1,
             name="testChgrpImportedImage", client=client)
+        image = images[0]
 
         # Chgrp
         chgrp = Chgrp2(targetObjects={'Image': [image.id.val]}, groupId=gid)
@@ -176,8 +177,9 @@ class TestChgrp(ITest):
         member = self.new_client(group=source_grp)
 
         # Create an image as the owner
-        image = self.import_single_image(name="testChgrpRdef7825",
+        images = self.import_mif(1, name="testChgrpRdef7825",
                                          client=owner)
+        image = images[0]
 
         # Render as both users
         owner_g = omero.gateway.BlitzGateway(client_obj=owner)
@@ -984,7 +986,8 @@ class TestChgrp(ITest):
         # import two images into 'read-annotate'
         images = []
         for x in range(0, 2):
-            images.append(self.import_single_image(client=io_client))
+            values = self.import_mif(1, client=io_client)
+            images.append(values[0])
             image = io_client.sf.getQueryService().get("Image",
                                                        images[x].id.val)
             assert ra_group.id.val == image.details.group.id.val

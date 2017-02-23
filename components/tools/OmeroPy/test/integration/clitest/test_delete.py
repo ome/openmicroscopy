@@ -517,7 +517,9 @@ class TestDelete(CLITest):
         # Import several images
         ids = []
         for i in range(IMAGES):
-            ids.append(self.import_single_image().getId().getValue())
+            images = self.import_mif(1)
+            image = images[0]
+            ids.append(image.getId().getValue())
         ids = sorted(ids)
         assert len(ids) == IMAGES
         assert ids[-1] - ids[0] + 1 == IMAGES
