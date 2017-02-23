@@ -666,7 +666,7 @@ class ITest(object):
                                       skip="all")
         return pixels_id[0]
 
-    def pix(self, x=10, y=10, z=10, c=3, t=50, client=None):
+    def create_pixels(self, x=10, y=10, z=10, c=3, t=50, pixels_type="int8", client=None):
         """
         Creates an int8 pixel of the given size in the database.
         No data is written.
@@ -680,7 +680,7 @@ class ITest(object):
         pixels.sizeT = rint(t)
         pixels.sha1 = rstring("")
         pixels.pixelsType = PixelsTypeI()
-        pixels.pixelsType.value = rstring("int8")
+        pixels.pixelsType.value = rstring(pixels_type)
         pixels.dimensionOrder = DimensionOrderI()
         pixels.dimensionOrder.value = rstring("XYZCT")
         image.addPixels(pixels)
@@ -689,8 +689,7 @@ class ITest(object):
             client = self.client
         update = client.sf.getUpdateService()
         image = update.saveAndReturnObject(image)
-        pixels = image.getPrimaryPixels()
-        return pixels
+        return image.getPrimaryPixels()
 
     def write(self, pix, rps):
         """

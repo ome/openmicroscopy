@@ -32,7 +32,7 @@ import pytest
 class TestExporter(ITest):
 
     def bigimage(self):
-        pix = self.pix(x=4000, y=4000, z=1, t=1, c=1)
+        pix = self.create_pixels(x=4000, y=4000, z=1, t=1, c=1)
         rps = self.client.sf.createRawPixelsStore()
         try:
             rps.setPixelsId(pix.id.val, True)

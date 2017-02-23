@@ -197,7 +197,7 @@ class TestDownload(CLITest):
         assert not bytes
 
     def testImageNoFileset(self, tmpdir):
-        pixels = self.pix()
+        pixels = self.create_pixels()
         tmpfile = tmpdir.join('test')
         self.args += ["Image:%s" % pixels.getImage().id.val, str(tmpfile)]
         with pytest.raises(NonZeroReturnCode):
