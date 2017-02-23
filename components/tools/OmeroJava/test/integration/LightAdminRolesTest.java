@@ -685,11 +685,11 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "narrowed combined privileges cases")
+    @Test(dataProvider = "isSudoing and Chown privileges cases")
     public void testChown(boolean isAdmin, boolean isSudoing, boolean permChown,
             String groupPermissions) throws Exception {
         /* define the conditions for the chown passing (when not sudoing) */
-        final boolean chownPassing = isAdmin && permChown;
+        final boolean chownPassingWhenNotSudoing = isAdmin && permChown;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         final long anotherUserId = newUserAndGroup(groupPermissions).userId;
         /* create a Dataset as the normalUser and import into it */
@@ -732,9 +732,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         if (!isSudoing) {
             loginUser(lightAdmin);
         }
-        /* try to chown the image of the normalUser just being sudoed,
-         * which should fail in both cases you have a chown permissions or
-         * not */
+        /* light admin tries to chown the image of the normalUser whilst sudoed,
+         * which should fail whether they have a Chown permissions or not */
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         if (isSudoing) {
             doChange(client, factory, Requests.chown().target(image).toUser(anotherUserId).build(), false);
@@ -746,15 +745,15 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             Assert.assertEquals(image.getDetails().getGroup().getId().getValue(), normalUser.groupId);
             Assert.assertEquals(remoteFile.getDetails().getOwner().getId().getValue(), normalUser.userId);
         } else {
-            /* when trying to chown the image NOT being sudoed,
-             * this should fail in case you have not Chown
-             * privilege, collated in "chownPassing" boolean together with isAdmin */
-            doChange(client, factory, Requests.chown().target(image).toUser(anotherUserId).build(), chownPassing);
+            /* chowning the image NOT being sudoed,
+             * should pass only in case you have Chown
+             * privilege, captured in "chownPassingWhenNotSudoing" boolean */
+            doChange(client, factory, Requests.chown().target(image).toUser(anotherUserId).build(), chownPassingWhenNotSudoing);
             image = (Image) iQuery.get("Image", image.getId().getValue());
             remoteFile = (OriginalFile) iQuery.findByQuery(
                     "FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
                     new ParametersI().addId(previousId).add("name", imageName));
-            if (chownPassing) {
+            if (chownPassingWhenNotSudoing) {
                 Assert.assertEquals(image.getDetails().getOwner().getId().getValue(), anotherUserId);
                 Assert.assertEquals(remoteFile.getDetails().getOwner().getId().getValue(), anotherUserId);
             } else {
@@ -2131,6 +2130,42 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                         testCase[IS_ADMIN] = isAdmin;
                         testCase[IS_SUDOING] = isSudoing;
                         testCase[PERM_CHGRP] = permChgrp;
+                        testCase[GROUP_PERMS] = groupPerms;
+                        // DEBUG  if (isAdmin == false && isRestricted == true && isSudo == false)
+                        testCases.add(testCase);
+                    }
+                }
+            }
+        }
+        return testCases.toArray(new Object[testCases.size()][]);
+    }
+
+    /**
+     * @return narrowed test cases for adding the privileges combined with isAdmin cases
+     */
+    @DataProvider(name = "isSudoing and Chown privileges cases")
+    public Object[][] provideIsSudoingAndChownOwned() {
+        int index = 0;
+        final int IS_ADMIN = index++;
+        final int IS_SUDOING = index++;
+        final int PERM_CHOWN = index++;
+        final int GROUP_PERMS = index++;
+
+        final boolean[] booleanCases = new boolean[]{false, true};
+        final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
+        final List<Object[]> testCases = new ArrayList<Object[]>();
+
+        for (final boolean isAdmin : booleanCases) {
+            for (final boolean isSudoing : booleanCases) {
+                for (final boolean permChown : booleanCases) {
+                    for (final String groupPerms : permsCases) {
+                        final Object[] testCase = new Object[index];
+                        /* no test cases are excluded here, because isSudoing
+                         * is in a sense acting to annule Chown permission
+                         * which is tested in the testChown and is an interesting case.*/
+                        testCase[IS_ADMIN] = isAdmin;
+                        testCase[IS_SUDOING] = isSudoing;
+                        testCase[PERM_CHOWN] = permChown;
                         testCase[GROUP_PERMS] = groupPerms;
                         // DEBUG  if (isAdmin == false && isRestricted == true && isSudo == false)
                         testCases.add(testCase);
