@@ -234,7 +234,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "narrowed combined privileges cases")
+    @Test(dataProvider = "isSudoing and WriteOwned privileges cases")
     public void testCreateLinkImportSudo(boolean isAdmin, boolean isSudoing, boolean permWriteOwned,
             String groupPermissions) throws Exception {
         final EventContext normalUser = newUserAndGroup(groupPermissions);
@@ -294,7 +294,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             Assert.assertNull(sentProj);
             Assert.assertNull(sentDat);
         }
-        /* finish the test if light admin is not sudoing, the firther part
+        /* finish the test if light admin is not sudoing, the further part
         of the test deals with the imports. Imports when not sudoing workflows are covered in
         other tests in this class */
         if (!isSudoing) return;
@@ -490,7 +490,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "narrowed combined privileges cases")
+    @Test(dataProvider = "isSudoing and WriteOwned privileges cases")
     public void testEdit(boolean isAdmin, boolean isSudoing,
             boolean permWriteOwned, String groupPermissions) throws Exception {
         final boolean isExpectSuccess = (isAdmin && isSudoing) || (isAdmin && permWriteOwned);
@@ -2015,6 +2015,42 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                         testCase[IS_ADMIN] = isAdmin;
                         testCase[IS_SUDOING] = isSudoing;
                         testCase[PERM_ADDITIONAL] = permAdditional;
+                        testCase[GROUP_PERMS] = groupPerms;
+                        // DEBUG  if (isAdmin == false && isRestricted == true && isSudo == false)
+                        testCases.add(testCase);
+                    }
+                }
+            }
+        }
+        return testCases.toArray(new Object[testCases.size()][]);
+    }
+
+    /**
+     * @return narrowed test cases for adding the privileges combined with isAdmin cases
+     */
+    @DataProvider(name = "isSudoing and WriteOwned privileges cases")
+    public Object[][] provideIsSudoingAndWriteOwned() {
+        int index = 0;
+        final int IS_ADMIN = index++;
+        final int IS_SUDOING = index++;
+        final int PERM_WRITEOWNED = index++;
+        final int GROUP_PERMS = index++;
+
+        final boolean[] booleanCases = new boolean[]{false, true};
+        final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
+        final List<Object[]> testCases = new ArrayList<Object[]>();
+
+        for (final boolean isAdmin : booleanCases) {
+            for (final boolean isSudoing : booleanCases) {
+                for (final boolean permWriteOwned : booleanCases) {
+                    for (final String groupPerms : permsCases) {
+                        final Object[] testCase = new Object[index];
+                        if (isSudoing && permWriteOwned)
+                            /* not an interesting case */
+                            continue;
+                        testCase[IS_ADMIN] = isAdmin;
+                        testCase[IS_SUDOING] = isSudoing;
+                        testCase[PERM_WRITEOWNED] = permWriteOwned;
                         testCase[GROUP_PERMS] = groupPerms;
                         // DEBUG  if (isAdmin == false && isRestricted == true && isSudo == false)
                         testCases.add(testCase);
