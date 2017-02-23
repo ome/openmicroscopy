@@ -299,15 +299,15 @@ class ITest(object):
     """
     Creates a fake file with a seriesCount of images, imports
     the file and then return the list of images.
-    To import a single image, pass a series_count value of 1.
+    To import a single image, pass a images_count value of 1.
     """
 
-    def import_mif(self, series_count=0, name=None, client=None,
+    def import_mif(self, images_count=0, name=None, client=None,
                    with_companion=False, skip="all", **kwargs):
         if client is None:
             client = self.client
         if name is None:
-            name = "import_mif_%s" % series_count
+            name = "import_mif_%s" % images_count
 
         try:
             global_metadata = kwargs.pop("GlobalMetadata")
@@ -320,8 +320,8 @@ class ITest(object):
 
         # Only include series count if enabled; in the case of plates,
         # this will be unused
-        if series_count >= 1:
-            append = "series=%d%s" % (series_count, append)
+        if images_count >= 1:
+            append = "series=%d%s" % (images_count, append)
 
         if kwargs:
             for k, v in kwargs.items():
@@ -339,8 +339,8 @@ class ITest(object):
         pixel_ids = self.import_image(
             filename=fake.abspath(), client=client, skip=skip, **kwargs)
 
-        if series_count >= 1:
-            assert series_count == len(pixel_ids)
+        if images_count >= 1:
+            assert images_count == len(pixel_ids)
 
         images = []
         for pix_id_str in pixel_ids:
