@@ -1241,78 +1241,6 @@ class AbstractRepoTest(ITest):
         finally:
             rfs.close()
 
-    def assertWrite(self, mrepo2, filename, ofile):
-        def _write(rfs):
-            try:
-                rfs.write("bye", 0, 3)
-                assert "bye" == rfs.read(0, 3)
-                # Resetting for other expectations
-                rfs.truncate(2)
-                rfs.write("hi", 0, 2)
-                assert "hi" == rfs.read(0, 2)
-            finally:
-                rfs.close()
-
-        # TODO: fileById is always "r"
-        # rfs = mrepo2.fileById(ofile.id.val)
-        # _write(rfs)
-
-        rfs = mrepo2.file(filename, "rw")
-        _write(rfs)
-
-    def assertNoWrite(self, mrepo2, filename, ofile):
-        def _nowrite(rfs):
-            try:
-                pytest.raises(omero.SecurityViolation,
-                              rfs.write, "bye", 0, 3)
-                assert "hi" == rfs.read(0, 2)
-            finally:
-                rfs.close()
-
-        rfs = mrepo2.fileById(ofile.id.val)
-        _nowrite(rfs)
-
-        rfs = mrepo2.file(filename, "r")
-        _nowrite(rfs)
-
-        # Can't even acquire a writeable-rfs.
-        pytest.raises(omero.SecurityViolation,
-                      mrepo2.file, filename, "rw")
-
-    def assertDirWrite(self, mrepo2, dirname):
-        self.create_file(mrepo2, dirname + "/file2.txt")
-
-    def assertNoDirWrite(self, mrepo2, dirname):
-        # Also check that it's not possible to write
-        # in someone else's directory.
-        pytest.raises(omero.SecurityViolation,
-                      self.create_file, mrepo2, dirname + "/file2.txt")
-
-    def assertNoRead(self, mrepo2, filename, ofile):
-        pytest.raises(omero.SecurityViolation,
-                      mrepo2.fileById, ofile.id.val)
-        pytest.raises(omero.SecurityViolation,
-                      mrepo2.file, filename, "r")
-
-    def assertRead(self, mrepo2, filename, ofile, ctx=None):
-        def _read(rfs):
-            try:
-                assert "hi" == rfs.read(0, 2)
-            finally:
-                rfs.close()
-
-        rfs = mrepo2.fileById(ofile.id.val, ctx)
-        _read(rfs)
-
-        rfs = mrepo2.file(filename, "r", ctx)
-        _read(rfs)
-
-    def assertListings(self, mrepo1, unique_dir):
-        assert [unique_dir + "/b"] == mrepo1.list(unique_dir + "/")
-        assert [unique_dir + "/b/c"] == mrepo1.list(unique_dir + "/b/")
-        assert [
-            unique_dir + "/b/c/file.txt"] == mrepo1.list(unique_dir + "/b/c/")
-
     def raw(self, command, args, client=None):
         if client is None:
             client = self.client
@@ -1325,18 +1253,6 @@ class AbstractRepoTest(ITest):
         raw_access.args = args
         handle = client.sf.submit(raw_access)
         return CmdCallbackI(client, handle)
-
-    def assertPasses(self, cb, loops=10, wait=500):
-        cb.loop(loops, wait)
-        rsp = cb.getResponse()
-        if isinstance(rsp, omero.cmd.ERR):
-            raise Exception(rsp)
-        return rsp
-
-    def assertError(self, cb, loops=10, wait=500):
-        cb.loop(loops, wait)
-        rsp = cb.getResponse()
-        assert isinstance(rsp, omero.cmd.ERR)
 
     def create_test_dir(self):
         folder = create_path(folder=True)
@@ -1422,6 +1338,7 @@ class AbstractRepoTest(ITest):
         finally:
             proc.close()
 
+    # Assert methods
     def assertImport(self, client, proc, folder):
         hashes = self.upload_folder(proc, folder)
         handle = proc.verifyUpload(hashes)
@@ -1429,3 +1346,87 @@ class AbstractRepoTest(ITest):
         rsp = self.assertPasses(cb)
         assert 1 == len(rsp.pixels)
         return rsp
+
+    def assertWrite(self, mrepo2, filename, ofile):
+        def _write(rfs):
+            try:
+                rfs.write("bye", 0, 3)
+                assert "bye" == rfs.read(0, 3)
+                # Resetting for other expectations
+                rfs.truncate(2)
+                rfs.write("hi", 0, 2)
+                assert "hi" == rfs.read(0, 2)
+            finally:
+                rfs.close()
+
+        # TODO: fileById is always "r"
+        # rfs = mrepo2.fileById(ofile.id.val)
+        # _write(rfs)
+
+        rfs = mrepo2.file(filename, "rw")
+        _write(rfs)
+
+    def assertNoWrite(self, mrepo2, filename, ofile):
+        def _nowrite(rfs):
+            try:
+                pytest.raises(omero.SecurityViolation,
+                              rfs.write, "bye", 0, 3)
+                assert "hi" == rfs.read(0, 2)
+            finally:
+                rfs.close()
+
+        rfs = mrepo2.fileById(ofile.id.val)
+        _nowrite(rfs)
+
+        rfs = mrepo2.file(filename, "r")
+        _nowrite(rfs)
+
+        # Can't even acquire a writeable-rfs.
+        pytest.raises(omero.SecurityViolation,
+                      mrepo2.file, filename, "rw")
+
+    def assertDirWrite(self, mrepo2, dirname):
+        self.create_file(mrepo2, dirname + "/file2.txt")
+
+    def assertNoDirWrite(self, mrepo2, dirname):
+        # Also check that it's not possible to write
+        # in someone else's directory.
+        pytest.raises(omero.SecurityViolation,
+                      self.create_file, mrepo2, dirname + "/file2.txt")
+
+    def assertNoRead(self, mrepo2, filename, ofile):
+        pytest.raises(omero.SecurityViolation,
+                      mrepo2.fileById, ofile.id.val)
+        pytest.raises(omero.SecurityViolation,
+                      mrepo2.file, filename, "r")
+
+    def assertRead(self, mrepo2, filename, ofile, ctx=None):
+        def _read(rfs):
+            try:
+                assert "hi" == rfs.read(0, 2)
+            finally:
+                rfs.close()
+
+        rfs = mrepo2.fileById(ofile.id.val, ctx)
+        _read(rfs)
+
+        rfs = mrepo2.file(filename, "r", ctx)
+        _read(rfs)
+
+    def assertListings(self, mrepo1, unique_dir):
+        assert [unique_dir + "/b"] == mrepo1.list(unique_dir + "/")
+        assert [unique_dir + "/b/c"] == mrepo1.list(unique_dir + "/b/")
+        assert [
+            unique_dir + "/b/c/file.txt"] == mrepo1.list(unique_dir + "/b/c/")
+
+    def assertPasses(self, cb, loops=10, wait=500):
+        cb.loop(loops, wait)
+        rsp = cb.getResponse()
+        if isinstance(rsp, omero.cmd.ERR):
+            raise Exception(rsp)
+        return rsp
+
+    def assertError(self, cb, loops=10, wait=500):
+        cb.loop(loops, wait)
+        rsp = cb.getResponse()
+        assert isinstance(rsp, omero.cmd.ERR)
