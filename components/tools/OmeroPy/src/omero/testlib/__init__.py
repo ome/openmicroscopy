@@ -744,19 +744,6 @@ class ITest(object):
                                         z, c, t, x, y, w, h)
                                 rps.setTile(*args)
 
-    def open_jpeg_buffer(self, buf):
-        try:
-            from PIL import Image
-        except ImportError:
-            try:
-                import Image
-            except ImportError:
-                assert False, "Pillow not installed"
-        from io import BytesIO
-        tfile = BytesIO(buf)
-        jpeg = Image.open(tfile)  # Raises if invalid
-        return jpeg
-
     def login_attempt(self, name, t, pw="BAD", less=False):
         """
         Checks that login happens in less than or greater than
