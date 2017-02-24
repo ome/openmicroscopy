@@ -1331,9 +1331,9 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "narrowed combined privileges cases")
-    public void testROIAndRenderingSettingsNoSudo(boolean isAdmin, boolean permChown,
-            boolean permWriteOwned, String groupPermissions) throws Exception {
+    @Test(dataProvider = "WriteOwned and Chown privileges cases")
+    public void testROIAndRenderingSettingsNoSudo(boolean isAdmin, boolean permWriteOwned, boolean permChown,
+            String groupPermissions) throws Exception {
         /* creation of rendering settings should be always permitted as long as light admin is in System Group
          * and has WriteOwned permissions. Exception is Private group, where it will
          * always fail.*/
@@ -1404,7 +1404,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         }
         /* after this, as light admin try to chown the ROI and the rendering settings to normalUser */
         if (isExpectSuccessCreateROIRndSettings) {/* only attempt the chown if the ROI and rendering settings exist
-             and also in case of ROIs cannot chown in read-only group (see definition of boolean isExpectSuccessCreateAndChownROI */
+             and also in case of ROIs cannot chown in read-only group. See definition of boolean
+             isExpectSuccessCreateAndChownROI */
             doChange(client, factory, Requests.chown().target(roi).toUser(normalUser.userId).build(), isExpectSuccessCreateAndChownROI);
             doChange(client, factory, Requests.chown().target(rDef).toUser(normalUser.userId).build(), isExpectSuccessCreateAndChownRndSettings);
             roi = (Roi) iQuery.findByQuery("FROM Roi WHERE image.id = :id",
