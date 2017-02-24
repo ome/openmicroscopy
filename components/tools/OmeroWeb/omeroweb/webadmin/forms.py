@@ -168,7 +168,7 @@ class ExperimenterForm(NonASCIIForm):
                     required=False,
                     label=role[1],
                     widget=forms.CheckboxInput(attrs={'class': 'privilege',
-                        'disabled': disabled})
+                                                      'disabled': disabled})
                 ))
             )
 
@@ -192,8 +192,7 @@ class ExperimenterForm(NonASCIIForm):
                 reason = "You can't edit your own admin privileges"
             elif experimenter_root:
                 reason = "You can't edit 'root' user's admin privileges"
-            self.fields['role'].widget.attrs['title'] = \
-                "Removal of your own admin rights would be un-doable"
+            self.fields['role'].widget.attrs['title'] = reason
 
     omename = OmeNameField(
         max_length=250,
