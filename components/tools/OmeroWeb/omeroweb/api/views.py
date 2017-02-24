@@ -23,7 +23,7 @@ from django.views.generic import View
 from django.middleware import csrf
 from django.utils.decorators import method_decorator
 from django.core.urlresolvers import reverse
-from django.conf import settings
+from . import api_settings
 
 import traceback
 import json
@@ -54,11 +54,11 @@ def build_url(request, name, api_version, **kwargs):
     """
     kwargs['api_version'] = api_version
     url = reverse(name, kwargs=kwargs)
-    if settings.API_ABSOLUTE_URL is None:
+    if api_settings.API_ABSOLUTE_URL is None:
         return request.build_absolute_uri(url)
     else:
         # remove trailing slash
-        prefix = settings.API_ABSOLUTE_URL.rstrip('/')
+        prefix = api_settings.API_ABSOLUTE_URL.rstrip('/')
         return "%s%s" % (prefix, url)
 
 
@@ -66,7 +66,7 @@ def build_url(request, name, api_version, **kwargs):
 def api_versions(request, **kwargs):
     """Base url of the webgateway json api."""
     versions = []
-    for v in settings.API_VERSIONS:
+    for v in api_settings.API_VERSIONS:
         versions.append({
             'version': v,
             'url:base': build_url(request, 'api_base', v)
@@ -304,8 +304,8 @@ class ObjectsView(ApiView):
     def get_opts(self, request, **kwargs):
         """Return an options dict based on request parameters."""
         try:
-            page = getIntOrDefault(request, 'page', 1)
-            limit = getIntOrDefault(request, 'limit', settings.PAGE)
+            offset = getIntOrDefault(request, 'offset', 0)
+            limit = getIntOrDefault(request, 'limit', None)
             owner = getIntOrDefault(request, 'owner', None)
             child_count = request.GET.get('childCount', False) == 'true'
             orphaned = request.GET.get('orphaned', False) == 'true'
@@ -313,7 +313,7 @@ class ObjectsView(ApiView):
             raise BadRequestError(str(ex))
 
         # orphaned and child_count not used by every subclass
-        opts = {'offset': (page - 1) * limit,
+        opts = {'offset': offset,
                 'limit': limit,
                 'owner': owner,
                 'orphaned': orphaned,

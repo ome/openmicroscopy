@@ -22,7 +22,7 @@
 from omeroweb.testlib import IWebTest, _get_response_json, \
     _csrf_post_json, _csrf_put_json, _csrf_delete_response_json
 from django.core.urlresolvers import reverse
-from django.conf import settings
+from omeroweb.api import api_settings
 import pytest
 from test_api_projects import cmp_name_insensitive, get_update_service, \
     get_connection, marshal_objects
@@ -50,7 +50,7 @@ def build_url(client, url_name, url_kwargs):
 
 def add_image_urls(expected, client):
     """Add urls to expected Images within Well dict."""
-    version = settings.API_VERSIONS[-1]
+    version = api_settings.API_VERSIONS[-1]
     if 'WellSamples' in expected:
         for ws in expected['WellSamples']:
             image_id = ws['Image']['@id']
@@ -188,7 +188,7 @@ class TestContainers(IWebTest):
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         save_url = reverse('api_save', kwargs={'api_version': version})
         payload = {'Name': 'test',
                    '@type': OME_SCHEMA_URL + '#%s' % dtype}
@@ -203,7 +203,7 @@ class TestContainers(IWebTest):
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         # Delete (fake url - image doesn't need to exist for test)
         url_name = 'api_%s' % dtype.lower()
         delete_url = reverse(url_name, kwargs={'api_version': version,
@@ -225,7 +225,7 @@ class TestContainers(IWebTest):
         """
         django_client = self.django_root_client
         group = self.ctx.groupId
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         # Need to get the Schema url to create @type
         base_url = reverse('api_base', kwargs={'api_version': version})
         rsp = _get_response_json(django_client, base_url, {})
@@ -272,7 +272,7 @@ class TestContainers(IWebTest):
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
 
         # Handle parametrized dtype, setting up other variables
         if dtype == 'Dataset':
@@ -320,12 +320,20 @@ class TestContainers(IWebTest):
         # List ALL Datasets or Plates
         rsp = _get_response_json(django_client, request_url, payload)
         assert len(rsp['data']) == 6
+        assert rsp['meta'] == {'totalCount': 6,
+                               'limit': api_settings.API_LIMIT,
+                               'maxLimit': api_settings.API_MAX_LIMIT,
+                               'offset': 0}
 
         # Filter Datasets or Plates by Orphaned
         payload = {'orphaned': 'true', 'childCount': str(child_count).lower()}
         rsp = _get_response_json(django_client, request_url, payload)
         assert_objects(conn, rsp['data'], [orphaned], dtype=dtype,
                        extra=orph_ds_pl_children)
+        assert rsp['meta'] == {'totalCount': 1,
+                               'limit': api_settings.API_LIMIT,
+                               'maxLimit': api_settings.API_MAX_LIMIT,
+                               'offset': 0}
 
         # Filter Datasets by Project or Plates by Screen
         children.sort(cmp_name_insensitive)
@@ -335,6 +343,10 @@ class TestContainers(IWebTest):
         assert len(rsp['data']) == 5
         assert_objects(conn, rsp['data'], children, dtype=dtype,
                        extra=ds_or_pl_children)
+        assert rsp['meta'] == {'totalCount': 5,
+                               'limit': api_settings.API_LIMIT,
+                               'maxLimit': api_settings.API_MAX_LIMIT,
+                               'offset': 0}
 
         # Single (first) Dataset or Plate
         payload = {'childCount': str(child_count).lower()}
@@ -355,19 +367,27 @@ class TestContainers(IWebTest):
             extra = ds_or_pl_children[0:limit]
         assert_objects(conn, rsp['data'], children[0:limit], dtype=dtype,
                        extra=extra)
-        payload['page'] = 2
+        assert rsp['meta'] == {'totalCount': 5,
+                               'limit': limit,
+                               'maxLimit': api_settings.API_MAX_LIMIT,
+                               'offset': 0}
+        payload['offset'] = limit   # page 2
         rsp = _get_response_json(django_client, request_url, payload)
         if ds_or_pl_children is not None:
             extra = ds_or_pl_children[limit:limit * 2]
         assert_objects(conn, rsp['data'], children[limit:limit * 2],
                        dtype=dtype, extra=extra)
+        assert rsp['meta'] == {'totalCount': 5,
+                               'limit': limit,
+                               'maxLimit': api_settings.API_MAX_LIMIT,
+                               'offset': limit}
 
     def test_screens(self, user1, user_screens):
         """Test listing of Screens."""
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         client = self.new_django_client(user_name, user_name)
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         request_url = reverse('api_screens', kwargs={'api_version': version})
 
         # List ALL Screens
@@ -392,7 +412,7 @@ class TestContainers(IWebTest):
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         client = self.new_django_client(user_name, user_name)
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         base_url = reverse('api_base', kwargs={'api_version': version})
         base_rsp = _get_response_json(client, base_url, {})
 
@@ -453,7 +473,7 @@ class TestContainers(IWebTest):
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         client = self.new_django_client(user_name, user_name)
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         base_url = reverse('api_base', kwargs={'api_version': version})
         base_rsp = _get_response_json(client, base_url, {})
 

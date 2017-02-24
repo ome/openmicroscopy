@@ -22,11 +22,11 @@
 from django.conf.urls import url, patterns
 from omeroweb.api import views
 from omeroweb.webgateway.views import LoginView
-from django.conf import settings
+from . import api_settings
 import re
 
 versions = '|'.join([re.escape(v)
-                    for v in settings.API_VERSIONS])
+                    for v in api_settings.API_VERSIONS])
 
 api_versions = url(r'^$', views.api_versions, name='api_versions')
 
