@@ -1535,7 +1535,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "script privileges cases")
+    @Test(dataProvider = "isPrivileged cases")
     public void testOfficialSciptUploadNoSudo(boolean isAdmin, boolean permWriteScriptRepo,
             String groupPermissions) throws Exception {
         /* upload/creation of File Attachment should be always permitted as long as light admin is in System Group
@@ -1589,7 +1589,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "script privileges cases")
+    @Test(dataProvider = "isPrivileged cases")
     public void testOfficialScriptDeleteNoSudo(boolean isAdmin, boolean permDeleteScriptRepo,
             String groupPermissions) throws Exception {
         if (!isAdmin) return;
@@ -1666,7 +1666,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "script privileges cases")
+    @Test(dataProvider = "isPrivileged cases")
     public void testModifyGroupMembershipAddUser(boolean isAdmin, boolean permModifyGroupMembership,
             String groupPermissions) throws Exception {
         if (!isAdmin) return;
@@ -1699,7 +1699,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "script privileges cases")
+    @Test(dataProvider = "isPrivileged cases")
     public void testModifyGroupMembershipRemoveUser(boolean isAdmin, boolean permModifyGroupMembership,
             String groupPermissions) throws Exception {
         if (!isAdmin) return;
@@ -1730,7 +1730,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "script privileges cases")
+    @Test(dataProvider = "isPrivileged cases")
     public void testModifyGroupMembershipMakeOwner(boolean isAdmin, boolean permModifyGroupMembership,
             String groupPermissions) throws Exception {
         if (!isAdmin) return;
@@ -1760,7 +1760,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "script privileges cases")
+    @Test(dataProvider = "isPrivileged cases")
     public void testModifyGroupMembershipUnsetOwner(boolean isAdmin, boolean permModifyGroupMembership,
             String groupPermissions) throws Exception {
         if (!isAdmin) return;
@@ -1798,7 +1798,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "script privileges cases")
+    @Test(dataProvider = "isPrivileged cases")
     public void testModifyUserCreate(boolean isAdmin, boolean permModifyUser,
             String groupPermissions) throws Exception {
         if (!isAdmin) return;
@@ -1833,7 +1833,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "script privileges cases")
+    @Test(dataProvider = "isPrivileged cases")
     public void testModifyUserEdit(boolean isAdmin, boolean permModifyUser,
             String groupPermissions) throws Exception {
         if (!isAdmin) return;
@@ -1863,7 +1863,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "script privileges cases")
+    @Test(dataProvider = "isPrivileged cases")
     public void testModifyGroupCreate(boolean isAdmin, boolean permModifyGroup,
             String groupPermissions) throws Exception {
         if (!isAdmin) return;
@@ -1895,7 +1895,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "script privileges cases")
+    @Test(dataProvider = "isPrivileged cases")
     public void testModifyGroupEdit(boolean isAdmin, boolean permModifyGroup,
             String groupPermissions) throws Exception {
         if (!isAdmin) return;
@@ -2308,7 +2308,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * tested privilege in particular tests and combines them with group permissions
      */
     @DataProvider(name = "isPrivileged cases")
-    public Object[][] provideScriptPrivilegesCases() {
+    public Object[][] provideIsPrivilegesCases() {
         int index = 0;
         final int IS_ADMIN = index++;
         final int IS_PRIVILEGED = index++;
