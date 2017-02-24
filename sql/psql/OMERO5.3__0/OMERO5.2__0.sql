@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.2__0 to OMERO5.3DEV__14.
+--- OMERO5 release upgrade from OMERO5.2__0 to OMERO5.3__0.
 ---
 
 BEGIN;
@@ -95,7 +95,7 @@ DROP FUNCTION db_pretty_version(INTEGER);
 --
 
 INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
-             VALUES ('OMERO5.3DEV',  14,           'OMERO5.2',      0);
+             VALUES ('OMERO5.3',     0,            'OMERO5.2',      0);
 
 -- ... up to patch 0:
 
