@@ -911,14 +911,14 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "narrowed combined privileges cases")
-    public void testLinkNoSudo(boolean isAdmin, boolean permChown,
-            boolean permWriteOwned, String groupPermissions) throws Exception {
+    @Test(dataProvider = "WriteOwned and Chown privileges cases")
+    public void testLinkNoSudo(boolean isAdmin, boolean permWriteOwned, boolean permChown,
+            String groupPermissions) throws Exception {
         /* linking should be always permitted as long as light admin is in System Group
          * and has WriteOwned permissions. Exception is Private group, where linking will
          * always fail.*/
-        boolean isExpectLinkingSuccess = isAdmin && permWriteOwned;
-        boolean isExpectSuccessLinkAndChown = isAdmin && permWriteOwned && permChown;
+        boolean isExpectLinkingSuccess = isAdmin && permWriteOwned && !(groupPermissions == "rw----");
+        boolean isExpectSuccessLinkAndChown = isExpectLinkingSuccess && permChown;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         /* set up the light admin's permissions for this test */
         List<String> permissions = new ArrayList<String>();
@@ -941,10 +941,15 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
          */
         loginUser(lightAdmin);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
-        if (!isExpectLinkingSuccess) return; /* further testing not necessary in case links could not be created */
-        if (groupPermissions == "rw----") return; /* in private group linking not possible */
-        DatasetImageLink linkOfDatasetImage = linkDatasetImage(sentDat, sentImage);
-        ProjectDatasetLink linkOfProjectDataset = linkProjectDataset(sentProj, sentDat);
+        DatasetImageLink linkOfDatasetImage = new DatasetImageLinkI();
+        ProjectDatasetLink linkOfProjectDataset = new ProjectDatasetLinkI();
+        if (isExpectLinkingSuccess) {
+            linkOfDatasetImage = linkDatasetImage(sentDat, sentImage);
+            linkOfProjectDataset = linkProjectDataset(sentProj, sentDat);
+        } else {
+            return; /*links could not be created, finish the test */
+        }
+
         /* after successful linkage, transfer the ownership
          * of both links to the normalUser. For that the light admin
          * needs additonally the Chown permission. Note that the links
@@ -952,9 +957,9 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
          * of whole hierarchy does not transfer links owned by non-owners
          * of the P/D?I objects. */
         Chown2 chown = Requests.chown().target(linkOfDatasetImage).toUser(normalUser.userId).build();
-        doChange(client, factory, chown, permChown);
+        doChange(client, factory, chown, isExpectSuccessLinkAndChown);
         chown = Requests.chown().target(linkOfProjectDataset).toUser(normalUser.userId).build();
-        doChange(client, factory, chown, permChown);
+        doChange(client, factory, chown, isExpectSuccessLinkAndChown);
 
         /* now retrieve and check that the links, image, dataset and project
          * are owned by normalUser */
@@ -970,7 +975,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         Assert.assertEquals(retrievedImage.getDetails().getOwner().getId().getValue(), normalUser.userId);
         Assert.assertEquals(retrievedDataset.getDetails().getOwner().getId().getValue(), normalUser.userId);
         Assert.assertEquals(retrievedProject.getDetails().getOwner().getId().getValue(), normalUser.userId);
-        if (permChown) {
+        if (isExpectSuccessLinkAndChown) {
             Assert.assertEquals(retrievedDatasetImageLink.getDetails().getOwner().getId().getValue(), normalUser.userId);
             Assert.assertEquals(retrievedProjectDatasetLink.getDetails().getOwner().getId().getValue(), normalUser.userId);
         } else {
@@ -2175,7 +2180,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         return testCases.toArray(new Object[testCases.size()][]);
     }
 
-
     /**
      * @return provide WriteOwned, WriteFile, WriteManagedRepo and Chown cases
      * combined with group Permissions
@@ -2220,6 +2224,42 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                                 testCases.add(testCase);
                             }
                         }
+                    }
+                }
+            }
+        }
+        return testCases.toArray(new Object[testCases.size()][]);
+    }
+
+    /**
+     * @return WriteOwned and Chown test cases combined with groupPermissions
+     */
+    @DataProvider(name = "WriteOwned and Chown privileges cases")
+    public Object[][] provideWriteOwnedAndChown() {
+        int index = 0;
+        final int IS_ADMIN = index++;
+        final int PERM_WRITEOWNED = index++;
+        final int PERM_CHOWN = index++;
+        final int GROUP_PERMS = index++;
+
+        final boolean[] booleanCases = new boolean[]{false, true};
+        final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
+        final List<Object[]> testCases = new ArrayList<Object[]>();
+
+        for (final boolean isAdmin : booleanCases) {
+            for (final boolean permWriteOwned : booleanCases) {
+                for (final boolean permChown : booleanCases) {
+                    for (final String groupPerms : permsCases) {
+                        final Object[] testCase = new Object[index];
+                        if (!permWriteOwned && !permChown)
+                            /* not an interesting case */
+                            continue;
+                        testCase[IS_ADMIN] = isAdmin;
+                        testCase[PERM_WRITEOWNED] = permWriteOwned;
+                        testCase[PERM_CHOWN] = permChown;
+                        testCase[GROUP_PERMS] = groupPerms;
+                        // DEBUG  if (isAdmin == false && isRestricted == true && isSudo == false)
+                        testCases.add(testCase);
                     }
                 }
             }
