@@ -42,11 +42,12 @@ except:  # pragma: nocover
 class TestScriptUtils(ITest):
 
     def test_split_image(self):
-        imported_pix = ",".join(self.import_image())
+        image = self.create_test_image(100, 100, 2, 3, 4)
+        pixels_id = image.getPrimaryPixels().getId()
         dir = tempfile.mkdtemp()
         params = omero.sys.Parameters()
         params.map = {}
-        params.map["id"] = omero.rtypes.rlong(imported_pix)
+        params.map["id"] = pixels_id
 
         query_string = "select p from Pixels p where p.id=:id"
         pixels = self.query.findByQuery(query_string, params)
@@ -66,10 +67,11 @@ class TestScriptUtils(ITest):
 
     def test_numpy_to_image(self):
         client = self.new_client()
-        imported_pix = ",".join(self.import_image(client=client))
+        image = self.create_test_image(100, 100, 2, 3, 4, client.getSession())
+        pixels_id = image.getPrimaryPixels().getId()
         params = omero.sys.Parameters()
         params.map = {}
-        params.map["id"] = omero.rtypes.rlong(imported_pix)
+        params.map["id"] = pixels_id
         imported_img = client.getSession().getQueryService().findByQuery(
             "select i from Image i join fetch i.pixels pixels\
             where pixels.id=:id", params)
@@ -102,10 +104,11 @@ class TestScriptUtils(ITest):
 
     def test_convert_numpy_array(self):
         client = self.new_client()
-        imported_pix = ",".join(self.import_image(client=client))
+        image = self.create_test_image(100, 100, 2, 3, 4, client.getSession())
+        pixels_id = image.getPrimaryPixels().getId()
         params = omero.sys.Parameters()
         params.map = {}
-        params.map["id"] = omero.rtypes.rlong(imported_pix)
+        params.map["id"] = pixels_id
 
         imported_img = client.getSession().getQueryService().findByQuery(
             "select i from Image i join fetch i.pixels pixels\
@@ -135,10 +138,11 @@ class TestScriptUtils(ITest):
     @pytest.mark.parametrize('is_file', [True, False])
     def test_numpy_save_as_image(self, format, is_file):
         client = self.new_client()
-        imported_pix = ",".join(self.import_image(client=client))
+        image = self.create_test_image(100, 100, 2, 3, 4, client.getSession())
+        pixels_id = image.getPrimaryPixels().getId()
         params = omero.sys.Parameters()
         params.map = {}
-        params.map["id"] = omero.rtypes.rlong(imported_pix)
+        params.map["id"] = pixels_id
 
         imported_img = client.getSession().getQueryService().findByQuery(
             "select i from Image i join fetch i.pixels pixels\
