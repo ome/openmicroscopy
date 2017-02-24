@@ -784,13 +784,13 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @throws Exception unexpected
      */
 
-    @Test(dataProvider = "6 privileges cases")
-    public void testImporterAsNoSudoChownOnlyWorkflow(boolean isAdmin, boolean permWriteOwned, boolean permWriteManagedRepo, boolean permWriteFile, boolean permChown,
+    @Test(dataProvider = "WriteOwned, WriteFile, WriteManagedRepo and Chown privileges cases")
+    public void testImporterAsNoSudoChownOnlyWorkflow(boolean isAdmin, boolean permWriteOwned, boolean permWriteFile, boolean permWriteManagedRepo, boolean permChown,
             String groupPermissions) throws Exception {
         /* define case where the import without any sudo importing into a group
          * the light admin is not a member of is expected to succeed
          */
-        boolean importNotYourGroupExpectSuccess = isAdmin && permWriteManagedRepo && permWriteOwned && permWriteFile;
+        boolean importNotYourGroupExpectSuccess = isAdmin && permWriteOwned && permWriteFile && permWriteManagedRepo;
         /* define case where the creation of a dataset belonging to light admin
          * in the group where light admin is not a member
          * without any sudo is expected to succeed */
@@ -808,7 +808,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
         if (permWriteFile) permissions.add(AdminPrivilegeWriteFile.value);
         if (permWriteManagedRepo) permissions.add(AdminPrivilegeWriteManagedRepo.value);
-        //permissions.add(AdminPrivilegeWriteFile.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
         if (!isAdmin) return;
@@ -2144,7 +2143,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @return narrowed test cases for adding the privileges combined with isAdmin cases
      */
     @DataProvider(name = "isSudoing and Chown privileges cases")
-    public Object[][] provideIsSudoingAndChownOwned() {
+    public Object[][] provideIsSudoingAndChown() {
         int index = 0;
         final int IS_ADMIN = index++;
         final int IS_SUDOING = index++;
@@ -2169,6 +2168,58 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                         testCase[GROUP_PERMS] = groupPerms;
                         // DEBUG  if (isAdmin == false && isRestricted == true && isSudo == false)
                         testCases.add(testCase);
+                    }
+                }
+            }
+        }
+        return testCases.toArray(new Object[testCases.size()][]);
+    }
+
+
+    /**
+     * @return provide WriteOwned, WriteFile, WriteManagedRepo and Chown cases
+     * combined with group Permissions
+     */
+    @DataProvider(name = "WriteOwned, WriteFile, WriteManagedRepo and Chown privileges cases")
+    public Object[][] provideWriteOwnedWriteFileWriteManagedRepoAndChown() {
+        int index = 0;
+        final int IS_ADMIN = index++;
+        final int PERM_WRITEOWNED = index++;
+        final int PERM_WRITEFILE = index++;
+        final int PERM_WRITEMANAGEDREPO = index++;
+        final int PERM_CHOWN = index++;
+        final int GROUP_PERMS = index++;
+
+        final boolean[] booleanCases = new boolean[]{false, true};
+        final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
+        final List<Object[]> testCases = new ArrayList<Object[]>();
+
+        for (final boolean isAdmin : booleanCases) {
+            for (final boolean permWriteOwned : booleanCases) {
+                for (final boolean permWriteFile : booleanCases) {
+                    for (final boolean permWriteManagedRepo : booleanCases) {
+                        for (final boolean permChown : booleanCases) {
+                            for (final String groupPerms : permsCases) {
+                                final Object[] testCase = new Object[index];
+                                if (!permWriteOwned && !permWriteFile)
+                                    /* not an interesting case */
+                                    continue;
+                                if (!permWriteOwned && !permWriteManagedRepo)
+                                    /* not an interesting case */
+                                    continue;
+                                if (!permWriteOwned && !permWriteFile && !permWriteManagedRepo)
+                                    /* not an interesting case */
+                                    continue;
+                                testCase[IS_ADMIN] = isAdmin;
+                                testCase[PERM_WRITEOWNED] = permWriteOwned;
+                                testCase[PERM_WRITEFILE] = permWriteFile;
+                                testCase[PERM_WRITEMANAGEDREPO] = permWriteManagedRepo;
+                                testCase[PERM_CHOWN] = permChown;
+                                testCase[GROUP_PERMS] = groupPerms;
+                                // DEBUG  if (isAdmin == false && isRestricted == true && isSudo == false)
+                                testCases.add(testCase);
+                            }
+                        }
                     }
                 }
             }
