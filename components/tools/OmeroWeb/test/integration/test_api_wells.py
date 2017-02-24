@@ -237,7 +237,7 @@ class TestWells(IWebTest):
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         client = self.new_django_client(user_name, user_name)
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
 
         plate_id = multi_acquisition_plate.id.val
         plate_url = reverse('api_plate',
