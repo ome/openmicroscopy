@@ -374,6 +374,17 @@ $(document).ready(function() {
                 return;
             }
 
+            // Handle 'Remove all filters'
+            if (filterby == "removeAll") {
+                $(".imagefilter").hide();
+                // clear text filter (will also undo fitering)
+                $('#id_search').val('').trigger('keyup');
+                // reset rating to 0
+                $("#filterrating img").attr('src', "{% static 'webclient/image/rating' %}0.png");
+                // clear any filtering by rating/unrated
+                $("#dataIcons li.row").removeClass('ratingFilter_hidden');
+            }
+
             // Unrated and By rating are mutually exclusive
             if (filterby === "unrated") {
                 // reset 'by rating' filter
@@ -390,18 +401,16 @@ $(document).ready(function() {
                 $("#filter" + filterby).appendTo("#filtersContainer").show();
             }
         });
-        // Each filter has a 'X' for hiding & clearing filter
+        // Rating has a 'X' for clearing filter
         $(".removefilter").click(function(){
             var $fltr = $(this).parent();
-            if ($fltr.attr('id') === 'filtername') {
-                $('#id_search').val('').trigger('keyup');
-            } else if ($fltr.attr('id') === 'filterrating') {
+            if ($fltr.attr('id') === 'filterrating') {
                 $("#dataIcons li.row").removeClass('ratingFilter_hidden');
                 $("#filterrating img").attr('src', "{% static 'webclient/image/rating' %}0.png");
             } else if ($fltr.attr('id') === 'filterunrated') {
                 $("#dataIcons li.row").removeClass('ratingFilter_hidden');
+                $fltr.hide();
             }
-            $fltr.hide();
         });
 
         // Handle filtering by text
