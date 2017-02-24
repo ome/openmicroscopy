@@ -3027,7 +3027,7 @@ class _BlitzGateway (object):
         If more than one object found, raises ome.conditions.ApiUsageException
         See :meth:`getObjects` for more info.
 
-        :param obj_type:    Object type. E.g. "Project" see above
+        :param obj_type:    Object type, e.g. "Project" see above
         :type obj_type:     String
         :param ids:         object IDs
         :type ids:          List of Long
@@ -3055,7 +3055,7 @@ class _BlitzGateway (object):
         be returned. i.e. listObjects() Filter objects by attributes. E.g.
         attributes={'name':name}
 
-        :param obj_type:    Object type. E.g. "Project" see above
+        :param obj_type:    Object type, e.g. "Project" see above
         :type obj_type:     String
         :param ids:         object IDs
         :type ids:          List of Long
@@ -3094,7 +3094,7 @@ class _BlitzGateway (object):
         can be used with the appropriate query method. Used by
         :meth:`getObjects` and :meth:`getObject` above.
 
-        :param obj_type:    Object type. E.g. "Project" see above
+        :param obj_type:    Object type, e.g. "Project" see above
         :type obj_type:     String
         :param ids:         object IDs
         :type ids:          List of Long
@@ -3188,6 +3188,36 @@ class _BlitzGateway (object):
 
         return (query, baseParams, wrapper)
 
+    def buildCountQuery(self, obj_type, opts=None):
+        """
+        Prepares a 'projection' query to count objects.
+
+        Based on buildQuery(), we modify the query to only return a count.
+        Modified query does not 'fetch' any data or add any other
+        unnecessary objects to query.
+        We return just the query and omero.sys.ParametersI for the query.
+
+        :param obj_type:    Object type, e.g. "Project" see above
+        :param opts:        Dict of options for filtering by
+                            offset, limit and owner for all objects.
+                            Additional opts handled by _getQueryString()
+                            e.g. filter Dataset by 'project'
+        :return:            (query, params)
+        """
+        # We disable pagination since we want to count ALL results
+        opts_copy = opts.copy()
+        if 'limit' in opts_copy:
+            del opts_copy['limit']
+
+        # Get query with other options
+        query, params, wrapper = self.buildQuery(obj_type, opts=opts_copy)
+
+        # Modify query to only select count()
+        query = query.replace("select obj ", "select count(distinct obj) ")
+        query = query.replace("fetch", "")
+        query = query.split("order by")[0]
+        return query, params
+
     def listFileAnnotations(self, eid=None, toInclude=[], toExclude=[]):
         """
         Lists FileAnnotations created by users, filtering by namespaces if
@@ -3229,7 +3259,7 @@ class _BlitzGateway (object):
         If parent_ids is None, all available objects will be returned.
         i.e. listObjects()
 
-        :param obj_type:    Object type. E.g. "Project" see above
+        :param obj_type:    Object type, e.g. "Project" see above
         :type obj_type:     String
         :param ids:         object IDs
         :type ids:          List of Long

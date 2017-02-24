@@ -173,6 +173,124 @@ try
     roi = session.getUpdateService().saveAndReturnObject(roi);
     fprintf(1, 'Created ROI %g\n', roi.getId().getValue());
 
+    % Create and apply transforms to shapes and add them to ROI
+    
+    % Apply shearing alone to a rectangle (Shear factor set to 10 in the x
+    % and y dimensions in this example)
+    % create rectangle (shape object)
+    rectangle = createRectangle(0, 0, 10, 20);
+    rectangle = setShapeCoordinates(rectangle, 0, 0, 0);
+    % x and y shear factors
+    xShear = 10;
+    yShear = 10;
+    % create transform object
+    newTform = omero.model.AffineTransformI;
+    newTform.setA00(rdouble(1));
+    newTform.setA10(rdouble(yShear));
+    newTform.setA01(rdouble(xShear));
+    newTform.setA11(rdouble(1));
+    newTform.setA02(rdouble(0));
+    newTform.setA12(rdouble(0));
+    % apply transform
+    rectangle.setTransform(newTform);
+    
+    % Apply rotation alone to an ellipse object
+    % (angle of rotation set to 10 degrees)
+    % create ellipse (shape object)
+    ellipse = createEllipse(0, 0, 10, 20);
+    setShapeCoordinates(ellipse, 0, 0, 0);
+    % set angle of rotation
+    theta = 10;
+    % create transform object
+    newTform = omero.model.AffineTransformI;
+    newTform.setA00(rdouble(cos(theta)));
+    newTform.setA10(rdouble(-sin(theta)));
+    newTform.setA01(rdouble(sin(theta)));
+    newTform.setA11(rdouble(cos(theta)));
+    newTform.setA02(rdouble(0));
+    newTform.setA12(rdouble(0));
+    % apply transform
+    ellipse.setTransform(newTform);
+    
+    % Apply translation alone to a point object (10 pixels in the x and y
+    % direction)
+    % create point (shape object)
+    point = createPoint(5, 4);
+    setShapeCoordinates(point, 0, 0, 0);
+    % translation parameters
+    xTranslate = 10;
+    yTranslate = 10;
+    % create transform object
+    newTform = omero.model.AffineTransformI;
+    newTform.setA00(rdouble(1));
+    newTform.setA10(rdouble(0));
+    newTform.setA01(rdouble(0));
+    newTform.setA11(rdouble(1));
+    newTform.setA02(rdouble(xTranslate));
+    newTform.setA12(rdouble(yTranslate));
+    % apply transform
+    point.setTransform(newTform);
+    
+    % Apply a scale change alone to a polygon object (set scale factor to 10
+    % in the x  and y direction)
+    % create polygon (shape object)
+    polygon = createPolygon([1 5 10 8], [1 5 5 10]);
+    setShapeCoordinates(polygon, 0, 0, 0);
+    % scaling parameters
+    xScale = 10;
+    yScale = 10;
+    % create transform object
+    newTform = omero.model.AffineTransformI;
+    newTform.setA00(rdouble(xScale));
+    newTform.setA10(rdouble(0));
+    newTform.setA01(rdouble(0));
+    newTform.setA11(rdouble(yScale));
+    newTform.setA02(rdouble(0));
+    newTform.setA12(rdouble(0));
+    % apply transform
+    polygon.setTransform(newTform);
+    
+    % Create the roi.
+    roi = omero.model.RoiI;
+    % Attach the shape to the roi, several shapes can be added.
+    roi.addShape(rectangle);
+    roi.addShape(ellipse);
+    roi.addShape(point);
+    roi.addShape(polygon);
+    % Link the roi and the image
+    roi.setImage(omero.model.ImageI(imageId, false));
+    % Save the ROI
+    roi = session.getUpdateService().saveAndReturnObject(roi);
+    fprintf(1, 'Created ROIs with Transform objects %g\n', roi.getId().getValue());
+    
+    % Check that the transforms have been added to the shapes.
+    fprintf(1, 'Reading shapes attached to ROI %g\n', roi.getId().getValue());
+    nShapes = roi.sizeOfShapes;
+    fprintf(1, 'Found %g shapes\n', nShapes);
+    for i = 1 : nShapes
+        shape = roi.getShape(i - 1);
+        
+        %http://blog.openmicroscopy.org/data-model/future-plans/2016/06/20/shape-transforms/
+        transform = shape.getTransform;
+        xScaling = transform.getA00.getValue;
+        xShearing = transform.getA01.getValue;
+        xTranslation = transform.getA02.getValue;
+            
+        yScaling = transform.getA11.getValue;
+        yShearing = transform.getA10.getValue;
+        yTranslation = transform.getA12.getValue;
+        
+        %tformMatrix = [A00, A10, 0; A01, A11, 0; A02, A12, 1];
+        tformMatrix = [xScaling, yShearing, 0; xShearing, yScaling, 0; xTranslation, yTranslation, 1];
+        
+        fprintf(1, 'Shape Type : %s\n', char(shape.toString));
+        fprintf(1, 'xScaling : %s\n', num2str(tformMatrix(1,1)));
+        fprintf(1, 'yScaling : %s\n', num2str(tformMatrix(2,2)));
+        fprintf(1, 'xShearing : %s\n', num2str(tformMatrix(2,1)));
+        fprintf(1, 'yShearing : %s\n', num2str(tformMatrix(1,2)));
+        fprintf(1, 'xTranslation: %s\n', num2str(tformMatrix(3,1)));
+        fprintf(1, 'yTranslation: %s\n', num2str(tformMatrix(3,2)));
+    end
 %%
 % end-code
 %%

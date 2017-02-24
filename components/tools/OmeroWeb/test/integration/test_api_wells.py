@@ -21,7 +21,7 @@
 
 from omeroweb.testlib import IWebTest, _get_response_json
 from django.core.urlresolvers import reverse
-from django.conf import settings
+from omeroweb.api import api_settings
 import pytest
 from test_api_projects import cmp_name_insensitive, \
     get_connection, \
@@ -195,7 +195,7 @@ class TestWells(IWebTest):
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
 
         wells_url = reverse('api_wells', kwargs={'api_version': version})
 
@@ -215,6 +215,7 @@ class TestWells(IWebTest):
             rsp = _get_response_json(django_client, wells_url, payload)
             # Manual check that Images are loaded but Pixels are not
             assert len(rsp['data']) == well_count
+            assert rsp['meta']['totalCount'] == well_count
             well_sample = rsp['data'][0]['WellSamples'][0]
             assert 'Image' in well_sample
             assert ('PlateAcquisition' in well_sample) == with_acq
@@ -299,7 +300,7 @@ class TestWells(IWebTest):
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
 
         small_plate = conn.getObject('Plate', small_plate.id.val)
         wells = [w._obj for w in small_plate.listChildren()]

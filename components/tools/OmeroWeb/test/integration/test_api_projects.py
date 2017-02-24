@@ -24,7 +24,7 @@ Tests querying & editing Projects with webgateway json api
 from omeroweb.testlib import IWebTest, _get_response_json, \
     _csrf_post_json, _csrf_put_json, _csrf_delete_response_json
 from django.core.urlresolvers import reverse
-from django.conf import settings
+from omeroweb.api import api_settings
 from django.test import Client
 import pytest
 from omero.gateway import BlitzGateway
@@ -168,6 +168,9 @@ def assert_objects(conn, json_objects, omero_ids_objects, dtype="Project",
             pids.append(long(p))
         except TypeError:
             pids.append(p.id.val)
+    if len(pids) == 0:
+        assert len(json_objects) == 0
+        return
     conn.SERVICE_OPTS.setOmeroGroup(group)
     projects = conn.getObjects(dtype, pids, respect_order=True)
     projects = [p._obj for p in projects]
@@ -265,7 +268,7 @@ class TestProjects(IWebTest):
         Test marshalling projects without log-in
         """
         django_client = Client()
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         request_url = reverse('api_projects', kwargs={'api_version': version})
         rsp = _get_response_json(django_client, request_url, {},
                                  status_code=403)
@@ -278,7 +281,7 @@ class TestProjects(IWebTest):
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         request_url = reverse('api_projects', kwargs={'api_version': version})
         rsp = _get_response_json(django_client, request_url, {})
         assert rsp['data'] == []
@@ -290,12 +293,11 @@ class TestProjects(IWebTest):
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         request_url = reverse('api_projects', kwargs={'api_version': version})
         rsp = _get_response_json(django_client, request_url, {})
-        # Reload projects with group '-1' to get same 'canLink' perms
-        # on owner and group permissions
         assert_objects(conn, rsp['data'], projects_user1_group1)
+        assert rsp['meta']['totalCount'] == len(rsp['data'])
 
     def test_marshal_projects_another_user(self, user1, user2,
                                            projects_user2_group1):
@@ -306,11 +308,12 @@ class TestProjects(IWebTest):
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         request_url = reverse('api_projects', kwargs={'api_version': version})
         rsp = _get_response_json(django_client, request_url, {})
         # user1 reloads user2's projects
         assert_objects(conn, rsp['data'], projects_user2_group1)
+        assert rsp['meta']['totalCount'] == len(rsp['data'])
 
     def test_marshal_projects_another_group(self, user1, group2,
                                             projects_user1_group2):
@@ -320,7 +323,7 @@ class TestProjects(IWebTest):
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         request_url = reverse('api_projects', kwargs={'api_version': version})
         rsp = _get_response_json(django_client, request_url, {})
 
@@ -329,6 +332,7 @@ class TestProjects(IWebTest):
         # are same as owner's default group Group 1 (rwra--) instead of
         # group that the data is in Group 2 (rwr--)
         assert_objects(conn, rsp['data'], projects_user1_group2)
+        assert rsp['meta']['totalCount'] == len(rsp['data'])
 
     def test_marshal_projects_all_groups(self, user1, group1, group2,
                                          projects_user1):
@@ -339,20 +343,23 @@ class TestProjects(IWebTest):
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         request_url = reverse('api_projects', kwargs={'api_version': version})
 
         # All groups
         rsp = _get_response_json(django_client, request_url, {})
         assert_objects(conn, rsp['data'], projects_user1)
+        assert rsp['meta']['totalCount'] == len(projects_user1)
         # Filter by group A...
         gid = group1.id.val
         rsp = _get_response_json(django_client, request_url, {'group': gid})
         assert_objects(conn, rsp['data'], projects_user1, group=gid)
+        assert rsp['meta']['totalCount'] == len(rsp['data'])
         # ...and group B
         gid = group2.id.val
         rsp = _get_response_json(django_client, request_url, {'group': gid})
         assert_objects(conn, rsp['data'], projects_user1, group=gid)
+        assert rsp['meta']['totalCount'] == len(rsp['data'])
 
     def test_marshal_projects_all_users(self, user1, user2,
                                         projects_user1_group1,
@@ -366,20 +373,23 @@ class TestProjects(IWebTest):
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         request_url = reverse('api_projects', kwargs={'api_version': version})
 
         # Both users
         rsp = _get_response_json(django_client, request_url, {})
         assert_objects(conn, rsp['data'], projects)
+        assert rsp['meta']['totalCount'] == len(projects)
 
         eid = user1[1].id.val
         rsp = _get_response_json(django_client, request_url, {'owner': eid})
         assert_objects(conn, rsp['data'], projects_user1_group1)
+        assert rsp['meta']['totalCount'] == len(projects_user1_group1)
 
         eid = user2[1].id.val
         rsp = _get_response_json(django_client, request_url, {'owner': eid})
         assert_objects(conn, rsp['data'], projects_user2_group1)
+        assert rsp['meta']['totalCount'] == len(projects_user2_group1)
 
     def test_marshal_projects_pagination(self, user1, user2,
                                          projects_user1_group1,
@@ -392,20 +402,27 @@ class TestProjects(IWebTest):
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         request_url = reverse('api_projects', kwargs={'api_version': version})
 
-        # First page, just 2 projects. Page = 1 by default
-        limit = 2
-        rsp = _get_response_json(django_client, request_url, {'limit': limit})
-        assert len(rsp['data']) == limit
-        assert_objects(conn, rsp['data'], projects[0:limit])
+        # Test a range of limits. offset = 0 by default
+        for limit in range(-1, 4):
+            rsp = _get_response_json(django_client, request_url,
+                                     {'limit': limit})
+            assert rsp['meta']['totalCount'] == len(projects)
+            if limit == -1:
+                # if we passed a negative number, expect the default to be used
+                limit = api_settings.API_LIMIT
+            else:
+                assert len(rsp['data']) == limit
+            assert rsp['meta']['limit'] == limit
+            assert_objects(conn, rsp['data'], projects[0:limit])
 
-        # Check that page 2 gives next 2 projects
-        page = 2
-        payload = {'limit': limit, 'page': page}
-        rsp = _get_response_json(django_client, request_url, payload)
-        assert_objects(conn, rsp['data'], projects[limit:limit * page])
+            # Check that page 2 gives next n projects
+            payload = {'limit': limit, 'offset': limit}
+            rsp = _get_response_json(django_client, request_url, payload)
+            assert_objects(conn, rsp['data'], projects[limit:limit * 2])
+            assert rsp['meta']['totalCount'] == len(projects)
 
     def test_marshal_projects_params(self, user1, user2,
                                      projects_user1_group1,
@@ -418,7 +435,7 @@ class TestProjects(IWebTest):
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         request_url = reverse('api_projects', kwargs={'api_version': version})
 
         # Test 'childCount' parameter
@@ -440,6 +457,7 @@ class TestProjects(IWebTest):
         # Test 'normalize' parameter.
         payload = {'normalize': 'true'}
         rsp = _get_response_json(django_client, request_url, payload)
+        assert rsp['meta']['totalCount'] == len(rsp['data'])
         for p in rsp['data']:
             details = p['omero:details']
             owner = details['owner']
@@ -463,7 +481,7 @@ class TestProjects(IWebTest):
         """
         django_client = self.django_root_client
         group = self.ctx.groupId
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         # Need to get the Schema url to create @type
         base_url = reverse('api_base', kwargs={'api_version': version})
         rsp = _get_response_json(django_client, base_url, {})
@@ -496,7 +514,7 @@ class TestProjects(IWebTest):
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         # We're only using projects_user1_group2 to get group2 id
         group2_id = projects_user1_group2[0].getDetails().group.id.val
         # This seems to be the minimum details needed to pass group ID
@@ -540,7 +558,7 @@ class TestProjects(IWebTest):
         project = get_update_service(user1).saveAndReturnObject(project)
 
         # Update Project in 2 ways...
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         project_url = reverse('api_project',
                               kwargs={'api_version': version,
                                       'object_id': project.id.val})
@@ -591,7 +609,7 @@ class TestProjects(IWebTest):
         project.name = rstring('test_project_delete')
         project.description = rstring('Test update')
         project = get_update_service(user1).saveAndReturnObject(project)
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         project_url = reverse('api_project',
                               kwargs={'api_version': version,
                                       'object_id': project.id.val})
