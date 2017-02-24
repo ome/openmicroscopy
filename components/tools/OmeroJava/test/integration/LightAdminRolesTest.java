@@ -1192,13 +1192,12 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * user to another user. The data are in 2 groups, of which the original data owner
      * is a member of, the recipient of the data is just a member of one of the groups.
      * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param permChgrp if to test a user who has the <tt>Chgrp</tt> privilege
      * @param permChown if to test a user who has the <tt>Chown</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "narrowed combined privileges cases")
-    public void testChownAllBelongingToUser(boolean isAdmin, boolean permChgrp, boolean permChown,
+    @Test(dataProvider = "isPrivileged cases")
+    public void testChownAllBelongingToUser(boolean isAdmin, boolean permChown,
             String groupPermissions) throws Exception {
         /* chown is passing in this test with isAdmin and permChown only.*/
         final boolean chownPassing = isAdmin && permChown;
@@ -1208,7 +1207,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         /* set up the light admin's permissions for this test */
         List<String> permissions = new ArrayList<String>();
         if (permChown) permissions.add(AdminPrivilegeChown.value);
-        if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
         /* create two sets of P/D/I hierarchy as normalUser in the default
@@ -2306,13 +2304,14 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     }
 
     /**
-     * @return upload script test cases for adding the privileges combined with isAdmin cases
+     * @return isPrivileged test cases. The isPrivileged parameter translates into one
+     * tested privilege in particular tests and combines them with group permissions
      */
-    @DataProvider(name = "script privileges cases")
+    @DataProvider(name = "isPrivileged cases")
     public Object[][] provideScriptPrivilegesCases() {
         int index = 0;
         final int IS_ADMIN = index++;
-        final int PERM_ADDITIONAL = index++;
+        final int IS_PRIVILEGED = index++;
         final int GROUP_PERMS = index++;
 
         final boolean[] booleanCases = new boolean[]{false, true};
@@ -2320,11 +2319,11 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         final List<Object[]> testCases = new ArrayList<Object[]>();
 
         for (final boolean isAdmin : booleanCases) {
-            for (final boolean permAdditional : booleanCases) {
+            for (final boolean isPrivileged : booleanCases) {
                 for (final String groupPerms : permsCases) {
                     final Object[] testCase = new Object[index];
                     testCase[IS_ADMIN] = isAdmin;
-                    testCase[PERM_ADDITIONAL] = permAdditional;
+                    testCase[IS_PRIVILEGED] = isPrivileged;
                     testCase[GROUP_PERMS] = groupPerms;
                     // DEBUG  if (isAdmin == false && isRestricted == true && isSudo == false)
                     testCases.add(testCase);
