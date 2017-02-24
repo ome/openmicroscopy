@@ -57,6 +57,8 @@ from omero.rtypes import rbool, rstring, rlong, rtime, rint, unwrap
 from omero.util.temp_files import create_path
 from path import path
 
+import warnings
+
 
 class Clients(object):
 
@@ -1098,6 +1100,8 @@ class ITest(object):
     def create_share(self, description="", timeout=None,
                      objects=[], experimenters=[], guests=[],
                      enabled=True, client=None):
+        warnings.warn(
+            "This method is deprecated.", DeprecationWarning)
         """
         Create share object
 
