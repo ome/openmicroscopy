@@ -165,7 +165,7 @@ var FileAnnsPane = function FileAnnsPane($element, opts) {
                     // AddedBy IDs for filtering
                     ann.addedBy = [ann.link.owner.id];
                     ann.description = _.escape(ann.description);
-                    ann.file.size = ann.file.size.filesizeformat();
+                    ann.file.size = ann.file.size !== null ? ann.file.size.filesizeformat() : "";
                     return ann;
                 });
                 // Don't show companion files
