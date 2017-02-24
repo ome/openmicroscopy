@@ -1330,9 +1330,11 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     {
         Set<Long> nodeIds = new HashSet<Long>();
         nodeIds.add(to);
-        Map<Boolean, List<Long>> returnValue = 
+        List<Pixels> pixels = loadPixels(nodeIds);
+        Long imageID = pixels.get(0).getImage().getId();
+        Map<Boolean, List<Long>> returnValue =
             applySettingsToSet(from, Pixels.class, nodeIds);
-        if (returnValue.get(Boolean.TRUE).contains(to))
+        if (returnValue.get(Boolean.TRUE).contains(imageID))
         {
             return true;
         }
