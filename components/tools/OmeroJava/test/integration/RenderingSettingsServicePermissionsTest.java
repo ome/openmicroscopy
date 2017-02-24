@@ -1,5 +1,5 @@
 /*
- *  Copyright 2006-2016 University of Dundee & Open Microscopy Environment.
+ *  Copyright 2006-2017 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -7,7 +7,6 @@ package integration;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 import omero.api.IRenderingSettingsPrx;
@@ -315,7 +314,7 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
         prx.setOriginalSettingsInSet(Image.class.getName(), ids);
 
         disconnect();
-        EventContext ctx2 = newUserInGroup(ctx);
+        newUserInGroup(ctx);
         prx = factory.getRenderingSettingsService();
         prx.setOriginalSettingsInSet(Image.class.getName(), Arrays.asList(id));
         disconnect();
@@ -1085,7 +1084,7 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
     @Test
     public void testApplySettingsToSetTargetImageNoSettingsAndBinary()
             throws Exception {
-        EventContext ctx = newUserAndGroup("rw----");
+        newUserAndGroup("rw----");
         IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
         Image image = createBinaryImage();
         Image image2 = mmFactory.createImage();
@@ -1125,7 +1124,7 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
     @Test
     public void testApplySettingsToSetForImageModifyIntensity()
             throws Exception {
-        EventContext ctx = newUserAndGroup("rw----");
+        newUserAndGroup("rw----");
         IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
         Image image = createBinaryImage();
         Image image2 = createBinaryImage();
@@ -1440,7 +1439,8 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
         newUserInGroup(ctx);
         // Same image
         prx = factory.getRenderingSettingsService();
-        boolean v = prx.applySettingsToImage(pixels.getId().getValue(), image2.getId().getValue());
+        boolean v = prx.applySettingsToImage(pixels.getId().getValue(),
+                image2.getId().getValue());
 
         Assert.assertFalse(v);
         ParametersI param = new ParametersI();
