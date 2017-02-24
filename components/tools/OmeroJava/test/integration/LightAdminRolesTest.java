@@ -998,7 +998,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
          * @param groupPermissions if to test the effect of group permission level
          * @throws Exception unexpected
          */
-        @Test(dataProvider = "narrowed combined privileges cases")
+        @Test(dataProvider = "Chgrp and Chown privileges cases")
         public void testImporterAsNoSudoChgrpChownWorkflow(boolean isAdmin, boolean permChgrp, boolean permChown,
                 String groupPermissions) throws Exception {
         /* importing into the group of the light admin and
@@ -2257,6 +2257,43 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                             continue;
                         testCase[IS_ADMIN] = isAdmin;
                         testCase[PERM_WRITEOWNED] = permWriteOwned;
+                        testCase[PERM_CHOWN] = permChown;
+                        testCase[GROUP_PERMS] = groupPerms;
+                        // DEBUG  if (isAdmin == false && isRestricted == true && isSudo == false)
+                        testCases.add(testCase);
+                    }
+                }
+            }
+        }
+        return testCases.toArray(new Object[testCases.size()][]);
+    }
+
+    /**
+     * @return Chgrp and Chown test cases combined with groupPermissions
+     */
+    @DataProvider(name = "Chgrp and Chown privileges cases")
+    public Object[][] provideChgrpAndChown() {
+        int index = 0;
+        final int IS_ADMIN = index++;
+        final int PERM_CHGRP = index++;
+        final int PERM_CHOWN = index++;
+        final int GROUP_PERMS = index++;
+
+        final boolean[] booleanCases = new boolean[]{false, true};
+        final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
+        final List<Object[]> testCases = new ArrayList<Object[]>();
+
+        for (final boolean isAdmin : booleanCases) {
+            for (final boolean permChgrp : booleanCases) {
+                for (final boolean permChown : booleanCases) {
+                    for (final String groupPerms : permsCases) {
+                        final Object[] testCase = new Object[index];
+                        /* No test cases are excluded here, because Chgrp
+                         * and Chown are two separate steps which can work
+                         * independently on each other and both are tested
+                         * in the test.*/
+                        testCase[IS_ADMIN] = isAdmin;
+                        testCase[PERM_CHGRP] = permChgrp;
                         testCase[PERM_CHOWN] = permChown;
                         testCase[GROUP_PERMS] = groupPerms;
                         // DEBUG  if (isAdmin == false && isRestricted == true && isSudo == false)
