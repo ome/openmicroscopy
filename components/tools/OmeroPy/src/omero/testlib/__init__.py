@@ -692,16 +692,28 @@ class ITest(object):
         image = update.saveAndReturnObject(image)
         return image.getPrimaryPixels()
 
-    def write(self, pixels, rps):
+    @classmethod
+    def get_pixels_type(cls, pixels_type):
+        if pixels_type in ["int8", "uint8"]:
+            return 1
+        if pixels_type in ["int16", "uint16"]:
+            return 2
+        if pixels_type in ["int32", "uint132", "float"]:
+            return 4
+        if pixels_type in ["double"]:
+            return 8
+        return -1
+
+    def write(self, pixels, rps, pixels_type="int8"):
         """
         Writes byte arrays consisting of [5] to as
         either planes or tiles depending on the pixel
         size.
         """
+        p_type = self.get_pixels_type(unwrap(pixels.pixelsType))
         if not rps.requiresPixelsPyramid():
             # By plane
-            # Assuming int8
-            bytes_per_plane = pixels.sizeX.val * pixels.sizeY.val
+            bytes_per_plane = pixels.sizeX.val * pixels.sizeY.val * p_type
             for z in range(pixels.sizeZ.val):
                 for c in range(pixels.sizeC.val):
                     for t in range(pixels.sizeT.val):
@@ -709,7 +721,7 @@ class ITest(object):
         else:
             # By tile
             w, h = rps.getTileSize()
-            bytes_per_tile = w * h  # Assuming int8
+            bytes_per_tile = w * h * p_type
             for z in range(pixels.sizeZ.val):
                 for c in range(pixels.sizeC.val):
                     for t in range(pixels.sizeT.val):
