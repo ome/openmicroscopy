@@ -86,6 +86,8 @@ except ImportError:
     import Image
     import ImageDraw  # see ticket:2597
 
+import warnings
+
 
 ##
 # Drawing canvas allows the creation of shapes on an
@@ -102,6 +104,8 @@ class DrawingCanvas:
     #
 
     def __init__(self):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         self.width = 0
         self.height = 0
         self.image = None
@@ -113,6 +117,8 @@ class DrawingCanvas:
     # @param width See above.
     # @param height See above.
     def createImage(self, width, height):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         self.image = Image.new('RGBA', (width, height), (0, 0, 0, 0))
         self.width = width
         self.height = height
@@ -123,6 +129,8 @@ class DrawingCanvas:
     # @param width See above.
     # @param height See above.
     def setImage(self, image, width, height):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         self.image = image
         self.width = width
         self.height = height
@@ -131,6 +139,8 @@ class DrawingCanvas:
     # Visit all the elements in the element list and draw their shapes.
     # @param elementList See above.
     def drawElements(self, elementList):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         if(self.draw is None):
             self.draw = ImageDraw.Draw(self.image)
         for element in elementList:
@@ -142,6 +152,8 @@ class DrawingCanvas:
     # @param shapeSetting See above.
     #
     def getFillColour(self, shapeSettings):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         return shapeSettings[1][0]
 
     ##
@@ -149,6 +161,8 @@ class DrawingCanvas:
     # @param shapeSetting See above.
     #
     def getStrokeColour(self, shapeSettings):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         return shapeSettings[0][0]
 
     ##
@@ -156,6 +170,8 @@ class DrawingCanvas:
     # @param shapeSetting See above.
     #
     def getStrokeWidth(self, shapeSettings):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         return shapeSettings[0][1]
 
     ##
@@ -169,6 +185,8 @@ class DrawingCanvas:
     #                        undergo before drawing.
     def drawEllipse(self, x, y, radiusx, radiusy, shapeSettings,
                     affineTransform=None):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         x0 = x - radiusx
         y0 = y - radiusy
         x1 = x0 + radiusx * 2
@@ -188,6 +206,8 @@ class DrawingCanvas:
     # @param affineTransform The affine transform that the shape has to
     #                        undergo before drawing.
     def drawRectangle(self, x, y, w, h, shapeSettings, affineTransform=None):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         fillColour = self.getFillColour(shapeSettings)
         strokeColour = self.getStrokeColour(shapeSettings)
         if(affineTransform is None):
@@ -210,6 +230,8 @@ class DrawingCanvas:
     # @param affineTransform The affine transform that the shape has to
     #                        undergo before drawing.
     def drawPolygon(self, pointTupleList, shapeSettings, affineTransform=None):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         fillColour = self.getFillColour(shapeSettings)
         strokeColour = self.getStrokeColour(shapeSettings)
         if(affineTransform is None):
@@ -234,6 +256,8 @@ class DrawingCanvas:
     # @param affineTransform The affine transform that the shape has to
     #                        undergo before drawing.
     def drawLine(self, x1, y1, x2, y2, shapeSettings, affineTransform=None):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         strokeColour = self.getStrokeColour(shapeSettings)
         strokeWidth = self.getStrokeWidth(shapeSettings)
         if(affineTransform is None):
@@ -257,6 +281,8 @@ class DrawingCanvas:
     #                        undergo before drawing.
     def drawPolyline(self, pointTupleList,
                      shapeSettings, affineTransform=None):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         fillColour = self.getFillColour(shapeSettings)
         strokeColour = self.getStrokeColour(shapeSettings)
         strokeWidth = self.getStrokeWidth(shapeSettings)
@@ -283,6 +309,8 @@ class DrawingCanvas:
     #                        undergo before drawing.
     def drawMask(self, x, y, width, height, bytes,
                  shapeSettings, affineTransform=None):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         fillColour = self.getFillColour(shapeSettings)
         mask = Image.fromstring('1', (width, height), bytes)
         if(affineTransform is None):
@@ -305,6 +333,8 @@ class DrawingCanvas:
     #                        undergo before drawing.
     def drawText(self, x, y, text, shapeSettings, affineTransform=None):
         textColour = self.getStrokeColour(shapeSettings)
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         if(affineTransform is None):
             self.draw.text((x, y), text, fill=textColour)
         else:
