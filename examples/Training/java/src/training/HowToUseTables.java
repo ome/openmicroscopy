@@ -57,6 +57,12 @@ public class HowToUseTables
     private static String password = "password";
     //end edit
 
+    /** The id of an image.*/
+    private static long imageId = 1;
+
+    /** The image.*/
+    private ImageData image;
+
     private Gateway gateway;
 
     private SecurityContext ctx;
@@ -80,14 +86,26 @@ public class HowToUseTables
         return newColumns;
     }
 
+    /**
+     * Loads the image.
+     * @param imageID The id of the image to load.
+     * @return See above.
+     */
+    private ImageData loadImage(long imageID)
+            throws Exception
+    {
+        BrowseFacility browse = gateway.getFacility(BrowseFacility.class);
+        return browse.getImage(ctx, imageID);
+    }
+
 // Create table
 // ============
 
     /** 
-     * Creates a table.
+     * Creates a table and links to an Image.
      * @throws Exception
      */
-    private void createTable()
+    private void createTableandLinkToImage()
             throws Exception
     {
         int rows = 1;
@@ -114,6 +132,23 @@ public class HowToUseTables
             table.addData(newRow);
             OriginalFile file = table.getOriginalFile(); // if you need to interact with the table
             file = new OriginalFileI(file.getId(), false);
+
+            DataManagerFacility dm = gateway.getFacility(DataManagerFacility.class);
+
+            FileAnnotation annotation = new FileAnnotationI();
+            annotation.setFile(file);
+            annotation.setNs(omero.rtypes
+                    .rstring(omero.constants.namespaces.NSBULKANNOTATIONS.value));
+            annotation = (FileAnnotation) dm.saveAndReturnObject(ctx, annotation);
+            ImageAnnotationLink link = new ImageAnnotationLinkI();
+
+            //now link the image and the annotation
+            ImageAnnotationLink link = new ImageAnnotationLinkI();
+            link.setChild(annotation);
+            link.setParent(image.asImage());
+            //save the link back to the server.
+            link = (ImageAnnotationLink) dm.saveAndReturnObject(ctx, link);
+
             //Open the table again
             table2 = store.openTable(file);
             //read headers
@@ -162,7 +197,7 @@ public class HowToUseTables
         try {
             ExperimenterData user = gateway.connect(cred);
             ctx = new SecurityContext(user.getGroupId());
-            createTable();
+            createTableandLinkToImage();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
