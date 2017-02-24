@@ -57,8 +57,6 @@ from omero.rtypes import rbool, rstring, rlong, rtime, rint, unwrap
 from omero.util.temp_files import create_path
 from path import path
 
-import warnings
-
 
 class Clients(object):
 
@@ -1083,26 +1081,6 @@ class ITest(object):
             targetObjects={'ExperimenterGroup': [gid]}, permissions=perms)
 
         self.do_submit(command, client)
-
-    def create_share(self, description="", timeout=None,
-                     objects=[], experimenters=[], guests=[],
-                     enabled=True, client=None):
-        warnings.warn(
-            "This method is deprecated.", DeprecationWarning)
-        """
-        Create share object
-
-        :param objects: a list of objects to include in the share
-        :param description: a string containing the description of the share
-        :param timeout: the timeout of the share
-        :param experimenters: a list of users associated with the share
-        :param client: The client to use to create the share
-        """
-        if client is None:
-            client = self.client
-        share = client.sf.getShareService()
-        return share.createShare(description, timeout, objects,
-                                 experimenters, guests, enabled)
 
 
 class ProjectionFixture(object):

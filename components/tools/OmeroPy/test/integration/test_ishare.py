@@ -23,6 +23,25 @@ from test.integration.helpers import createTestImage
 
 class TestIShare(ITest):
 
+    @classmethod
+    def create_share(cls, description="", timeout=None,
+                     objects=[], experimenters=[], guests=[],
+                     enabled=True, client=None):
+        """
+        Create share object
+
+        :param objects: a list of objects to include in the share
+        :param description: a string containing the description of the share
+        :param timeout: the timeout of the share
+        :param experimenters: a list of users associated with the share
+        :param client: The client to use to create the share
+        """
+        if client is None:
+            client = cls.client
+        share = client.sf.getShareService()
+        return share.createShare(description, timeout, objects,
+                                 experimenters, guests, enabled)
+
     def test_that_permissions_are_default_private(self):
         i = self.make_image()
         assert not i.details.permissions.isGroupRead()
