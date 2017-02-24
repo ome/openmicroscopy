@@ -6060,6 +6060,16 @@ class _PlateAcquisitionWrapper (BlitzObjectWrapper):
             return [(rv, None)]
         return [rv]
 
+    def getStartTime(self):
+        """Get the StartTime as a datetime object or None if not set."""
+        if self.startTime:
+            return datetime.fromtimestamp(self.startTime/1000)
+
+    def getEndTime(self):
+        """Get the EndTime as a datetime object or None if not set."""
+        if self.endTime:
+            return datetime.fromtimestamp(self.endTime/1000)
+
 PlateAcquisitionWrapper = _PlateAcquisitionWrapper
 
 
