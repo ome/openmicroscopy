@@ -78,6 +78,8 @@ def drawTextOverlay(draw, x, y, text, colour='0xffffff'):
     @param text The text to render.
     @param colour The colour as a PIL colour string to draw the text in.
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     draw.text((x, y), text, fill=colour)
 
 
@@ -91,6 +93,8 @@ def drawLineOverlay(draw, x0, y0, x1, y1, colour='0xffffff'):
     @param y1 The y1-coord of line.
     @param colour The colour as a PIL colour fill in the line.
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     draw.line([(x0, y0), (x1, y1)], fill=colour)
 
 
@@ -102,6 +106,8 @@ def rgbToRGBInt(red, green, blue):
     @param B the Blue value.
     @return See above.
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     RGBInt = (red << 16) + (green << 8) + blue
     return int(RGBInt)
 
@@ -112,6 +118,8 @@ def RGBToPIL(RGB):
     @param RGB the RGB value.
     @return See above.
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     hexval = hex(int(RGB))
     return '#' + (6 - len(hexval[2:])) * '0' + hexval[2:]
 
@@ -122,6 +130,8 @@ def rangeToStr(range):
     @param range See above.
     @return See above.
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     first = 1
     string = ""
     for value in range:
@@ -134,6 +144,8 @@ def rangeToStr(range):
 
 
 def rmdir_recursive(dir):
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     for name in os.listdir(dir):
         full_name = os.path.join(dir, name)
         # on Windows, if we don't have write permission we can't remove
@@ -148,6 +160,8 @@ def rmdir_recursive(dir):
 
 
 def calcSha1(filename):
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     """
     Returns a hash of the file identified by filename
 
@@ -164,6 +178,8 @@ def calcSha1(filename):
 
 
 def calcSha1FromData(data):
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     """
     Calculate the Sha1 Hash from a data array
     @param data The data array.
@@ -176,6 +192,8 @@ def calcSha1FromData(data):
 
 
 def getFormat(queryService, format):
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     return queryService.findByQuery(
         "from Format as f where f.value='" + format + "'", None)
 
@@ -194,7 +212,8 @@ def createFile(updateService, filename, mimetype=None, origFilePathName=None):
     @return:                The saved OriginalFileI, as returned from the
                             server
     """
-
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     originalFile = omero.model.OriginalFileI()
     if(origFilePathName is None):
         origFilePathName = filename
@@ -224,6 +243,8 @@ def uploadFile(rawFileStore, originalFile, filePath=None):
     @param filePath:    Where to find the file to upload.
                         If None, use originalFile.getName().getValue()
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     rawFileStore.setFileId(originalFile.getId().getValue())
     fileSize = originalFile.getSize().getValue()
     increment = 10000
@@ -254,6 +275,8 @@ def downloadFile(rawFileStore, originalFile, filePath=None):
     @param filePath:    Where to download the file.
                         If None, use originalFile.getName().getValue()
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     fileId = originalFile.getId().getValue()
     rawFileStore.setFileId(fileId)
     fileSize = originalFile.getSize().getValue()
@@ -294,6 +317,8 @@ def attachFileToParent(updateService, parent, originalFile,
     @return:                    The saved and returned *AnnotationLinkI
                                 (* = Project, Dataset or Image)
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     fa = omero.model.FileAnnotationI()
     fa.setFile(originalFile)
     if description:
@@ -337,7 +362,8 @@ def uploadAndAttachFile(queryService, updateService, rawFileStore, parent,
                                 server. If none, use output as name
     @return:                The originalFileLink child. (FileAnnotationI)
     """
-
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     filename = localName
     if origFilePathName is None:
         origFilePathName = localName
@@ -427,6 +453,8 @@ def addAnnotationToImage(updateService, image, annotation):
     @param annotation The annotation object
     @return The new annotationlink object
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     l = omero.model.ImageAnnotationLinkI()
     l.setParent(image)
     l.setChild(annotation)
@@ -442,6 +470,8 @@ def readFromOriginalFile(rawFileService, iQuery, fileId, maxBlockSize=10000):
     @param maxBlockSize The block size of each read.
     @return The OriginalFile object contents as a string
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     fileDetails = iQuery.findByQuery(
         "from OriginalFile as o where o.id = " + str(fileId), None)
     rawFileService.setFileId(fileId)
@@ -468,6 +498,8 @@ def readFileAsArray(rawFileService, iQuery, fileId, row, col, separator=' '):
     @param sep the column separator.
     @return The file as an NumPy array.
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     textBlock = readFromOriginalFile(rawFileService, iQuery, fileId)
     arrayFromFile = fromstring(textBlock, sep=separator)
     return reshape(arrayFromFile, (row, col))
@@ -480,6 +512,8 @@ def readFlimImageFile(rawPixelsStore, pixels):
     @param pixels The pixels of the image.
     @return The Contents of the image for z = 0, t = 0, all channels;
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     sizeC = pixels.getSizeC().getValue()
     sizeX = pixels.getSizeX().getValue()
     sizeY = pixels.getSizeY().getValue()
@@ -507,6 +541,8 @@ def downloadPlane(rawPixelsStore, pixels, z, c, t):
     @param t The T-Section to retrieve.
     @return The Plane of the image for z, c, t
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     rawPlane = rawPixelsStore.getPlane(z, c, t)
     sizeX = pixels.getSizeX().getValue()
     sizeY = pixels.getSizeY().getValue()
@@ -527,6 +563,8 @@ def getPlaneFromImage(imagePath, rgbIndex=None):
 
     @param imagePath   Path to image.
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     i = Image.open(imagePath)
     a = asarray(i)
     if rgbIndex is None:
@@ -548,7 +586,8 @@ def uploadDirAsImages(sf, queryService, updateService,
     @param dataset  the OMERO dataset, if we want to put images somewhere.
                     omero.model.DatasetI
     """
-
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     import re
 
     regex_token = re.compile(r'(?P<Token>.+)\.')
@@ -762,8 +801,8 @@ def split_image(client, imageId, dir,
     except:
         import Image        # see ticket:2597
 
-    query_string = "select p from Pixels p join fetch p.image as i join fetch " \
-                   "p.pixelsType where i.id='%s'" % imageId
+    query_string = "select p from Pixels p join fetch p.image " \
+                   "as i join fetch p.pixelsType where i.id='%s'" % imageId
     pixels = queryService.findByQuery(query_string, None)
     sizeZ = pixels.getSizeZ().getValue()
     sizeC = pixels.getSizeC().getValue()
@@ -812,6 +851,8 @@ def createFileFromData(updateService, queryService, filename, data):
     @param format The Format of the file.
     @return The newly created OriginalFile.
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     tempFile = omero.model.OriginalFileI()
     tempFile.setName(omero.rtypes.rstring(filename))
     tempFile.setPath(omero.rtypes.rstring(filename))
@@ -830,6 +871,8 @@ def attachArrayToImage(updateService, image, file, nameSpace):
     @param namespace The namespace of the file.
     @return
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     fa = omero.model.FileAnnotationI()
     fa.setFile(file)
     fa.setNs(omero.rtypes.rstring(nameSpace))
@@ -853,6 +896,8 @@ def uploadArray(rawFileStore, updateService, queryService, image,
     @param data The data to save.
     @return The newly created file.
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     data = arrayToCSV(array)
     file = createFileFromData(updateService, queryService, filename, data)
     rawFileStore.setFileId(file.getId().getValue())
@@ -878,6 +923,8 @@ def arrayToCSV(data):
     @param data the Numpy Array
     @return The CSV string.
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     size = data.shape
     row = size[0]
     col = size[1]
@@ -893,7 +940,7 @@ def arrayToCSV(data):
 
 def uploadPlane(rawPixelsStore, plane, z, c, t):
     """
-    Upload the plane to the server attching it to the current z,c,t
+    Upload the plane to the server attaching it to the current z,c,t
     of the already instantiated rawPixelStore.
     @param rawPixelsStore The rawPixelStore which is already pointing
                         to the data.
@@ -902,6 +949,8 @@ def uploadPlane(rawPixelsStore, plane, z, c, t):
     @param c The C-Section of the plane.
     @param t The T-Section of the plane.
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     byteSwappedPlane = plane.byteswap()
     convertedPlane = byteSwappedPlane.tostring()
     rawPixelsStore.setPlane(convertedPlane, z, c, t)
@@ -918,6 +967,8 @@ def uploadPlaneByRow(rawPixelsStore, plane, z, c, t):
     @param c The C-Section of the plane.
     @param t The T-Section of the plane.
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     byteSwappedPlane = plane.byteswap()
 
     rowCount, colCount = plane.shape
@@ -933,6 +984,8 @@ def getRenderingEngine(session, pixelsId):
     @param session The current session to create the renderingEngine from.
     @return The renderingEngine Service for the pixels.
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     renderingEngine = session.createRenderingEngine()
     renderingEngine.lookupPixels(pixelsId)
     if(renderingEngine.lookupRenderingDef(pixelsId) == 0):
@@ -949,6 +1002,8 @@ def createPlaneDef(z, t):
     @param T The T-Point.
     @return The RenderingDef Object.
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     planeDef = omero.romio.PlaneDef()
     planeDef.t = t
     planeDef.z = z
@@ -965,6 +1020,8 @@ def getPlaneAsPackedInt(renderingEngine, z, t):
     @param z The Z-section.
     @param t The Timepoint.
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     planeDef = createPlaneDef(z, t)
     return renderingEngine.renderAsPackedInt(planeDef)
 
@@ -975,6 +1032,8 @@ def getRawPixelsStore(session, pixelsId):
     @param pixelsId The pixelsId of the object to retrieve.
     @return The rawPixelsStore service.
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     rawPixelsStore = session.createRawPixelsStore()
     rawPixelsStore.setPixelsId(pixelsId)
     return rawPixelsStore
@@ -986,6 +1045,8 @@ def getRawFileStore(session, fileId):
     @param fileId The fileId of the object to retrieve.
     @return The rawFileStore service.
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     rawFileStore = session.createRawFileStore()
     rawFileStore.setFileId(fileId)
     return rawFileStore
@@ -999,6 +1060,8 @@ def getPlaneInfo(iQuery, pixelsId, asOrderedList=True):
     @param asOrderedList
     @return list of planeInfoTimes or map[z:t:c:]
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     query = "from PlaneInfo as Info where pixels.id='" + \
         str(pixelsId) + "' orderby info.deltaT"
     infoList = iQuery.findAllByQuery(query, None)
@@ -1033,7 +1096,8 @@ def resetRenderingSettings(renderingEngine, pixelsId, cIndex,
     @param rgba            Option to set the colour of the channel.
                            (r,g,b,a) tuple.
     """
-
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     renderingEngine.lookupPixels(pixelsId)
     if not renderingEngine.lookupRenderingDef(pixelsId):
         renderingEngine.resetDefaultSettings(True)
@@ -1068,6 +1132,8 @@ def createNewImage(session, plane2Dlist, imageName, description, dataset=None):
 
     @return The new OMERO image: omero.model.ImageI
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     queryService = session.getQueryService()
     pixelsService = session.getPixelsService()
     rawPixelStore = session.createRawPixelsStore()
@@ -1131,6 +1197,8 @@ def parseInputs(client, session=None, processFn=IdentityFn):
     @param processFn A function to transform data to some other form.
     @return Parsed inputs as defined by ProcessFn.
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     if session:
         warnings.warn(
             "argument `session' is no longer required and may be removed from "
@@ -1146,6 +1214,8 @@ def getROIFromImage(iROIService, imageId):
     @param namespace The namespace of the ROI.
     @return See above.
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     roiOpts = omero.api.RoiOptions()
     return iROIService.findByImage(imageId, roiOpts)
 
@@ -1156,6 +1226,8 @@ def toCSV(list):
     @param list The list to convert.
     @return See above.
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     lenList = len(list)
     cnt = 0
     str = ""
@@ -1173,6 +1245,8 @@ def toList(csvString):
     @param csvString The CSV string to convert.
     @return See above.
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     list = csvString.split(',')
     for index in range(len(list)):
         list[index] = list[index].strip()
@@ -1190,6 +1264,8 @@ def registerNamespace(iQuery, iUpdate, namespace, keywords):
     @param keywords The keywords associated with the workflow.
     @return see above.
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     from omero.util.OmeroPopo import WorkflowData as WorkflowData
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
@@ -1223,6 +1299,8 @@ def findROIByImage(roiService, image, namespace):
     @param namespace The namespace of the ROI.
     @return see above.
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     from omero.util.OmeroPopo import ROIData as ROIData
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
