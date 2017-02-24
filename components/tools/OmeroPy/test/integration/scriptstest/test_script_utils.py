@@ -24,7 +24,6 @@
 
 import pytest
 from omero.testlib import ITest
-import omero
 import omero.util.script_utils as scriptUtil
 from omero.gateway import BlitzGateway
 import tempfile
@@ -42,25 +41,18 @@ except:  # pragma: nocover
 class TestScriptUtils(ITest):
 
     def test_split_image(self):
-        image = self.create_test_image(100, 100, 2, 3, 4)
-        pixels_id = image.getPrimaryPixels().getId()
         dir = tempfile.mkdtemp()
-        params = omero.sys.Parameters()
-        params.map = {}
-        params.map["id"] = pixels_id
-
-        query_string = "select p from Pixels p where p.id=:id"
-        pixels = self.query.findByQuery(query_string, params)
-        size_z = pixels.getSizeZ().getValue()
-        size_c = pixels.getSizeC().getValue()
-        size_t = pixels.getSizeT().getValue()
+        client = self.new_client()
+        image = self.create_test_image(100, 100, 1, 2, 1, client.getSession())
+        id = image.id.val
+        conn = BlitzGateway(client_obj=client)
+        image = conn.getObject("Image", id)
+        pixels = image.getPrimaryPixels()
+        size_z = pixels.getSizeZ()
+        size_c = pixels.getSizeC()
+        size_t = pixels.getSizeT()
         # split the image into file
-        imported_img = self.query.findByQuery(
-            "select i from Image i join fetch i.pixels pixels\
-            where pixels.id=:id", params)
-        id = imported_img.id.val
-        scriptUtil.split_image(self.client, id, dir,
-                               unformattedImageName="a_T%05d_C%s_Z%d_S1.tiff")
+        scriptUtil.split_image(client, id, dir)
         files = [f for f in listdir(dir) if isfile(join(dir, f))]
         shutil.rmtree(dir)
         assert size_z*size_c*size_t == len(files)
@@ -68,16 +60,8 @@ class TestScriptUtils(ITest):
     def test_numpy_to_image(self):
         client = self.new_client()
         image = self.create_test_image(100, 100, 2, 3, 4, client.getSession())
-        pixels_id = image.getPrimaryPixels().getId()
-        params = omero.sys.Parameters()
-        params.map = {}
-        params.map["id"] = pixels_id
-        imported_img = client.getSession().getQueryService().findByQuery(
-            "select i from Image i join fetch i.pixels pixels\
-            where pixels.id=:id", params)
-
         conn = BlitzGateway(client_obj=client)
-        image = conn.getObject("Image", imported_img.id.val)
+        image = conn.getObject("Image", image.id.val)
         pixels = image.getPrimaryPixels()
         channel_min_max = []
         for c in image.getChannels():
@@ -105,17 +89,9 @@ class TestScriptUtils(ITest):
     def test_convert_numpy_array(self):
         client = self.new_client()
         image = self.create_test_image(100, 100, 2, 3, 4, client.getSession())
-        pixels_id = image.getPrimaryPixels().getId()
-        params = omero.sys.Parameters()
-        params.map = {}
-        params.map["id"] = pixels_id
-
-        imported_img = client.getSession().getQueryService().findByQuery(
-            "select i from Image i join fetch i.pixels pixels\
-            where pixels.id=:id", params)
         # session is closed during teardown
         conn = BlitzGateway(client_obj=client)
-        image = conn.getObject("Image", imported_img.id.val)
+        image = conn.getObject("Image",  image.id.val)
         pixels = image.getPrimaryPixels()
         channel_min_max = []
         for c in image.getChannels():
@@ -139,17 +115,9 @@ class TestScriptUtils(ITest):
     def test_numpy_save_as_image(self, format, is_file):
         client = self.new_client()
         image = self.create_test_image(100, 100, 2, 3, 4, client.getSession())
-        pixels_id = image.getPrimaryPixels().getId()
-        params = omero.sys.Parameters()
-        params.map = {}
-        params.map["id"] = pixels_id
-
-        imported_img = client.getSession().getQueryService().findByQuery(
-            "select i from Image i join fetch i.pixels pixels\
-            where pixels.id=:id", params)
         # session is closed during teardown
         conn = BlitzGateway(client_obj=client)
-        image = conn.getObject("Image", imported_img.id.val)
+        image = conn.getObject("Image", image.id.val)
         pixels = image.getPrimaryPixels()
         channel_min_max = []
         for c in image.getChannels():
