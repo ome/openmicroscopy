@@ -271,10 +271,10 @@ class PlateView(ObjectView):
 
     # Urls to add to marshalled object. See ProjectsView for more details
     urls = {
-        'url:wells': {'name': 'api_plate_wells',
-                      'kwargs': {'plate_id': 'OBJECT_ID'}},
         'url:screens': {'name': 'api_plate_screens',
                         'kwargs': {'plate_id': 'OBJECT_ID'}},
+        'url:wells': {'name': 'api_plate_wells',
+                      'kwargs': {'plate_id': 'OBJECT_ID'}},
     }
 
 
@@ -461,12 +461,12 @@ class PlatesView(ObjectsView):
 
     # Urls to add to marshalled object. See ProjectsView for more details
     urls = {
+        'url:screens': {'name': 'api_plate_screens',
+                        'kwargs': {'plate_id': 'OBJECT_ID'}},
         'url:wells': {'name': 'api_plate_wells',
                       'kwargs': {'plate_id': 'OBJECT_ID'}},
         'url:plate': {'name': 'api_plate',
                       'kwargs': {'object_id': 'OBJECT_ID'}},
-        'url:screens': {'name': 'api_plate_screens',
-                        'kwargs': {'plate_id': 'OBJECT_ID'}},
     }
 
 
