@@ -27,6 +27,7 @@ import logging
 import traceback
 from django.http import JsonResponse
 from functools import update_wrapper
+from . import api_settings
 from api_exceptions import BadRequestError, \
     CreatedObject, \
     MethodNotSupportedError, \
@@ -58,6 +59,12 @@ class json_response(object):
         """Initialise the decorator."""
         pass
 
+    def create_response(self, response, status=200):
+        """Create the Json response and set global headers."""
+        response = JsonResponse(response, status=status)
+        response['X-OMERO-ApiVersion'] = api_settings.API_VERSION
+        return response
+
     def handle_success(self, rv):
         """
         Handle successful response from wrapped function.
@@ -65,7 +72,7 @@ class json_response(object):
         By default, we simply return a JsonResponse() but this can be
         overwritten by subclasses if needed.
         """
-        return JsonResponse(rv)
+        return self.create_response(rv)
 
     def handle_error(self, ex, trace):
         """
@@ -96,7 +103,7 @@ class json_response(object):
         if isinstance(ex, CreatedObject):
             status = ex.status
             rsp_json = ex.response
-        return JsonResponse(rsp_json, status=status)
+        return self.create_response(rsp_json, status=status)
 
     def __call__(self, f):
         """
