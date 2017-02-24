@@ -259,8 +259,7 @@ class ITest(object):
         Imports the specified file.
         """
         if filename is None:
-            filename = self.omero_dist / ".." / \
-                "components" / "common" / "test" / "tinyTest.d3d.dv"
+            raise Exception("No file specified")
         if client is None:
             client = self.client
 
