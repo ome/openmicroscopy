@@ -46,6 +46,7 @@ import os.path
 import omero.gateway
 import StringIO
 from omero.rtypes import rint
+import warnings
 
 GATEWAYPATH = omero.gateway.THISPATH
 
@@ -96,6 +97,8 @@ def getThumbnail(thumbnailStore, pixelsId, length):
     @return:				The thumbnail as a String,
                             or None if not found (invalid image)
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     if not thumbnailStore.setPixelsId(pixelsId):
         thumbnailStore.needDefaults()
         thumbnailStore.setPixelsId(pixelsId)
@@ -116,6 +119,8 @@ def getThumbnailSet(thumbnailStore, length, pixelIds):
     @param length:		    Length of longest side. int
     @return:                See above
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     try:
         # returns string (api says Ice::ByteSeq)
         return thumbnailStore.getThumbnailByLongestSideSet(
@@ -248,6 +253,8 @@ def checkRGBRange(value):
     @param value:		The value to check.
     @return:			An integer between 0 and 255
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     try:
         v = int(value)
         if 0 <= v <= 255:
@@ -281,6 +288,8 @@ def RGBIntToRGB(RGB):
     @param RGB:		A colour as integer. Int
     @return:		A tuple of (r,g,b)
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     r, g, b, a = RGBIntToRGBA(RGB)
     return (r, g, b)
 
