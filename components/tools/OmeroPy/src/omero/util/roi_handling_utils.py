@@ -132,6 +132,10 @@ def points_string_to_xy_list(string):
     """
     point_lists = string.strip().split("points")
     if len(point_lists) < 2:
+        if len(point_lists) == 1 and point_lists[0]:
+            xys = point_lists[0].split()
+            xy_list = [tuple(map(int, xy.split(','))) for xy in xys]
+            return xy_list
         raise ValueError("Unrecognised ROI shape 'points' string: %s" % string)
 
     first_list = point_lists[1]

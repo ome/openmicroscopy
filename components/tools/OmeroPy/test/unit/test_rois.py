@@ -24,25 +24,36 @@ Simple tests of various ROI utilities
 """
 
 from omero.util.ROI_utils import pointsStringToXYlist, xyListToBbox
+from omero.util.roi_handling_utils import points_string_to_xy_list
 
 
 class TestRoiUtils(object):
 
-    def testOldFormat(self):
-        xyList = pointsStringToXYlist((
+    def test_old_format(self):
+        xy_list = pointsStringToXYlist((
             "points[1,2, 3,4, 5,6] "
         ))
-        assert xyList == [(1, 2), (3, 4), (5, 6)]
-        return xyList
+        assert xy_list == [(1, 2), (3, 4), (5, 6)]
 
-    def testNewFormat(self):
-        xyList = pointsStringToXYlist((
+    def test_new_format(self):
+        xy_list = pointsStringToXYlist((
             "1,2 3,4 5,6"
         ))
-        assert xyList == [(1, 2), (3, 4), (5, 6)]
-        return xyList
+        assert xy_list == [(1, 2), (3, 4), (5, 6)]
 
-    def testBBox(self):
-        xyList = self.testOldFormat()
-        bbox = xyListToBbox(xyList)
+    def test_bbox(self):
+        xy_list = self.testOldFormat()
+        bbox = xyListToBbox(xy_list)
         assert bbox == (1, 2, 4, 4)
+
+    def test_old_format_new_method(self):
+        xy_list = points_string_to_xy_list((
+            "points[1,2, 3,4, 5,6] "
+        ))
+        assert xy_list == [(1, 2), (3, 4), (5, 6)]
+
+    def test_new_format_new_method(self):
+        xy_list = points_string_to_xy_list((
+            "1,2 3,4 5,6"
+        ))
+        assert xy_list == [(1, 2), (3, 4), (5, 6)]
