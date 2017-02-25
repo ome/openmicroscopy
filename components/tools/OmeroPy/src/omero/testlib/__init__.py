@@ -693,15 +693,13 @@ class ITest(object):
 
     @classmethod
     def get_pixels_type(cls, pixels_type):
-        if pixels_type in ["int8", "uint8"]:
-            return 1
         if pixels_type in ["int16", "uint16"]:
             return 2
         if pixels_type in ["int32", "uint132", "float"]:
             return 4
         if pixels_type in ["double"]:
             return 8
-        return -1
+        return 1
 
     def write(self, pixels, rps, pixels_type="int8"):
         """
