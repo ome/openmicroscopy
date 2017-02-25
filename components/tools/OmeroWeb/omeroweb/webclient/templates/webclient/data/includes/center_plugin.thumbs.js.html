@@ -279,13 +279,13 @@ $(document).ready(function() {
         $("#icon_table").html(html);
 
         // load thumbnails in a batches
-        batch = {{ thumbnails_batch|default:50|json_dumps|safe }};
+        thumbnailsBatch = {{ thumbnails_batch|default:50|json_dumps|safe }};
         iids = $.map(imgJson, function(img){
             return img.id;
         });
         OME.load_thumbnails(
             "{% url 'get_thumbnails_json' %}",
-            iids, batch,
+            iids, thumbnailsBatch,
             "{% static 'webgateway/img/image128.png' %}"
         );
 
