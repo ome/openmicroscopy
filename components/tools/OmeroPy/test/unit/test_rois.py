@@ -42,7 +42,7 @@ class TestRoiUtils(object):
         assert xy_list == [(1, 2), (3, 4), (5, 6)]
 
     def test_bbox(self):
-        xy_list = self.testOldFormat()
+        xy_list = self.test_old_format()
         bbox = xyListToBbox(xy_list)
         assert bbox == (1, 2, 4, 4)
 
