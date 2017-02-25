@@ -29,7 +29,6 @@ from omero.gateway import BlitzGateway
 
 class TestRoiHandlingUtils(ITest):
 
-
     def test_get_line_data(self):
         client = self.new_client()
         image = self.create_test_image(100, 100, 1, 1, 1, client.getSession())
