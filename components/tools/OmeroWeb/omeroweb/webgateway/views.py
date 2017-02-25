@@ -357,7 +357,7 @@ def _render_thumbnail(request, iid, w=None, h=None, conn=None, _defcb=None,
                 jpeg_data = _defcb(size=size)
                 prevent_cache = True
             else:
-                raise Http404
+                raise Http404('Failed to render thumbnail')
         else:
             jpeg_data = img.getThumbnail(
                 size=size, direct=direct, rdefId=rdefId, z=z, t=t)
@@ -367,8 +367,7 @@ def _render_thumbnail(request, iid, w=None, h=None, conn=None, _defcb=None,
                     jpeg_data = _defcb(size=size)
                     prevent_cache = True
                 else:
-                    raise HttpResponseServerError(
-                        'Failed to render thumbnail')
+                    raise Http404('Failed to render thumbnail')
             else:
                 prevent_cache = img._thumbInProgress
         if not prevent_cache:
@@ -1466,7 +1465,7 @@ def get_thumbnails_json(request, w=None, conn=None, **kwargs):
 
     @param request:     http request
     @param w:           Thumbnail max width. 96 by default
-    @return:            http response containing jpeg
+    @return:            http response containing base64 encoded thumbnails
     """
     if w is None:
         w = 96
@@ -1474,7 +1473,7 @@ def get_thumbnails_json(request, w=None, conn=None, **kwargs):
     logger.debug("Image ids: %r" % image_ids)
     if len(image_ids) > settings.THUMBNAILS_BATCH:
         return HttpJavascriptResponseServerError(
-            'Max 50 thumbnails at a time.')
+            'Max %s thumbnails at a time.' % settings.THUMBNAILS_BATCH)
     thumbnails = conn.getThumbnailSet([rlong(i) for i in image_ids], w)
     rv = dict()
     for i in image_ids:
@@ -1502,7 +1501,7 @@ def get_thumbnail_json(request, iid, w=None, h=None, conn=None, _defcb=None,
     @param iid:         Image ID
     @param w:           Thumbnail max width. 96 by default
     @param h:           Thumbnail max height
-    @return:            http response containing jpeg
+    @return:            http response containing base64 encoded thumbnail
     """
     jpeg_data = _render_thumbnail(
         request=request, iid=iid, w=w, h=h,
