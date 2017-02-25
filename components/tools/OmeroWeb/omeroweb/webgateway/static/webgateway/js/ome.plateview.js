@@ -103,7 +103,7 @@ jQuery._WeblitzPlateview = function (container, options) {
       width: 64,
       height: 48,
       useParentPrefix: true,
-      thumbnails_batch: 50,
+      thumbnailsBatch: 50,
       defaultThumb: ''
     }, options);
 
@@ -184,8 +184,8 @@ jQuery._WeblitzPlateview = function (container, options) {
       }
     }
 
-    batch = parseInt(opts.thumbnailsBatch);
-    load_thumbnails(imgIds, batch);
+    thumbnailsBatch = parseInt(opts.thumbnailsBatch);
+    load_thumbnails(imgIds, thumbnailsBatch);
     _this.self.trigger('_resetLoaded');
   };
 
