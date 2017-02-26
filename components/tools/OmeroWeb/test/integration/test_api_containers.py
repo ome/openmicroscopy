@@ -467,7 +467,7 @@ class TestContainers(IWebTest):
                            'plate_id': plate_json['@id'],
                            'index': idx})
             links.append(l)
-        extra = [{'urls:wellsampleindex_wells': links,
+        extra = [{'url:wellsampleindex_wells': links,
                   'omero:wellsampleIndex': minMaxIndex}]
         assert_objects(conn, [plate_json], plates[0:1], dtype='Plate',
                        extra=extra)
