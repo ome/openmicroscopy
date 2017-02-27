@@ -131,7 +131,7 @@ public class Setup {
 
         new CreateImage(args, imageId, datasetId);
         new DeleteData(args);
-        new HowToUseTables(args);
+        new HowToUseTables(args, imageId);
         new LoadMetadataAdvanced(args, imageId);
         new RawDataAccess(args, imageId);
         new ReadData(args, datasetId, plateId, imageId);
