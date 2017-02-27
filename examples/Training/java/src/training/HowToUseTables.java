@@ -32,9 +32,16 @@ import omero.grid.LongColumn;
 import omero.grid.SharedResourcesPrx;
 import omero.grid.TablePrx;
 import omero.log.SimpleLogger;
+import omero.model.FileAnnotation;
+import omero.model.FileAnnotationI;
+import omero.model.ImageAnnotationLink;
+import omero.model.ImageAnnotationLinkI;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
+import omero.gateway.facility.BrowseFacility;
+import omero.gateway.facility.DataManagerFacility;
 import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.ImageData;
 
 /** 
  * Follow samples code indicating how to use OMERO.tables
@@ -139,8 +146,10 @@ public class HowToUseTables
             annotation.setFile(file);
             annotation.setNs(omero.rtypes
                     .rstring(omero.constants.namespaces.NSBULKANNOTATIONS.value));
+            
+            //The following saveAndReturnObject call can be removed in bulk annotation scenarios
+            //The server call is made when a link is created and that handles both the annotation and the link together
             annotation = (FileAnnotation) dm.saveAndReturnObject(ctx, annotation);
-            ImageAnnotationLink link = new ImageAnnotationLinkI();
 
             //now link the image and the annotation
             ImageAnnotationLink link = new ImageAnnotationLinkI();
