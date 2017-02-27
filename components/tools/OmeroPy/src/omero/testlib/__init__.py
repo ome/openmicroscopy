@@ -52,7 +52,7 @@ from omero.model import ExperimenterGroup, ExperimenterGroupI
 from omero.model import ProjectDatasetLinkI, ImageAnnotationLinkI
 from omero.model import PermissionsI
 from omero.model import ChecksumAlgorithmI
-from omero.model import NamedValue as NV
+from omero.model import NamedValue
 from omero.rtypes import rbool, rstring, rlong, rtime, rint, unwrap
 from omero.util.temp_files import create_path
 from path import path
@@ -1237,14 +1237,14 @@ class AbstractRepoTest(ITest):
         system, node, release, version, machine, processor = platform.uname()
 
         client_version_info = [
-            NV('omero.version', omero_version),
-            NV('os.name', system),
-            NV('os.version', release),
-            NV('os.architecture', machine)
+            NamedValue('omero.version', omero_version),
+            NamedValue('os.name', system),
+            NamedValue('os.version', release),
+            NamedValue('os.architecture', machine)
         ]
         try:
             client_version_info.append(
-                NV('locale', locale.getdefaultlocale()[0]))
+                NamedValue('locale', locale.getdefaultlocale()[0]))
         except:
             pass
 
@@ -1300,20 +1300,20 @@ class AbstractRepoTest(ITest):
 
         proc = mrepo.importFileset(fileset, settings)
         try:
-            return self.assertImport(client, proc, folder)
+            return self.assert_import(client, proc, folder)
         finally:
             proc.close()
 
     # Assert methods
-    def assertImport(self, client, proc, folder):
+    def assert_import(self, client, proc, folder):
         hashes = self.upload_folder(proc, folder)
         handle = proc.verifyUpload(hashes)
         cb = CmdCallbackI(client, handle)
-        rsp = self.assertPasses(cb)
+        rsp = self.assert_passes(cb)
         assert 1 == len(rsp.pixels)
         return rsp
 
-    def assertWrite(self, mrepo2, filename, ofile):
+    def assert_write(self, mrepo2, filename, ofile):
         def _write(rfs):
             try:
                 rfs.write("bye", 0, 3)
@@ -1332,7 +1332,7 @@ class AbstractRepoTest(ITest):
         rfs = mrepo2.file(filename, "rw")
         _write(rfs)
 
-    def assertNoWrite(self, mrepo2, filename, ofile):
+    def assert_no_write(self, mrepo2, filename, ofile):
         def _nowrite(rfs):
             try:
                 pytest.raises(omero.SecurityViolation,
@@ -1351,22 +1351,22 @@ class AbstractRepoTest(ITest):
         pytest.raises(omero.SecurityViolation,
                       mrepo2.file, filename, "rw")
 
-    def assertDirWrite(self, mrepo2, dirname):
+    def assert_dir_write(self, mrepo2, dirname):
         self.create_file(mrepo2, dirname + "/file2.txt")
 
-    def assertNoDirWrite(self, mrepo2, dirname):
+    def assert_no_dir_write(self, mrepo2, dirname):
         # Also check that it's not possible to write
         # in someone else's directory.
         pytest.raises(omero.SecurityViolation,
                       self.create_file, mrepo2, dirname + "/file2.txt")
 
-    def assertNoRead(self, mrepo2, filename, ofile):
+    def assert_no_read(self, mrepo2, filename, ofile):
         pytest.raises(omero.SecurityViolation,
                       mrepo2.fileById, ofile.id.val)
         pytest.raises(omero.SecurityViolation,
                       mrepo2.file, filename, "r")
 
-    def assertRead(self, mrepo2, filename, ofile, ctx=None):
+    def assert_read(self, mrepo2, filename, ofile, ctx=None):
         def _read(rfs):
             try:
                 assert "hi" == rfs.read(0, 2)
@@ -1379,20 +1379,20 @@ class AbstractRepoTest(ITest):
         rfs = mrepo2.file(filename, "r", ctx)
         _read(rfs)
 
-    def assertListings(self, mrepo1, unique_dir):
+    def assert_listings(self, mrepo1, unique_dir):
         assert [unique_dir + "/b"] == mrepo1.list(unique_dir + "/")
         assert [unique_dir + "/b/c"] == mrepo1.list(unique_dir + "/b/")
         assert [
             unique_dir + "/b/c/file.txt"] == mrepo1.list(unique_dir + "/b/c/")
 
-    def assertPasses(self, cb, loops=10, wait=500):
+    def assert_passes(self, cb, loops=10, wait=500):
         cb.loop(loops, wait)
         rsp = cb.getResponse()
         if isinstance(rsp, omero.cmd.ERR):
             raise Exception(rsp)
         return rsp
 
-    def assertError(self, cb, loops=10, wait=500):
+    def assert_error(self, cb, loops=10, wait=500):
         cb.loop(loops, wait)
         rsp = cb.getResponse()
         assert isinstance(rsp, omero.cmd.ERR)
