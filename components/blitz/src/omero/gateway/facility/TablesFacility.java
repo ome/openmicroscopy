@@ -134,7 +134,7 @@ public class TablesFacility extends Facility {
 
             SharedResourcesPrx sr = gateway.getSharedResources(ctx);
             if (!sr.areTablesEnabled()) {
-                throw new Exception(
+                throw new DSAccessException(
                         "Tables feature is not enabled on this server!");
             }
             long repId = sr.repositories().descriptions.get(0).getId()
@@ -282,7 +282,7 @@ public class TablesFacility extends Facility {
             OriginalFile file = new OriginalFileI(fileId, false);
             SharedResourcesPrx sr = gateway.getSharedResources(ctx);
             if (!sr.areTablesEnabled()) {
-                throw new Exception(
+                throw new DSAccessException(
                         "Tables feature is not enabled on this server!");
             }
 
