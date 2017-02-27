@@ -60,7 +60,7 @@ def getFont(fontsize):
     @return: 	A PIL Font
     """
     warnings.warn(
-        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
+        "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
     fontPath = os.path.join(GATEWAYPATH, "pilfonts", "FreeSans.ttf")
     try:
         font = ImageFont.truetype(fontPath, fontsize)
@@ -80,7 +80,7 @@ def pasteImage(image, canvas, x, y):
     @param y: 			Y coordinate (top) to paste
     """
     warnings.warn(
-        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
+        "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
     xRight = image.size[0] + x
     yBottom = image.size[1] + y
     # make a tuple of topleft-x, topleft-y, bottomRight-x, bottomRight-y
@@ -100,7 +100,7 @@ def getThumbnail(thumbnailStore, pixelsId, length):
                             or None if not found (invalid image)
     """
     warnings.warn(
-        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
+        "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
     if not thumbnailStore.setPixelsId(pixelsId):
         thumbnailStore.needDefaults()
         thumbnailStore.setPixelsId(pixelsId)
@@ -122,7 +122,7 @@ def getThumbnailSet(thumbnailStore, length, pixelIds):
     @return:                See above
     """
     warnings.warn(
-        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
+        "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
     try:
         # returns string (api says Ice::ByteSeq)
         return thumbnailStore.getThumbnailByLongestSideSet(
@@ -157,7 +157,7 @@ def paintThumbnailGrid(thumbnailStore, length, spacing, pixelIds, colCount,
     @return: 			    The PIL Image canvas.
     """
     warnings.warn(
-        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
+        "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
     mode = "RGB"
     # work out how many rows and columns are needed for all the images
     imgCount = len(pixelIds)
@@ -258,7 +258,7 @@ def checkRGBRange(value):
     @return:			An integer between 0 and 255
     """
     warnings.warn(
-        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
+        "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
     try:
         v = int(value)
         if 0 <= v <= 255:
@@ -276,7 +276,7 @@ def RGBIntToRGBA(RGB):
     @return:		A tuple of (r,g,b,a)
     """
     warnings.warn(
-        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
+        "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
     r = checkRGBRange((RGB >> 16) & 0xFF)
     g = checkRGBRange((RGB >> 8) & 0xFF)
     b = checkRGBRange((RGB >> 0) & 0xFF)
@@ -295,7 +295,7 @@ def RGBIntToRGB(RGB):
     @return:		A tuple of (r,g,b)
     """
     warnings.warn(
-        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
+        "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
     r, g, b, a = RGBIntToRGBA(RGB)
     return (r, g, b)
 
@@ -313,7 +313,7 @@ def getZoomFactor(imageSize, maxW, maxH):
                             within max width and height
     """
     warnings.warn(
-        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
+        "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
     imageW, imageH = imageSize
     zoomW = float(imageW) / float(maxW)
     zoomH = float(imageH) / float(maxH)
@@ -331,7 +331,7 @@ def resizeImage(image, maxW, maxH):
     @return:		The zoomed image. PIL Image.
     """
     warnings.warn(
-        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
+        "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
     imageW, imageH = image.size
     if imageW == maxW and imageH == maxH:
         return image
