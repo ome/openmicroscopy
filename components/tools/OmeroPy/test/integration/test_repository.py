@@ -165,11 +165,11 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
         # No intermediate directories
         ofile = self.create_file(f1.repo, filename)
 
-        self.assertRead(f1.repo, filename, ofile)
-        self.assertRead(f1.repo, filename, ofile, self.all(f1.client))
-        self.assertWrite(f1.repo, filename, ofile)
+        self.assert_read(f1.repo, filename, ofile)
+        self.assert_read(f1.repo, filename, ofile, self.all(f1.client))
+        self.assert_write(f1.repo, filename, ofile)
 
-        self.assertNoRead(f2.repo, filename, ofile)
+        self.assert_no_read(f2.repo, filename, ofile)
 
         assert 0 == len(unwrap(f2.repo.treeList(".")))
 
@@ -181,12 +181,12 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
         f1.repo.makeDir(dirname, True)
         ofile = self.create_file(f1.repo, filename)
 
-        self.assertRead(f1.repo, filename, ofile)
-        self.assertRead(f1.repo, filename, ofile, self.all(f1.client))
-        self.assertListings(f1.repo, f1.testdir)
-        self.assertWrite(f1.repo, filename, ofile)
+        self.assert_read(f1.repo, filename, ofile)
+        self.assert_read(f1.repo, filename, ofile, self.all(f1.client))
+        self.assert_listings(f1.repo, f1.testdir)
+        self.assert_write(f1.repo, filename, ofile)
 
-        self.assertNoRead(f2.repo, filename, ofile)
+        self.assert_no_read(f2.repo, filename, ofile)
         assert 0 == len(f2.repo.listFiles(dirname))
 
     def testDirReadOnlyGroup(self):
@@ -197,16 +197,16 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
         f1.repo.makeDir(dirname, True)
         ofile = self.create_file(f1.repo, filename)
 
-        self.assertRead(f1.repo, filename, ofile)
-        self.assertRead(f1.repo, filename, ofile, self.all(f1.client))
-        self.assertListings(f1.repo, f1.testdir)
-        self.assertWrite(f1.repo, filename, ofile)
+        self.assert_read(f1.repo, filename, ofile)
+        self.assert_read(f1.repo, filename, ofile, self.all(f1.client))
+        self.assert_listings(f1.repo, f1.testdir)
+        self.assert_write(f1.repo, filename, ofile)
 
-        self.assertRead(f2.repo, filename, ofile)
-        self.assertRead(f2.repo, filename, ofile, self.all(f2.client))
-        self.assertListings(f2.repo, f1.testdir)
-        self.assertNoWrite(f2.repo, filename, ofile)
-        self.assertNoDirWrite(f2.repo, dirname)
+        self.assert_read(f2.repo, filename, ofile)
+        self.assert_read(f2.repo, filename, ofile, self.all(f2.client))
+        self.assert_listings(f2.repo, f1.testdir)
+        self.assert_no_write(f2.repo, filename, ofile)
+        self.assert_no_dir_write(f2.repo, dirname)
 
     def testDirReadWriteGroup(self):
         f1, f2 = self.setup2RepoUsers("rwrw--")
@@ -216,16 +216,16 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
         f1.repo.makeDir(dirname, True)
         ofile = self.create_file(f1.repo, filename)
 
-        self.assertRead(f1.repo, filename, ofile)
-        self.assertRead(f1.repo, filename, ofile, self.all(f1.client))
-        self.assertListings(f1.repo, f1.testdir)
-        self.assertWrite(f1.repo, filename, ofile)
+        self.assert_read(f1.repo, filename, ofile)
+        self.assert_read(f1.repo, filename, ofile, self.all(f1.client))
+        self.assert_listings(f1.repo, f1.testdir)
+        self.assert_write(f1.repo, filename, ofile)
 
-        self.assertRead(f2.repo, filename, ofile)
-        self.assertRead(f2.repo, filename, ofile, self.all(f2.client))
-        self.assertWrite(f2.repo, filename, ofile)
-        self.assertListings(f2.repo, f1.testdir)
-        self.assertDirWrite(f2.repo, dirname)
+        self.assert_read(f2.repo, filename, ofile)
+        self.assert_read(f2.repo, filename, ofile, self.all(f2.client))
+        self.assert_write(f2.repo, filename, ofile)
+        self.assert_listings(f2.repo, f1.testdir)
+        self.assert_dir_write(f2.repo, dirname)
 
     def testDirReadAnnotateGroup(self):
         f1, f2 = self.setup2RepoUsers("rwra--")
@@ -235,16 +235,16 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
         f1.repo.makeDir(dirname, True)
         ofile = self.create_file(f1.repo, filename)
 
-        self.assertRead(f1.repo, filename, ofile)
-        self.assertRead(f1.repo, filename, ofile, self.all(f1.client))
-        self.assertListings(f1.repo, f1.testdir)
-        self.assertWrite(f1.repo, filename, ofile)
+        self.assert_read(f1.repo, filename, ofile)
+        self.assert_read(f1.repo, filename, ofile, self.all(f1.client))
+        self.assert_listings(f1.repo, f1.testdir)
+        self.assert_write(f1.repo, filename, ofile)
 
-        self.assertRead(f2.repo, filename, ofile)
-        self.assertRead(f2.repo, filename, ofile, self.all(f2.client))
-        self.assertListings(f2.repo, f1.testdir)
-        self.assertNoWrite(f2.repo, filename, ofile)
-        self.assertDirWrite(f2.repo, dirname)
+        self.assert_read(f2.repo, filename, ofile)
+        self.assert_read(f2.repo, filename, ofile, self.all(f2.client))
+        self.assert_listings(f2.repo, f1.testdir)
+        self.assert_no_write(f2.repo, filename, ofile)
+        self.assert_dir_write(f2.repo, dirname)
 
     def testMultiGroup(self):
         group1 = self.new_group(perms="rw----")
@@ -264,13 +264,13 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
         mrepo1.makeDir(dirname, True)
         ofile = self.create_file(mrepo1, filename)
 
-        self.assertRead(mrepo1, filename, ofile)
-        self.assertRead(mrepo1, filename, ofile, self.all(client1))
+        self.assert_read(mrepo1, filename, ofile)
+        self.assert_read(mrepo1, filename, ofile, self.all(client1))
 
         with pytest.raises(omero.SecurityViolation):
-            self.assertRead(mrepo2, filename, ofile)
+            self.assert_read(mrepo2, filename, ofile)
 
-        self.assertRead(mrepo2, filename, ofile, self.all(client2))
+        self.assert_read(mrepo2, filename, ofile, self.all(client2))
 
 
 class TestPythonImporter(AbstractRepoTest):
@@ -287,7 +287,7 @@ class TestPythonImporter(AbstractRepoTest):
         paths = folder.files()
 
         proc = mrepo.importPaths(paths)
-        self.assertImport(client, proc, folder)
+        self.assert_import(client, proc, folder)
 
     def testReopenRawFileStoresPR2542(self):
         client = self.new_client()
@@ -300,7 +300,7 @@ class TestPythonImporter(AbstractRepoTest):
             proc.getUploader(idx).close()
         # Import should continue to work after
         # closing the resources
-        self.assertImport(client, proc, folder)
+        self.assert_import(client, proc, folder)
 
     # Assure that the template functionality supports the same user
     # importing from multiple groups on a given day
@@ -324,12 +324,12 @@ class TestRawAccess(AbstractRepoTest):
     def testAsNonAdmin(self):
         uuid = self.unique_dir + "./t.txt"
         cb = self.raw("touch", [uuid])
-        self.assertError(cb)
+        self.assert_error(cb)
 
     def testAsAdmin(self):
         uuid = self.unique_dir + "/t.txt"
         cb = self.raw("touch", [uuid])
-        self.assertError(cb)
+        self.assert_error(cb)
 
 
 class TestDbSync(AbstractRepoTest):
@@ -360,7 +360,7 @@ class TestDbSync(AbstractRepoTest):
 
         # foo.txt is created on the backend but doesn't show up.
         assert ['%s/file.txt' % self.unique_dir] == mrepo.list(self.unique_dir)
-        self.assertPasses(self.raw("touch", [fooname], client=self.root))
+        self.assert_passes(self.raw("touch", [fooname], client=self.root))
         assert ['%s/file.txt' % self.unique_dir] == mrepo.list(self.unique_dir)
 
         # If we try to create such a file, we should receive an exception
@@ -374,7 +374,7 @@ class TestDbSync(AbstractRepoTest):
             assert file.size == ufe.file.size
 
         # And if the file is a Dir, we should have a mimetype
-        self.assertPasses(self.raw("mkdir", ["-p", mydir], client=self.root))
+        self.assert_passes(self.raw("mkdir", ["-p", mydir], client=self.root))
         try:
             self.create_file(mrepo, mydir)
             assert False, "Should have thrown"
@@ -597,7 +597,7 @@ class TestDeletePerformance(AbstractRepoTest):
         req = handle.getRequest()
         fs = req.activity.getParent()
         cb = CmdCallbackI(client, handle)
-        self.assertError(cb, loops=200)
+        self.assert_error(cb, loops=200)
         delete = omero.cmd.Delete2()
         delete.targetObjects = {'Fileset': [fs.id.val]}
         s2 = time.time()

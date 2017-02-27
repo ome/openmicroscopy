@@ -81,7 +81,7 @@ class TestRename(AbstractRepoTest):
         """
         for source, target in tomove:
             cb = self.raw("mv", [source, target], client=self.root)
-            self.assertPasses(cb)
+            self.assert_passes(cb)
 
     @pytest.mark.parametrize("data", (
         ("user1", "user1", "rw----", True),
