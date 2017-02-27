@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2016-2017 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -203,7 +203,7 @@ public class TablesFacility extends Facility {
      *            The {@link SecurityContext}
      * @param fileId
      *            The id of the {@link OriginalFile} which stores the table
-     * @return All data which the table contains
+     * @return The data which the table contains
      * @throws DSOutOfServiceException
      *             If the connection is broken, or not logged in
      * @throws DSAccessException
@@ -216,7 +216,7 @@ public class TablesFacility extends Facility {
     }
 
     /**
-     * Load the data from a table
+     * Load data from a table
      * 
      * @param ctx
      *            The {@link SecurityContext}
@@ -231,7 +231,7 @@ public class TablesFacility extends Facility {
      * @param columns
      *            The columns to take into account (can be left unspecified, in
      *            which case all columns will used)
-     * @return All data which the table contains
+     * @return The specified data
      * @throws DSOutOfServiceException
      *             If the connection is broken, or not logged in
      * @throws DSAccessException
@@ -252,7 +252,7 @@ public class TablesFacility extends Facility {
     }
     
     /**
-     * Load the data from a table
+     * Load data from a table
      * 
      * @param ctx
      *            The {@link SecurityContext}
@@ -267,7 +267,7 @@ public class TablesFacility extends Facility {
      * @param columns
      *            The columns to take into account (can be left unspecified, in
      *            which case all columns will used)
-     * @return All data which the table contains
+     * @return The specified data
      * @throws DSOutOfServiceException
      *             If the connection is broken, or not logged in
      * @throws DSAccessException

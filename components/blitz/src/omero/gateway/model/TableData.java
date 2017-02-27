@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2016-2017 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -143,12 +143,20 @@ public class TableData {
     }
 
     /**
+     * @return <code>true</code> if this TableData object doesn't contain any
+     *         data, <code>false</code> if it does contain data.
+     */
+    public boolean isEmpty() {
+        return data == null || data.length == 0 || data[0].length == 0;
+    }
+
+    /**
      * @return <code>true</code> if the last available row is contained,
      *         <code>false</code> if there's more data available in the original
      *         table
      */
     public boolean isCompleted() {
-        if (data == null || data.length == 0)
+        if (isEmpty())
             return true;
 
         return (offset + data[0].length) == numberOfRows;
@@ -159,7 +167,7 @@ public class TableData {
      * the last row in the {@link TableData#data} array)
      */
     public void setCompleted() {
-        this.numberOfRows = (data == null || data.length == 0) ? 0 : offset
+        this.numberOfRows = isEmpty() ? 0 : offset
                 + data[0].length;
     }
 
@@ -221,7 +229,7 @@ public class TableData {
      * 
      * @param objects
      *            The array to generate the object for
-     * @param types
+     * @param columns
      *            The types of the elements in the array; it's assumed that
      *            every element of a sub array (<code>object[i][]</code>) has
      *            the same type (<code>types[i]</code>).
@@ -274,7 +282,7 @@ public class TableData {
             sb.append('\n');
         }
 
-        if (data == null || data.length == 0)
+        if (isEmpty())
             return sb.toString();
 
         int nRows = 0;

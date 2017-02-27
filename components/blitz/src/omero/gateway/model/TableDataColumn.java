@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2016-2017 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -17,6 +17,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 package omero.gateway.model;
+
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Defines a column for a {@link TableData} object
@@ -53,9 +55,7 @@ public class TableDataColumn {
      *            The type of data in this column
      */
     public TableDataColumn(String name, int index, Class<?> type) {
-        this.name = name;
-        this.index = index;
-        this.type = type;
+        this(name, "", index, type);
     }
 
     /**
@@ -200,13 +200,15 @@ public class TableDataColumn {
     @Override
     public String toString() {
         String s = name;
-        if (description.trim().length() > 0)
+        if (StringUtils.isNotEmpty(description))
             s += " '" + description + "'";
 
-        if (index > -1) {
+        if (index > -1) 
             s += " (" + index + ")";
-        }
-        s += " [" + type.getSimpleName() + "]";
+
+        if (type != null)
+            s += " [" + type.getSimpleName() + "]";
+
         return s;
     }
 
