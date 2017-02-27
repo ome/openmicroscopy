@@ -1486,7 +1486,7 @@
       setImageDefaults(viewport, this, function() {
         if (window.opener && window.opener.OME.refreshThumbnails) {
             window.opener.OME.refreshThumbnails({'imageId':{{ image.id }},
-            'thumbnail_url': "{% url 'webgateway_get_thumbnail_json' manager.image.id %}" });
+            'thumbnail_url': "{% url 'get_thumbnail_json' image.id %}" });
         }
       });
     });
