@@ -235,22 +235,19 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isSudoing and WriteOwned privileges cases")
-    public void testCreateLinkImportSudo(boolean isAdmin, boolean isSudoing, boolean permWriteOwned,
+    public void testCreateLinkImportSudo(boolean isSudoing, boolean permWriteOwned,
             String groupPermissions) throws Exception {
         final EventContext normalUser = newUserAndGroup(groupPermissions);
-        final boolean isExpectSuccessCreate = (isAdmin && permWriteOwned) || (isAdmin && isSudoing);
+        final boolean isExpectSuccessCreate = permWriteOwned || isSudoing;
         /* set up the light admin's permissions for this test */
         List<String> permissions = new ArrayList<String>();
         permissions.add(AdminPrivilegeSudo.value);
         if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
         final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(isAdmin, permissions);
+        lightAdmin = loginNewAdmin(true, permissions);
         if (isSudoing) {
             try {
                 sudo(new ExperimenterI(normalUser.userId, false));
-                    if (!isAdmin) {
-                        Assert.fail("Sudo-permitted non-administrators cannot sudo.");
-                    }
                 }catch (SecurityViolation sv) {
                     /* sudo expected to fail if the user is not in system group */
                 }
@@ -304,8 +301,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
          * Check thus that the light admin can import and write the original file
          * on behalf of the normalUser and into the group of normalUser */
         final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
-        if (!isAdmin) return;/* exit the test in case light admin is not an admin,
-        too complicated and uninteresting case */
         final List<List<RType>> result = iQuery.projection(
                 "SELECT id FROM OriginalFile WHERE name = :name ORDER BY id DESC LIMIT 1",
                 new ParametersI().add("name", imageName));
@@ -354,7 +349,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @throws Exception unexpected
      */
    @Test(dataProvider = "isSudoing and Delete privileges cases")
-   public void testDelete(boolean isAdmin, boolean isSudoing, boolean permDeleteOwned,
+   public void testDelete(boolean isSudoing, boolean permDeleteOwned,
            String groupPermissions) throws Exception {
        /* only DeleteOwned permission is truly needed for deletion of links, dataset
         * and image (with original file) when not sudoing */
@@ -365,17 +360,12 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
        permissions.add(AdminPrivilegeSudo.value);
        if (permDeleteOwned) permissions.add(AdminPrivilegeDeleteOwned.value);
        final EventContext lightAdmin;
-       lightAdmin = loginNewAdmin(isAdmin, permissions);
+       lightAdmin = loginNewAdmin(true, permissions);
        try {
            sudo(new ExperimenterI(normalUser.userId, false));
-               if (!isAdmin) {
-                   Assert.fail("Sudo-permitted non-administrators cannot sudo.");
-               }
            }catch (SecurityViolation sv) {
-               /* sudo expected to fail if the user is not in system group */
            }
        /* create a Dataset and Project being sudoed as normalUser */
-       if (!isAdmin) return;
        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
        Project proj = mmFactory.simpleProject();
        Dataset dat = mmFactory.simpleDataset();
@@ -386,9 +376,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
        try {
            sentProj = (Project) iUpdate.saveAndReturnObject(proj);
            sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
-           Assert.assertTrue(isAdmin);
        } catch (ServerError se) {
-           Assert.assertFalse(isAdmin);
        }
        /* import an image for the normalUser into the normalUser's default group 
         * and target it into the created Dataset*/
@@ -400,17 +388,13 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
        try {
            List<String> path = Collections.singletonList(fakeImageFile.getPath());
            importFileset(path, path.size(), sentDat);
-           Assert.assertTrue(isAdmin);
        } catch (ServerError se) {
-           Assert.assertFalse(isAdmin);
        }
        OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
                "FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
                new ParametersI().addId(previousId).add("name", imageName));
-       if (isAdmin) {
-           Assert.assertEquals(remoteFile.getDetails().getOwner().getId().getValue(), normalUser.userId);
-           Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), normalUser.groupId);
-       }
+       Assert.assertEquals(remoteFile.getDetails().getOwner().getId().getValue(), normalUser.userId);
+       Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), normalUser.groupId);
        /* link the Project and the Dataset */
        ProjectDatasetLink link = linkProjectDataset(sentProj, sentDat);
        Image image = (Image) iQuery.findByQuery(
@@ -492,16 +476,16 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isSudoing and WriteOwned privileges cases")
-    public void testEdit(boolean isAdmin, boolean isSudoing,
-            boolean permWriteOwned, String groupPermissions) throws Exception {
-        final boolean isExpectSuccess = (isAdmin && isSudoing) || (isAdmin && permWriteOwned);
+    public void testEdit(boolean isSudoing, boolean permWriteOwned,
+            String groupPermissions) throws Exception {
+        final boolean isExpectSuccess = isSudoing || permWriteOwned;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         /* set up the light admin's permissions for this test */
         List<String> permissions = new ArrayList<String>();
         permissions.add(AdminPrivilegeSudo.value);
         if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
         final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(isAdmin, permissions);
+        lightAdmin = loginNewAdmin(true, permissions);
         /* set up the project as the normalUser */
         loginUser(normalUser);
         Project proj = mmFactory.simpleProject();
@@ -514,14 +498,9 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         if (isSudoing) {
             try {
                 sudo(new ExperimenterI(normalUser.userId, false));
-                if (!isAdmin) {
-                    Assert.fail("Sudo-permitted non-administrators cannot sudo.");
-                }
             } catch (SecurityViolation sv) {
-                /* sudo expected to fail if the user is not in system group */
             }
         }
-        if (!isAdmin) return; /* if the light admin is not an admin, exit the test, not interesting case */
         /* try to rename the Project as the light admin, either sudoed as normalUser or not */
         final String changedName = "ChangedNameOfLightAdmin";
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
@@ -566,7 +545,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isSudoing and Chgrp privileges cases")
-    public void testChgrp(boolean isAdmin, boolean isSudoing, boolean permChgrp,
+    public void testChgrp(boolean isSudoing, boolean permChgrp,
             String groupPermissions) throws Exception {
         /* Set up a user and three groups, the user being a member of
          * two of the groups.
@@ -582,7 +561,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
          * and is not Sudoing (Sudoing can be thought of as destroyer of the
          * privileges, because it forces the permissions of the Sudoed-as user
          * onto the light admin).*/
-        boolean chgrpNoSudoExpectSuccessAnyGroup = (isAdmin && !isSudoing && permChgrp);
+        boolean chgrpNoSudoExpectSuccessAnyGroup = !isSudoing && permChgrp;
         /* When data owner is member of the target group,
          * Chgrp action passes also when light admin is
          * Sudoed as the data owner */
@@ -612,16 +591,11 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         permissions.add(AdminPrivilegeSudo.value);
         if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);
         final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(isAdmin, permissions);
+        lightAdmin = loginNewAdmin(true, permissions);
         try {
             sudo(new ExperimenterI(normalUser.userId, false));
-                if (!isAdmin) {
-                    Assert.fail("Sudo-permitted non-administrators cannot sudo.");
-                }
             }catch (SecurityViolation sv) {
-                /* sudo expected to fail if the user is not in system group */
             }
-        if (!isAdmin) return; /* do not further test cases where the light admin is not an admin */
         /* take care of workflows which do not use sudo */
         if (!isSudoing) {
             loginUser(lightAdmin);
@@ -686,10 +660,10 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isSudoing and Chown privileges cases")
-    public void testChown(boolean isAdmin, boolean isSudoing, boolean permChown,
+    public void testChown(boolean isSudoing, boolean permChown,
             String groupPermissions) throws Exception {
         /* define the conditions for the chown passing (when not sudoing) */
-        final boolean chownPassingWhenNotSudoing = isAdmin && permChown;
+        final boolean chownPassingWhenNotSudoing = permChown;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         final long anotherUserId = newUserAndGroup(groupPermissions).userId;
         /* create a Dataset as the normalUser and import into it */
@@ -718,16 +692,11 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         if (permChown) permissions.add(AdminPrivilegeChown.value);
 
         final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(isAdmin, permissions);
+        lightAdmin = loginNewAdmin(true, permissions);
         try {
             sudo(new ExperimenterI(normalUser.userId, false));
-                if (!isAdmin) {
-                    Assert.fail("Sudo-permitted non-administrators cannot sudo.");
-                }
             }catch (SecurityViolation sv) {
-                /* sudo expected to fail if the user is not in system group */
         }
-        if (!isAdmin) return; /* do not further test cases where the light admin is not an admin */
         /* take care of workflows which do not use sudo */
         if (!isSudoing) {
             loginUser(lightAdmin);
@@ -785,22 +754,22 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      */
 
     @Test(dataProvider = "WriteOwned, WriteFile, WriteManagedRepo and Chown privileges cases")
-    public void testImporterAsNoSudoChownOnlyWorkflow(boolean isAdmin, boolean permWriteOwned, boolean permWriteFile, boolean permWriteManagedRepo, boolean permChown,
-            String groupPermissions) throws Exception {
+    public void testImporterAsNoSudoChownOnlyWorkflow(boolean permWriteOwned, boolean permWriteFile,
+            boolean permWriteManagedRepo, boolean permChown, String groupPermissions) throws Exception {
         /* define case where the import without any sudo importing into a group
          * the light admin is not a member of is expected to succeed
          */
-        boolean importNotYourGroupExpectSuccess = isAdmin && permWriteOwned && permWriteFile && permWriteManagedRepo;
+        boolean importNotYourGroupExpectSuccess = permWriteOwned && permWriteFile && permWriteManagedRepo;
         /* define case where the creation of a dataset belonging to light admin
          * in the group where light admin is not a member
          * without any sudo is expected to succeed */
-        boolean createDatasetExpectSuccess = isAdmin && permWriteOwned;
+        boolean createDatasetExpectSuccess = permWriteOwned;
         /* define case where the whole workflow is possible (i.e. create
          * dataset, import into it, then chown the dataset with the imported
          * image to the user)
          */
         boolean createDatasetImportNotYourGroupAndChownExpectSuccess =
-                isAdmin && permChown && permWriteManagedRepo && permWriteOwned && permWriteFile;
+                permChown && permWriteManagedRepo && permWriteOwned && permWriteFile;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         /* set up the light admin's permissions for this test */
         List<String> permissions = new ArrayList<String>();
@@ -809,8 +778,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         if (permWriteFile) permissions.add(AdminPrivilegeWriteFile.value);
         if (permWriteManagedRepo) permissions.add(AdminPrivilegeWriteManagedRepo.value);
         final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(isAdmin, permissions);
-        if (!isAdmin) return;
+        lightAdmin = loginNewAdmin(true, permissions);
         /* First create a Dataset in the normalUser's group (you are not 
          * a member of this goup) */
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
@@ -912,12 +880,12 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @throws Exception unexpected
      */
     @Test(dataProvider = "WriteOwned and Chown privileges cases")
-    public void testLinkNoSudo(boolean isAdmin, boolean permWriteOwned, boolean permChown,
+    public void testLinkNoSudo(boolean permWriteOwned, boolean permChown,
             String groupPermissions) throws Exception {
         /* linking should be always permitted as long as light admin is in System Group
          * and has WriteOwned permissions. Exception is Private group, where linking will
          * always fail.*/
-        boolean isExpectLinkingSuccess = isAdmin && permWriteOwned && !(groupPermissions == "rw----");
+        boolean isExpectLinkingSuccess = permWriteOwned && !(groupPermissions == "rw----");
         boolean isExpectSuccessLinkAndChown = isExpectLinkingSuccess && permChown;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         /* set up the light admin's permissions for this test */
@@ -925,9 +893,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         if (permChown) permissions.add(AdminPrivilegeChown.value);
         if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
         final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(isAdmin, permissions);
+        lightAdmin = loginNewAdmin(true, permissions);
         /* create an image, dataset and project as normalUser in a group of the normalUser */
-        if (!isAdmin) return;
         loginUser(normalUser);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         Image image = mmFactory.createImage();
@@ -999,24 +966,22 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
          * @throws Exception unexpected
          */
         @Test(dataProvider = "Chgrp and Chown privileges cases")
-        public void testImporterAsNoSudoChgrpChownWorkflow(boolean isAdmin, boolean permChgrp, boolean permChown,
+        public void testImporterAsNoSudoChgrpChownWorkflow(boolean permChgrp, boolean permChown,
                 String groupPermissions) throws Exception {
         /* importing into the group of the light admin and
          * subsequent moving the data into the group of normalUser and chowning
          * them to the normal user will succeed if Chgrp and Chown is possible,
          * which needs permChgrp, permChown, but not WriteFile and WriteOwned,
          */
-        boolean importYourGroupAndChgrpAndChownExpectSuccess =
-                (isAdmin && permChgrp && permChown);
+        boolean importYourGroupAndChgrpAndChownExpectSuccess = permChgrp && permChown;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         /* set up the light admin's permissions for this test */
         List<String> permissions = new ArrayList<String>();
         if (permChown) permissions.add(AdminPrivilegeChown.value);
         if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);
         final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(isAdmin, permissions);
+        lightAdmin = loginNewAdmin(true, permissions);
         /* Workflow2: import an image as lightAdmin into a group you are a member of */
-        if (!isAdmin) return;
         /* First create a Dataset in your (light admin's) group */
         client.getImplicitContext().put("omero.group", Long.toString(lightAdmin.groupId));
         Dataset dat = mmFactory.simpleDataset();
@@ -1060,7 +1025,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
          * into the default group of the normalUser
          * which should succeed in case the light admin has Chgrp permissions
          */
-        if (isAdmin && permChgrp) {
+        if (permChgrp) {
             doChange(client, factory, Requests.chgrp().target(sentDat).toGroup(normalUser.groupId).build(), true);
 
         } else {
@@ -1079,7 +1044,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         imageGroupId = image.getDetails().getGroup().getId().getValue();
         /* check that the image, dataset, and their link was moved too if the permissions
          * were sufficient */
-        if (isAdmin && permChgrp) {
+        if (permChgrp) {
             Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), normalUser.groupId);
             Assert.assertEquals(imageGroupId, normalUser.groupId);
             Assert.assertEquals(dat.getDetails().getGroup().getId().getValue(), normalUser.groupId);
@@ -1197,10 +1162,9 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isPrivileged cases")
-    public void testChownAllBelongingToUser(boolean isAdmin, boolean isPrivileged,
-            String groupPermissions) throws Exception {
+    public void testChownAllBelongingToUser(boolean isPrivileged, String groupPermissions) throws Exception {
         /* chown is passing in this test with isAdmin and permChown only.*/
-        final boolean chownPassing = isAdmin && isPrivileged;
+        final boolean chownPassing = isPrivileged;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         ExperimenterGroup otherGroup = newGroupAddUser(groupPermissions, normalUser.userId, false);
         final EventContext recipient = newUserInGroup(otherGroup, false);
@@ -1208,10 +1172,9 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeChown.value);
         final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(isAdmin, permissions);
+        lightAdmin = loginNewAdmin(true, permissions);
         /* create two sets of P/D/I hierarchy as normalUser in the default
          * group of the normalUser */
-        if (!isAdmin) return;
         loginUser(normalUser); /* comment out this line in order to let the light admin own the hierarchy */
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         Image image1 = mmFactory.createImage();
@@ -1330,13 +1293,12 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @throws Exception unexpected
      */
     @Test(dataProvider = "WriteOwned and Chown privileges cases")
-    public void testROIAndRenderingSettingsNoSudo(boolean isAdmin, boolean permWriteOwned, boolean permChown,
+    public void testROIAndRenderingSettingsNoSudo(boolean permWriteOwned, boolean permChown,
             String groupPermissions) throws Exception {
         /* creation of rendering settings should be always permitted as long as light admin is in System Group
          * and has WriteOwned permissions. Exception is Private group, where it will
          * always fail.*/
-        if (!isAdmin) return;
-        boolean isExpectSuccessCreateROIRndSettings = isAdmin && permWriteOwned && !(groupPermissions == "rw----") ;
+        boolean isExpectSuccessCreateROIRndSettings = permWriteOwned && !(groupPermissions == "rw----") ;
         /* When attempting to chown ROI without the image the ROI is on in read-only and private groups,
          * the server says that this is not allowed. Unintended behaviour, the bug was filed.
          * The boolean isExpectSuccessCreateAndChownROI had to be adjusted accordingly for this test to pass.
@@ -1357,7 +1319,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
 
         /* login as light admin */
         final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(isAdmin, permissions);
+        lightAdmin = loginNewAdmin(true, permissions);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
 
         /* set the ROI as light admin on the image of the user */
@@ -1445,12 +1407,11 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @throws Exception unexpected
      */
     @Test(dataProvider = "fileAttachment privileges cases")
-    public void testFileAttachmentNoSudo(boolean isAdmin, boolean permChown,
-            boolean permWriteOwned, boolean permWriteFile, String groupPermissions) throws Exception {
+    public void testFileAttachmentNoSudo(boolean permChown, boolean permWriteOwned,
+            boolean permWriteFile, String groupPermissions) throws Exception {
         /* upload/creation of File Attachment should be always permitted as long as light admin is in System Group
          * and has WriteOwned and WriteFile permissions. */
-        if (!isAdmin) return;
-        boolean isExpectSuccessCreateFileAttachment = isAdmin && permWriteOwned && permWriteFile;
+        boolean isExpectSuccessCreateFileAttachment = permWriteOwned && permWriteFile;
         boolean isExpectSuccessLinkFileAttachemnt = isExpectSuccessCreateFileAttachment && !(groupPermissions == "rw----");
         boolean isExpectSuccessCreateFileAttAndChown = isExpectSuccessCreateFileAttachment && permChown;
         boolean isExpectSuccessCreateLinkAndChown = isExpectSuccessLinkFileAttachemnt && permChown;
@@ -1467,7 +1428,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         Image sentImage = (Image) iUpdate.saveAndReturnObject(image);
         /* login as light admin */
         final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(isAdmin, permissions);
+        lightAdmin = loginNewAdmin(true, permissions);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         /* create a file attachment as light admin */
         final OriginalFile originalFile = mmFactory.createOriginalFile();
@@ -1536,18 +1497,16 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isPrivileged cases")
-    public void testOfficialSciptUploadNoSudo(boolean isAdmin, boolean isPrivileged,
-            String groupPermissions) throws Exception {
+    public void testOfficialSciptUploadNoSudo(boolean isPrivileged, String groupPermissions) throws Exception {
         /* upload/creation of File Attachment should be always permitted as long as light admin is in System Group
          * and has WriteOwned and WriteFile permissions. */
-        if (!isAdmin) return;
-        boolean isExpectSuccessUploadOfficialScript = isAdmin && isPrivileged;
+        boolean isExpectSuccessUploadOfficialScript = isPrivileged;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         /* set up the light admin's permissions for this test */
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeWriteScriptRepo.value);
         final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(isAdmin, permissions);
+        lightAdmin = loginNewAdmin(true, permissions);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         IScriptPrx iScript = factory.getScriptService();
         /* fetch a script from the server */
@@ -1590,18 +1549,16 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isPrivileged cases")
-    public void testOfficialScriptDeleteNoSudo(boolean isAdmin, boolean isPrivileged,
-            String groupPermissions) throws Exception {
-        if (!isAdmin) return;
+    public void testOfficialScriptDeleteNoSudo(boolean isPrivileged, String groupPermissions) throws Exception {
         if (groupPermissions.equals("rwrw--")) {
             throw new SkipException("does not work in read-write group");
         }
-        boolean isExpectSuccessDeleteOfficialScript = isAdmin && isPrivileged;
+        boolean isExpectSuccessDeleteOfficialScript = isPrivileged;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeDeleteScriptRepo.value);
         final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(isAdmin, permissions);
+        lightAdmin = loginNewAdmin(true, permissions);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         IScriptPrx iScript = factory.getScriptService();
         /* fetch a script from the server */
@@ -1667,19 +1624,17 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isPrivileged cases")
-    public void testModifyGroupMembershipAddUser(boolean isAdmin, boolean isPrivileged,
-            String groupPermissions) throws Exception {
-        if (!isAdmin) return;
+    public void testModifyGroupMembershipAddUser(boolean isPrivileged, String groupPermissions) throws Exception {
         /* the permModifyGroupMembership should be a sufficient permission to perform
          * the user addition into a group */
-        boolean isExpectSuccessAddUserToGroup = isAdmin && isPrivileged;
+        boolean isExpectSuccessAddUserToGroup = isPrivileged;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         /* one extra group is needed to add the existing normalUser to */
         final EventContext otherUser = newUserAndGroup(groupPermissions);
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeModifyGroupMembership.value);
         final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(isAdmin, permissions);
+        lightAdmin = loginNewAdmin(true, permissions);
         final Experimenter user = new ExperimenterI(normalUser.userId, false);
         final ExperimenterGroup group = new ExperimenterGroupI(otherUser.groupId, false);
         try {
@@ -1700,19 +1655,18 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isPrivileged cases")
-    public void testModifyGroupMembershipRemoveUser(boolean isAdmin, boolean isPrivileged,
+    public void testModifyGroupMembershipRemoveUser(boolean isPrivileged,
             String groupPermissions) throws Exception {
-        if (!isAdmin) return;
         /* the permModifyGroupMembership should be a sufficient permission to perform
          * the user removal from a group */
-        boolean isExpectSuccessRemoveUserFromGroup = isAdmin && isPrivileged;
+        boolean isExpectSuccessRemoveUserFromGroup = isPrivileged;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         /* one extra group is needed which the normalUser is also a member of */
         final ExperimenterGroup otherGroup = newGroupAddUser("rwr-r-", normalUser.userId);
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeModifyGroupMembership.value);
         final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(isAdmin, permissions);
+        lightAdmin = loginNewAdmin(true, permissions);
         final Experimenter user = new ExperimenterI(normalUser.userId, false);
         try {
             iAdmin.removeGroups(user, Collections.singletonList(otherGroup));
@@ -1731,17 +1685,15 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isPrivileged cases")
-    public void testModifyGroupMembershipMakeOwner(boolean isAdmin, boolean isPrivileged,
-            String groupPermissions) throws Exception {
-        if (!isAdmin) return;
+    public void testModifyGroupMembershipMakeOwner(boolean isPrivileged, String groupPermissions) throws Exception {
         /* the permModifyGroupMembership should be a sufficient permission to perform
          * the setting of a new group owner */
-        boolean isExpectSuccessMakeOwnerOfGroup= isAdmin && isPrivileged;
+        boolean isExpectSuccessMakeOwnerOfGroup= isPrivileged;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeModifyGroupMembership.value);
         final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(isAdmin, permissions);
+        lightAdmin = loginNewAdmin(true, permissions);
         final Experimenter user = new ExperimenterI(normalUser.userId, false);
         final ExperimenterGroup group = new ExperimenterGroupI(normalUser.groupId, false);
         try {
@@ -1761,19 +1713,18 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isPrivileged cases")
-    public void testModifyGroupMembershipUnsetOwner(boolean isAdmin, boolean isPrivileged,
+    public void testModifyGroupMembershipUnsetOwner(boolean isPrivileged,
             String groupPermissions) throws Exception {
-        if (!isAdmin) return;
         /* the permModifyGroupMembership should be a sufficient permission to perform
          * the unsetting of a new group owner */
-        boolean isExpectSuccessUnsetOwnerOfGroup= isAdmin && isPrivileged;
+        boolean isExpectSuccessUnsetOwnerOfGroup= isPrivileged;
         /* set up the normalUser and make him an Owner by passing "true" in the
          * newUserAndGroup method argument */
         final EventContext normalUser = newUserAndGroup(groupPermissions, true);
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeModifyGroupMembership.value);
         final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(isAdmin, permissions);
+        lightAdmin = loginNewAdmin(true, permissions);
         final Experimenter user = new ExperimenterI(normalUser.userId, false);
         final ExperimenterGroup group = new ExperimenterGroupI(normalUser.groupId, false);
         try {
@@ -1799,17 +1750,16 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isPrivileged cases")
-    public void testModifyUserCreate(boolean isAdmin, boolean isPrivileged,
+    public void testModifyUserCreate(boolean isPrivileged,
             String groupPermissions) throws Exception {
-        if (!isAdmin) return;
         /* the permModifyUser should be a sufficient permission to perform
          * the creation of a new user */
-        boolean isExpectSuccessCreateUser= isAdmin && isPrivileged;
+        boolean isExpectSuccessCreateUser= isPrivileged;
         final long newGroupId = newUserAndGroup(groupPermissions).groupId;
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeModifyUser.value);
         final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(isAdmin, permissions);
+        lightAdmin = loginNewAdmin(true, permissions);
         final Experimenter newUser = new ExperimenterI();
         newUser.setOmeName(omero.rtypes.rstring(UUID.randomUUID().toString()));
         newUser.setFirstName(omero.rtypes.rstring("August"));
@@ -1834,17 +1784,16 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isPrivileged cases")
-    public void testModifyUserEdit(boolean isAdmin, boolean isPrivileged,
+    public void testModifyUserEdit(boolean isPrivileged,
             String groupPermissions) throws Exception {
-        if (!isAdmin) return;
         /* the permModifyUser should be a sufficient permission to perform
          * the editing of a user */
-        boolean isExpectSuccessEditUser= isAdmin && isPrivileged;
+        boolean isExpectSuccessEditUser= isPrivileged;
         final long newUserId = newUserAndGroup(groupPermissions).userId;
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeModifyUser.value);
         final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(isAdmin, permissions);
+        lightAdmin = loginNewAdmin(true, permissions);
         final Experimenter newUser = (Experimenter) iQuery.get("Experimenter", newUserId);
         newUser.setConfig(ImmutableList.of(new NamedValue("color", "green")));
         try {
@@ -1864,12 +1813,11 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isPrivileged cases")
-    public void testModifyGroupCreate(boolean isAdmin, boolean isPrivileged,
+    public void testModifyGroupCreate(boolean isPrivileged,
             String groupPermissions) throws Exception {
-        if (!isAdmin) return;
         /* the permModifyGroup should be a sufficient permission to perform
          * a group creation */
-        boolean isExpectSuccessCreateGroup = isAdmin && isPrivileged;
+        boolean isExpectSuccessCreateGroup = isPrivileged;
         final ExperimenterGroup newGroup = new ExperimenterGroupI();
         newGroup.setLdap(omero.rtypes.rbool(false));
         newGroup.setName(omero.rtypes.rstring(UUID.randomUUID().toString()));
@@ -1878,7 +1826,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeModifyGroup.value);
         final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(isAdmin, permissions);
+        lightAdmin = loginNewAdmin(true, permissions);
         try {
             iAdmin.createGroup(newGroup);
             Assert.assertTrue(isExpectSuccessCreateGroup);
@@ -1896,12 +1844,11 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isPrivileged cases")
-    public void testModifyGroupEdit(boolean isAdmin, boolean isPrivileged,
+    public void testModifyGroupEdit(boolean isPrivileged,
             String groupPermissions) throws Exception {
-        if (!isAdmin) return;
         /* the permModifyGroup should be a sufficient permission to perform
          * group editing */
-        boolean isExpectSuccessEditGroup = isAdmin && isPrivileged;
+        boolean isExpectSuccessEditGroup = isPrivileged;
         /* set up the new group as Read-Write as the downgrade (edit) to all group
          * types by the light admin will be tested later in the test */
         final long newGroupId = newUserAndGroup("rwrw--").groupId;
@@ -1909,7 +1856,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeModifyGroup.value);
         final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(isAdmin, permissions);
+        lightAdmin = loginNewAdmin(true, permissions);
         /* light admin will downgrade the group to all possible permission levels and
          * also will edit the ldap settings */
         final ExperimenterGroup newGroup = (ExperimenterGroup) iQuery.get("ExperimenterGroup", newGroupId);
@@ -1929,7 +1876,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     @DataProvider(name = "fileAttachment privileges cases")
     public Object[][] provideFileAttachmentPrivilegesCases() {
         int index = 0;
-        final int IS_ADMIN = index++;
         final int PERM_CHOWN = index++;
         final int PERM_WRITEOWNED = index++;
         final int PERM_WRITEFILE = index++;
@@ -1939,13 +1885,11 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
         final List<Object[]> testCases = new ArrayList<Object[]>();
 
-        for (final boolean isAdmin : booleanCases) {
             for (final boolean permChown : booleanCases) {
                 for (final boolean permWriteOwned : booleanCases) {
                     for (final boolean permWriteFile : booleanCases) {
                         for (final String groupPerms : permsCases) {
                             final Object[] testCase = new Object[index];
-                            testCase[IS_ADMIN] = isAdmin;
                             testCase[PERM_CHOWN] = permChown;
                             testCase[PERM_WRITEOWNED] = permWriteOwned;
                             testCase[PERM_WRITEFILE] = permWriteFile;
@@ -1956,7 +1900,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                     }
                 }
             }
-        }
         return testCases.toArray(new Object[testCases.size()][]);
     }
 
@@ -1966,7 +1909,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     @DataProvider(name = "isSudoing and WriteOwned privileges cases")
     public Object[][] provideIsSudoingAndWriteOwned() {
         int index = 0;
-        final int IS_ADMIN = index++;
         final int IS_SUDOING = index++;
         final int PERM_WRITEOWNED = index++;
         final int GROUP_PERMS = index++;
@@ -1975,7 +1917,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
         final List<Object[]> testCases = new ArrayList<Object[]>();
 
-        for (final boolean isAdmin : booleanCases) {
             for (final boolean isSudoing : booleanCases) {
                 for (final boolean permWriteOwned : booleanCases) {
                     for (final String groupPerms : permsCases) {
@@ -1983,7 +1924,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                         if (isSudoing && permWriteOwned)
                             /* not an interesting case */
                             continue;
-                        testCase[IS_ADMIN] = isAdmin;
                         testCase[IS_SUDOING] = isSudoing;
                         testCase[PERM_WRITEOWNED] = permWriteOwned;
                         testCase[GROUP_PERMS] = groupPerms;
@@ -1992,7 +1932,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                     }
                 }
             }
-        }
         return testCases.toArray(new Object[testCases.size()][]);
     }
 
@@ -2002,7 +1941,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     @DataProvider(name = "isSudoing and Delete privileges cases")
     public Object[][] provideIsSudoingAndDeleteOwned() {
         int index = 0;
-        final int IS_ADMIN = index++;
         final int IS_SUDOING = index++;
         final int PERM_DELETEOWNED = index++;
         final int GROUP_PERMS = index++;
@@ -2011,7 +1949,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
         final List<Object[]> testCases = new ArrayList<Object[]>();
 
-        for (final boolean isAdmin : booleanCases) {
             for (final boolean isSudoing : booleanCases) {
                 for (final boolean permDeleteOwned : booleanCases) {
                     for (final String groupPerms : permsCases) {
@@ -2019,7 +1956,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                         if (isSudoing && permDeleteOwned)
                             /* not an interesting case */
                             continue;
-                        testCase[IS_ADMIN] = isAdmin;
                         testCase[IS_SUDOING] = isSudoing;
                         testCase[PERM_DELETEOWNED] = permDeleteOwned;
                         testCase[GROUP_PERMS] = groupPerms;
@@ -2028,7 +1964,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                     }
                 }
             }
-        }
         return testCases.toArray(new Object[testCases.size()][]);
     }
 
@@ -2038,7 +1973,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     @DataProvider(name = "isSudoing and Chgrp privileges cases")
     public Object[][] provideIsSudoingAndChgrpOwned() {
         int index = 0;
-        final int IS_ADMIN = index++;
         final int IS_SUDOING = index++;
         final int PERM_CHGRP = index++;
         final int GROUP_PERMS = index++;
@@ -2047,7 +1981,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
         final List<Object[]> testCases = new ArrayList<Object[]>();
 
-        for (final boolean isAdmin : booleanCases) {
             for (final boolean isSudoing : booleanCases) {
                 for (final boolean permChgrp : booleanCases) {
                     for (final String groupPerms : permsCases) {
@@ -2055,7 +1988,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                         /* no test cases are excluded here, because isSudoing
                          * is in a sense acting to annule Chgrp permission
                          * which is tested in the testChgrp and is an interesting case.*/
-                        testCase[IS_ADMIN] = isAdmin;
                         testCase[IS_SUDOING] = isSudoing;
                         testCase[PERM_CHGRP] = permChgrp;
                         testCase[GROUP_PERMS] = groupPerms;
@@ -2064,7 +1996,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                     }
                 }
             }
-        }
         return testCases.toArray(new Object[testCases.size()][]);
     }
 
@@ -2074,7 +2005,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     @DataProvider(name = "isSudoing and Chown privileges cases")
     public Object[][] provideIsSudoingAndChown() {
         int index = 0;
-        final int IS_ADMIN = index++;
         final int IS_SUDOING = index++;
         final int PERM_CHOWN = index++;
         final int GROUP_PERMS = index++;
@@ -2083,7 +2013,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
         final List<Object[]> testCases = new ArrayList<Object[]>();
 
-        for (final boolean isAdmin : booleanCases) {
             for (final boolean isSudoing : booleanCases) {
                 for (final boolean permChown : booleanCases) {
                     for (final String groupPerms : permsCases) {
@@ -2091,7 +2020,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                         /* no test cases are excluded here, because isSudoing
                          * is in a sense acting to annule Chown permission
                          * which is tested in the testChown and is an interesting case.*/
-                        testCase[IS_ADMIN] = isAdmin;
                         testCase[IS_SUDOING] = isSudoing;
                         testCase[PERM_CHOWN] = permChown;
                         testCase[GROUP_PERMS] = groupPerms;
@@ -2100,7 +2028,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                     }
                 }
             }
-        }
         return testCases.toArray(new Object[testCases.size()][]);
     }
 
@@ -2111,7 +2038,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     @DataProvider(name = "WriteOwned, WriteFile, WriteManagedRepo and Chown privileges cases")
     public Object[][] provideWriteOwnedWriteFileWriteManagedRepoAndChown() {
         int index = 0;
-        final int IS_ADMIN = index++;
         final int PERM_WRITEOWNED = index++;
         final int PERM_WRITEFILE = index++;
         final int PERM_WRITEMANAGEDREPO = index++;
@@ -2122,7 +2048,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
         final List<Object[]> testCases = new ArrayList<Object[]>();
 
-        for (final boolean isAdmin : booleanCases) {
             for (final boolean permWriteOwned : booleanCases) {
                 for (final boolean permWriteFile : booleanCases) {
                     for (final boolean permWriteManagedRepo : booleanCases) {
@@ -2138,7 +2063,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                                 if (!permWriteOwned && !permWriteFile && !permWriteManagedRepo)
                                     /* not an interesting case */
                                     continue;
-                                testCase[IS_ADMIN] = isAdmin;
                                 testCase[PERM_WRITEOWNED] = permWriteOwned;
                                 testCase[PERM_WRITEFILE] = permWriteFile;
                                 testCase[PERM_WRITEMANAGEDREPO] = permWriteManagedRepo;
@@ -2151,7 +2075,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                     }
                 }
             }
-        }
         return testCases.toArray(new Object[testCases.size()][]);
     }
 
@@ -2162,7 +2085,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     @DataProvider(name = "WriteOwned and Chown privileges cases")
     public Object[][] provideWriteOwnedAndChown() {
         int index = 0;
-        final int IS_ADMIN = index++;
         final int PERM_WRITEOWNED = index++;
         final int PERM_CHOWN = index++;
         final int GROUP_PERMS = index++;
@@ -2171,7 +2093,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
         final List<Object[]> testCases = new ArrayList<Object[]>();
 
-        for (final boolean isAdmin : booleanCases) {
             for (final boolean permWriteOwned : booleanCases) {
                 for (final boolean permChown : booleanCases) {
                     for (final String groupPerms : permsCases) {
@@ -2179,7 +2100,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                         if (!permWriteOwned && !permChown)
                             /* not an interesting case */
                             continue;
-                        testCase[IS_ADMIN] = isAdmin;
                         testCase[PERM_WRITEOWNED] = permWriteOwned;
                         testCase[PERM_CHOWN] = permChown;
                         testCase[GROUP_PERMS] = groupPerms;
@@ -2188,7 +2108,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                     }
                 }
             }
-        }
         return testCases.toArray(new Object[testCases.size()][]);
     }
 
@@ -2198,7 +2117,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     @DataProvider(name = "Chgrp and Chown privileges cases")
     public Object[][] provideChgrpAndChown() {
         int index = 0;
-        final int IS_ADMIN = index++;
         final int PERM_CHGRP = index++;
         final int PERM_CHOWN = index++;
         final int GROUP_PERMS = index++;
@@ -2207,7 +2125,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
         final List<Object[]> testCases = new ArrayList<Object[]>();
 
-        for (final boolean isAdmin : booleanCases) {
             for (final boolean permChgrp : booleanCases) {
                 for (final boolean permChown : booleanCases) {
                     for (final String groupPerms : permsCases) {
@@ -2216,7 +2133,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                          * and Chown are two separate steps which can work
                          * independently on each other and both are tested
                          * in the test.*/
-                        testCase[IS_ADMIN] = isAdmin;
                         testCase[PERM_CHGRP] = permChgrp;
                         testCase[PERM_CHOWN] = permChown;
                         testCase[GROUP_PERMS] = groupPerms;
@@ -2225,7 +2141,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                     }
                 }
             }
-        }
         return testCases.toArray(new Object[testCases.size()][]);
     }
 
@@ -2237,7 +2152,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     @DataProvider(name = "isPrivileged cases")
     public Object[][] provideIsPrivilegesCases() {
         int index = 0;
-        final int IS_ADMIN = index++;
         final int IS_PRIVILEGED = index++;
         final int GROUP_PERMS = index++;
 
@@ -2245,18 +2159,15 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
         final List<Object[]> testCases = new ArrayList<Object[]>();
 
-        for (final boolean isAdmin : booleanCases) {
             for (final boolean isPrivileged : booleanCases) {
                 for (final String groupPerms : permsCases) {
                     final Object[] testCase = new Object[index];
-                    testCase[IS_ADMIN] = isAdmin;
                     testCase[IS_PRIVILEGED] = isPrivileged;
                     testCase[GROUP_PERMS] = groupPerms;
                     // DEBUG  if (isAdmin == false && isRestricted == true && isSudo == false)
                     testCases.add(testCase);
                 }
             }
-        }
         return testCases.toArray(new Object[testCases.size()][]);
     }
 }
