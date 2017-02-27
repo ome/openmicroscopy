@@ -283,7 +283,7 @@ class PlateView(ObjectView):
                 version = kwargs['api_version']
                 extra = {'plate_id': marshalled['@id'],
                          'index': ws_index}
-                url = build_url(request, 'api_plate_index_wells',
+                url = build_url(request, 'api_plate_wellsampleindex_wells',
                                 version, **extra)
                 ws_urls.append(url)
         marshalled['url:wellsampleindex_wells'] = ws_urls
@@ -310,7 +310,8 @@ class PlateAcquisitionView(ObjectView):
             version = kwargs['api_version']
             extra = {'plateacquisition_id': marshalled['@id'],
                      'index': ws_index}
-            url = build_url(request, 'api_plateacquisition_index_wells',
+            url = build_url(request,
+                            'api_plateacquisition_wellsampleindex_wells',
                             version, **extra)
             ws_urls.append(url)
         marshalled['url:wellsampleindex_wells'] = ws_urls
@@ -547,7 +548,8 @@ class PlateAcquisitionsView(ObjectsView):
             version = kwargs['api_version']
             extra = {'plateacquisition_id': marshalled['@id'],
                      'index': ws_index}
-            url = build_url(request, 'api_plateacquisition_index_wells',
+            url = build_url(request,
+                            'api_plateacquisition_wellsampleindex_wells',
                             version, **extra)
             ws_urls.append(url)
         marshalled['url:wellsampleindex_wells'] = ws_urls

@@ -194,22 +194,22 @@ api_plateacquisition = url(
 Well url to GET or DELETE a single Well
 """
 
-api_plateacquisition_index_wells = url(
+api_plateacquisition_wellsampleindex_wells = url(
     r'^v(?P<api_version>%s)/m/plateacquisitions/'
     '(?P<plateacquisition_id>[0-9]+)/wellsampleindex/'
     '(?P<index>[0-9]+)/wells/$' % versions,
     views.WellsView.as_view(),
-    name='api_plateacquisition_index_wells')
+    name='api_plateacquisition_wellsampleindex_wells')
 """
 GET Wells from a single Index in PlateAcquisition
 """
 
-api_plate_index_wells = url(
+api_plate_wellsampleindex_wells = url(
     r'^v(?P<api_version>%s)/m/plates/'
     '(?P<plate_id>[0-9]+)/wellsampleindex/'
     '(?P<index>[0-9]+)/wells/$' % versions,
     views.WellsView.as_view(),
-    name='api_plate_index_wells')
+    name='api_plate_wellsampleindex_wells')
 """
 GET Wells from a single Index in Plate
 """
@@ -264,8 +264,8 @@ urlpatterns = patterns(
     api_wells,
     api_plate_plateacquisitions,
     api_plateacquisition,
-    api_plateacquisition_index_wells,
-    api_plate_index_wells,
+    api_plateacquisition_wellsampleindex_wells,
+    api_plate_wellsampleindex_wells,
     api_plate_wells,
     api_plateacquisition_wells,
     api_well,

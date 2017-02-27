@@ -258,7 +258,7 @@ class TestWells(IWebTest):
         plate = conn.getObject('Plate', plate_id)
         idx = plate.getNumberOfFields()
         for i in range(idx[0], idx[1]+1):
-            l = build_url(client, 'api_plate_index_wells',
+            l = build_url(client, 'api_plate_wellsampleindex_wells',
                           {'api_version': version,
                            'plate_id': plate_id,
                            'index': i})
@@ -283,7 +283,8 @@ class TestWells(IWebTest):
         for p, plate_acq in enumerate(pas):
             index_links = []
             for i in range(p * 3, (p + 1) * 3):
-                l = build_url(client, 'api_plateacquisition_index_wells',
+                l = build_url(client,
+                              'api_plateacquisition_wellsampleindex_wells',
                               {'api_version': version,
                                'plateacquisition_id': plate_acq.id,
                                'index': i})

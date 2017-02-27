@@ -462,7 +462,7 @@ class TestContainers(IWebTest):
         minMaxIndex = [0, 0]
         links = []
         for idx in range(minMaxIndex[0], minMaxIndex[1]+1):
-            l = build_url(client, 'api_plate_index_wells',
+            l = build_url(client, 'api_plate_wellsampleindex_wells',
                           {'api_version': version,
                            'plate_id': plate_json['@id'],
                            'index': idx})
