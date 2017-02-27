@@ -301,7 +301,7 @@ class ITest(object):
     def import_fake_file(self, images_count=1, name=None, client=None,
                          with_companion=False, skip="all", **kwargs):
         """
-        Creates a fake file with a seriesCount of images, imports
+        Creates a fake file with an images_count of images, imports
         the file and then return the list of images.
         By default a single image is imported.
         """
