@@ -237,19 +237,19 @@ public class ROIs
             long id = shape.getId();
             if (shape instanceof RectangleData) {
                 RectangleData rectangleData1 = (RectangleData) shape;
-                //Handle rectangle
+                //Insert code to Handle rectangle
             } else if (shape instanceof EllipseData) {
                 EllipseData ellipseData1 = (EllipseData) shape;
-                //Handle ellipse
+                //Insert code to Handle ellipse
             } else if (shape instanceof LineData) {
                 LineData lineData1 = (LineData) shape;
-                //Handle line
+                //Insert code to Handle line
             } else if (shape instanceof PointData) {
                 PointData pointData1 = (PointData) shape;
-                //Handle line
+                //Insert code to Handle line
             } else if (shape instanceof MaskData) {
                 MaskData maskData1 = (MaskData) shape;
-                //Handle mask
+                //Insert code to Handle mask
             }
             //Check if the shape has transform
             //http://blog.openmicroscopy.org/data-model/future-plans/2016/06/20/shape-transforms/
@@ -263,7 +263,7 @@ public class ROIs
                 double yScaling = transform.getA11().getValue();
                 double yShearing = transform.getA10().getValue();
                 double yTranslation = transform.getA12().getValue();
-                // Handle transforms
+                // Insert code to Handle transforms
             }
         }
 
