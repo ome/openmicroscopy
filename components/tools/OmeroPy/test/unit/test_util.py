@@ -40,6 +40,7 @@ except ImportError:
     import Image
 import numpy
 
+
 class MockTable(object):
 
     def __init__(self, names, data, csvheaders, csvrows, sqlheaders, sqlrows,
