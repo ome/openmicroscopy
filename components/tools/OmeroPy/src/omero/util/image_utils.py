@@ -188,18 +188,18 @@ def paint_thumbnail_grid(thumbnail_store, length, spacing, pixel_ids,
     return canvas
 
 
-def rgbint_to_rgba(rgb):
+def int_to_rgba(rgba):
     """
     Returns a tuple of (r,g,b,a) from an integer color
     r, g, b, a are 0-255.
 
-    @param rgb:		A color as integer. Int
+    @param rgba:		A color as integer. Int
     @return:		A tuple of (r,g,b,a)
     """
-    r = check_rgb_range((rgb >> 16) & 0xFF)
-    g = check_rgb_range((rgb >> 8) & 0xFF)
-    b = check_rgb_range((rgb >> 0) & 0xFF)
-    a = check_rgb_range((rgb >> 24) & 0xFF)
+    a = check_rgb_range(rgba % 256)
+    b = check_rgb_range(rgba / 256 % 256)
+    g = check_rgb_range(rgba / 256 / 256 % 256)
+    r = check_rgb_range(rgba / 256 / 256 / 256 % 256)
     if a == 0:
         a = 255
     return (r, g, b, a)
