@@ -251,7 +251,7 @@ $(function() {
         if (node) {
             if (node.type === 'image') {
                 //Open the image viewer for this image
-                OME.openPopup(WEBCLIENT.URLS.webindex + "img_detail/" + node.data.obj.id);
+                window.open(WEBCLIENT.URLS.webindex + "img_detail/" + node.data.obj.id, '_blank');
             }
         }
     })
@@ -1041,12 +1041,7 @@ $(function() {
                                     url = v.getUrl(selJson, v.url);
                                 }
                                 // ...otherwise we use default handling...
-                                if (v.target) {
-                                    // E.g. target '_blank' tries to open in a new tab
-                                    window.open(url, v.target);
-                                } else {
-                                    OME.openPopup(url);
-                                }
+                                window.open(url, '_blank');
                             },
                             "_disabled": function() {
                                 var sel = $.jstree.reference('#dataTree').get_selected(true),

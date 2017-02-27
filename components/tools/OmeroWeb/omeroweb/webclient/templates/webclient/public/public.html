@@ -156,7 +156,7 @@
                             popup_url += "img_detail/" + node.data.obj.id ;
                         }
                         //Open the image viewer for this image
-                        OME.openPopup(popup_url);
+                        window.open(popup_url, '_blank');
                     }
                 }
             })
