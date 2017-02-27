@@ -19,6 +19,7 @@ from omero.rtypes import rtime, rlong, rlist, rint
 from omero.gateway import BlitzGateway
 
 from test.integration.helpers import createTestImage
+import warnings
 
 
 class TestIShare(ITest):
@@ -36,6 +37,8 @@ class TestIShare(ITest):
         :param experimenters: a list of users associated with the share
         :param client: The client to use to create the share
         """
+        warnings.warn(
+            "create_share is deprecated as of OMERO 5.3.0", DeprecationWarning)
         if client is None:
             client = cls.client
         share = client.sf.getShareService()
