@@ -38,7 +38,6 @@ import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
-import omero.gateway.facility.BrowseFacility;
 import omero.gateway.facility.DataManagerFacility;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.ImageData;
@@ -64,9 +63,6 @@ public class HowToUseTables
     private static String password = "password";
     //end edit
 
-    /** The id of an image.*/
-    private static long imageID = 1;
-
     /** The image.*/
     private ImageData image;
 
@@ -91,18 +87,6 @@ public class HowToUseTables
         newColumns[1] = new LongColumn("MyLongColumn", "", 
                 new long[rows]);
         return newColumns;
-    }
-
-    /**
-     * Loads the image.
-     * @param imageID The id of the image to load.
-     * @return See above.
-     */
-    private ImageData loadImage(long imageID)
-            throws Exception
-    {
-        BrowseFacility browse = gateway.getFacility(BrowseFacility.class);
-        return browse.getImage(ctx, imageID);
     }
 
 // Create table
@@ -198,8 +182,9 @@ public class HowToUseTables
      * Connects and invokes the various methods.
      *
      * @param args The login credentials.
+     * @param imageId omero Image ID.
      */
-    HowToUseTables(String[] args)
+    HowToUseTables(String[] args, long imageId)
     {
         LoginCredentials cred = new LoginCredentials(args);
         gateway = new Gateway(new SimpleLogger());
@@ -228,8 +213,9 @@ public class HowToUseTables
         if (args == null || args.length == 0)
             args = new String[] { "--omero.host=" + hostName,
                 "--omero.user=" + userName, "--omero.pass=" + password };
-
-        new HowToUseTables(args);
+        
+        // Edit image Id if you want to use a custom imageId instead of the configuration option
+        new HowToUseTables(args, 1);
         System.exit(0);
     }
 
