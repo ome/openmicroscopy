@@ -1924,56 +1924,15 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     }
 
     /**
-     * @return test cases for adding the privileges combined with isAdmin cases
-     */
-    @DataProvider(name = "6 privileges cases")
-    public Object[][] provide6CombinedPrivilegesCases() {
-        int index = 0;
-        final int IS_ADMIN = index++;
-        final int IS_SUDOING = index++;
-        final int PERM_ADDITIONAL = index++;
-        final int PERM_ADDITIONAL2 = index++;
-        final int PERM_ADDITIONAL3 = index++;
-        final int GROUP_PERMS = index++;
-
-        final boolean[] booleanCases = new boolean[]{false, true};
-        final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
-        final List<Object[]> testCases = new ArrayList<Object[]>();
-
-        for (final boolean isAdmin : booleanCases) {
-            for (final boolean isSudoing : booleanCases) {
-                for (final boolean permAdditional : booleanCases) {
-                    for (final boolean permAdditional2 : booleanCases) {
-                        for (final boolean permAdditional3 : booleanCases) {
-                            for (final String groupPerms : permsCases) {
-                                final Object[] testCase = new Object[index];
-                                testCase[IS_ADMIN] = isAdmin;
-                                testCase[IS_SUDOING] = isSudoing;
-                                testCase[PERM_ADDITIONAL] = permAdditional;
-                                testCase[PERM_ADDITIONAL2] = permAdditional2;
-                                testCase[PERM_ADDITIONAL3] = permAdditional3;
-                                testCase[GROUP_PERMS] = groupPerms;
-                                // DEBUG  if (isAdmin == false && isRestricted == true && isSudo == false)
-                                testCases.add(testCase);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return testCases.toArray(new Object[testCases.size()][]);
-    }
-
-    /**
-     * @return test cases for adding the privileges combined with isAdmin cases
+     * @return test cases for File Attachment workflow testFileAttachmentNoSudo
      */
     @DataProvider(name = "fileAttachment privileges cases")
     public Object[][] provideFileAttachmentPrivilegesCases() {
         int index = 0;
         final int IS_ADMIN = index++;
-        final int PERM_ADDITIONAL = index++;
-        final int PERM_ADDITIONAL2 = index++;
-        final int PERM_ADDITIONAL3 = index++;
+        final int PERM_CHOWN = index++;
+        final int PERM_WRITEOWNED = index++;
+        final int PERM_WRITEFILE = index++;
         final int GROUP_PERMS = index++;
 
         final boolean[] booleanCases = new boolean[]{false, true};
@@ -1981,15 +1940,15 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         final List<Object[]> testCases = new ArrayList<Object[]>();
 
         for (final boolean isAdmin : booleanCases) {
-            for (final boolean permAdditional : booleanCases) {
-                for (final boolean permAdditional2 : booleanCases) {
-                    for (final boolean permAdditional3 : booleanCases) {
+            for (final boolean permChown : booleanCases) {
+                for (final boolean permWriteOwned : booleanCases) {
+                    for (final boolean permWriteFile : booleanCases) {
                         for (final String groupPerms : permsCases) {
                             final Object[] testCase = new Object[index];
                             testCase[IS_ADMIN] = isAdmin;
-                            testCase[PERM_ADDITIONAL] = permAdditional;
-                            testCase[PERM_ADDITIONAL2] = permAdditional2;
-                            testCase[PERM_ADDITIONAL3] = permAdditional3;
+                            testCase[PERM_CHOWN] = permChown;
+                            testCase[PERM_WRITEOWNED] = permWriteOwned;
+                            testCase[PERM_WRITEFILE] = permWriteFile;
                             testCase[GROUP_PERMS] = groupPerms;
                             //DEBUG if (isAdmin == true && permAdditional == true && permAdditional2 == true && permAdditional3 == true)
                             testCases.add(testCase);
@@ -2002,40 +1961,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     }
 
     /**
-     * @return narrowed test cases for adding the privileges combined with isAdmin cases
-     */
-    @DataProvider(name = "narrowed combined privileges cases")
-    public Object[][] provideNarrowedCombinedPrivilegesCases() {
-        int index = 0;
-        final int IS_ADMIN = index++;
-        final int IS_SUDOING = index++;
-        final int PERM_ADDITIONAL = index++;
-        final int GROUP_PERMS = index++;
-
-        final boolean[] booleanCases = new boolean[]{false, true};
-        final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
-        final List<Object[]> testCases = new ArrayList<Object[]>();
-
-        for (final boolean isAdmin : booleanCases) {
-            for (final boolean isSudoing : booleanCases) {
-                for (final boolean permAdditional : booleanCases) {
-                    for (final String groupPerms : permsCases) {
-                        final Object[] testCase = new Object[index];
-                        testCase[IS_ADMIN] = isAdmin;
-                        testCase[IS_SUDOING] = isSudoing;
-                        testCase[PERM_ADDITIONAL] = permAdditional;
-                        testCase[GROUP_PERMS] = groupPerms;
-                        // DEBUG  if (isAdmin == false && isRestricted == true && isSudo == false)
-                        testCases.add(testCase);
-                    }
-                }
-            }
-        }
-        return testCases.toArray(new Object[testCases.size()][]);
-    }
-
-    /**
-     * @return narrowed test cases for adding the privileges combined with isAdmin cases
+     * @return test cases for testCreateLinkImportSudo and testEdit
      */
     @DataProvider(name = "isSudoing and WriteOwned privileges cases")
     public Object[][] provideIsSudoingAndWriteOwned() {
@@ -2071,7 +1997,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     }
 
     /**
-     * @return narrowed test cases for adding the privileges combined with isAdmin cases
+     * @return test cases for testDelete
      */
     @DataProvider(name = "isSudoing and Delete privileges cases")
     public Object[][] provideIsSudoingAndDeleteOwned() {
@@ -2107,8 +2033,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     }
 
     /**
-     * @return isSudoing and Chgrp test cases for adding the privileges combined with
-     * groupPermission cases
+     * @return isSudoing and Chgrp test cases for testChgrp
      */
     @DataProvider(name = "isSudoing and Chgrp privileges cases")
     public Object[][] provideIsSudoingAndChgrpOwned() {
@@ -2144,7 +2069,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     }
 
     /**
-     * @return narrowed test cases for adding the privileges combined with isAdmin cases
+     * @return isSudoing and Chgrp test cases for testChown
      */
     @DataProvider(name = "isSudoing and Chown privileges cases")
     public Object[][] provideIsSudoingAndChown() {
@@ -2181,7 +2106,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
 
     /**
      * @return provide WriteOwned, WriteFile, WriteManagedRepo and Chown cases
-     * combined with group Permissions
+     * for testImporterAsNoSudoChownOnly
      */
     @DataProvider(name = "WriteOwned, WriteFile, WriteManagedRepo and Chown privileges cases")
     public Object[][] provideWriteOwnedWriteFileWriteManagedRepoAndChown() {
@@ -2231,7 +2156,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     }
 
     /**
-     * @return WriteOwned and Chown test cases combined with groupPermissions
+     * @return WriteOwned and Chown test cases for
+     * testLinkNoSudo and testROIAndRenderingSettingsNoSudo
      */
     @DataProvider(name = "WriteOwned and Chown privileges cases")
     public Object[][] provideWriteOwnedAndChown() {
@@ -2267,7 +2193,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     }
 
     /**
-     * @return Chgrp and Chown test cases combined with groupPermissions
+     * @return Chgrp and Chown test cases for testImporterAsNoSudoChgrpChown
      */
     @DataProvider(name = "Chgrp and Chown privileges cases")
     public Object[][] provideChgrpAndChown() {
@@ -2305,7 +2231,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
 
     /**
      * @return isPrivileged test cases. The isPrivileged parameter translates into one
-     * tested privilege in particular tests and combines them with group permissions
+     * tested privilege in particular tests (for example in testScriptUpload isPrivileged
+     * concerns WriteScriptRepo privilege specifically)
      */
     @DataProvider(name = "isPrivileged cases")
     public Object[][] provideIsPrivilegesCases() {
