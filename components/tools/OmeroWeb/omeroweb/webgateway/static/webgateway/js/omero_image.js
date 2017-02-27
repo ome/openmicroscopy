@@ -46,7 +46,8 @@
             }
             // only pick what we need
             var pasteData = {'c': data.c,
-                'm': data.m};
+                'm': data.m,
+                'maps': data.maps};
             viewport.setQuery(pasteData);
             viewport.doload();        // loads image
             syncRDCW(viewport);       // update rdef table
@@ -98,7 +99,7 @@
             function(success, rv) {
                 $(obj).html(old).prop('disabled', false);
                 if (!(success && rv)) {
-                    alert('Setting image defaults failed.');
+                    alert('Setting image defaults failed. Success: ' + success + ' Response: ' + rv);
                 }
                 if (callback) {
                     callback();
