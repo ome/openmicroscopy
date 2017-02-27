@@ -1192,21 +1192,21 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * user to another user. The data are in 2 groups, of which the original data owner
      * is a member of, the recipient of the data is just a member of one of the groups.
      * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param permChown if to test a user who has the <tt>Chown</tt> privilege
+     * @param isPrivileged if to test a user who has the <tt>Chown</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isPrivileged cases")
-    public void testChownAllBelongingToUser(boolean isAdmin, boolean permChown,
+    public void testChownAllBelongingToUser(boolean isAdmin, boolean isPrivileged,
             String groupPermissions) throws Exception {
         /* chown is passing in this test with isAdmin and permChown only.*/
-        final boolean chownPassing = isAdmin && permChown;
+        final boolean chownPassing = isAdmin && isPrivileged;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         ExperimenterGroup otherGroup = newGroupAddUser(groupPermissions, normalUser.userId, false);
         final EventContext recipient = newUserInGroup(otherGroup, false);
         /* set up the light admin's permissions for this test */
         List<String> permissions = new ArrayList<String>();
-        if (permChown) permissions.add(AdminPrivilegeChown.value);
+        if (isPrivileged) permissions.add(AdminPrivilegeChown.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
         /* create two sets of P/D/I hierarchy as normalUser in the default
@@ -1531,21 +1531,21 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * The workflow tries to upload an official script.
      * The only permission light admin needs for this is WriteScriptRepo
      * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param permWriteScriptRepo if to test a user who has the <tt>WriteScriptRepo</tt> privilege
+     * @param isPrivileged if to test a user who has the <tt>WriteScriptRepo</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isPrivileged cases")
-    public void testOfficialSciptUploadNoSudo(boolean isAdmin, boolean permWriteScriptRepo,
+    public void testOfficialSciptUploadNoSudo(boolean isAdmin, boolean isPrivileged,
             String groupPermissions) throws Exception {
         /* upload/creation of File Attachment should be always permitted as long as light admin is in System Group
          * and has WriteOwned and WriteFile permissions. */
         if (!isAdmin) return;
-        boolean isExpectSuccessUploadOfficialScript = isAdmin && permWriteScriptRepo;
+        boolean isExpectSuccessUploadOfficialScript = isAdmin && isPrivileged;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         /* set up the light admin's permissions for this test */
         List<String> permissions = new ArrayList<String>();
-        if (permWriteScriptRepo) permissions.add(AdminPrivilegeWriteScriptRepo.value);
+        if (isPrivileged) permissions.add(AdminPrivilegeWriteScriptRepo.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
@@ -1585,21 +1585,21 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * Test that users may delete official scripts only if they are a member of the <tt>system</tt> group and
      * have the <tt>DeleteScriptRepo</tt> privilege.
      * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param permDeleteScriptRepo if to test a user who has the <tt>DeleteScriptRepo</tt> privilege
+     * @param isPrivileged if to test a user who has the <tt>DeleteScriptRepo</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isPrivileged cases")
-    public void testOfficialScriptDeleteNoSudo(boolean isAdmin, boolean permDeleteScriptRepo,
+    public void testOfficialScriptDeleteNoSudo(boolean isAdmin, boolean isPrivileged,
             String groupPermissions) throws Exception {
         if (!isAdmin) return;
         if (groupPermissions.equals("rwrw--")) {
             throw new SkipException("does not work in read-write group");
         }
-        boolean isExpectSuccessDeleteOfficialScript = isAdmin && permDeleteScriptRepo;
+        boolean isExpectSuccessDeleteOfficialScript = isAdmin && isPrivileged;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         List<String> permissions = new ArrayList<String>();
-        if (permDeleteScriptRepo) permissions.add(AdminPrivilegeDeleteScriptRepo.value);
+        if (isPrivileged) permissions.add(AdminPrivilegeDeleteScriptRepo.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
@@ -1662,22 +1662,22 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * only the <tt>ModifyGroupMembership</tt> privilege.
      * The addition of a user is being attempted here.
      * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param permModifyGroupMembership if to test a user who has the <tt>ModifyGroupMembership</tt> privilege
+     * @param isPrivileged if to test a user who has the <tt>ModifyGroupMembership</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isPrivileged cases")
-    public void testModifyGroupMembershipAddUser(boolean isAdmin, boolean permModifyGroupMembership,
+    public void testModifyGroupMembershipAddUser(boolean isAdmin, boolean isPrivileged,
             String groupPermissions) throws Exception {
         if (!isAdmin) return;
         /* the permModifyGroupMembership should be a sufficient permission to perform
          * the user addition into a group */
-        boolean isExpectSuccessAddUserToGroup = isAdmin && permModifyGroupMembership;
+        boolean isExpectSuccessAddUserToGroup = isAdmin && isPrivileged;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         /* one extra group is needed to add the existing normalUser to */
         final EventContext otherUser = newUserAndGroup(groupPermissions);
         List<String> permissions = new ArrayList<String>();
-        if (permModifyGroupMembership) permissions.add(AdminPrivilegeModifyGroupMembership.value);
+        if (isPrivileged) permissions.add(AdminPrivilegeModifyGroupMembership.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
         final Experimenter user = new ExperimenterI(normalUser.userId, false);
@@ -1695,22 +1695,22 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * only the <tt>ModifyGroupMembership</tt> privilege.
      * The removal of a user is being attempted here.
      * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param permModifyGroupMembership if to test a user who has the <tt>ModifyGroupMembership</tt> privilege
+     * @param isPrivileged if to test a user who has the <tt>ModifyGroupMembership</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isPrivileged cases")
-    public void testModifyGroupMembershipRemoveUser(boolean isAdmin, boolean permModifyGroupMembership,
+    public void testModifyGroupMembershipRemoveUser(boolean isAdmin, boolean isPrivileged,
             String groupPermissions) throws Exception {
         if (!isAdmin) return;
         /* the permModifyGroupMembership should be a sufficient permission to perform
          * the user removal from a group */
-        boolean isExpectSuccessRemoveUserFromGroup = isAdmin && permModifyGroupMembership;
+        boolean isExpectSuccessRemoveUserFromGroup = isAdmin && isPrivileged;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         /* one extra group is needed which the normalUser is also a member of */
         final ExperimenterGroup otherGroup = newGroupAddUser("rwr-r-", normalUser.userId);
         List<String> permissions = new ArrayList<String>();
-        if (permModifyGroupMembership) permissions.add(AdminPrivilegeModifyGroupMembership.value);
+        if (isPrivileged) permissions.add(AdminPrivilegeModifyGroupMembership.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
         final Experimenter user = new ExperimenterI(normalUser.userId, false);
@@ -1726,20 +1726,20 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * Test that light admin can make a user an owner of a group
      * when the light admin has only the <tt>ModifyGroupMembership</tt> privilege.
      * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param permModifyGroupMembership if to test a user who has the <tt>ModifyGroupMembership</tt> privilege
+     * @param isPrivileged if to test a user who has the <tt>ModifyGroupMembership</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isPrivileged cases")
-    public void testModifyGroupMembershipMakeOwner(boolean isAdmin, boolean permModifyGroupMembership,
+    public void testModifyGroupMembershipMakeOwner(boolean isAdmin, boolean isPrivileged,
             String groupPermissions) throws Exception {
         if (!isAdmin) return;
         /* the permModifyGroupMembership should be a sufficient permission to perform
          * the setting of a new group owner */
-        boolean isExpectSuccessMakeOwnerOfGroup= isAdmin && permModifyGroupMembership;
+        boolean isExpectSuccessMakeOwnerOfGroup= isAdmin && isPrivileged;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         List<String> permissions = new ArrayList<String>();
-        if (permModifyGroupMembership) permissions.add(AdminPrivilegeModifyGroupMembership.value);
+        if (isPrivileged) permissions.add(AdminPrivilegeModifyGroupMembership.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
         final Experimenter user = new ExperimenterI(normalUser.userId, false);
@@ -1756,22 +1756,22 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * Test that light admin can unset a user to be an owner of a group
      * when the light admin has only the <tt>ModifyGroupMembership</tt> privilege.
      * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param permModifyGroupMembership if to test a user who has the <tt>ModifyGroupMembership</tt> privilege
+     * @param isPrivileged if to test a user who has the <tt>ModifyGroupMembership</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isPrivileged cases")
-    public void testModifyGroupMembershipUnsetOwner(boolean isAdmin, boolean permModifyGroupMembership,
+    public void testModifyGroupMembershipUnsetOwner(boolean isAdmin, boolean isPrivileged,
             String groupPermissions) throws Exception {
         if (!isAdmin) return;
         /* the permModifyGroupMembership should be a sufficient permission to perform
          * the unsetting of a new group owner */
-        boolean isExpectSuccessUnsetOwnerOfGroup= isAdmin && permModifyGroupMembership;
+        boolean isExpectSuccessUnsetOwnerOfGroup= isAdmin && isPrivileged;
         /* set up the normalUser and make him an Owner by passing "true" in the
          * newUserAndGroup method argument */
         final EventContext normalUser = newUserAndGroup(groupPermissions, true);
         List<String> permissions = new ArrayList<String>();
-        if (permModifyGroupMembership) permissions.add(AdminPrivilegeModifyGroupMembership.value);
+        if (isPrivileged) permissions.add(AdminPrivilegeModifyGroupMembership.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
         final Experimenter user = new ExperimenterI(normalUser.userId, false);
@@ -1794,20 +1794,20 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * Test that light admin can create a new user
      * when the light admin has only the <tt>ModifyUser</tt> privilege.
      * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param permModifyUser if to test a user who has the <tt>ModifyUser</tt> privilege
+     * @param isPrivileged if to test a user who has the <tt>ModifyUser</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isPrivileged cases")
-    public void testModifyUserCreate(boolean isAdmin, boolean permModifyUser,
+    public void testModifyUserCreate(boolean isAdmin, boolean isPrivileged,
             String groupPermissions) throws Exception {
         if (!isAdmin) return;
         /* the permModifyUser should be a sufficient permission to perform
          * the creation of a new user */
-        boolean isExpectSuccessCreateUser= isAdmin && permModifyUser;
+        boolean isExpectSuccessCreateUser= isAdmin && isPrivileged;
         final long newGroupId = newUserAndGroup(groupPermissions).groupId;
         List<String> permissions = new ArrayList<String>();
-        if (permModifyUser) permissions.add(AdminPrivilegeModifyUser.value);
+        if (isPrivileged) permissions.add(AdminPrivilegeModifyUser.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
         final Experimenter newUser = new ExperimenterI();
@@ -1829,20 +1829,20 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * Test that light admin can edit an existing user
      * when the light admin has only the <tt>ModifyUser</tt> privilege.
      * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param permModifyUser if to test a user who has the <tt>ModifyUser</tt> privilege
+     * @param isPrivileged if to test a user who has the <tt>ModifyUser</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isPrivileged cases")
-    public void testModifyUserEdit(boolean isAdmin, boolean permModifyUser,
+    public void testModifyUserEdit(boolean isAdmin, boolean isPrivileged,
             String groupPermissions) throws Exception {
         if (!isAdmin) return;
         /* the permModifyUser should be a sufficient permission to perform
          * the editing of a user */
-        boolean isExpectSuccessEditUser= isAdmin && permModifyUser;
+        boolean isExpectSuccessEditUser= isAdmin && isPrivileged;
         final long newUserId = newUserAndGroup(groupPermissions).userId;
         List<String> permissions = new ArrayList<String>();
-        if (permModifyUser) permissions.add(AdminPrivilegeModifyUser.value);
+        if (isPrivileged) permissions.add(AdminPrivilegeModifyUser.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
         final Experimenter newUser = (Experimenter) iQuery.get("Experimenter", newUserId);
@@ -1859,24 +1859,24 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * Test that light admin can create a new group
      * when the light admin has only the <tt>ModifyGroup</tt> privilege.
      * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param permModifyGroup if to test a user who has the <tt>ModifyGroup</tt> privilege
+     * @param isPrivileged if to test a user who has the <tt>ModifyGroup</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isPrivileged cases")
-    public void testModifyGroupCreate(boolean isAdmin, boolean permModifyGroup,
+    public void testModifyGroupCreate(boolean isAdmin, boolean isPrivileged,
             String groupPermissions) throws Exception {
         if (!isAdmin) return;
         /* the permModifyGroup should be a sufficient permission to perform
          * a group creation */
-        boolean isExpectSuccessCreateGroup = isAdmin && permModifyGroup;
+        boolean isExpectSuccessCreateGroup = isAdmin && isPrivileged;
         final ExperimenterGroup newGroup = new ExperimenterGroupI();
         newGroup.setLdap(omero.rtypes.rbool(false));
         newGroup.setName(omero.rtypes.rstring(UUID.randomUUID().toString()));
         newGroup.getDetails().setPermissions(new PermissionsI(groupPermissions));
         /* set up the permissions for the light admin */
         List<String> permissions = new ArrayList<String>();
-        if (permModifyGroup) permissions.add(AdminPrivilegeModifyGroup.value);
+        if (isPrivileged) permissions.add(AdminPrivilegeModifyGroup.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
         try {
@@ -1891,23 +1891,23 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * Test that light admin can edit an existing group
      * when the light admin has only the <tt>ModifyGroup</tt> privilege.
      * @param isAdmin if to test a member of the <tt>system</tt> group
-     * @param permModifyGroup if to test a user who has the <tt>ModifyGroup</tt> privilege
+     * @param isPrivileged if to test a user who has the <tt>ModifyGroup</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isPrivileged cases")
-    public void testModifyGroupEdit(boolean isAdmin, boolean permModifyGroup,
+    public void testModifyGroupEdit(boolean isAdmin, boolean isPrivileged,
             String groupPermissions) throws Exception {
         if (!isAdmin) return;
         /* the permModifyGroup should be a sufficient permission to perform
          * group editing */
-        boolean isExpectSuccessEditGroup = isAdmin && permModifyGroup;
+        boolean isExpectSuccessEditGroup = isAdmin && isPrivileged;
         /* set up the new group as Read-Write as the downgrade (edit) to all group
          * types by the light admin will be tested later in the test */
         final long newGroupId = newUserAndGroup("rwrw--").groupId;
         /* set up the permissions for the light admin */
         List<String> permissions = new ArrayList<String>();
-        if (permModifyGroup) permissions.add(AdminPrivilegeModifyGroup.value);
+        if (isPrivileged) permissions.add(AdminPrivilegeModifyGroup.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(isAdmin, permissions);
         /* light admin will downgrade the group to all possible permission levels and
