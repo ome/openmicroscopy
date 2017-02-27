@@ -243,7 +243,7 @@ def get_zoom_factor(image_size, max_width, max_height):
 def resize_image(image, max_width, max_height):
     """
     Resize the image so that it is as big as possible,
-    within the dimensions maxW, maxH
+    within the dimensions max_width, max_height
 
     @param image: The PIL Image to zoom
     @param max_width: The max width of the zoomed image
