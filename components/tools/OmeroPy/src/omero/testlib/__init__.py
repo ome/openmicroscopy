@@ -693,13 +693,15 @@ class ITest(object):
 
     @classmethod
     def get_pixels_type(cls, pixels_type):
+        if pixels_type in ["int8", "uint8"]:
+            return 1
         if pixels_type in ["int16", "uint16"]:
             return 2
         if pixels_type in ["int32", "uint132", "float"]:
             return 4
         if pixels_type in ["double"]:
             return 8
-        return 1
+        raise Exception("Pixels Type %s not supported" % pixels_type)
 
     def write(self, pixels, rps, pixels_type="int8"):
         """
@@ -707,7 +709,7 @@ class ITest(object):
         either planes or tiles depending on the pixel
         size.
         """
-        p_type = self.get_pixels_type(unwrap(pixels.pixelsType))
+        p_type = self.get_pixels_type(pixels.pixelsType.getValue().getValue())
         if not rps.requiresPixelsPyramid():
             # By plane
             bytes_per_plane = pixels.sizeX.val * pixels.sizeY.val * p_type
