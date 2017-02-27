@@ -16,7 +16,7 @@
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 % ROIs
 
-% To learn about the model see  http://www.ome-xml.org/wiki/ROI/2010-04.
+% To learn about the OMERO tables see  https://www.openmicroscopy.org/site/support/omero5.2/sysadmins/server-tables.html.
 % Note that annotation can be linked to ROI.
 try
     %%
@@ -64,7 +64,7 @@ try
     % Currently OMERO.tables are displayed only for Screen/plate/wells
     % and in all cases the file annotation contains the following name
     % space
-    fa.setNs(rstring('NSBULKANNOTATIONS'));
+    fa.setNs(rstring(omero.constants.namespaces.NSMEASUREMENT.value));
     link = linkAnnotation(session, fa, 'image', imageId);
     
     % fetch the OMERO Table and check if the original FileIds match
