@@ -32,7 +32,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import ome.formats.model.UnitsFactory;
-import omero.RInt;
 import omero.api.RawPixelsStorePrx;
 import omero.gateway.Gateway;
 import omero.gateway.LoginCredentials;
@@ -44,28 +43,9 @@ import omero.gateway.model.ROIResult;
 import omero.log.SimpleLogger;
 import omero.model.AffineTransform;
 import omero.model.AffineTransformI;
-import omero.model.Ellipse;
-import omero.model.EllipseI;
-import omero.model.Label;
-import omero.model.LabelI;
 import omero.model.LengthI;
-import omero.model.Line;
-import omero.model.LineI;
-import omero.model.Mask;
-import omero.model.MaskI;
-import omero.model.Path;
-import omero.model.PathI;
-import omero.model.PixelsI;
-import omero.model.Point;
-import omero.model.PointI;
-import omero.model.Polygon;
-import omero.model.PolygonI;
-import omero.model.Polyline;
-import omero.model.PolylineI;
-import omero.model.Rectangle;
-import omero.model.RectangleI;
 import omero.model.Roi;
-import omero.model.RoiI;
+
 import omero.model.Shape;
 import omero.model.enums.UnitsLength;
 import omero.gateway.model.EllipseData;
@@ -80,7 +60,6 @@ import omero.gateway.model.PolylineData;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.RectangleData;
 import omero.gateway.model.ShapeData;
-import omero.gateway.model.ShapeSettingsData;
 import omero.gateway.model.TextData;
 
 /** 
@@ -142,7 +121,7 @@ public class ROIs
         ROIData data = new ROIData();
         data.setImage(image.asImage());
         
-        //Create Ellipse ShapeData
+        //Create Rectangle ShapeData
         RectangleData rectangleData = new RectangleData(10, 10, 10, 10);
         rectangleData.setZ(0);
         rectangleData.setT(0);
@@ -285,7 +264,7 @@ public class ROIs
                 double yShearing = transform.getA10().getValue();
                 double yTranslation = transform.getA12().getValue();
                 // Handle transforms
-            }    
+            }
         }
 
       //Retrieve the roi linked to an image
@@ -308,7 +287,7 @@ public class ROIs
             //update the roi
             dm.saveAndReturnObject(ctx, roi);
         }
-        //Check that the shape does not have shape.
+
         roiresults = roifac.loadROIs(ctx, image.getId());
         r = roiresults.iterator().next();
         if (r == null)
