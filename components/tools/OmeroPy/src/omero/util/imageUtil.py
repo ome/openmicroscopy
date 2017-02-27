@@ -59,7 +59,8 @@ def getFont(fontsize):
     @param fontsize:	The size of the font you want
     @return: 	A PIL Font
     """
-
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     fontPath = os.path.join(GATEWAYPATH, "pilfonts", "FreeSans.ttf")
     try:
         font = ImageFont.truetype(fontPath, fontsize)
@@ -78,7 +79,8 @@ def pasteImage(image, canvas, x, y):
     @param x:			X coordinate (left) to paste
     @param y: 			Y coordinate (top) to paste
     """
-
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     xRight = image.size[0] + x
     yBottom = image.size[1] + y
     # make a tuple of topleft-x, topleft-y, bottomRight-x, bottomRight-y
@@ -154,6 +156,8 @@ def paintThumbnailGrid(thumbnailStore, length, spacing, pixelIds, colCount,
                             int
     @return: 			    The PIL Image canvas.
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     mode = "RGB"
     # work out how many rows and columns are needed for all the images
     imgCount = len(pixelIds)
@@ -271,6 +275,8 @@ def RGBIntToRGBA(RGB):
     @param RGB:		A colour as integer. Int
     @return:		A tuple of (r,g,b,a)
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     r = checkRGBRange((RGB >> 16) & 0xFF)
     g = checkRGBRange((RGB >> 8) & 0xFF)
     b = checkRGBRange((RGB >> 0) & 0xFF)
@@ -306,6 +312,8 @@ def getZoomFactor(imageSize, maxW, maxH):
     @return:			    The factor by which to shrink the image to be
                             within max width and height
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     imageW, imageH = imageSize
     zoomW = float(imageW) / float(maxW)
     zoomH = float(imageH) / float(maxH)
@@ -322,6 +330,8 @@ def resizeImage(image, maxW, maxH):
     @param maxH:		The max height of the zoomed image
     @return:		The zoomed image. PIL Image.
     """
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     imageW, imageH = image.size
     if imageW == maxW and imageH == maxH:
         return image
