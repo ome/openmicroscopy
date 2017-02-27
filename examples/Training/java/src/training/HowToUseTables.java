@@ -65,7 +65,7 @@ public class HowToUseTables
     //end edit
 
     /** The id of an image.*/
-    private static long imageId = 1;
+    private static long imageID = 1;
 
     /** The image.*/
     private ImageData image;
