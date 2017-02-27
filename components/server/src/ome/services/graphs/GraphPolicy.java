@@ -210,8 +210,8 @@ public abstract class GraphPolicy {
     public abstract boolean isCondition(String name);
 
     /**
-     * Any model object about which policy may be asked is first passed to {@link #noteDetails(Session, IObject, String, long)} before
-     * {@link GraphPolicy#review(Map, Details, Map, Set, boolean)}. Each object is passed only once.
+     * Any model object about which policy may be asked is first passed to {@link #noteDetails(Session, IObject, String, long)}
+     * before {@link GraphPolicy#review(Map, Details, Map, Set, boolean)}. Each object is passed only once.
      * Subclasses overriding this method probably ought also override {@link #getCleanInstance()}.
      * @param session the Hibernate session, for obtaining more information about the object
      * @param object an unloaded model object about which policy may be asked
