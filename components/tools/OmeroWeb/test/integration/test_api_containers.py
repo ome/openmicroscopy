@@ -532,7 +532,6 @@ class TestContainers(IWebTest):
         rsp = _get_response_json(client, screens_url, {})
         assert_objects(conn, rsp['data'], [screen], dtype='Screen')
 
-
     def test_pdi_urls(self, user1, project_datasets):
         """Test browsing via urls in json /api/->PDI."""
         conn = get_connection(user1)
