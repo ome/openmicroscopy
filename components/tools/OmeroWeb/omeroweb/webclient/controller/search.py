@@ -103,6 +103,7 @@ class BaseSearch(BaseController):
         self.containers = {}
         resultCount = 0
         self.searchError = None
+        self.iids = []
 
         try:
             for dt in onlyTypes:
@@ -110,6 +111,8 @@ class BaseSearch(BaseController):
                 if dt in ['projects', 'datasets', 'images', 'screens',
                           'plateacquisitions', 'plates']:
                     self.containers[dt] = doSearch(dt)
+                    if dt == 'images':
+                        self.iids = [i.id for i in self.containers[dt]]
                     # If we get a full page of results, we know there are more
                     if len(self.containers[dt]) == batchSize:
                         self.moreResults = True
