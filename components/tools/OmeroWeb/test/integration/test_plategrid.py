@@ -294,7 +294,8 @@ class TestPlateGrid(object):
                     assert well_metadata['name'] == img.name.val
                     # by default thumbprefix is not set,
                     # thumbnail url is not restored
-                    assert well_metadata['thumb_url'] == img.id.val
+                    # this is string, see PlateGrid
+                    assert well_metadata['thumb_url'] == str(img.id.val)
 
     def test_instantiation(self, plate_wells, conn):
         """
