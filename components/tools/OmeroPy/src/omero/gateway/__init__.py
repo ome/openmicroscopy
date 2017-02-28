@@ -6071,10 +6071,16 @@ class _PlateWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         # NB: we don't use base _getQueryString.
         clauses = []
         params = omero.sys.ParametersI()
-        if opts is not None and 'screen' in opts:
+        if opts is None:
+            opts = {}
+        if 'screen' in opts:
             clauses.append('spl.parent.id = :sid')
             params.add('sid', rlong(opts['screen']))
-        if opts is not None and opts.get('orphaned'):
+        if 'well' in opts:
+            query += ' join obj.wells wells'
+            clauses.append('wells.id = :well_id')
+            params.add('well_id', rlong(opts['well']))
+        if opts.get('orphaned'):
             clauses.append(
                 """
                 not exists (
