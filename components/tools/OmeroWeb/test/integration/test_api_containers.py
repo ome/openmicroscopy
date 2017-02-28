@@ -483,6 +483,56 @@ class TestContainers(IWebTest):
         assert_objects(conn, wells_json, [well_id], dtype='Well',
                        extra=extra, opts={'load_images': True}, client=client)
 
+    def test_spw_parent_urls(self, user1, screen_plates):
+        """Test browsing via urls in json /api/image -> well, plate, screen."""
+        conn = get_connection(user1)
+        user_name = conn.getUser().getName()
+        client = self.new_django_client(user_name, user_name)
+        version = api_settings.API_VERSIONS[-1]
+        screen, plate = screen_plates
+        plates = screen.linkedPlateList()
+        plates.sort(cmp_name_insensitive)
+
+        # Listing wells - all have link to parents
+        wells_url = reverse('api_wells', kwargs={'api_version': version})
+        rsp = _get_response_json(client, wells_url, {})
+        for w in rsp['data']:
+            plates_url = build_url(client, 'api_well_plates',
+                                   {'api_version': version,
+                                    'well_id': w['@id']})
+            assert w['url:plates'] == plates_url
+
+        # Single Well has link to parents...
+        well_id = rsp['data'][0]['@id']
+        well_url = wells_url + '%s/' % well_id
+        rsp = _get_response_json(client, well_url, {})
+        well_json = rsp['data']
+        well_plates_url = build_url(client, 'api_well_plates',
+                                    {'api_version': version,
+                                     'well_id': well_id})
+        assert well_json['url:plates'] == well_plates_url
+
+        # Get parent plate (Plates list, filtered by Well)
+        print 'well_plates_url', well_plates_url
+        rsp = _get_response_json(client, well_plates_url, {})
+        plates_json = rsp['data']
+        # check for link to Screen
+        screens_url = build_url(client, 'api_plate_screens',
+                                {'api_version': version,
+                                 'plate_id': plates_json[0]['@id']})
+        assert plates_json[0]['url:screens'] == screens_url
+        plate_url = plates_json[0]['url:plate']
+        assert_objects(conn, plates_json, [plates[0]], dtype='Plate')
+
+        # Get the same Plate by ID
+        rsp = _get_response_json(client, plate_url, {})
+        assert rsp['data']['url:screens'] == screens_url
+
+        # Get Screen
+        rsp = _get_response_json(client, screens_url, {})
+        assert_objects(conn, rsp['data'], [screen], dtype='Screen')
+
+
     def test_pdi_urls(self, user1, project_datasets):
         """Test browsing via urls in json /api/->PDI."""
         conn = get_connection(user1)
