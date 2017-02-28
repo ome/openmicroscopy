@@ -66,8 +66,8 @@ class TestThumbnails(IWebTest):
         Test base64 encoded retrival of single thumbnail
         """
         # Create a square image
-        iid = self.createTestImage(sizeX=256, sizeY=256,
-                                   session=self.sf).id.val
+        iid = self.create_test_image(size_x=256, size_y=256,
+                                     session=self.sf).id.val
         args = [iid]
         if size is not None:
             args.append(size)
@@ -90,8 +90,8 @@ class TestThumbnails(IWebTest):
         # Create a square image
         images = []
         for i in range(2, 5):
-            iid = self.createTestImage(sizeX=64*i, sizeY=64*i,
-                                       session=self.sf).id.val
+            iid = self.create_test_image(size_x=64*i, size_y=64*i,
+                                         session=self.sf).id.val
             images.append(iid)
 
         expected_thumbs = {}
