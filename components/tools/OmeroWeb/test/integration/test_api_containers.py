@@ -581,7 +581,7 @@ class TestContainers(IWebTest):
         # Single Image has link to parents...
         img_url = imgs_url + '%s/' % images[0].id.val
         rsp = _get_response_json(client, img_url, {})
-        img_json = rsp
+        img_json = rsp['data']
         image_datasets_url = build_url(client, 'api_image_datasets',
                                        {'api_version': version,
                                         'image_id': images[0].id.val})
@@ -604,7 +604,7 @@ class TestContainers(IWebTest):
         # Single Dataset has link to parents...
         dataset_url = datasets_url + '%s/' % dataset_id
         rsp = _get_response_json(client, dataset_url, {})
-        dataset_json = rsp
+        dataset_json = rsp['data']
         dataset_projects_url = build_url(client, 'api_dataset_projects',
                                          {'api_version': version,
                                           'dataset_id': dataset_id})
