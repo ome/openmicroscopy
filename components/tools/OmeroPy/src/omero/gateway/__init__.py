@@ -3425,7 +3425,7 @@ class _BlitzGateway (object):
             return counts
 
         ctx = self.SERVICE_OPTS.copy()
-        ctx.setOmeroGroup(None)
+        ctx.setOmeroGroup(-1)
 
         params = omero.sys.ParametersI()
         params.addIds(obj_ids)
