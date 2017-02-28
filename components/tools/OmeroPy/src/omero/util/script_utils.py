@@ -179,8 +179,6 @@ def calcSha1(filename):
 
 
 def calc_sha1(filename):
-    warnings.warn(
-        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     """
     Returns a hash of the file identified by filename
 
@@ -188,11 +186,10 @@ def calc_sha1(filename):
     @return:            The hash of the file
     """
 
-    file_handle = open(filename)
-    h = hash_sha1()
-    h.update(file_handle.read())
-    hash = h.hexdigest()
-    file_handle.close()
+    with open(filename) as file_handle:
+        h = hash_sha1()
+        h.update(file_handle.read())
+        hash = h.hexdigest()
     return hash
 
 
@@ -259,17 +256,17 @@ def create_file(update_service, filename, mimetype=None,
     """
     Creates an original file, saves it to the server and returns the result
 
-    @param updateService:   The update service E.g. session.getUpdateService()
+    @param update_service:  The update service e.g. session.getUpdateService()
     @param filename:        The file path and name (or name if in same folder).
                             String
     @param mimetype:        The mimetype (string) or Format object representing
                             the file format
-    @param orig_file_path_name:      Optional path/name for the original file
+    @param orig_file_path_name:  Optional path/name for the original file
     @return:                The saved OriginalFileI, as returned from the
                             server
     """
     original_file = omero.model.OriginalFileI()
-    if (orig_file_path_name is None):
+    if orig_file_path_name is None:
         orig_file_path_name = filename
     path, name = os.path.split(orig_file_path_name)
     original_file.setName(omero.rtypes.rstring(name))
@@ -325,9 +322,9 @@ def upload_file(raw_file_store, original_file, file_path=None):
     """
     Uploads an OriginalFile to the server
 
-    @param raw_file_store:    The Omero rawFileStore
+    @param raw_file_store:   The Omero rawFileStore
     @param original_file:    The OriginalFileI
-    @param file_path:    Where to find the file to upload.
+    @param file_path:        Where to find the file to upload.
                         If None, use original_file.getName().getValue()
     """
     raw_file_store.setFileId(original_file.getId().getValue())
@@ -336,19 +333,19 @@ def upload_file(raw_file_store, original_file, file_path=None):
     cnt = 0
     if file_path is None:
         file_path = original_file.getName().getValue()
-    file_handle = open(file_path, 'rb')
-    done = 0
-    while(done != 1):
-        if(increment + cnt < file_size):
-            block_size = increment
-        else:
-            block_size = file_size - cnt
-            done = 1
-        file_handle.seek(cnt)
-        block = file_handle.read(block_size)
-        raw_file_store.write(block, cnt, block_size)
-        cnt = cnt + block_size
-    file_handle.close()
+
+    with open(file_path, 'rb') as file_handle:
+        done = 0
+        while (done != 1):
+            if (increment + cnt < file_size):
+                block_size = increment
+            else:
+                block_size = file_size - cnt
+                done = 1
+            file_handle.seek(cnt)
+            block = file_handle.read(block_size)
+            raw_file_store.write(block, cnt, block_size)
+            cnt = cnt + block_size
 
 
 def downloadFile(rawFileStore, originalFile, filePath=None):
@@ -506,18 +503,17 @@ def createLinkFileAnnotation(conn, localPath, parent, output="Output",
 
 
 def create_link_file_annotation(conn, local_path, parent, output="Output",
-                                mimetype=None,
-                                description=None, namespace=None,
-                                orig_file_path_and_name=None):
+                                mimetype=None, description=None,
+                                namespace=None, orig_file_path_and_name=None):
     """
     Uploads a local file to the server, as an Original File and attaches it to
     the parent (Project, Dataset or Image)
 
     @param conn:            The :class:`omero.gateway.BlitzGateway` connection.
-    @param parent:          The ProjectI or DatasetI or ImageI to attach
-                            file to
     @param local_path:      Full Name (and path) of the file location
                             to upload. String
+    @param parent:          The ProjectI or DatasetI or ImageI to attach
+                            file to
     @param mimetype:        The original file mimetype e.g. "PNG". String
     @param description:     Optional description for the file annotation.
                             String
