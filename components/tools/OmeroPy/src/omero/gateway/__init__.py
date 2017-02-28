@@ -6058,6 +6058,7 @@ class _PlateWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         Also handles filtering of Plates by Screens.
         Returns a tuple of (query, clauses, params).
         Supported opts: 'screen': <screen_id> to filter by Screen
+                        'well': <well_id> to filter by Well
                         'orphaned': <bool>. Filter by 'not in Screen'
 
         :param opts:        Dictionary of optional parameters.
