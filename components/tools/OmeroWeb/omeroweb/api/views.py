@@ -28,7 +28,7 @@ from . import api_settings
 import traceback
 import json
 
-from api_query import query_objects, get_child_counts
+from api_query import query_objects, get_child_counts, get_wellsample_indices
 from omero_marshal import get_encoder, get_decoder, OME_SCHEMA_URL
 from omero import ValidationException
 from omeroweb.connector import Server
@@ -125,7 +125,7 @@ class ApiView(View):
         """Wrap other methods to add decorators."""
         return super(ApiView, self).dispatch(*args, **kwargs)
 
-    def add_data(self, marshalled, request, urls=None, **kwargs):
+    def add_data(self, marshalled, request, conn, urls=None, **kwargs):
         """
         Post-process marshalled object to add any extra data.
 
@@ -179,7 +179,7 @@ class ObjectView(ApiView):
             ch_count = counts[object_id] if object_id in counts else 0
             marshalled['omero:childCount'] = ch_count
 
-        self.add_data(marshalled, request, self.urls, **kwargs)
+        self.add_data(marshalled, request, conn, self.urls, **kwargs)
         return {'data': marshalled}
 
     def delete(self, request, object_id, conn=None, **kwargs):
@@ -264,8 +264,58 @@ class PlateView(ObjectView):
     # Urls to add to marshalled object. See ProjectsView for more details
     urls = {
         'url:wells': {'name': 'api_plate_wells',
-                      'kwargs': {'plate_id': 'OBJECT_ID'}}
+                      'kwargs': {'plate_id': 'OBJECT_ID'}},
+        'url:plateacquisitions': {'name': 'api_plate_plateacquisitions',
+                                  'kwargs': {'plate_id': 'OBJECT_ID'}},
     }
+
+    def add_data(self, marshalled, request, conn, urls=None, **kwargs):
+        """Add min/max WellSampleIndex."""
+        marshalled = super(PlateView, self).add_data(marshalled, request, conn,
+                                                     urls=urls, **kwargs)
+        idx = get_wellsample_indices(conn, marshalled['@id'])
+        marshalled['omero:wellsampleIndex'] = idx
+
+        # Add link to Wells for each WellSample index in this Plate
+        ws_urls = []
+        if len(idx) == 2:
+            for ws_index in range(idx[0], idx[1]+1):
+                version = kwargs['api_version']
+                extra = {'plate_id': marshalled['@id'],
+                         'index': ws_index}
+                url = build_url(request, 'api_plate_wellsampleindex_wells',
+                                version, **extra)
+                ws_urls.append(url)
+        marshalled['url:wellsampleindex_wells'] = ws_urls
+
+        return marshalled
+
+
+class PlateAcquisitionView(ObjectView):
+    """Handles GET for /plates/:plate_id/plateacquisitions."""
+
+    OMERO_TYPE = 'PlateAcquisition'
+
+    def add_data(self, marshalled, request, conn, urls=None, **kwargs):
+        """Add min/max WellSampleIndex."""
+        marshalled = super(PlateAcquisitionView, self).add_data(
+            marshalled, request, conn, urls=urls, **kwargs)
+        idx = get_wellsample_indices(conn,
+                                     plateacquisition_id=marshalled['@id'])
+        marshalled['omero:wellsampleIndex'] = idx
+
+        # Add link to Wells for each WellSample index in this PlateAcquisition
+        ws_urls = []
+        for ws_index in range(idx[0], idx[1]+1):
+            version = kwargs['api_version']
+            extra = {'plateacquisition_id': marshalled['@id'],
+                     'index': ws_index}
+            url = build_url(request,
+                            'api_plateacquisition_wellsampleindex_wells',
+                            version, **extra)
+            ws_urls.append(url)
+        marshalled['url:wellsampleindex_wells'] = ws_urls
+        return marshalled
 
 
 class WellView(ObjectView):
@@ -282,9 +332,9 @@ class WellView(ObjectView):
         opts['load_pixels'] = True
         return opts
 
-    def add_data(self, marshalled, request, urls=None, **kwargs):
+    def add_data(self, marshalled, request, conn, urls=None, **kwargs):
         """Add 'url:image' to any 'Image' in 'WellSamples'."""
-        marshalled = super(WellView, self).add_data(marshalled, request,
+        marshalled = super(WellView, self).add_data(marshalled, request, conn,
                                                     urls=urls, **kwargs)
         image_urls = {
             'url:image': {'name': 'api_image',
@@ -294,7 +344,8 @@ class WellView(ObjectView):
             # For each WellSample, add image urls to Image
             for ws in marshalled['WellSamples']:
                 if 'Image' in ws:
-                    self.add_data(ws['Image'], request, image_urls, **kwargs)
+                    self.add_data(ws['Image'], request, conn,
+                                  image_urls, **kwargs)
         return marshalled
 
 
@@ -330,7 +381,7 @@ class ObjectsView(ApiView):
         marshalled = query_objects(conn, self.OMERO_TYPE, group,
                                    opts, normalize)
         for m in marshalled['data']:
-            self.add_data(m, request, self.urls, **kwargs)
+            self.add_data(m, request, conn, self.urls, **kwargs)
         return marshalled
 
 
@@ -429,7 +480,9 @@ class PlatesView(ObjectsView):
         'url:wells': {'name': 'api_plate_wells',
                       'kwargs': {'plate_id': 'OBJECT_ID'}},
         'url:plate': {'name': 'api_plate',
-                      'kwargs': {'object_id': 'OBJECT_ID'}}
+                      'kwargs': {'object_id': 'OBJECT_ID'}},
+        'url:plateacquisitions': {'name': 'api_plate_plateacquisitions',
+                                  'kwargs': {'plate_id': 'OBJECT_ID'}},
     }
 
 
@@ -461,6 +514,49 @@ class ImagesView(ObjectsView):
         return opts
 
 
+class PlateAcquisitionsView(ObjectsView):
+    """Handles GET for /plates/:plate_id/plateacquisitions."""
+
+    OMERO_TYPE = 'PlateAcquisition'
+
+    # Urls to add to marshalled object. See ProjectsView for more details
+    urls = {
+        'url:plateacquisition': {'name': 'api_plateacquisition',
+                                 'kwargs': {'object_id': 'OBJECT_ID'}},
+    }
+
+    def get_opts(self, request, **kwargs):
+        """Add extra parameters to the opts dict."""
+        opts = super(PlateAcquisitionsView, self).get_opts(request, **kwargs)
+        opts['order_by'] = 'lower(obj.name)'
+        # at /plates/:plate_id/plateacquisitions/ we have 'plate_id' in kwargs
+        if 'plate_id' in kwargs:
+            opts['plate'] = long(kwargs['plate_id'])
+        return opts
+
+    def add_data(self, marshalled, request, conn, urls=None, **kwargs):
+        """Add min/max WellSampleIndex."""
+        marshalled = super(PlateAcquisitionsView, self).add_data(
+            marshalled, request, conn, urls=urls, **kwargs)
+        idx = get_wellsample_indices(conn,
+                                     plateacquisition_id=marshalled['@id'])
+        marshalled['omero:wellsampleIndex'] = idx
+
+        # Add link to Wells for each WellSample index in this PlateAcquisition
+        ws_urls = []
+        for ws_index in range(idx[0], idx[1]+1):
+            version = kwargs['api_version']
+            extra = {'plateacquisition_id': marshalled['@id'],
+                     'index': ws_index}
+            url = build_url(request,
+                            'api_plateacquisition_wellsampleindex_wells',
+                            version, **extra)
+            ws_urls.append(url)
+        marshalled['url:wellsampleindex_wells'] = ws_urls
+
+        return marshalled
+
+
 class WellsView(ObjectsView):
     """Handles GET for /wells/ to list available Images."""
 
@@ -479,18 +575,23 @@ class WellsView(ObjectsView):
         # at /plates/:plate_id/wells/ we have 'plate_id' in kwargs
         if 'plate_id' in kwargs:
             opts['plate'] = long(kwargs['plate_id'])
+        elif 'plateacquisition_id' in kwargs:
+            opts['plateacquisition'] = long(kwargs['plateacquisition_id'])
         else:
             # filter by query /wells/?plate=:id
             plate = getIntOrDefault(request, 'plate', None)
             if plate is not None:
                 opts['plate'] = plate
+        # When filtering by plate or plateacquisition, can filter by ws index
+        if 'index' in kwargs:
+            opts['wellsample_index'] = int(kwargs['index'])
         # Listing Wells, load Images
         opts['load_images'] = True
         return opts
 
-    def add_data(self, marshalled, request, urls=None, **kwargs):
+    def add_data(self, marshalled, request, conn, urls=None, **kwargs):
         """Add 'url:image' to any 'Image' in 'WellSamples'."""
-        marshalled = super(WellsView, self).add_data(marshalled, request,
+        marshalled = super(WellsView, self).add_data(marshalled, request, conn,
                                                      urls=urls, **kwargs)
         image_urls = {
             'url:image': {'name': 'api_image',
@@ -500,7 +601,8 @@ class WellsView(ObjectsView):
             # For each WellSample, add image urls to Image
             for ws in marshalled['WellSamples']:
                 if 'Image' in ws:
-                    self.add_data(ws['Image'], request, image_urls, **kwargs)
+                    self.add_data(ws['Image'], request, conn,
+                                  image_urls, **kwargs)
         return marshalled
 
 

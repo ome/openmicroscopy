@@ -176,11 +176,58 @@ api_wells = url(r'^v(?P<api_version>%s)/m/wells/$' % versions,
 GET all wells, using omero-marshal to generate json
 """
 
+api_plate_plateacquisitions = url(
+    r'^v(?P<api_version>%s)/m/plates/'
+    '(?P<plate_id>[0-9]+)/plateacquisitions/$' % versions,
+    views.PlateAcquisitionsView.as_view(),
+    name='api_plate_plateacquisitions')
+"""
+GET PlateAcquisitions in Plate, using omero-marshal to generate json
+"""
+
+api_plateacquisition = url(
+    r'^v(?P<api_version>%s)/m/plateacquisitions/'
+    '(?P<object_id>[0-9]+)/$' % versions,
+    views.PlateAcquisitionView.as_view(),
+    name='api_plateacquisition')
+"""
+Well url to GET or DELETE a single Well
+"""
+
+api_plateacquisition_wellsampleindex_wells = url(
+    r'^v(?P<api_version>%s)/m/plateacquisitions/'
+    '(?P<plateacquisition_id>[0-9]+)/wellsampleindex/'
+    '(?P<index>[0-9]+)/wells/$' % versions,
+    views.WellsView.as_view(),
+    name='api_plateacquisition_wellsampleindex_wells')
+"""
+GET Wells from a single Index in PlateAcquisition
+"""
+
+api_plate_wellsampleindex_wells = url(
+    r'^v(?P<api_version>%s)/m/plates/'
+    '(?P<plate_id>[0-9]+)/wellsampleindex/'
+    '(?P<index>[0-9]+)/wells/$' % versions,
+    views.WellsView.as_view(),
+    name='api_plate_wellsampleindex_wells')
+"""
+GET Wells from a single Index in Plate
+"""
+
 api_plate_wells = url(
     r'^v(?P<api_version>%s)/m/plates/'
     '(?P<plate_id>[0-9]+)/wells/$' % versions,
     views.WellsView.as_view(),
     name='api_plate_wells')
+"""
+GET Wells in Plate, using omero-marshal to generate json
+"""
+
+api_plateacquisition_wells = url(
+    r'^v(?P<api_version>%s)/m/plateacquisitions/'
+    '(?P<plateacquisition_id>[0-9]+)/wells/$' % versions,
+    views.WellsView.as_view(),
+    name='api_plateacquisition_wells')
 """
 GET Wells in Plate, using omero-marshal to generate json
 """
@@ -215,6 +262,11 @@ urlpatterns = patterns(
     api_screen_plates,
     api_plate,
     api_wells,
+    api_plate_plateacquisitions,
+    api_plateacquisition,
+    api_plateacquisition_wellsampleindex_wells,
+    api_plate_wellsampleindex_wells,
     api_plate_wells,
+    api_plateacquisition_wells,
     api_well,
 )
