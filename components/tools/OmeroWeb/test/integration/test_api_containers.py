@@ -353,6 +353,9 @@ class TestContainers(IWebTest):
         object_url = "%sm/%ss/%s/" % (base_url, dtype.lower(),
                                       children[0].id.val)
         rsp = _get_response_json(django_client, object_url, payload)
+        if dtype == 'Plate':
+            # When we get a single Plate, expect this (not when listing plates)
+            ds_or_pl_children = [{'omero:wellsampleIndex': [0, 0]}]
         assert_objects(conn, [rsp['data']], [children[0]], dtype=dtype,
                        extra=ds_or_pl_children)
 
@@ -363,7 +366,7 @@ class TestContainers(IWebTest):
                    'childCount': str(child_count).lower()}
         rsp = _get_response_json(django_client, request_url, payload)
         extra = None
-        if ds_or_pl_children is not None:
+        if ds_or_pl_children is not None and len(ds_or_pl_children) > 1:
             extra = ds_or_pl_children[0:limit]
         assert_objects(conn, rsp['data'], children[0:limit], dtype=dtype,
                        extra=extra)
@@ -373,7 +376,7 @@ class TestContainers(IWebTest):
                                'offset': 0}
         payload['offset'] = limit   # page 2
         rsp = _get_response_json(django_client, request_url, payload)
-        if ds_or_pl_children is not None:
+        if ds_or_pl_children is not None and len(ds_or_pl_children) > 1:
             extra = ds_or_pl_children[limit:limit * 2]
         assert_objects(conn, rsp['data'], children[limit:limit * 2],
                        dtype=dtype, extra=extra)
@@ -455,7 +458,19 @@ class TestContainers(IWebTest):
         assert_objects(conn, plates_json, plates, dtype='Plate', extra=extra)
         # View single plate
         rsp = _get_response_json(client, plates_json[0]['url:plate'], {})
-        assert_objects(conn, [rsp['data']], plates[0:1], dtype='Plate')
+        plate_json = rsp['data']
+        minMaxIndex = [0, 0]
+        links = []
+        for idx in range(minMaxIndex[0], minMaxIndex[1]+1):
+            l = build_url(client, 'api_plate_wellsampleindex_wells',
+                          {'api_version': version,
+                           'plate_id': plate_json['@id'],
+                           'index': idx})
+            links.append(l)
+        extra = [{'url:wellsampleindex_wells': links,
+                  'omero:wellsampleIndex': minMaxIndex}]
+        assert_objects(conn, [plate_json], plates[0:1], dtype='Plate',
+                       extra=extra)
 
         # List wells of first plate
         wells_url = plates_json[0]['url:wells']

@@ -32,6 +32,31 @@ MAX_LIMIT = max(1, api_settings.API_MAX_LIMIT)
 DEFAULT_LIMIT = max(1, api_settings.API_LIMIT)
 
 
+def get_wellsample_indices(conn, plate_id=None, plateacquisition_id=None):
+    """
+    Return min and max WellSample index for a Plate OR PlateAcquisition
+
+    @param conn:        BlitzGateway
+    @param plate_id:    Plate ID
+    @param plateacquisition_id:    PlateAcquisition ID
+    @return             A dict of parent_id: child_count
+    """
+    ctx = deepcopy(conn.SERVICE_OPTS)
+    ctx.setOmeroGroup(-1)
+    params = ParametersI()
+    query = "select minIndex(ws), maxIndex(ws) from Well well " \
+            "join well.wellSamples ws"
+    if plate_id is not None:
+        query += " where well.plate.id=:plate_id "
+        params.add('plate_id', wrap(plate_id))
+    elif plateacquisition_id is not None:
+        query += " where ws.plateAcquisition.id=:plateacquisition_id"
+        params.add('plateacquisition_id', wrap(plateacquisition_id))
+    result = conn.getQueryService().projection(query, params, ctx)
+    result = [r for r in unwrap(result)[0] if r is not None]
+    return result
+
+
 def get_child_counts(conn, link_class, parent_ids):
     """
     Count child links for the specified parent_ids.

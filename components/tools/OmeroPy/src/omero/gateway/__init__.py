@@ -158,6 +158,13 @@ def getChannelsQuery():
             ' left outer join fetch logicalChannel.contrastMethod')
 
 
+def add_plate_filter(clauses, params, opts):
+    """Helper for adding 'plate' to filtering clauses and parameters."""
+    if opts is not None and 'plate' in opts:
+        clauses.append('obj.plate.id = :pid')
+        params.add('pid', rlong(opts['plate']))
+
+
 class OmeroRestrictionWrapper (object):
 
     def canDownload(self):
@@ -6085,6 +6092,21 @@ class _PlateAcquisitionWrapper (BlitzObjectWrapper):
 
     OMERO_CLASS = 'PlateAcquisition'
 
+    @classmethod
+    def _getQueryString(cls, opts=None):
+        """
+        Extend base query to handle filtering of PlateAcquisitions by Plate.
+        Returns a tuple of (query, clauses, params).
+        Supported opts: 'plate': <plate_id> to filter by Plate
+
+        :param opts:        Dictionary of optional parameters.
+        :return:            Tuple of string, list, ParametersI
+        """
+        query, clauses, params = super(
+            _PlateAcquisitionWrapper, cls)._getQueryString(opts)
+        add_plate_filter(clauses, params, opts)
+        return (query, clauses, params)
+
     def getName(self):
         name = super(_PlateAcquisitionWrapper, self).getName()
         if name is None:
@@ -6106,6 +6128,16 @@ class _PlateAcquisitionWrapper (BlitzObjectWrapper):
         if withlinks:
             return [(rv, None)]
         return [rv]
+
+    def getStartTime(self):
+        """Get the StartTime as a datetime object or None if not set."""
+        if self.startTime:
+            return datetime.fromtimestamp(self.startTime/1000)
+
+    def getEndTime(self):
+        """Get the EndTime as a datetime object or None if not set."""
+        if self.endTime:
+            return datetime.fromtimestamp(self.endTime/1000)
 
 PlateAcquisitionWrapper = _PlateAcquisitionWrapper
 
@@ -6146,16 +6178,19 @@ class _WellWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         """
         query, clauses, params = super(
             _WellWrapper, cls)._getQueryString(opts)
-        if opts is not None and 'plate' in opts:
-            clauses.append('obj.plate.id = :pid')
-            params.add('pid', rlong(opts['plate']))
-        load_images = False
-        load_pixels = False
-        load_channels = False
-        if opts is not None:
-            load_images = opts.get('load_images')
-            load_pixels = opts.get('load_pixels')
-            load_channels = opts.get('load_channels')
+        if opts is None:
+            opts = {}
+        add_plate_filter(clauses, params, opts)
+        load_images = opts.get('load_images')
+        load_pixels = opts.get('load_pixels')
+        load_channels = opts.get('load_channels')
+        if 'plateacquisition' in opts:
+            clauses.append('plateAcquisition.id = :plateAcq')
+            params.add('plateAcq', rlong(opts['plateacquisition']))
+            load_images = True
+        if 'wellsample_index' in opts:
+            clauses.append('index(wellSamples) = :wellsample_index')
+            params.add('wellsample_index', rint(opts['wellsample_index']))
         if load_images or load_pixels or load_channels:
             # NB: Using left outer join, we may get Wells with no Images
             query += " left outer join fetch obj.wellSamples as wellSamples"\
