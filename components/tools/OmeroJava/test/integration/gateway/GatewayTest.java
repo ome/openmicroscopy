@@ -221,8 +221,8 @@ public class GatewayTest {
     private long createImage(SecurityContext ctx) throws Exception {
         String name = UUID.randomUUID().toString();
         IPixelsPrx svc = gw.getPixelsService(ctx);
-        List<IObject> types = svc
-                .getAllEnumerations(PixelsType.class.getName());
+        List<IObject> types = gw.getTypesService(ctx)
+                .allEnumerations(PixelsType.class.getName());
         List<Integer> channels = new ArrayList<Integer>();
         for (int i = 0; i < 3; i++) {
             channels.add(i);

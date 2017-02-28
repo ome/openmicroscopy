@@ -18,7 +18,6 @@
 
 package ome.formats.utests;
 
-import junit.framework.TestCase;
 import ome.model.units.BigResult;
 import ome.units.UNITS;
 import omero.model.LengthI;
@@ -26,7 +25,7 @@ import omero.model.enums.UnitsLength;
 
 import org.testng.annotations.Test;
 
-public class UnitsTest extends TestCase {
+public class UnitsTest {
 
     /**
      * Creates a new length instance of the default units.
@@ -59,12 +58,12 @@ public class UnitsTest extends TestCase {
 
     @Test
     public void testLengthMapping() throws BigResult {
-        new LengthI(mm(1), UNITS.M);
+        new LengthI(mm(1), UNITS.MEGAMETER);
     }
 
     @Test
     public void testLengthNoOpMapping() throws BigResult {
-        new LengthI(mm(1), UNITS.MM);
+        new LengthI(mm(1), UNITS.MEGAMETER);
     }
 
     @Test

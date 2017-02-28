@@ -15,8 +15,30 @@ ${importedMax}                      255
 ${sizeZ}                            3
 ${defaultZ}                         2
 ${currZ}                            3
+${multic_dataset}                   MultiChannel Images
 
 *** Keywords ***
+
+Edit Channel End
+    [Arguments]                             ${index}    ${value}
+    Click Element                           xpath=//input[@id="wblitz-ch${index}-cw-end"]
+    Input Text                              wblitz-ch${index}-cw-end    ${value}
+    # Switch focus to other element to trigger a 'focus lost' event
+    Click Element                           xpath=//input[@id="wblitz-ch0-cw-start"]
+
+Toggle Channel Active
+    [Arguments]                             ${index}
+    Click Element                           xpath=//button[@id="rd-wblitz-ch${index}"]
+
+Channel Should Be Active
+    [Arguments]                             ${index}
+    ${style}=                               Get Element Attribute       xpath=//button[@id="rd-wblitz-ch${index}"]@class
+    Should Contain                          ${style}                    pressed
+
+Channel Should Not Be Active
+    [Arguments]                             ${index}
+    ${style}=                               Get Element Attribute       xpath=//button[@id="rd-wblitz-ch${index}"]@class
+    Should Not Contain                      ${style}                    pressed
 
 Pick Color
     [Arguments]                             ${hexColor}
@@ -32,6 +54,39 @@ Wait For Channel Color
     # Can't use @style to check color since Firefox will auto convert hex to rgb() in the DOM but Chrome won't.
     # Wait Until Element Is Visible           xpath=//button[@id="rd-wblitz-ch0"][contains(@style, "background-color: ${rgbColor}")]      ${WAIT}
     Wait Until Element Is Visible           xpath=//button[@id="wblitz-ch0-color"][@data-color="${hexColor}"]
+
+Pick Lut
+    [Arguments]                             ${lutName}      ${channelIdx}
+    Click Element                           xpath=//button[@id="wblitz-ch${channelIdx}-color"]
+    Wait Until Element Is Visible           id=cbpicker-box
+    Click Element                           xpath=//div[contains(@class, 'lutpicker')]//label[contains(text(), '${lutName}')]
+    Wait For Image Src                      ${lutName}
+    Element Should Not Be Visible           id=cbpicker-box
+
+Check Image Src
+    [Arguments]                             ${findInImgSrc}
+    ${imageSrc}=                            Get Element Attribute       xpath=//img[contains(@class, 'weblitz-viewport-img')]@src
+    Should Contain                          ${imageSrc}                 ${findInImgSrc}
+
+Wait For Image Src
+    [Arguments]                             ${findInImgSrc}
+    Wait Until Keyword Succeeds             ${TIMEOUT}   ${INTERVAL}    Check Image Src         ${findInImgSrc}
+
+Check Reverse Intensity
+    [Arguments]                             ${channelIdx}               ${checked}
+    Click Element                           xpath=//button[@id="wblitz-ch${channelIdx}-color"]
+    Wait Until Element Is Visible           id=cbpicker-box
+    Run Keyword If      ${checked}          Checkbox Should Be Selected                 id=reverseIntensity
+    ...                 ELSE                Checkbox Should Not Be Selected             id=reverseIntensity
+    Click Element                           xpath=//div[contains(@class, 'cbpicker')]//div[contains(@class, 'postit-close-btn')]
+    Element Should Not Be Visible           id=cbpicker-box
+
+Toggle Reverse Intensity
+    [Arguments]                             ${channelIdx}
+    Click Element                           xpath=//button[@id="wblitz-ch${channelIdx}-color"]
+    Wait Until Element Is Visible           id=cbpicker-box
+    Select Checkbox                         id=reverseIntensity
+    Element Should Not Be Visible           id=cbpicker-box
 
 Wait For BlockUI
     # Wait Until Element Is Visible           xpath=//div[contains(@class, 'blockOverlay')]
@@ -69,14 +124,17 @@ Right Click Rendering Settings
     [Arguments]            ${treeId}       ${optionText}
     Open Context Menu                       xpath=//li[@id='${treeId}']/a
     Mouse Over                              xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), 'Rendering Settings...')]
-    Click Element                           xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), "${optionText}")]
-    Click Dialog Button                     OK
+    Click Element                           xpath=//ul[contains(@class, 'jstree-contextmenu')]//li[descendant::a[contains(text(), 'Rendering Settings')]]//a[contains(text(), "${optionText}")]
+    # E.g. 'Copy' option won't have 'OK' dialog
+    Run Keyword And Ignore Error            Click Dialog Button                     OK
 
 *** Test Cases ***
+
 
 Test Rdef Copy Paste Save
     [Documentation]     Tests Copy and Paste rdef, then Save and 'Save All'
 
+    Go To                                   ${WELCOME URL}
     Select Experimenter
 
     Select First Project With Children
@@ -236,7 +294,7 @@ Test Owners Rdef
     Pick Color                              FFFFFF
     Click Element                           xpath=//button[@id='rdef-copy-btn']
     Wait For Toolbar Button Enabled         rdef-paste-btn
-    
+
     # Test 'Paste and Save' with right-click on different Image in tree
     # (check thumb refresh by change of src)
     ${thumbSrc}=                            Get Element Attribute      xpath=//li[@id="image_icon-${imageId_2}"]/div[@class="image"]/a/img@src
@@ -295,3 +353,157 @@ Test Owners Rdef
     Wait Until Page Contains Element        id=wblitz-ch0
     Click Link                              Edit
     Textfield Value Should Be               wblitz-ch0-cw-end    200
+
+
+Test Rdef Save
+    [Documentation]     Tests saving rendering settings, including inactive channels
+
+    Go To                               ${WELCOME URL}
+    Select Experimenter
+    Select And Expand Node              ${multic_dataset}
+    ${nodeId}                           Wait For Dataset Node Text      ${multic_dataset}
+    Right Click Rendering Settings      ${nodeId}                       Set Imported and Save
+    ${imageId}=                         Select First Image
+
+    Click Link                          Preview
+    ${status}    ${oldId}               Wait For Preview Load       FAIL      '1'
+
+    # Undo, Redo & Save should be disabled
+    Element Should Be Disabled          id=rdef-undo-btn
+    Element Should Be Disabled          id=rdef-redo-btn
+    Element Should Be Disabled          id=rdef-setdef-btn
+
+    Edit Channel End                    0   50
+
+    # Undo & Save should be enabled now
+    Element Should Be Enabled           id=rdef-undo-btn
+    Element Should Be Enabled           id=rdef-setdef-btn
+
+    # Deactivate second and third channel
+    Toggle Channel Active               1
+    Toggle Channel Active               2
+
+    Edit Channel End                    1   50
+    Edit Channel End                    2   50
+
+    # Save rendering settings
+    ${thumbSrc}=                        Get Element Attribute      xpath=//button[@class="rdef clicked"]/img@src
+    Click Element                       id=rdef-setdef-btn
+    # Wait for response
+    Wait For BlockUI
+    Wait Until Page Contains Element    xpath=//button[@class="rdef clicked"]/img[@src!='${thumbSrc}']
+
+    # Check that 'Save' has worked by switching to the dataset and back again to the image
+    Select And Expand Node              nodeText=${multic_dataset}
+    Click Link                          General
+    Wait Until Element Is Visible       xpath=//div[@id="general_tab"]
+    Select Image By Id                  ${imageId}
+    Click Link                          Preview
+    ${status}    ${oldId}               Wait For Preview Load       FAIL      '1'
+
+    # Check that all values have been saved, including deactivated channels
+    Textfield Value Should Be           wblitz-ch0-cw-end           50
+    Textfield Value Should Be           wblitz-ch1-cw-end           50
+    Textfield Value Should Be           wblitz-ch2-cw-end           50
+    Channel Should Be Active            0
+    Channel Should Not Be Active        1
+    Channel Should Not Be Active        2
+
+
+Test LUTs Reverse Intensity
+    [Documentation]     Tests LUTs and Reverse, Copying and Pasting.
+    Go To                                   ${WELCOME URL}
+    Select Experimenter
+    Select And Expand Node                  ${multic_dataset}
+    ${nodeId}                               Wait For Dataset Node Text      ${multic_dataset}
+    Right Click Rendering Settings          ${nodeId}                       Set Imported and Save
+    Select First Image
+    ${imageId}=                             Wait For General Panel And Return Id    Image
+    Click Link                              Preview
+    ${status}   ${oldId}                    Wait For Preview Load                   FAIL      '1'
+
+    Pick Lut                                16_colors                       0
+
+    # Reverse Intensity of first channel
+    Toggle Reverse Intensity                0
+    Wait For Image Src                      maps=[{%22reverse%22:{%22enabled%22:true}
+    # Check the Intensity checkbox resets when dialog launched for different channels
+    Check Reverse Intensity                 1                           ${False}
+    Check Reverse Intensity                 0                           ${True}
+
+    # Copy Settings, refresh...
+    Click Element                           id=rdef-copy-btn
+    Click Element                           id=refreshButton
+    ${status}    ${oldId}                   Wait For Preview Load       ${status}   ${oldId}
+    # Check changes above weren't saved (first channel Red)
+    Wait For Image Src                      FF0000
+    Check Reverse Intensity                 0                           ${False}
+    Wait For Image Src                      maps=[{%22reverse%22:{%22enabled%22:false}
+
+    # ...and paste (to same image)
+    Click Element                           id=rdef-paste-btn
+    Check Reverse Intensity                 0                           ${True}
+    Check Reverse Intensity                 1                           ${False}
+    Wait For Image Src                      maps=[{%22reverse%22:{%22enabled%22:true}
+    Wait For Image Src                      16_colors
+
+    # Paste and Save by right-click on next Image in Tree
+    Click Next Thumbnail
+    Wait For Image Src                      FF0000
+    ${imageId2}=                            Get Selected Id From Tree
+    ${imgNodeId2}=                          Wait For Image Node         ${imageId2}
+    Right Click Rendering Settings          ${imgNodeId2}               Paste and Save
+    Wait For Image Src                      16_colors
+    Check Reverse Intensity                 0                           ${True}
+
+    # Pick a different LUT and Save
+    Pick Lut                                5_ramps                     0
+    Click Element                           id=rdef-setdef-btn
+    Wait For BlockUI
+
+    # Copy in Tree (copies the 'fromid' to session instead of rdef json)
+    Right Click Rendering Settings          ${imgNodeId2}               Copy
+    # Return to first Image and check nothing seved yet
+    Click Thumbnail                         ${imageId}
+    Wait For Image Src                      FF0000
+    Check Reverse Intensity                 0                           ${False}
+
+    # Paste settings 'fromid' in Preview Panel...
+    Click Element                           id=rdef-paste-btn
+    Wait For Image Src                      5_ramps
+    Check Reverse Intensity                 0                           ${True}
+    # Refresh
+    Click Element                           id=refreshButton
+    Wait For Image Src                      FF0000
+
+    # Paste settings 'fromid' in Tree
+    ${imgNodeId}=                           Wait For Image Node         ${imageId}
+    Right Click Rendering Settings          ${imgNodeId}                Paste and Save
+    Wait For Image Src                      5_ramps
+    Check Reverse Intensity                 0                           ${True}
+
+
+Test Launch Full Viewer
+    [Documentation]     Tests viewer launched from Preview panel with current settings
+    Go To                                   ${WELCOME URL}
+    Select Experimenter
+    Select And Expand Node                  ${multic_dataset}
+    ${nodeId}                               Wait For Dataset Node Text      ${multic_dataset}
+    Right Click Rendering Settings          ${nodeId}                       Set Imported and Save
+    Select First Image
+    ${imageName}=                           Wait For General Panel And Return Name              Image
+    Click Link                              Preview
+    Wait For Preview Load                   FAIL      '1'
+
+    # Change settings
+    Pick Lut                                16_colors       1
+    Toggle Reverse Intensity                0
+    Pick Color                              FFFF00
+    Toggle Channel Active                   2
+
+    Click Link                              id=preview_open_viewer
+    Wait Until Keyword Succeeds             ${TIMEOUT}     ${INTERVAL}     Select Window     title=${imageName}
+    Wait Until Page Contains Element        id=wblitz-ch0
+    # Check various channel settings and reverse map are applied
+    Wait For Image Src                      c=1|0:255$FFFF00,2|0:255$16_colors.lut,-3|0:255$0000FF
+    Wait For Image Src                      maps=[{%22reverse%22:{%22enabled%22:true}

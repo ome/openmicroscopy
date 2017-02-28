@@ -1024,7 +1024,7 @@ class EditorUI
 	 * 
 	 * @return See above.
 	 */
-	Set<FilesetData> getFileset() { return model.getFileset(); }
+	Collection<FilesetData> getFileset() { return model.getFileset(); }
 	
 	/**
 	 * Returns the image or <code>null</code> if the primary select

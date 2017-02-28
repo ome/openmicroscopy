@@ -24,7 +24,7 @@
 
 """
 
-import library as lib
+from omero.testlib import ITest
 import os
 
 from omero.model import PlateI, WellI, WellSampleI, OriginalFileI
@@ -33,7 +33,7 @@ from omero.util.populate_metadata import ParsingContext
 from omero.constants.namespaces import NSBULKANNOTATIONS
 
 
-class TestPopulateMetadata(lib.ITest):
+class TestPopulateMetadata(ITest):
 
     def createCsv(self, csvFileName):
 

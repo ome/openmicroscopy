@@ -27,7 +27,10 @@ import logging
 import traceback
 from django.http import JsonResponse
 from functools import update_wrapper
-from api_exceptions import NotFoundError, BadRequestError, CreatedObject
+from api_exceptions import BadRequestError, \
+    CreatedObject, \
+    MethodNotSupportedError, \
+    NotFoundError
 
 
 logger = logging.getLogger(__name__)
@@ -75,7 +78,7 @@ class json_response(object):
         # But we try to handle all 'expected' errors appropriately
         # TODO: handle omero.ConcurrencyException
         status = 500
-        if isinstance(ex, NotFoundError):
+        if isinstance(ex, (NotFoundError, MethodNotSupportedError)):
             status = ex.status
         if isinstance(ex, BadRequestError):
             status = ex.status

@@ -1119,14 +1119,14 @@ public class MetadataServiceTest extends AbstractServerTest {
             ContrastMethod cm;
             Illumination illumination;
             AcquisitionMode mode;
-            List<IObject> types = factory.getPixelsService()
-                    .getAllEnumerations(ContrastMethod.class.getName());
+            List<IObject> types = factory.getTypesService()
+                    .allEnumerations(ContrastMethod.class.getName());
             cm = (ContrastMethod) types.get(0);
 
-            types = factory.getPixelsService().getAllEnumerations(
+            types = factory.getTypesService().allEnumerations(
                     Illumination.class.getName());
             illumination = (Illumination) types.get(0);
-            types = factory.getPixelsService().getAllEnumerations(
+            types = factory.getTypesService().allEnumerations(
                     AcquisitionMode.class.getName());
             mode = (AcquisitionMode) types.get(0);
 

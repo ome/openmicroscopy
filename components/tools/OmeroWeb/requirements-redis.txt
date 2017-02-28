@@ -1,0 +1,7 @@
+# Python installation requirements for OMERO.web
+# ==============================================
+#
+#     pip install -r requirements-redis.txt
+#
+
+django-redis>=4.4

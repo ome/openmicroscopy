@@ -19,74 +19,134 @@
 
 """Helper functions for views that handle object trees."""
 
-import omero
 
-from omero.rtypes import unwrap, rlong
-from django.conf import settings
+from omero.rtypes import unwrap, wrap
+from omero.sys import ParametersI
+from . import api_settings
 
 from api_marshal import marshal_objects
 from copy import deepcopy
 
 
-def query_projects(conn, childCount=False,
-                   group=None, owner=None,
-                   page=1, limit=settings.PAGE,
-                   normalize=False):
-    """
-    Query OMERO and marshal omero.model.Projects.
+MAX_LIMIT = max(1, api_settings.API_MAX_LIMIT)
+DEFAULT_LIMIT = max(1, api_settings.API_LIMIT)
 
-    Build a query based on a number of parameters,
-    queries OMERO with the query service and
-    marshals Projects with omero_marshal.
+
+def get_wellsample_indices(conn, plate_id=None, plateacquisition_id=None):
+    """
+    Return min and max WellSample index for a Plate OR PlateAcquisition
 
     @param conn:        BlitzGateway
-    @param childCount:  If true, also load Dataset counts as omero:childCount
-    @param group:       Filter by group Id
-    @param owner:       Filter by owner Id
-    @param page:        Pagination page. Default is 1
-    @param limit:       Page size
+    @param plate_id:    Plate ID
+    @param plateacquisition_id:    PlateAcquisition ID
+    @return             A dict of parent_id: child_count
+    """
+    ctx = deepcopy(conn.SERVICE_OPTS)
+    ctx.setOmeroGroup(-1)
+    params = ParametersI()
+    query = "select minIndex(ws), maxIndex(ws) from Well well " \
+            "join well.wellSamples ws"
+    if plate_id is not None:
+        query += " where well.plate.id=:plate_id "
+        params.add('plate_id', wrap(plate_id))
+    elif plateacquisition_id is not None:
+        query += " where ws.plateAcquisition.id=:plateacquisition_id"
+        params.add('plateacquisition_id', wrap(plateacquisition_id))
+    result = conn.getQueryService().projection(query, params, ctx)
+    result = [r for r in unwrap(result)[0] if r is not None]
+    return result
+
+
+def get_child_counts(conn, link_class, parent_ids):
+    """
+    Count child links for the specified parent_ids.
+
+    @param conn:        BlitzGateway
+    @param link_class:  Type of link, e.g. 'ProjectDatasetLink'
+    @param parent_ids:  List of Parent IDs
+    @return             A dict of parent_id: child_count
+    """
+    ctx = deepcopy(conn.SERVICE_OPTS)
+    ctx.setOmeroGroup(-1)
+    params = ParametersI()
+    params.add('ids', wrap(parent_ids))
+    query = ("select chl.parent.id, count(chl.id) from %s chl"
+             " where chl.parent.id in (:ids) group by chl.parent.id"
+             % link_class)
+    result = conn.getQueryService().projection(query, params, ctx)
+    counts = {}
+    for d in result:
+        counts[d[0].val] = unwrap(d[1])
+    return counts
+
+
+def validate_opts(opts):
+    """Check that opts dict has valid 'limit' and 'offset'."""
+    if opts is None:
+        opts = {}
+    if opts.get('limit') is None or opts.get('limit') < 0:
+        opts['limit'] = DEFAULT_LIMIT
+    opts['limit'] = min(opts['limit'], MAX_LIMIT)
+    if opts.get('offset') is None or opts.get('offset') < 0:
+        opts['offset'] = 0
+    return opts
+
+
+def query_objects(conn, object_type,
+                  group=None,
+                  opts=None,
+                  normalize=False):
+    """
+    Base query method, handles different object_types.
+
+    Builds a query and adds common
+    parameters and filters such as by owner or group.
+
+    @param conn:        BlitzGateway
+    @param object_type: Type to query, e.g. Project
+    @param group:       Filter query by ExperimenterGroup ID
+    @param opts:        Options dict for conn.buildQuery()
     @param normalize:   If true, marshal groups and experimenters separately
     """
-    qs = conn.getQueryService()
-    params = omero.sys.ParametersI()
-    if page:
-        params.page((page-1) * limit, limit)
+    opts = validate_opts(opts)
+    # buildQuery is used by conn.getObjects()
+    query, params, wrapper = conn.buildQuery(object_type, opts=opts)
+    # Set the desired group context
     ctx = deepcopy(conn.SERVICE_OPTS)
-
-    # Set the desired group context and owner
     if group is None:
         group = -1
     ctx.setOmeroGroup(group)
-    where_clause = ''
-    if owner is not None and owner != -1:
-        params.add('owner', rlong(owner))
-        where_clause = 'where project.details.owner.id = :owner'
 
-    withChildCount = ""
-    if childCount:
-        withChildCount = """, (select count(id) from ProjectDatasetLink pdl
-                 where pdl.parent=project.id)"""
+    qs = conn.getQueryService()
 
-    # Need to load owners specifically, else can be unloaded if group != -1
-    query = """
-            select project %s from Project project
-            join fetch project.details.owner
-            %s
-            order by lower(project.name), project.id
-            """ % (withChildCount, where_clause)
-
-    projects = []
+    objects = []
     extras = {}
-    if childCount:
-        result = qs.projection(query, params, ctx)
-        for p in result:
-            project = unwrap(p[0])
-            projects.append(project)
-            extras[project.id.val] = {'omero:childCount': unwrap(p[1])}
-    else:
-        extras = None
-        result = qs.findAllByQuery(query, params, ctx)
-        for p in result:
-            projects.append(p)
 
-    return marshal_objects(projects, extras=extras, normalize=normalize)
+    if opts['limit'] == 0:
+        result = []
+    else:
+        result = qs.findAllByQuery(query, params, ctx)
+    for obj in result:
+        objects.append(obj)
+
+    # Optionally get child counts...
+    if opts and opts.get('child_count') and wrapper.LINK_CLASS:
+        obj_ids = [r.id.val for r in result]
+        counts = get_child_counts(conn, wrapper.LINK_CLASS, obj_ids)
+        for obj_id in obj_ids:
+            count = counts[obj_id] if obj_id in counts else 0
+            extras[obj_id] = {'omero:childCount': count}
+
+    # Query the count() of objects & add to 'meta' dict
+    count_query, params = conn.buildCountQuery(object_type, opts=opts)
+    result = qs.projection(count_query, params, ctx)
+
+    meta = {}
+    meta['offset'] = opts['offset']
+    meta['limit'] = opts['limit']
+    meta['maxLimit'] = MAX_LIMIT
+    meta['totalCount'] = result[0][0].val
+
+    marshalled = marshal_objects(objects, extras=extras, normalize=normalize)
+    marshalled['meta'] = meta
+    return marshalled

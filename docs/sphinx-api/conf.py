@@ -48,10 +48,6 @@ release = os.environ.get('OMERO_RELEASE', 'UNKNOWN')
 
 html_theme = 'api_theme'
 
-# The name of an image file (relative to this directory) to place at the top
-# of the sidebar.
-html_logo = '../sphinx/common/images/ome-tight.svg'
-
 # The suffix of source filenames.
 source_suffix = '.rst'
 

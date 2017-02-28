@@ -437,14 +437,7 @@ public class ImportCandidates extends DirectoryWalker
                 ic.setDoThumbnails(config.doThumbnails.get());
                 ic.setNoStatsInfo(config.noStatsInfo.get());
                 String configImageName = config.userSpecifiedName.get();
-                if (configImageName == null)
-                {
-                    ic.setUserSpecifiedName(file.getName());
-                }
-                else
-                {
-                    ic.setUserSpecifiedName(configImageName);
-                }
+                ic.setUserSpecifiedName(configImageName);
                 ic.setUserSpecifiedDescription(config.userSpecifiedDescription.get());
                 ic.setCustomAnnotationList(config.annotations.get());
                 return ic;

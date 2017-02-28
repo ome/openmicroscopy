@@ -322,7 +322,17 @@ jQuery._WeblitzViewport = function (container, server, options) {
     _this.loadedImg._load(data);
     _this.loadedImg_def = jQuery.extend(true, {}, _this.loadedImg);
     if (_this.loadedImg.current.query) {
-      _this.setQuery(_this.loadedImg.current.query);
+      // setQuery expects 'maps' to be json
+      var query_rdef = $.extend({}, _this.loadedImg.current.query);
+      if (query_rdef.maps) {
+        try {
+          query_rdef.maps = JSON.parse(query_rdef.maps);
+        } catch(err) {
+          alert('maps query string is not valid json: ' + query_rdef.maps);
+          query_rdef.maps = [];
+        }
+      }
+      _this.setQuery(query_rdef);
     }
     // refresh allow_resize = true, seems to *prevent* resize (good) but don't fully understand
     _this.refresh(true);
@@ -656,13 +666,20 @@ jQuery._WeblitzViewport = function (container, server, options) {
     if (this.isGreyModel() && this.getProjection() != 'split') {
       /* Only allow activation of channels, and disable all other */
       if (act) {
-	for (var i = 0; i < _this.loadedImg.channels.length; i++) {
-          act = i == idx;
-          if (act != _this.loadedImg.channels[i].active) {
-            _this.loadedImg.channels[i].active = act;
+        // turn off other channels...
+        for (var i = 0; i < _this.loadedImg.channels.length; i++) {
+          if (i !== idx && _this.loadedImg.channels[i].active) {
+            _this.loadedImg.channels[i].active = false;
             _this.self.trigger('channelChange', [_this, i, _this.loadedImg.channels[i]]);
           }
-	}
+        }
+        // ...then turn on active channel
+        if (!_this.loadedImg.channels[idx].active) {
+          _this.loadedImg.channels[idx].active = true;
+        }
+        // we always trigger, so last triggered channel is the active one
+        _this.self.trigger('channelChange', [_this, idx, _this.loadedImg.channels[idx]]);
+        _this.self.trigger('channelToggle', [_this, idx, _this.loadedImg.channels[idx]]);
         if (!noreload) {
           _load();
         }
@@ -679,24 +696,34 @@ jQuery._WeblitzViewport = function (container, server, options) {
   };
 
   this.setChannelColor = function (idx, color, noreload) {
-    _this.loadedImg.channels[idx].color = color;
-    _this.self.trigger('channelChange', [_this, idx, _this.loadedImg.channels[idx]]);
-    if (!noreload) {
-      _load();
+    if (color[0] === "#") color = color.replace("#", "");
+    if (color !== _this.loadedImg.channels[idx].color) {
+      _this.loadedImg.channels[idx].color = color;
+      _this.self.trigger('channelChange', [_this, idx, _this.loadedImg.channels[idx]]);
+      if (!noreload) {
+        _load();
+        // provide a more-granular trigger, E.g. for histogram to switch channel
+        // Only do this on _load() to prevent firing on all channels E.g. in viewport.setQuery()
+        _this.self.trigger('channelColorChange', [_this, idx, _this.loadedImg.channels[idx]]);
+      }
     }
   };
 
   this.setChannelLabel = function (idx, label, noreload) {
-    _this.loadedImg.channels[idx].metalabel = label;
-    _this.self.trigger('channelChange', [_this, idx, _this.loadedImg.channels[idx]]);
-    if (!noreload) {
-      _load();
+    if (label !== _this.loadedImg.channels[idx].metalabel) {
+      _this.loadedImg.channels[idx].metalabel = label;
+      _this.self.trigger('channelChange', [_this, idx, _this.loadedImg.channels[idx]]);
+      if (!noreload) {
+        _load();
+      }
     }
   };
 
   this.setChannelWindow = function (idx, start, end, noreload) {
     var channel = _this.loadedImg.channels[idx];
-    if (parseInt(start, 10) > parseInt(end, 10)) {
+    start = parseInt(start, 10);
+    end = parseInt(end, 10);
+    if (start > end) {
       var t = start;
       start = end;
       end = t;
@@ -704,16 +731,15 @@ jQuery._WeblitzViewport = function (container, server, options) {
     if (start < _this.loadedImg.pixel_range[0]) {
       start = _this.loadedImg.pixel_range[0];
     }
-//    if (channel.window.min <= start) {
-      channel.window.start = start;
-//    }
     if (end > _this.loadedImg.pixel_range[1]) {
       end = _this.loadedImg.pixel_range[1];
     }
-//    if (channel.window.max >= end) {
+    if (start !== channel.window.start || end !== channel.window.end) {
+      channel.window.start = start;
       channel.window.end = end;
-//    }
-    _this.self.trigger('channelChange', [_this, idx, _this.loadedImg.channels[idx]]);
+      _this.self.trigger('channelChange', [_this, idx, _this.loadedImg.channels[idx]]);
+    }
+    // Reload, e.g. after last channel changed in applyRDCW() (Even if last channel not changed)
     if (!noreload) {
       _load();
     }
@@ -1076,13 +1102,14 @@ jQuery._WeblitzViewport = function (container, server, options) {
     /* Channels (verbose as IE7 does not support Array.filter */
     var chs = [];
     var channels = this.loadedImg.channels;
+    var maps_json = [];
     for (var i=0; i<channels.length; i++) {
       var ch = channels[i].active ? '' : '-';
       ch += parseInt(i, 10)+1;
       ch += '|' + channels[i].window.start + ':' + channels[i].window.end;
-      ch += channels[i].reverseIntensity ? 'r' : '-r';
       ch += '$' + OME.rgbToHex(channels[i].color);
       chs.push(ch);
+      maps_json.push({'reverse': {'enabled': channels[i].reverseIntensity}});
     }
     query.push('c=' + chs.join(','));
     /* Rendering Model */
@@ -1130,6 +1157,8 @@ jQuery._WeblitzViewport = function (container, server, options) {
     if (this.loadedImg.current.query.debug !== undefined) {
       query.push('debug='+this.loadedImg.current.query.debug);
     }
+    // We can 'stringify' json for url. Nicer if we remove all spaces
+    query.push('maps=' + JSON.stringify(maps_json).replace(/ /g, ""));
     return query.join('&');
   };
 
@@ -1165,6 +1194,13 @@ jQuery._WeblitzViewport = function (container, server, options) {
           this.setChannelColor(idx, t[1], true);
         }
       }
+    }
+    if (query.maps) {
+      query.maps.map(function(m, idx){
+        if (m.reverse) {
+          this.setChannelReverseIntensity(idx, m.reverse.enabled, true);
+        }
+      }.bind(this));
     }
     if (query.q) this.setQuality(query.q, true);
     if (query.p) this.setProjection(query.p, true);
@@ -1221,8 +1257,9 @@ jQuery._WeblitzViewport = function (container, server, options) {
    * Some events are handled by us, some are proxied to the viewport plugin.
    */
   this.bind = function (event, callback) {
-    if (event == 'projectionChange' || event == 'modelChange' || event == 'channelChange' ||
-    event == 'imageChange' || event == 'imageLoad' || event == 'linePlotPos' || event == 'linePlotChange') {
+    if (event == 'projectionChange' || event == 'modelChange' || event == 'channelChange' || event == 'channelSlide' ||
+    event == 'imageChange' || event == 'imageLoad' || event == 'linePlotPos' || event == 'linePlotChange' ||
+    event == 'channelToggle' || event == 'channelFocus' || event == 'channelColorChange') {
       _this.self.bind(event, callback);
     } else {
       _this.viewportimg.bind(event, callback);

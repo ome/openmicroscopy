@@ -22,7 +22,7 @@ Simple integration tests for the "tree" module.
 """
 
 import pytest
-import library as lib
+from omero.testlib import ITest
 
 from omero.gateway import BlitzGateway, _letterGridLabel
 from omero.constants.metadata import NSINSIGHTTAGSET
@@ -243,11 +243,12 @@ def expected_wells(user, wells):
     for well in wells:
         rName = unwrap(well.plate.rowNamingConvention)
         cName = unwrap(well.plate.columnNamingConvention)
+        pName = unwrap(well.plate.name)
         row = well.row.val
         col = well.column.val
         rowname = str(row + 1) if rName == 'number' else _letterGridLabel(row)
         colname = _letterGridLabel(col) if cName == 'letter' else str(col + 1)
-        name = "%s%s" % (rowname, colname)
+        name = "%s - %s%s" % (pName, rowname, colname)
         expected.append({
             'id': well.id.val,
             'name': name,
@@ -1295,7 +1296,7 @@ def tagset_hierarchy_userB_groupA(request, userA,
     return tagsets + tags + [link.parent for link in links]
 
 
-class TestTree(lib.ITest):
+class TestTree(ITest):
     """
     Tests to ensure that OMERO.web "tree" infrastructure is working
     correctly.
@@ -1404,7 +1405,8 @@ class TestTree(lib.ITest):
         Returns a new image with pixels of fixed dimensions
         """
         sf = userA[0].sf
-        image = self.createTestImage(sizeX=50, sizeY=50, sizeZ=5, session=sf)
+        image = self.create_test_image(size_x=50, size_y=50, size_z=5,
+                                       session=sf)
         return image
 
     @pytest.fixture(scope='function')

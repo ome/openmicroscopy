@@ -61,7 +61,7 @@ from webclient_utils import _formatReport, _purgeCallback
 from forms import GlobalSearchForm, ContainerForm
 from forms import ShareForm, BasketShareForm
 from forms import ContainerNameForm, ContainerDescriptionForm
-from forms import CommentAnnotationForm, TagsAnnotationForm,  UsersForm
+from forms import CommentAnnotationForm, TagsAnnotationForm
 from forms import MetadataFilterForm, MetadataDetectorForm
 from forms import MetadataChannelForm, MetadataEnvironmentForm
 from forms import MetadataObjectiveForm, MetadataObjectiveSettingsForm
@@ -97,6 +97,8 @@ from omero.rtypes import rlong, rlist
 from omeroweb.webgateway.views import LoginView
 
 import tree
+
+import warnings
 
 logger = logging.getLogger(__name__)
 
@@ -141,13 +143,7 @@ def get_bool_or_default(request, name, default):
     This does not catch exceptions as it makes sense to throw exceptions if
     the arguments provided do not pass basic type validation
     """
-    val = default
-    val_raw = request.GET.get(name)
-    if val_raw is not None:
-        if val_raw.lower() == 'true' or int(val_raw) == 1:
-            val = True
-    return val
-
+    return toBoolean(request.GET.get(name, default))
 
 ##############################################################################
 # custom index page
@@ -344,9 +340,8 @@ def logout(request, conn=None, **kwargs):
 
 
 ###########################################################################
-@login_required()
-@render_response()
-def load_template(request, menu, conn=None, url=None, **kwargs):
+def _load_template(request, menu, conn=None, url=None, **kwargs):
+
     """
     This view handles most of the top-level pages, as specified by 'menu' E.g.
     userdata, usertags, history, search etc.
@@ -357,16 +352,18 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     """
     request.session.modified = True
 
-    if menu == 'userdata':
-        template = "webclient/data/containers.html"
-    elif menu == 'usertags':
-        template = "webclient/data/containers.html"
-    else:
-        # E.g. search/search.html
-        template = "webclient/%s/%s.html" % (menu, menu)
+    template = kwargs.get('template', None)
+    if template is None:
+        if menu == 'userdata':
+            template = "webclient/data/containers.html"
+        elif menu == 'usertags':
+            template = "webclient/data/containers.html"
+        else:
+            # E.g. search/search.html
+            template = "webclient/%s/%s.html" % (menu, menu)
 
     # tree support
-    show = Show(conn, request, menu)
+    show = kwargs.get('show', Show(conn, request, menu))
     # Constructor does no loading.  Show.first_selected must be called first
     # in order to set up our initial state correctly.
     try:
@@ -390,7 +387,9 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
 
     # get url without request string - used to refresh page after switch
     # user/group etc
-    url = reverse(viewname="load_template", args=[menu])
+    url = kwargs.get('load_template_url', None)
+    if url is None:
+        url = reverse(viewname="load_template", args=[menu])
 
     # validate experimenter is in the active group
     active_group = (request.session.get('active_group') or
@@ -400,12 +399,6 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
         "ExperimenterGroup", active_group).groupSummary()
     userIds = [u.id for u in leaders]
     userIds.extend([u.id for u in members])
-    users = []
-    if len(leaders) > 0:
-        users.append(("Owners", leaders))
-    if len(members) > 0:
-        users.append(("Members", members))
-    users = tuple(users)
 
     # check any change in experimenter...
     user_id = request.GET.get('experimenter')
@@ -417,13 +410,13 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
         user_id = long(user_id)
     except:
         user_id = None
+    # check if user_id is in a currnt group
     if user_id is not None:
-        form_users = UsersForm(
-            initial={'users': users, 'empty_label': None, 'menu': menu},
-            data=request.GET.copy())
-        if not form_users.is_valid():
-            if user_id != -1:           # All users in group is allowed
-                user_id = None
+        if (user_id not in
+            (set(map(lambda x: x.id, leaders))
+             | set(map(lambda x: x.id, members))) and user_id != -1):
+            # All users in group is allowed
+            user_id = None
     if user_id is None:
         # ... or check that current user is valid in active group
         user_id = request.session.get('user_id', None)
@@ -461,12 +454,20 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
         "ExperimenterGroup", long(active_group))
     context['active_user'] = conn.getObject("Experimenter", long(user_id))
     context['initially_select'] = show.initially_select
+    context['initially_open'] = show.initially_open
     context['isLeader'] = conn.isLeader()
     context['current_url'] = url
     context['page_size'] = settings.PAGE
     context['template'] = template
 
     return context
+
+
+@login_required()
+@render_response()
+def load_template(request, menu, conn=None, url=None, **kwargs):
+    return _load_template(request=request, menu=menu, conn=conn,
+                          url=url, **kwargs)
 
 
 @login_required()
@@ -983,7 +984,7 @@ def _api_links_DELETE(conn, json_data):
                 linkType, links = objLnks
                 linkIds = [r.id.val for r in links]
                 logger.info("api_link: Deleting %s links" % len(linkIds))
-                conn.deleteObjects(linkType, linkIds)
+                conn.deleteObjects(linkType, linkIds, wait=True)
                 # webclient needs to know what is orphaned
                 linkType, remainingLinks = get_object_links(conn,
                                                             parent_type,
@@ -1151,8 +1152,7 @@ def api_tags_and_tagged_list_DELETE(request, conn=None, **kwargs):
 @login_required()
 def api_annotations(request, conn=None, **kwargs):
 
-    r = request.GET or request.POST
-
+    r = request.GET
     image_ids = r.getlist('image')
     dataset_ids = r.getlist('dataset')
     project_ids = r.getlist('project')
@@ -1271,6 +1271,8 @@ def load_plate(request, o1_type=None, o1_id=None, conn=None, **kwargs):
         context['form_well_index'] = form_well_index
         context['index'] = index
         template = "webclient/data/plate.html"
+        if o1_type == 'acquisition':
+            context['acquisition'] = o1_id
 
     context['isLeader'] = conn.isLeader()
     context['template'] = template
@@ -1573,7 +1575,11 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None,
             'c': ",".join(chs),
             'm': r['model'] == 'greyscale' and 'g' or 'c'
             })
+    max_w, max_h = conn.getMaxPlaneSize()
+    size_x = manager.image.getSizeX()
+    size_y = manager.image.getSizeY()
 
+    context['tiledImage'] = (size_x * size_y) > (max_w * max_h)
     context['manager'] = manager
     context['rdefsJson'] = json.dumps(rdefQueries)
     context['rdefs'] = rdefs
@@ -2882,6 +2888,8 @@ def image_as_map(request, imageId, conn=None, **kwargs):
     Converts OMERO image into mrc.map file (using tiltpicker utils) and
     returns the file
     """
+    warnings.warn(
+        "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
 
     from omero_ext.tiltpicker.pyami import mrc
     from numpy import dstack, zeros, int8

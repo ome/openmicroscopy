@@ -21,7 +21,7 @@
 Tests webclient login
 """
 
-from weblibrary import IWebTest, _csrf_post_response, _get_response
+from omeroweb.testlib import IWebTest, _csrf_post_response, _get_response
 from django.core.urlresolvers import reverse
 from django.test import Client
 from random import random

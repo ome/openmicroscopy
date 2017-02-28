@@ -2440,7 +2440,7 @@ class ImageWrapper (OmeroWebObjectWrapper,
         convert to more appropriate units & value
         """
         if size is None:
-            return (0, "µm")
+            return (None, "µm")
         length = size.getValue()
         unit = size.getUnit()
         if unit == "MICROMETER":

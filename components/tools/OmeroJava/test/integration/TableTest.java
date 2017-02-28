@@ -24,10 +24,9 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
- * Collections of tests for the <code>IUpdate</code> service.
+ * Collections of tests for the Table handling.
  *
  * @author Brian loranger &nbsp;&nbsp;&nbsp;&nbsp;
- * @version 3.0 <small> (<b>Internal version:</b> $Revision: $Date: $) </small>
  * @since 3.0-Beta4
  */
 public class TableTest extends AbstractServerTest {
@@ -78,7 +77,6 @@ public class TableTest extends AbstractServerTest {
      * @throws ServerError
      *             Thrown if an error occurred.
      */
-    @SuppressWarnings("unused")
     @BeforeMethod
     private String createTable() throws ServerError {
         myColumns = createColumns(1);
@@ -86,9 +84,9 @@ public class TableTest extends AbstractServerTest {
         String uniqueTableFile = "TableTest" + UUID.randomUUID().toString();
 
         // Create new unique table
-        myTable = factory.sharedResources().newTable(1, uniqueTableFile);
-        if (myTable != null)
-            myTable.initialize(myColumns);
+        long id = factory.sharedResources().repositories().descriptions.get(0).getId().getValue();
+        myTable = factory.sharedResources().newTable(id, uniqueTableFile);
+        myTable.initialize(myColumns);
 
         return uniqueTableFile;
     }
@@ -99,13 +97,13 @@ public class TableTest extends AbstractServerTest {
      * @throws ServerError
      *             Thrown if an error occurred.
      */
-    @SuppressWarnings("unused")
     @AfterMethod
     private void deleteTable() throws Exception {
         if (myTable != null) {
             OriginalFile f = myTable.getOriginalFile();
             final Delete2 dc = Requests.delete().target(f).build();
             callback(true, client, dc);
+            myTable.close();
             myTable = null;
         }
     }
@@ -118,8 +116,7 @@ public class TableTest extends AbstractServerTest {
      */
     @Test
     public void testGetOriginalFile() throws Exception {
-        if (myTable != null)
-            myTable.getOriginalFile();
+        myTable.getOriginalFile();
     }
 
     /**
@@ -130,8 +127,7 @@ public class TableTest extends AbstractServerTest {
      */
     @Test
     public void testGetHeaders() throws Exception {
-        if (myTable != null)
-            myTable.getHeaders();
+        myTable.getHeaders();
     }
 
     /**
@@ -155,8 +151,7 @@ public class TableTest extends AbstractServerTest {
         myLongs.values[1] = 1;
         myStrings.values[1] = "one";
 
-        if (myTable != null)
-            myTable.addData(newRow);
+        myTable.addData(newRow);
     }
 
     /**
@@ -167,23 +162,21 @@ public class TableTest extends AbstractServerTest {
      */
     @Test
     public void testGetNumberOfRows() throws Exception {
-        if (myTable != null) {
-            Assert.assertEquals(0, myTable.getNumberOfRows());
+        Assert.assertEquals(myTable.getNumberOfRows(), 0);
 
-            Column[] newRow = createColumns(1);
+        Column[] newRow = createColumns(1);
 
-            LongColumn uids = (LongColumn) newRow[UID_COLUMN];
-            LongColumn myLongs = (LongColumn) newRow[LONG_COLUMN];
-            StringColumn myStrings = (StringColumn) newRow[STRING_COLUMN];
+        LongColumn uids = (LongColumn) newRow[UID_COLUMN];
+        LongColumn myLongs = (LongColumn) newRow[LONG_COLUMN];
+        StringColumn myStrings = (StringColumn) newRow[STRING_COLUMN];
 
-            uids.values[0] = 0;
-            myLongs.values[0] = 0;
-            myStrings.values[0] = "none";
+        uids.values[0] = 0;
+        myLongs.values[0] = 0;
+        myStrings.values[0] = "none";
 
-            myTable.addData(newRow);
+        myTable.addData(newRow);
 
-            Assert.assertEquals(1, myTable.getNumberOfRows());
-        }
+        Assert.assertEquals(myTable.getNumberOfRows(), 1);
     }
 
     /**
@@ -194,12 +187,10 @@ public class TableTest extends AbstractServerTest {
      */
     @Test
     public void testGetWhereListEmptyTable() throws Exception {
-        if (myTable != null) {
-            long[] ids = myTable.getWhereList("(Uid==" + 0 + ")", null, 0,
-                    myTable.getNumberOfRows(), 1);
+        long[] ids = myTable.getWhereList("(Uid==" + 0 + ")", null, 0,
+                myTable.getNumberOfRows(), 1);
 
-            Assert.assertEquals(0, ids.length);
-        }
+        Assert.assertEquals(ids.length, 0);
     }
 
     /**
@@ -210,42 +201,40 @@ public class TableTest extends AbstractServerTest {
      */
     @Test
     public void testGetWhereListManyRows() throws Exception {
-        if (myTable != null) {
-            Column[] newRow = createColumns(3);
+        Column[] newRow = createColumns(3);
 
-            LongColumn uids = (LongColumn) newRow[UID_COLUMN];
-            LongColumn myLongs = (LongColumn) newRow[LONG_COLUMN];
-            StringColumn myStrings = (StringColumn) newRow[STRING_COLUMN];
+        LongColumn uids = (LongColumn) newRow[UID_COLUMN];
+        LongColumn myLongs = (LongColumn) newRow[LONG_COLUMN];
+        StringColumn myStrings = (StringColumn) newRow[STRING_COLUMN];
 
-            uids.values[0] = 0;
-            myLongs.values[0] = 0;
-            myStrings.values[0] = "zero";
-            uids.values[1] = 1;
-            myLongs.values[1] = 1;
-            myStrings.values[1] = "one";
-            uids.values[2] = 2;
-            myLongs.values[2] = 2;
-            myStrings.values[2] = "two";
+        uids.values[0] = 0;
+        myLongs.values[0] = 0;
+        myStrings.values[0] = "zero";
+        uids.values[1] = 1;
+        myLongs.values[1] = 1;
+        myStrings.values[1] = "one";
+        uids.values[2] = 2;
+        myLongs.values[2] = 2;
+        myStrings.values[2] = "two";
 
-            myTable.addData(newRow);
+        myTable.addData(newRow);
 
-            long[] ids = myTable.getWhereList("(Uid==" + 1 + ")", null, 0,
-                    myTable.getNumberOfRows(), 1);
+        long[] ids = myTable.getWhereList("(Uid==" + 1 + ")", null, 0,
+                myTable.getNumberOfRows(), 1);
 
-            // getWhereList should have returned one row
-            Assert.assertEquals(1, ids.length);
+        // getWhereList should have returned one row
+        Assert.assertEquals(ids.length, 1);
 
-            // Retrieve data again
-            Data myData = myTable.read(ColNumbers, 0L,
-                    myTable.getNumberOfRows());
+        // Retrieve data again
+        Data myData = myTable.read(ColNumbers, 0L,
+                myTable.getNumberOfRows());
 
-            myStrings = (StringColumn) myData.columns[STRING_COLUMN];
-            myLongs = (LongColumn) myData.columns[LONG_COLUMN];
+        myStrings = (StringColumn) myData.columns[STRING_COLUMN];
+        myLongs = (LongColumn) myData.columns[LONG_COLUMN];
 
-            // Row's time string and value should be the same
-            Assert.assertEquals(1, (myLongs.values[(int) ids[0]]));
-            Assert.assertEquals("one", myStrings.values[(int) ids[0]]);
-        }
+        // Row's time string and value should be the same
+        Assert.assertEquals((myLongs.values[(int) ids[0]]), 1);
+        Assert.assertEquals(myStrings.values[(int) ids[0]], "one");
     }
 
     /**
@@ -257,10 +246,7 @@ public class TableTest extends AbstractServerTest {
      */
     @Test(expectedExceptions = ApiUsageException.class)
     public void testReadCoordinates0Rows() throws Exception {
-        if (myTable != null)
-            myTable.readCoordinates(null);
-        else
-            throw new ApiUsageException(); // table not available
+        myTable.readCoordinates(null);
     }
 
     /**
@@ -271,20 +257,18 @@ public class TableTest extends AbstractServerTest {
      */
     @Test
     public void testReadCoordinates1Rows() throws Exception {
-        if (myTable != null) {
-            Column[] newRow = createColumns(1);
+        Column[] newRow = createColumns(1);
 
-            LongColumn uids = (LongColumn) newRow[UID_COLUMN];
-            LongColumn myLongs = (LongColumn) newRow[LONG_COLUMN];
-            StringColumn myStrings = (StringColumn) newRow[STRING_COLUMN];
+        LongColumn uids = (LongColumn) newRow[UID_COLUMN];
+        LongColumn myLongs = (LongColumn) newRow[LONG_COLUMN];
+        StringColumn myStrings = (StringColumn) newRow[STRING_COLUMN];
 
-            uids.values[0] = 0;
-            myLongs.values[0] = 0;
-            myStrings.values[0] = "zero";
+        uids.values[0] = 0;
+        myLongs.values[0] = 0;
+        myStrings.values[0] = "zero";
 
-            myTable.addData(newRow);
-            myTable.readCoordinates(new long[] { 0L });
-        }
+        myTable.addData(newRow);
+        myTable.readCoordinates(new long[] { 0L });
     }
 
     /**
@@ -295,23 +279,21 @@ public class TableTest extends AbstractServerTest {
      */
     @Test
     public void testReadCoordinates2Rows() throws Exception {
-        if (myTable != null) {
-            Column[] newRow = createColumns(2);
+        Column[] newRow = createColumns(2);
 
-            LongColumn uids = (LongColumn) newRow[UID_COLUMN];
-            LongColumn myLongs = (LongColumn) newRow[LONG_COLUMN];
-            StringColumn myStrings = (StringColumn) newRow[STRING_COLUMN];
+        LongColumn uids = (LongColumn) newRow[UID_COLUMN];
+        LongColumn myLongs = (LongColumn) newRow[LONG_COLUMN];
+        StringColumn myStrings = (StringColumn) newRow[STRING_COLUMN];
 
-            uids.values[0] = 0;
-            myLongs.values[0] = 0;
-            myStrings.values[0] = "zero";
-            uids.values[1] = 1;
-            myLongs.values[1] = 1;
-            myStrings.values[1] = "one";
+        uids.values[0] = 0;
+        myLongs.values[0] = 0;
+        myStrings.values[0] = "zero";
+        uids.values[1] = 1;
+        myLongs.values[1] = 1;
+        myStrings.values[1] = "one";
 
-            myTable.addData(newRow);
-            myTable.readCoordinates(new long[] { 0L, 1L });
-        }
+        myTable.addData(newRow);
+        myTable.readCoordinates(new long[] { 0L, 1L });
     }
 
     /**
@@ -322,8 +304,7 @@ public class TableTest extends AbstractServerTest {
      */
     @Test
     public void testRead0Rows() throws Exception {
-        if (myTable != null)
-            myTable.read(ColNumbers, 0L, myTable.getNumberOfRows());
+        myTable.read(ColNumbers, 0L, myTable.getNumberOfRows());
     }
 
     /**
@@ -334,20 +315,18 @@ public class TableTest extends AbstractServerTest {
      */
     @Test
     public void testRead1Rows() throws Exception {
-        if (myTable != null) {
-            Column[] newRow = createColumns(1);
+        Column[] newRow = createColumns(1);
 
-            LongColumn uids = (LongColumn) newRow[UID_COLUMN];
-            LongColumn myLongs = (LongColumn) newRow[LONG_COLUMN];
-            StringColumn myStrings = (StringColumn) newRow[STRING_COLUMN];
+        LongColumn uids = (LongColumn) newRow[UID_COLUMN];
+        LongColumn myLongs = (LongColumn) newRow[LONG_COLUMN];
+        StringColumn myStrings = (StringColumn) newRow[STRING_COLUMN];
 
-            uids.values[0] = 0;
-            myLongs.values[0] = 0;
-            myStrings.values[0] = "none";
+        uids.values[0] = 0;
+        myLongs.values[0] = 0;
+        myStrings.values[0] = "none";
 
-            myTable.addData(newRow);
-            myTable.read(ColNumbers, 0L, myTable.getNumberOfRows());
-        }
+        myTable.addData(newRow);
+        myTable.read(ColNumbers, 0L, myTable.getNumberOfRows());
     }
 
     /**
@@ -358,23 +337,21 @@ public class TableTest extends AbstractServerTest {
      */
     @Test
     public void testRead2Rows() throws Exception {
-        if (myTable != null) {
-            Column[] newRow = createColumns(2);
+        Column[] newRow = createColumns(2);
 
-            LongColumn uids = (LongColumn) newRow[UID_COLUMN];
-            LongColumn myLongs = (LongColumn) newRow[LONG_COLUMN];
-            StringColumn myStrings = (StringColumn) newRow[STRING_COLUMN];
+        LongColumn uids = (LongColumn) newRow[UID_COLUMN];
+        LongColumn myLongs = (LongColumn) newRow[LONG_COLUMN];
+        StringColumn myStrings = (StringColumn) newRow[STRING_COLUMN];
 
-            uids.values[0] = 0;
-            myLongs.values[0] = 0;
-            myStrings.values[0] = "zero";
-            uids.values[1] = 1;
-            myLongs.values[1] = 1;
-            myStrings.values[1] = "one";
+        uids.values[0] = 0;
+        myLongs.values[0] = 0;
+        myStrings.values[0] = "zero";
+        uids.values[1] = 1;
+        myLongs.values[1] = 1;
+        myStrings.values[1] = "one";
 
-            myTable.addData(newRow);
-            myTable.read(ColNumbers, 0L, myTable.getNumberOfRows());
-        }
+        myTable.addData(newRow);
+        myTable.read(ColNumbers, 0L, myTable.getNumberOfRows());
     }
 
     /**
@@ -385,10 +362,7 @@ public class TableTest extends AbstractServerTest {
      */
     @Test(expectedExceptions = ApiUsageException.class)
     public void testSlice0Rows() throws Exception {
-        if (myTable != null)
-            myTable.slice(null, null);
-        else
-            throw new ApiUsageException(); // table not available
+        myTable.slice(null, null);
     }
 
     /**
@@ -399,20 +373,18 @@ public class TableTest extends AbstractServerTest {
      */
     @Test
     public void testSlice1Rows() throws Exception {
-        if (myTable != null) {
-            Column[] newRow = createColumns(1);
+        Column[] newRow = createColumns(1);
 
-            LongColumn uids = (LongColumn) newRow[UID_COLUMN];
-            LongColumn myLongs = (LongColumn) newRow[LONG_COLUMN];
-            StringColumn myStrings = (StringColumn) newRow[STRING_COLUMN];
+        LongColumn uids = (LongColumn) newRow[UID_COLUMN];
+        LongColumn myLongs = (LongColumn) newRow[LONG_COLUMN];
+        StringColumn myStrings = (StringColumn) newRow[STRING_COLUMN];
 
-            uids.values[0] = 0;
-            myLongs.values[0] = 0;
-            myStrings.values[0] = "zero";
+        uids.values[0] = 0;
+        myLongs.values[0] = 0;
+        myStrings.values[0] = "zero";
 
-            myTable.addData(newRow);
-            myTable.slice(ColNumbers, new long[] { 0L });
-        }
+        myTable.addData(newRow);
+        myTable.slice(ColNumbers, new long[] { 0L });
     }
 
     /**
@@ -423,24 +395,22 @@ public class TableTest extends AbstractServerTest {
      */
     @Test
     public void testSlice2Rows() throws Exception {
-        if (myTable != null) {
-            Column[] newRow = createColumns(2);
+        Column[] newRow = createColumns(2);
 
-            LongColumn uids = (LongColumn) newRow[UID_COLUMN];
-            LongColumn myLongs = (LongColumn) newRow[LONG_COLUMN];
-            StringColumn myStrings = (StringColumn) newRow[STRING_COLUMN];
+        LongColumn uids = (LongColumn) newRow[UID_COLUMN];
+        LongColumn myLongs = (LongColumn) newRow[LONG_COLUMN];
+        StringColumn myStrings = (StringColumn) newRow[STRING_COLUMN];
 
-            uids.values[0] = 0;
-            myLongs.values[0] = 0;
-            myStrings.values[0] = "zero";
-            uids.values[1] = 1;
-            myLongs.values[1] = 1;
-            myStrings.values[1] = "one";
+        uids.values[0] = 0;
+        myLongs.values[0] = 0;
+        myStrings.values[0] = "zero";
+        uids.values[1] = 1;
+        myLongs.values[1] = 1;
+        myStrings.values[1] = "one";
 
-            myTable.addData(newRow);
+        myTable.addData(newRow);
 
-            myTable.slice(ColNumbers, new long[] { 0L, 1L });
-        }
+        myTable.slice(ColNumbers, new long[] { 0L, 1L });
     }
 
     /**
@@ -451,55 +421,52 @@ public class TableTest extends AbstractServerTest {
      */
     @Test
     public void testUpdateTableWith1Rows() throws Exception {
-        if (myTable != null) {
-            // Add a new row to table
-            Column[] newRow = createColumns(1);
+        // Add a new row to table
+        Column[] newRow = createColumns(1);
 
-            LongColumn uids = (LongColumn) newRow[UID_COLUMN];
-            LongColumn myLongs = (LongColumn) newRow[LONG_COLUMN];
-            StringColumn myStrings = (StringColumn) newRow[STRING_COLUMN];
+        LongColumn uids = (LongColumn) newRow[UID_COLUMN];
+        LongColumn myLongs = (LongColumn) newRow[LONG_COLUMN];
+        StringColumn myStrings = (StringColumn) newRow[STRING_COLUMN];
 
-            Long oldTime = new Date().getTime();
+        Long oldTime = new Date().getTime();
 
-            uids.values[0] = 1;
-            myLongs.values[0] = oldTime;
-            myStrings.values[0] = oldTime.toString();
+        uids.values[0] = 1;
+        myLongs.values[0] = oldTime;
+        myStrings.values[0] = oldTime.toString();
 
-            myTable.addData(newRow);
+        myTable.addData(newRow);
 
-            // Retrieve the table data
-            Data myData = myTable.read(ColNumbers, 0L,
-                    myTable.getNumberOfRows());
+        // Retrieve the table data
+        Data myData = myTable.read(ColNumbers, 0L,
+                myTable.getNumberOfRows());
 
-            // Find the specific row we added
-            long[] ids = myTable.getWhereList("(Uid==" + 1 + ")", null, 0,
-                    myTable.getNumberOfRows(), 1);
+        // Find the specific row we added
+        long[] ids = myTable.getWhereList("(Uid==" + 1 + ")", null, 0,
+                myTable.getNumberOfRows(), 1);
 
-            // getWhereList should have returned one row
-            Assert.assertEquals(1, ids.length);
+        // getWhereList should have returned one row
+        Assert.assertEquals(ids.length, 1);
 
-            // Update the row with new data
-            Long newTime = new Date().getTime();
+        // Update the row with new data
+        Long newTime = new Date().getTime();
 
-            ((LongColumn) myData.columns[LONG_COLUMN]).values[(int) ids[0]] = newTime;
-            ((StringColumn) myData.columns[STRING_COLUMN]).values[(int) ids[0]] = newTime
-                    .toString();
+        ((LongColumn) myData.columns[LONG_COLUMN]).values[(int) ids[0]] = newTime;
+        ((StringColumn) myData.columns[STRING_COLUMN]).values[(int) ids[0]] = newTime
+                .toString();
 
-            myTable.update(myData);
+        myTable.update(myData);
 
-            // Retrieve data again
-            myData = myTable.read(ColNumbers, 0L, myTable.getNumberOfRows());
+        // Retrieve data again
+        myData = myTable.read(ColNumbers, 0L, myTable.getNumberOfRows());
 
-            myStrings = (StringColumn) myData.columns[STRING_COLUMN];
-            myLongs = (LongColumn) myData.columns[LONG_COLUMN];
+        myStrings = (StringColumn) myData.columns[STRING_COLUMN];
+        myLongs = (LongColumn) myData.columns[LONG_COLUMN];
 
-            // Row's time string and value should be the same
-            Assert.assertEquals(newTime.toString(),
-                    myStrings.values[(int) ids[0]]);
-            Assert.assertEquals(newTime.longValue(), myLongs.values[(int) ids[0]]);
-        }
-
-    } // updateTableRow()
+        // Row's time string and value should be the same
+        Assert.assertEquals(
+                myStrings.values[(int) ids[0]], newTime.toString());
+        Assert.assertEquals(myLongs.values[(int) ids[0]], newTime.longValue());
+    }
 
     /**
      * Add then update a table row, assert its validity.
@@ -509,57 +476,55 @@ public class TableTest extends AbstractServerTest {
      */
     @Test
     public void testUpdateTableWith2Rows() throws Exception {
-        if (myTable != null) {
-            // Add a new row to table
-            Column[] newRow = createColumns(2);
+     // Add a new row to table
+        Column[] newRow = createColumns(2);
 
-            LongColumn uids = (LongColumn) newRow[UID_COLUMN];
-            LongColumn myLongs = (LongColumn) newRow[LONG_COLUMN];
-            StringColumn myStrings = (StringColumn) newRow[STRING_COLUMN];
+        LongColumn uids = (LongColumn) newRow[UID_COLUMN];
+        LongColumn myLongs = (LongColumn) newRow[LONG_COLUMN];
+        StringColumn myStrings = (StringColumn) newRow[STRING_COLUMN];
 
-            Long oldTime = new Date().getTime();
+        Long oldTime = new Date().getTime();
 
-            uids.values[0] = 1;
-            myLongs.values[0] = oldTime;
-            myStrings.values[0] = oldTime.toString();
+        uids.values[0] = 1;
+        myLongs.values[0] = oldTime;
+        myStrings.values[0] = oldTime.toString();
 
-            uids.values[1] = 2;
-            myLongs.values[1] = oldTime;
-            myStrings.values[1] = oldTime.toString();
+        uids.values[1] = 2;
+        myLongs.values[1] = oldTime;
+        myStrings.values[1] = oldTime.toString();
 
-            myTable.addData(newRow);
+        myTable.addData(newRow);
 
-            // Retrieve the table data
-            Data myData = myTable.read(ColNumbers, 0L,
-                    myTable.getNumberOfRows());
+        // Retrieve the table data
+        Data myData = myTable.read(ColNumbers, 0L,
+                myTable.getNumberOfRows());
 
-            // Find the specific row we added
-            long[] ids = myTable.getWhereList("(Uid==" + 1 + ")", null, 0,
-                    myTable.getNumberOfRows(), 1);
+        // Find the specific row we added
+        long[] ids = myTable.getWhereList("(Uid==" + 1 + ")", null, 0,
+                myTable.getNumberOfRows(), 1);
 
-            // getWhereList should have returned one row
-            Assert.assertEquals(1, ids.length);
+        // getWhereList should have returned one row
+        Assert.assertEquals(ids.length, 1);
 
-            // Update the row with new data
-            Long newTime = new Date().getTime();
+        // Update the row with new data
+        Long newTime = new Date().getTime();
 
-            ((LongColumn) myData.columns[LONG_COLUMN]).values[(int) ids[0]] = newTime;
-            ((StringColumn) myData.columns[STRING_COLUMN]).values[(int) ids[0]] = newTime
-                    .toString();
+        ((LongColumn) myData.columns[LONG_COLUMN]).values[(int) ids[0]] = newTime;
+        ((StringColumn) myData.columns[STRING_COLUMN]).values[(int) ids[0]] = newTime
+                .toString();
 
-            myTable.update(myData);
+        myTable.update(myData);
 
-            // Retrieve data again
-            myData = myTable.read(ColNumbers, 0L, myTable.getNumberOfRows());
+        // Retrieve data again
+        myData = myTable.read(ColNumbers, 0L, myTable.getNumberOfRows());
 
-            myStrings = (StringColumn) myData.columns[STRING_COLUMN];
-            myLongs = (LongColumn) myData.columns[LONG_COLUMN];
+        myStrings = (StringColumn) myData.columns[STRING_COLUMN];
+        myLongs = (LongColumn) myData.columns[LONG_COLUMN];
 
-            // Row's time string and value should be the same
-            Assert.assertEquals(newTime.toString(),
-                    myStrings.values[(int) ids[0]]);
-            Assert.assertEquals(newTime.longValue(), myLongs.values[(int) ids[0]]);
-        }
+        // Row's time string and value should be the same
+        Assert.assertEquals(
+                myStrings.values[(int) ids[0]], newTime.toString());
+        Assert.assertEquals(myLongs.values[(int) ids[0]], newTime.longValue());
     }
 
 }

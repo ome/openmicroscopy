@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static omero.rtypes.*;
 import omero.RInt;
 import omero.RString;
 import omero.model.Well;
@@ -118,7 +117,7 @@ public class WellData extends DataObject {
     public void setWellType(String type)
     {
         setDirty(true);
-        asWell().setType(type == null ? null : rstring(type));
+        asWell().setType(type == null ? null : omero.rtypes.rstring(type));
     }
 
     /**
@@ -150,7 +149,7 @@ public class WellData extends DataObject {
         } else {
             if (red < 0) red = 0;
             if (red > 255) red = 255;
-            asWell().setRed(rint(red));
+            asWell().setRed(omero.rtypes.rint(red));
         }
     }
 
@@ -183,7 +182,7 @@ public class WellData extends DataObject {
         } else {
             if (green < 0) green = 0;
             if (green > 255) green = 255;
-            asWell().setGreen(rint(green));
+            asWell().setGreen(omero.rtypes.rint(green));
         }
     }
 
@@ -216,7 +215,7 @@ public class WellData extends DataObject {
         } else {
             if (blue < 0) blue = 0;
             if (blue > 255) blue = 255;
-            asWell().setBlue(rint(blue));
+            asWell().setBlue(omero.rtypes.rint(blue));
         }
     }
 
@@ -249,7 +248,7 @@ public class WellData extends DataObject {
         } else {
             if (alpha < 0) alpha = 0;
             if (alpha > 255) alpha = 255;
-            asWell().setAlpha(rint(alpha));
+            asWell().setAlpha(omero.rtypes.rint(alpha));
         }
     }
 
@@ -262,7 +261,7 @@ public class WellData extends DataObject {
     public void setExternalDescription(String description) {
         setDirty(true);
         asWell().setExternalDescription(
-                description == null ? null : rstring(description));
+                description == null ? null : omero.rtypes.rstring(description));
     }
 
     /**
@@ -273,7 +272,7 @@ public class WellData extends DataObject {
     public void setStatus(String status) {
         setDirty(true);
         asWell().setStatus(
-                status == null ? null : rstring(status));
+                status == null ? null : omero.rtypes.rstring(status));
     }
 
     /**

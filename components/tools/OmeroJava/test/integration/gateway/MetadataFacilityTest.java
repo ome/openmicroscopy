@@ -95,8 +95,8 @@ public class MetadataFacilityTest extends GatewayTest {
     private void initData() throws Exception {
         String name = UUID.randomUUID().toString();
         IPixelsPrx svc = gw.getPixelsService(rootCtx);
-        List<IObject> types = svc
-                .getAllEnumerations(PixelsType.class.getName());
+        List<IObject> types = gw.getTypesService(rootCtx)
+                .allEnumerations(PixelsType.class.getName());
         List<Integer> channels = new ArrayList<Integer>();
         for (int i = 0; i < 3; i++) {
             channels.add(i);

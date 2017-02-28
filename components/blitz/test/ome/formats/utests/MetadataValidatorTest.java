@@ -1,6 +1,4 @@
 /*
- * ome.formats.utests.MetadataValidatorTest
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2009 University of Dundee. All rights reserved.
  *
@@ -23,12 +21,6 @@
 
 package ome.formats.utests;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertTrue;
-import static org.testng.AssertJUnit.fail;
-
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -44,7 +36,6 @@ import loci.common.DataTools;
 import loci.formats.FormatException;
 import loci.formats.in.DefaultMetadataOptions;
 import loci.formats.in.MetadataLevel;
-
 import ome.formats.Index;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
@@ -76,6 +67,7 @@ import omero.model.WellSample;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Parameters;
@@ -187,31 +179,33 @@ public class MetadataValidatorTest
     public void testMetadataLevel()
         throws FormatException, IOException
     {
-        assertEquals(MetadataLevel.MINIMUM,
-                minimalWrapper.getMetadataOptions().getMetadataLevel());
-        assertEquals(MetadataLevel.ALL,
-                wrapper.getMetadataOptions().getMetadataLevel());
-        assertFalse(0 == (wrapper.getSeriesMetadata().size()
-                          + wrapper.getGlobalMetadata().size()));
+        Assert.assertEquals(
+                minimalWrapper.getMetadataOptions().getMetadataLevel(),
+                MetadataLevel.MINIMUM);
+        Assert.assertEquals(
+                wrapper.getMetadataOptions().getMetadataLevel(),
+                MetadataLevel.ALL);
+        Assert.assertNotEquals((wrapper.getSeriesMetadata().size()
+                          + wrapper.getGlobalMetadata().size()), 0);
     }
 
     @Test(dependsOnMethods={"testMetadataLevel"})
     public void testMetadataLevelEquivalentDimensions()
     {
-        assertEquals(wrapper.getSeriesCount(), minimalWrapper.getSeriesCount());
+        Assert.assertEquals(minimalWrapper.getSeriesCount(), wrapper.getSeriesCount());
         for (int i = 0; i < minimalWrapper.getSeriesCount(); i++)
         {
             wrapper.setSeries(i);
             minimalWrapper.setSeries(i);
-            assertEquals(wrapper.getSizeX(), minimalWrapper.getSizeX());
-            assertEquals(wrapper.getSizeY(), minimalWrapper.getSizeY());
-            assertEquals(wrapper.getSizeZ(), minimalWrapper.getSizeZ());
-            assertEquals(wrapper.getSizeC(), minimalWrapper.getSizeC());
-            assertEquals(wrapper.getSizeT(), minimalWrapper.getSizeT());
-            assertEquals(wrapper.getPixelType(),
-                         minimalWrapper.getPixelType());
-            assertEquals(wrapper.isLittleEndian(),
-                         minimalWrapper.isLittleEndian());
+            Assert.assertEquals(minimalWrapper.getSizeX(), wrapper.getSizeX());
+            Assert.assertEquals(minimalWrapper.getSizeY(), wrapper.getSizeY());
+            Assert.assertEquals(minimalWrapper.getSizeZ(), wrapper.getSizeZ());
+            Assert.assertEquals(minimalWrapper.getSizeC(), wrapper.getSizeC());
+            Assert.assertEquals(minimalWrapper.getSizeT(), wrapper.getSizeT());
+            Assert.assertEquals(minimalWrapper.getPixelType(),
+                    wrapper.getPixelType());
+            Assert.assertEquals(minimalWrapper.isLittleEndian(),
+                    wrapper.isLittleEndian());
         }
     }
 
@@ -227,14 +221,14 @@ public class MetadataValidatorTest
             String[] pixelsOnlyFiles = minimalWrapper.getSeriesUsedFiles();
             String[] allFiles = wrapper.getSeriesUsedFiles();
 
-            assertEquals(allFiles.length, pixelsOnlyFiles.length);
+            Assert.assertEquals(pixelsOnlyFiles.length, allFiles.length);
 
             Arrays.sort(allFiles);
             Arrays.sort(pixelsOnlyFiles);
 
             for (int j = 0; j < pixelsOnlyFiles.length; j++)
             {
-                assertEquals(allFiles[j], pixelsOnlyFiles[j]);
+                Assert.assertEquals(pixelsOnlyFiles[j], allFiles[j]);
             }
         }
     }
@@ -247,8 +241,8 @@ public class MetadataValidatorTest
         {
             minimalWrapper.setSeries(i);
             wrapper.setSeries(i);
-            assertEquals(wrapper.getImageCount(),
-                         minimalWrapper.getImageCount());
+            Assert.assertEquals(minimalWrapper.getImageCount(),
+                    wrapper.getImageCount());
             for (int j = 0; j < minimalWrapper.getImageCount(); j++)
             {
                 byte[] pixelsOnlyPlane = minimalWrapper.openBytes(j);
@@ -258,7 +252,7 @@ public class MetadataValidatorTest
 
                 if (!pixelsOnlySHA1.equals(allSHA1))
                 {
-                    fail(String.format(
+                    Assert.fail(String.format(
                             "MISMATCH: Series:%d Image:%d PixelsOnly%s All:%s",
                             i, j, pixelsOnlySHA1, allSHA1));
                 }
@@ -296,7 +290,7 @@ public class MetadataValidatorTest
                     wrapper.openPlane2D(fileName, planeNumber, block, 0, 0,
                                         sizeX, sizeY);
                     blockDigest = sha1(block);
-                    assertEquals(planarDigest, blockDigest);
+                    Assert.assertEquals(blockDigest, planarDigest);
                 }
             }
         }
@@ -421,18 +415,18 @@ public class MetadataValidatorTest
         for (IObjectContainer container : containers)
         {
             Image image = (Image) container.sourceObject;
-            assertNotNull(image.getAcquisitionDate());
+            Assert.assertNotNull(image.getAcquisitionDate());
             Date acquisitionDate =
                 new Date(image.getAcquisitionDate().getValue());
             Date now = new Date(System.currentTimeMillis());
             Date january1st1995 = new GregorianCalendar(1995, 1, 1).getTime();
             if (acquisitionDate.after(now))
             {
-                fail(String.format("%s after %s", acquisitionDate, now));
+                Assert.fail(String.format("%s after %s", acquisitionDate, now));
             }
             if (acquisitionDate.before(january1st1995))
             {
-                fail(String.format("%s before %s", acquisitionDate,
+                Assert.fail(String.format("%s before %s", acquisitionDate,
                                    january1st1995));
             }
         }
@@ -446,9 +440,9 @@ public class MetadataValidatorTest
         for (IObjectContainer container : containers)
         {
             PlaneInfo planeInfo = (PlaneInfo) container.sourceObject;
-            assertNotNull("theZ is null", planeInfo.getTheZ());
-            assertNotNull("theC is null", planeInfo.getTheC());
-            assertNotNull("theT is null", planeInfo.getTheT());
+            Assert.assertNotNull(planeInfo.getTheZ(), "theZ is null");
+            Assert.assertNotNull(planeInfo.getTheC(), "theC is null");
+            Assert.assertNotNull(planeInfo.getTheT(), "theT is null");
         }
     }
 
@@ -460,7 +454,7 @@ public class MetadataValidatorTest
         for (IObjectContainer container : containers)
         {
             Pixels pixels = (Pixels) container.sourceObject;
-            assertNotNull(pixels.getSizeC());
+            Assert.assertNotNull(pixels.getSizeC());
             int sizeC = pixels.getSizeC().getValue();
             Integer imageIndex =
                     container.indexes.get(Index.IMAGE_INDEX.getValue());
@@ -475,7 +469,7 @@ public class MetadataValidatorTest
                 e = String.format(
                         "Missing channel object; imageIndex=%d " +
                         "channelIndex=%d", imageIndex, c);
-                assertEquals(e, 1, count);
+                Assert.assertEquals(count, 1, e);
             }
         }
     }
@@ -488,7 +482,7 @@ public class MetadataValidatorTest
         for (IObjectContainer container : containers)
         {
             Pixels pixels = (Pixels) container.sourceObject;
-            assertNotNull(pixels.getSizeC());
+            Assert.assertNotNull(pixels.getSizeC());
             int sizeC = pixels.getSizeC().getValue();
             Integer imageIndex =
                     container.indexes.get(Index.IMAGE_INDEX.getValue());
@@ -497,7 +491,7 @@ public class MetadataValidatorTest
             String e = String.format(
                     "Pixels sizeC %d != logical channel object count %d",
                     sizeC, count);
-            assertEquals(e, sizeC, count);
+            Assert.assertEquals(count, sizeC, e);
             for (int c = 0; c < sizeC; c++)
             {
                 count = store.countCachedContainers(
@@ -505,7 +499,7 @@ public class MetadataValidatorTest
                 e = String.format(
                         "Missing logical channel object; imageIndex=%d " +
                         "channelIndex=%d", imageIndex, c);
-                assertEquals(e, 1, count);
+                Assert.assertEquals(count, 1, e);
             }
         }
     }
@@ -521,8 +515,8 @@ public class MetadataValidatorTest
             Integer plateIndex = indexes.get(Index.PLATE_INDEX.getValue());
             String e = String.format(
                     "Plate %d not found in container cache", plateIndex);
-            assertTrue(e,
-                    store.countCachedContainers(Plate.class, plateIndex) > 0);
+            Assert.assertTrue(
+                    store.countCachedContainers(Plate.class, plateIndex) > 0, e);
         }
     }
 
@@ -540,7 +534,7 @@ public class MetadataValidatorTest
                     "Well %d not found in container cache", wellIndex);
             int count = store.countCachedContainers(Well.class, plateIndex,
                     wellIndex);
-            assertTrue(e, count == 1);
+            Assert.assertEquals(count, 1, e);
         }
     }
 
@@ -557,7 +551,7 @@ public class MetadataValidatorTest
                 String e = String.format(
                         "LSID from %s,%s not unique.",
                         container.sourceObject, container.LSID);
-                fail(e);
+                Assert.fail(e);
             }
         }
     }
@@ -576,13 +570,13 @@ public class MetadataValidatorTest
             int imageCount = store.countCachedContainers(Image.class, null);
             String e = String.format("imageIndex %d >= imageCount %d",
                     imageIndex, imageCount);
-            assertFalse(e, imageIndex >= imageCount);
+            Assert.assertFalse(imageIndex >= imageCount, e);
             int logicalChannelCount = store.countCachedContainers(
                     LogicalChannel.class, imageIndex);
             e = String.format(
                     "channelIndex %d >= logicalChannelCount %d",
                     channelIndex, logicalChannelCount);
-            assertFalse(e, channelIndex >= logicalChannelCount);
+            Assert.assertFalse(channelIndex >= logicalChannelCount, e);
         }
     }
 
@@ -599,17 +593,17 @@ public class MetadataValidatorTest
             String e = String.format(
                     "%s %s not found in reference cache",
                     klass, lsid);
-            assertTrue(e, referenceCache.containsKey(lsid));
+            Assert.assertTrue(referenceCache.containsKey(lsid), e);
             List<LSID> references = referenceCache.get(lsid);
-            assertTrue(references.size() > 0);
+            Assert.assertTrue(references.size() > 0);
             for (LSID referenceLSID : references)
             {
-                assertNotNull(referenceLSID);
+                Assert.assertNotNull(referenceLSID);
                 klass = Detector.class;
                 e = String.format(
                         "%s with LSID %s not found in container cache",
                         klass, referenceLSID);
-                assertTrue(e, authoritativeLSIDExists(klass, referenceLSID));
+                Assert.assertTrue(authoritativeLSIDExists(klass, referenceLSID), e);
             }
         }
     }
@@ -627,7 +621,7 @@ public class MetadataValidatorTest
             int imageCount = store.countCachedContainers(Image.class, null);
             String e = String.format("imageIndex %d >= imageCount %d",
                     imageIndex, imageCount);
-            assertFalse(e, imageIndex >= imageCount);
+            Assert.assertFalse(imageIndex >= imageCount, e);
         }
     }
 
@@ -643,17 +637,17 @@ public class MetadataValidatorTest
             LSID lsid = new LSID(container.LSID);
             String e = String.format(
                     "%s %s not found in reference cache", klass, lsid);
-            assertTrue(e, referenceCache.containsKey(lsid));
+            Assert.assertTrue(referenceCache.containsKey(lsid), e);
             List<LSID> references = referenceCache.get(lsid);
-            assertTrue(references.size() > 0);
+            Assert.assertTrue(references.size() > 0);
             for (LSID referenceLSID : references)
             {
-                assertNotNull(referenceLSID);
+                Assert.assertNotNull(referenceLSID);
                 klass = Objective.class;
                 e = String.format(
                         "%s with LSID %s not found in container cache",
                         klass, referenceLSID);
-                assertTrue(e, authoritativeLSIDExists(klass, referenceLSID));
+                Assert.assertTrue(authoritativeLSIDExists(klass, referenceLSID), e);
             }
         }
     }
@@ -672,13 +666,13 @@ public class MetadataValidatorTest
             int imageCount = store.countCachedContainers(Image.class, null);
             String e = String.format("imageIndex %d >= imageCount %d",
                     imageIndex, imageCount);
-            assertFalse(e, imageIndex >= imageCount);
+            Assert.assertFalse(imageIndex >= imageCount, e);
             int logicalChannelCount = store.countCachedContainers(
                     LogicalChannel.class, imageIndex);
             e = String.format(
                     "channelIndex %d >= logicalChannelCount %d",
                     channelIndex, logicalChannelCount);
-            assertFalse(e, channelIndex >= logicalChannelCount);
+            Assert.assertFalse(channelIndex >= logicalChannelCount, e);
         }
     }
 
@@ -694,17 +688,17 @@ public class MetadataValidatorTest
             LSID lsid = new LSID(container.LSID);
             String e = String.format(
                     "%s %s not found in reference cache", klass, container.LSID);
-            assertTrue(e, referenceCache.containsKey(lsid));
+            Assert.assertTrue(referenceCache.containsKey(lsid), e);
             List<LSID> references = referenceCache.get(lsid);
-            assertTrue(references.size() > 0);
+            Assert.assertTrue(references.size() > 0);
             for (LSID referenceLSID : references)
             {
-                assertNotNull(referenceLSID);
+                Assert.assertNotNull(referenceLSID);
                 klass = LightSource.class;
                 e = String.format(
                         "%s with LSID %s not found in container cache",
                         klass, referenceLSID);
-                assertTrue(e, authoritativeLSIDExists(klass, referenceLSID));
+                Assert.assertTrue(authoritativeLSIDExists(klass, referenceLSID), e);
             }
         }
     }
@@ -724,7 +718,7 @@ public class MetadataValidatorTest
                 continue;
             }
             List<LSID> references = referenceCache.get(lsid);
-            assertTrue(references.size() > 0);
+            Assert.assertTrue(references.size() > 0);
             for (LSID referenceLSID : references)
             {
                 String asString = referenceLSID.toString();
@@ -734,14 +728,14 @@ public class MetadataValidatorTest
                     int index = asString.lastIndexOf(':');
                     referenceLSID = new LSID(asString.substring(0, index));
                 }
-                assertNotNull(referenceLSID);
+                Assert.assertNotNull(referenceLSID);
                 List<Class<? extends IObject>> klasses =
                     new ArrayList<Class<? extends IObject>>();
                 klasses.add(Filter.class);
                 klasses.add(FilterSet.class);
                 String e = String.format(
                         "LSID %s not found in container cache", referenceLSID);
-                assertTrue(e, authoritativeLSIDExists(klasses, referenceLSID));
+                Assert.assertTrue(authoritativeLSIDExists(klasses, referenceLSID), e);
             }
         }
     }
@@ -766,7 +760,7 @@ public class MetadataValidatorTest
                     }
                 }
             }
-            fail(String.format(
+            Assert.fail(String.format(
                     "%s %s not referenced by any image.", klass, lsid));
         }
     }
@@ -786,17 +780,17 @@ public class MetadataValidatorTest
                 continue;
             }
             List<LSID> references = referenceCache.get(lsid);
-            assertTrue(references.size() > 0);
+            Assert.assertTrue(references.size() > 0);
             for (LSID referenceLSID : references)
             {
-                assertNotNull(referenceLSID);
+                Assert.assertNotNull(referenceLSID);
                 List<Class<? extends IObject>> klasses =
                     new ArrayList<Class<? extends IObject>>();
                 klasses.add(Filter.class);
                 klasses.add(Dichroic.class);
                 String e = String.format(
                         "LSID %s not found in container cache", referenceLSID);
-                assertTrue(e, authoritativeLSIDExists(klasses, referenceLSID));
+                Assert. assertTrue(authoritativeLSIDExists(klasses, referenceLSID), e);
             }
         }
     }
@@ -821,7 +815,7 @@ public class MetadataValidatorTest
                     }
                 }
             }
-            fail(String.format(
+            Assert.fail(String.format(
                     "%s %s not referenced by any object.", klass, lsid));
         }
     }

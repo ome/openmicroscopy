@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -11,20 +9,20 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import org.testng.annotations.*;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import ome.model.acquisition.Laser;
 import ome.model.internal.GraphHolder;
-import junit.framework.TestCase;
 
-public class GraphHolderTest extends TestCase {
+public class GraphHolderTest{
 
     GraphHolder gh;
 
     @Test
     public void testShouldNeverBeNull() throws Exception {
         Laser dl = new Laser();
-        assertNotNull(dl.getGraphHolder());
+        Assert.assertNotNull(dl.getGraphHolder());
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -38,6 +36,6 @@ public class GraphHolderTest extends TestCase {
         bais.close();
         ois.close();
 
-        assertNotNull(test.getGraphHolder());
+        Assert.assertNotNull(test.getGraphHolder());
     }
 }

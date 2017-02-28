@@ -39,10 +39,10 @@ class TestSearch(CLITest):
         self._uuid = self.uuid().replace("-", "")
         if with_acquisitionDate:
             filename_date = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-            self._image = self.importMIF(
+            self._image = self.import_mif(
                 name=self._uuid, acquisitionDate=filename_date)[0]
         else:
-            self._image = self.importMIF(name=self._uuid)[0]
+            self._image = self.import_mif(name=self._uuid)[0]
         self.root.sf.getUpdateService().indexObject(self._image)
 
     def mkdataset(self):

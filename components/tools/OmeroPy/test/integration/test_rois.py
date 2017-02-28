@@ -8,11 +8,14 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-import library as lib
+from omero.testlib import ITest
 import omero
+from omero.rtypes import rdouble, rstring, rint
+import pytest
+from omero.gateway import ColorHolder
 
 
-class TestRois(lib.ITest):
+class TestRois(ITest):
 
     def teststats1(self):
         self.client.sf.getRoiService()
@@ -42,7 +45,7 @@ class TestRois(lib.ITest):
         group = self.new_group(perms="rwrw--")
         owner = self.new_client(group=group)  # Owner of share
         member = self.new_client(group=group)  # Member of group
-        img = self.createTestImage(session=owner.sf)
+        img = self.create_test_image(session=owner.sf)
 
         from omero.gateway import ImageWrapper, BlitzGateway
         conn = BlitzGateway(client_obj=owner)
@@ -173,3 +176,90 @@ class TestRois(lib.ITest):
         for x in (fix1, fix2):
             assertRois(x, None,     0, 0,   4, 4, 2)
             assertRois(x, None,     0, 1,   4, 4, 0)  # DNE
+
+    @pytest.mark.parametrize("color", [
+        (255, 0, 0, 255, -16776961),     # Red
+        (0, 255, 0, 255, 16711935),      # Green
+        (0, 0, 255, 255, 65535),         # Blue
+        (0, 255, 255, 255, 16777215),    # Cyan
+        (255, 0, 255, 255, -16711681),   # Magenta
+        (255, 255, 0, 255, -65281),      # Yellow
+        (0, 0, 0, 255, 255),             # Black
+        (255, 255, 255, 255, -1),        # White
+        (0, 0, 0, 127, 127),             # Transparent black
+        (127, 127, 127, 127, 2139062143)])  # Grey
+    def testShapeColors(self, color):
+        """Test create an ROI with various shapes & colors set."""
+
+        color_holder = ColorHolder()
+        color_holder.setRed(color[0])
+        color_holder.setGreen(color[1])
+        color_holder.setBlue(color[2])
+        color_holder.setAlpha(color[3])
+        colorInt = color_holder.getInt()
+        assert colorInt == color[4]
+
+        img = self.new_image("testCreateRois")
+        img = self.update.saveAndReturnObject(img)
+
+        roi = omero.model.RoiI()
+        roi.setImage(img)
+
+        rect = omero.model.RectangleI()
+        rect.x = rdouble(5)
+        rect.y = rdouble(5)
+        rect.width = rdouble(100)
+        rect.height = rdouble(100)
+        rect.fillColor = rint(colorInt)
+        rect.strokeColor = rint(colorInt)
+        rect.theZ = rint(0)
+        rect.theT = rint(0)
+        rect.textValue = rstring("test-Rectangle")
+        roi.addShape(rect)
+
+        ellipse = omero.model.EllipseI()
+        ellipse.x = rdouble(50.0)
+        ellipse.y = rdouble(35.5)
+        ellipse.radiusX = rdouble(2000)
+        ellipse.radiusY = rdouble(300.04)
+        ellipse.fillColor = rint(colorInt)
+        ellipse.strokeColor = rint(colorInt)
+        ellipse.theZ = rint(1)
+        ellipse.theT = rint(2)
+        ellipse.textValue = rstring("test-Ellipse")
+        roi.addShape(ellipse)
+
+        line = omero.model.LineI()
+        line.x1 = rdouble(0)
+        line.x2 = rdouble(500.9)
+        line.y1 = rdouble(-100)
+        line.y2 = rdouble(201.0)
+        line.theZ = rint(-1)
+        line.theT = rint(1)
+        line.strokeColor = rint(colorInt)
+        line.fillColor = rint(colorInt)
+        line.textValue = rstring("test-Line")
+        roi.addShape(line)
+
+        point = omero.model.PointI()
+        point.x = rdouble(1000)
+        point.y = rdouble(0)
+        point.strokeColor = rint(colorInt)
+        point.fillColor = rint(colorInt)
+        point.textValue = rstring("test-Point")
+        roi.addShape(point)
+
+        new_roi = self.update.saveAndReturnObject(roi)
+
+        roi_service = self.client.sf.getRoiService()
+        result = roi_service.findByImage(img.id.val, None)
+        assert result is not None
+        shapeCount = 0
+        for roi in result.rois:
+            assert roi.id.val == new_roi.id.val
+            for s in roi.copyShapes():
+                assert s.getFillColor().val == colorInt
+                assert s.getStrokeColor().val == colorInt
+                shapeCount += 1
+        # Check we found 4 shapes
+        assert shapeCount == 4

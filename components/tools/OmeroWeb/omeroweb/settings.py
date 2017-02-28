@@ -6,7 +6,7 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
 #
-# Copyright (c) 2008-2014 University of Dundee.
+# Copyright (c) 2008-2016 University of Dundee.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -119,7 +119,7 @@ LOGGING = {
             'level': 'DEBUG',
             'class': LOGGING_CLASS,
             'filename': os.path.join(
-                LOGDIR, 'OMEROweb_brokenrequest.log').replace('\\', '/'),
+                LOGDIR, 'OMEROweb.log').replace('\\', '/'),
             'maxBytes': 1024*1024*5,  # 5 MB
             'backupCount': 10,
             'filters': ['require_debug_false'],
@@ -159,6 +159,7 @@ LOGGING = {
         }
     }
 }
+
 
 # Load custom settings from etc/grid/config.xml
 # Tue  2 Nov 2010 11:03:18 GMT -- ticket:3228
@@ -263,6 +264,7 @@ def leave_none_unset_int(s):
     if s is not None:
         return int(s)
 
+
 CUSTOM_HOST = CUSTOM_SETTINGS.get("Ice.Default.Host", "localhost")
 CUSTOM_HOST = CUSTOM_SETTINGS.get("omero.master.host", CUSTOM_HOST)
 # DO NOT EDIT!
@@ -275,7 +277,7 @@ INTERNAL_SETTINGS_MAPPING = {
         ["CHECK_VERSION", "true", parse_boolean, None],
 
     # Allowed hosts:
-    # https://docs.djangoproject.com/en/1.6/ref/settings/#allowed-hosts
+    # https://docs.djangoproject.com/en/1.8/ref/settings/#allowed-hosts
     "omero.web.allowed_hosts":
         ["ALLOWED_HOSTS", '["*"]', json.loads, None],
 
@@ -472,15 +474,6 @@ CUSTOM_SETTINGS_MAPPINGS = {
          ("Workers silent for more than this many seconds are killed "
           "and restarted. Check Gunicorn Documentation "
           "http://docs.gunicorn.org/en/stable/settings.html#timeout")],
-    "omero.web.api.absolute_url":
-        ["API_ABSOLUTE_URL",
-         None,
-         str_slash,
-         ("URL to use for generating urls within API json responses. "
-          "By default this is None, and we use Django's "
-          "request.build_absolute_uri() to generate absolute urls "
-          "based on each request. If set to a string or empty string, "
-          "this will be used as prefix to relative urls.")],
 
     # Public user
     "omero.web.public.enabled":
@@ -554,8 +547,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
           "Selected objects are added to the url as ?image=:1&image=2"
           "Objects supported must be specified in options with"
           "E.g. ``{\"supported_objects\":[\"images\"]}`` "
-          "to enable viewer for one or more images, "
-          "``{\"target\":\"_blank\"}`` to open in new tab.")],
+          "to enable viewer for one or more images.")],
 
     # PIPELINE 1.3.20
 
@@ -660,6 +652,20 @@ CUSTOM_SETTINGS_MAPPINGS = {
           " ] or [\"Repository\", {\"viewname\": \"webindex\", "
           "\"query_string\": {\"experimenter\": -1}}, "
           "{\"title\": \"Repo\"}]'``")],
+    "omero.web.ui.metadata_panes":
+        ["METADATA_PANES",
+         ('['
+          '{"name": "tag", "label": "Tags", "index": 1},'
+          '{"name": "map", "label": "Key-Value Pairs", "index": 2},'
+          '{"name": "table", "label": "Tables", "index": 3},'
+          '{"name": "file", "label": "Attachments", "index": 4},'
+          '{"name": "comment", "label": "Comments", "index": 5},'
+          '{"name": "rating", "label": "Ratings", "index": 6},'
+          '{"name": "other", "label": "Others", "index": 7}'
+          ']'),
+         json.loads,
+         ("Manage Metadata pane accordion. This functionality is limited to"
+          " the exiting sections.")],
     "omero.web.ui.right_plugins":
         ["RIGHT_PLUGINS",
          ('[["Acquisition",'
@@ -772,6 +778,7 @@ def check_threading(t):
                               "multiple threads. Install futures")
     return int(t)
 
+
 # DEVELOPMENT_SETTINGS_MAPPINGS - WARNING: For each setting developer MUST open
 # a ticket that needs to be resolved before a release either by moving the
 # setting to CUSTOM_SETTINGS_MAPPINGS or by removing the setting at all.
@@ -865,6 +872,7 @@ def process_custom_settings(
         except LeaveUnset:
             pass
 
+
 process_custom_settings(sys.modules[__name__], 'INTERNAL_SETTINGS_MAPPING')
 process_custom_settings(sys.modules[__name__], 'CUSTOM_SETTINGS_MAPPINGS',
                         'DEPRECATED_SETTINGS_MAPPINGS')
@@ -900,6 +908,7 @@ def report_settings(module):
             logger.debug(
                 "%s = %r (deprecated:%s, %s)", global_name,
                 cleanse_setting(global_name, global_value), key, description)
+
 
 report_settings(sys.modules[__name__])
 
@@ -954,7 +963,7 @@ except NameError:
 USE_I18N = True
 
 # MIDDLEWARE_CLASSES: A tuple of middleware classes to use.
-# See https://docs.djangoproject.com/en/1.6/topics/http/middleware/.
+# See https://docs.djangoproject.com/en/1.8/topics/http/middleware/.
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.BrokenLinkEmailsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -1014,31 +1023,6 @@ TEMPLATES = [
     },
 ]
 
-# Django 1.6 only
-# TEMPLATE_DEBUG: A boolean that turns on/off template debug mode. If this is
-# True, the fancy error page will display a detailed report for any
-# TemplateSyntaxError. This report contains
-# the relevant snippet of the template, with the appropriate line highlighted.
-# Note that Django only displays fancy error pages if DEBUG is True,
-# alternatively error is handled by:
-#    handler404 = "omeroweb.feedback.views.handler404"
-#    handler500 = "omeroweb.feedback.views.handler500"
-TEMPLATE_DEBUG = DEBUG  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
-
-# Django 1.6 only
-# TEMPLATE_CONTEXT_PROCESSORS: A tuple of callables that are used to populate
-# the context in RequestContext. These callables take a request object as
-# their argument and return a dictionary of items to be merged into the
-# context.
-TEMPLATE_CONTEXT_PROCESSORS = (
-    "django.core.context_processors.debug",
-    "django.core.context_processors.i18n",
-    "django.core.context_processors.media",
-    "django.core.context_processors.static",
-    "django.contrib.messages.context_processors.messages",
-    "omeroweb.custom_context_processor.url_suffix"
-)
-
 # INSTALLED_APPS: A tuple of strings designating all applications that are
 # enabled in this Django installation. Each string should be a full Python
 # path to a Python package that contains a Django application, as created by
@@ -1081,6 +1065,7 @@ INSTALLED_APPS += (
     'omeroweb.webclient',
     'omeroweb.webgateway',
     'omeroweb.webredirect',
+    'omeroweb.api',
     'pipeline',
 )
 
@@ -1099,7 +1084,6 @@ PIPELINE_CSS = {
             'webgateway/css/base.css',
             'webgateway/css/ome.snippet_header_logo.css',
             'webgateway/css/ome.postit.css',
-            'webgateway/css/ome.rangewidget.css',
             '3rdparty/farbtastic-1.2/farbtastic.css',
             'webgateway/css/ome.colorbtn.css',
             '3rdparty/JQuerySpinBtn-1.3a/JQuerySpinBtn.css',
@@ -1146,7 +1130,6 @@ PIPELINE_JS = {
             'webgateway/js/ome.colorbtn.js',
             'webgateway/js/ome.postit.js',
             '3rdparty/jquery.selectboxes-2.2.6.js',
-            'webgateway/js/ome.rangewidget.js',
             '3rdparty/farbtastic-1.2/farbtastic.js',
             '3rdparty/jquery.mousewheel-3.0.6.js',
         ),
@@ -1162,12 +1145,6 @@ CSRF_FAILURE_VIEW = "omeroweb.feedback.views.csrf_failure"
 # comment messages to http://qa.openmicroscopy.org.uk.
 # FEEDBACK_APP: 6 = OMERO.web
 FEEDBACK_APP = 6
-
-# For any given release of api, we may support
-# one or more versions of the api.
-# E.g. /api/v1.0/
-# TODO - need to decide how this is configured, strategy for extending etc.
-API_VERSIONS = ('0.1',)
 
 # IGNORABLE_404_STARTS:
 # Default: ('/cgi-bin/', '/_vti_bin', '/_vti_inf')
@@ -1223,4 +1200,6 @@ def load_server_list():
         server = (len(s) > 2) and unicode(s[2]) or None
         Server(host=unicode(s[0]), port=int(s[1]), server=server)
     Server.freeze()
+
+
 load_server_list()
