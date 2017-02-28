@@ -335,6 +335,12 @@ class WellView(ObjectView):
 
     CAN_DELETE = False
 
+    # Urls to add to marshalled object. See ProjectsView for more details
+    urls = {
+        'url:plates': {'name': 'api_well_plates',
+                       'kwargs': {'well_id': 'OBJECT_ID'}},
+    }
+
     def get_opts(self, request):
         """Add support for load_images."""
         opts = super(WellView, self).get_opts(request)
@@ -508,6 +514,14 @@ class PlatesView(ObjectsView):
             screen = getIntOrDefault(request, 'screen', None)
             if screen is not None:
                 opts['screen'] = screen
+        # Filter Plates by Well
+        if 'well_id' in kwargs:
+            opts['well'] = long(kwargs['well_id'])
+        else:
+            # filter by query /plates/?well=:id
+            well = getIntOrDefault(request, 'well', None)
+            if well is not None:
+                opts['well'] = well
         return opts
 
     # Urls to add to marshalled object. See ProjectsView for more details
@@ -605,6 +619,8 @@ class WellsView(ObjectsView):
     urls = {
         'url:well': {'name': 'api_well',
                      'kwargs': {'object_id': 'OBJECT_ID'}},
+        'url:plates': {'name': 'api_well_plates',
+                       'kwargs': {'well_id': 'OBJECT_ID'}},
     }
 
     def get_opts(self, request, **kwargs):

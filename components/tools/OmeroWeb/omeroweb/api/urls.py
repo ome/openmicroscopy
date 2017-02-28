@@ -128,7 +128,7 @@ api_dataset_projects = url(
     views.ProjectsView.as_view(),
     name='api_dataset_projects')
 """
-GET Projects in Dataset, using omero-marshal to generate json
+GET Projects that contain a Dataset, using omero-marshal to generate json
 """
 
 api_image = url(
@@ -145,7 +145,7 @@ api_image_datasets = url(
     views.DatasetsView.as_view(),
     name='api_image_datasets')
 """
-GET Datasets parents of Image, using omero-marshal to generate json
+GET Datasets that contain an Image, using omero-marshal to generate json
 """
 
 api_screen = url(
@@ -177,6 +177,15 @@ api_screen_plates = url(
     name='api_screen_plates')
 """
 GET Plates in Screen, using omero-marshal to generate json
+"""
+
+api_well_plates = url(
+    r'^v(?P<api_version>%s)/m/wells/'
+    '(?P<well_id>[0-9]+)/plates/$' % versions,
+    views.PlatesView.as_view(),
+    name='api_well_plates')
+"""
+GET Plates that contain a Well, using omero-marshal to generate json
 """
 
 api_plate = url(
@@ -289,6 +298,7 @@ urlpatterns = patterns(
     api_screens,
     api_plates,
     api_screen_plates,
+    api_well_plates,
     api_plate,
     api_wells,
     api_plate_plateacquisitions,
