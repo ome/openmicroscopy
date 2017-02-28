@@ -931,13 +931,15 @@ class ITest(object):
             dsets.append(self.new_dataset(name=name))
         return update.saveAndReturnArray(dsets)
 
-    def make_file_annotation(self, name=None, binary=None, format=None,
-                             client=None, ns=None):
+    def make_file_annotation(self, name=None, binary=None, mimetype=None,
+                             client=None, namespace=None):
         """
-        Creates a new DatasetI instance and returns the persisted object.
+        Creates a file annotation with an original file.
         If no name has been provided, a UUID string shall be used.
 
-        :param name: the name of the project
+        :param name: The name of the file
+        :param binary: The binary data
+        :param mimetype: The mimetype of the file.
         :param client: The client to use to create the object
         :param ns: The namespace for the annotation
         """
@@ -947,8 +949,8 @@ class ITest(object):
         update = client.sf.getUpdateService()
 
         # file
-        if format is None:
-            format = "application/octet-stream"
+        if mimetype is None:
+            mimetype = "application/octet-stream"
         if binary is None:
             binary = "12345678910"
         if name is None:
@@ -960,20 +962,22 @@ class ITest(object):
         ofile.setSize(rlong(len(binary)))
         ofile.hasher = ChecksumAlgorithmI()
         ofile.hasher.value = rstring("SHA1-160")
-        ofile.setMimetype(rstring(str(format)))
+        ofile.setMimetype(rstring(str(mimetype)))
         ofile = update.saveAndReturnObject(ofile)
 
         # save binary
         store = client.sf.createRawFileStore()
-        store.setFileId(ofile.getId().getValue())
-        store.write(binary, 0, 0)
-        ofile = store.save()  # See ticket:1501
-        store.close()
+        try:
+            store.setFileId(ofile.getId().getValue())
+            store.write(binary, 0, 0)
+            ofile = store.save()  # See ticket:1501
+        finally:
+            store.close()
 
         fa = FileAnnotationI()
         fa.setFile(ofile)
-        if ns is not None:
-            fa.setNs(rstring(ns))
+        if namespace is not None:
+            fa.setNs(rstring(namespace))
         return update.saveAndReturnObject(fa)
 
     def link(self, obj1, obj2, client=None):
