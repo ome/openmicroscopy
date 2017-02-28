@@ -91,7 +91,6 @@ url = save_url + '?group=' + str(groupId)
 r = session.post(url, json={'Name': 'API TEST foo', '@type': projType})
 assert r.status_code == 201
 project = r.json()['data']
-print project
 project_id = project['@id']
 print 'Created Project:', project_id, project['Name']
 
