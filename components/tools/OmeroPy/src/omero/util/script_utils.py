@@ -252,12 +252,11 @@ def create_file(update_service, filename, mimetype=None,
     original_file.setPath(omero.rtypes.rstring(path))
     # just in case we are passed a FormatI object
     try:
-        v = mimetype.getValue()
-        mt = v.getValue()
+        mt = unwrap(mimetype)
     except:
         # handle the string we expect
         mt = mimetype
-    if mt:
+    if mt is not None:
         original_file.mimetype = omero.rtypes.rstring(mt)
     original_file.setSize(omero.rtypes.rlong(os.path.getsize(filename)))
     original_file.setHash(omero.rtypes.rstring(calc_sha1(filename)))
@@ -297,8 +296,8 @@ def upload_file(raw_file_store, original_file, file_path=None):
 
     with open(file_path, 'rb') as file_handle:
         done = 0
-        while (done != 1):
-            if (increment + cnt < file_size):
+        while done != 1:
+            if increment + cnt < file_size:
                 block_size = increment
             else:
                 block_size = file_size - cnt
