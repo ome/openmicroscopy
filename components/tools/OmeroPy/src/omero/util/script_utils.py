@@ -884,23 +884,24 @@ def split_image(client, imageId, dir,
                 dims=('T', 'C', 'Z')):
     """
     Splits the image into component planes,
-    which are saved as local tiffs according to unformattedImageName.
-    E.g. myLocalDir/tubulin_P037_T%05d_C%s_Z%d_S1.tif
-    which will be formatted according to dims, E.g. ('T', 'C', 'Z')
+    which are saved as local tiffs according to unformattedImageName
+    e.g. myLocalDir/tubulin_P037_T%05d_C%s_Z%d_S1.tif
+    which will be formatted according to dims e.g. ('T', 'C', 'Z')
     Channel will be formatted according to channel name, not index.
-    @param rawPixelsStore The rawPixelStore
-    @param queryService
-    @param c The C-Section to retrieve.
-    @param t The T-Section to retrieve.
-    @param imageName  the local location to save the image.
+    @param client The client to use
+    @param imageId The image's ID
+    @param dir Where to save the split images
+    @param unformattedImageName  The name to use
+    @param dims The timepoint, channel, z-section to use
+
     """
 
-    unformattedImageName = os.path.join(dir, unformattedImageName)
+    unformatted_image_name = os.path.join(dir, unformattedImageName)
 
     session = client.getSession()
-    queryService = session.getQueryService()
-    rawPixelsStore = session.createRawPixelsStore()
-    pixelsService = session.getPixelsService()
+    query_service = session.getQueryService()
+    raw_pixels_store = session.createRawPixelsStore()
+    pixels_service = session.getPixelsService()
 
     try:
         from PIL import Image   # see ticket:2597
@@ -909,43 +910,48 @@ def split_image(client, imageId, dir,
 
     query_string = "select p from Pixels p join fetch p.image " \
                    "as i join fetch p.pixelsType where i.id='%s'" % imageId
-    pixels = queryService.findByQuery(query_string, None)
-    sizeZ = pixels.getSizeZ().getValue()
-    sizeC = pixels.getSizeC().getValue()
-    sizeT = pixels.getSizeT().getValue()
-    rawPixelsStore.setPixelsId(pixels.getId().getValue(), True)
+    pixels = query_service.findByQuery(query_string, None)
+    size_z = pixels.getSizeZ().getValue()
+    size_c = pixels.getSizeC().getValue()
+    size_t = pixels.getSizeT().getValue()
 
-    channelMap = {}
-    cIndex = 0
-    pixels = pixelsService.retrievePixDescription(
-        pixels.id.val)    # load channels
+    channel_map = {}
+    c_index = 0
+    # load channels
+    pixels = pixels_service.retrievePixDescription(pixels.id.val)
     for c in pixels.iterateChannels():
         lc = c.getLogicalChannel()
-        channelMap[
-            cIndex] = lc.getName() and lc.getName().getValue() or str(cIndex)
-        cIndex += 1
+        channel_map[
+            c_index] = lc.getName() and lc.getName().getValue() or str(c_index)
+        c_index += 1
 
-    def formatName(unformatted, z, c, t):
-        # need to turn dims E.g. ('T', 'C', 'Z') into tuple, E.g. (t, c, z)
-        dimMap = {'T': t, 'C': channelMap[c], 'Z': z}
-        dd = tuple([dimMap[d] for d in dims])
+    def format_name(unformatted, z, c, t):
+        # need to turn dims e.g. ('T', 'C', 'Z') into tuple e.g. (t, c, z)
+        dim_map = {'T': t, 'C': channel_map[c], 'Z': z}
+        dd = tuple([dim_map[d] for d in dims])
         return unformatted % dd
 
-    zStart = 1
-    tStart = 1
+    z_start = 1
+    t_start = 1
 
-    # loop through dimensions, saving planes as tiffs.
-    for z in range(sizeZ):
-        for c in range(sizeC):
-            for t in range(sizeT):
-                imageName = formatName(
-                    unformattedImageName, z + zStart, c, t + tStart)
-                SU_LOG.debug(
-                    "downloading plane z: %s c: %s t: %s  to  %s"
-                    % (z, c, t, imageName))
-                plane = downloadPlane(rawPixelsStore, pixels, z, c, t)
-                i = Image.fromarray(plane)
-                i.save(imageName)
+    try:
+        raw_pixels_store.setPixelsId(pixels.getId().getValue(), True)
+        # loop through dimensions, saving planes as tiffs.
+        for z in range(size_z):
+            for c in range(size_c):
+                for t in range(size_t):
+                    imageName = format_name(unformatted_image_name,
+                                            z + z_start, c,
+                                            t + t_start)
+                    SU_LOG.debug(
+                        "downloading plane z: %s c: %s t: %s  to  %s"
+                        % (z, c, t, imageName))
+                    plane = download_plane(raw_pixels_store, pixels, z, c, t)
+                    i = Image.fromarray(plane)
+                    i.save(imageName)
+
+    finally:
+        raw_pixels_store.close()
 
 
 def createFileFromData(updateService, queryService, filename, data):
