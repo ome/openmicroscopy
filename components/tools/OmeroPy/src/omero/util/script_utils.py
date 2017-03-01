@@ -170,12 +170,7 @@ def calcSha1(filename):
     @return:            The hash of the file
     """
 
-    fileHandle = open(filename)
-    h = hash_sha1()
-    h.update(fileHandle.read())
-    hash = h.hexdigest()
-    fileHandle.close()
-    return hash
+    return calc_sha1(filename)
 
 
 def calc_sha1(filename):
@@ -231,24 +226,8 @@ def createFile(updateService, filename, mimetype=None, origFilePathName=None):
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0. Use create_file instead",
         DeprecationWarning)
-    originalFile = omero.model.OriginalFileI()
-    if(origFilePathName is None):
-        origFilePathName = filename
-    path, name = os.path.split(origFilePathName)
-    originalFile.setName(omero.rtypes.rstring(name))
-    originalFile.setPath(omero.rtypes.rstring(path))
-    # just in case we are passed a FormatI object
-    try:
-        v = mimetype.getValue()
-        mt = v.getValue()
-    except:
-        # handle the string we expect
-        mt = mimetype
-    if mt:
-        originalFile.mimetype = omero.rtypes.rstring(mt)
-    originalFile.setSize(omero.rtypes.rlong(os.path.getsize(filename)))
-    originalFile.setHash(omero.rtypes.rstring(calcSha1(filename)))
-    return updateService.saveAndReturnObject(originalFile)
+    return create_file(updateService, filename, mimetype,
+                       origFilePathName)
 
 
 def create_file(update_service, filename, mimetype=None,
@@ -297,25 +276,7 @@ def uploadFile(rawFileStore, originalFile, filePath=None):
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0, Use upload_file instead",
         DeprecationWarning)
-    rawFileStore.setFileId(originalFile.getId().getValue())
-    fileSize = originalFile.getSize().getValue()
-    increment = 10000
-    cnt = 0
-    if filePath is None:
-        filePath = originalFile.getName().getValue()
-    fileHandle = open(filePath, 'rb')
-    done = 0
-    while(done != 1):
-        if(increment + cnt < fileSize):
-            blockSize = increment
-        else:
-            blockSize = fileSize - cnt
-            done = 1
-        fileHandle.seek(cnt)
-        block = fileHandle.read(blockSize)
-        rawFileStore.write(block, cnt, blockSize)
-        cnt = cnt + blockSize
-    fileHandle.close()
+    upload_file(rawFileStore, originalFile, filePath)
 
 
 def upload_file(raw_file_store, original_file, file_path=None):
@@ -483,23 +444,9 @@ def createLinkFileAnnotation(conn, localPath, parent, output="Output",
         "This method is deprecated as of OMERO 5.3.0. \
         Use create_link_file_annotation instead",
         DeprecationWarning)
-    if os.path.exists(localPath):
-        fileAnnotation = conn.createFileAnnfromLocalFile(
-            localPath, origFilePathAndName=origFilePathAndName,
-            mimetype=mimetype, ns=ns, desc=desc)
-        message = "%s created" % output
-        if parent is not None:
-            if parent.canAnnotate():
-                parentClass = parent.OMERO_CLASS
-                message += " and attached to %s%s %s." % (
-                    parentClass[0].lower(), parentClass[1:], parent.getName())
-                parent.linkAnnotation(fileAnnotation)
-            else:
-                message += " but could not be attached."
-    else:
-        message = "%s not created." % output
-        fileAnnotation = None
-    return fileAnnotation, message
+    return create_link_file_annotation(conn, localPath, parent, output,
+                                       parenttype, mimetype, desc, ns,
+                                       origFilePathAndName)
 
 
 def create_link_file_annotation(conn, local_path, parent, output="Output",
@@ -555,23 +502,7 @@ def getObjects(conn, params):
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0. Use get_objects instead",
         DeprecationWarning)
-    dataType = params["Data_Type"]
-    ids = params["IDs"]
-    objects = list(conn.getObjects(dataType, ids))
-
-    message = ""
-    if not objects:
-        message += "No %s%s found. " % (dataType[0].lower(), dataType[1:])
-    else:
-        if not len(objects) == len(ids):
-            message += "Found %s out of %s %s%s(s). " % (
-                len(objects), len(ids), dataType[0].lower(), dataType[1:])
-
-        # Sort the objects according to the order of IDs
-        idMap = dict([(o.id, o) for o in objects])
-        objects = [idMap[i] for i in ids if i in idMap]
-
-    return objects, message
+    return get_objects(conn, params)
 
 
 def get_objects(conn, params):
@@ -703,29 +634,19 @@ def downloadPlane(rawPixelsStore, pixels, z, c, t):
         "This method is deprecated as of OMERO 5.3.0.\
         Use download_plane instead",
         DeprecationWarning)
-    rawPlane = rawPixelsStore.getPlane(z, c, t)
-    sizeX = pixels.getSizeX().getValue()
-    sizeY = pixels.getSizeY().getValue()
-    pixelType = pixels.getPixelsType().getValue().getValue()
-    convertType = '>' + str(sizeX * sizeY) + \
-        pixelstypetopython.toPython(pixelType)
-    convertedPlane = unpack(convertType, rawPlane)
-    numpyType = pixelstypetopython.toNumpy(pixelType)
-    remappedPlane = array(convertedPlane, numpyType)
-    remappedPlane.resize(sizeY, sizeX)
-    return remappedPlane
+    return download_plane(rawPixelsStore, pixels, z, c, t)
 
 
 def download_plane(raw_pixels_store, pixels, z, c, t):
     """
-    Download the plane [z,c,t] for image pixels.
+    Download the plane [z, c, t] for image pixels.
     Pixels must have pixelsType loaded.
     N.B. The rawPixelsStore must have already been initialised by setPixelsId()
     @param raw_pixels_store The rawPixelStore service to get the image.
     @param pixels The pixels of the image.
     @param z The Z-Section to retrieve.
-    @param c The C-Section to retrieve.
-    @param t The T-Section to retrieve.
+    @param c The channel to retrieve.
+    @param t The timepoint to retrieve.
     @return The Plane of the image for z, c, t
     """
     raw_plane = raw_pixels_store.getPlane(z, c, t)
@@ -1155,13 +1076,7 @@ def uploadPlaneByRow(rawPixelsStore, plane, z, c, t):
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0. Use upload_plane_by_row",
         DeprecationWarning)
-    byteSwappedPlane = plane.byteswap()
-
-    rowCount, colCount = plane.shape
-    for y in range(rowCount):
-        row = byteSwappedPlane[y:y+1, :]        # slice y axis into rows
-        convertedRow = row.tostring()
-        rawPixelsStore.setRow(convertedRow, y, z, c, t)
+    upload_plane_by_row(rawPixelsStore, plane, z, c, t)
 
 
 def upload_plane_by_row(raw_pixels_store, plane, z, c, t):
@@ -1306,22 +1221,8 @@ def resetRenderingSettings(renderingEngine, pixelsId, cIndex,
         "This method is deprecated as of OMERO 5.3.0. \
         Use reset_rendering_settings",
         DeprecationWarning)
-    renderingEngine.lookupPixels(pixelsId)
-    if not renderingEngine.lookupRenderingDef(pixelsId):
-        renderingEngine.resetDefaultSettings(True)
-        if rgba is None:
-            # probably don't want E.g. single channel image to be blue!
-            rgba = COLOURS["White"]
-
-    if not renderingEngine.lookupRenderingDef(pixelsId):
-        raise Exception("Still No Rendering Def")
-
-    renderingEngine.load()
-    renderingEngine.setChannelWindow(cIndex, float(minValue), float(maxValue))
-    if rgba:
-        red, green, blue, alpha = rgba
-        renderingEngine.setRGBA(cIndex, red, green, blue, alpha)
-    renderingEngine.saveCurrentSettings()
+    reset_rendering_settings(renderingEngine, pixelsId, cIndex,
+                             minValue, maxValue, rgba)
 
 
 def reset_rendering_settings(rendering_engine, pixels_id, c_index,
