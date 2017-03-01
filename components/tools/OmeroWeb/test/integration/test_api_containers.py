@@ -410,6 +410,29 @@ class TestContainers(IWebTest):
         assert_objects(conn, rsp['data'], user_screens,
                        dtype="Screen", extra=extra)
 
+    def test_screen_plates_update(self, user1, screen_plates):
+        """Test update of Screen doesn't break links to Plate."""
+        conn = get_connection(user1)
+        user_name = conn.getUser().getName()
+        django_client = self.new_django_client(user_name, user_name)
+        version = api_settings.API_VERSIONS[-1]
+        screen = screen_plates[0]
+        plate_count = len(screen.linkedPlateList())
+        screen_url = reverse('api_screen',
+                             kwargs={'api_version': version,
+                                     'object_id': screen.id.val})
+        save_url = reverse('api_save', kwargs={'api_version': version})
+        # Get Screen, update and save back
+        rsp = _get_response_json(django_client, screen_url, {})
+        screen_json = rsp['data']
+        screen_json['Name'] = 'renamed Screen'
+        _csrf_put_json(django_client, save_url, screen_json)
+
+        # Check screen has been updated and still has child Datasets
+        scr = conn.getObject('Screen', screen.id.val)
+        assert scr.getName() == 'renamed Screen'
+        assert len(list(scr.listChildren())) == plate_count
+
     def test_spw_urls(self, user1, screen_plates):
         """Test browsing via urls in json /api/->SPW."""
         conn = get_connection(user1)

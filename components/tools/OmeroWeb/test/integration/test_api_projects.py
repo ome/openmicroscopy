@@ -600,7 +600,7 @@ class TestProjects(IWebTest):
         rsp = _get_response_json(django_client, project_url, {})
         assert rsp['data']['Description'] == 'New test description update'
 
-    def test_project_datasets_update(self, user1):
+    def test_project_datasets_update(self, user1, project_hierarchy_user1_group1):
         """
         Test updating a Project without losing child Datasets.
 
@@ -611,12 +611,10 @@ class TestProjects(IWebTest):
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
 
-        project = ProjectI()
-        project.name = rstring('test_project_datasets_update')
-        dataset = DatasetI()
-        dataset.name = rstring('Dataset')
-        project.linkDataset(dataset)
-        project = get_update_service(user1).saveAndReturnObject(project)
+        project = project_hierarchy_user1_group1[0]
+        dataset_count = len(project.linkedDatasetList())
+        dataset = project.linkedDatasetList()[0]
+        image_count = len(dataset.linkedImageList())
 
         version = api_settings.API_VERSIONS[-1]
         project_url = reverse('api_project',
@@ -632,7 +630,21 @@ class TestProjects(IWebTest):
         # Check Project has been updated and still has child Datasets
         proj = conn.getObject('Project', project.id.val)
         assert proj.getName() == 'renamed Project'
-        assert len(list(proj.listChildren())) == 1
+        assert len(list(proj.listChildren())) == dataset_count
+
+        # Get Dataset, update and save back
+        dataset_url = reverse('api_dataset',
+                              kwargs={'api_version': version,
+                                      'object_id': dataset.id.val})
+        rsp = _get_response_json(django_client, dataset_url, {})
+        dataset_json = rsp['data']
+        dataset_json['Name'] = 'renamed Dataset'
+        _csrf_put_json(django_client, save_url, dataset_json)
+
+        # Check Dataset has been updated and still has child Images
+        dataset = conn.getObject('Dataset', dataset.id.val)
+        assert dataset.getName() == 'renamed Dataset'
+        assert len(list(dataset.listChildren())) == image_count
 
     def test_project_tags_update(self, user1):
         """
