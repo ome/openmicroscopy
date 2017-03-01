@@ -204,10 +204,9 @@ public class ROIs
         data.addShapeData(maskData);
         store.close();
 
-        //Create and Apply transform to an ellipse
+        //Create and Apply transform to an ellipse 
+        //Don't set Z and T for this shape: this is also allowed in the model
         EllipseData ellipse = new EllipseData(10,10,10,10);
-        ellipse.setZ(0);
-        ellipse.setT(0);
         ellipse.setText("ellipse text");
         //set angle of rotation
         int theta = 10;
