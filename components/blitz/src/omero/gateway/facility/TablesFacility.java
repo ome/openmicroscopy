@@ -142,7 +142,6 @@ public class TablesFacility extends Facility {
             table = sr.newTable(repId, name);
             table.initialize(gridColumns);
             table.addData(gridColumns);
-            table.close();
 
             DataManagerFacility dm = gateway
                     .getFacility(DataManagerFacility.class);
