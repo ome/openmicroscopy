@@ -1073,10 +1073,26 @@ def uploadPlane(rawPixelsStore, plane, z, c, t):
     @param t The T-Section of the plane.
     """
     warnings.warn(
-        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
-    byteSwappedPlane = plane.byteswap()
-    convertedPlane = byteSwappedPlane.tostring()
-    rawPixelsStore.setPlane(convertedPlane, z, c, t)
+        "This method is deprecated as of OMERO 5.3.0.\
+        Use upload_plane instead",
+        DeprecationWarning)
+    upload_plane(rawPixelsStore, plane, z, c, t)
+
+
+def upload_plane(raw_pixels_store, plane, z, c, t):
+    """
+    Upload the plane to the server attaching it to the current z,c,t
+    of the already instantiated rawPixelStore.
+    @param raw_pixels_store The rawPixelStore which is already pointing
+                        to the data.
+    @param plane The data to upload
+    @param z The Z-Section of the plane.
+    @param c The C-Section of the plane.
+    @param t The T-Section of the plane.
+    """
+    byte_swapped_plane = plane.byteswap()
+    converted_plane = byte_swapped_plane.tostring()
+    raw_pixels_store.setPlane(converted_plane, z, c, t)
 
 
 def uploadPlaneByRow(rawPixelsStore, plane, z, c, t):
@@ -1091,7 +1107,8 @@ def uploadPlaneByRow(rawPixelsStore, plane, z, c, t):
     @param t The T-Section of the plane.
     """
     warnings.warn(
-        "This method is deprecated as of OMERO 5.3.0. Use upload_plane_by_row",
+        "This method is deprecated as of OMERO 5.3.0.\
+        Use upload_plane_by_row",
         DeprecationWarning)
     upload_plane_by_row(rawPixelsStore, plane, z, c, t)
 
@@ -1099,7 +1116,8 @@ def uploadPlaneByRow(rawPixelsStore, plane, z, c, t):
 def upload_plane_by_row(raw_pixels_store, plane, z, c, t):
     """
     Upload the plane to the server one row at a time,
-    attching it to the current z,c,t of the already instantiated rawPixelStore.
+    attaching it to the current z,c,t of the already instantiated
+    rawPixelStore.
     @param raw_pixels_store The rawPixelStore which is already pointing
                           to the data.
     @param plane The data to upload
@@ -1245,7 +1263,7 @@ def resetRenderingSettings(renderingEngine, pixelsId, cIndex,
 def reset_rendering_settings(rendering_engine, pixels_id, c_index,
                              min_value, max_value, rgba=None):
     """
-    Simply resests the rendering settings for a pixel set,
+    Simply resets the rendering settings for a pixel set,
     according to the min and max values
     The rendering engine does NOT have to be primed with pixels_id,
     as that is handled by this method.
@@ -1262,7 +1280,7 @@ def reset_rendering_settings(rendering_engine, pixels_id, c_index,
     if not rendering_engine.lookupRenderingDef(pixels_id):
         rendering_engine.resetDefaultSettings(True)
         if rgba is None:
-            # probably don't want E.g. single channel image to be blue!
+            # probably don't want e.g. single channel image to be blue!
             rgba = COLOURS["White"]
 
     if not rendering_engine.lookupRenderingDef(pixels_id):
