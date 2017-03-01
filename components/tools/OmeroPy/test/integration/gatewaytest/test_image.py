@@ -67,7 +67,7 @@ class TestImage (object):
         pthumb.verify()  # Raises if invalid
 
     def testThumbnailSet(self, author_testimg_bad, author_testimg_big):
-        # ordynary and big image (4k x 4k and up)
+        # ordinary and big image (4k x 4k and up)
         img_ids = [self.image.id, author_testimg_big.id]
         conn = self.image._conn
         for (img_id, thumb) in conn.getThumbnailSet(image_ids=img_ids).items():
