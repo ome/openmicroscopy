@@ -263,11 +263,11 @@ public class ROIs
                 double yScaling = transform.getA11().getValue();
                 double yShearing = transform.getA10().getValue();
                 double yTranslation = transform.getA12().getValue();
-                // Insert code to Handle transforms
+                // Insert code to handle transforms
             }
         }
 
-      //Retrieve the roi linked to an image
+        // Retrieve the roi linked to an image
         List<ROIResult> roiresults = roifac.loadROIs(ctx, image.getId());
         // Retrieve the roi linked to an image
         ROIResult r = roiresults.iterator().next();
