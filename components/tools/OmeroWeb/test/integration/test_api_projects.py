@@ -618,12 +618,14 @@ class TestProjects(IWebTest):
         project.linkDataset(dataset)
         project = get_update_service(user1).saveAndReturnObject(project)
 
-        version = settings.API_VERSIONS[-1]
-        project_url = reverse('api_project', kwargs={'api_version': version,
-                                                     'pid': project.id.val})
+        version = api_settings.API_VERSIONS[-1]
+        project_url = reverse('api_project',
+                              kwargs={'api_version': version,
+                                      'object_id': project.id.val})
         save_url = reverse('api_save', kwargs={'api_version': version})
         # Get Project, update and save back
-        project_json = _get_response_json(django_client, project_url, {})
+        rsp = _get_response_json(django_client, project_url, {})
+        project_json = rsp['data']
         project_json['Name'] = 'renamed Project'
         _csrf_put_json(django_client, save_url, project_json)
 
@@ -650,12 +652,14 @@ class TestProjects(IWebTest):
         project.linkAnnotation(tag)
         project = get_update_service(user1).saveAndReturnObject(project)
 
-        version = settings.API_VERSIONS[-1]
-        project_url = reverse('api_project', kwargs={'api_version': version,
-                                                     'pid': project.id.val})
+        version = api_settings.API_VERSIONS[-1]
+        project_url = reverse('api_project',
+                              kwargs={'api_version': version,
+                                      'object_id': project.id.val})
         save_url = reverse('api_save', kwargs={'api_version': version})
         # Get Project, update and save back
-        project_json = _get_response_json(django_client, project_url, {})
+        rsp = _get_response_json(django_client, project_url, {})
+        project_json = rsp['data']
         project_json['Name'] = 'renamed Project'
         _csrf_put_json(django_client, save_url, project_json)
 
