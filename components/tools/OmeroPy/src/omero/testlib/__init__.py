@@ -403,7 +403,8 @@ class ITest(object):
         return plates
 
     def create_test_image(self, size_x=16, size_y=16, size_z=1, size_c=1,
-                          size_t=1, session=None, name="testImage"):
+                          size_t=1, session=None, name="testImage",
+                          thumb=True):
         """
         Creates a test image of the required dimensions, where each pixel
         value is set to the value of x+y.
@@ -481,14 +482,15 @@ class ITest(object):
         rendering_engine.close()
         raw_pixel_store.close()
 
-        # See #9070. Forcing a thumbnail creation
-        tb = session.createThumbnailStore()
-        try:
-            s = tb.getThumbnailByLongestSideSet(rint(16), [pixels_id])
-            assert s[pixels_id] != ''
+        if thumb:
+            # See #9070. Forcing a thumbnail creation
+            tb = session.createThumbnailStore()
+            try:
+                s = tb.getThumbnailByLongestSideSet(rint(16), [pixels_id])
+                assert s[pixels_id] != ''
 
-        finally:
-            tb.close()
+            finally:
+                tb.close()
 
         # Reloading image to prevent error on old pixels updateEvent
         return container_service.getImages("Image", [image_id], None)[0]
