@@ -18,6 +18,8 @@
  */
 package integration.gateway;
 
+import java.util.Collection;
+import java.util.Random;
 import java.util.UUID;
 
 import omero.gateway.model.DatasetData;
@@ -35,6 +37,8 @@ public class TablesFacilityTest extends GatewayTest {
 
     private TableData data;
 
+    private long dataFileId = -1;
+    
     @Override
     @BeforeClass(alwaysRun = true)
     protected void setUp() throws Exception {
@@ -46,24 +50,31 @@ public class TablesFacilityTest extends GatewayTest {
     public void testAddTable() throws Exception {
         // just check if it doesn't throw an exception;
         // verification is done by testGetTable()
-        tablesFacility.addTable(rootCtx, ds, null, data);
+        TableData d = tablesFacility.addTable(rootCtx, ds, null, data);
+        dataFileId = d.getOriginalFileId();
     }
 
     @Test(dependsOnMethods = { "testAddTable" })
     public void testGetTableInfo() throws Exception {
-        FileAnnotationData tablesFile = tablesFacility.getAvailableTables(rootCtx, ds)
-                .iterator().next();
-        TableData data2 = tablesFacility.getTableInfo(rootCtx, tablesFile.getFileID());
+        TableData data2 = tablesFacility.getTableInfo(rootCtx, dataFileId);
         Assert.assertEquals(data2.getNumberOfRows(), 4);
         Assert.assertEquals(data2.getColumns(), this.data.getColumns());
     }
     
     @Test(dependsOnMethods = { "testAddTable" })
+    public void testGetAvailableTables() throws Exception {
+        Collection<FileAnnotationData> tablesFiles = tablesFacility.getAvailableTables(rootCtx, ds);
+        for(FileAnnotationData fa : tablesFiles) {
+            if (fa.getFileID() == dataFileId)
+                return;
+        }
+        Assert.fail("Didn't find the table with getAvailableTables() method");
+    }
+    
+    @Test(dependsOnMethods = { "testAddTable" })
     public void testGetTable() throws Exception {
-        FileAnnotationData tablesFile = tablesFacility.getAvailableTables(rootCtx, ds)
-                .iterator().next();
-        this.data.setOriginalFileId(tablesFile.getFileID());
-        TableData data2 = tablesFacility.getTable(rootCtx, tablesFile.getFileID());
+        this.data.setOriginalFileId(dataFileId); // necessary for equals() 
+        TableData data2 = tablesFacility.getTable(rootCtx, dataFileId);
         Assert.assertEquals(data2, data,
                 "The tables data retrieved doesn't match the original");
         Assert.assertTrue(data2.isCompleted());
@@ -71,11 +82,8 @@ public class TablesFacilityTest extends GatewayTest {
 
     @Test(dependsOnMethods = { "testAddTable" })
     public void testGetSubsetTable() throws Exception {
-        FileAnnotationData tablesFile = tablesFacility.getAvailableTables(rootCtx, ds)
-                .iterator().next();
-        this.data.setOriginalFileId(tablesFile.getFileID());
         // get row 1 and 2 with column 0 and 2
-        TableData data2 = tablesFacility.getTable(rootCtx, tablesFile.getFileID(),
+        TableData data2 = tablesFacility.getTable(rootCtx, dataFileId,
                 1, 2, 0, 2);
         
         TableDataColumn[] header = new TableDataColumn[2];
@@ -88,11 +96,91 @@ public class TablesFacilityTest extends GatewayTest {
 
         TableData exp = new TableData(header, expData);
         exp.setOffset(1);
-        exp.setOriginalFileId(tablesFile.getFileID());
+        exp.setOriginalFileId(dataFileId);  
         exp.setNumberOfRows(4);
         Assert.assertEquals(data2, exp,
                 "The tables data retrieved doesn't match the original");
         Assert.assertFalse(data2.isCompleted());
+    }
+    
+    @Test
+    public void testBigTable() throws Exception {
+        int cols = 10;
+        int rows = 100000;
+        Random rand = new Random();
+        Class<?>[] types = new Class<?>[] { String.class, Long.class,
+                Double.class, Double[].class };
+        TableDataColumn[] header = new TableDataColumn[cols];
+        for (int i = 0; i < header.length; i++) {
+            header[i] = new TableDataColumn("column-" + i, i,
+                    types[rand.nextInt(types.length)]);
+        }
+
+        Object[][] data = new Object[header.length][rows];
+        for (int c = 0; c < cols; c++) {
+            Object[] column = new Object[rows];
+            Class<?> type = header[c].getType();
+            for (int r = 0; r < rows; r++) {
+                if (type.equals(String.class)) {
+                    column[r] = "" + rand.nextInt();
+                } else if (type.equals(Long.class)) {
+                    column[r] = rand.nextLong();
+                } else if (type.equals(Double.class)) {
+                    column[r] = rand.nextDouble();
+                } else if (type.equals(Double[].class)) {
+                    Double[] d = new Double[4];
+                    for (int i = 0; i < 4; i++)
+                        d[i] = rand.nextDouble();
+                    column[r] = d;
+                }
+            }
+            data[c] = column;
+        }
+        
+        TableData td = new TableData(header, data);
+        long start = System.currentTimeMillis();
+        td = tablesFacility.addTable(rootCtx, ds, "Big Table", td);
+        long duration = System.currentTimeMillis() - start;
+        
+        System.out.println("Storing table with "+(cols*rows)+" entries took "+duration+" ms");
+        
+        duration = 0;
+        int nEntries = 0;
+        for(int i=0; i<10; i++) {
+            // read some random subsets from the table and compare to original data
+            int rowFrom = rand.nextInt(rows-1000); // can't request more than 1000 rows at once
+            int rowTo = rowFrom + rand.nextInt(1000);
+            int[] columns = new int[rand.nextInt(cols)];
+            
+            nEntries += (rowTo - rowFrom) * columns.length;
+            
+            for(int x=0; x<columns.length; x++)
+                columns[x] = rand.nextInt(cols);
+            
+            start = System.currentTimeMillis();
+            TableData td2 = tablesFacility.getTable(rootCtx, td.getOriginalFileId(),
+                    rowFrom, rowTo, columns);
+            duration += System.currentTimeMillis() - start;
+            
+            Object[][] data2 = td2.getData();
+            
+            for(int r=rowFrom; r<rowTo; r++) {
+                for(int c=0; c<columns.length; c++) {
+                    int index = columns[c];
+                    Class<?> type = header[index].getType();
+                    if (type.equals(String.class)) {
+                        Assert.assertEquals((String)data2[c][r-(int)td2.getOffset()], (String)data[index][r]);
+                    } else if (type.equals(Long.class)) {
+                        Assert.assertEquals((Long)data2[c][r-(int)td2.getOffset()], (Long)data[index][r]);
+                    } else if (type.equals(Double.class)) {
+                        Assert.assertEquals((Double)data2[c][r-(int)td2.getOffset()], (Double)data[index][r]);
+                    } else if (type.equals(Double[].class)) {
+                        Assert.assertEquals((Double[])data2[c][r-(int)td2.getOffset()], (Double[])data[index][r]);
+                    }
+                }
+            }
+        }
+        System.out.println("Requesting random subsets (average size: "+(nEntries/10)+" entries) took "+(duration/10)+" ms on average");
     }
 
     private void initData() throws Exception {
