@@ -48,9 +48,11 @@ class MetadataTestBase(CLITest):
     def create_annotations(self, obj):
         tag = self.new_tag('tag-' + self.name)
         fab = self.make_file_annotation(
-            'fileb-' + self.name, format="OMERO.tables", ns=NSBULKANNOTATIONS)
+            'fileb-' + self.name, mimetype="OMERO.tables",
+            namespace=NSBULKANNOTATIONS)
         fam = self.make_file_annotation(
-            'filem-' + self.name, format="OMERO.tables", ns=NSMEASUREMENT)
+            'filem-' + self.name, mimetype="OMERO.tables",
+            namespace=NSMEASUREMENT)
         ma = omero.model.MapAnnotationI()
         ma.setMapValue([omero.model.NamedValue(
             'key-' + self.name, 'value-' + self.name)])
