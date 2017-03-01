@@ -141,71 +141,6 @@ def fileread_gen(fin, fsize, bufsize):
     fin.close()
 
 
-def countAnnotations(queryService, ctx, obj_type, obj_ids=[]):
-    """
-    Count the annotions linked to the given object
-
-    :param queryService:  Reference to the query service
-    :param ctx:           The security context
-    :param obj_type:      The type of the object the annotations are linked to
-    :param obj_ids:       List of object ids
-    :return:              Dictionary of annotation counts per annotation type
-    """
-
-    counts = {
-        "TagAnnotation": 0,
-        "FileAnnotation": 0,
-        "CommentAnnotation": 0,
-        "LongAnnotation": 0,
-        "MapAnnotation": 0,
-        "OtherAnnotation": 0}
-
-    if obj_type is None or not obj_ids:
-        return counts
-
-    params = omero.sys.ParametersI()
-    params.addIds(obj_ids)
-    params.add('ratingns',
-               rstring(omero.constants.metadata.NSINSIGHTRATING))
-
-    q = """
-        select sum( case when an.ns = :ratingns
-                    and an.class = LongAnnotation
-                    then 1 else 0 end),
-            sum( case when (an.ns is null or an.ns != :ratingns)
-                           and an.class = LongAnnotation
-                           then 1 else 0 end),
-           sum( case when an.class != LongAnnotation
-                    then 1 else 0 end ), an.class
-           from Annotation an where an.id in
-                (select distinct(ann.id) from %sAnnotationLink ial
-                    join ial.child as ann
-                    join ial.parent as i
-            where i.id in (:ids))
-                group by an.class
-        """ % obj_type
-
-    queryResult = queryService.projection(q, params, ctx)
-
-    for r in queryResult:
-        ur = unwrap(r)
-        if ur[3] == '/basic/num/long/':
-            counts['LongAnnotation'] += int(ur[0])
-            counts['OtherAnnotation'] += int(ur[1])
-        elif ur[3] == '/basic/text/comment/':
-            counts['CommentAnnotation'] += int(ur[2])
-        elif ur[3] == '/basic/text/tag/':
-            counts['TagAnnotation'] += int(ur[2])
-        elif ur[3] == '/type/OriginalFile/':
-            counts['FileAnnotation'] += int(ur[2])
-        elif ur[3] == '/map/':
-            counts['MapAnnotation'] += int(ur[2])
-        else:
-            counts['OtherAnnotation'] += int(ur[2])
-
-    return counts
-
-
 def getAnnotationLinkTableName(objecttype):
     """
     Get the name of the *AnnotationLink table
@@ -3440,7 +3375,7 @@ class _BlitzGateway (object):
                                and an.class = LongAnnotation
                                then 1 else 0 end),
                sum( case when an.class != LongAnnotation
-                        then 1 else 0 end ), an.class
+                        then 1 else 0 end ), type(an.class)
                from Annotation an where an.id in
                     (select distinct(ann.id) from %sAnnotationLink ial
                         join ial.child as ann
@@ -3453,16 +3388,16 @@ class _BlitzGateway (object):
 
         for r in queryResult:
             ur = unwrap(r)
-            if ur[3] == '/basic/num/long/':
+            if ur[3] == 'ome.model.annotations.LongAnnotation':
                 counts['LongAnnotation'] += ur[0]
                 counts['OtherAnnotation'] += ur[1]
-            elif ur[3] == '/basic/text/comment/':
+            elif ur[3] == 'ome.model.annotations.CommentAnnotation':
                 counts['CommentAnnotation'] += ur[2]
-            elif ur[3] == '/basic/text/tag/':
+            elif ur[3] == 'ome.model.annotations.TagAnnotation':
                 counts['TagAnnotation'] += ur[2]
-            elif ur[3] == '/type/OriginalFile/':
+            elif ur[3] == 'ome.model.annotations.FileAnnotation':
                 counts['FileAnnotation'] += ur[2]
-            elif ur[3] == '/map/':
+            elif ur[3] == 'ome.model.annotations.MapAnnotation':
                 counts['MapAnnotation'] += ur[2]
             else:
                 counts['OtherAnnotation'] += ur[2]
