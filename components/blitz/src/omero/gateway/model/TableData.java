@@ -21,6 +21,8 @@ package omero.gateway.model;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
+
 /**
  * A simple data 'container' for an OMERO.table
  * 
@@ -59,15 +61,23 @@ public class TableData {
      *            The data in form of List of columns
      */
     public TableData(List<TableDataColumn> columns, List<List<Object>> data) {
-        this.columns = new TableDataColumn[columns.size()];
-        this.columns = columns.toArray(this.columns);
+        if (CollectionUtils.isNotEmpty(columns)) {
+            this.columns = new TableDataColumn[columns.size()];
+            this.columns = columns.toArray(this.columns);
+        } else {
+            this.columns = new TableDataColumn[0];
+        }
 
-        int nRows = !data.isEmpty() ? data.get(0).size() : 0;
-        this.data = new Object[data.size()][nRows];
-        for (int i = 0; i < data.size(); i++) {
-            List<Object> columnData = data.get(i);
-            for (int j = 0; j < columnData.size(); j++)
-                this.data[i][j] = columnData.get(j);
+        if (CollectionUtils.isNotEmpty(data)) {
+            int nRows = data.get(0).size();
+            this.data = new Object[data.size()][nRows];
+            for (int i = 0; i < data.size(); i++) {
+                List<Object> columnData = data.get(i);
+                for (int j = 0; j < columnData.size(); j++)
+                    this.data[i][j] = columnData.get(j);
+            }
+        } else {
+            this.data = new Object[0][0];
         }
     }
 
@@ -80,8 +90,8 @@ public class TableData {
      *            The data in form data['column index']['row data']
      */
     public TableData(TableDataColumn[] columns, Object[][] data) {
-        this.columns = columns;
-        this.data = data;
+        this.columns = columns != null ? columns : new TableDataColumn[0];
+        this.data = data != null ? data : new Object[0][0];
     }
 
     /**

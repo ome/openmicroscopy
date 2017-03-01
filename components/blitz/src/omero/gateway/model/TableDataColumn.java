@@ -72,8 +72,8 @@ public class TableDataColumn {
      */
     public TableDataColumn(String name, String description, int index,
             Class<?> type) {
-        this.name = name;
-        this.description = description;
+        this.name = name != null ? name : "";
+        this.description = description != null ? description : "";
         this.index = index;
         this.type = type;
     }
@@ -190,6 +190,9 @@ public class TableDataColumn {
             return false;
         if (type == null) {
             if (other.type != null)
+                return false;
+        } else if (other.type == null) {
+            if (type != null)
                 return false;
         } else if (!type.getCanonicalName().equals(
                 other.type.getCanonicalName()))
