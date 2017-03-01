@@ -320,29 +320,41 @@ def downloadFile(rawFileStore, originalFile, filePath=None):
     """
     warnings.warn(
         "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
-    fileId = originalFile.getId().getValue()
-    rawFileStore.setFileId(fileId)
-    fileSize = originalFile.getSize().getValue()
-    maxBlockSize = 10000
+    return download_file(rawFileStore, originalFile, filePath)
+
+
+def download_file(raw_file_store, original_file, file_path=None):
+    """
+    Downloads an OriginalFile from the server.
+
+    @param raw_file_store:    The Omero rawFileStore
+    @param original_file:    The OriginalFileI
+    @param file_path:    Where to download the file.
+                        If None, use original_file.getName().getValue()
+    """
+    file_id = original_file.getId().getValue()
+    raw_file_store.setFileId(file_id)
+    file_size = original_file.getSize().getValue()
+    max_block_size = 10000
     cnt = 0
-    if filePath is None:
-        filePath = originalFile.getName().getValue()
+    if file_path is None:
+        file_path = original_file.getName().getValue()
     # don't overwrite. Add number before extension
     i = 1
-    path, ext = filePath.rsplit(".", 1)
-    while os.path.exists(filePath):
-        filePath = "%s_%s.%s" % (path, i, ext)
+    path, ext = file_path.rsplit(".", 1)
+    while os.path.exists(file_path):
+        file_path = "%s_%s.%s" % (path, i, ext)
         i += 1
-    fileHandle = open(filePath, 'w')
+    file_size = original_file.getSize().getValue()
+    block_size = min(max_block_size, file_size)
     cnt = 0
-    fileSize = originalFile.getSize().getValue()
-    while(cnt < fileSize):
-        blockSize = min(maxBlockSize, fileSize)
-        block = rawFileStore.read(cnt, blockSize)
-        cnt = cnt + blockSize
-        fileHandle.write(block)
-    fileHandle.close()
-    return filePath
+    with open(file_path, 'w') as file_handle:
+        while cnt < file_size:
+            block = raw_file_store.read(cnt, block_size)
+            cnt = cnt + block_size
+            file_handle.write(block)
+
+    return file_path
 
 
 def attachFileToParent(updateService, parent, originalFile,
