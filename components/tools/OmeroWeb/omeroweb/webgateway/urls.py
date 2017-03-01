@@ -274,10 +274,8 @@ webgateway_get_thumbnails_json = url(
     'webgateway.views.get_thumbnails_json')
 """
 Returns a set of thumbnail base64 encoded of the OMERO Images,
-optionally scaled to max-width and max-height.
-Params in get_thumbnails/<w>/ are:
-    - iid:  Image ID
-    - w:    Optional max width
+optionally scaled to max-longest-side.
+Image ids are specified in query string as list, e.g. id=1&id=2.
 """
 
 webgateway_get_thumbnail_json = url(
