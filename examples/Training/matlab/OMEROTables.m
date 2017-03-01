@@ -98,3 +98,4 @@ catch err
 end
 % Close the session
 client.closeSession();
+
