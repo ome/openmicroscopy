@@ -600,7 +600,8 @@ class TestProjects(IWebTest):
         rsp = _get_response_json(django_client, project_url, {})
         assert rsp['data']['Description'] == 'New test description update'
 
-    def test_project_datasets_update(self, user1, project_hierarchy_user1_group1):
+    def test_project_datasets_update(self, user1,
+                                     project_hierarchy_user1_group1):
         """
         Test updating a Project without losing child Datasets.
 
