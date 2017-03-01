@@ -4417,6 +4417,20 @@ class _BlitzGateway (object):
         return rv
 
     def getThumbnailSet(self, image_ids, max_size=64):
+        """
+        Retrieves a number of thumbnails for image sets. If the Thumbnails
+        exist in the on-disk cache they will be returned directly,
+        otherwise they will be created, for more details
+        see ome.api.ThumbnailStore.getThumbnailByLongestSideSet
+
+        :param image_ids:   A list of image ids
+        :param max_size:    The longest side of the image will be used
+                            to calculate the size for the smaller side
+                            in order to keep the aspect ratio of
+                            the original image.
+        :return:            dictionary of strings holding a rendered JPEG
+                            of the thumbnails.
+        """
         tb = None
         _resp = dict()
         try:
