@@ -1786,8 +1786,8 @@ class TestTree(ITest):
         Test marshalling image, loading thumbnail version
         """
         sf = userA[0].sf
-        image = self.createTestImage(
-            sizeX=50, sizeY=50, sizeZ=5, session=sf, thumb=thumb['create'])
+        image = self.create_test_image(
+            size_x=50, size_y=50, size_z=5, session=sf, thumb=thumb['create'])
         conn = get_connection(userA)
         # Thumbnail creation is optional, see testlib.ITest.createTestImage
         expected = expected_images(
