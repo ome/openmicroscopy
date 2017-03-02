@@ -107,10 +107,17 @@
                     .trigger("selection_change.ome");
             };
             // Handle click on Wellsample Images
-            $( '#wellImages' ).on( "click", "img", function(event) {
+            $( '#wellImages' ).on( "click", "a", function(event) {
+                event.preventDefault();
                 // Update 'ui-selected' on images, handling shift-click etc
-                OME.handleClickSelection(event, undefined, "#wellImages img");
+                var $a = $(event.target).parent();
+                OME.handleClickSelection(event, $a, "#wellImages a");
                 triggerWellImagesSelection();
+                return false;
+            });
+            // Listen for double-clicks to open image viewer
+            $( "#wellImages").on("dblclick", "a", function() {
+                window.open($(this).prop('href'), '_blank');
             });
             // Drag selection on WellSample images
             $('#wellImages').selectable({
@@ -267,13 +274,16 @@
                             if (selectImageIds && selectImageIds.indexOf(w.id) > -1) {
                                 cls = 'class="ui-selected"';
                             }
-                            html += '<li ' + cls + ' title="' + w.name + '" data-imageId="' + w.id + '"><img src="' + w.thumb_url + '" /></li>';
+                            html += '<li ' + cls + ' title="' + w.name + '" data-imageId="' + w.id + '">';
+                            html += '<a href="{% url 'webindex' %}img_detail/' + w.id + '/">';
+                            html += '<img src="' + w.thumb_url + '" />';
+                            html += '</a></li>';
                             if (!isNaN(imagesPerRow) && (idx+1)%imagesPerRow === 0) {
                                 html += '<br>';
                             }
                             return html;
                         }, "");
-                        $('#wellImages-' + wellId).append("<td><ul>" + html + "</ul></tr>");
+                        $('#wellImages-' + wellId).html("<td><ul>" + html + "</ul></tr>");
                         if (selectImageIds && selectImageIds.length > 0) {
                             triggerWellImagesSelection();
                         }
