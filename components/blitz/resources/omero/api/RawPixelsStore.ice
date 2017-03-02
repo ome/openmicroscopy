@@ -11,6 +11,7 @@
 
 #include <omero/ModelF.ice>
 #include <omero/Collections.ice>
+#include <omero/ROMIO.ice>
 #include <omero/api/PyramidService.ice>
 
 module omero {
@@ -325,6 +326,16 @@ module omero {
                  **/
                 idempotent void setTimepoint(Ice::ByteSeq buf, int t) throws ServerError;
 
+                /**
+                 * Retrieves the histogram data for the specified plane and channels. This method can currently only handle non-pyramid images.
+                 * @param channels the channels to generate the histogram data for
+                 * @param binCount the number of the histogram bins (optional, default: 256)
+                 * @param plane the plane (optional, default: whole region of first z/t plane)
+                 * @param globalRange use the global minimum/maximum to determine the histogram range, otherwise use plane minimum/maximum value
+                 * @return See above.
+                 **/
+                idempotent IntegerIntegerArrayMap getHistogram(IntegerArray channels, int binCount, bool globalRange, omero::romio::PlaneDef plane) throws ServerError;
+                
                 /**
                  * Returns the byte width for the pixel store.
                  * @return See above.

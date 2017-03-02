@@ -12,7 +12,7 @@
 import os
 import time
 import pytest
-import library as lib
+from omero.testlib import ITest
 import omero
 import omero.all
 
@@ -29,7 +29,7 @@ if "DEBUG" in os.environ:
     omero.util.configure_logging(loglevel=10)
 
 
-class TestScripts(lib.ITest):
+class TestScripts(ITest):
 
     def pingfile(self):
         pingfile = create_path()

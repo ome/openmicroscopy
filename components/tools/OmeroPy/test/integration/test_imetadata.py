@@ -24,7 +24,7 @@ Integration test focused on the omero.api.IMetadata interface.
 
 """
 
-import library as lib
+from omero.testlib import ITest
 import pytest
 import omero
 
@@ -36,7 +36,7 @@ NAMES = ("TagAnnotation",
          "ome.model.annotations.TagAnnotation")
 
 
-class TestIMetadata(lib.ITest):
+class TestIMetadata(ITest):
 
     def setup_method(self, method):
         self.md = self.client.sf.getMetadataService()

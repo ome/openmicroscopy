@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -125,6 +125,7 @@ import omero.api.IRenderingSettingsPrx;
 import omero.api.IRepositoryInfoPrx;
 import omero.api.IRoiPrx;
 import omero.api.IScriptPrx;
+import omero.api.ITypesPrx;
 import omero.api.IUpdatePrx;
 import omero.api.RawFileStorePrx;
 import omero.api.RawPixelsStorePrx;
@@ -199,6 +200,7 @@ import omero.model.ScreenI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.model.Well;
+import omero.model.WellI;
 import omero.model.WellSample;
 import omero.model.WellSampleI;
 import omero.model.enums.ChecksumAlgorithmSHA1160;
@@ -971,6 +973,10 @@ class OMEROGateway
 		        WellSampleI.class.equals(klass) ||
 				WellSampleData.class.equals(klass))
 			table = "ScreenAnnotationLink";
+		else if (Well.class.equals(klass) ||
+                WellI.class.equals(klass) ||
+                WellData.class.equals(klass))
+            table = "WellAnnotationLink";
 		else if (RectangleData.class.equals(klass) || RectangleI.class.equals(klass) ||
 		        EllipseData.class.equals(klass) ||  EllipseI.class.equals(klass) ||
 		        PointData.class.equals(klass) || PointI.class.equals(klass) ||
@@ -5195,8 +5201,8 @@ class OMEROGateway
 	{
 	   
 		try {
-		    IQueryPrx service = gw.getQueryService(ctx);
-			return service.findByString(klass.getName(), "value", value);
+		    ITypesPrx service = gw.getTypesService(ctx);
+		    return service.getEnumeration(klass.getName(), value);
 		} catch (Exception e) {
 			handleException(e, "Cannot find the enumeration's value.");
 		}
@@ -5222,10 +5228,10 @@ class OMEROGateway
 	   
 		List<EnumerationObject> r;
 		try {
-		    IPixelsPrx service = gw.getPixelsService(ctx);
+		    ITypesPrx service = gw.getTypesService(ctx);
 			r = enumerations.get(klassName);
 			if (r != null) return r;
-			List<IObject> l = service.getAllEnumerations(klassName);
+			List<IObject> l = service.allEnumerations(klassName);
 			r = new ArrayList<EnumerationObject>();
 			if (l == null) return r;
 			Iterator<IObject> i = l.iterator();
@@ -7335,11 +7341,28 @@ class OMEROGateway
 		return null;
 	}
 
-	void removeGroup(SecurityContext ctx) {
-	    if (ctx == null)
-	        return;
-	    gw.closeConnector(ctx);
-	}
+    /**
+     * Remove the security group.
+     *
+     * @param ctx
+     *            The security context.
+     * @return See above.
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    void removeGroup(SecurityContext ctx) throws DSOutOfServiceException,
+            DSAccessException {
+        if (ctx == null)
+            return;
+        try {
+            gw.closeConnector(ctx);
+        } catch (Throwable t) {
+            handleException(t, "Cannot close connector");
+        }
+    }
 
 	/**
 	 * Loads the file set corresponding to the specified image.

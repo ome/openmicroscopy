@@ -17,10 +17,10 @@ Requirements:
  * chromedriver (Web tests using Chrome)
 
 Read about Robot Framework at
-http://code.google.com/p/robotframework/
+http://robotframework.org
 
 Before installing please visit
-https://code.google.com/p/robotframework/wiki/Installation
+https://github.com/robotframework/robotframework/blob/master/INSTALL.rst
 
 Note that the script jybot, required for the Insight tests, is not
 installed by default when using pip install, see the above page for
@@ -47,7 +47,7 @@ pip install robotframework-selenium2library
 
 By default, the tests are run using the default browser i.e. Firefox
 If you want to run the tests on Chrome, you need to install the chromedriver.
-See https://code.google.com/p/chromedriver/downloads/list
+See https://sites.google.com/a/chromium.org/chromedriver/downloads
 
 If you are running the tests on Mac OS X, you can install with the following
 
@@ -108,7 +108,8 @@ OMERO.insight
 -------------
 
 If you use Eclipse, then for developing test scripts you may find the
-Swing Explorer plug-in helpful; read http://www.swingexplorer.com/
+Swing Explorer plug-in helpful
+https://github.com/robotframework/swingexplorer/
 
 Read about SwingLibrary at
 http://github.com/robotframework/SwingLibrary
@@ -175,11 +176,7 @@ OMERO.web
 
 To run the tests locally, you will first need to start OMERO.web, please see
 
-http://www.openmicroscopy.org/site/support/omero5.2/sysadmins/unix/install-web.html
-
-or
-
-http://www.openmicroscopy.org/site/support/omero5.2/sysadmins/windows/install-web.html
+http://www.openmicroscopy.org/site/support/omero5.3/sysadmins/unix/install-web.html
 
 for more information.
 

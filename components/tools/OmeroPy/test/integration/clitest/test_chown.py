@@ -93,7 +93,7 @@ class TestChown(CLITest):
     @pytest.mark.parametrize('arguments', ['image', 'fileset'])
     def testFileset(self, nimages, arguments):
         # 2 images sharing a fileset
-        images = self.importMIF(nimages)
+        images = self.import_mif(nimages)
         img = self.query.get('Image', images[0].id.val)
         filesetId = img.fileset.id.val
         fileset = self.query.get('Fileset', filesetId)
@@ -119,7 +119,7 @@ class TestChown(CLITest):
             assert obj.details.owner.id.val == user.id.val
 
     def testFilesetPartialFailing(self):
-        images = self.importMIF(2)  # 2 images sharing a fileset
+        images = self.import_mif(2)  # 2 images sharing a fileset
 
         # Create user and try to transfer only one image to the user
         client, user = self.new_client_and_user(group=self.group)
@@ -134,7 +134,7 @@ class TestChown(CLITest):
             assert obj.details.owner.id.val == self.user.id.val
 
     def testFilesetAllImagesChownDataset(self):
-        images = self.importMIF(2)  # 2 images sharing a fileset
+        images = self.import_mif(2)  # 2 images sharing a fileset
         dataset_id = self.create_object('Dataset')  # ... in a dataset
 
         # put the images into the dataset

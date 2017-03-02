@@ -35,7 +35,7 @@ import javax.swing.Icon;
 //Application-internal dependencies
 
 /** 
- * ColourIcon used in the {@link ColourListRenderer} to paint the colours next
+ * ColourIcon used in the ColourListRenderer to paint the colours next
  * to the colour names.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;

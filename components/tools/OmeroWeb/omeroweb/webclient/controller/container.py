@@ -47,7 +47,6 @@ class BaseContainer(BaseController):
     comment = None
     tags = None
 
-    index = None
     containers = None
     experimenter = None
 
@@ -105,8 +104,6 @@ class BaseContainer(BaseController):
             self.well = self.conn.getObject("Well", well)
             self.assertNotNone(self.well, well, "Well")
             self.assertNotNone(self.well._obj, well, "Well")
-            if index is not None:
-                self.well.index = index
         if tag is not None:
             self.obj_type = "tag"
             self.tag = self.conn.getObject("Annotation", tag)
@@ -216,12 +213,17 @@ class BaseContainer(BaseController):
         except:
             limit = 144000000
         if self.image:
-            if (self.image.getSizeX() * self.image.getSizeY()) > limit:
+            sizex = self.image.getSizeX()
+            sizey = self.image.getSizeY()
+            if sizex is None or sizey is None or (sizex * sizey) > limit:
                 can = False
         elif objDict is not None:
             if 'image' in objDict:
                 for i in objDict['image']:
-                    if (i.getSizeX() * i.getSizeY()) > limit:
+                    sizex = i.getSizeX()
+                    sizey = i.getSizeY()
+                    if sizex is None or sizey is None or\
+                            (sizex * sizey) > limit:
                         can = False
         return can
 
@@ -242,12 +244,30 @@ class BaseContainer(BaseController):
             return self.image.canDownload() or \
                 self.well.canDownload() or self.plate.canDownload()
 
+    def list_scripts(self):
+        """
+        Get the file names of all scripts
+        """
+        scriptService = self.conn.getScriptService()
+        scripts = scriptService.getScripts()
+
+        scriptlist = []
+
+        for s in scripts:
+            name = s.name.val
+            scriptlist.append(name)
+
+        return scriptlist
+
     def listFigureScripts(self, objDict=None):
         """
         This configures all the Figure Scripts, setting their enabled status
         given the currently selected object (self.image etc) or batch objects
-        (uses objDict).
+        (uses objDict) and the script availability.
         """
+
+        availableScripts = self.list_scripts()
+
         figureScripts = []
         # id is used in url and is mapped to full script path by
         # views.figure_script()
@@ -260,12 +280,14 @@ class BaseContainer(BaseController):
         # Split View Figure is enabled if we have at least one image with
         # SizeC > 1
         if self.image:
-            splitView['enabled'] = (self.image.getSizeC() > 1)
+            splitView['enabled'] = (self.image.getSizeC() > 1) and \
+                'Split_View_Figure.py' in availableScripts
         elif objDict is not None:
             if 'image' in objDict:
                 for i in objDict['image']:
                     if i.getSizeC() > 1:
-                        splitView['enabled'] = True
+                        splitView['enabled'] = 'Split_View_Figure.py' in \
+                            availableScripts
                         break
         thumbnailFig = {
             'id': 'Thumbnail',
@@ -275,19 +297,20 @@ class BaseContainer(BaseController):
                         " tag")}
         # Thumbnail figure is enabled if we have Datasets or Images selected
         if self.image or self.dataset:
-            thumbnailFig['enabled'] = True
+            thumbnailFig['enabled'] = 'Thumbnail_Figure.py' in availableScripts
         elif objDict is not None:
             if 'image' in objDict or 'dataset' in objDict:
-                thumbnailFig['enabled'] = True
+                thumbnailFig['enabled'] = 'Thumbnail_Figure.py' in \
+                    availableScripts
 
         makeMovie = {
             'id': 'MakeMovie',
             'name': 'Make Movie',
             'enabled': False,
             'tooltip': "Create a movie of the image"}
-        if (self.image and (self.image.getSizeT() > 0 or
-                            self.image.getSizeZ() > 0)):
-            makeMovie['enabled'] = True
+        if (self.image and (self.image.getSizeT() > 1 or
+                            self.image.getSizeZ() > 1)):
+            makeMovie['enabled'] = 'Make_Movie.py' in availableScripts
 
         figureScripts.append(splitView)
         figureScripts.append(thumbnailFig)
@@ -489,16 +512,11 @@ class BaseContainer(BaseController):
         new_links = list()
         for k in oids.keys():
             if len(oids[k]) > 0:
-                for ob in oids[k]:
-                    if isinstance(ob._obj, omero.model.WellI):
-                        t = 'Image'
-                        obj = ob.getWellSample(well_index).image()
-                    elif isinstance(ob._obj, omero.model.PlateAcquisitionI):
+                for obj in oids[k]:
+                    if isinstance(obj._obj, omero.model.PlateAcquisitionI):
                         t = 'PlateAcquisition'
-                        obj = ob
                     else:
                         t = k.lower().title()
-                        obj = ob
                     l_ann = getattr(omero.model, t+"AnnotationLinkI")()
                     l_ann.setParent(obj._obj)
                     l_ann.setChild(ann._obj)
@@ -547,10 +565,7 @@ class BaseContainer(BaseController):
         for k in oids:
             if len(oids[k]) > 0:
                 for ob in oids[k]:
-                    if isinstance(ob._obj, omero.model.WellI):
-                        t = 'Image'
-                        obj = ob.getWellSample(well_index).image()
-                    elif isinstance(ob._obj, omero.model.PlateAcquisitionI):
+                    if isinstance(ob._obj, omero.model.PlateAcquisitionI):
                         t = 'PlateAcquisition'
                         obj = ob
                     else:
@@ -574,7 +589,7 @@ class BaseContainer(BaseController):
                         pass
         return ann.getId()
 
-    def createFileAnnotations(self, newFile, oids, well_index=0):
+    def createFileAnnotations(self, newFile, oids):
         format = self.checkMimetype(newFile.content_type)
 
         oFile = omero.model.OriginalFileI()
@@ -594,16 +609,11 @@ class BaseContainer(BaseController):
         new_links = list()
         for k in oids:
             if len(oids[k]) > 0:
-                for ob in oids[k]:
-                    if isinstance(ob._obj, omero.model.WellI):
-                        t = 'Image'
-                        obj = ob.getWellSample(well_index).image()
-                    elif isinstance(ob._obj, omero.model.PlateAcquisitionI):
+                for obj in oids[k]:
+                    if isinstance(obj._obj, omero.model.PlateAcquisitionI):
                         t = 'PlateAcquisition'
-                        obj = ob
                     else:
                         t = k.lower().title()
-                        obj = ob
                     l_ann = getattr(omero.model, t+"AnnotationLinkI")()
                     l_ann.setParent(obj._obj)
                     l_ann.setChild(fa._obj)
@@ -613,7 +623,7 @@ class BaseContainer(BaseController):
                 new_links, self.conn.SERVICE_OPTS)
         return fa.getId()
 
-    def createAnnotationsLinks(self, atype, tids, oids, well_index=0):
+    def createAnnotationsLinks(self, atype, tids, oids):
         """
         Links existing annotations to 1 or more objects
 
@@ -645,16 +655,11 @@ class BaseContainer(BaseController):
                     params=params)
                 pcLinks = [(l.parent.id.val, l.child.id.val) for l in links]
                 # Create link between each object and annotation
-                for ob in self.conn.getObjects(parent_type, parent_ids):
-                    parent_objs.append(ob)
+                for obj in self.conn.getObjects(parent_type, parent_ids):
+                    parent_objs.append(obj)
                     for a in annotations:
-                        if (ob.id, a.id) in pcLinks:
+                        if (obj.id, a.id) in pcLinks:
                             continue    # link already exists
-                        if isinstance(ob._obj, omero.model.WellI):
-                            parent_type = 'Image'
-                            obj = ob.getWellSample(well_index).image()
-                        else:
-                            obj = ob
                         l_ann = getattr(
                             omero.model, parent_type+"AnnotationLinkI")()
                         l_ann.setParent(obj._obj)
@@ -741,7 +746,7 @@ class BaseContainer(BaseController):
             container.description = None
         self.conn.saveObject(container)
 
-    def remove(self, parents, index, tag_owner_id=None):
+    def remove(self, parents, tag_owner_id=None):
         """
         Removes the current object (file, tag, comment, dataset, plate, image)
         from its parents by manually deleting the link. Orphaned comments will
@@ -759,10 +764,6 @@ class BaseContainer(BaseController):
             parentId = long(parent[1])
             if dtype == "acquisition":
                 dtype = "PlateAcquisition"
-            if dtype == "well":
-                dtype = "Image"
-                w = self.conn.getObject("Well", parentId)
-                parentId = w.getWellSample(index=index).image().getId()
             if self.tag:
                 for al in self.tag.getParentLinks(dtype, [parentId]):
                     if (al is not None and al.canDelete() and (
@@ -804,7 +805,7 @@ class BaseContainer(BaseController):
                 linksByType[objType] = []
             linksByType[objType].append(obj.id.val)
         for linkType, ids in linksByType.items():
-            self.conn.deleteObjects(linkType, ids, wait=False)
+            self.conn.deleteObjects(linkType, ids, wait=True)
         if len(notFound) > 0:
             raise AttributeError("Attribute not specified. Cannot be removed.")
 

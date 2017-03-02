@@ -9,10 +9,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
-import junit.framework.TestCase;
 import omero.util.TempFileManager;
 
 import org.apache.commons.io.FileUtils;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 //
@@ -29,20 +29,20 @@ import org.testng.annotations.Test;
 // [nomemorytestng]    at omero.util.TempFileManager.<init>(TempFileManager.java:118)
 //
 @Test(groups = "unit", timeOut = 30000)
-public class TempFileManagerTest extends TestCase {
+public class TempFileManagerTest {
 
     @Test
     public void testBasicUsage() throws IOException {
         File p = TempFileManager.create_path("foo", ".bar");
-        assertTrue(p.exists());
+        Assert.assertTrue(p.exists());
         TempFileManager.remove_path(p);
-        assertFalse(p.exists());
+        Assert.assertFalse(p.exists());
     };
 
     @Test
     public void testNoCleanUp() throws IOException {
         File p = TempFileManager.create_path("foo", ".bar");
-        assertTrue(p.exists());
+        Assert.assertTrue(p.exists());
     }
 
     @Test
@@ -56,7 +56,7 @@ public class TempFileManagerTest extends TestCase {
         File p = TempFileManager.create_path("write", ".txt");
         FileUtils.writeLines(p, Arrays.asList("hi"));
         String hi = FileUtils.readFileToString(p).trim();
-        assertEquals("hi", hi);
+        Assert.assertEquals(hi, "hi");
     }
 
     @Test
@@ -65,21 +65,21 @@ public class TempFileManagerTest extends TestCase {
         FileUtils.writeLines(p, Arrays.asList("hi"));
         File f = new File(p.getAbsolutePath());
         String hi = FileUtils.readFileToString(f).trim();
-        assertEquals("hi", hi);
+        Assert.assertEquals(hi, "hi");
     }
 
     @Test
     public void testFolderSimple() throws IOException {
         File p = TempFileManager.create_path("close", ".dir", true);
-        assertTrue(p.exists());
-        assertTrue(p.isDirectory());
+        Assert.assertTrue(p.exists());
+        Assert.assertTrue(p.isDirectory());
     }
 
     @Test
     public void testFolderWrite() throws IOException {
         File p = TempFileManager.create_path("close", ".dir", true);
-        assertTrue(p.exists());
-        assertTrue(p.isDirectory());
+        Assert.assertTrue(p.exists());
+        Assert.assertTrue(p.isDirectory());
         File f = new File(p, "file");
         FileUtils.writeStringToFile(f, "hi");
     }
@@ -87,8 +87,8 @@ public class TempFileManagerTest extends TestCase {
     @Test
     public void testFolderDelete() throws IOException {
         File p = TempFileManager.create_path("close", ".dir", true);
-        assertTrue(p.exists());
-        assertTrue(p.isDirectory());
+        Assert.assertTrue(p.exists());
+        Assert.assertTrue(p.isDirectory());
         File f = new File(p, "file");
         FileUtils.writeStringToFile(f, "hi");
         FileUtils.deleteDirectory(p);

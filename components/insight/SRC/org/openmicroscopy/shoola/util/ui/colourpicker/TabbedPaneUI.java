@@ -23,7 +23,6 @@
 
 package org.openmicroscopy.shoola.util.ui.colourpicker;
 
-//Java imports
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Dimension;
@@ -35,6 +34,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -46,13 +46,10 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import info.clearthought.layout.TableLayout; 
+import info.clearthought.layout.TableLayout;
 
+import org.apache.commons.lang.StringUtils;
 
-//Third-party libraries
-
-//Application-internal dependencies
-import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -114,6 +111,9 @@ class TabbedPaneUI
 	
 	/** Button to choose colour swatch panel. */
 	private JToggleButton		colourSwatchButton;
+	
+	/** Button to reverse intensity. */
+	private JCheckBox           revIntButton;
 	
 	/** Accept the current colour choice. */
 	private JButton				acceptButton;
@@ -203,11 +203,23 @@ class TabbedPaneUI
             }
         };
         colourSwatchButton.addActionListener(action);
-                
+        
+        revIntButton = new JCheckBox("Reverse Intensity");
+        revIntButton.setToolTipText("Reverse this channel's intensity");
+        revIntButton.setSelected(control.getReverseIntensity());
+        revIntButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                control.setReverseIntensity(revIntButton.isSelected());
+            }
+        });
         toolbar.setFloatable(false);
         toolbar.setRollover(true);
+        toolbar.setLayout(new BoxLayout(toolbar, BoxLayout.LINE_AXIS));
         toolbar.add(colourSwatchButton);
         toolbar.add(colourWheelButton);
+        toolbar.add(Box.createHorizontalGlue());
+        toolbar.add(revIntButton);
     }
     
     /** 
@@ -281,7 +293,7 @@ class TabbedPaneUI
                 
         JPanel container = new JPanel();
         container.setLayout(new BorderLayout());
-        container.add(toolbar, BorderLayout.WEST);
+        container.add(toolbar, BorderLayout.CENTER);
           
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         add(container);
@@ -350,8 +362,6 @@ class TabbedPaneUI
 	 * 
      * @param parent  The parent of this component. Mustn't be <code>null</code>.
 	 * @param control Reference to the control. Mustn't be <code>null</code>.
-	 * @param luts The available lookup tables
-	 * @param selectedLUT The selected lookup table
 	 * @param field	  Pass <code>true</code> to add a field, 
 	 * 				  <code>false</code> otherwise. 
 	 */
@@ -406,10 +416,21 @@ class TabbedPaneUI
 	{
 		if (fieldDescription == null) return null;
 		String text = fieldDescription.getText();
-		if (text == null) return null;
-		return text.trim();
+		if (StringUtils.isBlank(text))
+		    return null;
+		return text;
 	}
 	
+	/** 
+     * Returns the reverse intensity.
+     * 
+     * @return See above.
+     */
+    boolean getReverseIntensity()
+    {
+        return revIntButton.isSelected();
+    }
+    
 	/**
 	 * Sets the description associated to the color.
 	 * 
@@ -446,13 +467,16 @@ class TabbedPaneUI
 			swatchPane.refresh();
 		if (fieldDescription == null)
 			setButtonsEnabled(!control.isOriginalColour()
-			        || !control.isOriginalLut());
+			        || !control.isOriginalLut() 
+			        || !control.isOriginalRevInt());
 		else {
 			String text = fieldDescription.getText();
 			setButtonsEnabled(!text.equals(originalDescription) 
 					|| !control.isOriginalColour() 
-					|| !control.isOriginalLut());
+					|| !control.isOriginalLut() 
+					|| !control.isOriginalRevInt());
 		}
+		revIntButton.setSelected(control.getReverseIntensity());
 	}
 
 	/**

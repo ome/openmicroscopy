@@ -39,12 +39,16 @@ import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.Folder;
+import omero.model.FolderAnnotationLink;
+import omero.model.FolderAnnotationLinkI;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
 import omero.model.ImageI;
 import omero.model.Instrument;
+import omero.model.MapAnnotation;
+import omero.model.MapAnnotationI;
 import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
@@ -914,5 +918,63 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         }
 
         return testCases.toArray(new Object[testCases.size()][]);
+    }
+
+    /**
+     * Test that deleting an object that a map annotation annotates causes
+     * the map annotation to be deleted only if it is thus orphaned.
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testDeleteOrphanedMapAnnotationViaFolders() throws Exception {
+        newUserAndGroup("rw----");
+        /* two folders share a map annotation */
+        final Folder folderCastor = (Folder) iUpdate.saveAndReturnObject(mmFactory.simpleFolder()).proxy();
+        final Folder folderPollux = (Folder) iUpdate.saveAndReturnObject(mmFactory.simpleFolder()).proxy();
+        final MapAnnotation map = (MapAnnotation) iUpdate.saveAndReturnObject(new MapAnnotationI());
+        FolderAnnotationLink linkCastor = new FolderAnnotationLinkI();
+        linkCastor.setParent(folderCastor);
+        linkCastor.setChild(map);
+        linkCastor = (FolderAnnotationLink) iUpdate.saveAndReturnObject(linkCastor).proxy();
+        FolderAnnotationLink linkPollux = new FolderAnnotationLinkI();
+        linkPollux.setParent(folderPollux);
+        linkPollux.setChild(map);
+        linkPollux = (FolderAnnotationLink) iUpdate.saveAndReturnObject(linkPollux).proxy();
+        /* test how deletions of folders affect deletion of linked map */
+        assertExists(map);
+        doChange(Requests.delete().target(folderCastor).build());
+        assertExists(map);
+        doChange(Requests.delete().target(folderPollux).build());
+        assertDoesNotExist(map);
+    }
+
+    /**
+     * Test that deleting a link to a map annotation causes
+     * the map annotation to be deleted only if it is thus orphaned.
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testDeleteOrphanedMapAnnotationViaLinks() throws Exception {
+        newUserAndGroup("rw----");
+        /* two folders share a map annotation */
+        final Folder folderCastor = (Folder) iUpdate.saveAndReturnObject(mmFactory.simpleFolder()).proxy();
+        final Folder folderPollux = (Folder) iUpdate.saveAndReturnObject(mmFactory.simpleFolder()).proxy();
+        final MapAnnotation map = (MapAnnotation) iUpdate.saveAndReturnObject(new MapAnnotationI());
+        FolderAnnotationLink linkCastor = new FolderAnnotationLinkI();
+        linkCastor.setParent(folderCastor);
+        linkCastor.setChild(map);
+        linkCastor = (FolderAnnotationLink) iUpdate.saveAndReturnObject(linkCastor).proxy();
+        FolderAnnotationLink linkPollux = new FolderAnnotationLinkI();
+        linkPollux.setParent(folderPollux);
+        linkPollux.setChild(map);
+        linkPollux = (FolderAnnotationLink) iUpdate.saveAndReturnObject(linkPollux).proxy();
+        /* test how deletions of links from folders affect deletion of map */
+        assertExists(map);
+        doChange(Requests.delete().target(linkCastor).build());
+        assertExists(map);
+        doChange(Requests.delete().target(linkPollux).build());
+        assertDoesNotExist(map);
+        /* clean up */
+        doChange(Requests.delete().target(folderCastor, folderPollux).build());
     }
 }

@@ -134,8 +134,8 @@ class ImageCanvas
 		Rectangle imgRect = new Rectangle(0, 0, width, height);
 		Rectangle viewRect = viewPort.getBounds();
 		Point p = viewPort.getViewPosition();
-		int x = (int) p.getX();
-		int y = (int) p.getY();
+		int x = viewPort.getWidth() > width ? 0 : (int) p.getX();
+		int y = viewPort.getHeight() > height ? height : (int) p.getY();
 		int w = Math.min(x+viewRect.width, width);
 		int h = Math.min(y+viewRect.height, height);
 		if (imgRect.contains(viewRect)) {

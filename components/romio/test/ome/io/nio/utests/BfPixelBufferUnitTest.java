@@ -1,12 +1,9 @@
 /*
- *   $Id$
- *
  *   Copyright 2011 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.io.nio.utests;
 
-import static org.testng.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +15,7 @@ import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
 
 import org.apache.commons.io.FileUtils;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -73,7 +71,7 @@ public class BfPixelBufferUnitTest {
     public void testRomioPixelBufferCreation() {
         service = new PixelsService(root);
         pixelBuffer = service._getPixelBuffer(pixels, true);
-        assertTrue(pixelBuffer instanceof RomioPixelBuffer);
+        Assert.assertTrue(pixelBuffer instanceof RomioPixelBuffer);
     }
 
 }

@@ -118,7 +118,7 @@ public interface Registry {
             Ice.ObjectPrx prx = ic.stringToProxy("IceGrid/Query");
             IceGrid.QueryPrx query = IceGrid.QueryPrxHelper.checkedCast(prx);
 
-            if (client_uuid == null || client_uuid == "") {
+            if (client_uuid == null || client_uuid.isEmpty()) {
                 client_uuid = UUID.randomUUID().toString();
             }
 

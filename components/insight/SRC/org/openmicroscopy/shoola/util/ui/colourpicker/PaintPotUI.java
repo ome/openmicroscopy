@@ -23,17 +23,14 @@
 
 package org.openmicroscopy.shoola.util.ui.colourpicker;
 
-//Java imports
 import java.awt.Color;
 import java.awt.Graphics;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.JComponent;
 
+import org.apache.commons.lang.StringUtils;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.PaintPot;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -80,7 +77,8 @@ class PaintPotUI
 	    if (c == null)
 	        throw new NullPointerException("No control.");
 		
-        image = LookupTableIconUtil.getLUTIconImage(lut);
+        image = StringUtils.isBlank(lut) ? null : LookupTableIconUtil
+                .getLUTIconImage(lut);
 		
 		control = c;
 		control.addPropertyChangeListener(COLOUR_CHANGED_PROPERTY, this);

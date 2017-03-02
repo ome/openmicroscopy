@@ -53,7 +53,7 @@
     <include name="**/*.java"/>
   </patternset>
   <fileset id="app.libs" dir="${base.runtimelib.dir}" includes="*.jar"/>
-  <fileset id="app.libs.no-bioformats-no-logback" dir="${base.runtimelib.dir}" includes="*.jar" excludes="formats-api.jar,formats-bsd.jar,formats-common.jar,formats-gpl.jar,jai_imageio.jar,mdbtools-java.jar,metakit.jar,ome-xml.jar,ome-poi.jar,turbojpeg.jar, logback-classic.jar,logback-core.jar"/>
+  <fileset id="app.libs.no-bioformats-no-logback" dir="${base.runtimelib.dir}" includes="*.jar" excludes="formats-api.jar,formats-bsd.jar,formats-gpl.jar,jai_imageio.jar,jxrlib-all.jar,metakit.jar,ome-common.jar,ome-mdbtools.jar,ome-poi.jar,ome-xml.jar,specification.jar,turbojpeg.jar,logback-classic.jar,logback-core.jar"/>
   <fileset id="app.resources" dir="${base.src.dir}" excludes="**/*.java"/>
   <fileset id="app.config" dir="${base.config.dir}"/>
   <path id="app.compile.classpath">

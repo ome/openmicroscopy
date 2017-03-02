@@ -171,7 +171,7 @@ public class CreateImage
         }
         //Now we are going to create the new image.
         IPixelsPrx proxy = gateway.getPixelsService(ctx);
-        List<IObject> l = proxy.getAllEnumerations(PixelsType.class.getName());
+        List<IObject> l = gateway.getTypesService(ctx).allEnumerations(PixelsType.class.getName());
         Iterator<IObject> i = l.iterator();
         PixelsType type = null;
         String original = pixels.getPixelType();

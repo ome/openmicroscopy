@@ -24,80 +24,102 @@
 
     
     <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.plateview.css"|add:url_suffix %}" media="all" />
-    
-    <script type="text/javascript" src="{% static "webgateway/js/ome.plateview.js"|add:url_suffix %}"></script>
-    <script type="text/javascript" src="{% static "webgateway/js/ome.viewportImage.js"|add:url_suffix %}"></script>
-    <script type="text/javascript" src="{% static "webgateway/js/ome.gs_slider.js"|add:url_suffix %}"></script>
-    <script type="text/javascript" src="{% static "webgateway/js/ome.gs_utils.js"|add:url_suffix %}"></script>
 
     <script type="text/javascript">
-
-        function changeField(field) {
-            var datatree = $.jstree.reference('#dataTree');
-            var $container = $("#content_details");
-
-            var containerType = $container.data('type');
-            var containerId = $container.data('id');
-            var containerPath = $container.data('path');
-            containerPath = JSON.parse(containerPath);
-            var containerNode = datatree.find_omepath(containerPath);
-
-            if (!containerNode) {
-                console.log('WARNING: Had to guess container');
-                containerNode = OME.getTreeBestGuess(containerType, containerId);
-            }
-
-            // Set the field for that node in the tree and reload the tree section
-            datatree.set_field(containerNode, field);
-
-            // Reselect the same node to trigger update
-            datatree.deselect_all(true);
-            datatree.select_node(containerNode);
-
-            return false;
-        }
-
-        var primaryIndex = -1;
-        var handleClickSelection = function(event, target) {
-            
-            var $clickedImage = target || $(event.target);
-            
-            var thumbs = $("#spw table tbody td.well img");
-            var selIndex = thumbs.index($clickedImage);
-
-            if (event && event.shiftKey ) {
-                if ( primaryIndex == -1 ) {
-                    primaryIndex = selIndex;
-                    $clickedImage.parent().addClass("ui-selected");
-                    return;
-                }
-                
-                // select range
-                var start = Math.min(primaryIndex,selIndex);
-                var end = Math.max(primaryIndex,selIndex);
-                
-                thumbs.slice(start, end+1).parent().addClass("ui-selected");
-                
-            }
-            else if (event && event.metaKey) {
-                if ( primaryIndex == -1 ) {
-                    primaryIndex = selIndex;
-                }
-                
-                if($clickedImage.parent().hasClass("ui-selected")) {
-                    $clickedImage.parent().removeClass("ui-selected");
-                } else {
-                    $clickedImage.parent().addClass("ui-selected");
-                }
-            }
-            else {
-                thumbs.parent().removeClass("ui-selected");
-                $clickedImage.parent().addClass("ui-selected");
-                primaryIndex = selIndex;
-            }
-        }
         
         $(document).ready(function() {
+
+            // Drag to resize #wellImagesContainer bottom panel
+            $(".verticalDragHandle").draggable({ axis: "y" })
+            .bind("dragstart", function(event, ui) {
+                var wellImgs_h = $("#wellImagesContainer").height();
+                $(this).data({'dragstart': ui.offset.top, 'wellImgs_h': wellImgs_h});
+            })
+            .bind("drag", function(event, ui) {
+                var dy = ui.offset.top - $(this).data('dragstart');
+                var newH = $(this).data('wellImgs_h') - dy;
+                $("#wellImagesContainer").css('height', newH + 'px');
+                $("#spwContainer").css('bottom', newH + 'px');
+            }).
+            bind("dragstop", function(event, ui) {
+                // Save the current size
+                var dy = ui.offset.top - $(this).data('dragstart');
+                var newH = $(this).data('wellImgs_h') - dy;
+                $('body').data('well_images_panel_height', newH);
+            });
+            // If height has previously been set, apply this...
+            var newH = $('body').data('well_images_panel_height') || 150;
+            $("#wellImagesContainer").css('height', newH + 'px');
+            $("#spwContainer").css('bottom', newH + 'px');
+            $("#wellImagesDragHandle").css('bottom', (newH + 7) + 'px');
+
+            // Resize SPW thumbnails
+            var spw_thumb_size = $('body').data('spw_thumb_size') || 64;
+            function setSpwThumbSize(size) {
+                // Since we don't want to remove previous class (don't know it),
+                // just set new class
+                // if well is small, offset the hover label
+                var cls = size < 30 ? 'wellLabelOffset ' : '';
+                cls += 'wellSize' + size;
+                $("#spw>table").prop('class', cls);
+            }
+            $("#thumb_size_slider").slider({
+                max: 130,
+                min: 10,
+                value: spw_thumb_size,
+                slide: function(event, ui) {
+                    setSpwThumbSize(ui.value);
+                },
+                stop: function(event, ui) {
+                    $('body').data('spw_thumb_size', ui.value);
+                }
+            });
+            // Resize Images in Well
+            var well_images_size = $('body').data('well_images_size') || 64;
+            $("#wellImages").prop('class', 'fillSpace wellSize' + well_images_size);
+            $("#wellImages_size_slider").slider({
+                max: 130,
+                min: 30,
+                value: well_images_size,
+                slide: function(event, ui) {
+                    $("#wellImages").prop('class', 'fillSpace wellSize' + ui.value);
+                },
+                stop: function(event, ui) {
+                    $('body').data('well_images_size', ui.value);
+                }
+            });
+
+            // Trigger Well Images selected (to update right panel)
+            var triggerWellImagesSelection = function() {
+                var selected_ids = [];
+                $("#wellImages li.ui-selected").each(function(){
+                    selected_ids.push(this.getAttribute('data-imageId'));
+                });
+                // This may be redundant if selection change came from birds eye component
+                wellBirdsEye.setSelected(selected_ids);
+
+                // trigger right panel update etc
+                var selected_objs = selected_ids.map(function(iid){
+                    return {id: 'image-' + iid};
+                })
+                $("body")
+                    .data("selected_objects.ome", selected_objs)
+                    .trigger("selection_change.ome");
+            };
+            // Handle click on Wellsample Images
+            $( '#wellImages' ).on( "click", "img", function(event) {
+                // Update 'ui-selected' on images, handling shift-click etc
+                OME.handleClickSelection(event, undefined, "#wellImages img");
+                triggerWellImagesSelection();
+            });
+            // Drag selection on WellSample images
+            $('#wellImages').selectable({
+                filter: 'li',
+                distance: 2,
+                stop: function(){
+                    triggerWellImagesSelection();
+                }
+            });
 
             var syncTreeSelection = function(selected, idx, perms) {
                 // De-select 'Run' from tree, silent 'true' so we don't trigger clear of centre panel
@@ -110,13 +132,18 @@
                 OME.well_selection_changed(selected, idx, perms);
             };
 
-            wpv = $.WeblitzPlateview($('#spw'), {baseurl: '{{ baseurl }}', useParentPrefix: false});
+            var staticurl = WEBCLIENT.URLS.static_webgateway;
+            var wpv = $.WeblitzPlateview($('#spw'), {baseurl: '{{ baseurl }}',
+                                                     width: spw_thumb_size,
+                                                     staticurl: staticurl,
+                                                     useParentPrefix: false});
             var $selected;
             // delegated click and dblclick handlers for wells
             $( '#spw' ).on( "click", "td.well img", function(event) {
-                handleClickSelection(event);
+                OME.handleClickSelection(event, undefined, "#spw td.well img");
                 var $selected = $('td.ui-selected', wpv.self);
                 syncTreeSelection($selected, {{ index }}, '{{ manager.getPermsCss }}');
+                showImagesInWell();
             });
             $( '#spw' ).on( "dblclick", "td.well img", function(event) {
                 OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('/0/', "/"+$(this).attr('id').split("-")[1]+"/" ));
@@ -128,6 +155,7 @@
                 stop: function(){  
                     var $selected = $('td.ui-selected', this);
                     syncTreeSelection($selected, {{ index }}, '{{ manager.getPermsCss }}');
+                    showImagesInWell();
                 },
                 start: function(){
                 }
@@ -147,20 +175,118 @@
                         }
                     }
                     if (selected_wells.length > 0) {
-                        handleClickSelection(undefined, selected_wells.children("img"));
+                        OME.handleClickSelection(undefined, selected_wells.children("img"), "#spw td.well img");
                         $selected = $('td.ui-selected', wpv.self);
                         syncTreeSelection($selected, {{ index }}, '{{ manager.getPermsCss }}');
+                        var show = OME.getURLParameter('show');
+                        var imageIds = [];
+                        if (show) {
+                            // handle multiple images: show=image-1|image-2
+                            show = show.split('image-');
+                            if (show.length > 1) {
+                                imageIds = show.slice(1).map(function(iid){return parseInt(iid)});
+                            }
+                        }
+                        showImagesInWell(imageIds);
                     }
                 });
             {% endif %}
 
+            // Need to apply correct thumb size once loaded
+            // and scroll to selected well
+            wpv.self.bind('_resetLoaded', function(){
+                setSpwThumbSize(spw_thumb_size);
+                // scroll to selected well:
+                var selection = $("td.ui-selected").first();
+                if (selection) {
+                    var spwContainer = $("#spwContainer");
+                    var fillSpace = $("#spwContainer .fillSpace").first();
+                    fillSpace.scrollTop(selection.position().top - (spwContainer.height()/2) + selection.height()/2);
+                    fillSpace.scrollLeft(selection.position().left - (spwContainer.width()/2) + selection.width()/2);
+                }
+            });
+
+            // Kick-off loading...
             wpv.load({{ manager.getPlateId }}, {{ index }});
 
+
+            // Lower panel.....
+
+            // Wrap images to a fixed number per row...
+            $("#imagesPerRow").on('change', function(){
+                var imagesPerRow = parseInt(this.value, 10);
+                var $lists = $("#wellImages ul");
+                // Remove any existing <br>
+                $("br", $lists).remove();
+                if (isNaN(imagesPerRow)) return;
+                // Add <br> after each nth image
+                $("li:nth-child(" + imagesPerRow + "n)", $lists).after('<br>');
+            });
+
+            // Toggle lower panel visibility
+            var imagesInWellVisible = true;
+            $("#showWellImages").click(function(){
+                imagesInWellVisible = !imagesInWellVisible;
+                showImagesInWell();
+            });
+
+            // Callback for the spatial birds eye component
+            var selectImages = function(imageIds) {
+                $("#wellImages li").removeClass('ui-selected');
+                imageIds.forEach(function(iid){
+                    $("#wellImages li[data-imageId=" + iid + "]").addClass('ui-selected');
+                });
+                triggerWellImagesSelection();
+            }
+
+            var wellBirdsEye = OME.WellBirdsEye({callback: selectImages});
+            var showImagesInWell = function(selectImageIds) {
+                var $table = $("#wellImages table");
+                if (!imagesInWellVisible) {
+                    $table.empty();
+                    return;
+                }
+                var $selected = $('td.ui-selected', wpv.self);
+                $table.empty();
+                wellBirdsEye.clear();
+                $selected.each(function(i, w){
+                    var wellId = w.id.split('-')[1];
+                    var label = $(w).children('.wellLabel').text();
+                    // create placeholders for each Well
+                    $table.append("<tr id='wellImages-" + wellId + "'><td class='wellImagesLabel'><h1>" + label + "</h1></td></tr>");
+                    var url = "{% url 'webgateway' %}well/" + wellId + "/children/";
+                    {% if acquisition %}
+                        url += '?run={{ acquisition }}'
+                    {% endif %}
+                    $.getJSON(url, function(data){
+                        wellBirdsEye.addWell(data);
+                        var imagesPerRow = parseInt($("#imagesPerRow").val(), 10);
+                        var html = data.reduce(function(html, w, idx){
+                            var cls = '';
+                            if (selectImageIds && selectImageIds.indexOf(w.id) > -1) {
+                                cls = 'class="ui-selected"';
+                            }
+                            html += '<li ' + cls + ' title="' + w.name + '" data-imageId="' + w.id + '"><img src="' + w.thumb_url + '" /></li>';
+                            if (!isNaN(imagesPerRow) && (idx+1)%imagesPerRow === 0) {
+                                html += '<br>';
+                            }
+                            return html;
+                        }, "");
+                        $('#wellImages-' + wellId).append("<td><ul>" + html + "</ul></tr>");
+                        if (selectImageIds && selectImageIds.length > 0) {
+                            triggerWellImagesSelection();
+                        }
+                    });
+                });
+            }
         });
 
     </script>
+
     
     <!--content-->
+<!-- We add/remove class .showWellImages to #content_details expose #wellImages panel -->
+<div class='fillSpace' style="top: 0px; height: 29px">
     <div id="fields">
         <form action="" method="POST" class="align_left">
         <table>
@@ -172,7 +298,41 @@
           </tbody>
         </table>
         </form>
-        <div id="toolbar" class="toolbar_noborder"></div>
+        <div id="toolbar" class="toolbar_noborder">
+            <button style="margin: -4px 8px;" id="showWellImages">Hide Images in Well</button>
+        </div>
     </div>
-    
-    <div id="spw"></div>
+</div>
+<div id="spwContainer" class='fillSpace' style="top: 29px; bottom: 150px">
+
+    <!-- Scrollable container for spw -->
+    <div class='fillSpace' style='top: 0; bottom: 25px'>
+        <div id="spw"></div>
+    </div>
+    <div class='fillSpace' style='bottom: 0; height: 25px; border-top: solid 1px #ddd; background: #EFF1F4' >
+        <!-- Slider -->
+        <div style="position: absolute; right: 10px; bottom: 0; width: 200px; height: 25px">
+            <div id="thumb_size_slider" class="thumb_size_slider" title="Zoom Plate"></div>
+        </div>
+    </div>
+</div>
+<div id="wellImagesDragHandle" class='fillSpace' style="bottom: 150px; overflow: visible">
+    <div class="verticalDragHandle"></div>
+</div>
+<div id="wellImagesContainer" class="wellImages fillSpace" style="bottom: 0px; height: 150px">
+    <div class='fillSpace toolbarBg' style='top: 0; height: 26px; border-bottom: solid 1px #ddd; padding-left:10px'>
+        <span>Wrap</span>
+        <input type="number" id="imagesPerRow" min="0" style="margin: 2px; width: 30px;"/>
+        <span>images per row</span>
+    </div>
+    <!-- Scrollable container for wellImages -->
+    <div id="wellImages" class='fillSpace' style='top: 26px; bottom: 25px'>
+        <table style="width: 100%"></table>
+    </div>
+    <div class='fillSpace' style='bottom: 0; height: 25px; border-top: solid 1px #ddd; background: #EFF1F4' >
+        <!-- Slider -->
+        <div style="position: absolute; right: 10px; bottom: 0px; width: 200px; height: 25px">
+            <div id="wellImages_size_slider" class="thumb_size_slider" title="Zoom Plate"></div>
+        </div>
+    </div>
+</div>   

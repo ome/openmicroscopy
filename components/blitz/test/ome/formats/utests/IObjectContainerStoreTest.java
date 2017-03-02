@@ -1,3 +1,23 @@
+/*
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2017 University of Dundee. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ */
 package ome.formats.utests;
 
 import java.util.HashMap;
@@ -13,12 +33,12 @@ import omero.model.Image;
 import omero.model.ObjectiveSettings;
 import omero.model.Pixels;
 import omero.api.ServiceFactoryPrx;
-import junit.framework.TestCase;
 
+import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class IObjectContainerStoreTest extends TestCase
+public class IObjectContainerStoreTest
 {
 	private OMEROMetadataStoreClient store;
 
@@ -50,9 +70,9 @@ public class IObjectContainerStoreTest extends TestCase
 	@Test
 	public void testGetCaches()
 	{
-		assertNotNull(store.getContainerCache());
-		assertNotNull(store.getReferenceCache());
-		assertNull(store.getReferenceStringCache());
+		Assert.assertNotNull(store.getContainerCache());
+		Assert.assertNotNull(store.getReferenceCache());
+		Assert.assertNull(store.getReferenceStringCache());
 	}
 
 	@Test
@@ -60,19 +80,19 @@ public class IObjectContainerStoreTest extends TestCase
 	{
 		Map<String, String[]> a = new HashMap<String, String[]>();
 		store.setReferenceStringCache(a);
-		assertEquals(a, store.getReferenceStringCache());
+		Assert.assertEquals(a, store.getReferenceStringCache());
 	}
 
 	@Test
 	public void testGetSourceObject()
 	{
-		assertNotNull(store.getSourceObject(new LSID(Image.class, 0)));
+	    Assert.assertNotNull(store.getSourceObject(new LSID(Image.class, 0)));
 	}
 
 	@Test
 	public void testGetSourceObjects()
 	{
-		assertEquals(2, store.getSourceObjects(Image.class).size());
+	    Assert.assertEquals(store.getSourceObjects(Image.class).size(), 2);
 	}
 
 	@Test
@@ -82,24 +102,24 @@ public class IObjectContainerStoreTest extends TestCase
 			new LinkedHashMap<Index, Integer>();
 		indexes.put(Index.IMAGE_INDEX, IMAGE_INDEX + 2);
 		store.getIObjectContainer(Image.class, indexes);
-		assertEquals(3, store.countCachedContainers(Image.class));
+		Assert.assertEquals(store.countCachedContainers(Image.class), 3);
 	}
 
 	@Test
 	public void testCachedContainers()
 	{
-		assertEquals(2, store.countCachedContainers(Image.class));
-		assertEquals(2, store.countCachedContainers(Pixels.class));
-		assertEquals(1, store.countCachedContainers(
-				Pixels.class, IMAGE_INDEX));
-		assertEquals(1, store.countCachedContainers(
-				Pixels.class, IMAGE_INDEX + 1));
+	    Assert.assertEquals(2, store.countCachedContainers(Image.class), 2);
+	    Assert.assertEquals(store.countCachedContainers(Pixels.class), 2);
+	    Assert.assertEquals(store.countCachedContainers(
+				Pixels.class, IMAGE_INDEX), 1);
+	    Assert.assertEquals(store.countCachedContainers(
+				Pixels.class, IMAGE_INDEX + 1), 1);
 	}
 
 	@Test
 	public void testHasReference()
 	{
-		assertTrue(store.hasReference(new LSID(ObjectiveSettings.class,
+	    Assert.assertTrue(store.hasReference(new LSID(ObjectiveSettings.class,
 				                      IMAGE_INDEX), new LSID("Objective:0")));
 	}
 
@@ -112,7 +132,7 @@ public class IObjectContainerStoreTest extends TestCase
 		}
 		long t0 = System.currentTimeMillis();
 		store.countCachedContainers(Image.class, null);
-		assertTrue((System.currentTimeMillis() - t0) < 100);
+		Assert.assertTrue((System.currentTimeMillis() - t0) < 100);
 	}
 
 	@Test
@@ -124,6 +144,6 @@ public class IObjectContainerStoreTest extends TestCase
 		}
 		long t0 = System.currentTimeMillis();
 		store.getIObjectContainers(Image.class);
-		assertTrue((System.currentTimeMillis() - t0) < 100);
+		Assert.assertTrue((System.currentTimeMillis() - t0) < 100);
 	}
 }

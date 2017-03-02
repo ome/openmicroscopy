@@ -82,7 +82,6 @@ def handle_tools(args):
     additions = []
     mappings = {
         "-top": _(["build.xml"]),
-        "-cpp": _(["components", "tools", "OmeroCpp", "build.xml"]),
         "-fs": _(["components", "tools", "OmeroFS", "build.xml"]),
         "-java": _(["components", "tools", "OmeroJava", "build.xml"]),
         "-py": _(["components", "tools", "OmeroPy", "build.xml"]),

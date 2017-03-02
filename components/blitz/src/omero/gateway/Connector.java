@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -39,7 +40,6 @@ import org.apache.commons.lang.StringUtils;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.MapMaker;
 import com.google.common.collect.Multimap;
@@ -74,6 +74,8 @@ import omero.api.IRoiPrxHelper;
 import omero.api.IScriptPrx;
 import omero.api.IScriptPrxHelper;
 import omero.api.ISessionPrx;
+import omero.api.ITypesPrx;
+import omero.api.ITypesPrxHelper;
 import omero.api.IUpdatePrx;
 import omero.api.IUpdatePrxHelper;
 import omero.api.RawFileStorePrx;
@@ -150,6 +152,7 @@ class Connector
      * instances are stored separately */
     private final Multimap<String, StatefulServiceInterfacePrx> statefulServices;
 
+    /** Map of importStores to prevent re-lookup */
     private final Map<OMEROMetadataStoreClient, String> importStores;
 
     /** Collection of services to keep alive. */
@@ -182,12 +185,11 @@ class Connector
      * Creates a new instance.
      *
      * @param context The context hosting information about the user.
-     * @param secureClient The entry point to server.
+     * @param client The entry point to server.
      * @param entryEncrypted The entry point to access the various services.
      * @param encrypted Pass <code>false</code> to use an unencrypted connection
      *                  for data transfers
      * @param logger Reference to the logger.
-     * @param elapseTime The time between network check.
      * @throws Exception Thrown if entry points cannot be initialized.
      */
     Connector(SecurityContext context, client client,
@@ -202,13 +204,12 @@ class Connector
      * Creates a new instance.
      *
      * @param context The context hosting information about the user.
-     * @param secureClient The entry point to server.
+     * @param client The entry point to server.
      * @param entryEncrypted The entry point to access the various services.
      * @param encrypted Pass <code>false</code> to use an unencrypted connection
      *                  for data transfers
      * @param username The username if this is a derived connector
      * @param logger Reference to the logger.
-     * @param elapseTime The time between network check.
      * @throws Exception Thrown if entry points cannot be initialized.
      */
     Connector(SecurityContext context, client client,
@@ -278,7 +279,8 @@ class Connector
      * Returns the {@link SharedResourcesPrx} service.
      * 
      * @return See above.
-     * @throws Throwable Thrown if the service cannot be initialized.
+     * @throws DSOutOfServiceException
+     *             Thrown if the service cannot be initialized.
      */
     SharedResourcesPrx getSharedResources()
             throws DSOutOfServiceException
@@ -291,7 +293,8 @@ class Connector
      * Returns the {@link IRenderingSettingsPrx} service.
      * 
      * @return See above.
-     * @throws Throwable Thrown if the service cannot be initialized.
+     * @throws DSOutOfServiceException
+     *             Thrown if the service cannot be initialized.
      */
     IRenderingSettingsPrx getRenderingSettingsService()
             throws DSOutOfServiceException
@@ -305,7 +308,8 @@ class Connector
      * Returns the {@link IRepositoryInfoPrx} service.
      * 
      * @return See above.
-     * @throws Throwable Thrown if the service cannot be initialized.
+     * @throws DSOutOfServiceException
+     *             Thrown if the service cannot be initialized.
      */
     IRepositoryInfoPrx getRepositoryService()
             throws DSOutOfServiceException
@@ -319,7 +323,8 @@ class Connector
      * Returns the {@link IScriptPrx} service.
      * 
      * @return See above.
-     * @throws Throwable Thrown if the service cannot be initialized.
+     * @throws DSOutOfServiceException
+     *             Thrown if the service cannot be initialized.
      */
     IScriptPrx getScriptService()
             throws DSOutOfServiceException
@@ -333,7 +338,8 @@ class Connector
      * Returns the {@link IContainerPrx} service.
      * 
      * @return See above.
-     * @throws Throwable Thrown if the service cannot be initialized.
+     * @throws DSOutOfServiceException
+     *             Thrown if the service cannot be initialized.
      */
     IContainerPrx getPojosService()
             throws DSOutOfServiceException
@@ -347,7 +353,8 @@ class Connector
      * Returns the {@link IQueryPrx} service.
      * 
      * @return See above.
-     * @throws Throwable Thrown if the service cannot be initialized.
+     * @throws DSOutOfServiceException
+     *             Thrown if the service cannot be initialized.
      */
     IQueryPrx getQueryService()
             throws DSOutOfServiceException
@@ -361,7 +368,8 @@ class Connector
      * Returns the {@link IUpdatePrx} service.
      *  
      * @return See above.
-     * @throws Throwable Thrown if the service cannot be initialized.
+     * @throws DSOutOfServiceException
+     *             Thrown if the service cannot be initialized.
      */
     IUpdatePrx getUpdateService()
             throws DSOutOfServiceException
@@ -375,7 +383,8 @@ class Connector
      * Returns the {@link IMetadataPrx} service.
      *  
      * @return See above.
-     * @throws Throwable Thrown if the service cannot be initialized.
+     * @throws DSOutOfServiceException
+     *             Thrown if the service cannot be initialized.
      */
     IMetadataPrx getMetadataService()
             throws DSOutOfServiceException
@@ -389,7 +398,8 @@ class Connector
      * Returns the {@link IRoiPrx} service.
      *  
      * @return See above.
-     * @throws Throwable Thrown if the service cannot be initialized.
+     * @throws DSOutOfServiceException
+     *             Thrown if the service cannot be initialized.
      */
      IRoiPrx getROIService()
             throws DSOutOfServiceException
@@ -402,7 +412,8 @@ class Connector
      * Returns the {@link IConfigPrx} service.
      * 
      * @return See above.
-     * @throws Throwable Thrown if the service cannot be initialized.
+     *@throws DSOutOfServiceException
+     *             Thrown if the service cannot be initialized.
      */
      IConfigPrx getConfigService()
             throws DSOutOfServiceException
@@ -416,7 +427,8 @@ class Connector
      * Returns the {@link ThumbnailStorePrx} service.
      *
      * @return See above.
-     * @throws Throwable Thrown if the service cannot be initialized.
+     * @throws DSOutOfServiceException
+     *             Thrown if the service cannot be initialized.
      */
      ThumbnailStorePrx getThumbnailService()
             throws DSOutOfServiceException
@@ -430,7 +442,8 @@ class Connector
      * Returns the {@link ExporterPrx} service.
      *   
      * @return See above.
-     * @throws @throws Throwable Thrown if the service cannot be initialized.
+     * @throws DSOutOfServiceException
+     *             Thrown if the service cannot be initialized.
      */
      ExporterPrx getExporterService()
             throws DSOutOfServiceException
@@ -444,7 +457,8 @@ class Connector
      * Returns the {@link RawFileStorePrx} service.
      *  
      * @return See above.
-     * @throws @throws Throwable Thrown if the service cannot be initialized.
+     * @throws DSOutOfServiceException
+     *             Thrown if the service cannot be initialized.
      */
      RawFileStorePrx getRawFileService()
             throws DSOutOfServiceException
@@ -458,7 +472,8 @@ class Connector
      * Returns the {@link RawPixelsStorePrx} service.
      * 
      * @return See above.
-     * @throws Throwable Thrown if the service cannot be initialized.
+     * @throws DSOutOfServiceException
+     *             Thrown if the service cannot be initialized.
      */
      RawPixelsStorePrx getPixelsStore()
             throws DSOutOfServiceException
@@ -472,7 +487,8 @@ class Connector
      * Returns the {@link IPixelsPrx} service.
      * 
      * @return See above.
-     * @throws Throwable Thrown if the service cannot be initialized.
+     * @throws DSOutOfServiceException
+     *             Thrown if the service cannot be initialized.
      */
      IPixelsPrx getPixelsService()
             throws DSOutOfServiceException
@@ -482,11 +498,27 @@ class Connector
                         unsecureClient == null));
     }
 
+     /**
+      * Returns the {@link ITypesPrx} service.
+      * 
+      * @return See above.
+      * @throws DSOutOfServiceException
+     *             Thrown if the service cannot be initialized.
+      */
+      ITypesPrx getTypesService()
+             throws DSOutOfServiceException
+     {
+         return ITypesPrxHelper.uncheckedCast(
+                 get(omero.constants.TYPESSERVICE.value,
+                         unsecureClient == null));
+     }
+
     /**
      * Returns the {@link SearchPrx} service.
      * 
      * @return See above.
-     * @throws Throwable Thrown if the service cannot be initialized.
+     * @throws DSOutOfServiceException
+     *             Thrown if the service cannot be initialized.
      */
      SearchPrx getSearchService()
             throws DSOutOfServiceException
@@ -499,7 +531,8 @@ class Connector
      * Returns the {@link IProjectionPrx} service.
      * 
      * @return See above.
-     * @throws Throwable Thrown if the service cannot be initialized.
+     * @throws DSOutOfServiceException
+     *             Thrown if the service cannot be initialized.
      */
      IProjectionPrx getProjectionService()
             throws DSOutOfServiceException
@@ -513,7 +546,8 @@ class Connector
      * Returns the {@link IAdminPrx} service.
      * 
      * @return See above.
-     * @throws Throwable Thrown if the service cannot be initialized.
+     * @throws DSOutOfServiceException
+     *             Thrown if the service cannot be initialized.
      */
      IAdminPrx getAdminService()
             throws DSOutOfServiceException
@@ -528,7 +562,8 @@ class Connector
      * @param secure Pass <code>true</code> to have a secure admin service,
      *               <code>false</code> otherwise.
      * @return See above.
-     * @throws Throwable Thrown if the service cannot be initialized.
+     * @throws DSOutOfServiceException
+     *             Thrown if the service cannot be initialized.
      */
      IAdminPrx getAdminService(boolean secure)
             throws DSOutOfServiceException
@@ -545,7 +580,8 @@ class Connector
      * Creates or recycles the import store.
      * 
      * @return See above.
-     * @throws Throwable Thrown if the service cannot be initialized.
+     * @throws DSOutOfServiceException
+     *             Thrown if the service cannot be initialized.
      */
      OMEROMetadataStoreClient getImportStore()
             throws DSOutOfServiceException
@@ -569,23 +605,33 @@ class Connector
     /**
      * Returns the {@link RenderingEnginePrx Rendering service}.
      * 
+     * @param pixelsID
+     *            The pixels id
+     * @param compression
+     *            A percentage compression level from 1.00 (100%) to 0.01 (1%)
+     *            (the default is 85%)
+     * 
      * @return See above.
-     * @throws Throwable Thrown if the service cannot be initialized.
+     * @throws DSOutOfServiceException
+     *             Thrown if the service cannot be initialized.
+     * @throws ServerError
+     *             Thrown if the service cannot be initialized.
      */
-     RenderingEnginePrx getRenderingService(long pixelsID, float compression)
-            throws DSOutOfServiceException, ServerError
-    {
+    RenderingEnginePrx getRenderingService(long pixelsID, float compression)
+            throws DSOutOfServiceException, ServerError {
         RenderingEnginePrx prx = null;
-        
+
         try {
             if (entryUnencrypted != null) {
                 prx = entryUnencrypted.createRenderingEngine();
             } else {
                 prx = entryEncrypted.createRenderingEngine();
             }
-            this.pcs.firePropertyChange(Gateway.PROP_RENDERINGENGINE_CREATED, null, prx);
+            this.pcs.firePropertyChange(Gateway.PROP_RENDERINGENGINE_CREATED,
+                    null, prx);
         } catch (Exception e) {
-            throw new DSOutOfServiceException("Could not get rendering engine", e);
+            throw new DSOutOfServiceException("Could not get rendering engine",
+                    e);
         }
 
         prx.setCompressionLevel(compression);
@@ -637,7 +683,6 @@ class Connector
      * <code>false</code> otherwise.
      */
      void close(boolean networkup)
-            throws Throwable
     {
         secureClient.setFastShutdown(!networkup);
         if (unsecureClient != null) 
@@ -683,7 +728,6 @@ class Connector
      * <code>false</code> otherwise.
      */
      void closeDerived(boolean networkup)
-            throws Throwable
     {
         for (final Connector c : derived.asMap().values()) {
             try {
@@ -840,9 +884,10 @@ class Connector
      * @param commands The commands to execute.
      * @param target The target context is any.
      * @return See above.
+     * @throws ServerError Thrown if command submission failed
      */
-     CmdCallbackI submit(List<Request> commands, SecurityContext target)
-            throws Throwable
+     CmdCallbackI submit(List<Request> commands, SecurityContext target) throws ServerError
+            
     {
         if (CollectionUtils.isEmpty(commands)) return null;
         DoAll all = new DoAll();
@@ -884,9 +929,10 @@ class Connector
      * @param userName
      *            The name of the user. To be replaced by user's id.
      * @return See above.
+     * @throws ExecutionException Thrown if the connector can't be retrieved.
      */
-     Connector getConnector(final String userName)
-            throws Throwable
+     Connector getConnector(final String userName) throws ExecutionException
+            
     {
         if (StringUtils.isBlank(userName)) 
             return this;

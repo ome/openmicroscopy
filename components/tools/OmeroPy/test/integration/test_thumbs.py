@@ -9,7 +9,7 @@
 
 """
 
-import library as lib
+from omero.testlib import ITest
 import pytest
 
 from omero import MissingPyramidException
@@ -18,7 +18,7 @@ from omero.util.concurrency import get_event
 from omero.rtypes import rint, unwrap
 
 
-class TestThumbs(lib.ITest):
+class TestThumbs(ITest):
 
     def assertTb(self, buf, x=64, y=64):
         thumb = self.open_jpeg_buffer(buf)

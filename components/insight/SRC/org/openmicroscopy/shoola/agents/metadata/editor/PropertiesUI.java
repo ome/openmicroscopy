@@ -934,15 +934,15 @@ public class PropertiesUI
         	try {
         		data = ((ImageData) refObject).getDefaultPixels();
     		} catch (Exception e) {}
-        } else if (refObject instanceof WellSampleData) {
+        }
+        else if (refObject instanceof WellData) {
+            add(Box.createVerticalStrut(5));
+            add(layoutWellContent((WellData) refObject));
+        }
+        else if (refObject instanceof WellSampleData) {
         	img = ((WellSampleData) refObject).getImage();
         	if (img != null && img.getId() > 0)
         		data = img.getDefaultPixels();
-        	Object parent = model.getParentRootObject();
-        	if (parent instanceof WellData) {
-        		add(Box.createVerticalStrut(5));
-            	add(layoutWellContent((WellData) parent));
-        	}
         } else if (refObject instanceof PlateData) {
         	add(Box.createVerticalStrut(5));
         	add(layoutPlateContent((PlateData) refObject));

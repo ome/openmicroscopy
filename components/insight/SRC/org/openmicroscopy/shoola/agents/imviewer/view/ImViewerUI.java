@@ -2177,6 +2177,35 @@ class ImViewerUI
 		return -1;
 	}
 	
+    /**
+     * Set the scale bar index
+     * 
+     * @param unitBarLength
+     *            The scale bar length.
+     */
+    void setScaleBarLength(Length unitBarLength) {
+
+        scaleBarMenu.setText(SCALE_BAR_TEXT
+                + LengthI.lookupSymbol(unitBarLength.getUnit()) + ")");
+
+        int index = UnitBarSizeAction.CUSTOMIZED;
+        if (unitBarLength.getValue() < 999) {
+            index = UnitBarSizeAction.getIndex(unitBarLength.getValue());
+        }
+
+        if (scaleBarGroup == null)
+            return;
+        JCheckBoxMenuItem item;
+        Enumeration e;
+        for (e = scaleBarGroup.getElements(); e.hasMoreElements();) {
+            item = (JCheckBoxMenuItem) e.nextElement();
+            if (((UnitBarSizeAction) item.getAction()).getIndex() == index)
+                item.setSelected(true);
+            else
+                item.setSelected(false);
+        }
+    }
+	
 	/** Shows the list of users who viewed the image.  */
 	void showUsersList()
 	{

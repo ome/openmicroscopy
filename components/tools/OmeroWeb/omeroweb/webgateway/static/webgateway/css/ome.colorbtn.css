@@ -53,3 +53,7 @@
 .lutpicker input {
 	width: 10px;
 }
+#reverseIntensity {
+	display: block;
+	float: left;
+}

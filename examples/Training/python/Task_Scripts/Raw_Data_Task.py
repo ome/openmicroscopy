@@ -19,49 +19,28 @@ FOR TRAINING PURPOSES ONLY!
 # A more complete template, for 'real-world' scripts, is also included in this
 # folder
 # This script takes an Image ID as a parameter from the scripting service.
-from omero.rtypes import rlong, rstring, unwrap, robject
-from omero.gateway import BlitzGateway
-import omero.scripts as scripts
-from numpy import hstack, zeros, uint8
-try:
-    import Image
-except ImportError:
-    from PIL import Image
-# Script definition
 
+import omero.util.script_utils as scriptUtil
+from omero.gateway import BlitzGateway
+from numpy import hstack, int32
+from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
+from Parse_OMERO_Properties import imageId
 
 # Script name, description and 2 parameters are defined here.
 # These parameters will be recognised by the Insight and web clients and
 # populated with the currently selected Image(s)
 
-# this script only takes Images (not Datasets etc.)
-dataTypes = [rstring('Image')]
-client = scripts.client(
-    "Raw_Data_Task.py",
-    ("Gets pixel data for a defined 'tile' on an Image and finds Average"
-     " value"),
-    # first parameter
-    scripts.String(
-        "Data_Type", optional=False, values=dataTypes, default="Image"),
-    # second parameter
-    scripts.List("IDs", optional=False).ofType(rlong(0)),
-)
-# we can now create our Blitz Gateway by wrapping the client object
-conn = BlitzGateway(client_obj=client)
-
-# get the 'IDs' parameter (which we have restricted to 'Image' IDs)
-ids = unwrap(client.getInput("IDs"))
-imageId = ids[0]        # simply use the first ID for this example
-
+conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
+conn.connect()
 
 # First Task: Get the Average pixel value for a specified region:
 image = conn.getObject("Image", imageId)
 print image.getName()
-sizeZ = image.getSizeZ()
-sizeC = image.getSizeC()
-sizeT = image.getSizeT()
+size_z = image.getSizeZ()
+size_c = image.getSizeC()
+size_t = image.getSizeT()
 t, c = 0, 0                     # first plane of the image
-z = sizeZ/2                     # at the mid Z-section
+z = size_z/2                     # at the mid Z-section
 x, y, w, h = 5, 5, 100, 100        # Our pre-defined x, y, w, h
 tile = (x, y, w, h)
 pixels = image.getPrimaryPixels()
@@ -76,18 +55,18 @@ print "Average :", average
 
 
 # Advanced: For each time point, get a column of data (E.g. for kymograph)
-sizeY = image.getSizeY()
-sizeX = image.getSizeX()
-x = sizeX/2
+size_y = image.getSizeY()
+size_x = image.getSizeX()
+x = size_x/2
 y = 0
 width = 10        # we were asked for '1' but this looks nicer
-height = sizeX
+height = size_x
 tile = (x, y, width, height)
 col_data = []   # let's collect the column data for each time point
 
-for theT in range(sizeT):
-    print "Getting data for T, tile:", theT, tile
-    col = pixels.getTile(z, c, theT, tile)
+for t in range(size_t):
+    print "Getting data for T, tile:", t, tile
+    col = pixels.getTile(z, c, t, tile)
     col_data.append(col)
 
 # ** BONUS **
@@ -95,30 +74,21 @@ for theT in range(sizeT):
 kymograph_data = hstack(col_data)
 print "kymograph_data", kymograph_data.shape
 
+name = "kymograph.png"
+min_max = (kymograph_data.min(), kymograph_data.max())
+scriptUtil.numpy_save_as_image(kymograph_data, min_max, int32, name)
 
-if kymograph_data.dtype.name not in ('uint8', 'int8'):  # we need to scale...
-    minVal = kymograph_data.min()
-    maxVal = kymograph_data.max()
-    valRange = maxVal - minVal
-    scaled = (kymograph_data - minVal) * (float(255) / valRange)
-    convArray = zeros(kymograph_data.shape, dtype=uint8)
-    convArray += scaled
-    print ("using converted int8 plane: dtype: %s min: %s max: %s"
-           % (convArray.dtype.name, convArray.min(), convArray.max()))
-    i = Image.fromarray(convArray)
-else:
-    i = Image.fromarray(kymograph_data)
-# i.show()
-i.save("kymograph.png", 'PNG')
 
 # attach the png to the image
-fileAnn = conn.createFileAnnfromLocalFile(
-    "kymograph.png", mimetype="image/png")
-print "Attaching kymograph.png to image"
-image.linkAnnotation(fileAnn)
+file_ann = conn.createFileAnnfromLocalFile(
+    name, mimetype="image/png")
+print "Attaching %s to image" % name
+image.linkAnnotation(file_ann)
 
 
 message = "Tile average value: %s" % average
-client.setOutput("Message", rstring(message))
-client.setOutput("Kymograph", robject(fileAnn._obj))
-client.closeSession()
+
+# Close connection:
+# =================================================================
+# When you are done, close the session to free up server resources.
+conn.close()

@@ -23,10 +23,10 @@
    Integration test focused on the omero.api.ILdap interface.
 
 """
-import library as lib
+from omero.testlib import ITest
 
 
-class TestILdap(lib.ITest):
+class TestILdap(ITest):
 
     def testLookupLdapExperimentersViaAdmin(self):
         admin = self.client.sf.getAdminService()

@@ -370,12 +370,11 @@ OME.initToolbarDropdowns = function() {
 OME.refreshThumbnails = function(options) {
     options = options || {};
     var rdm = Math.random(),
-        // thumbs_selector = "#dataIcons img",
         search_selector = ".search_thumb",
-        spw_selector = "#spw img";
-    // handle Dataset thumbs, search rusults and SPW thumbs
+        // In SPW, we select spw grid and Well images in bottom panel
+        spw_selector = "#spw img, #wellImages img";
+    // handle search results and SPW thumbs
     if (options.imageId) {
-        // thumbs_selector = "#image_icon-" + options.imageId + " img";
         search_selector = "#image-" + options.imageId + " img.search_thumb";
         spw_selector += "#image-" + options.imageId;
     }
@@ -943,6 +942,38 @@ OME.showScriptList = function(event) {
 
 OME.hideScriptList = function() {
     $("#scriptList").hide();
+};
+
+// Helper can be used by 'open with' plugins to add isEnabled()
+// handlers to the OPEN_WITH object.
+OME.setOpenWithEnabledHandler = function(label, fn) {
+    // look for label in OPEN_WITH
+    WEBCLIENT.OPEN_WITH.forEach(function(ow){
+        if (ow.label === label) {
+            ow.isEnabled = function() {
+                // wrap fn with try/catch, since error here will break jsTree menu
+                var args = Array.from(arguments);
+                var enabled = false;
+                try {
+                    enabled = fn.apply(this, args);
+                } catch (e) {
+                    // Give user a clue as to what went wrong
+                    console.log("Open with " + label + ": " + e);
+                }
+                return enabled;
+            }
+        }
+    });
+};
+// Helper can be used by 'open with' plugins to provide
+// a url for the selected objects
+OME.setOpenWithUrlProvider = function(id, fn) {
+    // look for label in OPEN_WITH
+    WEBCLIENT.OPEN_WITH.forEach(function(ow){
+        if (ow.id === id) {
+            ow.getUrl = fn;
+        }
+    });
 };
 
 OME.toggleFileAnnotationCheckboxes = function(event) {

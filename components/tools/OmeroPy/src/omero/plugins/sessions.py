@@ -376,9 +376,10 @@ class SessionsControl(BaseControl):
                             else:
                                 rv = store.attach(*previous[:-1])
                                 return self.handle(rv, "Using")
-                        self.ctx.out("Previously logged in to %s:%s as %s"
-                                     % (previous[0], previous[3],
-                                        previous[1]))
+                        if not self.ctx.isquiet:
+                            self.ctx.out("Previously logged in to %s:%s as %s"
+                                         % (previous[0], previous[3],
+                                            previous[1]))
                     except Exception, e:
                         self.ctx.out("Previous session expired for %s on"
                                      " %s:%s" % (previous[1], previous[0],

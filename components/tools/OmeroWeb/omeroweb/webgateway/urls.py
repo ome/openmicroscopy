@@ -315,6 +315,15 @@ gets a Shape as json. ROI-ID, Shape-ID is request: roiId=123 and shapeId=123
 'height':45}
 """
 
+histogram_json = url(
+    r'^histogram_json/(?P<iid>[0-9]+)/channel/(?P<theC>[0-9]+)/',
+    'webgateway.views.histogram_json',
+    name="histogram_json")
+"""
+Gets a histogram of 256 columns (grey levels) for the chosen
+channel of an image. A single plane is specified by ?theT=1&theZ=2.
+"""
+
 full_viewer = url(r'^img_detail/(?P<iid>[0-9]+)/$',
                   "webgateway.views.full_viewer",
                   name="webgateway_full_viewer")
@@ -413,12 +422,20 @@ Get a json dict of original file paths.
 'client' is a list of paths for original files on the client when imported
 """
 
+open_with_options = url(r'^open_with/$', 'webgateway.views.open_with_options',
+                        name='open_with_options')
+"""
+This makes the settings.OPEN_WITH configuration available via json
+"""
+
+
 get_image_rdefs_json = url(r'^get_image_rdefs_json/(?P<img_id>[0-9]+)/$',
                            'webgateway.views.get_image_rdefs_json',
                            name="webgateway_get_image_rdefs_json")
 """
 This url will retrieve all rendering definitions for a given image (id)
 """
+
 
 urlpatterns = patterns(
     '',
@@ -449,6 +466,7 @@ urlpatterns = patterns(
     webgateway_search_json,
     get_rois_json,
     get_shape_json,
+    histogram_json,
     # image viewer
     full_viewer,
     # rendering def methods
@@ -470,7 +488,5 @@ urlpatterns = patterns(
     annotations,
     table_query,
     object_table_query,
-
-    # Debug stuff
-
+    open_with_options,
 )

@@ -1046,7 +1046,7 @@ public class UpdateServiceTest extends AbstractServerTest {
         Image i = mmFactory.createImage(ModelMockFactory.SIZE_X,
                 ModelMockFactory.SIZE_Y, ModelMockFactory.SIZE_Z,
                 ModelMockFactory.SIZE_T,
-                ModelMockFactory.DEFAULT_CHANNELS_NUMBER);
+                ModelMockFactory.DEFAULT_CHANNELS_NUMBER, ModelMockFactory.UINT16);
         i = (Image) iUpdate.saveAndReturnObject(i);
         Pixels p = i.getPrimaryPixels();
 
@@ -1084,7 +1084,7 @@ public class UpdateServiceTest extends AbstractServerTest {
         Image i = mmFactory.createImage(ModelMockFactory.SIZE_X,
                 ModelMockFactory.SIZE_Y, ModelMockFactory.SIZE_Z,
                 ModelMockFactory.SIZE_T,
-                ModelMockFactory.DEFAULT_CHANNELS_NUMBER);
+                ModelMockFactory.DEFAULT_CHANNELS_NUMBER, ModelMockFactory.UINT16);
         i = (Image) iUpdate.saveAndReturnObject(i);
 
         Pixels p = i.getPrimaryPixels();
@@ -1132,7 +1132,7 @@ public class UpdateServiceTest extends AbstractServerTest {
         Image i = mmFactory.createImage(ModelMockFactory.SIZE_X,
                 ModelMockFactory.SIZE_Y, ModelMockFactory.SIZE_Z,
                 ModelMockFactory.SIZE_T,
-                ModelMockFactory.DEFAULT_CHANNELS_NUMBER);
+                ModelMockFactory.DEFAULT_CHANNELS_NUMBER, ModelMockFactory.UINT16);
         i = (Image) iUpdate.saveAndReturnObject(i);
 
         Pixels p = i.getPrimaryPixels();

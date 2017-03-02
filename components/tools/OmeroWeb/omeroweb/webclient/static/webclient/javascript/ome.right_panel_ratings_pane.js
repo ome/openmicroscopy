@@ -104,13 +104,11 @@ var RatingsPane = function RatingsPane($element, opts) {
                 var myRatings = anns.filter(function(ann){
                     return ann.owner.id == WEBCLIENT.USER.id;
                 });
-                var myRating = myRatings.length > 0 ? myRatings[0].longValue : 0;
                 var average = Math.round(sum/anns.length);
 
                 // Update html...
                 var html = ratingsTempl({'anns': anns,
                                          'canAnnotate': canAnnotate,
-                                         'myRating': myRating,
                                          'average': average,
                                          'count': anns.length,
                                          'static': WEBCLIENT.URLS.static_webclient});

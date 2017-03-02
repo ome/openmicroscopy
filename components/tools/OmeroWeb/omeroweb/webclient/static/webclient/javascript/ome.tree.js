@@ -21,6 +21,9 @@
 // jQuery load callback...
 $(function() {
 
+    // Flag holding curent single / multi selection status
+    var multiselection = false;
+
     // Select jstree and then cascade handle events and setup the tree.
     var jstree = $("#dataTree")
     .on('changed.jstree', function (e, data) {
@@ -35,7 +38,12 @@ $(function() {
             inst.load_node(data.node);
         }
 
+        multiselection = data.selected.length > 1;
+
         OME.tree_selection_changed(data, e);
+    })
+    .on('selection_change.ome', function(e, nElements) {
+        multiselection = nElements > 1;
     })
     .on('copy_node.jstree', function(e, data) {
         /**
@@ -125,6 +133,7 @@ $(function() {
         * is updated to match another instance of itself elsewhere in the tree
         */
         var inst = data.instance;
+
         // Update the child count
         OME.updateNodeChildCount(inst, data.parent);
     })
@@ -133,15 +142,15 @@ $(function() {
         * Fired when the tree is loaded and ready for action
         */
         var inst = data.instance;
-
         // Global variable specifies what to select
-        var nodeIds = WEBCLIENT.initially_select;
+        var nodeIds = WEBCLIENT.initially_open;
         if (nodeIds.length === 0) {
             // If not found, just select root node
             inst.select_node('ul > li:first');
         } else {
-            // We load hierachy for first item...
-            var paramSplit = nodeIds[0].split('-');
+            // We load hierachy for last item (ignore 'well' since not in tree)
+            nodeIds = nodeIds.filter(function(n){return !n.startsWith('well')});
+            var paramSplit = nodeIds[nodeIds.length-1].split(/-(.+)/);
 
             var payload = {};
             payload[paramSplit[0]] = paramSplit[1];
@@ -156,8 +165,11 @@ $(function() {
                     data = json.paths;
                     // Use the open_node callback mechanism to facilitate loading the tree to the
                     // point indicated by the path, starting from the top, 'experimenter'.
-                    if (data.length === 0) return;
-
+                    if (data.length === 0) {
+                        // If not found, just select root node
+                        inst.select_node('ul > li:first');
+                        return;
+                    }
                     var getTraverse = function(path) {
                         var traverse = function(index, parentNode) {
                             // Get this path component
@@ -192,8 +204,8 @@ $(function() {
                                 // we also focus the node, to scroll to it and setup hotkey events
                                 $("#" + node.id).children('.jstree-anchor').focus();
                                 // Handle multiple selection. E.g. extra images in same dataset
-                                for(var n=1; n<nodeIds.length; n++) {
-                                    node = inst.locate_node(nodeIds[n], parentNode)[0];
+                                for(var n=1; n<WEBCLIENT.initially_select.length; n++) {
+                                    node = inst.locate_node(WEBCLIENT.initially_select[n], parentNode)[0];
                                     if(node) {
                                         inst.select_node(node);
                                     }
@@ -390,8 +402,12 @@ $(function() {
             'data' : function(node, callback, payload) {
                 // Get the data for this query
                 if (payload === undefined) {
-                    payload = {};
+                    // Check for existing 'payload' data, used to initialise the jsTree
+                    payload = this.element.data('payload');
+                    // clear data
+                    $.removeData(this.element[0], "payload");
                 }
+                payload = payload || {}
                 // We always use the parent id to fitler. E.g. experimenter id, project id etc.
                 // Exception to this for orphans as in the case of api_images, id is a dataset
                 if (node.hasOwnProperty('data') && node.type != 'orphaned') {
@@ -438,7 +454,7 @@ $(function() {
                 // we want the specific page, or use default first page
 
                 // Disable paging for node without counter
-                var nopageTypes = ['project', 'screen', 'plate', 'tagset', 'tag'];
+                var nopageTypes = WEBCLIENT.UI.TREE.pagination_nodes;
                 if (nopageTypes.indexOf(node.type) > -1) {
                     // TODO: temporary workaround to not paginate datasets,
                     // plates and acquisitions
@@ -505,7 +521,6 @@ $(function() {
                 $.ajax({
                     url: url,
                     data: payload,
-                    cache: false,
                     success: function (data, textStatus, jqXHR) {
                         callback.call(this, data);
                     },
@@ -631,10 +646,18 @@ $(function() {
                                 });
                             }
 
-                            // Add plates to the jstree data structure
+                            // Add acquisitions (runs) to the jstree data structure
                             if (data.hasOwnProperty('acquisitions')) {
                                 $.each(data.acquisitions, function(index, value) {
                                     var node = makeNode(value, 'acquisition');
+                                    jstree_data.push(node);
+                                });
+                            }
+
+                            // Add wells to the jstree data structure
+                            if (data.hasOwnProperty('wells')) {
+                                $.each(data.wells, function(index, value) {
+                                    var node = makeNode(value, 'well');
                                     jstree_data.push(node);
                                 });
                             }
@@ -740,7 +763,7 @@ $(function() {
                 'valid_children': ['project','dataset','screen','plate', 'tag', 'tagset']
             },
             'map': {
-                'icon': WEBCLIENT.URLS.static_webclient + 'image/left_sidebar_icon_tag.png',
+                'icon': WEBCLIENT.URLS.static_webclient + 'image/left_sidebar_icon_map.png',
                 'valid_children': ['project', 'screen'],
                 'draggable': false
             },
@@ -750,7 +773,7 @@ $(function() {
             },
             'tag': {
                 'icon': WEBCLIENT.URLS.static_webclient + 'image/left_sidebar_icon_tag.png',
-                'valid_children': ['project', 'dataset', 'image', 'screen', 'plate', 'acquisition'],
+                'valid_children': ['project', 'dataset', 'image', 'screen', 'plate', 'acquisition', 'well'],
                 'draggable': true
             },
             'project': {
@@ -777,6 +800,9 @@ $(function() {
             },
             'acquisition': {
                 'icon': WEBCLIENT.URLS.static_webclient + 'image/run16.png',
+            },
+            'well': {
+                'icon': WEBCLIENT.URLS.static_webclient + 'image/well16.png',
             },
             'orphaned': {
                 'icon': WEBCLIENT.URLS.static_webclient + 'image/folder_yellow16.png',
@@ -987,6 +1013,79 @@ $(function() {
                         }
                     }
                 };
+                if (WEBCLIENT.OPEN_WITH.length > 0) {
+                    // build a submenu of viewers...
+                    var viewers = WEBCLIENT.OPEN_WITH.map(function(v){
+                        return {
+                            "label": v.label || v.id,
+                            "action": function() {
+                                var inst = $.jstree.reference('#dataTree'),
+                                    sel = inst.get_selected(true),
+                                    dtypes = sel.map(function(s){
+                                        return s.type + "=" + s.data.id;
+                                    }),
+                                    query = dtypes.join("&"),
+                                    // default url includes objects in query
+                                    url = v.url + "?" + query;
+                                // if plugin has added a url provider,
+                                // use it to update the url...
+                                if (v.getUrl) {
+                                    // prepare json of selected objects to pass to function
+                                    var selJson = sel.map(function(s){
+                                        // var o = $.extend({}, s.data.obj);
+                                        var o = {'id': s.data.obj.id,
+                                                 'name': s.data.obj.name,
+                                                 'type': s.type};
+                                        return o;
+                                    });
+                                    url = v.getUrl(selJson, v.url);
+                                }
+                                // ...otherwise we use default handling...
+                                if (v.target) {
+                                    // E.g. target '_blank' tries to open in a new tab
+                                    window.open(url, v.target);
+                                } else {
+                                    OME.openPopup(url);
+                                }
+                            },
+                            "_disabled": function() {
+                                var sel = $.jstree.reference('#dataTree').get_selected(true),
+                                    // selType = 'image' or 'images' or 'dataset'
+                                    selType = sel.reduce(function(prev, s){
+                                        return s.type + (sel.length > 1 ? "s" : "");
+                                    }, "undefined"),
+                                    enabled = false;
+                                if (typeof v.isEnabled === "function") {
+                                    // If plugin has provided a function 'isEnabled'...
+                                    // prepare json of selected objects to pass to function
+                                    var selJson = sel.map(function(s){
+                                        var o = {'id': s.data.obj.id,
+                                                 'name': s.data.obj.name,
+                                                 'type': s.type};
+                                        return o;
+                                    });
+                                    enabled = v.isEnabled(selJson);
+                                    return !enabled;
+                                }
+                                // ...Otherwise if supported_objects list is configured...
+                                // v.supported_objects is ['image'] or ['dataset', 'images'] etc.
+                                if (typeof v.supported_objects === "object" && v.supported_objects.length > 0) {
+                                    enabled = v.supported_objects.reduce(function(prev, supported){
+                                        // E.g. If supported_objects is 'images'...
+                                        return prev || supported.indexOf(selType) > -1;  // ... selType 'image' OR 'images' are > -1
+                                    }, false);
+                                }
+                                return !enabled;
+                            }
+                        };
+                    });
+                    config["open_with"] = {
+                        "label": "Open With...",
+                        "_disabled": false,
+                        "action": false,
+                        "submenu": viewers
+                    };
+                }
 
                 // List of permissions related disabling
                 // use canLink, canDelete etc classes on each node to enable/disable right-click menu
@@ -1079,10 +1178,10 @@ $(function() {
                         config['renderingsettings']["submenu"]['owner_rdef']['_disabled'] = false;
                     }
                 }
-                // Only enable copying if an image is the node
+                // Only enable copying if an image is the node and only one node is selected
                 if (node.type === 'image') {
                     config['renderingsettings']['_disabled'] = false;
-                    config['renderingsettings']["submenu"]['copy_rdef']['_disabled'] = false;
+                    config['renderingsettings']["submenu"]['copy_rdef']['_disabled'] = multiselection;
                 }
                 return config;
             }
