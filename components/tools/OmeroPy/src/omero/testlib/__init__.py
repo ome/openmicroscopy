@@ -440,8 +440,8 @@ class ITest(object):
                     for the_t in range(size_t):
                         plane_2d = fromfunction(f, (size_y, size_x),
                                                 dtype=int16)
-                        script_utils.uploadPlane(raw_pixel_store, plane_2d,
-                                                 the_z, the_c, the_t)
+                        script_utils.upload_plane(raw_pixel_store, plane_2d,
+                                                  the_z, the_c, the_t)
                         min_value = min(min_value, plane_2d.min())
                         max_value = max(max_value, plane_2d.max())
                 pixels_service.setChannelGlobalMinMax(pixels_id, the_c,
@@ -450,10 +450,10 @@ class ITest(object):
                 rgba = None
                 if the_c in colour_map:
                     rgba = colour_map[the_c]
-                script_utils.resetRenderingSettings(rendering_engine,
-                                                    pixels_id, the_c,
-                                                    min_value, max_value,
-                                                    rgba)
+                script_utils.reset_rendering_settings(rendering_engine,
+                                                      pixels_id, the_c,
+                                                      min_value, max_value,
+                                                      rgba)
         finally:
             rendering_engine.close()
             raw_pixel_store.close()
