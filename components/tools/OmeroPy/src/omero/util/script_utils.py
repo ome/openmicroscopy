@@ -318,7 +318,8 @@ def downloadFile(rawFileStore, originalFile, filePath=None):
                         If None, use originalFile.getName().getValue()
     """
     warnings.warn(
-        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
+        "This method is deprecated as of OMERO 5.3.0.\
+        Use download_file instead.", DeprecationWarning)
     return download_file(rawFileStore, originalFile, filePath)
 
 
