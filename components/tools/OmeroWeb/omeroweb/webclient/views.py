@@ -1426,7 +1426,7 @@ def load_searching(request, form=None, conn=None, **kwargs):
                     for t in onlyTypes:
                         t = t[0:-1]  # remove 's'
                         if t in ('project', 'dataset', 'image', 'screen',
-                                 'plate'):
+                                 'plate', 'well'):
                             obj = conn.getObject(t, searchById)
                             if obj is not None:
                                 foundById.append({'otype': t, 'obj': obj})
@@ -1517,6 +1517,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
         else:
             template = "webclient/annotations/metadata_general.html"
             context['canExportAsJpg'] = manager.canExportAsJpg(request)
+            context['annotationCounts'] = manager.getAnnotationCounts()
             figScripts = manager.listFigureScripts()
     context['manager'] = manager
 
@@ -2027,6 +2028,8 @@ def batch_annotate(request, conn=None, **kwargs):
     context['canDownload'] = manager.canDownload(objs)
     context['template'] = "webclient/annotations/batch_annotate.html"
     context['webclient_path'] = reverse('webindex')
+    context['annotationCounts'] = manager.getBatchAnnotationCounts(
+        getObjects(request, conn))
     return context
 
 

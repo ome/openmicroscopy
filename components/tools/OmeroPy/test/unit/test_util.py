@@ -33,6 +33,12 @@ from omero.util.upgrade_check import UpgradeCheck
 from omero.util.temp_files import manager
 from omero.util import get_user_dir
 from omero_version import omero_version
+import omero.util.image_utils as image_utils
+try:
+    from PIL import Image
+except ImportError:
+    import Image
+import numpy
 
 
 class MockTable(object):
@@ -237,3 +243,60 @@ class TestTempFileManager(object):
         tmpfile.write('')
 
         assert manager.tmpdir() == path(get_user_dir()) / "omero" / "tmp"
+
+
+class TestImageUtils(object):
+
+    @pytest.mark.parametrize(
+        'size', [4, 6, 8, 10, 12, 14, 16, 18, 20])
+    def test_get_front(self, size):
+        font = image_utils.get_font(size)
+        assert font is not None
+
+    @pytest.mark.parametrize("color", [
+        (255, 0, 0, 255, -16776961),     # Red
+        (0, 255, 0, 255, 16711935),      # Green
+        (0, 0, 255, 255, 65535),         # Blue
+        (0, 255, 255, 255, 16777215),    # Cyan
+        (255, 0, 255, 255, -16711681),   # Magenta
+        (255, 255, 0, 255, -65281),      # Yellow
+        (0, 0, 0, 255, 255),             # Black
+        (255, 255, 255, 255, -1),        # White
+        (0, 0, 0, 127, 127),             # Transparent black
+        (127, 127, 127, 127, 2139062143)])  # Grey
+    def test_int_to_rgba(self, color):
+        v = image_utils.int_to_rgba(color[4])
+        for x in range(0, 3):
+            assert color[x] == v[x]
+
+    @pytest.mark.parametrize("size", [
+        (100, 100, 50, 20, 5),
+        (100, 100, 20, 50, 5)])
+    def test_get_zoom_factor(self, size):
+        image_size = (size[0], size[1])
+        r = image_utils.get_zoom_factor(image_size, size[2], size[3])
+        assert r == size[4]
+
+    @pytest.mark.parametrize("size", [
+        (512, 512),
+        (256, 256)])
+    def test_resize_image(self, size):
+        w, h = 512, 512
+        data = numpy.zeros((h, w, 3), dtype=numpy.uint8)
+        data[256, 256] = [255, 0, 0]
+        img = Image.fromarray(data, 'RGB')
+        result = image_utils.resize_image(img, size[0], size[1])
+        assert result is not None
+        width, height = result.size
+        assert width == size[0]
+        assert height == size[1]
+
+    def test_paste_image(self):
+        data = numpy.zeros((512, 512, 3), dtype=numpy.uint8)
+        data[256, 256] = [255, 0, 0]
+        img = Image.fromarray(data, 'RGB')
+
+        data_canvas = numpy.zeros((512, 512, 3), dtype=numpy.uint8)
+        data_canvas[256, 256] = [255, 255, 0]
+        canvas = Image.fromarray(data_canvas, 'RGB')
+        image_utils.paste_image(img, canvas, 0, 0)

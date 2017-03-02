@@ -53,6 +53,7 @@ import org.hibernate.search.bridge.builtin.DateBridge;
  * @see <a href="http://trac.openmicroscopy.org.uk/ome/SearchBridges">Bridges</a
  *      href>
  */
+@Deprecated
 public class FullTextBridge extends BridgeHelper {
 // TODO insert/update OR delete regular type OR annotated type OR originalfile
 

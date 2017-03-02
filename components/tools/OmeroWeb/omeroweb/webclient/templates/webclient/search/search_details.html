@@ -209,6 +209,20 @@
                     </a></td>
                 </tr>
             {% endfor %}
+            {% for c in manager.containers.wells %}
+                <tr id="well-{{ c.id }}" class="{{ c.getPermsCss }}">
+                    <td class="image">
+                        <img id="{{ c.id }}" src="{% static "webclient/image/well16.png" %}" alt="well" title="{{ c.name }}"/>
+                    </td>
+                    <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
+                    <td class="date">{{ c.getDate|date:"Y-m-d H:i:s" }}</td>
+                    <td class="date">{{ c.creationEventDate|date:"Y-m-d H:i:s" }}</td>
+                    <td class="group">{{ c.getDetails.group.name.val }}</td>
+                    <td><a href="{% url 'webindex' %}?show=well-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
+                        {% trans "Browse" %}
+                    </a></td>
+                </tr>
+            {% endfor %}
             </tbody>
         </table>
         

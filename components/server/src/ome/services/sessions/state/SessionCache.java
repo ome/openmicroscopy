@@ -377,7 +377,7 @@ public class SessionCache implements ApplicationContextAware {
 
     /**
      * Returns all the data contained in the internal implementation of
-     * this manger.
+     * this manager.
      *
      * @param quietly If true, then the access time for the given UUID
      *                  will not be updated.

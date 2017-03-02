@@ -39,6 +39,7 @@ import ome.util.SqlAction;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
+@Deprecated
 public class FullTextThread extends ExecutionThread {
 
     private final static Logger log = LoggerFactory.getLogger(FullTextThread.class);

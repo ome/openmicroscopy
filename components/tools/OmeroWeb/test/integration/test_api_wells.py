@@ -21,10 +21,13 @@
 
 from omeroweb.testlib import IWebTest, _get_response_json
 from django.core.urlresolvers import reverse
-from django.conf import settings
+from omeroweb.api import api_settings
 import pytest
-from test_api_projects import get_update_service, \
-    get_connection, marshal_objects
+from test_api_projects import cmp_name_insensitive, \
+    get_connection, \
+    get_update_service, \
+    marshal_objects
+from test_api_containers import build_url
 from omero.model import ImageI, \
     LengthI, \
     PlateAcquisitionI, \
@@ -49,10 +52,10 @@ def cmp_column_row(x, y):
     return sort_by_column
 
 
-def remove_urls(marshalled):
+def remove_urls(marshalled, keys=[]):
     """Traverse a dict (Well) removing 'url:' values."""
     for key, val in marshalled.items():
-        if key.startswith('url:'):
+        if key.startswith('url:') and key not in keys:
             del(marshalled[key])
         # We only traverse paths where we know urls are
         elif key == 'Image':
@@ -85,13 +88,15 @@ def assert_objects(conn, json_objects, omero_ids_objects, dtype="Project",
     expected = marshal_objects(objs)
     assert len(json_objects) == len(expected)
     for i, o1, o2 in zip(range(len(expected)), json_objects, expected):
+        dont_remove = []
         if extra is not None and i < len(extra):
             o2.update(extra[i])
+            dont_remove = extra[i].keys()
         # We dump to json and re-load (same as test data). This means that
         # unicode has been handled in same way, e.g. Pixel size symbols.
         o2 = json.loads(json.dumps(o2))
-        # remove any urls from json (tested elsewhere)
-        remove_urls(o1)
+        # remove urls from json
+        remove_urls(o1, dont_remove)
 
         assert o1 == o2
 
@@ -105,25 +110,28 @@ class TestWells(IWebTest):
         group = self.new_group(perms='rwra--')
         return self.new_client_and_user(group=group)
 
-    def create_plate_wells(self, user1, rows, cols, with_plate_acq=True):
+    def create_plate_wells(self, user1, rows, cols, plateacquisitions=1):
         """Return Plate with Wells."""
         updateService = get_update_service(user1)
         plate = PlateI()
         plate.name = rstring('plate')
         plate = updateService.saveAndReturnObject(plate)
 
-        # Single PlateAcquisition for plate
-        if with_plate_acq:
+        # PlateAcquisitions for plate
+        plate_acqs = []
+        for p in range(plateacquisitions):
             plate_acq = PlateAcquisitionI()
-            plate_acq.name = rstring('plateacquisition')
+            plate_acq.name = rstring('plateacquisition_%s' % p)
             plate_acq.description = rstring('plateacquisition_description')
             plate_acq.maximumFieldCount = rint(3)
             plate_acq.startTime = rtime(1L)
             plate_acq.endTime = rtime(2L)
             plate_acq.plate = PlateI(plate.id.val, False)
             plate_acq = updateService.saveAndReturnObject(plate_acq)
+            plate_acqs.append(plate_acq)
 
         # Create Wells for plate
+        ref_frame = UnitsLength.REFERENCEFRAME
         for row in range(rows):
             for col in range(cols):
                 # create Well
@@ -133,19 +141,23 @@ class TestWells(IWebTest):
                 well.plate = PlateI(plate.id.val, False)
                 # Only wells in first Column have well-samples etc.
                 if col == 0:
-                    # Have 3 images/well-samples in these wells
-                    for i in range(3):
-                        image = self.create_test_image(
-                            size_x=5, size_y=5, session=user1[0].getSession())
-                        ws = WellSampleI()
-                        ws.image = ImageI(image.id, False)
-                        ws.well = well
-                        ws.posX = LengthI(i * 10, UnitsLength.REFERENCEFRAME)
-                        ws.posY = LengthI(i, UnitsLength.REFERENCEFRAME)
-                        if with_plate_acq:
-                            ws.setPlateAcquisition(
-                                PlateAcquisitionI(plate_acq.id.val, False))
-                        well.addWellSample(ws)
+                    # Have 3 images/well-samples per plateacquisition
+                    # (if no plateacquisitions, create 3 well-samples without)
+                    for p in range(max(1, plateacquisitions)):
+                        for i in range(3):
+                            image = self.create_test_image(
+                                size_x=5, size_y=5,
+                                session=user1[0].getSession())
+                            ws = WellSampleI()
+                            ws.image = ImageI(image.id, False)
+                            ws.well = well
+                            ws.posX = LengthI(i * 10, ref_frame)
+                            ws.posY = LengthI(i, ref_frame)
+                            if p < len(plate_acqs):
+                                ws.setPlateAcquisition(
+                                    PlateAcquisitionI(plate_acqs[p].id.val,
+                                                      False))
+                            well.addWellSample(ws)
                 updateService.saveObject(well)
         return plate
 
@@ -156,7 +168,7 @@ class TestWells(IWebTest):
 
         Two wells are created, but only the first has any Images (3).
         """
-        return self.create_plate_wells(user1, 1, 2, with_plate_acq=False)
+        return self.create_plate_wells(user1, 1, 2, 0)
 
     @pytest.fixture()
     def bigger_plate(self, user1):
@@ -168,12 +180,22 @@ class TestWells(IWebTest):
         """
         return self.create_plate_wells(user1, 2, 3)
 
+    @pytest.fixture()
+    def multi_acquisition_plate(self, user1):
+        """
+        Create a bigger plate with 2 plate_acquisitions.
+
+        Six wells are created, but only wells in the first
+        column have any Images (3 fields in each of 2 Acquisitions).
+        """
+        return self.create_plate_wells(user1, 2, 3, 2)
+
     def test_plate_wells(self, user1, small_plate, bigger_plate):
         """Test listing of Wells in a Plate."""
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
 
         wells_url = reverse('api_wells', kwargs={'api_version': version})
 
@@ -193,20 +215,93 @@ class TestWells(IWebTest):
             rsp = _get_response_json(django_client, wells_url, payload)
             # Manual check that Images are loaded but Pixels are not
             assert len(rsp['data']) == well_count
+            assert rsp['meta']['totalCount'] == well_count
             well_sample = rsp['data'][0]['WellSamples'][0]
             assert 'Image' in well_sample
             assert ('PlateAcquisition' in well_sample) == with_acq
             assert 'Pixels' not in well_sample['Image']
-
+            extra = [{'url:well': build_url(django_client, 'api_well',
+                                            {'object_id': w.id.val,
+                                             'api_version': version})}
+                     for w in wells]
             assert_objects(conn, rsp['data'], wells, dtype='Well',
-                           opts={'load_images': True})
+                           opts={'load_images': True}, extra=extra)
+
+    def test_plate_index_wells(self, user1, multi_acquisition_plate):
+        """
+        Test filtering of Wells by Plate/PlateAcquisition AND index.
+
+        Browse urls Plate -> PlateAcquisitions -> Wells
+        OR Plate -> Wells (filtering by Index)
+        """
+        conn = get_connection(user1)
+        user_name = conn.getUser().getName()
+        client = self.new_django_client(user_name, user_name)
+        version = api_settings.API_VERSIONS[-1]
+
+        plate_id = multi_acquisition_plate.id.val
+        plate_url = reverse('api_plate',
+                            kwargs={'object_id': plate_id,
+                                    'api_version': version})
+
+        rsp = _get_response_json(client, plate_url, {})
+        plate_json = rsp['data']
+
+        # Construct the urls we expect...
+        plate_acq_link = build_url(client, 'api_plate_plateacquisitions',
+                                   {'plate_id': plate_id,
+                                    'api_version': version})
+        well_link = build_url(client, 'api_plate_wells',
+                              {'plate_id': plate_id,
+                               'api_version': version})
+        index_links = []
+        plate = conn.getObject('Plate', plate_id)
+        idx = plate.getNumberOfFields()
+        for i in range(idx[0], idx[1]+1):
+            l = build_url(client, 'api_plate_wellsampleindex_wells',
+                          {'api_version': version,
+                           'plate_id': plate_id,
+                           'index': i})
+            index_links.append(l)
+        # ...and compare plate json:
+        assert_objects(conn, [plate_json], [multi_acquisition_plate],
+                       dtype='Plate',
+                       extra=[{'url:plateacquisitions': plate_acq_link,
+                               'url:wellsampleindex_wells': index_links,
+                               'url:wells': well_link,
+                               'omero:wellsampleIndex': list(idx)}])
+
+        # Browse to /plate/:id/plateacquisitions/
+        rsp = _get_response_json(client, plate_acq_link, {})
+        plate_acq_json = rsp['data']
+
+        # Construct data & urls we expect...
+        pas = list(plate.listPlateAcquisitions())
+        pas.sort(cmp_name_insensitive)
+        paq_ids = [p.id for p in pas]
+        extra = []
+        for p, plate_acq in enumerate(pas):
+            index_links = []
+            for i in range(p * 3, (p + 1) * 3):
+                l = build_url(client,
+                              'api_plateacquisition_wellsampleindex_wells',
+                              {'api_version': version,
+                               'plateacquisition_id': plate_acq.id,
+                               'index': i})
+                index_links.append(l)
+            extra.append({'url:wellsampleindex_wells': index_links,
+                          'omero:wellsampleIndex': [p * 3, (p + 1) * 3 - 1]})
+        # ...and compare
+        assert_objects(conn, plate_acq_json, paq_ids,
+                       dtype="PlateAcquisition",
+                       extra=extra)
 
     def test_well(self, user1, small_plate):
         """Test loading a single Well, with or without WellSamples."""
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
 
         small_plate = conn.getObject('Plate', small_plate.id.val)
         wells = [w._obj for w in small_plate.listChildren()]

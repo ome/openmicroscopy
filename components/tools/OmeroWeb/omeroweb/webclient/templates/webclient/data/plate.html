@@ -146,7 +146,8 @@
                 showImagesInWell();
             });
             $( '#spw' ).on( "dblclick", "td.well img", function(event) {
-                OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('/0/', "/"+$(this).attr('id').split("-")[1]+"/" ));
+                var url = "{% url 'web_image_viewer' 0 %}".replace('/0/', "/"+$(this).attr('id').split("-")[1]+"/" );
+                window.open(url, '_blank');
             });
 
             wpv.self.selectable({
