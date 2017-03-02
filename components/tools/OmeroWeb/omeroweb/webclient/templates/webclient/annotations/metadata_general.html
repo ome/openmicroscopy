@@ -228,7 +228,6 @@
                     var dialog_opts = ['Cancel', 'Create'];
                     $.ajax({
                         url: "{% url 'ome_tiff_info' manager.obj_id %}",
-                        cache: false,
                         dataType: 'json',
                         success: function(data) {
                             var msg = "This will create an OME-TIFF file from this Image.";
