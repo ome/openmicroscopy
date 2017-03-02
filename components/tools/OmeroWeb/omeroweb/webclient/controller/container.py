@@ -201,6 +201,18 @@ class BaseContainer(BaseController):
         elif self.acquisition:
             return self.acquisition._obj.plate.id.val
 
+    def getAnnotationCounts(self):
+        """
+        Get the annotion counts for the current object
+        """
+        return self._get_object().getAnnotationCounts()
+
+    def getBatchAnnotationCounts(self, objDict):
+        """
+        Get the annotion counts for the given objects
+        """
+        return self.conn.getAnnotationCounts(objDict)
+
     def canExportAsJpg(self, request, objDict=None):
         """
         Can't export as Jpg, Png, Tiff if bigger than approx 12k * 12k.

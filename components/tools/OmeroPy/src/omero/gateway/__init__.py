@@ -141,6 +141,30 @@ def fileread_gen(fin, fsize, bufsize):
     fin.close()
 
 
+def getAnnotationLinkTableName(objecttype):
+    """
+    Get the name of the *AnnotationLink table
+    for the given objecttype
+    """
+    objecttype = objecttype.lower()
+
+    if objecttype == "project":
+        return "ProjectAnnotationLink"
+    if objecttype == "dataset":
+        return"DatasetAnnotationLink"
+    if objecttype == "image":
+        return"ImageAnnotationLink"
+    if objecttype == "screen":
+        return "ScreenAnnotationLink"
+    if objecttype == "plate":
+        return "PlateAnnotationLink"
+    if objecttype == "plateacquisition":
+        return "PlateAcquisitionAnnotationLink"
+    if objecttype == "well":
+        return "WellAnnotationLink"
+    return None
+
+
 def getPixelsQuery(imageName):
     """Helper for building Query for Images or Wells & Images"""
     return (' left outer join fetch %s.pixels as pixels'
@@ -958,6 +982,13 @@ class BlitzObjectWrapper (object):
         if len(rv):
             return AnnotationWrapper._wrap(self._conn, rv[0].child, link=rv[0])
         return None
+
+    def getAnnotationCounts(self):
+        """
+        Get the annotion counts for the current object
+        """
+
+        return self._conn.countAnnotations(self.OMERO_CLASS, [self.getId()])
 
     def listAnnotations(self, ns=None):
         """
@@ -3315,6 +3346,71 @@ class _BlitzGateway (object):
         for r in result:
             yield AnnotationLinkWrapper(self, r)
 
+    def countAnnotations(self, obj_type, obj_ids=[]):
+        """
+        Count the annotions linked to the given objects
+
+        :param obj_type:   The type of the object the annotations are linked to
+        :param obj_ids:    List of object ids
+        :return:           Dictionary of annotation counts per annotation type
+        """
+
+        counts = {
+            "TagAnnotation": 0,
+            "FileAnnotation": 0,
+            "CommentAnnotation": 0,
+            "LongAnnotation": 0,
+            "MapAnnotation": 0,
+            "OtherAnnotation": 0}
+
+        if obj_type is None or not obj_ids:
+            return counts
+
+        ctx = self.SERVICE_OPTS.copy()
+        ctx.setOmeroGroup(-1)
+
+        params = omero.sys.ParametersI()
+        params.addIds(obj_ids)
+        params.add('ratingns',
+                   rstring(omero.constants.metadata.NSINSIGHTRATING))
+
+        q = """
+            select sum( case when an.ns = :ratingns
+                        and an.class = LongAnnotation
+                        then 1 else 0 end),
+                sum( case when (an.ns is null or an.ns != :ratingns)
+                               and an.class = LongAnnotation
+                               then 1 else 0 end),
+               sum( case when an.class != LongAnnotation
+                        then 1 else 0 end ), type(an.class)
+               from Annotation an where an.id in
+                    (select distinct(ann.id) from %sAnnotationLink ial
+                        join ial.child as ann
+                        join ial.parent as i
+                where i.id in (:ids))
+                    group by an.class
+            """ % obj_type
+
+        queryResult = self.getQueryService().projection(q, params, ctx)
+
+        for r in queryResult:
+            ur = unwrap(r)
+            if ur[3] == 'ome.model.annotations.LongAnnotation':
+                counts['LongAnnotation'] += ur[0]
+                counts['OtherAnnotation'] += ur[1]
+            elif ur[3] == 'ome.model.annotations.CommentAnnotation':
+                counts['CommentAnnotation'] += ur[2]
+            elif ur[3] == 'ome.model.annotations.TagAnnotation':
+                counts['TagAnnotation'] += ur[2]
+            elif ur[3] == 'ome.model.annotations.FileAnnotation':
+                counts['FileAnnotation'] += ur[2]
+            elif ur[3] == 'ome.model.annotations.MapAnnotation':
+                counts['MapAnnotation'] += ur[2]
+            else:
+                counts['OtherAnnotation'] += ur[2]
+
+        return counts
+
     def listOrphanedAnnotations(self, parent_type, parent_ids, eid=None,
                                 ns=None, anntype=None, addedByMe=True):
         """
@@ -3393,6 +3489,30 @@ class _BlitzGateway (object):
 
         for e in q.findAllByQuery(sql, p, self.SERVICE_OPTS):
             yield AnnotationWrapper._wrap(self, e)
+
+    def getAnnotationCounts(self, objDict={}):
+        """
+        Get the annotion counts for the given objects
+        """
+
+        obj_type = None
+        obj_ids = []
+        for key in objDict:
+            for o in objDict[key]:
+                if obj_type is not None and obj_type != key:
+                    raise AttributeError(
+                        "getAnnotationCounts cannot be used with "
+                        "different types of objects")
+                obj_type = key
+                obj_ids.append(o.id)
+
+        if obj_type is None:
+            return self.countAnnotations()
+
+        obj_type = obj_type.title().replace("Plateacquisition",
+                                            "PlateAcquisition")
+
+        return self.countAnnotations(obj_type, obj_ids)
 
     def createImageFromNumpySeq(self, zctPlanes, imageName, sizeZ=1, sizeC=1,
                                 sizeT=1, description=None, dataset=None,
