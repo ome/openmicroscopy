@@ -1426,7 +1426,7 @@ def load_searching(request, form=None, conn=None, **kwargs):
                     for t in onlyTypes:
                         t = t[0:-1]  # remove 's'
                         if t in ('project', 'dataset', 'image', 'screen',
-                                 'plate'):
+                                 'plate', 'well'):
                             obj = conn.getObject(t, searchById)
                             if obj is not None:
                                 foundById.append({'otype': t, 'obj': obj})
