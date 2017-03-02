@@ -58,7 +58,7 @@
     <target name="tools-build" depends="tools-init,python-build" description="Uses setup.py to build artifacts" unless="env.NOPYTHON">
         <copy file="${basedir}/bin/omero" tofile="${basedir}/build/bin/omero"/>
         <chmod file="${basedir}/build/bin/omero" perm="ugo+x"/>
-        <copy file="${basedir}/../../common/target/classes/prefs.class" todir="${basedir}/build/"/>
+        <!-- <copy file="${basedir}/../../common/target/classes/prefs.class" todir="${basedir}/build/"/> -->
         <!-- And copying once for top-level build -->
         <copy todir="../target/bin/">
             <fileset dir="${basedir}/bin"/>
