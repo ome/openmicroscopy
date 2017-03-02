@@ -260,8 +260,9 @@
                 $selected.each(function(i, w){
                     var wellId = w.id.split('-')[1];
                     var label = $(w).children('.wellLabel').text();
+                    var labelHtml = "<td class='wellImagesLabel'><h1>" + label + "</h1></td>";
                     // create placeholders for each Well
-                    $table.append("<tr id='wellImages-" + wellId + "'><td class='wellImagesLabel'><h1>" + label + "</h1></td></tr>");
+                    $table.append("<tr id='wellImages-" + wellId + "'>" + labelHtml + "</tr>");
                     var url = "{% url 'webgateway' %}well/" + wellId + "/children/";
                     {% if acquisition %}
                         url += '?run={{ acquisition }}'
@@ -283,7 +284,8 @@
                             }
                             return html;
                         }, "");
-                        $('#wellImages-' + wellId).html("<td><ul>" + html + "</ul></tr>");
+                        // We use .html() instead of .append() so double-clicks don't give duplicate html
+                        $('#wellImages-' + wellId).html(labelHtml + "<td><ul>" + html + "</ul></td>");
                         if (selectImageIds && selectImageIds.length > 0) {
                             triggerWellImagesSelection();
                         }
