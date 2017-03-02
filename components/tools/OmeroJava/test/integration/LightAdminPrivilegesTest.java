@@ -2429,7 +2429,8 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
      * @throws Exception unexpected
      */
     @Test(dataProvider = "at least group owner or same group with adds link test cases")
-    public void testNormalUserAdjustsMembershipViaAdmin(boolean isGroupOwner, boolean isSameGroup, boolean isAddsLink) throws Exception {
+    public void testNormalUserAdjustsMembershipViaAdmin(boolean isGroupOwner, boolean isSameGroup, boolean isAddsLink)
+            throws Exception {
         final boolean isExpectSuccess = isGroupOwner && isSameGroup;
         final EventContext target = newUserAndGroup("rwr---", false);
         final EventContext actor = newUserAndGroup("rwr---", isGroupOwner);
@@ -2699,7 +2700,8 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
      * @throws Exception unexpected
      */
     @Test(dataProvider = "privilege elevation expecting always pass test cases")
-    public void testAdminDeletesMembershipViaRequest(boolean isHasSudo, boolean isTargetSudo, boolean isGroupSystem) throws Exception {
+    public void testAdminDeletesMembershipViaRequest(boolean isHasSudo, boolean isTargetSudo, boolean isGroupSystem)
+            throws Exception {
         final boolean isExpectSuccess = true;
         final ExperimenterGroup otherGroup = new ExperimenterGroupI(newUserAndGroup("rwr---", false).groupId, false);
         final ExperimenterGroup groupForAdjustment;
@@ -2727,7 +2729,8 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
      * @throws Exception unexpected
      */
     @Test(dataProvider = "privilege elevation test cases")
-    public void testAdminEditsAdminPrivilegesViaAdmin(boolean isHasSudo, boolean isGrantsSudo, boolean isEditsAdmin) throws Exception {
+    public void testAdminEditsAdminPrivilegesViaAdmin(boolean isHasSudo, boolean isGrantsSudo, boolean isEditsAdmin)
+            throws Exception {
         final boolean isExpectSuccess = isHasSudo || !isGrantsSudo || !isEditsAdmin;
         final EventContext target = loginNewAdmin(isEditsAdmin, AdminPrivilegeSudo.value);
         final Experimenter targetUser = new ExperimenterI(target.userId, false);
@@ -2757,7 +2760,8 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
      * @throws Exception unexpected
      */
     @Test(dataProvider = "privilege elevation test cases", groups = "broken")
-    public void testAdminEditsAdminPrivilegesViaUpdate(boolean isHasSudo, boolean isGrantsSudo, boolean isEditsAdmin) throws Exception {
+    public void testAdminEditsAdminPrivilegesViaUpdate(boolean isHasSudo, boolean isGrantsSudo, boolean isEditsAdmin)
+            throws Exception {
         final boolean isExpectSuccess = isHasSudo || !isGrantsSudo || !isEditsAdmin;
         final EventContext actor = loginNewAdmin(true, isHasSudo ? null : AdminPrivilegeSudo.value);
         Experimenter newUser = createExperimenterI(UUID.randomUUID().toString(), getClass().getSimpleName(), "Test");
@@ -2801,7 +2805,8 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
      * @throws Exception unexpected
      */
     @Test(dataProvider = "privilege elevation test cases with adds link")
-    public void testAdminEditsMembershipViaAdmin(boolean isHasSudo, boolean isTargetSudo, boolean isGroupSystem, boolean isAddsLink) throws Exception {
+    public void testAdminEditsMembershipViaAdmin(boolean isHasSudo, boolean isTargetSudo, boolean isGroupSystem, boolean isAddsLink)
+            throws Exception {
         final boolean isExpectSuccess = isHasSudo || !isTargetSudo || !isGroupSystem || !isAddsLink;
         final ExperimenterGroup otherGroup = new ExperimenterGroupI(newUserAndGroup("rwr---", false).groupId, false);
         final ExperimenterGroup groupForAdjustment;
