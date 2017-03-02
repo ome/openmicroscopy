@@ -1,13 +1,12 @@
 /*
- *   $Id$
- *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.server.utests.sec;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -15,6 +14,7 @@ import ome.api.ITypes;
 import ome.api.local.LocalAdmin;
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
+import ome.model.enums.AdminPrivilege;
 import ome.model.enums.EventType;
 import ome.model.internal.Permissions;
 import ome.model.meta.Event;
@@ -26,6 +26,7 @@ import ome.security.SystemTypes;
 import ome.security.basic.BasicACLVoter;
 import ome.security.basic.BasicSecuritySystem;
 import ome.security.basic.CurrentDetails;
+import ome.security.basic.LightAdminPrivileges;
 import ome.security.basic.OmeroInterceptor;
 import ome.security.basic.OneGroupSecurityFilter;
 import ome.security.basic.TokenHolder;
@@ -45,6 +46,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
+
+import com.google.common.collect.ImmutableSet;
 
 public abstract class AbstractBasicSecuritySystemTest extends
         MockObjectTestCase {
@@ -97,12 +100,20 @@ public abstract class AbstractBasicSecuritySystemTest extends
         cd = new CurrentDetails(new TestSessionCache(this));
         SystemTypes st = new SystemTypes();
         TokenHolder th = new TokenHolder();
-        OmeroInterceptor oi = new OmeroInterceptor(new Roles(),
+        final Roles roles = new Roles();
+        final LightAdminPrivileges mockAdminPrivileges = new LightAdminPrivileges(roles) {
+            @Override
+            public ImmutableSet<AdminPrivilege> getSessionPrivileges(Session session, boolean isCache) {
+                return getAllPrivileges();
+            }
+        };
+        OmeroInterceptor oi = new OmeroInterceptor(roles,
                 st, new ExtendedMetadata.Impl(),
-                cd, th, new NullSessionStats());
+                cd, th, new NullSessionStats(),
+                mockAdminPrivileges, new HashSet<String>(), new HashSet<String>());
         SecurityFilter filter = new OneGroupSecurityFilter();
-        sec = new BasicSecuritySystem(oi, st, cd, mgr, new Roles(), sf,
-                th, filter, new DefaultPolicyService());
+        sec = new BasicSecuritySystem(oi, st, cd, mgr, roles, sf,
+                th, Collections.singletonList(filter), new DefaultPolicyService());
         aclVoter = new BasicACLVoter(cd, st, th, filter,
                 new DefaultPolicyService());
     }
@@ -124,6 +135,7 @@ public abstract class AbstractBasicSecuritySystemTest extends
         type.setValue("test");
         event = new Event(1L, true);
         event.setType(type);
+        event.setSession(new Session(1L, true));
 
         user.linkExperimenterGroup(group);
         leaderOfGroups = Collections.singletonList(1L);
@@ -161,6 +173,8 @@ public abstract class AbstractBasicSecuritySystemTest extends
         mockMgr.expects(atLeastOnce()).method("getEventContext").will(
                 returnValue(ec));
 
+        sf.mockQuery.expects(once()).method("findByQuery").will(returnValue(new Session(1L, true)));
+
         doReadOnly(readOnly);
 
     }
@@ -178,6 +192,7 @@ public abstract class AbstractBasicSecuritySystemTest extends
         type.setValue("test");
         event = new Event(0L, true);
         event.setType(type);
+        event.setSession(new Session(1L, true));
 
         user.linkExperimenterGroup(group);
         leaderOfGroups = Collections.singletonList(0L);
@@ -215,6 +230,8 @@ public abstract class AbstractBasicSecuritySystemTest extends
         mockMgr.expects(atLeastOnce()).method("getEventContext").will(
                 returnValue(ec));
 
+        sf.mockQuery.expects(once()).method("findByQuery").will(returnValue(new Session(1L, true)));
+
         doReadOnly(readOnly);
     }
 
@@ -222,9 +239,6 @@ public abstract class AbstractBasicSecuritySystemTest extends
         sf.mockAdmin.expects(once()).method("groupProxy").will(
                 returnValue(group));
         if (!readOnly) {
-            sf.mockQuery.expects(once()).method("get")
-                    .with(eq(Session.class), eq(1L))
-                    .will(returnValue(new Session()));
             sf.mockAdmin.expects(once()).method("userProxy").will(
                     returnValue(user));
             sf.mockUpdate.expects(once()).method("saveAndReturnObject").will(

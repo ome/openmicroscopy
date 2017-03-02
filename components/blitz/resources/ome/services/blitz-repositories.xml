@@ -3,8 +3,6 @@
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# $Id$
-#
 # Copyright 2008-2014 Glencoe Software, Inc. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
@@ -69,6 +67,7 @@
               <constructor-arg value="${omero.fs.repo.path_rules}"/>
               <constructor-arg ref="uuid"/>
               <constructor-arg ref="roles"/>
+              <constructor-arg ref="managedRepoUuids"/>
           </bean>
       </constructor-arg>
   </bean>
@@ -106,6 +105,7 @@
               <constructor-arg value="${omero.fs.repo.path_rules}"/>
           </bean>
       </constructor-arg>
+      <constructor-arg ref="scriptRepoUuids"/>
   </bean>
   <bean id="scriptTakeoverRun" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
     <property name="targetObject" ref="scriptRepository" />

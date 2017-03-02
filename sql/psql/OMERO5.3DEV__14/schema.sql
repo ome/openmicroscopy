@@ -1694,6 +1694,7 @@
         mtime timestamp,
         name text not null,
         path text not null,
+        repo varchar(255),
         "size" int8,
         version int4,
         creation_id int8 not null,

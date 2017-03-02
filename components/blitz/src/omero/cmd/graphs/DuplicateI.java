@@ -56,6 +56,7 @@ import com.google.common.collect.SetMultimap;
 import ome.model.IObject;
 import ome.security.ACLVoter;
 import ome.security.SystemTypes;
+import ome.security.basic.LightAdminPrivileges;
 import ome.services.delete.Deletion;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphPathBean;
@@ -97,6 +98,7 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
     private final ACLVoter aclVoter;
     private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
+    private final LightAdminPrivileges adminPrivileges;
     private final Set<Class<? extends IObject>> targetClasses;
     private GraphPolicy graphPolicy;  /* not final because of adjustGraphPolicy */
     private final SetMultimap<String, String> unnullable;
@@ -125,17 +127,19 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
      * @param securityRoles the security roles
      * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean to use
+     * @param adminPrivileges the light administrator privileges helper
      * @param deletionInstance a deletion instance for deleting files
      * @param targetClasses legal target object classes for duplicate
      * @param graphPolicy the graph policy to apply for duplicate
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      */
     public DuplicateI(ACLVoter aclVoter, Roles securityRoles, SystemTypes systemTypes, GraphPathBean graphPathBean,
-            Deletion deletionInstance, Set<Class<? extends IObject>> targetClasses, GraphPolicy graphPolicy,
-            SetMultimap<String, String> unnullable) {
+            LightAdminPrivileges adminPrivileges, Deletion deletionInstance, Set<Class<? extends IObject>> targetClasses,
+            GraphPolicy graphPolicy, SetMultimap<String, String> unnullable) {
         this.aclVoter = aclVoter;
         this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
+        this.adminPrivileges = adminPrivileges;
         this.targetClasses = targetClasses;
         this.graphPolicy = graphPolicy;
         this.unnullable = unnullable;
@@ -161,7 +165,7 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
 
         this.helper = helper;
         helper.setSteps(dryRun ? 3 : 8);
-        this.graphHelper = new GraphHelper(helper, graphPathBean);
+        this.graphHelper = new GraphHelper(helper, graphPathBean, adminPrivileges);
 
         classifier = new SpecificityClassifier<Class<? extends IObject>, Inclusion>(
                 new SpecificityClassifier.ContainmentTester<Class<? extends IObject>>() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2013 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2012-2017 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -16,6 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
 package integration;
 
 import java.io.File;
@@ -27,14 +28,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import ome.formats.OMEROMetadataStoreClient;
-import ome.formats.importer.ImportConfig;
-import ome.formats.importer.ImportContainer;
-import ome.formats.importer.ImportLibrary;
-import ome.formats.importer.ImportLibrary.ImportCallback;
-import ome.formats.importer.OMEROWrapper;
-import ome.formats.importer.util.ProportionalTimeEstimatorImpl;
-import ome.formats.importer.util.TimeEstimator;
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.FilePathRestrictionInstance;
 import ome.services.blitz.repo.path.FilePathRestrictions;
@@ -52,8 +45,6 @@ import omero.api.RawFileStorePrx;
 import omero.cmd.CmdCallbackI;
 import omero.cmd.HandlePrx;
 import omero.grid.ImportLocation;
-import omero.grid.ImportProcessPrx;
-import omero.grid.ImportRequest;
 import omero.grid.ManagedRepositoryPrx;
 import omero.grid.ManagedRepositoryPrxHelper;
 import omero.grid.RepositoryMap;
@@ -80,7 +71,7 @@ import com.google.common.collect.ImmutableMap;
  * @author m.t.b.carroll@dundee.ac.uk
  */
 @Test(groups = { "integration", "fs" })
-public class ManagedRepositoryTest extends AbstractServerTest {
+public class ManagedRepositoryTest extends AbstractServerImportTest {
     /* temporary file manager for sources of file uploads */
     private static final TempFileManager tempFileManager = new TempFileManager(
             "test-" + ManagedRepositoryTest.class.getSimpleName());
@@ -146,72 +137,6 @@ public class ManagedRepositoryTest extends AbstractServerTest {
     }
 
     /**
-     * Import the given files. Like {@link #importFileset(List, int)} but with
-     * all the srcPaths to be uploaded.
-     *
-     * @param srcPaths
-     *            the source paths
-     * @return the resulting import location
-     * @throws Exception
-     *             unexpected
-     */
-    ImportLocation importFileset(List<String> srcPaths) throws Exception {
-        return importFileset(srcPaths, srcPaths.size());
-    }
-
-    /**
-     * Import the given files.
-     *
-     * @param srcPaths
-     *            the source paths
-     * @param numberToUpload
-     *            how many of the source paths to actually upload
-     * @return the resulting import location
-     * @throws Exception
-     *             unexpected
-     */
-    ImportLocation importFileset(List<String> srcPaths, int numberToUpload)
-            throws Exception {
-
-        // Setup that should be easier, most likely a single ctor on IL
-        OMEROMetadataStoreClient client = new OMEROMetadataStoreClient();
-        client.initialize(this.client);
-        OMEROWrapper wrapper = new OMEROWrapper(new ImportConfig());
-        ImportLibrary lib = new ImportLibrary(client, wrapper);
-
-        // This should also be simplified.
-        ImportContainer container = new ImportContainer(new File(
-                srcPaths.get(0)), null /* target */, null /* user pixels */,
-                "FakeReader", srcPaths.toArray(new String[srcPaths.size()]),
-                false /* isspw */);
-
-        // Now actually use the library.
-        ImportProcessPrx proc = lib.createImport(container);
-
-        // The following is largely a copy of ImportLibrary.importImage
-        final String[] srcFiles = container.getUsedFiles();
-        final List<String> checksums = new ArrayList<String>();
-        final byte[] buf = new byte[client.getDefaultBlockSize()];
-        final ChecksumProviderFactory cpf = new ChecksumProviderFactoryImpl();
-        final TimeEstimator estimator = new ProportionalTimeEstimatorImpl(
-                container.getUsedFilesTotalSize());
-
-        for (int i = 0; i < numberToUpload; i++) {
-            checksums.add(lib.uploadFile(proc, srcFiles, i, cpf, estimator,
-                    buf));
-        }
-
-        // At this point the import is running, check handle for number of
-        // steps.
-        final HandlePrx handle = proc.verifyUpload(checksums);
-        final ImportRequest req = (ImportRequest) handle.getRequest();
-        final ImportCallback cb = lib.createCallback(proc, handle, container);
-        cb.loop(60 * 60, 1000); // Wait 1 hr per step.
-        Assert.assertNotNull(cb.getImportResponse());
-        return req.location;
-    }
-
-    /**
      * Make sure that the given filename exists in the given directory, creating
      * it if necessary.
      *
@@ -269,10 +194,6 @@ public class ManagedRepositoryTest extends AbstractServerTest {
                 .toString() + ".fake");
         final File file2 = ensureFileExists(uniquePath, UUID.randomUUID()
                 .toString() + ".fake");
-        final String destPath1 = cfpt.getFsFileFromClientFile(file1, 2)
-                .toString();
-        final String destPath2 = cfpt.getFsFileFromClientFile(file2, 2)
-                .toString();
 
         final List<String> srcPaths = new ArrayList<String>();
         final Set<String> usedFile2s = new HashSet<String>();
@@ -280,13 +201,13 @@ public class ManagedRepositoryTest extends AbstractServerTest {
         // Completely new file
         srcPaths.add(file1.getAbsolutePath());
         ImportLocation data = importFileset(srcPaths);
-        assertEndsWith(pathToUsedFile(data, 0), destPath1);
+        assertEndsWith(pathToUsedFile(data, 0), file1.getName());
 
         // Different files that should go in same directory
         srcPaths.add(file2.getAbsolutePath());
         data = importFileset(srcPaths);
-        assertEndsWith(pathToUsedFile(data, 0), destPath1);
-        assertEndsWith(pathToUsedFile(data, 1), destPath2);
+        assertEndsWith(pathToUsedFile(data, 0), file1.getName());
+        assertEndsWith(pathToUsedFile(data, 1), file2.getName());
         for (final String usedFile : data.usedFiles) {
             /* all in the same directory below data.sharedPath */
             Assert.assertEquals(-1, usedFile.indexOf(FsFile.separatorChar));
@@ -296,12 +217,12 @@ public class ManagedRepositoryTest extends AbstractServerTest {
         // Same file that should go in new directory
         srcPaths.remove(0);
         data = importFileset(srcPaths);
-        assertEndsWith(pathToUsedFile(data, 0), destPath2);
+        assertEndsWith(pathToUsedFile(data, 0), file2.getName());
         Assert.assertTrue(usedFile2s.add(pathToUsedFile(data, 0)));
 
         // Same file again that should go in new directory
         data = importFileset(srcPaths);
-        assertEndsWith(pathToUsedFile(data, 0), destPath2);
+        assertEndsWith(pathToUsedFile(data, 0), file2.getName());
         Assert.assertTrue(usedFile2s.add(pathToUsedFile(data, 0)));
     }
 
@@ -326,16 +247,6 @@ public class ManagedRepositoryTest extends AbstractServerTest {
                 .toString() + ".fake");
         final File file5 = ensureFileExists(uniquePath, UUID.randomUUID()
                 .toString() + ".fake");
-        final String destPath1 = cfpt.getFsFileFromClientFile(file1, 2)
-                .toString();
-        final String destPath2 = cfpt.getFsFileFromClientFile(file2, 2)
-                .toString();
-        final String destPath3 = cfpt.getFsFileFromClientFile(file3, 2)
-                .toString();
-        final String destPath4 = cfpt.getFsFileFromClientFile(file4, 2)
-                .toString();
-        final String destPath5 = cfpt.getFsFileFromClientFile(file5, 2)
-                .toString();
 
         final List<String> srcPaths = new ArrayList<String>();
         final List<String> destPaths = new ArrayList<String>();
@@ -344,8 +255,8 @@ public class ManagedRepositoryTest extends AbstractServerTest {
         // Completely new files
         srcPaths.add(file1.getAbsolutePath());
         srcPaths.add(file2.getAbsolutePath());
-        destPaths.add(destPath1);
-        destPaths.add(destPath2);
+        destPaths.add(file1.getName());
+        destPaths.add(file2.getName());
         ImportLocation data = importFileset(srcPaths);
         Assert.assertEquals(data.usedFiles.size(), destPaths.size());
         for (int i = 0; i < data.usedFiles.size(); i++) {
@@ -359,7 +270,7 @@ public class ManagedRepositoryTest extends AbstractServerTest {
 
         // One identical file both should go in a new directory
         srcPaths.set(1, file3.getAbsolutePath());
-        destPaths.set(1, destPath3);
+        destPaths.set(1, file3.getName());
         data = importFileset(srcPaths);
         Assert.assertEquals(data.usedFiles.size(), destPaths.size());
         for (int i = 0; i < data.usedFiles.size(); i++) {
@@ -374,8 +285,8 @@ public class ManagedRepositoryTest extends AbstractServerTest {
         // Two different files that should go in new directory
         srcPaths.set(0, file4.getAbsolutePath());
         srcPaths.set(1, file5.getAbsolutePath());
-        destPaths.set(0, destPath4);
-        destPaths.set(1, destPath5);
+        destPaths.set(0, file4.getName());
+        destPaths.set(1, file5.getName());
         data = importFileset(srcPaths);
         Assert.assertEquals(data.usedFiles.size(), destPaths.size());
         for (int i = 0; i < data.usedFiles.size(); i++) {
@@ -423,19 +334,14 @@ public class ManagedRepositoryTest extends AbstractServerTest {
                 .toString() + ".fake");
         final File file3 = ensureFileExists(uniquePathSubSubDir, UUID
                 .randomUUID().toString() + ".fake");
-        final FsFile destFsFile1 = cfpt.getFsFileFromClientFile(file1, 2);
-        final FsFile destFsFile2 = cfpt.getFsFileFromClientFile(file2, 3);
-        final FsFile destFsFile3 = cfpt.getFsFileFromClientFile(file3, 4);
+        final FsFile destFsFile1 = cfpt.getFsFileFromClientFile(file1, 1);
+        final FsFile destFsFile2 = cfpt.getFsFileFromClientFile(file2, 2);
+        final FsFile destFsFile3 = cfpt.getFsFileFromClientFile(file3, 3);
 
-        Assert.assertEquals(2, destFsFile1.getComponents().size());
-        Assert.assertEquals(3, destFsFile2.getComponents().size());
-        Assert.assertEquals(4, destFsFile3.getComponents().size());
-        Assert.assertEquals(destFsFile1.getComponents().get(0), destFsFile2
-                .getComponents().get(0));
-        Assert.assertEquals(destFsFile1.getComponents().get(0), destFsFile3
-                .getComponents().get(0));
-        Assert.assertEquals(destFsFile2.getComponents().get(1), destFsFile3
-                .getComponents().get(1));
+        Assert.assertEquals(destFsFile1.getComponents().size(), 1);
+        Assert.assertEquals(destFsFile2.getComponents().size(), 2);
+        Assert.assertEquals(destFsFile3.getComponents().size(), 3);
+        Assert.assertEquals(destFsFile2.getComponents().get(0), destFsFile3.getComponents().get(0));
 
         final List<String> srcPaths = new ArrayList<String>();
         final List<String> destPaths = new ArrayList<String>();
@@ -551,7 +457,7 @@ public class ManagedRepositoryTest extends AbstractServerTest {
         srcPaths.add(file2.getAbsolutePath());
         // TODO: due to verifyUpload one cannot obtain the import location
         // without uploading both files
-        ImportLocation data = importFileset(srcPaths, 2);
+        ImportLocation data = importFileset(srcPaths, 2, null);
 
         assertFileExists("Upload failed. File does not exist: ",
                 pathToUsedFile(data, 0));
@@ -686,7 +592,7 @@ public class ManagedRepositoryTest extends AbstractServerTest {
     }
 
     /**
-     * Assert that the destination path ends with the used file.
+     * Assert that the used file ends with the destination path.
      *
      * @param usedFile
      *            the used file

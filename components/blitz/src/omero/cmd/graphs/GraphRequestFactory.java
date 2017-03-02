@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2016 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -35,6 +35,7 @@ import com.google.common.collect.SetMultimap;
 import ome.model.IObject;
 import ome.security.ACLVoter;
 import ome.security.SystemTypes;
+import ome.security.basic.LightAdminPrivileges;
 import ome.services.delete.Deletion;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphPathBean;
@@ -58,6 +59,7 @@ public class GraphRequestFactory {
     private final Roles securityRoles;
     private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
+    private final LightAdminPrivileges adminPrivileges;
     private final Deletion deletionInstance;
     private final ImmutableSetMultimap<Class<? extends Request>, Class<? extends IObject>> allTargets;
     private final ImmutableMap<Class<? extends Request>, GraphPolicy> graphPolicies;
@@ -70,6 +72,7 @@ public class GraphRequestFactory {
      * @param securityRoles the security roles
      * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean
+     * @param adminPrivileges the light administrator privileges helper
      * @param deletionInstance a deletion instance for deleting files
      * @param allTargets legal target object classes for all request classes that use the graph path bean
      * @param allRules rules for all request classes that use the graph path bean
@@ -78,13 +81,14 @@ public class GraphRequestFactory {
      * @throws GraphException if the graph path rules could not be parsed
      */
     public GraphRequestFactory(ACLVoter aclVoter, Roles securityRoles, SystemTypes systemTypes, GraphPathBean graphPathBean,
-            Deletion deletionInstance, Map<Class<? extends Request>, List<String>> allTargets,
+            LightAdminPrivileges adminPrivileges, Deletion deletionInstance, Map<Class<? extends Request>, List<String>> allTargets,
             Map<Class<? extends Request>, List<GraphPolicyRule>> allRules, List<String> unnullable, Set<String> defaultExcludeNs)
                     throws GraphException {
         this.aclVoter = aclVoter;
         this.securityRoles = securityRoles;
         this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
+        this.adminPrivileges = adminPrivileges;
         this.deletionInstance = deletionInstance;
 
         final ImmutableSetMultimap.Builder<Class<? extends Request>, Class<? extends IObject>> allTargetsBuilder =
@@ -157,14 +161,15 @@ public class GraphRequestFactory {
                 }
                 if (GraphModify2.class.isAssignableFrom(requestClass)) {
                     final Constructor<R> constructor = requestClass.getConstructor(ACLVoter.class, Roles.class, SystemTypes.class,
-                            GraphPathBean.class, Deletion.class, Set.class, GraphPolicy.class, SetMultimap.class);
-                    request = constructor.newInstance(aclVoter, securityRoles, systemTypes, graphPathBean, deletionInstance,
-                            targetClasses, graphPolicy, unnullable);
+                            GraphPathBean.class, LightAdminPrivileges.class, Deletion.class, Set.class, GraphPolicy.class,
+                            SetMultimap.class);
+                    request = constructor.newInstance(aclVoter, securityRoles, systemTypes, graphPathBean, adminPrivileges,
+                            deletionInstance, targetClasses, graphPolicy, unnullable);
                 } else {
                     final Constructor<R> constructor = requestClass.getConstructor(ACLVoter.class, Roles.class, SystemTypes.class,
-                            GraphPathBean.class, Set.class, GraphPolicy.class);
-                    request = constructor.newInstance(aclVoter, securityRoles, systemTypes, graphPathBean, targetClasses,
-                            graphPolicy);
+                            GraphPathBean.class, LightAdminPrivileges.class, Set.class, GraphPolicy.class);
+                    request = constructor.newInstance(aclVoter, securityRoles, systemTypes, graphPathBean, adminPrivileges,
+                            targetClasses, graphPolicy);
                 }
             }
         } catch (IllegalArgumentException | ReflectiveOperationException | SecurityException e) {
