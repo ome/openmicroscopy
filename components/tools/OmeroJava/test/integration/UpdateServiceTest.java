@@ -1,5 +1,5 @@
 /*
- *   Copyright 2006-2016 University of Dundee. All rights reserved.
+ *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package integration;
@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import ome.services.scripts.ScriptRepoHelper;
 import omero.ServerError;
 import omero.ValidationException;
 import omero.api.IQueryPrx;
@@ -126,6 +127,9 @@ import omero.gateway.model.TagAnnotationData;
 import omero.gateway.model.TermAnnotationData;
 import omero.gateway.model.TextualAnnotationData;
 import omero.gateway.model.XMLAnnotationData;
+import omero.grid.ManagedRepositoryPrx;
+import omero.grid.RepositoryMap;
+import omero.grid.RepositoryPrx;
 
 /**
  * Collections of tests for the <code>IUpdate</code> service.
@@ -2072,5 +2076,49 @@ public class UpdateServiceTest extends AbstractServerTest {
         /* clean up after test */
         final Request delete = Requests.delete().target(info).build();
         doChange(root, root.getSession(), delete, true);
+    }
+
+    /**
+     * Test that the update service cannot be used to create a file that is in a specific repository.
+     * @throws Exception expects {@link ServerError} to be thrown in the file creation attempt
+     */
+    @Test(expectedExceptions = ServerError.class)
+    public void testFileRepoPropertyNewInstance() throws Exception {
+        newUserAndGroup("rwr---");
+        OriginalFile file = mmFactory.createOriginalFile();
+        file.setRepo(omero.rtypes.rstring("test repo"));
+        iUpdate.saveObject(file);
+    }
+
+    /**
+     * Test that the update service cannot be used to move a file into a specific repository.
+     * @throws Exception expects {@link ServerError} to be thrown in the file adjustment attempt
+     */
+    @Test(expectedExceptions = ServerError.class)
+    public void testFileRepoPropertyExistingInstance() throws Exception {
+        newUserAndGroup("rwr---");
+        OriginalFile file = mmFactory.createOriginalFile();
+        file = (OriginalFile) iUpdate.saveAndReturnObject(file);
+        file.setRepo(omero.rtypes.rstring("test repo"));
+        iUpdate.saveObject(file);
+    }
+
+    /**
+     * Test that after creating a directory in a repository then the directory's {@code repo} property correctly reflects that
+     * repository.
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testFileRepoPropertyCorrect() throws Exception {
+        newUserAndGroup("rwr---");
+        final RepositoryMap repositories = factory.sharedResources().repositories();
+        int repoIndex;
+        for (repoIndex = 0; !ScriptRepoHelper.SCRIPT_REPO.equals(repositories.descriptions.get(repoIndex).getHash().getValue());
+                repoIndex++);
+        final RepositoryPrx repo =  repositories.proxies.get(repoIndex);
+        final String userDirectory = "Test_" + getClass().getName() + '_' + UUID.randomUUID();
+        repo.makeDir("/" + userDirectory, false);
+        final OriginalFile file = (OriginalFile) iQuery.findByString("OriginalFile", "name", userDirectory);
+        Assert.assertEquals(file.getRepo().getValue(), ScriptRepoHelper.SCRIPT_REPO);
     }
 }

@@ -5,6 +5,8 @@
 
 package ome.services.blitz.repo;
 
+import java.util.Set;
+
 import ome.services.blitz.fire.Registry;
 import ome.services.scripts.ScriptRepoHelper;
 import ome.services.util.Executor;
@@ -30,9 +32,10 @@ public class ScriptRepositoryI extends AbstractRepositoryI {
     private final ScriptRepoHelper helper;
 
     public ScriptRepositoryI(ObjectAdapter oa, Registry reg, Executor ex,
-            Principal p, ScriptRepoHelper helper, PublicRepositoryI servant) {
+            Principal p, ScriptRepoHelper helper, PublicRepositoryI servant, Set<String> scriptRepoUuids) {
         super(oa, reg, ex, p, helper.getScriptDir(), servant);
         this.helper = helper;
+        scriptRepoUuids.add(helper.getUuid());
     }
 
     @Override
