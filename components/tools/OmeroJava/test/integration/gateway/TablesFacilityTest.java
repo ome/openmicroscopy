@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Random;
 import java.util.UUID;
 
+import omero.gateway.facility.TablesFacility;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.FileAnnotationData;
 import omero.gateway.model.TableData;
@@ -114,13 +115,13 @@ public class TablesFacilityTest extends GatewayTest {
                 original.getOriginalFileId());
     }
 
-    @Test(dependsOnMethods = { "testAddTable" }, invocationCount = 10, threadPoolSize = 5)
+    @Test(dependsOnMethods = { "testAddTable" }, invocationCount = 10)
     /**
      * Read a random subset from the table and compare to the original data
      * 
      * @throws Exception
      */
-    public void testReadBigTable() throws Exception {
+    public void testReadTable() throws Exception {
         Object[][] origData = original.getData();
 
         TableData info = tablesFacility.getTableInfo(rootCtx,
@@ -128,8 +129,8 @@ public class TablesFacilityTest extends GatewayTest {
         int rows = (int) info.getNumberOfRows();
         int cols = info.getColumns().length;
 
-        int rowFrom = rand.nextInt(rows - 1000); // can't request more than 1000
-                                                 // rows at once
+        // request maximum of 1000 rows
+        int rowFrom = rand.nextInt(rows - 1000);
         int rowTo = rowFrom + rand.nextInt(1000);
         int[] columns = new int[rand.nextInt(cols)];
 
@@ -168,6 +169,18 @@ public class TablesFacilityTest extends GatewayTest {
                 }
             }
         }
+    }
+
+    @Test(dependsOnMethods = { "testAddTable" })
+    /**
+     * Test that unspecified requests are limited to TablesFacility.DEFAULT_MAX_ROWS_TO_FETCH rows
+     * @throws Exception
+     */
+    public void testThreshold() throws Exception {
+        TableData td = tablesFacility.getTable(rootCtx,
+                original.getOriginalFileId());
+        Assert.assertEquals(td.getData()[0].length,
+                TablesFacility.DEFAULT_MAX_ROWS_TO_FETCH);
     }
 
 }

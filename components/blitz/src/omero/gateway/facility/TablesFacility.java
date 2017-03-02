@@ -79,7 +79,7 @@ public class TablesFacility extends Facility {
     /** The mimetype of an omero tables file */
     public static final String TABLES_MIMETYPE = "OMERO.tables";
 
-    /** Maximum number of rows to fetch */
+    /** Maximum number of rows to fetch if not specified otherwise */
     public static final int DEFAULT_MAX_ROWS_TO_FETCH = 1000;
 
     /**
