@@ -181,7 +181,7 @@ public class GraphTraversal {
         }
 
         /**
-         * Construct a new {@link IObject}
+         * Construct a new {@link IObject}.
          * @return an unloaded {@link IObject} corresponding to this {@link CI}
          * @throws GraphException if the {@link IObject} could not be constructed
          */
