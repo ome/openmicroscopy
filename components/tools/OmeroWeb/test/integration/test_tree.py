@@ -1779,7 +1779,7 @@ class TestTree(ITest):
 
     @pytest.mark.parametrize("thumb", [
         {'create': True, 'version': 0},
-        {'create': False, 'version': -1},
+        {'create': False},
     ])
     def test_marshal_images_thumb_version(self, userA, thumb):
         """
@@ -1789,9 +1789,13 @@ class TestTree(ITest):
         image = self.create_test_image(
             size_x=50, size_y=50, size_z=5, session=sf, thumb=thumb['create'])
         conn = get_connection(userA)
-        # Thumbnail creation is optional, see testlib.ITest.createTestImage
+        # Thumbnail creation is optional, see testlib.ITest.create_test_image
+        try:
+            extraValues = {'thumbVersion': thumb['version']}
+        except:
+            extraValues = None
         expected = expected_images(
-            userA, [image], extraValues={'thumbVersion': thumb['version']})
+            userA, [image], extraValues=extraValues)
         marshaled = marshal_images(conn=conn,
                                    thumb_version=True,
                                    experimenter_id=userA[1].id.val)
