@@ -61,9 +61,9 @@ try
     % link table to an Image
     fa = omero.model.FileAnnotationI;
     fa.setFile(file);
-    % Currently OMERO.tables are displayed only for Screen/plate/wells
-    % and in all cases the file annotation contains the following name
-    % space
+    % Currently OMERO.tables are displayed only in OMERO.web
+    % and for Screen/plate/wells alone. In all cases the file annotation
+    % needs to contain a namespace.
     fa.setNs(rstring(omero.constants.namespaces.NSMEASUREMENT.value));
     link = linkAnnotation(session, fa, 'image', imageId);
     
