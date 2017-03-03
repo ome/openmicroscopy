@@ -172,19 +172,19 @@ public class ROIs
         // be parsed from known formats
         TextData textData = new TextData("This is a polyline", 10, 10);
 
-        Color color = new Color(128, 128, 128);
-        textData.getShapeSettings().setFill(color);;
+        Color fillcolor = new Color(128, 128, 128);
+        Color strokecolor = new Color(255, 255, 255);
+        textData.getShapeSettings().setFill(fillcolor);;
         textData.getShapeSettings().setFontSize(new LengthI(40, UnitsLength.POINT));
         textData.getShapeSettings().setFontFamily("sans-serif");
-        textData.getShapeSettings().setFill(color);
-        textData.getShapeSettings().setStroke(color);
+        textData.getShapeSettings().setStroke(strokecolor);
         textData.getShapeSettings().setStrokeWidth(new LengthI(25, UnitsFactory.Shape_StrokeWidth));
         
         // Other options which may come with time
         textData.getShapeSettings().setFontStyle("italic");
-        textData.getShapeSettings().setFill(color);
+        textData.getShapeSettings().setFill(fillcolor);
         textData.getShapeSettings().setFillRule("even-odd");
-        textData.getShapeSettings().setStroke(color);
+        textData.getShapeSettings().setStroke(strokecolor);
         double[] doublearray = {(double) 10, (double) 20, (double) 30, (double) 10};
         textData.getShapeSettings().setStrokeDashArray(doublearray);
         textData.getShapeSettings().setStrokeWidth(new LengthI(10, UnitsFactory.Shape_StrokeWidth));
@@ -245,7 +245,7 @@ public class ROIs
                 //Insert code to handle line
             } else if (shape instanceof PointData) {
                 PointData pointData1 = (PointData) shape;
-                //Insert code to handle line
+                //Insert code to handle point
             } else if (shape instanceof MaskData) {
                 MaskData maskData1 = (MaskData) shape;
                 //Insert code to handle mask
