@@ -198,8 +198,8 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
     /**
      * Upload script to the server.
      *
-     * @param path Path to the script.
-     * @param scriptText
+     * @param path the path to the script
+     * @param scriptText the content for the new script
      * @param __current
      *            ice context.
      */
