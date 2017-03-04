@@ -9,6 +9,26 @@ updating code before the full public release of 5.3.0. Use at your own risk**.
 
 Changes include:
 
+- bumped Bio-Formats version to 5.3.4. This includes several bug fixes.
+See `Bio-Formats 5.3.4 release history <https://www.openmicroscopy.org/site/support/bio-formats5.3/about/whats-new.html>`_
+- work on the Web API
+- filter rating in Web
+- adjustment to support the upcoming Java 1.9
+- utils script classes deprecated
+- deprecate shares
+- deprecate search bridges
+- open viewer in new tabs
+- rendering engine bug fixes
+- bugs fixes in OMERO.insight and OMERO.web
+
+5.3.0-m8 (February 2017)
+------------------------
+
+Developer preview release - **only intended as a developer preview for
+updating code before the full public release of 5.3.0. Use at your own risk**.
+
+Changes include:
+
 - bumped Bio-Formats version to 5.3.3. This includes several bug fixes.
   See `Bio-Formats 5.3.3 release history <https://www.openmicroscopy.org/site/support/bio-formats5.3/about/whats-new.html>`_
 - work on the Web API
