@@ -20,6 +20,7 @@ See `Bio-Formats 5.3.4 release history <https://www.openmicroscopy.org/site/supp
 - open viewer in new tabs
 - rendering engine bug fixes
 - bugs fixes in OMERO.insight and OMERO.web
+- introduce hide-password option in CLI
 
 5.3.0-m8 (February 2017)
 ------------------------
