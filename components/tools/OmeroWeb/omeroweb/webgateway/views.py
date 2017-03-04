@@ -1237,9 +1237,6 @@ def jsonp(f):
             if isinstance(rv, HttpResponse):
                 return rv
             rv = json.dumps(rv)
-            c = request.GET.get('callback', None)
-            if c is not None and not kwargs.get('_internal', False):
-                rv = '%s(%s)' % (c, rv)
             if kwargs.get('_internal', False):
                 return rv
             return HttpJavascriptResponse(rv)
