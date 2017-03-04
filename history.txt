@@ -21,6 +21,9 @@ See `Bio-Formats 5.3.4 release history <https://www.openmicroscopy.org/site/supp
 - rendering engine bug fixes
 - bugs fixes in OMERO.insight and OMERO.web
 - introduce hide-password option in CLI
+- handle correctly shape color 
+- enable annotation search on wells
+- improve reading of tables data
 
 5.3.0-m8 (February 2017)
 ------------------------
