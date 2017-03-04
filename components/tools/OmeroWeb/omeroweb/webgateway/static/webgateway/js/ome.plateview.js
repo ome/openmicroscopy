@@ -175,7 +175,7 @@ jQuery._WeblitzPlateview = function (container, options) {
               $("img#"+parentPrefix+"image-"+key).attr("src", value);
             });
           }
-          gs_json(thumbnails_url, null, _load_thumbnails, "json");
+          gs_json(thumbnails_url, null, _load_thumbnails);
           input = input.filter(function(x) {
               return iids.indexOf(x) < 0;
           });
