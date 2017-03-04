@@ -64,7 +64,8 @@ Node Popup Menu Item Should Be Disabled
 Select And Expand Node
     [Arguments]     ${nodeText}
     # Node identified by text value - needs to be visible
-    Click Element   xpath=//div[@id='dataTree']//a[contains(text(),'${nodeText}')]
+    Wait Until Element Is Visible       xpath=//div[@id='dataTree']//a[contains(text(),'${nodeText}')]
+    Click Element                       xpath=//div[@id='dataTree']//a[contains(text(),'${nodeText}')]
 
 Select And Expand Project Dataset Image
     ${projectId}=                       Select First Project With Children
@@ -554,6 +555,19 @@ Thumbnail Should Be Selected
 Thumbnail Should Not Be Selected
     [Arguments]                     ${imageId}
     Thumbnail Should Be Selected    ${imageId}    ${false}
+
+Get Id From Selected Item In Tree
+    # Wait Until Element Is Visible xpath=//li::a[contains(@class, 'jstree-clicked')]
+    ${dataId}=                      Get Element Attribute    xpath=//li[contains(@class,'jstree-leaf')][descendant::a[contains(@class, 'jstree-clicked')]]@data-id
+    [return]                        ${dataId}
+
+Get Id From Selected Thumbnail
+    ${dataId}=                      Get Element Attribute    xpath=//li[contains(@class,'ui-selected')]@data-id
+    [return]                        ${dataId}
+
+Get Id From Right Panel
+    ${dataId}=                      Get Text                css=tr.data_heading_id strong
+    [return]                        ${dataId}
 
 Shift Click Node
     [Arguments]                     ${nodeId}
