@@ -1,7 +1,7 @@
 OMERO version history
 =====================
 
-5.3.0-m8 (February 2017)
+5.3.0-m9 (March 2017)
 ------------------------
 
 Developer preview release - **only intended as a developer preview for
