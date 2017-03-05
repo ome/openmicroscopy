@@ -5743,8 +5743,8 @@ class _DatasetWrapper (BlitzObjectWrapper):
         if opts is None:
             opts = {}
         if 'project' in opts:
-            query += ' join obj.projectLinks plink'
-            clauses.append('plink.parent.id = :pid')
+            query += ' join obj.projectLinks projectLinks'
+            clauses.append('projectLinks.parent.id = :pid')
             params.add('pid', rlong(opts['project']))
         if 'image' in opts:
             query += ' join obj.imageLinks imagelinks'
