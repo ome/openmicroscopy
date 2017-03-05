@@ -38,6 +38,7 @@ import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
+import omero.gateway.facility.BrowseFacility;
 import omero.gateway.facility.DataManagerFacility;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.ImageData;
@@ -87,6 +88,17 @@ public class HowToUseTables
         newColumns[1] = new LongColumn("MyLongColumn", "", 
                 new long[rows]);
         return newColumns;
+    }
+    
+    /**
+    * Loads the image.
+    * @param imageID The id of the image to load.
+    * @return See above.
+    */               
+    private ImageData loadImage(long imageID)
+            throws Exception {
+        BrowseFacility browse = gateway.getFacility(BrowseFacility.class);
+        return browse.getImage(ctx, imageID);
     }
 
 // Create table
@@ -191,6 +203,7 @@ public class HowToUseTables
         try {
             ExperimenterData user = gateway.connect(cred);
             ctx = new SecurityContext(user.getGroupId());
+            loadImage(imageId);
             createTableandLinkToImage();
         } catch (Exception e) {
             e.printStackTrace();
