@@ -22,12 +22,14 @@
 <ul>
     <!-- Handle links from settings -->
     {% for link in ome.top_links %}
-        <li class="menu_link">
+        {% url link.url.viewname menu=menu as selected_url %}
+        <li class="menu_link {% if selected_url %}selected{% endif %}">
           <a href="{{ link.link }}"
             {% if link.attrs %}
               {% for k, v in link.attrs.items %} {{ k }}="{{v}}"{% endfor %}
             {% endif %}
-          >{{ link.label }}</a>
+          >{{ link.label }}
+        </a>
         </li>
     {% endfor %}
 
