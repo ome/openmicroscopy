@@ -16,7 +16,7 @@
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 % ROIs
 
-% To learn about the OMERO tables see  https://www.openmicroscopy.org/site/support/omero5.2/sysadmins/server-tables.html.
+% To learn about the OMERO tables see  https://www.openmicroscopy.org/site/support/omero5.3/sysadmins/server-tables.html.
 % Note that annotation can be linked to ROI.
 try
     %%
@@ -67,7 +67,7 @@ try
     fa.setNs(rstring(omero.constants.namespaces.NSMEASUREMENT.value));
     link = linkAnnotation(session, fa, 'image', imageId);
     
-    % fetch the OMERO Table and check if the original FileIds match
+    % fetch the table and check if the original FileIds match
     fa1 = getImageFileAnnotations(session, imageId);
     assert(fa1(1).getFile.getId().equals(file.getId),'Original File Ids not matching')
     
