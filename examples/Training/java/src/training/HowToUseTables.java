@@ -203,7 +203,7 @@ public class HowToUseTables
         try {
             ExperimenterData user = gateway.connect(cred);
             ctx = new SecurityContext(user.getGroupId());
-            loadImage(imageId);
+            image = loadImage(imageId);
             createTableandLinkToImage();
         } catch (Exception e) {
             e.printStackTrace();
