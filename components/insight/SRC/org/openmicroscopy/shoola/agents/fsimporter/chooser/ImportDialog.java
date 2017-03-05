@@ -21,8 +21,8 @@
 package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
 
+import ij.IJ;
 import ij.ImagePlus;
-
 import ij.WindowManager;
 import info.clearthought.layout.TableLayout;
 
@@ -1575,12 +1575,15 @@ public class ImportDialog extends ClosableTabbedPaneComponent
             FileObject f, ff;
             if (active) {
                 ImagePlus p = WindowManager.getCurrentImage();
+                if (p == null) {
+                    IJ.log("Please open an image first.");
+                    return;
+                }
                 f = new FileObject(p);
-                int id = p.getID();
                 //check if there are associated files
                 int[] values = WindowManager.getIDList();
                 String path = f.getAbsolutePath();
-                if (path != null) {
+                if (path != null && values != null) {
                     for (int i = 0; i < values.length; i++) {
                         p = WindowManager.getImage(values[i]);
                         ff = new FileObject(p);
