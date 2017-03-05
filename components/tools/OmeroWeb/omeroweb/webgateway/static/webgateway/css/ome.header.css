@@ -79,7 +79,7 @@
 		font-size:1.2em;
 	}
 	
-	#middle_header_left ul a:hover, #user_dropdown:hover {
+	#middle_header_left ul li.selected a, #middle_header_left ul a:hover, #user_dropdown:hover {
 		text-decoration:none;
 		color:white;
 		background-color:rgba(255,255,255,.1);
