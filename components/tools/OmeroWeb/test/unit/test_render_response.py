@@ -51,10 +51,12 @@ class TestRenderResponse(object):
         context = call_load_settings(self.r, None)
         defaults = [
             {
+                'url': {'viewname': u'webindex'},
                 'link': u'/webclient/',
                 'attrs': {u'title': u'Browse Data via Projects, Tags etc'},
                 'label': u'Data'
             }, {
+                'url': {'viewname': u'history'},
                 'link': u'/webclient/history/',
                 'attrs': {u'title': u'History'},
                 'label': u'History'
