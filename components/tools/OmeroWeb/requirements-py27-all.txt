@@ -4,6 +4,6 @@
 #     pip install -r requirements-all.txt
 #
 
-numpy>=1.9; python_version == '2.7'
-Pillow<3.4; python_version == '2.7'
--r requirements.txt
+numpy>=1.9
+Pillow<3.4
+-r requirements-py27.txt

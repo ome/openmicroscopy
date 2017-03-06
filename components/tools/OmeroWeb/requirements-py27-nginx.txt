@@ -4,4 +4,4 @@
 #     pip install -r requirements-py27-nginx.txt
 #
 
--r requirements.txt
+-r requirements-py27.txt
