@@ -182,12 +182,9 @@ public class ROIs
         
         // Other options which may come with time
         textData.getShapeSettings().setFontStyle("italic");
-        textData.getShapeSettings().setFill(fillcolor);
         textData.getShapeSettings().setFillRule("even-odd");
-        textData.getShapeSettings().setStroke(strokecolor);
         double[] doublearray = {(double) 10, (double) 20, (double) 30, (double) 10};
         textData.getShapeSettings().setStrokeDashArray(doublearray);
-        textData.getShapeSettings().setStrokeWidth(new LengthI(10, UnitsFactory.Shape_StrokeWidth));
         textData.setZ(0);
         textData.setT(0);
         data.addShapeData(textData);
