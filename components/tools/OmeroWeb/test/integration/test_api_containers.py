@@ -457,8 +457,8 @@ class TestContainers(IWebTest):
 
         version = api_settings.API_VERSIONS[-1]
         object_url = reverse('api_%s' % dtype[0],
-                              kwargs={'api_version': version,
-                                      'object_id': container.id.val})
+                             kwargs={'api_version': version,
+                                     'object_id': container.id.val})
         save_url = reverse('api_save', kwargs={'api_version': version})
         # Get container, update and save back
         rsp = _get_response_json(django_client, object_url, {})

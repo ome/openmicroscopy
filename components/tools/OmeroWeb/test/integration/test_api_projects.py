@@ -28,7 +28,7 @@ from omeroweb.api import api_settings
 from django.test import Client
 import pytest
 from omero.gateway import BlitzGateway
-from omero.model import DatasetI, ProjectI, TagAnnotationI
+from omero.model import DatasetI, ProjectI
 from omero.rtypes import unwrap, rstring
 from omero_marshal import get_encoder, OME_SCHEMA_URL
 
