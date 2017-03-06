@@ -34,6 +34,15 @@ def getIntOrDefault(request, name, default):
     return index
 
 
+def get_longs(request, name):
+
+    vals = []
+    vals_raw = request.GET.getlist(name)
+    for val_raw in vals_raw:
+        vals.append(long(val_raw))
+    return vals
+
+
 def zip_archived_files(images, temp, zipName, buf=2621440):
     """
     Util function to download original files from a list of images

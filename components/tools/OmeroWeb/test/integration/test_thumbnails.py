@@ -19,6 +19,8 @@
 
 """Tests rendering of thumbnails."""
 
+import base64
+import json
 from omeroweb.testlib import IWebTest
 from omeroweb.testlib import _get_response
 
@@ -57,3 +59,56 @@ class TestThumbnails(IWebTest):
             assert thumb.size == (96, 96)
         else:
             assert thumb.size == (size, size)
+
+    @pytest.mark.parametrize("size", [None, 100])
+    def test_base64_thumb(self, size):
+        """
+        Test base64 encoded retrival of single thumbnail
+        """
+        # Create a square image
+        iid = self.create_test_image(size_x=256, size_y=256,
+                                     session=self.sf).id.val
+        args = [iid]
+        if size is not None:
+            args.append(size)
+        request_url = reverse('webgateway.views.render_thumbnail', args=args)
+        rsp = _get_response(self.django_client, request_url, {},
+                            status_code=200)
+        thumb = json.dumps(
+            "data:image/jpeg;base64,%s" % base64.b64encode(rsp.content))
+
+        request_url = reverse('webgateway.views.get_thumbnail_json',
+                              args=args)
+        b64rsp = _get_response(self.django_client, request_url, {},
+                               status_code=200).content
+        assert thumb == b64rsp
+
+    def test_base64_thumb_set(self):
+        """
+        Test base64 encoded retrival of thumbnails in a batch
+        """
+        # Create a square image
+        images = []
+        for i in range(2, 5):
+            iid = self.create_test_image(size_x=64*i, size_y=64*i,
+                                         session=self.sf).id.val
+            images.append(iid)
+
+        expected_thumbs = {}
+        for i in images:
+            request_url = reverse('webgateway.views.render_thumbnail',
+                                  args=[i])
+            rsp = _get_response(self.django_client, request_url, {},
+                                status_code=200)
+
+            expected_thumbs[i] = \
+                "data:image/jpeg;base64,%s" % base64.b64encode(rsp.content)
+
+        iids = {'id': images}
+        request_url = reverse('webgateway.views.get_thumbnails_json')
+        b64rsp = _get_response(self.django_client, request_url, iids,
+                               status_code=200).content
+
+        assert cmp(json.loads(b64rsp),
+                   json.loads(json.dumps(expected_thumbs))) == 0
+        assert json.dumps(expected_thumbs) == b64rsp
