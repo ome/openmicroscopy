@@ -28,7 +28,7 @@ from omeroweb.api import api_settings
 from django.test import Client
 import pytest
 from omero.gateway import BlitzGateway
-from omero.model import ProjectI, DatasetI, TagAnnotationI
+from omero.model import DatasetI, ProjectI, TagAnnotationI
 from omero.rtypes import unwrap, rstring
 from omero_marshal import get_encoder, OME_SCHEMA_URL
 
@@ -600,7 +600,8 @@ class TestProjects(IWebTest):
         rsp = _get_response_json(django_client, project_url, {})
         assert rsp['data']['Description'] == 'New test description update'
 
-    def test_project_datasets_update(self, user1,
+    @pytest.mark.parametrize("dtype", ['Project', 'Dataset'])
+    def test_project_datasets_update(self, user1, dtype,
                                      project_hierarchy_user1_group1):
         """
         Test updating a Project without losing child Datasets.
@@ -612,74 +613,30 @@ class TestProjects(IWebTest):
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
 
-        project = project_hierarchy_user1_group1[0]
-        dataset_count = len(project.linkedDatasetList())
-        dataset = project.linkedDatasetList()[0]
-        image_count = len(dataset.linkedImageList())
+        if dtype == 'Project':
+            parent = project_hierarchy_user1_group1[0]
+            child_count = len(parent.linkedDatasetList())
+            url_name = 'api_project'
+        else:
+            parent = project_hierarchy_user1_group1[0].linkedDatasetList()[0]
+            child_count = len(parent.linkedImageList())
+            url_name = 'api_dataset'
 
         version = api_settings.API_VERSIONS[-1]
-        project_url = reverse('api_project',
-                              kwargs={'api_version': version,
-                                      'object_id': project.id.val})
+        parent_url = reverse(url_name,
+                             kwargs={'api_version': version,
+                                     'object_id': parent.id.val})
         save_url = reverse('api_save', kwargs={'api_version': version})
-        # Get Project, update and save back
-        rsp = _get_response_json(django_client, project_url, {})
-        project_json = rsp['data']
-        project_json['Name'] = 'renamed Project'
-        _csrf_put_json(django_client, save_url, project_json)
+        # Get Parent, update and save back
+        rsp = _get_response_json(django_client, parent_url, {})
+        parent_json = rsp['data']
+        parent_json['Name'] = 'renamed %s' % dtype
+        _csrf_put_json(django_client, save_url, parent_json)
 
-        # Check Project has been updated and still has child Datasets
-        proj = conn.getObject('Project', project.id.val)
-        assert proj.getName() == 'renamed Project'
-        assert len(list(proj.listChildren())) == dataset_count
-
-        # Get Dataset, update and save back
-        dataset_url = reverse('api_dataset',
-                              kwargs={'api_version': version,
-                                      'object_id': dataset.id.val})
-        rsp = _get_response_json(django_client, dataset_url, {})
-        dataset_json = rsp['data']
-        dataset_json['Name'] = 'renamed Dataset'
-        _csrf_put_json(django_client, save_url, dataset_json)
-
-        # Check Dataset has been updated and still has child Images
-        dataset = conn.getObject('Dataset', dataset.id.val)
-        assert dataset.getName() == 'renamed Dataset'
-        assert len(list(dataset.listChildren())) == image_count
-
-    def test_project_tags_update(self, user1):
-        """
-        Test updating a Project without losing linked Tags.
-
-        If we load a Project without loading Annotations, then update
-        and save the Project, we don't want to lose Annotation links
-        """
-        conn = get_connection(user1)
-        user_name = conn.getUser().getName()
-        django_client = self.new_django_client(user_name, user_name)
-
-        project = ProjectI()
-        project.name = rstring('test_project_tags_update')
-        tag = TagAnnotationI()
-        tag.textValue = rstring('tag')
-        project.linkAnnotation(tag)
-        project = get_update_service(user1).saveAndReturnObject(project)
-
-        version = api_settings.API_VERSIONS[-1]
-        project_url = reverse('api_project',
-                              kwargs={'api_version': version,
-                                      'object_id': project.id.val})
-        save_url = reverse('api_save', kwargs={'api_version': version})
-        # Get Project, update and save back
-        rsp = _get_response_json(django_client, project_url, {})
-        project_json = rsp['data']
-        project_json['Name'] = 'renamed Project'
-        _csrf_put_json(django_client, save_url, project_json)
-
-        # Check Project has been updated and still has annotation links
-        proj = conn.getObject('Project', project.id.val)
-        assert proj.getName() == 'renamed Project'
-        assert len(list(proj.listAnnotations())) == 1
+        # Check Parent has been updated and still has children linked
+        parentWrapper = conn.getObject(dtype, parent.id.val)
+        assert parentWrapper.getName() == 'renamed %s' % dtype
+        assert len(list(parentWrapper.listChildren())) == child_count
 
     def test_project_delete(self, user1):
         conn = get_connection(user1)

@@ -32,6 +32,7 @@ from omero.model import DatasetI, \
     PlateI, \
     ProjectI, \
     ScreenI, \
+    TagAnnotationI, \
     WellI, \
     WellSampleI
 from omero.rtypes import rstring, rint
@@ -428,10 +429,47 @@ class TestContainers(IWebTest):
         screen_json['Name'] = 'renamed Screen'
         _csrf_put_json(django_client, save_url, screen_json)
 
-        # Check screen has been updated and still has child Datasets
+        # Check Screen has been updated and still has child Plates
         scr = conn.getObject('Screen', screen.id.val)
         assert scr.getName() == 'renamed Screen'
         assert len(list(scr.listChildren())) == plate_count
+
+    @pytest.mark.parametrize("dtype", [('project', ProjectI),
+                                       ('dataset', DatasetI),
+                                       ('screen', ScreenI)])
+    def test_container_tags_update(self, user1, dtype):
+        """
+        Test updating a Object without losing linked Tags.
+
+        If we load a Object without loading Annotations, then update
+        and save the Object, we don't want to lose Annotation links
+        """
+        conn = get_connection(user1)
+        user_name = conn.getUser().getName()
+        django_client = self.new_django_client(user_name, user_name)
+
+        container = dtype[1]()
+        container.name = rstring('test_container_tags_update')
+        tag = TagAnnotationI()
+        tag.textValue = rstring('tag')
+        container.linkAnnotation(tag)
+        container = get_update_service(user1).saveAndReturnObject(container)
+
+        version = api_settings.API_VERSIONS[-1]
+        object_url = reverse('api_%s' % dtype[0],
+                              kwargs={'api_version': version,
+                                      'object_id': container.id.val})
+        save_url = reverse('api_save', kwargs={'api_version': version})
+        # Get container, update and save back
+        rsp = _get_response_json(django_client, object_url, {})
+        object_json = rsp['data']
+        object_json['Name'] = 'renamed container'
+        _csrf_put_json(django_client, save_url, object_json)
+
+        # Check container has been updated and still has annotation links
+        proj = conn.getObject(dtype[0], container.id.val)
+        assert proj.getName() == 'renamed container'
+        assert len(list(proj.listAnnotations())) == 1
 
     def test_spw_urls(self, user1, screen_plates):
         """Test browsing via urls in json /api/->SPW."""
