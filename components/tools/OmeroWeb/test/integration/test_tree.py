@@ -1778,14 +1778,25 @@ class TestTree(ITest):
                                    experimenter_id=userA[1].id.val)
         assert marshaled == expected
 
-    def test_marshal_images_thumb_version(self, userA, image_pixels_userA):
+    @pytest.mark.parametrize("thumb", [
+        {'create': True, 'version': 0},
+        {'create': False},
+    ])
+    def test_marshal_images_thumb_version(self, userA, thumb):
         """
         Test marshalling image, loading thumbnail version
         """
+        sf = userA[0].sf
+        image = self.create_test_image(
+            size_x=50, size_y=50, size_z=5, session=sf, thumb=thumb['create'])
         conn = get_connection(userA)
-        # Thumbnail not yet created: version will be -1
-        expected = expected_images(userA, [image_pixels_userA],
-                                   extraValues={'thumbVersion': -1})
+        # Thumbnail creation is optional, see testlib.ITest.create_test_image
+        try:
+            extraValues = {'thumbVersion': thumb['version']}
+        except:
+            extraValues = None
+        expected = expected_images(
+            userA, [image], extraValues=extraValues)
         marshaled = marshal_images(conn=conn,
                                    thumb_version=True,
                                    experimenter_id=userA[1].id.val)
