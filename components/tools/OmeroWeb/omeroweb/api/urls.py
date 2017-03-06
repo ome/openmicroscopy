@@ -273,7 +273,7 @@ api_plate_screens = url(
     views.ScreensView.as_view(),
     name='api_plate_screens')
 """
-GET Screens for child Plate, using omero-marshal to generate json
+GET Screens that contain a Plate, using omero-marshal to generate json
 """
 
 urlpatterns = patterns(
