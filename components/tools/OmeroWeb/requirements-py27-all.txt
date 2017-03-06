@@ -1,7 +1,7 @@
 # Python installation requirements for OMERO.web
 # ==============================================
 #
-#     pip install -r requirements-all.txt
+#     pip install -r requirements-py27-all.txt
 #
 
 numpy>=1.9

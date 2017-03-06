@@ -4,4 +4,4 @@
 #     pip install -r requirements-redis.txt
 #
 
-django-redis>=4.4; python_version == '2.7'
+django-redis>=4.4
