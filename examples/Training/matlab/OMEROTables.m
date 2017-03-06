@@ -29,7 +29,7 @@ try
     p = parseOmeroProperties(client);
     eventContext = session.getAdminService().getEventContext();
     fprintf(1, 'Created connection to %s\n', p.hostname);
-    msg = 'Created session for user %s (id: %g) using group %s (id: %g)\n';
+    msg = 'OMERO Tables Test:Created session for user %s (id: %g) using group %s (id: %g)\n';
     fprintf(1, msg, char(eventContext.userName), eventContext.userId,...
         char(eventContext.groupName), eventContext.groupId);
     

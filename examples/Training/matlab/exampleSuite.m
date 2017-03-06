@@ -26,6 +26,7 @@ try
     CreateImage;
     RenderImages;
     WriteData;
+    OMEROTables;
 catch err
     disp(err.message);
     exit(1);
