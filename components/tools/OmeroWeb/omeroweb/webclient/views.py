@@ -1041,6 +1041,7 @@ def api_paths_to_object(request, conn=None, **kwargs):
         tag_id = get_long_or_default(request, 'tag', None)
         tagset_id = get_long_or_default(request, 'tagset', None)
         group_id = get_long_or_default(request, 'group', None)
+        page_size = get_long_or_default(request, 'page_size', settings.PAGE)
     except ValueError:
         return HttpResponseBadRequest('Invalid parameter value')
 
@@ -1050,7 +1051,8 @@ def api_paths_to_object(request, conn=None, **kwargs):
     else:
         paths = paths_to_object(conn, experimenter_id, project_id,
                                 dataset_id, image_id, screen_id, plate_id,
-                                acquisition_id, well_id, group_id)
+                                acquisition_id, well_id, group_id,
+                                page_size=page_size)
     return JsonResponse({'paths': paths})
 
 
