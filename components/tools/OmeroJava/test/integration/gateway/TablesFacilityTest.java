@@ -18,6 +18,7 @@
  */
 package integration.gateway;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Random;
 import java.util.UUID;
@@ -140,8 +141,8 @@ public class TablesFacilityTest extends GatewayTest {
         long start = System.currentTimeMillis();
         TableData td2 = tablesFacility.getTable(rootCtx,
                 original.getOriginalFileId(), rowFrom, rowTo, columns);
-        System.out.println("Requesting random subset of size: "
-                + ((rowTo - rowFrom) * columns.length) + " entries, took "
+        System.out.println("Requested random subset row " + rowFrom + " to "
+                + rowTo + " columns " + Arrays.toString(columns) + ", took "
                 + (System.currentTimeMillis() - start) + " ms");
 
         Object[][] data2 = td2.getData();
