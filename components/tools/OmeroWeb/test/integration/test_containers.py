@@ -45,7 +45,7 @@ class TestContainers(IWebTest):
         """
         print dir(self)
 
-        pixels = self.pix(client=self.client)
+        pixels = self.create_pixels(client=self.client)
         for the_c in range(pixels.getSizeC().val):
             channel = omero.model.ChannelI()
             channel.logicalChannel = omero.model.LogicalChannelI()

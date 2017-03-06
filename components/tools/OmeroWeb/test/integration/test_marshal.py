@@ -29,6 +29,7 @@ from omeroweb.testlib import IWebTest, _get_response
 
 
 class TestImgDetail(IWebTest):
+
     """
     Tests json for webgateway/imgData/
     """
@@ -37,30 +38,27 @@ class TestImgDetail(IWebTest):
         """
         Download of archived files for a non-SPW Image.
         """
-        userName = "%s %s" % (self.user.firstName.val, self.user.lastName.val)
+        user_name = "%s %s" % (self.user.firstName.val, self.user.lastName.val)
 
         # Import "tinyTest.d3d.dv" and get ImageID
-        pids = self.import_image(client=self.client, skip=None)
+        pids = self.import_image_with_metadata(client=self.client)
         pixels = self.query.get("Pixels", long(pids[0]))
         iid = pixels.image.id.val
 
         json_url = reverse('webgateway.views.imageData_json', args=[iid])
         data = {}
-        imgData = _get_response_json(self.django_client, json_url,
-                                     data, status_code=200)
-
-        # Useful for debugging
-        print imgData
+        img_data = _get_response_json(self.django_client, json_url,
+                                      data, status_code=200)
 
         # Not a big image - tiles should be False with no other tiles metadata
-        assert imgData['tiles'] is False
-        assert 'levels' not in imgData
-        assert 'zoomLevelScaling' not in imgData
-        assert 'tile_size' not in imgData
+        assert img_data['tiles'] is False
+        assert 'levels' not in img_data
+        assert 'zoomLevelScaling' not in img_data
+        assert 'tile_size' not in img_data
 
         # Channels metadata
-        assert len(imgData['channels']) == 1
-        assert imgData['channels'][0] == {
+        assert len(img_data['channels']) == 1
+        assert img_data['channels'][0] == {
             'color': "808080",
             'active': True,
             'window': {
@@ -73,9 +71,9 @@ class TestImgDetail(IWebTest):
             'emissionWave': 500,
             'label': "500"
         }
-        assert imgData['pixel_range'] == [-32768, 32767]
-        assert imgData['nominalMagnification'] == 100
-        assert imgData['rdefs'] == {
+        assert img_data['pixel_range'] == [-32768, 32767]
+        assert img_data['nominalMagnification'] == 100
+        assert img_data['rdefs'] == {
             'defaultT': 0,
             'model': "greyscale",
             'invertAxis': False,
@@ -84,32 +82,32 @@ class TestImgDetail(IWebTest):
         }
 
         # Core image metadata
-        assert imgData['size'] == {
+        assert img_data['size'] == {
             'width': 20,
             'c': 1,
             'z': 5,
             't': 6,
             'height': 20
         }
-        assert imgData['meta']['pixelsType'] == "int16"
-        assert imgData['meta']['projectName'] == "Multiple"
-        assert imgData['meta']['imageId'] == iid
-        assert imgData['meta']['imageAuthor'] == userName
-        assert imgData['meta']['datasetId'] is None
-        assert imgData['meta']['projectDescription'] == ""
-        assert imgData['meta']['datasetName'] == "Multiple"
-        assert imgData['meta']['wellSampleId'] == ""
-        assert imgData['meta']['projectId'] is None
-        assert imgData['meta']['imageDescription'] == \
+        assert img_data['meta']['pixelsType'] == "int16"
+        assert img_data['meta']['projectName'] == "Multiple"
+        assert img_data['meta']['imageId'] == iid
+        assert img_data['meta']['imageAuthor'] == user_name
+        assert img_data['meta']['datasetId'] is None
+        assert img_data['meta']['projectDescription'] == ""
+        assert img_data['meta']['datasetName'] == "Multiple"
+        assert img_data['meta']['wellSampleId'] == ""
+        assert img_data['meta']['projectId'] is None
+        assert img_data['meta']['imageDescription'] == \
             "X:(88 107) Y:(169 188) Z:(9 13 1) T:(2 7 1)"
-        assert imgData['meta']['wellId'] == ""
-        assert imgData['meta']['imageName'] == "tinyTest.d3d.dv"
-        assert imgData['meta']['datasetDescription'] == ""
+        assert img_data['meta']['wellId'] == ""
+        assert img_data['meta']['imageName'] == "tinyTest.d3d.dv"
+        assert img_data['meta']['datasetDescription'] == ""
         # Don't know exact timestamp of import
-        assert 'imageTimestamp' in imgData['meta']
+        assert 'imageTimestamp' in img_data['meta']
 
         # Permissions - User is owner. All perms are True
-        assert imgData['perms'] == {
+        assert img_data['perms'] == {
             'canAnnotate': True,
             'canEdit': True,
             'canDelete': True,
@@ -117,7 +115,7 @@ class TestImgDetail(IWebTest):
         }
 
         # Sizes for split channel image
-        assert imgData['split_channel'] == {
+        assert img_data['split_channel'] == {
             'c': {
                 'width': 46,
                 'gridy': 1,

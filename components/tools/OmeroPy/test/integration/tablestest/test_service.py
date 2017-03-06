@@ -660,10 +660,10 @@ class TestTables(ITest):
         self.testBlankTable()  # ofile
 
         filename = self.unique_dir + "/file.txt"
-        mrepo = self.getManagedRepo()
+        mrepo = self.get_managed_repo()
 
         assert not mrepo.fileExists(filename)
-        self.createFile(mrepo, filename)
+        self.create_file(mrepo, filename)
         assert mrepo.fileExists(filename)
         assert "file.txt" in mrepo.list(self.unique_dir)[0]
 

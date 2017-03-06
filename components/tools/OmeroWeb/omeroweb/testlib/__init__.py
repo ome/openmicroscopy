@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+#
 # Copyright (C) 2015 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
@@ -42,8 +42,8 @@ class IWebTest(ITest):
         """Returns a logged in Django test client."""
         super(IWebTest, cls).setup_class()
         cls.django_clients = []
-        omeName = cls.ctx.userName
-        cls.django_client = cls.new_django_client(omeName, omeName)
+        ome_name = cls.ctx.userName
+        cls.django_client = cls.new_django_client(ome_name, ome_name)
         rootpass = cls.root.ic.getProperties().getProperty('omero.rootpass')
         cls.django_root_client = cls.new_django_client("root", rootpass)
 
@@ -89,6 +89,14 @@ class IWebTest(ITest):
         assert response.status_code == 200
         cls.django_clients.append(django_client)
         return django_client
+
+    def import_image_with_metadata(self, client=None):
+        """
+        Imports tinyTest. This should be replaced.
+        """
+        filename = self.omero_dist / ".." / \
+            "components" / "common" / "test" / "tinyTest.d3d.dv"
+        return self.import_image(filename=filename, client=client, skip=None)
 
 
 # Helpers

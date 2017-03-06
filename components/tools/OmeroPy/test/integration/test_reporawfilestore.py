@@ -28,7 +28,7 @@ class TestRepoRawFileStore(AbstractRepoTest):
     def setup_method(self, method):
         super(TestRepoRawFileStore, self).setup_method(method)
         tmp_dir = path(self.unique_dir)
-        self.repoPrx = self.getManagedRepo()
+        self.repoPrx = self.get_managed_repo()
         self.repo_filename = tmp_dir / self.uuid() + ".txt"
 
     def testCreate(self):
