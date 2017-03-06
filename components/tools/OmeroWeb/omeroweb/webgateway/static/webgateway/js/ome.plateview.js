@@ -137,7 +137,7 @@ jQuery._WeblitzPlateview = function (container, options) {
       tr.append('<th>'+data.rowlabels[i]+'</th>');
       for (var j=0; j<data.grid[i].length; j++) {
         if (data.grid[i][j] === null) {
-        tr.append('<td class="placeholder"><img src="' + '' + '/static/webgateway/img/spacer.gif" /></td>');
+        tr.append('<td class="placeholder"><img src="' + spacer_gif_src + '" /></td>');
         } else {
           data.grid[i][j]._wellpos = data.rowlabels[i]+data.collabels[j];
           var parentPrefix = '';
