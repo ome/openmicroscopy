@@ -32,6 +32,7 @@ channel_offsets = "/omero/util_scripts/Channel_Offsets.py"
 combine_images = "/omero/util_scripts/Combine_Images.py"
 images_from_rois = "/omero/util_scripts/Images_From_ROIs.py"
 dataset_to_plate = "/omero/util_scripts/Dataset_To_Plate.py"
+move_annotations = "/omero/util_scripts/Move_Annotations.py"
 
 
 class TestUtilScripts(ScriptTest):
@@ -162,3 +163,17 @@ class TestUtilScripts(ScriptTest):
                 count += 1
 
         assert count == n
+
+    def test_move_annotations(self):
+
+        script_id = super(TestUtilScripts, self).get_script(move_annotations)
+        assert script_id > 0
+
+        session = self.root.sf
+        client = self.root
+
+        plate = self.import_plates(fields=2)[0]
+        for well_sample in plate.copyWellSamples():
+            for image in well_sample.getImage():
+                print image.id.val
+
