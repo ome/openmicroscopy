@@ -206,7 +206,7 @@
                 setSpwThumbSize(spw_thumb_size);
                 // scroll to selected well:
                 var selection = $("td.ui-selected").first();
-                if (selection) {
+                if (typeof selection !== 'undefined' && selection.length > 0) {
                     var spwContainer = $("#spwContainer");
                     var fillSpace = $("#spwContainer .fillSpace").first();
                     fillSpace.scrollTop(selection.position().top - (spwContainer.height()/2) + selection.height()/2);
