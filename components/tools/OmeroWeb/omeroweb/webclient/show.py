@@ -523,7 +523,7 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
                    image.id,
                    image.details.group.id as groupId
             from Image image
-            left outer join image.details.owner iowner
+            join image.details.owner iowner
             left outer join image.datasetLinks dilink
             left outer join dilink.parent.details.owner downer
             left outer join dilink.parent.projectLinks pdlink
@@ -631,7 +631,7 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
                    pdlink.parent.id,
                    dataset.id
             from Dataset dataset
-            left outer join dataset.details.owner downer
+            join dataset.details.owner downer
             left outer join dataset.projectLinks pdlink
             left outer join pdlink.parent.details.owner powner
             where dataset.id = :did
@@ -715,7 +715,7 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
                    plate.id,
                    acquisition.id
             from PlateAcquisition acquisition
-            left outer join acquisition.details.owner aowner
+            join acquisition.details.owner aowner
             left outer join acquisition.plate plate
             left outer join plate.details.owner plowner
             left outer join plate.screenLinks slink
@@ -771,7 +771,7 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
                    splink.parent.id,
                    plate.id
             from Plate plate
-            left outer join plate.details.owner sowner
+            join plate.details.owner sowner
             left outer join plate.screenLinks splink
             left outer join splink.parent.details.owner plowner
             where plate.id = :plid
@@ -860,12 +860,12 @@ def paths_to_well_image(conn, params, well_id=None, image_id=None,
                acquisition.id,
                well.id
         from WellSample wellsample
-        left outer join wellsample.details.owner wsowner
+        join wellsample.details.owner wsowner
         left outer join wellsample.plateAcquisition acquisition
-        left outer join wellsample.details.owner aowner
+        left outer join acquisition.details.owner aowner
         join wellsample.well well
-        left outer join well.plate plate
-        left outer join plate.details.owner plowner
+        join well.plate plate
+        join plate.details.owner plowner
         left outer join plate.screenLinks slink
         left outer join slink.parent.details.owner sowner
         '''
@@ -965,7 +965,7 @@ def paths_to_tag(conn, experimenter_id=None, tagset_id=None, tag_id=None):
                    tagset.id,
                    ttlink.child.id
             from TagAnnotation tagset
-            left outer join tagset.details.owner tsowner
+            join tagset.details.owner tsowner
             left outer join tagset.annotationLinks ttlink
             left outer join ttlink.child.details.owner towner
             where %s
