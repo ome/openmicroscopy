@@ -55,3 +55,5 @@ report_settings(sys.modules[__name__])
 # E.g. /api/v0/
 # TODO - need to decide how this is configured, strategy for extending etc.
 API_VERSIONS = ('0',)
+
+API_VERSION = '0.0'

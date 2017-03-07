@@ -122,12 +122,30 @@ api_dataset_images = url(
 GET Images in Dataset, using omero-marshal to generate json
 """
 
+api_dataset_projects = url(
+    r'^v(?P<api_version>%s)/m/datasets/'
+    '(?P<dataset_id>[0-9]+)/projects/$' % versions,
+    views.ProjectsView.as_view(),
+    name='api_dataset_projects')
+"""
+GET Projects that contain a Dataset, using omero-marshal to generate json
+"""
+
 api_image = url(
     r'^v(?P<api_version>%s)/m/images/(?P<object_id>[0-9]+)/$' % versions,
     views.ImageView.as_view(),
     name='api_image')
 """
 Image url to GET or DELETE a single Image
+"""
+
+api_image_datasets = url(
+    r'^v(?P<api_version>%s)/m/images/'
+    '(?P<image_id>[0-9]+)/datasets/$' % versions,
+    views.DatasetsView.as_view(),
+    name='api_image_datasets')
+"""
+GET Datasets that contain an Image, using omero-marshal to generate json
 """
 
 api_screen = url(
@@ -159,6 +177,15 @@ api_screen_plates = url(
     name='api_screen_plates')
 """
 GET Plates in Screen, using omero-marshal to generate json
+"""
+
+api_well_plates = url(
+    r'^v(?P<api_version>%s)/m/wells/'
+    '(?P<well_id>[0-9]+)/plates/$' % versions,
+    views.PlatesView.as_view(),
+    name='api_well_plates')
+"""
+GET Plates that contain a Well, using omero-marshal to generate json
 """
 
 api_plate = url(
@@ -240,6 +267,15 @@ api_well = url(
 Well url to GET or DELETE a single Well
 """
 
+api_plate_screens = url(
+    r'^v(?P<api_version>%s)/m/plates/'
+    '(?P<plate_id>[0-9]+)/screens/$' % versions,
+    views.ScreensView.as_view(),
+    name='api_plate_screens')
+"""
+GET Screens that contain a Plate, using omero-marshal to generate json
+"""
+
 urlpatterns = patterns(
     '',
     api_versions,
@@ -255,11 +291,14 @@ urlpatterns = patterns(
     api_dataset,
     api_images,
     api_dataset_images,
+    api_dataset_projects,
     api_image,
+    api_image_datasets,
     api_screen,
     api_screens,
     api_plates,
     api_screen_plates,
+    api_well_plates,
     api_plate,
     api_wells,
     api_plate_plateacquisitions,
@@ -269,4 +308,5 @@ urlpatterns = patterns(
     api_plate_wells,
     api_plateacquisition_wells,
     api_well,
+    api_plate_screens,
 )

@@ -5852,6 +5852,7 @@ class _DatasetWrapper (BlitzObjectWrapper):
         Extend base query to handle filtering of Datasets by Projects.
         Returns a tuple of (query, clauses, params).
         Supported opts: 'project': <project_id> to filter by Project
+                        'image': <image_id> to filter by child Image
                         'orphaned': <bool>. Filter by 'not in Project'
 
         :param opts:        Dictionary of optional parameters.
@@ -5859,11 +5860,17 @@ class _DatasetWrapper (BlitzObjectWrapper):
         """
         query, clauses, params = super(
             _DatasetWrapper, cls)._getQueryString(opts)
-        if opts is not None and 'project' in opts:
-            query += ' join obj.projectLinks plink'
-            clauses.append('plink.parent.id = :pid')
+        if opts is None:
+            opts = {}
+        if 'project' in opts:
+            query += ' join obj.projectLinks projectLinks'
+            clauses.append('projectLinks.parent.id = :pid')
             params.add('pid', rlong(opts['project']))
-        if opts is not None and opts.get('orphaned'):
+        if 'image' in opts:
+            query += ' join obj.imageLinks imagelinks'
+            clauses.append('imagelinks.child.id = :iid')
+            params.add('iid', rlong(opts['image']))
+        if opts.get('orphaned'):
             clauses.append(
                 """
                 not exists (
@@ -5901,6 +5908,26 @@ class _ProjectWrapper (BlitzObjectWrapper):
     CHILD_WRAPPER_CLASS = 'DatasetWrapper'
     PARENT_WRAPPER_CLASS = None
 
+    @classmethod
+    def _getQueryString(cls, opts=None):
+        """
+        Extend base query to handle filtering of Projects by Datasets.
+        Returns a tuple of (query, clauses, params).
+        Supported opts: 'dataset': <dataset_id> to filter by Dataset
+
+        :param opts:        Dictionary of optional parameters.
+        :return:            Tuple of string, list, ParametersI
+        """
+        query, clauses, params = super(
+            _ProjectWrapper, cls)._getQueryString(opts)
+        if opts is None:
+            opts = {}
+        if 'dataset' in opts:
+            query += ' join obj.datasetLinks datasetLinks'
+            clauses.append('datasetLinks.child.id = :dataset_id')
+            params.add('dataset_id', rlong(opts['dataset']))
+        return (query, clauses, params)
+
 ProjectWrapper = _ProjectWrapper
 
 
@@ -5913,6 +5940,26 @@ class _ScreenWrapper (BlitzObjectWrapper):
     LINK_CLASS = "ScreenPlateLink"
     CHILD_WRAPPER_CLASS = 'PlateWrapper'
     PARENT_WRAPPER_CLASS = None
+
+    @classmethod
+    def _getQueryString(cls, opts=None):
+        """
+        Extend base query to handle filtering of Screens by Plate.
+        Returns a tuple of (query, clauses, params).
+        Supported opts: 'plate': <plate_id> to filter by Plate
+
+        :param opts:        Dictionary of optional parameters.
+        :return:            Tuple of string, list, ParametersI
+        """
+        query, clauses, params = super(
+            _ScreenWrapper, cls)._getQueryString(opts)
+        if opts is None:
+            opts = {}
+        if 'plate' in opts:
+            query += ' join obj.plateLinks plateLinks'
+            clauses.append('plateLinks.child.id = :plate_id')
+            params.add('plate_id', rlong(opts['plate']))
+        return (query, clauses, params)
 
 ScreenWrapper = _ScreenWrapper
 
@@ -6131,6 +6178,7 @@ class _PlateWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         Also handles filtering of Plates by Screens.
         Returns a tuple of (query, clauses, params).
         Supported opts: 'screen': <screen_id> to filter by Screen
+                        'well': <well_id> to filter by Well
                         'orphaned': <bool>. Filter by 'not in Screen'
 
         :param opts:        Dictionary of optional parameters.
@@ -6144,10 +6192,16 @@ class _PlateWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         # NB: we don't use base _getQueryString.
         clauses = []
         params = omero.sys.ParametersI()
-        if opts is not None and 'screen' in opts:
+        if opts is None:
+            opts = {}
+        if 'screen' in opts:
             clauses.append('spl.parent.id = :sid')
             params.add('sid', rlong(opts['screen']))
-        if opts is not None and opts.get('orphaned'):
+        if 'well' in opts:
+            query += ' join obj.wells wells'
+            clauses.append('wells.id = :well_id')
+            params.add('well_id', rlong(opts['well']))
+        if opts.get('orphaned'):
             clauses.append(
                 """
                 not exists (
