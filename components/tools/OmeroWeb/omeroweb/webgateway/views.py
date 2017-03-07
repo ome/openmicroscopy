@@ -321,14 +321,16 @@ def render_thumbnail(request, iid, w=None, h=None, conn=None, _defcb=None,
     """
     server_id = request.session['connector'].server_id
     direct = True
+    defaultSize = conn.getDefaultThumbnailSize()
+
     if w is None:
-        size = (96,)
+        size = (defaultSize,)
     else:
         if h is None:
             size = (int(w),)
         else:
             size = (int(w), int(h))
-    if size == (96,):
+    if size == (defaultSize,):
         direct = False
     user_id = conn.getUserId()
     z = getIntOrDefault(request, 'z', None)
@@ -544,8 +546,8 @@ def get_shape_thumbnail(request, conn, image, s, compress_quality):
             logger.warn("webgateway: get_shape_thumbnail() could not get"
                         " Config-Value for %s" % key)
             pass
-    max_plane_width = getConfigValue("omero.pixeldata.max_plane_width")
-    max_plane_height = getConfigValue("omero.pixeldata.max_plane_height")
+    max_plane_width = getConfigValue("omero.client.pixeldata.max_plane_width")
+    max_plane_height = getConfigValue("omero.client.pixeldata.max_plane_height")
     if (max_plane_width is None or max_plane_height is None or
             (newW > int(max_plane_width)) or (newH > int(max_plane_height))):
         # generate dummy image to return

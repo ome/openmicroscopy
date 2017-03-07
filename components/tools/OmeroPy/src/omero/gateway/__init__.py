@@ -1536,6 +1536,8 @@ class _BlitzGateway (object):
         self._defaultOmeroUser = None
         self._maxPlaneSize = None
 
+        self._defaultThumbnailSize = None
+
         self._connected = False
         self._user = None
         self._userid = None
@@ -1591,9 +1593,21 @@ class _BlitzGateway (object):
         if self._maxPlaneSize is None:
             c = self.getConfigService()
             self._maxPlaneSize = (
-                int(c.getConfigValue('omero.pixeldata.max_plane_width')),
-                int(c.getConfigValue('omero.pixeldata.max_plane_height')))
+                int(c.getConfigValue('omero.client.pixeldata.max_plane_width')),
+                int(c.getConfigValue('omero.client.pixeldata.max_plane_height')))
         return self._maxPlaneSize
+
+    def getDefaultThumbnailSize(self):
+        """
+        Returns the default thumbnail size
+        """
+        if self._defaultThumbnailSize is None:
+            try:
+                c = self.getConfigService()
+                self._defaultThumbnailSize = int(c.getConfigValue('omero.client.browser.thumb_default_size'))
+            except:
+                self._defaultThumbnailSize = 96
+        return self._defaultThumbnailSize
 
     def getClientSettings(self):
         """
