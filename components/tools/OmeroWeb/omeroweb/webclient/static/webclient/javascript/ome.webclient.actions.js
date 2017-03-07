@@ -377,18 +377,18 @@ OME.refreshThumbnails = function(options) {
         search_selector = "#image-" + options.imageId + " img.search_thumb";
         spw_selector += "#image-" + options.imageId;
     }
+
     // Try SPW data or Search data by directly updating thumb src...
     var $thumbs = $(spw_selector + ", " + search_selector);
     if ($thumbs.length > 0){
-        $thumbs.each(function(){
-            var _t = $(this);
-                OME.load_thumbnail(
-                    options.imageId, options.thumbnail_url,
-                    function(thumb) {
-                        _t.attr('src', thumb);
-                    }
-                );
-        });
+        var iids = $thumbs.map(function() {
+          return this.id.replace('image-', '');
+        }).get();
+        OME.load_thumbnails(
+          options.thumbnail_url,
+            iids, options.thumbnailsBatch,
+            options.defaultThumbnail
+        );
     } else if (window.update_thumbnails_panel) {
         // ...Otherwise update thumbs via jsTree
         // (avoids revert of src on selection change)
@@ -421,8 +421,10 @@ OME.load_thumbnails = function(thumbnails_url, input, batch, dthumb) {
                 success: function(data){
                     $.each(data, function(key, value) {
                         if (value !== null) {
+                            $("img#image-"+key).attr("src", value);
                             $("#image_icon-"+key+ " img").attr("src", value);
                         } else {
+                            $("img#image-"+key).attr("src", dthumb);
                             $("#image_icon-"+key+ " img").attr("src", dthumb);
                         }
                     });
