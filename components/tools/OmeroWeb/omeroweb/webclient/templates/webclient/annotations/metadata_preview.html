@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load common_tags %}
+{% load common_filters %}
 
 {% comment %}
 <!--
@@ -182,7 +183,9 @@
                 OME.refreshThumbnails(
                     {'imageId':{{ manager.image.id }},
                      'ignorePreview': true,
-                     'thumbnail_url': "{% url 'get_thumbnail_json' manager.image.id %}"
+                     'thumbnail_url': "{% url 'get_thumbnails_json' %}",
+                     'defaultThumbnail': "{% static 'webgateway/img/image128.png' %}",
+                     'thumbnailsBatch': {{ thumbnails_batch|default:50|json_dumps|safe }},
                     }
                 );
                 updateMyRdef(OME.preview_viewport.getQuery());
@@ -326,7 +329,12 @@
                       success: function(data){
                           $span.text(spanTxt);
                           // update thumbnails
-                          OME.refreshThumbnails({'ignorePreview': true});
+                          OME.refreshThumbnails({
+                            'ignorePreview': true,
+                            'thumbnail_url': "{% url 'get_thumbnails_json' %}",
+                            'defaultThumbnail': "{% static 'webgateway/img/image128.png' %}",
+                            'thumbnailsBatch': {{ thumbnails_batch|default:50|json_dumps|safe }}
+                          });
                           updateMyRdef(OME.preview_viewport.getQuery());
                       }
                   });
