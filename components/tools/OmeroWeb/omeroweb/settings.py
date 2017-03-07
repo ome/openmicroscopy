@@ -332,6 +332,9 @@ INTERNAL_SETTINGS_MAPPING = {
 }
 
 CUSTOM_SETTINGS_MAPPINGS = {
+    "Ice.Default.Host":
+        ["ADMINS", '[empty]', str, ("Used to pick up a single interface "
+            "e.g. 10.41.26.240. If unset, all interfaces are set.")],
     # Deployment configuration
     "omero.web.debug":
         ["DEBUG",
