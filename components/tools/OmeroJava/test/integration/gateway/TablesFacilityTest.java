@@ -88,15 +88,10 @@ public class TablesFacilityTest extends GatewayTest {
         }
 
         original = new TableData(header, data);
-        long start = System.currentTimeMillis();
         TableData stored = tablesFacility.addTable(rootCtx, ds, "Big Table",
                 original);
-        long duration = System.currentTimeMillis() - start;
-
+        Assert.assertEquals(stored.getNumberOfRows(), nRows);
         original.setOriginalFileId(stored.getOriginalFileId());
-
-        System.out.println("Storing table with " + (nCols * nRows)
-                + " entries took " + duration + " ms");
     }
 
     @Test(dependsOnMethods = { "testAddTable" })
@@ -138,12 +133,8 @@ public class TablesFacilityTest extends GatewayTest {
         for (int x = 0; x < columns.length; x++)
             columns[x] = rand.nextInt(cols);
 
-        long start = System.currentTimeMillis();
         TableData td2 = tablesFacility.getTable(rootCtx,
                 original.getOriginalFileId(), rowFrom, rowTo, columns);
-        System.out.println("Requested random subset row " + rowFrom + " to "
-                + rowTo + " columns " + Arrays.toString(columns) + ", took "
-                + (System.currentTimeMillis() - start) + " ms");
 
         Object[][] data2 = td2.getData();
 
