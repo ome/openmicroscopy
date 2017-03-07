@@ -129,7 +129,7 @@ jQuery._WeblitzPlateview = function (container, options) {
       };
     };
 
-    var imgIds = new Array();
+    var imgIds = [];
     for (i=0; i < data.rowlabels.length; i++) {
       tr = $('<tr></tr>').appendTo(table);
       tr.append('<th>'+data.rowlabels[i]+'</th>');
@@ -176,9 +176,7 @@ jQuery._WeblitzPlateview = function (container, options) {
             });
           }
           gs_json(thumbnails_url, null, _load_thumbnails, "json");
-          input = input.filter(function(x) {
-              return iids.indexOf(x) < 0;
-          });
+          input = input.slice(batch, input.length);
           load_thumbnails(input, batch);
         }
       }
