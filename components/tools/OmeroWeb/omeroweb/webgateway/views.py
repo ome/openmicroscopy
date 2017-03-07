@@ -320,15 +320,20 @@ def render_thumbnail(request, iid, w=None, h=None, conn=None, _defcb=None,
     @return:            http response containing jpeg
     """
     server_id = request.session['connector'].server_id
+
+    server_settings = request.session.get('server_settings', {}) \
+                                     .get('browser', {})
+    defaultSize = server_settings.get('thumb_default_size', 96)
+
     direct = True
     if w is None:
-        size = (96,)
+        size = (defaultSize,)
     else:
         if h is None:
             size = (int(w),)
         else:
             size = (int(w), int(h))
-    if size == (96,):
+    if size == (defaultSize,):
         direct = False
     user_id = conn.getUserId()
     z = getIntOrDefault(request, 'z', None)
