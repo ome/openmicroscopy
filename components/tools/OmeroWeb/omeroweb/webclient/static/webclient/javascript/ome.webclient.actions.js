@@ -430,9 +430,7 @@ OME.load_thumbnails = function(thumbnails_url, input, batch, dthumb) {
                     });
                 }
             });
-            input = input.filter(function(x) {
-                return iids.indexOf(x) < 0;
-            });
+            input = input.slice(batch, input.length);
             OME.load_thumbnails(thumbnails_url, input, batch, dthumb);
         }
     }
