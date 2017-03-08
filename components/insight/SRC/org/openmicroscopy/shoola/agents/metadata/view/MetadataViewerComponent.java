@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -871,9 +871,10 @@ class MetadataViewerComponent
 		if (obj instanceof ImageData) {
 			firePropertyChange(APPLY_SETTINGS_PROPERTY, null, obj);
 		} else if (obj instanceof WellSampleData) {
+		    WellSampleData wsd = (WellSampleData) obj;
 			Object[] objects = new Object[2];
-			objects[0] = obj;
-			objects[1] = model.getParentRefObject();
+			objects[0] = wsd;
+			objects[1] = wsd.asWellSample().getPlateAcquisition().getId().getValue();
 			firePropertyChange(APPLY_SETTINGS_PROPERTY, null, objects);
 		}
 	}
