@@ -141,7 +141,9 @@ public class RawDataAccess
             }
         } catch (Exception e) {
             throw new Exception("Cannot read the tiles", e);
-        } 
+        } finally {
+            rdf.close();
+        }
     }
 
 // Retrieve stack

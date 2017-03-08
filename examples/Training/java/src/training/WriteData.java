@@ -214,12 +214,9 @@ public class WriteData
         originalFile = (OriginalFile) dm.saveAndReturnObject(ctx, originalFile);
         // Initialize the service to load the raw data
         RawFileStorePrx rawFileStore = null;
-        FileInputStream stream = null;
-        try {
+        try (FileInputStream stream = new FileInputStream(file)) {
             rawFileStore = gateway.getRawFileService(ctx);
             rawFileStore.setFileId(originalFile.getId().getValue());
-            // open file and read stream.
-            stream = new FileInputStream(file);
             long pos = 0;
             int rlen;
             byte[] buf = new byte[INC];
@@ -235,9 +232,8 @@ public class WriteData
             throw new Exception("Cannot read data", e);
         } finally {
             if (rawFileStore != null) rawFileStore.close();
-            if (stream != null) stream.close();
-            if (file != null) file.delete();
         }
+        file.delete();
         //now we have an original File in DB and raw data uploaded.
         // We now need to link the Original file to the image using 
         // the File annotation object. That's the way to do it.
