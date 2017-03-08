@@ -51,7 +51,7 @@ try
     table.initialize(columns);
     % Add data to the table.
     data = javaArray('omero.grid.Column', 2);
-    data(1) = omero.grid.LongColumn('Uid', 'test Long', [2]);
+    data(1) = omero.grid.LongColumn('Uid', 'test Long', 2);
     valuesString = javaArray('java.lang.String', 1);
     valuesString(1) = java.lang.String('add');
     data(2) = omero.grid.StringColumn('MyStringColumn', '', 64, valuesString);
@@ -68,8 +68,16 @@ try
     link = linkAnnotation(session, fa, 'image', imageId);
     
     % fetch the table and check if the original FileIds match
-    fa1 = getImageFileAnnotations(session, imageId);
-    assert(fa1(1).getFile.getId().equals(file.getId),'Original File Ids not matching')
+    fas = getImageFileAnnotations(session, imageId);
+    count = 0;
+    for i=1:numel(fas),
+        fa1 = fas(i);
+        if fa1(1).getFile.getId() ~= file.getId
+            count = count+1;   
+        end
+    end
+    % check that one file annotation was found
+    assert(count == (numel(fas)-1))
     
     of = omero.model.OriginalFileI(file.getId(), false);
     tablePrx = session.sharedResources().openTable(of);
@@ -82,8 +90,8 @@ try
     end
     
     % Depending on the size of table, you may only want to read some blocks.
-    cols = [0:size(headers, 1)-1]; % The number of columns you wish to read.
-    rows = [0:tablePrx.getNumberOfRows()-1]; % The number of rows you wish to read.
+    cols = 0:size(headers, 1)-1; % The number of columns you wish to read.
+    rows = 0:tablePrx.getNumberOfRows()-1; % The number of rows you wish to read.
     data = tablePrx.slice(cols, rows); % Read the data.
     c = data.columns;
     for i=1:size(c),
