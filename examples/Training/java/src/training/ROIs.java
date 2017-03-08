@@ -193,13 +193,16 @@ public class ROIs
         PixelsData pixels = image.getDefaultPixels();
         long pixelsId = pixels.getId();
         RawPixelsStorePrx store = gateway.getPixelsStore(ctx);
-        store.setPixelsId(pixelsId, false);
-        byte[] mask = store.getStack(0, 0);
-        MaskData maskData = new MaskData(10, 10, 100.0, 100.0, mask);
-        maskData.setZ(0);
-        maskData.setT(0);
-        data.addShapeData(maskData);
-        store.close();
+        try {
+            store.setPixelsId(pixelsId, false);
+            byte[] mask = store.getStack(0, 0);
+            MaskData maskData = new MaskData(10, 10, 100.0, 100.0, mask);
+            maskData.setZ(0);
+            maskData.setT(0);
+            data.addShapeData(maskData);
+        } finally {
+            store.close();
+        }
 
         //Create and Apply transform to an ellipse 
         //Don't set Z and T for this shape: this is also allowed in the model
