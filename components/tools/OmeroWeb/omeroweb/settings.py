@@ -337,8 +337,16 @@ INTERNAL_SETTINGS_MAPPING = {
 
 CUSTOM_SETTINGS_MAPPINGS = {
     "Ice.Default.Host":
-        ["ADMINS", '[empty]', str, ("Used to pick up a single interface "
-         "e.g. 10.41.26.240. If unset, all interfaces are set.")],
+        ["ADMINS", '[empty]', str,
+         ("Used to pick up a single interface. If unset, "
+          "all interfaces are set. This is useful when running "
+          "multiple servers on the same host.")],
+    "omero.master.host":
+        ["ADMINS", '[empty]', str,
+         ("This property allows the master's IP "
+          "to be set in all templates as described in "
+          ":doc: `nodes-on-multiple-hosts <sysadmins/grid>`"
+          " without actually setting Ice.Default.Host.")],
     # Deployment configuration
     "omero.web.debug":
         ["DEBUG",
