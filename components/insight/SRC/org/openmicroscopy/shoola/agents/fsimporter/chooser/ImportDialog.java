@@ -1586,9 +1586,11 @@ public class ImportDialog extends ClosableTabbedPaneComponent
                 if (path != null && values != null) {
                     for (int i = 0; i < values.length; i++) {
                         p = WindowManager.getImage(values[i]);
-                        ff = new FileObject(p);
-                        if (path.equals(ff.getAbsolutePath())) {
-                            f.addAssociatedFile(ff);
+                        if (p != null) {
+                            ff = new FileObject(p);
+                            if (path.equals(ff.getAbsolutePath())) {
+                                f.addAssociatedFile(ff);
+                            }
                         }
                     }
                 }
@@ -1600,16 +1602,18 @@ public class ImportDialog extends ClosableTabbedPaneComponent
                     for (int i = 0; i < values.length; i++) {
                         //need to check if it is the same image
                         ImagePlus p = WindowManager.getImage(values[i]);
-                        f = new FileObject(p);
-                        String path = f.getAbsolutePath();
-                        if (!paths.contains(path)) {
-                            paths.add(path);
-                            list.add(f);
-                            for (int j = 0; j < values.length; j++) {
-                                p = WindowManager.getImage(values[j]);
-                                ff = new FileObject(p);
-                                if (path.equals(ff.getAbsolutePath())) {
-                                    f.addAssociatedFile(ff);
+                        if (p != null) {
+                            f = new FileObject(p);
+                            String path = f.getAbsolutePath();
+                            if (!paths.contains(path)) {
+                                paths.add(path);
+                                list.add(f);
+                                for (int j = 0; j < values.length; j++) {
+                                    p = WindowManager.getImage(values[j]);
+                                    ff = new FileObject(p);
+                                    if (path.equals(ff.getAbsolutePath())) {
+                                        f.addAssociatedFile(ff);
+                                    }
                                 }
                             }
                         }
