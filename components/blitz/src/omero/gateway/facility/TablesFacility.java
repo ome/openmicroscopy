@@ -160,6 +160,7 @@ public class TablesFacility extends Facility {
             dm.attachAnnotation(ctx, annotation, target);
 
             data.setOriginalFileId(file.getId().getValue());
+            data.setNumberOfRows(table.getNumberOfRows());
         } catch (Exception e) {
             handleException(this, e, "Could not add table");
         } finally {
