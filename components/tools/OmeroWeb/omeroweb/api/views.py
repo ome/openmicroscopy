@@ -700,7 +700,7 @@ class SaveView(View):
         # Therefore we ignore any details for now:
         obj.unloadDetails()
 
-        # Unlink children for Projects, Datasets and Screens to avoid
+        # TODO: Unlink children for Projects, Datasets and Screens to avoid
         # breaking links. See PR #4930
         if hasattr(obj, 'unloadDatasetLinks'):
             obj.unloadDatasetLinks()
