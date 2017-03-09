@@ -32,6 +32,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -96,6 +98,9 @@ class RowFieldCanvas extends WellFieldsCanvas {
                         newSelection.add(n);
                 }
 
+                if (WellSampleNode.isSame(oldSelection, newSelection))
+                    return;
+
                 if (e.isShiftDown()) {
                     // Determine the start and end nodes of the selection
                     // and add every node in between to the new selection
@@ -147,7 +152,7 @@ class RowFieldCanvas extends WellFieldsCanvas {
 
         });
     }
-
+    
     /**
      * Calculates an index for the given {@link WellSampleNode} based on the row
      * and column where it is displayed.

@@ -20,6 +20,11 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+
 import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailProvider;
 
 import omero.gateway.model.WellSampleData;
@@ -128,6 +133,39 @@ public class WellSampleNode
             WellSampleData dother = (WellSampleData) other.getHierarchyObject();
             return d.getImage().getId() == dother.getImage().getId();
         }
+    }
+    
+    /**
+     * Compares two WellSampleNode collections
+     * 
+     * @param sel1
+     *            The collection
+     * @param sel2
+     *            The other collection
+     * @return <code>true<code> if they contain equivalent elements
+     */
+    public static boolean isSame(Collection<WellSampleNode> sel1,
+            Collection<WellSampleNode> sel2) {
+        if (sel1 == null ^ sel2 == null)
+            return false;
+        if (sel1 == null && sel2 == null)
+            return true;
+        if (sel1.size() != sel2.size())
+            return false;
+
+        List<WellSampleNode> tmp = new ArrayList<WellSampleNode>(sel1);
+        Iterator<WellSampleNode> it = tmp.iterator();
+        while (it.hasNext()) {
+            WellSampleNode next = it.next();
+            for (WellSampleNode n2 : sel2) {
+                if (next.isSame(n2)) {
+                    it.remove();
+                    break;
+                }
+            }
+        }
+
+        return tmp.isEmpty();
     }
     
     /**
