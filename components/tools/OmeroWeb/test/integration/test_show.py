@@ -1265,7 +1265,7 @@ class TestShow(IWebTest):
         expected = [
             [{'type': 'experimenter', 'id': project.details.owner.id.val},
              {'type': 'project', 'id': project.id.val},
-             {'type': 'dataset', 'id': dataset.id.val},
+             {'type': 'dataset', 'id': dataset.id.val, 'childCount': 1},
              {'type': 'image', 'id': image.id.val}]]
 
         assert paths == expected
