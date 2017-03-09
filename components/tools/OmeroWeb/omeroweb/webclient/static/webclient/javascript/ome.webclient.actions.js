@@ -425,10 +425,10 @@ OME.load_thumbnails = function(thumbnails_url, input, batch, dthumb) {
                     $.each(data, function(key, value) {
                         if (value !== null) {
                             $("img#image-"+key).attr("src", value);
-                            $("#image_icon-"+key+ " img").attr("src", value);
+                            $("#wellImages li[data-imageId='" + key + "'] img").attr("src", value);
                         } else {
                             $("img#image-"+key).attr("src", dthumb);
-                            $("#image_icon-"+key+ " img").attr("src", dthumb);
+                            $("#wellImages li[data-imageId='" + key + "'] img").attr("src", dthumb);
                         }
                     });
                 }
