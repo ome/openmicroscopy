@@ -179,9 +179,6 @@ class RendererModel
     /** he alternative rendering settings if any.*/
     private RndProxyDef def;
 
-    /** The images used to create the histogram. */
-    private Map<Integer, BufferedImage> histogramImages;
-
     /** The data used to create the histogram. */
     private Map<Integer, int[]> histogramData = new HashMap<Integer, int[]>();
     
@@ -1794,18 +1791,6 @@ class RendererModel
                 || t.equals(OmeroImageService.INT_32)
                 || t.equals(OmeroImageService.UINT_32);
 	}
-
-    
-    /**
-     * Returns the image used to create the histogram. This is grey scale image.
-     *
-     * @param channelIndex
-     *            The index of the channel.
-     * @return See above.
-     */
-    BufferedImage getHistogramImage(int channelIndex) {
-        return histogramImages.get(channelIndex);
-    }
 
     /**
      * Set the histogram data for the given channel
