@@ -1498,14 +1498,15 @@ def get_thumbnails_json(request, w=None, conn=None, **kwargs):
     thumbnails = conn.getThumbnailSet([rlong(i) for i in image_ids], w)
     rv = dict()
     for i in image_ids:
+        rv[i] = None
         try:
             t = thumbnails[i]
             if len(t) > 0:
                 # replace thumbnail urls by base64 encoded image
                 rv[i] = ("data:image/jpeg;base64,%s" % base64.b64encode(t))
-            else:
-                rv[i] = None
-        except Exception:  # TypeError, KeyError
+        except KeyError:
+            logger.error("Thumbnail not available. (img id: %d)" % i)
+        except Exception:
             logger.error(traceback.format_exc())
     return rv
 
