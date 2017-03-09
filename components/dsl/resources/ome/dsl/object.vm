@@ -1369,7 +1369,6 @@ implements java.io.Serializable, IObject
     }
 #end
 
-    @SuppressWarnings("unchecked")
     @Override
     public boolean acceptFilter(ome.util.Filter __filter){
         try {
@@ -1490,7 +1489,6 @@ implements java.io.Serializable, IObject
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void putAt(String field, Object value)
     {
