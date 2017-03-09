@@ -1337,7 +1337,7 @@ class TestShow(IWebTest):
         expected = [
             [{'type': 'experimenter', 'id': project.details.owner.id.val},
              {'type': 'project', 'id': project.id.val},
-             {'type': 'dataset', 'id': dataset.id.val},
+             {'type': 'dataset', 'id': dataset.id.val, 'childCount': 1},
              {'type': 'image', 'id': image.id.val}]]
 
         assert paths == expected
@@ -1367,18 +1367,18 @@ class TestShow(IWebTest):
         expected = [
             [{'type': 'experimenter', 'id': project1.details.owner.id.val},
              {'type': 'project', 'id': project1.id.val},
-             {'type': 'dataset', 'id': dataset1.id.val},
+             {'type': 'dataset', 'id': dataset1.id.val, 'childCount': 1},
              {'type': 'image', 'id': image1.id.val}],
             [{'type': 'experimenter', 'id': project1.details.owner.id.val},
              {'type': 'project', 'id': project1.id.val},
-             {'type': 'dataset', 'id': dataset2.id.val},
+             {'type': 'dataset', 'id': dataset2.id.val, 'childCount': 1},
              {'type': 'image', 'id': image1.id.val}],
             [{'type': 'experimenter', 'id': project2.details.owner.id.val},
              {'type': 'project', 'id': project2.id.val},
-             {'type': 'dataset', 'id': dataset1.id.val},
+             {'type': 'dataset', 'id': dataset1.id.val, 'childCount': 1},
              {'type': 'image', 'id': image1.id.val}],
             [{'type': 'experimenter', 'id': dataset3.details.owner.id.val},
-             {'type': 'dataset', 'id': dataset3.id.val},
+             {'type': 'dataset', 'id': dataset3.id.val, 'childCount': 1},
              {'type': 'image', 'id': image1.id.val}]]
 
         for e in expected:
@@ -1403,7 +1403,7 @@ class TestShow(IWebTest):
         expected = [
             [{'type': 'experimenter', 'id': project1.details.owner.id.val},
              {'type': 'project', 'id': project1.id.val},
-             {'type': 'dataset', 'id': dataset2.id.val},
+             {'type': 'dataset', 'id': dataset2.id.val, 'childCount': 1},
              {'type': 'image', 'id': image1.id.val}]]
 
         assert paths == expected
@@ -1423,7 +1423,7 @@ class TestShow(IWebTest):
         expected = [
             [{'type': 'experimenter', 'id': project1.details.owner.id.val},
              {'type': 'project', 'id': project1.id.val},
-             {'type': 'dataset', 'id': dataset2.id.val},
+             {'type': 'dataset', 'id': dataset2.id.val, 'childCount': 1},
              {'type': 'image', 'id': image1.id.val}]]
 
         assert paths == expected
@@ -1442,7 +1442,7 @@ class TestShow(IWebTest):
         expected = [
             [{'type': 'experimenter', 'id': project2.details.owner.id.val},
              {'type': 'project', 'id': project2.id.val},
-             {'type': 'dataset', 'id': dataset1.id.val},
+             {'type': 'dataset', 'id': dataset1.id.val, 'childCount': 1},
              {'type': 'image', 'id': image1.id.val}]]
 
         assert paths == expected
