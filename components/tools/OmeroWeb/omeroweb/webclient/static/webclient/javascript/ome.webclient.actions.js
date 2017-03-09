@@ -371,18 +371,20 @@ OME.refreshThumbnails = function(options) {
     options = options || {};
     var search_selector = ".search_thumb",
         // In SPW, we select spw grid and Well images in bottom panel
-        spw_selector = "#spw .well img, #wellImages img";
+        spw_selector = "#spw .well img, #wellImages li";
     // handle search results and SPW thumbs
     if (options.imageId) {
         search_selector = "#image-" + options.imageId + " img.search_thumb";
-        spw_selector = "#image-" + options.imageId + ", #wellImages li[data-imageId='" + options.imageId + "'] img";
+        spw_selector = "#image-" + options.imageId + ", #wellImages li[data-imageId='" + options.imageId + "']";
     }
 
     // Try SPW data or Search data by directly updating thumb src...
     var $thumbs = $(spw_selector + ", " + search_selector);
     if ($thumbs.length > 0){
         var iids = $thumbs.map(function() {
-            return this.id.replace('image-', '');
+            var imgId = this.id.replace('image-', '');
+            // We might be getting IDs from the plate grid OR #wellImages
+            return imgId || $(this).attr('data-imageId');
         }).filter(function(i, img_id){
             // filter out empty wells etc.
             return img_id.length > 0;
