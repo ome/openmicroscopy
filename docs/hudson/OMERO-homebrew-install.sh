@@ -24,7 +24,7 @@ TESTING_MODE=${TESTING_MODE:-$DEFAULT_TESTING_MODE}
 ###################################################################
 
 # Install Homebrew in /usr/local
-ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)"
+ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 cd /usr/local
 
 # Install git if not already installed
@@ -98,6 +98,9 @@ bin/brew install postgres
 
 # Fix for PIL installation
 ln -s /usr/local/include/freetype2 /usr/local/include/freetype
+
+# Hack to workaround Pytables 3.1.1/Cython 0.2.1 incompatibility
+bin/pip install Cython==0.20
 
 # Install OMERO Python dependencies
 bash bin/omero_python_deps

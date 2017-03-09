@@ -1,14 +1,29 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+#
+# Copyright (C) 2008-2013 Glencoe Software, Inc. All Rights Reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
 """
    Plugin for our managing the OMERO database.
 
    Plugin read by omero.cli.Cli during initialization. The method(s)
    defined here will be added to the Cli class for later use.
-
-   Copyright 2008 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
-
 """
 
 from omero.cli import BaseControl
@@ -45,6 +60,15 @@ class DatabaseControl(BaseControl):
             help="Prints SQL command for updating your root password")
         pw.add_argument("password", nargs="?")
         pw.set_defaults(func=self.password)
+        pw.add_argument("--user-id",
+                        help="User ID to salt into the password. "
+                        "Defaults to '0', i.e. 'root'",
+                        default="0")
+
+        for x in (pw, script):
+            x.add_argument(
+                "--no-salt", action="store_true",
+                help="Disable the salting of passwords")
 
     def _lookup(self, data, data2, key, map, hidden=False):
         """
@@ -65,16 +89,27 @@ class DatabaseControl(BaseControl):
         if not map[key] or map[key] == "":
                 self.ctx.die(1, "No value entered")
 
-    def _get_password_hash(self, root_pass=None):
+    def _has_user_id(self, args):
+        return args and "user_id" in args and args.user_id is not None
 
-        root_pass = self._ask_for_password(" for OMERO root user", root_pass)
+    def _get_password_hash(self, args, root_pass=None, old_prompt=False):
+
+        prompt = " for OMERO "
+        if self._has_user_id(args) and not old_prompt:
+            prompt += "user %s" % args.user_id
+        else:
+            prompt += "root user"
+        root_pass = self._ask_for_password(prompt, root_pass)
 
         server_jar = self.ctx.dir / "lib" / "server" / "server.jar"
-        p = omero.java.popen(["-cp", str(server_jar),
-                             "ome.security.auth.PasswordUtil", root_pass])
+        cmd = ["ome.security.auth.PasswordUtil", root_pass]
+        if not args.no_salt and self._has_user_id(args):
+            cmd.append(args.user_id)
+        p = omero.java.popen(["-cp", str(server_jar)] + cmd)
         rc = p.wait()
         if rc != 0:
-            self.ctx.die(rc, "PasswordUtil failed: %s" % p.communicate())
+            out, err = p.communicate()
+            self.ctx.die(rc, "PasswordUtil failed: %s" % err)
         value = p.communicate()[0]
         if not value or len(value) == 0:
             self.ctx.die(100, "Encoded password is empty")
@@ -193,13 +228,20 @@ BEGIN;
 
     def password(self, args):
         root_pass = None
+        user_id = 0
+        old_prompt = True
+        if self._has_user_id(args):
+            user_id = args.user_id
+            if user_id != '0':  # For non-root, use new_prompt
+                old_prompt = False
         try:
             root_pass = args.password
         except Exception, e:
             self.ctx.dbg("While getting arguments:" + str(e))
-        password_hash = self._get_password_hash(root_pass)
+        password_hash = self._get_password_hash(args, root_pass, old_prompt)
         self.ctx.out("UPDATE password SET hash = '%s' "
-                     "WHERE experimenter_id  = 0;""" % password_hash)
+                     "WHERE experimenter_id  = %s;""" %
+                     (password_hash, user_id))
 
     def loaddefaults(self):
         try:
@@ -235,8 +277,9 @@ BEGIN;
             self.ctx.dbg("While getting arguments:"+str(e))
         self._lookup(data, data2, "version", map)
         self._lookup(data, data2, "patch", map)
+        args.user_id = "0"
         sql = self._sql_directory(map["version"], map["patch"])
-        map["pass"] = self._get_password_hash(root_pass)
+        map["pass"] = self._get_password_hash(args, root_pass, True)
         self._create(sql, map["version"], map["patch"], map["pass"], args)
 
 try:
