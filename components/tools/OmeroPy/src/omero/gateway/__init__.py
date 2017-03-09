@@ -4434,6 +4434,9 @@ class _BlitzGateway (object):
         tb = None
         _resp = dict()
         try:
+            ctx = self.SERVICE_OPTS.copy()
+            if ctx.getOmeroGroup() is None:
+                ctx.setOmeroGroup(-1)
             tb = self.createThumbnailStore()
             p = omero.sys.ParametersI().addIds(image_ids)
             sql = """select new map(
@@ -4443,14 +4446,14 @@ class _BlitzGateway (object):
                      where i.id in (:ids) """
 
             img_pixel_ids = self.getQueryService().projection(
-                sql, p, self.SERVICE_OPTS)
+                sql, p, ctx)
             _temp = dict()
             for e in img_pixel_ids:
                 e = unwrap(e)
                 _temp[e[0]['pix_id']] = e[0]['im_id']
 
             thumbs_map = tb.getThumbnailByLongestSideSet(
-                rint(max_size), list(_temp))
+                rint(max_size), list(_temp), ctx)
             for (pix, thumb) in thumbs_map.items():
                 _resp[_temp[pix]] = thumb
         except Exception:
