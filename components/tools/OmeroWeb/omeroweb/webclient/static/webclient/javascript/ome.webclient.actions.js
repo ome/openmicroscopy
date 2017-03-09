@@ -382,10 +382,13 @@ OME.refreshThumbnails = function(options) {
     var $thumbs = $(spw_selector + ", " + search_selector);
     if ($thumbs.length > 0){
         var iids = $thumbs.map(function() {
-          return this.id.replace('image-', '');
+            return this.id.replace('image-', '');
+        }).filter(function(i, img_id){
+            // filter out empty wells etc.
+            return img_id.length > 0;
         }).get();
         OME.load_thumbnails(
-          options.thumbnail_url,
+            options.thumbnail_url,
             iids, options.thumbnailsBatch,
             options.defaultThumbnail
         );
