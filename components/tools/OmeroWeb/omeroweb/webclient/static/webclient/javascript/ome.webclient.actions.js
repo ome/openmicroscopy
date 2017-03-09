@@ -429,6 +429,7 @@ OME.load_thumbnails = function(thumbnails_url, input, batch, dthumb) {
                             // SPW Plate and WellImages
                             $("img#image-"+key).attr("src", value);
                             $("#wellImages li[data-imageId='" + key + "'] img").attr("src", value);
+                            $("#well_birds_eye img[data-imageid='" + key + "']").attr("src", value);
                             // Search results
                             $("#image_icon-" + key + " img").attr("src", value);
                         } else {
