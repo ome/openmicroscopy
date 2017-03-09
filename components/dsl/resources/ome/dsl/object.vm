@@ -1474,7 +1474,7 @@ implements java.io.Serializable, IObject
         } else if (field.equals(${prop.name.toUpperCase()}COUNTPEROWNER)) {
             return get${prop.nameCapped}CountPerOwner();
 #end
-        } else if (field.equals(${prop.nameUpper})) { // TODO use == here first??
+        } else if (field.equals(${prop.nameUpper})) {
             return get${prop.nameCapped}();
 #end
         } else {
