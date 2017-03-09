@@ -871,11 +871,12 @@ class MetadataViewerComponent
 		if (obj instanceof ImageData) {
 			firePropertyChange(APPLY_SETTINGS_PROPERTY, null, obj);
 		} else if (obj instanceof WellSampleData) {
-		    WellSampleData wsd = (WellSampleData) obj;
-			Object[] objects = new Object[2];
-			objects[0] = wsd;
-			objects[1] = wsd.asWellSample().getPlateAcquisition().getId().getValue();
-			firePropertyChange(APPLY_SETTINGS_PROPERTY, null, objects);
+            WellSampleData wsd = (WellSampleData) obj;
+            Object[] objects = new Object[2];
+            objects[0] = wsd;
+            objects[1] = wsd.asWellSample().getWell().getPlate().getId()
+                    .getValue();
+            firePropertyChange(APPLY_SETTINGS_PROPERTY, null, objects);
 		}
 	}
 	
