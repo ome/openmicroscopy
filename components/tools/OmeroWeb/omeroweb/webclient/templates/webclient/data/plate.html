@@ -282,6 +282,15 @@
                         if (selectImageIds && selectImageIds.length > 0) {
                             triggerWellImagesSelection();
                         }
+                        var iids = data.map(function(i){
+                            return i.id;
+                        });
+                        // Load thumbnails
+                        var thumbnailsBatch = {{ thumbnails_batch|default:50|json_dumps|safe }};
+                        OME.load_thumbnails("{% url 'get_thumbnails_json' %}",
+                                            iids, thumbnailsBatch,
+                                            "{% static 'webgateway/img/image128.png' %}"
+                        );
                     });
                 });
             }
