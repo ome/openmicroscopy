@@ -340,14 +340,14 @@ CUSTOM_SETTINGS_MAPPINGS = {
         ["ADMINS", '[empty]', str,
          ("Used to pick up a single interface. If unset, "
           "all interfaces are set. This is useful when running "
-          "multiple servers on the same host."
+          "multiple servers on the same host. "
           "See omero.master.host property.")],
     "omero.master.host":
         ["ADMINS", '[empty]', str,
          ("This property allows the master's IP "
           "to be set in all templates as described in "
-          ":doc: `nodes-on-multiple-hosts <sysadmins/grid>`"
-          " without actually setting Ice.Default.Host. "
+          ":doc: `nodes-on-multiple-hosts <sysadmins/grid>` "
+          "without actually setting Ice.Default.Host. "
           "See Ice.Default.Host property.")],
     # Deployment configuration
     "omero.web.debug":
