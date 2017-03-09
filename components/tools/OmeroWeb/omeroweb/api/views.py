@@ -224,6 +224,8 @@ class DatasetView(ObjectView):
     urls = {
         'url:images': {'name': 'api_dataset_images',
                        'kwargs': {'dataset_id': 'OBJECT_ID'}},
+        'url:projects': {'name': 'api_dataset_projects',
+                         'kwargs': {'dataset_id': 'OBJECT_ID'}},
     }
 
 
@@ -233,6 +235,12 @@ class ImageView(ObjectView):
     OMERO_TYPE = 'Image'
 
     CAN_DELETE = False
+
+    # Urls to add to marshalled object. See ProjectsView for more details
+    urls = {
+        'url:datasets': {'name': 'api_image_datasets',
+                         'kwargs': {'image_id': 'OBJECT_ID'}},
+    }
 
     def get_opts(self, request):
         """Add support for load_pixels and load_channels."""
@@ -263,6 +271,8 @@ class PlateView(ObjectView):
 
     # Urls to add to marshalled object. See ProjectsView for more details
     urls = {
+        'url:screens': {'name': 'api_plate_screens',
+                        'kwargs': {'plate_id': 'OBJECT_ID'}},
         'url:wells': {'name': 'api_plate_wells',
                       'kwargs': {'plate_id': 'OBJECT_ID'}},
         'url:plateacquisitions': {'name': 'api_plate_plateacquisitions',
@@ -324,6 +334,12 @@ class WellView(ObjectView):
     OMERO_TYPE = 'Well'
 
     CAN_DELETE = False
+
+    # Urls to add to marshalled object. See ProjectsView for more details
+    urls = {
+        'url:plates': {'name': 'api_well_plates',
+                       'kwargs': {'well_id': 'OBJECT_ID'}},
+    }
 
     def get_opts(self, request):
         """Add support for load_images."""
@@ -394,6 +410,14 @@ class ProjectsView(ObjectsView):
         """Add extra parameters to the opts dict."""
         opts = super(ProjectsView, self).get_opts(request, **kwargs)
         opts['order_by'] = 'lower(obj.name)'
+        # at /datasets/:dataset_id/projects/ we have 'dataset_id' in kwargs
+        if 'dataset_id' in kwargs:
+            opts['dataset'] = long(kwargs['dataset_id'])
+        else:
+            # Filter Projects by child 'dataset'
+            dataset = getIntOrDefault(request, 'dataset', None)
+            if dataset is not None:
+                opts['dataset'] = dataset
         return opts
 
     # To add a url to marshalled object add to this dict
@@ -425,6 +449,13 @@ class DatasetsView(ObjectsView):
             project = getIntOrDefault(request, 'project', None)
             if project is not None:
                 opts['project'] = project
+        # Filter Datasets by child 'image'
+        if 'image_id' in kwargs:
+            opts['image'] = long(kwargs['image_id'])
+        else:
+            image = getIntOrDefault(request, 'image', None)
+            if image is not None:
+                opts['image'] = image
         return opts
 
     # Urls to add to marshalled object. See ProjectsView for more details
@@ -433,6 +464,8 @@ class DatasetsView(ObjectsView):
                        'kwargs': {'dataset_id': 'OBJECT_ID'}},
         'url:dataset': {'name': 'api_dataset',
                         'kwargs': {'object_id': 'OBJECT_ID'}},
+        'url:projects': {'name': 'api_dataset_projects',
+                         'kwargs': {'dataset_id': 'OBJECT_ID'}},
     }
 
 
@@ -445,6 +478,14 @@ class ScreensView(ObjectsView):
         """Add extra parameters to the opts dict."""
         opts = super(ScreensView, self).get_opts(request, **kwargs)
         opts['order_by'] = 'lower(obj.name)'
+        # at /plate/:plate_id/screens/ we have 'plate_id' in kwargs
+        if 'plate_id' in kwargs:
+            opts['plate'] = long(kwargs['plate_id'])
+        else:
+            # filter by query /screens/?plate=:id
+            plate = getIntOrDefault(request, 'plate', None)
+            if plate is not None:
+                opts['plate'] = plate
         return opts
 
     # Urls to add to marshalled object. See ProjectsView for more details
@@ -473,10 +514,20 @@ class PlatesView(ObjectsView):
             screen = getIntOrDefault(request, 'screen', None)
             if screen is not None:
                 opts['screen'] = screen
+        # Filter Plates by Well
+        if 'well_id' in kwargs:
+            opts['well'] = long(kwargs['well_id'])
+        else:
+            # filter by query /plates/?well=:id
+            well = getIntOrDefault(request, 'well', None)
+            if well is not None:
+                opts['well'] = well
         return opts
 
     # Urls to add to marshalled object. See ProjectsView for more details
     urls = {
+        'url:screens': {'name': 'api_plate_screens',
+                        'kwargs': {'plate_id': 'OBJECT_ID'}},
         'url:wells': {'name': 'api_plate_wells',
                       'kwargs': {'plate_id': 'OBJECT_ID'}},
         'url:plate': {'name': 'api_plate',
@@ -495,6 +546,8 @@ class ImagesView(ObjectsView):
     urls = {
         'url:image': {'name': 'api_image',
                       'kwargs': {'object_id': 'OBJECT_ID'}},
+        'url:datasets': {'name': 'api_image_datasets',
+                         'kwargs': {'image_id': 'OBJECT_ID'}},
     }
 
     def get_opts(self, request, **kwargs):
@@ -566,6 +619,8 @@ class WellsView(ObjectsView):
     urls = {
         'url:well': {'name': 'api_well',
                      'kwargs': {'object_id': 'OBJECT_ID'}},
+        'url:plates': {'name': 'api_well_plates',
+                       'kwargs': {'well_id': 'OBJECT_ID'}},
     }
 
     def get_opts(self, request, **kwargs):

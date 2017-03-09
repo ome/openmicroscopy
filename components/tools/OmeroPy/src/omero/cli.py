@@ -36,6 +36,7 @@ import shlex
 import errno
 from threading import Lock
 from path import path
+from contextlib import contextmanager
 
 from omero_ext.argparse import ArgumentError
 from omero_ext.argparse import ArgumentTypeError
@@ -1401,6 +1402,35 @@ class CLI(cmd.Cmd, Context):
 
     # End Cli
     ###########################################################
+
+
+@contextmanager
+def cli_login(*args, **kwargs):
+    """
+    args will be appended to ["-q", "login"] and then
+    passed to onecmd
+
+    kwargs:
+      - keep_alive
+    """
+
+    keep_alive = kwargs.get("keep_alive", 300)
+    try:
+        cli = omero.cli.CLI()
+        cli.loadplugins()
+        login = ["-q", "login"]
+        login.extend(list(args))
+        cli.onecmd(login)
+        if keep_alive is not None:
+            client = cli.get_client()
+            if client is not None:
+                keep_alive = int(keep_alive)
+                client.enableKeepAlive(keep_alive)
+            else:
+                raise Exception("Failed to login")
+        yield cli
+    finally:
+        cli.close()
 
 
 def argv(args=sys.argv):
