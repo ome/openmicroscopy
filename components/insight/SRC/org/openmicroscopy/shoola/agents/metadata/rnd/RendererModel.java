@@ -213,12 +213,6 @@ class RendererModel
 		plane = new PlaneDef();
 		plane.slice = omero.romio.XY.value;
 		this.def = def;
-		
-        try {
-            renderHistogramImages();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 	}
 
 	/**
@@ -1811,29 +1805,6 @@ class RendererModel
      */
     BufferedImage getHistogramImage(int channelIndex) {
         return histogramImages.get(channelIndex);
-    }
-
-    /**
-     * Renders the images used to build an histogram. The global min and global
-     * max are used for the full range.
-     * @throws RenderingServiceException If an error occurred.
-     * @throws DSOutOfServiceException If the connection is broken. 
-     */
-    void renderHistogramImages() throws RenderingServiceException,
-            DSOutOfServiceException {
-        histogramImages = new HashMap<Integer, BufferedImage>();
-        int maxC = getMaxC();
-        rndControl.setModel(Renderer.GREY_SCALE_MODEL);
-        plane.t = getDefaultT();
-        plane.z = getDefaultZ();
-        for (int j = 0; j < maxC; j++) {
-            for (int i = 0; i < maxC; i++) {
-                rndControl.setActive(i, j == i);
-            }
-            rndControl.setChannelWindow(j, getGlobalMin(j), getGlobalMax(j));
-            histogramImages.put(j, rndControl.render(plane));
-        }
-        resetRenderingSettings();
     }
 
     /**
