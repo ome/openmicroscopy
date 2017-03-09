@@ -426,11 +426,15 @@ OME.load_thumbnails = function(thumbnails_url, input, batch, dthumb) {
                 success: function(data){
                     $.each(data, function(key, value) {
                         if (value !== null) {
+                            // SPW Plate and WellImages
                             $("img#image-"+key).attr("src", value);
                             $("#wellImages li[data-imageId='" + key + "'] img").attr("src", value);
+                            // Search results
+                            $("#image_icon-" + key + " img").attr("src", value);
                         } else {
                             $("img#image-"+key).attr("src", dthumb);
                             $("#wellImages li[data-imageId='" + key + "'] img").attr("src", dthumb);
+                            $("#image_icon-" + key + " img").attr("src", dthumb);
                         }
                     });
                 }
