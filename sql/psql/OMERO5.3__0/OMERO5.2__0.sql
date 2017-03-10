@@ -2031,6 +2031,13 @@ CREATE SEQUENCE seq_adminprivilege;
 
 INSERT INTO _lock_ids (name, id) SELECT 'seq_adminprivilege', nextval('_lock_seq');
 
+-- ... and reindex wells:
+
+INSERT INTO eventlog (id, action, permissions, entitytype, entityid, event)
+    WITH new_event AS (SELECT _current_or_new_event() AS id)
+    SELECT ome_nextval('seq_eventlog'), 'REINDEX', -52, 'ome.model.screen.Well', well.id,  new_event.id
+    FROM well, new_event;
+
 
 --
 -- FINISHED

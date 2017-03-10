@@ -54,7 +54,12 @@ DROP FUNCTION omero_assert_db_version(varchar, int);
 INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
              VALUES ('OMERO5.3',     0,            'OMERO5.3DEV',   14);
 
--- nothing more is required
+-- Reindex wells
+
+INSERT INTO eventlog (id, action, permissions, entitytype, entityid, event)
+    WITH new_event AS (SELECT _current_or_new_event() AS id)
+    SELECT ome_nextval('seq_eventlog'), 'REINDEX', -52, 'ome.model.screen.Well', well.id,  new_event.id
+    FROM well, new_event;
 
 
 --
