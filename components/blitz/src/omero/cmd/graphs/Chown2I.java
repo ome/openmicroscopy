@@ -462,10 +462,17 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
         }
 
         @Override
+        public void deleteInstances(String className, Collection<Long> ids) throws GraphException {
+            super.deleteInstances(className, ids);
+            graphHelper.publishEventLog(applicationContext, "DELETE", className, ids);
+        }
+
+        @Override
         public void processInstances(String className, Collection<Long> ids) throws GraphException {
             final String update = "UPDATE " + className + " SET details.owner = :user WHERE id IN (:ids)";
             final int count =
                     session.createQuery(update).setParameter("user", userTo).setParameterList("ids", ids).executeUpdate();
+            graphHelper.publishEventLog(applicationContext, "UPDATE", className, ids);
             if (count != ids.size()) {
                 LOGGER.warn("not all the objects of type " + className + " could be processed");
             }

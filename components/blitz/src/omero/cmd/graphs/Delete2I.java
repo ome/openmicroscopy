@@ -262,6 +262,12 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
         }
 
         @Override
+        public void deleteInstances(String className, Collection<Long> ids) throws GraphException {
+            super.deleteInstances(className, ids);
+            graphHelper.publishEventLog(applicationContext, "DELETE", className, ids);
+        }
+
+        @Override
         public void processInstances(String className, Collection<Long> ids) throws GraphException {
             deleteInstances(className, ids);
         }
