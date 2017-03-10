@@ -661,7 +661,7 @@ public class ThumbnailCtx
         Permissions currentGroupPermissions = ec.getCurrentGroupPermissions();
         Permissions readOnly = Permissions.parseString("rwr---");
 
-        if (ec.getCurrentShareId() != null)
+        if (ec.getCurrentShareId() != null || ec.getCurrentGroupId() < 0)
         {
             return true;
         }
