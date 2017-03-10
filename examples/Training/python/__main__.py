@@ -33,4 +33,4 @@ if __name__ == "__main__":
         execfile(os.path.join(training_dir, 'Task_Scripts/Raw_Data_Task.py'))
         execfile(os.path.join(training_dir, 'Task_Scripts/Write_Data_4.py'))
         execfile(os.path.join(training_dir, 'Task_Scripts/Write_Data_3.py'))
-        execfile(os.path.join(training_dir, 'Json_Api/Login.py'))
+        # execfile(os.path.join(training_dir, 'Json_Api/Login.py'))
