@@ -25,6 +25,7 @@
 
 import omero
 import omero.scripts
+import pytest
 from test.integration.scriptstest.script import ScriptTest
 from test.integration.scriptstest.script import run_script
 
@@ -164,16 +165,79 @@ class TestUtilScripts(ScriptTest):
 
         assert count == n
 
-    def test_move_annotations(self):
+    @pytest.mark.parametrize("remove", [True, False])
+    def test_move_annotations(self, remove):
 
         script_id = super(TestUtilScripts, self).get_script(move_annotations)
         assert script_id > 0
 
-        session = self.root.sf
+        # session = self.root.sf
         client = self.root
+        field_count = 2
 
-        plate = self.import_plates(fields=2)[0]
-        for well_sample in plate.copyWellSamples():
-            for image in well_sample.getImage():
-                print image.id.val
+        plate = self.import_plates(client=client, fields=field_count)[0]
 
+        def link_ann(client, ann, image_id):
+            link = omero.model.ImageAnnotationLinkI()
+            link.parent = omero.model.ImageI(image_id, False)
+            link.child = ann
+            client.getSession().getUpdateService().saveObject(link)
+
+        well_ids = []
+        for well in plate.copyWells():
+            well_ids.append(well.id)
+            for well_sample in well.copyWellSamples():
+                image = well_sample.getImage()
+                # Add annotations
+                tag = omero.model.TagAnnotationI()
+                tag.textValue = omero.rtypes.rstring("testTag")
+                link_ann(client, tag, image.id.val)
+                comment = omero.model.CommentAnnotationI()
+                comment.textValue = omero.rtypes.rstring("test Comment")
+                link_ann(client, comment, image.id.val)
+                rating = omero.model.LongAnnotationI()
+                rating.longValue = omero.rtypes.rlong(5)
+                rating.ns = omero.rtypes.rstring(
+                    omero.constants.metadata.NSINSIGHTRATING)
+                link_ann(client, rating, image.id.val)
+
+        # Run script on each type, with/without removing Annotations
+        for anntype in ('Tag', 'Comment', 'Rating'):
+            args = {
+                "Data_Type": omero.rtypes.rstring("Well"),
+                "IDs": omero.rtypes.rlist(well_ids),
+                "Annotation_Type": omero.rtypes.rstring(anntype),
+                "Remove_Annotations_From_Images": omero.rtypes.rbool(remove)
+            }
+            message = run_script(client, script_id, args, "Message")
+            assert message.val == "Moved %s Annotations" % field_count
+
+        # Remove annotations from Wells...
+        queryService = client.getSession().getQueryService()
+        updateService = client.getSession().getUpdateService()
+        query = ("select l from WellAnnotationLink as l"
+                 " where l.parent.id in (:ids)")
+        params = omero.sys.ParametersI().addIds(well_ids)
+        links = queryService.findAllByQuery(query, params)
+        for l in links:
+            updateService.deleteObject(l)
+
+        # Run again with 'All' annotations.
+        args = {
+            "Data_Type": omero.rtypes.rstring("Plate"),
+            "IDs": omero.rtypes.rlist([plate.id]),
+            "Annotation_Type": omero.rtypes.rstring("All"),
+            "Remove_Annotations_From_Images": omero.rtypes.rbool(remove)
+        }
+        message = run_script(client, script_id, args, "Message")
+        # If we've been removing annotations above,
+        # there will be None left to move
+        if remove:
+            expected = "No annotations moved. See info."
+        else:
+            expected = "Moved %s Annotations" % (field_count * 3)
+        assert message.val == expected
+
+        # Run again - None moved since Annotations are already on Well
+        message = run_script(client, script_id, args, "Message")
+        assert message.val == "No annotations moved. See info."
