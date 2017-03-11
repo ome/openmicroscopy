@@ -21,7 +21,6 @@
  */
 package training;
 
-import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -29,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 
 import omero.RLong;
-import omero.api.IContainerPrx;
 import omero.api.IPixelsPrx;
 import omero.api.RawPixelsStorePrx;
 import omero.gateway.Gateway;
@@ -41,15 +39,14 @@ import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.IObject;
-import omero.model.Image;
 import omero.model.ImageI;
 import omero.model.LengthI;
 import omero.model.PixelsType;
 import ome.model.enums.UnitsLength;
-import omero.sys.ParametersI;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.PixelsData;
+
 
 /**
  * Sample code showing how to create new image.
@@ -99,7 +96,7 @@ public class CreateImage
             throws Exception
     {
         BrowseFacility browse = gateway.getFacility(BrowseFacility.class);
-        image = browse.getImage(ctx, imageId);
+        return browse.getImage(ctx, imageId);
     }
 
     /**
@@ -165,7 +162,6 @@ public class CreateImage
             if (store != null) store.close();
         }
         //Now we are going to create the new image.
-        IPixelsPrx proxy = gateway.getPixelsService(ctx);
         List<IObject> l = gateway.getTypesService(ctx).allEnumerations(PixelsType.class.getName());
         Iterator<IObject> i = l.iterator();
         PixelsType type = null;
@@ -185,6 +181,7 @@ public class CreateImage
         for (int c = 0; c < sizeC; c++) {
             channels.add(c);
         }
+        IPixelsPrx proxy = gateway.getPixelsService(ctx);
         RLong idNew = proxy.createImage(sizeX, sizeY, sizeZ, sizeT,
                 channels, type, name, "From Image ID: "+image.getId());
         if (idNew == null)
