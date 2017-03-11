@@ -33,6 +33,7 @@ import omero.api.IContainerPrx;
 import omero.api.IPixelsPrx;
 import omero.api.RawPixelsStorePrx;
 import omero.gateway.Gateway;
+import omero.gateway.facility.BrowseFacility;
 import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;
 import omero.log.SimpleLogger;
@@ -97,14 +98,8 @@ public class CreateImage
     private ImageData loadImage(long imageID)
             throws Exception
     {
-        IContainerPrx proxy = gateway.getPojosService(ctx);
-        List<Image> results = proxy.getImages(Image.class.getName(),
-                Arrays.asList(imageId), new ParametersI());
-        //You can directly interact with the IObject or the Pojos object.
-        //Follow interaction with the Pojos.
-        if (results.size() == 0)
-            throw new Exception("Image does not exist. Check ID.");
-        return new ImageData(results.get(0));
+        BrowseFacility browse = gateway.getFacility(BrowseFacility.class);
+        image = browse.getImage(ctx, imageId);
     }
 
     /**
