@@ -222,7 +222,8 @@ $(document).ready(function() {
         });
 
         var imgJson = [],
-            selFileSets = [];
+            selFileSets = [],
+            shareId = null;
         // Convert jsTree nodes into json for template
         imgNodes.forEach(function(node){
             var d = node.data.obj.date || node.data.obj.acqDate;
@@ -245,6 +246,7 @@ $(document).ready(function() {
             if (node.data.obj.shareId && !parentNode.data.obj.isOwned) {
                 // share ID will be needed to open image viewer
                 iData.shareId = node.data.obj.shareId;
+                shareId = node.data.obj.shareId;
             }
             imgJson.push(iData);
         });
@@ -283,9 +285,12 @@ $(document).ready(function() {
         iids = $.map(imgJson, function(img){
             return img.id;
         });
+        thumbUrl = "{% url 'get_thumbnails_json' %}";
+        if (shareId !== null) {
+          thumbUrl = "{% url 'get_thumbnails_json' %}" + shareId + "/"
+        }
         OME.load_thumbnails(
-            "{% url 'get_thumbnails_json' %}",
-            iids, thumbnailsBatch,
+            thumbUrl, iids, thumbnailsBatch,
             "{% static 'webgateway/img/image128.png' %}"
         );
 
