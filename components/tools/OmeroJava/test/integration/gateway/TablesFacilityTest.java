@@ -56,7 +56,7 @@ public class TablesFacilityTest extends GatewayTest {
                 null);
     }
 
-    @Test(timeOut = 300000)
+    @Test(timeOut = 600000)
     public void testAddTable() throws Exception {
         Class<?>[] types = new Class<?>[] { String.class, Long.class,
                 Double.class, Double[].class };
