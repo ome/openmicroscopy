@@ -120,7 +120,7 @@ public class ROIFolders {
         for (ROIData r : rois) {
             FolderData folder = new FolderData();
             folder.setName("Folder for ROI " + r.getId());
-            roifac.addRoisToFolders(ctx, imageId, Arrays.asList(r),
+            roifac.addRoisToFolders(ctx, image.getId(), Arrays.asList(r),
                     Arrays.asList(folder));
         }
 
