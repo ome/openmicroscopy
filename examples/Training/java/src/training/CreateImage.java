@@ -96,7 +96,7 @@ public class CreateImage
             throws Exception
     {
         BrowseFacility browse = gateway.getFacility(BrowseFacility.class);
-        return browse.getImage(ctx, imageId);
+        return browse.getImage(ctx, imageID);
     }
 
     /**
