@@ -15,10 +15,11 @@ SERVER_NAME = 'omero'
 session = requests.Session()
 
 # Start by getting supported versions from the base url...
-r = session.get('%s/api/' % OMERO_WEB_HOST)
+api_url = '%s/api/' % OMERO_WEB_HOST
+print "Starting at:", api_url
+r = session.get(api_url)
 # we get a list of versions
 versions = r.json()['data']
-print 'Versions', versions
 
 # use most recent version...
 version = versions[-1]
