@@ -22,6 +22,7 @@
 from omero.cli import CLI
 from omero.plugins.sessions import SessionsControl
 import pytest
+import warnings
 
 
 class TestSessions(object):
@@ -94,6 +95,7 @@ class TestSessions(object):
             setattr(args, session_args, tmpdir / session_args)
 
         if environment.get('OMERO_SESSION_DIR') or session_args:
+            warnings.simplefilter("always")
             pytest.deprecated_call(self.cli.controls['sessions'].store, args)
 
         store = self.cli.controls['sessions'].store(args)
