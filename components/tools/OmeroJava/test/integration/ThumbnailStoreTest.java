@@ -245,6 +245,7 @@ public class ThumbnailStoreTest extends AbstractServerTest {
         ThumbnailStorePrx svc = factory.createThumbnailStore();
         svc.setPixelsId(pixelsIdα);
         final byte[] thumbnailα = svc.getThumbnailByLongestSide(null);
+        Assert.assertTrue(thumbnailα.length > 0);
         svc.close();
 
         /* import the image as another user in another group and get its thumbnail */
@@ -253,6 +254,7 @@ public class ThumbnailStoreTest extends AbstractServerTest {
         svc = factory.createThumbnailStore();
         svc.setPixelsId(pixelsIdβ);
         final byte[] thumbnailβ = svc.getThumbnailByLongestSide(null);
+        Assert.assertTrue(thumbnailβ.length > 0);
 
         /* have that other user use all-groups context to fetch both thumbnails at once */
         final List<Long> pixelsIdsαβ = ImmutableList.of(pixelsIdα, pixelsIdβ);
