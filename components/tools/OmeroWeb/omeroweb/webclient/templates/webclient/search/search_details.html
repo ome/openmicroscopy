@@ -24,7 +24,16 @@
 
     <script type="text/javascript">
         $(document).ready(function(){
-            
+
+            var iids = {{ manager.iids|json_dumps|safe }};
+            var thumbnailsBatch = {{ thumbnails_batch|default:50|json_dumps|safe }};
+
+            OME.load_thumbnails(
+                "{% url 'get_thumbnails_json' %}",
+                iids, thumbnailsBatch,
+                "{% static 'webgateway/img/image128.png' %}"
+            );
+
             // double-click handler on image - launches image viewer
             //$("table#dataTable tbody tr").dblclick(function(event) {
                 // TODO: path to the object should be rendered on the server side
@@ -64,9 +73,6 @@
         }
     </style>
 
-	
-    
-
     <div>
     {% block search_results %}
 
@@ -95,9 +101,9 @@
             {% for byId in foundById %}
                 {% with c=byId.obj %}
                 <tr id="{{ byId.otype }}-{{ c.id }}" class="{{ c.getPermsCss }}">
-                    <td class="image">
+                    <td class="image" {% if byId.otype == 'image' %}id="image_icon-{{ c.id }}"{% endif %}>
                         {% if byId.otype == 'image' %}
-                            <img class="search_thumb" id="{{ c.id }}" src="{% url 'render_thumbnail' c.id  %}" alt="image" title="{{ c.name }}"/>
+                            <img class="search_thumb" id="{{ c.id }}" alt="image" title="{{ c.name }}"/>
                         {% elif byId.otype == 'project' %}
                             <img src="{% static "webgateway/img/folder16.png" %}" alt="{{ byId.otype }}" title="{{ c.name }}"/>
                         {% elif byId.otype == 'dataset' %}
@@ -197,8 +203,8 @@
             {% endfor %}
             {% for c in manager.containers.images %}
                 <tr id="image-{{ c.id }}" class="{{ c.getPermsCss }}">
-                    <td class="image">
-                        <img class="search_thumb" id="{{ c.id }}" src="{% url 'render_thumbnail' c.id  %}" alt="image" title="{{ c.name }}"/>
+                    <td class="image" id="image_icon-{{ c.id }}">
+                        <img class="search_thumb" id="{{ c.id }}" alt="image" title="{{ c.name }}"/>
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
                     <td class="date">{{ c.getDate|date:"Y-m-d H:i:s" }}</td>
