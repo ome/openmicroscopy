@@ -237,36 +237,66 @@ public class ThumbnailStoreTest extends AbstractServerTest {
      */
     @Test
     public void testGetThumbnailsMultipleGroups() throws Throwable {
+        final byte[] thumbnail;
+        final long pixelsIdα, pixelsIdβ;
+        ThumbnailStorePrx svc = null;
+
         /* create a fake image file */
         final File file = File.createTempFile(getClass().getSimpleName(), ".fake");
+        file.deleteOnExit();
 
-        /* import the image as one user in one group and get its thumbnail */
-        final long pixelsIdα = importFile(importer, file, "fake", false).get(0).getId().getValue();
-        ThumbnailStorePrx svc = factory.createThumbnailStore();
-        svc.setPixelsId(pixelsIdα);
-        final byte[] thumbnailα = svc.getThumbnailByLongestSide(null);
-        Assert.assertTrue(thumbnailα.length > 0);
-        svc.close();
+        try {
+            /* import the image as one user in one group and get its thumbnail */
+            pixelsIdα = importFile(importer, file, "fake", false).get(0).getId().getValue();
+            svc = factory.createThumbnailStore();
+            svc.setPixelsId(pixelsIdα);
+            thumbnail = svc.getThumbnailByLongestSide(null);
+        } finally {
+            if (svc != null) {
+                {
+                    svc.close();
+                    svc = null;
+                }
+            }
+        }
 
-        /* import the image as another user in another group and get its thumbnail */
         setUpNewUserWithImporter();
-        final long pixelsIdβ = importFile(importer, file, "fake", false).get(0).getId().getValue();
-        svc = factory.createThumbnailStore();
-        svc.setPixelsId(pixelsIdβ);
-        final byte[] thumbnailβ = svc.getThumbnailByLongestSide(null);
-        Assert.assertTrue(thumbnailβ.length > 0);
 
-        /* have that other user use all-groups context to fetch both thumbnails at once */
-        final List<Long> pixelsIdsαβ = ImmutableList.of(pixelsIdα, pixelsIdβ);
-        final Map<String, String> allGroupsContext = ImmutableMap.of("omero.group", "-1");
-        final Map<Long, byte[]> thumbs = svc.getThumbnailByLongestSideSet(null, pixelsIdsαβ, allGroupsContext);
+        try {
+            /* import the image as another user in another group and get its thumbnail */
+            pixelsIdβ = importFile(importer, file, "fake", false).get(0).getId().getValue();
+            svc = factory.createThumbnailStore();
+            svc.setPixelsId(pixelsIdβ);
+            Assert.assertEquals(svc.getThumbnailByLongestSide(null), thumbnail);
+        } finally {
+            if (svc != null) {
+                {
+                    svc.close();
+                    svc = null;
+                }
+            }
+        }
 
-        /* check that the thumbnails are as before */
-        Assert.assertEquals(thumbnailα, thumbs.get(pixelsIdα));
-        Assert.assertEquals(thumbnailβ, thumbs.get(pixelsIdβ));
+        final Map<Long, byte[]> thumbnails;
 
-        /* clean up */
-        svc.close();
-        file.delete();
+        try {
+            /* use all-groups context to fetch both thumbnails at once */
+            final List<Long> pixelsIdsαβ = ImmutableList.of(pixelsIdα, pixelsIdβ);
+            final Map<String, String> allGroupsContext = ImmutableMap.of("omero.group", "-1");
+            svc = factory.createThumbnailStore();
+            thumbnails = svc.getThumbnailByLongestSideSet(null, pixelsIdsαβ, allGroupsContext);
+        } finally {
+            if (svc != null) {
+                {
+                    svc.close();
+                    svc = null;
+                }
+            }
+        }
+
+        /* check that the thumbnails are as expected */
+        Assert.assertTrue(thumbnail.length > 0);
+        Assert.assertEquals(thumbnail, thumbnails.get(pixelsIdα));
+        Assert.assertEquals(thumbnail, thumbnails.get(pixelsIdβ));
     }
 }
