@@ -231,13 +231,6 @@
                 $("li:nth-child(" + imagesPerRow + "n)", $lists).after('<br>');
             });
 
-            // Toggle lower panel visibility
-            var imagesInWellVisible = true;
-            $("#showWellImages").click(function(){
-                imagesInWellVisible = !imagesInWellVisible;
-                showImagesInWell();
-            });
-
             // Callback for the spatial birds eye component
             var selectImages = function(imageIds) {
                 $("#wellImages li").removeClass('ui-selected');
@@ -250,10 +243,6 @@
             var wellBirdsEye = OME.WellBirdsEye({callback: selectImages});
             var showImagesInWell = function(selectImageIds) {
                 var $table = $("#wellImages table");
-                if (!imagesInWellVisible) {
-                    $table.empty();
-                    return;
-                }
                 var $selected = $('td.ui-selected', wpv.self);
                 $table.empty();
                 wellBirdsEye.clear();
@@ -312,7 +301,6 @@
         </table>
         </form>
         <div id="toolbar" class="toolbar_noborder">
-            <button style="margin: -4px 8px;" id="showWellImages">Hide Images in Well</button>
         </div>
     </div>
 </div>
