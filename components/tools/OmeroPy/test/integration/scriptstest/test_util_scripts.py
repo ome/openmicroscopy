@@ -28,6 +28,7 @@ import omero.scripts
 import pytest
 from test.integration.scriptstest.script import ScriptTest
 from test.integration.scriptstest.script import run_script
+from omero.cmd import Delete2
 
 channel_offsets = "/omero/util_scripts/Channel_Offsets.py"
 combine_images = "/omero/util_scripts/Combine_Images.py"
@@ -207,14 +208,16 @@ class TestUtilScripts(ScriptTest):
             assert message.val == "Moved %s Annotations" % field_count
 
         # Remove annotations from Wells...
-        queryService = client.getSession().getQueryService()
-        updateService = client.getSession().getUpdateService()
+        query_service = client.getSession().getQueryService()
         query = ("select l from WellAnnotationLink as l"
                  " where l.parent.id in (:ids)")
         params = omero.sys.ParametersI().addIds(well_ids)
-        links = queryService.findAllByQuery(query, params)
-        for l in links:
-            updateService.deleteObject(l)
+        links = query_service.findAllByQuery(query, params)
+        link_ids = [l.id.val for l in links]
+        delete = Delete2(targetObjects={'WellAnnotationLink': link_ids})
+        handle = client.sf.submit(delete)
+        client.waitOnCmd(handle, loops=10, ms=500, failonerror=True,
+                         failontimeout=False, closehandle=False)
 
         # Run again with 'All' annotations.
         args = {
