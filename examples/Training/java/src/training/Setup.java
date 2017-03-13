@@ -100,6 +100,7 @@ public class Setup {
         new ReadDataAdvanced(args);
         new RenderImages(args, imageId);
         new ROIs(args, imageId);
+        new ROIFolders(args, imageId);
         new WriteData(args, imageId, projectId);
     }
 
