@@ -177,12 +177,6 @@ class TestUtilScripts(ScriptTest):
 
         plate = self.import_plates(client=client, fields=field_count)[0]
 
-        def link_ann(client, ann, image_id):
-            link = omero.model.ImageAnnotationLinkI()
-            link.parent = omero.model.ImageI(image_id, False)
-            link.child = ann
-            client.getSession().getUpdateService().saveObject(link)
-
         well_ids = []
         for well in plate.copyWells():
             well_ids.append(well.id)
@@ -191,15 +185,15 @@ class TestUtilScripts(ScriptTest):
                 # Add annotations
                 tag = omero.model.TagAnnotationI()
                 tag.textValue = omero.rtypes.rstring("testTag")
-                link_ann(client, tag, image.id.val)
+                self.link(image, tag, client=client)
                 comment = omero.model.CommentAnnotationI()
                 comment.textValue = omero.rtypes.rstring("test Comment")
-                link_ann(client, comment, image.id.val)
+                self.link(image, comment, client=client)
                 rating = omero.model.LongAnnotationI()
                 rating.longValue = omero.rtypes.rlong(5)
                 rating.ns = omero.rtypes.rstring(
                     omero.constants.metadata.NSINSIGHTRATING)
-                link_ann(client, rating, image.id.val)
+                self.link(image, rating, client=client)
 
         # Run script on each type, with/without removing Annotations
         for anntype in ('Tag', 'Comment', 'Rating'):
