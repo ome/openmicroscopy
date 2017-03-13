@@ -177,7 +177,7 @@ function gs_json (url, data, callback) {
         data: data,
         success: cb(true),
         error: cb(false),
-        dataType: "jsonp",
+        dataType: "json",
         traditional: true
         });
 }

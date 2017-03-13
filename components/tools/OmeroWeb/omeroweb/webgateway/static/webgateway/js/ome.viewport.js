@@ -410,7 +410,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
     _this.loadedImg.current.query = parseQuery(query);
     //viewportimg.hide();
     ajaxTimeout = setTimeout(loadError, 10000);
-    jQuery.getJSON(server+'/imgData/'+iid+'/?callback=?', _reset);
+    jQuery.getJSON(server+'/imgData/'+iid+'/', _reset);
   };
 
   var loadingQ = 0;

@@ -972,7 +972,7 @@ public class ThumbnailBean extends AbstractLevel2Service
                 pixelsId = pixels.getId();
                 settings = ctx.getSettings(pixelsId);
                 thumbnailMetadata = ctx.getMetadata(pixelsId);
-                if (!PROGRESS_VERSION.equals(thumbnailMetadata.getVersion())) {
+                if (inProgress && !PROGRESS_VERSION.equals(thumbnailMetadata.getVersion())) {
                     thumbnailMetadata.setVersion(PROGRESS_VERSION);
                     dirtyMetadata = true;
                 }

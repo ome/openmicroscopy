@@ -4211,6 +4211,36 @@ class _BlitzGateway (object):
             search.close()
         return rv
 
+    def getThumbnailSet(self, image_ids, max_size=64):
+        tb = None
+        _resp = dict()
+        try:
+            tb = self.createThumbnailStore()
+            p = omero.sys.ParametersI().addIds(image_ids)
+            sql = """select new map(
+                        i.id as im_id, p.id as pix_id
+                     )
+                     from Pixels as p join p.image as i
+                     where i.id in (:ids) """
+
+            img_pixel_ids = self.getQueryService().projection(
+                sql, p, self.SERVICE_OPTS)
+            _temp = dict()
+            for e in img_pixel_ids:
+                e = unwrap(e)
+                _temp[e[0]['pix_id']] = e[0]['im_id']
+
+            thumbs_map = tb.getThumbnailByLongestSideSet(
+                rint(max_size), list(_temp))
+            for (pix, thumb) in thumbs_map.items():
+                _resp[_temp[pix]] = thumb
+        except Exception:
+            logger.error(traceback.format_exc())
+        finally:  # pragma: no cover
+            if tb is not None:
+                tb.close()
+        return _resp
+
 
 class OmeroGatewaySafeCallWrapper(object):  # pragma: no cover
     """

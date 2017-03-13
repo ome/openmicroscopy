@@ -274,7 +274,7 @@
     // Used in the Image viewer and in metadata general panel
     window.loadBulkAnnotations = function(url, wellId, callback) {
         // Load bulk annotations for screen or plate
-        $.getJSON(url + '?query=Well-' + wellId + '&callback=?',
+        $.getJSON(url + '?query=Well-' + wellId,
             function(result) {
                 if (result.data && result.data.rows) {
                     var table = $("#bulk-annotations").show().next().show().children("table");
