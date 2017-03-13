@@ -41,18 +41,6 @@ public class Setup {
     /** The name space used during the training.*/
     public static final String TRAINING_NS = "omero.training.demo";
 
-    /** The name of the configuration file in the configuration directory. */
-    private static final String CONFIG_FILE = "training.config";
-
-    /** 
-     * Points to the configuration directory.
-     * The path is relative to the installation directory.
-     */
-    public static final String CONFIG_DIR = "config";
-
-    /** Absolute path to the installation directory. */
-    private String homeDir;
-
     /**
      * Reads in the specified file as a property object.
      * 
@@ -63,35 +51,12 @@ public class Setup {
     private Properties loadConfig(String file)
     {
         Properties config = new Properties();
-        InputStream fis = null;
-        try {
-            fis = new FileInputStream(file);
+        try (InputStream fis = new FileInputStream(file)) {
             config.load(fis);
         } catch (Exception e) {
             return null;
-        } finally {
-            try {
-                if (fis != null) fis.close();
-            } catch (Exception ex) {}
         }
         return config;
-    }
-
-    /**
-     * Resolves <code>fileName</code> against the configuration directory.
-     * 
-     * @param fileName The name of a configuration file.
-     * @param directory The directory of reference.
-     * @return	Returns the absolute path to the specified file.
-     */
-    private String resolveFilePath(String fileName, String directory)
-    {
-        //if (fileName == null)	throw new NullPointerException();
-        StringBuffer relPath = new StringBuffer(directory);
-        relPath.append(File.separatorChar);
-        relPath.append(fileName);
-        File f = new File(homeDir, relPath.toString());
-        return f.getAbsolutePath();
     }
 
     /**
@@ -104,24 +69,21 @@ public class Setup {
         long projectId = 1;
         long plateId = 1;
 
-        Properties p = loadConfig(resolveFilePath(CONFIG_FILE, CONFIG_DIR));
-        if (p != null) {
-            imageId = Long.parseLong(p.getProperty("omero.imageid", "1"));
-            datasetId = Long.parseLong(p.getProperty("omero.datasetid", "1"));
-            projectId = Long.parseLong(p.getProperty("omero.projectid", "1"));
-            plateId = Long.parseLong(p.getProperty("omero.plateid", "1"));
-        }
-
         if (args == null || args.length == 0) {
             String ice_config = System.getenv().get("ICE_CONFIG");
             if (ice_config != null && !ice_config.isEmpty()) {
-                p = loadConfig(new File(ice_config).getAbsolutePath());
-                if (p != null)
+                Properties p = loadConfig(new File(ice_config).getAbsolutePath());
+                if (p != null) {
                     args = new String[] {
-                        "--omero.host=" + p.getProperty("omero.host"),
-                        "--omero.pass=" + p.getProperty("omero.pass"),
-                        "--omero.user=" + p.getProperty("omero.user"),
-                        "--omero.port=" + p.getProperty("omero.port") };
+                            "--omero.host=" + p.getProperty("omero.host"),
+                            "--omero.pass=" + p.getProperty("omero.pass"),
+                            "--omero.user=" + p.getProperty("omero.user"),
+                            "--omero.port=" + p.getProperty("omero.port") };
+                    imageId = Long.parseLong(p.getProperty("omero.imageid", "1"));
+                    datasetId = Long.parseLong(p.getProperty("omero.datasetid", "1"));
+                    projectId = Long.parseLong(p.getProperty("omero.projectid", "1"));
+                    plateId = Long.parseLong(p.getProperty("omero.plateid", "1"));
+                }
             }
 
             if (args == null || args.length == 0)
