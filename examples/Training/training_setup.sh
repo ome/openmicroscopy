@@ -8,6 +8,7 @@ set -x
 HOSTNAME=${HOSTNAME:-localhost}
 PORT=${PORT:-4064}
 WEBHOST=${WEBHOST:-http://localhost}
+SERVER_NAME=${SERVER_NAME:-omero}
 ROOT_PASSWORD=${ROOT_PASSWORD:-omero}
 GROUP_NAME=${GROUP_NAME:-training_group}
 GROUP_NAME_2=${GROUP_NAME_2:-training_group-2}
@@ -93,6 +94,7 @@ bin/omero logout
 echo "omero.host=$HOSTNAME" > "$CONFIG_FILENAME"
 echo "omero.port=$PORT" >> "$CONFIG_FILENAME"
 echo "omero.webhost=$WEBHOST" >> "$CONFIG_FILENAME"
+echo "omero.servername=$SERVER_NAME" >> "$CONFIG_FILENAME"
 echo "omero.user=$USER_NAME" >> "$CONFIG_FILENAME"
 echo "omero.pass=$USER_PASSWORD" >> "$CONFIG_FILENAME"
 echo "omero.group=$GROUP_NAME" >> "$CONFIG_FILENAME"

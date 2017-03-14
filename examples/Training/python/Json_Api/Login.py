@@ -9,8 +9,8 @@
 
 import requests
 
-from Parse_OMERO_Properties import USERNAME, PASSWORD, OMERO_WEB_HOST
-SERVER_NAME = 'omero'
+from Parse_OMERO_Properties import USERNAME, PASSWORD, OMERO_WEB_HOST, \
+    SERVER_NAME
 
 session = requests.Session()
 
@@ -54,7 +54,7 @@ for s in servers:
 # find one called SERVER_NAME
 servers = [s for s in servers if s['server'] == SERVER_NAME]
 if len(servers) < 1:
-    print "Found no server called '%s'" % SERVER_NAME
+    raise Exception("Found no server called '%s'" % SERVER_NAME)
 server = servers[0]
 
 # Login with username, password and token
