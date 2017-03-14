@@ -142,7 +142,7 @@ public class CommunicatorProxy
             throws TransportException
     {
         ImportRequest out = new ImportRequest(json);
-        MessengerReply in = new MessengerReply(reply);
+        ImportReply in = new ImportReply();
 
         try {
             channel.exchange(out, in);

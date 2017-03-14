@@ -119,6 +119,7 @@ class OfflineImagesImporter extends BatchCallTree {
         for (ImportableFile f : batch) {
             partialResult.put(f, e);
         }
+        throw new RuntimeException("Offline import batch failed.", e);
     }
 
     private void notifySubmissionSuccess(List<ImportableFile> batch) {
