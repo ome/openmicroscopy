@@ -4230,8 +4230,6 @@ class _BlitzGateway (object):
         _resp = dict()
         try:
             ctx = self.SERVICE_OPTS.copy()
-            if ctx.getOmeroGroup() is None:
-                ctx.setOmeroGroup(-1)
             tb = self.createThumbnailStore()
             p = omero.sys.ParametersI().addIds(image_ids)
             sql = """select new map(
