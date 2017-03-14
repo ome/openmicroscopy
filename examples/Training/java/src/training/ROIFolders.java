@@ -125,10 +125,10 @@ public class ROIFolders {
         }
 
         // Get the ROI folders associated with the image
-        Collection<FolderData> folders = roifac.getROIFolders(ctx, imageId);
+        Collection<FolderData> folders = roifac.getROIFolders(ctx, image.getId());
         for (FolderData folder : folders) {
             Collection<ROIResult> result = roifac.loadROIsForFolder(ctx,
-                    imageId, folder.getId());
+                    image.getId(), folder.getId());
             Collection<ROIData> folderRois = result.iterator().next().getROIs();
             // Do something with the ROIs
         }
