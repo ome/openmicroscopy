@@ -12,7 +12,7 @@ BEGIN
     IF alpha = 0 THEN
         alpha := least_1_byte;
     END IF;
-	  RETURN rgb << 8 | alpha;
+    RETURN rgb << 8 | alpha;
 
 END;$$ LANGUAGE plpgsql;
 
