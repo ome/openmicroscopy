@@ -11,7 +11,6 @@
 FOR TRAINING PURPOSES ONLY!
 """
 
-import omero
 from omero.gateway import BlitzGateway
 from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
 from Parse_OMERO_Properties import datasetId, imageId, plateId
