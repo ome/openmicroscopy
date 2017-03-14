@@ -31,6 +31,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
 import org.openmicroscopy.shoola.svc.transport.TransportException;
@@ -68,7 +69,8 @@ public class ImportRequest
         request.addHeader("Accept", "application/json");
         request.addHeader("Content-type", "application/json");
         try {
-            StringEntity entity = new StringEntity(json);
+            StringEntity entity =
+                    new StringEntity(json, ContentType.APPLICATION_JSON);
             request.setEntity(entity);
         } catch (Exception e) {
             throw new TransportException("Cannot prepare parameters", e);
