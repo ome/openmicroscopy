@@ -18,6 +18,7 @@ from omero.gateway import BlitzGateway
 from omero.util.populate_metadata import ParsingContext
 from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
 from Parse_OMERO_Properties import datasetId, plateId
+from random import random
 
 #
 # .. _python_omero_tables_code_samples:
@@ -33,7 +34,6 @@ conn.connect()
 
 # Create a name for the Original File (should be unique)
 # ======================================================
-from random import random
 table_name = "TablesDemo:%s" % str(random())
 col1 = omero.grid.LongColumn('Uid', 'testLong', [])
 col2 = omero.grid.StringColumn('MyStringColumnInit', '', 64, [])
@@ -42,8 +42,10 @@ columns = [col1, col2]
 
 # Create and initialize a new table
 # =================================
-repositoryId = 1
-table = conn.c.sf.sharedResources().newTable(repositoryId, table_name)
+
+resources = conn.c.sf.sharedResources()
+repository_id = resources.repositories().descriptions.get(0).getId().getValue()
+table = resources.newTable(repository_id, table_name)
 table.initialize(columns)
 
 
@@ -78,7 +80,7 @@ conn.getUpdateService().saveAndReturnObject(link)
 # =========
 # .. seealso:: :javadoc:` OMERO Tables <slice2html/omero/grid/Table.html>`
 
-open_table = conn.c.sf.sharedResources().openTable(orig_file)
+open_table = resources.openTable(orig_file)
 print "Table Columns:"
 for col in open_table.getHeaders():
     print "   ", col.name
@@ -127,7 +129,7 @@ open_table.close()           # we're done
 # ===================================================
 orig_table_file = conn.getObject(
     "OriginalFile", attributes={'name': table_name})    # if name is unique
-saved_table = conn.c.sf.sharedResources().openTable(orig_table_file._obj)
+saved_table = resources.openTable(orig_table_file._obj)
 print "Opened table with row-count:", saved_table.getNumberOfRows()
 saved_table.close()
 
