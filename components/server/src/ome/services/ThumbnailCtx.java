@@ -675,7 +675,7 @@ public class ThumbnailCtx
      * dimension pools. We're extended graph critical if:
      * <ul>
      *   <li>
-     *      <code>isGraphCritical() == true</code> and the Pixels set does not
+     *      <code>isGraphGritical() == true</code> and the Pixels set does not
      *      belong to us.
      *   </li>
      *   <li>
