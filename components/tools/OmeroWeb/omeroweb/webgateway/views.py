@@ -1525,7 +1525,8 @@ def listWellImages_json(request, did, conn=None, **kwargs):
     wellImgs = []
     for ws in well.listChildren():
         # optionally filter by acquisition 'run'
-        if acq is not None and ws.plateAcquisition.id.val != acq:
+        if (acq is not None and ws.plateAcquisition is not None and
+                ws.plateAcquisition.id.val != acq):
             continue
         img = ws.getImage()
         if img is not None:
