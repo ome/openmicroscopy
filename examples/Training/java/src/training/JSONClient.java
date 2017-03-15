@@ -262,18 +262,18 @@ public class JSONClient {
     }
 
     /**
-     * Update an image
+     * Update an object
      * 
-     * @param image
-     *            The image JSON
-     * @return See above
+     * @param object
+     *            The JSON object
+     * @return The updated object
      * @throws Exception
      *             If something went wrong
      */
-    public JsonObject updateImage(JsonObject image) throws Exception {
+    public JsonObject update(JsonObject object) throws Exception {
         String url = serviceURLs.get("url:save");
-        JsonObject updatedImage = (JsonObject) put(url, image);
-        return updatedImage;
+        JsonObject updatedObject = (JsonObject) put(url, object);
+        return updatedObject;
     }
 
     /**
@@ -471,17 +471,16 @@ public class JSONClient {
             System.out.println(image);
         }
 
-        JsonObject image = images.iterator().next();
         JsonObjectBuilder builder = Json.createObjectBuilder();
-        for (String key : image.keySet()) {
+        for (String key : dataset.keySet()) {
             if (key.equals("Name"))
-                builder.add(key, "New image name");
+                builder.add(key, "New dataset name");
             else
-                builder.add(key, image.get(key));
+                builder.add(key, dataset.get(key));
         }
-        JsonObject modifiedImage = builder.build();
-        System.out.println("Update name of image " + image.getInt("@id") + ":");
-        image = client.updateImage(modifiedImage);
-        System.out.println(image);
+        JsonObject modifiedDataset = builder.build();
+        System.out.println("Update name of dataset: "+dataset);
+        dataset = client.update(modifiedDataset);
+        System.out.println(dataset);
     }
 }
