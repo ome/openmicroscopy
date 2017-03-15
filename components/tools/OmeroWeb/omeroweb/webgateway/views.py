@@ -311,8 +311,7 @@ def render_birds_eye_view(request, iid, size=None,
 def _render_thumbnail(request, iid, w=None, h=None, conn=None, _defcb=None,
                       **kwargs):
     """
-    Returns an HttpResponse wrapped jpeg with the rendered thumbnail for image
-    'iid'
+    Returns a jpeg with the rendered thumbnail for image 'iid'
 
     @param request:     http request
     @param iid:         Image ID
@@ -1516,8 +1515,8 @@ def get_thumbnails_json(request, w=None, conn=None, **kwargs):
 def get_thumbnail_json(request, iid, w=None, h=None, conn=None, _defcb=None,
                        **kwargs):
     """
-    Returns an HttpResponse wrapped jpeg with the rendered thumbnail for image
-    'iid'
+    Returns an HttpResponse base64 encoded jpeg with the rendered thumbnail
+    for image 'iid'
 
     @param request:     http request
     @param iid:         Image ID
