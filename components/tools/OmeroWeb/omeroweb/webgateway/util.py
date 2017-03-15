@@ -35,7 +35,13 @@ def getIntOrDefault(request, name, default):
 
 
 def get_longs(request, name):
+    """
+    Retrieves parameters from the request. If the parameters are not present
+    an empty list is returned
 
+    This does not catch exceptions as it makes sense to throw exceptions if
+    the arguments provided do not pass basic type validation
+    """
     vals = []
     vals_raw = request.GET.getlist(name)
     for val_raw in vals_raw:
