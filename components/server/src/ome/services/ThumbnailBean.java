@@ -1005,7 +1005,15 @@ public class ThumbnailBean extends AbstractLevel2Service
         // process due to the possible unloaded Pixels. If we do not,
         // Pixels will be unloaded and we will hit
         // IllegalStateException's when checking update events.
-        iUpdate.saveArray(toSave.toArray(new Thumbnail[toSave.size()]));
+        try {
+        	iUpdate.saveArray(toSave.toArray(new Thumbnail[toSave.size()]));
+        } catch (Exception e) {
+            for (Thumbnail t : toSave) {
+                if (toReturn.containsKey(t.getPixels().getId())) {
+                    toReturn.put(t.getPixels().getId(), null);
+                }
+            }
+        }
         // Ensure that we do not have "dirty" pixels or rendering settings left
         // around in the Hibernate session cache.
         iQuery.clear();
