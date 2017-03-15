@@ -44,7 +44,7 @@ columns = [col1, col2]
 # =================================
 
 resources = conn.c.sf.sharedResources()
-repository_id = resources.repositories().descriptions.get(0).getId().getValue()
+repository_id = resources.repositories().descriptions[0].getId().getValue()
 table = resources.newTable(repository_id, table_name)
 table.initialize(columns)
 
