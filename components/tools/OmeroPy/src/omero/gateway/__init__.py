@@ -4496,6 +4496,8 @@ class _BlitzGateway (object):
         _resp = dict()
         try:
             ctx = self.SERVICE_OPTS.copy()
+            # workaround in case group was set in a session
+            ctx.setOmeroGroup(value=None)
             tb = self.createThumbnailStore()
             p = omero.sys.ParametersI().addIds(image_ids)
             sql = """select new map(
