@@ -1031,16 +1031,16 @@ public class ThumbnailBean extends AbstractLevel2Service
                         pixels = ctx.getPixels(pixelsId);
                         settings = ctx.getSettings(pixelsId);
                         thumbnailMetadata = ctx.getMetadata(pixelsId);
-                        if (inProgress && !PROGRESS_VERSION.equals(thumbnailMetadata.getVersion())) {
-                            thumbnailMetadata.setVersion(PROGRESS_VERSION);
-                            dirtyMetadata = true;
-                        }
                         try {
                             // At this point, we're sure that we have a thumbnail obj
                             // that we want to use, but retrieveThumbnail likes to
                             // re-generate. For the moment, we're saving and restoring
                             // that value to prevent creating a new one.
                             final byte[] thumbnail = retrieveThumbnail(false);
+                            if (inProgress && !PROGRESS_VERSION.equals(thumbnailMetadata.getVersion())) {
+                                thumbnailMetadata.setVersion(PROGRESS_VERSION);
+                                dirtyMetadata = true;
+                            }
                             toReturn.put(pixelsId, thumbnail);
                             if (dirtyMetadata) {
                                 toSave.add(thumbnailMetadata);
