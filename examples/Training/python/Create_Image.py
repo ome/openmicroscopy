@@ -14,6 +14,9 @@ FOR TRAINING PURPOSES ONLY!
 from omero.gateway import BlitzGateway
 from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
 from Parse_OMERO_Properties import imageId
+from numpy import array, int8
+import omero
+from omero.model.enums import UnitsLength
 
 """
 start-code
@@ -30,8 +33,6 @@ conn.connect()
 # This example demonstrates the usage of the convenience method
 # createImageFromNumpySeq() Here we create a multi-dimensional image from a
 # hard-coded array of data.
-from numpy import array, int8
-import omero
 size_x, size_y, size_z, size_c, size_t = 5, 4, 1, 2, 1
 plane1 = array(
     [[0, 1, 2, 3, 4], [5, 6, 7, 8, 9], [0, 1, 2, 3, 4], [5, 6, 7, 8, 9]],
@@ -61,7 +62,7 @@ print 'Created new Image:%s Name:"%s"' % (i.getId(), i.getName())
 # Lengths are specified by value and a unit enumeration
 # Here we set the pixel size X and Y to be 9.8 Angstroms
 
-from omero.model.enums import UnitsLength
+
 # Re-load the image to avoid update conflicts
 i = conn.getObject("Image", i.getId())
 u = omero.model.LengthI(9.8, UnitsLength.ANGSTROM)

@@ -95,7 +95,7 @@ print " T:", image.getSizeT()
 # render the first timepoint, mid Z section
 z = image.getSizeZ() / 2
 t = 0
-renderedImage = image.renderImage(z, t)
+rendered_image = image.renderImage(z, t)
 # renderedImage.show()               # popup (use for debug only)
 # renderedImage.save("test.jpg")     # save in the current folder
 
