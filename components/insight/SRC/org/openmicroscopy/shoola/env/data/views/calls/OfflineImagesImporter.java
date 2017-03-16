@@ -118,14 +118,14 @@ class OfflineImagesImporter extends BatchCallTree {
     private void notifySubmissionError(List<ImportableFile> batch, Exception e) {
         for (ImportableFile f : batch) {
             partialResult.put(f, e);
+            f.getStatus().notifyOfflineImportFailure(e);
         }
-        throw new RuntimeException("Offline import batch failed.", e);
     }
 
     private void notifySubmissionSuccess(List<ImportableFile> batch) {
         for (ImportableFile f : batch) {
-            f.getStatus().markedAsOffLineImport();
             partialResult.put(f, true);
+            f.getStatus().notifySuccessfulOfflineImport();
         }
     }
 

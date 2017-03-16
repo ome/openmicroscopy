@@ -156,6 +156,17 @@ public class ImporterAgent
     }
 
     /**
+     * Are we supposed to run an offline import?
+     * @return true for yes, false for no.
+     */
+    public static boolean isOfflineImport() {
+        Registry context = getRegistry();
+        Boolean offline = (Boolean)
+                context.lookup(LookupNames.OFFLINE_IMPORT_ENABLED);
+        return offline != null && offline;
+    }
+
+    /**
      * Returns the default value from the configuration file.
      * 
      * @return See above.

@@ -1038,6 +1038,30 @@ public class FileImportComponent
 		repaint();
 	}
 
+	public void propagateSuccessfulOfflineImportStatus() {
+		if (statusLabel != null) {
+			statusLabel.notifySuccessfulOfflineImport();
+		}
+		setStatus(null);
+		if (hasComponents()) {
+			for (FileImportComponent c : components.values()) {
+				c.propagateSuccessfulOfflineImportStatus();
+			}
+		}
+	}
+
+	public void propagateOfflineImportFailureStatus(Exception cause) {
+		if (statusLabel != null) {
+			statusLabel.notifyOfflineImportFailure(cause);
+		}
+		setStatus(cause);
+		if (hasComponents()) {
+			for (FileImportComponent c : components.values()) {
+				c.propagateOfflineImportFailureStatus(cause);
+			}
+		}
+	}
+
 	/**
 	 * Returns the files that failed to import.
 	 * 
@@ -1153,25 +1177,6 @@ public class FileImportComponent
 				return true;
 		}
 		return false;
-	}
-
-	/**
-	 * Returns <code>true</code> if the import has been place in the offline
-	 * import queue, <code>false</code> otherwise.
-	 *
-	 * @return See above.
-	 */
-	public boolean isOffLineImport()
-	{
-	    boolean b = statusLabel.isMarkedOffLineImport();
-	    if (b || getFile().isFile()) return b;
-	    if (components == null) return false;
-	    Iterator<FileImportComponent> i = components.values().iterator();
-	    while (i.hasNext()) {
-	        if (i.next().isOffLineImport())
-	            return true;
-	    }
-	    return false;
 	}
 
 	/**

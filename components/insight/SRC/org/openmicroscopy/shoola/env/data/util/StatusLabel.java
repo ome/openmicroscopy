@@ -27,6 +27,7 @@ import java.awt.Font;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -130,9 +131,13 @@ public class StatusLabel
     /** Text to indicate that the import is cancelled. */
     private static final String CANCEL_TEXT = "Cancelled";
 
-    /** Text to indicate that the import is off line. */
-    private static final String OFFLINE_TEXT = "The file has been placed "
-            + "in the queue for offline import";
+    /** Text to indicate that an offline import has succeeded. */
+    private static final String OFFLINE_SUCCESS_TEXT =
+            "The file will be imported offline.";
+
+    /** Text to indicate that an offline import has failed. */
+    private static final String OFFLINE_FAIL_TEXT =
+            "Error: The file cannot be imported offline.";
     
     /** Text to indicate that no files to import. */
     private static final String NO_FILES_TEXT = "No Files to Import.";
@@ -181,9 +186,6 @@ public class StatusLabel
 
     /** Flag indicating that the import has been cancelled. */
     private boolean markedAsCancel;
-
-    /** Flag indicating that the import is an offline import. */
-    private boolean markedAsOffLine;
 
     /** Flag indicating that the import can or not be cancelled.*/
     private boolean cancellable;
@@ -444,21 +446,6 @@ public class StatusLabel
         generalLabel.setText(CANCEL_TEXT);
         this.markedAsCancel = true;
     }
-
-    /** Marks the import has offline. */
-    public void markedAsOffLineImport()
-    {
-        generalLabel.setText(OFFLINE_TEXT);
-        this.markedAsOffLine = true;
-    }
-
-    /**
-     * Returns <code>true</code> if the import is marked as an offline import,
-     * <code>false</code> otherwise.
-     * 
-     * @return See above.
-     */
-    public boolean isMarkedOffLineImport() { return markedAsOffLine; }
 
     /**
      * Returns <code>true</code> if the import is marked as cancel,
@@ -769,6 +756,32 @@ public class StatusLabel
                     (ImportEvent.POST_UPLOAD_EVENT) event;
             ic = e.container;
             
+        }
+    }
+
+    private boolean hasNotifiedOfflineOutcome = false;
+
+    public void notifySuccessfulOfflineImport() {
+        cancellable = false;
+        generalLabel.setText(OFFLINE_SUCCESS_TEXT);
+        pixels = new HashSet<>();
+        if (!hasNotifiedOfflineOutcome) {
+            hasNotifiedOfflineOutcome = true;  // avoid infinite loops.
+            firePropertyChange(IMPORT_DONE_PROPERTY, null, this);
+        }
+    }
+
+    public void notifyOfflineImportFailure(Exception cause) {
+        cancellable = false;
+        if (cause instanceof ImportException) {
+            exception = (ImportException) cause;
+        } else {
+            exception = new ImportException(cause);
+        }
+        generalLabel.setText(OFFLINE_FAIL_TEXT);
+        if (!hasNotifiedOfflineOutcome) {
+            hasNotifiedOfflineOutcome = true;  // avoid infinite loops.
+            firePropertyChange(PROCESSING_ERROR_PROPERTY, null, this);
         }
     }
 

@@ -214,6 +214,13 @@ class ImporterUIElement
 	
 	/** Flag indicating if the upload has started or not.*/
 	private boolean uploadStarted;
+
+	/**
+	 * If we're doing an offline import, we set this flag to true just after
+	 * queueing the import data. For regular imports, this flag always stays
+	 * false.
+	 */
+	private boolean offlineCompleted;
 	
 	/**
 	 * Returns the object found by identifier.
@@ -714,6 +721,49 @@ class ImporterUIElement
 		FileImportComponent c = components.get(f.toString());
 		return uploadComplete(c, result);
 	}
+
+	/**
+	 * Handle the settings of the various import counters if this is an offline
+	 * import.
+	 * @param result the import outcome.
+	 * @return true if this is an offline import and the counters have been
+	 * updated accordingly; false if this is a regular import and so the
+	 * counters have *not* been updated.
+	 */
+	private boolean handleOfflineImportOutcome(
+			FileImportComponent fc, Object result) {
+		// NB submitting an offline batch of files can either be queued, in
+		// which case the submission is successful, or be rejected as a whole.
+		// If the submission is successful, files will be processed offline.
+		// So we set the counters below to reflect all this. (This method
+		// will be called for each and every file in the batch, but it doesn't
+		// matter: the counters are always set to constant values.)
+		if (ImporterAgent.isOfflineImport()) {
+			offlineCompleted = true;
+			countCancelled = 0;
+			countUploadFailure = 0;
+			if (result instanceof Exception) {  // see StatusLabel.notifyOfflineImportFailure
+				countFailure = totalToImport;
+				countUploaded = 0;
+				countImported = 0;
+				// need this too if we're importing directories
+				fc.propagateOfflineImportFailureStatus((Exception) result);
+			} else {  // see StatusLabel.notifySuccessfulOfflineImport
+				countFailure = 0;
+				countUploaded = totalToImport;
+				countImported = totalToImport;
+				// need this too if we're importing directories
+				fc.propagateSuccessfulOfflineImportStatus();
+			}
+			setNumberOfImport();
+			setClosable(true);
+			if (rotationIcon != null) rotationIcon.stopRotation();
+
+			return true;
+		} else {
+			return false;
+		}
+	}
 	
 	/**
 	 * Sets the result of the import for the specified file.
@@ -728,6 +778,9 @@ class ImporterUIElement
 		if (c == null) return null;
 		c.uploadComplete(result);
 		FileObject file = c.getFile();
+
+		if (handleOfflineImportOutcome(c, result)) return null;
+
 		Object r = null;
 		if (file.isFile()) {
 			countUploaded++;
@@ -800,11 +853,14 @@ class ImporterUIElement
 	void setImportResult(FileImportComponent fc, Object result)
 	{
 		if (fc == null) return;
+
+		if (handleOfflineImportOutcome(fc, result)) return;
+
 		FileObject file = fc.getFile();
 		if (file.isFile()) {
 			fc.setStatus(result);
 			countImported++;
-			if ((fc.isCancelled() || fc.isOffLineImport()) && result != null &&
+			if (fc.isCancelled() && result != null &&
 				!(result instanceof Boolean))
 				countImported--;
 			if (isDone() && rotationIcon != null)
@@ -839,7 +895,12 @@ class ImporterUIElement
 	 * 
 	 * @return See above.
 	 */
-	boolean isUploadComplete() { return countUploaded == totalToImport; }
+	boolean isUploadComplete() {
+		if (ImporterAgent.isOfflineImport()) {
+			return offlineCompleted;
+		}
+		return countUploaded == totalToImport;
+	}
 	
 	/**
 	 * Returns <code>true</code> if the import is finished, <code>false</code>
@@ -847,7 +908,12 @@ class ImporterUIElement
 	 * 
 	 * @return See above.
 	 */
-	boolean isDone() { return countImported == totalToImport; }
+	boolean isDone() {
+		if (ImporterAgent.isOfflineImport()) {
+			return offlineCompleted;
+		}
+		return countImported == totalToImport;
+	}
 	
 	/**
 	 * Returns <code>true</code> if there is one remaining import,
@@ -855,7 +921,12 @@ class ImporterUIElement
 	 * 
 	 * @return See above.
 	 */
-	boolean isLastImport() { return countImported == (totalToImport-1); }
+	boolean isLastImport() {
+		if (ImporterAgent.isOfflineImport()) {
+			return offlineCompleted;
+		}
+		return countImported == (totalToImport-1);
+	}
 	
 	/** 
 	 * Indicates that the import has started. 
@@ -1128,6 +1199,11 @@ class ImporterUIElement
 	Icon getImportIcon()
 	{ 
 		if (isDone()) {
+
+			if (ImporterAgent.isOfflineImport()) {
+				return countFailure > 0 ? IMPORT_FAIL : IMPORT_SUCCESS;
+			}
+
 			Iterator<Entry<String, FileImportComponent>>
 			i = components.entrySet().iterator();
 			FileImportComponent fc;
