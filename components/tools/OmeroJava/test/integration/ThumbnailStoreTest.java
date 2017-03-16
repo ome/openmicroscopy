@@ -283,7 +283,7 @@ public class ThumbnailStoreTest extends AbstractServerTest {
 
         /* check that the thumbnails are as expected */
         Assert.assertTrue(thumbnail.length > 0);
-        Assert.assertEquals(thumbnail, thumbnails.get(pixelsIdα));
-        Assert.assertEquals(thumbnail, thumbnails.get(pixelsIdβ));
+        Assert.assertEquals(thumbnails.get(pixelsIdα), thumbnail);
+        Assert.assertEquals(thumbnails.get(pixelsIdβ), thumbnail);
     }
 }
