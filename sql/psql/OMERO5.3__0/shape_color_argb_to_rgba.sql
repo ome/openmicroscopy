@@ -16,6 +16,9 @@ BEGIN
 
 END;$$ LANGUAGE plpgsql;
 
+--
+-- Edit TRUE to apply change to a subset of ROIs
+--
 
 UPDATE shape
   SET strokecolor = CASE WHEN strokecolor IS NOT NULL THEN fix_color(strokecolor) END,
