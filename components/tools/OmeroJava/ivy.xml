@@ -41,6 +41,9 @@
     <dependency org="ome" name="formats-gpl" rev="${versions.bioformats}" transitive="true">
         <exclude org="org.slf4j"/>
     </dependency>
+    <dependency org="org.glassfish" name="javax.json" rev="${versions.json}" transitive="true"/>
+    <dependency org="org.apache.httpcomponents" name="httpclient" rev="${versions.httpclient}" transitive="true"/>
+    <dependency org="org.apache.httpcomponents" name="httpmime" rev="${versions.httpclient}" transitive="true"/>
   </dependencies>
 </ivy-module>
 
