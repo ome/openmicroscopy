@@ -1,5 +1,5 @@
 /*
- *   Copyright 2006-2013 University of Dundee. All rights reserved.
+ *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -49,8 +49,10 @@ import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
 import ome.parameters.Parameters;
 import ome.services.ThumbnailCtx.NoThumbnail;
+import ome.services.messages.ContextMessage;
 import ome.services.scripts.ScriptRepoHelper;
 import ome.system.EventContext;
+import ome.system.OmeroContext;
 import ome.system.SimpleEventContext;
 import ome.util.ImageUtil;
 import omeis.providers.re.Renderer;
@@ -63,6 +65,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.perf4j.StopWatch;
 import org.perf4j.slf4j.Slf4JStopWatch;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.io.Resource;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -79,7 +83,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Transactional(readOnly = true)
 public class ThumbnailBean extends AbstractLevel2Service
-    implements ThumbnailStore, Serializable
+    implements ApplicationContextAware, ThumbnailStore, Serializable
 {
     /**
      *
@@ -183,6 +187,8 @@ public class ThumbnailBean extends AbstractLevel2Service
 
     private final ScriptRepoHelper helper;
 
+    private OmeroContext applicationContext = null;
+
     /**
      * overridden to allow Spring to set boolean
      * @param checking
@@ -194,6 +200,11 @@ public class ThumbnailBean extends AbstractLevel2Service
 
     public Class<? extends ServiceInterface> getServiceInterface() {
         return ThumbnailStore.class;
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        this.applicationContext  = (OmeroContext) applicationContext;
     }
 
     // ~ Lifecycle methods
@@ -692,7 +703,7 @@ public class ThumbnailBean extends AbstractLevel2Service
         resetMetadata();
         ctx = new ThumbnailCtx(
                 iQuery, iUpdate, iPixels, settingsService, ioService,
-                sec, sec.getEffectiveUID());
+                applicationContext, sec, sec.getEffectiveUID());
     }
 
     /**
@@ -844,23 +855,38 @@ public class ThumbnailBean extends AbstractLevel2Service
             // the rendering settings. FIXME: This should be
             // implemented using IUpdate.touch() or similar once that
             // functionality exists.
-            
             //Check first if the thumbnail is the one of the settings owner
             Long ownerId = thumbnailMetadata.getDetails().getOwner().getId();
             Long rndOwnerId = settings.getDetails().getOwner().getId();
-            if (rndOwnerId.equals(ownerId)) {
-                Pixels unloadedPixels = new Pixels(pixels.getId(), false);
-                thumbnailMetadata.setPixels(unloadedPixels);
-                _setMetadataVersion(thumbnailMetadata, inProgress);
-                dirtyMetadata = true;
-            } else {
-                //new one for owner of the settings.
-                Dimension d = new Dimension(thumbnailMetadata.getSizeX(),
-                        thumbnailMetadata.getSizeY());
-                thumbnailMetadata = ctx.createThumbnailMetadata(pixels, d);
-                _setMetadataVersion(thumbnailMetadata, inProgress);
-                thumbnailMetadata = iUpdate.saveAndReturnObject(thumbnailMetadata);
-                dirtyMetadata = false;
+            final Long rndGroupId = settings.getDetails().getGroup().getId();
+            final Map<String, String> groupContext = new HashMap<>();
+            groupContext.put("omero.group", Long.toString(rndGroupId));
+            try {
+                try {
+                    applicationContext.publishMessage(new ContextMessage.Push(this, groupContext));
+                } catch (Throwable t) {
+                    log.error("could not publish context change push", t);
+                }
+                if (rndOwnerId.equals(ownerId)) {
+                    Pixels unloadedPixels = new Pixels(pixels.getId(), false);
+                    thumbnailMetadata.setPixels(unloadedPixels);
+                    _setMetadataVersion(thumbnailMetadata, inProgress);
+                    dirtyMetadata = true;
+                } else {
+                    //new one for owner of the settings.
+                    Dimension d = new Dimension(thumbnailMetadata.getSizeX(),
+                            thumbnailMetadata.getSizeY());
+                    thumbnailMetadata = ctx.createThumbnailMetadata(pixels, d);
+                    _setMetadataVersion(thumbnailMetadata, inProgress);
+                    thumbnailMetadata = iUpdate.saveAndReturnObject(thumbnailMetadata);
+                    dirtyMetadata = false;
+                }
+            } finally {
+                try {
+                    applicationContext.publishMessage(new ContextMessage.Pop(this, groupContext));
+                } catch (Throwable t) {
+                    log.error("could not publish context change pop", t);
+                }
             }
         }
         // dirtyMetadata is left false here because we may be creating a
