@@ -333,7 +333,7 @@
                             'ignorePreview': true,
                             'thumbnail_url': "{% url 'get_thumbnails_json' %}",
                             'defaultThumbnail': "{% static 'webgateway/img/image128.png' %}",
-                            'thumbnailsBatch': {{ thumbnails_batch|default:50|json_dumps|safe }}
+                            'thumbnailsBatch': 1
                           });
                           updateMyRdef(OME.preview_viewport.getQuery());
                       }
