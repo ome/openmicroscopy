@@ -10,7 +10,7 @@
 			<class name="integration.gateway.RawDataFacilityTest" />
 			<class name="integration.gateway.MetadataFacilityTest" />
 			<class name="integration.gateway.ROIFacilityTest" />
-			<class name="integration.gateway.TablesFacilityTest" />
+			<!-- <class name="integration.gateway.TablesFacilityTest" /> excluded because addTable method is flaky on CI -->
 		</classes>
 	</test>
 </suite>
