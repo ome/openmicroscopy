@@ -167,15 +167,20 @@ class TestUtilScripts(ScriptTest):
         assert count == n
 
     @pytest.mark.parametrize("remove", [True, False])
-    def test_move_annotations(self, remove):
+    @pytest.mark.parametrize("script_runner", ['user', 'root'])
+    def test_move_annotations(self, remove, script_runner):
 
         script_id = super(TestUtilScripts, self).get_script(move_annotations)
         assert script_id > 0
 
-        # session = self.root.sf
-        client = self.root
+        root_group = self.root.sf.getAdminService().getEventContext().groupId
+        # create new user in same group as root
+        # (script run in same context by user OR root)
+        client, user = self.new_client_and_user(group=root_group)
+        user_id = user.id.val
         field_count = 2
 
+        # User creates Plate and Adds annotations...
         plate = self.import_plates(client=client, fields=field_count)[0]
 
         well_ids = []
@@ -196,6 +201,12 @@ class TestUtilScripts(ScriptTest):
                     omero.constants.metadata.NSINSIGHTRATING)
                 self.link(image, rating, client=client)
 
+        # Either the 'user' or 'root' will run the script
+        if script_runner == 'user':
+            script_runner_client = client
+        else:
+            script_runner_client = self.root
+
         # Run script on each type, with/without removing Annotations
         for anntype in ('Tag', 'Comment', 'Rating'):
             args = {
@@ -204,16 +215,23 @@ class TestUtilScripts(ScriptTest):
                 "Annotation_Type": omero.rtypes.rstring(anntype),
                 "Remove_Annotations_From_Images": omero.rtypes.rbool(remove)
             }
-            message = run_script(client, script_id, args, "Message")
+            message = run_script(script_runner_client, script_id,
+                                 args, "Message")
             assert message.val == "Moved %s Annotations" % field_count
 
-        # Remove annotations from Wells...
+        # Check new links are owned by user
+        # and remove annotations from Wells...
         query_service = client.getSession().getQueryService()
         query = ("select l from WellAnnotationLink as l"
+                 " join fetch l.child as ann"
+                 " join fetch l.details.owner as owner"
                  " where l.parent.id in (:ids)")
         params = omero.sys.ParametersI().addIds(well_ids)
         links = query_service.findAllByQuery(query, params)
         link_ids = [l.id.val for l in links]
+        assert len(link_ids) == field_count * 3
+        for l in links:
+            assert l.getDetails().owner.id.val == user_id
         delete = Delete2(targetObjects={'WellAnnotationLink': link_ids})
         handle = client.sf.submit(delete)
         client.waitOnCmd(handle, loops=10, ms=500, failonerror=True,
@@ -226,7 +244,7 @@ class TestUtilScripts(ScriptTest):
             "Annotation_Type": omero.rtypes.rstring("All"),
             "Remove_Annotations_From_Images": omero.rtypes.rbool(remove)
         }
-        message = run_script(client, script_id, args, "Message")
+        message = run_script(script_runner_client, script_id, args, "Message")
         # If we've been removing annotations above,
         # there will be None left to move
         if remove:
@@ -236,5 +254,5 @@ class TestUtilScripts(ScriptTest):
         assert message.val == expected
 
         # Run again - None moved since Annotations are already on Well
-        message = run_script(client, script_id, args, "Message")
+        message = run_script(script_runner_client, script_id, args, "Message")
         assert message.val == "No annotations moved. See info."
