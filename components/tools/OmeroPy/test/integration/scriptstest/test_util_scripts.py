@@ -167,16 +167,16 @@ class TestUtilScripts(ScriptTest):
         assert count == n
 
     @pytest.mark.parametrize("remove", [True, False])
-    @pytest.mark.parametrize("script_runner", ['user', 'root'])
+    @pytest.mark.parametrize("script_runner", ['user', 'admin'])
     def test_move_annotations(self, remove, script_runner):
 
         script_id = super(TestUtilScripts, self).get_script(move_annotations)
         assert script_id > 0
 
-        root_group = self.root.sf.getAdminService().getEventContext().groupId
-        # create new user in same group as root
-        # (script run in same context by user OR root)
-        client, user = self.new_client_and_user(group=root_group)
+        # create new Admin and user in same group
+        admin_client, admin = self.new_client_and_user(system=True)
+        group = admin_client.sf.getAdminService().getEventContext().groupId
+        client, user = self.new_client_and_user(group=group)
         user_id = user.id.val
         field_count = 2
 
@@ -205,7 +205,7 @@ class TestUtilScripts(ScriptTest):
         if script_runner == 'user':
             script_runner_client = client
         else:
-            script_runner_client = self.root
+            script_runner_client = admin_client
 
         # Run script on each type, with/without removing Annotations
         for anntype in ('Tag', 'Comment', 'Rating'):
