@@ -260,22 +260,9 @@ public class ThumbnailStoreTest extends AbstractServerTest {
             }
         }
 
+        /* import the image as another user in another group */
         setUpNewUserWithImporter();
-
-        try {
-            /* import the image as another user in another group and get its thumbnail */
-            pixelsIdβ = importFile(importer, file, "fake", false).get(0).getId().getValue();
-            svc = factory.createThumbnailStore();
-            svc.setPixelsId(pixelsIdβ);
-            Assert.assertEquals(svc.getThumbnailByLongestSide(null), thumbnail);
-        } finally {
-            if (svc != null) {
-                {
-                    svc.close();
-                    svc = null;
-                }
-            }
-        }
+        pixelsIdβ = importFile(importer, file, "fake", false).get(0).getId().getValue();
 
         final Map<Long, byte[]> thumbnails;
 
