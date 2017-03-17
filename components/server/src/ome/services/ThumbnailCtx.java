@@ -524,10 +524,15 @@ public class ThumbnailCtx
         return settingsLastUpdated.after(metadataLastUpdated);
     }
 
-    class ExtendedGraphCriticalCheck extends ActPerGroup {
-        boolean isCritical;
+    /**
+     * Check if a {@link Pixels} is extended graph critical in its own group's context.
+     * @author m.t.b.carroll@dundee.ac.uk
+     * @since 5.3.1
+     */
+    private class ExtendedGraphCriticalCheck extends ActPerGroup {
+        private boolean isCritical;
 
-        ExtendedGraphCriticalCheck(long pixelsId) {
+        private ExtendedGraphCriticalCheck(long pixelsId) {
             actOnByGroup(Collections.singleton(pixelsId));
         }
 
@@ -1140,8 +1145,17 @@ public class ThumbnailCtx
         return thumb;
     }
 
+    /**
+     * Perform an operation on {@link Pixels} in contexts corresponding to the {@link Pixels}' group.
+     * @author m.t.b.carroll@dundee.ac.uk
+     * @since 5.3.1
+     */
     private abstract class ActPerGroup {
 
+        /**
+         * Act on the {@link Pixels} by setting the group context and calling {@link #actOnOneGroup(Set)} as necessary.
+         * @param pixelsIds the IDs of the {@link Pixels} on which to act
+         */
         void actOnByGroup(Collection<Long> pixelsIds) {
             if (pixelsIds.isEmpty()) {
                 return;
@@ -1179,6 +1193,10 @@ public class ThumbnailCtx
             }
         }
 
+        /**
+         * Act on the {@link Pixels}. Called within a context corresponding to the {@link Pixels}' group.
+         * @param pixelsIds the IDs of the {@link Pixels} on which to act
+         */
         abstract protected void actOnOneGroup(Set<Long> pixelsIds);
         }
 }
