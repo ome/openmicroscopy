@@ -52,9 +52,8 @@ public class JSONClientExample {
         }
         if (baseURL.isEmpty() || username.isEmpty() || password.isEmpty()
                 || servername.isEmpty()) {
-            System.err
-                    .println("No omero.webhost, omero.user, omero.pass or omero.servername specified.");
-            System.exit(1);
+            throw new IllegalArgumentException(
+                    "No omero.webhost, omero.user, omero.pass or omero.servername specified.");
         }
     }
 
