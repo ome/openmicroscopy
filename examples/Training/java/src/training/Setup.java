@@ -102,6 +102,7 @@ public class Setup {
         new ROIs(args, imageId);
         new ROIFolders(args, imageId);
         new WriteData(args, imageId, projectId);
+        new JSONClientExample(args);
     }
 
     /**
