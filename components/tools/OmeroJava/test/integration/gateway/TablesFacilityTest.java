@@ -18,7 +18,6 @@
  */
 package integration.gateway;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Random;
 import java.util.UUID;
@@ -39,7 +38,7 @@ public class TablesFacilityTest extends GatewayTest {
 
     private static final int nCols = 10;
 
-    private static final int nRows = 100000;
+    private static final int nRows = 1000;
 
     private DatasetData ds;
 
@@ -56,7 +55,7 @@ public class TablesFacilityTest extends GatewayTest {
                 null);
     }
 
-    @Test(timeOut = 600000)
+    @Test(timeOut = 60000)
     public void testAddTable() throws Exception {
         Class<?>[] types = new Class<?>[] { String.class, Long.class,
                 Double.class, Double[].class };
@@ -88,7 +87,7 @@ public class TablesFacilityTest extends GatewayTest {
         }
 
         original = new TableData(header, data);
-        TableData stored = tablesFacility.addTable(rootCtx, ds, "Big Table",
+        TableData stored = tablesFacility.addTable(rootCtx, ds, "Table",
                 original);
         Assert.assertEquals(stored.getNumberOfRows(), nRows);
         original.setOriginalFileId(stored.getOriginalFileId());
@@ -125,9 +124,9 @@ public class TablesFacilityTest extends GatewayTest {
         int rows = (int) info.getNumberOfRows();
         int cols = info.getColumns().length;
 
-        // request maximum of 1000 rows
-        int rowFrom = rand.nextInt(rows - 1000);
-        int rowTo = rowFrom + rand.nextInt(1000);
+        // request maximum of 100 rows
+        int rowFrom = rand.nextInt(rows - 100);
+        int rowTo = rowFrom + rand.nextInt(100);
         int[] columns = new int[rand.nextInt(cols)];
 
         for (int x = 0; x < columns.length; x++)
