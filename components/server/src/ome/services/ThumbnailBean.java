@@ -844,7 +844,7 @@ public class ThumbnailBean extends AbstractLevel2Service
         }
     }
 
-    /** Actually does the work specified by {@link createThumbnail()}.*/
+    /** Actually does the work specified by {@link #createThumbnail(Integer, Integer)}. */
     private Thumbnail _createThumbnail() {
         StopWatch s1 = new Slf4JStopWatch("omero._createThumbnail");
         if (thumbnailMetadata == null) {
@@ -868,14 +868,14 @@ public class ThumbnailBean extends AbstractLevel2Service
                     log.error("could not publish context change push", t);
                 }
                 if (rndOwnerId.equals(ownerId)) {
-                    Pixels unloadedPixels = new Pixels(pixels.getId(), false);
+                    final Pixels unloadedPixels = new Pixels(pixels.getId(), false);
                     thumbnailMetadata.setPixels(unloadedPixels);
                     _setMetadataVersion(thumbnailMetadata, inProgress);
                     dirtyMetadata = true;
                 } else {
                     //new one for owner of the settings.
-                    Dimension d = new Dimension(thumbnailMetadata.getSizeX(),
-                            thumbnailMetadata.getSizeY());
+                    final Dimension d = new Dimension(thumbnailMetadata.getSizeX(),
+                                                      thumbnailMetadata.getSizeY());
                     thumbnailMetadata = ctx.createThumbnailMetadata(pixels, d);
                     _setMetadataVersion(thumbnailMetadata, inProgress);
                     thumbnailMetadata = iUpdate.saveAndReturnObject(thumbnailMetadata);
