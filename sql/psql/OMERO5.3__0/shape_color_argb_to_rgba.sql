@@ -26,3 +26,5 @@ UPDATE shape
   WHERE (strokecolor IS NOT NULL OR
          fillcolor   IS NOT NULL) AND
         TRUE;
+
+DROP FUNCTION fix_color(INTEGER);
