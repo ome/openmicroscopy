@@ -9,10 +9,9 @@ of OMERO.web and web apps; dropping support for Windows for the server and for
 deploying OMERO.web using Apache; and introducing new user features and many
 fixes and performance improvements:
 
--  improved support for many file formats via Bio-Formats 5.3.4
+-  improved support for many file formats via Bio-Formats 5.4.0
 -  introduced ROI Folders
--  new grid view layout for OMERO.web UI when displaying Screen Plate Well
-   data
+-  new UI for displaying Screen Plate Well data in OMERO.web and OMERO.insight
 -  support for lookup tables and reverse intensity rendering
 -  color mapping for multiple channels without set colors has been improved to
    use RGBRGB rather than RGBBB (i.e. to loop through red, green, blue rather
@@ -38,11 +37,12 @@ fixes and performance improvements:
 Sysadmin changes include:
 
 -  added support for Ice 3.6.3
--  official OMERO.web apps are now all installable via pip
+-  official OMERO.web apps are now all installable from PyPI
 -  OMERO.web has been decoupled from the server and can now be deployed
    separately
 -  dropped support for Windows for OMERO.server
 -  OMERO.web deployment via Apache is no longer supported
+-  OMERO.web also now requires Python 2.7
 -  CLI improvements
 -  options added for customizing the tree in OMERO.web
 -  introduced hide-password option in CLI
