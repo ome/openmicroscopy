@@ -21,6 +21,7 @@ package ome.security.basic;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -142,11 +143,12 @@ public class LightAdminPrivileges {
      * @return the light administrator privileges associated with the session
      */
     public ImmutableSet<AdminPrivilege> getSessionPrivileges(Session session, boolean isCache) {
+        final SessionEqualById wrappedSession = new SessionEqualById(session);
         try {
             if (isCache) {
-                return PRIVILEGE_CACHE.get(session);
+                return PRIVILEGE_CACHE.get(wrappedSession);
             } else {
-                final ImmutableSet<AdminPrivilege> privileges = PRIVILEGE_CACHE.getIfPresent(session);
+                final ImmutableSet<AdminPrivilege> privileges = PRIVILEGE_CACHE.getIfPresent(wrappedSession);
                 if (privileges != null) {
                     return privileges;
                 } else {
@@ -170,12 +172,12 @@ public class LightAdminPrivileges {
         rootId = roles.getRootId();
     }
 
-    private final LoadingCache<ome.model.meta.Session, ImmutableSet<AdminPrivilege>> PRIVILEGE_CACHE =
+    private final LoadingCache<SessionEqualById, ImmutableSet<AdminPrivilege>> PRIVILEGE_CACHE =
             CacheBuilder.newBuilder().expireAfterWrite(1, TimeUnit.MINUTES).build(
-                    new CacheLoader<ome.model.meta.Session, ImmutableSet<AdminPrivilege>>() {
+                    new CacheLoader<SessionEqualById, ImmutableSet<AdminPrivilege>>() {
                         @Override
-                        public ImmutableSet<AdminPrivilege> load(Session session) {
-                            return getPrivileges(session);
+                        public ImmutableSet<AdminPrivilege> load(SessionEqualById wrappedSession) {
+                            return getPrivileges(wrappedSession.session);
                         }
                     });
 
@@ -188,7 +190,7 @@ public class LightAdminPrivileges {
      * @param session an OMERO session
      * @return the light administrator privileges associated with the session
      */
-    private ImmutableSet<AdminPrivilege> getPrivileges(ome.model.meta.Session session) {
+    private ImmutableSet<AdminPrivilege> getPrivileges(Session session) {
         final Set<AdminPrivilege> privileges = new HashSet<>(getAllPrivileges());
         final Experimenter user;
         if (session.getSudoer() == null) {
@@ -211,5 +213,41 @@ public class LightAdminPrivileges {
             }
         }
         return ImmutableSet.copyOf(privileges);
+    }
+
+    /**
+     * A wrapper for {@link Session} instances that relies on only their ID property for checking equality.
+     * @author m.t.b.carroll@dundee.ac.uk
+     * @since 5.4.0
+     */
+    private static final class SessionEqualById {
+
+        private final Session session;
+        private final Long sessionId;
+
+        /**
+         * Wrap a {@link Session} instance.
+         * @param session the session to wrap
+         */
+        private SessionEqualById(Session session) {
+            this.session = session;
+            this.sessionId = session.getId();
+        }
+
+        @Override
+        public boolean equals(Object object) {
+            if (object == this) {
+                return true;
+            } else if (object instanceof SessionEqualById) {
+                return this.sessionId.equals(((SessionEqualById) object).sessionId);
+            } else {
+                return false;
+            }
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(getClass(), sessionId);
+        }
     }
 }
