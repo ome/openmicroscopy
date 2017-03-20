@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -21,19 +21,17 @@
 package org.openmicroscopy.shoola.env.rnd.roi;
 
 import java.awt.Point;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
 import java.util.concurrent.ExecutionException;
 
 import omero.gateway.Gateway;
-
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DataSourceException;
 import omero.gateway.facility.RawDataFacility;
-import omero.gateway.rnd.DataSink;
 import omero.gateway.rnd.Plane2D;
 
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
@@ -266,15 +264,9 @@ class PointIterator
         if (w < 0 || w >= sizeC) 
             throw new NullPointerException("Channel not valid.");
         
-        RawDataFacility rf = null;
-        try {
-            rf = gw.getFacility(RawDataFacility.class);
-        } catch (ExecutionException e) {
-            throw new DataSourceException(e);
-        }
-        
         notifyIterationStart();
-        try { 
+        
+        try (RawDataFacility rf = gw.getFacility(RawDataFacility.class)) {
             int z = shape.getZ();
             int t = shape.getT();
             if (z >= 0 && z < sizeZ && t >= 0 && t < sizeT) {
@@ -297,6 +289,10 @@ class PointIterator
                 }
                 notifyPlaneEnd(z, w, t, length);
             }
+        } catch (IOException e) {
+            new DataSourceException(e);
+        } catch (ExecutionException e) {
+            new DataSourceException(e);
         } finally {  
             //Give the observers a chance to clean up even when 
             //something goes wrong. 

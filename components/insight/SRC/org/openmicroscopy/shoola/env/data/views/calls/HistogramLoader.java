@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2016-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -61,11 +61,11 @@ public class HistogramLoader extends BatchCallTree {
             final int z, final int t) {
         loadCall = new BatchCall("Loading Histogram data") {
             public void doCall() throws Exception {
-                result = context
-                        .getGateway()
-                        .getFacility(RawDataFacility.class)
-                        .getHistogram(ctx, img.getDefaultPixels(), channels, z,
-                                t);
+                try (RawDataFacility f = context.getGateway().getFacility(
+                        RawDataFacility.class)) {
+                    result = f.getHistogram(ctx, img.getDefaultPixels(),
+                            channels, z, t);
+                }
             }
         };
     }

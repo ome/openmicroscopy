@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -20,41 +20,41 @@
  */
 package omero.gateway.facility;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 
-import omero.api.RawPixelsStorePrx;
 import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.exception.DataSourceException;
+import omero.gateway.model.PixelsData;
 import omero.gateway.rnd.DataSink;
 import omero.gateway.rnd.Plane2D;
-import omero.gateway.model.PixelsData;
 import omero.romio.PlaneDef;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import org.apache.commons.collections.MapIterator;
+import org.apache.commons.collections.map.MultiKeyMap;
 
 /**
- *  A {@link Facility} for accessing raw data
- *  
+ * A {@link Facility} for accessing raw data
+ * 
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  * @since 5.1
  */
 
-public class RawDataFacility extends Facility {
+public class RawDataFacility extends Facility implements Closeable {
 
-    /** Cache for holding/reusing {@link DataSink}s */
-    private static final Cache<Long, DataSink> cache = CacheBuilder
-            .newBuilder().build();
+    /** Cache the {@link DataSink}s for re-use (keys: ctx.groupid and pixelsId) */
+    private MultiKeyMap cache = new MultiKeyMap();
 
     /**
      * Creates a new instance
-     * @param gateway Reference to the {@link Gateway}
+     * 
+     * @param gateway
+     *            Reference to the {@link Gateway}
      */
     RawDataFacility(Gateway gateway) {
         super(gateway);
@@ -124,19 +124,17 @@ public class RawDataFacility extends Facility {
             boolean globalRange, PlaneDef plane)
             throws DSOutOfServiceException, DSAccessException {
         try {
-            RawPixelsStorePrx store = gateway.createPixelsStore(ctx);
-            store.setPixelsId(pixels.getId(), false);
-
+            DataSink ds = getDataSink(ctx, pixels, gateway);
             if (plane == null)
                 plane = new PlaneDef(omeis.providers.re.data.PlaneDef.XY, 0, 0,
                         0, 0, null, -1);
-            return store.getHistogram(channels, binCount, globalRange, plane);
+            return ds.getHistogram(channels, binCount, globalRange, plane);
         } catch (Exception e) {
             handleException(this, e, "Couldn't get histogram data.");
         }
         return null;
     }
-    
+
     /**
      * Extracts a 2D plane from the pixels set. Connection to the PixelsStore
      * will be closed automatically.
@@ -186,19 +184,16 @@ public class RawDataFacility extends Facility {
             int t, int c, boolean close) throws DataSourceException {
         Plane2D data = null;
         try {
-            DataSink ds = RawDataFacility.getDataSink(pixels, gateway);
-            data = ds.getPlane(ctx, z, t, c, close);
-            if (close)
-                cache.invalidate(pixels.getId());
-        } catch (ExecutionException e) {
+            DataSink ds = getDataSink(ctx, pixels, gateway);
+            data = ds.getPlane(z, t, c);
+        } catch (DSOutOfServiceException e) {
             throw new DataSourceException("Can't initiate DataSink", e);
         }
         return data;
     }
-    
+
     /**
-     * Extracts a 2D tile from the pixels set. Connection to the PixelsStore
-     * will be closed automatically.
+     * Extracts a 2D tile from the pixels set
      * 
      * @param ctx
      *            The security context.
@@ -226,48 +221,11 @@ public class RawDataFacility extends Facility {
     public Plane2D getTile(SecurityContext ctx, PixelsData pixels, int z,
             int t, int c, int x, int y, int w, int h)
             throws DataSourceException {
-        return getTile(ctx, pixels, z, t, c, x, y, w, h, true);
-    }
-
-    /**
-     * Extracts a 2D tile from the pixels set
-     * 
-     * @param ctx
-     *            The security context.
-     * @param pixels
-     *            The {@link PixelsData} object to fetch the data from.
-     * @param z
-     *            The z-section at which data is to be fetched.
-     * @param t
-     *            The timepoint at which data is to be fetched.
-     * @param c
-     *            The channel at which data is to be fetched.
-     * @param x
-     *            The x coordinate
-     * @param y
-     *            The y coordinate
-     * @param w
-     *            The width of the tile
-     * @param h
-     *            The height of the tile
-     * @param close
-     *            Pass <code>true></code> to close the connection to the
-     *            Pixelstore, <code>false</code> to leave it open.
-     * @return A plane 2D object that encapsulates the actual tile pixels.
-     * @throws DataSourceException
-     *             If an error occurs while retrieving the plane data from the
-     *             pixels source.
-     */
-    public Plane2D getTile(SecurityContext ctx, PixelsData pixels, int z,
-            int t, int c, int x, int y, int w, int h, boolean close)
-            throws DataSourceException {
         Plane2D data = null;
         try {
-            DataSink ds = RawDataFacility.getDataSink(pixels, gateway);
-            data = ds.getTile(ctx, z, t, c, x, y, w, h, close);
-            if (close)
-                cache.invalidate(pixels.getId());
-        } catch (ExecutionException e) {
+            DataSink ds = getDataSink(ctx, pixels, gateway);
+            data = ds.getTile(z, t, c, x, y, w, h);
+        } catch (DSOutOfServiceException e) {
             throw new DataSourceException("Can't initiate DataSink", e);
         }
         return data;
@@ -276,18 +234,32 @@ public class RawDataFacility extends Facility {
     /**
      * Retrieves a data sink corresponding the pixels.
      *
-     * @param pixels The pixels to handle.
-     * @param gateway The gateway.
+     * @param ctx
+     *            The SecurityContext
+     * @param pixels
+     *            The pixels to handle.
+     * @param gateway
+     *            The gateway.
      * @return See above.
-     * @throws ExecutionException
+     * @throws DSOutOfServiceException
+     *             If an error occurs when initializing the RawPixelsStore
      */
-    private static DataSink getDataSink(final PixelsData pixels,
-            final Gateway gateway) throws ExecutionException {
-        return cache.get(pixels.getId(), new Callable<DataSink>() {
-            @Override
-            public DataSink call() throws Exception {
-                return DataSink.makeNew(pixels, gateway);
-            }
-        });
+    private DataSink getDataSink(SecurityContext ctx, PixelsData pixels,
+            Gateway gateway) throws DSOutOfServiceException {
+        DataSink ds = (DataSink) cache.get(ctx.getGroupID(), pixels.getId());
+        if (ds == null) {
+            ds = new DataSink(ctx, pixels, gateway);
+            cache.put(ctx.getGroupID(), pixels.getId(), ds);
+        }
+        return ds;
+    }
+
+    @Override
+    public void close() throws IOException {
+        MapIterator it = cache.mapIterator();
+        while (it.hasNext()) {
+            it.next();
+            ((DataSink) it.getValue()).close();
+        }
     }
 }
