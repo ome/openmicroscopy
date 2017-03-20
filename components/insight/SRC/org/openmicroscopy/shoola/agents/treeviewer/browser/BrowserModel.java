@@ -330,12 +330,7 @@ class BrowserModel
         		currentLoader = new AdminLoader(component, ctx,
         				(TreeImageSet) expNode);
         		currentLoader.load();
-            } else if (ho instanceof FileData) {
-            	FileData fa = (FileData) ho;
-            	if (fa.isDirectory() && !fa.isHidden()) {
-            		
-            	}
-            }
+            } 
     	}
     }
 
