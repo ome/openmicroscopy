@@ -1,6 +1,23 @@
 OMERO version history
 =====================
 
+5.2.8 (March 2017)
+------------------
+
+This is a security release including three security vulnerability fixes.
+
+:secvuln:`2017-SV1-filename` prevents users from accessing and manipulating
+other people's data by creating an original file and changing its path to
+point to another user's file on the underlying filesystem.
+
+:secvuln:`2017-SV2-edit-rw` prevents users in read-write groups from
+editing official scripts.
+
+:secvuln:`2017-SV3-delete-script` prevents the deletion of official
+scripts by users without the correct permissions to do so.
+
+It is highly recommended that you upgrade your server.
+
 5.2.7 (December 2016)
 ---------------------
 

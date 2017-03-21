@@ -43,8 +43,6 @@ public interface ISession extends ServiceInterface {
     /**
      * Allows a user to open up another session for him/herself with the given
      * defaults without needing to re-enter password.
-     * 
-     * TODO Review the security of this method.
      */
     Session createUserSession(long timeToLiveMilliseconds,
             long timeToIdleMillisecond, String defaultGroup);
