@@ -43,7 +43,8 @@ Sysadmin changes include:
 -  dropped support for Windows for OMERO.server
 -  OMERO.web deployment via Apache is no longer supported
 -  OMERO.web also now requires Python 2.7
--  CLI improvements
+-  CLI improvements including updates to the import report to make it more
+   useable by scripts etc
 -  options added for customizing the tree in OMERO.web
 -  introduced hide-password option in CLI
 -  new options added to ``omero config``
