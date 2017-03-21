@@ -423,22 +423,32 @@ public class BasicSecuritySystem implements SecuritySystem,
 
         }
 
-        final String hql = "FROM Session s LEFT OUTER JOIN FETCH s.sudoer WHERE s.id = :id";
-        final Parameters params = new Parameters().addId(ec.getCurrentSessionId());
-        ome.model.meta.Session sess = sf.getQueryService().findByQuery(hql, params);
-        final Experimenter sessionOwner = sess.getOwner();
-        final Experimenter sessionSudoer = sess.getSudoer();
+        final Long sessionId = ec.getCurrentSessionId();
+        final Parameters params = new Parameters().addId(sessionId);
+        final ome.model.meta.Session sess;
         if (isReadOnly) {
-            sess = new ome.model.meta.Session(sess.getId(), false) {
-                @Override
-                public Experimenter getOwner() {
-                    return sessionOwner;
-                }
-                @Override
-                public Experimenter getSudoer() {
-                    return sessionSudoer;
-                }
-            };
+            final String hql = "SELECT s.owner, s.sudoer FROM Session s WHERE s.id = :id";
+            final List<Object[]> results = sf.getQueryService().projection(hql, params);
+            if (results.isEmpty()) {
+                sess = new ome.model.meta.Session(sessionId, false);
+            } else {
+                final Object[] result = results.get(0);
+                final Experimenter sessionOwner  = (Experimenter) result[0];
+                final Experimenter sessionSudoer = (Experimenter) result[1];
+                sess = new ome.model.meta.Session(sessionId, false) {
+                    @Override
+                    public Experimenter getOwner() {
+                        return sessionOwner;
+                    }
+                    @Override
+                    public Experimenter getSudoer() {
+                        return sessionSudoer;
+                    }
+                };
+            }
+        } else {
+            final String hql = "FROM Session s LEFT OUTER JOIN FETCH s.sudoer WHERE s.id = :id";
+            sess = sf.getQueryService().findByQuery(hql, params);
         }
 
         tokenHolder.setToken(callGroup.getGraphHolder());
