@@ -21,10 +21,10 @@ fixes and performance improvements:
 -  added 'Open With...' functionality to OMERO.web
 -  color of shapes is now handled according to the data model, using RGBA
    rather than ARGB format (an sql script is available to upgrade existing
-   shapes)
+   shapes; this will not happen automatically as part of the OMERO upgrade)
 -  improved performance for moving and deleting data
 -  Wells can now be annotated and searched by annotations
--  enabled downloading/export of plate data
+-  enabled downloading/exporting of plate data
 -  improved reading of tables data
 -  script improvements including ability to create tiled images from big ROIs,
    fixes for creating standard images from ROIs, and to stop the
@@ -44,7 +44,7 @@ Sysadmin changes include:
 -  OMERO.web deployment via Apache is no longer supported
 -  OMERO.web also now requires Python 2.7
 -  CLI improvements including updates to the import output to make it more
-   usable by scripts etc
+   usable by scripts etc.
 -  options added for customizing the tree in OMERO.web
 -  introduced hide-password option in CLI
 -  new options added to ``omero config``
