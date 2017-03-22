@@ -20,8 +20,6 @@
  */
 package omero.gateway.rnd;
 
-import java.io.Closeable;
-import java.io.IOException;
 import java.util.Map;
 
 import omero.ServerError;
@@ -47,7 +45,7 @@ import omero.gateway.model.PixelsData;
 * @version 3.0
 * @since OME3.0
 */
-public class DataSink implements Closeable
+public class DataSink implements AutoCloseable
 {
 
     /** Identifies the type used to store pixel values. */
@@ -261,7 +259,7 @@ public class DataSink implements Closeable
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         gw.closeService(ctx, store);
     }
 }

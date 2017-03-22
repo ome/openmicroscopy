@@ -20,8 +20,6 @@
  */
 package omero.gateway.facility;
 
-import java.io.Closeable;
-import java.io.IOException;
 import java.util.Map;
 
 import omero.gateway.Gateway;
@@ -45,7 +43,7 @@ import org.apache.commons.collections.map.MultiKeyMap;
  * @since 5.1
  */
 
-public class RawDataFacility extends Facility implements Closeable {
+public class RawDataFacility extends Facility implements AutoCloseable {
 
     /** Cache the {@link DataSink}s for re-use (keys: ctx.groupid and pixelsId) */
     private MultiKeyMap cache = new MultiKeyMap();
@@ -255,11 +253,12 @@ public class RawDataFacility extends Facility implements Closeable {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         MapIterator it = cache.mapIterator();
         while (it.hasNext()) {
             it.next();
             ((DataSink) it.getValue()).close();
         }
+        removePropertyChangeListener(null);
     }
 }

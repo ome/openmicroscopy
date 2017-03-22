@@ -22,7 +22,6 @@ package omero.gateway.facility;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.io.Closeable;
 import java.net.UnknownHostException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -96,7 +95,7 @@ public abstract class Facility {
     public static <T extends Facility> T getFacility(final Class<T> type,
             final Gateway gateway) throws ExecutionException {
 
-        if (Closeable.class.isAssignableFrom(type)) {
+        if (AutoCloseable.class.isAssignableFrom(type)) {
             // Don't cache closeable (~ stateful) Facilities,
             // just create a new instance and return it.
             try {
@@ -156,6 +155,11 @@ public abstract class Facility {
      * @param listener The listener
      */
     public void removePropertyChangeListener(PropertyChangeListener listener) {
+        if (listener == null) {
+            for (PropertyChangeListener l : this.pcs
+                    .getPropertyChangeListeners())
+                this.pcs.removePropertyChangeListener(l);
+        }
         this.pcs.removePropertyChangeListener(listener);
     }
     

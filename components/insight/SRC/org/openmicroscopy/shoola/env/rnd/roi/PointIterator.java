@@ -289,8 +289,6 @@ class PointIterator
                 }
                 notifyPlaneEnd(z, w, t, length);
             }
-        } catch (IOException e) {
-            new DataSourceException(e);
         } catch (ExecutionException e) {
             new DataSourceException(e);
         } finally {  
