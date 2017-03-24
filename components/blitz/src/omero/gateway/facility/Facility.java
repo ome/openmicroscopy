@@ -152,8 +152,11 @@ public abstract class Facility {
     }
 
     /**
-     * Removes a {@link PropertyChangeListener}
-     * @param listener The listener
+     * Removes a {@link PropertyChangeListener} 
+     * (Pass <code>null</code> to remove all {@link PropertyChangeListener}s)
+     * 
+     * @param listener
+     *            The listener
      */
     public void removePropertyChangeListener(PropertyChangeListener listener) {
         if (listener == null) {
