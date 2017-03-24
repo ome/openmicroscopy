@@ -259,6 +259,8 @@ public class RawDataFacility extends Facility implements AutoCloseable {
             it.next();
             ((DataSink) it.getValue()).close();
         }
+        firePropertyChanged(Gateway.PROP_FACILITY_CLOSED,
+                null, getClass().getName());
         removePropertyChangeListener(null);
     }
 }

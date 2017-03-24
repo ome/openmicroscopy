@@ -20,6 +20,7 @@
  */
 package omero.gateway.facility;
 
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.net.UnknownHostException;
@@ -161,6 +162,32 @@ public abstract class Facility {
                 this.pcs.removePropertyChangeListener(l);
         }
         this.pcs.removePropertyChangeListener(listener);
+    }
+    
+    /**
+     * Fires a {@link PropertyChangeEvent}
+     * 
+     * @param event
+     *            The PropertyChangeEvent
+     */
+    public void firePropertyChanged(PropertyChangeEvent event) {
+        this.pcs.firePropertyChange(event);
+    }
+
+    /**
+     * Fires a {@link PropertyChangeEvent}
+     * 
+     * @param propertyName
+     *            The property name
+     * @param oldValue
+     *            The old value
+     * @param newValue
+     *            The new value
+     * 
+     */
+    public void firePropertyChanged(String propertyName, Object oldValue,
+            Object newValue) {
+        this.pcs.firePropertyChange(propertyName, oldValue, newValue);
     }
     
     /**
