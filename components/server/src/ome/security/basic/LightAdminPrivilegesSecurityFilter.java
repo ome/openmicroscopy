@@ -40,7 +40,7 @@ import com.google.common.collect.ImmutableMap;
  * to the current {@link ome.model.meta.Session}'s ownership and the
  * light administrator's privileges.
  * @author m.t.b.carroll@dundee.ac.uk
- * @since 5.3.0
+ * @since 5.4.0
  */
 public class LightAdminPrivilegesSecurityFilter extends AbstractSecurityFilter {
 

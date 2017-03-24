@@ -31,7 +31,7 @@ import ome.util.SqlAction;
 /**
  * Periodically clean up old entries from the <tt>_current_admin_privileges</tt> database table.
  * @author m.t.b.carroll@dundee.ac.uk
- * @since 5.3.0
+ * @since 5.4.0
  */
 public class LightAdminPrivilegesCleanup implements Runnable {
 

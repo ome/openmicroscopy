@@ -104,7 +104,7 @@ import com.google.common.collect.ImmutableSet;
 /**
  * Tests the effectiveness of light administrator privileges.
  * @author m.t.b.carroll@dundee.ac.uk
- * @since 5.3.0
+ * @since 5.4.0
  */
 public class LightAdminPrivilegesTest extends AbstractServerImportTest {
 
@@ -209,7 +209,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     /**
      * Identifies the expected kinds of repository.
      * @author m.t.b.carroll@dundee.ac.uk
-     * @since 5.3.0
+     * @since 5.4.0
      */
     private static enum Repository {
         MANAGED, SCRIPT, OTHER;

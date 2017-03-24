@@ -46,7 +46,7 @@ import com.google.common.collect.ImmutableSet;
  * Report the light administrator privileges associated with a given session.
  * Caches recent results.
  * @author m.t.b.carroll@dundee.ac.uk
- * @since 5.3.0
+ * @since 5.4.0
  */
 public class LightAdminPrivileges {
 
