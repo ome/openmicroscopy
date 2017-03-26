@@ -1,155 +1,74 @@
 OMERO version history
 =====================
 
-5.3.0-m9 (March 2017)
-------------------------
+5.3.0 (March 2017)
+------------------
 
-Developer preview release - **only intended as a developer preview for
-updating code before the full public release of 5.3.0. Use at your own risk**.
+A full, production-ready release of OMERO 5.3.0; featuring a major reworking
+of OMERO.web and web apps; dropping support for Windows for the server and for
+deploying OMERO.web using Apache; and introducing new user features and many
+fixes and performance improvements:
 
-Changes include:
+-  improved support for many file formats via Bio-Formats 5.4.0
+-  introduced ROI Folders
+-  new UI for displaying Screen Plate Well data in OMERO.web and OMERO.insight
+-  support for lookup tables and reverse intensity rendering
+-  color mapping for multiple channels without set colors has been improved to
+   use RGBRGB rather than RGBBB (i.e. to loop through red, green, blue rather
+   than setting all later channels to blue)
+-  support for histograms in the clients and server
+-  ability to filter by ratings in OMERO.web
+-  added 'Open With...' functionality to OMERO.web
+-  color of shapes is now handled according to the data model, using RGBA
+   rather than ARGB format (an sql script is available to upgrade existing
+   shapes; this will not happen automatically as part of the OMERO upgrade)
+-  improved performance for moving and deleting data
+-  Wells can now be annotated and searched by annotations
+-  enabled downloading/exporting of plate data
+-  improved reading of tables data
+-  script improvements including ability to create tiled images from big ROIs,
+   fixes for creating standard images from ROIs, and to stop the
+   Combine_Images script from ignoring pixel sizes set on the target images
+-  names for plates and images set in the metadata read by Bio-Formats are now
+   imported into OMERO and the filename (which was previously used) is only
+   used where an alternative has not been set
+-  many bug fixes
 
-- bumped Bio-Formats version to 5.3.4. This includes several bug fixes.
-  See `Bio-Formats 5.3.4 release history <https://www.openmicroscopy.org/site/support/bio-formats5.3/about/whats-new.html>`_
-- work on the Web API
-- filter rating in Web
-- adjustment to support the upcoming Java 1.9
-- utils script classes deprecated
-- deprecate shares
-- deprecate search bridges
-- open viewer in new tabs
-- rendering engine bug fixes
-- bugs fixes in OMERO.insight and OMERO.web
-- introduce hide-password option in CLI
-- handle shape color correctly
-- enable annotation search on wells
-- improve reading of tables data
+Sysadmin changes include:
 
-5.3.0-m8 (February 2017)
-------------------------
+-  added support for Ice 3.6.3
+-  official OMERO.web apps are now all installable from PyPI
+-  OMERO.web has been decoupled from the server and can now be deployed
+   separately
+-  dropped support for Windows for OMERO.server
+-  OMERO.web deployment via Apache is no longer supported
+-  OMERO.web also now requires Python 2.7
+-  CLI improvements including updates to the import output to make it more
+   usable by scripts etc.
+-  options added for customizing the tree in OMERO.web
+-  introduced hide-password option in CLI
+-  new options added to ``omero config``
+-  removed deprecated client menu properties
 
-Developer preview release - **only intended as a developer preview for
-updating code before the full public release of 5.3.0. Use at your own risk**.
+Developer updates include:
 
-Changes include:
-
-- bumped Bio-Formats version to 5.3.3. This includes several bug fixes.
-  See `Bio-Formats 5.3.3 release history <https://www.openmicroscopy.org/site/support/bio-formats5.3/about/whats-new.html>`_
-- work on the Web API
-- removal pdf doc generation
-- improvement to how colors are assigned to channels
-- disabled jquery cache
-- support for projection along T
-- fixed numerous tests
-- bug fixes in OMERO.web
-
-
-5.3.0-m7 (January 2017)
------------------------
-
-Developer preview release - **only intended as a developer preview for
-updating code before the full public release of 5.3.0. Use at your own risk**.
-
-Changes include:
-
-- bumped Bio-Formats version to 5.3.2. This includes several bug fixes.
-  See `Bio-Formats release history <https://www.openmicroscopy.org/site/support/bio-formats5.3/about/whats-new.html>`_
-- work on the Web API
-- handled shapes color in clients according to model specification
-- improved open_with option in web
-- added histogram support in clients and server
-- added integration of all official scripts
-- improved SPW grid view in web
-- bug fixes
-
-5.3.0-m6 (November 2016)
-------------------------
-
-Developer preview release - **only intended as a developer preview for
-updating code before the full public release of 5.3.0. Use at your own risk**.
-
-Changes include:
-
-- bumped Bio-Formats version to 5.3.0-m2. This includes JPEG-XR support for CZI.
-  See the `Bio-Formats version history <https://www.openmicroscopy.org/site/support/bio-formats5.3/about/whats-new.html>`_ for more information.
-- fixed numpy-pillow version incompatibility
-- made python testing package public so it can be used by external clients
-
-5.3.0-m5 (November 2016)
-------------------------
-
-Developer preview release - **only intended as a developer preview for
-updating code before the full public release of 5.3.0. Use at your own risk**.
-
-Changes include:
-
--  database patches to add support for new administration roles
+-  performed major code cleanup
+-  major Web API rework
+-  adjustment to support the upcoming Java 1.9
+-  made python testing package public so it can be used by external clients
+-  improved build system integration with local Maven
+-  made Scripts repository and official OMERO.web apps pep8 and flake8
+   compatible
 -  removed restriction on name length
 -  added support for enumeration changes
--  added new Grid View to both UI clients
--  introduced the new Web API
--  reactivated codomain support in the rendering Engine
--  added support for Ice 3.6.3
--  fixed graph issues when performing chown or moving between groups
--  made web applications installable from PyPI
--  added option "Open With" feature to OMERO.web
+-  utils script classes deprecated
+-  deprecated shares
+-  deprecated search bridges
+-  disabled jquery cache
 
-
-5.3.0-m4 (September 2016)
--------------------------
-
-Developer preview release - **only intended as a developer preview for
-updating code before the full public release of 5.3.0. Use at your own risk**.
-
-Changes include:
-
--  completed Web decoupling
--  improved CLI plugins
--  deprecated Apache
-
-5.3.0-m3 (August 2016)
-----------------------
-
-Developer preview release - **only intended as a developer preview for
-updating code before the full public release of 5.3.0. Use at your own risk**.
-
-Changes include:
-
--  added DB patches including support for new options in rendering engine
--  added support for LUT
--  deprecated windows
--  reorganized API documentation
--  enabled plate download
--  allowed customization of CSRF cookie
--  fixed ROI related bug
--  performed major code cleanup
--  fixed cleanse
--  deprecated some utils Python methods
-
-5.3.0-m2 (April 2016)
----------------------
-
-Developer preview release - **only intended as a developer preview for
-updating code before the full public release of 5.3.0. Use at your own risk**.
-
-Changes include:
-
--  added support for ROI folder at scale. Used IDR as a concrete example
--  cleaned up shape attribute names
-
-5.3.0-m1 (February 2016)
-------------------------
-
-Developer preview release - **only intended as a developer preview for
-updating code before the full public release of 5.3.0. Use at your own risk**.
-
-Changes include:
-
--  added support for ROI folder in server and client
--  fixed shape to match OME-XML schema 
--  improved build system integration with local Maven
--  improved graph operation performance
--  changed DB setup script to require PostgreSQL 9.3 
+Further details on breaking changes are available on
+:doc:`/developers/whatsnew`. Work on the Web API is ongoing and will include
+moving away from the use of JSONP and introducing Django CORS.
 
 5.2.8 (March 2017)
 ------------------
