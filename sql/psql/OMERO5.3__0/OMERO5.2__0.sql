@@ -1873,6 +1873,8 @@ ALTER TABLE codomainmapcontext DROP renderingdef_index;
 
 DROP TRIGGER IF EXISTS codomainmapcontext_renderingDef_index_trigger ON codomainmapcontext;
 DROP FUNCTION IF EXISTS codomainmapcontext_renderingDef_index_move();
+DROP FUNCTION IF EXISTS codomainmapcontext_renderingdef_index_insert();
+DROP FUNCTION IF EXISTS codomainmapcontext_renderingdef_index_update();
 
 ALTER TABLE codomainmapcontext ADD channelBinding int8 NOT NULL;
 ALTER TABLE codomainmapcontext ADD channelBinding_index int4 NOT NULL;
