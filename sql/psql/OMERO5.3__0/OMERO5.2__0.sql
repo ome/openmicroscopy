@@ -1867,12 +1867,12 @@ ALTER TABLE projectiondef ADD stepping positive_int;
 
 -- ... up to patch 10:
 
-ALTER TABLE codomainmapcontext DROP CONSTRAINT FKcodomainmapcontext_renderingDef_renderingdef;
+ALTER TABLE codomainmapcontext DROP CONSTRAINT IF EXISTS FKcodomainmapcontext_renderingDef_renderingdef;
 ALTER TABLE codomainmapcontext DROP renderingdef;
 ALTER TABLE codomainmapcontext DROP renderingdef_index;
 
-DROP TRIGGER codomainmapcontext_renderingDef_index_trigger ON codomainmapcontext;
-DROP FUNCTION codomainmapcontext_renderingDef_index_move();
+DROP TRIGGER IF EXISTS codomainmapcontext_renderingDef_index_trigger ON codomainmapcontext;
+DROP FUNCTION IF EXISTS codomainmapcontext_renderingDef_index_move();
 
 ALTER TABLE codomainmapcontext ADD channelBinding int8 NOT NULL;
 ALTER TABLE codomainmapcontext ADD channelBinding_index int4 NOT NULL;
