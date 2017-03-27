@@ -122,11 +122,11 @@ public class RawDataFacility extends Facility implements AutoCloseable {
             boolean globalRange, PlaneDef plane)
             throws DSOutOfServiceException, DSAccessException {
         try {
-            DataSink ds = getDataSink(ctx, pixels, gateway);
             if (plane == null)
                 plane = new PlaneDef(omeis.providers.re.data.PlaneDef.XY, 0, 0,
                         0, 0, null, -1);
-            return ds.getHistogram(channels, binCount, globalRange, plane);
+            return getDataSink(ctx, pixels, gateway).getHistogram(channels,
+                    binCount, globalRange, plane);
         } catch (Exception e) {
             handleException(this, e, "Couldn't get histogram data.");
         }
@@ -148,13 +148,21 @@ public class RawDataFacility extends Facility implements AutoCloseable {
      * @param c
      *            The channel at which data is to be fetched.
      * @return A plane 2D object that encapsulates the actual plane pixels.
-     * @throws DataSourceException
-     *             If an error occurs while retrieving the plane data from the
-     *             pixels source.
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Plane2D getPlane(SecurityContext ctx, PixelsData pixels, int z,
-            int t, int c) throws DataSourceException {
-        return getPlane(ctx, pixels, z, t, c, true);
+            int t, int c) throws DSOutOfServiceException, DSAccessException {
+        try {
+            return getDataSink(ctx, pixels, gateway).getPlane(z, t, c);
+        } catch (Exception e) {
+            handleException(this, e, "Couldn't get plane z=" + z + " t=" + t
+                    + " c=" + c);
+        }
+        return null;
     }
 
     /**
@@ -171,19 +179,25 @@ public class RawDataFacility extends Facility implements AutoCloseable {
      * @param c
      *            The channel at which data is to be fetched.
      * @param close
-     *            Pass <code>true></code> to close the connection to the
-     *            Pixelstore, <code>false</code> to leave it open.
+     *            Pass <code>true</code> to close the connection to the
+     *            Pixelstore, <code>false</code> to leave it open. (deprecated,
+     *            the resources will be closed when the facility itself is
+     *            closed, see {@link #close()}, {@link AutoCloseable})
      * @return A plane 2D object that encapsulates the actual plane pixels.
      * @throws DataSourceException
      *             If an error occurs while retrieving the plane data from the
      *             pixels source.
+     * @Deprecated Use getPlane(SecurityContext, PixelsData, z, t, c) instead
      */
+    @Deprecated
     public Plane2D getPlane(SecurityContext ctx, PixelsData pixels, int z,
             int t, int c, boolean close) throws DataSourceException {
         Plane2D data = null;
         try {
             DataSink ds = getDataSink(ctx, pixels, gateway);
             data = ds.getPlane(z, t, c);
+            if (close)
+                ds.close();
         } catch (DSOutOfServiceException e) {
             throw new DataSourceException("Can't initiate DataSink", e);
         }
@@ -219,14 +233,12 @@ public class RawDataFacility extends Facility implements AutoCloseable {
     public Plane2D getTile(SecurityContext ctx, PixelsData pixels, int z,
             int t, int c, int x, int y, int w, int h)
             throws DataSourceException {
-        Plane2D data = null;
         try {
-            DataSink ds = getDataSink(ctx, pixels, gateway);
-            data = ds.getTile(z, t, c, x, y, w, h);
+            return getDataSink(ctx, pixels, gateway).getTile(z, t, c, x, y, w,
+                    h);
         } catch (DSOutOfServiceException e) {
             throw new DataSourceException("Can't initiate DataSink", e);
         }
-        return data;
     }
 
     /**
