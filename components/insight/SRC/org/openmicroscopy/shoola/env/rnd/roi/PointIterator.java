@@ -290,7 +290,7 @@ class PointIterator
                 notifyPlaneEnd(z, w, t, length);
             }
         } catch (ExecutionException e) {
-            new DataSourceException(e);
+            throw new DataSourceException(e);
         } finally {  
             //Give the observers a chance to clean up even when 
             //something goes wrong. 
