@@ -113,9 +113,8 @@ public abstract class AbstractBasicSecuritySystemTest extends
                 mockAdminPrivileges, null, new HashSet<String>(), new HashSet<String>());
         SecurityFilter filter = new OneGroupSecurityFilter();
         sec = new BasicSecuritySystem(oi, st, cd, mgr, roles, sf,
-                th, Collections.singletonList(filter), new DefaultPolicyService());
-        aclVoter = new BasicACLVoter(cd, st, th, filter,
-                new DefaultPolicyService());
+                th, Collections.singletonList(filter), new DefaultPolicyService(), aclVoter);
+        aclVoter = new BasicACLVoter(cd, st, th, filter);
     }
 
     protected void prepareMocksWithUserDetails(boolean readOnly) {

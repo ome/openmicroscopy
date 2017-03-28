@@ -11,6 +11,7 @@ import static ome.model.internal.Permissions.Role.GROUP;
 import static ome.model.internal.Permissions.Role.USER;
 import static ome.model.internal.Permissions.Role.WORLD;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -33,6 +34,7 @@ import ome.security.ACLVoter;
 import ome.security.SecurityFilter;
 import ome.security.SecuritySystem;
 import ome.security.SystemTypes;
+import ome.security.policy.DefaultPolicyService;
 import ome.security.policy.PolicyService;
 import ome.system.EventContext;
 import ome.system.Roles;
@@ -85,8 +87,17 @@ public class BasicACLVoter implements ACLVoter {
 
     private final LightAdminPrivileges adminPrivileges;
 
+    /* preserve permissions past context invalidation through to post-processing */
+    private final ThreadLocal<Set<AdminPrivilege>> adminPrivilegesCache = new ThreadLocal<>();
+
     /* thread-safe */
     private final Set<String> managedRepoUuids, scriptRepoUuids;
+
+    public BasicACLVoter(CurrentDetails cd, SystemTypes sysTypes,
+            TokenHolder tokenHolder, SecurityFilter securityFilter) {
+            this(cd, sysTypes, tokenHolder, securityFilter,
+                    new DefaultPolicyService(), new Roles());
+        }
 
     public BasicACLVoter(CurrentDetails cd, SystemTypes sysTypes,
         TokenHolder tokenHolder, SecurityFilter securityFilter,
@@ -185,6 +196,7 @@ public class BasicACLVoter implements ACLVoter {
 
         final BasicEventContext ec = currentUser.current();
 
+        /* regarding sessions see LightAdminPrivilegesSecurityFilter */
         if (klass == ome.model.meta.Session.class) {
             /* determine "real" owner of current and queried session, i.e. taking sudo into account */
             final ome.model.meta.Session currentSession = (ome.model.meta.Session)
@@ -447,70 +459,33 @@ public class BasicACLVoter implements ACLVoter {
             // Don't return. Need further processing for delete.
         }
 
+        final Set<AdminPrivilege> privileges;
         if (c.isCurrentUserAdmin()) {
-            final Set<AdminPrivilege> privileges;
             final Event event = c.getEvent();
             if (event == null || !event.isLoaded()) {
-                privileges = adminPrivileges.getAllPrivileges();
+                final Set<AdminPrivilege> cachedPrivileges = adminPrivilegesCache.get();
+                if (cachedPrivileges != null) {
+                    privileges = cachedPrivileges;
+                } else {
+                    log.warn("could not find session so not applying light administrator restrictions");
+                    privileges = adminPrivileges.getAllPrivileges();
+                }
             } else {
                 privileges = adminPrivileges.getSessionPrivileges(event.getSession());
+                adminPrivilegesCache.set(privileges);
             }
-            /* see trac ticket 10691 re. enum values */
-            boolean isLightAdminRestricted = false;
-            if (!sysType) {
-                if (iObject instanceof OriginalFile) {
-                    final String repo = ((OriginalFile) iObject).getRepo();
-                    if (repo != null) {
-                        if (managedRepoUuids.contains(repo)) {
-                            if (!privileges.contains(adminPrivileges.getPrivilege(prefix + "ManagedRepo"))) {
-                                isLightAdminRestricted = true;
-                            }
-                        } else if (scriptRepoUuids.contains(repo)) {
-                            if (!privileges.contains(adminPrivileges.getPrivilege(prefix + "ScriptRepo"))) {
-                                isLightAdminRestricted = true;
-                            }
-                        } else {
-                            /* other repository */
-                            if (!privileges.contains(adminPrivileges.getPrivilege(prefix + "File"))) {
-                                isLightAdminRestricted = true;
-                            }
-                        }
-                    } else {
-                        /* not in repository */
-                        if (!privileges.contains(adminPrivileges.getPrivilege(prefix + "File"))) {
-                            isLightAdminRestricted = true;
-                        }
-                    }
-                } else {
-                    if (!privileges.contains(adminPrivileges.getPrivilege("WriteOwned"))) {
-                        isLightAdminRestricted = true;
-                    }
-                }
-            } else if (iObject instanceof Experimenter) {
-                if (!privileges.contains(adminPrivileges.getPrivilege("ModifyUser"))) {
-                    isLightAdminRestricted = true;
-                }
-            } else if (iObject instanceof ExperimenterGroup) {
-                if (!privileges.contains(adminPrivileges.getPrivilege("ModifyGroup"))) {
-                    isLightAdminRestricted = true;
-                }
-            } else if (iObject instanceof GroupExperimenterMap) {
-                if (!privileges.contains(adminPrivileges.getPrivilege("ModifyGroupMembership"))) {
-                    isLightAdminRestricted = true;
-                }
-            }
-            if (!isLightAdminRestricted) {
-                for (int i = 0; i < scopes.length; i++) {
-                    if (scopes[i] != null) {
-                        rv |= (1<<i);
-                    }
-                }
-                return rv; // EARLY EXIT!
-            }
+        } else {
+            privileges = Collections.emptySet();
         }
-        if (sysType) {
-            return 0;
+        if (adminPrivileges.getAllPrivileges().equals(privileges)) {
+            for (int i = 0; i < scopes.length; i++) {
+                if (scopes[i] != null) {
+                    rv |= (1<<i);
+                }
+            }
+            return rv; // EARLY EXIT!
         }
+
         Permissions grpPermissions = c.getCurrentGroupPermissions();
         if (grpPermissions == null || grpPermissions == Permissions.DUMMY) {
             if (d.getGroup() != null) {
@@ -519,12 +494,6 @@ public class BasicACLVoter implements ACLVoter {
                 if (grpPermissions == null && gid.equals(roles.getUserGroupId())) {
                     grpPermissions = new Permissions(Permissions.EMPTY);
                 }
-            }
-            if (grpPermissions == null) {
-                throw new InternalException(
-                    "Permissions are null! Security system "
-                            + "failure -- refusing to continue. The Permissions should "
-                            + "be set to a default value.");
             }
         }
 
@@ -536,8 +505,65 @@ public class BasicACLVoter implements ACLVoter {
             Scope scope = scopes[i];
             if (scope == null) continue;
 
-            if (leader) {
+            /* see trac ticket 10691 re. enum values */
+            boolean hasLightAdminPrivilege = false;
+            final String prefix = scope == Scope.DELETE ? "Delete" : "Write";
+            if (!sysType) {
+                if (iObject instanceof OriginalFile) {
+                    final String repo = ((OriginalFile) iObject).getRepo();
+                    if (repo != null) {
+                        if (managedRepoUuids.contains(repo)) {
+                            if (privileges.contains(adminPrivileges.getPrivilege(prefix + "ManagedRepo"))) {
+                                hasLightAdminPrivilege = true;
+                            }
+                        } else if (scriptRepoUuids.contains(repo)) {
+                            if (privileges.contains(adminPrivileges.getPrivilege(prefix + "ScriptRepo"))) {
+                                hasLightAdminPrivilege = true;
+                            }
+                        } else {
+                            /* other repository */
+                            if (privileges.contains(adminPrivileges.getPrivilege(prefix + "File"))) {
+                                hasLightAdminPrivilege = true;
+                            }
+                        }
+                    } else {
+                        /* not in repository */
+                        if (privileges.contains(adminPrivileges.getPrivilege(prefix + "File"))) {
+                            hasLightAdminPrivilege = true;
+                        }
+                    }
+                } else {
+                    if (privileges.contains(adminPrivileges.getPrivilege(prefix + "Owned"))) {
+                        hasLightAdminPrivilege = true;
+                    }
+                }
+            } else if (iObject instanceof Experimenter) {
+                if (privileges.contains(adminPrivileges.getPrivilege("ModifyUser"))) {
+                    hasLightAdminPrivilege = true;
+                }
+            } else if (iObject instanceof ExperimenterGroup) {
+                if (privileges.contains(adminPrivileges.getPrivilege("ModifyGroup"))) {
+                    hasLightAdminPrivilege = true;
+                }
+            } else if (iObject instanceof GroupExperimenterMap) {
+                if (privileges.contains(adminPrivileges.getPrivilege("ModifyGroupMembership"))) {
+                    hasLightAdminPrivilege = true;
+                }
+            } else if (c.isCurrentUserAdmin()) {
+                hasLightAdminPrivilege = true;
+            }
+
+            if (hasLightAdminPrivilege) {
                 rv |= (1<<i);
+            } else if (sysType) {
+                // no privilege
+            } else if (leader) {
+                rv |= (1<<i);
+            } else if (grpPermissions == null) {
+                throw new InternalException(
+                    "Permissions are null! Security system "
+                            + "failure -- refusing to continue. The Permissions should "
+                            + "be set to a default value.");
             }
 
             // standard
@@ -564,6 +590,16 @@ public class BasicACLVoter implements ACLVoter {
     @Override
     public Set<String> restrictions(IObject object) {
         return policyService.listActiveRestrictions(object);
+    }
+
+    @Override
+    public void noteAdminPrivileges(ome.model.meta.Session session) {
+        adminPrivilegesCache.set(adminPrivileges.getSessionPrivileges(session));
+    }
+
+    @Override
+    public void clearAdminPrivileges() {
+        adminPrivilegesCache.remove();
     }
 
     public void postProcess(IObject object) {

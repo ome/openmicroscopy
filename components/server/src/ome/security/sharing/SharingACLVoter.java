@@ -124,6 +124,14 @@ public class SharingACLVoter implements ACLVoter {
     }
 
     @Override
+    public void noteAdminPrivileges(ome.model.meta.Session session) {
+    }
+
+    @Override
+    public void clearAdminPrivileges() {
+    }
+
+    @Override
     public void postProcess(IObject object) {
         if (object != null && object.isLoaded()) {
             Details d = object.getDetails();
