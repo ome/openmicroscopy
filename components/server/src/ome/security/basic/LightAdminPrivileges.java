@@ -177,7 +177,13 @@ public class LightAdminPrivileges {
                     new CacheLoader<SessionEqualById, ImmutableSet<AdminPrivilege>>() {
                         @Override
                         public ImmutableSet<AdminPrivilege> load(SessionEqualById wrappedSession) {
-                            return getPrivileges(wrappedSession.session);
+                            try {
+                                return getPrivileges(wrappedSession.session);
+                            } catch (Throwable t) {
+                                /* Guava's loading caches do not report exception messages well */
+                                LOGGER.error("failed to check permissions for session #" + wrappedSession.sessionId, t);
+                                throw t;
+                            }
                         }
                     });
 
