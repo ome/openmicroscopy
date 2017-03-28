@@ -276,8 +276,8 @@ $(document).ready(function() {
                     'webindex': '{% url "webindex" %}',
                     'layout': layout,
                     'paging': false}
-        // e.g. 'dataset':id
-        json[dtype] = parentNode.data.obj.id;
+        // Add 'dataset':id if we have it
+        json['dataset'] = parentNode.type == 'dataset' ? parentNode.data.obj.id : false;
 
         var childCount = parentNode.data.obj.childCount;
         if (PAGE_SIZE < childCount) {
