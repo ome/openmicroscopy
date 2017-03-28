@@ -251,7 +251,16 @@ $(function() {
         if (node) {
             if (node.type === 'image') {
                 //Open the image viewer for this image
-                window.open(WEBCLIENT.URLS.webindex + "img_detail/" + node.data.obj.id, '_blank');
+                var url = WEBCLIENT.URLS.webindex + "img_detail/" + node.data.obj.id + "/";
+                // Add dataset id so the viewer can know it's context
+                var inst = $.jstree.reference('#dataTree');
+                var parent = datatree.get_node(node.parent);
+                if (parent && parent.data) {
+                    if (parent.type === 'dataset') {
+                        url += '?' + parent.type + '=' + parent.data.id
+                    }
+                }
+                window.open(url, '_blank');
             }
         }
     })

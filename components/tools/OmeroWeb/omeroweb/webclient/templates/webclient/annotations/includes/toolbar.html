@@ -39,6 +39,17 @@
 
                 // We do this here and in batch_annotate panel
                 OME.initToolbarDropdowns();
+
+            {% if image %}
+                var parent = OME.getTreeImageContainerBestGuess({{ image.id }});
+                if (parent && parent.data) {
+                    if (parent.type === 'dataset') {
+                        var $btn = $("#open_full_viewer");
+                        $btn.prop('href', $btn.prop('href') + '?' + parent.type + '=' + parent.data.id);
+                    }
+                }
+            {% endif %}
+
             });
             
     </script>
@@ -268,7 +279,7 @@
 
     {% if image %}
     <a class="btn silver btn_text" style="position: absolute; left: 0; height: 20px"
-            target="_blank"
+            id="open_full_viewer" target="_blank"
             {% if share and not share.share.isOwned %}
                 href="{% url 'web_image_viewer' share.share.id image.id %}"
             {% else %}

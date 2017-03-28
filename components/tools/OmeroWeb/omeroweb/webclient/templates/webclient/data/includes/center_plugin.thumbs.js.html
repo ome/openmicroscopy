@@ -96,6 +96,13 @@ $(document).ready(function() {
             url = "{% url 'web_image_viewer' 0 %}";
         }
         url = url.replace('/0/', "/" + iid + "/" );
+        // We try to traverse the jstree, to find parent of selected image
+        var parent = OME.getTreeImageContainerBestGuess(iid);
+        if (parent && parent.data) {
+            if (parent.type === 'dataset') {
+                url += '?' + parent.type + '=' + parent.data.id;
+            }
+        }
         window.open(url, '_blank');
     });
 
@@ -269,6 +276,8 @@ $(document).ready(function() {
                     'webindex': '{% url "webindex" %}',
                     'layout': layout,
                     'paging': false}
+        // e.g. 'dataset':id
+        json[dtype] = parentNode.data.obj.id;
 
         var childCount = parentNode.data.obj.childCount;
         if (PAGE_SIZE < childCount) {
