@@ -34,6 +34,7 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
 import ome.parameters.Parameters;
+import ome.security.ACLVoter;
 import ome.security.AdminAction;
 import ome.security.SecureAction;
 import ome.security.SecurityFilter;
@@ -110,6 +111,8 @@ public class BasicSecuritySystem implements SecuritySystem,
 
     protected/* final */ShareStore store;
 
+    protected final ACLVoter aclVoter;
+
     /**
      * Simplified factory method which generates all the security primitives
      * internally. Primarily useful for generated testing instances.
@@ -133,7 +136,8 @@ public class BasicSecuritySystem implements SecuritySystem,
                 new AllGroupsSecurityFilter(null, roles),
                 new SharingSecurityFilter(roles, null));
         BasicSecuritySystem sec = new BasicSecuritySystem(oi, st, cd, sm,
-                roles, sf, new TokenHolder(), Collections.<SecurityFilter>singletonList(holder), new DefaultPolicyService());
+                roles, sf, new TokenHolder(), Collections.<SecurityFilter>singletonList(holder), new DefaultPolicyService(),
+                new BasicACLVoter(cd, st, th, holder));
         return sec;
     }
 
@@ -146,14 +150,15 @@ public class BasicSecuritySystem implements SecuritySystem,
      * @param roles the OMERO roles
      * @param sf the session factory
      * @param tokenHolder the token holder
-     * @param filter the security filter
+     * @param filters the security filters
      * @param policyService the policy service
+     * @param aclVoter the ACL voter
      */
     public BasicSecuritySystem(OmeroInterceptor interceptor,
             SystemTypes sysTypes, CurrentDetails cd,
             SessionManager sessionManager, Roles roles, ServiceFactory sf,
             TokenHolder tokenHolder, List<SecurityFilter> filters,
-            PolicyService policyService) {
+            PolicyService policyService, ACLVoter aclVoter) {
         this.sessionManager = sessionManager;
         this.policyService = policyService;
         this.tokenHolder = tokenHolder;
@@ -163,6 +168,7 @@ public class BasicSecuritySystem implements SecuritySystem,
         this.roles = roles;
         this.cd = cd;
         this.sf = sf;
+        this.aclVoter = aclVoter;
     }
 
     public void setApplicationContext(ApplicationContext arg0)
@@ -538,6 +544,16 @@ public class BasicSecuritySystem implements SecuritySystem,
         }
         
         cd.clearLogs();
+    }
+
+    /**
+     * Note the light admin privileges for post-processing before the event context is invalidated.
+     */
+    public void noteAdminPrivileges() {
+        final Parameters params = new Parameters().addId(cd.getCurrentEventContext().getCurrentSessionId());
+        final String hql = "FROM Session s LEFT OUTER JOIN FETCH s.sudoer WHERE s.id = :id";
+        final ome.model.meta.Session session = sf.getQueryService().findByQuery(hql, params);
+        aclVoter.noteAdminPrivileges(session);
     }
 
     public void invalidateEventContext() {

@@ -151,6 +151,7 @@ public class EventHandler implements MethodInterceptor, ApplicationListener<Cont
         Object retVal = null;
         try {
             secSys.enableReadFilter(session);
+            secSys.noteAdminPrivileges();
             retVal = arg0.proceed();
             saveLogs(readOnly, session);
             secSys.cd.loadPermissions(session);

@@ -49,6 +49,7 @@
       </list>
     </constructor-arg>
     <constructor-arg ref="policyService"/>
+    <constructor-arg ref="aclVoter"/>
   </bean>
 
   <bean id="securityWiring" class="ome.security.basic.BasicSecurityWiring"
