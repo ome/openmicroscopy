@@ -330,12 +330,12 @@ public class BasicACLVoter implements ACLVoter {
 
     public boolean allowAnnotate(IObject iObject, Details trustedDetails) {
         BasicEventContext c = currentUser.current();
-        return 1 == allowUpdateOrDelete(c, iObject, trustedDetails, true, Scope.ANNOTATE);
+        return 1 == allowUpdateOrDelete(c, iObject, trustedDetails, Scope.ANNOTATE);
     }
 
     public boolean allowUpdate(IObject iObject, Details trustedDetails) {
         BasicEventContext c = currentUser.current();
-        return 1 == allowUpdateOrDelete(c, iObject, trustedDetails, true, Scope.EDIT);
+        return 1 == allowUpdateOrDelete(c, iObject, trustedDetails, Scope.EDIT);
     }
 
     public void throwUpdateViolation(IObject iObject) throws SecurityViolation {
@@ -354,7 +354,7 @@ public class BasicACLVoter implements ACLVoter {
 
     public boolean allowDelete(IObject iObject, Details trustedDetails) {
         BasicEventContext c = currentUser.current();
-        return 1 == allowUpdateOrDelete(c, iObject, trustedDetails, false, Scope.DELETE);
+        return 1 == allowUpdateOrDelete(c, iObject, trustedDetails, Scope.DELETE);
     }
 
     public void throwDeleteViolation(IObject iObject) throws SecurityViolation {
@@ -403,7 +403,7 @@ public class BasicACLVoter implements ACLVoter {
      *     which should be allowed.
      */
     private int allowUpdateOrDelete(BasicEventContext c, IObject iObject,
-        Details trustedDetails, boolean isUpdate, Scope...scopes) {
+        Details trustedDetails, Scope...scopes) {
 
         int rv = 0;
 
@@ -457,7 +457,6 @@ public class BasicACLVoter implements ACLVoter {
             }
             /* see trac ticket 10691 re. enum values */
             boolean isLightAdminRestricted = false;
-            final String prefix = isUpdate ? "Write" : "Delete";
             if (!sysType) {
                 if (iObject instanceof OriginalFile) {
                     final String repo = ((OriginalFile) iObject).getRepo();
@@ -483,7 +482,7 @@ public class BasicACLVoter implements ACLVoter {
                         }
                     }
                 } else {
-                    if (!privileges.contains(adminPrivileges.getPrivilege(prefix + "Owned"))) {
+                    if (!privileges.contains(adminPrivileges.getPrivilege("WriteOwned"))) {
                         isLightAdminRestricted = true;
                     }
                 }
@@ -576,7 +575,7 @@ public class BasicACLVoter implements ACLVoter {
 
             final BasicEventContext c = currentUser.current();
             final Permissions p = details.getPermissions();
-            final int allow = allowUpdateOrDelete(c, object, details, true,
+            final int allow = allowUpdateOrDelete(c, object, details,
                 // This order must match the ordered of restrictions[]
                 // expected by p.copyRestrictions
                 Scope.LINK, Scope.EDIT, Scope.DELETE, Scope.ANNOTATE);
