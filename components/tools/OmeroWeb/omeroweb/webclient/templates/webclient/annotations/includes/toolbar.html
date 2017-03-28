@@ -41,11 +41,13 @@
                 OME.initToolbarDropdowns();
 
             {% if image %}
-                var parent = OME.getTreeImageContainerBestGuess({{ image.id }});
-                if (parent && parent.data) {
-                    if (parent.type === 'dataset') {
-                        var $btn = $("#open_full_viewer");
-                        $btn.prop('href', $btn.prop('href') + '?' + parent.type + '=' + parent.data.id);
+                if ($.jstree && $.jstree.reference('#dataTree')) {
+                    var parent = OME.getTreeImageContainerBestGuess({{ image.id }});
+                    if (parent && parent.data) {
+                        if (parent.type === 'dataset') {
+                            var $btn = $("#open_full_viewer");
+                            $btn.prop('href', $btn.prop('href') + '?' + parent.type + '=' + parent.data.id);
+                        }
                     }
                 }
             {% endif %}
