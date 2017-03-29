@@ -61,6 +61,7 @@ import omero.model.ImageI;
 import omero.model.NamedValue;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
+import omero.model.Permissions;
 import omero.model.PermissionsI;
 import omero.model.Pixels;
 import omero.model.Project;
@@ -104,6 +105,7 @@ import com.google.common.collect.ImmutableSet;
  * @author p.walczysko@dundee.ac.uk
  * @since 5.4.0
  */
+
 public class LightAdminRolesTest extends AbstractServerImportTest {
 
     private static final TempFileManager TEMPORARY_FILE_MANAGER = new TempFileManager(
@@ -167,6 +169,29 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         }
     }
 
+    /**
+     * Get the current permissions for the given object.
+     * @param object a model object previously retrieved from the server
+     * @return the permissions for the object in the current context
+     * @throws ServerError if the query caused a server error
+     */
+    private Permissions getCurrentPermissions(IObject object) throws ServerError {
+        final String objectClass = object.getClass().getSuperclass().getSimpleName();
+        final long objectId = object.getId().getValue();
+        try {
+            return iQuery.get(objectClass, objectId).getDetails().getPermissions();
+        } catch (SecurityViolation sv) {
+            return new PermissionsI("------");
+        }
+    }
+
+    /**
+     * Create a link between a Project and a Dataset.
+     * @param project an OMERO Project
+     * @param dataset an OMERO Dataset
+     * @return the created link
+     * @throws ServerError if the query caused a server error
+     */
     private ProjectDatasetLink linkProjectDataset(Project project, Dataset dataset) throws ServerError {
         if (project.isLoaded() && project.getId() != null) {
             project = (Project) project.proxy();
@@ -181,6 +206,13 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         return (ProjectDatasetLink) iUpdate.saveAndReturnObject(link);
     }
 
+    /**
+     * Create a link between a Dataset and an Image.
+     * @param dataset an OMERO Dataset
+     * @param image an OMERO Image
+     * @return the created link
+     * @throws ServerError if the query caused a server error
+     */
     private DatasetImageLink linkDatasetImage(Dataset dataset, Image image) throws ServerError {
         if (dataset.isLoaded() && dataset.getId() != null) {
             dataset = (Dataset) dataset.proxy();
@@ -196,10 +228,12 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     }
 
     /**
-     * Assert that the given object is owned by the given owner.
-     * @param object a model object
-     * @param expectedOwner a user's event context
-     * @throws ServerError unexpected
+     * Create a light administrator, with a specific privilege, and log in as them.
+     * All the other privileges will be set to False.
+     * @param isAdmin if the user should be a member of the <tt>system</tt> group
+     * @param permission the privilege that the user should have, or {@code null} if they should have no privileges
+     * @return the new user's context
+     * @throws Exception if the light administrator could not be created
      */
     private EventContext loginNewAdmin(boolean isAdmin, String permission) throws Exception {
         final EventContext ctx = loginNewAdmin(isAdmin, Arrays.asList(permission));
@@ -210,7 +244,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * Create a light administrator, with a specific privilege, and log in as them.
      * All the other privileges will be set to False.
      * @param isAdmin if the user should be a member of the <tt>system</tt> group
-     * @param restriction the privilege that the user should not have, or {@code null} if they should have all privileges
+     * @param permissions the privileges that the user should have, or {@code null} if they should have no privileges
      * @return the new user's context
      * @throws Exception if the light administrator could not be created
      */
@@ -385,6 +419,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
        try {
            sudo(new ExperimenterI(normalUser.userId, false));
            }catch (SecurityViolation sv) {
+               throw sv;
            }
        /* create a Dataset and Project being sudoed as normalUser */
        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
@@ -396,6 +431,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
            sentProj = (Project) iUpdate.saveAndReturnObject(proj);
            sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
        } catch (ServerError se) {
+           throw se;
        }
        /* import an image for the normalUser into the normalUser's default group 
         * and target it into the created Dataset*/
@@ -429,19 +465,19 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
        if (!isSudoing) {
            loginUser(lightAdmin);
        }
+
        /* Now check that the ImporterAs can delete the objects
         * created on behalf of the user. Note that deletion of the Project
         * would delete the whole hierarchy, which was successfully tested
         * during writing of this test. The order of the below delete() commands
         * is intentional, as the ability to delete the links and P/D/I separately is
         * tested in this way.*/
-       if (deletePassing) {
-           doChange(Requests.delete().target(datasetImageLink).build());
-           doChange(Requests.delete().target(projectDatasetLink).build());
-           doChange(Requests.delete().target(image).build());
-           doChange(Requests.delete().target(sentDat).build());
-           doChange(Requests.delete().target(sentProj).build());
-       }
+       doChange(client, factory, Requests.delete().target(datasetImageLink).build(), deletePassing);
+       doChange(client, factory, Requests.delete().target(projectDatasetLink).build(), deletePassing);
+       doChange(client, factory, Requests.delete().target(image).build(), deletePassing);
+       doChange(client, factory, Requests.delete().target(sentDat).build(), deletePassing);
+       doChange(client, factory, Requests.delete().target(sentProj).build(), deletePassing);
+
        /* Check one of the objects for non-existence after deletion. First, logging
         * in as root, retrieve all the objects to check them later*/
        logRootIntoGroup(normalUser.groupId);
