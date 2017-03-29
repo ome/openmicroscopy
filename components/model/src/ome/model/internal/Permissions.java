@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2012 University of Dundee
+ * Copyright (C) 2006-2017 University of Dundee
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -833,11 +833,15 @@ public class Permissions implements Serializable {
      * an immutable {@link Permissions} instance with all {@link Right rights}
      * turned off.
      */
-    public final static Permissions EMPTY = new ImmutablePermissions(
-            new Permissions().revoke(Role.USER, Right.READ,
-                    Right.ANNOTATE, Right.WRITE).revoke(Role.GROUP, Right.READ,
-                            Right.ANNOTATE, Right.WRITE).revoke(
-                                    Role.WORLD, Right.READ, Right.ANNOTATE, Right.WRITE));
+    public final static Permissions EMPTY;
+
+    static {
+            final Permissions permissions = new Permissions();
+            for (final Role role : Role.values()) {
+                permissions.revoke(role, Right.values());
+            }
+            EMPTY = new ImmutablePermissions(permissions);
+    }
 
     /**
      * Marker object which can be set on objects to show that the Permissions
