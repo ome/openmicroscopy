@@ -245,6 +245,15 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         return latestProxy;
     }
 
+    /* these permissions do not permit anything */
+    @SuppressWarnings("serial")
+    private static final Permissions NO_PERMISSIONS = new PermissionsI("------") {
+        @Override
+        public boolean isDisallow(int restriction, Ice.Current c) {
+            return true;
+        }
+    };
+
     /**
      * Get the current permissions for the given object.
      * @param object a model object previously retrieved from the server
@@ -257,7 +266,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         try {
             return iQuery.get(objectClass, objectId).getDetails().getPermissions();
         } catch (SecurityViolation sv) {
-            return new PermissionsI("------");
+            return NO_PERMISSIONS;
         }
     }
 
