@@ -54,7 +54,7 @@ class TestCsrf(IWebTest):
         Returns a new foundational Image with Channel objects attached for
         view method testing.
         """
-        pixels = self.pix(client=self.client)
+        pixels = self.create_pixels(client=self.client)
         for the_c in range(pixels.getSizeC().val):
             channel = omero.model.ChannelI()
             channel.logicalChannel = omero.model.LogicalChannelI()

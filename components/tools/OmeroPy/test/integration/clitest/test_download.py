@@ -157,7 +157,8 @@ class TestDownload(CLITest):
     # Image tests
     # ========================================================================
     def testNonExistingImage(self, tmpdir):
-        image = self.import_single_image_with_companion()
+        images = self.import_fake_file(with_companion=True)
+        image = images[0]
         self.args += ["Image:%s" % str(image.id.val + 1), '-']
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
@@ -179,14 +180,15 @@ class TestDownload(CLITest):
         f.close()
 
     def testSingleImageWithCompanion(self, tmpdir):
-        image = self.import_single_image_with_companion()
+        images = self.import_fake_file(with_companion=True)
+        image = images[0]
         tmpfile = tmpdir.join('test')
         self.args += ["Image:%s" % image.id.val, str(tmpfile)]
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
 
     def testMIF(self, tmpdir):
-        images = self.import_mif(2)
+        images = self.import_fake_file(2)
         tmpfile = tmpdir.join('test')
         self.args += ["Image:%s" % images[0].id.val, str(tmpfile)]
         self.cli.invoke(self.args, strict=True)
@@ -195,7 +197,7 @@ class TestDownload(CLITest):
         assert not bytes
 
     def testImageNoFileset(self, tmpdir):
-        pixels = self.pix()
+        pixels = self.create_pixels()
         tmpfile = tmpdir.join('test')
         self.args += ["Image:%s" % pixels.getImage().id.val, str(tmpfile)]
         with pytest.raises(NonZeroReturnCode):
@@ -291,10 +293,9 @@ class TestDownload(CLITest):
         upper = self.new_client(group=group)
         upper_q = upper.sf.getQueryService()
 
-        pimage = self.import_single_image(client=upper,
-                                          plates=1, plateRows=1,
-                                          plateCols=1, fields=1,
-                                          plateAcqs=1)
+        images = self.import_fake_file(0, client=upper, plates=1, plateRows=1,
+                                       plateCols=1, fields=1, plateAcqs=1)
+        pimage = images[0]
 
         pfile = upper_q.findByQuery((
             "select f from OriginalFile f join f.filesetEntries fe "
@@ -306,7 +307,8 @@ class TestDownload(CLITest):
             "join w.wellSamples ws join ws.image img "
             "where img.id = %s") % pimage.id.val, None)
 
-        image = self.import_single_image(client=upper)
+        images = self.import_fake_file(client=upper)
+        image = images[0]
 
         ofile = self.create_original_file("test", upper)
 

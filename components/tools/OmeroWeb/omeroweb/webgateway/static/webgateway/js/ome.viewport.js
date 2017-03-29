@@ -322,7 +322,17 @@ jQuery._WeblitzViewport = function (container, server, options) {
     _this.loadedImg._load(data);
     _this.loadedImg_def = jQuery.extend(true, {}, _this.loadedImg);
     if (_this.loadedImg.current.query) {
-      _this.setQuery(_this.loadedImg.current.query);
+      // setQuery expects 'maps' to be json
+      var query_rdef = $.extend({}, _this.loadedImg.current.query);
+      if (query_rdef.maps) {
+        try {
+          query_rdef.maps = JSON.parse(query_rdef.maps);
+        } catch(err) {
+          alert('maps query string is not valid json: ' + query_rdef.maps);
+          query_rdef.maps = [];
+        }
+      }
+      _this.setQuery(query_rdef);
     }
     // refresh allow_resize = true, seems to *prevent* resize (good) but don't fully understand
     _this.refresh(true);
@@ -1092,13 +1102,14 @@ jQuery._WeblitzViewport = function (container, server, options) {
     /* Channels (verbose as IE7 does not support Array.filter */
     var chs = [];
     var channels = this.loadedImg.channels;
+    var maps_json = [];
     for (var i=0; i<channels.length; i++) {
       var ch = channels[i].active ? '' : '-';
       ch += parseInt(i, 10)+1;
       ch += '|' + channels[i].window.start + ':' + channels[i].window.end;
-      ch += channels[i].reverseIntensity ? 'r' : '-r';
       ch += '$' + OME.rgbToHex(channels[i].color);
       chs.push(ch);
+      maps_json.push({'reverse': {'enabled': channels[i].reverseIntensity}});
     }
     query.push('c=' + chs.join(','));
     /* Rendering Model */
@@ -1146,6 +1157,8 @@ jQuery._WeblitzViewport = function (container, server, options) {
     if (this.loadedImg.current.query.debug !== undefined) {
       query.push('debug='+this.loadedImg.current.query.debug);
     }
+    // We can 'stringify' json for url. Nicer if we remove all spaces
+    query.push('maps=' + JSON.stringify(maps_json).replace(/ /g, ""));
     return query.join('&');
   };
 
@@ -1181,6 +1194,13 @@ jQuery._WeblitzViewport = function (container, server, options) {
           this.setChannelColor(idx, t[1], true);
         }
       }
+    }
+    if (query.maps) {
+      query.maps.map(function(m, idx){
+        if (m.reverse) {
+          this.setChannelReverseIntensity(idx, m.reverse.enabled, true);
+        }
+      }.bind(this));
     }
     if (query.q) this.setQuality(query.q, true);
     if (query.p) this.setProjection(query.p, true);

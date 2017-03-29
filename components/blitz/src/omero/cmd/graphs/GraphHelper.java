@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2016 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2017 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -28,17 +28,21 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.springframework.context.ApplicationContext;
 
 import com.google.common.base.Function;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.SetMultimap;
 
+import ome.conditions.InternalException;
 import ome.model.IObject;
 import ome.security.ACLVoter;
 import ome.security.SystemTypes;
 import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
 import ome.services.graphs.GraphTraversal;
+import ome.services.messages.EventLogMessage;
 import omero.cmd.ERR;
 import omero.cmd.Helper;
 
@@ -208,5 +212,22 @@ public class GraphHelper {
             classNames.add(modelClass.getSimpleName());
         }
         return classNames;
+    }
+
+    /**
+     * Publish database changes to the event log.
+     * @param context the context for publishing the application event
+     * @param action the name of the change action
+     * @param className the class of objects that were changed
+     * @param ids the IDs of the objects that were changed
+     */
+    public void publishEventLog(ApplicationContext context, String action, String className, Collection<Long> ids) {
+        final Class<? extends IObject> actualClass;
+        try {
+            actualClass = Class.forName(className).asSubclass(IObject.class);
+        } catch (ClassNotFoundException cnfe) {
+            throw new InternalException("reference to unknown model class " + className + ": " + cnfe);
+        }
+        context.publishEvent(new EventLogMessage(this, action, actualClass, ImmutableList.copyOf(ids)));
     }
 }

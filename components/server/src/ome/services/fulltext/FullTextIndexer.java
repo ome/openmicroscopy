@@ -58,6 +58,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
+@Deprecated
 public class FullTextIndexer extends SimpleWork implements ApplicationContextAware {
 
     private final static Logger log = LoggerFactory.getLogger(FullTextIndexer.class);

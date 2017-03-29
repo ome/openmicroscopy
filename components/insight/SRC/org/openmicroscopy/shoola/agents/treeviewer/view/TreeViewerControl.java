@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -134,7 +134,9 @@ import org.openmicroscopy.shoola.env.data.model.FigureActivityParam;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+
 import omero.gateway.SecurityContext;
+
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.JXTaskPaneContainerSingle;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
@@ -150,7 +152,6 @@ import omero.gateway.model.ImageData;
 import omero.gateway.model.PlateAcquisitionData;
 import omero.gateway.model.PlateData;
 import omero.gateway.model.TagAnnotationData;
-import omero.gateway.model.WellData;
 import omero.gateway.model.WellSampleData;
 
 
@@ -1326,15 +1327,10 @@ class TreeViewerControl
 			} else if (object instanceof Object[]) {
 				Object[] objects = (Object[]) object;
 				WellSampleData wsd = (WellSampleData) objects[0];
-				WellData well = (WellData) objects[1];
+				long plateId = (Long) objects[1];
 				ImageData img = wsd.getImage();
 				model.copyRndSettings(img);
-				List<Long> ids = new ArrayList<Long>(1);
-				ids.add(img.getId());
-				view.reloadThumbnails(ids);
-				ids = new ArrayList<Long>(1);
-				ids.add(well.getPlate().getId());
-				model.pasteRndSettings(ids, PlateData.class);
+				model.pasteRndSettings(Arrays.asList(plateId), PlateData.class);
 			}
 		} else if (JXTaskPaneContainerSingle.SELECTED_TASKPANE_PROPERTY.equals(
 				name)) {

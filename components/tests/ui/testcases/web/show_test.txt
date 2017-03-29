@@ -88,11 +88,11 @@ Test Show Well Images
     Click Well By Name                      A1
 
     # Images from a single Well shown in bottom panel
-    Wait Until Page Contains Element        xpath=//div[@id='wellImages']//li/img
-    Xpath Should Match X Times              //div[@id='wellImages']//li/img                 ${FIELD_COUNT}
+    Wait Until Page Contains Element        xpath=//div[@id='wellImages']//li/a
+    Xpath Should Match X Times              //div[@id='wellImages']//li/a                 ${FIELD_COUNT}
 
     # Select Range: Shift-click 5th image
-    Click Element                           xpath=//div[@id='wellImages']//li/img[1]
+    Click Element                           xpath=//div[@id='wellImages']//li/a/img[1]
     Shift Click Element                     "#wellImages img:eq(4)"
     Wait Until Page Contains Element        //h1[@id='batch_ann_title']/span[contains(text(), '5 objects')]
 
@@ -101,7 +101,7 @@ Test Show Well Images
     ${imagesUrl}=                           Get Element Attribute                   id=link_info_popup_string@value
     Go To                                   ${imagesUrl}
     Wait Until Page Contains Element        //h1[@id='batch_ann_title']/span[contains(text(), '5 objects')]
-    Xpath Should Match X Times              //div[@id='wellImages']//li/img                 ${FIELD_COUNT}
+    Xpath Should Match X Times              //div[@id='wellImages']//li/a                 ${FIELD_COUNT}
 
 
 Test Show PDI

@@ -54,6 +54,7 @@ import ucar.nc2.NetcdfFile;
  * 
  * @since 4.3
  */
+@Deprecated
 public class TablesBridge extends BridgeHelper {
 
     /**

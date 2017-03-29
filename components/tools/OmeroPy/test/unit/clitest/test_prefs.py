@@ -95,22 +95,44 @@ class TestPrefs(object):
         self.assertStdoutStderr(capsys)
 
     def testGetHidePassword(self, capsys):
-        self.invoke("set omero.X.pass shortpass")
-        self.cli.invoke(self.args + ["set", "omero.Y.pass", ""], strict=True)
-        self.invoke("set omero.Y.password long_password")
-        self.invoke("set omero.Z val")
+        config = {
+            "omero.X.mypassword": "long_password",
+            "omero.X.pass": "shortpass",
+            "omero.X.password": "medium_password",
+            "omero.X.regular": "value",
+            "omero.Y.MyPassword": "long_password",
+            "omero.Y.Pass": "shortpass",
+            "omero.Y.Password": "medium_password",
+            "omero.Z.mypassword": "",
+            "omero.Z.pass": "",
+            "omero.Z.password": ""}
+
+        for k, v in config.iteritems():
+            self.cli.invoke(self.args + ["set", k, v], strict=True)
         self.invoke("get")
         self.assertStdoutStderr(capsys, out=(
+            'omero.X.mypassword=long_password\n'
             'omero.X.pass=shortpass\n'
-            'omero.Y.pass=\n'
-            'omero.Y.password=long_password\n'
-            'omero.Z=val'))
+            'omero.X.password=medium_password\n'
+            'omero.X.regular=value\n'
+            'omero.Y.MyPassword=long_password\n'
+            'omero.Y.Pass=shortpass\n'
+            'omero.Y.Password=medium_password\n'
+            'omero.Z.mypassword=\n'
+            'omero.Z.pass=\n'
+            'omero.Z.password='))
         self.invoke("get --hide-password")
         self.assertStdoutStderr(capsys, out=(
+            'omero.X.mypassword=********\n'
             'omero.X.pass=********\n'
-            'omero.Y.pass=\n'
-            'omero.Y.password=********\n'
-            'omero.Z=val'))
+            'omero.X.password=********\n'
+            'omero.X.regular=value\n'
+            'omero.Y.MyPassword=********\n'
+            'omero.Y.Pass=********\n'
+            'omero.Y.Password=********\n'
+            'omero.Z.mypassword=\n'
+            'omero.Z.pass=\n'
+            'omero.Z.password='))
 
     @pytest.mark.parametrize('argument', ['A=B', 'A= B'])
     def testSetFails(self, capsys, argument):

@@ -561,6 +561,14 @@
                         <th>Creation Date:</th>
                         <td id='creation_date'>{{ manager.acquisition.getDate|date:"Y-m-d H:i:s" }}</td>
                     </tr>
+                    <tr>
+                        <th>Start Time:</th>
+                        <td>{{ manager.acquisition.getStartTime|date:"Y-m-d H:i:s" }}</td>
+                    </tr>
+                    <tr>
+                        <th>End Time:</th>
+                        <td>{{ manager.acquisition.getEndTime|date:"Y-m-d H:i:s" }}</td>
+                    </tr>
                 </table>
                 </div>
 

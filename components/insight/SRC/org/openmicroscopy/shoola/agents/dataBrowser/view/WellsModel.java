@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -412,6 +412,25 @@ class WellsModel
 			wellDimension = new Dimension(ThumbnailProvider.THUMB_MAX_WIDTH,
 					ThumbnailProvider.THUMB_MAX_HEIGHT);
 	}
+	
+    /**
+     * Clears the well/field thumbnails of the provided image ids (or all
+     * well/field thumbnails if the are none provided)
+     * 
+     * @param ids
+     *            The image ids of the thumbnails to clear.
+     */
+    void clearThumbnails(Collection ids) {
+        for (ImageDisplay i : wellNodes) {
+            WellImageSet wi = (WellImageSet) i;
+            for (WellSampleNode n : wi.getWellSamples()) {
+                WellSampleData wsd = (WellSampleData) n.getHierarchyObject();
+                if (CollectionUtils.isEmpty(ids)
+                        || ids.contains(wsd.getImage().getId()))
+                    n.getThumbnail().flush();
+            }
+        }
+    }
 	
 	/**
 	 * Indicates how to display a column. 

@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -134,8 +134,12 @@ public class ThumbnailLoader
                 store.setPixelsId(pxd.getId());
             }
             if (userID >= 0) {
-                store.setRenderingDefId(service.getRenderingDef(ctx,
-                        pxd.getId(), userID));
+                long rndDefId = service.getRenderingDef(ctx,
+                        pxd.getId(), userID);
+                // the user might not have own rendering settings
+                // for this image
+                if (rndDefId >= 0)
+                    store.setRenderingDefId(rndDefId);
             }
             thumbPix = WriterImage.bytesToImage(
                     store.getThumbnail(omero.rtypes.rint(sizeX),

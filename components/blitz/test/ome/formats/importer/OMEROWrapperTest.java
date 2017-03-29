@@ -106,7 +106,7 @@ public class OMEROWrapperTest {
         wrapper.setId(png.getAbsolutePath());
     }
 
-    @Test
+    @Test(timeOut=3000)
     public void testMatchedWrappers() throws Exception {
         try (FakeReader r = new FakeReader();
              Memoizer m = new Memoizer(r, 0)) {
@@ -119,7 +119,7 @@ public class OMEROWrapperTest {
         }
     }
 
-    @Test(invocationCount = 10)
+    @Test(invocationCount = 10, timeOut=3000)
     public void testMismatchedWrappers() throws Exception {
         try (IFormatReader r = new MinMaxCalculator();
                 Memoizer m = new Memoizer(0L);

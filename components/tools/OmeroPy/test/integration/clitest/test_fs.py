@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2014-2017 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -74,24 +74,28 @@ class TestFS(CLITest):
         """Test --with-transfer option of fs sets subcommand"""
 
         f = {}
-        i0 = self.import_mif(1)
+        i0 = self.import_fake_file()
         f[None] = self.get_fileset(i0)
 
         for transfer in transfers:
-            i = self.import_mif(1, extra_args=['--transfer=%s' % transfer])
+            i = self.import_fake_file(extra_args=['--transfer=%s' % transfer])
             f[transfer] = self.get_fileset(i)
 
         self.args += ["sets", "--style=plain"]
         self.cli.invoke(self.args, strict=True)
         o, e = capsys.readouterr()
-        assert set(self.parse_ids(o)) == set([x.id.val for x in f.values()])
+        printed_ids = set(self.parse_ids(o))
+        expected_ids = set([x.id.val for x in f.values()])
+        assert expected_ids.issubset(printed_ids)
 
         for transfer in transfers:
             self.cli.invoke(self.args + ['--with-transfer', '%s' % transfer],
                             strict=True)
             o, e = capsys.readouterr()
-            assert set(self.parse_ids(o)) == \
-                set([x.id.val for (k, x) in f.iteritems() if k == transfer])
+            printed_ids = set(self.parse_ids(o))
+            expected_ids = set([x.id.val for (k, x) in f.iteritems()
+                                if k == transfer])
+            assert expected_ids.issubset(printed_ids)
 
     def testSetsAdminOnly(self, capsys):
         """Test fs sets --check is admin-only"""

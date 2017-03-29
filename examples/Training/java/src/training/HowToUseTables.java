@@ -32,9 +32,16 @@ import omero.grid.LongColumn;
 import omero.grid.SharedResourcesPrx;
 import omero.grid.TablePrx;
 import omero.log.SimpleLogger;
+import omero.model.FileAnnotation;
+import omero.model.FileAnnotationI;
+import omero.model.ImageAnnotationLink;
+import omero.model.ImageAnnotationLinkI;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
+import omero.gateway.facility.BrowseFacility;
+import omero.gateway.facility.DataManagerFacility;
 import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.ImageData;
 
 /** 
  * Follow samples code indicating how to use OMERO.tables
@@ -56,6 +63,9 @@ public class HowToUseTables
     /** The password.*/
     private static String password = "password";
     //end edit
+
+    /** The image.*/
+    private ImageData image;
 
     private Gateway gateway;
 
@@ -79,15 +89,26 @@ public class HowToUseTables
                 new long[rows]);
         return newColumns;
     }
+    
+    /**
+    * Loads the image.
+    * @param imageID The id of the image to load.
+    * @return See above.
+    */               
+    private ImageData loadImage(long imageID)
+            throws Exception {
+        BrowseFacility browse = gateway.getFacility(BrowseFacility.class);
+        return browse.getImage(ctx, imageID);
+    }
 
 // Create table
 // ============
 
     /** 
-     * Creates a table.
+     * Creates a table and links to an Image.
      * @throws Exception
      */
-    private void createTable()
+    private void createTableandLinkToImage()
             throws Exception
     {
         int rows = 1;
@@ -114,6 +135,25 @@ public class HowToUseTables
             table.addData(newRow);
             OriginalFile file = table.getOriginalFile(); // if you need to interact with the table
             file = new OriginalFileI(file.getId(), false);
+
+            DataManagerFacility dm = gateway.getFacility(DataManagerFacility.class);
+
+            FileAnnotation annotation = new FileAnnotationI();
+            annotation.setFile(file);
+            annotation.setNs(omero.rtypes
+                    .rstring(omero.constants.namespaces.NSBULKANNOTATIONS.value));
+            
+            //The following saveAndReturnObject call can be removed in bulk annotation scenarios
+            //The server call is made when a link is created and that handles both the annotation and the link together
+            annotation = (FileAnnotation) dm.saveAndReturnObject(ctx, annotation);
+
+            //now link the image and the annotation
+            ImageAnnotationLink link = new ImageAnnotationLinkI();
+            link.setChild(annotation);
+            link.setParent(image.asImage());
+            //save the link back to the server.
+            link = (ImageAnnotationLink) dm.saveAndReturnObject(ctx, link);
+
             //Open the table again
             table2 = store.openTable(file);
             //read headers
@@ -154,15 +194,17 @@ public class HowToUseTables
      * Connects and invokes the various methods.
      *
      * @param args The login credentials.
+     * @param imageId omero Image ID.
      */
-    HowToUseTables(String[] args)
+    HowToUseTables(String[] args, long imageId)
     {
         LoginCredentials cred = new LoginCredentials(args);
         gateway = new Gateway(new SimpleLogger());
         try {
             ExperimenterData user = gateway.connect(cred);
             ctx = new SecurityContext(user.getGroupId());
-            createTable();
+            image = loadImage(imageId);
+            createTableandLinkToImage();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -184,8 +226,9 @@ public class HowToUseTables
         if (args == null || args.length == 0)
             args = new String[] { "--omero.host=" + hostName,
                 "--omero.user=" + userName, "--omero.pass=" + password };
-
-        new HowToUseTables(args);
+        
+        // Edit image Id if you want to use a custom imageId instead of the configuration option
+        new HowToUseTables(args, 1);
         System.exit(0);
     }
 

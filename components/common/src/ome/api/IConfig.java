@@ -1,6 +1,4 @@
 /*
- * ome.api.IConfig
- *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -9,6 +7,7 @@ package ome.api;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.prefs.Preferences;
 
 import ome.annotations.NotNull;
 import ome.conditions.ApiUsageException;
@@ -28,7 +27,7 @@ import ome.conditions.SecurityViolation;
  * Manages synchronization of the various configuration sources internally. It
  * is therefore important that as far as possible all configuration changes
  * take place via this interface and not, for example, directly via
- * {@link java.util.prefs.Preferences}.
+ * {@link Preferences}.
  * 
  * Also used as the main developer example for developing (stateless) ome.api
  * interfaces. See source code documentation for more.
@@ -48,7 +47,7 @@ public interface IConfig extends ServiceInterface {
      * into the form: Major.minor.patch for {@link #getVersion()}
      */
     public final static String VERSION_REGEX = "^.*?[-]?(\\d+[.]\\d+[.]\\d+)[-]?.*?$"; 
-    
+
     /*
      * Developer notes: Simple almost hello-world call. There should be almost
      * nothing that causes this to throw an exception (except perhaps a Java
@@ -96,7 +95,7 @@ public interface IConfig extends ServiceInterface {
      * retrieve a configuration value from the backend store. Permissions
      * applied to the configuration value may cause a {@link SecurityViolation}
      * to be thrown.
-     * 
+     *
      * @param key
      *            The non-null name of the desired configuration value
      * @return The {@link String} value linked to this key, possibly null if not
@@ -154,7 +153,7 @@ public interface IConfig extends ServiceInterface {
      * removed in all writable configuration sources. If the configuration is
      * set in a non-modifiable source (e.g. in a property file on the classpath),
      * then a subsequent call to getConfigValue() will return that value.
-     * 
+     *
      * @param key
      *            The non-null name of the desired configuration value
      * @param value
@@ -172,9 +171,11 @@ public interface IConfig extends ServiceInterface {
      * configuration property is currently equal to the test argument. If the
      * test is null or empty, then the configuration property will be set only
      * if missing.
-     *  
+     *
      * @param key
      * @param value
+     * @param test
+     * @return See above.
      * @throws ApiUsageException
      * @throws SecurityViolation
      * @see #setConfigValue(String, String)
@@ -186,12 +187,13 @@ public interface IConfig extends ServiceInterface {
      * Provides the release version. OMERO-internal values will be in the form
      * Major.minor.patch, starting with the value 4.0.0 for the 4.0 release,
      * Spring 2009.
-     * 
+     *
      * Customized values should begin with a alphabetic sequence followed by a
      * hyphen: ACME-0.0.1 and any build information should follow the patch
      * number also with a hyphen: 4.0.0-RC1. These values will be removed by
      * {@link #getVersion()}
-     * 
+     *
+     * @return Returns the release version
      * @see #VERSION_REGEX
      */
     String getVersion();
@@ -201,10 +203,10 @@ public interface IConfig extends ServiceInterface {
      * exports function properly, only one physical database should be active
      * with a given instance UUID. All other copies of the database with that
      * UUID are invalid as soon as one modification is made.
-     * 
+     *
      * This value is stored in the configuration table under the key
      * "omero.db.uuid"
-     * 
+     *
      * @return String not null.
      */
     String getDatabaseUuid();
