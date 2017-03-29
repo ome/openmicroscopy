@@ -73,6 +73,20 @@ project = conn.getObject("Project", projectId)
 project.linkAnnotation(map_ann)
 
 
+# Count the number of annotations on one or many objects
+# ===========================================================
+print conn.countAnnotations('Project', [projectId])
+
+
+# List all annotations on an object. Get text from tags
+# ===========================================================
+for ann in project.listAnnotations():
+    print ann.getId(), ann.OMERO_TYPE,
+    print " added by ", ann.link.getDetails().getOwner().getOmeName()
+    if ann.OMERO_TYPE == omero.model.TagAnnotationI:
+        print "Tag value:", ann.getTextValue()
+
+
 # How to create a file annotation and link to a Dataset
 # =====================================================
 dataset = conn.getObject("Dataset", dataset_id)

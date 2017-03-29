@@ -64,11 +64,15 @@ def create_roi(img, shapes):
 
 # Another helper for generating the color integers for shapes
 def rgba_to_int(red, green, blue, alpha=255):
-    """ Convert an R,G,B,A value to an int """
-    rgba_int = (red << 24) + (green << 16) + (blue << 8) + alpha
+    """ Return the color as an Integer in RGBA encoding """
+    r = red << 24
+    g = green << 16
+    b = blue << 8
+    a = alpha
+    rgba_int = r+g+b+a
     if (rgba_int > (2**31-1)):       # convert to signed 32-bit int
         rgba_int = rgba_int - 2**32
-    return int(rgba_int)
+    return rgba_int
 
 
 # create a Rectangle shape (added to ROI below)
@@ -183,11 +187,6 @@ point.textValue = rstring("test-Point")
 create_roi(image, [point])
 
 
-def points_to_string(points):
-    """ Returns legacy format supported by Insight """
-    points = ["%s,%s" % (p[0], p[1]) for p in points]
-    csv = ", ".join(points)
-    return "points[%s] points1[%s] points2[%s]" % (csv, csv, csv)
 # create an ROI with a single polygon, setting colors and lineWidth
 polygon = omero.model.PolygonI()
 polygon.theZ = rint(z)
@@ -195,8 +194,8 @@ polygon.theT = rint(t)
 polygon.fillColor = rint(rgba_to_int(255, 0, 255, 50))
 polygon.strokeColor = rint(rgba_to_int(255, 255, 0))
 polygon.strokeWidth = omero.model.LengthI(10, UnitsLength.PIXEL)
-points = [[10, 20], [50, 150], [200, 200], [250, 75]]
-polygon.points = rstring(points_to_string(points))
+points = "10,20, 50,150, 200,200, 250,75"
+polygon.points = rstring(points)
 create_roi(image, [polygon])
 
 # Retrieve ROIs linked to an Image

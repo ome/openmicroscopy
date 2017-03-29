@@ -17,7 +17,7 @@ import ome.services.eventlogs.EventLogLoader;
 /**
  * {@link EventLogLoader} implementation which keeps tracks of the last
  * {@link EventLog} instance, and always provides the next unindexed instance.
- * Reseting that saved value would restart indexing.
+ * Resetting that saved value would restart indexing.
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4.3

@@ -368,7 +368,7 @@ public class SessionHandler implements MethodInterceptor,
 
     private void resetThreadSession() {
         if (isSessionBoundToThread()) {
-            debug("Session bound to thread. Reseting.");
+            debug("Session bound to thread. Resetting.");
             TransactionSynchronizationManager.unbindResource(factory);
             TransactionSynchronizationManager.bindResource(factory, DUMMY);
         } else {

@@ -1,10 +1,7 @@
 /*
- *   $Id$
- *
- *   Copyright 2008 University of Dundee. All rights reserved.
+ *   Copyright 2008-2016 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-
 package ome.util;
 
 import java.awt.Point;
@@ -13,10 +10,9 @@ import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferInt;
 import java.awt.image.DirectColorModel;
+import java.awt.image.Raster;
 import java.awt.image.SinglePixelPackedSampleModel;
 import java.awt.image.WritableRaster;
-
-import sun.awt.image.IntegerInterleavedRaster;
 
 /**
  * Provides helper methods for performing various things on image data.
@@ -44,7 +40,7 @@ public class ImageUtil
     public static BufferedImage createBufferedImage(int[] buf, int sizeX, int sizeY)
     {
         // First wrap the packed integer array with a Java2D buffer
-        DataBuffer j2DBuf = new DataBufferInt(buf, sizeX * sizeY, 0);
+        DataBufferInt j2DBuf = new DataBufferInt(buf, sizeX * sizeY, 0);
 
         // Create a sample model which supplies the bit masks for each colour
         // component.
@@ -58,7 +54,7 @@ public class ImageUtil
 
         // Now create a compatible raster which wraps the Java2D buffer and is
         // told how to get to the pixel data by the sample model.
-        WritableRaster raster = new IntegerInterleavedRaster(sampleModel,
+        WritableRaster raster = Raster.createWritableRaster(sampleModel,
                 j2DBuf, new Point(0, 0));
 
         // Finally create a screen accessible colour model and wrap the raster

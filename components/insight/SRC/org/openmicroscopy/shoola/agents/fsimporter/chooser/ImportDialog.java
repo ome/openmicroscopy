@@ -21,8 +21,8 @@
 package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
 
+import ij.IJ;
 import ij.ImagePlus;
-
 import ij.WindowManager;
 import info.clearthought.layout.TableLayout;
 
@@ -1575,17 +1575,22 @@ public class ImportDialog extends ClosableTabbedPaneComponent
             FileObject f, ff;
             if (active) {
                 ImagePlus p = WindowManager.getCurrentImage();
+                if (p == null) {
+                    IJ.log("Please open an image first.");
+                    return;
+                }
                 f = new FileObject(p);
-                int id = p.getID();
                 //check if there are associated files
                 int[] values = WindowManager.getIDList();
                 String path = f.getAbsolutePath();
-                if (path != null) {
+                if (path != null && values != null) {
                     for (int i = 0; i < values.length; i++) {
                         p = WindowManager.getImage(values[i]);
-                        ff = new FileObject(p);
-                        if (path.equals(ff.getAbsolutePath())) {
-                            f.addAssociatedFile(ff);
+                        if (p != null) {
+                            ff = new FileObject(p);
+                            if (path.equals(ff.getAbsolutePath())) {
+                                f.addAssociatedFile(ff);
+                            }
                         }
                     }
                 }
@@ -1597,16 +1602,18 @@ public class ImportDialog extends ClosableTabbedPaneComponent
                     for (int i = 0; i < values.length; i++) {
                         //need to check if it is the same image
                         ImagePlus p = WindowManager.getImage(values[i]);
-                        f = new FileObject(p);
-                        String path = f.getAbsolutePath();
-                        if (!paths.contains(path)) {
-                            paths.add(path);
-                            list.add(f);
-                            for (int j = 0; j < values.length; j++) {
-                                p = WindowManager.getImage(values[j]);
-                                ff = new FileObject(p);
-                                if (path.equals(ff.getAbsolutePath())) {
-                                    f.addAssociatedFile(ff);
+                        if (p != null) {
+                            f = new FileObject(p);
+                            String path = f.getAbsolutePath();
+                            if (!paths.contains(path)) {
+                                paths.add(path);
+                                list.add(f);
+                                for (int j = 0; j < values.length; j++) {
+                                    p = WindowManager.getImage(values[j]);
+                                    ff = new FileObject(p);
+                                    if (path.equals(ff.getAbsolutePath())) {
+                                        f.addAssociatedFile(ff);
+                                    }
                                 }
                             }
                         }

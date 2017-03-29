@@ -337,7 +337,7 @@
               // remove &zm=50
               vpQuery = vpQuery.replace("&zm=" + OME.preview_viewport.getZoom(), "");
 
-              OME.openPopup(url + "?" + vpQuery);
+              window.open(url + "?" + vpQuery, '_blank');
               return false;
             });
         });

@@ -358,7 +358,7 @@ class FileSelectionTable
 	    int[] rows = table.getSelectedRows();
 	    if (rows == null || rows.length == 0) return;
 	    DefaultTableModel dtm = (DefaultTableModel) table.getModel();
-	    Vector<?> v = dtm.getDataVector();
+	    Vector v = dtm.getDataVector();
 	    List<Object> indexes = new ArrayList<Object>();
 	    for (int i = 0; i < table.getRowCount(); i++) {
 	        if (table.isRowSelected(i))

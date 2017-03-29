@@ -23,13 +23,16 @@ package training;
 
 
 
+import java.awt.Color;
+import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
 import ome.formats.model.UnitsFactory;
-import omero.RInt;
+import omero.api.RawPixelsStorePrx;
 import omero.gateway.Gateway;
 import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;
@@ -38,38 +41,26 @@ import omero.gateway.facility.DataManagerFacility;
 import omero.gateway.facility.ROIFacility;
 import omero.gateway.model.ROIResult;
 import omero.log.SimpleLogger;
-import omero.model.Ellipse;
-import omero.model.EllipseI;
-import omero.model.Label;
-import omero.model.LabelI;
+import omero.model.AffineTransform;
+import omero.model.AffineTransformI;
 import omero.model.LengthI;
-import omero.model.Line;
-import omero.model.LineI;
-import omero.model.Mask;
-import omero.model.MaskI;
-import omero.model.Path;
-import omero.model.PathI;
-import omero.model.PixelsI;
-import omero.model.Point;
-import omero.model.PointI;
-import omero.model.Polygon;
-import omero.model.PolygonI;
-import omero.model.Polyline;
-import omero.model.PolylineI;
-import omero.model.Rectangle;
-import omero.model.RectangleI;
 import omero.model.Roi;
-import omero.model.RoiI;
+
 import omero.model.Shape;
 import omero.model.enums.UnitsLength;
 import omero.gateway.model.EllipseData;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.LineData;
+import omero.gateway.model.MaskData;
+import omero.gateway.model.PixelsData;
 import omero.gateway.model.PointData;
+import omero.gateway.model.PolygonData;
+import omero.gateway.model.PolylineData;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.RectangleData;
 import omero.gateway.model.ShapeData;
+import omero.gateway.model.TextData;
 
 /** 
  * Sample code showing how interact with Region of interests.
@@ -126,97 +117,114 @@ public class ROIs
     {
         DataManagerFacility dm = gateway.getFacility(DataManagerFacility.class);
         ROIFacility roifac = gateway.getFacility(ROIFacility.class);
-        Roi roi = new RoiI();
-        roi.setImage(image.asImage());
-        Rectangle rect = new RectangleI();
-        rect.setX(omero.rtypes.rdouble(10));
-        rect.setY(omero.rtypes.rdouble(10));
-        rect.setWidth(omero.rtypes.rdouble(10));
-        rect.setHeight(omero.rtypes.rdouble(10));
-        rect.setTheZ(omero.rtypes.rint(0));
-        rect.setTheT(omero.rtypes.rint(0));
-        roi.addShape(rect);
-        //Create a rectangular shape
-        rect = new RectangleI();
-        rect.setX(omero.rtypes.rdouble(10));
-        rect.setY(omero.rtypes.rdouble(10));
-        rect.setWidth(omero.rtypes.rdouble(10));
-        rect.setHeight(omero.rtypes.rdouble(10));
-        rect.setTheZ(omero.rtypes.rint(1));
-        rect.setTheT(omero.rtypes.rint(0));
-        roi.addShape(rect); //Add the shape
+
+        ROIData data = new ROIData();
+        data.setImage(image.asImage());
+        
+        //Create Rectangle ShapeData
+        RectangleData rectangleData = new RectangleData(10, 10, 10, 10);
+        rectangleData.setZ(0);
+        rectangleData.setT(0);
+        data.addShapeData(rectangleData);
+        
+        rectangleData = new RectangleData(10, 10, 10, 10);
+        rectangleData.setZ(0);
+        rectangleData.setT(1);
+        data.addShapeData(rectangleData);
+
+
         //Create an ellipse.
-        Ellipse ellipse = new EllipseI();
-        ellipse.setX(omero.rtypes.rdouble(10));
-        ellipse.setY(omero.rtypes.rdouble(10));
-        ellipse.setRadiusX(omero.rtypes.rdouble(10));
-        ellipse.setRadiusY(omero.rtypes.rdouble(10));
-        ellipse.setTheZ(omero.rtypes.rint(1));
-        ellipse.setTheT(omero.rtypes.rint(0));
-        ellipse.setTextValue(omero.rtypes.rstring("ellipse text"));
-        roi.addShape(ellipse);
+        EllipseData ellipseData = new EllipseData(10, 10, 10, 10);
+        ellipseData.setZ(1);
+        ellipseData.setT(0);
+        ellipseData.setText("ellipse text");
+        data.addShapeData(ellipseData);
+
         //Create a line
-        Line line = new LineI();
-        line.setX1(omero.rtypes.rdouble(100));
-        line.setX2(omero.rtypes.rdouble(200));
-        line.setY1(omero.rtypes.rdouble(300));
-        line.setY2(omero.rtypes.rdouble(400));
-        line.setTheZ(omero.rtypes.rint(1));
-        line.setTheT(omero.rtypes.rint(0));
-        roi.addShape(line);
+        LineData lineData = new LineData(100, 200, 300, 400);
+        lineData.setZ(1);
+        lineData.setT(0);
+        data.addShapeData(lineData);
+
         //Create a point
-        Point point = new PointI();
-        point.setX(omero.rtypes.rdouble(75.0));
-        point.setY(omero.rtypes.rdouble(75.0));
-        point.setTheZ(omero.rtypes.rint(0));
-        point.setTheT(omero.rtypes.rint(0));
-        roi.addShape(point);
+        PointData pointData = new PointData(75.0, 75.0);
+        pointData.setZ(0);
+        pointData.setT(0);
+        data.addShapeData(pointData);
+
         //Polygon
-        Polygon polygon = new PolygonI();
-        polygon.setPoints(omero.rtypes.rstring(
-                "100.0,200.0 553.9,593.5 92.3,59.9"));
-        polygon.setTheZ(omero.rtypes.rint(0));
-        polygon.setTheT(omero.rtypes.rint(0));
-        roi.addShape(polygon);
+        List<Point2D.Double> points = new ArrayList();
+        points.add(new Point2D.Double(100.0,200));
+        points.add(new Point2D.Double(553.9,593.5));
+        points.add(new Point2D.Double(92.3,59.9));
+        PolygonData polygonData = new PolygonData(points);
+        polygonData.setZ(0);
+        polygonData.setT(0);
+        data.addShapeData(polygonData);
+
         //Polyline
-        Polyline polyline = new PolylineI();
-        polyline.setPoints(omero.rtypes.rstring(
-                "100.0,200.0 553.9,593.5 92.3,59.9"));
-        roi.addShape(polyline);
+        PolylineData polylineData = new PolylineData(points);
+        polylineData.setZ(0);
+        polylineData.setT(0);
+        data.addShapeData(polylineData);
+
         // Display fields which could quickly
         // be parsed from known formats
-        RInt GREY = omero.rtypes.rint(11184810);
-        Label text = new LabelI();
-        text.setTextValue(omero.rtypes.rstring("This is a polyline"));
-        text.setFontFamily(omero.rtypes.rstring("sans-serif"));
-        text.setFontSize(new LengthI(40, UnitsLength.POINT));
-        text.setFillColor(GREY);
-        text.setStrokeColor(GREY);
-        text.setStrokeWidth(new LengthI(25, UnitsFactory.Shape_StrokeWidth));
-        text.setLocked(omero.rtypes.rbool(true));
+        TextData textData = new TextData("This is a polyline", 10, 10);
+
+        Color fillcolor = new Color(128, 128, 128);
+        Color strokecolor = new Color(255, 255, 255);
+        textData.getShapeSettings().setFill(fillcolor);;
+        textData.getShapeSettings().setFontSize(new LengthI(40, UnitsLength.POINT));
+        textData.getShapeSettings().setFontFamily("sans-serif");
+        textData.getShapeSettings().setStroke(strokecolor);
+        textData.getShapeSettings().setStrokeWidth(new LengthI(25, UnitsFactory.Shape_StrokeWidth));
+        
         // Other options which may come with time
-        text.setFontStyle(omero.rtypes.rstring("italic"));
-        text.setFillColor(GREY);
-        text.setFillRule(omero.rtypes.rstring("even-odd"));
-        text.setStrokeColor(GREY);
-        text.setStrokeDashArray(omero.rtypes.rstring("10 20 30 10"));
-        text.setStrokeWidth(new LengthI(10, UnitsFactory.Shape_StrokeWidth));
-        text.setTheZ(omero.rtypes.rint(0));
-        text.setTheT(omero.rtypes.rint(0));
-        roi.addShape(text);
-        //Add a path shape
-        Path path = new PathI();
-        path.setD(omero.rtypes.rstring("M 100 100 L 300 100 L 200 300 z"));
-        roi.addShape(path);
+        textData.getShapeSettings().setFontStyle("italic");
+        textData.getShapeSettings().setFillRule("even-odd");
+        double[] doublearray = {(double) 10, (double) 20, (double) 30, (double) 10};
+        textData.getShapeSettings().setStrokeDashArray(doublearray);
+        textData.setZ(0);
+        textData.setT(0);
+        data.addShapeData(textData);
+
         //Add a mask
-        Mask mask = new MaskI();
-        mask.setX(omero.rtypes.rdouble(10));
-        mask.setY(omero.rtypes.rdouble(10));
-        mask.setWidth(omero.rtypes.rdouble(100.0));
-        mask.setHeight(omero.rtypes.rdouble(100.0));
-        mask.setPixels(new PixelsI(image.getDefaultPixels().getId(), false));
+        PixelsData pixels = image.getDefaultPixels();
+        long pixelsId = pixels.getId();
+        RawPixelsStorePrx store = gateway.getPixelsStore(ctx);
+        try {
+            store.setPixelsId(pixelsId, false);
+            byte[] mask = store.getStack(0, 0);
+            MaskData maskData = new MaskData(10, 10, 100.0, 100.0, mask);
+            maskData.setZ(0);
+            maskData.setT(0);
+            data.addShapeData(maskData);
+        } finally {
+            store.close();
+        }
+
+        //Create and Apply transform to an ellipse 
+        //Don't set Z and T for this shape: this is also allowed in the model
+        EllipseData ellipse = new EllipseData(10,10,10,10);
+        ellipse.setText("ellipse text");
+        //set angle of rotation
+        int theta = 10;
+        //create transform object
+        AffineTransformI newTform = new AffineTransformI();
+        newTform.setA00(omero.rtypes.rdouble(java.lang.Math.cos(theta)));
+        newTform.setA10(omero.rtypes.rdouble(-java.lang.Math.sin(theta)));
+        newTform.setA01(omero.rtypes.rdouble(java.lang.Math.sin(theta)));
+        newTform.setA11(omero.rtypes.rdouble(java.lang.Math.cos(theta)));
+        newTform.setA02(omero.rtypes.rdouble(0));
+        newTform.setA12(omero.rtypes.rdouble(0));
+        //add transform
+        ellipse.setTransform(newTform);
+        data.addShapeData(ellipse);
+
         ROIData roiData = roifac.saveROIs(ctx, image.getId(),
-                Arrays.asList(new ROIData(roi))).iterator().next();
+        Arrays.asList(data)).iterator().next();
+
         //Retrieve the shape on plane (0, 0)
         List<ShapeData> shapes = roiData.getShapes(0, 0);
         Iterator<ShapeData> i = shapes.iterator();
@@ -227,27 +235,47 @@ public class ROIs
             int t = shape.getT();
             long id = shape.getId();
             if (shape instanceof RectangleData) {
-                RectangleData rectData = (RectangleData) shape;
-                //Handle rectangle
+                RectangleData rectangleData1 = (RectangleData) shape;
+                //Insert code to handle rectangle
             } else if (shape instanceof EllipseData) {
-                EllipseData ellipseData = (EllipseData) shape;
-                //Handle ellipse
+                EllipseData ellipseData1 = (EllipseData) shape;
+                //Insert code to handle ellipse
             } else if (shape instanceof LineData) {
-                LineData lineData = (LineData) shape;
-                //Handle line
+                LineData lineData1 = (LineData) shape;
+                //Insert code to handle line
             } else if (shape instanceof PointData) {
-                PointData pointData = (PointData) shape;
-                //Handle line
+                PointData pointData1 = (PointData) shape;
+                //Insert code to handle point
+            } else if (shape instanceof MaskData) {
+                MaskData maskData1 = (MaskData) shape;
+                //Insert code to handle mask
+            }
+            //Check if the shape has transform
+            //http://blog.openmicroscopy.org/data-model/future-plans/2016/06/20/shape-transforms/
+            AffineTransform transform = shape.getTransform();
+            if (transform != null) {
+
+                double xScaling = transform.getA00().getValue();
+                double xShearing = transform.getA01().getValue();
+                double xTranslation = transform.getA02().getValue();
+            
+                double yScaling = transform.getA11().getValue();
+                double yShearing = transform.getA10().getValue();
+                double yTranslation = transform.getA12().getValue();
+                // Insert code to handle transforms
             }
         }
+
+        // Retrieve the roi linked to an image
         List<ROIResult> roiresults = roifac.loadROIs(ctx, image.getId());
         // Retrieve the roi linked to an image
         ROIResult r = roiresults.iterator().next();
-        Collection<ROIData> rois = r.getROIs();
-        if (rois == null)
+        if (r == null)
             throw new Exception("No rois linked to Image:"+image.getId());
         List<Shape> list;
+        Collection<ROIData> rois = r.getROIs();
         Iterator<ROIData> j = rois.iterator();
+        Roi roi = null;
         while (j.hasNext()) { 
             roiData = j.next();
             roi = (Roi) roiData.asIObject();
@@ -258,7 +286,7 @@ public class ROIs
             //update the roi
             dm.saveAndReturnObject(ctx, roi);
         }
-        //Check that the shape does not have shape.
+
         roiresults = roifac.loadROIs(ctx, image.getId());
         r = roiresults.iterator().next();
         if (r == null)

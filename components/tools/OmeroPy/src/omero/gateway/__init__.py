@@ -141,6 +141,30 @@ def fileread_gen(fin, fsize, bufsize):
     fin.close()
 
 
+def getAnnotationLinkTableName(objecttype):
+    """
+    Get the name of the *AnnotationLink table
+    for the given objecttype
+    """
+    objecttype = objecttype.lower()
+
+    if objecttype == "project":
+        return "ProjectAnnotationLink"
+    if objecttype == "dataset":
+        return"DatasetAnnotationLink"
+    if objecttype == "image":
+        return"ImageAnnotationLink"
+    if objecttype == "screen":
+        return "ScreenAnnotationLink"
+    if objecttype == "plate":
+        return "PlateAnnotationLink"
+    if objecttype == "plateacquisition":
+        return "PlateAcquisitionAnnotationLink"
+    if objecttype == "well":
+        return "WellAnnotationLink"
+    return None
+
+
 def getPixelsQuery(imageName):
     """Helper for building Query for Images or Wells & Images"""
     return (' left outer join fetch %s.pixels as pixels'
@@ -156,6 +180,13 @@ def getChannelsQuery():
             ' left outer join fetch logicalChannel.illumination'
             ' left outer join fetch logicalChannel.mode'
             ' left outer join fetch logicalChannel.contrastMethod')
+
+
+def add_plate_filter(clauses, params, opts):
+    """Helper for adding 'plate' to filtering clauses and parameters."""
+    if opts is not None and 'plate' in opts:
+        clauses.append('obj.plate.id = :pid')
+        params.add('pid', rlong(opts['plate']))
 
 
 class OmeroRestrictionWrapper (object):
@@ -298,25 +329,14 @@ class BlitzObjectWrapper (object):
         Different sub-classes may allow some control over what's loaded
         and filtering of the query using various opts arguments.
         Opts:
-        'child_count': boolean      If true, this will produce a 'projection'
-                                    query that also selects child_count for
-                                    objects that have a LINK_CLASS
         See different sub-classes for additional opts.
 
         :param opts:        Dictionary of optional parameters.
         :return:            Tuple of string, list, ParametersI
         """
-        extra_select = ""
-        child_count = False
-        if opts is not None and opts.get('child_count'):
-            child_count = opts['child_count']
-        if child_count and cls.LINK_CLASS is not None:
-            extra_select = """, (select count(id) from %s chl
-                      where chl.parent=obj.id)""" % cls.LINK_CLASS
-        query = ("select obj %s from %s obj "
+        query = ("select obj from %s obj "
                  "join fetch obj.details.owner as owner "
-                 "join fetch obj.details.creationEvent" %
-                 (extra_select, cls.OMERO_CLASS))
+                 "join fetch obj.details.creationEvent" % cls.OMERO_CLASS)
 
         params = omero.sys.ParametersI()
         clauses = []
@@ -962,6 +982,13 @@ class BlitzObjectWrapper (object):
         if len(rv):
             return AnnotationWrapper._wrap(self._conn, rv[0].child, link=rv[0])
         return None
+
+    def getAnnotationCounts(self):
+        """
+        Get the annotion counts for the current object
+        """
+
+        return self._conn.countAnnotations(self.OMERO_CLASS, [self.getId()])
 
     def listAnnotations(self, ns=None):
         """
@@ -3031,7 +3058,7 @@ class _BlitzGateway (object):
         If more than one object found, raises ome.conditions.ApiUsageException
         See :meth:`getObjects` for more info.
 
-        :param obj_type:    Object type. E.g. "Project" see above
+        :param obj_type:    Object type, e.g. "Project" see above
         :type obj_type:     String
         :param ids:         object IDs
         :type ids:          List of Long
@@ -3059,7 +3086,7 @@ class _BlitzGateway (object):
         be returned. i.e. listObjects() Filter objects by attributes. E.g.
         attributes={'name':name}
 
-        :param obj_type:    Object type. E.g. "Project" see above
+        :param obj_type:    Object type, e.g. "Project" see above
         :type obj_type:     String
         :param ids:         object IDs
         :type ids:          List of Long
@@ -3074,16 +3101,13 @@ class _BlitzGateway (object):
                             defining extra data to load.
                             offset, limit and owner for all objects.
                             Additional opts handled by _getQueryString()
-                            E.g. 'childCount', or filter Dataset by 'project'
+                            e.g. filter Dataset by 'project'
         :return:            Generator of :class:`BlitzObjectWrapper` subclasses
         """
         query, params, wrapper = self.buildQuery(
             obj_type, ids, params, attributes, opts)
         qs = self.getQueryService()
-        # we do projection in case query has extra selects (E.g. child_count)
-        result = qs.projection(query, params, self.SERVICE_OPTS)
-        # unwrap projected objects
-        result = [unwrap(r[0]) for r in result]
+        result = qs.findAllByQuery(query, params, self.SERVICE_OPTS)
         if respect_order and ids is not None:
             idMap = {}
             for r in result:
@@ -3101,7 +3125,7 @@ class _BlitzGateway (object):
         can be used with the appropriate query method. Used by
         :meth:`getObjects` and :meth:`getObject` above.
 
-        :param obj_type:    Object type. E.g. "Project" see above
+        :param obj_type:    Object type, e.g. "Project" see above
         :type obj_type:     String
         :param ids:         object IDs
         :type ids:          List of Long
@@ -3115,7 +3139,7 @@ class _BlitzGateway (object):
                             offset, limit and owner for all objects.
                             Also 'order_by': 'obj.name' to order results.
                             Additional opts handled by _getQueryString()
-                            E.g. 'childCount', or filter Dataset by 'project'
+                            e.g. filter Dataset by 'project'
         :return:            (query, params, wrapper)
         """
 
@@ -3195,6 +3219,36 @@ class _BlitzGateway (object):
 
         return (query, baseParams, wrapper)
 
+    def buildCountQuery(self, obj_type, opts=None):
+        """
+        Prepares a 'projection' query to count objects.
+
+        Based on buildQuery(), we modify the query to only return a count.
+        Modified query does not 'fetch' any data or add any other
+        unnecessary objects to query.
+        We return just the query and omero.sys.ParametersI for the query.
+
+        :param obj_type:    Object type, e.g. "Project" see above
+        :param opts:        Dict of options for filtering by
+                            offset, limit and owner for all objects.
+                            Additional opts handled by _getQueryString()
+                            e.g. filter Dataset by 'project'
+        :return:            (query, params)
+        """
+        # We disable pagination since we want to count ALL results
+        opts_copy = opts.copy()
+        if 'limit' in opts_copy:
+            del opts_copy['limit']
+
+        # Get query with other options
+        query, params, wrapper = self.buildQuery(obj_type, opts=opts_copy)
+
+        # Modify query to only select count()
+        query = query.replace("select obj ", "select count(distinct obj) ")
+        query = query.replace("fetch", "")
+        query = query.split("order by")[0]
+        return query, params
+
     def listFileAnnotations(self, eid=None, toInclude=[], toExclude=[]):
         """
         Lists FileAnnotations created by users, filtering by namespaces if
@@ -3236,7 +3290,7 @@ class _BlitzGateway (object):
         If parent_ids is None, all available objects will be returned.
         i.e. listObjects()
 
-        :param obj_type:    Object type. E.g. "Project" see above
+        :param obj_type:    Object type, e.g. "Project" see above
         :type obj_type:     String
         :param ids:         object IDs
         :type ids:          List of Long
@@ -3291,6 +3345,71 @@ class _BlitzGateway (object):
         result = q.findAllByQuery(query, params, self.SERVICE_OPTS)
         for r in result:
             yield AnnotationLinkWrapper(self, r)
+
+    def countAnnotations(self, obj_type, obj_ids=[]):
+        """
+        Count the annotions linked to the given objects
+
+        :param obj_type:   The type of the object the annotations are linked to
+        :param obj_ids:    List of object ids
+        :return:           Dictionary of annotation counts per annotation type
+        """
+
+        counts = {
+            "TagAnnotation": 0,
+            "FileAnnotation": 0,
+            "CommentAnnotation": 0,
+            "LongAnnotation": 0,
+            "MapAnnotation": 0,
+            "OtherAnnotation": 0}
+
+        if obj_type is None or not obj_ids:
+            return counts
+
+        ctx = self.SERVICE_OPTS.copy()
+        ctx.setOmeroGroup(-1)
+
+        params = omero.sys.ParametersI()
+        params.addIds(obj_ids)
+        params.add('ratingns',
+                   rstring(omero.constants.metadata.NSINSIGHTRATING))
+
+        q = """
+            select sum( case when an.ns = :ratingns
+                        and an.class = LongAnnotation
+                        then 1 else 0 end),
+                sum( case when (an.ns is null or an.ns != :ratingns)
+                               and an.class = LongAnnotation
+                               then 1 else 0 end),
+               sum( case when an.class != LongAnnotation
+                        then 1 else 0 end ), type(an.class)
+               from Annotation an where an.id in
+                    (select distinct(ann.id) from %sAnnotationLink ial
+                        join ial.child as ann
+                        join ial.parent as i
+                where i.id in (:ids))
+                    group by an.class
+            """ % obj_type
+
+        queryResult = self.getQueryService().projection(q, params, ctx)
+
+        for r in queryResult:
+            ur = unwrap(r)
+            if ur[3] == 'ome.model.annotations.LongAnnotation':
+                counts['LongAnnotation'] += ur[0]
+                counts['OtherAnnotation'] += ur[1]
+            elif ur[3] == 'ome.model.annotations.CommentAnnotation':
+                counts['CommentAnnotation'] += ur[2]
+            elif ur[3] == 'ome.model.annotations.TagAnnotation':
+                counts['TagAnnotation'] += ur[2]
+            elif ur[3] == 'ome.model.annotations.FileAnnotation':
+                counts['FileAnnotation'] += ur[2]
+            elif ur[3] == 'ome.model.annotations.MapAnnotation':
+                counts['MapAnnotation'] += ur[2]
+            else:
+                counts['OtherAnnotation'] += ur[2]
+
+        return counts
 
     def listOrphanedAnnotations(self, parent_type, parent_ids, eid=None,
                                 ns=None, anntype=None, addedByMe=True):
@@ -3370,6 +3489,30 @@ class _BlitzGateway (object):
 
         for e in q.findAllByQuery(sql, p, self.SERVICE_OPTS):
             yield AnnotationWrapper._wrap(self, e)
+
+    def getAnnotationCounts(self, objDict={}):
+        """
+        Get the annotion counts for the given objects
+        """
+
+        obj_type = None
+        obj_ids = []
+        for key in objDict:
+            for o in objDict[key]:
+                if obj_type is not None and obj_type != key:
+                    raise AttributeError(
+                        "getAnnotationCounts cannot be used with "
+                        "different types of objects")
+                obj_type = key
+                obj_ids.append(o.id)
+
+        if obj_type is None:
+            return self.countAnnotations()
+
+        obj_type = obj_type.title().replace("Plateacquisition",
+                                            "PlateAcquisition")
+
+        return self.countAnnotations(obj_type, obj_ids)
 
     def createImageFromNumpySeq(self, zctPlanes, imageName, sizeZ=1, sizeC=1,
                                 sizeT=1, description=None, dataset=None,
@@ -5709,6 +5852,7 @@ class _DatasetWrapper (BlitzObjectWrapper):
         Extend base query to handle filtering of Datasets by Projects.
         Returns a tuple of (query, clauses, params).
         Supported opts: 'project': <project_id> to filter by Project
+                        'image': <image_id> to filter by child Image
                         'orphaned': <bool>. Filter by 'not in Project'
 
         :param opts:        Dictionary of optional parameters.
@@ -5716,11 +5860,17 @@ class _DatasetWrapper (BlitzObjectWrapper):
         """
         query, clauses, params = super(
             _DatasetWrapper, cls)._getQueryString(opts)
-        if opts is not None and 'project' in opts:
-            query += ' join obj.projectLinks plink'
-            clauses.append('plink.parent.id = :pid')
+        if opts is None:
+            opts = {}
+        if 'project' in opts:
+            query += ' join obj.projectLinks projectLinks'
+            clauses.append('projectLinks.parent.id = :pid')
             params.add('pid', rlong(opts['project']))
-        if opts is not None and opts.get('orphaned'):
+        if 'image' in opts:
+            query += ' join obj.imageLinks imagelinks'
+            clauses.append('imagelinks.child.id = :iid')
+            params.add('iid', rlong(opts['image']))
+        if opts.get('orphaned'):
             clauses.append(
                 """
                 not exists (
@@ -5758,6 +5908,26 @@ class _ProjectWrapper (BlitzObjectWrapper):
     CHILD_WRAPPER_CLASS = 'DatasetWrapper'
     PARENT_WRAPPER_CLASS = None
 
+    @classmethod
+    def _getQueryString(cls, opts=None):
+        """
+        Extend base query to handle filtering of Projects by Datasets.
+        Returns a tuple of (query, clauses, params).
+        Supported opts: 'dataset': <dataset_id> to filter by Dataset
+
+        :param opts:        Dictionary of optional parameters.
+        :return:            Tuple of string, list, ParametersI
+        """
+        query, clauses, params = super(
+            _ProjectWrapper, cls)._getQueryString(opts)
+        if opts is None:
+            opts = {}
+        if 'dataset' in opts:
+            query += ' join obj.datasetLinks datasetLinks'
+            clauses.append('datasetLinks.child.id = :dataset_id')
+            params.add('dataset_id', rlong(opts['dataset']))
+        return (query, clauses, params)
+
 ProjectWrapper = _ProjectWrapper
 
 
@@ -5770,6 +5940,26 @@ class _ScreenWrapper (BlitzObjectWrapper):
     LINK_CLASS = "ScreenPlateLink"
     CHILD_WRAPPER_CLASS = 'PlateWrapper'
     PARENT_WRAPPER_CLASS = None
+
+    @classmethod
+    def _getQueryString(cls, opts=None):
+        """
+        Extend base query to handle filtering of Screens by Plate.
+        Returns a tuple of (query, clauses, params).
+        Supported opts: 'plate': <plate_id> to filter by Plate
+
+        :param opts:        Dictionary of optional parameters.
+        :return:            Tuple of string, list, ParametersI
+        """
+        query, clauses, params = super(
+            _ScreenWrapper, cls)._getQueryString(opts)
+        if opts is None:
+            opts = {}
+        if 'plate' in opts:
+            query += ' join obj.plateLinks plateLinks'
+            clauses.append('plateLinks.child.id = :plate_id')
+            params.add('plate_id', rlong(opts['plate']))
+        return (query, clauses, params)
 
 ScreenWrapper = _ScreenWrapper
 
@@ -5988,6 +6178,7 @@ class _PlateWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         Also handles filtering of Plates by Screens.
         Returns a tuple of (query, clauses, params).
         Supported opts: 'screen': <screen_id> to filter by Screen
+                        'well': <well_id> to filter by Well
                         'orphaned': <bool>. Filter by 'not in Screen'
 
         :param opts:        Dictionary of optional parameters.
@@ -5999,13 +6190,18 @@ class _PlateWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                  "left outer join fetch obj.screenLinks spl "
                  "left outer join fetch spl.parent sc")
         # NB: we don't use base _getQueryString.
-        # since child_count wouldn't be supported anyway (no LINK_CLASS)
         clauses = []
         params = omero.sys.ParametersI()
-        if opts is not None and 'screen' in opts:
+        if opts is None:
+            opts = {}
+        if 'screen' in opts:
             clauses.append('spl.parent.id = :sid')
             params.add('sid', rlong(opts['screen']))
-        if opts is not None and opts.get('orphaned'):
+        if 'well' in opts:
+            query += ' join obj.wells wells'
+            clauses.append('wells.id = :well_id')
+            params.add('well_id', rlong(opts['well']))
+        if opts.get('orphaned'):
             clauses.append(
                 """
                 not exists (
@@ -6022,6 +6218,21 @@ PlateWrapper = _PlateWrapper
 class _PlateAcquisitionWrapper (BlitzObjectWrapper):
 
     OMERO_CLASS = 'PlateAcquisition'
+
+    @classmethod
+    def _getQueryString(cls, opts=None):
+        """
+        Extend base query to handle filtering of PlateAcquisitions by Plate.
+        Returns a tuple of (query, clauses, params).
+        Supported opts: 'plate': <plate_id> to filter by Plate
+
+        :param opts:        Dictionary of optional parameters.
+        :return:            Tuple of string, list, ParametersI
+        """
+        query, clauses, params = super(
+            _PlateAcquisitionWrapper, cls)._getQueryString(opts)
+        add_plate_filter(clauses, params, opts)
+        return (query, clauses, params)
 
     def getName(self):
         name = super(_PlateAcquisitionWrapper, self).getName()
@@ -6044,6 +6255,16 @@ class _PlateAcquisitionWrapper (BlitzObjectWrapper):
         if withlinks:
             return [(rv, None)]
         return [rv]
+
+    def getStartTime(self):
+        """Get the StartTime as a datetime object or None if not set."""
+        if self.startTime:
+            return datetime.fromtimestamp(self.startTime/1000)
+
+    def getEndTime(self):
+        """Get the EndTime as a datetime object or None if not set."""
+        if self.endTime:
+            return datetime.fromtimestamp(self.endTime/1000)
 
 PlateAcquisitionWrapper = _PlateAcquisitionWrapper
 
@@ -6084,16 +6305,19 @@ class _WellWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         """
         query, clauses, params = super(
             _WellWrapper, cls)._getQueryString(opts)
-        if opts is not None and 'plate' in opts:
-            clauses.append('obj.plate.id = :pid')
-            params.add('pid', rlong(opts['plate']))
-        load_images = False
-        load_pixels = False
-        load_channels = False
-        if opts is not None:
-            load_images = opts.get('load_images')
-            load_pixels = opts.get('load_pixels')
-            load_channels = opts.get('load_channels')
+        if opts is None:
+            opts = {}
+        add_plate_filter(clauses, params, opts)
+        load_images = opts.get('load_images')
+        load_pixels = opts.get('load_pixels')
+        load_channels = opts.get('load_channels')
+        if 'plateacquisition' in opts:
+            clauses.append('plateAcquisition.id = :plateAcq')
+            params.add('plateAcq', rlong(opts['plateacquisition']))
+            load_images = True
+        if 'wellsample_index' in opts:
+            clauses.append('index(wellSamples) = :wellsample_index')
+            params.add('wellsample_index', rint(opts['wellsample_index']))
         if load_images or load_pixels or load_channels:
             # NB: Using left outer join, we may get Wells with no Images
             query += " left outer join fetch obj.wellSamples as wellSamples"\

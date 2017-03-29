@@ -27,6 +27,7 @@ import static omero.rtypes.rstring;
 
 import static ome.formats.model.UnitsFactory.makeLength;
 
+import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -130,6 +131,10 @@ public class PixelsProcessor implements ModelProcessor {
         if (userSpecifiedName.isEmpty()) {
           userSpecifiedName = null;
         }
+      }
+      if (userSpecifiedName == null) {
+        File originalFile = new File(reader.getCurrentFile());
+        userSpecifiedName = originalFile.getName();
       }
       String saveName = "";
       String imageName;

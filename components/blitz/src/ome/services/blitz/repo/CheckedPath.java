@@ -338,7 +338,7 @@ public class CheckedPath {
     protected String getRelativePath() {
         return this.parentDir + FsFile.separatorChar;
     }
-    
+
     /**
      * The full path of the entity to which this path corresponds.
      * Path components are separated by {@link FsFile#separatorChar}.
@@ -347,7 +347,7 @@ public class CheckedPath {
     protected String getFullFsPath() {
         return this.fsFile.toString();
     }
-    
+
     /**
      * Get a {@link FileBuffer} corresponding to this instance.
      * It is the caller's responsibility to {@link FileBuffer#close()} it.
@@ -378,6 +378,14 @@ public class CheckedPath {
     }
 
     /**
+     * Mark the underlying {@link java.io.File} as read-only and return true
+     * if the operation was successful.
+     **/
+    public boolean setReadOnly() {
+        return this.file.setReadOnly();
+    }
+
+    /**
      * Create this directory, and parents if necessary, on the underlying filesystem.
      * Analogous to {@link java.io.File#mkdirs()}.
      * @return <code>true</code> if the directory was created, <code>false</code> otherwise
@@ -403,7 +411,7 @@ public class CheckedPath {
     public void bfSetId(ReaderWrapper reader) throws FormatException, IOException {
         reader.setId(file.getPath());
     }
-    
+
     public String toString() {
         return getClass().getSimpleName() + '(' + this.fsFile + ')';
     }

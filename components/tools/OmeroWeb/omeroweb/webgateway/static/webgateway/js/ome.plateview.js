@@ -137,7 +137,7 @@ jQuery._WeblitzPlateview = function (container, options) {
       tr.append('<th>'+data.rowlabels[i]+'</th>');
       for (var j=0; j<data.grid[i].length; j++) {
         if (data.grid[i][j] === null) {
-        tr.append('<td class="placeholder"><img src="' + '' + '/static/webgateway/img/spacer.gif" /></td>');
+        tr.append('<td class="placeholder"><img src="' + spacer_gif_src + '" /></td>');
         } else {
           data.grid[i][j]._wellpos = data.rowlabels[i]+data.collabels[j];
           var parentPrefix = '';
@@ -145,7 +145,7 @@ jQuery._WeblitzPlateview = function (container, options) {
               parentPrefix = thisid+'-';
           }
           var td = $('<td class="well" id="'+parentPrefix+'well-'+data.grid[i][j].wellId+'">' +
-            '<img class="waiting" src="/static/webgateway/img/spacer.gif" />' +
+            '<img class="waiting" src="' + spacer_gif_src + '" />' +
             '<div class="wellLabel">' + data.rowlabels[i] + data.collabels[j] + '</div>' +
             '<img id="'+parentPrefix+'image-'+data.grid[i][j].id+'" class="loading" src="'+ data.grid[i][j].thumb_url+'" name="'+(data.rowlabels[i] + data.collabels[j])+'"></td>');
           $('img', td)

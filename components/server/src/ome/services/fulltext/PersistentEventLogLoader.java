@@ -20,11 +20,12 @@ import org.springframework.context.ApplicationEvent;
 /**
  * {@link EventLogLoader} implementation which keeps tracks of the last
  * {@link EventLog} instance, and always provides the next unindexed instance.
- * Reseting that saved value would restart indexing.
+ * Resetting that saved value would restart indexing.
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
+@Deprecated
 public class PersistentEventLogLoader extends ome.services.eventlogs.PersistentEventLogLoader {
 
     private final static Logger log = LoggerFactory

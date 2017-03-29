@@ -605,7 +605,7 @@ public class BasicACLVoter implements ACLVoter {
     public void postProcess(IObject object) {
         if (object.isLoaded()) {
             Details details = object.getDetails();
-            // Sets context values.s
+            // Sets context values.
             this.currentUser.applyContext(details,
                     !(object instanceof ExperimenterGroup));
 

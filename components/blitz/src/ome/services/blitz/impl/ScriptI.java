@@ -1,5 +1,5 @@
 /*
- *   Copyright 2008-2016 University of Dundee. All rights reserved.
+ *   Copyright 2008-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -15,6 +15,7 @@ import ome.api.IUpdate;
 import ome.api.RawFileStore;
 import ome.model.core.OriginalFile;
 import ome.model.enums.ChecksumAlgorithm;
+import ome.parameters.Parameters;
 import ome.security.ACLVoter;
 import ome.security.basic.OmeroInterceptor;
 import ome.services.blitz.util.BlitzExecutor;
@@ -240,8 +241,8 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
     /**
      * Upload script to the server.
      *
-     * @param path Path to the script.
-     * @param scriptText
+     * @param path the path to the script
+     * @param scriptText the content for the new script
      * @param __current
      *            ice context.
      */
@@ -620,6 +621,11 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
                             @Transactional(readOnly = false)
                             public Object doWork(Session session, ServiceFactory sf) {
+                                for (final ome.model.IObject foundLink : sf.getQueryService().findAllByQuery(
+                                        "FROM JobOriginalFileLink WHERE child.id = :id", new Parameters().addId(id))) {
+                                    // TODO: instead use Delete2 which automatically handles any necessary unlinking
+                                    session.delete(foundLink);
+                                }
                                 session.delete(file);
                                 return null;
                             }

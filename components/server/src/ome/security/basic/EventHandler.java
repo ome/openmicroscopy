@@ -121,8 +121,8 @@ public class EventHandler implements MethodInterceptor, ApplicationListener<Cont
     }
 
     /**
-     * invocation interceptor for prepairing this {@link Thread} for execution
-     * and subsequently reseting it.
+     * Invocation interceptor for preparing this {@link Thread} for execution
+     * and subsequently resetting it.
      * 
      * @see org.aopalliance.intercept.MethodInterceptor#invoke(org.aopalliance.intercept.MethodInvocation)
      */

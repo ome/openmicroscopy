@@ -1041,6 +1041,7 @@ def api_paths_to_object(request, conn=None, **kwargs):
         tag_id = get_long_or_default(request, 'tag', None)
         tagset_id = get_long_or_default(request, 'tagset', None)
         group_id = get_long_or_default(request, 'group', None)
+        page_size = get_long_or_default(request, 'page_size', settings.PAGE)
     except ValueError:
         return HttpResponseBadRequest('Invalid parameter value')
 
@@ -1050,7 +1051,8 @@ def api_paths_to_object(request, conn=None, **kwargs):
     else:
         paths = paths_to_object(conn, experimenter_id, project_id,
                                 dataset_id, image_id, screen_id, plate_id,
-                                acquisition_id, well_id, group_id)
+                                acquisition_id, well_id, group_id,
+                                page_size=page_size)
     return JsonResponse({'paths': paths})
 
 
@@ -1426,7 +1428,7 @@ def load_searching(request, form=None, conn=None, **kwargs):
                     for t in onlyTypes:
                         t = t[0:-1]  # remove 's'
                         if t in ('project', 'dataset', 'image', 'screen',
-                                 'plate'):
+                                 'plate', 'well'):
                             obj = conn.getObject(t, searchById)
                             if obj is not None:
                                 foundById.append({'otype': t, 'obj': obj})
@@ -1517,6 +1519,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
         else:
             template = "webclient/annotations/metadata_general.html"
             context['canExportAsJpg'] = manager.canExportAsJpg(request)
+            context['annotationCounts'] = manager.getAnnotationCounts()
             figScripts = manager.listFigureScripts()
     context['manager'] = manager
 
@@ -2027,6 +2030,8 @@ def batch_annotate(request, conn=None, **kwargs):
     context['canDownload'] = manager.canDownload(objs)
     context['template'] = "webclient/annotations/batch_annotate.html"
     context['webclient_path'] = reverse('webindex')
+    context['annotationCounts'] = manager.getBatchAnnotationCounts(
+        getObjects(request, conn))
     return context
 
 
@@ -3172,7 +3177,7 @@ def getObjectUrl(conn, obj):
                 break
 
     if obj.__class__.__name__ in (
-            "ImageI", "DatasetI", "ProjectI", "ScreenI", "PlateI"):
+            "ImageI", "DatasetI", "ProjectI", "ScreenI", "PlateI", "WellI"):
         otype = obj.__class__.__name__[:-1].lower()
         base_url += "?show=%s-%s" % (otype, obj.id.val)
         return base_url

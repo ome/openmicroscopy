@@ -18,6 +18,8 @@ import ome.conditions.InternalException;
 import ome.io.nio.FileBuffer;
 import ome.model.IObject;
 import ome.model.fs.FilesetJobLink;
+import ome.model.internal.Permissions.Right;
+import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Parameters;
@@ -1077,7 +1079,11 @@ public class RepositoryDaoImpl implements RepositoryDao {
 
         if (parentObjectOwnerId != roles.getRootId() || parentObjectGroupId != roles.getUserGroupId()) {
             final LocalAdmin admin = (LocalAdmin) sf.getAdminService();
-            if (!admin.canAnnotate(parentObject)) {
+            final EventContext ec = admin.getEventContext();
+            if (!(admin.canAnnotate(parentObject) ||
+                    parentObjectGroupId == roles.getUserGroupId() &&
+                    ec.getCurrentGroupPermissions().isGranted(
+                            parentObjectOwnerId == ec.getCurrentUserId() ? Role.USER : Role.GROUP, Right.ANNOTATE))) {
                 throw new ome.conditions.SecurityViolation(
                         "No annotate access for parent directory: "
                                 + parentId);

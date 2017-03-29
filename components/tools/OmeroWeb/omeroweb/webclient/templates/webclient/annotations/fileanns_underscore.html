@@ -7,7 +7,9 @@
     <a class='tooltip'
         href="<% if (ann.permissions.canDownload) { print(webindex + 'annotation/' + ann.id)} else {print('#') } %>">
         <%= ann.file.name %>
-        <span>(<%= ann.file.size %>)</span>
+        <% if (ann.file.size) { %>
+            <span>(<%= ann.file.size %>)</span>
+        <% } %>
     </a>
 
     <span class="tooltip_html" style='display:none'>

@@ -1,5 +1,5 @@
 /*
- *  Copyright 2006-2016 University of Dundee & Open Microscopy Environment.
+ *  Copyright 2006-2017 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -314,7 +314,7 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
         prx.setOriginalSettingsInSet(Image.class.getName(), ids);
 
         disconnect();
-        EventContext ctx2 = newUserInGroup(ctx);
+        newUserInGroup(ctx);
         prx = factory.getRenderingSettingsService();
         prx.setOriginalSettingsInSet(Image.class.getName(), Arrays.asList(id));
         disconnect();
@@ -1084,7 +1084,7 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
     @Test
     public void testApplySettingsToSetTargetImageNoSettingsAndBinary()
             throws Exception {
-        EventContext ctx = newUserAndGroup("rw----");
+        newUserAndGroup("rw----");
         IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
         Image image = createBinaryImage();
         Image image2 = mmFactory.createImage();
@@ -1124,7 +1124,7 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
     @Test
     public void testApplySettingsToSetForImageModifyIntensity()
             throws Exception {
-        EventContext ctx = newUserAndGroup("rw----");
+        newUserAndGroup("rw----");
         IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
         Image image = createBinaryImage();
         Image image2 = createBinaryImage();
@@ -1341,5 +1341,114 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
     @Test
     public void testResetDefaultByOwnerInSetRWRW() throws Exception {
         resetDefaultByOwnerInSetFor("rwrw--", MEMBER);
+    }
+
+    /**
+     * Test the copying of rendering settings by a user who do not have rendering
+     * settings for that image.
+     * Use the applySettingsToImage
+     * @throws Exception
+     */
+    @Test
+    public void testCopyPasteOtherSettingsUsingApplySettingsToImage() throws Exception {
+        EventContext ctx = newUserAndGroup("rwra--");
+        Image image = createBinaryImage();
+        Image image2 = createBinaryImage();
+        Pixels pixels = image.getPrimaryPixels();
+        IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+        //Image owner has settings
+        prx.setOriginalSettingsInSet(Image.class.getName(),
+                Arrays.asList(image.getId().getValue()));
+        //Image
+        disconnect();
+        //Add log in as a new user
+        newUserInGroup(ctx);
+        // Same image
+        prx = factory.getRenderingSettingsService();
+        boolean v = prx.applySettingsToImage(pixels.getId().getValue(), image2.getId().getValue());
+
+        Assert.assertTrue(v);
+        ParametersI param = new ParametersI();
+        param.addLong("pid", pixels.getId().getValue());
+        String sql = "select rdef from RenderingDef as rdef "
+                + "where rdef.pixels.id = :pid";
+        List<IObject> values = iQuery.findAllByQuery(sql, param);
+        Assert.assertNotNull(values);
+        Assert.assertEquals(values.size(), 1);
+        RenderingDef def = (RenderingDef) values.get(0);
+        long ownerId = def.getDetails().getOwner().getId().getValue();
+        Assert.assertEquals(ownerId, ctx.userId);
+    }
+
+    /**
+     * Test the copying of rendering settings by a user who do not have rendering
+     * settings for that image.
+     * Use the applySettingsToPixels
+     * @throws Exception
+     */
+    @Test
+    public void testCopyPasteOtherSettingsUsingApplySettingsToPixels() throws Exception {
+        EventContext ctx = newUserAndGroup("rwra--");
+        Image image = createBinaryImage();
+        Image image2 = createBinaryImage();
+        Pixels pixels = image.getPrimaryPixels();
+        IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+        //Image owner has settings
+        prx.setOriginalSettingsInSet(Image.class.getName(),
+                Arrays.asList(image.getId().getValue()));
+        //Image
+        disconnect();
+        //Add log in as a new user
+        newUserInGroup(ctx);
+        // Same image
+        prx = factory.getRenderingSettingsService();
+        boolean v = prx.applySettingsToPixels(pixels.getId().getValue(),
+                image2.getPrimaryPixels().getId().getValue());
+
+        Assert.assertTrue(v);
+        ParametersI param = new ParametersI();
+        param.addLong("pid", pixels.getId().getValue());
+        String sql = "select rdef from RenderingDef as rdef "
+                + "where rdef.pixels.id = :pid";
+        List<IObject> values = iQuery.findAllByQuery(sql, param);
+        Assert.assertNotNull(values);
+        Assert.assertEquals(values.size(), 1);
+        RenderingDef def = (RenderingDef) values.get(0);
+        long ownerId = def.getDetails().getOwner().getId().getValue();
+        Assert.assertEquals(ownerId, ctx.userId);
+    }
+
+    /**
+     * Test the copying of rendering settings by a user who do not have rendering
+     * settings for that image.
+     * The source image does not have any settings.
+     * No copy occurs
+     * Use the applySettingsToImage
+     * @throws Exception
+     */
+    @Test
+    public void testCopyPasteNoSettingsUsingApplySettingsToImage() throws Exception {
+        EventContext ctx = newUserAndGroup("rwra--");
+        Image image = createBinaryImage();
+        Image image2 = createBinaryImage();
+        Pixels pixels = image.getPrimaryPixels();
+        IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+        //Image has no settings
+        disconnect();
+        //Add log in as a new user
+        newUserInGroup(ctx);
+        // Same image
+        prx = factory.getRenderingSettingsService();
+        boolean v = prx.applySettingsToImage(pixels.getId().getValue(),
+                image2.getId().getValue());
+
+        Assert.assertFalse(v);
+        ParametersI param = new ParametersI();
+        param.addLong("pid", pixels.getId().getValue());
+        String sql = "select rdef from RenderingDef as rdef "
+                + "where rdef.pixels.id = :pid";
+        List<IObject> values = iQuery.findAllByQuery(sql, param);
+        Assert.assertNotNull(values);
+        Assert.assertEquals(values.size(), 0);
     }
 }

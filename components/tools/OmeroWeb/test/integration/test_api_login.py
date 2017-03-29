@@ -25,7 +25,7 @@ import pytest
 from omeroweb.testlib import IWebTest, _get_response_json, \
     _post_response_json, _csrf_post_response_json
 from django.core.urlresolvers import reverse, NoReverseMatch
-from django.conf import settings
+from omeroweb.api import api_settings
 from django.test import Client
 from omero_marshal import OME_SCHEMA_URL
 import json
@@ -44,9 +44,9 @@ class TestLogin(IWebTest):
         request_url = reverse('api_versions')
         rsp = _get_response_json(django_client, request_url, {})
         versions = rsp['data']
-        assert len(versions) == len(settings.API_VERSIONS)
+        assert len(versions) == len(api_settings.API_VERSIONS)
         for v in versions:
-            assert v['version'] in settings.API_VERSIONS
+            assert v['version'] in api_settings.API_VERSIONS
 
     def test_base_url(self):
         """
@@ -54,7 +54,7 @@ class TestLogin(IWebTest):
         """
         django_client = self.django_root_client
         # test the most recent version
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         request_url = reverse('api_base', kwargs={'api_version': version})
         rsp = _get_response_json(django_client, request_url, {})
         assert 'url:servers' in rsp
@@ -71,7 +71,7 @@ class TestLogin(IWebTest):
         """
         Tests that the base url gives 404 for invalid versions
         """
-        version = '0'
+        version = api_settings.API_VERSIONS[-1] + "1"
         with pytest.raises(NoReverseMatch):
             reverse('api_base', kwargs={'api_version': version})
 
@@ -80,7 +80,7 @@ class TestLogin(IWebTest):
         Tests that we get a suitable message if we try to GET login_url
         """
         django_client = self.django_root_client
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         request_url = reverse('api_login', kwargs={'api_version': version})
         rsp = _get_response_json(django_client, request_url, {},
                                  status_code=405)
@@ -93,7 +93,7 @@ class TestLogin(IWebTest):
         """
         django_client = self.django_root_client
         # test the most recent version
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         request_url = reverse('api_login', kwargs={'api_version': version})
         rsp = _post_response_json(django_client, request_url, {},
                                   status_code=403)
@@ -123,7 +123,7 @@ class TestLogin(IWebTest):
         """
         django_client = self.django_root_client
         # test the most recent version
-        version = settings.API_VERSIONS[-1]
+        version = api_settings.API_VERSIONS[-1]
         request_url = reverse('api_login', kwargs={'api_version': version})
         data = credentials[0]
         message = credentials[1]

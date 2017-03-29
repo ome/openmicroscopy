@@ -3,12 +3,34 @@
     <div id="layout_chooser">
         <button id="icon_layout" title="View as Thumbnails" class="<% if (layout === 'icon') print('checked') %>" /><button id="table_layout" title="View as List" class="<% if (layout === 'table') print('checked') %>" />
     </div>
-    <form class="search filtersearch" id="filtersearch" action="#" style="top:4px">
-        <div>
-            <label for="id_search"> Filter Images </label>
-            <input id="id_search" type="text" size="25">
+    <form class="search filtersearch" id="filtersearch" action="#" style="top:8px; width:90%">
+        <div style="float:left; font-size: 16px">Filter:</div>
+        <div id="filtersContainer" style="float:left">
+            <div id="filterrating" class="imagefilter">
+                <img title="Filter by rating (exact match)" src="<%= staticUrl %>image/rating0.png">
+                <span title="Clear filter" class="removefilter" style="vertical-align:top">X</span>
+            </div>
+
+            <div id="filterunrated" class="imagefilter">
+                <span style="font-size: 15px">Unrated</span>
+                <span title="Remove filter" class="removefilter" style="vertical-align:top">X</span>
+            </div>
+
+            <div id="filtername" class="imagefilter" style="position: relative; width: 180px; height:30px; top: -4px">
+                <label for="id_search"> Filter by name </label>
+                <input id="id_search" type="text" size="25">
+            </div>
+            <span class="loading" style="display: none;"></span>
         </div>
-        <span class="loading" style="display: none;"></span>
+
+        <select id="choosefilter" style="margin-top: -1px;">
+            <option value="addfilter">Add filter</option>
+            <option value="rating">By Rating</option>
+            <option value="unrated">Unrated</option>
+            <option value="name">Name</option>
+            <option disabled>──────────</option>
+            <option value="removeAll">Remove all filters</option>
+        </select>
     </form>
 </div>
 <div style="position:absolute; bottom:0px; left:0px; right:0px; height: 25px; border-right:0px" class="toolbar">

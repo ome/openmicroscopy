@@ -20,7 +20,7 @@ import omero
 import omero.gateway
 
 from path import path
-from test.integration.test_repository import AbstractRepoTest
+from omero.testlib import AbstractRepoTest
 
 
 class TestRepoRawFileStore(AbstractRepoTest):
@@ -28,7 +28,7 @@ class TestRepoRawFileStore(AbstractRepoTest):
     def setup_method(self, method):
         super(TestRepoRawFileStore, self).setup_method(method)
         tmp_dir = path(self.unique_dir)
-        self.repoPrx = self.getManagedRepo()
+        self.repoPrx = self.get_managed_repo()
         self.repo_filename = tmp_dir / self.uuid() + ".txt"
 
     def testCreate(self):
