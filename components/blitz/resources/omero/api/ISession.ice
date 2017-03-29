@@ -1,9 +1,6 @@
 /*
- *   $Id$
- *
  *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
- *
  */
 
 #ifndef OMERO_API_ISESSION_ICE
@@ -51,8 +48,6 @@ module omero {
                 /**
                  * Allows a user to open up another session for him/herself with the given
                  * defaults without needing to re-enter password.
-                 *
-                 * TODO Review the security of this method.
                  */
                 omero::model::Session createUserSession(long timeToLiveMilliseconds, long timeToIdleMilliseconds, string defaultGroup)
                 throws ServerError, Glacier2::CannotCreateSessionException;

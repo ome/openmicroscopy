@@ -23,6 +23,7 @@ import org.apache.lucene.analysis.TokenStream;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
+@Deprecated
 public class FullTextAnalyzer extends Analyzer {
 
     private final static Logger log = LoggerFactory.getLogger(FullTextAnalyzer.class);

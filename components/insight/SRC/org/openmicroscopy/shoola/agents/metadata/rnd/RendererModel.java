@@ -179,9 +179,6 @@ class RendererModel
     /** he alternative rendering settings if any.*/
     private RndProxyDef def;
 
-    /** The images used to create the histogram. */
-    private Map<Integer, BufferedImage> histogramImages;
-
     /** The data used to create the histogram. */
     private Map<Integer, int[]> histogramData = new HashMap<Integer, int[]>();
     
@@ -213,12 +210,6 @@ class RendererModel
 		plane = new PlaneDef();
 		plane.slice = omero.romio.XY.value;
 		this.def = def;
-		
-        try {
-            renderHistogramImages();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 	}
 
 	/**
@@ -1800,41 +1791,6 @@ class RendererModel
                 || t.equals(OmeroImageService.INT_32)
                 || t.equals(OmeroImageService.UINT_32);
 	}
-
-    
-    /**
-     * Returns the image used to create the histogram. This is grey scale image.
-     *
-     * @param channelIndex
-     *            The index of the channel.
-     * @return See above.
-     */
-    BufferedImage getHistogramImage(int channelIndex) {
-        return histogramImages.get(channelIndex);
-    }
-
-    /**
-     * Renders the images used to build an histogram. The global min and global
-     * max are used for the full range.
-     * @throws RenderingServiceException If an error occurred.
-     * @throws DSOutOfServiceException If the connection is broken. 
-     */
-    void renderHistogramImages() throws RenderingServiceException,
-            DSOutOfServiceException {
-        histogramImages = new HashMap<Integer, BufferedImage>();
-        int maxC = getMaxC();
-        rndControl.setModel(Renderer.GREY_SCALE_MODEL);
-        plane.t = getDefaultT();
-        plane.z = getDefaultZ();
-        for (int j = 0; j < maxC; j++) {
-            for (int i = 0; i < maxC; i++) {
-                rndControl.setActive(i, j == i);
-            }
-            rndControl.setChannelWindow(j, getGlobalMin(j), getGlobalMax(j));
-            histogramImages.put(j, rndControl.render(plane));
-        }
-        resetRenderingSettings();
-    }
 
     /**
      * Set the histogram data for the given channel

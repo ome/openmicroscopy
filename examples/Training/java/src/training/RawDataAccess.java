@@ -141,7 +141,7 @@ public class RawDataAccess
             }
         } catch (Exception e) {
             throw new Exception("Cannot read the tiles", e);
-        } 
+        }
     }
 
 // Retrieve stack

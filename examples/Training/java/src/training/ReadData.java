@@ -43,6 +43,8 @@ import omero.gateway.model.ProjectData;
 import omero.gateway.model.ScreenData;
 import omero.gateway.model.WellData;
 
+import org.apache.commons.collections.CollectionUtils;
+
 /**
  * Sample code showing how to load data from an OMERO server.
  *
@@ -134,11 +136,13 @@ public class ReadData {
         while (i.hasNext()) {
             dataset = i.next();
             images = dataset.getImages();
-            j = images.iterator();
-            while (j.hasNext()) {
-                image = j.next();
-                System.err.println("image:" + image.getId() + " "
-                        + image.getName());
+            if (CollectionUtils.isNotEmpty(images)) {
+                j = images.iterator();
+                while (j.hasNext()) {
+                    image = j.next();
+                    System.err.println("image:" + image.getId() + " "
+                            + image.getName());
+                }
             }
         }
     }

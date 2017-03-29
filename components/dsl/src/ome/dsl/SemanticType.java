@@ -1,6 +1,4 @@
 /*
- * ome.dsl.SemanticType
- *
  *   Copyright 2006-2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -22,9 +20,8 @@ import java.util.regex.Pattern;
 /**
  * represents a SemanticType <b>definition</b>.
  * 
- * @author <br>
- *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
- *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
+ * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
+ *         <a href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
  * @version 3.0
  * @since OMERO-3.0
  */

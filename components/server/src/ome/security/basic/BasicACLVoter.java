@@ -38,6 +38,7 @@ import ome.system.EventContext;
 import ome.system.Roles;
 import ome.tools.hibernate.HibernateUtils;
 
+import org.hibernate.LazyInitializationException;
 import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -513,6 +514,20 @@ public class BasicACLVoter implements ACLVoter {
             return 0;
         }
         Permissions grpPermissions = c.getCurrentGroupPermissions();
+        final ExperimenterGroup grp = d.getGroup();
+        if (!(sysType || grp == null)) {
+            try {
+                if (grp.isLoaded()) {
+                    /* allow current group context to apply for adjusting directories in "user" group */
+                    if (!(iObject instanceof OriginalFile && iObject.isLoaded() && grp.getId() == roles.getUserGroupId() &&
+                            "Directory".equals(((OriginalFile) iObject).getMimetype()))) {
+                        grpPermissions = grp.getDetails().getPermissions();
+                    }
+                }
+            } catch (LazyInitializationException lie) {
+                /* cannot check if group is loaded */
+            }
+        }
         if (grpPermissions == null || grpPermissions == Permissions.DUMMY) {
             if (d.getGroup() != null) {
                 Long gid = d.getGroup().getId();
@@ -570,7 +585,7 @@ public class BasicACLVoter implements ACLVoter {
     public void postProcess(IObject object) {
         if (object.isLoaded()) {
             Details details = object.getDetails();
-            // Sets context values.s
+            // Sets context values.
             this.currentUser.applyContext(details,
                     !(object instanceof ExperimenterGroup));
 

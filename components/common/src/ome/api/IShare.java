@@ -32,6 +32,7 @@ import ome.model.meta.Share;
  * 
  * @since 3.0-Beta4
  */
+@Deprecated
 public interface IShare extends ServiceInterface {
 
     /**

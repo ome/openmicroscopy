@@ -807,8 +807,8 @@ public class ScreenLogin
 	private String getConnectionSpeed()
 	{
 		switch (speedIndex) {
-			case LoginCredentials.HIGH: return " [LAN]";
-			case LoginCredentials.MEDIUM: return " [High]";
+			case LoginCredentials.HIGH: return " [High]";
+			case LoginCredentials.MEDIUM: return " [Medium]";
 			case LoginCredentials.LOW: return " [Low]";
 		}
 		return null;

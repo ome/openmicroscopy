@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2008-2014 Glencoe Software, Inc. All Rights Reserved.
+# Copyright (C) 2008-2017 Glencoe Software, Inc. All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 # This program is free software; you can redistribute it and/or modify
@@ -25,6 +25,8 @@
 """
 
 import os
+import platform
+import locale
 import sys
 import time
 import weakref
@@ -37,6 +39,8 @@ import Ice
 import Glacier2
 import omero
 import omero.gateway
+from omero_version import omero_version
+
 from omero.cmd import DoAll, State, ERR, OK, Chmod2, Chgrp2, Delete2
 from omero.callbacks import CmdCallbackI
 from omero.model import DatasetI, DatasetImageLinkI, ImageI, ProjectI
@@ -48,6 +52,7 @@ from omero.model import ExperimenterGroup, ExperimenterGroupI
 from omero.model import ProjectDatasetLinkI, ImageAnnotationLinkI
 from omero.model import PermissionsI
 from omero.model import ChecksumAlgorithmI
+from omero.model import NamedValue
 from omero.rtypes import rbool, rstring, rlong, rtime, rint, unwrap
 from omero.util.temp_files import create_path
 from path import path
@@ -250,9 +255,11 @@ class ITest(object):
     # Import methods
     def import_image(self, filename=None, client=None, extra_args=None,
                      skip="all", **kwargs):
+        """
+        Imports the specified file.
+        """
         if filename is None:
-            filename = self.omero_dist / ".." / \
-                "components" / "common" / "test" / "tinyTest.d3d.dv"
+            raise Exception("No file specified")
         if client is None:
             client = self.client
 
@@ -291,49 +298,17 @@ class ITest(object):
                     pass
         return pix_ids
 
-    """
-    Creates a fake file with one image, imports
-    the file and then return the image.
-    """
-
-    def import_single_image(self, name=None, client=None,
-                            with_companion=False, **kwargs):
+    def import_fake_file(self, images_count=1, name=None, client=None,
+                         with_companion=False, skip="all", **kwargs):
+        """
+        Creates a fake file with an images_count of images, imports
+        the file and then return the list of images.
+        By default a single image is imported.
+        """
         if client is None:
             client = self.client
         if name is None:
-            name = "import_single_image"
-
-        images = self.import_mif(1, name=name, client=client,
-                                 with_companion=with_companion,
-                                 **kwargs)
-        return images[0]
-
-    """
-    Creates a fake file with one image and a companion file, imports
-    the file and then return the image..
-    """
-
-    def import_single_image_with_companion(self, name=None, client=None):
-        if client is None:
-            client = self.client
-        if name is None:
-            name = "import_single_image_with_companion"
-
-        images = self.import_mif(1, name=name, client=client,
-                                 with_companion=True)
-        return images[0]
-
-    """
-    Creates a fake file with a seriesCount of images, imports
-    the file and then return the list of images.
-    """
-
-    def import_mif(self, series_count=0, name=None, client=None,
-                   with_companion=False, skip="all", **kwargs):
-        if client is None:
-            client = self.client
-        if name is None:
-            name = "import_mif"
+            name = "import_fake_file_%s" % images_count
 
         try:
             global_metadata = kwargs.pop("GlobalMetadata")
@@ -344,10 +319,10 @@ class ITest(object):
 
         append = ""
 
-        # Only include series count if enabled; in the case of plates,
+        # Only include images count if enabled; in the case of plates,
         # this will be unused
-        if series_count >= 1:
-            append = "series=%d%s" % (series_count, append)
+        if images_count >= 1:
+            append = "series=%d%s" % (images_count, append)
 
         if kwargs:
             for k, v in kwargs.items():
@@ -365,8 +340,8 @@ class ITest(object):
         pixel_ids = self.import_image(
             filename=fake.abspath(), client=client, skip=skip, **kwargs)
 
-        if series_count >= 1:
-            assert series_count == len(pixel_ids)
+        if images_count >= 1:
+            assert images_count == len(pixel_ids)
 
         images = []
         for pix_id_str in pixel_ids:
@@ -374,12 +349,11 @@ class ITest(object):
             images.append(pixels.getImage())
         return images
 
-    def import_plates(
-        self, client=None,
-        plates=1, plate_acqs=1,
-        plate_cols=1, plate_rows=1,
-        fields=1, **kwargs
-    ):
+    def import_plates(self, client=None, plates=1, plate_acqs=1, plate_cols=1,
+                      plate_rows=1, fields=1, **kwargs):
+        """
+        Creates fake plates and imports them.
+        """
 
         if client is None:
             client = self.client
@@ -389,21 +363,22 @@ class ITest(object):
         kwargs["plateCols"] = plate_cols
         kwargs["plateRows"] = plate_rows
         kwargs["fields"] = fields
-        images = self.import_mif(client=client, **kwargs)
+        images = self.import_fake_file(images_count=0, client=client, **kwargs)
         images = [x.id.val for x in images]
 
         query = client.sf.getQueryService()
         plates = query.findAllByQuery((
             "select p from Plate p "
-            "join p.wells as w "
-            "join w.wellSamples as ws "
-            "join ws.image as i "
+            "join fetch p.wells as w "
+            "join fetch w.wellSamples as ws "
+            "join fetch ws.image as i "
             "where i.id in (:ids)"),
             omero.sys.ParametersI().addIds(images))
         return plates
 
     def create_test_image(self, size_x=16, size_y=16, size_z=1, size_c=1,
-                          size_t=1, session=None, name="testImage"):
+                          size_t=1, session=None, name="testImage",
+                          thumb=True):
         """
         Creates a test image of the required dimensions, where each pixel
         value is set to the value of x+y.
@@ -440,7 +415,6 @@ class ITest(object):
             pixels_type = query_service.findByQuery(
                 "from PixelsType as p where p.value='%s'" % "float", None)
         if pixels_type is None:
-            print "Unknown pixels type for: " % p_type
             raise Exception("Unknown pixels type for: " % p_type)
 
         # code below here is very similar to combineImages.py
@@ -453,42 +427,47 @@ class ITest(object):
         image = container_service.getImages("Image", [image_id], None)[0]
 
         pixels_id = image.getPrimaryPixels().getId().getValue()
-        raw_pixel_store.setPixelsId(pixels_id, True)
 
         colour_map = {0: (0, 0, 255, 255), 1: (0, 255, 0, 255),
                       2: (255, 0, 0, 255), 3: (255, 0, 255, 255)}
         f_list = [f1, f2, f3]
-        for the_c in range(size_c):
-            min_value = 0
-            max_value = 0
-            f = f_list[the_c % len(f_list)]
-            for the_z in range(size_z):
-                for the_t in range(size_t):
-                    plane_2d = fromfunction(f, (size_y, size_x), dtype=int16)
-                    script_utils.uploadPlane(
-                        raw_pixel_store, plane_2d, the_z, the_c, the_t)
-                    min_value = min(min_value, plane_2d.min())
-                    max_value = max(max_value, plane_2d.max())
-            pixels_service.setChannelGlobalMinMax(
-                pixels_id, the_c, float(min_value), float(max_value))
-            rgba = None
-            if the_c in colour_map:
-                rgba = colour_map[the_c]
-        for the_c in range(size_c):
-            script_utils.resetRenderingSettings(
-                rendering_engine, pixels_id, the_c, min_value, max_value, rgba)
-
-        rendering_engine.close()
-        raw_pixel_store.close()
-
-        # See #9070. Forcing a thumbnail creation
-        tb = session.createThumbnailStore()
         try:
-            s = tb.getThumbnailByLongestSideSet(rint(16), [pixels_id])
-            assert s[pixels_id] != ''
-
+            raw_pixel_store.setPixelsId(pixels_id, True)
+            for the_c in range(size_c):
+                min_value = 0
+                max_value = 0
+                f = f_list[the_c % len(f_list)]
+                for the_z in range(size_z):
+                    for the_t in range(size_t):
+                        plane_2d = fromfunction(f, (size_y, size_x),
+                                                dtype=int16)
+                        script_utils.upload_plane(raw_pixel_store, plane_2d,
+                                                  the_z, the_c, the_t)
+                        min_value = min(min_value, plane_2d.min())
+                        max_value = max(max_value, plane_2d.max())
+                pixels_service.setChannelGlobalMinMax(pixels_id, the_c,
+                                                      float(min_value),
+                                                      float(max_value))
+                rgba = None
+                if the_c in colour_map:
+                    rgba = colour_map[the_c]
+                script_utils.reset_rendering_settings(rendering_engine,
+                                                      pixels_id, the_c,
+                                                      min_value, max_value,
+                                                      rgba)
         finally:
-            tb.close()
+            rendering_engine.close()
+            raw_pixel_store.close()
+
+        if thumb:
+            # See #9070. Forcing a thumbnail creation
+            tb = session.createThumbnailStore()
+            try:
+                s = tb.getThumbnailByLongestSideSet(rint(16), [pixels_id])
+                assert s[pixels_id] != ''
+
+            finally:
+                tb.close()
 
         # Reloading image to prevent error on old pixels updateEvent
         return container_service.getImages("Image", [image_id], None)[0]
@@ -692,7 +671,8 @@ class ITest(object):
                                       skip="all")
         return pixels_id[0]
 
-    def pix(self, x=10, y=10, z=10, c=3, t=50, client=None):
+    def create_pixels(self, x=10, y=10, z=10, c=3, t=50, pixels_type="int8",
+                      client=None):
         """
         Creates an int8 pixel of the given size in the database.
         No data is written.
@@ -706,7 +686,7 @@ class ITest(object):
         pixels.sizeT = rint(t)
         pixels.sha1 = rstring("")
         pixels.pixelsType = PixelsTypeI()
-        pixels.pixelsType.value = rstring("int8")
+        pixels.pixelsType.value = rstring(pixels_type)
         pixels.dimensionOrder = DimensionOrderI()
         pixels.dimensionOrder.value = rstring("XYZCT")
         image.addPixels(pixels)
@@ -715,38 +695,50 @@ class ITest(object):
             client = self.client
         update = client.sf.getUpdateService()
         image = update.saveAndReturnObject(image)
-        pixels = image.getPrimaryPixels()
-        return pixels
+        return image.getPrimaryPixels()
 
-    def write(self, pix, rps):
+    @classmethod
+    def get_pixels_type(cls, pixels_type):
+        if pixels_type in ["int8", "uint8"]:
+            return 1
+        if pixels_type in ["int16", "uint16"]:
+            return 2
+        if pixels_type in ["int32", "uint132", "float"]:
+            return 4
+        if pixels_type in ["double"]:
+            return 8
+        raise Exception("Pixels Type %s not supported" % pixels_type)
+
+    def write(self, pixels, rps, pixels_type="int8"):
         """
         Writes byte arrays consisting of [5] to as
         either planes or tiles depending on the pixel
         size.
         """
+        p_type = self.get_pixels_type(pixels.pixelsType.getValue().getValue())
         if not rps.requiresPixelsPyramid():
             # By plane
-            bytes_per_plane = pix.sizeX.val * pix.sizeY.val  # Assuming int8
-            for z in range(pix.sizeZ.val):
-                for c in range(pix.sizeC.val):
-                    for t in range(pix.sizeT.val):
+            bytes_per_plane = pixels.sizeX.val * pixels.sizeY.val * p_type
+            for z in range(pixels.sizeZ.val):
+                for c in range(pixels.sizeC.val):
+                    for t in range(pixels.sizeT.val):
                         rps.setPlane([5] * bytes_per_plane, z, c, t)
         else:
             # By tile
             w, h = rps.getTileSize()
-            bytes_per_tile = w * h  # Assuming int8
-            for z in range(pix.sizeZ.val):
-                for c in range(pix.sizeC.val):
-                    for t in range(pix.sizeT.val):
-                        for x in range(0, pix.sizeX.val, w):
-                            for y in range(0, pix.sizeY.val, h):
+            bytes_per_tile = w * h * p_type
+            for z in range(pixels.sizeZ.val):
+                for c in range(pixels.sizeC.val):
+                    for t in range(pixels.sizeT.val):
+                        for x in range(0, pixels.sizeX.val, w):
+                            for y in range(0, pixels.sizeY.val, h):
 
                                 changed = False
-                                if x + w > pix.sizeX.val:
-                                    w = pix.sizeX.val - x
+                                if x + w > pixels.sizeX.val:
+                                    w = pixels.sizeX.val - x
                                     changed = True
-                                if y + h > pix.sizeY.val:
-                                    h = pix.sizeY.val - y
+                                if y + h > pixels.sizeY.val:
+                                    h = pixels.sizeY.val - y
                                     changed = True
                                 if changed:
                                     # Again assuming int8
@@ -755,19 +747,6 @@ class ITest(object):
                                 args = ([5] * bytes_per_tile,
                                         z, c, t, x, y, w, h)
                                 rps.setTile(*args)
-
-    def open_jpeg_buffer(self, buf):
-        try:
-            from PIL import Image
-        except ImportError:
-            try:
-                import Image
-            except ImportError:
-                assert False, "Pillow not installed"
-        from io import BytesIO
-        tfile = BytesIO(buf)
-        jpeg = Image.open(tfile)  # Raises if invalid
-        return jpeg
 
     def login_attempt(self, name, t, pw="BAD", less=False):
         """
@@ -958,13 +937,15 @@ class ITest(object):
             dsets.append(self.new_dataset(name=name))
         return update.saveAndReturnArray(dsets)
 
-    def make_file_annotation(self, name=None, binary=None, format=None,
-                             client=None, ns=None):
+    def make_file_annotation(self, name=None, binary=None, mimetype=None,
+                             client=None, namespace=None):
         """
-        Creates a new DatasetI instance and returns the persisted object.
+        Creates a file annotation with an original file.
         If no name has been provided, a UUID string shall be used.
 
-        :param name: the name of the project
+        :param name: The name of the file
+        :param binary: The binary data
+        :param mimetype: The mimetype of the file.
         :param client: The client to use to create the object
         :param ns: The namespace for the annotation
         """
@@ -974,8 +955,8 @@ class ITest(object):
         update = client.sf.getUpdateService()
 
         # file
-        if format is None:
-            format = "application/octet-stream"
+        if mimetype is None:
+            mimetype = "application/octet-stream"
         if binary is None:
             binary = "12345678910"
         if name is None:
@@ -987,20 +968,22 @@ class ITest(object):
         ofile.setSize(rlong(len(binary)))
         ofile.hasher = ChecksumAlgorithmI()
         ofile.hasher.value = rstring("SHA1-160")
-        ofile.setMimetype(rstring(str(format)))
+        ofile.setMimetype(rstring(str(mimetype)))
         ofile = update.saveAndReturnObject(ofile)
 
         # save binary
         store = client.sf.createRawFileStore()
-        store.setFileId(ofile.getId().getValue())
-        store.write(binary, 0, 0)
-        ofile = store.save()  # See ticket:1501
-        store.close()
+        try:
+            store.setFileId(ofile.getId().getValue())
+            store.write(binary, 0, 0)
+            ofile = store.save()  # See ticket:1501
+        finally:
+            store.close()
 
         fa = FileAnnotationI()
         fa.setFile(ofile)
-        if ns is not None:
-            fa.setNs(rstring(ns))
+        if namespace is not None:
+            fa.setNs(rstring(namespace))
         return update.saveAndReturnObject(fa)
 
     def link(self, obj1, obj2, client=None):
@@ -1109,24 +1092,6 @@ class ITest(object):
 
         self.do_submit(command, client)
 
-    def create_share(self, description="", timeout=None,
-                     objects=[], experimenters=[], guests=[],
-                     enabled=True, client=None):
-        """
-        Create share object
-
-        :param objects: a list of objects to include in the share
-        :param description: a string containing the description of the share
-        :param timeout: the timeout of the share
-        :param experimenters: a list of users associated with the share
-        :param client: The client to use to create the share
-        """
-        if client is None:
-            client = self.client
-        share = client.sf.getShareService()
-        return share.createShare(description, timeout, objects,
-                                 experimenters, guests, enabled)
-
 
 class ProjectionFixture(object):
     """
@@ -1211,3 +1176,235 @@ PFS = (
     PF("rwrw--", "member1", "group-owner", 1, 1, 1, 1, 1),
     PF("rwrw--", "member1", "member2", 1, 1, 1, 1, 1),
 )
+
+
+class AbstractRepoTest(ITest):
+
+    def setup_method(self, method):
+        self.unique_dir = self.test_dir()
+
+    def test_dir(self, client=None):
+        if client is None:
+            client = self.client
+        mrepo = self.get_managed_repo(client=client)
+        user_dir = self.user_dir(client=client)
+        unique_dir = user_dir + "/" + self.uuid()  # ok
+        mrepo.makeDir(unique_dir, True)
+        return unique_dir
+
+    def user_dir(self, client=None):
+        if client is None:
+            client = self.client
+        ec = client.sf.getAdminService().getEventContext()
+        return "%s_%s" % (ec.userName, ec.userId)
+
+    def all(self, client):
+        ctx = dict(client.getImplicitContext().getContext())
+        ctx["omero.group"] = "-1"
+        return ctx
+
+    def get_managed_repo(self, client=None):
+        if client is None:
+            client = self.client
+        mrepo = client.getManagedRepository()
+        assert mrepo
+        return mrepo
+
+    def create_file(self, mrepo1, filename):
+        rfs = mrepo1.file(filename, "rw")
+        try:
+            rfs.write("hi", 0, 2)
+            ofile = rfs.save()
+            return ofile
+        finally:
+            rfs.close()
+
+    def raw(self, command, args, client=None):
+        if client is None:
+            client = self.client
+        mrepo = self.get_managed_repo(self.client)
+        obj = mrepo.root()
+        sha = obj.hash.val
+        raw_access = omero.grid.RawAccessRequest()
+        raw_access.repoUuid = sha
+        raw_access.command = command
+        raw_access.args = args
+        handle = client.sf.submit(raw_access)
+        return CmdCallbackI(client, handle)
+
+    def create_test_dir(self):
+        folder = create_path(folder=True)
+        (folder / "a.fake").touch()
+        (folder / "b.fake").touch()
+        return folder
+
+    def create_fileset(self, folder):
+        fileset = omero.model.FilesetI()
+        for f in folder.files():
+            entry = omero.model.FilesetEntryI()
+            entry.setClientPath(rstring(str(f.abspath())))
+            fileset.addFilesetEntry(entry)
+
+        # Fill version info
+        system, node, release, version, machine, processor = platform.uname()
+
+        client_version_info = [
+            NamedValue('omero.version', omero_version),
+            NamedValue('os.name', system),
+            NamedValue('os.version', release),
+            NamedValue('os.architecture', machine)
+        ]
+        try:
+            client_version_info.append(
+                NamedValue('locale', locale.getdefaultlocale()[0]))
+        except:
+            pass
+
+        upload = omero.model.UploadJobI()
+        upload.setVersionInfo(client_version_info)
+        fileset.linkJob(upload)
+        return fileset
+
+    def create_settings(self):
+        settings = omero.grid.ImportSettings()
+        settings.doThumbnails = rbool(True)
+        settings.noStatsInfo = rbool(False)
+        settings.userSpecifiedTarget = None
+        settings.userSpecifiedName = None
+        settings.userSpecifiedDescription = None
+        settings.userSpecifiedAnnotationList = None
+        settings.userSpecifiedPixels = None
+        settings.checksumAlgorithm = omero.model.ChecksumAlgorithmI()
+        settings.checksumAlgorithm.value = omero.rtypes.rstring("SHA1-160")
+        return settings
+
+    def upload_folder(self, proc, folder):
+        ret_val = []
+        for i, fobj in enumerate(folder.files()):  # Assuming same order
+            rfs = proc.getUploader(i)
+            try:
+                f = fobj.open()
+                try:
+                    offset = 0
+                    block = []
+                    rfs.write(block, offset, len(block))  # Touch
+                    while True:
+                        block = f.read(1000 * 1000)
+                        if not block:
+                            break
+                        rfs.write(block, offset, len(block))
+                        offset += len(block)
+                    ret_val.append(self.client.sha1(fobj.abspath()))
+                finally:
+                    f.close()
+            finally:
+                rfs.close()
+        return ret_val
+
+    def full_import(self, client):
+        """
+        Re-usable method for a basic import
+        """
+        mrepo = self.get_managed_repo(client)
+        folder = self.create_test_dir()
+        fileset = self.create_fileset(folder)
+        settings = self.create_settings()
+
+        proc = mrepo.importFileset(fileset, settings)
+        try:
+            return self.assert_import(client, proc, folder)
+        finally:
+            proc.close()
+
+    # Assert methods
+    def assert_import(self, client, proc, folder):
+        hashes = self.upload_folder(proc, folder)
+        handle = proc.verifyUpload(hashes)
+        cb = CmdCallbackI(client, handle)
+        rsp = self.assert_passes(cb)
+        assert 1 == len(rsp.pixels)
+        return rsp
+
+    def assert_write(self, mrepo2, filename, ofile):
+        def _write(rfs):
+            try:
+                rfs.write("bye", 0, 3)
+                assert "bye" == rfs.read(0, 3)
+                # Resetting for other expectations
+                rfs.truncate(2)
+                rfs.write("hi", 0, 2)
+                assert "hi" == rfs.read(0, 2)
+            finally:
+                rfs.close()
+
+        # TODO: fileById is always "r"
+        # rfs = mrepo2.fileById(ofile.id.val)
+        # _write(rfs)
+
+        rfs = mrepo2.file(filename, "rw")
+        _write(rfs)
+
+    def assert_no_write(self, mrepo2, filename, ofile):
+        def _nowrite(rfs):
+            try:
+                pytest.raises(omero.SecurityViolation,
+                              rfs.write, "bye", 0, 3)
+                assert "hi" == rfs.read(0, 2)
+            finally:
+                rfs.close()
+
+        rfs = mrepo2.fileById(ofile.id.val)
+        _nowrite(rfs)
+
+        rfs = mrepo2.file(filename, "r")
+        _nowrite(rfs)
+
+        # Can't even acquire a writeable-rfs.
+        pytest.raises(omero.SecurityViolation,
+                      mrepo2.file, filename, "rw")
+
+    def assert_dir_write(self, mrepo2, dirname):
+        self.create_file(mrepo2, dirname + "/file2.txt")
+
+    def assert_no_dir_write(self, mrepo2, dirname):
+        # Also check that it's not possible to write
+        # in someone else's directory.
+        pytest.raises(omero.SecurityViolation,
+                      self.create_file, mrepo2, dirname + "/file2.txt")
+
+    def assert_no_read(self, mrepo2, filename, ofile):
+        pytest.raises(omero.SecurityViolation,
+                      mrepo2.fileById, ofile.id.val)
+        pytest.raises(omero.SecurityViolation,
+                      mrepo2.file, filename, "r")
+
+    def assert_read(self, mrepo2, filename, ofile, ctx=None):
+        def _read(rfs):
+            try:
+                assert "hi" == rfs.read(0, 2)
+            finally:
+                rfs.close()
+
+        rfs = mrepo2.fileById(ofile.id.val, ctx)
+        _read(rfs)
+
+        rfs = mrepo2.file(filename, "r", ctx)
+        _read(rfs)
+
+    def assert_listings(self, mrepo1, unique_dir):
+        assert [unique_dir + "/b"] == mrepo1.list(unique_dir + "/")
+        assert [unique_dir + "/b/c"] == mrepo1.list(unique_dir + "/b/")
+        assert [
+            unique_dir + "/b/c/file.txt"] == mrepo1.list(unique_dir + "/b/c/")
+
+    def assert_passes(self, cb, loops=10, wait=500):
+        cb.loop(loops, wait)
+        rsp = cb.getResponse()
+        if isinstance(rsp, omero.cmd.ERR):
+            raise Exception(rsp)
+        return rsp
+
+    def assert_error(self, cb, loops=10, wait=500):
+        cb.loop(loops, wait)
+        rsp = cb.getResponse()
+        assert isinstance(rsp, omero.cmd.ERR)

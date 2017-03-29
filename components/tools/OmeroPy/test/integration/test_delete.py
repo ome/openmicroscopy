@@ -416,7 +416,7 @@ class TestDelete(ITest):
         Delete one dataset, delete fails.
         """
         datasets = self.create_datasets(2, "testDeleteOneDatasetFilesetErr")
-        images = self.import_mif(2)
+        images = self.import_fake_file(2)
         for i in range(2):
             self.link(datasets[i], images[i])
 
@@ -437,7 +437,7 @@ class TestDelete(ITest):
         two images in a MIF.
         Delete one image, the delete should fail.
         """
-        images = self.import_mif(2)
+        images = self.import_fake_file(2)
 
         # Now delete one image
         delete = Delete2(targetObjects={"Image": [images[0].id.val]})
@@ -456,7 +456,7 @@ class TestDelete(ITest):
         Delete the dataset, the delete should succeed.
         """
         ds = self.make_dataset("testDeleteDatasetFilesetOK")
-        images = self.import_mif(2)
+        images = self.import_fake_file(2)
         fsId = self.query.get("Image", images[0].id.val).fileset.id.val
 
         for i in range(2):
@@ -479,7 +479,7 @@ class TestDelete(ITest):
         Delete all datasets, delete succeeds.
         """
         datasets = self.create_datasets(2, "testDeleteAllDatasetsFilesetOK")
-        images = self.import_mif(2)
+        images = self.import_fake_file(2)
         fsId = self.query.get("Image", images[0].id.val).fileset.id.val
 
         for i in range(2):
@@ -503,7 +503,7 @@ class TestDelete(ITest):
         two images in a MIF.
         Delete all images, the delete should succeed.
         """
-        images = self.import_mif(2)
+        images = self.import_fake_file(2)
         fsId = self.query.get("Image", images[0].id.val).fileset.id.val
 
         # Now delete all images, should succeed
@@ -522,7 +522,7 @@ class TestDelete(ITest):
         a single fileset containing 2 images.
         Delete the fileset, the delete should succeed.
         """
-        images = self.import_mif(2)
+        images = self.import_fake_file(2)
         fsId = self.query.get("Image", images[0].id.val).fileset.id.val
 
         # Now delete the fileset, should succeed
@@ -540,8 +540,8 @@ class TestDelete(ITest):
         by the delete error
         """
         # 2 filesets, each with 2 images
-        imagesFsOne = self.import_mif(2)
-        imagesFsTwo = self.import_mif(2)
+        imagesFsOne = self.import_fake_file(2)
+        imagesFsTwo = self.import_fake_file(2)
 
         # delete should fail...
         iids = [imagesFsOne[0].id.val, imagesFsTwo[0].id.val]
@@ -554,11 +554,11 @@ class TestDelete(ITest):
         by the delete error
         """
         # 2 filesets, each with 2 images
-        imagesFsOne = self.import_mif(2)
-        imagesFsTwo = self.import_mif(2)
+        imagesFsOne = self.import_fake_file(2)
+        imagesFsTwo = self.import_fake_file(2)
 
         ds = self.make_dataset("testDeleteDatasetTwoFilesetsErr")
-        self.import_mif(2)
+        self.import_fake_file(2)
         for i in (imagesFsOne, imagesFsTwo):
             self.link(ds, i[0])
 

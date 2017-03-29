@@ -231,9 +231,6 @@ class PrefsControl(WriteableConfigControl):
                    " it")
         parser.add(sub, self.upgrade, "Create a 4.2 config.xml file based on"
                    " your current Java Preferences")
-        old = parser.add(sub, self.old, "Delegate to the old configuration"
-                         " system using Java preferences")
-        old.add_argument("target", nargs="*")
 
     def open_config(self, args):
         if args.source:
@@ -288,7 +285,8 @@ class PrefsControl(WriteableConfigControl):
                 k in keys and keys.remove(k)
 
         hide_password = 'hide_password' in args and args.hide_password
-        is_password = lambda x: x.endswith('.pass') or x.endswith('.password')
+        is_password = (lambda x: x.lower().endswith('pass') or
+                       x.lower().endswith('password'))
         for k in keys:
             if k not in orig:
                 continue

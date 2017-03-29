@@ -343,9 +343,12 @@ public class ScriptServiceTest extends AbstractServerTest {
         RawFileStorePrx store;
         byte[] values;
         store = factory.createRawFileStore();
-        store.setFileId(f.getId().getValue());
-        values = store.read(0, (int) f.getSize().getValue());
-        store.close();
+        try {
+            store.setFileId(f.getId().getValue());
+            values = store.read(0, (int) f.getSize().getValue());
+        } finally {
+            store.close();
+        }
         return new String(values, StandardCharsets.UTF_8);
     }
 

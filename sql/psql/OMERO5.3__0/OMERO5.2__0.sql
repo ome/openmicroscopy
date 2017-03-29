@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.2__0 to OMERO5.3DEV__14.
+--- OMERO5 release upgrade from OMERO5.2__0 to OMERO5.3__0.
 ---
 
 BEGIN;
@@ -95,7 +95,7 @@ DROP FUNCTION db_pretty_version(INTEGER);
 --
 
 INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
-             VALUES ('OMERO5.3DEV',  14,           'OMERO5.2',      0);
+             VALUES ('OMERO5.3',     0,            'OMERO5.2',      0);
 
 -- ... up to patch 0:
 
@@ -1867,12 +1867,16 @@ ALTER TABLE projectiondef ADD stepping positive_int;
 
 -- ... up to patch 10:
 
-ALTER TABLE codomainmapcontext DROP CONSTRAINT FKcodomainmapcontext_renderingDef_renderingdef;
+ALTER TABLE codomainmapcontext DROP CONSTRAINT IF EXISTS FKcodomainmapcontext_renderingDef_renderingdef;
 ALTER TABLE codomainmapcontext DROP renderingdef;
 ALTER TABLE codomainmapcontext DROP renderingdef_index;
 
-DROP TRIGGER codomainmapcontext_renderingDef_index_trigger ON codomainmapcontext;
-DROP FUNCTION codomainmapcontext_renderingDef_index_move();
+DROP TRIGGER IF EXISTS codomainmapcontext_renderingDef_index_trigger ON codomainmapcontext;
+DROP TRIGGER IF EXISTS codomainmapcontext_renderingDef_index_trigger_insert ON codomainmapcontext;
+DROP TRIGGER IF EXISTS codomainmapcontext_renderingDef_index_trigger_update ON codomainmapcontext;
+DROP FUNCTION IF EXISTS codomainmapcontext_renderingDef_index_move();
+DROP FUNCTION IF EXISTS codomainmapcontext_renderingdef_index_insert();
+DROP FUNCTION IF EXISTS codomainmapcontext_renderingdef_index_update();
 
 ALTER TABLE codomainmapcontext ADD channelBinding int8 NOT NULL;
 ALTER TABLE codomainmapcontext ADD channelBinding_index int4 NOT NULL;
@@ -2030,6 +2034,13 @@ ALTER TABLE adminprivilege
 CREATE SEQUENCE seq_adminprivilege;
 
 INSERT INTO _lock_ids (name, id) SELECT 'seq_adminprivilege', nextval('_lock_seq');
+
+-- ... and reindex wells:
+
+INSERT INTO eventlog (id, action, permissions, entitytype, entityid, event)
+    WITH new_event AS (SELECT _current_or_new_event() AS id)
+    SELECT ome_nextval('seq_eventlog'), 'REINDEX', -52, 'ome.model.screen.Well', well.id,  new_event.id
+    FROM well, new_event;
 
 
 --

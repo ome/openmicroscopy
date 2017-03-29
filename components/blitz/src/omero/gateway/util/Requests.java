@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2016 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2015-2017 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -1825,7 +1825,8 @@ public class Requests {
         /* PROPERTY SETTERS THAT ACT DIRECTLY ON THE INSTANCE BEING ASSEMBLED */
 
         /**
-         * @param types types of children to include in the operation, does not overwrite previous calls
+         * @param types types of children to include in the operation, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public ChildOptionBuilder includeType(Iterable<String> types) {
@@ -1836,7 +1837,8 @@ public class Requests {
         }
 
         /**
-         * @param types types of children to include in the operation, does not overwrite previous calls
+         * @param types types of children to include in the operation, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public ChildOptionBuilder includeType(@SuppressWarnings("unchecked") Class<? extends IObject>... types) {
@@ -1847,7 +1849,8 @@ public class Requests {
         }
 
         /**
-         * @param types types of children to exclude from the operation, does not overwrite previous calls
+         * @param types types of children to exclude from the operation, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public ChildOptionBuilder excludeType(Iterable<String> types) {
@@ -1858,7 +1861,8 @@ public class Requests {
         }
 
         /**
-         * @param types types of children to exclude from the operation, does not overwrite previous calls
+         * @param types types of children to exclude from the operation, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public final ChildOptionBuilder excludeType(@SuppressWarnings("unchecked") Class<? extends IObject>... types) {
@@ -1869,7 +1873,8 @@ public class Requests {
         }
 
         /**
-         * @param namespaces annotation namespaces to which to this option applies, does not overwrite previous calls
+         * @param namespaces annotation namespaces to which to this option applies, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public ChildOptionBuilder includeNs(Iterable<String> namespaces) {
@@ -1880,7 +1885,8 @@ public class Requests {
         }
 
         /**
-         * @param namespaces annotation namespaces to which to this option does not apply, does not overwrite previous calls
+         * @param namespaces annotation namespaces to which to this option does not apply, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public ChildOptionBuilder excludeNs(Iterable<String> namespaces) {
@@ -1893,7 +1899,8 @@ public class Requests {
         /* PROPERTY SETTERS THAT SIMPLY WRAP USAGE OF THE ABOVE SETTERS */
 
         /**
-         * @param types types of children to include in the operation, does not overwrite previous calls
+         * @param types types of children to include in the operation, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public ChildOptionBuilder includeType(String... types) {
@@ -1901,7 +1908,8 @@ public class Requests {
         }
 
         /**
-         * @param types types of children to exclude from the operation, does not overwrite previous calls
+         * @param types types of children to exclude from the operation, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public ChildOptionBuilder excludeType(String... types) {
@@ -1909,7 +1917,8 @@ public class Requests {
         }
 
         /**
-         * @param namespaces annotation namespaces to which to this option applies, does not overwrite previous calls
+         * @param namespaces annotation namespaces to which to this option applies, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public ChildOptionBuilder includeNs(String... namespaces) {
@@ -1917,7 +1926,8 @@ public class Requests {
         }
 
         /**
-         * @param namespaces annotation namespaces to which to this option does not apply, does not overwrite previous calls
+         * @param namespaces annotation namespaces to which to this option does not apply, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public ChildOptionBuilder excludeNs(String... namespaces) {
@@ -1971,7 +1981,8 @@ public class Requests {
         /* PROPERTY SETTERS THAT ACT DIRECTLY ON THE INSTANCE BEING ASSEMBLED */
 
         /**
-         * @param targets target objects for this operation, does not overwrite previous calls
+         * @param targets target objects for this operation, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         @SuppressWarnings("unchecked")
@@ -1983,7 +1994,8 @@ public class Requests {
         }
 
         /**
-         * @param targetClass a target object type for this operation, required to then use an {@code id} method
+         * @param targetClass a target object type for this operation, required to then use an {@code id} method;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         @SuppressWarnings("unchecked")
@@ -1993,7 +2005,8 @@ public class Requests {
         }
 
         /**
-         * @param ids target object IDs for this operation, does not overwrite previous calls
+         * @param ids target object IDs for this operation, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          * @see #target(String)
          * @see #target(Class)
@@ -2008,7 +2021,8 @@ public class Requests {
         }
 
         /**
-         * @param ids target object IDs for this operation, does not overwrite previous calls
+         * @param ids target object IDs for this operation, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          * @see #target(String)
          * @see #target(Class)
@@ -2025,7 +2039,8 @@ public class Requests {
         }
 
         /**
-         * @param targets target objects for this operation, does not overwrite previous calls
+         * @param targets target objects for this operation, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         @SuppressWarnings("unchecked")
@@ -2039,7 +2054,8 @@ public class Requests {
         /* PROPERTY SETTERS THAT SIMPLY WRAP USAGE OF THE ABOVE SETTERS */
 
         /**
-         * @param targets target objects for this operation, does not overwrite previous calls
+         * @param targets target objects for this operation, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public B target(Multimap<String, Long> targets) {
@@ -2047,7 +2063,8 @@ public class Requests {
         }
 
         /**
-         * @param targetClass a target object type for this operation, required to then use an {@code id} method
+         * @param targetClass a target object type for this operation, required to then use an {@code id} method;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public B target(Class<? extends IObject> targetClass) {
@@ -2055,7 +2072,8 @@ public class Requests {
         }
 
         /**
-         * @param ids target object IDs for this operation, does not overwrite previous calls
+         * @param ids target object IDs for this operation, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          * @see #target(String)
          * @see #target(Class)
@@ -2087,7 +2105,8 @@ public class Requests {
         /* PROPERTY SETTERS THAT ACT DIRECTLY ON THE INSTANCE BEING ASSEMBLED */
 
         /**
-         * @param options child options for this operation, does not overwrite previous calls
+         * @param options child options for this operation, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         @SuppressWarnings("unchecked")
@@ -2099,7 +2118,8 @@ public class Requests {
         }
 
         /**
-         * @param dryRun if this operation is a dry run, does overwrite previous calls
+         * @param dryRun if this operation is a dry run, does overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         @SuppressWarnings("unchecked")
@@ -2111,7 +2131,8 @@ public class Requests {
         /* PROPERTY SETTERS THAT SIMPLY WRAP USAGE OF THE ABOVE SETTERS */
 
         /**
-         * @param options child options for this operation, does not overwrite previous calls
+         * @param options child options for this operation, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public B option(ChildOption... options) {
@@ -2155,7 +2176,8 @@ public class Requests {
         /* PROPERTY SETTERS THAT SIMPLY WRAP USAGE OF THE ABOVE SETTERS */
 
         /**
-         * @param id the group to which to move the target objects, does overwrite previous calls
+         * @param id the group to which to move the target objects, does overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public Chgrp2Builder toGroup(RLong id) {
@@ -2163,7 +2185,8 @@ public class Requests {
         }
 
         /**
-         * @param group the group to which to move the target objects, does overwrite previous calls
+         * @param group the group to which to move the target objects, does overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public Chgrp2Builder toGroup(ExperimenterGroup group) {
@@ -2198,7 +2221,8 @@ public class Requests {
         }
 
         /**
-         * @param ids the IDs of users whose data is to be targeted for this operation, does not overwrite previous calls
+         * @param ids the IDs of users whose data is to be targeted for this operation, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public Chown2Builder targetUsers(Iterable<Long> ids) {
@@ -2209,7 +2233,8 @@ public class Requests {
         }
 
         /**
-         * @param ids the IDs of users whose data is to be targeted for this operation, does not overwrite previous calls
+         * @param ids the IDs of users whose data is to be targeted for this operation, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public Chown2Builder targetUsers(RLong... ids) {
@@ -2222,7 +2247,8 @@ public class Requests {
         /* PROPERTY SETTERS THAT SIMPLY WRAP USAGE OF THE ABOVE SETTERS */
 
         /**
-         * @param id the user to which to give the target objects, does overwrite previous calls
+         * @param id the user to which to give the target objects, does overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public Chown2Builder toUser(RLong id) {
@@ -2230,7 +2256,8 @@ public class Requests {
         }
 
         /**
-         * @param user the user to which to give the target objects, does overwrite previous calls
+         * @param user the user to which to give the target objects, does overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public Chown2Builder toUser(Experimenter user) {
@@ -2238,7 +2265,8 @@ public class Requests {
         }
 
         /**
-         * @param user the user to which to give the target objects, does overwrite previous calls
+         * @param user the user to which to give the target objects, does overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          * @deprecated use {@link #toUser(Experimenter)}
          */
@@ -2248,7 +2276,8 @@ public class Requests {
         }
 
         /**
-         * @param ids the IDs of users whose data is to be targeted for this operation, does not overwrite previous calls
+         * @param ids the IDs of users whose data is to be targeted for this operation, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public Chown2Builder targetUsers(Long... ids) {
@@ -2256,7 +2285,8 @@ public class Requests {
         }
 
         /**
-         * @param user the user whose data is to be targeted for this operation, does not overwrite previous calls
+         * @param user the user whose data is to be targeted for this operation, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public Chown2Builder targetUsers(Experimenter user) {
@@ -2281,7 +2311,8 @@ public class Requests {
         /* PROPERTY SETTERS THAT ACT DIRECTLY ON THE INSTANCE BEING ASSEMBLED */
 
         /**
-         * @param permissions the permissions to which to set the target objects, does overwrite previous calls
+         * @param permissions the permissions to which to set the target objects, does overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public Chmod2Builder toPerms(String permissions) {
@@ -2325,7 +2356,8 @@ public class Requests {
         /* PROPERTY SETTERS THAT ACT DIRECTLY ON THE INSTANCE BEING ASSEMBLED */
 
         /**
-         * @param types types to duplicate, does not overwrite previous calls
+         * @param types types to duplicate, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public DuplicateBuilder duplicateType(Iterable<String> types) {
@@ -2336,7 +2368,8 @@ public class Requests {
         }
 
         /**
-         * @param types types to duplicate, does not overwrite previous calls
+         * @param types types to duplicate, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public final DuplicateBuilder duplicateType(@SuppressWarnings("unchecked") Class<? extends IObject>... types) {
@@ -2347,7 +2380,8 @@ public class Requests {
         }
 
         /**
-         * @param types types to reference from duplicates, does not overwrite previous calls
+         * @param types types to reference from duplicates, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public DuplicateBuilder referenceType(Iterable<String> types) {
@@ -2358,7 +2392,8 @@ public class Requests {
         }
 
         /**
-         * @param types types to reference from duplicates, does not overwrite previous calls
+         * @param types types to reference from duplicates, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public final DuplicateBuilder referenceType(@SuppressWarnings("unchecked") Class<? extends IObject>... types) {
@@ -2369,7 +2404,8 @@ public class Requests {
         }
 
         /**
-         * @param types types to keep separate from duplicates, does not overwrite previous calls
+         * @param types types to keep separate from duplicates, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public DuplicateBuilder ignoreType(Iterable<String> types) {
@@ -2380,7 +2416,8 @@ public class Requests {
         }
 
         /**
-         * @param types types to keep separate from duplicates, does not overwrite previous calls
+         * @param types types to keep separate from duplicates, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public final DuplicateBuilder ignoreType(@SuppressWarnings("unchecked") Class<? extends IObject>... types) {
@@ -2393,7 +2430,8 @@ public class Requests {
         /* PROPERTY SETTERS THAT SIMPLY WRAP USAGE OF THE ABOVE SETTERS */
 
         /**
-         * @param types types to duplicate, does not overwrite previous calls
+         * @param types types to duplicate, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public DuplicateBuilder duplicateType(String... types) {
@@ -2401,7 +2439,8 @@ public class Requests {
         }
 
         /**
-         * @param types types to reference from duplicates, does not overwrite previous calls
+         * @param types types to reference from duplicates, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public DuplicateBuilder referenceType(String... types) {
@@ -2409,7 +2448,8 @@ public class Requests {
         }
 
         /**
-         * @param types types to keep separate from duplicates, does not overwrite previous calls
+         * @param types types to keep separate from duplicates, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public DuplicateBuilder ignoreType(String... types) {
@@ -2436,7 +2476,8 @@ public class Requests {
         /* PROPERTY SETTERS THAT ACT DIRECTLY ON THE INSTANCE BEING ASSEMBLED */
 
         /**
-         * @param types the types of parents to find, does not overwrite previous calls
+         * @param types the types of parents to find, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public FindParentsBuilder parentType(Iterable<String> types) {
@@ -2447,7 +2488,8 @@ public class Requests {
         }
 
         /**
-         * @param types the types of parents to find, does not overwrite previous calls
+         * @param types the types of parents to find, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public final FindParentsBuilder parentType(@SuppressWarnings("unchecked") Class<? extends IObject>... types) {
@@ -2458,7 +2500,8 @@ public class Requests {
         }
 
         /**
-         * @param types the types to exclude from the search, does not overwrite previous calls
+         * @param types the types to exclude from the search, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public FindParentsBuilder stopBefore(Iterable<String> types) {
@@ -2469,7 +2512,8 @@ public class Requests {
         }
 
         /**
-         * @param types the types to exclude from the search, does not overwrite previous calls
+         * @param types the types to exclude from the search, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public final FindParentsBuilder stopBefore(@SuppressWarnings("unchecked") Class<? extends IObject>... types) {
@@ -2482,7 +2526,8 @@ public class Requests {
         /* PROPERTY SETTERS THAT SIMPLY WRAP USAGE OF THE ABOVE SETTERS */
 
         /**
-         * @param types the types of parents to find, does not overwrite previous calls
+         * @param types the types of parents to find, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public FindParentsBuilder parentType(String... types) {
@@ -2490,7 +2535,8 @@ public class Requests {
         }
 
         /**
-         * @param types the types to exclude from the search, does not overwrite previous calls
+         * @param types the types to exclude from the search, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public FindParentsBuilder stopBefore(String... types) {
@@ -2517,7 +2563,8 @@ public class Requests {
         /* PROPERTY SETTERS THAT ACT DIRECTLY ON THE INSTANCE BEING ASSEMBLED */
 
         /**
-         * @param types the types of children to find, does not overwrite previous calls
+         * @param types the types of children to find, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public FindChildrenBuilder childType(Iterable<String> types) {
@@ -2528,7 +2575,8 @@ public class Requests {
         }
 
         /**
-         * @param types the types of children to find, does not overwrite previous calls
+         * @param types the types of children to find, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public final FindChildrenBuilder childType(@SuppressWarnings("unchecked") Class<? extends IObject>... types) {
@@ -2539,7 +2587,8 @@ public class Requests {
         }
 
         /**
-         * @param types the types to exclude from the search, does not overwrite previous calls
+         * @param types the types to exclude from the search, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public FindChildrenBuilder stopBefore(Iterable<String> types) {
@@ -2550,7 +2599,8 @@ public class Requests {
         }
 
         /**
-         * @param types the types to exclude from the search, does not overwrite previous calls
+         * @param types the types to exclude from the search, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public final FindChildrenBuilder stopBefore(@SuppressWarnings("unchecked") Class<? extends IObject>... types) {
@@ -2563,7 +2613,8 @@ public class Requests {
         /* PROPERTY SETTERS THAT SIMPLY WRAP USAGE OF THE ABOVE SETTERS */
 
         /**
-         * @param types the types of children to find, does not overwrite previous calls
+         * @param types the types of children to find, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public FindChildrenBuilder childType(String... types) {
@@ -2571,7 +2622,8 @@ public class Requests {
         }
 
         /**
-         * @param types the types to exclude from the search, does not overwrite previous calls
+         * @param types the types to exclude from the search, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public FindChildrenBuilder stopBefore(String... types) {
@@ -2597,7 +2649,8 @@ public class Requests {
         /* PROPERTY SETTERS THAT ACT DIRECTLY ON THE INSTANCE BEING ASSEMBLED */
 
         /**
-         * @param types types from which to start the operation, does not overwrite previous calls
+         * @param types types from which to start the operation, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public SkipHeadBuilder startFrom(Iterable<String> types) {
@@ -2608,7 +2661,8 @@ public class Requests {
         }
 
         /**
-         * @param types types from which to start the operation, does not overwrite previous calls
+         * @param types types from which to start the operation, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public final SkipHeadBuilder startFrom(@SuppressWarnings("unchecked") Class<? extends IObject>... types) {
@@ -2619,7 +2673,8 @@ public class Requests {
         }
 
         /**
-         * @param request the operation to perform once target objects are identified, does overwrite previous calls
+         * @param request the operation to perform once target objects are identified, does overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public final SkipHeadBuilder request(GraphModify2 request) {
@@ -2630,7 +2685,8 @@ public class Requests {
         /* PROPERTY SETTERS THAT SIMPLY WRAP USAGE OF THE ABOVE SETTERS */
 
         /**
-         * @param types types from which to start the operation, does not overwrite previous calls
+         * @param types types from which to start the operation, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public SkipHeadBuilder startFrom(String... types) {
@@ -2638,7 +2694,8 @@ public class Requests {
         }
 
         /**
-         * @param request the operation to perform once target objects are identified, does overwrite previous calls
+         * @param request the operation to perform once target objects are identified, does overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public final SkipHeadBuilder request(Class<? extends GraphModify2> request) {
@@ -2668,7 +2725,8 @@ public class Requests {
         /* PROPERTY SETTERS THAT ACT DIRECTLY ON THE INSTANCE BEING ASSEMBLED */
 
         /**
-         * @param types whole types to target for this operation, does not overwrite previous calls
+         * @param types whole types to target for this operation, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public DiskUsageBuilder type(Iterable<String> types) {
@@ -2679,7 +2737,8 @@ public class Requests {
         }
 
         /**
-         * @param types whole types to target for this operation, does not overwrite previous calls
+         * @param types whole types to target for this operation, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public final DiskUsageBuilder type(@SuppressWarnings("unchecked") Class<? extends IObject>... types) {
@@ -2692,7 +2751,8 @@ public class Requests {
         /* PROPERTY SETTERS THAT SIMPLY WRAP USAGE OF THE ABOVE SETTERS */
 
         /**
-         * @param types whole types to target for this operation, does not overwrite previous calls
+         * @param types whole types to target for this operation, does not overwrite previous calls;
+         * {@code null} values not permitted
          * @return this builder, for method chaining
          */
         public DiskUsageBuilder type(String... types) {

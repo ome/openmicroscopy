@@ -25,19 +25,16 @@ import json
 
 from omero.testlib import ITest
 
-import omero
-import omero.clients
-
 from django.test import RequestFactory
 from django.contrib.sessions.middleware import SessionMiddleware
-
 
 from omeroweb.webclient import webclient_gateway  # NOQA
 from omero.gateway import BlitzGateway
 from omeroweb.decorators import login_required
 
-import pytest
 from omero.gateway.utils import propertiesToDict
+
+import pytest
 
 
 def default_view(request):
@@ -89,30 +86,14 @@ class TestConfig(ITest):
 
     def testDefaultConfig(self):
         """ Test loading default config """
-        deprecated = [
-            'omero.client.ui.menu.dropdown.everyone',
-            'omero.client.ui.menu.dropdown.leaders',
-            'omero.client.ui.menu.dropdown.colleagues'
-        ]
         default = self.rs.getClientConfigDefaults()
         login_required(default_view).load_server_settings(self.conn, self.r)
         s = {"omero": {"client": self.r.session.get('server_settings', {})}}
-        ss = self.r.session['server_settings']
-        # assert if alias gives the same value as deprecated
-        # rather then ${property}
-        for d in deprecated:
-            ds = d.split(".")
-            assert ss['ui']['menu']['dropdown'][ds[-1]]['label'] == default[d]
-            # workaround for alias as getClientConfigDefaults returns
-            # ${property} rather then value
-            assert ss['ui']['menu']['dropdown'][ds[-1]]['label'] == \
-                self.conn.getConfigService().getConfigValue(
-                    default['%s.label' % d][2:-1])
-
         # compare keys in default and config loaded by decorator
         a = filter(lambda x: x not in (
-            set(default.keys()) - set(deprecated)),
-            set(flattenProperties(s).keys()))
+            set(default.keys())),
+            set(flattenProperties(s).keys())
+            )
         assert a == ['omero.client.email']
 
     def testDefaultConfigConversion(self):
@@ -141,12 +122,11 @@ class TestConfig(ITest):
         assert isinstance(ss['viewer']['roi_limit'], int)
         assert ss['viewer']['roi_limit'] == json.loads(default[key2])
 
-    @pytest.mark.parametrize("prop", ["colleagues", "leaders", "everyone",
-                                      "colleagues.label", "leaders.label",
+    @pytest.mark.parametrize("prop", ["colleagues.label", "leaders.label",
                                       "everyone.label"])
     @pytest.mark.parametrize("label", ["foo"])
     def testUpgradeDropdownMenuConfig(self, prop, label):
-        """ Test if alias loads deprecated property value """
+        """ Test to set and get DropdownMenuConfig """
         d = self.rs.getClientConfigDefaults()
         key = "omero.client.ui.menu.dropdown.%s" % prop
         try:
@@ -157,55 +137,5 @@ class TestConfig(ITest):
             s = self.r.session.get('server_settings', {})
             prop = prop.replace(".label", "")
             assert s['ui']['menu']['dropdown'][prop]['label'] == label
-        finally:
-            self.rs.setConfigValue(key, d[key])
-
-    def mock_getClientSettings(self, monkeypatch, default):
-        def get_clientSettings(*args, **kwargs):
-            not_exist = [
-                'omero.client.ui.menu.dropdown.everyone.label',
-                'omero.client.ui.menu.dropdown.leaders.label',
-                'omero.client.ui.menu.dropdown.colleagues.label',
-                'omero.client.ui.tree.orphans.enabled',
-                'omero.client.viewer.initial_zoom_level'
-            ]
-            for n in not_exist:
-                if n in default:
-                    del default[n]
-            return default
-        monkeypatch.setattr(omero.gateway.BlitzGateway,
-                            'getClientSettings',
-                            get_clientSettings)
-
-    @pytest.mark.parametrize("prop", ["colleagues", "leaders", "everyone"])
-    @pytest.mark.parametrize("label", ["foo"])
-    def testOldDropdownMenuConfig(self, monkeypatch, prop, label):
-        """ Test against older server with monkeypatch """
-        d = self.rs.getClientConfigDefaults()
-        key = "omero.client.ui.menu.dropdown.%s" % prop
-        try:
-            if label is not None:
-                self.rs.setConfigValue(key, label)
-            self.mock_getClientSettings(monkeypatch,
-                                        self.rs.getClientConfigValues())
-            # validate old config
-            ocs = self.conn.getClientSettings()
-            not_exist = [
-                'omero.client.ui.menu.dropdown.everyone.label',
-                'omero.client.ui.menu.dropdown.leaders.label',
-                'omero.client.ui.menu.dropdown.colleagues.label',
-                'omero.client.ui.tree.orphans.enabled',
-                'omero.client.viewer.initial_zoom_level'
-            ]
-            for n in not_exist:
-                assert n not in ocs
-            # test load_server_settings directly
-            login_required(default_view).load_server_settings(
-                self.conn, self.r)
-            s = self.r.session.get('server_settings', {})
-            if label is not None:
-                assert s['ui']['menu']['dropdown'][prop]['label'] == label
-            else:
-                assert s['ui']['menu']['dropdown'][prop]['label'] == d[key]
         finally:
             self.rs.setConfigValue(key, d[key])

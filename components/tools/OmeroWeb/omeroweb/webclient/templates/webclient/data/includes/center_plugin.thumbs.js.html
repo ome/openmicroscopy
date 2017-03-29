@@ -96,12 +96,12 @@ $(document).ready(function() {
             url = "{% url 'web_image_viewer' 0 %}";
         }
         url = url.replace('/0/', "/" + iid + "/" );
-        OME.openPopup(url);
+        window.open(url, '_blank');
     });
 
     // Set up the centre panel header.
     var setupDatasetHeader = function() {
-        var html = headerTmpl({'layout': layout});
+        var html = headerTmpl({'layout': layout, 'staticUrl': '{% static "webclient/" %}'});
         $("#content_details").html(html);
 
         // single click handler on image (container). Selection then update toolbar & metadata pane
@@ -362,6 +362,59 @@ $(document).ready(function() {
     }
 
     var setupFiltering = function() {
+        // All the image filtering functionality setup here...
+        // Chooser for revealing various filter components
+        $("#choosefilter").change(function() {
+            var $this = $(this),
+                filterby = $this.val();
+            // reset chooser
+            $this.val("addfilter");
+
+            // if we're already showing this filter, ignore
+            if ($("#filter" + filterby).is( ":visible" )) {
+                return;
+            }
+
+            // Handle 'Remove all filters'
+            if (filterby == "removeAll") {
+                $(".imagefilter").hide();
+                // clear text filter (will also undo fitering)
+                $('#id_search').val('').trigger('keyup');
+                // reset rating to 0
+                $("#filterrating img").attr('src', "{% static 'webclient/image/rating' %}0.png");
+                // clear any filtering by rating/unrated
+                $("#dataIcons li.row").removeClass('ratingFilter_hidden');
+            }
+
+            // Unrated and By rating are mutually exclusive
+            if (filterby === "unrated") {
+                // reset 'by rating' filter
+                $("#filterrating").hide().find("img").attr('src', "{% static 'webclient/image/rating' %}0.png");
+                // do filtering
+                filterUnrated();
+            } else if (filterby === "rating") {
+                $("#filterunrated").hide();
+                $("#dataIcons li.row").removeClass('ratingFilter_hidden');
+            }
+
+            // Show filter
+            if (filterby != "addfilter") {
+                $("#filter" + filterby).appendTo("#filtersContainer").show();
+            }
+        });
+        // Rating has a 'X' for clearing filter
+        $(".removefilter").click(function(){
+            var $fltr = $(this).parent();
+            if ($fltr.attr('id') === 'filterrating') {
+                $("#dataIcons li.row").removeClass('ratingFilter_hidden');
+                $("#filterrating img").attr('src', "{% static 'webclient/image/rating' %}0.png");
+            } else if ($fltr.attr('id') === 'filterunrated') {
+                $("#dataIcons li.row").removeClass('ratingFilter_hidden');
+                $fltr.hide();
+            }
+        });
+
+        // Handle filtering by text
         var $filter_input = $('#id_search');
         var filter_txt = $filter_input.val();
         $filter_input.quicksearch('#dataIcons li.row', {
@@ -377,6 +430,75 @@ $(document).ready(function() {
                     deselectFiltered();
                 }
             }
+        });
+
+        // filter by unrated
+        var filterUnrated = function(){
+            var iids = [];
+            $("#dataIcons li.row").each(function(){
+                iids.push($(this).attr("data-id"));
+            });
+            var query = "image=" + iids.join("&image=");
+            $.getJSON("{% url 'api_annotations' %}?type=rating&" + query, function(data){
+                // map imageId to rating... rdata = {'iid': hide?}
+                var rdata = data.annotations.reduce(function(prev, r){
+                    var iid = "" + r.link.parent.id;
+                    prev[iid] = true;
+                    return prev;
+                }, {});
+                $("#dataIcons li.row").each(function(){
+                    var $this = $(this),
+                        iid = $this.attr("data-id");
+                    if (rdata[iid]) {
+                        // hide
+                        $this.addClass('ratingFilter_hidden');
+                    } else {
+                        // show
+                        $this.removeClass('ratingFilter_hidden');
+                    }
+                });
+                // finally, we de-select hidden
+                deselectFiltered();
+            });
+        };
+
+        // filter by rating
+        $("#filterrating img").click(function(event) {
+            var iids = [],
+                $rating = $(this),
+                clickX = event.pageX - $rating.offset().left;
+            var rating = (clickX/ $rating.width()) * 5;
+            rating = parseInt(Math.ceil(rating), 10);
+            var src="{% static 'webclient/image/rating' %}" + rating + ".png";
+            $rating.attr('src', src);
+            $("#dataIcons li.row").each(function(){
+                iids.push($(this).attr("data-id"));
+            });
+            var query = "image=" + iids.join("&image=");
+            // get ratings...
+            $.getJSON("{% url 'api_annotations' %}?type=rating&" + query, function(data){
+                // map imageId to rating... rdata = {'iid': show?}
+                var rdata = data.annotations.reduce(function(prev, r){
+                    // we don't care who owns the rating/link
+                    var iid = "" + r.link.parent.id,
+                        longValue = r.longValue;
+                    if (r.longValue === rating) {
+                        prev[iid] = true;
+                    }
+                    return prev;
+                }, {});
+                $("#dataIcons li.row").each(function() {
+                    var $this = $(this),
+                        iid = $this.attr("data-id");
+                    if (rating === 0 || rdata[iid]) {
+                        $this.removeClass('ratingFilter_hidden');
+                    } else {
+                        $this.addClass('ratingFilter_hidden');
+                    }
+                });
+                // finally, we de-select hidden
+                deselectFiltered();
+            });
         });
     }
 

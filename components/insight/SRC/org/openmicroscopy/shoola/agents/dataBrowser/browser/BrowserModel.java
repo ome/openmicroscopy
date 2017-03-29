@@ -696,7 +696,7 @@ class BrowserModel
 	 */
 	public void setNodesSelection(Collection<ImageDisplay> nodes)
 	{
-		if (nodes == null) return;
+		if (CollectionUtils.isEmpty(nodes)) return;
 		setNodesColor(nodes, getSelectedDisplays());
 		final HashSet<ImageDisplay> previouslySelectedDisplays =
 		        new HashSet<ImageDisplay>(this.selectedDisplays);

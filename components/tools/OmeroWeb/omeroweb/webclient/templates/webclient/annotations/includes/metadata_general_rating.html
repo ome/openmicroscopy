@@ -22,6 +22,7 @@
     <div id="ratingsPane">
     <h1 class="can-collapse closed" data-name="ratings">
         {{ label|default:"Ratings" }}
+        <span class="annotationCount">{{ annotationCounts.LongAnnotation }}</span>
     </h1>
     <div class="annotations_section" style="display: none">
         <div id="rating_annotations" {% if manager.canAnnotate or not annotationBlocked %}class="canAnnotate"{% endif %}></div>

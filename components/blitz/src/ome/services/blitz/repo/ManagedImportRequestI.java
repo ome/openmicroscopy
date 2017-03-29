@@ -678,6 +678,9 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
         for (final Image image : imageList) {
             image.unloadAnnotationLinks();
+            image.unloadDatasetLinks();
+            image.unloadFolderLinks();
+            image.unloadWellSamples();
         }
 
         store.updatePixels(pixList);
