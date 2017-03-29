@@ -1544,9 +1544,14 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None,
     """
     context = {}
 
+    # the index of a field within a well
+    index = getIntOrDefault(request, 'index', 0)
+
     manager = BaseContainer(conn, **{str(c_type): long(c_id)})
     if share_id:
         context['share'] = BaseShare(conn, share_id)
+    if c_type == "well":
+        manager.image = manager.well.getImage(index)
 
     allRdefs = manager.image.getAllRenderingDefs()
     rdefs = {}
