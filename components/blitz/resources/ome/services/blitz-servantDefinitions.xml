@@ -3,8 +3,6 @@
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# $Id$
-#
 # Copyright 2007-2014 Glencoe Software, Inc. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
@@ -339,6 +337,7 @@
       <constructor-arg ref="roles"/>
       <constructor-arg ref="systemTypes"/>
       <constructor-arg ref="graphPathBean"/>
+      <constructor-arg ref="adminPrivileges"/>
       <constructor-arg ref="ome.services.delete.Deletion"/>
       <constructor-arg>
         <map>
@@ -423,6 +422,7 @@
     <constructor-arg index="1" ref="roles"/>
     <constructor-arg index="2" ref="executor"/>
     <constructor-arg index="3" ref="statefulExecutor"/>
+    <constructor-arg index="4" ref="omeroInterceptor"/>
   </bean>
 
   <bean id="scheduledExecutorService" class="java.util.concurrent.ScheduledThreadPoolExecutor">

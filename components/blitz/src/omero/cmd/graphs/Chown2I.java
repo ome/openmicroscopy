@@ -22,6 +22,7 @@ package omero.cmd.graphs;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -57,6 +58,7 @@ import ome.model.screen.ScreenPlateLink;
 import ome.parameters.Parameters;
 import ome.security.ACLVoter;
 import ome.security.SystemTypes;
+import ome.security.basic.LightAdminPrivileges;
 import ome.services.delete.Deletion;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphPathBean;
@@ -91,6 +93,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
     private final ACLVoter aclVoter;
     private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
+    private final LightAdminPrivileges adminPrivileges;
     private final Deletion deletionInstance;
     private final Set<Class<? extends IObject>> targetClasses;
     private GraphPolicy graphPolicy;  /* not final because of adjustGraphPolicy */
@@ -117,6 +120,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
      * @param securityRoles the security roles
      * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean to use
+     * @param adminPrivileges the light administrator privileges helper
      * @param deletionInstance a deletion instance for deleting files
      * @param targetClasses legal target object classes for chown
      * @param graphPolicy the graph policy to apply for chown
@@ -124,11 +128,12 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
      * @param applicationContext the OMERO application context from Spring
      */
     public Chown2I(ACLVoter aclVoter, Roles securityRoles, SystemTypes systemTypes, GraphPathBean graphPathBean,
-            Deletion deletionInstance, Set<Class<? extends IObject>> targetClasses, GraphPolicy graphPolicy,
-            SetMultimap<String, String> unnullable, ApplicationContext applicationContext) {
+            LightAdminPrivileges adminPrivileges, Deletion deletionInstance, Set<Class<? extends IObject>> targetClasses,
+            GraphPolicy graphPolicy, SetMultimap<String, String> unnullable, ApplicationContext applicationContext) {
         this.aclVoter = aclVoter;
         this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
+        this.adminPrivileges = adminPrivileges;
         this.deletionInstance = deletionInstance;
         this.targetClasses = targetClasses;
         this.graphPolicy = graphPolicy;
@@ -155,12 +160,13 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
 
         this.helper = helper;
         helper.setSteps(dryRun ? 5 : 7);
-        this.graphHelper = new GraphHelper(helper, graphPathBean);
+        this.graphHelper = new GraphHelper(helper, graphPathBean, adminPrivileges);
 
         /* if the current user is not an administrator then find of which groups the target user is a member */
         final EventContext eventContext = helper.getEventContext();
-
-        if (eventContext.isCurrentUserAdmin()) {
+        /* see trac ticket 10691 re. enum values */
+        final boolean isChownPrivilege = graphHelper.checkIsAdministrator(adminPrivileges.getPrivilege("Chown"));
+        if (isChownPrivilege) {
             acceptableGroupsFrom = null;
             acceptableGroupsTo = null;
         } else {
@@ -186,8 +192,19 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
 
         graphPolicy.registerPredicate(new PermissionsPredicate());
 
+        final Set<GraphPolicy.Ability> requiredAbilities;
+        if (isChownPrivilege) {
+            requiredAbilities = Collections.<GraphPolicy.Ability>emptySet();
+        } else {
+            requiredAbilities = REQUIRED_ABILITIES;
+        }
+
         graphTraversal = graphHelper.prepareGraphTraversal(childOptions, REQUIRED_ABILITIES, graphPolicy, graphPolicyAdjusters,
-                aclVoter, systemTypes, graphPathBean, unnullable, new InternalProcessor(), dryRun);
+                aclVoter, systemTypes, graphPathBean, unnullable, new InternalProcessor(requiredAbilities), dryRun);
+
+        if (isChownPrivilege) {
+            graphTraversal.setOwnsAll();
+        }
 
         graphPolicyAdjusters = null;
     }
@@ -455,10 +472,13 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
         private final Long userFromId = helper.getEventContext().getCurrentUserId();
         private final Experimenter userTo = new Experimenter(userId, false);
 
+        private final Set<GraphPolicy.Ability> requiredAbilities;
+
         private final Set<LinkDetails> linksToChown = new HashSet<LinkDetails>();
 
-        public InternalProcessor() {
+        public InternalProcessor(Set<GraphPolicy.Ability> requiredAbilities) {
             super(helper.getSession());
+            this.requiredAbilities = requiredAbilities;
         }
 
         @Override
@@ -480,7 +500,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
 
         @Override
         public Set<GraphPolicy.Ability> getRequiredPermissions() {
-            return REQUIRED_ABILITIES;
+            return requiredAbilities;
         }
 
         /**

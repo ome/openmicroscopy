@@ -1,7 +1,7 @@
 /*
  * ome.security.BasicACLVoter
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -11,19 +11,24 @@ import static ome.model.internal.Permissions.Role.GROUP;
 import static ome.model.internal.Permissions.Role.USER;
 import static ome.model.internal.Permissions.Role.WORLD;
 
+import java.util.HashSet;
 import java.util.Set;
 
+import ome.conditions.ApiUsageException;
 import ome.conditions.GroupSecurityViolation;
 import ome.conditions.InternalException;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.model.core.OriginalFile;
+import ome.model.enums.AdminPrivilege;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Token;
+import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.model.meta.GroupExperimenterMap;
 import ome.security.ACLVoter;
 import ome.security.SecurityFilter;
 import ome.security.SecuritySystem;
@@ -31,6 +36,7 @@ import ome.security.SystemTypes;
 import ome.security.policy.PolicyService;
 import ome.system.EventContext;
 import ome.system.Roles;
+import ome.tools.hibernate.HibernateUtils;
 
 import org.hibernate.LazyInitializationException;
 import org.hibernate.Session;
@@ -41,7 +47,6 @@ import org.springframework.util.Assert;
 /**
  * 
  * @author Josh Moore, josh.moore at gmx.de
- * @version $Revision$, $Date$
  * @see Token
  * @see SecuritySystem
  * @see Details
@@ -79,6 +84,11 @@ public class BasicACLVoter implements ACLVoter {
 
     protected final Roles roles;
 
+    private final LightAdminPrivileges adminPrivileges;
+
+    /* thread-safe */
+    private final Set<String> managedRepoUuids, scriptRepoUuids;
+
     public BasicACLVoter(CurrentDetails cd, SystemTypes sysTypes,
         TokenHolder tokenHolder, SecurityFilter securityFilter,
         PolicyService policyService) {
@@ -87,25 +97,78 @@ public class BasicACLVoter implements ACLVoter {
     }
 
     public BasicACLVoter(CurrentDetails cd, SystemTypes sysTypes,
+            TokenHolder tokenHolder, SecurityFilter securityFilter,
+            PolicyService policyService,
+            Roles roles) {
+        this(cd, sysTypes, tokenHolder, securityFilter, policyService,
+                roles, new LightAdminPrivileges(roles), new HashSet<String>(), new HashSet<String>());
+    }
+
+    public BasicACLVoter(CurrentDetails cd, SystemTypes sysTypes,
         TokenHolder tokenHolder, SecurityFilter securityFilter,
         PolicyService policyService,
-        Roles roles) {
+        Roles roles, LightAdminPrivileges adminPrivileges, Set<String> managedRepoUuids, Set<String> scriptRepoUuids) {
         this.currentUser = cd;
         this.sysTypes = sysTypes;
         this.securityFilter = securityFilter;
         this.tokenHolder = tokenHolder;
         this.roles = roles;
         this.policyService = policyService;
+        this.adminPrivileges = adminPrivileges;
+        this.managedRepoUuids = managedRepoUuids;
+        this.scriptRepoUuids = scriptRepoUuids;
     }
 
     // ~ Interface methods
     // =========================================================================
 
-    /**
-     * 
-     */
     public boolean allowChmod(IObject iObject) {
-        return currentUser.isOwnerOrSupervisor(iObject);
+        if (iObject == null) {
+            throw new ApiUsageException("Object can't be null");
+        }
+        final Long ownerId = HibernateUtils.nullSafeOwnerId(iObject);
+        final Long groupId; // see 2874 and chmod
+        if (iObject instanceof ExperimenterGroup) {
+            groupId = iObject.getId();
+        } else {
+            groupId = HibernateUtils.nullSafeGroupId(iObject);
+        }
+        final EventContext ec = currentUser.getCurrentEventContext();
+        if (ec.getCurrentUserId().equals(ownerId) || ec.getLeaderOfGroupsList().contains(groupId)) {
+            return true;   // object owner or group owner
+        } else if (!ec.isCurrentUserAdmin()) {
+            return false;  // not an admin
+        }
+        final Event event = currentUser.getEvent();
+        if (event == null || !event.isLoaded()) {
+            return true;   // no session to limit privileges
+        }
+        final Set<AdminPrivilege> privileges = adminPrivileges.getSessionPrivileges(event.getSession());
+        if (sysTypes.isSystemType(iObject.getClass())) {
+            if (iObject instanceof Experimenter) {
+                return privileges.contains(adminPrivileges.getPrivilege("ModifyUser"));
+            } else if (iObject instanceof ExperimenterGroup) {
+                return privileges.contains(adminPrivileges.getPrivilege("ModifyGroup"));
+            } else if (iObject instanceof GroupExperimenterMap) {
+                return privileges.contains(adminPrivileges.getPrivilege("ModifyGroupMembership"));
+            } else {
+                return true;
+            }
+        } else {
+            if (iObject instanceof OriginalFile) {
+                final String repo = ((OriginalFile) iObject).getRepo();
+                if (repo != null) {
+                    if (managedRepoUuids.contains(repo)) {
+                        return privileges.contains(adminPrivileges.getPrivilege("WriteManagedRepo"));
+                    } else if (scriptRepoUuids.contains(repo)) {
+                        return privileges.contains(adminPrivileges.getPrivilege("WriteScriptRepo"));
+                    }
+                }
+                return privileges.contains(adminPrivileges.getPrivilege("WriteFile"));
+            } else {
+                return privileges.contains(adminPrivileges.getPrivilege("WriteOwned"));
+            }
+        }
     }
 
     /**
@@ -120,6 +183,38 @@ public class BasicACLVoter implements ACLVoter {
      */
     public boolean allowLoad(Session session, Class<? extends IObject> klass, Details d, long id) {
         Assert.notNull(klass);
+
+        final BasicEventContext ec = currentUser.current();
+
+        if (klass == ome.model.meta.Session.class) {
+            /* determine "real" owner of current and queried session, i.e. taking sudo into account */
+            final ome.model.meta.Session currentSession = (ome.model.meta.Session)
+                    session.get(ome.model.meta.Session.class, ec.getCurrentSessionId());
+            Experimenter sessionOwnerCurrent = currentSession.getSudoer();
+            if (sessionOwnerCurrent == null) {
+                sessionOwnerCurrent = currentSession.getOwner();
+            }
+            final ome.model.meta.Session queriedSession = (ome.model.meta.Session)
+                    session.get(ome.model.meta.Session.class, id);
+            Experimenter sessionOwnerQueried = queriedSession.getSudoer();
+            if (sessionOwnerQueried == null) {
+                sessionOwnerQueried = queriedSession.getOwner();
+            }
+            /* determine if the "real" owner is an administrator */
+            final Object systemMembership = session.createQuery(
+                    "FROM GroupExperimenterMap WHERE parent.id = :group AND child.id = :user")
+                    .setLong("group", roles.getSystemGroupId()).setLong("user", sessionOwnerCurrent.getId()).uniqueResult();
+            if (systemMembership != null) {
+                /* cannot yet cache privileges because Sessions may be loaded while still being constructed by the session bean */
+                final Set<AdminPrivilege> privileges = adminPrivileges.getSessionPrivileges(currentSession, false);
+                if (privileges.contains(adminPrivileges.getPrivilege("ReadSession"))) {
+                    /* only a full administrator may read all sessions */
+                    return true;
+                }
+            }
+            /* without ReadSession privilege may read only those sessions for which "real" owner matches */
+            return sessionOwnerCurrent.getId() == sessionOwnerQueried.getId();
+        }
 
         if (d == null || sysTypes.isSystemType(klass)) {
             // Here we're returning true because there
@@ -136,13 +231,13 @@ public class BasicACLVoter implements ACLVoter {
             rv = true;
         }
         else {
-            rv = securityFilter.passesFilter(session, d, currentUser.current());
+            rv = securityFilter.passesFilter(session, d, ec);
         }
 
         // Misusing this location to store the loaded objects perms for later.
-        if (this.currentUser.getCurrentEventContext().getCurrentGroupId() < 0) {
+        if (ec.getCurrentGroupId() < 0) {
             // For every object that gets loaded when omero.group = -1, we
-            // cache it's permissions in the session context so that when the
+            // cache its permissions in the session context so that when the
             // session is over we can re-apply all the permissions.
             ExperimenterGroup g = d.getGroup();
             if (g == null) {
@@ -156,7 +251,7 @@ public class BasicACLVoter implements ACLVoter {
                     log.warn(String.format("Permissions null for group %s " +
                             "while loading %s:%s", gid, klass.getName(), id));
                 } else {
-                    this.currentUser.current().setPermissionsForGroup(gid, p);
+                    ec.setPermissionsForGroup(gid, p);
                 }
             }
         }
@@ -181,16 +276,37 @@ public class BasicACLVoter implements ACLVoter {
         // OmeroInterceptor checks whether or not objects are only
         // LINKED to one's own objects which is the actual intent.
 
-        if (tokenHolder.hasPrivilegedToken(iObject)
-                || currentUser.getCurrentEventContext().isCurrentUserAdmin()) {
+        if (tokenHolder.hasPrivilegedToken(iObject)) {
             return true;
-        }
-
-        else if (sysType) {
+        } else if (!sysType) {
+            if (iObject instanceof OriginalFile && ((OriginalFile) iObject).getRepo() != null) {
+                /* Cannot yet set OriginalFile.repo except via SQL.
+                 * TODO: Need to first work through implications before permitting this. */
+                return false;
+            }
+            /* also checked by OmeroInterceptor.newTransientDetails */
+            return true;
+        } else if (currentUser.getCurrentEventContext().isCurrentUserAdmin()) {
+            final Set<AdminPrivilege> privileges;
+            final Event event = currentUser.current().getEvent();
+            if (event == null || !event.isLoaded()) {
+                privileges = adminPrivileges.getAllPrivileges();
+            } else {
+                privileges = adminPrivileges.getSessionPrivileges(event.getSession());
+            }
+            /* see trac ticket 10691 re. enum values */
+            if (iObject instanceof Experimenter) {
+                return privileges.contains(adminPrivileges.getPrivilege("ModifyUser"));
+            } else if (iObject instanceof ExperimenterGroup) {
+                return privileges.contains(adminPrivileges.getPrivilege("ModifyGroup"));
+            } else if (iObject instanceof GroupExperimenterMap) {
+                return privileges.contains(adminPrivileges.getPrivilege("ModifyGroupMembership"));
+            } else {
+                return true;
+            }
+        } else {
             return false;
         }
-
-        return true;
     }
 
     public void throwCreationViolation(IObject iObject)
@@ -200,24 +316,27 @@ public class BasicACLVoter implements ACLVoter {
         boolean sysType = sysTypes.isSystemType(iObject.getClass()) ||
             sysTypes.isInSystemGroup(iObject.getDetails());
 
-        if (!sysType && currentUser.isGraphCritical(iObject.getDetails())) { // ticket:1769
+        if (sysType) {
+            throw new SecurityViolation(iObject + " is a System-type, and may be created only through privileged APIs.");
+        } else if (currentUser.isGraphCritical(iObject.getDetails())) { // ticket:1769
             throw new GroupSecurityViolation(iObject + "-insertion violates " +
                     "group-security.");
+        } else if (iObject instanceof OriginalFile) {
+            /* Cannot yet set OriginalFile.repo except via SQL. */
+            throw new SecurityViolation("cannot set repo property of " + iObject + " via ORM");
+        } else {
+            throw new SecurityViolation("not permitted to create " + iObject);
         }
-
-        throw new SecurityViolation(iObject
-                + " is a System-type, and may only be "
-                + "created through privileged APIs.");
     }
 
     public boolean allowAnnotate(IObject iObject, Details trustedDetails) {
         BasicEventContext c = currentUser.current();
-        return 1 == allowUpdateOrDelete(c, iObject, trustedDetails, Scope.ANNOTATE);
+        return 1 == allowUpdateOrDelete(c, iObject, trustedDetails, true, Scope.ANNOTATE);
     }
 
     public boolean allowUpdate(IObject iObject, Details trustedDetails) {
         BasicEventContext c = currentUser.current();
-        return 1 == allowUpdateOrDelete(c, iObject, trustedDetails, Scope.EDIT);
+        return 1 == allowUpdateOrDelete(c, iObject, trustedDetails, true, Scope.EDIT);
     }
 
     public void throwUpdateViolation(IObject iObject) throws SecurityViolation {
@@ -236,7 +355,7 @@ public class BasicACLVoter implements ACLVoter {
 
     public boolean allowDelete(IObject iObject, Details trustedDetails) {
         BasicEventContext c = currentUser.current();
-        return 1 == allowUpdateOrDelete(c, iObject, trustedDetails, Scope.DELETE);
+        return 1 == allowUpdateOrDelete(c, iObject, trustedDetails, false, Scope.DELETE);
     }
 
     public void throwDeleteViolation(IObject iObject) throws SecurityViolation {
@@ -285,7 +404,7 @@ public class BasicACLVoter implements ACLVoter {
      *     which should be allowed.
      */
     private int allowUpdateOrDelete(BasicEventContext c, IObject iObject,
-        Details trustedDetails, Scope...scopes) {
+        Details trustedDetails, boolean isUpdate, Scope...scopes) {
 
         int rv = 0;
 
@@ -330,16 +449,70 @@ public class BasicACLVoter implements ACLVoter {
         }
 
         if (c.isCurrentUserAdmin()) {
-            for (int i = 0; i < scopes.length; i++) {
-                if (scopes[i] != null) {
-                    rv |= (1<<i);
+            final Set<AdminPrivilege> privileges;
+            final Event event = c.getEvent();
+            if (event == null || !event.isLoaded()) {
+                privileges = adminPrivileges.getAllPrivileges();
+            } else {
+                privileges = adminPrivileges.getSessionPrivileges(event.getSession());
+            }
+            /* see trac ticket 10691 re. enum values */
+            boolean isLightAdminRestricted = false;
+            final String prefix = isUpdate ? "Write" : "Delete";
+            if (!sysType) {
+                if (iObject instanceof OriginalFile) {
+                    final String repo = ((OriginalFile) iObject).getRepo();
+                    if (repo != null) {
+                        if (managedRepoUuids.contains(repo)) {
+                            if (!privileges.contains(adminPrivileges.getPrivilege(prefix + "ManagedRepo"))) {
+                                isLightAdminRestricted = true;
+                            }
+                        } else if (scriptRepoUuids.contains(repo)) {
+                            if (!privileges.contains(adminPrivileges.getPrivilege(prefix + "ScriptRepo"))) {
+                                isLightAdminRestricted = true;
+                            }
+                        } else {
+                            /* other repository */
+                            if (!privileges.contains(adminPrivileges.getPrivilege(prefix + "File"))) {
+                                isLightAdminRestricted = true;
+                            }
+                        }
+                    } else {
+                        /* not in repository */
+                        if (!privileges.contains(adminPrivileges.getPrivilege(prefix + "File"))) {
+                            isLightAdminRestricted = true;
+                        }
+                    }
+                } else {
+                    if (!privileges.contains(adminPrivileges.getPrivilege(prefix + "Owned"))) {
+                        isLightAdminRestricted = true;
+                    }
+                }
+            } else if (iObject instanceof Experimenter) {
+                if (!privileges.contains(adminPrivileges.getPrivilege("ModifyUser"))) {
+                    isLightAdminRestricted = true;
+                }
+            } else if (iObject instanceof ExperimenterGroup) {
+                if (!privileges.contains(adminPrivileges.getPrivilege("ModifyGroup"))) {
+                    isLightAdminRestricted = true;
+                }
+            } else if (iObject instanceof GroupExperimenterMap) {
+                if (!privileges.contains(adminPrivileges.getPrivilege("ModifyGroupMembership"))) {
+                    isLightAdminRestricted = true;
                 }
             }
-            return rv; // EARLY EXIT!
-        } else if (sysType) {
+            if (!isLightAdminRestricted) {
+                for (int i = 0; i < scopes.length; i++) {
+                    if (scopes[i] != null) {
+                        rv |= (1<<i);
+                    }
+                }
+                return rv; // EARLY EXIT!
+            }
+        }
+        if (sysType) {
             return 0;
         }
-
         Permissions grpPermissions = c.getCurrentGroupPermissions();
         final ExperimenterGroup grp = d.getGroup();
         if (!(sysType || grp == null)) {
@@ -418,7 +591,7 @@ public class BasicACLVoter implements ACLVoter {
 
             final BasicEventContext c = currentUser.current();
             final Permissions p = details.getPermissions();
-            final int allow = allowUpdateOrDelete(c, object, details,
+            final int allow = allowUpdateOrDelete(c, object, details, true,
                 // This order must match the ordered of restrictions[]
                 // expected by p.copyRestrictions
                 Scope.LINK, Scope.EDIT, Scope.DELETE, Scope.ANNOTATE);

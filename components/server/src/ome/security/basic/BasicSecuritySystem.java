@@ -1,7 +1,7 @@
 /*
  * ome.security.basic.BasicSecuritySystem
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -9,6 +9,8 @@ package ome.security.basic;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 import ome.api.local.LocalAdmin;
@@ -31,6 +33,7 @@ import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
+import ome.parameters.Parameters;
 import ome.security.AdminAction;
 import ome.security.SecureAction;
 import ome.security.SecurityFilter;
@@ -99,7 +102,7 @@ public class BasicSecuritySystem implements SecuritySystem,
 
     protected final ServiceFactory sf;
 
-    protected final SecurityFilter filter;
+    protected final List<SecurityFilter> filters;
 
     protected final PolicyService policyService;
 
@@ -120,16 +123,17 @@ public class BasicSecuritySystem implements SecuritySystem,
         CurrentDetails cd = new CurrentDetails(cache);
         SystemTypes st = new SystemTypes();
         TokenHolder th = new TokenHolder();
-        OmeroInterceptor oi = new OmeroInterceptor(new Roles(),
-                st, new ExtendedMetadata.Impl(),
-                cd, th, new PerSessionStats(cd));
         Roles roles = new Roles();
+        final OmeroInterceptor oi = new OmeroInterceptor(roles,
+                st, new ExtendedMetadata.Impl(),
+                cd, th, new PerSessionStats(cd),
+                new LightAdminPrivileges(roles), new HashSet<String>(), new HashSet<String>());
         SecurityFilterHolder holder = new SecurityFilterHolder(
                 cd, new OneGroupSecurityFilter(roles),
                 new AllGroupsSecurityFilter(null, roles),
                 new SharingSecurityFilter(roles, null));
         BasicSecuritySystem sec = new BasicSecuritySystem(oi, st, cd, sm,
-                roles, sf, new TokenHolder(), holder, new DefaultPolicyService());
+                roles, sf, new TokenHolder(), Collections.<SecurityFilter>singletonList(holder), new DefaultPolicyService());
         return sec;
     }
 
@@ -148,14 +152,14 @@ public class BasicSecuritySystem implements SecuritySystem,
     public BasicSecuritySystem(OmeroInterceptor interceptor,
             SystemTypes sysTypes, CurrentDetails cd,
             SessionManager sessionManager, Roles roles, ServiceFactory sf,
-            TokenHolder tokenHolder, SecurityFilter filter,
+            TokenHolder tokenHolder, List<SecurityFilter> filters,
             PolicyService policyService) {
         this.sessionManager = sessionManager;
         this.policyService = policyService;
         this.tokenHolder = tokenHolder;
         this.interceptor = interceptor;
         this.sysTypes = sysTypes;
-        this.filter = filter;
+        this.filters = filters;
         this.roles = roles;
         this.cd = cd;
         this.sf = sf;
@@ -200,7 +204,7 @@ public class BasicSecuritySystem implements SecuritySystem,
 
     /**
      * tests whether or not the current user is either the owner of this entity,
-     * or the superivsor of this entity, for example as root or as group owner.
+     * or the supervisor of this entity, for example as root or as group owner.
      * 
      * @param iObject
      *            Non-null managed entity.
@@ -243,11 +247,13 @@ public class BasicSecuritySystem implements SecuritySystem,
         // http://opensource.atlassian.com/projects/hibernate/browse/HHH-1932
         final EventContext ec = getEventContext();
         final Session sess = (Session) session;
-        filter.enable(sess, ec);
+        for (final SecurityFilter filter : filters) {
+            filter.enable(sess, ec);
+        }
     }
 
     public void  updateReadFilter(Session session) {
-        filter.disable(session);
+        disableReadFilter(session);
         enableReadFilter(session);
     }
 
@@ -267,7 +273,9 @@ public class BasicSecuritySystem implements SecuritySystem,
         // checkReady("disableReadFilter");
 
         Session sess = (Session) session;
-        filter.disable(sess);
+        for (final SecurityFilter filter : filters) {
+            filter.disable(sess);
+        }
     }
 
     // ~ Subsystem disabling
@@ -415,12 +423,32 @@ public class BasicSecuritySystem implements SecuritySystem,
 
         }
 
-        long sessionId = ec.getCurrentSessionId().longValue();
-        ome.model.meta.Session sess = null;
+        final Long sessionId = ec.getCurrentSessionId();
+        final Parameters params = new Parameters().addId(sessionId);
+        final ome.model.meta.Session sess;
         if (isReadOnly) {
-            sess = new ome.model.meta.Session(sessionId, false);
+            final String hql = "SELECT s.owner, s.sudoer FROM Session s WHERE s.id = :id";
+            final List<Object[]> results = sf.getQueryService().projection(hql, params);
+            if (results.isEmpty()) {
+                sess = new ome.model.meta.Session(sessionId, false);
+            } else {
+                final Object[] result = results.get(0);
+                final Experimenter sessionOwner  = (Experimenter) result[0];
+                final Experimenter sessionSudoer = (Experimenter) result[1];
+                sess = new ome.model.meta.Session(sessionId, false) {
+                    @Override
+                    public Experimenter getOwner() {
+                        return sessionOwner;
+                    }
+                    @Override
+                    public Experimenter getSudoer() {
+                        return sessionSudoer;
+                    }
+                };
+            }
         } else {
-            sess = sf.getQueryService().get(ome.model.meta.Session.class, sessionId);
+            final String hql = "FROM Session s LEFT OUTER JOIN FETCH s.sudoer WHERE s.id = :id";
+            sess = sf.getQueryService().findByQuery(hql, params);
         }
 
         tokenHolder.setToken(callGroup.getGraphHolder());
@@ -439,7 +467,7 @@ public class BasicSecuritySystem implements SecuritySystem,
         Event event = cd.newEvent(sess, type, tokenHolder);
         tokenHolder.setToken(event.getGraphHolder());
 
-        // If this event is not read only, then lets save this event to prevent
+        // If this event is not read only, then let's save this event to prevent
         // flushing issues later.
         if (!isReadOnly) {
             if (event.getExperimenterGroup().getId() < 0) {

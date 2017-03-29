@@ -3,8 +3,6 @@
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# $Id$
-#
 # Copyright 2008 Glencoe Software, Inc.. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
@@ -44,7 +42,12 @@
     <constructor-arg ref="roles"/>
     <constructor-arg ref="internalServiceFactory"/>
     <constructor-arg ref="tokenHolder"/>
-    <constructor-arg ref="securityFilterHolder"/>
+    <constructor-arg>
+      <list>
+        <ref bean="securityFilterHolder"/>
+        <ref bean="&amp;LightAdminPrivilegesSecurityFilter"/>  <!-- filter is a factory -->
+      </list>
+    </constructor-arg>
     <constructor-arg ref="policyService"/>
   </bean>
 
@@ -88,6 +91,9 @@
     <constructor-arg ref="tokenHolder"/>
     <constructor-arg ref="extendedMetadata"/>
     <constructor-arg ref="delegatingStats"/>
+    <constructor-arg ref="adminPrivileges"/>
+    <constructor-arg ref="managedRepoUuids"/>
+    <constructor-arg ref="scriptRepoUuids"/>
   </bean>
 
 </beans>

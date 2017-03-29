@@ -30,6 +30,7 @@ import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
+import ome.tools.hibernate.HibernateUtils;
 import ome.tools.hibernate.QueryBuilder;
 import ome.tools.spring.OnContextRefreshedEventListener;
 import ome.util.SqlAction;
@@ -646,9 +647,11 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
         ofile.setSize(repoFile.length());
         ofile.getDetails().setGroup(group);
         ofile = sf.getUpdateService().saveAndReturnObject(ofile);
-        setMimetype(ofile);
 
         sqlAction.setFileRepo(Collections.singleton(ofile.getId()), uuid);
+        session.refresh(ofile);
+
+        setMimetype(ofile);
 
         return ofile;
     }

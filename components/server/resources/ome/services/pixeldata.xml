@@ -61,6 +61,12 @@
     <property name="defaultFilterCondition" value="true"/>
   </bean>
 
+  <bean id="lightAdminPrivilegesSecurityFilter" class="ome.security.basic.LightAdminPrivilegesSecurityFilter">
+    <constructor-arg ref="roles"/>
+    <constructor-arg ref="adminPrivileges"/>
+    <property name="defaultFilterCondition" value="true"/>
+  </bean>
+
   <bean id="eventListeners" class="ome.security.basic.EventListenersFactoryBean">
     <constructor-arg ref="currentDetails"/>
     <constructor-arg ref="tokenHolder"/>
@@ -78,7 +84,11 @@
     <constructor-arg ref="roles"/>
     <constructor-arg ref="internalServiceFactory"/>
     <constructor-arg ref="tokenHolder"/>
-    <constructor-arg ref="securityFilterHolder"/>
+    <constructor-arg>
+      <list>
+        <ref bean="securityFilterHolder"/>
+      </list>
+    </constructor-arg>
     <constructor-arg><bean class="ome.security.policy.DefaultPolicyService"/></constructor-arg>
   </bean>
 

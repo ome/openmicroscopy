@@ -217,6 +217,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                         @Transactional(readOnly = true)
                         public Boolean doWork(Session session, ServiceFactory sf) {
                             final OriginalFile file = new OriginalFile();
+                            file.setRepo(scripts.getUuid());
                             /* check with interceptor */
                             try {
                                 interceptor.newTransientDetails(file);
@@ -224,6 +225,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                                 return false;
                             }
                             /* check with ACL voter */
+                            file.setRepo(null);  // can never create with repo set
                             return aclVoter.allowCreation(file);
                         }
                     });

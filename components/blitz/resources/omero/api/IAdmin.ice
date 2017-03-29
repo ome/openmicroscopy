@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2010-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  *
@@ -12,10 +10,15 @@
 #include <omero/ServicesF.ice>
 #include <omero/System.ice>
 #include <omero/Collections.ice>
+#include <omero/model/AdminPrivilege.ice>
 
 module omero {
 
     module api {
+
+        /* would normally be among Collections' object lists but that does not have OMERO-only enumerations in scope */
+        ["java:type:java.util.ArrayList<omero.model.AdminPrivilege>:java.util.List<omero.model.AdminPrivilege>"]
+        sequence<omero::model::AdminPrivilege> AdminPrivilegeList;
 
         /**
          * Administration interface providing access to admin-only
@@ -167,6 +170,30 @@ module omero {
                  */
                 idempotent LongList getLeaderOfGroupIds(omero::model::Experimenter exp) throws ServerError;
 
+                /**
+                 * Gets the light administrator privileges for the current user.
+                 *
+                 * @return the current user's light administrator privileges
+                 */
+                idempotent AdminPrivilegeList getCurrentAdminPrivileges() throws ServerError;
+
+                /**
+                 * Gets the light administrator privileges for the given user.
+                 *
+                 * @param user the user whose privileges are being queried
+                 * @return the user's light administrator privileges
+                 */
+                idempotent AdminPrivilegeList getAdminPrivileges(omero::model::Experimenter user) throws ServerError;
+
+                /**
+                 * Gets the administrators who have all the given privileges.
+                 * Consistent with the results from "getAdminPrivileges".
+                 *
+                 * @param privileges the required privileges
+                 * @return the light administrators who have those privileges
+                 */
+                idempotent ExperimenterList getAdminsWithPrivileges(AdminPrivilegeList privileges) throws ServerError;
+
                 // Mutators
 
                 /**
@@ -284,6 +311,20 @@ module omero {
                  *         {@link omero.model.Experimenter}
                  */
                 long createSystemUser(omero::model::Experimenter experimenter) throws ServerError;
+
+                /**
+                 * Creates and returns a new system user. This user will be
+                 * created with the <i>System</i> (administration) group as
+                 * default and will also be in the <i>user</i> group. Their
+                 * light administrator privileges will be set as given.
+                 *
+                 * @param experimenter a new {@link omero.model.Experimenter}
+                 *        instance
+                 * @param privileges the privileges to set for the user
+                 * @return id of the newly created
+                 *         {@link omero.model.Experimenter}
+                 */
+                long createLightSystemUser(omero::model::Experimenter experimenter, AdminPrivilegeList privileges) throws ServerError;
 
                 /**
                  * Creates and returns a new user in the given groups.
@@ -462,6 +503,14 @@ module omero {
                  * @param objects
                  */
                 idempotent void moveToCommonSpace(IObjectList objects) throws ServerError;
+
+                /**
+                 * Sets the set of light administrator privileges for the given user.
+                 *
+                 * @param user the user whose privileges are to be set
+                 * @param privileges the privileges to set for the user
+                 */
+                idempotent void setAdminPrivileges(omero::model::Experimenter user, AdminPrivilegeList privileges) throws ServerError;
 
                 // UAuth
 

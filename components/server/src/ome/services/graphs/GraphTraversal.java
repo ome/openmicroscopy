@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2016 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2017 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -53,6 +53,7 @@ import com.google.common.collect.Sets;
 import ome.model.IObject;
 import ome.model.core.OriginalFile;
 import ome.model.internal.Permissions;
+import ome.model.jobs.Job;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.ACLVoter;
@@ -457,6 +458,7 @@ public class GraphTraversal {
 
     private final Session session;
     private final EventContext eventContext;
+    private final boolean isCheckUserPermissions;
     private final ACLVoter aclVoter;
     private final SystemTypes systemTypes;
     private final GraphPathBean model;
@@ -488,6 +490,26 @@ public class GraphTraversal {
         this.planning = new Planning();
         this.policy = policy;
         this.processor = log.isDebugEnabled() ? debugWrap(processor) : processor;
+
+        if (eventContext.isCurrentUserAdmin()) {
+            /* check if light administrator restrictions may apply */
+            final String querySession = "FROM Session s LEFT OUTER JOIN FETCH s.sudoer WHERE s.id = :id";
+            final Long sessionId = eventContext.getCurrentSessionId();
+            final ome.model.meta.Session omeroSession =
+                    (ome.model.meta.Session) session.createQuery(querySession).setParameter("id", sessionId).uniqueResult();
+            final Experimenter sudoer = omeroSession.getSudoer();
+            final Long userId = sudoer == null ? omeroSession.getOwner().getId() : sudoer.getId();
+            final String queryConfig = "SELECT COUNT(config.value) FROM Experimenter user JOIN user.config AS config " +
+                    "WHERE user.id = :id AND config.name IN (SELECT 'AdminPrivilege:' || value FROM AdminPrivilege)";
+            final Long count = (Long) session.createQuery(queryConfig).setParameter("id", userId).uniqueResult();
+            if (count != null && count > 0) {
+                this.isCheckUserPermissions = true;
+            } else {
+                this.isCheckUserPermissions = false;
+            }
+        } else {
+            this.isCheckUserPermissions = true;
+        }
     }
 
     /**
@@ -689,13 +711,21 @@ public class GraphTraversal {
      * @throws GraphException if the object could not be converted to an unloaded instance
      */
     private void noteDetails(CI object, ome.model.internal.Details objectDetails) throws GraphException {
-        final IObject objectInstance = object.toIObject();
+        IObject objectInstance = object.toIObject();
 
         if (planning.detailsNoted.put(object, objectDetails) != null) {
             return;
         }
 
-        if (!eventContext.isCurrentUserAdmin()) {
+        if (isCheckUserPermissions) {
+            /* BasicACLVoter needs to check fuller instances of some objects */
+            if (objectInstance instanceof OriginalFile) {
+                objectInstance = new OriginalFile(object.id, true);
+                final String query = "SELECT repo FROM OriginalFile WHERE id = :id";
+                final String repo = (String) session.createQuery(query).setLong("id", object.id).uniqueResult();
+                ((OriginalFile) objectInstance).setRepo(repo);
+            }
+
             /* allowLoad ensures that BasicEventContext.groupPermissionsMap is populated */
             aclVoter.allowLoad(session, objectInstance.getClass(), objectDetails, object.id);
 
@@ -712,7 +742,7 @@ public class GraphTraversal {
                 }
             }
             final Experimenter objectOwner = objectDetails.getOwner();
-            if (objectOwner != null && eventContext.getCurrentUserId().equals(objectOwner.getId())) {
+            if (objectOwner != null && (isOwnsAll || eventContext.getCurrentUserId().equals(objectOwner.getId()))) {
                 planning.owns.add(object);
             }
         }
@@ -1039,13 +1069,13 @@ public class GraphTraversal {
             final Action action = getAction(object);
             final Orphan orphan = action == Action.EXCLUDE ? getOrphan(object) : Orphan.IRRELEVANT;
 
-            if (eventContext.isCurrentUserAdmin()) {
-                details = new DetailsWithCI(object.toIObject(), ownerId, groupId, action, orphan, true, true, true, true, true);
-            } else {
+            if (isCheckUserPermissions) {
                 details = new DetailsWithCI(object.toIObject(), ownerId, groupId, action, orphan,
                         planning.mayUpdate.contains(object), planning.mayDelete.contains(object),
                         planning.mayChmod.contains(object), planning.owns.contains(object),
                         !planning.overrides.contains(object));
+            } else {
+                details = new DetailsWithCI(object.toIObject(), ownerId, groupId, action, orphan, true, true, true, true, true);
             }
 
             cache.put(object, details);
@@ -1164,7 +1194,7 @@ public class GraphTraversal {
                 /* probably just needs review */
                 planning.toProcess.add(instance);
             }
-            if (!(change.isCheckPermissions || eventContext.isCurrentUserAdmin())) {
+            if (isCheckUserPermissions && !change.isCheckPermissions) {
                 /* do not check the user's permissions on this object */
                 planning.overrides.add(instance);
             }
@@ -1254,15 +1284,16 @@ public class GraphTraversal {
     }
 
     /**
-     * Determine if the given {@link IObject} class is a system type as judged by {@link SystemTypes#isSystemType(Class)}.
+     * Determine if the given {@link IObject} class is the type of a job.
+     * The basic ACL voter wrongly asserts that normal users may not delete their own jobs.
      * @param className a class name
-     * @return if the class is a system type
+     * @return if the class is a job type
      * @throws GraphException if {@code className} does not name an accessible class
      */
-    private boolean isSystemType(String className) throws GraphException {
+    private boolean isJobType(String className) throws GraphException {
         try {
             final Class<? extends IObject> actualClass = (Class<? extends IObject>) Class.forName(className);
-            return systemTypes.isSystemType(actualClass);
+            return Job.class.isAssignableFrom(actualClass);
         } catch (ClassNotFoundException e) {
             throw new GraphException("no model object class named " + className);
         }
@@ -1277,10 +1308,10 @@ public class GraphTraversal {
      */
     private void assertMayBeProcessed(String className, Collection<Long> ids) throws GraphException {
         final Set<CI> objects = idsToCIs(className, ids);
-        if (!isSystemType(className)) {
+        if (!isJobType(className)) {
             assertPermissions(objects, processor.getRequiredPermissions());
         }
-        if (!eventContext.isCurrentUserAdmin()) {
+        if (isCheckUserPermissions) {
             for (final CI object : Sets.difference(objects, planning.overrides)) {
                 try {
                     processor.assertMayProcess(object.className, object.id, planning.detailsNoted.get(object));
@@ -1298,7 +1329,7 @@ public class GraphTraversal {
      * @throws GraphException if the user may not delete all of the objects
      */
     private void assertMayBeDeleted(String className, Collection<Long> ids) throws GraphException {
-        if (!isSystemType(className)) {
+        if (!isJobType(className)) {
             assertPermissions(idsToCIs(className, ids), Collections.singleton(Ability.DELETE));
         }
     }
@@ -1310,7 +1341,7 @@ public class GraphTraversal {
      * @throws GraphException if the user may not update all of the objects
      */
     private void assertMayBeUpdated(String className, Collection<Long> ids) throws GraphException {
-        if (!isSystemType(className)) {
+        if (!isJobType(className)) {
             assertPermissions(idsToCIs(className, ids), Collections.singleton(Ability.UPDATE));
         }
     }
@@ -1322,7 +1353,7 @@ public class GraphTraversal {
      * @throws GraphException if the user does not have all the abilities to operate upon all of the objects
      */
     private void assertPermissions(Set<CI> objects, Collection<GraphPolicy.Ability> abilities) throws GraphException {
-        if (abilities == null || eventContext.isCurrentUserAdmin()) {
+        if (abilities == null || !isCheckUserPermissions) {
             return;
         }
         objects = Sets.difference(objects, planning.overrides);
@@ -1631,5 +1662,17 @@ public class GraphTraversal {
             linkers.put(linker.className, linker.id);
         }
         return linkers;
+    }
+
+    @Deprecated
+    private boolean isOwnsAll = false;
+
+    /**
+     * Causes {@link Ability#OWN} to always be included among {@link Details#permissions}.
+     * @deprecated An ugly expedient hack that requires review and may be removed without notice.
+     */
+    @Deprecated
+    public void setOwnsAll() {
+        isOwnsAll = true;
     }
 }
