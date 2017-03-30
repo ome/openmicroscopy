@@ -467,7 +467,7 @@ public class BasicACLVoter implements ACLVoter {
                 if (cachedPrivileges != null) {
                     privileges = cachedPrivileges;
                 } else {
-                    log.warn("could not find session so not applying light administrator restrictions");
+                    log.debug("could not find session so not applying light administrator restrictions");
                     privileges = adminPrivileges.getAllPrivileges();
                 }
             } else {

@@ -152,7 +152,7 @@ public class BasicSecuritySystem implements SecuritySystem,
      * @param tokenHolder the token holder
      * @param filters the security filters
      * @param policyService the policy service
-     * @param aclVoter the ACL voter
+     * @param aclVoter the ACL voter, may be {@code null}
      */
     public BasicSecuritySystem(OmeroInterceptor interceptor,
             SystemTypes sysTypes, CurrentDetails cd,
@@ -550,6 +550,10 @@ public class BasicSecuritySystem implements SecuritySystem,
      * Note the light admin privileges for post-processing before the event context is invalidated.
      */
     public void noteAdminPrivileges() {
+        if (aclVoter == null) {
+            /* probably in pixel data or indexer thread */
+            return;
+        }
         final Parameters params = new Parameters().addId(cd.getCurrentEventContext().getCurrentSessionId());
         final String hql = "FROM Session s LEFT OUTER JOIN FETCH s.sudoer WHERE s.id = :id";
         final ome.model.meta.Session session = sf.getQueryService().findByQuery(hql, params);
