@@ -99,7 +99,21 @@ INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatc
 
 -- ... up to patch 0:
 
--- TODO
+INSERT INTO adminprivilege (id, permissions, value) SELECT ome_nextval('seq_adminprivilege'), -52, 'Chgrp';
+INSERT INTO adminprivilege (id, permissions, value) SELECT ome_nextval('seq_adminprivilege'), -52, 'Chown';
+INSERT INTO adminprivilege (id, permissions, value) SELECT ome_nextval('seq_adminprivilege'), -52, 'DeleteFile';
+INSERT INTO adminprivilege (id, permissions, value) SELECT ome_nextval('seq_adminprivilege'), -52, 'DeleteManagedRepo';
+INSERT INTO adminprivilege (id, permissions, value) SELECT ome_nextval('seq_adminprivilege'), -52, 'DeleteOwned';
+INSERT INTO adminprivilege (id, permissions, value) SELECT ome_nextval('seq_adminprivilege'), -52, 'DeleteScriptRepo';
+INSERT INTO adminprivilege (id, permissions, value) SELECT ome_nextval('seq_adminprivilege'), -52, 'ModifyGroup';
+INSERT INTO adminprivilege (id, permissions, value) SELECT ome_nextval('seq_adminprivilege'), -52, 'ModifyGroupMembership';
+INSERT INTO adminprivilege (id, permissions, value) SELECT ome_nextval('seq_adminprivilege'), -52, 'ModifyUser';
+INSERT INTO adminprivilege (id, permissions, value) SELECT ome_nextval('seq_adminprivilege'), -52, 'ReadSession';
+INSERT INTO adminprivilege (id, permissions, value) SELECT ome_nextval('seq_adminprivilege'), -52, 'Sudo';
+INSERT INTO adminprivilege (id, permissions, value) SELECT ome_nextval('seq_adminprivilege'), -52, 'WriteFile';
+INSERT INTO adminprivilege (id, permissions, value) SELECT ome_nextval('seq_adminprivilege'), -52, 'WriteManagedRepo';
+INSERT INTO adminprivilege (id, permissions, value) SELECT ome_nextval('seq_adminprivilege'), -52, 'WriteOwned';
+INSERT INTO adminprivilege (id, permissions, value) SELECT ome_nextval('seq_adminprivilege'), -52, 'WriteScriptRepo';
 
 
 --
