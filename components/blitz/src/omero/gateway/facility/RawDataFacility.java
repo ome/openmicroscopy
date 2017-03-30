@@ -187,19 +187,22 @@ public class RawDataFacility extends Facility implements AutoCloseable {
      * @throws DataSourceException
      *             If an error occurs while retrieving the plane data from the
      *             pixels source.
-     * @Deprecated Use getPlane(SecurityContext, PixelsData, z, t, c) instead
+     * @deprecated Use getPlane(SecurityContext, PixelsData, z, t, c) instead
      */
     @Deprecated
     public Plane2D getPlane(SecurityContext ctx, PixelsData pixels, int z,
             int t, int c, boolean close) throws DataSourceException {
         Plane2D data = null;
+        DataSink ds = null;
         try {
-            DataSink ds = getDataSink(ctx, pixels, gateway);
+            ds = getDataSink(ctx, pixels, gateway);
             data = ds.getPlane(z, t, c);
-            if (close)
-                ds.close();
         } catch (DSOutOfServiceException e) {
             throw new DataSourceException("Can't initiate DataSink", e);
+        }
+        finally {
+            if (close)
+                ds.close();
         }
         return data;
     }
