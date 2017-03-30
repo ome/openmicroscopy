@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -388,7 +388,8 @@ class BrowserModel
      */
     private double getBarSizeInPx(double ratio)
     {
-        if(unitBarLength == null)
+        if (unitBarLength == null
+                || !Double.isFinite(getPixelsSizeX().getValue()))
             return 1;
         
         try {
@@ -753,6 +754,10 @@ class BrowserModel
      */
     String getUnitBarValue()
     {
+        if (unitBarLength == null
+                || !Double.isFinite(getPixelsSizeX().getValue()))
+            return "1";
+        
     	return UIUtilities.twoDecimalPlaces(unitBarLength.getValue());
     }
     
@@ -761,6 +766,10 @@ class BrowserModel
      * @return See above.
      */
     String getUnitBarUnit() {
+        if (unitBarLength == null
+                || !Double.isFinite(getPixelsSizeX().getValue()))
+            return LengthI.lookupSymbol(UnitsLength.PIXEL);
+        
         return LengthI.lookupSymbol(unitBarLength.getUnit());
     }
     
