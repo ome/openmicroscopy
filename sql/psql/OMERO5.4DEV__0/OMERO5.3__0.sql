@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 release upgrade from OMERO5.3__0 to OMERO5.4DEV__0.
+--- OMERO5 development release upgrade from OMERO5.3__0 to OMERO5.4DEV__0.
 ---
 
 BEGIN;
