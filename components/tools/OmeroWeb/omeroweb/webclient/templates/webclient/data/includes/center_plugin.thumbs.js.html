@@ -165,7 +165,7 @@ $(document).ready(function() {
             parentNode = inst.get_node(inst.get_parent(selected[0]));
         } else if (dtype === "plate" || dtype === "acquisition") {
             parentId = undefined;
-            clearThumbnailsPanel();
+            console.log(dtype, event, data);
             load_spw(event, data);
             return;
         // All other types have blank centre panel
@@ -788,7 +788,7 @@ $(document).ready(function() {
             });
         }
 
-        if (event.type === 'changed' || event.type === 'center_plugin_changed.ome') {
+        // if (event.type === 'changed' || event.type === 'center_plugin_changed.ome') {
             // If the containerNode is the current container then this is
             // a selection change within the container or a pagination/field
             // change
@@ -829,34 +829,34 @@ $(document).ready(function() {
             loadThumbnailsPanel(containerNode, nodePage, nodeField);
             return;
 
-        } else if (event.type === 'move_node') {
-            // The only relevant update is if a node has been added or removed
-            // from the currently displayed container, however, if this was a
-            // move of a selected image, the containerNode will be wrong as it
-            // points to the old location of the node
+        // } else if (event.type === 'move_node') {
+        //     // The only relevant update is if a node has been added or removed
+        //     // from the currently displayed container, however, if this was a
+        //     // move of a selected image, the containerNode will be wrong as it
+        //     // points to the old location of the node
 
-            var node = inst.get_node(data.node);
-            var parent = inst.get_node(data.parent);
-            var old_parent = inst.get_node(data.old_parent);
+        //     var node = inst.get_node(data.node);
+        //     var parent = inst.get_node(data.parent);
+        //     var old_parent = inst.get_node(data.old_parent);
 
-            // It is also possible that the moved node was the displayed container itself,
-            // but not an image
-            if (inst.is_selected(node)) {
-                // Update the contentDetails with this node
-                setThumbnailsPanel(node.type, node.data.obj.id, inst.get_omepath(node));
-                // And make the containerNode this node straight away
-                containerNode = node;
-            }
+        //     // It is also possible that the moved node was the displayed container itself,
+        //     // but not an image
+        //     if (inst.is_selected(node)) {
+        //         // Update the contentDetails with this node
+        //         setThumbnailsPanel(node.type, node.data.obj.id, inst.get_omepath(node));
+        //         // And make the containerNode this node straight away
+        //         containerNode = node;
+        //     }
 
-            // Is the moved node in the displayed container?
-            if (containerNode === parent && containerNode === old_parent) {
-                // Do nothing as it was reordered only
-            } else if (containerNode === parent) {
-                // Reload thumbnails
-                loadThumbnailsPanel(containerNode, getPageOr1(inst, containerNode), getfieldOr0(inst, containerNode));
-            }
+        //     // Is the moved node in the displayed container?
+        //     if (containerNode === parent && containerNode === old_parent) {
+        //         // Do nothing as it was reordered only
+        //     } else if (containerNode === parent) {
+        //         // Reload thumbnails
+        //         loadThumbnailsPanel(containerNode, getPageOr1(inst, containerNode), getfieldOr0(inst, containerNode));
+        //     }
 
-        }
+        // }
     };
 
         // Load the thumbnails (Will wait until there are no new requests
