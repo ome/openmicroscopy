@@ -1367,7 +1367,8 @@ class ImViewerModel
         if (getPixelsData() == null)
             return false;
 
-        long imgSize = (long)getPixelsData().getSizeX() * (long)getPixelsData().getSizeY();
+        long imgSize = (long) (getPixelsData().getSizeX() * getZoomFactor())
+                * (long) (getPixelsData().getSizeY() * getZoomFactor());
         long maxSize = DEFAULT_MAX_EXPORT_SIZE;
         String tmp = (String) ImViewerAgent.getRegistry().lookup(
                 LookupNames.MAX_EXPORT_SIZE);
