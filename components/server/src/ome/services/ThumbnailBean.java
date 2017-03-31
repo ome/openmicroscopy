@@ -1007,8 +1007,11 @@ public class ThumbnailBean extends AbstractLevel2Service
     private Map<Long, byte[]> retrieveThumbnailSet(Set<Long> pixelsIds)
     {
         // Our return value HashMap
-        Map<Long, byte[]> toReturn = new HashMap<Long, byte[]>();
+        final Map<Long, byte[]> toReturn = new HashMap<Long, byte[]>();
 
+        new PerGroupActor(applicationContext, iQuery, -1) {
+            @Override
+            protected void actOnOneGroup(Set<Long> pixelsIds) {
         List<Thumbnail> toSave = new ArrayList<Thumbnail>();
         for (Long pixelsId : pixelsIds)
         {
@@ -1076,6 +1079,8 @@ public class ThumbnailBean extends AbstractLevel2Service
         // around in the Hibernate session cache.
         iQuery.clear();
         iUpdate.flush();
+            }
+        }.actOnByGroup(pixelsIds);
         return toReturn;
     }
 
