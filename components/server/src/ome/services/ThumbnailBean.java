@@ -865,7 +865,9 @@ public class ThumbnailBean extends AbstractLevel2Service
                 try {
                     applicationContext.publishMessage(new ContextMessage.Push(this, groupContext));
                 } catch (Throwable t) {
-                    log.error("could not publish context change push", t);
+                    final String errorMessage = "could not publish context change push";
+                    log.error(errorMessage, t);
+                    throw new InternalException(errorMessage + ": " + t);
                 }
                 if (rndOwnerId.equals(ownerId)) {
                     final Pixels unloadedPixels = new Pixels(pixels.getId(), false);
@@ -885,7 +887,9 @@ public class ThumbnailBean extends AbstractLevel2Service
                 try {
                     applicationContext.publishMessage(new ContextMessage.Pop(this, groupContext));
                 } catch (Throwable t) {
-                    log.error("could not publish context change pop", t);
+                    final String errorMessage = "could not publish context change pop";
+                    log.error(errorMessage, t);
+                    throw new InternalException(errorMessage + ": " + t);
                 }
             }
         }
