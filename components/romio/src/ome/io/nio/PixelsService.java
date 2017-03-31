@@ -261,7 +261,7 @@ public class PixelsService extends AbstractFileSystemService
             final PixelsPyramidMinMaxStore minMaxStore =
                 new PixelsPyramidMinMaxStore(pixels.getSizeC());
             BfPixelBuffer bfPixelBuffer = createMinMaxBfPixelBuffer(
-                    originalFilePath, series, minMaxStore, failIfMissing);
+                    originalFilePath, series, minMaxStore);
 
             try
             {
@@ -359,7 +359,7 @@ public class PixelsService extends AbstractFileSystemService
             minMaxStore = new PixelsPyramidMinMaxStore(pixels.getSizeC());
             int series = getSeries(pixels);
             BfPixelBuffer bfPixelBuffer = createMinMaxBfPixelBuffer(
-                    originalFilePath, series, minMaxStore, failIfMissing);
+                    originalFilePath, series, minMaxStore);
             pixelsPyramid.setByteOrder(
                     bfPixelBuffer.isLittleEndian()? ByteOrder.LITTLE_ENDIAN
                             : ByteOrder.BIG_ENDIAN);
@@ -500,13 +500,7 @@ public class PixelsService extends AbstractFileSystemService
      */
     public PixelBuffer getPixelBuffer(Pixels pixels, boolean write)
     {
-        return getPixelBuffer(pixels, write, failIfMissing);
-    }
-
-    public PixelBuffer getPixelBuffer(Pixels pixels, boolean write,
-            boolean failIfMissing)
-    {
-        PixelBuffer pb = _getPixelBuffer(pixels, write, failIfMissing);
+        PixelBuffer pb = _getPixelBuffer(pixels, write);
         if (log.isDebugEnabled()) {
             log.debug(pb +" for " + pixels);
         }
@@ -514,12 +508,6 @@ public class PixelsService extends AbstractFileSystemService
     }
 
     public PixelBuffer _getPixelBuffer(Pixels pixels, boolean write)
-    {
-        return _getPixelBuffer(pixels, write, failIfMissing);
-    }
-
-    public PixelBuffer _getPixelBuffer(Pixels pixels, boolean write,
-            boolean failIfMissing)
     {
         final String originalFilePath = getOriginalFilePath(pixels);
         final boolean requirePyramid = requiresPixelsPyramid(pixels);
@@ -548,7 +536,7 @@ public class PixelsService extends AbstractFileSystemService
                 if (originalFilePath != null) {
                     int series = getSeries(pixels);
                     PixelBuffer bfPixelBuffer = createBfPixelBuffer(
-                            originalFilePath, series, failIfMissing);
+                            originalFilePath, series);
                     if (bfPixelBuffer.getResolutionLevels() > 1) {
                         return bfPixelBuffer;
                     }
@@ -594,7 +582,7 @@ public class PixelsService extends AbstractFileSystemService
             } else {
                 if (originalFilePath != null) {
                     int series = getSeries(pixels);
-                    return createBfPixelBuffer(originalFilePath, series, failIfMissing);
+                    return createBfPixelBuffer(originalFilePath, series);
                 }
                 if (!write) {
                     throw new LockTimeout("Import in progress.", 15*1000, 0);
@@ -750,14 +738,6 @@ public class PixelsService extends AbstractFileSystemService
         backOff.throwMissingPyramidException(msg, pixels);
     }
 
-    @Deprecated
-    protected BfPixelBuffer createMinMaxBfPixelBuffer(final String filePath,
-                                                      final int series,
-                                                      final IMinMaxStore store)
-    {
-        return createMinMaxBfPixelBuffer(filePath, series, store, failIfMissing);
-    }
-
     /**
      * Helper method to properly log any exceptions raised by Bio-Formats and
      * add a min/max calculator wrapper to the reader stack.
@@ -767,12 +747,11 @@ public class PixelsService extends AbstractFileSystemService
      */
     protected BfPixelBuffer createMinMaxBfPixelBuffer(final String filePath,
                                                       final int series,
-                                                      final IMinMaxStore store,
-                                                      final boolean failIfMissing)
+                                                      final IMinMaxStore store)
     {
         try
         {
-            IFormatReader reader = createBfReader(failIfMissing);
+            IFormatReader reader = createBfReader();
             MinMaxCalculator calculator = new MinMaxCalculator(reader);
             calculator.setMinMaxStore(store);
             BfPixelBuffer pixelBuffer = new BfPixelBuffer(filePath, calculator);
@@ -790,11 +769,6 @@ public class PixelsService extends AbstractFileSystemService
     }
 
 
-    @Deprecated
-    public IFormatReader getBfReader(Pixels pixels) throws FormatException, IOException {
-        return getBfReader(pixels, failIfMissing);
-    }
-
     /**
      * Short-cut in the FS case where we know that we are dealing with a FS-lite
      * file, and want to retrieve the actual file as opposed to a pyramid or anything
@@ -802,26 +776,21 @@ public class PixelsService extends AbstractFileSystemService
      * @throws FormatException
      * @throws IOException
      */
-    public IFormatReader getBfReader(Pixels pixels, boolean failIfMissing) throws FormatException, IOException {
+    public IFormatReader getBfReader(Pixels pixels) throws FormatException, IOException {
         // from getPixelBuffer
         final String originalFilePath = getOriginalFilePath(pixels);
         final int series = getSeries(pixels);
-        final IFormatReader reader = createBfReader(failIfMissing);
+        final IFormatReader reader = createBfReader();
         reader.setId(originalFilePath); // Called by BfPixelsBuffer elsewhere.
         reader.setSeries(series);
         return reader;
-    }
-
-    @Deprecated
-    protected IFormatReader createBfReader() {
-        return createBfReader(this.failIfMissing);
     }
 
     /**
      * Create an {@link IFormatReader} with the appropriate {@link loci.formats.ReaderWrapper}
      * instances and {@link IFormatReader#setFlattenedResolutions(boolean)} set to false.
      */
-    protected IFormatReader createBfReader(boolean failIfMissing) {
+    protected IFormatReader createBfReader() {
         IFormatReader reader = new ImageReader();
         reader = new ChannelFiller(reader);
         reader = new ChannelSeparator(reader);
@@ -833,12 +802,6 @@ public class PixelsService extends AbstractFileSystemService
         return reader;
     }
 
-    @Deprecated
-    protected BfPixelBuffer createBfPixelBuffer(final String filePath,
-                                              final int series) {
-        return createBfPixelBuffer(filePath, series, failIfMissing);
-    }
-
     /**
      * Helper method to properly log any exceptions raised by Bio-Formats.
      * @param filePath Non-null.
@@ -846,11 +809,10 @@ public class PixelsService extends AbstractFileSystemService
      * @return the initialized {@link BfPixelBuffer}
      */
     protected BfPixelBuffer createBfPixelBuffer(final String filePath,
-                                              final int series,
-                                              final boolean failIfMissing) {
+                                              final int series) {
         try
         {
-            IFormatReader reader = createBfReader(failIfMissing);
+            IFormatReader reader = createBfReader();
             BfPixelBuffer pixelBuffer = new BfPixelBuffer(filePath, reader);
             pixelBuffer.setSeries(series);
             log.info(String.format("Creating BfPixelBuffer: %s Series: %d",

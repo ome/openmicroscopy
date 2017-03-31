@@ -12,8 +12,6 @@ package ome.security;
 // Third-party libraries
 
 // Application-internal dependencies
-import java.util.Map;
-
 import ome.conditions.ApiUsageException;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
@@ -338,13 +336,5 @@ public interface SecuritySystem {
     // ~ Configured Elements
     // =========================================================================
     Roles getSecurityRoles();
-
-    /**
-     * Provide access to the underlying call context, key-value pairs provided
-     * by remote callers.
-     *
-     * @return never null
-     */
-    Map<String, String> getCallContext();
 
 }

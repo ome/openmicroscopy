@@ -7,9 +7,6 @@
 
 package ome.security.sharing;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import ome.conditions.ApiUsageException;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
@@ -67,10 +64,6 @@ public class SharingSecuritySystem implements SecuritySystem {
     public void enable(String... ids) {
         // TODO Auto-generated method stub
 
-    }
-
-    public Map<String, String> getCallContext() {
-        return new HashMap<String, String>();
     }
 
     public EventContext getEventContext() {

@@ -5,8 +5,6 @@
 
 package ome.security;
 
-import java.util.Map;
-
 import ome.conditions.ApiUsageException;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
@@ -78,10 +76,6 @@ public class SecuritySystemHolder implements SecuritySystem {
 
     public void enable(String... ids) {
         choose().enable(ids);
-    }
-
-    public Map<String, String> getCallContext() {
-        return choose().getCallContext();
     }
 
     public EventContext getEventContext() {
