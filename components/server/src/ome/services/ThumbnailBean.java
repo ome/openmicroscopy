@@ -1012,73 +1012,56 @@ public class ThumbnailBean extends AbstractLevel2Service
         new PerGroupActor(applicationContext, iQuery, -1) {
             @Override
             protected void actOnOneGroup(Set<Long> pixelsIds) {
-        List<Thumbnail> toSave = new ArrayList<Thumbnail>();
-        for (Long pixelsId : pixelsIds)
-        {
-            // Ensure that the renderer has been made dirty otherwise the
-            // same renderer will be used to return all thumbnails with dirty
-            // metadata. (See #2075).
-            resetMetadata();
-            try
-            {
-                if (!ctx.hasSettings(pixelsId))
-                {
-                    try
-                    {
-                        pixelDataService.getPixelBuffer(
-                                ctx.getPixels(pixelsId), false);
-                        continue;  // No exception, not an in progress image
-                    }
-                    catch (ConcurrencyException e)
-                    {
-                        log.debug("ConcurrencyException on " +
-                                 "retrieveThumbnailSet.ctx.hasSettings: " +
-                                 "pyramid in progress");
-                        inProgress = true;
-                    }
-                }
-                pixels = ctx.getPixels(pixelsId);
-                pixelsId = pixels.getId();
-                settings = ctx.getSettings(pixelsId);
-                thumbnailMetadata = ctx.getMetadata(pixelsId);
-                if (inProgress && !PROGRESS_VERSION.equals(thumbnailMetadata.getVersion())) {
-                    thumbnailMetadata.setVersion(PROGRESS_VERSION);
-                    dirtyMetadata = true;
-                }
-                try
-                {
-                    // At this point, we're sure that we have a thumbnail obj
-                    // that we want to use, but retrieveThumbnail likes to
-                    // re-generate. For the moment, we're saving and restoring
-                    // that value to prevent creating a new one.
-                    byte[] thumbnail = retrieveThumbnail(false);
-                    toReturn.put(pixelsId, thumbnail);
-                    if (dirtyMetadata)
-                    {
-                        toSave.add(thumbnailMetadata);
+                final List<Thumbnail> toSave = new ArrayList<Thumbnail>();
+                for (final Long pixelsId : pixelsIds) {
+                    // Ensure that the renderer has been made dirty otherwise the
+                    // same renderer will be used to return all thumbnails with dirty
+                    // metadata. (See #2075).
+                    resetMetadata();
+                    try {
+                        if (!ctx.hasSettings(pixelsId)) {
+                            try {
+                                pixelDataService.getPixelBuffer(ctx.getPixels(pixelsId), false);
+                                continue;  // No exception, not an in-progress image
+                            } catch (ConcurrencyException e) {
+                                log.debug("ConcurrencyException on retrieveThumbnailSet.ctx.hasSettings: pyramid in progress");
+                                inProgress = true;
+                            }
+                        }
+                        pixels = ctx.getPixels(pixelsId);
+                        settings = ctx.getSettings(pixelsId);
+                        thumbnailMetadata = ctx.getMetadata(pixelsId);
+                        if (inProgress && !PROGRESS_VERSION.equals(thumbnailMetadata.getVersion())) {
+                            thumbnailMetadata.setVersion(PROGRESS_VERSION);
+                            dirtyMetadata = true;
+                        }
+                        try {
+                            // At this point, we're sure that we have a thumbnail obj
+                            // that we want to use, but retrieveThumbnail likes to
+                            // re-generate. For the moment, we're saving and restoring
+                            // that value to prevent creating a new one.
+                            final byte[] thumbnail = retrieveThumbnail(false);
+                            toReturn.put(pixelsId, thumbnail);
+                            if (dirtyMetadata) {
+                                toSave.add(thumbnailMetadata);
+                            }
+                        } finally {
+                            dirtyMetadata = false;
+                        }
+                    } catch (Throwable t) {
+                        log.warn("Retrieving thumbnail in set for " + "Pixels ID " + pixelsId + " failed.", t);
+                        toReturn.put(pixelsId, null);
                     }
                 }
-                finally
-                {
-                    dirtyMetadata = false;
-                }
-            }
-            catch (Throwable t)
-            {
-                log.warn("Retrieving thumbnail in set for " +
-                        "Pixels ID " + pixelsId + " failed.", t);
-                toReturn.put(pixelsId, null);
-            }
-        }
-        // We're doing the update or creation and save as a two step
-        // process due to the possible unloaded Pixels. If we do not,
-        // Pixels will be unloaded and we will hit
-        // IllegalStateException's when checking update events.
-        iUpdate.saveArray(toSave.toArray(new Thumbnail[toSave.size()]));
-        // Ensure that we do not have "dirty" pixels or rendering settings left
-        // around in the Hibernate session cache.
-        iQuery.clear();
-        iUpdate.flush();
+                // We're doing the update or creation and save as a two-step
+                // process due to the possible unloaded Pixels. If we do not,
+                // Pixels will be unloaded and we will hit
+                // IllegalStateException's when checking update events.
+                iUpdate.saveArray(toSave.toArray(new Thumbnail[toSave.size()]));
+                // Ensure that we do not have "dirty" pixels or rendering settings left
+                // around in the Hibernate session cache.
+                iQuery.clear();
+                iUpdate.flush();
             }
         }.actOnByGroup(pixelsIds);
         return toReturn;
