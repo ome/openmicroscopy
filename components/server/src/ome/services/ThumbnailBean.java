@@ -1009,7 +1009,7 @@ public class ThumbnailBean extends AbstractLevel2Service
         // Our return value HashMap
         final Map<Long, byte[]> toReturn = new HashMap<Long, byte[]>();
 
-        new PerGroupActor(applicationContext, iQuery, -1) {
+        new PerGroupActor(applicationContext, iQuery, null) {
             @Override
             protected void actOnOneGroup(Set<Long> pixelsIds) {
                 final List<Thumbnail> toSave = new ArrayList<Thumbnail>();

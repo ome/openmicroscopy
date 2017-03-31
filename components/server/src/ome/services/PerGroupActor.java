@@ -47,15 +47,15 @@ abstract class PerGroupActor {
 
     private final OmeroContext applicationContext;
     private final IQuery queryService;
-    private final long currentGroupId;
+    private final Long currentGroupId;
 
     /**
      * Create a new per-group actor.
      * @param applicationContext the OMERO application context
      * @param queryService the query service for retrieving the pixels' groups
-     * @param currentGroupId the current group ID, may be {@code -1}
+     * @param currentGroupId the current group ID, may be {@code null}
      */
-    PerGroupActor(OmeroContext applicationContext, IQuery queryService, long currentGroupId) {
+    PerGroupActor(OmeroContext applicationContext, IQuery queryService, Long currentGroupId) {
         this.applicationContext = applicationContext;
         this.queryService = queryService;
         this.currentGroupId = currentGroupId;
@@ -77,7 +77,7 @@ abstract class PerGroupActor {
             pixelsByGroup.put(groupId, pixelsId);
         }
         for (final Map.Entry<Long, Collection<Long>> pixelsOneGroup : pixelsByGroup.asMap().entrySet()) {
-            final long groupId = pixelsOneGroup.getKey();
+            final Long groupId = pixelsOneGroup.getKey();
             if (groupId == currentGroupId) {
                 actOnOneGroup((Set<Long>) pixelsOneGroup.getValue());
             } else {
