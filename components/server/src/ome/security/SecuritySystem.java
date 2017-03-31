@@ -7,6 +7,11 @@
 
 package ome.security;
 
+// Java imports
+
+// Third-party libraries
+
+// Application-internal dependencies
 import java.util.Map;
 
 import ome.conditions.ApiUsageException;
