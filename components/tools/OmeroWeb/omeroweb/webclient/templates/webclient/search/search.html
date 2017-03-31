@@ -220,7 +220,7 @@
 	
 	<div class="left_panel_inner">
 	    
-		<form id="searching_form" class="standard_form" action="{% url 'load_searching' 'form' %}">{% csrf_token %}
+		<form id="searching_form" class="standard_form" action="{% url 'load_searching' 'form' %}">
 					
 					<h2>{% trans "General Search" %}</h2>
 
@@ -308,9 +308,9 @@
 
                         <!-- when 'All Groups' - can choose 'Me' or 'All users' -->
                         <select name="ownedBy" id="searchByGroupMember--1">
-                            <option value="-1">All Users</option>
+                            <option value="-1" selected="selected">All Users</option>
                             {% for user in myColleagues %}}
-                                <option value="{{ user.id }}" {% ifequal user.id ome.user.id %}selected="selected"{% endifequal %}>
+                                <option value="{{ user.id }}">
                                     {{ user.getFullName|truncateafter:"50" }}
                                 </option>
                             {% endfor %}
@@ -319,14 +319,14 @@
                         <!-- for each group we can choose users - only show <select> for 1 group at a time -->
                         {% for grp in groups %}
                         <select name="ownedBy" id="searchByGroupMember-{{ grp.id }}">
-                            <option value="-1">All Members</option>
+                            <option value="-1" selected="selected">All Members</option>
                             {% for user in grp.leaders %}}
-                                <option value="{{ user.id }}" {% ifequal user.id ome.user.id %}selected="selected"{% endifequal %}>
+                                <option value="{{ user.id }}">
                                     {{ user.getFullName|truncateafter:"50" }}
                                 </option>
                             {% endfor %}
                             {% for user in grp.colleagues %}}
-                                <option value="{{ user.id }}" {% ifequal user.id ome.user.id %}selected="selected"{% endifequal %}>
+                                <option value="{{ user.id }}">
                                     {{ user.getFullName|truncateafter:"50" }}
                                 </option>
                             {% endfor %}

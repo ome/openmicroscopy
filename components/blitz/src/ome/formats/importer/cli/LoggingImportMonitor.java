@@ -304,5 +304,38 @@ public class LoggingImportMonitor implements IObserver
 
             otherImportedObjects(ev.fileset.getId().getValue(), collect, kls);
         }
+
+        /**
+         * Displays a yaml description of the successfully imported Images
+         * and other objects to standard output.
+         *
+         * Note that this behavior is intended for other command line tools to
+         * pipe/grep the import results, and should be kept as is.
+         *
+         * @param ev the end of import event.
+         */
+        void outputYamlResults(IMPORT_DONE ev) {
+            System.err.println("Imported objects:");
+            System.out.println("---");
+            System.out.println("- Fileset: " + ev.fileset.getId().getValue());
+            ListMultimap<String, Long> collect = ArrayListMultimap.create();
+            for (IObject object : ev.objects) {
+                if (object != null && object.getId() != null) {
+                    String kls = object.getClass().getSimpleName();
+                    if (kls.endsWith("I")) {
+                        kls = kls.substring(0,kls.length()-1);
+                    }
+                    collect.put(kls, object.getId().getValue());
+                }
+            }
+            for (String kls : collect.keySet()) {
+                List<Long> ids = collect.get(kls);
+                System.out.print("  ");
+                System.out.print(kls);
+                System.out.print(": [");
+                System.out.print(Joiner.on(",").join(ids));
+                System.out.println("]");
+            }
+        }
     }
 }

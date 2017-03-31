@@ -22,13 +22,12 @@
 """
 
 import json
+from omero.testlib import ITest
 
 from django.test import Client
 from django.test.client import MULTIPART_CONTENT
 from django.core.urlresolvers import reverse
 from urllib import urlencode
-
-from omero.testlib import ITest
 
 
 class IWebTest(ITest):
@@ -153,7 +152,6 @@ def _csrf_post_json(django_client, request_url, data,
                              status_code=status_code,
                              content_type=content_type,
                              **extra)
-    print rsp
     assert rsp.status_code == status_code
     assert rsp.get('Content-Type') == 'application/json'
     return json.loads(rsp.content)
@@ -167,7 +165,6 @@ def _csrf_put_json(django_client, request_url, data,
     rsp = django_client.put(request_url, json.dumps(data),
                             status_code=status_code, content_type=content_type,
                             **extra)
-    print rsp
     assert rsp.status_code == status_code
     assert rsp.get('Content-Type') == 'application/json'
     return json.loads(rsp.content)

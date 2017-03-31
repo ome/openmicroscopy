@@ -301,6 +301,7 @@ public class FullText extends SearchAction {
         ftQuery
         .setProjection(ProjectionConstants.SCORE,
                 ProjectionConstants.ID);
+        ftQuery.setMaxResults(500);
     }
 
     @Transactional(readOnly = true)

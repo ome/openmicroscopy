@@ -40,7 +40,7 @@ import Glacier2
 import omero
 import omero.gateway
 from omero_version import omero_version
-
+from collections import defaultdict
 from omero.cmd import DoAll, State, ERR, OK, Chmod2, Chgrp2, Delete2
 from omero.callbacks import CmdCallbackI
 from omero.model import DatasetI, DatasetImageLinkI, ImageI, ProjectI
@@ -350,14 +350,14 @@ class ITest(object):
         return images
 
     def import_plates(self, client=None, plates=1, plate_acqs=1, plate_cols=1,
-                      plate_rows=1, fields=1, **kwargs):
+                      plate_rows=1, fields=1, screens=0, **kwargs):
         """
         Creates fake plates and imports them.
         """
-
         if client is None:
             client = self.client
 
+        kwargs["screens"] = screens
         kwargs["plates"] = plates
         kwargs["plateAcqs"] = plate_acqs
         kwargs["plateCols"] = plate_cols
@@ -465,7 +465,6 @@ class ITest(object):
             try:
                 s = tb.getThumbnailByLongestSideSet(rint(16), [pixels_id])
                 assert s[pixels_id] != ''
-
             finally:
                 tb.close()
 
@@ -979,7 +978,6 @@ class ITest(object):
             ofile = store.save()  # See ticket:1501
         finally:
             store.close()
-
         fa = FileAnnotationI()
         fa.setFile(ofile)
         if namespace is not None:
@@ -1025,27 +1023,20 @@ class ITest(object):
             link.setChild(obj2.proxy())
         return client.sf.getUpdateService().saveAndReturnObject(link)
 
-    def delete(self, obj):
+    def delete(self, objs):
         """
-        Deletes a list of model entities (ProjectI, DatasetI or ImageI)
+        Deletes model entities (ProjectI, DatasetI, ImageI, etc)
         by creating Delete2 commands and calling
         :func:`~test.ITest.do_submit`.
 
         :param obj: a list of objects to be deleted
         """
-        if isinstance(obj[0], ProjectI):
-            t = "Project"
-        elif isinstance(obj[0], DatasetI):
-            t = "Dataset"
-        elif isinstance(obj[0], ImageI):
-            t = "Image"
-        else:
-            assert False, "Object type not supported."
-
-        ids = [i.id.val for i in obj]
-        command = Delete2(targetObjects={t: ids})
-
-        self.do_submit(command, self.client)
+        to_delete = defaultdict(list)
+        for obj in objs:
+            t = obj.__class__.__name__
+            to_delete[t].append(obj.id.val)
+        command = Delete2(targetObjects=to_delete)
+        self.doSubmit(command, self.client)
 
     def change_group(self, obj, target, client=None):
         """
@@ -1219,10 +1210,82 @@ class AbstractRepoTest(ITest):
         finally:
             rfs.close()
 
+    def assertWrite(self, mrepo2, filename, ofile):
+        def _write(rfs):
+            try:
+                rfs.write("bye", 0, 3)
+                assert "bye" == rfs.read(0, 3)
+                # Resetting for other expectations
+                rfs.truncate(2)
+                rfs.write("hi", 0, 2)
+                assert "hi" == rfs.read(0, 2)
+            finally:
+                rfs.close()
+
+        # TODO: fileById is always "r"
+        # rfs = mrepo2.fileById(ofile.id.val)
+        # _write(rfs)
+
+        rfs = mrepo2.file(filename, "rw")
+        _write(rfs)
+
+    def assertNoWrite(self, mrepo2, filename, ofile):
+        def _nowrite(rfs):
+            try:
+                pytest.raises(omero.SecurityViolation,
+                              rfs.write, "bye", 0, 3)
+                assert "hi" == rfs.read(0, 2)
+            finally:
+                rfs.close()
+
+        rfs = mrepo2.fileById(ofile.id.val)
+        _nowrite(rfs)
+
+        rfs = mrepo2.file(filename, "r")
+        _nowrite(rfs)
+
+        # Can't even acquire a writeable-rfs.
+        pytest.raises(omero.SecurityViolation,
+                      mrepo2.file, filename, "rw")
+
+    def assertDirWrite(self, mrepo2, dirname):
+        self.createFile(mrepo2, dirname + "/file2.txt")
+
+    def assertNoDirWrite(self, mrepo2, dirname):
+        # Also check that it's not possible to write
+        # in someone else's directory.
+        pytest.raises(omero.SecurityViolation,
+                      self.createFile, mrepo2, dirname + "/file2.txt")
+
+    def assertNoRead(self, mrepo2, filename, ofile):
+        pytest.raises(omero.SecurityViolation,
+                      mrepo2.fileById, ofile.id.val)
+        pytest.raises(omero.SecurityViolation,
+                      mrepo2.file, filename, "r")
+
+    def assertRead(self, mrepo2, filename, ofile, ctx=None):
+        def _read(rfs):
+            try:
+                assert "hi" == rfs.read(0, 2)
+            finally:
+                rfs.close()
+
+        rfs = mrepo2.fileById(ofile.id.val, ctx)
+        _read(rfs)
+
+        rfs = mrepo2.file(filename, "r", ctx)
+        _read(rfs)
+
+    def assertListings(self, mrepo1, unique_dir):
+        assert [unique_dir + "/b"] == mrepo1.list(unique_dir + "/")
+        assert [unique_dir + "/b/c"] == mrepo1.list(unique_dir + "/b/")
+        assert [
+            unique_dir + "/b/c/file.txt"] == mrepo1.list(unique_dir + "/b/c/")
+
     def raw(self, command, args, client=None):
         if client is None:
             client = self.client
-        mrepo = self.get_managed_repo(self.client)
+        mrepo = self.getManagedRepo(self.client)
         obj = mrepo.root()
         sha = obj.hash.val
         raw_access = omero.grid.RawAccessRequest()
@@ -1231,6 +1294,18 @@ class AbstractRepoTest(ITest):
         raw_access.args = args
         handle = client.sf.submit(raw_access)
         return CmdCallbackI(client, handle)
+
+    def assertPasses(self, cb, loops=10, wait=500):
+        cb.loop(loops, wait)
+        rsp = cb.getResponse()
+        if isinstance(rsp, omero.cmd.ERR):
+            raise Exception(rsp)
+        return rsp
+
+    def assertError(self, cb, loops=10, wait=500):
+        cb.loop(loops, wait)
+        rsp = cb.getResponse()
+        assert isinstance(rsp, omero.cmd.ERR)
 
     def create_test_dir(self):
         folder = create_path(folder=True)

@@ -269,7 +269,6 @@ webgateway_plategrid_json = url(
 """
 """
 
-
 webgateway_get_thumbnails_json = url(
     r'^get_thumbnails/(?:(?P<w>[0-9]+)/)?$',
     'webgateway.views.get_thumbnails_json')

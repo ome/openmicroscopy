@@ -52,6 +52,7 @@ from omero import ApiUsageException
 from omero.util.decorators import timeit, TimeIt
 from omeroweb.http import HttpJavascriptResponse, \
     HttpJavascriptResponseServerError
+from omeroweb.connector import Server
 
 import glob
 
@@ -1517,7 +1518,6 @@ def get_thumbnail_json(request, iid, w=None, h=None, conn=None, _defcb=None,
     """
     Returns an HttpResponse base64 encoded jpeg with the rendered thumbnail
     for image 'iid'
-
     @param request:     http request
     @param iid:         Image ID
     @param w:           Thumbnail max width. 96 by default
@@ -2169,6 +2169,9 @@ def full_viewer(request, iid, conn=None, **kwargs):
     @return:            html page of image and metadata
     """
 
+    server_id = request.session['connector'].server_id
+    server_name = Server.get(server_id).server
+
     rid = getImgDetailsFromReq(request)
     server_settings = request.session.get('server_settings', {}) \
                                      .get('viewer', {})
@@ -2180,6 +2183,35 @@ def full_viewer(request, iid, conn=None, **kwargs):
         if image is None:
             logger.debug("(a)Image %s not found..." % (str(iid)))
             raise Http404
+
+        opengraph = None
+        twitter = None
+        image_preview = None
+        page_url = None
+
+        if hasattr(settings, 'SHARING_OPENGRAPH'):
+            opengraph = settings.SHARING_OPENGRAPH.get(server_name)
+            logger.debug('Open Graph enabled: %s', opengraph)
+
+        if hasattr(settings, 'SHARING_TWITTER'):
+            twitter = settings.SHARING_TWITTER.get(server_name)
+            logger.debug('Twitter enabled: %s', twitter)
+
+        if opengraph or twitter:
+            prefix = kwargs.get(
+                'thumbprefix', 'webgateway.views.render_thumbnail')
+
+            def reverse_urlprefix(p, iid):
+                r = reverse(p, args=(iid,))
+                if settings.WEB_EXTERNAL_LINK_BASEURL:
+                    return "%s%s" % (
+                        settings.WEB_EXTERNAL_LINK_BASEURL, r)
+                else:
+                    return request.build_absolute_uri(r)
+
+            image_preview = reverse_urlprefix(prefix, iid)
+            page_url = reverse_urlprefix('webgateway.views.full_viewer', iid)
+
         d = {'blitzcon': conn,
              'image': image,
              'opts': rid,
@@ -2190,6 +2222,11 @@ def full_viewer(request, iid, conn=None, **kwargs):
              'viewport_server': kwargs.get(
                  # remove any trailing slash
                  'viewport_server', reverse('webgateway')).rstrip('/'),
+
+             'opengraph': opengraph,
+             'twitter': twitter,
+             'image_preview': image_preview,
+             'page_url': page_url,
 
              'object': 'image:%i' % int(iid)}
 
@@ -2684,8 +2721,20 @@ def _table_query(request, fileid, conn=None, **kwargs):
         except Exception:
             return dict(error='Error executing query: %s' % query)
 
+    colDescriptions = []
+    for col in cols:
+        desc = col.description
+        # description might be json data
+        try:
+            if len(desc) > 0:
+                desc = json.loads(desc)
+        except:
+            pass
+        colDescriptions.append(desc)
+
     return dict(data=dict(
         columns=[col.name for col in cols],
+        descriptions=colDescriptions,
         rows=[[col.values[0] for col in t.read(range(len(cols)), hit,
                                                hit+1).columns]
               for hit in hits],

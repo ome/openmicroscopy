@@ -10,7 +10,6 @@
 """
 
 import pytest
-
 import omero
 
 from omero.testlib import AbstractRepoTest

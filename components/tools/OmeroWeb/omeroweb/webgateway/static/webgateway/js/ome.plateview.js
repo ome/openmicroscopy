@@ -180,7 +180,7 @@ jQuery._WeblitzPlateview = function (container, options) {
               $("img#"+parentPrefix+"image-"+key).attr("src", value);
             });
           }
-          gs_json(thumbnails_url, null, _load_thumbnails);
+          gs_json(thumbnails_url, null, _load_thumbnails, "json");
           input = input.slice(batch, input.length);
           load_thumbnails(input, batch);
         }

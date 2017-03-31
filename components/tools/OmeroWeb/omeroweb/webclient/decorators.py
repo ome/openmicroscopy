@@ -170,10 +170,12 @@ class render_response(omeroweb.decorators.render_response):
             try:
                 # test if complex dictionary view with args and query_string
                 l["link"] = reverse_with_params(**link_id)
+                l["url"] = link_id
             except TypeError:
                 # assume is only view name
                 try:
                     l["link"] = reverse(link_id)
+                    l["url"] = {"viewname": link_id}
                 except NoReverseMatch:
                     # assume we've been passed a url
                     l["link"] = link_id

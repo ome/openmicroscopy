@@ -30,9 +30,9 @@ from Ice import Exception as IceException
 import logging
 import traceback
 import json
-import re
 import sys
 import warnings
+import re
 
 from time import time
 
@@ -372,7 +372,7 @@ def _load_template(request, menu, conn=None, url=None, **kwargs):
 
     # search support
     init = {}
-    global_search_form = GlobalSearchForm(data=request.POST.copy())
+    global_search_form = GlobalSearchForm(data=request.GET.copy())
     if menu == "search":
         if global_search_form.is_valid():
             init['query'] = global_search_form.cleaned_data['search_query']
@@ -564,7 +564,6 @@ def api_experimenter_detail(request, experimenter_id, conn=None, **kwargs):
             experimenter = tree.marshal_experimenter(
                 conn=conn, experimenter_id=experimenter_id)
         return JsonResponse({'experimenter': experimenter})
-
     except ApiUsageException as e:
         return HttpResponseBadRequest(e.serverStackTrace)
     except ServerError as e:
@@ -1372,7 +1371,7 @@ def load_searching(request, form=None, conn=None, **kwargs):
 
     foundById = []
     # form = 'form' if we are searching. Get query from request...
-    r = request.GET or request.POST
+    r = request.GET
     if form is not None:
         query_search = r.get('query').replace("+", " ")
         template = "webclient/search/search_details.html"
@@ -1426,7 +1425,6 @@ def load_searching(request, form=None, conn=None, **kwargs):
                                 foundById.append({'otype': t, 'obj': obj})
                 except ValueError:
                     pass
-
     else:
         # simply display the search home page.
         template = "webclient/search/search.html"
