@@ -9,7 +9,6 @@ import java.awt.Dimension;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,9 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.perf4j.StopWatch;
 import org.perf4j.slf4j.Slf4JStopWatch;
-
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.SetMultimap;
 
 import ome.api.IPixels;
 import ome.api.IQuery;
@@ -42,13 +38,9 @@ import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.parameters.Parameters;
 import ome.security.SecuritySystem;
-import ome.services.messages.ContextMessage;
 import ome.system.EventContext;
 import ome.system.OmeroContext;
 
-/**
- *
- */
 public class ThumbnailCtx
 {
 
@@ -259,7 +251,7 @@ public class ThumbnailCtx
         // Now check to see if we're in a state where missing settings requires
         // us to use the owner's settings (we're "graph critical") and load
         // them if possible.
-        new ActPerGroup() {
+        new PerGroupActor(applicationContext, queryService, securitySystem.getEventContext().getCurrentEventId()) {
             @Override
             protected void actOnOneGroup(Set<Long> pixelsIds) {
                 if (isExtendedGraphCritical(pixelsIds)) {
@@ -404,7 +396,7 @@ public class ThumbnailCtx
         if (count > 0) {
             log.info(count + " pixels without settings");
             final List<Long> allImageIds = new ArrayList<>(count);
-            new ActPerGroup() {
+            new PerGroupActor(applicationContext, queryService, securitySystem.getEventContext().getCurrentEventId()) {
                 @Override
                 protected void actOnOneGroup(Set<Long> pixelsIds) {
                     if (isExtendedGraphCritical(pixelsIds)) {
@@ -529,10 +521,11 @@ public class ThumbnailCtx
      * @author m.t.b.carroll@dundee.ac.uk
      * @since 5.3.1
      */
-    private class ExtendedGraphCriticalCheck extends ActPerGroup {
+    private class ExtendedGraphCriticalCheck extends PerGroupActor {
         private boolean isCritical;
 
         private ExtendedGraphCriticalCheck(long pixelsId) {
+            super(applicationContext, queryService, securitySystem.getEventContext().getCurrentEventId());
             actOnByGroup(Collections.singleton(pixelsId));
         }
 
@@ -998,7 +991,7 @@ public class ThumbnailCtx
             // Now check to see if we're in a state where missing metadata
             // requires us to use the owner's metadata (we're "graph critical")
             // and load them if possible.
-            new ActPerGroup() {
+            new PerGroupActor(applicationContext, queryService, securitySystem.getEventContext().getCurrentEventId()) {
                 @Override
                 protected void actOnOneGroup(Set<Long> pixelsIds) {
                     if (isExtendedGraphCritical(pixelsIds)) {
@@ -1092,7 +1085,7 @@ public class ThumbnailCtx
                 "omero.createMissingThumbnailMetadata");
         Set<Long> pixelsIdsWithoutMetadata =
             getPixelsIdsWithoutMetadata(pixelsIdPixelsMap.keySet());
-        new ActPerGroup() {
+        new PerGroupActor(applicationContext, queryService, securitySystem.getEventContext().getCurrentEventId()) {
             @Override
             protected void actOnOneGroup(Set<Long> pixelsIds) {
                 final List<Thumbnail> toSave = new ArrayList<Thumbnail>();
@@ -1144,59 +1137,4 @@ public class ThumbnailCtx
         thumb.setSizeY((int) dimensions.getHeight());
         return thumb;
     }
-
-    /**
-     * Perform an operation on {@link Pixels} in contexts corresponding to the {@link Pixels}' group.
-     * @author m.t.b.carroll@dundee.ac.uk
-     * @since 5.3.1
-     */
-    private abstract class ActPerGroup {
-
-        /**
-         * Act on the {@link Pixels} by setting the group context and calling {@link #actOnOneGroup(Set)} as necessary.
-         * @param pixelsIds the IDs of the {@link Pixels} on which to act
-         */
-        void actOnByGroup(Collection<Long> pixelsIds) {
-            if (pixelsIds.isEmpty()) {
-                return;
-            }
-            final SetMultimap<Long, Long> pixelsByGroup = HashMultimap.create();
-            for (final Object[] resultRow : queryService.projection("SELECT id, details.group.id FROM Pixels WHERE id IN (:ids)",
-                    new Parameters().addIds(pixelsIds))) {
-                final Long pixelsId = (Long) resultRow[0];
-                final Long groupId  = (Long) resultRow[1];
-                pixelsByGroup.put(groupId, pixelsId);
-            }
-            final Long currentGroup = securitySystem.getEventContext().getCurrentGroupId();
-            for (final Map.Entry<Long, Collection<Long>> pixelsOneGroup : pixelsByGroup.asMap().entrySet()) {
-                final long groupId = pixelsOneGroup.getKey();
-                if (groupId == currentGroup) {
-                    actOnOneGroup((Set<Long>) pixelsOneGroup.getValue());
-                } else {
-                    final Map<String, String> groupContext = new HashMap<>();
-                    groupContext.put("omero.group", Long.toString(groupId));
-                    try {
-                        try {
-                            applicationContext.publishMessage(new ContextMessage.Push(this, groupContext));
-                        } catch (Throwable t) {
-                            log.error("could not publish context change push", t);
-                        }
-                        actOnOneGroup((Set<Long>) pixelsOneGroup.getValue());
-                    } finally {
-                        try {
-                            applicationContext.publishMessage(new ContextMessage.Pop(this, groupContext));
-                        } catch (Throwable t) {
-                            log.error("could not publish context change pop", t);
-                        }
-                    }
-                }
-            }
-        }
-
-        /**
-         * Act on the {@link Pixels}. Called within a context corresponding to the {@link Pixels}' group.
-         * @param pixelsIds the IDs of the {@link Pixels} on which to act
-         */
-        abstract protected void actOnOneGroup(Set<Long> pixelsIds);
-        }
 }
