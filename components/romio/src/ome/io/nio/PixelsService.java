@@ -90,9 +90,6 @@ public class PixelsService extends AbstractFileSystemService
 	 */
 	protected final long memoizerWait;
 
-	/** Whether or not Memoizer should fail if a cache file is not found */
-	private boolean failIfMissing = false;
-
 	private Timer tileTimes;
 
 	private Timer minmaxTimes;
@@ -184,10 +181,6 @@ public class PixelsService extends AbstractFileSystemService
                      ", sizes=" + sizes + ")");
         }
         this.iQuery = iQuery;
-    }
-
-    public void setMemoizerFailIfMissing(boolean failIfMissing) {
-        this.failIfMissing = failIfMissing;
     }
 
     public void setMetrics(Metrics metrics) {
@@ -794,9 +787,7 @@ public class PixelsService extends AbstractFileSystemService
         IFormatReader reader = new ImageReader();
         reader = new ChannelFiller(reader);
         reader = new ChannelSeparator(reader);
-        Memoizer memoizer = new Memoizer(reader, getMemoizerWait(), getMemoizerDirectory());
-        memoizer.setFailIfMissing(failIfMissing);
-        reader = memoizer;
+        reader = new Memoizer(reader, getMemoizerWait(), getMemoizerDirectory());
         reader.setFlattenedResolutions(false);
         reader.setMetadataFiltered(true);
         return reader;
