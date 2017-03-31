@@ -389,7 +389,8 @@ class BrowserModel
     private double getBarSizeInPx(double ratio)
     {
         if (unitBarLength == null
-                || !Double.isFinite(getPixelsSizeX().getValue()))
+                || Double.isInfinite(getPixelsSizeX().getValue())
+                || Double.isNaN(getPixelsSizeX().getValue()))
             return 1;
         
         try {
@@ -755,7 +756,8 @@ class BrowserModel
     String getUnitBarValue()
     {
         if (unitBarLength == null
-                || !Double.isFinite(getPixelsSizeX().getValue()))
+                || Double.isInfinite(getPixelsSizeX().getValue())
+                || Double.isNaN(getPixelsSizeX().getValue()))
             return "1";
         
     	return UIUtilities.twoDecimalPlaces(unitBarLength.getValue());
@@ -767,7 +769,8 @@ class BrowserModel
      */
     String getUnitBarUnit() {
         if (unitBarLength == null
-                || !Double.isFinite(getPixelsSizeX().getValue()))
+                || Double.isInfinite(getPixelsSizeX().getValue())
+                || Double.isNaN(getPixelsSizeX().getValue()))
             return LengthI.lookupSymbol(UnitsLength.PIXEL);
         
         return LengthI.lookupSymbol(unitBarLength.getUnit());
