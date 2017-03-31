@@ -106,7 +106,7 @@ public class AbstractLoginMockTest extends MockObjectTestCase {
         mockMgr = mock(SessionManager.class);
         mgr = (SessionManager) mockMgr.proxy();
         cache = new TestSessionCache(this);
-        sec = BasicSecuritySystem.selfConfigure(mgr, sf, cache);
+        sec = BasicSecuritySystem.selfConfigure(mgr, null, sf, cache);
 
         filter = new UpdateFilter();
 
