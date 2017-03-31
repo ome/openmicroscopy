@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2016-2017 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -20,6 +20,8 @@ package omero.gateway.model;
 
 import java.util.Arrays;
 import java.util.List;
+
+import org.apache.commons.collections.CollectionUtils;
 
 /**
  * A simple data 'container' for an OMERO.table
@@ -59,15 +61,23 @@ public class TableData {
      *            The data in form of List of columns
      */
     public TableData(List<TableDataColumn> columns, List<List<Object>> data) {
-        this.columns = new TableDataColumn[columns.size()];
-        this.columns = columns.toArray(this.columns);
+        if (CollectionUtils.isNotEmpty(columns)) {
+            this.columns = new TableDataColumn[columns.size()];
+            this.columns = columns.toArray(this.columns);
+        } else {
+            this.columns = new TableDataColumn[0];
+        }
 
-        int nRows = !data.isEmpty() ? data.get(0).size() : 0;
-        this.data = new Object[data.size()][nRows];
-        for (int i = 0; i < data.size(); i++) {
-            List<Object> columnData = data.get(i);
-            for (int j = 0; j < columnData.size(); j++)
-                this.data[i][j] = columnData.get(j);
+        if (CollectionUtils.isNotEmpty(data)) {
+            int nRows = data.get(0).size();
+            this.data = new Object[data.size()][nRows];
+            for (int i = 0; i < data.size(); i++) {
+                List<Object> columnData = data.get(i);
+                for (int j = 0; j < columnData.size(); j++)
+                    this.data[i][j] = columnData.get(j);
+            }
+        } else {
+            this.data = new Object[0][0];
         }
     }
 
@@ -80,8 +90,8 @@ public class TableData {
      *            The data in form data['column index']['row data']
      */
     public TableData(TableDataColumn[] columns, Object[][] data) {
-        this.columns = columns;
-        this.data = data;
+        this.columns = columns != null ? columns : new TableDataColumn[0];
+        this.data = data != null ? data : new Object[0][0];
     }
 
     /**
@@ -143,12 +153,20 @@ public class TableData {
     }
 
     /**
+     * @return <code>true</code> if this TableData object doesn't contain any
+     *         data, <code>false</code> if it does contain data.
+     */
+    public boolean isEmpty() {
+        return data == null || data.length == 0 || data[0].length == 0;
+    }
+
+    /**
      * @return <code>true</code> if the last available row is contained,
      *         <code>false</code> if there's more data available in the original
      *         table
      */
     public boolean isCompleted() {
-        if (data == null || data.length == 0)
+        if (isEmpty())
             return true;
 
         return (offset + data[0].length) == numberOfRows;
@@ -159,7 +177,7 @@ public class TableData {
      * the last row in the {@link TableData#data} array)
      */
     public void setCompleted() {
-        this.numberOfRows = (data == null || data.length == 0) ? 0 : offset
+        this.numberOfRows = isEmpty() ? 0 : offset
                 + data[0].length;
     }
 
@@ -221,7 +239,7 @@ public class TableData {
      * 
      * @param objects
      *            The array to generate the object for
-     * @param types
+     * @param columns
      *            The types of the elements in the array; it's assumed that
      *            every element of a sub array (<code>object[i][]</code>) has
      *            the same type (<code>types[i]</code>).
@@ -274,7 +292,7 @@ public class TableData {
             sb.append('\n');
         }
 
-        if (data == null || data.length == 0)
+        if (isEmpty())
             return sb.toString();
 
         int nRows = 0;

@@ -369,9 +369,9 @@ class ITest(object):
         query = client.sf.getQueryService()
         plates = query.findAllByQuery((
             "select p from Plate p "
-            "join p.wells as w "
-            "join w.wellSamples as ws "
-            "join ws.image as i "
+            "join fetch p.wells as w "
+            "join fetch w.wellSamples as ws "
+            "join fetch ws.image as i "
             "where i.id in (:ids)"),
             omero.sys.ParametersI().addIds(images))
         return plates

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2016-2017 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -79,7 +79,7 @@ public class TablesFacility extends Facility {
     /** The mimetype of an omero tables file */
     public static final String TABLES_MIMETYPE = "OMERO.tables";
 
-    /** Maximum number of rows to fetch */
+    /** Maximum number of rows to fetch if not specified otherwise */
     public static final int DEFAULT_MAX_ROWS_TO_FETCH = 1000;
 
     /**
@@ -134,7 +134,7 @@ public class TablesFacility extends Facility {
 
             SharedResourcesPrx sr = gateway.getSharedResources(ctx);
             if (!sr.areTablesEnabled()) {
-                throw new Exception(
+                throw new DSAccessException(
                         "Tables feature is not enabled on this server!");
             }
             long repId = sr.repositories().descriptions.get(0).getId()
@@ -161,6 +161,7 @@ public class TablesFacility extends Facility {
             dm.attachAnnotation(ctx, annotation, target);
 
             data.setOriginalFileId(file.getId().getValue());
+            data.setNumberOfRows(table.getNumberOfRows());
         } catch (Exception e) {
             handleException(this, e, "Could not add table");
         } finally {
@@ -203,7 +204,7 @@ public class TablesFacility extends Facility {
      *            The {@link SecurityContext}
      * @param fileId
      *            The id of the {@link OriginalFile} which stores the table
-     * @return All data which the table contains
+     * @return The data which the table contains
      * @throws DSOutOfServiceException
      *             If the connection is broken, or not logged in
      * @throws DSAccessException
@@ -216,7 +217,7 @@ public class TablesFacility extends Facility {
     }
 
     /**
-     * Load the data from a table
+     * Load data from a table
      * 
      * @param ctx
      *            The {@link SecurityContext}
@@ -231,7 +232,7 @@ public class TablesFacility extends Facility {
      * @param columns
      *            The columns to take into account (can be left unspecified, in
      *            which case all columns will used)
-     * @return All data which the table contains
+     * @return The specified data
      * @throws DSOutOfServiceException
      *             If the connection is broken, or not logged in
      * @throws DSAccessException
@@ -252,7 +253,7 @@ public class TablesFacility extends Facility {
     }
     
     /**
-     * Load the data from a table
+     * Load data from a table
      * 
      * @param ctx
      *            The {@link SecurityContext}
@@ -267,7 +268,7 @@ public class TablesFacility extends Facility {
      * @param columns
      *            The columns to take into account (can be left unspecified, in
      *            which case all columns will used)
-     * @return All data which the table contains
+     * @return The specified data
      * @throws DSOutOfServiceException
      *             If the connection is broken, or not logged in
      * @throws DSAccessException
@@ -282,7 +283,7 @@ public class TablesFacility extends Facility {
             OriginalFile file = new OriginalFileI(fileId, false);
             SharedResourcesPrx sr = gateway.getSharedResources(ctx);
             if (!sr.areTablesEnabled()) {
-                throw new Exception(
+                throw new DSAccessException(
                         "Tables feature is not enabled on this server!");
             }
 

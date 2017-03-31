@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -1060,7 +1060,15 @@ class DataBrowserComponent
 			case NEW:
 				return;
 		}
-		model.loadData(true, ids);
+		
+        model.loadData(true, ids);
+        
+        if(model instanceof WellsModel) {
+            view.clearWellThumbs(ids);
+            // trigger reload of the fields view:
+            view.onSelectedWell();
+        }
+        
 		fireStateChange();
 	}
 

@@ -28,7 +28,7 @@ from omeroweb.api import api_settings
 from django.test import Client
 import pytest
 from omero.gateway import BlitzGateway
-from omero.model import ProjectI, DatasetI
+from omero.model import DatasetI, ProjectI
 from omero.rtypes import unwrap, rstring
 from omero_marshal import get_encoder, OME_SCHEMA_URL
 
@@ -599,6 +599,44 @@ class TestProjects(IWebTest):
         # Read to check
         rsp = _get_response_json(django_client, project_url, {})
         assert rsp['data']['Description'] == 'New test description update'
+
+    @pytest.mark.parametrize("dtype", ['Project', 'Dataset'])
+    def test_project_datasets_update(self, user1, dtype,
+                                     project_hierarchy_user1_group1):
+        """
+        Test updating a Project without losing child Datasets.
+
+        If we load a Project without loading Datasets, then update
+        and save the Project, we don't want to lose Dataset links
+        """
+        conn = get_connection(user1)
+        user_name = conn.getUser().getName()
+        django_client = self.new_django_client(user_name, user_name)
+
+        if dtype == 'Project':
+            parent = project_hierarchy_user1_group1[0]
+            child_count = len(parent.linkedDatasetList())
+            url_name = 'api_project'
+        else:
+            parent = project_hierarchy_user1_group1[0].linkedDatasetList()[0]
+            child_count = len(parent.linkedImageList())
+            url_name = 'api_dataset'
+
+        version = api_settings.API_VERSIONS[-1]
+        parent_url = reverse(url_name,
+                             kwargs={'api_version': version,
+                                     'object_id': parent.id.val})
+        save_url = reverse('api_save', kwargs={'api_version': version})
+        # Get Parent, update and save back
+        rsp = _get_response_json(django_client, parent_url, {})
+        parent_json = rsp['data']
+        parent_json['Name'] = 'renamed %s' % dtype
+        _csrf_put_json(django_client, save_url, parent_json)
+
+        # Check Parent has been updated and still has children linked
+        parentWrapper = conn.getObject(dtype, parent.id.val)
+        assert parentWrapper.getName() == 'renamed %s' % dtype
+        assert len(list(parentWrapper.listChildren())) == child_count
 
     def test_project_delete(self, user1):
         conn = get_connection(user1)

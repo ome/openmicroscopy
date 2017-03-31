@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2016 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2017 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -33,6 +33,7 @@ import java.util.Set;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 
 import com.google.common.base.Function;
 import com.google.common.collect.HashMultimap;
@@ -94,6 +95,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
     private final Set<Class<? extends IObject>> targetClasses;
     private GraphPolicy graphPolicy;  /* not final because of adjustGraphPolicy */
     private final SetMultimap<String, String> unnullable;
+    private final ApplicationContext applicationContext;
 
     private List<Function<GraphPolicy, GraphPolicy>> graphPolicyAdjusters = new ArrayList<Function<GraphPolicy, GraphPolicy>>();
     private Helper helper;
@@ -119,10 +121,11 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
      * @param targetClasses legal target object classes for chown
      * @param graphPolicy the graph policy to apply for chown
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
+     * @param applicationContext the OMERO application context from Spring
      */
     public Chown2I(ACLVoter aclVoter, Roles securityRoles, SystemTypes systemTypes, GraphPathBean graphPathBean,
             Deletion deletionInstance, Set<Class<? extends IObject>> targetClasses, GraphPolicy graphPolicy,
-            SetMultimap<String, String> unnullable) {
+            SetMultimap<String, String> unnullable, ApplicationContext applicationContext) {
         this.aclVoter = aclVoter;
         this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
@@ -130,6 +133,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
         this.targetClasses = targetClasses;
         this.graphPolicy = graphPolicy;
         this.unnullable = unnullable;
+        this.applicationContext = applicationContext;
     }
 
     @Override
@@ -458,10 +462,17 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
         }
 
         @Override
+        public void deleteInstances(String className, Collection<Long> ids) throws GraphException {
+            super.deleteInstances(className, ids);
+            graphHelper.publishEventLog(applicationContext, "DELETE", className, ids);
+        }
+
+        @Override
         public void processInstances(String className, Collection<Long> ids) throws GraphException {
             final String update = "UPDATE " + className + " SET details.owner = :user WHERE id IN (:ids)";
             final int count =
                     session.createQuery(update).setParameter("user", userTo).setParameterList("ids", ids).executeUpdate();
+            graphHelper.publishEventLog(applicationContext, "UPDATE", className, ids);
             if (count != ids.size()) {
                 LOGGER.warn("not all the objects of type " + className + " could be processed");
             }

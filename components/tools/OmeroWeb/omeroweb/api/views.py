@@ -755,6 +755,15 @@ class SaveView(View):
         # Therefore we ignore any details for now:
         obj.unloadDetails()
 
+        # TODO: Unlink children for Projects, Datasets and Screens to avoid
+        # breaking links. See PR #4930
+        if hasattr(obj, 'unloadDatasetLinks'):
+            obj.unloadDatasetLinks()
+        if hasattr(obj, 'unloadImageLinks'):
+            obj.unloadImageLinks()
+        if hasattr(obj, 'unloadPlateLinks'):
+            obj.unloadPlateLinks()
+
         conn.SERVICE_OPTS.setOmeroGroup(group)
         obj = conn.getUpdateService().saveAndReturnObject(obj,
                                                           conn.SERVICE_OPTS)
