@@ -172,13 +172,6 @@ public abstract class AbstractBasicSecuritySystemTest extends
         mockMgr.expects(atLeastOnce()).method("getEventContext").will(
                 returnValue(ec));
 
-        if (readOnly) {
-            sf.mockQuery.expects(once()).method("projection").will(returnValue(
-                    Collections.singletonList(new Object[]{user, null})));
-        } else {
-            sf.mockQuery.expects(once()).method("findByQuery").will(returnValue(event.getSession()));
-        }
-
         doReadOnly(readOnly);
 
     }
@@ -234,13 +227,6 @@ public abstract class AbstractBasicSecuritySystemTest extends
         mockMgr.expects(atLeastOnce()).method("getEventContext").will(
                 returnValue(ec));
 
-        if (readOnly) {
-            sf.mockQuery.expects(once()).method("projection").will(returnValue(
-                    Collections.singletonList(new Object[]{user, null})));
-        } else {
-            sf.mockQuery.expects(once()).method("findByQuery").will(returnValue(event.getSession()));
-        }
-
         doReadOnly(readOnly);
     }
 
@@ -248,6 +234,7 @@ public abstract class AbstractBasicSecuritySystemTest extends
         sf.mockAdmin.expects(once()).method("groupProxy").will(
                 returnValue(group));
         if (!readOnly) {
+            sf.mockQuery.expects(once()).method("findByQuery").will(returnValue(event.getSession()));
             sf.mockAdmin.expects(once()).method("userProxy").will(
                     returnValue(user));
             sf.mockUpdate.expects(once()).method("saveAndReturnObject").will(
