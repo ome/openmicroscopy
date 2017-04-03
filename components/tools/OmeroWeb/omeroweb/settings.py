@@ -508,6 +508,22 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.public.cache.timeout":
         ["PUBLIC_CACHE_TIMEOUT", 60 * 60 * 24, int, None],
 
+    # Social media integration
+    "omero.web.sharing.twitter":
+        ["SHARING_TWITTER",
+         '{}',
+         json.loads,
+         ("Dictionary of `server-name: @twitter-site-username`, where "
+          "server-name matches a name from `omero.web.server_list`. "
+          "For example: ``'{\"omero\": \"@openmicroscopy\"}'``")],
+    "omero.web.sharing.opengraph":
+        ["SHARING_OPENGRAPH",
+         '{}',
+         json.loads,
+         ("Dictionary of `server-name: site-name`, where "
+          "server-name matches a name from `omero.web.server_list`. "
+          "For example: ``'{\"omero\": \"Open Microscopy\"}'``")],
+
     # Application configuration
     "omero.web.server_list":
         ["SERVER_LIST",
@@ -632,6 +648,15 @@ CUSTOM_SETTINGS_MAPPINGS = {
          int,
          ("Number of images displayed within a dataset or 'orphaned'"
           " container to prevent from loading them all at once.")],
+    "omero.web.thumbnails_batch":
+        ["THUMBNAILS_BATCH",
+         50,
+         int,
+         ("Number of thumbnails retrieved to prevent from loading them"
+          " all at once. Make sure the size is not too big, otherwise"
+          " you may exceed limit request line, see"
+          " http://docs.gunicorn.org/en/latest/settings.html"
+          "?highlight=limit_request_line")],
     "omero.web.ui.top_links":
         ["TOP_LINKS",
          ('['
@@ -692,6 +717,13 @@ CUSTOM_SETTINGS_MAPPINGS = {
           " 'webtest/webclient_plugins/center_plugin.overlay.js.html',"
           " 'channel_overlay_panel']``. "
           "The javascript loads data into ``$('#div_id')``.")],
+    "omero.web.ui.external_link_baseurl":
+        ["WEB_EXTERNAL_LINK_BASEURL",
+         None,
+         identity,
+         ("Use this host (including protocol) for absolute HTML urls "
+          "in the client, such as social media links. This does not include "
+          "client-side generated URLs.")],
 }
 
 DEPRECATED_SETTINGS_MAPPINGS = {

@@ -24,6 +24,9 @@
 {% endcomment %}
 
 <head>
+
+    {% include "webgateway/base/includes/analytics.html" %}
+
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
 
     {% block link %}
@@ -31,7 +34,6 @@
 		<link rel="stylesheet" href="{% static "webgateway/css/ome.body.css"|add:url_suffix %}" type="text/css" />
 		<link rel="stylesheet" href="{% static "webclient/css/dusty.css"|add:url_suffix %}" type="text/css" media="screen"/>
     {% endblock %}
-
 
     <!-- extend here to add page title -->
     <title>

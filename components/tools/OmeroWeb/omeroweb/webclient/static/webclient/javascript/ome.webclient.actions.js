@@ -369,23 +369,31 @@ OME.initToolbarDropdowns = function() {
 // By default we do ALL thumbnails, but can also specify ID
 OME.refreshThumbnails = function(options) {
     options = options || {};
-    var rdm = Math.random(),
-        search_selector = ".search_thumb",
+    var search_selector = ".search_thumb",
         // In SPW, we select spw grid and Well images in bottom panel
-        spw_selector = "#spw img, #wellImages img";
+        spw_selector = "#spw .well img, #wellImages li";
     // handle search results and SPW thumbs
     if (options.imageId) {
         search_selector = "#image-" + options.imageId + " img.search_thumb";
-        spw_selector += "#image-" + options.imageId;
+        spw_selector = "#image-" + options.imageId + ", #wellImages li[data-imageId='" + options.imageId + "']";
     }
+
     // Try SPW data or Search data by directly updating thumb src...
     var $thumbs = $(spw_selector + ", " + search_selector);
     if ($thumbs.length > 0){
-        $thumbs.each(function(){
-            var $this = $(this),
-                base_src = $this.attr('src').split('?')[0];
-            $this.attr('src', base_src + "?_="+rdm);
-        });
+        var iids = $thumbs.map(function() {
+            var imgId = this.id.replace('image-', '');
+            // We might be getting IDs from the plate grid OR #wellImages
+            return imgId || $(this).attr('data-imageId');
+        }).filter(function(i, img_id){
+            // filter out empty wells etc.
+            return img_id.length > 0;
+        }).get();
+        OME.load_thumbnails(
+            options.thumbnail_url,
+            iids, options.thumbnailsBatch,
+            options.defaultThumbnail
+        );
     } else if (window.update_thumbnails_panel) {
         // ...Otherwise update thumbs via jsTree
         // (avoids revert of src on selection change)
@@ -405,6 +413,51 @@ OME.refreshThumbnails = function(options) {
     }
 };
 
+OME.load_thumbnails = function(thumbnails_url, input, batch, dthumb) {
+    // load thumbnails in a batches
+    if (input.length > 0 && batch > 0) {
+        var iids = input.slice(0 , batch)
+        if (iids.length > 0) {
+            $.ajax({
+                type: "GET",
+                url: thumbnails_url,
+                data: $.param( { id: iids }, true),
+                dataType: 'json',
+                success: function(data){
+                    $.each(data, function(key, value) {
+                        if (value !== null) {
+                            // SPW Plate and WellImages
+                            $("img#image-"+key).attr("src", value);
+                            $("#wellImages li[data-imageId='" + key + "'] img").attr("src", value);
+                            $("#well_birds_eye img[data-imageid='" + key + "']").attr("src", value);
+                            // Search results
+                            $("#image_icon-" + key + " img").attr("src", value);
+                        } else {
+                            $("img#image-"+key).attr("src", dthumb);
+                            $("#wellImages li[data-imageId='" + key + "'] img").attr("src", dthumb);
+                            $("#image_icon-" + key + " img").attr("src", dthumb);
+                        }
+                    });
+                }
+            });
+            input = input.slice(batch, input.length);
+            OME.load_thumbnails(thumbnails_url, input, batch, dthumb);
+        }
+    }
+}
+OME.load_thumbnail = function(iid, thumbnails_url, callback) {
+    // load thumbnails in a batches
+    $.ajax({
+        type: "GET",
+        url: thumbnails_url,
+        dataType:'json',
+        success: function(data){
+        if (data.length > 0) {
+            callback(data);
+        }
+    }
+    });
+}
 
 OME.truncateNames = (function(){
     var insHtml;

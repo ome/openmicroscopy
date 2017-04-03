@@ -175,6 +175,7 @@ $(function() {
                             // Get this path component
                             var comp = path[index];
                             var lastIndex = path.length - 1;
+
                             // Get the node for this path component
                             var node = inst.locate_node(comp.type + '-' + comp.id, parentNode)[0];
 
@@ -217,6 +218,7 @@ $(function() {
                     var i;
                     for (i=0; i < (data.length); i++) {
                         var path = data[i];
+                        var lastIndex = path.length - 1;
                         var traverse = getTraverse(path)
                         // Start traversing at the start of the path with no parent node
                         try {
@@ -475,9 +477,6 @@ $(function() {
                 if (node.type === 'dataset' || node.type === 'orphaned' || node.type === 'tag') {
                     payload['sizeXYZ'] = true;
                     payload['date'] = true;
-                    if (node.type !== 'tag') {
-                        payload['thumbVersion'] = true;
-                    }
                 }
 
                 // Always add the group_id from the current context
@@ -1228,6 +1227,7 @@ $(function() {
             }
             // If the nodes are the same type then just compare lexicographically
             if (node1.type === node2.type && node1.text && node2.text) {
+                // Unless they are experimenters and one of them is the current user.
                 return sortingStrategy(node1, node2);
             // Otherwise explicitly order the type that might be siblings
             } else {

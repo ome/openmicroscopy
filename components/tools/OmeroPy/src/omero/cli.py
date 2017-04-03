@@ -803,6 +803,12 @@ class BaseControl(object):
             break
         return root_pass
 
+    def _add_wait(self, parser, default=-1):
+        parser.add_argument(
+            "--wait", type=long,
+            help="Number of seconds to wait for the processing to complete "
+            "(Indefinite < 0; No wait=0).", default=default)
+
     def get_subcommands(self):
         """Return a list of subcommands"""
         parser = Parser()
@@ -1364,7 +1370,17 @@ class CLI(cmd.Cmd, Context):
         in the parser
         """
 
-        for plugin_path in self._plugin_paths:
+        paths = set(self._plugin_paths)
+        for x in sys.path:
+            x = path(x)
+            if x.isdir():
+                x = x / "omero" / "plugins"
+                if x.exists():
+                    paths.add(x)
+            else:
+                if self.isdebug:
+                    print "Can't load %s" % x
+        for plugin_path in paths:
             self.loadpath(path(plugin_path))
 
         self.configure_plugins()
@@ -1600,10 +1616,7 @@ class CmdControl(BaseControl):
 
     def _configure(self, parser):
         parser.set_defaults(func=self.main_method)
-        parser.add_argument(
-            "--wait", type=long,
-            help="Number of seconds to wait for the processing to complete "
-            "(Indefinite < 0; No wait=0).", default=-1)
+        self._add_wait(parser, default=-1)
 
     def main_method(self, args):
         client = self.ctx.conn(args)
@@ -1716,10 +1729,7 @@ class GraphControl(CmdControl):
 
     def _configure(self, parser):
         parser.set_defaults(func=self.main_method)
-        parser.add_argument(
-            "--wait", type=long,
-            help="Number of seconds to wait for the processing to complete "
-            "(Indefinite < 0; No wait=0).", default=-1)
+        self._add_wait(parser, default=-1)
         parser.add_argument(
             "--include",
             help="Modifies the given option by including a list of objects")

@@ -1741,7 +1741,9 @@ class TestShow(IWebTest):
         paths = paths_to_object(self.conn, None, None, None,
                                 ws_a1.image.id.val, None, None, None, None)
         assert len(paths) == 1
-        assert paths[0] == expected[0]
+        pathToImg = expected[0]
+        pathToImg.append({'type': 'well', 'id': well_a.id.val})
+        assert paths[0] == pathToImg
 
     def test_well_restrict_acquisition_multi(self,
                                              screen_plate_run_well_multi):

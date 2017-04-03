@@ -345,12 +345,43 @@
                     {% if manager.well %}
                     var screenQuery = "{% url 'webgateway_object_table_query' 'Screen.plateLinks.child.wells' manager.well.id %}";
                     var plateQuery = "{% url 'webgateway_object_table_query' 'Plate.wells' manager.well.id %}";
+
                     var query = "Well-{{ manager.well.id }}";
                     {% elif manager.image %}
                     var screenQuery = "{% url 'webgateway_object_table_query' 'Screen.plateLinks.child.wells.wellSamples.image' manager.image.id %}";
                     var plateQuery = "{% url 'webgateway_object_table_query' 'Plate.wells.wellSamples.image' manager.image.id %}";
                     var query = "Image-{{ manager.image.id }}";
                     {% endif %}
+
+                    var wellId;
+                    {% if manager.well %}
+                        wellId = {{ manager.well.id }};
+                    {% endif %}
+
+                    // Since we may not have the WellId in hand (if we're an image)
+                    // this returns a Promise() that will return wellId on resolve();
+                    var getWellId = function() {
+                        var d = $.Deferred();
+                        if (wellId) {
+                            // If we have it already, resolve immediately
+                            d.resolve(wellId);
+                        } else {
+                            // Otherwise, get paths to Image which may include SPW path...
+                            $.getJSON(WEBCLIENT.URLS.api_paths_to_object+'?image={{ manager.image.id }}', function(data){
+                                if (data.paths && data.paths.length > 0) {
+                                    wellId = data.paths[0].reduce(function(prev, node){
+                                        if (node.type === "well") {
+                                            return node.id;
+                                        }
+                                        return prev;
+                                    }, undefined);
+                                }
+                                d.resolve(wellId);
+                            });
+                        }
+                        return d.promise();
+
+                    }
 
                     var showBulkAnnTooltip = function(data) {
                         var bulkAnnTooltip = "<span class='tooltip_html' style='display:none'>" +

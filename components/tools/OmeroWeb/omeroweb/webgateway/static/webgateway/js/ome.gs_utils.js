@@ -162,7 +162,7 @@ function gs_modalJson (url, data, callback) {
   gs_json (url, data, cb);
 }
 
-function gs_json (url, data, callback) {
+function gs_json (url, data, callback, dataType) {
   var cb = function (result) {
     return function (data, textStatus, errorThrown) {
       if (callback) {
@@ -177,7 +177,7 @@ function gs_json (url, data, callback) {
         data: data,
         success: cb(true),
         error: cb(false),
-        dataType: "jsonp",
+        dataType: dataType ? dataType:"jsonp",
         traditional: true
         });
 }

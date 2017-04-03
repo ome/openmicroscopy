@@ -16,6 +16,9 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+
+    {% include "webgateway/base/includes/analytics.html" %}
+
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <link rel="shortcut icon" href="{% static 'webgateway/img/ome.ico' %}" type="image/x-icon" />
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
@@ -32,6 +35,7 @@
     <link rel="stylesheet" type="text/css" href="{{ href }}" />
     {% endfor %}
     {% block extra_css %}{% endblock %}
+
     {% block js %}
   <script type="text/javascript" src="{% static "3rdparty/jquery-1.11.1.js" %}"></script>
   <script type="text/javascript" src="{% static "3rdparty/jquery-migrate-1.2.1.js" %}"></script>
