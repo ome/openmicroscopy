@@ -277,8 +277,8 @@ GET Screens that contain a Plate, using omero-marshal to generate json
 """
 
 api_rois = url(r'^v(?P<api_version>%s)/m/rois/$' % versions,
-                views.RoisView.as_view(),
-                name='api_rois')
+               views.RoisView.as_view(),
+               name='api_rois')
 """
 GET all rois, using omero-marshal to generate json
 """
