@@ -673,6 +673,8 @@ class RoisView(ObjectsView):
         """Add extra parameters to the opts dict."""
         opts = super(RoisView, self).get_opts(request, **kwargs)
         opts['load_shapes'] = True
+        # order_by ID simply for consistency & paging
+        opts['order_by'] = 'obj.id'
 
         # at /images/:image_id/rois/ we have 'image_id' in kwargs
         if 'image_id' in kwargs:
