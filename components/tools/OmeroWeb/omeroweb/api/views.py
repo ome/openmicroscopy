@@ -661,6 +661,18 @@ class WellsView(ObjectsView):
         return marshalled
 
 
+class RoisView(ObjectsView):
+    """Handles GET for /rois/ to list available ROIs with Shapes."""
+
+    OMERO_TYPE = 'Roi'
+
+    def get_opts(self, request, **kwargs):
+        """Add extra parameters to the opts dict."""
+        opts = super(RoisView, self).get_opts(request, **kwargs)
+        opts['load_shapes'] = True
+        return opts
+
+
 class SaveView(View):
     """
     This view provides 'Save' functionality for all types of objects.
