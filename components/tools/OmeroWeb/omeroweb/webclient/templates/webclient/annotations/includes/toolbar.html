@@ -47,11 +47,15 @@
                 selectedObjs = ["{{ manager.obj_type }}-{{ manager.obj_id }}"];
                 {% endif %}
 
-
+                var selectedType = selectedObjs.reduce(function(prev, s){
+                    return s.split('-')[0] + (selectedObjs.length > 1 ? "s" : "");
+                }, "undefined");
 
                 var openwith_html = WEBCLIENT.OPEN_WITH.map(function(v){
                     var label = v.label || v.id;
                     var enabled = false;
+                    var tooltip = "Open " + selectedType + " with " + label;
+
                     var selJson = selectedObjs.map(function(obj){
                         var s = obj.split('-');
                         var o = {'id': s[1],
@@ -66,19 +70,11 @@
                     // ...Otherwise if supported_objects list is configured...
                     // v.supported_objects is ['image'] or ['dataset', 'images'] etc.
                     else if (typeof v.supported_objects === "object" && v.supported_objects.length > 0) {
-                        var selectedType = selectedObjs.reduce(function(prev, s){
-                            return s.split('-')[0] + (selectedObjs.length > 1 ? "s" : "");
-                        }, "undefined");
                         enabled = v.supported_objects.reduce(function(prev, supported){
                             // E.g. If supported_objects is 'images'...
                             return prev || supported.indexOf(selectedType) > -1;  // ... selType 'image' OR 'images' are > -1
                         }, false);
                     };
-
-                    // Don't show links if disabled.
-                    if (!enabled) {
-                        return("");
-                    }
                     var dtypes = selectedObjs.map(function(o){
                       return o.replace('-', '=');
                     });
@@ -90,7 +86,18 @@
                     if (v.getUrl) {
                         url = v.getUrl(selJson, v.url);
                     }
-                    return "<li><a target='_blank' href='" + url + "'>" + label + "</a></li>";
+                    var liClass = "";
+                    if (!enabled) {
+                        liClass = "disabled";
+                        tooltip = tooltip.replace("Open", "Cannot open");
+                    }
+                    var html = "<li class='" + liClass + "'><a title='" + tooltip + "'";
+                    if (enabled) {
+                        html += " target='_blank' href='" + url + "'>" + label + "</a></li>";
+                    } else {
+                        html += ">" + label + "</a></li>";
+                    }
+                    return html;
                 });
                 $("#right_panel_openwith").html(openwith_html.join(""));
             });
