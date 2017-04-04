@@ -5488,6 +5488,7 @@ class _RoiWrapper (BlitzObjectWrapper):
         Extend base query to handle loading of Shapes.
         Returns a tuple of (query, clauses, params).
         Supported opts: 'load_shapes': boolean.
+                        'image': <imgae_id> to filter by Image
 
         :param opts:        Dictionary of optional parameters.
         :return:            Tuple of string, list, ParametersI
@@ -5498,6 +5499,9 @@ class _RoiWrapper (BlitzObjectWrapper):
             opts = {}
         if opts.get('load_shapes'):
             query += ' left outer join fetch obj.shapes'
+        if 'image' in opts:
+            clauses.append('obj.image.id = :image_id')
+            params.add('image_id', rlong(opts['image']))
         return (query, clauses, params)
 
 RoiWrapper = _RoiWrapper
