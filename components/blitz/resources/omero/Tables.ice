@@ -61,6 +61,10 @@ module omero {
             omero::api::LongArray values;
         };
 
+        class DatasetColumn extends Column {
+            omero::api::LongArray values;
+        };
+
         class RoiColumn extends Column {
             omero::api::LongArray values;
         };
