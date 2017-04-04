@@ -240,6 +240,8 @@ class ImageView(ObjectView):
     urls = {
         'url:datasets': {'name': 'api_image_datasets',
                          'kwargs': {'image_id': 'OBJECT_ID'}},
+        'url:rois': {'name': 'api_image_rois',
+                     'kwargs': {'image_id': 'OBJECT_ID'}},
     }
 
     def get_opts(self, request):
@@ -670,6 +672,16 @@ class RoisView(ObjectsView):
         """Add extra parameters to the opts dict."""
         opts = super(RoisView, self).get_opts(request, **kwargs)
         opts['load_shapes'] = True
+
+        # at /images/:image_id/rois/ we have 'image_id' in kwargs
+        if 'image_id' in kwargs:
+            opts['image'] = long(kwargs['image_id'])
+        else:
+            # filter by query /rois/?image=:id
+            image = getIntOrDefault(request, 'image', None)
+            if image is not None:
+                opts['image'] = image
+
         return opts
 
 
