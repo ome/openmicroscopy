@@ -147,6 +147,11 @@ class MetadataControl(BaseControl):
         populate = parser.add(sub, self.populate)
         populateroi = parser.add(sub, self.populateroi)
 
+        populate.add_argument("--batch",
+                              type=long,
+                              default=1000,
+                              help="Number of objects to process at once")
+
         for x in (summary, original, bulkanns, measures, mapanns, allanns,
                   rois, populate, populateroi):
             x.add_argument("obj",
@@ -423,7 +428,7 @@ class MetadataControl(BaseControl):
                             cfg=args.cfg, cfgid=cfgid, attach=args.attach)
         ctx.parse()
         if not args.dry_run:
-            ctx.write_to_omero()
+            ctx.write_to_omero(batch_size=args.batch)
 
     def rois(self, args):
         "Manage ROIs"
