@@ -589,17 +589,20 @@ class ParsingContext(object):
                 log.info('Missing well name column, skipping.')
 
             if image_name_column is not None:
+                iid = -1
                 try:
-                    image = self.value_resolver.images_by_id[
-                        self.target_object.id.val]
-                    image = image[image_column.values[i]]
+                    iname = image_name_column.values[i]
+                    did = None
+                    if "Dataset Name" in columns_by_name:  # FIXME
+                        did = columns_by_name["Dataset Name"].values[i]
+                    iid = self.value_resolver.get_image_id_by_name(iname, did)
                 except KeyError:
-                    log.error(
-                        'Missing row or column for image name population!')
-                    raise
-                name = image.name.val
-                image_name_column.size = max(image_name_column.size, len(name))
-                image_name_column.values.append(name)
+                    log.warn(
+                        "%s not found in image names" % iname)
+                assert i == len(image_column.values)
+                image_column.values.append(iid)
+                image_name_column.size = max(
+                    image_name_column.size, len(iname))
             else:
                 log.info('Missing image name column, skipping.')
 
