@@ -48,6 +48,7 @@ def build_url(client, url_name, url_kwargs):
     url = webclient_url.replace('/webclient/', url)
     return url
 
+
 def rgba_to_int(red, green, blue, alpha=255):
     """Return the color as an Integer in RGBA encoding."""
     r = red << 24
@@ -158,9 +159,10 @@ class TestContainers(IWebTest):
         # List ALL rois
         rois_url = reverse('api_rois', kwargs={'api_version': version})
         rsp = _get_response_json(client, rois_url, {})
-        assert_objects(conn, rsp['data'], rois, dtype="Roi", opts={'load_shapes': True})
+        assert_objects(conn, rsp['data'], rois, dtype="Roi",
+                       opts={'load_shapes': True})
 
         # ROIs on the image
         rsp = _get_response_json(client, rois_url, {'image': image.id.val})
-        assert_objects(conn, rsp['data'], rois[:2], dtype="Roi", opts={'load_shapes': True})
-
+        assert_objects(conn, rsp['data'], rois[:2], dtype="Roi",
+                       opts={'load_shapes': True})
