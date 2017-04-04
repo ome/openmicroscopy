@@ -85,6 +85,18 @@ class TestBulkAnnotationConfiguration(object):
         assert c.column_cfgs[0] == expected(name="a1", omitempty=True)
         assert c.column_cfgs[1] == expected(name="b2")
 
+    def test_init_group(self):
+        c = BulkAnnotationConfiguration({"omitempty": True}, [
+            {"name": "a1"},
+            {"group": {"namespace": "group2", "columns": [{"name": "b2"}]}}
+        ])
+        assert c.default_cfg == expected(omitempty=True)
+        assert len(c.column_cfgs) == 1
+        assert c.column_cfgs[0] == expected(name="a1", omitempty=True)
+        assert len(c.group_cfgs) == 1
+        assert c.group_cfgs[0] == GroupConfig(
+            "group2", [expected(name="b2", omitempty=True)])
+
     def test_validate_column_config(self):
         with pytest.raises(Exception):
             BulkAnnotationConfiguration.validate_column_config({})
@@ -115,6 +127,28 @@ class TestBulkAnnotationConfiguration(object):
 
         # Shouldn't throw
         BulkAnnotationConfiguration.validate_column_config(expected(name="a"))
+
+    def test_validate_group_config(self):
+        with pytest.raises(Exception):
+            BulkAnnotationConfiguration.validate_group_config({
+                "namespace": "ga"})
+
+        with pytest.raises(Exception):
+            BulkAnnotationConfiguration.validate_group_config({
+                "columns": [{"name": "a"}]})
+
+        with pytest.raises(Exception):
+            BulkAnnotationConfiguration.validate_group_config({
+                "namespace": "", "columns": [{"name": "a"}]})
+
+        with pytest.raises(Exception):
+            BulkAnnotationConfiguration.validate_group_config({
+                "namespace": "ga", "columns": [{"name": "a"}],
+                "nonexistent": "na"})
+
+        # Shouldn't throw
+        BulkAnnotationConfiguration.validate_group_config({
+            "namespace": "ga", "columns": [{"name": "a"}]})
 
 
 class TestKeyValueListPassThrough(object):
@@ -156,9 +190,10 @@ class TestKeyValueListTransformer(object):
             [{"name": "a2", "include": True}])
         assert tr.default_cfg == expected(include=False, includeclient=False)
 
-        assert len(tr.output_configs) == 1
-        assert tr.output_configs[0] == (expected(
-            name="a2", include=True, includeclient=False), 0)
+        assert len(kvgl.output_configs) == 1
+        assert kvgl.output_configs[0].namespace == ""
+        configs = kvgl.output_configs[0].columns
+        assert configs[0] == (expected(name="a1", visible=False), 0)
 
     def get_complicated_headers(self):
         # See KeyValueListTransformer.get_output_configs.__doc__
@@ -177,20 +212,101 @@ class TestKeyValueListTransformer(object):
         ]
         return headers, column_cfgs
 
+    def test_init_col_ordered_unordered(self):
+        headers = ["a2", "a1"]
+        kvgl = KeyValueGroupList(headers, None, [
+            {"name": "a2", "visible": False},
+            {"name": "a1", "position": 1}])
+        assert kvgl.default_cfg == expected()
+
+        assert len(kvgl.output_configs) == 1
+        assert kvgl.output_configs[0].namespace == ""
+        configs = kvgl.output_configs[0].columns
+        assert len(configs) == 2
+        assert configs[0] == (expected(name="a1", position=1), 1)
+        assert configs[1] == (expected(name="a2", visible=False), 0)
+
+    def test_init_col_unincluded(self):
+        headers = ["a2", "a1"]
+        kvgl = KeyValueGroupList(headers, {
+            "include": False, "includeclient": False},
+            [{"name": "a2", "include": True}])
+        assert kvgl.default_cfg == expected(include=False, includeclient=False)
+
+        assert len(kvgl.output_configs) == 1
+        assert kvgl.output_configs[0].namespace == ""
+        configs = kvgl.output_configs[0].columns
+        assert len(configs) == 1
+        assert configs[0] == (expected(
+            name="a2", include=True, includeclient=False), 0)
+
     def test_init_col_complicated_order(self):
         headers, column_cfgs = self.get_complicated_headers()
-        tr = KeyValueListTransformer(headers, None, column_cfgs)
-        assert tr.default_cfg == expected()
+        kvgl = KeyValueGroupList(headers, None, column_cfgs)
+        assert kvgl.default_cfg == expected()
 
-        assert len(tr.output_configs) == 6
-        assert tr.output_configs[0] == (expected(
-            name="a1", position=1, split="|"), 3)
-        assert tr.output_configs[1] == (expected(name="a2", visible=False), 1)
-        assert tr.output_configs[2] == (expected(name="a3"), 0)
-        assert tr.output_configs[3] == (expected(
+        assert len(kvgl.output_configs) == 1
+        assert kvgl.output_configs[0].namespace == ""
+        configs = kvgl.output_configs[0].columns
+        assert len(configs) == 6
+        assert configs[0] == (expected(name="a1", position=1, split="|"), 3)
+        assert configs[1] == (expected(name="a2", visible=False), 1)
+        assert configs[2] == (expected(name="a3"), 0)
+        assert configs[3] == (expected(
             name="a4", position=4, clientvalue="*-{{ value }}-*"), 2)
-        assert tr.output_configs[4] == (expected(name="a5"), 5)
-        assert tr.output_configs[5] == (expected(name="a6"), 6)
+        assert configs[4] == (expected(name="a5"), 5)
+        assert configs[5] == (expected(name="a6"), 6)
+
+    def test_init_col_group(self):
+        headers = ["a1", "a2"]
+        desc = [
+            {"name": "a1"},
+            {"group": {"namespace": "g2", "columns": [{"name": "a2"}]}},
+        ]
+        kvgl = KeyValueGroupList(headers, None, desc)
+        assert kvgl.default_cfg == expected()
+        assert kvgl.headerindexmap == {'a1': 0, 'a2': 1}
+
+        assert len(kvgl.output_configs) == 2
+
+        assert kvgl.output_configs[0].namespace == "g2"
+        assert kvgl.output_configs[0].columns == [(expected(name="a2"), 1)]
+
+        # Default group always comes last
+        assert kvgl.output_configs[1].namespace == ""
+        assert kvgl.output_configs[1].columns == [(expected(name="a1"), 0)]
+
+    def test_init_col_group_multi(self):
+        headers = ["a1", "a2", "a3", "a4", "a5"]
+        desc = [
+            {"name": "a1"},
+            {"group": {"namespace": "g2", "columns": [{"name": "a2"}]}},
+            {"name": "a3"},
+            {"group": {
+                "namespace": "g4", "columns": [{"name": "a4"}, {"name": "a5"}]
+            }},
+        ]
+        kvgl = KeyValueGroupList(headers, None, desc)
+        assert kvgl.default_cfg == expected()
+        assert kvgl.headerindexmap == {
+            'a1': 0, 'a2': 1, 'a3': 2, 'a4': 3, 'a5': 4}
+
+        assert len(kvgl.output_configs) == 3
+
+        assert kvgl.output_configs[0].namespace == "g2"
+        assert kvgl.output_configs[0].columns == [(expected(name="a2"), 1)]
+
+        assert kvgl.output_configs[1].namespace == "g4"
+        assert kvgl.output_configs[1].columns == [
+            (expected(name="a4"), 3), (expected(name="a5"), 4)]
+
+        # Default group always comes last
+        assert kvgl.output_configs[2].namespace == ""
+        assert kvgl.output_configs[2].columns == [
+            (expected(name="a1"), 0), (expected(name="a3"), 2)]
+
+
+class TestKeyValueListTransformer(object):
 
     def test_transform1_default(self):
         cfg = expected(name="a1")

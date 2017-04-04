@@ -38,6 +38,17 @@ NSBULKANNOTATIONSCONFIG = namespaces.NSBULKANNOTATIONS + "/config"
 NSBULKANNOTATIONSRAW = namespaces.NSBULKANNOTATIONS + "/raw"
 
 
+class GroupConfig(object):
+
+    def __init__(self, namespace, column_cfg):
+        self.namespace = namespace
+        self.columns = column_cfg
+
+    def __eq__(self, other):
+        return (isinstance(other, self.__class__)
+                and self.__dict__ == other.__dict__)
+
+
 class BulkAnnotationConfiguration(object):
     """
     Parent class for handling bulk-annotation column configurations
@@ -55,6 +66,7 @@ class BulkAnnotationConfiguration(object):
         "visible",
         "omitempty",
         ])
+    GROUPREQUIRED = set(["namespace", "columns"])
 
     def __init__(self, default_cfg, column_cfgs):
         """
@@ -144,10 +156,43 @@ class BulkAnnotationConfiguration(object):
                 raise Exception(
                     "clientvalue template parameter not found: %s" % m.group())
 
+    @classmethod
+    def validate_group_config(cls, cfg):
+        """
+        Check whether a group config section is valid, throws Exception if not
+        Not recursive (doesn't check columns for validity)
+        """
+
+        keys = set(cfg.keys())
+
+        missing = cls.GROUPREQUIRED.difference(keys)
+        if missing:
+            raise Exception(
+                "Required key(s) missing from group configuration: %s" %
+                list(missing))
+
+        if not cfg["namespace"]:
+            raise Exception("Empty name in group configuration: %s" % cfg)
+
+        if not cfg["columns"]:
+            raise Exception("Empty columns in group configuration: %s" % cfg)
+
+        invalid = keys.difference(cls.GROUPREQUIRED)
+        if invalid:
+            raise Exception(
+                "Invalid key(s) in group configuration: %s" % list(invalid))
+
     def get_column_config(self, cfg):
         """
         Replace unspecified fields in a column config with defaults
         """
+        if 'group' in cfg:
+            gcfg = cfg['group']
+            self.validate_group_config(gcfg)
+            column_cfgs = [
+                self.get_column_config(gc) for gc in gcfg['columns']]
+            return GroupConfig(gcfg['namespace'], column_cfgs)
+
         self.validate_column_config(cfg)
         column_cfg = self.default_cfg.copy()
         column_cfg.update(cfg)
@@ -195,9 +240,26 @@ class KeyValueListTransformer(BulkAnnotationConfiguration):
 
     def get_output_configs(self):
         """
-        Get the full set of output column configs, taking into account
-        specified column positions and columns included/excluded according
-        to the defaults:
+        Get the full set of output column configs including column groups
+        The default set of column configs has an empty namespace
+        """
+
+        # First process groups in case the default is to include all
+        # columns not explicitly specified
+        output_configs = []
+        for gcfg in self.group_cfgs:
+            output_cfg = self.get_group_output_configs(gcfg.columns, False)
+            output_configs.append(GroupConfig(gcfg.namespace, output_cfg))
+
+        output_defcfg = self.get_group_output_configs(self.column_cfgs, True)
+        output_configs.append(GroupConfig('', output_defcfg))
+        return output_configs
+
+    def get_group_output_configs(self, column_cfgs, isdefault):
+        """
+        Get the full set of output column configs for a single group,
+        taking into account specified column positions and columns
+        included/excluded according to the defaults:
 
         - positioned columns are at the specified index (1-based)
         - gaps between positioned columns are filled with unpositioned
@@ -248,6 +310,31 @@ class KeyValueListTransformer(BulkAnnotationConfiguration):
                     output_configs.append(unpositioned.popleft())
         output_configs.extend(unpositioned)
         return output_configs
+
+    def get_transformers(self):
+        """
+        Return a set of KeyValueListTransformer objects, one for each group
+        """
+        transformers = [KeyValueListTransformer(
+            self.headers, gc.columns, gc.namespace)
+            for gc in self.output_configs]
+        return transformers
+
+
+class KeyValueListTransformer(object):
+    """
+    Converts bulk-annotation rows into key-value lists
+    """
+
+    def __init__(self, headers, output_configs, name=None):
+        """
+        :param headers: A list of table headers
+        :param output_configs: A list of output configurations
+        :param name: The name for this group of keys/values, optional
+        """
+        self.headers = headers
+        self.output_configs = output_configs
+        self.name = name
 
     @staticmethod
     def transform1(value, cfg):

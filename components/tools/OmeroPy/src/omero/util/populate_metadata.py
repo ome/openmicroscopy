@@ -704,43 +704,42 @@ class BulkToMapAnnotationContext(_QueryContext):
             raise MetadataError("Unable to find bulk-annotations file")
 
         self.default_cfg, self.column_cfgs, self.advanced_cfgs = \
-            self.get_config(cfg=cfg, cfgid=cfgid)
+            get_config(self.client.getSession(), cfg=cfg, cfgid=cfgid)
+
+        self.pkmap = {}
+        self.mapannotations = MapAnnotationManager()
+        self._init_namespace_primarykeys()
+
+    def _init_namespace_primarykeys(self):
+        try:
+            pkcfg = self.advanced_cfgs['primary_group_keys']
+        except (TypeError, KeyError):
+            return None
+
+        for pk in pkcfg:
+            try:
+                gns = pk['namespace']
+                keys = pk['keys']
+            except KeyError:
+                raise Exception('Invalid primary_group_keys: %s' % pk)
+            if keys:
+                if not isinstance(keys, list):
+                    raise Exception('keys must be a list')
+                if gns in self.pkmap:
+                    raise Exception('Duplicate namespace in keys: %s' % gns)
+
+                self.pkmap[gns] = keys
+                self.mapannotations.add_from_namespace_query(
+                    self.client.getSession(), gns, keys)
+                log.debug('Loaded ns:%s primary-keys:%s', gns, keys)
+
+    def _get_ns_primary_keys(self, ns):
+        return self.pkmap.get(ns, None)
 
     def get_target(self, target_object):
         qs = self.client.getSession().getQueryService()
         return qs.find(target_object.ice_staticId().split('::')[-1],
                        target_object.id.val)
-
-    def get_config(self, cfg=None, cfgid=None):
-        if not YAML_ENABLED:
-            raise ImportError("yaml (PyYAML) module required")
-
-        if cfgid:
-            try:
-                rfs = self.client.getSession().createRawFileStore()
-                rfs.setFileId(cfgid)
-                rawdata = rfs.read(0, rfs.size())
-            finally:
-                rfs.close()
-        elif cfg:
-            with open(cfg, 'r') as f:
-                rawdata = f.read()
-        else:
-            raise Exception("Configuration file required")
-
-        cfg = list(yaml.load_all(rawdata))
-        if len(cfg) != 1:
-            raise Exception(
-                "Expected YAML file with one document, found %d" % len(cfg))
-        cfg = cfg[0]
-
-        default_cfg = cfg.get("defaults")
-        column_cfgs = cfg.get("columns")
-        advanced_cfgs = cfg.get("advanced", {})
-        if not default_cfg and not column_cfgs:
-            raise Exception(
-                "Configuration defaults and columns were both empty")
-        return default_cfg, column_cfgs, advanced_cfgs
 
     def get_bulk_annotation_file(self):
         otype = self.target_object.ice_staticId().split('::')[-1]
@@ -751,9 +750,10 @@ class BulkToMapAnnotationContext(_QueryContext):
         if r:
             return r[-1]
 
-    @staticmethod
-    def create_map_annotation(
-            targets, rowkvs, ns=omero.constants.namespaces.NSBULKANNOTATIONS):
+    # @staticmethod
+    def _create_cmap_annotation(self, targets, rowkvs,
+        ns=omero.constants.namespaces.NSBULKANNOTATIONS):
+        pks = self._get_ns_primary_keys(ns)
         ma = MapAnnotationI()
         ma.setNs(rstring(ns))
         mv = []
@@ -763,6 +763,14 @@ class BulkToMapAnnotationContext(_QueryContext):
             mv.extend(NamedValue(k, str(v)) for v in vs)
         ma.setMapValue(mv)
 
+        log.debug('Creating CanonicalMapAnnotation ns:%s pks:%s kvs:%s',
+                  ns, pks, rowkvs)
+        cma = CanonicalMapAnnotation(ma, primary_keys=pks)
+        for (otype, oid) in targets:
+            cma.add_parent(otype, oid)
+        return cma
+
+    def _create_map_annotation_links(self, cma):
         links = []
         for target in targets:
             otype = target.ice_staticId().split('::')[-1]
@@ -830,24 +838,44 @@ class BulkToMapAnnotationContext(_QueryContext):
                 else:
                     log.warn("Invalid Id:%d found in row %s", row[n], row)
             if targets:
-                malinks = self.create_map_annotation(targets, rowkvs)
-                log.debug('Map:\n\t' + ('\n\t'.join("%s=%s" % (
-                    v.name, v.value) for v in
-                    malinks[0].getChild().getMapValue())))
-                log.debug('Targets:\n\t' + ('\n\t'.join("%s:%d" % (
-                    t.ice_staticId().split('::')[-1], t.id._val)
-                    for t in targets)))
-                mas.extend(malinks)
+                for tr in trs:
+                    rowkvs = tr.transform(row)
+                    ns = tr.name
+                    if not ns:
+                        ns = omero.constants.namespaces.NSBULKANNOTATIONS
+                    try:
+                        cma = self._create_cmap_annotation(targets, rowkvs, ns)
+                        if cma:
+                            self.mapannotations.add(cma)
+                            log.debug('Added MapAnnotation: %s', cma)
+                        else:
+                            log.debug(
+                                'Empty MapAnnotation: %s', rowkvs)
+                    except MapAnnotationPrimaryKeyException as e:
+                        c = ''
+                        if ignore_missing_primary_key:
+                            c = ' (Continuing)'
+                        log.error(
+                            'Missing primary keys%s: %s %s ', c, e, rowkvs)
+                        if not ignore_missing_primary_key:
+                            raise
 
-        self.mapannotations = mas
-
-    def write_to_omero(self):
+    def write_to_omero(self, batch_size=1000):
         sf = self.client.getSession()
         group = str(self.target_object.details.group.id.val)
         update_service = sf.getUpdateService()
-        ids = update_service.saveAndReturnIds(
-            self.mapannotations, {'omero.group': group})
-        log.info('Created %d MapAnnotations', len(ids))
+        i = 0
+        links = []
+        # This may be many-links-to-one-new-mapann so everything must
+        # be kept together to avoid duplication of the mapann
+        for cma in self.mapannotations.get_map_annotations():
+            links.append(self._create_map_annotation_links(cma))
+        for batch in self._grouped_batch(links, sz=batch_size):
+            arr = update_service.saveAndReturnArray(
+                batch, {'omero.group': group})
+            i += len(arr)
+            log.info('Created/linked %d MapAnnotations (total %s)',
+                     len(arr), i)
 
 
 class DeleteMapAnnotationContext(_QueryContext):
@@ -881,6 +909,17 @@ class DeleteMapAnnotationContext(_QueryContext):
             r = self.projection(q % (objtype, anntype), objids, ns)
             log.debug("%s: %d %s(s)", objtype, len(set(r)), anntype)
         return r
+
+    def _get_configured_namespaces(self):
+        nss = set([omero.constants.namespaces.NSBULKANNOTATIONS])
+        if self.column_cfgs:
+            for c in self.column_cfgs:
+                try:
+                    ns = c['group']['namespace']
+                    nss.add(ns)
+                except KeyError:
+                    continue
+        return list(nss)
 
     def populate(self):
         # Hierarchy: Screen, Plate, {PlateAcquistion, Well}, WellSample, Image
