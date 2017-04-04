@@ -142,7 +142,461 @@ class TestPopulateMetadata(BasePopulate):
         was = unwrap(qs.projection(query, None))
         return was
 
-    def testPopulateMetadataPlate(self):
+class Plate2WellsNs(Plate2Wells):
+    # For this test use explicit files instead of generating them as an
+    # additional safeguard against changes in the test code
+
+    def __init__(self):
+        self.count = 6
+        self.annCount = 6 * 2  # Two namespaces
+        self.rowCount = 2
+        self.colCount = 3
+        d = os.path.dirname(__file__)
+        self.csv = os.path.join(d, 'bulk_to_map_annotation_context_ns.csv')
+        self.plate = None
+
+    def get_cfg(self):
+        return os.path.join(os.path.dirname(__file__),
+                            'bulk_to_map_annotation_context_ns.yml')
+
+    def get_namespaces(self):
+        return [NSBULKANNOTATIONS, 'openmicroscopy.org/mapr/gene']
+
+    def assert_row_values(self, rowvalues):
+        # First column is the WellID
+        assert rowvalues[0][1:] == (
+            "FBgn0004644", "hh", "hedgehog;bar-3;CG4637", "a1")
+        assert rowvalues[1][1:] == (
+            "FBgn0003656", "sws", "swiss cheese;olfE;CG2212", "a2")
+        assert rowvalues[2][1:] == (
+            "FBgn0011236", "ken", "ken and barbie;CG5575", "a3")
+        assert rowvalues[3][1:] == (
+            "", "hh",
+            "DHH;IHH;SHH;Desert hedgehog;Indian hedgehog;Sonic hedgehog", "b1")
+        assert rowvalues[4][1:] == (
+            "", "sws",
+            "PNPLA6;patatin like phospholipase domain containing 6", "b2")
+        assert rowvalues[5][1:] == (
+            "", "ken", "BCL6;B-cell lymphoma 6 protein", "b3")
+
+    def assert_child_annotations(self, oas):
+        wellrcs = [coord2offset(c) for c in (
+            'a1', 'a2', 'a3', 'b1', 'b2', 'b3')]
+        nss = [NSBULKANNOTATIONS, 'openmicroscopy.org/mapr/gene']
+        wellrc_ns = [(wrc, ns) for wrc in wellrcs for ns in nss]
+        check = dict((k, None) for k in wellrc_ns)
+        annids = []
+
+        for ma, wid, wr, wc in oas:
+            assert isinstance(ma, MapAnnotationI)
+            annids.append(unwrap(ma.getId()))
+            ns = unwrap(ma.getNs())
+            wrc = (wr, wc)
+
+            # Well names/ids aren't included in this test, because this also
+            # test that annotations are combined by primary key
+            assert (wrc, ns) in check, 'Unexpected well/namespace'
+            assert check[(wrc, ns)] is None, 'Duplicate annotation'
+
+            # Use getMapValue to check ordering and duplicates
+            check[(wrc, ns)] = [(p.name, p.value) for p in ma.getMapValue()]
+
+        # Row a
+
+        assert check[(wellrcs[0], nss[0])] == [
+            ('Gene', 'hh'),
+            ('FlyBase URL', 'http://flybase.org/reports/FBgn0004644.html'),
+        ]
+        assert check[(wellrcs[0], nss[1])] == [
+            ('Gene', 'hh'),
+            ('Gene name', 'hedgehog'),
+            ('Gene name', 'bar-3'),
+            ('Gene name', 'CG4637'),
+        ]
+
+        assert check[(wellrcs[1], nss[0])] == [
+            ('Gene', 'sws'),
+            ('FlyBase URL', 'http://flybase.org/reports/FBgn0003656.html'),
+        ]
+        assert check[(wellrcs[1], nss[1])] == [
+            ('Gene', 'sws'),
+            ('Gene name', 'swiss cheese'),
+            ('Gene name', 'olfE'),
+            ('Gene name', 'CG2212'),
+        ]
+
+        assert check[(wellrcs[2], nss[0])] == [
+            ('Gene', 'ken'),
+            ('FlyBase URL', 'http://flybase.org/reports/FBgn0011236.html'),
+        ]
+        assert check[(wellrcs[2], nss[1])] == [
+            ('Gene', 'ken'),
+            ('Gene name', 'ken and barbie'),
+            ('Gene name', 'CG5575'),
+        ]
+
+        # Row b
+
+        assert check[(wellrcs[3], nss[0])] == [
+            ('Gene', 'hh'),
+        ]
+        assert check[(wellrcs[3], nss[1])] == [
+            ('Gene', 'hh'),
+            ('Gene name', 'DHH'),
+            ('Gene name', 'IHH'),
+            ('Gene name', 'SHH'),
+            ('Gene name', 'Desert hedgehog'),
+            ('Gene name', 'Indian hedgehog'),
+            ('Gene name', 'Sonic hedgehog'),
+        ]
+        assert check[(wellrcs[4], nss[0])] == [
+            ('Gene', 'sws'),
+        ]
+        assert check[(wellrcs[4], nss[1])] == [
+            ('Gene', 'sws'),
+            ('Gene name', 'PNPLA6'),
+            ('Gene name', 'patatin like phospholipase domain containing 6'),
+        ]
+
+        assert check[(wellrcs[5], nss[0])] == [
+            ('Gene', 'ken'),
+        ]
+        assert check[(wellrcs[5], nss[1])] == [
+            ('Gene', 'ken'),
+            ('Gene name', 'BCL6'),
+            ('Gene name', 'B-cell lymphoma 6 protein'),
+        ]
+
+        assert len(annids) == 12
+        assert len(set(annids)) == 12
+
+
+class Plate2WellsNs2(Plate2WellsNs):
+    # For this test use explicit files instead of generating them as an
+    # additional safeguard against changes in the test code
+
+    def __init__(self):
+        super(Plate2WellsNs2, self).__init__()
+
+    def get_cfg(self):
+        return os.path.join(os.path.dirname(__file__),
+                            'bulk_to_map_annotation_context_ns2.yml')
+
+    def assert_child_annotations(self, oas):
+        wellrcs = [coord2offset(c) for c in (
+            'a1', 'a2', 'a3', 'b1', 'b2', 'b3')]
+        nss = [NSBULKANNOTATIONS, 'openmicroscopy.org/mapr/gene']
+        wellrc_ns = [(wrc, ns) for wrc in wellrcs for ns in nss]
+        check = dict((k, None) for k in wellrc_ns)
+        annids = []
+
+        for ma, wid, wr, wc in oas:
+            assert isinstance(ma, MapAnnotationI)
+            annids.append(unwrap(ma.getId()))
+            ns = unwrap(ma.getNs())
+            wrc = (wr, wc)
+
+            # Well names/ids aren't included in this test, because this also
+            # test that annotations are combined by primary key
+            assert (wrc, ns) in check, 'Unexpected well/namespace'
+            assert check[(wrc, ns)] is None, 'Duplicate annotation'
+
+            # Use getMapValue to check ordering and duplicates
+            check[(wrc, ns)] = [(p.name, p.value) for p in ma.getMapValue()]
+
+        # Row a
+
+        assert check[(wellrcs[0], nss[0])] == [
+            ('Gene', 'hh'),
+            ('FlyBase URL', 'http://flybase.org/reports/FBgn0004644.html'),
+        ]
+        assert check[(wellrcs[0], nss[1])] == [
+            ('Gene', 'hh'),
+            ('Gene name', 'hedgehog'),
+            ('Gene name', 'bar-3'),
+            ('Gene name', 'CG4637'),
+            ('Gene name', 'DHH'),
+            ('Gene name', 'IHH'),
+            ('Gene name', 'SHH'),
+            ('Gene name', 'Desert hedgehog'),
+            ('Gene name', 'Indian hedgehog'),
+            ('Gene name', 'Sonic hedgehog'),
+        ]
+        assert check[(wellrcs[1], nss[0])] == [
+            ('Gene', 'sws'),
+            ('FlyBase URL', 'http://flybase.org/reports/FBgn0003656.html'),
+        ]
+        assert check[(wellrcs[1], nss[1])] == [
+            ('Gene', 'sws'),
+            ('Gene name', 'swiss cheese'),
+            ('Gene name', 'olfE'),
+            ('Gene name', 'CG2212'),
+            ('Gene name', 'PNPLA6'),
+            ('Gene name', 'patatin like phospholipase domain containing 6'),
+        ]
+
+        assert check[(wellrcs[2], nss[0])] == [
+            ('Gene', 'ken'),
+            ('FlyBase URL', 'http://flybase.org/reports/FBgn0011236.html'),
+        ]
+        assert check[(wellrcs[2], nss[1])] == [
+            ('Gene', 'ken'),
+            ('Gene name', 'ken and barbie'),
+            ('Gene name', 'CG5575'),
+            ('Gene name', 'BCL6'),
+            ('Gene name', 'B-cell lymphoma 6 protein'),
+        ]
+
+        # Row b
+
+        assert check[(wellrcs[3], nss[0])] == [
+            ('Gene', 'hh'),
+        ]
+        assert check[(wellrcs[3], nss[1])] == check[(wellrcs[0], nss[1])]
+
+        assert check[(wellrcs[4], nss[0])] == [
+            ('Gene', 'sws'),
+        ]
+        assert check[(wellrcs[4], nss[1])] == check[(wellrcs[1], nss[1])]
+
+        assert check[(wellrcs[5], nss[0])] == [
+            ('Gene', 'ken'),
+        ]
+        assert check[(wellrcs[5], nss[1])] == check[(wellrcs[2], nss[1])]
+
+        assert len(annids) == 12
+        assert len(set(annids)) == 9
+
+
+class Dataset2Images(Fixture):
+
+    def __init__(self):
+        self.count = 4
+        self.annCount = 2
+        self.csv = self.createCsv(
+            colNames="Image Name,Type,Concentration",
+        )
+        self.dataset = None
+        self.images = None
+        self.names = ("A1", "A2")
+
+    def assert_rows(self, rows):
+        # Hard-coded in createCsv's arguments
+        assert rows == 2
+
+    def get_target(self):
+        if not self.dataset:
+            self.dataset = self.createDataset(self.names)
+            self.images = self.get_dataset_images()
+        return self.dataset
+
+    def get_dataset_images(self):
+        if not self.dataset:
+            return []
+        query = """select i from Image i
+            left outer join fetch i.datasetLinks links
+            left outer join fetch links.parent d
+            where d.id=%s""" % self.dataset.id.val
+        qs = self.test.client.sf.getQueryService()
+        return qs.findAllByQuery(query, None)
+
+    def get_annotations(self):
+        query = """select d from Dataset d
+            left outer join fetch d.annotationLinks links
+            left outer join fetch links.child
+            where d.id=%s""" % self.dataset.id.val
+        qs = self.test.client.sf.getQueryService()
+        ds = qs.findByQuery(query, None)
+        anns = ds.linkedAnnotationList()
+        return anns
+
+    def get_child_annotations(self):
+        if not self.images:
+            return []
+        params = ParametersI()
+        params.addIds([x.id for x in self.images])
+        query = """ select a, i.id, 'NA', 'NA'
+            from Image i
+            left outer join i.annotationLinks links
+            left outer join links.child as a
+            where i.id in (:ids) and a <> null"""
+        qs = self.test.client.sf.getQueryService()
+        return unwrap(qs.projection(query, params))
+
+    def assert_child_annotations(self, oas):
+        for ma, iid, na1, na2 in oas:
+            assert isinstance(ma, MapAnnotationI)
+            assert unwrap(ma.getNs()) == NSBULKANNOTATIONS
+            mv = ma.getMapValueAsMap()
+            img = mv['Image Name']
+            con = mv['Concentration']
+            typ = mv['Type']
+            assert img[0] in ("A", "a")
+            which = long(img[1:])
+            if which % 2 == 1:
+                assert con == '0'
+                assert typ == 'Control'
+            elif which % 2 == 0:
+                assert con == '10'
+                assert typ == 'Treatment'
+
+
+class Dataset2Images1Missing(Dataset2Images):
+
+    def __init__(self):
+        super(Dataset2Images1Missing, self).__init__()
+        self.annCount = 1
+
+    def get_target(self):
+        """
+        Temporarily alter self.names so that the super
+        invocation creates fewer images than are expected.
+        """
+        old = self.names
+        try:
+            self.names = old[0:-1]  # Skip last
+            return super(Dataset2Images1Missing, self).get_target()
+        finally:
+            self.names = old
+
+
+class Dataset101Images(Dataset2Images):
+
+    def __init__(self):
+        self.count = 4
+        self.annCount = 102
+        self.names = []
+        rowData = []
+        for x in range(0, 101, 2):
+            name = "A%s" % (x+1)
+            self.names.append(name)
+            rowData.append("%s,Control,0" % name)
+            name = "A%s" % (x+2)
+            self.names.append(name)
+            rowData.append("A%s,Treatment,10" % (x+2))
+        self.csv = self.createCsv(
+            colNames="Image Name,Type,Concentration",
+            rowData=rowData,
+        )
+        self.dataset = None
+        self.images = None
+
+    def assert_rows(self, rows):
+        assert rows == 102
+
+
+class GZIP(Dataset2Images):
+
+    def createCsv(self, *args, **kwargs):
+        csvFileName = super(GZIP, self).createCsv(*args, **kwargs)
+        gzipFileName = "%s.gz" % csvFileName
+        with open(csvFileName, 'rb') as f_in, \
+                gzip.open(gzipFileName, 'wb') as f_out:
+            shutil.copyfileobj(f_in, f_out)
+
+        return gzipFileName
+
+
+class Project2Datasets(Fixture):
+
+    def __init__(self):
+        self.count = 5
+        self.annCount = 4
+        self.csv = self.createCsv(
+            colNames="Dataset Name,Image Name,Type,Concentration",
+            rowData=("D001,A1,Control,0", "D001,A2,Treatment,10",
+                     "D002,A1,Control,0", "D002,A2,Treatment,10"))
+        self.project = None
+
+    def assert_rows(self, rows):
+        # Hard-coded in createCsv's arguments
+        assert rows == 4
+
+    def get_target(self):
+        if not self.project:
+            self.project = self.createProject("P123")
+            self.images = self.get_project_images()
+        return self.project
+
+    def get_project_images(self):
+        if not self.project:
+            return []
+        query = """select i from Image i
+            left outer join fetch i.datasetLinks dil
+            left outer join fetch dil.parent d
+            left outer join fetch d.projectLinks pdl
+            left outer join fetch pdl.parent p
+            where p.id=%s""" % self.project.id.val
+        qs = self.test.client.sf.getQueryService()
+        return qs.findAllByQuery(query, None)
+
+    def get_annotations(self):
+        query = """select p from Project p
+            left outer join fetch p.annotationLinks links
+            left outer join fetch links.child
+            where p.id=%s""" % self.project.id.val
+        qs = self.test.client.sf.getQueryService()
+        ds = qs.findByQuery(query, None)
+        anns = ds.linkedAnnotationList()
+        return anns
+
+    def get_child_annotations(self):
+        if not self.images:
+            return []
+        params = ParametersI()
+        params.addIds([x.id for x in self.images])
+        query = """ select a, i.id, 'NA', 'NA'
+            from Image i
+            left outer join i.annotationLinks links
+            left outer join links.child as a
+            where i.id in (:ids) and a <> null"""
+        qs = self.test.client.sf.getQueryService()
+        return unwrap(qs.projection(query, params))
+
+    def assert_child_annotations(self, oas):
+        for ma, iid, na1, na2 in oas:
+            assert isinstance(ma, MapAnnotationI)
+            assert unwrap(ma.getNs()) == NSBULKANNOTATIONS
+            mv = ma.getMapValueAsMap()
+            ds = mv['Dataset Name']
+            img = mv['Image Name']
+            con = mv['Concentration']
+            typ = mv['Type']
+            if ds == 'D001' or ds == 'D002':
+                if img == "A1":
+                    assert con == '0'
+                    assert typ == 'Control'
+                elif img == "A2":
+                    assert con == '10'
+                    assert typ == 'Treatment'
+                else:
+                    raise Exception("Unknown img: %s" % img)
+            else:
+                raise Exception("Unknown dataset: %s" % ds)
+
+
+class TestPopulateMetadata(lib.ITest):
+
+    METADATA_FIXTURES = (
+        Screen2Plates(),
+        Plate2Wells(),
+        Dataset2Images(),
+        Dataset2Images1Missing(),
+        Dataset101Images(),
+        Project2Datasets(),
+        GZIP(),
+    )
+    METADATA_IDS = [x.__class__.__name__ for x in METADATA_FIXTURES]
+
+    METADATA_NS_FIXTURES = (
+        Plate2WellsNs(),
+        Plate2WellsNs2(),
+    )
+    METADATA_NS_IDS = [x.__class__.__name__ for x in METADATA_NS_FIXTURES]
+
+    @mark.parametrize("fixture", METADATA_FIXTURES, ids=METADATA_IDS)
+    @mark.parametrize("batch_size", (None, 1, 10))
+    def testPopulateMetadata(self, fixture, batch_size):
         """
         We should really test each of the parsing contexts in separate tests
         but in practice each one uses data created by the others, so for
