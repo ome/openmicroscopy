@@ -1131,7 +1131,6 @@ class BrowserComponent
 				if (!(ho instanceof ExperimenterData)) return;
         		if (uo instanceof FileData) {
         			FileData dir = (FileData) uo;
-        			if (dir.isHidden()) return;
         			if (dir.isDirectory()) {
         				//Check if data loaded
         				List<DataObject> list = new ArrayList<DataObject>();

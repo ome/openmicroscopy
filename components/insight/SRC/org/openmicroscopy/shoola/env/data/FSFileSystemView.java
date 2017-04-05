@@ -311,13 +311,4 @@ public class FSFileSystemView
     	*/
     	return null;
     }
-    
-    /**
-     * Returns <code>true</code> if the file is hidden, <code>false</code>
-     * otherwise.
-     * 
-     * @return See above.
-     */
-    public boolean isHiddenFile(FileData f) { return f.isHidden(); }
-
 }
