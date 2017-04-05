@@ -656,7 +656,6 @@ class TestThumbnailPerms(ITest):
             tb.getThumbnailByLongestSideSet(rint(96), [pixelsId1, pixelsId2],
                                             {'omero.group': '-1'})
 
-
         # But without the group -1 context, this works
         tb.getThumbnailByLongestSideSet(rint(96), [pixelsId1, pixelsId2])
         # And NOW, this will work again too!
