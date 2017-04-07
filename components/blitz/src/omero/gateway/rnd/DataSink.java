@@ -93,12 +93,12 @@ public class DataSink implements AutoCloseable
     /**
      * Creates a new instance.
      *
+     * @param ctx
+     *            The SecurityContext
      * @param source
      *            The pixels set.
      * @param gw
      *            Reference to the gateway.
-     * @param ctx
-     *            The SecurityContext
      * @throws DSOutOfServiceException
      *             If the PixelsStore can't be accessed
      */
@@ -212,7 +212,7 @@ public class DataSink implements AutoCloseable
     public Plane2D getPlane(int z, int t, int c)
             throws DataSourceException
     {
-        return createPlane( z, t, c, strategy);
+        return createPlane(z, t, c, strategy);
     }
 
     /**
