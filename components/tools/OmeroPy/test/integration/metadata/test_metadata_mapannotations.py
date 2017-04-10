@@ -24,7 +24,7 @@ Integration test of metadata_mapannotation
 """
 
 
-import library as lib
+from omero.testlib import ITest
 from omero.model import MapAnnotationI, NamedValue
 from omero.rtypes import unwrap, wrap
 from omero.util.metadata_mapannotations import (
@@ -40,7 +40,7 @@ def assert_equal_map_value(mva, mvb):
         assert a.value == b.value
 
 
-class TestMapAnnotationManager(lib.ITest):
+class TestMapAnnotationManager(ITest):
 
     def create_mas(self):
         ns1 = self.uuid()
