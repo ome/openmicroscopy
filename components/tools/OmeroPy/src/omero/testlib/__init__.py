@@ -1040,7 +1040,7 @@ class ITest(object):
             t = obj.__class__.__name__
             to_delete[t].append(obj.id.val)
         command = Delete2(targetObjects=to_delete)
-        self.doSubmit(command, self.client)
+        self.do_submit(command, self.client)
 
     def change_group(self, obj, target, client=None):
         """
