@@ -651,13 +651,9 @@ class TestThumbnailPerms(ITest):
         # After applying settings...
         ss.applySettingsToSet(pixelsId1, "Image", [image2.id.val])
 
-        # This now fails with a SecurityViolation
-        with pytest.raises(omero.SecurityViolation):
-            tb.getThumbnailByLongestSideSet(rint(96), [pixelsId1, pixelsId2],
-                                            {'omero.group': '-1'})
-
-        # But without the group -1 context, this works
-        tb.getThumbnailByLongestSideSet(rint(96), [pixelsId1, pixelsId2])
-        # And NOW, this will work again too!
+        # Should still be able to get thumbnail set
         tb.getThumbnailByLongestSideSet(rint(96), [pixelsId1, pixelsId2],
                                         {'omero.group': '-1'})
+
+        # Also should work without any group context
+        tb.getThumbnailByLongestSideSet(rint(96), [pixelsId1, pixelsId2])
