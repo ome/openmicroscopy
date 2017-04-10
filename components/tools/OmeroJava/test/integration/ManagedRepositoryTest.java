@@ -820,6 +820,7 @@ public class ManagedRepositoryTest extends AbstractServerImportTest {
      * Test that bad file checksums are correctly reported.
      * @throws ServerError unexpected
      */
+    @Test
     public void testVerifyChecksums() throws ServerError {
         /* upload the files */
         final long fileId1 = uploadSampleFile();
