@@ -133,10 +133,10 @@ class Fixture(object):
         return ds.proxy()
 
     def createScreen(self, rowCount, colCount):
-        plate1 = self.test.importPlates(plateRows=rowCount,
-                                        plateCols=colCount)[0]
-        plate2 = self.test.importPlates(plateRows=rowCount,
-                                        plateCols=colCount)[0]
+        plate1 = self.test.import_plates(plateRows=rowCount,
+                                         plateCols=colCount)[0]
+        plate2 = self.test.import_plates(plateRows=rowCount,
+                                         plateCols=colCount)[0]
         plate1 = self.setName(plate1, "P001")
         plate2 = self.setName(plate2, "P002")
         screen = ScreenI()
