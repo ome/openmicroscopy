@@ -319,6 +319,15 @@ implements java.io.Serializable, IObject
     */
     private static final long serialVersionUID = 0000000030000020302L;
 
+#if($type.isEnum && !$type.shortname.startsWith("Units"))
+#foreach($prop in $type.properties)
+#if($prop.class.name == "ome.dsl.EntryField")
+#set($enumSymbol = ${prop.name.replaceAll("-","_").replaceAll("([a-z])([A-Z])", "$1_$2").toUpperCase().replaceAll("[^A-Z0-9_]","")})
+    public final static String VALUE_${enumSymbol} = "${prop.name}";
+#end
+#end
+
+#end
 #if(!$type.global)
    /*
     * Constants naming filters used by the OMERO
