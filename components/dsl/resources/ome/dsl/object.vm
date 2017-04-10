@@ -328,8 +328,8 @@ implements java.io.Serializable, IObject
     public final static String GROUP_FILTER = "${gfilter}";
     public final static String EVENT_FILTER = "${efilter}";
     public final static String PERMS_FILTER = "${pfilter}";
-#end
 
+#end
     public ${type.shortname} () {
         this(null, true);
     }
