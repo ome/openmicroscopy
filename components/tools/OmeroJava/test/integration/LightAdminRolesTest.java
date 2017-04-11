@@ -179,7 +179,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         final String objectClass = object.getClass().getSuperclass().getSimpleName();
         final long objectId = object.getId().getValue();
         try {
-            return iQuery.get(objectClass, objectId).getDetails().getPermissions();
+            IObject objectRetrieved = iQuery.get(object.getClass().getSuperclass().getSimpleName(), object.getId().getValue());
+            return objectRetrieved.getDetails().getPermissions();
         } catch (SecurityViolation sv) {
             return new PermissionsI("------");
         }
@@ -464,18 +465,25 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
        /* take care of post-import workflows which do not use sudo */
        if (!isSudoing) {
            loginUser(lightAdmin);
+           client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
        }
-
        /* Now check that the ImporterAs can delete the objects
         * created on behalf of the user. Note that deletion of the Project
         * would delete the whole hierarchy, which was successfully tested
         * during writing of this test. The order of the below delete() commands
         * is intentional, as the ability to delete the links and P/D/I separately is
-        * tested in this way.*/
+        * tested in this way.Also check that the canDelete boolean
+        * on the object retreived by the light admin matches the deletePassing
+        * boolean.*/
+       Assert.assertEquals(getCurrentPermissions(datasetImageLink).canDelete(), deletePassing);
        doChange(client, factory, Requests.delete().target(datasetImageLink).build(), deletePassing);
+       Assert.assertEquals(getCurrentPermissions(projectDatasetLink).canDelete(), deletePassing);
        doChange(client, factory, Requests.delete().target(projectDatasetLink).build(), deletePassing);
+       Assert.assertEquals(getCurrentPermissions(image).canDelete(), deletePassing);
        doChange(client, factory, Requests.delete().target(image).build(), deletePassing);
+       Assert.assertEquals(getCurrentPermissions(sentDat).canDelete(), deletePassing);
        doChange(client, factory, Requests.delete().target(sentDat).build(), deletePassing);
+       Assert.assertEquals(getCurrentPermissions(sentProj).canDelete(), deletePassing);
        doChange(client, factory, Requests.delete().target(sentProj).build(), deletePassing);
 
        /* Check one of the objects for non-existence after deletion. First, logging
