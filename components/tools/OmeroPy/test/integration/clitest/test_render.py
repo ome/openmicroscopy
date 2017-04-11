@@ -47,7 +47,7 @@ class TestRender(CLITest):
     def create_image(self, sizec=4):
         self.gw = BlitzGateway(client_obj=self.client)
         self.plates = []
-        for plate in self.importPlates(fields=2, sizeC=sizec):
+        for plate in self.importPlates(fields=2, sizeC=sizec, screens=1):
             self.plates.append(self.gw.getObject("Plate", plate.id.val))
         # Now pick the first Image
         self.imgobj = list(self.plates[0].listChildren())[0].getImage(index=0)
@@ -62,8 +62,12 @@ class TestRender(CLITest):
         for p in self.plates:
             for w in p.listChildren():
                 for i in range(w.countWellSample()):
-                    w.getImage(index=i).getThumbnail(
+                    img = w.getImage(index=i)
+                    img.getThumbnail(
                         size=(96,), direct=False)
+                    img._closeRE()
+        self.imgobj._closeRE()
+        assert not self.gw._assert_unregistered("create_image")
 
     def get_target_imageids(self, target):
         if target in (self.idonly, self.imageid):
@@ -189,6 +193,8 @@ class TestRender(CLITest):
             for c in xrange(len(channels)):
                 self.assert_channel_rdef(channels[c], rd['channels'][c + 1])
             self.assert_image_rmodel(img, expected_greyscale)
+            img._closeRE()
+        assert not gw._assert_unregistered("testEdit")
 
     # Once testEdit is no longer broken testEditSingleC could be merged into
     # it with sizec and greyscale parameters
@@ -213,8 +219,14 @@ class TestRender(CLITest):
         for iid in iids:
             # Get the updated object
             img = gw.getObject('Image', iid)
+            # Note: calling _prepareRE below does NOT suffice!
+            img._prepareRenderingEngine()  # Call *before* getChannels
+            # Passing noRE to getChannels below also prevents leaking
+            # the RenderingEngine but then Nones are returned later.
             channels = img.getChannels()
             assert len(channels) == sizec
             for c in xrange(len(channels)):
                 self.assert_channel_rdef(channels[c], rd['channels'][c + 1])
             self.assert_image_rmodel(img, expected_greyscale)
+            img._closeRE()
+        assert not gw._assert_unregistered("testEditSingleC")
