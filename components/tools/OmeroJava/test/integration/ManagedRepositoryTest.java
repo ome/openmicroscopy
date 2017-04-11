@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -40,25 +41,33 @@ import ome.util.checksum.ChecksumProviderFactoryImpl;
 import ome.util.checksum.ChecksumType;
 import omero.LockTimeout;
 import omero.RType;
+import omero.ResourceError;
 import omero.ServerError;
+import omero.ValidationException;
 import omero.api.RawFileStorePrx;
 import omero.cmd.CmdCallbackI;
 import omero.cmd.HandlePrx;
 import omero.grid.ImportLocation;
 import omero.grid.ManagedRepositoryPrx;
 import omero.grid.ManagedRepositoryPrxHelper;
+import omero.grid.RawAccessRequest;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
 import omero.model.ChecksumAlgorithm;
+import omero.model.ExperimenterGroup;
+import omero.model.ExperimenterGroupI;
+import omero.model.ExperimenterI;
 import omero.model.OriginalFile;
 import omero.sys.EventContext;
 import omero.sys.Parameters;
+import omero.sys.Roles;
 import omero.util.TempFileManager;
 
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -87,8 +96,12 @@ public class ManagedRepositoryTest extends AbstractServerImportTest {
     private ClientFilePathTransformer cfpt = null;
 
     @BeforeMethod
-    public void setRepo() throws Exception {
+    public void setupNewUser() throws Exception {
         newUserAndGroup("rw----");
+        setRepo();
+    }
+
+    private void setRepo() throws Exception {
         RepositoryMap rm = factory.sharedResources().repositories();
         for (int i = 0; i < rm.proxies.size(); i++) {
             final RepositoryPrx prx = rm.proxies.get(i);
@@ -846,5 +859,110 @@ public class ManagedRepositoryTest extends AbstractServerImportTest {
         final List<Long> failedVerificationIds = repo.verifyChecksums(fileIds);
         Assert.assertEqualsNoOrder(failedVerificationIds.toArray(), corruptedFileIds.toArray(),
                 "expected the exactly corrupted files to fail checksum verification");
+    }
+
+    /**
+     * A normal user can create a directory within their own parent directory.
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testMakeFilesetDirectoryNormalUser() throws Exception {
+        /* import an image */
+        final Roles roles = iAdmin.getSecurityRoles();  // TODO will be a field provided by superclass
+        final File uniquePath = tempFileManager.createPath(UUID.randomUUID().toString(), null, true);
+        final File file = ensureFileExists(uniquePath, UUID.randomUUID().toString() + ".fake");
+        final ImportLocation importLocation = importFileset(Collections.singletonList(file.getAbsolutePath()));
+
+        /* create a directory name and check that it does not exist */
+        final String dirName = getClass().getSimpleName() + '_' + UUID.randomUUID().toString();
+        final List<String> filepath = new ArrayList<>(new FsFile(pathToUsedFile(importLocation, 0)).getComponents());
+        filepath.set(filepath.size() - 1, dirName);
+        final String dirPath = new FsFile(filepath).toString();
+        final RawAccessRequest request = new RawAccessRequest();
+        request.repoUuid = repo.root().getHash().getValue();
+        request.command = "exists";
+        request.args = Collections.singletonList(dirPath);
+        doChange(root, root.getSession(), request, false);
+
+        /* create the directory on the server and check that it now exists */
+        repo.makeDir(dirPath, false);
+        doChange(root, root.getSession(), request, true);
+        final EventContext ec = iAdmin.getEventContext();
+        final OriginalFile dir = (OriginalFile) iQuery.findByString("OriginalFile", "name", dirName);
+        Assert.assertEquals(dir.getDetails().getOwner().getId().getValue(), ec.userId);
+        Assert.assertEquals(dir.getDetails().getGroup().getId().getValue(), roles.userGroupId);
+    }
+
+    /**
+     * A normal user cannot create a directory outside their own parent directory if it violates the template path.
+     * @throws ServerError expected directory creation error
+     */
+    @Test(expectedExceptions = ValidationException.class)
+    public void testMakeArbitraryDirectoryNormalUser() throws ServerError {
+        repo.makeDir(UUID.randomUUID().toString(), false);
+    }
+
+    /**
+     * An administrative user can create a directory outside their own parent directory even if it violates the template path.
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testMakeArbitraryDirectoryAdminUser() throws Exception {
+        /* set up the new user as an administrator */
+        final Roles roles = iAdmin.getSecurityRoles();  // TODO will be a field provided by superclass
+        final EventContext ec = iAdmin.getEventContext();
+        root.getSession().getAdminService().addGroups(new ExperimenterI(ec.userId, false),
+                Collections.<ExperimenterGroup>singletonList(new ExperimenterGroupI(roles.systemGroupId, false)));
+        loginUser(ec);
+        setRepo();
+
+        /* create a directory name and check that it does not exist */
+        final String dirName = getClass().getSimpleName() + '_' + UUID.randomUUID().toString();
+        final RawAccessRequest request = new RawAccessRequest();
+        request.repoUuid = repo.root().getHash().getValue();
+        request.command = "exists";
+        request.args = Collections.singletonList(dirName);
+        doChange(client, factory, request, false);
+
+        /* create the directory on the server and check that it now exists */
+        repo.makeDir(dirName, false);
+        doChange(request);
+        final OriginalFile dir = (OriginalFile) iQuery.findByString("OriginalFile", "name", dirName);
+        Assert.assertEquals(dir.getDetails().getOwner().getId().getValue(), roles.rootId);
+        Assert.assertEquals(dir.getDetails().getGroup().getId().getValue(), roles.userGroupId);
+    }
+
+    /**
+     * Check that {@code parents} argument of {@link ManagedRepositoryPrx#makeDir(String, boolean)} works as expected:
+     * creating a directory always succeeds but recreating it may fail.
+     * @param parentsFirst if to set {@code parents == true} in creating the directory
+     * @param parentsSecond if to set {@code parents == true} in <em>re</em>creating the directory
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "every pair of Booleans")
+    public void testRecreateDirectory(boolean parentsFirst, boolean parentsSecond) throws Exception {
+        logRootIntoGroup();
+        setRepo();
+        final String dirName = getClass().getSimpleName() + '_' + UUID.randomUUID().toString();
+        repo.makeDir(dirName, parentsFirst);
+        try {
+            repo.makeDir(dirName, parentsSecond);
+            Assert.assertTrue(parentsSecond);
+        } catch (ResourceError e) {
+            Assert.assertFalse(parentsSecond);
+        }
+    }
+
+    /**
+     * @return every combination of Boolean pairs
+     */
+    @DataProvider(name = "every pair of Booleans")
+    public Object[][] provideEveryPairOfBooleans() {
+        return new Object[][] {
+                new Boolean[] {false, false},
+                new Boolean[] {false, true},
+                new Boolean[] {true,  false},
+                new Boolean[] {true,  true}
+        };
     }
 }
