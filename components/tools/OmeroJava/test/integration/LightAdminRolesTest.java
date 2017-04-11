@@ -375,8 +375,15 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
 
         /* check that the light admin when sudoed, can link the created Dataset
          * to the created Project, check the ownership of the links
-         * is of the simple user */
+         * is of the simple user.*/
 
+        /* check that the canLink() method is delivering true on both the Dataset
+         * and Project to be linked. As the cases where the light admin was not sudoing
+         * are not tested in this part of the test, the canLink() is always true
+         * for the owner of the objects (the normalUser as who the light admin is
+         * sudoed for) */
+        Assert.assertEquals(getCurrentPermissions(sentProj).canLink(), true);
+        Assert.assertEquals(getCurrentPermissions(sentDat).canLink(), true);
         ProjectDatasetLink projectDatasetLink = linkProjectDataset(sentProj, sentDat);
 
         /* Now check the ownership of image and links
