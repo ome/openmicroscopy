@@ -111,6 +111,16 @@ class TestPydictTextIo(lib.ITest):
             fileobj, session=self.client.getSession())
         assert data == {'a': 2}
 
+    def test_load_fromstring(self):
+        content = self.getTestJson()
+        data = pydict_text_io.load(content)
+        assert data == {'a': 2}
+
+    def test_load_invalidtype(self):
+        with pytest.raises(Exception) as excinfo:
+            pydict_text_io.load(123)
+        assert str(excinfo.value).startswith('Invalid type: ')
+
     @pytest.mark.parametrize('format', ['json', 'yaml'])
     def test_dump(data, tmpdir, format):
         d = {'a': 2}

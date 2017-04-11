@@ -51,15 +51,10 @@ from omero.util.metadata_mapannotations import (
     MapAnnotationManager)
 from omero.util.metadata_utils import (
     KeyValueListPassThrough, KeyValueGroupList, NSBULKANNOTATIONSCONFIG)
+from omero.util import pydict_text_io
 from omero import client
 
 from populate_roi import ThreadPool
-
-try:
-    import yaml
-    YAML_ENABLED = True
-except ImportError:
-    YAML_ENABLED = False
 
 
 log = logging.getLogger("omero.util.populate_metadata")
@@ -752,7 +747,8 @@ class ParsingContext(object):
     """Generic parsing context for CSV files."""
 
     def __init__(self, client, target_object, file=None, fileid=None,
-                 cfg=None, cfgid=None, attach=False, column_types=None):
+                 cfg=None, cfgid=None, attach=False, column_types=None,
+                 options=None):
         '''
         This lines should be handled outside of the constructor:
 
@@ -1087,31 +1083,17 @@ class _QueryContext(object):
 
 
 def get_config(session, cfg=None, cfgid=None):
-    if not YAML_ENABLED:
-        raise ImportError("yaml (PyYAML) module required")
-
     if cfgid:
-        try:
-            rfs = session.createRawFileStore()
-            rfs.setFileId(cfgid)
-            rawdata = rfs.read(0, rfs.size())
-        finally:
-            rfs.close()
+        cfgdict = pydict_text_io.load(
+            'OriginalFile:%d' % cfgid, session=session)
     elif cfg:
-        with open(cfg, 'r') as f:
-            rawdata = f.read()
+        cfgdict = pydict_text_io.load(cfg)
     else:
         raise Exception("Configuration file required")
 
-    cfg = list(yaml.load_all(rawdata))
-    if len(cfg) != 1:
-        raise Exception(
-            "Expected YAML file with one document, found %d" % len(cfg))
-    cfg = cfg[0]
-
-    default_cfg = cfg.get("defaults")
-    column_cfgs = cfg.get("columns")
-    advanced_cfgs = cfg.get("advanced", {})
+    default_cfg = cfgdict.get("defaults")
+    column_cfgs = cfgdict.get("columns")
+    advanced_cfgs = cfgdict.get("advanced", {})
     if not default_cfg and not column_cfgs:
         raise Exception(
             "Configuration defaults and columns were both empty")
@@ -1124,7 +1106,7 @@ class BulkToMapAnnotationContext(_QueryContext):
     """
 
     def __init__(self, client, target_object, file=None, fileid=None,
-                 cfg=None, cfgid=None, attach=False):
+                 cfg=None, cfgid=None, attach=False, options=None):
         """
         :param client: OMERO client object
         :param target_object: The object to be annotated
@@ -1157,6 +1139,10 @@ class BulkToMapAnnotationContext(_QueryContext):
         self.mapannotations = MapAnnotationManager()
         self._init_namespace_primarykeys()
 
+        self.options = {}
+        if options:
+            self.options = options
+
     def _init_namespace_primarykeys(self):
         try:
             pkcfg = self.advanced_cfgs['primary_group_keys']
@@ -1182,6 +1168,15 @@ class BulkToMapAnnotationContext(_QueryContext):
 
     def _get_ns_primary_keys(self, ns):
         return self.pkmap.get(ns, None)
+
+    def _get_selected_namespaces(self):
+        try:
+            nss = self.options['ns']
+            if isinstance(nss, list):
+                return nss
+            return [nss]
+        except KeyError:
+            return None
 
     def get_target(self, target_object):
         qs = self.client.getSession().getQueryService()
@@ -1342,6 +1337,7 @@ class BulkToMapAnnotationContext(_QueryContext):
         else:
             trs = [KeyValueListPassThrough(headers)]
 
+        selected_nss = self._get_selected_namespaces()
         for row in izip(*(c.values for c in data.columns)):
             targets = []
             for omerotype, n in idcols:
@@ -1360,6 +1356,9 @@ class BulkToMapAnnotationContext(_QueryContext):
                     ns = tr.name
                     if not ns:
                         ns = omero.constants.namespaces.NSBULKANNOTATIONS
+                    if (selected_nss is not None) and (ns not in selected_nss):
+                        log.debug('Skipping namespace: %s', ns)
+                        continue
                     try:
                         cma = self._create_cmap_annotation(targets, rowkvs, ns)
                         if cma:
@@ -1428,11 +1427,12 @@ class DeleteMapAnnotationContext(_QueryContext):
     """
 
     def __init__(self, client, target_object, file=None, fileid=None,
-                 cfg=None, cfgid=None, attach=False):
+                 cfg=None, cfgid=None, attach=False, options=None):
         """
         :param client: OMERO client object
         :param target_object: The object to be processed
-        :param file, fileid, cfg, cfgid: Ignored
+        :param file, fileid: Ignored
+        :param cfg, cfgid: Configuration file
         :param attach: Delete all attached config files (recursive,
                default False)
         """
@@ -1448,22 +1448,42 @@ class DeleteMapAnnotationContext(_QueryContext):
             self.column_cfgs = None
             self.advanced_cfgs = None
 
+        self.options = {}
+        if options:
+            self.options = options
+
     def parse(self):
         return self.populate()
 
-    def _get_annotations_for_deletion(self, objtype, objids, anntype, nss):
+    def _get_annotations_for_deletion(
+            self, objtype, objids, anntype, nss, getlink=False):
         r = []
+        if getlink:
+            fetch = ''
+        else:
+            fetch = 'child.'
         if objids:
-            q = ("SELECT child.id FROM %sAnnotationLink WHERE "
+            q = ("SELECT %sid FROM %sAnnotationLink WHERE "
                  "child.class=%s AND parent.id in (:ids) "
                  "AND child.ns in (:nss)")
-            r = self.projection(q % (objtype, anntype), objids, nss,
+            r = self.projection(q % (fetch, objtype, anntype), objids, nss,
                                 batch_size=10000)
             log.debug("%s: %d %s(s)", objtype, len(set(r)), anntype)
         return r
 
     def _get_configured_namespaces(self):
-        nss = set([omero.constants.namespaces.NSBULKANNOTATIONS])
+        try:
+            nss = self.options['ns']
+            if isinstance(nss, list):
+                return nss
+            return [nss]
+        except KeyError:
+            pass
+
+        nss = set([
+            omero.constants.namespaces.NSBULKANNOTATIONS,
+            NSBULKANNOTATIONSCONFIG,
+        ])
         if self.column_cfgs:
             for c in self.column_cfgs:
                 try:
@@ -1557,37 +1577,50 @@ class DeleteMapAnnotationContext(_QueryContext):
                   ["%s:%s" % (k, v is not None and len(v) or "NA")
                    for k, v in parentids.items()])
 
-        self.mapannids = set()
+        self.mapannids = dict()
         self.fileannids = set()
         not_annotatable = ('WellSample',)
 
+        # Currently deleting AnnotationLinks should automatically delete
+        # orphaned MapAnnotations:
+        # https://github.com/openmicroscopy/openmicroscopy/pull/4907
+        # Note this may change in future:
+        # https://trello.com/c/Gnoi9mTM/141-never-delete-orphaned-map-annotations
         nss = self._get_configured_namespaces()
         for objtype, objids in parentids.iteritems():
             if objtype in not_annotatable:
                 continue
             r = self._get_annotations_for_deletion(
-                objtype, objids, 'MapAnnotation', nss)
-            self.mapannids.update(r)
+                objtype, objids, 'MapAnnotation', nss, getlink=True)
+            if r:
+                try:
+                    self.mapannids[objtype].update(r)
+                except KeyError:
+                    self.mapannids[objtype] = set(r)
 
-        log.info("Total: %d MapAnnotation(s) in %s",
-                 len(set(self.mapannids)), nss)
+        log.info("Total MapAnnotationLinks in %s: %d",
+                 nss, sum(len(v) for v in self.mapannids.values()))
+        log.debug("MapAnnotationLinks in %s: %s", nss, self.mapannids)
 
-        if self.attach:
-            nss = [NSBULKANNOTATIONSCONFIG]
+        if self.attach and NSBULKANNOTATIONSCONFIG in nss:
             for objtype, objids in parentids.iteritems():
                 if objtype in not_annotatable:
                     continue
                 r = self._get_annotations_for_deletion(
-                    objtype, objids, 'FileAnnotation', nss)
+                    objtype, objids, 'FileAnnotation',
+                    [NSBULKANNOTATIONSCONFIG])
                 self.fileannids.update(r)
 
-            log.info("Total: %d FileAnnotation(s) in %s",
-                     len(set(self.fileannids)), nss)
+            log.info("Total FileAnnotations in %s: %d",
+                     [NSBULKANNOTATIONSCONFIG], len(set(self.fileannids)))
+            log.debug("FileAnnotations in %s: %s",
+                      [NSBULKANNOTATIONSCONFIG], self.fileannids)
 
     def write_to_omero(self, batch_size=1000, loops=10, ms=500):
-        for batch in self._batch(self.mapannids, sz=batch_size):
-            self._write_to_omero_batch({"MapAnnotation": batch},
-                                       loops, ms)
+        for objtype, maids in self.mapannids.iteritems():
+            for batch in self._batch(maids, sz=batch_size):
+                self._write_to_omero_batch(
+                    {"%sAnnotationLink" % objtype: batch}, loops, ms)
         for batch in self._batch(self.fileannids, sz=batch_size):
             self._write_to_omero_batch({"FileAnnotation": batch},
                                        loops, ms)
@@ -1604,16 +1637,12 @@ class DeleteMapAnnotationContext(_QueryContext):
         # At this point, we're sure that there's a response OR
         # an exception has been thrown (likely LockTimeout)
         rsp = callback.getResponse()
-        if isinstance(rsp, omero.cmd.OK):
-            ndma = len(rsp.deletedObjects.get(
-                "ome.model.annotations.MapAnnotation", []))
-            ndfa = len(rsp.deletedObjects.get(
-                "ome.model.annotations.FileAnnotation", []))
-            if ndma:
-                log.info("Deleted %d MapAnnotation(s)", ndma)
-            if ndfa:
-                log.info("Deleted %d FileAnnotation(s)", ndfa)
-        else:
+        try:
+            deleted = rsp.deletedObjects
+            for k, v in deleted.iteritems():
+                log.info("Deleted: %s %d", k, len(v))
+                log.debug("Deleted: %s %s", k, v)
+        except AttributeError:
             log.error("Delete failed: %s", rsp)
 
 

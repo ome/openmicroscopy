@@ -47,11 +47,25 @@ def load(fileobj, filetype=None, single=True, session=None):
     """
     Try and load a file in a format that is convertible to a Python dictionary
 
-    fileobj: Either a file-path or OriginalFile:ID
+    fileobj: Either a single json object string, file-path, or OriginalFile:ID
     single: If True file should only contain a single document, otherwise a
-        list of documents will always be returned.
+        list of documents will always be returned. Multiple documents are not
+        supported for JSON strings.
     session: If fileobj is an OriginalFile:ID a valid session is required
     """
+
+    if not isinstance(fileobj, basestring):
+        raise Exception(
+            'Invalid type: fileobj must be a filename or json string')
+
+    try:
+        data = json.loads(fileobj)
+        if isinstance(data, dict):
+            if single:
+                return data
+            return [data]
+    except ValueError:
+        pass
 
     m = re.match('originalfile:(\d+)$', fileobj, re.I)
     if m:
@@ -123,7 +137,10 @@ def get_format_originalfileid(originalfileid, filetype, session):
             'OMERO session required: OriginalFile:%d' % originalfileid)
     f = session.getQueryService().get('OriginalFile', originalfileid)
     if not filetype:
-        mt = unwrap(f.getMimetype()).lower()
+        try:
+            mt = unwrap(f.getMimetype()).lower()
+        except AttributeError:
+            mt = ''
         if mt == 'application/x-yaml':
             filetype = 'yaml'
         if mt == 'application/json':
