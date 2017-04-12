@@ -123,8 +123,8 @@ class Fixture(object):
 
     def createDataset(self, names=("A1", "A2")):
         ds = self.test.make_dataset()
-        imgs = self.test.importMIF(
-            seriesCount=len(names))
+        imgs = self.test.import_fake_file(
+            images_count=len(names))
         for i, name in enumerate(names):
             # Name must match exactly. No ".fake"
             img = imgs[i]
