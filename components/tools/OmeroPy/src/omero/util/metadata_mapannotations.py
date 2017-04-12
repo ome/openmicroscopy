@@ -216,5 +216,5 @@ class MapAnnotationManager(object):
             r = self.add(cma)
             if r:
                 raise Exception(
-                    'Duplicate MapAnnotation primary key (%s, %s): id:%s',
-                    ns, primary_keys, unwrap(ma.getId()))
+                    'Duplicate MapAnnotation primary key: id:%s %s' % (
+                        unwrap(ma.getId()), str(r)))
