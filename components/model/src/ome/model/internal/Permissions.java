@@ -120,7 +120,7 @@ public class Permissions implements Serializable {
          * Implementation note: -------------------- Flags work with reverse
          * logic such that the default permissions can remain -1L (all 1s), a
          * flag is "set" when it's bit is set to 0. This holds for everything
-         * over 16.
+         * over 64.
          */
         private final int bit;
 
@@ -172,6 +172,8 @@ public class Permissions implements Serializable {
     public static final int EDITRESTRICTION = 1;
     public static final int DELETERESTRICTION = 2;
     public static final int ANNOTATERESTRICTION = 3;
+    public static final int CHGRPRESTRICTION = 4;
+    public static final int CHOWNRESTRICTION = 5;
 
     /**
      * Calculated restrictions which are based on both the store
@@ -278,6 +280,15 @@ public class Permissions implements Serializable {
         return isDisallow(restrictions, ANNOTATERESTRICTION);
     }
 
+    @Transient
+    public boolean isDisallowChgrp() {
+        return isDisallow(restrictions, CHGRPRESTRICTION);
+    }
+
+    @Transient
+    public boolean isDisallowChown() {
+        return isDisallow(restrictions, CHOWNRESTRICTION);
+    }
 
     @Transient
     public boolean isDisallowDelete() {
@@ -376,18 +387,20 @@ public class Permissions implements Serializable {
                     new String[extendedRestrictions.size()]);
         }
 
-        if (allow == 15) { // Would be all false.
+        if (allow == 63) { // Would be all false.
             this.restrictions = null;
             return;
         }
 
         if (restrictions == null) {
-            this.restrictions = new boolean[4]; // All false
+            this.restrictions = new boolean[6]; // All false
         }
         this.restrictions[LINKRESTRICTION] |= (0 == (allow & (1 << LINKRESTRICTION)));
         this.restrictions[EDITRESTRICTION] |= (0 == (allow & (1 << EDITRESTRICTION)));
         this.restrictions[DELETERESTRICTION] |= (0 == (allow & (1 << DELETERESTRICTION)));
         this.restrictions[ANNOTATERESTRICTION] |= (0 == (allow & (1 << ANNOTATERESTRICTION)));
+        this.restrictions[CHGRPRESTRICTION] |= (0 == (allow & (1 << CHGRPRESTRICTION)));
+        this.restrictions[CHOWNRESTRICTION] |= (0 == (allow & (1 << CHOWNRESTRICTION)));
     }
 
     private static boolean noTrues(boolean[] source) {
@@ -522,6 +535,16 @@ public class Permissions implements Serializable {
 
     public Permissions setDisallowAnnotate(boolean disallowAnnotate) {
         setDisallow(restrictions, ANNOTATERESTRICTION, disallowAnnotate);
+        return this;
+    }
+
+    public Permissions setDisallowChgrp(boolean disallowChgrp) {
+        setDisallow(restrictions, CHGRPRESTRICTION, disallowChgrp);
+        return this;
+    }
+
+    public Permissions setDisallowChown(boolean disallowChown) {
+        setDisallow(restrictions, CHOWNRESTRICTION, disallowChown);
         return this;
     }
 
