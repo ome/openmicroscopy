@@ -30,6 +30,7 @@ from omero.rtypes import unwrap, wrap
 from omero.util.metadata_mapannotations import (
     CanonicalMapAnnotation, MapAnnotationManager)
 import pytest
+import sys
 
 
 def assert_equal_map_value(mva, mvb):
@@ -41,6 +42,8 @@ def assert_equal_map_value(mva, mvb):
         assert a.value == b.value
 
 
+@pytest.mark.skipif(sys.version_info < (2, 7),
+                    reason="requires python2.7")
 class TestMapAnnotationManager(ITest):
 
     def create_mas(self):

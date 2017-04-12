@@ -31,6 +31,7 @@ import gzip
 import os.path
 import re
 import shutil
+import sys
 
 from omero.api import RoiOptions
 from omero.grid import ImageColumn
@@ -845,6 +846,8 @@ class Project2Datasets(Fixture):
                 raise Exception("Unknown dataset: %s" % ds)
 
 
+@mark.skipif(sys.version_info < (2, 7),
+             reason="requires python2.7")
 class TestPopulateMetadataConfigLoad(ITest):
 
     def get_cfg_filepath(self):
@@ -869,6 +872,8 @@ class TestPopulateMetadataConfigLoad(ITest):
         self._assert_configs(default_cfg, column_cfgs, advanced_cfgs)
 
 
+@mark.skipif(sys.version_info < (2, 7),
+             reason="requires python2.7")
 class TestPopulateMetadataHelper(ITest):
 
     def _test_parsing_context(self, fixture, batch_size):
@@ -961,6 +966,8 @@ class TestPopulateMetadataHelper(ITest):
         assert len(fixture.get_all_map_annotations()) == 0
 
 
+@mark.skipif(sys.version_info < (2, 7),
+             reason="requires python2.7")
 class TestPopulateMetadataHelperPerMethod(TestPopulateMetadataHelper):
 
     # Some tests in this file check the counts of annotations in a fixed
@@ -979,6 +986,8 @@ class TestPopulateMetadataHelperPerMethod(TestPopulateMetadataHelper):
         super(TestPopulateMetadataHelperPerMethod, self).teardown_class()
 
 
+@mark.skipif(sys.version_info < (2, 7),
+             reason="requires python2.7")
 class TestPopulateMetadata(TestPopulateMetadataHelper):
 
     METADATA_FIXTURES = (
@@ -1055,6 +1064,8 @@ class TestPopulateMetadata(TestPopulateMetadataHelper):
             self._test_bulk_to_map_annotation_context(fixture_fail, 2)
 
 
+@mark.skipif(sys.version_info < (2, 7),
+             reason="requires python2.7")
 class TestPopulateMetadataDedup(TestPopulateMetadataHelperPerMethod):
 
     # Hard-code the number of expected map-annotations in these tests
@@ -1208,6 +1219,8 @@ class TestPopulateMetadataDedup(TestPopulateMetadataHelperPerMethod):
             fixture1, fixture2, ns)
 
 
+@mark.skipif(sys.version_info < (2, 7),
+             reason="requires python2.7")
 class TestPopulateMetadataConfigFiles(TestPopulateMetadataHelperPerMethod):
 
     def _init_fixture_attach_cfg(self):
@@ -1396,6 +1409,8 @@ class ROICSV(Fixture):
         return self.plate
 
 
+@mark.skipif(sys.version_info < (2, 7),
+             reason="requires python2.7")
 class TestPopulateRois(ITest):
 
     def testPopulateRoisPlate(self):
