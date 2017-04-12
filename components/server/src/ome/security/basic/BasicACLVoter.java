@@ -63,7 +63,9 @@ public class BasicACLVoter implements ACLVoter {
         ANNOTATE(Right.ANNOTATE),
         DELETE(Right.WRITE),
         EDIT(Right.WRITE),
-        LINK(Right.WRITE);
+        LINK(Right.WRITE),
+        CHGRP(Right.WRITE),
+        CHOWN(Right.WRITE);
 
         final Right right;
         Scope(Right right) {
@@ -602,6 +604,38 @@ public class BasicACLVoter implements ACLVoter {
         adminPrivilegesCache.remove();
     }
 
+    /**
+     * On the given permissions integer sets the {@code CHGRP}, {@code CHOWN} restriction bits if the current user may
+     * move or give an object with the given details.
+     * @param details a model object's details
+     * @param allow a permissions integer
+     * @return the permissions integer, possibly adjusted
+     */
+    private int addChgrpChownRestrictionBits(Details details, int allow) {
+        if (details.getOwner() == null || details.getGroup() == null) {
+            /* probably a system type, either way we cannot judge on this basis */
+            return allow;
+        }
+        final boolean isChgrpPrivilege, isChownPrivilege;
+        final EventContext ec = currentUser.getCurrentEventContext();
+        if (ec.isCurrentUserAdmin()) {
+            /* assumes we called allowUpdateOrDelete to set cache */
+            final Set<AdminPrivilege> privileges = adminPrivilegesCache.get();
+            isChgrpPrivilege = privileges.contains(adminPrivileges.getPrivilege("Chgrp"));
+            isChownPrivilege = privileges.contains(adminPrivileges.getPrivilege("Chown"));
+        } else {
+            isChgrpPrivilege = false;
+            isChownPrivilege = false;
+        }
+        if (isChgrpPrivilege || ec.getCurrentUserId().equals(details.getOwner().getId())) {
+            allow |= 1 << Permissions.CHGRPRESTRICTION;
+        }
+        if (isChownPrivilege || ec.getLeaderOfGroupsList().contains(details.getGroup().getId())) {
+            allow |= 1 << Permissions.CHOWNRESTRICTION;
+        }
+        return allow;
+    }
+
     public void postProcess(IObject object) {
         if (object.isLoaded()) {
             Details details = object.getDetails();
@@ -611,10 +645,11 @@ public class BasicACLVoter implements ACLVoter {
 
             final BasicEventContext c = currentUser.current();
             final Permissions p = details.getPermissions();
-            final int allow = allowUpdateOrDelete(c, object, details,
+            int allow = allowUpdateOrDelete(c, object, details,
                 // This order must match the ordered of restrictions[]
                 // expected by p.copyRestrictions
                 Scope.LINK, Scope.EDIT, Scope.DELETE, Scope.ANNOTATE);
+            allow = addChgrpChownRestrictionBits(details, allow);
 
             // #9635 - This is not the most efficient solution
             // But since it's unclear why Permission objects
