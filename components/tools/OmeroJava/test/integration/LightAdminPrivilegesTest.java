@@ -28,12 +28,14 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.scripts.ScriptRepoHelper;
+import ome.system.Login;
 import omero.RLong;
 import omero.RString;
 import omero.RType;
@@ -101,6 +103,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
 /**
@@ -261,10 +264,11 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
      * @throws ServerError if the query caused a server error
      */
     private Permissions getCurrentPermissions(IObject object) throws ServerError {
+        final Map<String, String> allGroupsContext = ImmutableMap.of(Login.OMERO_GROUP, "-1");
         final String objectClass = object.getClass().getSuperclass().getSimpleName();
         final long objectId = object.getId().getValue();
         try {
-            return iQuery.get(objectClass, objectId).getDetails().getPermissions();
+            return iQuery.get(objectClass, objectId, allGroupsContext).getDetails().getPermissions();
         } catch (SecurityViolation sv) {
             return NO_PERMISSIONS;
         }
@@ -289,6 +293,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), normalUser.groupId);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null, isRestricted ? AdminPrivilegeChgrp.value : null);
         client.getImplicitContext().put("omero.group", Long.toString(otherGroupId));
+        Assert.assertEquals(getCurrentPermissions(folder).canChgrp(), isExpectSuccess);
         doChange(client, factory, Requests.chgrp().target(folder).toGroup(otherGroupId).build(), isExpectSuccess);
         if (isExpectSuccess) {
             folder = (Folder) iQuery.get("Folder", folder.getId().getValue());
@@ -314,6 +319,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), normalUser.groupId);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null, isRestricted ? AdminPrivilegeChgrp.value : null);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        Assert.assertEquals(getCurrentPermissions(folder).canChgrp(), isExpectSuccess);
         folder = (Folder) iQuery.get("Folder", folder.getId().getValue());
         folder.getDetails().setGroup(otherGroup);
         try {
@@ -343,6 +349,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         final EventContext otherUser = newUserInGroup(normalUser);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null, isRestricted ? AdminPrivilegeChown.value : null);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        Assert.assertEquals(getCurrentPermissions(folder).canChown(), isExpectSuccess);
         doChange(client, factory, Requests.chown().target(folder).toUser(otherUser.userId).build(), isExpectSuccess);
         if (isExpectSuccess) {
             folder = (Folder) iQuery.get("Folder", folder.getId().getValue());
@@ -368,6 +375,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         final EventContext otherUser = newUserInGroup(normalUser);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null, isRestricted ? AdminPrivilegeChown.value : null);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        Assert.assertEquals(getCurrentPermissions(folder).canChown(), isExpectSuccess);
         folder = (Folder) iQuery.get("Folder", folder.getId().getValue());
         folder.getDetails().setOwner(new ExperimenterI(otherUser.userId, false));
         try {
