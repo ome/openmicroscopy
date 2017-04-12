@@ -28,8 +28,11 @@ from omero.rtypes import unwrap
 from omero.util import pydict_text_io
 
 import pytest
+import sys
 
 
+@pytest.mark.skipif(sys.version_info < (2, 7),
+                    reason="requires python2.7")
 class TestPydictTextIo(ITest):
 
     def getTestJson(self):
