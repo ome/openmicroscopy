@@ -52,7 +52,7 @@ public class Permissions implements Serializable {
     /**
      * enumeration of currently active roles. The {@link #USER} role is active
      * when the contents of {@link Details#getOwner()} equals the current user
-     * as determined from the Security system (Server-side only). Similary, the
+     * as determined from the Security system (Server-side only). Similarly, the
      * {@link #GROUP} role is active when the contents of
      * {@link Details#getGroup()} matches the current group. {@link #WORLD} is
      * used for any non-USER, non-GROUP user.
@@ -119,7 +119,7 @@ public class Permissions implements Serializable {
         /*
          * Implementation note: -------------------- Flags work with reverse
          * logic such that the default permissions can remain -1L (all 1s), a
-         * flag is "set" when it's bit is set to 0. This holds for everything
+         * flag is "set" when its bit is set to 0. This holds for everything
          * over 64.
          */
         private final int bit;
@@ -136,7 +136,7 @@ public class Permissions implements Serializable {
     // ~ Constructors
     // =========================================================================
     /**
-     * simple contructor. Will turn on all {@link Right rights} for all
+     * simple constructor. Will turn on all {@link Right rights} for all
      * {@link Role roles}
      */
     public Permissions() {
