@@ -575,6 +575,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         final String changedName = "ChangedNameOfLightAdmin";
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         long id = sentProj.getId().getValue();
+        /* check that the canEdit flag on the created project is as expected */
+        Assert.assertEquals(getCurrentPermissions(sentProj).canEdit(), isExpectSuccess);
         final Project retrievedUnrenamedProject = (Project) iQuery.get("Project", id);
         retrievedUnrenamedProject.setName(omero.rtypes.rstring(changedName));
         if (isExpectSuccess) {/* in case no WriteOwned permission is given to light admin, and he/she is
