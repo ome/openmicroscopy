@@ -1,9 +1,6 @@
 /*
- *   $Id$
- *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
- *
  */
 
 #ifndef CLASS_PERMISSIONS
@@ -124,6 +121,24 @@ module omero {
        * already identifies that it's readable.
        **/
       bool canDelete();
+
+      /**
+       * Whether the current user has the ""chgrp"" permissions
+       * for this object. This allows them to move it to a different group.
+       *
+       * The fact that the user has this object in hand
+       * already identifies that it's readable.
+       **/
+      bool canChgrp();
+
+      /**
+       * Whether the current user has the ""chown"" permissions
+       * for this object. This allows them to give it to a different user.
+       *
+       * The fact that the user has this object in hand
+       * already identifies that it's readable.
+       **/
+      bool canChown();
 
       // Row-based values
       //======================================================
