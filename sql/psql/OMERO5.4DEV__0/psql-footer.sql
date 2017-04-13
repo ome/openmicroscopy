@@ -2044,7 +2044,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO5.3',  0,    'OMERO5.3',   0,             'Initializing');
+             values ('OMERO5.4DEV',  0,    'OMERO5.4DEV',   0,             'Initializing');
 
 --
 -- Temporarily make event columns nullable; restored below.
@@ -2157,6 +2157,36 @@ insert into acquisitionmode (id,permissions,value)
     select ome_nextval('seq_acquisitionmode'),-52,'SweptFieldConfocal';
 insert into acquisitionmode (id,permissions,value)
     select ome_nextval('seq_acquisitionmode'),-52,'SPIM';
+insert into adminprivilege (id,permissions,value)
+    select ome_nextval('seq_adminprivilege'),-52,'Chgrp';
+insert into adminprivilege (id,permissions,value)
+    select ome_nextval('seq_adminprivilege'),-52,'Chown';
+insert into adminprivilege (id,permissions,value)
+    select ome_nextval('seq_adminprivilege'),-52,'DeleteFile';
+insert into adminprivilege (id,permissions,value)
+    select ome_nextval('seq_adminprivilege'),-52,'DeleteManagedRepo';
+insert into adminprivilege (id,permissions,value)
+    select ome_nextval('seq_adminprivilege'),-52,'DeleteOwned';
+insert into adminprivilege (id,permissions,value)
+    select ome_nextval('seq_adminprivilege'),-52,'DeleteScriptRepo';
+insert into adminprivilege (id,permissions,value)
+    select ome_nextval('seq_adminprivilege'),-52,'ModifyGroup';
+insert into adminprivilege (id,permissions,value)
+    select ome_nextval('seq_adminprivilege'),-52,'ModifyGroupMembership';
+insert into adminprivilege (id,permissions,value)
+    select ome_nextval('seq_adminprivilege'),-52,'ModifyUser';
+insert into adminprivilege (id,permissions,value)
+    select ome_nextval('seq_adminprivilege'),-52,'ReadSession';
+insert into adminprivilege (id,permissions,value)
+    select ome_nextval('seq_adminprivilege'),-52,'Sudo';
+insert into adminprivilege (id,permissions,value)
+    select ome_nextval('seq_adminprivilege'),-52,'WriteFile';
+insert into adminprivilege (id,permissions,value)
+    select ome_nextval('seq_adminprivilege'),-52,'WriteManagedRepo';
+insert into adminprivilege (id,permissions,value)
+    select ome_nextval('seq_adminprivilege'),-52,'WriteOwned';
+insert into adminprivilege (id,permissions,value)
+    select ome_nextval('seq_adminprivilege'),-52,'WriteScriptRepo';
 insert into arctype (id,permissions,value)
     select ome_nextval('seq_arctype'),-52,'Hg';
 insert into arctype (id,permissions,value)
@@ -3163,9 +3193,10 @@ CREATE TRIGGER preserve_folder_tree
 
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
-  where currentVersion = 'OMERO5.3' and
+  where currentVersion = 'OMERO5.4DEV' and
         currentPatch = 0 and
-        previousVersion = 'OMERO5.3' and
+        previousVersion = 'OMERO5.4DEV' and
         previousPatch = 0;
 
 COMMIT;
+

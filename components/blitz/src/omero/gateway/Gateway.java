@@ -111,6 +111,9 @@ public class Gateway {
 
     /** Property to indicate that a {@link Facility} has been created */
     public static final String PROP_FACILITY_CREATED = "PROP_FACILITY_CREATED";
+    
+    /** Property to indicate that a {@link Facility} has been closed */
+    public static final String PROP_FACILITY_CLOSED = "PROP_FACILITY_CLOSED";
 
     /** Property to indicate that an import store has been created */
     public static final String PROP_IMPORTSTORE_CREATED = "PROP_IMPORTSTORE_CREATED";

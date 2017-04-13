@@ -178,7 +178,7 @@ class FileElement
 		List<File> files = new ArrayList<File>();
 		if (list == null || list.length == 0) return files;
 		for (int i = 0; i < list.length; i++) {
-			if (!list[i].isHidden() && !list[i].isDirectory()) 
+			if (!list[i].isDirectory()) 
 				files.add(list[i]);
 		}
 		return files;
