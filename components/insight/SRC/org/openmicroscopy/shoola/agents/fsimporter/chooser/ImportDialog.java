@@ -1091,17 +1091,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 * @return See above.
 	 */
 	private int handleFilesSelection(File[] files) {
-		int count = 0;
-		if (files == null)
-			return count;
-		File f;
-		for (int i = 0; i < files.length; i++) {
-			f = files[i];
-			if (!f.isHidden()) {
-				count++;
-			}
-		}
-		return count;
+	    return files == null ? 0 : files.length;
 	}
 
 	/** Imports the selected files. */
@@ -1196,7 +1186,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 */
 	private boolean checkFile(File f, List<FileObject> l)
 	{
-		if (f == null || f.isHidden())
+		if (f == null)
 			return false;
 		if (f.isFile()) {
 			if (isFileImportable(f))
@@ -1220,7 +1210,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 * @return See above.
 	 */
 	private boolean isFileImportable(File f) {
-		return !(f == null || f.isHidden());
+		return f != null;
 	}
 
 	/**

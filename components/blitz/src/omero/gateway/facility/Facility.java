@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -20,6 +20,7 @@
  */
 package omero.gateway.facility;
 
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.net.UnknownHostException;
@@ -95,6 +96,26 @@ public abstract class Facility {
     public static <T extends Facility> T getFacility(final Class<T> type,
             final Gateway gateway) throws ExecutionException {
 
+        if (AutoCloseable.class.isAssignableFrom(type)) {
+            // Don't cache closeable (~ stateful) Facilities,
+            // just create a new instance and return it.
+            try {
+                Facility facility = type.getDeclaredConstructor(Gateway.class)
+                        .newInstance(gateway);
+                for (PropertyChangeListener l : gateway
+                        .getPropertyChangeListeners()) {
+                    facility.addPropertyChangeListener(l);
+                    facility.pcs
+                            .firePropertyChange(Gateway.PROP_FACILITY_CREATED,
+                                    null, type.getName());
+                }
+                return (T) facility;
+            } catch (Exception e) {
+                throw new ExecutionException("Can't instantiate "
+                        + type.getSimpleName(), e);
+            }
+        }
+        
         return (T) cache.get(type.getSimpleName(), new Callable<Facility>() {
 
             @Override
@@ -131,11 +152,45 @@ public abstract class Facility {
     }
 
     /**
-     * Removes a {@link PropertyChangeListener}
-     * @param listener The listener
+     * Removes a {@link PropertyChangeListener} 
+     * (Pass <code>null</code> to remove all {@link PropertyChangeListener}s)
+     * 
+     * @param listener
+     *            The listener
      */
     public void removePropertyChangeListener(PropertyChangeListener listener) {
+        if (listener == null) {
+            for (PropertyChangeListener l : this.pcs
+                    .getPropertyChangeListeners())
+                this.pcs.removePropertyChangeListener(l);
+        }
         this.pcs.removePropertyChangeListener(listener);
+    }
+    
+    /**
+     * Fires a {@link PropertyChangeEvent}
+     * 
+     * @param event
+     *            The PropertyChangeEvent
+     */
+    public void firePropertyChanged(PropertyChangeEvent event) {
+        this.pcs.firePropertyChange(event);
+    }
+
+    /**
+     * Fires a {@link PropertyChangeEvent}
+     * 
+     * @param propertyName
+     *            The property name
+     * @param oldValue
+     *            The old value
+     * @param newValue
+     *            The new value
+     * 
+     */
+    public void firePropertyChanged(String propertyName, Object oldValue,
+            Object newValue) {
+        this.pcs.firePropertyChange(propertyName, oldValue, newValue);
     }
     
     /**
@@ -199,6 +254,9 @@ public abstract class Facility {
      * Methods in this class are required to fill in a meaningful context
      * message. This method is not supposed to be used in this class'
      * constructor or in the login/logout methods.
+     * 
+     * @param originator
+     *            The originator
      *
      * @param t
      *            The exception.

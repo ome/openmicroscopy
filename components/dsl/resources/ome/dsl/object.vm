@@ -325,6 +325,15 @@ implements java.io.Serializable, IObject
     */
     private static final long serialVersionUID = 0000000030000020302L;
 
+#if($type.isEnum && !$type.shortname.startsWith("Units"))
+#foreach($prop in $type.properties)
+#if($prop.class.name == "ome.dsl.EntryField")
+#set($enumSymbol = ${prop.name.replaceAll("-","_").replaceAll("([a-z])([A-Z])", "$1_$2").toUpperCase().replaceAll("[^A-Z0-9_]","")})
+    public final static String VALUE_${enumSymbol} = "${prop.name}";
+#end
+#end
+
+#end
 #if(!$type.global)
    /*
     * Constants naming filters used by the OMERO
@@ -334,8 +343,8 @@ implements java.io.Serializable, IObject
     public final static String GROUP_FILTER = "${gfilter}";
     public final static String EVENT_FILTER = "${efilter}";
     public final static String PERMS_FILTER = "${pfilter}";
-#end
 
+#end
     public ${type.shortname} () {
         this(null, true);
     }
@@ -1375,7 +1384,6 @@ implements java.io.Serializable, IObject
     }
 #end
 
-    @SuppressWarnings("unchecked")
     @Override
     public boolean acceptFilter(ome.util.Filter __filter){
         try {
@@ -1485,7 +1493,7 @@ implements java.io.Serializable, IObject
         } else if (field.equals(${prop.name.toUpperCase()}COUNTPEROWNER)) {
             return get${prop.nameCapped}CountPerOwner();
 #end
-        } else if (field.equals(${prop.nameUpper})) { // TODO use == here first??
+        } else if (field.equals(${prop.nameUpper})) {
             return get${prop.nameCapped}();
 #end
         } else {
@@ -1500,7 +1508,6 @@ implements java.io.Serializable, IObject
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void putAt(String field, Object value)
     {
