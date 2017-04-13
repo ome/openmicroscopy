@@ -681,7 +681,10 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         /* try to move the image into another group of the normalUser
          * which should succeed if sudoing and also in case
          * the light admin has Chgrp permissions
-         * (i.e. isExpectSuccessInMemberGroup is true) */
+         * (i.e. isExpectSuccessInMemberGroup is true). Also check that
+         * the canChgrp boolean delivers true in accordance with the
+         * isExpectSuccessInMemberGroup boolean value */
+        Assert.assertEquals(getCurrentPermissions(image).canChgrp(), isExpectSuccessInMemberGroup);
         doChange(client, factory, Requests.chgrp().target(image).toGroup(normalUsersOtherGroupId).build(), isExpectSuccessInMemberGroup);
         /* note in which group the image and the original file are now */
         long afterFirstChgrpImageGroupId = ((RLong) iQuery.projection(
@@ -703,7 +706,13 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         /* try to move into another group the normalUser
          * is not a member of, which should fail in all cases
          * except the light admin has Chgrp permission and is not sudoing
-         * (i.e. chgrpNoSudoExpectSuccessAnyGroup is true) */
+         * (i.e. chgrpNoSudoExpectSuccessAnyGroup is true). Also check that
+         * the canChgrp boolean delivers true in accordance with the
+         * isExpectSuccessInMemberGroup boolean value. Note that the
+         * canChgrp boolean is true in case the object can be moved into
+         * SOME group, and thus it cannot match (in cases where light admin
+         * is sudoed in) with the chgrpNoSudoExpectSuccessAnyGroup boolean.*/
+        Assert.assertEquals(getCurrentPermissions(image).canChgrp(), isExpectSuccessInMemberGroup);
         doChange(client, factory, Requests.chgrp().target(image).toGroup(anotherGroupId).build(),
                 chgrpNoSudoExpectSuccessAnyGroup);
         long afterSecondChgrpImageGroupId = ((RLong) iQuery.projection(
