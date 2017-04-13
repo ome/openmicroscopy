@@ -924,9 +924,11 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         /* now, having the image linked to the dataset in the group of normalUser already,
          * try to change the ownership of the dataset to the normalUser */
         /* Chowning the dataset should fail in case you have not all of
-         * isAdmin & Chown & WriteOwned & WriteFile permissions which are
+         * Chown & WriteOwned & WriteFile permissions which are
          * captured in the boolean importNotYourGroupAndChownExpectSuccess */
         if (createDatasetImportNotYourGroupAndChownExpectSuccess) {
+            /* Also check that the canChown value on the dataset is true in these cases.*/
+            Assert.assertEquals(getCurrentPermissions(sentDat).canChown(), true);
             doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(), true);
             final long remoteFileGroupId = ((RLong) iQuery.projection(
                     "SELECT details.group.id FROM OriginalFile o WHERE o.id = :id",
@@ -952,6 +954,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             assertOwnedBy(remoteFile, normalUser);
             Assert.assertEquals(remoteFileGroupId, normalUser.groupId);
         } else {
+            /* Also check that the canChown value on the dataset is false in these cases.*/
+            Assert.assertEquals(getCurrentPermissions(sentDat).canChown(), false);
             doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(), false);
             final long remoteFileGroupId = ((RLong) iQuery.projection(
                     "SELECT details.group.id FROM OriginalFile o WHERE o.id = :id",
