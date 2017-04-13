@@ -1026,9 +1026,18 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         DatasetImageLink linkOfDatasetImage = new DatasetImageLinkI();
         ProjectDatasetLink linkOfProjectDataset = new ProjectDatasetLinkI();
         if (isExpectLinkingSuccess) {
+            /*Check that the canLink value on all the objects to be linked is true,
+             * then create the links.*/
+            Assert.assertEquals(getCurrentPermissions(sentImage).canLink(), true);
+            Assert.assertEquals(getCurrentPermissions(sentDat).canLink(), true);
+            Assert.assertEquals(getCurrentPermissions(sentProj).canLink(), true);
             linkOfDatasetImage = linkDatasetImage(sentDat, sentImage);
             linkOfProjectDataset = linkProjectDataset(sentProj, sentDat);
         } else {
+            /*Check that the canLink value on all the objects to be linked is false.*/
+            Assert.assertEquals(getCurrentPermissions(sentImage).canLink(), false);
+            Assert.assertEquals(getCurrentPermissions(sentDat).canLink(), false);
+            Assert.assertEquals(getCurrentPermissions(sentProj).canLink(), false);
             return; /*links could not be created, finish the test */
         }
 
@@ -1037,9 +1046,12 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
          * needs additonally the Chown permission. Note that the links
          * have to be transferred step by step, as the Chown feature
          * of whole hierarchy does not transfer links owned by non-owners
-         * of the P/D?I objects. */
+         * of the P/D?I objects. Also check that the canChown value on all
+         * the objects to be chowned is matching the isExpectSuccessLinkAndChown.*/
+        Assert.assertEquals(getCurrentPermissions(linkOfDatasetImage).canChown(), isExpectSuccessLinkAndChown);
         Chown2 chown = Requests.chown().target(linkOfDatasetImage).toUser(normalUser.userId).build();
         doChange(client, factory, chown, isExpectSuccessLinkAndChown);
+        Assert.assertEquals(getCurrentPermissions(linkOfProjectDataset).canChown(), isExpectSuccessLinkAndChown);
         chown = Requests.chown().target(linkOfProjectDataset).toUser(normalUser.userId).build();
         doChange(client, factory, chown, isExpectSuccessLinkAndChown);
 
