@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.3__0 to OMERO5.4DEV__0.
+--- OMERO5 development release upgrade from OMERO5.3__0 to OMERO5.4DEV__1.
 ---
 
 BEGIN;
@@ -95,7 +95,7 @@ DROP FUNCTION db_pretty_version(INTEGER);
 --
 
 INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
-             VALUES ('OMERO5.4DEV',  0,            'OMERO5.3',      0);
+             VALUES ('OMERO5.4DEV',  1,            'OMERO5.3',      0);
 
 -- ... up to patch 0:
 
@@ -114,6 +114,10 @@ INSERT INTO adminprivilege (id, permissions, value) SELECT ome_nextval('seq_admi
 INSERT INTO adminprivilege (id, permissions, value) SELECT ome_nextval('seq_adminprivilege'), -52, 'WriteManagedRepo';
 INSERT INTO adminprivilege (id, permissions, value) SELECT ome_nextval('seq_adminprivilege'), -52, 'WriteOwned';
 INSERT INTO adminprivilege (id, permissions, value) SELECT ome_nextval('seq_adminprivilege'), -52, 'WriteScriptRepo';
+
+-- ... up to patch 1:
+
+-- TODO
 
 
 --
