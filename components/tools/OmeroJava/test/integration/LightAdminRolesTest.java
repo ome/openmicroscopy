@@ -1374,6 +1374,9 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         loginUser(lightAdmin);
         client.getImplicitContext().put("omero.group", "-1");
         /* transfer can proceed only if chownPassing boolean is true */
+        /* Check on one selected object only (sentProj1OtherGroup) the value
+         * of canChown. The value must match the chownPassing boolean.*/
+        Assert.assertEquals(getCurrentPermissions(sentProj1OtherGroup).canChown(), chownPassing);
         doChange(client, factory, Requests.chown().targetUsers(normalUser.userId).toUser(recipient.userId).build(), chownPassing);
         if (!chownPassing) {
             return;
