@@ -1144,6 +1144,12 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
          * which should succeed in case the light admin has Chgrp permissions
          */
         doChange(client, factory, Requests.chgrp().target(sentDat).toGroup(normalUser.groupId).build(), permChgrp);
+        /* Check that the value of canChgrp on the dataset is true.
+         * Note that although the chgrp action into the group of normalUser will fail,
+         * the light admin could be chgrp the dataset into a group where he is a member,
+         * and thus the canChgrp must be "true".*/
+        Assert.assertEquals(getCurrentPermissions(sentDat).canChgrp(), true);
+
         /* retrieve again the image, dataset and link */
         long datasetGroupId =((RLong) iQuery.projection(
                 "SELECT details.group.id FROM Dataset d WHERE d.id = :id",
@@ -1184,6 +1190,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
          * A successful chowning of the dataset will chown the linked image
          * and the link too.*/
         if (importYourGroupAndChgrpAndChownExpectSuccess) {/* whole workflow2 succeeded */
+            /* Check the value of canChown on the dataset is true in this case.*/
+            Assert.assertEquals(getCurrentPermissions(sentDat).canChown(), true);
             doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(), true);
             remoteFileGroupId = ((RLong) iQuery.projection(
                     "SELECT details.group.id FROM OriginalFile o WHERE o.id = :id",
@@ -1211,6 +1219,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             Assert.assertEquals(datasetImageLinkGroupId, normalUser.groupId);
         } else if (permChown) {
             /* even if the workflow2 as a whole failed, the chown might be successful */
+            /* Check the value of canChown on the dataset is true in this case.*/
+            Assert.assertEquals(getCurrentPermissions(sentDat).canChown(), true);
             doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(), true);
             remoteFileGroupId = ((RLong) iQuery.projection(
                     "SELECT details.group.id FROM OriginalFile o WHERE o.id = :id",
@@ -1239,6 +1249,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         } else if (permChgrp) {
             /* as workflow2 as a whole failed, in case the chgrp was successful,
              * the chown must be failing */
+            /* Check the value of canChown on the dataset is false in this case.*/
+            Assert.assertEquals(getCurrentPermissions(sentDat).canChown(), false);
             doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(), false);
             remoteFileGroupId = ((RLong) iQuery.projection(
                     "SELECT details.group.id FROM OriginalFile o WHERE o.id = :id",
@@ -1266,6 +1278,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             Assert.assertEquals(datasetImageLinkGroupId, normalUser.groupId);
         } else {
             /* the remaining option when the previous chgrp as well as this chown fail */
+            /* Check the value of canChown on the dataset is false in this case.*/
+            Assert.assertEquals(getCurrentPermissions(sentDat).canChown(), false);
             doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(), false);
             remoteFileGroupId = ((RLong) iQuery.projection(
                     "SELECT details.group.id FROM OriginalFile o WHERE o.id = :id",
