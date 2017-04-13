@@ -793,9 +793,12 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             loginUser(lightAdmin);
         }
         /* light admin tries to chown the image of the normalUser whilst sudoed,
-         * which should fail whether they have a Chown permissions or not */
+         * which should fail whether they have a Chown permissions or not
+         * Also check that the value of canChown boolean on the image is false
+         * in such case.*/
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         if (isSudoing) {
+            Assert.assertEquals(getCurrentPermissions(image).canChown(), false);
             doChange(client, factory, Requests.chown().target(image).toUser(anotherUser.userId).build(), false);
             long imageGroupId = ((RLong) iQuery.projection(
                     "SELECT details.group.id FROM Image i WHERE i.id = :id",
@@ -806,7 +809,10 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         } else {
             /* chowning the image NOT being sudoed,
              * should pass only in case you have Chown
-             * privilege, captured in "chownPassingWhenNotSudoing" boolean */
+             * privilege, captured in "chownPassingWhenNotSudoing" boolean.
+             * Also check that the value of canChown boolean matches chownPassingWhenNotSudoing
+             * boolean in such case.*/
+            Assert.assertEquals(getCurrentPermissions(image).canChown(), chownPassingWhenNotSudoing);
             doChange(client, factory, Requests.chown().target(image).toUser(anotherUser.userId).build(), chownPassingWhenNotSudoing);
             if (chownPassingWhenNotSudoing) {
                 assertOwnedBy(image, anotherUser);
