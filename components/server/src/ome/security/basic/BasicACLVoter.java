@@ -621,8 +621,14 @@ public class BasicACLVoter implements ACLVoter {
         if (ec.isCurrentUserAdmin()) {
             /* assumes we called allowUpdateOrDelete to set cache */
             final Set<AdminPrivilege> privileges = adminPrivilegesCache.get();
-            isChgrpPrivilege = privileges.contains(adminPrivileges.getPrivilege("Chgrp"));
-            isChownPrivilege = privileges.contains(adminPrivileges.getPrivilege("Chown"));
+            if (privileges == null) {
+                log.debug("could not find cached privileges so not applying light administrator restrictions");
+                isChgrpPrivilege = true;
+                isChownPrivilege = true;
+            } else {
+                isChgrpPrivilege = privileges.contains(adminPrivileges.getPrivilege("Chgrp"));
+                isChownPrivilege = privileges.contains(adminPrivileges.getPrivilege("Chown"));
+            }
         } else {
             isChgrpPrivilege = false;
             isChownPrivilege = false;
