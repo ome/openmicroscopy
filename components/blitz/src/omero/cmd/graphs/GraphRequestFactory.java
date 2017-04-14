@@ -35,6 +35,7 @@ import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.SetMultimap;
 
 import ome.model.IObject;
+import ome.model.internal.Permissions;
 import ome.security.ACLVoter;
 import ome.security.SystemTypes;
 import ome.security.basic.LightAdminPrivileges;
@@ -104,6 +105,12 @@ public class GraphRequestFactory implements ApplicationContextAware {
             }
         }
         this.allTargets = allTargetsBuilder.build();
+
+        aclVoter.setRestrictedObjects(ImmutableMap.of(
+                Permissions.CHGRPRESTRICTION,
+                (Set<Class<? extends IObject>>) this.allTargets.get(Chgrp2I.class),
+                Permissions.CHOWNRESTRICTION,
+                (Set<Class<? extends IObject>>) this.allTargets.get(Chown2I.class)));
 
         final ImmutableMap.Builder<Class<? extends Request>, GraphPolicy> graphPoliciesBuilder = ImmutableMap.builder();
         for (final Map.Entry<Class<? extends Request>, List<GraphPolicyRule>> rules : allRules.entrySet()) {
