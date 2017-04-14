@@ -147,12 +147,4 @@ public class SharingACLVoter implements ACLVoter {
     protected void throwDisabled(String action) {
         throw new SecurityViolation(action + " is not allowed while in share.");
     }
-
-    private Long group(Details d) {
-        if (d == null || d.getGroup() == null) {
-            return null;
-        }
-        return d.getGroup().getId();
-    }
-
 }
