@@ -715,34 +715,35 @@ public class OmeroInterceptor implements Interceptor {
                 || sysTypes.isInSystemGroup(obj.getDetails());
         final Set<AdminPrivilege> privileges = getAdminPrivileges();
 
-        /* see trac ticket 10691 re. enum values */
         if (!bec.isCurrentUserAdmin()) {
             isPrivilegedCreator = false;
         } else if (sysType) {
             isPrivilegedCreator = true;
         } else if (obj instanceof Experimenter) {
-            isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege("ModifyUser"));
+            isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_MODIFY_USER));
         } else if (obj instanceof ExperimenterGroup) {
-            isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege("ModifyGroup"));
+            isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_MODIFY_GROUP));
         } else if (obj instanceof GroupExperimenterMap) {
-            isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege("ModifyGroupMembership"));
+            isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_MODIFY_GROUP_MEMBERSHIP));
         } else if (obj instanceof OriginalFile) {
             final String repo = ((OriginalFile) obj).getRepo();
             if (repo != null) {
                 if (managedRepoUuids.contains(repo)) {
-                    isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege("WriteManagedRepo"));
+                    isPrivilegedCreator =
+                            privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_WRITE_MANAGED_REPO));
                 } else if (scriptRepoUuids.contains(repo)) {
-                    isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege("WriteScriptRepo"));
+                    isPrivilegedCreator =
+                            privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_WRITE_SCRIPT_REPO));
                 } else {
                     /* other repository */
-                    isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege("WriteFile"));
+                    isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_WRITE_FILE));
                 }
             } else {
                 /* not in repository */
-                isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege("WriteFile"));
+                isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_WRITE_FILE));
             }
         } else {
-            isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege("WriteOwned"));
+            isPrivilegedCreator = privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_WRITE_OWNED));
         }
 
         // OWNER
@@ -1053,7 +1054,8 @@ public class OmeroInterceptor implements Interceptor {
 
             // if the current user is an admin or if the entity has been
             // marked privileged, then use the current owner.
-            else if (bec.isCurrentUserAdmin() && privileges.contains(adminPrivileges.getPrivilege("Chown")) || privileged) {
+            else if (bec.isCurrentUserAdmin() && privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_CHOWN))
+                    || privileged) {
                 // ok
             }
 
@@ -1113,7 +1115,8 @@ public class OmeroInterceptor implements Interceptor {
                          roles.getUserGroupId()) &&
                        bec.getMemberOfGroupsList().contains(
                          currentDetails.getGroup().getId())) // ticket:1794
-                    || bec.isCurrentUserAdmin() && privileges.contains(adminPrivileges.getPrivilege("Chgrp")) || privileged) {
+                    || bec.isCurrentUserAdmin() && privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_CHGRP))
+                    || privileged) {
                 newDetails.setGroup(currentDetails.getGroup());
                 return true;
             }

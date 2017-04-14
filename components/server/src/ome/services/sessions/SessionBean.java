@@ -136,7 +136,7 @@ public class SessionBean implements ISession {
         if (context.isCurrentUserAdmin()) {
             if (currentSession != null) {
                 final Set<AdminPrivilege> privileges = adminPrivileges.getSessionPrivileges(currentSession);
-                if (privileges.contains(adminPrivileges.getPrivilege("Sudo"))) {
+                if (privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_SUDO))) {
                     groupsLed = null;
                 } else {
                     groupsLed = context.getLeaderOfGroupsList();

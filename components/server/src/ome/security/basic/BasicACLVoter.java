@@ -166,11 +166,11 @@ public class BasicACLVoter implements ACLVoter {
         final Set<AdminPrivilege> privileges = adminPrivileges.getSessionPrivileges(event.getSession());
         if (sysTypes.isSystemType(iObject.getClass())) {
             if (iObject instanceof Experimenter) {
-                return privileges.contains(adminPrivileges.getPrivilege("ModifyUser"));
+                return privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_MODIFY_USER));
             } else if (iObject instanceof ExperimenterGroup) {
-                return privileges.contains(adminPrivileges.getPrivilege("ModifyGroup"));
+                return privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_MODIFY_GROUP));
             } else if (iObject instanceof GroupExperimenterMap) {
-                return privileges.contains(adminPrivileges.getPrivilege("ModifyGroupMembership"));
+                return privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_MODIFY_GROUP_MEMBERSHIP));
             } else {
                 return true;
             }
@@ -179,14 +179,14 @@ public class BasicACLVoter implements ACLVoter {
                 final String repo = ((OriginalFile) iObject).getRepo();
                 if (repo != null) {
                     if (managedRepoUuids.contains(repo)) {
-                        return privileges.contains(adminPrivileges.getPrivilege("WriteManagedRepo"));
+                        return privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_WRITE_MANAGED_REPO));
                     } else if (scriptRepoUuids.contains(repo)) {
-                        return privileges.contains(adminPrivileges.getPrivilege("WriteScriptRepo"));
+                        return privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_WRITE_SCRIPT_REPO));
                     }
                 }
-                return privileges.contains(adminPrivileges.getPrivilege("WriteFile"));
+                return privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_WRITE_FILE));
             } else {
-                return privileges.contains(adminPrivileges.getPrivilege("WriteOwned"));
+                return privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_WRITE_OWNED));
             }
         }
     }
@@ -228,7 +228,7 @@ public class BasicACLVoter implements ACLVoter {
             if (systemMembership != null) {
                 /* cannot yet cache privileges because Sessions may be loaded while still being constructed by the session bean */
                 final Set<AdminPrivilege> privileges = adminPrivileges.getSessionPrivileges(currentSession, false);
-                if (privileges.contains(adminPrivileges.getPrivilege("ReadSession"))) {
+                if (privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_READ_SESSION))) {
                     /* only a full administrator may read all sessions */
                     return true;
                 }
@@ -315,13 +315,12 @@ public class BasicACLVoter implements ACLVoter {
             } else {
                 privileges = adminPrivileges.getSessionPrivileges(event.getSession());
             }
-            /* see trac ticket 10691 re. enum values */
             if (iObject instanceof Experimenter) {
-                return privileges.contains(adminPrivileges.getPrivilege("ModifyUser"));
+                return privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_MODIFY_USER));
             } else if (iObject instanceof ExperimenterGroup) {
-                return privileges.contains(adminPrivileges.getPrivilege("ModifyGroup"));
+                return privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_MODIFY_GROUP));
             } else if (iObject instanceof GroupExperimenterMap) {
-                return privileges.contains(adminPrivileges.getPrivilege("ModifyGroupMembership"));
+                return privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_MODIFY_GROUP_MEMBERSHIP));
             } else {
                 return true;
             }
@@ -515,48 +514,51 @@ public class BasicACLVoter implements ACLVoter {
             Scope scope = scopes[i];
             if (scope == null) continue;
 
-            /* see trac ticket 10691 re. enum values */
             boolean hasLightAdminPrivilege = false;
-            final String prefix = scope == Scope.DELETE ? "Delete" : "Write";
             if (!sysType) {
                 if (iObject instanceof OriginalFile) {
                     final String repo = ((OriginalFile) iObject).getRepo();
                     if (repo != null) {
                         if (managedRepoUuids.contains(repo)) {
-                            if (privileges.contains(adminPrivileges.getPrivilege(prefix + "ManagedRepo"))) {
+                            if (privileges.contains(adminPrivileges.getPrivilege(scope == Scope.DELETE ?
+                                    AdminPrivilege.VALUE_DELETE_MANAGED_REPO : AdminPrivilege.VALUE_WRITE_MANAGED_REPO))) {
                                 hasLightAdminPrivilege = true;
                             }
                         } else if (scriptRepoUuids.contains(repo)) {
-                            if (privileges.contains(adminPrivileges.getPrivilege(prefix + "ScriptRepo"))) {
+                            if (privileges.contains(adminPrivileges.getPrivilege(scope == Scope.DELETE ?
+                                    AdminPrivilege.VALUE_DELETE_SCRIPT_REPO : AdminPrivilege.VALUE_WRITE_SCRIPT_REPO))) {
                                 hasLightAdminPrivilege = true;
                             }
                         } else {
                             /* other repository */
-                            if (privileges.contains(adminPrivileges.getPrivilege(prefix + "File"))) {
+                            if (privileges.contains(adminPrivileges.getPrivilege(scope == Scope.DELETE ?
+                                    AdminPrivilege.VALUE_DELETE_FILE : AdminPrivilege.VALUE_WRITE_FILE))) {
                                 hasLightAdminPrivilege = true;
                             }
                         }
                     } else {
                         /* not in repository */
-                        if (privileges.contains(adminPrivileges.getPrivilege(prefix + "File"))) {
+                        if (privileges.contains(adminPrivileges.getPrivilege(scope == Scope.DELETE ?
+                                AdminPrivilege.VALUE_DELETE_FILE : AdminPrivilege.VALUE_WRITE_FILE))) {
                             hasLightAdminPrivilege = true;
                         }
                     }
                 } else {
-                    if (privileges.contains(adminPrivileges.getPrivilege(prefix + "Owned"))) {
+                    if (privileges.contains(adminPrivileges.getPrivilege(scope == Scope.DELETE ?
+                            AdminPrivilege.VALUE_DELETE_OWNED : AdminPrivilege.VALUE_WRITE_OWNED))) {
                         hasLightAdminPrivilege = true;
                     }
                 }
             } else if (iObject instanceof Experimenter) {
-                if (privileges.contains(adminPrivileges.getPrivilege("ModifyUser"))) {
+                if (privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_MODIFY_USER))) {
                     hasLightAdminPrivilege = true;
                 }
             } else if (iObject instanceof ExperimenterGroup) {
-                if (privileges.contains(adminPrivileges.getPrivilege("ModifyGroup"))) {
+                if (privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_MODIFY_GROUP))) {
                     hasLightAdminPrivilege = true;
                 }
             } else if (iObject instanceof GroupExperimenterMap) {
-                if (privileges.contains(adminPrivileges.getPrivilege("ModifyGroupMembership"))) {
+                if (privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_MODIFY_GROUP_MEMBERSHIP))) {
                     hasLightAdminPrivilege = true;
                 }
             } else if (c.isCurrentUserAdmin()) {
@@ -647,8 +649,8 @@ public class BasicACLVoter implements ACLVoter {
                 isChgrpPrivilege = true;
                 isChownPrivilege = true;
             } else {
-                isChgrpPrivilege = privileges.contains(adminPrivileges.getPrivilege("Chgrp"));
-                isChownPrivilege = privileges.contains(adminPrivileges.getPrivilege("Chown"));
+                isChgrpPrivilege = privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_CHGRP));
+                isChownPrivilege = privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_CHOWN));
             }
         } else {
             isChgrpPrivilege = false;

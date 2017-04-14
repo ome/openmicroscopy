@@ -616,7 +616,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         hql.append("SELECT id, uuid FROM Session WHERE closed IS NULL");
         hql.append(" AND owner.id = :owner");
         params.addLong("owner", session.getOwner().getId());
-        if (!privileges.contains(adminPrivileges.getPrivilege("ReadSession"))) {
+        if (!privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_READ_SESSION))) {
             /* user is not privileged so is limited to where sudoer is the same as their current session */
             if (session.getSudoer() == null) {
                 hql.append(" AND sudoer IS NULL");

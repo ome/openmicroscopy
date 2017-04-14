@@ -52,6 +52,7 @@ import ome.model.containers.DatasetImageLink;
 import ome.model.containers.FolderImageLink;
 import ome.model.containers.FolderRoiLink;
 import ome.model.containers.ProjectDatasetLink;
+import ome.model.enums.AdminPrivilege;
 import ome.model.internal.Details;
 import ome.model.meta.Experimenter;
 import ome.model.screen.ScreenPlateLink;
@@ -164,8 +165,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
 
         /* if the current user is not an administrator then find of which groups the target user is a member */
         final EventContext eventContext = helper.getEventContext();
-        /* see trac ticket 10691 re. enum values */
-        final boolean isChownPrivilege = graphHelper.checkIsAdministrator(adminPrivileges.getPrivilege("Chown"));
+        final boolean isChownPrivilege = graphHelper.checkIsAdministrator(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_CHOWN));
         if (isChownPrivilege) {
             acceptableGroupsFrom = null;
             acceptableGroupsTo = null;
