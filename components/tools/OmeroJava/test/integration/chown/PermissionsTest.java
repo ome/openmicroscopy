@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2016 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2015-2017 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -36,7 +36,6 @@ import omero.rtypes;
 import omero.cmd.Chmod2;
 import omero.cmd.Chown2;
 import omero.cmd.Delete2;
-import omero.cmd.ERR;
 import omero.cmd.Response;
 import omero.gateway.util.Requests;
 import omero.model.Annotation;
@@ -63,6 +62,7 @@ import omero.model.ImageAnnotationLinkI;
 import omero.model.Instrument;
 import omero.model.MapAnnotation;
 import omero.model.MapAnnotationI;
+import omero.model.Microscope;
 import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.RectangleI;
@@ -1712,5 +1712,38 @@ public class PermissionsTest extends AbstractServerTest {
         }
 
         return testCases.toArray(new Object[testCases.size()][]);
+    }
+
+    /**
+     * Test that {@link omero.model.Permissions#canChown()} respects {@code allTargets} as passed to
+     * {@link omero.cmd.graphs.GraphRequestFactory#GraphRequestFactory(ome.security.ACLVoter, ome.system.Roles,
+     *  ome.security.SystemTypes, ome.services.graphs.GraphPathBean, ome.security.basic.LightAdminPrivileges,
+     *  ome.services.delete.Deletion, Map, Map, List, Set)}.
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testAdminChownObjectPermissions() throws Exception {
+        logRootIntoGroup(newUserAndGroup("rw----"));
+
+        final Instrument instrument = (Instrument) iUpdate.saveAndReturnObject(mmFactory.createInstrument());
+        Assert.assertTrue(instrument.getDetails().getPermissions().canChown());
+
+        final Microscope microscope = instrument.getMicroscope();
+        Assert.assertFalse(microscope.getDetails().getPermissions().canChown());
+
+        Image image = mmFactory.simpleImage();
+        image.setInstrument((Instrument) instrument.proxy());
+        image = (Image) iUpdate.saveAndReturnObject(image);
+        testImages.add(image.getId().getValue());
+        Assert.assertTrue(image.getDetails().getPermissions().canChown());
+
+        final Folder folder = (Folder) iUpdate.saveAndReturnObject(mmFactory.simpleFolder());
+        Assert.assertTrue(folder.getDetails().getPermissions().canChown());
+
+        FolderImageLink link = new FolderImageLinkI();
+        link.setParent((Folder) folder.proxy());
+        link.setChild((Image) image.proxy());
+        link = (FolderImageLink) iUpdate.saveAndReturnObject(link);
+        Assert.assertTrue(link.getDetails().getPermissions().canChown());
     }
 }
