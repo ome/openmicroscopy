@@ -7,6 +7,7 @@
 
 package ome.security.sharing;
 
+import java.util.Map;
 import java.util.Set;
 
 import ome.api.IShare;
@@ -121,6 +122,10 @@ public class SharingACLVoter implements ACLVoter {
     @Override
     public Set<String> restrictions(IObject object) {
         return null;
+    }
+
+    @Override
+    public void setRestrictedObjects(Map<Integer, Set<Class<? extends IObject>>> objectRestrictions) {
     }
 
     @Override

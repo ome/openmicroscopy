@@ -12,6 +12,7 @@ package ome.security;
 // Third-party libraries
 
 // Application-internal dependencies
+import java.util.Map;
 import java.util.Set;
 
 import ome.conditions.SecurityViolation;
@@ -182,6 +183,13 @@ public interface ACLVoter {
      * @return the restrictions applying for the object
      */
     Set<String> restrictions(IObject object);
+
+    /**
+     * Specify objects based on restriction constants in {@link ome.model.internal.Permissions} that always have those restrictions.
+     * Previously set restrictions <em>may</em> not be cleared by subsequent calls to this method.
+     * @param objectRestrictions the map from restriction constants to restricted object classes
+     */
+    void setRestrictedObjects(Map<Integer, Set<Class<? extends IObject>>> objectRestrictions);
 
     /**
      * Note the light admin privileges for post-processing before the event context is invalidated.

@@ -13,6 +13,7 @@ import static ome.model.internal.Permissions.Role.WORLD;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import ome.conditions.ApiUsageException;
@@ -40,6 +41,7 @@ import ome.system.EventContext;
 import ome.system.Roles;
 import ome.tools.hibernate.HibernateUtils;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,6 +88,10 @@ public class BasicACLVoter implements ACLVoter {
     protected final PolicyService policyService;
 
     protected final Roles roles;
+
+    private Set<Class<? extends IObject>> chgrpRestrictedClasses = Collections.emptySet();
+
+    private Set<Class<? extends IObject>> chownRestrictedClasses = Collections.emptySet();
 
     private final LightAdminPrivileges adminPrivileges;
 
@@ -592,6 +598,18 @@ public class BasicACLVoter implements ACLVoter {
     @Override
     public Set<String> restrictions(IObject object) {
         return policyService.listActiveRestrictions(object);
+    }
+
+    @Override
+    public void setRestrictedObjects(Map<Integer, Set<Class<? extends IObject>>> objectRestrictions) {
+        final Set<Class<? extends IObject>> chgrpRestrictedClasses = objectRestrictions.get(Permissions.CHGRPRESTRICTION);
+        final Set<Class<? extends IObject>> chownRestrictedClasses = objectRestrictions.get(Permissions.CHOWNRESTRICTION);
+        if (CollectionUtils.isNotEmpty(chgrpRestrictedClasses)) {
+            this.chgrpRestrictedClasses = chgrpRestrictedClasses;
+        }
+        if (CollectionUtils.isNotEmpty(chownRestrictedClasses)) {
+            this.chownRestrictedClasses = chownRestrictedClasses;
+        }
     }
 
     @Override
