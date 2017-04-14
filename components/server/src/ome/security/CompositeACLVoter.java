@@ -102,8 +102,8 @@ public class CompositeACLVoter implements ACLVoter {
     }
 
     @Override
-    public void setRestrictedObjects(Map<Integer, Set<Class<? extends IObject>>> objectRestrictions) {
-        choose().setRestrictedObjects(objectRestrictions);
+    public void setPermittedClasses(Map<Integer, Set<Class<? extends IObject>>> objectClassesPermitted) {
+        choose().setPermittedClasses(objectClassesPermitted);
     }
 
     @Override

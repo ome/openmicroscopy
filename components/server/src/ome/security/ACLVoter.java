@@ -185,11 +185,12 @@ public interface ACLVoter {
     Set<String> restrictions(IObject object);
 
     /**
-     * Specify objects based on restriction constants in {@link ome.model.internal.Permissions} that always have those restrictions.
-     * Previously set restrictions <em>may</em> not be cleared by subsequent calls to this method.
-     * @param objectRestrictions the map from restriction constants to restricted object classes
+     * Specify object classes based on restriction constants in {@link ome.model.internal.Permissions} that do not always have those
+     * restrictions.
+     * Previously set classes <em>may</em> not be cleared by subsequent calls to this method.
+     * @param objectClassesPermitted the map from restriction constants to object classes that may not have those restrictions
      */
-    void setRestrictedObjects(Map<Integer, Set<Class<? extends IObject>>> objectRestrictions);
+    void setPermittedClasses(Map<Integer, Set<Class<? extends IObject>>> objectClassesPermitted);
 
     /**
      * Note the light admin privileges for post-processing before the event context is invalidated.

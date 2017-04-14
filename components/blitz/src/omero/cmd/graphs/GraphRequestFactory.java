@@ -106,7 +106,7 @@ public class GraphRequestFactory implements ApplicationContextAware {
         }
         this.allTargets = allTargetsBuilder.build();
 
-        aclVoter.setRestrictedObjects(ImmutableMap.of(
+        aclVoter.setPermittedClasses(ImmutableMap.of(
                 Permissions.CHGRPRESTRICTION,
                 (Set<Class<? extends IObject>>) this.allTargets.get(Chgrp2I.class),
                 Permissions.CHOWNRESTRICTION,

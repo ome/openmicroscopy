@@ -125,7 +125,7 @@ public class SharingACLVoter implements ACLVoter {
     }
 
     @Override
-    public void setRestrictedObjects(Map<Integer, Set<Class<? extends IObject>>> objectRestrictions) {
+    public void setPermittedClasses(Map<Integer, Set<Class<? extends IObject>>> objectClassesPermitted) {
     }
 
     @Override

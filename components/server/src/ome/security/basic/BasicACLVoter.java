@@ -89,9 +89,11 @@ public class BasicACLVoter implements ACLVoter {
 
     protected final Roles roles;
 
-    private Set<Class<? extends IObject>> chgrpRestrictedClasses = Collections.emptySet();
+    /* ignored if empty set */
+    private Set<Class<? extends IObject>> chgrpPermittedClasses = Collections.emptySet();
 
-    private Set<Class<? extends IObject>> chownRestrictedClasses = Collections.emptySet();
+    /* ignored if empty set */
+    private Set<Class<? extends IObject>> chownPermittedClasses = Collections.emptySet();
 
     private final LightAdminPrivileges adminPrivileges;
 
@@ -601,14 +603,14 @@ public class BasicACLVoter implements ACLVoter {
     }
 
     @Override
-    public void setRestrictedObjects(Map<Integer, Set<Class<? extends IObject>>> objectRestrictions) {
-        final Set<Class<? extends IObject>> chgrpRestrictedClasses = objectRestrictions.get(Permissions.CHGRPRESTRICTION);
-        final Set<Class<? extends IObject>> chownRestrictedClasses = objectRestrictions.get(Permissions.CHOWNRESTRICTION);
-        if (CollectionUtils.isNotEmpty(chgrpRestrictedClasses)) {
-            this.chgrpRestrictedClasses = chgrpRestrictedClasses;
+    public void setPermittedClasses(Map<Integer, Set<Class<? extends IObject>>> objectClassesPermitted) {
+        final Set<Class<? extends IObject>> chgrpPermittedClasses = objectClassesPermitted.get(Permissions.CHGRPRESTRICTION);
+        final Set<Class<? extends IObject>> chownPermittedClasses = objectClassesPermitted.get(Permissions.CHOWNRESTRICTION);
+        if (CollectionUtils.isNotEmpty(chgrpPermittedClasses)) {
+            this.chgrpPermittedClasses = chgrpPermittedClasses;
         }
-        if (CollectionUtils.isNotEmpty(chownRestrictedClasses)) {
-            this.chownRestrictedClasses = chownRestrictedClasses;
+        if (CollectionUtils.isNotEmpty(chownPermittedClasses)) {
+            this.chownPermittedClasses = chownPermittedClasses;
         }
     }
 
@@ -660,9 +662,9 @@ public class BasicACLVoter implements ACLVoter {
         if (isChownPrivilege || ec.getLeaderOfGroupsList().contains(details.getGroup().getId())) {
             allow |= chownBit;
         }
-        if ((allow & chgrpBit) > 0 && !chgrpRestrictedClasses.isEmpty()) {
+        if ((allow & chgrpBit) > 0 && !chgrpPermittedClasses.isEmpty()) {
             boolean isPermitted = false;
-            for (final Class<? extends IObject> permittedClass : chgrpRestrictedClasses) {
+            for (final Class<? extends IObject> permittedClass : chgrpPermittedClasses) {
                 if (permittedClass.isAssignableFrom(objectClass)) {
                     isPermitted = true;
                     break;
@@ -672,9 +674,9 @@ public class BasicACLVoter implements ACLVoter {
                 allow &= ~chgrpBit;
             }
         }
-        if ((allow & chownBit) > 0 && !chownRestrictedClasses.isEmpty()) {
+        if ((allow & chownBit) > 0 && !chownPermittedClasses.isEmpty()) {
             boolean isPermitted = false;
-            for (final Class<? extends IObject> permittedClass : chownRestrictedClasses) {
+            for (final Class<? extends IObject> permittedClass : chownPermittedClasses) {
                 if (permittedClass.isAssignableFrom(objectClass)) {
                     isPermitted = true;
                     break;
