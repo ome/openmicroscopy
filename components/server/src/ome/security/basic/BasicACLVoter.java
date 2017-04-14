@@ -624,12 +624,13 @@ public class BasicACLVoter implements ACLVoter {
 
     /**
      * On the given permissions integer sets the {@code CHGRP}, {@code CHOWN} restriction bits if the current user may
-     * move or give an object with the given details.
+     * move or give an object of the given class and with the given details.
+     * @param objectClass a model object's class
      * @param details a model object's details
      * @param allow a permissions integer
      * @return the permissions integer, possibly adjusted
      */
-    private int addChgrpChownRestrictionBits(Details details, int allow) {
+    private int addChgrpChownRestrictionBits(Class<? extends IObject> objectClass, Details details, int allow) {
         if (details.getOwner() == null || details.getGroup() == null) {
             /* probably a system type, either way we cannot judge on this basis */
             return allow;
@@ -651,11 +652,37 @@ public class BasicACLVoter implements ACLVoter {
             isChgrpPrivilege = false;
             isChownPrivilege = false;
         }
+        final int chgrpBit = 1 << Permissions.CHGRPRESTRICTION;
+        final int chownBit = 1 << Permissions.CHOWNRESTRICTION;
         if (isChgrpPrivilege || ec.getCurrentUserId().equals(details.getOwner().getId())) {
-            allow |= 1 << Permissions.CHGRPRESTRICTION;
+            allow |= chgrpBit;
         }
         if (isChownPrivilege || ec.getLeaderOfGroupsList().contains(details.getGroup().getId())) {
-            allow |= 1 << Permissions.CHOWNRESTRICTION;
+            allow |= chownBit;
+        }
+        if ((allow & chgrpBit) > 0 && !chgrpRestrictedClasses.isEmpty()) {
+            boolean isPermitted = false;
+            for (final Class<? extends IObject> permittedClass : chgrpRestrictedClasses) {
+                if (permittedClass.isAssignableFrom(objectClass)) {
+                    isPermitted = true;
+                    break;
+                }
+            }
+            if (!isPermitted) {
+                allow &= ~chgrpBit;
+            }
+        }
+        if ((allow & chownBit) > 0 && !chownRestrictedClasses.isEmpty()) {
+            boolean isPermitted = false;
+            for (final Class<? extends IObject> permittedClass : chownRestrictedClasses) {
+                if (permittedClass.isAssignableFrom(objectClass)) {
+                    isPermitted = true;
+                    break;
+                }
+            }
+            if (!isPermitted) {
+                allow &= ~chownBit;
+            }
         }
         return allow;
     }
@@ -673,7 +700,7 @@ public class BasicACLVoter implements ACLVoter {
                 // This order must match the ordered of restrictions[]
                 // expected by p.copyRestrictions
                 Scope.LINK, Scope.EDIT, Scope.DELETE, Scope.ANNOTATE);
-            allow = addChgrpChownRestrictionBits(details, allow);
+            allow = addChgrpChownRestrictionBits(object.getClass(), details, allow);
 
             // #9635 - This is not the most efficient solution
             // But since it's unclear why Permission objects
