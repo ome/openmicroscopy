@@ -1376,7 +1376,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         /* transfer can proceed only if chownPassing boolean is true */
         /* Check on one selected object only (sentProj1OtherGroup) the value
          * of canChown. The value must match the chownPassing boolean.*/
-        Assert.assertEquals(getCurrentPermissions(sentProj1OtherGroup).canChown(), chownPassing);
+        Assert.assertEquals(getCurrentPermissions(sentProj1AnootherGroup).canChown(), chownPassing);
         doChange(client, factory, Requests.chown().targetUsers(normalUser.userId).toUser(recipient.userId).build(), chownPassing);
         if (!chownPassing) {
             return;
@@ -1425,13 +1425,12 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         /* creation of rendering settings should be always permitted as long as light admin is in System Group
          * and has WriteOwned permissions. Exception is Private group, where it will
          * always fail.*/
-        boolean isExpectSuccessCreateROIRndSettings = permWriteOwned && !(groupPermissions == "rw----") ;
+        boolean isExpectSuccessCreateROIRndSettings = permWriteOwned && !(groupPermissions.equals("rw----")) ;
         /* When attempting to chown ROI without the image the ROI is on in read-only and private groups,
          * the server says that this is not allowed. Unintended behaviour, the bug was filed.
          * The boolean isExpectSuccessCreateAndChownROI had to be adjusted accordingly for this test to pass.
          * Note that the private groups were already excluded in the boolean isExpectSuccessCreateROIRndSettings */
-        boolean isExpectSuccessCreateAndChownROI = isExpectSuccessCreateROIRndSettings && permChown && !(groupPermissions == "rwr---");
-        boolean isExpectSuccessCreateAndChownRndSettings = isExpectSuccessCreateROIRndSettings && permChown;
+        boolean isExpectSuccessCreateAndChown = isExpectSuccessCreateROIRndSettings && permChown;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         /* set up the light admin's permissions for this test */
         List<String> permissions = new ArrayList<String>();
@@ -1455,9 +1454,15 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         roi.setImage((Image) sentImage.proxy());
         try {
             roi = (Roi) iUpdate.saveAndReturnObject(roi);
+            /* Check the value of canAnnotate on the sentImage.
+             * The value must be true as the ROI can be saved.*/
+            Assert.assertEquals(getCurrentPermissions(sentImage).canAnnotate(), true);
             Assert.assertTrue(isExpectSuccessCreateROIRndSettings);
         } catch (SecurityViolation sv) {
             /* will not work in private group or when the permissions are insufficient */
+            /* Check the value of canAnnotate on the sentImage.
+             * The value must be false as the ROI cannot be saved.*/
+            Assert.assertEquals(getCurrentPermissions(sentImage).canAnnotate(), false);
             Assert.assertFalse(isExpectSuccessCreateROIRndSettings);
         }
 
@@ -1466,9 +1471,15 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         try {
             prx.setOriginalSettingsInSet(Pixels.class.getName(),
                     Arrays.asList(pixelsOfImage.getId().getValue()));
+            /* Check the value of canAnnotate on the sentImage.
+             * The value must be true as the Rnd settings can be saved.*/
+            Assert.assertEquals(getCurrentPermissions(sentImage).canAnnotate(), true);
             Assert.assertTrue(isExpectSuccessCreateROIRndSettings);
         } catch (SecurityViolation sv) {
             /* will not work in private group or when the permissions are insufficient */
+            /* Check the value of canAnnotate on the sentImage.
+             * The value must be false as the Rnd settings cannot be saved.*/
+            Assert.assertEquals(getCurrentPermissions(sentImage).canAnnotate(), false);
             Assert.assertFalse(isExpectSuccessCreateROIRndSettings);
         }
         /* retrieve the image corresponding to the roi and Rnd settings
@@ -1494,28 +1505,29 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             Assert.assertNull(rDef);
         }
         /* after this, as light admin try to chown the ROI and the rendering settings to normalUser */
-        if (isExpectSuccessCreateROIRndSettings) {/* only attempt the chown if the ROI and rendering settings exist
-             and also in case of ROIs cannot chown in read-only group. See definition of boolean
-             isExpectSuccessCreateAndChownROI */
-            doChange(client, factory, Requests.chown().target(roi).toUser(normalUser.userId).build(), isExpectSuccessCreateAndChownROI);
-            doChange(client, factory, Requests.chown().target(rDef).toUser(normalUser.userId).build(), isExpectSuccessCreateAndChownRndSettings);
+        if (isExpectSuccessCreateROIRndSettings) {/* only attempt the chown
+               if the ROI and rendering settings exist */
+            /* Also, check the value of canChown on the ROI and rendering defs matches
+             * the boolean isExpectSuccessCreateAndChownRndSettings.
+             * Note that in read-only group, the chown of roi would fail, see
+             * https://trello.com/c/7o4q2Tkt/745-fix-graphs-for-mixed-ownership-read-only.
+             * The workaround is to chown both the image and the roi, which is done in this test.*/
+            Assert.assertEquals(getCurrentPermissions(roi).canChown(), isExpectSuccessCreateAndChown);
+            Assert.assertEquals(getCurrentPermissions(rDef).canChown(), isExpectSuccessCreateAndChown);
+            doChange(client, factory, Requests.chown().target(roi, sentImage).toUser(normalUser.userId).build(), isExpectSuccessCreateAndChown);
+            doChange(client, factory, Requests.chown().target(rDef).toUser(normalUser.userId).build(), isExpectSuccessCreateAndChown);
             /* retrieving the image here via rDef, in order to
              * be sure this is the image on which
              * the rendering definitions are attached */
             long imageId = ((RLong) iQuery.projection(
                     "SELECT rdef.pixels.image.id FROM RenderingDef rdef WHERE rdef.id = :id",
                     new ParametersI().addId(rDef.getId())).get(0).get(0)).getValue();
-            if (isExpectSuccessCreateAndChownROI) {/* whole workflow succeeded for ROI, all belongs to normalUser */
+            if (isExpectSuccessCreateAndChown) {/* whole workflow succeeded for ROI and Rnd, all belongs to normalUser */
                 assertOwnedBy(roi, normalUser);
-                assertOwnedBy((new ImageI(imageId, false)), normalUser);
+                assertOwnedBy(rDef, normalUser);
+                assertOwnedBy((new ImageI (imageId, false)), normalUser);
             } else {/* the creation of ROI succeeded, but the chown failed */
                 assertOwnedBy(roi, lightAdmin);
-                assertOwnedBy((new ImageI(imageId, false)), normalUser);
-            }
-            if (isExpectSuccessCreateAndChownRndSettings) {/* whole workflow succeeded for Rnd settings, all belongs to normalUser */
-                assertOwnedBy(rDef, normalUser);
-                assertOwnedBy((new ImageI(imageId, false)), normalUser);
-            } else {/* the creation of the Rnd settings succeeded, but the chown failed */
                 assertOwnedBy(rDef, lightAdmin);
                 assertOwnedBy((new ImageI(imageId, false)), normalUser);
             }
@@ -2219,7 +2231,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                         testCase[PERM_WRITEOWNED] = permWriteOwned;
                         testCase[PERM_CHOWN] = permChown;
                         testCase[GROUP_PERMS] = groupPerms;
-                        // DEBUG if (permWriteOwned == true && permChown == true)
+                        // DEBUG if (permWriteOwned == true && permChown == true && groupPerms.equals("rwr---"))
                         testCases.add(testCase);
                     }
                 }
