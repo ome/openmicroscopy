@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import omero.RLong;
@@ -98,6 +99,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
 /**
@@ -173,13 +175,21 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * Get the current permissions for the given object.
      * @param object a model object previously retrieved from the server
      * @return the permissions for the object in the current context
-     * @throws ServerError if the query caused a server error
+     * @throws Exception 
      */
-    private Permissions getCurrentPermissions(IObject object) throws ServerError {
+    private Permissions getCurrentPermissions(IObject object) throws Exception {
+        assertExists(object);
         final String objectClass = object.getClass().getSuperclass().getSimpleName();
         final long objectId = object.getId().getValue();
         try {
-            IObject objectRetrieved = iQuery.get(object.getClass().getSuperclass().getSimpleName(), object.getId().getValue());
+            final Map<String, String> allGroupsContext = ImmutableMap.of("omero.group", "-1");
+            final IObject objectRetrieved;
+            if (objectClass.endsWith("Link")) {
+                objectRetrieved = iQuery.findByQuery("FROM " + objectClass + " link JOIN FETCH link.child WHERE link.id = :id",
+                        new ParametersI().addId(objectId), allGroupsContext);
+            } else {
+                objectRetrieved = iQuery.get(objectClass, objectId, allGroupsContext);
+            }
             return objectRetrieved.getDetails().getPermissions();
         } catch (SecurityViolation sv) {
             return new PermissionsI("------");
@@ -1591,8 +1601,12 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         link.setChild(fileAnnotation);
         try {
             link = (ImageAnnotationLink) iUpdate.saveAndReturnObject(link);
+            /* Check the value of canAnnotate on the image is true in this case.*/
+            Assert.assertEquals(getCurrentPermissions(sentImage).canAnnotate(), true);
             Assert.assertTrue(isExpectSuccessLinkFileAttachemnt);
         } catch (SecurityViolation sv) {
+            /* Check the value of canAnnotate on the image is false in this case.*/
+            Assert.assertEquals(getCurrentPermissions(sentImage).canAnnotate(), false);
             Assert.assertFalse(isExpectSuccessLinkFileAttachemnt);
             return; /* finish the test in case we have no Link */
         }
@@ -1600,6 +1614,9 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         /* transfer the ownership of the attachment and the link to the user */
         /* The attachment was certainly created. In cases in which it was not created,
          * the test was terminated (see above). */
+        /* Check the value of canChown on the annotation is matching the boolean
+         * isExpectSuccessCreateFileAttAndChown.*/
+        Assert.assertEquals(getCurrentPermissions(fileAnnotation).canChown(), isExpectSuccessCreateFileAttAndChown);
         doChange(client, factory, Requests.chown().target(fileAnnotation).toUser(normalUser.userId).build(), isExpectSuccessCreateFileAttAndChown);
         if (isExpectSuccessCreateFileAttAndChown) {/* file ann creation and chowning succeeded */
             assertOwnedBy(fileAnnotation, normalUser);
@@ -1608,6 +1625,9 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         }
         /* The link was certainly created. In cases where the creation was not successful,
          * the test was terminated (see above).*/
+        /* Check the value of canChown on the link is matching the boolean
+         * isExpectSuccessCreateLinkAndChown.*/
+        Assert.assertEquals(getCurrentPermissions(link).canChown(), isExpectSuccessCreateLinkAndChown);
         doChange(client, factory, Requests.chown().target(link).toUser(normalUser.userId).build(), isExpectSuccessCreateLinkAndChown);
         if (isExpectSuccessCreateLinkAndChown) {/* if the link could
         be both created and chowned, this means also the attachment was created and chowned
@@ -2022,7 +2042,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                             testCase[PERM_WRITEOWNED] = permWriteOwned;
                             testCase[PERM_WRITEFILE] = permWriteFile;
                             testCase[GROUP_PERMS] = groupPerms;
-                            //DEBUG if (permChown == true && permWriteOwned == true && permWriteFile == true)
+                            //DEBUG if (permChown == true && permWriteOwned == true && permWriteFile == true && groupPerms.equals("rwr---"))
                             testCases.add(testCase);
                         }
                     }
