@@ -965,6 +965,7 @@ USE_I18N = True
 # MIDDLEWARE_CLASSES: A tuple of middleware classes to use.
 # See https://docs.djangoproject.com/en/1.8/topics/http/middleware/.
 MIDDLEWARE_CLASSES = (
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.BrokenLinkEmailsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -1033,6 +1034,7 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
+    'corsheaders',
 )
 
 # ADDITONAL_APPS: We import any settings.py from apps. This allows them to
