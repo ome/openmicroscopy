@@ -114,3 +114,13 @@ class TestFS(CLITest):
             self.cli.invoke(self.args, strict=True)
         out, err = capsys.readouterr()
         assert err.endswith("SecurityViolation: Admins only!\n")
+
+    def testMkdirAdminOnly(self, capsys):
+        """Test fs mkdir is admin-only"""
+
+        directory_name = self.uuid()
+        self.args += ["mkdir", directory_name]
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
+        out, err = capsys.readouterr()
+        assert err.endswith("SecurityViolation: Admins only!\n")
