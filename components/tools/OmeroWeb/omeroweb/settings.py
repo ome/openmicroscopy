@@ -1193,6 +1193,8 @@ MANAGERS = ADMINS  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
 # omeroweb.connector.Connector object
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
 
+CORS_ORIGIN_ALLOW_ALL = True
+
 # Load server list and freeze
 from connector import Server
 
