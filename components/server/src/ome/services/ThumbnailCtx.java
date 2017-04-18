@@ -526,7 +526,12 @@ public class ThumbnailCtx
 
         private ExtendedGraphCriticalCheck(long pixelsId) {
             super(applicationContext, queryService, securitySystem.getEventContext().getCurrentEventId());
-            actOnByGroup(Collections.singleton(pixelsId));
+            if (securitySystem.getEventContext().getCurrentShareId() == null) {
+                actOnByGroup(Collections.singleton(pixelsId));
+            } else {
+                /* in a share */
+                isCritical = true;
+            }
         }
 
         @Override
