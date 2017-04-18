@@ -403,7 +403,7 @@ class BrowserModel
         }
         return 1;
     }
-    
+
     /** 
      * Creates a new instance.
      * 
@@ -671,6 +671,9 @@ class BrowserModel
     void setUnitBar(boolean unitBar) {
         if (unitBar) {
             // Determine a reasonable unit
+            if (Double.isInfinite(getPixelsSizeX().getValue())
+                    || Double.isNaN(getPixelsSizeX().getValue()))
+                return;
             Length tmp = new LengthI(getPixelsSizeX().getValue() / zoomFactor,
                     getPixelsSizeX().getUnit());
             tmp = UIUtilities.transformSize(tmp);
