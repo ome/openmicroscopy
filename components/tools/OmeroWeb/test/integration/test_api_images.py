@@ -103,6 +103,7 @@ class TestImages(IWebTest):
     def test_dataset_images(self, user1, dataset_images):
         """Test listing of Images in a Dataset."""
         conn = get_connection(user1)
+        groupId = conn.getEventContext().groupId
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
         version = api_settings.API_VERSIONS[-1]
@@ -115,7 +116,7 @@ class TestImages(IWebTest):
         datasets_url = reverse('api_datasets', kwargs={'api_version': version})
 
         # List ALL Images
-        rsp = _get_response_json(django_client, images_url, {})
+        rsp = _get_response_json(django_client, images_url, {'group': groupId})
         assert len(rsp['data']) == 6
         assert rsp['meta'] == {'totalCount': 6,
                                'limit': api_settings.API_LIMIT,
