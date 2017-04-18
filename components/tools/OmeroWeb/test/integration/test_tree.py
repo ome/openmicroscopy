@@ -1853,7 +1853,7 @@ class TestTree(ITest):
         conn = get_connection(userA)
         expected = expected_images(userA, images)
         all_images = marshal_images(conn=conn,
-                                   group_id=-1)
+                                    group_id=-1)
         # Need to check that all expected are in marshalled
         # BUT - marshalled may contain other images from 'user' group
         assert len(all_images) >= len(expected)
