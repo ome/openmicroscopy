@@ -124,10 +124,10 @@ class TestImages(IWebTest):
                                'offset': 0}
 
         # Filter Images by Orphaned
-        payload = {'orphaned': 'true'}
+        payload = {'orphaned': 'true', 'group': groupId}
         rsp = _get_response_json(django_client, images_url, payload)
         assert_objects(conn, rsp['data'], [orphaned], dtype='Image',
-                       opts={'load_pixels': True})
+                       group=groupId, opts={'load_pixels': True})
         assert rsp['meta'] == {'totalCount': 1,
                                'limit': api_settings.API_LIMIT,
                                'maxLimit': api_settings.API_MAX_LIMIT,
