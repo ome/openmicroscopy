@@ -137,21 +137,20 @@ class TestFsRoot(RootCLITest):
     def testMkdirAsAdminSimpleDirCreation(self, capsys):
         """Test fs mkdir simple directory creation workflows"""
 
-        args_hierarchy = list(self.args)
         top_directory_name = self.uuid()
-        self.args += [top_directory_name]
+        args_simple = self.args + [top_directory_name]
         """mkdir of simple non-existing directory succeeds"""
-        self.cli.invoke(self.args, strict=True)
-        """mkdir of pre-existing simple directory directory fails"""
+        self.cli.invoke(args_simple, strict=True)
+        """mkdir of pre-existing simple directory fails"""
         with pytest.raises(omero.ResourceError) as exc_info:
-            self.cli.invoke(self.args, strict=True)
+            self.cli.invoke(args_simple, strict=True)
         assert "Path exists on disk" in exc_info.value.message
         """mkdir passes with --parents flag even when directory exists"""
-        self.args += ["--parents"]
-        self.cli.invoke(self.args, strict=True)
+        args_simple_parents = args_simple + ["--parents"]
+        self.cli.invoke(args_simple_parents, strict=True)
         """mkdir of directory within preexisting directory succeeds"""
         subdirectory_name = self.uuid()
-        args_hierarchy += [top_directory_name + "/" + subdirectory_name]
+        args_hierarchy = self.args + [top_directory_name + "/" + subdirectory_name]
         self.cli.invoke(args_hierarchy, strict=True)
         """Second mkdir of a subdirectory fails as the subdirectory exists"""
         with pytest.raises(omero.ResourceError) as exc_info:
@@ -161,10 +160,10 @@ class TestFsRoot(RootCLITest):
     def testMkdirAsAdminHierarchyOnlyPreexisting(self, capsys):
         """Test fs mkdir hierarchy is pre-existing only"""
 
-        args_hierarchy = list(self.args)
         top_directory_name = self.uuid()
         subdirectory_name = self.uuid()
-        args_hierarchy += [top_directory_name + "/" + subdirectory_name]
+        args_hierarchy = self.args + [top_directory_name
+                                      + "/" + subdirectory_name]
         """mkdir of non-existing top_directory/subdirectory hierarchy fails"""
         with pytest.raises(omero.SecurityViolation) as exc_info:
             self.cli.invoke(args_hierarchy, strict=True)
@@ -173,27 +172,25 @@ class TestFsRoot(RootCLITest):
     def testMkdirAsAdminHierarchyParents(self, capsys):
         """Test fs mkdir hierarchy with --parents workflows"""
 
-        args_hierarchy = list(self.args)
-        args_hierarchy_parents = list(self.args)
         top_directory_name = self.uuid()
         subdirectory_name = self.uuid()
         """mkdir of a non-existing top_directory/subdirectory
         hierarchy passes with --parents"""
-        args_hierarchy_parents += [top_directory_name + "/" +
-                                   subdirectory_name, "--parents"]
+        args_hierarchy_parents = self.args + [top_directory_name + "/" +
+                                              subdirectory_name, "--parents"]
         self.cli.invoke(args_hierarchy_parents, strict=True)
         """mkdir of pre-existing (top) directory fails"""
-        self.args += ["top_directory_name"]
+        args_simple = self.args + ["top_directory_name"]
         with pytest.raises(omero.ResourceError) as exc_info:
-            self.cli.invoke(self.args, strict=True)
+            self.cli.invoke(args_simple, strict=True)
         assert "Path exists on disk" in exc_info.value.message
         """mkdir of pre-existing top_directory/subdirectory hierarchy fails"""
-        args_hierarchy += [top_directory_name + "/" + subdirectory_name]
+        args_hierarchy = self.args + [top_directory_name + "/" + subdirectory_name]
         with pytest.raises(omero.ResourceError) as exc_info:
             self.cli.invoke(args_hierarchy, strict=True)
         assert "Path exists on disk" in exc_info.value.message
         """mkdir of pre-existing top directory with --parents succeeds"""
-        self.args += ["--parents"]
-        self.cli.invoke(self.args, strict=True)
+        args_simple_parents = args_simple + ["--parents"]
+        self.cli.invoke(args_simple_parents, strict=True)
         """mkdir of pre-existing hierarchy with --parents succeeds"""
         self.cli.invoke(args_hierarchy_parents, strict=True)
