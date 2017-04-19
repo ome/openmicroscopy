@@ -40,7 +40,7 @@ from omeroweb.api.decorators import login_required, json_response
 from omeroweb.webgateway.util import getIntOrDefault
 
 
-def build_url(request, name, api_version, **kwargs):
+def build_url(request, name, api_version, *args, **kwargs):
     """
     Helper for generating urls within /api json responses.
 
@@ -52,8 +52,9 @@ def build_url(request, name, api_version, **kwargs):
     @param name:            Name of the url
     @param api_version      Version string
     """
-    kwargs['api_version'] = api_version
-    url = reverse(name, kwargs=kwargs)
+    if api_version:
+        kwargs['api_version'] = api_version
+    url = reverse(name, args=args, kwargs=kwargs)
     if api_settings.API_ABSOLUTE_URL is None:
         return request.build_absolute_uri(url)
     else:
