@@ -373,6 +373,23 @@ CUSTOM_SETTINGS_MAPPINGS = {
         ["APPLICATION_SERVER_MAX_REQUESTS", 0, int,
          ("The maximum number of requests a worker will process before "
           "restarting.")],
+    "omero.web.middleware":
+        ["MIDDLEWARE_CLASSES_LIST",
+         ('['
+          '{"index": 1, '
+          '"class": "django.middleware.common.BrokenLinkEmailsMiddleware"},'
+          '{"index": 2, '
+          '"class": "django.middleware.common.CommonMiddleware"},'
+          '{"index": 3, '
+          '"class": "django.contrib.sessions.middleware.SessionMiddleware"},'
+          '{"index": 4, '
+          '"class": "django.middleware.csrf.CsrfViewMiddleware"},'
+          '{"index": 5, '
+          '"class": "django.contrib.messages.middleware.MessageMiddleware"}'
+          ']'),
+         json.loads,
+         ("The maximum number of requests a worker will process before "
+          "restarting.")],
     "omero.web.prefix":
         ["FORCE_SCRIPT_NAME",
          None,
@@ -962,17 +979,6 @@ except NameError:
 # internationalization machinery.
 USE_I18N = True
 
-# MIDDLEWARE_CLASSES: A tuple of middleware classes to use.
-# See https://docs.djangoproject.com/en/1.8/topics/http/middleware/.
-MIDDLEWARE_CLASSES = (
-    'django.middleware.common.BrokenLinkEmailsMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-)
-
-
 # ROOT_URLCONF: A string representing the full Python import path to your root
 # URLconf.
 # For example: "mydjangoapps.urls". Can be overridden on a per-request basis
@@ -1190,6 +1196,14 @@ MANAGERS = ADMINS  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
 # JSON serializer, which is now the default, cannot handle
 # omeroweb.connector.Connector object
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
+
+# MIDDLEWARE_CLASSES: A tuple of middleware classes to use.
+# See https://docs.djangoproject.com/en/1.6/topics/http/middleware/.
+MIDDLEWARE_CLASSES = \
+    tuple(
+        map(lambda d: str(d.get('class')),
+        sorted(MIDDLEWARE_CLASSES_LIST, key=lambda k: k['index']))  # noqa
+    )
 
 # Load server list and freeze
 from connector import Server
