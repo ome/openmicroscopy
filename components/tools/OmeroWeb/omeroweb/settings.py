@@ -971,6 +971,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'corsheaders.middleware.CorsPostCsrfMiddleware',
 )
 
 
@@ -1193,7 +1194,17 @@ MANAGERS = ADMINS  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
 # omeroweb.connector.Connector object
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
 
+# Or use CORS_ORIGIN_WHITELIST below
 CORS_ORIGIN_ALLOW_ALL = True
+
+CORS_ALLOW_CREDENTIALS = True
+
+# Needed for Django <1.9 since CSRF_TRUSTED_ORIGINS not supported
+CORS_REPLACE_HTTPS_REFERER = True
+
+# CORS_ORIGIN_WHITELIST = (
+#     'localhost:8000',
+# )
 
 # Load server list and freeze
 from connector import Server
