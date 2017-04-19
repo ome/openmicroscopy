@@ -1199,9 +1199,12 @@ MANAGERS = ADMINS  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
 # omeroweb.connector.Connector object
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
 
+
+# Load server list and freeze
+from utils import sort_properties_to_tuple
+
 # MIDDLEWARE_CLASSES: A tuple of middleware classes to use.
-MIDDLEWARE_CLASSES = tuple(e['class'] for e in sorted(
-    MIDDLEWARE_CLASSES_LIST, key=lambda k: k['index']))  # noqa
+MIDDLEWARE_CLASSES = sort_properties_to_tuple(MIDDLEWARE_CLASSES_LIST)  # noqa
 
 # Load server list and freeze
 from connector import Server
