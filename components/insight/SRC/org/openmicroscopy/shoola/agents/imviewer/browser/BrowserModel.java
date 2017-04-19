@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -388,7 +388,9 @@ class BrowserModel
      */
     private double getBarSizeInPx(double ratio)
     {
-        if(unitBarLength == null)
+        if (unitBarLength == null
+                || Double.isInfinite(getPixelsSizeX().getValue())
+                || Double.isNaN(getPixelsSizeX().getValue()))
             return 1;
         
         try {
@@ -401,7 +403,7 @@ class BrowserModel
         }
         return 1;
     }
-    
+
     /** 
      * Creates a new instance.
      * 
@@ -669,6 +671,9 @@ class BrowserModel
     void setUnitBar(boolean unitBar) {
         if (unitBar) {
             // Determine a reasonable unit
+            if (Double.isInfinite(getPixelsSizeX().getValue())
+                    || Double.isNaN(getPixelsSizeX().getValue()))
+                return;
             Length tmp = new LengthI(getPixelsSizeX().getValue() / zoomFactor,
                     getPixelsSizeX().getUnit());
             tmp = UIUtilities.transformSize(tmp);
@@ -753,6 +758,11 @@ class BrowserModel
      */
     String getUnitBarValue()
     {
+        if (unitBarLength == null
+                || Double.isInfinite(getPixelsSizeX().getValue())
+                || Double.isNaN(getPixelsSizeX().getValue()))
+            return "1";
+        
     	return UIUtilities.twoDecimalPlaces(unitBarLength.getValue());
     }
     
@@ -761,6 +771,11 @@ class BrowserModel
      * @return See above.
      */
     String getUnitBarUnit() {
+        if (unitBarLength == null
+                || Double.isInfinite(getPixelsSizeX().getValue())
+                || Double.isNaN(getPixelsSizeX().getValue()))
+            return LengthI.lookupSymbol(UnitsLength.PIXEL);
+        
         return LengthI.lookupSymbol(unitBarLength.getUnit());
     }
     
