@@ -1,6 +1,23 @@
 OMERO version history
 =====================
 
+5.3.1 (April 2017)
+------------------
+
+This is a bug-fix release focusing on shares.
+
+Improvements include:
+
+- allow to view images in share
+- allow to import hidden image files (Windows client issue)
+- clarify installation of OMERO.web
+- save polygon and polyline as defined in the OME model
+- fix viewing of images without pixels size
+- add support for large image export as jpeg/png from OMERO.insight
+
+This release also upgrades the version of Bio-Formats which OMERO uses to
+`5.4.1 <https://www.openmicroscopy.org/site/support/bio-formats5.4/about/whats-new.html>`_.
+
 5.3.0 (March 2017)
 ------------------
 
