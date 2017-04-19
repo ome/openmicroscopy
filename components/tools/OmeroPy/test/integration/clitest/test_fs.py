@@ -150,7 +150,8 @@ class TestFsRoot(RootCLITest):
         self.cli.invoke(args_simple_parents, strict=True)
         """mkdir of directory within preexisting directory succeeds"""
         subdirectory_name = self.uuid()
-        args_hierarchy = self.args + [top_directory_name + "/" + subdirectory_name]
+        args_hierarchy = self.args + [top_directory_name + "/" +
+                                      subdirectory_name]
         self.cli.invoke(args_hierarchy, strict=True)
         """Second mkdir of a subdirectory fails as the subdirectory exists"""
         with pytest.raises(omero.ResourceError) as exc_info:
@@ -162,8 +163,8 @@ class TestFsRoot(RootCLITest):
 
         top_directory_name = self.uuid()
         subdirectory_name = self.uuid()
-        args_hierarchy = self.args + [top_directory_name
-                                      + "/" + subdirectory_name]
+        args_hierarchy = self.args + [top_directory_name + "/" +
+                                      subdirectory_name]
         """mkdir of non-existing top_directory/subdirectory hierarchy fails"""
         with pytest.raises(omero.SecurityViolation) as exc_info:
             self.cli.invoke(args_hierarchy, strict=True)
@@ -185,7 +186,8 @@ class TestFsRoot(RootCLITest):
             self.cli.invoke(args_simple, strict=True)
         assert "Path exists on disk" in exc_info.value.message
         """mkdir of pre-existing top_directory/subdirectory hierarchy fails"""
-        args_hierarchy = self.args + [top_directory_name + "/" + subdirectory_name]
+        args_hierarchy = self.args + [top_directory_name + "/" +
+                                      subdirectory_name]
         with pytest.raises(omero.ResourceError) as exc_info:
             self.cli.invoke(args_hierarchy, strict=True)
         assert "Path exists on disk" in exc_info.value.message
