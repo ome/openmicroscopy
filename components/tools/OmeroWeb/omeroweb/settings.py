@@ -388,8 +388,10 @@ CUSTOM_SETTINGS_MAPPINGS = {
           '"class": "django.contrib.messages.middleware.MessageMiddleware"}'
           ']'),
          json.loads,
-         ("The maximum number of requests a worker will process before "
-          "restarting.")],
+         ('List of Django middleware classes in the form '
+          '[{"class": "class.name", "index": FLOAT}]. '
+          'See https://docs.djangoproject.com/en/1.8/topics/http/middleware/. '
+          'Classes will be ordered by increasing index')],
     "omero.web.prefix":
         ["FORCE_SCRIPT_NAME",
          None,
@@ -1198,12 +1200,8 @@ MANAGERS = ADMINS  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
 
 # MIDDLEWARE_CLASSES: A tuple of middleware classes to use.
-# See https://docs.djangoproject.com/en/1.6/topics/http/middleware/.
-MIDDLEWARE_CLASSES = \
-    tuple(
-        map(lambda d: str(d.get('class')),
-        sorted(MIDDLEWARE_CLASSES_LIST, key=lambda k: k['index']))  # noqa
-    )
+MIDDLEWARE_CLASSES = tuple(e['class'] for e in sorted(
+    MIDDLEWARE_CLASSES_LIST, key=lambda k: k['index']))  # noqa
 
 # Load server list and freeze
 from connector import Server
