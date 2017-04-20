@@ -181,7 +181,7 @@ class TestFsRoot(RootCLITest):
                                               subdirectory_name, "--parents"]
         self.cli.invoke(args_hierarchy_parents, strict=True)
         """mkdir of pre-existing (top) directory fails"""
-        args_simple = self.args + ["top_directory_name"]
+        args_simple = self.args + [top_directory_name]
         with pytest.raises(omero.ResourceError) as exc_info:
             self.cli.invoke(args_simple, strict=True)
         assert "Path exists on disk" in exc_info.value.message
