@@ -289,6 +289,12 @@ $(document).ready(function() {
         if (shareId !== null) {
           thumbUrl = "{% url 'get_thumbnails_json' %}" + shareId + "/"
         }
+
+        // getThumbnailSet() doesn't work with share permissions, so we get
+        // single thumbnails at a time
+        if (parentNode.type === "share") {
+            thumbnailsBatch = 1;
+        }
         OME.load_thumbnails(
             thumbUrl, iids, thumbnailsBatch,
             "{% static 'webgateway/img/image128.png' %}"
