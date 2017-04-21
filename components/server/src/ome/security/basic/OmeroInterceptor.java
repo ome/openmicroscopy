@@ -349,6 +349,11 @@ public class OmeroInterceptor implements Interceptor {
     // =========================================================================
     public void preFlush(Iterator entities) throws CallbackException {
         debug("Intercepted preFlush.");
+        EMPTY.preFlush(entities);
+    }
+
+    public void postFlush(Iterator entities) throws CallbackException {
+        debug("Intercepted postFlush.");
 
         if (TransactionSynchronizationManager.isCurrentTransactionReadOnly()) {
             debug("detected read-only transaction");
@@ -358,11 +363,6 @@ public class OmeroInterceptor implements Interceptor {
             sqlAction.deleteCurrentAdminPrivileges();
             sqlAction.insertCurrentAdminPrivileges(getAdminPrivileges());
         }
-    }
-
-    public void postFlush(Iterator entities) throws CallbackException {
-        debug("Intercepted postFlush.");
-        EMPTY.postFlush(entities);
     }
 
     // ~ Serialization
