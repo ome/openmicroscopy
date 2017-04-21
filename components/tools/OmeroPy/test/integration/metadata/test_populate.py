@@ -761,9 +761,9 @@ class GZIP(Dataset2Images):
     def createCsv(self, *args, **kwargs):
         csvFileName = super(GZIP, self).createCsv(*args, **kwargs)
         gzipFileName = "%s.gz" % csvFileName
-        with open(csvFileName, 'rb') as f_in, \
-                gzip.open(gzipFileName, 'wb') as f_out:
-            shutil.copyfileobj(f_in, f_out)
+        with open(csvFileName, 'rb') as f_in:
+            with gzip.open(gzipFileName, 'wb') as f_out:
+                shutil.copyfileobj(f_in, f_out)
 
         return gzipFileName
 
