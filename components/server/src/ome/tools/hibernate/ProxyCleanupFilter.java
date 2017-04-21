@@ -251,6 +251,7 @@ public class ProxyCleanupFilter extends ContextFilter {
                         .getThis().getClass())) {
                     result = new ProxyCleanupFilter(acl, current)
                         .filter(null, result);
+                    acl.clearAdminPrivileges();
                 }
             } finally {
                 d--;

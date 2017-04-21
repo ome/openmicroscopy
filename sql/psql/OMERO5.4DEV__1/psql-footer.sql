@@ -2044,7 +2044,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO5.4DEV',  0,    'OMERO5.4DEV',   0,             'Initializing');
+             values ('OMERO5.4DEV',  1,    'OMERO5.4DEV',   0,             'Initializing');
 
 --
 -- Temporarily make event columns nullable; restored below.
@@ -2734,6 +2734,19 @@ insert into password values (1,'');
 -- root can now login with omero.rootpass property value
 -- and guest can login with any value
 
+-- use a table to note the role IDs explicitly in the database
+
+CREATE TABLE _roles (
+    root_user_id BIGINT NOT NULL,
+    guest_user_id BIGINT NOT NULL,
+    system_group_id BIGINT NOT NULL,
+    user_group_id BIGINT NOT NULL,
+    guest_group_id BIGINT NOT NULL
+);
+
+INSERT INTO _roles (root_user_id, guest_user_id, system_group_id, user_group_id, guest_group_id)
+    VALUES (0, 1, 0, 1, 2);
+
 --
 -- FS Resources
 --
@@ -2777,11 +2790,17 @@ CREATE TRIGGER _fs_protected_mimetype
 
 -- Prevent SQL DELETE from removing the root experimenter from the system or user group.
 CREATE FUNCTION prevent_root_deactivate_delete() RETURNS "trigger" AS $$
+
+    DECLARE
+        roles _roles%%ROWTYPE;
+
     BEGIN
-        IF OLD.child = 0 THEN
-            IF OLD.parent = 0 THEN
+        SELECT * INTO STRICT roles FROM _roles;
+
+        IF OLD.child = roles.root_user_id THEN
+            IF OLD.parent = roles.system_group_id THEN
                 RAISE EXCEPTION 'cannot remove system group membership for root';
-            ELSIF OLD.parent = 1 THEN
+            ELSIF OLD.parent = roles.user_group_id THEN
                 RAISE EXCEPTION 'cannot remove user group membership for root';
             END IF;
         END IF;
@@ -2795,12 +2814,18 @@ CREATE TRIGGER prevent_root_deactivate_delete
 
 -- Prevent SQL UPDATE from removing the root experimenter from the system or user group.
 CREATE FUNCTION prevent_root_deactivate_update() RETURNS "trigger" AS $$
+
+    DECLARE
+        roles _roles%%ROWTYPE;
+
     BEGIN
+        SELECT * INTO STRICT roles FROM _roles;
+
         IF OLD.child != NEW.child OR OLD.parent != NEW.parent THEN
-            IF OLD.child = 0 THEN
-                IF OLD.parent = 0 THEN
+            IF OLD.child = roles.root_user_id THEN
+                IF OLD.parent = roles.system_group_id THEN
                     RAISE EXCEPTION 'cannot remove system group membership for root';
-                ELSIF OLD.parent = 1 THEN
+                ELSIF OLD.parent = roles.user_group_id THEN
                     RAISE EXCEPTION 'cannot remove user group membership for root';
                 END IF;
             END IF;
@@ -2815,11 +2840,17 @@ CREATE TRIGGER prevent_root_deactivate_update
 
 -- Prevent the root and guest experimenters from being renamed.
 CREATE FUNCTION prevent_experimenter_rename() RETURNS "trigger" AS $$
+
+    DECLARE
+        roles _roles%%ROWTYPE;
+
     BEGIN
+        SELECT * INTO STRICT roles FROM _roles;
+
         IF OLD.omename != NEW.omename THEN
-            IF OLD.id = 0 THEN
+            IF OLD.id = roles.root_user_id THEN
                 RAISE EXCEPTION 'cannot rename root experimenter';
-            ELSIF OLD.id = 1 THEN
+            ELSIF OLD.id = roles.guest_user_id THEN
                 RAISE EXCEPTION 'cannot rename guest experimenter';
             END IF;
         END IF;
@@ -2833,13 +2864,19 @@ CREATE TRIGGER prevent_experimenter_rename
 
 -- Prevent the system, user and guest groups from being renamed.
 CREATE FUNCTION prevent_experimenter_group_rename() RETURNS "trigger" AS $$
+
+    DECLARE
+        roles _roles%%ROWTYPE;
+
     BEGIN
+        SELECT * INTO STRICT roles FROM _roles;
+
         IF OLD.name != NEW.name THEN
-            IF OLD.id = 0 THEN
+            IF OLD.id = roles.system_group_id THEN
                 RAISE EXCEPTION 'cannot rename system experimenter group';
-            ELSIF OLD.id = 1 THEN
+            ELSIF OLD.id = roles.user_group_id THEN
                 RAISE EXCEPTION 'cannot rename user experimenter group';
-            ELSIF OLD.id = 2 THEN
+            ELSIF OLD.id = roles.guest_group_id THEN
                 RAISE EXCEPTION 'cannot rename guest experimenter group';
             END IF;
         END IF;
@@ -2850,6 +2887,26 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER prevent_experimenter_group_rename
     BEFORE UPDATE ON experimentergroup
     FOR EACH ROW EXECUTE PROCEDURE prevent_experimenter_group_rename();
+
+-- Prevent light administrator privileges from restricting the root experimenter.
+CREATE FUNCTION prevent_root_privilege_restriction() RETURNS "trigger" AS $$
+
+    DECLARE
+        roles _roles%%ROWTYPE;
+
+    BEGIN
+        SELECT * INTO STRICT roles FROM _roles;
+
+        IF NEW.experimenter_id = roles.root_user_id AND NEW.name LIKE 'AdminPrivilege:%%' AND NEW.value NOT ILIKE 'true' THEN
+            RAISE EXCEPTION 'cannot restrict admin privileges of root experimenter';
+        END IF;
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER prevent_root_privilege_restriction
+    BEFORE INSERT OR UPDATE ON experimenter_config
+    FOR EACH ROW EXECUTE PROCEDURE prevent_root_privilege_restriction();
 
 create table _fs_deletelog (
     event_id bigint not null,
@@ -3191,12 +3248,110 @@ CREATE TRIGGER preserve_folder_tree
     AFTER INSERT OR UPDATE ON folder
     FOR EACH ROW EXECUTE PROCEDURE preserve_folder_tree();
 
+-- Set up the current administrative privileges table and use it to prevent privilege elevation.
+
+CREATE TABLE _current_admin_privileges (
+    transaction BIGINT,
+    privilege VARCHAR(255)
+);
+
+CREATE INDEX i_current_admin_privileges_transactions ON _current_admin_privileges(transaction);
+
+CREATE OR REPLACE FUNCTION group_link_insert_check() RETURNS "trigger" AS $$
+
+    DECLARE
+        roles _roles%%ROWTYPE;
+
+    BEGIN
+        SELECT * INTO STRICT roles FROM _roles;
+        IF NEW.parent = roles.system_group_id AND EXISTS (SELECT 1 FROM adminprivilege p WHERE NOT
+                (EXISTS (SELECT 1 FROM experimenter_config WHERE experimenter_id = NEW.child AND name = 'AdminPrivilege:' || p.value AND value NOT ILIKE 'true') OR
+                 EXISTS (SELECT 1 FROM _current_admin_privileges WHERE transaction = txid_current() AND privilege = p.value))) THEN
+            RAISE EXCEPTION 'cannot give administrator privileges that current user does not have';
+        END IF;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION group_link_update_check() RETURNS "trigger" AS $$
+
+    DECLARE
+        roles _roles%%ROWTYPE;
+
+    BEGIN
+        SELECT * INTO STRICT roles FROM _roles;
+
+        IF (OLD.parent <> NEW.parent OR OLD.child <> NEW.child) AND NEW.parent = roles.system_group_id AND
+        EXISTS (SELECT 1 FROM adminprivilege p WHERE NOT
+                (EXISTS (SELECT 1 FROM experimenter_config WHERE experimenter_id = NEW.child AND name = 'AdminPrivilege:' || p.value AND value NOT ILIKE 'true') OR
+                 EXISTS (SELECT 1 FROM _current_admin_privileges WHERE transaction = txid_current() AND privilege = p.value))) THEN
+            RAISE EXCEPTION 'cannot give administrator privileges that current user does not have';
+        END IF;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION user_config_delete_check() RETURNS "trigger" AS $$
+
+    DECLARE
+        roles _roles%%ROWTYPE;
+
+    BEGIN
+        SELECT * INTO STRICT roles FROM _roles;
+
+        IF OLD.name LIKE 'AdminPrivilege:%%' AND OLD.value NOT ILIKE 'true' AND
+       EXISTS (SELECT 1 FROM groupexperimentermap WHERE parent = roles.system_group_id AND child = OLD.experimenter_id) AND
+       NOT EXISTS (SELECT 1 FROM _current_admin_privileges p WHERE p.transaction = txid_current() AND 'AdminPrivilege:' || p.privilege = OLD.name) THEN
+            RAISE EXCEPTION 'cannot give administrator privileges that current user does not have';
+        END IF;
+
+        RETURN OLD;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION user_config_update_check() RETURNS "trigger" AS $$
+
+    DECLARE
+        roles _roles%%ROWTYPE;
+
+    BEGIN
+        SELECT * INTO STRICT roles FROM _roles;
+
+        IF (OLD.experimenter_id <> NEW.experimenter_id OR OLD.name <> NEW.name OR OLD.value <> NEW.value) AND
+       OLD.name LIKE 'AdminPrivilege:%%' AND OLD.value NOT ILIKE 'true' AND
+       EXISTS (SELECT 1 FROM groupexperimentermap WHERE parent = roles.system_group_id AND child = OLD.experimenter_id) AND
+       NOT EXISTS (SELECT 1 FROM _current_admin_privileges p WHERE p.transaction = txid_current() AND 'AdminPrivilege:' || p.privilege = OLD.name) THEN
+            RAISE EXCEPTION 'cannot give administrator privileges that current user does not have';
+        END IF;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE CONSTRAINT TRIGGER group_link_insert_trigger
+    AFTER INSERT ON groupexperimentermap DEFERRABLE INITIALLY DEFERRED
+    FOR EACH ROW EXECUTE PROCEDURE group_link_insert_check();
+
+CREATE CONSTRAINT TRIGGER group_link_update_trigger
+    AFTER UPDATE ON groupexperimentermap DEFERRABLE INITIALLY DEFERRED
+    FOR EACH ROW EXECUTE PROCEDURE group_link_update_check();
+
+CREATE CONSTRAINT TRIGGER user_config_delete_trigger
+    AFTER DELETE ON experimenter_config DEFERRABLE INITIALLY DEFERRED
+    FOR EACH ROW EXECUTE PROCEDURE user_config_delete_check();
+
+CREATE CONSTRAINT TRIGGER user_config_update_trigger
+    AFTER UPDATE ON experimenter_config DEFERRABLE INITIALLY DEFERRED
+    FOR EACH ROW EXECUTE PROCEDURE user_config_update_check();
+
 -- Here we have finished initializing this database.
+
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
   where currentVersion = 'OMERO5.4DEV' and
-        currentPatch = 0 and
+        currentPatch = 1 and
         previousVersion = 'OMERO5.4DEV' and
         previousPatch = 0;
 
 COMMIT;
-

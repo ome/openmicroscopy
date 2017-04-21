@@ -28,12 +28,14 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.scripts.ScriptRepoHelper;
+import ome.system.Login;
 import omero.RLong;
 import omero.RString;
 import omero.RType;
@@ -69,6 +71,8 @@ import omero.model.IObject;
 import omero.model.NamedValue;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
+import omero.model.Permissions;
+import omero.model.PermissionsI;
 import omero.model.Session;
 import omero.model.enums.AdminPrivilegeChgrp;
 import omero.model.enums.AdminPrivilegeChown;
@@ -99,12 +103,13 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
 /**
  * Tests the effectiveness of light administrator privileges.
  * @author m.t.b.carroll@dundee.ac.uk
- * @since 5.3.0
+ * @since 5.4.0
  */
 public class LightAdminPrivilegesTest extends AbstractServerImportTest {
 
@@ -209,7 +214,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
     /**
      * Identifies the expected kinds of repository.
      * @author m.t.b.carroll@dundee.ac.uk
-     * @since 5.3.0
+     * @since 5.4.0
      */
     private static enum Repository {
         MANAGED, SCRIPT, OTHER;
@@ -243,6 +248,32 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         return latestProxy;
     }
 
+    /* these permissions do not permit anything */
+    @SuppressWarnings("serial")
+    private static final Permissions NO_PERMISSIONS = new PermissionsI("------") {
+        @Override
+        public boolean isDisallow(int restriction, Ice.Current c) {
+            return true;
+        }
+    };
+
+    /**
+     * Get the current permissions for the given object.
+     * @param object a model object previously retrieved from the server
+     * @return the permissions for the object in the current context
+     * @throws ServerError if the query caused a server error
+     */
+    private Permissions getCurrentPermissions(IObject object) throws ServerError {
+        final Map<String, String> allGroupsContext = ImmutableMap.of(Login.OMERO_GROUP, "-1");
+        final String objectClass = object.getClass().getSuperclass().getSimpleName();
+        final long objectId = object.getId().getValue();
+        try {
+            return iQuery.get(objectClass, objectId, allGroupsContext).getDetails().getPermissions();
+        } catch (SecurityViolation sv) {
+            return NO_PERMISSIONS;
+        }
+    }
+
     /* -=-=- TEST NECESSITY OF LIGHT ADMINISTRATOR PRIVILEGES -=-=- */
 
     /**
@@ -261,7 +292,8 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         Folder folder = (Folder) iUpdate.saveAndReturnObject(mmFactory.simpleFolder());
         Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), normalUser.groupId);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null, isRestricted ? AdminPrivilegeChgrp.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(otherGroupId));
+        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(otherGroupId));
+        Assert.assertEquals(getCurrentPermissions(folder).canChgrp(), isExpectSuccess);
         doChange(client, factory, Requests.chgrp().target(folder).toGroup(otherGroupId).build(), isExpectSuccess);
         if (isExpectSuccess) {
             folder = (Folder) iQuery.get("Folder", folder.getId().getValue());
@@ -286,7 +318,8 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         Folder folder = (Folder) iUpdate.saveAndReturnObject(mmFactory.simpleFolder());
         Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), normalUser.groupId);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null, isRestricted ? AdminPrivilegeChgrp.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        Assert.assertEquals(getCurrentPermissions(folder).canChgrp(), isExpectSuccess);
         folder = (Folder) iQuery.get("Folder", folder.getId().getValue());
         folder.getDetails().setGroup(otherGroup);
         try {
@@ -315,7 +348,8 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         Assert.assertEquals(folder.getDetails().getOwner().getId().getValue(), normalUser.userId);
         final EventContext otherUser = newUserInGroup(normalUser);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null, isRestricted ? AdminPrivilegeChown.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        Assert.assertEquals(getCurrentPermissions(folder).canChown(), isExpectSuccess);
         doChange(client, factory, Requests.chown().target(folder).toUser(otherUser.userId).build(), isExpectSuccess);
         if (isExpectSuccess) {
             folder = (Folder) iQuery.get("Folder", folder.getId().getValue());
@@ -340,7 +374,8 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         Assert.assertEquals(folder.getDetails().getOwner().getId().getValue(), normalUser.userId);
         final EventContext otherUser = newUserInGroup(normalUser);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null, isRestricted ? AdminPrivilegeChown.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        Assert.assertEquals(getCurrentPermissions(folder).canChown(), isExpectSuccess);
         folder = (Folder) iQuery.get("Folder", folder.getId().getValue());
         folder.getDetails().setOwner(new ExperimenterI(otherUser.userId, false));
         try {
@@ -390,7 +425,8 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         /* try to delete the script */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeDeleteFile.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        Assert.assertEquals(getCurrentPermissions(testScript).canDelete(), isExpectSuccess);
         repo = getRepository(Repository.OTHER);
         try {
             final HandlePrx handle = repo.deletePaths(new String[] {testScriptName}, false, false);
@@ -436,7 +472,8 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         final OriginalFile file = (OriginalFile) iUpdate.saveAndReturnObject(mmFactory.createOriginalFile());
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeDeleteFile.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        Assert.assertEquals(getCurrentPermissions(file).canDelete(), isExpectSuccess);
         doChange(client, factory, Requests.delete().target(file).build(), isExpectSuccess);
     }
 
@@ -477,7 +514,8 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         /* try deleting the script */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeDeleteFile.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        Assert.assertEquals(getCurrentPermissions(testScript).canDelete(), isExpectSuccess);
         iScript = factory.getScriptService();
         try {
             iScript.deleteScript(testScriptId);
@@ -539,7 +577,8 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         /* try to delete the file */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeDeleteManagedRepo.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        Assert.assertEquals(getCurrentPermissions(remoteFile).canDelete(), isExpectSuccess);
         final RepositoryPrx repo = getRepository(Repository.MANAGED);
         try {
             final String remoteFilename = remoteFile.getPath().getValue() + remoteFile.getName().getValue();
@@ -593,7 +632,8 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         /* try to delete the file */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeDeleteManagedRepo.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        Assert.assertEquals(getCurrentPermissions(remoteFile).canDelete(), isExpectSuccess);
         doChange(client, factory, Requests.delete().target(remoteFile).build(), isExpectSuccess);
     }
 
@@ -612,7 +652,8 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         final Folder folder = (Folder) iUpdate.saveAndReturnObject(mmFactory.simpleFolder());
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeDeleteOwned.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        Assert.assertEquals(getCurrentPermissions(folder).canDelete(), isExpectSuccess);
         doChange(client, factory, Requests.delete().target(folder).build(), isExpectSuccess);
     }
 
@@ -654,7 +695,8 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         /* try to delete the script */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeDeleteScriptRepo.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        Assert.assertEquals(getCurrentPermissions(testScript).canDelete(), isExpectSuccess);
         repo = getRepository(Repository.SCRIPT);
         try {
             final HandlePrx handle = repo.deletePaths(new String[] {testScriptName}, false, false);
@@ -722,7 +764,8 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         /* try to delete the script */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeDeleteScriptRepo.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        Assert.assertEquals(getCurrentPermissions(testScript).canDelete(), isExpectSuccess);
         doChange(client, factory, Requests.delete().target(testScript).build(), isExpectSuccess);
         /* check the content of the script */
         loginUser(normalUser);
@@ -784,7 +827,8 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         /* try deleting the script */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeDeleteScriptRepo.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        Assert.assertEquals(getCurrentPermissions(testScript).canDelete(), isExpectSuccess);
         iScript = factory.getScriptService();
         try {
             iScript.deleteScript(testScriptId);
@@ -902,6 +946,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeModifyGroup.value : null);
         final ExperimenterGroup newGroup = (ExperimenterGroup) iQuery.get("ExperimenterGroup", newGroupId);
+        Assert.assertEquals(getCurrentPermissions(newGroup).canEdit(), isExpectSuccess);
         newGroup.setLdap(omero.rtypes.rbool(true));
         try {
             iUpdate.saveObject(newGroup);
@@ -1011,6 +1056,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         final GroupExperimenterMap link = (GroupExperimenterMap) iQuery.findByQuery(
                 "FROM GroupExperimenterMap WHERE parent.id = :group_id AND child.id = :user_id",
                 new ParametersI().addLong("group_id", normalUser.groupId).addLong("user_id", normalUser.userId));
+        Assert.assertEquals(getCurrentPermissions(link).canEdit(), isExpectSuccess);
         try {
             link.setParent(new ExperimenterGroupI(newGroupId, false));
             iUpdate.saveObject(link);
@@ -1039,6 +1085,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         final GroupExperimenterMap link = (GroupExperimenterMap) iQuery.findByQuery(
                 "FROM GroupExperimenterMap WHERE parent.id = :group_id AND child.id = :user_id",
                 new ParametersI().addLong("group_id", normalUser.groupId).addLong("user_id", normalUser.userId));
+        Assert.assertEquals(getCurrentPermissions(link).canEdit(), isExpectSuccess);
         try {
             link.setOwner(omero.rtypes.rbool(true));
             iUpdate.saveObject(link);
@@ -1094,6 +1141,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         final GroupExperimenterMap link = (GroupExperimenterMap) iQuery.findByQuery(
                 "FROM GroupExperimenterMap WHERE parent.id = :group_id AND child.id = :user_id",
                 new ParametersI().addLong("group_id", otherGroup.getId()).addLong("user_id", normalUser.userId));
+        Assert.assertEquals(getCurrentPermissions(link).canDelete(), isExpectSuccess);
         doChange(client, factory, Requests.delete().target(link).build(), isExpectSuccess);
     }
 
@@ -1220,6 +1268,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeModifyUser.value : null);
         final Experimenter newUser = (Experimenter) iQuery.get("Experimenter", newUserId);
+        Assert.assertEquals(getCurrentPermissions(newUser).canEdit(), isExpectSuccess);
         newUser.setConfig(ImmutableList.of(new NamedValue("color", "green")));
         try {
             iUpdate.saveObject(newUser);
@@ -1430,7 +1479,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         repo.makeDir(userDirectory, false);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
         repo = getRepository(Repository.OTHER);
         final String filename = userDirectory + '/' + UUID.randomUUID();
         try {
@@ -1463,7 +1512,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         repo.makeDir(userDirectory, false);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
         repo = getRepository(Repository.OTHER);
         final String filename = userDirectory + '/' + UUID.randomUUID();
         try {
@@ -1493,7 +1542,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         repo.makeDir(userDirectory, false);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
         repo = getRepository(Repository.OTHER);
         final String filename = userDirectory + '/' + UUID.randomUUID();
         try {
@@ -1527,7 +1576,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         /* try uploading the script as a new script in the normal user's group */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
         iScript = factory.getScriptService();
         final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
         long testScriptId = -1;
@@ -1566,7 +1615,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         final EventContext normalUser = newUserAndGroup("rwr-r-");
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
         OriginalFile file = mmFactory.createOriginalFile();
         file.getDetails().setOwner(new ExperimenterI(normalUser.userId, false));
         try {
@@ -1593,7 +1642,8 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
         final EventContext normalUser = newUserAndGroup("rwr-r-");
         /* write a random file */
-        final long fileId = iUpdate.saveAndReturnObject(mmFactory.createOriginalFile()).getId().getValue();
+        final OriginalFile file = (OriginalFile) iUpdate.saveAndReturnObject(mmFactory.createOriginalFile());
+        final long fileId = file.getId().getValue();
         final byte[] fileContentOriginal = new byte[64];
         new Random().nextBytes(fileContentOriginal);
         RawFileStorePrx rfs = factory.createRawFileStore();
@@ -1609,7 +1659,8 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         /* try to overwrite with a blank file */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        Assert.assertEquals(getCurrentPermissions(file).canEdit(), isExpectSuccess);
         final byte[] fileContentBlank = new byte[fileContentOriginal.length];
         try {
             rfs = factory.createRawFileStore();
@@ -1672,7 +1723,8 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         /* try to edit the script */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        Assert.assertEquals(getCurrentPermissions(testScript).canEdit(), isExpectSuccess);
         repo = getRepository(Repository.OTHER);
         final byte[] fileContentBlank = new byte[fileContentOriginal.length];
         try {
@@ -1722,10 +1774,12 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         /* upload the script as a new script */
         final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
         final long testScriptId = iScript.uploadScript(testScriptName, originalScript);
+        OriginalFile testScript = new OriginalFileI(testScriptId, false);
         /* try replacing the content of the normal user's script */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        Assert.assertEquals(getCurrentPermissions(testScript).canEdit(), isExpectSuccess);
         iScript = factory.getScriptService();
         final String newScript = originalScript + "\n# this script is a copy of another";
         try {
@@ -1736,9 +1790,9 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         }
         /* check the permissions on the script */
         loginUser(normalUser);
-        OriginalFile scriptFile = (OriginalFile) iQuery.get("OriginalFile", testScriptId);
-        Assert.assertEquals(scriptFile.getDetails().getOwner().getId().getValue(), normalUser.userId);
-        Assert.assertEquals(scriptFile.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+        testScript = (OriginalFile) iQuery.get("OriginalFile", testScriptId);
+        Assert.assertEquals(testScript.getDetails().getOwner().getId().getValue(), normalUser.userId);
+        Assert.assertEquals(testScript.getDetails().getGroup().getId().getValue(), normalUser.groupId);
         /* check the content of the script */
         rfs = factory.createRawFileStore();
         rfs.setFileId(testScriptId);
@@ -1763,8 +1817,9 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         OriginalFile file = (OriginalFile) iUpdate.saveAndReturnObject(mmFactory.createOriginalFile());
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
         file = (OriginalFile) iQuery.get("OriginalFile", file.getId().getValue());
+        Assert.assertEquals(getCurrentPermissions(file).canEdit(), isExpectSuccess);
         final String newFilename = "Test_" + getClass().getName() + '_' + UUID.randomUUID();
         file.setName(omero.rtypes.rstring(newFilename));
         try {
@@ -1791,7 +1846,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         final EventContext normalUser = newUserAndGroup("rwr-r-");
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteManagedRepo.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
         final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
         final List<List<RType>> result = iQuery.projection(
                 "SELECT id FROM OriginalFile WHERE name = :name AND details.group.id = :group_id ORDER BY id DESC LIMIT 1",
@@ -1843,7 +1898,8 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         /* try to change the image's hasher */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteManagedRepo.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        Assert.assertEquals(getCurrentPermissions(new OriginalFileI(imageFileId, false)).canEdit(), isExpectSuccess);
         final ManagedRepositoryPrx repo = ManagedRepositoryPrxHelper.checkedCast(getRepository(Repository.MANAGED));
         final String hasherChanged;
         if (ChecksumAlgorithmSHA1160.value.equals(hasherOriginal)) {
@@ -1903,7 +1959,8 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         /* try to edit the file */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteManagedRepo.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        Assert.assertEquals(getCurrentPermissions(remoteFile).canEdit(), isExpectSuccess);
         final RepositoryPrx repo = getRepository(Repository.MANAGED);
         final byte[] fileContentBlank = new byte[(int) (fakeImageFile.length() + 16)];
         RawFileStorePrx rfs = null;
@@ -1942,7 +1999,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         final EventContext normalUser = newUserAndGroup("rwr-r-");
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteOwned.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
         Folder folder = mmFactory.simpleFolder();
         folder.getDetails().setOwner(new ExperimenterI(normalUser.userId, false));
         try {
@@ -1970,8 +2027,9 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         Folder folder = (Folder) iUpdate.saveAndReturnObject(mmFactory.simpleFolder());
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteOwned.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
         folder = (Folder) iQuery.get("Folder", folder.getId().getValue());
+        Assert.assertEquals(getCurrentPermissions(folder).canEdit(), isExpectSuccess);
         final String newFolderName = "Test_" + getClass().getName() + '_' + UUID.randomUUID();
         folder.setName(omero.rtypes.rstring(newFolderName));
         try {
@@ -2002,7 +2060,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         repo.makeDir(userDirectory, false);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteScriptRepo.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
         repo = getRepository(Repository.SCRIPT);
         final String filename = userDirectory + '/' + UUID.randomUUID();
         try {
@@ -2035,7 +2093,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         repo.makeDir(userDirectory, false);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteScriptRepo.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
         repo = getRepository(Repository.SCRIPT);
         final String filename = userDirectory + '/' + UUID.randomUUID();
         try {
@@ -2066,7 +2124,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         repo.makeDir(userDirectory, false);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteScriptRepo.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
         repo = getRepository(Repository.SCRIPT);
         final String filename = userDirectory + '/' + UUID.randomUUID();
         try {
@@ -2101,7 +2159,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         /* try uploading the script as a new script in the normal user's group */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteScriptRepo.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
         iScript = factory.getScriptService();
         final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
         long testScriptId = -1;
@@ -2165,7 +2223,8 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         /* try to edit the script */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteScriptRepo.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        Assert.assertEquals(getCurrentPermissions(testScript).canEdit(), isExpectSuccess);
         repo = getRepository(Repository.SCRIPT);
         final byte[] fileContentBlank = new byte[fileContentOriginal.length];
         try {
@@ -2221,20 +2280,22 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         /* try replacing the content of the normal user's script */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteScriptRepo.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        OriginalFile testScript = new OriginalFileI(testScriptId, false);
+        Assert.assertEquals(getCurrentPermissions(testScript).canEdit(), isExpectSuccess);
         iScript = factory.getScriptService();
         final String newScript = originalScript + "\n# this script is a copy of another";
         try {
-            iScript.editScript(new OriginalFileI(testScriptId, false), newScript);
+            iScript.editScript(testScript, newScript);
             Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccess);
         }
         /* check the permissions on the script */
         loginUser(normalUser);
-        OriginalFile scriptFile = (OriginalFile) iQuery.get("OriginalFile", testScriptId);
-        Assert.assertEquals(scriptFile.getDetails().getOwner().getId().getValue(), roles.rootId);
-        Assert.assertEquals(scriptFile.getDetails().getGroup().getId().getValue(), roles.userGroupId);
+        testScript = (OriginalFile) iQuery.get("OriginalFile", testScriptId);
+        Assert.assertEquals(testScript.getDetails().getOwner().getId().getValue(), roles.rootId);
+        Assert.assertEquals(testScript.getDetails().getGroup().getId().getValue(), roles.userGroupId);
         /* check the content of the script */
         rfs = factory.createRawFileStore();
         rfs.setFileId(testScriptId);
@@ -2262,8 +2323,9 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         OriginalFile file = repo.register(filename, null);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteScriptRepo.value : null);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
         file = (OriginalFile) iQuery.get("OriginalFile", file.getId().getValue());
+        Assert.assertEquals(getCurrentPermissions(file).canEdit(), isExpectSuccess);
         final String newFilename = "Test_" + getClass().getName() + '_' + UUID.randomUUID();
         file.setName(omero.rtypes.rstring(newFilename));
         try {
@@ -2654,7 +2716,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
      * @param isCreatesAdmin if the created user should be an administrator
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "privilege elevation test cases", groups = "broken")
+    @Test(dataProvider = "privilege elevation test cases")
     public void testAdminCreatesUserViaUpdate(boolean isHasSudo, boolean isGrantsSudo, boolean isCreatesAdmin) throws Exception {
         final boolean isExpectSuccess = isHasSudo || !isGrantsSudo || !isCreatesAdmin;
         final long groupId = isCreatesAdmin ? roles.systemGroupId : newUserAndGroup("rwr---", false).groupId;
@@ -2675,7 +2737,6 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         link.setOwner(omero.rtypes.rbool(false));
         newUser.addGroupExperimenterMap(link);
         try {
-            // TODO: test is broken because update service does not yet check for privilege elevation
             final long newUserId = iUpdate.saveAndReturnObject(newUser).getId().getValue();
             Assert.assertTrue(isExpectSuccess);
             boolean newUserHasSudo = false;
@@ -2759,7 +2820,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
      * @param isEditsAdmin if the target user should be an administrator
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "privilege elevation test cases", groups = "broken")
+    @Test(dataProvider = "privilege elevation test cases")
     public void testAdminEditsAdminPrivilegesViaUpdate(boolean isHasSudo, boolean isGrantsSudo, boolean isEditsAdmin)
             throws Exception {
         final boolean isExpectSuccess = isHasSudo || !isGrantsSudo || !isEditsAdmin;
@@ -2779,7 +2840,6 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
             newUser.setConfig(Collections.singletonList(new NamedValue(sudoConfigName, Boolean.toString(true))));
         }
         try {
-            // TODO: test is broken because update service does not yet check for privilege elevation
             iUpdate.saveObject(newUser);
             Assert.assertTrue(isExpectSuccess);
             boolean newUserHasSudo = false;
@@ -2841,7 +2901,7 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
      * @param isGroupSystem if to test editing membership of the <tt>system</tt> group
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "privilege elevation test cases", groups = "broken")
+    @Test(dataProvider = "privilege elevation test cases")
     public void testAdminEditsMembershipViaUpdate(boolean isHasSudo, boolean isTargetSudo, boolean isGroupSystem) throws Exception {
         final boolean isExpectSuccess = isHasSudo || !isTargetSudo || !isGroupSystem;
         final ExperimenterGroup otherGroup = new ExperimenterGroupI(newUserAndGroup("rwr---", false).groupId, false);
@@ -2868,7 +2928,6 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
                 new ParametersI().addLong("group_id", target.groupId).addLong("user_id", target.userId));
         link.setParent(groupForAdjustment);
         try {
-            // TODO: test is broken because update service does not yet check for privilege elevation
             iUpdate.saveObject(link);
             Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {

@@ -1,17 +1,11 @@
 /*
- * ome.security.ACLVoter
- *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
 package ome.security;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
+import java.util.Map;
 import java.util.Set;
 
 import ome.conditions.SecurityViolation;
@@ -182,6 +176,25 @@ public interface ACLVoter {
      * @return the restrictions applying for the object
      */
     Set<String> restrictions(IObject object);
+
+    /**
+     * Specify object classes based on restriction constants in {@link ome.model.internal.Permissions} that do not always have those
+     * restrictions.
+     * Previously set classes <em>may</em> not be cleared by subsequent calls to this method.
+     * @param objectClassesPermitted the map from restriction constants to object classes that may not have those restrictions
+     */
+    void setPermittedClasses(Map<Integer, Set<Class<? extends IObject>>> objectClassesPermitted);
+
+    /**
+     * Note the light admin privileges for post-processing before the event context is invalidated.
+     * @param session the session for which privileges should be noted
+     */
+    void noteAdminPrivileges(ome.model.meta.Session session);
+
+    /**
+     * Clear note of the light admin privileges now post-processing is done.
+     */
+    void clearAdminPrivileges();
 
     /**
      * Gives the {@link ACLVoter} instance a chance to act on the {@link IObject}

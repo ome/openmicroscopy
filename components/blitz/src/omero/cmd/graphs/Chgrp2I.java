@@ -39,6 +39,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.SetMultimap;
 
 import ome.model.IObject;
+import ome.model.enums.AdminPrivilege;
 import ome.model.internal.Permissions;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.ACLVoter;
@@ -61,7 +62,7 @@ import omero.cmd.IRequest;
 import omero.cmd.Response;
 
 /**
- * Request to move model objects to a different experiment group, replacing version 5.0's {@code ChgrpI}.
+ * Request to move model objects to a different experiment group.
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.1.0
  */
@@ -144,8 +145,7 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
 
         /* check that the user is a member of the destination group */
         final EventContext eventContext = helper.getEventContext();
-        final boolean isChgrpPrivilege = graphHelper.checkIsAdministrator(adminPrivileges.getPrivilege("Chgrp"));
-        /* see trac ticket 10691 re. enum values */
+        final boolean isChgrpPrivilege = graphHelper.checkIsAdministrator(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_CHGRP));
         if (!(isChgrpPrivilege || eventContext.getMemberOfGroupsList().contains(groupId))) {
             final Exception e = new IllegalArgumentException("not a member of the chgrp destination group");
             throw helper.cancel(new ERR(), e, "not-in-group");

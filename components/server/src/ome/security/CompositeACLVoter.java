@@ -5,6 +5,7 @@
 
 package ome.security;
 
+import java.util.Map;
 import java.util.Set;
 
 import ome.api.IShare;
@@ -98,6 +99,21 @@ public class CompositeACLVoter implements ACLVoter {
     @Override
     public Set<String> restrictions(IObject object) {
         return choose().restrictions(object);
+    }
+
+    @Override
+    public void setPermittedClasses(Map<Integer, Set<Class<? extends IObject>>> objectClassesPermitted) {
+        basic.setPermittedClasses(objectClassesPermitted);
+    }
+
+    @Override
+    public void noteAdminPrivileges(ome.model.meta.Session session) {
+        choose().noteAdminPrivileges(session);
+    }
+
+    @Override
+    public void clearAdminPrivileges() {
+        choose().clearAdminPrivileges();
     }
 
     public void postProcess(IObject object) {

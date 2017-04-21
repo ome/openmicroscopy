@@ -67,7 +67,7 @@ import omero.cmd.IRequest;
 import omero.cmd.Response;
 
 /**
- * Request to change the permissions on model objects, replacing version 5.0's {@code ChmodI}.
+ * Request to change the permissions on model objects.
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.1.2
  */
