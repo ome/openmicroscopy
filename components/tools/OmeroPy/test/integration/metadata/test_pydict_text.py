@@ -30,9 +30,11 @@ from omero.util import pydict_text_io
 import pytest
 import sys
 
+pythonminver = pytest.mark.skipif(sys.version_info < (2, 7),
+                                  reason="requires python2.7")
 
-@pytest.mark.skipif(sys.version_info < (2, 7),
-                    reason="requires python2.7")
+
+@pythonminver
 class TestPydictTextIo(ITest):
 
     def getTestJson(self):
