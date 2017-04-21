@@ -221,6 +221,10 @@ public class BasicACLVoter implements ACLVoter {
             if (sessionOwnerQueried == null) {
                 sessionOwnerQueried = queriedSession.getOwner();
             }
+            /* can read sessions for which "real" owner matches */
+            if (sessionOwnerCurrent.getId().equals(sessionOwnerQueried.getId())) {
+                return true;
+            }
             /* determine if the "real" owner is an administrator */
             final Object systemMembership = session.createQuery(
                     "FROM GroupExperimenterMap WHERE parent.id = :group AND child.id = :user")
@@ -233,8 +237,8 @@ public class BasicACLVoter implements ACLVoter {
                     return true;
                 }
             }
-            /* without ReadSession privilege may read only those sessions for which "real" owner matches */
-            return sessionOwnerCurrent.getId() == sessionOwnerQueried.getId();
+            /* non-administrators may not load others' sessions */
+            return false;
         }
 
         if (d == null || sysTypes.isSystemType(klass)) {
