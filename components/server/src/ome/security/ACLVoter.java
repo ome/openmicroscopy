@@ -186,17 +186,6 @@ public interface ACLVoter {
     void setPermittedClasses(Map<Integer, Set<Class<? extends IObject>>> objectClassesPermitted);
 
     /**
-     * Note the light admin privileges for post-processing before the event context is invalidated.
-     * @param session the session for which privileges should be noted
-     */
-    void noteAdminPrivileges(ome.model.meta.Session session);
-
-    /**
-     * Clear note of the light admin privileges now post-processing is done.
-     */
-    void clearAdminPrivileges();
-
-    /**
      * Gives the {@link ACLVoter} instance a chance to act on the {@link IObject}
      * <em>after</em> the transaction but before finishing the AOP stack.
      * @param obj a model object

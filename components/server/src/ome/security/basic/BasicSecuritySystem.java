@@ -547,20 +547,6 @@ public class BasicSecuritySystem implements SecuritySystem,
         cd.clearLogs();
     }
 
-    /**
-     * Note the light admin privileges for post-processing before the event context is invalidated.
-     */
-    public void noteAdminPrivileges() {
-        if (aclVoter == null) {
-            /* probably in pixel data or indexer thread */
-            return;
-        }
-        final Parameters params = new Parameters().addId(cd.getCurrentEventContext().getCurrentSessionId());
-        final String hql = "FROM Session s LEFT OUTER JOIN FETCH s.sudoer WHERE s.id = :id";
-        final ome.model.meta.Session session = sf.getQueryService().findByQuery(hql, params);
-        aclVoter.noteAdminPrivileges(session);
-    }
-
     public void invalidateEventContext() {
         if (log.isDebugEnabled()) {
             log.debug("Invalidating current EventContext.");
