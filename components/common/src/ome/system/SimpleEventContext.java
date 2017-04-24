@@ -1,7 +1,5 @@
 /*
- *   $Id$
- *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -10,15 +8,15 @@ package ome.system;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
+import ome.model.enums.AdminPrivilege;
 import ome.model.internal.Permissions;
 
 /**
  * simple, non-thread-safe, serializable {@link ome.system.EventContext}
  * 
  * @author Josh Moore, josh.moore at gmx.de
- * @version $Revision: 1167 $, $Date: 2006-12-15 11:39:34 +0100 (Fri, 15 Dec
- *          2006) $
  * @see EventContext
  * @since 3.0
  */
@@ -34,6 +32,8 @@ public class SimpleEventContext implements EventContext, Serializable {
 
     protected Long cuId;
 
+    protected Long csuId;
+
     protected Long ceId;
 
     protected String csName;
@@ -42,9 +42,13 @@ public class SimpleEventContext implements EventContext, Serializable {
 
     protected String cuName;
 
+    protected String csuName;
+
     protected String ceType;
 
     protected boolean isAdmin;
+
+    protected Set<AdminPrivilege> adminPrivileges;
 
     protected boolean isReadOnly;
 
@@ -80,15 +84,18 @@ public class SimpleEventContext implements EventContext, Serializable {
         this.csId = ec.getCurrentSessionId();
         this.cgId = ec.getCurrentGroupId();
         this.cuId = ec.getCurrentUserId();
+        this.csuId = ec.getCurrentSudoerId();
         this.csName = ec.getCurrentSessionUuid();
         this.cgName = ec.getCurrentGroupName();
         this.cuName = ec.getCurrentUserName();
+        this.csuName = ec.getCurrentSudoerName();
         this.ceType = ec.getCurrentEventType();
         this.memberOfGroups = new ArrayList<Long>(ec.getMemberOfGroupsList());
         this.leaderOfGroups = new ArrayList<Long>(ec.getLeaderOfGroupsList());
         setGroupPermissions(ec.getCurrentGroupPermissions());
         try {
             this.isAdmin = ec.isCurrentUserAdmin();
+            this.adminPrivileges = ec.getCurrentAdminPrivileges();
             this.isReadOnly = ec.isReadOnly();
             this.ceId = ec.getCurrentEventId();
         } catch (UnsupportedOperationException e) {
@@ -124,8 +131,23 @@ public class SimpleEventContext implements EventContext, Serializable {
         return cuName;
     }
 
+    @Override
+    public Long getCurrentSudoerId() {
+        return csuId;
+    }
+
+    @Override
+    public String getCurrentSudoerName() {
+        return csuName;
+    }
+
     public boolean isCurrentUserAdmin() {
         return isAdmin;
+    }
+
+    @Override
+    public Set<AdminPrivilege> getCurrentAdminPrivileges() {
+        return adminPrivileges;
     }
 
     public boolean isReadOnly() {

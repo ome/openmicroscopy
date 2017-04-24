@@ -5,6 +5,7 @@
 package ome.server.utests.sessions;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -14,6 +15,7 @@ import java.util.concurrent.TimeoutException;
 
 import ome.conditions.AuthenticationException;
 import ome.conditions.SessionException;
+import ome.model.enums.AdminPrivilege;
 import ome.model.internal.Permissions;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
@@ -98,7 +100,7 @@ public class SessionBeanUnitTest extends MockObjectTestCase {
     public void testProperIsAdminImplementation() throws Exception {
         List<Long> leaderOfGroupsIds = Arrays.asList(1L);
         List<Long> memberOfGroupsIds = Arrays.asList(0L, 1L);
-        SessionContextImpl sessionContext = new SessionContextImpl(session,
+        SessionContextImpl sessionContext = new SessionContextImpl(session, Collections.<AdminPrivilege>emptySet(),
                 leaderOfGroupsIds, memberOfGroupsIds, Arrays.asList("user"),
                 null, new Roles(), null);
         assertTrue(sessionContext.isCurrentUserAdmin());

@@ -146,6 +146,8 @@ public abstract class AbstractBasicSecuritySystemTest extends
                 returnValue(readOnly));
         mockEc.expects(atLeastOnce()).method("isCurrentUserAdmin").will(
                 returnValue(false));
+        mockEc.expects(atLeastOnce()).method("getCurrentAdminPrivileges").will(
+                returnValue(Collections.emptySet()));
         mockEc.expects(atLeastOnce()).method("getCurrentGroupPermissions").will(
                 returnValue(Permissions.WORLD_WRITEABLE));
         mockEc.expects(atLeastOnce()).method("getCurrentEventType").will(
@@ -160,6 +162,10 @@ public abstract class AbstractBasicSecuritySystemTest extends
                 returnValue(1L));
         mockEc.expects(atLeastOnce()).method("getCurrentUserName").will(
                 returnValue("some-user"));
+        mockEc.expects(atLeastOnce()).method("getCurrentSudoerId").will(
+                returnValue(null));
+        mockEc.expects(atLeastOnce()).method("getCurrentSudoerName").will(
+                returnValue(null));
         mockEc.expects(atLeastOnce()).method("getCurrentGroupName").will(
                 returnValue("test"));
         mockEc.expects(atLeastOnce()).method("getCurrentGroupId").will(
@@ -201,12 +207,16 @@ public abstract class AbstractBasicSecuritySystemTest extends
                 returnValue(readOnly));
         mockEc.expects(atLeastOnce()).method("isCurrentUserAdmin").will(
                 returnValue(false));
+        mockEc.expects(atLeastOnce()).method("getCurrentAdminPrivileges").will(
+                returnValue(Collections.emptySet()));
         mockEc.expects(atLeastOnce()).method("getCurrentGroupPermissions").will(
                 returnValue(Permissions.WORLD_WRITEABLE));
         mockEc.expects(atLeastOnce()).method("getCurrentEventType").will(
                 returnValue("Test"));
         mockEc.expects(atLeastOnce()).method("getCurrentUserName").will(
                 returnValue("some-user"));
+        mockEc.expects(atLeastOnce()).method("getCurrentSudoerName").will(
+                returnValue(null));
         mockEc.expects(atLeastOnce()).method("getCurrentGroupName").will(
                 returnValue("test"));
         mockEc.expects(atLeastOnce()).method("getCurrentShareId").will(
@@ -217,6 +227,8 @@ public abstract class AbstractBasicSecuritySystemTest extends
                 returnValue(1L));
         mockEc.expects(atLeastOnce()).method("getCurrentUserId").will(
                 returnValue(0L));
+        mockEc.expects(atLeastOnce()).method("getCurrentSudoerId").will(
+                returnValue(null));
         mockEc.expects(atLeastOnce()).method("getCurrentGroupId").will(
                 returnValue(0L));
         mockEc.expects(atLeastOnce()).method("getMemberOfGroupsList").will(

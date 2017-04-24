@@ -201,7 +201,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         try {
             asroot = new Principal(internal_uuid, "system", "Sessions");
             final Session session = executeInternalSession();
-            internalSession = new InternalSessionContext(session, roles);
+            internalSession = new InternalSessionContext(session, adminPrivileges.getAllPrivileges(), roles);
             cache.putSession(internal_uuid, internalSession);
         } catch (UncategorizedSQLException uncat) {
             log.warn("Assuming that this is read-only");
@@ -517,18 +517,19 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
 
         final Experimenter exp = (Experimenter) list.get(0);
         final ExperimenterGroup grp = (ExperimenterGroup) list.get(1);
-        final List<Long> memberOfGroupsIds = (List<Long>) list.get(2);
-        final List<Long> leaderOfGroupsIds = (List<Long>) list.get(3);
-        final List<String> userRoles = (List<String>) list.get(4);
-        final Principal principal = (Principal) list.get(5);
-        final Session session = (Session) list.get(6);
+        final Set<AdminPrivilege> adminPrivileges = (Set<AdminPrivilege>) list.get(2);
+        final List<Long> memberOfGroupsIds = (List<Long>) list.get(3);
+        final List<Long> leaderOfGroupsIds = (List<Long>) list.get(4);
+        final List<String> userRoles = (List<String>) list.get(5);
+        final Principal principal = (Principal) list.get(6);
+        final Session session = (Session) list.get(7);
 
         parseAndSetDefaultType(principal.getEventType(), session);
 
         session.getDetails().setOwner(exp);
         session.getDetails().setGroup(grp);
 
-        SessionContext sessionContext = new SessionContextImpl(session,
+        SessionContext sessionContext = new SessionContextImpl(session, adminPrivileges,
                 leaderOfGroupsIds, memberOfGroupsIds, userRoles, factory
                         .createStats(), roles, previous);
         return sessionContext;
@@ -1471,6 +1472,11 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
                             new Parameters().addId(session.getId()));
             list.add(exp);
             list.add(grp);
+            if (memberOfGroupsIds.contains(roles.getSystemGroupId())) {
+                list.add(adminPrivileges.getSessionPrivileges(reloaded));
+            } else {
+                list.add(Collections.emptySet());
+            }
             list.add(memberOfGroupsIds);
             list.add(leaderOfGroupsIds);
             list.add(userRoles);
