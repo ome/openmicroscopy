@@ -87,7 +87,6 @@ def coord2offset(coord):
     return r - 1, c - 1
 
 
-@pythonminver
 class Fixture(object):
 
     def init(self, test):
@@ -765,9 +764,23 @@ class GZIP(Dataset2Images):
     def createCsv(self, *args, **kwargs):
         csvFileName = super(GZIP, self).createCsv(*args, **kwargs)
         gzipFileName = "%s.gz" % csvFileName
-        with open(csvFileName, 'rb') as f_in:
-            with gzip.open(gzipFileName, 'wb') as f_out:
+        # failing on python 2.6
+        # the following workaround can be reverted once py26 is dropped
+        # with open(csvFileName, 'rb') as f_in:
+        #      with gzip.open(gzipFileName, 'wb') as f_out:
+        #          shutil.copyfileobj(f_in, f_out)
+        f_in = open(csvFileName, 'rb')
+        try:
+            try:
+                try:
+                    f_out = gzip.open(gzipFileName, 'wb')
+                except:
+                    f_out = gzip(gzipFileName, 'wb')
                 shutil.copyfileobj(f_in, f_out)
+            finally:
+                f_out.close()
+        finally:
+            f_in.close()
 
         return gzipFileName
 
