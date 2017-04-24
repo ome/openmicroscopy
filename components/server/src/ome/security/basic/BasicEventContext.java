@@ -47,7 +47,7 @@ public class BasicEventContext extends SimpleEventContext {
     // =========================================================================
 
     /**
-     * Prinicpal should only be set once (on
+     * Principal should be set only once (on
      * {@link PrincipalHolder#login(Principal)}.
      */
     private final Principal p;
