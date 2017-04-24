@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import ome.api.ITypes;
 import ome.api.local.LocalAdmin;
@@ -53,6 +54,8 @@ public abstract class AbstractBasicSecuritySystemTest extends
         MockObjectTestCase {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
+
+    protected final Set<AdminPrivilege> allAdminPrivileges = new LightAdminPrivileges(new Roles()).getAllPrivileges();
 
     MockServiceFactory sf;
 
@@ -206,9 +209,9 @@ public abstract class AbstractBasicSecuritySystemTest extends
         mockEc.expects(atLeastOnce()).method("isReadOnly").will(
                 returnValue(readOnly));
         mockEc.expects(atLeastOnce()).method("isCurrentUserAdmin").will(
-                returnValue(false));
+                returnValue(true));
         mockEc.expects(atLeastOnce()).method("getCurrentAdminPrivileges").will(
-                returnValue(Collections.emptySet()));
+                returnValue(allAdminPrivileges));
         mockEc.expects(atLeastOnce()).method("getCurrentGroupPermissions").will(
                 returnValue(Permissions.WORLD_WRITEABLE));
         mockEc.expects(atLeastOnce()).method("getCurrentEventType").will(
