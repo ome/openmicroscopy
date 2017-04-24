@@ -1,6 +1,4 @@
 /*
- * ome.security.basic.BasicSecuritySystem
- *
  *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -12,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import ome.api.local.LocalAdmin;
 import ome.api.local.LocalQuery;
@@ -21,6 +20,7 @@ import ome.conditions.InternalException;
 import ome.conditions.SecurityViolation;
 import ome.conditions.SessionTimeoutException;
 import ome.model.IObject;
+import ome.model.enums.AdminPrivilege;
 import ome.model.enums.EventType;
 import ome.model.internal.Details;
 import ome.model.internal.GraphHolder;
@@ -376,6 +376,17 @@ public class BasicSecuritySystem implements SecuritySystem,
         }
         tokenHolder.setToken(exp.getGraphHolder());
 
+        // Sudoer
+        final Experimenter sudoer;
+        final Long sudoerId = ec.getCurrentSudoerId();
+        if (sudoerId == null) {
+            sudoer = null;
+        } else if (isReadOnly) {
+            sudoer = new Experimenter(sudoerId, false);
+        } else {
+            sudoer = admin.userProxy(sudoerId);
+        }
+
         // isAdmin
         boolean isAdmin = false;
         for (long gid : ec.getMemberOfGroupsList()) {
@@ -383,6 +394,14 @@ public class BasicSecuritySystem implements SecuritySystem,
                 isAdmin = true;
                 break;
             }
+        }
+
+        // admin privileges
+        final Set<AdminPrivilege> adminPrivileges;
+        if (isAdmin) {
+            adminPrivileges = ec.getCurrentAdminPrivileges();
+        } else {
+            adminPrivileges = Collections.<AdminPrivilege>emptySet();
         }
 
         // Active group - starting with #3529, the current group and the current
@@ -443,7 +462,7 @@ public class BasicSecuritySystem implements SecuritySystem,
 
         // In order to less frequently access the ThreadLocal in CurrentDetails
         // All properties are now set in one shot, except for Event.
-        cd.setValues(exp, callGroup, callPerms, isAdmin, isReadOnly, shareId);
+        cd.setValues(exp, sudoer, callGroup, callPerms, isAdmin, adminPrivileges, isReadOnly, shareId);
 
         // Event
         String t = p.getEventType();

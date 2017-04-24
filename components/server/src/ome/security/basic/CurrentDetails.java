@@ -1,7 +1,5 @@
 /*
- *   $Id$
- *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -26,6 +24,7 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
+import ome.model.enums.AdminPrivilege;
 import ome.model.enums.EventType;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
@@ -430,8 +429,16 @@ public class CurrentDetails implements PrincipalHolder {
         return current().getOwner();
     }
 
+    public Experimenter getSudoer() {
+        return current().getSudoer();
+    }
+
     public ExperimenterGroup getGroup() {
         return current().getGroup();
+    }
+
+    public Set<AdminPrivilege> getAdminPrivileges() {
+        return current().getAdminPrivileges();
     }
 
     public Event getEvent() {
@@ -443,13 +450,15 @@ public class CurrentDetails implements PrincipalHolder {
      * during {@link #newEvent(long, EventType, TokenHolder)} and possibly
      * updated via {@link #updateEvent(Event)}.
      */
-    void setValues(Experimenter owner, ExperimenterGroup group,
+    void setValues(Experimenter owner, Experimenter sudoer, ExperimenterGroup group,
             Permissions perms,
-            boolean isAdmin, boolean isReadOnly, Long shareId) {
+            boolean isAdmin, Set<AdminPrivilege> adminPrivileges, boolean isReadOnly, Long shareId) {
         BasicEventContext c = current();
         c.setOwner(owner);
+        c.setSudoer(sudoer);
         c.setGroup(group, perms);
         c.setAdmin(isAdmin);
+        c.setAdminPrivileges(adminPrivileges);
         c.setReadOnly(isReadOnly);
         c.setShareId(shareId);
     }
