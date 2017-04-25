@@ -12,7 +12,7 @@ import java.util.List;
 import ome.model.core.Pixels;
 import ome.model.display.QuantumDef;
 import ome.model.enums.Family;
-
+import ome.model.enums.PixelsType;
 import omeis.providers.re.data.PlaneFactory;
 
 /**
@@ -181,11 +181,11 @@ public class QuantumFactory {
      */
     private QuantumStrategy getQuantization(QuantumDef qd, Pixels pixels) {
         String typeAsString = pixels.getPixelsType().getValue();
-        if (PlaneFactory.INT32.equals(typeAsString) ||
-                PlaneFactory.UINT32.equals(typeAsString))
+        if (PixelsType.VALUE_INT32.equals(typeAsString) ||
+                PixelsType.VALUE_UINT32.equals(typeAsString))
             return new Quantization_32_bit(qd, pixels);
-        else if (PlaneFactory.FLOAT_TYPE.equals(typeAsString) ||
-                PlaneFactory.DOUBLE_TYPE.equals(typeAsString))
+        else if (PixelsType.VALUE_FLOAT.equals(typeAsString) ||
+                PixelsType.VALUE_DOUBLE.equals(typeAsString))
             return new Quantization_float(qd, pixels);
         return new Quantization_8_16_bit(qd, pixels);
     }

@@ -30,7 +30,7 @@ public class BinaryMaskQuantizer extends QuantumStrategy
     {
         super(qd, pixels);
         PixelsType type = pixels.getPixelsType();
-        if (!PlaneFactory.BIT.equals(type.getValue()))
+        if (!PixelsType.VALUE_BIT.equals(type.getValue()))
         {
         	throw new IllegalArgumentException(
         			"The type " + type.getValue() + " != 'bit'.");

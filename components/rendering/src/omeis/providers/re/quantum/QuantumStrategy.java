@@ -10,7 +10,7 @@ package omeis.providers.re.quantum;
 import ome.model.core.Pixels;
 import ome.model.display.QuantumDef;
 import ome.model.enums.Family;
-
+import ome.model.enums.PixelsType;
 import omeis.providers.re.data.PlaneFactory;
 import omeis.providers.re.metadata.StatsFactory;
 
@@ -158,26 +158,26 @@ public abstract class QuantumStrategy {
         if (min <= max) {
             double range = max - min;
             if (PlaneFactory.in(pixels.getPixelsType(),
-            		new String[] { PlaneFactory.INT8, PlaneFactory.UINT8 })) {
+                new String[] { PixelsType.VALUE_INT8, PixelsType.VALUE_UINT8 })) {
                 if (range < 0x100) {
                     b = true;
                 }
             } else if (PlaneFactory
                     .in(pixels.getPixelsType(), new String[] {
-                            PlaneFactory.INT16, PlaneFactory.UINT16 })) {
+                        PixelsType.VALUE_INT16, PixelsType.VALUE_UINT16 })) {
                 if (range < 0x10000) {
                     b = true;
                 }
             } else if (PlaneFactory
                     .in(pixels.getPixelsType(), new String[] {
-                            PlaneFactory.INT32, PlaneFactory.UINT32 })) {
+                        PixelsType.VALUE_INT32, PixelsType.VALUE_UINT32 })) {
                 if (range < 0x100000000L) {
                     b = true;
                 }
             } else if (PlaneFactory
                     .in(pixels.getPixelsType(), new String[] {
-                            PlaneFactory.FLOAT_TYPE,
-                            PlaneFactory.DOUBLE_TYPE })) {
+                        PixelsType.VALUE_FLOAT,
+                        PixelsType.VALUE_DOUBLE})) {
                 b = true;
             }
         }

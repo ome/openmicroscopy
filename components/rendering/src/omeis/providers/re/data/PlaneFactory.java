@@ -1,7 +1,5 @@
 /*
- *   $Id$
- *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package omeis.providers.re.data;
@@ -24,61 +22,70 @@ import ome.model.enums.PixelsType;
  * 
  */
 public class PlaneFactory {
-    
-	/** 
+
+    /** 
      * Identifies the <i>Bit</i> data type used to store pixel values,
      * as per <i>OME</i> spec. 
      */
+    @Deprecated
     public static final String     BIT = "bit";
-    
+
     /** 
      * Identifies the <i>INT8</i> data type used to store pixel values,
      * as per <i>OME</i> spec. 
      */
+    @Deprecated
     public static final String     INT8 = "int8";
-    
+
     /** 
      * Identifies the <i>INT16</i> data type used to store pixel values,
      * as per <i>OME</i> spec. 
      */
+    @Deprecated
     public static final String     INT16 = "int16";
-    
+
     /** 
      * Identifies the <i>INT32</i> data type used to store pixel values,
      * as per <i>OME</i> spec. 
      */
+    @Deprecated
     public static final String     INT32 = "int32";
-    
+
     /** 
      * Identifies the <i>UINT8</i> data type used to store pixel values,
      * as per <i>OME</i> spec. 
      */
+    @Deprecated
     public static final String     UINT8 = "uint8";
-    
+
     /** 
      * Identifies the <i>UINT16</i> data type used to store pixel values,
      * as per <i>OME</i> spec. 
      */
+    @Deprecated
     public static final String     UINT16 = "uint16";
-    
+
     /** 
      * Identifies the <i>UINT32</i> data type used to store pixel values,
      * as per <i>OME</i> spec. 
      */
+    @Deprecated
     public static final String     UINT32 = "uint32";
-    
+
     /** 
      * Identifies the <i>FLOAT</i> data type used to store pixel values,
      * as per <i>OME</i> spec. 
      */
+    @Deprecated
     public static final String     FLOAT_TYPE = "float";
-    
+
     /** 
      * Identifies the <i>DOUBLE</i> data type used to store pixel values,
      * as per <i>OME</i> spec. 
      */
+    @Deprecated
     public static final String     DOUBLE_TYPE = "double";
-    
+
     /** Identifies the type used to store pixel values. */
     public static final int BYTE = 0;
 
