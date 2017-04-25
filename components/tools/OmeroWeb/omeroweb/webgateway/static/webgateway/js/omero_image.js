@@ -177,12 +177,12 @@
         if (color.endsWith('.lut')) {
             var lutIndex = OME.LUT_NAMES.indexOf(color);
             if (lutIndex > -1) {
-                return '0px -' + (lutIndex * 20) + 'px';
+                return '0px -' + (lutIndex * 30 + 7) + 'px';
             }
         }
         // Not found - show last bg (black -> transparent gradient)
         if (slider) {
-            return '0px -' + ((OME.LUT_NAMES.length - 1) * 20) + 'px';
+            return '0px -' + (OME.LUT_NAMES.length * 30 + 7) + 'px';
         } else {
             // For buttons, hide by offsetting
             return '0px 100px';
