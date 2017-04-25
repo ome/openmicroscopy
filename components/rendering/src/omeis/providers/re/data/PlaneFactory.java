@@ -119,7 +119,7 @@ public class PlaneFactory {
     /**
      * A static helper method to check if a type is one of the elements in an
      * array.
-     * 
+     *
      * @param type
      *            A pixels type enumeration.
      * @param strings
@@ -138,7 +138,7 @@ public class PlaneFactory {
 
     /**
      * A static helper method to retrieve pixel byte widths.
-     * 
+     *
      * @param type
      *            The pixels type for which you want to know the byte width.
      * @return The number of bytes per pixel value.
@@ -149,7 +149,7 @@ public class PlaneFactory {
 
     /**
      * A static helper method to retrieve pixel byte signage.
-     * 
+     *
      * @param type
      *            The pixels type for which you want to know the byte width.
      * @return The number of bytes per pixel value.
@@ -160,7 +160,7 @@ public class PlaneFactory {
 
     /**
      * Factory method to fetch plane data and create an object to access it.
-     * 
+     *
      * @param planeDef
      *            Defines the plane to be retrieved. Must not be null.
      * @param channel
@@ -186,39 +186,39 @@ public class PlaneFactory {
         Integer t = Integer.valueOf(planeDef.getT());
         Integer stride = planeDef.getStride();
         try {
-        	RegionDef region = planeDef.getRegion();
-        	if (region != null) {
-        		switch (planeDef.getSlice()) {
-	                case PlaneDef.XY:
+            RegionDef region = planeDef.getRegion();
+            if (region != null) {
+                switch (planeDef.getSlice()) {
+                    case PlaneDef.XY:
                         return new Plane2D(planeDef, pixels, buffer.getTile(
                                 z, c, t, region.getX(), region.getY(),
                                 region.getWidth(), region.getHeight()));
-	                case PlaneDef.XZ: //TODO
-	                    return new Plane2D(planeDef, pixels, 
-	                    		buffer.getStack(c, t));
-	                case PlaneDef.ZY: //TODO
-	                    return new Plane2D(planeDef, pixels, 
-	                    		buffer.getStack(c, t));
-        		}
-        	} else {
-        		switch (planeDef.getSlice()) {
-	                case PlaneDef.XY:
-	                	if (stride == null || stride <= 0)
-	                		return new Plane2D(planeDef, pixels, 
-	                    		buffer.getPlane(z, c, t));
-	                	return new Plane2D(planeDef, pixels, 
-	                    		buffer.getPlaneRegion(0, 0, 
-	                    				pixels.getSizeX(), 
-	                    				pixels.getSizeY(), z, c, t, 
-	                    				stride));
-	                case PlaneDef.XZ:
-	                    return new Plane2D(planeDef, pixels, 
-	                    		buffer.getStack(c, t));
-	                case PlaneDef.ZY:
-	                    return new Plane2D(planeDef, pixels, 
-	                    		buffer.getStack(c, t));
-        		}
-        	}
+                    case PlaneDef.XZ: //TODO
+                        return new Plane2D(planeDef, pixels,
+                                buffer.getStack(c, t));
+                    case PlaneDef.ZY: //TODO
+                        return new Plane2D(planeDef, pixels,
+                                buffer.getStack(c, t));
+                }
+            } else {
+                switch (planeDef.getSlice()) {
+                    case PlaneDef.XY:
+                        if (stride == null || stride <= 0)
+                            return new Plane2D(planeDef, pixels,
+                                    buffer.getPlane(z, c, t));
+                        return new Plane2D(planeDef, pixels,
+                                buffer.getPlaneRegion(0, 0,
+                                        pixels.getSizeX(),
+                                        pixels.getSizeY(), z, c, t,
+                                        stride));
+                    case PlaneDef.XZ:
+                        return new Plane2D(planeDef, pixels,
+                                buffer.getStack(c, t));
+                    case PlaneDef.ZY:
+                        return new Plane2D(planeDef, pixels,
+                                buffer.getStack(c, t));
+                }
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (DimensionsOutOfBoundsException e) {
