@@ -596,7 +596,9 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
                 "SELECT id FROM GroupExperimenterMap WHERE parent.id = :group AND child.id = :user",
                 new Parameters().addLong("group", roles.getSystemGroupId()).addLong("user", realOwner.getId()));
         final Set<AdminPrivilege> privileges;
-        if (realOwner.getId() == roles.getRootId() || CollectionUtils.isEmpty(results)) {
+        if (realOwner.getId() == roles.getRootId()) {
+            privileges = LightAdminPrivileges.getAllPrivileges();
+        } else if (CollectionUtils.isEmpty(results)) {
             privileges = Collections.emptySet();
         } else {
             privileges = adminPrivileges.getSessionPrivileges(session);
