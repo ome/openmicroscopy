@@ -31,14 +31,16 @@
 #    DOUBLE = "double";
 # we can convert these to the appropriate types in python.
 
-INT_8 = "int8"
-UINT_8 = "uint8"
-INT_16 = "int16"
-UINT_16 = "uint16"
-INT_32 = "int32"
-UINT_32 = "uint32"
-FLOAT = "float"
-DOUBLE = "double"
+from ome.model.enums import PixelsType
+
+INT_8 = PixelsType.VALUE_INT8
+UINT_8 = PixelsType.VALUE_UINT8
+INT_16 = PixelsType.VALUE_INT16
+UINT_16 = PixelsType.VALUE_UINT16
+INT_32 = PixelsType.VALUE_INT32
+UINT_32 = PixelsType.VALUE_UINT32
+FLOAT = PixelsType.VALUE_FLOAT
+DOUBLE = PixelsType.VALUE_DOUBLE
 
 
 def toPython(pixelType):
