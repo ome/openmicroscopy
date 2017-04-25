@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import ome.model.enums.Family;
 import omero.model.CodomainMapContext;
 import omero.model.Length;
 import omero.romio.PlaneDef;
@@ -113,16 +114,16 @@ public interface RenderingControl
     public static final String  GREY_SCALE = "greyscale";
     
     /** Identifies the <code>Linear</code> family. */
-    public static final String  LINEAR = "linear";
+    public static final String  LINEAR = Family.VALUE_LINEAR;
     
     /** Identifies the <code>Polynomial</code> family. */
-    public static final String  POLYNOMIAL = "polynomial";
+    public static final String  POLYNOMIAL = Family.VALUE_POLYNOMIAL;
     
     /** Identifies the <code>Exponential</code> family. */
-    public static final String  EXPONENTIAL = "exponential";
+    public static final String  EXPONENTIAL = Family.VALUE_EXPONENTIAL;
     
     /** Identifies the <code>Exponential</code> family. */
-    public static final String  LOGARITHMIC = "logarithmic";
+    public static final String  LOGARITHMIC = Family.VALUE_LOGARITHMIC;
     
     /**
      * Returns the number of pixels along the X-axis.

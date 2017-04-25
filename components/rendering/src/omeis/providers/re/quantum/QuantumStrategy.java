@@ -112,12 +112,12 @@ public abstract class QuantumStrategy {
     private void defineMapper(Family family) {
         String value = family.getValue();
         verifyFamily(value);
-        if (value.equals(QuantumFactory.LINEAR)
-                || value.equals(QuantumFactory.POLYNOMIAL)) {
+        if (value.equals(Family.VALUE_LINEAR)
+                || value.equals(Family.VALUE_POLYNOMIAL)) {
             valueMapper = new PolynomialMap();
-        } else if (value.equals(QuantumFactory.LOGARITHMIC)) {
+        } else if (value.equals(Family.VALUE_LOGARITHMIC)) {
             valueMapper = new LogarithmicMap();
-        } else if (value.equals(QuantumFactory.EXPONENTIAL)) {
+        } else if (value.equals(Family.VALUE_EXPONENTIAL)) {
             valueMapper = new ExponentialMap();
         }
     }
@@ -130,10 +130,10 @@ public abstract class QuantumStrategy {
      *            The family we're checking for validity.
      */
     private static void verifyFamily(String value) {
-        if (!value.equals(QuantumFactory.LINEAR)
-                && !value.equals(QuantumFactory.LOGARITHMIC)
-                && !value.equals(QuantumFactory.EXPONENTIAL)
-                && !value.equals(QuantumFactory.POLYNOMIAL)) {
+        if (!value.equals(Family.VALUE_LINEAR)
+                && !value.equals(Family.VALUE_LOGARITHMIC)
+                && !value.equals(Family.VALUE_EXPONENTIAL)
+                && !value.equals(Family.VALUE_POLYNOMIAL)) {
             throw new IllegalArgumentException("Unsupported family type: '"
                     + value + "'");
         }
