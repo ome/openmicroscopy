@@ -1,7 +1,5 @@
 /*
- * omeis.providers.re.quantum.QuantumFactory
- *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -13,7 +11,6 @@ import ome.model.core.Pixels;
 import ome.model.display.QuantumDef;
 import ome.model.enums.Family;
 import ome.model.enums.PixelsType;
-import omeis.providers.re.data.PlaneFactory;
 
 /**
  * Factory to create objects to carry out quantization for a given context. This

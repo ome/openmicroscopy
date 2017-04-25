@@ -1,7 +1,5 @@
 /*
- * omeis.providers.re.quantum.Quantization_8_16_bit
- *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -10,8 +8,6 @@ package omeis.providers.re.quantum;
 import ome.model.core.Pixels;
 import ome.model.display.QuantumDef;
 import ome.model.enums.PixelsType;
-
-import omeis.providers.re.data.PlaneFactory;
 
 /**
  * Quantization process for binary masks.
