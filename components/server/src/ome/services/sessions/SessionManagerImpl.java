@@ -1472,9 +1472,15 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
                             + "left outer join fetch s.annotationLinks l "
                             + "left outer join fetch l.child a where s.id = :id",
                             new Parameters().addId(session.getId()));
+            final List<Long> realOwnerGroupsIds;
+            if (reloaded.getSudoer() != null) {
+                realOwnerGroupsIds = admin.getMemberOfGroupIds(reloaded.getSudoer());
+            } else {
+                realOwnerGroupsIds = memberOfGroupsIds;
+            }
             list.add(exp);
             list.add(grp);
-            if (memberOfGroupsIds.contains(roles.getSystemGroupId())) {
+            if (realOwnerGroupsIds.contains(roles.getSystemGroupId())) {
                 list.add(adminPrivileges.getSessionPrivileges(reloaded));
             } else {
                 list.add(Collections.emptySet());
