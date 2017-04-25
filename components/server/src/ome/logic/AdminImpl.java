@@ -1592,13 +1592,6 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
      * @return the light administrator privileges that apply to the current session
      */
     private Set<AdminPrivilege> getCurrentAdminPrivilegesForSession() {
-        if (isAdmin()) {
-            final String hql = "FROM Session s LEFT OUTER JOIN FETCH s.sudoer WHERE s.id = :id";
-            final Parameters params = new Parameters().addId(getEventContext().getCurrentSessionId());
-            final ome.model.meta.Session session = iQuery.findByQuery(hql, params);
-            return adminPrivileges.getSessionPrivileges(session);
-        } else {
-            return ImmutableSet.of();
-        }
+        return isAdmin() ? getEventContextQuiet().getCurrentAdminPrivileges() : Collections.<AdminPrivilege>emptySet();
     }
 }
