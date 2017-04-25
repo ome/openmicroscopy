@@ -53,6 +53,7 @@ from omero.model import ProjectDatasetLinkI, ImageAnnotationLinkI
 from omero.model import PermissionsI
 from omero.model import ChecksumAlgorithmI
 from omero.model import NamedValue
+from ome.model.enums import ChecksumAlgorithm, DimensionOrder, PixelsType
 from omero.rtypes import rbool, rstring, rlong, rtime, rint, unwrap
 from omero.util.temp_files import create_path
 from path import path
@@ -404,7 +405,7 @@ class ITest(object):
         def f3(x, y):
             return x
 
-        p_type = "int16"
+        p_type = PixelsType.VALUE_INT16
         # look up the PixelsType object from DB
         # omero::model::PixelsType
         pixels_type = query_service.findByQuery(
@@ -671,8 +672,8 @@ class ITest(object):
                                       skip="all")
         return pixels_id[0]
 
-    def create_pixels(self, x=10, y=10, z=10, c=3, t=50, pixels_type="int8",
-                      client=None):
+    def create_pixels(self, x=10, y=10, z=10, c=3, t=50,
+                      pixels_type=PixelsType.VALUE_INT8, client=None):
         """
         Creates an int8 pixel of the given size in the database.
         No data is written.
@@ -688,7 +689,7 @@ class ITest(object):
         pixels.pixelsType = PixelsTypeI()
         pixels.pixelsType.value = rstring(pixels_type)
         pixels.dimensionOrder = DimensionOrderI()
-        pixels.dimensionOrder.value = rstring("XYZCT")
+        pixels.dimensionOrder.value = rstring(DimensionOrder.VALUE_XYZCT)
         image.addPixels(pixels)
 
         if client is None:
@@ -699,17 +700,18 @@ class ITest(object):
 
     @classmethod
     def get_pixels_type(cls, pixels_type):
-        if pixels_type in ["int8", "uint8"]:
+        if pixels_type in [PixelsType.VALUE_INT8, PixelsType.VALUE_UINT8]:
             return 1
-        if pixels_type in ["int16", "uint16"]:
+        if pixels_type in [PixelsType.VALUE_INT16, PixelsType.VALUE_UINT16]:
             return 2
-        if pixels_type in ["int32", "uint132", "float"]:
+        if pixels_type in [PixelsType.VALUE_INT32, PixelsType.VALUE_UINT32,
+                           PixelsType.VALUE_FLOAT]:
             return 4
-        if pixels_type in ["double"]:
+        if pixels_type in [PixelsType.VALUE_DOUBLE]:
             return 8
         raise Exception("Pixels Type %s not supported" % pixels_type)
 
-    def write(self, pixels, rps, pixels_type="int8"):
+    def write(self, pixels, rps, pixels_type=PixelsType.VALUE_INT8):
         """
         Writes byte arrays consisting of [5] to as
         either planes or tiles depending on the pixel
@@ -967,7 +969,7 @@ class ITest(object):
         ofile.setPath(rstring(str(self.uuid())))
         ofile.setSize(rlong(len(binary)))
         ofile.hasher = ChecksumAlgorithmI()
-        ofile.hasher.value = rstring("SHA1-160")
+        ofile.hasher.value = rstring(ChecksumAlgorithm.VALUE_SHA1_160)
         ofile.setMimetype(rstring(str(mimetype)))
         ofile = update.saveAndReturnObject(ofile)
 
