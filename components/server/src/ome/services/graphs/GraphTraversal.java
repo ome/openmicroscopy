@@ -58,6 +58,7 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.ACLVoter;
 import ome.security.SystemTypes;
+import ome.security.basic.LightAdminPrivileges;
 import ome.services.graphs.GraphPathBean.PropertyKind;
 import ome.services.graphs.GraphPolicy.Ability;
 import ome.services.graphs.GraphPolicy.Action;
@@ -490,26 +491,7 @@ public class GraphTraversal {
         this.planning = new Planning();
         this.policy = policy;
         this.processor = log.isDebugEnabled() ? debugWrap(processor) : processor;
-
-        if (eventContext.isCurrentUserAdmin()) {
-            /* check if light administrator restrictions may apply */
-            final String querySession = "FROM Session s LEFT OUTER JOIN FETCH s.sudoer WHERE s.id = :id";
-            final Long sessionId = eventContext.getCurrentSessionId();
-            final ome.model.meta.Session omeroSession =
-                    (ome.model.meta.Session) session.createQuery(querySession).setParameter("id", sessionId).uniqueResult();
-            final Experimenter sudoer = omeroSession.getSudoer();
-            final Long userId = sudoer == null ? omeroSession.getOwner().getId() : sudoer.getId();
-            final String queryConfig = "SELECT COUNT(config.value) FROM Experimenter user JOIN user.config AS config " +
-                    "WHERE user.id = :id AND config.name IN (SELECT 'AdminPrivilege:' || value FROM AdminPrivilege)";
-            final Long count = (Long) session.createQuery(queryConfig).setParameter("id", userId).uniqueResult();
-            if (count != null && count > 0) {
-                this.isCheckUserPermissions = true;
-            } else {
-                this.isCheckUserPermissions = false;
-            }
-        } else {
-            this.isCheckUserPermissions = true;
-        }
+        this.isCheckUserPermissions = !LightAdminPrivileges.getAllPrivileges().equals(eventContext.getCurrentAdminPrivileges());
     }
 
     /**
