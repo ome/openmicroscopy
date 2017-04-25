@@ -50,49 +50,49 @@ public class PixelsData extends DataObject {
      * Identifies the type used to store pixel values. Maps onto the <i>OME</i>
      * <code>int8</code> string identifier.
      */
-    public static final String INT8_TYPE = "int8";
+    public static final String INT8_TYPE = ome.model.enums.PixelsType.VALUE_INT8;
 
     /**
      * Identifies the type used to store pixel values. Maps onto the <i>OME</i>
      * <code>int16</code> string identifier.
      */
-    public static final String INT16_TYPE = "int16";
+    public static final String INT16_TYPE = ome.model.enums.PixelsType.VALUE_INT16;
 
     /**
      * Identifies the type used to store pixel values. Maps onto the <i>OME</i>
      * <code>"int32</code> string identifier.
      */
-    public static final String INT32_TYPE = "int32";
+    public static final String INT32_TYPE = ome.model.enums.PixelsType.VALUE_INT32;
 
     /**
      * Identifies the type used to store pixel values. Maps onto the <i>OME</i>
      * <code>uint8</code> string identifier.
      */
-    public static final String UINT8_TYPE = "uint8";
+    public static final String UINT8_TYPE = ome.model.enums.PixelsType.VALUE_UINT8;
 
     /**
      * Identifies the type used to store pixel values. Maps onto the <i>OME</i>
      * <code>uint16</code> string identifier.
      */
-    public static final String UINT16_TYPE = "uint16";
+    public static final String UINT16_TYPE = ome.model.enums.PixelsType.VALUE_UINT16;
 
     /**
      * Identifies the type used to store pixel values. Maps onto the <i>OME</i>
      * <code>uint32</code> string identifier.
      */
-    public static final String UINT32_TYPE = "uint32";
+    public static final String UINT32_TYPE = ome.model.enums.PixelsType.VALUE_UINT32;
 
     /**
      * Identifies the type used to store pixel values. Maps onto the <i>OME</i>
      * <code>float</code> string identifier.
      */
-    public static final String FLOAT_TYPE = "float";
+    public static final String FLOAT_TYPE = ome.model.enums.PixelsType.VALUE_FLOAT;
 
     /**
      * Identifies the type used to store pixel values. Maps onto the <i>OME</i>
      * <code>double</code> string identifier.
      */
-    public static final String DOUBLE_TYPE = "double";
+    public static final String DOUBLE_TYPE = ome.model.enums.PixelsType.VALUE_DOUBLE;
 
     /**
      * Identifies the type used to store pixel values. Maps onto the <i>OME</i>

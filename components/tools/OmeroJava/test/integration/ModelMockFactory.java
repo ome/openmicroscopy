@@ -89,13 +89,13 @@ public class ModelMockFactory {
     static String XYZCT = "XYZCT";
 
     /** The unsigned int 16 pixels Type. */
-    static String UINT16 = "uint16";
+    static String UINT16 = ome.model.enums.PixelsType.VALUE_UINT16;
 
     /** The unsigned int 8 pixels Type. */
-    static String UINT8 = "uint8";
+    static String UINT8 = ome.model.enums.PixelsType.VALUE_UINT8;
     
     /** The bit pixels Type. */
-    static String BIT = "bit";
+    static String BIT =  ome.model.enums.PixelsType.VALUE_BIT;
 
     /** Helper reference to the <code>ITypes</code> service. */
     private ITypesPrx typesService;
