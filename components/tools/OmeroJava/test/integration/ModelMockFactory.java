@@ -86,7 +86,7 @@ public class ModelMockFactory {
     static int SIZE_T = 10;
 
     /** The dimension order for the pixels type. */
-    static String XYZCT = "XYZCT";
+    static String XYZCT = ome.model.enums.DimensionOrder.VALUE_XYZCT;
 
     /** The unsigned int 16 pixels Type. */
     static String UINT16 = ome.model.enums.PixelsType.VALUE_UINT16;

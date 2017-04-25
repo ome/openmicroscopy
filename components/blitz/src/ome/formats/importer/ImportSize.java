@@ -81,17 +81,17 @@ public class ImportSize {
     }
 
     private int getSequenceNumber(String dimOrder) {
-        if (dimOrder.equals("XYZTC"))
+        if (ome.model.enums.DimensionOrder.VALUE_XYZTC.equals(dimOrder))
             return 0;
-        if (dimOrder.equals("XYCZT"))
+        if (ome.model.enums.DimensionOrder.VALUE_XYCZT.equals(dimOrder))
             return 1;
-        if (dimOrder.equals("XYZCT"))
+        if (ome.model.enums.DimensionOrder.VALUE_XYZCT.equals(dimOrder))
             return 2;
-        if (dimOrder.equals("XYTCZ"))
+        if (ome.model.enums.DimensionOrder.VALUE_XYTCZ.equals(dimOrder))
             return 3;
-        if (dimOrder.equals("XYCTZ"))
+        if (ome.model.enums.DimensionOrder.VALUE_XYCTZ.equals(dimOrder))
             return 4;
-        if (dimOrder.equals("XYTZC"))
+        if (ome.model.enums.DimensionOrder.VALUE_XYTZC.equals(dimOrder))
             return 5;
         throw new RuntimeException(dimOrder + " not represented in "
                 + "getSequenceNumber");

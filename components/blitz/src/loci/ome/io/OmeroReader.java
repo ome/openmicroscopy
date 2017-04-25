@@ -369,7 +369,7 @@ public class OmeroReader extends FormatReader {
             m.sizeT = sizeT;
             m.rgb = false;
             m.littleEndian = false;
-            m.dimensionOrder = "XYZCT";
+            m.dimensionOrder = ome.model.enums.DimensionOrder.VALUE_XYZCT;
             m.imageCount = sizeZ * sizeC * sizeT;
             m.pixelType = FormatTools.pixelTypeFromString(pixelType);
 
