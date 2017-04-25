@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import ome.model.enums.Family;
+import ome.model.enums.RenderingModel;
 import omero.model.CodomainMapContext;
 import omero.model.Length;
 import omero.romio.PlaneDef;
@@ -108,10 +109,10 @@ public interface RenderingControl
     public static final int     DEPTH_8BIT = 255;
     
     /** Identifies the <code>RGB</code> color model. */
-    public static final String  RGB = "rgb";
+    public static final String  RGB = RenderingModel.VALUE_RGB;
 
     /** Identifies the <code>Grey scale</code> color model. */
-    public static final String  GREY_SCALE = "greyscale";
+    public static final String  GREY_SCALE = RenderingModel.VALUE_GREYSCALE;
     
     /** Identifies the <code>Linear</code> family. */
     public static final String  LINEAR = Family.VALUE_LINEAR;
