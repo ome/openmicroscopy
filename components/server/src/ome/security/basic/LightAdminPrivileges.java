@@ -151,7 +151,7 @@ public class LightAdminPrivileges {
      * @param isCache if newly fetched privileges should be cached for future lookups
      * @return the light administrator privileges associated with the session
      */
-    public ImmutableSet<AdminPrivilege> getSessionPrivileges(Session session, boolean isCache) {
+    private ImmutableSet<AdminPrivilege> getSessionPrivileges(Session session, boolean isCache) {
         final SessionEqualById wrappedSession = new SessionEqualById(session);
         try {
             if (isCache) {
