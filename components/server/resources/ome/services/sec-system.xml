@@ -100,7 +100,7 @@
 
   <bean id="adminPrivilegesCleanup" class="ome.security.basic.LightAdminPrivilegesCleanup" destroy-method="close">
     <constructor-arg ref="simpleSqlAction"/>
-    <constructor-arg value="100"></constructor-arg>  <!-- seconds -->
+    <constructor-arg value="10"></constructor-arg>  <!-- seconds -->
   </bean>
 
 </beans>
