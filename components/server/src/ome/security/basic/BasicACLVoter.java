@@ -312,7 +312,7 @@ public class BasicACLVoter implements ACLVoter {
             final Set<AdminPrivilege> privileges;
             final Event event = currentUser.current().getEvent();
             if (event == null || !event.isLoaded()) {
-                privileges = adminPrivileges.getAllPrivileges();
+                privileges = LightAdminPrivileges.getAllPrivileges();
             } else {
                 privileges = adminPrivileges.getSessionPrivileges(event.getSession());
             }
@@ -470,7 +470,7 @@ public class BasicACLVoter implements ACLVoter {
         }
 
         final Set<AdminPrivilege> privileges = c.getCurrentAdminPrivileges();
-        if (adminPrivileges.getAllPrivileges().equals(privileges)) {
+        if (LightAdminPrivileges.getAllPrivileges().equals(privileges)) {
             for (int i = 0; i < scopes.length; i++) {
                 if (scopes[i] != null) {
                     rv |= (1<<i);

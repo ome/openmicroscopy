@@ -90,7 +90,7 @@ public class LightAdminPrivileges {
     /**
      * @return all the light administrator privileges
      */
-    public ImmutableSet<AdminPrivilege> getAllPrivileges() {
+    public static ImmutableSet<AdminPrivilege> getAllPrivileges() {
         return ADMIN_PRIVILEGES;
     }
 

@@ -201,7 +201,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         try {
             asroot = new Principal(internal_uuid, "system", "Sessions");
             final Session session = executeInternalSession();
-            internalSession = new InternalSessionContext(session, adminPrivileges.getAllPrivileges(), roles);
+            internalSession = new InternalSessionContext(session, LightAdminPrivileges.getAllPrivileges(), roles);
             cache.putSession(internal_uuid, internalSession);
         } catch (UncategorizedSQLException uncat) {
             log.warn("Assuming that this is read-only");

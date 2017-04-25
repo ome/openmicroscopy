@@ -667,7 +667,7 @@ public class OmeroInterceptor implements Interceptor {
         if (currentUser.getCurrentEventContext().isCurrentUserAdmin()) {
             final Event event = currentUser.current().getEvent();
             if (event == null || !event.isLoaded()) {
-                return adminPrivileges.getAllPrivileges();
+                return LightAdminPrivileges.getAllPrivileges();
             } else {
                 return adminPrivileges.getSessionPrivileges(event.getSession());
             }
