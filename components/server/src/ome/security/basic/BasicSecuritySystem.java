@@ -397,12 +397,7 @@ public class BasicSecuritySystem implements SecuritySystem,
         }
 
         // admin privileges
-        final Set<AdminPrivilege> adminPrivileges;
-        if (isAdmin) {
-            adminPrivileges = ec.getCurrentAdminPrivileges();
-        } else {
-            adminPrivileges = Collections.<AdminPrivilege>emptySet();
-        }
+        final Set<AdminPrivilege> adminPrivileges = ec.getCurrentAdminPrivileges();
 
         // Active group - starting with #3529, the current group and the current
         // share values should be definitive as setting the context on
