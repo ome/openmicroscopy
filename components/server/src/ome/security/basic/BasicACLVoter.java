@@ -27,7 +27,6 @@ import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Token;
-import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
@@ -156,11 +155,7 @@ public class BasicACLVoter implements ACLVoter {
         } else if (!ec.isCurrentUserAdmin()) {
             return false;  // not an admin
         }
-        final Event event = currentUser.getEvent();
-        if (event == null || !event.isLoaded()) {
-            return true;   // no session to limit privileges
-        }
-        final Set<AdminPrivilege> privileges = adminPrivileges.getSessionPrivileges(event.getSession());
+        final Set<AdminPrivilege> privileges = ec.getCurrentAdminPrivileges();
         if (sysTypes.isSystemType(iObject.getClass())) {
             if (iObject instanceof Experimenter) {
                 return privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_MODIFY_USER));
@@ -222,20 +217,8 @@ public class BasicACLVoter implements ACLVoter {
             if (sessionOwnerCurrent.getId().equals(sessionOwnerQueried.getId())) {
                 return true;
             }
-            /* determine if the "real" owner is an administrator */
-            final Object systemMembership = session.createQuery(
-                    "FROM GroupExperimenterMap WHERE parent.id = :group AND child.id = :user")
-                    .setLong("group", roles.getSystemGroupId()).setLong("user", sessionOwnerCurrent.getId()).uniqueResult();
-            if (systemMembership != null) {
-                /* cannot yet cache privileges because Sessions may be loaded while still being constructed by the session bean */
-                final Set<AdminPrivilege> privileges = adminPrivileges.getSessionPrivileges(currentSession, false);
-                if (privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_READ_SESSION))) {
-                    /* only a full administrator may read all sessions */
-                    return true;
-                }
-            }
-            /* non-administrators may not load others' sessions */
-            return false;
+            /* only a full administrator may read all sessions */
+            return ec.getCurrentAdminPrivileges().contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_READ_SESSION));
         }
 
         if (d == null || sysTypes.isSystemType(klass)) {
@@ -298,6 +281,8 @@ public class BasicACLVoter implements ACLVoter {
         // OmeroInterceptor checks whether or not objects are only
         // LINKED to one's own objects which is the actual intent.
 
+        final EventContext ec = currentUser.getCurrentEventContext();
+
         if (tokenHolder.hasPrivilegedToken(iObject)) {
             return true;
         } else if (!sysType) {
@@ -308,14 +293,8 @@ public class BasicACLVoter implements ACLVoter {
             }
             /* also checked by OmeroInterceptor.newTransientDetails */
             return true;
-        } else if (currentUser.getCurrentEventContext().isCurrentUserAdmin()) {
-            final Set<AdminPrivilege> privileges;
-            final Event event = currentUser.current().getEvent();
-            if (event == null || !event.isLoaded()) {
-                privileges = LightAdminPrivileges.getAllPrivileges();
-            } else {
-                privileges = adminPrivileges.getSessionPrivileges(event.getSession());
-            }
+        } else if (ec.isCurrentUserAdmin()) {
+            final Set<AdminPrivilege> privileges = ec.getCurrentAdminPrivileges();
             if (iObject instanceof Experimenter) {
                 return privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_MODIFY_USER));
             } else if (iObject instanceof ExperimenterGroup) {
