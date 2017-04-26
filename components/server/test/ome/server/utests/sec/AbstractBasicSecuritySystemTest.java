@@ -246,6 +246,7 @@ public abstract class AbstractBasicSecuritySystemTest extends
         sf.mockAdmin.expects(once()).method("groupProxy").will(
                 returnValue(group));
         if (!readOnly) {
+            sf.mockQuery.expects(once()).method("find").will(returnValue(event.getSession()));
             sf.mockQuery.expects(once()).method("findByQuery").will(returnValue(event.getSession()));
             sf.mockAdmin.expects(once()).method("userProxy").will(
                     returnValue(user));
