@@ -51,6 +51,7 @@ import omero.grid.ManagedRepositoryPrxHelper;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
 import omero.model.ChecksumAlgorithm;
+import omero.model.ExperimenterGroupI;
 import omero.model.OriginalFile;
 import omero.sys.EventContext;
 import omero.sys.Parameters;
@@ -577,7 +578,7 @@ public class ManagedRepositoryTest extends AbstractServerImportTest {
     public void testAdminImportIntoAnotherGroup() throws Exception {
         /* prepare as admin to import into another group */
         final long targetGroup = iAdmin.getEventContext().groupId;
-        newUserInGroup(iAdmin.lookupGroup(SYSTEM_GROUP), false);
+        newUserInGroup(new ExperimenterGroupI(roles.systemGroupId, false), false);
         client.getImplicitContext().put("omero.group", Long.toString(targetGroup));
 
         /* create and import a fake image */
