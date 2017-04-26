@@ -34,7 +34,7 @@ from omero.gateway.utils import ServiceOptsDict, GatewayConfig, toBoolean
 from omero.model.enums import PixelsTypeint8, PixelsTypeuint8, PixelsTypeint16
 from omero.model.enums import PixelsTypeuint16, PixelsTypeint32
 from omero.model.enums import PixelsTypeuint32, PixelsTypefloat
-from omero.model.enums import PixelsTypedouble
+from omero.model.enums import PixelsTypecomplex, PixelsTypedouble
 import omero.scripts as scripts
 
 import Ice
