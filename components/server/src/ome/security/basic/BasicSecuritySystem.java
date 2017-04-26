@@ -647,10 +647,12 @@ public class BasicSecuritySystem implements SecuritySystem,
 
                 BasicEventContext c = cd.current();
                 boolean wasAdmin = c.isCurrentUserAdmin();
+                final Set<AdminPrivilege> oldAdminPrivileges = c.getAdminPrivileges();
                 ExperimenterGroup oldGroup = c.getGroup();
 
                 try {
                     c.setAdmin(true);
+                    c.setAdminPrivileges(LightAdminPrivileges.getAllPrivileges());
                     if (group != null) {
                         c.setGroup(group, group.getDetails().getPermissions());
                     }
@@ -659,6 +661,7 @@ public class BasicSecuritySystem implements SecuritySystem,
                     action.runAsAdmin();
                 } finally {
                     c.setAdmin(wasAdmin);
+                    c.setAdminPrivileges(oldAdminPrivileges);
                     if (group != null) {
                         c.setGroup(oldGroup, oldGroup.getDetails().getPermissions());
                     }
