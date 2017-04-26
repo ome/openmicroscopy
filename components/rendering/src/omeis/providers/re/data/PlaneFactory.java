@@ -28,63 +28,63 @@ public class PlaneFactory {
      * as per <i>OME</i> spec. 
      */
     @Deprecated
-    public static final String     BIT = "bit";
+    public static final String     BIT = ome.model.enums.PixelsType.VALUE_BIT;
 
     /** 
      * Identifies the <i>INT8</i> data type used to store pixel values,
      * as per <i>OME</i> spec. 
      */
     @Deprecated
-    public static final String     INT8 = "int8";
+    public static final String     INT8 = ome.model.enums.PixelsType.VALUE_INT8;
 
     /** 
      * Identifies the <i>INT16</i> data type used to store pixel values,
      * as per <i>OME</i> spec. 
      */
     @Deprecated
-    public static final String     INT16 = "int16";
+    public static final String     INT16 = ome.model.enums.PixelsType.VALUE_INT16;
 
     /** 
      * Identifies the <i>INT32</i> data type used to store pixel values,
      * as per <i>OME</i> spec. 
      */
     @Deprecated
-    public static final String     INT32 = "int32";
+    public static final String     INT32 = ome.model.enums.PixelsType.VALUE_INT32;
 
     /** 
      * Identifies the <i>UINT8</i> data type used to store pixel values,
      * as per <i>OME</i> spec. 
      */
     @Deprecated
-    public static final String     UINT8 = "uint8";
+    public static final String     UINT8 = ome.model.enums.PixelsType.VALUE_UINT8;
 
     /** 
      * Identifies the <i>UINT16</i> data type used to store pixel values,
      * as per <i>OME</i> spec. 
      */
     @Deprecated
-    public static final String     UINT16 = "uint16";
+    public static final String     UINT16 = ome.model.enums.PixelsType.VALUE_UINT16;
 
     /** 
      * Identifies the <i>UINT32</i> data type used to store pixel values,
      * as per <i>OME</i> spec. 
      */
     @Deprecated
-    public static final String     UINT32 = "uint32";
+    public static final String     UINT32 = ome.model.enums.PixelsType.VALUE_UINT32;
 
     /** 
      * Identifies the <i>FLOAT</i> data type used to store pixel values,
      * as per <i>OME</i> spec. 
      */
     @Deprecated
-    public static final String     FLOAT_TYPE = "float";
+    public static final String     FLOAT_TYPE = ome.model.enums.PixelsType.VALUE_FLOAT;
 
     /** 
      * Identifies the <i>DOUBLE</i> data type used to store pixel values,
      * as per <i>OME</i> spec. 
      */
     @Deprecated
-    public static final String     DOUBLE_TYPE = "double";
+    public static final String     DOUBLE_TYPE = ome.model.enums.PixelsType.VALUE_DOUBLE;
 
     /** Identifies the type used to store pixel values. */
     public static final int BYTE = 0;
