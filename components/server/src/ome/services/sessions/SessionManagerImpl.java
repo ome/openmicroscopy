@@ -21,6 +21,7 @@ import java.util.concurrent.Future;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 
+import ome.api.IQuery;
 import ome.api.local.LocalAdmin;
 import ome.conditions.ApiUsageException;
 import ome.conditions.AuthenticationException;
@@ -1465,9 +1466,10 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
             final List<Long> memberOfGroupsIds = admin.getMemberOfGroupIds(exp);
             final List<Long> leaderOfGroupsIds = admin.getLeaderOfGroupIds(exp);
             final List<String> userRoles = admin.getUserRoles(exp);
-            final Session reloaded = (Session)
-                    sf.getQueryService().findByQuery(
-                            "select s from Session s "
+            final IQuery iQuery = sf.getQueryService();
+            final String sessionClass = iQuery.find(Share.class, session.getId()) == null ? "Session" : "Share";
+            final Session reloaded = (Session) iQuery.findByQuery(
+                            "select s from " + sessionClass + " s "
                             + "left outer join fetch s.sudoer "
                             + "left outer join fetch s.annotationLinks l "
                             + "left outer join fetch l.child a where s.id = :id",

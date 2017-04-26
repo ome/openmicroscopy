@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import ome.api.IQuery;
 import ome.api.local.LocalAdmin;
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
@@ -33,6 +34,7 @@ import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
+import ome.model.meta.Share;
 import ome.parameters.Parameters;
 import ome.security.ACLVoter;
 import ome.security.AdminAction;
@@ -448,9 +450,11 @@ public class BasicSecuritySystem implements SecuritySystem,
         if (isReadOnly) {
             sess = new ome.model.meta.Session(sessionId, false);
         } else {
-            final String hql = "FROM Session s LEFT OUTER JOIN FETCH s.sudoer WHERE s.id = :id";
+            final IQuery iQuery = sf.getQueryService();
+            final String sessionClass = iQuery.find(Share.class, sessionId) == null ? "Session" : "Share";
+            final String hql = "FROM " + sessionClass + " s LEFT OUTER JOIN FETCH s.sudoer WHERE s.id = :id";
             final Parameters params = new Parameters().addId(sessionId);
-            sess = sf.getQueryService().findByQuery(hql, params);
+            sess = iQuery.findByQuery(hql, params);
         }
 
         tokenHolder.setToken(callGroup.getGraphHolder());
