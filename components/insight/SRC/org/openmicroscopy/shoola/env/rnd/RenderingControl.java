@@ -27,8 +27,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import ome.model.enums.Family;
-import ome.model.enums.RenderingModel;
 import omero.model.CodomainMapContext;
 import omero.model.Length;
 import omero.romio.PlaneDef;
@@ -109,22 +107,22 @@ public interface RenderingControl
     public static final int     DEPTH_8BIT = 255;
     
     /** Identifies the <code>RGB</code> color model. */
-    public static final String  RGB = RenderingModel.VALUE_RGB;
+    public static final String  RGB = omero.model.enums.RenderingModelrgb.value;
 
     /** Identifies the <code>Grey scale</code> color model. */
-    public static final String  GREY_SCALE = RenderingModel.VALUE_GREYSCALE;
+    public static final String  GREY_SCALE = omero.model.enums.RenderingModelgreyscale.value;
     
     /** Identifies the <code>Linear</code> family. */
-    public static final String  LINEAR = Family.VALUE_LINEAR;
+    public static final String  LINEAR = omero.model.enums.Familylinear.value;
     
     /** Identifies the <code>Polynomial</code> family. */
-    public static final String  POLYNOMIAL = Family.VALUE_POLYNOMIAL;
+    public static final String  POLYNOMIAL = omero.model.enums.Familypolynomial.value;
     
     /** Identifies the <code>Exponential</code> family. */
-    public static final String  EXPONENTIAL = Family.VALUE_EXPONENTIAL;
+    public static final String  EXPONENTIAL = omero.model.enums.Familyexponential.value;
     
     /** Identifies the <code>Exponential</code> family. */
-    public static final String  LOGARITHMIC = Family.VALUE_LOGARITHMIC;
+    public static final String  LOGARITHMIC = omero.model.enums.Familylogarithmic.value;
     
     /**
      * Returns the number of pixels along the X-axis.

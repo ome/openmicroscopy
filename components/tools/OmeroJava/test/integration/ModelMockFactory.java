@@ -86,16 +86,16 @@ public class ModelMockFactory {
     static int SIZE_T = 10;
 
     /** The dimension order for the pixels type. */
-    static String XYZCT = ome.model.enums.DimensionOrder.VALUE_XYZCT;
+    static String XYZCT = omero.model.enums.DimensionOrderXYZCT.value;
 
     /** The unsigned int 16 pixels Type. */
-    static String UINT16 = ome.model.enums.PixelsType.VALUE_UINT16;
+    static String UINT16 = omero.model.enums.PixelsTypeuint16.value;
 
     /** The unsigned int 8 pixels Type. */
-    static String UINT8 = ome.model.enums.PixelsType.VALUE_UINT8;
+    static String UINT8 = omero.model.enums.PixelsTypeuint8.value;
     
     /** The bit pixels Type. */
-    static String BIT =  ome.model.enums.PixelsType.VALUE_BIT;
+    static String BIT =  omero.model.enums.PixelsTypebit.value;
 
     /** Helper reference to the <code>ITypes</code> service. */
     private ITypesPrx typesService;
