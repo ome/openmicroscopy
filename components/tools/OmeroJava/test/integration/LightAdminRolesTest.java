@@ -1644,10 +1644,11 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         lightAdmin = loginNewAdmin(true, permissions);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         /* create a file attachment as light admin */
-        final OriginalFile originalFile = mmFactory.createOriginalFile();
+        OriginalFile originalFile = mmFactory.createOriginalFile();
         FileAnnotation fileAnnotation = new FileAnnotationI();
-        fileAnnotation.setFile(originalFile);
         try {
+            originalFile = (OriginalFile) iUpdate.saveAndReturnObject(originalFile);
+            fileAnnotation.setFile(originalFile);
             fileAnnotation = (FileAnnotation) iUpdate.saveAndReturnObject(fileAnnotation);
             Assert.assertTrue(isExpectSuccessCreateFileAttachment);
         } catch (SecurityViolation sv) {
@@ -1681,8 +1682,10 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         doChange(client, factory, Requests.chown().target(fileAnnotation).toUser(normalUser.userId).build(), isExpectSuccessCreateFileAttAndChown);
         if (isExpectSuccessCreateFileAttAndChown) {/* file ann creation and chowning succeeded */
             assertOwnedBy(fileAnnotation, normalUser);
+            assertOwnedBy(originalFile, normalUser);
         } else {/* the creation of file annotation succeeded, but the chown failed */
             assertOwnedBy(fileAnnotation, lightAdmin);
+            assertOwnedBy(originalFile, lightAdmin);
         }
         /* The link was certainly created. In cases where the creation was not successful,
          * the test was terminated (see above).*/
@@ -1699,6 +1702,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                     new ParametersI().addId(fileAnnotation.getId()));
             assertOwnedBy(link, normalUser);
             assertOwnedBy(fileAnnotation, normalUser);
+            assertOwnedBy(originalFile, normalUser);
         } else {/* link was created but could not be chowned */
             link = (ImageAnnotationLink) iQuery.findByQuery("FROM ImageAnnotationLink l JOIN FETCH"
                     + " l.child JOIN FETCH l.parent WHERE l.child.id = :id",
