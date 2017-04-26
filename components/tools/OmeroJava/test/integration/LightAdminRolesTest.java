@@ -71,10 +71,11 @@ import omero.model.ProjectDatasetLinkI;
 import omero.model.ProjectI;
 import omero.model.RectangleI;
 import omero.model.RenderingDef;
-import omero.model.RenderingDefI;
 import omero.model.Roi;
 import omero.model.RoiI;
 import omero.model.Session;
+import omero.model.TagAnnotation;
+import omero.model.TagAnnotationI;
 import omero.model.enums.AdminPrivilegeChgrp;
 import omero.model.enums.AdminPrivilegeChown;
 import omero.model.enums.AdminPrivilegeDeleteOwned;
@@ -731,15 +732,24 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * the <tt>Chown</tt> privilege.
      * Test is in case of private group severing the link between the Dataset and Image.
      * For this, only the Chown permissions are sufficient, no other permissions are necessary.
+     * On the other hand, the Chown permissions are not sufficient to transfer ownership
+     * of annotations (tag and file attachment are tested here).
      * @param isSudoing if to test a success of workflows where Sudoed in
      * @param permChown if to test a user who has the <tt>Chown</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isSudoing and Chown privileges cases")
-    public void testChown(boolean isSudoing, boolean permChown,
+    public void testChown(boolean isSudoing, boolean permChown, boolean permDeleteOwned,
             String groupPermissions) throws Exception {
-        /* define the conditions for the chown passing (when not sudoing) */
+        /* define the conditions for the chown passing for annotations on chowned image,
+         * when not sudoing, and permChown
+         * and permDeleteOwned are available, also, in groups with higher permissions
+         * the chown of annotations is not expected to proceed on chowning the annotated
+         * image */
+        final boolean annotationsChownExpectSuccess = permChown && permDeleteOwned &&
+                (groupPermissions.equals("rw----") || groupPermissions.equals("rwr---"));
+        /* define the conditions for the chown of the image itself passing */
         final boolean chownPassingWhenNotSudoing = permChown;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         final EventContext anotherUser = newUserAndGroup(groupPermissions);
@@ -747,6 +757,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         loginUser(normalUser);
         Dataset dat = mmFactory.simpleDataset();
         Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
+
         final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
         final List<List<RType>> result = iQuery.projection(
                 "SELECT id FROM OriginalFile WHERE name = :name ORDER BY id DESC LIMIT 1",
@@ -765,11 +776,30 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                 "FROM Image WHERE fileset IN "
                 + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
                 new ParametersI().addId(remoteFileId));
+
+        /* Tag and add a file attachment to the imported image.*/
+        TagAnnotation tagAnnotation = new TagAnnotationI();
+        tagAnnotation = (TagAnnotation) iUpdate.saveAndReturnObject(tagAnnotation);
+        ImageAnnotationLink tagAnnotationLink = new ImageAnnotationLinkI();
+        tagAnnotationLink.setParent(image);
+        tagAnnotationLink.setChild(tagAnnotation);
+        tagAnnotationLink = (ImageAnnotationLink) iUpdate.saveAndReturnObject(tagAnnotationLink);
+
+        OriginalFile originalFile = mmFactory.createOriginalFile();
+        originalFile = (OriginalFile) iUpdate.saveAndReturnObject(originalFile);
+        FileAnnotation fileAnnotation = new FileAnnotationI();
+        fileAnnotation.setFile(originalFile);
+        fileAnnotation = (FileAnnotation) iUpdate.saveAndReturnObject(fileAnnotation);
+        ImageAnnotationLink fileAnnotationLink = new ImageAnnotationLinkI();
+        fileAnnotationLink.setParent(image);
+        fileAnnotationLink.setChild(fileAnnotation);
+        fileAnnotationLink = (ImageAnnotationLink) iUpdate.saveAndReturnObject(fileAnnotationLink);
+
         /* set up the basic permissions for this test */
         List<String> permissions = new ArrayList<String>();
         permissions.add(AdminPrivilegeSudo.value);
         if (permChown) permissions.add(AdminPrivilegeChown.value);
-
+        if (permDeleteOwned) permissions.add(AdminPrivilegeDeleteOwned.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(true, permissions);
         sudo(new ExperimenterI(normalUser.userId, false));
@@ -792,6 +822,11 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             Assert.assertEquals(imageGroupId, normalUser.groupId);
             assertOwnedBy(image, normalUser);
             assertOwnedBy((new OriginalFileI(remoteFileId, false)), normalUser);
+            assertOwnedBy(tagAnnotation, normalUser);
+            assertOwnedBy(tagAnnotationLink, normalUser);
+            assertOwnedBy(fileAnnotation, normalUser);
+            assertOwnedBy(fileAnnotationLink, normalUser);
+            assertOwnedBy(originalFile, normalUser);
         } else {
             /* chowning the image NOT being sudoed,
              * should pass only in case you have Chown
@@ -803,9 +838,59 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             if (chownPassingWhenNotSudoing) {
                 assertOwnedBy(image, anotherUser);
                 assertOwnedBy((new OriginalFileI(remoteFileId, false)), anotherUser);
+                /* for the annotations on the image and their links,
+                 * the chown of the image will only chown them if also
+                 * DeleteOwned permission is given and groupPermissions are
+                 * private or read-only (captured in boolean
+                 * annotationsChownExpectSuccess) */
+                if (annotationsChownExpectSuccess) {
+                    assertOwnedBy(tagAnnotation, anotherUser);
+                    assertOwnedBy(tagAnnotationLink, anotherUser);
+                    assertOwnedBy(fileAnnotation, anotherUser);
+                    assertOwnedBy(fileAnnotationLink, anotherUser);
+                    assertOwnedBy(originalFile, anotherUser);
+                } else if (groupPermissions.equals("rw----")){
+                    /* because the annotationsChownExpectSuccess is false,
+                     * the image is chowned, but
+                     * the annotations are left with normalUser. This means
+                     * that in private group the ImageAnnotation links are
+                     * severed.*/
+                    assertOwnedBy(tagAnnotation, normalUser);
+
+                    /* tagAnnotationLink was severed */
+                    String hql = "SELECT COUNT(*) FROM ImageAnnotationLink WHERE id =:id)";
+                    List<List<RType>> results = iQuery.projection(hql, new ParametersI().addId(tagAnnotationLink.getId()));
+                    long count = ((RLong) results.get(0).get(0)).getValue();
+                    Assert.assertEquals(count, 0);
+
+                    assertOwnedBy(fileAnnotation, normalUser);
+
+                    /* fileAnnotationLink was severed */
+                    hql = "SELECT COUNT(*) FROM ImageAnnotationLink WHERE id =:id)";
+                    results = iQuery.projection(hql, new ParametersI().addId(fileAnnotationLink.getId()));
+                    count = ((RLong) results.get(0).get(0)).getValue();
+                    Assert.assertEquals(count, 0);
+
+                    assertOwnedBy(originalFile, normalUser);
+                } else {
+                    /* except private group, in all groups the
+                     * annotations will remain attached to the image
+                     * of anotherUser, but still belongs to normalUser
+                     */
+                    assertOwnedBy(tagAnnotation, normalUser);
+                    assertOwnedBy(tagAnnotationLink, normalUser);
+                    assertOwnedBy(fileAnnotation, normalUser);
+                    assertOwnedBy(fileAnnotationLink, normalUser);
+                    assertOwnedBy(originalFile, normalUser);
+                }
             } else {
                 assertOwnedBy(image, normalUser);
                 assertOwnedBy((new OriginalFileI(remoteFileId, false)), normalUser);
+                assertOwnedBy(tagAnnotation, normalUser);
+                assertOwnedBy(tagAnnotationLink, normalUser);
+                assertOwnedBy(fileAnnotation, normalUser);
+                assertOwnedBy(fileAnnotationLink, normalUser);
+                assertOwnedBy(originalFile, normalUser);
             }
             /* in any case, the image must be in the right group */
             long imageGroupId = ((RLong) iQuery.projection(
@@ -2131,6 +2216,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         int index = 0;
         final int IS_SUDOING = index++;
         final int PERM_CHOWN = index++;
+        final int PERM_DELETEOWNED = index++;
         final int GROUP_PERMS = index++;
 
         final boolean[] booleanCases = new boolean[]{false, true};
@@ -2139,16 +2225,19 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
 
             for (final boolean isSudoing : booleanCases) {
                 for (final boolean permChown : booleanCases) {
-                    for (final String groupPerms : permsCases) {
-                        final Object[] testCase = new Object[index];
-                        /* no test cases are excluded here, because isSudoing
-                         * is in a sense acting to annule Chown permission
-                         * which is tested in the testChown and is an interesting case.*/
-                        testCase[IS_SUDOING] = isSudoing;
-                        testCase[PERM_CHOWN] = permChown;
-                        testCase[GROUP_PERMS] = groupPerms;
-                        // DEBUG if (isSudoing == true && permChown == true)
-                        testCases.add(testCase);
+                    for (final boolean permDeleteOwned : booleanCases) {
+                        for (final String groupPerms : permsCases) {
+                            final Object[] testCase = new Object[index];
+                            /* no test cases are excluded here, because isSudoing
+                             * is in a sense acting to annule Chown permission
+                             * which is tested in the testChown and is an interesting case.*/
+                            testCase[IS_SUDOING] = isSudoing;
+                            testCase[PERM_CHOWN] = permChown;
+                            testCase[PERM_DELETEOWNED] = permDeleteOwned;
+                            testCase[GROUP_PERMS] = groupPerms;
+                            // DEBUG  if (isSudoing == true && permChown == true && permDeleteOwned == true)
+                            testCases.add(testCase);
+                        }
                     }
                 }
             }
