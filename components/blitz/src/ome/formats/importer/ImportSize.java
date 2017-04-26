@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -81,17 +79,17 @@ public class ImportSize {
     }
 
     private int getSequenceNumber(String dimOrder) {
-        if (ome.model.enums.DimensionOrder.VALUE_XYZTC.equals(dimOrder))
+        if (omero.model.enums.DimensionOrderXYZTC.value.equals(dimOrder))
             return 0;
-        if (ome.model.enums.DimensionOrder.VALUE_XYCZT.equals(dimOrder))
+        if (omero.model.enums.DimensionOrderXYCZT.value.equals(dimOrder))
             return 1;
-        if (ome.model.enums.DimensionOrder.VALUE_XYZCT.equals(dimOrder))
+        if (omero.model.enums.DimensionOrderXYZCT.value.equals(dimOrder))
             return 2;
-        if (ome.model.enums.DimensionOrder.VALUE_XYTCZ.equals(dimOrder))
+        if (omero.model.enums.DimensionOrderXYTCZ.value.equals(dimOrder))
             return 3;
-        if (ome.model.enums.DimensionOrder.VALUE_XYCTZ.equals(dimOrder))
+        if (omero.model.enums.DimensionOrderXYCTZ.value.equals(dimOrder))
             return 4;
-        if (ome.model.enums.DimensionOrder.VALUE_XYTZC.equals(dimOrder))
+        if (omero.model.enums.DimensionOrderXYTZC.value.equals(dimOrder))
             return 5;
         throw new RuntimeException(dimOrder + " not represented in "
                 + "getSequenceNumber");
