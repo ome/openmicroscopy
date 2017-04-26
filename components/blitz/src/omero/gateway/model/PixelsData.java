@@ -50,61 +50,61 @@ public class PixelsData extends DataObject {
      * Identifies the type used to store pixel values. Maps onto the <i>OME</i>
      * <code>int8</code> string identifier.
      */
-    public static final String INT8_TYPE = ome.model.enums.PixelsType.VALUE_INT8;
+    public static final String INT8_TYPE = omero.model.enums.PixelsTypeint8.value;
 
     /**
      * Identifies the type used to store pixel values. Maps onto the <i>OME</i>
      * <code>int16</code> string identifier.
      */
-    public static final String INT16_TYPE = ome.model.enums.PixelsType.VALUE_INT16;
+    public static final String INT16_TYPE = omero.model.enums.PixelsTypeint16.value;
 
     /**
      * Identifies the type used to store pixel values. Maps onto the <i>OME</i>
      * <code>"int32</code> string identifier.
      */
-    public static final String INT32_TYPE = ome.model.enums.PixelsType.VALUE_INT32;
+    public static final String INT32_TYPE = omero.model.enums.PixelsTypeint32.value;
 
     /**
      * Identifies the type used to store pixel values. Maps onto the <i>OME</i>
      * <code>uint8</code> string identifier.
      */
-    public static final String UINT8_TYPE = ome.model.enums.PixelsType.VALUE_UINT8;
+    public static final String UINT8_TYPE = omero.model.enums.PixelsTypeuint8.value;
 
     /**
      * Identifies the type used to store pixel values. Maps onto the <i>OME</i>
      * <code>uint16</code> string identifier.
      */
-    public static final String UINT16_TYPE = ome.model.enums.PixelsType.VALUE_UINT16;
+    public static final String UINT16_TYPE = omero.model.enums.PixelsTypeuint16.value;
 
     /**
      * Identifies the type used to store pixel values. Maps onto the <i>OME</i>
      * <code>uint32</code> string identifier.
      */
-    public static final String UINT32_TYPE = ome.model.enums.PixelsType.VALUE_UINT32;
+    public static final String UINT32_TYPE = omero.model.enums.PixelsTypeuint32.value;
 
     /**
      * Identifies the type used to store pixel values. Maps onto the <i>OME</i>
      * <code>float</code> string identifier.
      */
-    public static final String FLOAT_TYPE = ome.model.enums.PixelsType.VALUE_FLOAT;
+    public static final String FLOAT_TYPE = omero.model.enums.PixelsTypefloat.value;
 
     /**
      * Identifies the type used to store pixel values. Maps onto the <i>OME</i>
      * <code>double</code> string identifier.
      */
-    public static final String DOUBLE_TYPE = ome.model.enums.PixelsType.VALUE_DOUBLE;
+    public static final String DOUBLE_TYPE = omero.model.enums.PixelsTypedouble.value;
 
     /**
      * Identifies the type used to store pixel values. Maps onto the <i>OME</i>
      * <code>complex</code> string identifier.
      */
-    public static final String COMPLEX_TYPE = "complex";
+    public static final String COMPLEX_TYPE = omero.model.enums.PixelsTypecomplex.value;
 
     /**
      * Identifies the type used to store pixel values. Maps onto the <i>OME</i>
      * <code>double-complex</code> string identifier.
      */
-    public static final String DOUBLE_COMPLEX_TYPE = "double-complex";
+    public static final String DOUBLE_COMPLEX_TYPE = omero.model.enums.PixelsTypedoublecomplex.value;
 
     /** The Image these Pixels belong to. */
     private ImageData image;
