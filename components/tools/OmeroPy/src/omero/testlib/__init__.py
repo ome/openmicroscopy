@@ -53,7 +53,12 @@ from omero.model import ProjectDatasetLinkI, ImageAnnotationLinkI
 from omero.model import PermissionsI
 from omero.model import ChecksumAlgorithmI
 from omero.model import NamedValue
-from omero.model.enums import ChecksumAlgorithm, DimensionOrder, PixelsType
+from omero.model.enums import ChecksumAlgorithmSHA1160, DimensionOrderXYZCT
+from omero.model.enums import PixelsTypeint8, PixelsTypeuint8, PixelsTypeint16
+from omero.model.enums import PixelsTypeuint16, PixelsTypeint32
+from omero.model.enums import PixelsTypeuint32, PixelsTypefloat
+from omero.model.enums import PixelsTypedouble
+
 from omero.rtypes import rbool, rstring, rlong, rtime, rint, unwrap
 from omero.util.temp_files import create_path
 from path import path
@@ -702,9 +707,9 @@ class ITest(object):
     def get_pixels_type(cls, pixels_type):
         if pixels_type in [PixelsTypeint8.value, PixelsTypeuint8.value]:
             return 1
-        if pixels_type in [PixelsTypein16.value, PixelsTypeuin16.value]:
+        if pixels_type in [PixelsTypeint16.value, PixelsTypeuint16.value]:
             return 2
-        if pixels_type in [PixelsTypein32.value, PixelsTypeuin32.value,
+        if pixels_type in [PixelsTypeint32.value, PixelsTypeuint32.value,
                            PixelsTypefloat.value]:
             return 4
         if pixels_type in [PixelsTypedouble.value]:
@@ -1277,7 +1282,8 @@ class AbstractRepoTest(ITest):
         settings.userSpecifiedAnnotationList = None
         settings.userSpecifiedPixels = None
         settings.checksumAlgorithm = ChecksumAlgorithmI()
-        settings.checksumAlgorithm.value = rstring(ChecksumAlgorithmSHA1160.value)
+        s = rstring(ChecksumAlgorithmSHA1160.value)
+        settings.checksumAlgorithm.value = s
         return settings
 
     def upload_folder(self, proc, folder):

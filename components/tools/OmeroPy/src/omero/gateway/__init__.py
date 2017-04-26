@@ -31,7 +31,10 @@ from omero.cmd import Chgrp2, Delete2, DoAll, SkipHead
 from omero.cmd.graphs import ChildOption
 from omero.api import Save
 from omero.gateway.utils import ServiceOptsDict, GatewayConfig, toBoolean
-from omero.model.enums import PixelsType
+from omero.model.enums import PixelsTypeint8, PixelsTypeuint8, PixelsTypeint16
+from omero.model.enums import PixelsTypeuint16, PixelsTypeint32
+from omero.model.enums import PixelsTypeuint32, PixelsTypefloat
+from omero.model.enums import PixelsTypedouble
 import omero.scripts as scripts
 
 import Ice
@@ -7263,7 +7266,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
             try:
                 minVals = {PixelsTypeint8.value: -128,
                            PixelsTypeuint8.value: 0,
-                           PixelsTypein16.value: -32768,
+                           PixelsTypeint16.value: -32768,
                            PixelsTypeuint16.value: 0,
                            PixelsTypeint32.value: -32768,
                            PixelsTypeuint32.value: 0,
@@ -7289,7 +7292,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
             try:
                 maxVals = {PixelsTypeint8.value: 127,
                            PixelsTypeuint8.value: 255,
-                           PixelsTypein16.value: 32767,
+                           PixelsTypeint16.value: 32767,
                            PixelsTypeuint16.value: 65535,
                            PixelsTypeint32.value: 32767,
                            PixelsTypeuint32.value: 65535,

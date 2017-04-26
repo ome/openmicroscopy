@@ -33,7 +33,7 @@ from os.path import exists
 
 import omero.clients
 from omero.rtypes import unwrap
-from omero.model.enums import PixelsType
+from omero.model.enums import PixelsTypeint8, PixelsTypeuint8
 import omero.util.pixelstypetopython as pixelstypetopython
 
 try:
