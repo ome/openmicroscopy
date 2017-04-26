@@ -1458,6 +1458,9 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
     data is handled by the template.
     """
 
+    # the index of a field within a well
+    index = getIntOrDefault(request, 'index', 0)
+
     context = dict()
 
     # we only expect a single object, but forms can take multiple objects
@@ -1510,7 +1513,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
     else:
         try:
             manager = BaseContainer(
-                conn, **{str(c_type): long(c_id)})
+                conn, **{str(c_type): long(c_id), 'index': index})
         except AttributeError, x:
             return handlerInternalError(request, x)
         if share_id is not None:
