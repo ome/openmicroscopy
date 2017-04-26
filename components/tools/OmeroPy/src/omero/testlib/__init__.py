@@ -418,8 +418,9 @@ class ITest(object):
         # if for example float32
         if pixels_type is None and p_type.startswith("float"):
             # omero::model::PixelsType
+            v = PixelsTypefloat.value
             pixels_type = query_service.findByQuery(
-                "from PixelsType as p where p.value='%s'" % "float", None)
+                "from PixelsType as p where p.value='%s'" % v, None)
         if pixels_type is None:
             raise Exception("Unknown pixels type for: " % p_type)
 

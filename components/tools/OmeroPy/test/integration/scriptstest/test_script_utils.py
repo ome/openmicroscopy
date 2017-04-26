@@ -32,6 +32,7 @@ from os import listdir, remove
 from os.path import isfile, join, exists
 from numpy import fromfunction, int16, int32, uint8
 from omero.util.temp_files import create_path
+from omero.model.enums import PixelsTypeint16
 
 try:
     from PIL import Image  # see ticket:2597
@@ -246,7 +247,7 @@ class TestScriptUtils(ITest):
         def f3(x, y):
             return x
 
-        p_type = "int16"
+        p_type = PixelsTypeint16.value
         pixels_type = query_service.findByQuery(
             "from PixelsType as p where p.value='%s'" % p_type, None)
         iid = pixels_service.createImage(100, 100, 1, 1, channel_list,
@@ -285,7 +286,7 @@ class TestScriptUtils(ITest):
         def f3(x, y):
             return x
 
-        p_type = "int16"
+        p_type = PixelsTypeint16.value
         pixels_type = query_service.findByQuery(
             "from PixelsType as p where p.value='%s'" % p_type, None)
         iid = pixels_service.createImage(100, 100, 1, 1, channel_list,

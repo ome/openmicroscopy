@@ -34,6 +34,7 @@ from os.path import exists
 import omero.clients
 from omero.rtypes import unwrap
 from omero.model.enums import PixelsTypeint8, PixelsTypeuint8
+from omero.model.enums import PixelsTypefloat
 import omero.util.pixelstypetopython as pixelstypetopython
 
 try:
@@ -801,8 +802,9 @@ def uploadDirAsImages(sf, queryService, updateService,
         "from PixelsType as p where p.value='%s'" % pType, None)
     if pixelsType is None and pType.startswith("float"):    # e.g. float32
         # omero::model::PixelsType
+        v = PixelsTypefloat.value
         pixelsType = queryService.findByQuery(
-            "from PixelsType as p where p.value='%s'" % "float", None)
+            "from PixelsType as p where p.value='%s'" % v, None)
     if pixelsType is None:
         SU_LOG.warn("Unknown pixels type for: %s" % pType)
         return
