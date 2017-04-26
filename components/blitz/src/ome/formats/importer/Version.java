@@ -26,6 +26,7 @@ package ome.formats.importer;
  * @author Brian Loranger brain at lifesci.dundee.ac.uk
  *
  */
+@Deprecated
 public class Version {
 
 
