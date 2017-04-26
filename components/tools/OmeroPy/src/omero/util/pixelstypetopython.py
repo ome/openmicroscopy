@@ -36,14 +36,14 @@ from omero.model.enums import PixelsTypeuint16, PixelsTypeint32
 from omero.model.enums import PixelsTypeuint32, PixelsTypefloat
 from omero.model.enums import PixelsTypedouble
 
-INT_8 = PixelsTypeint8.value
-UINT_8 = PixelsTypeuint8.value
-INT_16 = PixelsTypeint16.value
-UINT_16 = PixelsTypeuint16.value
-INT_32 = PixelsTypeint32.value
-UINT_32 = PixelsTypeuint32.value
-FLOAT = PixelsTypefloat.value
-DOUBLE = PixelsTypedouble.value
+INT_8 = PixelsTypeint8
+UINT_8 = PixelsTypeuint8
+INT_16 = PixelsTypeint16
+UINT_16 = PixelsTypeuint16
+INT_32 = PixelsTypeint32
+UINT_32 = PixelsTypeuint32
+FLOAT = PixelsTypefloat
+DOUBLE = PixelsTypedouble
 
 
 def toPython(pixelType):

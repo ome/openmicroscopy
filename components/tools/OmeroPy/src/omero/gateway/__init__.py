@@ -3585,14 +3585,14 @@ class _BlitzGateway (object):
                 # of our new image
                 img = self.getObject("Image", iId.getValue())
                 newPtype = img.getPrimaryPixels().getPixelsType().getValue()
-                omeroToNumpy = {PixelsTypeint8.value: 'int8',
-                                PixelsTypeuint8.value: 'uint8',
-                                PixelsTypeint16.value: 'int16',
-                                PixelsTypeuint16.value: 'uint16',
-                                PixelsTypeint32.value: 'int32',
-                                PixelsTypeuint32.value: 'uint32',
-                                PixelsTypefloat.value: 'float32',
-                                PixelsTypedouble.value: 'double'}
+                omeroToNumpy = {PixelsTypeint8: 'int8',
+                                PixelsTypeuint8: 'uint8',
+                                PixelsTypeint16: 'int16',
+                                PixelsTypeuint16: 'uint16',
+                                PixelsTypeint32: 'int32',
+                                PixelsTypeuint32: 'uint32',
+                                PixelsTypefloat: 'float32',
+                                PixelsTypedouble: 'double'}
                 if omeroToNumpy[newPtype] != firstPlane.dtype.name:
                     convertToType = getattr(numpy, omeroToNumpy[newPtype])
                 img._obj.setName(rstring(imageName))
@@ -3601,17 +3601,17 @@ class _BlitzGateway (object):
             else:
                 # need to map numpy pixel types to omero - don't handle: bool_,
                 # character, int_, int64, object_
-                pTypes = {'int8': PixelsTypeint8.value,
-                          'int16': PixelsTypeint16.value,
-                          'uint16': PixelsTypeuint16.value,
-                          'int32': PixelsTypeint32.value,
-                          'float_': PixelsTypefloat.value,
-                          'float8': PixelsTypefloat.value,
-                          'float16': PixelsTypefloat.value,
-                          'float32': PixelsTypefloat.value,
-                          'float64': PixelsTypedouble.value,
-                          'complex_': PixelsTypecomplex.value,
-                          'complex64': PixelsTypecomplex.value}
+                pTypes = {'int8': PixelsTypeint8,
+                          'int16': PixelsTypeint16,
+                          'uint16': PixelsTypeuint16,
+                          'int32': PixelsTypeint32,
+                          'float_': PixelsTypefloat,
+                          'float8': PixelsTypefloat,
+                          'float16': PixelsTypefloat,
+                          'float32': PixelsTypefloat,
+                          'float64': PixelsTypedouble,
+                          'complex_': PixelsTypecomplex,
+                          'complex64': PixelsTypecomplex}
                 dType = firstPlane.dtype.name
                 if dType not in pTypes:  # try to look up any not named above
                     pType = dType
@@ -6967,14 +6967,14 @@ class _PixelsWrapper (BlitzObjectWrapper):
         import numpy
         from struct import unpack
 
-        pixelTypes = {PixelsTypeint8.value: ['b', numpy.int8],
-                      PixelsTypeuint8.value: ['B', numpy.uint8],
-                      PixelsTypeint16.value: ['h', numpy.int16],
-                      PixelsTypeuint16.value: ['H', numpy.uint16],
-                      PixelsTypeint32.value: ['i', numpy.int32],
-                      PixelsTypeuint32.value: ['I', numpy.uint32],
-                      PixelsTypefloat.value: ['f', numpy.float32],
-                      PixelsTypedouble.value: ['d', numpy.float64]}
+        pixelTypes = {PixelsTypeint8: ['b', numpy.int8],
+                      PixelsTypeuint8: ['B', numpy.uint8],
+                      PixelsTypeint16: ['h', numpy.int16],
+                      PixelsTypeuint16: ['H', numpy.uint16],
+                      PixelsTypeint32: ['i', numpy.int32],
+                      PixelsTypeuint32: ['I', numpy.uint32],
+                      PixelsTypefloat: ['f', numpy.float32],
+                      PixelsTypedouble: ['d', numpy.float64]}
 
         rawPixelsStore = self._prepareRawPixelsStore()
         sizeX = self.sizeX
@@ -7264,14 +7264,14 @@ class _ChannelWrapper (BlitzObjectWrapper):
         if si is None:
             logger.info("getStatsInfo() is null. See #9695")
             try:
-                minVals = {PixelsTypeint8.value: -128,
-                           PixelsTypeuint8.value: 0,
-                           PixelsTypeint16.value: -32768,
-                           PixelsTypeuint16.value: 0,
-                           PixelsTypeint32.value: -32768,
-                           PixelsTypeuint32.value: 0,
-                           PixelsTypefloat.value: -32768,
-                           PixelsTypedouble.value: -32768}
+                minVals = {PixelsTypeint8: -128,
+                           PixelsTypeuint8: 0,
+                           PixelsTypeint16: -32768,
+                           PixelsTypeuint16: 0,
+                           PixelsTypeint32: -32768,
+                           PixelsTypeuint32: 0,
+                           PixelsTypefloat: -32768,
+                           PixelsTypedouble: -32768}
                 pixtype = self._obj.getPixels(
                     ).getPixelsType().getValue().getValue()
                 return minVals[pixtype]
@@ -7290,14 +7290,14 @@ class _ChannelWrapper (BlitzObjectWrapper):
         if si is None:
             logger.info("getStatsInfo() is null. See #9695")
             try:
-                maxVals = {PixelsTypeint8.value: 127,
-                           PixelsTypeuint8.value: 255,
-                           PixelsTypeint16.value: 32767,
-                           PixelsTypeuint16.value: 65535,
-                           PixelsTypeint32.value: 32767,
-                           PixelsTypeuint32.value: 65535,
-                           PixelsTypefloat.value: 32767,
-                           PixelsTypedouble.value: 32767}
+                maxVals = {PixelsTypeint8: 127,
+                           PixelsTypeuint8: 255,
+                           PixelsTypeint16: 32767,
+                           PixelsTypeuint16: 65535,
+                           PixelsTypeint32: 32767,
+                           PixelsTypeuint32: 65535,
+                           PixelsTypefloat: 32767,
+                           PixelsTypedouble: 32767}
                 pixtype = self._obj.getPixels(
                     ).getPixelsType().getValue().getValue()
                 return maxVals[pixtype]

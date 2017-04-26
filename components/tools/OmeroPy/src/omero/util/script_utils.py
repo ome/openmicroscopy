@@ -802,9 +802,8 @@ def uploadDirAsImages(sf, queryService, updateService,
         "from PixelsType as p where p.value='%s'" % pType, None)
     if pixelsType is None and pType.startswith("float"):    # e.g. float32
         # omero::model::PixelsType
-        v = PixelsTypefloat.value
         pixelsType = queryService.findByQuery(
-            "from PixelsType as p where p.value='%s'" % v, None)
+            "from PixelsType as p where p.value='%s'" % PixelsTypefloat, None)
     if pixelsType is None:
         SU_LOG.warn("Unknown pixels type for: %s" % pType)
         return
@@ -1506,7 +1505,7 @@ def numpy_to_image(plane, min_max, dtype):
     """
 
     conv_array = convert_numpy_array(plane, min_max, dtype)
-    if plane.dtype.name not in (PixelsTypeint8.value, PixelsTypeuint8.value):
+    if plane.dtype.name not in (PixelsTypeint8, PixelsTypeuint8):
         return Image.frombytes('I', plane.shape, conv_array)
     else:
         return Image.fromarray(conv_array)
@@ -1542,7 +1541,7 @@ def convert_numpy_array(plane, min_max, type):
     @param type the data type to use for scaling
     """
 
-    if plane.dtype.name not in (PixelsTypeint8.value, PixelsTypeuint8.value):
+    if plane.dtype.name not in (PixelsTypeint8, PixelsTypeuint8):
         # we need to scale...
         min_val, max_val = min_max
         val_range = max_val - min_val

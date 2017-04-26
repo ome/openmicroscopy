@@ -247,7 +247,7 @@ class TestScriptUtils(ITest):
         def f3(x, y):
             return x
 
-        p_type = PixelsTypeint16.value
+        p_type = PixelsTypeint16
         pixels_type = query_service.findByQuery(
             "from PixelsType as p where p.value='%s'" % p_type, None)
         iid = pixels_service.createImage(100, 100, 1, 1, channel_list,
@@ -286,7 +286,7 @@ class TestScriptUtils(ITest):
         def f3(x, y):
             return x
 
-        p_type = PixelsTypeint16.value
+        p_type = PixelsTypeint16
         pixels_type = query_service.findByQuery(
             "from PixelsType as p where p.value='%s'" % p_type, None)
         iid = pixels_service.createImage(100, 100, 1, 1, channel_list,
