@@ -40,6 +40,7 @@ import ome.model.core.LogicalChannel;
 import ome.model.core.Pixels;
 import ome.model.core.PlaneInfo;
 import ome.model.display.ChannelBinding;
+import ome.model.display.CodomainMapContext;
 import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
 import ome.model.display.Thumbnail;
@@ -311,6 +312,10 @@ public class BlobShareStore extends ShareStore implements
             ChannelBinding obj = (ChannelBinding) s.get(ChannelBinding.class,
                     objId);
             return imagesContainsPixels(s, images, obj.getRenderingDef()
+                    .getPixels(), pixToImageCache);
+        } else if (CodomainMapContext.class.isAssignableFrom(kls)) {
+            final CodomainMapContext obj = (CodomainMapContext) s.get(CodomainMapContext.class, objId);
+            return imagesContainsPixels(s, images, obj.getChannelBinding().getRenderingDef()
                     .getPixels(), pixToImageCache);
         } else if (Thumbnail.class.isAssignableFrom(kls)) {
             Thumbnail obj = (Thumbnail) s.get(Thumbnail.class, objId);

@@ -192,8 +192,9 @@ import ome.model.*;
         "channelbinding.renderingdef = renderingdef.id AND renderingdef.pixels = pixels.id AND pixels.image IN (:images)))")
 #elseif($type.id.equals("ome.model.display.CodomainMapContext"))
     @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
-        "id IN (SELECT codomainmapcontext.id FROM codomainmapcontext*, renderingdef*, pixels* WHERE " +
-        "codomainmapcontext.renderingdef = renderingdef.id AND renderingdef.pixels = pixels.id AND pixels.image IN (:images)))")
+        "id IN (SELECT codomainmapcontext.id FROM channelbinding*, codomainmapcontext*, renderingdef*, pixels* WHERE " +
+        "codomainmapcontext.channelbinding = channelbinding.id AND channelbinding.renderingdef = renderingdef.id AND " +
+        "renderingdef.pixels = pixels.id AND pixels.image IN (:images)))")
 #elseif($type.id.equals("ome.model.display.ProjectionDef"))
     @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
         "id IN (SELECT projectiondef.id FROM projectiondef*, renderingdef*, pixels* WHERE " +
@@ -725,8 +726,9 @@ implements java.io.Serializable, IObject
             "channelbinding.renderingdef = renderingdef.id AND renderingdef.pixels = pixels.id AND pixels.image IN (:images)))"),
 #elseif($prop.type.equals("ome.model.display.CodomainMapContext"))
         @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
-            "id IN (SELECT codomainmapcontext.id FROM codomainmapcontext*, renderingdef*, pixels* WHERE " +
-            "codomainmapcontext.renderingdef = renderingdef.id AND renderingdef.pixels = pixels.id AND pixels.image IN (:images)))"),
+            "id IN (SELECT codomainmapcontext.id FROM channelbinding*, codomainmapcontext*, renderingdef*, pixels* WHERE " +
+            "codomainmapcontext.channelbinding = channelbinding.id AND channelbinding.renderingdef = renderingdef.id AND " +
+            "renderingdef.pixels = pixels.id AND pixels.image IN (:images)))"),
 #elseif($prop.type.equals("ome.model.display.ProjectionDef"))
         @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
             "id IN (SELECT projectiondef.id FROM projectiondef*, renderingdef*, pixels* WHERE " +
