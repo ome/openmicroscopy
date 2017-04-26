@@ -52,7 +52,6 @@ public interface Registry {
      * create sessions for accessing the database.
      * 
      *<pre>
-     * communicator := Ice.Communicator used to find the registry
      * user         := Username which should have a session created
      * groupId      := Group into which the session should be logged
      * retries      := Number of session creation retries before throwing
