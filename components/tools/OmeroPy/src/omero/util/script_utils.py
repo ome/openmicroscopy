@@ -30,9 +30,10 @@ from struct import unpack
 from numpy import add, array, asarray, fromstring, reshape, zeros
 from os.path import exists
 
-from ome.model.enums import PixelsType
+
 import omero.clients
 from omero.rtypes import unwrap
+from omero.model.enums import PixelsType
 import omero.util.pixelstypetopython as pixelstypetopython
 
 try:
@@ -1503,7 +1504,7 @@ def numpy_to_image(plane, min_max, dtype):
     """
 
     conv_array = convert_numpy_array(plane, min_max, dtype)
-    if plane.dtype.name not in (PixelsType.VALUE_INT8, PixelsType.VALUE_UINT8):
+    if plane.dtype.name not in (PixelsTypeint8.value, PixelsTypeuint8.value):
         return Image.frombytes('I', plane.shape, conv_array)
     else:
         return Image.fromarray(conv_array)
@@ -1539,7 +1540,7 @@ def convert_numpy_array(plane, min_max, type):
     @param type the data type to use for scaling
     """
 
-    if plane.dtype.name not in (PixelsType.VALUE_INT8, PixelsType.VALUE_UINT8):
+    if plane.dtype.name not in (PixelsTypeint8.value, PixelsTypeuint8.value):
         # we need to scale...
         min_val, max_val = min_max
         val_range = max_val - min_val

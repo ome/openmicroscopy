@@ -53,7 +53,7 @@ from omero.model import ProjectDatasetLinkI, ImageAnnotationLinkI
 from omero.model import PermissionsI
 from omero.model import ChecksumAlgorithmI
 from omero.model import NamedValue
-from ome.model.enums import ChecksumAlgorithm, DimensionOrder, PixelsType
+from omero.model.enums import ChecksumAlgorithm, DimensionOrder, PixelsType
 from omero.rtypes import rbool, rstring, rlong, rtime, rint, unwrap
 from omero.util.temp_files import create_path
 from path import path
@@ -405,7 +405,7 @@ class ITest(object):
         def f3(x, y):
             return x
 
-        p_type = PixelsType.VALUE_INT16
+        p_type = PixelsTypeint16.value
         # look up the PixelsType object from DB
         # omero::model::PixelsType
         pixels_type = query_service.findByQuery(
@@ -673,7 +673,7 @@ class ITest(object):
         return pixels_id[0]
 
     def create_pixels(self, x=10, y=10, z=10, c=3, t=50,
-                      pixels_type=PixelsType.VALUE_INT8, client=None):
+                      pixels_type=PixelsTypeint8.value, client=None):
         """
         Creates an int8 pixel of the given size in the database.
         No data is written.
@@ -689,7 +689,7 @@ class ITest(object):
         pixels.pixelsType = PixelsTypeI()
         pixels.pixelsType.value = rstring(pixels_type)
         pixels.dimensionOrder = DimensionOrderI()
-        pixels.dimensionOrder.value = rstring(DimensionOrder.VALUE_XYZCT)
+        pixels.dimensionOrder.value = rstring(DimensionOrderXYZCT.value)
         image.addPixels(pixels)
 
         if client is None:
@@ -700,18 +700,18 @@ class ITest(object):
 
     @classmethod
     def get_pixels_type(cls, pixels_type):
-        if pixels_type in [PixelsType.VALUE_INT8, PixelsType.VALUE_UINT8]:
+        if pixels_type in [PixelsTypeint8.value, PixelsTypeuint8.value]:
             return 1
-        if pixels_type in [PixelsType.VALUE_INT16, PixelsType.VALUE_UINT16]:
+        if pixels_type in [PixelsTypein16.value, PixelsTypeuin16.value]:
             return 2
-        if pixels_type in [PixelsType.VALUE_INT32, PixelsType.VALUE_UINT32,
-                           PixelsType.VALUE_FLOAT]:
+        if pixels_type in [PixelsTypein32.value, PixelsTypeuin32.value,
+                           PixelsTypefloat.value]:
             return 4
-        if pixels_type in [PixelsType.VALUE_DOUBLE]:
+        if pixels_type in [PixelsTypedouble.value]:
             return 8
         raise Exception("Pixels Type %s not supported" % pixels_type)
 
-    def write(self, pixels, rps, pixels_type=PixelsType.VALUE_INT8):
+    def write(self, pixels, rps, pixels_type=PixelsTypeint8.value):
         """
         Writes byte arrays consisting of [5] to as
         either planes or tiles depending on the pixel
@@ -969,7 +969,7 @@ class ITest(object):
         ofile.setPath(rstring(str(self.uuid())))
         ofile.setSize(rlong(len(binary)))
         ofile.hasher = ChecksumAlgorithmI()
-        ofile.hasher.value = rstring(ChecksumAlgorithm.VALUE_SHA1_160)
+        ofile.hasher.value = rstring(ChecksumAlgorithmSHA1160.value)
         ofile.setMimetype(rstring(str(mimetype)))
         ofile = update.saveAndReturnObject(ofile)
 
@@ -1276,8 +1276,8 @@ class AbstractRepoTest(ITest):
         settings.userSpecifiedDescription = None
         settings.userSpecifiedAnnotationList = None
         settings.userSpecifiedPixels = None
-        settings.checksumAlgorithm = omero.model.ChecksumAlgorithmI()
-        settings.checksumAlgorithm.value = omero.rtypes.rstring("SHA1-160")
+        settings.checksumAlgorithm = ChecksumAlgorithmI()
+        settings.checksumAlgorithm.value = rstring(ChecksumAlgorithmSHA1160.value)
         return settings
 
     def upload_folder(self, proc, folder):

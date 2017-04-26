@@ -31,16 +31,16 @@
 #    DOUBLE = "double";
 # we can convert these to the appropriate types in python.
 
-from ome.model.enums import PixelsType
+from omero.model.enums import PixelsType
 
-INT_8 = PixelsType.VALUE_INT8
-UINT_8 = PixelsType.VALUE_UINT8
-INT_16 = PixelsType.VALUE_INT16
-UINT_16 = PixelsType.VALUE_UINT16
-INT_32 = PixelsType.VALUE_INT32
-UINT_32 = PixelsType.VALUE_UINT32
-FLOAT = PixelsType.VALUE_FLOAT
-DOUBLE = PixelsType.VALUE_DOUBLE
+INT_8 = PixelsTypeint8.value
+UINT_8 = PixelsTypeuint8.value
+INT_16 = PixelsTypeint16.value
+UINT_16 = PixelsTypeuint16.value
+INT_32 = PixelsTypein32.value
+UINT_32 = PixelsTypeuint32.value
+FLOAT = PixelsTypefloat.value
+DOUBLE = PixelsTypedouble.value
 
 
 def toPython(pixelType):
