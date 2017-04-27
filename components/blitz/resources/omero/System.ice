@@ -1,9 +1,6 @@
 /*
- *   $Id$
- *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
- *
  */
 
 #ifndef OMERO_SYSTEM_ICE
@@ -32,6 +29,9 @@ module omero {
 
         ["java:type:java.util.ArrayList<Integer>:java.util.List<Integer>"]
             sequence<int> IntList;
+
+        ["java:type:java.util.ArrayList<String>:java.util.List<String>"]
+            sequence<string> StringSet;
 
         ["java:type:java.util.HashMap<Long,Long>:java.util.Map<Long,Long>"]
             dictionary<long, long> CountMap;
@@ -64,9 +64,12 @@ module omero {
       string sessionUuid;
       long   userId;
       string userName;
+      omero::RLong   sudoerId;
+      omero::RString sudoerName;
       long   groupId;
       string groupName;
       bool   isAdmin;
+      StringSet  adminPrivileges;
       long   eventId;
       string eventType;
       LongList memberOfGroups;
