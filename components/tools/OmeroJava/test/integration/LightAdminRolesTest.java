@@ -44,6 +44,7 @@ import omero.gateway.util.Requests;
 import omero.gateway.util.Requests.Delete2Builder;
 import omero.model.AdminPrivilege;
 import omero.model.AdminPrivilegeI;
+import omero.model.Annotation;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
@@ -194,6 +195,50 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         } catch (SecurityViolation sv) {
             return new PermissionsI("------");
         }
+    }
+
+    /**
+     * Add a FileAnnotation with Original File to the given image.
+     * @param image an image
+     * @return the new model objects
+     * @throws Exception unexpected
+     */
+    private List<IObject> createFileAnnotationWithOriginalFileAndLink(Image image) throws Exception {
+        if (image.isLoaded() && image.getId() != null) {
+            image = (Image) image.proxy();
+        }
+        final List<IObject> originalFileAnnotationAndLink = new ArrayList<IObject>();
+        FileAnnotation fileAnnotation = new FileAnnotationI();
+        OriginalFile originalFile = mmFactory.createOriginalFile();
+        originalFile = (OriginalFile) iUpdate.saveAndReturnObject(originalFile);
+        fileAnnotation.setFile(originalFile);
+        fileAnnotation = (FileAnnotation) iUpdate.saveAndReturnObject(fileAnnotation);
+        originalFileAnnotationAndLink.add(originalFile.proxy());
+        originalFileAnnotationAndLink.add(fileAnnotation.proxy());
+        final ImageAnnotationLink link = annotateImage(image, fileAnnotation);
+        originalFileAnnotationAndLink.add(link.proxy());
+        return originalFileAnnotationAndLink;
+    }
+
+    /**
+     * Add the given annotation to the given image.
+     * @param image an image
+     * @param annotation an annotation
+     * @return the new loaded link from the image to the annotation
+     * @throws ServerError unexpected
+     */
+    private ImageAnnotationLink annotateImage(Image image, Annotation annotation) throws ServerError {
+        if (image.isLoaded() && image.getId() != null) {
+            image = (Image) image.proxy();
+        }
+        if (annotation.isLoaded() && annotation.getId() != null) {
+            annotation = (Annotation) annotation.proxy();
+        }
+
+        final ImageAnnotationLink link = new ImageAnnotationLinkI();
+        link.setParent(image);
+        link.setChild(annotation);
+        return (ImageAnnotationLink) iUpdate.saveAndReturnObject(link);
     }
 
     /**
@@ -777,23 +822,16 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                 + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
                 new ParametersI().addId(remoteFileId));
 
-        /* Tag and add a file attachment to the imported image.*/
+        /* Tag the imported image */
         TagAnnotation tagAnnotation = new TagAnnotationI();
         tagAnnotation = (TagAnnotation) iUpdate.saveAndReturnObject(tagAnnotation);
-        ImageAnnotationLink tagAnnotationLink = new ImageAnnotationLinkI();
-        tagAnnotationLink.setParent(image);
-        tagAnnotationLink.setChild(tagAnnotation);
-        tagAnnotationLink = (ImageAnnotationLink) iUpdate.saveAndReturnObject(tagAnnotationLink);
+        final ImageAnnotationLink tagAnnotationLink = annotateImage(image, tagAnnotation);
 
-        OriginalFile originalFile = mmFactory.createOriginalFile();
-        originalFile = (OriginalFile) iUpdate.saveAndReturnObject(originalFile);
-        FileAnnotation fileAnnotation = new FileAnnotationI();
-        fileAnnotation.setFile(originalFile);
-        fileAnnotation = (FileAnnotation) iUpdate.saveAndReturnObject(fileAnnotation);
-        ImageAnnotationLink fileAnnotationLink = new ImageAnnotationLinkI();
-        fileAnnotationLink.setParent(image);
-        fileAnnotationLink.setChild(fileAnnotation);
-        fileAnnotationLink = (ImageAnnotationLink) iUpdate.saveAndReturnObject(fileAnnotationLink);
+        /* add a file attachment with original file to the imported image.*/
+        List<IObject> originalFileAnnotationAndLink = createFileAnnotationWithOriginalFileAndLink(image);
+        final OriginalFile originalFile = (OriginalFile) originalFileAnnotationAndLink.get(0);
+        final FileAnnotation fileAnnotation = (FileAnnotation) originalFileAnnotationAndLink.get(1);
+        final ImageAnnotationLink fileAnnotationLink = (ImageAnnotationLink) originalFileAnnotationAndLink.get(2);
 
         /* set up the basic permissions for this test */
         List<String> permissions = new ArrayList<String>();
@@ -1659,10 +1697,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
          * This will not work in private group. See definition of the boolean
          * isExpectSuccessLinkFileAttachemnt */
         ImageAnnotationLink link = new ImageAnnotationLinkI();
-        link.setParent(sentImage);
-        link.setChild(fileAnnotation);
         try {
-            link = (ImageAnnotationLink) iUpdate.saveAndReturnObject(link);
+            link = (ImageAnnotationLink) annotateImage(sentImage, fileAnnotation);
             /* Check the value of canAnnotate on the image is true in this case.*/
             Assert.assertTrue(getCurrentPermissions(sentImage).canAnnotate());
             Assert.assertTrue(isExpectSuccessLinkFileAttachemnt);
