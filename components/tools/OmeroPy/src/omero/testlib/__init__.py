@@ -1283,7 +1283,7 @@ class AbstractRepoTest(ITest):
         settings.userSpecifiedAnnotationList = None
         settings.userSpecifiedPixels = None
         settings.checksumAlgorithm = ChecksumAlgorithmI()
-        s = rstring(ChecksumAlgorithmSHA1160.value)
+        s = rstring(ChecksumAlgorithmSHA1160)
         settings.checksumAlgorithm.value = s
         return settings
 
