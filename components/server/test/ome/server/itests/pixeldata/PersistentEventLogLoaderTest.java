@@ -274,7 +274,7 @@ public class PersistentEventLogLoaderTest extends AbstractManagedContextTest {
         pixels.setSizeZ(1);
         pixels.setSizeT(1);
         pixels.setSizeC(1);
-        pixels.setSha1(ChecksumAlgorithm.VALUE_SHA1_160);
+        pixels.setSha1("test-value");
         pixels.setPixelsType(new PixelsType(PixelsType.VALUE_INT8));
         pixels.setDimensionOrder(new DimensionOrder(DimensionOrder.VALUE_XYZCT));
         image.addPixels(pixels);
