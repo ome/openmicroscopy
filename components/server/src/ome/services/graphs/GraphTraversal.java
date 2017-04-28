@@ -393,6 +393,8 @@ public class GraphTraversal {
         final Set<CI> mayUpdate = new HashSet<CI>();
         final Set<CI> mayDelete = new HashSet<CI>();
         final Set<CI> mayChmod = new HashSet<CI>();
+        final Set<CI> mayChgrp = new HashSet<CI>();
+        final Set<CI> mayChown = new HashSet<CI>();
         final Set<CI> owns = new HashSet<CI>();
         final Set<CI> overrides = new HashSet<CI>();
     }
@@ -734,6 +736,12 @@ public class GraphTraversal {
             }
             if (aclVoter.allowDelete(objectInstance, objectDetails)) {
                 planning.mayDelete.add(object);
+            }
+            if (!objectDetails.getPermissions().isDisallowChgrp()) {
+                planning.mayChgrp.add(object);
+            }
+            if (!objectDetails.getPermissions().isDisallowChown()) {
+                planning.mayChown.add(object);
             }
             if (objectInstance instanceof ExperimenterGroup) {
                 final ExperimenterGroup loadedGroup = (ExperimenterGroup) session.load(ExperimenterGroup.class, object.id);
@@ -1373,6 +1381,18 @@ public class GraphTraversal {
             final Set<CI> violations = Sets.difference(objects, planning.mayChmod);
             if (!violations.isEmpty()) {
                 throw new GraphException("not permitted to change permissions on " + Joiner.on(", ").join(violations));
+            }
+        }
+        if (abilities.contains(Ability.CHGRP)) {
+            final Set<CI> violations = Sets.difference(objects, planning.mayChgrp);
+            if (!violations.isEmpty()) {
+                throw new GraphException("not permitted to move " + Joiner.on(", ").join(violations));
+            }
+        }
+        if (abilities.contains(Ability.CHOWN)) {
+            final Set<CI> violations = Sets.difference(objects, planning.mayChown);
+            if (!violations.isEmpty()) {
+                throw new GraphException("not permitted to give " + Joiner.on(", ").join(violations));
             }
         }
         if (abilities.contains(Ability.OWN)) {
