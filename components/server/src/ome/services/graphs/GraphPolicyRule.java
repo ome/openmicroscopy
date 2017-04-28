@@ -427,7 +427,7 @@ public class GraphPolicyRule {
         final String errorMessage;
 
         /**
-         * Construct a policy rule.
+         * Construct a policy rule that affects the graph state.
          * @param asString a String representation of this rule,
          * recognizably corresponding to its original text-based configuration.
          * @param termMatchers the term matchers that must apply if the changes are to be applied
@@ -446,13 +446,13 @@ public class GraphPolicyRule {
         }
 
         /**
-         * Construct a policy rule.
+         * Construct a policy rule that detects an error condition.
          * @param asString a String representation of this rule,
          * recognizably corresponding to its original text-based configuration.
-         * @param termMatchers the term matchers that must apply if the changes are to be applied
-         * @param relationshipMatchers the relationship matchers that must apply if the changes are to be applied
-         * @param conditionMatchers the condition matchers that must apply if the changes are to be applied
-         * @param changes the effects of this rule, guarded by the matchers
+         * @param termMatchers the term matchers that must apply if the error is to be thrown
+         * @param relationshipMatchers the relationship matchers that must apply if the error is to be thrown
+         * @param conditionMatchers the condition matchers that must apply if the error is to be thrown
+         * @param errorMessage the message accompanying the error thrown by this rule in the event of a match
          */
         ParsedPolicyRule(String asString, List<TermMatch> termMatchers, List<RelationshipMatch> relationshipMatchers,
                 List<ConditionMatch> conditionMatchers, String errorMessage) {
