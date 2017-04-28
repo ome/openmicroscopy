@@ -300,8 +300,7 @@ public class GraphTraversal {
         /**
          * Construct a {@link CP} from this {@link CPI}.
          * Repeated calls to this method may return the same {@link CP} instance.
-         * @param id an instance ID
-         * @return a {@link CPI} with the corresponding values
+         * @return a {@link CP} with the corresponding values
          */
         CP toCP() {
             if (asCP == null) {
