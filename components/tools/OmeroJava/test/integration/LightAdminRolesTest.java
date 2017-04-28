@@ -173,6 +173,36 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     }
 
     /**
+     * Assert that the given object is in the given group.
+     * @param object a model object
+     * @param expectedGroupId a group Id
+     * @throws ServerError unexpected
+     */
+    private void assertInGroup(IObject object, long expectedGroupId) throws ServerError {
+        assertInGroup(Collections.singleton(object), expectedGroupId);
+    }
+
+    /**
+     * Assert that the given objects are in the giver group.
+     * @param objects some model objects
+     * @param expectedGroupId a group Id
+     * @throws ServerError unexpected
+     */
+    private void assertInGroup(Collection<? extends IObject> objects, long expectedGroupId) throws ServerError {
+        if (objects.isEmpty()) {
+            throw new IllegalArgumentException("must assert about some objects");
+        }
+        for (final IObject object : objects) {
+            final String objectName = object.getClass().getName() + '[' + object.getId().getValue() + ']';
+            final String query = "SELECT details.group.id FROM " + object.getClass().getSuperclass().getSimpleName() +
+                    " WHERE id = " + object.getId().getValue();
+            final List<List<RType>> results = iQuery.projection(query, null);
+            final long actualGroupId = ((RLong) results.get(0).get(0)).getValue();
+            Assert.assertEquals(actualGroupId, expectedGroupId, objectName);
+        }
+    }
+
+    /**
      * Get the current permissions for the given object.
      * @param object a model object previously retrieved from the server
      * @return the permissions for the object in the current context
@@ -638,23 +668,22 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
 
     /**
      * Test that an ImporterAs can
-     * chgrp on behalf of another user solely with <tt>Sudo</tt> privilege
-     * only when this user is a member of both original and target groups
-     * Also test that light admin can, having the <tt>Chgrp</tt>
-     * privilege move another user's data into another group whether the
-     * owner of the data is member of target group or not.
+     * chgrp on behalf of another user in cases where the user (owner of the date)
+     * is a member of both groups. This can be done solely with <tt>Sudo</tt> privilege
+     * or with <tt>Chgrp</tt> privilege.
      * Also tests the ability of the <tt>Chgrp</tt> privilege and chgrp command
      * to sever necessary links for performing the chgrp. This is achieved by
      * having the image which is getting moved into a different group in a dataset
      * in the original group (the chgrp has to sever the DatasetImageLink to perform
-     * the move (chgrp)).
+     * the move (chgrp)). On the other hand, the Chgrp permissions are not sufficient
+     * to move annotations (tag and file attachment are tested here).
      * @param isSudoing if to test a success of workflows where Sudoed in
      * @param permChgrp if to test a user who has the <tt>Chgrp</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isSudoing and Chgrp privileges cases")
-    public void testChgrp(boolean isSudoing, boolean permChgrp,
+    public void testChgrp(boolean isSudoing, boolean permChgrp, boolean permDeleteOwned,
             String groupPermissions) throws Exception {
         /* Set up a user and three groups, the user being a member of
          * two of the groups.
@@ -662,19 +691,15 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         /* Group where the user is a member */
         final long normalUsersOtherGroupId = newGroupAddUser(groupPermissions, normalUser.userId, false).getId().getValue();
-        /* Group where the user is not member */
-        final long anotherGroupId = newUserAndGroup(groupPermissions).groupId;
         /* Define cases:
-         * When data owner is not member of the target group,
-         * Chgrp action passes only when light admin has Chgrp permission
-         * and is not Sudoing (Sudoing can be thought of as destroyer of the
-         * privileges, because it forces the permissions of the Sudoed-as user
-         * onto the light admin).*/
-        boolean chgrpNoSudoExpectSuccessAnyGroup = !isSudoing && permChgrp;
         /* When data owner is member of the target group,
          * Chgrp action passes also when light admin is
-         * Sudoed as the data owner */
-        boolean isExpectSuccessInMemberGroup = chgrpNoSudoExpectSuccessAnyGroup || isSudoing;
+         * Sudoed as the data owner or when Chgrp permission is given */
+        boolean isExpectSuccessInMemberGroup = permChgrp || isSudoing;
+        /* define the conditions for the chgrp passing for annotations on moved image,
+         * in the group where normalUser is a member of, when sudoing or permChgrp
+         * and permDeleteOwned are available */
+        final boolean annotExpectSuccessInMemberGroup = (isExpectSuccessInMemberGroup && permDeleteOwned) || isSudoing;
         /* create a Dataset as the normalUser and import into it */
         loginUser(normalUser);
         Dataset dat = mmFactory.simpleDataset();
@@ -690,17 +715,29 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                 "SELECT id, details.group.id FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
                 new ParametersI().addId(previousId).add("name", imageName)).get(0);
         final long remoteFileId = ((RLong) resultAfterImport.get(0)).getValue();
-        long remoteFileGroupId = ((RLong) resultAfterImport.get(1)).getValue();
+        long imageFileGroupId = ((RLong) resultAfterImport.get(1)).getValue();
         assertOwnedBy((new OriginalFileI(remoteFileId, false)), normalUser);
-        Assert.assertEquals(remoteFileGroupId, normalUser.groupId);
+        Assert.assertEquals(imageFileGroupId, normalUser.groupId);
         Image image = (Image) iQuery.findByQuery(
                 "FROM Image WHERE fileset IN "
                 + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
                 new ParametersI().addId(remoteFileId));
+
+        /* Tag the imported image */
+        TagAnnotation tagAnnotation = new TagAnnotationI();
+        tagAnnotation = (TagAnnotation) iUpdate.saveAndReturnObject(tagAnnotation);
+        final ImageAnnotationLink tagAnnotationLink = annotateImage(image, tagAnnotation);
+        /* add a file attachment with original file to the imported image.*/
+        List<IObject> originalFileAnnotationAndLink = createFileAnnotationWithOriginalFileAndLink(image);
+        final OriginalFile annotOriginalFile = (OriginalFile) originalFileAnnotationAndLink.get(0);
+        final FileAnnotation fileAnnotation = (FileAnnotation) originalFileAnnotationAndLink.get(1);
+        final ImageAnnotationLink fileAnnotationLink = (ImageAnnotationLink) originalFileAnnotationAndLink.get(2);
+
         /* set up the light admin's permissions for this test */
         List<String> permissions = new ArrayList<String>();
         permissions.add(AdminPrivilegeSudo.value);
         if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);
+        if (permDeleteOwned) permissions.add(AdminPrivilegeDeleteOwned.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(true, permissions);
         sudo(new ExperimenterI(normalUser.userId, false));
@@ -720,54 +757,190 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
          * isExpectSuccessInMemberGroup boolean value */
         Assert.assertEquals(getCurrentPermissions(image).canChgrp(), isExpectSuccessInMemberGroup);
         doChange(client, factory, Requests.chgrp().target(image).toGroup(normalUsersOtherGroupId).build(), isExpectSuccessInMemberGroup);
-        /* note in which group the image and the original file are now */
-        long afterFirstChgrpImageGroupId = ((RLong) iQuery.projection(
-                "SELECT details.group.id FROM Image i WHERE i.id = :id",
-                new ParametersI().addId(image.getId())).get(0).get(0)).getValue();
-        remoteFileGroupId = ((RLong) iQuery.projection(
-                "SELECT details.group.id FROM OriginalFile o WHERE o.id = :id",
-                new ParametersI().addId(remoteFileId)).get(0).get(0)).getValue();
         if (isExpectSuccessInMemberGroup) {
-            Assert.assertEquals(afterFirstChgrpImageGroupId, normalUsersOtherGroupId);
-            Assert.assertEquals(remoteFileGroupId, normalUsersOtherGroupId);
+            assertInGroup(image, normalUsersOtherGroupId);
+            assertInGroup((new OriginalFileI(remoteFileId, false)), normalUsersOtherGroupId);
         } else {
-            Assert.assertEquals(afterFirstChgrpImageGroupId, normalUser.groupId);
-            Assert.assertEquals(remoteFileGroupId, normalUser.groupId);
+            assertInGroup(image, normalUser.groupId);
+            assertInGroup((new OriginalFileI(remoteFileId, false)), normalUser.groupId);
         }
         /* in any case, the image should still belong to normalUser */
         assertOwnedBy(image, normalUser);
+        /* check the annotations on the image changed the group as expected */
+        if (annotExpectSuccessInMemberGroup) {
+            assertInGroup(originalFileAnnotationAndLink, normalUsersOtherGroupId);
+            assertInGroup(tagAnnotation, normalUsersOtherGroupId);
+            assertInGroup(tagAnnotationLink, normalUsersOtherGroupId);
+        } else if (isExpectSuccessInMemberGroup){
+            /* the image was moved to another group, but because the
+             * annotExpectSuccessInMemberGroup is false, the annotations were left
+             * behind, which means the links between the annot and the image were severed */
+            assertInGroup(tagAnnotation, normalUser.groupId);
+            assertInGroup(annotOriginalFile, normalUser.groupId);
+            assertInGroup(fileAnnotation, normalUser.groupId);
+            /* tagAnnotationLink was severed */
+            String hql = "SELECT COUNT(*) FROM ImageAnnotationLink WHERE id =:id)";
+            List<List<RType>> results = iQuery.projection(hql, new ParametersI().addId(tagAnnotationLink.getId()));
+            long count = ((RLong) results.get(0).get(0)).getValue();
+            Assert.assertEquals(count, 0);
+            /* fileAnnotationLink was severed */
+            hql = "SELECT COUNT(*) FROM ImageAnnotationLink WHERE id =:id)";
+            results = iQuery.projection(hql, new ParametersI().addId(fileAnnotationLink.getId()));
+            count = ((RLong) results.get(0).get(0)).getValue();
+            Assert.assertEquals(count, 0);
+        } else {
+            /* neither the image nor the annotations were moved */
+            assertInGroup(originalFileAnnotationAndLink, normalUser.groupId);
+            assertInGroup(tagAnnotation, normalUser.groupId);
+            assertInGroup(tagAnnotationLink, normalUser.groupId);
+        }
+    }
+
+    /**
+     * Tests that light admin can, having the <tt>Chgrp</tt>
+     * privilege move another user's data into another group where the
+     * owner of the data is not member.
+     * <tt>Sudo</tt> privilege and being sudoed should not be sufficient,
+     * and also, when being sudoed, the cancellation of the <tt>Chgrp</tt> privilege
+     * by being sudoed as normalUser causes that the move of the image fails.
+     * Also tests the ability of the <tt>Chgrp</tt> privilege and chgrp command
+     * to sever necessary links for performing the chgrp. This is achieved by
+     * having the image which is getting moved into a different group in a dataset
+     * in the original group (the chgrp has to sever the DatasetImageLink to perform
+     * the move (chgrp). On the other hand, the Chgrp permissions are not sufficient
+     * to move annotations (tag and file attachment are tested here).
+     * @param isSudoing if to test a success of workflows where Sudoed in
+     * @param permChgrp if to test a user who has the <tt>Chgrp</tt> privilege
+     * @param groupPermissions if to test the effect of group permission level
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "isSudoing and Chgrp privileges cases")
+    public void testChgrpNonMember(boolean isSudoing, boolean permChgrp, boolean permDeleteOwned,
+            String groupPermissions) throws Exception {
+        /* Set up a user and three groups, the user being a member of
+         * two of the groups.
+         */
+        final EventContext normalUser = newUserAndGroup(groupPermissions);
+        /* Group where the user is not member */
+        final long anotherGroupId = newUserAndGroup(groupPermissions).groupId;
+        /* Define cases:
+         * When data owner is not member of the target group,
+         * Chgrp action passes only when light admin has Chgrp permission
+         * and is not Sudoing (Sudoing can be thought of as destroyer of the
+         * privileges, because it forces the permissions of the Sudoed-as user
+         * onto the light admin).*/
+        boolean chgrpNonMemberExpectSuccess = !isSudoing && permChgrp;
+        /* define the conditions for the chgrp passing for annotations on moved image,
+         * in any group: When not sudoing and permChgrp
+         * and permDeleteOwned are available */
+        final boolean annotExpectSuccess = chgrpNonMemberExpectSuccess && permDeleteOwned;
+        /* define cases where canChgrp on the image is expected to be true */
+        final boolean canChgrpExpectedTrue = permChgrp || isSudoing;
+        /* create a Dataset as the normalUser and import into it */
+        loginUser(normalUser);
+        Dataset dat = mmFactory.simpleDataset();
+        Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
+        final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
+        final List<List<RType>> result = iQuery.projection(
+                "SELECT id FROM OriginalFile WHERE name = :name ORDER BY id DESC LIMIT 1",
+                new ParametersI().add("name", imageName));
+        final long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
+        List<String> path = Collections.singletonList(fakeImageFile.getPath());
+        importFileset(path, path.size(), sentDat);
+        final List<RType> resultAfterImport = iQuery.projection(
+                "SELECT id, details.group.id FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
+                new ParametersI().addId(previousId).add("name", imageName)).get(0);
+        final long remoteFileId = ((RLong) resultAfterImport.get(0)).getValue();
+        long imageFileGroupId = ((RLong) resultAfterImport.get(1)).getValue();
+        assertOwnedBy((new OriginalFileI(remoteFileId, false)), normalUser);
+        Assert.assertEquals(imageFileGroupId, normalUser.groupId);
+        Image image = (Image) iQuery.findByQuery(
+                "FROM Image WHERE fileset IN "
+                + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
+                new ParametersI().addId(remoteFileId));
+
+        /* Tag the imported image */
+        TagAnnotation tagAnnotation = new TagAnnotationI();
+        tagAnnotation = (TagAnnotation) iUpdate.saveAndReturnObject(tagAnnotation);
+        final ImageAnnotationLink tagAnnotationLink = annotateImage(image, tagAnnotation);
+        /* add a file attachment with original file to the imported image.*/
+        List<IObject> originalFileAnnotationAndLink = createFileAnnotationWithOriginalFileAndLink(image);
+        final OriginalFile annotOriginalFile = (OriginalFile) originalFileAnnotationAndLink.get(0);
+        final FileAnnotation fileAnnotation = (FileAnnotation) originalFileAnnotationAndLink.get(1);
+        final ImageAnnotationLink fileAnnotationLink = (ImageAnnotationLink) originalFileAnnotationAndLink.get(2);
+
+        /* set up the light admin's permissions for this test */
+        List<String> permissions = new ArrayList<String>();
+        permissions.add(AdminPrivilegeSudo.value);
+        if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);
+        if (permDeleteOwned) permissions.add(AdminPrivilegeDeleteOwned.value);
+        final EventContext lightAdmin;
+        lightAdmin = loginNewAdmin(true, permissions);
+
+        try {
+            sudo(new ExperimenterI(normalUser.userId, false));
+            }catch (SecurityViolation sv) {
+            }
+        /* take care of workflows which do not use sudo */
+        if (!isSudoing) {
+            loginUser(lightAdmin);
+        }
+        /*in order to find the image in whatever group, get context with group
+         * set to -1 (=all groups) */
+        client.getImplicitContext().put("omero.group", Long.toString(-1));
 
         /* try to move into another group the normalUser
          * is not a member of, which should fail in all cases
          * except the light admin has Chgrp permission and is not sudoing
          * (i.e. chgrpNoSudoExpectSuccessAnyGroup is true). Also check that
          * the canChgrp boolean delivers true in accordance with the
-         * isExpectSuccessInMemberGroup boolean value. Note that the
+         * canChgrpExpectedTrue boolean value. Note that the
          * canChgrp boolean is true in case the object can be moved into
          * SOME group, and thus it cannot match (in cases where light admin
-         * is sudoed in) with the chgrpNoSudoExpectSuccessAnyGroup boolean.*/
-        Assert.assertEquals(getCurrentPermissions(image).canChgrp(), isExpectSuccessInMemberGroup);
+         * is sudoed in) with the chgrpNonMemberExpectSuccess boolean.*/
+        Assert.assertEquals(getCurrentPermissions(image).canChgrp(), canChgrpExpectedTrue);
         doChange(client, factory, Requests.chgrp().target(image).toGroup(anotherGroupId).build(),
-                chgrpNoSudoExpectSuccessAnyGroup);
-        long afterSecondChgrpImageGroupId = ((RLong) iQuery.projection(
-                "SELECT details.group.id FROM Image i WHERE i.id = :id",
-                new ParametersI().addId(image.getId())).get(0).get(0)).getValue();
-        remoteFileGroupId = ((RLong) iQuery.projection(
-                "SELECT details.group.id FROM OriginalFile o WHERE o.id = :id",
-                new ParametersI().addId(remoteFileId)).get(0).get(0)).getValue();
-        if (chgrpNoSudoExpectSuccessAnyGroup) {
-            /* check that the image moved to another group */
-            Assert.assertEquals(afterSecondChgrpImageGroupId, anotherGroupId);
-            Assert.assertEquals(afterSecondChgrpImageGroupId, anotherGroupId);
+                chgrpNonMemberExpectSuccess);
+        if(chgrpNonMemberExpectSuccess) {
+            /* check that the image and its original file moved to another group */
+            assertInGroup(image, anotherGroupId);
+            assertInGroup(new OriginalFileI(remoteFileId, false), anotherGroupId);
         } else {
             /* check that the image, after this second Chgrp attempt,
-             * is still in its original group
-             * (stored in the afterFirstChgrpImageGroupId variable) */
-            Assert.assertEquals(afterSecondChgrpImageGroupId, afterFirstChgrpImageGroupId);
-            Assert.assertEquals(afterSecondChgrpImageGroupId, afterFirstChgrpImageGroupId);
+             * is still in its original group */
+            assertInGroup(image, normalUser.groupId);
+            assertInGroup(new OriginalFileI(remoteFileId, false), normalUser.groupId);
         }
         /* in any case, the image should still belong to normalUser */
         assertOwnedBy(image, normalUser);
+        /* check the annotations on the image changed the group as expected */
+        if (annotExpectSuccess) {
+            assertInGroup(originalFileAnnotationAndLink, anotherGroupId);
+            assertInGroup(tagAnnotation, anotherGroupId);
+            assertInGroup(tagAnnotationLink, anotherGroupId);
+        } else if (chgrpNonMemberExpectSuccess){
+            /* the image was moved to another group, but because the
+             * annotExpectSuccess is false, the annotations were left
+             * behind, which means the links between the annot and the image were severed */
+            assertInGroup(tagAnnotation, normalUser.groupId);
+            assertInGroup(annotOriginalFile, normalUser.groupId);
+            assertInGroup(fileAnnotation, normalUser.groupId);
+            /* tagAnnotationLink was severed */
+            String hql = "SELECT COUNT(*) FROM ImageAnnotationLink WHERE id =:id)";
+            List<List<RType>> results = iQuery.projection(hql, new ParametersI().addId(tagAnnotationLink.getId()));
+            long count = ((RLong) results.get(0).get(0)).getValue();
+            Assert.assertEquals(count, 0);
+            /* fileAnnotationLink was severed */
+            hql = "SELECT COUNT(*) FROM ImageAnnotationLink WHERE id =:id)";
+            results = iQuery.projection(hql, new ParametersI().addId(fileAnnotationLink.getId()));
+            count = ((RLong) results.get(0).get(0)).getValue();
+            Assert.assertEquals(count, 0);
+        } else {
+            /* neither the image nor the annotations were moved */
+            assertInGroup(originalFileAnnotationAndLink, normalUser.groupId);
+            assertInGroup(tagAnnotation, normalUser.groupId);
+            assertInGroup(tagAnnotationLink, normalUser.groupId);
+        }
     }
 
     /**
@@ -2217,13 +2390,14 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     }
 
     /**
-     * @return isSudoing and Chgrp test cases for testChgrp
+     * @return isSudoing, Chgrp and DeleteOwned test cases for testChgrp
      */
     @DataProvider(name = "isSudoing and Chgrp privileges cases")
     public Object[][] provideIsSudoingAndChgrpOwned() {
         int index = 0;
         final int IS_SUDOING = index++;
         final int PERM_CHGRP = index++;
+        final int PERM_DELETEOWNED = index++;
         final int GROUP_PERMS = index++;
 
         final boolean[] booleanCases = new boolean[]{false, true};
@@ -2232,16 +2406,19 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
 
             for (final boolean isSudoing : booleanCases) {
                 for (final boolean permChgrp : booleanCases) {
-                    for (final String groupPerms : permsCases) {
-                        final Object[] testCase = new Object[index];
-                        /* no test cases are excluded here, because isSudoing
-                         * is in a sense acting to annule Chgrp permission
-                         * which is tested in the testChgrp and is an interesting case.*/
-                        testCase[IS_SUDOING] = isSudoing;
-                        testCase[PERM_CHGRP] = permChgrp;
-                        testCase[GROUP_PERMS] = groupPerms;
-                        // DEBUG if (isSudiong == true && permChgrp == true)
-                        testCases.add(testCase);
+                    for (final boolean permDeleteOwned : booleanCases) {
+                        for (final String groupPerms : permsCases) {
+                            final Object[] testCase = new Object[index];
+                            /* no test cases are excluded here, because isSudoing
+                             * is in a sense acting to annule Chgrp permission
+                             * which is tested in the testChgrp and is an interesting case.*/
+                            testCase[IS_SUDOING] = isSudoing;
+                            testCase[PERM_CHGRP] = permChgrp;
+                            testCase[PERM_DELETEOWNED] = permDeleteOwned;
+                            testCase[GROUP_PERMS] = groupPerms;
+                            // DEBUG  if (isSudoing == true && permChgrp == true && permDeleteOwned == true)
+                            testCases.add(testCase);
+                        }
                     }
                 }
             }
