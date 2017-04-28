@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2017 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -93,6 +93,18 @@ public abstract class GraphPolicy {
          * {@link ome.security.ACLVoter#allowChmod(IObject)}
          */
         CHMOD,
+
+        /**
+         * the user's ability to move the object, as judged by
+         * {@link ome.model.internal.Permissions#isDisallowChgrp()}
+         */
+        CHGRP,
+
+        /**
+         * the user's ability to give the object, as judged by
+         * {@link ome.model.internal.Permissions#isDisallowChown()}
+         */
+        CHOWN,
 
         /**
          * the user actually owns the object
