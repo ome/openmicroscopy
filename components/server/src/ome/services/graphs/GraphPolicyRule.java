@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2017 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -57,7 +57,7 @@ public class GraphPolicyRule {
     private static final Logger LOGGER = LoggerFactory.getLogger(GraphPolicyRule.class);
 
     private static final Pattern NEW_TERM_PATTERN =
-            Pattern.compile("(\\w+\\:)?(\\!?[\\w]+)?(\\[\\!?[EDIO]+\\])?(\\{\\!?[iroa]+\\})?(\\/\\!?[udon]+)?(\\;\\S+)?");
+            Pattern.compile("(\\w+\\:)?(\\!?[\\w]+)?(\\[\\!?[EDIO]+\\])?(\\{\\!?[iroa]+\\})?(\\/\\!?[udomgn]+)?(\\;\\S+)?");
     private static final Pattern PREDICATE_PATTERN = Pattern.compile("\\;(\\w+)\\=([^\\;]+)(\\;\\S+)?");
     private static final Pattern EXISTING_TERM_PATTERN = Pattern.compile("(\\w+)");
     private static final Pattern CHANGE_PATTERN = Pattern.compile("(\\w+\\:)(\\[[EDIO\\-]\\])?(\\{[iroa]\\})?(\\/n)?");
@@ -591,6 +591,10 @@ public class GraphPolicyRule {
                     abilities.add(GraphPolicy.Ability.DELETE);
                 } else if (ability == 'o') {
                     abilities.add(GraphPolicy.Ability.OWN);
+                } else if (ability == 'm') {
+                    abilities.add(GraphPolicy.Ability.CHGRP);
+                } else if (ability == 'g') {
+                    abilities.add(GraphPolicy.Ability.CHOWN);
                 } else if (ability == 'n') {
                     isCheckPermissions = !required;
                 } else if (ability == '!') {
