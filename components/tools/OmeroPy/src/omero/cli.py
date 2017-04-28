@@ -51,6 +51,7 @@ from omero_ext.argparse import SUPPRESS
 from omero.util.concurrency import get_event
 
 import omero
+import warnings
 
 #
 # Static setup
@@ -1566,6 +1567,8 @@ class GraphArg(object):
             needsForce = False
             for id in parts[1].split(","):
                 if "-" in id:
+                    warnings.warn("This flag is deprecated as of OMERO 5.3.2",
+                                  DeprecationWarning)
                     needsForce = True
                     low, high = map(long, id.split("-"))
                     if high < low:
