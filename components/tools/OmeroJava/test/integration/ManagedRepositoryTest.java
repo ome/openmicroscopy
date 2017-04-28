@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -50,6 +51,7 @@ import omero.grid.ManagedRepositoryPrxHelper;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
 import omero.model.ChecksumAlgorithm;
+import omero.model.ExperimenterGroupI;
 import omero.model.OriginalFile;
 import omero.sys.EventContext;
 import omero.sys.Parameters;
@@ -58,6 +60,7 @@ import omero.util.TempFileManager;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -85,8 +88,9 @@ public class ManagedRepositoryTest extends AbstractServerImportTest {
     /* client file path transformer for comparing local and repo paths */
     private ClientFilePathTransformer cfpt = null;
 
-    @BeforeClass
+    @BeforeMethod
     public void setRepo() throws Exception {
+        newUserAndGroup("rw----");
         RepositoryMap rm = factory.sharedResources().repositories();
         for (int i = 0; i < rm.proxies.size(); i++) {
             final RepositoryPrx prx = rm.proxies.get(i);
@@ -564,6 +568,27 @@ public class ManagedRepositoryTest extends AbstractServerImportTest {
             assertFileExists("Delete failed. File deleted!: ",
                     pathToUsedFile(data2, index));
         }
+    }
+
+    /**
+     * Test that an administrator can import into a group of which they are not a member.
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testAdminImportIntoAnotherGroup() throws Exception {
+        /* prepare as admin to import into another group */
+        final long targetGroup = iAdmin.getEventContext().groupId;
+        newUserInGroup(new ExperimenterGroupI(roles.systemGroupId, false), false);
+        client.getImplicitContext().put("omero.group", Long.toString(targetGroup));
+
+        /* create and import a fake image */
+        final File localPath = tempFileManager.createPath(UUID.randomUUID().toString(), null, true);
+        final File localFile = ensureFileExists(localPath, UUID.randomUUID().toString() + ".fake");
+        importFileset(Collections.singletonList(localFile.toString()));
+
+        /* check that the import was into the intended group */
+        final OriginalFile remoteFile = (OriginalFile) iQuery.findByString("OriginalFile", "name", localFile.getName());
+        Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), targetGroup);
     }
 
     /**
