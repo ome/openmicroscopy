@@ -101,12 +101,16 @@ public class GraphTraversal {
          * @param mayUpdate if the object may be updated
          * @param mayDelete if the object may be deleted
          * @param mayChmod if the object may have its permissions changed
+         * @param mayChgrp if the object may be moved
+         * @param mayChown if the object may be given
          * @param isOwner if the user owns the object
          * @param isCheckPermissions if the user is expected to have the permissions required to process the object
          */
         DetailsWithCI(IObject subject, Long ownerId, Long groupId, Action action, Orphan orphan,
-                boolean mayUpdate, boolean mayDelete, boolean mayChmod, boolean isOwner, boolean isCheckPermissions) {
-            super(subject, ownerId, groupId, action, orphan, mayUpdate, mayDelete, mayChmod, isOwner, isCheckPermissions);
+                boolean mayUpdate, boolean mayDelete, boolean mayChmod, boolean mayChgrp, boolean mayChown,
+                boolean isOwner, boolean isCheckPermissions) {
+            super(subject, ownerId, groupId, action, orphan, mayUpdate, mayDelete, mayChmod, mayChgrp, mayChown,
+                    isOwner, isCheckPermissions);
             this.subjectAsCI = new CI(subject);
         }
 
@@ -1080,10 +1084,11 @@ public class GraphTraversal {
             if (isCheckUserPermissions) {
                 details = new DetailsWithCI(object.toIObject(), ownerId, groupId, action, orphan,
                         planning.mayUpdate.contains(object), planning.mayDelete.contains(object),
-                        planning.mayChmod.contains(object), planning.owns.contains(object),
-                        !planning.overrides.contains(object));
+                        planning.mayChmod.contains(object), planning.mayChgrp.contains(object), planning.mayChown.contains(object),
+                        planning.owns.contains(object), !planning.overrides.contains(object));
             } else {
-                details = new DetailsWithCI(object.toIObject(), ownerId, groupId, action, orphan, true, true, true, true, true);
+                details = new DetailsWithCI(object.toIObject(), ownerId, groupId, action, orphan,
+                        true, true, true, true, true, true, true);
             }
 
             cache.put(object, details);
