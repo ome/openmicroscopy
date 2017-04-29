@@ -904,19 +904,15 @@ public class RepositoryDaoImpl implements RepositoryDao {
     }
 
     public omero.sys.EventContext getEventContext(Ice.Current curr) {
-        EventContext ec = this.currentContext(new Principal(curr.ctx.get(
-                omero.constants.SESSIONUUID.value)));
-        return IceMapper.convert(ec);
-    }
-
-    protected EventContext currentContext(Principal currentUser) {
-        return (EventContext) executor.execute(currentUser,
+        final Principal currentUser = new Principal(curr.ctx.get(omero.constants.SESSIONUUID.value));
+        final EventContext ec = (EventContext) executor.execute(curr.ctx, currentUser,
                 new Executor.SimpleWork(this, "getEventContext") {
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
                 return ((LocalAdmin) sf.getAdminService()).getEventContextQuiet();
             }
         });
+        return IceMapper.convert(ec);
     }
 
     public String getUserInstitution(final long userId, Ice.Current current) {

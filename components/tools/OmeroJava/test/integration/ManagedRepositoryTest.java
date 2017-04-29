@@ -582,6 +582,27 @@ public class ManagedRepositoryTest extends AbstractServerImportTest {
     }
 
     /**
+     * Test that an administrator can import into a group of which they are not a member.
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testAdminImportIntoAnotherGroup() throws Exception {
+        /* prepare as admin to import into another group */
+        final long targetGroup = iAdmin.getEventContext().groupId;
+        newUserInGroup(iAdmin.lookupGroup(SYSTEM_GROUP), false);
+        client.getImplicitContext().put("omero.group", Long.toString(targetGroup));
+
+        /* create and import a fake image */
+        final File localPath = tempFileManager.createPath(UUID.randomUUID().toString(), null, true);
+        final File localFile = ensureFileExists(localPath, UUID.randomUUID().toString() + ".fake");
+        importFileset(Collections.singletonList(localFile.toString()));
+
+        /* check that the import was into the intended group */
+        final OriginalFile remoteFile = (OriginalFile) iQuery.findByString("OriginalFile", "name", localFile.getName());
+        Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), targetGroup);
+    }
+
+    /**
      * Make sure that the call to delete the import location's used files
      * returns with success.
      *
