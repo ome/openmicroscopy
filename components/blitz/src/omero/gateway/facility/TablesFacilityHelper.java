@@ -18,6 +18,7 @@
  */
 package omero.gateway.facility;
 
+import omero.IllegalArgumentException;
 import omero.gateway.model.FileAnnotationData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.MaskData;
@@ -62,16 +63,16 @@ import omero.model.WellSampleI;
 public class TablesFacilityHelper {
 
     /** The data array (after parsing omero.grid.Data) */
-    Object[][] dataArray;
+    private Object[][] dataArray;
 
     /** The number of columns */
-    int nCols;
+    private int nCols;
 
     /** The number of rows */
-    int nRows;
+    private int nRows;
 
     /** The omero.grid.Columns (after parsing TableData) */
-    Column[] gridColumns;
+    private Column[] gridColumns;
 
     /**
      * Create a new instance
@@ -87,6 +88,9 @@ public class TablesFacilityHelper {
      *            The TableData
      */
     void parseTableData(TableData data) {
+        if (data == null)
+            return;
+        
         TableDataColumn[] columns = data.getColumns() != null ? data
                 .getColumns() : new TableDataColumn[0];
 
@@ -110,12 +114,19 @@ public class TablesFacilityHelper {
      * @param data
      *            The omero.grid.Data object
      * @param header
-     *            The header (which will be updated with the correct column types)
+     *            The header (which will be updated with the correct column
+     *            types)
      */
     void parseData(Data data, TableDataColumn[] header) {
+        if (data == null || header == null)
+            return;
+        if (header.length != data.columns.length)
+            throw new IllegalArgumentException(
+                    "Number of column definitions must match the number of columns of the table");
+
         nCols = data.columns.length;
         nRows = data.rowNumbers.length;
-        
+
         dataArray = new Object[nCols][nRows];
 
         for (int i = 0; i < data.columns.length; i++) {
@@ -247,7 +258,7 @@ public class TablesFacilityHelper {
                     rowData[j] = new WellSampleData(p);
                 }
                 dataArray[i] = rowData;
-                header[i].setType(ROIData.class);
+                header[i].setType(WellSampleData.class);
             }
         }
     }
@@ -404,8 +415,8 @@ public class TablesFacilityHelper {
     }
 
     /**
-     * Get the number of rows ({@link #parseData(Data, TableDataColumn[])} needs to be called
-     * first)
+     * Get the number of columns ({@link #parseData(Data, TableDataColumn[])} needs
+     * to be called first)
      * 
      * @return See above
      */
@@ -414,8 +425,8 @@ public class TablesFacilityHelper {
     }
 
     /**
-     * Get the number of columns ({@link #parseData(Data, TableDataColumn[])} needs to be called
-     * first)
+     * Get the number of rows ({@link #parseData(Data, TableDataColumn[])}
+     * needs to be called first)
      * 
      * @return See above
      */
@@ -424,7 +435,8 @@ public class TablesFacilityHelper {
     }
 
     /**
-     * Get the data array ({@link #parseData(Data, TableDataColumn[])} needs to be called first)
+     * Get the data array ({@link #parseData(Data, TableDataColumn[])} needs to
+     * be called first)
      * 
      * @return See above
      */

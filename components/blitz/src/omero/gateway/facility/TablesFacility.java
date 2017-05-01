@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+import omero.IllegalArgumentException;
 import omero.ServerError;
 import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
@@ -245,12 +246,13 @@ public class TablesFacility extends Facility {
      * @param condition
      *            The query string
      * @param start
-     *            The index of the first row to consider (optional)
+     *            The index of the first row to consider (optional, default: 0)
      * @param stop
-     *            The index of the last+1 row to consider (optional)
+     *            The index of the last+1 row to consider (optional, default:
+     *            number of rows of the table)
      * @param step
      *            The stepping interval between the start and stop rows to
-     *            consider (Set to 0 to disable stepping)
+     *            consider (optional, default: no stepping)
      * @return A list of row indices matching the condition
      * @throws DSOutOfServiceException
      *             If the connection is broken, or not logged in
@@ -258,9 +260,9 @@ public class TablesFacility extends Facility {
      *             If an error occurred while trying to retrieve data from OMERO
      *             service.
      */
-    public long[] query(SecurityContext ctx, long fileId,
-            String condition, long start, long stop, long step)
-            throws DSOutOfServiceException, DSAccessException {
+    public long[] query(SecurityContext ctx, long fileId, String condition,
+            long start, long stop, long step) throws DSOutOfServiceException,
+            DSAccessException {
         TablePrx table = null;
         try {
             OriginalFile file = new OriginalFileI(fileId, false);
@@ -277,7 +279,15 @@ public class TablesFacility extends Facility {
                 stop = table.getNumberOfRows();
             if (step < 0)
                 step = 0;
-            
+
+            if (start > stop)
+                throw new IllegalArgumentException(
+                        "start value can't be greater than stop value");
+
+            if (start + step > stop)
+                throw new IllegalArgumentException(
+                        "step value is greater than the specified range");
+
             return table.getWhereList(condition, null, start, stop, step);
         } catch (Exception e) {
             handleException(this, e, "Could not load table data");

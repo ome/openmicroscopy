@@ -43,10 +43,10 @@ public class TablesFacilityTest extends GatewayTest {
     private DatasetData ds;
 
     private TableData original;
-    
+
     private final String searchForThis = "searchForThis";
     private final long searchForThisResult = 123456789l;
-    
+
     @Override
     @BeforeClass(alwaysRun = true)
     protected void setUp() throws Exception {
@@ -75,12 +75,12 @@ public class TablesFacilityTest extends GatewayTest {
             Class<?> type = header[c].getType();
             for (int r = 0; r < nRows; r++) {
                 if (type.equals(String.class)) {
-                    if(r < 2)
+                    if (r < 2)
                         column[r] = searchForThis;
                     else
                         column[r] = "" + rand.nextInt();
                 } else if (type.equals(Long.class)) {
-                    if(r < 2)
+                    if (r < 2)
                         column[r] = searchForThisResult;
                     else
                         column[r] = rand.nextLong();
@@ -110,24 +110,46 @@ public class TablesFacilityTest extends GatewayTest {
         Assert.assertEquals(info.getNumberOfRows(), nRows);
         Assert.assertEquals(info.getColumns(), original.getColumns());
     }
-    
+
     @Test(dependsOnMethods = { "testAddTable" })
     public void testSearch() throws Exception {
-        long[] rows = tablesFacility.query(rootCtx, original.getOriginalFileId(), "(column0=='"+searchForThis+"')");
+        long[] rows = tablesFacility.query(rootCtx,
+                original.getOriginalFileId(), "(column0=='" + searchForThis
+                        + "')");
         Assert.assertEquals(rows.length, 2);
-        
-        TableData td = tablesFacility.getTable(rootCtx, original.getOriginalFileId(), rows);
+
+        TableData td = tablesFacility.getTable(rootCtx,
+                original.getOriginalFileId(), rows);
         Assert.assertEquals(td.getNumberOfRows(), 2);
-        
+
         TableDataColumn[] cols = td.getColumns();
         Object[][] data = td.getData();
-        for(int col=0; col<data.length; col++) 
-            for(int row=0; row<data[col].length; row++) {
-                if(col==0) 
+        for (int col = 0; col < data.length; col++)
+            for (int row = 0; row < data[col].length; row++) {
+                if (col == 0)
                     Assert.assertEquals(data[col][row], searchForThis);
-                if(cols[col].getType() == Long.class)
+                if (cols[col].getType() == Long.class)
                     Assert.assertEquals(data[col][row], searchForThisResult);
             }
+    }
+
+    @Test(dependsOnMethods = { "testAddTable" })
+    public void testInvalidParams() throws Exception {
+        try {
+            tablesFacility.query(rootCtx, original.getOriginalFileId(),
+                    "(column0=='" + searchForThis + "')", 10, 5, 0);
+            Assert.fail("Invalid parameters, an exception should have been thrown.");
+        } catch (Exception e) {
+            // expected
+        }
+
+        try {
+            tablesFacility.query(rootCtx, original.getOriginalFileId(),
+                    "(column0=='" + searchForThis + "')", 0, 5, 10);
+            Assert.fail("Invalid parameters, an exception should have been thrown.");
+        } catch (Exception e) {
+            // expected
+        }
     }
 
     @Test(dependsOnMethods = { "testAddTable" })
