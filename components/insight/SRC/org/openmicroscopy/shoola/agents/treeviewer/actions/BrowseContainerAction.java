@@ -172,7 +172,7 @@ public class BrowseContainerAction
         	setEnabled(false);
         } else if (ho instanceof File) {
         	File f = (File) ho;
-        	if (f.isDirectory() && !f.isHidden()) {
+        	if (f.isDirectory()) {
         		putValue(Action.SHORT_DESCRIPTION, 
                         UIUtilities.formatToolTipText(DESCRIPTION_FOLDER));
             	setEnabled(true);
@@ -250,7 +250,7 @@ public class BrowseContainerAction
             		if (!withThumbnails) setEnabled(false);
                 } else if (ho instanceof FileData) {
             		FileData f = (FileData) ho;
-            		if (f.isDirectory() && !f.isHidden()) {
+            		if (f.isDirectory()) {
             			setEnabled(true);
             			description = DESCRIPTION_FOLDER;
             		} else setEnabled(false);

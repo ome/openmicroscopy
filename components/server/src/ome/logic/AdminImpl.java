@@ -479,7 +479,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             file.setName(filename);
             file.setPath(filename); // FIXME this should be something like /users/<name>/photo
             file.setSize((long) data.length);
-            file.setHasher(new ChecksumAlgorithm("SHA1-160"));
+            file.setHasher(new ChecksumAlgorithm(ChecksumAlgorithm.VALUE_SHA1_160));
             file.setHash(cpf.getProvider(ChecksumType.SHA1).putBytes(data)
                     .checksumAsString());
             file.setMimetype(mimetype);

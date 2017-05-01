@@ -60,7 +60,7 @@ public class SaveAction
     private static final String NAME = "Save As...";
     
     /** The description of the action. */
-    public static final String DESCRIPTION = "Save the image as TIFF, " +
+    public static final String DESCRIPTION = "Save the (zoomed) image as TIFF, " +
                                                 "JPEG, PNG, etc.";
 
     /** 
