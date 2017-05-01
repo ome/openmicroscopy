@@ -978,8 +978,8 @@ public class RepositoryDaoImpl implements RepositoryDao {
             rv.add(ofile);
             ofile.setCtime(now);
             ofile.setHasher(ca);
+            ofile.setRepo(fileRepoSecretKey + repoUuid);  // prefix removed by database trigger
         }
-
 
         StopWatch sw = new Slf4JStopWatch();
         final IUpdate iUpdate = sf.getUpdateService();
@@ -997,20 +997,6 @@ public class RepositoryDaoImpl implements RepositoryDao {
             }
         }
         sw.stop("omero.repo.create_original_file.internal_mkdir");
-        sw = new Slf4JStopWatch();
-        sql.setFileRepo(ids, repoUuid);
-        for (final ome.model.core.OriginalFile file : rv) {
-            /* now repo is set, update proxy and recheck permissions */
-            session.refresh(file);
-            final Experimenter owner = file.getDetails().getOwner();
-            final ExperimenterGroup group = file.getDetails().getGroup();
-            file.getDetails().setOwner(null);
-            file.getDetails().setGroup(null);
-            interceptor.newTransientDetails(file);
-            file.getDetails().setOwner(owner);
-            file.getDetails().setGroup(group);
-        }
-        sw.stop("omero.repo.create_original_file.set_file_repo");
         return rv;
     }
 
