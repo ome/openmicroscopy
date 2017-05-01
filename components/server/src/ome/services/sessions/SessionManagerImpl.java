@@ -587,22 +587,20 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
     }
 
     public List<Session> findSameUser(String uuid, String... agents) {
-        /* determine the true originator of the current session and that user's privileges */
+        /* determine the light administrator privileges associated with the given session */
         final Session session = find(uuid);
-        Experimenter realOwner = session.getSudoer();
-        if (realOwner == null) {
-            realOwner = session.getOwner();
+        final String membershipQuery = "SELECT id FROM GroupExperimenterMap WHERE parent.id = :group AND child.id = :user";
+        boolean hasAdminPrivileges = CollectionUtils.isNotEmpty(executeProjection(membershipQuery,
+                new Parameters().addLong("group", roles.getSystemGroupId()).addLong("user", session.getOwner().getId())));
+        if (session.getSudoer() != null) {
+            hasAdminPrivileges = hasAdminPrivileges && CollectionUtils.isNotEmpty(executeProjection(membershipQuery,
+                    new Parameters().addLong("group", roles.getSystemGroupId()).addLong("user", session.getSudoer().getId())));
         }
-        final List<Object[]> results = executeProjection(
-                "SELECT id FROM GroupExperimenterMap WHERE parent.id = :group AND child.id = :user",
-                new Parameters().addLong("group", roles.getSystemGroupId()).addLong("user", realOwner.getId()));
         final Set<AdminPrivilege> privileges;
-        if (realOwner.getId() == roles.getRootId()) {
-            privileges = LightAdminPrivileges.getAllPrivileges();
-        } else if (CollectionUtils.isEmpty(results)) {
-            privileges = Collections.emptySet();
-        } else {
+        if (hasAdminPrivileges) {
             privileges = adminPrivileges.getSessionPrivileges(session);
+        } else {
+            privileges = Collections.emptySet();
         }
         /* determine which agent values should filter results */
         final Set<String> agentSet = new HashSet<>();
@@ -615,17 +613,17 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
             }
         }
         /* construct and perform the query */
-        final StringBuilder hql = new StringBuilder();
+        final StringBuilder sessionQuery = new StringBuilder();
         final Parameters params = new Parameters();
-        hql.append("SELECT id, uuid FROM Session WHERE closed IS NULL");
-        hql.append(" AND owner.id = :owner");
+        sessionQuery.append("SELECT id, uuid FROM Session WHERE closed IS NULL");
+        sessionQuery.append(" AND owner.id = :owner");
         params.addLong("owner", session.getOwner().getId());
         if (!privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_READ_SESSION))) {
             /* user is not privileged so is limited to where sudoer is the same as their current session */
             if (session.getSudoer() == null) {
-                hql.append(" AND sudoer IS NULL");
+                sessionQuery.append(" AND sudoer IS NULL");
             } else {
-                hql.append(" AND sudoer.id = :sudoer");
+                sessionQuery.append(" AND sudoer.id = :sudoer");
                 params.addLong("sudoer", session.getSudoer().getId());
             }
         }
@@ -638,10 +636,10 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
             agentClauses.add("userAgent IS NULL");
         }
         if (!agentClauses.isEmpty()) {
-            hql.append(" AND (" + Joiner.on(" OR ").join(agentClauses) + ")");
+            sessionQuery.append(" AND (" + Joiner.on(" OR ").join(agentClauses) + ")");
         }
-        hql.append(" ORDER BY started DESC");
-        return findByQuery(hql.toString(), params);
+        sessionQuery.append(" ORDER BY started DESC");
+        return findByQuery(sessionQuery.toString(), params);
     }
 
     public int getReferenceCount(String uuid) {
@@ -1474,19 +1472,14 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
                             + "left outer join fetch s.annotationLinks l "
                             + "left outer join fetch l.child a where s.id = :id",
                             new Parameters().addId(session.getId()));
-            final List<Long> realOwnerGroupsIds;
-            if (reloaded.getSudoer() != null) {
-                realOwnerGroupsIds = admin.getMemberOfGroupIds(reloaded.getSudoer());
-            } else {
-                realOwnerGroupsIds = memberOfGroupsIds;
+            final Experimenter sudoer = reloaded.getSudoer();
+            boolean hasAdminPrivileges = memberOfGroupsIds.contains(roles.getSystemGroupId());
+            if (sudoer != null) {
+                hasAdminPrivileges = hasAdminPrivileges && admin.getMemberOfGroupIds(sudoer).contains(roles.getSystemGroupId());
             }
             list.add(exp);
             list.add(grp);
-            if (realOwnerGroupsIds.contains(roles.getSystemGroupId())) {
-                list.add(adminPrivileges.getSessionPrivileges(reloaded));
-            } else {
-                list.add(Collections.emptySet());
-            }
+            list.add(hasAdminPrivileges ? adminPrivileges.getSessionPrivileges(reloaded) : Collections.emptySet());
             list.add(memberOfGroupsIds);
             list.add(leaderOfGroupsIds);
             list.add(userRoles);
