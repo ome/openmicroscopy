@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import ome.api.IQuery;
 import ome.api.IUpdate;
@@ -112,17 +113,19 @@ public class RepositoryDaoImpl implements RepositoryDao {
     protected final Executor executor;
     protected final Executor statefulExecutor;
     protected final OmeroInterceptor interceptor;
+    protected final UUID fileRepoSecretKey;
 
     /**
      * Primary constructor which takes all final fields.
      */
     public RepositoryDaoImpl(Principal principal, Roles roles,
-            Executor executor, Executor statefulExecutor, OmeroInterceptor interceptor) {
+            Executor executor, Executor statefulExecutor, OmeroInterceptor interceptor, UUID fileRepoSecretKey) {
         this.principal = principal;
         this.roles = roles;
         this.executor = executor;
         this.statefulExecutor = statefulExecutor;
         this.interceptor = interceptor;
+        this.fileRepoSecretKey = fileRepoSecretKey;
     }
 
     /**
@@ -132,7 +135,8 @@ public class RepositoryDaoImpl implements RepositoryDao {
     public RepositoryDaoImpl(Principal principal, Executor executor) {
         this(principal, new Roles(), executor,
                 executor.getContext().getBean("statefulExecutor", Executor.class),
-                executor.getContext().getBean("omeroInterceptor", OmeroInterceptor.class));
+                executor.getContext().getBean("omeroInterceptor", OmeroInterceptor.class),
+                UUID.randomUUID());
     }
 
     /**

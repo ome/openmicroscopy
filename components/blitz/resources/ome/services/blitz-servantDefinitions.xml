@@ -423,6 +423,7 @@
     <constructor-arg index="2" ref="executor"/>
     <constructor-arg index="3" ref="statefulExecutor"/>
     <constructor-arg index="4" ref="omeroInterceptor"/>
+    <constructor-arg index="5" ref="fileRepoSecretKey"/>
   </bean>
 
   <bean id="scheduledExecutorService" class="java.util.concurrent.ScheduledThreadPoolExecutor">
