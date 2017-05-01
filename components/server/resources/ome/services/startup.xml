@@ -57,6 +57,12 @@
      <constructor-arg ref="ensureEnum"/>
   </bean>
 
+  <bean id="dbInitSecretKeys" class="ome.services.util.DBInitSecretKeys"
+     init-method="start" lazy-init="false" depends-on="dbPatchCheck">
+     <constructor-arg ref="simpleSqlAction"/>
+     <constructor-arg ref="fileRepoSecretKey"/>
+  </bean>
+
   <bean id="ensureEnum"
      class="ome.services.util.EnsureEnum">
      <constructor-arg ref="executor"/>
