@@ -217,9 +217,13 @@
              they are owned by the object's owner.
           -->
 
-        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink.parent = X:[DI], L.child = A:FileAnnotation[E]{i}/m, X =/o A"
+        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink.parent = X:[DI], L.child = A:FileAnnotation[E]{i}/d, X =/o A"
                                        p:changes="A:{r}"/>
-        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink.parent = X:[DI], L.child = A:TagAnnotation[E]{i}/m, X =/o A"
+        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink.parent = X:[DI], L.child = A:TagAnnotation[E]{i}/d, X =/o A"
+                                       p:changes="A:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink.parent = X:[I]/m, L.child = A:FileAnnotation[E]{i}, X =/o A"
+                                       p:changes="A:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink.parent = X:[I]/m, L.child = A:TagAnnotation[E]{i}, X =/o A"
                                        p:changes="A:{r}"/>
 
         <!-- If an annotated object is deleted or moved then consider its list, map, or XML annotations for deletion or moving. -->
@@ -254,9 +258,9 @@
 
         <!-- Move orphaned annotations with the data that are not owned by the moved object's owner if not to a private group. -->
 
-        <bean parent="graphPolicyRule" p:matches="!$to_private, L:IAnnotationLink.parent = X:[I], L.child = A:Annotation[E]{o}/m"
+        <bean parent="graphPolicyRule" p:matches="!$to_private, L:IAnnotationLink.parent = X:[I], L.child = A:Annotation[E]{o}/d"
                                        p:changes="A:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="!$to_private, L:IAnnotationLink.parent = X:[I], L.child = A:Annotation[D]/m"
+        <bean parent="graphPolicyRule" p:matches="!$to_private, L:IAnnotationLink.parent = X:[I], L.child = A:Annotation[D]/d"
                                        p:changes="A:[I]"/>
 
         <!-- Delete orphaned annotations, ignoring permissions for BasicAnnotation and CommentAnnotation. -->
@@ -307,15 +311,23 @@
                                        p:changes="ROI:{r}"/>
         <bean parent="graphPolicyRule" p:matches="P:Folder[I].childFolders = C:[E]{i}, P =/o C"
                                        p:changes="C:{r}"/>
-        <bean parent="graphPolicyRule" p:matches="!$to_private, L:ProjectDatasetLink.parent = P:[I], L.child = D:[E]{i}/m"
+        <bean parent="graphPolicyRule" p:matches="!$to_private, L:ProjectDatasetLink.parent = P:[I], L.child = D:[E]{i}/d"
                                        p:changes="D:{r}"/>
-        <bean parent="graphPolicyRule" p:matches="!$to_private, L:DatasetImageLink.parent = D:[I], L.child = I:[E]{i}/m"
+        <bean parent="graphPolicyRule" p:matches="!$to_private, L:DatasetImageLink.parent = D:[I], L.child = I:[E]{i}/d"
                                        p:changes="I:{r}"/>
-        <bean parent="graphPolicyRule" p:matches="!$to_private, L:FolderImageLink.parent = F:[I], L.child = I:[E]{i}/m"
+        <bean parent="graphPolicyRule" p:matches="!$to_private, L:FolderImageLink.parent = F:[I], L.child = I:[E]{i}/d"
                                        p:changes="I:{r}"/>
-        <bean parent="graphPolicyRule" p:matches="!$to_private, L:FolderRoiLink.parent = F:[I], L.child = ROI:[E]{i}/m"
+        <bean parent="graphPolicyRule" p:matches="!$to_private, L:FolderRoiLink.parent = F:[I], L.child = ROI:[E]{i}/d"
                                        p:changes="ROI:{r}"/>
-        <bean parent="graphPolicyRule" p:matches="!$to_private, Folder[I].childFolders = C:[E]{i}/m"
+        <bean parent="graphPolicyRule" p:matches="!$to_private, L:ProjectDatasetLink.parent = P:[I]/m, L.child = D:[E]{i}"
+                                       p:changes="D:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="!$to_private, L:DatasetImageLink.parent = D:[I]/m, L.child = I:[E]{i}"
+                                       p:changes="I:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="!$to_private, L:FolderImageLink.parent = F:[I]/m, L.child = I:[E]{i}"
+                                       p:changes="I:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="!$to_private, L:FolderRoiLink.parent = F:[I]/m, L.child = ROI:[E]{i}"
+                                       p:changes="ROI:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="!$to_private, Folder[I].childFolders = C:[E]{i}/d"
                                        p:changes="C:{r}"/>
 
         <!-- In considering moving a container's contents, do not move an object if it is in another container. -->
@@ -343,7 +355,9 @@
 
         <bean parent="graphPolicyRule" p:matches="D:Dataset[E]{o}/o" p:changes="D:[I]"/>
         <bean parent="graphPolicyRule" p:matches="F:Folder[E]{o}/o" p:changes="F:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="!$to_private, D:Dataset[E]{o}/d" p:changes="D:[I]/n"/>
         <bean parent="graphPolicyRule" p:matches="!$to_private, D:Dataset[E]{o}/m" p:changes="D:[I]/n"/>
+        <bean parent="graphPolicyRule" p:matches="!$to_private, F:Folder[E]{o}/d" p:changes="F:[I]/n"/>
         <bean parent="graphPolicyRule" p:matches="!$to_private, F:Folder[E]{o}/m" p:changes="F:[I]/n"/>
 
         <!--
@@ -479,6 +493,7 @@
         <!-- Move orphaned images. -->
 
         <bean parent="graphPolicyRule" p:matches="I:Image[E]{o}/o" p:changes="I:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="!$to_private, I:Image[E]{o}/d" p:changes="I:[I]/n"/>
         <bean parent="graphPolicyRule" p:matches="!$to_private, I:Image[E]{o}/m" p:changes="I:[I]/n"/>
 
         <!-- Ensure that rules with multiple matches may apply for links. -->
@@ -687,12 +702,15 @@
 
         <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink.parent = S:[I], L.child = P:[E]{i}, S =/o P"
                                        p:changes="P:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="!$to_private, L:ScreenPlateLink.parent = S:[I], L.child = P:[E]{i}/d"
+                                       p:changes="P:{r}"/>
         <bean parent="graphPolicyRule" p:matches="!$to_private, L:ScreenPlateLink.parent = S:[I], L.child = P:[E]{i}/m"
                                        p:changes="P:{r}"/>
         <bean parent="graphPolicyRule" p:matches="$to_private, L:ScreenPlateLink.parent = S:[I], L.child = P:[E]{r}, S =/!o P"
                                        p:changes="P:{a}"/>
         <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[E].parent = [E]{ia}, L.child = P:[E]{r}" p:changes="P:{a}"/>
         <bean parent="graphPolicyRule" p:matches="P:Plate[E]{o}/o" p:changes="P:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="!$to_private, P:Plate[E]{o}/d" p:changes="P:[I]/n"/>
         <bean parent="graphPolicyRule" p:matches="!$to_private, P:Plate[E]{o}/m" p:changes="P:[I]/n"/>
 
         <!--
