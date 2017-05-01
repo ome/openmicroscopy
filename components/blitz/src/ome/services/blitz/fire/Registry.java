@@ -62,7 +62,7 @@ public interface Registry {
      * interval     := Seconds between retries
      * client_uuid  := Uuid of the client which should be used
      * </pre>
-     * @deprecated in OMERO 5.4 uses group ID instead of group name
+     * @deprecated OMERO 5.4 uses group ID instead of group name
      */
     @Deprecated  // removed in 5.4
     ServiceFactoryPrx getInternalServiceFactory(String user, String group,
@@ -114,7 +114,7 @@ public interface Registry {
             this.ic = ic;
         }
 
-        @Deprecated  // in 5.4 uses group ID instead of group name
+        @Deprecated  // OMERO 5.4 uses group ID instead of group name
         public ServiceFactoryPrx getInternalServiceFactory(String user,
                 String group, int retries, int interval, String client_uuid)
                 throws Exception {
