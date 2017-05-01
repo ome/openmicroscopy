@@ -1567,9 +1567,9 @@ class GraphArg(object):
             needsForce = False
             for id in parts[1].split(","):
                 if "-" in id:
-                    warnings.warn("This flag is deprecated as of OMERO 5.3.2",
-                                  DeprecationWarning)
                     needsForce = True
+                    warnings.warn("This force flag to delete range is deprecated as\
+                                  of OMERO 5.3.2", DeprecationWarning)
                     low, high = map(long, id.split("-"))
                     if high < low:
                         raise ValueError("Bad range: %s", arg)
