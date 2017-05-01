@@ -103,4 +103,7 @@
     <constructor-arg value="10"></constructor-arg>  <!-- seconds -->
   </bean>
 
+  <!-- required prefix for setting OriginalFile.repo -->
+  <bean id="fileRepoSecretKey" class="java.util.UUID" factory-method="randomUUID"/>
+
 </beans>
