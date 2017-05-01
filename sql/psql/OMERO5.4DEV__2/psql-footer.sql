@@ -2044,7 +2044,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO5.4DEV',  1,    'OMERO5.4DEV',   0,             'Initializing');
+             values ('OMERO5.4DEV',  2,    'OMERO5.4DEV',   0,             'Initializing');
 
 --
 -- Temporarily make event columns nullable; restored below.
@@ -2747,6 +2747,15 @@ CREATE TABLE _roles (
 INSERT INTO _roles (root_user_id, guest_user_id, system_group_id, user_group_id, guest_group_id)
     VALUES (0, 1, 0, 1, 2);
 
+-- use a table to note secret key values
+
+CREATE TABLE _secret_keys (
+    name TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+);
+
+INSERT INTO _secret_keys (name, value) VALUES ('file repo', 'unset');
+
 --
 -- FS Resources
 --
@@ -3346,11 +3355,73 @@ CREATE CONSTRAINT TRIGGER user_config_update_trigger
     AFTER UPDATE ON experimenter_config DEFERRABLE INITIALLY DEFERRED
     FOR EACH ROW EXECUTE PROCEDURE user_config_update_check();
 
+-- Use secret key in setting originalfile.repo.
+
+CREATE FUNCTION _protect_originalfile_repo_insert() RETURNS "trigger" AS $$
+
+    DECLARE
+        secret_key TEXT;
+        secret_key_length INTEGER;
+
+    BEGIN
+        SELECT value INTO STRICT secret_key FROM _secret_keys WHERE name = 'file repo';
+        secret_key_length := LENGTH(secret_key);
+
+        IF NEW.repo IS NULL THEN
+            IF LEFT(NEW.name, secret_key_length) = secret_key THEN
+                NEW.name := RIGHT(NEW.name, -secret_key_length);
+            END IF;
+        ELSE
+            IF LEFT(NEW.name, secret_key_length) = secret_key THEN
+                NEW.name := RIGHT(NEW.name, -secret_key_length);
+            ELSE
+                RAISE EXCEPTION 'cannot set original file repo property without secret key';
+            END IF;
+        END IF;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE FUNCTION _protect_originalfile_repo_update() RETURNS "trigger" AS $$
+
+    DECLARE
+        secret_key TEXT;
+        secret_key_length INTEGER;
+
+    BEGIN
+        SELECT value INTO STRICT secret_key FROM _secret_keys WHERE name = 'file repo';
+        secret_key_length := LENGTH(secret_key);
+
+        IF NEW.repo IS NULL OR OLD.repo = NEW.repo THEN
+            IF LEFT(NEW.name, secret_key_length) = secret_key THEN
+                NEW.name := RIGHT(NEW.name, -secret_key_length);
+            END IF;
+        ELSE
+            IF LEFT(NEW.name, secret_key_length) = secret_key THEN
+                NEW.name := RIGHT(NEW.name, -secret_key_length);
+            ELSE
+                RAISE EXCEPTION 'cannot set original file repo property without secret key';
+            END IF;
+        END IF;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER _protect_originalfile_repo_insert
+    BEFORE INSERT ON originalfile
+    FOR EACH ROW EXECUTE PROCEDURE _protect_originalfile_repo_insert();
+
+CREATE TRIGGER _protect_originalfile_repo_update
+    BEFORE UPDATE ON originalfile
+    FOR EACH ROW EXECUTE PROCEDURE _protect_originalfile_repo_update();
+
 -- Here we have finished initializing this database.
 
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
   where currentVersion = 'OMERO5.4DEV' and
-        currentPatch = 1 and
+        currentPatch = 2 and
         previousVersion = 'OMERO5.4DEV' and
         previousPatch = 0;
 
