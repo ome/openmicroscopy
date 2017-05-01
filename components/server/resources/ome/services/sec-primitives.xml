@@ -129,7 +129,11 @@
     <constructor-arg ref="adminPrivileges"/>
     <constructor-arg ref="managedRepoUuids"/>
     <constructor-arg ref="scriptRepoUuids"/>
+    <constructor-arg ref="fileRepoSecretKey"/>
   </bean>
+
+  <!-- required prefix for setting OriginalFile.repo -->
+  <bean id="fileRepoSecretKey" class="java.util.UUID" factory-method="randomUUID"/>
 
   <bean name="sessionCache" class="ome.services.sessions.state.SessionCache">
     <property name="cacheManager"  ref="cacheManager"/>
