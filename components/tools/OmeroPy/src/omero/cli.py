@@ -1653,7 +1653,7 @@ class CmdControl(BaseControl):
         if err:
             self.ctx.err(err)
         else:
-            if req.dryRun:
+            if hasattr(req, 'dryRun') and req.dryRun:
                 self.ctx.out("Dry run performed")
             self.ctx.out("ok")
 
