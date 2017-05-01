@@ -1392,11 +1392,8 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         }
         Assert.assertFalse(sessionUuids.contains(actor.sessionUuid));
         Assert.assertTrue(sessionUuids.contains(actorAsNormalUser.sessionUuid));
-        if (isExpectSuccess) {
-            Assert.assertTrue(sessionUuids.contains(normalUser.sessionUuid));
-        } else {
-            Assert.assertFalse(sessionUuids.contains(normalUser.sessionUuid));
-        }
+        /* can never succeed because privileges are not preserved through sudo */
+        Assert.assertFalse(sessionUuids.contains(normalUser.sessionUuid));
         normalUserClient.__del__();
     }
 
@@ -1436,11 +1433,8 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         }
         Assert.assertFalse(sessionUuids.contains(actor.sessionUuid));
         Assert.assertTrue(sessionUuids.contains(actorAsNormalUser.sessionUuid));
-        if (isExpectSuccess) {
-            Assert.assertTrue(sessionUuids.contains(normalUser.sessionUuid));
-        } else {
-            Assert.assertFalse(sessionUuids.contains(normalUser.sessionUuid));
-        }
+        /* can never succeed because privileges are not preserved through sudo */
+        Assert.assertFalse(sessionUuids.contains(normalUser.sessionUuid));
         normalUserClient.__del__();
     }
 
