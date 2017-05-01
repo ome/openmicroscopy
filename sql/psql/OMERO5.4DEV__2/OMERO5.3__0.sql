@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.3__0 to OMERO5.4DEV__1.
+--- OMERO5 development release upgrade from OMERO5.3__0 to OMERO5.4DEV__2.
 ---
 
 BEGIN;
@@ -95,7 +95,7 @@ DROP FUNCTION db_pretty_version(INTEGER);
 --
 
 INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
-             VALUES ('OMERO5.4DEV',  1,            'OMERO5.3',      0);
+             VALUES ('OMERO5.4DEV',  2,            'OMERO5.3',      0);
 
 -- ... up to patch 0:
 
@@ -336,6 +336,10 @@ CREATE CONSTRAINT TRIGGER user_config_delete_trigger
 CREATE CONSTRAINT TRIGGER user_config_update_trigger
     AFTER UPDATE ON experimenter_config DEFERRABLE INITIALLY DEFERRED
     FOR EACH ROW EXECUTE PROCEDURE user_config_update_check();
+
+-- ... up to patch 2:
+
+-- TODO
 
 
 --
