@@ -113,7 +113,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
     protected final Executor executor;
     protected final Executor statefulExecutor;
     protected final OmeroInterceptor interceptor;
-    protected final UUID fileRepoSecretKey;
+    protected final String fileRepoSecretKey;
 
     /**
      * Primary constructor which takes all final fields.
@@ -125,7 +125,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
         this.executor = executor;
         this.statefulExecutor = statefulExecutor;
         this.interceptor = interceptor;
-        this.fileRepoSecretKey = fileRepoSecretKey;
+        this.fileRepoSecretKey = fileRepoSecretKey.toString();
     }
 
     /**
@@ -978,7 +978,8 @@ public class RepositoryDaoImpl implements RepositoryDao {
             rv.add(ofile);
             ofile.setCtime(now);
             ofile.setHasher(ca);
-            ofile.setRepo(fileRepoSecretKey + repoUuid);  // prefix removed by database trigger
+            ofile.setName(fileRepoSecretKey + ofile.getName());  // prefix removed by database trigger
+            ofile.setRepo(repoUuid);
         }
 
         StopWatch sw = new Slf4JStopWatch();
