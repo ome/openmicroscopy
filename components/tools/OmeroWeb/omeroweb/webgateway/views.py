@@ -1494,8 +1494,11 @@ def get_thumbnails_json(request, w=None, conn=None, **kwargs):
     # If we only have a single ID, simply use getThumbnail()
     if len(image_ids) == 1:
         iid = image_ids[0]
-        jpeg_data = _render_thumbnail(request, iid, w=w, conn=conn)
-        return {iid: "data:image/jpeg;base64,%s" % base64.b64encode(jpeg_data)}
+        try:
+            jpeg_data = _render_thumbnail(request, iid, w=w, conn=conn)
+            return {iid: "data:image/jpeg;base64,%s" % base64.b64encode(jpeg_data)}
+        except:
+            return {iid: None}
     logger.debug("Image ids: %r" % image_ids)
     if len(image_ids) > settings.THUMBNAILS_BATCH:
         return HttpJavascriptResponseServerError(
