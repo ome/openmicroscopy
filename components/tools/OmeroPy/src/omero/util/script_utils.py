@@ -30,7 +30,6 @@ from struct import unpack
 from numpy import add, array, asarray, fromstring, reshape, zeros
 from os.path import exists
 
-
 import omero.clients
 from omero.rtypes import unwrap
 from omero.model.enums import PixelsTypeint8, PixelsTypeuint8

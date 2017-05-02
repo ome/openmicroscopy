@@ -23,7 +23,6 @@ from datetime import datetime
 from cStringIO import StringIO
 import ConfigParser
 
-
 import omero
 import omero.clients
 from omero.util.decorators import timeit
