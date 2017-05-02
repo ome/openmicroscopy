@@ -26,9 +26,6 @@ module omero {
         ["java:type:java.util.ArrayList<Integer>:java.util.List<Integer>"]
             sequence<int> IntList;
 
-        ["java:type:java.util.ArrayList<String>:java.util.List<String>"]
-            sequence<string> StringSet;
-
         ["java:type:java.util.HashMap<Long,Long>:java.util.Map<Long,Long>"]
             dictionary<long, long> CountMap;
 

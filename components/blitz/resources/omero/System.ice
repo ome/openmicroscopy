@@ -8,6 +8,7 @@
 
 #include <omero/ModelF.ice>
 #include <omero/SystemF.ice>
+#include <omero/Collections.ice>
 
 /*
  * The omero::system module combines the ome.system and ome.parameters
@@ -34,7 +35,7 @@ module omero {
       long   groupId;
       string groupName;
       bool   isAdmin;
-      StringSet  adminPrivileges;
+      omero::api::StringSet  adminPrivileges;
       long   eventId;
       string eventType;
       LongList memberOfGroups;
