@@ -51,6 +51,7 @@
                     return s.split('-')[0] + (selectedObjs.length > 1 ? "s" : "");
                 }, "undefined");
 
+                {% if not share %}
                 var openwith_html = WEBCLIENT.OPEN_WITH.map(function(v){
                     var label = v.label || v.id;
                     var enabled = false;
@@ -100,6 +101,7 @@
                     return html;
                 });
                 $("#right_panel_openwith").html(openwith_html.join(""));
+                {% endif %}
             });
             
     </script>
@@ -345,11 +347,13 @@
 
 
       <div class="toolbar_dropdown">
+          {% if not share %}
           <button class="btn silver btn_openwith" title="Open with..." style="height: 20px">
               <span></span>
           </button>
           <ul id="right_panel_openwith" class="dropdown dropdown_right">
           </ul>
+          {% endif %}
       </div>
   </div>
 
