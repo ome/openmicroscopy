@@ -18,7 +18,6 @@
  */
 package integration.gateway;
 
-import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Random;
 import java.util.UUID;
