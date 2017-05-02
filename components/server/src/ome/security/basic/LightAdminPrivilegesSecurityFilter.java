@@ -48,16 +48,12 @@ public class LightAdminPrivilegesSecurityFilter extends AbstractSecurityFilter {
             ImmutableMap.of("real_owner", "long",
                             "privileges", "string");
 
-    private final LightAdminPrivileges adminPrivileges;
-
     /**
      * Construct a new light administrator filter.
      * @param roles the users and groups that are special to OMERO
-     * @param adminPrivileges the light administrator privileges helper
      */
-    public LightAdminPrivilegesSecurityFilter(Roles roles, LightAdminPrivileges adminPrivileges) {
+    public LightAdminPrivilegesSecurityFilter(Roles roles) {
         super(roles);
-        this.adminPrivileges = adminPrivileges;
     }
 
     @Override

@@ -68,7 +68,6 @@
 
   <bean id="LightAdminPrivilegesSecurityFilter" class="ome.security.basic.LightAdminPrivilegesSecurityFilter">
     <constructor-arg ref="roles"/>
-    <constructor-arg ref="adminPrivileges"/>
   </bean>
 
   <alias name="${omero.security.chmod_strategy}" alias="chmodStrategy"/>
