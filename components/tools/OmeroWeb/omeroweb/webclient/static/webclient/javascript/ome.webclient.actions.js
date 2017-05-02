@@ -365,7 +365,7 @@ OME.initToolbarDropdowns = function() {
     });
 };
 
-// Simply add query to thumbnail src to force refresh.
+// Load thumbnail images via JSON
 // By default we do ALL thumbnails, but can also specify ID
 OME.refreshThumbnails = function(options) {
     options = options || {};
@@ -424,6 +424,7 @@ OME.load_thumbnails = function(thumbnails_url, input, batch, dthumb) {
                 data: $.param( { id: iids }, true),
                 dataType: 'json',
                 success: function(data){
+                    var invalid_thumbs = [];
                     $.each(data, function(key, value) {
                         if (value !== null) {
                             // SPW Plate and WellImages
@@ -433,11 +434,22 @@ OME.load_thumbnails = function(thumbnails_url, input, batch, dthumb) {
                             // Search results
                             $("#image_icon-" + key + " img").attr("src", value);
                         } else {
+                            invalid_thumbs.push(key);
+                        }
+                    });
+                    // If we got invalid thumbnails as a set and ALL failed, try re-loading 1 at a time
+                    if (invalid_thumbs.length === iids.length && batch > 1) {
+                        OME.load_thumbnails(thumbnails_url, invalid_thumbs, 1, dthumb);
+                    }
+                    // If only some thumbs failed (or single thumb failed), show placeholder
+                    if ((invalid_thumbs.length < iids.length) || (batch === 1 && invalid_thumbs.length === 1)) {
+                        // If batch > 1 then we try loading again, otherwise we failed...
+                        invalid_thumbs.forEach(function(key){
                             $("img#image-"+key).attr("src", dthumb);
                             $("#wellImages li[data-imageId='" + key + "'] img").attr("src", dthumb);
                             $("#image_icon-" + key + " img").attr("src", dthumb);
-                        }
-                    });
+                        });
+                    }
                 }
             });
             input = input.slice(batch, input.length);
