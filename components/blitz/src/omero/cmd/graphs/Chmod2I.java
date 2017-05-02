@@ -83,7 +83,6 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
     private final Roles securityRoles;
     private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
-    private final LightAdminPrivileges adminPrivileges;
     private final Deletion deletionInstance;
     private final Set<Class<? extends IObject>> targetClasses;
     private GraphPolicy graphPolicy;  /* not final because of adjustGraphPolicy */
@@ -124,7 +123,6 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
         this.securityRoles = securityRoles;
         this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
-        this.adminPrivileges = adminPrivileges;
         this.deletionInstance = deletionInstance;
         this.targetClasses = targetClasses;
         this.graphPolicy = graphPolicy;
@@ -150,7 +148,7 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
 
         this.helper = helper;
         helper.setSteps(dryRun ? 4 : 6);
-        this.graphHelper = new GraphHelper(helper, graphPathBean, adminPrivileges);
+        this.graphHelper = new GraphHelper(helper, graphPathBean);
 
         try {
             perm1 = (Long) Utils.internalForm(Permissions.parseString(permissions));
