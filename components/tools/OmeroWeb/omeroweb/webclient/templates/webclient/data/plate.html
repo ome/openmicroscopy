@@ -270,7 +270,7 @@
                             }
                             html += '<li ' + cls + ' title="' + w.name + '" data-imageId="' + w.id + '">';
                             html += '<a href="{% url 'webindex' %}img_detail/' + w.id + '/">';
-                            html += '<img src="' + w.thumb_url + '" />';
+                            html += '<img />';
                             html += '</a></li>';
                             if (!isNaN(imagesPerRow) && (idx+1)%imagesPerRow === 0) {
                                 html += '<br>';
