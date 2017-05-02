@@ -18,6 +18,7 @@
  */
 package integration.gateway;
 
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Random;
 import java.util.UUID;
@@ -25,6 +26,7 @@ import java.util.UUID;
 import omero.gateway.facility.TablesFacility;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.ProjectData;
 import omero.gateway.model.TableData;
 import omero.gateway.model.TableDataColumn;
 
@@ -150,6 +152,36 @@ public class TablesFacilityTest extends GatewayTest {
         } catch (Exception e) {
             // expected
         }
+        
+        try {
+            TableDataColumn[] columns = new TableDataColumn[1];
+            columns[0] = new TableDataColumn("column1", 0, ProjectData.class);
+            Object[][] data = new Object[1][1];
+            data[0][0] = new ProjectData();
+            TableData td = new TableData(columns, data);
+            tablesFacility.addTable(rootCtx, ds, "invalid", td);
+            Assert.fail("Invalid column type, an exception should have been thrown.");
+        } catch (Exception e) {
+            // expected
+        }
+    }
+
+    @Test(dependsOnMethods = { "testAddTable" })
+    public void testObjectColumnType() throws Exception {
+        ProjectData proj = new ProjectData();
+        proj.setName("test");
+        
+        TableDataColumn[] columns = new TableDataColumn[1];
+        columns[0] = new TableDataColumn("column1", 0, Object.class);
+        Object[][] data = new Object[1][1];
+        data[0][0] = proj;
+        
+        TableData td = new TableData(columns, data);
+        td = tablesFacility.addTable(rootCtx, ds, "Object column", td);
+        
+        TableData td2 = tablesFacility.getTable(rootCtx, td.getOriginalFileId());
+        Assert.assertEquals(td2.getColumns()[0].getType(), String.class);
+        Assert.assertEquals(td2.getNumberOfRows(), 1);
     }
 
     @Test(dependsOnMethods = { "testAddTable" })

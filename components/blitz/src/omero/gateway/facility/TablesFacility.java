@@ -93,7 +93,7 @@ public class TablesFacility extends Facility {
             if (name == null)
                 name = UUID.randomUUID().toString();
 
-            TablesFacilityHelper helper = new TablesFacilityHelper();
+            TablesFacilityHelper helper = new TablesFacilityHelper(this);
             helper.parseTableData(data);
             
             SharedResourcesPrx sr = gateway.getSharedResources(ctx);
@@ -341,12 +341,12 @@ public class TablesFacility extends Facility {
                         Object.class);
             }
             
-            TablesFacilityHelper helper = new TablesFacilityHelper();
+            TablesFacilityHelper helper = new TablesFacilityHelper(this);
             helper.parseData(data, header);
             
             TableData result = new TableData(header, helper.getDataArray());
             result.setOriginalFileId(fileId);
-            result.setNumberOfRows(helper.getnRows());
+            result.setNumberOfRows(helper.getNRows());
             return result;
             
         } catch (Exception e) {
@@ -437,7 +437,7 @@ public class TablesFacility extends Facility {
             
             Data data = table.read(columns, rowFrom, rowTo + 1);
             
-            TablesFacilityHelper helper = new TablesFacilityHelper();
+            TablesFacilityHelper helper = new TablesFacilityHelper(this);
             helper.parseData(data, header);
             
             result = new TableData(header, helper.getDataArray());

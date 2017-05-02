@@ -74,10 +74,15 @@ public class TablesFacilityHelper {
     /** The omero.grid.Columns (after parsing TableData) */
     private Column[] gridColumns;
 
+    /** Reference to the TablesFacility */
+    private TablesFacility fac;
+    
     /**
      * Create a new instance
+     * @param fac Reference to the TablesFacility
      */
-    TablesFacilityHelper() {
+    TablesFacilityHelper(TablesFacility fac) {
+        this.fac = fac;
     }
 
     /**
@@ -246,8 +251,7 @@ public class TablesFacilityHelper {
                 header[i].setType(ROIData.class);
             }
             if (col instanceof StringColumn) {
-                String[] rowData = ((StringColumn) col).values;
-                dataArray[i] = rowData;
+                dataArray[i] = ((StringColumn) col).values;
                 header[i].setType(String.class);
             }
             if (col instanceof WellColumn) {
@@ -287,7 +291,7 @@ public class TablesFacilityHelper {
             c = new BoolColumn(header, description, d);
         }
 
-        if (type.equals(Double[].class)) {
+        else if (type.equals(Double[].class)) {
             double[][] d = new double[data.length][];
             int l = 0;
             for (int i = 0; i < data.length; i++) {
@@ -301,21 +305,21 @@ public class TablesFacilityHelper {
             c = new DoubleArrayColumn(header, description, l, d);
         }
 
-        if (type.equals(Double.class)) {
+        else if (type.equals(Double.class)) {
             double[] d = new double[data.length];
             for (int i = 0; i < data.length; i++)
                 d[i] = (Double) data[i];
             c = new DoubleColumn(header, description, d);
         }
 
-        if (type.equals(FileAnnotationData.class)) {
+        else if (type.equals(FileAnnotationData.class)) {
             long[] d = new long[data.length];
             for (int i = 0; i < data.length; i++)
                 d[i] = ((FileAnnotationData) data[i]).getFileID();
             c = new FileColumn(header, description, d);
         }
 
-        if (type.equals(Float[].class)) {
+        else if (type.equals(Float[].class)) {
             float[][] d = new float[data.length][];
             int l = 0;
             for (int i = 0; i < data.length; i++) {
@@ -329,14 +333,14 @@ public class TablesFacilityHelper {
             c = new FloatArrayColumn(header, description, l, d);
         }
 
-        if (type.equals(ImageData.class)) {
+        else if (type.equals(ImageData.class)) {
             long[] d = new long[data.length];
             for (int i = 0; i < data.length; i++)
                 d[i] = ((ImageData) data[i]).getId();
             c = new ImageColumn(header, description, d);
         }
 
-        if (type.equals(Long[].class)) {
+        else if (type.equals(Long[].class)) {
             long[][] d = new long[data.length][];
             int l = 0;
             for (int i = 0; i < data.length; i++) {
@@ -350,14 +354,14 @@ public class TablesFacilityHelper {
             c = new LongArrayColumn(header, description, l, d);
         }
 
-        if (type.equals(Long.class)) {
+        else if (type.equals(Long.class)) {
             long[] d = new long[data.length];
             for (int i = 0; i < data.length; i++)
                 d[i] = (Long) data[i];
             c = new LongColumn(header, description, d);
         }
 
-        if (type.equals(MaskData.class)) {
+        else if (type.equals(MaskData.class)) {
             long[] imageId = new long[data.length];
             int[] theZ = new int[data.length];
             int[] theT = new int[data.length];
@@ -383,34 +387,43 @@ public class TablesFacilityHelper {
                     w, h, bytes);
         }
 
-        if (type.equals(PlateData.class)) {
+        else if (type.equals(PlateData.class)) {
             long[] d = new long[data.length];
             for (int i = 0; i < data.length; i++)
                 d[i] = ((PlateData) data[i]).getId();
             c = new PlateColumn(header, description, d);
         }
 
-        if (type.equals(ROIData.class)) {
+        else if (type.equals(ROIData.class)) {
             long[] d = new long[data.length];
             for (int i = 0; i < data.length; i++)
                 d[i] = ((ROIData) data[i]).getId();
             c = new RoiColumn(header, description, d);
         }
 
-        if (type.equals(String.class)) {
+        else if (type.equals(String.class)) {
             String[] d = new String[data.length];
             for (int i = 0; i < data.length; i++)
                 d[i] = (String) data[i];
             c = new StringColumn(header, description, Short.MAX_VALUE, d);
         }
 
-        if (type.equals(WellSampleData.class)) {
+        else if (type.equals(WellSampleData.class)) {
             long[] d = new long[data.length];
             for (int i = 0; i < data.length; i++)
                 d[i] = ((WellSampleData) data[i]).getId();
             c = new WellColumn(header, description, d);
         }
 
+        else if (type.equals(Object.class)) {
+            fac.logWarn(this, "No concrete type specified for column '"
+                    + header + "', using Object.toString()", null);
+            String[] d = new String[data.length];
+            for (int i = 0; i < data.length; i++)
+                d[i] = data[i].toString();
+            c = new StringColumn(header, description, Short.MAX_VALUE, d);
+        }
+        
         return c;
     }
 
@@ -420,7 +433,7 @@ public class TablesFacilityHelper {
      * 
      * @return See above
      */
-    int getnCols() {
+    int getNCols() {
         return nCols;
     }
 
@@ -430,7 +443,7 @@ public class TablesFacilityHelper {
      * 
      * @return See above
      */
-    int getnRows() {
+    int getNRows() {
         return nRows;
     }
 
