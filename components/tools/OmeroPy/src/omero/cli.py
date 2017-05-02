@@ -1559,6 +1559,7 @@ class GraphArg(object):
         targetObjects = dict()
         try:
             parts = arg.split(":", 1)
+            print arg
             assert len(parts) == 2
             assert '+' not in parts[0]
             parts[0] = parts[0].lstrip("/")
@@ -1568,10 +1569,6 @@ class GraphArg(object):
             for id in parts[1].split(","):
                 if "-" in id:
                     needsForce = True
-                    warnings.warn("Using '--dry-run'. \
-                                  Future versions will switch to '--force'. \
-                                  Explicitly set the parameter for \
-                                  portability", DeprecationWarning)
                     low, high = map(long, id.split("-"))
                     if high < low:
                         raise ValueError("Bad range: %s", arg)
@@ -1814,6 +1811,11 @@ class GraphControl(CmdControl):
 
         commands, forces = zip(*args.obj)
         needsForce = any(forces)
+        if needsForce and not args.force:
+            warnings.warn("Using '--dry-run'. \
+                          Future versions will switch to '--force'. \
+                          Explicitly set the parameter for \
+                          portability", DeprecationWarning)
         for req in commands:
             req.dryRun = args.dry_run or needsForce
             if args.force:
