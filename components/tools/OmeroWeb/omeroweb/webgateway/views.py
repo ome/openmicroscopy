@@ -1495,8 +1495,8 @@ def get_thumbnails_json(request, w=None, conn=None, **kwargs):
     if len(image_ids) == 1:
         iid = image_ids[0]
         try:
-            jpeg_data = _render_thumbnail(request, iid, w=w, conn=conn)
-            return {iid: "data:image/jpeg;base64,%s" % base64.b64encode(jpeg_data)}
+            data = _render_thumbnail(request, iid, w=w, conn=conn)
+            return {iid: "data:image/jpeg;base64,%s" % base64.b64encode(data)}
         except:
             return {iid: None}
     logger.debug("Image ids: %r" % image_ids)
