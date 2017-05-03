@@ -267,7 +267,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isSudoing and WriteOwned privileges cases")
-    public void testCreateLinkImportSudo(boolean isSudoing, boolean permWriteOwned,
+    public void testImporterAsSudoCreateImport(boolean isSudoing, boolean permWriteOwned,
             String groupPermissions) throws Exception {
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         final boolean isExpectSuccessCreate = permWriteOwned || isSudoing;
@@ -362,9 +362,9 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     }
 
     /**
-     * Test whether an ImporterAs can delete image, Project and Dataset
+     * Test whether a light admin can delete image, Project and Dataset
      * and their respective links belonging to another
-     * user. Behaviors of the system are explored when ImporterAs
+     * user. Behaviors of the system are explored when light admin
      * is and is not using <tt>Sudo</tt> privilege
      * for this action.
      * @param isAdmin if to test a member of the <tt>system</tt> group
