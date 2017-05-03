@@ -59,6 +59,17 @@ class ChgrpControl(GraphControl):
             "grp", nargs="?", type=ExperimenterGroupArg,
             help="""Group to move objects to""")
 
+    def is_admin(self, client):
+        # check if the user currently logged in an admin
+        svc = client.sf.getAdminService()
+        uid = svc.getEventContext().userId
+        groups = svc.containedGroups(uid)
+        roles = svc.getSecurityRoles()
+        for g in groups:
+            if roles.systemGroupId == g.id.val:
+                return True
+        return False
+
     def _process_request(self, req, args, client):
         # Retrieve group id
         gid = args.grp.lookup(client)
@@ -74,8 +85,10 @@ class ChgrpControl(GraphControl):
 
         # Check session owner is member of the target group
         uid = client.sf.getAdminService().getEventContext().userId
+        admin = self.is_admin(client)
         ids = [x.child.id.val for x in group.copyGroupExperimenterMap()]
-        if uid not in ids:
+        # check if the user is an admin
+        if uid not in ids and not admin:
             self.ctx.die(197, "Current user is not member of group: %s" %
                          group.id.val)
 
