@@ -30,6 +30,10 @@ from omero.cmd import Chgrp2, Delete2, DoAll, SkipHead
 from omero.cmd.graphs import ChildOption
 from omero.api import Save
 from omero.gateway.utils import ServiceOptsDict, GatewayConfig, toBoolean
+from omero.model.enums import PixelsTypeint8, PixelsTypeuint8, PixelsTypeint16
+from omero.model.enums import PixelsTypeuint16, PixelsTypeint32
+from omero.model.enums import PixelsTypeuint32, PixelsTypefloat
+from omero.model.enums import PixelsTypecomplex, PixelsTypedouble
 import omero.scripts as scripts
 
 import Ice
@@ -3580,10 +3584,14 @@ class _BlitzGateway (object):
                 # of our new image
                 img = self.getObject("Image", iId.getValue())
                 newPtype = img.getPrimaryPixels().getPixelsType().getValue()
-                omeroToNumpy = {'int8': 'int8', 'uint8': 'uint8',
-                                'int16': 'int16', 'uint16': 'uint16',
-                                'int32': 'int32', 'uint32': 'uint32',
-                                'float': 'float32', 'double': 'double'}
+                omeroToNumpy = {PixelsTypeint8: 'int8',
+                                PixelsTypeuint8: 'uint8',
+                                PixelsTypeint16: 'int16',
+                                PixelsTypeuint16: 'uint16',
+                                PixelsTypeint32: 'int32',
+                                PixelsTypeuint32: 'uint32',
+                                PixelsTypefloat: 'float32',
+                                PixelsTypedouble: 'double'}
                 if omeroToNumpy[newPtype] != firstPlane.dtype.name:
                     convertToType = getattr(numpy, omeroToNumpy[newPtype])
                 img._obj.setName(rstring(imageName))
@@ -3592,11 +3600,17 @@ class _BlitzGateway (object):
             else:
                 # need to map numpy pixel types to omero - don't handle: bool_,
                 # character, int_, int64, object_
-                pTypes = {'int8': 'int8', 'int16': 'int16', 'uint16': 'uint16',
-                          'int32': 'int32', 'float_': 'float',
-                          'float8': 'float', 'float16': 'float',
-                          'float32': 'float', 'float64': 'double',
-                          'complex_': 'complex', 'complex64': 'complex'}
+                pTypes = {'int8': PixelsTypeint8,
+                          'int16': PixelsTypeint16,
+                          'uint16': PixelsTypeuint16,
+                          'int32': PixelsTypeint32,
+                          'float_': PixelsTypefloat,
+                          'float8': PixelsTypefloat,
+                          'float16': PixelsTypefloat,
+                          'float32': PixelsTypefloat,
+                          'float64': PixelsTypedouble,
+                          'complex_': PixelsTypecomplex,
+                          'complex64': PixelsTypecomplex}
                 dType = firstPlane.dtype.name
                 if dType not in pTypes:  # try to look up any not named above
                     pType = dType
@@ -6952,14 +6966,14 @@ class _PixelsWrapper (BlitzObjectWrapper):
         import numpy
         from struct import unpack
 
-        pixelTypes = {"int8": ['b', numpy.int8],
-                      "uint8": ['B', numpy.uint8],
-                      "int16": ['h', numpy.int16],
-                      "uint16": ['H', numpy.uint16],
-                      "int32": ['i', numpy.int32],
-                      "uint32": ['I', numpy.uint32],
-                      "float": ['f', numpy.float32],
-                      "double": ['d', numpy.float64]}
+        pixelTypes = {PixelsTypeint8: ['b', numpy.int8],
+                      PixelsTypeuint8: ['B', numpy.uint8],
+                      PixelsTypeint16: ['h', numpy.int16],
+                      PixelsTypeuint16: ['H', numpy.uint16],
+                      PixelsTypeint32: ['i', numpy.int32],
+                      PixelsTypeuint32: ['I', numpy.uint32],
+                      PixelsTypefloat: ['f', numpy.float32],
+                      PixelsTypedouble: ['d', numpy.float64]}
 
         rawPixelsStore = self._prepareRawPixelsStore()
         sizeX = self.sizeX
@@ -7249,9 +7263,14 @@ class _ChannelWrapper (BlitzObjectWrapper):
         if si is None:
             logger.info("getStatsInfo() is null. See #9695")
             try:
-                minVals = {'int8': -128, 'uint8': 0, 'int16': -32768,
-                           'uint16': 0, 'int32': -32768, 'uint32': 0,
-                           'float': -32768, 'double': -32768}
+                minVals = {PixelsTypeint8: -128,
+                           PixelsTypeuint8: 0,
+                           PixelsTypeint16: -32768,
+                           PixelsTypeuint16: 0,
+                           PixelsTypeint32: -32768,
+                           PixelsTypeuint32: 0,
+                           PixelsTypefloat: -32768,
+                           PixelsTypedouble: -32768}
                 pixtype = self._obj.getPixels(
                     ).getPixelsType().getValue().getValue()
                 return minVals[pixtype]
@@ -7270,9 +7289,14 @@ class _ChannelWrapper (BlitzObjectWrapper):
         if si is None:
             logger.info("getStatsInfo() is null. See #9695")
             try:
-                maxVals = {'int8': 127, 'uint8': 255, 'int16': 32767,
-                           'uint16': 65535, 'int32': 32767, 'uint32': 65535,
-                           'float': 32767, 'double': 32767}
+                maxVals = {PixelsTypeint8: 127,
+                           PixelsTypeuint8: 255,
+                           PixelsTypeint16: 32767,
+                           PixelsTypeuint16: 65535,
+                           PixelsTypeint32: 32767,
+                           PixelsTypeuint32: 65535,
+                           PixelsTypefloat: 32767,
+                           PixelsTypedouble: 32767}
                 pixtype = self._obj.getPixels(
                     ).getPixelsType().getValue().getValue()
                 return maxVals[pixtype]

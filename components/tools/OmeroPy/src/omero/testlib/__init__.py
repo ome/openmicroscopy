@@ -53,6 +53,12 @@ from omero.model import ProjectDatasetLinkI, ImageAnnotationLinkI
 from omero.model import PermissionsI
 from omero.model import ChecksumAlgorithmI
 from omero.model import NamedValue
+from omero.model.enums import ChecksumAlgorithmSHA1160, DimensionOrderXYZCT
+from omero.model.enums import PixelsTypeint8, PixelsTypeuint8, PixelsTypeint16
+from omero.model.enums import PixelsTypeuint16, PixelsTypeint32
+from omero.model.enums import PixelsTypeuint32, PixelsTypefloat
+from omero.model.enums import PixelsTypedouble
+
 from omero.rtypes import rbool, rstring, rlong, rtime, rint, unwrap
 from omero.util.temp_files import create_path
 from path import path
@@ -404,7 +410,7 @@ class ITest(object):
         def f3(x, y):
             return x
 
-        p_type = "int16"
+        p_type = PixelsTypeint16
         # look up the PixelsType object from DB
         # omero::model::PixelsType
         pixels_type = query_service.findByQuery(
@@ -412,8 +418,9 @@ class ITest(object):
         # if for example float32
         if pixels_type is None and p_type.startswith("float"):
             # omero::model::PixelsType
+            v = PixelsTypefloat
             pixels_type = query_service.findByQuery(
-                "from PixelsType as p where p.value='%s'" % "float", None)
+                "from PixelsType as p where p.value='%s'" % v, None)
         if pixels_type is None:
             raise Exception("Unknown pixels type for: " % p_type)
 
@@ -671,8 +678,8 @@ class ITest(object):
                                       skip="all")
         return pixels_id[0]
 
-    def create_pixels(self, x=10, y=10, z=10, c=3, t=50, pixels_type="int8",
-                      client=None):
+    def create_pixels(self, x=10, y=10, z=10, c=3, t=50,
+                      pixels_type=PixelsTypeint8, client=None):
         """
         Creates an int8 pixel of the given size in the database.
         No data is written.
@@ -688,7 +695,7 @@ class ITest(object):
         pixels.pixelsType = PixelsTypeI()
         pixels.pixelsType.value = rstring(pixels_type)
         pixels.dimensionOrder = DimensionOrderI()
-        pixels.dimensionOrder.value = rstring("XYZCT")
+        pixels.dimensionOrder.value = rstring(DimensionOrderXYZCT)
         image.addPixels(pixels)
 
         if client is None:
@@ -699,17 +706,18 @@ class ITest(object):
 
     @classmethod
     def get_pixels_type(cls, pixels_type):
-        if pixels_type in ["int8", "uint8"]:
+        if pixels_type in [PixelsTypeint8, PixelsTypeuint8]:
             return 1
-        if pixels_type in ["int16", "uint16"]:
+        if pixels_type in [PixelsTypeint16, PixelsTypeuint16]:
             return 2
-        if pixels_type in ["int32", "uint132", "float"]:
+        if pixels_type in [PixelsTypeint32, PixelsTypeuint32,
+                           PixelsTypefloat]:
             return 4
-        if pixels_type in ["double"]:
+        if pixels_type in [PixelsTypedouble]:
             return 8
         raise Exception("Pixels Type %s not supported" % pixels_type)
 
-    def write(self, pixels, rps, pixels_type="int8"):
+    def write(self, pixels, rps, pixels_type=PixelsTypeint8):
         """
         Writes byte arrays consisting of [5] to as
         either planes or tiles depending on the pixel
@@ -967,7 +975,7 @@ class ITest(object):
         ofile.setPath(rstring(str(self.uuid())))
         ofile.setSize(rlong(len(binary)))
         ofile.hasher = ChecksumAlgorithmI()
-        ofile.hasher.value = rstring("SHA1-160")
+        ofile.hasher.value = rstring(ChecksumAlgorithmSHA1160)
         ofile.setMimetype(rstring(str(mimetype)))
         ofile = update.saveAndReturnObject(ofile)
 
@@ -1274,8 +1282,9 @@ class AbstractRepoTest(ITest):
         settings.userSpecifiedDescription = None
         settings.userSpecifiedAnnotationList = None
         settings.userSpecifiedPixels = None
-        settings.checksumAlgorithm = omero.model.ChecksumAlgorithmI()
-        settings.checksumAlgorithm.value = omero.rtypes.rstring("SHA1-160")
+        settings.checksumAlgorithm = ChecksumAlgorithmI()
+        s = rstring(ChecksumAlgorithmSHA1160)
+        settings.checksumAlgorithm.value = s
         return settings
 
     def upload_folder(self, proc, folder):
