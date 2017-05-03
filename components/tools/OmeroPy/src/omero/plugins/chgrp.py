@@ -60,7 +60,7 @@ class ChgrpControl(GraphControl):
             help="""Group to move objects to""")
 
     def is_admin(self, client):
-        # check if the user currently logged in an admin
+        # check if the user currently logged is an admin
         svc = client.sf.getAdminService()
         uid = svc.getEventContext().userId
         groups = svc.containedGroups(uid)
