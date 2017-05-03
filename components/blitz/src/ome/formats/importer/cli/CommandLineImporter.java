@@ -492,19 +492,24 @@ public class CommandLineImporter {
     private static List<Annotation> toTextAnnotations(
                    List<String> namespaces, List<String> strings)
     {
+        List<Annotation> annotations = new ArrayList<Annotation>();
+        CommentAnnotationI annotation;
         if (namespaces.size() != strings.size())
         {
-            throw new IllegalArgumentException(String.format(
-                            "#Namespaces:%d != #Text:%d", namespaces.size(),
-                            strings.size()));
-        }
-        List<Annotation> annotations = new ArrayList<Annotation>();
-        for(int i = 0; i < namespaces.size(); i++)
-        {
-            CommentAnnotationI annotation = new CommentAnnotationI();
-            annotation.setNs(omero.rtypes.rstring(namespaces.get(i)));
-            annotation.setTextValue(omero.rtypes.rstring(strings.get(i)));
-            annotations.add(annotation);
+            for(int i = 0; i < strings.size(); i++)
+            {
+                annotation = new CommentAnnotationI();
+                annotation.setTextValue(omero.rtypes.rstring(strings.get(i)));
+                annotations.add(annotation);
+            }
+        } else {
+            for(int i = 0; i < namespaces.size(); i++)
+            {
+                annotation = new CommentAnnotationI();
+                annotation.setNs(omero.rtypes.rstring(namespaces.get(i)));
+                annotation.setTextValue(omero.rtypes.rstring(strings.get(i)));
+                annotations.add(annotation);
+            }
         }
         return annotations;
     }
