@@ -610,8 +610,12 @@ public class RepositoryDaoImpl implements RepositoryDao {
                             null, mimetype, sf, getSqlAction(), session).get(0);
                 }
             });
-
-            return (OriginalFile) mapper.map(of);
+            final OriginalFile rv = (OriginalFile) mapper.map(of);
+            final String name = rv.getName().getValue();
+            if (name.startsWith(fileRepoSecretKey)) {
+                rv.setName(omero.rtypes.rstring(name.substring(fileRepoSecretKey.length())));
+            }
+            return rv;
         } catch (Exception e) {
             throw (ServerError) mapper.handleException(e, executor.getContext());
         }
