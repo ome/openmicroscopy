@@ -31,7 +31,7 @@ public class OmeroInterceptorTest extends MockObjectTestCase {
         super.setUp();
         MockServiceFactory sf = new MockServiceFactory();
         SessionManager sm = (SessionManager) mock(SessionManager.class).proxy();
-        BasicSecuritySystem sec = BasicSecuritySystem.selfConfigure(sm, sf, new TestSessionCache(this));
+        BasicSecuritySystem sec = BasicSecuritySystem.selfConfigure(sm, null, sf, new TestSessionCache(this));
         TokenHolder tokenHolder = new TokenHolder();
         oi = new OmeroInterceptor(new Roles(), new SystemTypes(), null, null, tokenHolder, new NullSessionStats());
     }

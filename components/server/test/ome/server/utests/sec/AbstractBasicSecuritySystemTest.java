@@ -101,7 +101,7 @@ public abstract class AbstractBasicSecuritySystemTest extends
                 st, new ExtendedMetadata.Impl(),
                 cd, th, new NullSessionStats());
         SecurityFilter filter = new OneGroupSecurityFilter();
-        sec = new BasicSecuritySystem(oi, st, cd, mgr, new Roles(), sf,
+        sec = new BasicSecuritySystem(oi, st, cd, mgr, null, new Roles(), sf,
                 th, filter, new DefaultPolicyService());
         aclVoter = new BasicACLVoter(cd, st, th, filter,
                 new DefaultPolicyService());

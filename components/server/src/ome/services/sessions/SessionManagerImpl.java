@@ -40,6 +40,7 @@ import ome.model.meta.Session;
 import ome.model.meta.Share;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
+import ome.security.NodeProvider;
 import ome.security.basic.PrincipalHolder;
 import ome.services.messages.CreateSessionMessage;
 import ome.services.messages.DestroySessionMessage;
@@ -99,7 +100,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
      * value may be overwritten by an injector with a value which is used
      * throughout this server instance.
      */
-    private String internal_uuid = UUID.randomUUID().toString();
+    protected String internal_uuid = UUID.randomUUID().toString();
 
     // Injected
     protected OmeroContext context;
@@ -113,6 +114,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
     protected PrincipalHolder principalHolder;
     protected CounterFactory factory;
     protected boolean readOnly = false;
+    protected NodeProvider nodeProvider;
 
     // Local state
 
@@ -180,6 +182,10 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
 
     public void setReadOnly(boolean readOnly) {
         this.readOnly = readOnly;
+    }
+
+    public void setNodeProvider(NodeProvider nodeProvider) {
+        this.nodeProvider = nodeProvider;
     }
 
     /**
@@ -1045,12 +1051,9 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         return executeCheckPassword(new Principal(name), credentials);
     }
 
-    private Session executeUpdate(ServiceFactory sf, Session session,
+    protected Session executeUpdate(ServiceFactory sf, Session session,
             long userId) {
-        Node node = sf.getQueryService().findByQuery(
-                "select n from Node n where uuid = :uuid",
-                new Parameters().addString("uuid", internal_uuid).setFilter(
-                        new Filter().page(0, 1)));
+        Node node = nodeProvider.getManagerByUuid(internal_uuid, sf);
         if (node == null) {
             node = new Node(0L, false); // Using default node.
         }
@@ -1114,7 +1117,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
      * {@link #onApplicationEvent(ApplicationEvent)} when a
      * {@link DestroySessionMessage} is received.
      */
-    private Session executeCloseSession(final String uuid) {
+    protected Session executeCloseSession(final String uuid) {
         return (Session) executor
                 .executeSql(new Executor.SimpleSqlWork(this,
                         "executeCloseSession") {
@@ -1138,7 +1141,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
                 });
     }
 
-    private Session executeInternalSession() {
+    protected Session executeInternalSession() {
         final Long sessionId = executeNextSessionId();
         return (Session) executor
                 .executeSql(new Executor.SimpleSqlWork(this,
@@ -1153,12 +1156,8 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
                                 "Sessions", "Internal", null);
 
                         // Set the owner and node specially for an internal sess
-                        long nodeId = 0L;
-                        try {
-                            nodeId = sql.nodeId(internal_uuid);
-                        } catch (EmptyResultDataAccessException erdae) {
-                            // Using default node
-                        }
+                        long nodeId = nodeProvider.getManagerIdByUuid(
+                                internal_uuid, sql);
 
                         // SQL defined in data.vm for creating original session
                         // (id,permissions,timetoidle,timetolive,started,closed,defaulteventtype,uuid,owner,node)
@@ -1183,6 +1182,8 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
                         }
                         Long id = sql.sessionId(s.getUuid());
                         s.setId(id);
+                        s.setNode(new Node(nodeId, false));
+                        s.setOwner(new Experimenter(roles.getRootId(), false));
                         return s;
                     }
                 });
@@ -1193,7 +1194,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
      *
      * @return
      */
-    private Long executeNextSessionId() {
+    protected Long executeNextSessionId() {
         return (Long) executor
                 .executeSql(new Executor.SimpleSqlWork(this,
                         "executeNextSessionId") {
@@ -1383,11 +1384,25 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
     }
 
     /**
+     * Retrieves a session by ID.
+     * @param id session ID to lookup
+     * @param sf active service factory
+     * @return See above.
+     */
+    protected Session findSessionById(Long id, ServiceFactory sf) {
+        return (Session) sf.getQueryService().findByQuery(
+                "select s from Session s "
+                + "left outer join fetch s.annotationLinks l "
+                + "left outer join fetch l.child a where s.id = :id",
+                    new Parameters().addId(id));
+    }
+
+    /**
      * Returns a List of state for creating a new {@link SessionContext}. If an
      * exception is thrown, return nulls since throwing an exception within the
      * Work will set our transaction to rollback only.
      */
-    private List<Object> executeSessionContextLookup(ServiceFactory sf,
+    protected List<Object> executeSessionContextLookup(ServiceFactory sf,
             Principal principal, Session session) {
         try {
             List<Object> list = new ArrayList<Object>();
@@ -1398,12 +1413,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
             final List<Long> memberOfGroupsIds = admin.getMemberOfGroupIds(exp);
             final List<Long> leaderOfGroupsIds = admin.getLeaderOfGroupIds(exp);
             final List<String> userRoles = admin.getUserRoles(exp);
-            final Session reloaded = (Session)
-                    sf.getQueryService().findByQuery(
-                            "select s from Session s "
-                            + "left outer join fetch s.annotationLinks l "
-                            + "left outer join fetch l.child a where s.id = :id",
-                            new Parameters().addId(session.getId()));
+            final Session reloaded = findSessionById(session.getId(), sf);
             list.add(exp);
             list.add(grp);
             list.add(memberOfGroupsIds);
