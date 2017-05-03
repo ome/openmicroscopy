@@ -1559,7 +1559,6 @@ class GraphArg(object):
         targetObjects = dict()
         try:
             parts = arg.split(":", 1)
-            print arg
             assert len(parts) == 2
             assert '+' not in parts[0]
             parts[0] = parts[0].lstrip("/")
