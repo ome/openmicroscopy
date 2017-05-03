@@ -318,6 +318,30 @@ public class TablesFacility extends Facility {
      *             If an error occurred while trying to retrieve data from OMERO
      *             service.
      */
+    public TableData getTable(SecurityContext ctx, long fileId, List<Long> rows)
+            throws DSOutOfServiceException, DSAccessException {
+        long[] rowsArray = new long[rows.size()];
+        for (int i = 0; i < rows.size(); i++)
+            rowsArray[i] = rows.get(i);
+        return getTable(ctx, fileId, rowsArray);
+    }
+    
+    /**
+     * Load data from a table
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param fileId
+     *            The id of the {@link OriginalFile} which stores the table
+     * @param rows
+     *            The rows to get
+     * @return The specified data
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
     public TableData getTable(SecurityContext ctx, long fileId, long... rows)
             throws DSOutOfServiceException, DSAccessException {
         TablePrx table = null;
