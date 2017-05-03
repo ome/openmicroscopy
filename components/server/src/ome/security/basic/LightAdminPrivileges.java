@@ -90,7 +90,7 @@ public class LightAdminPrivileges {
     /**
      * @return all the light administrator privileges
      */
-    public ImmutableSet<AdminPrivilege> getAllPrivileges() {
+    public static ImmutableSet<AdminPrivilege> getAllPrivileges() {
         return ADMIN_PRIVILEGES;
     }
 
@@ -151,7 +151,7 @@ public class LightAdminPrivileges {
      * @param isCache if newly fetched privileges should be cached for future lookups
      * @return the light administrator privileges associated with the session
      */
-    public ImmutableSet<AdminPrivilege> getSessionPrivileges(Session session, boolean isCache) {
+    private ImmutableSet<AdminPrivilege> getSessionPrivileges(Session session, boolean isCache) {
         final SessionEqualById wrappedSession = new SessionEqualById(session);
         try {
             if (isCache) {
@@ -207,27 +207,35 @@ public class LightAdminPrivileges {
      */
     private ImmutableSet<AdminPrivilege> getPrivileges(Session session) {
         final Set<AdminPrivilege> privileges = new HashSet<>(getAllPrivileges());
-        final Experimenter user;
-        if (session.getSudoer() == null) {
-            user = session.getOwner();
-        } else {
-            user = session.getSudoer();
+        removeUserPrivileges(session.getSudoer(), privileges);
+        removeUserPrivileges(session.getOwner(), privileges);
+        return ImmutableSet.copyOf(privileges);
+    }
+
+    /**
+     * Remove from the given light administrator privileges those not shared by the given user.
+     * Does <em>not</em> take account of if the user is a member of <tt>system</tt>:
+     * calculates assuming that the user is an administrator.
+     * Assumes that <tt>root</tt> has all light administrator privileges.
+     * @param user a user, may be {@code null}
+     * @param privileges a set of light administrator privileges
+     */
+    private void removeUserPrivileges(Experimenter user, Set<AdminPrivilege> privileges) {
+        if (user == null || user.getId() == rootId) {
+            return;
         }
-        if (user != null && user.getId() != rootId) {
-            final List<NamedValue> config = user.getConfig();
-            if (CollectionUtils.isNotEmpty(config)) {
-                for (final NamedValue configProperty : config) {
-                    if (!Boolean.parseBoolean(configProperty.getValue())) {
-                        final String configPropertyName = configProperty.getName();
-                        if (configPropertyName.startsWith(USER_CONFIG_NAME_PREFIX)) {
-                            final String adminPrivilegeName = configPropertyName.substring(USER_CONFIG_NAME_PREFIX.length());
-                            privileges.remove(ADMIN_PRIVILEGES_BY_VALUE.get(adminPrivilegeName));
-                        }
+        final List<NamedValue> config = user.getConfig();
+        if (CollectionUtils.isNotEmpty(config)) {
+            for (final NamedValue configProperty : config) {
+                if (!Boolean.parseBoolean(configProperty.getValue())) {
+                    final String configPropertyName = configProperty.getName();
+                    if (configPropertyName.startsWith(USER_CONFIG_NAME_PREFIX)) {
+                        final String adminPrivilegeName = configPropertyName.substring(USER_CONFIG_NAME_PREFIX.length());
+                        privileges.remove(ADMIN_PRIVILEGES_BY_VALUE.get(adminPrivilegeName));
                     }
                 }
             }
         }
-        return ImmutableSet.copyOf(privileges);
     }
 
     /**

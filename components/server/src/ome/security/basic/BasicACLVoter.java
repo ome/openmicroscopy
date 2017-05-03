@@ -27,7 +27,6 @@ import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Token;
-import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
@@ -97,9 +96,6 @@ public class BasicACLVoter implements ACLVoter {
 
     private final LightAdminPrivileges adminPrivileges;
 
-    /* preserve permissions past context invalidation through to post-processing */
-    private final ThreadLocal<Set<AdminPrivilege>> adminPrivilegesCache = new ThreadLocal<>();
-
     /* thread-safe */
     private final Set<String> managedRepoUuids, scriptRepoUuids;
 
@@ -159,11 +155,7 @@ public class BasicACLVoter implements ACLVoter {
         } else if (!ec.isCurrentUserAdmin()) {
             return false;  // not an admin
         }
-        final Event event = currentUser.getEvent();
-        if (event == null || !event.isLoaded()) {
-            return true;   // no session to limit privileges
-        }
-        final Set<AdminPrivilege> privileges = adminPrivileges.getSessionPrivileges(event.getSession());
+        final Set<AdminPrivilege> privileges = ec.getCurrentAdminPrivileges();
         if (sysTypes.isSystemType(iObject.getClass())) {
             if (iObject instanceof Experimenter) {
                 return privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_MODIFY_USER));
@@ -221,20 +213,12 @@ public class BasicACLVoter implements ACLVoter {
             if (sessionOwnerQueried == null) {
                 sessionOwnerQueried = queriedSession.getOwner();
             }
-            /* determine if the "real" owner is an administrator */
-            final Object systemMembership = session.createQuery(
-                    "FROM GroupExperimenterMap WHERE parent.id = :group AND child.id = :user")
-                    .setLong("group", roles.getSystemGroupId()).setLong("user", sessionOwnerCurrent.getId()).uniqueResult();
-            if (systemMembership != null) {
-                /* cannot yet cache privileges because Sessions may be loaded while still being constructed by the session bean */
-                final Set<AdminPrivilege> privileges = adminPrivileges.getSessionPrivileges(currentSession, false);
-                if (privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_READ_SESSION))) {
-                    /* only a full administrator may read all sessions */
-                    return true;
-                }
+            /* can read sessions for which "real" owner matches */
+            if (sessionOwnerCurrent.getId().equals(sessionOwnerQueried.getId())) {
+                return true;
             }
-            /* without ReadSession privilege may read only those sessions for which "real" owner matches */
-            return sessionOwnerCurrent.getId() == sessionOwnerQueried.getId();
+            /* only a full administrator may read all sessions */
+            return ec.getCurrentAdminPrivileges().contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_READ_SESSION));
         }
 
         if (d == null || sysTypes.isSystemType(klass)) {
@@ -297,6 +281,8 @@ public class BasicACLVoter implements ACLVoter {
         // OmeroInterceptor checks whether or not objects are only
         // LINKED to one's own objects which is the actual intent.
 
+        final EventContext ec = currentUser.getCurrentEventContext();
+
         if (tokenHolder.hasPrivilegedToken(iObject)) {
             return true;
         } else if (!sysType) {
@@ -307,14 +293,8 @@ public class BasicACLVoter implements ACLVoter {
             }
             /* also checked by OmeroInterceptor.newTransientDetails */
             return true;
-        } else if (currentUser.getCurrentEventContext().isCurrentUserAdmin()) {
-            final Set<AdminPrivilege> privileges;
-            final Event event = currentUser.current().getEvent();
-            if (event == null || !event.isLoaded()) {
-                privileges = adminPrivileges.getAllPrivileges();
-            } else {
-                privileges = adminPrivileges.getSessionPrivileges(event.getSession());
-            }
+        } else if (ec.isCurrentUserAdmin()) {
+            final Set<AdminPrivilege> privileges = ec.getCurrentAdminPrivileges();
             if (iObject instanceof Experimenter) {
                 return privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_MODIFY_USER));
             } else if (iObject instanceof ExperimenterGroup) {
@@ -468,25 +448,8 @@ public class BasicACLVoter implements ACLVoter {
             // Don't return. Need further processing for delete.
         }
 
-        final Set<AdminPrivilege> privileges;
-        if (c.isCurrentUserAdmin()) {
-            final Event event = c.getEvent();
-            if (event == null || !event.isLoaded()) {
-                final Set<AdminPrivilege> cachedPrivileges = adminPrivilegesCache.get();
-                if (cachedPrivileges != null) {
-                    privileges = cachedPrivileges;
-                } else {
-                    log.debug("could not find session so not applying light administrator restrictions");
-                    privileges = adminPrivileges.getAllPrivileges();
-                }
-            } else {
-                privileges = adminPrivileges.getSessionPrivileges(event.getSession());
-                adminPrivilegesCache.set(privileges);
-            }
-        } else {
-            privileges = Collections.emptySet();
-        }
-        if (adminPrivileges.getAllPrivileges().equals(privileges)) {
+        final Set<AdminPrivilege> privileges = c.getCurrentAdminPrivileges();
+        if (LightAdminPrivileges.getAllPrivileges().equals(privileges)) {
             for (int i = 0; i < scopes.length; i++) {
                 if (scopes[i] != null) {
                     rv |= (1<<i);
@@ -616,16 +579,6 @@ public class BasicACLVoter implements ACLVoter {
         }
     }
 
-    @Override
-    public void noteAdminPrivileges(ome.model.meta.Session session) {
-        adminPrivilegesCache.set(adminPrivileges.getSessionPrivileges(session));
-    }
-
-    @Override
-    public void clearAdminPrivileges() {
-        adminPrivilegesCache.remove();
-    }
-
     /**
      * On the given permissions integer sets the {@code CHGRP}, {@code CHOWN} restriction bits if the current user may
      * move or give an object of the given class and with the given details.
@@ -639,23 +592,10 @@ public class BasicACLVoter implements ACLVoter {
             /* probably a system type, either way we cannot judge on this basis */
             return allow;
         }
-        final boolean isChgrpPrivilege, isChownPrivilege;
         final EventContext ec = currentUser.getCurrentEventContext();
-        if (ec.isCurrentUserAdmin()) {
-            /* assumes we called allowUpdateOrDelete to set cache */
-            final Set<AdminPrivilege> privileges = adminPrivilegesCache.get();
-            if (privileges == null) {
-                log.debug("could not find cached privileges so not applying light administrator restrictions");
-                isChgrpPrivilege = true;
-                isChownPrivilege = true;
-            } else {
-                isChgrpPrivilege = privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_CHGRP));
-                isChownPrivilege = privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_CHOWN));
-            }
-        } else {
-            isChgrpPrivilege = false;
-            isChownPrivilege = false;
-        }
+        final Set<AdminPrivilege> privileges = ec.getCurrentAdminPrivileges();
+        final boolean isChgrpPrivilege = privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_CHGRP));
+        final boolean isChownPrivilege = privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_CHOWN));
         final int chgrpBit = 1 << Permissions.CHGRPRESTRICTION;
         final int chownBit = 1 << Permissions.CHOWNRESTRICTION;
         if (isChgrpPrivilege || ec.getCurrentUserId().equals(details.getOwner().getId())) {

@@ -106,16 +106,6 @@ public class CompositeACLVoter implements ACLVoter {
         basic.setPermittedClasses(objectClassesPermitted);
     }
 
-    @Override
-    public void noteAdminPrivileges(ome.model.meta.Session session) {
-        choose().noteAdminPrivileges(session);
-    }
-
-    @Override
-    public void clearAdminPrivileges() {
-        choose().clearAdminPrivileges();
-    }
-
     public void postProcess(IObject object) {
         choose().postProcess(object);
     }

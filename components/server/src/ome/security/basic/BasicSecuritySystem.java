@@ -1,6 +1,4 @@
 /*
- * ome.security.basic.BasicSecuritySystem
- *
  *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -12,7 +10,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import ome.api.IQuery;
 import ome.api.local.LocalAdmin;
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
@@ -21,6 +21,7 @@ import ome.conditions.InternalException;
 import ome.conditions.SecurityViolation;
 import ome.conditions.SessionTimeoutException;
 import ome.model.IObject;
+import ome.model.enums.AdminPrivilege;
 import ome.model.enums.EventType;
 import ome.model.internal.Details;
 import ome.model.internal.GraphHolder;
@@ -33,6 +34,7 @@ import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
+import ome.model.meta.Share;
 import ome.parameters.Parameters;
 import ome.security.ACLVoter;
 import ome.security.AdminAction;
@@ -376,6 +378,17 @@ public class BasicSecuritySystem implements SecuritySystem,
         }
         tokenHolder.setToken(exp.getGraphHolder());
 
+        // Sudoer
+        final Experimenter sudoer;
+        final Long sudoerId = ec.getCurrentSudoerId();
+        if (sudoerId == null) {
+            sudoer = null;
+        } else if (isReadOnly) {
+            sudoer = new Experimenter(sudoerId, false);
+        } else {
+            sudoer = admin.userProxy(sudoerId);
+        }
+
         // isAdmin
         boolean isAdmin = false;
         for (long gid : ec.getMemberOfGroupsList()) {
@@ -384,6 +397,9 @@ public class BasicSecuritySystem implements SecuritySystem,
                 break;
             }
         }
+
+        // admin privileges
+        final Set<AdminPrivilege> adminPrivileges = ec.getCurrentAdminPrivileges();
 
         // Active group - starting with #3529, the current group and the current
         // share values should be definitive as setting the context on
@@ -434,16 +450,18 @@ public class BasicSecuritySystem implements SecuritySystem,
         if (isReadOnly) {
             sess = new ome.model.meta.Session(sessionId, false);
         } else {
-            final String hql = "FROM Session s LEFT OUTER JOIN FETCH s.sudoer WHERE s.id = :id";
+            final IQuery iQuery = sf.getQueryService();
+            final String sessionClass = iQuery.find(Share.class, sessionId) == null ? "Session" : "Share";
+            final String hql = "FROM " + sessionClass + " s LEFT OUTER JOIN FETCH s.sudoer WHERE s.id = :id";
             final Parameters params = new Parameters().addId(sessionId);
-            sess = sf.getQueryService().findByQuery(hql, params);
+            sess = iQuery.findByQuery(hql, params);
         }
 
         tokenHolder.setToken(callGroup.getGraphHolder());
 
         // In order to less frequently access the ThreadLocal in CurrentDetails
         // All properties are now set in one shot, except for Event.
-        cd.setValues(exp, callGroup, callPerms, isAdmin, isReadOnly, shareId);
+        cd.setValues(exp, sudoer, callGroup, callPerms, isAdmin, adminPrivileges, isReadOnly, shareId);
 
         // Event
         String t = p.getEventType();
@@ -526,20 +544,6 @@ public class BasicSecuritySystem implements SecuritySystem,
         }
         
         cd.clearLogs();
-    }
-
-    /**
-     * Note the light admin privileges for post-processing before the event context is invalidated.
-     */
-    public void noteAdminPrivileges() {
-        if (aclVoter == null) {
-            /* probably in pixel data or indexer thread */
-            return;
-        }
-        final Parameters params = new Parameters().addId(cd.getCurrentEventContext().getCurrentSessionId());
-        final String hql = "FROM Session s LEFT OUTER JOIN FETCH s.sudoer WHERE s.id = :id";
-        final ome.model.meta.Session session = sf.getQueryService().findByQuery(hql, params);
-        aclVoter.noteAdminPrivileges(session);
     }
 
     public void invalidateEventContext() {
@@ -643,10 +647,12 @@ public class BasicSecuritySystem implements SecuritySystem,
 
                 BasicEventContext c = cd.current();
                 boolean wasAdmin = c.isCurrentUserAdmin();
+                final Set<AdminPrivilege> oldAdminPrivileges = c.getAdminPrivileges();
                 ExperimenterGroup oldGroup = c.getGroup();
 
                 try {
                     c.setAdmin(true);
+                    c.setAdminPrivileges(LightAdminPrivileges.getAllPrivileges());
                     if (group != null) {
                         c.setGroup(group, group.getDetails().getPermissions());
                     }
@@ -655,6 +661,7 @@ public class BasicSecuritySystem implements SecuritySystem,
                     action.runAsAdmin();
                 } finally {
                     c.setAdmin(wasAdmin);
+                    c.setAdminPrivileges(oldAdminPrivileges);
                     if (group != null) {
                         c.setGroup(oldGroup, oldGroup.getDetails().getPermissions());
                     }

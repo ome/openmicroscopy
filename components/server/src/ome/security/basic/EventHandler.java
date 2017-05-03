@@ -1,9 +1,8 @@
 /*
- *   $Id$
- *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.security.basic;
 
 import java.util.ArrayList;
@@ -151,7 +150,6 @@ public class EventHandler implements MethodInterceptor, ApplicationListener<Cont
         Object retVal = null;
         try {
             secSys.enableReadFilter(session);
-            secSys.noteAdminPrivileges();
             retVal = arg0.proceed();
             saveLogs(readOnly, session);
             secSys.cd.loadPermissions(session);

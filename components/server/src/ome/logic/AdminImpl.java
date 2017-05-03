@@ -647,7 +647,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     public long createLightSystemUser(Experimenter newSystemUser, List<AdminPrivilege> privileges) {
         assertKnownPrivileges(privileges);
         final List<NamedValue> userConfig = new ArrayList<>();
-        for (final AdminPrivilege privilege : adminPrivileges.getAllPrivileges()) {
+        for (final AdminPrivilege privilege : LightAdminPrivileges.getAllPrivileges()) {
             if (!privileges.contains(privilege)) {
                 userConfig.add(new NamedValue(adminPrivileges.getConfigNameForPrivilege(privilege), Boolean.toString(false)));
             }
@@ -1282,7 +1282,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             return Collections.emptyList();
         }
         final List<NamedValue> userConfig = userProxy(user.getId()).getConfig();
-        final List<AdminPrivilege> privileges = new ArrayList<AdminPrivilege>(adminPrivileges.getAllPrivileges());
+        final List<AdminPrivilege> privileges = new ArrayList<AdminPrivilege>(LightAdminPrivileges.getAllPrivileges());
         if (CollectionUtils.isNotEmpty(userConfig)) {
             for (final NamedValue configProperty : userConfig) {
                 if (!Boolean.parseBoolean(configProperty.getValue())) {
@@ -1300,7 +1300,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         assertKnownPrivileges(privileges);
         final Set<AdminPrivilege> targetUserPrivilegesBefore = ImmutableSet.copyOf(getAdminPrivileges(user));
 
-        final Set<AdminPrivilege> privilegesToRemove = new HashSet<AdminPrivilege>(adminPrivileges.getAllPrivileges());
+        final Set<AdminPrivilege> privilegesToRemove = new HashSet<AdminPrivilege>(LightAdminPrivileges.getAllPrivileges());
         privilegesToRemove.removeAll(privileges);
 
         if (user.getId() == getSecurityRoles().getRootId() && !privilegesToRemove.isEmpty()) {
@@ -1592,13 +1592,6 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
      * @return the light administrator privileges that apply to the current session
      */
     private Set<AdminPrivilege> getCurrentAdminPrivilegesForSession() {
-        if (isAdmin()) {
-            final String hql = "FROM Session s LEFT OUTER JOIN FETCH s.sudoer WHERE s.id = :id";
-            final Parameters params = new Parameters().addId(getEventContext().getCurrentSessionId());
-            final ome.model.meta.Session session = iQuery.findByQuery(hql, params);
-            return adminPrivileges.getSessionPrivileges(session);
-        } else {
-            return ImmutableSet.of();
-        }
+        return isAdmin() ? getEventContextQuiet().getCurrentAdminPrivileges() : Collections.<AdminPrivilege>emptySet();
     }
 }

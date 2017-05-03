@@ -79,17 +79,13 @@ public class LightAdminPrivilegesSecurityFilter extends AbstractSecurityFilter {
 
     @Override
     public void enable(Session session, EventContext ec) {
-        final ome.model.meta.Session omeroSession = (ome.model.meta.Session)
-                session.get(ome.model.meta.Session.class, ec.getCurrentSessionId());
         final List<String> privilegeValues = new ArrayList<String>();
-        for (final AdminPrivilege adminPrivilege : adminPrivileges.getSessionPrivileges(omeroSession)) {
+        for (final AdminPrivilege adminPrivilege : ec.getCurrentAdminPrivileges()) {
             privilegeValues.add(adminPrivilege.getValue());
         }
-        final Long realOwner;
-        if (omeroSession.getSudoer() != null) {
-            realOwner = omeroSession.getSudoer().getId();
-        } else {
-            realOwner = omeroSession.getOwner().getId();
+        Long realOwner = ec.getCurrentSudoerId();
+        if (realOwner == null) {
+            realOwner = ec.getCurrentUserId();
         }
 
         final int isAdmin01 = ec.isCurrentUserAdmin() ? 1 : 0;

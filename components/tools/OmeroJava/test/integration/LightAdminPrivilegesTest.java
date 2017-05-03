@@ -1392,11 +1392,8 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         }
         Assert.assertFalse(sessionUuids.contains(actor.sessionUuid));
         Assert.assertTrue(sessionUuids.contains(actorAsNormalUser.sessionUuid));
-        if (isExpectSuccess) {
-            Assert.assertTrue(sessionUuids.contains(normalUser.sessionUuid));
-        } else {
-            Assert.assertFalse(sessionUuids.contains(normalUser.sessionUuid));
-        }
+        /* can never succeed because privileges are not preserved through sudo */
+        Assert.assertFalse(sessionUuids.contains(normalUser.sessionUuid));
         normalUserClient.__del__();
     }
 
@@ -1436,11 +1433,8 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         }
         Assert.assertFalse(sessionUuids.contains(actor.sessionUuid));
         Assert.assertTrue(sessionUuids.contains(actorAsNormalUser.sessionUuid));
-        if (isExpectSuccess) {
-            Assert.assertTrue(sessionUuids.contains(normalUser.sessionUuid));
-        } else {
-            Assert.assertFalse(sessionUuids.contains(normalUser.sessionUuid));
-        }
+        /* can never succeed because privileges are not preserved through sudo */
+        Assert.assertFalse(sessionUuids.contains(normalUser.sessionUuid));
         normalUserClient.__del__();
     }
 
@@ -2352,6 +2346,38 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         for (final AdminPrivilege privilege : iAdmin.getCurrentAdminPrivileges()) {
             privileges.add(privilege.getValue().getValue());
         }
+        if (isAdmin) {
+            Assert.assertFalse(privileges.isEmpty());
+            if (isRestricted) {
+                Assert.assertFalse(privileges.contains(AdminPrivilegeReadSession.value));
+            } else {
+                Assert.assertTrue(privileges.contains(AdminPrivilegeReadSession.value));
+            }
+        } else {
+            Assert.assertTrue(privileges.isEmpty());
+        }
+    }
+
+    /**
+     * Test that {@link omero.api.IAdminPrx#getEventContext()} has the expected sudo status and list of privileges.
+     * @param isAdmin if to test a member of the <tt>system</tt> group
+     * @param isRestricted if to test a user who does <em>not</em> have the <tt>ReadSession</tt> privilege
+     * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "light administrator privilege test cases")
+    public void testGetEventContext(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
+        loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
+                isRestricted ? AdminPrivilegeReadSession.value : null);
+        final EventContext eventContext = iAdmin.getEventContext();
+        if (isSudo) {
+            Assert.assertNotNull(eventContext.sudoerId);
+            Assert.assertNotNull(eventContext.sudoerName);
+        } else {
+            Assert.assertNull(eventContext.sudoerId);
+            Assert.assertNull(eventContext.sudoerName);
+        }
+        final List<String> privileges =  eventContext.adminPrivileges;
         if (isAdmin) {
             Assert.assertFalse(privileges.isEmpty());
             if (isRestricted) {

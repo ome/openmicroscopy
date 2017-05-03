@@ -29,7 +29,6 @@ import org.hibernate.type.Type;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.Assert;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.base.Splitter;
 
 import ome.conditions.ApiUsageException;
@@ -54,7 +53,6 @@ import ome.model.internal.NamedValue;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
-import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.ExternalInfo;
@@ -349,20 +347,21 @@ public class OmeroInterceptor implements Interceptor {
     // =========================================================================
     public void preFlush(Iterator entities) throws CallbackException {
         debug("Intercepted preFlush.");
+        EMPTY.preFlush(entities);
+    }
+
+    public void postFlush(Iterator entities) throws CallbackException {
+        debug("Intercepted postFlush.");
 
         if (TransactionSynchronizationManager.isCurrentTransactionReadOnly()) {
             debug("detected read-only transaction");
         } else if (sqlAction != null) {
             /* read-write transactions may trigger checks */
             debug("updating current light administrator privileges");
+            final Set<AdminPrivilege> privileges = currentUser.current().getCurrentAdminPrivileges();
             sqlAction.deleteCurrentAdminPrivileges();
-            sqlAction.insertCurrentAdminPrivileges(getAdminPrivileges());
+            sqlAction.insertCurrentAdminPrivileges(privileges);
         }
-    }
-
-    public void postFlush(Iterator entities) throws CallbackException {
-        debug("Intercepted postFlush.");
-        EMPTY.postFlush(entities);
     }
 
     // ~ Serialization
@@ -658,24 +657,6 @@ public class OmeroInterceptor implements Interceptor {
         return neededRight;
     }
 
-    /**
-     * Determine the light administrator privileges associated with the current event.
-     * If the event is {@code null} but the user is an administrator then return the full set of privileges.
-     * @return the light administrator privileges associated with the current event
-     */
-    private ImmutableSet<AdminPrivilege> getAdminPrivileges() {
-        if (currentUser.getCurrentEventContext().isCurrentUserAdmin()) {
-            final Event event = currentUser.current().getEvent();
-            if (event == null || !event.isLoaded()) {
-                return adminPrivileges.getAllPrivileges();
-            } else {
-                return adminPrivileges.getSessionPrivileges(event.getSession());
-            }
-        } else {
-            return ImmutableSet.of();
-        }
-    }
-
     // TODO is this natural? perhaps permissions don't belong in details
     // details are the only thing that users can change the rest is
     // read only...
@@ -713,7 +694,7 @@ public class OmeroInterceptor implements Interceptor {
         final boolean isPrivilegedCreator;
         final boolean sysType = sysTypes.isSystemType(obj.getClass())
                 || sysTypes.isInSystemGroup(obj.getDetails());
-        final Set<AdminPrivilege> privileges = getAdminPrivileges();
+        final Set<AdminPrivilege> privileges = bec.getCurrentAdminPrivileges();
 
         if (!bec.isCurrentUserAdmin()) {
             isPrivilegedCreator = false;
@@ -1039,7 +1020,7 @@ public class OmeroInterceptor implements Interceptor {
             IObject obj, Details previousDetails, Details currentDetails,
             Details newDetails, final BasicEventContext bec) {
 
-        final Set<AdminPrivilege> privileges = getAdminPrivileges();
+        final Set<AdminPrivilege> privileges = bec.getCurrentAdminPrivileges();
 
         if (!HibernateUtils.idEqual(previousDetails.getOwner(), currentDetails
                 .getOwner())) {
@@ -1092,7 +1073,7 @@ public class OmeroInterceptor implements Interceptor {
             }
         }
 
-        final Set<AdminPrivilege> privileges = getAdminPrivileges();
+        final Set<AdminPrivilege> privileges = bec.getCurrentAdminPrivileges();
 
         // previous and current have different ids. either change it and return
         // true if permitted, or throw an exception.

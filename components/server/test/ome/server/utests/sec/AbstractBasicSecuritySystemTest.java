@@ -103,7 +103,7 @@ public abstract class AbstractBasicSecuritySystemTest extends
         final Roles roles = new Roles();
         final LightAdminPrivileges mockAdminPrivileges = new LightAdminPrivileges(roles) {
             @Override
-            public ImmutableSet<AdminPrivilege> getSessionPrivileges(Session session, boolean isCache) {
+            public ImmutableSet<AdminPrivilege> getSessionPrivileges(Session session) {
                 return getAllPrivileges();
             }
         };
@@ -146,6 +146,8 @@ public abstract class AbstractBasicSecuritySystemTest extends
                 returnValue(readOnly));
         mockEc.expects(atLeastOnce()).method("isCurrentUserAdmin").will(
                 returnValue(false));
+        mockEc.expects(atLeastOnce()).method("getCurrentAdminPrivileges").will(
+                returnValue(Collections.emptySet()));
         mockEc.expects(atLeastOnce()).method("getCurrentGroupPermissions").will(
                 returnValue(Permissions.WORLD_WRITEABLE));
         mockEc.expects(atLeastOnce()).method("getCurrentEventType").will(
@@ -160,6 +162,10 @@ public abstract class AbstractBasicSecuritySystemTest extends
                 returnValue(1L));
         mockEc.expects(atLeastOnce()).method("getCurrentUserName").will(
                 returnValue("some-user"));
+        mockEc.expects(atLeastOnce()).method("getCurrentSudoerId").will(
+                returnValue(null));
+        mockEc.expects(atLeastOnce()).method("getCurrentSudoerName").will(
+                returnValue(null));
         mockEc.expects(atLeastOnce()).method("getCurrentGroupName").will(
                 returnValue("test"));
         mockEc.expects(atLeastOnce()).method("getCurrentGroupId").will(
@@ -200,13 +206,17 @@ public abstract class AbstractBasicSecuritySystemTest extends
         mockEc.expects(atLeastOnce()).method("isReadOnly").will(
                 returnValue(readOnly));
         mockEc.expects(atLeastOnce()).method("isCurrentUserAdmin").will(
-                returnValue(false));
+                returnValue(true));
+        mockEc.expects(atLeastOnce()).method("getCurrentAdminPrivileges").will(
+                returnValue(LightAdminPrivileges.getAllPrivileges()));
         mockEc.expects(atLeastOnce()).method("getCurrentGroupPermissions").will(
                 returnValue(Permissions.WORLD_WRITEABLE));
         mockEc.expects(atLeastOnce()).method("getCurrentEventType").will(
                 returnValue("Test"));
         mockEc.expects(atLeastOnce()).method("getCurrentUserName").will(
                 returnValue("some-user"));
+        mockEc.expects(atLeastOnce()).method("getCurrentSudoerName").will(
+                returnValue(null));
         mockEc.expects(atLeastOnce()).method("getCurrentGroupName").will(
                 returnValue("test"));
         mockEc.expects(atLeastOnce()).method("getCurrentShareId").will(
@@ -217,6 +227,8 @@ public abstract class AbstractBasicSecuritySystemTest extends
                 returnValue(1L));
         mockEc.expects(atLeastOnce()).method("getCurrentUserId").will(
                 returnValue(0L));
+        mockEc.expects(atLeastOnce()).method("getCurrentSudoerId").will(
+                returnValue(null));
         mockEc.expects(atLeastOnce()).method("getCurrentGroupId").will(
                 returnValue(0L));
         mockEc.expects(atLeastOnce()).method("getMemberOfGroupsList").will(
@@ -234,6 +246,7 @@ public abstract class AbstractBasicSecuritySystemTest extends
         sf.mockAdmin.expects(once()).method("groupProxy").will(
                 returnValue(group));
         if (!readOnly) {
+            sf.mockQuery.expects(once()).method("find").will(returnValue(event.getSession()));
             sf.mockQuery.expects(once()).method("findByQuery").will(returnValue(event.getSession()));
             sf.mockAdmin.expects(once()).method("userProxy").will(
                     returnValue(user));
