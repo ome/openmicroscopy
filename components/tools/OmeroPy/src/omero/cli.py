@@ -1809,12 +1809,13 @@ class GraphControl(CmdControl):
                 opt.excludeType = exc
 
         commands, forces = zip(*args.obj)
+        show = not (args.force or args.dry_run)
         needsForce = any(forces)
-        if needsForce and not args.force:
-            warnings.warn("Using '--dry-run'. \
-                          Future versions will switch to '--force'. \
-                          Explicitly set the parameter for \
-                          portability", DeprecationWarning)
+        if needsForce and show:
+            warnings.warn("\nUsing '--dry-run'.\
+                          Future versions will switch to '--force'.\
+                          Explicitly set the parameter for portability",
+                          DeprecationWarning)
         for req in commands:
             req.dryRun = args.dry_run or needsForce
             if args.force:
