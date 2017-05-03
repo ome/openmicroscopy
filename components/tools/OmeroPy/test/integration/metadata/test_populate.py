@@ -31,6 +31,7 @@ import gzip
 import os.path
 import re
 import shutil
+import sys
 
 from omero.api import RoiOptions
 from omero.grid import ImageColumn
@@ -64,6 +65,9 @@ from pytest import mark
 from pytest import raises
 
 MAPR_NS_GENE = 'openmicroscopy.org/mapr/gene'
+
+pythonminver = mark.skipif(sys.version_info < (2, 7),
+                           reason="requires python2.7")
 
 
 def coord2offset(coord):
@@ -123,8 +127,8 @@ class Fixture(object):
 
     def createDataset(self, names=("A1", "A2")):
         ds = self.test.make_dataset()
-        imgs = self.test.importMIF(
-            seriesCount=len(names))
+        imgs = self.test.import_fake_file(
+            images_count=len(names))
         for i, name in enumerate(names):
             # Name must match exactly. No ".fake"
             img = imgs[i]
@@ -133,10 +137,10 @@ class Fixture(object):
         return ds.proxy()
 
     def createScreen(self, rowCount, colCount):
-        plate1 = self.test.importPlates(plateRows=rowCount,
-                                        plateCols=colCount)[0]
-        plate2 = self.test.importPlates(plateRows=rowCount,
-                                        plateCols=colCount)[0]
+        plate1 = self.test.import_plates(plate_rows=rowCount,
+                                         plate_cols=colCount)[0]
+        plate2 = self.test.import_plates(plate_rows=rowCount,
+                                         plate_cols=colCount)[0]
         plate1 = self.setName(plate1, "P001")
         plate2 = self.setName(plate2, "P002")
         screen = ScreenI()
@@ -760,9 +764,23 @@ class GZIP(Dataset2Images):
     def createCsv(self, *args, **kwargs):
         csvFileName = super(GZIP, self).createCsv(*args, **kwargs)
         gzipFileName = "%s.gz" % csvFileName
-        with open(csvFileName, 'rb') as f_in, \
-                gzip.open(gzipFileName, 'wb') as f_out:
-            shutil.copyfileobj(f_in, f_out)
+        # failing on python 2.6
+        # the following workaround can be reverted once py26 is dropped
+        # with open(csvFileName, 'rb') as f_in:
+        #      with gzip.open(gzipFileName, 'wb') as f_out:
+        #          shutil.copyfileobj(f_in, f_out)
+        f_in = open(csvFileName, 'rb')
+        try:
+            try:
+                try:
+                    f_out = gzip.open(gzipFileName, 'wb')
+                except:
+                    f_out = gzip(gzipFileName, 'wb')
+                shutil.copyfileobj(f_in, f_out)
+            finally:
+                f_out.close()
+        finally:
+            f_in.close()
 
         return gzipFileName
 
@@ -845,6 +863,7 @@ class Project2Datasets(Fixture):
                 raise Exception("Unknown dataset: %s" % ds)
 
 
+@pythonminver
 class TestPopulateMetadataConfigLoad(ITest):
 
     def get_cfg_filepath(self):
@@ -869,6 +888,7 @@ class TestPopulateMetadataConfigLoad(ITest):
         self._assert_configs(default_cfg, column_cfgs, advanced_cfgs)
 
 
+@pythonminver
 class TestPopulateMetadataHelper(ITest):
 
     def _test_parsing_context(self, fixture, batch_size):
@@ -961,6 +981,7 @@ class TestPopulateMetadataHelper(ITest):
         assert len(fixture.get_all_map_annotations()) == 0
 
 
+@pythonminver
 class TestPopulateMetadataHelperPerMethod(TestPopulateMetadataHelper):
 
     # Some tests in this file check the counts of annotations in a fixed
@@ -979,6 +1000,7 @@ class TestPopulateMetadataHelperPerMethod(TestPopulateMetadataHelper):
         super(TestPopulateMetadataHelperPerMethod, self).teardown_class()
 
 
+@pythonminver
 class TestPopulateMetadata(TestPopulateMetadataHelper):
 
     METADATA_FIXTURES = (
@@ -1055,6 +1077,7 @@ class TestPopulateMetadata(TestPopulateMetadataHelper):
             self._test_bulk_to_map_annotation_context(fixture_fail, 2)
 
 
+@pythonminver
 class TestPopulateMetadataDedup(TestPopulateMetadataHelperPerMethod):
 
     # Hard-code the number of expected map-annotations in these tests
@@ -1208,6 +1231,7 @@ class TestPopulateMetadataDedup(TestPopulateMetadataHelperPerMethod):
             fixture1, fixture2, ns)
 
 
+@pythonminver
 class TestPopulateMetadataConfigFiles(TestPopulateMetadataHelperPerMethod):
 
     def _init_fixture_attach_cfg(self):
@@ -1396,6 +1420,7 @@ class ROICSV(Fixture):
         return self.plate
 
 
+@pythonminver
 class TestPopulateRois(ITest):
 
     def testPopulateRoisPlate(self):

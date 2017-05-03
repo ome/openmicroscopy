@@ -23,14 +23,19 @@
 Test of the yaml/json parameters file handling
 """
 
-import library as lib
+from omero.testlib import ITest
 from omero.rtypes import unwrap
 from omero.util import pydict_text_io
 
 import pytest
+import sys
+
+pythonminver = pytest.mark.skipif(sys.version_info < (2, 7),
+                                  reason="requires python2.7")
 
 
-class TestPydictTextIo(lib.ITest):
+@pythonminver
+class TestPydictTextIo(ITest):
 
     def getTestJson(self):
         # space after : is optional for json but required for yaml
@@ -68,7 +73,7 @@ class TestPydictTextIo(lib.ITest):
     def test_get_format_originalfileid_yaml(self, format):
         content = self.getTestYaml()
         fa = self.make_file_annotation(
-            name='test.%s' % format[0], binary=content, format=format[1])
+            name='test.%s' % format[0], binary=content, mimetype=format[1])
         fid = unwrap(fa.file.id)
         print fid, unwrap(fa.file.mimetype)
         retdata, rettype = pydict_text_io.get_format_originalfileid(
@@ -82,7 +87,7 @@ class TestPydictTextIo(lib.ITest):
     def test_get_format_originalfileid_json(self, format):
         content = self.getTestJson()
         fa = self.make_file_annotation(
-            name='test.%s' % format[0], binary=content, format=format[1])
+            name='test.%s' % format[0], binary=content, mimetype=format[1])
         fid = unwrap(fa.file.id)
         retdata, rettype = pydict_text_io.get_format_originalfileid(
             fid, None, self.client.getSession())
@@ -99,7 +104,7 @@ class TestPydictTextIo(lib.ITest):
 
         if remote:
             fa = self.make_file_annotation(
-                name='test.%s' % format, binary=content, format=format)
+                name='test.%s' % format, binary=content, mimetype=format)
             fid = unwrap(fa.file.id)
             fileobj = 'OriginalFile:%d' % fid
         else:
