@@ -34,12 +34,8 @@ import ome.formats.importer.transfers.AbstractFileTransfer;
 import ome.formats.importer.transfers.CleanupFailure;
 import ome.formats.importer.transfers.FileTransfer;
 import ome.formats.importer.transfers.UploadFileTransfer;
-import omero.api.ServiceFactoryPrx;
-import omero.api.ServiceInterfacePrx;
-import omero.cmd.HandlePrx;
 import omero.cmd.Response;
 import omero.grid.ImportProcessPrx;
-import omero.grid.ImportProcessPrxHelper;
 import omero.model.Annotation;
 import omero.model.CommentAnnotationI;
 
