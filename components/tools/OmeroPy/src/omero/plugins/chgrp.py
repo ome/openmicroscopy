@@ -62,7 +62,7 @@ class ChgrpControl(GraphControl):
     def is_admin(self, client):
         # check if the user currently logged is an admin
         svc = client.sf.getAdminService()
-        uid = svc.getEventContext().userId
+        uid = self.ctx.get_event_context().userId
         groups = svc.containedGroups(uid)
         roles = svc.getSecurityRoles()
         for g in groups:
@@ -84,7 +84,7 @@ class ChgrpControl(GraphControl):
             self.ctx.die(196, "Failed to find group: %s" % args.grp.orig)
 
         # Check session owner is member of the target group
-        uid = client.sf.getAdminService().getEventContext().userId
+        uid = self.ctx.get_event_context().userId
         admin = self.is_admin(client)
         ids = [x.child.id.val for x in group.copyGroupExperimenterMap()]
         # check if the user is an admin
