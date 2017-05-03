@@ -72,7 +72,7 @@
                     // v.supported_objects is ['image'] or ['dataset', 'images'] etc.
                     else if (typeof v.supported_objects === "object" && v.supported_objects.length > 0) {
                         enabled = v.supported_objects.reduce(function(prev, supported){
-                            // E.g. If supported_objects is 'images'...
+                            // e.g. If supported_objects is 'images'...
                             return prev || supported.indexOf(selectedType) > -1;  // ... selType 'image' OR 'images' are > -1
                         }, false);
                     };
