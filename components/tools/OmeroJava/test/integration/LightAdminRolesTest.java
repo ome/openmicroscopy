@@ -675,7 +675,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * to sever necessary links for performing the chgrp. This is achieved by
      * having the image which is getting moved into a different group in a dataset
      * in the original group (the chgrp has to sever the DatasetImageLink to perform
-     * the move (chgrp)). On the other hand, the Chgrp permissions are not sufficient
+     * the move (chgrp)). <tt>Chgrp</tt> privilege is sufficient also
      * to move annotations (tag and file attachment are tested here).
      * @param isSudoing if to test a success of workflows where Sudoed in
      * @param permChgrp if to test a user who has the <tt>Chgrp</tt> privilege
@@ -683,8 +683,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isSudoing and Chgrp privileges cases")
-    public void testChgrp(boolean isSudoing, boolean permChgrp, boolean permDeleteOwned,
-            String groupPermissions) throws Exception {
+    public void testChgrp(boolean isSudoing, boolean permChgrp, String groupPermissions)
+            throws Exception {
         /* Set up a user and three groups, the user being a member of
          * two of the groups.
          */
@@ -694,12 +694,10 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         /* Define cases:
         /* When data owner is member of the target group,
          * Chgrp action passes also when light admin is
-         * Sudoed as the data owner or when Chgrp permission is given */
+         * Sudoed as the data owner or when Chgrp permission is given. These
+         * permissions should be also sufficient to move all annotations on the image,
+         * which are unique on the image.*/
         boolean isExpectSuccessInMemberGroup = permChgrp || isSudoing;
-        /* define the conditions for the chgrp passing for annotations on moved image,
-         * in the group where normalUser is a member of, when sudoing or permChgrp
-         * and permDeleteOwned are available */
-        final boolean annotExpectSuccessInMemberGroup = (isExpectSuccessInMemberGroup && permDeleteOwned) || isSudoing;
         /* create a Dataset as the normalUser and import into it */
         loginUser(normalUser);
         Dataset dat = mmFactory.simpleDataset();
@@ -737,7 +735,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         List<String> permissions = new ArrayList<String>();
         permissions.add(AdminPrivilegeSudo.value);
         if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);
-        if (permDeleteOwned) permissions.add(AdminPrivilegeDeleteOwned.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(true, permissions);
         sudo(new ExperimenterI(normalUser.userId, false));
@@ -760,40 +757,20 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         if (isExpectSuccessInMemberGroup) {
             assertInGroup(image, normalUsersOtherGroupId);
             assertInGroup((new OriginalFileI(remoteFileId, false)), normalUsersOtherGroupId);
-        } else {
-            assertInGroup(image, normalUser.groupId);
-            assertInGroup((new OriginalFileI(remoteFileId, false)), normalUser.groupId);
-        }
-        /* in any case, the image should still belong to normalUser */
-        assertOwnedBy(image, normalUser);
-        /* check the annotations on the image changed the group as expected */
-        if (annotExpectSuccessInMemberGroup) {
+            /* Also, check the annotations on the image changed the group as expected */
             assertInGroup(originalFileAnnotationAndLink, normalUsersOtherGroupId);
             assertInGroup(tagAnnotation, normalUsersOtherGroupId);
             assertInGroup(tagAnnotationLink, normalUsersOtherGroupId);
-        } else if (isExpectSuccessInMemberGroup){
-            /* the image was moved to another group, but because the
-             * annotExpectSuccessInMemberGroup is false, the annotations were left
-             * behind, which means the links between the annot and the image were severed */
-            assertInGroup(tagAnnotation, normalUser.groupId);
-            assertInGroup(annotOriginalFile, normalUser.groupId);
-            assertInGroup(fileAnnotation, normalUser.groupId);
-            /* tagAnnotationLink was severed */
-            String hql = "SELECT COUNT(*) FROM ImageAnnotationLink WHERE id =:id)";
-            List<List<RType>> results = iQuery.projection(hql, new ParametersI().addId(tagAnnotationLink.getId()));
-            long count = ((RLong) results.get(0).get(0)).getValue();
-            Assert.assertEquals(count, 0);
-            /* fileAnnotationLink was severed */
-            hql = "SELECT COUNT(*) FROM ImageAnnotationLink WHERE id =:id)";
-            results = iQuery.projection(hql, new ParametersI().addId(fileAnnotationLink.getId()));
-            count = ((RLong) results.get(0).get(0)).getValue();
-            Assert.assertEquals(count, 0);
         } else {
+            assertInGroup(image, normalUser.groupId);
+            assertInGroup((new OriginalFileI(remoteFileId, false)), normalUser.groupId);
             /* neither the image nor the annotations were moved */
             assertInGroup(originalFileAnnotationAndLink, normalUser.groupId);
             assertInGroup(tagAnnotation, normalUser.groupId);
             assertInGroup(tagAnnotationLink, normalUser.groupId);
         }
+        /* in any case, the image should still belong to normalUser */
+        assertOwnedBy(image, normalUser);
     }
 
     /**
@@ -2397,7 +2374,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         int index = 0;
         final int IS_SUDOING = index++;
         final int PERM_CHGRP = index++;
-        final int PERM_DELETEOWNED = index++;
         final int GROUP_PERMS = index++;
 
         final boolean[] booleanCases = new boolean[]{false, true};
@@ -2406,19 +2382,16 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
 
             for (final boolean isSudoing : booleanCases) {
                 for (final boolean permChgrp : booleanCases) {
-                    for (final boolean permDeleteOwned : booleanCases) {
-                        for (final String groupPerms : permsCases) {
-                            final Object[] testCase = new Object[index];
-                            /* no test cases are excluded here, because isSudoing
-                             * is in a sense acting to annule Chgrp permission
-                             * which is tested in the testChgrp and is an interesting case.*/
-                            testCase[IS_SUDOING] = isSudoing;
-                            testCase[PERM_CHGRP] = permChgrp;
-                            testCase[PERM_DELETEOWNED] = permDeleteOwned;
-                            testCase[GROUP_PERMS] = groupPerms;
-                            // DEBUG  if (isSudoing == true && permChgrp == true && permDeleteOwned == true)
-                            testCases.add(testCase);
-                        }
+                    for (final String groupPerms : permsCases) {
+                        final Object[] testCase = new Object[index];
+                        /* no test cases are excluded here, because isSudoing
+                         * is in a sense acting to annule Chgrp permission
+                         * which is tested in the testChgrp and is an interesting case.*/
+                        testCase[IS_SUDOING] = isSudoing;
+                        testCase[PERM_CHGRP] = permChgrp;
+                        testCase[GROUP_PERMS] = groupPerms;
+                        // DEBUG  if (isSudoing == true && permChgrp == true)
+                        testCases.add(testCase);
                     }
                 }
             }
