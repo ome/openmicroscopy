@@ -51,6 +51,7 @@ from omero_ext.argparse import SUPPRESS
 from omero.util.concurrency import get_event
 
 import omero
+import warnings
 
 #
 # Static setup
@@ -1650,6 +1651,8 @@ class CmdControl(BaseControl):
         if err:
             self.ctx.err(err)
         else:
+            if hasattr(req, 'dryRun') and req.dryRun:
+                self.ctx.out("Dry run performed")
             self.ctx.out("ok")
 
         if detailed:
@@ -1806,7 +1809,13 @@ class GraphControl(CmdControl):
                 opt.excludeType = exc
 
         commands, forces = zip(*args.obj)
+        show = not (args.force or args.dry_run)
         needsForce = any(forces)
+        if needsForce and show:
+            warnings.warn("\nUsing '--dry-run'.\
+                          Future versions will switch to '--force'.\
+                          Explicitly set the parameter for portability",
+                          DeprecationWarning)
         for req in commands:
             req.dryRun = args.dry_run or needsForce
             if args.force:
