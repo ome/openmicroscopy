@@ -492,9 +492,16 @@ public class CommandLineImporter {
         CommentAnnotationI annotation;
         if (namespaces.size() != strings.size())
         {
+            String ns = null;
+            if (namespaces.size() == 1) {
+                ns = namespaces.get(0);
+            }
             for(int i = 0; i < strings.size(); i++)
             {
                 annotation = new CommentAnnotationI();
+                if (ns != null) {
+                    annotation.setTextValue(omero.rtypes.rstring(ns));
+                }
                 annotation.setTextValue(omero.rtypes.rstring(strings.get(i)));
                 annotations.add(annotation);
             }
