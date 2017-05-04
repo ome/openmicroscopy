@@ -380,7 +380,7 @@ public class CommandLineImporter {
             + "  --email EMAIL\t\t\t\tEmail for reported errors. Required --report\n"
             + "  --debug LEVEL\t\t\t\tTurn debug logging on (optional level)\n"
             + "  --annotation-ns ANNOTATION_NS\t\tNamespace to use for subsequent annotation\n"
-            + "  --annotation-text ANNOTATION_TEXT\tContent for a text annotation (requires namespace)\n"
+            + "  --annotation-text ANNOTATION_TEXT\tContent for a text annotation\n"
             + "  --annotation-link ANNOTATION_LINK\tComment annotation ID to link all images to\n"
             + "\n"
             + "Examples:\n"
