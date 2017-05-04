@@ -36,6 +36,12 @@ try:
 except ImportError as j2exc:
     JINJA2_MISSING = j2exc
 
+try:
+    import jinja2  # noqa
+    JINJA2_MISSING = None
+except ImportError as j2exc:
+    JINJA2_MISSING = j2exc
+
 
 def expected(**kwargs):
     """
@@ -242,6 +248,58 @@ class TestKeyValueGroupList(object):
             name="a4", position=4, clientvalue="*-{{ value }}-*"), 2)
         assert configs[4] == (expected(name="a5"), 5)
         assert configs[5] == (expected(name="a6"), 6)
+
+    def test_init_col_group(self):
+        headers = ["a1", "a2"]
+        desc = [
+            {"name": "a1"},
+            {"group": {"namespace": "g2", "columns": [{"name": "a2"}]}},
+        ]
+        kvgl = KeyValueGroupList(headers, None, desc)
+        assert kvgl.default_cfg == expected()
+        assert kvgl.headerindexmap == {'a1': 0, 'a2': 1}
+
+        assert len(kvgl.output_configs) == 2
+
+        assert kvgl.output_configs[0].namespace == "g2"
+        assert kvgl.output_configs[0].columns == [(expected(name="a2"), 1)]
+
+        # Default group always comes last
+        assert kvgl.output_configs[1].namespace == ""
+        assert kvgl.output_configs[1].columns == [(expected(name="a1"), 0)]
+
+    def test_init_col_group_multi(self):
+        headers = ["a1", "a2", "a3", "a4", "a5"]
+        desc = [
+            {"name": "a1"},
+            {"group": {"namespace": "g2", "columns": [{"name": "a2"}]}},
+            {"name": "a3"},
+            {"group": {
+                "namespace": "g4", "columns": [{"name": "a4"}, {"name": "a5"}]
+            }},
+        ]
+        kvgl = KeyValueGroupList(headers, None, desc)
+        assert kvgl.default_cfg == expected()
+        assert kvgl.headerindexmap == {
+            'a1': 0, 'a2': 1, 'a3': 2, 'a4': 3, 'a5': 4}
+
+        assert len(kvgl.output_configs) == 3
+
+        assert kvgl.output_configs[0].namespace == "g2"
+        assert kvgl.output_configs[0].columns == [(expected(name="a2"), 1)]
+
+        assert kvgl.output_configs[1].namespace == "g4"
+        assert kvgl.output_configs[1].columns == [
+            (expected(name="a4"), 3), (expected(name="a5"), 4)]
+
+        # Default group always comes last
+        assert kvgl.output_configs[2].namespace == ""
+        assert kvgl.output_configs[2].columns == [
+            (expected(name="a1"), 0), (expected(name="a3"), 2)]
+
+
+@pytest.mark.skipif(JINJA2_MISSING, reason="Requires Jinja2")
+class TestKeyValueListTransformer(object):
 
     def test_init_col_group(self):
         headers = ["a1", "a2"]
