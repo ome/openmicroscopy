@@ -424,6 +424,5 @@ class TestChgrpRoot(RootCLITest):
         # try to move the image to the new group
         self.args += ['%s' % group.id.val, '/Image:%s' % new_image.id.val]
         self.cli.invoke(self.args, strict=True)
-        gid = self.sf.getAdminService().getEventContext().groupId
         img = self.query.get('Image', new_image.id.val, all_grps)
         assert img.details.group.id.val == group.id.val
