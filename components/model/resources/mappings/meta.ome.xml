@@ -175,4 +175,13 @@
 
 		</properties>
 	</type>
+	<type id="ome.model.meta.Alias" global="true" annotated="true">
+		<!-- Note: Alias is not in model-->
+		<properties>
+			<required name="origin"  type="text"/>
+			<optional name="referrer"    type="string"/>
+			<optional name="name"  type="string" unique="true"/>
+			<optional name="ns"    type="string"/>
+		</properties>
+	</type>
 </types>
