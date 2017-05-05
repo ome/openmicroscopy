@@ -54,38 +54,30 @@ DROP FUNCTION omero_assert_db_version(varchar, int);
 INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
              VALUES ('OMERO5.4DEV',  2,            'OMERO5.4DEV',   1);
 
--- use a table to note secret key values
-
-CREATE TABLE _secret_keys (
-    name TEXT PRIMARY KEY,
-    value TEXT NOT NULL
-);
-
-INSERT INTO _secret_keys (name, value) VALUES ('file repo', 'unset');
-
 -- Use secret key in setting originalfile.repo.
 
 CREATE FUNCTION _protect_originalfile_repo_insert() RETURNS "trigger" AS $$
 
     DECLARE
-        secret_key TEXT;
+        secret_key VARCHAR;
         secret_key_length INTEGER;
 
     BEGIN
-        SELECT value INTO STRICT secret_key FROM _secret_keys WHERE name = 'file repo';
-        secret_key_length := LENGTH(secret_key);
+        FOR secret_key IN SELECT uuid FROM node WHERE down IS NULL LOOP
+            secret_key_length := LENGTH(secret_key);
 
-        IF NEW.repo IS NULL THEN
-            IF LEFT(NEW.name, secret_key_length) = secret_key THEN
-                NEW.name := RIGHT(NEW.name, -secret_key_length);
-            END IF;
-        ELSE
-            IF LEFT(NEW.name, secret_key_length) = secret_key THEN
-                NEW.name := RIGHT(NEW.name, -secret_key_length);
+            IF NEW.repo IS NULL THEN
+                IF LEFT(NEW.name, secret_key_length) = secret_key THEN
+                    NEW.name := RIGHT(NEW.name, -secret_key_length);
+                END IF;
             ELSE
-                RAISE EXCEPTION 'cannot set original file repo property without secret key';
+                IF LEFT(NEW.name, secret_key_length) = secret_key THEN
+                    NEW.name := RIGHT(NEW.name, -secret_key_length);
+                ELSE
+                    RAISE EXCEPTION 'cannot set original file repo property without secret key';
+                END IF;
             END IF;
-        END IF;
+        END LOOP;
 
         RETURN NEW;
     END;
@@ -94,24 +86,25 @@ $$ LANGUAGE plpgsql;
 CREATE FUNCTION _protect_originalfile_repo_update() RETURNS "trigger" AS $$
 
     DECLARE
-        secret_key TEXT;
+        secret_key VARCHAR;
         secret_key_length INTEGER;
 
     BEGIN
-        SELECT value INTO STRICT secret_key FROM _secret_keys WHERE name = 'file repo';
-        secret_key_length := LENGTH(secret_key);
+        FOR secret_key IN SELECT uuid FROM node WHERE down IS NULL LOOP
+            secret_key_length := LENGTH(secret_key);
 
-        IF NEW.repo IS NULL OR OLD.repo = NEW.repo THEN
-            IF LEFT(NEW.name, secret_key_length) = secret_key THEN
-                NEW.name := RIGHT(NEW.name, -secret_key_length);
-            END IF;
-        ELSE
-            IF LEFT(NEW.name, secret_key_length) = secret_key THEN
-                NEW.name := RIGHT(NEW.name, -secret_key_length);
+            IF NEW.repo IS NULL OR OLD.repo = NEW.repo THEN
+                IF LEFT(NEW.name, secret_key_length) = secret_key THEN
+                    NEW.name := RIGHT(NEW.name, -secret_key_length);
+                END IF;
             ELSE
-                RAISE EXCEPTION 'cannot set original file repo property without secret key';
+                IF LEFT(NEW.name, secret_key_length) = secret_key THEN
+                    NEW.name := RIGHT(NEW.name, -secret_key_length);
+                ELSE
+                    RAISE EXCEPTION 'cannot set original file repo property without secret key';
+                END IF;
             END IF;
-        END IF;
+        END LOOP;
 
         RETURN NEW;
     END;
