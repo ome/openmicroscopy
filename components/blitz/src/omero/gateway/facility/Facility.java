@@ -204,7 +204,10 @@ public abstract class Facility {
      *            The exception
      */
     public void logDebug(Object originator, String msg, Throwable t) {
-        gateway.getLogger().debug(originator, new LogMessage(msg, t));
+        if (t != null)
+            gateway.getLogger().debug(originator, new LogMessage(msg, t));
+        else
+            gateway.getLogger().debug(originator, msg);
     }
 
     /**
@@ -218,7 +221,10 @@ public abstract class Facility {
      *            The exception
      */
     public void logInfo(Object originator, String msg, Throwable t) {
-        gateway.getLogger().info(originator, new LogMessage(msg, t));
+        if (t != null)
+            gateway.getLogger().info(originator, new LogMessage(msg, t));
+        else
+            gateway.getLogger().info(originator, msg);
     }
 
     /**
@@ -232,7 +238,10 @@ public abstract class Facility {
      *            The exception
      */
     public void logWarn(Object originator, String msg, Throwable t) {
-        gateway.getLogger().warn(originator, new LogMessage(msg, t));
+        if (t != null)
+            gateway.getLogger().warn(originator, new LogMessage(msg, t));
+        else
+            gateway.getLogger().warn(originator, msg);
     }
 
     /**
@@ -246,7 +255,10 @@ public abstract class Facility {
      *            The exception
      */
     public void logError(Object originator, String msg, Throwable t) {
-        gateway.getLogger().error(originator, new LogMessage(msg, t));
+        if (t != null)
+            gateway.getLogger().error(originator, new LogMessage(msg, t));
+        else
+            gateway.getLogger().error(originator, msg);
     }
 
     /**

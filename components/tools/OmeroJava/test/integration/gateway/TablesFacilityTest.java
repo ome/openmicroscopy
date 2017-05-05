@@ -25,6 +25,7 @@ import java.util.UUID;
 import omero.gateway.facility.TablesFacility;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.ProjectData;
 import omero.gateway.model.TableData;
 import omero.gateway.model.TableDataColumn;
 
@@ -38,11 +39,17 @@ public class TablesFacilityTest extends GatewayTest {
 
     private static final int nCols = 10;
 
-    private static final int nRows = 1000;
+    // must be > DEFAULT_MAX_ROWS_TO_FETCH
+    // otherwise testThreshold() is useless
+    private static final int nRows = 2000;
 
     private DatasetData ds;
 
     private TableData original;
+
+    private final String searchForThis = "searchForThis";
+    
+    private final long searchForThisResult = 123456789l;
 
     @Override
     @BeforeClass(alwaysRun = true)
@@ -60,8 +67,9 @@ public class TablesFacilityTest extends GatewayTest {
         Class<?>[] types = new Class<?>[] { String.class, Long.class,
                 Double.class, Double[].class };
         TableDataColumn[] header = new TableDataColumn[nCols];
-        for (int i = 0; i < header.length; i++) {
-            header[i] = new TableDataColumn("column-" + i, i,
+        header[0] = new TableDataColumn("column0", 0, String.class);
+        for (int i = 1; i < header.length; i++) {
+            header[i] = new TableDataColumn("column" + i, i,
                     types[rand.nextInt(types.length)]);
         }
 
@@ -71,9 +79,15 @@ public class TablesFacilityTest extends GatewayTest {
             Class<?> type = header[c].getType();
             for (int r = 0; r < nRows; r++) {
                 if (type.equals(String.class)) {
-                    column[r] = "" + rand.nextInt();
+                    if (r < 2)
+                        column[r] = searchForThis;
+                    else
+                        column[r] = "" + rand.nextInt();
                 } else if (type.equals(Long.class)) {
-                    column[r] = rand.nextLong();
+                    if (r < 2)
+                        column[r] = searchForThisResult;
+                    else
+                        column[r] = rand.nextLong();
                 } else if (type.equals(Double.class)) {
                     column[r] = rand.nextDouble();
                 } else if (type.equals(Double[].class)) {
@@ -99,6 +113,92 @@ public class TablesFacilityTest extends GatewayTest {
                 original.getOriginalFileId());
         Assert.assertEquals(info.getNumberOfRows(), nRows);
         Assert.assertEquals(info.getColumns(), original.getColumns());
+    }
+
+    @Test(dependsOnMethods = { "testAddTable" })
+    public void testSearch() throws Exception {
+        long[] rows = tablesFacility.query(rootCtx,
+                original.getOriginalFileId(), "(column0=='" + searchForThis
+                        + "')");
+        Assert.assertEquals(rows.length, 2);
+
+        TableData td = tablesFacility.getTable(rootCtx,
+                original.getOriginalFileId(), rows);
+        Assert.assertEquals(td.getNumberOfRows(), 2);
+
+        TableDataColumn[] cols = td.getColumns();
+        Object[][] data = td.getData();
+        for (int col = 0; col < data.length; col++)
+            for (int row = 0; row < data[col].length; row++) {
+                if (col == 0)
+                    Assert.assertEquals(data[col][row], searchForThis);
+                if (cols[col].getType() == Long.class)
+                    Assert.assertEquals(data[col][row], searchForThisResult);
+            }
+    }
+
+    @Test(dependsOnMethods = { "testAddTable" })
+    public void testInvalidParams() throws Exception {
+        try {
+            // start > stop
+            tablesFacility.query(rootCtx, original.getOriginalFileId(),
+                    "(column0=='" + searchForThis + "')", 10, 5, 0);
+            Assert.fail("Invalid parameters, an exception should have been thrown.");
+        } catch (Exception e) {
+            // expected
+        }
+
+        try {
+            // step > range
+            tablesFacility.query(rootCtx, original.getOriginalFileId(),
+                    "(column0=='" + searchForThis + "')", 0, 5, 10);
+            Assert.fail("Invalid parameters, an exception should have been thrown.");
+        } catch (Exception e) {
+            // expected
+        }
+        
+        try {
+            // Table column type is not supported
+            TableDataColumn[] columns = new TableDataColumn[1];
+            columns[0] = new TableDataColumn("column1", 0, ProjectData.class);
+            Object[][] data = new Object[1][1];
+            data[0][0] = new ProjectData();
+            TableData td = new TableData(columns, data);
+            tablesFacility.addTable(rootCtx, ds, "invalid", td);
+            Assert.fail("Invalid column type, an exception should have been thrown.");
+        } catch (Exception e) {
+            // expected
+        }
+    }
+
+    public void testObjectColumnType() throws Exception {
+        // Create an object where the table can be attached to
+        // (can't use this.ds to not interfere with other tests)
+        DatasetData attachTo = new DatasetData();
+        attachTo.setName(UUID.randomUUID().toString());
+        attachTo = (DatasetData) datamanagerFacility.createDataset(rootCtx, attachTo,
+                null);
+        
+        // Create any object which gets added to the table
+        ProjectData proj = new ProjectData();
+        proj.setName("test");
+        
+        // If no concrete type is specified, just `Object.class`,
+        // the table should still be created but with a String
+        // column and the `Object.toString()` value (also a warning
+        // will be logged).
+        TableDataColumn[] columns = new TableDataColumn[1];
+        columns[0] = new TableDataColumn("column1", 0, Object.class);
+        Object[][] data = new Object[1][1];
+        data[0][0] = proj;
+        
+        TableData td = new TableData(columns, data);
+        td = tablesFacility.addTable(rootCtx, attachTo, "Object column test", td);
+        
+        TableData td2 = tablesFacility.getTable(rootCtx, td.getOriginalFileId());
+        // check that the data has been saved as String column
+        Assert.assertEquals(td2.getColumns()[0].getType(), String.class);
+        Assert.assertEquals(td2.getNumberOfRows(), 1);
     }
 
     @Test(dependsOnMethods = { "testAddTable" })
@@ -170,6 +270,9 @@ public class TablesFacilityTest extends GatewayTest {
     public void testThreshold() throws Exception {
         TableData td = tablesFacility.getTable(rootCtx,
                 original.getOriginalFileId());
+        Assert.assertTrue(
+                td.getNumberOfRows() > TablesFacility.DEFAULT_MAX_ROWS_TO_FETCH,
+                "Test setup failure, nRows must be greater than DEFAULT_MAX_ROWS_TO_FETCH");
         Assert.assertEquals(td.getData()[0].length,
                 TablesFacility.DEFAULT_MAX_ROWS_TO_FETCH);
     }
