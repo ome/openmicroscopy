@@ -598,12 +598,6 @@ public interface SqlAction {
      */
     void insertCurrentAdminPrivileges(Iterable<AdminPrivilege> privileges);
 
-    /**
-     * Set the secret key that is used as a prefix for being able to set <tt>originalfile.repo</tt>.
-     * @param fileRepoSecretKey the secret key used in setting {@code OriginalFile.repo}
-     */
-    void setSecretKeyRepoFile(String fileRepoSecretKey);
-
     //
     // End PgArrayHelper
     //
@@ -1097,11 +1091,6 @@ public interface SqlAction {
             } catch (EmptyResultDataAccessException erdae) {
                 return null;
             }
-        }
-
-        @Override
-        public void setSecretKeyRepoFile(String fileRepoSecretKey) {
-            _jdbc().update(_lookup("set_secret_key"), fileRepoSecretKey, "file repo");
         }
 
         //
