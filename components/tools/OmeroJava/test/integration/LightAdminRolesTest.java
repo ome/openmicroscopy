@@ -823,7 +823,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         Dataset sentDat = new DatasetI();
         sentDat = null;
         if (createDatasetExpectSuccess) {/* you are allowed to create the dataset only
-        with sufficient permissions, which are the same as permissions for importing */
+        with sufficient permissions, which are captured in createDatasetExpectSuccess.*/
             sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
         }
         /* import an image into the created Dataset */
