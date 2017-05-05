@@ -410,7 +410,7 @@ SUDO_HELP = """
 The --sudo option is available to all
 commands accepting connection arguments.
 
-Below few examples on how to use the sudo option
+Below are a few examples showing on how to use the sudo option
 
 Examples:
 
@@ -422,6 +422,7 @@ Examples:
     bin/omero login --sudo owner -s servername -u username -g groupname
     Password for owner:
 """
+
 
 class Context:
     """Simple context used for default logic. The CLI registry which registers
