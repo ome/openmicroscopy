@@ -120,14 +120,14 @@ public class BasicACLVoter implements ACLVoter {
             PolicyService policyService,
             Roles roles) {
         this(cd, sysTypes, tokenHolder, securityFilter, policyService,
-                roles, new LightAdminPrivileges(roles), new HashSet<String>(), new HashSet<String>(), UUID.randomUUID());
+                roles, new LightAdminPrivileges(roles), new HashSet<String>(), new HashSet<String>(), UUID.randomUUID().toString());
     }
 
     public BasicACLVoter(CurrentDetails cd, SystemTypes sysTypes,
         TokenHolder tokenHolder, SecurityFilter securityFilter,
         PolicyService policyService,
         Roles roles, LightAdminPrivileges adminPrivileges, Set<String> managedRepoUuids, Set<String> scriptRepoUuids,
-        UUID fileRepoSecretKey) {
+        String fileRepoSecretKey) {
         this.currentUser = cd;
         this.sysTypes = sysTypes;
         this.securityFilter = securityFilter;
@@ -137,7 +137,7 @@ public class BasicACLVoter implements ACLVoter {
         this.adminPrivileges = adminPrivileges;
         this.managedRepoUuids = managedRepoUuids;
         this.scriptRepoUuids = scriptRepoUuids;
-        this.fileRepoSecretKey = fileRepoSecretKey.toString();
+        this.fileRepoSecretKey = fileRepoSecretKey;
     }
 
     // ~ Interface methods

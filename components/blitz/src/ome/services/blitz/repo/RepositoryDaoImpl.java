@@ -119,13 +119,13 @@ public class RepositoryDaoImpl implements RepositoryDao {
      * Primary constructor which takes all final fields.
      */
     public RepositoryDaoImpl(Principal principal, Roles roles,
-            Executor executor, Executor statefulExecutor, OmeroInterceptor interceptor, UUID fileRepoSecretKey) {
+            Executor executor, Executor statefulExecutor, OmeroInterceptor interceptor, String fileRepoSecretKey) {
         this.principal = principal;
         this.roles = roles;
         this.executor = executor;
         this.statefulExecutor = statefulExecutor;
         this.interceptor = interceptor;
-        this.fileRepoSecretKey = fileRepoSecretKey.toString();
+        this.fileRepoSecretKey = fileRepoSecretKey;
     }
 
     /**
@@ -136,7 +136,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
         this(principal, new Roles(), executor,
                 executor.getContext().getBean("statefulExecutor", Executor.class),
                 executor.getContext().getBean("omeroInterceptor", OmeroInterceptor.class),
-                UUID.randomUUID());
+                UUID.randomUUID().toString());
     }
 
     /**
