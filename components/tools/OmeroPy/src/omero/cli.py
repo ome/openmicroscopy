@@ -410,7 +410,7 @@ SUDO_HELP = """
 The --sudo option is available to all
 commands accepting connection arguments.
 
-Below are a few examples showing on how to use the sudo option
+Below are a few examples showing how to use the sudo option
 
 Examples:
 
