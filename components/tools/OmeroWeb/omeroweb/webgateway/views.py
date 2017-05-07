@@ -2431,6 +2431,8 @@ def histogram_json(request, iid, theC, conn=None, **kwargs):
     256 values as json
     """
     image = conn.getObject("Image", iid)
+    if image is None:
+        raise Http404
     maxW, maxH = conn.getMaxPlaneSize()
     sizeX = image.getSizeX()
     sizeY = image.getSizeY()
