@@ -326,12 +326,12 @@ public class BasicACLVoter implements ACLVoter {
 
         if (sysType) {
             throw new SecurityViolation(iObject + " is a System-type, and may be created only through privileged APIs.");
+        } else if (iObject instanceof OriginalFile && ((OriginalFile) iObject).getRepo() != null) {
+            /* Cannot yet set OriginalFile.repo except via secret key stored in database. */
+            throw new SecurityViolation("cannot set repo property of " + iObject + " via ORM");
         } else if (currentUser.isGraphCritical(iObject.getDetails())) { // ticket:1769
             throw new GroupSecurityViolation(iObject + "-insertion violates " +
                     "group-security.");
-        } else if (iObject instanceof OriginalFile) {
-            /* Cannot yet set OriginalFile.repo except via SQL. */
-            throw new SecurityViolation("cannot set repo property of " + iObject + " via ORM");
         } else {
             throw new SecurityViolation("not permitted to create " + iObject);
         }
