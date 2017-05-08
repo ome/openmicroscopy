@@ -450,7 +450,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                 "FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
                 new ParametersI().addId(previousId).add("name", imageName));
         assertOwnedBy(remoteFile, normalUser);
-        Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+        assertInGroup(remoteFile, normalUser.groupId);
 
         /* check that the light admin when sudoed, can link the created Dataset
          * to the created Project, check the ownership of the links
@@ -525,9 +525,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                "SELECT id, details.group.id FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
                new ParametersI().addId(previousId).add("name", imageName)).get(0);
        final long remoteFileId = ((RLong) resultAfterImport.get(0)).getValue();
-       final long remoteFileGroupId = ((RLong) resultAfterImport.get(1)).getValue();
        assertOwnedBy((new OriginalFileI(remoteFileId, false)), normalUser);
-       Assert.assertEquals(remoteFileGroupId, normalUser.groupId);
+       assertInGroup((new OriginalFileI(remoteFileId, false)), normalUser.groupId);
        /* link the Project and the Dataset */
        ProjectDatasetLink link = linkProjectDataset(sentProj, sentDat);
        Image image = (Image) iQuery.findByQuery(
