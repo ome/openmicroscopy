@@ -412,7 +412,7 @@ commands accepting connection arguments.
 
 Below are a few examples showing how to use the sudo option
 
-Examples:
+Examples (admin or group owner only):
 
     # Import data for user *username*
     bin/omero import --sudo root -s servername -u username image.tiff
