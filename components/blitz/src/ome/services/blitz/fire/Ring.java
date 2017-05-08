@@ -15,6 +15,7 @@ import ome.model.meta.Node;
 import ome.services.blitz.redirect.NullRedirector;
 import ome.services.blitz.redirect.Redirector;
 import ome.services.blitz.util.BlitzConfiguration;
+import ome.services.scripts.ScriptRepoHelper;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
 import ome.system.Principal;
@@ -62,6 +63,8 @@ public class Ring extends _ClusterNodeDisp implements Redirector.Context {
 
     private final Redirector redirector;
 
+    private final ScriptRepoHelper scriptRepoHelper;
+
     private/* final */Ice.Communicator communicator;
 
     private/* final */Registry registry;
@@ -77,13 +80,14 @@ public class Ring extends _ClusterNodeDisp implements Redirector.Context {
     private/* final */String directProxy;
 
     public Ring(String uuid, Executor executor) {
-        this(uuid, executor, new NullRedirector());
+        this(uuid, executor, new NullRedirector(), null);
     }
 
-    public Ring(String uuid, Executor executor, Redirector redirector) {
+    public Ring(String uuid, Executor executor, Redirector redirector, ScriptRepoHelper scriptRepoHelper) {
         this.uuid = uuid;
         this.executor = executor;
         this.redirector = redirector;
+        this.scriptRepoHelper = scriptRepoHelper;
         this.principal = new Principal(uuid, "system", "Internal");
     }
 
@@ -149,6 +153,10 @@ public class Ring extends _ClusterNodeDisp implements Redirector.Context {
             redirector.chooseNextRedirect(this, nodeUuids);
         } catch (Exception e) {
             throw new RuntimeException("Cannot register self as node: ", e);
+        }
+        if (scriptRepoHelper != null) {
+            /* requires self to be registered as node */
+            scriptRepoHelper.checkForScriptUpdates();
         }
     }
 
