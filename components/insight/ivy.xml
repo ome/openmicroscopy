@@ -64,12 +64,12 @@
     <!-- Required for annotations in Permissions.java -->
     <dependency org="org.hibernate.javax.persistence" name="hibernate-jpa-2.0-api" rev="${versions.persistence-api}"/>
     <!-- Bioformats -->
-    <dependency org="ome" name="formats-bsd" rev="${versions.bioformats}">
+    <dependency org="idr" name="formats-bsd" rev="${versions.bioformats}">
         <exclude org="com.jgoodies"/>
         <exclude org="org.slf4j"/>
         <exclude org="xml-apis"/>
     </dependency>
-    <dependency org="ome" name="formats-gpl" rev="${versions.bioformats}">
+    <dependency org="idr" name="formats-gpl" rev="${versions.bioformats}">
         <exclude org="org.slf4j"/>
         <exclude org="commons-logging"/>
     </dependency>
