@@ -41,6 +41,9 @@ $(function() {
         multiselection = data.selected.length > 1;
 
         OME.tree_selection_changed(data, e);
+        if (OME.hideWellBirdsEye) {
+            OME.hideWellBirdsEye();
+        }
     })
     .on('selection_change.ome', function(e, nElements) {
         multiselection = nElements > 1;

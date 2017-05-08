@@ -423,22 +423,6 @@
                 {% include "webclient/annotations/includes/toolbar.html" %}
             {% endwith %}
 
-
-            <!-- panel for extra info shown by toolbar buttons if needed - Duplicated under well below -->
-            <div id="toolbar_info_panel" style="display:none; background: #fff; border: solid 1px #ddd; margin:5px 0">
-                <img title="Close" src="{% static 'webgateway/img/close.gif' %}" style="float:right; margin:3px"/>
-                <div class="panel_title" style="margin: 4px">
-                    <!-- text loaded here -->
-                </div>
-                <div class="panel_div"></div>
-                <div style="clear:both"></div>
-            </div>
-
-            <div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
-                <input type="text" size="30">
-                <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
-            </div>
-
             <!-- Image Name, ID, owner -->
             {% with obj=manager.image nameText=manager.image.name %}
                 {% include "webclient/annotations/includes/name.html" %}
@@ -529,7 +513,9 @@
         {% endif %}
             
         {% if manager.well %}
-            {% include "webclient/annotations/includes/toolbar.html" %}
+            {% with image=manager.getWellSampleImage %}
+                {% include "webclient/annotations/includes/toolbar.html" %}
+            {% endwith %}
 
             <!-- Well Label (not editable), ID, Owner -->
             {% with obj=manager.well nameText=manager.well.getWellPos %}

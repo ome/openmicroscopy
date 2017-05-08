@@ -1458,6 +1458,9 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
     data is handled by the template.
     """
 
+    # the index of a field within a well
+    index = getIntOrDefault(request, 'index', 0)
+
     context = dict()
 
     # we only expect a single object, but forms can take multiple objects
@@ -1510,7 +1513,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
     else:
         try:
             manager = BaseContainer(
-                conn, **{str(c_type): long(c_id)})
+                conn, **{str(c_type): long(c_id), 'index': index})
         except AttributeError, x:
             return handlerInternalError(request, x)
         if share_id is not None:
@@ -1544,9 +1547,14 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None,
     """
     context = {}
 
+    # the index of a field within a well
+    index = getIntOrDefault(request, 'index', 0)
+
     manager = BaseContainer(conn, **{str(c_type): long(c_id)})
     if share_id:
         context['share'] = BaseShare(conn, share_id)
+    if c_type == "well":
+        manager.image = manager.well.getImage(index)
 
     allRdefs = manager.image.getAllRenderingDefs()
     rdefs = {}
@@ -3747,8 +3755,17 @@ def figure_script(request, scriptName, conn=None, **kwargs):
 
     imageIds = request.GET.get('Image', None)    # comma - delimited list
     datasetIds = request.GET.get('Dataset', None)
+    wellIds = request.GET.get('Well', None)
+
+    if wellIds is not None:
+        wellIds = [long(i) for i in wellIds.split(",")]
+        wells = conn.getObjects("Well", wellIds)
+        wellIdx = getIntOrDefault(request, 'Index', 0)
+        imageIds = [str(w.getImage(wellIdx).getId()) for w in wells]
+        imageIds = ",".join(imageIds)
     if imageIds is None and datasetIds is None:
-        return HttpResponse("Need to specify /?Image=1,2 or /?Dataset=1,2")
+        return HttpResponse(
+            "Need to specify /?Image=1,2 or /?Dataset=1,2 or /?Well=1,2")
 
     def validateIds(dtype, ids):
         ints = [int(oid) for oid in ids.split(",")]
@@ -3835,7 +3852,7 @@ def figure_script(request, scriptName, conn=None, **kwargs):
             thumbSets.append({'name': 'images', 'imageTags': imageTags})
             tags.extend(ts)
             parent = conn.getObject("Image", imageIds[0]).getParent()
-            figureName = parent.getName()
+            figureName = parent.getName() or "Thumbnail Figure"
             context['parent_id'] = parent.getId()
         uniqueTagIds = set()      # remove duplicates
         uniqueTags = []

@@ -133,6 +133,8 @@ class BaseContainer(BaseController):
             self.assertNotNone(self.annotation._obj, annotation, "Annotation")
         if orphaned:
             self.orphaned = True
+        if index is not None:
+            self.index = index
 
     def assertNotNone(self, obj, obj_id, obj_name):
         if obj is None:
@@ -172,6 +174,16 @@ class BaseContainer(BaseController):
     def obj_id(self):
         obj = self._get_object()
         return obj is not None and obj.id or None
+
+    def getWellSampleImage(self):
+        """Returns Image if Well is not None
+
+        Uses the current well sample index. Used by templates
+        to access Image from Well.
+        """
+        if self.well:
+            index = self.index if self.index is not None else 0
+            return self.well.getWellSample(index).image()
 
     def canAnnotate(self):
         obj = self._get_object()
@@ -279,6 +291,9 @@ class BaseContainer(BaseController):
         """
 
         availableScripts = self.list_scripts()
+        image = None
+        if self.image or self.well:
+            image = self.image or self.getWellSampleImage()
 
         figureScripts = []
         # id is used in url and is mapped to full script path by
@@ -291,8 +306,8 @@ class BaseContainer(BaseController):
                         " into separate views")}
         # Split View Figure is enabled if we have at least one image with
         # SizeC > 1
-        if self.image:
-            splitView['enabled'] = (self.image.getSizeC() > 1) and \
+        if image:
+            splitView['enabled'] = (image.getSizeC() > 1) and \
                 'Split_View_Figure.py' in availableScripts
         elif objDict is not None:
             if 'image' in objDict:
@@ -308,7 +323,7 @@ class BaseContainer(BaseController):
             'tooltip': ("Export a figure of thumbnails, optionally sorted by"
                         " tag")}
         # Thumbnail figure is enabled if we have Datasets or Images selected
-        if self.image or self.dataset:
+        if self.image or self.dataset or self.well:
             thumbnailFig['enabled'] = 'Thumbnail_Figure.py' in availableScripts
         elif objDict is not None:
             if 'image' in objDict or 'dataset' in objDict:
@@ -320,8 +335,7 @@ class BaseContainer(BaseController):
             'name': 'Make Movie',
             'enabled': False,
             'tooltip': "Create a movie of the image"}
-        if (self.image and (self.image.getSizeT() > 1 or
-                            self.image.getSizeZ() > 1)):
+        if (image and (image.getSizeT() > 1 or image.getSizeZ() > 1)):
             makeMovie['enabled'] = 'Make_Movie.py' in availableScripts
 
         figureScripts.append(splitView)
