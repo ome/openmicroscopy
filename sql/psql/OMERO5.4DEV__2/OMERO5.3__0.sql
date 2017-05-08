@@ -403,6 +403,8 @@ CREATE TRIGGER _protect_originalfile_repo_update
     BEFORE UPDATE ON originalfile
     FOR EACH ROW EXECUTE PROCEDURE _protect_originalfile_repo_update();
 
+CREATE INDEX node_down ON node(down);
+
 
 --
 -- FINISHED
