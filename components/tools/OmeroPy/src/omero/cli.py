@@ -406,6 +406,23 @@ ENV_HELP = """Environment variables:
                     Default: $OMERO_USERDIR/tmp
 """
 
+SUDO_HELP = """
+The --sudo option is available to all
+commands accepting connection arguments.
+
+Below are a few examples showing how to use the sudo option
+
+Examples (admin or group owner only):
+
+    # Import data for user *username*
+    bin/omero import --sudo root -s servername -u username image.tiff
+    # Create a connection as another user
+    bin/omero login --sudo root -s servername -u username -g groupname
+    Password for root:
+    bin/omero login --sudo owner -s servername -u username -g groupname
+    Password for owner:
+"""
+
 
 class Context:
     """Simple context used for default logic. The CLI registry which registers
@@ -431,7 +448,7 @@ class Context:
         self.isquiet = False
         # This usage will go away and default will be False
         self.isdebug = DEBUG
-        self.topics = {"debug": DEBUG_HELP, "env": ENV_HELP}
+        self.topics = {"debug": DEBUG_HELP, "env": ENV_HELP, "sudo": SUDO_HELP}
         self.parser = Parser(prog=prog, description=OMERODOC)
         self.subparsers = self.parser_init(self.parser)
 
