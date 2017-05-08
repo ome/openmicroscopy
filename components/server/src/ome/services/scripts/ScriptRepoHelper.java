@@ -30,13 +30,12 @@ import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
-import ome.tools.hibernate.HibernateUtils;
 import ome.tools.hibernate.QueryBuilder;
 import ome.tools.spring.OnContextRefreshedEventListener;
 import ome.util.SqlAction;
 // import omero.util.TempFileManager;
 // Note: This cannot be imported because
-// it's in the blitz pacakge. TODO
+// it's in the blitz package. TODO
 
 
 import org.apache.commons.io.FileUtils;
