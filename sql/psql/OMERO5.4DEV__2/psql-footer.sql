@@ -3353,6 +3353,7 @@ CREATE FUNCTION _protect_originalfile_repo_insert() RETURNS "trigger" AS $$
     DECLARE
         secret_key VARCHAR;
         secret_key_length INTEGER;
+        is_good_change BOOLEAN := TRUE;
 
     BEGIN
         FOR secret_key IN SELECT uuid FROM node WHERE down IS NULL LOOP
@@ -3364,12 +3365,18 @@ CREATE FUNCTION _protect_originalfile_repo_insert() RETURNS "trigger" AS $$
                 END IF;
             ELSE
                 IF LEFT(NEW.name, secret_key_length) = secret_key THEN
+                    is_good_change := TRUE;
                     NEW.name := RIGHT(NEW.name, -secret_key_length);
+                    EXIT;
                 ELSE
-                    RAISE EXCEPTION 'cannot set original file repo property without secret key';
+                    is_good_change := FALSE;
                 END IF;
             END IF;
         END LOOP;
+
+        IF NOT is_good_change THEN
+            RAISE EXCEPTION 'cannot set original repo property without secret key';
+        END IF;
 
         RETURN NEW;
     END;
@@ -3380,6 +3387,7 @@ CREATE FUNCTION _protect_originalfile_repo_update() RETURNS "trigger" AS $$
     DECLARE
         secret_key VARCHAR;
         secret_key_length INTEGER;
+        is_good_change BOOLEAN := TRUE;
 
     BEGIN
         FOR secret_key IN SELECT uuid FROM node WHERE down IS NULL LOOP
@@ -3391,12 +3399,18 @@ CREATE FUNCTION _protect_originalfile_repo_update() RETURNS "trigger" AS $$
                 END IF;
             ELSE
                 IF LEFT(NEW.name, secret_key_length) = secret_key THEN
+                    is_good_change := TRUE;
                     NEW.name := RIGHT(NEW.name, -secret_key_length);
+                    EXIT;
                 ELSE
-                    RAISE EXCEPTION 'cannot set original file repo property without secret key';
+                    is_good_change := FALSE;
                 END IF;
             END IF;
         END LOOP;
+
+        IF NOT is_good_change THEN
+            RAISE EXCEPTION 'cannot set original file repo property without secret key';
+        END IF;
 
         RETURN NEW;
     END;
