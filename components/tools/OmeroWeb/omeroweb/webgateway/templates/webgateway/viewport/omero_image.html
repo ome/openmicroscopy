@@ -1485,7 +1485,8 @@
     $("#rdef-setdef-btn").click(function(){
       setImageDefaults(viewport, this, function() {
         if (window.opener && window.opener.OME.refreshThumbnails) {
-            window.opener.OME.refreshThumbnails({'imageId':{{ image.id }} });
+            window.opener.OME.refreshThumbnails({'imageId':{{ image.id }},
+            'thumbnail_url': "{% url 'get_thumbnail_json' image.id %}" });
         }
       });
     });

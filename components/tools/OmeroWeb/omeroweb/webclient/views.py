@@ -32,6 +32,7 @@ import traceback
 import json
 import re
 import sys
+import warnings
 
 from time import time
 
@@ -78,6 +79,7 @@ from omeroweb.webadmin.forms import LoginForm
 
 from omeroweb.webgateway import views as webgateway_views
 from omeroweb.webgateway.marshal import chgrpMarshal
+from omeroweb.webgateway.util import get_longs as webgateway_get_longs
 
 from omeroweb.feedback.views import handlerInternalError
 
@@ -97,8 +99,6 @@ from omero.rtypes import rlong, rlist
 from omeroweb.webgateway.views import LoginView
 
 import tree
-
-import warnings
 
 logger = logging.getLogger(__name__)
 
@@ -121,18 +121,10 @@ def get_long_or_default(request, name, default):
 
 
 def get_longs(request, name):
-    """
-    Retrieves parameters from the request. If the parameters are not present
-    an empty list is returned
-
-    This does not catch exceptions as it makes sense to throw exceptions if
-    the arguments provided do not pass basic type validation
-    """
-    vals = []
-    vals_raw = request.GET.getlist(name)
-    for val_raw in vals_raw:
-        vals.append(long(val_raw))
-    return vals
+    warnings.warn(
+        "Deprecated. Use omeroweb.webgateway.util.get_longs()",
+        DeprecationWarning)
+    return webgateway_get_longs(request, name)
 
 
 def get_bool_or_default(request, name, default):
@@ -459,6 +451,7 @@ def _load_template(request, menu, conn=None, url=None, **kwargs):
     context['current_url'] = url
     context['page_size'] = settings.PAGE
     context['template'] = template
+    context['thumbnails_batch'] = settings.THUMBNAILS_BATCH
 
     return context
 
@@ -1272,6 +1265,7 @@ def load_plate(request, o1_type=None, o1_id=None, conn=None, **kwargs):
         context['baseurl'] = reverse('webgateway').rstrip('/')
         context['form_well_index'] = form_well_index
         context['index'] = index
+        context['thumbnails_batch'] = settings.THUMBNAILS_BATCH
         template = "webclient/data/plate.html"
         if o1_type == 'acquisition':
             context['acquisition'] = o1_id
@@ -1444,6 +1438,7 @@ def load_searching(request, form=None, conn=None, **kwargs):
         'foundById': foundById,
         'resultCount': manager.c_size + len(foundById)}
     context['template'] = template
+    context['thumbnails_batch'] = settings.THUMBNAILS_BATCH
     return context
 
 
