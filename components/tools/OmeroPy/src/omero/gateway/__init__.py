@@ -5488,7 +5488,7 @@ class _RoiWrapper (BlitzObjectWrapper):
         Extend base query to handle loading of Shapes.
         Returns a tuple of (query, clauses, params).
         Supported opts: 'load_shapes': boolean.
-                        'image': <imgae_id> to filter by Image
+                        'image': <image_id> to filter by Image
 
         :param opts:        Dictionary of optional parameters.
         :return:            Tuple of string, list, ParametersI
