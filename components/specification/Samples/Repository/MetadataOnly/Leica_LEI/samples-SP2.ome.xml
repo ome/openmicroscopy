@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<OME xmlns="http://www.openmicroscopy.org/Schemas/OME/2012-06" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openmicroscopy.org/Schemas/OME/2012-06 https://raw.github.com/openmicroscopy/openmicroscopy/schema-2012-06/components/specification/InProgress/ome.xsd">
+    <Instrument ID="Instrument:0">
+        <Detector ID="Detector:0:0" Offset="-34.599999999999994" Type="PMT" Voltage="742.0867526377491"/>
+        <Detector ID="Detector:0:1" Offset="0.0" Type="PMT" Voltage="391.2661195779601"/>
+        <Objective Correction="Other" ID="Objective:0:0" Immersion="Oil" LensNA="1.25" Model="HCX PL APO CS" NominalMagnification="40" SerialNumber="506179"/>
+        <Filter ID="Filter:0:0" Model="SP Mirror 1"/>
+        <Filter ID="Filter:0:1" Model="SP Mirror 2">
+            <TransmittanceRange CutIn="578" CutOut="629"/>
+        </Filter>
+        <Filter ID="Filter:0:2" Model="SP Mirror 3"/>
+    </Instrument>
+    <Instrument ID="Instrument:1">
+        <Detector ID="Detector:1:0" Offset="0.5" Type="PMT" Voltage="631.8874560375147"/>
+        <Detector ID="Detector:1:1" Offset="-1.2999999999999972" Type="PMT" Voltage="640.0937866354044"/>
+        <Detector ID="Detector:1:2" Offset="-4.400000000000006" Type="PMT" Voltage="163.8335287221571"/>
+        <Objective Correction="Other" ID="Objective:1:0" Immersion="Oil" LensNA="1.32" Model="HCX PL APO CS" NominalMagnification="63" SerialNumber="506182"/>
+        <Filter ID="Filter:1:0" Model="SP Mirror 1">
+            <TransmittanceRange CutIn="500" CutOut="540"/>
+        </Filter>
+        <Filter ID="Filter:1:1" Model="SP Mirror 2">
+            <TransmittanceRange CutIn="650" CutOut="700"/>
+        </Filter>
+        <Filter ID="Filter:1:2" Model="SP Mirror 3"/>
+    </Instrument>
+    <Instrument ID="Instrument:2">
+        <Detector ID="Detector:2:0" Offset="1.0" Type="PMT" Voltage="820.926143024619"/>
+        <Detector ID="Detector:2:1" Offset="0.7999999999999972" Type="PMT" Voltage="451.34818288393905"/>
+        <Detector ID="Detector:2:2" Offset="-13.400000000000006" Type="PMT" Voltage="286.9284876905041"/>
+        <Objective Correction="Other" ID="Objective:2:0" Immersion="Oil" LensNA="1.32" Model="HCX PL APO CS" NominalMagnification="63" SerialNumber="506182"/>
+        <Filter ID="Filter:2:0" Model="SP Mirror 1">
+            <TransmittanceRange CutIn="500" CutOut="560"/>
+        </Filter>
+        <Filter ID="Filter:2:1" Model="SP Mirror 2">
+            <TransmittanceRange CutIn="575" CutOut="693"/>
+        </Filter>
+        <Filter ID="Filter:2:2" Model="SP Mirror 3"/>
+    </Instrument>
+    <Instrument ID="Instrument:3">
+        <Detector ID="Detector:3:0" Offset="3.200000000000003" Type="PMT" Voltage="430.2461899179367"/>
+        <Objective Correction="Other" ID="Objective:3:0" Immersion="Other" LensNA="0.3" Model="HC PL FLUOTAR" NominalMagnification="10" SerialNumber="506507"/>
+        <Filter ID="Filter:3:0" Model="SP Mirror 1"/>
+        <Filter ID="Filter:3:1" Model="SP Mirror 2"/>
+        <Filter ID="Filter:3:2" Model="SP Mirror 3">
+            <TransmittanceRange CutIn="790" CutOut="800"/>
+        </Filter>
+    </Instrument>
+    <Image ID="Image:0" Name="XYZ-Ch">
+        <AcquisitionDate>2007-10-26T11:18:12</AcquisitionDate>
+        <Description/>
+        <InstrumentRef ID="Instrument:0"/>
+        <ObjectiveSettings ID="Objective:0:0"/>
+        <StageLabel Name="Position" Z="-2.2590361445783174"/>
+        <Pixels DimensionOrder="XYCZT" ID="Pixels:0" PhysicalSizeX="2.9296875" PhysicalSizeY="2.9296875" PhysicalSizeZ="3.378378378378379" SizeC="2" SizeT="1" SizeX="128" SizeY="128" SizeZ="50" Type="uint8">
+            <Channel Color="-16776961" ID="Channel:0:0" Name="TRITC" PinholeSize="81.40681653372008" SamplesPerPixel="1">
+                <DetectorSettings ID="Detector:0:0"/>
+                <LightPath>
+                    <EmissionFilterRef ID="Filter:0:1"/>
+                </LightPath>
+            </Channel>
+            <Channel Color="-1" ID="Channel:0:1" Name="PMT Trans" PinholeSize="81.40681653372008" SamplesPerPixel="1">
+                <DetectorSettings ID="Detector:0:1"/>
+                <LightPath/>
+            </Channel>
+            <MetadataOnly/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="0"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="0"/>
+            <Plane DeltaT="2.656" TheC="0" TheT="0" TheZ="1"/>
+            <Plane DeltaT="2.656" TheC="1" TheT="0" TheZ="1"/>
+            <Plane DeltaT="5.328" TheC="0" TheT="0" TheZ="2"/>
+            <Plane DeltaT="5.328" TheC="1" TheT="0" TheZ="2"/>
+            <Plane DeltaT="8.0" TheC="0" TheT="0" TheZ="3"/>
+            <Plane DeltaT="8.0" TheC="1" TheT="0" TheZ="3"/>
+            <Plane DeltaT="10.656" TheC="0" TheT="0" TheZ="4"/>
+            <Plane DeltaT="10.656" TheC="1" TheT="0" TheZ="4"/>
+            <Plane DeltaT="13.328" TheC="0" TheT="0" TheZ="5"/>
+            <Plane DeltaT="13.328" TheC="1" TheT="0" TheZ="5"/>
+            <Plane DeltaT="15.984" TheC="0" TheT="0" TheZ="6"/>
+            <Plane DeltaT="15.984" TheC="1" TheT="0" TheZ="6"/>
+            <Plane DeltaT="18.656" TheC="0" TheT="0" TheZ="7"/>
+            <Plane DeltaT="18.656" TheC="1" TheT="0" TheZ="7"/>
+            <Plane DeltaT="21.328" TheC="0" TheT="0" TheZ="8"/>
+            <Plane DeltaT="21.328" TheC="1" TheT="0" TheZ="8"/>
+            <Plane DeltaT="23.984" TheC="0" TheT="0" TheZ="9"/>
+            <Plane DeltaT="23.984" TheC="1" TheT="0" TheZ="9"/>
+            <Plane DeltaT="26.656" TheC="0" TheT="0" TheZ="10"/>
+            <Plane DeltaT="26.656" TheC="1" TheT="0" TheZ="10"/>
+            <Plane DeltaT="29.313" TheC="0" TheT="0" TheZ="11"/>
+            <Plane DeltaT="29.313" TheC="1" TheT="0" TheZ="11"/>
+            <Plane DeltaT="31.984" TheC="0" TheT="0" TheZ="12"/>
+            <Plane DeltaT="31.984" TheC="1" TheT="0" TheZ="12"/>
+            <Plane DeltaT="34.656" TheC="0" TheT="0" TheZ="13"/>
+            <Plane DeltaT="34.656" TheC="1" TheT="0" TheZ="13"/>
+            <Plane DeltaT="37.313" TheC="0" TheT="0" TheZ="14"/>
+            <Plane DeltaT="37.313" TheC="1" TheT="0" TheZ="14"/>
+            <Plane DeltaT="39.984" TheC="0" TheT="0" TheZ="15"/>
+            <Plane DeltaT="39.984" TheC="1" TheT="0" TheZ="15"/>
+            <Plane DeltaT="42.656" TheC="0" TheT="0" TheZ="16"/>
+            <Plane DeltaT="42.656" TheC="1" TheT="0" TheZ="16"/>
+            <Plane DeltaT="45.313" TheC="0" TheT="0" TheZ="17"/>
+            <Plane DeltaT="45.313" TheC="1" TheT="0" TheZ="17"/>
+            <Plane DeltaT="47.984" TheC="0" TheT="0" TheZ="18"/>
+            <Plane DeltaT="47.984" TheC="1" TheT="0" TheZ="18"/>
+            <Plane DeltaT="50.641" TheC="0" TheT="0" TheZ="19"/>
+            <Plane DeltaT="50.641" TheC="1" TheT="0" TheZ="19"/>
+            <Plane DeltaT="53.313" TheC="0" TheT="0" TheZ="20"/>
+            <Plane DeltaT="53.313" TheC="1" TheT="0" TheZ="20"/>
+            <Plane DeltaT="55.984" TheC="0" TheT="0" TheZ="21"/>
+            <Plane DeltaT="55.984" TheC="1" TheT="0" TheZ="21"/>
+            <Plane DeltaT="58.641" TheC="0" TheT="0" TheZ="22"/>
+            <Plane DeltaT="58.641" TheC="1" TheT="0" TheZ="22"/>
+            <Plane DeltaT="61.313" TheC="0" TheT="0" TheZ="23"/>
+            <Plane DeltaT="61.313" TheC="1" TheT="0" TheZ="23"/>
+            <Plane DeltaT="63.969" TheC="0" TheT="0" TheZ="24"/>
+            <Plane DeltaT="63.969" TheC="1" TheT="0" TheZ="24"/>
+            <Plane DeltaT="66.641" TheC="0" TheT="0" TheZ="25"/>
+            <Plane DeltaT="66.641" TheC="1" TheT="0" TheZ="25"/>
+            <Plane DeltaT="69.313" TheC="0" TheT="0" TheZ="26"/>
+            <Plane DeltaT="69.313" TheC="1" TheT="0" TheZ="26"/>
+            <Plane DeltaT="71.969" TheC="0" TheT="0" TheZ="27"/>
+            <Plane DeltaT="71.969" TheC="1" TheT="0" TheZ="27"/>
+            <Plane DeltaT="74.641" TheC="0" TheT="0" TheZ="28"/>
+            <Plane DeltaT="74.641" TheC="1" TheT="0" TheZ="28"/>
+            <Plane DeltaT="77.297" TheC="0" TheT="0" TheZ="29"/>
+            <Plane DeltaT="77.297" TheC="1" TheT="0" TheZ="29"/>
+            <Plane DeltaT="79.969" TheC="0" TheT="0" TheZ="30"/>
+            <Plane DeltaT="79.969" TheC="1" TheT="0" TheZ="30"/>
+            <Plane DeltaT="82.641" TheC="0" TheT="0" TheZ="31"/>
+            <Plane DeltaT="82.641" TheC="1" TheT="0" TheZ="31"/>
+            <Plane DeltaT="85.297" TheC="0" TheT="0" TheZ="32"/>
+            <Plane DeltaT="85.297" TheC="1" TheT="0" TheZ="32"/>
+            <Plane DeltaT="87.969" TheC="0" TheT="0" TheZ="33"/>
+            <Plane DeltaT="87.969" TheC="1" TheT="0" TheZ="33"/>
+            <Plane DeltaT="90.625" TheC="0" TheT="0" TheZ="34"/>
+            <Plane DeltaT="90.625" TheC="1" TheT="0" TheZ="34"/>
+            <Plane DeltaT="93.297" TheC="0" TheT="0" TheZ="35"/>
+            <Plane DeltaT="93.297" TheC="1" TheT="0" TheZ="35"/>
+            <Plane DeltaT="95.969" TheC="0" TheT="0" TheZ="36"/>
+            <Plane DeltaT="95.969" TheC="1" TheT="0" TheZ="36"/>
+            <Plane DeltaT="98.625" TheC="0" TheT="0" TheZ="37"/>
+            <Plane DeltaT="98.625" TheC="1" TheT="0" TheZ="37"/>
+            <Plane DeltaT="101.297" TheC="0" TheT="0" TheZ="38"/>
+            <Plane DeltaT="101.297" TheC="1" TheT="0" TheZ="38"/>
+            <Plane DeltaT="103.969" TheC="0" TheT="0" TheZ="39"/>
+            <Plane DeltaT="103.969" TheC="1" TheT="0" TheZ="39"/>
+            <Plane DeltaT="106.625" TheC="0" TheT="0" TheZ="40"/>
+            <Plane DeltaT="106.625" TheC="1" TheT="0" TheZ="40"/>
+            <Plane DeltaT="109.297" TheC="0" TheT="0" TheZ="41"/>
+            <Plane DeltaT="109.297" TheC="1" TheT="0" TheZ="41"/>
+            <Plane DeltaT="111.953" TheC="0" TheT="0" TheZ="42"/>
+            <Plane DeltaT="111.953" TheC="1" TheT="0" TheZ="42"/>
+            <Plane DeltaT="114.625" TheC="0" TheT="0" TheZ="43"/>
+            <Plane DeltaT="114.625" TheC="1" TheT="0" TheZ="43"/>
+            <Plane DeltaT="117.297" TheC="0" TheT="0" TheZ="44"/>
+            <Plane DeltaT="117.297" TheC="1" TheT="0" TheZ="44"/>
+            <Plane DeltaT="119.953" TheC="0" TheT="0" TheZ="45"/>
+            <Plane DeltaT="119.953" TheC="1" TheT="0" TheZ="45"/>
+            <Plane DeltaT="122.625" TheC="0" TheT="0" TheZ="46"/>
+            <Plane DeltaT="122.625" TheC="1" TheT="0" TheZ="46"/>
+            <Plane DeltaT="125.281" TheC="0" TheT="0" TheZ="47"/>
+            <Plane DeltaT="125.281" TheC="1" TheT="0" TheZ="47"/>
+            <Plane DeltaT="127.953" TheC="0" TheT="0" TheZ="48"/>
+            <Plane DeltaT="127.953" TheC="1" TheT="0" TheZ="48"/>
+            <Plane DeltaT="130.625" TheC="0" TheT="0" TheZ="49"/>
+            <Plane DeltaT="130.625" TheC="1" TheT="0" TheZ="49"/>
+        </Pixels>
+    </Image>
+    <Image ID="Image:1" Name="XY-Ch-trans">
+        <AcquisitionDate>2009-04-03T10:31:18</AcquisitionDate>
+        <Description/>
+        <InstrumentRef ID="Instrument:1"/>
+        <ObjectiveSettings ID="Objective:1:0"/>
+        <StageLabel Name="Position" Z="-9.422826440898726"/>
+        <Pixels DimensionOrder="XYCZT" ID="Pixels:1" PhysicalSizeX="0.23251488095238093" PhysicalSizeY="0.2325148809523809" PhysicalSizeZ="0.04070335395636601" SizeC="3" SizeT="1" SizeX="512" SizeY="512" SizeZ="1" Type="uint8">
+            <Channel Color="16711935" ID="Channel:1:0" Name="PMT 1" PinholeSize="20.420594633792604" SamplesPerPixel="1">
+                <DetectorSettings ID="Detector:1:0"/>
+                <LightPath>
+                    <EmissionFilterRef ID="Filter:1:0"/>
+                </LightPath>
+            </Channel>
+            <Channel Color="-16776961" ID="Channel:1:1" Name="PMT 2" PinholeSize="20.420594633792604" SamplesPerPixel="1">
+                <DetectorSettings ID="Detector:1:1"/>
+                <LightPath>
+                    <EmissionFilterRef ID="Filter:1:1"/>
+                </LightPath>
+            </Channel>
+            <Channel Color="-1" ID="Channel:1:2" Name="PMT Trans" PinholeSize="20.420594633792604" SamplesPerPixel="1">
+                <DetectorSettings ID="Detector:1:2"/>
+                <LightPath/>
+            </Channel>
+            <MetadataOnly/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="0"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="0"/>
+            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="0"/>
+        </Pixels>
+    </Image>
+    <Image ID="Image:2" Name="XZY-Ch-trans">
+        <AcquisitionDate>2009-02-05T12:15:30</AcquisitionDate>
+        <Description/>
+        <InstrumentRef ID="Instrument:2"/>
+        <ObjectiveSettings ID="Objective:2:0"/>
+        <StageLabel Name="Position" Z="0.38668186258547055"/>
+        <Pixels DimensionOrder="XYZCT" ID="Pixels:2" PhysicalSizeX="0.11625744047619045" PhysicalSizeY="0.11625744047619047" PhysicalSizeZ="1.5874308042982737" SizeC="3" SizeT="1" SizeX="512" SizeY="512" SizeZ="1" Type="uint8">
+            <Channel Color="-16776961" ID="Channel:2:0" Name="TEXAS RED" PinholeSize="243.3357505438723" SamplesPerPixel="1">
+                <DetectorSettings ID="Detector:2:0"/>
+                <LightPath>
+                    <EmissionFilterRef ID="Filter:2:1"/>
+                </LightPath>
+            </Channel>
+            <Channel Color="16711935" ID="Channel:2:1" Name="FITC" PinholeSize="243.3357505438723" SamplesPerPixel="1">
+                <DetectorSettings ID="Detector:2:1"/>
+                <LightPath>
+                    <EmissionFilterRef ID="Filter:2:0"/>
+                </LightPath>
+            </Channel>
+            <Channel Color="-1" ID="Channel:2:2" Name="PMT Trans" PinholeSize="243.3357505438723" SamplesPerPixel="1">
+                <DetectorSettings ID="Detector:2:2"/>
+                <LightPath/>
+            </Channel>
+            <MetadataOnly/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="0"/>
+            <Plane DeltaT="3.844" TheC="1" TheT="0" TheZ="0"/>
+            <Plane DeltaT="3.844" TheC="2" TheT="0" TheZ="0"/>
+        </Pixels>
+    </Image>
+    <Image ID="Image:3" Name="XY-lambda">
+        <AcquisitionDate>2008-04-17T11:52:51</AcquisitionDate>
+        <Description/>
+        <InstrumentRef ID="Instrument:3"/>
+        <ObjectiveSettings ID="Objective:3:0"/>
+        <StageLabel Name="Position" Z="-0.020351676978177666"/>
+        <Pixels DimensionOrder="XYCTZ" ID="Pixels:3" PhysicalSizeX="2.9296875" PhysicalSizeY="2.9296875" SizeC="1" SizeT="50" SizeX="128" SizeY="128" SizeZ="1" Type="uint8">
+            <Channel Color="-1" ID="Channel:3:0" Name="PMT 3" PinholeSize="600.0" SamplesPerPixel="1">
+                <DetectorSettings ID="Detector:3:0"/>
+                <LightPath>
+                    <EmissionFilterRef ID="Filter:3:2"/>
+                </LightPath>
+            </Channel>
+            <MetadataOnly/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="0"/>
+            <Plane DeltaT="0.266" TheC="0" TheT="1" TheZ="0"/>
+            <Plane DeltaT="0.532" TheC="0" TheT="2" TheZ="0"/>
+            <Plane DeltaT="0.797" TheC="0" TheT="3" TheZ="0"/>
+            <Plane DeltaT="1.063" TheC="0" TheT="4" TheZ="0"/>
+            <Plane DeltaT="1.657" TheC="0" TheT="5" TheZ="0"/>
+            <Plane DeltaT="2.25" TheC="0" TheT="6" TheZ="0"/>
+            <Plane DeltaT="2.719" TheC="0" TheT="7" TheZ="0"/>
+            <Plane DeltaT="3.188" TheC="0" TheT="8" TheZ="0"/>
+            <Plane DeltaT="3.657" TheC="0" TheT="9" TheZ="0"/>
+            <Plane DeltaT="4.125" TheC="0" TheT="10" TheZ="0"/>
+            <Plane DeltaT="4.594" TheC="0" TheT="11" TheZ="0"/>
+            <Plane DeltaT="5.063" TheC="0" TheT="12" TheZ="0"/>
+            <Plane DeltaT="5.532" TheC="0" TheT="13" TheZ="0"/>
+            <Plane DeltaT="5.891" TheC="0" TheT="14" TheZ="0"/>
+            <Plane DeltaT="6.25" TheC="0" TheT="15" TheZ="0"/>
+            <Plane DeltaT="6.61" TheC="0" TheT="16" TheZ="0"/>
+            <Plane DeltaT="6.969" TheC="0" TheT="17" TheZ="0"/>
+            <Plane DeltaT="7.328" TheC="0" TheT="18" TheZ="0"/>
+            <Plane DeltaT="7.688" TheC="0" TheT="19" TheZ="0"/>
+            <Plane DeltaT="8.047" TheC="0" TheT="20" TheZ="0"/>
+            <Plane DeltaT="8.407" TheC="0" TheT="21" TheZ="0"/>
+            <Plane DeltaT="8.75" TheC="0" TheT="22" TheZ="0"/>
+            <Plane DeltaT="9.11" TheC="0" TheT="23" TheZ="0"/>
+            <Plane DeltaT="9.469" TheC="0" TheT="24" TheZ="0"/>
+            <Plane DeltaT="9.828" TheC="0" TheT="25" TheZ="0"/>
+            <Plane DeltaT="10.188" TheC="0" TheT="26" TheZ="0"/>
+            <Plane DeltaT="10.547" TheC="0" TheT="27" TheZ="0"/>
+            <Plane DeltaT="10.891" TheC="0" TheT="28" TheZ="0"/>
+            <Plane DeltaT="11.25" TheC="0" TheT="29" TheZ="0"/>
+            <Plane DeltaT="11.61" TheC="0" TheT="30" TheZ="0"/>
+            <Plane DeltaT="11.969" TheC="0" TheT="31" TheZ="0"/>
+            <Plane DeltaT="12.328" TheC="0" TheT="32" TheZ="0"/>
+            <Plane DeltaT="12.688" TheC="0" TheT="33" TheZ="0"/>
+            <Plane DeltaT="13.047" TheC="0" TheT="34" TheZ="0"/>
+            <Plane DeltaT="13.391" TheC="0" TheT="35" TheZ="0"/>
+            <Plane DeltaT="13.75" TheC="0" TheT="36" TheZ="0"/>
+            <Plane DeltaT="14.11" TheC="0" TheT="37" TheZ="0"/>
+            <Plane DeltaT="14.469" TheC="0" TheT="38" TheZ="0"/>
+            <Plane DeltaT="14.828" TheC="0" TheT="39" TheZ="0"/>
+            <Plane DeltaT="15.094" TheC="0" TheT="40" TheZ="0"/>
+            <Plane DeltaT="15.36" TheC="0" TheT="41" TheZ="0"/>
+            <Plane DeltaT="15.625" TheC="0" TheT="42" TheZ="0"/>
+            <Plane DeltaT="15.891" TheC="0" TheT="43" TheZ="0"/>
+            <Plane DeltaT="16.157" TheC="0" TheT="44" TheZ="0"/>
+            <Plane DeltaT="16.422" TheC="0" TheT="45" TheZ="0"/>
+            <Plane DeltaT="16.688" TheC="0" TheT="46" TheZ="0"/>
+            <Plane DeltaT="16.953" TheC="0" TheT="47" TheZ="0"/>
+            <Plane DeltaT="17.219" TheC="0" TheT="48" TheZ="0"/>
+            <Plane DeltaT="17.485" TheC="0" TheT="49" TheZ="0"/>
+        </Pixels>
+    </Image>
+</OME>
