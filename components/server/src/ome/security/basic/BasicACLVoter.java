@@ -458,15 +458,25 @@ public class BasicACLVoter implements ACLVoter {
             return rv; // EARLY EXIT!
         }
 
-        Permissions grpPermissions = c.getCurrentGroupPermissions();
-        if (grpPermissions == null || grpPermissions == Permissions.DUMMY) {
-            if (d.getGroup() != null) {
-                Long gid = d.getGroup().getId();
+        Permissions grpPermissions = null;
+        if (d.getGroup() != null) {
+            /* got a group set so review its permissions */
+            final Long gid = d.getGroup().getId();
+            if (roles.getUserGroupId() == gid) {
+                /* special handling for user group permissions */
+                grpPermissions = new Permissions(Permissions.EMPTY);
+            } else {
+                /* not user group so use group's permissions */
                 grpPermissions = c.getPermissionsForGroup(gid);
-                if (grpPermissions == null && gid.equals(roles.getUserGroupId())) {
-                    grpPermissions = new Permissions(Permissions.EMPTY);
-                }
             }
+        }
+        if (grpPermissions == null && roles.getUserGroupId() != c.getCurrentGroupId()) {
+            /* fall back to current group permissions if not user group */
+            grpPermissions = c.getCurrentGroupPermissions();
+        }
+        if (grpPermissions == null || grpPermissions == Permissions.DUMMY) {
+            /* failing the above, fall back to no permissions */
+            grpPermissions = new Permissions(Permissions.EMPTY);
         }
 
         final boolean owner = owner(d, c);
