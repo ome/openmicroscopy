@@ -32,11 +32,7 @@ env:
     - BUILD="build-java"
 
 before_install:
-    - git config github.token 3bc7fc530b01081559eb911f59ccfec7f4fb2592
-    - git config --global user.email snoopycrimecop@gmail.com
-    - git config --global user.name 'Snoopy Crime Cop'
-    - pip install --user scc pytest
-    - scc travis-merge
+    - pip install --user pytest
     - if [[ $BUILD == 'build-python' ]]; then pip install --user -r ./components/tools/OmeroWeb/requirements-py27-all.txt; fi
     - export PATH=$PATH:$HOME/.local/bin
     - if [[ $BUILD == 'build-python' ]]; then travis_retry pip install --user flake8==2.4.0 pytest==2.7.3; fi
