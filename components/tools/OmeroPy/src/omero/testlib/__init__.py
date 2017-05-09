@@ -39,7 +39,9 @@ import Ice
 import Glacier2
 import omero
 import omero.gateway
+
 from omero_version import omero_version
+from collections import defaultdict
 
 from omero.cmd import DoAll, State, ERR, OK, Chmod2, Chgrp2, Delete2
 from omero.callbacks import CmdCallbackI
@@ -983,7 +985,7 @@ class ITest(object):
         store = client.sf.createRawFileStore()
         try:
             store.setFileId(ofile.getId().getValue())
-            store.write(binary, 0, 0)
+            store.write(binary, 0, len(binary))
             ofile = store.save()  # See ticket:1501
         finally:
             store.close()
@@ -1033,26 +1035,19 @@ class ITest(object):
             link.setChild(obj2.proxy())
         return client.sf.getUpdateService().saveAndReturnObject(link)
 
-    def delete(self, obj):
+    def delete(self, objs):
         """
-        Deletes a list of model entities (ProjectI, DatasetI or ImageI)
+        Deletes model entities (ProjectI, DatasetI, ImageI, etc)
         by creating Delete2 commands and calling
         :func:`~test.ITest.do_submit`.
 
         :param obj: a list of objects to be deleted
         """
-        if isinstance(obj[0], ProjectI):
-            t = "Project"
-        elif isinstance(obj[0], DatasetI):
-            t = "Dataset"
-        elif isinstance(obj[0], ImageI):
-            t = "Image"
-        else:
-            assert False, "Object type not supported."
-
-        ids = [i.id.val for i in obj]
-        command = Delete2(targetObjects={t: ids})
-
+        to_delete = defaultdict(list)
+        for obj in objs:
+            t = obj.__class__.__name__
+            to_delete[t].append(obj.id.val)
+        command = Delete2(targetObjects=to_delete)
         self.do_submit(command, self.client)
 
     def change_group(self, obj, target, client=None):
