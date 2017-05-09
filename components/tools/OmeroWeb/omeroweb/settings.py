@@ -433,12 +433,32 @@ CUSTOM_SETTINGS_MAPPINGS = {
         ["SESSION_COOKIE_DOMAIN",
          None,
          leave_none_unset,
-         "The domain to use for session cookies"],
+         "The domain to use for session cookies."],
     "omero.web.session_cookie_name":
         ["SESSION_COOKIE_NAME",
          None,
          leave_none_unset,
-         "The name to use for session cookies"],
+         "The name to use for session cookies."],
+    "omero.web.csrf_cookie_age":
+        ["CSRF_COOKIE_AGE",
+         86400,
+         int,
+         "The age of CSRF cookies, in seconds."],
+    "omero.web.csrf_cookie_name":
+        ["CSRF_COOKIE_NAME",
+         None,
+         leave_none_unset,
+         "The name to use for CSRF cookies."],
+    "omero.web.csrf_cookie_domain":
+        ["CSRF_COOKIE_DOMAIN",
+         None,
+         leave_none_unset,
+         "The domain to use for CSRF cookies."],
+    "omero.web.csrf_cookie_domain":
+        ["CSRF_COOKIE_SECURE",
+         "false",
+         parse_boolean,
+         "Whether to use a secure cookie for the CSRF cookie."],
     "omero.web.logdir":
         ["LOGDIR", LOGDIR, str, "A path to the custom log directory."],
     "omero.web.secure_proxy_ssl_header":
