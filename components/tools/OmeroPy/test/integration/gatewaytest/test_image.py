@@ -66,6 +66,31 @@ class TestImage (object):
         pthumb = Image.open(ptfile)  # Raises if invalid
         pthumb.verify()  # Raises if invalid
 
+    def testThumbnailSet(self, author_testimg_bad, author_testimg_big):
+        # ordinary and big image (4k x 4k and up)
+        img_ids = [self.image.id, author_testimg_big.id]
+        conn = self.image._conn
+        for (img_id, thumb) in conn.getThumbnailSet(image_ids=img_ids).items():
+            assert img_id in img_ids
+            tfile = StringIO(thumb)
+            thumb = Image.open(tfile)  # Raises if invalid
+            thumb.verify()  # Raises if invalid
+            assert thumb.format == 'JPEG'
+            assert thumb.size == (64, 64)
+
+        thumb = conn.getThumbnailSet(
+            image_ids=[self.image.id], max_size=96)[self.image.id]
+        tfile = StringIO(thumb)
+        thumb = Image.open(tfile)  # Raises if invalid
+        thumb.verify()  # Raises if invalid
+        assert thumb.size == (96, 96)
+
+        badimg_id = author_testimg_bad.id  # no pixels
+        with pytest.raises(KeyError):
+            thumb = conn.getThumbnailSet(
+                image_ids=[badimg_id])[badimg_id]
+        # Big image (4k x 4k and up) thumb
+
     def testRenderingModels(self):
         # default is color model
         cimg = self.image.renderJpeg(0, 0)

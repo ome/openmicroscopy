@@ -76,6 +76,14 @@ $(function () {
                         }
                     }
                     $metadata_general.html(data);
+                },
+                error: function(data) {
+                    // If request string too long. e.g. image=1&image=2&image=3.... etc
+                    // Just show the error message in right panel.
+                    // This error will be ignored by OME.setupAjaxError();
+                    if (data.status == 414 || data.responseText.indexOf('Request Line is too large') > -1) {
+                        $metadata_general.html(data.responseText);
+                    }
                 }
             });
             

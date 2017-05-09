@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load common_tags %}
+{% load common_filters %}
 
 {% comment %}
 <!--
@@ -179,7 +180,14 @@
             // Save settings
             $("#rdef-setdef-btn").click(function(){
               setImageDefaults(OME.preview_viewport, this, function() {
-                OME.refreshThumbnails({'imageId':{{ manager.image.id }}, 'ignorePreview': true});
+                OME.refreshThumbnails(
+                    {'imageId':{{ manager.image.id }},
+                     'ignorePreview': true,
+                     'thumbnail_url': "{% url 'get_thumbnails_json' %}",
+                     'defaultThumbnail': "{% static 'webgateway/img/image128.png' %}",
+                     'thumbnailsBatch': {{ thumbnails_batch|default:50|json_dumps|safe }},
+                    }
+                );
                 updateMyRdef(OME.preview_viewport.getQuery());
               });
             });
@@ -321,7 +329,12 @@
                       success: function(data){
                           $span.text(spanTxt);
                           // update thumbnails
-                          OME.refreshThumbnails({'ignorePreview': true});
+                          OME.refreshThumbnails({
+                            'ignorePreview': true,
+                            'thumbnail_url': "{% url 'get_thumbnails_json' %}",
+                            'defaultThumbnail': "{% static 'webgateway/img/image128.png' %}",
+                            'thumbnailsBatch': 1
+                          });
                           updateMyRdef(OME.preview_viewport.getQuery());
                       }
                   });

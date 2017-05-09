@@ -32,6 +32,7 @@ import traceback
 import json
 import re
 import sys
+import warnings
 
 from time import time
 
@@ -78,6 +79,7 @@ from omeroweb.webadmin.forms import LoginForm
 
 from omeroweb.webgateway import views as webgateway_views
 from omeroweb.webgateway.marshal import chgrpMarshal
+from omeroweb.webgateway.util import get_longs as webgateway_get_longs
 
 from omeroweb.feedback.views import handlerInternalError
 
@@ -97,8 +99,6 @@ from omero.rtypes import rlong, rlist
 from omeroweb.webgateway.views import LoginView
 
 import tree
-
-import warnings
 
 logger = logging.getLogger(__name__)
 
@@ -121,18 +121,10 @@ def get_long_or_default(request, name, default):
 
 
 def get_longs(request, name):
-    """
-    Retrieves parameters from the request. If the parameters are not present
-    an empty list is returned
-
-    This does not catch exceptions as it makes sense to throw exceptions if
-    the arguments provided do not pass basic type validation
-    """
-    vals = []
-    vals_raw = request.GET.getlist(name)
-    for val_raw in vals_raw:
-        vals.append(long(val_raw))
-    return vals
+    warnings.warn(
+        "Deprecated. Use omeroweb.webgateway.util.get_longs()",
+        DeprecationWarning)
+    return webgateway_get_longs(request, name)
 
 
 def get_bool_or_default(request, name, default):
@@ -459,6 +451,7 @@ def _load_template(request, menu, conn=None, url=None, **kwargs):
     context['current_url'] = url
     context['page_size'] = settings.PAGE
     context['template'] = template
+    context['thumbnails_batch'] = settings.THUMBNAILS_BATCH
 
     return context
 
@@ -1272,6 +1265,7 @@ def load_plate(request, o1_type=None, o1_id=None, conn=None, **kwargs):
         context['baseurl'] = reverse('webgateway').rstrip('/')
         context['form_well_index'] = form_well_index
         context['index'] = index
+        context['thumbnails_batch'] = settings.THUMBNAILS_BATCH
         template = "webclient/data/plate.html"
         if o1_type == 'acquisition':
             context['acquisition'] = o1_id
@@ -1444,6 +1438,7 @@ def load_searching(request, form=None, conn=None, **kwargs):
         'foundById': foundById,
         'resultCount': manager.c_size + len(foundById)}
     context['template'] = template
+    context['thumbnails_batch'] = settings.THUMBNAILS_BATCH
     return context
 
 
@@ -1457,6 +1452,9 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
     The data and annotations are loaded by the manager. Display of appropriate
     data is handled by the template.
     """
+
+    # the index of a field within a well
+    index = getIntOrDefault(request, 'index', 0)
 
     context = dict()
 
@@ -1510,7 +1508,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
     else:
         try:
             manager = BaseContainer(
-                conn, **{str(c_type): long(c_id)})
+                conn, **{str(c_type): long(c_id), 'index': index})
         except AttributeError, x:
             return handlerInternalError(request, x)
         if share_id is not None:
@@ -1544,9 +1542,14 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None,
     """
     context = {}
 
+    # the index of a field within a well
+    index = getIntOrDefault(request, 'index', 0)
+
     manager = BaseContainer(conn, **{str(c_type): long(c_id)})
     if share_id:
         context['share'] = BaseShare(conn, share_id)
+    if c_type == "well":
+        manager.image = manager.well.getImage(index)
 
     allRdefs = manager.image.getAllRenderingDefs()
     rdefs = {}
@@ -3747,8 +3750,17 @@ def figure_script(request, scriptName, conn=None, **kwargs):
 
     imageIds = request.GET.get('Image', None)    # comma - delimited list
     datasetIds = request.GET.get('Dataset', None)
+    wellIds = request.GET.get('Well', None)
+
+    if wellIds is not None:
+        wellIds = [long(i) for i in wellIds.split(",")]
+        wells = conn.getObjects("Well", wellIds)
+        wellIdx = getIntOrDefault(request, 'Index', 0)
+        imageIds = [str(w.getImage(wellIdx).getId()) for w in wells]
+        imageIds = ",".join(imageIds)
     if imageIds is None and datasetIds is None:
-        return HttpResponse("Need to specify /?Image=1,2 or /?Dataset=1,2")
+        return HttpResponse(
+            "Need to specify /?Image=1,2 or /?Dataset=1,2 or /?Well=1,2")
 
     def validateIds(dtype, ids):
         ints = [int(oid) for oid in ids.split(",")]
@@ -3835,7 +3847,7 @@ def figure_script(request, scriptName, conn=None, **kwargs):
             thumbSets.append({'name': 'images', 'imageTags': imageTags})
             tags.extend(ts)
             parent = conn.getObject("Image", imageIds[0]).getParent()
-            figureName = parent.getName()
+            figureName = parent.getName() or "Thumbnail Figure"
             context['parent_id'] = parent.getId()
         uniqueTagIds = set()      # remove duplicates
         uniqueTags = []
