@@ -16,6 +16,8 @@
 			<optional name="ns" type="string"/>
 			<optional name="name" type="string"/>
 			<optional name="description" type="text"/>
+			<parent name="imageLinks" type="ome.model.annotations.ImageAnnotationLink" target="ome.model.core.Image"/>
+			<parent name="wellLinks" type="ome.model.annotations.WellAnnotationLink" target="ome.model.screen.Well"/>
 		</properties>
 	</abstract>
 <!-- top-level types -->

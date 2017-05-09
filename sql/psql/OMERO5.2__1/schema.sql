@@ -193,6 +193,20 @@
         primary key (Annotation_id, owner_id)
     );;
 
+    create table count_Annotation_imageLinks_by_owner (
+        Annotation_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (Annotation_id, owner_id)
+    );;
+
+    create table count_Annotation_wellLinks_by_owner (
+        Annotation_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (Annotation_id, owner_id)
+    );;
+
     create table count_Channel_annotationLinks_by_owner (
         Channel_id int8 not null,
         count int8 not null,
@@ -2587,6 +2601,16 @@
 
     alter table count_Annotation_annotationLinks_by_owner 
         add constraint FK_count_to_Annotation_annotationLinks 
+        foreign key (Annotation_id) 
+        references annotation  ;;
+
+    alter table count_Annotation_imageLinks_by_owner 
+        add constraint FK_count_to_Annotation_imageLinks 
+        foreign key (Annotation_id) 
+        references annotation  ;;
+
+    alter table count_Annotation_wellLinks_by_owner 
+        add constraint FK_count_to_Annotation_wellLinks 
         foreign key (Annotation_id) 
         references annotation  ;;
 
