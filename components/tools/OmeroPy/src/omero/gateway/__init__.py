@@ -5084,9 +5084,12 @@ class _OriginalFileWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         :return:    Data from file in chunks
         :rtype:     Generator
         """
+        group_id = self.getDetails().group.id.val
+        ctx = self._conn.SERVICE_OPTS.copy()
+        ctx.setOmeroGroup(group_id)     # Shouldn't be needed, but '-1' causes a bug in FS
 
         store = self._conn.createRawFileStore()
-        store.setFileId(self._obj.id.val, self._conn.SERVICE_OPTS)
+        store.setFileId(self._obj.id.val, ctx)
         size = self._obj.size.val
         if size <= buf:
             yield store.read(0, long(size))
