@@ -636,7 +636,7 @@ class BlitzObjectWrapper (object):
         :rtype:     Boolean
         :return:    True if user can Edit this object Delete, link etc.
         """
-        return self.getDetails().getPermissions().canEdit()
+        return self.getDetails().getPermissions().canEdit() or self._conn.isAdmin()
 
     def canDelete(self):
         """
@@ -663,7 +663,7 @@ class BlitzObjectWrapper (object):
         :rtype:     Boolean
         :return:    True if user can Annotate this object
         """
-        return self.getDetails().getPermissions().canAnnotate()
+        return self.getDetails().getPermissions().canAnnotate() or self._conn.isAdmin()
 
     def canChgrp(self):
         """
