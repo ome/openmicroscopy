@@ -24,7 +24,11 @@
 }
 
 .weblitz-plateview .waiting {
+  background:url(../img/spinner.gif);
   background-color: #eee;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0.5;
 }
 
 .weblitz-plateview .loading {

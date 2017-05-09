@@ -103,6 +103,7 @@ class BaseSearch(BaseController):
         self.containers = {}
         resultCount = 0
         self.searchError = None
+        self.iids = []
 
         try:
             for dt in onlyTypes:
@@ -115,6 +116,8 @@ class BaseSearch(BaseController):
                             well.name = "%s - %s" %\
                                         (well.listParents()[0].name,
                                          well.getWellPos())
+                    if dt == 'images':
+                        self.iids = [i.id for i in self.containers[dt]]
                     # If we get a full page of results, we know there are more
                     if len(self.containers[dt]) == batchSize:
                         self.moreResults = True

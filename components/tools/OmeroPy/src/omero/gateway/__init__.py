@@ -4430,6 +4430,53 @@ class _BlitzGateway (object):
             search.close()
         return rv
 
+    def getThumbnailSet(self, image_ids, max_size=64):
+        """
+        Retrieves a number of thumbnails for image sets. If the Thumbnails
+        exist in the on-disk cache they will be returned directly,
+        otherwise they will be created, for more details
+        see ome.api.ThumbnailStore.getThumbnailByLongestSideSet
+
+        :param image_ids:   A list of image ids
+        :param max_size:    The longest side of the image will be used
+                            to calculate the size for the smaller side
+                            in order to keep the aspect ratio of
+                            the original image.
+        :return:            dictionary of strings holding a rendered JPEG
+                            of the thumbnails.
+        """
+        tb = None
+        _resp = dict()
+        try:
+            ctx = self.SERVICE_OPTS.copy()
+            if ctx.getOmeroGroup() is None:
+                ctx.setOmeroGroup(-1)
+            tb = self.createThumbnailStore()
+            p = omero.sys.ParametersI().addIds(image_ids)
+            sql = """select new map(
+                        i.id as im_id, p.id as pix_id
+                     )
+                     from Pixels as p join p.image as i
+                     where i.id in (:ids) """
+
+            img_pixel_ids = self.getQueryService().projection(
+                sql, p, ctx)
+            _temp = dict()
+            for e in img_pixel_ids:
+                e = unwrap(e)
+                _temp[e[0]['pix_id']] = e[0]['im_id']
+
+            thumbs_map = tb.getThumbnailByLongestSideSet(
+                rint(max_size), list(_temp), ctx)
+            for (pix, thumb) in thumbs_map.items():
+                _resp[_temp[pix]] = thumb
+        except Exception:
+            logger.error(traceback.format_exc())
+        finally:  # pragma: no cover
+            if tb is not None:
+                tb.close()
+        return _resp
+
 
 class OmeroGatewaySafeCallWrapper(object):  # pragma: no cover
     """

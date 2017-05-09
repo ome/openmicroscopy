@@ -15,6 +15,7 @@
 
 import re
 import json
+import base64
 import omero
 import omero.clients
 
@@ -68,7 +69,8 @@ import shutil
 
 from omeroweb.decorators import login_required, ConnCleaningHttpResponse
 from omeroweb.connector import Connector
-from omeroweb.webgateway.util import zip_archived_files, getIntOrDefault
+from omeroweb.webgateway.util import zip_archived_files
+from omeroweb.webgateway.util import get_longs, getIntOrDefault
 
 cache = CacheBase()
 logger = logging.getLogger(__name__)
@@ -306,12 +308,10 @@ def render_birds_eye_view(request, iid, size=None,
     return render_thumbnail(request, iid, w=size, **kwargs)
 
 
-@login_required()
-def render_thumbnail(request, iid, w=None, h=None, conn=None, _defcb=None,
-                     **kwargs):
+def _render_thumbnail(request, iid, w=None, h=None, conn=None, _defcb=None,
+                      **kwargs):
     """
-    Returns an HttpResponse wrapped jpeg with the rendered thumbnail for image
-    'iid'
+    Returns a jpeg with the rendered thumbnail for image 'iid'
 
     @param request:     http request
     @param iid:         Image ID
@@ -351,7 +351,7 @@ def render_thumbnail(request, iid, w=None, h=None, conn=None, _defcb=None,
                 jpeg_data = _defcb(size=size)
                 prevent_cache = True
             else:
-                raise Http404
+                raise Http404('Failed to render thumbnail')
         else:
             jpeg_data = img.getThumbnail(
                 size=size, direct=direct, rdefId=rdefId, z=z, t=t)
@@ -361,8 +361,7 @@ def render_thumbnail(request, iid, w=None, h=None, conn=None, _defcb=None,
                     jpeg_data = _defcb(size=size)
                     prevent_cache = True
                 else:
-                    return HttpResponseServerError(
-                        'Failed to render thumbnail')
+                    raise Http404('Failed to render thumbnail')
             else:
                 prevent_cache = img._thumbInProgress
         if not prevent_cache:
@@ -370,6 +369,24 @@ def render_thumbnail(request, iid, w=None, h=None, conn=None, _defcb=None,
                                       jpeg_data, size)
     else:
         pass
+    return jpeg_data
+
+
+@login_required()
+def render_thumbnail(request, iid, w=None, h=None, conn=None, _defcb=None,
+                     **kwargs):
+    """
+    Returns an HttpResponse wrapped jpeg with the rendered thumbnail for image
+    'iid'
+
+    @param request:     http request
+    @param iid:         Image ID
+    @param w:           Thumbnail max width. 96 by default
+    @param h:           Thumbnail max height
+    @return:            http response containing jpeg
+    """
+    jpeg_data = _render_thumbnail(request=request, iid=iid, w=w, h=h,
+                                  conn=conn, _defcb=_defcb, **kwargs)
     rsp = HttpResponse(jpeg_data, content_type='image/jpeg')
     return rsp
 
@@ -1438,18 +1455,11 @@ def plateGrid_json(request, pid, field=0, conn=None, **kwargs):
         field = long(field or 0)
     except ValueError:
         field = 0
-    prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
     thumbsize = getIntOrDefault(request, 'size', None)
     logger.debug(thumbsize)
     server_id = kwargs['server_id']
 
-    def get_thumb_url(iid):
-        if thumbsize is not None:
-            return reverse(prefix, args=(iid, thumbsize))
-        return reverse(prefix, args=(iid,))
-
-    plateGrid = PlateGrid(conn, pid, field,
-                          kwargs.get('urlprefix', get_thumb_url))
+    plateGrid = PlateGrid(conn, pid, field, kwargs.get('urlprefix', ''))
     plate = plateGrid.plate
     if plate is None:
         return Http404
@@ -1463,6 +1473,70 @@ def plateGrid_json(request, pid, field=0, conn=None, **kwargs):
                                  cache_key)
     else:
         rv = json.loads(rv)
+    return rv
+
+
+@login_required()
+@jsonp
+def get_thumbnails_json(request, w=None, conn=None, **kwargs):
+    """
+    Returns base64 encoded jpeg with the rendered thumbnail for images
+    'id'
+
+    @param request:     http request
+    @param w:           Thumbnail max width. 96 by default
+    @return:            http response containing base64 encoded thumbnails
+    """
+    if w is None:
+        w = 96
+    image_ids = get_longs(request, 'id')
+    image_ids = list(set(image_ids))    # remove any duplicates
+    # If we only have a single ID, simply use getThumbnail()
+    if len(image_ids) == 1:
+        iid = image_ids[0]
+        try:
+            data = _render_thumbnail(request, iid, w=w, conn=conn)
+            return {iid: "data:image/jpeg;base64,%s" % base64.b64encode(data)}
+        except:
+            return {iid: None}
+    logger.debug("Image ids: %r" % image_ids)
+    if len(image_ids) > settings.THUMBNAILS_BATCH:
+        return HttpJavascriptResponseServerError(
+            'Max %s thumbnails at a time.' % settings.THUMBNAILS_BATCH)
+    thumbnails = conn.getThumbnailSet([rlong(i) for i in image_ids], w)
+    rv = dict()
+    for i in image_ids:
+        rv[i] = None
+        try:
+            t = thumbnails[i]
+            if len(t) > 0:
+                # replace thumbnail urls by base64 encoded image
+                rv[i] = ("data:image/jpeg;base64,%s" % base64.b64encode(t))
+        except KeyError:
+            logger.error("Thumbnail not available. (img id: %d)" % i)
+        except Exception:
+            logger.error(traceback.format_exc())
+    return rv
+
+
+@login_required()
+@jsonp
+def get_thumbnail_json(request, iid, w=None, h=None, conn=None, _defcb=None,
+                       **kwargs):
+    """
+    Returns an HttpResponse base64 encoded jpeg with the rendered thumbnail
+    for image 'iid'
+
+    @param request:     http request
+    @param iid:         Image ID
+    @param w:           Thumbnail max width. 96 by default
+    @param h:           Thumbnail max height
+    @return:            http response containing base64 encoded thumbnail
+    """
+    jpeg_data = _render_thumbnail(
+        request=request, iid=iid, w=w, h=h,
+        conn=conn, _defcb=_defcb, **kwargs)
+    rv = "data:image/jpeg;base64,%s" % base64.b64encode(jpeg_data)
     return rv
 
 

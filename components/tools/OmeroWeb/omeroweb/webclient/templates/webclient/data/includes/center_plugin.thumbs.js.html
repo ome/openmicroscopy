@@ -1,3 +1,5 @@
+{% load common_filters %}
+
 {% comment %}
 /**
   Copyright (C) 2012-2016 University of Dundee & Open Microscopy Environment.
@@ -192,6 +194,17 @@ $(document).ready(function() {
 
             return;
         }
+        // update single thumbnail, see OME.refreshThumbnails
+        if (event.type === "refreshThumb") {
+            OME.load_thumbnail(
+                data.imageId,
+                "{% url 'webindex' %}get_thumbnail/"+data.imageId+"/",
+                function(thumb) {
+                    $("li#image_icon-"+data.imageId+ " img").attr("src", thumb);
+                }
+            );
+            return;
+        }
 
         parentId = newParentId;
 
@@ -208,7 +221,8 @@ $(document).ready(function() {
         });
 
         var imgJson = [],
-            selFileSets = [];
+            selFileSets = [],
+            shareId = null;
         // Convert jsTree nodes into json for template
         imgNodes.forEach(function(node){
             var d = node.data.obj.date || node.data.obj.acqDate;
@@ -227,25 +241,11 @@ $(document).ready(function() {
                     selFileSets.push(fsId);
                 }
             }
-            // Thumb version: random to break cache if thumbnails are -1 'in progress'
-            // or we're refresing 1 or all thumbnails
-            if (node.data.obj.thumbVersion != undefined ||
-                    event.type === "refreshThumbnails" ||
-                    event.type === "refreshThumb") {
-                var thumbVersion = node.data.obj.thumbVersion;
-                if (thumbVersion === -1 || event.type === "refreshThumbnails" || (
-                        event.type === "refreshThumb" && data.imageId === iData.id)) {
-                    thumbVersion = getRandom();
-                    // We cache this to prevent new thumbnails requested on every
-                    // selection change. Refreshing of tree will reset thumbVersion.
-                    node.data.obj.thumbVersion = thumbVersion;
-                }
-                iData.thumbVersion = thumbVersion;
-            }
             // If image is in share and share is not owned by user...
             if (node.data.obj.shareId && !parentNode.data.obj.isOwned) {
                 // share ID will be needed to open image viewer
                 iData.shareId = node.data.obj.shareId;
+                shareId = node.data.obj.shareId;
             }
             imgJson.push(iData);
         });
@@ -278,6 +278,26 @@ $(document).ready(function() {
 
         var html = iconTmpl(json);
         $("#icon_table").html(html);
+
+        // load thumbnails in a batches
+        thumbnailsBatch = {{ thumbnails_batch|default:50|json_dumps|safe }};
+        iids = $.map(imgJson, function(img){
+            return img.id;
+        });
+        thumbUrl = "{% url 'get_thumbnails_json' %}";
+        if (shareId !== null) {
+          thumbUrl = "{% url 'get_thumbnails_json' %}" + shareId + "/"
+        }
+
+        // getThumbnailSet() doesn't work with share permissions, so we get
+        // single thumbnails at a time
+        if (parentNode.type === "share") {
+            thumbnailsBatch = 1;
+        }
+        OME.load_thumbnails(
+            thumbUrl, iids, thumbnailsBatch,
+            "{% static 'webgateway/img/image128.png' %}"
+        );
 
         // populate arrays etc for speedy icon zooming
         setupIconZooming();
