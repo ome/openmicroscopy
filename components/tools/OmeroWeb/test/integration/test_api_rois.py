@@ -79,19 +79,18 @@ class TestContainers(IWebTest):
         rect.y = rdouble(20)
         rect.width = rdouble(30)
         rect.height = rdouble(40)
-        rect.theZ = rint(0)
+        # Only save theT, not theZ
         rect.theT = rint(0)
         rect.textValue = rstring("test-Rectangle")
         rect.fillColor = rint(rgba_to_int(255, 255, 255, 255))
         rect.strokeColor = rint(rgba_to_int(255, 255, 0, 255))
 
+        # ellipse without saving theZ & theT
         ellipse = EllipseI()
         ellipse.x = rdouble(33)
         ellipse.y = rdouble(44)
         ellipse.radiusX = rdouble(55)
         ellipse.radiusY = rdouble(66)
-        ellipse.theZ = rint(1)
-        ellipse.theT = rint(20)
         ellipse.textValue = rstring("test-Ellipse")
 
         line = LineI()
