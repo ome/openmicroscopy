@@ -839,10 +839,12 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         if (importNotYourGroupExpectSuccess) {
             assertOwnedBy(remoteFile, lightAdmin);
             Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), normalUser.groupId);
-        } else Assert.assertNull(remoteFile, "if import failed, the remoteFile should be null");
+        } else {
+            Assert.assertNull(remoteFile, "if import failed, the remoteFile should be null");
+        }
         /* check that also the image corresponding to the original file is in the right group */
         Image image = null;
-        if (!(remoteFile == null)) {
+        if (remoteFile != null) {
             image = (Image) iQuery.findByQuery("FROM Image WHERE fileset IN "
                     + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
                     new ParametersI().addId(remoteFile.getId()));
