@@ -1206,7 +1206,7 @@ CREATE TRIGGER preserve_folder_tree
 
 -- Set up the current administrative privileges table and use it to prevent privilege elevation.
 
-CREATE TABLE _current_admin_privileges (
+CREATE UNLOGGED TABLE _current_admin_privileges (
     transaction BIGINT,
     privilege VARCHAR(255)
 );

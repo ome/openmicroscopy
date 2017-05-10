@@ -419,6 +419,17 @@ CREATE TRIGGER _protect_originalfile_repo_update
 
 CREATE INDEX node_down ON node(down);
 
+-- SET UNLOGGED requires 9.5 so recreate table instead
+
+DROP TABLE _current_admin_privileges;
+
+CREATE UNLOGGED TABLE _current_admin_privileges (
+    transaction BIGINT,
+    privilege VARCHAR(255)
+);
+
+CREATE INDEX i_current_admin_privileges_transactions ON _current_admin_privileges(transaction);
+
 
 --
 -- FINISHED
