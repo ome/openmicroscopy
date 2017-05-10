@@ -259,7 +259,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * All workflows are tested here both when light admin is sudoing
      * and when he/she is not sudoing, except for Link and Import (both tested
      * only when sudoing, as the non-sudoing workflows are too complicated
-     * for those two actions and thus covered by separate tests.
+     * for those two actions and thus covered by separate tests).
      * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param isSudoing if to test a success of workflows where Sudoed in
      * @param permWriteOwned if to test a user who has the <tt>WriteOwned</tt> privilege
@@ -292,10 +292,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         Project proj = mmFactory.simpleProject();
         Dataset dat = mmFactory.simpleDataset();
-        Project sentProj = new ProjectI();
-        Dataset sentDat = new DatasetI();
-        sentDat = null;
-        sentProj = null;
+        Project sentProj = null;
+        Dataset sentDat = null;
         /* set the normalUser as the owner of the newly created P/D but do this only
          * when the light admin is not sudoing (if sudoing, this step is not necessary
          * because the created P/D already belongs to the normalUser) */
@@ -367,7 +365,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * user. Behaviors of the system are explored when light admin
      * is and is not using <tt>Sudo</tt> privilege
      * for this action.
-     * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param isSudoing if to test a success of workflows where Sudoed in
      * @param permDeleteOwned if to test a user who has the <tt>DeleteOwned</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
@@ -394,10 +391,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
        Project proj = mmFactory.simpleProject();
        Dataset dat = mmFactory.simpleDataset();
-       Project sentProj = new ProjectI();
-       sentProj = null;
-       Dataset sentDat = new DatasetI();
-       sentDat = null;
+       Project sentProj = null;
+       Dataset sentDat = null;
        try {
            sentProj = (Project) iUpdate.saveAndReturnObject(proj);
            sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
