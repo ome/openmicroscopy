@@ -1059,12 +1059,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
          * into the default group of the normalUser
          * which should succeed in case the light admin has Chgrp permissions
          */
-        if (permChgrp) {
-            doChange(client, factory, Requests.chgrp().target(sentDat).toGroup(normalUser.groupId).build(), true);
-
-        } else {
-            doChange(client, factory, Requests.chgrp().target(sentDat).toGroup(normalUser.groupId).build(), false);
-        }
+        doChange(client, factory, Requests.chgrp().target(sentDat).toGroup(normalUser.groupId).build(), permChgrp);
         /* retrieve again the image, dataset and link */
         long datasetGroupId =((RLong) iQuery.projection(
                 "SELECT details.group.id FROM Dataset d WHERE d.id = :id",
