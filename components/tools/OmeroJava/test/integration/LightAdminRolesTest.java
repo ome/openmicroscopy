@@ -260,7 +260,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * and when he/she is not sudoing, except for Link and Import (both tested
      * only when sudoing, as the non-sudoing workflows are too complicated
      * for those two actions and thus covered by separate tests).
-     * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param isSudoing if to test a success of workflows where Sudoed in
      * @param permWriteOwned if to test a user who has the <tt>WriteOwned</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
@@ -490,7 +489,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * edit the name of a project
      * on behalf of another user solely with <tt>Sudo</tt> privilege
      * or without it, using permWriteOwned privilege
-     * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param isSudoing if to test a success of workflows where Sudoed in
      * @param permWriteOwned if to test a user who has the <tt>WriteOwned</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
@@ -561,7 +559,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * having the image which is getting moved into a different group in a dataset
      * in the original group (the chgrp has to sever the DatasetImageLink to perform
      * the move (chgrp)).
-     * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param isSudoing if to test a success of workflows where Sudoed in
      * @param permChgrp if to test a user who has the <tt>Chgrp</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
@@ -684,7 +681,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * the <tt>Chown</tt> privilege.
      * Test is in case of private group severing the link between the Dataset and Image.
      * For this, only the Chown permissions are sufficient, no other permissions are necessary.
-     * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param isSudoing if to test a success of workflows where Sudoed in
      * @param permChown if to test a user who has the <tt>Chown</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
@@ -775,7 +771,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      *  <tt>WriteFile</tt> and <tt>WriteManagedRepo</tt> privileges will be explored
      * for the light admin. For this workflow the creation and targeting of a Dataset
      * is tested too.
-     * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param permWriteOwned if to test a user who has the <tt>WriteOwned</tt> privilege
      * @param permWriteManagedRepo if to test a user who has the <tt>WriteManagedRepo</tt> privilege
      * @param permWriteFile if to test a user who has the <tt>WriteFile</tt> privilege
@@ -923,7 +918,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * here the image and/or dataset will be created and saved instead and just
      * the linking to a container will be tested. Only when the light admin has
      * WriteOwned privilege is the linking possible.
-     * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param permChown if to test a user who has the <tt>Chown</tt> privilege
      * @param permWriteOwned if to test a user who has the <tt>WriteOwned</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
@@ -1006,7 +1000,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
          * privileges is explored for the light admin.
          * For this workflow the creation and targeting of a Dataset
          * is tested too.
-         * @param isAdmin if to test a member of the <tt>system</tt> group
          * @param permChgrp if to test a user who has the <tt>Chgrp</tt> privilege
          * @param permChown if to test a user who has the <tt>Chown</tt> privilege
          * @param groupPermissions if to test the effect of group permission level
@@ -1231,7 +1224,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * option of the Chown2 command which transfers all the data owned by one
      * user to another user. The data are in 2 groups, of which the original data owner
      * is a member of, the recipient of the data is just a member of one of the groups.
-     * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param isPrivileged if to test a user who has the <tt>Chown</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
@@ -1329,7 +1321,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * The workflow deals with the eventuality of putting ROI and Rendering Settings on an
      * image of the user and then transferring the ownership of the ROI and settings
      * to the user.
-     * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param permChown if to test a user who has the <tt>Chown</tt> privilege
      * @param permWriteOwned if to test a user who has the <tt>WriteOwned</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
@@ -1446,7 +1437,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * and linking it to an image of the user and then transferring
      * the ownership of the attachment and link
      * to the user.
-     * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param permChown if to test a user who has the <tt>Chown</tt> privilege
      * @param permWriteOwned if to test a user who has the <tt>WriteOwned</tt> privilege
      * @param permWriteFile if to test a user who has the <tt>WriteFile</tt> privilege
@@ -1536,7 +1526,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     /** Test of light admin without using Sudo.
      * The workflow tries to upload an official script.
      * The only permission light admin needs for this is WriteScriptRepo
-     * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param isPrivileged if to test a user who has the <tt>WriteScriptRepo</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
@@ -1588,7 +1577,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     /**
      * Test that users may delete official scripts only if they are a member of the <tt>system</tt> group and
      * have the <tt>DeleteScriptRepo</tt> privilege.
-     * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param isPrivileged if to test a user who has the <tt>DeleteScriptRepo</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
@@ -1663,7 +1651,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * Test that light admin can modify group membership when he/she has
      * only the <tt>ModifyGroupMembership</tt> privilege.
      * The addition of a user is being attempted here.
-     * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param isPrivileged if to test a user who has the <tt>ModifyGroupMembership</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
@@ -1694,7 +1681,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * Test that light admin can modify group membership when he/she has
      * only the <tt>ModifyGroupMembership</tt> privilege.
      * The removal of a user is being attempted here.
-     * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param isPrivileged if to test a user who has the <tt>ModifyGroupMembership</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
@@ -1724,7 +1710,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     /**
      * Test that light admin can make a user an owner of a group
      * when the light admin has only the <tt>ModifyGroupMembership</tt> privilege.
-     * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param isPrivileged if to test a user who has the <tt>ModifyGroupMembership</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
@@ -1752,7 +1737,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     /**
      * Test that light admin can unset a user to be an owner of a group
      * when the light admin has only the <tt>ModifyGroupMembership</tt> privilege.
-     * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param isPrivileged if to test a user who has the <tt>ModifyGroupMembership</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
@@ -1789,7 +1773,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     /**
      * Test that light admin can create a new user
      * when the light admin has only the <tt>ModifyUser</tt> privilege.
-     * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param isPrivileged if to test a user who has the <tt>ModifyUser</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
@@ -1823,7 +1806,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     /**
      * Test that light admin can edit an existing user
      * when the light admin has only the <tt>ModifyUser</tt> privilege.
-     * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param isPrivileged if to test a user who has the <tt>ModifyUser</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
@@ -1852,7 +1834,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     /**
      * Test that light admin can create a new group
      * when the light admin has only the <tt>ModifyGroup</tt> privilege.
-     * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param isPrivileged if to test a user who has the <tt>ModifyGroup</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
@@ -1883,7 +1864,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     /**
      * Test that light admin can edit an existing group
      * when the light admin has only the <tt>ModifyGroup</tt> privilege.
-     * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param isPrivileged if to test a user who has the <tt>ModifyGroup</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
