@@ -624,7 +624,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         }
         /*in order to find the image in whatever group, get context with group
          * set to -1 (=all groups) */
-        client.getImplicitContext().put("omero.group", Long.toString(-1));
+        client.getImplicitContext().put("omero.group", "-1");
         /* try to move the image into another group of the normalUser
          * which should succeed if sudoing and also in case
          * the light admin has Chgrp permissions
@@ -1053,7 +1053,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         /*in order to find the image in whatever group, get context with group
          * set to -1 (=all groups)
          */
-        client.getImplicitContext().put("omero.group", Long.toString(-1));
+        client.getImplicitContext().put("omero.group", "-1");
         /* try to move the dataset (and with it the linked image)
          * from light admin's default group
          * into the default group of the normalUser
@@ -1274,7 +1274,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         ProjectDatasetLink linkOfProjectDataset2OtherGroup = linkProjectDataset(sentProj2OtherGroup, sentDat2OtherGroup);
         /* now transfer all the data of normalUser to recipient */
         loginUser(lightAdmin);
-        client.getImplicitContext().put("omero.group", Long.toString(-1));
+        client.getImplicitContext().put("omero.group", "-1");
         /* transfer can proceed only if chownPassing boolean is true */
         doChange(client, factory, Requests.chown().targetUsers(normalUser.userId).toUser(recipient.userId).build(), chownPassing);
         if (!chownPassing) {
@@ -1282,7 +1282,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         }
         /* check the transfer of all the data in the first group was successful */
         /* check ownership of the first hierarchy set*/
-        client.getImplicitContext().put("omero.group", Long.toString(-1));
+        client.getImplicitContext().put("omero.group", "-1");
         assertOwnedBy(sentProj1, recipient);
         assertOwnedBy(sentDat1, recipient);
         assertOwnedBy(sentImage1, recipient);
