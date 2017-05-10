@@ -467,7 +467,7 @@ public class BasicACLVoter implements ACLVoter {
                 if (iObject instanceof OriginalFile && "Directory".equals(((OriginalFile) iObject).getMimetype())) {
                     grpPermissions = c.getPermissionsForGroup(gid);
                 } else {
-                    grpPermissions = new Permissions(Permissions.EMPTY);
+                    grpPermissions = new Permissions(Permissions.PRIVATE);
                 }
             } else {
                 /* not user group so use group's permissions */
