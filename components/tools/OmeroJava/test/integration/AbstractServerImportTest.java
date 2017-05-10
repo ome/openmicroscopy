@@ -67,6 +67,8 @@ public class AbstractServerImportTest extends AbstractServerTest {
      *            the source paths
      * @param numberToUpload
      *            how many of the source paths to actually upload
+     * @param targetObject
+     *            object (Dataset or Screen) to import the Fileset into
      * @return the resulting import location
      * @throws Exception
      *             unexpected
