@@ -29,8 +29,8 @@ This is a bug-fix release focusing on shares.
 
 Improvements include:
 
-- allow to view images in share
-- allow to import hidden image files (Windows client issue)
+- enabled viewing images in share
+- enabled importing hidden image files (Windows client issue)
 - clarify installation of OMERO.web
 - save polygon and polyline as defined in the OME model
 - fix viewing of images without pixels size
