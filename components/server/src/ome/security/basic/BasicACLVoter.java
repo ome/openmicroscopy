@@ -464,7 +464,11 @@ public class BasicACLVoter implements ACLVoter {
             final Long gid = d.getGroup().getId();
             if (roles.getUserGroupId() == gid) {
                 /* special handling for user group permissions */
-                grpPermissions = new Permissions(Permissions.EMPTY);
+                if (iObject instanceof OriginalFile && "Directory".equals(((OriginalFile) iObject).getMimetype())) {
+                    grpPermissions = c.getPermissionsForGroup(gid);
+                } else {
+                    grpPermissions = new Permissions(Permissions.EMPTY);
+                }
             } else {
                 /* not user group so use group's permissions */
                 grpPermissions = c.getPermissionsForGroup(gid);
