@@ -702,10 +702,12 @@ public class GraphTraversal {
         if (isCheckUserPermissions) {
             /* BasicACLVoter needs to check fuller instances of some objects */
             if (objectInstance instanceof OriginalFile) {
-                objectInstance = new OriginalFile(object.id, true);
-                final String query = "SELECT repo FROM OriginalFile WHERE id = :id";
-                final String repo = (String) session.createQuery(query).setLong("id", object.id).uniqueResult();
-                ((OriginalFile) objectInstance).setRepo(repo);
+                final String query = "SELECT mimetype, repo FROM OriginalFile WHERE id = :id";
+                final Object[] result = (Object[]) session.createQuery(query).setLong("id", object.id).uniqueResult();
+                final OriginalFile file = new OriginalFile(object.id, true);
+                file.setMimetype((String) result[0]);
+                file.setRepo((String) result[1]);
+                objectInstance = file;
             }
 
             /* allowLoad ensures that BasicEventContext.groupPermissionsMap is populated */
