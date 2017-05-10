@@ -990,11 +990,11 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         assertOwnedBy(sentDat, normalUser);
         assertOwnedBy(sentProj, normalUser);
         if (isExpectSuccessLinkAndChown) {
-            assertOwnedBy((new DatasetImageLinkI (linkDatasetImageId, false)), normalUser);
-            assertOwnedBy((new ProjectDatasetLinkI (linkProjectDatasetId, false)), normalUser);
+            assertOwnedBy((new DatasetImageLinkI(linkDatasetImageId, false)), normalUser);
+            assertOwnedBy((new ProjectDatasetLinkI(linkProjectDatasetId, false)), normalUser);
         } else {
-            assertOwnedBy((new DatasetImageLinkI (linkDatasetImageId, false)), lightAdmin);
-            assertOwnedBy((new ProjectDatasetLinkI (linkProjectDatasetId, false)), lightAdmin);
+            assertOwnedBy((new DatasetImageLinkI(linkDatasetImageId, false)), lightAdmin);
+            assertOwnedBy((new ProjectDatasetLinkI(linkProjectDatasetId, false)), lightAdmin);
         }
     }
 
@@ -1138,7 +1138,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             Assert.assertEquals(imageGroupId, normalUser.groupId);
             assertOwnedBy(sentDat, normalUser);
             Assert.assertEquals(datasetGroupId, normalUser.groupId);
-            assertOwnedBy((new DatasetImageLinkI (datasetImageLinkId, false)), normalUser);
+            assertOwnedBy((new DatasetImageLinkI(datasetImageLinkId, false)), normalUser);
             Assert.assertEquals(datasetImageLinkGroupId, normalUser.groupId);
         } else if (permChown) {
             /* even if the workflow2 as a whole failed, the chown might be successful */
@@ -1165,7 +1165,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             Assert.assertEquals(imageGroupId, lightAdmin.groupId);
             assertOwnedBy(sentDat, normalUser);
             Assert.assertEquals(datasetGroupId, lightAdmin.groupId);
-            assertOwnedBy((new DatasetImageLinkI (datasetImageLinkId, false)), normalUser);
+            assertOwnedBy((new DatasetImageLinkI(datasetImageLinkId, false)), normalUser);
             Assert.assertEquals(datasetImageLinkGroupId, lightAdmin.groupId);
         } else if (permChgrp) {
             /* as workflow2 as a whole failed, in case the chgrp was successful,
@@ -1193,7 +1193,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             Assert.assertEquals(imageGroupId, normalUser.groupId);
             assertOwnedBy(sentDat, lightAdmin);
             Assert.assertEquals(datasetGroupId, normalUser.groupId);
-            assertOwnedBy((new DatasetImageLinkI (datasetImageLinkId, false)), lightAdmin);
+            assertOwnedBy((new DatasetImageLinkI(datasetImageLinkId, false)), lightAdmin);
             Assert.assertEquals(datasetImageLinkGroupId, normalUser.groupId);
         } else {
             /* the remaining option when the previous chgrp as well as this chown fail */
@@ -1220,7 +1220,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             Assert.assertEquals(imageGroupId, lightAdmin.groupId);
             assertOwnedBy(sentDat, lightAdmin);
             Assert.assertEquals(datasetGroupId, lightAdmin.groupId);
-            assertOwnedBy((new DatasetImageLinkI (datasetImageLinkId, false)), lightAdmin);
+            assertOwnedBy((new DatasetImageLinkI(datasetImageLinkId, false)), lightAdmin);
             Assert.assertEquals(datasetImageLinkGroupId, lightAdmin.groupId);
         }
     }
@@ -1401,7 +1401,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                     new ParametersI().addId(rDef.getId())).get(0).get(0)).getValue();
             assertOwnedBy(roi, lightAdmin);
             assertOwnedBy(rDef, lightAdmin);
-            assertOwnedBy((new ImageI (imageId, false)), normalUser);
+            assertOwnedBy((new ImageI(imageId, false)), normalUser);
         } else {/* as the permissions were not sufficient
                  * no rendering settings were created and no roi saved */
             roi = (Roi) iQuery.findByQuery("FROM Roi WHERE image.id = :id",
@@ -1423,17 +1423,17 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                     new ParametersI().addId(rDef.getId())).get(0).get(0)).getValue();
             if (isExpectSuccessCreateAndChownROI) {/* whole workflow succeeded for ROI, all belongs to normalUser */
                 assertOwnedBy(roi, normalUser);
-                assertOwnedBy((new ImageI (imageId, false)), normalUser);
+                assertOwnedBy((new ImageI(imageId, false)), normalUser);
             } else {/* the creation of ROI succeeded, but the chown failed */
                 assertOwnedBy(roi, lightAdmin);
-                assertOwnedBy((new ImageI (imageId, false)), normalUser);
+                assertOwnedBy((new ImageI(imageId, false)), normalUser);
             }
             if (isExpectSuccessCreateAndChownRndSettings) {/* whole workflow succeeded for Rnd settings, all belongs to normalUser */
                 assertOwnedBy(rDef, normalUser);
-                assertOwnedBy((new ImageI (imageId, false)), normalUser);
+                assertOwnedBy((new ImageI(imageId, false)), normalUser);
             } else {/* the creation of the Rnd settings succeeded, but the chown failed */
                 assertOwnedBy(rDef, lightAdmin);
-                assertOwnedBy((new ImageI (imageId, false)), normalUser);
+                assertOwnedBy((new ImageI(imageId, false)), normalUser);
             }
         } else {/* neither ROI nor rendering settings were not created, and chown was not attempted */
             Assert.assertNull(roi);
