@@ -1,6 +1,27 @@
 OMERO version history
 =====================
 
+5.3.2 (May 2017)
+----------------
+
+This is a bug-fix.
+
+Improvements include:
+
+- improve populate_metadata plugin
+- fix deletion of a range of objects from CLI
+- allow to add textual annotation without namespace at import from CLI
+- allow administrator to move data between groups without being a group member from CLI
+- expose more enumerations from ome-model
+- improve thumbnails retrieval in OMERO.web
+- add "Open With" option to right panel
+- prevent group owner from annotating other people data in OMERO.web
+- allow to preview a well, in that case the first field is viewed
+
+This release also upgrades the version of Bio-Formats which OMERO uses to
+`5.5.0 <https://www.openmicroscopy.org/site/support/bio-formats5.5/about/whats-new.html>`_.
+
+
 5.3.1 (April 2017)
 ------------------
 
