@@ -809,8 +809,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
          * a member of this goup) */
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         Dataset dat = mmFactory.simpleDataset();
-        Dataset sentDat = new DatasetI();
-        sentDat = null;
+        Dataset sentDat = null;
         if (createDatasetExpectSuccess) {/* you are allowed to create the dataset only
         with sufficient permissions, which are captured in createDatasetExpectSuccess.*/
             sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
@@ -1025,9 +1024,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         /* First create a Dataset in your (light admin's) group */
         client.getImplicitContext().put("omero.group", Long.toString(lightAdmin.groupId));
         Dataset dat = mmFactory.simpleDataset();
-        Dataset sentDat = new DatasetI();
-        sentDat = null;
-        sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
+        Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
         /* import an image into the created Dataset */
         final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
         List<List<RType>> result = iQuery.projection(
