@@ -405,11 +405,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                "SELECT id FROM OriginalFile WHERE name = :name ORDER BY id DESC LIMIT 1",
                new ParametersI().add("name", imageName));
        final long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
-       try {
-           List<String> path = Collections.singletonList(fakeImageFile.getPath());
-           importFileset(path, path.size(), sentDat);
-       } catch (ServerError se) {
-       }
+       List<String> path = Collections.singletonList(fakeImageFile.getPath());
+       importFileset(path, path.size(), sentDat);
        final List<RType> resultAfterImport = iQuery.projection(
                "SELECT id, details.group.id FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
                new ParametersI().addId(previousId).add("name", imageName)).get(0);
