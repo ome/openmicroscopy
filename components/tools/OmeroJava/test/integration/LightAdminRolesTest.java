@@ -433,7 +433,9 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
        /* Now check that the ImporterAs can delete the objects
         * created on behalf of the user. Note that deletion of the Project
         * would delete the whole hierarchy, which was successfully tested
-        * during writing of this test.*/
+        * during writing of this test. The order of the below delete() commands
+        * is intentional, as the ability to delete the links and P/D/I separately is
+        * tested in this way.*/
        if (deletePassing) {
            doChange(Requests.delete().target(datasetImageLink).build());
            doChange(Requests.delete().target(projectDatasetLink).build());
@@ -558,7 +560,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * to sever necessary links for performing the chgrp. This is achieved by
      * having the image which is getting moved into a different group in a dataset
      * in the original group (the chgrp has to sever the DatasetImageLink to perform
-     * the move (chgrp).
+     * the move (chgrp)).
      * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param isSudoing if to test a success of workflows where Sudoed in
      * @param permChgrp if to test a user who has the <tt>Chgrp</tt> privilege
@@ -660,7 +662,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         remoteFileGroupId = ((RLong) iQuery.projection(
                 "SELECT details.group.id FROM OriginalFile o WHERE o.id = :id",
                 new ParametersI().addId(remoteFileId)).get(0).get(0)).getValue();
-        if(chgrpNoSudoExpectSuccessAnyGroup) {
+        if (chgrpNoSudoExpectSuccessAnyGroup) {
             /* check that the image moved to another group */
             Assert.assertEquals(afterSecondChgrpImageGroupId, anotherGroupId);
             Assert.assertEquals(afterSecondChgrpImageGroupId, anotherGroupId);
@@ -769,7 +771,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * is a member of, then just chowned to the user.
      * This workflow is possible only if PR#4957 dealing with
      * admins importing data into groups they are not member of will get
-     * merged. For this test, combinations of  <tt>Chown</tt>, <tt>WriteOwned</tt>,
+     * merged. For this test, combinations of <tt>Chown</tt>, <tt>WriteOwned</tt>,
      *  <tt>WriteFile</tt> and <tt>WriteManagedRepo</tt> privileges will be explored
      * for the light admin. For this workflow the creation and targeting of a Dataset
      * is tested too.
@@ -998,7 +1000,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
          * The data will be imported to the group
          * of the light admin (where the user is not a member)
          * and chgrp-ed and chowned into the correct group/user afterwards.
-         * For this test, combinations of  <tt>Chown</tt>, <tt>Chgrp</tt>,
+         * For this test, combinations of <tt>Chown</tt>, <tt>Chgrp</tt>,
          * privileges is explored for the light admin.
          * For this workflow the creation and targeting of a Dataset
          * is tested too.
