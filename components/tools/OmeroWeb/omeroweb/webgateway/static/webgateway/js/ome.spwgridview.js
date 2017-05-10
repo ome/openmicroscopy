@@ -83,7 +83,6 @@ $(function(){
                 });
             },
             addWell: function(data) {
-                showPanel();
 
                 var minX,
                     maxX,
@@ -92,6 +91,11 @@ $(function(){
 
                 // first filter for well-samples that have positions
                 data = data.filter(function(ws){ return ws.position !== undefined });
+
+                // Only show panel if we have some data
+                if (data.length > 0) {
+                    showPanel();
+                }
 
                 var xVals = data.map(getPos('x')).filter(notUndef);
                 var yVals = data.map(getPos('y')).filter(notUndef);
@@ -122,7 +126,7 @@ $(function(){
                     // check if min===max to avoid zero-division error
                     var x = (maxX === minX) ? 0.5 : (ws.position.x.value - minX)/(maxX - minX);
                     var y = (maxY === minY) ? 0.5 : (ws.position.y.value - minY)/(maxY - minY);
-                    return '<img style="left: ' + (x * 100) + '%; top: ' + (y * 100) + '%" title="' + ws.name + '" data-imageId="' + ws.id + '" src="' + ws.thumb_url + '" />';
+                    return '<img style="left: ' + (x * 100) + '%; top: ' + (y * 100) + '%" title="' + ws.name + '" data-imageId="' + ws.id + '" />';
                 }, "");
                 $well_birds_eye.append(html.join(""));
             }

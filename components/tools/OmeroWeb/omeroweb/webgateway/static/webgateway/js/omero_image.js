@@ -173,24 +173,30 @@
         }
     };
 
-    function getLutBgPos(color) {
+    function getLutBgPos(color, slider) {
         if (color.endsWith('.lut')) {
             var lutIndex = OME.LUT_NAMES.indexOf(color);
             if (lutIndex > -1) {
-                return '0px -' + (lutIndex * 20) + 'px';
+                return '0px -' + (lutIndex * 30 + 7) + 'px';
             }
         }
-        // Not found...
-        return '0px 100px';  // hide by offsetting
+        // Not found - show last bg (black -> transparent gradient)
+        if (slider) {
+            return '0px -' + (OME.LUT_NAMES.length * 30 + 7) + 'px';
+        } else {
+            // For buttons, hide by offsetting
+            return '0px 100px';
+        }
     }
 
     window.syncRDCW = function(viewport) {
         var cb, color;
         var channels = viewport.getChannels();
-        var lutBgPos;
+        var lutBgPos, sliderLutBgPos;
         for (i=0; i<channels.length; i++) {
             color = channels[i].color;
             lutBgPos = getLutBgPos(color);
+            sliderLutBgPos = getLutBgPos(color, true);
             if (color.endsWith('.lut')) {
                 color = 'EEEEEE';
             }
@@ -199,7 +205,9 @@
                 .find('.lutBackground').css('background-position', lutBgPos);
             // Slider background
             $('#wblitz-ch'+i+'-cwslider').find('.ui-slider-range').addClass('lutBackground')
-                .css({'background-position': lutBgPos, 'background-color': '#' + color});
+                .css({'background-position': sliderLutBgPos,
+                      'background-color': '#' + color,
+                      'transform': channels[i].reverseIntensity ? 'scaleX(-1)' : ''});
             // Channel button beside slider
             $('#rd-wblitz-ch'+i)
                 .css('background-color', '#' + color)
