@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2017 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -102,7 +102,7 @@ import com.google.common.collect.ImmutableSet;
 /**
  * Tests the concrete workflows of the light admins
  * @author p.walczysko@dundee.ac.uk
- * @since 5.3.0
+ * @since 5.4.0
  */
 public class LightAdminRolesTest extends AbstractServerImportTest {
 
@@ -280,9 +280,9 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         if (isSudoing) {
             try {
                 sudo(new ExperimenterI(normalUser.userId, false));
-                }catch (SecurityViolation sv) {
-                    /* sudo expected to fail if the user is not in system group */
-                }
+            } catch (SecurityViolation sv) {
+                /* sudo expected to fail if the user is not in system group */
+            }
         }
 
         /* First, check that the light admin (=importer As)
