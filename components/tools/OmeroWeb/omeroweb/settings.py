@@ -701,6 +701,22 @@ CUSTOM_SETTINGS_MAPPINGS = {
           " 'webtest/webclient_plugins/center_plugin.overlay.js.html',"
           " 'channel_overlay_panel']``. "
           "The javascript loads data into ``$('#div_id')``.")],
+
+    # CORS
+    "omero.web.cors_origin_whitelist":
+        ["CORS_ORIGIN_WHITELIST",
+         '[]',
+         json.loads,
+         ("A list of origin hostnames that are authorized to make cross-site "
+          "HTTP requests."
+          "Used by the django-cors-headers app as described at "
+          "https://github.com/ottoyiu/django-cors-headers")],
+    "omero.web.cors_origin_allow_all":
+        ["CORS_ORIGIN_ALLOW_ALL",
+         "false",
+         parse_boolean,
+         ("If True, cors_origin_whitelist will not be used and all origins "
+          "will be authorized to make cross-site HTTP requests.")],
 }
 
 DEPRECATED_SETTINGS_MAPPINGS = {
@@ -974,11 +990,13 @@ USE_I18N = True
 # MIDDLEWARE_CLASSES: A tuple of middleware classes to use.
 # See https://docs.djangoproject.com/en/1.8/topics/http/middleware/.
 MIDDLEWARE_CLASSES = (
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.BrokenLinkEmailsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'corsheaders.middleware.CorsPostCsrfMiddleware',
 )
 
 
@@ -1042,6 +1060,7 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
+    'corsheaders',
 )
 
 # ADDITONAL_APPS: We import any settings.py from apps. This allows them to
@@ -1199,6 +1218,14 @@ MANAGERS = ADMINS  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
 # JSON serializer, which is now the default, cannot handle
 # omeroweb.connector.Connector object
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
+
+# Configuration for django-cors-headers app
+# See https://github.com/ottoyiu/django-cors-headers
+# Configration of allowed origins is handled by custom settings above
+CORS_ALLOW_CREDENTIALS = True
+# Needed for Django <1.9 since CSRF_TRUSTED_ORIGINS not supported
+CORS_REPLACE_HTTPS_REFERER = True
+
 
 # Load server list and freeze
 from connector import Server
