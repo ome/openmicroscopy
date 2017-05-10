@@ -1356,7 +1356,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             roi = (Roi) iUpdate.saveAndReturnObject(roi);
             Assert.assertTrue(isExpectSuccessCreateROIRndSettings);
         } catch (SecurityViolation sv) {
-            /* will not work in private group or when the permissions are unsufficient */
+            /* will not work in private group or when the permissions are insufficient */
             Assert.assertFalse(isExpectSuccessCreateROIRndSettings);
         }
 
@@ -1367,7 +1367,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                     Arrays.asList(pixelsOfImage.getId().getValue()));
             Assert.assertTrue(isExpectSuccessCreateROIRndSettings);
         } catch (SecurityViolation sv) {
-            /* will not work in private group or when the permissions are unsufficient */
+            /* will not work in private group or when the permissions are insufficient */
             Assert.assertFalse(isExpectSuccessCreateROIRndSettings);
         }
         /* retrieve the image corresponding to the roi and Rnd settings
