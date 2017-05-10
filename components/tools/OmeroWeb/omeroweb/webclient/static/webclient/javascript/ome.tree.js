@@ -1077,6 +1077,7 @@ $(function() {
                     config["open_with"] = {
                         "label": "Open With...",
                         "_disabled": false,
+                        "icon"  : WEBCLIENT.URLS.static_webclient + 'image/icon_openwith.png',
                         "action": false,
                         "submenu": viewers
                     };

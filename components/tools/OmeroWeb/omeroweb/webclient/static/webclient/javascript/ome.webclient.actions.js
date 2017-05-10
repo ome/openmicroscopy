@@ -905,7 +905,7 @@ OME.getTreeImageContainerBestGuess = function(imageId) {
     var locatedNodes = datatree.locate_node(selectType + '-' + imageId);
 
     if (!locatedNodes) {
-        datatree.deselect_all();
+        // e.g. SPW image trying to get parent. Ignore...
         return;
     }
 
