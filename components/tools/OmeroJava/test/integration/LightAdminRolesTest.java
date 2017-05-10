@@ -1488,8 +1488,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         /* The attachment was certainly created. In cases in which it was not created,
          * the test was terminated (see above). */
         doChange(client, factory, Requests.chown().target(fileAnnotation).toUser(normalUser.userId).build(), isExpectSuccessCreateFileAttAndChown);
-        fileAnnotation = (FileAnnotation) iQuery.findByQuery("FROM FileAnnotation WHERE id = :id",
-                new ParametersI().addId(fileAnnotation.getId()));
         if (isExpectSuccessCreateFileAttAndChown) {/* file ann creation and chowning succeeded */
             assertOwnedBy(fileAnnotation, normalUser);
         } else {/* the creation of file annotation succeeded, but the chown failed */
