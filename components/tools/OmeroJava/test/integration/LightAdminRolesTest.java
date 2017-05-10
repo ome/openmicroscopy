@@ -1909,7 +1909,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                             testCase[PERM_WRITEOWNED] = permWriteOwned;
                             testCase[PERM_WRITEFILE] = permWriteFile;
                             testCase[GROUP_PERMS] = groupPerms;
-                            //DEBUG if (isAdmin == true && permAdditional == true && permAdditional2 == true && permAdditional3 == true)
+                            //DEBUG if (permChown == true && permWriteOwned == true && permWriteFile == true)
                             testCases.add(testCase);
                         }
                     }
@@ -1942,7 +1942,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                         testCase[IS_SUDOING] = isSudoing;
                         testCase[PERM_WRITEOWNED] = permWriteOwned;
                         testCase[GROUP_PERMS] = groupPerms;
-                        // DEBUG if (isAdmin == false && isRestricted == true && isSudo == false)
+                        // DEBUG if (isSudoing == true && permWriteOwned == true)
                         testCases.add(testCase);
                     }
                 }
@@ -1974,7 +1974,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                         testCase[IS_SUDOING] = isSudoing;
                         testCase[PERM_DELETEOWNED] = permDeleteOwned;
                         testCase[GROUP_PERMS] = groupPerms;
-                        // DEBUG if (isAdmin == false && isRestricted == true && isSudo == false)
+                        // DEBUG if (isSudoing == true && permDeleteOwned == true)
                         testCases.add(testCase);
                     }
                 }
@@ -2006,7 +2006,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                         testCase[IS_SUDOING] = isSudoing;
                         testCase[PERM_CHGRP] = permChgrp;
                         testCase[GROUP_PERMS] = groupPerms;
-                        // DEBUG if (isAdmin == false && isRestricted == true && isSudo == false)
+                        // DEBUG if (isSudiong == true && permChgrp == true)
                         testCases.add(testCase);
                     }
                 }
@@ -2038,7 +2038,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                         testCase[IS_SUDOING] = isSudoing;
                         testCase[PERM_CHOWN] = permChown;
                         testCase[GROUP_PERMS] = groupPerms;
-                        // DEBUG if (isAdmin == false && isRestricted == true && isSudo == false)
+                        // DEBUG if (isSudoing == true && permChown == true)
                         testCases.add(testCase);
                     }
                 }
@@ -2083,7 +2083,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                                 testCase[PERM_WRITEMANAGEDREPO] = permWriteManagedRepo;
                                 testCase[PERM_CHOWN] = permChown;
                                 testCase[GROUP_PERMS] = groupPerms;
-                                // DEBUG if (isAdmin == false && isRestricted == true && isSudo == false)
+                                // DEBUG if (permWriteOwned == true && permWriteFile == true && permWriteManagedRepo == true && permChown == true)
                                 testCases.add(testCase);
                             }
                         }
@@ -2118,7 +2118,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                         testCase[PERM_WRITEOWNED] = permWriteOwned;
                         testCase[PERM_CHOWN] = permChown;
                         testCase[GROUP_PERMS] = groupPerms;
-                        // DEBUG if (isAdmin == false && isRestricted == true && isSudo == false)
+                        // DEBUG if (permWriteOwned == true && permChown == true)
                         testCases.add(testCase);
                     }
                 }
@@ -2151,7 +2151,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                         testCase[PERM_CHGRP] = permChgrp;
                         testCase[PERM_CHOWN] = permChown;
                         testCase[GROUP_PERMS] = groupPerms;
-                        // DEBUG if (isAdmin == false && isRestricted == true && isSudo == false)
+                        // DEBUG if (permChgrp == true && permChown == true)
                         testCases.add(testCase);
                     }
                 }
@@ -2179,7 +2179,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                     final Object[] testCase = new Object[index];
                     testCase[IS_PRIVILEGED] = isPrivileged;
                     testCase[GROUP_PERMS] = groupPerms;
-                    // DEBUG if (isAdmin == false && isRestricted == true && isSudo == false)
+                    // DEBUG if (isPrivileged == true)
                     testCases.add(testCase);
                 }
             }
