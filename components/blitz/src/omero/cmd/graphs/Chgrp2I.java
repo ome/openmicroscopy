@@ -141,7 +141,7 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
 
         this.helper = helper;
         helper.setSteps(dryRun ? 4 : 6);
-        this.graphHelper = new GraphHelper(helper, graphPathBean, adminPrivileges);
+        this.graphHelper = new GraphHelper(helper, graphPathBean);
 
         /* check that the user is a member of the destination group */
         final EventContext eventContext = helper.getEventContext();

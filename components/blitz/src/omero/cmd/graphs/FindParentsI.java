@@ -75,7 +75,6 @@ public class FindParentsI extends FindParents implements IRequest {
     private final ACLVoter aclVoter;
     private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
-    private final LightAdminPrivileges adminPrivileges;
     private final Set<Class<? extends IObject>> targetClasses;
     private final GraphPolicy graphPolicy;
 
@@ -103,7 +102,6 @@ public class FindParentsI extends FindParents implements IRequest {
         this.aclVoter = aclVoter;
         this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
-        this.adminPrivileges = adminPrivileges;
         this.targetClasses = targetClasses;
         this.graphPolicy = graphPolicy;
     }
@@ -125,7 +123,7 @@ public class FindParentsI extends FindParents implements IRequest {
 
         this.helper = helper;
         helper.setSteps(1);
-        this.graphHelper = new GraphHelper(helper, graphPathBean, adminPrivileges);
+        this.graphHelper = new GraphHelper(helper, graphPathBean);
 
         if (CollectionUtils.isEmpty(typesOfParents)) {
             final Exception e = new IllegalArgumentException("no types of parents specified to find");

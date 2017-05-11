@@ -97,7 +97,6 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
     private final ACLVoter aclVoter;
     private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
-    private final LightAdminPrivileges adminPrivileges;
     private final Set<Class<? extends IObject>> targetClasses;
     private GraphPolicy graphPolicy;  /* not final because of adjustGraphPolicy */
     private final SetMultimap<String, String> unnullable;
@@ -139,7 +138,6 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
         this.aclVoter = aclVoter;
         this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
-        this.adminPrivileges = adminPrivileges;
         this.targetClasses = targetClasses;
         this.graphPolicy = graphPolicy;
         this.unnullable = unnullable;
@@ -165,7 +163,7 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
 
         this.helper = helper;
         helper.setSteps(dryRun ? 3 : 8);
-        this.graphHelper = new GraphHelper(helper, graphPathBean, adminPrivileges);
+        this.graphHelper = new GraphHelper(helper, graphPathBean);
 
         classifier = new SpecificityClassifier<Class<? extends IObject>, Inclusion>(
                 new SpecificityClassifier.ContainmentTester<Class<? extends IObject>>() {

@@ -71,7 +71,6 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
     private final ACLVoter aclVoter;
     private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
-    private final LightAdminPrivileges adminPrivileges;
     private final Set<Class<? extends IObject>> targetClasses;
     private final Deletion deletionInstance;
     private GraphPolicy graphPolicy;  /* not final because of adjustGraphPolicy */
@@ -108,7 +107,6 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
         this.aclVoter = aclVoter;
         this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
-        this.adminPrivileges = adminPrivileges;
         this.deletionInstance = deletionInstance;
         this.targetClasses = targetClasses;
         this.graphPolicy = graphPolicy;
@@ -133,7 +131,7 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
 
         this.helper = helper;
         helper.setSteps(dryRun ? 4 : 6);
-        this.graphHelper = new GraphHelper(helper, graphPathBean, adminPrivileges);
+        this.graphHelper = new GraphHelper(helper, graphPathBean);
 
         graphTraversal = graphHelper.prepareGraphTraversal(childOptions, REQUIRED_ABILITIES, graphPolicy, graphPolicyAdjusters,
                 aclVoter, systemTypes, graphPathBean, unnullable, new InternalProcessor(), dryRun);

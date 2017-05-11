@@ -63,7 +63,6 @@
 
   <bean id="lightAdminPrivilegesSecurityFilter" class="ome.security.basic.LightAdminPrivilegesSecurityFilter">
     <constructor-arg ref="roles"/>
-    <constructor-arg ref="adminPrivileges"/>
     <property name="defaultFilterCondition" value="true"/>
   </bean>
 

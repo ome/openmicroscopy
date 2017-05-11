@@ -79,7 +79,6 @@ public class DiskUsage2I extends DiskUsage2 implements IRequest {
     private final ACLVoter aclVoter;
     private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
-    private final LightAdminPrivileges adminPrivileges;
     private final Set<Class<? extends IObject>> legalClasses;
     private final GraphPolicy graphPolicy;
     private PixelsService pixelsService;
@@ -114,7 +113,6 @@ public class DiskUsage2I extends DiskUsage2 implements IRequest {
         this.aclVoter = aclVoter;
         this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
-        this.adminPrivileges = adminPrivileges;
         this.legalClasses = targetClasses;
         this.graphPolicy = graphPolicy;
     }
@@ -153,7 +151,7 @@ public class DiskUsage2I extends DiskUsage2 implements IRequest {
 
         this.helper = helper;
         helper.setSteps(5);
-        this.graphHelper = new GraphHelper(helper, graphPathBean, adminPrivileges);
+        this.graphHelper = new GraphHelper(helper, graphPathBean);
 
         graphTraversal = new GraphTraversal(helper.getSession(), helper.getEventContext(), aclVoter, systemTypes, graphPathBean,
                 null, graphPolicy, new InternalProcessor());

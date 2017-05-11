@@ -161,7 +161,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
 
         this.helper = helper;
         helper.setSteps(dryRun ? 5 : 7);
-        this.graphHelper = new GraphHelper(helper, graphPathBean, adminPrivileges);
+        this.graphHelper = new GraphHelper(helper, graphPathBean);
 
         /* if the current user is not an administrator then find of which groups the target user is a member */
         final EventContext eventContext = helper.getEventContext();
