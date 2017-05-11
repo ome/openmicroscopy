@@ -1297,17 +1297,16 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                 "FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
                 new ParametersI().addId(previousId).add("name", imageName));
         assertOwnedBy(remoteFile, lightAdmin);
-        Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), lightAdmin.groupId);
+        assertInGroup(remoteFile, lightAdmin.groupId);
         /* check that also the image corresponding to the original file is in the right group */
         Image image = null;
         image = (Image) iQuery.findByQuery("FROM Image WHERE fileset IN "
                 + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
                 new ParametersI().addId(remoteFile.getId()));
         assertOwnedBy(image, lightAdmin);
-        Assert.assertEquals(image.getDetails().getGroup().getId().getValue(), lightAdmin.groupId);
+        assertInGroup(image, lightAdmin.groupId);
 
         /* now try to move the dataset into the group of the user */
-        long imageGroupId = image.getDetails().getGroup().getId().getValue();
         /*in order to find the image in whatever group, get context with group
          * set to -1 (=all groups)
          */
@@ -1325,34 +1324,24 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         Assert.assertTrue(getCurrentPermissions(sentDat).canChgrp());
 
         /* retrieve again the image, dataset and link */
-        long datasetGroupId =((RLong) iQuery.projection(
-                "SELECT details.group.id FROM Dataset d WHERE d.id = :id",
+        long datasetImageLinkId = ((RLong) iQuery.projection(
+                "SELECT id FROM DatasetImageLink WHERE parent.id = :id",
                 new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
-        long datasetImageLinkGroupId = ((RLong) iQuery.projection(
-                "SELECT details.group.id FROM DatasetImageLink WHERE parent.id = :id",
-                new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
-        long remoteFileGroupId = ((RLong) iQuery.projection(
-                "SELECT details.group.id FROM OriginalFile o WHERE o.id = :id",
-                new ParametersI().addId(remoteFile.getId())).get(0).get(0)).getValue();
-        /* note in which group the image now is now */
-        imageGroupId = ((RLong) iQuery.projection(
-                "SELECT details.group.id FROM Image i WHERE i.id = :id",
-                new ParametersI().addId(image.getId())).get(0).get(0)).getValue();
         /* check that the image, dataset, and their link was moved too if the permissions
          * were sufficient */
         if (permChgrp) {
-            Assert.assertEquals(remoteFileGroupId, normalUser.groupId);
-            Assert.assertEquals(imageGroupId, normalUser.groupId);
-            Assert.assertEquals(datasetGroupId, normalUser.groupId);
-            Assert.assertEquals(datasetImageLinkGroupId, normalUser.groupId);
+            assertInGroup(remoteFile, normalUser.groupId);
+            assertInGroup(image, normalUser.groupId);
+            assertInGroup(sentDat, normalUser.groupId);
+            assertInGroup((new DatasetImageLinkI (datasetImageLinkId, false)), normalUser.groupId);
         /* check that the image, dataset and their link were not moved if
          * the permissions were not sufficient
          */
         } else {
-            Assert.assertEquals(remoteFileGroupId, lightAdmin.groupId);
-            Assert.assertEquals(imageGroupId, lightAdmin.groupId);
-            Assert.assertEquals(datasetGroupId, lightAdmin.groupId);
-            Assert.assertEquals(datasetImageLinkGroupId, lightAdmin.groupId);
+            assertInGroup(remoteFile, lightAdmin.groupId);
+            assertInGroup(image, lightAdmin.groupId);
+            assertInGroup(sentDat, lightAdmin.groupId);
+            assertInGroup((new DatasetImageLinkI (datasetImageLinkId, false)), lightAdmin.groupId);
         }
         /* now, having moved the dataset, image, original file and link in the group of normalUser,
          * try to change the ownership of the dataset to the normalUser */
@@ -1367,118 +1356,58 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             /* Check the value of canChown on the dataset is true in this case.*/
             Assert.assertTrue(getCurrentPermissions(sentDat).canChown());
             doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(), true);
-            remoteFileGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM OriginalFile o WHERE o.id = :id",
-                    new ParametersI().addId(remoteFile.getId())).get(0).get(0)).getValue();
-            imageGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM Image i WHERE i.id = :id",
-                    new ParametersI().addId(image.getId())).get(0).get(0)).getValue();
-            datasetGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM Dataset d WHERE d.id = :id",
-                    new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
-            long datasetImageLinkId = ((RLong) iQuery.projection(
-                    "SELECT id FROM DatasetImageLink WHERE parent.id = :id",
-                    new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
-            datasetImageLinkGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM DatasetImageLink WHERE parent.id = :id",
-                    new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
             /* image, dataset and link are in the normalUser's group and belong to normalUser */
             assertOwnedBy(remoteFile, normalUser);
-            Assert.assertEquals(remoteFileGroupId, normalUser.groupId);
+            assertInGroup(remoteFile, normalUser.groupId);
             assertOwnedBy(image, normalUser);
-            Assert.assertEquals(imageGroupId, normalUser.groupId);
+            assertInGroup(image, normalUser.groupId);
             assertOwnedBy(sentDat, normalUser);
-            Assert.assertEquals(datasetGroupId, normalUser.groupId);
-            assertOwnedBy((new DatasetImageLinkI(datasetImageLinkId, false)), normalUser);
-            Assert.assertEquals(datasetImageLinkGroupId, normalUser.groupId);
+            assertInGroup(sentDat, normalUser.groupId);
+            assertOwnedBy((new DatasetImageLinkI (datasetImageLinkId, false)), normalUser);
+            assertInGroup((new DatasetImageLinkI (datasetImageLinkId, false)), normalUser.groupId);
         } else if (permChown) {
             /* even if the workflow2 as a whole failed, the chown might be successful */
             /* Check the value of canChown on the dataset is true in this case.*/
             Assert.assertTrue(getCurrentPermissions(sentDat).canChown());
             doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(), true);
-            remoteFileGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM OriginalFile o WHERE o.id = :id",
-                    new ParametersI().addId(remoteFile.getId())).get(0).get(0)).getValue();
-            imageGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM Image i WHERE i.id = :id",
-                    new ParametersI().addId(image.getId())).get(0).get(0)).getValue();
-            datasetGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM Dataset d WHERE d.id = :id",
-                    new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
-            long datasetImageLinkId = ((RLong) iQuery.projection(
-                    "SELECT id FROM DatasetImageLink WHERE parent.id = :id",
-                    new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
-            datasetImageLinkGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM DatasetImageLink WHERE parent.id = :id",
-                    new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
             /* the image, dataset and link belong to the normalUser, but is in the light admin's group */
             assertOwnedBy(remoteFile, normalUser);
-            Assert.assertEquals(remoteFileGroupId, lightAdmin.groupId);
+            assertInGroup(remoteFile, lightAdmin.groupId);
             assertOwnedBy(image, normalUser);
-            Assert.assertEquals(imageGroupId, lightAdmin.groupId);
+            assertInGroup(image, lightAdmin.groupId);
             assertOwnedBy(sentDat, normalUser);
-            Assert.assertEquals(datasetGroupId, lightAdmin.groupId);
-            assertOwnedBy((new DatasetImageLinkI(datasetImageLinkId, false)), normalUser);
-            Assert.assertEquals(datasetImageLinkGroupId, lightAdmin.groupId);
+            assertInGroup(sentDat, lightAdmin.groupId);
+            assertOwnedBy((new DatasetImageLinkI (datasetImageLinkId, false)), normalUser);
+            assertInGroup((new DatasetImageLinkI (datasetImageLinkId, false)), lightAdmin.groupId);
         } else if (permChgrp) {
             /* as workflow2 as a whole failed, in case the chgrp was successful,
              * the chown must be failing */
             /* Check the value of canChown on the dataset is false in this case.*/
             Assert.assertFalse(getCurrentPermissions(sentDat).canChown());
             doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(), false);
-            remoteFileGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM OriginalFile o WHERE o.id = :id",
-                    new ParametersI().addId(remoteFile.getId())).get(0).get(0)).getValue();
-            imageGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM Image i WHERE i.id = :id",
-                    new ParametersI().addId(image.getId())).get(0).get(0)).getValue();
-            datasetGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM Dataset d WHERE d.id = :id",
-                    new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
-            long datasetImageLinkId = ((RLong) iQuery.projection(
-                    "SELECT id FROM DatasetImageLink WHERE parent.id = :id",
-                    new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
-            datasetImageLinkGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM DatasetImageLink WHERE parent.id = :id",
-                    new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
             /* the image, dataset and link are in normalUser's group but still belong to light admin */
             assertOwnedBy(remoteFile, lightAdmin);
-            Assert.assertEquals(remoteFileGroupId, normalUser.groupId);
+            assertInGroup(remoteFile, normalUser.groupId);
             assertOwnedBy(image, lightAdmin);
-            Assert.assertEquals(imageGroupId, normalUser.groupId);
+            assertInGroup(image, normalUser.groupId);
             assertOwnedBy(sentDat, lightAdmin);
-            Assert.assertEquals(datasetGroupId, normalUser.groupId);
-            assertOwnedBy((new DatasetImageLinkI(datasetImageLinkId, false)), lightAdmin);
-            Assert.assertEquals(datasetImageLinkGroupId, normalUser.groupId);
+            assertInGroup(sentDat, normalUser.groupId);
+            assertOwnedBy((new DatasetImageLinkI (datasetImageLinkId, false)), lightAdmin);
+            assertInGroup((new DatasetImageLinkI (datasetImageLinkId, false)), normalUser.groupId);
         } else {
             /* the remaining option when the previous chgrp as well as this chown fail */
             /* Check the value of canChown on the dataset is false in this case.*/
             Assert.assertFalse(getCurrentPermissions(sentDat).canChown());
             doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(), false);
-            remoteFileGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM OriginalFile o WHERE o.id = :id",
-                    new ParametersI().addId(remoteFile.getId())).get(0).get(0)).getValue();
-            imageGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM Image i WHERE i.id = :id",
-                    new ParametersI().addId(image.getId())).get(0).get(0)).getValue();
-            datasetGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM Dataset d WHERE d.id = :id",
-                    new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
-            long datasetImageLinkId = ((RLong) iQuery.projection(
-                    "SELECT id FROM DatasetImageLink WHERE parent.id = :id",
-                    new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
-            datasetImageLinkGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM DatasetImageLink WHERE parent.id = :id",
-                    new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
             /* the image, dataset and link are in light admin's group and belong to light admin */
             assertOwnedBy(remoteFile, lightAdmin);
-            Assert.assertEquals(remoteFileGroupId, lightAdmin.groupId);
+            assertInGroup(remoteFile, lightAdmin.groupId);
             assertOwnedBy(image, lightAdmin);
-            Assert.assertEquals(imageGroupId, lightAdmin.groupId);
+            assertInGroup(image, lightAdmin.groupId);
             assertOwnedBy(sentDat, lightAdmin);
-            Assert.assertEquals(datasetGroupId, lightAdmin.groupId);
-            assertOwnedBy((new DatasetImageLinkI(datasetImageLinkId, false)), lightAdmin);
-            Assert.assertEquals(datasetImageLinkGroupId, lightAdmin.groupId);
+            assertInGroup(sentDat, lightAdmin.groupId);
+            assertOwnedBy((new DatasetImageLinkI (datasetImageLinkId, false)), lightAdmin);
+            assertInGroup((new DatasetImageLinkI (datasetImageLinkId, false)), lightAdmin.groupId);
         }
     }
 
