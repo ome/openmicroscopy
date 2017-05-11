@@ -12,7 +12,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import ome.api.IQuery;
 import ome.api.local.LocalAdmin;
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
@@ -450,11 +449,11 @@ public class BasicSecuritySystem implements SecuritySystem,
         if (isReadOnly) {
             sess = new ome.model.meta.Session(sessionId, false);
         } else {
-            final IQuery iQuery = sf.getQueryService();
+            final LocalQuery iQuery = (LocalQuery) sf.getQueryService();
             final String sessionClass = iQuery.find(Share.class, sessionId) == null ? "Session" : "Share";
             final String hql = "FROM " + sessionClass + " s LEFT OUTER JOIN FETCH s.sudoer WHERE s.id = :id";
             final Parameters params = new Parameters().addId(sessionId);
-            sess = iQuery.findByQuery(hql, params);
+            sess = iQuery.findByQueryCached(hql, params);
         }
 
         tokenHolder.setToken(callGroup.getGraphHolder());

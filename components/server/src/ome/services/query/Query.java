@@ -1,5 +1,5 @@
 /*
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -97,6 +97,9 @@ public abstract class Query<T> implements HibernateCallback {
      * @see #_criteria
      */
     private org.hibernate.Query _query;
+
+    /* if the Hibernate level 2 cache should be used */
+    private Boolean isCacheable = null;
 
     /**
      * one of two possible outcomes of the {@link #buildQuery(Session)} method.
@@ -238,10 +241,18 @@ public abstract class Query<T> implements HibernateCallback {
             if (_query != null) {
                 _query.setFirstResult(offset);
                 _query.setMaxResults(limit);
+                if (isCacheable != null) {
+                    /* override default */
+                    _query.setCacheable(isCacheable);
+                }
                 return unique ? _query.uniqueResult() : _query.list();
             } else {
                 _criteria.setFirstResult(offset);
                 _criteria.setMaxResults(limit);
+                if (isCacheable != null) {
+                    /* override default */
+                    _criteria.setCacheable(isCacheable);
+                }
                 return unique ? _criteria.uniqueResult() : _criteria.list();
             }
 
@@ -337,6 +348,23 @@ public abstract class Query<T> implements HibernateCallback {
         for (String enabledFilter : newlyEnabledFilters) {
             session.disableFilter(enabledFilter);
         }
+    }
 
+    /**
+     * Enable the Hibernate level 2 cache for this query.
+     * @return this instance, for method chaining
+     */
+    public Query<T> enableQueryCache() {
+        isCacheable = true;
+        return this;
+    }
+
+    /**
+     * Disable the Hibernate level 2 cache for this query.
+     * @return this instance, for method chaining
+     */
+    public Query<T> disableQueryCache() {
+        isCacheable = false;
+        return this;
     }
 }

@@ -1,5 +1,5 @@
 /*
- *   Copyright 2006-2015 University of Dundee. All rights reserved.
+ *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -315,8 +315,19 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
 
     @Override
     @RolesAllowed("user")
-    @SuppressWarnings("unchecked")
     public <T extends IObject> T findByQuery(String queryName, Parameters params)
+            throws ValidationException {
+        return findByQuery(queryName, params, false);
+    }
+
+    @Override
+    @RolesAllowed("user")
+    public <T extends IObject> T findByQueryCached(String queryName, Parameters params)
+            throws ValidationException {
+        return findByQuery(queryName, params, true);
+    }
+
+    private <T extends IObject> T findByQuery(String queryName, Parameters params, boolean enableCaching)
             throws ValidationException {
 
         if (params == null) {
@@ -326,7 +337,10 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
         // specify that we should only return a single value if possible
         params.unique();
 
-        Query<T> q = getQueryFactory().lookup(queryName, params);
+        final Query<T> q = getQueryFactory().<T>lookup(queryName, params);
+        if (enableCaching) {
+            q.enableQueryCache();
+        }
         T result = null;
         try {
             result = execute(q);
