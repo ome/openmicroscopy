@@ -237,9 +237,13 @@
              they are owned by the object's owner.
           -->
 
-        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink.parent = X:[DI], L.child = A:FileAnnotation[E]{i}/d, X =/o A"
+        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink.parent = X:[I], L.child = A:FileAnnotation[E]{i}/g, X =/o A"
                                        p:changes="A:{r}"/>
-        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink.parent = X:[DI], L.child = A:TagAnnotation[E]{i}/d, X =/o A"
+        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink.parent = X:[I], L.child = A:TagAnnotation[E]{i}/g, X =/o A"
+                                       p:changes="A:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink.parent = X:[D], L.child = A:FileAnnotation[E]{i}/d, X =/o A"
+                                       p:changes="A:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink.parent = X:[D], L.child = A:TagAnnotation[E]{i}/d, X =/o A"
                                        p:changes="A:{r}"/>
 
         <!-- If an annotated object is deleted or given then consider its list, map, or XML annotations for deletion or giving. -->

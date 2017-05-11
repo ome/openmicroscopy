@@ -102,12 +102,16 @@ public class GraphTraversal {
          * @param mayUpdate if the object may be updated
          * @param mayDelete if the object may be deleted
          * @param mayChmod if the object may have its permissions changed
+         * @param mayChgrp if the object may be moved
+         * @param mayChown if the object may be given
          * @param isOwner if the user owns the object
          * @param isCheckPermissions if the user is expected to have the permissions required to process the object
          */
         DetailsWithCI(IObject subject, Long ownerId, Long groupId, Action action, Orphan orphan,
-                boolean mayUpdate, boolean mayDelete, boolean mayChmod, boolean isOwner, boolean isCheckPermissions) {
-            super(subject, ownerId, groupId, action, orphan, mayUpdate, mayDelete, mayChmod, isOwner, isCheckPermissions);
+                boolean mayUpdate, boolean mayDelete, boolean mayChmod, boolean mayChgrp, boolean mayChown,
+                boolean isOwner, boolean isCheckPermissions) {
+            super(subject, ownerId, groupId, action, orphan, mayUpdate, mayDelete, mayChmod, mayChgrp, mayChown,
+                    isOwner, isCheckPermissions);
             this.subjectAsCI = new CI(subject);
         }
 
@@ -297,8 +301,7 @@ public class GraphTraversal {
         /**
          * Construct a {@link CP} from this {@link CPI}.
          * Repeated calls to this method may return the same {@link CP} instance.
-         * @param id an instance ID
-         * @return a {@link CPI} with the corresponding values
+         * @return a {@link CP} with the corresponding values
          */
         CP toCP() {
             if (asCP == null) {
@@ -394,6 +397,8 @@ public class GraphTraversal {
         final Set<CI> mayUpdate = new HashSet<CI>();
         final Set<CI> mayDelete = new HashSet<CI>();
         final Set<CI> mayChmod = new HashSet<CI>();
+        final Set<CI> mayChgrp = new HashSet<CI>();
+        final Set<CI> mayChown = new HashSet<CI>();
         final Set<CI> owns = new HashSet<CI>();
         final Set<CI> overrides = new HashSet<CI>();
     }
@@ -716,6 +721,12 @@ public class GraphTraversal {
             }
             if (aclVoter.allowDelete(objectInstance, objectDetails)) {
                 planning.mayDelete.add(object);
+            }
+            if (!objectDetails.getPermissions().isDisallowChgrp()) {
+                planning.mayChgrp.add(object);
+            }
+            if (!objectDetails.getPermissions().isDisallowChown()) {
+                planning.mayChown.add(object);
             }
             if (objectInstance instanceof ExperimenterGroup) {
                 final ExperimenterGroup loadedGroup = (ExperimenterGroup) session.load(ExperimenterGroup.class, object.id);
@@ -1054,10 +1065,11 @@ public class GraphTraversal {
             if (isCheckUserPermissions) {
                 details = new DetailsWithCI(object.toIObject(), ownerId, groupId, action, orphan,
                         planning.mayUpdate.contains(object), planning.mayDelete.contains(object),
-                        planning.mayChmod.contains(object), planning.owns.contains(object),
-                        !planning.overrides.contains(object));
+                        planning.mayChmod.contains(object), planning.mayChgrp.contains(object), planning.mayChown.contains(object),
+                        planning.owns.contains(object), !planning.overrides.contains(object));
             } else {
-                details = new DetailsWithCI(object.toIObject(), ownerId, groupId, action, orphan, true, true, true, true, true);
+                details = new DetailsWithCI(object.toIObject(), ownerId, groupId, action, orphan,
+                        true, true, true, true, true, true, true);
             }
 
             cache.put(object, details);
@@ -1355,6 +1367,18 @@ public class GraphTraversal {
             final Set<CI> violations = Sets.difference(objects, planning.mayChmod);
             if (!violations.isEmpty()) {
                 throw new GraphException("not permitted to change permissions on " + Joiner.on(", ").join(violations));
+            }
+        }
+        if (abilities.contains(Ability.CHGRP)) {
+            final Set<CI> violations = Sets.difference(objects, planning.mayChgrp);
+            if (!violations.isEmpty()) {
+                throw new GraphException("not permitted to move " + Joiner.on(", ").join(violations));
+            }
+        }
+        if (abilities.contains(Ability.CHOWN)) {
+            final Set<CI> violations = Sets.difference(objects, planning.mayChown);
+            if (!violations.isEmpty()) {
+                throw new GraphException("not permitted to give " + Joiner.on(", ").join(violations));
             }
         }
         if (abilities.contains(Ability.OWN)) {
