@@ -2044,7 +2044,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO5.4DEV',  1,    'OMERO5.4DEV',   0,             'Initializing');
+             values ('OMERO5.4DEV',  2,    'OMERO5.4DEV',   0,             'Initializing');
 
 --
 -- Temporarily make event columns nullable; restored below.
@@ -3250,7 +3250,7 @@ CREATE TRIGGER preserve_folder_tree
 
 -- Set up the current administrative privileges table and use it to prevent privilege elevation.
 
-CREATE TABLE _current_admin_privileges (
+CREATE UNLOGGED TABLE _current_admin_privileges (
     transaction BIGINT,
     privilege VARCHAR(255)
 );
@@ -3346,11 +3346,91 @@ CREATE CONSTRAINT TRIGGER user_config_update_trigger
     AFTER UPDATE ON experimenter_config DEFERRABLE INITIALLY DEFERRED
     FOR EACH ROW EXECUTE PROCEDURE user_config_update_check();
 
+-- Use secret key in setting originalfile.repo.
+
+CREATE FUNCTION _protect_originalfile_repo_insert() RETURNS "trigger" AS $$
+
+    DECLARE
+        secret_key VARCHAR;
+        secret_key_length INTEGER;
+        is_good_change BOOLEAN := TRUE;
+
+    BEGIN
+        FOR secret_key IN SELECT uuid FROM node WHERE down IS NULL LOOP
+            secret_key_length := LENGTH(secret_key);
+
+            IF NEW.repo IS NULL THEN
+                IF LEFT(NEW.name, secret_key_length) = secret_key THEN
+                    NEW.name := RIGHT(NEW.name, -secret_key_length);
+                END IF;
+            ELSE
+                IF LEFT(NEW.name, secret_key_length) = secret_key THEN
+                    is_good_change := TRUE;
+                    NEW.name := RIGHT(NEW.name, -secret_key_length);
+                    EXIT;
+                ELSE
+                    is_good_change := FALSE;
+                END IF;
+            END IF;
+        END LOOP;
+
+        IF NOT is_good_change THEN
+            RAISE EXCEPTION 'cannot set original repo property without secret key';
+        END IF;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE FUNCTION _protect_originalfile_repo_update() RETURNS "trigger" AS $$
+
+    DECLARE
+        secret_key VARCHAR;
+        secret_key_length INTEGER;
+        is_good_change BOOLEAN := TRUE;
+
+    BEGIN
+        FOR secret_key IN SELECT uuid FROM node WHERE down IS NULL LOOP
+            secret_key_length := LENGTH(secret_key);
+
+            IF NEW.repo IS NULL OR OLD.repo = NEW.repo THEN
+                IF LEFT(NEW.name, secret_key_length) = secret_key THEN
+                    NEW.name := RIGHT(NEW.name, -secret_key_length);
+                END IF;
+            ELSE
+                IF LEFT(NEW.name, secret_key_length) = secret_key THEN
+                    is_good_change := TRUE;
+                    NEW.name := RIGHT(NEW.name, -secret_key_length);
+                    EXIT;
+                ELSE
+                    is_good_change := FALSE;
+                END IF;
+            END IF;
+        END LOOP;
+
+        IF NOT is_good_change THEN
+            RAISE EXCEPTION 'cannot set original file repo property without secret key';
+        END IF;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER _protect_originalfile_repo_insert
+    BEFORE INSERT ON originalfile
+    FOR EACH ROW EXECUTE PROCEDURE _protect_originalfile_repo_insert();
+
+CREATE TRIGGER _protect_originalfile_repo_update
+    BEFORE UPDATE ON originalfile
+    FOR EACH ROW EXECUTE PROCEDURE _protect_originalfile_repo_update();
+
+CREATE INDEX node_down ON node(down);
+
 -- Here we have finished initializing this database.
 
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
   where currentVersion = 'OMERO5.4DEV' and
-        currentPatch = 1 and
+        currentPatch = 2 and
         previousVersion = 'OMERO5.4DEV' and
         previousPatch = 0;
 

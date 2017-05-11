@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import ome.api.IQuery;
 import ome.api.IUpdate;
@@ -112,17 +113,19 @@ public class RepositoryDaoImpl implements RepositoryDao {
     protected final Executor executor;
     protected final Executor statefulExecutor;
     protected final OmeroInterceptor interceptor;
+    protected final String fileRepoSecretKey;
 
     /**
      * Primary constructor which takes all final fields.
      */
     public RepositoryDaoImpl(Principal principal, Roles roles,
-            Executor executor, Executor statefulExecutor, OmeroInterceptor interceptor) {
+            Executor executor, Executor statefulExecutor, OmeroInterceptor interceptor, String fileRepoSecretKey) {
         this.principal = principal;
         this.roles = roles;
         this.executor = executor;
         this.statefulExecutor = statefulExecutor;
         this.interceptor = interceptor;
+        this.fileRepoSecretKey = fileRepoSecretKey;
     }
 
     /**
@@ -132,7 +135,8 @@ public class RepositoryDaoImpl implements RepositoryDao {
     public RepositoryDaoImpl(Principal principal, Executor executor) {
         this(principal, new Roles(), executor,
                 executor.getContext().getBean("statefulExecutor", Executor.class),
-                executor.getContext().getBean("omeroInterceptor", OmeroInterceptor.class));
+                executor.getContext().getBean("omeroInterceptor", OmeroInterceptor.class),
+                UUID.randomUUID().toString());
     }
 
     /**
@@ -606,8 +610,12 @@ public class RepositoryDaoImpl implements RepositoryDao {
                             null, mimetype, sf, getSqlAction(), session).get(0);
                 }
             });
-
-            return (OriginalFile) mapper.map(of);
+            final OriginalFile rv = (OriginalFile) mapper.map(of);
+            final String name = rv.getName().getValue();
+            if (name.startsWith(fileRepoSecretKey)) {
+                rv.setName(omero.rtypes.rstring(name.substring(fileRepoSecretKey.length())));
+            }
+            return rv;
         } catch (Exception e) {
             throw (ServerError) mapper.handleException(e, executor.getContext());
         }
@@ -970,8 +978,9 @@ public class RepositoryDaoImpl implements RepositoryDao {
             rv.add(ofile);
             ofile.setCtime(now);
             ofile.setHasher(ca);
+            ofile.setName(fileRepoSecretKey + ofile.getName());  // prefix removed by database trigger
+            ofile.setRepo(repoUuid);
         }
-
 
         StopWatch sw = new Slf4JStopWatch();
         final IUpdate iUpdate = sf.getUpdateService();
@@ -989,20 +998,6 @@ public class RepositoryDaoImpl implements RepositoryDao {
             }
         }
         sw.stop("omero.repo.create_original_file.internal_mkdir");
-        sw = new Slf4JStopWatch();
-        sql.setFileRepo(ids, repoUuid);
-        for (final ome.model.core.OriginalFile file : rv) {
-            /* now repo is set, update proxy and recheck permissions */
-            session.refresh(file);
-            final Experimenter owner = file.getDetails().getOwner();
-            final ExperimenterGroup group = file.getDetails().getGroup();
-            file.getDetails().setOwner(null);
-            file.getDetails().setGroup(null);
-            interceptor.newTransientDetails(file);
-            file.getDetails().setOwner(owner);
-            file.getDetails().setGroup(group);
-        }
-        sw.stop("omero.repo.create_original_file.set_file_repo");
         return rv;
     }
 

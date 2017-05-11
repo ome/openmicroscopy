@@ -30,13 +30,12 @@ import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
-import ome.tools.hibernate.HibernateUtils;
 import ome.tools.hibernate.QueryBuilder;
 import ome.tools.spring.OnContextRefreshedEventListener;
 import ome.util.SqlAction;
 // import omero.util.TempFileManager;
 // Note: This cannot be imported because
-// it's in the blitz pacakge. TODO
+// it's in the blitz package. TODO
 
 
 import org.apache.commons.io.FileUtils;
@@ -105,6 +104,8 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
 
     private final Roles roles;
 
+    private final String fileRepoSecretKey;
+
     /**
      * {@link IOFileFilter} set on {@link #handleContextRefreshedEvent(ContextRefreshedEvent).
      */
@@ -113,18 +114,18 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
     /**
-     * @see #ScriptRepoHelper(String, File, Executor, Principal, Roles)
+     * @see #ScriptRepoHelper(String, File, Executor, String, Principal, Roles)
      */
     public ScriptRepoHelper(Executor ex, String sessionUuid, Roles roles) {
-        this(new File(getDefaultScriptDir()), ex, new Principal(sessionUuid),
+        this(new File(getDefaultScriptDir()), ex, sessionUuid, new Principal(sessionUuid),
                 roles);
     }
 
     /**
-     * @see #ScriptRepoHelper(String, File, Executor, Principal, Roles)
+     * @see #ScriptRepoHelper(String, File, Executor, String, Principal, Roles)
      */
-    public ScriptRepoHelper(File dir, Executor ex, Principal p, Roles roles) {
-        this(SCRIPT_REPO, dir, ex, p, roles);
+    public ScriptRepoHelper(File dir, Executor ex, String sessionUuid, Principal p, Roles roles) {
+        this(SCRIPT_REPO, dir, ex, sessionUuid, p, roles);
     }
 
     /**
@@ -139,12 +140,13 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
      * @param ex
      * @param p
      */
-    public ScriptRepoHelper(String uuid, File dir, Executor ex, Principal p,
+    public ScriptRepoHelper(String uuid, File dir, Executor ex, String sessionUuid, Principal p,
             Roles roles) {
         this.roles = roles;
         this.uuid = uuid;
         this.dir = sanityCheck(log, dir);
         this.ex = ex;
+        this.fileRepoSecretKey = sessionUuid;
         this.p = p;
     }
 
@@ -174,6 +176,14 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
         andFilters.add(BASE_SCRIPT_FILTER);
         andFilters.add(new OrFileFilter(orFilters));
         this.scriptFilter = new AndFileFilter(andFilters);
+    }
+
+    /**
+     * Check for updates to scripts, modifying database accordingly.
+     * Called when Blitz is configured.
+     */
+    public void checkForScriptUpdates() {
+        log.debug("checking for updates to scripts");
         try {
             loadAll(true);
         } catch (RemovedSessionException rse) {
@@ -641,19 +651,15 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
         ChecksumAlgorithm hasher = loadChecksum(session, repoFile.hasher().getValue());
 
         ofile.setPath(repoFile.dirname());
-        ofile.setName(repoFile.basename());
+        ofile.setName(fileRepoSecretKey + repoFile.basename());
+        ofile.setRepo(uuid);
         ofile.setHasher(hasher);
         ofile.setHash(repoFile.hash());
         ofile.setSize(repoFile.length());
         ofile.getDetails().setGroup(group);
-        ofile = sf.getUpdateService().saveAndReturnObject(ofile);
-
-        sqlAction.setFileRepo(Collections.singleton(ofile.getId()), uuid);
-        session.refresh(ofile);
-
         setMimetype(ofile);
 
-        return ofile;
+        return sf.getUpdateService().saveAndReturnObject(ofile);
     }
 
     public String read(String path) throws IOException {

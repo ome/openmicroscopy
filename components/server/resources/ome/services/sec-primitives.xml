@@ -128,6 +128,7 @@
     <constructor-arg ref="adminPrivileges"/>
     <constructor-arg ref="managedRepoUuids"/>
     <constructor-arg ref="scriptRepoUuids"/>
+    <constructor-arg ref="uuid"/>  <!-- allows setting OriginalFile.repo -->
   </bean>
 
   <bean name="sessionCache" class="ome.services.sessions.state.SessionCache">

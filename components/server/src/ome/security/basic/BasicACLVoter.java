@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import ome.conditions.ApiUsageException;
 import ome.conditions.GroupSecurityViolation;
@@ -99,6 +100,8 @@ public class BasicACLVoter implements ACLVoter {
     /* thread-safe */
     private final Set<String> managedRepoUuids, scriptRepoUuids;
 
+    private final String fileRepoSecretKey;
+
     public BasicACLVoter(CurrentDetails cd, SystemTypes sysTypes,
             TokenHolder tokenHolder, SecurityFilter securityFilter) {
             this(cd, sysTypes, tokenHolder, securityFilter,
@@ -117,13 +120,14 @@ public class BasicACLVoter implements ACLVoter {
             PolicyService policyService,
             Roles roles) {
         this(cd, sysTypes, tokenHolder, securityFilter, policyService,
-                roles, new LightAdminPrivileges(roles), new HashSet<String>(), new HashSet<String>());
+                roles, new LightAdminPrivileges(roles), new HashSet<String>(), new HashSet<String>(), UUID.randomUUID().toString());
     }
 
     public BasicACLVoter(CurrentDetails cd, SystemTypes sysTypes,
         TokenHolder tokenHolder, SecurityFilter securityFilter,
         PolicyService policyService,
-        Roles roles, LightAdminPrivileges adminPrivileges, Set<String> managedRepoUuids, Set<String> scriptRepoUuids) {
+        Roles roles, LightAdminPrivileges adminPrivileges, Set<String> managedRepoUuids, Set<String> scriptRepoUuids,
+        String fileRepoSecretKey) {
         this.currentUser = cd;
         this.sysTypes = sysTypes;
         this.securityFilter = securityFilter;
@@ -133,6 +137,7 @@ public class BasicACLVoter implements ACLVoter {
         this.adminPrivileges = adminPrivileges;
         this.managedRepoUuids = managedRepoUuids;
         this.scriptRepoUuids = scriptRepoUuids;
+        this.fileRepoSecretKey = fileRepoSecretKey;
     }
 
     // ~ Interface methods
@@ -286,10 +291,13 @@ public class BasicACLVoter implements ACLVoter {
         if (tokenHolder.hasPrivilegedToken(iObject)) {
             return true;
         } else if (!sysType) {
-            if (iObject instanceof OriginalFile && ((OriginalFile) iObject).getRepo() != null) {
-                /* Cannot yet set OriginalFile.repo except via SQL.
-                 * TODO: Need to first work through implications before permitting this. */
-                return false;
+            if (iObject instanceof OriginalFile) {
+                final OriginalFile file = (OriginalFile) iObject;
+                if (file.getRepo() != null && !file.getName().startsWith(fileRepoSecretKey)) {
+                    /* Cannot yet set OriginalFile.repo except via secret key stored in database.
+                     * TODO: Need to first work through implications before permitting this. */
+                    return false;
+                }
             }
             /* also checked by OmeroInterceptor.newTransientDetails */
             return true;
@@ -318,12 +326,12 @@ public class BasicACLVoter implements ACLVoter {
 
         if (sysType) {
             throw new SecurityViolation(iObject + " is a System-type, and may be created only through privileged APIs.");
+        } else if (iObject instanceof OriginalFile && ((OriginalFile) iObject).getRepo() != null) {
+            /* Cannot yet set OriginalFile.repo except via secret key stored in database. */
+            throw new SecurityViolation("cannot set repo property of " + iObject + " via ORM");
         } else if (currentUser.isGraphCritical(iObject.getDetails())) { // ticket:1769
             throw new GroupSecurityViolation(iObject + "-insertion violates " +
                     "group-security.");
-        } else if (iObject instanceof OriginalFile) {
-            /* Cannot yet set OriginalFile.repo except via SQL. */
-            throw new SecurityViolation("cannot set repo property of " + iObject + " via ORM");
         } else {
             throw new SecurityViolation("not permitted to create " + iObject);
         }

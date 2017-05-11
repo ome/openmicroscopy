@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.3__0 to OMERO5.4DEV__1.
+--- OMERO5 development release upgrade from OMERO5.3__0 to OMERO5.4DEV__2.
 ---
 
 BEGIN;
@@ -95,7 +95,7 @@ DROP FUNCTION db_pretty_version(INTEGER);
 --
 
 INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
-             VALUES ('OMERO5.4DEV',  1,            'OMERO5.3',      0);
+             VALUES ('OMERO5.4DEV',  2,            'OMERO5.3',      0);
 
 -- ... up to patch 0:
 
@@ -336,6 +336,99 @@ CREATE CONSTRAINT TRIGGER user_config_delete_trigger
 CREATE CONSTRAINT TRIGGER user_config_update_trigger
     AFTER UPDATE ON experimenter_config DEFERRABLE INITIALLY DEFERRED
     FOR EACH ROW EXECUTE PROCEDURE user_config_update_check();
+
+-- ... up to patch 2:
+
+-- Use secret key in setting originalfile.repo.
+
+CREATE FUNCTION _protect_originalfile_repo_insert() RETURNS "trigger" AS $$
+
+    DECLARE
+        secret_key VARCHAR;
+        secret_key_length INTEGER;
+        is_good_change BOOLEAN := TRUE;
+
+    BEGIN
+        FOR secret_key IN SELECT uuid FROM node WHERE down IS NULL LOOP
+            secret_key_length := LENGTH(secret_key);
+
+            IF NEW.repo IS NULL THEN
+                IF LEFT(NEW.name, secret_key_length) = secret_key THEN
+                    NEW.name := RIGHT(NEW.name, -secret_key_length);
+                END IF;
+            ELSE
+                IF LEFT(NEW.name, secret_key_length) = secret_key THEN
+                    is_good_change := TRUE;
+                    NEW.name := RIGHT(NEW.name, -secret_key_length);
+                    EXIT;
+                ELSE
+                    is_good_change := FALSE;
+                END IF;
+            END IF;
+        END LOOP;
+
+        IF NOT is_good_change THEN
+            RAISE EXCEPTION 'cannot set original repo property without secret key';
+        END IF;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE FUNCTION _protect_originalfile_repo_update() RETURNS "trigger" AS $$
+
+    DECLARE
+        secret_key VARCHAR;
+        secret_key_length INTEGER;
+        is_good_change BOOLEAN := TRUE;
+
+    BEGIN
+        FOR secret_key IN SELECT uuid FROM node WHERE down IS NULL LOOP
+            secret_key_length := LENGTH(secret_key);
+
+            IF NEW.repo IS NULL OR OLD.repo = NEW.repo THEN
+                IF LEFT(NEW.name, secret_key_length) = secret_key THEN
+                    NEW.name := RIGHT(NEW.name, -secret_key_length);
+                END IF;
+            ELSE
+                IF LEFT(NEW.name, secret_key_length) = secret_key THEN
+                    is_good_change := TRUE;
+                    NEW.name := RIGHT(NEW.name, -secret_key_length);
+                    EXIT;
+                ELSE
+                    is_good_change := FALSE;
+                END IF;
+            END IF;
+        END LOOP;
+
+        IF NOT is_good_change THEN
+            RAISE EXCEPTION 'cannot set original file repo property without secret key';
+        END IF;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER _protect_originalfile_repo_insert
+    BEFORE INSERT ON originalfile
+    FOR EACH ROW EXECUTE PROCEDURE _protect_originalfile_repo_insert();
+
+CREATE TRIGGER _protect_originalfile_repo_update
+    BEFORE UPDATE ON originalfile
+    FOR EACH ROW EXECUTE PROCEDURE _protect_originalfile_repo_update();
+
+CREATE INDEX node_down ON node(down);
+
+-- SET UNLOGGED requires 9.5 so recreate table instead
+
+DROP TABLE _current_admin_privileges;
+
+CREATE UNLOGGED TABLE _current_admin_privileges (
+    transaction BIGINT,
+    privilege VARCHAR(255)
+);
+
+CREATE INDEX i_current_admin_privileges_transactions ON _current_admin_privileges(transaction);
 
 
 --
