@@ -708,7 +708,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
          '[]',
          json.loads,
          ("A list of origin hostnames that are authorized to make cross-site "
-          "HTTP requests."
+          "HTTP requests. "
           "Used by the django-cors-headers app as described at "
           "https://github.com/ottoyiu/django-cors-headers")],
     "omero.web.cors_origin_allow_all":
