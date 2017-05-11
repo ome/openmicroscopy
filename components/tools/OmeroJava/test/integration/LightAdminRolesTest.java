@@ -1225,8 +1225,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         /* chown is passing in this test with isAdmin and permChown only.*/
         final boolean chownPassing = isPrivileged;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
-        ExperimenterGroup otherGroup = newGroupAddUser(groupPermissions, normalUser.userId, false);
-        final EventContext recipient = newUserInGroup(otherGroup, false);
+        ExperimenterGroup anotherGroup = newGroupAddUser(groupPermissions, normalUser.userId, false);
+        final EventContext recipient = newUserInGroup(anotherGroup, false);
         /* set up the light admin's permissions for this test */
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeChown.value);
@@ -1255,23 +1255,23 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
 
         /* now also create this hierarchy in the other group as the normalUser */
 
-        client.getImplicitContext().put("omero.group", Long.toString(otherGroup.getId().getValue()));
-        Image image1OtherGroup = mmFactory.createImage();
-        Image image2OtherGroup = mmFactory.createImage();
-        Image sentImage1OtherGroup = (Image) iUpdate.saveAndReturnObject(image1OtherGroup);
-        Image sentImage2OtherGroup = (Image) iUpdate.saveAndReturnObject(image2OtherGroup);
-        Dataset dat1OtherGroup = mmFactory.simpleDataset();
-        Dataset dat2OtherGroup = mmFactory.simpleDataset();
-        Dataset sentDat1OtherGroup = (Dataset) iUpdate.saveAndReturnObject(dat1OtherGroup);
-        Dataset sentDat2OtherGroup = (Dataset) iUpdate.saveAndReturnObject(dat2OtherGroup);
-        Project proj1OtherGroup = mmFactory.simpleProject();
-        Project proj2OtherGroup = mmFactory.simpleProject();
-        Project sentProj1OtherGroup = (Project) iUpdate.saveAndReturnObject(proj1OtherGroup);
-        Project sentProj2OtherGroup = (Project) iUpdate.saveAndReturnObject(proj2OtherGroup);
-        DatasetImageLink linkOfDatasetImage1OtherGroup = linkDatasetImage(sentDat1OtherGroup, sentImage1OtherGroup);
-        DatasetImageLink linkOfDatasetImage2OtherGroup = linkDatasetImage(sentDat2OtherGroup, sentImage2OtherGroup);
-        ProjectDatasetLink linkOfProjectDataset1OtherGroup = linkProjectDataset(sentProj1OtherGroup, sentDat1OtherGroup);
-        ProjectDatasetLink linkOfProjectDataset2OtherGroup = linkProjectDataset(sentProj2OtherGroup, sentDat2OtherGroup);
+        client.getImplicitContext().put("omero.group", Long.toString(anotherGroup.getId().getValue()));
+        Image image1AnotherGroup = mmFactory.createImage();
+        Image image2AnotherGroup = mmFactory.createImage();
+        Image sentImage1AnootherGroup = (Image) iUpdate.saveAndReturnObject(image1AnotherGroup);
+        Image sentImage2AnotherGroup = (Image) iUpdate.saveAndReturnObject(image2AnotherGroup);
+        Dataset dat1AnotherGroup = mmFactory.simpleDataset();
+        Dataset dat2AnotherGroup = mmFactory.simpleDataset();
+        Dataset sentDat1AnotherGroup = (Dataset) iUpdate.saveAndReturnObject(dat1AnotherGroup);
+        Dataset sentDat2AnotherGroup = (Dataset) iUpdate.saveAndReturnObject(dat2AnotherGroup);
+        Project proj1AnotherGroup = mmFactory.simpleProject();
+        Project proj2AnotherGroup = mmFactory.simpleProject();
+        Project sentProj1AnootherGroup = (Project) iUpdate.saveAndReturnObject(proj1AnotherGroup);
+        Project sentProj2AnotherGroup = (Project) iUpdate.saveAndReturnObject(proj2AnotherGroup);
+        DatasetImageLink linkOfDatasetImage1AnotherGroup = linkDatasetImage(sentDat1AnotherGroup, sentImage1AnootherGroup);
+        DatasetImageLink linkOfDatasetImage2AnotherGroup = linkDatasetImage(sentDat2AnotherGroup, sentImage2AnotherGroup);
+        ProjectDatasetLink linkOfProjectDataset1AnotherGroup = linkProjectDataset(sentProj1AnootherGroup, sentDat1AnotherGroup);
+        ProjectDatasetLink linkOfProjectDataset2AnotherGroup = linkProjectDataset(sentProj2AnotherGroup, sentDat2AnotherGroup);
         /* now transfer all the data of normalUser to recipient */
         loginUser(lightAdmin);
         client.getImplicitContext().put("omero.group", "-1");
@@ -1296,17 +1296,17 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         assertOwnedBy(linkOfProjectDataset2, recipient);
         /* check ownership of the objects in otherGroup */
         /* check ownership of the first hierarchy in the other group */
-        assertOwnedBy(sentProj1OtherGroup, recipient);
-        assertOwnedBy(sentDat1OtherGroup, recipient);
-        assertOwnedBy(sentImage1OtherGroup, recipient);
-        assertOwnedBy(linkOfDatasetImage1OtherGroup, recipient);
-        assertOwnedBy(linkOfProjectDataset1OtherGroup, recipient);
+        assertOwnedBy(sentProj1AnootherGroup, recipient);
+        assertOwnedBy(sentDat1AnotherGroup, recipient);
+        assertOwnedBy(sentImage1AnootherGroup, recipient);
+        assertOwnedBy(linkOfDatasetImage1AnotherGroup, recipient);
+        assertOwnedBy(linkOfProjectDataset1AnotherGroup, recipient);
         /* check ownership of the second hierarchy in the other group */
-        assertOwnedBy(sentProj2OtherGroup, recipient);
-        assertOwnedBy(sentDat2OtherGroup, recipient);
-        assertOwnedBy(sentImage1OtherGroup, recipient);
-        assertOwnedBy(linkOfDatasetImage2OtherGroup, recipient);
-        assertOwnedBy(linkOfProjectDataset2OtherGroup, recipient);
+        assertOwnedBy(sentProj2AnotherGroup, recipient);
+        assertOwnedBy(sentDat2AnotherGroup, recipient);
+        assertOwnedBy(sentImage1AnootherGroup, recipient);
+        assertOwnedBy(linkOfDatasetImage2AnotherGroup, recipient);
+        assertOwnedBy(linkOfProjectDataset2AnotherGroup, recipient);
     }
 
     /** Test of light admin without using Sudo.
