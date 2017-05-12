@@ -20,7 +20,7 @@ Sysadmin changes include:
 
 - made the Django middleware classes configurable using a new property
 - added property to allow connections from specified origins (CORS)
-- administrators can move data between groups without belonging to source and target groups using the CLI
+- administrators can now use the CLI to move data between groups without belonging to those groups
 - for OMERO.web apps to be available via "Open With" option, administrators need to use
   the "omero.web.open_with" configuration option
 
