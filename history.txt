@@ -21,17 +21,16 @@ Sysadmin changes include:
 - made the Django middleware classes configurable using a new property
 - added property to allow connections from specified origins (CORS)
 - administrators can move data between groups without belonging to those groups using the CLI
+- for OMERO.web apps to be available via "Open With" option, administrators need to use
+the "omero.web.open_with" configuration option
 
 Developer updates include:
 
 - exposed more enumerations from ome-model
-- add ROIs to the Web API
+- added ROIs support to the Web API
 
 This release also upgrades the version of Bio-Formats which OMERO uses to
 `5.5.0 <https://www.openmicroscopy.org/site/support/bio-formats5.5/about/whats-new.html>`_.
-
-Note: For OMERO.web apps to be available via "Open With" option, system administrators need to use
-the "omero.web.open_with" configuration option
 
 
 5.3.1 (April 2017)
