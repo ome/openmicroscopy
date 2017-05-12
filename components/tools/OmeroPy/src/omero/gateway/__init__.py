@@ -5535,6 +5535,48 @@ class MapAnnotationWrapper (AnnotationWrapper):
 AnnotationWrapper._register(MapAnnotationWrapper)
 
 
+class _RoiWrapper (BlitzObjectWrapper):
+    """
+    omero_model_ExperimenterI class wrapper extends BlitzObjectWrapper.
+    """
+    OMERO_CLASS = 'Roi'
+    # TODO: test listChildren() to use ShapeWrapper? or remove?
+    CHILD_WRAPPER_CLASS = 'ShapeWrapper'
+
+    @classmethod
+    def _getQueryString(cls, opts=None):
+        """
+        Extend base query to handle loading of Shapes.
+        Returns a tuple of (query, clauses, params).
+        Supported opts: 'load_shapes': boolean.
+                        'image': <image_id> to filter by Image
+
+        :param opts:        Dictionary of optional parameters.
+        :return:            Tuple of string, list, ParametersI
+        """
+        query, clauses, params = super(
+            _RoiWrapper, cls)._getQueryString(opts)
+        if opts is None:
+            opts = {}
+        if opts.get('load_shapes'):
+            query += ' left outer join fetch obj.shapes'
+        if 'image' in opts:
+            clauses.append('obj.image.id = :image_id')
+            params.add('image_id', rlong(opts['image']))
+        return (query, clauses, params)
+
+RoiWrapper = _RoiWrapper
+
+
+class _ShapeWrapper (BlitzObjectWrapper):
+    """
+    omero_model_ShapeI class wrapper extends BlitzObjectWrapper.
+    """
+    OMERO_CLASS = 'Shape'
+
+ShapeWrapper = _ShapeWrapper
+
+
 class _EnumerationWrapper (BlitzObjectWrapper):
 
     def getType(self):
@@ -6359,7 +6401,9 @@ class _WellWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         Extend base query to handle filtering of Wells by Plate.
         Returns a tuple of (query, clauses, params).
         Supported opts: 'plate': <plate_id> to filter by Plate
-                        'load_images': <bool> to load wellSamples and images
+                        'load_images': <bool> to load WellSamples and Images
+                        'load_pixels': <bool> to load Image Pixels
+                        'load_channels': <bool> to load Pixels and Channels
 
         :param opts:        Dictionary of optional parameters.
         :return:            Tuple of string, list, ParametersI
@@ -10419,6 +10463,8 @@ def refreshWrappers():
                            "plateacquisition": PlateAcquisitionWrapper,
                            "acquisition": PlateAcquisitionWrapper,
                            "well": WellWrapper,
+                           "roi": RoiWrapper,
+                           "shape": ShapeWrapper,
                            "experimenter": ExperimenterWrapper,
                            "experimentergroup": ExperimenterGroupWrapper,
                            "originalfile": OriginalFileWrapper,
