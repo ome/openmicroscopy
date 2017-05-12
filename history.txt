@@ -21,7 +21,7 @@ Improvements include:
 Sysadmin changes include:
 
 - make the Django middleware classes configurable using a new property
-- add property tp configure middleware to allow connections from specified origins (CORS)
+- add property to configure middleware to allow connections from specified origins (CORS)
 
 
 This release also upgrades the version of Bio-Formats which OMERO uses to
