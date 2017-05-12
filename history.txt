@@ -18,6 +18,12 @@ Improvements include:
 - group owners are now prevented from annotating other people's data in OMERO.web
 - preview of wells now available in the right-hand panel
 
+Sysadmin changes include:
+
+- make the Django middleware classes configurable using a new property
+- add property tp configure middleware to allow connections from specified origins (CORS)
+
+
 This release also upgrades the version of Bio-Formats which OMERO uses to
 `5.5.0 <https://www.openmicroscopy.org/site/support/bio-formats5.5/about/whats-new.html>`_.
 
