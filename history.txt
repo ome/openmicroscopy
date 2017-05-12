@@ -11,8 +11,6 @@ Improvements include:
 - improved populate_metadata plugin
 - fixed deletion of a range of objects from CLI
 - textual annotations without a namespace can now be added at import using the CLI
-- administrators can move data between groups without belonging to those groups using the CLI
-- exposed more enumerations from ome-model
 - improved thumbnails retrieval in OMERO.web
 - added "Open With" option to the right-hand panel in OMERO.web
 - group owners are now prevented from annotating other people's data in OMERO.web
@@ -21,11 +19,19 @@ Improvements include:
 Sysadmin changes include:
 
 - made the Django middleware classes configurable using a new property
-- added property to configure middleware to allow connections from specified origins (CORS)
+- added property to allow connections from specified origins (CORS)
+- administrators can move data between groups without belonging to those groups using the CLI
 
+Developer updates include:
+
+- exposed more enumerations from ome-model
+- add ROIs to the Web API
 
 This release also upgrades the version of Bio-Formats which OMERO uses to
 `5.5.0 <https://www.openmicroscopy.org/site/support/bio-formats5.5/about/whats-new.html>`_.
+
+Note: For OMERO.web apps to be available via "Open With" option, system administrators need to use
+the "omero.web.open_with" configuration option
 
 
 5.3.1 (April 2017)
