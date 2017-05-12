@@ -466,15 +466,29 @@ public class BasicACLVoter implements ACLVoter {
             return rv; // EARLY EXIT!
         }
 
-        Permissions grpPermissions = c.getCurrentGroupPermissions();
-        if (grpPermissions == null || grpPermissions == Permissions.DUMMY) {
-            if (d.getGroup() != null) {
-                Long gid = d.getGroup().getId();
-                grpPermissions = c.getPermissionsForGroup(gid);
-                if (grpPermissions == null && gid.equals(roles.getUserGroupId())) {
-                    grpPermissions = new Permissions(Permissions.EMPTY);
+        Permissions grpPermissions = null;
+        if (d.getGroup() != null) {
+            /* got a group set so review its permissions */
+            final Long gid = d.getGroup().getId();
+            if (roles.getUserGroupId() == gid) {
+                /* special handling for user group permissions */
+                if (iObject instanceof OriginalFile && "Directory".equals(((OriginalFile) iObject).getMimetype())) {
+                    grpPermissions = c.getPermissionsForGroup(gid);
+                } else {
+                    grpPermissions = new Permissions(Permissions.PRIVATE);
                 }
+            } else {
+                /* not user group so use group's permissions */
+                grpPermissions = c.getPermissionsForGroup(gid);
             }
+        }
+        if (grpPermissions == null && roles.getUserGroupId() != c.getCurrentGroupId()) {
+            /* fall back to current group permissions if not user group */
+            grpPermissions = c.getCurrentGroupPermissions();
+        }
+        if (grpPermissions == null || grpPermissions == Permissions.DUMMY) {
+            /* failing the above, fall back to no permissions */
+            grpPermissions = new Permissions(Permissions.EMPTY);
         }
 
         final boolean owner = owner(d, c);
