@@ -8,20 +8,20 @@ This is a bug-fix release.
 
 Improvements include:
 
-- improve populate_metadata plugin
-- fix deletion of a range of objects from CLI
+- improved populate_metadata plugin
+- fixed deletion of a range of objects from CLI
 - textual annotations without a namespace can now be added at import using the CLI
 - administrators can move data between groups without belonging to those groups using the CLI
-- expose more enumerations from ome-model
-- improve thumbnails retrieval in OMERO.web
-- add "Open With" option to the right-hand panel in OMERO.web
+- exposed more enumerations from ome-model
+- improved thumbnails retrieval in OMERO.web
+- added "Open With" option to the right-hand panel in OMERO.web
 - group owners are now prevented from annotating other people's data in OMERO.web
 - preview of wells now available in the right-hand panel
 
 Sysadmin changes include:
 
-- make the Django middleware classes configurable using a new property
-- add property to configure middleware to allow connections from specified origins (CORS)
+- made the Django middleware classes configurable using a new property
+- added property to configure middleware to allow connections from specified origins (CORS)
 
 
 This release also upgrades the version of Bio-Formats which OMERO uses to
@@ -37,10 +37,10 @@ Improvements include:
 
 - enabled viewing images in share
 - enabled importing hidden image files (Windows client issue)
-- clarify installation of OMERO.web
-- save polygon and polyline as defined in the OME model
-- fix viewing of images without pixels size
-- add support for large image export as jpeg/png from OMERO.insight
+- clarified installation of OMERO.web
+- saved polygon and polyline as defined in the OME model
+- fixed viewing of images without pixels size
+- added support for large image export as jpeg/png from OMERO.insight
 
 This release also upgrades the version of Bio-Formats which OMERO uses to
 `5.4.1 <https://www.openmicroscopy.org/site/support/bio-formats5.4/about/whats-new.html>`_.
