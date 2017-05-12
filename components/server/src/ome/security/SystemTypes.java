@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -11,7 +9,6 @@ import ome.model.IEnum;
 import ome.model.IGlobal;
 import ome.model.IObject;
 import ome.model.internal.Details;
-import ome.model.jobs.Job;
 import ome.model.meta.DBPatch;
 import ome.model.meta.Event;
 import ome.model.meta.EventLog;
@@ -71,8 +68,6 @@ public class SystemTypes {
         } else if (EventLog.class.isAssignableFrom(klass)) {
             return true;
         } else if (IEnum.class.isAssignableFrom(klass)) {
-            return true;
-        } else if (Job.class.isAssignableFrom(klass)) {
             return true;
         } else if (DBPatch.class.isAssignableFrom(klass)) {
             return true;
