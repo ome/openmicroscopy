@@ -1303,6 +1303,9 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         image = (Image) iQuery.findByQuery("FROM Image WHERE fileset IN "
                 + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
                 new ParametersI().addId(remoteFile.getId()));
+        long datasetImageLinkId = ((RLong) iQuery.projection(
+                "SELECT id FROM DatasetImageLink WHERE parent.id = :id",
+                new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
         assertOwnedBy(image, lightAdmin);
         assertInGroup(image, lightAdmin.groupId);
 
@@ -1323,10 +1326,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
          * and thus the canChgrp must be "true".*/
         Assert.assertTrue(getCurrentPermissions(sentDat).canChgrp());
 
-        /* retrieve again the image, dataset and link */
-        long datasetImageLinkId = ((RLong) iQuery.projection(
-                "SELECT id FROM DatasetImageLink WHERE parent.id = :id",
-                new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
         /* check that the image, dataset, and their link was moved too if the permissions
          * were sufficient */
         if (permChgrp) {
