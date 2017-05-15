@@ -813,6 +813,7 @@ class SessionsControl(BaseControl):
                         return
         t = T()
         t.client = self.ctx.conn(args)
+        t.err = self.ctx.err
         t.event = get_event(name="keepalive")
         t.start()
         try:
