@@ -38,6 +38,7 @@
     <constructor-arg ref="tileSizes"/>
     <constructor-arg ref="internal-ome.api.IQuery"/>
     <property name="metrics" ref="metrics"/>
+    <property name="memoizerFailIfMissing" value="${omero.pixeldata.fail_if_missing}"/>
   </bean>
 
   <bean id="backOff" class="${omero.pixeldata.backoff}">
