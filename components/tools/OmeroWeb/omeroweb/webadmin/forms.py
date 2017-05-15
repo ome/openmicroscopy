@@ -315,6 +315,7 @@ class MyAccountForm(NonASCIIForm):
             if kwargs['initial']['default_group']:
                 pass
             self.fields['default_group'] = GroupModelChoiceField(
+                label="Active Group",
                 queryset=kwargs['initial']['groups'],
                 initial=kwargs['initial']['default_group'],
                 empty_label=None)
