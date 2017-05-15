@@ -13,6 +13,7 @@ slice_generated*
 Makefile
 aclocal.m4
 autom4te.cache
+compiler.log
 config.guess
 config.h
 config.log
