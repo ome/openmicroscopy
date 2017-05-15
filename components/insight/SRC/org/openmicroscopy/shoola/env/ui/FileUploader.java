@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.ui;
 
 
 //Java imports
+import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -32,12 +33,17 @@ import java.util.Map;
 
 //Third-party libraries
 
+
+
+
+import org.apache.commons.io.FilenameUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.FileTableNode;
 import org.openmicroscopy.shoola.util.ui.MessengerDetails;
@@ -74,7 +80,10 @@ class FileUploader
     
     /** The total number of files.*/
     private int total;
-    
+
+    /** The number of log files if any.*/
+    private int logFileCount;
+
     /**
      * Creates a new instance.
      * 
@@ -93,6 +102,7 @@ class FileUploader
 		this.src = src;
 		nodes = new HashMap<ImportErrorObject, FileTableNode>();
 		List l = (List) details.getObjectToSubmit();
+		logFileCount = 0;
 		if (l != null) {
 			Iterator i = l.iterator();
 			FileTableNode node;
@@ -101,6 +111,15 @@ class FileUploader
 				node = (FileTableNode) i.next();
 				object = node.getFailure();
 				nodes.put(object, node);
+	            File f = object.getFile();
+	            if (f != null) {
+	                String extension = FilenameUtils.getExtension(f.getName());
+	                if (CommonsLangUtils.isNotBlank(extension)) {
+	                    if (extension.toLowerCase().equals("log")) {
+	                        logFileCount++;
+	                    }
+	                }
+	            }
 			}
 		}
 	}
@@ -149,13 +168,35 @@ class FileUploader
         	String s = "";
         	String verb = "has";
         	if (total > 1) {
-        		s = "s";
         		verb = "have";
         	}
         	StringBuffer buf = new StringBuffer();
         	String term;
-        	if (details.isExceptionOnly()) term = "exception";
-        	else term = "file";
+        	if (details.isExceptionOnly()) {
+        	    term = "exception";
+        	    if (total > 1) {
+                    s = "s";
+                }
+        	} else {
+        	    if (logFileCount > 0) {
+        	        term = "log file";
+        	        if (logFileCount > 1) {
+        	            term +="s";
+        	        }
+        	        int diff = total-logFileCount;
+        	        if (diff > 0) {
+        	            term += " and file";
+        	        }
+        	        if (diff > 1) {
+        	            s = "s";
+        	        }
+        	    } else {
+        	        term = "file";
+        	        if (total > 1) {
+                        s = "s";
+                    }
+        	    }
+        	}
         	buf.append("The ");
         	buf.append(term);
     		buf.append(s);
