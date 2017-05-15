@@ -223,7 +223,16 @@ public class FileObject
             return ((File) file).getName();
         } else if (file instanceof ImagePlus) {
             ImagePlus img = (ImagePlus) file;
-            return img.getTitle();
+            String name = img.getTitle();
+            if (CommonsLangUtils.isNotBlank(name))
+                return name;
+            FileInfo info = img.getOriginalFileInfo();
+            if (info != null) {
+                if (CommonsLangUtils.isNotBlank(name)) {
+                    return name;
+                }
+                return "No Name Set";
+            }
         }
         return null;
     }
@@ -240,7 +249,7 @@ public class FileObject
         } else if (file instanceof ImagePlus) {
             File f = getTrueFile();
             if (f != null) return f.getAbsolutePath();
-            return ((ImagePlus) file).getTitle();
+            return getName();
         }
         return "";
     }
@@ -260,10 +269,10 @@ public class FileObject
             try {
                 //name w/o extension
                 String baseName = FilenameUtils.getBaseName(
-                        FilenameUtils.removeExtension(img.getTitle()));
+                        FilenameUtils.removeExtension(getName()));
                 baseName = CommonsLangUtils.deleteWhitespace(baseName);
                 String n = baseName+".ome.tif";
-                f = File.createTempFile(img.getTitle(), ".ome.tif");
+                f = File.createTempFile(getName(), ".ome.tif");
                 File p = f.getParentFile();
                 File[] list = p.listFiles();
                 if (list != null) {
@@ -281,6 +290,8 @@ public class FileObject
                 f = new File(p, n);
                 f.deleteOnExit();
             } catch (Exception e) {
+                if (f != null) f.delete();
+                IJ.log(e.toString());
                 return null;
             }
             StringBuffer buffer = new StringBuffer();
@@ -317,9 +328,14 @@ public class FileObject
             ImagePlus img = (ImagePlus) file;
             if (img.changes) return true;
             FileInfo info = img.getOriginalFileInfo();
+            String name;
             if (info == null) {
                 info = img.getFileInfo();
-                String name = info.fileName;
+                name = info.fileName;
+                if (CommonsLangUtils.isBlank(name) || "Untitled".equals(name))
+                    return true;
+            } else {
+                name = info.fileName;
                 if (CommonsLangUtils.isBlank(name) || "Untitled".equals(name))
                     return true;
             }
@@ -414,7 +430,9 @@ public class FileObject
                         }
                         return trueFile;
                     }
-                    if (info.directory != null && info.fileName != null) {
+                    if (isNewImage()) return null;
+                    if (info.directory != null && info.fileName != null &&
+                            !"Untitled".equals(info.fileName)) {
                         trueFile = new File(info.directory, info.fileName);
                         return trueFile;
                     }
