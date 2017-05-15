@@ -49,6 +49,8 @@ import omero.api.AMD_RenderingEngine_renderAsPackedInt;
 import omero.api.AMD_RenderingEngine_renderCompressed;
 import omero.api.AMD_RenderingEngine_renderProjectedAsPackedInt;
 import omero.api.AMD_RenderingEngine_renderProjectedCompressed;
+import omero.api.AMD_RenderingEngine_renderProjectedAsPackedInt2;
+import omero.api.AMD_RenderingEngine_renderProjectedCompressed2;
 import omero.api.AMD_RenderingEngine_resetDefaultSettings;
 import omero.api.AMD_RenderingEngine_saveAsNewSettings;
 import omero.api.AMD_RenderingEngine_saveCurrentSettings;
@@ -67,6 +69,7 @@ import omero.api.AMD_RenderingEngine_setRGBA;
 import omero.api.AMD_RenderingEngine_updateCodomainMap;
 import omero.api.IRoiPrx;
 import omero.api._RenderingEngineOperations;
+import omero.constants.projection.ProjectionAxis;
 import omero.constants.projection.ProjectionType;
 import omero.grid.Column;
 import omero.grid.Data;
@@ -360,12 +363,29 @@ public class RenderingEngineI extends AbstractPyramidServant implements
                 stepping, start, end);
     }
 
+    public void renderProjectedAsPackedInt2_async(
+            AMD_RenderingEngine_renderProjectedAsPackedInt2 __cb, 
+            ProjectionType algorithm, ProjectionAxis axis, int plane, int stepping, int start, 
+            int end, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, algorithm.ordinal(), axis.ordinal(),
+                plane, stepping, start, end);
+    }
+
     public void renderProjectedCompressed_async(
             AMD_RenderingEngine_renderProjectedCompressed __cb, 
             ProjectionType algorithm, int timepoint, int stepping, int start, 
             int end, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, algorithm.ordinal(), timepoint,
                 stepping, start, end);
+    }
+
+    public void renderProjectedCompressed2_async(
+            AMD_RenderingEngine_renderProjectedCompressed2 __cb, 
+            ProjectionType algorithm, ProjectionAxis axis, int plane,
+            int stepping, int start, 
+            int end, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, algorithm.ordinal(), axis.ordinal(),
+                plane, stepping, start, end);
     }
 
     public void render_async(AMD_RenderingEngine_render __cb, PlaneDef def,

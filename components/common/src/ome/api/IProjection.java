@@ -4,7 +4,6 @@
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-
 package ome.api;
 
 import java.util.List;
@@ -24,19 +23,31 @@ public interface IProjection extends ServiceInterface
 {
     /** Maximum intensity projection (MIP) */
     public static final int MAXIMUM_INTENSITY = 0;
-    
+
     /** Mean intensity projection */
     public static final int MEAN_INTENSITY = 1;
-    
+
     /** Sum intensity projection */
     public static final int SUM_INTENSITY = 2;
-    
+
+    /** Indicates to project along the T-axis. */
+    public static final int T_AXIS = 0;
+
+    /** Indicates to project along the Z-axis. */
+    public static final int Z_AXIS = 1;
+
+    /** Indicates to project along the modulo T. */
+    public static final int MODULO_T_AXIS = 2;
+
+    /** Indicates to project along the modulo T. */
+    public static final int MODULO_Z_AXIS = 3;
+
     /** Methodology strings */
     public static final String[] METHODOLOGY_STRINGS = 
         new String[] { "MAXIMUM_INTENSITY_PROJECTION",
                        "MEAN_INTENSITY_PROJECTION",
                        "SUM_INTENSITY_PROJECTION" };
-    
+
     /**
      * Performs a projection through the optical sections of a particular 
      * wavelength at a given time point of a Pixels set.
@@ -72,9 +83,14 @@ public interface IProjection extends ServiceInterface
      * </ul>
      * @see #projectPixels(long, PixelsType, int, int, int, List, int, int, int, String)
      */
+    @Deprecated
     public byte[] projectStack(long pixelsId, PixelsType pixelsType,
                                int algorithm, int timepoint, int channelIndex,
                                int stepping, int start, int end);
+
+    public byte[] projectPlanes(long pixelsId, PixelsType pixelsType,
+            int algorithm, int axis, int plane, int channelIndex,
+            int stepping, int start, int end);
 
     /**
      * Performs a projection through selected optical sections and optical
@@ -120,8 +136,14 @@ public interface IProjection extends ServiceInterface
      * </ul>
      * @see #projectStack(long, PixelsType, int, int, int, int, int start, int)
      */
-    public long projectPixels(long pixelsId, PixelsType pixelsType, 
+    @Deprecated
+    public long projectPixels(long pixelsId, PixelsType pixelsType,
                               int algorithm, int tStart, int tEnd,
                               @Validate(Integer.class) List<Integer> channels,
-			      int stepping, int zStart, int zEnd, String name);
+                              int stepping, int zStart, int zEnd, String name);
+
+    public long project(long pixelsId, PixelsType pixelsType,
+            int algorithm, int axis, int planeStart, int planeEnd,
+            @Validate(Integer.class) List<Integer> channels,
+            int stepping, int start, int end, String name);
 }
