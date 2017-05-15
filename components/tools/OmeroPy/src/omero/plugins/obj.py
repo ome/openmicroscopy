@@ -366,7 +366,7 @@ class ObjGetTxAction(NonFieldTxAction):
                                       + str(self.get_field(field)) + "\n")
                         except AttributeError:
                             pass
-
+            proxy = proxy.strip()
         self.tx_state.set_value(proxy, dest=self.tx_cmd.dest)
 
     def get_field(self, field):
@@ -450,6 +450,62 @@ class ListGetTxAction(NonFieldTxAction):
         self.tx_state.set_value(proxy, dest=self.tx_cmd.dest)
 
 
+class ParentsTxAction(NonFieldTxAction):
+
+    def on_go(self, ctx, args):
+        from omero.cmd import FindParents
+        import omero.callbacks
+
+        if len(self.tx_cmd.arg_list) < 3:
+            ctx.die(335, "usage: parents OBJ type [type ...]")
+
+        req = FindParents()
+        req.targetObjects = {self.kls: [self.obj.id.val]}
+        req.typesOfParents = self.tx_cmd.arg_list[2:]
+        handle = self.client.sf.submit(req)
+        cb = omero.callbacks.CmdCallbackI(self.client, handle)
+        cb.loop(8, 500)
+
+        rsp = cb.getResponse()
+        if isinstance(rsp, omero.cmd.ERR):
+            proxy = "failed: '%s'" % rsp.name
+        else:
+            proxy = ""
+            for kls, ids in rsp.parents.items():
+                proxy += (kls.split(".")[-1] + ":"
+                          + ",".join(str(id) for id in ids) + "\n")
+            proxy = proxy.strip()
+        self.tx_state.set_value(proxy, dest=self.tx_cmd.dest)
+
+
+class ChildrenTxAction(NonFieldTxAction):
+
+    def on_go(self, ctx, args):
+        from omero.cmd import FindChildren
+        import omero.callbacks
+
+        if len(self.tx_cmd.arg_list) < 3:
+            ctx.die(335, "usage: children OBJ type [type ...]")
+
+        req = FindChildren()
+        req.targetObjects = {self.kls: [self.obj.id.val]}
+        req.typesOfChildren = self.tx_cmd.arg_list[2:]
+        handle = self.client.sf.submit(req)
+        cb = omero.callbacks.CmdCallbackI(self.client, handle)
+        cb.loop(8, 500)
+
+        rsp = cb.getResponse()
+        if isinstance(rsp, omero.cmd.ERR):
+            proxy = "failed: '%s'" % rsp.name
+        else:
+            proxy = ""
+            for kls, ids in rsp.children.items():
+                proxy += (kls.split(".")[-1] + ":"
+                          + ",".join(str(id) for id in ids) + "\n")
+            proxy = proxy.strip()
+        self.tx_state.set_value(proxy, dest=self.tx_cmd.dest)
+
+
 class TxState(object):
 
     def __init__(self, ctx):
@@ -503,6 +559,11 @@ Examples:
     Dataset:123
     $ bin/omero obj get Dataset:123 description
 
+    $ bin/omero obj children Dataset:123 Image
+    Image:51,52
+    $ bin/omero obj parents Image:51 Dataset Fileset
+    Dataset:123
+    Fileset:51
     $ bin/omero obj new MapAnnotation ns=example.com
     MapAnnotation:456
     $ bin/omero obj map-set MapAnnotation:456 mapValue foo bar
@@ -536,7 +597,8 @@ Bash examples:
             "command", nargs="?",
             choices=("new", "update", "null",
                      "map-get", "map-set",
-                     "get", "list-get"),
+                     "get", "list-get",
+                     "parents", "children"),
             help="operation to be performed")
         parser.add_argument(
             "Class", nargs="?",
@@ -591,6 +653,10 @@ Bash examples:
             return ObjGetTxAction(tx_state, tx_cmd)
         elif tx_cmd.action == "list-get":
             return ListGetTxAction(tx_state, tx_cmd)
+        elif tx_cmd.action == "parents":
+            return ParentsTxAction(tx_state, tx_cmd)
+        elif tx_cmd.action == "children":
+            return ChildrenTxAction(tx_state, tx_cmd)
         else:
             raise self.ctx.die(100, "Unknown command: %s" % tx_cmd)
 

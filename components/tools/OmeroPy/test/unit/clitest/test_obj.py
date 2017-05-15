@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2013 Glencoe Software, Inc. All Rights Reserved.
+# Copyright (C) 2013-2016 Glencoe Software, Inc. All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 # This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 """
-Test of the omero/plugins/tx.py module
+Test of the omero/plugins/obj.py module
 """
 
 import pytest
