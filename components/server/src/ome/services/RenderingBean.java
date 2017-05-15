@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import ome.annotations.RolesAllowed;
+import ome.api.IProjection;
 import ome.api.IRenderingSettings;
 import ome.api.IUpdate;
 import ome.api.ServiceInterface;
@@ -40,7 +41,6 @@ import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
-//import ome.model.display.ReverseIntensityContext;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
 import ome.model.roi.Mask;
@@ -57,7 +57,6 @@ import omeis.providers.re.RGBBuffer;
 import omeis.providers.re.Renderer;
 import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.codomain.CodomainChain;
-import omeis.providers.re.codomain.CodomainMap;
 import omeis.providers.re.codomain.CodomainMapContext;
 import omeis.providers.re.codomain.ReverseIntensityContext;
 import omeis.providers.re.data.PlaneDef;
@@ -540,8 +539,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
     public byte[] renderCompressed(PlaneDef pd) {
         rwl.writeLock().lock();
 
-        ByteArrayOutputStream byteStream = null;
-        try {
+        try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
             final Map<byte[], Integer> overlays = getMasks(pd);
             if (overlays.size() > 0) {
                 renderer.setOverlays(overlays);
@@ -561,7 +559,6 @@ public class RenderingBean implements RenderingEngine, Serializable {
             sizeY = sizeY/stride;
             BufferedImage image = ImageUtil.createBufferedImage(buf, sizeX,
                     sizeY);
-            byteStream = new ByteArrayOutputStream();
             compressionSrv.compressToStream(image, byteStream);
             return byteStream.toByteArray();
         } catch (IOException e) {
@@ -569,14 +566,6 @@ public class RenderingBean implements RenderingEngine, Serializable {
             throw new ResourceError(e.getMessage());
         } finally {
             rwl.writeLock().unlock();
-            try {
-                if (byteStream != null) {
-                    byteStream.close();
-                }
-            } catch (IOException e) {
-                log.error("Could not close byte stream.", e);
-                throw new ResourceError(e.getMessage());
-            }
         }
     }
 
@@ -586,8 +575,9 @@ public class RenderingBean implements RenderingEngine, Serializable {
      * @see RenderingEngine#renderAsPackedInt(PlaneDef)
      */
     @RolesAllowed("user")
-    public int[] renderProjectedAsPackedInt(int algorithm, int timepoint,
-            int stepping, int start, int end) {
+    public int[] renderProjectedAsPackedInt2(int algorithm, int axis,
+            int plane, int stepping, int start, int end)
+    {
         rwl.writeLock().lock();
 
         try {
@@ -602,7 +592,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
             int projectedSizeC = 0;
             for (int i = 0; i < channelBindings.length; i++) {
                 if (channelBindings[i].getActive()) {
-                    planes[0][i][0] = projectStack(algorithm, timepoint,
+                    planes[0][i][0] = projectPlanes(algorithm, axis, plane,
                             stepping, start, end, pixelsId, i);
                     projectedSizeC += 1;
                 }
@@ -633,26 +623,38 @@ public class RenderingBean implements RenderingEngine, Serializable {
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.
      * 
+     * @see RenderingEngine#renderAsPackedInt(PlaneDef)
+     */
+    @RolesAllowed("user")
+    public int[] renderProjectedAsPackedInt(int algorithm, int timepoint,
+            int stepping, int start, int end)
+    {
+        return renderProjectedAsPackedInt2(algorithm, IProjection.Z_AXIS,
+                timepoint, stepping, start, end);
+    }
+
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
      * @see LocalCompress#compressToStream(BufferedImage, java.io.OutputStream)
      */
     @RolesAllowed("user")
-    public byte[] renderProjectedCompressed(int algorithm, int timepoint,
-            int stepping, int start, int end) {
+    public byte[] renderProjectedCompressed2(int algorithm, int axis, int plane,
+            int stepping, int start, int end)
+    {
         rwl.writeLock().lock();
 
-        ByteArrayOutputStream byteStream = null;
-        try {
+        try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()){
             if (resolutionLevel != null)
             {
                 renderer.setResolutionLevel(resolutionLevel);
             }
-            int[] buf = renderProjectedAsPackedInt(algorithm, timepoint,
+            int[] buf = renderProjectedAsPackedInt2(algorithm, axis, plane,
                     stepping, start, end);
             int sizeX = pixelsObj.getSizeX();
             int sizeY = pixelsObj.getSizeY();
             BufferedImage image = ImageUtil.createBufferedImage(buf, sizeX,
                     sizeY);
-            byteStream = new ByteArrayOutputStream();
             compressionSrv.compressToStream(image, byteStream);
             return byteStream.toByteArray();
         } catch (IOException e) {
@@ -660,15 +662,19 @@ public class RenderingBean implements RenderingEngine, Serializable {
             throw new ResourceError(e.getMessage());
         } finally {
             rwl.writeLock().unlock();
-            try {
-                if (byteStream != null) {
-                    byteStream.close();
-                }
-            } catch (IOException e) {
-                log.error("Could not close byte stream.", e);
-                throw new ResourceError(e.getMessage());
-            }
         }
+    }
+
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
+     * @see LocalCompress#compressToStream(BufferedImage, java.io.OutputStream)
+     */
+    @RolesAllowed("user")
+    public byte[] renderProjectedCompressed(int algorithm, int timepoint,
+            int stepping, int start, int end) {
+        return renderProjectedCompressed2(algorithm, IProjection.Z_AXIS,
+                timepoint, stepping, start, end);
     }
 
     // ~ Settings
@@ -2003,11 +2009,11 @@ public class RenderingBean implements RenderingEngine, Serializable {
      */
     private List getAllEnumerations(final Class k) {
         return (List) ex.execute(/*ex*/null/*principal*/, 
-        		new Executor.SimpleWork(this,
+            new Executor.SimpleWork(this,
                 "getAllEnumerations") {
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
-                return sf.getPixelsService().getAllEnumerations(k);
+                return sf.getTypesService().allEnumerations(k);
             }
         });
     }
@@ -2034,9 +2040,10 @@ public class RenderingBean implements RenderingEngine, Serializable {
     
     /**
      * Projects a given stack.
-     * 
+     *
      * @param algorithm The projection algorithm.
-     * @param timepoint The selected time point.
+     * @param axis The axis used for the projection.
+     * @param plane The selected plane.
      * @param stepping  The step between z-section to project.
      * @param start     The lower z-section to project.
      * @param end       The upper z-section to project.
@@ -2044,19 +2051,19 @@ public class RenderingBean implements RenderingEngine, Serializable {
      * @param i         The channel.
      * @return See above.
      */
-    private byte[] projectStack(final int algorithm, final int timepoint, 
-            final int stepping, final int start, final int end, 
+    private byte[] projectPlanes(final int algorithm, final int axis,
+            final int plane, final int stepping, final int start, final int end,
             final long pixelsId, final int i) {
         return (byte[]) ex.execute(/* ex */null/* principal */, 
-        		new Executor.SimpleWork(this,"projectStack") {
+                new Executor.SimpleWork(this,"projectPlanes") {
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
                 return sf.getProjectionService()
-                .projectStack(pixelsId, null, algorithm, timepoint,
+                .projectPlanes(pixelsId, null, algorithm, axis, plane,
                         i, stepping, start, end);
             }});
     }
-    
+
     /**
      * Creates new rendering settings for the passed pixels set.
      * 

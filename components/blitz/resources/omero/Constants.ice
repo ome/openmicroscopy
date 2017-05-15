@@ -296,6 +296,18 @@ module omero {
         MEANINTENSITY,
         SUMINTENSITY
       };
+
+      /**
+       * Used by the IProjection methods to declare along which axis to perform
+       * the projection.
+       **/
+      enum ProjectionAxis {
+        T,
+        Z,
+        MODULOT,
+        MODULOZ
+      };
+
     };
 
     module topics {
