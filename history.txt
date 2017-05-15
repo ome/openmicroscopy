@@ -1,6 +1,38 @@
 OMERO version history
 =====================
 
+5.3.2 (May 2017)
+----------------
+
+This is a bug-fix release.
+
+Improvements include:
+
+- improved populate_metadata plugin
+- fixed deletion of a range of objects from CLI
+- textual annotations without a namespace can now be added at import using the CLI
+- improved thumbnails retrieval in OMERO.web
+- added "Open With" option to the right-hand panel in OMERO.web
+- group owners are now prevented from annotating other people's data in OMERO.web
+- preview of wells now available in the right-hand panel
+
+Sysadmin changes include:
+
+- made the Django middleware classes configurable using a new property
+- added property to allow connections from specified origins (CORS)
+- administrators can now use the CLI to move data between groups without belonging to those groups
+- for OMERO.web apps to be available via "Open With" option, administrators need to use
+  the "omero.web.open_with" configuration option
+
+Developer updates include:
+
+- exposed more enumerations from ome-model
+- added ROIs support to the Web API
+
+This release also upgrades the version of Bio-Formats which OMERO uses to
+`5.5.0 <https://www.openmicroscopy.org/site/support/bio-formats5.5/about/whats-new.html>`_.
+
+
 5.3.1 (April 2017)
 ------------------
 
@@ -8,12 +40,12 @@ This is a bug-fix release focusing on shares.
 
 Improvements include:
 
-- allow to view images in share
-- allow to import hidden image files (Windows client issue)
-- clarify installation of OMERO.web
-- save polygon and polyline as defined in the OME model
-- fix viewing of images without pixels size
-- add support for large image export as jpeg/png from OMERO.insight
+- enabled viewing images in share
+- enabled importing hidden image files (Windows client issue)
+- clarified installation of OMERO.web
+- saved polygon and polyline as defined in the OME model
+- fixed viewing of images without pixels size
+- added support for large image export as jpeg/png from OMERO.insight
 
 This release also upgrades the version of Bio-Formats which OMERO uses to
 `5.4.1 <https://www.openmicroscopy.org/site/support/bio-formats5.4/about/whats-new.html>`_.
