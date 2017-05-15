@@ -44,15 +44,13 @@ import loci.formats.in.MetadataLevel;
 import loci.formats.in.MetadataOptions;
 import loci.formats.in.ZipReader;
 import loci.formats.meta.MetadataStore;
+import ome.formats.OMEXMLModelComparator;
+import ome.util.PixelData;
+import omero.model.Channel;
+import omero.model.Pixels;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import ome.formats.OMEXMLModelComparator;
-import ome.util.PixelData;
-
-import omero.model.Channel;
-import omero.model.Pixels;
 
 /**
  * @author Brian Loranger brain at lifesci.dundee.ac.uk
@@ -94,16 +92,16 @@ public class OMEROWrapper extends MinMaxCalculator {
         this.config = config;
         this.iReader = (ImageReader) reader; // Save old value
         this.reader = null;
-        filler = new ChannelFiller(iReader);
-        separator  = new ChannelSeparator(filler);
-        memoizer = new Memoizer(separator, elapsedTime, cacheDirectory) {
+        memoizer = new Memoizer(iReader, elapsedTime, cacheDirectory) {
             public Deser getDeser() {
                 KryoDeser k = new KryoDeser();
                 k.kryo.register(OMEXMLModelComparator.class);
                 return k;
             }
         };
-        reader = memoizer;
+        filler = new ChannelFiller(memoizer);
+        separator  = new ChannelSeparator(filler);
+        reader = separator;
 
         // Force unreadable characters to be removed from metadata key/value pairs
         iReader.setMetadataFiltered(true);
