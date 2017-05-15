@@ -943,6 +943,7 @@ public class ExporterTest extends AbstractServerTest {
     public void testExportAsOMEXMLDowngradeImageWithROI(Target target) throws Exception {
         File f = null;
         File transformed = null;
+        boolean result = false;
         try {
             f = export(OME_XML, IMAGE_ROI);
             //transform
@@ -951,12 +952,18 @@ public class ExporterTest extends AbstractServerTest {
             validate(transformed);
             //import the file
             importFile(transformed, OME_XML);
+            result = true;
         } catch (Throwable e) {
             throw new Exception("Cannot downgrade image: "+target.getSource(),
                     e);
         } finally {
-            if (f != null) f.delete();
-            if (transformed != null) transformed.delete();
+            if (result) {
+                if (f != null) f.delete();
+                if (transformed != null) transformed.delete();
+            } else {
+                System.out.println("Failed file:" + f.getAbsolutePath());
+                System.out.println("Failed transformed file:" + transformed.getAbsolutePath());
+            }
         }
     }
 
