@@ -2749,10 +2749,13 @@ def object_table_query(request, objtype, objid, conn=None, **kwargs):
     # one (= the one with the highest identifier)
     fileId = 0
     ann = None
+    tableData = None
     for annotation in a['data']:
-        if annotation['file'] > fileId:
-            fileId = annotation['file']
+        tableData = _table_query(request, annotation['file'], conn, **kwargs)
+        if 'error' not in tableData:
             ann = annotation
+            fileId = annotation['file']
+            break
     tableData = _table_query(request, fileId, conn, **kwargs)
     tableData['id'] = fileId
     tableData['annId'] = ann['id']
