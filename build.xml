@@ -527,7 +527,7 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
                 windowtitle="OMERO API"
                 overview="target/docs/overview.html"
                 additionalparam="${javadoc.doclint}">
-
+<doclet name="com.sun.tools.doclets.standard.Standard"/>
                 <classpath>
                     <fileset dir="lib">
                         <include name="**/*.jar"/>
