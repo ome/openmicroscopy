@@ -1,9 +1,8 @@
 /*
- * $Id$
- *
  *   Copyright 2006-2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package integration;
 
 import java.util.ArrayList;
@@ -21,7 +20,6 @@ import omero.ApiUsageException;
 import omero.ServerError;
 import omero.api.IAdminPrx;
 import omero.api.IMetadataPrx;
-import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.model.AcquisitionMode;
 import omero.model.Annotation;
@@ -1975,16 +1973,14 @@ public class MetadataServiceTest extends AbstractServerTest {
 
         final long currentGroupId = iAdmin.getEventContext().groupId;
         final Map<String, String> groupContext = ImmutableMap.of(Login.OMERO_GROUP, Long.toString(currentGroupId));
-        final IUpdatePrx iUpdateRoot = (IUpdatePrx) root.getSession().getUpdateService().ice_context(groupContext);
-
         final IMetadataPrx iMetadata = (IMetadataPrx) root.getSession().getMetadataService().ice_context(groupContext);
 
         Job uploadJob1 = getNewUploadJob();
-        uploadJob1 = (Job) iUpdateRoot.saveAndReturnObject(uploadJob1);
+        uploadJob1 = (Job) iUpdate.saveAndReturnObject(uploadJob1);
         final long uploadJob1Id = uploadJob1.getId().getValue();
 
         Job uploadJob2 = getNewUploadJob();
-        uploadJob2 = (Job) iUpdateRoot.saveAndReturnObject(uploadJob2);
+        uploadJob2 = (Job) iUpdate.saveAndReturnObject(uploadJob2);
         final long uploadJob2Id = uploadJob2.getId().getValue();
 
         OriginalFile importLog1 = new OriginalFileI();
