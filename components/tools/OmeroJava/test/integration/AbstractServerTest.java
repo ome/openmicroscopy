@@ -127,6 +127,7 @@ import org.apache.commons.lang.StringUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 
 import com.google.common.collect.Lists;
 
@@ -2090,5 +2091,58 @@ public class AbstractServerTest extends AbstractTest {
             case ADMIN:
                 logRootIntoGroup();
         }
+    }
+
+    /**
+     * Convenient helper function for providing Boolean arguments to TestNG tests.
+     * @param argCount how many arguments the test takes
+     * @return every combination of argument values
+     */
+    private static Boolean[][] provideEveryBooleanCombination(int argCount) {
+        // TODO: Once we use Guava 19 we can use Collections.nCopies and Lists.cartesianProduct instead of this manual approach.
+        if (argCount < 1) {
+            throw new IllegalArgumentException("argument count must be strictly positive");
+        }
+        final Boolean[][] testArguments = new Boolean[1 << argCount][];
+        int testNum = 0;
+        testArguments[testNum] = new Boolean[argCount];
+        Arrays.fill(testArguments[testNum], false);
+        while (++testNum < testArguments.length) {
+            testArguments[testNum] = Arrays.copyOf(testArguments[testNum - 1], argCount);
+            int argNum = argCount - 1;
+            while (true) {
+                if (testArguments[testNum][argNum]) {
+                    testArguments[testNum][argNum--] = false;
+                } else {
+                    testArguments[testNum][argNum] = true;
+                    break;
+                }
+            }
+        }
+        return testArguments;
+    }
+
+    /**
+     * @return all four combinations of Boolean argument values
+     */
+    @DataProvider(name = "test cases using two Boolean arguments")
+    public Object[][] provideTwoBooleanArguments() {
+        return provideEveryBooleanCombination(2);
+    }
+
+    /**
+     * @return all eight combinations of Boolean argument values
+     */
+    @DataProvider(name = "test cases using three Boolean arguments")
+    public Object[][] provideThreeBooleanArguments() {
+        return provideEveryBooleanCombination(3);
+    }
+
+    /**
+     * @return all sixteen combinations of Boolean argument values
+     */
+    @DataProvider(name = "test cases using four Boolean arguments")
+    public Object[][] provideFourBooleanArguments() {
+        return provideEveryBooleanCombination(4);
     }
 }
