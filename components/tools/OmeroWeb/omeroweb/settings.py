@@ -329,6 +329,15 @@ INTERNAL_SETTINGS_MAPPING = {
          parse_boolean,
          ("Whether to use a TLS (secure) connection when talking to the SMTP"
           " server.")],
+
+    "omero.web.session_file_path":
+        ["SESSION_FILE_PATH",
+         tempfile.gettempdir(),
+         str,
+         ("Set the directory in which Django will store session data and"
+          " save temprorarly created files. By default, Django will use"
+          " the standard temporary directory for the system. Note: it will"
+          " also respect env TEMPDIR/TEMP/TMP.")],
 }
 
 CUSTOM_SETTINGS_MAPPINGS = {
@@ -456,12 +465,55 @@ CUSTOM_SETTINGS_MAPPINGS = {
         ["SESSION_COOKIE_DOMAIN",
          None,
          leave_none_unset,
-         "The domain to use for session cookies"],
+         "The domain to use for session cookies."],
     "omero.web.session_cookie_name":
         ["SESSION_COOKIE_NAME",
          None,
          leave_none_unset,
-         "The name to use for session cookies"],
+         "The name to use for session cookies."],
+    "omero.web.session_cookie_secure":
+        ["SESSION_COOKIE_SECURE",
+         "false",
+         parse_boolean,
+         "Use a secure cookie for the session cookie."],
+    "omero.web.session_cookie_path":
+        ["SESSION_COOKIE_PATH",
+         "/",
+         str,
+         ("The path set on the session cookie. This is useful if you have"
+          " multiple Django instances running under the same hostname."
+          " They can use different cookie paths, and each instance will"
+          " only see its own session cookie.")],
+    "omero.web.csrf_cookie_age":
+        ["CSRF_COOKIE_AGE",
+         31449600,
+         int,
+         "The age of CSRF cookies, in seconds."],
+    "omero.web.csrf_cookie_name":
+        ["CSRF_COOKIE_NAME",
+         None,
+         leave_none_unset,
+         "The name to use for CSRF cookies."],
+    "omero.web.csrf_cookie_domain":
+        ["CSRF_COOKIE_DOMAIN",
+         None,
+         leave_none_unset,
+         ("The domain to use for CSRF cookies. It allows cross-subdomain"
+          " requests to be excluded from the normal cross site request"
+          " forgery protection.")],
+    "omero.web.csrf_cookie_secure":
+        ["CSRF_COOKIE_SECURE",
+         "false",
+         parse_boolean,
+         "Whether to use a secure cookie for the CSRF cookie."],
+    "omero.web.csrf_cookie_path":
+        ["CSRF_COOKIE_PATH",
+         "/",
+         str,
+         ("The path set on the CSRF cookie. This is useful if you have"
+          " multiple Django instances running under the same hostname."
+          " They can use different cookie paths, and each instance will"
+          " only see its own CSRF cookie.")],
     "omero.web.logdir":
         ["LOGDIR", LOGDIR, str, "A path to the custom log directory."],
     "omero.web.secure_proxy_ssl_header":
@@ -1193,15 +1245,9 @@ FEEDBACK_APP = 6
 # Default: ('mail.pl', 'mailform.pl', 'mail.cgi', 'mailform.cgi',
 # 'favicon.ico', '.php')
 
-# SESSION_FILE_PATH: If you're using file-based session storage, this sets the
-# directory in which Django will store session data. When the default value
-# (None) is used, Django will use the standard temporary directory for the
-# system.
-SESSION_FILE_PATH = tempfile.gettempdir()
-
 # FILE_UPLOAD_TEMP_DIR: The directory to store data temporarily while
 # uploading files.
-FILE_UPLOAD_TEMP_DIR = tempfile.gettempdir()
+FILE_UPLOAD_TEMP_DIR = SESSION_FILE_PATH  # noqa
 
 # # FILE_UPLOAD_MAX_MEMORY_SIZE: The maximum size (in bytes) that an upload
 # will be before it gets streamed to the file system.
