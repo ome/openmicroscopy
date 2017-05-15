@@ -388,7 +388,8 @@ CUSTOM_SETTINGS_MAPPINGS = {
           '"class": "django.contrib.messages.middleware.MessageMiddleware"}'
           ']'),
          json.loads,
-         ('List of Django middleware classes in the form '
+         ('Warning: Only system administrators should use this feature. '
+          'List of Django middleware classes in the form '
           '[{"class": "class.name", "index": FLOAT}]. '
           'See https://docs.djangoproject.com/en/1.8/topics/http/middleware/. '
           'Classes will be ordered by increasing index')],
