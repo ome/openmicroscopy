@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2010-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  *
@@ -461,6 +459,7 @@ module omero {
                  *
                  * @param objects
                  */
+                ["deprecated:moveToCommonSpace() is deprecated. use omero::cmd::Chgrp2() instead to move to 'user' group."]
                 idempotent void moveToCommonSpace(IObjectList objects) throws ServerError;
 
                 // UAuth
