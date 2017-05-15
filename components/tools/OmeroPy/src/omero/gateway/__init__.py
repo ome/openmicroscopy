@@ -6337,6 +6337,15 @@ class _PlateAcquisitionWrapper (BlitzObjectWrapper):
         add_plate_filter(clauses, params, opts)
         return (query, clauses, params)
 
+    def getDate(self):
+        try:
+            t = self._obj.startTime.val
+            if t > 0:
+                return datetime.fromtimestamp(t / 1000)
+        except:
+            pass
+        return super(_PlateAcquisitionWrapper, self).getDate()
+
     def getName(self):
         name = super(_PlateAcquisitionWrapper, self).getName()
         if name is None:
