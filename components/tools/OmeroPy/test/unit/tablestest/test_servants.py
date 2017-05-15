@@ -369,6 +369,7 @@ class TestTables(TestCase):
         pytest.raises(omero.ValidationException, tables.getTable, of, self.sf,
                       self.current)
 
+    @pytest.mark.xfail(reason="See ticket #12372")
     def testErrorInGet(self):
         self.repofile(self.sf.db_uuid)
         f = omero.model.OriginalFileI(1, True)
