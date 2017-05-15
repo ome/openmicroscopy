@@ -2749,8 +2749,9 @@ def object_table_query(request, objtype, objid, conn=None, **kwargs):
     # one (= the one with the highest identifier)
     fileId = 0
     ann = None
+    annList = sorted(a['data'], key=lambda x: x['file'], reverse=True)
     tableData = None
-    for annotation in a['data']:
+    for annotation in annList:
         tableData = _table_query(request, annotation['file'], conn, **kwargs)
         if 'error' not in tableData:
             ann = annotation
