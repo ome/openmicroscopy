@@ -31,16 +31,16 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 public enum ImportType {
     
     /** Copy */
-    COPY("ome.formats.importer.transfers.CopyFileTransfer", "cp"),
+    COPY("ome.formats.importer.transfers.CopyFileTransfer2", "cp"),
     
     /** Copy and remove source*/
     COPYREMOVE("ome.formats.importer.transfers.CopyMoveFileTransfer", "cp_rm"),
     
     /** Soft link to file (file is *not* in data repository)*/
-    SOFTLINK("ome.formats.importer.transfers.SymlinkFileTransfer", "ln_s"), 
+    SOFTLINK("ome.formats.importer.transfers.SymlinkFileTransfer2", "ln_s"), 
     
     /** Hard link to file */
-    HARDLINK("ome.formats.importer.transfers.HardlinkFileTransfer", "ln"),
+    HARDLINK("ome.formats.importer.transfers.HardlinkFileTransfer2", "ln"),
     
     /** Hard link and remove source */
     HARDLINKREMOVE("ome.formats.importer.transfers.MoveFileTransfer", "ln_rm"),

@@ -31,6 +31,7 @@ import java.util.List;
  * "mklink target source" (Windows) will work.
  *
  * @since 5.0
+ * @deprecated replaced by SymlinkFileTransfer2
  */
 public class SymlinkFileTransfer extends AbstractExecFileTransfer {
 

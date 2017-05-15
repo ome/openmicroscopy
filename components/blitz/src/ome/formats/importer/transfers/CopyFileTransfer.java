@@ -32,6 +32,7 @@ import java.util.List;
  * "copy source target" (Windows) will work.
  *
  * @since 5.0.7
+ * @deprecated replaced by CopyFileTransfer2
  */
 public class CopyFileTransfer extends AbstractExecFileTransfer {
 

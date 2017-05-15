@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2016 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2016 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,22 +19,36 @@
 
 package ome.formats.importer.transfers;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
 /**
- * Local-only file transfer mechanism which makes use of the
- * local copy command followed by the deletion of the original
- * source file.
+ * Local-only file transfer mechanism which makes use of hard-linking.
  *
- * @since 5.0.7
+ * @since 5.2
  */
-public class CopyMoveFileTransfer extends CopyFileTransfer2 {
+public class HardlinkFileTransfer2 extends AbstractExecFileTransfer2 {
 
     /**
-     * Deletes all copied files if there were no errors.
+     * Creates hard-link.
      */
-    @Override
-    public void afterTransfer(int errors, List<String> srcFiles) throws CleanupFailure {
-        deleteTransferredFiles(errors, srcFiles);
+    protected void execute(File file, File location) throws IOException {
+        Files.createLink(Paths.get(file.toURI()), Paths.get(location.toURI()));
     }
+
+    /**
+     * No cleanup action is taken.
+     */
+    public void afterTransfer(int errors, List<String> srcFiles) throws CleanupFailure {
+        // no-op
+    }
+
+    @Override
+    protected String getCommand() {
+        return "Create hard-link";
+    }
+
 }

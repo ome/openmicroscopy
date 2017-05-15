@@ -22,7 +22,8 @@ package ome.formats.importer.transfers;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringReader;
 import java.io.StringWriter;
 
 import ome.util.checksum.ChecksumProvider;
@@ -32,12 +33,25 @@ import omero.model.OriginalFile;
 
 /**
  * Local-only file transfer mechanism which makes use of soft-linking.
- * This is only useful where the command "ln -s source target" will work.
  *
- * @since 5.0
- * @deprecated replaced by AbstractExecFileTransfer2
+ * @since 5.2
  */
-public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
+public abstract class AbstractExecFileTransfer2 extends AbstractFileTransfer {
+
+    /**
+     * Utility method to print the error message
+     *
+     * @param e The exception to handle.
+     * @return See above.
+     */
+    private String printErrorText(Throwable e)
+    {
+        if (e == null) return "";
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        e.printStackTrace(pw);
+        return sw.toString();
+    }
 
     /**
      * "Transfer" files by soft-linking them into place. This method is likely
@@ -68,42 +82,28 @@ public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
     }
 
     /**
-     * Executes a local command and fails on non-0 return codes.
+     * Executes a local command and log error
      *
      * @param file the source file
      * @param location the target on the server
      * @throws IOException for problems with the source file
      */
     protected void exec(File file, File location) throws IOException {
-        ProcessBuilder pb = createProcessBuilder(file, location);
-        pb.redirectErrorStream(true);
-        Process process = pb.start();
-        Integer rcode = null;
-        while (rcode == null) {
-            try {
-                rcode = process.waitFor();
-                break;
-            } catch (InterruptedException e) {
-                continue;
-            }
-        }
-        if (rcode == null || rcode.intValue() != 0) {
+        try {
+            execute(file, location);
+        } catch (Exception e) {
             StringWriter sw = new StringWriter();
-            sw.append("transfer process returned: ");
-            sw.append(Integer.toString(rcode));
+            sw.append("transfer process returned an error: ");
             sw.append("\n");
             sw.append("command:");
-            for (String arg : pb.command()) {
-                sw.append(" ");
-                sw.append(arg);
-            }
+            sw.append(getCommand());
             sw.append("\n");
             sw.append("output:");
             sw.append(LINE);
             String line = "";
             BufferedReader br = new BufferedReader(
-                   new InputStreamReader(process.getInputStream()));
-            while ( (line = br.readLine()) != null) {
+                   new StringReader(printErrorText(e)));
+            while ((line = br.readLine()) != null) {
                sw.append(line);
                sw.append(SEPARATOR);
             }
@@ -123,6 +123,11 @@ public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
      * @param location Location to copy to.
      * @return an instance ready for performing the transfer
      */
-    protected abstract ProcessBuilder createProcessBuilder(File file, File location);
+    protected abstract void execute(File file, File location) throws IOException;
 
+    /**
+     * Returns the execute command.
+     * @return See above.
+     */
+    protected abstract String getCommand();
 }

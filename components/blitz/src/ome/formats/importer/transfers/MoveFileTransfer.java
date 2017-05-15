@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2016 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -27,7 +27,7 @@ import java.util.List;
  *
  * @since 5.0
  */
-public class MoveFileTransfer extends HardlinkFileTransfer {
+public class MoveFileTransfer extends HardlinkFileTransfer2 {
 
     /**
      * Deletes all hard-linked files if there were no errors.
