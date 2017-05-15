@@ -843,15 +843,10 @@ public class SelectionWizardUI
                 ho = node.getUserObject();
                 if (ho instanceof DataObject) {
                     data = (DataObject) ho;
-                    if (!isImmutable(data)) {
-                        if (data.getId() >= 0 && !isChild(node)) {
-                            availableItems.add(node);
-                        }
-                        toRemove.add(node);
-                    }
-                } else {
-                    toRemove.add(node);
+                    if (data.getId() >= 0 && !isChild(node))
+                        availableItems.add(node);
                 }
+                toRemove.add(node);
             }
         }
         selectedItems.removeAll(toRemove);
@@ -864,23 +859,18 @@ public class SelectionWizardUI
     /** Removes all items from the selection. */
     private void removeAllItems()
     {
-        List<TreeImageDisplay> toKeep = new ArrayList<TreeImageDisplay>();
         Object ho;
         DataObject data;
         for (TreeImageDisplay node: selectedItems) {
             ho = node.getUserObject();
             if (ho instanceof DataObject) {
                 data = (DataObject) ho;
-                if (isImmutable(data)) {
-                    toKeep.add(node);
-                } else {
-                    if (data.getId() >= 0 && !isChild(node)) {
-                        availableItems.add(node);
-                    }
+                if (data.getId() >= 0 && !isChild(node)) {
+                    availableItems.add(node);
                 }
             }
         }
-        selectedItems.retainAll(toKeep);
+        selectedItems.clear();
         sortLists();
         populateTreeItems(availableItemsListbox, availableItems);
         populateTreeItems(selectedItemsListbox, selectedItems);
