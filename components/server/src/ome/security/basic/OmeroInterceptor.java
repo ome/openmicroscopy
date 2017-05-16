@@ -780,8 +780,13 @@ public class OmeroInterceptor implements Interceptor {
             }
         } else if (isPrivilegedCreator || bec.getMemberOfGroupsList().contains(newDetails.getGroup().getId())) {
             // admin or group member so okay
-        } else if (!bec.getCurrentGroupPermissions().isGranted(Role.WORLD,
+        } else if (bec.getCurrentGroupPermissions().isGranted(Role.WORLD,
                 obj instanceof IAnnotationLink ? Right.ANNOTATE : Right.WRITE)) {
+            // group allows non-members to write
+        } else if ("ome.model.display".equals(obj.getClass().getPackage().getName()) &&
+                bec.getCurrentGroupPermissions().isGranted(Role.WORLD, Right.READ)) {
+            // group allows non-members to read so allow creation of "display" objects
+        } else {
             /* TODO: may need to loosen further for rwrwra groups */
             throw new SecurityViolation(String.format("You are not authorized to create %s", obj));
         }
