@@ -1,6 +1,4 @@
 /*
- * ome.formats.importer.gui.GuiCommonElements
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
@@ -24,8 +22,9 @@ package ome.formats.importer;
 
 /**
  * @author Brian Loranger brain at lifesci.dundee.ac.uk
- *
+ * @deprecated  As of release 5.3.2
  */
+@Deprecated
 public class Version {
 
 

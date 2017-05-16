@@ -27,7 +27,7 @@ import json
 
 from django.core.urlresolvers import reverse
 
-from omeroweb.utils import reverse_with_params
+from omeroweb.utils import reverse_with_params, sort_properties_to_tuple
 from omeroweb.webclient.webclient_utils import formatPercentFraction
 from omeroweb.webclient.webclient_utils import getDateTime
 
@@ -93,3 +93,33 @@ class TestUtil(object):
         assert ('reverse_with_params() argument after ** must'
                 ' be a mapping, not %s') % top_links[1] \
             in str(excinfo.value)
+
+    @pytest.mark.parametrize('params', [
+        ([], ()),
+        ([{"index": 1, "class": "abc"}], ('abc',)),
+        ([{"index": 1, "class": "abc"}, {"index": 1, "class": "cde"}],
+         ('abc', 'cde')),
+        ([{"index": 2, "class": "abc"}, {"index": 1, "class": "cde"}],
+         ('cde', 'abc')),
+        (({"index": 1, "class": "abc"},), ('abc',)),
+    ])
+    def test_sort_properties_to_tuple(self, params):
+        assert sort_properties_to_tuple(params[0]) == params[1]
+
+    @pytest.mark.parametrize('params', [
+        ([{"foo": 1, "bar": "abc"}], ('abc',)),
+    ])
+    def test_sort_properties_to_tuple_custom(self, params):
+        assert sort_properties_to_tuple(
+            params[0], params[0][0].keys()[0],
+            params[0][0].keys()[1]) == params[1]
+
+    @pytest.mark.parametrize('bad_params', [
+        ([{}], KeyError, "'index'"),
+        ([{"foo": 1}], KeyError, "'index'"),
+        ([{"index": 1}], KeyError, "'class'"),
+    ])
+    def test_sort_properties_to_tuple_keyerror(self, bad_params):
+        with pytest.raises(bad_params[1]) as excinfo:
+            sort_properties_to_tuple(bad_params[0])
+        assert bad_params[2] in str(excinfo.value)

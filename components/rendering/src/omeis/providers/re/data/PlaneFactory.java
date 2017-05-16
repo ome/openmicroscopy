@@ -1,7 +1,5 @@
 /*
- *   $Id$
- *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package omeis.providers.re.data;
@@ -24,61 +22,70 @@ import ome.model.enums.PixelsType;
  * 
  */
 public class PlaneFactory {
-    
-	/** 
+
+    /** 
      * Identifies the <i>Bit</i> data type used to store pixel values,
      * as per <i>OME</i> spec. 
      */
-    public static final String     BIT = "bit";
-    
+    @Deprecated
+    public static final String     BIT = ome.model.enums.PixelsType.VALUE_BIT;
+
     /** 
      * Identifies the <i>INT8</i> data type used to store pixel values,
      * as per <i>OME</i> spec. 
      */
-    public static final String     INT8 = "int8";
-    
+    @Deprecated
+    public static final String     INT8 = ome.model.enums.PixelsType.VALUE_INT8;
+
     /** 
      * Identifies the <i>INT16</i> data type used to store pixel values,
      * as per <i>OME</i> spec. 
      */
-    public static final String     INT16 = "int16";
-    
+    @Deprecated
+    public static final String     INT16 = ome.model.enums.PixelsType.VALUE_INT16;
+
     /** 
      * Identifies the <i>INT32</i> data type used to store pixel values,
      * as per <i>OME</i> spec. 
      */
-    public static final String     INT32 = "int32";
-    
+    @Deprecated
+    public static final String     INT32 = ome.model.enums.PixelsType.VALUE_INT32;
+
     /** 
      * Identifies the <i>UINT8</i> data type used to store pixel values,
      * as per <i>OME</i> spec. 
      */
-    public static final String     UINT8 = "uint8";
-    
+    @Deprecated
+    public static final String     UINT8 = ome.model.enums.PixelsType.VALUE_UINT8;
+
     /** 
      * Identifies the <i>UINT16</i> data type used to store pixel values,
      * as per <i>OME</i> spec. 
      */
-    public static final String     UINT16 = "uint16";
-    
+    @Deprecated
+    public static final String     UINT16 = ome.model.enums.PixelsType.VALUE_UINT16;
+
     /** 
      * Identifies the <i>UINT32</i> data type used to store pixel values,
      * as per <i>OME</i> spec. 
      */
-    public static final String     UINT32 = "uint32";
-    
+    @Deprecated
+    public static final String     UINT32 = ome.model.enums.PixelsType.VALUE_UINT32;
+
     /** 
      * Identifies the <i>FLOAT</i> data type used to store pixel values,
      * as per <i>OME</i> spec. 
      */
-    public static final String     FLOAT_TYPE = "float";
-    
+    @Deprecated
+    public static final String     FLOAT_TYPE = ome.model.enums.PixelsType.VALUE_FLOAT;
+
     /** 
      * Identifies the <i>DOUBLE</i> data type used to store pixel values,
      * as per <i>OME</i> spec. 
      */
-    public static final String     DOUBLE_TYPE = "double";
-    
+    @Deprecated
+    public static final String     DOUBLE_TYPE = ome.model.enums.PixelsType.VALUE_DOUBLE;
+
     /** Identifies the type used to store pixel values. */
     public static final int BYTE = 0;
 
@@ -112,7 +119,7 @@ public class PlaneFactory {
     /**
      * A static helper method to check if a type is one of the elements in an
      * array.
-     * 
+     *
      * @param type
      *            A pixels type enumeration.
      * @param strings
@@ -131,7 +138,7 @@ public class PlaneFactory {
 
     /**
      * A static helper method to retrieve pixel byte widths.
-     * 
+     *
      * @param type
      *            The pixels type for which you want to know the byte width.
      * @return The number of bytes per pixel value.
@@ -142,7 +149,7 @@ public class PlaneFactory {
 
     /**
      * A static helper method to retrieve pixel byte signage.
-     * 
+     *
      * @param type
      *            The pixels type for which you want to know the byte width.
      * @return The number of bytes per pixel value.
@@ -153,7 +160,7 @@ public class PlaneFactory {
 
     /**
      * Factory method to fetch plane data and create an object to access it.
-     * 
+     *
      * @param planeDef
      *            Defines the plane to be retrieved. Must not be null.
      * @param channel
@@ -179,39 +186,39 @@ public class PlaneFactory {
         Integer t = Integer.valueOf(planeDef.getT());
         Integer stride = planeDef.getStride();
         try {
-        	RegionDef region = planeDef.getRegion();
-        	if (region != null) {
-        		switch (planeDef.getSlice()) {
-	                case PlaneDef.XY:
+            RegionDef region = planeDef.getRegion();
+            if (region != null) {
+                switch (planeDef.getSlice()) {
+                    case PlaneDef.XY:
                         return new Plane2D(planeDef, pixels, buffer.getTile(
                                 z, c, t, region.getX(), region.getY(),
                                 region.getWidth(), region.getHeight()));
-	                case PlaneDef.XZ: //TODO
-	                    return new Plane2D(planeDef, pixels, 
-	                    		buffer.getStack(c, t));
-	                case PlaneDef.ZY: //TODO
-	                    return new Plane2D(planeDef, pixels, 
-	                    		buffer.getStack(c, t));
-        		}
-        	} else {
-        		switch (planeDef.getSlice()) {
-	                case PlaneDef.XY:
-	                	if (stride == null || stride <= 0)
-	                		return new Plane2D(planeDef, pixels, 
-	                    		buffer.getPlane(z, c, t));
-	                	return new Plane2D(planeDef, pixels, 
-	                    		buffer.getPlaneRegion(0, 0, 
-	                    				pixels.getSizeX(), 
-	                    				pixels.getSizeY(), z, c, t, 
-	                    				stride));
-	                case PlaneDef.XZ:
-	                    return new Plane2D(planeDef, pixels, 
-	                    		buffer.getStack(c, t));
-	                case PlaneDef.ZY:
-	                    return new Plane2D(planeDef, pixels, 
-	                    		buffer.getStack(c, t));
-        		}
-        	}
+                    case PlaneDef.XZ: //TODO
+                        return new Plane2D(planeDef, pixels,
+                                buffer.getStack(c, t));
+                    case PlaneDef.ZY: //TODO
+                        return new Plane2D(planeDef, pixels,
+                                buffer.getStack(c, t));
+                }
+            } else {
+                switch (planeDef.getSlice()) {
+                    case PlaneDef.XY:
+                        if (stride == null || stride <= 0)
+                            return new Plane2D(planeDef, pixels,
+                                    buffer.getPlane(z, c, t));
+                        return new Plane2D(planeDef, pixels,
+                                buffer.getPlaneRegion(0, 0,
+                                        pixels.getSizeX(),
+                                        pixels.getSizeY(), z, c, t,
+                                        stride));
+                    case PlaneDef.XZ:
+                        return new Plane2D(planeDef, pixels,
+                                buffer.getStack(c, t));
+                    case PlaneDef.ZY:
+                        return new Plane2D(planeDef, pixels,
+                                buffer.getStack(c, t));
+                }
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (DimensionsOutOfBoundsException e) {

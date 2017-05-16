@@ -18,6 +18,8 @@
  */
 package omero.gateway.model;
 
+import omero.IllegalArgumentException;
+
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -72,6 +74,32 @@ public class TableDataColumn {
      */
     public TableDataColumn(String name, String description, int index,
             Class<?> type) {
+        if (type == null) {
+            throw new IllegalArgumentException("No type specified.");
+        }
+        if (index < 0) {
+            throw new IllegalArgumentException(
+                    "Index must be a positive integer.");
+        }
+        if (type.equals(Integer.class)) {
+            throw new IllegalArgumentException(
+                    "Integer class is not supported, please use Long instead.");
+        }
+        if (type.equals(Float.class)) {
+            throw new IllegalArgumentException(
+                    "Float class is not supported, please use Double instead.");
+        }
+        if (!(type.equals(Object.class) || type.equals(Boolean.class)
+                || type.equals(Double.class) || type.equals(Double[].class)
+                || type.equals(FileAnnotationData.class)
+                || type.equals(Float[].class) || type.equals(ImageData.class)
+                || type.equals(Long.class) || type.equals(Long[].class)
+                || type.equals(MaskData.class) || type.equals(PlateData.class)
+                || type.equals(ROIData.class) || type.equals(String.class) || type
+                    .equals(WellSampleData.class))) {
+            throw new IllegalArgumentException(type.getSimpleName()
+                    + " class is not supported.");
+        }
         this.name = name != null ? name : "";
         this.description = description != null ? description : "";
         this.index = index;

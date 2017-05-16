@@ -301,7 +301,7 @@ Check Right Panel Image
     Wait Until Element Is Visible       ${detailsPane}//th[contains(text(),'Z-sections/Timepoints:')]
     Wait Until Element Is Visible       ${detailsPane}//th[contains(text(),'Channels:')]
     Wait Until Element Is Visible       ${detailsPane}//th[contains(text(),'ROI Count:')]
-    Wait Until Element Is Visible       xpath=//*[@id="general_tab"]/div/a/span[contains(text(),'Full viewer')]
+    Wait Until Element Is Visible       xpath=//*[@id="general_tab"]//a/span[contains(text(),'Full viewer')]
     Wait Until Element Is Visible       xpath=//*[@id="general_tab"]/div/div/button[contains(@title,'Publishing Options')]
     Wait Until Element Is Visible       xpath=//*[@id="show_fs_files_btn"]
     Wait Until Element Is Visible       xpath=//*[@id="show_image_hierarchy"]

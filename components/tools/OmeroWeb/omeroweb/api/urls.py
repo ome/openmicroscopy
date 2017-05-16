@@ -276,6 +276,22 @@ api_plate_screens = url(
 GET Screens that contain a Plate, using omero-marshal to generate json
 """
 
+api_rois = url(r'^v(?P<api_version>%s)/m/rois/$' % versions,
+               views.RoisView.as_view(),
+               name='api_rois')
+"""
+GET all rois, using omero-marshal to generate json
+"""
+
+api_image_rois = url(
+    r'^v(?P<api_version>%s)/m/images/'
+    '(?P<image_id>[0-9]+)/rois/$' % versions,
+    views.RoisView.as_view(),
+    name='api_image_rois')
+"""
+GET ROIs that belong to an Image, using omero-marshal to generate json
+"""
+
 urlpatterns = patterns(
     '',
     api_versions,
@@ -309,4 +325,6 @@ urlpatterns = patterns(
     api_plateacquisition_wells,
     api_well,
     api_plate_screens,
+    api_rois,
+    api_image_rois,
 )

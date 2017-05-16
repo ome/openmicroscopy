@@ -335,10 +335,10 @@ class TestImport(CLITest):
         # Invoke CLI import command
         self.do_import(capfd)
 
+    @pytest.mark.parametrize("ns_on", (True, False))
     @pytest.mark.parametrize("fixture", AFS, ids=AFS_names)
-    def testAnnotationText(self, tmpdir, capfd, fixture):
+    def testAnnotationText(self, ns_on, tmpdir, capfd, fixture):
         """Test argument creating a comment annotation linked to the import"""
-
         fakefile = tmpdir.join("test.fake")
         fakefile.write('')
         self.args += [str(fakefile)]
@@ -347,7 +347,32 @@ class TestImport(CLITest):
         ns = ['ns%s' % i for i in range(fixture.n)]
         text = ['text%s' % i for i in range(fixture.n)]
         for i in range(fixture.n):
-            self.args += [fixture.annotation_ns_arg, ns[i]]
+            if ns_on:
+                self.args += [fixture.annotation_ns_arg, ns[i]]
+            self.args += [fixture.annotation_text_arg, text[i]]
+
+        # Invoke CLI import command and retrieve stdout/stderr
+        o, e = self.do_import(capfd)
+        obj = self.get_object(o, 'Image')
+        annotations = self.get_linked_annotations(obj.id.val)
+
+        assert len(annotations) == fixture.n
+        if ns_on:
+            assert set([x.ns.val for x in annotations]) == set(ns)
+        assert set([x.textValue.val for x in annotations]) == set(text)
+
+    @pytest.mark.parametrize("fixture", AFS, ids=AFS_names)
+    def testAnnotationText_one_ns(self, tmpdir, capfd, fixture):
+        """Test argument creating a comment annotation linked to the import"""
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+        self.args += [str(fakefile)]
+        if fixture.arg_type == 'Java':
+            self.args += ['--']
+        text = ['text%s' % i for i in range(fixture.n)]
+        ns = ['ns%s' % i for i in range(1)]
+        for i in range(fixture.n):
+            self.args += [fixture.annotation_ns_arg, ns[0]]
             self.args += [fixture.annotation_text_arg, text[i]]
 
         # Invoke CLI import command and retrieve stdout/stderr

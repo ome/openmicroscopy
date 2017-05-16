@@ -83,6 +83,7 @@ def api_base(request, api_version=None, **kwargs):
           'url:images': build_url(request, 'api_images', v),
           'url:screens': build_url(request, 'api_screens', v),
           'url:plates': build_url(request, 'api_plates', v),
+          'url:rois': build_url(request, 'api_rois', v),
           'url:token': build_url(request, 'api_token', v),
           'url:servers': build_url(request, 'api_servers', v),
           'url:login': build_url(request, 'api_login', v),
@@ -240,6 +241,8 @@ class ImageView(ObjectView):
     urls = {
         'url:datasets': {'name': 'api_image_datasets',
                          'kwargs': {'image_id': 'OBJECT_ID'}},
+        'url:rois': {'name': 'api_image_rois',
+                     'kwargs': {'image_id': 'OBJECT_ID'}},
     }
 
     def get_opts(self, request):
@@ -659,6 +662,30 @@ class WellsView(ObjectsView):
                     self.add_data(ws['Image'], request, conn,
                                   image_urls, **kwargs)
         return marshalled
+
+
+class RoisView(ObjectsView):
+    """Handles GET for /rois/ to list available ROIs with Shapes."""
+
+    OMERO_TYPE = 'Roi'
+
+    def get_opts(self, request, **kwargs):
+        """Add extra parameters to the opts dict."""
+        opts = super(RoisView, self).get_opts(request, **kwargs)
+        opts['load_shapes'] = True
+        # order_by ID simply for consistency & paging
+        opts['order_by'] = 'obj.id'
+
+        # at /images/:image_id/rois/ we have 'image_id' in kwargs
+        if 'image_id' in kwargs:
+            opts['image'] = long(kwargs['image_id'])
+        else:
+            # filter by query /rois/?image=:id
+            image = getIntOrDefault(request, 'image', None)
+            if image is not None:
+                opts['image'] = image
+
+        return opts
 
 
 class SaveView(View):

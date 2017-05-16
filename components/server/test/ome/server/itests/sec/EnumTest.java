@@ -1,7 +1,5 @@
 /*
- *   $Id$
- *
- *   Copyright 2006-2014 University of Dundee. All rights reserved.
+ *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.server.itests.sec;
@@ -55,7 +53,7 @@ public class EnumTest extends AbstractManagedContextTest {
         loginUser(e.getOmeName());
 
         DimensionOrder test = new DimensionOrder();
-        test.setValue("XYZCT");
+        test.setValue(DimensionOrder.VALUE_XYZCT);
         factory.getUpdateService().saveObject(test);
 
     }
