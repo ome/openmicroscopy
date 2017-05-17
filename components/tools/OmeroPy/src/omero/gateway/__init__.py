@@ -30,6 +30,10 @@ from omero.cmd import Chgrp2, Delete2, DoAll, SkipHead
 from omero.cmd.graphs import ChildOption
 from omero.api import Save
 from omero.gateway.utils import ServiceOptsDict, GatewayConfig, toBoolean
+from omero.model.enums import PixelsTypeint8, PixelsTypeuint8, PixelsTypeint16
+from omero.model.enums import PixelsTypeuint16, PixelsTypeint32
+from omero.model.enums import PixelsTypeuint32, PixelsTypefloat
+from omero.model.enums import PixelsTypecomplex, PixelsTypedouble
 import omero.scripts as scripts
 
 import Ice
@@ -3580,10 +3584,14 @@ class _BlitzGateway (object):
                 # of our new image
                 img = self.getObject("Image", iId.getValue())
                 newPtype = img.getPrimaryPixels().getPixelsType().getValue()
-                omeroToNumpy = {'int8': 'int8', 'uint8': 'uint8',
-                                'int16': 'int16', 'uint16': 'uint16',
-                                'int32': 'int32', 'uint32': 'uint32',
-                                'float': 'float32', 'double': 'double'}
+                omeroToNumpy = {PixelsTypeint8: 'int8',
+                                PixelsTypeuint8: 'uint8',
+                                PixelsTypeint16: 'int16',
+                                PixelsTypeuint16: 'uint16',
+                                PixelsTypeint32: 'int32',
+                                PixelsTypeuint32: 'uint32',
+                                PixelsTypefloat: 'float32',
+                                PixelsTypedouble: 'double'}
                 if omeroToNumpy[newPtype] != firstPlane.dtype.name:
                     convertToType = getattr(numpy, omeroToNumpy[newPtype])
                 img._obj.setName(rstring(imageName))
@@ -3592,11 +3600,17 @@ class _BlitzGateway (object):
             else:
                 # need to map numpy pixel types to omero - don't handle: bool_,
                 # character, int_, int64, object_
-                pTypes = {'int8': 'int8', 'int16': 'int16', 'uint16': 'uint16',
-                          'int32': 'int32', 'float_': 'float',
-                          'float8': 'float', 'float16': 'float',
-                          'float32': 'float', 'float64': 'double',
-                          'complex_': 'complex', 'complex64': 'complex'}
+                pTypes = {'int8': PixelsTypeint8,
+                          'int16': PixelsTypeint16,
+                          'uint16': PixelsTypeuint16,
+                          'int32': PixelsTypeint32,
+                          'float_': PixelsTypefloat,
+                          'float8': PixelsTypefloat,
+                          'float16': PixelsTypefloat,
+                          'float32': PixelsTypefloat,
+                          'float64': PixelsTypedouble,
+                          'complex_': PixelsTypecomplex,
+                          'complex64': PixelsTypecomplex}
                 dType = firstPlane.dtype.name
                 if dType not in pTypes:  # try to look up any not named above
                     pType = dType
@@ -4415,6 +4429,53 @@ class _BlitzGateway (object):
         finally:
             search.close()
         return rv
+
+    def getThumbnailSet(self, image_ids, max_size=64):
+        """
+        Retrieves a number of thumbnails for image sets. If the Thumbnails
+        exist in the on-disk cache they will be returned directly,
+        otherwise they will be created, for more details
+        see ome.api.ThumbnailStore.getThumbnailByLongestSideSet
+
+        :param image_ids:   A list of image ids
+        :param max_size:    The longest side of the image will be used
+                            to calculate the size for the smaller side
+                            in order to keep the aspect ratio of
+                            the original image.
+        :return:            dictionary of strings holding a rendered JPEG
+                            of the thumbnails.
+        """
+        tb = None
+        _resp = dict()
+        try:
+            ctx = self.SERVICE_OPTS.copy()
+            if ctx.getOmeroGroup() is None:
+                ctx.setOmeroGroup(-1)
+            tb = self.createThumbnailStore()
+            p = omero.sys.ParametersI().addIds(image_ids)
+            sql = """select new map(
+                        i.id as im_id, p.id as pix_id
+                     )
+                     from Pixels as p join p.image as i
+                     where i.id in (:ids) """
+
+            img_pixel_ids = self.getQueryService().projection(
+                sql, p, ctx)
+            _temp = dict()
+            for e in img_pixel_ids:
+                e = unwrap(e)
+                _temp[e[0]['pix_id']] = e[0]['im_id']
+
+            thumbs_map = tb.getThumbnailByLongestSideSet(
+                rint(max_size), list(_temp), ctx)
+            for (pix, thumb) in thumbs_map.items():
+                _resp[_temp[pix]] = thumb
+        except Exception:
+            logger.error(traceback.format_exc())
+        finally:  # pragma: no cover
+            if tb is not None:
+                tb.close()
+        return _resp
 
 
 class OmeroGatewaySafeCallWrapper(object):  # pragma: no cover
@@ -5474,6 +5535,48 @@ class MapAnnotationWrapper (AnnotationWrapper):
 AnnotationWrapper._register(MapAnnotationWrapper)
 
 
+class _RoiWrapper (BlitzObjectWrapper):
+    """
+    omero_model_ExperimenterI class wrapper extends BlitzObjectWrapper.
+    """
+    OMERO_CLASS = 'Roi'
+    # TODO: test listChildren() to use ShapeWrapper? or remove?
+    CHILD_WRAPPER_CLASS = 'ShapeWrapper'
+
+    @classmethod
+    def _getQueryString(cls, opts=None):
+        """
+        Extend base query to handle loading of Shapes.
+        Returns a tuple of (query, clauses, params).
+        Supported opts: 'load_shapes': boolean.
+                        'image': <image_id> to filter by Image
+
+        :param opts:        Dictionary of optional parameters.
+        :return:            Tuple of string, list, ParametersI
+        """
+        query, clauses, params = super(
+            _RoiWrapper, cls)._getQueryString(opts)
+        if opts is None:
+            opts = {}
+        if opts.get('load_shapes'):
+            query += ' left outer join fetch obj.shapes'
+        if 'image' in opts:
+            clauses.append('obj.image.id = :image_id')
+            params.add('image_id', rlong(opts['image']))
+        return (query, clauses, params)
+
+RoiWrapper = _RoiWrapper
+
+
+class _ShapeWrapper (BlitzObjectWrapper):
+    """
+    omero_model_ShapeI class wrapper extends BlitzObjectWrapper.
+    """
+    OMERO_CLASS = 'Shape'
+
+ShapeWrapper = _ShapeWrapper
+
+
 class _EnumerationWrapper (BlitzObjectWrapper):
 
     def getType(self):
@@ -6298,7 +6401,9 @@ class _WellWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         Extend base query to handle filtering of Wells by Plate.
         Returns a tuple of (query, clauses, params).
         Supported opts: 'plate': <plate_id> to filter by Plate
-                        'load_images': <bool> to load wellSamples and images
+                        'load_images': <bool> to load WellSamples and Images
+                        'load_pixels': <bool> to load Image Pixels
+                        'load_channels': <bool> to load Pixels and Channels
 
         :param opts:        Dictionary of optional parameters.
         :return:            Tuple of string, list, ParametersI
@@ -6952,14 +7057,14 @@ class _PixelsWrapper (BlitzObjectWrapper):
         import numpy
         from struct import unpack
 
-        pixelTypes = {"int8": ['b', numpy.int8],
-                      "uint8": ['B', numpy.uint8],
-                      "int16": ['h', numpy.int16],
-                      "uint16": ['H', numpy.uint16],
-                      "int32": ['i', numpy.int32],
-                      "uint32": ['I', numpy.uint32],
-                      "float": ['f', numpy.float32],
-                      "double": ['d', numpy.float64]}
+        pixelTypes = {PixelsTypeint8: ['b', numpy.int8],
+                      PixelsTypeuint8: ['B', numpy.uint8],
+                      PixelsTypeint16: ['h', numpy.int16],
+                      PixelsTypeuint16: ['H', numpy.uint16],
+                      PixelsTypeint32: ['i', numpy.int32],
+                      PixelsTypeuint32: ['I', numpy.uint32],
+                      PixelsTypefloat: ['f', numpy.float32],
+                      PixelsTypedouble: ['d', numpy.float64]}
 
         rawPixelsStore = self._prepareRawPixelsStore()
         sizeX = self.sizeX
@@ -7249,9 +7354,14 @@ class _ChannelWrapper (BlitzObjectWrapper):
         if si is None:
             logger.info("getStatsInfo() is null. See #9695")
             try:
-                minVals = {'int8': -128, 'uint8': 0, 'int16': -32768,
-                           'uint16': 0, 'int32': -32768, 'uint32': 0,
-                           'float': -32768, 'double': -32768}
+                minVals = {PixelsTypeint8: -128,
+                           PixelsTypeuint8: 0,
+                           PixelsTypeint16: -32768,
+                           PixelsTypeuint16: 0,
+                           PixelsTypeint32: -32768,
+                           PixelsTypeuint32: 0,
+                           PixelsTypefloat: -32768,
+                           PixelsTypedouble: -32768}
                 pixtype = self._obj.getPixels(
                     ).getPixelsType().getValue().getValue()
                 return minVals[pixtype]
@@ -7270,9 +7380,14 @@ class _ChannelWrapper (BlitzObjectWrapper):
         if si is None:
             logger.info("getStatsInfo() is null. See #9695")
             try:
-                maxVals = {'int8': 127, 'uint8': 255, 'int16': 32767,
-                           'uint16': 65535, 'int32': 32767, 'uint32': 65535,
-                           'float': 32767, 'double': 32767}
+                maxVals = {PixelsTypeint8: 127,
+                           PixelsTypeuint8: 255,
+                           PixelsTypeint16: 32767,
+                           PixelsTypeuint16: 65535,
+                           PixelsTypeint32: 32767,
+                           PixelsTypeuint32: 65535,
+                           PixelsTypefloat: 32767,
+                           PixelsTypedouble: 32767}
                 pixtype = self._obj.getPixels(
                     ).getPixelsType().getValue().getValue()
                 return maxVals[pixtype]
@@ -10348,6 +10463,8 @@ def refreshWrappers():
                            "plateacquisition": PlateAcquisitionWrapper,
                            "acquisition": PlateAcquisitionWrapper,
                            "well": WellWrapper,
+                           "roi": RoiWrapper,
+                           "shape": ShapeWrapper,
                            "experimenter": ExperimenterWrapper,
                            "experimentergroup": ExperimenterGroupWrapper,
                            "originalfile": OriginalFileWrapper,

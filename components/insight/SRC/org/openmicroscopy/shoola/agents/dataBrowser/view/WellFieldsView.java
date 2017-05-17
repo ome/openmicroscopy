@@ -149,11 +149,10 @@ class WellFieldsView
                 }
                 else if (WellFieldsCanvas.VIEW_PROPERTY.equals(evt
                         .getPropertyName())) {
-                    List<WellSampleNode> selection = (List<WellSampleNode>) evt
+                    WellSampleNode selection = (WellSampleNode) evt
                             .getNewValue();
-                    if (!selection.isEmpty()) {
-                        WellSampleNode n = selection.get(0);
-                        controller.viewDisplay(n);
+                    if (selection != null) {
+                        controller.viewDisplay(selection);
                     }
                 }
             }

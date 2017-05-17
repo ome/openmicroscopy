@@ -1,5 +1,5 @@
 /*
- *   Copyright 2010-2014 University of Dundee. All rights reserved.
+ *   Copyright 2010-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -39,10 +39,8 @@ import ome.model.internal.Permissions;
 import ome.parameters.Parameters;
 import ome.security.SecuritySystem;
 import ome.system.EventContext;
+import ome.system.OmeroContext;
 
-/**
- *
- */
 public class ThumbnailCtx
 {
 
@@ -81,6 +79,9 @@ public class ThumbnailCtx
 
     /** OMERO rendering settings service. */
     private IRenderingSettings settingsService;
+
+    /* OMERO application context */
+    private OmeroContext applicationContext;
 
     /** OMERO security system for this session. */
     private SecuritySystem securitySystem;
@@ -143,12 +144,13 @@ public class ThumbnailCtx
      * @param pixelsService OMERO pixels service to use.
      * @param settingsService OMERO rendering settings service to use.
      * @param thumbnailService OMERO thumbnail service to use.
+     * @param applicationContext OMERO application context
      * @param securitySystem OMERO security system for this session.
      * @param userId Current user ID.
      */
     public ThumbnailCtx(IQuery queryService, IUpdate updateService,
             IPixels pixelsService, IRenderingSettings settingsService,
-            ThumbnailService thumbnailService, SecuritySystem securitySystem,
+            ThumbnailService thumbnailService, OmeroContext applicationContext, SecuritySystem securitySystem,
             long userId)
     {
         this.queryService = queryService;
@@ -156,6 +158,7 @@ public class ThumbnailCtx
         this.pixelsService = pixelsService;
         this.settingsService = settingsService;
         this.thumbnailService = thumbnailService;
+        this.applicationContext = applicationContext;
         this.securitySystem = securitySystem;
         this.userId = userId;
     }
@@ -248,17 +251,16 @@ public class ThumbnailCtx
         // Now check to see if we're in a state where missing settings requires
         // us to use the owner's settings (we're "graph critical") and load
         // them if possible.
-        if (pixelsIdsWithoutSettings.size() > 0
-            && isExtendedGraphCritical(pixelsIdsWithoutSettings))
-        {
-            settingsList =
-                bulkLoadOwnerRenderingSettings(pixelsIdsWithoutSettings);
-            for (RenderingDef settings : settingsList)
-            {
-                prepareRenderingSettings(settings, settings.getPixels());
+        new PerGroupActor(applicationContext, queryService, securitySystem.getEventContext().getCurrentEventId()) {
+            @Override
+            protected void actOnOneGroup(Set<Long> pixelsIds) {
+                if (isExtendedGraphCritical(pixelsIds)) {
+                    for (final RenderingDef settings : bulkLoadOwnerRenderingSettings(pixelsIds)) {
+                        prepareRenderingSettings(settings, settings.getPixels());
+                    }
+                }
             }
-            pixelsIdsWithoutSettings = getPixelsIdsWithoutSettings(pixelsIds);
-        }
+        }.actOnByGroup(pixelsIdsWithoutSettings);
     }
 
     /**
@@ -381,7 +383,7 @@ public class ThumbnailCtx
     {
         // Now check to see if we're in a state where missing rendering
         // settings and our state requires us to not save.
-        if (isExtendedGraphCritical(pixelsIds))
+        if (securitySystem.getEventContext().getCurrentGroupId() >= 0 && isExtendedGraphCritical(pixelsIds))
         {
             // TODO: Could possibly "su" to the user and create a thumbnail
             return;
@@ -391,18 +393,25 @@ public class ThumbnailCtx
         Set<Long> pixelsIdsWithoutSettings =
             getPixelsIdsWithoutSettings(pixelsIds);
         int count = pixelsIdsWithoutSettings.size();
-        if (count > 0)
-        {
+        if (count > 0) {
             log.info(count + " pixels without settings");
-            Set<Long> imageIds = settingsService.resetDefaultsInSet(
-                    Pixels.class, pixelsIdsWithoutSettings);
-            if (count != imageIds.size())
-            {
+            final List<Long> allImageIds = new ArrayList<>(count);
+            new PerGroupActor(applicationContext, queryService, securitySystem.getEventContext().getCurrentEventId()) {
+                @Override
+                protected void actOnOneGroup(Set<Long> pixelsIds) {
+                    if (isExtendedGraphCritical(pixelsIds)) {
+                        return;
+                    }
+                    final Set<Long> imageIds = settingsService.resetDefaultsInSet(Pixels.class, pixelsIds);
+                    loadAndPrepareRenderingSettings(Image.class, imageIds);
+                    allImageIds.addAll(imageIds);
+                }
+            }.actOnByGroup(pixelsIdsWithoutSettings);
+            if (count != allImageIds.size()) {
                 log.warn(String.format(
                         "Return value ID count %d does not match pixels " +
-                        "without settings count %d", imageIds.size(), count));
+                        "without settings count %d", allImageIds.size(), count));
             }
-            loadAndPrepareRenderingSettings(Image.class, imageIds);
         }
         s1.stop();
     }
@@ -508,6 +517,30 @@ public class ThumbnailCtx
     }
 
     /**
+     * Check if a {@link Pixels} is extended graph critical in its own group's context.
+     * @author m.t.b.carroll@dundee.ac.uk
+     * @since 5.3.1
+     */
+    private class ExtendedGraphCriticalCheck extends PerGroupActor {
+        private boolean isCritical;
+
+        private ExtendedGraphCriticalCheck(long pixelsId) {
+            super(applicationContext, queryService, securitySystem.getEventContext().getCurrentEventId());
+            if (securitySystem.getEventContext().getCurrentShareId() == null) {
+                actOnByGroup(Collections.singleton(pixelsId));
+            } else {
+                /* in a share */
+                isCritical = true;
+            }
+        }
+
+        @Override
+        protected void actOnOneGroup(Set<Long> pixelsIds) {
+            isCritical = isExtendedGraphCritical(pixelsIds);
+        }
+    }
+
+    /**
      * Checks to see if a thumbnail is in the on disk cache or not.
      *
      * @param pixelsId The Pixels set the thumbnail is for.
@@ -524,8 +557,7 @@ public class ThumbnailCtx
             boolean dirtyMetadata = dirtyMetadata(pixelsId);
             boolean thumbnailExists =
                 thumbnailService.getThumbnailExists(metadata);
-            boolean isExtendedGraphCritical =
-                isExtendedGraphCritical(Collections.singleton(pixelsId));
+            final boolean isExtendedGraphCritical = new ExtendedGraphCriticalCheck(pixelsId).isCritical;
             Long metadataOwnerId = metadata.getDetails().getOwner().getId();
             Long sessionUserId = securitySystem.getEffectiveUID();
             boolean isMyMetadata = sessionUserId.equals(metadataOwnerId);
@@ -643,7 +675,7 @@ public class ThumbnailCtx
      * dimension pools. We're extended graph critical if:
      * <ul>
      *   <li>
-     *      <code>isGraphGritical() == true</code> and the Pixels set does not
+     *      <code>isGraphCritical() == true</code> and the Pixels set does not
      *      belong to us.
      *   </li>
      *   <li>
@@ -951,7 +983,7 @@ public class ThumbnailCtx
     {
         StopWatch s1 = new Slf4JStopWatch(
                 "omero.loadMetadataByDimensionPool");
-        for (Dimension dimensions : dimensionPools.keySet())
+        for (final Dimension dimensions : dimensionPools.keySet())
         {
             Set<Long> pool = dimensionPools.get(dimensions);
             // First populate our hash maps asking for our metadata.
@@ -964,18 +996,17 @@ public class ThumbnailCtx
             // Now check to see if we're in a state where missing metadata
             // requires us to use the owner's metadata (we're "graph critical")
             // and load them if possible.
-            Set<Long> pixelsIdsWithoutMetadata =
-                getPixelsIdsWithoutMetadata(pool);
-            if (pixelsIdsWithoutMetadata.size() > 0
-                && isExtendedGraphCritical(pixelsIdsWithoutMetadata))
-            {
-                thumbnailList = bulkLoadOwnerMetadata(
-                        dimensions, pixelsIdsWithoutMetadata);
-                for (Thumbnail metadata : thumbnailList)
-                {
-                    prepareMetadata(metadata, metadata.getPixels().getId());
+            new PerGroupActor(applicationContext, queryService, securitySystem.getEventContext().getCurrentEventId()) {
+                @Override
+                protected void actOnOneGroup(Set<Long> pixelsIds) {
+                    if (isExtendedGraphCritical(pixelsIds)) {
+                        final List<Thumbnail> thumbnailList = bulkLoadOwnerMetadata(dimensions, pixelsIds);
+                        for (final Thumbnail metadata : thumbnailList) {
+                            prepareMetadata(metadata, metadata.getPixels().getId());
+                        }
+                    }
                 }
-            }
+            }.actOnByGroup(getPixelsIdsWithoutMetadata(pool));
         }
         s1.stop();
     }
@@ -1047,45 +1078,45 @@ public class ThumbnailCtx
      * requested dimensions from.
      */
     private void createMissingThumbnailMetadata(
-            Map<Dimension, Set<Long>> dimensionPools)
+            final Map<Dimension, Set<Long>> dimensionPools)
     {
         // Now check to see if we're in a state where missing metadata
         // and our state requires us to not save.
-        if (isExtendedGraphCritical(dimensionPools))
-        {
+        if (securitySystem.getEventContext().getCurrentGroupId() >= 0 && isExtendedGraphCritical(dimensionPools)) {
             // TODO: Could possibly "su" to the user and create a thumbnail
             return;
         }
         StopWatch s1 = new Slf4JStopWatch(
                 "omero.createMissingThumbnailMetadata");
-        List<Thumbnail> toSave = new ArrayList<Thumbnail>();
-        Map<Dimension, Set<Long>> temporaryDimensionPools =
-            new HashMap<Dimension, Set<Long>>();
         Set<Long> pixelsIdsWithoutMetadata =
             getPixelsIdsWithoutMetadata(pixelsIdPixelsMap.keySet());
-        for (Long pixelsId : pixelsIdsWithoutMetadata)
-        {
-            Pixels pixels = pixelsIdPixelsMap.get(pixelsId);
-            for (Dimension dimension : dimensionPools.keySet())
-            {
-                Set<Long> pool = dimensionPools.get(dimension);
-                if (pool.contains(pixelsId))
-                {
-                    toSave.add(createThumbnailMetadata(pixels, dimension));
-                    addToDimensionPool(
-                            temporaryDimensionPools, pixels, dimension);
-                    break;
+        new PerGroupActor(applicationContext, queryService, securitySystem.getEventContext().getCurrentEventId()) {
+            @Override
+            protected void actOnOneGroup(Set<Long> pixelsIds) {
+                final List<Thumbnail> toSave = new ArrayList<Thumbnail>();
+                final Map<Dimension, Set<Long>> temporaryDimensionPools = new HashMap<Dimension, Set<Long>>();
+                for (final Long pixelsId : pixelsIds) {
+                    final Pixels pixels = pixelsIdPixelsMap.get(pixelsId);
+                    for (final Dimension dimension : dimensionPools.keySet()) {
+                        final Set<Long> pool = dimensionPools.get(dimension);
+                        if (pool.contains(pixelsId)) {
+                            toSave.add(createThumbnailMetadata(pixels, dimension));
+                            addToDimensionPool(temporaryDimensionPools, pixels, dimension);
+                            break;
+                        }
+                    }
+                }
+                if (isExtendedGraphCritical(temporaryDimensionPools)) {
+                    return;
+                }
+                log.info("New thumbnail object set size: " + toSave.size());
+                log.info("Dimension pool size: " + temporaryDimensionPools.size());
+                if (!toSave.isEmpty()) {
+                    updateService.saveAndReturnIds(toSave.toArray(new Thumbnail[toSave.size()]));
+                    loadMetadataByDimensionPool(temporaryDimensionPools);
                 }
             }
-        }
-        log.info("New thumbnail object set size: " + toSave.size());
-        log.info("Dimension pool size: " + temporaryDimensionPools.size());
-        if (toSave.size() > 0)
-        {
-            updateService.saveAndReturnIds(
-                    toSave.toArray(new Thumbnail[toSave.size()]));
-            loadMetadataByDimensionPool(temporaryDimensionPools);
-        }
+        }.actOnByGroup(pixelsIdsWithoutMetadata);
         s1.stop();
     }
 

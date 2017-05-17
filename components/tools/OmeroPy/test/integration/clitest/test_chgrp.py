@@ -421,7 +421,8 @@ class TestChgrpRoot(RootCLITest):
         # create a new group which the current root user is not member of
         group = self.new_group()
 
-        # try to move the image to the new group
+        # move the image to the new group
         self.args += ['%s' % group.id.val, '/Image:%s' % new_image.id.val]
-        with pytest.raises(NonZeroReturnCode):
-            self.cli.invoke(self.args, strict=True)
+        self.cli.invoke(self.args, strict=True)
+        img = self.query.get('Image', new_image.id.val, all_grps)
+        assert img.details.group.id.val == group.id.val
