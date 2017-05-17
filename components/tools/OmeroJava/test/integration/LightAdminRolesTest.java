@@ -392,8 +392,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
          * are not tested in this part of the test, the canLink() is always true
          * for the owner of the objects (the normalUser as who the light admin is
          * sudoed for) */
-        Assert.assertEquals(getCurrentPermissions(sentProj).canLink(), true);
-        Assert.assertEquals(getCurrentPermissions(sentDat).canLink(), true);
+        Assert.assertTrue(getCurrentPermissions(sentProj).canLink());
+        Assert.assertTrue(getCurrentPermissions(sentDat).canLink());
         ProjectDatasetLink projectDatasetLink = linkProjectDataset(sentProj, sentDat);
 
         /* Now check the ownership of image and links
@@ -489,8 +489,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         * would delete the whole hierarchy, which was successfully tested
         * during writing of this test. The order of the below delete() commands
         * is intentional, as the ability to delete the links and P/D/I separately is
-        * tested in this way.Also check that the canDelete boolean
-        * on the object retreived by the light admin matches the deletePassing
+        * tested in this way. Also check that the canDelete boolean
+        * on the object retrieved by the light admin matches the deletePassing
         * boolean.*/
        Assert.assertEquals(getCurrentPermissions(datasetImageLink).canDelete(), deletePassing);
        doChange(client, factory, Requests.delete().target(datasetImageLink).build(), deletePassing);
@@ -808,7 +808,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
          * in such case.*/
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         if (isSudoing) {
-            Assert.assertEquals(getCurrentPermissions(image).canChown(), false);
+            Assert.assertFalse(getCurrentPermissions(image).canChown());
             doChange(client, factory, Requests.chown().target(image).toUser(anotherUser.userId).build(), false);
             long imageGroupId = ((RLong) iQuery.projection(
                     "SELECT details.group.id FROM Image i WHERE i.id = :id",
@@ -938,7 +938,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
          * captured in the boolean importNotYourGroupAndChownExpectSuccess */
         if (createDatasetImportNotYourGroupAndChownExpectSuccess) {
             /* Also check that the canChown value on the dataset is true in these cases.*/
-            Assert.assertEquals(getCurrentPermissions(sentDat).canChown(), true);
+            Assert.assertTrue(getCurrentPermissions(sentDat).canChown());
             doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(), true);
             final long remoteFileGroupId = ((RLong) iQuery.projection(
                     "SELECT details.group.id FROM OriginalFile o WHERE o.id = :id",
@@ -965,7 +965,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             Assert.assertEquals(remoteFileGroupId, normalUser.groupId);
         } else {
             /* Also check that the canChown value on the dataset is false in these cases.*/
-            Assert.assertEquals(getCurrentPermissions(sentDat).canChown(), false);
+            Assert.assertFalse(getCurrentPermissions(sentDat).canChown());
             doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(), false);
             final long remoteFileGroupId = ((RLong) iQuery.projection(
                     "SELECT details.group.id FROM OriginalFile o WHERE o.id = :id",
@@ -1036,18 +1036,18 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         DatasetImageLink linkOfDatasetImage = new DatasetImageLinkI();
         ProjectDatasetLink linkOfProjectDataset = new ProjectDatasetLinkI();
         if (isExpectLinkingSuccess) {
-            /*Check that the canLink value on all the objects to be linked is true,
+            /* Check that the canLink value on all the objects to be linked is true,
              * then create the links.*/
-            Assert.assertEquals(getCurrentPermissions(sentImage).canLink(), true);
-            Assert.assertEquals(getCurrentPermissions(sentDat).canLink(), true);
-            Assert.assertEquals(getCurrentPermissions(sentProj).canLink(), true);
+            Assert.assertTrue(getCurrentPermissions(sentImage).canLink());
+            Assert.assertTrue(getCurrentPermissions(sentDat).canLink());
+            Assert.assertTrue(getCurrentPermissions(sentProj).canLink());
             linkOfDatasetImage = linkDatasetImage(sentDat, sentImage);
             linkOfProjectDataset = linkProjectDataset(sentProj, sentDat);
         } else {
-            /*Check that the canLink value on all the objects to be linked is false.*/
-            Assert.assertEquals(getCurrentPermissions(sentImage).canLink(), false);
-            Assert.assertEquals(getCurrentPermissions(sentDat).canLink(), false);
-            Assert.assertEquals(getCurrentPermissions(sentProj).canLink(), false);
+            /* Check that the canLink value on all the objects to be linked is false.*/
+            Assert.assertFalse(getCurrentPermissions(sentImage).canLink());
+            Assert.assertFalse(getCurrentPermissions(sentDat).canLink());
+            Assert.assertFalse(getCurrentPermissions(sentProj).canLink());
             return; /*links could not be created, finish the test */
         }
 
@@ -1056,7 +1056,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
          * needs additonally the Chown permission. Note that the links
          * have to be transferred step by step, as the Chown feature
          * of whole hierarchy does not transfer links owned by non-owners
-         * of the P/D?I objects. Also check that the canChown value on all
+         * of the P/D/I objects. Also check that the canChown value on all
          * the objects to be chowned is matching the isExpectSuccessLinkAndChown.*/
         Assert.assertEquals(getCurrentPermissions(linkOfDatasetImage).canChown(), isExpectSuccessLinkAndChown);
         Chown2 chown = Requests.chown().target(linkOfDatasetImage).toUser(normalUser.userId).build();
@@ -1158,7 +1158,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
          * Note that although the chgrp action into the group of normalUser will fail,
          * the light admin could be chgrp the dataset into a group where he is a member,
          * and thus the canChgrp must be "true".*/
-        Assert.assertEquals(getCurrentPermissions(sentDat).canChgrp(), true);
+        Assert.assertTrue(getCurrentPermissions(sentDat).canChgrp());
 
         /* retrieve again the image, dataset and link */
         long datasetGroupId =((RLong) iQuery.projection(
@@ -1201,7 +1201,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
          * and the link too.*/
         if (importYourGroupAndChgrpAndChownExpectSuccess) {/* whole workflow2 succeeded */
             /* Check the value of canChown on the dataset is true in this case.*/
-            Assert.assertEquals(getCurrentPermissions(sentDat).canChown(), true);
+            Assert.assertTrue(getCurrentPermissions(sentDat).canChown());
             doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(), true);
             remoteFileGroupId = ((RLong) iQuery.projection(
                     "SELECT details.group.id FROM OriginalFile o WHERE o.id = :id",
@@ -1230,7 +1230,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         } else if (permChown) {
             /* even if the workflow2 as a whole failed, the chown might be successful */
             /* Check the value of canChown on the dataset is true in this case.*/
-            Assert.assertEquals(getCurrentPermissions(sentDat).canChown(), true);
+            Assert.assertTrue(getCurrentPermissions(sentDat).canChown());
             doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(), true);
             remoteFileGroupId = ((RLong) iQuery.projection(
                     "SELECT details.group.id FROM OriginalFile o WHERE o.id = :id",
@@ -1260,7 +1260,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             /* as workflow2 as a whole failed, in case the chgrp was successful,
              * the chown must be failing */
             /* Check the value of canChown on the dataset is false in this case.*/
-            Assert.assertEquals(getCurrentPermissions(sentDat).canChown(), false);
+            Assert.assertFalse(getCurrentPermissions(sentDat).canChown());
             doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(), false);
             remoteFileGroupId = ((RLong) iQuery.projection(
                     "SELECT details.group.id FROM OriginalFile o WHERE o.id = :id",
@@ -1289,7 +1289,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         } else {
             /* the remaining option when the previous chgrp as well as this chown fail */
             /* Check the value of canChown on the dataset is false in this case.*/
-            Assert.assertEquals(getCurrentPermissions(sentDat).canChown(), false);
+            Assert.assertFalse(getCurrentPermissions(sentDat).canChown());
             doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(), false);
             remoteFileGroupId = ((RLong) iQuery.projection(
                     "SELECT details.group.id FROM OriginalFile o WHERE o.id = :id",
@@ -1399,7 +1399,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         assertOwnedBy(sentImage1, recipient);
         assertOwnedBy(linkOfDatasetImage1, recipient);
         assertOwnedBy(linkOfProjectDataset1, recipient);
-        /*check ownership of the second hierarchy set*/
+        /* Check ownership of the second hierarchy set*/
         assertOwnedBy(sentProj2, recipient);
         assertOwnedBy(sentDat2, recipient);
         assertOwnedBy(sentImage2, recipient);
@@ -1466,13 +1466,13 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             roi = (Roi) iUpdate.saveAndReturnObject(roi);
             /* Check the value of canAnnotate on the sentImage.
              * The value must be true as the ROI can be saved.*/
-            Assert.assertEquals(getCurrentPermissions(sentImage).canAnnotate(), true);
+            Assert.assertTrue(getCurrentPermissions(sentImage).canAnnotate());
             Assert.assertTrue(isExpectSuccessCreateROIRndSettings);
         } catch (SecurityViolation sv) {
             /* will not work in private group or when the permissions are insufficient */
             /* Check the value of canAnnotate on the sentImage.
              * The value must be false as the ROI cannot be saved.*/
-            Assert.assertEquals(getCurrentPermissions(sentImage).canAnnotate(), false);
+            Assert.assertFalse(getCurrentPermissions(sentImage).canAnnotate());
             Assert.assertFalse(isExpectSuccessCreateROIRndSettings);
         }
 
@@ -1483,13 +1483,13 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                     Arrays.asList(pixelsOfImage.getId().getValue()));
             /* Check the value of canAnnotate on the sentImage.
              * The value must be true as the Rnd settings can be saved.*/
-            Assert.assertEquals(getCurrentPermissions(sentImage).canAnnotate(), true);
+            Assert.assertTrue(getCurrentPermissions(sentImage).canAnnotate());
             Assert.assertTrue(isExpectSuccessCreateROIRndSettings);
         } catch (SecurityViolation sv) {
             /* will not work in private group or when the permissions are insufficient */
             /* Check the value of canAnnotate on the sentImage.
              * The value must be false as the Rnd settings cannot be saved.*/
-            Assert.assertEquals(getCurrentPermissions(sentImage).canAnnotate(), false);
+            Assert.assertFalse(getCurrentPermissions(sentImage).canAnnotate());
             Assert.assertFalse(isExpectSuccessCreateROIRndSettings);
         }
         /* retrieve the image corresponding to the roi and Rnd settings
@@ -1602,11 +1602,11 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         try {
             link = (ImageAnnotationLink) iUpdate.saveAndReturnObject(link);
             /* Check the value of canAnnotate on the image is true in this case.*/
-            Assert.assertEquals(getCurrentPermissions(sentImage).canAnnotate(), true);
+            Assert.assertTrue(getCurrentPermissions(sentImage).canAnnotate());
             Assert.assertTrue(isExpectSuccessLinkFileAttachemnt);
         } catch (SecurityViolation sv) {
             /* Check the value of canAnnotate on the image is false in this case.*/
-            Assert.assertEquals(getCurrentPermissions(sentImage).canAnnotate(), false);
+            Assert.assertFalse(getCurrentPermissions(sentImage).canAnnotate());
             Assert.assertFalse(isExpectSuccessLinkFileAttachemnt);
             return; /* finish the test in case we have no Link */
         }
