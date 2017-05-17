@@ -2757,6 +2757,8 @@ def object_table_query(request, objtype, objid, conn=None, **kwargs):
             ann = annotation
             fileId = annotation['file']
             break
+    if ann is None:
+        return dict(error='Could not retrieve matching bulk annotation table')
     tableData = _table_query(request, fileId, conn, **kwargs)
     tableData['id'] = fileId
     tableData['annId'] = ann['id']
