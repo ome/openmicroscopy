@@ -66,7 +66,6 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -957,7 +956,7 @@ public class ManagedRepositoryTest extends AbstractServerImportTest {
      * @param parentsSecond if to set {@code parents == true} in <em>re</em>creating the directory
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "every pair of Booleans")
+    @Test(dataProvider = "test cases using two Boolean arguments")
     public void testRecreateDirectory(boolean parentsFirst, boolean parentsSecond) throws Exception {
         logRootIntoGroup();
         setRepo();
@@ -969,18 +968,5 @@ public class ManagedRepositoryTest extends AbstractServerImportTest {
         } catch (ResourceError e) {
             Assert.assertFalse(parentsSecond);
         }
-    }
-
-    /**
-     * @return every combination of Boolean pairs
-     */
-    @DataProvider(name = "every pair of Booleans")
-    public Object[][] provideEveryPairOfBooleans() {
-        return new Object[][] {
-                new Boolean[] {false, false},
-                new Boolean[] {false, true},
-                new Boolean[] {true,  false},
-                new Boolean[] {true,  true}
-        };
     }
 }
