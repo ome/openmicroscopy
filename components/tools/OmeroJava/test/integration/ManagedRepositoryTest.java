@@ -60,7 +60,6 @@ import omero.model.ExperimenterI;
 import omero.model.OriginalFile;
 import omero.sys.EventContext;
 import omero.sys.Parameters;
-import omero.sys.Roles;
 import omero.util.TempFileManager;
 
 import org.testng.Assert;
@@ -889,7 +888,6 @@ public class ManagedRepositoryTest extends AbstractServerImportTest {
     @Test
     public void testMakeFilesetDirectoryNormalUser() throws Exception {
         /* import an image */
-        final Roles roles = iAdmin.getSecurityRoles();  // TODO will be a field provided by superclass
         final File uniquePath = tempFileManager.createPath(UUID.randomUUID().toString(), null, true);
         final File file = ensureFileExists(uniquePath, UUID.randomUUID().toString() + ".fake");
         final ImportLocation importLocation = importFileset(Collections.singletonList(file.getAbsolutePath()));
@@ -930,7 +928,6 @@ public class ManagedRepositoryTest extends AbstractServerImportTest {
     @Test
     public void testMakeArbitraryDirectoryAdminUser() throws Exception {
         /* set up the new user as an administrator */
-        final Roles roles = iAdmin.getSecurityRoles();  // TODO will be a field provided by superclass
         final EventContext ec = iAdmin.getEventContext();
         root.getSession().getAdminService().addGroups(new ExperimenterI(ec.userId, false),
                 Collections.<ExperimenterGroup>singletonList(new ExperimenterGroupI(roles.systemGroupId, false)));
