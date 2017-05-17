@@ -53,7 +53,6 @@ import com.google.common.collect.Sets;
 import ome.model.IObject;
 import ome.model.core.OriginalFile;
 import ome.model.internal.Permissions;
-import ome.model.jobs.Job;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.ACLVoter;
@@ -1280,22 +1279,6 @@ public class GraphTraversal {
     }
 
     /**
-     * Determine if the given {@link IObject} class is the type of a job.
-     * The basic ACL voter wrongly asserts that normal users may not delete their own jobs.
-     * @param className a class name
-     * @return if the class is a job type
-     * @throws GraphException if {@code className} does not name an accessible class
-     */
-    private boolean isJobType(String className) throws GraphException {
-        try {
-            final Class<? extends IObject> actualClass = (Class<? extends IObject>) Class.forName(className);
-            return Job.class.isAssignableFrom(actualClass);
-        } catch (ClassNotFoundException e) {
-            throw new GraphException("no model object class named " + className);
-        }
-    }
-
-    /**
      * Assert that the processor may operate upon the given objects with {@link Processor#processInstances(String, Collection)}.
      * Never fails for system types.
      * @param className a class name
@@ -1304,9 +1287,7 @@ public class GraphTraversal {
      */
     private void assertMayBeProcessed(String className, Collection<Long> ids) throws GraphException {
         final Set<CI> objects = idsToCIs(className, ids);
-        if (!isJobType(className)) {
-            assertPermissions(objects, processor.getRequiredPermissions());
-        }
+        assertPermissions(objects, processor.getRequiredPermissions());
         if (isCheckUserPermissions) {
             for (final CI object : Sets.difference(objects, planning.overrides)) {
                 try {
@@ -1325,9 +1306,7 @@ public class GraphTraversal {
      * @throws GraphException if the user may not delete all of the objects
      */
     private void assertMayBeDeleted(String className, Collection<Long> ids) throws GraphException {
-        if (!isJobType(className)) {
-            assertPermissions(idsToCIs(className, ids), Collections.singleton(Ability.DELETE));
-        }
+        assertPermissions(idsToCIs(className, ids), Collections.singleton(Ability.DELETE));
     }
 
     /**
@@ -1337,9 +1316,7 @@ public class GraphTraversal {
      * @throws GraphException if the user may not update all of the objects
      */
     private void assertMayBeUpdated(String className, Collection<Long> ids) throws GraphException {
-        if (!isJobType(className)) {
-            assertPermissions(idsToCIs(className, ids), Collections.singleton(Ability.UPDATE));
-        }
+        assertPermissions(idsToCIs(className, ids), Collections.singleton(Ability.UPDATE));
     }
 
     /**
