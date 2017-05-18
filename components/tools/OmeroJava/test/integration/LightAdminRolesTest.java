@@ -434,12 +434,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
        Dataset dat = mmFactory.simpleDataset();
        Project sentProj = null;
        Dataset sentDat = null;
-       try {
-           sentProj = (Project) iUpdate.saveAndReturnObject(proj);
-           sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
-       } catch (ServerError se) {
-           throw se;
-       }
+       sentProj = (Project) iUpdate.saveAndReturnObject(proj);
+       sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
        /* import an image for the normalUser into the normalUser's default group 
         * and target it into the created Dataset*/
        final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
