@@ -373,7 +373,7 @@ public class BrowseFacilityTest extends GatewayTest {
      }
     
     @Test
-    public void testGeWells() throws DSOutOfServiceException, DSAccessException {
+    public void testGetWells() throws DSOutOfServiceException, DSAccessException {
         Collection<WellData> wells = browseFacility.getWells(rootCtx, wellIds);
         Assert.assertEquals(wells.size(), wellIds.size());
         ArrayList<Long> loadedIds = new ArrayList<Long>();
