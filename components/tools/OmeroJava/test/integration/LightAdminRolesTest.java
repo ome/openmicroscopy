@@ -1343,9 +1343,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             assertInGroup((new DatasetImageLinkI (datasetImageLinkId, false)), lightAdmin.groupId);
         }
         /* now, having moved the dataset, image, original file and link in the group of normalUser,
-         * try to change the ownership of the dataset to the normalUser */
-        /* Chowning the dataset should fail in case you have not both of
-         * isAdmin & Chown permissions which are
+         * try to change the ownership of the dataset to the normalUser.
+         * Chowning the dataset should fail in case you have not Chown permissions which are
          * captured in the boolean importYourGroupAndChgrpAndChownExpectSuccess.
          * Additionally, in this boolean is permChgrp, which was necessary for the
          * previous step of moving the data into normalUser's group.
