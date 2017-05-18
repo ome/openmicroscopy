@@ -1344,16 +1344,15 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         }
         /* now, having moved the dataset, image, original file and link in the group of normalUser,
          * try to change the ownership of the dataset to the normalUser.
-         * Chowning the dataset should fail in case you have not Chown permissions which are
-         * captured in the boolean importYourGroupAndChgrpAndChownExpectSuccess.
-         * Additionally, in this boolean is permChgrp, which was necessary for the
-         * previous step of moving the data into normalUser's group.
+         * Chowning the dataset should fail in case you have not Chown permissions.
          * A successful chowning of the dataset will chown the linked image
-         * and the link too.*/
+         * and the link too. Also check that the canChown boolean on the Dataset must be in
+         * sync with the permChown.*/
+        Assert.assertEquals(getCurrentPermissions(sentDat).canChown(), permChown);
+        doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(), permChown);
+        /* boolean importYourGroupAndChgrpAndChownExpectSuccess
+         * captures permChown and permChgrp. Check the objects ownership and groups.*/
         if (importYourGroupAndChgrpAndChownExpectSuccess) {/* whole workflow2 succeeded */
-            /* Check the value of canChown on the dataset is true in this case.*/
-            Assert.assertTrue(getCurrentPermissions(sentDat).canChown());
-            doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(), true);
             /* image, dataset and link are in the normalUser's group and belong to normalUser */
             assertOwnedBy(remoteFile, normalUser);
             assertInGroup(remoteFile, normalUser.groupId);
@@ -1365,9 +1364,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             assertInGroup((new DatasetImageLinkI (datasetImageLinkId, false)), normalUser.groupId);
         } else if (permChown) {
             /* even if the workflow2 as a whole failed, the chown might be successful */
-            /* Check the value of canChown on the dataset is true in this case.*/
-            Assert.assertTrue(getCurrentPermissions(sentDat).canChown());
-            doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(), true);
             /* the image, dataset and link belong to the normalUser, but is in the light admin's group */
             assertOwnedBy(remoteFile, normalUser);
             assertInGroup(remoteFile, lightAdmin.groupId);
@@ -1380,9 +1376,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         } else if (permChgrp) {
             /* as workflow2 as a whole failed, in case the chgrp was successful,
              * the chown must be failing */
-            /* Check the value of canChown on the dataset is false in this case.*/
-            Assert.assertFalse(getCurrentPermissions(sentDat).canChown());
-            doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(), false);
             /* the image, dataset and link are in normalUser's group but still belong to light admin */
             assertOwnedBy(remoteFile, lightAdmin);
             assertInGroup(remoteFile, normalUser.groupId);
@@ -1394,9 +1387,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             assertInGroup((new DatasetImageLinkI (datasetImageLinkId, false)), normalUser.groupId);
         } else {
             /* the remaining option when the previous chgrp as well as this chown fail */
-            /* Check the value of canChown on the dataset is false in this case.*/
-            Assert.assertFalse(getCurrentPermissions(sentDat).canChown());
-            doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(), false);
             /* the image, dataset and link are in light admin's group and belong to light admin */
             assertOwnedBy(remoteFile, lightAdmin);
             assertInGroup(remoteFile, lightAdmin.groupId);
