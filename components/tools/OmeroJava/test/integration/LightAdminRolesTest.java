@@ -107,7 +107,6 @@ import com.google.common.collect.ImmutableSet;
  * @author p.walczysko@dundee.ac.uk
  * @since 5.4.0
  */
-
 public class LightAdminRolesTest extends AbstractServerImportTest {
 
     private static final TempFileManager TEMPORARY_FILE_MANAGER = new TempFileManager(
