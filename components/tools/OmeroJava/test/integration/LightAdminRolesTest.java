@@ -1787,9 +1787,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      */
     @Test(dataProvider = "isPrivileged cases")
     public void testOfficialScriptDeleteNoSudo(boolean isPrivileged, String groupPermissions) throws Exception {
-        if (groupPermissions.equals("rwrw--")) {
-            throw new SkipException("does not work in read-write group");
-        }
         boolean isExpectSuccessDeleteOfficialScript = isPrivileged;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         List<String> permissions = new ArrayList<String>();
