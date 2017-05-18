@@ -320,13 +320,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(true, permissions);
-        if (isSudoing) {
-            try {
-                sudo(new ExperimenterI(normalUser.userId, false));
-            } catch (SecurityViolation sv) {
-                /* sudo expected to fail if the user is not in system group */
-            }
-        }
+        if (isSudoing) sudo(new ExperimenterI(normalUser.userId, false));
 
         /* First, check that the light admin (=importer As)
          * can create Project and Dataset on behalf of the normalUser
@@ -433,11 +427,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
        if (permDeleteOwned) permissions.add(AdminPrivilegeDeleteOwned.value);
        final EventContext lightAdmin;
        lightAdmin = loginNewAdmin(true, permissions);
-       try {
-           sudo(new ExperimenterI(normalUser.userId, false));
-           }catch (SecurityViolation sv) {
-               throw sv;
-           }
+       sudo(new ExperimenterI(normalUser.userId, false));
        /* create a Dataset and Project being sudoed as normalUser */
        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
        Project proj = mmFactory.simpleProject();
@@ -574,12 +564,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         String savedOriginalName = sentProj.getName().getValue().toString();
         loginUser(lightAdmin);
         /* being the light admin, sudo as the normalUser if this should be the case */
-        if (isSudoing) {
-            try {
-                sudo(new ExperimenterI(normalUser.userId, false));
-            } catch (SecurityViolation sv) {
-            }
-        }
+        if (isSudoing) sudo(new ExperimenterI(normalUser.userId, false));
         /* try to rename the Project as the light admin, either sudoed as normalUser or not */
         final String changedName = "ChangedNameOfLightAdmin";
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
@@ -676,10 +661,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(true, permissions);
-        try {
-            sudo(new ExperimenterI(normalUser.userId, false));
-            }catch (SecurityViolation sv) {
-            }
+        sudo(new ExperimenterI(normalUser.userId, false));
+
         /* take care of workflows which do not use sudo */
         if (!isSudoing) {
             loginUser(lightAdmin);
@@ -793,10 +776,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
 
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(true, permissions);
-        try {
-            sudo(new ExperimenterI(normalUser.userId, false));
-            }catch (SecurityViolation sv) {
-        }
+        sudo(new ExperimenterI(normalUser.userId, false));
+
         /* take care of workflows which do not use sudo */
         if (!isSudoing) {
             loginUser(lightAdmin);
