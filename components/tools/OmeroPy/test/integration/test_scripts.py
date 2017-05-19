@@ -385,8 +385,7 @@ client.closeSession()
         finally:
             impl.cleanup()
 
-    @pytest.mark.intermittent(reason="Minor performance failure",
-                              ticket="11539")
+    @pytest.mark.broken(reason="Minor performance failure", ticket="11539")
     def testParamLoadingPerformanceTicket2285(self):
         root_client = self.new_client(system=True)
         svc = root_client.sf.getScriptService()
