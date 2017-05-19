@@ -186,7 +186,7 @@ public class DiskUsage2I extends DiskUsage2 implements IRequest {
                 return null;
             case 1:
                 final Map.Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> plan =
-                        graphTraversal.planOperation(helper.getSession(), targetMultimap, true, true);
+                        graphTraversal.planOperation(targetMultimap, true, true);
                 targetMultimap.clear();
                 if (plan.getValue().isEmpty()) {
                     graphTraversal.assertNoUnlinking();

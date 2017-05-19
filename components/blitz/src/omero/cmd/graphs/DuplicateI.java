@@ -673,7 +673,7 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
                 final SetMultimap<String, Long> targetMultimap = graphHelper.getTargetMultimap(targetClasses, targetObjects);
                 targetObjectCount += targetMultimap.size();
                 final Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> plan =
-                        graphTraversal.planOperation(helper.getSession(), targetMultimap, true, true);
+                        graphTraversal.planOperation(targetMultimap, true, true);
                 if (plan.getValue().isEmpty()) {
                     graphTraversal.assertNoUnlinking();
                 } else {

@@ -148,7 +148,7 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
                 final SetMultimap<String, Long> targetMultimap = graphHelper.getTargetMultimap(targetClasses, targetObjects);
                 targetObjectCount += targetMultimap.size();
                 final Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> plan =
-                        graphTraversal.planOperation(helper.getSession(), targetMultimap, false, true);
+                        graphTraversal.planOperation(targetMultimap, false, true);
                 if (!plan.getKey().isEmpty()) {
                     final Exception e = new IllegalStateException("deletion does not do anything other than delete");
                     helper.cancel(new ERR(), e, "graph-fail");

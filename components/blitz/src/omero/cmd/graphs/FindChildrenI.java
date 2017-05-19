@@ -174,7 +174,7 @@ public class FindChildrenI extends FindChildren implements IRequest {
                 final SetMultimap<String, Long> targetMultimap = graphHelper.getTargetMultimap(targetClasses, targetObjects);
                 targetObjectCount += targetMultimap.size();
                 final Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> plan =
-                        graphTraversal.planOperation(helper.getSession(), targetMultimap, true, true);
+                        graphTraversal.planOperation(targetMultimap, true, true);
                 if (!plan.getValue().isEmpty()) {
                     final Exception e = new IllegalStateException("querying the model graph does not delete any objects");
                     helper.cancel(new ERR(), e, "graph-fail");
