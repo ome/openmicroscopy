@@ -566,42 +566,23 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
        /* Check one of the objects for non-existence after deletion. First, logging
         * in as root, retrieve all the objects to check them later*/
        logRootIntoGroup(normalUser.groupId);
-       OriginalFile retrievedRemoteFile = (OriginalFile) iQuery.findByQuery(
-               "FROM OriginalFile WHERE id = :id",
-               new ParametersI().addId(remoteFileId));
-       Image retrievedImage = (Image) iQuery.findByQuery(
-               "FROM Image WHERE fileset IN "
-               + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
-               new ParametersI().addId(remoteFileId));
-       Dataset retrievedDat = (Dataset) iQuery.findByQuery(
-               "FROM Dataset WHERE id = :id",
-               new ParametersI().addId(sentDat.getId()));
-       Project retrievedProj = (Project) iQuery.findByQuery(
-               "FROM Project WHERE id = :id",
-               new ParametersI().addId(sentProj.getId()));
-       DatasetImageLink retrievedDatasetImageLink = (DatasetImageLink) iQuery.findByQuery(
-               "FROM DatasetImageLink WHERE child.id = :id",
-               new ParametersI().addId(image.getId()));
-       ProjectDatasetLink retrievedProjectDatasetLink = (ProjectDatasetLink) iQuery.findByQuery(
-               "FROM ProjectDatasetLink WHERE child.id = :id",
-               new ParametersI().addId(sentDat.getId()));
        /* now check the existence/non-existence of the objects as appropriate */
        if (deletePassing) {
            /* successful delete expected */
-           Assert.assertNull(retrievedRemoteFile, "original file should be deleted");
-           Assert.assertNull(retrievedImage, "image should be deleted");
-           Assert.assertNull(retrievedDat, "dataset should be deleted");
-           Assert.assertNull(retrievedProj, "project should be deleted");
-           Assert.assertNull(retrievedDatasetImageLink, "Dat-Image link should be deleted");
-           Assert.assertNull(retrievedProjectDatasetLink, "Proj-Dat link should be deleted");
+           assertDoesNotExist((new OriginalFileI(remoteFileId, false)));
+           assertDoesNotExist(image);
+           assertDoesNotExist(sentDat);
+           assertDoesNotExist(sentProj);
+           assertDoesNotExist(datasetImageLink);
+           assertDoesNotExist(projectDatasetLink);
        } else {
            /* no deletion should have been successful without permDeleteOwned */
-           Assert.assertNotNull(retrievedRemoteFile, "original file not deleted");
-           Assert.assertNotNull(retrievedImage, "image not deleted");
-           Assert.assertNotNull(retrievedDat, "dataset not deleted");
-           Assert.assertNotNull(retrievedProj, "project not deleted");
-           Assert.assertNotNull(retrievedDatasetImageLink, "Dat-Image link not deleted");
-           Assert.assertNotNull(retrievedProjectDatasetLink, "Proj-Dat link not deleted");
+           assertExists((new OriginalFileI(remoteFileId, false)));
+           assertExists(image);
+           assertExists(sentDat);
+           assertExists(sentProj);
+           assertExists(datasetImageLink);
+           assertExists(projectDatasetLink);
        }
    }
 
