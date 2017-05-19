@@ -58,7 +58,6 @@ import ome.model.meta.Experimenter;
 import ome.model.screen.ScreenPlateLink;
 import ome.parameters.Parameters;
 import ome.security.ACLVoter;
-import ome.security.SystemTypes;
 import ome.security.basic.LightAdminPrivileges;
 import ome.services.delete.Deletion;
 import ome.services.graphs.GraphException;
@@ -92,7 +91,6 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
     private static final Set<GraphPolicy.Ability> REQUIRED_ABILITIES = ImmutableSet.of(GraphPolicy.Ability.DELETE);
 
     private final ACLVoter aclVoter;
-    private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
     private final LightAdminPrivileges adminPrivileges;
     private final Deletion deletionInstance;
@@ -119,7 +117,6 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
      * Construct a new <q>chown</q> request; called from {@link GraphRequestFactory#getRequest(Class)}.
      * @param aclVoter ACL voter for permissions checking
      * @param securityRoles the security roles
-     * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean to use
      * @param adminPrivileges the light administrator privileges helper
      * @param deletionInstance a deletion instance for deleting files
@@ -128,11 +125,10 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      * @param applicationContext the OMERO application context from Spring
      */
-    public Chown2I(ACLVoter aclVoter, Roles securityRoles, SystemTypes systemTypes, GraphPathBean graphPathBean,
-            LightAdminPrivileges adminPrivileges, Deletion deletionInstance, Set<Class<? extends IObject>> targetClasses,
-            GraphPolicy graphPolicy, SetMultimap<String, String> unnullable, ApplicationContext applicationContext) {
+    public Chown2I(ACLVoter aclVoter, Roles securityRoles, GraphPathBean graphPathBean, LightAdminPrivileges adminPrivileges,
+            Deletion deletionInstance, Set<Class<? extends IObject>> targetClasses, GraphPolicy graphPolicy,
+            SetMultimap<String, String> unnullable, ApplicationContext applicationContext) {
         this.aclVoter = aclVoter;
-        this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
         this.adminPrivileges = adminPrivileges;
         this.deletionInstance = deletionInstance;
@@ -200,7 +196,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
         }
 
         graphTraversal = graphHelper.prepareGraphTraversal(childOptions, REQUIRED_ABILITIES, graphPolicy, graphPolicyAdjusters,
-                aclVoter, systemTypes, graphPathBean, unnullable, new InternalProcessor(requiredAbilities), dryRun);
+                aclVoter, graphPathBean, unnullable, new InternalProcessor(requiredAbilities), dryRun);
 
         if (isChownPrivilege) {
             graphTraversal.setOwnsAll();

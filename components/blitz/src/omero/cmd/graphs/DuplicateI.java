@@ -54,7 +54,6 @@ import com.google.common.collect.SetMultimap;
 
 import ome.model.IObject;
 import ome.security.ACLVoter;
-import ome.security.SystemTypes;
 import ome.security.basic.LightAdminPrivileges;
 import ome.services.delete.Deletion;
 import ome.services.graphs.GraphException;
@@ -95,7 +94,6 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
     };
 
     private final ACLVoter aclVoter;
-    private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
     private final Set<Class<? extends IObject>> targetClasses;
     private GraphPolicy graphPolicy;  /* not final because of adjustGraphPolicy */
@@ -123,7 +121,6 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
      * Construct a new <q>duplicate</q> request; called from {@link GraphRequestFactory#getRequest(Class)}.
      * @param aclVoter ACL voter for permissions checking
      * @param securityRoles the security roles
-     * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean to use
      * @param adminPrivileges the light administrator privileges helper
      * @param deletionInstance a deletion instance for deleting files
@@ -132,11 +129,10 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      * @param applicationContext the OMERO application context from Spring
      */
-    public DuplicateI(ACLVoter aclVoter, Roles securityRoles, SystemTypes systemTypes, GraphPathBean graphPathBean,
-            LightAdminPrivileges adminPrivileges, Deletion deletionInstance, Set<Class<? extends IObject>> targetClasses,
-            GraphPolicy graphPolicy, SetMultimap<String, String> unnullable, ApplicationContext applicationContext) {
+    public DuplicateI(ACLVoter aclVoter, Roles securityRoles, GraphPathBean graphPathBean, LightAdminPrivileges adminPrivileges,
+            Deletion deletionInstance, Set<Class<? extends IObject>> targetClasses, GraphPolicy graphPolicy,
+            SetMultimap<String, String> unnullable, ApplicationContext applicationContext) {
         this.aclVoter = aclVoter;
-        this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
         this.targetClasses = targetClasses;
         this.graphPolicy = graphPolicy;
@@ -195,7 +191,7 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
         graphPolicy.registerPredicate(new PermissionsPredicate());
 
         graphTraversal = graphHelper.prepareGraphTraversal(childOptions, REQUIRED_ABILITIES, graphPolicy, graphPolicyAdjusters,
-                aclVoter, systemTypes, graphPathBean, unnullable, new InternalProcessor(), dryRun);
+                aclVoter, graphPathBean, unnullable, new InternalProcessor(), dryRun);
 
         graphPolicyAdjusters = null;
     }

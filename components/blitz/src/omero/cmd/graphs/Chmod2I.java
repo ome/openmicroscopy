@@ -46,7 +46,6 @@ import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.ACLVoter;
-import ome.security.SystemTypes;
 import ome.security.basic.LightAdminPrivileges;
 import ome.services.delete.Deletion;
 import ome.services.graphs.GraphException;
@@ -81,7 +80,6 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
 
     private final ACLVoter aclVoter;
     private final Roles securityRoles;
-    private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
     private final Deletion deletionInstance;
     private final Set<Class<? extends IObject>> targetClasses;
@@ -107,7 +105,6 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
      * Construct a new <q>chmod</q> request; called from {@link GraphRequestFactory#getRequest(Class)}.
      * @param aclVoter ACL voter for permissions checking
      * @param securityRoles the security roles
-     * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean to use
      * @param adminPrivileges the light administrator privileges helper
      * @param deletionInstance a deletion instance for deleting files
@@ -116,12 +113,11 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      * @param applicationContext the OMERO application context from Spring
      */
-    public Chmod2I(ACLVoter aclVoter, Roles securityRoles, SystemTypes systemTypes, GraphPathBean graphPathBean,
-            LightAdminPrivileges adminPrivileges, Deletion deletionInstance, Set<Class<? extends IObject>> targetClasses,
-            GraphPolicy graphPolicy, SetMultimap<String, String> unnullable, ApplicationContext applicationContext) {
+    public Chmod2I(ACLVoter aclVoter, Roles securityRoles, GraphPathBean graphPathBean, LightAdminPrivileges adminPrivileges,
+            Deletion deletionInstance, Set<Class<? extends IObject>> targetClasses, GraphPolicy graphPolicy,
+            SetMultimap<String, String> unnullable, ApplicationContext applicationContext) {
         this.aclVoter = aclVoter;
         this.securityRoles = securityRoles;
-        this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
         this.deletionInstance = deletionInstance;
         this.targetClasses = targetClasses;
@@ -170,7 +166,7 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
         graphPolicy.registerPredicate(new GroupPredicate(securityRoles));
 
         graphTraversal = graphHelper.prepareGraphTraversal(childOptions, REQUIRED_ABILITIES, graphPolicy, graphPolicyAdjusters,
-                aclVoter, systemTypes, graphPathBean, unnullable, new InternalProcessor(), dryRun);
+                aclVoter, graphPathBean, unnullable, new InternalProcessor(), dryRun);
 
         graphPolicyAdjusters = null;
     }

@@ -56,7 +56,6 @@ import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.ACLVoter;
-import ome.security.SystemTypes;
 import ome.security.basic.LightAdminPrivileges;
 import ome.services.graphs.GraphPathBean.PropertyKind;
 import ome.services.graphs.GraphPolicy.Ability;
@@ -465,7 +464,6 @@ public class GraphTraversal {
     private final EventContext eventContext;
     private final boolean isCheckUserPermissions;
     private final ACLVoter aclVoter;
-    private final SystemTypes systemTypes;
     private final GraphPathBean model;
     private final SetMultimap<String, String> unnullable;
     private final Set<Milestone> progress = EnumSet.noneOf(Milestone.class);
@@ -478,18 +476,16 @@ public class GraphTraversal {
      * @param session the Hibernate session
      * @param eventContext the current event context
      * @param aclVoter ACL voter for permissions checking
-     * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      * @param policy how to determine which related objects to include in the operation
      * @param processor how to operate on the resulting target object graph
      */
-    public GraphTraversal(Session session, EventContext eventContext, ACLVoter aclVoter, SystemTypes systemTypes,
-            GraphPathBean graphPathBean, SetMultimap<String, String> unnullable, GraphPolicy policy, Processor processor) {
+    public GraphTraversal(Session session, EventContext eventContext, ACLVoter aclVoter, GraphPathBean graphPathBean,
+            SetMultimap<String, String> unnullable, GraphPolicy policy, Processor processor) {
         this.session = session;
         this.eventContext = eventContext;
         this.aclVoter = aclVoter;
-        this.systemTypes = systemTypes;
         this.model = graphPathBean;
         this.unnullable = unnullable;
         this.planning = new Planning();

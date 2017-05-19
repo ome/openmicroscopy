@@ -43,7 +43,6 @@ import ome.io.nio.ThumbnailService;
 import ome.model.IObject;
 import ome.parameters.Parameters;
 import ome.security.ACLVoter;
-import ome.security.SystemTypes;
 import ome.security.basic.LightAdminPrivileges;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphPathBean;
@@ -77,7 +76,6 @@ public class DiskUsage2I extends DiskUsage2 implements IRequest {
     private static final Set<GraphPolicy.Ability> REQUIRED_ABILITIES = ImmutableSet.of();
 
     private final ACLVoter aclVoter;
-    private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
     private final Set<Class<? extends IObject>> legalClasses;
     private final GraphPolicy graphPolicy;
@@ -102,16 +100,14 @@ public class DiskUsage2I extends DiskUsage2 implements IRequest {
      * Construct a new disk usage request; called from {@link GraphRequestFactory#getRequest(Class)}.
      * @param aclVoter ACL voter for permissions checking
      * @param securityRoles the security roles
-     * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean to use
      * @param adminPrivileges the light administrator privileges helper
      * @param targetClasses legal target object classes for the search
      * @param graphPolicy the graph policy to apply for the search
      */
-    public DiskUsage2I(ACLVoter aclVoter, Roles securityRoles, SystemTypes systemTypes, GraphPathBean graphPathBean,
-            LightAdminPrivileges adminPrivileges, Set<Class<? extends IObject>> targetClasses, GraphPolicy graphPolicy) {
+    public DiskUsage2I(ACLVoter aclVoter, Roles securityRoles, GraphPathBean graphPathBean, LightAdminPrivileges adminPrivileges,
+            Set<Class<? extends IObject>> targetClasses, GraphPolicy graphPolicy) {
         this.aclVoter = aclVoter;
-        this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
         this.legalClasses = targetClasses;
         this.graphPolicy = graphPolicy;
@@ -153,8 +149,8 @@ public class DiskUsage2I extends DiskUsage2 implements IRequest {
         helper.setSteps(5);
         this.graphHelper = new GraphHelper(helper, graphPathBean);
 
-        graphTraversal = new GraphTraversal(helper.getSession(), helper.getEventContext(), aclVoter, systemTypes, graphPathBean,
-                null, graphPolicy, new InternalProcessor());
+        graphTraversal = new GraphTraversal(helper.getSession(), helper.getEventContext(), aclVoter, graphPathBean, null,
+                graphPolicy, new InternalProcessor());
     }
 
     @Override

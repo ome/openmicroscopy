@@ -43,7 +43,6 @@ import com.google.common.collect.Sets;
 
 import ome.model.IObject;
 import ome.security.ACLVoter;
-import ome.security.SystemTypes;
 import ome.security.basic.LightAdminPrivileges;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphPathBean;
@@ -73,7 +72,6 @@ public class FindChildrenI extends FindChildren implements IRequest {
     private static final Set<GraphPolicy.Ability> REQUIRED_ABILITIES = ImmutableSet.of();
 
     private final ACLVoter aclVoter;
-    private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
     private final Set<Class<? extends IObject>> targetClasses;
     private final GraphPolicy graphPolicy;
@@ -91,16 +89,14 @@ public class FindChildrenI extends FindChildren implements IRequest {
      * Construct a new <q>find-children</q> request; called from {@link GraphRequestFactory#getRequest(Class)}.
      * @param aclVoter ACL voter for permissions checking
      * @param securityRoles the security roles
-     * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean to use
      * @param adminPrivileges the light administrator privileges helper
      * @param targetClasses legal target object classes for the search
      * @param graphPolicy the graph policy to apply for the search
      */
-    public FindChildrenI(ACLVoter aclVoter, Roles securityRoles, SystemTypes systemTypes, GraphPathBean graphPathBean,
-            LightAdminPrivileges adminPrivileges, Set<Class<? extends IObject>> targetClasses, GraphPolicy graphPolicy) {
+    public FindChildrenI(ACLVoter aclVoter, Roles securityRoles, GraphPathBean graphPathBean, LightAdminPrivileges adminPrivileges,
+            Set<Class<? extends IObject>> targetClasses, GraphPolicy graphPolicy) {
         this.aclVoter = aclVoter;
-        this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
         this.targetClasses = targetClasses;
         this.graphPolicy = graphPolicy;
@@ -162,7 +158,7 @@ public class FindChildrenI extends FindChildren implements IRequest {
         }
 
         graphTraversal = graphHelper.prepareGraphTraversal(null, REQUIRED_ABILITIES, graphPolicy, graphPolicyAdjusters,
-                aclVoter, systemTypes, graphPathBean, null, new NullGraphTraversalProcessor(REQUIRED_ABILITIES), false);
+                aclVoter, graphPathBean, null, new NullGraphTraversalProcessor(REQUIRED_ABILITIES), false);
     }
 
     @Override

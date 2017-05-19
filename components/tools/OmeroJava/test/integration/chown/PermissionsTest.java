@@ -1717,8 +1717,8 @@ public class PermissionsTest extends AbstractServerTest {
     /**
      * Test that {@link omero.model.Permissions#canChown()} respects {@code allTargets} as passed to
      * {@link omero.cmd.graphs.GraphRequestFactory#GraphRequestFactory(ome.security.ACLVoter, ome.system.Roles,
-     *  ome.security.SystemTypes, ome.services.graphs.GraphPathBean, ome.security.basic.LightAdminPrivileges,
-     *  ome.services.delete.Deletion, Map, Map, List, Set)}.
+     *  ome.services.graphs.GraphPathBean, ome.security.basic.LightAdminPrivileges, ome.services.delete.Deletion,
+     *  Map, Map, List, Set)}.
      * @throws Exception unexpected
      */
     @Test

@@ -38,7 +38,6 @@ import com.google.common.collect.SetMultimap;
 
 import ome.model.IObject;
 import ome.security.ACLVoter;
-import ome.security.SystemTypes;
 import ome.security.basic.LightAdminPrivileges;
 import ome.services.delete.Deletion;
 import ome.services.graphs.GraphException;
@@ -69,7 +68,6 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
     private static final Set<GraphPolicy.Ability> REQUIRED_ABILITIES = ImmutableSet.of(GraphPolicy.Ability.DELETE);
 
     private final ACLVoter aclVoter;
-    private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
     private final Set<Class<? extends IObject>> targetClasses;
     private final Deletion deletionInstance;
@@ -92,7 +90,6 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
      * Construct a new <q>delete</q> request; called from {@link GraphRequestFactory#getRequest(Class)}.
      * @param aclVoter ACL voter for permissions checking
      * @param securityRoles the security roles
-     * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean to use
      * @param adminPrivileges the light administrator privileges helper
      * @param deletionInstance a deletion instance for deleting files
@@ -101,11 +98,10 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      * @param applicationContext the OMERO application context from Spring
      */
-    public Delete2I(ACLVoter aclVoter, Roles securityRoles, SystemTypes systemTypes, GraphPathBean graphPathBean,
-            LightAdminPrivileges adminPrivileges, Deletion deletionInstance, Set<Class<? extends IObject>> targetClasses,
-            GraphPolicy graphPolicy, SetMultimap<String, String> unnullable, ApplicationContext applicationContext) {
+    public Delete2I(ACLVoter aclVoter, Roles securityRoles, GraphPathBean graphPathBean, LightAdminPrivileges adminPrivileges,
+            Deletion deletionInstance, Set<Class<? extends IObject>> targetClasses, GraphPolicy graphPolicy,
+            SetMultimap<String, String> unnullable, ApplicationContext applicationContext) {
         this.aclVoter = aclVoter;
-        this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
         this.deletionInstance = deletionInstance;
         this.targetClasses = targetClasses;
@@ -134,7 +130,7 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
         this.graphHelper = new GraphHelper(helper, graphPathBean);
 
         graphTraversal = graphHelper.prepareGraphTraversal(childOptions, REQUIRED_ABILITIES, graphPolicy, graphPolicyAdjusters,
-                aclVoter, systemTypes, graphPathBean, unnullable, new InternalProcessor(), dryRun);
+                aclVoter, graphPathBean, unnullable, new InternalProcessor(), dryRun);
 
         graphPolicyAdjusters = null;
     }

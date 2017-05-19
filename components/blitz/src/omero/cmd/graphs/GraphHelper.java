@@ -39,7 +39,6 @@ import ome.conditions.InternalException;
 import ome.model.IObject;
 import ome.model.enums.AdminPrivilege;
 import ome.security.ACLVoter;
-import ome.security.SystemTypes;
 import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
 import ome.services.graphs.GraphTraversal;
@@ -107,7 +106,6 @@ public class GraphHelper {
      * @param graphPolicy the graph policy for the request
      * @param graphPolicyAdjusters the adjusters to be applied to the graph policy
      * @param aclVoter ACL voter for permissions checking
-     * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      * @param processor how to operate on the resulting target object graph
@@ -116,8 +114,8 @@ public class GraphHelper {
      */
     public GraphTraversal prepareGraphTraversal(List<ChildOption> childOptions, Set<GraphPolicy.Ability> requiredPermissions,
             GraphPolicy graphPolicy, Iterable<Function<GraphPolicy, GraphPolicy>> graphPolicyAdjusters,
-            ACLVoter aclVoter, SystemTypes systemTypes, GraphPathBean graphPathBean,
-            SetMultimap<String, String> unnullable, GraphTraversal.Processor processor, boolean dryRun) {
+            ACLVoter aclVoter, GraphPathBean graphPathBean, SetMultimap<String, String> unnullable,
+            GraphTraversal.Processor processor, boolean dryRun) {
 
         if (childOptions != null) {
             final List<ChildOptionI> childOptionsI = ChildOptionI.castChildOptions(childOptions);
@@ -135,8 +133,8 @@ public class GraphHelper {
             processor = GraphUtil.disableProcessor(processor);
         }
 
-        return new GraphTraversal(helper.getSession(), helper.getEventContext(), aclVoter, systemTypes, graphPathBean, unnullable,
-                graphPolicy, processor);
+        return new GraphTraversal(helper.getSession(), helper.getEventContext(), aclVoter, graphPathBean, unnullable, graphPolicy,
+                processor);
     }
 
     /**
