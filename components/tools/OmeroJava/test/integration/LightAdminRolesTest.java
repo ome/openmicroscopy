@@ -877,24 +877,9 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         loginUser(normalUser);
         Dataset dat = mmFactory.simpleDataset();
         Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
-
-        final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
-        final List<List<RType>> result = iQuery.projection(
-                "SELECT id FROM OriginalFile WHERE name = :name ORDER BY id DESC LIMIT 1",
-                new ParametersI().add("name", imageName));
-        final long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
-        List<String> path = Collections.singletonList(fakeImageFile.getPath());
-        importFileset(path, path.size(), sentDat);
-        final List<RType> resultAfterImport = iQuery.projection(
-                "SELECT id, details.group.id FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
-                new ParametersI().addId(previousId).add("name", imageName)).get(0);
-        final long remoteFileId = ((RLong) resultAfterImport.get(0)).getValue();
-        assertOwnedBy((new OriginalFileI(remoteFileId, false)), normalUser);
-        assertInGroup((new OriginalFileI(remoteFileId, false)), normalUser.groupId);
-        Image image = (Image) iQuery.findByQuery(
-                "FROM Image WHERE fileset IN "
-                + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
-                new ParametersI().addId(remoteFileId));
+        List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
+        OriginalFile originalFile = (OriginalFile) originalFileAndImage.get(0);
+        Image image = (Image) originalFileAndImage.get(1);
 
         /* Tag the imported image */
         TagAnnotation tagAnnotation = new TagAnnotationI();
@@ -925,7 +910,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             Assert.assertFalse(getCurrentPermissions(image).canChown());
             doChange(client, factory, Requests.chown().target(image).toUser(anotherUser.userId).build(), false);
             assertOwnedBy(image, normalUser);
-            assertOwnedBy((new OriginalFileI(remoteFileId, false)), normalUser);
+            assertOwnedBy(originalFile, normalUser);
             assertOwnedBy(tagAnnotation, normalUser);
             assertOwnedBy(tagAnnotationLink, normalUser);
             assertOwnedBy(originalFileAnnotationAndLink, normalUser);
@@ -938,7 +923,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             Assert.assertEquals(getCurrentPermissions(image).canChown(), true);
             doChange(client, factory, Requests.chown().target(image).toUser(anotherUser.userId).build(), chownPassingWhenNotSudoing);
             assertOwnedBy(image, anotherUser);
-            assertOwnedBy((new OriginalFileI(remoteFileId, false)), anotherUser);
+            assertOwnedBy(originalFile, anotherUser);
             /* for the annotations on the image and their links,
              * the chown of the image will only chown them if also
              * groupPermissions are private or read-only (captured in boolean
@@ -950,7 +935,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             Assert.assertEquals(getCurrentPermissions(image).canChown(), true);
             doChange(client, factory, Requests.chown().target(image).toUser(anotherUser.userId).build(), chownPassingWhenNotSudoing);
             assertOwnedBy(image, anotherUser);
-            assertOwnedBy((new OriginalFileI(remoteFileId, false)), anotherUser);
+            assertOwnedBy(originalFile, anotherUser);
             /* in read-annotate and read-write groups the
              * annotations will remain attached to the image
              * of anotherUser, but still belongs to normalUser
@@ -965,7 +950,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             Assert.assertEquals(getCurrentPermissions(image).canChown(), false);
             doChange(client, factory, Requests.chown().target(image).toUser(anotherUser.userId).build(), chownPassingWhenNotSudoing);
             assertOwnedBy(image, normalUser);
-            assertOwnedBy((new OriginalFileI(remoteFileId, false)), normalUser);
+            assertOwnedBy(originalFile, normalUser);
             assertOwnedBy(tagAnnotation, normalUser);
             assertOwnedBy(tagAnnotationLink, normalUser);
             assertOwnedBy(originalFileAnnotationAndLink, normalUser);
