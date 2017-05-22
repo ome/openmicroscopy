@@ -1206,31 +1206,18 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         Dataset dat = mmFactory.simpleDataset();
         Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
         /* import an image into the created Dataset */
-        final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
-        List<List<RType>> result = iQuery.projection(
-                "SELECT id FROM OriginalFile WHERE name = :name ORDER BY id DESC LIMIT 1",
-                new ParametersI().add("name", imageName));
-        final long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
-        List<String> path = Collections.singletonList(fakeImageFile.getPath());
-        importFileset(path, path.size(), sentDat);
-        OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
-                "FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
-                new ParametersI().addId(previousId).add("name", imageName));
-        assertOwnedBy(remoteFile, lightAdmin);
-        assertInGroup(remoteFile, lightAdmin.groupId);
-        /* check that also the image corresponding to the original file is in the right group */
-        Image image = null;
-        image = (Image) iQuery.findByQuery("FROM Image WHERE fileset IN "
-                + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
-                new ParametersI().addId(remoteFile.getId()));
-        long datasetImageLinkId = ((RLong) iQuery.projection(
-                "SELECT id FROM DatasetImageLink WHERE parent.id = :id",
-                new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
+        List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
+        OriginalFile originalFile = (OriginalFile) originalFileAndImage.get(0);
+        Image image = (Image) originalFileAndImage.get(1);
+        /* check that originalFile and the image
+         * corresponding to the original file are in the right group */
+        assertOwnedBy(originalFile, lightAdmin);
+        assertInGroup(originalFile, lightAdmin.groupId);
         assertOwnedBy(image, lightAdmin);
         assertInGroup(image, lightAdmin.groupId);
 
         /* now try to move the dataset into the group of the user */
-        /*in order to find the image in whatever group, get context with group
+        /* in order to find the image in whatever group, get context with group
          * set to -1 (=all groups)
          */
         client.getImplicitContext().put("omero.group", "-1");
@@ -1248,8 +1235,11 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
 
         /* check that the image, dataset, and their link was moved too if the permissions
          * were sufficient */
+        long datasetImageLinkId = ((RLong) iQuery.projection(
+                "SELECT id FROM DatasetImageLink WHERE parent.id = :id",
+                new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
         if (permChgrp) {
-            assertInGroup(remoteFile, normalUser.groupId);
+            assertInGroup(originalFile, normalUser.groupId);
             assertInGroup(image, normalUser.groupId);
             assertInGroup(sentDat, normalUser.groupId);
             assertInGroup((new DatasetImageLinkI (datasetImageLinkId, false)), normalUser.groupId);
@@ -1257,7 +1247,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
          * the permissions were not sufficient
          */
         } else {
-            assertInGroup(remoteFile, lightAdmin.groupId);
+            assertInGroup(originalFile, lightAdmin.groupId);
             assertInGroup(image, lightAdmin.groupId);
             assertInGroup(sentDat, lightAdmin.groupId);
             assertInGroup((new DatasetImageLinkI (datasetImageLinkId, false)), lightAdmin.groupId);
@@ -1274,8 +1264,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
          * captures permChown and permChgrp. Check the objects ownership and groups.*/
         if (importYourGroupAndChgrpAndChownExpectSuccess) {/* whole workflow2 succeeded */
             /* image, dataset and link are in the normalUser's group and belong to normalUser */
-            assertOwnedBy(remoteFile, normalUser);
-            assertInGroup(remoteFile, normalUser.groupId);
+            assertOwnedBy(originalFile, normalUser);
+            assertInGroup(originalFile, normalUser.groupId);
             assertOwnedBy(image, normalUser);
             assertInGroup(image, normalUser.groupId);
             assertOwnedBy(sentDat, normalUser);
@@ -1285,8 +1275,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         } else if (permChown) {
             /* even if the workflow2 as a whole failed, the chown might be successful */
             /* the image, dataset and link belong to the normalUser, but is in the light admin's group */
-            assertOwnedBy(remoteFile, normalUser);
-            assertInGroup(remoteFile, lightAdmin.groupId);
+            assertOwnedBy(originalFile, normalUser);
+            assertInGroup(originalFile, lightAdmin.groupId);
             assertOwnedBy(image, normalUser);
             assertInGroup(image, lightAdmin.groupId);
             assertOwnedBy(sentDat, normalUser);
@@ -1297,8 +1287,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             /* as workflow2 as a whole failed, in case the chgrp was successful,
              * the chown must be failing */
             /* the image, dataset and link are in normalUser's group but still belong to light admin */
-            assertOwnedBy(remoteFile, lightAdmin);
-            assertInGroup(remoteFile, normalUser.groupId);
+            assertOwnedBy(originalFile, lightAdmin);
+            assertInGroup(originalFile, normalUser.groupId);
             assertOwnedBy(image, lightAdmin);
             assertInGroup(image, normalUser.groupId);
             assertOwnedBy(sentDat, lightAdmin);
@@ -1308,8 +1298,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         } else {
             /* the remaining option when the previous chgrp as well as this chown fail */
             /* the image, dataset and link are in light admin's group and belong to light admin */
-            assertOwnedBy(remoteFile, lightAdmin);
-            assertInGroup(remoteFile, lightAdmin.groupId);
+            assertOwnedBy(originalFile, lightAdmin);
+            assertInGroup(originalFile, lightAdmin.groupId);
             assertOwnedBy(image, lightAdmin);
             assertInGroup(image, lightAdmin.groupId);
             assertOwnedBy(sentDat, lightAdmin);
