@@ -1046,15 +1046,18 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         /* Chowning the dataset should fail in case you have not all of
          * Chown & WriteOwned & WriteFile permissions which are
          * captured in the boolean importNotYourGroupAndChownExpectSuccess */
+        /* Also check that the canChown value on the dataset is true in these cases.*/
+        Assert.assertEquals(getCurrentPermissions(sentDat).canChown(),
+                createDatasetImportNotYourGroupAndChownExpectSuccess);
+        doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(),
+                createDatasetImportNotYourGroupAndChownExpectSuccess);
+        final List<RType> resultForLink = iQuery.projection(
+                "SELECT id FROM DatasetImageLink WHERE parent.id  = :id",
+                new ParametersI().addId(sentDat.getId())).get(0);
+        final long linkId = ((RLong) resultForLink.get(0)).getValue();
         if (createDatasetImportNotYourGroupAndChownExpectSuccess) {
-            /* Also check that the canChown value on the dataset is true in these cases.*/
-            Assert.assertTrue(getCurrentPermissions(sentDat).canChown());
-            doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(), true);
-            final List<RType> resultForLink = iQuery.projection(
-                    "SELECT id FROM DatasetImageLink WHERE parent.id  = :id",
-                    new ParametersI().addId(sentDat.getId())).get(0);
-            final long linkId = ((RLong) resultForLink.get(0)).getValue();
-            /* image, dataset and link are in the normalUser's group and belong to normalUser */
+            /* Check that image, dataset and link are in the normalUser's group
+             * and belong to normalUser */
             assertOwnedBy(image, normalUser);
             assertInGroup(image, normalUser.groupId);
             assertOwnedBy(sentDat, normalUser);
@@ -1064,13 +1067,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             assertOwnedBy(originalFile, normalUser);
             assertInGroup(originalFile, normalUser.groupId);
         } else {
-            /* Also check that the canChown value on the dataset is false in these cases.*/
-            Assert.assertFalse(getCurrentPermissions(sentDat).canChown());
-            doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(), false);
-            final List<RType> resultForLink = iQuery.projection(
-                    "SELECT id FROM DatasetImageLink WHERE parent.id  = :id",
-                    new ParametersI().addId(sentDat.getId())).get(0);
-            final long linkId = ((RLong) resultForLink.get(0)).getValue();
             /* check that the image, dataset and link still belongs
              * to the light admin as the chown failed, but are in the group of normalUser */
             assertOwnedBy(image, lightAdmin);
