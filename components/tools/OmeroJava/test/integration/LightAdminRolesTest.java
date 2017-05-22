@@ -680,23 +680,9 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         loginUser(normalUser);
         Dataset dat = mmFactory.simpleDataset();
         Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
-        final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
-        final List<List<RType>> result = iQuery.projection(
-                "SELECT id FROM OriginalFile WHERE name = :name ORDER BY id DESC LIMIT 1",
-                new ParametersI().add("name", imageName));
-        final long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
-        List<String> path = Collections.singletonList(fakeImageFile.getPath());
-        importFileset(path, path.size(), sentDat);
-        final List<RType> resultAfterImport = iQuery.projection(
-                "SELECT id, details.group.id FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
-                new ParametersI().addId(previousId).add("name", imageName)).get(0);
-        final long remoteFileId = ((RLong) resultAfterImport.get(0)).getValue();
-        assertOwnedBy((new OriginalFileI(remoteFileId, false)), normalUser);
-        assertInGroup((new OriginalFileI(remoteFileId, false)), normalUser.groupId);
-        Image image = (Image) iQuery.findByQuery(
-                "FROM Image WHERE fileset IN "
-                + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
-                new ParametersI().addId(remoteFileId));
+        List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
+        OriginalFile originalFile = (OriginalFile) originalFileAndImage.get(0);
+        Image image = (Image) originalFileAndImage.get(1);
 
         /* Tag the imported image */
         TagAnnotation tagAnnotation = new TagAnnotationI();
@@ -733,14 +719,14 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         doChange(client, factory, Requests.chgrp().target(image).toGroup(normalUsersOtherGroupId).build(), isExpectSuccessInMemberGroup);
         if (isExpectSuccessInMemberGroup) {
             assertInGroup(image, normalUsersOtherGroupId);
-            assertInGroup((new OriginalFileI(remoteFileId, false)), normalUsersOtherGroupId);
+            assertInGroup(originalFile, normalUsersOtherGroupId);
             /* Also, check the annotations on the image changed the group as expected */
             assertInGroup(originalFileAnnotationAndLink, normalUsersOtherGroupId);
             assertInGroup(tagAnnotation, normalUsersOtherGroupId);
             assertInGroup(tagAnnotationLink, normalUsersOtherGroupId);
         } else {
             assertInGroup(image, normalUser.groupId);
-            assertInGroup((new OriginalFileI(remoteFileId, false)), normalUser.groupId);
+            assertInGroup(originalFile, normalUser.groupId);
             /* neither the image nor the annotations were moved */
             assertInGroup(originalFileAnnotationAndLink, normalUser.groupId);
             assertInGroup(tagAnnotation, normalUser.groupId);
