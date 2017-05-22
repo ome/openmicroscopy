@@ -109,14 +109,9 @@ import com.google.common.collect.ImmutableSet;
  * @author p.walczysko@dundee.ac.uk
  * @since 5.4.0
  */
-public class LightAdminRolesTest extends AbstractServerImportTest {
-
-    private static final TempFileManager TEMPORARY_FILE_MANAGER = new TempFileManager(
-            "test-" + LightAdminRolesTest.class.getSimpleName());
+public class LightAdminRolesTest extends RolesTests {
 
     private ImmutableSet<AdminPrivilege> allPrivileges = null;
-
-    private File fakeImageFile = null;
 
     /**
      * Populate the set of available light administrator privileges.
@@ -131,16 +126,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         allPrivileges = privileges.build();
     }
 
-    /**
-     * Create a fake image file for use in import tests.
-     * @throws IOException unexpected
-     */
-    @BeforeClass
-    public void createFakeImageFile() throws IOException {
-        final File temporaryDirectory = TEMPORARY_FILE_MANAGER.createPath("images", null, true);
-        fakeImageFile = new File(temporaryDirectory, "image.fake");
-        fakeImageFile.createNewFile();
-    }
 
     /**
      * Assert that the given object is owned by the given owner.
@@ -227,32 +212,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         }
     }
 
-    /**
-     * Import an image with original file into a given dataset.
-     * @param dat dataset to which to import the image if not null
-     * @return the original file and the imported image
-     * @throws Exception unexpected
-     */
-    private List<IObject> importImageWithOriginalFile(Dataset dat) throws Exception {
-        final List<IObject> originalFileAndImage = new ArrayList<IObject>();
-        final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
-        final List<List<RType>> result = iQuery.projection(
-                "SELECT id FROM OriginalFile WHERE name = :name ORDER BY id DESC LIMIT 1",
-                new ParametersI().add("name", imageName));
-        final long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
-        List<String> path = Collections.singletonList(fakeImageFile.getPath());
-        importFileset(path, path.size(), dat);
-        final OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
-                "FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
-                new ParametersI().addId(previousId).add("name", imageName));
-        originalFileAndImage.add(remoteFile);
-        final Image image = (Image) iQuery.findByQuery(
-                "FROM Image WHERE fileset IN "
-                + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
-                new ParametersI().addId(remoteFile.getId()));
-        originalFileAndImage.add(image);
-        return originalFileAndImage;
-    }
 
     /**
      * Add a FileAnnotation with Original File to the given image.
