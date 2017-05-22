@@ -228,6 +228,33 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     }
 
     /**
+     * Import an image with original file into a given dataset.
+     * @param dat dataset to which to import the image if not null
+     * @return the original file and the imported image
+     * @throws Exception unexpected
+     */
+    private List<IObject> importImageWithOriginalFile(Dataset dat) throws Exception {
+        final List<IObject> originalFileAndImage = new ArrayList<IObject>();
+        final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
+        final List<List<RType>> result = iQuery.projection(
+                "SELECT id FROM OriginalFile WHERE name = :name ORDER BY id DESC LIMIT 1",
+                new ParametersI().add("name", imageName));
+        final long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
+        List<String> path = Collections.singletonList(fakeImageFile.getPath());
+        importFileset(path, path.size(), dat);
+        final OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
+                "FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
+                new ParametersI().addId(previousId).add("name", imageName));
+        originalFileAndImage.add(remoteFile);
+        final Image image = (Image) iQuery.findByQuery(
+                "FROM Image WHERE fileset IN "
+                + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
+                new ParametersI().addId(remoteFile.getId()));
+        originalFileAndImage.add(image);
+        return originalFileAndImage;
+    }
+
+    /**
      * Add a FileAnnotation with Original File to the given image.
      * @param image an image
      * @return the new model objects
@@ -439,18 +466,9 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
          * the import into the just created Dataset.
          * Check thus that the light admin can import and write the original file
          * on behalf of the normalUser and into the group of normalUser */
-        final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
-        final List<List<RType>> result = iQuery.projection(
-                "SELECT id FROM OriginalFile WHERE name = :name ORDER BY id DESC LIMIT 1",
-                new ParametersI().add("name", imageName));
-        final long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
-        List<String> path = Collections.singletonList(fakeImageFile.getPath());
-        importFileset(path, path.size(), sentDat);
-        final OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
-                "FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
-                new ParametersI().addId(previousId).add("name", imageName));
-        assertOwnedBy(remoteFile, normalUser);
-        assertInGroup(remoteFile, normalUser.groupId);
+        List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
+        OriginalFile originalFile = (OriginalFile) originalFileAndImage.get(0);
+        Image image = (Image) originalFileAndImage.get(1);
 
         /* check that the light admin when sudoed, can link the created Dataset
          * to the created Project, check the ownership of the links
@@ -467,14 +485,13 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
 
         /* Now check the ownership of image and links
          * between image and Dataset and Dataset and Project */
-        final long imageId = ((RLong) iQuery.projection(
-                "SELECT id FROM Image WHERE fileset IN "
-                + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
-                new ParametersI().addId(remoteFile.getId())).get(0).get(0)).getValue();
         final IObject imageDatasetLink = iQuery.findByQuery(
                 "FROM DatasetImageLink WHERE child.id = :id",
-                new ParametersI().addId(imageId));
-        assertOwnedBy(new ImageI(imageId, false), normalUser);
+                new ParametersI().addId(image.getId().getValue()));
+        assertInGroup(originalFile, normalUser.groupId);
+        assertOwnedBy(originalFile, normalUser);
+        assertInGroup(image, normalUser.groupId);
+        assertOwnedBy(image, normalUser);
         assertOwnedBy(imageDatasetLink, normalUser);
         assertOwnedBy(projectDatasetLink, normalUser);
     }
@@ -514,31 +531,15 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
        sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
        /* import an image for the normalUser into the normalUser's default group 
         * and target it into the created Dataset*/
-       final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
-       final List<List<RType>> result = iQuery.projection(
-               "SELECT id FROM OriginalFile WHERE name = :name ORDER BY id DESC LIMIT 1",
-               new ParametersI().add("name", imageName));
-       final long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
-       List<String> path = Collections.singletonList(fakeImageFile.getPath());
-       importFileset(path, path.size(), sentDat);
-       final List<RType> resultAfterImport = iQuery.projection(
-               "SELECT id, details.group.id FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
-               new ParametersI().addId(previousId).add("name", imageName)).get(0);
-       final long remoteFileId = ((RLong) resultAfterImport.get(0)).getValue();
-       assertOwnedBy((new OriginalFileI(remoteFileId, false)), normalUser);
-       assertInGroup((new OriginalFileI(remoteFileId, false)), normalUser.groupId);
+       List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
+       OriginalFile originalFile = (OriginalFile) originalFileAndImage.get(0);
+       Image image = (Image) originalFileAndImage.get(1);
+       assertOwnedBy(image, normalUser);
        /* link the Project and the Dataset */
-       ProjectDatasetLink link = linkProjectDataset(sentProj, sentDat);
-       Image image = (Image) iQuery.findByQuery(
-               "FROM Image WHERE fileset IN "
-               + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
-               new ParametersI().addId(remoteFileId));
+       ProjectDatasetLink projectDatasetLink = linkProjectDataset(sentProj, sentDat);
        IObject datasetImageLink = iQuery.findByQuery(
                "FROM DatasetImageLink WHERE child.id = :id",
                new ParametersI().addId(image.getId()));
-       IObject projectDatasetLink = iQuery.findByQuery(
-               "FROM ProjectDatasetLink WHERE id = :id",
-               new ParametersI().addId(link.getId()));
        /* take care of post-import workflows which do not use sudo */
        if (!isSudoing) {
            loginUser(lightAdmin);
@@ -563,21 +564,18 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
        Assert.assertEquals(getCurrentPermissions(sentProj).canDelete(), deletePassing);
        doChange(client, factory, Requests.delete().target(sentProj).build(), deletePassing);
 
-       /* Check one of the objects for non-existence after deletion. First, logging
-        * in as root, retrieve all the objects to check them later*/
-       logRootIntoGroup(normalUser.groupId);
        /* now check the existence/non-existence of the objects as appropriate */
        if (deletePassing) {
            /* successful delete expected */
-           assertDoesNotExist((new OriginalFileI(remoteFileId, false)));
+           assertDoesNotExist(originalFile);
            assertDoesNotExist(image);
            assertDoesNotExist(sentDat);
            assertDoesNotExist(sentProj);
            assertDoesNotExist(datasetImageLink);
            assertDoesNotExist(projectDatasetLink);
        } else {
-           /* no deletion should have been successful without permDeleteOwned */
-           assertExists((new OriginalFileI(remoteFileId, false)));
+           /* No deletion should have been successful when deletePassing boolean is false.*/
+           assertExists(originalFile);
            assertExists(image);
            assertExists(sentDat);
            assertExists(sentProj);
