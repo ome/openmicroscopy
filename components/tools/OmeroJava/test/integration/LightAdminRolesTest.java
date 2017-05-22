@@ -1018,44 +1018,29 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             Assert.assertFalse(createDatasetExpectSuccess);
         }
         /* import an image into the created Dataset */
-        final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
-        List<List<RType>> result = iQuery.projection(
-                "SELECT id FROM OriginalFile WHERE name = :name ORDER BY id DESC LIMIT 1",
-                new ParametersI().add("name", imageName));
-        final long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
+        OriginalFile originalFile = null;
+        Image image = null;
         try { /* only succeeds if permissions are sufficient or more */
-            List<String> path = Collections.singletonList(fakeImageFile.getPath());
-            importFileset(path, path.size(), sentDat);
-            Assert.assertTrue(importNotYourGroupExpectSuccess);
+            List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
+            originalFile = (OriginalFile) originalFileAndImage.get(0);
+            image = (Image) originalFileAndImage.get(1);
         } catch (ServerError se) { /* fails if permissions are insufficient */
             Assert.assertFalse(importNotYourGroupExpectSuccess);
         }
-        OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
-                "FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
-                new ParametersI().addId(previousId).add("name", imageName));
         if (importNotYourGroupExpectSuccess) {
-            assertOwnedBy(remoteFile, lightAdmin);
-            assertInGroup(remoteFile, normalUser.groupId);
-        } else {
-            Assert.assertNull(remoteFile, "if import failed, the remoteFile should be null");
-        }
-        /* check that also the image corresponding to the original file is in the right group */
-        Image image = null;
-        if (remoteFile != null) {
-            image = (Image) iQuery.findByQuery("FROM Image WHERE fileset IN "
-                    + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
-                    new ParametersI().addId(remoteFile.getId()));
-        }
-        if (importNotYourGroupExpectSuccess) {
+            assertOwnedBy(originalFile, lightAdmin);
+            assertInGroup(originalFile, normalUser.groupId);
             assertOwnedBy(image, lightAdmin);
             assertInGroup(image, normalUser.groupId);
         } else {
+            Assert.assertNull(originalFile, "if import failed, the remoteFile should be null");
             Assert.assertNull(image, "if import failed, the image should be null");
             /* jump out of the test, the second part of the test is interesting only
              * if the image exists
              */
             return;
         }
+
         /* now, having the image linked to the dataset in the group of normalUser already,
          * try to change the ownership of the dataset to the normalUser */
         /* Chowning the dataset should fail in case you have not all of
@@ -1076,8 +1061,8 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
             assertInGroup(sentDat, normalUser.groupId);
             assertOwnedBy((new DatasetImageLinkI(linkId, false)), normalUser);
             assertInGroup((new DatasetImageLinkI(linkId, false)), normalUser.groupId);
-            assertOwnedBy(remoteFile, normalUser);
-            assertInGroup(remoteFile, normalUser.groupId);
+            assertOwnedBy(originalFile, normalUser);
+            assertInGroup(originalFile, normalUser.groupId);
         } else {
             /* Also check that the canChown value on the dataset is false in these cases.*/
             Assert.assertFalse(getCurrentPermissions(sentDat).canChown());
