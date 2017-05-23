@@ -19,8 +19,6 @@
 
 package integration;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,7 +44,6 @@ import omero.model.AdminPrivilege;
 import omero.model.AdminPrivilegeI;
 import omero.model.Annotation;
 import omero.model.Dataset;
-import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.Experimenter;
@@ -69,7 +66,6 @@ import omero.model.Pixels;
 import omero.model.Project;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
-import omero.model.ProjectI;
 import omero.model.RectangleI;
 import omero.model.RenderingDef;
 import omero.model.Roi;
@@ -92,17 +88,13 @@ import omero.model.enums.AdminPrivilegeWriteScriptRepo;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 import omero.sys.Principal;
-import omero.util.TempFileManager;
 
 import org.testng.Assert;
-import org.testng.SkipException;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 
 /**
  * Tests the concrete workflows of the light admins
@@ -110,22 +102,6 @@ import com.google.common.collect.ImmutableSet;
  * @since 5.4.0
  */
 public class LightAdminRolesTest extends RolesTests {
-
-    private ImmutableSet<AdminPrivilege> allPrivileges = null;
-
-    /**
-     * Populate the set of available light administrator privileges.
-     * @throws ServerError unexpected
-     */
-    @BeforeClass
-    public void populateAllPrivileges() throws ServerError {
-        final ImmutableSet.Builder<AdminPrivilege> privileges = ImmutableSet.builder();
-        for (final IObject privilege : factory.getTypesService().allEnumerations("AdminPrivilege")) {
-            privileges.add((AdminPrivilege) privilege);
-        }
-        allPrivileges = privileges.build();
-    }
-
 
     /**
      * Assert that the given object is owned by the given owner.

@@ -94,7 +94,6 @@ import omero.model.enums.ChecksumAlgorithmSHA1160;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 import omero.sys.Principal;
-import omero.util.TempFileManager;
 
 import org.testng.Assert;
 import org.testng.SkipException;
