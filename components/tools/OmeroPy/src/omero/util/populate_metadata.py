@@ -146,6 +146,7 @@ class HeaderResolver(object):
         'row': LongColumn,
         'column': LongColumn,
         'wellsample': ImageColumn,
+        'image': ImageColumn,
     })
 
     screen_keys = dict({
@@ -318,15 +319,19 @@ class ValueResolver(object):
     def get_image_id_by_name(self, iname, dname=None):
         return self.wrapper.get_image_id_by_name(iname, dname)
 
+    def get_image_name_by_id(self, iid, pid=None):
+        return self.wrapper.get_image_name_by_id(iid, pid)
+
     def subselect(self, valuerows, names):
         return self.wrapper.subselect(valuerows, names)
 
     def resolve(self, column, value, row):
+        images_by_id = None
         column_class = column.__class__
         column_as_lower = column.name.lower()
         if ImageColumn is column_class:
-            if len(self.images_by_id) == 1:
-                images_by_id = self.images_by_id.values()[0]
+            if len(self.wrapper.images_by_id) == 1:
+                images_by_id = self.wrapper.images_by_id.values()[0]
             else:
                 for column, plate in row:
                     if column.__class__ is PlateColumn:
@@ -445,6 +450,13 @@ class SPWWrapper(ValueWrapper):
 
     def get_well_by_id(self, well_id, plate=None):
         raise Exception("to be implemented by subclasses")
+
+    def get_image_name_by_id(self, iid, pid=None):
+        if not pid and len(self.images_by_id):
+            pid = self.images_by_id.keys()[0]
+        else:
+            raise Exception("Cannot resolve image to plate")
+        return self.images_by_id[pid][iid].name.val
 
     def parse_plate(self, plate, wells_by_location, wells_by_id, images_by_id):
         """
@@ -873,6 +885,7 @@ class ParsingContext(object):
                         column.values.append(values.pop())
 
     def post_process(self):
+        target_class = self.target_object.__class__
         columns_by_name = dict()
         well_column = None
         well_name_column = None
@@ -920,14 +933,17 @@ class ParsingContext(object):
             else:
                 log.info('Missing well name column, skipping.')
 
-            if image_name_column is not None:
+            if image_name_column is not None and (
+                    DatasetI is target_class or
+                    ProjectI is target_class):
                 iid = -1
                 try:
                     iname = image_name_column.values[i]
                     did = None
                     if "Dataset Name" in columns_by_name:  # FIXME
                         did = columns_by_name["Dataset Name"].values[i]
-                    iid = self.value_resolver.get_image_id_by_name(iname, did)
+                    iid = self.value_resolver.get_image_id_by_name(
+                        iname, did)
                 except KeyError:
                     log.warn(
                         "%s not found in image names" % iname)
@@ -935,6 +951,19 @@ class ParsingContext(object):
                 image_column.values.append(iid)
                 image_name_column.size = max(
                     image_name_column.size, len(iname))
+            elif image_name_column is not None and (
+                    ScreenI is target_class or
+                    PlateI is target_class):
+                iid = image_column.values[i]
+                log.info("Checking image %s", iid)
+                pid = None
+                if 'Plate' in columns_by_name:
+                    pid = columns_by_name['Plate'].values[i]
+                iname = self.value_resolver.get_image_name_by_id(iid, pid)
+                image_name_column.values.append(iname)
+                image_name_column.size = max(
+                    image_name_column.size, len(iname)
+                )
             else:
                 log.info('Missing image name column, skipping.')
 
