@@ -111,14 +111,9 @@ import com.google.common.collect.ImmutableSet;
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.4.0
  */
-public class LightAdminPrivilegesTest extends AbstractServerImportTest {
-
-    private static final TempFileManager TEMPORARY_FILE_MANAGER = new TempFileManager(
-            "test-" + LightAdminPrivilegesTest.class.getSimpleName());
+public class LightAdminPrivilegesTest extends RolesTests {
 
     private ImmutableSet<AdminPrivilege> allPrivileges = null;
-
-    private File fakeImageFile = null;
 
     /**
      * Populate the set of available light administrator privileges.
@@ -131,17 +126,6 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
             privileges.add((AdminPrivilege) privilege);
         }
         allPrivileges = privileges.build();
-    }
-
-    /**
-     * Create a fake image file for use in import tests.
-     * @throws IOException unexpected
-     */
-    @BeforeClass
-    public void createFakeImageFile() throws IOException {
-        final File temporaryDirectory = TEMPORARY_FILE_MANAGER.createPath("images", null, true);
-        fakeImageFile = new File(temporaryDirectory, "image.fake");
-        fakeImageFile.createNewFile();
     }
 
     /**
