@@ -293,20 +293,13 @@ public class LightAdminRolesTest extends RolesTests {
     /**
      * Sudo to the given user.
      * @param target a user
-     * @return context for a session owned by the given user
      * @throws Exception if the sudo could not be performed
      */
-    private EventContext sudo(Experimenter target) throws Exception {
+    private void sudo(Experimenter target) throws Exception {
         if (!target.isLoaded()) {
             target = iAdmin.getExperimenter(target.getId().getValue());
         }
-        final Principal principal = new Principal();
-        principal.name = target.getOmeName().getValue();
-        final Session session = factory.getSessionService().createSessionWithTimeout(principal, 100 * 1000);
-        final omero.client client = newOmeroClient();
-        final String sessionUUID = session.getUuid().getValue();
-        client.createSession(sessionUUID, sessionUUID);
-        return init(client);
+        sudo(target.getOmeName().getValue());
     }
 
     /**

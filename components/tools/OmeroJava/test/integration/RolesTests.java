@@ -42,7 +42,10 @@ import omero.model.Image;
 import omero.model.OriginalFile;
 import omero.model.Permissions;
 import omero.model.PermissionsI;
+import omero.model.Session;
+import omero.sys.EventContext;
 import omero.sys.ParametersI;
+import omero.sys.Principal;
 import omero.util.TempFileManager;
 
 /**
@@ -130,4 +133,19 @@ public class RolesTests extends AbstractServerImportTest {
         return originalFileAndImage;
     }
 
+    /**
+     * Sudo to the given user.
+     * @param targetName the name of a user
+     * @return context for a session owned by the given user
+     * @throws Exception if the sudo could not be performed
+     */
+    protected EventContext sudo(String targetName) throws Exception {
+        final Principal principal = new Principal();
+        principal.name = targetName;
+        final Session session = factory.getSessionService().createSessionWithTimeout(principal, 100 * 1000);
+        final omero.client client = newOmeroClient();
+        final String sessionUUID = session.getUuid().getValue();
+        client.createSession(sessionUUID, sessionUUID);
+        return init(client);
+    }
 }

@@ -155,22 +155,6 @@ public class LightAdminPrivilegesTest extends RolesTests {
     }
 
     /**
-     * Sudo to the given user.
-     * @param targetName the name of a user
-     * @return context for a session owned by the given user
-     * @throws Exception if the sudo could not be performed
-     */
-    private EventContext sudo(String targetName) throws Exception {
-        final Principal principal = new Principal();
-        principal.name = targetName;
-        final Session session = factory.getSessionService().createSessionWithTimeout(principal, 100 * 1000);
-        final omero.client client = newOmeroClient();
-        final String sessionUUID = session.getUuid().getValue();
-        client.createSession(sessionUUID, sessionUUID);
-        return init(client);
-    }
-
-    /**
      * Create a light administrator, possibly without a specific privilege, and log in as them, possibly sudo'ing afterward.
      * @param isAdmin if the user should be a member of the <tt>system</tt> group
      * @param sudoTo the name of the user to whom the new user should then sudo or {@code null} for no sudo
