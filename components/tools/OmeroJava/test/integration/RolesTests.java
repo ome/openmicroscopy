@@ -24,16 +24,24 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.testng.annotations.BeforeClass;
 
+import com.google.common.collect.ImmutableMap;
+
+import ome.system.Login;
 import omero.RLong;
 import omero.RString;
 import omero.RType;
+import omero.SecurityViolation;
+import omero.ServerError;
 import omero.model.Dataset;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.OriginalFile;
+import omero.model.Permissions;
+import omero.model.PermissionsI;
 import omero.sys.ParametersI;
 import omero.util.TempFileManager;
 
@@ -59,6 +67,40 @@ public class RolesTests extends AbstractServerImportTest {
         final File temporaryDirectory = TEMPORARY_FILE_MANAGER.createPath("images", null, true);
         fakeImageFile = new File(temporaryDirectory, "image.fake");
         fakeImageFile.createNewFile();
+    }
+
+    /* these permissions do not permit anything */
+    @SuppressWarnings("serial")
+    private static final Permissions NO_PERMISSIONS = new PermissionsI("------") {
+        @Override
+        public boolean isDisallow(int restriction, Ice.Current c) {
+            return true;
+        }
+    };
+
+    /**
+     * Get the current permissions for the given object.
+     * @param object a model object previously retrieved from the server
+     * @return the permissions for the object in the current context
+     * @throws ServerError if the query caused a server error
+     */
+    protected Permissions getCurrentPermissions(IObject object) throws ServerError {
+        final String objectClass = object.getClass().getSuperclass().getSimpleName();
+        final long objectId = object.getId().getValue();
+        try {
+            final Map<String, String> allGroupsContext = ImmutableMap.of("omero.group", "-1");
+            final IObject objectRetrieved;
+            if (objectClass.endsWith("Link")) {
+                objectRetrieved = iQuery.findByQuery("FROM " + objectClass + " link JOIN FETCH link.child WHERE link.id = :id",
+                        new ParametersI().addId(objectId), allGroupsContext);
+            } else {
+                objectRetrieved = iQuery.get(objectClass, objectId, allGroupsContext);
+            }
+
+            return objectRetrieved.getDetails().getPermissions();
+        } catch (SecurityViolation sv) {
+            return NO_PERMISSIONS;
+        }
     }
 
     /**

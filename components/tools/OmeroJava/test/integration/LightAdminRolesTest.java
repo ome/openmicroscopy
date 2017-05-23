@@ -163,30 +163,6 @@ public class LightAdminRolesTest extends RolesTests {
         }
     }
 
-    /**
-     * Get the current permissions for the given object.
-     * @param object a model object previously retrieved from the server
-     * @return the permissions for the object in the current context
-     * @throws Exception 
-     */
-    private Permissions getCurrentPermissions(IObject object) throws Exception {
-        assertExists(object);
-        final String objectClass = object.getClass().getSuperclass().getSimpleName();
-        final long objectId = object.getId().getValue();
-        try {
-            final Map<String, String> allGroupsContext = ImmutableMap.of("omero.group", "-1");
-            final IObject objectRetrieved;
-            if (objectClass.endsWith("Link")) {
-                objectRetrieved = iQuery.findByQuery("FROM " + objectClass + " link JOIN FETCH link.child WHERE link.id = :id",
-                        new ParametersI().addId(objectId), allGroupsContext);
-            } else {
-                objectRetrieved = iQuery.get(objectClass, objectId, allGroupsContext);
-            }
-            return objectRetrieved.getDetails().getPermissions();
-        } catch (SecurityViolation sv) {
-            return new PermissionsI("------");
-        }
-    }
 
 
     /**

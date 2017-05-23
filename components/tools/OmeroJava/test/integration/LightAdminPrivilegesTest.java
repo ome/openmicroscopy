@@ -231,32 +231,6 @@ public class LightAdminPrivilegesTest extends RolesTests {
         return latestProxy;
     }
 
-    /* these permissions do not permit anything */
-    @SuppressWarnings("serial")
-    private static final Permissions NO_PERMISSIONS = new PermissionsI("------") {
-        @Override
-        public boolean isDisallow(int restriction, Ice.Current c) {
-            return true;
-        }
-    };
-
-    /**
-     * Get the current permissions for the given object.
-     * @param object a model object previously retrieved from the server
-     * @return the permissions for the object in the current context
-     * @throws ServerError if the query caused a server error
-     */
-    private Permissions getCurrentPermissions(IObject object) throws ServerError {
-        final Map<String, String> allGroupsContext = ImmutableMap.of(Login.OMERO_GROUP, "-1");
-        final String objectClass = object.getClass().getSuperclass().getSimpleName();
-        final long objectId = object.getId().getValue();
-        try {
-            return iQuery.get(objectClass, objectId, allGroupsContext).getDetails().getPermissions();
-        } catch (SecurityViolation sv) {
-            return NO_PERMISSIONS;
-        }
-    }
-
     /* -=-=- TEST NECESSITY OF LIGHT ADMINISTRATOR PRIVILEGES -=-=- */
 
     /**
