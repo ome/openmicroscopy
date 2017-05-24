@@ -56,7 +56,6 @@ import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.ACLVoter;
-import ome.security.SystemTypes;
 import ome.security.basic.LightAdminPrivileges;
 import ome.services.graphs.GraphPathBean.PropertyKind;
 import ome.services.graphs.GraphPolicy.Ability;
@@ -181,7 +180,7 @@ public class GraphTraversal {
         }
 
         /**
-         * Construct a new {@link IObject}
+         * Construct a new {@link IObject}.
          * @return an unloaded {@link IObject} corresponding to this {@link CI}
          * @throws GraphException if the {@link IObject} could not be constructed
          */
@@ -465,7 +464,6 @@ public class GraphTraversal {
     private final EventContext eventContext;
     private final boolean isCheckUserPermissions;
     private final ACLVoter aclVoter;
-    private final SystemTypes systemTypes;
     private final GraphPathBean model;
     private final SetMultimap<String, String> unnullable;
     private final Set<Milestone> progress = EnumSet.noneOf(Milestone.class);
@@ -478,18 +476,16 @@ public class GraphTraversal {
      * @param session the Hibernate session
      * @param eventContext the current event context
      * @param aclVoter ACL voter for permissions checking
-     * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      * @param policy how to determine which related objects to include in the operation
      * @param processor how to operate on the resulting target object graph
      */
-    public GraphTraversal(Session session, EventContext eventContext, ACLVoter aclVoter, SystemTypes systemTypes,
-            GraphPathBean graphPathBean, SetMultimap<String, String> unnullable, GraphPolicy policy, Processor processor) {
+    public GraphTraversal(Session session, EventContext eventContext, ACLVoter aclVoter, GraphPathBean graphPathBean,
+            SetMultimap<String, String> unnullable, GraphPolicy policy, Processor processor) {
         this.session = session;
         this.eventContext = eventContext;
         this.aclVoter = aclVoter;
-        this.systemTypes = systemTypes;
         this.model = graphPathBean;
         this.unnullable = unnullable;
         this.planning = new Planning();
@@ -500,25 +496,24 @@ public class GraphTraversal {
 
     /**
      * Traverse model object graph to determine steps for the proposed operation.
-     * @param session the Hibernate session to use for HQL queries
      * @param objects the model objects to process
      * @param include if the given model objects are to be included (instead of just deleted)
      * @param applyRules if the given model objects should have the policy rules applied to them
      * @return the model objects included in the operation, and the deleted objects
      * @throws GraphException if the model objects were not as expected
      */
-    public Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> planOperation(Session session,
-            SetMultimap<String, Long> objects, boolean include, boolean applyRules) throws GraphException {
+    public Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> planOperation(SetMultimap<String, Long> objects,
+            boolean include, boolean applyRules) throws GraphException {
         if (progress.contains(Milestone.PLANNED)) {
             throw new IllegalStateException("operation already planned");
         }
         final Set<CI> targetSet = include ? planning.included : planning.deleted;
         /* note the object instances for processing */
-        targetSet.addAll(objectsToCIs(session, objects));
+        targetSet.addAll(objectsToCIs(objects));
         if (applyRules) {
             /* actually do the planning of the operation */
             planning.toProcess.addAll(targetSet);
-            planOperation(session);
+            planOperation();
         } else {
             /* act as if the target objects have no links and no rules match them */
             for (final CI targetObject : targetSet) {
@@ -540,15 +535,14 @@ public class GraphTraversal {
 
     /**
      * Traverse model object graph to determine steps for the proposed operation.
-     * @param session the Hibernate session to use for HQL queries
      * @param objectInstances the model objects to process, may be unloaded with ID only
      * @param include if the given model objects are to be included (instead of just deleted)
      * @param applyRules if the given model objects should have the policy rules applied to them
      * @return the model objects included in the operation, and the deleted objects, may be unloaded with ID only
      * @throws GraphException if the model objects were not as expected
      */
-    public Entry<Collection<IObject>, Collection<IObject>> planOperation(Session session,
-            Collection<? extends IObject> objectInstances, boolean include, boolean applyRules) throws GraphException {
+    public Entry<Collection<IObject>, Collection<IObject>> planOperation(Collection<? extends IObject> objectInstances,
+            boolean include, boolean applyRules) throws GraphException {
         if (progress.contains(Milestone.PLANNED)) {
             throw new IllegalStateException("operation already planned");
         }
@@ -564,11 +558,11 @@ public class GraphTraversal {
                 objectsToQuery.put(instance.getClass().getName(), instance.getId());
             }
         }
-        targetSet.addAll(objectsToCIs(session, objectsToQuery));
+        targetSet.addAll(objectsToCIs(objectsToQuery));
         if (applyRules) {
             /* actually do the planning of the operation */
             planning.toProcess.addAll(targetSet);
-            planOperation(session);
+            planOperation();
         } else {
             /* act as if the target objects have no links and no rules match them */
             for (final CI targetObject : targetSet) {
@@ -591,10 +585,9 @@ public class GraphTraversal {
     /**
      * Traverse model object graph to determine steps for the proposed operation.
      * Assumes that the internal {@code planning} field is set up and mutates it accordingly.
-     * @param session the Hibernate session to use for HQL queries
      * @throws GraphException if the model objects were not as expected
      */
-    private void planOperation(Session session) throws GraphException {
+    private void planOperation() throws GraphException {
         /* track state to guarantee progress in reprocessing objects whose orphan status is relevant */
         Set<CI> optimisticReprocess = null;
         /* set of not-last objects after latest review */
@@ -621,7 +614,7 @@ public class GraphTraversal {
                 toCache.removeAll(planning.cached);
                 if (!toCache.isEmpty()) {
                     optimisticReprocess = null;
-                    cache(session, toCache);
+                    cache(toCache);
                     continue;
                 }
                 /* try processing the findIfLast in case of any changes */
@@ -838,12 +831,11 @@ public class GraphTraversal {
 
     /**
      * Convert the indicated objects to {@link CI}s with their actual class identified.
-     * @param session a Hibernate session
      * @param objects the objects to query
      * @return {@link CI}s corresponding to the objects
      * @throws GraphException if any of the specified objects could not be queried
      */
-    private Collection<CI> objectsToCIs(Session session, SetMultimap<String, Long> objects) throws GraphException {
+    private Collection<CI> objectsToCIs(SetMultimap<String, Long> objects) throws GraphException {
         final List<CI> returnValue = new ArrayList<CI>(objects.size());
         for (final Entry<String, Collection<Long>> oneQueryClass : objects.asMap().entrySet()) {
             final String className = oneQueryClass.getKey();
@@ -929,11 +921,10 @@ public class GraphTraversal {
 
     /**
      * Load object instances and their links into the various cache fields of {@link Planning}.
-     * @param session a Hibernate session
      * @param toCache the objects to cache
      * @throws GraphException if the objects could not be converted to unloaded instances
      */
-    private void cache(Session session, Collection<CI> toCache) throws GraphException {
+    private void cache(Collection<CI> toCache) throws GraphException {
         /* note which links to query, organized for batch querying */
         final SetMultimap<CP, Long> forwardLinksWanted = HashMultimap.create();
         final SetMultimap<CP, Long> backwardLinksWanted = HashMultimap.create();

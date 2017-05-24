@@ -37,7 +37,6 @@ import com.google.common.collect.SetMultimap;
 import ome.model.IObject;
 import ome.model.internal.Permissions;
 import ome.security.ACLVoter;
-import ome.security.SystemTypes;
 import ome.security.basic.LightAdminPrivileges;
 import ome.services.delete.Deletion;
 import ome.services.graphs.GraphException;
@@ -60,7 +59,6 @@ public class GraphRequestFactory implements ApplicationContextAware {
 
     private final ACLVoter aclVoter;
     private final Roles securityRoles;
-    private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
     private final LightAdminPrivileges adminPrivileges;
     private final Deletion deletionInstance;
@@ -75,7 +73,6 @@ public class GraphRequestFactory implements ApplicationContextAware {
      * Construct a new graph request factory.
      * @param aclVoter ACL voter for permissions checking
      * @param securityRoles the security roles
-     * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean
      * @param adminPrivileges the light administrator privileges helper
      * @param deletionInstance a deletion instance for deleting files
@@ -85,13 +82,12 @@ public class GraphRequestFactory implements ApplicationContextAware {
      * @param defaultExcludeNs the default value for an unset excludeNs field
      * @throws GraphException if the graph path rules could not be parsed
      */
-    public GraphRequestFactory(ACLVoter aclVoter, Roles securityRoles, SystemTypes systemTypes, GraphPathBean graphPathBean,
+    public GraphRequestFactory(ACLVoter aclVoter, Roles securityRoles, GraphPathBean graphPathBean,
             LightAdminPrivileges adminPrivileges, Deletion deletionInstance, Map<Class<? extends Request>, List<String>> allTargets,
             Map<Class<? extends Request>, List<GraphPolicyRule>> allRules, List<String> unnullable, Set<String> defaultExcludeNs)
                     throws GraphException {
         this.aclVoter = aclVoter;
         this.securityRoles = securityRoles;
-        this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
         this.adminPrivileges = adminPrivileges;
         this.deletionInstance = deletionInstance;
@@ -176,15 +172,15 @@ public class GraphRequestFactory implements ApplicationContextAware {
                     graphPolicy = graphPolicy.getCleanInstance();
                 }
                 if (GraphModify2.class.isAssignableFrom(requestClass)) {
-                    final Constructor<R> constructor = requestClass.getConstructor(ACLVoter.class, Roles.class, SystemTypes.class,
+                    final Constructor<R> constructor = requestClass.getConstructor(ACLVoter.class, Roles.class,
                             GraphPathBean.class, LightAdminPrivileges.class, Deletion.class, Set.class, GraphPolicy.class,
                             SetMultimap.class, ApplicationContext.class);
-                    request = constructor.newInstance(aclVoter, securityRoles, systemTypes, graphPathBean, adminPrivileges,
-                            deletionInstance, targetClasses, graphPolicy, unnullable, applicationContext);
+                    request = constructor.newInstance(aclVoter, securityRoles, graphPathBean, adminPrivileges, deletionInstance,
+                            targetClasses, graphPolicy, unnullable, applicationContext);
                 } else {
-                    final Constructor<R> constructor = requestClass.getConstructor(ACLVoter.class, Roles.class, SystemTypes.class,
+                    final Constructor<R> constructor = requestClass.getConstructor(ACLVoter.class, Roles.class,
                             GraphPathBean.class, LightAdminPrivileges.class, Set.class, GraphPolicy.class);
-                    request = constructor.newInstance(aclVoter, securityRoles, systemTypes, graphPathBean, adminPrivileges,
+                    request = constructor.newInstance(aclVoter, securityRoles, graphPathBean, adminPrivileges,
                             targetClasses, graphPolicy);
                 }
             }
