@@ -489,10 +489,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
                 .simpleImage());
         long imageId = image.getId().getValue();
         // now link the image and dataset.
-        DatasetImageLink link = new DatasetImageLinkI();
-        link.setChild((Image) image.proxy());
-        link.setParent((Dataset) dataset.proxy());
-        iUpdate.saveAndReturnObject(link);
+        linkDatasetImage(dataset, image);
         disconnect();
         ctx = init(ctx);
 
@@ -556,10 +553,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
                 .simpleImage());
         long imageId = image.getId().getValue();
         // now link the image and dataset.
-        DatasetImageLink link = new DatasetImageLinkI();
-        link.setChild((Image) image.proxy());
-        link.setParent((Dataset) dataset.proxy());
-        iUpdate.saveAndReturnObject(link);
+        linkDatasetImage(dataset, image);
         disconnect();
         ctx = init(ctx);
 
@@ -623,10 +617,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
                 .simpleImage());
         long imageId = image.getId().getValue();
         // now link the image and dataset.
-        DatasetImageLink link = new DatasetImageLinkI();
-        link.setChild((Image) image.proxy());
-        link.setParent((Dataset) dataset.proxy());
-        iUpdate.saveAndReturnObject(link);
+        linkDatasetImage(dataset, image);
 
         disconnect();
         ctx = init(ctx);
@@ -699,10 +690,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
                 .simpleImage());
         long imageId = image.getId().getValue();
         // now link the image and dataset.
-        DatasetImageLink link = new DatasetImageLinkI();
-        link.setChild((Image) image.proxy());
-        link.setParent((Dataset) dataset.proxy());
-        iUpdate.saveAndReturnObject(link);
+        linkDatasetImage(dataset, image);
 
         disconnect();
         ctx = init(ctx);
