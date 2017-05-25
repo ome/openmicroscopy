@@ -53,6 +53,7 @@ import omero.cmd.State;
 import omero.cmd.Status;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
+import omero.model.Annotation;
 import omero.model.BooleanAnnotation;
 import omero.model.BooleanAnnotationI;
 import omero.model.ChannelBinding;
@@ -287,6 +288,27 @@ public class AbstractServerTest extends AbstractTest {
                 c.__del__();
             }
         }
+    }
+
+    /**
+     * Add the given annotation to the given image.
+     * @param image an image
+     * @param annotation an annotation
+     * @return the new loaded link from the image to the annotation
+     * @throws ServerError unexpected
+     */
+    protected ImageAnnotationLink annotateImage(Image image, Annotation annotation) throws ServerError {
+        if (image.isLoaded() && image.getId() != null) {
+            image = (Image) image.proxy();
+        }
+        if (annotation.isLoaded() && annotation.getId() != null) {
+            annotation = (Annotation) annotation.proxy();
+        }
+
+        final ImageAnnotationLink link = new ImageAnnotationLinkI();
+        link.setParent(image);
+        link.setChild(annotation);
+        return (ImageAnnotationLink) iUpdate.saveAndReturnObject(link);
     }
 
     /**
