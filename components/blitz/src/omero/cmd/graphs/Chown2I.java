@@ -124,6 +124,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
      * @param graphPolicy the graph policy to apply for chown
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      * @param applicationContext the OMERO application context from Spring
+     * @deprecated from OMERO 5.4 the systemTypes argument is no longer included
      */
     public Chown2I(ACLVoter aclVoter, Roles securityRoles, GraphPathBean graphPathBean, LightAdminPrivileges adminPrivileges,
             Deletion deletionInstance, Set<Class<? extends IObject>> targetClasses, GraphPolicy graphPolicy,

@@ -97,6 +97,7 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
      * @param graphPolicy the graph policy to apply for delete
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      * @param applicationContext the OMERO application context from Spring
+     * @deprecated from OMERO 5.4 the systemTypes argument is no longer included
      */
     public Delete2I(ACLVoter aclVoter, Roles securityRoles, GraphPathBean graphPathBean, LightAdminPrivileges adminPrivileges,
             Deletion deletionInstance, Set<Class<? extends IObject>> targetClasses, GraphPolicy graphPolicy,
