@@ -149,29 +149,6 @@ public class LightAdminRolesTest extends RolesTests {
     }
 
     /**
-     * Create a link between a Project and a Dataset.
-     * @param project an OMERO Project
-     * @param dataset an OMERO Dataset
-     * @return the created link
-     * @throws ServerError if the query caused a server error
-     */
-    private ProjectDatasetLink linkProjectDataset(Project project, Dataset dataset) throws ServerError {
-        if (project.isLoaded() && project.getId() != null) {
-            project = (Project) project.proxy();
-        }
-        if (dataset.isLoaded() && dataset.getId() != null) {
-            dataset = (Dataset) dataset.proxy();
-        }
-
-        final ProjectDatasetLink link = new ProjectDatasetLinkI();
-        link.setParent(project);
-        link.setChild(dataset);
-        return (ProjectDatasetLink) iUpdate.saveAndReturnObject(link);
-    }
-
-
-
-    /**
      * Create a light administrator, with a specific privilege, and log in as them.
      * All the other privileges will be set to False.
      * @param isAdmin if the user should be a member of the <tt>system</tt> group
