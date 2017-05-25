@@ -70,6 +70,7 @@
                     <arg value="--match"/>
                     <arg value="${gitmatch}"/>
                     <arg line="--dirty"/>
+                    <arg line="--first-parent"/>
                 </args>
             </git>
 
