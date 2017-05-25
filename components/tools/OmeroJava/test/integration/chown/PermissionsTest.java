@@ -127,27 +127,6 @@ public class PermissionsTest extends AbstractServerTest {
     }
 
     /**
-     * Add the given annotation to the given image.
-     * @param image an image
-     * @param annotation an annotation
-     * @return the new loaded link from the image to the annotation
-     * @throws ServerError unexpected
-     */
-    private ImageAnnotationLink annotateImage(Image image, Annotation annotation) throws ServerError {
-        if (image.isLoaded() && image.getId() != null) {
-            image = (Image) image.proxy();
-        }
-        if (annotation.isLoaded() && annotation.getId() != null) {
-            annotation = (Annotation) annotation.proxy();
-        }
-
-        final ImageAnnotationLink link = new ImageAnnotationLinkI();
-        link.setParent(image);
-        link.setChild(annotation);
-        return (ImageAnnotationLink) iUpdate.saveAndReturnObject(link);
-    }
-
-    /**
      * Add a comment, tag, MapAnnotation, FileAnnotation,
      * Thumbnail and a ROI to the given image.
      * @param image an image
