@@ -86,6 +86,7 @@ import omero.model.enums.AdminPrivilegeWriteManagedRepo;
 import omero.model.enums.AdminPrivilegeWriteOwned;
 import omero.model.enums.AdminPrivilegeWriteScriptRepo;
 import omero.sys.EventContext;
+import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import omero.sys.Principal;
 
@@ -126,8 +127,10 @@ public class LightAdminRolesTest extends RolesTests {
         for (final IObject object : objects) {
             final String objectName = object.getClass().getName() + '[' + object.getId().getValue() + ']';
             final String query = "SELECT details.group.id FROM " + object.getClass().getSuperclass().getSimpleName() +
-                    " WHERE id = " + object.getId().getValue();
-            final List<List<RType>> results = iQuery.projection(query, null);
+                    " WHERE id = :id";
+            final Parameters params = new ParametersI().addId(object.getId());
+            final Map<String, String> ctx = ImmutableMap.of("omero.group", "-1");
+            final List<List<RType>> results = root.getSession().getQueryService().projection(query, params, ctx);
             final long actualGroupId = ((RLong) results.get(0).get(0)).getValue();
             Assert.assertEquals(actualGroupId, expectedGroupId, objectName);
         }

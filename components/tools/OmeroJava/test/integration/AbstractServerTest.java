@@ -129,6 +129,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 /**
@@ -307,8 +308,10 @@ public class AbstractServerTest extends AbstractTest {
         for (final IObject object : objects) {
             final String objectName = object.getClass().getName() + '[' + object.getId().getValue() + ']';
             final String query = "SELECT details.owner.id FROM " + object.getClass().getSuperclass().getSimpleName() +
-                    " WHERE id = " + object.getId().getValue();
-            final List<List<RType>> results = iQuery.projection(query, null);
+                    " WHERE id = :id";
+            final Parameters params = new ParametersI().addId(object.getId());
+            final Map<String, String> ctx = ImmutableMap.of("omero.group", "-1");
+            final List<List<RType>> results = root.getSession().getQueryService().projection(query, params, ctx);
             final long actualOwnerId = ((RLong) results.get(0).get(0)).getValue();
             Assert.assertEquals(actualOwnerId, expectedOwner.userId, objectName);
         }
