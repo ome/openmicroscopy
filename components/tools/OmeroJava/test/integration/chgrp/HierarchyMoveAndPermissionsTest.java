@@ -473,6 +473,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
+    @Test
     public void testMoveDatasetImageGraphLinkDoneByImageOwnerRWRWtoRW()
             throws Exception {
         String perms = "rw----"; // destination
