@@ -104,36 +104,6 @@ import com.google.common.collect.ImmutableMap;
 public class LightAdminRolesTest extends RolesTests {
 
     /**
-     * Assert that the given object is owned by the given owner.
-     * @param object a model object
-     * @param expectedOwner a user's event context
-     * @throws ServerError unexpected
-     */
-    private void assertOwnedBy(IObject object, EventContext expectedOwner) throws ServerError {
-        assertOwnedBy(Collections.singleton(object), expectedOwner);
-    }
-
-    /**
-     * Assert that the given objects are owned by the given owner.
-     * @param objects some model objects
-     * @param expectedOwner a user's event context
-     * @throws ServerError unexpected
-     */
-    private void assertOwnedBy(Collection<? extends IObject> objects, EventContext expectedOwner) throws ServerError {
-        if (objects.isEmpty()) {
-            throw new IllegalArgumentException("must assert about some objects");
-        }
-        for (final IObject object : objects) {
-            final String objectName = object.getClass().getName() + '[' + object.getId().getValue() + ']';
-            final String query = "SELECT details.owner.id FROM " + object.getClass().getSuperclass().getSimpleName() +
-                    " WHERE id = " + object.getId().getValue();
-            final List<List<RType>> results = iQuery.projection(query, null);
-            final long actualOwnerId = ((RLong) results.get(0).get(0)).getValue();
-            Assert.assertEquals(actualOwnerId, expectedOwner.userId, objectName);
-        }
-    }
-
-    /**
      * Assert that the given object is in the given group.
      * @param object a model object
      * @param expectedGroupId a group Id
