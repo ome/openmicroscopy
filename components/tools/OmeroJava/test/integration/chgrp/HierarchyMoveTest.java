@@ -877,10 +877,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         links.add(linkDatasetImage(d, image1));
         links.add(linkDatasetImage(d, image2));
 
-        ProjectDatasetLink l = new ProjectDatasetLinkI();
-        l.setChild(d);
-        l.setParent(p);
-        links.add(l);
+        links.add(linkProjectDataset(p, d));
         iUpdate.saveAndReturnArray(links);
 
         List<Long> ids = new ArrayList<Long>();
