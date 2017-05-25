@@ -286,6 +286,48 @@ public class AbstractServerTest extends AbstractTest {
     }
 
     /**
+     * Assert that the given object is in the given group.
+     * @param object a model object
+     * @param expectedGroupId a group Id
+     * @throws ServerError unexpected
+     */
+    protected void assertInGroup(IObject object, ExperimenterGroup group) throws ServerError {
+        assertInGroup(Collections.singleton(object), group.getId().getValue());
+    }
+
+    /**
+     * Assert that the given object is in the given group.
+     * @param object a model object
+     * @param expectedGroupId a group Id
+     * @throws ServerError unexpected
+     */
+    protected void assertInGroup(IObject object, long expectedGroupId) throws ServerError {
+        assertInGroup(Collections.singleton(object), expectedGroupId);
+    }
+
+    /**
+     * Assert that the given objects are in the giver group.
+     * @param objects some model objects
+     * @param expectedGroupId a group Id
+     * @throws ServerError unexpected
+     */
+    protected void assertInGroup(Collection<? extends IObject> objects, long expectedGroupId) throws ServerError {
+        if (objects.isEmpty()) {
+            throw new IllegalArgumentException("must assert about some objects");
+        }
+        for (final IObject object : objects) {
+            final String objectName = object.getClass().getName() + '[' + object.getId().getValue() + ']';
+            final String query = "SELECT details.group.id FROM " + object.getClass().getSuperclass().getSimpleName() +
+                    " WHERE id = :id";
+            final Parameters params = new ParametersI().addId(object.getId());
+            final Map<String, String> ctx = ImmutableMap.of("omero.group", "-1");
+            final List<List<RType>> results = root.getSession().getQueryService().projection(query, params, ctx);
+            final long actualGroupId = ((RLong) results.get(0).get(0)).getValue();
+            Assert.assertEquals(actualGroupId, expectedGroupId, objectName);
+        }
+    }
+
+    /**
      * Assert that the given object is owned by the given owner.
      * @param object a model object
      * @param expectedOwner a user's event context

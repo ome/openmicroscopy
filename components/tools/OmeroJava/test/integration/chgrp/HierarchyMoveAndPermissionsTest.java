@@ -875,24 +875,6 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
     }
 
     /**
-     * Assert that the given object is in the given group.
-     * @param object a model object
-     * @param group an experimenter group
-     * @throws Exception unexpected
-     */
-    private void assertObjectInGroup(IObject object, ExperimenterGroup group) throws Exception {
-        if (iAdmin.getEventContext().groupId != group.getId().getValue()) {
-            loginUser(group);
-        }
-        Class <? extends IObject> objectClass = object.getClass();
-        while (objectClass.getSuperclass() != IObject.class) {
-            objectClass = objectClass.getSuperclass().asSubclass(IObject.class);
-        }
-        object = iQuery.get(objectClass.getSimpleName(), object.getId().getValue());
-        Assert.assertEquals(object.getDetails().getGroup().getId().getValue(), group.getId().getValue());
-    }
-
-    /**
      * Test moving folder hierarchies.
      * @param folderOption if the child option should target folders
      * @param includeOrphans how to set child options
@@ -974,9 +956,9 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
 
         /* check which objects are now in which groups */
 
-        assertObjectInGroup(parentFolder, toGroup);
-        assertObjectInGroup(childFolder, childFolderMoves ? toGroup : fromGroup);
-        assertObjectInGroup(roi, roiMoves ? toGroup : fromGroup);
+        assertInGroup(parentFolder, toGroup);
+        assertInGroup(childFolder, childFolderMoves ? toGroup : fromGroup);
+        assertInGroup(roi, roiMoves ? toGroup : fromGroup);
     }
 
     /**
