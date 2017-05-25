@@ -85,6 +85,7 @@ import omero.gateway.model.GroupData;
 import omero.gateway.util.PojoMapper;
 import Glacier2.CannotCreateSessionException;
 import Glacier2.PermissionDeniedException;
+import Ice.ConnectionRefusedException;
 import Ice.DNSException;
 import Ice.SocketException;
 
@@ -264,6 +265,8 @@ public class Gateway {
         } catch (ServerError e) {
             throw new DSOutOfServiceException("Server error", e);
         } catch (SocketException e) {
+            if (e instanceof ConnectionRefusedException)
+                throw new DSOutOfServiceException("Connection refused", e);
             throw new DSOutOfServiceException("Host unreachable", e);
         } catch (DNSException e) {
             throw new DSOutOfServiceException("Can't resolve hostname "
@@ -1055,7 +1058,8 @@ public class Gateway {
                             .getUsername(), c.getUser().getPassword());
                 }
             }
-        } catch (Exception e1) {
+        } 
+        catch (Exception e1) {
             // close the session again before passing on the exception
             secureClient.closeSession();
             throw e1;
