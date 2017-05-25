@@ -71,4 +71,45 @@ public class GatewayUsageTest extends AbstractServerTest
         Assert.assertNotNull(root);
         gw.disconnect();
     }
+    
+    @Test
+    public void testFailedLogin() throws DSOutOfServiceException {
+        omero.client client = new omero.client();
+        String port = client.getProperty("omero.port");
+
+        LoginCredentials c = new LoginCredentials();
+        c.getServer().setHostname(client.getProperty("omero.host"));
+        c.getServer().setPort(Integer.parseInt(port));
+        c.getUser().setUsername("root");
+        c.getUser().setPassword("wrongPassword");
+
+        Gateway gw = new Gateway(new SimpleLogger());
+
+        try {
+            gw.connect(c);
+            Assert.fail("Connection should have failed");
+        } catch (Exception e) {
+            // Something about false "credentials"
+            Assert.assertTrue(e.getMessage().contains("credentials"));
+        }
+
+        c.getServer().setHostname("UnknownHost");
+        try {
+            gw.connect(c);
+            Assert.fail("Connection should have failed");
+        } catch (Exception e) {
+            // Something about "resolve" hostname failed
+            Assert.assertTrue(e.getMessage().contains("resolve"));
+        }
+
+        c.getServer().setHostname("192.168.213.213");
+        try {
+            gw.connect(c);
+            Assert.fail("Connection should have failed");
+        } catch (Exception e) {
+            // Something about host "unreachable"
+            Assert.assertTrue(e.getMessage().contains("unreachable"));
+        }
+    }
+
 }
