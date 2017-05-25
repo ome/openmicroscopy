@@ -44,7 +44,6 @@ import omero.model.AnnotationAnnotationLinkI;
 import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
 import omero.model.DatasetImageLink;
-import omero.model.DatasetImageLinkI;
 import omero.model.Experiment;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
@@ -1235,10 +1234,7 @@ public class PermissionsTest extends AbstractServerTest {
         init(linkOwner);
         final IObject link;
         if (isInDataset) {
-            final DatasetImageLink linkDI = new DatasetImageLinkI();
-            linkDI.setParent((Dataset) container);
-            linkDI.setChild(image);
-            link = iUpdate.saveAndReturnObject(linkDI);
+            link = linkDatasetImage((Dataset) container, image);
         } else {
             final FolderImageLink linkFI = new FolderImageLinkI();
             linkFI.setParent((Folder) container);
@@ -1316,10 +1312,7 @@ public class PermissionsTest extends AbstractServerTest {
         init(linkOwner);
         final IObject link;
         if (isInDataset) {
-            final DatasetImageLink linkDI = new DatasetImageLinkI();
-            linkDI.setParent((Dataset) container);
-            linkDI.setChild(image);
-            link = iUpdate.saveAndReturnObject(linkDI);
+            link = linkDatasetImage((Dataset) container, image);
         } else {
             final FolderImageLink linkFI = new FolderImageLinkI();
             linkFI.setParent((Folder) container);
@@ -1588,10 +1581,7 @@ public class PermissionsTest extends AbstractServerTest {
 
         final List<DatasetImageLink> links = new ArrayList<DatasetImageLink>(images.size());
         for (final IObject image : images) {
-            DatasetImageLink link = new DatasetImageLinkI();
-            link.setParent(dataset);
-            link.setChild((Image) image.proxy());
-            links.add((DatasetImageLink) iUpdate.saveAndReturnObject(link).proxy());
+            links.add(linkDatasetImage(dataset, (Image) image));
         }
 
         /* check that the objects' ownership is all as expected */
