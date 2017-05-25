@@ -265,9 +265,7 @@ public class Gateway {
         } catch (ServerError e) {
             throw new DSOutOfServiceException("Server error", e);
         } catch (SocketException e) {
-            if (e instanceof ConnectionRefusedException)
-                throw new DSOutOfServiceException("Connection refused", e);
-            throw new DSOutOfServiceException("Host unreachable", e);
+            throw new DSOutOfServiceException(e.getMessage(), e);
         } catch (DNSException e) {
             throw new DSOutOfServiceException("Can't resolve hostname "
                     + c.getServer().getHostname(), e);
