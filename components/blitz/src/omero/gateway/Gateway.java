@@ -263,7 +263,7 @@ public class Gateway {
         } catch (PermissionDeniedException e) {
             throw new DSOutOfServiceException("Login credentials not valid", e);
         } catch (ServerError e) {
-            throw new DSOutOfServiceException("Server error", e);
+            throw new DSOutOfServiceException(e.getMessage(), e);
         } catch (SocketException e) {
             throw new DSOutOfServiceException(e.getMessage(), e);
         } catch (DNSException e) {
