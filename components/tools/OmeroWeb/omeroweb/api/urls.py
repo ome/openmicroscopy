@@ -292,6 +292,13 @@ api_image_rois = url(
 GET ROIs that belong to an Image, using omero-marshal to generate json
 """
 
+api_experimenters = url(r'^v(?P<api_version>%s)/m/experimenters/$' % versions,
+                        views.ExperimentersView.as_view(),
+                        name='api_experimenters')
+"""
+GET Experimenters, using omero-marshal to generate json
+"""
+
 urlpatterns = patterns(
     '',
     api_versions,
@@ -327,4 +334,5 @@ urlpatterns = patterns(
     api_plate_screens,
     api_rois,
     api_image_rois,
+    api_experimenters,
 )

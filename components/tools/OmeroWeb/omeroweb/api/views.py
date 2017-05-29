@@ -688,6 +688,19 @@ class RoisView(ObjectsView):
         return opts
 
 
+class ExperimentersView(ObjectsView):
+    """Handles GET for /experimenters/ to list Experimenters."""
+
+    OMERO_TYPE = 'Experimenter'
+
+    def get_opts(self, request, **kwargs):
+        """Add extra parameters to the opts dict."""
+        opts = super(ExperimentersView, self).get_opts(request, **kwargs)
+        # order_by lastName, firstName
+        opts['order_by'] = 'lower(obj.lastName), lower(obj.firstName)'
+
+        return opts
+
 class SaveView(View):
     """
     This view provides 'Save' functionality for all types of objects.
