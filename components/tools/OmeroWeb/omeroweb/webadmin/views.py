@@ -99,7 +99,7 @@ from omero.model import PermissionsI
 def prepare_experimenter(conn, eid=None):
     if eid is None:
         eid = conn.getEventContext().userId
-    experimenter = conn.getObject("Experimenter", eid)
+    experimenter = conn.getObject("Experimenter", eid, opts={'load_groups': True})
     defaultGroup = experimenter.getDefaultGroup()
     otherGroups = list(experimenter.getOtherGroups())
     hasAvatar = conn.hasExperimenterPhoto()
@@ -384,7 +384,8 @@ def logout(request, **kwargs):
 def experimenters(request, conn=None, **kwargs):
     template = "webadmin/experimenters.html"
 
-    experimenterList = list(conn.getObjects("Experimenter"))
+    experimenterList = list(conn.getObjects("Experimenter",
+                                            opts={'load_groups': True}))
 
     context = {'experimenterList': experimenterList}
     context['template'] = template

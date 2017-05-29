@@ -2237,7 +2237,7 @@ class _BlitzGateway (object):
             uid = self.getUserId()
             if uid is not None:
                 self._user = self.getObject(
-                    "Experimenter", self._userid) or None
+                    "Experimenter", self._userid, opts={'load_groups': True})
         return self._user
 
     def getAdministrators(self):
@@ -5627,9 +5627,14 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
                             NB: No options supported for this class.
         :return:            Tuple of string, list, ParametersI
         """
-        query = ("select distinct obj from Experimenter as obj "
-                 "left outer join fetch obj.groupExperimenterMap as map "
-                 "left outer join fetch map.parent g")
+        query = "select obj from Experimenter as obj"
+
+        if opts is None:
+            opts = {}
+        if opts.get('load_groups'):
+            query += (" left outer join fetch obj.groupExperimenterMap "
+                      "as groupExperimenterMap "
+                      "left outer join fetch groupExperimenterMap.parent g")
         return query, [], omero.sys.ParametersI()
 
     def getRawPreferences(self):
