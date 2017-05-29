@@ -101,15 +101,6 @@ public class GatewayUsageTest extends AbstractServerTest
             // Something about "resolve" hostname failed
             Assert.assertTrue(e.getMessage().contains("resolve"));
         }
-
-        c.getServer().setHostname("192.168.213.213");
-        try {
-            gw.connect(c);
-            Assert.fail("Connection should have failed");
-        } catch (Exception e) {
-            // Something about host "unreachable"
-            Assert.assertTrue(e.getMessage().contains("unreachable"));
-        }
     }
 
 }
