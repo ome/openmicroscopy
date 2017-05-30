@@ -2237,7 +2237,7 @@ class _BlitzGateway (object):
             uid = self.getUserId()
             if uid is not None:
                 self._user = self.getObject(
-                    "Experimenter", self._userid, opts={'load_groups': True})
+                    "Experimenter", self._userid)
         return self._user
 
     def getAdministrators(self):
@@ -5631,7 +5631,10 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
 
         if opts is None:
             opts = {}
-        if opts.get('load_groups'):
+        # NB: In order not to change API for OMERO 5.3.3 we default
+        # 'load_groups' to True if not specified.
+        # In OMERO 5.4 we should change this default to False
+        if opts.get('load_groups') is None or opts.get('load_groups'):
             query += (" left outer join fetch obj.groupExperimenterMap "
                       "as groupExperimenterMap "
                       "left outer join fetch groupExperimenterMap.parent g")
