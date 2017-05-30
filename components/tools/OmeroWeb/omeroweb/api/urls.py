@@ -299,6 +299,15 @@ api_experimenters = url(r'^v(?P<api_version>%s)/m/experimenters/$' % versions,
 GET Experimenters, using omero-marshal to generate json
 """
 
+api_group_experimenters = url(
+    r'^v(?P<api_version>%s)/m/groups/(?P<group_id>[0-9]+)'
+    '/experimenters/$' % versions,
+    views.ExperimentersView.as_view(),
+    name='api_group_experimenters')
+"""
+GET Experimenters in a Group, using omero-marshal to generate json
+"""
+
 urlpatterns = patterns(
     '',
     api_versions,
@@ -335,4 +344,5 @@ urlpatterns = patterns(
     api_rois,
     api_image_rois,
     api_experimenters,
+    api_group_experimenters
 )
