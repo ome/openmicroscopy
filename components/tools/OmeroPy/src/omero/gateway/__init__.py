@@ -5622,23 +5622,35 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         Returns string for building queries, loading Experimenters only.
 
         Returns a tuple of (query, clauses, params).
+        Supported opts: 'group': <group_id> to filter by ExperimenterGroup
 
         :param opts:        Dictionary of optional parameters.
-                            NB: No options supported for this class.
         :return:            Tuple of string, list, ParametersI
         """
+        clauses = []
         query = "select obj from Experimenter as obj"
+        params = omero.sys.ParametersI()
 
         if opts is None:
             opts = {}
         # NB: In order not to change API for OMERO 5.3.3 we default
         # 'load_groups' to True if not specified.
         # In OMERO 5.4 we should change this default to False
-        if opts.get('load_groups') is None or opts.get('load_groups'):
+        if opts.get('load_groups') is None:
+            load_groups = True
+        else:
+            load_groups = opts.get('load_groups')
+        if load_groups:
             query += (" left outer join fetch obj.groupExperimenterMap "
                       "as groupExperimenterMap "
                       "left outer join fetch groupExperimenterMap.parent g")
-        return query, [], omero.sys.ParametersI()
+
+        if 'group' in opts:
+            if not load_groups:
+                query += ' join obj.groupExperimenterMap groupExperimenterMap'
+            clauses.append('groupExperimenterMap.parent.id = :group')
+            params.add('group', rlong(opts['group']))
+        return query, clauses, params
 
     def getRawPreferences(self):
         """
