@@ -5623,6 +5623,7 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
 
         Returns a tuple of (query, clauses, params).
         Supported opts: 'group': <group_id> to filter by ExperimenterGroup
+                        'load_groups': <bool> to load ExperimenterGroups'
 
         :param opts:        Dictionary of optional parameters.
         :return:            Tuple of string, list, ParametersI
@@ -5877,15 +5878,34 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
         Returns string for building queries, loading Experimenters for each
         group.
         Returns a tuple of (query, clauses, params).
+        Supported opts: 'experimenter': <experimenter_id> to filter by
+                                        ExperimenterGroup
+                        'load_experimenters': <bool> to load Experimenters'
 
         :param opts:        Dictionary of optional parameters.
-                            NB: No options supported for this class.
         :return:            Tuple of string, list, ParametersI
         """
-        query = ("select distinct obj from ExperimenterGroup as obj "
-                 "left outer join fetch obj.groupExperimenterMap as map "
-                 "left outer join fetch map.child e")
-        return query, [], omero.sys.ParametersI()
+        clauses = []
+        query = "select obj from ExperimenterGroup as obj"
+        params = omero.sys.ParametersI()
+
+        # NB: In order not to change API for OMERO 5.3.3 we default
+        # 'load_experimenters' to True if not specified.
+        # In OMERO 5.4 we should change this default to False
+        if opts.get('load_experimenters') is None:
+            load_experimenters = True
+        else:
+            load_experimenters = opts.get('load_experimenters')
+        if load_experimenters:
+            query += (" left outer join fetch obj.groupExperimenterMap as map "
+                      "left outer join fetch map.child e")
+
+        if 'experimenter' in opts:
+            if not load_experimenters:
+                query += ' join obj.groupExperimenterMap groupExperimenterMap'
+            clauses.append('groupExperimenterMap.child.id = :experimenter')
+            params.add('experimenter', rlong(opts['experimenter']))
+        return query, clauses, params
 
     def groupSummary(self, exclude_self=False):
         """
