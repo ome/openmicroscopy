@@ -5888,6 +5888,8 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
         clauses = []
         query = "select obj from ExperimenterGroup as obj"
         params = omero.sys.ParametersI()
+        if opts is None:
+            opts = {}
 
         # NB: In order not to change API for OMERO 5.3.3 we default
         # 'load_experimenters' to True if not specified.
