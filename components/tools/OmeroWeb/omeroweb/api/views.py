@@ -368,6 +368,32 @@ class WellView(ObjectView):
         return marshalled
 
 
+class ExperimenterView(ObjectView):
+
+    OMERO_TYPE = 'Experimenter'
+
+    CAN_DELETE = False
+
+    # Urls to add to marshalled object. See ProjectsView for more details
+    urls = {
+        'url:groups': {'name': 'api_experimenter_groups',
+                       'kwargs': {'experimenter_id': 'OBJECT_ID'}},
+    }
+
+
+class ExperimenterGroupView(ObjectView):
+
+    OMERO_TYPE = 'ExperimenterGroup'
+
+    CAN_DELETE = False
+
+    # Urls to add to marshalled object. See ProjectsView for more details
+    urls = {
+        'url:experimenters': {'name': 'api_group_experimenters',
+                              'kwargs': {'group_id': 'OBJECT_ID'}},
+    }
+
+
 class ObjectsView(ApiView):
     """Base class for listing objects."""
 
@@ -693,6 +719,14 @@ class ExperimentersView(ObjectsView):
 
     OMERO_TYPE = 'Experimenter'
 
+    # Urls to add to marshalled object. See ProjectsView for more details
+    urls = {
+        'url:experimenter': {'name': 'api_experimenter',
+                             'kwargs': {'object_id': 'OBJECT_ID'}},
+        'url:groups': {'name': 'api_experimenter_groups',
+                       'kwargs': {'experimenter_id': 'OBJECT_ID'}},
+    }
+
     def get_opts(self, request, **kwargs):
         """Add extra parameters to the opts dict."""
         opts = super(ExperimentersView, self).get_opts(request, **kwargs)
@@ -717,6 +751,14 @@ class ExperimenterGroupsView(ObjectsView):
     """Handles GET for /groups/ to list ExperimenterGroups."""
 
     OMERO_TYPE = 'ExperimenterGroup'
+
+    # Urls to add to marshalled object. See ProjectsView for more details
+    urls = {
+        'url:group': {'name': 'api_group',
+                      'kwargs': {'object_id': 'OBJECT_ID'}},
+        'url:experimenters': {'name': 'api_group_experimenters',
+                              'kwargs': {'group_id': 'OBJECT_ID'}},
+    }
 
     def get_opts(self, request, **kwargs):
         """Add extra parameters to the opts dict."""
