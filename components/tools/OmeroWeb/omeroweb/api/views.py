@@ -713,6 +713,31 @@ class ExperimentersView(ObjectsView):
         return opts
 
 
+class ExperimenterGroupsView(ObjectsView):
+    """Handles GET for /groups/ to list ExperimenterGroups."""
+
+    OMERO_TYPE = 'ExperimenterGroup'
+
+    def get_opts(self, request, **kwargs):
+        """Add extra parameters to the opts dict."""
+        opts = super(ExperimenterGroupsView, self).get_opts(request, **kwargs)
+        # Default 'load_experimenters' = True for 5.3.x, but we don't want them
+        opts['load_experimenters'] = False
+        # order_by group name
+        opts['order_by'] = 'lower(obj.name)'
+
+        # handle /experimenters/:experimenter_id/groups/
+        if 'experimenter_id' in kwargs:
+            opts['experimenter'] = long(kwargs['experimenter_id'])
+        else:
+            # filter by query /groups/?experimenter=:id
+            group = getIntOrDefault(request, 'experimenter', None)
+            if group is not None:
+                opts['experimenter'] = group
+
+        return opts
+
+
 class SaveView(View):
     """
     This view provides 'Save' functionality for all types of objects.
