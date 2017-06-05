@@ -411,8 +411,8 @@ public class MeasurePointFigure
     {
         if (shape == null) return;
         UnitPoint c = getMeasurementCentre();
-        AnnotationKeys.CENTREX.set(shape, transformX(c.x.getValue()));
-        AnnotationKeys.CENTREY.set(shape, transformY(c.y.getValue()));
+        AnnotationKeys.CENTREX.set(shape, c.x);
+        AnnotationKeys.CENTREY.set(shape, c.y);
     }
 
     /**

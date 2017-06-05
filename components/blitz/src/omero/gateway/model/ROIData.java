@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- * Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ * Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -21,11 +21,14 @@
 package omero.gateway.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
 
+import omero.UnloadedCollectionException;
 import omero.model.Ellipse;
+import omero.model.FolderRoiLink;
 import omero.model.Image;
 import omero.model.Line;
 import omero.model.Mask;
@@ -58,6 +61,12 @@ public class ROIData
     /** Is the object client side. */
     private boolean clientSide;
 
+    /** The folders this ROI is part of */
+    private Collection<FolderData> folders = new ArrayList<FolderData>();
+    
+    /** An optional UUID for the object */
+    private String uuid = "";
+    
     /** Initializes the map. */
     private void initialize()
     {
@@ -99,7 +108,19 @@ public class ROIData
                 data.add(s);
             }
         }
-    }
+        
+        try {
+            List<FolderRoiLink> folderLinks = roi.copyFolderLinks();
+            if (folderLinks != null) {
+                for (FolderRoiLink fl : folderLinks) {
+                    folders.add(new FolderData(fl.getParent()));
+                }
+            }
+        }
+        catch(UnloadedCollectionException e) {
+            // folders haven't been loaded.
+        }
+     }
 
     /**
      * Creates a new instance.
@@ -291,4 +312,30 @@ public class ROIData
         this.clientSide = clientSide;
     }
 
+    /**
+     * Get the folders this ROI is part of
+     * @return See above.
+     */
+    public Collection<FolderData> getFolders() {
+        return folders;
+    }
+
+    /**
+     * Get the UUID
+     * 
+     * @return See above
+     */
+    public String getUuid() {
+        return uuid;
+    }
+
+    /**
+     * Set the UUID
+     * 
+     * @param uuid
+     *            The UUID
+     */
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
 }

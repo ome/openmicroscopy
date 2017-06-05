@@ -101,7 +101,7 @@ public class ServerTemplateImportTarget extends TemplateImportTarget {
             Dataset dataset;
             List<IObject> datasets = (List<IObject>) query.findAllByQuery(
                 "select o from Dataset as o where o.name = :name"
-                + " order by o.id desc",
+                + " order by o.id " + order,
                 new ParametersI().add("name", rstring(name)));
             if (datasets.size() == 0 || getDiscriminator().startsWith("@")) {
                 dataset = new DatasetI();

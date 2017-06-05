@@ -59,6 +59,37 @@ class TestImage (object):
         thumb.verify()  # Raises if invalid
         assert thumb.format == 'JPEG'
         assert thumb.size == (64, 64)
+        # Projection
+        self.image.setProjection('intmax')
+        pThumb = self.image.getThumbnail()
+        ptfile = StringIO(pThumb)
+        pthumb = Image.open(ptfile)  # Raises if invalid
+        pthumb.verify()  # Raises if invalid
+
+    def testThumbnailSet(self, author_testimg_bad, author_testimg_big):
+        # ordinary and big image (4k x 4k and up)
+        img_ids = [self.image.id, author_testimg_big.id]
+        conn = self.image._conn
+        for (img_id, thumb) in conn.getThumbnailSet(image_ids=img_ids).items():
+            assert img_id in img_ids
+            tfile = StringIO(thumb)
+            thumb = Image.open(tfile)  # Raises if invalid
+            thumb.verify()  # Raises if invalid
+            assert thumb.format == 'JPEG'
+            assert thumb.size == (64, 64)
+
+        thumb = conn.getThumbnailSet(
+            image_ids=[self.image.id], max_size=96)[self.image.id]
+        tfile = StringIO(thumb)
+        thumb = Image.open(tfile)  # Raises if invalid
+        thumb.verify()  # Raises if invalid
+        assert thumb.size == (96, 96)
+
+        badimg_id = author_testimg_bad.id  # no pixels
+        with pytest.raises(KeyError):
+            thumb = conn.getThumbnailSet(
+                image_ids=[badimg_id])[badimg_id]
+        # Big image (4k x 4k and up) thumb
 
     def testRenderingModels(self):
         # default is color model
@@ -255,6 +286,21 @@ class TestImage (object):
         self.image.name = ''
         assert self.image.shortname(length=20, hist=5) == ''
         self.image.name = name
+
+    def testImageDate(self):
+        """ Test getAcquisitionDate() with invalid date """
+        # This imported image has no acquisition date:
+        acq_date = self.image.getAcquisitionDate()
+        assert acq_date is None
+        # Setting date to an invalid number... (not saved)
+        t = 100000 * 265 * 24 * 60 * 60 * 1000
+        self.image._obj.setAcquisitionDate(omero.rtypes.rtime(t))
+        # Check this doesn't throw an exception
+        try:
+            acq_date = self.image.getAcquisitionDate()
+        finally:
+            # Undo change
+            self.image._obj.setAcquisitionDate(None)
 
     def testSimpleMarshal(self, gatewaywrapper):
         """ Test the call to simpleMarhal """

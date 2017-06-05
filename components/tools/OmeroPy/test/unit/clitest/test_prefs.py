@@ -95,22 +95,44 @@ class TestPrefs(object):
         self.assertStdoutStderr(capsys)
 
     def testGetHidePassword(self, capsys):
-        self.invoke("set omero.X.pass shortpass")
-        self.cli.invoke(self.args + ["set", "omero.Y.pass", ""], strict=True)
-        self.invoke("set omero.Y.password long_password")
-        self.invoke("set omero.Z val")
+        config = {
+            "omero.X.mypassword": "long_password",
+            "omero.X.pass": "shortpass",
+            "omero.X.password": "medium_password",
+            "omero.X.regular": "value",
+            "omero.Y.MyPassword": "long_password",
+            "omero.Y.Pass": "shortpass",
+            "omero.Y.Password": "medium_password",
+            "omero.Z.mypassword": "",
+            "omero.Z.pass": "",
+            "omero.Z.password": ""}
+
+        for k, v in config.iteritems():
+            self.cli.invoke(self.args + ["set", k, v], strict=True)
         self.invoke("get")
         self.assertStdoutStderr(capsys, out=(
+            'omero.X.mypassword=long_password\n'
             'omero.X.pass=shortpass\n'
-            'omero.Y.pass=\n'
-            'omero.Y.password=long_password\n'
-            'omero.Z=val'))
+            'omero.X.password=medium_password\n'
+            'omero.X.regular=value\n'
+            'omero.Y.MyPassword=long_password\n'
+            'omero.Y.Pass=shortpass\n'
+            'omero.Y.Password=medium_password\n'
+            'omero.Z.mypassword=\n'
+            'omero.Z.pass=\n'
+            'omero.Z.password='))
         self.invoke("get --hide-password")
         self.assertStdoutStderr(capsys, out=(
+            'omero.X.mypassword=********\n'
             'omero.X.pass=********\n'
-            'omero.Y.pass=\n'
-            'omero.Y.password=********\n'
-            'omero.Z=val'))
+            'omero.X.password=********\n'
+            'omero.X.regular=value\n'
+            'omero.Y.MyPassword=********\n'
+            'omero.Y.Pass=********\n'
+            'omero.Y.Password=********\n'
+            'omero.Z.mypassword=\n'
+            'omero.Z.pass=\n'
+            'omero.Z.password='))
 
     @pytest.mark.parametrize('argument', ['A=B', 'A= B'])
     def testSetFails(self, capsys, argument):
@@ -243,19 +265,49 @@ class TestPrefs(object):
         with pytest.raises(NonZeroReturnCode):
             self.invoke("remove A %s" % newval)
 
-    def testAppendRemove(self, capsys):
-        self.invoke("append A 1")
+    @pytest.mark.parametrize('report', ['--report', ''])
+    def testAppendRemove(self, report, capsys):
+        self.invoke("append %s A 1" % report)
+        self.assertReportStdout(report, capsys, 'Appended A:1')
         self.invoke("get A")
         self.assertStdoutStderr(capsys, out='[1]')
-        self.invoke("append A \"y\"")
+        self.invoke("append %s A \"y\"" % report)
+        self.assertReportStdout(report, capsys, 'Appended A:"y"')
         self.invoke("get A")
         self.assertStdoutStderr(capsys, out='[1, "y"]')
-        self.invoke("remove A \"y\"")
+        self.invoke("remove %s A \"y\"" % report)
+        self.assertReportStdout(report, capsys, 'Removed A:"y"')
         self.invoke("get A")
         self.assertStdoutStderr(capsys, out='[1]')
-        self.invoke("remove A 1")
+        self.invoke("remove %s A 1" % report)
+        self.assertReportStdout(report, capsys, 'Removed A:1')
         self.invoke("get A")
         self.assertStdoutStderr(capsys, out='[]')
+
+    def assertReportStdout(self, report, capsys, out):
+        if report and out:
+            self.assertStdoutStderr(capsys, out='Changed: %s' % out)
+        else:
+            self.assertStdoutStderr(capsys, out='')
+
+    @pytest.mark.parametrize('report', ['--report', ''])
+    def testAppendSet(self, report, capsys):
+        self.invoke("append %s --set A 1" % report)
+        self.assertReportStdout(report, capsys, 'Appended A:1')
+        self.invoke("get A")
+        self.assertStdoutStderr(capsys, out='[1]')
+        self.invoke("append %s --set A 2" % report)
+        self.assertReportStdout(report, capsys, 'Appended A:2')
+        self.invoke("get A")
+        self.assertStdoutStderr(capsys, out='[1, 2]')
+        self.invoke("append %s --set A 1" % report)
+        self.assertReportStdout(report, capsys, '')
+        self.invoke("get A")
+        self.assertStdoutStderr(capsys, out='[1, 2]')
+        self.invoke("append %s A 1" % report)
+        self.assertReportStdout(report, capsys, 'Appended A:1')
+        self.invoke("get A")
+        self.assertStdoutStderr(capsys, out='[1, 2, 1]')
 
     def testRemoveIdenticalValues(self, capsys):
         self.invoke("set A [1,1]")
@@ -273,9 +325,15 @@ class TestPrefs(object):
             "omero.web.test": ["TEST", "[1,2,3]", json.loads],
             "omero.web.notalist": ["NOTALIST", "abc", str],
         })
+
         self.invoke("append omero.web.test 4")
         self.invoke("get omero.web.test")
         self.assertStdoutStderr(capsys, out='[1, 2, 3, 4]')
+        self.invoke("append --set omero.web.test 2")
+        self.assertStdoutStderr(capsys, out='')
+        self.invoke("get omero.web.test")
+        self.assertStdoutStderr(capsys, out='[1, 2, 3, 4]')
+
         self.invoke("append omero.web.unknown 1")
         self.invoke("get omero.web.unknown")
         self.assertStdoutStderr(capsys, out='[1]')

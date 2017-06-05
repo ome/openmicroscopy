@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2016 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2017 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -43,9 +43,14 @@ public class SecurityContext {
     /** Indicates to generate session for another user. */
     private boolean sudo;
 
+    /** Host/port of the server */
     private ServerInformation serverInformation;
 
-    private float compression;
+    /**
+     * A percentage compression level from 1.00 (100%) to 0.01 (1%) (the default
+     * is 85%)
+     */
+    private float compression = .85f;
 
     /**
      * Creates a new instance.
@@ -129,7 +134,9 @@ public class SecurityContext {
     }
 
     /**
-     * Get the compression level
+     * Get the compression level (A percentage compression level from 1.00
+     * (100%) to 0.01 (1%) (the default is 85%))
+     * 
      * @return See above.
      */
     public float getCompression() {
@@ -138,10 +145,14 @@ public class SecurityContext {
 
     /**
      * Set the compression level
-     * @param compression The compression ratio
+     * 
+     * @param compression
+     *            A percentage compression level from 1.00 (100%) to 0.01 (1%)
+     *            (the default is 85%)
      */
     public void setCompression(float compression) {
-        this.compression = compression;
+        this.compression = compression >= .01f && compression <= 1f ? compression
+                : .85f;
     }
 
     /**

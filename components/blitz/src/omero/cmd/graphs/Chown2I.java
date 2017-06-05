@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2017 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -20,16 +20,20 @@
 package omero.cmd.graphs;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 
 import com.google.common.base.Function;
 import com.google.common.collect.HashMultimap;
@@ -39,9 +43,18 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.SetMultimap;
 
 import ome.api.IAdmin;
+import ome.api.IQuery;
+import ome.model.IAnnotationLink;
+import ome.model.ILink;
 import ome.model.IObject;
+import ome.model.containers.DatasetImageLink;
+import ome.model.containers.FolderImageLink;
+import ome.model.containers.FolderRoiLink;
+import ome.model.containers.ProjectDatasetLink;
 import ome.model.internal.Details;
 import ome.model.meta.Experimenter;
+import ome.model.screen.ScreenPlateLink;
+import ome.parameters.Parameters;
 import ome.security.ACLVoter;
 import ome.security.SystemTypes;
 import ome.services.delete.Deletion;
@@ -53,6 +66,7 @@ import ome.services.graphs.PermissionsPredicate;
 import ome.system.EventContext;
 import ome.system.Login;
 import ome.system.Roles;
+import omero.ServerError;
 import omero.cmd.Chown2;
 import omero.cmd.Chown2Response;
 import omero.cmd.HandleI.Cancel;
@@ -81,9 +95,11 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
     private final Set<Class<? extends IObject>> targetClasses;
     private GraphPolicy graphPolicy;  /* not final because of adjustGraphPolicy */
     private final SetMultimap<String, String> unnullable;
+    private final ApplicationContext applicationContext;
 
     private List<Function<GraphPolicy, GraphPolicy>> graphPolicyAdjusters = new ArrayList<Function<GraphPolicy, GraphPolicy>>();
     private Helper helper;
+    private GraphHelper graphHelper;
     private GraphTraversal graphTraversal;
     private Set<Long> acceptableGroupsFrom;
     private Set<Long> acceptableGroupsTo;
@@ -105,10 +121,11 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
      * @param targetClasses legal target object classes for chown
      * @param graphPolicy the graph policy to apply for chown
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
+     * @param applicationContext the OMERO application context from Spring
      */
     public Chown2I(ACLVoter aclVoter, Roles securityRoles, SystemTypes systemTypes, GraphPathBean graphPathBean,
             Deletion deletionInstance, Set<Class<? extends IObject>> targetClasses, GraphPolicy graphPolicy,
-            SetMultimap<String, String> unnullable) {
+            SetMultimap<String, String> unnullable, ApplicationContext applicationContext) {
         this.aclVoter = aclVoter;
         this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
@@ -116,6 +133,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
         this.targetClasses = targetClasses;
         this.graphPolicy = graphPolicy;
         this.unnullable = unnullable;
+        this.applicationContext = applicationContext;
     }
 
     @Override
@@ -129,13 +147,15 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
             final GraphUtil.ParameterReporter arguments = new GraphUtil.ParameterReporter();
             arguments.addParameter("userId", userId);
             arguments.addParameter("targetObjects", targetObjects);
+            arguments.addParameter("targetUsers", targetUsers);
             arguments.addParameter("childOptions", childOptions);
             arguments.addParameter("dryRun", dryRun);
             LOGGER.debug("request: " + arguments);
         }
 
         this.helper = helper;
-        helper.setSteps(dryRun ? 4 : 6);
+        helper.setSteps(dryRun ? 5 : 7);
+        this.graphHelper = new GraphHelper(helper, graphPathBean);
 
         /* if the current user is not an administrator then find of which groups the target user is a member */
         final EventContext eventContext = helper.getEventContext();
@@ -147,34 +167,116 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
             final IAdmin iAdmin = helper.getServiceFactory().getAdminService();
             acceptableGroupsFrom = ImmutableSet.copyOf(eventContext.getLeaderOfGroupsList());
             acceptableGroupsTo = ImmutableSet.copyOf(iAdmin.getMemberOfGroupIds(new Experimenter(userId, false)));
-        }
-
-        final List<ChildOptionI> childOptions = ChildOptionI.castChildOptions(this.childOptions);
-
-        if (childOptions != null) {
-            for (final ChildOptionI childOption : childOptions) {
-                childOption.init();
+            if (acceptableGroupsFrom.isEmpty()) {
+                throw new RuntimeException(new GraphException("not an owner of any group"));
+            }
+            if (targetUsers != null) {
+                for (final Long targetUserId : targetUsers) {
+                    final Set<Long> groupsForTargetUserData = new HashSet<Long>(acceptableGroupsFrom);
+                    final Experimenter targetUser = new Experimenter(targetUserId, false);
+                    groupsForTargetUserData.retainAll(iAdmin.getMemberOfGroupIds(targetUser));
+                    if (groupsForTargetUserData.isEmpty()) {
+                        final String message = "not an owner of any group of " +
+                                Experimenter.class.getName() + "[" + targetUserId + "]";
+                        throw new RuntimeException(new GraphException(message));
+                    }
+                }
             }
         }
 
-        GraphPolicy graphPolicyWithOptions = graphPolicy;
+        graphPolicy.registerPredicate(new PermissionsPredicate());
 
-        graphPolicyWithOptions = ChildOptionsPolicy.getChildOptionsPolicy(graphPolicyWithOptions, childOptions, REQUIRED_ABILITIES);
+        graphTraversal = graphHelper.prepareGraphTraversal(childOptions, REQUIRED_ABILITIES, graphPolicy, graphPolicyAdjusters,
+                aclVoter, systemTypes, graphPathBean, unnullable, new InternalProcessor(), dryRun);
 
-        for (final Function<GraphPolicy, GraphPolicy> adjuster : graphPolicyAdjusters) {
-            graphPolicyWithOptions = adjuster.apply(graphPolicyWithOptions);
-        }
         graphPolicyAdjusters = null;
+    }
 
-        graphPolicyWithOptions.registerPredicate(new PermissionsPredicate());
-
-        GraphTraversal.Processor processor = new InternalProcessor();
-        if (dryRun) {
-            processor = GraphUtil.disableProcessor(processor);
+    /**
+     * Get a map of which classes implement which interfaces.
+     * Map keys include the interfaces implemented indirectly as implemented interfaces extend others.
+     * Map values are limited to model classes that have no subclasses and that are legal targets for this request.
+     * @return the map of interfaces to classes
+     * @throws ServerError if the graph path bean reports an unknown class
+     */
+    private SetMultimap<Class<?>, Class<? extends IObject>> getImplementorMap() throws ServerError {
+        /* find the classes that have no subclasses */
+        final Set<Class<? extends IObject>> leafClasses = new HashSet<Class<? extends IObject>>();
+        for (final String className : graphPathBean.getAllClasses()) {
+            if (graphPathBean.getSubclassesOf(className).isEmpty()) {
+                try {
+                    leafClasses.add(Class.forName(className).asSubclass(IObject.class));
+                } catch (ClassNotFoundException cnfe) {
+                    throw new ServerError(null, null, "graph path bean reports unknown class " + className, cnfe);
+                }
+            }
         }
+        /* retain only the classes that are legal targets */
+        final Iterator<Class<? extends IObject>> leafClassIterator = leafClasses.iterator();
+        while (leafClassIterator.hasNext()) {
+            final Class<? extends IObject> leafClass = leafClassIterator.next();
+            boolean isLegal = false;
+            for (final Class<? extends IObject> targetClass : targetClasses) {
+                if (targetClass.isAssignableFrom(leafClass)) {
+                    isLegal = true;
+                    break;
+                }
+            }
+            if (!isLegal) {
+                leafClassIterator.remove();
+            }
+        }
+        /* index the classes by which interfaces they implement, whether directly or indirectly */
+        final SetMultimap<Class<?>, Class<? extends IObject>> implementors = HashMultimap.create();
+        for (final Class<? extends IObject> leafClass : leafClasses) {
+            final Set<Class<?>> interfaces = new HashSet<Class<?>>(Arrays.asList(leafClass.getInterfaces()));
+            while (!interfaces.isEmpty()) {
+                final Iterator<Class<?>> interfaceIterator = interfaces.iterator();
+                final Class<?> intrface = interfaceIterator.next();
+                interfaceIterator.remove();
+                interfaces.addAll(Arrays.asList(intrface.getInterfaces()));
+                implementors.put(intrface, leafClass);
+            }
+        }
+        return implementors;
+    }
 
-        graphTraversal = new GraphTraversal(helper.getSession(), eventContext, aclVoter, systemTypes, graphPathBean, unnullable,
-                graphPolicyWithOptions, processor);
+    /**
+     * Add to {@link omero.cmd.GraphQuery#targetObjects} all model objects owned by target users that this current user can target.
+     * @throws ServerError if the graph path bean reports an unknown class
+     */
+    private void targetAllUsersObjects() throws ServerError {
+        final SetMultimap<Class<?>, Class<? extends IObject>> implementorMap = getImplementorMap();
+        final IQuery iQuery = helper.getServiceFactory().getQueryService();
+        Parameters params = new Parameters().addList("owners", targetUsers);
+        if (acceptableGroupsFrom != null) {
+            params = params.addSet("groups", acceptableGroupsFrom);
+        }
+        final Set<Class<? extends IObject>> classesToQuery = new HashSet<Class<? extends IObject>>();
+        for (final Class<? extends IObject> targetClass : targetClasses) {
+            final Set<Class<? extends IObject>> implementors = implementorMap.get(targetClass);
+            if (implementors.isEmpty()) {
+                classesToQuery.add(targetClass);
+            } else {
+                classesToQuery.addAll(implementors);
+            }
+        }
+        for (final Class<? extends IObject> queryClass : classesToQuery) {
+            final String queryClassName = queryClass.getName();
+            final String idProperty = graphPathBean.getIdentifierProperty(queryClassName);
+            String hql = "SELECT " + idProperty + " FROM " + queryClassName + " WHERE details.owner.id IN (:owners)";
+            if (acceptableGroupsFrom != null) {
+                hql += " AND details.group.id IN (:groups)";
+            }
+            List<Long> idList = targetObjects.get(queryClassName);
+            if (idList == null) {
+                idList = new ArrayList<Long>();
+                targetObjects.put(queryClassName, idList);
+            }
+            for (final Object[] id : iQuery.projection(hql, params)) {
+                idList.add((Long) id[0]);
+            }
+        }
     }
 
     @Override
@@ -183,46 +285,30 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
         try {
             switch (step) {
             case 0:
-                /* if targetObjects were an IObjectList then this would need IceMapper.reverse */
-                final SetMultimap<String, Long> targetMultimap = HashMultimap.create();
-                for (final Entry<String, List<Long>> oneClassToTarget : targetObjects.entrySet()) {
-                    /* determine actual class from given target object class name */
-                    String targetObjectClassName = oneClassToTarget.getKey();
-                    final int lastDot = targetObjectClassName.lastIndexOf('.');
-                    if (lastDot > 0) {
-                        targetObjectClassName = targetObjectClassName.substring(lastDot + 1);
-                    }
-                    final Class<? extends IObject> targetObjectClass = graphPathBean.getClassForSimpleName(targetObjectClassName);
-                    /* check that it is legal to target the given class */
-                    final Iterator<Class<? extends IObject>> legalTargetsIterator = targetClasses.iterator();
-                    do {
-                        if (!legalTargetsIterator.hasNext()) {
-                            final Exception e = new IllegalArgumentException("cannot target " + targetObjectClassName);
-                            throw helper.cancel(new ERR(), e, "bad-target");
-                        }
-                    } while (!legalTargetsIterator.next().isAssignableFrom(targetObjectClass));
-                    /* note IDs to target for the class */
-                    final Collection<Long> ids = oneClassToTarget.getValue();
-                    targetMultimap.putAll(targetObjectClass.getName(), ids);
-                    targetObjectCount += ids.size();
+                if (CollectionUtils.isNotEmpty(targetUsers)) {
+                    targetAllUsersObjects();
                 }
+                return null;
+            case 1:
+                final SetMultimap<String, Long> targetMultimap = graphHelper.getTargetMultimap(targetClasses, targetObjects);
+                targetObjectCount += targetMultimap.size();
                 final Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> plan =
                         graphTraversal.planOperation(helper.getSession(), targetMultimap, true, true);
                 return Maps.immutableEntry(plan.getKey(), GraphUtil.arrangeDeletionTargets(helper.getSession(), plan.getValue()));
-            case 1:
+            case 2:
                 graphTraversal.assertNoPolicyViolations();
                 return null;
-            case 2:
+            case 3:
                 processor = graphTraversal.processTargets();
                 return null;
-            case 3:
+            case 4:
                 unlinker = graphTraversal.unlinkTargets(false);
                 graphTraversal = null;
                 return null;
-            case 4:
+            case 5:
                 unlinker.execute();
                 return null;
-            case 5:
+            case 6:
                 processor.execute();
                 return null;
             default:
@@ -247,7 +333,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
     @Override
     public void buildResponse(int step, Object object) {
         helper.assertResponse(step);
-        if (step == 0) {
+        if (step == 1) {
             /* if the results object were in terms of IObjectList then this would need IceMapper.map */
             final Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> result =
                     (Entry<SetMultimap<String, Long>, SetMultimap<String, Long>>) object;
@@ -258,20 +344,10 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
                     helper.cancel(new ERR(), e, "file-delete-fail");
                 }
             }
-            final Map<String, List<Long>> givenObjects = new HashMap<String, List<Long>>();
-            final Map<String, List<Long>> deletedObjects = new HashMap<String, List<Long>>();
-            for (final Entry<String, Collection<Long>> oneGivenClass : result.getKey().asMap().entrySet()) {
-                final String className = oneGivenClass.getKey();
-                final Collection<Long> ids = oneGivenClass.getValue();
-                givenObjects.put(className, new ArrayList<Long>(ids));
-                givenObjectCount += ids.size();
-            }
-            for (final Entry<String, Collection<Long>> oneDeletedClass : result.getValue().asMap().entrySet()) {
-                final String className = oneDeletedClass.getKey();
-                final Collection<Long> ids = oneDeletedClass.getValue();
-                deletedObjects.put(className, new ArrayList<Long>(ids));
-                deletedObjectCount += ids.size();
-            }
+            final Map<String, List<Long>> givenObjects = GraphUtil.copyMultimapForResponse(result.getKey());
+            final Map<String, List<Long>> deletedObjects = GraphUtil.copyMultimapForResponse(result.getValue());
+            givenObjectCount += result.getKey().size();
+            deletedObjectCount += result.getValue().size();
             final Chown2Response response = new Chown2Response(givenObjects, deletedObjects);
             helper.setResponseIfNull(response);
             helper.info("in " + (dryRun ? "mock " : "") + "chown to " + userId + " of " + targetObjectCount +
@@ -308,7 +384,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
 
     @Override
     public int getStepProvidingCompleteResponse() {
-        return 0;
+        return 1;
     }
 
     @Override
@@ -322,6 +398,47 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
     }
 
     /**
+     * Notes links that are to be given. Intended for use in {@link HashSet}s.
+     * @author m.t.b.carroll@dundee.ac.uk
+     * @since 5.3.0
+     */
+    private final class LinkDetails {
+        private final Class<? extends ILink> linkType;
+        private final long parentId, childId;
+
+        /**
+         * Construct a new note of link details.
+         * @param linkType the type of link
+         * @param parentId the ID of the link's parent <q>from</q> object
+         * @param childId the ID of the link's child <q>to</q> object
+         */
+        public LinkDetails(Class<? extends ILink> linkType, long parentId, long childId) {
+            this.linkType = linkType;
+            this.parentId = parentId;
+            this.childId = childId;
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if (other == this) {
+                return true;
+            } else if (other instanceof LinkDetails) {
+                final LinkDetails otherLink = (LinkDetails) other;
+                return this.linkType == otherLink.linkType &&
+                        this.parentId == otherLink.parentId &&
+                        this.childId == otherLink.childId;
+            } else {
+                return false;
+            }
+        }
+
+        @Override
+        public int hashCode() {
+            return Arrays.hashCode(new Object[] {LinkDetails.class, linkType, parentId, childId});
+        }
+    }
+
+    /**
      * A <q>chown</q> processor that updates model objects' user.
      * @author m.t.b.carroll@dundee.ac.uk
      * @since 5.1.0
@@ -330,11 +447,24 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
 
         private final Logger LOGGER = LoggerFactory.getLogger(InternalProcessor.class);
 
+        @SuppressWarnings("unchecked")
+        private final ImmutableSet<Class<? extends ILink>> UNIQUENESS_RISK_LINK_TYPES = ImmutableSet.of(
+                IAnnotationLink.class, ScreenPlateLink.class, ProjectDatasetLink.class, DatasetImageLink.class,
+                FolderImageLink.class, FolderRoiLink.class);
+
         private final Long userFromId = helper.getEventContext().getCurrentUserId();
         private final Experimenter userTo = new Experimenter(userId, false);
 
+        private final Set<LinkDetails> linksToChown = new HashSet<LinkDetails>();
+
         public InternalProcessor() {
             super(helper.getSession());
+        }
+
+        @Override
+        public void deleteInstances(String className, Collection<Long> ids) throws GraphException {
+            super.deleteInstances(className, ids);
+            graphHelper.publishEventLog(applicationContext, "DELETE", className, ids);
         }
 
         @Override
@@ -342,6 +472,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
             final String update = "UPDATE " + className + " SET details.owner = :user WHERE id IN (:ids)";
             final int count =
                     session.createQuery(update).setParameter("user", userTo).setParameterList("ids", ids).executeUpdate();
+            graphHelper.publishEventLog(applicationContext, "UPDATE", className, ids);
             if (count != ids.size()) {
                 LOGGER.warn("not all the objects of type " + className + " could be processed");
             }
@@ -352,8 +483,26 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
             return REQUIRED_ABILITIES;
         }
 
+        /**
+         * Determine if the given link type may be duplicated among different users.
+         * @param linkType the type of link
+         * @return if multiple identical links may exist among different users
+         */
+        private boolean isDuplicationRisk(Class<? extends ILink> linkType) {
+            for (final Class<? extends ILink> riskType : UNIQUENESS_RISK_LINK_TYPES) {
+                if (riskType.isAssignableFrom(linkType)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         @Override
         public void assertMayProcess(String className, long objectId, Details details) throws GraphException {
+            if (details.getOwner().getId() == userId) {
+                /* no-op */
+                return;
+            }
             /* final Long objectOwnerId = details.getOwner().getId();
                also allow userFromId.equals(objectOwnerId) for users to chown their own data */
             final Long objectGroupId = details.getGroup().getId();
@@ -362,6 +511,32 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
             }
             if (!(acceptableGroupsTo == null || acceptableGroupsTo.contains(objectGroupId))) {
                 throw new GraphException("user " + userId + " is not a member of group " + objectGroupId);
+            }
+            final Class<?> actualClass;
+            try {
+                actualClass = Class.forName(className);
+            } catch (ClassNotFoundException cnfe) {
+                LOGGER.error("could not look up model class " + className, cnfe);
+                return;
+            }
+            if (ILink.class.isAssignableFrom(actualClass)) {
+                final Class<? extends ILink> linkType = actualClass.asSubclass(ILink.class);
+                if (isDuplicationRisk(linkType)) {
+                    final Object[] parentChildIds = (Object[]) session.createQuery(
+                            "SELECT parent.id, child.id FROM " + className + " WHERE id = :id")
+                            .setParameter("id", objectId)
+                            .uniqueResult();
+                    final Long parentId = (Long) parentChildIds[0];
+                    final Long childId = (Long) parentChildIds[1];
+                    final Long count = (Long) session.createQuery(
+                            "SELECT COUNT(*) FROM " + className +
+                            " WHERE parent.id = :parent AND child.id = :child AND details.owner.id = :owner")
+                            .setParameter("parent", parentId).setParameter("child", childId).setParameter("owner", userId)
+                            .uniqueResult();
+                    if (count > 0 || !linksToChown.add(new LinkDetails(linkType, parentId, childId))) {
+                        throw new GraphException("would have user " + userId + " owning multiple identical links");
+                    }
+                }
             }
         }
     }

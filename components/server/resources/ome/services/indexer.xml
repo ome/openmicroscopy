@@ -3,8 +3,6 @@
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# $Id$
-#
 # Copyright 2009 Glencoe Software, Inc. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
@@ -54,6 +52,12 @@
   <bean id="allGroupSecurityFilter" class="ome.security.basic.AllGroupsSecurityFilter">
     <constructor-arg ref="simpleSqlAction"/>
     <constructor-arg ref="roles"/>
+    <property name="defaultFilterCondition" value="true"/>
+  </bean>
+
+  <bean id="sharingSecurityFilter" class="ome.security.basic.SharingSecurityFilter">
+    <constructor-arg ref="roles"/>
+    <constructor-arg ref="shareStore"/>
     <property name="defaultFilterCondition" value="true"/>
   </bean>
 

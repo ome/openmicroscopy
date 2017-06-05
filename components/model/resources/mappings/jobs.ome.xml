@@ -2,8 +2,6 @@
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # 
-# $Id$
-# 
 # Copyright 2007-2014 Glencoe Software, Inc. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
@@ -76,8 +74,8 @@
 	<type id="ome.model.jobs.ImportJob" superclass="ome.model.jobs.Job">
 		<!-- Note: ImportJob is not in model-->
 		<properties>
-			<required name="imageName" type="string"/>
-			<required name="imageDescription" type="string"/>
+			<required name="imageName" type="text"/>
+			<required name="imageDescription" type="text"/>
 		</properties>
 	</type>
 	<type id="ome.model.jobs.ScriptJob" superclass="ome.model.jobs.Job">

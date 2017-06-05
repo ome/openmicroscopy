@@ -26,14 +26,17 @@ Decorators for use with the webclient application.
 import logging
 
 import omeroweb.decorators
+from omero import constants
 
 from django.http import HttpResponse
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.core.urlresolvers import NoReverseMatch
 
 from omeroweb.webclient.forms import GlobalSearchForm
+from omeroweb.utils import reverse_with_params
 
-logger = logging.getLogger('omeroweb.webclient.decorators')
+logger = logging.getLogger(__name__)
 
 
 class login_required(omeroweb.decorators.login_required):
@@ -115,6 +118,13 @@ class render_response(omeroweb.decorators.render_response):
             return
         conn = kwargs['conn']
 
+        # omero constants
+        context['omero'] = {'constants': {
+            'NSCOMPANIONFILE': constants.namespaces.NSCOMPANIONFILE,
+            'ORIGINALMETADATA': constants.annotation.file.ORIGINALMETADATA,
+            'NSCLIENTMAPANNOTATION': constants.metadata.NSCLIENTMAPANNOTATION
+        }}
+
         context.setdefault('ome', {})   # don't overwrite existing ome
         context['ome']['eventContext'] = conn.getEventContext
         context['ome']['user'] = conn.getUser
@@ -128,13 +138,17 @@ class render_response(omeroweb.decorators.render_response):
             context['ome']['email'] = request.session.get(
                 'server_settings').get('email', False)
             if request.session.get('server_settings').get('ui'):
-                context.setdefault('ui', {})  # don't overwrite existing ui
+                # don't overwrite existing ui
+                context.setdefault('ui', {'tree': {}})
                 context['ui']['orphans'] = \
                     request.session.get('server_settings').get('ui', {}) \
                     .get('tree', {}).get('orphans')
                 context['ui']['dropdown_menu'] = \
                     request.session.get('server_settings').get('ui', {}) \
                     .get('menu', {}).get('dropdown')
+                context['ui']['tree']['type_order'] = \
+                    request.session.get('server_settings').get('ui', {}) \
+                    .get('tree', {}).get('type_order')
 
         self.load_settings(request, context, conn)
 
@@ -154,15 +168,23 @@ class render_response(omeroweb.decorators.render_response):
             l["label"] = tl[0]
             link_id = tl[1]
             try:
-                l["link"] = reverse(link_id)
-            except:
-                # assume we've been passed a url
-                l["link"] = link_id
+                # test if complex dictionary view with args and query_string
+                l["link"] = reverse_with_params(**link_id)
+            except TypeError:
+                # assume is only view name
+                try:
+                    l["link"] = reverse(link_id)
+                except NoReverseMatch:
+                    # assume we've been passed a url
+                    l["link"] = link_id
             # simply add optional attrs dict
             if len(tl) > 2:
                 l['attrs'] = tl[2]
             links.append(l)
         context['ome']['top_links'] = links
+
+        metadata_panes = settings.METADATA_PANES
+        context['ome']['metadata_panes'] = metadata_panes
 
         right_plugins = settings.RIGHT_PLUGINS
         r_plugins = []

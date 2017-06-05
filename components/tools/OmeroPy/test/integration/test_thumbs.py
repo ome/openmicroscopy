@@ -9,7 +9,7 @@
 
 """
 
-import library as lib
+from omero.testlib import ITest
 import pytest
 
 from omero import MissingPyramidException
@@ -18,7 +18,20 @@ from omero.util.concurrency import get_event
 from omero.rtypes import rint, unwrap
 
 
-class TestThumbs(lib.ITest):
+class TestThumbs(ITest):
+
+    @classmethod
+    def open_jpeg_buffer(cls, buf):
+        try:
+            from PIL import Image
+        except ImportError:
+            try:
+                import Image
+            except ImportError:
+                assert False, "Pillow not installed"
+        from io import BytesIO
+        tfile = BytesIO(buf)
+        return Image.open(tfile)  # Raises if invalid
 
     def assertTb(self, buf, x=64, y=64):
         thumb = self.open_jpeg_buffer(buf)

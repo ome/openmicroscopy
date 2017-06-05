@@ -54,18 +54,6 @@ public class ServiceFactory {
     protected OmeroContext ctx;
 
     /**
-     * public access to the context. This may not always be available, but for
-     * this initial phase, it makes some sense. Completely non-dangerous on the
-     * client-side.
-     * 
-     * @deprecated
-     */
-    @Deprecated
-    public OmeroContext getContext() {
-        return ctx;
-    }
-
-    /**
      * default constructor which obtains the global static
      * {@link ome.system.OmeroContext#CLIENT_CONTEXT client context} from
      * {@link ome.system.OmeroContext}. This can be done manually by calling

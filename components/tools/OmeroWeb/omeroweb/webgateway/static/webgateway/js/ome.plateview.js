@@ -79,7 +79,7 @@
   (
    function () {
      if (!this.WeblitzPlateview)
-	 this.WeblitzPlateview = new jQuery._WeblitzPlateview (this, options);
+   this.WeblitzPlateview = new jQuery._WeblitzPlateview (this, options);
    });
 };
 
@@ -100,19 +100,22 @@ jQuery.WeblitzPlateview = function (elm, options) {
 jQuery._WeblitzPlateview = function (container, options) {
   var opts = jQuery.extend({
       baseurl: '',
+      staticurl: '/static/webgateway/',
       width: 64,
       height: 48,
-      size: 96,
       useParentPrefix: true,
+      thumbnailsBatch: 50,
+      defaultThumb: ''
     }, options);
 
-  opts.size = opts.size || Math.max(opts.width, opts.height);
+  // if options.size is set, it will be used below, otherwise thumbs will be default size
   this.self = jQuery(container);
   this.self.addClass('weblitz-plateview');
   this.origHTML = this.self.html();
   this.self.html("");
   var _this = this;
   var thisid = this.self.attr('id');
+  var spacer_gif_src = opts.staticurl + 'img/spacer.gif';
 
   var _reset = function (result, data) {
     _this.self.html("");
@@ -127,25 +130,32 @@ jQuery._WeblitzPlateview = function (container, options) {
         _this.self.trigger('thumbClick', [tdata, this]);
       };
     };
+    // Classes added to table by thumb slider to control well size and hover wellLabel
+    // NB: don't add other classes here - will get removed on slider change.
+    table.addClass('showWellLabel wellSize' + opts.width);
+
+    var imgIds = [];
     for (i=0; i < data.rowlabels.length; i++) {
       tr = $('<tr></tr>').appendTo(table);
       tr.append('<th>'+data.rowlabels[i]+'</th>');
       for (var j=0; j<data.grid[i].length; j++) {
         if (data.grid[i][j] === null) {
-        tr.append('<td class="placeholder"><div class="placeholder" style="width:'+opts.width+'px;height:'+opts.height+'px;line-height:'+opts.height+'px;">&nbsp;</div></td>');
+        tr.append('<td class="placeholder"><img src="' + spacer_gif_src + '" /></td>');
         } else {
+          imgIds.push(data.grid[i][j].id);
           data.grid[i][j]._wellpos = data.rowlabels[i]+data.collabels[j];
           var parentPrefix = '';
           if (opts.useParentPrefix) {
               parentPrefix = thisid+'-';
           }
           var td = $('<td class="well" id="'+parentPrefix+'well-'+data.grid[i][j].wellId+'">' +
-            '<div class="waiting" style="width:'+opts.width+'px;height:'+opts.height+'px;"></div>' +
-            '<img id="'+parentPrefix+'image-'+data.grid[i][j].id+'" class="loading" style="width:'+opts.width+'px;height:'+opts.height+'px;" src="'+ data.grid[i][j].thumb_url+'" name="'+(data.rowlabels[i] + data.collabels[j])+'"></td>');
+            '<img class="waiting" src="' + spacer_gif_src + '" />' +
+            '<div class="wellLabel">' + data.rowlabels[i] + data.collabels[j] + '</div>' +
+            '<img id="'+parentPrefix+'image-'+data.grid[i][j].id+'" class="loading" name="'+(data.rowlabels[i] + data.collabels[j])+'"></td>');
           $('img', td)
             .click(tclick(data.grid[i][j]))
-            .load(function() { 
-              $(this).removeClass('loading').siblings().remove();
+            .load(function() {
+              $(this).removeClass('loading').siblings('.waiting').remove();
               _this.self.trigger('thumbLoad', [$(this).parent(), $(this)]);
             })
             .data('wellpos', data.rowlabels[i] + data.collabels[j]);
@@ -154,6 +164,31 @@ jQuery._WeblitzPlateview = function (container, options) {
         }
       }
     }
+
+    // load thumbnails in a batches
+    var load_thumbnails = function(input, batch) {
+      if (input.length > 0 && batch > 0) {
+        var iids = input.slice(0 , batch)
+        if (iids.length > 0) {
+          var thumbnails_url = opts.baseurl+'/get_thumbnails/';
+          thumbnails_url += '?' + $.param( { id: iids }, true);
+          var _load_thumbnails = function (result, data) {
+            $.each(data, function(key, value) {
+              if (value === null) {
+                value = opts.defaultThumb;
+              }
+              $("img#"+parentPrefix+"image-"+key).attr("src", value);
+            });
+          }
+          gs_json(thumbnails_url, null, _load_thumbnails);
+          input = input.slice(batch, input.length);
+          load_thumbnails(input, batch);
+        }
+      }
+    }
+
+    thumbnailsBatch = parseInt(opts.thumbnailsBatch);
+    load_thumbnails(imgIds, thumbnailsBatch);
     _this.self.trigger('_resetLoaded');
   };
 
@@ -163,7 +198,11 @@ jQuery._WeblitzPlateview = function (container, options) {
     if (field === undefined) {
       field = 0;
     }
-    gs_json(opts.baseurl+'/plate/'+pid+'/'+field+'/', {size:opts.size}, _reset);
+    var url = opts.baseurl+'/plate/'+pid+'/'+field+'/';
+    if (opts.size) {
+      url += '?size='+opts.size;
+    }
+    gs_json(url, null, _reset);
   };
 
   this.setFocus = function (elm, evt) {

@@ -730,7 +730,7 @@ public interface OmeroMetadataService
 	 * retrieve data from OMERO service.
 	 */
 	public Map<Long, Collection<AnnotationData>>
-	loadAnnotations(SecurityContext ctx, Class<?> rootType,
+	loadAnnotations(SecurityContext ctx, Class<? extends DataObject> rootType,
 		List<Long> rootIDs, Class<?> annotationType, List<String> nsInclude,
 		List<String> nsExlcude)
 	throws DSOutOfServiceException, DSAccessException;
@@ -747,7 +747,7 @@ public interface OmeroMetadataService
 	 * retrieve data from OMERO service.
 	 */
 	public Map<Long, List<IObject>> loadLogFiles(SecurityContext ctx,
-	        Class<?> rootType, List<Long> rootIDs)
+	        Class<? extends DataObject> rootType, List<Long> rootIDs)
 	                throws DSOutOfServiceException, DSAccessException;
 
     /**

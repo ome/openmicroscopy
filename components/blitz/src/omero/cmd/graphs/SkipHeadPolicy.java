@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2016 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -85,15 +85,11 @@ public class SkipHeadPolicy {
                 ImmutableSet.copyOf(Collections2.transform(startFrom, getClassFromName));
 
         final Predicate<IObject> isStartFrom = new Predicate<IObject>() {
+            private final Predicate<Class<? extends IObject>> tester = GraphUtil.getPredicateFromClasses(startFromClasses);
+
             @Override
             public boolean apply(IObject subject) {
-                final Class<? extends IObject> subjectClass = subject.getClass();
-                for (final Class<? extends IObject> startFromClass : startFromClasses) {
-                    if (startFromClass.isAssignableFrom(subjectClass)) {
-                        return true;
-                    }
-                }
-                return false;
+                return tester.apply(subject.getClass());
             }
         };
 

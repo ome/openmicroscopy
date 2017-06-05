@@ -302,7 +302,10 @@ class LightSourceComponent
             else {
             	area = UIUtilities.createComponent(OMETextArea.class, null);
             	((OMETextArea) area).setEditable(false);
-            	((OMETextArea) area).setText((String) value);
+                if (value != null)
+                    ((OMETextArea) area).setText(value.toString());
+                else
+                    ((OMETextArea) area).setText("N/A");
             	((OMETextArea) area).setEditedColor(
             			UIUtilities.EDITED_COLOR);
             }

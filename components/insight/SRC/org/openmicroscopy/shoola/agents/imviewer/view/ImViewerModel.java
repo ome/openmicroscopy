@@ -123,7 +123,7 @@ class ImViewerModel
 {
 
     /** Default maximum export size, 12kx12kx image */
-    static int DEFAULT_MAX_EXPORT_SIZE = 144000000;
+    static long DEFAULT_MAX_EXPORT_SIZE = 144000000;
     
 	/** The maximum size for the bird eye view for standard screen size.*/
 	private static final int BIRD_EYE_SIZE_LOWER = 128;
@@ -680,6 +680,16 @@ class ImViewerModel
         }
         return scaleBarUnit;
     }
+    
+    /**
+     * Set the unit used for the scalebar
+     * 
+     * @param unit
+     *            The unit
+     */
+    public void setScaleBarUnit(UnitsLength unit) {
+        this.scaleBarUnit = unit;
+    }
 	
 	/**
 	 * Returns the current user's details.
@@ -990,6 +1000,31 @@ class ImViewerModel
 	}
 
 	/**
+     * Return the lookup table for the given channel
+     * @param index The channel index
+     * @return See above
+     */
+	String getLookupTable(int index) {
+	    Renderer rnd = metadataViewer.getRenderer();
+        if (rnd == null) return null;
+        return rnd.getLookupTable(index);
+	}
+	
+    /**
+     * Return the reverse intensity flag for the given channel
+     * 
+     * @param index
+     *            The channel index
+     * @return See above
+     */
+    boolean getReverseIntensity(int index) {
+        Renderer rnd = metadataViewer.getRenderer();
+        if (rnd == null)
+            return false;
+        return rnd.getReverseIntensity(index);
+    }
+	
+	/**
 	 * Returns <code>true</code> if the channel is mapped, <code>false</code>
 	 * otherwise.
 	 * 
@@ -1224,7 +1259,37 @@ class ImViewerModel
 		if (rnd == null) return;
 		rnd.setChannelColor(index, c, false);
 	}
+	
+    /**
+     * Sets the lookup table for the specified channel.
+     * 
+     * @param index
+     *            The channel's index.
+     * @param lut
+     *            The lookup table
+     */
+    void setLookupTable(int index, String lut) {
+        Renderer rnd = metadataViewer.getRenderer();
+        if (rnd == null)
+            return;
+        rnd.setLookupTable(index, lut, false);
+    }
 
+    /**
+     * Sets reverse intensity flag for the specified channel.
+     * 
+     * @param index
+     *            The channel's index.
+     * @param revInt
+     *            The reverse intensity flag
+     */
+    void setReverseIntensity(int index, boolean revInt) {
+        Renderer rnd = metadataViewer.getRenderer();
+        if (rnd == null)
+            return;
+        rnd.setReverseIntensity(index, revInt, false);
+    }
+    
 	/**
 	 * Sets the channel active.
 	 * 
@@ -1302,13 +1367,14 @@ class ImViewerModel
         if (getPixelsData() == null)
             return false;
 
-        int imgSize = getPixelsData().getSizeX() * getPixelsData().getSizeY();
-        int maxSize = DEFAULT_MAX_EXPORT_SIZE;
+        long imgSize = (long) (getPixelsData().getSizeX() * getZoomFactor())
+                * (long) (getPixelsData().getSizeY() * getZoomFactor());
+        long maxSize = DEFAULT_MAX_EXPORT_SIZE;
         String tmp = (String) ImViewerAgent.getRegistry().lookup(
                 LookupNames.MAX_EXPORT_SIZE);
         if (tmp != null) {
             try {
-                maxSize = Integer.parseInt(tmp);
+                maxSize = Long.parseLong(tmp);
             } catch (NumberFormatException e) {
                 ImViewerAgent
                         .getRegistry()
@@ -1931,6 +1997,18 @@ class ImViewerModel
 		return rnd.getCompressionLevel();
 	}
 	
+    /**
+     * Get all available lookup tables
+     * 
+     * @return See above.
+     */
+    public Collection<String> getAvailableLookupTables() {
+        Renderer rnd = metadataViewer.getRenderer();
+        if (rnd == null)
+            return null;
+        return rnd.getRenderingControls().get(0).getAvailableLookupTables();
+    }
+
 	/**
 	 * Fires an asynchronous retrieval of the rendering settings 
 	 * linked to the currently viewed set of pixels.
@@ -2024,13 +2102,17 @@ class ImViewerModel
 	{ 
 		if (!metadataLoaded) {
 			metadataLoaded = true;
-			Map<ChannelData, Color> m = new LinkedHashMap<ChannelData, Color>();
+			Map<ChannelData, Object> m = new LinkedHashMap<ChannelData, Object>();
 			List<ChannelData> sorted = getChannelData();
 			Iterator<ChannelData> i = sorted.iterator();
 			ChannelData channel;
 			while (i.hasNext()) {
 				channel = i.next();
-				m.put(channel, getChannelColor(channel.getIndex()));
+                if (CommonsLangUtils.isNotEmpty(getLookupTable(channel
+                        .getIndex())))
+                    m.put(channel, getLookupTable(channel.getIndex()));
+                else
+                    m.put(channel, getChannelColor(channel.getIndex()));
 			}
 			metadataViewer.activate(m); 
 		}
@@ -2865,6 +2947,8 @@ class ImViewerModel
 		tiles.clear();
 		rnd.setSelectedResolutionLevel(level);
 		initializeTiles();
+		
+		browser.setSelectedResolutionLevelZoomFactor(getResolutionDescription().getRatio());
 	}
 	
 	/**
@@ -3094,5 +3178,12 @@ class ImViewerModel
     void setSelectedRndDef(long defID)
     {
         selectedRndDefID = defID;
+    }
+
+    /**
+     * Reload the ROI count
+     */
+    public void reloadROICount() {
+        metadataViewer.reloadROICount();
     }
 }

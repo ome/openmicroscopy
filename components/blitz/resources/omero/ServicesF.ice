@@ -21,7 +21,7 @@ module omero {
        /**
         * Service marker similar to ome.api.ServiceInterface. Any object which
         * IS-A ServiceInterface but IS-NOT-A StatefulServiceInterface (below)
-        * is be definition a "stateless service"
+        * is by definition a ""stateless service""
         **/
        interface ServiceInterface
        {

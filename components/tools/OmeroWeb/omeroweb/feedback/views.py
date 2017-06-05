@@ -35,9 +35,8 @@ import logging
 
 from django.conf import settings
 from django.template import loader as template_loader
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.http import HttpResponseServerError, HttpResponseNotFound
-from django.http import HttpResponseForbidden
 from django.template import RequestContext
 from django.views.defaults import page_not_found
 from django.core.urlresolvers import reverse
@@ -131,12 +130,16 @@ def send_comment(request):
 ##############################################################################
 # handlers
 
-
 def csrf_failure(request, reason=""):
-    logger.warn('csrf_failure: Forbidden')
-    t = template_loader.get_template("403_csrf.html")
-    c = RequestContext(request, {})
-    return HttpResponseForbidden(t.render(c))
+    """
+    Always return Json response
+    since this is accepted by browser and API users
+    """
+    error = ("CSRF Error. You need to include valid CSRF tokens for any"
+             " POST, PUT, PATCH or DELETE operations."
+             " You have to include CSRF token in the POST data or"
+             " add the token to the HTTP header.")
+    return JsonResponse({"message": error}, status=403)
 
 
 def handler500(request):
@@ -174,7 +177,7 @@ def handler500(request):
     context = {'form': form}
     t = template_loader.get_template('500.html')
     c = RequestContext(request, context)
-    return HttpResponse(t.render(c))
+    return HttpResponseServerError(t.render(c))
 
 
 def handler404(request):

@@ -1,8 +1,6 @@
 /*
- *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2012 University of Dundee. All rights reserved.
- *
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  * 	This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,14 +17,15 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package integration;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
-
 import java.io.File;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import loci.formats.in.FakeReader;
 
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
@@ -36,18 +35,43 @@ import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
+import ome.services.blitz.repo.path.ClientFilePathTransformer;
+import ome.services.blitz.util.ChecksumAlgorithmMapper;
+import ome.util.checksum.ChecksumProvider;
+import ome.util.checksum.ChecksumProviderFactoryImpl;
+import omero.ServerError;
+import omero.api.RawFileStorePrx;
+import omero.cmd.CmdCallbackI;
+import omero.cmd.HandlePrx;
+import omero.grid.ImportProcessPrx;
+import omero.grid.ImportSettings;
+import omero.grid.ManagedRepositoryPrx;
+import omero.grid.ManagedRepositoryPrxHelper;
+import omero.grid.RepositoryPrx;
+import omero.model.ChecksumAlgorithmI;
+import omero.model.Dataset;
+import omero.model.DatasetImageLink;
+import omero.model.Fileset;
+import omero.model.FilesetI;
 import omero.model.Pixels;
+import omero.model.enums.ChecksumAlgorithmMurmur3128;
+import omero.sys.ParametersI;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import com.google.common.base.Functions;
+import com.google.common.collect.ImmutableMap;
 
 /**
  * Tests import methods exposed by the ImportLibrary.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @since 4.5
+ * @since 5.0.0
  */
 @Test(groups = { "import", "integration", "fs" })
 public class ImportLibraryTest extends AbstractServerTest {
@@ -78,8 +102,8 @@ public class ImportLibraryTest extends AbstractServerTest {
                 config));
         ImportContainer ic = getCandidates(f).getContainers().get(0);
         List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
-        assertNotNull(pixels);
-        assertEquals(pixels.size(), 1);
+        Assert.assertNotNull(pixels);
+        Assert.assertEquals(1, pixels.size());
     }
 
     /**
@@ -103,8 +127,8 @@ public class ImportLibraryTest extends AbstractServerTest {
         mmFactory.createImageFile(f, ModelMockFactory.FORMATS[0]);
         f.deleteOnExit();
         ImportCandidates candidates = getCandidates(f);
-        assertNotNull(candidates);
-        assertNotNull(candidates.getContainers().get(0));
+        Assert.assertNotNull(candidates);
+        Assert.assertNotNull(candidates.getContainers().get(0));
     }
 
     /**
@@ -135,8 +159,8 @@ public class ImportLibraryTest extends AbstractServerTest {
         // FIXME: Using importImage here to keep the tests working
         // but this is not the method under test (which has been removed)
         List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
-        assertNotNull(pixels);
-        assertEquals(pixels.size(), 1);
+        Assert.assertNotNull(pixels);
+        Assert.assertEquals(1, pixels.size());
         // omero.grid.Import data = library.uploadFilesToRepository(ic);
         // List<Pixels> pixels = repo.importMetadata(data);
         // assertNotNull(pixels);
@@ -169,8 +193,8 @@ public class ImportLibraryTest extends AbstractServerTest {
         ImportContainer ic = getCandidates(f).getContainers().get(0);
         ic = new ImportContainer(f, null, null, null, ic.getUsedFiles(), null);
         List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
-        assertNotNull(pixels);
-        assertEquals(pixels.size(), 1);
+        Assert.assertNotNull(pixels);
+        Assert.assertEquals(1, pixels.size());
     }
 
     /**
@@ -855,5 +879,91 @@ public class ImportLibraryTest extends AbstractServerTest {
             throws Throwable {
         importMetadataAfterUploadToRepository("rw----", MEMBER,
                 "testImportMetadataAfterUploadToRepositoryRWByMember");
+    }
+
+    /**
+     * Test that an imported image is placed into a target dataset even if the dataset is edited when thumbnails are generated.
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testImportTargetEditedDuringImport() throws Exception {
+        login("rw----", AbstractServerTest.MEMBER);
+
+        /* create the target dataset */
+        Dataset dataset = (Dataset) iUpdate.saveAndReturnObject(mmFactory.simpleDataset());
+        final long datasetId = dataset.getId().getValue();
+        final long groupId = dataset.getDetails().getGroup().getId().getValue();
+
+        /* prepare a new description for the dataset */
+        final String newDescription = "this dataset's description is edited mid-import";
+        Assert.assertNotEquals(dataset.getDescription().getValue(), newDescription);
+
+        /* prepare import settings for a fake image that has plenty of planes */
+        final File imageFile = File.createTempFile("testImportTargetEditedDuringImport", "&sizeZ=16&sizeT=16.fake");
+        imageFile.deleteOnExit();
+        final ImportContainer container = new ImportContainer(imageFile, dataset.proxy(), null, FakeReader.class.getName(),
+                new String[] {imageFile.toString()}, false);
+        final Fileset fs = new FilesetI();
+        final ImportSettings settings = new ImportSettings();
+        container.fillData(settings, fs, new ClientFilePathTransformer(Functions.<String>identity()), null);
+        settings.checksumAlgorithm = new ChecksumAlgorithmI();
+        settings.checksumAlgorithm.setValue(omero.rtypes.rstring(ChecksumAlgorithmMurmur3128.value));
+
+        /* use the settings to start an import process into a managed repository */
+        ManagedRepositoryPrx managedRepository = null;
+        for (final RepositoryPrx repository : client.getSession().sharedResources().repositories().proxies) {
+            managedRepository = ManagedRepositoryPrxHelper.checkedCast(repository);
+            if (managedRepository != null) {
+                break;
+            }
+        }
+        final ImportProcessPrx proc = managedRepository.importFileset(fs, settings);
+
+        /* upload the fake image file */
+        final Map<String, String> uploadContext = new HashMap<>();
+        uploadContext.put("omero.fs.mode", "rw");
+        final RawFileStorePrx rfs = proc.getUploader(0, uploadContext);
+        rfs.write(ArrayUtils.EMPTY_BYTE_ARRAY, 0, 0);
+        rfs.close(uploadContext);
+
+        /* verify the uploaded file */
+        final ChecksumProvider cp = new ChecksumProviderFactoryImpl().getProvider(
+                ChecksumAlgorithmMapper.getChecksumType(proc.getImportSettings().checksumAlgorithm));
+        final HandlePrx handle = proc.verifyUpload(Collections.singletonList(cp.checksumAsString()));
+
+        /* monitor the server-side import process */
+        @SuppressWarnings("serial")
+        final CmdCallbackI callback = new CmdCallbackI(client, handle) {
+
+            /* as root, note the target dataset */
+            private final Map<String, String> context = ImmutableMap.of("omero.group", Long.toString(groupId));
+            private final Dataset dataset = (Dataset) root.getSession().getQueryService().get("Dataset", datasetId, context);
+
+            @Override
+            public void step(int step, int total, Ice.Current current) {
+                if (step == 1 /* generate thumbnails */) {
+                    try {
+                        /* once notified of import step 1, root uses their session to edit the target dataset's description */
+                        dataset.setDescription(omero.rtypes.rstring(newDescription));
+                        root.getSession().getUpdateService().saveObject(dataset, context);
+                    } catch (ServerError se) {
+                        Assert.fail("unexpected exception", se);
+                    }
+                }
+            }
+        };
+        callback.loop(100, scalingFactor);
+        Assert.assertNotNull(assertCmd(callback, true));
+        handle.close();
+
+        /* check that the image is in the target dataset */
+        final DatasetImageLink link = (DatasetImageLink) iQuery.findByQuery(
+                "FROM DatasetImageLink WHERE parent.id = :id AND child.name IS :name",
+                new ParametersI().addId(datasetId).add("name", omero.rtypes.rstring(imageFile.getName())));
+        Assert.assertNotNull(link);
+
+        /* check that root was successful in editing the dataset's description */
+        dataset = (Dataset) iQuery.get("Dataset", datasetId);
+        Assert.assertEquals(dataset.getDescription().getValue(), newDescription);
     }
 }

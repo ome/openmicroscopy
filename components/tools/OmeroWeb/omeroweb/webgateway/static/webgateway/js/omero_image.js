@@ -46,7 +46,8 @@
             }
             // only pick what we need
             var pasteData = {'c': data.c,
-                'm': data.m};
+                'm': data.m,
+                'maps': data.maps};
             viewport.setQuery(pasteData);
             viewport.doload();        // loads image
             syncRDCW(viewport);       // update rdef table
@@ -98,7 +99,7 @@
             function(success, rv) {
                 $(obj).html(old).prop('disabled', false);
                 if (!(success && rv)) {
-                    alert('Setting image defaults failed.');
+                    alert('Setting image defaults failed. Success: ' + success + ' Response: ' + rv);
                 }
                 if (callback) {
                     callback();
@@ -146,10 +147,6 @@
             $('#wblitz-ch'+idx).removeClass('pressed');
             $('#rd-wblitz-ch'+idx).removeClass('pressed');
         }
-        //var t = $('#rd-wblitz-ch'+idx).get(0);
-        //if (t != undefined) t.checked=ch.active;
-        var rgb = OME.hexToRgb(ch.color)
-        $('#wblitz-ch'+idx).css('background-color', 'rgb('+rgb.r+', '+rgb.g+', '+rgb.b+')').attr('title', ch.label);
     };
 
 
@@ -176,20 +173,57 @@
         }
     };
 
+    function getLutBgPos(color, slider) {
+        if (color.endsWith('.lut')) {
+            var lutIndex = OME.LUT_NAMES.indexOf(color);
+            if (lutIndex > -1) {
+                return '0px -' + (lutIndex * 30 + 7) + 'px';
+            }
+        }
+        // Not found - show last bg (black -> transparent gradient)
+        if (slider) {
+            return '0px -' + (OME.LUT_NAMES.length * 30 + 7) + 'px';
+        } else {
+            // For buttons, hide by offsetting
+            return '0px 100px';
+        }
+    }
+
     window.syncRDCW = function(viewport) {
-        var cb;
+        var cb, color;
         var channels = viewport.getChannels();
+        var lutBgPos, sliderLutBgPos;
         for (i=0; i<channels.length; i++) {
-            $('#rd-wblitz-ch'+i).css('background-color', toRGB(channels[i].color));
-            $('#wblitz-ch'+i+'-cwslider .ui-slider-range').css('background-color', toRGB(channels[i].color));
+            color = channels[i].color;
+            lutBgPos = getLutBgPos(color);
+            sliderLutBgPos = getLutBgPos(color, true);
+            if (color.endsWith('.lut')) {
+                color = 'EEEEEE';
+            }
+            // Button beside image in full viewer (not in Preview panel):
+            $('#wblitz-ch' + i).css('background-color', '#' + color)
+                .find('.lutBackground').css('background-position', lutBgPos);
+            // Slider background
+            $('#wblitz-ch'+i+'-cwslider').find('.ui-slider-range').addClass('lutBackground')
+                .css({'background-position': sliderLutBgPos,
+                      'background-color': '#' + color,
+                      'transform': channels[i].reverseIntensity ? 'scaleX(-1)' : ''});
+            // Channel button beside slider
+            $('#rd-wblitz-ch'+i)
+                .css('background-color', '#' + color)
+                .find('.lutBackground').css('background-position', lutBgPos);
             var w = channels[i].window;
             $('#wblitz-ch'+i+'-cwslider')
                 .slider( "option", "min", Math.min(w.min, w.start) )   // extend range if needed
                 .slider( "option", "max", Math.max(w.max, w.end) );
-                $('#wblitz-ch'+i+'-color').attr('data-color', toRGB(channels[i].color));//$('#wblitz-ch'+i).css('background-color'));
+                $('#wblitz-ch'+i+'-color').attr('data-color', channels[i].color);
                 $('#wblitz-ch'+i+'-cw-start').val(channels[i].window.start).change();
                 $('#wblitz-ch'+i+'-cw-end').val(channels[i].window.end).change();
         }
+        // Colorpicker buttons store 'reverse-intensity' with .data() to populate colorbtn dialog
+        $(".picker").each(function(i, pickerBtn) {
+            $(pickerBtn).data('data-reverse-intensity', channels[i].reverseIntensity);
+        });
         hidePicker();
 
         updateUndoRedo(viewport);
@@ -223,9 +257,15 @@
         if (on_batchCopyRDefs) {
             return batchCopyRDefs_action('ok');
         }
+        var revInt, active;
         for (var i=0; i<viewport.getCCount(); i++) {
-            viewport.setChannelActive(i, $('#rd-wblitz-ch'+i).get(0).checked, true);
+            active = $('#rd-wblitz-ch'+i).get(0).checked;
+            if (active !== viewport.loadedImg.channels[i].active) {
+                viewport.setChannelActive(i, active, true);
+            }
             viewport.setChannelColor(i, $('#wblitz-ch'+i+'-color').attr('data-color'), true);
+            revInt = $('#wblitz-ch'+i+'-color').data('data-reverse-intensity');
+            if (revInt !== undefined) {viewport.setChannelReverseIntensity(i, revInt, true);}
             var noreload = ((i+1) < viewport.getCCount());    // prevent reload, except on the last loop
             viewport.setChannelWindow(i, $('#wblitz-ch'+i+'-cw-start').get(0).value, $('#wblitz-ch'+i+'-cw-end').get(0).value, noreload);
         }
@@ -272,9 +312,9 @@
 
 
     // Used in the Image viewer and in metadata general panel
-    window.loadBulkAnnotations = function(url, wellId, callback) {
+    window.loadBulkAnnotations = function(url, query, callback) {
         // Load bulk annotations for screen or plate
-        $.getJSON(url + '?query=Well-' + wellId + '&callback=?',
+        $.getJSON(url + '?query=' + query + '&callback=?',
             function(result) {
                 if (result.data && result.data.rows) {
                     var table = $("#bulk-annotations").show().next().show().children("table");
@@ -323,15 +363,15 @@
                 viewport.toggleChannel(index);
                 viewport.save_channels();
                 updateUndoRedo(viewport);
+                viewport.self.trigger('channelToggle', [viewport, index, viewport.loadedImg.channels[index]]);
             };
         };
         for (i=0; i<channels.length; i++) {
-            var rgb = OME.hexToRgb(channels[i].color)
             $('<button id="wblitz-ch'+i+
-                '"class="squared' + (channels[i].active?' pressed':'') +
-                '"style="background-color: rgb('+rgb.r+', '+rgb.g+', '+rgb.b+')' +
-                '"title="' + channels[i].label +
-                '">'+channels[i].label+'</button>')
+                '" class="squared' + (channels[i].active?' pressed':'') +
+                '" style="background-color: #'+ channels[i].color +
+                '" title="' + channels[i].label +
+                '"><div class="lutBackground"></div><div class="btnLabel">'+channels[i].label+'</div></button>')
             .appendTo(box)
             .bind('click', doToggle(i));
         }
@@ -367,11 +407,17 @@
         var template = '' +
           '<tr class="$cls rdef-window">' +
           '<td><button id="rd-wblitz-ch$idx0" class="rd-wblitz-ch squared $class" style="background-color: $col" ' +
-            'title="$label">$l</button></td>' +
+            'title="$label"><div class="lutBackground"></div><div class="btnLabel">$l</div></button></td>' +
           '<td><table><tr id="wblitz-ch$idx0-cw" class="rangewidget"></tr></table></td>' +
           '<td><button id="wblitz-ch$idx0-color" class="picker squarred" title="Choose Color">&nbsp;</button></td>' +
           '</tr>';
 
+        $('#rdef-postit table').on('focus', '.rangewidget input', function(){
+            // id is wblitz-ch1-cw-start or wblitz-ch1-cw-end
+            var chIdx = this.id.replace('wblitz-ch', '').split('-')[0];
+            chIdx = parseInt(chIdx, 10);
+            viewport.self.trigger('channelFocus', [viewport, chIdx, viewport.loadedImg.channels[i]]);
+        });
         tmp = $('#rdef-postit table tr:first');
         tmp.siblings().remove();
 
@@ -383,7 +429,6 @@
                     min = $sl.slider( "option", "min" );
                 $sl.slider('values', 0, Math.min(new_start, end));    // ensure start < end
                 $sl.slider( "option", "min", Math.min(min, new_start) );   // extend range if needed
-                show_change($('#wblitz-ch'+i+'-cw-start').get(0), channels[i].window.start, 'changed');
             };
         };
         var end_cb = function (i) {
@@ -394,7 +439,6 @@
                     max = $sl.slider( "option", "max" );
                 $sl.slider('values', 1, Math.max(new_end, start));    // ensure end > start
                 $sl.slider( "option", "max", Math.max(max, new_end) );   // extend range if needed
-                show_change($('#wblitz-ch'+i+'-cw-end').get(0), channels[i].window.end, 'changed');
             };
         };
         var slide_start_cb = function() {
@@ -415,6 +459,7 @@
                 } else if (ui.values[1] !== e) {
                     $('#wblitz-ch'+$(event.target).data('channel-idx')+'-cw-end').val(ui.values[1]).change();
                 }
+                viewport.self.trigger("channelSlide", [viewport, $(event.target).data('channel-idx'), ui.values[0], ui.values[1]]);
             };
         };
         var stop_cb = function() {
@@ -422,11 +467,18 @@
                 applyRDCW(viewport);
             };
         };
+
         var keyup_cb = function() {
             return function(event){
                 if (event.keyCode === 13){
                     applyRDCW(viewport);
                 }
+            };
+        };
+
+        var focusout_cb = function() {
+            return function(event){
+                applyRDCW(viewport);
             };
         };
 
@@ -465,10 +517,9 @@
             if (lbl.length > 7) {
                 lbl = lbl.slice(0, 5) + "...";
             }
-            var rgb = OME.hexToRgb(channels[i].color)
             tmp.after(template
                 .replace(/\$class/g, btnClass)
-                .replace(/\$col/g, 'rgb('+rgb.r+', '+rgb.g+', '+rgb.b+')')
+                .replace(/\$col/g, '#' + channels[i].color)
                 .replace(/\$label/g, channels[i].label)
                 .replace(/\$l/g, lbl)
                 .replace(/\$idx0/g, i) // Channel Index, 0 based
@@ -476,17 +527,13 @@
                 .replace(/\$cwl/g, channels[i].label) // Wavelength
                 .replace(/\$cls/g, i/2!=parseInt(i/2, 10)?'even':'odd') // class
             );
-            $('#wblitz-ch'+(i)+'-cw').rangewidget({
-                min: channels[i].window.min,
-                max: channels[i].window.max,
-                template: '<td width="10%"><span class="min" title="min: $min">$start</span></td><td><div class="rangeslider" id="wblitz-ch'+i+'-cwslider"></div></td> <td width="10%"><span class="max" title="max: $max">$end</span></td>',
-                lblStart: '',
-                lblEnd: ''});
+
+            $('#wblitz-ch'+(i)+'-cw').append('<td width="10%"><span class="min" title="min: ' + channels[i].window.min + '"><input type="text" id="wblitz-ch' + i + '-cw-start" /></span></td><td><div class="rangeslider" id="wblitz-ch' + i + '-cwslider"></div></td> <td width="10%"><span class="max" title="max: ' + channels[i].window.max + '"><input type="text" id="wblitz-ch' + i + '-cw-end" /></span></td>');
             init_ch_slider(i, channels);
             $('#wblitz-ch'+i+'-cw-start').val(channels[i].window.start).unbind('change').bind('change', start_cb(i));
-            $('#wblitz-ch'+i+'-cw-start').keyup(keyup_cb());
+            $('#wblitz-ch'+i+'-cw-start').keyup(keyup_cb()).focusout(focusout_cb());
             $('#wblitz-ch'+i+'-cw-end').val(channels[i].window.end).unbind('change').bind('change', end_cb(i));
-            $('#wblitz-ch'+i+'-cw-end').keyup(keyup_cb());
+            $('#wblitz-ch'+i+'-cw-end').keyup(keyup_cb()).focusout(focusout_cb());
         }
 
         // bind clicking on channel checkboxes
@@ -496,8 +543,11 @@
 
 
         /* Prepare color picker buttons */
+        $(".picker").each(function(i, pickerBtn) {
+            $(pickerBtn).data('data-reverse-intensity', channels[i].reverseIntensity);
+        });
         $(".picker")
-            .colorbtn()
+            .colorbtn({'server': viewport.viewport_server})
             .bind('showing', function () {
                 var t = $(this).parents('.postit'),
                     offset;

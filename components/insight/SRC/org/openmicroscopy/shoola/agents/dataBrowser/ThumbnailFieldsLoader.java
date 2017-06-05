@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -20,6 +20,7 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser;
 
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -27,9 +28,15 @@ import java.util.List;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
+
 import omero.gateway.SecurityContext;
+
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+
+import com.google.common.collect.Multimap;
+
 import omero.gateway.model.DataObject;
+import omero.gateway.model.ImageData;
 
 /** 
  * Loads the thumbnails for the fields of a given well.
@@ -49,16 +56,10 @@ public class ThumbnailFieldsLoader
 	 * The <code>DataObject</code> objects for the images whose thumbnails 
 	 * have to be fetched.
 	 */
-    private Collection<DataObject> images;
+    private Multimap<Point, ImageData> images;
     
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle handle;
-
-    /** The row identifying the well. */
-    private int row;
-    
-    /** The column identifying the well. */
-    private int column;
     
 	/** The loaded thumbnails.*/
 	private List<Object> result;
@@ -72,18 +73,14 @@ public class ThumbnailFieldsLoader
      * @param images The <code>ImageData</code> objects for the images whose 
      *               thumbnails have to be fetched. 
      *               Mustn't be <code>null</code>.
-     * @param row	 The row identifying the well.
-     * @param column The column identifying the well.
      */
     public ThumbnailFieldsLoader(DataBrowser viewer, SecurityContext ctx,
-    				Collection<DataObject> images, int row, int column)
+            Multimap<Point, ImageData> images)
     {
         super(viewer, ctx);
         if (images == null)
             throw new IllegalArgumentException("Collection shouldn't be null.");
         this.images = images;
-        this.row = row;
-        this.column = column;
     }
     
     /**
@@ -93,10 +90,15 @@ public class ThumbnailFieldsLoader
     public void load()
     {
     	long userID = DataBrowserAgent.getUserDetails().getId();
-    	handle = hiBrwView.loadThumbnails(ctx, images, 
+    	
+        Collection<DataObject> imgs = new ArrayList<DataObject>();
+        for (ImageData i : images.values())
+            imgs.add(i);
+
+        handle = hiBrwView.loadThumbnails(ctx, imgs,
                 ThumbnailProvider.THUMB_MAX_WIDTH,
-                ThumbnailProvider.THUMB_MAX_HEIGHT,
-                userID, ThumbnailLoader.IMAGE, this);
+                ThumbnailProvider.THUMB_MAX_HEIGHT, userID,
+                ThumbnailLoader.IMAGE, this);
     }
     
     /** 
@@ -111,14 +113,29 @@ public class ThumbnailFieldsLoader
      */
     public void update(DSCallFeedbackEvent fe) 
     {
-        if (viewer.getState() == DataBrowser.DISCARDED) return;  //Async cancel.
+        if (viewer.getState() == DataBrowser.DISCARDED)
+            return; // Async cancel.
+        
         ThumbnailData td = (ThumbnailData) fe.getPartialResult();
-    	if (td != null) {
-    		if (result == null) result = new ArrayList<Object>();
-        	result.add(td);
-    		if (result.size() == images.size())
-    			viewer.setThumbnailsFieldsFor(result, row, column);
-    	}
+        if (td != null) {
+            if (result == null)
+                result = new ArrayList<Object>();
+            result.add(td);
+
+            boolean complete = result.size() == images.values().size();
+
+            Point well = null;
+            for (Point p : images.keys()) {
+                for (ImageData img : images.get(p)) {
+                    if (img.getId() == td.getImageID()) {
+                        well = p;
+                        break;
+                    }
+                }
+            }
+
+            viewer.updateThumbnailsFields(well, td, complete);
+        }
     }
     
     /**

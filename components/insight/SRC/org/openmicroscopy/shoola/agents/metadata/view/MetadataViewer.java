@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -495,13 +495,6 @@ public interface MetadataViewer
 	 * @return See above.
 	 */
 	Dimension getIdealRendererSize();
-	
-	/**
-	 * Analyzes the image.
-	 * 
-	 *  @param index The index identifying the type of analysis routine.
-	 */
-	void analyse(int index);
 
 	/**
 	 * Notifies that the rendering settings have been copied.
@@ -714,4 +707,20 @@ public interface MetadataViewer
 	 * @return See above.
 	 */
 	RndProxyDef getAlternativeRenderingSettings();
+
+	/**
+	 * Reload the ROI count
+	 */
+    void reloadROICount();
+
+    
+    /**
+     * Set the histogram data for the given channel
+     * 
+     * @param ch
+     *            The channel index
+     * @param data
+     *            The data
+     */
+    public void setHistogramData(int ch, int[] data);
 }

@@ -21,7 +21,9 @@ ${XpathProjectThumb}    xpath=//table[@id='dataTable']//img[contains(@src,'folde
 ${XpathPlate}           xpath=//table[@id='dataTable']//img[@alt='plate']
 ${XpathPlateThumb}      xpath=//table[@id='dataTable']//img[contains(@src,'folder_plate16.png')]
 ${XpathScreen}          xpath=//table[@id='dataTable']//img[@alt='screen']
-${XpathScreenValid}     xpath=//table[@id='dataTable']//img[contains(@src,'folder_screen16.png')]
+${XpathScreenThumb}     xpath=//table[@id='dataTable']//img[contains(@src,'folder_screen16.png')]
+${XpathWell}            xpath=//table[@id='dataTable']//img[@alt='well']
+${XpathWellThumb}       xpath=//table[@id='dataTable']//img[contains(@src,'well16.png')]
 ${XpathTable}           xpath=//table[@id='dataTable']
 ${XpathTableColumn}     xpath=//table[@id='dataTable']//tr/td[position()=3]
 ${XPathAlertText}       xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//p
@@ -67,6 +69,7 @@ Unselect All Checkboxes
     Unselect Checkbox  projects
     Unselect Checkbox  plates
     Unselect Checkbox  screens
+    Unselect Checkbox  wells
 
 Select All Checkboxes
     
@@ -78,6 +81,7 @@ Select All Checkboxes
     Select Checkbox  projects
     Select Checkbox  plates
     Select Checkbox  screens
+    Select Checkbox  wells
 
 Omero Default Search
     
@@ -189,6 +193,8 @@ Test Check Search Results
     Run Keyword If    '${status3}' == 'True'        Page Should Contain Element     ${XpathProjectThumb}
     ${status4}   Run Keyword And Return status      Page Should Contain Element     ${XpathImage}
     Run Keyword If    '${status4}' == 'True'        Page Should Contain Element     ${XpathImageThumb}
+    ${status5}   Run Keyword And Return status      Page Should Contain Element     ${XpathWell}
+    Run Keyword If    '${status5}' == 'True'        Page Should Contain Element     ${XpathWellThumb}
 
     
 Test Default Search Selections
@@ -199,6 +205,7 @@ Test Default Search Selections
     Checkbox Should Be Selected  projects
     Checkbox Should Be Selected  plates
     Checkbox Should Be Selected  screens
+    Checkbox Should Be Selected  wells
     Checkbox Should Not Be Selected  name
     Checkbox Should Not Be Selected  description
     Checkbox Should Not Be Selected  annotation
@@ -253,7 +260,8 @@ Test Object Types and Fields
     Page Should Not Contain Element     ${XpathProject}
     Page Should Not Contain Element     ${XpathPlate}
     Page Should Not Contain Element     ${XpathScreen}
-
+    Page Should Not Contain Element     ${XpathWell}
+    
     # Select Dataset Alone
     Unselect All Checkboxes
     Select Checkbox  datasets
@@ -264,7 +272,8 @@ Test Object Types and Fields
     Page Should Not Contain Element     ${XpathProject}
     Page Should Not Contain Element     ${XpathPlate}
     Page Should Not Contain Element     ${XpathScreen}
-
+    Page Should Not Contain Element     ${XpathWell}
+    
     # Select Project Alone
     Unselect All Checkboxes
     Select Checkbox  projects
@@ -275,7 +284,8 @@ Test Object Types and Fields
     Page Should Not Contain Element     ${XpathImage}
     Page Should Not Contain Element     ${XpathPlate}
     Page Should Not Contain Element     ${XpathScreen}
-
+    Page Should Not Contain Element     ${XpathWell}
+    
     # Select Plate Alone
     Unselect All Checkboxes
     Select Checkbox  plates
@@ -284,12 +294,24 @@ Test Object Types and Fields
     Page Should Not Contain Element     ${XpathProject}
     Page Should Not Contain Element     ${XpathDataset}
     Page Should Not Contain Element     ${XpathImage}
-
+    Page Should Not Contain Element     ${XpathWell}
+    
     # Select Screen Alone
     Unselect All Checkboxes
     Select Checkbox  screens
     Click Button  id=search_button
     sleep                               ${ImplicitDELAY}
+    Page Should Not Contain Element     ${XpathProject}
+    Page Should Not Contain Element     ${XpathDataset}
+    Page Should Not Contain Element     ${XpathImage}
+    Page Should Not Contain Element     ${XpathWell}
+    
+    # Select Well Alone
+    Unselect All Checkboxes
+    Select Checkbox  wells
+    Click Button  id=search_button
+    sleep                               ${ImplicitDELAY}
+    Page Should Contain Element         ${XpathWell}
     Page Should Not Contain Element     ${XpathProject}
     Page Should Not Contain Element     ${XpathDataset}
     Page Should Not Contain Element     ${XpathImage}
@@ -349,7 +371,7 @@ Test Date Range
     Select All Checkboxes
     Click Button    id=search_button
     Click Element                   ${AlertWindow}
- 
+    
     
 Test Key Word Search
     
@@ -379,21 +401,21 @@ Test Key Word Search
     Clear Search Text Field
     Input Text     name=query           ${Search_Query1}
     Click Button    id=search_button
-    Wait Until Page Contains Element  id=dataTable  1
+    Wait Until Page Contains Element  id=dataTable  ${TIMEOUT}
     Page Should Contain Element         ${XpathTable}
     ${rows}=        Get Matching XPath Count    xpath=//table[@id='dataTable']/tbody/tr
 
     Clear Search Text Field
     Input Text     name=query           ${Search_Query1}*
     Click Button    id=search_button
-    Wait Until Page Contains Element  id=dataTable  1
+    Wait Until Page Contains Element  id=dataTable  ${TIMEOUT}
     Page Should Contain Element         ${XpathTable}
     ${rows1}=        Get Matching XPath Count    xpath=//table[@id='dataTable']/tbody/tr
 
     Clear Search Text Field
     Input Text     name=query           *${Search_Query1}*
     Click Button    id=search_button
-    Wait Until Page Contains Element  id=dataTable  1
+    Wait Until Page Contains Element  id=dataTable  ${TIMEOUT}
     Page Should Contain Element         ${XpathTable}
     ${rows2}=        Get Matching XPath Count    xpath=//table[@id='dataTable']/tbody/tr
 

@@ -27,6 +27,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+
 import javax.swing.Icon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -39,6 +40,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FolderData;
 import omero.gateway.model.GroupData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.ProjectData;
@@ -94,6 +96,12 @@ public class TreeCellRenderer
     /** Reference to the <code>Group RWRWRW</code> icon. */
     private static final Icon GROUP_PUBLIC_READ_WRITE_ICON;
 
+    /** Reference to the <code>Folder</code> icon. */
+    private static final Icon FOLDER_ICON;
+    
+    /** Reference to the <code>Folder owned by other user</code> icon. */
+    private static final Icon FOLDER_ICON_NOT_OWNER;
+    
     static { 
         IconManager icons = IconManager.getInstance();
         GROUP_PRIVATE_ICON = icons.getIcon(IconManager.PRIVATE_GROUP);
@@ -110,6 +118,8 @@ public class TreeCellRenderer
         TAG_SET_ICON = icons.getIcon(IconManager.TAG_SET);
         OWNER_ICON = icons.getIcon(IconManager.OWNER);
         FILE_TEXT_ICON = icons.getIcon(IconManager.FILE_TEXT);
+        FOLDER_ICON = icons.getIcon(IconManager.ROI_FOLDER);
+        FOLDER_ICON_NOT_OWNER = icons.getIcon(IconManager.ROI_FOLDER_NOT_OWNER);
     }
 
     /** The dimension of the busy label. */
@@ -133,6 +143,9 @@ public class TreeCellRenderer
     /** The location of the text.*/
     private int xText;
 
+    /** The currently logged in user */
+    private ExperimenterData user;
+    
     /**
      * Sets the icon and the text corresponding to the user's object.
      * 
@@ -180,6 +193,14 @@ public class TreeCellRenderer
         } else if (usrObject instanceof ExperimenterData) {
             icon = OWNER_ICON;
         } 
+        else if (usrObject instanceof FolderData) {
+            FolderData f = (FolderData) usrObject;
+            if (f.getOwner() == null || user == null || 
+                    f.getOwner().getId() == user.getId())
+                icon = FOLDER_ICON;
+            else
+                icon = FOLDER_ICON_NOT_OWNER;
+        }
         setIcon(icon);
     }
 
@@ -200,11 +221,13 @@ public class TreeCellRenderer
     /**
      * Creates a new instance.
      *
+      *@param user The currently logged in user
      * @param b Passed <code>true</code> to show the number of children,
      *          <code>false</code> otherwise.
      */ 
-    public TreeCellRenderer(boolean b)
+    public TreeCellRenderer(ExperimenterData user, boolean b)
     {
+        this.user = user;
         numberChildrenVisible = b;
         selected = false;
         draggedColor = new Color(backgroundSelectionColor.getRed(),

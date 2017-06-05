@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -336,7 +336,6 @@ class EditorComponent
 			return;
 		}
 		showSelectionWizard(TagAnnotationData.class, available, selected, true);
-		setStatus(false);
 	}
 
 	/** 
@@ -444,7 +443,6 @@ class EditorComponent
 		}
 		showSelectionWizard(FileAnnotationData.class, available, selected,
 							true);
-		setStatus(false);
 	}
 	
 	/** 
@@ -1182,7 +1180,7 @@ class EditorComponent
 	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#setFileset(Set)
 	 */
-	public void setFileset(Set<FilesetData> set)
+	public void setFileset(Collection<FilesetData> set)
 	{
 		model.setFileset(set);
 		view.displayFileset();
@@ -1242,5 +1240,14 @@ class EditorComponent
      */
     public Collection<FileAnnotationData> getSelectedFileAnnotations() {
         return view.getSelectedFileAnnotations();
+    }
+    
+    /** 
+     * Implemented as specified by the {@link Editor} interface.
+     * @see Editor#reloadROICount()
+     */
+    @Override
+    public void reloadROICount() {
+        view.reloadROICount();
     }
 }

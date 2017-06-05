@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -56,6 +56,7 @@ import omero.api.IRenderingSettingsPrx;
 import omero.api.IRepositoryInfoPrx;
 import omero.api.IRoiPrx;
 import omero.api.IScriptPrx;
+import omero.api.ITypesPrx;
 import omero.api.IUpdatePrx;
 import omero.api.RawFileStorePrx;
 import omero.api.RawPixelsStorePrx;
@@ -110,6 +111,9 @@ public class Gateway {
 
     /** Property to indicate that a {@link Facility} has been created */
     public static final String PROP_FACILITY_CREATED = "PROP_FACILITY_CREATED";
+    
+    /** Property to indicate that a {@link Facility} has been closed */
+    public static final String PROP_FACILITY_CLOSED = "PROP_FACILITY_CLOSED";
 
     /** Property to indicate that an import store has been created */
     public static final String PROP_IMPORTSTORE_CREATED = "PROP_IMPORTSTORE_CREATED";
@@ -294,7 +298,8 @@ public class Gateway {
         }
         Facility.clear();
         groupConnectorMap.clear();
-        keepAliveExecutor.shutdown();
+        if (keepAliveExecutor != null)
+            keepAliveExecutor.shutdown();
         connected = false;
         if (cacheService != null)
             cacheService.shutDown();
@@ -977,6 +982,7 @@ public class Gateway {
      *            The login credentials
      * @return The client
      * @throws DSOutOfServiceException
+     *             Thrown if the service cannot be initialized.
      */
     private client createSession(LoginCredentials c)
             throws DSOutOfServiceException {
@@ -1077,6 +1083,7 @@ public class Gateway {
      *            The login credentials
      * @return The user which is logged in
      * @throws DSOutOfServiceException
+     *             Thrown if the service cannot be initialized.
      */
     private ExperimenterData login(client client, LoginCredentials cred)
             throws DSOutOfServiceException {
@@ -1152,6 +1159,7 @@ public class Gateway {
      * session.
      * 
      * @throws DSOutOfServiceException
+     *             Thrown if the service cannot be initialized.
      */
     private void keepSessionAlive() throws DSOutOfServiceException {
         // Check if network is up before keeping service otherwise
@@ -1183,6 +1191,7 @@ public class Gateway {
      * @param groupID
      *            The new group of the user
      * @throws DSOutOfServiceException
+     *             Thrown if the service cannot be initialized.
      */
     private void changeCurrentGroup(SecurityContext ctx, ExperimenterData exp,
             long groupID) throws DSOutOfServiceException {
@@ -1297,11 +1306,7 @@ public class Gateway {
             return;
 
         for (Connector c : clist) {
-            try {
-                c.close(isNetworkUp(true));
-            } catch (Throwable e) {
-                new Exception("Cannot close the connector", e);
-            }
+            c.close(isNetworkUp(true));
         }
     }
 
@@ -1491,19 +1496,17 @@ public class Gateway {
      * Shuts down the connectors created while creating/importing data for other
      * users.
      *
-     * @param ctx The {@link SecurityContext}
-     * @throws Exception
-     *             Thrown if the connector cannot be closed.
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      */
-    public void shutDownDerivedConnector(SecurityContext ctx) throws Exception {
+    public void shutDownDerivedConnector(SecurityContext ctx)
+            throws DSOutOfServiceException {
         Connector c = getConnector(ctx, true, true);
         if (c == null)
             return;
-        try {
-            c.closeDerived(isNetworkUp(true));
-        } catch (Throwable e) {
-            new Exception("Cannot close the derived connectors", e);
-        }
+        c.closeDerived(isNetworkUp(true));
     }
 
     /**
@@ -1534,6 +1537,23 @@ public class Gateway {
         }
     }
 
+    /**
+     * Returns the {@link ITypesPrx} service.
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @return See above.
+     * @throws DSOutOfServiceException
+     *             Thrown if the service cannot be initialized.
+     */
+    public ITypesPrx getTypesService(SecurityContext ctx)
+            throws DSOutOfServiceException {
+        Connector c = getConnector(ctx, true, false);
+        if (c != null)
+            return c.getTypesService();
+        return null;
+    }
+    
     /**
      * Create a {@link Connector} for a particular {@link SecurityContext}
      * 

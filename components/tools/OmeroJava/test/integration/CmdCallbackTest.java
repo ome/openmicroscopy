@@ -17,11 +17,6 @@
  */
 package integration;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertTrue;
-import static org.testng.AssertJUnit.fail;
-
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -38,6 +33,7 @@ import omero.cmd.Status;
 import omero.cmd.Timing;
 import omero.sys.EventContext;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import Ice.Current;
@@ -69,21 +65,21 @@ public class CmdCallbackTest extends AbstractServerTest {
         }
 
         public void assertSteps(int expected) {
-            assertEquals(expected, steps.get());
+            Assert.assertEquals(steps.get(), expected);
         }
 
         public void assertFinished() {
-            assertEquals(0, finished.getCount());
-            assertFalse(isCancelled());
-            assertFalse(isFailure());
+            Assert.assertEquals(finished.getCount(), 0);
+            Assert.assertFalse(isCancelled());
+            Assert.assertFalse(isFailure());
             Response rsp = getResponse();
             if (rsp == null) {
-                fail("null response");
+                Assert.fail("null response");
             } else if (rsp instanceof ERR) {
                 ERR err = (ERR) rsp;
                 String msg = String.format("%s\ncat:%s\nname:%s\nparams:%s\n",
                         err, err.category, err.name, err.parameters);
-                fail(msg);
+                Assert.fail(msg);
             }
         }
 
@@ -93,8 +89,8 @@ public class CmdCallbackTest extends AbstractServerTest {
         }
 
         public void assertCancelled() {
-            assertEquals(0, finished.getCount());
-            assertTrue(isCancelled());
+            Assert.assertEquals(finished.getCount(), 0);
+            Assert.assertTrue(isCancelled());
         }
     }
 
@@ -119,7 +115,7 @@ public class CmdCallbackTest extends AbstractServerTest {
     public void testTimingFinishesOnLatch() throws Exception {
         TestCB cb = timing(25, 4 * 10); // Runs 1 second
         cb.finished.await(1500, TimeUnit.MILLISECONDS);
-        assertEquals(0, cb.finished.getCount());
+        Assert.assertEquals(cb.finished.getCount(), 0);
         cb.assertFinished(10); // Modulus-10
     }
 
@@ -168,8 +164,8 @@ public class CmdCallbackTest extends AbstractServerTest {
 
     @Test
     public void testDoAllTimingFinishesOnLoop() throws Exception {
-        TestCB cb = doAllTiming(5);
-        cb.loop(5, scalingFactor);
+        TestCB cb = doAllTiming(3);
+        cb.loop(3, scalingFactor);
         cb.assertFinished();
         // For some reason the number of steps is varying between 10 and 15
     }

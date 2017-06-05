@@ -9,14 +9,14 @@
 
 """
 
-import library as lib
+from omero.testlib import ITest
 import pytest
 import omero
 import os
 import time
 
 
-class TestSearch(lib.ITest):
+class TestSearch(ITest):
 
     def test2541(self):
         """
@@ -136,8 +136,8 @@ class TestSearch(lib.ITest):
         assert 5 == len(res)
 
     def _3164_search(self, searcher, runs=10, pause=1):
-        texts = ("*earch", "*h", "search tif", "search",
-                 "test", "tag", "t*", "search_test",
+        texts = ("*earch", "*rch", "search tif", "search",
+                 "test", "tag", "ta*", "search_test",
                  "s .tif", ".tif", "tif", "*tif")
 
         # Commented out to pass flake8 but these patterns may no longer
@@ -241,7 +241,8 @@ class TestSearch(lib.ITest):
     def testFilename(self):
         client = self.new_client()
         uuid = self.simple_uuid()
-        image = self.importSingleImage(uuid, client)
+        images = self.import_fake_file(name=uuid, client=client)
+        image = images[0]
         self.root.sf.getUpdateService().indexObject(image)
         search = client.sf.createSearchService()
         search.onlyType("Image")
@@ -272,7 +273,8 @@ class TestSearch(lib.ITest):
 
     def attached_image(self, uuid, client, path, mimetype):
         _ = omero.rtypes.rstring
-        image = self.importSingleImage(uuid, client)
+        images = self.import_fake_file(name=uuid, client=client)
+        image = images[0]
         ofile = omero.model.OriginalFileI()
         ofile.mimetype = _(mimetype)
         ofile.path = _(os.path.dirname(path))

@@ -12,6 +12,7 @@ Library           Selenium2Library
 *** Keywords ***
 User "${username}" logs in with password "${password}"
     Open Browser To Login Page
+    Select Server     ${SERVER_ID}
     Input username    ${username}
     Input password    ${password}
     Submit credentials
@@ -32,7 +33,7 @@ Login Page Should Be Open
 
 Open Browser To Login Page
     [Arguments]                 ${main url}=${LOGIN URL}    ${login url}=${LOGIN URL}     ${title}=OMERO.web - Login
-    Open Browser                ${main url}         ${BROWSER}
+    Open Browser                ${main url}         ${BROWSER}      remote_url=${REMOTE_URL}    desired_capabilities=${DC}
     Set Selenium Speed          ${DELAY}
     Login Page Should Be Open   ${login url}        ${title}
 

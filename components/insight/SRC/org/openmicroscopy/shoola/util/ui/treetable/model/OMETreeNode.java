@@ -91,6 +91,15 @@ public class OMETreeNode
 	 */
 	public boolean isExpanded() { return expanded; }
 	
+    /**
+     * Return <code>true</code> if this node is a root node
+     * 
+     * @return See above.
+     */
+    public boolean isRoot() {
+        return getPath().getPathCount() == 1;
+    }
+	
 	/**
 	 * Sets the current node to expanded.
 	 * 

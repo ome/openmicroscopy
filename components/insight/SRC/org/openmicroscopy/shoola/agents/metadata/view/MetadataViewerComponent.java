@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -35,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
@@ -50,7 +49,6 @@ import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserSet;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
-import org.openmicroscopy.shoola.agents.metadata.util.ChannelSelectionDialog;
 import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
@@ -59,7 +57,6 @@ import org.openmicroscopy.shoola.agents.util.ui.MovieExportDialog;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptingDialog;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
-import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 import org.openmicroscopy.shoola.env.data.model.MovieActivityParam;
@@ -73,7 +70,6 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import omero.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 import omero.gateway.model.AnnotationData;
@@ -313,17 +309,10 @@ class MetadataViewerComponent
 					return;
 				}
 				data = e.getValue();
-				Object object = data.getRelatedObject();
-				if (object == model.getParentRefObject() ||
-					(object instanceof PlateData && node 
-							instanceof WellSampleData)) {
-					model.setParentDataResults(data, node, loaderID);
-					model.fireStructuredDataLoading(node);
-				} else {
-					model.setStructuredDataResults(results, loaderID);
-					browser.setParents(null, data.getParents());
-					model.getEditor().setStructuredDataResults();
-				}
+				model.setStructuredDataResults(results, loaderID);
+				browser.setParents(null, data.getParents());
+				model.getEditor().setStructuredDataResults();
+				
 				fireStateChange();
 			}
 		} else {
@@ -882,10 +871,12 @@ class MetadataViewerComponent
 		if (obj instanceof ImageData) {
 			firePropertyChange(APPLY_SETTINGS_PROPERTY, null, obj);
 		} else if (obj instanceof WellSampleData) {
-			Object[] objects = new Object[2];
-			objects[0] = obj;
-			objects[1] = model.getParentRefObject();
-			firePropertyChange(APPLY_SETTINGS_PROPERTY, null, objects);
+            WellSampleData wsd = (WellSampleData) obj;
+            Object[] objects = new Object[2];
+            objects[0] = wsd;
+            objects[1] = wsd.asWellSample().getWell().getPlate().getId()
+                    .getValue();
+            firePropertyChange(APPLY_SETTINGS_PROPERTY, null, objects);
 		}
 	}
 	
@@ -942,42 +933,6 @@ class MetadataViewerComponent
 		Renderer rnd = getRenderer();
 		if (rnd == null) return new Dimension(0, 0);
 		return rnd.getUI().getPreferredSize();
-	}
-	
-	/**
-	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#analyse(int)
-	 */
-	public void analyse(int index)
-	{
-		if (index != AnalysisParam.FRAP) return;
-		Object refObject = model.getRefObject();
-		if (!(refObject instanceof ImageData)) return;
-		List<ChannelData> channels = new ArrayList<ChannelData>();
-		Map m = model.getEditor().getChannelData();
-		if (m != null && m.size() == 1) {
-			controller.analyseFRAP(0);
-			return;
-		}
-		if (m != null) {
-			Iterator j = m.keySet().iterator();
-			while (j.hasNext()) {
-				channels.add((ChannelData) j.next());
-			}
-		}
-		
-		IconManager icons = IconManager.getInstance();
-		Icon icon = icons.getIcon(IconManager.ANALYSE_48);
-		switch (index) {
-			case AnalysisParam.FRAP:
-				icon = icons.getIcon(IconManager.ANALYSE_FRAP_48);
-				break;
-		}
-		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
-		ChannelSelectionDialog d = new ChannelSelectionDialog(f, icon, channels,
-				index);
-		d.addPropertyChangeListener(controller);
-		UIUtilities.centerAndShow(d);
 	}
 
 	/**
@@ -1352,4 +1307,22 @@ class MetadataViewerComponent
 	public RndProxyDef getAlternativeRenderingSettings() {
 	    return model.getAlternativeRenderingSettings();
 	}
+
+	/**
+     * Implemented as specified by the {@link MetadataViewer} interface.
+     * @see MetadataViewer#reloadROICount()
+     */
+    @Override
+    public void reloadROICount() {
+        model.getEditor().reloadROICount();
+    }
+
+    /**
+     * Implemented as specified by the {@link MetadataViewer} interface.
+     * @see MetadataViewer#setHistogramData(int, int[])
+     */
+    @Override
+    public void setHistogramData(int ch, int[] data) {
+        model.getEditor().getRenderer().setHistogramData(ch, data);
+    }
 }

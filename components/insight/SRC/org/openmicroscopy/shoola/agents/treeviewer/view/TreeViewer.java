@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -802,7 +802,7 @@ public interface TreeViewer
 	 * @param node The node holding the time information.
 	 * @param set  The elements to add.
 	 */
-	public void browseTimeInterval(TreeImageTimeSet node, Set set);
+	public void browseTimeInterval(TreeImageTimeSet node, Collection set);
 
 	/**
 	 * Sets the wells linked to the specified plates.
@@ -811,7 +811,7 @@ public interface TreeViewer
 	 * @param withThumbnails Pass <code>true</code> to load the thumbnails,
      * 						 <code>false</code> otherwise.
 	 */
-	public void setPlates(Map<TreeImageSet, Set> plates, boolean withThumbnails);
+	public void setPlates(Map<TreeImageSet, Collection> plates, boolean withThumbnails);
 
 	/**
 	 * Browses the passed node.
@@ -886,14 +886,19 @@ public interface TreeViewer
 	 */
 	void onActivityProcessed(ActivityComponent activity, boolean finished);
 
-	/**
-	 * Downloads the currently selected files to the specified folder.
-	 * 
-	 * @param folder The folder where to download the files.
-	 * @param override Flag indicating to override the existing file if it
-     *                 exists, <code>false</code> otherwise.
-	 */
-	void download(File folder, boolean override);
+    /**
+     * Downloads the currently selected files to the specified folder.
+     * 
+     * @param folder
+     *            The folder where to download the files.
+     * @param override
+     *            Flag indicating to override the existing file if it exists,
+     *            <code>false</code> otherwise.
+     * @param selection
+     *            The objects to download (can be <code>null</code> in which
+     *            case the current TreeViewer selection will be used)
+     */
+    void download(File folder, boolean override, List<DataObject> selection);
 
 	/**
 	 * Sets the collection of archived files.

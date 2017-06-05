@@ -25,11 +25,11 @@
 """
 
 import time
-import library as lib
+from omero.testlib import ITest
 import omero
 
 
-class BaseChmodTest(lib.ITest):
+class BaseChmodTest(ITest):
 
     """
     """

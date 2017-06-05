@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -35,23 +35,23 @@ import java.util.Map.Entry;
 
 import omero.api.RenderingEnginePrx;
 import omero.model.ChannelBinding;
+import omero.model.CodomainMapContext;
 import omero.model.Pixels;
 import omero.model.QuantumDef;
 import omero.model.RenderingDef;
+import omero.model.ReverseIntensityContext;
 import omero.romio.PlaneDef;
 
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 
-import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.exception.RenderingServiceException;
 import omero.gateway.rnd.DataSink;
 import omero.log.Logger;
 import omero.gateway.model.ChannelData;
-import omero.gateway.model.PixelsData;
 
 
 /** 
@@ -143,6 +143,17 @@ public class PixelsServicesFactory
 				cb.setQuantization(c.getFamily().getValue().getValue(), 
 						c.getCoefficient().getValue(), 
 						c.getNoiseReduction().getValue());
+                if (c.getLookupTable() != null)
+                    cb.setLookupTable(c.getLookupTable().getValue());
+                
+                cb.setReverseIntensity(false);
+                List<CodomainMapContext> cdctx = c.copySpatialDomainEnhancement();
+                for (CodomainMapContext cd : cdctx) {
+                    if(cd instanceof ReverseIntensityContext) {
+                        cb.setReverseIntensity(true);
+                        break;
+                    }
+                }
 			}		
 			i++;
 		}
@@ -422,50 +433,9 @@ public class PixelsServicesFactory
 	}
 	
 	/**
-	 * Creates a new data sink for the specified set of pixels.
-	 * 
-	 * @param pixels The pixels set the data sink is for.
-	 * @return See above.
-	 */
-	public static DataSink createDataSink(PixelsData pixels, Gateway gw)
-	{
-		if (pixels == null)
-			throw new IllegalArgumentException("Pixels cannot be null.");
-		if (singleton.pixelsSource != null && 
-				singleton.pixelsSource.isSame(pixels.getId()))
-			return singleton.pixelsSource;
-		registry.getCacheService().clearAllCaches(); 
-		int size = getCacheSize();
-		if (size <= 0) size = 0;
-		singleton.pixelsSource = DataSink.makeNew(pixels, registry.getGateway(), size);
-		return singleton.pixelsSource;
-	}
-
-	/**
-	 * Shuts downs the data sink attached to the specified pixels set.
-	 * 
-	 * @param context   Reference to the registry. To ensure that agents cannot
-	 *                  call the method. It must be a reference to the
-	 *                  container's registry.
-	 * @param pixelsID  The ID of the pixels set.
-	 */
-	public static void shutDownDataSink(Registry context, long pixelsID)
-	{
-		if (!(context.equals(registry)))
-			throw new IllegalArgumentException("Not allow to access method.");
-		if (singleton.pixelsSource != null && 
-				singleton.pixelsSource.isSame(pixelsID)) {
-			int size = getCacheSize();
-			boolean cacheInMemory = true;
-			if (size <= 0) cacheInMemory = false;
-			singleton.pixelsSource.clearCache();
-			singleton.pixelsSource.setCacheInMemory(cacheInMemory);
-		}
-	}
-	
-	/**
 	 * Renders the specified {@link PlaneDef 2D-plane}.
 	 * 
+	 * @param ctx       The SecurityContext
 	 * @param context   Reference to the registry. To ensure that agents cannot
 	 *                  call the method. It must be a reference to the
 	 *                  container's registry.
@@ -474,7 +444,6 @@ public class PixelsServicesFactory
 	 * @param largeImage Indicates to set the resolution to <code>0</code>.
 	 * @param compression The compression level.
 	 * @return          The image representing the plane.
-	 * @return See above.
 	 * 
      * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.
@@ -615,6 +584,7 @@ public class PixelsServicesFactory
 	/**
 	 * Makes a new {@link RenderingControl}.
 	 * 
+	 * @param ctx The SecurityContext
 	 * @param reList The rendering engines.
 	 * @param pixels The pixels set.
 	 * @param metadata The related metadata.

@@ -1,10 +1,7 @@
 /*
- * omeis.providers.re.codomain.CodomainChain
- *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2016 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-
 package omeis.providers.re.codomain;
 
 import java.util.ArrayList;
@@ -18,11 +15,11 @@ import omeis.providers.re.quantum.QuantumStrategy;
  * to be applied to the image.
  * <p>
  * A lookup table is built by composing all maps (in the same order as their
- * contexts were enqueued) in a single tranformation and then by applying this
+ * contexts were enqueued) in a single transformation and then by applying this
  * map to each value in the codomain interval
  * <code>[intervalStart, intervalEnd]</code> &#151; note that, in order to
  * compose the maps, this interval has to be both the domain and codomain of
- * each transformation. The LUT is re-built everytime the definition of the
+ * each transformation. The LUT is re-built every time the definition of the
  * codomain interval or the state of the queue changes.
  * </p>
  * <p>
@@ -43,12 +40,6 @@ import omeis.providers.re.quantum.QuantumStrategy;
  */
 public class CodomainChain {
 
-    /**
-     * Identity map. This is a singleton and is always the first map in a
-     * codomain chain.
-     */
-    private static CodomainMapContext identityCtx;
-
     /** Codomain lookup table. */
     private int[] LUT;
 
@@ -56,7 +47,7 @@ public class CodomainChain {
      * A queue to sequence the context of each codomain transformation that has
      * to be applied.
      */
-    private List chain;
+    private List<CodomainMapContext> chain;
 
     /** The lower bound of the codomain interval. */
     private int intervalStart;
@@ -70,7 +61,7 @@ public class CodomainChain {
         CodomainMap map;
         CodomainMapContext ctx;
         int v;
-        Iterator i;
+        Iterator<CodomainMapContext> i;
         for (int x = intervalStart; x <= intervalEnd; ++x) {
             v = x;
             i = chain.iterator();
@@ -162,27 +153,25 @@ public class CodomainChain {
      * @throws IllegalArgumentException
      *             If one of the contexts is already defined.
      */
-    public CodomainChain(int start, int end, List mapContexts) {
-        chain = new ArrayList();
-        if (identityCtx == null) {
-            identityCtx = new IdentityMapContext();
-        }
+    public CodomainChain(int start, int end, List<CodomainMapContext> mapContexts) {
+        chain = new ArrayList<CodomainMapContext>();
         if (mapContexts != null && 0 < mapContexts.size()) {
-            Iterator i = mapContexts.iterator();
+            Iterator<CodomainMapContext> i = mapContexts.iterator();
             CodomainMapContext ctx;
             while (i.hasNext()) {
                 ctx = (CodomainMapContext) i.next();
-                if (chain.contains(ctx)) {
-                    throw new IllegalArgumentException(
-                            "Context already defined.");
+                if (!chain.contains(ctx)) {
+                    ctx = ctx.copy();
+                    chain.add(ctx);
+                } else {
+                    int j = chain.indexOf(ctx);
+                    if (j != -1) {
+                        ctx = ctx.copy();
+                        chain.set(j, ctx);
+                    }
                 }
-                ctx = ctx.copy();
-                chain.add(ctx);
             }
-        } else {
-            chain.add(identityCtx);
         }
-
         setInterval(start, end);
     }
 
@@ -202,9 +191,9 @@ public class CodomainChain {
         intervalStart = start;
         intervalEnd = end;
         CodomainMapContext ctx;
-        Iterator i = chain.iterator();
+        Iterator<CodomainMapContext> i = chain.iterator();
         while (i.hasNext()) {
-            ctx = (CodomainMapContext) i.next();
+            ctx = i.next();
             ctx.setCodomain(start, end);
             ctx.buildContext();
         }
@@ -237,7 +226,6 @@ public class CodomainChain {
         intervalStart = QuantumStrategy.MIN;
         intervalEnd = QuantumStrategy.MAX;
         chain.removeAll(chain);
-        chain.add(identityCtx);
         buildLUT();
     }
 
@@ -254,21 +242,23 @@ public class CodomainChain {
      * 
      * @param mapCtx
      *            The context to add. Mustn't be <code>null</code>.
-     * @throws IllegalArgumentException
-     *             If the context is already defined.
+     * @return Return <code>true</code> if the context was added,
+     *                <code>false</code> otherwise.
      */
-    public void add(CodomainMapContext mapCtx) {
+    public boolean add(CodomainMapContext mapCtx) {
         if (mapCtx == null) {
             throw new NullPointerException("No context.");
         }
         if (chain.contains(mapCtx)) {
-            throw new IllegalArgumentException("Context already defined.");
+            update(mapCtx);
+            return false;
         }
         mapCtx = mapCtx.copy(); // Get memento and discard original object.
         mapCtx.setCodomain(intervalStart, intervalEnd);
         mapCtx.buildContext();
         chain.add(mapCtx);
         buildLUT();
+        return true;
     }
 
     /**
@@ -283,7 +273,7 @@ public class CodomainChain {
      *            The context to add. Mustn't be <code>null</code> and already
      *            contained in the chain.
      * @throws IllegalArgumentException
-     *             If the specifed context doesn't exist.
+     *             If the specified context doesn't exist.
      */
     public void update(CodomainMapContext mapCtx) {
         if (mapCtx == null) {
@@ -309,13 +299,17 @@ public class CodomainChain {
      * 
      * @param mapCtx
      *            The context to remove.
+     * @return Returns <code>true</code> if the chain was removed,
+     *         <code>false</code> otherwise.
      */
-    public void remove(CodomainMapContext mapCtx) {
+    public boolean remove(CodomainMapContext mapCtx) {
         if (mapCtx != null && chain.contains(mapCtx)) { // Recall equals() is
                                                         // overridden.
             chain.remove(mapCtx);
             buildLUT();
+            return true;
         }
+        return false;
     }
 
     /**
@@ -333,6 +327,31 @@ public class CodomainChain {
     }
 
     /**
+     * Returns <code>true</code> if some transformations need to be applied,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean hasMapContext()
+    {
+        return !chain.isEmpty();
+    }
+
+    /**
+     * Returns a copy of the codomain context if any.
+     *
+     * @return See above.
+     */
+    public List<CodomainMapContext> getContexts()
+    {
+        Iterator<CodomainMapContext> i = chain.iterator();
+        List<CodomainMapContext> contexts = new ArrayList<CodomainMapContext>();
+        while (i.hasNext()) {
+            contexts.add(i.next().copy());
+        }
+        return contexts;
+    }
+    /**
      * Overrides the toString method.
      * 
      * @see Object#toString()
@@ -340,12 +359,12 @@ public class CodomainChain {
     @Override
     public String toString() {
         StringBuffer buf = new StringBuffer();
-        Iterator i = chain.iterator();
+        Iterator<CodomainMapContext> i = chain.iterator();
         CodomainMapContext mapCtx;
         int n = chain.size();
         int j = 1;
         while (i.hasNext()) {
-            mapCtx = (CodomainMapContext) i.next();
+            mapCtx = i.next();
             buf.append(mapCtx.getCodomainMap());
             if (j == n) {
                 buf.append(".");

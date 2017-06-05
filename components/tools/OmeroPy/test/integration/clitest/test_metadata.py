@@ -35,8 +35,9 @@ class MetadataTestBase(CLITest):
     def setup_method(self, method):
         super(MetadataTestBase, self).setup_method(method)
         self.name = self.uuid()
-        self.image = self.importSingleImage(
-            GlobalMetadata={'gmd-' + self.name: 'gmd-' + self.name})
+        images = self.import_fake_file(GlobalMetadata={'gmd-' + self.name:
+                                                       'gmd-' + self.name})
+        self.image = images[0]
 
         conn = BlitzGateway(client_obj=self.client)
         self.imageid = unwrap(self.image.getId())
@@ -47,9 +48,11 @@ class MetadataTestBase(CLITest):
     def create_annotations(self, obj):
         tag = self.new_tag('tag-' + self.name)
         fab = self.make_file_annotation(
-            'fileb-' + self.name, format="OMERO.tables", ns=NSBULKANNOTATIONS)
+            'fileb-' + self.name, mimetype="OMERO.tables",
+            namespace=NSBULKANNOTATIONS)
         fam = self.make_file_annotation(
-            'filem-' + self.name, format="OMERO.tables", ns=NSMEASUREMENT)
+            'filem-' + self.name, mimetype="OMERO.tables",
+            namespace=NSMEASUREMENT)
         ma = omero.model.MapAnnotationI()
         ma.setMapValue([omero.model.NamedValue(
             'key-' + self.name, 'value-' + self.name)])
@@ -63,8 +66,8 @@ class MetadataTestBase(CLITest):
     def create_roi(self, img):
         roi = omero.model.RoiI()
         point = omero.model.PointI()
-        point.setCx(rdouble(1))
-        point.setCy(rdouble(2))
+        point.setX(rdouble(1))
+        point.setY(rdouble(2))
         roi.addShape(point)
         roi.setImage(img)
         roi = self.client.getSession().getUpdateService().saveAndReturnObject(

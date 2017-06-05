@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -561,7 +561,8 @@ public class MeasureBezierFigure
 
 		for (int i = 0 ; i < path.size(); i++)
 		{
-			pointArrayY.add(new LengthI(path.get(i).getControlPoint(0).getY(), getUnit()));
+		    pointArrayX.add(transformX(path.get(i).getControlPoint(0).getX()));
+		    pointArrayY.add(transformY(path.get(i).getControlPoint(0).getY()));
 		}
 		AnnotationKeys.POINTARRAYX.set(shape, pointArrayX);
 		AnnotationKeys.POINTARRAYY.set(shape, pointArrayY);

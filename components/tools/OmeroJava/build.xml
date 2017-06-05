@@ -74,6 +74,8 @@
         <unjar dest="${target.dir}/generated-classes">
             <fileset dir="${target.dir}/libs">
                 <include name="ice*.jar"/>
+                <include name="glacier*.jar"/>
+                <include name="freeze*.jar"/>
                 <include name="ome-xml.jar"/>
             </fileset>
         </unjar>

@@ -58,7 +58,6 @@
 		<dsl template="ome/dsl/cfg.vm" filepattern="${resrc.dest}/hibernate.cfg.xml"><fileset dir="${resrc.dir}" includes="${dsl.pat}"/></dsl>
 		<dsl template="ome/dsl/views.vm" filepattern="${resrc.dest}/views.sql"><fileset dir="${resrc.dir}" includes="${dsl.pat}"/></dsl>
 		<dsl template="ome/dsl/enums.vm" filepattern="${blitz.comp}/target/generated/resources/enums.properties"><fileset dir="${resrc.dir}" includes="${dsl.pat}"/></dsl>
-		<dsl template="ome/dsl/enums_update.vm" filepattern="${resrc.dest}/enums_update.sql"><fileset dir="${resrc.dir}" includes="${dsl.pat}"/></dsl>
                 <dsl template="ome/dsl/${omero.db.profile}-header.vm" filepattern="${resrc.dest}/${omero.db.profile}-header.sql"><fileset dir="${resrc.dir}" includes="${dsl.pat}"/></dsl>
                 <dsl template="ome/dsl/${omero.db.profile}-footer.vm" filepattern="${resrc.dest}/${omero.db.profile}-footer.sql"><fileset dir="${resrc.dir}" includes="${dsl.pat}"/></dsl>
 		<delete>
@@ -105,7 +104,6 @@ hibernate.dialect=${omero.db.generate_dialect}
 		<mkdir dir="${sql.dir}"/>
 		<copy file="${resrc.dest}/ddl.sql" tofile="${sql.dir}/schema.sql"/>
 		<copy file="${resrc.dest}/views.sql" tofile="${sql.dir}/views.sql"/>
-		<copy file="${resrc.dest}/enums_update.sql" tofile="${sql.dir}/enums_update.sql"/>
 		<copy file="${resrc.dest}/${omero.db.profile}-header.sql" tofile="${sql.dir}/${omero.db.profile}-header.sql"/>
 		<copy file="${resrc.dest}/${omero.db.profile}-footer.sql" tofile="${sql.dir}/${omero.db.profile}-footer.sql"/>
 		<replace file="${sql.dir}/${omero.db.profile}-footer.sql" token="@DBPATCH@" value="${omero.db.patch}"/>

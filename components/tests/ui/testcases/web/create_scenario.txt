@@ -62,17 +62,17 @@ Project Should Exist
     Wait Until Page Contains Element        xpath=//li[@id='${treeRootId}']/ul/li[@id='${nodeId}']
 
 Create Dataset Using Icon and Check If Orphaned
-    [Arguments]                             ${isOrphaned}
-    ${projectId}=                           Run Keyword If                          '${isOrphaned}' == '${notOrphaned}'  Get Text            css=tr.data_heading_id strong
+    [Arguments]                             ${isOrphaned}       ${deleteDataset}=True       ${projectId}=0
+    # ${projectId}=                           Run Keyword If                          '${isOrphaned}' == '${notOrphaned}'  Get Text            css=tr.data_heading_id strong
     ${datasetId}=                           Create Dataset                          ${CtxDatasetName}
     Run Keyword If                          '${isOrphaned}' == '${orphaned}'        Dataset Exists and Is Orphaned      ${datasetId}
     Run Keyword If                          '${isOrphaned}' == '${notOrphaned}'     Dataset Exists and Is Not Orphaned  ${datasetId}        ${projectId}
-    Delete Container
+    Run Keyword If                          ${deleteDataset}                        Delete Container
     [Return]                                ${datasetId} 
 
 Create Dataset Using Right Click and Check If Orphaned
-    [Arguments]                             ${RootId}       ${DatasetName}      ${isOrphaned}
-    ${projectId}=                           Run Keyword If                          '${isOrphaned}' == '${notOrphaned}'  Get Text            css=tr.data_heading_id strong
+    [Arguments]                             ${RootId}       ${DatasetName}      ${isOrphaned}       ${projectId}=0
+    # ${projectId}=                           Run Keyword If                          '${isOrphaned}' == '${notOrphaned}'  Get Text            css=tr.data_heading_id strong
     Right Click Create P/D/S                ${RootId}       Dataset                 ${DatasetName}
     ${datasetId}=                           Check Right And Center Panels For Active Container                          Dataset             ${DatasetName}
     Run Keyword If                          '${isOrphaned}' == '${orphaned}'        Dataset Exists and Is Orphaned      ${datasetId}
@@ -131,17 +131,17 @@ Test Container Creation Enabled
     Create Button Should Be Enabled             project
     Create Button Should Be Enabled             dataset
     Create Button Should Be Enabled             screen
-    Node Popup Menu Item Should Be Disabled     Project
+    Node Popup Menu Item Should Be Enabled      Project
     Node Popup Menu Item Should Be Enabled      Dataset
-    Node Popup Menu Item Should Be Disabled     Screen
+    Node Popup Menu Item Should Be Enabled      Screen
     Node Popup Menu Item Should Be Enabled      Delete
     Select First Dataset With Children
     Create Button Should Be Enabled             project
     Create Button Should Be Enabled             dataset
     Create Button Should Be Enabled             screen
-    Node Popup Menu Item Should Be Disabled     Project
-    Node Popup Menu Item Should Be Disabled     Dataset
-    Node Popup Menu Item Should Be Disabled     Screen
+    Node Popup Menu Item Should Be Enabled      Project
+    Node Popup Menu Item Should Be Enabled      Dataset
+    Node Popup Menu Item Should Be Enabled      Screen
     Node Popup Menu Item Should Be Enabled      Delete
     ${imageId}=                                 Select First Image
     Create Button Should Be Enabled             project
@@ -151,7 +151,16 @@ Test Container Creation Enabled
     Node Popup Menu Item Should Be Enabled      Dataset
     Node Popup Menu Item Should Be Enabled      Screen
     Node Popup Menu Item Should Be Enabled      Delete
+    Select Orphaned Images Section
+    Create Button Should Be Enabled             project
+    Create Button Should Be Enabled             dataset
+    Create Button Should Be Enabled             screen
+    Node Popup Menu Item Should Be Enabled      Project
+    Node Popup Menu Item Should Be Enabled      Dataset
+    Node Popup Menu Item Should Be Enabled      Screen
+    Node Popup Menu Item Should Be Disabled     Delete
 
+    ${imageId}=                                 Select First Image
     Thumbnail Should Be Selected                ${imageId}
     ${imageNodeId}=                             Select Image By Id            ${imageId}
     # Using hot-key fails on jsTree 3 (worked OK previously)...
@@ -215,11 +224,16 @@ Test Create Dataset Using Icon
     Select Experimenter
     Create Dataset Using Icon and Check If Orphaned             ${orphaned}
 
-    Select First Project
-    Create Dataset Using Icon and Check If Orphaned             ${notOrphaned}
+    # We don't delete new Dataset 'False'. Get datasetId and delete below
+    ${pId}=  Select First Project
+    ${dId}=  Create Dataset Using Icon and Check If Orphaned    ${notOrphaned}      False       ${pId}
 
-    Select First Dataset
-    Create Dataset Using Icon and Check If Orphaned             ${orphaned}
+    # Dataset just-created is still selected. Create sibling Dataset (with Delete)
+    Create Dataset Using Icon and Check If Orphaned             ${notOrphaned}      True        ${pId}
+
+    # Now select and Delete the new Dataset we created under Project
+    Select Dataset By Id                                        ${dId}
+    Delete Container
 
     Select First Screen
     Create Dataset Using Icon and Check If Orphaned             ${orphaned}
@@ -240,7 +254,15 @@ Test Create Dataset Using Right Click
 
     ${pId}=                                                     Select First Project
     ${treeId}=                                                  Wait For Project Node       ${pId}
-    Create Dataset Using Right Click and Check If Orphaned      ${treeId}                   ${CtxDatasetName}               ${notOrphaned}
+    ${dId}=  Create Dataset Using Right Click and Check If Orphaned      ${treeId}          ${CtxDatasetName}               ${notOrphaned}      ${pId}
+    # Don't Delete new Dataset here - Test creating next Dataset as sibling...
+
+    ${treeId}=                                                  Wait For Dataset Node       ${dId}
+    Create Dataset Using Right Click and Check If Orphaned      ${treeId}                   ${CtxDatasetName}               ${notOrphaned}      ${pId}
+    Delete Container
+
+    # Now select and Delete the new Dataset we created under Project
+    Select Dataset By Id                                       ${dId}
     Delete Container
 
     ${imageId}=                                                 Select And Expand Image

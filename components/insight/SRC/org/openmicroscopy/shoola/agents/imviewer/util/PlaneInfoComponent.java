@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.util.PlaneInfoComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -32,7 +32,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -40,9 +39,10 @@ import javax.swing.JPanel;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.ColourIcon;
 import org.openmicroscopy.shoola.util.ui.ColouredButton;
+import org.openmicroscopy.shoola.util.ui.colourpicker.LookupTableIconUtil;
 
 /** 
  * Basic component hosting the plane information.
@@ -128,6 +128,42 @@ public class PlaneInfoComponent
 	}
 	
 	/**
+     * Creates a new instance.
+     * 
+     * @param lut The lookup table associated to the channel.
+     */
+	public PlaneInfoComponent(String lut)
+    {
+        content = new JLabel();
+        icon = new ColouredButton("", LookupTableIconUtil.getLUTIconImage(lut));
+        icon.setPreferredSize(ICON_DIMENSION);
+        label = new JLabel();
+        label.setVerticalTextPosition(JLabel.CENTER);
+        label.setHorizontalTextPosition(JLabel.RIGHT);
+        label.addMouseListener(new MouseAdapter() {
+        
+            /**
+             * Shows information
+             * @see MouseAdapter#mousePressed(MouseEvent)
+             */
+            public void mousePressed(MouseEvent e) {
+                showInfo();
+            }
+        });
+        //setBorder(BorderFactory.createEmptyBorder());
+        icon.addActionListener(new ActionListener() {
+            
+            public void actionPerformed(ActionEvent e) {
+                showInfo();
+            }
+        });
+        setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        add(icon);
+        add(Box.createHorizontalStrut(2));
+        add(label);
+    }
+	
+	/**
 	 * Sets the text associated to the component.
 	 * 
 	 * @param text The value to set.
@@ -141,12 +177,26 @@ public class PlaneInfoComponent
 	 */
 	public JComponent getContent() { return content; }
 	
-	/**
-	 * Sets the color of the icon.
-	 *  
-	 * @param color The value to set.
-	 */
-	public void setColor(Color color) { icon.setColor(color); }//icon.setColour(color); }
+    /**
+     * Sets the color of the icon.
+     * 
+     * @param color
+     *            The value to set.
+     */
+    public void setColor(Color color) {
+        icon.setColor(color);
+        icon.setImage(null);
+    }
+
+    /**
+     * Set the lookup table for the icon
+     * 
+     * @param lut
+     *            The lookup table
+     */
+    public void setLookupTable(String lut) {
+        icon.setImage(LookupTableIconUtil.getLUTIconImage(lut));
+    }
 	
 	/**
 	 * Overridden to set the text of the <code>content</code> component.

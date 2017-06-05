@@ -186,6 +186,10 @@ button::-moz-focus-inner {
     #metadata_general .btn_download {
         background: url(../../webgateway/img/icon_download2.png) center center no-repeat;
     }
+
+    #metadata_general .btn_openwith {
+        background: url(../image/icon_openwith_toolbar.png) center center no-repeat;
+    }
     
     .toolbar_dropdown {
         float:right;
@@ -197,14 +201,21 @@ button::-moz-focus-inner {
         left: auto;
     }
     .toolbar_dropdown .dropdown:before {
-        left: 68% !important;
+        left: 68%;
     }
     .toolbar_dropdown ul a {
         background: none;
         font-size: 80%;
     }
-	
-	
+
+    /* Dropdown to the right of the button */
+    .toolbar_dropdown .dropdown_right {
+        right: auto;
+    }
+    .toolbar_dropdown .dropdown_right:before {
+        left: 2%;
+    }
+
 	
 
 /*
@@ -440,7 +451,7 @@ button::-moz-focus-inner {
 */
     
     
- .tag {
+.tag_annotation_wrapper .tag {
 	 display:inline-block;
 	 float:left;
 	 margin:1px 1px;
@@ -512,7 +523,7 @@ button::-moz-focus-inner {
 	margin-left:5px;
 	overflow:hidden;
 	display:block !important;
-	background:url(../image/icon_tag_delete.png) center center no-repeat;
+	background:url(../image/icon_tag_remove.png) center center no-repeat;
 	text-indent:-99px;
 }
 
@@ -945,7 +956,7 @@ button::-moz-focus-inner {
  
 
 
-	#search input[type=text], .filtersearch input[type=text] {
+	#search input[type=text], .filtersearch input[type=text], #imagesPerRow {
 		-webkit-border-radius:50px;
 		-moz-border-radius:50px;
 		border-radius:50px;
@@ -1039,7 +1050,24 @@ button::-moz-focus-inner {
 	}
 	
 
+	.imagefilter {
+		float:left;
+		display:none;
+		margin-right:5px
+	}
 
+	.imagefilter .removefilter {
+		visibility: hidden;
+	}
+
+	.imagefilter:hover .removefilter {
+		display: inline-block;
+		visibility: visible;
+	}
+	.removefilter:hover {
+		cursor: pointer;
+		color: blue;
+	}
 
 
 
@@ -1107,72 +1135,5 @@ button::-moz-focus-inner {
 						color: hsl(0,0%,20%);
 						text-shadow: 0 1px 0 white;
 					}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* 
-	------------------------------------------------------------
-
-
-	Why is the OME Interface Elements Library called Dusty?
-
-
-	As he rolls around the town of Dundee, Dusty gazes at
-	the multiplicity of beautiful statues tastefully 
-	littered across the urban landscape. He adores them in 
-	all their splendour, their magestic presence. He is 
-	inspired by their dedication - in a way, these status 
-	represent the ultimate permanence, watching generations 
-	go by as they stand their ground over the centuries. 
-	These statues have inked themselves into the history of 
-	the world.
-	
-	Dusty, unfortunately, hasn't done anything particularly 
-	special to warrant a statue. He knows this is out of his
-	league. He is merely a bike, after all. What change can 
-	he possibly make?
-	 
-	
-	This saddens him. I know this, because as I ride with 
-	him around town talking about the fascinating 
-	subjects of the world, he opens up to me. He wants to leave something 
-	on this earth to be remembered by. He wants... 
-	permanence.
-	
-	So, it is with great pleasure, that I, as the author of this 
-	stylesheet dedicate the OME Interface Element stylesheet to 
-	Dusty the Bicycle. He is our 'bootstrap'.
-	
-	Here's to you, Dusty. May your name be remembered as 
-	long as OME uses this stylesheet.
-	
-	
-	------------------------------------------------------------ 
-*/
-
-
-
 
 

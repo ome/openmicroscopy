@@ -126,10 +126,10 @@ public class MeasurementStore implements OmeroMeasurementStore {
             throws ServerError {
         Roi roi = new Roi();
         Ellipse ellipse = new Ellipse();
-        ellipse.setCx(x);
-        ellipse.setCy(y);
-        ellipse.setRx(r);
-        ellipse.setRy(r);
+        ellipse.setX(x);
+        ellipse.setY(y);
+        ellipse.setRadiusX(r);
+        ellipse.setRadiusY(r);
         roi.addShape(ellipse);
         appendRoi(roiLsid, roi);
     }

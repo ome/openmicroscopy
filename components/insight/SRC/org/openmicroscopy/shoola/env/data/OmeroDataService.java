@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -31,6 +31,7 @@ import omero.api.StatefulServiceInterfacePrx;
 
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 
+import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
@@ -58,6 +59,12 @@ public interface OmeroDataService
 	public static final String IMAGES_PROPERTY = "images";
 
 	/**
+	 * Get a reference to the {@link Gateway}
+	 * @return See above
+	 */
+	public Gateway getGateway();
+	
+	/**
 	 * Retrieves hierarchy trees rooted by a given node.
 	 * i.e. the requested node as root and all of its descendants.
 	 *
@@ -77,7 +84,7 @@ public interface OmeroDataService
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
-	public Set loadContainerHierarchy(SecurityContext ctx,
+	public Collection<DataObject> loadContainerHierarchy(SecurityContext ctx,
 			Class rootNodeType, List rootNodeIDs, boolean withLeaves,
 			long userID)
 		throws DSOutOfServiceException, DSAccessException;
@@ -96,7 +103,7 @@ public interface OmeroDataService
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
-	public Set loadTopContainerHierarchy(SecurityContext ctx,
+	public Collection<DataObject> loadTopContainerHierarchy(SecurityContext ctx,
 			Class rootNodeType, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 
@@ -160,7 +167,7 @@ public interface OmeroDataService
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
-	public Set findContainerHierarchy(SecurityContext ctx,
+	public Collection<DataObject> findContainerHierarchy(SecurityContext ctx,
 			Class rootNodeType, List leavesIDs, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 
@@ -178,7 +185,7 @@ public interface OmeroDataService
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
-	public Set getImages(SecurityContext ctx, Class nodeType, List nodeIDs,
+	public Collection<ImageData> getImages(SecurityContext ctx, Class nodeType, List nodeIDs,
 			long userID)
 		throws DSOutOfServiceException, DSAccessException;
 
@@ -487,7 +494,7 @@ public interface OmeroDataService
 	 * retrieve data from OMERO service.
 	 */
 	public Map<Long, Map<Boolean, List<ImageData>>> getImagesBySplitFilesets(
-			SecurityContext ctx, Class<?> rootType, List<Long> rootIDs)
+			SecurityContext ctx, Class<? extends DataObject> rootType, List<Long> rootIDs)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**

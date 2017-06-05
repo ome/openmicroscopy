@@ -73,6 +73,7 @@ import omero.model.PointI;
 import omero.model.PolygonI;
 import omero.model.PolylineI;
 import omero.model.RectangleI;
+import omero.model.MaskI;
 import omero.model.Roi;
 import omero.model.Shape;
 import omero.model.Time;
@@ -85,6 +86,10 @@ import Glacier2.PermissionDeniedException;
  * for use in export from an OMERO Beta 4.2.x database.
  *
  */
+/**
+ * @deprecated  As of release 5.3.0
+ */
+@Deprecated
 public class OmeroReader extends FormatReader {
 
     // -- Constants --
@@ -102,8 +107,19 @@ public class OmeroReader extends FormatReader {
     private Long groupID = null;
     private boolean encrypted = true;
 
-    private omero.client client;
-    private RawPixelsStorePrx store;
+    /** 
+     * The Blitz client object, this is the entry point to the
+     * OMERO Server using a secure connection.
+     */
+    private omero.client secureClient;
+
+    /** 
+     * The client object, this is the entry point to the
+     * OMERO Server using non secure data transfer
+     */
+    private omero.client unsecureClient;
+
+    private ServiceFactoryPrx serviceFactory;
     private Image img;
     private Pixels pix;
 
@@ -165,16 +181,29 @@ public class OmeroReader extends FormatReader {
         final int[] zct = FormatTools.getZCTCoords(this, no);
 
         final byte[] plane;
+        RawPixelsStorePrx store = null;
         try {
+            store = serviceFactory.createRawPixelsStore();
+            store.setPixelsId(pix.getId().getValue(), false);
             plane = store.getPlane(zct[0], zct[1], zct[2]);
         }
         catch (ServerError e) {
             throw new FormatException(e);
+        } finally {
+            // cannot use try-with-resources
+            // RawPixelsStorePrx does not implement autocloseable
+            if (store != null) {
+                try {
+                    store.close();
+                } catch (Exception ex) {
+                    throw new FormatException(ex);
+                }
+            }
         }
 
-        RandomAccessInputStream s = new RandomAccessInputStream(plane);
-        readPlane(s, x, y, w, h, buf);
-        s.close();
+        try (RandomAccessInputStream s = new RandomAccessInputStream(plane)) {
+            readPlane(s, x, y, w, h, buf);
+        }
 
         return buf;
     }
@@ -182,8 +211,13 @@ public class OmeroReader extends FormatReader {
     @Override
     public void close(boolean fileOnly) throws IOException {
         super.close(fileOnly);
-        if (!fileOnly && client != null) {
-            client.closeSession();
+        if (!fileOnly) {
+            if (secureClient != null) {
+                secureClient.closeSession();
+            }
+            if (unsecureClient != null) {
+                unsecureClient.closeSession();
+            }
         }
     }
 
@@ -255,18 +289,18 @@ public class OmeroReader extends FormatReader {
 
             LOGGER.info("Logging in");
 
-            client = new omero.client(address, port);
-            ServiceFactoryPrx serviceFactory = null;
+            secureClient = new omero.client(address, port);
+            serviceFactory = null;
             if (user != null && pass != null) {
-                serviceFactory = client.createSession(user, pass);
+                serviceFactory = secureClient.createSession(user, pass);
             }
             else {
-                serviceFactory = client.createSession(sessionID, sessionID);
+                serviceFactory = secureClient.createSession(sessionID, sessionID);
             }
 
             if (!encrypted) {
-                client = client.createClient(false);
-                serviceFactory = client.getSession();
+                unsecureClient = secureClient.createClient(false);
+                serviceFactory = unsecureClient.getSession();
             }
 
             IAdminPrx iAdmin = serviceFactory.getAdminService();
@@ -304,10 +338,6 @@ public class OmeroReader extends FormatReader {
                 }
             }
 
-            // get raw pixels store and pixels
-
-            store = serviceFactory.createRawPixelsStore();
-
             img = (Image) serviceFactory.getContainerService()
                     .getImages("Image", Arrays.asList(iid), null).get(0);
 
@@ -319,7 +349,6 @@ public class OmeroReader extends FormatReader {
             long pixelsId = img.getPixels(0).getId().getValue();
 
             pix = serviceFactory.getPixelsService().retrievePixDescription(pixelsId);
-            store.setPixelsId(pixelsId, false);
 
             final int sizeX = pix.getSizeX().getValue();
             final int sizeY = pix.getSizeY().getValue();
@@ -340,7 +369,7 @@ public class OmeroReader extends FormatReader {
             m.sizeT = sizeT;
             m.rgb = false;
             m.littleEndian = false;
-            m.dimensionOrder = "XYZCT";
+            m.dimensionOrder = omero.model.enums.DimensionOrderXYZCT.value;
             m.imageCount = sizeZ * sizeC * sizeT;
             m.pixelType = FormatTools.pixelTypeFromString(pixelType);
 
@@ -421,7 +450,6 @@ public class OmeroReader extends FormatReader {
                 }
             }
 
-            //            store.setImageID("omero:iid=", (int) img.getId().getValue());
             //Load ROIs to the img -->
             RoiOptions options = new RoiOptions();
             options.userId = omero.rtypes.rlong(iAdmin.getEventContext().userId);
@@ -435,60 +463,48 @@ public class OmeroReader extends FormatReader {
                 }
             }
         }
-        catch (CannotCreateSessionException e) {
-            throw new FormatException(e);
-        }
-        catch (PermissionDeniedException e) {
-            throw new FormatException(e);
-        }
-        catch (ServerError e) {
+        catch (CannotCreateSessionException|PermissionDeniedException|ServerError e) {
             throw new FormatException(e);
         }
     }
 
     /** A simple command line tool for downloading images from OMERO. */
     public static void main(String[] args) throws Exception {
-        // parse OMERO credentials
-        BufferedReader con = new BufferedReader(
+        try (BufferedReader con = new BufferedReader(
                 new InputStreamReader(System.in, Constants.ENCODING));
+            OmeroReader omeroReader = new OmeroReader()) {
+            // parse OMERO credentials
+            System.out.print("Server? ");
+            final String server = con.readLine();
 
-        System.out.print("Server? ");
-        final String server = con.readLine();
+            System.out.printf("Port [%d]? ", DEFAULT_PORT);
+            final String portString = con.readLine();
+            final int port = portString.equals("") ? DEFAULT_PORT :
+                Integer.parseInt(portString);
 
-        System.out.printf("Port [%d]? ", DEFAULT_PORT);
-        final String portString = con.readLine();
-        final int port = portString.equals("") ? DEFAULT_PORT :
-            Integer.parseInt(portString);
+            System.out.print("Username? ");
+            final String user = con.readLine();
 
-        System.out.print("Username? ");
-        final String user = con.readLine();
+            System.out.print("Password? ");
+            final String pass = new String(con.readLine());
 
-        System.out.print("Password? ");
-        final String pass = new String(con.readLine());
+            System.out.print("Group? ");
+            final String group = con.readLine();
 
-        System.out.print("Group? ");
-        final String group = con.readLine();
-
-        System.out.print("Image ID? ");
-        final int imageId = Integer.parseInt(con.readLine());
-        System.out.print("\n\n");
-
-        // construct the OMERO reader
-        final OmeroReader omeroReader = new OmeroReader();
-        omeroReader.setUsername(user);
-        omeroReader.setPassword(pass);
-        omeroReader.setServer(server);
-        omeroReader.setPort(port);
-        omeroReader.setGroupName(group);
-        final String id = "omero:iid=" + imageId;
-        try {
+            System.out.print("Image ID? ");
+            final int imageId = Integer.parseInt(con.readLine());
+            System.out.print("\n\n");
+            // construct the OMERO reader
+            final String id = "omero:iid=" + imageId;
+            omeroReader.setUsername(user);
+            omeroReader.setPassword(pass);
+            omeroReader.setServer(server);
+            omeroReader.setPort(port);
+            omeroReader.setGroupName(group);
             omeroReader.setId(id);
-        }
-        catch (Exception e) {
-            omeroReader.close();
+        } catch (Exception e) {
             throw e;
         }
-        omeroReader.close();
     }
     /** Converts omero.model.Roi to ome.xml.model.* and updates the MetadataStore */
     public static void saveOmeroRoiToMetadataStore(List<omero.model.Roi> rois,
@@ -524,6 +540,9 @@ public class OmeroReader extends FormatReader {
                 else if (shape instanceof Label){
                     //add support for TextROI's
                     storeOmeroLabel(shape,store, roiNum, shapeNum);
+                }
+                else if (shape instanceof MaskI){
+                    storeOmeroMask(shape,store, roiNum, shapeNum);
                 }
 
             }
@@ -619,10 +638,10 @@ public class OmeroReader extends FormatReader {
 
         EllipseI shape1 = (EllipseI) shape;
 
-        double x1 = shape1.getCx().getValue();
-        double y1 = shape1.getCy().getValue();
-        double width = shape1.getRx().getValue();
-        double height = shape1.getRy().getValue();
+        double x1 = shape1.getX().getValue();
+        double y1 = shape1.getY().getValue();
+        double width = shape1.getRadiusX().getValue();
+        double height = shape1.getRadiusY().getValue();
 
         String polylineID = MetadataTools.createLSID("Shape", roiNum, shapeNum);
         store.setEllipseID(polylineID, roiNum, shapeNum);
@@ -653,8 +672,8 @@ public class OmeroReader extends FormatReader {
             MetadataStore store, int roiNum, int shapeNum) {
 
         PointI shape1 = (PointI) shape;
-        double ox1 = shape1.getCx().getValue();
-        double oy1 = shape1.getCy().getValue();
+        double ox1 = shape1.getX().getValue();
+        double oy1 = shape1.getY().getValue();
 
         String polylineID = MetadataTools.createLSID("Shape", roiNum, shapeNum);
         store.setPointID(polylineID, roiNum, shapeNum);
@@ -768,6 +787,40 @@ public class OmeroReader extends FormatReader {
             store.setPolylineTheC(unwrap(shape1.getTheC()), roiNum, shapeNum);
             store.setPolylineTheZ(unwrap(shape1.getTheZ()), roiNum, shapeNum);
             store.setPolylineTheT(unwrap(shape1.getTheT()), roiNum, shapeNum);
+        }
+
+    }
+    /** Converts omero.model.Shape (omero.model.MaskI in this case) to ome.xml.model.* and updates the MetadataStore */
+    private static void storeOmeroMask(omero.model.Shape shape,
+            MetadataStore store, int roiNum, int shapeNum) {
+
+        MaskI shape1 = (MaskI) shape;
+        double x1 = shape1.getX().getValue();
+        double y1 = shape1.getY().getValue();
+        double width = shape1.getWidth().getValue();
+        double height = shape1.getHeight().getValue();
+
+        String maskID = MetadataTools.createLSID("Shape", roiNum, shapeNum);
+        store.setMaskID(maskID, roiNum, shapeNum);
+        store.setMaskX(x1, roiNum, shapeNum);
+        store.setMaskY(y1, roiNum, shapeNum);
+        store.setMaskWidth(width, roiNum, shapeNum);
+        store.setMaskHeight(height, roiNum, shapeNum);
+        store.setMaskTheC(unwrap(shape1.getTheC()), roiNum, shapeNum);
+        store.setMaskTheZ(unwrap(shape1.getTheZ()), roiNum, shapeNum);
+        store.setMaskTheT(unwrap(shape1.getTheT()), roiNum, shapeNum);
+
+        if (shape1.getTextValue() != null){
+            store.setMaskText(shape1.getTextValue().getValue(), roiNum, shapeNum);
+        }
+        if (shape1.getStrokeWidth() != null) {
+            store.setMaskStrokeWidth(new ome.units.quantity.Length(shape1.getStrokeWidth().getValue(), UNITS.PIXEL), roiNum, shapeNum);
+        }
+        if (shape1.getStrokeColor() != null){
+            store.setMaskStrokeColor(new ome.xml.model.primitives.Color(shape1.getStrokeColor().getValue()), roiNum, shapeNum);
+        }
+        if (shape1.getFillColor() != null){
+            store.setMaskFillColor(new ome.xml.model.primitives.Color(shape1.getFillColor().getValue()), roiNum, shapeNum);
         }
 
     }

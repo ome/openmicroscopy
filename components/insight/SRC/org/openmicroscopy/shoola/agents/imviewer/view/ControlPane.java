@@ -28,6 +28,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
@@ -56,8 +58,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import info.clearthought.layout.TableLayout;
-import org.jdesktop.swingx.JXBusyLabel;
 
+import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorPickerAction;
@@ -66,9 +68,12 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.colourpicker.LookupTableIconUtil;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
+
 import omero.gateway.model.ChannelData;
 
 /**
@@ -932,8 +937,15 @@ class ControlPane
         while (i.hasNext()) {
             d = i.next();
             k = d.getIndex();
-            button = new ChannelButton(d.getChannelLabeling(),
-                    model.getChannelColor(k), k, model.isChannelActive(k));
+            boolean lut = CommonsLangUtils.isNotEmpty(model.getLookupTable(k));
+            if (lut)
+                button = new ChannelButton(d.getChannelLabeling(),
+                        LookupTableIconUtil.getLUTIconImage(model
+                                .getLookupTable(k)), k,
+                        model.isChannelActive(k));
+            else
+                button = new ChannelButton(d.getChannelLabeling(),
+                        model.getChannelColor(k), k, model.isChannelActive(k));
             channelButtons.add(button);
             dim = button.getPreferredSize();
             if (dim.width > dimMax.width) 
@@ -1249,20 +1261,56 @@ class ControlPane
         ChannelButton button;
         while (i.hasNext()) {
             button = i.next();
-            if (index == button.getChannelIndex())
+            if (index == button.getChannelIndex()) {
                 button.setColor(c);
+                button.setImage(null);
+            }
+        }
+        i = channelButtonsGrid.iterator();
+        while (i.hasNext()) {
+            button = i.next();
+            if (index == button.getChannelIndex()) {
+                button.setColor(c);
+                button.setImage(null);
+            }
+        }
+        i = channelButtonsProjection.iterator();
+        while (i.hasNext()) {
+            button = i.next();
+            if (index == button.getChannelIndex()) {
+                button.setColor(c);
+                button.setImage(null);
+            }
+        }
+    }
+    
+    /**
+     * Sets the lookup table of selected channel.
+     * 
+     * @param index The channel index.
+     * @param lut The lookup table
+     */
+    void setLookupTable(int index, String lut)
+    {
+        BufferedImage img = LookupTableIconUtil.getLUTIconImage(lut);
+        Iterator<ChannelButton> i = channelButtons.iterator();
+        ChannelButton button;
+        while (i.hasNext()) {
+            button = i.next();
+            if (index == button.getChannelIndex())
+                button.setImage(img);
         }
         i = channelButtonsGrid.iterator();
         while (i.hasNext()) {
             button = i.next();
             if (index == button.getChannelIndex())
-                button.setColor(c);
+                button.setImage(img);
         }
         i = channelButtonsProjection.iterator();
         while (i.hasNext()) {
             button = i.next();
             if (index == button.getChannelIndex())
-                button.setColor(c);
+                button.setImage(img);
         }
     }
 
@@ -1272,25 +1320,50 @@ class ControlPane
         Iterator<ChannelButton> i = channelButtons.iterator();
         ChannelButton button;
         int index;
+        boolean lut;
         while (i.hasNext()) {
             button = i.next();
             index = button.getChannelIndex();
+            lut = CommonsLangUtils.isNotEmpty(model
+                    .getLookupTable(index));
             button.setSelected(model.isChannelActive(index));
-            button.setColor(model.getChannelColor(index));
+            if (lut) {
+                button.setImage(LookupTableIconUtil.getLUTIconImage(model
+                        .getLookupTable(index)));
+            } else {
+                button.setColor(model.getChannelColor(index));
+                button.setImage(null);
+            }
         }
         i = channelButtonsGrid.iterator();
         while (i.hasNext()) {
             button = i.next();
             index = button.getChannelIndex();
+            lut = CommonsLangUtils.isNotEmpty(model
+                    .getLookupTable(index));
             button.setSelected(model.isChannelActive(index));
-            button.setColor(model.getChannelColor(index));
+            if (lut) {
+                button.setImage(LookupTableIconUtil.getLUTIconImage(model
+                        .getLookupTable(index)));
+            } else {
+                button.setColor(model.getChannelColor(index));
+                button.setImage(null);
+            }
         }
         i = channelButtonsProjection.iterator();
         while (i.hasNext()) {
             button = i.next();
             index = button.getChannelIndex();
+            lut = CommonsLangUtils.isNotEmpty(model
+                    .getLookupTable(index));
             button.setSelected(model.isChannelActive(index));
-            button.setColor(model.getChannelColor(index));
+            if (lut) {
+                button.setImage(LookupTableIconUtil.getLUTIconImage(model
+                        .getLookupTable(index)));
+            } else {
+                button.setColor(model.getChannelColor(index));
+                button.setImage(null);
+            }
         }
         Icon icon = getColorModelIcon(model.getColorModel());
         String tip = getColorModelDescription(model.getColorModel());

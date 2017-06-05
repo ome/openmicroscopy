@@ -2,8 +2,6 @@
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# $Id$
-#
 # Copyright 2008-2014 Glencoe Software, Inc. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
@@ -13,8 +11,8 @@
 <!-- Structured Annotations -->
 	<abstract id="ome.model.annotations.Annotation" discriminator="/" annotated="true">
 		<properties>
-			<optional name="ns" type="string"/>
-			<optional name="name" type="string"/>
+			<optional name="ns" type="text"/>
+			<optional name="name" type="text"/>
 			<optional name="description" type="text"/>
 		</properties>
 	</abstract>

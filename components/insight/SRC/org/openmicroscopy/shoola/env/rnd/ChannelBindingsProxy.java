@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.rnd.ChannelBindingsProxy
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -72,6 +72,12 @@ class ChannelBindingsProxy
     
     /** The highest possible value. */
     private double		upperBound;
+    
+    /** The lookup table */
+    private String lookupTable;
+    
+    /** The reverse intensity flag */
+    private boolean revInt;
     
     /** Creates a new instance. */
     ChannelBindingsProxy()
@@ -231,7 +237,47 @@ class ChannelBindingsProxy
     	copy.setQuantization(this.getFamily(), this.getCurveCoefficient(), 
     			this.isNoiseReduction());
     	copy.setRGBA(this.getRGBA());
+    	copy.setLookupTable(this.getLookupTable());
+    	copy.setReverseIntensity(this.getReverseIntensity());
     	return copy;
     }
-       
+
+    /**
+     * Get the lookup table
+     * 
+     * @return See above
+     */
+    String getLookupTable() {
+        return lookupTable;
+    }
+
+    /**
+     * Set the lookup table
+     * 
+     * @param lookupTable
+     *            The lookup table
+     */
+    void setLookupTable(String lookupTable) {
+        this.lookupTable = lookupTable;
+    }
+     
+    /**
+     * Get the reverse intensity flag
+     * 
+     * @return See above
+     */
+    boolean getReverseIntensity() {
+        return revInt;
+    }
+
+    /**
+     * Set the reverse intensity flag
+     * 
+     * @param revInt
+     *            The reverse intensity flag
+     */
+    void setReverseIntensity(boolean revInt) {
+        this.revInt = revInt;
+    }
+
 }

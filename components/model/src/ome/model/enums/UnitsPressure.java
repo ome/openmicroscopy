@@ -37,7 +37,7 @@ public enum UnitsPressure implements UnitEnum {
     KILOPASCAL("kPa"),
     HECTOPASCAL("hPa"),
     DECAPASCAL("daPa"),
-    Pascal("Pa"),
+    PASCAL("Pa"),
     DECIPASCAL("dPa"),
     CENTIPASCAL("cPa"),
     MILLIPASCAL("mPa"),

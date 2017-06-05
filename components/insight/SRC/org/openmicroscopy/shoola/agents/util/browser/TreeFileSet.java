@@ -27,11 +27,6 @@ package org.openmicroscopy.shoola.agents.util.browser;
 //Java imports
 import java.util.Iterator;
 
-import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
-import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.util.CommonsLangUtils;
-
 //Third-party libraries
 
 //Application-internal dependencies
@@ -76,15 +71,9 @@ public class TreeFileSet
 	 */
 	private static String getTypeName(int type)
 	{
-		Registry reg = DataBrowserAgent.getRegistry();
-		
 		switch (type) {
 			case MOVIE: return "Movies";
 			case ORPHANED_IMAGES:
-			    String v = (String) reg.lookup(LookupNames.ORPHANED_IMAGE_NAME);
-			    if (CommonsLangUtils.isNotBlank(v)) {
-			        return v;
-			    }
 			    return "Orphaned Images";
 			case TAG:
 				return "Tags used not owned";
@@ -92,8 +81,9 @@ public class TreeFileSet
 			default:
 				return "Other files";
 		}
+		
 	}
-	
+
 	/** One of the constants defined by this class. */
 	private int type;
 	

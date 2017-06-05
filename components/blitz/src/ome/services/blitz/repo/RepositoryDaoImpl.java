@@ -16,6 +16,8 @@ import ome.conditions.InternalException;
 import ome.io.nio.FileBuffer;
 import ome.model.IObject;
 import ome.model.fs.FilesetJobLink;
+import ome.model.internal.Permissions.Right;
+import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
 import ome.parameters.Parameters;
 import ome.services.RawFileBean;
@@ -61,7 +63,7 @@ import com.google.common.collect.ListMultimap;
  *
  * @author Blazej Pindelski <bpindelski at dundee dot ac dot uk>
  * @author Colin Blackburn <c.blackburn at dundee dot ac dot uk>
- * @since 4.5
+ * @since 5.0.0
  */
 public class RepositoryDaoImpl implements RepositoryDao {
 
@@ -907,6 +909,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
         return IceMapper.convert(ec);
     }
 
+    @Deprecated  // removed in 5.4
     protected EventContext currentContext(Principal currentUser) {
         return (EventContext) executor.execute(currentUser,
                 new Executor.SimpleWork(this, "getEventContext") {
@@ -1063,7 +1066,11 @@ public class RepositoryDaoImpl implements RepositoryDao {
 
         if (parentObjectOwnerId != roles.getRootId() || parentObjectGroupId != roles.getUserGroupId()) {
             final LocalAdmin admin = (LocalAdmin) sf.getAdminService();
-            if (!admin.canAnnotate(parentObject)) {
+            final EventContext ec = admin.getEventContext();
+            if (!(admin.canAnnotate(parentObject) ||
+                    parentObjectGroupId == roles.getUserGroupId() &&
+                    ec.getCurrentGroupPermissions().isGranted(
+                            parentObjectOwnerId == ec.getCurrentUserId() ? Role.USER : Role.GROUP, Right.ANNOTATE))) {
                 throw new ome.conditions.SecurityViolation(
                         "No annotate access for parent directory: "
                                 + parentId);

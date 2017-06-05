@@ -84,7 +84,7 @@ class TestUser(CLITest):
             sorted_list = sorted(self.users, key=lambda x: x.id.val)
         assert ids == [user.id.val for user in sorted_list]
 
-    @pytest.mark.parametrize("style", [None, "sql", "csv", "plain"])
+    @pytest.mark.parametrize("style", [None, "sql", "csv", "plain", "json"])
     def testListWithStyles(self, capsys, style):
         self.args += ["list"]
         if style:

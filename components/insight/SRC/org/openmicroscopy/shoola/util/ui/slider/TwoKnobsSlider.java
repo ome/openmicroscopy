@@ -33,6 +33,8 @@ import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.image.BufferedImage;
+
 import javax.swing.JPanel;
 
 
@@ -150,7 +152,16 @@ public class TwoKnobsSlider
 
 	/** Flag indicating that the colors have been set. */
 	private boolean 			colourGradient;
+	
+	/** The background image */
+	private BufferedImage      image;
 
+    /**
+     * Flag to indicate that the background image/color should be only drawn
+     * within the start and end slider knob
+     */
+    private boolean squeezeBackground = true;
+	
 	/** Computes the preferred size of this component. */
 	private void calculatePreferredSize()
 	{
@@ -705,6 +716,16 @@ public class TwoKnobsSlider
 		gradients = colors;
 	}
 	
+    /**
+     * Set the background image (takes precedence over color gradients!)
+     * 
+     * @param image
+     *            The image
+     */
+    public void setImage(BufferedImage image) {
+        this.image = image;
+    }
+	
 	/**
 	 * Returns the colors of the gradient.
 	 *  
@@ -712,7 +733,25 @@ public class TwoKnobsSlider
 	 */
 	Color[] getGradientColors() { return gradients; }
 	
+    /**
+     * Get the background image
+     * 
+     * @return The current background image
+     */
+    BufferedImage getImage() {
+        return this.image;
+    }
 	
+    /**
+     * Returns if the background image/color is supposed to be only drawn within
+     * the start and end slider knob (instead of the full range)
+     * 
+     * @return See above.
+     */
+    boolean isSqueezeBackground() {
+        return squeezeBackground;
+    }
+    
 	/**
 	 * Returns <code>True</code> if the color gradient is set,
 	 * <code>false</code> otherwise.

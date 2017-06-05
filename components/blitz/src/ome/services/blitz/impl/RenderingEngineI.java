@@ -1,10 +1,7 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-
 package ome.services.blitz.impl;
 
 import java.util.LinkedHashMap;
@@ -18,6 +15,7 @@ import omero.InternalException;
 import omero.RLong;
 import omero.ServerError;
 import omero.api.AMD_RenderingEngine_addCodomainMap;
+import omero.api.AMD_RenderingEngine_addCodomainMapToChannel;
 import omero.api.AMD_RenderingEngine_getAvailableFamilies;
 import omero.api.AMD_RenderingEngine_getAvailableModels;
 import omero.api.AMD_RenderingEngine_getChannelCurveCoefficient;
@@ -27,6 +25,7 @@ import omero.api.AMD_RenderingEngine_getChannelNoiseReduction;
 import omero.api.AMD_RenderingEngine_getChannelStats;
 import omero.api.AMD_RenderingEngine_getChannelWindowEnd;
 import omero.api.AMD_RenderingEngine_getChannelWindowStart;
+import omero.api.AMD_RenderingEngine_getCodomainMapContext;
 import omero.api.AMD_RenderingEngine_getCompressionLevel;
 import omero.api.AMD_RenderingEngine_getDefaultT;
 import omero.api.AMD_RenderingEngine_getDefaultZ;
@@ -44,6 +43,7 @@ import omero.api.AMD_RenderingEngine_loadRenderingDef;
 import omero.api.AMD_RenderingEngine_lookupPixels;
 import omero.api.AMD_RenderingEngine_lookupRenderingDef;
 import omero.api.AMD_RenderingEngine_removeCodomainMap;
+import omero.api.AMD_RenderingEngine_removeCodomainMapFromChannel;
 import omero.api.AMD_RenderingEngine_render;
 import omero.api.AMD_RenderingEngine_renderAsPackedInt;
 import omero.api.AMD_RenderingEngine_renderCompressed;
@@ -112,6 +112,12 @@ public class RenderingEngineI extends AbstractPyramidServant implements
     public void addCodomainMap_async(AMD_RenderingEngine_addCodomainMap __cb,
             CodomainMapContext mapCtx, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, mapCtx);
+
+    }
+
+    public void addCodomainMapToChannel_async(AMD_RenderingEngine_addCodomainMapToChannel __cb,
+            CodomainMapContext mapCtx, int w, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, mapCtx, w);
 
     }
 
@@ -327,6 +333,13 @@ public class RenderingEngineI extends AbstractPyramidServant implements
 
     }
 
+    public void removeCodomainMapFromChannel_async(
+            AMD_RenderingEngine_removeCodomainMapFromChannel __cb,
+            CodomainMapContext mapCtx, int w, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, mapCtx, w);
+
+    }
+
     public void renderAsPackedInt_async(
             AMD_RenderingEngine_renderAsPackedInt __cb, PlaneDef def,
             Current __current) throws ServerError {
@@ -459,5 +472,12 @@ public class RenderingEngineI extends AbstractPyramidServant implements
             AMD_RenderingEngine_setChannelLookupTable __cb, int w,
             String lookup, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, w, lookup);
+    }
+
+    @Override
+    public void getCodomainMapContext_async(
+            AMD_RenderingEngine_getCodomainMapContext __cb, int w, Current __current)
+            throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, w);
     }
 }

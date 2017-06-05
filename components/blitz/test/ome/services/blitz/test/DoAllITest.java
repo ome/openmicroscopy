@@ -31,7 +31,6 @@ import ome.model.core.Image;
 import ome.services.blitz.impl.commands.SaveI;
 import ome.system.EventContext;
 import omero.api.SaveRsp;
-import omero.cmd.Chgrp;
 import omero.cmd.DoAllRsp;
 import omero.cmd.HandleI.Cancel;
 import omero.cmd.Helper;
@@ -41,7 +40,7 @@ import omero.cmd.Response;
 import omero.cmd.State;
 import omero.cmd._HandleTie;
 import omero.cmd.basic.DoAllI;
-import omero.cmd.graphs.ChgrpFacadeI;
+import omero.gateway.util.Requests;
 import omero.model.DatasetI;
 import omero.model.ImageI;
 
@@ -72,16 +71,6 @@ public class DoAllITest extends AbstractGraphTest {
             d = update.saveAndReturnObject(d);
             i = d.linkedImageList().get(0);
         }
-    }
-
-    Request chgrp(long imageID, long groupID) {
-        ChgrpFacadeI chgrp = (ChgrpFacadeI) ic.findObjectFactory(Chgrp.ice_staticId())
-                .create("");
-        chgrp.type = "/Image";
-        chgrp.id = imageID;
-        chgrp.options = null;
-        chgrp.grp = groupID;
-        return chgrp;
     }
 
     /**
@@ -136,7 +125,7 @@ public class DoAllITest extends AbstractGraphTest {
         assertEquals(before.getCurrentGroupId(), after.getCurrentGroupId());
         Data data = new Data(user); // Data in oldGroupID
         DoAllI all = new DoAllI(ctx);
-        Request chgrp = chgrp(data.i.getId(), newGroupID); // Image in newGroupID
+        Request chgrp = Requests.chgrp().target("Image").id(data.i.getId()).toGroup(newGroupID).build();
         Request save = addImageToNewDataset(newGroupID, data.i);
         all.requests = Arrays.asList(chgrp, save);
 

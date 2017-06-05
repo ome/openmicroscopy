@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,6 @@
 
 package omero.gateway.model;
 
-import static omero.rtypes.*;
 import ome.model.units.BigResult;
 import omero.model.Length;
 import omero.model.LengthI;
@@ -51,61 +50,61 @@ public class PixelsData extends DataObject {
      * Identifies the type used to store pixel values. Maps onto the <i>OME</i>
      * <code>int8</code> string identifier.
      */
-    public static final String INT8_TYPE = "int8";
+    public static final String INT8_TYPE = omero.model.enums.PixelsTypeint8.value;
 
     /**
      * Identifies the type used to store pixel values. Maps onto the <i>OME</i>
      * <code>int16</code> string identifier.
      */
-    public static final String INT16_TYPE = "int16";
+    public static final String INT16_TYPE = omero.model.enums.PixelsTypeint16.value;
 
     /**
      * Identifies the type used to store pixel values. Maps onto the <i>OME</i>
      * <code>"int32</code> string identifier.
      */
-    public static final String INT32_TYPE = "int32";
+    public static final String INT32_TYPE = omero.model.enums.PixelsTypeint32.value;
 
     /**
      * Identifies the type used to store pixel values. Maps onto the <i>OME</i>
      * <code>uint8</code> string identifier.
      */
-    public static final String UINT8_TYPE = "uint8";
+    public static final String UINT8_TYPE = omero.model.enums.PixelsTypeuint8.value;
 
     /**
      * Identifies the type used to store pixel values. Maps onto the <i>OME</i>
      * <code>uint16</code> string identifier.
      */
-    public static final String UINT16_TYPE = "uint16";
+    public static final String UINT16_TYPE = omero.model.enums.PixelsTypeuint16.value;
 
     /**
      * Identifies the type used to store pixel values. Maps onto the <i>OME</i>
      * <code>uint32</code> string identifier.
      */
-    public static final String UINT32_TYPE = "uint32";
+    public static final String UINT32_TYPE = omero.model.enums.PixelsTypeuint32.value;
 
     /**
      * Identifies the type used to store pixel values. Maps onto the <i>OME</i>
      * <code>float</code> string identifier.
      */
-    public static final String FLOAT_TYPE = "float";
+    public static final String FLOAT_TYPE = omero.model.enums.PixelsTypefloat.value;
 
     /**
      * Identifies the type used to store pixel values. Maps onto the <i>OME</i>
      * <code>double</code> string identifier.
      */
-    public static final String DOUBLE_TYPE = "double";
+    public static final String DOUBLE_TYPE = omero.model.enums.PixelsTypedouble.value;
 
     /**
      * Identifies the type used to store pixel values. Maps onto the <i>OME</i>
      * <code>complex</code> string identifier.
      */
-    public static final String COMPLEX_TYPE = "complex";
+    public static final String COMPLEX_TYPE = omero.model.enums.PixelsTypecomplex.value;
 
     /**
      * Identifies the type used to store pixel values. Maps onto the <i>OME</i>
      * <code>double-complex</code> string identifier.
      */
-    public static final String DOUBLE_COMPLEX_TYPE = "double-complex";
+    public static final String DOUBLE_COMPLEX_TYPE = omero.model.enums.PixelsTypedoublecomplex.value;
 
     /** The Image these Pixels belong to. */
     private ImageData image;
@@ -140,7 +139,7 @@ public class PixelsData extends DataObject {
      */
     public void setSizeX(int sizeX) {
         setDirty(true);
-        asPixels().setSizeX(rint(sizeX));
+        asPixels().setSizeX(omero.rtypes.rint(sizeX));
     }
 
     /**
@@ -160,7 +159,7 @@ public class PixelsData extends DataObject {
      */
     public void setSizeY(int sizeY) {
         setDirty(true);
-        asPixels().setSizeY(rint(sizeY));
+        asPixels().setSizeY(omero.rtypes.rint(sizeY));
     }
 
     /**
@@ -180,7 +179,7 @@ public class PixelsData extends DataObject {
      */
     public void setSizeZ(int sizeZ) {
         setDirty(true);
-        asPixels().setSizeZ(rint(sizeZ));
+        asPixels().setSizeZ(omero.rtypes.rint(sizeZ));
     }
 
     /**
@@ -200,7 +199,7 @@ public class PixelsData extends DataObject {
      */
     public void setSizeC(int sizeC) {
         setDirty(true);
-        asPixels().setSizeC(rint(sizeC));
+        asPixels().setSizeC(omero.rtypes.rint(sizeC));
     }
 
     /**
@@ -220,7 +219,7 @@ public class PixelsData extends DataObject {
      */
     public void setSizeT(int sizeT) {
         setDirty(true);
-        asPixels().setSizeT(rint(sizeT));
+        asPixels().setSizeT(omero.rtypes.rint(sizeT));
     }
 
     /**

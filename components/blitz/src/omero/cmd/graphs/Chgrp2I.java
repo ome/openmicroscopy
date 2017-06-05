@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2017 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -22,7 +22,6 @@ package omero.cmd.graphs;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -30,9 +29,9 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 
 import com.google.common.base.Function;
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
@@ -79,9 +78,11 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
     private final Set<Class<? extends IObject>> targetClasses;
     private GraphPolicy graphPolicy;  /* not final because of adjustGraphPolicy */
     private final SetMultimap<String, String> unnullable;
+    private final ApplicationContext applicationContext;
 
     private List<Function<GraphPolicy, GraphPolicy>> graphPolicyAdjusters = new ArrayList<Function<GraphPolicy, GraphPolicy>>();
     private Helper helper;
+    private GraphHelper graphHelper;
     private GraphTraversal graphTraversal;
 
     private GraphTraversal.PlanExecutor unlinker;
@@ -101,10 +102,11 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
      * @param targetClasses legal target object classes for chgrp
      * @param graphPolicy the graph policy to apply for chgrp
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
+     * @param applicationContext the OMERO application context from Spring
      */
     public Chgrp2I(ACLVoter aclVoter, Roles securityRoles, SystemTypes systemTypes, GraphPathBean graphPathBean,
             Deletion deletionInstance, Set<Class<? extends IObject>> targetClasses, GraphPolicy graphPolicy,
-            SetMultimap<String, String> unnullable) {
+            SetMultimap<String, String> unnullable, ApplicationContext applicationContext) {
         this.aclVoter = aclVoter;
         this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
@@ -112,6 +114,7 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
         this.targetClasses = targetClasses;
         this.graphPolicy = graphPolicy;
         this.unnullable = unnullable;
+        this.applicationContext = applicationContext;
     }
 
     @Override
@@ -132,20 +135,13 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
 
         this.helper = helper;
         helper.setSteps(dryRun ? 4 : 6);
+        this.graphHelper = new GraphHelper(helper, graphPathBean);
 
         /* check that the user is a member of the destination group */
         final EventContext eventContext = helper.getEventContext();
         if (!(eventContext.isCurrentUserAdmin() || eventContext.getMemberOfGroupsList().contains(groupId))) {
             final Exception e = new IllegalArgumentException("not a member of the chgrp destination group");
             throw helper.cancel(new ERR(), e, "not-in-group");
-        }
-
-        final List<ChildOptionI> childOptions = ChildOptionI.castChildOptions(this.childOptions);
-
-        if (childOptions != null) {
-            for (final ChildOptionI childOption : childOptions) {
-                childOption.init();
-            }
         }
 
         final ExperimenterGroup destinationGroup = (ExperimenterGroup) helper.getSession().get(ExperimenterGroup.class, groupId);
@@ -156,22 +152,10 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
             graphPolicy.setCondition("to_private");
         }
 
-        GraphPolicy graphPolicyWithOptions = graphPolicy;
+        graphTraversal = graphHelper.prepareGraphTraversal(childOptions, REQUIRED_ABILITIES, graphPolicy, graphPolicyAdjusters,
+                aclVoter, systemTypes, graphPathBean, unnullable, new InternalProcessor(), dryRun);
 
-        graphPolicyWithOptions = ChildOptionsPolicy.getChildOptionsPolicy(graphPolicyWithOptions, childOptions, REQUIRED_ABILITIES);
-
-        for (final Function<GraphPolicy, GraphPolicy> adjuster : graphPolicyAdjusters) {
-            graphPolicyWithOptions = adjuster.apply(graphPolicyWithOptions);
-        }
         graphPolicyAdjusters = null;
-
-        GraphTraversal.Processor processor = new InternalProcessor();
-        if (dryRun) {
-            processor = GraphUtil.disableProcessor(processor);
-        }
-
-        graphTraversal = new GraphTraversal(helper.getSession(), eventContext, aclVoter, systemTypes, graphPathBean, unnullable,
-                graphPolicyWithOptions, processor);
     }
 
     @Override
@@ -180,29 +164,8 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
         try {
             switch (step) {
             case 0:
-                /* if targetObjects were an IObjectList then this would need IceMapper.reverse */
-                final SetMultimap<String, Long> targetMultimap = HashMultimap.create();
-                for (final Entry<String, List<Long>> oneClassToTarget : targetObjects.entrySet()) {
-                    /* determine actual class from given target object class name */
-                    String targetObjectClassName = oneClassToTarget.getKey();
-                    final int lastDot = targetObjectClassName.lastIndexOf('.');
-                    if (lastDot > 0) {
-                        targetObjectClassName = targetObjectClassName.substring(lastDot + 1);
-                    }
-                    final Class<? extends IObject> targetObjectClass = graphPathBean.getClassForSimpleName(targetObjectClassName);
-                    /* check that it is legal to target the given class */
-                    final Iterator<Class<? extends IObject>> legalTargetsIterator = targetClasses.iterator();
-                    do {
-                        if (!legalTargetsIterator.hasNext()) {
-                            final Exception e = new IllegalArgumentException("cannot target " + targetObjectClassName);
-                            throw helper.cancel(new ERR(), e, "bad-target");
-                        }
-                    } while (!legalTargetsIterator.next().isAssignableFrom(targetObjectClass));
-                    /* note IDs to target for the class */
-                    final Collection<Long> ids = oneClassToTarget.getValue();
-                    targetMultimap.putAll(targetObjectClass.getName(), ids);
-                    targetObjectCount += ids.size();
-                }
+                final SetMultimap<String, Long> targetMultimap = graphHelper.getTargetMultimap(targetClasses, targetObjects);
+                targetObjectCount += targetMultimap.size();
                 final Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> plan =
                         graphTraversal.planOperation(helper.getSession(), targetMultimap, true, true);
                 return Maps.immutableEntry(plan.getKey(), GraphUtil.arrangeDeletionTargets(helper.getSession(), plan.getValue()));
@@ -255,20 +218,10 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
                     helper.cancel(new ERR(), e, "file-delete-fail");
                 }
             }
-            final Map<String, List<Long>> movedObjects = new HashMap<String, List<Long>>();
-            final Map<String, List<Long>> deletedObjects = new HashMap<String, List<Long>>();
-            for (final Entry<String, Collection<Long>> oneMovedClass : result.getKey().asMap().entrySet()) {
-                final String className = oneMovedClass.getKey();
-                final Collection<Long> ids = oneMovedClass.getValue();
-                movedObjects.put(className, new ArrayList<Long>(ids));
-                movedObjectCount += ids.size();
-            }
-            for (final Entry<String, Collection<Long>> oneDeletedClass : result.getValue().asMap().entrySet()) {
-                final String className = oneDeletedClass.getKey();
-                final Collection<Long> ids = oneDeletedClass.getValue();
-                deletedObjects.put(className, new ArrayList<Long>(ids));
-                deletedObjectCount += ids.size();
-            }
+            final Map<String, List<Long>> movedObjects = GraphUtil.copyMultimapForResponse(result.getKey());
+            final Map<String, List<Long>> deletedObjects = GraphUtil.copyMultimapForResponse(result.getValue());
+            movedObjectCount += result.getKey().size();
+            deletedObjectCount += result.getValue().size();
             final Chgrp2Response response = new Chgrp2Response(movedObjects, deletedObjects);
             helper.setResponseIfNull(response);
             helper.info("in " + (dryRun ? "mock " : "") + "chgrp to " + groupId + " of " + targetObjectCount +
@@ -334,10 +287,17 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
         }
 
         @Override
+        public void deleteInstances(String className, Collection<Long> ids) throws GraphException {
+            super.deleteInstances(className, ids);
+            graphHelper.publishEventLog(applicationContext, "DELETE", className, ids);
+        }
+
+        @Override
         public void processInstances(String className, Collection<Long> ids) throws GraphException {
             final String update = "UPDATE " + className + " SET details.group = :group WHERE id IN (:ids)";
             final int count =
                     session.createQuery(update).setParameter("group", group).setParameterList("ids", ids).executeUpdate();
+            graphHelper.publishEventLog(applicationContext, "UPDATE", className, ids);
             if (count != ids.size()) {
                 LOGGER.warn("not all the objects of type " + className + " could be processed");
             }

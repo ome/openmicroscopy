@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.views.calls.ArchivedImageLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,9 +34,13 @@ import com.google.common.io.Files;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import omero.gateway.SecurityContext;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.WellData;
+import omero.gateway.model.WellSampleData;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.util.file.IOUtil;
@@ -117,18 +122,44 @@ public class ArchivedImageLoader
      * Creates a {@link BatchCall} to load the image.
      * 
      * @param ctx The security context.
-     * @param imageIDs The IDs of the images.
+     * @param objects The objects to download the original image files for.
      * @param name The name of the image.
      * @param folder The path to the folder where to save the image.
      * @return The {@link BatchCall}.
      */
     private BatchCall makeBatchCall(final SecurityContext ctx,
-    		final List<Long> imageIDs, final File folder)
+    		final List<DataObject> objects, final File folder)
     {
         return new BatchCall("Download the files. ") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
+                
+                List<Long> imageIDs = new ArrayList<Long>();
+                if (objects.get(0) instanceof ImageData) {
+                    for (DataObject obj : objects)
+                        imageIDs.add(obj.getId());
+                }
+                if (objects.get(0) instanceof PlateData) {
+                    List<Long> filesetIds = new ArrayList<Long>();
+                    for (DataObject obj : objects) {
+                        Collection wells = os.loadPlateWells(ctx, obj.getId(),
+                                -1, context.getGateway().getLoggedInUser()
+                                        .getId());
+                        for (Object well : wells) {
+                            for (WellSampleData ws : ((WellData) well)
+                                    .getWellSamples()) {
+                                if (!filesetIds.contains(ws.getImage()
+                                        .getFilesetId())) {
+                                    filesetIds
+                                            .add(ws.getImage().getFilesetId());
+                                    imageIDs.add(ws.getImage().getId());
+                                }
+                            }
+                        }
+                    }
+                }
+                
                 File tmpFolder = null;
                 try {
                     if(zip)
@@ -194,41 +225,41 @@ public class ArchivedImageLoader
 	 * exception so to fail early and in the caller's thread.
 	 * 
 	 * @param ctx The security context.
-     * @param imageIDs The identifiers of the images.
+     * @param objects The objects for which to download the original image files.
      * @param folderPath The location where to download the archived image.
      * @param override Flag indicating to override the existing file if it
      *                 exists, <code>false</code> otherwise.
      */
-    public ArchivedImageLoader(SecurityContext ctx, List<Long> imageIDs,
+    public ArchivedImageLoader(SecurityContext ctx, List<DataObject> objects,
     		File folderPath, boolean override)
     {
-    	if (CollectionUtils.isEmpty(imageIDs))
-    		 throw new IllegalArgumentException("No image IDs provided.");
+    	if (CollectionUtils.isEmpty(objects))
+    		 throw new IllegalArgumentException("No objects provided.");
     	this.override = override;
-        loadCall = makeBatchCall(ctx, imageIDs, folderPath);
+        loadCall = makeBatchCall(ctx, objects, folderPath);
     }
-
+    
     /**
      * Loads the archived images.
      * If bad arguments are passed, we throw a runtime
      * exception so to fail early and in the caller's thread.
      * 
      * @param ctx The security context.
-     * @param imageIDs The Id of the image.
+     * @param objects The objects for which to download the original image files.
      * @param folderPath The location where to download the archived image.
      * @param override Flag indicating to override the existing file if it
      *                 exists, <code>false</code> otherwise.
      * @param zip Pass <code>true</code> to create a zip file
      * @param keepOriginalPaths Pass <code>true</code> to preserve the original folder structure
      */
-    public ArchivedImageLoader(SecurityContext ctx, List<Long> imageIDs,
+    public ArchivedImageLoader(SecurityContext ctx, List<DataObject> objects,
             File folderPath, boolean override, boolean zip, boolean keepOriginalPaths)
     {
-        if (CollectionUtils.isEmpty(imageIDs))
-             throw new IllegalArgumentException("No image IDs provided.");
+        if (CollectionUtils.isEmpty(objects))
+             throw new IllegalArgumentException("No objects provided.");
         this.override = override;
         this.zip = zip;
         this.keepOriginalPaths = keepOriginalPaths;
-        loadCall = makeBatchCall(ctx, imageIDs, folderPath);
+        loadCall = makeBatchCall(ctx, objects, folderPath);
     }
 }

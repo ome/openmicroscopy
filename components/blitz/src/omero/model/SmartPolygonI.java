@@ -43,12 +43,12 @@ public class SmartPolygonI extends omero.model.PolygonI implements SmartShape {
             StringBuilder sb = new StringBuilder();
             int sz = random.nextInt(20) + 1;
             for (int i = 0; i < sz; i++) {
-                int cx = random.nextInt(100);
-                int cy = random.nextInt(100);
+                int x = random.nextInt(100);
+                int y = random.nextInt(100);
                 if (i > 0) {
                     sb.append(",");
                 }
-                Util.appendSvgPoint(sb, cx, cy);
+                Util.appendSvgPoint(sb, x, y);
             }
             this.points = rstring(sb.toString());
         } else {

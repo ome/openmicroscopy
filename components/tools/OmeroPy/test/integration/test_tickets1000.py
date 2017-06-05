@@ -9,7 +9,7 @@
 
 """
 
-import library as lib
+from omero.testlib import ITest
 import pytest
 import omero
 from omero.rtypes import rint, rlong, rstring
@@ -23,7 +23,7 @@ params.theFilter.limit = rint(1)
 params.theFilter.offset = rint(1)
 
 
-class TestTicket1000(lib.ITest):
+class TestTicket1000(ITest):
 
     def test711(self):
         exp = omero.model.ExperimenterI()

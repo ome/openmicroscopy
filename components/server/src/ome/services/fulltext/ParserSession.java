@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
  * @since 5.0.0
  */
 
-
+@Deprecated
 public class ParserSession implements ApplicationListener {
 
     private static Logger log = LoggerFactory.getLogger(ParserSession.class);

@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -21,7 +21,6 @@
 
 package omero.gateway.model;
 
-import static omero.rtypes.rlong;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -45,10 +44,9 @@ import omero.model.Event;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.FileAnnotation;
+import omero.model.Folder;
 import omero.model.IObject;
 import omero.model.Image;
-import omero.model.Length;
-import omero.model.LengthI;
 import omero.model.LongAnnotation;
 import omero.model.Permissions;
 import omero.model.Pixels;
@@ -252,7 +250,7 @@ public abstract class DataObject {
      */
     public void setId(long id) {
         setDirty(true);
-        value.setId(rlong(id));
+        value.setId(omero.rtypes.rlong(id));
     }
 
     /**
@@ -435,7 +433,7 @@ public abstract class DataObject {
     }
 
     /**
-     * not null; may through class-cast exception
+     * not null; may throw class-cast exception
      *
      * @throws ClassCastException
      * @return not null IObject
@@ -445,7 +443,7 @@ public abstract class DataObject {
     }
 
     /**
-     * Returns the hosted IObject as an Experimenter. Not null; may through
+     * Returns the hosted IObject as an Experimenter. Not null; may throw
      * class-cast exception
      *
      * @throws ClassCastException
@@ -457,7 +455,7 @@ public abstract class DataObject {
 
     /**
      * Returns the hosted IObject as an Experimenter Group. Not null; may
-     * through class-cast exception
+     * throw class-cast exception
      *
      * @throws ClassCastException
      * @return not null IObject
@@ -467,7 +465,7 @@ public abstract class DataObject {
     }
 
     /**
-     * Returns the hosted IObject as an Annotation. Not null; may through
+     * Returns the hosted IObject as an Annotation. Not null; may throw
      * class-cast exception
      *
      * @throws ClassCastException
@@ -478,7 +476,7 @@ public abstract class DataObject {
     }
 
     /**
-     * Returns the hosted IObject as an Image. Not null; may through class-cast
+     * Returns the hosted IObject as an Image. Not null; may throw class-cast
      * exception
      *
      * @throws ClassCastException
@@ -489,7 +487,7 @@ public abstract class DataObject {
     }
 
     /**
-     * Returns the hosted IObject as a Dataset. Not null; may through class-cast
+     * Returns the hosted IObject as a Dataset. Not null; may throw class-cast
      * exception
      *
      * @throws ClassCastException
@@ -500,7 +498,7 @@ public abstract class DataObject {
     }
 
     /**
-     * Returns the hosted IObject as a Project. Not null; may through class-cast
+     * Returns the hosted IObject as a Project. Not null; may throw class-cast
      * exception
      *
      * @throws ClassCastException
@@ -511,7 +509,18 @@ public abstract class DataObject {
     }
 
     /**
-     * Returns the hosted IObject as a Pixels. Not null; may through class-cast
+     * Returns the hosted IObject as a Folder. Not null; may throw class-cast
+     * exception
+     *
+     * @throws ClassCastException
+     * @return See above
+     */
+    public Folder asFolder() {
+        return (Folder) asIObject();
+    }
+    
+    /**
+     * Returns the hosted IObject as a Pixels. Not null; may throw class-cast
      * exception
      *
      * @throws ClassCastException
@@ -522,7 +531,7 @@ public abstract class DataObject {
     }
 
     /**
-     * Returns the hosted IObject as a Screen. Not null; may through class-cast
+     * Returns the hosted IObject as a Screen. Not null; may throw class-cast
      * exception
      *
      * @throws ClassCastException
@@ -533,7 +542,7 @@ public abstract class DataObject {
     }
 
     /**
-     * Returns the hosted IObject as a Plate. Not null; may through class-cast
+     * Returns the hosted IObject as a Plate. Not null; may throw class-cast
      * exception
      *
      * @throws ClassCastException
@@ -544,7 +553,7 @@ public abstract class DataObject {
     }
 
     /**
-     * Returns the hosted IObject as a Well. Not null; may through class-cast
+     * Returns the hosted IObject as a Well. Not null; may throw class-cast
      * exception
      *
      * @throws ClassCastException
@@ -555,7 +564,7 @@ public abstract class DataObject {
     }
 
     /**
-     * Returns the hosted IObject as a Well. Not null; may through class-cast
+     * Returns the hosted IObject as a Well. Not null; may throw class-cast
      * exception
      *
      * @throws ClassCastException
@@ -566,7 +575,7 @@ public abstract class DataObject {
     }
 
     /**
-     * Returns the hosted IObject as a Well. Not null; may through class-cast
+     * Returns the hosted IObject as a Well. Not null; may throw class-cast
      * exception
      *
      * @throws ClassCastException

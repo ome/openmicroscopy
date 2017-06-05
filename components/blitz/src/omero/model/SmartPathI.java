@@ -89,7 +89,7 @@ class SmartPathHandler implements PathHandler {
     }
 
     public void closePath() throws org.apache.batik.parser.ParseException {
-        addPoint(points.get(0).cx.getValue(), points.get(0).cy.getValue());
+        addPoint(points.get(0).x.getValue(), points.get(0).y.getValue());
     }
 
     public void curvetoCubicAbs(float arg0, float arg1, float arg2, float arg3,
@@ -198,8 +198,8 @@ class SmartPathHandler implements PathHandler {
 
     private void addPoint(double arg0, double arg1) {
         SmartPointI pt = new SmartPointI();
-        pt.cx = rdouble(arg0);
-        pt.cy = rdouble(arg1);
+        pt.x = rdouble(arg0);
+        pt.y = rdouble(arg1);
         points.add(pt);
     }
 

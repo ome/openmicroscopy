@@ -1,0 +1,31 @@
+
+<% _.each(anns, function(ann) { %>
+
+<tr data-added-by="<% print (ann.addedBy.join(',')) %>">
+    <th><%= ann.type %></th>
+    <td>
+        <div class="tooltip">
+        <% if (ann.type === 'Xml') { %>
+            <div><% print((ann.value + "").slice(0, 20)) %>...</div>
+            <div class="show_xml">Open in new window</div>
+            <div style="display: none"><%= ann.value %></div>
+        <% } else { %>
+            <div><%= ann.value %></div>
+        <% } %>
+        </div>
+        
+        <span class="tooltip_html" style='display:none'>
+            <b>ID:</b> <%= ann.id %><br />
+            <% if (ann.ns) { %><b>Namespace:</b> <%= ann.ns %><br /><% } %>
+            <% if (ann.description) { %><b>Description:</b> <%= ann.description %><br /><% } %>
+            <b>Owner:</b> <%= ann.owner.firstName %> <%= ann.owner.lastName %><br />
+            <b>Date:</b> <% print(OME.formatDate(ann.date)) %>
+
+            <% if (ann.parent) { %>
+            <br />
+            <b>Linked to:</b> <%= ann.parent.class %> <%= ann.parent.id %>
+            <% } %>
+        </span>
+    </td>
+</tr>
+<% }) %>

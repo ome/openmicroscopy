@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -26,8 +26,6 @@ import java.util.List;
 
 import javax.swing.Icon;
 
-import omero.gateway.model.ImageData;
-
 /** 
  * Hosts the parameters required to download the archived image.
  *
@@ -48,7 +46,7 @@ public class DownloadArchivedActivityParam
     private File location;
     
     /** The collection of archived images to download. */
-    private List<ImageData> images;
+    private List<omero.gateway.model.DataObject> images;
     
     /** Flag indicating to override or not the files when saving.*/
     private boolean override;
@@ -66,7 +64,7 @@ public class DownloadArchivedActivityParam
      * @param images The archived images to download.
      * @param icon The icon associated to the parameters.
      */
-    public DownloadArchivedActivityParam(File location, List<ImageData> images,
+    public DownloadArchivedActivityParam(File location, List<omero.gateway.model.DataObject> images,
     		Icon icon)
     {
     	this.location = location;
@@ -110,7 +108,7 @@ public class DownloadArchivedActivityParam
      * 
      * @return See above.
      */
-    public List<ImageData> getImages() { return images; }
+    public List<omero.gateway.model.DataObject> getImages() { return images; }
 
     /**
      * Returns if the downloaded images should be zipped

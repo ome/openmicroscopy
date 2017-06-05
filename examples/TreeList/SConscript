@@ -52,18 +52,6 @@ if env["run"] or env["run_py"]:
     env.AlwaysBuild(run)
     targets.append(run)
 
-#
-# C++
-#
-if not env["no_cpp"]:
-    make = env.Program("TreeList.exe", "Main.cpp", LIBS = libs)
-    targets.append(make)
-    if env["run"] or env["run_cpp"]:
-        run = env.Command("TreeList.out", "TreeList.exe", _([".", "$SOURCE "]) + args)
-        env.Depends(run, make)
-        env.AlwaysBuild(run)
-        targets.append(run)
-
 # PREPARING SCONS EXECUTION: =================================
 #
 Default(targets)

@@ -27,7 +27,6 @@ import ome.api.ServiceInterface;
 import ome.api.ThumbnailStore;
 import ome.conditions.ApiUsageException;
 import ome.model.meta.Session;
-import ome.system.OmeroContext;
 import ome.system.ServiceFactory;
 import omeis.providers.re.RenderingEngine;
 
@@ -114,11 +113,6 @@ public class InterceptingServiceFactory extends ServiceFactory {
     @Override
     public IConfig getConfigService() {
         return wrap(sf.getConfigService());
-    }
-
-    @Override
-    public OmeroContext getContext() {
-        return sf.getContext();
     }
 
     @Override

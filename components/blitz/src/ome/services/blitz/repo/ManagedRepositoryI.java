@@ -664,7 +664,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
          */
         @SuppressWarnings("unused")  /* used by create() via Method.invoke */
         public String expandUser(String prefix, String suffix) {
-            return prefix + ctx.userName + suffix;
+            return prefix + serverPaths.getPathSanitizer().apply(ctx.userName) + suffix;
         }
 
         /**
@@ -688,7 +688,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
          */
         @SuppressWarnings("unused")  /* used by create() via Method.invoke */
         public String expandGroup(String prefix, String suffix) {
-            return prefix + ctx.groupName + suffix;
+            return prefix + serverPaths.getPathSanitizer().apply(ctx.groupName) + suffix;
         }
 
         /**
@@ -1409,11 +1409,12 @@ public class ManagedRepositoryI extends PublicRepositoryI
         final EventContext ec = IceMapper.convert(effectiveEventContext);
         final FsFile rootOwnedPath = expandTemplateRootOwnedPath(ec, sf);
         final List<CheckedPath> pathsToFix = new ArrayList<CheckedPath>();
-        final List<CheckedPath> pathsForRoot;
+        List<CheckedPath> pathsForRoot;
 
         /* if running as root then the paths must be root-owned */
+        final ome.system.EventContext currentEventContext = adminService.getEventContext();
         final long rootId = adminService.getSecurityRoles().getRootId();
-        if (adminService.getEventContext().getCurrentUserId() == rootId) {
+        if (currentEventContext.getCurrentUserId() == rootId) {
             pathsForRoot = ImmutableList.copyOf(paths);
         } else {
             pathsForRoot = ImmutableList.of();
@@ -1427,8 +1428,12 @@ public class ManagedRepositoryI extends PublicRepositoryI
                 throw new ResourceError(null, null, "Cannot re-create root!");
             }
 
-            /* check that the path is consistent with the root-owned template path directories */
-            if (!isConsistentPrefixes(rootOwnedPath.getComponents(), checked.fsFile.getComponents())) {
+            if (isConsistentPrefixes(rootOwnedPath.getComponents(), checked.fsFile.getComponents())) {
+                /* the path is consistent with the root-owned template path directories for import */
+            } else if (currentEventContext.isCurrentUserAdmin()) {
+                /* the path violates the root-owned template path but the current user is an administrator */
+                pathsForRoot = ImmutableList.copyOf(paths);
+            } else {
                 throw new omero.ValidationException(null, null,
                         "cannot create directory \"" + checked.fsFile
                         + "\" with template path's root-owned \"" + rootOwnedPath + "\"");

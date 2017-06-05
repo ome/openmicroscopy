@@ -144,11 +144,15 @@ Test Batch Annotate
     Wait Until Page Contains Element            id=batch_ann_title
 
     # Comment Form
+    Click Element                               xpath=//*[@id="metadata_general"]//div/h1[contains(text(), 'Comments')]
+    Wait Until Element Is Visible               id=id_comment
     Input Text                                  comment     test add comment
-    Click Button                                Add Comment
+    Submit Form                                 add_comment_form
     Wait Until Page Contains                    test add comment
 
     # Tags
+    Click Element                               xpath=//*[@id="metadata_general"]//div/h1[contains(text(), 'Tags')]
+    Wait Until Element Is Visible               id=launch_tags_form
     Click Element                               launch_tags_form
     Wait Until Page Contains Element            id_tag
     # Wait for tag panel being loded
@@ -160,6 +164,8 @@ Test Batch Annotate
     Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), testSeleniumTag${pid})]    ${WAIT}
 
     # Files
+    Click Element                               xpath=//*[@id="metadata_general"]//div/h1[contains(text(), 'Attachments')]
+    Wait Until Element Is Visible               id=choose_file_anns
     Click Element                               choose_file_anns
     Wait Until Page Contains Element            id_files
     Click Element                               xpath=//select[@id='id_files']/option    # just pick first file

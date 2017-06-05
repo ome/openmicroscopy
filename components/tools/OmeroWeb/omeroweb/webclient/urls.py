@@ -3,7 +3,7 @@
 #
 #
 #
-# Copyright (c) 2008-2011 University of Dundee.
+# Copyright (c) 2008-2016 University of Dundee.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -47,7 +47,7 @@ urlpatterns = patterns(
         views.load_template, {'menu': 'history'},
         name="history"),
 
-    url(r'^login/$', views.login, name="weblogin"),
+    url(r'^login/$', views.WebclientLoginView.as_view(), name="weblogin"),
     url(r'^logout/$', views.logout, name="weblogout"),
     url(r'^active_group/$',
         views.change_active_group,
@@ -69,15 +69,11 @@ urlpatterns = patterns(
         name="activities_update"),
 
     # loading data
-    url(r'^load_data/(?:(?P<o1_type>'
-        r'((?i)project|dataset|image|screen|plate|well|orphaned))/)'
-        r'?(?:(?P<o1_id>[0-9]+)/)'
-        r'?(?:(?P<o2_type>((?i)dataset|image|plate|acquisition|well))/)'
-        r'?(?:(?P<o2_id>[0-9]+)/)'
-        r'?(?:(?P<o3_type>((?i)image|well))/)'
-        r'?(?:(?P<o3_id>[0-9]+)/)?$',
-        views.load_data,
-        name="load_data"),
+    url(r'^load_plate/(?:(?P<o1_type>'
+        r'((?i)plate|acquisition))/)'
+        r'?(?:(?P<o1_id>[0-9]+)/)?$',
+        views.load_plate,
+        name="load_plate"),
 
     # chgrp. Load potential target groups, then load target P/D within chosen
     # group
@@ -99,10 +95,6 @@ urlpatterns = patterns(
     url(r'^load_searching/(?:(?P<form>((?i)form))/)?$', views.load_searching,
         name="load_searching"),
 
-    # load public
-    url(r'^load_public/(?:(?P<share_id>[0-9]+)/)?$', views.load_public,
-        name="load_public"),
-
     # metadata
     url(r'^metadata_details/(?:(?P<c_type>[a-zA-Z]+)/'
         r'(?P<c_id>[0-9]+)/)?(?:(?P<share_id>[0-9]+)/)?$',
@@ -121,10 +113,18 @@ urlpatterns = patterns(
         views.load_metadata_hierarchy,
         name="load_metadata_hierarchy"),
 
+    url(r'^get_thumbnails/(?:(?P<share_id>[0-9]+)/)?$',
+        webgateway.get_thumbnails_json,
+        name="get_thumbnails_json"),
+    url(r'^get_thumbnail/(?P<iid>[0-9]+)/'
+        r'(?:(?P<share_id>[0-9]+)/)?$',
+        webgateway.get_thumbnail_json,
+        {'_defcb': defaultThumbnail},
+        name="get_thumbnail_json"),
     url(r'^render_thumbnail/(?P<iid>[0-9]+)/'
         r'(?:(?P<share_id>[0-9]+)/)?$',
         webgateway.render_thumbnail,
-        {'w': 80, '_defcb': defaultThumbnail},
+        {'_defcb': defaultThumbnail},
         name="render_thumbnail"),
     url(r'^render_thumbnail/size/(?P<w>[0-9]+)/'
         r'(?P<iid>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$',
@@ -180,6 +180,9 @@ urlpatterns = patterns(
     url(r'^(?:(?P<share_id>[0-9]+)/)?copyImgRDef/$',
         webgateway.copy_image_rdef_json,
         name="copy_image_rdef_json"),
+    url(r'^(?:(?P<share_id>[0-9]+)/)?luts/$',
+        webgateway.listLuts_json,
+        name="web_list_luts"),
 
 
     # Fileset query (for delete or chgrp dialogs) obj-types and ids in REQUEST
@@ -206,6 +209,8 @@ urlpatterns = patterns(
         name="manage_action_containers"),
     url(r'^batch_annotate/$', views.batch_annotate, name="batch_annotate"),
     url(r'^annotate_tags/$', views.annotate_tags, name="annotate_tags"),
+    url(r'^marshal_tagging_form_data/$', views.marshal_tagging_form_data,
+        name="marshal_tagging_form_data"),
     url(r'^annotate_rating/$',
         views.annotate_rating,
         name="annotate_rating"),
@@ -224,10 +229,6 @@ urlpatterns = patterns(
     url(r'^download_orig_metadata/(?P<imageId>[0-9]+)/$',
         views.download_orig_metadata,
         name="download_orig_metadata"),
-
-    url(r'^load_data_by_tag/',
-        views.load_data_by_tag,
-        name="load_data_by_tag"),
 
     url(r'^avatar/(?P<oid>[0-9]+)/$', views.avatar, name="avatar"),
 
@@ -273,7 +274,7 @@ urlpatterns = patterns(
 
     url(r'^api/experimenters/$', views.api_experimenter_list,
         name='api_experimenters'),
-    url(r'^api/experimenters/(?P<experimenter_id>[0-9]+)/$',
+    url(r'^api/experimenters/(?P<experimenter_id>-?\d+)/$',
         views.api_experimenter_detail, name='api_experimenter'),
 
     # Generic container list. This is necessary as an experimenter may have
@@ -314,6 +315,9 @@ urlpatterns = patterns(
 
     url(r'^api/tags/$', views.api_tags_and_tagged_list,
         name='api_tags_and_tagged'),
+
+    url(r'^api/annotations/$', views.api_annotations,
+        name='api_annotations'),
 
     url(r'^api/shares/$', views.api_share_list, name='api_shares'),
 

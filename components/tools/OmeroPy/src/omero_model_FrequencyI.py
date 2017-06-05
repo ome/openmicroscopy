@@ -889,6 +889,7 @@ class FrequencyI(_omero_model.Frequency, UnitBase):
         Mul(Rat(Int(1), Int(1000)), Sym("zettahz"))  # nopep8
     CONVERSIONS[UnitsFrequency.ZETTAHERTZ][UnitsFrequency.ZEPTOHERTZ] = \
         Mul(Pow(10, 42), Sym("zettahz"))  # nopep8
+    del val
 
     SYMBOLS = dict()
     SYMBOLS["ATTOHERTZ"] = "aHz"

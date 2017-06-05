@@ -23,7 +23,7 @@
 Basic tests for additions/changes to the 5.1 model.
 """
 
-import library as lib
+from omero.testlib import ITest
 import pytest
 import omero
 import omero.model
@@ -32,10 +32,11 @@ from omero.model import NamedValue as NV
 from omero.rtypes import unwrap
 
 
-class TestModel51(lib.ITest):
+class TestModel51(ITest):
 
     def testExposureTime(self):
-        img = self.importMIF(name="testExposureTime", exposureTime=1.2)[0]
+        imgs = self.import_fake_file(name="testExposureTime", exposureTime=1.2)
+        img = imgs[0]
         plane_info = self.query.findByQuery((
             "select pi from PlaneInfo pi "
             "join fetch pi.exposureTime "
@@ -54,22 +55,24 @@ class TestModel51(lib.ITest):
         assert omero.model.enums.UnitsTime.MICROSECOND == unit
 
     def testPhysicalSize(self):
-        img = self.importMIF(name="testPhysicalSize", physicalSizeZ=2.0)[0]
+        imgs = self.import_fake_file(name="testPhysicalSize",
+                                     physicalSizeZ=2.0)
+        img = imgs[0]
         pixels = self.query.findByQuery((
             "select pix from Pixels pix "
             "join fetch pix.physicalSizeZ "
             "where pix.image.id = :id"),
             omero.sys.ParametersI().addId(img.id.val))
-        sizeZ = pixels.getPhysicalSizeZ()
-        unit = sizeZ.getUnit()
+        size_z = pixels.getPhysicalSizeZ()
+        unit = size_z.getUnit()
         assert omero.model.enums.UnitsLength.MICROMETER == unit
 
         mm = omero.model.enums.UnitsLength.MILLIMETER
 
-        sizeZ.setUnit(mm)
+        size_z.setUnit(mm)
         pixels = self.update.saveAndReturnObject(pixels)
-        sizeZ = pixels.getPhysicalSizeZ()
-        unit = sizeZ.getUnit()
+        size_z = pixels.getPhysicalSizeZ()
+        unit = size_z.getUnit()
         assert omero.model.enums.UnitsLength.MILLIMETER == unit
 
     UL = omero.model.enums.UnitsLength
@@ -191,7 +194,9 @@ class TestModel51(lib.ITest):
             u2.saveAndReturnObject(m2)
 
     def testUnitProjections(self):
-        img = self.importMIF(name="testUnitProjections", exposureTime=1.2)[0]
+        imgs = self.import_fake_file(name="testUnitProjections",
+                                     exposureTime=1.2)
+        img = imgs[0]
 
         as_map = self.query.projection((
             "select pi.exposureTime from PlaneInfo pi "

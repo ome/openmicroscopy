@@ -41,6 +41,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.Map.Entry;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
@@ -83,9 +84,13 @@ import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper.StatsType;
 import org.openmicroscopy.shoola.env.config.Registry;
+
 import omero.log.Logger;
+import omero.model.Length;
+
 import org.openmicroscopy.shoola.env.rnd.roi.ROIShapeStatsSimple;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+
 import omero.gateway.model.ChannelData;
 
 /** 
@@ -655,13 +660,18 @@ class IntensityView
 	private void addValuesForAreaFigure(ROIFigure fig, Double data[][], 
 			int channel, int count)
 	{
-		data[count][6] = AnnotationKeys.AREA.get(fig.getROIShape()).getValue();
-		data[count][7] = fig.getBounds().getX();
-		data[count][8] = fig.getBounds().getY();
-		data[count][9] = AnnotationKeys.WIDTH.get(fig.getROIShape()).getValue();
-		data[count][10] = AnnotationKeys.HEIGHT.get(fig.getROIShape()).getValue();
-		data[count][11] = AnnotationKeys.CENTREX.get(fig.getROIShape()).getValue();
-		data[count][12] = AnnotationKeys.CENTREY.get(fig.getROIShape()).getValue();
+        Length l = AnnotationKeys.AREA.get(fig.getROIShape());
+        data[count][6] = l != null ? l.getValue() : 0;
+        data[count][7] = fig.getBounds().getX();
+        data[count][8] = fig.getBounds().getY();
+        l = AnnotationKeys.WIDTH.get(fig.getROIShape());
+        data[count][9] = l != null ? l.getValue() : 0;
+        l = AnnotationKeys.HEIGHT.get(fig.getROIShape());
+        data[count][10] = l != null ? l.getValue() : 0;
+        l = AnnotationKeys.CENTREX.get(fig.getROIShape());
+        data[count][11] = l != null ? l.getValue() : 0;
+        l = AnnotationKeys.CENTREY.get(fig.getROIShape());
+        data[count][12] = l != null ? l.getValue() : 0;
 	}
 	
 	/**
@@ -674,12 +684,18 @@ class IntensityView
 	private void addValuesForLineFigure(ROIFigure fig, Double data[][], 
 			int channel, int count)
 	{
-		data[count][6] = AnnotationKeys.STARTPOINTX.get(shape).getValue();
-		data[count][7] = AnnotationKeys.STARTPOINTY.get(shape).getValue();
-		data[count][8] = AnnotationKeys.ENDPOINTX.get(shape).getValue();
-		data[count][9] = AnnotationKeys.ENDPOINTY.get(shape).getValue();
-		data[count][10] = AnnotationKeys.CENTREX.get(shape).getValue();
-		data[count][11] = AnnotationKeys.CENTREY.get(shape).getValue();
+        Length l = AnnotationKeys.STARTPOINTX.get(shape);
+        data[count][6] = l != null ? l.getValue() : 0;
+        l = AnnotationKeys.STARTPOINTY.get(shape);
+        data[count][7] = l != null ? l.getValue() : 0;
+        l = AnnotationKeys.ENDPOINTX.get(shape);
+        data[count][8] = l != null ? l.getValue() : 0;
+        l = AnnotationKeys.ENDPOINTY.get(shape);
+        data[count][9] = l != null ? l.getValue() : 0;
+        l = AnnotationKeys.CENTREX.get(shape);
+        data[count][10] = l != null ? l.getValue() : 0;
+        l = AnnotationKeys.CENTREY.get(shape);
+        data[count][11] = l != null ? l.getValue() : 0;
 	}
 	
 
@@ -693,8 +709,10 @@ class IntensityView
 	private void addValuesForPointFigure(ROIFigure fig, Double data[][], 
 			int channel, int count)
 	{
-		data[count][6] = AnnotationKeys.CENTREX.get(shape).getValue();
-		data[count][7] = AnnotationKeys.CENTREY.get(shape).getValue();
+	    Length l = AnnotationKeys.CENTREX.get(shape);
+		data[count][6] = l != null ? l.getValue() : 0;
+		l = AnnotationKeys.CENTREY.get(shape);
+		data[count][7] = l != null ? l.getValue() : 0;
 	}
 	
 	/**

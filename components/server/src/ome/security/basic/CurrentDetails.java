@@ -57,7 +57,7 @@ import ome.tools.hibernate.HibernateUtils;
  * 
  * This information is stored in a Details object, but unlike Details which
  * assumes that an empty value signifies increased security levels, empty values
- * here signifiy reduced security levels. E.g.,
+ * here signify reduced security levels. E.g.,
  * 
  * Details: user == null ==> object belongs to root CurrentDetails: user == null
  * ==> current user is "nobody" (anonymous)

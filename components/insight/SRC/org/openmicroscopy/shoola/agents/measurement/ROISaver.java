@@ -1,6 +1,6 @@
 /*
 *------------------------------------------------------------------------------
-*  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+*  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
 *
 *
 *  This program is free software; you can redistribute it and/or modify
@@ -24,12 +24,12 @@ package org.openmicroscopy.shoola.agents.measurement;
 import java.util.Collection;
 import java.util.List;
 
+import org.openmicroscopy.shoola.agents.events.measurement.ROIEvent;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import omero.log.LogMessage;
-
 import omero.gateway.model.ROIData;
 
 /**
@@ -125,8 +125,12 @@ public class ROISaver
      */
     public void handleResult(Object result)
     {
-    	if (viewer.getState() == MeasurementViewer.DISCARDED) return;  //Async cancel.
-    	viewer.setUpdateROIComponent((Collection) result);
+        registry.getEventBus().post(new ROIEvent(viewer.getImageID()));
+
+        if (viewer.getState() == MeasurementViewer.DISCARDED)
+            return; // Async cancel.
+        
+        viewer.setUpdateROIComponent((Collection) result);
     }
 
 }

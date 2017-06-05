@@ -20,6 +20,8 @@
 #include <omero/model/PressureI.h>
 #include <omero/ClientErrors.h>
 
+#include <omero/IcePortPush.h>
+
 ::Ice::Object* IceInternal::upCast(::omero::model::PressureI* t) { return t; }
 
 using namespace omero::conversions;
@@ -56,7 +58,7 @@ namespace omero {
             c[enums::PETAPASCAL] = Mul(Rat(Int(4053), Mul(Int(4), Pow(10, 13))), Sym("atm"));
             c[enums::PICOPASCAL] = Mul(Mul(Int(101325), Pow(10, 12)), Sym("atm"));
             c[enums::PSI] = Mul(Rat(Mul(Int(120625), Pow(10, 9)), Int("8208044396629")), Sym("atm"));
-            c[enums::Pascal] = Mul(Int(101325), Sym("atm"));
+            c[enums::PASCAL] = Mul(Int(101325), Sym("atm"));
             c[enums::TERAPASCAL] = Mul(Rat(Int(4053), Mul(Int(4), Pow(10, 10))), Sym("atm"));
             c[enums::TORR] = Mul(Int(760), Sym("atm"));
             c[enums::YOCTOPASCAL] = Mul(Mul(Int(101325), Pow(10, 24)), Sym("atm"));
@@ -92,7 +94,7 @@ namespace omero {
             c[enums::PETAPASCAL] = Mul(Rat(Int(1), Pow(10, 33)), Sym("attopa"));
             c[enums::PICOPASCAL] = Mul(Rat(Int(1), Pow(10, 6)), Sym("attopa"));
             c[enums::PSI] = Mul(Rat(Int(1), Mul(Int("689475729316836"), Pow(10, 7))), Sym("attopa"));
-            c[enums::Pascal] = Mul(Rat(Int(1), Pow(10, 18)), Sym("attopa"));
+            c[enums::PASCAL] = Mul(Rat(Int(1), Pow(10, 18)), Sym("attopa"));
             c[enums::TERAPASCAL] = Mul(Rat(Int(1), Pow(10, 30)), Sym("attopa"));
             c[enums::TORR] = Mul(Rat(Int(19), Mul(Int(2533125), Pow(10, 15))), Sym("attopa"));
             c[enums::YOCTOPASCAL] = Mul(Pow(10, 6), Sym("attopa"));
@@ -128,7 +130,7 @@ namespace omero {
             c[enums::PETAPASCAL] = Mul(Rat(Int(1), Pow(10, 10)), Sym("bar"));
             c[enums::PICOPASCAL] = Mul(Pow(10, 17), Sym("bar"));
             c[enums::PSI] = Mul(Rat(Mul(Int(25), Pow(10, 14)), Int("172368932329209")), Sym("bar"));
-            c[enums::Pascal] = Mul(Pow(10, 5), Sym("bar"));
+            c[enums::PASCAL] = Mul(Pow(10, 5), Sym("bar"));
             c[enums::TERAPASCAL] = Mul(Rat(Int(1), Pow(10, 7)), Sym("bar"));
             c[enums::TORR] = Mul(Rat(Mul(Int(304), Pow(10, 4)), Int(4053)), Sym("bar"));
             c[enums::YOCTOPASCAL] = Mul(Pow(10, 29), Sym("bar"));
@@ -164,7 +166,7 @@ namespace omero {
             c[enums::PETAPASCAL] = Mul(Rat(Int(1), Pow(10, 12)), Sym("cbar"));
             c[enums::PICOPASCAL] = Mul(Pow(10, 15), Sym("cbar"));
             c[enums::PSI] = Mul(Rat(Mul(Int(25), Pow(10, 12)), Int("172368932329209")), Sym("cbar"));
-            c[enums::Pascal] = Mul(Int(1000), Sym("cbar"));
+            c[enums::PASCAL] = Mul(Int(1000), Sym("cbar"));
             c[enums::TERAPASCAL] = Mul(Rat(Int(1), Pow(10, 9)), Sym("cbar"));
             c[enums::TORR] = Mul(Rat(Int(30400), Int(4053)), Sym("cbar"));
             c[enums::YOCTOPASCAL] = Mul(Pow(10, 27), Sym("cbar"));
@@ -200,7 +202,7 @@ namespace omero {
             c[enums::PETAPASCAL] = Mul(Rat(Int(1), Pow(10, 17)), Sym("centipa"));
             c[enums::PICOPASCAL] = Mul(Pow(10, 10), Sym("centipa"));
             c[enums::PSI] = Mul(Rat(Mul(Int(25), Pow(10, 7)), Int("172368932329209")), Sym("centipa"));
-            c[enums::Pascal] = Mul(Rat(Int(1), Int(100)), Sym("centipa"));
+            c[enums::PASCAL] = Mul(Rat(Int(1), Int(100)), Sym("centipa"));
             c[enums::TERAPASCAL] = Mul(Rat(Int(1), Pow(10, 14)), Sym("centipa"));
             c[enums::TORR] = Mul(Rat(Int(38), Int(506625)), Sym("centipa"));
             c[enums::YOCTOPASCAL] = Mul(Pow(10, 22), Sym("centipa"));
@@ -236,7 +238,7 @@ namespace omero {
             c[enums::PETAPASCAL] = Mul(Rat(Int(1), Pow(10, 14)), Sym("decapa"));
             c[enums::PICOPASCAL] = Mul(Pow(10, 13), Sym("decapa"));
             c[enums::PSI] = Mul(Rat(Mul(Int(25), Pow(10, 10)), Int("172368932329209")), Sym("decapa"));
-            c[enums::Pascal] = Mul(Int(10), Sym("decapa"));
+            c[enums::PASCAL] = Mul(Int(10), Sym("decapa"));
             c[enums::TERAPASCAL] = Mul(Rat(Int(1), Pow(10, 11)), Sym("decapa"));
             c[enums::TORR] = Mul(Rat(Int(304), Int(4053)), Sym("decapa"));
             c[enums::YOCTOPASCAL] = Mul(Pow(10, 25), Sym("decapa"));
@@ -272,7 +274,7 @@ namespace omero {
             c[enums::PETAPASCAL] = Mul(Rat(Int(1), Pow(10, 11)), Sym("dbar"));
             c[enums::PICOPASCAL] = Mul(Pow(10, 16), Sym("dbar"));
             c[enums::PSI] = Mul(Rat(Mul(Int(25), Pow(10, 13)), Int("172368932329209")), Sym("dbar"));
-            c[enums::Pascal] = Mul(Pow(10, 4), Sym("dbar"));
+            c[enums::PASCAL] = Mul(Pow(10, 4), Sym("dbar"));
             c[enums::TERAPASCAL] = Mul(Rat(Int(1), Pow(10, 8)), Sym("dbar"));
             c[enums::TORR] = Mul(Rat(Int(304000), Int(4053)), Sym("dbar"));
             c[enums::YOCTOPASCAL] = Mul(Pow(10, 28), Sym("dbar"));
@@ -308,7 +310,7 @@ namespace omero {
             c[enums::PETAPASCAL] = Mul(Rat(Int(1), Pow(10, 16)), Sym("decipa"));
             c[enums::PICOPASCAL] = Mul(Pow(10, 11), Sym("decipa"));
             c[enums::PSI] = Mul(Rat(Mul(Int(25), Pow(10, 8)), Int("172368932329209")), Sym("decipa"));
-            c[enums::Pascal] = Mul(Rat(Int(1), Int(10)), Sym("decipa"));
+            c[enums::PASCAL] = Mul(Rat(Int(1), Int(10)), Sym("decipa"));
             c[enums::TERAPASCAL] = Mul(Rat(Int(1), Pow(10, 13)), Sym("decipa"));
             c[enums::TORR] = Mul(Rat(Int(76), Int(101325)), Sym("decipa"));
             c[enums::YOCTOPASCAL] = Mul(Pow(10, 23), Sym("decipa"));
@@ -344,7 +346,7 @@ namespace omero {
             c[enums::PETAPASCAL] = Mul(Int(1000), Sym("exapa"));
             c[enums::PICOPASCAL] = Mul(Pow(10, 30), Sym("exapa"));
             c[enums::PSI] = Mul(Rat(Mul(Int(25), Pow(10, 27)), Int("172368932329209")), Sym("exapa"));
-            c[enums::Pascal] = Mul(Pow(10, 18), Sym("exapa"));
+            c[enums::PASCAL] = Mul(Pow(10, 18), Sym("exapa"));
             c[enums::TERAPASCAL] = Mul(Pow(10, 6), Sym("exapa"));
             c[enums::TORR] = Mul(Rat(Mul(Int(304), Pow(10, 17)), Int(4053)), Sym("exapa"));
             c[enums::YOCTOPASCAL] = Mul(Pow(10, 42), Sym("exapa"));
@@ -380,7 +382,7 @@ namespace omero {
             c[enums::PETAPASCAL] = Mul(Rat(Int(1), Pow(10, 30)), Sym("femtopa"));
             c[enums::PICOPASCAL] = Mul(Rat(Int(1), Int(1000)), Sym("femtopa"));
             c[enums::PSI] = Mul(Rat(Int(1), Mul(Int("689475729316836"), Pow(10, 4))), Sym("femtopa"));
-            c[enums::Pascal] = Mul(Rat(Int(1), Pow(10, 15)), Sym("femtopa"));
+            c[enums::PASCAL] = Mul(Rat(Int(1), Pow(10, 15)), Sym("femtopa"));
             c[enums::TERAPASCAL] = Mul(Rat(Int(1), Pow(10, 27)), Sym("femtopa"));
             c[enums::TORR] = Mul(Rat(Int(19), Mul(Int(2533125), Pow(10, 12))), Sym("femtopa"));
             c[enums::YOCTOPASCAL] = Mul(Pow(10, 9), Sym("femtopa"));
@@ -416,7 +418,7 @@ namespace omero {
             c[enums::PETAPASCAL] = Mul(Rat(Int(1), Pow(10, 6)), Sym("gigapa"));
             c[enums::PICOPASCAL] = Mul(Pow(10, 21), Sym("gigapa"));
             c[enums::PSI] = Mul(Rat(Mul(Int(25), Pow(10, 18)), Int("172368932329209")), Sym("gigapa"));
-            c[enums::Pascal] = Mul(Pow(10, 9), Sym("gigapa"));
+            c[enums::PASCAL] = Mul(Pow(10, 9), Sym("gigapa"));
             c[enums::TERAPASCAL] = Mul(Rat(Int(1), Int(1000)), Sym("gigapa"));
             c[enums::TORR] = Mul(Rat(Mul(Int(304), Pow(10, 8)), Int(4053)), Sym("gigapa"));
             c[enums::YOCTOPASCAL] = Mul(Pow(10, 33), Sym("gigapa"));
@@ -452,7 +454,7 @@ namespace omero {
             c[enums::PETAPASCAL] = Mul(Rat(Int(1), Pow(10, 13)), Sym("hectopa"));
             c[enums::PICOPASCAL] = Mul(Pow(10, 14), Sym("hectopa"));
             c[enums::PSI] = Mul(Rat(Mul(Int(25), Pow(10, 11)), Int("172368932329209")), Sym("hectopa"));
-            c[enums::Pascal] = Mul(Int(100), Sym("hectopa"));
+            c[enums::PASCAL] = Mul(Int(100), Sym("hectopa"));
             c[enums::TERAPASCAL] = Mul(Rat(Int(1), Pow(10, 10)), Sym("hectopa"));
             c[enums::TORR] = Mul(Rat(Int(3040), Int(4053)), Sym("hectopa"));
             c[enums::YOCTOPASCAL] = Mul(Pow(10, 26), Sym("hectopa"));
@@ -488,7 +490,7 @@ namespace omero {
             c[enums::PETAPASCAL] = Mul(Rat(Int(1), Pow(10, 7)), Sym("kbar"));
             c[enums::PICOPASCAL] = Mul(Pow(10, 20), Sym("kbar"));
             c[enums::PSI] = Mul(Rat(Mul(Int(25), Pow(10, 17)), Int("172368932329209")), Sym("kbar"));
-            c[enums::Pascal] = Mul(Pow(10, 8), Sym("kbar"));
+            c[enums::PASCAL] = Mul(Pow(10, 8), Sym("kbar"));
             c[enums::TERAPASCAL] = Mul(Rat(Int(1), Pow(10, 4)), Sym("kbar"));
             c[enums::TORR] = Mul(Rat(Mul(Int(304), Pow(10, 7)), Int(4053)), Sym("kbar"));
             c[enums::YOCTOPASCAL] = Mul(Pow(10, 32), Sym("kbar"));
@@ -524,7 +526,7 @@ namespace omero {
             c[enums::PETAPASCAL] = Mul(Rat(Int(1), Pow(10, 12)), Sym("kilopa"));
             c[enums::PICOPASCAL] = Mul(Pow(10, 15), Sym("kilopa"));
             c[enums::PSI] = Mul(Rat(Mul(Int(25), Pow(10, 12)), Int("172368932329209")), Sym("kilopa"));
-            c[enums::Pascal] = Mul(Int(1000), Sym("kilopa"));
+            c[enums::PASCAL] = Mul(Int(1000), Sym("kilopa"));
             c[enums::TERAPASCAL] = Mul(Rat(Int(1), Pow(10, 9)), Sym("kilopa"));
             c[enums::TORR] = Mul(Rat(Int(30400), Int(4053)), Sym("kilopa"));
             c[enums::YOCTOPASCAL] = Mul(Pow(10, 27), Sym("kilopa"));
@@ -560,7 +562,7 @@ namespace omero {
             c[enums::PETAPASCAL] = Mul(Rat(Int(1), Pow(10, 4)), Sym("megabar"));
             c[enums::PICOPASCAL] = Mul(Pow(10, 23), Sym("megabar"));
             c[enums::PSI] = Mul(Rat(Mul(Int(25), Pow(10, 20)), Int("172368932329209")), Sym("megabar"));
-            c[enums::Pascal] = Mul(Pow(10, 11), Sym("megabar"));
+            c[enums::PASCAL] = Mul(Pow(10, 11), Sym("megabar"));
             c[enums::TERAPASCAL] = Mul(Rat(Int(1), Int(10)), Sym("megabar"));
             c[enums::TORR] = Mul(Rat(Mul(Int(304), Pow(10, 10)), Int(4053)), Sym("megabar"));
             c[enums::YOCTOPASCAL] = Mul(Pow(10, 35), Sym("megabar"));
@@ -596,7 +598,7 @@ namespace omero {
             c[enums::PETAPASCAL] = Mul(Rat(Int(1), Pow(10, 9)), Sym("megapa"));
             c[enums::PICOPASCAL] = Mul(Pow(10, 18), Sym("megapa"));
             c[enums::PSI] = Mul(Rat(Mul(Int(25), Pow(10, 15)), Int("172368932329209")), Sym("megapa"));
-            c[enums::Pascal] = Mul(Pow(10, 6), Sym("megapa"));
+            c[enums::PASCAL] = Mul(Pow(10, 6), Sym("megapa"));
             c[enums::TERAPASCAL] = Mul(Rat(Int(1), Pow(10, 6)), Sym("megapa"));
             c[enums::TORR] = Mul(Rat(Mul(Int(304), Pow(10, 5)), Int(4053)), Sym("megapa"));
             c[enums::YOCTOPASCAL] = Mul(Pow(10, 30), Sym("megapa"));
@@ -632,7 +634,7 @@ namespace omero {
             c[enums::PETAPASCAL] = Mul(Rat(Int(1), Pow(10, 21)), Sym("micropa"));
             c[enums::PICOPASCAL] = Mul(Pow(10, 6), Sym("micropa"));
             c[enums::PSI] = Mul(Rat(Int(25000), Int("172368932329209")), Sym("micropa"));
-            c[enums::Pascal] = Mul(Rat(Int(1), Pow(10, 6)), Sym("micropa"));
+            c[enums::PASCAL] = Mul(Rat(Int(1), Pow(10, 6)), Sym("micropa"));
             c[enums::TERAPASCAL] = Mul(Rat(Int(1), Pow(10, 18)), Sym("micropa"));
             c[enums::TORR] = Mul(Rat(Int(19), Int("2533125000")), Sym("micropa"));
             c[enums::YOCTOPASCAL] = Mul(Pow(10, 18), Sym("micropa"));
@@ -668,7 +670,7 @@ namespace omero {
             c[enums::PETAPASCAL] = Mul(Rat(Int(1), Pow(10, 13)), Sym("mbar"));
             c[enums::PICOPASCAL] = Mul(Pow(10, 14), Sym("mbar"));
             c[enums::PSI] = Mul(Rat(Mul(Int(25), Pow(10, 11)), Int("172368932329209")), Sym("mbar"));
-            c[enums::Pascal] = Mul(Int(100), Sym("mbar"));
+            c[enums::PASCAL] = Mul(Int(100), Sym("mbar"));
             c[enums::TERAPASCAL] = Mul(Rat(Int(1), Pow(10, 10)), Sym("mbar"));
             c[enums::TORR] = Mul(Rat(Int(3040), Int(4053)), Sym("mbar"));
             c[enums::YOCTOPASCAL] = Mul(Pow(10, 26), Sym("mbar"));
@@ -704,7 +706,7 @@ namespace omero {
             c[enums::PETAPASCAL] = Mul(Rat(Int(1), Pow(10, 18)), Sym("millipa"));
             c[enums::PICOPASCAL] = Mul(Pow(10, 9), Sym("millipa"));
             c[enums::PSI] = Mul(Rat(Mul(Int(25), Pow(10, 6)), Int("172368932329209")), Sym("millipa"));
-            c[enums::Pascal] = Mul(Rat(Int(1), Int(1000)), Sym("millipa"));
+            c[enums::PASCAL] = Mul(Rat(Int(1), Int(1000)), Sym("millipa"));
             c[enums::TERAPASCAL] = Mul(Rat(Int(1), Pow(10, 15)), Sym("millipa"));
             c[enums::TORR] = Mul(Rat(Int(19), Int(2533125)), Sym("millipa"));
             c[enums::YOCTOPASCAL] = Mul(Pow(10, 21), Sym("millipa"));
@@ -740,7 +742,7 @@ namespace omero {
             c[enums::PETAPASCAL] = Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 11))), Sym("mtorr"));
             c[enums::PICOPASCAL] = Mul(Rat(Mul(Int(2533125), Pow(10, 12)), Int(19)), Sym("mtorr"));
             c[enums::PSI] = Mul(Rat(Mul(Int(3015625), Pow(10, 9)), Int("155952843535951")), Sym("mtorr"));
-            c[enums::Pascal] = Mul(Rat(Int(2533125), Int(19)), Sym("mtorr"));
+            c[enums::PASCAL] = Mul(Rat(Int(2533125), Int(19)), Sym("mtorr"));
             c[enums::TERAPASCAL] = Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 8))), Sym("mtorr"));
             c[enums::TORR] = Mul(Int(1000), Sym("mtorr"));
             c[enums::YOCTOPASCAL] = Mul(Rat(Mul(Int(2533125), Pow(10, 24)), Int(19)), Sym("mtorr"));
@@ -776,7 +778,7 @@ namespace omero {
             c[enums::PETAPASCAL] = Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 23))), Sym("mmhg"));
             c[enums::PICOPASCAL] = Mul(Int("133322387415000"), Sym("mmhg"));
             c[enums::PSI] = Mul(Rat(Int("158717127875"), Int("8208044396629")), Sym("mmhg"));
-            c[enums::Pascal] = Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 8))), Sym("mmhg"));
+            c[enums::PASCAL] = Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 8))), Sym("mmhg"));
             c[enums::TERAPASCAL] = Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 20))), Sym("mmhg"));
             c[enums::TORR] = Mul(Rat(Int("24125003437"), Mul(Int(24125), Pow(10, 6))), Sym("mmhg"));
             c[enums::YOCTOPASCAL] = Mul(Mul(Int("133322387415"), Pow(10, 15)), Sym("mmhg"));
@@ -812,7 +814,7 @@ namespace omero {
             c[enums::PETAPASCAL] = Mul(Rat(Int(1), Pow(10, 24)), Sym("nanopa"));
             c[enums::PICOPASCAL] = Mul(Int(1000), Sym("nanopa"));
             c[enums::PSI] = Mul(Rat(Int(25), Int("172368932329209")), Sym("nanopa"));
-            c[enums::Pascal] = Mul(Rat(Int(1), Pow(10, 9)), Sym("nanopa"));
+            c[enums::PASCAL] = Mul(Rat(Int(1), Pow(10, 9)), Sym("nanopa"));
             c[enums::TERAPASCAL] = Mul(Rat(Int(1), Pow(10, 21)), Sym("nanopa"));
             c[enums::TORR] = Mul(Rat(Int(19), Mul(Int(2533125), Pow(10, 6))), Sym("nanopa"));
             c[enums::YOCTOPASCAL] = Mul(Pow(10, 15), Sym("nanopa"));
@@ -848,7 +850,7 @@ namespace omero {
             c[enums::NANOPASCAL] = Mul(Pow(10, 24), Sym("petapa"));
             c[enums::PICOPASCAL] = Mul(Pow(10, 27), Sym("petapa"));
             c[enums::PSI] = Mul(Rat(Mul(Int(25), Pow(10, 24)), Int("172368932329209")), Sym("petapa"));
-            c[enums::Pascal] = Mul(Pow(10, 15), Sym("petapa"));
+            c[enums::PASCAL] = Mul(Pow(10, 15), Sym("petapa"));
             c[enums::TERAPASCAL] = Mul(Int(1000), Sym("petapa"));
             c[enums::TORR] = Mul(Rat(Mul(Int(304), Pow(10, 14)), Int(4053)), Sym("petapa"));
             c[enums::YOCTOPASCAL] = Mul(Pow(10, 39), Sym("petapa"));
@@ -884,7 +886,7 @@ namespace omero {
             c[enums::NANOPASCAL] = Mul(Rat(Int(1), Int(1000)), Sym("picopa"));
             c[enums::PETAPASCAL] = Mul(Rat(Int(1), Pow(10, 27)), Sym("picopa"));
             c[enums::PSI] = Mul(Rat(Int(1), Int("6894757293168360")), Sym("picopa"));
-            c[enums::Pascal] = Mul(Rat(Int(1), Pow(10, 12)), Sym("picopa"));
+            c[enums::PASCAL] = Mul(Rat(Int(1), Pow(10, 12)), Sym("picopa"));
             c[enums::TERAPASCAL] = Mul(Rat(Int(1), Pow(10, 24)), Sym("picopa"));
             c[enums::TORR] = Mul(Rat(Int(19), Mul(Int(2533125), Pow(10, 9))), Sym("picopa"));
             c[enums::YOCTOPASCAL] = Mul(Pow(10, 12), Sym("picopa"));
@@ -920,7 +922,7 @@ namespace omero {
             c[enums::NANOPASCAL] = Mul(Rat(Int("172368932329209"), Int(25)), Sym("psi"));
             c[enums::PETAPASCAL] = Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 24))), Sym("psi"));
             c[enums::PICOPASCAL] = Mul(Int("6894757293168360"), Sym("psi"));
-            c[enums::Pascal] = Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 9))), Sym("psi"));
+            c[enums::PASCAL] = Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 9))), Sym("psi"));
             c[enums::TERAPASCAL] = Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 21))), Sym("psi"));
             c[enums::TORR] = Mul(Rat(Int("155952843535951"), Mul(Int(3015625), Pow(10, 6))), Sym("psi"));
             c[enums::YOCTOPASCAL] = Mul(Mul(Int("689475729316836"), Pow(10, 13)), Sym("psi"));
@@ -930,7 +932,7 @@ namespace omero {
             return c;
         }
 
-        static std::map<UnitsPressure, ConversionPtr> createMapPascal() {
+        static std::map<UnitsPressure, ConversionPtr> createMapPASCAL() {
             std::map<UnitsPressure, ConversionPtr> c;
             c[enums::ATMOSPHERE] = Mul(Rat(Int(1), Int(101325)), Sym("pa"));
             c[enums::ATTOPASCAL] = Mul(Pow(10, 18), Sym("pa"));
@@ -993,7 +995,7 @@ namespace omero {
             c[enums::PETAPASCAL] = Mul(Rat(Int(1), Int(1000)), Sym("terapa"));
             c[enums::PICOPASCAL] = Mul(Pow(10, 24), Sym("terapa"));
             c[enums::PSI] = Mul(Rat(Mul(Int(25), Pow(10, 21)), Int("172368932329209")), Sym("terapa"));
-            c[enums::Pascal] = Mul(Pow(10, 12), Sym("terapa"));
+            c[enums::PASCAL] = Mul(Pow(10, 12), Sym("terapa"));
             c[enums::TORR] = Mul(Rat(Mul(Int(304), Pow(10, 11)), Int(4053)), Sym("terapa"));
             c[enums::YOCTOPASCAL] = Mul(Pow(10, 36), Sym("terapa"));
             c[enums::YOTTAPASCAL] = Mul(Rat(Int(1), Pow(10, 12)), Sym("terapa"));
@@ -1029,7 +1031,7 @@ namespace omero {
             c[enums::PETAPASCAL] = Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 14))), Sym("torr"));
             c[enums::PICOPASCAL] = Mul(Rat(Mul(Int(2533125), Pow(10, 9)), Int(19)), Sym("torr"));
             c[enums::PSI] = Mul(Rat(Mul(Int(3015625), Pow(10, 6)), Int("155952843535951")), Sym("torr"));
-            c[enums::Pascal] = Mul(Rat(Int(20265), Int(152)), Sym("torr"));
+            c[enums::PASCAL] = Mul(Rat(Int(20265), Int(152)), Sym("torr"));
             c[enums::TERAPASCAL] = Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 11))), Sym("torr"));
             c[enums::YOCTOPASCAL] = Mul(Rat(Mul(Int(2533125), Pow(10, 21)), Int(19)), Sym("torr"));
             c[enums::YOTTAPASCAL] = Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 23))), Sym("torr"));
@@ -1065,7 +1067,7 @@ namespace omero {
             c[enums::PETAPASCAL] = Mul(Rat(Int(1), Pow(10, 39)), Sym("yoctopa"));
             c[enums::PICOPASCAL] = Mul(Rat(Int(1), Pow(10, 12)), Sym("yoctopa"));
             c[enums::PSI] = Mul(Rat(Int(1), Mul(Int("689475729316836"), Pow(10, 13))), Sym("yoctopa"));
-            c[enums::Pascal] = Mul(Rat(Int(1), Pow(10, 24)), Sym("yoctopa"));
+            c[enums::PASCAL] = Mul(Rat(Int(1), Pow(10, 24)), Sym("yoctopa"));
             c[enums::TERAPASCAL] = Mul(Rat(Int(1), Pow(10, 36)), Sym("yoctopa"));
             c[enums::TORR] = Mul(Rat(Int(19), Mul(Int(2533125), Pow(10, 21))), Sym("yoctopa"));
             c[enums::YOTTAPASCAL] = Mul(Rat(Int(1), Pow(10, 48)), Sym("yoctopa"));
@@ -1101,7 +1103,7 @@ namespace omero {
             c[enums::PETAPASCAL] = Mul(Pow(10, 9), Sym("yottapa"));
             c[enums::PICOPASCAL] = Mul(Pow(10, 36), Sym("yottapa"));
             c[enums::PSI] = Mul(Rat(Mul(Int(25), Pow(10, 33)), Int("172368932329209")), Sym("yottapa"));
-            c[enums::Pascal] = Mul(Pow(10, 24), Sym("yottapa"));
+            c[enums::PASCAL] = Mul(Pow(10, 24), Sym("yottapa"));
             c[enums::TERAPASCAL] = Mul(Pow(10, 12), Sym("yottapa"));
             c[enums::TORR] = Mul(Rat(Mul(Int(304), Pow(10, 23)), Int(4053)), Sym("yottapa"));
             c[enums::YOCTOPASCAL] = Mul(Pow(10, 48), Sym("yottapa"));
@@ -1137,7 +1139,7 @@ namespace omero {
             c[enums::PETAPASCAL] = Mul(Rat(Int(1), Pow(10, 36)), Sym("zeptopa"));
             c[enums::PICOPASCAL] = Mul(Rat(Int(1), Pow(10, 9)), Sym("zeptopa"));
             c[enums::PSI] = Mul(Rat(Int(1), Mul(Int("689475729316836"), Pow(10, 10))), Sym("zeptopa"));
-            c[enums::Pascal] = Mul(Rat(Int(1), Pow(10, 21)), Sym("zeptopa"));
+            c[enums::PASCAL] = Mul(Rat(Int(1), Pow(10, 21)), Sym("zeptopa"));
             c[enums::TERAPASCAL] = Mul(Rat(Int(1), Pow(10, 33)), Sym("zeptopa"));
             c[enums::TORR] = Mul(Rat(Int(19), Mul(Int(2533125), Pow(10, 18))), Sym("zeptopa"));
             c[enums::YOCTOPASCAL] = Mul(Int(1000), Sym("zeptopa"));
@@ -1173,7 +1175,7 @@ namespace omero {
             c[enums::PETAPASCAL] = Mul(Pow(10, 6), Sym("zettapa"));
             c[enums::PICOPASCAL] = Mul(Pow(10, 33), Sym("zettapa"));
             c[enums::PSI] = Mul(Rat(Mul(Int(25), Pow(10, 30)), Int("172368932329209")), Sym("zettapa"));
-            c[enums::Pascal] = Mul(Pow(10, 21), Sym("zettapa"));
+            c[enums::PASCAL] = Mul(Pow(10, 21), Sym("zettapa"));
             c[enums::TERAPASCAL] = Mul(Pow(10, 9), Sym("zettapa"));
             c[enums::TORR] = Mul(Rat(Mul(Int(304), Pow(10, 20)), Int(4053)), Sym("zettapa"));
             c[enums::YOCTOPASCAL] = Mul(Pow(10, 45), Sym("zettapa"));
@@ -1210,7 +1212,7 @@ namespace omero {
             c[enums::PETAPASCAL] = createMapPETAPASCAL();
             c[enums::PICOPASCAL] = createMapPICOPASCAL();
             c[enums::PSI] = createMapPSI();
-            c[enums::Pascal] = createMapPascal();
+            c[enums::PASCAL] = createMapPASCAL();
             c[enums::TERAPASCAL] = createMapTERAPASCAL();
             c[enums::TORR] = createMapTORR();
             c[enums::YOCTOPASCAL] = createMapYOCTOPASCAL();
@@ -1247,7 +1249,7 @@ namespace omero {
             s[enums::PETAPASCAL] = "PPa";
             s[enums::PICOPASCAL] = "pPa";
             s[enums::PSI] = "psi";
-            s[enums::Pascal] = "Pa";
+            s[enums::PASCAL] = "Pa";
             s[enums::TERAPASCAL] = "TPa";
             s[enums::TORR] = "Torr";
             s[enums::YOCTOPASCAL] = "yPa";
@@ -1322,3 +1324,4 @@ namespace omero {
     }
 }
 
+#include <omero/IcePortPop.h>

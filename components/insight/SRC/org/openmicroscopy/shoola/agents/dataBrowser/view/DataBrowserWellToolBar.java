@@ -1,8 +1,6 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserWellToolBar 
- *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -23,11 +21,12 @@
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 
-//Java imports
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -36,13 +35,16 @@ import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
-//Third-party libraries
 import org.jdesktop.swingx.JXBusyLabel;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
+import org.openmicroscopy.shoola.util.ui.MagnificationComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
 
 /** 
  * The tool bar of {@link DataBrowser} displaying wells. 
@@ -64,9 +66,8 @@ class DataBrowserWellToolBar
 
 	/** ID to bring up the add thumbnail view to the node.. */
 	private static final int	ROLL_OVER = 0;
-	
-	/** The layout options for the fields. */
-	private static final String[] LAYOUT;
+	/** The factor to use to set the magnification factor. */
+    private static final int FACTOR = 10;
 	
 	/** Reference to the control. */
 	private DataBrowserControl 	controller;
@@ -76,9 +77,6 @@ class DataBrowserWellToolBar
 	
 	/** Button to refresh the display. */
 	private JButton				refreshButton;
-	
-	/** Button to view all the fields for a given well. */
-	private JToggleButton		fieldsViewButton;
 	
 	/** 
 	 * Button to display a magnified thumbnail if selected when 
@@ -92,29 +90,18 @@ class DataBrowserWellToolBar
 	/** The fields indicating the loading state of the field. */
 	private JXBusyLabel			busyLabel;
 	
-	/** The type of possible layout of the fields. */
-	private JComboBox			layoutBox;
-	
-	/** Defines the static values. */
-	static {
-		LAYOUT = new String[2];
-		LAYOUT[WellFieldsView.ROW_LAYOUT] = "As a row";
-		LAYOUT[WellFieldsView.SPATIAL_LAYOUT] = "Spatial";
-	}
+	/** The component displaying the magnification factor. */
+    private MagnificationComponent mag;
+
+    /** Slider to zoom the fields . */
+    private OneKnobSlider zoomSlider;
+    
+    /** Changelistener for the zoom slider */
+    private ChangeListener zoomListener;
 	
 	/** Initializes the components. */
 	private void initComponents()
 	{
-		layoutBox = new JComboBox(LAYOUT);
-		layoutBox.setSelectedIndex(WellFieldsView.SPATIAL_LAYOUT);
-		view.setSelectedFieldLayout(WellFieldsView.DEFAULT_LAYOUT);
-		layoutBox.addActionListener(new ActionListener() {
-			
-			public void actionPerformed(ActionEvent e) {
-				view.setSelectedFieldLayout(layoutBox.getSelectedIndex());
-				
-			}
-		});
 		IconManager icons = IconManager.getInstance();
 		rollOverButton = new JToggleButton();
 		rollOverButton.setIcon(icons.getIcon(IconManager.ROLL_OVER));
@@ -129,8 +116,6 @@ class DataBrowserWellToolBar
 		refreshButton = new JButton(controller.getAction(
 				DataBrowserControl.REFRESH));
 		UIUtilities.unifiedButtonLookAndFeel(refreshButton);
-		fieldsViewButton = new JToggleButton(controller.getAction(
-				DataBrowserControl.FIELDS_VIEW));
 		int f = view.getFieldsNumber();
 		if (f > 1) { 
 			String[] values = new String[f];
@@ -146,7 +131,49 @@ class DataBrowserWellToolBar
 			
 			});
 		}
-		displayFieldsOptions(false);
+
+        double scale = DataBrowserFactory.getThumbnailScaleFactor();
+
+        mag = new MagnificationComponent(Thumbnail.MIN_SCALING_FACTOR,
+                Thumbnail.MAX_SCALING_FACTOR, scale);
+        mag.addPropertyChangeListener(
+                MagnificationComponent.MAGNIFICATION_PROPERTY,
+                new PropertyChangeListener() {
+                    @Override
+                    public void propertyChange(PropertyChangeEvent evt) {
+                        String name = evt.getPropertyName();
+                        if (MagnificationComponent.MAGNIFICATION_PROPERTY
+                                .equals(name)) {
+                            double v = (Double) evt.getNewValue();
+                            view.setMagnificationFactor(v);
+                            int value = (int) (v * FACTOR);
+                            zoomSlider.removeChangeListener(zoomListener);
+                            zoomSlider.setValue(value);
+                            zoomSlider.addChangeListener(zoomListener);
+                        }
+                    }
+                });
+
+        zoomSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL,
+                (int) (Thumbnail.MIN_SCALING_FACTOR * FACTOR),
+                (int) (Thumbnail.MAX_SCALING_FACTOR * FACTOR),
+                (int) (scale * FACTOR));
+        zoomListener = new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                Object src = e.getSource();
+                if (src == zoomSlider) {
+                    int v = zoomSlider.getValue();
+                    double f = (double) v / FACTOR;
+                    view.setMagnificationFactor(f);
+                    firePropertyChange(
+                            MagnificationComponent.MAGNIFICATION_UPDATE_PROPERTY,
+                            null, f);
+                    DataBrowserFactory.setThumbnailScaleFactor(f);
+                }
+            }
+        };
+        zoomSlider.addChangeListener(zoomListener);
+        zoomSlider.setToolTipText("Magnifies the thumbnails.");
 	}
 	
 	/**
@@ -163,10 +190,11 @@ class DataBrowserWellToolBar
 		bar.add(refreshButton);
 		bar.add(rollOverButton);
 		if (fields != null) { 
-			bar.add(fieldsViewButton);
-			bar.add(layoutBox);
-			bar.add(Box.createHorizontalStrut(5));
 			bar.add(fields);
+			bar.add(Box.createHorizontalStrut(5));
+            bar.add(mag);
+            bar.add(Box.createHorizontalStrut(5));
+            bar.add(zoomSlider);
 			bar.add(Box.createHorizontalStrut(5));
 			bar.add(busyLabel);
 		}
@@ -225,8 +253,8 @@ class DataBrowserWellToolBar
 	void displayFieldsOptions(boolean show)
 	{
 		refreshButton.setEnabled(!show);
-		if (fields != null) fields.setEnabled(!show);
-		layoutBox.setVisible(show);
+		if (fields != null) 
+		    fields.setEnabled(show);
 	}
 	
 	/** 

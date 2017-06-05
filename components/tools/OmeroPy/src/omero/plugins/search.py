@@ -66,7 +66,7 @@ class SearchControl(HqlControl):
             dest="_to",
             metavar="YYYY-MM-DD",
             type=self.date,
-            help="End date for limiting searches (YYYY-MM-DD")
+            help="End date for limiting searches (YYYY-MM-DD)")
         parser.add_argument(
             "--date-type",
             default="import",

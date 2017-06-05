@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.metadata.EditorLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2014-2016 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,107 +22,99 @@
  */
 package org.openmicroscopy.shoola.agents.metadata;
 
-
 import java.util.Collection;
 
+import omero.gateway.SecurityContext;
+import omero.log.LogMessage;
+
+import org.openmicroscopy.shoola.agents.metadata.editor.PropertiesUI;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
-import omero.gateway.model.ROIResult;
-import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.ImageDataView;
-import omero.log.LogMessage;
-import org.openmicroscopy.shoola.agents.metadata.editor.PropertiesUI;
 
-/** 
- * An async. loader which updates the UI components with
- * the number of ROIs the image associated to the PreviewToolBar has.
+/**
+ * An async. loader which updates the UI components with the number of ROIs the
+ * image associated to the PreviewToolBar has.
  *
- * @author  Domink Lindner &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ * @author Domink Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  */
-public class ROICountLoader
-	extends DSCallAdapter
-{
+public class ROICountLoader extends DSCallAdapter {
     /** Reference to the registry */
     private final Registry registry;
-    
+
     /** Reference to the ImageDataView */
     private final ImageDataView imView;
-    
-    /** The security context.*/
+
+    /** The security context. */
     private final SecurityContext ctx;
-    
+
     /** Reference to the {@link PropertiesUI} showing the number of ROIs */
     private PropertiesUI propUI;
-    
+
     /** The id of the image the ROIs are related to. */
-    private long            imageID;
-    
-    /** The id of the user. */
-    private long            userID;
-    
+    private long imageID;
+
     /** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle  handle;
-    
+    private CallHandle handle;
+
     /**
      * Creates a new instance
-     * @param ctx The SecurityContext
-     * @param propUI Reference to the UI.
-     * @param imageID The image id to load the ROIs for
-     * @param userID The user id
+     * 
+     * @param ctx
+     *            The SecurityContext
+     * @param propUI
+     *            Reference to the UI.
+     * @param imageID
+     *            The image id to load the ROIs for
      */
-    public ROICountLoader(SecurityContext ctx, PropertiesUI propUI, long imageID,
-            long userID)
-    {
-    	if (ctx == null)
-    		throw new NullPointerException("No security context.");
-    	this.ctx = ctx;
-    	this.imageID = imageID;
-        this.userID = userID;
-    	this.propUI = propUI;
-    	registry = MetadataViewerAgent.getRegistry();
-    	imView = (ImageDataView) 
-    	registry.getDataServicesView(ImageDataView.class);
+    public ROICountLoader(SecurityContext ctx, PropertiesUI propUI, long imageID) {
+        if (ctx == null)
+            throw new NullPointerException("No security context.");
+        this.ctx = ctx;
+        this.imageID = imageID;
+        this.propUI = propUI;
+        registry = MetadataViewerAgent.getRegistry();
+        imView = (ImageDataView) registry
+                .getDataServicesView(ImageDataView.class);
     }
-    
+
     /**
      * Handles a null result
      */
-    public void handleNullResult() 
-    {
-    	LogMessage msg = new LogMessage();
+    public void handleNullResult() {
+        LogMessage msg = new LogMessage();
         msg.print("No data returned.");
         registry.getLogger().error(this, msg);
     }
-    
+
     /** Handles the cancellation */
-    public void handleCancellation() 
-    {
+    public void handleCancellation() {
         String info = "The data retrieval has been cancelled.";
         registry.getLogger().info(this, info);
     }
-    
+
     /**
      * Handles exceptions
+     * 
      * @see DSCallAdapter#handleException(Throwable)
      */
-    public void handleException(Throwable exc) 
-    {
-    	String s = "Data Retrieval Failure: ";
+    public void handleException(Throwable exc) {
+        String s = "Data Retrieval Failure: ";
         LogMessage msg = new LogMessage();
         msg.print(s);
         msg.print(exc);
         registry.getLogger().error(this, msg);
-        registry.getUserNotifier().notifyError("Data Retrieval Failure", 
-                                               s, exc);
+        registry.getUserNotifier()
+                .notifyError("Data Retrieval Failure", s, exc);
     }
-    
+
     /** Fires an asynchronous data loading. */
-    public  void load() {
-        handle = imView.loadROIFromServer(ctx, imageID, userID, this);
+    public void load() {
+        handle = imView.getROICount(ctx, imageID, this);
     }
-    
+
     /** Cancels any ongoing data loading. */
     public void cancel() {
         handle.cancel();
@@ -133,18 +125,8 @@ public class ROICountLoader
      * Updates the toolbar
      */
     public void handleResult(Object result) {
-        int n = 0;
-        
-        Collection c = (Collection)result;
-        for(Object obj : c) {
-            if(obj instanceof ROIResult) {
-                n += ((ROIResult)obj).getROIs().size();
-            }
-        }
-        
-        propUI.updateROICount(n);
+        if (result instanceof Integer)
+            propUI.updateROICount((Integer) result);
     }
-    
-    
-    
+
 }

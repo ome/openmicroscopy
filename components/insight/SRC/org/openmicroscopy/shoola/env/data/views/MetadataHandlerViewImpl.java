@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -29,7 +29,9 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.data.model.TableParameters;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
+
 import omero.gateway.SecurityContext;
+
 import org.openmicroscopy.shoola.env.data.views.calls.ArchivedFilesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ArchivedFilesSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ArchivedImageLoader;
@@ -39,6 +41,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.FileAnnotationCheckLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.FileUploader;
 import org.openmicroscopy.shoola.env.data.views.calls.FilesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.FilesetLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.HistogramLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.RelatedContainersLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ScriptsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.StructuredAnnotationLoader;
@@ -120,6 +123,12 @@ class MetadataHandlerViewImpl
 		return cmd.exec(observer);
 	}
 
+    public CallHandle loadHistogram(SecurityContext ctx, ImageData img,
+            int[] channels, int z, int t, AgentEventListener observer) {
+        BatchCallTree cmd = new HistogramLoader(ctx, img, channels, z, t);
+        return cmd.exec(observer);
+    }
+            
 	/**
 	 * Implemented as specified by the view interface.
 	 * @see MetadataHandlerView#loadExistingAnnotations(SecurityContext, Class,
@@ -234,20 +243,21 @@ class MetadataHandlerViewImpl
 		return cmd.exec(observer);
 	}
 
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see MetadataHandlerView#loadArchivedImage(SecurityContext, List, File,
-	 * String, boolean, boolean, boolean AgentEventListener)
-	 */
-	public CallHandle loadArchivedImage(SecurityContext ctx, List<Long> imageIDs,
-			File path, boolean override, boolean zip, boolean keepOriginalPaths,
-			AgentEventListener observer)
-	{
-		BatchCallTree cmd = new ArchivedImageLoader(ctx, imageIDs, path,
-		        override, zip, keepOriginalPaths);
-		return cmd.exec(observer);
-	}
-
+    /**
+     * Implemented as specified by the view interface.
+     * 
+     * @see MetadataHandlerView#loadArchivedImage(SecurityContext , List, File ,
+     *      boolean , boolean , boolean , AgentEventListener )
+     */
+    public CallHandle loadArchivedImage(SecurityContext ctx,
+            List<DataObject> objects, File location,
+            boolean override, boolean zip, boolean keepOriginalPaths,
+            AgentEventListener observer) {
+        BatchCallTree cmd = new ArchivedImageLoader(ctx, objects, location,
+                override, zip, keepOriginalPaths);
+        return cmd.exec(observer);
+    }
+    
 	/**
 	 * Implemented as specified by the view interface.
 	 * @see MetadataHandlerView#loadRatings(SecurityContext, Class, List, long,
@@ -456,7 +466,7 @@ class MetadataHandlerViewImpl
 	 * @see MetadataHandlerView#loadAnnotations(SecurityContext, Class, List,
 	 * Class, List, List, AgentEventListener)
 	 */
-	public CallHandle loadAnnotations(SecurityContext ctx, Class<?> rootType,
+	public CallHandle loadAnnotations(SecurityContext ctx, Class<? extends DataObject> rootType,
 			List<Long> rootIDs, Class<?> annotationType, List<String> nsInclude,
 			List<String> nsExlcude, AgentEventListener observer)
 	{

@@ -25,7 +25,8 @@ Decorators for use with OMERO.web applications.
 
 import logging
 import traceback
-from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseRedirect, \
+    JsonResponse
 from django.http import HttpResponseForbidden, StreamingHttpResponse
 
 from django.conf import settings
@@ -36,8 +37,7 @@ from django.template import loader as template_loader
 from django.template import RequestContext
 from django.core.cache import cache
 
-from omeroweb.http import HttpJsonResponse
-
+from omeroweb.utils import reverse_with_params
 from omeroweb.connector import Connector
 from omero.gateway.utils import propertiesToDict
 
@@ -45,15 +45,15 @@ logger = logging.getLogger(__name__)
 
 
 def parse_url(lookup_view):
+    if not lookup_view:
+        raise ValueError("No lookup_view")
     url = None
     try:
-        if "args" in lookup_view.keys():
-            url = reverse(viewname=lookup_view["viewname"],
-                          args=lookup_view["args"])
-        else:
-            url = reverse(viewname=lookup_view["viewname"])
-        if "query_string" in lookup_view.keys():
-            url = url + "?" + lookup_view["query_string"]
+        url = reverse_with_params(
+            lookup_view['viewname'],
+            args=lookup_view['args'],
+            query_string=lookup_view['query_string']
+        )
     except KeyError:
         # assume we've been passed a url
         try:
@@ -244,29 +244,6 @@ class login_required(object):
             return self.allowPublic
         return False
 
-    def _cleanup_deprecated(self, s):
-        # TODO: remove in 5.3, cleanup deprecated
-        if 'omero.client.ui.tree.orphans.enabled' not in s:
-            s['omero.client.ui.tree.orphans.enabled'] = True
-
-        if 'omero.client.ui.menu.dropdown.everyone.label' not in s:
-            s['omero.client.ui.menu.dropdown.everyone.label'] = \
-                s['omero.client.ui.menu.dropdown.everyone']
-        if 'omero.client.ui.menu.dropdown.leaders.label' not in s:
-            s['omero.client.ui.menu.dropdown.leaders.label'] = \
-                s['omero.client.ui.menu.dropdown.leaders']
-        if 'omero.client.ui.menu.dropdown.colleagues.label' not in s:
-            s['omero.client.ui.menu.dropdown.colleagues.label'] = \
-                s['omero.client.ui.menu.dropdown.colleagues']
-
-        if 'omero.client.ui.menu.dropdown.everyone' in s:
-            del s['omero.client.ui.menu.dropdown.everyone']
-        if 'omero.client.ui.menu.dropdown.leaders' in s:
-            del s['omero.client.ui.menu.dropdown.leaders']
-        if 'omero.client.ui.menu.dropdown.colleagues' in s:
-            del s['omero.client.ui.menu.dropdown.colleagues']
-        return s
-
     def load_server_settings(self, conn, request):
         """Loads Client preferences from the server."""
         try:
@@ -275,9 +252,9 @@ class login_required(object):
             request.session.modified = True
             request.session['server_settings'] = {}
             try:
-                s = self._cleanup_deprecated(conn.getClientSettings())
                 request.session['server_settings'] = \
-                    propertiesToDict(s, prefix="omero.client.")
+                    propertiesToDict(conn.getClientSettings(),
+                                     prefix="omero.client.")
             except:
                 logger.error(traceback.format_exc())
             # make extra call for omero.mail, not a part of omero.client
@@ -558,7 +535,9 @@ class render_response(object):
             # allows us to return the dict as json  (NB: BlitzGateway objects
             # don't serialize)
             if template is None or template == 'json':
-                return HttpJsonResponse(context)
+                # We still need to support non-dict data:
+                safe = type(context) is dict
+                return JsonResponse(context, safe=safe)
             else:
                 # allow additional processing of context dict
                 ctx.prepare_context(request, context, *args, **kwargs)

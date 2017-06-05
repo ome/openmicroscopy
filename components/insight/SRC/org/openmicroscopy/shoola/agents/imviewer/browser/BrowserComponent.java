@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.browser.BrowserComponent
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -32,6 +32,7 @@ import java.awt.image.BufferedImage;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 
+import omero.model.Length;
 import omero.model.enums.UnitsLength;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
@@ -215,12 +216,12 @@ class BrowserComponent
     {
     	int index = model.getSelectedIndex();
     	if (factor != ZoomAction.ZOOM_FIT_FACTOR) {
-	        if (factor > ZoomAction.MAX_ZOOM_FACTOR ||
-	            factor < ZoomAction.MIN_ZOOM_FACTOR)
-	            throw new IllegalArgumentException(
-	            		"The zoom factor is a value " +
-	                    "between "+ZoomAction.MIN_ZOOM_FACTOR+" and "+
-	                    ZoomAction.MAX_ZOOM_FACTOR);
+    	    //be less rigid reset
+    	    if (factor < ZoomAction.MIN_ZOOM_FACTOR) {
+    	        factor = ZoomAction.MIN_ZOOM_FACTOR;
+    	    } else if (factor > ZoomAction.MAX_ZOOM_FACTOR) {
+    	        factor = ZoomAction.MAX_ZOOM_FACTOR;
+    	    }
 	        model.setZoomFactor(factor);
     		if (!reset) {
     			if (index == ImViewer.VIEW_INDEX) view.zoomImage();  
@@ -257,6 +258,15 @@ class BrowserComponent
     	}
     }
 
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * 
+     * @see Browser#setSelectedResolutionLevelZoomFactor(double)
+     */
+    public void setSelectedResolutionLevelZoomFactor(double ratio) {
+        model.setZoomFactor(ratio);
+    }
+    
     /** 
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#getZoomFactor()
@@ -675,5 +685,13 @@ class BrowserComponent
             model.setInterpolation(interpolation);
             paintImage();
         }
-	    
+        
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * 
+     * @see Browser#getUnitBarLength()
+     */
+    public Length getUnitBarLength() {
+        return model.getUnitBarLength();
+    }
 }

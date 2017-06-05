@@ -2,12 +2,7 @@
  *   Copyright 2006-2015 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-
 package integration;
-
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -64,6 +59,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -370,11 +366,11 @@ public class ExporterTest extends AbstractServerTest {
         ExporterPrx exporter = factory.createExporter();
         exporter.addImage(image.getId().getValue());
         long size = exporter.generateXml();
-        assertTrue(size > 0);
+        Assert.assertTrue(size > 0);
         // now read
         byte[] values = exporter.read(0, (int) size);
-        assertNotNull(values);
-        assertEquals(values.length, size);
+        Assert.assertNotNull(values);
+        Assert.assertEquals(values.length, size);
         exporter.close();
     }
 
@@ -404,11 +400,11 @@ public class ExporterTest extends AbstractServerTest {
         ExporterPrx exporter = factory.createExporter();
         exporter.addImage(image.getId().getValue());
         long size = exporter.generateXml();
-        assertTrue(size > 0);
+        Assert.assertTrue(size > 0);
         // now read
         byte[] values = exporter.read(0, (int) size);
-        assertNotNull(values);
-        assertEquals(values.length, size);
+        Assert.assertNotNull(values);
+        Assert.assertEquals(values.length, size);
         exporter.close();
     }
 
@@ -438,11 +434,11 @@ public class ExporterTest extends AbstractServerTest {
         ExporterPrx exporter = factory.createExporter();
         exporter.addImage(image.getId().getValue());
         long size = exporter.generateTiff();
-        assertTrue(size > 0);
+        Assert.assertTrue(size > 0);
         // now read
         byte[] values = exporter.read(0, (int) size);
-        assertNotNull(values);
-        assertEquals(values.length, size);
+        Assert.assertNotNull(values);
+        Assert.assertEquals(values.length, size);
         exporter.close();
     }
 
@@ -462,11 +458,11 @@ public class ExporterTest extends AbstractServerTest {
         ExporterPrx exporter = factory.createExporter();
         exporter.addImage(image.getId().getValue());
         long size = exporter.generateTiff();
-        assertTrue(size > 0);
+        Assert.assertTrue(size > 0);
         // now read
         byte[] values = exporter.read(0, (int) size);
-        assertNotNull(values);
-        assertEquals(values.length, size);
+        Assert.assertNotNull(values);
+        Assert.assertEquals(values.length, size);
         exporter.close();
     }
 
@@ -1226,9 +1222,9 @@ public class ExporterTest extends AbstractServerTest {
             while (resultClass.getSuperclass() != Shape.class) {
                 resultClass = resultClass.getSuperclass().asSubclass(IObject.class);
             }
-            assertTrue(remainingClasses.remove(resultClass.getSimpleName()));
+            Assert.assertTrue(remainingClasses.remove(resultClass.getSimpleName()));
         }
-        assertTrue(remainingClasses.isEmpty());
+        Assert.assertTrue(remainingClasses.isEmpty());
     }
 
     class Target {

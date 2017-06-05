@@ -807,8 +807,8 @@ public class ScreenLogin
 	private String getConnectionSpeed()
 	{
 		switch (speedIndex) {
-			case LoginCredentials.HIGH: return " [LAN]";
-			case LoginCredentials.MEDIUM: return " [High]";
+			case LoginCredentials.HIGH: return " [High]";
+			case LoginCredentials.MEDIUM: return " [Medium]";
 			case LoginCredentials.LOW: return " [Low]";
 		}
 		return null;
@@ -1013,7 +1013,10 @@ public class ScreenLogin
 	{
 		setIconImage(frameIcon);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		setResizable(false);
+		// Setting resizable to false causes the login screen to be positioned in
+		// the center of a dual screen setup, instead of the center of the primary
+		// screen.
+		setResizable(true);
 		setUndecorated(true);
 		toFront();
 	}

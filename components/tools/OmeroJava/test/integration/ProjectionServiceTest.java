@@ -1,18 +1,12 @@
 /*
- * $Id$
- *
- * Copyright 2013 University of Dundee. All rights reserved.
+ * Copyright 2013-2017 University of Dundee. All rights reserved.
  * Use is subject to license terms supplied in LICENSE.txt
  */
 package integration;
 
-
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
-
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import omero.ValidationException;
@@ -24,7 +18,7 @@ import omero.model.PixelsType;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
-import org.springframework.util.ResourceUtils;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
@@ -39,22 +33,24 @@ public class ProjectionServiceTest extends AbstractServerTest
 {
 
     /**
-     * Imports the small dv.
-     * The image has 5 z-sections, 6 timepoints, 1 channel, signed 16-bit.
+     * Creates a binary image with
+     * 5 z-sections, 6 timepoints, 1 channel.
      * 
-     * @return The id of the pixels set.
+     * @return The pixels set.
      * @throws Exception Thrown if an error occurred.
      */
     private Pixels importImage() throws Exception
     {
-        File srcFile = ResourceUtils.getFile("classpath:tinyTest.d3d.dv");
-        List<Pixels> pixels = null;
-        try {
-            pixels = importFile(srcFile, "dv");
-        } catch (Throwable e) {
-            throw new Exception("cannot import image", e);
-        }
-        return pixels.get(0);
+        int sizeZ = 5;
+        int sizeT = 6;
+        int sizeC = 1;
+        Image image = createBinaryImage(20, 20, sizeZ, sizeT, sizeC);
+        //load the image so the pixels type is loaded
+        List<Long> ids = Collections.singletonList(image.getId().getValue());
+        List<Image> images = factory.getContainerService().getImages(
+                Image.class.getName(), ids, new ParametersI());
+        image = images.get(0);
+        return image.getPrimaryPixels();
     }
 
     /** 
@@ -88,7 +84,7 @@ public class ProjectionServiceTest extends AbstractServerTest
         Image img = projectImage(pixels, 0, pixels.getSizeT().getValue()-1, 0,
                 pixels.getSizeZ().getValue()-1, 1,
                 ProjectionType.MAXIMUMINTENSITY, null, channels);
-        assertEquals(ownerID, img.getDetails().getOwner().getId().getValue());
+        Assert.assertEquals(ownerID, img.getDetails().getOwner().getId().getValue());
     }
 
     /**
@@ -115,18 +111,18 @@ public class ProjectionServiceTest extends AbstractServerTest
         long imageID = svc.projectPixels(pixels.getId().getValue(), pixelsType,
                 prjType, startT, endT, channels, stepping, startZ, endZ,
                 "projectedImage");
-        assertTrue(imageID > 0);
+        Assert.assertNotEquals(imageID, 0);
         List<Image> images =
                 factory.getContainerService().getImages(Image.class.getName(),
                 Arrays.asList(imageID), new ParametersI());
-        assertEquals(images.size(), 1);
+        Assert.assertEquals(1, images.size());
         Pixels p = images.get(0).getPixels(0);
-        assertEquals(p.getSizeC().getValue(), channels.size());
-        assertEquals(p.getSizeT().getValue(), Math.abs(startT-endT)+1);
-        assertEquals(p.getSizeZ().getValue(), 1);
+        Assert.assertEquals(channels.size(), p.getSizeC().getValue());
+        Assert.assertEquals(Math.abs(startT-endT)+1, p.getSizeT().getValue());
+        Assert.assertEquals(p.getSizeZ().getValue(), 1);
         if (pixelsType == null) pixelsType = pixels.getPixelsType();
-        assertEquals(p.getPixelsType().getValue().getValue(),
-                pixelsType.getValue().getValue());
+        Assert.assertEquals(pixelsType.getValue().getValue(),
+                p.getPixelsType().getValue().getValue());
         return images.get(0);
     }
 
@@ -151,7 +147,7 @@ public class ProjectionServiceTest extends AbstractServerTest
         IProjectionPrx svc = factory.getProjectionService();
         byte[] value = svc.projectStack(pixelsID, pixelsType, prjType,
                 timepoint, channelIndex, stepping, startZ, endZ);
-        assertTrue(value.length > 0);
+        Assert.assertNotEquals(value.length, 0);
         //TODO: more check to be added
     }
     

@@ -23,15 +23,18 @@
 package org.openmicroscopy.shoola.agents.treeviewer;
 
 //Java imports
-import java.util.Set;
+import java.util.Collection;
 
 //Third-party libraries
+
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
+
 import omero.gateway.SecurityContext;
+
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
@@ -102,7 +105,7 @@ public class TimeIntervalsLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == TreeViewer.DISCARDED) return;  //Async cancel.
-        viewer.browseTimeInterval(node, (Set) result);
+        viewer.browseTimeInterval(node, (Collection) result);
     }
     
 }

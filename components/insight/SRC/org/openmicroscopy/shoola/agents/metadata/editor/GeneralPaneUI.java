@@ -204,6 +204,7 @@ class GeneralPaneUI extends JPanel
         });
        
        idLabel = new JTextField();
+       idLabel.setBackground(UIUtilities.BACKGROUND);
        idLabel.setFont(idLabel.getFont().deriveFont(Font.BOLD));
        idLabel.setEditable(false);
        idLabel.setBorder(BorderFactory.createEmptyBorder());
@@ -215,7 +216,7 @@ class GeneralPaneUI extends JPanel
        IconManager icons = IconManager.getInstance();
        annotationsFilter = Filter.SHOW_ALL;
        filterButton = new JButton(annotationsFilter.name);
-       filterButton.setToolTipText("Filter tags and attachments.");
+       filterButton.setToolTipText("Filter annotations by user");
        UIUtilities.unifiedButtonLookAndFeel(filterButton);
        Font font = filterButton.getFont();
        filterButton.setFont(font.deriveFont(font.getStyle(), 
@@ -434,30 +435,49 @@ class GeneralPaneUI extends JPanel
             
             String ownerName = model.getOwnerName();
             ownerLabel.setText("");
-            if(multi) {
-                // on multiselection 'misuse' the owner label to indicate
-                // that the user can still annotate the objects
-                StringBuffer buffer = new StringBuffer();
-                buffer.append("Annotate the selected ");
-                buffer.append(model.getObjectTypeAsString(refObject));
-                buffer.append("s");
-                ownerLabel.setText(buffer.toString());
+            filterButton.setVisible(true);
+            if (multi) {
+                if (!(refObject instanceof TagAnnotationData) && 
+                        !(refObject instanceof FileAnnotationData)) {
+                    // on multiselection 'misuse' the owner label to indicate
+                    // that the user can still annotate the objects
+                    StringBuffer buffer = new StringBuffer();
+                    buffer.append("Annotate the selected ");
+                    buffer.append(model.getObjectTypeAsString(refObject));
+                    buffer.append("s");
+                    ownerLabel.setText(buffer.toString());
+                }
+                else {
+                    filterButton.setVisible(false);
+                }
+                
             }
             else if (ownerName != null && ownerName.length() > 0) {
                 ownerLabel.setText(OWNER_TEXT+ownerName);
             }
             
             propertiesUI.buildUI();
-            
-            tagsTaskPane.refreshUI();
-            roiTaskPane.refreshUI();
-            mapTaskPane.refreshUI();
-            attachmentTaskPane.refreshUI(); 
-            ratingTaskPane.refreshUI();
-            commentTaskPane.refreshUI();  
-            
-            otherTaskPane.setVisible(!model.getAllOtherAnnotations().isEmpty());
-            otherTaskPane.refreshUI();
+            boolean visible = !(refObject instanceof TagAnnotationData) &&
+                    !(refObject instanceof FileAnnotationData);
+
+            tagsTaskPane.setVisible(visible);
+            roiTaskPane.setVisible(visible);
+            mapTaskPane.setVisible(visible && !multi);
+            attachmentTaskPane.setVisible(visible);
+            ratingTaskPane.setVisible(visible);
+            commentTaskPane.setVisible(visible);
+            otherTaskPane.setVisible(visible
+                    && !model.getAllOtherAnnotations().isEmpty());
+    
+            if (visible) {
+                tagsTaskPane.refreshUI();
+                roiTaskPane.refreshUI();
+                mapTaskPane.refreshUI();
+                attachmentTaskPane.refreshUI();
+                ratingTaskPane.refreshUI();
+                commentTaskPane.refreshUI();
+                otherTaskPane.refreshUI();
+            }
             
             propertiesTaskPane.setTitle(propertiesUI.getText() + DETAILS);
            
@@ -492,8 +512,7 @@ class GeneralPaneUI extends JPanel
             namePane.setVisible(!multi);
             idLabel.setVisible(!multi);
             propertiesTaskPane.setVisible(!multi);
-            mapTaskPane.setVisible(!multi);
-   
+ 
             revalidate();
         }
 	

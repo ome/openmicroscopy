@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -30,14 +30,19 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
 import javax.swing.JPanel;
 
 import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.JLabelButton;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.colourpicker.LookupTableIconUtil;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
+
 import omero.gateway.model.ChannelData;
 
 /** 
@@ -131,6 +136,7 @@ class ChannelSlider
         slider.getSlider().setPaintTicks(false);
         slider.addPropertyChangeListener(this);
         Color c = model.getChannelColor(index);
+        String lut = model.getLookupTable(index);
         slider.setColourGradients(GRADIENT_COLOR, c);
  
         Font font = slider.getFont();
@@ -141,12 +147,19 @@ class ChannelSlider
         list.add("max: "+max);
         slider.getSlider().setToolTipText(UIUtilities.formatToolTipText(list));
         
-    	channelSelection = new ChannelButton(channel.getChannelLabeling(), c, index);
+        if (CommonsLangUtils.isNotEmpty(lut)) {
+            channelSelection = new ChannelButton(channel.getChannelLabeling(),
+                   LookupTableIconUtil.getLUTIconImage(lut), index);
+        } else {
+            channelSelection = new ChannelButton(channel.getChannelLabeling(),
+                    c, index);
+        }
+        
     	channelSelection.setPreferredSize(ChannelButton.DEFAULT_MAX_SIZE);
     	channelSelection.setSelected(model.isChannelActive(index));
     	channelSelection.setRightClickSupported(false);
     	channelSelection.addPropertyChangeListener(controller);
-        
+    	channelSelection.addPropertyChangeListener(this);
     	
     	colorPicker = new JLabelButton(IconManager.getInstance().getIcon(IconManager.COLOR_PICKER), true);
     	colorPicker.addPropertyChangeListener(this);
@@ -263,25 +276,79 @@ class ChannelSlider
 	/** Toggles between color model and Greyscale. */
     void setColorModelChanged() 
     {
-    	 slider.setColourGradients(GRADIENT_COLOR, 
-    			 model.getChannelColor(getIndex()));
+        boolean lut = CommonsLangUtils.isNotEmpty(model
+                .getLookupTable(getIndex()));
+        
+        if (lut) {
+            slider.setColourGradients(Color.WHITE, Color.WHITE);
+            slider.setImage(LookupTableIconUtil.getLUTIconImage(model
+                    .getLookupTable(getIndex())));
+        } else {
+            Color c = model.getChannelColor(getIndex());
+            slider.setColourGradients(GRADIENT_COLOR, c);
+            slider.setImage(null);
+        }
+
     	 setSelectedChannel();
     }
     
     /** Modifies the color of the channel. */
     void setChannelColor()
-    {
-    	Color c = model.getChannelColor(getIndex());
-    	slider.setColourGradients(GRADIENT_COLOR, c);
-    	if (channelSelection != null) channelSelection.setColor(c);
+    {  
+        boolean lut = CommonsLangUtils.isNotEmpty(model
+                .getLookupTable(getIndex()));
+
+        if (lut) {
+            slider.setColourGradients(Color.WHITE, Color.WHITE);
+            slider.setImage(LookupTableIconUtil.getLUTIconImage(model
+                    .getLookupTable(getIndex())));
+        } else {
+            Color c = model.getChannelColor(getIndex());
+            slider.setColourGradients(GRADIENT_COLOR, c);
+            slider.setImage(null);
+        }
+
+        if (channelSelection != null) {
+            if (lut) {
+                channelSelection.setImage(LookupTableIconUtil.getLUTIconImage(model.getLookupTable(getIndex())));
+            } else {
+                channelSelection.setColor(model.getChannelColor(getIndex()));
+                channelSelection.setImage(null);
+            }
+        }
     }
     
     /** Indicates that the channel is selected. */
     void setSelectedChannel()
     {
-    	if (channelSelection == null) return;
+    	if (channelSelection == null) 
+    	    return;
     	channelSelection.setSelected(model.isChannelActive(getIndex()));
-    	channelSelection.setColor(model.getChannelColor(getIndex()));
+    	
+        if (CommonsLangUtils.isEmpty(model.getLookupTable(getIndex()))) {
+            channelSelection.setColor(model.getChannelColor(getIndex()));
+            channelSelection.setImage(null);
+        } else {
+            channelSelection.setImage(LookupTableIconUtil.getLUTIconImage(model
+                    .getLookupTable(getIndex())));
+        }
+    }
+    
+    /**
+     * Handles changes in slider value.
+     * 
+     * @param render
+     *            Pass <code>true</code> to pass on the change to the
+     *            {@link RendererControl}, which will re-render the preview;
+     *            <code> false </code> to only update the histogram
+     */
+    private void handleSliderChange(boolean render) {
+        if (render) {
+            controller.setInputInterval(slider.getStartValue(),
+                    slider.getEndValue(), channel.getIndex());
+        }
+        uiParent.updateHistogram(slider.getStartValue(), slider.getEndValue(),
+                channel.getIndex());
     }
     
 	/**
@@ -296,15 +363,37 @@ class ChannelSlider
 			if (TwoKnobsSlider.LEFT_MOVED_PROPERTY.equals(name)
 					|| TwoKnobsSlider.RIGHT_MOVED_PROPERTY.equals(name) ||
 					TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name)) {
-				controller.setInputInterval(slider.getStartValue(),
-						slider.getEndValue(), channel.getIndex());
+			    handleSliderChange(true);
 			}
 		} else {
 			if (TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name)) {
-				controller.setInputInterval(slider.getStartValue(),
-						slider.getEndValue(), channel.getIndex());
+			    handleSliderChange(true);
 			} 
 		}
+		
+        if (uiParent.isShowHistogram()) {
+            if (TwoKnobsSlider.LEFT_MOVED_PROPERTY.equals(name)
+                    || TwoKnobsSlider.RIGHT_MOVED_PROPERTY.equals(name)
+                    || TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name)) {
+                handleSliderChange(false);
+            }
+
+            if (evt.getSource() == channelSelection
+                    && name.equals(ChannelButton.CHANNEL_SELECTED_PROPERTY)) {
+                boolean selected = (Boolean) (((Map) evt.getNewValue())
+                        .values().iterator().next());
+
+                if (selected)
+                    uiParent.updateHistogram(null, null, channel.getIndex());
+                else if (channel.getIndex() == uiParent
+                        .getHistogramChannelIndex()) {
+                    int index = channel.getIndex() + 1;
+                    if (index >= model.getMaxC())
+                        index = 0;
+                    uiParent.updateHistogram(null, null, index);
+                }
+            }
+        }
 		
 		if (evt.getSource() == colorPicker && name.equals(JLabelButton.SELECTED_PROPERTY)) {
 		    Point p = colorPicker.getLocationOnScreen();

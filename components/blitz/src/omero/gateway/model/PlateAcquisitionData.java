@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -26,7 +26,6 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
-import static omero.rtypes.rstring;
 import omero.model.PlateAcquisition;
 import omero.model.PlateAcquisitionI;
 
@@ -124,7 +123,7 @@ public class PlateAcquisitionData
         if (name == null || name.length() == 0) return;
         setDirty(true);
         PlateAcquisition acq = (PlateAcquisition) asIObject();
-        acq.setName(rstring(name));
+        acq.setName(omero.rtypes.rstring(name));
     }
 
     /**
@@ -137,7 +136,7 @@ public class PlateAcquisitionData
         if (StringUtils.isBlank(description)) return;
         setDirty(true);
         PlateAcquisition acq = (PlateAcquisition) asIObject();
-        acq.setDescription(rstring(description));
+        acq.setDescription(omero.rtypes.rstring(description));
     }
 
     /**

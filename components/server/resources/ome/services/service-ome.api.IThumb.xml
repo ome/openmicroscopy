@@ -23,6 +23,7 @@
   		id="internal-ome.api.ThumbnailStore"
   	class="ome.services.ThumbnailBean">
   	<constructor-arg><value>true</value></constructor-arg>
+    <constructor-arg ref="scriptRepoHelper"/>
     <property name="ioService" ref="/OMERO/Thumbs"/>
     <property name="IPixels" ref="internal-ome.api.IPixels"/>
     <property name="pixelDataService" ref="/OMERO/Pixels"/>

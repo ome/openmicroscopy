@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.util.ChannelColorMenuItem 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -76,6 +76,23 @@ public class ChannelColorMenuItem
 		addActionListener(this);
 	}
 
+    /**
+     * Creates a new instance.
+     * 
+     * @param text
+     *            The text of the button. The text should correspond to the
+     *            emission wavelength, fluor used or the index.
+     * @param lut
+     *            The lookup table of the button.
+     * @param index
+     *            The channel index.
+     */
+    public ChannelColorMenuItem(String text, String lut, int index) {
+        super(text, lut);
+        this.index = index;
+        addActionListener(this);
+    }
+	
 	/**
 	 * Fires property change indicating to bring up the color picker.
 	 * @see ActionListener#actionPerformed(ActionEvent)

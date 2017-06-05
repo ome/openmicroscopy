@@ -3,7 +3,7 @@
 """
    Plugin for our configuring the OMERO.web installation
 
-   Copyright 2009-2014 University of Dundee. All rights reserved.
+   Copyright 2009-2016 University of Dundee. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -18,8 +18,16 @@ import re
 from functools import wraps
 from omero_ext.argparse import SUPPRESS
 
+from omero.install.windows_warning import windows_warning, WINDOWS_WARNING
+from omero.install.python_warning import py27_only, PYTHON_WARNING
+
 HELP = "OMERO.web configuration/deployment tools"
 
+if platform.system() == 'Windows':
+    HELP += ("\n\n%s" % WINDOWS_WARNING)
+
+if not py27_only():
+    HELP += ("\n\nERROR: %s" % PYTHON_WARNING)
 
 LONGHELP = """OMERO.web configuration/deployment tools
 
@@ -41,24 +49,22 @@ Example Nginx developer usage:
     omero web stop
     nginx -s stop
 
-Example IIS usage:
-
-    # Install server
-    omero config set omero.web.debug true
-    omero web iis
-    iisreset
-
-    # Uninstall server
-    omero web iis --remove
-    iisreset
-
 """
+
+APACHE_MOD_WSGI_ERR = ("[ERROR] You are deploying OMERO.web using Apache and"
+                       " mod_wsgi. OMERO.web does not provide any management"
+                       " for the daemon process which communicates with"
+                       " Apache child processes using UNIX sockets to handle"
+                       " a request.")
 
 
 def config_required(func):
     """Decorator validating Django dependencies and omeroweb/settings.py"""
     def import_django_settings(func):
+        @windows_warning
         def wrapper(self, *args, **kwargs):
+            if not py27_only():
+                self.ctx.die(681, "ERROR: %s" % PYTHON_WARNING)
             try:
                 import django  # NOQA
             except:
@@ -123,10 +129,7 @@ class WebControl(BaseControl):
             sub, self.restart, "Restart the OMERO.web server")
         parser.add(sub, self.status, "Status for the OMERO.web server")
 
-        iis = parser.add(sub, self.iis, "IIS (un-)install of OMERO.web ")
-        iis.add_argument("--remove", action="store_true", default=False)
-
-        for x in (start, restart, iis):
+        for x in (start, restart):
             group = x.add_mutually_exclusive_group()
             group.add_argument(
                 "--keep-sessions", action="store_true",
@@ -136,6 +139,9 @@ class WebControl(BaseControl):
                 help="Do not wait on expired sessions clean-up")
 
         for x in (start, restart):
+            x.add_argument(
+                "--foreground", action="store_true",
+                help="Start OMERO.web in foreground mode (no daemon/service)")
             x.add_argument(
                 "--workers", type=int, help=SUPPRESS)
             x.add_argument(
@@ -160,6 +166,9 @@ class WebControl(BaseControl):
         nginx_group.add_argument(
             "--http", type=int,
             help="HTTP port for web server")
+        nginx_group.add_argument(
+            "--servername", type=str, default='$hostname',
+            help="Nginx virtual server name")
         nginx_group.add_argument(
             "--max-body-size", type=str, default='0',
             help="Maximum allowed size of the client request body."
@@ -265,12 +274,17 @@ class WebControl(BaseControl):
         # DEPRECATED: apache
         if server == "apache":
             server = "apache22"
+        if server in ("apache22", "apache24"):
+            self.ctx.err(("WARNING: Apache and mod_wsgi are deprecated."
+                          " Please use nginx."))
         if args.http:
             port = args.http
         elif server in ('nginx-development',):
             port = 8080
         else:
             port = 80
+        if args.servername:
+            servername = args.servername
 
         if settings.APPLICATION_SERVER in settings.WSGITCP:
             if settings.APPLICATION_SERVER_PORT == port:
@@ -291,6 +305,7 @@ class WebControl(BaseControl):
 
         if server in ("nginx", "nginx-development",):
             d["MAX_BODY_SIZE"] = args.max_body_size
+            d["SERVERNAME"] = servername
 
         # FORCE_SCRIPT_NAME always has a starting /, and will not have a
         # trailing / unless there is no prefix (/)
@@ -469,7 +484,7 @@ class WebControl(BaseControl):
         return d_args
 
     def _build_run_cmd(self, settings):
-        cmd = "gunicorn -D -p %(base)s/var/django.pid"
+        cmd = "gunicorn %(daemon)s -p %(base)s/var/django.pid"
         cmd += " --bind %(host)s:%(port)d"
         cmd += " --workers %(workers)d "
 
@@ -502,10 +517,11 @@ class WebControl(BaseControl):
         deploy = getattr(settings, 'APPLICATION_SERVER')
 
         if deploy in (settings.WSGI,):
-            self.ctx.die(609, "You are deploying OMERO.web using apache and"
-                         " mod_wsgi. Generate apache config using"
-                         " 'omero web config apache' and reload"
-                         " web server.")
+            self.ctx.die(609, "%s\nGenerate apache config using"
+                         " 'omero web config apache' or"
+                         " 'omero web config apache24' and reload"
+                         " web server." % APACHE_MOD_WSGI_ERR)
+
         else:
             self.ctx.out("Starting OMERO.web... ", newline=False)
 
@@ -547,10 +563,12 @@ class WebControl(BaseControl):
                 pass
 
             # wrap all deprecated args
+            daemon = "-D" if not args.foreground else ""
             d_args = self._deprecated_args(args, settings)
             cmd = self._build_run_cmd(settings)
 
             runserver = (cmd % {
+                'daemon': daemon,
                 'base': self.ctx.dir,
                 'host': settings.APPLICATION_SERVER_HOST,
                 'port': settings.APPLICATION_SERVER_PORT,
@@ -559,7 +577,15 @@ class WebControl(BaseControl):
                 'timeout': settings.WSGI_TIMEOUT,
                 'wsgi_args': d_args['wsgi_args']
             }).split()
-            rv = self.ctx.popen(args=runserver, cwd=location)  # popen
+            if args.foreground:
+                rv = self.ctx.call(args=runserver, cwd=location)  # popen
+                pid_path = self._get_django_pid_path()
+                if pid_path.exists():
+                    pid_path.remove()
+                    self.ctx.out("Removed stale %s" % pid_path)
+                return 0
+            else:
+                rv = self.ctx.popen(args=runserver, cwd=location)  # popen
         else:
             runserver = [sys.executable, "manage.py", "runserver", link,
                          "--noreload", "--nothreading"]
@@ -589,8 +615,8 @@ class WebControl(BaseControl):
             else:
                 self.ctx.err("[NOT STARTED]")
         elif deploy in (settings.WSGI,):
-            self.ctx.err("You are deploying OMERO.web using apache and"
-                         " mod_wsgi. Cannot check status.")
+            self.ctx.err("%s Please check Apache "
+                         "directly." % APACHE_MOD_WSGI_ERR)
         elif deploy in (settings.DEVELOPMENT,):
             self.ctx.err(
                 "DEVELOPMENT: You will have to kill processes by hand!")
@@ -648,21 +674,6 @@ class WebControl(BaseControl):
             str(self.ctx.dir / "etc" / "ice.config") or str(ice_config)
         os.environ['PATH'] = str(os.environ.get('PATH', '.') + ':' +
                                  self.ctx.dir / 'bin')
-
-    @config_required
-    def iis(self, args, settings):
-        if not (self._isWindows() or self.ctx.isdebug):
-            self.ctx.die(2, "'iis' command is for Windows only")
-
-        self.collectstatic()
-        if not args.keep_sessions:
-            self.clearsessions(args)
-
-        web_iis = self._get_python_dir() / "omero_web_iis.py"
-        cmd = [sys.executable, str(web_iis)]
-        if args.remove:
-            cmd.append("remove")
-        self.ctx.call(cmd)
 
 try:
     register("web", WebControl, HELP)

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.measurement.util.roitable.ROITableModel 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -67,9 +67,9 @@ public class ROITableModel
 	/** Annotation Column no for the wizard. */
 	public static final int				ANNOTATION_COLUMN = 4;
 
-	/** Visible Column no for the wizard. */
-	public static final int				VISIBLE_COLUMN = 5;
-
+	/** Show Column no for the wizard. */
+	public static final int				SHOW_COLUMN = 5;
+	
 	/**
 	 * Set the model to use ROI nodes and columns as a vector.
 	 * 
@@ -112,7 +112,6 @@ public class ROITableModel
 			}
 				
 			node.setValueAt(value, column);
-			modelSupport.fireNewRoot();
 		}
 	}
 		
@@ -166,7 +165,7 @@ public class ROITableModel
 				return ShapeType.class;
 			case ANNOTATION_COLUMN+1:
 				return String.class;
-			case VISIBLE_COLUMN+1:
+			case SHOW_COLUMN+1:
 				return Boolean.class;
 			default:
 				return null;

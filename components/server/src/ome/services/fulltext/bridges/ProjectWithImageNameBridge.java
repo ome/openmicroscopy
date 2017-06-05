@@ -28,6 +28,7 @@ import org.hibernate.search.bridge.LuceneOptions;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
+@Deprecated
 public class ProjectWithImageNameBridge extends BridgeHelper {
 
     /**

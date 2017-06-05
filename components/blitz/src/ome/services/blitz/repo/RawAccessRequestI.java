@@ -45,7 +45,7 @@ import omero.model.ChecksumAlgorithm;
  * Command request for accessing a repository directly.
  *
  * @author Josh Moore, josh at glencoesoftware.com
- * @since 4.5.0
+ * @since 5.0.0
  */
 public class RawAccessRequestI extends RawAccessRequest implements IRequest {
 
@@ -235,6 +235,17 @@ public class RawAccessRequestI extends RawAccessRequest implements IRequest {
             } else {
                 throw new omero.ApiUsageException(null, null,
                         "'checksum' requires HASHER HASH FILEPATH, not: " + args.toString());
+            }
+        } else if ("read-only".equals(command)) {
+            if (args.size() == 1) {
+                final CheckedPath checked = servant.checkPath(parse(args.get(0)), null, __current);
+                if (!checked.setReadOnly()) {
+                    throw new omero.ResourceError(null, null,
+                            "setReadOnly failed: " + args.get(0));
+                }
+            } else {
+                throw new omero.ApiUsageException(null, null,
+                        "Command: " + command + " takes just one argument");
             }
         } else {
             throw new omero.ApiUsageException(null, null,

@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -224,6 +224,8 @@ public class EditableTextComponent extends JPanel {
         c.weightx = 0;
         c.anchor = GridBagConstraints.EAST;
         add(editButton, c);
+        
+        editField(false);
     }
 
     /**

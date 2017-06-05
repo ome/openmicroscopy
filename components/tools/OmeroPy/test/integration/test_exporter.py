@@ -25,14 +25,14 @@
 """
 
 import omero
-import library as lib
+from omero.testlib import ITest
 import pytest
 
 
-class TestExporter(lib.ITest):
+class TestExporter(ITest):
 
     def bigimage(self):
-        pix = self.pix(x=4000, y=4000, z=1, t=1, c=1)
+        pix = self.create_pixels(x=4000, y=4000, z=1, t=1, c=1)
         rps = self.client.sf.createRawPixelsStore()
         try:
             rps.setPixelsId(pix.id.val, True)
@@ -46,12 +46,10 @@ class TestExporter(lib.ITest):
         Runs a simple export through to completion
         as a smoke test.
         """
-        pix_ids = self.import_image()
-        image_id = self.client.sf.getQueryService().projection(
-            "select i.id from Image i join i.pixels p where p.id = :id",
-            omero.sys.ParametersI().addId(pix_ids[0]))[0][0].val
+        session = self.client.getSession()
+        image = self.create_test_image(100, 100, 1, 1, 1, session)
         exporter = self.client.sf.createExporter()
-        exporter.addImage(image_id)
+        exporter.addImage(image.id.val)
         length = exporter.generateTiff()
         offset = 0
         while True:

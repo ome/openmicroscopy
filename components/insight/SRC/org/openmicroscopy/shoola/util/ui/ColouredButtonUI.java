@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.ColouredButtonUI
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -27,8 +27,10 @@ package org.openmicroscopy.shoola.util.ui;
 
 
 //Java imports
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.GradientPaint;
@@ -38,10 +40,15 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.Stroke;
 import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
+
 import javax.swing.JComponent;
 import javax.swing.plaf.basic.BasicButtonUI;
 
 //Third-party libraries
+
+
+
 
 //Application-internal dependencies
 import org.jdesktop.swingx.JXButton;
@@ -82,8 +89,13 @@ class ColouredButtonUI
 	/** The default insets for the painter. */
 	private static final Insets INSETS = new Insets(3, 3, 3, 3);
 	
+	private static final double IMAGE_OPACITY = 0.3;
+	
     /** Current Colour of the button. */
     private Color           colour;
+    
+    /** The background image */
+    private BufferedImage image;
 
     /** Reference to parent button. */
     private final ColouredButton  button;
@@ -380,6 +392,47 @@ class ColouredButtonUI
     private void paintSquareButton(Graphics2D g)
     {
         
+        if (this.colour == null) {
+            int height = (int) buttonRect.getHeight();
+            int width = (int) buttonRect.getWidth();
+            
+            // Fill
+            g.setColor(UIUtilities.BACKGROUND_COLOR);
+            g.fillRect(INSETS.left, INSETS.top, width-INSETS.right, height-INSETS.bottom);
+            
+            // Text
+            final FontMetrics fm = g.getFontMetrics();
+            final int x = (int) ((buttonRect.width/2.0f)-
+                    fm.stringWidth(button.getText())/2.0f);
+            final int y = (int) ((buttonRect.height/2.0f) + 
+                    (fm.getHeight()-fm.getDescent())/2.0f);
+            g.setPaint(Color.BLACK);
+            g.drawString(button.getText(), x, y);
+            
+            return;
+        }
+        
+        if (this.image != null) {
+            Composite prev = g.getComposite();
+            Composite comp = AlphaComposite.getInstance(AlphaComposite.SRC_OVER , (float) IMAGE_OPACITY );
+            g.setComposite(comp);
+            int height = (int) buttonRect.getHeight();
+            int width = (int) buttonRect.getWidth();
+            g.drawImage(image, 0, 0, width, height, null);
+            g.setComposite(prev);
+            
+            // Text
+            final FontMetrics fm = g.getFontMetrics();
+            final int x = (int) ((buttonRect.width / 2.0f) - fm
+                    .stringWidth(button.getText()) / 2.0f);
+            final int y = (int) ((buttonRect.height / 2.0f) + (fm.getHeight() - fm
+                    .getDescent()) / 2.0f);
+            g.setPaint(Color.BLACK);
+            g.drawString(button.getText(), x, y);
+
+            return;
+        }
+        
         // If the button is selected draw selected button face.  
         // Check to see if it's greyed out, if not draw border else
         // draw mask and draw the grey mask selected border. 
@@ -529,7 +582,6 @@ class ColouredButtonUI
     ColouredButtonUI(ColouredButton b, Color c)
     {
     	if (b == null) throw new IllegalArgumentException("No button.");
-        if (c == null) throw new IllegalArgumentException("No color.");
         button = b;
         greyedOut = false;
         fontIndex = Font.PLAIN;
@@ -551,14 +603,31 @@ class ColouredButtonUI
     /**
      * Sets the colour of the button. 
      * 
-     * @param c Color to set. Mustn't be <code>null</code>.
+     * @param c Color to set (can be <code>null</code>, in which case
+     * the default background color will be used)
      */
     void setColor(Color c) 
     { 
-    	if (c == null) throw new IllegalArgumentException("No color.");
-    	this.colour = c; 
-    	setGradientColours();
-    	createPainters();
+        this.colour = c; 
+        
+    	if (c == null) {
+    	    return;
+    	}
+    	    
+    	if(c != null) {
+    	    setGradientColours();
+    	    createPainters();
+    	}
+    }
+    
+    /**
+     * Set the background image (takes precedence over color!)
+     * 
+     * @param img
+     *            The image
+     */
+    void setImage(BufferedImage img) {
+        this.image = img;
     }
    
     /**

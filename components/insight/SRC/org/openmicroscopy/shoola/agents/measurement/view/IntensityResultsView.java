@@ -45,9 +45,12 @@ import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
 
 import org.apache.commons.collections.CollectionUtils;
 
@@ -74,6 +77,8 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 
 import omero.gateway.model.ChannelData;
+
+import com.google.common.collect.ImmutableList;
 
 /** 
  * Displays the intensity results.
@@ -331,7 +336,31 @@ class IntensityResultsView
 	{
 		saveButton.setEnabled(enabled);
 	}
-	
+
+    /**
+     * Configure the row sorter to sort on the <em>z</em>, <em>t</em>, <em>c</em> columns.
+     * Also sets the <em>z</em>, <em>t</em> columns to {@link Integer} for correct sort order.
+     * @param sorter the sorter to configure
+     */
+    private void configureRowSorter() {
+        /* find the column indices */
+        final int z = resultsModel.findColumn("Z");
+        final int t = resultsModel.findColumn("T");
+        final int c = resultsModel.findColumn("Channel");
+        /* set z, t to Integer */
+        resultsModel.setColumnClass(z, Integer.class);
+        resultsModel.setColumnClass(t, Integer.class);
+        /* ... but do not change their rendering */
+        results.setDefaultRenderer(Integer.class, results.getDefaultRenderer(String.class));
+        /* sort on z, t, c */
+        final TableRowSorter<ResultsTableModel> sorter = new TableRowSorter<ResultsTableModel>(resultsModel);
+        sorter.setSortKeys(ImmutableList.of(
+                new RowSorter.SortKey(z, SortOrder.ASCENDING),
+                new RowSorter.SortKey(t, SortOrder.ASCENDING),
+                new RowSorter.SortKey(c, SortOrder.ASCENDING)));
+        results.setRowSorter(sorter);
+    }
+
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
@@ -347,6 +376,7 @@ class IntensityResultsView
 		resultsModel.addColumn("Mean");
 		resultsModel.addColumn("stdDev");
 		results = new JTable(resultsModel);
+		configureRowSorter();
 		results.getSelectionModel().addListSelectionListener(
 				new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent e) {
@@ -826,18 +856,39 @@ class IntensityResultsView
 	}
 
 	/** 
-	 * The table model for the results table, only overridden to make it read 
-	 * only.
+	 * The table model for the results table, overridden to make it read-only
+	 * and to allow column classes to be set.
 	 */
-	class ResultsTableModel
+	static class ResultsTableModel
 		extends DefaultTableModel
 	{
-		
+        private Map<Integer, Class<?>> columnClasses = new HashMap<Integer, Class<?>>();
+
 		/**
 		 * Overridden to make sure that the cell cannot be edited.
 		 * @see DefaultTableModel#isCellEditable(int, int)
 		 */
 		public boolean isCellEditable(int row, int col) { return false; }
-	}
-	
+
+        @Override
+        public Class<?> getColumnClass(int columnIndex) {
+            final Class<?> columnClass = columnClasses.get(columnIndex);
+            return columnClass == null ? Object.class : columnClass;
+        }
+
+        /**
+         * Set the column class of the column at the given index.
+         * @param columnIndex a column index
+         * @param columnClass the new column class
+         */
+        public void setColumnClass(int columnIndex, Class<?> columnClass) {
+            if (columnClass == null) {
+                throw new IllegalArgumentException(new NullPointerException());
+            } else if (columnClass == Object.class) {
+                columnClasses.remove(columnIndex);
+            } else {
+                columnClasses.put(columnIndex, columnClass);
+            }
+        }
+    }
 }

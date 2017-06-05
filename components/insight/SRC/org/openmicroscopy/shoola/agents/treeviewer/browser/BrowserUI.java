@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -42,6 +42,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -67,6 +68,13 @@ import javax.swing.tree.TreePath;
 
 //Third-party libraries
 
+
+
+
+
+
+
+import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserManageAction;
@@ -85,8 +93,12 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.util.dnd.DnDTree;
 import org.openmicroscopy.shoola.agents.util.dnd.ObjectToTransfer;
+import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.FSFileSystemView;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import omero.gateway.model.DataObject;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ExperimenterData;
@@ -178,6 +190,10 @@ class BrowserUI
     
     /** Identifies the key event.*/
     private int keyEvent;
+    
+    /** Optional comma separated sorting priority of the different data types, 
+     * in form tagset,tag,project,dataset,screen,plate,acquisition,image */
+    private  String typePriority;
     
     /**
      * Builds the tool bar.
@@ -600,13 +616,10 @@ class BrowserUI
     			if (object instanceof FileData) {
 					file = (FileData) object;
     				if (file.isDirectory()) {
-            			if (!file.isHidden()) {
-            				display = new TreeImageSet(file);
-            				buildEmptyNode(display);
-            			}
+            			display = new TreeImageSet(file);
+            			buildEmptyNode(display);
             		} else {
-            			if (!file.isHidden()) 
-            				display = new TreeImageNode(file);
+            			display = new TreeImageNode(file);
             		}
     			} else if (object instanceof ImageData) {
     				display = TreeViewerTranslator.transformImage(
@@ -636,7 +649,7 @@ class BrowserUI
     	FileData[] files = fs.getRoots();
 		for (int j = 0; j < files.length; j++) {
 			file = files[j];
-			if (file.isDirectory() && !file.isHidden()) {
+			if (file.isDirectory()) {
 				display = new TreeImageSet(file);
 				//display.setChildrenLoaded(true);
 				expNode.addChildDisplay(display);
@@ -1193,12 +1206,59 @@ class BrowserUI
      */
     private void buildOrphanImagesNode(TreeImageDisplay parent)
     {
-    	DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
-    	TreeFileSet node = new TreeFileSet(TreeFileSet.ORPHANED_IMAGES);
-    	buildEmptyNode(node);
-		node.setNumberItems(-1);
-		parent.addChildDisplay(node);
-		tm.insertNodeInto(node, parent, parent.getChildCount());
+        Registry reg = TreeViewerAgent.getRegistry();
+        //First check if we had the orphaned images node
+        Boolean value = Boolean.parseBoolean((String) reg.lookup(
+                LookupNames.ORPHANED_IMAGE_ENABLED));
+        if (value != null && !value.booleanValue()) {
+            boolean enabled = false;
+           if (TreeViewerAgent.isAdministrator()) {
+               enabled = true;
+           } else {
+               //check group owner.
+               long expID = TreeViewerAgent.getUserDetails().getId();
+               if (expID == parent.getUserObjectId()) {
+                   enabled = true;
+               } else {
+                   TreeImageDisplay node = parent.getParentDisplay();
+                   long id = -1;
+                   if (node != null) {
+                       id = node.getUserObjectId();
+                       if (id == -1) { //only in one group
+                           id = TreeViewerAgent.getUserDetails().getGroupId();
+                       }
+                   }
+                   Set leaders = TreeViewerAgent.getGroupsLeaderOf();
+                   if (CollectionUtils.isNotEmpty(leaders)) {
+                       Iterator i = leaders.iterator();
+                       while (i.hasNext()) {
+                           GroupData type = (GroupData) i.next();
+                           if (id == type.getId()) {
+                               enabled = true;
+                           }
+                       }
+                   }
+               }
+           }
+           if (!enabled) {
+               return;
+           }
+        }
+        DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
+        TreeFileSet node = new TreeFileSet(TreeFileSet.ORPHANED_IMAGES);
+
+        String v = (String) reg.lookup(LookupNames.ORPHANED_IMAGE_NAME);
+        if (CommonsLangUtils.isNotBlank(v)) {
+            node.setUserObject(v);
+        }
+        v = (String) reg.lookup(LookupNames.ORPHANED_IMAGE_DESCRIPTION);
+        if (CommonsLangUtils.isNotBlank(v)) {
+            node.setToolTip(v);
+        }
+        buildEmptyNode(node);
+        node.setNumberItems(-1);
+        parent.addChildDisplay(node);
+        tm.insertNodeInto(node, parent, parent.getChildCount());
     }
 
     /**
@@ -1254,6 +1314,24 @@ class BrowserUI
 	}
     
     /**
+     * Get the position of 'type' in the type priority setting, ie. 0 ~ highest
+     * priority, Integer.MAX_VALUE ~ lowest priority. If no type priority set, 0
+     * is returned; if only the particular 'type' is not specified
+     * Integer.MAX_VALUE is returned.
+     * 
+     * @param type
+     *            The type to check
+     * @return See above.
+     */
+    private int getTypePriority(String type) {
+        if (CommonsLangUtils.isEmpty(typePriority))
+            return 0;
+
+        int value = typePriority.indexOf(type);
+        return value == -1 ? Integer.MAX_VALUE : value;
+    }
+    
+    /**
      * Organizes the sorted list so that the Project/Screen/Tag Set 
      * are displayed first.
      * 
@@ -1268,23 +1346,62 @@ class BrowserUI
 		List<TreeImageDisplay> top2 = new ArrayList<TreeImageDisplay>();
 		List<TreeImageDisplay> bottom2 = new ArrayList<TreeImageDisplay>();
 		
+		int projectPriority = getTypePriority("project");
+		int datasetPriority = getTypePriority("dataset");
+		int screenPriority = getTypePriority("screen");
+		int platePriority = getTypePriority("plate");
+		int plateAqPriority = getTypePriority("acquisition");
+		int tagPriority = getTypePriority("tag");
+		int tagsetPriority = getTypePriority("tagset");
+		
 		Iterator j = sorted.iterator();
 		TreeImageDisplay object;
 		Object uo;
 		while (j.hasNext()) {
 			object = (TreeImageDisplay) j.next();
 			uo = object.getUserObject();
-			if (uo instanceof ProjectData) top.add(object);
+			if (uo instanceof ProjectData) {
+			    if(projectPriority<=datasetPriority)
+			        top.add(object);
+			    else
+			        bottom.add(object);
+			}
 			else if (uo instanceof GroupData) top.add(object);
-			else if (uo instanceof ScreenData) top2.add(object);
-			else if (uo instanceof DatasetData) bottom.add(object);
-			else if (uo instanceof PlateData) bottom2.add(object);
-			else if (uo instanceof PlateAcquisitionData) bottom2.add(object);
+			else if (uo instanceof ScreenData) {
+			    if(screenPriority<=platePriority)
+			        top2.add(object);
+			    else
+			        bottom2.add(object);
+			}
+			else if (uo instanceof DatasetData)  {
+			    if(projectPriority<=datasetPriority)
+			        bottom.add(object);
+			    else
+			        top.add(object);
+			}
+			else if (uo instanceof PlateData) {
+			    if(screenPriority<=platePriority)
+			        bottom2.add(object);
+			    else
+			        top2.add(object);
+			}
+			else if (uo instanceof PlateAcquisitionData)  {
+			    if(screenPriority<=plateAqPriority)
+			        bottom2.add(object);
+			    else
+			        top2.add(object);
+			}
 			else if (uo instanceof TagAnnotationData) {
 				if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(
 					((TagAnnotationData) uo).getNameSpace()))
-					top.add(object);
-				else bottom.add(object);
+				    if(tagsetPriority<=tagPriority)
+				        top.add(object);
+				    else 
+				        bottom.add(object);
+				else 
+				    if(tagsetPriority<=tagPriority)
+				        bottom.add(object);
+				    else top.add(object);
 			} else if (uo instanceof File) {
 				File f = (File) uo;
 				if (f.isDirectory()) {
@@ -1407,6 +1524,9 @@ class BrowserUI
 						e.getPath().getLastPathComponent(), true);  
             }   
         };
+        
+        Registry reg = TreeViewerAgent.getRegistry();
+        typePriority = (String) reg.lookup(LookupNames.TREE_TYPE_ORDER);
     }
     
     /**

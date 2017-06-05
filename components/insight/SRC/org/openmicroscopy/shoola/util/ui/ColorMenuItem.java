@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.ColorMenuItem 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -26,10 +26,12 @@ package org.openmicroscopy.shoola.util.ui;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
+import org.openmicroscopy.shoola.util.ui.colourpicker.LookupTableIconUtil;
 
 //Third-party libraries
 
@@ -116,6 +118,23 @@ public class ColorMenuItem
 		iconHeight = ICON_HEIGHT;
 	}
 	
+    /**
+     * Creates a new instance. By default an icon of size <code>16x16</code> is
+     * created.
+     * 
+     * @param text
+     *            The text of the menu item.
+     * @param lut
+     *            The lookup table hosted by the component. Mustn't be
+     *            <code>null</code>.
+     */
+    public ColorMenuItem(String text, String lut) {
+        setLookupTable(lut);
+        setText(text);
+        iconWidth = ICON_WIDTH;
+        iconHeight = ICON_HEIGHT;
+    }
+	
 	/**
 	 * Sets the color hosted by the component. Mustn't be <code>null</code>.
 	 * 
@@ -128,6 +147,18 @@ public class ColorMenuItem
 		color = c;
 		setIcon(createIcon());
 	}
+	
+    /**
+     * Sets the lookup table hosted by the component. Mustn't be
+     * <code>null</code>.
+     * 
+     * @param lut
+     *            The lookup table to set.
+     */
+    public void setLookupTable(String lut) {
+        setIcon(LookupTableIconUtil.getLUTIcon(lut, new Dimension(ICON_WIDTH,
+                ICON_HEIGHT)));
+    }
 	
 	/**
 	 * Returns the color hosted by the component.

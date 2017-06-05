@@ -27,14 +27,14 @@
 import path
 import omero
 import omero.tables
-import library as lib
+from omero.testlib import ITest
 import pytest
 
 from omero import columns
 from omero.rtypes import rfloat, rint, rlong, rstring, unwrap, wrap
 
 
-class TestTables(lib.ITest):
+class TestTables(ITest):
 
     def createMaskCol(self):
         mask = columns.MaskColumnI('mask', 'desc', None)
@@ -648,6 +648,41 @@ class TestTables(lib.ITest):
         table = grid.newTable(repoObj.id.val, "/testInternalMetadata.h5")
         table.initialize([columns.LongColumnI('lc')])
         assert table.getMetadata("__version")
+        table.delete()
+        table.close()
+
+    @pytest.mark.broken(ticket="unimplemented")
+    def testReadOnlyFile(self):
+        """
+        Create an HDF5 file on the server, and then mark it read-only.
+        The server should still allow you to load & read that file.
+        """
+        self.testBlankTable()  # ofile
+
+        filename = self.unique_dir + "/file.txt"
+        mrepo = self.get_managed_repo()
+
+        assert not mrepo.fileExists(filename)
+        self.create_file(mrepo, filename)
+        assert mrepo.fileExists(filename)
+        assert "file.txt" in mrepo.list(self.unique_dir)[0]
+
+        grid = self.client.sf.sharedResources()
+        repoMap = grid.repositories()
+        repoObj = repoMap.descriptions[0]
+        table = grid.newTable(repoObj.id.val, "/test")
+        assert table
+        lcol = columns.LongColumnI('longcol', 'long col')
+        table.initialize([lcol])
+        table.setMetadata('test', wrap('test'))
+        tid = unwrap(table.getOriginalFile().getId())
+        table.close()
+
+        # Mark the file as read only
+        # wip: read_only = self.raw("read-only", [file_path])
+
+        table = grid.openTable(omero.model.OriginalFileI(tid))
+        assert table
         table.delete()
         table.close()
 

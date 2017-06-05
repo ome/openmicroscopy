@@ -20,6 +20,7 @@
  */
 package org.openmicroscopy.shoola.agents.treeviewer;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -30,8 +31,11 @@ import java.util.Map.Entry;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
+
 import omero.gateway.SecurityContext;
+
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+
 import omero.gateway.model.DataObject;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.PlateData;
@@ -135,13 +139,13 @@ public class PlateWellsLoader
     {
         if (viewer.getState() == TreeViewer.DISCARDED) return;  //Async cancel.
         Map m = (Map) result;
-        Map<TreeImageSet, Set> plates = new HashMap<TreeImageSet, Set>();
+        Map<TreeImageSet, Collection> plates = new HashMap<TreeImageSet, Collection>();
         
         Iterator i = m.entrySet().iterator();
         Entry entry;
         while (i.hasNext()) {
 			entry = (Entry) i.next();
-			plates.put(nodes.get(entry.getKey()), (Set) entry.getValue());
+			plates.put(nodes.get(entry.getKey()), (Collection) entry.getValue());
 		}
         viewer.setPlates(plates, withThumbnails);
     }

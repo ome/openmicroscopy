@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.ColorListRenderer 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -82,9 +82,17 @@ public class ColorListRenderer
 		if (value == null) return this;
 		Object [] array = (Object[]) value;
 		if (array.length != 2) return this;
-		Color c = (Color) array[0];
-		if (c != null) 
-			icon.setColour(new Color(c.getRed(), c.getGreen(), c.getBlue()));
+		
+		if(array[0] != null) {
+            if (array[0] instanceof Color) {
+                Color c = (Color) array[0];
+                icon.setColour(new Color(c.getRed(), c
+                        .getGreen(), c.getBlue()));
+                icon.setLookupTable(null);
+            } else if (array[0] instanceof String) {
+                icon.setLookupTable((String) array[0]);
+            }
+		}
 		
 		setIcon(icon);
 		setText((String) array[1]);

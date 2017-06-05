@@ -20,6 +20,7 @@
 #ifndef OMERO_MODEL_LENGTHI_H
 #define OMERO_MODEL_LENGTHI_H
 
+#include <omero/IcePortPush.h>
 #include <omero/IceNoWarnPush.h>
 #include <omero/model/Length.h>
 #include <omero/model/Units.h>
@@ -95,5 +96,8 @@ namespace omero {
     };
   }
 }
+
+#include <omero/IcePortPop.h>
+
 #endif // OMERO_MODEL_LENGTHI_H
 

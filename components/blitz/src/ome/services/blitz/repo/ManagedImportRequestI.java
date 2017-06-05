@@ -85,7 +85,7 @@ import ch.qos.logback.classic.ClassicConstants;
  * {@link ManagedImportProcessI} object.
  *
  * @author Josh Moore, josh at glencoesoftware.com
- * @since 4.5.0
+ * @since 5.0.0
  */
 public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
@@ -363,12 +363,15 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             return;
         }
 
+        ome.model.annotations.CommentAnnotation lastCA = null;
+        long maxCAId = 0;
         for (Annotation a : settings.userSpecifiedAnnotationList) {
             if (a == null) {
                 continue;
             }
 
             ome.model.annotations.Annotation ann = null;
+
             String ns = null;
             if (a.isLoaded()) {
                 ns = a.getNs() == null ? null : a.getNs().getValue();
@@ -387,30 +390,36 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             if (NSAUTOCLOSE.value.equals(ns)) {
                 autoClose = true;
             } else if (NSTARGETTEMPLATE.value.equals(ns)) {
-                ome.model.annotations.CommentAnnotation ca =
-                        (ome.model.annotations.CommentAnnotation) ann;
-                if (settings.userSpecifiedTarget != null) {
-                    // TODO: Exception
-                    String kls = settings.userSpecifiedTarget.getClass().getSimpleName();
-                    long id = settings.userSpecifiedTarget.getId().getValue();
-                    log.error("User-specified template target '{}' AND {}:{}",
-                            ca.getTextValue(), kls, id);
-                    continue;
+                ome.model.annotations.CommentAnnotation
+                    ca = (ome.model.annotations.CommentAnnotation) ann;
+                if (ca.getId().longValue() > maxCAId) {
+                    maxCAId = ca.getId().longValue();
+                    lastCA = ca;
                 }
-
+            }
+        }
+        if (lastCA != null) {
+            if (settings.userSpecifiedTarget != null) {
+                // TODO: Exception
+                String kls = settings.userSpecifiedTarget.getClass().getSimpleName();
+                long id = settings.userSpecifiedTarget.getId().getValue();
+                log.error("User-specified template target '{}' AND {}:{}",
+                        lastCA.getTextValue(), kls, id);
+            } else {
                 // Path converted to unix slashes.
-                String path = ca.getDescription();
+                String path = lastCA.getDescription();
                 File file = new File(path);
                 for (int i = 0; i < location.omittedLevels; i++) {
                     file = file.getParentFile();
                 }
                 path = file.toString();
+                log.debug("Using target path {}", path);
                 // Here we use the client-side (but unix-separated) path, since
                 // for simple imports, we don't have any context about the directory
                 // from the client.
                 ServerTemplateImportTarget target = new ServerTemplateImportTarget(path);
-                target.init(ca.getTextValue());
-                settings.userSpecifiedTarget = target.load(store, reader.isSPWReader());
+                target.init(lastCA.getTextValue());
+                    settings.userSpecifiedTarget = target.load(store, reader.isSPWReader());
             }
         }
     }
@@ -656,6 +665,9 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
         for (final Image image : imageList) {
             image.unloadAnnotationLinks();
+            image.unloadDatasetLinks();
+            image.unloadFolderLinks();
+            image.unloadWellSamples();
         }
 
         store.updatePixels(pixList);

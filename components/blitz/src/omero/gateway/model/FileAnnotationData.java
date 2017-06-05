@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -18,12 +18,13 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package omero.gateway.model;
 
-
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
-import static omero.rtypes.rstring;
 import omero.RString;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
@@ -40,6 +41,10 @@ import omero.model.OriginalFile;
  * @since OME3.0
  */
 public class FileAnnotationData extends AnnotationData {
+
+    /** Identifies the FLIM namespace. */
+     public static final String FLIM_NS =
+             omero.constants.analysis.flim.NSFLIM.value;
 
     /**  The name space used to identify the experimenter photo. */
     public static final String EXPERIMENTER_PHOTO_NS =
@@ -79,10 +84,6 @@ public class FileAnnotationData extends AnnotationData {
      */
     public static final String BULK_ANNOTATIONS_NS =
             omero.constants.namespaces.NSBULKANNOTATIONS.value;
-
-    /** Identifies the FLIM namespace. */
-    public static final String FLIM_NS =
-            omero.constants.analysis.flim.NSFLIM.value;
 
     /** The default name for the original metadata file.*/
     public static final String ORIGINAL_METADATA_NAME =
@@ -293,7 +294,7 @@ public class FileAnnotationData extends AnnotationData {
     {
         if (description == null || description.trim().length() == 0) return;
         setDirty(true);
-        asAnnotation().setDescription(rstring(description));
+        asAnnotation().setDescription(omero.rtypes.rstring(description));
     }
 
     /**
@@ -346,6 +347,14 @@ public class FileAnnotationData extends AnnotationData {
                 format.equals(MS_POWER_POINT_SHOW) ||
                 format.equals(MS_POWER_POINT_X)) {
             return SERVER_MS_POWERPOINT;
+        }
+        try {
+            final String guessedMimeType = Files.probeContentType(attachedFile.toPath());
+            if (guessedMimeType != null) {
+                return guessedMimeType;
+            }
+        } catch (IOException | SecurityException e) {
+            /* can't guess */
         }
         return SERVER_OCTET_STREAM;
     }

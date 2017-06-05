@@ -1,0 +1,40 @@
+<% _.each(anns, function(ann) { %>
+<div class="ann_comment_wrapper" data-added-by="<% print (ann.addedBy.join(',')) %>">
+
+    <div class="avatar">
+        <img src="<%= webindex %>avatar/<%= ann.owner.id %>/"
+        alt="<%= ann.owner.firstName %> <%= ann.owner.lastName %>"
+        title="<%= ann.owner.firstName %> <%= ann.owner.lastName %>" />
+    </div>
+
+    <div class="ann_comment_text tooltip">
+        <div class="ann_comment_header">
+            <strong>
+                <%= ann.owner.firstName %> <%= ann.owner.lastName %>
+            </strong> 
+            at
+            <% print(OME.formatDate(ann.link.date)) %>
+        </div>
+    
+        <% if (ann.permissions.canDelete) { %>
+            <img class='removeComment' id="<%= ann.id %>-comment"
+                src="<%= static %>image/icon_basic_delete.png"
+                url='<%= webindex %>action/remove/comment/<%= ann.id %>/' 
+                title="Delete comment"/>
+        <% } %>
+
+        <div class='commentText'>
+            <%= ann.textValue %>
+        </div>
+    </div>
+
+    <% if (ann.ns || ann.description) { %>
+    <span class="tooltip_html" style='display:none'>
+        <b>ID:</b> <%= ann.id %><br />
+        <% if (ann.ns) { %><b>Namespace:</b> <%= ann.ns %><br /><% } %>
+        <% if (ann.description) { %><b>Description:</b> <%= ann.description %><br /><% } %>
+    </span>
+    <% } %>
+
+</div>
+<% }) %>

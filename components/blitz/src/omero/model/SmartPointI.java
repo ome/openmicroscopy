@@ -18,7 +18,7 @@ public class SmartPointI extends omero.model.PointI implements SmartShape {
 
     public void areaPoints(PointCallback cb) {
         try {
-            cb.handle((int) cx.getValue(), (int) cy.getValue());
+            cb.handle((int) x.getValue(), (int) y.getValue());
         } catch (NullPointerException npe) {
             return;
         }
@@ -34,7 +34,7 @@ public class SmartPointI extends omero.model.PointI implements SmartShape {
     }
 
     public List<Point> asPoints() {
-        if (cx == null || cy == null) {
+        if (x == null || y == null) {
             return null; // Could also pass self and let NPE happen later.
         }
         List<Point> points = Arrays.<Point> asList(this);
@@ -44,8 +44,8 @@ public class SmartPointI extends omero.model.PointI implements SmartShape {
 
     public void randomize(Random random) {
         if (roi == null) {
-            cx = rdouble(random.nextInt(100));
-            cy = rdouble(random.nextInt(100));
+            x = rdouble(random.nextInt(100));
+            y = rdouble(random.nextInt(100));
         } else {
             throw new UnsupportedOperationException(
                     "Roi-based values unsupported");

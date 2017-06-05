@@ -32,5 +32,5 @@ ip.parse(x, y);
 
 % Create Point shape
 point = omero.model.PointI;
-point.setCx(rdouble(x));
-point.setCy(rdouble(y));
+point.setX(rdouble(x));
+point.setY(rdouble(y));

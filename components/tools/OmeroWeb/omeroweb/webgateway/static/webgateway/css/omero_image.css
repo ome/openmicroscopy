@@ -419,8 +419,6 @@ img.figure-box-hide {
 }
 
 td.title {
-  width: 1%;
-  white-space: nowrap;
   text-align: right;
   font-weight: bold;
 }
@@ -510,12 +508,7 @@ td.title {
   margin: 0px 3px 0px 3px;
 }
 
-.rangeslider .ui-slider-range {
-  background: transparent;
-}
-
 .rangeslider {
-  background: white;
   margin: 0.2em 1em 0.2em 1em;
   border: solid #333 1px;
 }
@@ -651,4 +644,8 @@ input.spin-button {
     float: left;
     width: 8px;
     height: 10px;
+}
+/* histogram svg */
+.line {
+  fill: none;
 }

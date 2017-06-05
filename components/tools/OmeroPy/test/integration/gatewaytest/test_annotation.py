@@ -387,3 +387,37 @@ def testUnlinkAnnotation(author_testimg_generated):
     # Unlink annotations
     dataset.unlinkAnnotations(TESTANN_NS)
     assert dataset.getAnnotation(TESTANN_NS) is None
+
+
+def testAnnoationCount(author_testimg_generated):
+    """ Test get annotations counts """
+
+    img = author_testimg_generated
+    gateway = img._conn
+    ann = omero.gateway.CommentAnnotationWrapper(gateway)
+    img.linkAnnotation(ann)
+    # LongAnnotation without NS, == OtherAnnotation
+    ann = omero.gateway.LongAnnotationWrapper(gateway)
+    img.linkAnnotation(ann)
+    # LongAnnotation with rating NS
+    ann = omero.gateway.LongAnnotationWrapper(gateway)
+    ann.setNs(omero.constants.metadata.NSINSIGHTRATING)
+    img.linkAnnotation(ann)
+    ann = omero.gateway.DoubleAnnotationWrapper(gateway)
+    img.linkAnnotation(ann)
+    ann = omero.gateway.BooleanAnnotationWrapper(gateway)
+    img.linkAnnotation(ann)
+    ann = omero.gateway.MapAnnotationWrapper(gateway)
+    img.linkAnnotation(ann)
+    ann = omero.gateway.TagAnnotationWrapper(gateway)
+    img.linkAnnotation(ann)
+    ann = omero.gateway.FileAnnotationWrapper(gateway)
+    img.linkAnnotation(ann)
+
+    counts = img.getAnnotationCounts()
+    assert counts['CommentAnnotation'] == 1
+    assert counts['TagAnnotation'] == 1
+    assert counts['LongAnnotation'] == 1
+    assert counts['MapAnnotation'] == 1
+    assert counts['FileAnnotation'] == 1
+    assert counts['OtherAnnotation'] == 3

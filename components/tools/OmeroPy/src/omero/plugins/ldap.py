@@ -3,7 +3,7 @@
 """
    User administration plugin (LDAP extension)
 
-   Copyright 2011 - 2014 Glencoe Software, Inc. All rights reserved.
+   Copyright 2011 - 2016 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """

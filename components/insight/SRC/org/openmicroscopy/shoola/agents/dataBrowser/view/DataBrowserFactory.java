@@ -142,7 +142,7 @@ public class DataBrowserFactory
 	 */
 	public static final DataBrowser getWellsDataBrowser(
 			SecurityContext ctx, Map<Class, Object> ancestors, Object parent,
-			Set<WellData> wells, boolean withThumbnails)
+			Collection<WellData> wells, boolean withThumbnails)
 	{
 		return singleton.createWellsDataBrowser(ctx, ancestors, parent, wells,
 				withThumbnails);
@@ -503,7 +503,7 @@ public class DataBrowserFactory
 	 */
 	private DataBrowser createWellsDataBrowser(SecurityContext ctx,
 			Map<Class, Object> ancestors,
-			Object parent, Set<WellData> wells, boolean withThumbnails)
+			Object parent, Collection<WellData> wells, boolean withThumbnails)
 	{
 		Object p = parent;
 		Object go = null;

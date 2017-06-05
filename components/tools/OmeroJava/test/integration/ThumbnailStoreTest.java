@@ -1,9 +1,7 @@
 /*
- * integration.ThumbnailStoreTest
- *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,10 +20,6 @@
  */
 package integration;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertTrue;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -37,8 +31,12 @@ import omero.api.IRenderingSettingsPrx;
 import omero.api.ThumbnailStorePrx;
 import omero.model.Pixels;
 
-import org.testng.annotations.BeforeClass;
+import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 /**
  * Collections of tests for the <code>ThumbnailStore</code> service.
@@ -57,14 +55,12 @@ public class ThumbnailStoreTest extends AbstractServerTest {
     private OMEROMetadataStoreClient importer;
 
     /**
-     * Overridden to initialize the list.
-     *
-     * @see AbstractServerTest#setUp()
+     * Set up a new user in a new group and set the local {@code importer} field.
+     * @throws Exception unexpected
      */
-    @Override
-    @BeforeClass
-    protected void setUp() throws Exception {
-        super.setUp();
+    @BeforeMethod
+    protected void setUpNewUserWithImporter() throws Exception {
+        newUserAndGroup("rwr-r-");
         importer = new OMEROMetadataStoreClient();
         importer.initialize(factory);
     }
@@ -101,13 +97,13 @@ public class ThumbnailStoreTest extends AbstractServerTest {
         int sizeY = 48;
         byte[] values = svc.getThumbnail(omero.rtypes.rint(sizeX),
                 omero.rtypes.rint(sizeY));
-        assertNotNull(values);
-        assertTrue(values.length > 0);
+        Assert.assertNotNull(values);
+        Assert.assertTrue(values.length > 0);
 
         byte[] lsValues = svc.getThumbnailByLongestSide(omero.rtypes
                 .rint(sizeX));
-        assertNotNull(lsValues);
-        assertTrue(lsValues.length > 0);
+        Assert.assertNotNull(lsValues);
+        Assert.assertTrue(lsValues.length > 0);
         svc.close();
     }
 
@@ -149,21 +145,21 @@ public class ThumbnailStoreTest extends AbstractServerTest {
         int tnCount = 0;
         while (it.hasNext()) {
             t = it.next();
-            assertNotNull(t);
-            assertTrue(t.length > 0);
+            Assert.assertNotNull(t);
+            Assert.assertTrue(t.length > 0);
             tnCount++;
         }
-        assertEquals(tnCount, thumbNailCount);
+        Assert.assertEquals(thumbNailCount, tnCount);
 
         it = lsThmbs.values().iterator();
         tnCount = 0;
         while (it.hasNext()) {
             t = it.next();
-            assertNotNull(t);
-            assertTrue(t.length > 0);
+            Assert.assertNotNull(t);
+            Assert.assertTrue(t.length > 0);
             tnCount++;
         }
-        assertEquals(tnCount, thumbNailCount);
+        Assert.assertEquals(thumbNailCount, tnCount);
         svc.close();
     }
 
@@ -212,8 +208,8 @@ public class ThumbnailStoreTest extends AbstractServerTest {
             }
             values = svc.getThumbnail(omero.rtypes.rint(sizeX),
                     omero.rtypes.rint(sizeY));
-            assertNotNull(values);
-            assertTrue(values.length > 0);
+            Assert.assertNotNull(values);
+            Assert.assertTrue(values.length > 0);
         }
         // Reset the rendering settings.
         IRenderingSettingsPrx proxy = factory.getRenderingSettingsService();
@@ -229,9 +225,65 @@ public class ThumbnailStoreTest extends AbstractServerTest {
             }
             values = svc.getThumbnail(omero.rtypes.rint(sizeX),
                     omero.rtypes.rint(sizeY));
-            assertNotNull(values);
-            assertTrue(values.length > 0);
+            Assert.assertNotNull(values);
+            Assert.assertTrue(values.length > 0);
         }
         svc.close();
+    }
+
+    /**
+     * Test that thumbnails can be retrieved from multiple groups at once.
+     * @throws Throwable unexpected
+     */
+    @Test
+    public void testGetThumbnailsMultipleGroups() throws Throwable {
+        final byte[] thumbnail;
+        final long pixelsIdα, pixelsIdβ;
+        ThumbnailStorePrx svc = null;
+
+        /* create a fake image file */
+        final File file = File.createTempFile(getClass().getSimpleName(), ".fake");
+        file.deleteOnExit();
+
+        try {
+            /* import the image as one user in one group and get its thumbnail */
+            pixelsIdα = importFile(importer, file, "fake", false).get(0).getId().getValue();
+            svc = factory.createThumbnailStore();
+            svc.setPixelsId(pixelsIdα);
+            thumbnail = svc.getThumbnailByLongestSide(null);
+        } finally {
+            if (svc != null) {
+                {
+                    svc.close();
+                    svc = null;
+                }
+            }
+        }
+
+        /* import the image as another user in another group */
+        setUpNewUserWithImporter();
+        pixelsIdβ = importFile(importer, file, "fake", false).get(0).getId().getValue();
+
+        final Map<Long, byte[]> thumbnails;
+
+        try {
+            /* use all-groups context to fetch both thumbnails at once */
+            final List<Long> pixelsIdsαβ = ImmutableList.of(pixelsIdα, pixelsIdβ);
+            final Map<String, String> allGroupsContext = ImmutableMap.of("omero.group", "-1");
+            svc = factory.createThumbnailStore();
+            thumbnails = svc.getThumbnailByLongestSideSet(null, pixelsIdsαβ, allGroupsContext);
+        } finally {
+            if (svc != null) {
+                {
+                    svc.close();
+                    svc = null;
+                }
+            }
+        }
+
+        /* check that the thumbnails are as expected */
+        Assert.assertTrue(thumbnail.length > 0);
+        Assert.assertEquals(thumbnails.get(pixelsIdα), thumbnail);
+        Assert.assertEquals(thumbnails.get(pixelsIdβ), thumbnail);
     }
 }

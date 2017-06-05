@@ -262,7 +262,7 @@ public class TagsTaskPaneUI extends AnnotationTaskPaneUI {
         addTagsButton = new JButton(icons.getIcon(IconManager.PLUS_12));
         UIUtilities.unifiedButtonLookAndFeel(addTagsButton);
         addTagsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-        addTagsButton.setToolTipText("Add Tags.");
+        addTagsButton.setToolTipText("Add tags");
         addTagsButton.addActionListener(controller);
         addTagsButton.setActionCommand(""+EditorControl.ADD_TAGS);
         buttons.add(addTagsButton);
@@ -270,7 +270,7 @@ public class TagsTaskPaneUI extends AnnotationTaskPaneUI {
         removeTagsButton = new JButton(icons.getIcon(IconManager.MINUS_12));
         UIUtilities.unifiedButtonLookAndFeel(removeTagsButton);
         removeTagsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-        removeTagsButton.setToolTipText("Remove Tags.");
+        removeTagsButton.setToolTipText("Remove tags");
         removeTagsButton.addMouseListener(controller);
         removeTagsButton.setActionCommand(""+EditorControl.REMOVE_TAGS);
         buttons.add(removeTagsButton);
@@ -324,5 +324,13 @@ public class TagsTaskPaneUI extends AnnotationTaskPaneUI {
         addTagsButton.setEnabled(model.canAddAnnotationLink());
         removeTagsButton.setEnabled(model.canDeleteAnnotationLink());
     }
-    
+
+    @Override
+    int getUnfilteredAnnotationCount() {
+        if (model.isMultiSelection()) {
+            return model.getAllTags().size();
+        } else {
+            return model.getTags().size();
+        }
+    }
 }

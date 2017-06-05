@@ -1,10 +1,7 @@
 /*
- * omeis.providers.re.GreyScaleStrategy
- *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-
 package omeis.providers.re;
 
 import java.io.IOException;
@@ -69,7 +66,7 @@ class GreyScaleStrategy extends RenderingStrategy {
         RenderingStats performanceStats = renderer.getStats();
         QuantumStrategy qs = 
         	renderer.getQuantumManager().getStrategyFor(channel);
-        CodomainChain cc = renderer.getCodomainChain();
+        CodomainChain cc = renderer.getCodomainChain(channel);
         
         // Retrieve the planar data to render
         performanceStats.startIO(channel);
@@ -86,6 +83,7 @@ class GreyScaleStrategy extends RenderingStrategy {
         byte[] r = buf.getRedBand();
         byte[] g = buf.getBlueBand();
         byte[] b = buf.getGreenBand();
+        boolean hasMapContext = cc.hasMapContext();
         if (plane.isXYPlanar())
         {
         	int planeSize = sizeX1 * sizeX2;
@@ -94,7 +92,9 @@ class GreyScaleStrategy extends RenderingStrategy {
                 for (x1 = 0; x1 < sizeX1; ++x1)
                 {
                     discreteValue = qs.quantize(plane.getPixelValue(i));
-                    discreteValue = cc.transform(discreteValue);
+                    if (hasMapContext) {
+                        discreteValue = cc.transform(discreteValue);
+                    }
                     value = (byte) (discreteValue * alpha);
                     r[i] = value;
                     g[i] = value;
@@ -108,7 +108,9 @@ class GreyScaleStrategy extends RenderingStrategy {
         		for (x1 = 0; x1 < sizeX1; ++x1) {
         			pixelIndex = sizeX1 * x2 + x1;
         			discreteValue = qs.quantize(plane.getPixelValue(x1, x2));
-        			discreteValue = cc.transform(discreteValue);
+        			if (hasMapContext) {
+                        discreteValue = cc.transform(discreteValue);
+                    }
         			value = (byte) (discreteValue * alpha);
         			r[pixelIndex] = value;
         			g[pixelIndex] = value;
@@ -141,7 +143,7 @@ class GreyScaleStrategy extends RenderingStrategy {
         RenderingStats performanceStats = renderer.getStats();
         QuantumStrategy qs = 
         	renderer.getQuantumManager().getStrategyFor(channel);
-        CodomainChain cc = renderer.getCodomainChain();
+        CodomainChain cc = renderer.getCodomainChain(channel);
         
         // Retrieve the planar data to render
         
@@ -169,17 +171,18 @@ class GreyScaleStrategy extends RenderingStrategy {
         int alpha = channelBinding.getAlpha();
         int[] buf = ((RGBIntBuffer) dataBuf).getDataBuffer();
         int x1, x2, discreteValue, pixelIndex;
+        boolean hasMapContext = cc.hasMapContext();
         if (plane.isXYPlanar())
         {
         	int planeSize = sizeX1 * sizeX2;
         	for (int i = 0; i < planeSize; i++)
         	{
                 discreteValue = qs.quantize(plane.getPixelValue(i));
-                // Right now we have no transforms being used so it's safe to
-                // comment this out for the time being.
-                //discreteValue = cc.transform(discreteValue);
+                if (hasMapContext) {
+                    discreteValue = cc.transform(discreteValue);
+                }
                 buf[i] = alpha << 24 | discreteValue << 16
-                        | discreteValue << 8 | discreteValue;            		
+                        | discreteValue << 8 | discreteValue;
         	}
         }
         else
@@ -188,7 +191,9 @@ class GreyScaleStrategy extends RenderingStrategy {
         		pixelIndex = sizeX1 * x2;
         		for (x1 = 0; x1 < sizeX1; ++x1) {
         			discreteValue = qs.quantize(plane.getPixelValue(x1, x2));
-        			discreteValue = cc.transform(discreteValue);
+        			if (hasMapContext) {
+                        discreteValue = cc.transform(discreteValue);
+                    }
         			buf[pixelIndex + x1] = alpha << 24 | discreteValue << 16
         			| discreteValue << 8 | discreteValue;
         		}
@@ -219,7 +224,7 @@ class GreyScaleStrategy extends RenderingStrategy {
         RenderingStats performanceStats = renderer.getStats();
         QuantumStrategy qs = 
         	renderer.getQuantumManager().getStrategyFor(channel);
-        CodomainChain cc = renderer.getCodomainChain();
+        CodomainChain cc = renderer.getCodomainChain(channel);
         
         // Retrieve the planar data to render
         performanceStats.startIO(channel);
@@ -232,17 +237,18 @@ class GreyScaleStrategy extends RenderingStrategy {
         int alpha = channelBinding.getAlpha();
         int[] buf = ((RGBAIntBuffer) dataBuf).getDataBuffer();
         int x1, x2, discreteValue, pixelIndex;
+        boolean hasMapContext = cc.hasMapContext();
         if (plane.isXYPlanar())
         {
         	int planeSize = sizeX1 * sizeX2;
         	for (int i = 0; i < planeSize; i++)
         	{
                 discreteValue = qs.quantize(plane.getPixelValue(i));
-                // Right now we have no transforms being used so it's safe to
-                // comment this out for the time being.
-                //discreteValue = cc.transform(discreteValue);
+                if (hasMapContext) {
+                    discreteValue = cc.transform(discreteValue);
+                }
                 buf[i] = alpha | discreteValue << 24
-                        | discreteValue << 16 | discreteValue << 8;            		
+                        | discreteValue << 16 | discreteValue << 8;
         	}
         }
         else

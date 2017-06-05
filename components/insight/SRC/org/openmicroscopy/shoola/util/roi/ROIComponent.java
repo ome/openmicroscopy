@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -24,15 +24,18 @@ import java.awt.Component;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.jhotdraw.draw.ArrowTip;
 import org.jhotdraw.draw.AttributeKeys;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureArrowFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.io.ServerROIStrategy;
@@ -49,6 +52,8 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
+
+import omero.gateway.model.FolderData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.ShapeSettingsData;
@@ -130,6 +135,9 @@ public class ROIComponent
 				ShapeSettingsData.DEFAULT_FILL_COLOUR);
 		AttributeKeys.STROKE_COLOR.set(fig, 
 				ShapeSettingsData.DEFAULT_STROKE_COLOUR);
+        MeasurementAttributes.START_DECORATION.set(fig, null);
+        MeasurementAttributes.END_DECORATION.set(fig,
+                (fig instanceof MeasureArrowFigure) ? new ArrowTip() : null);
     }
         
     /**
@@ -366,7 +374,7 @@ public class ROIComponent
 	public ROI createROI(long id)
 		throws ROICreationException
 	{
-		return roiCollection.createROI(id, true, true, true, true);
+		return roiCollection.createROI(id, true, true, true, true, Collections.EMPTY_LIST);
 	}
 
 	/**
@@ -381,17 +389,18 @@ public class ROIComponent
 	 * @param editable Flag indicating the figure can/cannot be edited.
 	 * @param deletable Flag indicating the figure can/cannot be deleted.
 	 * @param annotatable Flag indicating the figure can/cannot be annotated.
+	 * @param folders The folders the ROI is part of
 	 * @return See above.
 	 * @throws ROICreationException	If an error occurred while creating 
 	 * 								an ROI, basic assumption is this is 
 	 * 								linked to memory issues.
 	 */
 	public ROI createROI(long id, boolean clientSideObject,
-			boolean editable, boolean deletable, boolean annotatable)
+			boolean editable, boolean deletable, boolean annotatable, Collection<FolderData> folders)
 		throws ROICreationException
 	{
 		return roiCollection.createROI(id, clientSideObject, editable,
-				deletable, annotatable);
+				deletable, annotatable, folders);
 	}
 
 	/**

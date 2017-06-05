@@ -27,7 +27,7 @@
 
 import Ice
 import pytest
-import library as lib
+from omero.testlib import ITest
 import omero
 
 from omero.model import ExperimenterGroupI
@@ -35,7 +35,7 @@ from omero.rtypes import rint
 from test.integration.helpers import createTestImage
 
 
-class TestThumbnailPerms(lib.ITest):
+class TestThumbnailPerms(ITest):
 
     def testThumbs(self):
 
@@ -161,7 +161,7 @@ class TestThumbnailPerms(lib.ITest):
         group = self.new_group(perms="rw__--")
         owner = self.new_client(group=group, owner=True)  # Owner of group
         member = self.new_client(group=group)  # Member of group
-        privateImage = self.createTestImage(session=member.sf)
+        privateImage = self.create_test_image(session=member.sf)
         pId = privateImage.getPrimaryPixels().getId().getValue()
 
         # using owner session access thumbnailStore
@@ -202,7 +202,7 @@ class TestThumbnailPerms(lib.ITest):
 
         # Create user in group with one image
         owner = self.new_client(group=group)
-        privateImage = self.createTestImage(session=owner.sf)
+        privateImage = self.create_test_image(session=owner.sf)
         pId = privateImage.getPrimaryPixels().getId().getValue()
 
         if preview:
@@ -279,7 +279,7 @@ class TestThumbnailPerms(lib.ITest):
                     assert rnd is None
 
         # creation generates a first rendering image
-        image = self.createTestImage(session=owner.sf)
+        image = self.create_test_image(session=owner.sf)
         pixels = image.getPrimaryPixels().getId().getValue()
 
         owner_prx = owner.sf.createThumbnailStore()
@@ -322,7 +322,7 @@ class TestThumbnailPerms(lib.ITest):
                     assert rnd is None
 
         # creation generates a first rendering image
-        image = self.createTestImage(session=owner.sf)
+        image = self.create_test_image(session=owner.sf)
         pixels = image.getPrimaryPixels().getId().getValue()
 
         owner_prx = owner.sf.createThumbnailStore()
@@ -378,7 +378,7 @@ class TestThumbnailPerms(lib.ITest):
             other = self.new_client(group=group)
 
         # creation generates a first rendering image
-        image = self.createTestImage(session=owner.sf)
+        image = self.create_test_image(session=owner.sf)
         pixels = image.getPrimaryPixels().getId().getValue()
 
         def assert_rdef(sf=None, prx=None):
@@ -481,7 +481,7 @@ class TestThumbnailPerms(lib.ITest):
             other = self.new_client(group=group)
 
         # creation generates a first rendering image
-        image = self.createTestImage(session=owner.sf)
+        image = self.create_test_image(session=owner.sf)
         pixels = image.getPrimaryPixels().getId().getValue()
         # create thumbnail for image owner 16x16
         tb = owner.sf.createThumbnailStore()
@@ -555,7 +555,7 @@ class TestThumbnailPerms(lib.ITest):
             other = self.new_client(group=group)
 
         # creation generates a first rendering image
-        image = self.createTestImage(session=owner.sf)
+        image = self.create_test_image(session=owner.sf)
         pixels = image.getPrimaryPixels().getId().getValue()
         # create thumbnail for image owner 16x16
         tb = owner.sf.createThumbnailStore()
@@ -624,3 +624,36 @@ class TestThumbnailPerms(lib.ITest):
         assert 1 == len(thumbs)
         v_thumb_new = thumbs[0].getVersion().getValue()
         assert v_thumb_new == v_thumb + 1
+
+    def testGetThumbnailSetAfterApplySettings(self):
+        """
+        Tests that you can getThumbnailSet after applying settings.
+
+        See https://github.com/openmicroscopy/openmicroscopy/pull/5207
+        """
+        group = self.new_group(perms="rwra--")
+        client = self.new_client(group=group)
+
+        # Create 2 images in group
+        image1 = self.create_test_image(session=client.sf)
+        image2 = self.create_test_image(session=client.sf)
+
+        pixelsId1 = image1.getPrimaryPixels().id.val
+        pixelsId2 = image2.getPrimaryPixels().id.val
+
+        tb = client.sf.createThumbnailStore()
+        ss = client.sf.getRenderingSettingsService()
+
+        # This works to start with:
+        tb.getThumbnailByLongestSideSet(rint(96), [pixelsId1, pixelsId2],
+                                        {'omero.group': '-1'})
+
+        # After applying settings...
+        ss.applySettingsToSet(pixelsId1, "Image", [image2.id.val])
+
+        # Should still be able to get thumbnail set
+        tb.getThumbnailByLongestSideSet(rint(96), [pixelsId1, pixelsId2],
+                                        {'omero.group': '-1'})
+
+        # Also should work without any group context
+        tb.getThumbnailByLongestSideSet(rint(96), [pixelsId1, pixelsId2])

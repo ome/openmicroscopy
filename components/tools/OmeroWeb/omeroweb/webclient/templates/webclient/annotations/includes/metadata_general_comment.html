@@ -1,0 +1,51 @@
+{% comment %}
+<!--
+  Copyright (C) 2011-2016 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% endcomment %}
+
+    <!-- COMMENTS -->
+    <div id="commentsPane">
+    <h1 class="can-collapse closed" data-name="comments">
+        {{ label|default:"Comments" }}
+        <span class="annotationCount">{{ annotationCounts.CommentAnnotation }}</span>
+    </h1>
+    <div class="annotations_section" style="display: none" data-name='comments'>
+
+            <!-- if canAnnotate single object OR batch (obj_string) isn't blocked... -->
+            {% if manager.canAnnotate or obj_string and not annotationBlocked %}
+            <form id="add_comment_form" action="{% url 'annotate_comment' %}" method="post">{% csrf_token %}
+            <table>
+                <tr>
+                    <td>
+                        <div id="add_comment_wrapper" style="position: relative">
+                            <label class="inline_label" for="id_comment">Add Comment:</label>
+                            <textarea cols="39" id="id_comment" name="comment" rows="2"></textarea>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td><input type="submit" value="Add Comment" style="display:none" /></td>
+                </tr>
+            </table>
+            </form>
+            {% endif %}
+
+            <div id="comments_container" class="lncomments"></div>
+    </div>
+    </div>
+    <div class="clear"></div>

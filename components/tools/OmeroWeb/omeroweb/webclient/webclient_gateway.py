@@ -638,6 +638,25 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             sc.description = rstring(str(description))
         return self.saveAndReturnId(sc)
 
+    def createTag(self, name, description=None):
+        """ Creates new Tag and returns ID """
+
+        tag = omero.model.TagAnnotationI()
+        tag.textValue = rstring(str(name))
+        if description is not None and description != "":
+            tag.description = rstring(str(description))
+        return self.saveAndReturnId(tag)
+
+    def createTagset(self, name, description=None):
+        """ Creates new Tag Set and returns ID """
+
+        tag = omero.model.TagAnnotationI()
+        tag.textValue = rstring(str(name))
+        tag.ns = rstring(omero.constants.metadata.NSINSIGHTTAGSET)
+        if description is not None and description != "":
+            tag.description = rstring(str(description))
+        return self.saveAndReturnId(tag)
+
     def createContainer(self, dtype, name, description=None):
         """ Creates new Project, Dataset or Screen and returns ID """
 
@@ -2145,7 +2164,7 @@ class OmeroWebObjectWrapper (object):
                     ratingAnn.save()
                 else:
                     self._conn.deleteObject(ratingLink._obj)
-                    self._conn.deleteObject(ratingAnn._obj)
+                    # ratingAnn was automatically deleted if orphaned
             # otherwise, unlink and create a new rating
             else:
                 self._conn.deleteObject(ratingLink._obj)
@@ -2421,7 +2440,7 @@ class ImageWrapper (OmeroWebObjectWrapper,
         convert to more appropriate units & value
         """
         if size is None:
-            return (0, "µm")
+            return (None, "µm")
         length = size.getValue()
         unit = size.getUnit()
         if unit == "MICROMETER":

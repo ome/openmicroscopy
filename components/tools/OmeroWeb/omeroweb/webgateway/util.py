@@ -28,13 +28,25 @@ logger = logging.getLogger(__name__)
 
 # helper method
 def getIntOrDefault(request, name, default):
-    try:
-        index = request.GET.get(name, request.POST.get(name, default))
-        if index is not None:
-            index = int(index)
-    except ValueError:
-        index = 0
+    index = request.GET.get(name, request.POST.get(name, default))
+    if index is not None:
+        index = int(index)
     return index
+
+
+def get_longs(request, name):
+    """
+    Retrieves parameters from the request. If the parameters are not present
+    an empty list is returned
+
+    This does not catch exceptions as it makes sense to throw exceptions if
+    the arguments provided do not pass basic type validation
+    """
+    vals = []
+    vals_raw = request.GET.getlist(name)
+    for val_raw in vals_raw:
+        vals.append(long(val_raw))
+    return vals
 
 
 def zip_archived_files(images, temp, zipName, buf=2621440):

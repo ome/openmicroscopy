@@ -14,7 +14,7 @@
 """
 
 import pytest
-from library import ITest
+from omero.testlib import ITest
 
 from omero.model import ImageI, ChannelI, LogicalChannelI, LengthI
 from omero.rtypes import rstring, rtime
@@ -75,7 +75,7 @@ def image_channel_factory(itest, gatewaywrapper):
         gatewaywrapper.loginAsAuthor()
         gw = gatewaywrapper.gateway
         update_service = gw.getUpdateService()
-        pixels = itest.pix(client=gw.c)
+        pixels = itest.create_pixels(client=gw.c)
         for channel in channels:
             pixels.addChannel(channel)
         pixels = update_service.saveAndReturnObject(pixels)

@@ -32,14 +32,14 @@ public class SmartEllipseI extends omero.model.EllipseI implements SmartShape {
 
     public Shape asAwtShape() {
         try {
-            double cx = getCx().getValue();
-            double cy = getCy().getValue();
-            double rx = getRx().getValue();
-            double ry = getRy().getValue();
-            double height = ry * 2;
-            double width = rx * 2;
-            double cornerX = cx - rx;
-            double cornerY = cy - ry;
+            double x = getX().getValue();
+            double y = getY().getValue();
+            double radiusx = getRadiusX().getValue();
+            double radiusy = getRadiusY().getValue();
+            double height = radiusy * 2;
+            double width = radiusx * 2;
+            double cornerX = x - radiusx;
+            double cornerY = y - radiusy;
             Ellipse2D.Double e = new Ellipse2D.Double(cornerX, cornerY, width,
                     height);
             return e;
@@ -59,8 +59,8 @@ public class SmartEllipseI extends omero.model.EllipseI implements SmartShape {
         while (!it.isDone()) {
             it.currentSegment(coords);
             SmartPointI pt = new SmartPointI();
-            pt.setCx(rdouble(coords[0]));
-            pt.setCy(rdouble(coords[1]));
+            pt.setX(rdouble(coords[0]));
+            pt.setY(rdouble(coords[1]));
             points.add(pt);
             it.next();
         }
@@ -70,10 +70,10 @@ public class SmartEllipseI extends omero.model.EllipseI implements SmartShape {
 
     public void randomize(Random random) {
         if (roi == null) {
-            cx = rdouble(random.nextInt(100));
-            cy = rdouble(random.nextInt(100));
-            rx = rdouble(random.nextInt(100));
-            ry = rdouble(random.nextInt(100));
+            x = rdouble(random.nextInt(100));
+            y = rdouble(random.nextInt(100));
+            radiusX = rdouble(random.nextInt(100));
+            radiusY = rdouble(random.nextInt(100));
         } else {
             throw new UnsupportedOperationException(
                     "Roi-based values unsupported");

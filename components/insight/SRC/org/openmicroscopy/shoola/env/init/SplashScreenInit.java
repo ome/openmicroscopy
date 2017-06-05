@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.env.init.SplashScreenInit
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,11 +23,6 @@
 
 package org.openmicroscopy.shoola.env.init;
 
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.LoginConfig;
@@ -36,7 +31,6 @@ import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.ui.SplashScreen;
 import org.openmicroscopy.shoola.env.ui.UIFactory;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 /** 
  * Does some configuration required for the initialization process to run.
@@ -161,19 +155,8 @@ public final class SplashScreenInit
         int index = max;
         UserCredentials uc;
         UserNotifier un = UIFactory.makeUserNotifier(container);
-        String jnlpHost = System.getProperty("jnlp.omero.host");
-        String jnlpPort = System.getProperty("jnlp.omero.port");
-        String jnlpSession = System.getProperty("jnlp.omero.sessionid");
         while (0 < max--) {
-            if (CommonsLangUtils.isNotBlank(jnlpSession)) {
-                uc = new UserCredentials(jnlpSession,
-                        jnlpSession, jnlpHost, UserCredentials.HIGH);
-                try {
-                    uc.setPort(Integer.parseInt(jnlpPort));
-                } catch (Exception e) {}//use the default port.
-            } else {
-                uc = splashScreen.getUserCredentials((max == index-1));
-            }
+            uc = splashScreen.getUserCredentials((max == index-1));
             //needed b/c need to retrieve user's details later.
             reg.bind(LookupNames.USER_CREDENTIALS, uc);
 
@@ -189,7 +172,6 @@ public final class SplashScreenInit
 					if (max != 0) {
 						loginSvc.notifyLoginFailure();
 						splashScreen.onLoginFailure();
-						jnlpSession = null;
 		        	} else if (max == 0) {
 		        		//Exit if we couldn't manage to log in.
 		        		 un.notifyError("Login Failure", 

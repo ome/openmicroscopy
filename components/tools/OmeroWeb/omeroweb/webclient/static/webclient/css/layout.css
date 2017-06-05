@@ -339,7 +339,7 @@
 
     /* Right & Center Panel Headers */
     
-    #center_panel_header, #annotation_tabs_list {
+    #center_panel_header, #annotation_tabs_list, .toolbarBg {
   		background:hsl(215,10%,80%); /* Old browsers */
 		background-image:-moz-linear-gradient(top, rgba(255,255,255,.7) 0%, rgba(255,255,255,0) 100%); /* FF3.6+ */
 		background-image:-webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,.7)), color-stop(100%,rgba(255,255,255,0))); /* Chrome,Safari4+ */
@@ -430,7 +430,7 @@
     }
     
     /* Rating */
-    #rating_annotations {
+    #rating_annotations ul {
         border-color: transparent;
     }
     .rating {
@@ -442,7 +442,7 @@
         border-bottom: solid 1px hsl(210,20%,85%) !important;
     }
     .lnfiles:empty {
-        display: none;
+        opacity: 0.1;
     }
     .myRating img, .addRating img{
         cursor: pointer;
@@ -482,7 +482,7 @@
     
         #right_panel th, #right_panel td {
             padding: 0 5px 5px 0;
-            white-space: nowrap;
+            overflow-wrap: break-word;
         }
     
         #right_panel th, #right_panel td.title{
@@ -980,7 +980,10 @@
 	
 	
 	
-		
+	/* Bulk Annotations */
+	.bulk_annotations_table td {
+		white-space: normal !important;
+	}
 	
 
 	
@@ -1156,7 +1159,15 @@
 		background:url(../image/dropdown_right_arrow.png) center center no-repeat;
 	}
     
-    
+    .annotationCount {
+		opacity: 0.8;
+		background-color: rgba(255, 255, 255, 0.5);
+		border-radius: 2px;
+		display: inline-block;
+		padding: 0 3px;
+		color: hsl(210,10%,50%);
+		margin-left: 10px;
+    }
     
 	
 	
@@ -1409,41 +1420,49 @@
         top: 0; 
         left: 0;
         position: relative;
+        width: 100%;
     }
 
+    #dataIcons .ratingFilter_hidden {
+        display: none;
+    }
 
-            #dataIcons .ui-selecting {  
-                background-color:hsl(0,0%,90%);
-            }
-    
-            #dataIcons .fs-selected {
-                background-color:#cddcfc;
-                border:solid 1px #cddcfc;
-            }
+    #dataIcons .ui-selecting {
+        background-color:hsl(0,0%,90%);
+    }
 
-            #dataIcons .ui-selected { 
-                color: white;
-                background-color:#3875d7;
-                border:solid 1px #3875d7;
-                -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.2); 
-				
-				-webkit-box-shadow: 0 1px 1px rgba(0,0,0,0.2); /* Saf3.0+, Chrome */
-				   -moz-box-shadow: 0 1px 1px rgba(0,0,0,0.2); /* FF3.5+ */
-				        box-shadow: 0 1px 1px rgba(0,0,0,0.2); /* Opera 10.5, IE 9.0 */
-				
-            }
+    #dataIcons .fs-selected {
+        background-color:#cddcfc;
+        border:solid 1px #cddcfc;
+    }
 
-    #thumb_size_slider {
+    #dataIcons .ui-selected {
+        color: white;
+        background-color:#3875d7;
+        border:solid 1px #3875d7;
+        -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.2);
+
+        -webkit-box-shadow: 0 1px 1px rgba(0,0,0,0.2); /* Saf3.0+, Chrome */
+           -moz-box-shadow: 0 1px 1px rgba(0,0,0,0.2); /* FF3.5+ */
+                box-shadow: 0 1px 1px rgba(0,0,0,0.2); /* Opera 10.5, IE 9.0 */
+    }
+
+    .thumb_size_slider {
         border: 1px solid #aaa;
         height: 6px;
-        right: 95px;
-        position: absolute;
-        top: 11px;
+        right: 25px;
+        position: absolute !important;
+        bottom: 8px;
         width: 120px;
+        background: #eee;
     }
-    #thumb_size_slider .ui-slider-handle {
+    .thumb_size_slider .ui-slider-handle {
         background: #727C86;
         border-radius: 3px;
+    }
+    /* disable transition delay on slider handles */
+    .ui-slider-handle.ui-state-default {
+        transition-duration: 0s;
     }
 
     /* Style a <ul> as a Table or Icons, depending on class .tableLayout or .iconLayout */
@@ -1491,6 +1510,9 @@
         display: none;
     }
 
+    .iconLayout {
+        height: 100%;
+    }
     .iconLayout li {
         display: inline-block;
         background-color:hsl(0,0%,95%);
@@ -2158,7 +2180,7 @@ div.paging input.button_pagination {
 #spw table td {
     padding: 1px;
     border: 1px solid #ccc;
-    width: 25px;
+    position: relative;
 }
 #spw table td.well {
     background: #eee;
@@ -2170,7 +2192,87 @@ div.paging input.button_pagination {
 #spw table td.ui-selecting { border: 1px dashed #555; padding: 1px; background-color:#87ABD2;}
 #spw table td.ui-selected { border: 1px dashed #555; padding: 1px; background-color:#87ABD2;}
 
+.wellLabel {
+    display: none;
+    position: absolute;
+    background: #eee;
+    padding: 2px;
+    color: black;
+    top: 0;
+    left: 0;
+    bottom: auto;
+    right: auto;
+}
+.wellLabelOffset .wellLabel {
+    top: auto;
+    left: auto;
+    bottom: 100%;
+    right: 100%;
+}
+.well:hover .wellLabel {
+    display: block;
+}
 
+
+#content_details .fillSpace {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    overflow: auto;
+}
+.wellImages {
+    border-top: solid 1px #bbb;
+}
+.wellImages img {
+    margin: 5px;
+    cursor: pointer;
+}
+#wellImages li {
+    display: inline-block;
+}
+#wellImages ul, #wellImages h1 {
+    margin: 5px;
+}
+#wellImages .ui-selected {
+    background-color: #87ABD2;
+}
+.wellImagesLabel {
+    width: 30px;
+    vertical-align: middle;
+}
+#wellImages td {
+    border-bottom: solid #bbb 1px;
+}
+#well_birds_eye img {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border: solid black 1px;
+    z-index: 0;
+    background: #bbb;
+    cursor: pointer;
+}
+#well_birds_eye .ui-selected {
+    width: 6px;
+    height: 6px;
+    border: solid 3px #87ABD2;
+    z-index: 10;
+}
+#well_birds_eye {
+    height: 200px;
+    width: 200px;
+}
+#well_birds_eye_container {
+    margin: auto;
+    margin-top: 10px;
+    height: 220px;
+    width: 220px;
+    position: relative;
+    border: solid #bbb 1px;
+}
+#wellImagesContainer span {
+	font-size: 12px;
+}
 
 
 /** Annotation Styles **/
@@ -2244,7 +2346,11 @@ width: 250px;
     color:white;
 }
 
-.ui-tooltip h3, .ui-tooltip div { margin: 0; }
+/* tooltip plugin */
+.ui-tooltip h3, .ui-tooltip div {
+	margin: 0;
+	word-wrap: break-word;
+}
 
 
 

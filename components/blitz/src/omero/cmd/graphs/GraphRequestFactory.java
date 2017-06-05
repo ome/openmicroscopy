@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2017 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -26,6 +26,8 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -42,6 +44,7 @@ import ome.services.graphs.GraphPolicy;
 import ome.services.graphs.GraphPolicyRule;
 import ome.system.Roles;
 import omero.cmd.GraphModify2;
+import omero.cmd.GraphQuery;
 import omero.cmd.Request;
 import omero.cmd.SkipHead;
 
@@ -50,7 +53,7 @@ import omero.cmd.SkipHead;
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.1.0
  */
-public class GraphRequestFactory {
+public class GraphRequestFactory implements ApplicationContextAware {
     private static final Logger LOGGER = LoggerFactory.getLogger(GraphRequestFactory.class);
 
     private final ACLVoter aclVoter;
@@ -62,6 +65,8 @@ public class GraphRequestFactory {
     private final ImmutableMap<Class<? extends Request>, GraphPolicy> graphPolicies;
     private final ImmutableSetMultimap<String, String> unnullable;
     private final ImmutableSet<String> defaultExcludeNs;
+
+    private ApplicationContext applicationContext = null;
 
     /**
      * Construct a new graph request factory.
@@ -115,6 +120,11 @@ public class GraphRequestFactory {
         this.defaultExcludeNs = ImmutableSet.copyOf(defaultExcludeNs);
     }
 
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
+
     /**
      * @return the graph path bean used by this instance
      */
@@ -127,7 +137,7 @@ public class GraphRequestFactory {
      * @param requestClass a request class
      * @return the legal target object classes for that type of request
      */
-    public <R extends GraphModify2> Set<Class<? extends IObject>> getLegalTargets(Class<R> requestClass) {
+    public <R extends GraphQuery> Set<Class<? extends IObject>> getLegalTargets(Class<R> requestClass) {
         final Set<Class<? extends IObject>> targetClasses = allTargets.get(requestClass);
         if (targetClasses.isEmpty()) {
             throw new IllegalArgumentException("no legal target classes defined for request class " + requestClass);
@@ -140,7 +150,7 @@ public class GraphRequestFactory {
      * @param requestClass a request class
      * @return a new instance of that class
      */
-    public <R extends GraphModify2> R getRequest(Class<R> requestClass) {
+    public <R extends GraphQuery> R getRequest(Class<R> requestClass) {
         final R request;
         try {
             if (SkipHead.class.isAssignableFrom(requestClass)) {
@@ -154,11 +164,18 @@ public class GraphRequestFactory {
                 } else {
                     graphPolicy = graphPolicy.getCleanInstance();
                 }
-                final Constructor<R> constructor = requestClass.getConstructor(ACLVoter.class, Roles.class, SystemTypes.class,
-                        GraphPathBean.class, Deletion.class, Set.class, GraphPolicy.class, SetMultimap.class);
-                request =
-                        constructor.newInstance(aclVoter, securityRoles, systemTypes, graphPathBean, deletionInstance,
-                                targetClasses, graphPolicy, unnullable);
+                if (GraphModify2.class.isAssignableFrom(requestClass)) {
+                    final Constructor<R> constructor = requestClass.getConstructor(ACLVoter.class, Roles.class, SystemTypes.class,
+                            GraphPathBean.class, Deletion.class, Set.class, GraphPolicy.class, SetMultimap.class,
+                            ApplicationContext.class);
+                    request = constructor.newInstance(aclVoter, securityRoles, systemTypes, graphPathBean, deletionInstance,
+                            targetClasses, graphPolicy, unnullable, applicationContext);
+                } else {
+                    final Constructor<R> constructor = requestClass.getConstructor(ACLVoter.class, Roles.class, SystemTypes.class,
+                            GraphPathBean.class, Set.class, GraphPolicy.class);
+                    request = constructor.newInstance(aclVoter, securityRoles, systemTypes, graphPathBean, targetClasses,
+                            graphPolicy);
+                }
             }
         } catch (IllegalArgumentException | ReflectiveOperationException | SecurityException e) {
             throw new IllegalArgumentException("cannot instantiate " + requestClass, e);

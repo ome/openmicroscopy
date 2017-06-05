@@ -89,7 +89,7 @@ class TestChgrp(CLITest):
 
     def testFileset(self):
         # 2 images sharing a fileset
-        images = self.importMIF(2)
+        images = self.import_fake_file(2)
         img = self.query.get('Image', images[0].id.val)
         filesetId = img.fileset.id.val
         fileset = self.query.get('Fileset', filesetId)
@@ -107,7 +107,7 @@ class TestChgrp(CLITest):
             assert img.details.group.id.val == target_group.id.val
 
     def testFilesetPartialFailing(self):
-        images = self.importMIF(2)  # 2 images sharing a fileset
+        images = self.import_fake_file(2)  # 2 images sharing a fileset
 
         # try to move only one image to the new group
         target_group = self.target_groups['rw----']
@@ -123,7 +123,7 @@ class TestChgrp(CLITest):
             assert img.details.group.id.val == gid
 
     def testFilesetOneImage(self):
-        images = self.importMIF(1)  # One image in a fileset
+        images = self.import_fake_file()  # One image in a fileset
 
         # try to move only one image to the new group
         target_group = self.target_groups['rw----']
@@ -138,7 +138,7 @@ class TestChgrp(CLITest):
             assert img.details.group.id.val == target_group.id.val
 
     def testFilesetAllImagesMoveImages(self):
-        images = self.importMIF(2)  # 2 images sharing a fileset
+        images = self.import_fake_file(2)  # 2 images sharing a fileset
 
         # try to move both the images to the new group
         target_group = self.target_groups['rw----']
@@ -153,7 +153,7 @@ class TestChgrp(CLITest):
             assert img.details.group.id.val == target_group.id.val
 
     def testFilesetAllImagesMoveDataset(self):
-        images = self.importMIF(2)  # 2 images sharing a fileset
+        images = self.import_fake_file(2)  # 2 images sharing a fileset
         dataset_id = self.create_object('Dataset')  # ... in a dataset
 
         # put the images into the dataset
@@ -421,7 +421,8 @@ class TestChgrpRoot(RootCLITest):
         # create a new group which the current root user is not member of
         group = self.new_group()
 
-        # try to move the image to the new group
+        # move the image to the new group
         self.args += ['%s' % group.id.val, '/Image:%s' % new_image.id.val]
-        with pytest.raises(NonZeroReturnCode):
-            self.cli.invoke(self.args, strict=True)
+        self.cli.invoke(self.args, strict=True)
+        img = self.query.get('Image', new_image.id.val, all_grps)
+        assert img.details.group.id.val == group.id.val

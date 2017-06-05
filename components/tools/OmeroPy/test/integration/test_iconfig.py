@@ -26,10 +26,10 @@
 
 import omero
 import pytest
-import library as lib
+from omero.testlib import ITest
 
 
-class TestConfig(lib.ITest):
+class TestConfig(ITest):
 
     EXPECTS = (
         (".*", ("omero.router.insecure",)),
@@ -63,7 +63,7 @@ class TestConfig(lib.ITest):
     def testClientDefaults(self):
         cfg = self.sf.getConfigService()
         defs = cfg.getClientConfigDefaults()
-        assert "omero.client.ui.menu.dropdown.colleagues" in defs
+        assert "omero.client.ui.menu.dropdown.colleagues.label" in defs
 
     def testClientValues(self):
         # Not sure what's in this so just calling

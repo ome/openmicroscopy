@@ -889,6 +889,7 @@ class ElectricPotentialI(_omero_model.ElectricPotential, UnitBase):
         Mul(Rat(Int(1), Int(1000)), Sym("zettav"))  # nopep8
     CONVERSIONS[UnitsElectricPotential.ZETTAVOLT][UnitsElectricPotential.ZEPTOVOLT] = \
         Mul(Pow(10, 42), Sym("zettav"))  # nopep8
+    del val
 
     SYMBOLS = dict()
     SYMBOLS["ATTOVOLT"] = "aV"

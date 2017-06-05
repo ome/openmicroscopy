@@ -62,7 +62,9 @@ public interface Registry {
      * interval     := Seconds between retries
      * client_uuid  := Uuid of the client which should be used
      * </pre>
+     * @deprecated OMERO 5.4 uses group ID instead of group name
      */
+    @Deprecated  // removed in 5.4
     ServiceFactoryPrx getInternalServiceFactory(String user, String group,
             int retries, int interval, String client_uuid) throws Exception;
 
@@ -112,6 +114,7 @@ public interface Registry {
             this.ic = ic;
         }
 
+        @Deprecated  // OMERO 5.4 uses group ID instead of group name
         public ServiceFactoryPrx getInternalServiceFactory(String user,
                 String group, int retries, int interval, String client_uuid)
                 throws Exception {
@@ -121,7 +124,7 @@ public interface Registry {
             Ice.ObjectPrx prx = ic.stringToProxy("IceGrid/Query");
             IceGrid.QueryPrx query = IceGrid.QueryPrxHelper.checkedCast(prx);
 
-            if (client_uuid == null || client_uuid == "") {
+            if (client_uuid == null || client_uuid.isEmpty()) {
                 client_uuid = UUID.randomUUID().toString();
             }
 

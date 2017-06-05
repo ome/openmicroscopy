@@ -21,13 +21,33 @@
 import pytest
 import omero
 import omero.clients
-from omero.rtypes import rlong, rstring
+from omero.rtypes import rlong, rstring, rdouble, unwrap
 from omeroweb.webgateway.marshal import shapeMarshal
+from omeroweb.webgateway.marshal import rgb_int2css
+from omeroweb.webgateway.marshal import rgb_int2rgba
 
 
 @pytest.fixture(scope='module')
 def default_id():
     return TestShapeMarshal.DEFAULT_ID
+
+
+@pytest.fixture(scope='function')
+def basic_line(default_id):
+    shape = omero.model.LineI()
+    shape.id = rlong(default_id)
+    shape.x1 = rdouble(0.0)
+    shape.y1 = rdouble(1.0)
+    shape.x2 = rdouble(2.0)
+    shape.y2 = rdouble(3.0)
+    return shape
+
+
+@pytest.fixture(scope='function')
+def basic_arrow(basic_line):
+    basic_line.markerStart = rstring('Arrow')
+    basic_line.markerEnd = rstring('Arrow')
+    return basic_line
 
 
 @pytest.fixture(scope='function', params=[
@@ -85,6 +105,28 @@ def empty_polygon(default_id):
     return shape
 
 
+@pytest.fixture(scope='function')
+def basic_point(default_id):
+    shape = omero.model.PointI()
+    shape.id = rlong(default_id)
+    shape.x = rdouble(0.0)
+    shape.y = rdouble(.1)
+    return shape
+
+
+@pytest.fixture(scope='function')
+def basic_ellipse(default_id):
+    shape = omero.model.EllipseI()
+    shape.id = rlong(default_id)
+    shape.x = rdouble(0.0)
+    shape.y = rdouble(.1)
+    shape.radiusX = rdouble(1.0)
+    shape.radiusY = rdouble(.5)
+    shape.fillColor = rlong(287454020)     # 0x11223344,r=17,g=34,b=51,a=68
+    shape.strokeColor = rlong(1432778632)  # 0x55667788,r=85,g=102,b=119,a=136
+    return shape
+
+
 class TestShapeMarshal(object):
     """
     Tests to ensure that OME-XML model and OMERO.insight shape point
@@ -93,29 +135,66 @@ class TestShapeMarshal(object):
 
     DEFAULT_ID = 1L
 
-    def assert_polyline(self, marshaled):
-        assert marshaled['type'] == 'PolyLine'
+    def assert_marshal(self, marshaled, type):
+        assert marshaled['type'] == type
         assert marshaled['id'] == self.DEFAULT_ID
 
-    def assert_polygon(self, marshaled):
-        assert marshaled['type'] == 'Polygon'
-        assert marshaled['id'] == self.DEFAULT_ID
+    def test_line_marshal(self, basic_line):
+        marshaled = shapeMarshal(basic_line)
+        self.assert_marshal(marshaled, 'Line')
+        assert marshaled['x1'] == 0
+        assert marshaled['y1'] == 1
+        assert marshaled['x2'] == 2
+        assert marshaled['y2'] == 3
 
-    def test_ployline_marshal(self, basic_polyline):
+    def test_arrow_marshal(self, basic_arrow):
+        marshaled = shapeMarshal(basic_arrow)
+        self.assert_marshal(marshaled, 'Line')
+        assert marshaled['markerStart'] == 'Arrow'
+        assert marshaled['markerEnd'] == 'Arrow'
+
+    def test_polyline_marshal(self, basic_polyline):
         marshaled = shapeMarshal(basic_polyline)
-        self.assert_polyline(marshaled)
+        self.assert_marshal(marshaled, 'PolyLine')
         assert 'M 1 2 L 2 3 L 4 5' == marshaled['points']
 
     def test_polyline_float_marshal(self, float_polyline):
         marshaled = shapeMarshal(float_polyline)
-        self.assert_polyline(marshaled)
+        self.assert_marshal(marshaled, 'PolyLine')
         assert 'M 1.5 2.5 L 2 3 L 4.1 5.1' == marshaled['points']
 
     def test_polygon_marshal(self, basic_polygon):
         marshaled = shapeMarshal(basic_polygon)
-        self.assert_polygon(marshaled)
+        self.assert_marshal(marshaled, 'Polygon')
         assert 'M 1 2 L 2 3 L 4 5 z' == marshaled['points']
 
     def test_unrecognised_roi_shape_points_string(self, empty_polygon):
         marshaled = shapeMarshal(empty_polygon)
         assert ' z' == marshaled['points']
+
+    def test_point_marshal(self, basic_point):
+        marshaled = shapeMarshal(basic_point)
+        self.assert_marshal(marshaled, 'Point')
+        assert 0.0 == marshaled['x']
+        assert 0.1 == marshaled['y']
+
+    def test_ellipse_marshal(self, basic_ellipse):
+        marshaled = shapeMarshal(basic_ellipse)
+        self.assert_marshal(marshaled, 'Ellipse')
+        assert 0.0 == marshaled['x']
+        assert 0.1 == marshaled['y']
+        assert 1.0 == marshaled['radiusX']
+        assert 0.5 == marshaled['radiusY']
+
+    def test_rgba(self, basic_ellipse):
+        color = unwrap(basic_ellipse.getFillColor())
+        result = rgb_int2rgba(color)         # 0x11223344
+        assert result[0] == 17               # r
+        assert result[1] == 34               # g
+        assert result[2] == 51               # b
+        assert result[3] == float(68) / 256  # a (as fraction)
+
+        color = unwrap(basic_ellipse.getStrokeColor())
+        result = rgb_int2css(color)            # 0x55667788
+        assert result[0] == "#556677"          # rgb
+        assert result[1] == float(136) / 256   # a (as fraction)

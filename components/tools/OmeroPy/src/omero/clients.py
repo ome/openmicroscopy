@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 
-   Copyright 2009 - 2014 Glencoe Software, Inc. All rights reserved.
+   Copyright 2009 - 2016 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -187,13 +187,26 @@ class BaseClient(object):
 
         # Strictly necessary for this class to work
         self._optSetProp(id, "Ice.ImplicitContext", "Shared")
-        self._optSetProp(id, "Ice.ACM.Client", "0")
+        if Ice.intVersion() >= 30600:
+            self._optSetProp(id, "Ice.ACM.Client.Timeout",
+                             str(omero.constants.ACMCLIENTTIMEOUT))
+            self._optSetProp(id, "Ice.ACM.Client.Heartbeat",
+                             str(omero.constants.ACMCLIENTHEARTBEAT))
+        else:
+            self._optSetProp(id, "Ice.ACM.Client", "0")
         self._optSetProp(id, "Ice.CacheMessageBuffers", "0")
         self._optSetProp(id, "Ice.RetryIntervals", "-1")
         self._optSetProp(id, "Ice.Default.EndpointSelection", "Ordered")
         self._optSetProp(id, "Ice.Default.PreferSecure", "1")
         self._optSetProp(id, "Ice.Plugin.IceSSL", "IceSSL:createIceSSL")
-        self._optSetProp(id, "IceSSL.Ciphers", "ADH")
+
+        if Ice.intVersion() >= 30600:
+            if sys.platform == "darwin":
+                self._optSetProp(id, "IceSSL.Ciphers", "NONE (DH_anon.*AES)")
+            else:
+                self._optSetProp(id, "IceSSL.Ciphers", "ADH")
+        else:
+            self._optSetProp(id, "IceSSL.Ciphers", "ADH")
         self._optSetProp(id, "IceSSL.VerifyPeer", "0")
         self._optSetProp(id, "IceSSL.Protocols", "tls1")
 
@@ -703,16 +716,20 @@ class BaseClient(object):
         finally:
             self.__lock.release()
 
-    def getManagedRepository(self):
-        repoMap = self.getSession().sharedResources().repositories()
+    def getManagedRepository(self, description=False):
+        repos = self.getSession().sharedResources().repositories()
+        repoMap = zip(repos.proxies, repos.descriptions)
         prx = None
-        for prx in repoMap.proxies:
+        for (prx, desc) in repoMap:
             if not prx:
                 continue
             prx = omero.grid.ManagedRepositoryPrx.checkedCast(prx)
             if prx:
                 break
-        return prx
+        if description:
+            return(prx, desc)
+        else:
+            return prx
 
     def getRouter(self, comm):
         """

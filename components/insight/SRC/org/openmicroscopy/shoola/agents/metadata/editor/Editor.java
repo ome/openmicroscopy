@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -27,7 +27,6 @@ import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.swing.JComponent;
 
@@ -533,7 +532,7 @@ public interface Editor
 	 * 
 	 * @param result The value to set.
 	 */
-	void setFileset(Set<FilesetData> result);
+	void setFileset(Collection<FilesetData> result);
 
 	/** 
 	 * Loads the file set associated to the image.
@@ -563,5 +562,10 @@ public interface Editor
      * @return See above
      */
     public Collection<FileAnnotationData> getSelectedFileAnnotations();
+
+    /**
+     * Reload the ROI count
+     */
+    public void reloadROICount();
     
 }

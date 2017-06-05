@@ -39,6 +39,7 @@ import loci.ome.io.OmeroReader;
  *
  * @author Curtis Rueden ctrueden at wisc.edu
  */
+@Deprecated
 public class OmeroReaderTest {
 
   private static String readLine(BufferedReader in,

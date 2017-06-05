@@ -168,6 +168,9 @@ public class CurrentSessionsRequestI extends CurrentSessionsRequest
         for (Map.Entry<String, Object> entry2 : data.entrySet()) {
             String key2 = entry2.getKey();
             Object obj2 = entry2.getValue();
+            if ("class".equals(key2) || "sessionContext".equals(key2)) {
+                continue;
+            }
             RType wrapped = null;
             try {
                 if (key2.endsWith("Time")) {
@@ -181,8 +184,6 @@ public class CurrentSessionsRequestI extends CurrentSessionsRequest
             }
             parsed.put(key2, wrapped);
         }
-        parsed.remove("sessionContext");
-        parsed.remove("class");
         return parsed;
     }
 

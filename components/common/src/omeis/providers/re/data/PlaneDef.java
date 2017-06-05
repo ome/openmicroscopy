@@ -70,7 +70,7 @@ public class PlaneDef implements Serializable {
     /** The step size. */
     private int stride;
 
-    /** Render shapes (masks) assosiated with this plane? */
+    /** Render shapes (masks) associated with this plane? */
     private boolean renderShapes;
 
     /** List of shape Ids to render. */
@@ -350,7 +350,7 @@ public class PlaneDef implements Serializable {
      * 
      * (u1, t1) = (u2, t2) <=> f(u1, t1) = f(u2, t2)
      * 
-     * as long as 0 <= u1, t1, u2, t2 < 2^15. Because for all pratical purposes
+     * as long as 0 <= u1, t1, u2, t2 < 2^15. Because for all practical purposes
      * we can assume a pixels set contains less than 2^15 timepoints and less
      * than 2^15 sections in each stack, then the above implies in practice:
      * 
@@ -360,7 +360,7 @@ public class PlaneDef implements Serializable {
      * didn't change across invocations of the equals and hashCode methods. So
      * we can basically assume this functions avoids collisions. Even though
      * this is not a requirement for the hashCode contract, avoiding collisions
-     * makes PlaneDef very "hash table friedly" :)
+     * makes PlaneDef very "hash table friendly" :)
      */
 
     /**

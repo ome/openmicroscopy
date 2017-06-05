@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -41,6 +41,7 @@ import omero.gateway.model.DataObject;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.FileData;
+import omero.gateway.model.FolderData;
 import omero.gateway.model.GroupData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.PlateData;
@@ -207,6 +208,10 @@ public class ViewerSorter
      */
     private int compareDataObjects(DataObject o1, DataObject o2)
     {
+        if ((o1 instanceof FolderData) && (o2 instanceof FolderData)) {
+            return ((FolderData) o1).getFolderPathString().compareToIgnoreCase(
+                    ((FolderData) o2).getFolderPathString());
+        }
     	if (o1 instanceof ChannelData) {
     		ChannelData c1 = (ChannelData) o1;
     		ChannelData c2 = (ChannelData) o2;
@@ -255,17 +260,8 @@ public class ViewerSorter
         Object ob1 = o1.getUserObject();
         Object ob2 = o2.getUserObject();
         if ((ob1 instanceof DataObject) && (ob2 instanceof DataObject)) {
-        	return compareDataObjects((DataObject) ob1, (DataObject) ob2);
+            return compareDataObjects((DataObject) ob1, (DataObject) ob2);
         }
-        /*
-        if ((ob1 instanceof DataObject) && (ob2 instanceof File)) {
-        	return compareObjects(o1, o2);
-        } else if ((ob2 instanceof DataObject) && (ob1 instanceof File)) {
-        	return compareObjects(o1, o2);
-        } else if ((ob1 instanceof File) && (ob2 instanceof File)) {
-        	return compareObjects(o1, o2);
-        }
-        */
         return -1;
     }
     

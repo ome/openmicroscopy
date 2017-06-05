@@ -10,10 +10,10 @@
 
 """
 
-import library as lib
+from omero.testlib import ITest
 
 
-class TestSimple(lib.ITest):
+class TestSimple(ITest):
 
     def testCurrentUser(self):
         admin = self.client.sf.getAdminService()
@@ -21,5 +21,6 @@ class TestSimple(lib.ITest):
         assert ec
 
     def testImport(self):
-        image = self.importSingleImage()
+        images = self.import_fake_file()
+        image = images[0]
         assert image.id.val

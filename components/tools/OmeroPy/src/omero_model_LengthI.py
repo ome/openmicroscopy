@@ -2033,6 +2033,7 @@ class LengthI(_omero_model.Length, UnitBase):
         Mul(Rat(Int(1), Int(1000)), Sym("zettam"))  # nopep8
     CONVERSIONS[UnitsLength.ZETTAMETER][UnitsLength.ZEPTOMETER] = \
         Mul(Pow(10, 42), Sym("zettam"))  # nopep8
+    del val
 
     SYMBOLS = dict()
     SYMBOLS["ANGSTROM"] = "Å"

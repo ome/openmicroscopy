@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -58,15 +58,12 @@ import org.openmicroscopy.shoola.agents.metadata.util.FigureDialog;
 import org.openmicroscopy.shoola.agents.util.ui.DowngradeChooser;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptingDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
-import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
-import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptMenuItem;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.Target;
@@ -225,15 +222,7 @@ class EditorControl
 	
 	/** Reference to the figure dialog. */
 	private FigureDialog		figureDialog;
-	
-	/** Launches RAPID. */
-	private void openFLIM()
-	{
-		String url = (String) 
-			MetadataViewerAgent.getRegistry().lookup(LookupNames.RAPID);
-		MetadataViewerAgent.getRegistry().getTaskBar().openURL(url);
-	}
-	
+
 	/** Creates the collection of supported file filters. */
 	private void createFileFilters()
 	{
@@ -619,7 +608,10 @@ class EditorControl
 				view.handleObjectsSelection(type, 
 						(Collection) entry.getValue());
 			}
-		} else if (MetadataViewer.SETTINGS_APPLIED_PROPERTY.equals(name)) {
+		} else if (SelectionWizard.CANCEL_SELECTION_PROPERTY.equals(name)) {
+		    view.setStatus(false);
+		}
+		else if (MetadataViewer.SETTINGS_APPLIED_PROPERTY.equals(name)) {
 			model.loadRenderingControl(RenderingControlLoader.RELOAD);
 			view.onSettingsApplied(true);
 		} else if (MetadataViewer.ACTIVITY_OPTIONS_PROPERTY.equals(name)) {
@@ -705,9 +697,6 @@ class EditorControl
 						break;
 					case ScriptMenuItem.MOVIE_EXPORT_SCRIPT:
 						view.makeMovie(-1, null);
-						break;
-					case ScriptMenuItem.FLIM_SCRIPT:
-						openFLIM();
 				}
 			} else {
 				ScriptObject object = item.getScript();
@@ -741,12 +730,6 @@ class EditorControl
 				break;
 			case RENDERER:
 				model.loadRenderingControl(RenderingControlLoader.LOAD);
-				break;
-			case ANALYSE_FLIM:
-				view.analyse(AnalysisParam.FLIM);
-				break;
-			case ANALYSE_FRAP:
-				view.analyse(AnalysisParam.FRAP);
 				break;
 			case REFRESH:
 				model.refresh();
@@ -871,4 +854,10 @@ class EditorControl
 	 */
 	public void mousePressed(MouseEvent e) {}
 
+	/**
+	 * Reload the ROI count
+	 */
+	public void reloadROICount() {
+	    
+	}
 }

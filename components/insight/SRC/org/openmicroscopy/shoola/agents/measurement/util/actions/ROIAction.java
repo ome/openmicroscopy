@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.measurement.util.roimenu.ROIMenuAction 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -114,6 +114,30 @@ public class ROIAction
 			case TAG:
                 setName("Tag");
                 setToolTip("Tag the selected shapes.");
+                break;
+			case ADD_TO_FOLDER:
+                setName("Add to Folder");
+                setToolTip("Adds the ROIs to specific Folders.");
+                break;
+            case REMOVE_FROM_FOLDER:
+                setName("Remove from Folder");
+                setToolTip("Removes the ROIs from specific Folders.");
+                break;
+            case CREATE_FOLDER:
+                setName("Create Folder");
+                setToolTip("Creates a new Folder.");
+                break;
+            case DELETE_FOLDER:
+                setName("Delete Folder");
+                setToolTip("Deletes the Folder.");
+                break;
+            case EDIT_FOLDER:
+                setName("Edit Folder");
+                setToolTip("Edit Folder.");
+                break;
+            case MOVE_FOLDER:
+                setName("Move Folder");
+                setToolTip("Move Folder to another Folder.");
 		}
 	}
 	
@@ -152,6 +176,24 @@ public class ROIAction
 				break;
 			case TAG:
                 controller.loadTags();
+                break;
+			case ADD_TO_FOLDER:
+                controller.addToFolder();
+                break;
+            case REMOVE_FROM_FOLDER:
+                controller.removeFromFolder();
+                break;
+            case CREATE_FOLDER:
+                controller.createFolder();
+                break;
+            case DELETE_FOLDER:
+                controller.deleteFolder();
+                break;
+            case EDIT_FOLDER:
+                controller.editFolder();
+                break;
+            case MOVE_FOLDER:
+                controller.moveFolder();
 		}
 	}
 }

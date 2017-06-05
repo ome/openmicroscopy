@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2014-2015 Glencoe Software, Inc. All Rights Reserved.
+# Copyright (C) 2014-2016 Glencoe Software, Inc. All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 # This program is free software; you can redistribute it and/or modify
@@ -23,6 +23,7 @@
 fs plugin for querying repositories, filesets, and the like.
 """
 
+import platform
 import sys
 
 from collections import defaultdict
@@ -30,7 +31,9 @@ from collections import namedtuple
 
 from omero import client as Client
 from omero import CmdError
+from omero import ResourceError
 from omero import ServerError
+from omero import ValidationException
 from omero.cli import admin_only
 from omero.cli import CmdControl
 from omero.cli import CLI
@@ -44,8 +47,13 @@ from omero.util.temp_files import create_path
 from omero.util.text import filesizeformat
 from omero.fs import TRANSFERS
 
+from omero.install.windows_warning import windows_warning, WINDOWS_WARNING
 
 HELP = """Filesystem utilities"""
+
+
+if platform.system() == 'Windows':
+    HELP += ("\n\n%s" % WINDOWS_WARNING)
 
 Entry = namedtuple("Entry", ("level", "id", "path", "mimetype"))
 
@@ -129,6 +137,16 @@ def prep_directory(client, mrepo):
     return fs.templatePrefix.val
 
 
+def get_logfile(query, fid):
+    from omero.sys import ParametersI
+    q = ("select o from FilesetJobLink l "
+         "join l.parent as fs join l.child as j "
+         "join j.originalFileLinks l2 join l2.child as o "
+         "where fs.id = :id and "
+         "o.mimetype = 'application/omero-log-file'")
+    return query.findByQuery(q, ParametersI().addId(fid))
+
+
 def rename_fileset(client, mrepo, fileset, new_dir, ctx=None):
     """
     Loads each OriginalFile found under orig_dir and
@@ -189,15 +207,7 @@ def rename_fileset(client, mrepo, fileset, new_dir, ctx=None):
     tosave.insert(1, link)
 
     # And now move the log file as well:
-    from omero.sys import ParametersI
-    q = ("select o from FilesetJobLink l "
-         "join l.parent as fs join l.child as j "
-         "join j.originalFileLinks l2 join l2.child as o "
-         "where fs.id = :id and "
-         "o.mimetype = 'application/omero-log-file'")
-    log = query.findByQuery(
-        q, ParametersI().addId(fileset.id.val))
-
+    log = get_logfile(query, fileset.id.val)
     if log is not None:
         target = new_parpath + new_logname
         source = orig_parpath + orig_logname
@@ -228,6 +238,14 @@ class FsControl(CmdControl):
         images.add_argument(
             "--archived", action="store_true",
             help="list only images with archived data")
+
+        mkdir = parser.add(sub, self.mkdir)
+        mkdir.add_argument(
+            "new_dir",
+            help="directory to create in the repository")
+        mkdir.add_argument(
+            "--parents", action="store_true",
+            help="ensure whole path exists")
 
         rename = parser.add(sub, self.rename)
         rename.add_argument(
@@ -265,6 +283,19 @@ class FsControl(CmdControl):
         ls.add_argument(
             "fileset",
             type=ProxyStringType("Fileset"))
+
+        logfile = parser.add(sub, self.logfile)
+        logfile.add_argument("fileset", type=ProxyStringType("Fileset"))
+        logfile.add_argument(
+            "filename",  nargs="?", default="-",
+            help="Local filename to be saved to. '-' for stdout")
+        logopts = logfile.add_mutually_exclusive_group()
+        logopts.add_argument(
+            "--name", action="store_true",
+            help="return the path of the logfile within the ManagedRepository")
+        logopts.add_argument(
+            "--size", action="store_true",
+            help="return the size of the logfile in bytes")
 
         usage = parser.add(sub, self.usage)
         usage.set_args_unsorted()
@@ -427,6 +458,32 @@ Examples:
         self.ctx.out(str(tb.build()))
 
     @admin_only
+    def mkdir(self, args):
+        """Make a new directory (admin-only)
+
+Creates a new empty directory in the managed repository.
+A new storage volume may then be mounted at that location
+and the import template (omero.fs.repo.path) adjusted to
+target it. Once created, the directory may be deleted from
+the underlying filesystem and replaced with a symbolic link.
+Directories that violate the root-owned prefix components of
+omero.fs.repo.path are all set to be owned by the root user.
+"""
+
+        if len(args.new_dir) < 2:
+            raise ValueError("directory path too short", args.new_dir)
+        if args.new_dir[0] == '/':
+            args.new_dir = args.new_dir[1:]
+        if args.new_dir[-1] != '/':
+            args.new_dir += '/'
+
+        client = self.ctx.conn(args)
+
+        mrepo = client.getManagedRepository()
+        mrepo.makeDir(args.new_dir, args.parents)
+
+    @windows_warning
+    @admin_only
     def rename(self, args):
         """Moves an existing fileset to a new location (admin-only)
 
@@ -435,6 +492,7 @@ it may be useful to rename an existing fileset to match the new
 template. By default the original files and import log are also
 moved.
 """
+
         fid = args.fileset.id.val
         client = self.ctx.conn(args)
         uid = self.ctx.get_event_context().userId
@@ -694,6 +752,36 @@ Examples:
         for ofile in fileset.listFiles():
             print ofile.path + ofile.name
 
+    def logfile(self, args):
+        """Return the logfile associated with a fileset"""
+        client = self.ctx.conn(args)
+        query = client.sf.getQueryService()
+        log = get_logfile(query, args.fileset.id.val)
+        if log is not None:
+            if args.name:
+                self.ctx.out(log.path.val + log.name.val)
+            elif args.size:
+                self.ctx.out(log.size.val)
+            else:
+                target_file = str(args.filename)
+                try:
+                    if target_file == "-":
+                        client.download(log, filehandle=sys.stdout)
+                        sys.stdout.flush()
+                    else:
+                        client.download(log, target_file)
+                except ValidationException, ve:
+                    # This should effectively be handled by None being
+                    # returned from the logfile query above.
+                    self.ctx.die(115, "ValidationException: %s" % ve.message)
+                except ResourceError, re:
+                    # ID exists in DB, but not on FS
+                    self.ctx.die(116, "ResourceError: %s" % re.message)
+        else:
+            self.ctx.die(
+                117,
+                "Log file not accessible for Fileset:%s" % args.fileset.id.val)
+
     @admin_only
     def set_repo(self, args):
         """Change configuration properties for single repositories
@@ -719,8 +807,8 @@ Examples:
         """Shows the disk usage for various objects.
 
 This command shows the total disk usage of various objects including:
-ExperimenterGroup, Experimenter, Project, Dataset, Screen, Plate, Well,
-WellSample, Image, Pixels, Annotation, Job, Fileset, OriginalFile.
+ExperimenterGroup, Experimenter, Project, Dataset, Folder, Screen, Plate,
+Well, WellSample, Image, Pixels, Annotation, Job, Fileset, OriginalFile.
 The total size returned will comprise the disk usage by all related files. Thus
 an image's size would typically include the files uploaded to a fileset,
 import log (Job), thumbnails, and, possibly, associated pixels or original
@@ -743,10 +831,10 @@ Examples:
     # then the size returned would be identical to:
     bin/omero fs usage Project:1,2 --units M
         """
-        from omero.cmd import DiskUsage
+        from omero.cmd import DiskUsage2
 
         client = self.ctx.conn(args)
-        req = DiskUsage()
+        req = DiskUsage2()
         if not args.obj:
             admin = client.sf.getAdminService()
             uid = admin.getEventContext().userId
@@ -759,7 +847,7 @@ Examples:
                 args.obj.append(
                     "ExperimenterGroup:%s" % ",".join(map(str, gids)))
 
-        req.objects, req.classes = self._usage_obj(args.obj)
+        req.targetObjects, req.targetClasses = self._usage_obj(args.obj)
         cb = None
         try:
             rsp, status, cb = self.response(client, req, wait=args.wait)
@@ -783,9 +871,8 @@ Examples:
                 if '*' in parts[1]:
                     classes.add(klass)
                 else:
-                    ids = parts[1].split(",")
-                    ids = map(long, ids)
-                    objects[klass] = ids
+                    ids = [long(id) for id in parts[1].split(",")]
+                    objects.setdefault(klass, []).extend(ids)
             except:
                 raise ValueError("Bad object: ", o)
 

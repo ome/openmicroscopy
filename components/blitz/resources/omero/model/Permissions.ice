@@ -41,7 +41,7 @@ module omero {
        * at runtime. Individual service methods will specify
        * which strings MAY NOT be present in this field for
        * execution to be successful. For example, if an
-       * {@link omero.model.Image} contains a "DOWNLOAD" restriction,
+       * {@link omero.model.Image} contains a ""DOWNLOAD"" restriction,
        * then an attempt to call {@link omero.api.RawFileStore#read}
        * will fail with an {@link omero.SecurityViolation}.
        **/
@@ -98,7 +98,7 @@ module omero {
       bool canAnnotate();
 
       /**
-       * Whether the current user has the "edit" permissions
+       * Whether the current user has the ""edit"" permissions
        * for this object. This includes changing the values
        * of the object.
        *
@@ -108,7 +108,7 @@ module omero {
       bool canEdit();
 
       /**
-       * Whether the current user has the "link" permissions
+       * Whether the current user has the ""link"" permissions
        * for this object. This includes adding it to data graphs.
        *
        * The fact that the user has this object in hand
@@ -117,7 +117,7 @@ module omero {
       bool canLink();
 
       /**
-       * Whether the current user has the "delete" permissions
+       * Whether the current user has the ""delete"" permissions
        * for this object.
        *
        * The fact that the user has this object in hand

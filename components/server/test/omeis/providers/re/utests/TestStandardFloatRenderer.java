@@ -20,7 +20,9 @@
  */
 package omeis.providers.re.utests;
 
+import java.io.File;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 
 import ome.api.IPixels;
@@ -164,7 +166,7 @@ public class TestStandardFloatRenderer extends BaseRenderingTest
             pixelsMetadataService.getAllEnumerations(RenderingModel.class);
         QuantumFactory quantumFactory = createQuantumFactory();
         Renderer renderer = new Renderer(quantumFactory, renderingModels,
-                                pixels, settings, pixelBuffer);
+                                pixels, settings, pixelBuffer, new ArrayList<File>());
         PlaneDef def = new PlaneDef(PlaneDef.XY, 0);
         StopWatch stopWatch = new LoggingStopWatch("testRenderLargeRange");
         renderer.renderAsPackedInt(def, pixelBuffer);

@@ -112,7 +112,7 @@ extends ShapeData
     {
         Point shape = (Point) asIObject();
         if (shape == null) return 0;
-        RDouble value = shape.getCx();
+        RDouble value = shape.getX();
         if (value == null) return 0;
         return value.getValue();
     }
@@ -129,7 +129,7 @@ extends ShapeData
         Point shape = (Point) asIObject();
         if (shape == null) 
             throw new IllegalArgumentException("No shape specified.");
-        shape.setCx(rtypes.rdouble(x));
+        shape.setX(rtypes.rdouble(x));
     }
 
     /**
@@ -141,7 +141,7 @@ extends ShapeData
     {
         Point shape = (Point) asIObject();
         if (shape == null) return 0;
-        RDouble value = shape.getCy();
+        RDouble value = shape.getY();
         if (value == null) return 0;
         return value.getValue();
     }
@@ -158,7 +158,7 @@ extends ShapeData
         Point shape = (Point) asIObject();
         if (shape == null) 
             throw new IllegalArgumentException("No shape specified.");
-        shape.setCy(rtypes.rdouble(y));
+        shape.setY(rtypes.rdouble(y));
     }
 
 }

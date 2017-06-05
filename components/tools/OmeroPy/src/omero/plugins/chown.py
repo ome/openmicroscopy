@@ -36,8 +36,9 @@ Examples:
     omero chown 101 Image:1
     omero chown User:101 Image:2
     omero chown Experimenter:101 Image:3
-    # Transfer three images to the user named jane
-    omero chown jane Image:51,52,53
+    # In both cases transfer five images to the user named jane
+    omero chown jane Image:51,52,53,54,56
+    omero chown jane Image:51-54,56
 
     # Transfer a plate but leave all images with the original owner
     omero chown 201 Plate:1 --exclude Image

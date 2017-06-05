@@ -103,11 +103,11 @@ module omero {
             /**
              * Usage documentation of this param for script users.
              *
-             * Example of a bad description: "a long value"
+             * Example of a bad description: ""a long value""
              *
-             * Example of a good description: "long representing
+             * Example of a good description: ""long representing
              * the number of bins to be used by <some algorithm>. A sensible
-             * value would be between 16 and 32"
+             * value would be between 16 and 32""
              *
              **/
             string description;

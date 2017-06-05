@@ -30,8 +30,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import Ice.OperationMode;
-
 public class ServiceFactoryServiceCreationDestructionTest extends
         MockObjectTestCase {
 
@@ -115,8 +113,7 @@ public class ServiceFactoryServiceCreationDestructionTest extends
     @Test
     public void testDoStatelessAddsServantToServantListCacheAndAdapter()
             throws Exception {
-        IAdminPrxHelper admin = new IAdminPrxHelper();
-        admin.setup(new Ref());
+        IAdminPrxHelper admin = IAdminPrxHelperFactory.create();
 
         callsActiveServices(Collections.singletonList(adminServiceId));
         map.put(adminServiceId, new _IAdminTie());
@@ -144,22 +141,6 @@ public class ServiceFactoryServiceCreationDestructionTest extends
         List<String> ids = sf.activeServices(curr);
         assertTrue(ids.toString(), ids.size() == 1);
         assertTrue(ids.toString(), ids.get(0).endsWith("RenderingEngine"));
-    }
-
-    @Test
-    void testCallingCloseOnSessionClosesAllProxies() throws Exception {
-        testDoStatefulAddsServantToServantListCacheAndAdapter();
-        Mock closeMock = mock(omero.api.RenderingEngine.class);
-        omero.api.RenderingEngine close = (omero.api.RenderingEngine) closeMock
-                .proxy();
-        mockAdapter.expects(once()).method("find").will(returnValue(close));
-        mockAdapter.expects(once()).method("remove").will(returnValue(close));
-        callsActiveServices(Collections.singletonList(reServiceId));
-        Ice.Current curr = new Ice.Current();
-        curr.id = Ice.Util.stringToIdentity("username/sessionuuid");
-        curr.adapter = adapter;
-        curr.mode = OperationMode.Idempotent; // FIXME Due to Ice bug
-        sf.close(curr);
     }
 
     @Test

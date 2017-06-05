@@ -60,13 +60,15 @@ OME.getURLParameter = function(key) {
     return false;
 };
 
-jQuery.fn.hide_if_empty = function() {
-    if ($(this).children().length === 0) {
-        $(this).hide();
-    } else {
-        $(this).show();
-    }
-  return this;
+var linkify = function(input) {
+    var regex = /(https?|ftp|file):\/\/[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]/g;
+    return input.replace(regex, "<a href='$&' target='_blank'>$&</a>");
+};
+OME.linkify_element = function(elements) {
+    elements.each(function() {
+        var $this = $(this);
+        $this.html(linkify($this.html()));
+    });
 };
 
 // called from OME.tree_selection_changed() below
@@ -231,7 +233,7 @@ OME.well_selection_changed = function($selected, well_index, plate_class) {
 
 // handle deleting of Tag, File, Comment
 // on successful delete via AJAX, the parent .domClass is hidden
-OME.removeItem = function(event, domClass, url, parentId, index) {
+OME.removeItem = function(event, domClass, url, parentId) {
     var removeId = $(event.target).attr('id');
     var dType = removeId.split("-")[1]; // E.g. 461-comment
     // /webclient/action/remove/comment/461/?parent=image-257
@@ -245,16 +247,14 @@ OME.removeItem = function(event, domClass, url, parentId, index) {
                 $.ajax({
                     type: "POST",
                     url: url,
-                    data: {'parent':parentId, 'index':index},
+                    data: {'parent':parentId},
                     dataType: 'json',
                     success: function(r){
                         if(eval(r.bad)) {
                             OME.alert_dialog(r.errs);
                         } else {
                             // simply remove the item (parent class div)
-                            //console.log("Success function");
                             $parent.remove();
-                            $annContainer.hide_if_empty();
                         }
                     }
                 });
@@ -283,7 +283,6 @@ OME.deleteItem = function(event, domClass, url) {
                         } else {
                             // simply remove the item (parent class div)
                             $parent.remove();
-                            $annContainer.hide_if_empty();
                             window.parent.OME.refreshActivities();
                         }
                     }
@@ -366,28 +365,35 @@ OME.initToolbarDropdowns = function() {
     });
 };
 
-// Simply add query to thumbnail src to force refresh.
+// Load thumbnail images via JSON
 // By default we do ALL thumbnails, but can also specify ID
 OME.refreshThumbnails = function(options) {
     options = options || {};
-    var rdm = Math.random(),
-        // thumbs_selector = "#dataIcons img",
-        search_selector = ".search_thumb",
-        spw_selector = "#spw img";
-    // handle Dataset thumbs, search rusults and SPW thumbs
+    var search_selector = ".search_thumb",
+        // In SPW, we select spw grid and Well images in bottom panel
+        spw_selector = "#spw .well img, #wellImages li";
+    // handle search results and SPW thumbs
     if (options.imageId) {
-        // thumbs_selector = "#image_icon-" + options.imageId + " img";
         search_selector = "#image-" + options.imageId + " img.search_thumb";
-        spw_selector += "#image-" + options.imageId;
+        spw_selector = "#image-" + options.imageId + ", #wellImages li[data-imageId='" + options.imageId + "']";
     }
+
     // Try SPW data or Search data by directly updating thumb src...
     var $thumbs = $(spw_selector + ", " + search_selector);
     if ($thumbs.length > 0){
-        $thumbs.each(function(){
-            var $this = $(this),
-                base_src = $this.attr('src').split('?')[0];
-            $this.attr('src', base_src + "?_="+rdm);
-        });
+        var iids = $thumbs.map(function() {
+            var imgId = this.id.replace('image-', '');
+            // We might be getting IDs from the plate grid OR #wellImages
+            return imgId || $(this).attr('data-imageId');
+        }).filter(function(i, img_id){
+            // filter out empty wells etc.
+            return img_id.length > 0;
+        }).get();
+        OME.load_thumbnails(
+            options.thumbnail_url,
+            iids, options.thumbnailsBatch,
+            options.defaultThumbnail
+        );
     } else if (window.update_thumbnails_panel) {
         // ...Otherwise update thumbs via jsTree
         // (avoids revert of src on selection change)
@@ -407,6 +413,63 @@ OME.refreshThumbnails = function(options) {
     }
 };
 
+OME.load_thumbnails = function(thumbnails_url, input, batch, dthumb) {
+    // load thumbnails in a batches
+    if (input.length > 0 && batch > 0) {
+        var iids = input.slice(0 , batch)
+        if (iids.length > 0) {
+            $.ajax({
+                type: "GET",
+                url: thumbnails_url,
+                data: $.param( { id: iids }, true),
+                dataType: 'json',
+                success: function(data){
+                    var invalid_thumbs = [];
+                    $.each(data, function(key, value) {
+                        if (value !== null) {
+                            // SPW Plate and WellImages
+                            $("img#image-"+key).attr("src", value);
+                            $("#wellImages li[data-imageId='" + key + "'] img").attr("src", value);
+                            $("#well_birds_eye img[data-imageid='" + key + "']").attr("src", value);
+                            // Search results
+                            $("#image_icon-" + key + " img").attr("src", value);
+                        } else {
+                            invalid_thumbs.push(key);
+                        }
+                    });
+                    // If we got invalid thumbnails as a set and ALL failed, try re-loading 1 at a time
+                    if (invalid_thumbs.length === iids.length && batch > 1) {
+                        OME.load_thumbnails(thumbnails_url, invalid_thumbs, 1, dthumb);
+                    }
+                    // If only some thumbs failed (or single thumb failed), show placeholder
+                    if ((invalid_thumbs.length < iids.length) || (batch === 1 && invalid_thumbs.length === 1)) {
+                        // If batch > 1 then we try loading again, otherwise we failed...
+                        invalid_thumbs.forEach(function(key){
+                            $("img#image-"+key).attr("src", dthumb);
+                            $("#wellImages li[data-imageId='" + key + "'] img").attr("src", dthumb);
+                            $("#image_icon-" + key + " img").attr("src", dthumb);
+                        });
+                    }
+                }
+            });
+            input = input.slice(batch, input.length);
+            OME.load_thumbnails(thumbnails_url, input, batch, dthumb);
+        }
+    }
+}
+OME.load_thumbnail = function(iid, thumbnails_url, callback) {
+    // load thumbnails in a batches
+    $.ajax({
+        type: "GET",
+        url: thumbnails_url,
+        dataType:'json',
+        success: function(data){
+        if (data.length > 0) {
+            callback(data);
+        }
+    }
+    });
+}
 
 OME.truncateNames = (function(){
     var insHtml;
@@ -454,7 +517,7 @@ OME.truncateNames = (function(){
     return truncateNames;
 }());
 
-// Handle deletion of selected objects in jsTree in container_tags.html and containers.html
+// Handle deletion of selected objects in jsTree in containers.html
 OME.handleDelete = function(deleteUrl, filesetCheckUrl, userId) {
     var datatree = $.jstree.reference($('#dataTree'));
     var selected = datatree.get_selected(true);
@@ -492,8 +555,6 @@ OME.handleDelete = function(deleteUrl, filesetCheckUrl, userId) {
     }
     var notOwned = false;
     $.each(selected, function(index, node) {
-        // Add the nodes that are to be deleted
-        ajax_data.push(node.type + '=' + node.data.obj.id);
         // What types are being deleted and how many (for pluralization)
         var dtype = node.type;
         if (dtype in dtypes) {
@@ -501,6 +562,8 @@ OME.handleDelete = function(deleteUrl, filesetCheckUrl, userId) {
         } else {
             dtypes[dtype] = 1;
         }
+        // Add the nodes that are to be deleted
+        ajax_data.push(dtype.replace('tagset', 'tag') + '=' + node.data.obj.id);
         // If the node type is not 'image' then ask about deleting contents
         if (!askDeleteContents && node.type != 'image') {
             askDeleteContents = true;
@@ -550,6 +613,20 @@ OME.handleDelete = function(deleteUrl, filesetCheckUrl, userId) {
                 type: "POST",
                 success: function(r){
 
+                    // If we've deleted Tagset, child Tags should appear as orphans in tree
+                    // Before deleting, copy data from each child, to add back below...
+                    var child_tags = [];
+                    if (dtypes["tagset"]) {
+                        selected.forEach(function(node){
+                            node.children.forEach(function(ch) {
+                                ch = datatree.get_node(ch);
+                                // _get_node_data is provided by the omecut_plugin
+                                var d = datatree._get_node_data(ch);
+                                child_tags.push(d);
+                            });
+                        });
+                    }
+
                     datatree.delete_node(selected);
 
                     // Update the central panel with new selection
@@ -558,11 +635,30 @@ OME.handleDelete = function(deleteUrl, filesetCheckUrl, userId) {
                     if (firstParent.type !== "plate") {
                         datatree.select_node(firstParent);
                     }
-                    $.each(disabledNodes, function(index, node) {
-                        //TODO Make use of server calculated update like chgrp?
-                        updateParentRemoveNode(datatree, node, firstParent);
-                        removeDuplicateNodes(datatree, node);
-                    });
+
+                    // Here we try to handle children of the deleted object.
+                    // In case we deleted a "tagset", child tags should be kept as orphans under experimenter
+                    // (unless they are found under other tag sets).
+                    // For other objects we remove any duplicates of the object
+                    // (E.g if "dataset" is deleted and appears in tree multiple times)
+                    // In both cases we can only work with loaded data - Don't know if 'tag' or 'dataset'
+                    // is under unloaded 'tagset' or 'project'.
+                    // Would need to get this info from server as we do with 'Cut'
+                    if (dtypes["tagset"]) {
+                        // Re-create child tags under experimenter parent
+                        child_tags.forEach(function(d){
+                            var nodeId = d.type + '-' + d.data.obj.id;
+                            if (!datatree.locate_node(nodeId, firstParent)) {
+                                datatree.create_node(firstParent, d);
+                            }
+                        });
+                    } else {
+                        // Remove duplicates of the deleted object
+                        $.each(disabledNodes, function(index, node) {
+                            updateParentRemoveNode(datatree, node, firstParent);
+                            removeDuplicateNodes(datatree, node);
+                        });
+                    }
 
                     // Update the central panel in case delete has removed an icon
                     $.each(selected, function(index, node) {
@@ -809,7 +905,7 @@ OME.getTreeImageContainerBestGuess = function(imageId) {
     var locatedNodes = datatree.locate_node(selectType + '-' + imageId);
 
     if (!locatedNodes) {
-        datatree.deselect_all();
+        // e.g. SPW image trying to get parent. Ignore...
         return;
     }
 
@@ -898,7 +994,10 @@ OME.showScriptList = function(event) {
 
             var html = "<ul class='menulist'>" + build_ul(data) + "</ul>";
 
-            $('#scriptList').append($(html));
+            // In case multiple requests are sent at once, don't duplicate menu
+            if ($("#scriptList li").length === 0) {
+                $('#scriptList').append($(html));
+            }
 
             $('#scriptList ul ul').hide();
             $scriptSpinner.hide();
@@ -908,6 +1007,38 @@ OME.showScriptList = function(event) {
 
 OME.hideScriptList = function() {
     $("#scriptList").hide();
+};
+
+// Helper can be used by 'open with' plugins to add isEnabled()
+// handlers to the OPEN_WITH object.
+OME.setOpenWithEnabledHandler = function(label, fn) {
+    // look for label in OPEN_WITH
+    WEBCLIENT.OPEN_WITH.forEach(function(ow){
+        if (ow.label === label) {
+            ow.isEnabled = function() {
+                // wrap fn with try/catch, since error here will break jsTree menu
+                var args = Array.from(arguments);
+                var enabled = false;
+                try {
+                    enabled = fn.apply(this, args);
+                } catch (e) {
+                    // Give user a clue as to what went wrong
+                    console.log("Open with " + label + ": " + e);
+                }
+                return enabled;
+            }
+        }
+    });
+};
+// Helper can be used by 'open with' plugins to provide
+// a url for the selected objects
+OME.setOpenWithUrlProvider = function(id, fn) {
+    // look for label in OPEN_WITH
+    WEBCLIENT.OPEN_WITH.forEach(function(ow){
+        if (ow.id === id) {
+            ow.getUrl = fn;
+        }
+    });
 };
 
 OME.toggleFileAnnotationCheckboxes = function(event) {
@@ -994,6 +1125,27 @@ OME.applyRenderingSettings = function(rdef_url, selected) {
         350,
         175
     );
+};
+
+// pair of methods used by right panel tab panes
+// to store expanded state between right-panel reloads
+OME.setPaneExpanded = function setPaneExpanded(name, expanded) {
+    var open_panes = $("#metadata_general").data('open_panes') || [];
+    if (expanded && open_panes.indexOf(name) === -1) {
+        open_panes.push(name);
+    }
+    if (!expanded && open_panes.indexOf(name) > -1) {
+        open_panes = open_panes.reduce(function(l, item){
+            if (item !== name) l.push(item);
+            return l;
+        }, []);
+    }
+    $("#metadata_general").data('open_panes', open_panes);
+};
+
+OME.getPaneExpanded = function getPaneExpanded(name) {
+    var open_panes = $("#metadata_general").data('open_panes') || ["details"];
+    return open_panes.indexOf(name) > -1;
 };
 
 jQuery.fn.tooltip_init = function() {

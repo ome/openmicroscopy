@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -19,6 +19,13 @@
  *------------------------------------------------------------------------------
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.browser;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+
+import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailProvider;
 
 import omero.gateway.model.WellSampleData;
 import ome.model.units.BigResult;
@@ -39,13 +46,19 @@ public class WellSampleNode
 {
 
 	/** Reference to the parent of the well. */
-	private WellImageSet	parent;
+    private WellImageSet	parent;
 	
 	/** The index of the sample. */
 	private int 			index;
 	
 	/** The height of the title to add to the location.*/
 	private int				titleHeight;
+	
+    /**
+     * Flag to indicate if this WellSampleNode represents the well (true) or a
+     * field (false)
+     */
+    private boolean well;
 	
 	/**
      * Creates a new leaf node.
@@ -71,8 +84,104 @@ public class WellSampleNode
 		setTitleBarType(ImageNode.NO_BAR);
 		this.index = index;
 		this.parent = parent;
+		this.well = true;
 	}
+	
+    /**
+     * Checks if this {@link WellSampleNode} represents the well
+     * 
+     * @return <code>true</code> if this {@link WellSampleNode} represents the
+     *         well, <code>false</code> if it represents the
+     *         {@link WellSampleData} (i.e. field)
+     */
+    public boolean isWell() {
+        return well;
+    }
 
+    /**
+     * Set if this {@link WellSampleNode} represents the well
+     * 
+     * @param well
+     *            Pass <code>true</code> if this {@link WellSampleNode}
+     *            represents the well, <code>false</code> if it represents the
+     *            {@link WellSampleData} (i.e. field)
+     */
+    public void setWell(boolean well) {
+        this.well = well;
+    }
+
+    /**
+     * Checks if the provided {@link WellSampleNode} references the same thing
+     * (either same well or the same field)
+     * 
+     * @param other
+     *            The {@link WellSampleNode} to check
+     * @return See above.
+     */
+    public boolean isSame(WellSampleNode other) {
+        if (isWell() ^ other.isWell()) {
+            return false;
+        }
+
+        if (isWell()) {
+            WellImageSet d = (WellImageSet) getParentWell();
+            WellImageSet dother = (WellImageSet) other.getParentWell();
+            return d.getRow() == dother.getRow()
+                    && d.getColumn() == dother.getColumn();
+        } else {
+            WellSampleData d = (WellSampleData) getHierarchyObject();
+            WellSampleData dother = (WellSampleData) other.getHierarchyObject();
+            return d.getImage().getId() == dother.getImage().getId();
+        }
+    }
+    
+    /**
+     * Compares two WellSampleNode collections
+     * 
+     * @param sel1
+     *            The collection
+     * @param sel2
+     *            The other collection
+     * @return <code>true<code> if they contain equivalent elements
+     */
+    public static boolean isSame(Collection<WellSampleNode> sel1,
+            Collection<WellSampleNode> sel2) {
+        if (sel1 == null ^ sel2 == null)
+            return false;
+        if (sel1 == null && sel2 == null)
+            return true;
+        if (sel1.size() != sel2.size())
+            return false;
+
+        List<WellSampleNode> tmp = new ArrayList<WellSampleNode>(sel1);
+        Iterator<WellSampleNode> it = tmp.iterator();
+        while (it.hasNext()) {
+            WellSampleNode next = it.next();
+            for (WellSampleNode n2 : sel2) {
+                if (next.isSame(n2)) {
+                    it.remove();
+                    break;
+                }
+            }
+        }
+
+        return tmp.isEmpty();
+    }
+    
+    /**
+     * Creates a copy (including a copy of the thumbnail)
+     * @return See above.
+     */
+    public WellSampleNode copy() {
+        ThumbnailProvider thumbCopy = new ThumbnailProvider(
+                ((WellSampleData) getHierarchyObject()).getImage());
+        thumbCopy.setFullScaleThumb(getThumbnail().getFullScaleThumb());
+        WellSampleNode copy = new WellSampleNode(getTitle(),
+                getHierarchyObject(), thumbCopy, index, parent);
+        copy.setWell(isWell());
+        return copy;
+    }
+    
 	/** 
 	 * Returns the height of the title.
 	 * 

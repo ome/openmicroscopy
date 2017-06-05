@@ -61,7 +61,9 @@ OME.hexToRgb = function hexToRgb(hex) {
 
 // Calculate value, saturation and hue as in org.openmicroscopy.shoola.util.ui.colour.HSV
 OME.isDark = function(color) {
-
+    if (color.endsWith('.lut')) {
+        return false;
+    }
     var c = OME.hexToRgb(color);
 
     var min, max, delta;
@@ -514,11 +516,15 @@ OME.setupAjaxError = function(feedbackUrl){
             error = req.responseText;
             OME.feedback_dialog(error, feedbackUrl);
         } else if (req.status == 400) {
-            // 400 Bad Request. Usually indicates some invalid parameter, e.g. an invalid group id
-            // Usually indicates a problem with the webclient rather than the server as the webclient
-            // requested something invalid
-            error = req.responseText;
-            OME.feedback_dialog(error, feedbackUrl);
+            if (req.responseText.indexOf('Request Line is too large') > -1) {
+                // This should be handled by the caller - e.g. loading of right panel
+            } else {
+                // 400 Bad Request. Usually indicates some invalid parameter, e.g. an invalid group id
+                // Usually indicates a problem with the webclient rather than the server as the webclient
+                // requested something invalid
+                error = req.responseText;
+                OME.feedback_dialog(error, feedbackUrl);
+            }
         }
     });
 };

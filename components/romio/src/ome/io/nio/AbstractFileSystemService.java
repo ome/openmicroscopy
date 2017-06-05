@@ -1,7 +1,5 @@
 /*
- * ome.io.nio.AbstractFileSystemService
- *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2016 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.io.nio;
@@ -49,12 +47,12 @@ public class AbstractFileSystemService {
     }
 
     /**
-     * Makes sure that for a given path, it's subpath exists. For example, given
+     * Makes sure that for a given path, its subpath exists. For example, given
      * the path "/foo/bar/foobar.txt" the method will make sure the directory
      * structure "/foo/bar" exists.
      *
      * @param path
-     *            the path to check for subpath existance.
+     *            the path to check for subpath existence.
      */
     protected void createSubpath(String path) {
         File file = new File(path);
@@ -115,14 +113,13 @@ public class AbstractFileSystemService {
             remaining /= 1000;
 
             if (remaining > 0) {
-                Formatter formatter = new Formatter();
-                dirno = remaining % 1000;
-                suffix = formatter.format("Dir-%03d", dirno).out().toString()
-                        + File.separator + suffix;
+                try (final Formatter formatter = new Formatter()) {
+                    dirno = remaining % 1000;
+                    suffix = formatter.format("Dir-%03d", dirno).out().toString()
+                            + File.separator + suffix;
+                }
             }
         }
-        
-        String path = FilenameUtils.concat(root, prefix + suffix + id);
-        return path;
+        return FilenameUtils.concat(root, prefix + suffix + id);
     }
 }

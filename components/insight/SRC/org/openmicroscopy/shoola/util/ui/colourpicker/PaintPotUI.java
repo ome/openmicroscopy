@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.colourpicker.PaintPotUI
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -23,18 +23,16 @@
 
 package org.openmicroscopy.shoola.util.ui.colourpicker;
 
-//Java imports
 import java.awt.Color;
 import java.awt.Graphics;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.JComponent;
 
+import org.apache.commons.lang.StringUtils;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.PaintPot;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 
 /** 
@@ -59,21 +57,32 @@ class PaintPotUI
 	/** Property indicating that the color has changed. */
 	static final String COLOUR_CHANGED_PROPERTY = "colourChanged"; 
 	
+	/** Bounds property indicating that a new lookup table is selected. */
+    public static final String LUT_PROPERTY = "lut";
+    
 	/** Reference to the control. */
 	private JComponent				control;
 	
 	/**
 	 * Creates the UI and attach the component to the control.
 	 * 
-	 * @param col The color to paint. Mustn't be <code>null</code>.
+	 * @param col The color to paint.
+	 * @param lut The lookup table 
 	 * @param c Reference to the control. Mustn't be <code>null</code>.
 	 */
-	PaintPotUI(Color col, JComponent c)
+	PaintPotUI(Color col, String lut, JComponent c)
 	{
-		super(col);
-        if (c == null) throw new NullPointerException("No control.");
+	    super(col);
+	    
+	    if (c == null)
+	        throw new NullPointerException("No control.");
+		
+        image = StringUtils.isBlank(lut) ? null : LookupTableIconUtil
+                .getLUTIconImage(lut);
+		
 		control = c;
 		control.addPropertyChangeListener(COLOUR_CHANGED_PROPERTY, this);
+		control.addPropertyChangeListener(LUT_PROPERTY, this);
 	}
 	  
     /**
@@ -92,7 +101,14 @@ class PaintPotUI
 	 */
 	public void propertyChange(PropertyChangeEvent event)
 	{
-		colour = (Color) event.getNewValue();
+        if (event.getPropertyName().equals(COLOUR_CHANGED_PROPERTY)) {
+            colour = (Color) event.getNewValue();
+            image = null;
+        } else if (event.getPropertyName().equals(LUT_PROPERTY)) {
+            String lut = (String) event.getNewValue();
+            image = LookupTableIconUtil.getLUTIconImage(lut);
+            colour = UIUtilities.BACKGROUND_COLOR;
+        }
 		invalidate();
 		repaint();
 	}

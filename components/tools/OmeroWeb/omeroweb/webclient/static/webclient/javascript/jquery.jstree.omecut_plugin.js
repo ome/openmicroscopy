@@ -93,13 +93,15 @@
             // Handle this as a separate each for now
             $.each(tmp, function(index, node) {
                 var parent = inst.get_node(inst.get_parent(node));
-                // remove node...
-                inst.delete_node(node);
                 
-
-                // Objects which were already orphaned require no action except to be added to the paste buffer
+                // Objects which were already orphaned (or parent is tag) require no action
+                // except to be added to the paste buffer
                 if (parent.type !== 'experimenter' &&
-                    parent.type !== 'orphaned') {
+                    parent.type !== 'orphaned' &&
+                    parent.type !== 'tag') {
+
+                    // remove node...
+                    inst.delete_node(node);
 
                     // Do the unlinking. Result will tell us whether object is orphaned
                     // If orphaned, move object under 'orphaned' or 'experimenter'
@@ -116,7 +118,9 @@
                                 }
                             }
                         }
-                        if (orphaned) {
+                        // If cut obj is now an orphan (and we're not in the TAG_TREE)...
+                        var wrongTree = (WEBCLIENT.TAG_TREE && (node.type === 'dataset' || node.type === 'image'));
+                        if (orphaned && !wrongTree) {
                             // Get the experimenter that owns this object
                             // This handles the multi-experimenters shown case
                             var ownerExperimenter = inst.locate_node('experimenter-' + activeUserId())[0],
@@ -124,7 +128,7 @@
                             var new_node_data = inst._get_node_data(node);
                             // Newly orphaned objects get moved to the appropriate location
 
-                            if (node.type === 'dataset' || node.type === 'plate') {
+                            if (node.type === 'dataset' || node.type === 'plate' || node.type === 'tag') {
                                 newParent = ownerExperimenter;
                             } else if (node.type === 'image') {
                                 // Get the orphaned directory for this experimenter

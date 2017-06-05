@@ -1,7 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
- *
+ *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -68,18 +67,21 @@ public class DummyTaskPaneUI extends AnnotationTaskPaneUI {
 
     @Override
     List<AnnotationData> getAnnotationsToSave() {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     @Override
     List<Object> getAnnotationsToRemove() {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     @Override
     void onRelatedNodesSet() {
         
     }
-    
-    
+
+    @Override
+    int getUnfilteredAnnotationCount() {
+        return 0;
+    }
 }

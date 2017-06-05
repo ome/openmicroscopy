@@ -276,14 +276,14 @@ class ServerDialog
 		p.setBorder(BorderFactory.createTitledBorder("Connection Speed"));
 		buttonsGroup = new ButtonGroup();
 		JRadioButton button = new JRadioButton();
-		button.setText("LAN");
+		button.setText("High (LAN)");
 		button.setActionCommand(""+HIGH_SPEED);
 		button.addActionListener(this);
 		button.setSelected(index == LoginCredentials.HIGH);
 		buttonsGroup.add(button);
 		p.add(button);
 		button = new JRadioButton();
-		button.setText("High (Broadband)");
+		button.setText("Medium (Broadband)");
 		button.setActionCommand(""+MEDIUM_SPEED);
 		button.setSelected(index == LoginCredentials.MEDIUM);
 		button.addActionListener(this);

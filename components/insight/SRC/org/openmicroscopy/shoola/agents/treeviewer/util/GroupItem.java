@@ -257,8 +257,7 @@ public class GroupItem
             Iterator<DataMenuItem> i;
             List<ExperimenterData> l;
             if (ho instanceof String) {
-                String v = (String) ho;
-                if (DataMenuItem.ALL_USERS_TEXT.equals(v)) {
+                if (DataMenuItem.ALL_USERS_TEXT.equals(item.getRefString())) {
                     selectUsers(true, item.isChecked());
                     i = usersItem.iterator();
                     boolean b = item.isChecked();
@@ -284,8 +283,8 @@ public class GroupItem
                     item = i.next();
                     ho = item.getDataObject();
                     if (ho instanceof String) {
-                        String v = (String) ho;
-                        if (DataMenuItem.ALL_USERS_TEXT.equals(v)) {
+                        if (DataMenuItem.ALL_USERS_TEXT.equals(
+                                item.getRefString())) {
                             item.removePropertyChangeListener(this);
                             item.setChecked(all);
                             item.addPropertyChangeListener(this);

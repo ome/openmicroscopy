@@ -40,7 +40,7 @@ import com.google.common.collect.SetMultimap;
 public class GraphUtilTest {
 
     /**
-     * Test that {@link GraphUtil#trimPackageNames(SetMultimap)} correctly trim package names from map keys.
+     * Test that {@link GraphUtil#trimPackageNames(SetMultimap)} correctly trims package names from map keys.
      */
     public void testTrimPackageNames() {
         final ImmutableSetMultimap.Builder<String, Integer> builderArgument = ImmutableSetMultimap.builder();
@@ -70,17 +70,5 @@ public class GraphUtilTest {
                 new String[] {"/Dataset/Image", "Dataset"},
                 new String[] {"/Plate/PlateAcquisition/Well", "Plate"}
         };
-    }
-
-    /**
-     * Test that {@link GraphUtil#getFirstClassName(String)} correctly extracts the first class name from type paths.
-     * @param argument the type path argument to {@link GraphUtil#getFirstClassName(String)}
-     * @param expected the type path's first class name as expected from {@link GraphUtil#getFirstClassName(String)}
-     */
-    @Test(dataProvider = "type paths")
-    public void testGetFirstClassName(String argument, String expected) {
-        final String actual = GraphUtil.getFirstClassName(argument);
-        Assert.assertEquals(actual, expected,
-                "the first class name should be extracted from the path");
     }
 }

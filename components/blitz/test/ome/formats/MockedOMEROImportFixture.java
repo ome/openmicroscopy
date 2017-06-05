@@ -58,7 +58,7 @@ public class MockedOMEROImportFixture extends OMEROImportFixture {
             String password) throws Exception {
 
         System.setProperty("omero.testing", "true");
-        OmeroContext inner = sf.getContext();
+        OmeroContext inner = OmeroContext.getManagedServerContext();
         OmeroContext outer = new OmeroContext(new String[] {
                 "classpath:ome/services/messaging.xml", // To share events
                 "classpath:ome/formats/fixture.xml",

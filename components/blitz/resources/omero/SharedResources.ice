@@ -83,7 +83,7 @@ module omero {
                 throws ServerError;
 
             /**
-             * Creates a new Format("OMERO.tables") file at the given path
+             * Creates a new Format(""OMERO.tables"") file at the given path
              * on the given repository. The returned Table proxy follows
              * the same semantics as the openTable method.
              */
@@ -97,7 +97,7 @@ module omero {
              * if background modifications take place.
              *
              * The file instance must be managed (i.e. have a non-null id) and
-             * be of the format "OMERO.tables". Use newTable() to create
+             * be of the format ""OMERO.tables"". Use newTable() to create
              * a new instance.
              */
             idempotent

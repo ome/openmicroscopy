@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -408,13 +408,31 @@ class ChannelAcquisitionComponent
 	 */
 	void setChannelColor(Color color)
 	{
-		if (color == null) return;
-		if (icon == null) {
-			icon = new ColourIcon(color);
-			icon.paintLineBorder(true);
-		} else icon.setColour(color);
+        if (color == null)
+            return;
+        if (icon == null) {
+            icon = new ColourIcon(color);
+            icon.paintLineBorder(true);
+        } else
+            icon.setColour(color);
 	}
 	
+	/**
+     * Sets the lookup table associated to that channel.
+     * 
+     * @param color The associated color.
+     */
+    void setLookupTable(String lut) {
+        
+        if (lut == null)
+            return;
+        if (icon == null) {
+            icon = new ColourIcon(lut);
+            icon.paintLineBorder(true);
+        } else
+            icon.setLookupTable(lut);
+    }
+
 	/** 
 	 * Returns the color icon associated to the channel or <code>null</code>.
 	 * 

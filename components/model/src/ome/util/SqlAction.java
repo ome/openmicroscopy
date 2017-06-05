@@ -332,6 +332,7 @@ public interface SqlAction {
 
     long countFormat(String name);
 
+    @Deprecated  // use ome.services.util.EnsureEnum
     int insertFormat(String name);
 
     int closeSessions(String uuid);
@@ -410,7 +411,7 @@ public interface SqlAction {
     void delCurrentEventLog(String key);
 
     /**
-     * Convert the _updated_annotations table to REINDEX entries in the event log.
+     * Convert the _reindexing_required table to REINDEX entries in the event log.
      */
     void refreshEventLogFromUpdatedAnnotations();
 
@@ -432,8 +433,7 @@ public interface SqlAction {
 
     void insertLogs(List<Object[]> batchData);
 
-    List<Map<String, Object>> roiByImageAndNs(final long imageId,
-            final String ns);
+    List<Map<String, Object>> roiByImage(final long imageId);
 
     List<Long> getShapeIds(long roiId);
 

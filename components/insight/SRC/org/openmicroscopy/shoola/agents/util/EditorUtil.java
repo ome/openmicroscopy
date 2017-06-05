@@ -2281,7 +2281,7 @@ public class EditorUtil
             if (t != null)  {
                 notSet.remove(DELTA_T);
                 try {
-                    details.put(DELTA_T, UnitsFactory.convertTime(t, UNITS.S).getValue());
+                    details.put(DELTA_T, UnitsFactory.convertTime(t, UNITS.SECOND).getValue());
                 } catch (BigResult e) {
                     details.put(DELTA_T, e);
                 }
@@ -2290,7 +2290,7 @@ public class EditorUtil
             if (t != null) {
                 notSet.remove(EXPOSURE_TIME);
                 try {
-                    details.put(EXPOSURE_TIME, UnitsFactory.convertTime(t, UNITS.S).getValue());
+                    details.put(EXPOSURE_TIME, UnitsFactory.convertTime(t, UNITS.SECOND).getValue());
                 } catch (BigResult e) {
                     details.put(EXPOSURE_TIME, e);
                 }

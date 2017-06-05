@@ -16,7 +16,7 @@
 module omero {
 
   /**
-   * Simple base "protected" class. Essentially abstract.
+   * Simple base ""protected"" class. Essentially abstract.
    **/
   ["protected"] class RType
   {
@@ -97,7 +97,7 @@ module omero {
   /**
    * Extends RString and simply provides runtime
    * information to the server that this string
-   * is intended as a "protected" class parameter. Used especially
+   * is intended as a ""protected"" class parameter. Used especially
    * by {@link omero.system.ParamMap} (omero/System.ice)
    * 
    * Usage:
@@ -141,10 +141,10 @@ module omero {
   sequence<RTypeSeq> RTypeSeqSeq;
 
   /**
-   * The collection "protected" classes permit the passing of sequences of all
+   * The collection ""protected"" classes permit the passing of sequences of all
    * other RTypes (including other collections) and it is itself nullable. The
    * allows for similar arguments to collections in languages with a unified
-   * inheritance hierarchy (e.g., Java in which all "protected" classes extend
+   * inheritance hierarchy (e.g., Java in which all ""protected"" classes extend
    * from java.lang.Object).
    *
    * Unlike the other rtypes which are used internally within the

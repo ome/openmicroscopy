@@ -31,9 +31,11 @@ import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferInt;
 import java.awt.image.DirectColorModel;
+import java.awt.image.Raster;
 import java.awt.image.SinglePixelPackedSampleModel;
 import java.awt.image.WritableRaster;
 import java.io.ByteArrayInputStream;
+
 import javax.imageio.ImageIO;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -52,7 +54,6 @@ import omero.romio.PlaneDef;
 import omero.romio.RegionDef;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.PixelsData;
-import sun.awt.image.IntegerInterleavedRaster;
 
 /** 
  * Displays the image and controls.
@@ -130,13 +131,12 @@ class ViewerPane
 			int sizeY)
     {
     	if (buf == null) return null;
-    	DataBuffer j2DBuf = new DataBufferInt(buf, sizeX*sizeY); 
-		SinglePixelPackedSampleModel sampleModel =
+    	DataBufferInt db = new DataBufferInt(buf, sizeX*sizeY); 
+		SinglePixelPackedSampleModel sm =
 					new SinglePixelPackedSampleModel(
 						DataBuffer.TYPE_INT, sizeX, sizeY, sizeX, RGB);
-		WritableRaster raster = 
-		new IntegerInterleavedRaster(sampleModel, j2DBuf, 
-					new Point(0, 0));
+		WritableRaster raster = Raster.createWritableRaster(sm, db,
+                new Point(0, 0));
 		
 		ColorModel colorModel = new DirectColorModel(bits, RGB[0],   
 												RGB[1], RGB[2]);

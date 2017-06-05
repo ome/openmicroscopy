@@ -18,24 +18,27 @@ from omero.gateway import BlitzGateway
 from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
 from Parse_OMERO_Properties import projectId
 
+"""
+start-code
+"""
 
 # Create a connection
-# =================================================================
+# ===================
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
 
 
 # Create a new Dataset
-# =================================================================
-datasetObj = omero.model.DatasetI()
-datasetObj.setName(rstring("New Dataset"))
-datasetObj = conn.getUpdateService().saveAndReturnObject(datasetObj)
-datasetId = datasetObj.getId().getValue()
-print "New dataset, Id:", datasetId
+# ====================
+dataset_obj = omero.model.DatasetI()
+dataset_obj.setName(rstring("New Dataset"))
+dataset_obj = conn.getUpdateService().saveAndReturnObject(dataset_obj)
+dataset_id = dataset_obj.getId().getValue()
+print "New dataset, Id:", dataset_id
 
 
 # Link to Project
-# =================================================================
+# ===============
 project = conn.getObject("Project", projectId)
 if project is None:
     import sys
@@ -43,60 +46,70 @@ if project is None:
     sys.exit(1)
 link = omero.model.ProjectDatasetLinkI()
 link.setParent(omero.model.ProjectI(project.getId(), False))
-link.setChild(datasetObj)
+link.setChild(dataset_obj)
 conn.getUpdateService().saveObject(link)
 
 
 # Annotate Project with a new 'tag'
-# =================================================================
-tagAnn = omero.gateway.TagAnnotationWrapper(conn)
-tagAnn.setValue("New Tag")
-tagAnn.save()
+# =================================
+tag_ann = omero.gateway.TagAnnotationWrapper(conn)
+tag_ann.setValue("New Tag")
+tag_ann.save()
 project = conn.getObject("Project", projectId)
-project.linkAnnotation(tagAnn)
+project.linkAnnotation(tag_ann)
 
 
 # Create a 'map' annotation (list of key: value pairs)
-# =================================================================
-keyValueData = [["Drug Name", "Monastrol"],
-                ["Concentration", "5 mg/ml"]]
-mapAnn = omero.gateway.MapAnnotationWrapper(conn)
+# ====================================================
+key_value_data = [["Drug Name", "Monastrol"], ["Concentration", "5 mg/ml"]]
+map_ann = omero.gateway.MapAnnotationWrapper(conn)
 # Use 'client' namespace to allow editing in Insight & web
 namespace = omero.constants.metadata.NSCLIENTMAPANNOTATION
-mapAnn.setNs(namespace)
-mapAnn.setValue(keyValueData)
-mapAnn.save()
+map_ann.setNs(namespace)
+map_ann.setValue(key_value_data)
+map_ann.save()
 project = conn.getObject("Project", projectId)
 # NB: only link a client map annotation to a single object
-project.linkAnnotation(mapAnn)
+project.linkAnnotation(map_ann)
+
+
+# Count the number of annotations on one or many objects
+# ===========================================================
+print conn.countAnnotations('Project', [projectId])
+
+
+# List all annotations on an object. Get text from tags
+# ===========================================================
+for ann in project.listAnnotations():
+    print ann.getId(), ann.OMERO_TYPE,
+    print " added by ", ann.link.getDetails().getOwner().getOmeName()
+    if ann.OMERO_TYPE == omero.model.TagAnnotationI:
+        print "Tag value:", ann.getTextValue()
 
 
 # How to create a file annotation and link to a Dataset
-# =================================================================
-dataset = conn.getObject("Dataset", datasetId)
-
-# Specify a local file. E.g. could be result of some analysis
-fileToUpload = "README.txt"   # This file should already exist
-with open(fileToUpload, 'w') as f:
+# =====================================================
+dataset = conn.getObject("Dataset", dataset_id)
+# Specify a local file e.g. could be result of some analysis
+file_to_upload = "README.txt"   # This file should already exist
+with open(file_to_upload, 'w') as f:
     f.write('annotation test')
-
 # create the original file and file annotation (uploads the file etc.)
 namespace = "imperial.training.demo"
 print "\nCreating an OriginalFile and FileAnnotation"
-fileAnn = conn.createFileAnnfromLocalFile(
-    fileToUpload, mimetype="text/plain", ns=namespace, desc=None)
-print "Attaching FileAnnotation to Dataset: ", "File ID:", fileAnn.getId(), \
-    ",", fileAnn.getFile().getName(), "Size:", fileAnn.getFile().getSize()
-dataset.linkAnnotation(fileAnn)     # link it to dataset.
+file_ann = conn.createFileAnnfromLocalFile(
+    file_to_upload, mimetype="text/plain", ns=namespace, desc=None)
+print "Attaching FileAnnotation to Dataset: ", "File ID:", file_ann.getId(), \
+    ",", file_ann.getFile().getName(), "Size:", file_ann.getFile().getSize()
+dataset.linkAnnotation(file_ann)     # link it to dataset.
+os.remove(file_to_upload)
 
-os.remove(fileToUpload)
 # Download a file annotation linked to a Dataset
-# =================================================================
+# ==============================================
 # make a location to download the file. "download" folder.
 path = os.path.join(os.path.dirname(__file__), "download")
 if not os.path.exists(path):
     os.makedirs(path)
-
 # Go through all the annotations on the Dataset. Download any file annotations
 # we find.
 print "\nAnnotations on Dataset:", dataset.getName()
@@ -104,37 +117,32 @@ for ann in dataset.listAnnotations():
     if isinstance(ann, omero.gateway.FileAnnotationWrapper):
         print "File ID:", ann.getFile().getId(), ann.getFile().getName(), \
             "Size:", ann.getFile().getSize()
-
         file_path = os.path.join(path, ann.getFile().getName())
-
-        f = open(str(file_path), 'w')
-        print "\nDownloading file to", file_path, "..."
-        try:
+        with open(str(file_path), 'w') as f:
+            print "\nDownloading file to", file_path, "..."
             for chunk in ann.getFileInChunks():
                 f.write(chunk)
-        finally:
-            f.close()
-            print "File downloaded!"
+        print "File downloaded!"
 
 
 # Load all the file annotations with a given namespace
-# =================================================================
-nsToInclude = [namespace]
-nsToExclude = []
+# ====================================================
+ns_to_include = [namespace]
+ns_to_exclude = []
 metadataService = conn.getMetadataService()
 annotations = metadataService.loadSpecifiedAnnotations(
-    'omero.model.FileAnnotation', nsToInclude, nsToExclude, None)
+    'omero.model.FileAnnotation', ns_to_include, ns_to_exclude, None)
 for ann in annotations:
-    print ann.getId().getValue(), ann.file.name.val
+    print ann.getId().getValue(), ann.getFile().getName().getValue()
 
 
 # Get first annotation with specified namespace
-# =================================================================
+# =============================================
 ann = dataset.getAnnotation(namespace)
 print "Found Annotation with namespace: ", ann.getNs()
 
 
-# Close connection:
-# =================================================================
+# Close connection
+# ================
 # When you are done, close the session to free up server resources.
-conn._closeSession()
+conn.close()

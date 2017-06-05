@@ -270,7 +270,8 @@
                                                     {% ifequal v.type "Image" %}
                                                         <!-- View Image -->
                                                         <li class="btn_view">
-                                                            <a href="#" onClick="return OME.openPopup('{% url 'webgateway.views.full_viewer' v.id %}');" title="Open Image in Viewer">View Image</a>
+                                                            <a href="#" onClick="return window.open('{% url 'webgateway.views.full_viewer' v.id %}', '_blank');"
+                                                            title="Open Image in Viewer">View Image</a>
                                                         </li>
                                                     {% endifequal %}
 

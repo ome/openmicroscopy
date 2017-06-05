@@ -3,7 +3,7 @@
 #
 #
 # ------------------------------------------------------------------------------
-#  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+#  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
 #
 #
 #   This program is free software; you can redistribute it and/or modify
@@ -51,6 +51,7 @@ from omero.model import PolygonI
 from omero.model import MaskI
 from omero.rtypes import rdouble, rint, rstring
 
+import warnings
 #
 # HELPERS
 #
@@ -64,6 +65,8 @@ def pointsStringToXYlist(string):
     190,491] points2[309,427, 366,503, 190,491]"
     or the new format: "309,427 366,503 190,491"
     """
+    warnings.warn(
+        "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
     pointLists = string.strip().split("points")
     if len(pointLists) < 2:
         if len(pointLists) == 1 and pointLists[0]:
@@ -87,6 +90,8 @@ def xyListToBbox(xyList):
     Returns a bounding box (x,y,w,h) that will contain the shape
     represented by the XY points list
     """
+    warnings.warn(
+        "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
     xList, yList = [], []
     for xy in xyList:
         x, y = xy
@@ -124,6 +129,8 @@ class ShapeSettingsData:
     #
 
     def __init__(self):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         self.WHITE = 16777215
         self.BLACK = 0
         self.GREY = 11184810
@@ -132,10 +139,6 @@ class ShapeSettingsData:
         self.strokeWidth.setValue(1)
         self.strokeWidth.setUnit(UnitsLength.POINT)
         self.strokeDashArray = rstring('')
-        self.strokeDashOffset = rint(0)
-        self.strokeLineCap = rstring('')
-        self.strokeLineJoin = rstring('')
-        self.strokeMiterLimit = rint(0)
         self.fillColour = rint(self.GREY)
         self.fillRule = rstring('')
 
@@ -145,13 +148,11 @@ class ShapeSettingsData:
     #              be applied to
     #
     def setROIShapeSettings(self, shape):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         shape.setStrokeColor(self.strokeColour)
         shape.setStrokeWidth(self.strokeWidth)
         shape.setStrokeDashArray(self.strokeDashArray)
-        shape.setStrokeDashOffset(self.strokeDashOffset)
-        shape.setStrokeLineCap(self.strokeLineCap)
-        shape.setStrokeLineJoin(self.strokeLineJoin)
-        shape.setStrokeMiterLimit(self.strokeMiterLimit)
         shape.setFillColor(self.fillColour)
         shape.setFillRule(self.fillRule)
 
@@ -161,6 +162,8 @@ class ShapeSettingsData:
     # @param width The stroke width.
     #
     def setStrokeSettings(self, colour, width=1):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         self.strokeColour = rint(colour)
         self.strokeWidth = LengthI()
         self.strokeWidth.setValue(width)
@@ -170,6 +173,8 @@ class ShapeSettingsData:
     # Set the Fill Settings for the ShapeSettings.
     # @param colour The fill colour of the shape.
     def setFillSettings(self, colour):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         self.fillColour = rstring(colour)
 
     ##
@@ -177,6 +182,8 @@ class ShapeSettingsData:
     # @return See above.
     #
     def getStrokeSettings(self):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         return (self.strokeColour.getValue(), self.strokeWidth.getValue())
 
     ##
@@ -184,6 +191,8 @@ class ShapeSettingsData:
     # @return See above.
     #
     def getFillSettings(self):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         return (self.fillColour.getValue())
 
     ##
@@ -191,6 +200,8 @@ class ShapeSettingsData:
     # @return see above.
     #
     def getSettings(self):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         return (self.getStrokeSettings(), self.getFillSettings())
 
     ##
@@ -198,13 +209,11 @@ class ShapeSettingsData:
     # @param roi see above.
     #
     def getShapeSettingsFromROI(self, roi):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         self.strokeColour = roi.getStrokeColor()
         self.strokeWidth = roi.getStrokeWidth()
         self.strokeDashArray = roi.getStrokeDashArray()
-        self.strokeDashOffset = roi.getStrokeDashOffset()
-        self.strokeLineCap = roi.getStrokeLineCap()
-        self.strokeLineJoin = roi.getStrokeLineJoin()
-        self.strokeMiterLimit = roi.getStrokeMiterLimit()
         self.fillColour = roi.getFillColor()
         self.fillRule = roi.getFillRule()
 
@@ -221,6 +230,8 @@ class ROICoordinate:
     # @param t The timepoint.
 
     def __init__(self, z=0, t=0):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         self.theZ = rint(z)
         self.theT = rint(t)
 
@@ -229,6 +240,8 @@ class ROICoordinate:
     # @param roi The ROI to set the (z, t) on.
     #
     def setROICoord(self, roi):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         roi.setTheZ(self.theZ)
         roi.setTheT(self.theT)
 
@@ -237,6 +250,8 @@ class ROICoordinate:
     # @param See above.
     #
     def setCoordFromROI(self, roi):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         self.theZ = roi.getTheZ()
         self.theT = roi.getTheT()
 
@@ -249,6 +264,8 @@ class ROICoordinate:
 class ROIDrawingI:
 
     def acceptVisitor(self, visitor):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         abstract()
 
 ##
@@ -263,6 +280,8 @@ class ShapeData:
     #
 
     def __init__(self):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         self.coord = ROICoordinate()
         self.shapeSettings = ShapeSettingsData()
         self.ROI = None
@@ -272,6 +291,8 @@ class ShapeData:
     # @param See above.
     #
     def setCoord(self, coord):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         self.coord = coord
 
     ##
@@ -279,6 +300,8 @@ class ShapeData:
     # @param roi See above.
     #
     def setROICoord(self, roi):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         self.coord.setROICoord(roi)
 
     ##
@@ -286,6 +309,8 @@ class ShapeData:
     # @param roi See above.
     #
     def setROIGeometry(self, roi):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         abstract()
 
     ##
@@ -293,6 +318,8 @@ class ShapeData:
     # @param settings See above.
     #
     def setShapeSettings(self, settings):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         self.shapeSettings = settings
 
     ##
@@ -300,6 +327,8 @@ class ShapeData:
     # @param roi See above.
     #
     def setROIShapeSettings(self, roi):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         self.shapeSettings.setROIShapeSettings(roi)
 
     ##
@@ -307,12 +336,16 @@ class ShapeData:
     # @param visitor See above.
     #
     def acceptVisitor(self, visitor):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         abstract()
 
     ##
     # Create the base type of ROI for this shape.
     #
     def createBaseType(self):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         abstract()
 
     ##
@@ -321,6 +354,8 @@ class ShapeData:
     # @return See above.
     #
     def getROI(self):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         if(self.roi is not None):
             return self.roi
         self.roi = self.createBaseType()
@@ -334,6 +369,8 @@ class ShapeData:
     # @param roi see above.
     #
     def getShapeSettingsFromROI(self, roi):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         self.shapeSettings.getShapeSettingsFromROI(roi)
 
     ##
@@ -341,6 +378,8 @@ class ShapeData:
     # @param roi See above.
     #
     def getCoordFromROI(self, roi):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         self.coord.setCoordFromROI(roi)
 
     ##
@@ -348,6 +387,8 @@ class ShapeData:
     # @param roi See above.
     #
     def getGeometryFromROI(self, roi):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         abstract()
 
     ##
@@ -355,6 +396,8 @@ class ShapeData:
     # @param roi See above.
     #
     def fromROI(self, roi):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         self.roi = roi
         self.getShapeSettingsFromROI(roi)
         self.getCoordFromROI(roi)
@@ -372,52 +415,63 @@ class EllipseData(ShapeData, ROIDrawingI):
     ##
     # Constructor for EllipseData object.
     # @param roicoord The ROICoordinate of the object (default: 0,0)
-    # @param cx The centre x coordinate of the ellipse.
-    # @param cy The centre y coordinate of the ellipse.
-    # @param rx The major axis of the ellipse.
-    # @param ry The minor axis of the ellipse.
+    # @param x The centre x coordinate of the ellipse.
+    # @param y The centre y coordinate of the ellipse.
+    # @param radiusX The major axis of the ellipse.
+    # @param radiusY The minor axis of the ellipse.
 
-    def __init__(self, roicoord=ROICoordinate(), cx=0, cy=0, rx=0, ry=0):
+    def __init__(self, roicoord=ROICoordinate(), x=0, y=0, radiusX=0,
+                 radiusY=0):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         ShapeData.__init__(self)
-        self.cx = rdouble(cx)
-        self.cy = rdouble(cy)
-        self.rx = rdouble(rx)
-        self.ry = rdouble(ry)
+        self.x = rdouble(x)
+        self.y = rdouble(y)
+        self.radiusX = rdouble(radiusX)
+        self.radiusY = rdouble(radiusY)
         self.setCoord(roicoord)
 
     ##
     # overridden, @See ShapeData#setROIGeometry
     #
     def setROIGeometry(self, ellipse):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         ellipse.setTheZ(self.coord.theZ)
-        ellipse.setTheT(self.coord.theZ)
-        ellipse.setCx(self.cx)
-        ellipse.setCy(self.cy)
-        ellipse.setRx(self.rx)
-        ellipse.setRy(self.ry)
+        ellipse.setTheT(self.coord.theT)
+        ellipse.setX(self.x)
+        ellipse.setY(self.y)
+        ellipse.setRadiusX(self.radiusX)
+        ellipse.setRadiusY(self.radiusY)
 
     ##
     # overridden, @See ShapeData#getGeometryFromROI
     #
     def getGeometryFromROI(self, roi):
-        self.cx = roi.getCx()
-        self.cy = roi.getCy()
-        self.rx = roi.getRx()
-        self.ry = roi.getRy()
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
+        self.x = roi.getX()
+        self.y = roi.getY()
+        self.radiusX = roi.getRadiusX()
+        self.radiusY = roi.getRadiusY()
 
     ##
     # overridden, @See ShapeData#createBaseType
     #
     def createBaseType(self):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         return EllipseI()
 
     ##
     # overridden, @See ShapeData#acceptVisitor
     #
     def acceptVisitor(self, visitor):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         visitor.drawEllipse(
-            self.cx.getValue(), self.cy.getValue(), self.rx.getValue(),
-            self.ry.getValue(), self.shapeSettings.getSettings())
+            self.x.getValue(), self.y.getValue(), self.radiusX.getValue(),
+            self.radiusY.getValue(), self.shapeSettings.getSettings())
 
 ##
 # The RectangleData class contains all the manipulation and creation of
@@ -437,6 +491,8 @@ class RectangleData(ShapeData, ROIDrawingI):
     # @param height The height of the shape.
 
     def __init__(self, roicoord=ROICoordinate(), x=0, y=0, width=0, height=0):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         ShapeData.__init__(self)
         self.x = rdouble(x)
         self.y = rdouble(y)
@@ -448,8 +504,10 @@ class RectangleData(ShapeData, ROIDrawingI):
     # overridden, @See ShapeData#setGeometry
     #
     def setGeometry(self, rectangle):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         rectangle.setTheZ(self.coord.theZ)
-        rectangle.setTheT(self.coord.theZ)
+        rectangle.setTheT(self.coord.theT)
         rectangle.setX(self.x)
         rectangle.setY(self.y)
         rectangle.setWidth(self.width)
@@ -459,6 +517,8 @@ class RectangleData(ShapeData, ROIDrawingI):
     # overridden, @See ShapeData#getGeometryFromROI
     #
     def getGeometryFromROI(self, roi):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         self.x = roi.getX()
         self.y = roi.getY()
         self.width = roi.getWidth()
@@ -468,12 +528,16 @@ class RectangleData(ShapeData, ROIDrawingI):
     # overridden, @See ShapeData#createBaseType
     #
     def createBaseType(self):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         return RectangleI()
 
     ##
     # overridden, @See ShapeData#acceptVisitor
     #
     def acceptVisitor(self, visitor):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         visitor.drawRectangle(
             self.x, self.y, self.width, self.height,
             self.shapeSettings.getSettings())
@@ -495,6 +559,8 @@ class LineData(ShapeData, ROIDrawingI):
     # @param y2 The second y coordinate of the shape.
 
     def __init__(self, roicoord=ROICoordinate(), x1=0, y1=0, x2=0, y2=0):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         ShapeData.__init__(self)
         self.x1 = rdouble(x1)
         self.y1 = rdouble(y1)
@@ -506,8 +572,10 @@ class LineData(ShapeData, ROIDrawingI):
     # overridden, @See ShapeData#setGeometry
     #
     def setGeometry(self, line):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         line.setTheZ(self.coord.theZ)
-        line.setTheT(self.coord.theZ)
+        line.setTheT(self.coord.theT)
         line.setX1(self.x1)
         line.setY1(self.y1)
         line.setX2(self.x2)
@@ -517,6 +585,8 @@ class LineData(ShapeData, ROIDrawingI):
     # overridden, @See ShapeData#getGeometryFromROI
     #
     def getGeometryFromROI(self, roi):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         self.x1 = roi.getX1()
         self.y1 = roi.getY1()
         self.x2 = roi.getX2()
@@ -526,12 +596,16 @@ class LineData(ShapeData, ROIDrawingI):
     # overridden, @See ShapeData#createBaseType
     #
     def createBaseType(self):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         return LineI()
 
     ##
     # overridden, @See ShapeData#acceptVisitor
     #
     def acceptVisitor(self, visitor):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         visitor.drawLine(
             self.x1.getValue(), self.y1.getValue(), self.x2.getValue(),
             self.y2.getValue(), self.shapeSettings.getSettings())
@@ -556,6 +630,8 @@ class MaskData(ShapeData, ROIDrawingI):
 
     def __init__(self, roicoord=ROICoordinate(), bytes=None,
                  x=0, y=0, width=0, height=0):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         ShapeData.__init__(self)
         self.x = rdouble(x)
         self.y = rdouble(y)
@@ -568,8 +644,10 @@ class MaskData(ShapeData, ROIDrawingI):
     # overridden, @See ShapeData#setGeometry
     #
     def setGeometry(self, mask):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         mask.setTheZ(self.coord.theZ)
-        mask.setTheT(self.coord.theZ)
+        mask.setTheT(self.coord.theT)
         mask.setX(self.x)
         mask.setY(self.y)
         mask.setWidth(self.width)
@@ -580,6 +658,8 @@ class MaskData(ShapeData, ROIDrawingI):
     # overridden, @See ShapeData#getGeometryFromROI
     #
     def getGeometryFromROI(self, roi):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         self.x = roi.getX()
         self.y = roi.getY()
         self.width = roi.getWidth()
@@ -590,12 +670,16 @@ class MaskData(ShapeData, ROIDrawingI):
     # overridden, @See ShapeData#createBaseType
     #
     def createBaseType(self):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         return MaskI()
 
     ##
     # overridden, @See ShapeData#acceptVisitor
     #
     def acceptVisitor(self, visitor):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         visitor.drawMask(
             self.x.getValue(), self.y.getValue(),
             self.width.getValue(), self.height.getValue(),
@@ -617,6 +701,8 @@ class PointData(ShapeData, ROIDrawingI):
     # @param y The y coordinate of the shape.
 
     def __init__(self, roicoord=ROICoordinate(), x=0, y=0):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         ShapeData.__init__(self)
         self.x = rdouble(x)
         self.y = rdouble(y)
@@ -626,8 +712,10 @@ class PointData(ShapeData, ROIDrawingI):
     # overridden, @See ShapeData#setGeometry
     #
     def setGeometry(self, point):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         point.setTheZ(self.coord.theZ)
-        point.setTheT(self.coord.theZ)
+        point.setTheT(self.coord.theT)
         point.setX(self.x)
         point.setY(self.y)
 
@@ -635,6 +723,8 @@ class PointData(ShapeData, ROIDrawingI):
     # overridden, @See ShapeData#getGeometryFromROI
     #
     def getGeometryFromROI(self, roi):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         self.x = roi.getX()
         self.y = roi.getY()
 
@@ -642,12 +732,16 @@ class PointData(ShapeData, ROIDrawingI):
     # overridden, @See ShapeData#createBaseType
     #
     def createBaseType(self):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         return PointI()
 
     ##
     # overridden, @See ShapeData#acceptVisitor
     #
     def acceptVisitor(self, visitor):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         visitor.drawEllipse(
             self.x.getValue(), self.y.getValue(), 3, 3,
             self.shapeSettings.getSettings())
@@ -668,6 +762,8 @@ class PolygonData(ShapeData, ROIDrawingI):
     #                  as pairs [x1, y1, x2, y2 ..].
 
     def __init__(self, roicoord=ROICoordinate(), pointsList=(0, 0)):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         ShapeData.__init__(self)
         self.points = rstring(self.listToString(pointsList))
         self.setCoord(roicoord)
@@ -676,14 +772,18 @@ class PolygonData(ShapeData, ROIDrawingI):
     # overridden, @See ShapeData#setGeometry
     #
     def setGeometry(self, polygon):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         polygon.setTheZ(self.coord.theZ)
-        polygon.setTheT(self.coord.theZ)
+        polygon.setTheT(self.coord.theT)
         polygon.setPoints(self.points)
 
     ##
     # overridden, @See ShapeData#getGeometryFromROI
     #
     def getGeometryFromROI(self, roi):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         self.points = roi.getPoints()
 
     ##
@@ -691,6 +791,8 @@ class PolygonData(ShapeData, ROIDrawingI):
     # @param pointsList The list of points to convert.
     # @return The pointsList converted to a string.
     def listToString(self, pointsList):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         string = ''
         cnt = 0
         for element in pointsList:
@@ -705,6 +807,8 @@ class PolygonData(ShapeData, ROIDrawingI):
     # @param pointString The string to convert.
     # @return The tuple list converted from a string.
     def stringToTupleList(self, pointString):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         elements = []
         list = pointString.split(',')
         numTokens = len(list)
@@ -717,12 +821,16 @@ class PolygonData(ShapeData, ROIDrawingI):
     # overridden, @See ShapeData#createBaseType
     #
     def createBaseType(self):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         return PolygonI()
 
     ##
     # overridden, @See ShapeData#acceptVisitor
     #
     def acceptVisitor(self, visitor):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         visitor.drawPolygon(self.stringToTupleList(
             self.points.getValue()), self.shapeSettings.getSettings())
 
@@ -742,6 +850,8 @@ class PolylineData(ShapeData, ROIDrawingI):
     #                  as pairs [x1, y1, x2, y2 ..].
 
     def __init__(self, roicoord=ROICoordinate(), pointsList=(0, 0)):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         ShapeData.__init__(self)
         self.points = rstring(self.listToString(pointsList))
         self.setCoord(roicoord)
@@ -750,14 +860,18 @@ class PolylineData(ShapeData, ROIDrawingI):
     # overridden, @See ShapeData#setGeometry
     #
     def setGeometry(self, point):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         point.setTheZ(self.coord.theZ)
-        point.setTheT(self.coord.theZ)
+        point.setTheT(self.coord.theT)
         point.setPoints(self.points)
 
     ##
     # overridden, @See ShapeData#getGeometryFromROI
     #
     def getGeometryFromROI(self, roi):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         self.points = roi.getPoints()
 
     ##
@@ -765,6 +879,8 @@ class PolylineData(ShapeData, ROIDrawingI):
     # @param pointsList The list of points to convert.
     # @return The pointsList converted to a string.
     def listToString(self, pointsList):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         string = ''
         cnt = 0
         for element in pointsList:
@@ -779,6 +895,8 @@ class PolylineData(ShapeData, ROIDrawingI):
     # @param pointString The string to convert.
     # @return The tuple list converted from a string.
     def stringToTupleList(self, pointString):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         elements = []
         list = pointString.split(',')
         numTokens = len(list)
@@ -791,11 +909,15 @@ class PolylineData(ShapeData, ROIDrawingI):
     # overridden, @See ShapeData#createBaseType
     #
     def createBaseType(self):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         return PolylineI()
 
     ##
     # overridden, @See ShapeData#acceptVisitor
     #
     def acceptVisitor(self, visitor):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         visitor.drawPolyline(self.stringToTupleList(
             self.points.getValue()), self.shapeSettings.getSettings())

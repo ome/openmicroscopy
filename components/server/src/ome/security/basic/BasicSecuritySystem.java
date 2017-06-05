@@ -126,7 +126,8 @@ public class BasicSecuritySystem implements SecuritySystem,
         Roles roles = new Roles();
         SecurityFilterHolder holder = new SecurityFilterHolder(
                 cd, new OneGroupSecurityFilter(roles),
-                new AllGroupsSecurityFilter(null, roles));
+                new AllGroupsSecurityFilter(null, roles),
+                new SharingSecurityFilter(roles, null));
         BasicSecuritySystem sec = new BasicSecuritySystem(oi, st, cd, sm,
                 roles, sf, new TokenHolder(), holder, new DefaultPolicyService());
         return sec;

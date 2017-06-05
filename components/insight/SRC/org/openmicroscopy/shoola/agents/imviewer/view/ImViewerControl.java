@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -36,6 +36,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -107,7 +108,9 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.colourpicker.ColourObject;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
+import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPickerUtil;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
@@ -366,6 +369,9 @@ class ImViewerControl
 
 	/** Reference to the movie player. */
 	private MoviePlayerDialog			moviePlayer;
+	
+	/** Reference to the color picker */
+	private ColourPicker colorPicker;
 	
 	/** Helper method to create all the UI actions. */
 	private void createActions()
@@ -732,10 +738,22 @@ class ImViewerControl
 	{
 		colorPickerIndex = index;
 		Color c = model.getChannelColor(index);
-		ColourPicker dialog = new ColourPicker(view, c);
-		dialog.setPreviewVisible(true);
-		dialog.addPropertyChangeListener(this);
-		UIUtilities.setLocationRelativeToAndShow(view, dialog);
+		String lut = model.getLookupTable(index);
+		boolean revInt = model.getReverseIntensity(index);
+        Collection<String> luts = model.getAvailableLookupTables();
+        
+		if(colorPicker == null) {
+            colorPicker = new ColourPicker(view, c, luts, lut, revInt);
+            colorPicker.setPreviewVisible(true);
+            colorPicker.addPropertyChangeListener(this);
+        }
+		else {
+		    colorPicker.reinit(c, null, lut, revInt);
+		}
+		
+        if (!colorPicker.isShowing()) {
+            UIUtilities.setLocationRelativeToAndShow(view, colorPicker);
+        }
 	}
 
 	/** 
@@ -972,19 +990,15 @@ class ImViewerControl
 			ChannelColorMenuItem.CHANNEL_COLOR_PROPERTY.equals(pName)) {
 			if (view.isSourceDisplayed(pce.getSource()))
 				model.showColorPicker(((Integer) pce.getNewValue()).intValue());
-		} else if (ColourPicker.COLOUR_PROPERTY.equals(pName)) {
-			Color c = (Color) pce.getNewValue();
-			if (colorPickerIndex != -1) {
-				model.setChannelColor(colorPickerIndex, c, false);
-			}
-		} else if (ColourPicker.COLOUR_PREVIEW_PROPERTY.equals(pName)) { 
-			Color c = (Color) pce.getNewValue();
-			if (colorPickerIndex != -1) {
-				model.setChannelColor(colorPickerIndex, c, true);
-			}
-		} else if (ColourPicker.CANCEL_PROPERTY.equals(pName)) {
-			model.setChannelColor(colorPickerIndex, null, true);
-		} else if (UnitBarSizeDialog.UNIT_BAR_VALUE_PROPERTY.equals(pName)) {
+		} else if (ColourPicker.ACCEPT_PROPERTY.equals(pName)) {
+            if (colorPickerIndex != -1) {
+
+                ColourObject co = (ColourObject) pce.getNewValue();
+                ColourObject old = (ColourObject) pce.getOldValue();
+                handleColorPicker(false, co.preview, colorPickerIndex, co.color,
+                        old != null ? old.color : null, co.lut, old != null ? old.lut : null, co.revInt);
+            }
+        } else if (UnitBarSizeDialog.UNIT_BAR_VALUE_PROPERTY.equals(pName)) {
 			double v = ((Double) pce.getNewValue()).doubleValue();
 			model.setUnitBarSize(v);
 		} else if (ImViewer.ICONIFIED_PROPERTY.equals(pName)) {
@@ -1045,11 +1059,8 @@ class ImViewerControl
 				if (pixs != null && pixs.getId() == view.getPixelsID())
 					model.discard();
 			}
-		} else if (MetadataViewer.CHANNEL_COLOR_CHANGED_PROPERTY.equals(
-				pName)) {
-			int index = (Integer) pce.getNewValue();
-			model.onChannelColorChanged(index);
-		} else if (MetadataViewer.HANDLE_SCRIPT_PROPERTY.equals(pName)) {
+		}
+		else if (MetadataViewer.HANDLE_SCRIPT_PROPERTY.equals(pName)) {
 			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
 			ScriptActivityParam p = (ScriptActivityParam) pce.getNewValue();
 			int index = p.getIndex();
@@ -1176,5 +1187,31 @@ class ImViewerControl
     void setInterpolation(boolean interpolation) {
         model.setInterpolation(interpolation);
         ImViewerFactory.setInterpolation(interpolation);
+    }
+    
+    /**
+     * Handle color picker settings
+     * @param reset Flag to indicate to reset the preview settings again
+     * @param preview Flag to indicate to preview the settings 
+     * @param index The channel index
+     * @param newColor The new Color
+     * @param oldColor The previous Color
+     * @param newLut The new lookup table
+     * @param oldLut The previous lookup table
+     * @param revInt The reverse intensity flag
+     */
+    private void handleColorPicker(boolean reset, boolean preview, int index,
+            Color newColor, Color oldColor, String newLut, String oldLut, boolean revInt) {
+        if (reset) {
+            model.resetLookupTable(index);
+            model.setChannelColor(index, null, true);
+        } else {
+            if (!ColourPickerUtil.sameLookuptable(newLut, oldLut)) {
+                model.setLookupTable(index, newLut, preview);
+            } if (newColor != null && !ColourPickerUtil.sameColor(newColor, oldColor)) {
+                model.setChannelColor(index, newColor, preview);
+            } 
+            model.setReverseIntensity(index, revInt, preview);
+        }
     }
 }

@@ -1,7 +1,5 @@
 /*
- *   $Id$
- *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2016 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.services.blitz.test.utests;
@@ -36,8 +34,8 @@ import ome.model.containers.ProjectDatasetLink;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.display.CodomainMapContext;
-import ome.model.display.PlaneSlicingContext;
-import ome.model.display.RenderingDef;
+import ome.model.display.ChannelBinding;
+import ome.model.display.ReverseIntensityContext;
 import ome.model.meta.Event;
 import ome.parameters.Parameters;
 import omero.RArray;
@@ -62,6 +60,7 @@ import omero.model.ImageI;
 import omero.model.PlaneSlicingContextI;
 import omero.model.ProjectDatasetLinkI;
 import omero.model.ProjectI;
+import omero.model.ReverseIntensityContextI;
 import omero.sys.ParametersI;
 import omero.util.IceMapper;
 
@@ -147,11 +146,11 @@ public class AdapterTest extends TestCase {
 
         IceMapper mapper = new IceMapper();
 
-        RenderingDef def = new RenderingDef();
-        CodomainMapContext cmc = new PlaneSlicingContext();
-        cmc.setRenderingDef(def);
+        ChannelBinding def = new ChannelBinding();
+        CodomainMapContext cmc = new ReverseIntensityContext();
+        cmc.setChannelBinding(def);
 
-        PlaneSlicingContextI cmc_remote = (PlaneSlicingContextI) mapper
+        ReverseIntensityContextI cmc_remote = (ReverseIntensityContextI) mapper
                 .map(cmc);
         CodomainMapContext cmc_test = (CodomainMapContext) mapper
                 .reverse(cmc_remote);

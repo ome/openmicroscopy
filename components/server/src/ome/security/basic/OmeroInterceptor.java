@@ -28,6 +28,8 @@ import org.hibernate.type.ComponentType;
 import org.hibernate.type.Type;
 import org.springframework.util.Assert;
 
+import com.google.common.base.Splitter;
+
 import ome.conditions.ApiUsageException;
 import ome.conditions.GroupSecurityViolation;
 import ome.conditions.InternalException;
@@ -40,6 +42,7 @@ import ome.model.IAnnotationLink;
 import ome.model.IMutable;
 import ome.model.IObject;
 import ome.model.core.Image;
+import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.display.RenderingDef;
 import ome.model.display.Thumbnail;
@@ -59,6 +62,7 @@ import ome.system.EventContext;
 import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.HibernateUtils;
+import ome.tools.lsid.LsidUtils;
 
 /**
  * implements {@link org.hibernate.Interceptor} for controlling various aspects
@@ -80,6 +84,10 @@ public class OmeroInterceptor implements Interceptor {
     static volatile int count = 1;
 
     private static Logger log = LoggerFactory.getLogger(OmeroInterceptor.class);
+
+    /* array indices for OriginalFile "path" and "name" properties */
+    private static final String IDX_FILE_PATH = LsidUtils.parseField(OriginalFile.PATH);
+    private static final String IDX_FILE_NAME = LsidUtils.parseField(OriginalFile.NAME);
 
     private final Interceptor EMPTY = EmptyInterceptor.INSTANCE;
 
@@ -165,6 +173,22 @@ public class OmeroInterceptor implements Interceptor {
     }
 
     /**
+     * Do not allow <q>.</q> and <q>..</q> components in file paths.
+     * @param filepath a file path
+     * @return if the file path contains any prohibited components
+     */
+    private static boolean isProblemFilepath(String filepath) {
+        for (final String component : Splitter.on('/').split(filepath)) {
+            switch (component) {
+            case ".":
+            case "..":
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * calls back to
      * {@link BasicSecuritySystem#checkManagedDetails(IObject, Details)} for
      * properly setting {@link IObject#getDetails() Details}.
@@ -180,6 +204,18 @@ public class OmeroInterceptor implements Interceptor {
             int idx = HibernateUtils.detailsIndex(propertyNames);
 
             Details newDetails = evaluateLinkages(iobj);
+
+            if (previousState != null && iobj instanceof OriginalFile && !currentUser.current().isCurrentUserAdmin()) {
+                final int pathIndex = HibernateUtils.index(IDX_FILE_PATH, propertyNames);
+                final int nameIndex = HibernateUtils.index(IDX_FILE_NAME, propertyNames);
+                final String currentPath = (String) currentState[pathIndex];
+                final String currentName = (String) currentState[nameIndex];
+                if (currentPath != null && currentName != null &&
+                        !(currentPath.equals(previousState[pathIndex]) && currentName.equals(previousState[nameIndex])) &&
+                        isProblemFilepath(currentPath + currentName)) {
+                    throw new SecurityViolation("only administrators may introduce non-canonical OriginalFile path or name");
+                }
+            }
 
             altered |= resetDetails(iobj, currentState, previousState, idx,
                     newDetails);
@@ -708,7 +744,7 @@ public class OmeroInterceptor implements Interceptor {
         }
 
         // EXTERNALINFO
-        // useres _are_ allowed to set the external info on a new object.
+        // users _are_ allowed to set the external info on a new object.
         // subsequent operations, however, will not be able to edit this
         // value.
         newDetails.setExternalInfo(source.getExternalInfo());
@@ -818,10 +854,9 @@ public class OmeroInterceptor implements Interceptor {
             // the object doesn't have owner/group
             final boolean sysType = sysTypes.isSystemType(iobj.getClass());
 
-            // isGlobal implies nothing (currently) about external info
-            // see mapping.vm for more.
-            altered |= managedExternalInfo(privileged, iobj,
-                    previousDetails, currentDetails, newDetails);
+            // As of 5.2, we are no longer being restrictive about external
+            // info. It is now a user-concern and can be changed like other
+            // fields.
 
             // implies that owner doesn't matter
             if (!sysType) {
@@ -858,7 +893,8 @@ public class OmeroInterceptor implements Interceptor {
 
     /**
      * responsible for guaranteeing that external info is not modified by any
-     * users, including root.
+     * users, including root. This does not apply to the "client concern" fields
+     * which can be modified after the fact.
      *
      * @param privileged if the user is privileged
      * @param obj the model object
@@ -871,6 +907,7 @@ public class OmeroInterceptor implements Interceptor {
      *            {@link Permissions}
      * @return true if the {@link Permissions} of newDetails are changed.
      */
+    @Deprecated
     protected boolean managedExternalInfo(boolean privileged,
             IObject obj, Details previousDetails, Details currentDetails,
             Details newDetails) {
@@ -884,9 +921,10 @@ public class OmeroInterceptor implements Interceptor {
                 .getExternalInfo();
 
         if (previous == null) {
-            // do we allow a change?
-            newDetails.setExternalInfo(current);
-            altered |= newDetails.getExternalInfo() != current;
+            if (current != null) {
+              newDetails.setExternalInfo(current);
+              altered = true;
+            }
         }
 
         // The ExternalInfo was previously set. We do not allow it to be

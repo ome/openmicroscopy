@@ -16,7 +16,7 @@ arguments, sys.argv, and finally from standard-in using the
 cmd.Cmd.cmdloop method.
 
 Josh Moore, josh at glencoesoftware.com
-Copyright (c) 2007-2015, Glencoe Software, Inc.
+Copyright (c) 2007-2016, Glencoe Software, Inc.
 See LICENSE for details.
 
 """
@@ -36,6 +36,7 @@ import shlex
 import errno
 from threading import Lock
 from path import path
+from contextlib import contextmanager
 
 from omero_ext.argparse import ArgumentError
 from omero_ext.argparse import ArgumentTypeError
@@ -50,6 +51,7 @@ from omero_ext.argparse import SUPPRESS
 from omero.util.concurrency import get_event
 
 import omero
+import warnings
 
 #
 # Static setup
@@ -404,6 +406,23 @@ ENV_HELP = """Environment variables:
                     Default: $OMERO_USERDIR/tmp
 """
 
+SUDO_HELP = """
+The --sudo option is available to all
+commands accepting connection arguments.
+
+Below are a few examples showing how to use the sudo option
+
+Examples (admin or group owner only):
+
+    # Import data for user *username*
+    bin/omero import --sudo root -s servername -u username image.tiff
+    # Create a connection as another user
+    bin/omero login --sudo root -s servername -u username -g groupname
+    Password for root:
+    bin/omero login --sudo owner -s servername -u username -g groupname
+    Password for owner:
+"""
+
 
 class Context:
     """Simple context used for default logic. The CLI registry which registers
@@ -429,7 +448,7 @@ class Context:
         self.isquiet = False
         # This usage will go away and default will be False
         self.isdebug = DEBUG
-        self.topics = {"debug": DEBUG_HELP, "env": ENV_HELP}
+        self.topics = {"debug": DEBUG_HELP, "env": ENV_HELP, "sudo": SUDO_HELP}
         self.parser = Parser(prog=prog, description=OMERODOC)
         self.subparsers = self.parser_init(self.parser)
 
@@ -802,6 +821,12 @@ class BaseControl(object):
             break
         return root_pass
 
+    def _add_wait(self, parser, default=-1):
+        parser.add_argument(
+            "--wait", type=long,
+            help="Number of seconds to wait for the processing to complete "
+            "(Indefinite < 0; No wait=0).", default=default)
+
     def get_subcommands(self):
         """Return a list of subcommands"""
         parser = Parser()
@@ -890,6 +915,21 @@ class BaseControl(object):
             self.ctx.die(code, msg)
         else:
             self.ctx.err(msg)
+
+    def _order_and_range_ids(self, ids):
+        from itertools import groupby
+        from operator import itemgetter
+        out = ""
+        ids = sorted(ids)
+        for k, g in groupby(enumerate(ids), lambda (i, x): i-x):
+            g = map(str, map(itemgetter(1), g))
+            out += g[0]
+            if len(g) > 2:
+                out += "-" + g[-1]
+            elif len(g) == 2:
+                out += "," + g[1]
+            out += ","
+        return out.rstrip(",")
 
 
 class CLI(cmd.Cmd, Context):
@@ -1388,6 +1428,35 @@ class CLI(cmd.Cmd, Context):
     ###########################################################
 
 
+@contextmanager
+def cli_login(*args, **kwargs):
+    """
+    args will be appended to ["-q", "login"] and then
+    passed to onecmd
+
+    kwargs:
+      - keep_alive
+    """
+
+    keep_alive = kwargs.get("keep_alive", 300)
+    try:
+        cli = omero.cli.CLI()
+        cli.loadplugins()
+        login = ["-q", "login"]
+        login.extend(list(args))
+        cli.onecmd(login)
+        if keep_alive is not None:
+            client = cli.get_client()
+            if client is not None:
+                keep_alive = int(keep_alive)
+                client.enableKeepAlive(keep_alive)
+            else:
+                raise Exception("Failed to login")
+        yield cli
+    finally:
+        cli.close()
+
+
 def argv(args=sys.argv):
     """
     Main entry point for the OMERO command-line interface. First
@@ -1517,7 +1586,17 @@ class GraphArg(object):
             assert '+' not in parts[0]
             parts[0] = parts[0].lstrip("/")
             graph = parts[0].split("/")
-            ids = [long(id) for id in parts[1].split(",")]
+            ids = []
+            needsForce = False
+            for id in parts[1].split(","):
+                if "-" in id:
+                    needsForce = True
+                    low, high = map(long, id.split("-"))
+                    if high < low:
+                        raise ValueError("Bad range: %s", arg)
+                    ids.extend(range(low, high+1))
+                else:
+                    ids.append(long(id))
             targetObjects[graph[0]] = ids
             cmd.targetObjects = targetObjects
             if len(graph) > 1:
@@ -1526,7 +1605,7 @@ class GraphArg(object):
                 skiphead.targetObjects = targetObjects
                 skiphead.startFrom = [graph[-1]]
                 cmd = skiphead
-            return cmd
+            return cmd, needsForce
         except:
             raise ValueError("Bad object: %s", arg)
 
@@ -1545,10 +1624,7 @@ class CmdControl(BaseControl):
 
     def _configure(self, parser):
         parser.set_defaults(func=self.main_method)
-        parser.add_argument(
-            "--wait", type=long,
-            help="Number of seconds to wait for the processing to complete "
-            "(Indefinite < 0; No wait=0).", default=-1)
+        self._add_wait(parser, default=-1)
 
     def main_method(self, args):
         client = self.ctx.conn(args)
@@ -1595,6 +1671,8 @@ class CmdControl(BaseControl):
         if err:
             self.ctx.err(err)
         else:
+            if hasattr(req, 'dryRun') and req.dryRun:
+                self.ctx.out("Dry run performed")
             self.ctx.out("ok")
 
         if detailed:
@@ -1661,10 +1739,7 @@ class GraphControl(CmdControl):
 
     def _configure(self, parser):
         parser.set_defaults(func=self.main_method)
-        parser.add_argument(
-            "--wait", type=long,
-            help="Number of seconds to wait for the processing to complete "
-            "(Indefinite < 0; No wait=0).", default=-1)
+        self._add_wait(parser, default=-1)
         parser.add_argument(
             "--include",
             help="Modifies the given option by including a list of objects")
@@ -1687,6 +1762,9 @@ class GraphControl(CmdControl):
             "--dry-run", action="store_true",
             help=("Do a dry run of the command, providing a "
                   "report of what would have been done"))
+        parser.add_argument(
+            "--force", action="store_true",
+            help=("Force an action that otherwise defaults to a dry run"))
         self._pre_objects(parser)
         parser.add_argument(
             "obj", nargs="*", type=GraphArg(self.cmd_type()),
@@ -1747,9 +1825,18 @@ class GraphControl(CmdControl):
             if exc:
                 opt.excludeType = exc
 
-        commands = args.obj
+        commands, forces = zip(*args.obj)
+        show = not (args.force or args.dry_run)
+        needsForce = any(forces)
+        if needsForce and show:
+            warnings.warn("\nUsing '--dry-run'.\
+                          Future versions will switch to '--force'.\
+                          Explicitly set the parameter for portability",
+                          DeprecationWarning)
         for req in commands:
-            req.dryRun = args.dry_run
+            req.dryRun = args.dry_run or needsForce
+            if args.force:
+                req.dryRun = False
             if inc or exc:
                 req.childOptions = [opt]
             if isinstance(req, omero.cmd.SkipHead):
@@ -1763,7 +1850,7 @@ class GraphControl(CmdControl):
             self._check_command(command_check)
 
         if len(commands) == 1:
-            cmd = args.obj[0]
+            cmd = commands[0]
         else:
             cmd = omero.cmd.DoAll(commands)
 
@@ -1819,10 +1906,7 @@ class GraphControl(CmdControl):
         elif len(others) > 1:
             for req in others[1:]:
                 type, ids = req.targetObjects.items()[0]
-                if type in others[0].targetObjects:
-                    others[0].targetObjects[type].extend(ids)
-                else:
-                    others[0].targetObjects[type] = ids
+                others[0].targetObjects.setdefault(type, []).extend(ids)
             rv.append(others[0])
 
         # Group skipheads by their startFrom attribute.
@@ -1868,21 +1952,6 @@ class GraphControl(CmdControl):
             key = k[k.rfind('.')+1:]
             objIds[key] = newIds[k]
         return objIds
-
-    def _order_and_range_ids(self, ids):
-        from itertools import groupby
-        from operator import itemgetter
-        out = ""
-        ids = sorted(ids)
-        for k, g in groupby(enumerate(ids), lambda (i, x): i-x):
-            g = map(str, map(itemgetter(1), g))
-            out += g[0]
-            if len(g) > 2:
-                out += "-" + g[-1]
-            elif len(g) == 2:
-                out += "," + g[1]
-            out += ","
-        return out.rstrip(",")
 
 
 class UserGroupControl(BaseControl):

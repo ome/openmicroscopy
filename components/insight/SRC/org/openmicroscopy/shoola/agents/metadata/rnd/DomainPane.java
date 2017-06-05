@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -37,6 +37,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.DefaultComboBoxModel;
@@ -61,10 +62,13 @@ import org.openmicroscopy.shoola.agents.util.ViewedByItem;
 import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.ui.ColorListRenderer;
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.colourpicker.LookupTableIconUtil;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
+
 import omero.gateway.model.ChannelData;
 
 /** 
@@ -178,9 +182,6 @@ public class DomainPane
 
     /** Field displaying the <code>Bit Depth</code> value. */
     private JTextField bitDepthLabel;
-
-    /** Box to select the mapping algorithm. */
-    private JCheckBox noiseReduction;
 
     /** Button to bring up the histogram widget on screen. */
     private JButton histogramButton;
@@ -353,11 +354,6 @@ public class DomainPane
         bitDepthLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
         bitDepthLabel.setEnabled(false);
         bitDepthLabel.setEditable(false);
-        noiseReduction = new JCheckBox();
-        noiseReduction.setBackground(UIUtilities.BACKGROUND_COLOR);
-        noiseReduction.setSelected(model.isNoiseReduction());
-        noiseReduction.setAction(
-                controller.getAction(RendererControl.NOISE_REDUCTION));
         histogramButton = new JButton(
                 controller.getAction(RendererControl.HISTOGRAM));
         
@@ -424,9 +420,14 @@ public class DomainPane
  		int selected = 0;
  		while (i.hasNext()) {
  			data = i.next();
- 			channelCols[index] = new Object[]{
- 					model.getChannelColor(data.getIndex()),
- 					data.getChannelLabeling() };
+            String lut = model.getLookupTable(data.getIndex());
+            if (CommonsLangUtils.isNotEmpty(lut))
+                channelCols[index] = new Object[] { lut,
+                        data.getChannelLabeling() };
+            else
+                channelCols[index] = new Object[] {
+                        model.getChannelColor(data.getIndex()),
+                        data.getChannelLabeling() };
  			if (data.getIndex() == model.getSelectedChannel())
  				selected = index;
  			index++;
@@ -641,8 +642,6 @@ public class DomainPane
 		comp = buildSliderPane(bitDepthSlider, bitDepthLabel);
 		comp.setBackground(UIUtilities.BACKGROUND_COLOR);
 		addComponent(c, "Bit Depth", comp, p);
-		c.gridy++;
-		addComponent(c, "", noiseReduction, p);
 		c.gridx = 0;
 		c.gridy++;
 		comp = new SeparatorPane();
@@ -842,7 +841,6 @@ public class DomainPane
 			gammaLabel.setEnabled(enabled);
 		}
 		if (bitDepthSlider != null) bitDepthSlider.setEnabled(b);
-		if (noiseReduction != null) noiseReduction.setEnabled(b);
 		if (channelList != null) {
 			Iterator<ChannelButton> i = channelList.iterator();
 			while (i.hasNext()) 
@@ -930,6 +928,27 @@ public class DomainPane
 		}
     	graphicsPane.setChannelColor(index);
     	if (channelsBox != null) populateChannels();
+    }
+    
+    /**
+     * Sets the lookup table of the passed channel.
+     * 
+     * @param index
+     *            The index of the channel.
+     */
+    void setLookupTable(int index) {
+        Iterator<ChannelButton> i = channelList.iterator();
+        ChannelButton btn;
+        while (i.hasNext()) {
+            btn = i.next();
+            if (index == btn.getChannelIndex()) {
+                btn.setImage(LookupTableIconUtil.getLUTIconImage(model
+                        .getLookupTable(index)));
+            }
+        }
+        graphicsPane.setChannelColor(index);
+        if (channelsBox != null)
+            populateChannels();
     }
     
     /** Toggles between color model and Greyscale. */
@@ -1046,6 +1065,16 @@ public class DomainPane
 		}
     }
 
+    /**
+     * Updates the component when the histogram data has been loaded
+     * 
+     * @param ch
+     *            The channel index which histogram data has been loaded
+     */
+    void onHistogramLoaded(int ch) {
+        graphicsPane.onHistogramLoaded(ch);
+    }
+    
     /**
      * Returns the selected rendering settings if any.
      *

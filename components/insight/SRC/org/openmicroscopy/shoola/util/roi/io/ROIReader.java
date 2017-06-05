@@ -101,10 +101,10 @@ public class ROIReader {
     private EllipseData convertEllipse(OvalRoi shape)
     {
         Rectangle bounds = shape.getBounds();
-        double rx = bounds.getWidth();
-        double ry = bounds.getHeight();
-        EllipseData r = new EllipseData(bounds.getX()+rx/2, bounds.getY()+ry/2,
-                rx/2, ry/2);
+        double width = bounds.getWidth();
+        double height = bounds.getHeight();
+        EllipseData r = new EllipseData(
+            bounds.getX()+width/2, bounds.getY()+height/2, width/2, height/2);
         r.setText(shape.getName());
         if (formatShape(shape, r)) {
             return r;

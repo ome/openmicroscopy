@@ -70,7 +70,7 @@ class LoginForm(NonASCIIForm):
         ' secure." alt="SSL"/>' % settings.STATIC_URL)
 
     def clean_username(self):
-        if (self.cleaned_data['username'] in ('guest')):
+        if (self.cleaned_data['username'] == 'guest'):
             raise forms.ValidationError("Guest account is not supported.")
         return self.cleaned_data['username']
 
@@ -139,13 +139,9 @@ class ExperimenterForm(NonASCIIForm):
                 'default_group', 'other_groups']
 
         # Django 1.8: Form.fields uses OrderedDict from the collections module.
-        # Django 1.6: Form.fields uses SortedDict for form.fields.keyOrder.
-        if hasattr(self.fields, 'keyOrder'):
-            self.fields.keyOrder = fields_key_order
-        else:
-            self.fields = OrderedDict(
-                (k, self.fields[k])
-                for k in fields_key_order)
+        self.fields = OrderedDict(
+            (k, self.fields[k])
+            for k in fields_key_order)
 
         if experimenter_is_me_or_system:
             self.fields['omename'].widget.attrs['readonly'] = True

@@ -375,7 +375,7 @@ class TestModel(object):
         (PowerI, 1, 'WATT', 10, 'DECIWATT'),
         (PowerI, 1, 'WATT', .1, 'DECAWATT'),
         (PressureI, 1, 'BAR', 100, 'KILOPASCAL'),
-        (PressureI, 1, 'TORR', 133.32236842, 'Pascal'),  # Win hack
+        (PressureI, 1, 'TORR', 133.32236842, 'PASCAL'),
         (TemperatureI, 0, 'CELSIUS', 32, 'FAHRENHEIT'),
         (TemperatureI, -40, 'CELSIUS', -40, 'FAHRENHEIT'),
         (TemperatureI, 100, 'CELSIUS', 212, 'FAHRENHEIT'),

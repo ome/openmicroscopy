@@ -20,7 +20,7 @@ module omero {
     /**
      * Embedded component of every OMERO.blitz type. Since this is
      * not an IObject subclass, no attempt is made to hide the state
-     * of this object, since it cannot be "unloaded".
+     * of this object, since it cannot be ""unloaded"".
      **/
     ["protected"] class Details
     {

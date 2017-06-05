@@ -193,9 +193,10 @@ module omero {
          *
          * Permissible classes include:
          *   ExperimenterGroup, Experimenter, Project, Dataset,
-         *   Screen, Plate, Well, WellSample,
+         *   Folder, Screen, Plate, Well, WellSample,
          *   Image, Pixels, Annotation, Job, Fileset, OriginalFile.
          **/
+        ["deprecated:use omero::cmd::DiskUsage2 instead"]
         class DiskUsage extends Request {
             omero::api::StringSet classes;
             omero::api::StringLongListMap objects;
@@ -213,6 +214,7 @@ module omero {
          *   Thumbnail for the image thumbnails
          * The above map values are broken down by owner-group keys.
          **/
+        ["deprecated:use omero::cmd::DiskUsage2Response instead"]
         class DiskUsageResponse extends Response {
             omero::api::LongPairToStringIntMap fileCountByReferer;
             omero::api::LongPairToStringLongMap bytesUsedByReferer;
