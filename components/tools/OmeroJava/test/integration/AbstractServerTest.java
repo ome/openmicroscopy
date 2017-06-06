@@ -314,7 +314,7 @@ public class AbstractServerTest extends AbstractTest {
     /**
      * Assert that the given object is in the given group.
      * @param object a model object
-     * @param expectedGroupId a group Id
+     * @param group an ExperimenterGroup
      * @throws ServerError unexpected
      */
     protected void assertInGroup(IObject object, ExperimenterGroup group) throws ServerError {
