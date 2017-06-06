@@ -295,7 +295,7 @@ public class AbstractServerTest extends AbstractTest {
      * @param image an image
      * @param annotation an annotation
      * @return the new loaded link from the image to the annotation
-     * @throws ServerError unexpected
+     * @throws ServerError an error possibly occurring during saving of the link
      */
     protected ImageAnnotationLink linkImageAnnotation(Image image, Annotation annotation) throws ServerError {
         if (image.isLoaded() && image.getId() != null) {
