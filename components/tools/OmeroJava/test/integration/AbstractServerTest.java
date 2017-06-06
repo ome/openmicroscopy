@@ -390,7 +390,7 @@ public class AbstractServerTest extends AbstractTest {
      * @param dataset an OMERO Dataset
      * @param image an OMERO Image
      * @return the created link
-     * @throws ServerError if the query caused a server error
+     * @throws ServerError an error possibly occurring during saving of the link
      */
     protected DatasetImageLink linkDatasetImage(Dataset dataset, Image image) throws ServerError {
         if (dataset.isLoaded() && dataset.getId() != null) {
@@ -411,7 +411,7 @@ public class AbstractServerTest extends AbstractTest {
      * @param project an OMERO Project
      * @param dataset an OMERO Dataset
      * @return the created link
-     * @throws ServerError if the query caused a server error
+     * @throws ServerError an error possibly occurring during saving of the link
      */
     protected ProjectDatasetLink linkProjectDataset(Project project, Dataset dataset) throws ServerError {
         if (project.isLoaded() && project.getId() != null) {
