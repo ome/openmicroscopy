@@ -142,7 +142,7 @@ public class PermissionsTest extends AbstractServerTest {
 
         for (final Annotation annotation : new Annotation[] {new CommentAnnotationI(),
              new TagAnnotationI(), new FileAnnotationI(), new MapAnnotationI()}) {
-            final ImageAnnotationLink link = annotateImage(image, annotation);
+            final ImageAnnotationLink link = linkImageAnnotation(image, annotation);
             annotationObjects.add(link.proxy());
             annotationObjects.add(link.getChild().proxy());
         }
@@ -291,13 +291,13 @@ public class PermissionsTest extends AbstractServerTest {
         testImages.add(otherImage.getId().getValue());
         for (final IObject annotation : annotationsDoublyLinked) {
             if (annotation instanceof TagAnnotation) {
-                final ImageAnnotationLink link = (ImageAnnotationLink) annotateImage(otherImage, (TagAnnotation) annotation);
+                final ImageAnnotationLink link = (ImageAnnotationLink) linkImageAnnotation(otherImage, (TagAnnotation) annotation);
                 tagLinksOnOtherImage.add((ImageAnnotationLink) link.proxy());
             } else if (annotation instanceof FileAnnotation) {
-                final ImageAnnotationLink link = (ImageAnnotationLink) annotateImage(otherImage, (FileAnnotation) annotation);
+                final ImageAnnotationLink link = (ImageAnnotationLink) linkImageAnnotation(otherImage, (FileAnnotation) annotation);
                 fileAnnLinksOnOtherImage.add((ImageAnnotationLink) link.proxy());
             } else if (annotation instanceof MapAnnotation) {
-                final ImageAnnotationLink link = (ImageAnnotationLink) annotateImage(otherImage, (MapAnnotation) annotation);
+                final ImageAnnotationLink link = (ImageAnnotationLink) linkImageAnnotation(otherImage, (MapAnnotation) annotation);
                 mapAnnLinksOnOtherImage.add((ImageAnnotationLink) link.proxy());
             }
         }
@@ -641,9 +641,9 @@ public class PermissionsTest extends AbstractServerTest {
         if (users1CanAnnotateOthers) {
             for (final IObject annotation : annotationsOthersForTripleLinking1) {
                 if (!(annotation instanceof Roi || annotation instanceof Thumbnail || annotation instanceof RectangleI)) {
-                    final ImageAnnotationLink linkOwnImage = (ImageAnnotationLink) annotateImage(image1, (Annotation) annotation);
+                    final ImageAnnotationLink linkOwnImage = (ImageAnnotationLink) linkImageAnnotation(image1, (Annotation) annotation);
                     linksOwnToOthersAnnOwnImage1.add((ImageAnnotationLink) linkOwnImage.proxy());
-                    final ImageAnnotationLink linkOtherImage = (ImageAnnotationLink) annotateImage(otherImage1, (Annotation) annotation);
+                    final ImageAnnotationLink linkOtherImage = (ImageAnnotationLink) linkImageAnnotation(otherImage1, (Annotation) annotation);
                     linksOwnToOthersAnnOthersImage1.add((ImageAnnotationLink) linkOtherImage.proxy());
                 }
             }
@@ -653,9 +653,9 @@ public class PermissionsTest extends AbstractServerTest {
         if (users2CanAnnotateOthers) {
             for (final IObject annotation : annotationsOthersForTripleLinking2) {
                 if (!(annotation instanceof Roi || annotation instanceof Thumbnail || annotation instanceof RectangleI)) {
-                    final ImageAnnotationLink linkOwnImage = (ImageAnnotationLink) annotateImage(image2, (Annotation) annotation);
+                    final ImageAnnotationLink linkOwnImage = (ImageAnnotationLink) linkImageAnnotation(image2, (Annotation) annotation);
                     linksOwnToOthersAnnOwnImage2.add((ImageAnnotationLink) linkOwnImage.proxy());
-                    final ImageAnnotationLink linkOtherImage = (ImageAnnotationLink) annotateImage(otherImage2, (Annotation) annotation);
+                    final ImageAnnotationLink linkOtherImage = (ImageAnnotationLink) linkImageAnnotation(otherImage2, (Annotation) annotation);
                     linksOwnToOthersAnnOthersImage2.add((ImageAnnotationLink) linkOtherImage.proxy());
                 }
             }
@@ -673,9 +673,9 @@ public class PermissionsTest extends AbstractServerTest {
         if (users1CanAnnotateOthers) {
             for (final IObject annotation : annotationsOwnForTripleLinking1) {
                 if (!(annotation instanceof Roi || annotation instanceof Thumbnail || annotation instanceof RectangleI)) {
-                    final ImageAnnotationLink linkOtherImage = (ImageAnnotationLink) annotateImage(otherImage1, (Annotation) annotation);
+                    final ImageAnnotationLink linkOtherImage = (ImageAnnotationLink) linkImageAnnotation(otherImage1, (Annotation) annotation);
                     linksOthersToOwnAnnOthersImage1.add((ImageAnnotationLink) linkOtherImage.proxy());
-                    final ImageAnnotationLink linkOwnImage = (ImageAnnotationLink) annotateImage(image1, (Annotation) annotation);
+                    final ImageAnnotationLink linkOwnImage = (ImageAnnotationLink) linkImageAnnotation(image1, (Annotation) annotation);
                     linksOthersToOwnAnnOwnImage1.add((ImageAnnotationLink) linkOwnImage.proxy());
                 }
             }
@@ -684,9 +684,9 @@ public class PermissionsTest extends AbstractServerTest {
         if (users2CanAnnotateOthers) {
             for (final IObject annotation : annotationsOwnForTripleLinking2) {
                 if (!(annotation instanceof Roi || annotation instanceof Thumbnail || annotation instanceof RectangleI)) {
-                    final ImageAnnotationLink linkOtherImage = (ImageAnnotationLink) annotateImage(otherImage2, (Annotation) annotation);
+                    final ImageAnnotationLink linkOtherImage = (ImageAnnotationLink) linkImageAnnotation(otherImage2, (Annotation) annotation);
                     linksOthersToOwnAnnOthersImage2.add((ImageAnnotationLink) linkOtherImage.proxy());
-                    final ImageAnnotationLink linkOwnImage = (ImageAnnotationLink) annotateImage(image2, (Annotation) annotation);
+                    final ImageAnnotationLink linkOwnImage = (ImageAnnotationLink) linkImageAnnotation(image2, (Annotation) annotation);
                     linksOthersToOwnAnnOwnImage2.add((ImageAnnotationLink) linkOwnImage.proxy());
                 }
             }

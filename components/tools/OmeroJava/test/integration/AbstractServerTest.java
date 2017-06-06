@@ -297,7 +297,7 @@ public class AbstractServerTest extends AbstractTest {
      * @return the new loaded link from the image to the annotation
      * @throws ServerError unexpected
      */
-    protected ImageAnnotationLink annotateImage(Image image, Annotation annotation) throws ServerError {
+    protected ImageAnnotationLink linkImageAnnotation(Image image, Annotation annotation) throws ServerError {
         if (image.isLoaded() && image.getId() != null) {
             image = (Image) image.proxy();
         }

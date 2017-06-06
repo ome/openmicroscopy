@@ -122,7 +122,7 @@ public class LightAdminRolesTest extends RolesTests {
         fileAnnotation = (FileAnnotation) iUpdate.saveAndReturnObject(fileAnnotation);
         originalFileAnnotationAndLink.add(originalFile.proxy());
         originalFileAnnotationAndLink.add(fileAnnotation.proxy());
-        final ImageAnnotationLink link = annotateImage(image, fileAnnotation);
+        final ImageAnnotationLink link = linkImageAnnotation(image, fileAnnotation);
         originalFileAnnotationAndLink.add(link.proxy());
         return originalFileAnnotationAndLink;
     }
@@ -467,7 +467,7 @@ public class LightAdminRolesTest extends RolesTests {
         /* Tag the imported image */
         TagAnnotation tagAnnotation = new TagAnnotationI();
         tagAnnotation = (TagAnnotation) iUpdate.saveAndReturnObject(tagAnnotation);
-        final ImageAnnotationLink tagAnnotationLink = annotateImage(image, tagAnnotation);
+        final ImageAnnotationLink tagAnnotationLink = linkImageAnnotation(image, tagAnnotation);
         /* add a file attachment with original file to the imported image.*/
         List<IObject> originalFileAnnotationAndLink = createFileAnnotationWithOriginalFileAndLink(image);
         final OriginalFile annotOriginalFile = (OriginalFile) originalFileAnnotationAndLink.get(0);
@@ -564,7 +564,7 @@ public class LightAdminRolesTest extends RolesTests {
         /* Tag the imported image */
         TagAnnotation tagAnnotation = new TagAnnotationI();
         tagAnnotation = (TagAnnotation) iUpdate.saveAndReturnObject(tagAnnotation);
-        final ImageAnnotationLink tagAnnotationLink = annotateImage(image, tagAnnotation);
+        final ImageAnnotationLink tagAnnotationLink = linkImageAnnotation(image, tagAnnotation);
         /* add a file attachment with original file to the imported image.*/
         List<IObject> originalFileAnnotationAndLink = createFileAnnotationWithOriginalFileAndLink(image);
         final OriginalFile annotOriginalFile = (OriginalFile) originalFileAnnotationAndLink.get(0);
@@ -664,7 +664,7 @@ public class LightAdminRolesTest extends RolesTests {
         /* Tag the imported image */
         TagAnnotation tagAnnotation = new TagAnnotationI();
         tagAnnotation = (TagAnnotation) iUpdate.saveAndReturnObject(tagAnnotation);
-        final ImageAnnotationLink tagAnnotationLink = annotateImage(image, tagAnnotation);
+        final ImageAnnotationLink tagAnnotationLink = linkImageAnnotation(image, tagAnnotation);
 
         /* add a file attachment with original file to the imported image.*/
         List<IObject> originalFileAnnotationAndLink = createFileAnnotationWithOriginalFileAndLink(image);
@@ -1370,7 +1370,7 @@ public class LightAdminRolesTest extends RolesTests {
          * isExpectSuccessLinkFileAttachemnt */
         ImageAnnotationLink link = new ImageAnnotationLinkI();
         try {
-            link = (ImageAnnotationLink) annotateImage(sentImage, fileAnnotation);
+            link = (ImageAnnotationLink) linkImageAnnotation(sentImage, fileAnnotation);
             /* Check the value of canAnnotate on the image is true in this case.*/
             Assert.assertTrue(getCurrentPermissions(sentImage).canAnnotate());
             Assert.assertTrue(isExpectSuccessLinkFileAttachemnt);
