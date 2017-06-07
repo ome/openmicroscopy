@@ -560,11 +560,8 @@ public class LightAdminRolesTest extends RolesTests {
         if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(true, permissions);
+        sudo(new ExperimenterI(normalUser.userId, false));
 
-        try {
-            sudo(new ExperimenterI(normalUser.userId, false));
-            }catch (SecurityViolation sv) {
-            }
         /* take care of workflows which do not use sudo */
         if (!isSudoing) {
             loginUser(lightAdmin);
