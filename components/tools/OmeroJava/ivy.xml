@@ -41,6 +41,18 @@
     <dependency org="ome" name="formats-gpl" rev="${versions.bioformats}" transitive="true">
         <exclude org="org.slf4j"/>
     </dependency>
+    <dependency org="org.glassfish" name="javax.json" rev="1.0.4" force="true" transitive="true">
+    	<artifact name="javax.json" type="jar" url="http://central.maven.org/maven2/org/glassfish/javax.json/1.0.4/javax.json-1.0.4.jar"/>
+    </dependency>
+    <dependency org="org.apache.httpcomponents" name="httpclient" rev="4.5.3" force="true" transitive="true">
+    	<artifact name="httpclient" type="jar" url="http://central.maven.org/maven2/org/apache/httpcomponents/httpclient/4.5.3/httpclient-4.5.3.jar"/>
+    </dependency>
+    <dependency org="org.apache.httpcomponents" name="httpcore" rev="4.4.6" force="true" transitive="true">
+    	<artifact name="httpcore" type="jar" url="http://central.maven.org/maven2/org/apache/httpcomponents/httpcore/4.4.6/httpcore-4.4.6.jar"/>
+    </dependency>
+    <dependency org="org.apache.httpcomponents" name="httpmime" rev="4.5.3" force="true" transitive="true">
+    	<artifact name="httpmime" type="jar" url="http://central.maven.org/maven2/org/apache/httpcomponents/httpmime/4.5.3/httpmime-4.5.3.jar"/>
+    </dependency>
   </dependencies>
 </ivy-module>
 
