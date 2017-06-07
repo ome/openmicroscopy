@@ -39,6 +39,8 @@ import static ome.formats.model.UnitsFactory.convertPressure;
 import static ome.formats.model.UnitsFactory.convertTemperature;
 import static ome.formats.model.UnitsFactory.convertTime;
 
+import com.google.common.collect.LinkedListMultimap;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -85,7 +87,6 @@ import ome.units.quantity.Time;
 import ome.util.LSID;
 import ome.xml.meta.MetadataRoot;
 import ome.xml.model.AffineTransform;
-import ome.xml.model.MapPair;
 import ome.xml.model.enums.Compression;
 import ome.xml.model.enums.FillRule;
 import ome.xml.model.enums.FontFamily;
@@ -4168,7 +4169,7 @@ public class OMEROMetadataStoreClient
     }
 
     @Override
-    public void setGenericExcitationSourceMap(List<MapPair> map, int instrumentIndex, int lightSourceIndex) {
+    public void setGenericExcitationSourceMap(LinkedListMultimap<String, String> map, int instrumentIndex, int lightSourceIndex) {
         final GenericExcitationSource o = getGenericExcitationSource(instrumentIndex, lightSourceIndex);
         o.setMap(IceMapper.convertMapPairs(map));
     }
@@ -4474,7 +4475,7 @@ public class OMEROMetadataStoreClient
     }
 
     @Override
-    public void setImagingEnvironmentMap(List<MapPair> map, int imageIndex) {
+    public void setImagingEnvironmentMap(LinkedListMultimap<String, String> map, int imageIndex) {
         final ImagingEnvironment o = getImagingEnvironment(imageIndex);
         o.setMap(IceMapper.convertMapPairs(map));
     }
@@ -7952,7 +7953,7 @@ public class OMEROMetadataStoreClient
     }
 
     @Override
-    public void setMapAnnotationValue(List<MapPair> value, int mapAnnotationIndex) {
+    public void setMapAnnotationValue(LinkedListMultimap<String, String> value, int mapAnnotationIndex) {
         final MapAnnotation o = getMapAnnotation(mapAnnotationIndex);
         o.setMapValue(IceMapper.convertMapPairs(value));
     }
