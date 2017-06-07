@@ -673,8 +673,9 @@ def groups(request, conn=None, **kwargs):
     template = "webadmin/groups.html"
 
     groups = conn.getObjects("ExperimenterGroup")
+    can_modify_group = 'ModifyGroup' in conn.getCurrentAdminPrivileges()
 
-    context = {'groups': groups}
+    context = {'groups': groups, 'can_modify_group': can_modify_group}
     context['template'] = template
     return context
 
