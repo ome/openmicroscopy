@@ -582,7 +582,7 @@ public class LightAdminRolesTest extends RolesTests {
         Assert.assertEquals(getCurrentPermissions(image).canChgrp(), canChgrpExpectedTrue);
         doChange(client, factory, Requests.chgrp().target(image).toGroup(anotherGroupId).build(),
                 chgrpNonMemberExpectSuccess);
-        if(chgrpNonMemberExpectSuccess) {
+        if (chgrpNonMemberExpectSuccess) {
             /* check that the image and its original file moved to another group */
             assertInGroup(image, anotherGroupId);
             assertInGroup(originalFile, anotherGroupId);
@@ -993,7 +993,7 @@ public class LightAdminRolesTest extends RolesTests {
             assertInGroup(originalFile, lightAdmin.groupId);
             assertInGroup(image, lightAdmin.groupId);
             assertInGroup(sentDat, lightAdmin.groupId);
-            assertInGroup((new DatasetImageLinkI (datasetImageLinkId, false)), lightAdmin.groupId);
+            assertInGroup((new DatasetImageLinkI(datasetImageLinkId, false)), lightAdmin.groupId);
         }
         /* now, having moved the dataset, image, original file and link in the group of normalUser,
          * try to change the ownership of the dataset to the normalUser.
