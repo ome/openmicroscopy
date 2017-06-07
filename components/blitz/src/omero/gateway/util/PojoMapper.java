@@ -145,7 +145,7 @@ public class PojoMapper
     {
         if (value instanceof IObject) return asDataObject((IObject) value);
         else if (value instanceof Collection) 
-        	return asDataObjects((Collection) value);
+        	return convertToDataObjects((Collection) value);
         else if (value instanceof Map) return asDataObjects((Map) value);
         else return null;
     }
@@ -230,30 +230,6 @@ public class PojoMapper
      * @return A set of {@link DataObject}s.
      * @throws IllegalArgumentException If the set is <code>null</code>, doesn't
      * contain {@link IObject} or if the type {@link IObject} is unknown.
-     * 
-     * @deprecated Use {@link #convertToDataObjects(Collection)} instead
-     */
-    public static Set asDataObjects(Collection objects)
-    {
-        if (objects == null) return new HashSet<DataObject>();
-        Set<DataObject> set = new HashSet<DataObject>(objects.size());
-        Iterator i = objects.iterator();
-        DataObject data;
-        while (i.hasNext()) {
-            data = asDataObject((IObject) i.next());
-            if (data != null) set.add(data);
-        }
-        return set;
-    }
-
-    /**
-     * Converts each {@link IObject element} of the collection into its 
-     * corresponding {@link DataObject}.
-     *
-     * @param objects The set of objects to convert.
-     * @return A set of {@link DataObject}s.
-     * @throws IllegalArgumentException If the set is <code>null</code>, doesn't
-     * contain {@link IObject} or if the type {@link IObject} is unknown.
      */
     public static <T extends DataObject> Collection<T> convertToDataObjects(Collection objects)
     {
@@ -266,30 +242,6 @@ public class PojoMapper
             if (data != null) result.add(((T)data));
         }
         return result;
-    }
-    
-    /**
-     * Converts each {@link IObject element} of the collection into its 
-     * corresponding {@link DataObject}.
-     *
-     * @param objects The set of objects to convert.
-     * @return A set of {@link DataObject}s.
-     * @throws IllegalArgumentException If the set is <code>null</code>, doesn't
-     * contain {@link IObject} or if the type {@link IObject} is unknown.
-     * 
-     * @deprecated Use {@link #convertToDataObjects(Collection)} instead 
-     */
-    public static List asDataObjectsAsList(Collection objects)
-    {
-        if (objects == null) return new ArrayList<DataObject>();
-        List<DataObject> set = new ArrayList<DataObject>(objects.size());
-        Iterator i = objects.iterator();
-        DataObject data;
-        while (i.hasNext()) {
-            data = asDataObject((IObject) i.next());
-            if (data != null) set.add(data);
-        }
-        return set;
     }
 
     /**
@@ -311,53 +263,6 @@ public class PojoMapper
             data = asDataObject((IObject) i.next());
             if (data != null) 
                 set.add((T) data);
-        }
-        return set;
-    }
-
-    /**
-     * Converts each {@link IObject element} of the collection into its 
-     * corresponding {@link DataObject}.
-     *
-     * @param objects The set of objects to convert.
-     * @return A set of {@link DataObject}s.
-     * @throws IllegalArgumentException If the set is <code>null</code>, doesn't
-     * contain {@link IObject} or if the type {@link IObject} is unknown.
-     * 
-     * @deprecated Use {@link #convertToDataObjects(Collection)} instead 
-     */
-    public static Set asDataObjects(List objects)
-    {
-        if (objects == null) return new HashSet<DataObject>();
-        Set<DataObject> set = new HashSet<DataObject>(objects.size());
-        Iterator i = objects.iterator();
-        DataObject data;
-        while (i.hasNext()) {
-            data = asDataObject((IObject) i.next());
-            if (data != null) set.add(data);
-        }
-        return set;
-    }
-
-    /**
-     * Converts each {@link IObject element} of the array into its
-     * corresponding {@link DataObject}.
-     *
-     * @param objects The set of objects to convert.
-     * @return A set of {@link DataObject}s.
-     * @throws IllegalArgumentException If the set is <code>null</code>, doesn't
-     * contain {@link IObject} or if the type {@link IObject} is unknown.
-     * 
-     * @deprecated Use {@link #convertToDataObjects(Collection)} instead
-     */
-    public static Set asDataObjects(IObject[] objects)
-    {
-        Set<DataObject> set = new HashSet<DataObject>();
-        if (objects == null) return set;
-        DataObject data;
-        for (int i = 0; i < objects.length; i++) {
-            data = asDataObject(objects[i]);
-            set.add(data);
         }
         return set;
     }
@@ -436,34 +341,6 @@ public class PojoMapper
                     convertedValue == null ? value : convertedValue);
         }
         return map;
-    }
-
-    /**
-     * Converts the specified type to its corresponding type for search by HQL query
-     *
-     * @param nodeType The type to convert.
-     * @return See above.
-     * 
-     * @deprecated Not used.
-     */
-    public static String convertTypeForSearchByQuery(Class nodeType) {
-        if (nodeType.equals(Image.class) || nodeType.equals(ImageData.class))
-            return Image.class.getSimpleName();
-        else if (nodeType.equals(Dataset.class)
-                || nodeType.equals(DatasetData.class))
-            return Dataset.class.getSimpleName();
-        else if (nodeType.equals(Project.class)
-                || nodeType.equals(ProjectData.class))
-            return Project.class.getSimpleName();
-        else if (nodeType.equals(Screen.class)
-                || nodeType.equals(ScreenData.class))
-            return Screen.class.getSimpleName();
-        else if (nodeType.equals(Well.class) || nodeType.equals(WellData.class))
-            return Well.class.getSimpleName();
-        else if (nodeType.equals(Plate.class)
-                || nodeType.equals(PlateData.class))
-            return Plate.class.getSimpleName();
-        throw new IllegalArgumentException("type not supported");
     }
 
     /**
