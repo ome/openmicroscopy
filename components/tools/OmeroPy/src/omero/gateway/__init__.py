@@ -2215,6 +2215,18 @@ class _BlitzGateway (object):
         group = admin_service.getGroup(self.getEventContext().groupId)
         return ExperimenterGroupWrapper(self, group)
 
+    def getAdminPrivileges(self, user_id=None):
+        """
+        Returns list of privileges as strings.
+
+        :return:    List of strings such as ["ModifyUser", "ModifyGroup"]
+        """
+        if user_id is None:
+            user_id = self.getUserId()
+        privileges = self.getAdminService().getAdminPrivileges(
+            omero.model.ExperimenterI(user_id, False))
+        return [unwrap(p.getValue()) for p in privileges]
+
     def isAdmin(self):
         """
         Checks if a user has administration privileges.
