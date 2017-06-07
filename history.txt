@@ -13,7 +13,9 @@ Improvements include:
 - textual annotations without a namespace can now be added at import using the CLI
 - improved thumbnails retrieval in OMERO.web
 - added "Open With" option to the right-hand panel in OMERO.web
-- group owners are now prevented from annotating other people's data in OMERO.web
+- private group owners are now not offered the ability to annotate other
+  people's data in OMERO.web UI, an action which was not permitted by the
+  server anyway
 - preview of wells now available in the right-hand panel
 
 Sysadmin changes include:
