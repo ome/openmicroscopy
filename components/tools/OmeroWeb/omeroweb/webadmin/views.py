@@ -403,9 +403,7 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
 
     if action == 'new':
         user_id = conn.getUserId()
-        user_privileges = [p.getValue().val for p in
-                           conn.getAdminService().getAdminPrivileges(
-                           ExperimenterI(user_id, False))]
+        user_privileges = conn.getAdminPrivileges()
         # Only Full Admin can set 'Role' of new experimenter
         user_full_admin = 'ReadSession' in user_privileges
         form = ExperimenterForm(
@@ -499,12 +497,10 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
             'groups': otherGroupsInitialList(groups)}
 
         # Load 'AdminPrivilege' roles for 'initial'
-        user = conn.getQueryService().get("Experimenter", experimenter.id)
         delete_perms = []
         write_perms = []
         script_perms = []
-        privileges = [p.getValue().val for p in
-                      conn.getAdminService().getAdminPrivileges(user)]
+        privileges = conn.getAdminPrivileges(experimenter.id)
         for privilege in privileges:
             if privilege in ('DeleteOwned', 'DeleteFile', 'DeleteManagedRepo'):
                 delete_perms.append(privilege)
@@ -535,9 +531,7 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
 
         root_id = [conn.getAdminService().getSecurityRoles().rootId]
         user_id = conn.getUserId()
-        user_privileges = [p.getValue().val for p in
-                           conn.getAdminService().getAdminPrivileges(
-                           ExperimenterI(user_id, False))]
+        user_privileges = conn.getAdminPrivileges()
         experimenter_root = long(eid) == root_id
         experimenter_me = long(eid) == user_id
         user_full_admin = 'ReadSession' in user_privileges
