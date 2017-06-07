@@ -402,9 +402,17 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
     groups.sort(key=lambda x: x.getName().lower())
 
     if action == 'new':
-        form = ExperimenterForm(initial={
-            'with_password': True, 'active': True,
-            'groups': otherGroupsInitialList(groups)})
+        user_id = conn.getUserId()
+        user_privileges = [p.getValue().val for p in
+                           conn.getAdminService().getAdminPrivileges(
+                           ExperimenterI(user_id, False))]
+        # Only Full Admin can set 'Role' of new experimenter
+        user_full_admin = 'ReadSession' in user_privileges
+        form = ExperimenterForm(
+            can_edit_role=user_full_admin,
+            initial={'with_password': True,
+                     'active': True,
+                     'groups': otherGroupsInitialList(groups)})
         admin_groups = [
             conn.getAdminService().getSecurityRoles().systemGroupId]
         context = {'form': form, 'admin_groups': admin_groups}
