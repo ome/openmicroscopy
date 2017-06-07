@@ -225,10 +225,6 @@ public class PolylineAndPolygonTest extends TestCase {
             assertEquals(p.getX(), p1.getX());
             assertEquals(p.getY(), p1.getY());
         }
-        List<Integer> ml = data.getMaskPoints();
-        for (int i = 0; i < n; i++) {
-            assertEquals(masks.get(i), ml.get(i));
-        }
     }
 
     @Test
@@ -258,10 +254,6 @@ public class PolylineAndPolygonTest extends TestCase {
             p1 = list.get(i);
             assertEquals(p.getX(), p1.getX());
             assertEquals(p.getY(), p1.getY());
-        }
-        List<Integer> ml = data.getMaskPoints();
-        for (int i = 0; i < n; i++) {
-            assertEquals(masks.get(i), ml.get(i));
         }
     }
     
