@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.Map.Entry;
 
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.IObservable;
@@ -29,6 +30,7 @@ import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.util.ErrorHandler;
 import ome.io.nio.SimpleBackOff;
 import ome.services.blitz.repo.path.FsFile;
+import ome.system.Login;
 import omero.ApiUsageException;
 import omero.RLong;
 import omero.RType;
@@ -137,6 +139,8 @@ import org.testng.annotations.DataProvider;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
+import Ice.ImplicitContext;
+
 /**
  * Base test for integration tests.
  *
@@ -155,6 +159,9 @@ public class AbstractServerTest extends AbstractTest {
 
     /** Scaling factor used for CmdCallbackI loop timings. */
     protected long scalingFactor;
+
+    /** All groups context to use in cases where errors due to group restriction are to be avoided. */
+    protected static final ImmutableMap<String, String> ALL_GROUPS_CONTEXT = ImmutableMap.of(Login.OMERO_GROUP, "-1");
 
     /** The client object, this is the entry point to the Server. */
     protected omero.client client;
@@ -287,6 +294,18 @@ public class AbstractServerTest extends AbstractTest {
             if (c != null) {
                 c.__del__();
             }
+        }
+    }
+
+    /**
+     * Cast the map of strings (e.g. the ALL_GROUPS_CONTEXT)
+     * into implicit context, which asks for <String, String>
+     * @param implicitContext the implicit context to be changed
+     * @param newContext the map of strings (e.g. ALL_GROUPS_CONTEXT)
+     */
+    protected void mergeIntoContext(ImplicitContext implicitContext, Map<String, String> newContext) {
+        for (final Entry<String, String> entry : newContext.entrySet()) {
+            implicitContext.put(entry.getKey(), entry.getValue());
         }
     }
 

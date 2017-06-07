@@ -482,7 +482,7 @@ public class LightAdminRolesTest extends RolesTests {
         }
         /*in order to find the image in whatever group, get context with group
          * set to -1 (=all groups) */
-        client.getImplicitContext().put("omero.group", "-1");
+        mergeIntoContext(client.getImplicitContext(), ALL_GROUPS_CONTEXT);
         /* try to move the image into another group of the normalUser
          * which should succeed if sudoing and also in case
          * the light admin has Chgrp permissions
@@ -568,7 +568,7 @@ public class LightAdminRolesTest extends RolesTests {
         }
         /*in order to find the image in whatever group, get context with group
          * set to -1 (=all groups) */
-        client.getImplicitContext().put("omero.group", Long.toString(-1));
+        mergeIntoContext(client.getImplicitContext(), ALL_GROUPS_CONTEXT);
 
         /* try to move into another group the normalUser
          * is not a member of, which should fail in all cases
@@ -963,7 +963,7 @@ public class LightAdminRolesTest extends RolesTests {
         /* in order to find the image in whatever group, get context with group
          * set to -1 (=all groups)
          */
-        client.getImplicitContext().put("omero.group", "-1");
+        mergeIntoContext(client.getImplicitContext(), ALL_GROUPS_CONTEXT);
         /* try to move the dataset (and with it the linked image)
          * from light admin's default group
          * into the default group of the normalUser
@@ -1127,7 +1127,7 @@ public class LightAdminRolesTest extends RolesTests {
         }
         /* check the transfer of all the data in the first group was successful */
         /* check ownership of the first hierarchy set*/
-        client.getImplicitContext().put("omero.group", "-1");
+        mergeIntoContext(client.getImplicitContext(), ALL_GROUPS_CONTEXT);
         assertOwnedBy(sentProj1, recipient);
         assertOwnedBy(sentDat1, recipient);
         assertOwnedBy(sentImage1, recipient);
