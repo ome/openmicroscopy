@@ -81,6 +81,8 @@ class PointIterator
 
     private PixelsData pixels;
     
+    private RawDataFacility rf;
+    
     /** 
      * All currently registered {@link PointIteratorObserver}s.
      * This is a set (no duplicates) and mustn't contain <code>null</code>s.
@@ -196,8 +198,9 @@ class PointIterator
      * @param sizeC The number of channels.
      * @param sizeX The number of pixels along the x-axis.
      * @param sizeY The number of pixels along the y-axis.
+     * @throws ExecutionException  If {@link RawDataFacility} can't be accessed
      */
-    PointIterator(Gateway gw, PixelsData pixels)
+    PointIterator(Gateway gw, PixelsData pixels) throws ExecutionException
     {
         if (gw == null) throw new NullPointerException("No source.");
         this.gw = gw;
@@ -208,6 +211,7 @@ class PointIterator
         this.sizeX = pixels.getSizeX();
         this.sizeY = pixels.getSizeY();
         observers = new HashSet<PointIteratorObserver>();
+        rf = gw.getFacility(RawDataFacility.class);
     }
 
     /**
@@ -251,7 +255,7 @@ class PointIterator
      * @param shape The shape to analyze. Mustn't be <code>null</code>.
      * @param points The collection of points contained in the shape.
      * @param w The selected channel.
-     * @param close Pass <code></code>
+     * * @param close Pass <code>true</code> to close the RawDataFacility
      * @throws DataSourceException If an error occurs while retrieving plane
      *                             data from the pixels source.
      */
@@ -266,12 +270,12 @@ class PointIterator
         
         notifyIterationStart();
         
-        try (RawDataFacility rf = gw.getFacility(RawDataFacility.class)) {
+        try {
             int z = shape.getZ();
             int t = shape.getT();
             if (z >= 0 && z < sizeZ && t >= 0 && t < sizeT) {
                 notifyPlaneStart(z, w, t, points.size());
-                Plane2D data = rf.getPlane(ctx, pixels, z, t, w, close);
+                Plane2D data = rf.getPlane(ctx, pixels, z, t, w);
                 double value;
                 int length = 0;
                 int x1, x2;
@@ -289,33 +293,15 @@ class PointIterator
                 }
                 notifyPlaneEnd(z, w, t, length);
             }
-        } catch (ExecutionException e) {
+        } catch (Exception e) {
             throw new DataSourceException(e);
         } finally {  
+            if (close)
+                rf.close();
             //Give the observers a chance to clean up even when 
             //something goes wrong. 
             notifyIterationEnd();
         }
-    }
-    /**
-     * Iterates over the pixels contained in <code>roi</code>.
-     * The pixel values come from the pixels set that was bound to this
-     * iterator at creation time.
-     * All registered {@link PointIteratorObserver}s get notified of every
-     * iterated pixels value. 
-     * 
-     * @param ctx The security context.
-     * @param shape The shape to analyze. Mustn't be <code>null</code>.
-     * @param points The collection of points contained in the shape.
-     * @param w The selected channel.
-     * @throws DataSourceException If an error occurs while retrieving plane
-     *                             data from the pixels source.
-     */
-    public void iterate(SecurityContext ctx, ROIShape shape, List<Point> points,
-            int w)
-    throws DataSourceException
-    {
-        iterate(ctx, shape, points, w, true);
     }
 
 }

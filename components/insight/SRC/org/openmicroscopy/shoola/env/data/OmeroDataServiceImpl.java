@@ -55,6 +55,7 @@ import omero.model.Screen;
 import omero.model.ScreenAnnotationLink;
 import omero.model.ScreenPlateLink;
 import omero.model.TagAnnotation;
+import omero.model.Well;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 
@@ -658,7 +659,27 @@ class OmeroDataServiceImpl
                 SearchResult r = it.next();
                 IObject obj = null;
                     try {
-                        String type = PojoMapper.convertTypeForSearchByQuery(r.getType());
+                        String type = null;
+                        if (r.getType().equals(Image.class) || r.getType().equals(ImageData.class))
+                            type = Image.class.getSimpleName();
+                        else if (r.getType().equals(Dataset.class)
+                                || r.getType().equals(DatasetData.class))
+                            type = Dataset.class.getSimpleName();
+                        else if (r.getType().equals(Project.class)
+                                || r.getType().equals(ProjectData.class))
+                            type = Project.class.getSimpleName();
+                        else if (r.getType().equals(Screen.class)
+                                || r.getType().equals(ScreenData.class))
+                            type = Screen.class.getSimpleName();
+                        else if (r.getType().equals(Well.class) || r.getType().equals(WellData.class))
+                            type = Well.class.getSimpleName();
+                        else if (r.getType().equals(Plate.class)
+                                || r.getType().equals(PlateData.class))
+                            type = Plate.class.getSimpleName();
+                        
+                        if (type== null)
+                            return;
+                        
                         String query = "select x from "+type+" x join fetch x.details.creationEvent where x.id="+r.getObjectId();
                         obj = gateway.findIObjectByQuery(ctx, query, true);
                     } catch (DSAccessException e) {
