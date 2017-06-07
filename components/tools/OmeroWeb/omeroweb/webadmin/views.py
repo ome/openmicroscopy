@@ -387,8 +387,10 @@ def experimenters(request, conn=None, **kwargs):
     template = "webadmin/experimenters.html"
 
     experimenterList = list(conn.getObjects("Experimenter"))
+    can_modify_user = 'ModifyUser' in conn.getCurrentAdminPrivileges()
 
-    context = {'experimenterList': experimenterList}
+    context = {'experimenterList': experimenterList,
+               'can_modify_user': can_modify_user}
     context['template'] = template
     return context
 
