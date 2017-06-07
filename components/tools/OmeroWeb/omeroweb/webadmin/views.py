@@ -403,7 +403,7 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
 
     if action == 'new':
         user_id = conn.getUserId()
-        user_privileges = conn.getAdminPrivileges()
+        user_privileges = conn.getCurrentAdminPrivileges()
         # Only Full Admin can set 'Role' of new experimenter
         user_full_admin = 'ReadSession' in user_privileges
         form = ExperimenterForm(
@@ -531,7 +531,7 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
 
         root_id = [conn.getAdminService().getSecurityRoles().rootId]
         user_id = conn.getUserId()
-        user_privileges = conn.getAdminPrivileges()
+        user_privileges = conn.getCurrentAdminPrivileges()
         experimenter_root = long(eid) == root_id
         experimenter_me = long(eid) == user_id
         user_full_admin = 'ReadSession' in user_privileges
@@ -693,7 +693,7 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
         ownerIds = [e.id for e in group.getOwners()]
         memberIds = [m.id for m in group.getMembers()]
         permissions = getActualPermissions(group)
-        can_modify_group = 'ModifyGroup' in conn.getAdminPrivileges()
+        can_modify_group = 'ModifyGroup' in conn.getCurrentAdminPrivileges()
         system_groups = [
             conn.getAdminService().getSecurityRoles().systemGroupId,
             conn.getAdminService().getSecurityRoles().userGroupId,
