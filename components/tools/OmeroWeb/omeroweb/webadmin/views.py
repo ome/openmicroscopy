@@ -38,8 +38,6 @@ import omeroweb.webclient.views
 from omero_version import build_year
 from omero_version import omero_version
 
-from omero.model import ExperimenterI
-
 from django.template import loader as template_loader
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
