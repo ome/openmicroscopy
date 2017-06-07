@@ -178,21 +178,6 @@ public class ChannelAcquisitionData
     }
 
     /**
-     * Returns the voltage set on the detector.
-     *
-     * @return See above.
-     * @deprecated Replaced by {@link #getDetectorSettingsVoltage(UnitsElectricPotential)}
-     */
-    @Deprecated 
-    public Double getDetectorSettingsVoltage()
-    {
-        if (detectorSettings == null) return null;
-        ElectricPotential value = detectorSettings.getVoltage();
-        if (value == null) return null;
-        return value.getValue();
-    }
-
-    /**
      * Returns the Read out rate set on the detector.
      *
      * @param unit
@@ -208,26 +193,6 @@ public class ChannelAcquisitionData
         if (f == null)
             return null;
         return unit == null ? f : new FrequencyI(f, unit);
-    }
-
-    /**
-     * Returns the Read out rate set on the detector.
-     *
-     * @return See above.
-     * @deprecated Replaced by {@link #getDetectorSettingsReadOutRate(UnitsFrequency)}
-     */
-    @Deprecated
-    public Double getDetectorSettingsReadOutRate()
-    {
-        if (detectorSettings == null) return null;
-        Frequency value = detectorSettings.getReadOutRate();
-        if (value == null) return null;
-        try {
-            return new FrequencyI(value, UnitsFactory.DetectorSettings_ReadOutRate)
-            .getValue();
-        } catch (BigResult e) {
-            return e.result.doubleValue();
-        }
     }
 
     /**
@@ -273,21 +238,6 @@ public class ChannelAcquisitionData
         if (l == null)
             return null;
         return unit == null ? l : new LengthI(l, unit);
-    }
-
-    /**
-     * Returns the wavelength of the light source.
-     *
-     * @return See above.
-     * @deprecated Replaced by {@link #getLightSettingsWavelength(UnitsLength)}
-     */
-    @Deprecated
-    public Double getLightSettingsWavelength()
-    {
-        if (lightSettings == null) return null;
-        Length value = lightSettings.getWavelength();
-        if (value == null) return null;
-        return value.getValue();
     }
 
     /**
@@ -338,21 +288,6 @@ public class ChannelAcquisitionData
         lightSettings.setWavelength(value);
     }
 
-    /**
-     * Sets the wavelength of the light source.
-     *
-     * @param value The value to set.
-     * @deprecated Replaced by {@link #setLightSettingsWavelength(Length)}
-     */
-    @Deprecated
-    public void setLightSettingsWavelength(double value)
-    {
-        lightSourceSettingsDirty = true;
-        if (lightSettings == null) lightSettings = new LightSettingsI();
-        lightSettings.setWavelength(new LengthI(value,
-                UnitsFactory.LightSourceSettings_Wavelength));
-    }
-
 
     /**
      * Sets the detector's setting offset.
@@ -394,22 +329,6 @@ public class ChannelAcquisitionData
     }
 
     /**
-     * Sets the detector setting's read out rate.
-     *
-     * @param value The value to set.
-     * @deprecated Replaced by {@link #setDetectorSettingsReadOutRate(Frequency)}
-     */
-    @Deprecated
-    public void setDetectorSettingsReadOutRate(double value)
-    {
-        detectorSettingsDirty = true;
-        if (detectorSettings == null) 
-            detectorSettings = new DetectorSettingsI();
-        detectorSettings.setReadOutRate(new FrequencyI(value,
-                UnitsFactory.DetectorSettings_ReadOutRate));
-    }
-
-    /**
      * Sets the detector setting's voltage.
      *
      * @param value The value to set.
@@ -420,22 +339,6 @@ public class ChannelAcquisitionData
         if (detectorSettings == null) 
             detectorSettings = new DetectorSettingsI();
         detectorSettings.setVoltage(value);
-    }
-
-    /**
-     * Sets the detector setting's voltage.
-     *
-     * @param value The value to set.
-     * @deprecated Replaced by {@link #setDetectorSettingsVoltage(ElectricPotential)}
-     */
-    @Deprecated
-    public void setDetectorSettingsVoltage(double value)
-    {
-        detectorSettingsDirty = true;
-        if (detectorSettings == null) 
-            detectorSettings = new DetectorSettingsI();
-        detectorSettings.setVoltage(new ElectricPotentialI(value,
-                UnitsFactory.Detector_Voltage));
     }
 
     /**

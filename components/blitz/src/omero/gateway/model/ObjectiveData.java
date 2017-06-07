@@ -76,21 +76,6 @@ public class ObjectiveData
     }
 
     /**
-     * Returns the working distance.
-     *
-     * @return See above.
-     * @deprecated Replaced by {@link #getWorkingDistance(UnitsLength)}
-     */
-    @Deprecated
-    public double getWorkingDistance()
-    {
-        Objective obj = ((Objective) asIObject());
-        Length value = obj.getWorkingDistance();
-        if (value == null) return -1;
-        return value.getValue();
-    }
-
-    /**
      * Returns the serial number of the objective.
      *
      * @return See above.
