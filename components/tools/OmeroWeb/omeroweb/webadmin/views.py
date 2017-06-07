@@ -693,6 +693,7 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
         ownerIds = [e.id for e in group.getOwners()]
         memberIds = [m.id for m in group.getMembers()]
         permissions = getActualPermissions(group)
+        can_modify_group = 'ModifyGroup' in conn.getAdminPrivileges()
         system_groups = [
             conn.getAdminService().getSecurityRoles().systemGroupId,
             conn.getAdminService().getSecurityRoles().userGroupId,
@@ -707,6 +708,7 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
             'owners': ownerIds,
             'members': memberIds,
             'experimenters': experimenters},
+            can_modify_group=can_modify_group,
             group_is_current_or_system=group_is_current_or_system)
         admins = [conn.getAdminService().getSecurityRoles().rootId]
         if long(gid) in system_groups:
@@ -714,7 +716,7 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
             # group
             admins.append(conn.getUserId())
         return {'form': form, 'gid': gid, 'permissions': permissions,
-                "admins": admins}
+                'admins': admins, 'can_modify_group': can_modify_group}
 
     if action == 'new':
         form = GroupForm(initial={'experimenters': experimenters,

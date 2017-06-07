@@ -278,7 +278,7 @@ PERMISSION_CHOICES = (
 class GroupForm(NonASCIIForm):
 
     def __init__(self, name_check=False, group_is_current_or_system=False,
-                 *args, **kwargs):
+                 can_modify_group=True, *args, **kwargs):
         super(GroupForm, self).__init__(*args, **kwargs)
         self.name_check = name_check
         try:
@@ -312,6 +312,11 @@ class GroupForm(NonASCIIForm):
 
         self.fields.keyOrder = [
             'name', 'description', 'owners', 'members', 'permissions']
+
+        # If we can't modify group, ALL fields are disabled
+        if not can_modify_group:
+            for field in self.fields.values():
+                field.widget.attrs['disabled'] = True
 
     name = forms.CharField(
         max_length=100,
