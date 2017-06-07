@@ -105,29 +105,6 @@ import com.google.common.collect.ImmutableMap;
 public class LightAdminRolesTest extends RolesTests {
 
     /**
-     * Add a FileAnnotation with Original File to the given image.
-     * @param image an image
-     * @return the new model objects
-     * @throws Exception unexpected
-     */
-    private List<IObject> createFileAnnotationWithOriginalFileAndLink(Image image) throws Exception {
-        if (image.isLoaded() && image.getId() != null) {
-            image = (Image) image.proxy();
-        }
-        final List<IObject> originalFileAnnotationAndLink = new ArrayList<IObject>();
-        FileAnnotation fileAnnotation = new FileAnnotationI();
-        OriginalFile originalFile = mmFactory.createOriginalFile();
-        originalFile = (OriginalFile) iUpdate.saveAndReturnObject(originalFile);
-        fileAnnotation.setFile(originalFile);
-        fileAnnotation = (FileAnnotation) iUpdate.saveAndReturnObject(fileAnnotation);
-        originalFileAnnotationAndLink.add(originalFile.proxy());
-        originalFileAnnotationAndLink.add(fileAnnotation.proxy());
-        final ImageAnnotationLink link = linkImageAnnotation(image, fileAnnotation);
-        originalFileAnnotationAndLink.add(link.proxy());
-        return originalFileAnnotationAndLink;
-    }
-
-    /**
      * Create a light administrator, with a specific privilege, and log in as them.
      * All the other privileges will be set to False.
      * @param isAdmin if the user should be a member of the <tt>system</tt> group
@@ -176,6 +153,30 @@ public class LightAdminRolesTest extends RolesTests {
             target = iAdmin.getExperimenter(target.getId().getValue());
         }
         sudo(target.getOmeName().getValue());
+    }
+
+    /**
+     * Annotate image with tag and file annotation only and return the annotation objects
+     * including the original file of the file annotation and the links
+     * @param image the image to be annotated
+     * @return the list of the tag, original file of the file annotation, file annotation
+     * and the links between the tag and image and the file annotation and image
+     * @throws Exception
+     */
+    private List<IObject> annotateImageWithTagAndFile(Image image) throws Exception {
+        TagAnnotation tagAnnotation = new TagAnnotationI();
+        tagAnnotation = (TagAnnotation) iUpdate.saveAndReturnObject(tagAnnotation);
+        final ImageAnnotationLink tagAnnotationLink = linkImageAnnotation(image, tagAnnotation);
+        /* add a file attachment with original file to the imported image.*/
+        final ImageAnnotationLink fileAnnotationLink = linkImageAnnotation(image, mmFactory.createFileAnnotation());
+        /* link was saved in previous step with the whole graph, including fileAnnotation and original file */
+        final FileAnnotation fileAnnotation = (FileAnnotation) fileAnnotationLink.getChild();
+        final OriginalFile annotOriginalFile = fileAnnotation.getFile();
+        /* make a list of annotation objects in order to simplify checking of owner and group */
+        List<IObject> annotOriginalFileAnnotationTagAndLinks = new ArrayList<IObject>();
+        annotOriginalFileAnnotationTagAndLinks.addAll(Arrays.asList(annotOriginalFile, fileAnnotation, tagAnnotation,
+                tagAnnotationLink, fileAnnotationLink));
+        return annotOriginalFileAnnotationTagAndLinks;
     }
 
     /**
@@ -464,15 +465,8 @@ public class LightAdminRolesTest extends RolesTests {
         OriginalFile originalFile = (OriginalFile) originalFileAndImage.get(0);
         Image image = (Image) originalFileAndImage.get(1);
 
-        /* Tag the imported image */
-        TagAnnotation tagAnnotation = new TagAnnotationI();
-        tagAnnotation = (TagAnnotation) iUpdate.saveAndReturnObject(tagAnnotation);
-        final ImageAnnotationLink tagAnnotationLink = linkImageAnnotation(image, tagAnnotation);
-        /* add a file attachment with original file to the imported image.*/
-        List<IObject> originalFileAnnotationAndLink = createFileAnnotationWithOriginalFileAndLink(image);
-        final OriginalFile annotOriginalFile = (OriginalFile) originalFileAnnotationAndLink.get(0);
-        final FileAnnotation fileAnnotation = (FileAnnotation) originalFileAnnotationAndLink.get(1);
-        final ImageAnnotationLink fileAnnotationLink = (ImageAnnotationLink) originalFileAnnotationAndLink.get(2);
+        /* Annotate the imported image with Tag and file attachment */
+        List<IObject> annotOriginalFileAnnotationTagAndLinks = annotateImageWithTagAndFile(image);
 
         /* set up the light admin's permissions for this test */
         List<String> permissions = new ArrayList<String>();
@@ -501,16 +495,12 @@ public class LightAdminRolesTest extends RolesTests {
             assertInGroup(image, normalUsersOtherGroupId);
             assertInGroup(originalFile, normalUsersOtherGroupId);
             /* Also, check the annotations on the image changed the group as expected */
-            assertInGroup(originalFileAnnotationAndLink, normalUsersOtherGroupId);
-            assertInGroup(tagAnnotation, normalUsersOtherGroupId);
-            assertInGroup(tagAnnotationLink, normalUsersOtherGroupId);
+            assertInGroup(annotOriginalFileAnnotationTagAndLinks, normalUsersOtherGroupId);
         } else {
             assertInGroup(image, normalUser.groupId);
             assertInGroup(originalFile, normalUser.groupId);
             /* neither the image nor the annotations were moved */
-            assertInGroup(originalFileAnnotationAndLink, normalUser.groupId);
-            assertInGroup(tagAnnotation, normalUser.groupId);
-            assertInGroup(tagAnnotationLink, normalUser.groupId);
+            assertInGroup(annotOriginalFileAnnotationTagAndLinks, normalUser.groupId);
         }
         /* in any case, the image should still belong to normalUser */
         assertOwnedBy(image, normalUser);
@@ -561,15 +551,8 @@ public class LightAdminRolesTest extends RolesTests {
         OriginalFile originalFile = (OriginalFile) originalFileAndImage.get(0);
         Image image = (Image) originalFileAndImage.get(1);
 
-        /* Tag the imported image */
-        TagAnnotation tagAnnotation = new TagAnnotationI();
-        tagAnnotation = (TagAnnotation) iUpdate.saveAndReturnObject(tagAnnotation);
-        final ImageAnnotationLink tagAnnotationLink = linkImageAnnotation(image, tagAnnotation);
-        /* add a file attachment with original file to the imported image.*/
-        List<IObject> originalFileAnnotationAndLink = createFileAnnotationWithOriginalFileAndLink(image);
-        final OriginalFile annotOriginalFile = (OriginalFile) originalFileAnnotationAndLink.get(0);
-        final FileAnnotation fileAnnotation = (FileAnnotation) originalFileAnnotationAndLink.get(1);
-        final ImageAnnotationLink fileAnnotationLink = (ImageAnnotationLink) originalFileAnnotationAndLink.get(2);
+        /* Annotate the imported image with Tag and file attachment */
+        List<IObject> annotOriginalFileAnnotationTagAndLinks = annotateImageWithTagAndFile(image);
 
         /* set up the light admin's permissions for this test */
         List<String> permissions = new ArrayList<String>();
@@ -607,18 +590,14 @@ public class LightAdminRolesTest extends RolesTests {
             assertInGroup(image, anotherGroupId);
             assertInGroup(originalFile, anotherGroupId);
             /* check the annotations on the image changed the group as expected */
-            assertInGroup(originalFileAnnotationAndLink, anotherGroupId);
-            assertInGroup(tagAnnotation, anotherGroupId);
-            assertInGroup(tagAnnotationLink, anotherGroupId);
+            assertInGroup(annotOriginalFileAnnotationTagAndLinks, anotherGroupId);
         } else {
             /* check that the image, after this second Chgrp attempt,
              * is still in its original group */
             assertInGroup(image, normalUser.groupId);
             assertInGroup(originalFile, normalUser.groupId);
             /* neither the image nor the annotations were moved */
-            assertInGroup(originalFileAnnotationAndLink, normalUser.groupId);
-            assertInGroup(tagAnnotation, normalUser.groupId);
-            assertInGroup(tagAnnotationLink, normalUser.groupId);
+            assertInGroup(annotOriginalFileAnnotationTagAndLinks, normalUser.groupId);
         }
         /* in any case, the image should still belong to normalUser */
         assertOwnedBy(image, normalUser);
@@ -661,13 +640,8 @@ public class LightAdminRolesTest extends RolesTests {
         OriginalFile originalFile = (OriginalFile) originalFileAndImage.get(0);
         Image image = (Image) originalFileAndImage.get(1);
 
-        /* Tag the imported image */
-        TagAnnotation tagAnnotation = new TagAnnotationI();
-        tagAnnotation = (TagAnnotation) iUpdate.saveAndReturnObject(tagAnnotation);
-        final ImageAnnotationLink tagAnnotationLink = linkImageAnnotation(image, tagAnnotation);
-
-        /* add a file attachment with original file to the imported image.*/
-        List<IObject> originalFileAnnotationAndLink = createFileAnnotationWithOriginalFileAndLink(image);
+        /* Annotate the imported image with Tag and file attachment */
+        List<IObject> annotOriginalFileAnnotationTagAndLinks = annotateImageWithTagAndFile(image);
 
         /* set up the basic permissions for this test */
         List<String> permissions = new ArrayList<String>();
@@ -691,9 +665,7 @@ public class LightAdminRolesTest extends RolesTests {
             doChange(client, factory, Requests.chown().target(image).toUser(anotherUser.userId).build(), false);
             assertOwnedBy(image, normalUser);
             assertOwnedBy(originalFile, normalUser);
-            assertOwnedBy(tagAnnotation, normalUser);
-            assertOwnedBy(tagAnnotationLink, normalUser);
-            assertOwnedBy(originalFileAnnotationAndLink, normalUser);
+            assertOwnedBy(annotOriginalFileAnnotationTagAndLinks, normalUser);
         } else if (chownPassingWhenNotSudoing && annotationsChownExpectSuccess) {
             /* chowning the image NOT being sudoed,
              * should pass only in case you have Chown
@@ -708,9 +680,7 @@ public class LightAdminRolesTest extends RolesTests {
              * the chown of the image will only chown them if also
              * groupPermissions are private or read-only (captured in boolean
              * annotationsChownExpectSuccess) */
-            assertOwnedBy(tagAnnotation, anotherUser);
-            assertOwnedBy(tagAnnotationLink, anotherUser);
-            assertOwnedBy(originalFileAnnotationAndLink, anotherUser);
+            assertOwnedBy(annotOriginalFileAnnotationTagAndLinks, anotherUser);
         } else if (chownPassingWhenNotSudoing && !annotationsChownExpectSuccess){
             Assert.assertEquals(getCurrentPermissions(image).canChown(), true);
             doChange(client, factory, Requests.chown().target(image).toUser(anotherUser.userId).build(), chownPassingWhenNotSudoing);
@@ -720,9 +690,7 @@ public class LightAdminRolesTest extends RolesTests {
              * annotations will remain attached to the image
              * of anotherUser, but still belongs to normalUser
              */
-            assertOwnedBy(tagAnnotation, normalUser);
-            assertOwnedBy(tagAnnotationLink, normalUser);
-            assertOwnedBy(originalFileAnnotationAndLink, normalUser);
+            assertOwnedBy(annotOriginalFileAnnotationTagAndLinks, normalUser);
         } else {
             /* the chown will fail, as the chownPassingWhenNotSudoing is false,
              * and the light admin is not sudoing in this case. All objects still
@@ -731,9 +699,7 @@ public class LightAdminRolesTest extends RolesTests {
             doChange(client, factory, Requests.chown().target(image).toUser(anotherUser.userId).build(), chownPassingWhenNotSudoing);
             assertOwnedBy(image, normalUser);
             assertOwnedBy(originalFile, normalUser);
-            assertOwnedBy(tagAnnotation, normalUser);
-            assertOwnedBy(tagAnnotationLink, normalUser);
-            assertOwnedBy(originalFileAnnotationAndLink, normalUser);
+            assertOwnedBy(annotOriginalFileAnnotationTagAndLinks, normalUser);
         }
             /* in any case, the image must be in the right group */
             assertInGroup(image, normalUser.groupId);

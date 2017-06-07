@@ -311,6 +311,18 @@ public class ModelMockFactory {
     }
 
     /**
+     * Create a FileAnnotation with Original File.
+     * @return the FileAnnotation
+     * @throws Exception unexpected
+     */
+    protected FileAnnotation createFileAnnotation() throws Exception {
+        FileAnnotation fileAnnotation = new FileAnnotationI();
+        OriginalFile originalFile = createOriginalFile();
+        fileAnnotation.setFile(originalFile);
+        return fileAnnotation;
+    }
+
+    /**
      * Creates and returns an original file object.
      *
      * @return See above.
