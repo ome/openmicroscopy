@@ -141,7 +141,7 @@
             $df.trigger("chosen:updated");
         }
 
-        // Setup chosen plugin on 'Default Group' chooser (only select singe group)
+        // Setup chosen plugin on 'Default Group' chooser (only select single group)
         $("#id_default_group").chosen({
             disable_search_threshold:5,
             placeholder_text:'Choose default group'
@@ -151,16 +151,8 @@
         $("#id_other_groups")
             .chosen({placeholder_text:'Type group names to add...'})
             .change(function(evt, data) {
-                // update 'default_group' <select>
-                // syncDefaultGroupOptions(data.selected);
                 // In case we've added the system group:
                 hideSystemGroupX();
-
-                if (data && data.deselected) {
-                    syncDefaultGroupOptions(data.deselected);
-                } else if (data && data.selected) {
-                    syncDefaultGroupOptions(data.selected);
-                }
 
                 // If 'system' group added...
                 if (data && data.selected === "0") {
@@ -173,6 +165,13 @@
                         // otherwise 'role' is now 'administrator'
                         $("input[name='role'][value='administrator']").prop('checked', true);
                     }
+                }
+
+                // update 'default_group' <select>
+                if (data && data.deselected) {
+                    syncDefaultGroupOptions(data.deselected);
+                } else if (data && data.selected) {
+                    syncDefaultGroupOptions(data.selected);
                 }
             });
 
