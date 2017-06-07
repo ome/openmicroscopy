@@ -538,14 +538,15 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
         user_privileges = [p.getValue().val for p in
                            conn.getAdminService().getAdminPrivileges(
                            ExperimenterI(user_id, False))]
-
         experimenter_root = long(eid) == root_id
         experimenter_me = long(eid) == user_id
         user_full_admin = 'ReadSession' in user_privileges
+        can_modify_user = 'ModifyUser' in user_privileges
         # Only Full Admin can edit 'Role' of experimenter
         can_edit_role = user_full_admin and not (experimenter_me
                                                  or experimenter_root)
         form = ExperimenterForm(
+            can_modify_user=can_modify_user,
             can_edit_role=can_edit_role,
             experimenter_me=experimenter_me,
             experimenter_root=experimenter_root,
@@ -555,6 +556,7 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
         admin_groups = [
             conn.getAdminService().getSecurityRoles().systemGroupId]
         context = {'form': form, 'eid': eid, 'ldapAuth': isLdapUser,
+                   'can_modify_user': can_modify_user,
                    'password_form': password_form,
                    'admin_groups': admin_groups}
     elif action == 'save':

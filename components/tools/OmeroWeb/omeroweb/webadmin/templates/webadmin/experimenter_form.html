@@ -344,7 +344,12 @@
         
         <br />
         
-        <input type="submit" value="{% trans 'Save' %}" />
+        <input type="submit" 
+            {% if not can_modify_user %}
+                disabled title="You don't have permissions to edit Users"
+            {% endif %}
+            value="{% trans 'Save' %}" />
+        <div style="clear: both"></div>
 
     </form>
 

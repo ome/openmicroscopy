@@ -97,6 +97,7 @@ class ExperimenterForm(NonASCIIForm):
     def __init__(self, name_check=False, email_check=False,
                  experimenter_is_me_or_system=False,
                  experimenter_me=False,
+                 can_modify_user=True,
                  experimenter_root=False,
                  can_edit_role=True, *args, **kwargs):
         super(ExperimenterForm, self).__init__(*args, **kwargs)
@@ -193,6 +194,11 @@ class ExperimenterForm(NonASCIIForm):
             elif experimenter_root:
                 reason = "You can't edit 'root' user's admin privileges"
             self.fields['role'].widget.attrs['title'] = reason
+
+        # If we can't modify user, ALL fields are disabled
+        if not can_modify_user:
+            for field in self.fields.values():
+                field.widget.attrs['disabled'] = True
 
     omename = OmeNameField(
         max_length=250,
