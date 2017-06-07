@@ -122,7 +122,7 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
     </target>
 
     <target name="build-scons" description="Installs the scons build tool" unless="scons.py">
-        <unzip src="${lib.dir}/repository/scons-local-2.1.0.zip" dest="target/scons"/>
+        <unzip src="${lib.dir}/repository/scons-local-2.2.0.zip" dest="target/scons"/>
     </target>
 
     <target name="check-ice" description="Checks Ice versioning">
