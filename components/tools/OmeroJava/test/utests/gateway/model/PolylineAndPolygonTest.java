@@ -86,15 +86,11 @@ public class PolylineAndPolygonTest extends TestCase {
             Point2D.Double p = new Point2D.Double(i, n);
             points.add(p);
         }
-        data.setPoints(points, points, points, new ArrayList<Integer>());
+        data.setPoints(points);
         Polyline shape = (Polyline) data.asIObject();
         String pointsAsString = shape.getPoints().getValue();
-        //Check that the string no longer contains
-        //"points", "points1", "points2" or "masks"
+        //Check that the string no longer contains "points""
         assertFalse(pointsAsString.contains("points"));
-        assertFalse(pointsAsString.contains("points1"));
-        assertFalse(pointsAsString.contains("points2"));
-        assertFalse(pointsAsString.contains("masks"));
     }
 
     @Test
@@ -106,7 +102,7 @@ public class PolylineAndPolygonTest extends TestCase {
             Point2D.Double p = new Point2D.Double(i, n);
             points.add(p);
         }
-        data.setPoints(points, points, points, new ArrayList<Integer>());
+        data.setPoints(points);
         Polygon shape = (Polygon) data.asIObject();
         String pointsAsString = shape.getPoints().getValue();
         //Check that the string no longer contains
@@ -219,27 +215,10 @@ public class PolylineAndPolygonTest extends TestCase {
 
         String pointsValues = toPoints(points);
         String pts = "points["+pointsValues+"] ";
-        pts = pts + "points1["+pointsValues+"] ";
-        pts = pts + "points2["+pointsValues+"] ";
-        pts = pts + "mask["+maskValues+"] ";
         shape.setPoints(rtypes.rstring(pts));
         PolygonData data = new PolygonData(shape);
         List<Point2D.Double> list = data.getPoints();
         Point2D.Double p, p1;
-        for (int i = 0; i < n; i++) {
-            p = points[i];
-            p1 = list.get(i);
-            assertEquals(p.getX(), p1.getX());
-            assertEquals(p.getY(), p1.getY());
-        }
-        list = data.getPoints1();
-        for (int i = 0; i < n; i++) {
-            p = points[i];
-            p1 = list.get(i);
-            assertEquals(p.getX(), p1.getX());
-            assertEquals(p.getY(), p1.getY());
-        }
-        list = data.getPoints2();
         for (int i = 0; i < n; i++) {
             p = points[i];
             p1 = list.get(i);
@@ -270,27 +249,10 @@ public class PolylineAndPolygonTest extends TestCase {
 
         String pointsValues = toPoints(points);
         String pts = "points["+pointsValues+"] ";
-        pts = pts + "points1["+pointsValues+"] ";
-        pts = pts + "points2["+pointsValues+"] ";
-        pts = pts + "mask["+maskValues+"] ";
         shape.setPoints(rtypes.rstring(pts));
         PolygonData data = new PolygonData(shape);
         List<Point2D.Double> list = data.getPoints();
         Point2D.Double p, p1;
-        for (int i = 0; i < n; i++) {
-            p = points[i];
-            p1 = list.get(i);
-            assertEquals(p.getX(), p1.getX());
-            assertEquals(p.getY(), p1.getY());
-        }
-        list = data.getPoints1();
-        for (int i = 0; i < n; i++) {
-            p = points[i];
-            p1 = list.get(i);
-            assertEquals(p.getX(), p1.getX());
-            assertEquals(p.getY(), p1.getY());
-        }
-        list = data.getPoints2();
         for (int i = 0; i < n; i++) {
             p = points[i];
             p1 = list.get(i);
@@ -313,23 +275,9 @@ public class PolylineAndPolygonTest extends TestCase {
             p = new Point2D.Double(i, n);
             points.add(p);
         }
-        data.setPoints(points, points, points, new ArrayList<Integer>());
+        data.setPoints(points);
         List<Point2D.Double> list = data.getPoints();
         Point2D.Double p1;
-        for (int i = 0; i < n; i++) {
-            p = points.get(i);
-            p1 = list.get(i);
-            assertEquals(p.getX(), p1.getX());
-            assertEquals(p.getY(), p1.getY());
-        }
-        list = data.getPoints1();
-        for (int i = 0; i < n; i++) {
-            p = points.get(i);
-            p1 = list.get(i);
-            assertEquals(p.getX(), p1.getX());
-            assertEquals(p.getY(), p1.getY());
-        }
-        list = data.getPoints2();
         for (int i = 0; i < n; i++) {
             p = points.get(i);
             p1 = list.get(i);
@@ -350,23 +298,9 @@ public class PolylineAndPolygonTest extends TestCase {
             points.add(p);
             masks.add(i);
         }
-        data.setPoints(points, points, points, masks);
+        data.setPoints(points);
         List<Point2D.Double> list = data.getPoints();
         Point2D.Double p1;
-        for (int i = 0; i < n; i++) {
-            p = points.get(i);
-            p1 = list.get(i);
-            assertEquals(p.getX(), p1.getX());
-            assertEquals(p.getY(), p1.getY());
-        }
-        list = data.getPoints1();
-        for (int i = 0; i < n; i++) {
-            p = points.get(i);
-            p1 = list.get(i);
-            assertEquals(p.getX(), p1.getX());
-            assertEquals(p.getY(), p1.getY());
-        }
-        list = data.getPoints2();
         for (int i = 0; i < n; i++) {
             p = points.get(i);
             p1 = list.get(i);
