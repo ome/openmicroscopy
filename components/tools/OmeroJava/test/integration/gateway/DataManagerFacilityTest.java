@@ -40,6 +40,7 @@ import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import omero.LockTimeout;
 import omero.RLong;
 import omero.ServerError;
 import omero.api.IPixelsPrx;
@@ -174,8 +175,8 @@ public class DataManagerFacilityTest extends GatewayTest {
     }
     
     @Test(dependsOnMethods = { "testUpdateObject" })
-    public void testDeleteObject() throws DSOutOfServiceException, DSAccessException {
-        datamanagerFacility.deleteObject(rootCtx, img.asIObject());
+    public void testDeleteObject() throws DSOutOfServiceException, DSAccessException, LockTimeout, InterruptedException {
+        datamanagerFacility.delete(rootCtx, img.asIObject()).loop(10, 500);
         List<Long> ids = new ArrayList<Long>(1);
         ids.add(img.getId());
         Collection<ImageData> img = browseFacility.getImages(rootCtx, ids);

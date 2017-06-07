@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -358,20 +358,6 @@ public class PlateData extends DataObject {
     }
 
     /**
-     * Returns the x-coordinate in 2D-space of the well.
-     *
-     * @return See above
-     * @deprecated Replaced by {@link #getWellOriginX(UnitsLength)}
-     */
-    @Deprecated
-    public double getWellOriginX()
-    {
-        Length value = asPlate().getWellOriginX();
-        if (value == null) return 0;
-        return value.getValue();
-    }
-
-    /**
      * Returns the y-coordinate in 2D-space of the well.
      *
      * @param unit
@@ -387,20 +373,6 @@ public class PlateData extends DataObject {
             return new LengthI(0, UnitsLength.REFERENCEFRAME);
         else
             return unit == null ? value : new LengthI(value, unit);
-    }
-
-    /**
-     * Returns the y-coordinate in 2D-space of the well.
-     *
-     * @return See above
-     * @deprecated Replaced by {@link #getWellOriginY(UnitsLength)}
-     */
-    @Deprecated
-    public double getWellOriginY()
-    {
-        Length value = asPlate().getWellOriginY();
-        if (value == null) return 0;
-        return value.getValue();
     }
 
     /**

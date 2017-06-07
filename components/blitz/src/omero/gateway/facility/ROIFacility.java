@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -791,7 +791,7 @@ public class ROIFacility extends Facility {
                                     }
                                     if (shapeIndex !=-1) {
                                         if (!removed.contains(coord))
-                                            dm.deleteObject(ctx, serverShape);
+                                            dm.delete(ctx, serverShape).loop(10, 500);
                                         serverRoi.addShape(sh);
                                     } else {
                                         throw new Exception("serverRoi.shapeList " +

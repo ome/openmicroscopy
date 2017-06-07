@@ -93,6 +93,7 @@ public class FindParentsI extends FindParents implements IRequest {
      * @param adminPrivileges the light administrator privileges helper
      * @param targetClasses legal target object classes for the search
      * @param graphPolicy the graph policy to apply for the search
+     * @deprecated from OMERO 5.4 the systemTypes argument is no longer included
      */
     public FindParentsI(ACLVoter aclVoter, Roles securityRoles, GraphPathBean graphPathBean, LightAdminPrivileges adminPrivileges,
             Set<Class<? extends IObject>> targetClasses, GraphPolicy graphPolicy) {

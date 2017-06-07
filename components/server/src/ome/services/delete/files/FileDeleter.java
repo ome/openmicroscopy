@@ -20,6 +20,7 @@ package ome.services.delete.files;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import ome.io.nio.AbstractFileSystemService;
@@ -90,9 +91,12 @@ public class FileDeleter {
         undeletedFiles.put(Type.Pixels.toString(), pixelsFD.getUndeletedFiles());
 
         if (log.isDebugEnabled()) {
-            for (String table : undeletedFiles.keySet()) {
-                log.debug("Failed to delete files : " + table + ":"
-                        + Arrays.toString(undeletedFiles.get(table)));
+            for (final Map.Entry<String, long[]> undeletedFilesOneClass : undeletedFiles.entrySet()) {
+                final String className = undeletedFilesOneClass.getKey();
+                final long[] ids = undeletedFilesOneClass.getValue();
+                if (ids.length > 0) {
+                    log.debug("Failed to delete files : " + className + ":" + Arrays.toString(ids));
+                }
             }
         }
     }

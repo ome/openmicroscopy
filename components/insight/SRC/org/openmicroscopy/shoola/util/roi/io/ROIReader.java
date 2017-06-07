@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -170,14 +170,14 @@ public class ROIReader {
         ShapeData data;
         if (type.matches("Polyline") || type.matches("Freeline") ||
                 type.matches("Angle")) {
-            data = new PolylineData(points, points, points, masks);
+            data = new PolylineData(points);
             ((PolylineData) data).setText(shape.getName());
         } else if (type.matches("Polygon") || type.matches("Freehand") ||
                 type.matches("Traced")){
-            data = new PolygonData(points, points, points, masks);
+            data = new PolygonData(points);
             ((PolygonData) data).setText(shape.getName());
         } else {
-            data = new PolygonData(points, points, points, masks);
+            data = new PolygonData(points);
             ((PolygonData) data).setText(shape.getName());
         }
         if (formatShape(shape, data)){

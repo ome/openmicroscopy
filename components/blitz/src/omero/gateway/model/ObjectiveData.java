@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- * Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ * Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -73,21 +73,6 @@ public class ObjectiveData
         if (l == null)
             return null;
         return unit == null ? l : new LengthI(l, unit);
-    }
-
-    /**
-     * Returns the working distance.
-     *
-     * @return See above.
-     * @deprecated Replaced by {@link #getWorkingDistance(UnitsLength)}
-     */
-    @Deprecated
-    public double getWorkingDistance()
-    {
-        Objective obj = ((Objective) asIObject());
-        Length value = obj.getWorkingDistance();
-        if (value == null) return -1;
-        return value.getValue();
     }
 
     /**

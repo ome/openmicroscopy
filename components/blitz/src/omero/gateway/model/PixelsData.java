@@ -232,19 +232,6 @@ public class PixelsData extends DataObject {
     }
 
     /**
-     * Sets the dimension of a pixel along the X-axis, dimension is in microns.
-     *
-     * @param pixelSizeX
-     *            The dimension of a pixel along the X-axis.
-     * @deprecated Replaced by {@link #setPixelSizeX(Length)}
-     */
-    @Deprecated
-    public void setPixelSizeX(double pixelSizeX) {
-        setDirty(true);
-        asPixels().setPhysicalSizeX(new LengthI(pixelSizeX, UnitsLength.MICROMETER));
-    }
-
-    /**
      * Sets the dimension of a pixel along the X-axis
      *
      * @param pixelSizeX
@@ -253,19 +240,6 @@ public class PixelsData extends DataObject {
     public void setPixelSizeX(Length pixelSizeX) {
         setDirty(true);
         asPixels().setPhysicalSizeX(pixelSizeX);
-    }
-
-
-    /**
-     * Returns the dimension of a pixel along the X-axis, dimension is in
-     * microns.
-     *
-     * @return See above.
-     * @deprecated Replaced by {@link #getPixelSizeX(UnitsLength)}
-     */
-    @Deprecated
-    public double getPixelSizeX() {
-        return nullSafe(asPixels().getPhysicalSizeX());
     }
 
     /**
@@ -285,19 +259,6 @@ public class PixelsData extends DataObject {
     }
 
     /**
-     * Sets the dimension of a pixel along the Y-axis, dimension is in microns.
-     *
-     * @param pixelSizeY
-     *            The dimension of a pixel along the Y-axis.
-     * @deprecated Replaced by {@link #setPixelSizeY(Length)}
-     */
-    @Deprecated
-    public void setPixelSizeY(double pixelSizeY) {
-        setDirty(true);
-        asPixels().setPhysicalSizeY(new LengthI(pixelSizeY, UnitsLength.MICROMETER));
-    }
-
-    /**
      * Sets the dimension of a pixel along the Y-axis.
      *
      * @param pixelSizeY
@@ -306,17 +267,6 @@ public class PixelsData extends DataObject {
     public void setPixelSizeY(Length pixelSizeY) {
         setDirty(true);
         asPixels().setPhysicalSizeY(pixelSizeY);
-    }
-
-    /**
-     * Returns the dimension of a pixel along the Y-axis.
-     *
-     * @return See above.
-     * @deprecated Replaced by {@link #getPixelSizeY(UnitsLength)}
-     */
-    @Deprecated
-    public double getPixelSizeY() {
-        return nullSafe(asPixels().getPhysicalSizeY());
     }
 
     /**
@@ -336,19 +286,6 @@ public class PixelsData extends DataObject {
     }
 
     /**
-     * Sets the dimension of a pixel along the Z-axis.
-     *
-     * @param pixelSizeZ
-     *            The dimension of a pixel along the Z-axis.
-     * @deprecated Replaced by {@link #setPixelSizeZ(Length)}
-     */
-    @Deprecated
-    public void setPixelSizeZ(double pixelSizeZ) {
-        setDirty(true);
-        asPixels().setPhysicalSizeZ(new LengthI(pixelSizeZ, UnitsLength.MICROMETER));
-    }
-
-    /**
      * Sets the dimension of a pixel along the Z-axis
      *
      * @param pixelSizeZ
@@ -357,17 +294,6 @@ public class PixelsData extends DataObject {
     public void setPixelSizeZ(Length pixelSizeZ) {
         setDirty(true);
         asPixels().setPhysicalSizeZ(pixelSizeZ);
-    }
-
-    /**
-     * Returns the dimension of a pixel along the Z-axis.
-     *
-     * @return See above.
-     * @deprecated Replaced by {@link #getPixelSizeZ(UnitsLength)}
-     */
-    @Deprecated
-    public double getPixelSizeZ() {
-        return nullSafe(asPixels().getPhysicalSizeZ());
     }
 
     /**

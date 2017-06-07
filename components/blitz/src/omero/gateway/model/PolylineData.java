@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- * Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ * Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -62,18 +62,6 @@ public class PolylineData
         this(new ArrayList<Point2D.Double>());
     }
 
-    /**
-     * Create a new instance of the PolylineData, set the points in the polyline.
-     *
-     * @param points See Above.
-     * @deprecated
-     */
-    public PolylineData(List<Point2D.Double> points, List<Point2D.Double> points1,
-            List<Point2D.Double> points2, List<Integer> maskList)
-    {
-        super(new PolylineI(), true);
-        setPoints(points, points1, points2, maskList);
-    }
 
     /**
      * Create a new instance of the PolylineData, set the points in the polyline.
@@ -123,66 +111,6 @@ public class PolylineData
     {
         String pts = fromPoints("points");
         return parsePointsToPoint2DList(pts);
-    }
-
-    /**
-     * Returns the points in the Polyline.
-     *
-     * @return See above.
-     * @deprecated
-     */
-    public List<Point2D.Double> getPoints1()
-    {
-        String pts = fromPoints("points1");
-        return parsePointsToPoint2DList(pts);
-    }
-
-    /**
-     * Returns the points in the Polyline.
-     *
-     * @return See above.
-     * @deprecated
-     */
-    public List<Point2D.Double> getPoints2()
-    {
-        String pts = fromPoints("points2");
-        return parsePointsToPoint2DList(pts);
-    }
-
-    /**
-     * Returns the points in the Polyline.
-     *
-     * @return See above.
-     * @deprecated
-     */
-    public List<Integer> getMaskPoints()
-    {
-        String pts = fromPoints("mask");
-        return parsePointsToIntegerList(pts);
-    }
-
-    /**
-     * Sets the points in the polyline.
-     *
-     * @param points The points to set.
-     * @param points1 The points to set.
-     * @param points2 The points to set.
-     * @param maskList The points to set.
-     * @deprecated
-     */
-    public void setPoints(List<Point2D.Double> points,
-            List<Point2D.Double> points1,
-            List<Point2D.Double> points2, List<Integer> maskList)
-    {
-        if (isReadOnly())
-            throw new IllegalArgumentException("Shape ReadOnly");
-        Polyline shape = (Polyline) asIObject();
-        if (shape == null) 
-            throw new IllegalArgumentException("No shape specified.");
-
-        String pointsValues =
-                toPoints(points.toArray(new Point2D.Double[points.size()]));
-        shape.setPoints(rtypes.rstring(pointsValues));
     }
 
     /**

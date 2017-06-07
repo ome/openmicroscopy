@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -27,12 +27,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.collections.CollectionUtils;
 
 import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DataSourceException;
+import omero.gateway.facility.RawDataFacility;
 
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
@@ -120,8 +122,9 @@ public class ROIAnalyser
      * @param gateway Gateway to the raw data of the pixels set this iterator
      *               will work on. Mustn't be <code>null</code>.
      * @param pixels The pixels to analyze.
+     * @throws ExecutionException If {@link RawDataFacility} can't be accessed
      */
-    public ROIAnalyser(Gateway gateway, PixelsData pixels)
+    public ROIAnalyser(Gateway gateway, PixelsData pixels) throws ExecutionException
     {
         //Constructor will check source and dims.
         runner = new PointIterator(gateway, pixels);

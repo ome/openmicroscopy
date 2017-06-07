@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -29,6 +29,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.commons.collections.CollectionUtils;
 
 import omero.api.IContainerPrx;
 import omero.api.IQueryPrx;
@@ -130,60 +132,6 @@ public class BrowseFacility extends Facility {
                     options));
         } catch (Throwable t) {
             handleException(this, t, "Could not load hierarchy");
-        }
-
-        return Collections.emptySet();
-    }
-    
-    /**
-     * Retrieves hierarchy trees rooted by a given node.
-     * i.e. the requested node as root and all of its descendants.
-     *
-     * @deprecated Please use the more generic method 
-     *          {@link #getHierarchy(SecurityContext, Class, List, Parameters)}
-     *          
-     * @param ctx The security context.
-     * @param rootType The type of node to handle.
-     * @param userId The user's to retrieve the data to handle.
-     * @return See above.
-     * @throws DSOutOfServiceException
-     *             If the connection is broken, or not logged in
-     */
-    public Set<DataObject> loadHierarchy(SecurityContext ctx, Class rootType,
-            long userId) throws DSOutOfServiceException {
-        ParametersI param = new ParametersI();
-        if (userId >= 0) {
-            param.exp(omero.rtypes.rlong(userId));
-        }
-        param.orphan();
-        return loadHierarchy(ctx, rootType, null, param);
-    }
-
-    /**
-     * Retrieves hierarchy trees rooted by a given node.
-     * i.e. the requested node as root and all of its descendants.
-     *
-     * @deprecated Please use the more generic method 
-     *          {@link #getHierarchy(SecurityContext, Class, long)}
-     *          
-     * @param ctx The security context.
-     * @param rootType The type of node to handle.
-     * @param rootIDs The node's id.
-     * @param options The retrieval options.
-     * @return See above.
-     * @throws DSOutOfServiceException
-     *             If the connection is broken, or not logged in
-     */
-    public Set<DataObject> loadHierarchy(SecurityContext ctx, Class rootType,
-            List<Long> rootIDs, Parameters options)
-            throws DSOutOfServiceException {
-        try {
-            IContainerPrx service = gateway.getPojosService(ctx);
-            return PojoMapper.asDataObjects(service.loadContainerHierarchy(
-                    PojoMapper.getModelType(rootType).getName(), rootIDs,
-                    options));
-        } catch (Throwable t) {
-            logError(this, "Could not load hierarchy", t);
         }
 
         return Collections.emptySet();
@@ -952,6 +900,55 @@ public class BrowseFacility extends Facility {
         return Collections.emptyList();
     }
 
+    /**
+     * Loads the wells
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param wellIds
+     *            The ids of the wells to load
+     * @return A collection of {@link WellData}s
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public Collection<WellData> getWells(SecurityContext ctx,
+            Collection<Long> wellIds) throws DSOutOfServiceException,
+            DSAccessException {
+        Collection<WellData> result = new ArrayList<WellData>();
+
+        if (CollectionUtils.isEmpty(wellIds))
+            return result;
+
+        try {
+            IQueryPrx proxy = gateway.getQueryService(ctx);
+            StringBuilder sb = new StringBuilder();
+            ParametersI param = new ParametersI();
+            param.addIds(wellIds);
+            sb.append("select well from Well as well ");
+            sb.append("left outer join fetch well.plate as pt ");
+            sb.append("left outer join fetch well.wellSamples as ws ");
+            sb.append("left outer join fetch ws.plateAcquisition as pa ");
+            sb.append("left outer join fetch ws.image as img ");
+            sb.append("left outer join fetch img.pixels as pix ");
+            sb.append("left outer join fetch pix.pixelsType as pt ");
+            sb.append("where well.id in (:ids)");
+
+            List<IObject> results = proxy.findAllByQuery(sb.toString(), param);
+            Iterator<IObject> i = results.iterator();
+            WellData well;
+            while (i.hasNext()) {
+                well = new WellData((Well) i.next());
+                result.add(well);
+            }
+        } catch (Throwable t) {
+            handleException(this, t, "Could not load wells");
+        }
+        return result;
+    }
+    
     /**
      * Loads the wells for a given plate 
      * @param ctx The {@link SecurityContext}
