@@ -618,7 +618,10 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                             listOfOtherGroups.add(g)
 
                 # Update 'AdminPrivilege' config roles for user
-                conn.setConfigRoles(long(eid), form)
+                # If role is empty, roles section of form is disabled - ignore
+                # since disabled privileges will not show up in POST data
+                if role != '':
+                    conn.setConfigRoles(long(eid), form)
 
                 conn.updateExperimenter(
                     experimenter, omename, firstName, lastName, email, admin,
