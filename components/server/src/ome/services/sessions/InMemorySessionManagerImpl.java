@@ -92,7 +92,7 @@ public class InMemorySessionManagerImpl
     @Override
     protected Session findSessionById(Long id, ServiceFactory sf) {
         for (Session session : sessions.values()) {
-            if (session.getId() == id) {
+            if (session.getId().equals(id)) {
                 return session;
             }
         }
