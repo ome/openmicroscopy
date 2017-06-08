@@ -406,14 +406,18 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
         user_privileges = conn.getCurrentAdminPrivileges()
         # Only Full Admin can set 'Role' of new experimenter
         user_full_admin = 'ReadSession' in user_privileges
+        can_modify_user = 'ModifyUser' in user_privileges
         form = ExperimenterForm(
             can_edit_role=user_full_admin,
+            can_modify_user=can_modify_user,
             initial={'with_password': True,
                      'active': True,
                      'groups': otherGroupsInitialList(groups)})
         admin_groups = [
             conn.getAdminService().getSecurityRoles().systemGroupId]
-        context = {'form': form, 'admin_groups': admin_groups}
+        context = {'form': form,
+                   'admin_groups': admin_groups,
+                   'can_modify_user': can_modify_user}
     elif action == 'create':
         if request.method != 'POST':
             return HttpResponseRedirect(
@@ -720,9 +724,10 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
                 'admins': admins, 'can_modify_group': can_modify_group}
 
     if action == 'new':
+        can_modify_group = 'ModifyGroup' in conn.getCurrentAdminPrivileges()
         form = GroupForm(initial={'experimenters': experimenters,
                                   'permissions': 0})
-        context = {'form': form}
+        context = {'form': form, 'can_modify_group': can_modify_group}
     elif action == 'create':
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamanagegroupid",
