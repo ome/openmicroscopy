@@ -366,8 +366,7 @@ public class LightAdminRolesTest extends RolesTests {
    }
 
     /**
-     * Test that a light admin can
-     * edit the name of a project
+     * Test that a light admin can edit the name of a project
      * on behalf of another user solely with <tt>Sudo</tt> privilege
      * or without it, using permWriteOwned privilege
      * @param isSudoing if to test a success of workflows where Sudoed in
