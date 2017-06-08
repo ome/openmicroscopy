@@ -1219,11 +1219,11 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
 
         admin_serv = self.getAdminService()
         admin_serv.updateExperimenter(up_exp)
-        can_modify = 'ModifyGroupMembership' in self.getCurrentAdminPrivileges()
-        if len(addGroups) > 0 and can_modify:
+        can_mod = 'ModifyGroupMembership' in self.getCurrentAdminPrivileges()
+        if len(addGroups) > 0 and can_mod:
             admin_serv.addGroups(up_exp, addGroups)
         admin_serv.setDefaultGroup(up_exp, defaultGroup._obj)
-        if len(rmGroups) > 0 and can_modify:
+        if len(rmGroups) > 0 and can_mod:
             admin_serv.removeGroups(up_exp, rmGroups)
 
     def setConfigRoles(self, experimenter_id, experimenter_form):
