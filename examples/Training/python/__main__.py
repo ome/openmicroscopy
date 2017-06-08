@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2015 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2015-2017 University of Dundee & Open Microscopy Environment.
 #                    All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
@@ -12,6 +12,7 @@ training_dir = os.path.dirname(os.path.abspath(__file__))
 
 if __name__ == "__main__":
         print "Running training suite"
+        execfile(os.path.join(training_dir, 'Bulk_Shapes.py'))
         execfile(os.path.join(training_dir, 'Connect_To_OMERO.py'))
         execfile(os.path.join(training_dir, 'Create_Image.py'))
         execfile(os.path.join(training_dir, 'Delete.py'))
