@@ -67,6 +67,7 @@ LUTS_IN_PNG = [
     '/luts/wcif/yellow_hot.lut'
 ]
 
+
 # helper method
 def getIntOrDefault(request, name, default):
     index = request.GET.get(name, request.POST.get(name, default))
