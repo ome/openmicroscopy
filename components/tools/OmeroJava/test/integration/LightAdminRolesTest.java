@@ -207,8 +207,7 @@ public class LightAdminRolesTest extends RolesTests {
         lightAdmin = loginNewAdmin(true, permissions);
         if (isSudoing) sudo(new ExperimenterI(normalUser.userId, false));
 
-        /* First, check that the lightAdmin
-         * can create Project and Dataset on behalf of the normalUser
+        /* First, create Project and Dataset on behalf of the normalUser
          * in the group of the normalUser in anticipation of importing
          * data for the normalUser in the next step into these containers */
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
@@ -216,13 +215,15 @@ public class LightAdminRolesTest extends RolesTests {
         Dataset dat = mmFactory.simpleDataset();
         Project sentProj = null;
         Dataset sentDat = null;
-        /* set the normalUser as the owner of the newly created P/D but do this only
-         * when the light admin is not sudoing (if sudoing, this step is not necessary
+        /* Set the normalUser as the owner of the newly created P/D but do this only
+         * when the lightAdmin is not sudoing (if sudoing, this step is not necessary
          * because the created P/D already belongs to the normalUser) */
         if (!isSudoing) {
             proj.getDetails().setOwner(new ExperimenterI(normalUser.userId, false));
             dat.getDetails().setOwner(new ExperimenterI(normalUser.userId, false));
         }
+        /* Check that you can save the created Project and Dataset only when the permissions
+         * are sufficient.*/
         try {
             sentProj = (Project) iUpdate.saveAndReturnObject(proj);
             sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
@@ -230,8 +231,8 @@ public class LightAdminRolesTest extends RolesTests {
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccessCreate);
         }
-        /* Check the owner of the project and dataset is the normalUser in case
-         * these were created */
+        /* Check the owner of the Project and Dataset is the normalUser in case
+         * these were created, otherwise they should be null.*/
         if (isExpectSuccessCreate) {
             assertOwnedBy(sentProj, normalUser);
             assertOwnedBy(sentDat, normalUser);
@@ -244,10 +245,10 @@ public class LightAdminRolesTest extends RolesTests {
          * are covered in other tests in this class.*/
         if (!isSudoing) return;
 
-        /* check that after sudo, the lightAdmin is able to ImportAs and target
+        /* Check that after sudo, the lightAdmin is able to ImportAs and target
          * the import into the just created Dataset.
-         * Check thus that the lightAdmin can import and write the original file
-         * on behalf of the normalUser and into the group of normalUser */
+         * This checks that the lightAdmin can import and write the original file
+         * of the imported image on behalf of the normalUser and into the group of normalUser */
         List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
         OriginalFile originalFile = (OriginalFile) originalFileAndImage.get(0);
         Image image = (Image) originalFileAndImage.get(1);
@@ -278,29 +279,31 @@ public class LightAdminRolesTest extends RolesTests {
     /**
      * Test whether a light admin can delete image, Project and Dataset
      * and their respective links belonging to another
-     * user. Behaviors of the system are explored when light admin
+     * user. Behaviors of the system are explored when lightAdmin
      * is and is not using <tt>Sudo</tt> privilege
      * for this action.
      * @param isSudoing if to test a success of workflows where Sudoed in
      * @param permDeleteOwned if to test a user who has the <tt>DeleteOwned</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
+     * @see <a href="graphical explanation">https://docs.google.com/presentation/d/1SRWiFJs7oIYJCSg8XpfeW0QyOPwbrSnAbXL_FaKF0I4/edit#slide=id.p7</a>
      */
    @Test(dataProvider = "isSudoing and Delete privileges cases")
    public void testDelete(boolean isSudoing, boolean permDeleteOwned,
            String groupPermissions) throws Exception {
-       /* only DeleteOwned permission is truly needed for deletion of links, dataset
-        * and image (with original file) when not sudoing */
+       /* Only DeleteOwned permission is needed for deletion of links, Dataset
+        * and image (with original file) when not sudoing. When sudoing, no other
+        * permission is needed.*/
        boolean deletePassing = permDeleteOwned || isSudoing;
        final EventContext normalUser = newUserAndGroup(groupPermissions);
-       /* set up the light admin's permissions for this test */
+       /* Set up the light admin's permissions for this test */
        List<String> permissions = new ArrayList<String>();
        permissions.add(AdminPrivilegeSudo.value);
        if (permDeleteOwned) permissions.add(AdminPrivilegeDeleteOwned.value);
        final EventContext lightAdmin;
        lightAdmin = loginNewAdmin(true, permissions);
        sudo(new ExperimenterI(normalUser.userId, false));
-       /* create a Dataset and Project being sudoed as normalUser */
+       /* Create a Dataset and Project being sudoed as normalUser.*/
        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
        Project proj = mmFactory.simpleProject();
        Dataset dat = mmFactory.simpleDataset();
@@ -308,18 +311,18 @@ public class LightAdminRolesTest extends RolesTests {
        Dataset sentDat = null;
        sentProj = (Project) iUpdate.saveAndReturnObject(proj);
        sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
-       /* import an image for the normalUser into the normalUser's default group 
-        * and target it into the created Dataset*/
+       /* Import an image for the normalUser into the normalUser's default group
+        * and target it into the created Dataset.*/
        List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
        OriginalFile originalFile = (OriginalFile) originalFileAndImage.get(0);
        Image image = (Image) originalFileAndImage.get(1);
        assertOwnedBy(image, normalUser);
-       /* link the Project and the Dataset */
+       /* Link the Project and the Dataset.*/
        ProjectDatasetLink projectDatasetLink = linkProjectDataset(sentProj, sentDat);
        IObject datasetImageLink = iQuery.findByQuery(
                "FROM DatasetImageLink WHERE child.id = :id",
                new ParametersI().addId(image.getId()));
-       /* take care of post-import workflows which do not use sudo */
+       /* Take care of post-import workflows which do not use sudo.*/
        if (!isSudoing) {
            loginUser(lightAdmin);
            client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
@@ -330,7 +333,7 @@ public class LightAdminRolesTest extends RolesTests {
         * during writing of this test. The order of the below delete() commands
         * is intentional, as the ability to delete the links and P/D/I separately is
         * tested in this way. Also check that the canDelete boolean
-        * on the object retrieved by the light admin matches the deletePassing
+        * on the object retrieved by the lightAdmin matches the deletePassing
         * boolean.*/
        Assert.assertEquals(getCurrentPermissions(datasetImageLink).canDelete(), deletePassing);
        doChange(client, factory, Requests.delete().target(datasetImageLink).build(), deletePassing);
@@ -343,9 +346,8 @@ public class LightAdminRolesTest extends RolesTests {
        Assert.assertEquals(getCurrentPermissions(sentProj).canDelete(), deletePassing);
        doChange(client, factory, Requests.delete().target(sentProj).build(), deletePassing);
 
-       /* now check the existence/non-existence of the objects as appropriate */
+       /* Check the existence/non-existence of the objects as appropriate.*/
        if (deletePassing) {
-           /* successful delete expected */
            assertDoesNotExist(originalFile);
            assertDoesNotExist(image);
            assertDoesNotExist(sentDat);
@@ -353,7 +355,6 @@ public class LightAdminRolesTest extends RolesTests {
            assertDoesNotExist(datasetImageLink);
            assertDoesNotExist(projectDatasetLink);
        } else {
-           /* No deletion should have been successful when deletePassing boolean is false.*/
            assertExists(originalFile);
            assertExists(image);
            assertExists(sentDat);
