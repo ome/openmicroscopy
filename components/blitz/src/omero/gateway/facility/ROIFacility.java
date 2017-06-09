@@ -791,7 +791,18 @@ public class ROIFacility extends Facility {
                                     }
                                     if (shapeIndex !=-1) {
                                         if (!removed.contains(coord))
-                                            dm.delete(ctx, serverShape).loop(10, 500);
+                                            try {
+                                                dm.delete(ctx, serverShape)
+                                                        .loop(10, 500);
+                                            } catch (omero.LockTimeout e) {
+                                                logWarn(this,
+                                                        "Could not delete shape "
+                                                                + serverShape
+                                                                        .getId()
+                                                                        .getValue()
+                                                                + ", request timed out.",
+                                                        null);
+                                            }
                                         serverRoi.addShape(sh);
                                     } else {
                                         throw new Exception("serverRoi.shapeList " +
