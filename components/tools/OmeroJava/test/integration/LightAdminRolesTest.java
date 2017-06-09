@@ -327,12 +327,14 @@ public class LightAdminRolesTest extends RolesTests {
            loginUser(lightAdmin);
            client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
        }
-       /* Now check that the ImporterAs can delete the objects
-        * created on behalf of the user. Note that deletion of the Project
+       /* Check that lightAdmin can delete the objects
+        * created on behalf of normalUser only if lightAdmin has sufficient permissions.
+        * Note that deletion of the Project
         * would delete the whole hierarchy, which was successfully tested
         * during writing of this test. The order of the below delete() commands
         * is intentional, as the ability to delete the links and P/D/I separately is
-        * tested in this way. Also check that the canDelete boolean
+        * tested in this way.
+        * Also check that the canDelete boolean
         * on the object retrieved by the lightAdmin matches the deletePassing
         * boolean.*/
        Assert.assertEquals(getCurrentPermissions(datasetImageLink).canDelete(), deletePassing);
@@ -366,25 +368,26 @@ public class LightAdminRolesTest extends RolesTests {
 
     /**
      * Test that a light admin can edit the name of a project
-     * on behalf of another user solely with <tt>Sudo</tt> privilege
-     * or without it, using permWriteOwned privilege
+     * on behalf of another user either using <tt>Sudo</tt> privilege
+     * or not using it, but having <tt>WriteOwned</tt> privilege instead.
      * @param isSudoing if to test a success of workflows where Sudoed in
      * @param permWriteOwned if to test a user who has the <tt>WriteOwned</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
+     * @see <a href="graphical explanation">https://docs.google.com/presentation/d/18u5hRD_oFKjGlGQ7x55oUowrmdjS4HXkXKfJSlpbiVY/edit#slide=id.p7</a>
      */
     @Test(dataProvider = "isSudoing and WriteOwned privileges cases")
     public void testEdit(boolean isSudoing, boolean permWriteOwned,
             String groupPermissions) throws Exception {
         final boolean isExpectSuccess = isSudoing || permWriteOwned;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
-        /* set up the light admin's permissions for this test */
+        /* Set up the light admin's permissions for this test.*/
         List<String> permissions = new ArrayList<String>();
         permissions.add(AdminPrivilegeSudo.value);
         if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(true, permissions);
-        /* set up the project as the normalUser */
+        /* Create Project as normalUser.*/
         loginUser(normalUser);
         Project proj = mmFactory.simpleProject();
         final String originalName = "OriginalNameOfNormalUser";
@@ -392,26 +395,30 @@ public class LightAdminRolesTest extends RolesTests {
         Project sentProj = (Project) iUpdate.saveAndReturnObject(proj);
         String savedOriginalName = sentProj.getName().getValue().toString();
         loginUser(lightAdmin);
-        /* being the light admin, sudo as the normalUser if this should be the case */
+        /* As lightAdmin, sudo as the normalUser if this should be the case */
         if (isSudoing) sudo(new ExperimenterI(normalUser.userId, false));
-        /* try to rename the Project as the light admin, either sudoed as normalUser or not */
+        /* Check that the canEdit flag on the created project is as expected */
+        Assert.assertEquals(getCurrentPermissions(sentProj).canEdit(), isExpectSuccess);
+        /* Try to rename the Project.*/
         final String changedName = "ChangedNameOfLightAdmin";
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         long id = sentProj.getId().getValue();
-        /* check that the canEdit flag on the created project is as expected */
-        Assert.assertEquals(getCurrentPermissions(sentProj).canEdit(), isExpectSuccess);
         final Project retrievedUnrenamedProject = (Project) iQuery.get("Project", id);
         retrievedUnrenamedProject.setName(omero.rtypes.rstring(changedName));
-        if (isExpectSuccess) {/* in case no WriteOwned permission is given to light admin, and he/she is
-        not sudoing, following line would throw a Security violation */
+        /* Check that lightAdmin can edit the Project of normalUser only when
+         * lightAdmin is equipped with sufficient permissions, captured in boolean isExpectSuccess.*/
+        try {
             sentProj = (Project) iUpdate.saveAndReturnObject(retrievedUnrenamedProject);
+            Assert.assertTrue(isExpectSuccess);
+        } catch (ServerError se) {
+            Assert.assertFalse(isExpectSuccess);
         }
         String savedChangedName = sentProj.getName().getValue().toString();
         logRootIntoGroup(normalUser.groupId);
         final String retrievedName = ((RString) iQuery.projection(
                 "SELECT name FROM Project p WHERE p.id = :id",
                 new ParametersI().addId(sentProj.getId())).get(0).get(0)).getValue();
-        /* check that the Project still belongs to normalUser and the name of the Project
+        /* Check that the Project still belongs to normalUser and the name of the Project
          * was changed and saved or original name is retained as appropriate */
         assertOwnedBy(sentProj, normalUser);
         if (isExpectSuccess) {
