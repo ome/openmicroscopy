@@ -106,7 +106,7 @@ public class LightAdminRolesTest extends RolesTests {
 
     /**
      * Create a light administrator, with a specific privilege, and log in as them.
-     * All the other privileges will be set to False.
+     * All the other privileges will be set to false.
      * @param isAdmin if the user should be a member of the <tt>system</tt> group
      * @param permission the privilege that the user should have, or {@code null} if they should have no privileges
      * @return the new user's context
@@ -118,7 +118,7 @@ public class LightAdminRolesTest extends RolesTests {
     }
 
     /**
-     * Create a light administrator, with a specific privilege, and log in as them.
+     * Create a light administrator, with a specific list of privileges, and log in as them.
      * All the other privileges will be set to False.
      * @param isAdmin if the user should be a member of the <tt>system</tt> group
      * @param permissions the privileges that the user should have, or {@code null} if they should have no privileges
@@ -156,7 +156,7 @@ public class LightAdminRolesTest extends RolesTests {
     }
 
     /**
-     * Annotate image with tag and file annotation only and return the annotation objects
+     * Annotate image with tag and file annotation and return the annotation objects
      * including the original file of the file annotation and the links
      * @param image the image to be annotated
      * @return the list of the tag, original file of the file annotation, file annotation
@@ -180,10 +180,10 @@ public class LightAdminRolesTest extends RolesTests {
     }
 
     /**
-     * Test that an ImporterAs can create new Project and Dataset
+     * Test that a light administrator can create new Project and Dataset
      * and import data on behalf of another user solely with <tt>Sudo</tt> privilege
      * into this Dataset. Further link the Dataset to the Project, check
-     * that the link belongs to the user (not to the ImporterAs).
+     * that the link belongs to the user (not to the light admin).
      * All workflows are tested here both when light admin is sudoing
      * and when he/she is not sudoing, except for Link and Import (both tested
      * only when sudoing, as the non-sudoing workflows are too complicated
@@ -192,6 +192,7 @@ public class LightAdminRolesTest extends RolesTests {
      * @param permWriteOwned if to test a user who has the <tt>WriteOwned</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
+     * @see <a href="graphical explanation">https://docs.google.com/presentation/d/1JX6b9pkPtG-3hZIGSp2bu4WVvNKn6GHqIKdfbbJkiw8/edit#slide=id.p4</a>
      */
     @Test(dataProvider = "isSudoing and WriteOwned privileges cases")
     public void testImporterAsSudoCreateImport(boolean isSudoing, boolean permWriteOwned,
@@ -206,7 +207,7 @@ public class LightAdminRolesTest extends RolesTests {
         lightAdmin = loginNewAdmin(true, permissions);
         if (isSudoing) sudo(new ExperimenterI(normalUser.userId, false));
 
-        /* First, check that the light admin (=importer As)
+        /* First, check that the lightAdmin
          * can create Project and Dataset on behalf of the normalUser
          * in the group of the normalUser in anticipation of importing
          * data for the normalUser in the next step into these containers */
@@ -238,34 +239,31 @@ public class LightAdminRolesTest extends RolesTests {
             Assert.assertNull(sentProj);
             Assert.assertNull(sentDat);
         }
-        /* finish the test if light admin is not sudoing, the further part
-        of the test deals with the imports. Imports when not sudoing workflows are covered in
-        other tests in this class */
+        /* Finish the test if light admin is not sudoing, the further part
+         * of the test deals with the imports. Imports when not sudoing workflows
+         * are covered in other tests in this class.*/
         if (!isSudoing) return;
 
-        /* check that after sudo, the light admin is able to ImportAs and target
+        /* check that after sudo, the lightAdmin is able to ImportAs and target
          * the import into the just created Dataset.
-         * Check thus that the light admin can import and write the original file
+         * Check thus that the lightAdmin can import and write the original file
          * on behalf of the normalUser and into the group of normalUser */
         List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
         OriginalFile originalFile = (OriginalFile) originalFileAndImage.get(0);
         Image image = (Image) originalFileAndImage.get(1);
 
-        /* check that the light admin when sudoed, can link the created Dataset
-         * to the created Project, check the ownership of the links
-         * is of the simple user.*/
-
-        /* check that the canLink() method is delivering true on both the Dataset
+        /* Check that the canLink() method is delivering true on both the Dataset
          * and Project to be linked. As the cases where the light admin was not sudoing
          * are not tested in this part of the test, the canLink() is always true
          * for the owner of the objects (the normalUser as who the light admin is
-         * sudoed for) */
+         * sudoed for).*/
         Assert.assertTrue(getCurrentPermissions(sentProj).canLink());
         Assert.assertTrue(getCurrentPermissions(sentDat).canLink());
         ProjectDatasetLink projectDatasetLink = linkProjectDataset(sentProj, sentDat);
 
-        /* Now check the ownership of image and links
-         * between image and Dataset and Dataset and Project */
+        /* Check the owner of the links between image and Dataset and
+         * Dataset and Project is normalUser
+         * and the image and its original file are in the group of normalUser.*/
         final IObject imageDatasetLink = iQuery.findByQuery(
                 "FROM DatasetImageLink WHERE child.id = :id",
                 new ParametersI().addId(image.getId().getValue()));
