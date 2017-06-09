@@ -69,7 +69,7 @@ import shutil
 
 from omeroweb.decorators import login_required, ConnCleaningHttpResponse
 from omeroweb.connector import Connector
-from omeroweb.webgateway.util import zip_archived_files
+from omeroweb.webgateway.util import zip_archived_files, LUTS_IN_PNG
 from omeroweb.webgateway.util import get_longs, getIntOrDefault
 
 cache = CacheBase()
@@ -1864,15 +1864,22 @@ def save_image_rdef_json(request, iid, conn=None, **kwargs):
 def listLuts_json(request, conn=None, **kwargs):
     """
     Lists lookup tables 'LUTs' availble for rendering
+
+    This list is dynamic and will change if users add LUTs to their server.
+    We include 'png_index' which is the index of each LUT within the
+    static/webgateway/img/luts_10.png or -1 if LUT is not found.
     """
     scriptService = conn.getScriptService()
     luts = scriptService.getScriptsByMimetype("text/x-lut")
     rv = []
     for l in luts:
+        lut = l.path.val + l.name.val
+        png_index = LUTS_IN_PNG.index(lut) if lut in LUTS_IN_PNG else -1
         rv.append({'id': l.id.val,
                    'path': l.path.val,
                    'name': l.name.val,
-                   'size': unwrap(l.size)
+                   'size': unwrap(l.size),
+                   'png_index': png_index,
                    })
     rv.sort(key=lambda x: x['name'].lower())
     return {"luts": rv}
