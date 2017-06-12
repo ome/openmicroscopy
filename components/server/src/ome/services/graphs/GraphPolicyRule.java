@@ -478,7 +478,10 @@ public class GraphPolicyRule {
         final Matcher existingTermMatcher = EXISTING_TERM_PATTERN.matcher(term);
 
         if (existingTermMatcher.matches()) {
-            return new ExistingTermMatch(existingTermMatcher.group(1));
+            final String termName = existingTermMatcher.group(1);
+            if (graphPathBean.getClassForSimpleName(termName) == null) {
+                return new ExistingTermMatch(termName);
+            }
         }
 
         final Matcher newTermMatcher = NEW_TERM_PATTERN.matcher(term);
@@ -505,6 +508,9 @@ public class GraphPolicyRule {
             termName = null;
         } else {
             termName = termNameGroup.substring(0, termNameGroup.length() - 1);
+            if (graphPathBean.getClassForSimpleName(termName) != null) {
+                throw new GraphException("redefined known class " + termName + " in " + term);
+            }
         }
 
         /* parse class name, if any */
