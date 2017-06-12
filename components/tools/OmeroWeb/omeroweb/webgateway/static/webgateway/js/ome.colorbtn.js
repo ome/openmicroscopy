@@ -101,10 +101,20 @@ $.fn.colorbtn = function(cfg) {
     };
 
     function getLutIndex(lutName) {
-      if (OME && OME.LUT_NAMES) {
-        return OME.LUT_NAMES.indexOf(lutName);
+      if (OME && OME.LUTS) {
+        for (var l=0; l<OME.LUTS.length; l++) {
+          if (OME.LUTS[l].name === lutName) {
+            return OME.LUTS[l].png_index;
+          }
+        }
       }
       return -1;
+    }
+
+    function getLutPngHeight() {
+      // png contains list of LUTS, 10 pixels high
+      // plus black gradient (+1)
+      return (OME.PNG_LUTS.length + 1) * 10;
     }
 
     this.show_picker = function () {
@@ -122,19 +132,20 @@ $.fn.colorbtn = function(cfg) {
       // lookup LUTs & build list with other colors
       var $luts = $("#" + this.cfg.prefix + "-luts");
       if ($luts.is(':empty')) {
-        $.getJSON(cfg.server + '/luts/', function(data){
           var colorRows = [];
           for (var e=0; e<colors.length; e++) {
             var c = colors[e],
               n = colorNames[e];
             colorRows.push('<div><input id="' + c + '" type="radio" name="lut" value="' + c + '"><label for="' + c + '"><span style="background: #' + c + '"> &nbsp</span>' + n + '</label></div>');
           }
-          var lutRows = data.luts.map(function(lut){
+          var lutRows = OME.LUTS.map(function(lut){
             var idx = getLutIndex(lut.name);
+            var png_height = getLutPngHeight();
             var preview = '';
-            // background image is luts_10.png which is 10 pixels per lut(row) but size is set to 200% so each row is 20 pixels
+            // background image is luts_10.png which is 10 pixels per lut(row) but size is set to 300% so each row is 30 pixels
             if (idx > -1) {
-              preview = 'class="lutBackground" style="background-position: 0 -' + (idx * 30 + 7) + 'px"';
+              preview = 'class="lutBackground" style="background-position: 0 -' + (idx * 30 + 7) + 'px;';
+              preview += ' background-size: 100% ' + (png_height * 3) + 'px"';
             }
             var lutHtml = '<div><input id="' + lut.name + '" type="radio" name="lut" value="' + lut.name + '">';
             lutHtml += '<label for="' + lut.name + '">';
@@ -145,7 +156,6 @@ $.fn.colorbtn = function(cfg) {
           var html = '<div>' + colorRows.join("") + lutRows.join("") + '</div>';
           $luts.html(html);
           $("label[for='" + currColor + "']").css('background', '#cddcfc');
-        });
       }
 
       // reset showing of LUTs and hiding of colorpicker

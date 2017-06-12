@@ -1882,7 +1882,7 @@ def listLuts_json(request, conn=None, **kwargs):
                    'png_index': png_index,
                    })
     rv.sort(key=lambda x: x['name'].lower())
-    return {"luts": rv}
+    return {"luts": rv, "png_luts": LUTS_IN_PNG}
 
 
 @login_required()
