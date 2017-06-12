@@ -971,7 +971,8 @@ public class GraphPolicyRule {
                     if (policyRule.termMatchers.size() + policyRule.relationshipMatchers.size() == 1) {
                         reviewWithSingleMatch(linkedFrom, rootObject, linkedTo, notNullable, policyRule, changedObjects);
                     } else {
-                        reviewWithManyMatches(linkedFrom, rootObject, linkedTo, notNullable, policyRule, changedObjects);
+                        reviewWithManyMatches(linkedFrom, rootObject, linkedTo, notNullable, policyRule, changedObjects,
+                                HashMultimap.<String, Details>create());
                     }
                 }
             }
@@ -1047,11 +1048,13 @@ public class GraphPolicyRule {
          * @param notNullable which properties are not nullable
          * @param policyRule the policy rule to consider applying
          * @param changedObjects the set of details of objects that result from applied changes
+         * @param prohibitedTerms matches that may not be made for terms
          * @throws GraphException if a term named for a change is not defined in the matching
          */
-        private void reviewWithManyMatches(Map<String, Set<Details>> linkedFrom,
-                Details rootObject, Map<String, Set<Details>> linkedTo, Set<String> notNullable,
-                ParsedPolicyRule policyRule, Set<Details> changedObjects) throws GraphException {
+        private void reviewWithManyMatches(Map<String, Set<Details>> linkedFrom, Details rootObject,
+                Map<String, Set<Details>> linkedTo, Set<String> notNullable, ParsedPolicyRule policyRule,
+                Set<Details> changedObjects, Multimap<String, Details> prohibitedTerms) throws GraphException {
+            final boolean isPossibleMatch = prohibitedTerms.isEmpty();
             final SortedMap<String, Details> namedTerms = new TreeMap<String, Details>();
             final MutableBoolean isCheckAllPermissions = new MutableBoolean(true);
             final Set<TermMatch> unmatchedTerms = new HashSet<TermMatch>(policyRule.termMatchers);
@@ -1068,7 +1071,10 @@ public class GraphPolicyRule {
                 while (unmatchedTermIterator.hasNext()) {
                     final TermMatch matcher = unmatchedTermIterator.next();
                     for (final Details object : allTerms) {
-                        if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions, object, true)) {
+                        if (matcher.getName() != null && prohibitedTerms.get(matcher.getName()).contains(object)) {
+                            continue;
+                        }
+                        if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions, object, isPossibleMatch)) {
                             unmatchedTermIterator.remove();
                         }
                     }
@@ -1081,15 +1087,22 @@ public class GraphPolicyRule {
                         unmatchedTermIterator = unmatchedTerms.iterator();
                         while (unmatchedTermIterator.hasNext()) {
                             final TermMatch matcher = unmatchedTermIterator.next();
-                            if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions, linkerObject, true)) {
+                            if (matcher.getName() != null && prohibitedTerms.get(matcher.getName()).contains(linkerObject)) {
+                                continue;
+                            }
+                            if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions, linkerObject, isPossibleMatch)) {
                                 unmatchedTermIterator.remove();
                             }
                         }
                         unmatchedRelationshipIterator = unmatchedRelationships.iterator();
                         while (unmatchedRelationshipIterator.hasNext()) {
                             final RelationshipMatch matcher = unmatchedRelationshipIterator.next();
+                            final String leftTermName = matcher.leftTerm.getName();
+                            if (leftTermName != null && prohibitedTerms.get(leftTermName).contains(linkerObject)) {
+                                continue;
+                            }
                             if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions,
-                                    linkerObject, rootObject, classProperty, isNotNullable, true)) {
+                                    linkerObject, rootObject, classProperty, isNotNullable, isPossibleMatch)) {
                                 unmatchedRelationshipIterator.remove();
                             }
                         }
@@ -1103,15 +1116,22 @@ public class GraphPolicyRule {
                         unmatchedTermIterator = unmatchedTerms.iterator();
                         while (unmatchedTermIterator.hasNext()) {
                             final TermMatch matcher = unmatchedTermIterator.next();
-                            if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions, linkedObject, true)) {
+                            if (matcher.getName() != null && prohibitedTerms.get(matcher.getName()).contains(linkedObject)) {
+                                continue;
+                            }
+                            if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions, linkedObject, isPossibleMatch)) {
                                 unmatchedTermIterator.remove();
                             }
                         }
                         unmatchedRelationshipIterator = unmatchedRelationships.iterator();
                         while (unmatchedRelationshipIterator.hasNext()) {
                             final RelationshipMatch matcher = unmatchedRelationshipIterator.next();
+                            final String rightTermName = matcher.rightTerm.getName();
+                            if (rightTermName != null && prohibitedTerms.get(rightTermName).contains(linkedObject)) {
+                                continue;
+                            }
                             if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions,
-                                    rootObject, linkedObject, classProperty, isNotNullable, true)) {
+                                    rootObject, linkedObject, classProperty, isNotNullable, isPossibleMatch)) {
                                 unmatchedRelationshipIterator.remove();
                             }
                         }
@@ -1125,18 +1145,50 @@ public class GraphPolicyRule {
                     if (matcher.leftTerm instanceof NewTermMatch || matcher.rightTerm instanceof NewTermMatch) continue;
                     final Details leftDetails = namedTerms.get(matcher.leftTerm.getName());
                     if (leftDetails == null) continue;
+                    if (prohibitedTerms.get(matcher.leftTerm.getName()).contains(leftDetails)) {
+                        continue;
+                    }
                     final Details rightDetails = namedTerms.get(matcher.rightTerm.getName());
                     if (rightDetails == null) continue;
-                    if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions, leftDetails, rightDetails, null, false, true)) {
+                    if (prohibitedTerms.get(matcher.rightTerm.getName()).contains(rightDetails)) {
+                        continue;
+                    }
+                    if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions, leftDetails, rightDetails, null, false,
+                            isPossibleMatch)) {
                         unmatchedRelationshipIterator.remove();
                     }
                 }
-                if (unmatchedTerms.isEmpty() && unmatchedRelationships.isEmpty()) {
+                if (isPossibleMatch && unmatchedTerms.isEmpty() && unmatchedRelationships.isEmpty()) {
                     /* success, all matched */
                     recordChanges(policyRule, changedObjects, namedTerms, isCheckAllPermissions.booleanValue());
                     return;
                 } else if (namedTerms.size() == namedTermCount) {
-                    /* failure, all matchers will fail on retry */
+                    /* all matchers are failing */
+                    boolean retry = false;
+                    for (final String namedCommonTerm : Sets.intersection(namedTerms.keySet(), policyRule.commonTerms)) {
+                        /* a common term was named so may be worth reviewing as root object */
+                        final Details commonTermDetails = namedTerms.get(namedCommonTerm);
+                        if (!commonTermDetails.equals(rootObject)) {
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug("matched " + Joiner.on(',').join(namedTerms.keySet()) +
+                                        " so will review " + commonTermDetails + " for rule " + policyRule.asString);
+                            }
+                            /* review object that is common across matchers */
+                            changedObjects.add(commonTermDetails);
+                            prohibitedTerms.put(namedCommonTerm, commonTermDetails);
+                            retry = true;
+                        }
+                    }
+                    if (retry) {
+                        /* check if a different object can match the common term */
+                        reviewWithManyMatches(linkedFrom, rootObject, linkedTo, notNullable, policyRule, changedObjects,
+                                prohibitedTerms);
+                    } else if (isPossibleMatch && !policyRule.commonTerms.isEmpty()) {
+                        /* try looser matching to at least find what matches common terms for subsequent review */
+                        prohibitedTerms.put("nonsense string", rootObject);  // force isPossibleMatch to false
+                        reviewWithManyMatches(linkedFrom, rootObject, linkedTo, notNullable, policyRule, changedObjects,
+                                prohibitedTerms);
+                    }
                     return;
                 }
             } while (true);
