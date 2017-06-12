@@ -453,6 +453,7 @@ public class GraphPolicyRule {
         final List<TermMatch> termMatchers;
         final List<RelationshipMatch> relationshipMatchers;
         final List<ConditionMatch> conditionMatchers;
+        final Set<String> commonTerms;
         final List<Change> changes;
         final String errorMessage;
 
@@ -463,14 +464,16 @@ public class GraphPolicyRule {
          * @param termMatchers the term matchers that must apply if the changes are to be applied
          * @param relationshipMatchers the relationship matchers that must apply if the changes are to be applied
          * @param conditionMatchers the condition matchers that must apply if the changes are to be applied
+         * @param commonTerms the names of the terms that appear in multiple matchers
          * @param changes the effects of this rule, guarded by the matchers
          */
         ParsedPolicyRule(String asString, List<TermMatch> termMatchers, List<RelationshipMatch> relationshipMatchers,
-                List<ConditionMatch> conditionMatchers, List<Change> changes) {
+                List<ConditionMatch> conditionMatchers, Set<String> commonTerms, List<Change> changes) {
             this.asString = asString;
             this.termMatchers = termMatchers;
             this.relationshipMatchers = relationshipMatchers;
             this.conditionMatchers = conditionMatchers;
+            this.commonTerms = commonTerms;
             this.changes = changes;
             this.errorMessage = null;
         }
@@ -482,14 +485,16 @@ public class GraphPolicyRule {
          * @param termMatchers the term matchers that must apply if the error is to be thrown
          * @param relationshipMatchers the relationship matchers that must apply if the error is to be thrown
          * @param conditionMatchers the condition matchers that must apply if the error is to be thrown
+         * @param commonTerms the names of the terms that appear in multiple matchers
          * @param errorMessage the message accompanying the error thrown by this rule in the event of a match
          */
         ParsedPolicyRule(String asString, List<TermMatch> termMatchers, List<RelationshipMatch> relationshipMatchers,
-                List<ConditionMatch> conditionMatchers, String errorMessage) {
+                List<ConditionMatch> conditionMatchers, Set<String> commonTerms, String errorMessage) {
             this.asString = asString;
             this.termMatchers = termMatchers;
             this.relationshipMatchers = relationshipMatchers;
             this.conditionMatchers = conditionMatchers;
+            this.commonTerms = commonTerms;
             this.changes = Collections.emptyList();
             this.errorMessage = errorMessage;
         }
@@ -851,6 +856,12 @@ public class GraphPolicyRule {
                     throw new GraphException("failed to parse match " + match);
                 }
             }
+            final ImmutableSet.Builder<String> commonTerms = ImmutableSet.builder();
+            for (final Entry<String, Collection<TermMatch>> termsByOneName : termsByName.asMap().entrySet()) {
+                if (termsByOneName.getValue().size() > 1) {
+                    commonTerms.add(termsByOneName.getKey());
+                }
+            }
             final Map<String, NewTermMatch> termMatchers = new HashMap<>();
             for (final TermMatch term : termsByName.values()) {
                 if (term instanceof NewTermMatch) {
@@ -875,10 +886,10 @@ public class GraphPolicyRule {
                     changes.add(parseChange(change.trim()));
                 }
                 parsedPolicyRules.add(new ParsedPolicyRule(policyRule.toString(), termMatches, relationshipMatches,
-                        conditionMatches, changes));
+                        conditionMatches, commonTerms.build(), changes));
             } else {
-                parsedPolicyRules.add(new ParsedPolicyRule(policyRule.toString(), termMatches, relationshipMatches,
-                        conditionMatches, policyRule.errorMessage));
+                parsedPolicyRules.add(new ParsedPolicyRule(policyRule.toString(), termMatches, relationshipMatches, 
+                        conditionMatches, commonTerms.build(), policyRule.errorMessage));
             }
         }
         return new CleanGraphPolicy(parsedPolicyRules);
