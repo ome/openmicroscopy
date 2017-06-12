@@ -8,6 +8,7 @@
 
 import Ice
 import time
+import errno
 import numpy
 import logging
 import threading
@@ -136,6 +137,14 @@ class HdfList(object):
             raise omero.LockTimeout(
                 None, None,
                 "Cannot acquire exclusive lock on: %s" % hdfpath, 0)
+        except IOError, ie:
+            if ie.errno == errno.EBADF:  # Bad File Descriptor (NFS)
+                hdffile.close()
+                hdffile = hdfstorage.openfile("r")
+                fileno = hdffile.fileno()
+            else:
+                hdffile.close()
+                raise
         except:
             hdffile.close()
             raise
