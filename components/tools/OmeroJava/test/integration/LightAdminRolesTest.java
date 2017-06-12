@@ -691,14 +691,13 @@ public class LightAdminRolesTest extends RolesTests {
     }
 
     /**
-     * Test that an ImporterAs workflow without using Sudo.
-     * The data will be imported into a group the user/(future owner of the data)
-     * is a member of, then just chowned to the user.
-     * This workflow is possible only if PR#4957 dealing with
-     * admins importing data into groups they are not member of will get
-     * merged. For this test, combinations of <tt>Chown</tt>, <tt>WriteOwned</tt>,
+     * Test that light admin "importing for others" workflow
+     * without using Sudo.
+     * lightAdmin imports into group of the normalUser (future owner of the data).
+     * lightAdmin then transfers the ownership of the imported data to normalUser.
+     * For this test, combinations of <tt>Chown</tt>, <tt>WriteOwned</tt>,
      *  <tt>WriteFile</tt> and <tt>WriteManagedRepo</tt> privileges will be explored
-     * for the light admin. For this workflow the creation and targeting of a Dataset
+     * for lightAdmin. For this workflow the creation and targeting of a Dataset
      * is tested too.
      * @param permWriteOwned if to test a user who has the <tt>WriteOwned</tt> privilege
      * @param permWriteManagedRepo if to test a user who has the <tt>WriteManagedRepo</tt> privilege
@@ -706,27 +705,24 @@ public class LightAdminRolesTest extends RolesTests {
      * @param permChown if to test a user who has the <tt>Chown</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
+     * @see <a href="graphical explanation">https://docs.google.com/presentation/d/1w_W6g69CV5Uy_rUom2K9O86w2Q2CGkl3rzNj-ZQzSt0/edit#slide=id.p4</a>
      */
-
     @Test(dataProvider = "WriteOwned, WriteFile, WriteManagedRepo and Chown privileges cases")
     public void testImporterAsNoSudoChownOnlyWorkflow(boolean permWriteOwned, boolean permWriteFile,
             boolean permWriteManagedRepo, boolean permChown, String groupPermissions) throws Exception {
-        /* define case where the import without any sudo importing into a group
-         * the light admin is not a member of is expected to succeed
-         */
+        /* Define case in which the import not using sudo and importing into a group
+         * the light admin is not a member of is expected to succeed.*/
         boolean importNotYourGroupExpectSuccess = permWriteOwned && permWriteFile && permWriteManagedRepo;
-        /* define case where the creation of a dataset belonging to light admin
-         * in the group where light admin is not a member
-         * without any sudo is expected to succeed */
+        /* Define case in which the creation of Dataset belonging to lightAdmin
+         * in a group where lightAdmin is not member is expected to succeed.*/
         boolean createDatasetExpectSuccess = permWriteOwned;
-        /* define case where the whole workflow is possible (i.e. create
-         * dataset, import into it, then chown the dataset with the imported
-         * image to the user)
-         */
+        /* Define case in which the whole workflow is possible (as lightAdmin create
+         * Dataset, import into it, then chown the Dataset with the imported
+         * image to normalUser).*/
         boolean createDatasetImportNotYourGroupAndChownExpectSuccess =
                 permChown && permWriteManagedRepo && permWriteOwned && permWriteFile;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
-        /* set up the light admin's permissions for this test */
+        /* Set up the light admin's permissions for this test.*/
         List<String> permissions = new ArrayList<String>();
         if (permChown) permissions.add(AdminPrivilegeChown.value);
         if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
@@ -734,61 +730,57 @@ public class LightAdminRolesTest extends RolesTests {
         if (permWriteManagedRepo) permissions.add(AdminPrivilegeWriteManagedRepo.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(true, permissions);
-        /* First create a Dataset in the normalUser's group (you are not 
-         * a member of this goup) */
+        /* lightAdmin creates Dataset in the normalUser's group
+         * (lightAdmin is not member of that group).*/
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         Dataset dat = mmFactory.simpleDataset();
         Dataset sentDat = null;
-        /* lightAdmin is allowed to create the dataset only
-         * with sufficient permissions, which are captured
-         * in createDatasetExpectSuccess boolean.*/
+        /* Creation of Dataset success is governed by
+         * createDatasetExpectSuccess boolean (defined above).*/
         try {
             sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
             Assert.assertTrue(createDatasetExpectSuccess);
         } catch (ServerError se) {
             Assert.assertFalse(createDatasetExpectSuccess);
         }
-        /* import an image into the created Dataset */
+        /* As lightAdmin, import an Image into the created Dataset.*/
         OriginalFile originalFile = null;
         Image image = null;
-        try { /* only succeeds if permissions are sufficient or more */
+        /* Import success is governed by importNotYourGroupExpectSuccess boolean (defined above).*/
+        try {
             List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
             originalFile = (OriginalFile) originalFileAndImage.get(0);
             image = (Image) originalFileAndImage.get(1);
-        } catch (ServerError se) { /* fails if permissions are insufficient */
+        } catch (ServerError se) {
             Assert.assertFalse(importNotYourGroupExpectSuccess);
         }
+        /* Check the ownership and group of the original file and the image.*/
         if (importNotYourGroupExpectSuccess) {
             assertOwnedBy(originalFile, lightAdmin);
             assertInGroup(originalFile, normalUser.groupId);
             assertOwnedBy(image, lightAdmin);
             assertInGroup(image, normalUser.groupId);
+        /* In case the import was not successful, Image does not exist.
+         * Further testing is not interesting in such case.*/
         } else {
             Assert.assertNull(originalFile, "if import failed, the remoteFile should be null");
             Assert.assertNull(image, "if import failed, the image should be null");
-            /* jump out of the test, the second part of the test is interesting only
-             * if the image exists
-             */
             return;
         }
-
-        /* now, having the image linked to the dataset in the group of normalUser already,
-         * try to change the ownership of the dataset to the normalUser */
-        /* Chowning the dataset should fail in case you have not all of
-         * Chown & WriteOwned & WriteFile permissions which are
-         * captured in the boolean importNotYourGroupAndChownExpectSuccess */
-        /* Also check that the canChown value on the dataset is true in these cases.*/
+        /* Check that the canChown value on the Dataset matches the boolean
+         * createDatasetImportNotYourGroupAndChownExpectSuccess.*/
         Assert.assertEquals(getCurrentPermissions(sentDat).canChown(),
                 createDatasetImportNotYourGroupAndChownExpectSuccess);
+        /* lightAdmin tries to change the ownership of the Dataset to normalUser */
         doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(),
                 createDatasetImportNotYourGroupAndChownExpectSuccess);
         final List<RType> resultForLink = iQuery.projection(
                 "SELECT id FROM DatasetImageLink WHERE parent.id  = :id",
                 new ParametersI().addId(sentDat.getId())).get(0);
         final long linkId = ((RLong) resultForLink.get(0)).getValue();
+        /* Check that image, dataset and link are in the normalUser's group
+         * and belong to normalUser in case the workflow succeeded.*/
         if (createDatasetImportNotYourGroupAndChownExpectSuccess) {
-            /* Check that image, dataset and link are in the normalUser's group
-             * and belong to normalUser */
             assertOwnedBy(image, normalUser);
             assertInGroup(image, normalUser.groupId);
             assertOwnedBy(sentDat, normalUser);
@@ -797,9 +789,9 @@ public class LightAdminRolesTest extends RolesTests {
             assertInGroup((new DatasetImageLinkI(linkId, false)), normalUser.groupId);
             assertOwnedBy(originalFile, normalUser);
             assertInGroup(originalFile, normalUser.groupId);
+        /* Check that the image, dataset and link still belongs
+         * to the light admin as the chown failed, but are in the group of normalUser.*/
         } else {
-            /* check that the image, dataset and link still belongs
-             * to the light admin as the chown failed, but are in the group of normalUser */
             assertOwnedBy(image, lightAdmin);
             assertInGroup(image, normalUser.groupId);
             assertOwnedBy(sentDat, lightAdmin);
