@@ -2,7 +2,7 @@
 
 <!--
 #
-# Copyright (C) 2015-2016 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2015-2017 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -127,7 +127,7 @@
         <bean parent="graphPolicyRule" p:matches="Instrument[D].lightSource = LS:[E]" p:changes="LS:[D]"/>
         <bean parent="graphPolicyRule" p:matches="Instrument[D].microscope = M:[E]" p:changes="M:[D]"/>
         <bean parent="graphPolicyRule" p:matches="Instrument[D].objective = O:[E]" p:changes="O:[D]"/>
-        <bean parent="graphPolicyRule" p:matches="Instrument[D].otf = OTF:[E]" p:changes="OTF:[D]"/>
+        <bean parent="graphPolicyRule" p:matches="Instrument[D].otf = OTFn:[E]" p:changes="OTFn:[D]"/>
 
         <!-- Continue instrument deletion deeper into subgraph. -->
 
