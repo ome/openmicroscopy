@@ -8,6 +8,7 @@
 
 import Ice
 import time
+import errno
 import numpy
 import logging
 import threading
@@ -137,7 +138,7 @@ class HdfList(object):
                 None, None,
                 "Cannot acquire exclusive lock on: %s" % hdfpath, 0)
         except IOError, ie:
-            if ie.errno == 9:  # Bad File Descriptor (NFS)
+            if ie.errno == errno.EBADF:  # Bad File Descriptor (NFS)
                 hdffile.close()
                 hdffile = hdfstorage.openfile("r")
                 fileno = hdffile.fileno()
