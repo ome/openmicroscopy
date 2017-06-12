@@ -25,7 +25,7 @@ import loci.formats.IFormatReader;
 import loci.formats.MissingLibraryException;
 import loci.formats.UnknownFormatException;
 import loci.formats.UnsupportedCompressionException;
-import loci.formats.in.DefaultMetadataOptions;
+import loci.formats.in.DynamicMetadataOptions;
 import loci.formats.in.MetadataLevel;
 import ome.formats.ImageNameMetadataStore;
 import ome.formats.importer.util.ErrorHandler;
@@ -423,7 +423,7 @@ public class ImportCandidates extends DirectoryWalker
                 reader.close();
                 reader.setMetadataStore(new ImageNameMetadataStore());
                 reader.setMetadataOptions(
-                        new DefaultMetadataOptions(METADATA_LEVEL));
+                        new DynamicMetadataOptions(METADATA_LEVEL));
                 reader.setId(path);
                 format = reader.getFormat();
                 usedFiles = getOrderedFiles();

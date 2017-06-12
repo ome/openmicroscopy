@@ -34,7 +34,7 @@ import java.util.Set;
 
 import loci.common.DataTools;
 import loci.formats.FormatException;
-import loci.formats.in.DefaultMetadataOptions;
+import loci.formats.in.DynamicMetadataOptions;
 import loci.formats.in.MetadataLevel;
 import ome.formats.Index;
 import ome.formats.OMEROMetadataStoreClient;
@@ -138,10 +138,10 @@ public class MetadataValidatorTest
                 new BlitzInstanceProvider(minimalStore.getEnumerationProvider()));
         wrapper = new OMEROWrapper(config);
         wrapper.setMetadataOptions(
-                new DefaultMetadataOptions(MetadataLevel.ALL));
+                new DynamicMetadataOptions(MetadataLevel.ALL));
         minimalWrapper = new OMEROWrapper(config);
         minimalWrapper.setMetadataOptions(
-                new DefaultMetadataOptions(MetadataLevel.MINIMUM));
+                new DynamicMetadataOptions(MetadataLevel.MINIMUM));
         wrapper.setMetadataStore(store);
         store.setReader(wrapper.getImageReader());
         minimalStore.setReader(minimalWrapper.getImageReader());

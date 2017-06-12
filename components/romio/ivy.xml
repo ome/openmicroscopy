@@ -17,7 +17,7 @@
   <dependencies defaultconfmapping="build,client,server->default">
     <!-- Internal -->
     <dependency name="common" rev="${omero.version}" changing="true" conf="build->build;server->server;client->client"/>
-    <dependency org="ome" name="formats-gpl" rev="${versions.bioformats}">
+    <dependency org="idr" name="formats-gpl" rev="${versions.bioformats}">
         <exclude org="org.perf4j"/>
         <exclude org="org.slf4j"/>
         <exclude org="commons-logging"/>
