@@ -43,7 +43,9 @@ import omero.api.IUpdatePrx;
 import omero.api.RoiOptions;
 import omero.api.RoiResult;
 import omero.cmd.CmdCallbackI;
+import omero.cmd.ERR;
 import omero.cmd.Request;
+import omero.cmd.Response;
 import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
@@ -792,8 +794,16 @@ public class ROIFacility extends Facility {
                                     if (shapeIndex !=-1) {
                                         if (!removed.contains(coord))
                                             try {
-                                                dm.delete(ctx, serverShape)
-                                                        .loop(10, 500);
+                                                Response res = dm.delete(ctx,
+                                                        serverShape).loop(10,
+                                                        500);
+                                                if (res instanceof ERR)
+                                                    logWarn(this,
+                                                            "Could not delete shape "
+                                                                    + serverShape
+                                                                            .getId()
+                                                                            .getValue(),
+                                                            null);
                                             } catch (omero.LockTimeout e) {
                                                 logWarn(this,
                                                         "Could not delete shape "
