@@ -525,27 +525,28 @@ public class LightAdminRolesTest extends RolesTests {
      * @param permChgrp if to test a user who has the <tt>Chgrp</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
+     * @see <a href="graphical explanation">https://docs.google.com/presentation/d/1c3TGh4bD5_djKO_-lJs5LoBjL0koYsko7QkyEuu-nXY/edit#slide=id.p4</a>
      */
     @Test(dataProvider = "isSudoing and Chgrp privileges cases")
     public void testChgrpNonMember(boolean isSudoing, boolean permChgrp, String groupPermissions)
             throws Exception {
-        /* Set up a user and three groups, the user being a member of
-         * two of the groups.
-         */
+        /* Set up a user (normalUser) and two groups, the normalUser being a member of
+         * only one of the groups.*/
         final EventContext normalUser = newUserAndGroup(groupPermissions);
-        /* Group where the user is not member */
+        /* group where the normalUser is not member */
         final long anotherGroupId = newUserAndGroup(groupPermissions).groupId;
-        /* Define cases:
-         * When data owner is not member of the target group,
-         * Chgrp action passes only when light admin has Chgrp permission
-         * and is not Sudoing (Sudoing can be thought of as destroyer of the
-         * privileges, because it forces the permissions of the Sudoed-as user
-         * onto the light admin). These permissions should be also sufficient
-         * to move all annotations on the image, which are unique on the image.*/
+        /* When normalUser (data owner) is not member of the target group,
+         * Chgrp action passes only when lightAdmin has Chgrp permission
+         * and lightAdmin is not Sudoing. This permission situation should be also valid
+         * for all annotations on the image which are unique on the image (not used
+         * anywhere else).*/
         boolean chgrpNonMemberExpectSuccess = !isSudoing && permChgrp;
-        /* define cases where canChgrp on the image is expected to be true */
+        /* Define cases where canChgrp on the image is expected to be true.
+         * As the canChgrp boolean cannot "know" in advance to which group the
+         * move is intended, it must show "true" in every case in which SOME
+         * chgrp might be successful.*/
         final boolean canChgrpExpectedTrue = permChgrp || isSudoing;
-        /* create a Dataset as the normalUser and import into it */
+        /* Create a Dataset as the normalUser and import into it */
         loginUser(normalUser);
         Dataset dat = mmFactory.simpleDataset();
         Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
@@ -556,7 +557,7 @@ public class LightAdminRolesTest extends RolesTests {
         /* Annotate the imported image with Tag and file attachment */
         List<IObject> annotOriginalFileAnnotationTagAndLinks = annotateImageWithTagAndFile(image);
 
-        /* set up the light admin's permissions for this test */
+        /* Set up the light admin's permissions for this test.*/
         List<String> permissions = new ArrayList<String>();
         permissions.add(AdminPrivilegeSudo.value);
         if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);
@@ -564,41 +565,35 @@ public class LightAdminRolesTest extends RolesTests {
         lightAdmin = loginNewAdmin(true, permissions);
         sudo(new ExperimenterI(normalUser.userId, false));
 
-        /* take care of workflows which do not use sudo */
+        /* Take care of workflows which do not use sudo.*/
         if (!isSudoing) {
             loginUser(lightAdmin);
         }
-        /*in order to find the image in whatever group, get context with group
-         * set to -1 (=all groups) */
+        /* In order to find the image in whatever group, get all groups context.*/
         mergeIntoContext(client.getImplicitContext(), ALL_GROUPS_CONTEXT);
 
-        /* try to move into another group the normalUser
+        /* Try to move the image into anotherGroup the normalUser
          * is not a member of, which should fail in all cases
-         * except the light admin has Chgrp permission and is not sudoing
-         * (i.e. chgrpNoSudoExpectSuccessAnyGroup is true). Also check that
-         * the canChgrp boolean delivers true in accordance with the
-         * canChgrpExpectedTrue boolean value. Note that the
-         * canChgrp boolean is true in case the object can be moved into
-         * SOME group, and thus it cannot match (in cases where light admin
-         * is sudoed in) with the chgrpNonMemberExpectSuccess boolean.*/
+         * except the lightAdmin has Chgrp permission and is not sudoing
+         * (i.e. chgrpNoSudoExpectSuccessAnyGroup is true). Also check the
+         * the canChgrp boolean.*/
         Assert.assertEquals(getCurrentPermissions(image).canChgrp(), canChgrpExpectedTrue);
         doChange(client, factory, Requests.chgrp().target(image).toGroup(anotherGroupId).build(),
                 chgrpNonMemberExpectSuccess);
         if (chgrpNonMemberExpectSuccess) {
-            /* check that the image and its original file moved to another group */
+            /* Check that the image and its original file moved to another group.*/
             assertInGroup(image, anotherGroupId);
             assertInGroup(originalFile, anotherGroupId);
             /* check the annotations on the image changed the group as expected */
             assertInGroup(annotOriginalFileAnnotationTagAndLinks, anotherGroupId);
         } else {
-            /* check that the image, after this second Chgrp attempt,
-             * is still in its original group */
+            /* Check that the image is still in its original group (normalUser's group).*/
             assertInGroup(image, normalUser.groupId);
             assertInGroup(originalFile, normalUser.groupId);
-            /* neither the image nor the annotations were moved */
+            /* The annotations stayed with the image in the normalUser's group.*/
             assertInGroup(annotOriginalFileAnnotationTagAndLinks, normalUser.groupId);
         }
-        /* in any case, the image should still belong to normalUser */
+        /* In any case, the image should still belong to normalUser.*/
         assertOwnedBy(image, normalUser);
     }
 
