@@ -598,12 +598,12 @@ public class LightAdminRolesTest extends RolesTests {
     }
 
     /**
-     * Test that an ImporterAs cannot
-     * chown on behalf of another user if sudoed in as that user.
-     * Chown will be successful only when not sudoed and having
-     * the <tt>Chown</tt> privilege.
-     * Test is in case of private group severing the link between the Dataset and Image.
-     * For this, only the Chown permissions are sufficient, no other permissions are necessary.
+     * Test that light admin can, having the <tt>Chown</tt> privilege,
+     * transfer the data between two users (normalUser and anotherUser).
+     * Test also that light admin, if sudoed, cannot transfer ownership,
+     * because light admin sudoes as a non-admin non-group owner user.
+     * In case of private group the transfer of an Image severs the link between the Dataset and Image.
+     * For this unlinking, only the Chown permissions are sufficient, no other permissions are necessary.
      * <tt>Chown</tt> privilege is sufficient also
      * to transfer ownership of annotations (tag and file attachment are tested here),
      * but just in case of private and read-only groups, which is in line with the
@@ -612,21 +612,22 @@ public class LightAdminRolesTest extends RolesTests {
      * @param permChown if to test a user who has the <tt>Chown</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
+     * @see <a href="graphical explanation">https://docs.google.com/presentation/d/1r4qlG9JKLfTgS8s5xWM8SDJJ25t4RwSWuiy6BfFfO_o/edit#slide=id.p4</a>
      */
     @Test(dataProvider = "isSudoing and Chown privileges cases")
     public void testChown(boolean isSudoing, boolean permChown, String groupPermissions)
             throws Exception {
-        /* define the conditions for the chown passing for annotations on chowned image,
-         * when not sudoing, and permChown is available, also, in groups with higher
-         * permissions the chown of annotations is not expected to proceed on chowning
-         * the annotated image */
-        final boolean annotationsChownExpectSuccess = permChown &&
+        /* Define the conditions for the chown of the image is passing.*/
+        final boolean chownImagePassing = permChown && !isSudoing;
+        /* Chown of the annotations on the image is passing when
+         * chownImagePassing is true in higher permissions groups (read-annotate and read-write)
+         * only.*/
+        final boolean annotationsChownExpectSuccess = chownImagePassing &&
                 (groupPermissions.equals("rw----") || groupPermissions.equals("rwr---"));
-        /* define the conditions for the chown of the image itself passing */
-        final boolean chownPassingWhenNotSudoing = permChown;
+
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         final EventContext anotherUser = newUserAndGroup(groupPermissions);
-        /* create a Dataset as the normalUser and import into it */
+        /* Create a Dataset as the normalUser and import into it */
         loginUser(normalUser);
         Dataset dat = mmFactory.simpleDataset();
         Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
@@ -637,7 +638,7 @@ public class LightAdminRolesTest extends RolesTests {
         /* Annotate the imported image with Tag and file attachment */
         List<IObject> annotOriginalFileAnnotationTagAndLinks = annotateImageWithTagAndFile(image);
 
-        /* set up the basic permissions for this test */
+        /* Set up the basic permissions for this test.*/
         List<String> permissions = new ArrayList<String>();
         permissions.add(AdminPrivilegeSudo.value);
         if (permChown) permissions.add(AdminPrivilegeChown.value);
@@ -645,58 +646,48 @@ public class LightAdminRolesTest extends RolesTests {
         lightAdmin = loginNewAdmin(true, permissions);
         sudo(new ExperimenterI(normalUser.userId, false));
 
-        /* take care of workflows which do not use sudo */
+        /* Take care of workflows which do not use sudo.*/
         if (!isSudoing) {
             loginUser(lightAdmin);
         }
-        /* light admin tries to chown the image of the normalUser whilst sudoed,
-         * which should fail whether they have a Chown permissions or not
-         * Also check that the value of canChown boolean on the image is false
-         * in such case.*/
+        /* Check that the value of canChown boolean matches chownPassingWhenNotSudoing
+         * boolean in each case.*/
+        Assert.assertEquals(getCurrentPermissions(image).canChown(), chownImagePassing);
+        /* Get inot correct group context and check all cases.*/
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        /* lightAdmin tries to chown the image.*/
+        doChange(client, factory, Requests.chown().target(image).toUser(anotherUser.userId).build(), chownImagePassing);
+        /* Chect the results of the chown when lightAdmin is sudoed,
+         * which should fail in any case.*/
         if (isSudoing) {
-            Assert.assertFalse(getCurrentPermissions(image).canChown());
-            doChange(client, factory, Requests.chown().target(image).toUser(anotherUser.userId).build(), false);
             assertOwnedBy(image, normalUser);
             assertOwnedBy(originalFile, normalUser);
             assertOwnedBy(annotOriginalFileAnnotationTagAndLinks, normalUser);
-        } else if (chownPassingWhenNotSudoing && annotationsChownExpectSuccess) {
-            /* chowning the image NOT being sudoed,
-             * should pass only in case you have Chown
-             * privilege, captured in "chownPassingWhenNotSudoing" boolean.
-             * Also check that the value of canChown boolean matches chownPassingWhenNotSudoing
-             * boolean in such case.*/
-            Assert.assertEquals(getCurrentPermissions(image).canChown(), true);
-            doChange(client, factory, Requests.chown().target(image).toUser(anotherUser.userId).build(), chownPassingWhenNotSudoing);
+        /* Check the chown was successful for both the image and the annotations
+         * when the permissions for chowning both
+         * the image as well as the annotations on it are sufficient.*/
+        } else if (chownImagePassing && annotationsChownExpectSuccess) {
             assertOwnedBy(image, anotherUser);
             assertOwnedBy(originalFile, anotherUser);
-            /* for the annotations on the image and their links,
-             * the chown of the image will only chown them if also
+            /* Annotations will be chowned because
              * groupPermissions are private or read-only (captured in boolean
              * annotationsChownExpectSuccess) */
             assertOwnedBy(annotOriginalFileAnnotationTagAndLinks, anotherUser);
-        } else if (chownPassingWhenNotSudoing && !annotationsChownExpectSuccess){
-            Assert.assertEquals(getCurrentPermissions(image).canChown(), true);
-            doChange(client, factory, Requests.chown().target(image).toUser(anotherUser.userId).build(), chownPassingWhenNotSudoing);
+        /* Check the chown was successful for the image but not the annotations
+         * in case the annotationsChownExpectSuccess is false, i.e. in read-only and private group.*/
+        } else if (chownImagePassing && !annotationsChownExpectSuccess){
             assertOwnedBy(image, anotherUser);
             assertOwnedBy(originalFile, anotherUser);
-            /* in read-annotate and read-write groups the
-             * annotations will remain attached to the image
-             * of anotherUser, but still belongs to normalUser
-             */
             assertOwnedBy(annotOriginalFileAnnotationTagAndLinks, normalUser);
         } else {
-            /* the chown will fail, as the chownPassingWhenNotSudoing is false,
-             * and the light admin is not sudoing in this case. All objects still
-             * belong to normalUser. */
-            Assert.assertEquals(getCurrentPermissions(image).canChown(), false);
-            doChange(client, factory, Requests.chown().target(image).toUser(anotherUser.userId).build(), chownPassingWhenNotSudoing);
+        /* In the remaining case, the chown will fail, as the chownPassingWhenNotSudoing
+         * is false because permChown was not given. All objects belong to normalUser.*/
             assertOwnedBy(image, normalUser);
             assertOwnedBy(originalFile, normalUser);
             assertOwnedBy(annotOriginalFileAnnotationTagAndLinks, normalUser);
         }
-            /* in any case, the image must be in the right group */
-            assertInGroup(image, normalUser.groupId);
+        /* In any case, the image must be in the right group */
+        assertInGroup(image, normalUser.groupId);
     }
 
     /**
