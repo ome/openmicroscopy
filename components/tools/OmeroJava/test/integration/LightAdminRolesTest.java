@@ -801,34 +801,36 @@ public class LightAdminRolesTest extends RolesTests {
         }
     }
 
-    /** Additonal test of light amdin without using Sudo.
-     * The workflow deals with the eventuality of pre-existing container
-     * in the target group and linking of the image or dataset to this container
-     * (dataset or project). The image import has been tested in other tests,
-     * here the image and/or dataset will be created and saved instead and just
-     * the linking to a container will be tested. Only when the light admin has
+    /** lightAdmin tries to link an object to a pre-existing container (image or Dataset)
+     * in the target group (of normalUser where lightAdmin is not member)
+     * and linking of the image or dataset to this container
+     * (Dataset or Project). The image import (by lightAdmin for others)
+     * has been tested in other tests,
+     * here the image, Dataset and Project is created by normalUser and saved, then
+     * the linking to a container by lightAdmin is tested. Only when lightAdmin has
      * WriteOwned privilege is the linking possible.
      * @param permChown if to test a user who has the <tt>Chown</tt> privilege
      * @param permWriteOwned if to test a user who has the <tt>WriteOwned</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
+     * @see <a href="graphical explanation">https://docs.google.com/presentation/d/1uetvPv-tsnHdRqkVvMx2xpHvVXYyUL2HTob8LUC6Mds/edit#slide=id.p4</a>
      */
     @Test(dataProvider = "WriteOwned and Chown privileges cases")
     public void testLinkNoSudo(boolean permWriteOwned, boolean permChown,
             String groupPermissions) throws Exception {
-        /* linking should be always permitted as long as light admin is in System Group
-         * and has WriteOwned permissions. Exception is Private group, where linking will
-         * always fail.*/
-        boolean isExpectLinkingSuccess = permWriteOwned && !(groupPermissions == "rw----");
+        /* WriteOwned permission is necessary and sufficient for lightAdmin to link
+         * others objects. Exception is Private group, where such linking will
+         * fail in all cases.*/
+        boolean isExpectLinkingSuccess = permWriteOwned && !groupPermissions.equals("rw----");
         boolean isExpectSuccessLinkAndChown = isExpectLinkingSuccess && permChown;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
-        /* set up the light admin's permissions for this test */
+        /* Set up the light admin's permissions for this test.*/
         List<String> permissions = new ArrayList<String>();
         if (permChown) permissions.add(AdminPrivilegeChown.value);
         if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(true, permissions);
-        /* create an image, dataset and project as normalUser in a group of the normalUser */
+        /* Create an image, Dataset and Project as normalUser in normalUser's group.*/
         loginUser(normalUser);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         Image image = mmFactory.createImage();
@@ -837,45 +839,45 @@ public class LightAdminRolesTest extends RolesTests {
         Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
         Project proj = mmFactory.simpleProject();
         Project sentProj = (Project) iUpdate.saveAndReturnObject(proj);
-        /* now login as light admin and create links between the image and dataset
-         * and the dataset and the project
-         */
         loginUser(lightAdmin);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        /* lightAdmin checks that the canLink value on all the objects to be linked
+         * matches the isExpectLinkingSuccess boolean.*/
+        Assert.assertEquals(getCurrentPermissions(sentImage).canLink(), isExpectLinkingSuccess);
+        Assert.assertEquals(getCurrentPermissions(sentDat).canLink(), isExpectLinkingSuccess);
+        Assert.assertEquals(getCurrentPermissions(sentProj).canLink(), isExpectLinkingSuccess);
+        /* lightAdmin tries to create links between the image and Dataset
+         * and between Dataset and Project.
+         * If links could not be created, finish the test */
         DatasetImageLink linkOfDatasetImage = new DatasetImageLinkI();
         ProjectDatasetLink linkOfProjectDataset = new ProjectDatasetLinkI();
-        if (isExpectLinkingSuccess) {
-            /* Check that the canLink value on all the objects to be linked is true,
-             * then create the links.*/
-            Assert.assertTrue(getCurrentPermissions(sentImage).canLink());
-            Assert.assertTrue(getCurrentPermissions(sentDat).canLink());
-            Assert.assertTrue(getCurrentPermissions(sentProj).canLink());
+        try {
             linkOfDatasetImage = linkDatasetImage(sentDat, sentImage);
             linkOfProjectDataset = linkProjectDataset(sentProj, sentDat);
-        } else {
-            /* Check that the canLink value on all the objects to be linked is false.*/
-            Assert.assertFalse(getCurrentPermissions(sentImage).canLink());
-            Assert.assertFalse(getCurrentPermissions(sentDat).canLink());
-            Assert.assertFalse(getCurrentPermissions(sentProj).canLink());
-            return; /*links could not be created, finish the test */
+            Assert.assertTrue(isExpectLinkingSuccess);
+        } catch (ServerError se) {
+            Assert.assertFalse(isExpectLinkingSuccess);
+            return;
         }
 
-        /* after successful linkage, transfer the ownership
-         * of both links to the normalUser. For that the light admin
-         * needs additonally the Chown permission. Note that the links
-         * have to be transferred step by step, as the Chown feature
-         * of whole hierarchy does not transfer links owned by non-owners
-         * of the P/D/I objects. Also check that the canChown value on all
-         * the objects to be chowned is matching the isExpectSuccessLinkAndChown.*/
+        /* Check that the value of canChown boolean on the links is matching
+         * the isExpectSuccessLinkAndChown boolean.*/
         Assert.assertEquals(getCurrentPermissions(linkOfDatasetImage).canChown(), isExpectSuccessLinkAndChown);
+        Assert.assertEquals(getCurrentPermissions(linkOfProjectDataset).canChown(), isExpectSuccessLinkAndChown);
+
+        /* lightAdmin transfers the ownership of both links to normalUser.
+         * The success of the whole linking and chowning
+         * operation is captured in boolean isExpectSuccessLinkAndChown. Note that the
+         * ownership of the links must be transferred explicitly, as the Chown feature
+         * on the Project would not transfer ownership links owned by non-owners
+         * of the P/D/I objects (chown on mixed ownership hierarchy does not chown objects
+         * owned by other users).*/
         Chown2 chown = Requests.chown().target(linkOfDatasetImage).toUser(normalUser.userId).build();
         doChange(client, factory, chown, isExpectSuccessLinkAndChown);
-        Assert.assertEquals(getCurrentPermissions(linkOfProjectDataset).canChown(), isExpectSuccessLinkAndChown);
         chown = Requests.chown().target(linkOfProjectDataset).toUser(normalUser.userId).build();
         doChange(client, factory, chown, isExpectSuccessLinkAndChown);
 
-        /* now retrieve and check that the links, image, dataset and project
-         * are owned by normalUser */
+        /* Check the ownership of the links, image, Dataset and Project.*/
         final long linkDatasetImageId = ((RLong) iQuery.projection(
                 "SELECT id FROM DatasetImageLink WHERE parent.id  = :id",
                 new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
