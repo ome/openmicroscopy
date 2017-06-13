@@ -28,12 +28,12 @@ import ome.system.ServiceFactory;
 /**
  * Provider for {@link Event} objects which is responsible for persisting and
  * populating such entities in-memory.
- * 
+ *
  * @author Chris Allan <callan@glencoesoftware.com>
  * @see SecuritySystem
  * @since 5.3.0
  */
-public class BasicInMemoryEventProvider
+public class InMemoryEventProvider
     implements EventProvider {
 
     private final AtomicLong currentEventId = new AtomicLong(-1L);
@@ -42,7 +42,7 @@ public class BasicInMemoryEventProvider
      * Main public constructor for this {@link EventProvider} implementation.
      * @param sf the service factory
      */
-    public BasicInMemoryEventProvider(ServiceFactory sf) {
+    public InMemoryEventProvider(ServiceFactory sf) {
     }
 
     /**

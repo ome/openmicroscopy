@@ -42,12 +42,12 @@ import ome.system.ServiceFactory;
 /**
  * Provider for {@link Node} objects which is responsible for persisting and
  * populating such entities.
- * 
+ *
  * @author Chris Allan <callan@glencoesoftware.com>
  * @see Ring
  * @since 5.3.0
  */
-public class BasicInMemoryNodeProvider implements NodeProvider {
+public class InMemoryNodeProvider implements NodeProvider {
 
     /**
      * UUID for this cluster node. Used to uniquely identify the session manager
@@ -63,7 +63,7 @@ public class BasicInMemoryNodeProvider implements NodeProvider {
 
     private final AtomicLong currentNodeId = new AtomicLong(-1L);
 
-    public BasicInMemoryNodeProvider(String uuid, Executor executor) {
+    public InMemoryNodeProvider(String uuid, Executor executor) {
         this.uuid = uuid;
         this.principal = new Principal(uuid, "system", "Internal");
     }
