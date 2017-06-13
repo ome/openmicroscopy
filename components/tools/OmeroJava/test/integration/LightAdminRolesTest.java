@@ -1023,31 +1023,29 @@ public class LightAdminRolesTest extends RolesTests {
         }
     }
 
-    /** Test of DataOrganizer.
-     * The workflow deals with the possibility of having to transfer all the data
-     * to another user using the Chown privilege and using the targetUser
-     * option of the Chown2 command which transfers all the data owned by one
-     * user to another user. The data are in 2 groups, of which the original data owner
-     * is a member of, the recipient of the data is just a member of one of the groups.
+    /** Light admin (lightAdmin) transfers the ownership of all the data of a user (normalUser)
+     * to another user. The data are in 2 groups, of which the original data owner (normalUser)
+     * is member, the recipient of the data is member of just one of the groups. Chown privilege
+     * is sufficient for lightAdmin to perform the workflow.
      * @param isPrivileged if to test a user who has the <tt>Chown</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
+     * @see <a href="graphical explanation">https://docs.google.com/presentation/d/1zbIu5gYPObbVkBSxdD4sMmPFMGgspbtYQEnJ9k8vfCs/edit#slide=id.p4</a>
      */
     @Test(dataProvider = "isPrivileged cases")
     public void testChownAllBelongingToUser(boolean isPrivileged, String groupPermissions) throws Exception {
-        /* chown is passing in this test with isAdmin and permChown only.*/
+        /* Chown privilege is sufficient for the workflow.*/
         final boolean chownPassing = isPrivileged;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         ExperimenterGroup anotherGroup = newGroupAddUser(groupPermissions, normalUser.userId, false);
         final EventContext recipient = newUserInGroup(anotherGroup, false);
-        /* set up the light admin's permissions for this test */
+        /* Set up the light admin's permissions for this test.*/
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeChown.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(true, permissions);
-        /* create two sets of P/D/I hierarchy as normalUser in the default
-         * group of the normalUser */
-        loginUser(normalUser); /* comment out this line in order to let the light admin own the hierarchy */
+        /* normalUser creates two sets of P/D/I hierarchy in their default group.*/
+        loginUser(normalUser);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         Image image1 = mmFactory.createImage();
         Image image2 = mmFactory.createImage();
@@ -1066,8 +1064,7 @@ public class LightAdminRolesTest extends RolesTests {
         ProjectDatasetLink linkOfProjectDataset1 = linkProjectDataset(sentProj1, sentDat1);
         ProjectDatasetLink linkOfProjectDataset2 = linkProjectDataset(sentProj2, sentDat2);
 
-        /* now also create this hierarchy in the other group as the normalUser */
-
+        /* normalUser creates two sets of P/D?I hierarchy in the other group (anotherGroup).*/
         client.getImplicitContext().put("omero.group", Long.toString(anotherGroup.getId().getValue()));
         Image image1AnotherGroup = mmFactory.createImage();
         Image image2AnotherGroup = mmFactory.createImage();
@@ -1085,39 +1082,40 @@ public class LightAdminRolesTest extends RolesTests {
         DatasetImageLink linkOfDatasetImage2AnotherGroup = linkDatasetImage(sentDat2AnotherGroup, sentImage2AnotherGroup);
         ProjectDatasetLink linkOfProjectDataset1AnotherGroup = linkProjectDataset(sentProj1AnootherGroup, sentDat1AnotherGroup);
         ProjectDatasetLink linkOfProjectDataset2AnotherGroup = linkProjectDataset(sentProj2AnotherGroup, sentDat2AnotherGroup);
-        /* now transfer all the data of normalUser to recipient */
+        /* lightAdmin tries to transfers all normalUser's data to recipient.*/
         loginUser(lightAdmin);
-        client.getImplicitContext().put("omero.group", "-1");
-        /* transfer can proceed only if chownPassing boolean is true */
-        /* Check on one selected object only (sentProj1OtherGroup) the value
+        /* In order to be able to operate in both groups, get all groups context.*/
+        mergeIntoContext(client.getImplicitContext(), ALL_GROUPS_CONTEXT);
+        /* Check on one selected object only (sentProj1AnotherGroup) the value
          * of canChown. The value must match the chownPassing boolean.*/
         Assert.assertEquals(getCurrentPermissions(sentProj1AnootherGroup).canChown(), chownPassing);
+        /* Check that transfer proceeds only if chownPassing boolean is true.*/
         doChange(client, factory, Requests.chown().targetUsers(normalUser.userId).toUser(recipient.userId).build(), chownPassing);
         if (!chownPassing) {
+            /* Finish the test if no transfer of data could proceed.*/
             return;
         }
-        /* check the transfer of all the data in the first group was successful */
-        /* check ownership of the first hierarchy set*/
-        mergeIntoContext(client.getImplicitContext(), ALL_GROUPS_CONTEXT);
+        /* Check the transfer of all the data in normalUser's group was successful,
+         * first checking ownership of the first hierarchy set.*/
         assertOwnedBy(sentProj1, recipient);
         assertOwnedBy(sentDat1, recipient);
         assertOwnedBy(sentImage1, recipient);
         assertOwnedBy(linkOfDatasetImage1, recipient);
         assertOwnedBy(linkOfProjectDataset1, recipient);
-        /* Check ownership of the second hierarchy set*/
+        /* Check ownership of the second hierarchy set.*/
         assertOwnedBy(sentProj2, recipient);
         assertOwnedBy(sentDat2, recipient);
         assertOwnedBy(sentImage2, recipient);
         assertOwnedBy(linkOfDatasetImage2, recipient);
         assertOwnedBy(linkOfProjectDataset2, recipient);
-        /* check ownership of the objects in otherGroup */
-        /* check ownership of the first hierarchy in the other group */
+        /* Check ownership of the objects in anotherGroup,
+         * first checking ownership of the first hierarchy.*/
         assertOwnedBy(sentProj1AnootherGroup, recipient);
         assertOwnedBy(sentDat1AnotherGroup, recipient);
         assertOwnedBy(sentImage1AnootherGroup, recipient);
         assertOwnedBy(linkOfDatasetImage1AnotherGroup, recipient);
         assertOwnedBy(linkOfProjectDataset1AnotherGroup, recipient);
-        /* check ownership of the second hierarchy in the other group */
+        /* Check ownership of the second hierarchy set in anotherGroup.*/
         assertOwnedBy(sentProj2AnotherGroup, recipient);
         assertOwnedBy(sentDat2AnotherGroup, recipient);
         assertOwnedBy(sentImage1AnootherGroup, recipient);
