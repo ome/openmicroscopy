@@ -896,10 +896,10 @@ public class LightAdminRolesTest extends RolesTests {
         }
     }
 
-        /** Test a workflow of ImporterAs without using Sudo.
-         * The data will be imported to the group
-         * of the light admin (where the user is not a member)
-         * and chgrp-ed and chowned into the correct group/user afterwards.
+        /** Light admin (lightAdmin) imports data for others (normalUser) without using Sudo.
+         * The data will be imported by lightAdmin to lightAdmin's group (normalUser is not member
+         * of lightAdmin's group). lightAdmin moves the data into normalUser's group
+         * and chowns the data to normalUser.
          * For this test, combinations of <tt>Chown</tt>, <tt>Chgrp</tt>,
          * privileges is explored for the light admin.
          * For this workflow the creation and targeting of a Dataset
@@ -908,58 +908,51 @@ public class LightAdminRolesTest extends RolesTests {
          * @param permChown if to test a user who has the <tt>Chown</tt> privilege
          * @param groupPermissions if to test the effect of group permission level
          * @throws Exception unexpected
+         * @see <a href="graphical explanation">https://docs.google.com/presentation/d/1zqDRwYDm3wA_xE79M6qR56U8giFbLFDywH3slj0wURA/edit#slide=id.p4</a>
          */
         @Test(dataProvider = "Chgrp and Chown privileges cases")
         public void testImporterAsNoSudoChgrpChownWorkflow(boolean permChgrp, boolean permChown,
                 String groupPermissions) throws Exception {
-        /* importing into the group of the light admin and
+        /* Importing into the group of the lightAdmin and
          * subsequent moving the data into the group of normalUser and chowning
-         * them to the normal user will succeed if Chgrp and Chown is possible,
-         * which needs permChgrp, permChown, but not WriteFile and WriteOwned,
-         */
+         * them to the normalUser succeeds if Chgrp and Chown is possible,
+         * which needs permChgrp, permChown, but not WriteFile and WriteOwned,*/
         boolean importYourGroupAndChgrpAndChownExpectSuccess = permChgrp && permChown;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
-        /* set up the light admin's permissions for this test */
+        /* Set up the light admin's permissions for this test.*/
         List<String> permissions = new ArrayList<String>();
         if (permChown) permissions.add(AdminPrivilegeChown.value);
         if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(true, permissions);
-        /* Workflow2: import an image as lightAdmin into a group you are a member of */
-        /* First create a Dataset in your (light admin's) group */
+        /* lightAdmin creates a Dataset in lightAdmin's group and imports
+         * an image into it.*/
         client.getImplicitContext().put("omero.group", Long.toString(lightAdmin.groupId));
         Dataset dat = mmFactory.simpleDataset();
         Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
-        /* import an image into the created Dataset */
+        /* Import an image into the created Dataset.*/
         List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
         OriginalFile originalFile = (OriginalFile) originalFileAndImage.get(0);
         Image image = (Image) originalFileAndImage.get(1);
-        /* check that originalFile and the image
-         * corresponding to the original file are in the right group */
+        /* Check that originalFile and the image
+         * corresponding to the originalFile are in the right group.*/
         assertOwnedBy(originalFile, lightAdmin);
         assertInGroup(originalFile, lightAdmin.groupId);
         assertOwnedBy(image, lightAdmin);
         assertInGroup(image, lightAdmin.groupId);
 
-        /* now try to move the dataset into the group of the user */
-        /* in order to find the image in whatever group, get context with group
-         * set to -1 (=all groups)
-         */
+        /* In order to find the image in whatever group, get all groups context.*/
         mergeIntoContext(client.getImplicitContext(), ALL_GROUPS_CONTEXT);
-        /* try to move the dataset (and with it the linked image)
-         * from light admin's default group
-         * into the default group of the normalUser
-         * which should succeed in case the light admin has Chgrp permissions
-         */
-        doChange(client, factory, Requests.chgrp().target(sentDat).toGroup(normalUser.groupId).build(), permChgrp);
         /* Check that the value of canChgrp on the dataset is true.
-         * Note that although the chgrp action into the group of normalUser will fail,
-         * the light admin could be chgrp the dataset into a group where he is a member,
+         * Note that although the move into normalUser's group might fail,
+         * lightAdmin could be moving the dataset into some group where they are member,
          * and thus the canChgrp must be "true".*/
         Assert.assertTrue(getCurrentPermissions(sentDat).canChgrp());
-
-        /* check that the image, dataset, and their link was moved too if the permissions
-         * were sufficient */
+        /* lightAdmin tries to move the dataset (and with it the linked image)
+         * from lightAdmin's group to normalUser's group,
+         * which should succeed in case the light admin has Chgrp permissions.*/
+        doChange(client, factory, Requests.chgrp().target(sentDat).toGroup(normalUser.groupId).build(), permChgrp);
+        /* Check that the group of the moved objects.*/
         long datasetImageLinkId = ((RLong) iQuery.projection(
                 "SELECT id FROM DatasetImageLink WHERE parent.id = :id",
                 new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
@@ -968,27 +961,24 @@ public class LightAdminRolesTest extends RolesTests {
             assertInGroup(image, normalUser.groupId);
             assertInGroup(sentDat, normalUser.groupId);
             assertInGroup((new DatasetImageLinkI(datasetImageLinkId, false)), normalUser.groupId);
-        /* check that the image, dataset and their link were not moved if
-         * the permissions were not sufficient
-         */
         } else {
             assertInGroup(originalFile, lightAdmin.groupId);
             assertInGroup(image, lightAdmin.groupId);
             assertInGroup(sentDat, lightAdmin.groupId);
             assertInGroup((new DatasetImageLinkI(datasetImageLinkId, false)), lightAdmin.groupId);
         }
-        /* now, having moved the dataset, image, original file and link in the group of normalUser,
-         * try to change the ownership of the dataset to the normalUser.
-         * Chowning the dataset should fail in case you have not Chown permissions.
-         * A successful chowning of the dataset will chown the linked image
-         * and the link too. Also check that the canChown boolean on the Dataset must be in
-         * sync with the permChown.*/
+        /* Check that the canChown boolean on Dataset is matching permChown boolean.*/
         Assert.assertEquals(getCurrentPermissions(sentDat).canChown(), permChown);
+        /* lightAdmin tries to transfer the ownership of Dataset to normalUser.
+         * Chowning the Dataset succeeds if lightAdmin has Chown privilege.
+         * Successful chowning of the dataset transfers the ownership of the linked image
+         * and the link too.*/
         doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(), permChown);
-        /* boolean importYourGroupAndChgrpAndChownExpectSuccess
+        /* Boolean importYourGroupAndChgrpAndChownExpectSuccess
          * captures permChown and permChgrp. Check the objects ownership and groups.*/
-        if (importYourGroupAndChgrpAndChownExpectSuccess) {/* whole workflow2 succeeded */
-            /* image, dataset and link are in the normalUser's group and belong to normalUser */
+        if (importYourGroupAndChgrpAndChownExpectSuccess) {
+            /* First case: The whole "import for others" workflow succeeds.
+             * Image, Dataset and link are in normalUser's group and belong to normalUser.*/
             assertOwnedBy(originalFile, normalUser);
             assertInGroup(originalFile, normalUser.groupId);
             assertOwnedBy(image, normalUser);
@@ -998,8 +988,8 @@ public class LightAdminRolesTest extends RolesTests {
             assertOwnedBy((new DatasetImageLinkI(datasetImageLinkId, false)), normalUser);
             assertInGroup((new DatasetImageLinkI(datasetImageLinkId, false)), normalUser.groupId);
         } else if (permChown) {
-            /* even if the workflow2 as a whole failed, the chown might be successful */
-            /* the image, dataset and link belong to the normalUser, but is in the light admin's group */
+            /* Second case: Chown succeeds, but Chgrp fails.
+             * Image, Dataset and link belong to the normalUser, but are in lightAdmin's group */
             assertOwnedBy(originalFile, normalUser);
             assertInGroup(originalFile, lightAdmin.groupId);
             assertOwnedBy(image, normalUser);
@@ -1009,9 +999,8 @@ public class LightAdminRolesTest extends RolesTests {
             assertOwnedBy((new DatasetImageLinkI(datasetImageLinkId, false)), normalUser);
             assertInGroup((new DatasetImageLinkI(datasetImageLinkId, false)), lightAdmin.groupId);
         } else if (permChgrp) {
-            /* as workflow2 as a whole failed, in case the chgrp was successful,
-             * the chown must be failing */
-            /* the image, dataset and link are in normalUser's group but still belong to light admin */
+            /* Third case: Chgrp succeeds, but Chown fails.
+             * Image, Dataset and link are in normalUser's group but belong to lightAdmin.*/
             assertOwnedBy(originalFile, lightAdmin);
             assertInGroup(originalFile, normalUser.groupId);
             assertOwnedBy(image, lightAdmin);
@@ -1021,8 +1010,8 @@ public class LightAdminRolesTest extends RolesTests {
             assertOwnedBy((new DatasetImageLinkI(datasetImageLinkId, false)), lightAdmin);
             assertInGroup((new DatasetImageLinkI(datasetImageLinkId, false)), normalUser.groupId);
         } else {
-            /* the remaining option when the previous chgrp as well as this chown fail */
-            /* the image, dataset and link are in light admin's group and belong to light admin */
+            /* Fourth case: Ghgrp and Chown both fail.
+             * Image, Dataset and link are in lightAdmin's group and belong to lightAdmin.*/
             assertOwnedBy(originalFile, lightAdmin);
             assertInGroup(originalFile, lightAdmin.groupId);
             assertOwnedBy(image, lightAdmin);
