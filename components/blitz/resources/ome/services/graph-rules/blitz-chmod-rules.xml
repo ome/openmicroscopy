@@ -107,10 +107,6 @@
         <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink[E].parent = [D]" p:changes="L:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink[E].child = [D]" p:changes="L:[D]/n"/>
 
-        <!-- Ensure that rules with multiple matches may apply for links. -->
-
-        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink[!O]" p:changes="L:[-]"/>
-
         <!-- CONTAINERS -->
 
         <!-- Delete cross-owner links regardless of permissions. -->
@@ -148,10 +144,6 @@
         <bean parent="graphPolicyRule" p:matches="LC:LogicalChannel[E].channels =/!o C:[E]"
                                        p:error="cannot downgrade to private as {LC} is for differently owned {C}"/>
 
-        <!-- Ensure that rules with multiple matches may apply for links. -->
-
-        <bean parent="graphPolicyRule" p:matches="L:PixelsOriginalFileMap[!O]" p:changes="L:[-]"/>
-
         <!-- DISPLAY -->
 
         <!-- Regardless of permissions delete others' rendering settings and thumbnails. -->
@@ -179,10 +171,6 @@
 
         <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink[E].parent = J:[E], L.child = OF:[E];group=!user, J =/!o OF"
                                        p:error="cannot downgrade to private as {J} has differently owned {OF}"/>
-
-        <!-- Ensure that rules with multiple matches may apply for links. -->
-
-        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink[!O]" p:changes="L:[-]"/>
 
         <!-- META -->
 

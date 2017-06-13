@@ -143,11 +143,6 @@
         <bean parent="graphPolicyRule" p:matches="L:LightPathExcitationFilterLink[E].parent = [I], L.child = [I]"
                                        p:changes="L:[I]"/>
 
-        <bean parent="graphPolicyRule" p:matches="L:FilterSetEmissionFilterLink[!O]" p:changes="L:[-]"/>
-        <bean parent="graphPolicyRule" p:matches="L:FilterSetExcitationFilterLink[!O]" p:changes="L:[-]"/>
-        <bean parent="graphPolicyRule" p:matches="L:LightPathEmissionFilterLink[!O]" p:changes="L:[-]"/>
-        <bean parent="graphPolicyRule" p:matches="L:LightPathExcitationFilterLink[!O]" p:changes="L:[-]"/>
-
         <!-- ANNOTATIONS -->
 
         <bean parent="graphPolicyRule" p:matches="IAnnotationLink[I].parent = X:[E]" p:changes="X:[I]"/>
@@ -220,7 +215,6 @@
         <bean parent="graphPolicyRule" p:matches="I:Image[E].rois = [I]" p:changes="I:[I]"/>
         <bean parent="graphPolicyRule" p:matches="ROI:Roi[E].shapes = [I]" p:changes="ROI:[I]"/>
         <bean parent="graphPolicyRule" p:matches="S:Shape[E].transform = [I]" p:changes="S:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="Image[I].pixels = P:[EI]" p:changes="P:[-]"/>
         <bean parent="graphPolicyRule" p:matches="M:Mask[E].pixels = P:[EI], P.image = [I]" p:changes="M:[I]"/>
 
         <!-- SCREEN -->

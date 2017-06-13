@@ -261,10 +261,6 @@
         <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink[E].parent = X:[E]/!d, L.child = A:TagAnnotation[D]"
                                        p:error="may not delete {A} while {X} remains"/>
 
-        <!-- Ensure that rules with multiple matches may apply for links. -->
-
-        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink[!O]" p:changes="L:[-]"/>
-
         <!-- CONTAINERS -->
 
         <!-- If a container is deleted then consider its contents for deletion. -->
@@ -297,13 +293,6 @@
         <bean parent="graphPolicyRule" p:matches="L:FolderImageLink[E].child = [D]" p:changes="L:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="L:FolderRoiLink[E].parent = [D]" p:changes="L:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="L:FolderRoiLink[E].child = [D]" p:changes="L:[D]/n"/>
-
-        <!-- Ensure that rules with multiple matches may apply for links. -->
-
-        <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink[!O]" p:changes="L:[-]"/>
-        <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink[!O]" p:changes="L:[-]"/>
-        <bean parent="graphPolicyRule" p:matches="L:FolderImageLink[!O]" p:changes="L:[-]"/>
-        <bean parent="graphPolicyRule" p:matches="L:FolderRoiLink[!O]" p:changes="L:[-]"/>
 
         <!-- CORE -->
 
@@ -426,10 +415,6 @@
         <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink[E].parent = [D]" p:changes="L:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink[E].child = [D]" p:changes="L:[D]/n"/>
 
-        <!-- Ensure that rules with multiple matches may apply for links. -->
-
-        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink[!O]" p:changes="L:[-]"/>
-
         <!-- META -->
 
         <!-- If an object is deleted then also delete its external info regardless of permissions. -->
@@ -453,7 +438,6 @@
         <!-- Delete contained objects: shapes of deleted ROIs, pixels of deleted masks if possible. -->
 
         <bean parent="graphPolicyRule" p:matches="Roi[D].shapes = S:[E]" p:changes="S:[D]"/>
-        <bean parent="graphPolicyRule" p:matches="Mask[D].pixels = P:[E]" p:changes="P:[-]"/>
         <bean parent="graphPolicyRule" p:matches="Mask[D].pixels = P:[E], P.image = I:[E]{i}/d" p:changes="I:{r}"/>
 
         <!-- Delete orphaned affine transforms. -->
@@ -507,11 +491,6 @@
         <bean parent="graphPolicyRule" p:matches="Plate[D].plateAcquisitions = R:[E]" p:changes="R:[D]"/>
         <bean parent="graphPolicyRule" p:matches="PlateAcquisition[D].wellSample = WS:[E]" p:changes="WS:[D]"/>
         <bean parent="graphPolicyRule" p:matches="Well[D].wellSamples = WS:[E]" p:changes="WS:[D]"/>
-
-        <!-- Ensure that rules with multiple matches may apply for links. -->
-
-        <bean parent="graphPolicyRule" p:matches="L:WellReagentLink[!O]" p:changes="L:[-]"/>
-        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[!O]" p:changes="L:[-]"/>
 
         <!-- STATS -->
 
