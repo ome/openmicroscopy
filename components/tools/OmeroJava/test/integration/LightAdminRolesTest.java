@@ -1123,45 +1123,42 @@ public class LightAdminRolesTest extends RolesTests {
         assertOwnedBy(linkOfProjectDataset2AnotherGroup, recipient);
     }
 
-    /** Test of light admin without using Sudo.
-     * The workflow deals with the eventuality of putting ROI and Rendering Settings on an
-     * image of the user and then transferring the ownership of the ROI and settings
-     * to the user.
+    /** Light admin (lightAdmin) puts ROI and Rendering Settings on an
+     * image of normalUser and then transfers the ownership of the ROI and settings
+     * to normalUser, all without using Sudo.
      * @param permChown if to test a user who has the <tt>Chown</tt> privilege
      * @param permWriteOwned if to test a user who has the <tt>WriteOwned</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
+     * @see <a href="graphical explanation">https://docs.google.com/presentation/d/1ukEZmh0c6NCNKUE1dFqaYjN6Sd5xxCuOYkSuMdpiqvE/edit#slide=id.p4</a>
      */
     @Test(dataProvider = "WriteOwned and Chown privileges cases")
     public void testROIAndRenderingSettingsNoSudo(boolean permWriteOwned, boolean permChown,
             String groupPermissions) throws Exception {
-        /* creation of rendering settings should be always permitted as long as light admin is in System Group
-         * and has WriteOwned permissions. Exception is Private group, where it will
-         * always fail.*/
-        boolean isExpectSuccessCreateROIRndSettings = permWriteOwned && !(groupPermissions.equals("rw----")) ;
-        /* When attempting to chown ROI without the image the ROI is on in read-only and private groups,
-         * the server says that this is not allowed. Unintended behaviour, the bug was filed.
-         * The boolean isExpectSuccessCreateAndChownROI had to be adjusted accordingly for this test to pass.
-         * Note that the private groups were already excluded in the boolean isExpectSuccessCreateROIRndSettings */
+        /* Creation of rendering settings on others' images is permitted with WriteOwned permissions
+         * in all group types except private.*/
+        boolean isExpectSuccessCreateROIRndSettings = permWriteOwned && !groupPermissions.equals("rw----");
+        /* The only necessary additional permission for the whole workflow (creation & chown)
+         * to succeed is permChown.*/
         boolean isExpectSuccessCreateAndChown = isExpectSuccessCreateROIRndSettings && permChown;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
-        /* set up the light admin's permissions for this test */
+        /* Set up the light admin's permissions for this test.*/
         List<String> permissions = new ArrayList<String>();
         if (permChown) permissions.add(AdminPrivilegeChown.value);
         if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
 
-        /* create an image with pixels as normalUser in a group of the normalUser */
+        /* normalUser creates an image with pixels in normalUser's group.*/
         loginUser(normalUser);
         Image image = mmFactory.createImage();
         Image sentImage = (Image) iUpdate.saveAndReturnObject(image);
         Pixels pixelsOfImage = sentImage.getPrimaryPixels();
 
-        /* login as light admin */
+        /* lightAdmin logs in.*/
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(true, permissions);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
 
-        /* set the ROI as light admin on the image of the user */
+        /* lightAdmin tries to set ROI on normalUser's image.*/
         Roi roi = new RoiI();
         roi.addShape(new RectangleI());
         roi.setImage((Image) sentImage.proxy());
@@ -1172,14 +1169,14 @@ public class LightAdminRolesTest extends RolesTests {
             Assert.assertTrue(getCurrentPermissions(sentImage).canAnnotate());
             Assert.assertTrue(isExpectSuccessCreateROIRndSettings);
         } catch (SecurityViolation sv) {
-            /* will not work in private group or when the permissions are insufficient */
             /* Check the value of canAnnotate on the sentImage.
              * The value must be false as the ROI cannot be saved.*/
             Assert.assertFalse(getCurrentPermissions(sentImage).canAnnotate());
             Assert.assertFalse(isExpectSuccessCreateROIRndSettings);
         }
 
-        /* set rendering settings as light admin using setOriginalSettingsInSet method */
+        /* lightAdmin tries to set rendering settings on normalUser's image
+         * using setOriginalSettingsInSet method */
         IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
         try {
             prx.setOriginalSettingsInSet(Pixels.class.getName(),
@@ -1189,62 +1186,59 @@ public class LightAdminRolesTest extends RolesTests {
             Assert.assertTrue(getCurrentPermissions(sentImage).canAnnotate());
             Assert.assertTrue(isExpectSuccessCreateROIRndSettings);
         } catch (SecurityViolation sv) {
-            /* will not work in private group or when the permissions are insufficient */
             /* Check the value of canAnnotate on the sentImage.
              * The value must be false as the Rnd settings cannot be saved.*/
             Assert.assertFalse(getCurrentPermissions(sentImage).canAnnotate());
             Assert.assertFalse(isExpectSuccessCreateROIRndSettings);
         }
-        /* retrieve the image corresponding to the roi and Rnd settings
-         * and check the roi and rendering settings belong to light admin,
-         * whereas the image belongs to normalUser */
+        /* Retrieve the image corresponding to the roi and Rnd settings
+         * (if they could be set) and check the roi and rendering settings
+         * belong to lightAdmin, whereas the image belongs to normalUser.*/
         RenderingDef rDef = (RenderingDef) iQuery.findByQuery("FROM RenderingDef WHERE pixels.id = :id",
                 new ParametersI().addId(pixelsOfImage.getId()));
         if (isExpectSuccessCreateROIRndSettings) {
-            /* retrieving the image here via rDef, in order to
-             * be sure this is the image on which
-             * the rendering definitions are attached */
             long imageId = ((RLong) iQuery.projection(
                     "SELECT rdef.pixels.image.id FROM RenderingDef rdef WHERE rdef.id = :id",
                     new ParametersI().addId(rDef.getId())).get(0).get(0)).getValue();
             assertOwnedBy(roi, lightAdmin);
             assertOwnedBy(rDef, lightAdmin);
             assertOwnedBy((new ImageI(imageId, false)), normalUser);
-        } else {/* as the permissions were not sufficient
-                 * no rendering settings were created and no roi saved */
+        } else {
+            /* ROI and Rnd settings (rDef) must be null as they could not be set.*/
             roi = (Roi) iQuery.findByQuery("FROM Roi WHERE image.id = :id",
                     new ParametersI().addId(sentImage.getId()));
             Assert.assertNull(roi);
             Assert.assertNull(rDef);
         }
-        /* after this, as light admin try to chown the ROI and the rendering settings to normalUser */
-        if (isExpectSuccessCreateROIRndSettings) {/* only attempt the chown
-               if the ROI and rendering settings exist */
-            /* Also, check the value of canChown on the ROI and rendering defs matches
-             * the boolean isExpectSuccessCreateAndChownRndSettings.
-             * Note that in read-only group, the chown of roi would fail, see
-             * https://trello.com/c/7o4q2Tkt/745-fix-graphs-for-mixed-ownership-read-only.
-             * The workaround is to chown both the image and the roi, which is done in this test.*/
+        /* lightAdmin tries to chown the ROI and the rendering settings (rDef) to normalUser.
+         * Only attempt the canChown check and the chown if the ROI and rendering settings exist */
+        if (isExpectSuccessCreateROIRndSettings) {
+            /* Check the value of canChown on the ROI and rendering settings (rDef) matches
+             * the boolean isExpectSuccessCreateAndChownRndSettings.*/
             Assert.assertEquals(getCurrentPermissions(roi).canChown(), isExpectSuccessCreateAndChown);
             Assert.assertEquals(getCurrentPermissions(rDef).canChown(), isExpectSuccessCreateAndChown);
+            /* Note that in read-only group, the chown of roi would fail, see
+             * https://trello.com/c/7o4q2Tkt/745-fix-graphs-for-mixed-ownership-read-only.
+             * The workaround used here is to chown both the image and the ROI.*/
             doChange(client, factory, Requests.chown().target(roi, sentImage).toUser(normalUser.userId).build(), isExpectSuccessCreateAndChown);
             doChange(client, factory, Requests.chown().target(rDef).toUser(normalUser.userId).build(), isExpectSuccessCreateAndChown);
-            /* retrieving the image here via rDef, in order to
-             * be sure this is the image on which
-             * the rendering definitions are attached */
+            /* Retrieve the image corresponding to the roi and Rnd settings.*/
             long imageId = ((RLong) iQuery.projection(
                     "SELECT rdef.pixels.image.id FROM RenderingDef rdef WHERE rdef.id = :id",
                     new ParametersI().addId(rDef.getId())).get(0).get(0)).getValue();
-            if (isExpectSuccessCreateAndChown) {/* whole workflow succeeded for ROI and Rnd, all belongs to normalUser */
+            if (isExpectSuccessCreateAndChown) {
+                /* First case: Workflow succeeded for creation and chown, all belongs to normalUser */
                 assertOwnedBy(roi, normalUser);
                 assertOwnedBy(rDef, normalUser);
                 assertOwnedBy((new ImageI (imageId, false)), normalUser);
-            } else {/* the creation of ROI succeeded, but the chown failed */
+            } else {
+                /* Second case: Creation succeeded, but the chown failed.*/
                 assertOwnedBy(roi, lightAdmin);
                 assertOwnedBy(rDef, lightAdmin);
                 assertOwnedBy((new ImageI(imageId, false)), normalUser);
             }
-        } else {/* neither ROI nor rendering settings were not created, and chown was not attempted */
+        } else {
+            /* Third case: Creation did not succeed, and chown was not attempted.*/
             Assert.assertNull(roi);
             Assert.assertNull(rDef);
         }
