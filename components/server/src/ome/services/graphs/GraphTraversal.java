@@ -380,6 +380,7 @@ public class GraphTraversal {
         final Set<CI> included = new HashSet<CI>();
         final Set<CI> deleted = new HashSet<CI>();
         final Set<CI> outside = new HashSet<CI>();
+        final Set<CI> unchanged = new HashSet<CI>();
         /* orphan checks */
         final Set<CI> findIfLast = new HashSet<CI>();
         final Map<CI, Boolean> foundIfLast = new HashMap<CI, Boolean>();
@@ -645,6 +646,7 @@ public class GraphTraversal {
                 optimisticReprocess = null;
                 for (final CI orphan : planning.findIfLast) {
                     planning.foundIfLast.put(orphan, true);
+                    planning.unchanged.clear();
                     if (log.isDebugEnabled()) {
                         log.debug("marked " + orphan + " as " + Orphan.IS_LAST);
                     }
@@ -669,6 +671,7 @@ public class GraphTraversal {
             planning.findIfLast.addAll(isNotLast);
             for (final CI object : isNotLast) {
                 planning.foundIfLast.remove(object);
+                planning.unchanged.clear();
                 if (log.isDebugEnabled()) {
                     log.debug("marked " + object + " as " + Orphan.RELEVANT + " to verify " + Orphan.IS_NOT_LAST + " status");
                 }
@@ -1139,9 +1142,11 @@ public class GraphTraversal {
             return;
         }
         /* act on collated policies */
+        boolean anyChanges = false;
         for (final Details change : changes) {
             final CI instance = new CI(change.subject);
             final Action previousAction = getAction(instance);
+            boolean isChanged = true;
             if (previousAction != change.action) {
                 /* undo previous action */
                 switch (previousAction) {
@@ -1182,12 +1187,18 @@ public class GraphTraversal {
                 planning.foundIfLast.put(instance, change.orphan == Orphan.IS_LAST);
                 planning.toProcess.add(instance);
             } else if (change.action == Action.EXCLUDE && change.orphan == Orphan.RELEVANT && planning.findIfLast.add(instance)) {
-                /* orphan status is relevant; if just now noted as such then ensure the object is or will be cached */
+                /* orphan status switched to relevant */
                 planning.toProcess.add(instance);
-            } else if (!(change.action == Action.OUTSIDE || instance.equals(object))) {
+            } else if (instance.equals(object) || change.action == Action.OUTSIDE) {
+                isChanged = false;
+            } else {
                 /* probably just needs review */
-                planning.toProcess.add(instance);
+                if (planning.unchanged.add(instance)) {
+                    planning.toProcess.add(instance);
+                }
+                isChanged = false;
             }
+            anyChanges = anyChanges || isChanged;
             if (isCheckUserPermissions && !change.isCheckPermissions) {
                 /* do not check the user's permissions on this object */
                 planning.overrides.add(instance);
@@ -1195,6 +1206,10 @@ public class GraphTraversal {
             if (log.isDebugEnabled()) {
                 log.debug("adjusted " + change);
             }
+        }
+        if (anyChanges) {
+            planning.toProcess.addAll(planning.unchanged);
+            planning.unchanged.clear();
         }
         /* if object is now DELETE or INCLUDE then it must be in the queue */
         final Action chosenAction = getAction(object);
