@@ -1181,8 +1181,7 @@ public class GraphTraversal {
                 planning.findIfLast.remove(instance);
                 planning.foundIfLast.put(instance, change.orphan == Orphan.IS_LAST);
                 planning.toProcess.add(instance);
-            } else if (change.action == Action.EXCLUDE && change.orphan == Orphan.RELEVANT &&
-                    planning.findIfLast.add(instance) && !planning.cached.contains(instance)) {
+            } else if (change.action == Action.EXCLUDE && change.orphan == Orphan.RELEVANT && planning.findIfLast.add(instance)) {
                 /* orphan status is relevant; if just now noted as such then ensure the object is or will be cached */
                 planning.toProcess.add(instance);
             } else if (!(change.action == Action.OUTSIDE || instance.equals(object))) {
