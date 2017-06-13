@@ -1018,6 +1018,13 @@
   var gs_static_location_prefix='{% static "" %}';
 
   $(document).ready(function () {
+
+    // Load Lookup Tables - need them ASAP
+    $.getJSON("{% url 'webgateway.views.listLuts_json' %}", function(data){
+      OME.LUTS = data.luts;
+      OME.PNG_LUTS = data.png_luts;
+    });
+
     /* Prepare the viewport */
 
 
