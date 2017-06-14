@@ -800,14 +800,14 @@ public class LightAdminRolesTest extends RolesTests {
         }
     }
 
-    /** lightAdmin tries to link an object to a pre-existing container (image or Dataset)
-     * in the target group (of normalUser where lightAdmin is not member)
-     * and linking of the image or dataset to this container
-     * (Dataset or Project). The image import (by lightAdmin for others)
-     * has been tested in other tests,
-     * here the image, Dataset and Project is created by normalUser and saved, then
-     * the linking to a container by lightAdmin is tested. Only when lightAdmin has
-     * WriteOwned privilege is the linking possible.
+    /**
+     * lightAdmin tries to link an object to a pre-existing container (Dataset or Project)
+     * in the target group (of normalUser where lightAdmin is not member).
+     * lightAdmin tries to link image or Dataset to Dataset or Project.
+     * The image import (by lightAdmin for others) has been tested in other tests.
+     * Here, normalUser creates and saves the image, Dataset and Project,
+     * then lightAdmin tries to link these objects.
+     * lightAdmin will succeed if they have WriteOwned privilege.
      * @param permChown if to test a user who has the <tt>Chown</tt> privilege
      * @param permWriteOwned if to test a user who has the <tt>WriteOwned</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
