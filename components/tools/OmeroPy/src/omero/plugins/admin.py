@@ -19,7 +19,6 @@ import sys
 import stat
 import platform
 import datetime
-import Ice
 
 from glob import glob
 from path import path
@@ -1011,12 +1010,8 @@ present, the user will enter a console""")
             self.ctx.rv = 0
 
         # JVM configuration regeneration
-        # Check ice version
-        if Ice.intVersion() >= 30600:
-            if sys.platform == "darwin":
-                templates = self._get_templates_dir()/"grid"/"osxtemplates.xml"
-            else:
-                templates = self._get_templates_dir()/"grid"/"templates.xml"
+        if sys.platform == "darwin":
+            templates = self._get_templates_dir()/"grid"/"osxtemplates.xml"
         else:
             templates = self._get_templates_dir()/"grid"/"templates.xml"
         generated = self._get_grid_dir() / "templates.xml"
