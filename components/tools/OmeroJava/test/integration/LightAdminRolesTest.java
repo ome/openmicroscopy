@@ -1653,8 +1653,8 @@ public class LightAdminRolesTest extends RolesTests {
     }
 
     /**
-     * Test that light admin can create a new group
-     * when the light admin has only the <tt>ModifyGroup</tt> privilege.
+     * Light admin (lightAdmin) tries to create a new group.
+     * lightAmin will succeed if they have the <tt>ModifyGroup</tt> privilege.
      * @param isPrivileged if to test a user who has the <tt>ModifyGroup</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
@@ -1662,14 +1662,13 @@ public class LightAdminRolesTest extends RolesTests {
     @Test(dataProvider = "isPrivileged cases")
     public void testModifyGroupCreate(boolean isPrivileged,
             String groupPermissions) throws Exception {
-        /* the permModifyGroup should be a sufficient permission to perform
-         * a group creation */
+        /* isPrivileged translates in this test into ModifyGroup permission, see below.*/
         boolean isExpectSuccessCreateGroup = isPrivileged;
         final ExperimenterGroup newGroup = new ExperimenterGroupI();
         newGroup.setLdap(omero.rtypes.rbool(false));
         newGroup.setName(omero.rtypes.rstring(UUID.randomUUID().toString()));
         newGroup.getDetails().setPermissions(new PermissionsI(groupPermissions));
-        /* set up the permissions for the light admin */
+        /* Set up the permissions for lightAdmin.*/
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeModifyGroup.value);
         final EventContext lightAdmin;
@@ -1683,8 +1682,8 @@ public class LightAdminRolesTest extends RolesTests {
     }
 
     /**
-     * Test that light admin can edit an existing group
-     * when the light admin has only the <tt>ModifyGroup</tt> privilege.
+     * Light admin (lightAdmin) tries to edit an existing group.
+     * lightAdmin will succeed if they have the <tt>ModifyGroup</tt> privilege.
      * @param isPrivileged if to test a user who has the <tt>ModifyGroup</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
@@ -1692,19 +1691,18 @@ public class LightAdminRolesTest extends RolesTests {
     @Test(dataProvider = "isPrivileged cases")
     public void testModifyGroupEdit(boolean isPrivileged,
             String groupPermissions) throws Exception {
-        /* the permModifyGroup should be a sufficient permission to perform
-         * group editing */
+        /* isPrivileged translates in this test into ModifyGroup permission, see below.*/
         boolean isExpectSuccessEditGroup = isPrivileged;
-        /* set up the new group as Read-Write as the downgrade (edit) to all group
-         * types by the light admin will be tested later in the test */
+        /* Set up the new group as Read-Write as part of the edit test will be a downgrade
+         * of that group to all group types by the lightAdmin.*/
         final long newGroupId = newUserAndGroup("rwrw--").groupId;
-        /* set up the permissions for the light admin */
+        /* Set up the permissions for the lightAdmin.*/
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeModifyGroup.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(true, permissions);
-        /* light admin will downgrade the group to all possible permission levels and
-         * also will edit the ldap settings */
+        /* lightAdmin tries to downgrade the group to all possible permission levels and
+         * also tries to edit the LDAP settings.*/
         final ExperimenterGroup newGroup = (ExperimenterGroup) iQuery.get("ExperimenterGroup", newGroupId);
         newGroup.getDetails().setPermissions(new PermissionsI(groupPermissions));
         newGroup.setLdap(omero.rtypes.rbool(true));
