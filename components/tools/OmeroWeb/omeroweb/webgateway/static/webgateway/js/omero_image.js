@@ -196,7 +196,7 @@
         } else {
             // Not found - show last bg (black -> transparent gradient)
             if (slider) {
-                yoffset = '-' + ((OME.LUTS.length + 2) * 30 + 7) + 'px';
+                yoffset = '-' + ((OME.LUTS.length) * 30 + 7) + 'px';
             } else {
                 // For buttons, hide by offsetting
                 yoffset = '100px';
