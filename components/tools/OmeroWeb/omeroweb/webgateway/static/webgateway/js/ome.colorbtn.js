@@ -113,8 +113,7 @@ $.fn.colorbtn = function(cfg) {
 
     function getLutPngHeight() {
       // png contains list of LUTS, 10 pixels high
-      // plus black gradient (+1)
-      return (OME.PNG_LUTS.length + 1) * 10;
+      return (OME.PNG_LUTS.length) * 10;
     }
 
     this.show_picker = function () {

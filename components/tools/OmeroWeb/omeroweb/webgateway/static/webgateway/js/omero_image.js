@@ -185,7 +185,7 @@
     }
 
     function getLutBgPos(color, slider) {
-        var png_height = (OME.PNG_LUTS.length + 1) * 10;
+        var png_height = OME.PNG_LUTS.length * 10;
         var style = {'background-size': '100% ' + (png_height * 3) + 'px'};
         var yoffset;
         if (color.endsWith('.lut')) {

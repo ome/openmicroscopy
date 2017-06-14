@@ -64,7 +64,10 @@ LUTS_IN_PNG = [
     '/luts/ncsa_paledit/thallium.lut',
     '/luts/thermal.lut',
     '/luts/ncsa_paledit/unionjack.lut',
-    '/luts/wcif/yellow_hot.lut'
+    '/luts/wcif/yellow_hot.lut',
+    # NB: this is not a LUT but it is in the current png
+    # Used for channel slider gradient when no lut chosen
+    'gradient.png',
 ]
 
 
