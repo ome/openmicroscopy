@@ -351,7 +351,7 @@ public class AbstractServerTest extends AbstractTest {
     }
 
     /**
-     * Assert that the given objects are in the giver group.
+     * Assert that the given objects are in the given group.
      * @param objects some model objects
      * @param expectedGroupId a group Id
      * @throws ServerError unexpected
