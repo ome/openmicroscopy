@@ -1092,8 +1092,13 @@ $(function() {
                     parentAllowsCreate = (node.type === "orphaned" || node.type === "experimenter");
 
 
-                // Although not everything created here will go under selected node,
-                // we still don't allow creation if linking not allowed
+                // We don't allow creating if new node will not be displayed in tree.
+                // If you canLink under selected Project, Dataset will be in tree
+                if(canLink && node.type === "project" && !tagTree) {
+                    config["create"]["_disabled"] = false;
+                    config["create"]["submenu"]["dataset"]["_disabled"] = false;
+                }
+                // Otherwise can only create if we're filtering for your data
                 if(canCreate && (canLink || parentAllowsCreate)) {
                     // Enable tag or P/D/I submenus created above
                     config["create"]["_disabled"] = false;
