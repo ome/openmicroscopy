@@ -109,7 +109,7 @@ public class RolesTests extends AbstractServerImportTest {
      * Import an image with original file into a given dataset.
      * @param dat dataset to which to import the image if not null
      * @return the original file and the imported image
-     * @throws Exception unexpected
+     * @throws Exception if the import fails
      */
     protected List<IObject> importImageWithOriginalFile(Dataset dat) throws Exception {
         final List<IObject> originalFileAndImage = new ArrayList<IObject>();
