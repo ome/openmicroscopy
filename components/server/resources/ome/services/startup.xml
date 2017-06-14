@@ -41,6 +41,12 @@
      lazy-init="false">
   </bean>
 
+  <bean id="readOnlyStatus"
+      class="ome.services.util.ReadOnlyStatus">
+     <constructor-arg value="${omero.cluster.read_only}"/>
+     <constructor-arg ref="executor"/>
+  </bean>
+
   <bean id="dbFormatEnumerationCheck"
      class="ome.services.util.DBEnumCheck"
      init-method="start" lazy-init="false">

@@ -31,6 +31,7 @@ import ome.services.blitz.fire.Registry;
 import ome.services.messages.DeleteLogMessage;
 import ome.services.messages.DeleteLogsMessage;
 import ome.services.util.Executor;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
@@ -83,6 +84,8 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
 
     private String repoUuid;
 
+    private ReadOnlyStatus readOnlyStatus;
+
     private volatile AtomicReference<State> state = new AtomicReference<State>();
 
     private enum State {
@@ -104,6 +107,10 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
         this.fileMaker = fileMaker;
         this.servant = servant;
         log.info("Initializing repository in " + fileMaker.getDir());
+    }
+
+    public void setReadOnlyStatus(ReadOnlyStatus readOnlyStatus) {
+        this.readOnlyStatus = readOnlyStatus;
     }
 
     /**
@@ -195,8 +202,13 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
      */
     public boolean takeover() {
 
+        if (readOnlyStatus != null && readOnlyStatus.isReadOnly()) {
+            log.debug("Skipping takeover: read-only");
+            return false;
+        }
+
         if (!state.compareAndSet(State.EAGER, State.WAITING)) {
-            log.debug("Skipping takeover");
+            log.debug("Skipping takeover: eager/waiting");
             return false;
         }
 
