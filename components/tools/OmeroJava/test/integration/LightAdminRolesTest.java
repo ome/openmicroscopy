@@ -1022,7 +1022,8 @@ public class LightAdminRolesTest extends RolesTests {
         }
     }
 
-    /** Light admin (lightAdmin) transfers the ownership of all the data of a user (normalUser)
+    /**
+     * Light admin (lightAdmin) tries to transfer the ownership of all the data of a user (normalUser)
      * to another user. The data are in 2 groups, of which the original data owner (normalUser)
      * is member, the recipient of the data is member of just one of the groups. Chown privilege
      * is sufficient for lightAdmin to perform the workflow.
