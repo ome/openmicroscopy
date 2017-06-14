@@ -1715,7 +1715,7 @@ public class LightAdminRolesTest extends RolesTests {
     }
 
     /**
-     * @return test cases for File Attachment workflow testFileAttachmentNoSudo
+     * @return test cases for fileAnnotation workflow in testFileAttachmentNoSudo
      */
     @DataProvider(name = "fileAttachment privileges cases")
     public Object[][] provideFileAttachmentPrivilegesCases() {
@@ -1812,7 +1812,7 @@ public class LightAdminRolesTest extends RolesTests {
     }
 
     /**
-     * @return isSudoing, Chgrp and DeleteOwned test cases for testChgrp
+     * @return test cases for testChgrp and testChgrpNonMember
      */
     @DataProvider(name = "isSudoing and Chgrp privileges cases")
     public Object[][] provideIsSudoingAndChgrpOwned() {
@@ -1829,7 +1829,7 @@ public class LightAdminRolesTest extends RolesTests {
                 for (final boolean permChgrp : booleanCases) {
                     for (final String groupPerms : permsCases) {
                         final Object[] testCase = new Object[index];
-                        /* no test cases are excluded here, because isSudoing
+                        /* No test cases are excluded here, because isSudoing
                          * is in a sense acting to annule Chgrp permission
                          * which is tested in the testChgrp and is an interesting case.*/
                         testCase[IS_SUDOING] = isSudoing;
@@ -1861,7 +1861,7 @@ public class LightAdminRolesTest extends RolesTests {
                 for (final boolean permChown : booleanCases) {
                     for (final String groupPerms : permsCases) {
                         final Object[] testCase = new Object[index];
-                        /* no test cases are excluded here, because isSudoing
+                        /* No test cases are excluded here, because isSudoing
                          * is in a sense acting to annule Chown permission
                          * which is tested in the testChown and is an interesting case.*/
                         testCase[IS_SUDOING] = isSudoing;
@@ -1877,7 +1877,7 @@ public class LightAdminRolesTest extends RolesTests {
 
     /**
      * @return provide WriteOwned, WriteFile, WriteManagedRepo and Chown cases
-     * for testImporterAsNoSudoChownOnly
+     * for testImporterAsNoSudoChownOnlyWorkflow
      */
     @DataProvider(name = "WriteOwned, WriteFile, WriteManagedRepo and Chown privileges cases")
     public Object[][] provideWriteOwnedWriteFileWriteManagedRepoAndChown() {
@@ -1956,7 +1956,7 @@ public class LightAdminRolesTest extends RolesTests {
     }
 
     /**
-     * @return Chgrp and Chown test cases for testImporterAsNoSudoChgrpChown
+     * @return Chgrp and Chown test cases for testImporterAsNoSudoChgrpChownWorkflow
      */
     @DataProvider(name = "Chgrp and Chown privileges cases")
     public Object[][] provideChgrpAndChown() {
@@ -1991,7 +1991,7 @@ public class LightAdminRolesTest extends RolesTests {
     /**
      * @return isPrivileged test cases. The isPrivileged parameter translates into one
      * tested privilege in particular tests (for example in testScriptUpload isPrivileged
-     * concerns WriteScriptRepo privilege specifically)
+     * means specifically WriteScriptRepo privilege).
      */
     @DataProvider(name = "isPrivileged cases")
     public Object[][] provideIsPrivilegesCases() {
