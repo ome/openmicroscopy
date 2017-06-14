@@ -895,14 +895,14 @@ public class LightAdminRolesTest extends RolesTests {
         }
     }
 
-        /** Light admin (lightAdmin) imports data for others (normalUser) without using Sudo.
-         * The data will be imported by lightAdmin to lightAdmin's group (normalUser is not member
-         * of lightAdmin's group). lightAdmin moves the data into normalUser's group
-         * and chowns the data to normalUser.
+        /**
+         * Light admin (lightAdmin) imports data for others (normalUser) without using Sudo.
+         * lightAdmin first creates a Dataset and imports an image into it in lightAdmin's group
+         * (normalUser is not member of lightAdmin's group).
+         * Then, lightAdmin tries to move the Dataset into normalUser's group.
+         * Then, lightAdmin tries to chown the Dataset to normalUser.
          * For this test, combinations of <tt>Chown</tt>, <tt>Chgrp</tt>,
-         * privileges is explored for the light admin.
-         * For this workflow the creation and targeting of a Dataset
-         * is tested too.
+         * privileges of lightAdmin are explored.
          * @param permChgrp if to test a user who has the <tt>Chgrp</tt> privilege
          * @param permChown if to test a user who has the <tt>Chown</tt> privilege
          * @param groupPermissions if to test the effect of group permission level
