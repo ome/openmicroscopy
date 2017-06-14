@@ -1247,10 +1247,11 @@ public class LightAdminRolesTest extends RolesTests {
         }
     }
 
-    /** Light admin (lightAdmin) uploads a File Attachment (fileAnnotation)
-     * with original file (originalFile) in a group they are not member of (normalUser's group)
-     * and tries to link it to an image of the user (normalUser) and then tries to transfer
-     * the ownership of the fileAnnotation and link to normalUser.
+    /**
+     * Light admin (lightAdmin) tries to upload a File Attachment (fileAnnotation)
+     * with original file (originalFile) into a group they are not member of (normalUser's group).
+     * lightAdmin then tries to link fileAnnotation to an image of the user (normalUser).
+     * lightAdmin then tries to transfer the ownership of the fileAnnotation and link to normalUser.
      * @param permChown if to test a user who has the <tt>Chown</tt> privilege
      * @param permWriteOwned if to test a user who has the <tt>WriteOwned</tt> privilege
      * @param permWriteFile if to test a user who has the <tt>WriteFile</tt> privilege
