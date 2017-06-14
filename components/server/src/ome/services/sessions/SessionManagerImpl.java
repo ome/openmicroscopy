@@ -347,10 +347,13 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
                 public Object doWork(org.hibernate.Session __s,
                         ServiceFactory sf) {
                     Principal p = validateSessionInputs(sf, req);
-                    executeLookupUser(sf, p);
-                    // Not performed! Session s = executeUpdate(sf, oldsession,
-                    // userId);
-                    Session s = oldsession;
+                    oldsession.setDefaultEventType(p.getEventType());
+                    long userId = executeLookupUser(sf, p);
+                    // Here, we hope that the implementation has been updated
+                    // to match read-only status. Note: this code block matches
+                    // the one below, but the annotation is a compile-time rather
+                    // than run-time concern.
+                    Session s = executeUpdate(sf, oldsession, userId);
                     return executeSessionContextLookup(sf, p, s);
                 }
             });
@@ -513,7 +516,6 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         final Session session = (Session) list.get(6);
 
         parseAndSetDefaultType(principal.getEventType(), session);
-
         session.getDetails().setOwner(exp);
         session.getDetails().setGroup(grp);
 
