@@ -1594,8 +1594,8 @@ public class LightAdminRolesTest extends RolesTests {
     }
 
     /**
-     * Test that light admin can create a new user
-     * when the light admin has only the <tt>ModifyUser</tt> privilege.
+     * Light admin (lightAdmin) tries to create a new user.
+     * lightAdmin will succeed if they have the <tt>ModifyUser</tt> privilege.
      * @param isPrivileged if to test a user who has the <tt>ModifyUser</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
@@ -1603,8 +1603,7 @@ public class LightAdminRolesTest extends RolesTests {
     @Test(dataProvider = "isPrivileged cases")
     public void testModifyUserCreate(boolean isPrivileged,
             String groupPermissions) throws Exception {
-        /* the permModifyUser should be a sufficient permission to perform
-         * the creation of a new user */
+        /* isPrivileged translates in this test into ModifyUser permission, see below.*/
         boolean isExpectSuccessCreateUser= isPrivileged;
         final long newGroupId = newUserAndGroup(groupPermissions).groupId;
         List<String> permissions = new ArrayList<String>();
@@ -1627,8 +1626,8 @@ public class LightAdminRolesTest extends RolesTests {
     }
 
     /**
-     * Test that light admin can edit an existing user
-     * when the light admin has only the <tt>ModifyUser</tt> privilege.
+     * Light admin (ightAdmin) tries to edit an existing user.
+     * lightAdmin will succeed if they have the <tt>ModifyUser</tt> privilege.
      * @param isPrivileged if to test a user who has the <tt>ModifyUser</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
@@ -1636,8 +1635,7 @@ public class LightAdminRolesTest extends RolesTests {
     @Test(dataProvider = "isPrivileged cases")
     public void testModifyUserEdit(boolean isPrivileged,
             String groupPermissions) throws Exception {
-        /* the permModifyUser should be a sufficient permission to perform
-         * the editing of a user */
+        /* isPrivileged translates in this test into ModifyUser permission, see below.*/
         boolean isExpectSuccessEditUser= isPrivileged;
         final long newUserId = newUserAndGroup(groupPermissions).userId;
         List<String> permissions = new ArrayList<String>();
