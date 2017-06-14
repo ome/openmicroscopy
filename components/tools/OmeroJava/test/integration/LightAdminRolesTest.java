@@ -1351,33 +1351,31 @@ public class LightAdminRolesTest extends RolesTests {
         }
     }
 
-    /** Test of light admin without using Sudo.
-     * The workflow tries to upload an official script.
-     * The only permission light admin needs for this is WriteScriptRepo
+    /** Light admin (lightAdming) tries to upload an official script.
+     * The only permission lightAdmin needs for this is WriteScriptRepo.
      * @param isPrivileged if to test a user who has the <tt>WriteScriptRepo</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isPrivileged cases")
     public void testOfficialSciptUploadNoSudo(boolean isPrivileged, String groupPermissions) throws Exception {
-        /* upload/creation of File Attachment should be always permitted as long as light admin is in System Group
-         * and has WriteOwned and WriteFile permissions. */
+        /* isPrivileged translates in this test into WriteScriptRepo permission, see below.*/
         boolean isExpectSuccessUploadOfficialScript = isPrivileged;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
-        /* set up the light admin's permissions for this test */
+        /* Set up the light admin's permissions for this test.*/
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeWriteScriptRepo.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(true, permissions);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         IScriptPrx iScript = factory.getScriptService();
-        /* fetch a script from the server */
+        /* lightAdmin fetches a script from the server.*/
         OriginalFile scriptFile = iScript.getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE).get(0);
         RawFileStorePrx rfs = factory.createRawFileStore();
         rfs.setFileId(scriptFile.getId().getValue());
         final String actualScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
         rfs.close();
-        /* try uploading the script as a new script in the normal user's group */
+        /* lightAdmin tries uploading the script as a new script in normalUser's group.*/
         iScript = factory.getScriptService();
         final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
         long testScriptId = -1;
@@ -1386,15 +1384,15 @@ public class LightAdminRolesTest extends RolesTests {
             Assert.assertTrue(isExpectSuccessUploadOfficialScript);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccessUploadOfficialScript);
-            /* upload failed so finish here */
+            /* Upload failed so finish the test.*/
             return;
         }
-        /* check that the new script exists in the "user" group */
+        /* Check that the new script exists in the "user" group.*/
         loginUser(normalUser);
         scriptFile = (OriginalFile) iQuery.get("OriginalFile", testScriptId);
         Assert.assertEquals(scriptFile.getDetails().getOwner().getId().getValue(), roles.rootId);
         Assert.assertEquals(scriptFile.getDetails().getGroup().getId().getValue(), roles.userGroupId);
-        /* check if the script is correctly uploaded */
+        /* Check if the script is correctly uploaded.*/
         rfs = factory.createRawFileStore();
         rfs.setFileId(testScriptId);
         final String currentScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
@@ -1403,7 +1401,7 @@ public class LightAdminRolesTest extends RolesTests {
     }
 
     /**
-     * Test that users may delete official scripts only if they are a member of the <tt>system</tt> group and
+     * Light admin (lightAdmin) tries to delete official script. They will succeed only if they
      * have the <tt>DeleteScriptRepo</tt> privilege.
      * @param isPrivileged if to test a user who has the <tt>DeleteScriptRepo</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
@@ -1419,18 +1417,19 @@ public class LightAdminRolesTest extends RolesTests {
         lightAdmin = loginNewAdmin(true, permissions);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         IScriptPrx iScript = factory.getScriptService();
-        /* fetch a script from the server */
+        /* lightAdmin fetches a script from the server.*/
         final OriginalFile scriptFile = iScript.getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE).get(0);
         RawFileStorePrx rfs = factory.createRawFileStore();
         rfs.setFileId(scriptFile.getId().getValue());
         final String actualScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
         rfs.close();
-        /* upload the script as a new script (as another admin with appropriate permission */
-        loginNewAdmin(true, AdminPrivilegeWriteScriptRepo.value);
+        /* Another light admin (anotherLightAdmin) with appropriate permissions
+         * uploads the script as a new script.*/
+        final EventContext anotherLightAdmin = loginNewAdmin(true, AdminPrivilegeWriteScriptRepo.value);
         iScript = factory.getScriptService();
         final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
         final long testScriptId = iScript.uploadOfficialScript(testScriptName, actualScript);
-        /* delete any jobs associated with the script */
+        /* Delete any jobs associated with the script.*/
         final Delete2Builder delete = Requests.delete().option(Requests.option().excludeType("OriginalFile").build());
         for (final IObject scriptJob : iQuery.findAllByQuery(
                 "SELECT DISTINCT link.parent FROM JobOriginalFileLink link WHERE link.child.id = :id",
@@ -1438,10 +1437,10 @@ public class LightAdminRolesTest extends RolesTests {
             delete.target(scriptJob);
         }
         doChange(delete.build());
-        /* check that the new script exists */
+        /* Check that the new script exists.*/
         final OriginalFile testScript = new OriginalFileI(testScriptId, false);
         assertExists(testScript);
-        /* try deleting the script as the light admin established at the beginning of the test */
+        /* lightAdmin tries deleting the script.*/
         loginUser(lightAdmin);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         iScript = factory.getScriptService();
@@ -1451,7 +1450,7 @@ public class LightAdminRolesTest extends RolesTests {
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccessDeleteOfficialScript);
         }
-        /* check if the script was deleted or left intact */
+        /* normalUser checks if the script was deleted or left intact.*/
         loginUser(normalUser);
         if (isExpectSuccessDeleteOfficialScript) {
             assertDoesNotExist(testScript);
@@ -1465,7 +1464,8 @@ public class LightAdminRolesTest extends RolesTests {
             Assert.assertEquals(currentScript, actualScript);
             Assert.assertFalse(isExpectSuccessDeleteOfficialScript);
         } catch (Ice.LocalException | ServerError se) {
-            /* can catch only ServerError once RawFileStoreTest.testBadFileId is fixed */
+            /* Have to catch both types of exceptions because of
+             * RawFileStoreTest.testBadFileId behavior.*/
             Assert.assertTrue(isExpectSuccessDeleteOfficialScript);
         } finally {
             rfs.close();
