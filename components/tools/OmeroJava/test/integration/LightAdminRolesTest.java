@@ -691,8 +691,7 @@ public class LightAdminRolesTest extends RolesTests {
     }
 
     /**
-     * Test that light admin "importing for others" workflow
-     * without using Sudo.
+     * Light admin is trying to "import for others" without using Sudo in following manner.
      * lightAdmin imports into group of the normalUser (future owner of the data).
      * lightAdmin then transfers the ownership of the imported data to normalUser.
      * For this test, combinations of <tt>Chown</tt>, <tt>WriteOwned</tt>,
