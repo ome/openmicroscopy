@@ -1533,16 +1533,15 @@ public class LightAdminRolesTest extends RolesTests {
     }
 
     /**
-     * Test that light admin can make a user an owner of a group
-     * when the light admin has only the <tt>ModifyGroupMembership</tt> privilege.
+     * Light admin (lightAdmin) tries to make a user an owner of a group.
+     * lightAdmin will succeed if they have the <tt>ModifyGroupMembership</tt> privilege.
      * @param isPrivileged if to test a user who has the <tt>ModifyGroupMembership</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isPrivileged cases")
     public void testModifyGroupMembershipMakeOwner(boolean isPrivileged, String groupPermissions) throws Exception {
-        /* the permModifyGroupMembership should be a sufficient permission to perform
-         * the setting of a new group owner */
+        /* isPrivileged translates in this test into ModifyGroupMembership permission, see below.*/
         boolean isExpectSuccessMakeOwnerOfGroup= isPrivileged;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         List<String> permissions = new ArrayList<String>();
@@ -1560,8 +1559,8 @@ public class LightAdminRolesTest extends RolesTests {
     }
 
     /**
-     * Test that light admin can unset a user to be an owner of a group
-     * when the light admin has only the <tt>ModifyGroupMembership</tt> privilege.
+     * Light admin (lightAdmin) tries to unset a user from being an owner of a group.
+     * lightAdmin will succeed if they have the <tt>ModifyGroupMembership</tt> privilege.
      * @param isPrivileged if to test a user who has the <tt>ModifyGroupMembership</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
@@ -1569,11 +1568,10 @@ public class LightAdminRolesTest extends RolesTests {
     @Test(dataProvider = "isPrivileged cases")
     public void testModifyGroupMembershipUnsetOwner(boolean isPrivileged,
             String groupPermissions) throws Exception {
-        /* the permModifyGroupMembership should be a sufficient permission to perform
-         * the unsetting of a new group owner */
+        /* isPrivileged translates in this test into ModifyGroupMembership permission, see below.*/
         boolean isExpectSuccessUnsetOwnerOfGroup= isPrivileged;
-        /* set up the normalUser and make him an Owner by passing "true" in the
-         * newUserAndGroup method argument */
+        /* Set up the normalUser and make him an Owner by passing "true" in the
+         * newUserAndGroup method argument.*/
         final EventContext normalUser = newUserAndGroup(groupPermissions, true);
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeModifyGroupMembership.value);
@@ -1587,7 +1585,7 @@ public class LightAdminRolesTest extends RolesTests {
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccessUnsetOwnerOfGroup);
         }
-        /* check that the normalUser was unset as the owner of group when appropriate */
+        /* Check that normalUser was unset as the owner of group when appropriate.*/
         if (isExpectSuccessUnsetOwnerOfGroup) {
             Assert.assertTrue(iAdmin.getLeaderOfGroupIds(user).isEmpty());
         } else {
