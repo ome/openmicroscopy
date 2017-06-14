@@ -1355,8 +1355,9 @@ public class LightAdminRolesTest extends RolesTests {
         }
     }
 
-    /** Light admin (lightAdming) tries to upload an official script.
-     * The only permission lightAdmin needs for this is WriteScriptRepo.
+    /**
+     * Light admin (lightAdming) tries to upload an official script.
+     * lightAdmin succeeds in this if they have WriteScriptRepo permission.
      * @param isPrivileged if to test a user who has the <tt>WriteScriptRepo</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
