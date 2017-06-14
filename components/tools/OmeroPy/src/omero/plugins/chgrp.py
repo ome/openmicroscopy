@@ -59,6 +59,17 @@ class ChgrpControl(GraphControl):
             "grp", nargs="?", type=ExperimenterGroupArg,
             help="""Group to move objects to""")
 
+    def is_admin(self, client):
+        # check if the user currently logged is an admin
+        svc = client.sf.getAdminService()
+        uid = self.ctx.get_event_context().userId
+        groups = svc.containedGroups(uid)
+        roles = svc.getSecurityRoles()
+        for g in groups:
+            if roles.systemGroupId == g.id.val:
+                return True
+        return False
+
     def _process_request(self, req, args, client):
         # Retrieve group id
         gid = args.grp.lookup(client)
@@ -73,9 +84,11 @@ class ChgrpControl(GraphControl):
             self.ctx.die(196, "Failed to find group: %s" % args.grp.orig)
 
         # Check session owner is member of the target group
-        uid = client.sf.getAdminService().getEventContext().userId
+        uid = self.ctx.get_event_context().userId
+        admin = self.is_admin(client)
         ids = [x.child.id.val for x in group.copyGroupExperimenterMap()]
-        if uid not in ids:
+        # check if the user is an admin
+        if uid not in ids and not admin:
             self.ctx.die(197, "Current user is not member of group: %s" %
                          group.id.val)
 
@@ -106,14 +119,14 @@ class ChgrpControl(GraphControl):
     def print_chgrp_response(self, rsp):
         if rsp.includedObjects:
             self.ctx.out("Included objects")
-            objIds = self._get_object_ids(rsp.includedObjects)
-            for k in objIds:
-                self.ctx.out("  %s:%s" % (k, objIds[k]))
+            obj_ids = self._get_object_ids(rsp.includedObjects)
+            for k in obj_ids:
+                self.ctx.out("  %s:%s" % (k, obj_ids[k]))
         if rsp.deletedObjects:
             self.ctx.out("Deleted objects")
-            objIds = self._get_object_ids(rsp.deletedObjects)
-            for k in objIds:
-                self.ctx.out("  %s:%s" % (k, objIds[k]))
+            obj_ids = self._get_object_ids(rsp.deletedObjects)
+            for k in obj_ids:
+                self.ctx.out("  %s:%s" % (k, obj_ids[k]))
 
 try:
     register("chgrp", ChgrpControl, HELP)

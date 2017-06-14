@@ -144,7 +144,7 @@ class TestDuplicate(CLITest):
         # Check object has been duplicated
         assert len(objs) == 1
         assert objs[0].id.val == oid
-        assert len(lines_out) == 6
+        assert len(lines_out) == 7
         assert '%s:%s' % (object_type, objs[0].id.val) in out
         # Check object has been found in two different places of the output
         assert out.find(obj_arg) != out.rfind(obj_arg)

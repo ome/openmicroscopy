@@ -11,6 +11,7 @@ import java.util.concurrent.Callable;
 
 import ome.model.core.Image;
 import ome.model.core.Pixels;
+import ome.model.enums.ChecksumAlgorithm;
 import ome.model.enums.DimensionOrder;
 import ome.model.enums.EventType;
 import ome.model.enums.PixelsType;
@@ -273,9 +274,9 @@ public class PersistentEventLogLoaderTest extends AbstractManagedContextTest {
         pixels.setSizeZ(1);
         pixels.setSizeT(1);
         pixels.setSizeC(1);
-        pixels.setSha1("UNKNOWN");
-        pixels.setPixelsType(new PixelsType("int8"));
-        pixels.setDimensionOrder(new DimensionOrder("XYZCT"));
+        pixels.setSha1("test-value");
+        pixels.setPixelsType(new PixelsType(PixelsType.VALUE_INT8));
+        pixels.setDimensionOrder(new DimensionOrder(DimensionOrder.VALUE_XYZCT));
         image.addPixels(pixels);
         image = iUpdate.saveAndReturnObject(image);
         pixels = image.getPrimaryPixels();

@@ -1,3 +1,5 @@
+{% load common_filters %}
+
 {% comment %}
 /**
   Copyright (C) 2012-2016 University of Dundee & Open Microscopy Environment.
@@ -172,7 +174,6 @@ $(document).ready(function() {
             parentNode = inst.get_node(inst.get_parent(selected[0]));
         } else if (dtype === "plate" || dtype === "acquisition") {
             parentId = undefined;
-            clearThumbnailsPanel();
             load_spw(event, data);
             return;
         // All other types have blank centre panel
@@ -200,6 +201,17 @@ $(document).ready(function() {
 
             return;
         }
+        // update single thumbnail, see OME.refreshThumbnails
+        if (event.type === "refreshThumb") {
+            OME.load_thumbnail(
+                data.imageId,
+                "{% url 'webindex' %}get_thumbnail/"+data.imageId+"/",
+                function(thumb) {
+                    $("li#image_icon-"+data.imageId+ " img").attr("src", thumb);
+                }
+            );
+            return;
+        }
 
         parentId = newParentId;
 
@@ -216,7 +228,8 @@ $(document).ready(function() {
         });
 
         var imgJson = [],
-            selFileSets = [];
+            selFileSets = [],
+            shareId = null;
         // Convert jsTree nodes into json for template
         imgNodes.forEach(function(node){
             var d = node.data.obj.date || node.data.obj.acqDate;
@@ -235,25 +248,11 @@ $(document).ready(function() {
                     selFileSets.push(fsId);
                 }
             }
-            // Thumb version: random to break cache if thumbnails are -1 'in progress'
-            // or we're refresing 1 or all thumbnails
-            if (node.data.obj.thumbVersion != undefined ||
-                    event.type === "refreshThumbnails" ||
-                    event.type === "refreshThumb") {
-                var thumbVersion = node.data.obj.thumbVersion;
-                if (thumbVersion === -1 || event.type === "refreshThumbnails" || (
-                        event.type === "refreshThumb" && data.imageId === iData.id)) {
-                    thumbVersion = getRandom();
-                    // We cache this to prevent new thumbnails requested on every
-                    // selection change. Refreshing of tree will reset thumbVersion.
-                    node.data.obj.thumbVersion = thumbVersion;
-                }
-                iData.thumbVersion = thumbVersion;
-            }
             // If image is in share and share is not owned by user...
             if (node.data.obj.shareId && !parentNode.data.obj.isOwned) {
                 // share ID will be needed to open image viewer
                 iData.shareId = node.data.obj.shareId;
+                shareId = node.data.obj.shareId;
             }
             imgJson.push(iData);
         });
@@ -288,6 +287,26 @@ $(document).ready(function() {
 
         var html = iconTmpl(json);
         $("#icon_table").html(html);
+
+        // load thumbnails in a batches
+        thumbnailsBatch = {{ thumbnails_batch|default:50|json_dumps|safe }};
+        iids = $.map(imgJson, function(img){
+            return img.id;
+        });
+        thumbUrl = "{% url 'get_thumbnails_json' %}";
+        if (shareId !== null) {
+          thumbUrl = "{% url 'get_thumbnails_json' %}" + shareId + "/"
+        }
+
+        // getThumbnailSet() doesn't work with share permissions, so we get
+        // single thumbnails at a time
+        if (parentNode.type === "share") {
+            thumbnailsBatch = 1;
+        }
+        OME.load_thumbnails(
+            thumbUrl, iids, thumbnailsBatch,
+            "{% static 'webgateway/img/image128.png' %}"
+        );
 
         // populate arrays etc for speedy icon zooming
         setupIconZooming();
@@ -797,75 +816,45 @@ $(document).ready(function() {
             });
         }
 
-        if (event.type === 'changed' || event.type === 'center_plugin_changed.ome') {
-            // If the containerNode is the current container then this is
-            // a selection change within the container or a pagination/field
-            // change
-            if (containerNode) {
-                // This is a page change
-                if (getPageOr1(inst, containerNode) !== currentPage) {
-                    loadThumbnailsPanel(containerNode, getPageOr1(inst, containerNode), undefined);
+        // If the containerNode is the current container then this is
+        // a selection change within the container or a pagination/field
+        // change
+        if (containerNode) {
+            // This is a page change
+            if (getPageOr1(inst, containerNode) !== currentPage) {
+                loadThumbnailsPanel(containerNode, getPageOr1(inst, containerNode), undefined);
 
-                // Fields are only applicable for acquisitions
-                } else if ((containerNode.type === 'acquisition' || containerNode.type === 'plate') && 
-                           getfieldOr0(inst, containerNode) !== currentField) {
-                    loadThumbnailsPanel(containerNode, undefined, getfieldOr0(inst, containerNode));
-                }
-
-                // Return as this was either a page/field change or image
-                // selection only
-                return;
+            // Fields are only applicable for acquisitions
+            } else if ((containerNode.type === 'acquisition' || containerNode.type === 'plate') &&
+                       getfieldOr0(inst, containerNode) !== currentField) {
+                loadThumbnailsPanel(containerNode, undefined, getfieldOr0(inst, containerNode));
             }
 
-            // There was no current node or it was not selected
-            // Load the first of the selected nodes
-            containerNode = selected[0];
-
-            // While the new selection may not be the same path as the old one
-            // if it is an equivalent node, we can save a reload and simply update
-            // the recorded path, but only if it is the same page/field
-            if (currentNode &&
-                inst.omecompare(containerNode, currentNode) &&
-                (currentPage === inst.get_page(containerNode || (containerNode.type === 'acquisition' && currentField === inst.get_field(containerNode))))) {
-                $contentDetails.data('path', JSON.stringify(inst.get_omepath(containerNode)));
-                return;
-            }
-
-            // Load the thumbnails for this container with the appropriate page/field
-            // E.g. public.html tree doesn't support pages/fields
-            var nodePage = inst.get_page ? inst.get_page(containerNode) : 1;
-            var nodeField = inst.get_field ? inst.get_field(containerNode) : 0;
-            loadThumbnailsPanel(containerNode, nodePage, nodeField);
+            // Return as this was either a page/field change or image
+            // selection only
             return;
-
-        } else if (event.type === 'move_node') {
-            // The only relevant update is if a node has been added or removed
-            // from the currently displayed container, however, if this was a
-            // move of a selected image, the containerNode will be wrong as it
-            // points to the old location of the node
-
-            var node = inst.get_node(data.node);
-            var parent = inst.get_node(data.parent);
-            var old_parent = inst.get_node(data.old_parent);
-
-            // It is also possible that the moved node was the displayed container itself,
-            // but not an image
-            if (inst.is_selected(node)) {
-                // Update the contentDetails with this node
-                setThumbnailsPanel(node.type, node.data.obj.id, inst.get_omepath(node));
-                // And make the containerNode this node straight away
-                containerNode = node;
-            }
-
-            // Is the moved node in the displayed container?
-            if (containerNode === parent && containerNode === old_parent) {
-                // Do nothing as it was reordered only
-            } else if (containerNode === parent) {
-                // Reload thumbnails
-                loadThumbnailsPanel(containerNode, getPageOr1(inst, containerNode), getfieldOr0(inst, containerNode));
-            }
-
         }
+
+        // There was no current node or it was not selected
+        // Load the first of the selected nodes
+        containerNode = selected[0];
+
+        // While the new selection may not be the same path as the old one
+        // if it is an equivalent node, we can save a reload and simply update
+        // the recorded path, but only if it is the same page/field
+        if (currentNode &&
+            inst.omecompare(containerNode, currentNode) &&
+            (currentPage === inst.get_page(containerNode || (containerNode.type === 'acquisition' && currentField === inst.get_field(containerNode))))) {
+            $contentDetails.data('path', JSON.stringify(inst.get_omepath(containerNode)));
+            return;
+        }
+
+        // Load the thumbnails for this container with the appropriate page/field
+        // E.g. public.html tree doesn't support pages/fields
+        var nodePage = inst.get_page ? inst.get_page(containerNode) : 1;
+        var nodeField = inst.get_field ? inst.get_field(containerNode) : 0;
+        loadThumbnailsPanel(containerNode, nodePage, nodeField);
+        return;
     };
 
         // Load the thumbnails (Will wait until there are no new requests

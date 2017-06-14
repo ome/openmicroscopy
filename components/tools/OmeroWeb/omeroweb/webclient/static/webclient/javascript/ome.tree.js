@@ -41,6 +41,9 @@ $(function() {
         multiselection = data.selected.length > 1;
 
         OME.tree_selection_changed(data, e);
+        if (OME.hideWellBirdsEye) {
+            OME.hideWellBirdsEye();
+        }
     })
     .on('selection_change.ome', function(e, nElements) {
         multiselection = nElements > 1;
@@ -484,9 +487,6 @@ $(function() {
                 if (node.type === 'dataset' || node.type === 'orphaned' || node.type === 'tag') {
                     payload['sizeXYZ'] = true;
                     payload['date'] = true;
-                    if (node.type !== 'tag') {
-                        payload['thumbVersion'] = true;
-                    }
                 }
 
                 // Always add the group_id from the current context
@@ -1086,6 +1086,7 @@ $(function() {
                     config["open_with"] = {
                         "label": "Open With...",
                         "_disabled": false,
+                        "icon"  : WEBCLIENT.URLS.static_webclient + 'image/icon_openwith.png',
                         "action": false,
                         "submenu": viewers
                     };

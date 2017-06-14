@@ -104,6 +104,8 @@ jQuery._WeblitzPlateview = function (container, options) {
       width: 64,
       height: 48,
       useParentPrefix: true,
+      thumbnailsBatch: 50,
+      defaultThumb: ''
     }, options);
 
   // if options.size is set, it will be used below, otherwise thumbs will be default size
@@ -132,6 +134,7 @@ jQuery._WeblitzPlateview = function (container, options) {
     // NB: don't add other classes here - will get removed on slider change.
     table.addClass('showWellLabel wellSize' + opts.width);
 
+    var imgIds = [];
     for (i=0; i < data.rowlabels.length; i++) {
       tr = $('<tr></tr>').appendTo(table);
       tr.append('<th>'+data.rowlabels[i]+'</th>');
@@ -139,6 +142,7 @@ jQuery._WeblitzPlateview = function (container, options) {
         if (data.grid[i][j] === null) {
         tr.append('<td class="placeholder"><img src="' + spacer_gif_src + '" /></td>');
         } else {
+          imgIds.push(data.grid[i][j].id);
           data.grid[i][j]._wellpos = data.rowlabels[i]+data.collabels[j];
           var parentPrefix = '';
           if (opts.useParentPrefix) {
@@ -147,7 +151,7 @@ jQuery._WeblitzPlateview = function (container, options) {
           var td = $('<td class="well" id="'+parentPrefix+'well-'+data.grid[i][j].wellId+'">' +
             '<img class="waiting" src="' + spacer_gif_src + '" />' +
             '<div class="wellLabel">' + data.rowlabels[i] + data.collabels[j] + '</div>' +
-            '<img id="'+parentPrefix+'image-'+data.grid[i][j].id+'" class="loading" src="'+ data.grid[i][j].thumb_url+'" name="'+(data.rowlabels[i] + data.collabels[j])+'"></td>');
+            '<img id="'+parentPrefix+'image-'+data.grid[i][j].id+'" class="loading" name="'+(data.rowlabels[i] + data.collabels[j])+'"></td>');
           $('img', td)
             .click(tclick(data.grid[i][j]))
             .load(function() {
@@ -160,6 +164,31 @@ jQuery._WeblitzPlateview = function (container, options) {
         }
       }
     }
+
+    // load thumbnails in a batches
+    var load_thumbnails = function(input, batch) {
+      if (input.length > 0 && batch > 0) {
+        var iids = input.slice(0 , batch)
+        if (iids.length > 0) {
+          var thumbnails_url = opts.baseurl+'/get_thumbnails/';
+          thumbnails_url += '?' + $.param( { id: iids }, true);
+          var _load_thumbnails = function (result, data) {
+            $.each(data, function(key, value) {
+              if (value === null) {
+                value = opts.defaultThumb;
+              }
+              $("img#"+parentPrefix+"image-"+key).attr("src", value);
+            });
+          }
+          gs_json(thumbnails_url, null, _load_thumbnails);
+          input = input.slice(batch, input.length);
+          load_thumbnails(input, batch);
+        }
+      }
+    }
+
+    thumbnailsBatch = parseInt(opts.thumbnailsBatch);
+    load_thumbnails(imgIds, thumbnailsBatch);
     _this.self.trigger('_resetLoaded');
   };
 

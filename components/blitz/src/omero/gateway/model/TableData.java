@@ -104,7 +104,7 @@ public class TableData {
     }
 
     /**
-     * Get the data
+     * Get the data in form Object['column index']['row data']
      * 
      * @return See above
      */

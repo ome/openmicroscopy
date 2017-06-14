@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -20,8 +20,11 @@
  */
 package integration.gateway;
 
+import integration.ModelMockFactory;
+
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -29,6 +32,8 @@ import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.model.IObject;
+import omero.model.Plate;
+import omero.model.Well;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -42,6 +47,7 @@ import omero.gateway.model.ImageData;
 import omero.gateway.model.PlateData;
 import omero.gateway.model.ProjectData;
 import omero.gateway.model.ScreenData;
+import omero.gateway.model.WellData;
 import omero.gateway.util.PojoMapper;
 
 /**
@@ -76,6 +82,9 @@ public class BrowseFacilityTest extends GatewayTest {
     private FolderData userFolder2;
     private FolderData userFolder3;
     private FolderData user2Folder;
+    
+    private PlateData wellsPlate;
+    private ArrayList<Long> wellIds;
     
     @Override
     @BeforeClass(alwaysRun = true)
@@ -363,6 +372,19 @@ public class BrowseFacilityTest extends GatewayTest {
         Assert.assertFalse(luts.isEmpty());
      }
     
+    @Test
+    public void testGetWells() throws DSOutOfServiceException, DSAccessException {
+        Collection<WellData> wells = browseFacility.getWells(rootCtx, wellIds);
+        Assert.assertEquals(wells.size(), wellIds.size());
+        ArrayList<Long> loadedIds = new ArrayList<Long>();
+        for(WellData w : wells) {
+            Assert.assertEquals(w.getWellSamples().size(), 2);
+            loadedIds.add(w.getId());
+        }
+        Collections.sort(loadedIds);
+        Assert.assertEquals(loadedIds, wellIds);
+     }
+    
     private void initData() throws Exception {
         this.group = createGroup();
         this.user = createExperimenter(group);
@@ -396,6 +418,17 @@ public class BrowseFacilityTest extends GatewayTest {
         this.img2 = createImage(ctx, ds2);
         
         this.user2Folder = createFolder(ctx);
+        
+        ModelMockFactory mf = new ModelMockFactory(gw.getTypesService(rootCtx));
+        this.wellsPlate = new PlateData(mf.createPlate(3, 3, 2, 1, false));
+        this.wellsPlate = (PlateData) datamanagerFacility.saveAndReturnObject(rootCtx, wellsPlate);
+        
+        this.wellIds = new ArrayList<Long>();
+        Plate p = this.wellsPlate.asPlate();
+        for (Well w : p.copyWells()) {
+            this.wellIds.add(w.getId().getValue());
+        }
+        Collections.sort(this.wellIds);
     }
 
 }

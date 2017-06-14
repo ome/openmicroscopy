@@ -373,6 +373,26 @@ CUSTOM_SETTINGS_MAPPINGS = {
         ["APPLICATION_SERVER_MAX_REQUESTS", 0, int,
          ("The maximum number of requests a worker will process before "
           "restarting.")],
+    "omero.web.middleware":
+        ["MIDDLEWARE_CLASSES_LIST",
+         ('['
+          '{"index": 1, '
+          '"class": "django.middleware.common.BrokenLinkEmailsMiddleware"},'
+          '{"index": 2, '
+          '"class": "django.middleware.common.CommonMiddleware"},'
+          '{"index": 3, '
+          '"class": "django.contrib.sessions.middleware.SessionMiddleware"},'
+          '{"index": 4, '
+          '"class": "django.middleware.csrf.CsrfViewMiddleware"},'
+          '{"index": 5, '
+          '"class": "django.contrib.messages.middleware.MessageMiddleware"}'
+          ']'),
+         json.loads,
+         ('Warning: Only system administrators should use this feature. '
+          'List of Django middleware classes in the form '
+          '[{"class": "class.name", "index": FLOAT}]. '
+          'See https://docs.djangoproject.com/en/1.8/topics/http/middleware/. '
+          'Classes will be ordered by increasing index')],
     "omero.web.prefix":
         ["FORCE_SCRIPT_NAME",
          None,
@@ -632,6 +652,15 @@ CUSTOM_SETTINGS_MAPPINGS = {
          int,
          ("Number of images displayed within a dataset or 'orphaned'"
           " container to prevent from loading them all at once.")],
+    "omero.web.thumbnails_batch":
+        ["THUMBNAILS_BATCH",
+         50,
+         int,
+         ("Number of thumbnails retrieved to prevent from loading them"
+          " all at once. Make sure the size is not too big, otherwise"
+          " you may exceed limit request line, see"
+          " http://docs.gunicorn.org/en/latest/settings.html"
+          "?highlight=limit_request_line")],
     "omero.web.ui.top_links":
         ["TOP_LINKS",
          ('['
@@ -692,6 +721,22 @@ CUSTOM_SETTINGS_MAPPINGS = {
           " 'webtest/webclient_plugins/center_plugin.overlay.js.html',"
           " 'channel_overlay_panel']``. "
           "The javascript loads data into ``$('#div_id')``.")],
+
+    # CORS
+    "omero.web.cors_origin_whitelist":
+        ["CORS_ORIGIN_WHITELIST",
+         '[]',
+         json.loads,
+         ("A list of origin hostnames that are authorized to make cross-site "
+          "HTTP requests. "
+          "Used by the django-cors-headers app as described at "
+          "https://github.com/ottoyiu/django-cors-headers")],
+    "omero.web.cors_origin_allow_all":
+        ["CORS_ORIGIN_ALLOW_ALL",
+         "false",
+         parse_boolean,
+         ("If True, cors_origin_whitelist will not be used and all origins "
+          "will be authorized to make cross-site HTTP requests.")],
 }
 
 DEPRECATED_SETTINGS_MAPPINGS = {
@@ -962,17 +1007,6 @@ except NameError:
 # internationalization machinery.
 USE_I18N = True
 
-# MIDDLEWARE_CLASSES: A tuple of middleware classes to use.
-# See https://docs.djangoproject.com/en/1.8/topics/http/middleware/.
-MIDDLEWARE_CLASSES = (
-    'django.middleware.common.BrokenLinkEmailsMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-)
-
-
 # ROOT_URLCONF: A string representing the full Python import path to your root
 # URLconf.
 # For example: "mydjangoapps.urls". Can be overridden on a per-request basis
@@ -1139,6 +1173,13 @@ PIPELINE_JS = {
 
 CSRF_FAILURE_VIEW = "omeroweb.feedback.views.csrf_failure"
 
+# Configuration for django-cors-headers app
+# See https://github.com/ottoyiu/django-cors-headers
+# Configration of allowed origins is handled by custom settings above
+CORS_ALLOW_CREDENTIALS = True
+# Needed for Django <1.9 since CSRF_TRUSTED_ORIGINS not supported
+CORS_REPLACE_HTTPS_REFERER = True
+
 # FEEDBACK - DO NOT MODIFY!
 # FEEDBACK_URL: Is now configurable for testing purpuse only. Used in
 # feedback.sendfeedback.SendFeedback class in order to submit errors or
@@ -1190,6 +1231,13 @@ MANAGERS = ADMINS  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
 # JSON serializer, which is now the default, cannot handle
 # omeroweb.connector.Connector object
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
+
+
+# Load server list and freeze
+from utils import sort_properties_to_tuple
+
+# MIDDLEWARE_CLASSES: A tuple of middleware classes to use.
+MIDDLEWARE_CLASSES = sort_properties_to_tuple(MIDDLEWARE_CLASSES_LIST)  # noqa
 
 # Load server list and freeze
 from connector import Server

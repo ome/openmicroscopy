@@ -44,6 +44,11 @@ Test Spw Grid Layout
     # Right panel should show Well
     Page Should Contain Element             xpath=//div[contains(@class,'data_heading')]/h1[contains(text(), 'A1')]
 
+    # Preview panel enabled for Well
+    Click Link                              Preview
+    Wait Until Page Contains Element        id=viewport-img
+    Click Link                              General
+
     # Images from a single Well shown in bottom panel
     Wait Until Page Contains Element        xpath=//div[@id='wellImages']//li/a
     Xpath Should Match X Times              //div[@id='wellImages']//li/a                 ${FIELD_COUNT}

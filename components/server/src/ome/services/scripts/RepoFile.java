@@ -119,7 +119,7 @@ public class RepoFile {
 
         final public String path;
         final public String name;
-        final private ChecksumAlgorithm hasher = new ChecksumAlgorithm("SHA1-160");
+        final private ChecksumAlgorithm hasher = new ChecksumAlgorithm(ChecksumAlgorithm.VALUE_SHA1_160);
 
         FsFile(String path) {
             this.path = FilenameUtils.normalize(path);

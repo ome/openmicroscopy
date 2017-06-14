@@ -115,8 +115,8 @@ public class MTPixelDataTest extends MockObjectTestCase {
                 pix.setSizeZ(2);
                 pix.setSizeC(1);
                 pix.setSizeT(2);
-                pix.setDimensionOrder(new DimensionOrder("XYZCT"));
-                pix.setPixelsType(new PixelsType("int8"));
+                pix.setDimensionOrder(new DimensionOrder(DimensionOrder.VALUE_XYZCT));
+                pix.setPixelsType(new PixelsType(PixelsType.VALUE_INT8));
                 pix.addChannel(new Channel());
                 return pix;
             }

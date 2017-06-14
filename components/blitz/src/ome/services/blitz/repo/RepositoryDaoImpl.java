@@ -909,6 +909,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
         return IceMapper.convert(ec);
     }
 
+    @Deprecated  // removed in 5.4
     protected EventContext currentContext(Principal currentUser) {
         return (EventContext) executor.execute(currentUser,
                 new Executor.SimpleWork(this, "getEventContext") {
