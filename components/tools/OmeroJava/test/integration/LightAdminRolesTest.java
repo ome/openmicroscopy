@@ -1473,20 +1473,20 @@ public class LightAdminRolesTest extends RolesTests {
     }
 
     /**
-     * Test that light admin can modify group membership when he/she has
-     * only the <tt>ModifyGroupMembership</tt> privilege.
-     * The addition of a user is being attempted here.
+     * Light admin (lightAdmin) tries to modify group membership.
+     * lightAdmin will succeed if they have <tt>ModifyGroupMembership</tt> privilege.
+     * To modify the group membership, lightAdmin attempts to add
+     * an existing user to an existing group.
      * @param isPrivileged if to test a user who has the <tt>ModifyGroupMembership</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isPrivileged cases")
     public void testModifyGroupMembershipAddUser(boolean isPrivileged, String groupPermissions) throws Exception {
-        /* the permModifyGroupMembership should be a sufficient permission to perform
-         * the user addition into a group */
+        /* isPrivileged translates in this test into ModifyGroupMembership permission, see below.*/
         boolean isExpectSuccessAddUserToGroup = isPrivileged;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
-        /* one extra group is needed to add the existing normalUser to */
+        /* One extra group is needed to add the existing normalUser to.*/
         final EventContext otherUser = newUserAndGroup(groupPermissions);
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeModifyGroupMembership.value);
@@ -1503,9 +1503,10 @@ public class LightAdminRolesTest extends RolesTests {
     }
 
     /**
-     * Test that light admin can modify group membership when he/she has
-     * only the <tt>ModifyGroupMembership</tt> privilege.
-     * The removal of a user is being attempted here.
+     * Light admin (lightAdmin) tries to modify group membership.
+     * lightAdmin will succeed if they have <tt>ModifyGroupMembership</tt> privilege.
+     * To modify the group membership, lightAdmin attempts to remove
+     * an existing user from an existing group.
      * @param isPrivileged if to test a user who has the <tt>ModifyGroupMembership</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
@@ -1513,11 +1514,10 @@ public class LightAdminRolesTest extends RolesTests {
     @Test(dataProvider = "isPrivileged cases")
     public void testModifyGroupMembershipRemoveUser(boolean isPrivileged,
             String groupPermissions) throws Exception {
-        /* the permModifyGroupMembership should be a sufficient permission to perform
-         * the user removal from a group */
+        /* isPrivileged translates in this test into ModifyGroupMembership permission, see below.*/
         boolean isExpectSuccessRemoveUserFromGroup = isPrivileged;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
-        /* one extra group is needed which the normalUser is also a member of */
+        /* One extra group is needed from which normalUser removal will be attempted.*/
         final ExperimenterGroup otherGroup = newGroupAddUser("rwr-r-", normalUser.userId);
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeModifyGroupMembership.value);
