@@ -299,7 +299,7 @@ public class AbstractServerTest extends AbstractTest {
 
     /**
      * Cast the map of strings (e.g. {@link #ALL_GROUPS_CONTEXT})
-     * into implicit context, which asks for <String, String>
+     * into implicit context, which asks for {@code <String, String>}.
      * @param implicitContext the implicit context to be changed
      * @param newContext the map of strings (e.g. {@link #ALL_GROUPS_CONTEXT})
      */
