@@ -91,13 +91,12 @@ public class RolesTests extends AbstractServerImportTest {
         final String objectClass = object.getClass().getSuperclass().getSimpleName();
         final long objectId = object.getId().getValue();
         try {
-            final Map<String, String> allGroupsContext = ImmutableMap.of("omero.group", "-1");
             final IObject objectRetrieved;
             if (objectClass.endsWith("Link")) {
                 objectRetrieved = iQuery.findByQuery("FROM " + objectClass + " link JOIN FETCH link.child WHERE link.id = :id",
-                        new ParametersI().addId(objectId), allGroupsContext);
+                        new ParametersI().addId(objectId), ALL_GROUPS_CONTEXT);
             } else {
-                objectRetrieved = iQuery.get(objectClass, objectId, allGroupsContext);
+                objectRetrieved = iQuery.get(objectClass, objectId, ALL_GROUPS_CONTEXT);
             }
 
             return objectRetrieved.getDetails().getPermissions();
