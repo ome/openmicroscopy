@@ -1123,9 +1123,12 @@ public class LightAdminRolesTest extends RolesTests {
         assertOwnedBy(linkOfProjectDataset2AnotherGroup, recipient);
     }
 
-    /** Light admin (lightAdmin) puts ROI and Rendering Settings on an
-     * image of normalUser and then transfers the ownership of the ROI and settings
-     * to normalUser, all without using Sudo.
+    /**
+     * Light admin (lightAdmin) tries to put ROI and Rendering Settings on an
+     * image of normalUser.
+     * lightAdmin tries then to transfer the ownership of the ROI and Rendering settings
+     * to normalUser.
+     * lightAdmin does not use Sudo in this test.
      * @param permChown if to test a user who has the <tt>Chown</tt> privilege
      * @param permWriteOwned if to test a user who has the <tt>WriteOwned</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
