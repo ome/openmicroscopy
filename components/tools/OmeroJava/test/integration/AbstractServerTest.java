@@ -298,10 +298,10 @@ public class AbstractServerTest extends AbstractTest {
     }
 
     /**
-     * Cast the map of strings (e.g. the ALL_GROUPS_CONTEXT)
-     * into implicit context, which asks for <String, String>
+     * Cast the map of strings (e.g. {@link #ALL_GROUPS_CONTEXT})
+     * into implicit context, which asks for {@code <String, String>}.
      * @param implicitContext the implicit context to be changed
-     * @param newContext the map of strings (e.g. ALL_GROUPS_CONTEXT)
+     * @param newContext the map of strings (e.g. {@link #ALL_GROUPS_CONTEXT})
      */
     protected void mergeIntoContext(ImplicitContext implicitContext, Map<String, String> newContext) {
         for (final Entry<String, String> entry : newContext.entrySet()) {
@@ -351,7 +351,7 @@ public class AbstractServerTest extends AbstractTest {
     }
 
     /**
-     * Assert that the given objects are in the giver group.
+     * Assert that the given objects are in the given group.
      * @param objects some model objects
      * @param expectedGroupId a group Id
      * @throws ServerError unexpected
@@ -365,8 +365,7 @@ public class AbstractServerTest extends AbstractTest {
             final String query = "SELECT details.group.id FROM " + object.getClass().getSuperclass().getSimpleName() +
                     " WHERE id = :id";
             final Parameters params = new ParametersI().addId(object.getId());
-            final Map<String, String> ctx = ImmutableMap.of("omero.group", "-1");
-            final List<List<RType>> results = root.getSession().getQueryService().projection(query, params, ctx);
+            final List<List<RType>> results = root.getSession().getQueryService().projection(query, params, ALL_GROUPS_CONTEXT);
             final long actualGroupId = ((RLong) results.get(0).get(0)).getValue();
             Assert.assertEquals(actualGroupId, expectedGroupId, objectName);
         }
@@ -397,8 +396,7 @@ public class AbstractServerTest extends AbstractTest {
             final String query = "SELECT details.owner.id FROM " + object.getClass().getSuperclass().getSimpleName() +
                     " WHERE id = :id";
             final Parameters params = new ParametersI().addId(object.getId());
-            final Map<String, String> ctx = ImmutableMap.of("omero.group", "-1");
-            final List<List<RType>> results = root.getSession().getQueryService().projection(query, params, ctx);
+            final List<List<RType>> results = root.getSession().getQueryService().projection(query, params, ALL_GROUPS_CONTEXT);
             final long actualOwnerId = ((RLong) results.get(0).get(0)).getValue();
             Assert.assertEquals(actualOwnerId, expectedOwner.userId, objectName);
         }

@@ -313,9 +313,8 @@ public class ModelMockFactory {
     /**
      * Create a FileAnnotation with Original File.
      * @return the FileAnnotation
-     * @throws Exception unexpected
      */
-    protected FileAnnotation createFileAnnotation() throws Exception {
+    protected FileAnnotation createFileAnnotation() {
         FileAnnotation fileAnnotation = new FileAnnotationI();
         OriginalFile originalFile = createOriginalFile();
         fileAnnotation.setFile(originalFile);
@@ -324,12 +323,9 @@ public class ModelMockFactory {
 
     /**
      * Creates and returns an original file object.
-     *
      * @return See above.
-     * @throws Exception
-     *             Thrown if an error occurred.
      */
-    public OriginalFile createOriginalFile() throws Exception {
+    public OriginalFile createOriginalFile() {
         OriginalFileI oFile = new OriginalFileI();
         oFile.setName(omero.rtypes.rstring("Test_" + UUID.randomUUID().toString()));
         oFile.setPath(omero.rtypes.rstring("/omero/"));

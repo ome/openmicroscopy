@@ -955,20 +955,20 @@ public class LightAdminRolesTest extends RolesTests {
          * from lightAdmin's group to normalUser's group,
          * which should succeed in case the light admin has Chgrp permissions.*/
         doChange(client, factory, Requests.chgrp().target(sentDat).toGroup(normalUser.groupId).build(), permChgrp);
-        /* Check that the group of the moved objects.*/
-        long datasetImageLinkId = ((RLong) iQuery.projection(
-                "SELECT id FROM DatasetImageLink WHERE parent.id = :id",
-                new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
+        /* Check the group of the moved objects.*/
+        final DatasetImageLink datasetImageLink = (DatasetImageLink) iQuery.findByQuery(
+                "FROM DatasetImageLink WHERE parent.id = :id",
+                new ParametersI().addId(sentDat.getId()));
         if (permChgrp) {
             assertInGroup(originalFile, normalUser.groupId);
             assertInGroup(image, normalUser.groupId);
             assertInGroup(sentDat, normalUser.groupId);
-            assertInGroup((new DatasetImageLinkI(datasetImageLinkId, false)), normalUser.groupId);
+            assertInGroup(datasetImageLink, normalUser.groupId);
         } else {
             assertInGroup(originalFile, lightAdmin.groupId);
             assertInGroup(image, lightAdmin.groupId);
             assertInGroup(sentDat, lightAdmin.groupId);
-            assertInGroup((new DatasetImageLinkI(datasetImageLinkId, false)), lightAdmin.groupId);
+            assertInGroup(datasetImageLink, lightAdmin.groupId);
         }
         /* Check that the canChown boolean on Dataset is matching permChown boolean.*/
         Assert.assertEquals(getCurrentPermissions(sentDat).canChown(), permChown);
@@ -988,8 +988,8 @@ public class LightAdminRolesTest extends RolesTests {
             assertInGroup(image, normalUser.groupId);
             assertOwnedBy(sentDat, normalUser);
             assertInGroup(sentDat, normalUser.groupId);
-            assertOwnedBy((new DatasetImageLinkI(datasetImageLinkId, false)), normalUser);
-            assertInGroup((new DatasetImageLinkI(datasetImageLinkId, false)), normalUser.groupId);
+            assertOwnedBy(datasetImageLink, normalUser);
+            assertInGroup(datasetImageLink, normalUser.groupId);
         } else if (permChown) {
             /* Second case: Chown succeeds, but Chgrp fails.
              * Image, Dataset and link belong to the normalUser, but are in lightAdmin's group */
@@ -999,8 +999,8 @@ public class LightAdminRolesTest extends RolesTests {
             assertInGroup(image, lightAdmin.groupId);
             assertOwnedBy(sentDat, normalUser);
             assertInGroup(sentDat, lightAdmin.groupId);
-            assertOwnedBy((new DatasetImageLinkI(datasetImageLinkId, false)), normalUser);
-            assertInGroup((new DatasetImageLinkI(datasetImageLinkId, false)), lightAdmin.groupId);
+            assertOwnedBy(datasetImageLink, normalUser);
+            assertInGroup(datasetImageLink, lightAdmin.groupId);
         } else if (permChgrp) {
             /* Third case: Chgrp succeeds, but Chown fails.
              * Image, Dataset and link are in normalUser's group but belong to lightAdmin.*/
@@ -1010,8 +1010,8 @@ public class LightAdminRolesTest extends RolesTests {
             assertInGroup(image, normalUser.groupId);
             assertOwnedBy(sentDat, lightAdmin);
             assertInGroup(sentDat, normalUser.groupId);
-            assertOwnedBy((new DatasetImageLinkI(datasetImageLinkId, false)), lightAdmin);
-            assertInGroup((new DatasetImageLinkI(datasetImageLinkId, false)), normalUser.groupId);
+            assertOwnedBy(datasetImageLink, lightAdmin);
+            assertInGroup(datasetImageLink, normalUser.groupId);
         } else {
             /* Fourth case: Ghgrp and Chown both fail.
              * Image, Dataset and link are in lightAdmin's group and belong to lightAdmin.*/
@@ -1021,8 +1021,8 @@ public class LightAdminRolesTest extends RolesTests {
             assertInGroup(image, lightAdmin.groupId);
             assertOwnedBy(sentDat, lightAdmin);
             assertInGroup(sentDat, lightAdmin.groupId);
-            assertOwnedBy((new DatasetImageLinkI(datasetImageLinkId, false)), lightAdmin);
-            assertInGroup((new DatasetImageLinkI(datasetImageLinkId, false)), lightAdmin.groupId);
+            assertOwnedBy(datasetImageLink, lightAdmin);
+            assertInGroup(datasetImageLink, lightAdmin.groupId);
         }
     }
 
@@ -1309,7 +1309,7 @@ public class LightAdminRolesTest extends RolesTests {
         /* lightAdmin tries to link the fileAnnotation to the normalUser's image.
          * This will not work in private group. See definition of the boolean
          * isExpectSuccessLinkFileAttachemnt.*/
-        ImageAnnotationLink link = new ImageAnnotationLinkI();
+        ImageAnnotationLink link = null;
         try {
             link = (ImageAnnotationLink) linkImageAnnotation(sentImage, fileAnnotation);
             /* Check the value of canAnnotate on the image is true in successful linking case.*/
