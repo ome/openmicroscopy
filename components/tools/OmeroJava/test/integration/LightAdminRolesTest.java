@@ -180,14 +180,17 @@ public class LightAdminRolesTest extends RolesTests {
     }
 
     /**
-     * Test that a light administrator can create new Project and Dataset
-     * and import data on behalf of another user solely with <tt>Sudo</tt> privilege
-     * into this Dataset. Further link the Dataset to the Project, check
-     * that the link belongs to the user (not to the light admin).
-     * All workflows are tested here both when light admin is sudoing
-     * and when he/she is not sudoing, except for Link and Import (both tested
-     * only when sudoing, as the non-sudoing workflows are too complicated
-     * for those two actions and thus covered by separate tests).
+     * Light administrator (lightAdmin) tries to create new Project and Dataset and set normalUser as
+     * the owner of the Project and Dataset in a group where lightAdmin is not member (normalUser's group).
+     * lightAdmin tries the creation above both sudoing and not sudoing as normalUser
+     * and both having and not having <tt>WriteOwned<tt> privilege.
+     * The test finishes for test cases in which lightAdmin does not sudo after the creation attempt above.
+     * For cases in which lightAdmin does Sudo as normalUser:
+     * lightAdmin tries to import data on behalf of normalUser into the just created Dataset.
+     * lightAdmin, still sudoed as normalUser, tries then to link the Dataset to the Project.
+     * Non-sudoing workflows for import and linking are too complicated to be included in this test.
+     * Those two actions are covered by separate tests (testImporterAsNoSudoChownOnlyWorkflow,
+     * testImporterAsNoSudoChgrpChownWorkflow and testLinkNoSudo).
      * @param isSudoing if to test a success of workflows where Sudoed in
      * @param permWriteOwned if to test a user who has the <tt>WriteOwned</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
@@ -198,32 +201,34 @@ public class LightAdminRolesTest extends RolesTests {
     public void testImporterAsSudoCreateImport(boolean isSudoing, boolean permWriteOwned,
             String groupPermissions) throws Exception {
         final EventContext normalUser = newUserAndGroup(groupPermissions);
+        /* Only WriteOwned permission is needed for creation of objects when not sudoing.
+         * When sudoing, no other permission is needed.*/
         final boolean isExpectSuccessCreate = permWriteOwned || isSudoing;
-        /* set up the light admin's permissions for this test */
+        /* Set up the light admin's permissions for this test.*/
         List<String> permissions = new ArrayList<String>();
         permissions.add(AdminPrivilegeSudo.value);
         if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(true, permissions);
+        /* lightAdmin possibly sudoes on behalf of normalUser, depending on test case.*/
         if (isSudoing) sudo(new ExperimenterI(normalUser.userId, false));
 
-        /* First, create Project and Dataset on behalf of the normalUser
-         * in the group of the normalUser in anticipation of importing
-         * data for the normalUser in the next step into these containers */
+        /* lightAdmin tries to create Project and Dataset on behalf of the normalUser
+         * in normalUser's group.*/
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         Project proj = mmFactory.simpleProject();
         Dataset dat = mmFactory.simpleDataset();
         Project sentProj = null;
         Dataset sentDat = null;
-        /* Set the normalUser as the owner of the newly created P/D but do this only
-         * when the lightAdmin is not sudoing (if sudoing, this step is not necessary
-         * because the created P/D already belongs to the normalUser) */
+        /* lightAdmin sets the normalUser as the owner of the newly created P/D but only
+         * in cases in which lightAdmin is not sudoing (if sudoing, the created P/D
+         * already belong to normalUser).*/
         if (!isSudoing) {
             proj.getDetails().setOwner(new ExperimenterI(normalUser.userId, false));
             dat.getDetails().setOwner(new ExperimenterI(normalUser.userId, false));
         }
-        /* Check that you can save the created Project and Dataset only when the permissions
-         * are sufficient.*/
+        /* Check lightAdmin can or cannot save the created Project and Dataset as appropriate
+         * (see definition of isExpectSuccessCreate above).*/
         try {
             sentProj = (Project) iUpdate.saveAndReturnObject(proj);
             sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
@@ -231,8 +236,8 @@ public class LightAdminRolesTest extends RolesTests {
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccessCreate);
         }
-        /* Check the owner of the Project and Dataset is the normalUser in case
-         * these were created, otherwise they should be null.*/
+        /* Check the owner of the Project and Dataset (P/D) is the normalUser in all cases
+         * the P/D were created, in all other cases P/D should be null.*/
         if (isExpectSuccessCreate) {
             assertOwnedBy(sentProj, normalUser);
             assertOwnedBy(sentDat, normalUser);
@@ -240,31 +245,30 @@ public class LightAdminRolesTest extends RolesTests {
             Assert.assertNull(sentProj);
             Assert.assertNull(sentDat);
         }
-        /* Finish the test if light admin is not sudoing, the further part
-         * of the test deals with the imports. Imports when not sudoing workflows
-         * are covered in other tests in this class.*/
+        /* Finish the test if lightAdmin is not sudoing.
+         * Further tests of this test method deal with import and linking
+         * for normalUser by lightAdmin who sudoes on behalf of normalUser.
+         * Imports and linking for others while NOT using Sudo
+         * are covered in other test methods in this class.*/
         if (!isSudoing) return;
 
-        /* Check that after sudo, the lightAdmin is able to ImportAs and target
-         * the import into the just created Dataset.
-         * This checks that the lightAdmin can import and write the original file
-         * of the imported image on behalf of the normalUser and into the group of normalUser */
+        /* Check that after sudo, lightAdmin can import and write the originalFile
+         * of the imported image on behalf of the normalUser into the created Dataset.*/
         List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
         OriginalFile originalFile = (OriginalFile) originalFileAndImage.get(0);
         Image image = (Image) originalFileAndImage.get(1);
 
-        /* Check that the canLink() method is delivering true on both the Dataset
-         * and Project to be linked. As the cases where the light admin was not sudoing
-         * are not tested in this part of the test, the canLink() is always true
-         * for the owner of the objects (the normalUser as who the light admin is
-         * sudoed for).*/
+        /* Check the canLink() boolean for both Dataset and Project.
+         * lightAdmin is always sudoing in this part of the test.
+         * Thus canLink() is always true, because lightAdmin is sudoed
+         * on behalf of the owner of the objects (normalUser).*/
         Assert.assertTrue(getCurrentPermissions(sentProj).canLink());
         Assert.assertTrue(getCurrentPermissions(sentDat).canLink());
+        /* Check that being sudoed, lightAdmin can link the Project and Dataset of normalUser.*/
         ProjectDatasetLink projectDatasetLink = linkProjectDataset(sentProj, sentDat);
 
-        /* Check the owner of the links between image and Dataset and
-         * Dataset and Project is normalUser
-         * and the image and its original file are in the group of normalUser.*/
+        /* Check the owner of the image, its originalFile, imageDatasetLink and projectDatasetLink
+         * is normalUser and the image and its originalFile are in normalUser's group.*/
         final IObject imageDatasetLink = iQuery.findByQuery(
                 "FROM DatasetImageLink WHERE child.id = :id",
                 new ParametersI().addId(image.getId().getValue()));
