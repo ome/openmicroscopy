@@ -1406,8 +1406,8 @@ public class LightAdminRolesTest extends RolesTests {
     }
 
     /**
-     * Light admin (lightAdmin) tries to delete official script. They will succeed only if they
-     * have the <tt>DeleteScriptRepo</tt> privilege.
+     * Light admin (lightAdmin) tries to delete official script. 
+     * lightAdmin will succeed if they have the <tt>DeleteScriptRepo</tt> privilege.
      * @param isPrivileged if to test a user who has the <tt>DeleteScriptRepo</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
