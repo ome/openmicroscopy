@@ -396,8 +396,7 @@ public class AbstractServerTest extends AbstractTest {
             final String query = "SELECT details.owner.id FROM " + object.getClass().getSuperclass().getSimpleName() +
                     " WHERE id = :id";
             final Parameters params = new ParametersI().addId(object.getId());
-            final Map<String, String> ctx = ImmutableMap.of("omero.group", "-1");
-            final List<List<RType>> results = root.getSession().getQueryService().projection(query, params, ctx);
+            final List<List<RType>> results = root.getSession().getQueryService().projection(query, params, ALL_GROUPS_CONTEXT);
             final long actualOwnerId = ((RLong) results.get(0).get(0)).getValue();
             Assert.assertEquals(actualOwnerId, expectedOwner.userId, objectName);
         }
