@@ -1330,7 +1330,7 @@ public class LightAdminRolesTest extends RolesTests {
         /* link the file attachment to the image of the user as light admin
          * This will not work in private group. See definition of the boolean
          * isExpectSuccessLinkFileAttachemnt */
-        ImageAnnotationLink link = new ImageAnnotationLinkI();
+        ImageAnnotationLink link = null;
         try {
             link = (ImageAnnotationLink) linkImageAnnotation(sentImage, fileAnnotation);
             /* Check the value of canAnnotate on the image is true in this case.*/
