@@ -1244,100 +1244,106 @@ public class LightAdminRolesTest extends RolesTests {
         }
     }
 
-    /** Test of light admin without using Sudo.
-     * The workflow deals with the eventuality of uploading a File Attachment
-     * and linking it to an image of the user and then transferring
-     * the ownership of the attachment and link
-     * to the user.
+    /** Light admin (lightAdmin) uploads a File Attachment (fileAnnotation)
+     * with original file (originalFile) in a group they are not member of (normalUser's group)
+     * and tries to link it to an image of the user (normalUser) and then tries to transfer
+     * the ownership of the fileAnnotation and link to normalUser.
      * @param permChown if to test a user who has the <tt>Chown</tt> privilege
      * @param permWriteOwned if to test a user who has the <tt>WriteOwned</tt> privilege
      * @param permWriteFile if to test a user who has the <tt>WriteFile</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
+     * @see <a href="graphical explanation">https://docs.google.com/presentation/d/1jfdsPSvqJvBlN18vIFrRsNqh13eAlF5Gjh3G_MiGGAE/edit#slide=id.p4</a>
      */
     @Test(dataProvider = "fileAttachment privileges cases")
     public void testFileAttachmentNoSudo(boolean permChown, boolean permWriteOwned,
             boolean permWriteFile, String groupPermissions) throws Exception {
-        /* upload/creation of File Attachment should be always permitted as long as light admin is in System Group
-         * and has WriteOwned and WriteFile permissions. */
+        /* Upload or creation of fileAttachment in not-your-group is permitted for lightAdmin
+         * with WriteOwned and WriteFile permissions.*/
         boolean isExpectSuccessCreateFileAttachment = permWriteOwned && permWriteFile;
+        /* Linking of fileAttachment to others' image is permitted when the creation
+         * in not-your-group is permitted in all group types except private.*/
         boolean isExpectSuccessLinkFileAttachemnt = isExpectSuccessCreateFileAttachment && !(groupPermissions == "rw----");
+        /* Chown permission is needed for lightAdmin for successful transfer of ownership of the
+         * fileAttachment to normalUser.*/
         boolean isExpectSuccessCreateFileAttAndChown = isExpectSuccessCreateFileAttachment && permChown;
         boolean isExpectSuccessCreateLinkAndChown = isExpectSuccessLinkFileAttachemnt && permChown;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
-        /* set up the light admin's permissions for this test */
+        /* Set up the light admin's permissions for this test.*/
         List<String> permissions = new ArrayList<String>();
         if (permChown) permissions.add(AdminPrivilegeChown.value);
         if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
         if (permWriteFile) permissions.add(AdminPrivilegeWriteFile.value);
 
-        /* create an image with pixels as normalUser in a group of the normalUser */
+        /* normalUser creates an image with pixels in normalUser's group.*/
         loginUser(normalUser);
         Image image = mmFactory.createImage();
         Image sentImage = (Image) iUpdate.saveAndReturnObject(image);
-        /* login as light admin */
+        /* Login as lightAdmin.*/
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(true, permissions);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
-        /* create a file attachment as light admin */
-        OriginalFile originalFile = mmFactory.createOriginalFile();
-        FileAnnotation fileAnnotation = new FileAnnotationI();
+        /* lightAdmin tries to create a fileAttachment in normalUser's group.*/
+        FileAnnotation fileAnnotation = mmFactory.createFileAnnotation();
+        OriginalFile originalFile = new OriginalFileI();
         try {
-            originalFile = (OriginalFile) iUpdate.saveAndReturnObject(originalFile);
-            fileAnnotation.setFile(originalFile);
             fileAnnotation = (FileAnnotation) iUpdate.saveAndReturnObject(fileAnnotation);
+            originalFile = (OriginalFile) fileAnnotation.getFile();
             Assert.assertTrue(isExpectSuccessCreateFileAttachment);
         } catch (SecurityViolation sv) {
             Assert.assertFalse(isExpectSuccessCreateFileAttachment);
-            return; /* finish the test in case we have no FileAttachment */
+            /* Finish the test in case fileAttachment could not be created.*/
+            return;
         }
-        /* link the file attachment to the image of the user as light admin
+        /* Check that the value of canChown on the fileAnnotation is matching the boolean
+         * isExpectSuccessCreateFileAttAndChown.*/
+        Assert.assertEquals(getCurrentPermissions(fileAnnotation).canChown(), isExpectSuccessCreateFileAttAndChown);
+        /* lightAdmin tries to link the fileAnnotation to the normalUser's image.
          * This will not work in private group. See definition of the boolean
-         * isExpectSuccessLinkFileAttachemnt */
+         * isExpectSuccessLinkFileAttachemnt.*/
         ImageAnnotationLink link = new ImageAnnotationLinkI();
         try {
             link = (ImageAnnotationLink) linkImageAnnotation(sentImage, fileAnnotation);
-            /* Check the value of canAnnotate on the image is true in this case.*/
+            /* Check the value of canAnnotate on the image is true in successful linking case.*/
             Assert.assertTrue(getCurrentPermissions(sentImage).canAnnotate());
             Assert.assertTrue(isExpectSuccessLinkFileAttachemnt);
         } catch (SecurityViolation sv) {
-            /* Check the value of canAnnotate on the image is false in this case.*/
+            /* Check the value of canAnnotate on the image is false in case linking fails.*/
             Assert.assertFalse(getCurrentPermissions(sentImage).canAnnotate());
             Assert.assertFalse(isExpectSuccessLinkFileAttachemnt);
-            return; /* finish the test in case we have no Link */
+            /* Finish the test in case no link could be created.*/
+            return;
         }
-
-        /* transfer the ownership of the attachment and the link to the user */
-        /* The attachment was certainly created. In cases in which it was not created,
-         * the test was terminated (see above). */
-        /* Check the value of canChown on the annotation is matching the boolean
-         * isExpectSuccessCreateFileAttAndChown.*/
-        Assert.assertEquals(getCurrentPermissions(fileAnnotation).canChown(), isExpectSuccessCreateFileAttAndChown);
+        /* lightAdmin tries to transfer the ownership of fileAnnotation to normalUser.
+         * The test was terminated (see above) in all cases
+         * in which the fileAnnotation was not created.*/
         doChange(client, factory, Requests.chown().target(fileAnnotation).toUser(normalUser.userId).build(), isExpectSuccessCreateFileAttAndChown);
-        if (isExpectSuccessCreateFileAttAndChown) {/* file ann creation and chowning succeeded */
+        if (isExpectSuccessCreateFileAttAndChown) {
+            /* First case: fileAnnotation creation and chowning succeeded.*/
             assertOwnedBy(fileAnnotation, normalUser);
             assertOwnedBy(originalFile, normalUser);
-        } else {/* the creation of file annotation succeeded, but the chown failed */
+        } else {
+            /* Second case: creation of fileAnnotation succeeded, but the chown failed.*/
             assertOwnedBy(fileAnnotation, lightAdmin);
             assertOwnedBy(originalFile, lightAdmin);
         }
-        /* The link was certainly created. In cases where the creation was not successful,
-         * the test was terminated (see above).*/
         /* Check the value of canChown on the link is matching the boolean
          * isExpectSuccessCreateLinkAndChown.*/
         Assert.assertEquals(getCurrentPermissions(link).canChown(), isExpectSuccessCreateLinkAndChown);
+        /* lightAdmin tries to transfer the ownership of link to normalUser.
+         * The test was terminated (see above) in all cases
+         * in which the link was not created.*/
         doChange(client, factory, Requests.chown().target(link).toUser(normalUser.userId).build(), isExpectSuccessCreateLinkAndChown);
-        if (isExpectSuccessCreateLinkAndChown) {/* if the link could
-        be both created and chowned, this means also the attachment was created and chowned
-        and thus the whole workflow succeeded (see declaration of
-        isExpectSuccessCreateLinkAndChown boolean).*/
+        if (isExpectSuccessCreateLinkAndChown) {
+            /* First case: link was created and chowned, the whole workflow succeeded.*/
             link = (ImageAnnotationLink) iQuery.findByQuery("FROM ImageAnnotationLink l JOIN FETCH"
                     + " l.child JOIN FETCH l.parent WHERE l.child.id = :id",
                     new ParametersI().addId(fileAnnotation.getId()));
             assertOwnedBy(link, normalUser);
             assertOwnedBy(fileAnnotation, normalUser);
             assertOwnedBy(originalFile, normalUser);
-        } else {/* link was created but could not be chowned */
+        } else {
+            /* Second case: link was created but could not be chowned.*/
             link = (ImageAnnotationLink) iQuery.findByQuery("FROM ImageAnnotationLink l JOIN FETCH"
                     + " l.child JOIN FETCH l.parent WHERE l.child.id = :id",
                     new ParametersI().addId(fileAnnotation.getId()));
