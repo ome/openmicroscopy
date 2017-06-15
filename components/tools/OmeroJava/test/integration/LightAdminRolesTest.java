@@ -1780,7 +1780,7 @@ public class LightAdminRolesTest extends RolesTests {
                         testCase[IS_SUDOING] = isSudoing;
                         testCase[PERM_WRITEOWNED] = permWriteOwned;
                         testCase[GROUP_PERMS] = groupPerms;
-                        // DEBUG if (isSudoing == true && permWriteOwned == true)
+                        // DEBUG if (isSudoing == true && permWriteOwned == true && groupPerms.equals("rwr---")))
                         testCases.add(testCase);
                     }
                 }
@@ -1812,7 +1812,7 @@ public class LightAdminRolesTest extends RolesTests {
                         testCase[IS_SUDOING] = isSudoing;
                         testCase[PERM_DELETEOWNED] = permDeleteOwned;
                         testCase[GROUP_PERMS] = groupPerms;
-                        // DEBUG if (isSudoing == true && permDeleteOwned == true)
+                        // DEBUG if (isSudoing == true && permDeleteOwned == true && groupPerms.equals("rwr---"))
                         testCases.add(testCase);
                     }
                 }
@@ -1844,7 +1844,7 @@ public class LightAdminRolesTest extends RolesTests {
                         testCase[IS_SUDOING] = isSudoing;
                         testCase[PERM_CHGRP] = permChgrp;
                         testCase[GROUP_PERMS] = groupPerms;
-                        // DEBUG  if (isSudoing == true && permChgrp == true)
+                        // DEBUG  if (isSudoing == true && permChgrp == true && groupPerms.equals("rwr---"))
                         testCases.add(testCase);
                     }
                 }
@@ -1876,7 +1876,7 @@ public class LightAdminRolesTest extends RolesTests {
                         testCase[IS_SUDOING] = isSudoing;
                         testCase[PERM_CHOWN] = permChown;
                         testCase[GROUP_PERMS] = groupPerms;
-                        // DEBUG  if (isSudoing == true && permChown == true)
+                        // DEBUG  if (isSudoing == true && permChown == true && groupPerms.equals("rwr---"))
                         testCases.add(testCase);
                     }
                 }
@@ -1921,7 +1921,8 @@ public class LightAdminRolesTest extends RolesTests {
                                 testCase[PERM_WRITEMANAGEDREPO] = permWriteManagedRepo;
                                 testCase[PERM_CHOWN] = permChown;
                                 testCase[GROUP_PERMS] = groupPerms;
-                                // DEBUG if (permWriteOwned == true && permWriteFile == true && permWriteManagedRepo == true && permChown == true)
+                                // DEBUG if (permWriteOwned == true && permWriteFile == true && permWriteManagedRepo == true
+                                // && permChown == true && groupPerms.equals("rwr---"))
                                 testCases.add(testCase);
                             }
                         }
@@ -1989,7 +1990,7 @@ public class LightAdminRolesTest extends RolesTests {
                         testCase[PERM_CHGRP] = permChgrp;
                         testCase[PERM_CHOWN] = permChown;
                         testCase[GROUP_PERMS] = groupPerms;
-                        // DEBUG if (permChgrp == true && permChown == true)
+                        // DEBUG if (permChgrp == true && permChown == true && groupPerms.equals("rwr---"))
                         testCases.add(testCase);
                     }
                 }
@@ -2017,7 +2018,7 @@ public class LightAdminRolesTest extends RolesTests {
                     final Object[] testCase = new Object[index];
                     testCase[IS_PRIVILEGED] = isPrivileged;
                     testCase[GROUP_PERMS] = groupPerms;
-                    // DEBUG if (isPrivileged == true)
+                    // DEBUG if (isPrivileged == true && groupPerms.equals("rwr---"))
                     testCases.add(testCase);
                 }
             }
