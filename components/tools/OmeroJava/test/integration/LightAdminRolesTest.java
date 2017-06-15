@@ -657,7 +657,7 @@ public class LightAdminRolesTest extends RolesTests {
         /* Check that the value of canChown boolean matches chownPassingWhenNotSudoing
          * boolean in each case.*/
         Assert.assertEquals(getCurrentPermissions(image).canChown(), chownImagePassing);
-        /* Get inot correct group context and check all cases.*/
+        /* Get into correct group context and check all cases.*/
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         /* lightAdmin tries to chown the image.*/
         doChange(client, factory, Requests.chown().target(image).toUser(anotherUser.userId).build(), chownImagePassing);
