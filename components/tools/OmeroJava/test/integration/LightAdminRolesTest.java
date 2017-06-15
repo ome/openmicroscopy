@@ -523,7 +523,7 @@ public class LightAdminRolesTest extends RolesTests {
      * to sever necessary links for performing the chgrp. This is achieved by
      * having the image which is getting moved into a different group in a dataset
      * in the original group (the chgrp has to sever the DatasetImageLink to perform
-     * the move (chgrp). <tt>Chgrp</tt> privilege is sufficient also
+     * the move (chgrp)). <tt>Chgrp</tt> privilege is sufficient also
      * to move annotations (tag and file attachment are tested here).
      * @param isSudoing if to test a success of workflows where Sudoed in
      * @param permChgrp if to test a user who has the <tt>Chgrp</tt> privilege
