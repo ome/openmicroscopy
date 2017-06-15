@@ -754,6 +754,7 @@ public class LightAdminRolesTest extends RolesTests {
             List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
             originalFile = (OriginalFile) originalFileAndImage.get(0);
             image = (Image) originalFileAndImage.get(1);
+            Assert.assertTrue(importNotYourGroupExpectSuccess);
         } catch (ServerError se) {
             Assert.assertFalse(importNotYourGroupExpectSuccess);
         }
