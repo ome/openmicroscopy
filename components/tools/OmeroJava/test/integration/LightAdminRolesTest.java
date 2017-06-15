@@ -778,10 +778,9 @@ public class LightAdminRolesTest extends RolesTests {
         /* lightAdmin tries to change the ownership of the Dataset to normalUser */
         doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(),
                 createDatasetImportNotYourGroupAndChownExpectSuccess);
-        final List<RType> resultForLink = iQuery.projection(
-                "SELECT id FROM DatasetImageLink WHERE parent.id  = :id",
-                new ParametersI().addId(sentDat.getId())).get(0);
-        final long linkId = ((RLong) resultForLink.get(0)).getValue();
+        final DatasetImageLink link = (DatasetImageLink) iQuery.findByQuery(
+                "FROM DatasetImageLink WHERE parent.id = :id",
+                new ParametersI().addId(sentDat.getId()));
         /* Check that image, dataset and link are in the normalUser's group
          * and belong to normalUser in case the workflow succeeded.*/
         if (createDatasetImportNotYourGroupAndChownExpectSuccess) {
@@ -789,8 +788,8 @@ public class LightAdminRolesTest extends RolesTests {
             assertInGroup(image, normalUser.groupId);
             assertOwnedBy(sentDat, normalUser);
             assertInGroup(sentDat, normalUser.groupId);
-            assertOwnedBy((new DatasetImageLinkI(linkId, false)), normalUser);
-            assertInGroup((new DatasetImageLinkI(linkId, false)), normalUser.groupId);
+            assertOwnedBy(link, normalUser);
+            assertInGroup(link, normalUser.groupId);
             assertOwnedBy(originalFile, normalUser);
             assertInGroup(originalFile, normalUser.groupId);
         /* Check that the image, dataset and link still belongs
@@ -800,8 +799,8 @@ public class LightAdminRolesTest extends RolesTests {
             assertInGroup(image, normalUser.groupId);
             assertOwnedBy(sentDat, lightAdmin);
             assertInGroup(sentDat, normalUser.groupId);
-            assertOwnedBy((new DatasetImageLinkI(linkId, false)), lightAdmin);
-            assertInGroup((new DatasetImageLinkI(linkId, false)), normalUser.groupId);
+            assertOwnedBy(link, lightAdmin);
+            assertInGroup(link, normalUser.groupId);
         }
     }
 
