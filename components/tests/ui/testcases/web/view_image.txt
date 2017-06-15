@@ -60,7 +60,7 @@ Test Open Viewer
     Check Image Viewer                  ${imageName}
     # And jsTree
     Right Click Open With               ${nodeId}      Image viewer
-    Check Image Viewer                  ${imageName}
+    Check Image Viewer                  ${imageName}                ${dId}
 
 
 Test Prev Next Buttons
