@@ -1473,8 +1473,8 @@ public class LightAdminRolesTest extends RolesTests {
             Assert.assertEquals(currentScript, actualScript);
             Assert.assertFalse(isExpectSuccessDeleteOfficialScript);
         } catch (Ice.LocalException | ServerError se) {
-            /* Have to catch both types of exceptions because of
-             * RawFileStoreTest.testBadFileId behavior.*/
+            /* Have to catch both types of exceptions because
+             * {@link #RawFileStoreTest.testBadFileId, testBadFileId} is broken.*/
             Assert.assertTrue(isExpectSuccessDeleteOfficialScript);
         } finally {
             rfs.close();
