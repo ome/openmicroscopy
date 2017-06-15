@@ -1,0 +1,10 @@
+---
+- src: openmicroscopy.postgresql
+
+- src: openmicroscopy.omego
+
+- src: openmicroscopy.omero-server
+
+- src: openmicroscopy.omero-web
+
+- src: openmicroscopy.omero-user
