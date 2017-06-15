@@ -605,13 +605,13 @@ public class LightAdminRolesTest extends RolesTests {
      * Test that light admin can, having the <tt>Chown</tt> privilege,
      * transfer the data between two users (normalUser and anotherUser).
      * Test also that light admin, if sudoed, cannot transfer ownership,
-     * because light admin sudoes as a non-admin non-group owner user.
+     * because light admin sudoes as a non-admin non-group-owner user.
      * In case of private group the transfer of an Image severs the link between the Dataset and Image.
      * For this unlinking, only the Chown permissions are sufficient, no other permissions are necessary.
      * <tt>Chown</tt> privilege is sufficient also
      * to transfer ownership of annotations (tag and file attachment are tested here),
      * but just in case of private and read-only groups, which is in line with the
-     * general behaviour of the <tt>Chown</tt> command.
+     * general behavior of the <tt>Chown</tt> command.
      * @param isSudoing if to test a success of workflows where Sudoed in
      * @param permChown if to test a user who has the <tt>Chown</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
