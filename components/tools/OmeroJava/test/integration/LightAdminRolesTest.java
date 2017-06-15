@@ -1293,7 +1293,7 @@ public class LightAdminRolesTest extends RolesTests {
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         /* lightAdmin tries to create a fileAttachment in normalUser's group.*/
         FileAnnotation fileAnnotation = mmFactory.createFileAnnotation();
-        OriginalFile originalFile = new OriginalFileI();
+        OriginalFile originalFile;
         try {
             fileAnnotation = (FileAnnotation) iUpdate.saveAndReturnObject(fileAnnotation);
             originalFile = (OriginalFile) fileAnnotation.getFile();
