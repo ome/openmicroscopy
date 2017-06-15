@@ -19,8 +19,6 @@
 
 package integration;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,8 +42,8 @@ import omero.gateway.util.Requests;
 import omero.gateway.util.Requests.Delete2Builder;
 import omero.model.AdminPrivilege;
 import omero.model.AdminPrivilegeI;
+import omero.model.Annotation;
 import omero.model.Dataset;
-import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.Experimenter;
@@ -68,13 +66,13 @@ import omero.model.Pixels;
 import omero.model.Project;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
-import omero.model.ProjectI;
 import omero.model.RectangleI;
 import omero.model.RenderingDef;
-import omero.model.RenderingDefI;
 import omero.model.Roi;
 import omero.model.RoiI;
 import omero.model.Session;
+import omero.model.TagAnnotation;
+import omero.model.TagAnnotationI;
 import omero.model.enums.AdminPrivilegeChgrp;
 import omero.model.enums.AdminPrivilegeChown;
 import omero.model.enums.AdminPrivilegeDeleteOwned;
@@ -88,154 +86,23 @@ import omero.model.enums.AdminPrivilegeWriteManagedRepo;
 import omero.model.enums.AdminPrivilegeWriteOwned;
 import omero.model.enums.AdminPrivilegeWriteScriptRepo;
 import omero.sys.EventContext;
+import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import omero.sys.Principal;
-import omero.util.TempFileManager;
 
 import org.testng.Assert;
-import org.testng.SkipException;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 
 /**
  * Tests the concrete workflows of the light admins
  * @author p.walczysko@dundee.ac.uk
  * @since 5.4.0
  */
-public class LightAdminRolesTest extends AbstractServerImportTest {
-
-    private static final TempFileManager TEMPORARY_FILE_MANAGER = new TempFileManager(
-            "test-" + LightAdminRolesTest.class.getSimpleName());
-
-    private ImmutableSet<AdminPrivilege> allPrivileges = null;
-
-    private File fakeImageFile = null;
-
-    /**
-     * Populate the set of available light administrator privileges.
-     * @throws ServerError unexpected
-     */
-    @BeforeClass
-    public void populateAllPrivileges() throws ServerError {
-        final ImmutableSet.Builder<AdminPrivilege> privileges = ImmutableSet.builder();
-        for (final IObject privilege : factory.getTypesService().allEnumerations("AdminPrivilege")) {
-            privileges.add((AdminPrivilege) privilege);
-        }
-        allPrivileges = privileges.build();
-    }
-
-    /**
-     * Create a fake image file for use in import tests.
-     * @throws IOException unexpected
-     */
-    @BeforeClass
-    public void createFakeImageFile() throws IOException {
-        final File temporaryDirectory = TEMPORARY_FILE_MANAGER.createPath("images", null, true);
-        fakeImageFile = new File(temporaryDirectory, "image.fake");
-        fakeImageFile.createNewFile();
-    }
-
-    /**
-     * Assert that the given object is owned by the given owner.
-     * @param object a model object
-     * @param expectedOwner a user's event context
-     * @throws ServerError unexpected
-     */
-    private void assertOwnedBy(IObject object, EventContext expectedOwner) throws ServerError {
-        assertOwnedBy(Collections.singleton(object), expectedOwner);
-    }
-
-    /**
-     * Assert that the given objects are owned by the given owner.
-     * @param objects some model objects
-     * @param expectedOwner a user's event context
-     * @throws ServerError unexpected
-     */
-    private void assertOwnedBy(Collection<? extends IObject> objects, EventContext expectedOwner) throws ServerError {
-        if (objects.isEmpty()) {
-            throw new IllegalArgumentException("must assert about some objects");
-        }
-        for (final IObject object : objects) {
-            final String objectName = object.getClass().getName() + '[' + object.getId().getValue() + ']';
-            final String query = "SELECT details.owner.id FROM " + object.getClass().getSuperclass().getSimpleName() +
-                    " WHERE id = " + object.getId().getValue();
-            final List<List<RType>> results = iQuery.projection(query, null);
-            final long actualOwnerId = ((RLong) results.get(0).get(0)).getValue();
-            Assert.assertEquals(actualOwnerId, expectedOwner.userId, objectName);
-        }
-    }
-
-    /**
-     * Get the current permissions for the given object.
-     * @param object a model object previously retrieved from the server
-     * @return the permissions for the object in the current context
-     * @throws Exception 
-     */
-    private Permissions getCurrentPermissions(IObject object) throws Exception {
-        assertExists(object);
-        final String objectClass = object.getClass().getSuperclass().getSimpleName();
-        final long objectId = object.getId().getValue();
-        try {
-            final Map<String, String> allGroupsContext = ImmutableMap.of("omero.group", "-1");
-            final IObject objectRetrieved;
-            if (objectClass.endsWith("Link")) {
-                objectRetrieved = iQuery.findByQuery("FROM " + objectClass + " link JOIN FETCH link.child WHERE link.id = :id",
-                        new ParametersI().addId(objectId), allGroupsContext);
-            } else {
-                objectRetrieved = iQuery.get(objectClass, objectId, allGroupsContext);
-            }
-            return objectRetrieved.getDetails().getPermissions();
-        } catch (SecurityViolation sv) {
-            return new PermissionsI("------");
-        }
-    }
-
-    /**
-     * Create a link between a Project and a Dataset.
-     * @param project an OMERO Project
-     * @param dataset an OMERO Dataset
-     * @return the created link
-     * @throws ServerError if the query caused a server error
-     */
-    private ProjectDatasetLink linkProjectDataset(Project project, Dataset dataset) throws ServerError {
-        if (project.isLoaded() && project.getId() != null) {
-            project = (Project) project.proxy();
-        }
-        if (dataset.isLoaded() && dataset.getId() != null) {
-            dataset = (Dataset) dataset.proxy();
-        }
-
-        final ProjectDatasetLink link = new ProjectDatasetLinkI();
-        link.setParent(project);
-        link.setChild(dataset);
-        return (ProjectDatasetLink) iUpdate.saveAndReturnObject(link);
-    }
-
-    /**
-     * Create a link between a Dataset and an Image.
-     * @param dataset an OMERO Dataset
-     * @param image an OMERO Image
-     * @return the created link
-     * @throws ServerError if the query caused a server error
-     */
-    private DatasetImageLink linkDatasetImage(Dataset dataset, Image image) throws ServerError {
-        if (dataset.isLoaded() && dataset.getId() != null) {
-            dataset = (Dataset) dataset.proxy();
-        }
-        if (image.isLoaded() && image.getId() != null) {
-            image = (Image) image.proxy();
-        }
-
-        final DatasetImageLink link = new DatasetImageLinkI();
-        link.setParent(dataset);
-        link.setChild(image);
-        return (DatasetImageLink) iUpdate.saveAndReturnObject(link);
-    }
+public class LightAdminRolesTest extends RolesTests {
 
     /**
      * Create a light administrator, with a specific privilege, and log in as them.
@@ -279,20 +146,37 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     /**
      * Sudo to the given user.
      * @param target a user
-     * @return context for a session owned by the given user
      * @throws Exception if the sudo could not be performed
      */
-    private EventContext sudo(Experimenter target) throws Exception {
+    private void sudo(Experimenter target) throws Exception {
         if (!target.isLoaded()) {
             target = iAdmin.getExperimenter(target.getId().getValue());
         }
-        final Principal principal = new Principal();
-        principal.name = target.getOmeName().getValue();
-        final Session session = factory.getSessionService().createSessionWithTimeout(principal, 100 * 1000);
-        final omero.client client = newOmeroClient();
-        final String sessionUUID = session.getUuid().getValue();
-        client.createSession(sessionUUID, sessionUUID);
-        return init(client);
+        sudo(target.getOmeName().getValue());
+    }
+
+    /**
+     * Annotate image with tag and file annotation only and return the annotation objects
+     * including the original file of the file annotation and the links
+     * @param image the image to be annotated
+     * @return the list of the tag, original file of the file annotation, file annotation
+     * and the links between the tag and image and the file annotation and image
+     * @throws Exception
+     */
+    private List<IObject> annotateImageWithTagAndFile(Image image) throws Exception {
+        TagAnnotation tagAnnotation = new TagAnnotationI();
+        tagAnnotation = (TagAnnotation) iUpdate.saveAndReturnObject(tagAnnotation);
+        final ImageAnnotationLink tagAnnotationLink = linkImageAnnotation(image, tagAnnotation);
+        /* add a file attachment with original file to the imported image.*/
+        final ImageAnnotationLink fileAnnotationLink = linkImageAnnotation(image, mmFactory.createFileAnnotation());
+        /* link was saved in previous step with the whole graph, including fileAnnotation and original file */
+        final FileAnnotation fileAnnotation = (FileAnnotation) fileAnnotationLink.getChild();
+        final OriginalFile annotOriginalFile = fileAnnotation.getFile();
+        /* make a list of annotation objects in order to simplify checking of owner and group */
+        List<IObject> annotOriginalFileAnnotationTagAndLinks = new ArrayList<IObject>();
+        annotOriginalFileAnnotationTagAndLinks.addAll(Arrays.asList(annotOriginalFile, fileAnnotation, tagAnnotation,
+                tagAnnotationLink, fileAnnotationLink));
+        return annotOriginalFileAnnotationTagAndLinks;
     }
 
     /**
@@ -363,18 +247,9 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
          * the import into the just created Dataset.
          * Check thus that the light admin can import and write the original file
          * on behalf of the normalUser and into the group of normalUser */
-        final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
-        final List<List<RType>> result = iQuery.projection(
-                "SELECT id FROM OriginalFile WHERE name = :name ORDER BY id DESC LIMIT 1",
-                new ParametersI().add("name", imageName));
-        final long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
-        List<String> path = Collections.singletonList(fakeImageFile.getPath());
-        importFileset(path, path.size(), sentDat);
-        final OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
-                "FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
-                new ParametersI().addId(previousId).add("name", imageName));
-        assertOwnedBy(remoteFile, normalUser);
-        Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+        List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
+        OriginalFile originalFile = (OriginalFile) originalFileAndImage.get(0);
+        Image image = (Image) originalFileAndImage.get(1);
 
         /* check that the light admin when sudoed, can link the created Dataset
          * to the created Project, check the ownership of the links
@@ -391,14 +266,13 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
 
         /* Now check the ownership of image and links
          * between image and Dataset and Dataset and Project */
-        final long imageId = ((RLong) iQuery.projection(
-                "SELECT id FROM Image WHERE fileset IN "
-                + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
-                new ParametersI().addId(remoteFile.getId())).get(0).get(0)).getValue();
         final IObject imageDatasetLink = iQuery.findByQuery(
                 "FROM DatasetImageLink WHERE child.id = :id",
-                new ParametersI().addId(imageId));
-        assertOwnedBy(new ImageI(imageId, false), normalUser);
+                new ParametersI().addId(image.getId().getValue()));
+        assertInGroup(originalFile, normalUser.groupId);
+        assertOwnedBy(originalFile, normalUser);
+        assertInGroup(image, normalUser.groupId);
+        assertOwnedBy(image, normalUser);
         assertOwnedBy(imageDatasetLink, normalUser);
         assertOwnedBy(projectDatasetLink, normalUser);
     }
@@ -438,32 +312,15 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
        sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
        /* import an image for the normalUser into the normalUser's default group 
         * and target it into the created Dataset*/
-       final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
-       final List<List<RType>> result = iQuery.projection(
-               "SELECT id FROM OriginalFile WHERE name = :name ORDER BY id DESC LIMIT 1",
-               new ParametersI().add("name", imageName));
-       final long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
-       List<String> path = Collections.singletonList(fakeImageFile.getPath());
-       importFileset(path, path.size(), sentDat);
-       final List<RType> resultAfterImport = iQuery.projection(
-               "SELECT id, details.group.id FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
-               new ParametersI().addId(previousId).add("name", imageName)).get(0);
-       final long remoteFileId = ((RLong) resultAfterImport.get(0)).getValue();
-       final long remoteFileGroupId = ((RLong) resultAfterImport.get(1)).getValue();
-       assertOwnedBy((new OriginalFileI(remoteFileId, false)), normalUser);
-       Assert.assertEquals(remoteFileGroupId, normalUser.groupId);
+       List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
+       OriginalFile originalFile = (OriginalFile) originalFileAndImage.get(0);
+       Image image = (Image) originalFileAndImage.get(1);
+       assertOwnedBy(image, normalUser);
        /* link the Project and the Dataset */
-       ProjectDatasetLink link = linkProjectDataset(sentProj, sentDat);
-       Image image = (Image) iQuery.findByQuery(
-               "FROM Image WHERE fileset IN "
-               + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
-               new ParametersI().addId(remoteFileId));
+       ProjectDatasetLink projectDatasetLink = linkProjectDataset(sentProj, sentDat);
        IObject datasetImageLink = iQuery.findByQuery(
                "FROM DatasetImageLink WHERE child.id = :id",
                new ParametersI().addId(image.getId()));
-       IObject projectDatasetLink = iQuery.findByQuery(
-               "FROM ProjectDatasetLink WHERE id = :id",
-               new ParametersI().addId(link.getId()));
        /* take care of post-import workflows which do not use sudo */
        if (!isSudoing) {
            loginUser(lightAdmin);
@@ -488,51 +345,28 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
        Assert.assertEquals(getCurrentPermissions(sentProj).canDelete(), deletePassing);
        doChange(client, factory, Requests.delete().target(sentProj).build(), deletePassing);
 
-       /* Check one of the objects for non-existence after deletion. First, logging
-        * in as root, retrieve all the objects to check them later*/
-       logRootIntoGroup(normalUser.groupId);
-       OriginalFile retrievedRemoteFile = (OriginalFile) iQuery.findByQuery(
-               "FROM OriginalFile WHERE id = :id",
-               new ParametersI().addId(remoteFileId));
-       Image retrievedImage = (Image) iQuery.findByQuery(
-               "FROM Image WHERE fileset IN "
-               + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
-               new ParametersI().addId(remoteFileId));
-       Dataset retrievedDat = (Dataset) iQuery.findByQuery(
-               "FROM Dataset WHERE id = :id",
-               new ParametersI().addId(sentDat.getId()));
-       Project retrievedProj = (Project) iQuery.findByQuery(
-               "FROM Project WHERE id = :id",
-               new ParametersI().addId(sentProj.getId()));
-       DatasetImageLink retrievedDatasetImageLink = (DatasetImageLink) iQuery.findByQuery(
-               "FROM DatasetImageLink WHERE child.id = :id",
-               new ParametersI().addId(image.getId()));
-       ProjectDatasetLink retrievedProjectDatasetLink = (ProjectDatasetLink) iQuery.findByQuery(
-               "FROM ProjectDatasetLink WHERE child.id = :id",
-               new ParametersI().addId(sentDat.getId()));
        /* now check the existence/non-existence of the objects as appropriate */
        if (deletePassing) {
            /* successful delete expected */
-           Assert.assertNull(retrievedRemoteFile, "original file should be deleted");
-           Assert.assertNull(retrievedImage, "image should be deleted");
-           Assert.assertNull(retrievedDat, "dataset should be deleted");
-           Assert.assertNull(retrievedProj, "project should be deleted");
-           Assert.assertNull(retrievedDatasetImageLink, "Dat-Image link should be deleted");
-           Assert.assertNull(retrievedProjectDatasetLink, "Proj-Dat link should be deleted");
+           assertDoesNotExist(originalFile);
+           assertDoesNotExist(image);
+           assertDoesNotExist(sentDat);
+           assertDoesNotExist(sentProj);
+           assertDoesNotExist(datasetImageLink);
+           assertDoesNotExist(projectDatasetLink);
        } else {
-           /* no deletion should have been successful without permDeleteOwned */
-           Assert.assertNotNull(retrievedRemoteFile, "original file not deleted");
-           Assert.assertNotNull(retrievedImage, "image not deleted");
-           Assert.assertNotNull(retrievedDat, "dataset not deleted");
-           Assert.assertNotNull(retrievedProj, "project not deleted");
-           Assert.assertNotNull(retrievedDatasetImageLink, "Dat-Image link not deleted");
-           Assert.assertNotNull(retrievedProjectDatasetLink, "Proj-Dat link not deleted");
+           /* No deletion should have been successful when deletePassing boolean is false.*/
+           assertExists(originalFile);
+           assertExists(image);
+           assertExists(sentDat);
+           assertExists(sentProj);
+           assertExists(datasetImageLink);
+           assertExists(projectDatasetLink);
        }
    }
 
     /**
-     * Test that a light admin can
-     * edit the name of a project
+     * Test that a light admin can edit the name of a project
      * on behalf of another user solely with <tt>Sudo</tt> privilege
      * or without it, using permWriteOwned privilege
      * @param isSudoing if to test a success of workflows where Sudoed in
@@ -592,65 +426,47 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
 
     /**
      * Test that an ImporterAs can
-     * chgrp on behalf of another user solely with <tt>Sudo</tt> privilege
-     * only when this user is a member of both original and target groups
-     * Also test that light admin can, having the <tt>Chgrp</tt>
-     * privilege move another user's data into another group whether the
-     * owner of the data is member of target group or not.
+     * chgrp on behalf of another user in cases where the user (owner of the date)
+     * is a member of both groups. This can be done solely with <tt>Sudo</tt> privilege
+     * or with <tt>Chgrp</tt> privilege.
      * Also tests the ability of the <tt>Chgrp</tt> privilege and chgrp command
      * to sever necessary links for performing the chgrp. This is achieved by
      * having the image which is getting moved into a different group in a dataset
      * in the original group (the chgrp has to sever the DatasetImageLink to perform
-     * the move (chgrp)).
+     * the move (chgrp)). <tt>Chgrp</tt> privilege is sufficient also
+     * to move annotations (tag and file attachment are tested here).
      * @param isSudoing if to test a success of workflows where Sudoed in
      * @param permChgrp if to test a user who has the <tt>Chgrp</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isSudoing and Chgrp privileges cases")
-    public void testChgrp(boolean isSudoing, boolean permChgrp,
-            String groupPermissions) throws Exception {
+    public void testChgrp(boolean isSudoing, boolean permChgrp, String groupPermissions)
+            throws Exception {
         /* Set up a user and three groups, the user being a member of
          * two of the groups.
          */
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         /* Group where the user is a member */
         final long normalUsersOtherGroupId = newGroupAddUser(groupPermissions, normalUser.userId, false).getId().getValue();
-        /* Group where the user is not member */
-        final long anotherGroupId = newUserAndGroup(groupPermissions).groupId;
         /* Define cases:
-         * When data owner is not member of the target group,
-         * Chgrp action passes only when light admin has Chgrp permission
-         * and is not Sudoing (Sudoing can be thought of as destroyer of the
-         * privileges, because it forces the permissions of the Sudoed-as user
-         * onto the light admin).*/
-        boolean chgrpNoSudoExpectSuccessAnyGroup = !isSudoing && permChgrp;
         /* When data owner is member of the target group,
          * Chgrp action passes also when light admin is
-         * Sudoed as the data owner */
-        boolean isExpectSuccessInMemberGroup = chgrpNoSudoExpectSuccessAnyGroup || isSudoing;
+         * Sudoed as the data owner or when Chgrp permission is given. These
+         * permissions should be also sufficient to move all annotations on the image,
+         * which are unique on the image.*/
+        boolean isExpectSuccessInMemberGroup = permChgrp || isSudoing;
         /* create a Dataset as the normalUser and import into it */
         loginUser(normalUser);
         Dataset dat = mmFactory.simpleDataset();
         Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
-        final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
-        final List<List<RType>> result = iQuery.projection(
-                "SELECT id FROM OriginalFile WHERE name = :name ORDER BY id DESC LIMIT 1",
-                new ParametersI().add("name", imageName));
-        final long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
-        List<String> path = Collections.singletonList(fakeImageFile.getPath());
-        importFileset(path, path.size(), sentDat);
-        final List<RType> resultAfterImport = iQuery.projection(
-                "SELECT id, details.group.id FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
-                new ParametersI().addId(previousId).add("name", imageName)).get(0);
-        final long remoteFileId = ((RLong) resultAfterImport.get(0)).getValue();
-        long remoteFileGroupId = ((RLong) resultAfterImport.get(1)).getValue();
-        assertOwnedBy((new OriginalFileI(remoteFileId, false)), normalUser);
-        Assert.assertEquals(remoteFileGroupId, normalUser.groupId);
-        Image image = (Image) iQuery.findByQuery(
-                "FROM Image WHERE fileset IN "
-                + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
-                new ParametersI().addId(remoteFileId));
+        List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
+        OriginalFile originalFile = (OriginalFile) originalFileAndImage.get(0);
+        Image image = (Image) originalFileAndImage.get(1);
+
+        /* Annotate the imported image with Tag and file attachment */
+        List<IObject> annotOriginalFileAnnotationTagAndLinks = annotateImageWithTagAndFile(image);
+
         /* set up the light admin's permissions for this test */
         List<String> permissions = new ArrayList<String>();
         permissions.add(AdminPrivilegeSudo.value);
@@ -665,7 +481,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         }
         /*in order to find the image in whatever group, get context with group
          * set to -1 (=all groups) */
-        client.getImplicitContext().put("omero.group", "-1");
+        mergeIntoContext(client.getImplicitContext(), ALL_GROUPS_CONTEXT);
         /* try to move the image into another group of the normalUser
          * which should succeed if sudoing and also in case
          * the light admin has Chgrp permissions
@@ -674,51 +490,110 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
          * isExpectSuccessInMemberGroup boolean value */
         Assert.assertEquals(getCurrentPermissions(image).canChgrp(), isExpectSuccessInMemberGroup);
         doChange(client, factory, Requests.chgrp().target(image).toGroup(normalUsersOtherGroupId).build(), isExpectSuccessInMemberGroup);
-        /* note in which group the image and the original file are now */
-        long afterFirstChgrpImageGroupId = ((RLong) iQuery.projection(
-                "SELECT details.group.id FROM Image i WHERE i.id = :id",
-                new ParametersI().addId(image.getId())).get(0).get(0)).getValue();
-        remoteFileGroupId = ((RLong) iQuery.projection(
-                "SELECT details.group.id FROM OriginalFile o WHERE o.id = :id",
-                new ParametersI().addId(remoteFileId)).get(0).get(0)).getValue();
         if (isExpectSuccessInMemberGroup) {
-            Assert.assertEquals(afterFirstChgrpImageGroupId, normalUsersOtherGroupId);
-            Assert.assertEquals(remoteFileGroupId, normalUsersOtherGroupId);
+            assertInGroup(image, normalUsersOtherGroupId);
+            assertInGroup(originalFile, normalUsersOtherGroupId);
+            /* Also, check the annotations on the image changed the group as expected */
+            assertInGroup(annotOriginalFileAnnotationTagAndLinks, normalUsersOtherGroupId);
         } else {
-            Assert.assertEquals(afterFirstChgrpImageGroupId, normalUser.groupId);
-            Assert.assertEquals(remoteFileGroupId, normalUser.groupId);
+            assertInGroup(image, normalUser.groupId);
+            assertInGroup(originalFile, normalUser.groupId);
+            /* neither the image nor the annotations were moved */
+            assertInGroup(annotOriginalFileAnnotationTagAndLinks, normalUser.groupId);
         }
         /* in any case, the image should still belong to normalUser */
         assertOwnedBy(image, normalUser);
+    }
+
+    /**
+     * Tests that light admin can, having the <tt>Chgrp</tt>
+     * privilege move another user's data into another group where the
+     * owner of the data is not member.
+     * <tt>Sudo</tt> privilege and being sudoed should not be sufficient,
+     * and also, when being sudoed, the cancellation of the <tt>Chgrp</tt> privilege
+     * by being sudoed as normalUser causes that the move of the image fails.
+     * Also tests the ability of the <tt>Chgrp</tt> privilege and chgrp command
+     * to sever necessary links for performing the chgrp. This is achieved by
+     * having the image which is getting moved into a different group in a dataset
+     * in the original group (the chgrp has to sever the DatasetImageLink to perform
+     * the move (chgrp). <tt>Chgrp</tt> privilege is sufficient also
+     * to move annotations (tag and file attachment are tested here).
+     * @param isSudoing if to test a success of workflows where Sudoed in
+     * @param permChgrp if to test a user who has the <tt>Chgrp</tt> privilege
+     * @param groupPermissions if to test the effect of group permission level
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "isSudoing and Chgrp privileges cases")
+    public void testChgrpNonMember(boolean isSudoing, boolean permChgrp, String groupPermissions)
+            throws Exception {
+        /* Set up a user and three groups, the user being a member of
+         * two of the groups.
+         */
+        final EventContext normalUser = newUserAndGroup(groupPermissions);
+        /* Group where the user is not member */
+        final long anotherGroupId = newUserAndGroup(groupPermissions).groupId;
+        /* Define cases:
+         * When data owner is not member of the target group,
+         * Chgrp action passes only when light admin has Chgrp permission
+         * and is not Sudoing (Sudoing can be thought of as destroyer of the
+         * privileges, because it forces the permissions of the Sudoed-as user
+         * onto the light admin). These permissions should be also sufficient
+         * to move all annotations on the image, which are unique on the image.*/
+        boolean chgrpNonMemberExpectSuccess = !isSudoing && permChgrp;
+        /* define cases where canChgrp on the image is expected to be true */
+        final boolean canChgrpExpectedTrue = permChgrp || isSudoing;
+        /* create a Dataset as the normalUser and import into it */
+        loginUser(normalUser);
+        Dataset dat = mmFactory.simpleDataset();
+        Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
+        List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
+        OriginalFile originalFile = (OriginalFile) originalFileAndImage.get(0);
+        Image image = (Image) originalFileAndImage.get(1);
+
+        /* Annotate the imported image with Tag and file attachment */
+        List<IObject> annotOriginalFileAnnotationTagAndLinks = annotateImageWithTagAndFile(image);
+
+        /* set up the light admin's permissions for this test */
+        List<String> permissions = new ArrayList<String>();
+        permissions.add(AdminPrivilegeSudo.value);
+        if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);
+        final EventContext lightAdmin;
+        lightAdmin = loginNewAdmin(true, permissions);
+        sudo(new ExperimenterI(normalUser.userId, false));
+
+        /* take care of workflows which do not use sudo */
+        if (!isSudoing) {
+            loginUser(lightAdmin);
+        }
+        /*in order to find the image in whatever group, get context with group
+         * set to -1 (=all groups) */
+        mergeIntoContext(client.getImplicitContext(), ALL_GROUPS_CONTEXT);
 
         /* try to move into another group the normalUser
          * is not a member of, which should fail in all cases
          * except the light admin has Chgrp permission and is not sudoing
          * (i.e. chgrpNoSudoExpectSuccessAnyGroup is true). Also check that
          * the canChgrp boolean delivers true in accordance with the
-         * isExpectSuccessInMemberGroup boolean value. Note that the
+         * canChgrpExpectedTrue boolean value. Note that the
          * canChgrp boolean is true in case the object can be moved into
          * SOME group, and thus it cannot match (in cases where light admin
-         * is sudoed in) with the chgrpNoSudoExpectSuccessAnyGroup boolean.*/
-        Assert.assertEquals(getCurrentPermissions(image).canChgrp(), isExpectSuccessInMemberGroup);
+         * is sudoed in) with the chgrpNonMemberExpectSuccess boolean.*/
+        Assert.assertEquals(getCurrentPermissions(image).canChgrp(), canChgrpExpectedTrue);
         doChange(client, factory, Requests.chgrp().target(image).toGroup(anotherGroupId).build(),
-                chgrpNoSudoExpectSuccessAnyGroup);
-        long afterSecondChgrpImageGroupId = ((RLong) iQuery.projection(
-                "SELECT details.group.id FROM Image i WHERE i.id = :id",
-                new ParametersI().addId(image.getId())).get(0).get(0)).getValue();
-        remoteFileGroupId = ((RLong) iQuery.projection(
-                "SELECT details.group.id FROM OriginalFile o WHERE o.id = :id",
-                new ParametersI().addId(remoteFileId)).get(0).get(0)).getValue();
-        if (chgrpNoSudoExpectSuccessAnyGroup) {
-            /* check that the image moved to another group */
-            Assert.assertEquals(afterSecondChgrpImageGroupId, anotherGroupId);
-            Assert.assertEquals(afterSecondChgrpImageGroupId, anotherGroupId);
+                chgrpNonMemberExpectSuccess);
+        if (chgrpNonMemberExpectSuccess) {
+            /* check that the image and its original file moved to another group */
+            assertInGroup(image, anotherGroupId);
+            assertInGroup(originalFile, anotherGroupId);
+            /* check the annotations on the image changed the group as expected */
+            assertInGroup(annotOriginalFileAnnotationTagAndLinks, anotherGroupId);
         } else {
             /* check that the image, after this second Chgrp attempt,
-             * is still in its original group
-             * (stored in the afterFirstChgrpImageGroupId variable) */
-            Assert.assertEquals(afterSecondChgrpImageGroupId, afterFirstChgrpImageGroupId);
-            Assert.assertEquals(afterSecondChgrpImageGroupId, afterFirstChgrpImageGroupId);
+             * is still in its original group */
+            assertInGroup(image, normalUser.groupId);
+            assertInGroup(originalFile, normalUser.groupId);
+            /* neither the image nor the annotations were moved */
+            assertInGroup(annotOriginalFileAnnotationTagAndLinks, normalUser.groupId);
         }
         /* in any case, the image should still belong to normalUser */
         assertOwnedBy(image, normalUser);
@@ -731,15 +606,25 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      * the <tt>Chown</tt> privilege.
      * Test is in case of private group severing the link between the Dataset and Image.
      * For this, only the Chown permissions are sufficient, no other permissions are necessary.
+     * <tt>Chown</tt> privilege is sufficient also
+     * to transfer ownership of annotations (tag and file attachment are tested here),
+     * but just in case of private and read-only groups, which is in line with the
+     * general behaviour of the <tt>Chown</tt> command.
      * @param isSudoing if to test a success of workflows where Sudoed in
      * @param permChown if to test a user who has the <tt>Chown</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isSudoing and Chown privileges cases")
-    public void testChown(boolean isSudoing, boolean permChown,
-            String groupPermissions) throws Exception {
-        /* define the conditions for the chown passing (when not sudoing) */
+    public void testChown(boolean isSudoing, boolean permChown, String groupPermissions)
+            throws Exception {
+        /* define the conditions for the chown passing for annotations on chowned image,
+         * when not sudoing, and permChown is available, also, in groups with higher
+         * permissions the chown of annotations is not expected to proceed on chowning
+         * the annotated image */
+        final boolean annotationsChownExpectSuccess = permChown &&
+                (groupPermissions.equals("rw----") || groupPermissions.equals("rwr---"));
+        /* define the conditions for the chown of the image itself passing */
         final boolean chownPassingWhenNotSudoing = permChown;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         final EventContext anotherUser = newUserAndGroup(groupPermissions);
@@ -747,29 +632,17 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         loginUser(normalUser);
         Dataset dat = mmFactory.simpleDataset();
         Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
-        final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
-        final List<List<RType>> result = iQuery.projection(
-                "SELECT id FROM OriginalFile WHERE name = :name ORDER BY id DESC LIMIT 1",
-                new ParametersI().add("name", imageName));
-        final long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
-        List<String> path = Collections.singletonList(fakeImageFile.getPath());
-        importFileset(path, path.size(), sentDat);
-        final List<RType> resultAfterImport = iQuery.projection(
-                "SELECT id, details.group.id FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
-                new ParametersI().addId(previousId).add("name", imageName)).get(0);
-        final long remoteFileId = ((RLong) resultAfterImport.get(0)).getValue();
-        long remoteFileGroupId = ((RLong) resultAfterImport.get(1)).getValue();
-        assertOwnedBy((new OriginalFileI(remoteFileId, false)), normalUser);
-        Assert.assertEquals(remoteFileGroupId, normalUser.groupId);
-        Image image = (Image) iQuery.findByQuery(
-                "FROM Image WHERE fileset IN "
-                + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
-                new ParametersI().addId(remoteFileId));
+        List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
+        OriginalFile originalFile = (OriginalFile) originalFileAndImage.get(0);
+        Image image = (Image) originalFileAndImage.get(1);
+
+        /* Annotate the imported image with Tag and file attachment */
+        List<IObject> annotOriginalFileAnnotationTagAndLinks = annotateImageWithTagAndFile(image);
+
         /* set up the basic permissions for this test */
         List<String> permissions = new ArrayList<String>();
         permissions.add(AdminPrivilegeSudo.value);
         if (permChown) permissions.add(AdminPrivilegeChown.value);
-
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(true, permissions);
         sudo(new ExperimenterI(normalUser.userId, false));
@@ -786,33 +659,46 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         if (isSudoing) {
             Assert.assertFalse(getCurrentPermissions(image).canChown());
             doChange(client, factory, Requests.chown().target(image).toUser(anotherUser.userId).build(), false);
-            long imageGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM Image i WHERE i.id = :id",
-                    new ParametersI().addId(image.getId())).get(0).get(0)).getValue();
-            Assert.assertEquals(imageGroupId, normalUser.groupId);
             assertOwnedBy(image, normalUser);
-            assertOwnedBy((new OriginalFileI(remoteFileId, false)), normalUser);
-        } else {
+            assertOwnedBy(originalFile, normalUser);
+            assertOwnedBy(annotOriginalFileAnnotationTagAndLinks, normalUser);
+        } else if (chownPassingWhenNotSudoing && annotationsChownExpectSuccess) {
             /* chowning the image NOT being sudoed,
              * should pass only in case you have Chown
              * privilege, captured in "chownPassingWhenNotSudoing" boolean.
              * Also check that the value of canChown boolean matches chownPassingWhenNotSudoing
              * boolean in such case.*/
-            Assert.assertEquals(getCurrentPermissions(image).canChown(), chownPassingWhenNotSudoing);
+            Assert.assertEquals(getCurrentPermissions(image).canChown(), true);
             doChange(client, factory, Requests.chown().target(image).toUser(anotherUser.userId).build(), chownPassingWhenNotSudoing);
-            if (chownPassingWhenNotSudoing) {
-                assertOwnedBy(image, anotherUser);
-                assertOwnedBy((new OriginalFileI(remoteFileId, false)), anotherUser);
-            } else {
-                assertOwnedBy(image, normalUser);
-                assertOwnedBy((new OriginalFileI(remoteFileId, false)), normalUser);
-            }
-            /* in any case, the image must be in the right group */
-            long imageGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM Image i WHERE i.id = :id",
-                    new ParametersI().addId(image.getId())).get(0).get(0)).getValue();
-            Assert.assertEquals(imageGroupId, normalUser.groupId);
+            assertOwnedBy(image, anotherUser);
+            assertOwnedBy(originalFile, anotherUser);
+            /* for the annotations on the image and their links,
+             * the chown of the image will only chown them if also
+             * groupPermissions are private or read-only (captured in boolean
+             * annotationsChownExpectSuccess) */
+            assertOwnedBy(annotOriginalFileAnnotationTagAndLinks, anotherUser);
+        } else if (chownPassingWhenNotSudoing && !annotationsChownExpectSuccess){
+            Assert.assertEquals(getCurrentPermissions(image).canChown(), true);
+            doChange(client, factory, Requests.chown().target(image).toUser(anotherUser.userId).build(), chownPassingWhenNotSudoing);
+            assertOwnedBy(image, anotherUser);
+            assertOwnedBy(originalFile, anotherUser);
+            /* in read-annotate and read-write groups the
+             * annotations will remain attached to the image
+             * of anotherUser, but still belongs to normalUser
+             */
+            assertOwnedBy(annotOriginalFileAnnotationTagAndLinks, normalUser);
+        } else {
+            /* the chown will fail, as the chownPassingWhenNotSudoing is false,
+             * and the light admin is not sudoing in this case. All objects still
+             * belong to normalUser. */
+            Assert.assertEquals(getCurrentPermissions(image).canChown(), false);
+            doChange(client, factory, Requests.chown().target(image).toUser(anotherUser.userId).build(), chownPassingWhenNotSudoing);
+            assertOwnedBy(image, normalUser);
+            assertOwnedBy(originalFile, normalUser);
+            assertOwnedBy(annotOriginalFileAnnotationTagAndLinks, normalUser);
         }
+            /* in any case, the image must be in the right group */
+            assertInGroup(image, normalUser.groupId);
     }
 
     /**
@@ -864,107 +750,73 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         Dataset dat = mmFactory.simpleDataset();
         Dataset sentDat = null;
-        if (createDatasetExpectSuccess) {/* you are allowed to create the dataset only
-        with sufficient permissions, which are captured in createDatasetExpectSuccess.*/
+        /* lightAdmin is allowed to create the dataset only
+         * with sufficient permissions, which are captured
+         * in createDatasetExpectSuccess boolean.*/
+        try {
             sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
+            Assert.assertTrue(createDatasetExpectSuccess);
+        } catch (ServerError se) {
+            Assert.assertFalse(createDatasetExpectSuccess);
         }
         /* import an image into the created Dataset */
-        final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
-        List<List<RType>> result = iQuery.projection(
-                "SELECT id FROM OriginalFile WHERE name = :name ORDER BY id DESC LIMIT 1",
-                new ParametersI().add("name", imageName));
-        final long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
+        OriginalFile originalFile = null;
+        Image image = null;
         try { /* only succeeds if permissions are sufficient or more */
-            List<String> path = Collections.singletonList(fakeImageFile.getPath());
-            importFileset(path, path.size(), sentDat);
-            Assert.assertTrue(importNotYourGroupExpectSuccess);
+            List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
+            originalFile = (OriginalFile) originalFileAndImage.get(0);
+            image = (Image) originalFileAndImage.get(1);
         } catch (ServerError se) { /* fails if permissions are insufficient */
             Assert.assertFalse(importNotYourGroupExpectSuccess);
         }
-        OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
-                "FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
-                new ParametersI().addId(previousId).add("name", imageName));
         if (importNotYourGroupExpectSuccess) {
-            assertOwnedBy(remoteFile, lightAdmin);
-            Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), normalUser.groupId);
-        } else {
-            Assert.assertNull(remoteFile, "if import failed, the remoteFile should be null");
-        }
-        /* check that also the image corresponding to the original file is in the right group */
-        Image image = null;
-        if (remoteFile != null) {
-            image = (Image) iQuery.findByQuery("FROM Image WHERE fileset IN "
-                    + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
-                    new ParametersI().addId(remoteFile.getId()));
-        }
-        if (importNotYourGroupExpectSuccess) {
+            assertOwnedBy(originalFile, lightAdmin);
+            assertInGroup(originalFile, normalUser.groupId);
             assertOwnedBy(image, lightAdmin);
-            Assert.assertEquals(image.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+            assertInGroup(image, normalUser.groupId);
         } else {
+            Assert.assertNull(originalFile, "if import failed, the remoteFile should be null");
             Assert.assertNull(image, "if import failed, the image should be null");
             /* jump out of the test, the second part of the test is interesting only
              * if the image exists
              */
             return;
         }
+
         /* now, having the image linked to the dataset in the group of normalUser already,
          * try to change the ownership of the dataset to the normalUser */
         /* Chowning the dataset should fail in case you have not all of
          * Chown & WriteOwned & WriteFile permissions which are
          * captured in the boolean importNotYourGroupAndChownExpectSuccess */
+        /* Also check that the canChown value on the dataset is true in these cases.*/
+        Assert.assertEquals(getCurrentPermissions(sentDat).canChown(),
+                createDatasetImportNotYourGroupAndChownExpectSuccess);
+        doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(),
+                createDatasetImportNotYourGroupAndChownExpectSuccess);
+        final List<RType> resultForLink = iQuery.projection(
+                "SELECT id FROM DatasetImageLink WHERE parent.id  = :id",
+                new ParametersI().addId(sentDat.getId())).get(0);
+        final long linkId = ((RLong) resultForLink.get(0)).getValue();
         if (createDatasetImportNotYourGroupAndChownExpectSuccess) {
-            /* Also check that the canChown value on the dataset is true in these cases.*/
-            Assert.assertTrue(getCurrentPermissions(sentDat).canChown());
-            doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(), true);
-            final long remoteFileGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM OriginalFile o WHERE o.id = :id",
-                    new ParametersI().addId(remoteFile.getId())).get(0).get(0)).getValue();
-            final long imageGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM Image i WHERE i.id = :id",
-                    new ParametersI().addId(image.getId())).get(0).get(0)).getValue();
-            final long datasetGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM Dataset d WHERE d.id = :id",
-                    new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
-            final List<RType> resultForLink = iQuery.projection(
-                    "SELECT id, details.group.id FROM DatasetImageLink WHERE parent.id  = :id",
-                    new ParametersI().addId(sentDat.getId())).get(0);
-            final long linkId = ((RLong) resultForLink.get(0)).getValue();
-            final long linkGroupId = ((RLong) resultForLink.get(1)).getValue();
-            /* image, dataset and link are in the normalUser's group and belong to normalUser */
+            /* Check that image, dataset and link are in the normalUser's group
+             * and belong to normalUser */
             assertOwnedBy(image, normalUser);
-            Assert.assertEquals(imageGroupId, normalUser.groupId);
+            assertInGroup(image, normalUser.groupId);
             assertOwnedBy(sentDat, normalUser);
-            Assert.assertEquals(datasetGroupId, normalUser.groupId);
+            assertInGroup(sentDat, normalUser.groupId);
             assertOwnedBy((new DatasetImageLinkI(linkId, false)), normalUser);
-            Assert.assertEquals(linkGroupId, normalUser.groupId);
-            assertOwnedBy(remoteFile, normalUser);
-            Assert.assertEquals(remoteFileGroupId, normalUser.groupId);
+            assertInGroup((new DatasetImageLinkI(linkId, false)), normalUser.groupId);
+            assertOwnedBy(originalFile, normalUser);
+            assertInGroup(originalFile, normalUser.groupId);
         } else {
-            /* Also check that the canChown value on the dataset is false in these cases.*/
-            Assert.assertFalse(getCurrentPermissions(sentDat).canChown());
-            doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(), false);
-            final long remoteFileGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM OriginalFile o WHERE o.id = :id",
-                    new ParametersI().addId(remoteFile.getId())).get(0).get(0)).getValue();
-            final long imageGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM Image i WHERE i.id = :id",
-                    new ParametersI().addId(image.getId())).get(0).get(0)).getValue();
-            final long datasetGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM Dataset d WHERE d.id = :id",
-                    new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
-            final List<RType> resultForLink = iQuery.projection(
-                    "SELECT id, details.group.id FROM DatasetImageLink WHERE parent.id  = :id",
-                    new ParametersI().addId(sentDat.getId())).get(0);
-            final long linkId = ((RLong) resultForLink.get(0)).getValue();
-            final long linkGroupId = ((RLong) resultForLink.get(1)).getValue();
             /* check that the image, dataset and link still belongs
              * to the light admin as the chown failed, but are in the group of normalUser */
             assertOwnedBy(image, lightAdmin);
-            Assert.assertEquals(imageGroupId, normalUser.groupId);
+            assertInGroup(image, normalUser.groupId);
             assertOwnedBy(sentDat, lightAdmin);
-            Assert.assertEquals(datasetGroupId, normalUser.groupId);
+            assertInGroup(sentDat, normalUser.groupId);
             assertOwnedBy((new DatasetImageLinkI(linkId, false)), lightAdmin);
-            Assert.assertEquals(linkGroupId, normalUser.groupId);
+            assertInGroup((new DatasetImageLinkI(linkId, false)), normalUser.groupId);
         }
     }
 
@@ -1096,34 +948,21 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         Dataset dat = mmFactory.simpleDataset();
         Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
         /* import an image into the created Dataset */
-        final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
-        List<List<RType>> result = iQuery.projection(
-                "SELECT id FROM OriginalFile WHERE name = :name ORDER BY id DESC LIMIT 1",
-                new ParametersI().add("name", imageName));
-        final long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
-        try { /* expected */
-            List<String> path = Collections.singletonList(fakeImageFile.getPath());
-            importFileset(path, path.size(), sentDat);
-        } catch (ServerError se) { /* not expected */}
-        OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
-                "FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
-                new ParametersI().addId(previousId).add("name", imageName));
-        assertOwnedBy(remoteFile, lightAdmin);
-        Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), lightAdmin.groupId);
-        /* check that also the image corresponding to the original file is in the right group */
-        Image image = null;
-        image = (Image) iQuery.findByQuery("FROM Image WHERE fileset IN "
-                + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
-                new ParametersI().addId(remoteFile.getId()));
+        List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
+        OriginalFile originalFile = (OriginalFile) originalFileAndImage.get(0);
+        Image image = (Image) originalFileAndImage.get(1);
+        /* check that originalFile and the image
+         * corresponding to the original file are in the right group */
+        assertOwnedBy(originalFile, lightAdmin);
+        assertInGroup(originalFile, lightAdmin.groupId);
         assertOwnedBy(image, lightAdmin);
-        Assert.assertEquals(image.getDetails().getGroup().getId().getValue(), lightAdmin.groupId);
+        assertInGroup(image, lightAdmin.groupId);
 
         /* now try to move the dataset into the group of the user */
-        long imageGroupId = image.getDetails().getGroup().getId().getValue();
-        /*in order to find the image in whatever group, get context with group
+        /* in order to find the image in whatever group, get context with group
          * set to -1 (=all groups)
          */
-        client.getImplicitContext().put("omero.group", "-1");
+        mergeIntoContext(client.getImplicitContext(), ALL_GROUPS_CONTEXT);
         /* try to move the dataset (and with it the linked image)
          * from light admin's default group
          * into the default group of the normalUser
@@ -1136,161 +975,79 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
          * and thus the canChgrp must be "true".*/
         Assert.assertTrue(getCurrentPermissions(sentDat).canChgrp());
 
-        /* retrieve again the image, dataset and link */
-        long datasetGroupId =((RLong) iQuery.projection(
-                "SELECT details.group.id FROM Dataset d WHERE d.id = :id",
-                new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
-        long datasetImageLinkGroupId = ((RLong) iQuery.projection(
-                "SELECT details.group.id FROM DatasetImageLink WHERE parent.id = :id",
-                new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
-        long remoteFileGroupId = ((RLong) iQuery.projection(
-                "SELECT details.group.id FROM OriginalFile o WHERE o.id = :id",
-                new ParametersI().addId(remoteFile.getId())).get(0).get(0)).getValue();
-        /* note in which group the image now is now */
-        imageGroupId = ((RLong) iQuery.projection(
-                "SELECT details.group.id FROM Image i WHERE i.id = :id",
-                new ParametersI().addId(image.getId())).get(0).get(0)).getValue();
         /* check that the image, dataset, and their link was moved too if the permissions
          * were sufficient */
+        final DatasetImageLink datasetImageLink = (DatasetImageLink) iQuery.findByQuery(
+                "FROM DatasetImageLink WHERE parent.id = :id",
+                new ParametersI().addId(sentDat.getId()));
         if (permChgrp) {
-            Assert.assertEquals(remoteFileGroupId, normalUser.groupId);
-            Assert.assertEquals(imageGroupId, normalUser.groupId);
-            Assert.assertEquals(datasetGroupId, normalUser.groupId);
-            Assert.assertEquals(datasetImageLinkGroupId, normalUser.groupId);
+            assertInGroup(originalFile, normalUser.groupId);
+            assertInGroup(image, normalUser.groupId);
+            assertInGroup(sentDat, normalUser.groupId);
+            assertInGroup(datasetImageLink, normalUser.groupId);
         /* check that the image, dataset and their link were not moved if
          * the permissions were not sufficient
          */
         } else {
-            Assert.assertEquals(remoteFileGroupId, lightAdmin.groupId);
-            Assert.assertEquals(imageGroupId, lightAdmin.groupId);
-            Assert.assertEquals(datasetGroupId, lightAdmin.groupId);
-            Assert.assertEquals(datasetImageLinkGroupId, lightAdmin.groupId);
+            assertInGroup(originalFile, lightAdmin.groupId);
+            assertInGroup(image, lightAdmin.groupId);
+            assertInGroup(sentDat, lightAdmin.groupId);
+            assertInGroup(datasetImageLink, lightAdmin.groupId);
         }
         /* now, having moved the dataset, image, original file and link in the group of normalUser,
-         * try to change the ownership of the dataset to the normalUser */
-        /* Chowning the dataset should fail in case you have not both of
-         * isAdmin & Chown permissions which are
-         * captured in the boolean importYourGroupAndChgrpAndChownExpectSuccess.
-         * Additionally, in this boolean is permChgrp, which was necessary for the
-         * previous step of moving the data into normalUser's group.
+         * try to change the ownership of the dataset to the normalUser.
+         * Chowning the dataset should fail in case you have not Chown permissions.
          * A successful chowning of the dataset will chown the linked image
-         * and the link too.*/
+         * and the link too. Also check that the canChown boolean on the Dataset must be in
+         * sync with the permChown.*/
+        Assert.assertEquals(getCurrentPermissions(sentDat).canChown(), permChown);
+        doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(), permChown);
+        /* boolean importYourGroupAndChgrpAndChownExpectSuccess
+         * captures permChown and permChgrp. Check the objects ownership and groups.*/
         if (importYourGroupAndChgrpAndChownExpectSuccess) {/* whole workflow2 succeeded */
-            /* Check the value of canChown on the dataset is true in this case.*/
-            Assert.assertTrue(getCurrentPermissions(sentDat).canChown());
-            doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(), true);
-            remoteFileGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM OriginalFile o WHERE o.id = :id",
-                    new ParametersI().addId(remoteFile.getId())).get(0).get(0)).getValue();
-            imageGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM Image i WHERE i.id = :id",
-                    new ParametersI().addId(image.getId())).get(0).get(0)).getValue();
-            datasetGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM Dataset d WHERE d.id = :id",
-                    new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
-            long datasetImageLinkId = ((RLong) iQuery.projection(
-                    "SELECT id FROM DatasetImageLink WHERE parent.id = :id",
-                    new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
-            datasetImageLinkGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM DatasetImageLink WHERE parent.id = :id",
-                    new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
             /* image, dataset and link are in the normalUser's group and belong to normalUser */
-            assertOwnedBy(remoteFile, normalUser);
-            Assert.assertEquals(remoteFileGroupId, normalUser.groupId);
+            assertOwnedBy(originalFile, normalUser);
+            assertInGroup(originalFile, normalUser.groupId);
             assertOwnedBy(image, normalUser);
-            Assert.assertEquals(imageGroupId, normalUser.groupId);
+            assertInGroup(image, normalUser.groupId);
             assertOwnedBy(sentDat, normalUser);
-            Assert.assertEquals(datasetGroupId, normalUser.groupId);
-            assertOwnedBy((new DatasetImageLinkI(datasetImageLinkId, false)), normalUser);
-            Assert.assertEquals(datasetImageLinkGroupId, normalUser.groupId);
+            assertInGroup(sentDat, normalUser.groupId);
+            assertOwnedBy(datasetImageLink, normalUser);
+            assertInGroup(datasetImageLink, normalUser.groupId);
         } else if (permChown) {
             /* even if the workflow2 as a whole failed, the chown might be successful */
-            /* Check the value of canChown on the dataset is true in this case.*/
-            Assert.assertTrue(getCurrentPermissions(sentDat).canChown());
-            doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(), true);
-            remoteFileGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM OriginalFile o WHERE o.id = :id",
-                    new ParametersI().addId(remoteFile.getId())).get(0).get(0)).getValue();
-            imageGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM Image i WHERE i.id = :id",
-                    new ParametersI().addId(image.getId())).get(0).get(0)).getValue();
-            datasetGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM Dataset d WHERE d.id = :id",
-                    new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
-            long datasetImageLinkId = ((RLong) iQuery.projection(
-                    "SELECT id FROM DatasetImageLink WHERE parent.id = :id",
-                    new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
-            datasetImageLinkGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM DatasetImageLink WHERE parent.id = :id",
-                    new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
             /* the image, dataset and link belong to the normalUser, but is in the light admin's group */
-            assertOwnedBy(remoteFile, normalUser);
-            Assert.assertEquals(remoteFileGroupId, lightAdmin.groupId);
+            assertOwnedBy(originalFile, normalUser);
+            assertInGroup(originalFile, lightAdmin.groupId);
             assertOwnedBy(image, normalUser);
-            Assert.assertEquals(imageGroupId, lightAdmin.groupId);
+            assertInGroup(image, lightAdmin.groupId);
             assertOwnedBy(sentDat, normalUser);
-            Assert.assertEquals(datasetGroupId, lightAdmin.groupId);
-            assertOwnedBy((new DatasetImageLinkI(datasetImageLinkId, false)), normalUser);
-            Assert.assertEquals(datasetImageLinkGroupId, lightAdmin.groupId);
+            assertInGroup(sentDat, lightAdmin.groupId);
+            assertOwnedBy(datasetImageLink, normalUser);
+            assertInGroup(datasetImageLink, lightAdmin.groupId);
         } else if (permChgrp) {
             /* as workflow2 as a whole failed, in case the chgrp was successful,
              * the chown must be failing */
-            /* Check the value of canChown on the dataset is false in this case.*/
-            Assert.assertFalse(getCurrentPermissions(sentDat).canChown());
-            doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(), false);
-            remoteFileGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM OriginalFile o WHERE o.id = :id",
-                    new ParametersI().addId(remoteFile.getId())).get(0).get(0)).getValue();
-            imageGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM Image i WHERE i.id = :id",
-                    new ParametersI().addId(image.getId())).get(0).get(0)).getValue();
-            datasetGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM Dataset d WHERE d.id = :id",
-                    new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
-            long datasetImageLinkId = ((RLong) iQuery.projection(
-                    "SELECT id FROM DatasetImageLink WHERE parent.id = :id",
-                    new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
-            datasetImageLinkGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM DatasetImageLink WHERE parent.id = :id",
-                    new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
             /* the image, dataset and link are in normalUser's group but still belong to light admin */
-            assertOwnedBy(remoteFile, lightAdmin);
-            Assert.assertEquals(remoteFileGroupId, normalUser.groupId);
+            assertOwnedBy(originalFile, lightAdmin);
+            assertInGroup(originalFile, normalUser.groupId);
             assertOwnedBy(image, lightAdmin);
-            Assert.assertEquals(imageGroupId, normalUser.groupId);
+            assertInGroup(image, normalUser.groupId);
             assertOwnedBy(sentDat, lightAdmin);
-            Assert.assertEquals(datasetGroupId, normalUser.groupId);
-            assertOwnedBy((new DatasetImageLinkI(datasetImageLinkId, false)), lightAdmin);
-            Assert.assertEquals(datasetImageLinkGroupId, normalUser.groupId);
+            assertInGroup(sentDat, normalUser.groupId);
+            assertOwnedBy(datasetImageLink, lightAdmin);
+            assertInGroup(datasetImageLink, normalUser.groupId);
         } else {
             /* the remaining option when the previous chgrp as well as this chown fail */
-            /* Check the value of canChown on the dataset is false in this case.*/
-            Assert.assertFalse(getCurrentPermissions(sentDat).canChown());
-            doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(), false);
-            remoteFileGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM OriginalFile o WHERE o.id = :id",
-                    new ParametersI().addId(remoteFile.getId())).get(0).get(0)).getValue();
-            imageGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM Image i WHERE i.id = :id",
-                    new ParametersI().addId(image.getId())).get(0).get(0)).getValue();
-            datasetGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM Dataset d WHERE d.id = :id",
-                    new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
-            long datasetImageLinkId = ((RLong) iQuery.projection(
-                    "SELECT id FROM DatasetImageLink WHERE parent.id = :id",
-                    new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
-            datasetImageLinkGroupId = ((RLong) iQuery.projection(
-                    "SELECT details.group.id FROM DatasetImageLink WHERE parent.id = :id",
-                    new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
             /* the image, dataset and link are in light admin's group and belong to light admin */
-            assertOwnedBy(remoteFile, lightAdmin);
-            Assert.assertEquals(remoteFileGroupId, lightAdmin.groupId);
+            assertOwnedBy(originalFile, lightAdmin);
+            assertInGroup(originalFile, lightAdmin.groupId);
             assertOwnedBy(image, lightAdmin);
-            Assert.assertEquals(imageGroupId, lightAdmin.groupId);
+            assertInGroup(image, lightAdmin.groupId);
             assertOwnedBy(sentDat, lightAdmin);
-            Assert.assertEquals(datasetGroupId, lightAdmin.groupId);
-            assertOwnedBy((new DatasetImageLinkI(datasetImageLinkId, false)), lightAdmin);
-            Assert.assertEquals(datasetImageLinkGroupId, lightAdmin.groupId);
+            assertInGroup(sentDat, lightAdmin.groupId);
+            assertOwnedBy(datasetImageLink, lightAdmin);
+            assertInGroup(datasetImageLink, lightAdmin.groupId);
         }
     }
 
@@ -1369,7 +1126,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         }
         /* check the transfer of all the data in the first group was successful */
         /* check ownership of the first hierarchy set*/
-        client.getImplicitContext().put("omero.group", "-1");
+        mergeIntoContext(client.getImplicitContext(), ALL_GROUPS_CONTEXT);
         assertOwnedBy(sentProj1, recipient);
         assertOwnedBy(sentDat1, recipient);
         assertOwnedBy(sentImage1, recipient);
@@ -1559,10 +1316,11 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         lightAdmin = loginNewAdmin(true, permissions);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         /* create a file attachment as light admin */
-        final OriginalFile originalFile = mmFactory.createOriginalFile();
+        OriginalFile originalFile = mmFactory.createOriginalFile();
         FileAnnotation fileAnnotation = new FileAnnotationI();
-        fileAnnotation.setFile(originalFile);
         try {
+            originalFile = (OriginalFile) iUpdate.saveAndReturnObject(originalFile);
+            fileAnnotation.setFile(originalFile);
             fileAnnotation = (FileAnnotation) iUpdate.saveAndReturnObject(fileAnnotation);
             Assert.assertTrue(isExpectSuccessCreateFileAttachment);
         } catch (SecurityViolation sv) {
@@ -1572,11 +1330,9 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         /* link the file attachment to the image of the user as light admin
          * This will not work in private group. See definition of the boolean
          * isExpectSuccessLinkFileAttachemnt */
-        ImageAnnotationLink link = new ImageAnnotationLinkI();
-        link.setParent(sentImage);
-        link.setChild(fileAnnotation);
+        ImageAnnotationLink link = null;
         try {
-            link = (ImageAnnotationLink) iUpdate.saveAndReturnObject(link);
+            link = (ImageAnnotationLink) linkImageAnnotation(sentImage, fileAnnotation);
             /* Check the value of canAnnotate on the image is true in this case.*/
             Assert.assertTrue(getCurrentPermissions(sentImage).canAnnotate());
             Assert.assertTrue(isExpectSuccessLinkFileAttachemnt);
@@ -1596,8 +1352,10 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
         doChange(client, factory, Requests.chown().target(fileAnnotation).toUser(normalUser.userId).build(), isExpectSuccessCreateFileAttAndChown);
         if (isExpectSuccessCreateFileAttAndChown) {/* file ann creation and chowning succeeded */
             assertOwnedBy(fileAnnotation, normalUser);
+            assertOwnedBy(originalFile, normalUser);
         } else {/* the creation of file annotation succeeded, but the chown failed */
             assertOwnedBy(fileAnnotation, lightAdmin);
+            assertOwnedBy(originalFile, lightAdmin);
         }
         /* The link was certainly created. In cases where the creation was not successful,
          * the test was terminated (see above).*/
@@ -1614,6 +1372,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                     new ParametersI().addId(fileAnnotation.getId()));
             assertOwnedBy(link, normalUser);
             assertOwnedBy(fileAnnotation, normalUser);
+            assertOwnedBy(originalFile, normalUser);
         } else {/* link was created but could not be chowned */
             link = (ImageAnnotationLink) iQuery.findByQuery("FROM ImageAnnotationLink l JOIN FETCH"
                     + " l.child JOIN FETCH l.parent WHERE l.child.id = :id",
@@ -1682,9 +1441,6 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
      */
     @Test(dataProvider = "isPrivileged cases")
     public void testOfficialScriptDeleteNoSudo(boolean isPrivileged, String groupPermissions) throws Exception {
-        if (groupPermissions.equals("rwrw--")) {
-            throw new SkipException("does not work in read-write group");
-        }
         boolean isExpectSuccessDeleteOfficialScript = isPrivileged;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         List<String> permissions = new ArrayList<String>();
@@ -2092,7 +1848,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     }
 
     /**
-     * @return isSudoing and Chgrp test cases for testChgrp
+     * @return isSudoing, Chgrp and DeleteOwned test cases for testChgrp
      */
     @DataProvider(name = "isSudoing and Chgrp privileges cases")
     public Object[][] provideIsSudoingAndChgrpOwned() {
@@ -2115,7 +1871,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                         testCase[IS_SUDOING] = isSudoing;
                         testCase[PERM_CHGRP] = permChgrp;
                         testCase[GROUP_PERMS] = groupPerms;
-                        // DEBUG if (isSudiong == true && permChgrp == true)
+                        // DEBUG  if (isSudoing == true && permChgrp == true)
                         testCases.add(testCase);
                     }
                 }
@@ -2124,7 +1880,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
     }
 
     /**
-     * @return isSudoing and Chgrp test cases for testChown
+     * @return isSudoing and Chown test cases for testChown
      */
     @DataProvider(name = "isSudoing and Chown privileges cases")
     public Object[][] provideIsSudoingAndChown() {
@@ -2147,7 +1903,7 @@ public class LightAdminRolesTest extends AbstractServerImportTest {
                         testCase[IS_SUDOING] = isSudoing;
                         testCase[PERM_CHOWN] = permChown;
                         testCase[GROUP_PERMS] = groupPerms;
-                        // DEBUG if (isSudoing == true && permChown == true)
+                        // DEBUG  if (isSudoing == true && permChown == true)
                         testCases.add(testCase);
                     }
                 }

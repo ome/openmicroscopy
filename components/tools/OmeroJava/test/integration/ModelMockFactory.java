@@ -311,13 +311,21 @@ public class ModelMockFactory {
     }
 
     /**
-     * Creates and returns an original file object.
-     *
-     * @return See above.
-     * @throws Exception
-     *             Thrown if an error occurred.
+     * Create a FileAnnotation with Original File.
+     * @return the FileAnnotation
      */
-    public OriginalFile createOriginalFile() throws Exception {
+    protected FileAnnotation createFileAnnotation() {
+        FileAnnotation fileAnnotation = new FileAnnotationI();
+        OriginalFile originalFile = createOriginalFile();
+        fileAnnotation.setFile(originalFile);
+        return fileAnnotation;
+    }
+
+    /**
+     * Creates and returns an original file object.
+     * @return See above.
+     */
+    public OriginalFile createOriginalFile() {
         OriginalFileI oFile = new OriginalFileI();
         oFile.setName(omero.rtypes.rstring("Test_" + UUID.randomUUID().toString()));
         oFile.setPath(omero.rtypes.rstring("/omero/"));

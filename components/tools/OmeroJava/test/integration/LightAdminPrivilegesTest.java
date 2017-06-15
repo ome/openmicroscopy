@@ -94,7 +94,6 @@ import omero.model.enums.ChecksumAlgorithmSHA1160;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 import omero.sys.Principal;
-import omero.util.TempFileManager;
 
 import org.testng.Assert;
 import org.testng.SkipException;
@@ -111,14 +110,9 @@ import com.google.common.collect.ImmutableSet;
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.4.0
  */
-public class LightAdminPrivilegesTest extends AbstractServerImportTest {
-
-    private static final TempFileManager TEMPORARY_FILE_MANAGER = new TempFileManager(
-            "test-" + LightAdminPrivilegesTest.class.getSimpleName());
+public class LightAdminPrivilegesTest extends RolesTests {
 
     private ImmutableSet<AdminPrivilege> allPrivileges = null;
-
-    private File fakeImageFile = null;
 
     /**
      * Populate the set of available light administrator privileges.
@@ -131,17 +125,6 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
             privileges.add((AdminPrivilege) privilege);
         }
         allPrivileges = privileges.build();
-    }
-
-    /**
-     * Create a fake image file for use in import tests.
-     * @throws IOException unexpected
-     */
-    @BeforeClass
-    public void createFakeImageFile() throws IOException {
-        final File temporaryDirectory = TEMPORARY_FILE_MANAGER.createPath("images", null, true);
-        fakeImageFile = new File(temporaryDirectory, "image.fake");
-        fakeImageFile.createNewFile();
     }
 
     /**
@@ -169,22 +152,6 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         }
         loginUser(ctx);
         return iAdmin.getEventContext();
-    }
-
-    /**
-     * Sudo to the given user.
-     * @param targetName the name of a user
-     * @return context for a session owned by the given user
-     * @throws Exception if the sudo could not be performed
-     */
-    private EventContext sudo(String targetName) throws Exception {
-        final Principal principal = new Principal();
-        principal.name = targetName;
-        final Session session = factory.getSessionService().createSessionWithTimeout(principal, 100 * 1000);
-        final omero.client client = newOmeroClient();
-        final String sessionUUID = session.getUuid().getValue();
-        client.createSession(sessionUUID, sessionUUID);
-        return init(client);
     }
 
     /**
@@ -246,32 +213,6 @@ public class LightAdminPrivilegesTest extends AbstractServerImportTest {
         }
         Assert.assertNotNull(latestProxy);
         return latestProxy;
-    }
-
-    /* these permissions do not permit anything */
-    @SuppressWarnings("serial")
-    private static final Permissions NO_PERMISSIONS = new PermissionsI("------") {
-        @Override
-        public boolean isDisallow(int restriction, Ice.Current c) {
-            return true;
-        }
-    };
-
-    /**
-     * Get the current permissions for the given object.
-     * @param object a model object previously retrieved from the server
-     * @return the permissions for the object in the current context
-     * @throws ServerError if the query caused a server error
-     */
-    private Permissions getCurrentPermissions(IObject object) throws ServerError {
-        final Map<String, String> allGroupsContext = ImmutableMap.of(Login.OMERO_GROUP, "-1");
-        final String objectClass = object.getClass().getSuperclass().getSimpleName();
-        final long objectId = object.getId().getValue();
-        try {
-            return iQuery.get(objectClass, objectId, allGroupsContext).getDetails().getPermissions();
-        } catch (SecurityViolation sv) {
-            return NO_PERMISSIONS;
-        }
     }
 
     /* -=-=- TEST NECESSITY OF LIGHT ADMINISTRATOR PRIVILEGES -=-=- */

@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.Map.Entry;
 
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.IObservable;
@@ -29,6 +30,7 @@ import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.util.ErrorHandler;
 import ome.io.nio.SimpleBackOff;
 import ome.services.blitz.repo.path.FsFile;
+import ome.system.Login;
 import omero.ApiUsageException;
 import omero.RLong;
 import omero.RType;
@@ -53,6 +55,7 @@ import omero.cmd.State;
 import omero.cmd.Status;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
+import omero.model.Annotation;
 import omero.model.BooleanAnnotation;
 import omero.model.BooleanAnnotationI;
 import omero.model.ChannelBinding;
@@ -61,6 +64,8 @@ import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
 import omero.model.DatasetAnnotationLink;
 import omero.model.DatasetAnnotationLinkI;
+import omero.model.DatasetImageLink;
+import omero.model.DatasetImageLinkI;
 import omero.model.Detector;
 import omero.model.DetectorAnnotationLink;
 import omero.model.DetectorAnnotationLinkI;
@@ -104,6 +109,8 @@ import omero.model.PlateAnnotationLinkI;
 import omero.model.Project;
 import omero.model.ProjectAnnotationLink;
 import omero.model.ProjectAnnotationLinkI;
+import omero.model.ProjectDatasetLink;
+import omero.model.ProjectDatasetLinkI;
 import omero.model.QuantumDef;
 import omero.model.RenderingDef;
 import omero.model.Screen;
@@ -129,7 +136,10 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+
+import Ice.ImplicitContext;
 
 /**
  * Base test for integration tests.
@@ -149,6 +159,9 @@ public class AbstractServerTest extends AbstractTest {
 
     /** Scaling factor used for CmdCallbackI loop timings. */
     protected long scalingFactor;
+
+    /** All groups context to use in cases where errors due to group restriction are to be avoided. */
+    protected static final ImmutableMap<String, String> ALL_GROUPS_CONTEXT = ImmutableMap.of(Login.OMERO_GROUP, "-1");
 
     /** The client object, this is the entry point to the Server. */
     protected omero.client client;
@@ -282,6 +295,153 @@ public class AbstractServerTest extends AbstractTest {
                 c.__del__();
             }
         }
+    }
+
+    /**
+     * Cast the map of strings (e.g. {@link #ALL_GROUPS_CONTEXT})
+     * into implicit context, which asks for {@code <String, String>}.
+     * @param implicitContext the implicit context to be changed
+     * @param newContext the map of strings (e.g. {@link #ALL_GROUPS_CONTEXT})
+     */
+    protected void mergeIntoContext(ImplicitContext implicitContext, Map<String, String> newContext) {
+        for (final Entry<String, String> entry : newContext.entrySet()) {
+            implicitContext.put(entry.getKey(), entry.getValue());
+        }
+    }
+
+    /**
+     * Add the given annotation to the given image.
+     * @param image an image
+     * @param annotation an annotation
+     * @return the new loaded link from the image to the annotation
+     * @throws ServerError an error possibly occurring during saving of the link
+     */
+    protected ImageAnnotationLink linkImageAnnotation(Image image, Annotation annotation) throws ServerError {
+        if (image.isLoaded() && image.getId() != null) {
+            image = (Image) image.proxy();
+        }
+        if (annotation.isLoaded() && annotation.getId() != null) {
+            annotation = (Annotation) annotation.proxy();
+        }
+
+        final ImageAnnotationLink link = new ImageAnnotationLinkI();
+        link.setParent(image);
+        link.setChild(annotation);
+        return (ImageAnnotationLink) iUpdate.saveAndReturnObject(link);
+    }
+
+    /**
+     * Assert that the given object is in the given group.
+     * @param object a model object
+     * @param group an ExperimenterGroup
+     * @throws ServerError unexpected
+     */
+    protected void assertInGroup(IObject object, ExperimenterGroup group) throws ServerError {
+        assertInGroup(Collections.singleton(object), group.getId().getValue());
+    }
+
+    /**
+     * Assert that the given object is in the given group.
+     * @param object a model object
+     * @param expectedGroupId a group Id
+     * @throws ServerError unexpected
+     */
+    protected void assertInGroup(IObject object, long expectedGroupId) throws ServerError {
+        assertInGroup(Collections.singleton(object), expectedGroupId);
+    }
+
+    /**
+     * Assert that the given objects are in the given group.
+     * @param objects some model objects
+     * @param expectedGroupId a group Id
+     * @throws ServerError unexpected
+     */
+    protected void assertInGroup(Collection<? extends IObject> objects, long expectedGroupId) throws ServerError {
+        if (objects.isEmpty()) {
+            throw new IllegalArgumentException("must assert about some objects");
+        }
+        for (final IObject object : objects) {
+            final String objectName = object.getClass().getName() + '[' + object.getId().getValue() + ']';
+            final String query = "SELECT details.group.id FROM " + object.getClass().getSuperclass().getSimpleName() +
+                    " WHERE id = :id";
+            final Parameters params = new ParametersI().addId(object.getId());
+            final List<List<RType>> results = root.getSession().getQueryService().projection(query, params, ALL_GROUPS_CONTEXT);
+            final long actualGroupId = ((RLong) results.get(0).get(0)).getValue();
+            Assert.assertEquals(actualGroupId, expectedGroupId, objectName);
+        }
+    }
+
+    /**
+     * Assert that the given object is owned by the given owner.
+     * @param object a model object
+     * @param expectedOwner a user's event context
+     * @throws ServerError unexpected
+     */
+    protected void assertOwnedBy(IObject object, EventContext expectedOwner) throws ServerError {
+        assertOwnedBy(Collections.singleton(object), expectedOwner);
+    }
+
+    /**
+     * Assert that the given objects are owned by the given owner.
+     * @param objects some model objects
+     * @param expectedOwner a user's event context
+     * @throws ServerError unexpected
+     */
+    protected void assertOwnedBy(Collection<? extends IObject> objects, EventContext expectedOwner) throws ServerError {
+        if (objects.isEmpty()) {
+            throw new IllegalArgumentException("must assert about some objects");
+        }
+        for (final IObject object : objects) {
+            final String objectName = object.getClass().getName() + '[' + object.getId().getValue() + ']';
+            final String query = "SELECT details.owner.id FROM " + object.getClass().getSuperclass().getSimpleName() +
+                    " WHERE id = :id";
+            final Parameters params = new ParametersI().addId(object.getId());
+            final List<List<RType>> results = root.getSession().getQueryService().projection(query, params, ALL_GROUPS_CONTEXT);
+            final long actualOwnerId = ((RLong) results.get(0).get(0)).getValue();
+            Assert.assertEquals(actualOwnerId, expectedOwner.userId, objectName);
+        }
+    }
+
+    /**
+     * Create a link between a Dataset and an Image.
+     * @param dataset an OMERO Dataset
+     * @param image an OMERO Image
+     * @return the created link
+     * @throws ServerError an error possibly occurring during saving of the link
+     */
+    protected DatasetImageLink linkDatasetImage(Dataset dataset, Image image) throws ServerError {
+        if (dataset.isLoaded() && dataset.getId() != null) {
+            dataset = (Dataset) dataset.proxy();
+        }
+        if (image.isLoaded() && image.getId() != null) {
+            image = (Image) image.proxy();
+        }
+
+        final DatasetImageLink link = new DatasetImageLinkI();
+        link.setParent(dataset);
+        link.setChild(image);
+        return (DatasetImageLink) iUpdate.saveAndReturnObject(link);
+    }
+
+    /**
+     * Create a link between a Project and a Dataset.
+     * @param project an OMERO Project
+     * @param dataset an OMERO Dataset
+     * @return the created link
+     * @throws ServerError an error possibly occurring during saving of the link
+     */
+    protected ProjectDatasetLink linkProjectDataset(Project project, Dataset dataset) throws ServerError {
+        if (project.isLoaded() && project.getId() != null) {
+            project = (Project) project.proxy();
+        }
+        if (dataset.isLoaded() && dataset.getId() != null) {
+            dataset = (Dataset) dataset.proxy();
+        }
+
+        final ProjectDatasetLink link = new ProjectDatasetLinkI();
+        link.setParent(project);
+        link.setChild(dataset);
+        return (ProjectDatasetLink) iUpdate.saveAndReturnObject(link);
     }
 
     /**
