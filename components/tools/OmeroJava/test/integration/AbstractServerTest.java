@@ -357,20 +357,26 @@ public class AbstractServerTest extends AbstractTest {
      * @throws ServerError unexpected
      */
     protected void assertInGroup(Collection<? extends IObject> objects, long expectedGroupId) throws ServerError {
-        if (objects.isEmpty()) {
-            throw new IllegalArgumentException("must assert about some objects");
-        }
-        for (final IObject object : objects) {
-            final String objectName = object.getClass().getName() + '[' + object.getId().getValue() + ']';
-            final String query = "SELECT details.group.id FROM " + object.getClass().getSuperclass().getSimpleName() +
-                    " WHERE id = :id";
-            final Parameters params = new ParametersI().addId(object.getId());
-            final List<List<RType>> results = root.getSession().getQueryService().projection(query, params, ALL_GROUPS_CONTEXT);
-            final long actualGroupId = ((RLong) results.get(0).get(0)).getValue();
-            Assert.assertEquals(actualGroupId, expectedGroupId, objectName);
-        }
+        verifyGroupOrOwner(objects, expectedGroupId, "group");
     }
 
+    protected void verifyGroupOrOwner(Collection<? extends IObject> testedObjects, long id, String question) throws ServerError {
+        if (testedObjects.isEmpty()) {
+            throw new IllegalArgumentException("must assert about some objects");
+        }
+        if (!(question.equals("group") || question.equals("owner"))) {
+            throw new IllegalArgumentException("must ask for group or owner");
+        }
+        for (final IObject testedObject : testedObjects) {
+            final String testedObjectName = testedObject.getClass().getName() + '[' + testedObject.getId().getValue() + ']';
+            final String query = "SELECT details." + question + ".id FROM " + testedObject.getClass().getSuperclass().getSimpleName() +
+                    " WHERE id = :id";
+            final Parameters params = new ParametersI().addId(testedObject.getId());
+            final List<List<RType>> results = root.getSession().getQueryService().projection(query, params, ALL_GROUPS_CONTEXT);
+            final long actualId = ((RLong) results.get(0).get(0)).getValue();
+            Assert.assertEquals(actualId, id, testedObjectName);
+        }
+    }
     /**
      * Assert that the given object is owned by the given owner.
      * @param object a model object
@@ -388,18 +394,7 @@ public class AbstractServerTest extends AbstractTest {
      * @throws ServerError unexpected
      */
     protected void assertOwnedBy(Collection<? extends IObject> objects, EventContext expectedOwner) throws ServerError {
-        if (objects.isEmpty()) {
-            throw new IllegalArgumentException("must assert about some objects");
-        }
-        for (final IObject object : objects) {
-            final String objectName = object.getClass().getName() + '[' + object.getId().getValue() + ']';
-            final String query = "SELECT details.owner.id FROM " + object.getClass().getSuperclass().getSimpleName() +
-                    " WHERE id = :id";
-            final Parameters params = new ParametersI().addId(object.getId());
-            final List<List<RType>> results = root.getSession().getQueryService().projection(query, params, ALL_GROUPS_CONTEXT);
-            final long actualOwnerId = ((RLong) results.get(0).get(0)).getValue();
-            Assert.assertEquals(actualOwnerId, expectedOwner.userId, objectName);
-        }
+        verifyGroupOrOwner(objects, expectedOwner.userId, "owner");
     }
 
     /**
