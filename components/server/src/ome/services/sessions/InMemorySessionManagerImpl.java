@@ -19,6 +19,8 @@
 
 package ome.services.sessions;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -91,11 +93,15 @@ public class InMemorySessionManagerImpl
 
     @Override
     protected Session findSessionById(Long id, ServiceFactory sf) {
+        List<Long> tries = new ArrayList<Long>();
         for (Session session : sessions.values()) {
             if (session.getId().equals(id)) {
                 return session;
+            } else {
+                tries.add(session.getId());
             }
         }
+        log.warn("Requested session {}. Only found: {}", id, tries);
         return null;
     }
 }
