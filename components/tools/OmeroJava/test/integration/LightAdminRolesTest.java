@@ -767,7 +767,7 @@ public class LightAdminRolesTest extends RolesTests {
         /* In case the import was not successful, Image does not exist.
          * Further testing is not interesting in such case.*/
         } else {
-            Assert.assertNull(originalFile, "if import failed, the remoteFile should be null");
+            Assert.assertNull(originalFile, "if import failed, the originalFile should be null");
             Assert.assertNull(image, "if import failed, the image should be null");
             return;
         }
