@@ -204,9 +204,9 @@ class BaseClient(object):
             if sys.platform == "darwin":
                 self._optSetProp(id, "IceSSL.Ciphers", "NONE (DH_anon.*AES)")
             else:
-                self._optSetProp(id, "IceSSL.Ciphers", "ADH")
+                self._optSetProp(id, "IceSSL.Ciphers", "ADH;@SECLEVEL=0")
         else:
-            self._optSetProp(id, "IceSSL.Ciphers", "ADH")
+            self._optSetProp(id, "IceSSL.Ciphers", "ADH;@SECLEVEL=0")
         self._optSetProp(id, "IceSSL.VerifyPeer", "0")
         self._optSetProp(id, "IceSSL.Protocols", "tls1")
 
