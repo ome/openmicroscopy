@@ -183,14 +183,14 @@ public class LightAdminRolesTest extends RolesTests {
      * Light administrator (lightAdmin) tries to create new Project and Dataset and set normalUser as
      * the owner of the Project and Dataset in a group where lightAdmin is not member (normalUser's group).
      * lightAdmin tries the creation above both sudoing and not sudoing as normalUser
-     * and both having and not having <tt>WriteOwned<tt> privilege.
+     * and both having and not having <tt>WriteOwned</tt> privilege.
      * The test finishes for test cases in which lightAdmin does not sudo after the creation attempt above.
      * For cases in which lightAdmin does Sudo as normalUser:
      * lightAdmin tries to import data on behalf of normalUser into the just created Dataset.
      * lightAdmin, still sudoed as normalUser, tries then to link the Dataset to the Project.
      * Non-sudoing workflows for import and linking are too complicated to be included in this test.
-     * Those two actions are covered by separate tests (testImporterAsNoSudoChownOnlyWorkflow,
-     * testImporterAsNoSudoChgrpChownWorkflow and testLinkNoSudo).
+     * Those two actions are covered by separate tests ({@link #testImporterAsNoSudoChownOnlyWorkflow},
+     * {@link #testImporterAsNoSudoChgrpChownWorkflow} and {@link #testLinkNoSudo}).
      * @param isSudoing if to test a success of workflows where Sudoed in
      * @param permWriteOwned if to test a user who has the <tt>WriteOwned</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
