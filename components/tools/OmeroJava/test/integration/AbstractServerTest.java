@@ -317,7 +317,7 @@ public class AbstractServerTest extends AbstractTest {
      * @throws ServerError an error possibly occurring during saving of the link
      */
     protected ImageAnnotationLink linkImageAnnotation(Image image, Annotation annotation) throws ServerError {
-        if (image.isLoaded() && image.getId() != null) {
+        if (image.isLoaded()) {
             image = (Image) image.proxy();
         }
         if (annotation.isLoaded() && annotation.getId() != null) {
