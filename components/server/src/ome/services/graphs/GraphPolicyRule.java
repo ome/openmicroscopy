@@ -1179,8 +1179,9 @@ public class GraphPolicyRule {
                     final Set<String> namedCommonTerms = Sets.intersection(namedTerms.keySet(), policyRule.commonTerms);
                     boolean isCommonConsistentWithUnmatched = true;
                     for (final TermMatch matcher : unmatchedTerms) {
-                        if (namedCommonTerms.contains(matcher.getName())) {
-                            final Details object = namedTerms.get(matcher.getName());
+                        final String termName = matcher.getName();
+                        if (termName != null && namedCommonTerms.contains(termName)) {
+                            final Details object = namedTerms.get(termName);
                             if (!matcher.isMatch(predicates, namedTerms, isCheckAllPermissions, object, true)) {
                                 isCommonConsistentWithUnmatched = false;
                                 break;
@@ -1189,15 +1190,17 @@ public class GraphPolicyRule {
                     }
                     if (isCommonConsistentWithUnmatched) {
                         for (final RelationshipMatch matcher : unmatchedRelationships) {
-                            if (namedCommonTerms.contains(matcher.leftTerm.getName())) {
-                                final Details object = namedTerms.get(matcher.leftTerm.getName());
+                            final String leftTermName = matcher.leftTerm.getName();
+                            if (leftTermName != null && namedCommonTerms.contains(leftTermName)) {
+                                final Details object = namedTerms.get(leftTermName);
                                 if (!matcher.leftTerm.isMatch(predicates, namedTerms, isCheckAllPermissions, object, true)) {
                                     isCommonConsistentWithUnmatched = false;
                                     break;
                                 }
                             }
-                            if (namedCommonTerms.contains(matcher.rightTerm.getName())) {
-                                final Details object = namedTerms.get(matcher.rightTerm.getName());
+                            final String rightTermName = matcher.rightTerm.getName();
+                            if (rightTermName != null && namedCommonTerms.contains(rightTermName)) {
+                                final Details object = namedTerms.get(rightTermName);
                                 if (!matcher.rightTerm.isMatch(predicates, namedTerms, isCheckAllPermissions, object, true)) {
                                     isCommonConsistentWithUnmatched = false;
                                     break;
