@@ -1,6 +1,35 @@
 OMERO version history
 =====================
 
+5.3.3 (June 2017)
+-----------------
+
+This is a bug-fix release.
+
+Improvements include:
+
+- support for 2 new lookup tables from `Janelia <https://www.janelia.org/>`_
+- fixed loading of wells in right-hand panel of OMERO.web
+
+Sysadmin changes include:
+
+- clarified the upgrade of the "Open With" option
+- allowed installation of OMERO.web with ice 3.5
+- fixed recursive loading of feedback in OMERO.web
+
+Developer updates include:
+
+- added example on how to retrieved shapes from a ROI using batch querying for scalability
+- improved logging of error during deletion
+- added new methods to Java Gateway
+- improved login options in Java Gateway
+- specified image's dataset in url to give more context to OMERO.web apps 
+
+
+This release also upgrades the version of Bio-Formats which OMERO uses to
+`5.5.2 <https://www.openmicroscopy.org/site/support/bio-formats5.5/about/whats-new.html>`_.
+
+
 5.3.2 (May 2017)
 ----------------
 
