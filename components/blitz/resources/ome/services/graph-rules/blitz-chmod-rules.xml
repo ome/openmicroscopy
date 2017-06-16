@@ -45,6 +45,12 @@
 
         <!-- ACQUISITION -->
 
+        <!-- Consider all settings in the group. -->
+
+        <bean parent="graphPolicyRule" p:matches="S:DetectorSettings[E].details.group = [I]" p:changes="S:[-]"/>
+        <bean parent="graphPolicyRule" p:matches="S:LightSettings[E].details.group = [I]" p:changes="S:[-]"/>
+        <bean parent="graphPolicyRule" p:matches="S:ObjectiveSettings[E].details.group = [I]" p:changes="S:[-]"/>
+
         <!-- Delete cross-owner links regardless of permissions. -->
 
         <bean parent="graphPolicyRule" p:matches="L:FilterSetEmissionFilterLink[E].parent = FS:[E], L.child = EF:[E], FS =/!o EF"
@@ -122,6 +128,16 @@
 
         <!-- CORE -->
 
+        <!-- Consider every link in the group. -->
+
+        <bean parent="graphPolicyRule" p:matches="L:ILink[E].details.group = [I]" p:changes="L:[-]"/>
+
+        <!-- Consider every image, pixels and channel in the group. -->
+
+        <bean parent="graphPolicyRule" p:matches="I:Image[E].details.group = [I]" p:changes="I:[-]"/>
+        <bean parent="graphPolicyRule" p:matches="P:Pixels[E].details.group = [I]" p:changes="P:[-]"/>
+        <bean parent="graphPolicyRule" p:matches="C:Channel[E].details.group = [I]" p:changes="C:[-]"/>
+
         <!-- Do not delete an original file that is being used by an object. -->
 
         <bean parent="graphPolicyRule" p:matches="FileAnnotation.file = OF:[E]{r}" p:changes="OF:{a}"/>
@@ -178,10 +194,6 @@
 
         <bean parent="graphPolicyRule" p:matches="[D].details.externalInfo = EI:[E]" p:changes="EI:[D]/n"/>
 
-        <!-- Consider every model object in the group. -->
-
-        <bean parent="graphPolicyRule" p:matches="X:[E].details.group = [I]" p:changes="X:[-]"/>
-
         <!-- ROI -->
 
         <!-- Regardless of permissions delete others' ROIs. -->
@@ -203,6 +215,10 @@
         <bean parent="graphPolicyRule" p:matches="T:AffineTransform[E]{o}" p:changes="T:[D]"/>
 
         <!-- SCREEN -->
+
+        <!-- Consider every screen in the group. -->
+
+        <bean parent="graphPolicyRule" p:matches="S:Screen[E].details.group = [I]" p:changes="S:[-]"/>
 
         <!-- Cannot downgrade to a private group if the image has a differently owned field. -->
 
