@@ -1207,20 +1207,20 @@ public class GraphPolicyRule {
                     }
                     boolean retry = false;
                     if (isCommonConsistentWithUnmatched) {
-                    for (final String namedCommonTerm : namedCommonTerms) {
-                        /* each common term match may be worth reviewing as root object */
-                        final Details commonTermDetails = namedTerms.get(namedCommonTerm);
-                        if (!commonTermDetails.equals(rootObject)) {
-                            if (LOGGER.isDebugEnabled()) {
-                                LOGGER.debug("matched " + Joiner.on(',').join(namedTerms.keySet()) +
-                                        " so will review " + commonTermDetails + " for rule " + policyRule.asString);
+                        for (final String namedCommonTerm : namedCommonTerms) {
+                            /* each common term match may be worth reviewing as root object */
+                            final Details commonTermDetails = namedTerms.get(namedCommonTerm);
+                            if (!commonTermDetails.equals(rootObject)) {
+                                if (LOGGER.isDebugEnabled()) {
+                                    LOGGER.debug("matched " + Joiner.on(',').join(namedTerms.keySet()) +
+                                            " so will review " + commonTermDetails + " for rule " + policyRule.asString);
+                                }
+                                /* review object that is common across matchers */
+                                changedObjects.add(commonTermDetails);
+                                prohibitedTerms.put(namedCommonTerm, commonTermDetails);
+                                retry = true;
                             }
-                            /* review object that is common across matchers */
-                            changedObjects.add(commonTermDetails);
-                            prohibitedTerms.put(namedCommonTerm, commonTermDetails);
-                            retry = true;
                         }
-                    }
                     }
                     if (retry) {
                         /* check if a different object can match the common term */
