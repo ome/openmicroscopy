@@ -1174,10 +1174,41 @@ public class GraphPolicyRule {
                     recordChanges(policyRule, changedObjects, namedTerms, isCheckAllPermissions.booleanValue());
                     return;
                 } else if (namedTerms.size() == namedTermCount) {
-                    /* all matchers are failing */
+                    /* all remaining matchers are failing */
+                    /* now check if matched common terms are at least consistent with remaining matchers */
+                    final Set<String> namedCommonTerms = Sets.intersection(namedTerms.keySet(), policyRule.commonTerms);
+                    boolean isCommonConsistentWithUnmatched = true;
+                    for (final TermMatch matcher : unmatchedTerms) {
+                        if (namedCommonTerms.contains(matcher.getName())) {
+                            final Details object = namedTerms.get(matcher.getName());
+                            if (!matcher.isMatch(predicates, namedTerms, isCheckAllPermissions, object, true)) {
+                                isCommonConsistentWithUnmatched = false;
+                                break;
+                            }
+                        }
+                    }
+                    if (isCommonConsistentWithUnmatched) {
+                        for (final RelationshipMatch matcher : unmatchedRelationships) {
+                            if (namedCommonTerms.contains(matcher.leftTerm.getName())) {
+                                final Details object = namedTerms.get(matcher.leftTerm.getName());
+                                if (!matcher.leftTerm.isMatch(predicates, namedTerms, isCheckAllPermissions, object, true)) {
+                                    isCommonConsistentWithUnmatched = false;
+                                    break;
+                                }
+                            }
+                            if (namedCommonTerms.contains(matcher.rightTerm.getName())) {
+                                final Details object = namedTerms.get(matcher.rightTerm.getName());
+                                if (!matcher.rightTerm.isMatch(predicates, namedTerms, isCheckAllPermissions, object, true)) {
+                                    isCommonConsistentWithUnmatched = false;
+                                    break;
+                                }
+                            }
+                        }
+                    }
                     boolean retry = false;
-                    for (final String namedCommonTerm : Sets.intersection(namedTerms.keySet(), policyRule.commonTerms)) {
-                        /* a common term was named so may be worth reviewing as root object */
+                    if (isCommonConsistentWithUnmatched) {
+                    for (final String namedCommonTerm : namedCommonTerms) {
+                        /* each common term match may be worth reviewing as root object */
                         final Details commonTermDetails = namedTerms.get(namedCommonTerm);
                         if (!commonTermDetails.equals(rootObject)) {
                             if (LOGGER.isDebugEnabled()) {
@@ -1189,6 +1220,7 @@ public class GraphPolicyRule {
                             prohibitedTerms.put(namedCommonTerm, commonTermDetails);
                             retry = true;
                         }
+                    }
                     }
                     if (retry) {
                         /* check if a different object can match the common term */
