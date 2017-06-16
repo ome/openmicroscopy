@@ -44,9 +44,11 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Multiset;
 import com.google.common.collect.Sets;
 
 /**
@@ -828,6 +830,7 @@ public class GraphPolicyRule {
             final List<RelationshipMatch> relationshipMatches = new ArrayList<RelationshipMatch>();
             final List<ConditionMatch> conditionMatches = new ArrayList<ConditionMatch>();
             final Multimap<String, TermMatch> termsByName = HashMultimap.create();
+            final Multiset<String> termCounts = HashMultiset.create();
             for (final String match : policyRule.matches) {
                 final String[] words = match.trim().split("\\s+");
                 if (words.length == 1) {
@@ -846,20 +849,28 @@ public class GraphPolicyRule {
                 } else if (words.length == 3) {
                     final RelationshipMatch relationshipMatch = parseRelationshipMatch(graphPathBean, words[0], words[1], words[2]);
                     relationshipMatches.add(relationshipMatch);
-                    if (relationshipMatch.leftTerm.getName() != null) {
-                        termsByName.put(relationshipMatch.leftTerm.getName(), relationshipMatch.leftTerm);
+                    final String leftTermName = relationshipMatch.leftTerm.getName();
+                    if (leftTermName != null) {
+                        termsByName.put(leftTermName, relationshipMatch.leftTerm);
+                        if (relationshipMatch.propertyName != null) {
+                            termCounts.add(leftTermName);
+                        }
                     }
-                    if (relationshipMatch.rightTerm.getName() != null) {
-                        termsByName.put(relationshipMatch.rightTerm.getName(), relationshipMatch.rightTerm);
+                    final String rightTermName = relationshipMatch.rightTerm.getName();
+                    if (rightTermName != null) {
+                        termsByName.put(rightTermName, relationshipMatch.rightTerm);
+                        if (relationshipMatch.propertyName != null) {
+                            termCounts.add(rightTermName);
+                        }
                     }
                 } else {
                     throw new GraphException("failed to parse match " + match);
                 }
             }
             final ImmutableSet.Builder<String> commonTerms = ImmutableSet.builder();
-            for (final Entry<String, Collection<TermMatch>> termsByOneName : termsByName.asMap().entrySet()) {
-                if (termsByOneName.getValue().size() > 1) {
-                    commonTerms.add(termsByOneName.getKey());
+            for (final Multiset.Entry<String> termCount : termCounts.entrySet()) {
+                if (termCount.getCount() > 1) {
+                    commonTerms.add(termCount.getElement());
                 }
             }
             final Map<String, NewTermMatch> termMatchers = new HashMap<>();
