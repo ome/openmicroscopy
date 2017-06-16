@@ -310,6 +310,27 @@ public class AbstractServerTest extends AbstractTest {
     }
 
     /**
+     * An enumeration of properties for which IObjects can be examined.
+     * Used in {@link AbstractServerTest.verifyObjectProperty}.
+     * @author pwalczysko@dundee.ac.uk
+     */
+    private enum Properties {
+        GROUP("group"),
+        OWNER("owner");
+
+        private final String name;
+
+        Properties(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return this.name;
+        }
+    }
+
+    /**
      * Add the given annotation to the given image.
      * @param image an image
      * @param annotation an annotation
@@ -357,25 +378,30 @@ public class AbstractServerTest extends AbstractTest {
      * @throws ServerError unexpected
      */
     protected void assertInGroup(Collection<? extends IObject> objects, long expectedGroupId) throws ServerError {
-        verifyGroupOrOwner(objects, expectedGroupId, "group");
+        verifyObjectProperty(objects, expectedGroupId, Properties.GROUP);
     }
 
-    protected void verifyGroupOrOwner(Collection<? extends IObject> testedObjects, long id, String question) throws ServerError {
+    /**
+     * Assert that certain objects either belong to a certain group
+     * or have a certain owner.
+     * @param testedObjects some model objects to test for properties
+     * @param id expected id of the property object (of GROUP or OWNER)
+     * @param property property to examine the testedObjects for (can be GROUP or OWNER)
+     * @throws ServerError if query fails
+     */
+    protected void verifyObjectProperty(Collection<? extends IObject> testedObjects, long id, Properties property) throws ServerError {
         if (testedObjects.isEmpty()) {
             throw new IllegalArgumentException("must assert about some objects");
         }
-        if (!(question.equals("group") || question.equals("owner"))) {
-            throw new IllegalArgumentException("must ask for group or owner");
-        }
         for (final IObject testedObject : testedObjects) {
             final String testedObjectName = testedObject.getClass().getName() + '[' + testedObject.getId().getValue() + ']';
-            final String query = "SELECT details." + question + ".id FROM " + testedObject.getClass().getSuperclass().getSimpleName() +
+            final String query = "SELECT details." + property.toString() + ".id FROM " + testedObject.getClass().getSuperclass().getSimpleName() +
                     " WHERE id = :id";
             final Parameters params = new ParametersI().addId(testedObject.getId());
             final List<List<RType>> results = root.getSession().getQueryService().projection(query, params, ALL_GROUPS_CONTEXT);
             final long actualId = ((RLong) results.get(0).get(0)).getValue();
             Assert.assertEquals(actualId, id, testedObjectName);
-        }
+         }
     }
     /**
      * Assert that the given object is owned by the given owner.
@@ -394,7 +420,7 @@ public class AbstractServerTest extends AbstractTest {
      * @throws ServerError unexpected
      */
     protected void assertOwnedBy(Collection<? extends IObject> objects, EventContext expectedOwner) throws ServerError {
-        verifyGroupOrOwner(objects, expectedOwner.userId, "owner");
+        verifyObjectProperty(objects, expectedOwner.userId, Properties.OWNER);
     }
 
     /**
