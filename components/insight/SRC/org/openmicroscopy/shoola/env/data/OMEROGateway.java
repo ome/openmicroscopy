@@ -138,6 +138,7 @@ import omero.api.ThumbnailStorePrx;
 import omero.cmd.Chmod2;
 import omero.cmd.CmdCallbackI;
 import omero.cmd.ERR;
+import omero.cmd.GraphException;
 import omero.cmd.HandlePrx;
 import omero.cmd.Request;
 import omero.cmd.Response;
@@ -2006,6 +2007,10 @@ class OMEROGateway
             DataManagerFacility dmf = gw.getFacility(DataManagerFacility.class);
             CmdCallbackI cb = dmf.delete(ctx, objects);
             Response res = cb.loop(100, 250);
+            if (res instanceof GraphException) {
+                GraphException ge = (GraphException) res;
+                throw new Exception("Cannot delete the object: "+ ge.message);
+            }
             if (res instanceof ERR)
                 throw new Exception("Cannot delete the object.");
         } catch (Throwable t) {

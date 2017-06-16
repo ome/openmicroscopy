@@ -28,6 +28,7 @@ import java.util.Map;
 
 import omero.cmd.CmdCallbackI;
 import omero.cmd.ERR;
+import omero.cmd.GraphException;
 import omero.cmd.Response;
 import omero.gateway.SecurityContext;
 import omero.gateway.facility.DataManagerFacility;
@@ -107,6 +108,10 @@ public class ROIFolderSaver extends BatchCallTree {
                     CmdCallbackI cb = dm.deleteFolders(ctx, folders, false, false);
                     // wait for the delete action to be finished
                     Response res = cb.loop(20,500);
+                    if (res instanceof GraphException) {
+                        GraphException ge = (GraphException) res;
+                        throw new Exception("Couldn't delete folders: "+ge.message);
+                    }
                     if (res instanceof ERR)
                         throw new Exception("Couldn't delete folders");
                 } 

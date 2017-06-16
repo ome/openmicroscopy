@@ -44,6 +44,7 @@ import omero.api.RoiOptions;
 import omero.api.RoiResult;
 import omero.cmd.CmdCallbackI;
 import omero.cmd.ERR;
+import omero.cmd.GraphException;
 import omero.cmd.Request;
 import omero.cmd.Response;
 import omero.gateway.Gateway;
@@ -797,6 +798,17 @@ public class ROIFacility extends Facility {
                                                 Response res = dm.delete(ctx,
                                                         serverShape).loop(10,
                                                         500);
+                                                if (res instanceof GraphException) {
+                                                    GraphException ge = (GraphException) res;
+                                                    logWarn(this,
+                                                            "Could not delete shape "
+                                                                    + serverShape
+                                                                            .getId()
+                                                                            .getValue()
+                                                                    + ": "
+                                                                    + ge.message,
+                                                            null);
+                                                }
                                                 if (res instanceof ERR)
                                                     logWarn(this,
                                                             "Could not delete shape "
