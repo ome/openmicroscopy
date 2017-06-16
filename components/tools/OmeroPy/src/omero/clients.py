@@ -206,7 +206,7 @@ class BaseClient(object):
             else:
                 self._optSetProp(id, "IceSSL.Ciphers", "ADH:@SECLEVEL=0")
         else:
-            self._optSetProp(id, "IceSSL.Ciphers", "ADH:@SECLEVEL=0")
+            self._optSetProp(id, "IceSSL.Ciphers", "ADH")
         self._optSetProp(id, "IceSSL.VerifyPeer", "0")
         self._optSetProp(id, "IceSSL.Protocols", "tls1")
 
