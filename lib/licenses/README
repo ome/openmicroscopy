@@ -81,6 +81,7 @@
   License:      BSD
   License File: antlr.txt
 
+
   Artifacts:    appbundler-*.jar
   Project:      Packages a Java application as a Mac app bundle.
   Web Site:     https://java.net/projects/appbundler
@@ -88,22 +89,18 @@
   License File: gpl.txt
 
 
-  Artifacts:    axis-client-*.jar
-  Project:      Apache Axis is an implementation of the SOAP
-                ("Simple Object Access Protocol") submission to W3C.
-                This project is a follow-on to the Apache SOAP project.
-                We do not use this software directly but required by the ontology lookup
-                service.
-  Web Site:     http://ws.apache.org/axis/
-  License:      Apache License, Version 2.0
-  License File: apache-v2.0.txt
-
-
   Artifacts:    asm-*.jar
   Projects:     ASM, an all purpose Java bytecode manipulation and analysis framework.
   Web Site:     http://asm.ow2.org
   License:      BSD
   License File: asm.txt
+
+
+  Artifacts:    backport-util-concurrent-*.jar
+  Project:      The package is the backport of java.util.concurrent API.
+  Web Site:     http://backport-jsr166.sourceforge.net/
+  License:      Public domain
+  License File:
 
 
   Artifacts:    batik-*.jar
@@ -164,6 +161,13 @@
   License File: dom4j.txt
 
 
+  Artifacts:    ehcache-*.jar
+  Project:      Standards-based cache.
+  Web Site:     http://ehcache.org
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
   Artifacts:    findbugs-*.jar
   Project:      FindBugs, Find Bugs in Java Programs
   Web Site:     http://findbugs.sourceforge.net
@@ -185,23 +189,39 @@
   License File: apache-v2.0.txt
 
 
+  Artifacts:    guava-*.jar
+  Project:      Google Core Libraries for Java.
+  Web Site:     https://github.com/google/guava
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
   Artifacts:    grib-*.jar
   Web Site:     http://www.unidata.ucar.edu/software/netcdf-java/
   License:      Lesser General Public License (LGPL) v2.1
   License File: lgpl-v2.1.txt
 
 
-  Artifacts:    java-image-scaling*.jar
-  Web Site:     http://code.google.com/p/java-image-scaling/
-  License:      Lesser General Public License (LGPL) v3.0
-  License File: lgpl-v3.0.txt
+  Artifacts:    httpclient-*.jar
+  Project:      Apache HttpComponents HttpClient - MIME coded entities.
+  Web Site:     http://hc.apache.org/httpclient-3.x/
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
 
 
-  Artifacts:    jfilechooser.jar
-  Web Site:     https://code.google.com/p/jfilechooser/
-  License:      Lesser General Public License (LGPL) v2.1
-  License File: lgpl-v2.1.txt
+  Artifacts:    httpcore-*.jar
+  Project:      Apache HttpComponents HttpClient - MIME coded entities.
+  Web Site:     http://hc.apache.org/httpclient-3.x/
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
 
+
+  Artifacts:    httpmime-*.jar
+  Project:      Apache HttpComponents HttpClient - MIME coded entities.
+  Web Site:     https://hc.apache.org/httpcomponents-client-ga/
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+  
 
   Artifacts:    hibernate-*.jar
   Project:      Hibernate. A powerful, high performance object/relational persistence and
@@ -218,6 +238,17 @@
   License:      General Public License (GPL), Version 2
   License File: gpl.txt
 
+  
+  Artifacts:    ij-*.jar
+  Web Site:     http://imagej.net/Welcome
+  License:      Public Domain
+
+
+  Artifacts:    java-image-scaling-*.jar
+  Web Site:     http://code.google.com/p/java-image-scaling/
+  License:      Lesser General Public License (LGPL) v3.0
+  License File: lgpl-v3.0.txt
+ 
 
   Artifacts:    jai_imageio-*.jar
   Web Site:     http://jai-imageio.dev.java.net/
@@ -268,19 +299,19 @@
   License File: lgpl.txt
 
 
-  Artifacts:    jhotdraw-*.jar
-  Project:      The JHotDraw project. A two-dimensional graphics framework for
-                structured drawing editors
-  Web Site:     http://sourceforge.net/projects/jhotdraw
-  License:      Lesser General Public License (LGPL)
-  License File: lgpl.txt
-
-
   Artifacts:    jfreechar-*.jar
   Project:      The JFreeChart project. Used to display professional quality charts.
   Web Site:     http://www.jfree.org/jfreechart/
-  License:      Lesser General Public License (LGPL)
-  License File: lgpl.txt
+  License:      Lesser General Public License (LGPL) v2.0
+  License File: lgpl-v2.0.txt
+
+
+  Artifacts:    jhotdraw-*.jar
+  Project:      The JHotDraw project. A two-dimensional graphics framework for
+                structured drawing editors.
+  Web Site:     http://www.jhotdraw.org/
+  License:      Lesser General Public License (LGPL) or Creative Commons Attribution 3.0 Unported
+  License File:
 
 
   Artifacts:    jmock-*.jar
@@ -289,6 +320,13 @@
   Web Site:     http://jmock.org
   License:      BSD
   License File: jmock.txt
+
+ 
+  Artifacts:    jna-*.jar
+  Project:      Java Native Access.
+  Web Site:     https://github.com/twall/jna
+  License:      Lesser General Public License (LGPL) v2.1
+  License File: lgpl-v2.1.txt
 
 
   Artifacts:    jsr107cache-*.jar
@@ -342,14 +380,21 @@
 
 
   Artifacts:    perf4j-*.jar
-  Project:      Perf4j, a set of utilites for calculating and dsplaying performance statistics
+  Project:      Perf4j, a set of utilites for calculating and displaying performance statistics.
   Web Site:     http://perf4j.codehaus.org
   License:      Apache License, Version 2.0
   License File: apache-v2.0.txt
 
 
+  Artifacts:    platform-*.jar
+  Project:      Java Native Access Platform.
+  Web Site:     https://github.com/twall/jna
+  License:      Lesser General Public License (LGPL) v2.1
+  License File: lgpl-v2.1.txt
+
+
   Artifacts:    poi-*.jar
-  Project:      Apache Project Java API To Access Microsoft Format Files
+  Project:      Apache Project Java API To Access Microsoft Format Files.
   License:      Apache License, Version 2.0
   License File: apache-v2.0.txt
 
@@ -361,28 +406,11 @@
   License File: postgresql.txt
 
 
-  Artifacts:    libquaqua-unknown.jnilib, quaqua-filechooser-only-unknown.jar
-  Project:      Quaqua Look and Feel. A user interface library for Java applications
-                which wish to closely adhere to the Apple Human Interface Guidelines
-                for Mac OS X
-  Webpage:      http://www.randelshofer.ch/quaqua
-  License:      Lesser General Public License (LGPL) v2.1
-  License File: lgpl-v2.1.txt
-
-
   Artifacts:    reportng-*.jar
   Project:      ReportNG An HTML/XML Reporting Plug-in for TestNG
   Website:      http://reportng.uncommons.org
   License:      Apache License, Version 2.0
   License File: apache-v2.0.txt
-
-
-  Artifacts:    saaj-*.jar
-  Project:      SAAJ Standard Implementation Project.
-                We do not use this software directly but required by the Apache Axis project
-  Web Site:     https://saaj.dev.java.net/
-  License:      General Public License (GPL), Version 2
-  License File: gpl.txt
 
 
   Artifacts:    scons-local-*.zip
@@ -674,44 +702,6 @@
   //
   components/server/src/ome/tools/hibernate/ListAsSQLArrayUserType.java
   components/server/src/ome/tools/hibernate/SqlArray.java
-
-
-  //
-  // Build-time artifacts under components/insight/build/tools
-  //
-
-  Artifacts:    avalon-*.jar
-  Project:      The Apache Avalon Framework.  We don't use this software directly,
-                but it is required by the FOP library.
-  Web Site:     http://avalon.apache.org/
-  License:      Apache Software License, Version 1.1
-  License File: apache-v1.1.txt
-
-
-  Artifacts:    bsf-*.jar
-  Project:      The Bean Scripting Framework (BSF).  It provides scripting language
-                support within Java applications.  We use it to add scripting
-                capabilities to Ant.
-  Web Site:     http://jakarta.apache.org/bsf/
-  License:      Apache Software License, Version 1.1
-  License File: apache-v1.1.txt
-
-
-  Artifacts:    fop-*.jar
-  Project:      The Formatting Objects Processor (FOP).  FOP is a print formatter
-                driven by XSL formatting objects (XSL-FO).  It provides our build system
-                with pdf generation capabilities.
-  Web Site:     http://xml.apache.org/fop/
-  License:      Apache Software License, Version 1.1
-  License File: apache-v1.1.txt
-
-
-  Artifacts:    rhino-*.jar
-  Project:      The Rhino JavaScript Engine.  It provides JavaScript support to
-                the BSF library.
-  Web Site:     http://www.mozilla.org/rhino/
-  License:      Netscape Public License (NPL), Version 1.1
-  License File: npl-1_1.txt
 
 
   //
