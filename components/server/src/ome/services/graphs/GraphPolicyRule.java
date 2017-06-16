@@ -1085,7 +1085,7 @@ public class GraphPolicyRule {
                         if (matcher.getName() != null && prohibitedTerms.get(matcher.getName()).contains(object)) {
                             continue;
                         }
-                        if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions, object, isPossibleMatch)) {
+                        if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions, object, true)) {
                             unmatchedTermIterator.remove();
                         }
                     }
@@ -1101,7 +1101,7 @@ public class GraphPolicyRule {
                             if (matcher.getName() != null && prohibitedTerms.get(matcher.getName()).contains(linkerObject)) {
                                 continue;
                             }
-                            if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions, linkerObject, isPossibleMatch)) {
+                            if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions, linkerObject, true)) {
                                 unmatchedTermIterator.remove();
                             }
                         }
@@ -1130,7 +1130,7 @@ public class GraphPolicyRule {
                             if (matcher.getName() != null && prohibitedTerms.get(matcher.getName()).contains(linkedObject)) {
                                 continue;
                             }
-                            if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions, linkedObject, isPossibleMatch)) {
+                            if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions, linkedObject, true)) {
                                 unmatchedTermIterator.remove();
                             }
                         }
