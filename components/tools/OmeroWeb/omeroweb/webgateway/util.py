@@ -25,6 +25,51 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+LUTS_IN_PNG = [
+    '/luts/ncsa_paledit/16_colors.lut',
+    '/luts/3-3-2_rgb.lut',
+    '/luts/ncsa_paledit/5_ramps.lut',
+    '/luts/ncsa_paledit/6_shades.lut',
+    '/luts/ncsa_paledit/blue_orange_icb.lut',
+    '/luts/ncsa_paledit/brgbcmyw.lut',
+    '/luts/ncsa_paledit/cool.lut',
+    '/luts/wcif/cyan_hot.lut',
+    '/luts/ncsa_paledit/edges.lut',
+    '/luts/fire.lut',
+    '/luts/ncsa_paledit/gem.lut',
+    '/luts/glasbey.lut',
+    '/luts/glasbey_inverted.lut',
+    '/luts/glow.lut',
+    '/luts/grays.lut',
+    '/luts/wcif/green_fire_blue.lut',
+    '/luts/wcif/hilo.lut',
+    '/luts/wcif/ica.lut',
+    '/luts/wcif/ica2.lut',
+    '/luts/wcif/ica3.lut',
+    '/luts/ice.lut',
+    '/luts/wcif/magenta_hot.lut',
+    '/luts/wcif/orange_hot.lut',
+    '/luts/ncsa_paledit/phase.lut',
+    '/luts/physics.lut',
+    '/luts/janelia/pup_br.lut',
+    '/luts/janelia/pup_nr.lut',
+    '/luts/wcif/rainbow_rgb.lut',
+    '/luts/red-green.lut',
+    '/luts/wcif/red_hot.lut',
+    '/luts/ncsa_paledit/royal.lut',
+    '/luts/ncsa_paledit/sepia.lut',
+    '/luts/ncsa_paledit/smart.lut',
+    '/luts/spectrum.lut',
+    '/luts/ncsa_paledit/thal.lut',
+    '/luts/ncsa_paledit/thallium.lut',
+    '/luts/thermal.lut',
+    '/luts/ncsa_paledit/unionjack.lut',
+    '/luts/wcif/yellow_hot.lut',
+    # NB: this is not a LUT but it is in the current png
+    # Used for channel slider gradient when no lut chosen
+    'gradient.png',
+]
+
 
 # helper method
 def getIntOrDefault(request, name, default):

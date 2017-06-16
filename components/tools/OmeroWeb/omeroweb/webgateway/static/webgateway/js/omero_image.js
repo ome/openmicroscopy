@@ -173,20 +173,37 @@
         }
     };
 
+    function getLutIndex(lutName) {
+      if (OME && OME.LUTS) {
+        for (var l=0; l<OME.LUTS.length; l++) {
+          if (OME.LUTS[l].name === lutName) {
+            return OME.LUTS[l].png_index;
+          }
+        }
+      }
+      return -1;
+    }
+
     function getLutBgPos(color, slider) {
+        var png_height = OME.PNG_LUTS.length * 10;
+        var style = {'background-size': '100% ' + (png_height * 3) + 'px'};
+        var yoffset;
         if (color.endsWith('.lut')) {
-            var lutIndex = OME.LUT_NAMES.indexOf(color);
+            var lutIndex = getLutIndex(color);
             if (lutIndex > -1) {
-                return '0px -' + (lutIndex * 30 + 7) + 'px';
+                yoffset = '-' + (lutIndex * 30 + 7) + 'px';
+            }
+        } else {
+            // Not found - show last bg (black -> transparent gradient)
+            if (slider) {
+                yoffset = '-' + ((OME.LUTS.length) * 30 + 7) + 'px';
+            } else {
+                // For buttons, hide by offsetting
+                yoffset = '100px';
             }
         }
-        // Not found - show last bg (black -> transparent gradient)
-        if (slider) {
-            return '0px -' + (OME.LUT_NAMES.length * 30 + 7) + 'px';
-        } else {
-            // For buttons, hide by offsetting
-            return '0px 100px';
-        }
+        style['background-position'] = '0px ' + yoffset;
+        return style;
     }
 
     window.syncRDCW = function(viewport) {
@@ -195,23 +212,23 @@
         var lutBgPos, sliderLutBgPos;
         for (i=0; i<channels.length; i++) {
             color = channels[i].color;
-            lutBgPos = getLutBgPos(color);
-            sliderLutBgPos = getLutBgPos(color, true);
+            lutBgStyle = getLutBgPos(color);
+            sliderLutBgStyle = getLutBgPos(color, true);
             if (color.endsWith('.lut')) {
                 color = 'EEEEEE';
             }
             // Button beside image in full viewer (not in Preview panel):
             $('#wblitz-ch' + i).css('background-color', '#' + color)
-                .find('.lutBackground').css('background-position', lutBgPos);
+                .find('.lutBackground').css(lutBgStyle);
             // Slider background
             $('#wblitz-ch'+i+'-cwslider').find('.ui-slider-range').addClass('lutBackground')
-                .css({'background-position': sliderLutBgPos,
-                      'background-color': '#' + color,
+                .css(sliderLutBgStyle)
+                .css({'background-color': '#' + color,
                       'transform': channels[i].reverseIntensity ? 'scaleX(-1)' : ''});
             // Channel button beside slider
             $('#rd-wblitz-ch'+i)
                 .css('background-color', '#' + color)
-                .find('.lutBackground').css('background-position', lutBgPos);
+                .find('.lutBackground').css(lutBgStyle);
             var w = channels[i].window;
             $('#wblitz-ch'+i+'-cwslider')
                 .slider( "option", "min", Math.min(w.min, w.start) )   // extend range if needed
