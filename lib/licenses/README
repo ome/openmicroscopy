@@ -66,13 +66,19 @@
   //
 
 
-  Artifacts:    ant-*.jar ivy-*.jar
-                As well as junit-frames.xsl, and junit-noframes.xsl files under components/insight/build/tools
-  Project:      The Apache Ant Project.  Ant is a Java-based build tool. (Ivy is a subproject
-                of Ant for managing dependencies)
+  Artifacts:    ant-*.jar
+  Project:      The Apache Ant Project. Ant is a Java-based build tool.
   Web Site:     http://ant.apache.org/
   License:      Apache License, Version 2.0
   License File: apache-v2.0.txt
+
+
+
+  Artifacts:    activation-*.jar
+  Project:      The JavaBeans(TM) Activation Framework is used by the JavaMail(TM) API to manage MIME data
+  Web Site:     http://java.sun.com/javase/technologies/desktop/javabeans/jaf/index.jsp
+  License:      Common Development and distribution License (CDDL) Version 1.0
+  License File: cddl.txt
 
 
   Artifacts:    antlr-*.jar
@@ -80,6 +86,18 @@
   Web Site:     http://antlr.org
   License:      BSD
   License File: antlr.txt
+
+
+  Artifacts:    aopalliance-*.jar
+  Web Site:     http://aopalliance.sourceforge.net
+  License:      Public Domain
+
+
+  Artifacts:    apacheds-all-*.jar
+  Project:      Extensible and embeddable directory server.
+  Web Site:     http://directory.apache.org/apacheds/
+  License:      Apache Software License, Version 2
+  License File: apache-v2.0.txt
 
 
   Artifacts:    appbundler-*.jar
@@ -94,6 +112,34 @@
   Web Site:     http://asm.ow2.org
   License:      BSD
   License File: asm.txt
+
+
+  Artifacts:    assumeng-*.jar
+  Projects:     Assumg NG -- Assumptions for TestNG.
+  Web Site:     https://github.com/hierynomus/assumeng
+  License:      Apache Software License, Version 2
+  License File: apache-v2.0.txt
+
+
+  Artifacts:    aspectjrt-*.jar
+  Projects:     The runtime needed to execute a program using AspectJ.
+  Web Site:     http://www.aspectj.org
+  License:      Eclipse Public License, Version 1.0
+  License File: eclipse-v1.0.txt
+  
+
+  Artifacts:    aspectjweaver-*.jar
+  Projects:     The AspectJ weaver introduces advices to java classes.
+  Web Site:     http://www.aspectj.org
+  License:      Eclipse Public License, Version 1.0
+  License File: eclipse-v1.0.txt
+
+
+  Artifacts:    assumeng-*.jar
+  Projects:     Assumg NG -- Assumptions for TestNG.
+  Web Site:     https://github.com/hierynomus/assumeng
+  License:      Apache Software License, Version 2
+  License File: apache-v2.0.txt
 
 
   Artifacts:    backport-util-concurrent-*.jar
@@ -115,6 +161,14 @@
   Web Site:     http://bitronix.be
   License:      Lesser General Public License (LGPL) v2.1
   License File: lgpl-v2.1.txt
+
+
+  Artifacts:    bsh-*.jar
+  Project:      BeanShell
+  Web Site:     http://www.beanshell.org/
+  License:      Sun Public License or Lesser General Public License (LGPL) v3.0
+  License File: spl.txt or lgpl-v3.0.txt
+
 
 
   Artifacts:    bufr-*.jar
@@ -175,11 +229,32 @@
   License File: lgpl-v2.1.txt
 
 
+  Artifacts:    filters-*.jar
+  Project:      A collection of image processing filters.
+  Web Site:     http://www.jhlabs.com/ip/index.html
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
+  Artifacts:    fontbox-*.jar
+  Project:      FontBox is a Java font library used to obtain low level information from font files.
+  Web Site:     http://www.fontbox.org/
+  License:      BSD License
+  License File: bsd.txt
+
+
   Artifacts:    freemarker-*.jar
   Project:      FreeMarker, a template engine
   Web Site:     http://freemarker.org
-  License:      BSD
+  License:      BSD-style License
   License File: freemarker.txt
+
+  
+  Artifacts:    freeze-*.jar
+  Project:      Persistent storage for Ice objects
+  Web Site:     https://zeroc.com
+  License:      General Public License (GPL), Version 2
+  License File: gpl-v2.0.txt
 
 
   Artifacts:    geronimo-spec-jta-*.jar
@@ -189,6 +264,13 @@
   License File: apache-v2.0.txt
 
 
+  Artifacts:    glacier2-*.jar
+  Project:      Firewall traversal for Ice
+  Web Site:     https://zeroc.com
+  License:      General Public License (GPL), Version 2
+  License File: gpl-v2.0.txt
+
+
   Artifacts:    guava-*.jar
   Project:      Google Core Libraries for Java.
   Web Site:     https://github.com/google/guava
@@ -196,8 +278,33 @@
   License File: apache-v2.0.txt
 
 
+  Artifacts:    guice-*.jar
+  Project:      Google Core Libraries for Java.
+  Web Site:     https://github.com/google/guice
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
   Artifacts:    grib-*.jar
   Web Site:     http://www.unidata.ucar.edu/software/netcdf-java/
+  License:      Lesser General Public License (LGPL) v2.1
+  License File: lgpl-v2.1.txt
+
+
+  Artifacts:    hamcrest-core-*.jar
+  Project:      This is the core API of hamcrest matcher framework 
+                to be used by third-party framework providers. 
+                This includes the a foundation set of matcher
+                implementations for common operations.
+  Web Site:     http://code.google.com/p/hamcrest/
+  License:      BSD License
+  License File: bsd.txt
+
+
+  Artifacts:    hibernate-*.jar
+  Project:      Hibernate. A powerful, high performance object/relational persistence and
+                query service.
+  Web Site:     http://hibernate.org
   License:      Lesser General Public License (LGPL) v2.1
   License File: lgpl-v2.1.txt
 
@@ -221,27 +328,40 @@
   Web Site:     https://hc.apache.org/httpcomponents-client-ga/
   License:      Apache License, Version 2.0
   License File: apache-v2.0.txt
-  
-
-  Artifacts:    hibernate-*.jar
-  Project:      Hibernate. A powerful, high performance object/relational persistence and
-                query service.
-  Web Site:     http://hibernate.org
-  License:      Lesser General Public License (LGPL) v2.1
-  License File: lgpl-v2.1.txt
 
 
   Artifacts:    ice-*.jar
   Project:      Internet Communications Engine (Ice). A modern object-oriented
-                middleware with support for C++, .NET, Java, Python, Ruby, and PHP
+                middleware with support for C++, .NET, Java, Python, Ruby, and PHP.
   Web Site:     http://zeroc.com
   License:      General Public License (GPL), Version 2
-  License File: gpl.txt
+  License File: gpl-v2.0.txt
 
   
+  Artifacts:    icegrid-*.jar
+  Project:      Locate, deploy, and manage Ice servers.
+  Web Site:     http://zeroc.com
+  License:      General Public License (GPL), Version 2
+  License File: gpl-v2.0.txt
+
+
+  Artifacts:    icestorm-*.jar
+  Project:      Publish-subscribe event distribution service.
+  Web Site:     http://zeroc.com
+  License:      General Public License (GPL), Version 2
+  License File: gpl-v2.0.txt
+
+
   Artifacts:    ij-*.jar
   Web Site:     http://imagej.net/Welcome
   License:      Public Domain
+
+
+  Artifacts:    ini4j-*.jar
+  Project:      Publish-subscribe event distribution service
+  Web Site:     http://www.ini4j.org
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
 
 
   Artifacts:    java-image-scaling-*.jar
@@ -252,7 +372,7 @@
 
   Artifacts:    jai_imageio-*.jar
   Web Site:     http://jai-imageio.dev.java.net/
-  License:      BSD
+  License:      BSD License
   License File: bsd.txt
 
 
@@ -266,8 +386,15 @@
   Artifacts:    jamon-*.jar
   Project:      JAMon, A monitoring API
   Web Site:     http://jamon.sourceforge.net
-  License:      BSD
+  License:      BSD License
   License File: jamon.txt
+
+
+  Artifacts:    janino-*.jar
+  Project:      JAMon, A monitoring API
+  Web Site:     http://janino.net
+  License:      BSD License
+  License File: bsd.txt
 
 
   Artifacts:    java-getopt-*.jar
@@ -283,25 +410,62 @@
   License:      Lesser General Public License (LGPL) v2.1
   License File: lgpl-v2.1.txt
 
+  
+  Artifacts:    jcl-over-slf4j-*.jar
+  Project:      JCL 1.1.1 implemented over SLF4J.
+  Web Site:     http://www.slf4j.org
+  License:      MIT License
+  License File: slf4j.txt
 
-  Artifacts:    jaxrpc-*.jar
-  Project:      JAX-RPC Reference Implementation Project.
-                We do not use this software directly but required by the Apache Axis project
-  Web Site:     https://jax-rpc.dev.java.net/
-  License:      Common Development and Distribution License, Version 1.0
+
+  Artifacts:    jcommander-*.jar
+  Project:      A Java framework to parse command line options with annotations.
+  Web Site:     http://beust.com/jcommander
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
 
 
   Artifacts:    jcommon-*.jar
-  Project:      The JCommon library.  We don't use this software directly,
-                but required by the JFreeChart library.
+  Project:      JCommon is a free general purpose Java class library that is used in
+                several projects at www.jfree.org, including JFreeChart and
+                JFreeReport.
   Web Site:     http://www.jfree.org/jcommon/index.php
   License:      Lesser General Public License (LGPL)
-  License File: lgpl.txt
+  License File: lgpl-v3.0.txt
+
+
+  Artifacts:    jempbox-*.jar
+  Project:      JempBox is an open source Java library that implements Adobe's XMP(TM) specification.
+  Web Site:     http://www.jempbox.org/
+  License:      BSD License
+  License File: bsd.txt
 
 
   Artifacts:    jfreechar-*.jar
   Project:      The JFreeChart project. Used to display professional quality charts.
   Web Site:     http://www.jfree.org/jfreechart/
+  License:      Lesser General Public License (LGPL) v2.0
+  License File: lgpl-v2.0.txt
+
+
+  Artifacts:    jgoodies-common-*.jar
+  Project:      The JGoodies Common library provides convenience code
+                for other JGoodies libraries and applications.
+  Web Site:     http://www.jgoodies.com/downloads/libraries.html
+  License:      BSD License
+  License File: bsd.txt
+
+
+  Artifacts:    jgoodies-forms-*.jar
+  Project:      The JGoodies Forms framework helps you lay out and implement 
+                elegant Swing panels quickly and consistently.
+  Web Site:     https://forms.java.net/
+  License:      BSD License
+  License File: bsd.txt
+
+
+  Artifacts:    jhdf5-*.jar
+  Web Site:     https://wiki-bsse.ethz.ch/display/JHDF5
   License:      Lesser General Public License (LGPL) v2.0
   License File: lgpl-v2.0.txt
 
@@ -318,7 +482,7 @@
   Project:      jMock, a library that supports test-driven development of Java
                 code with mock objects.
   Web Site:     http://jmock.org
-  License:      BSD
+  License:      BSD License
   License File: jmock.txt
 
  
@@ -329,9 +493,23 @@
   License File: lgpl-v2.1.txt
 
 
+  Artifacts:    joda-time-*.jar
+  Project:      Date and time library to replace JDK date handling.
+  Web Site:     http://joda-time.sourceforge.net
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
   Artifacts:    jsr107cache-*.jar
   Project:      jsr107cache, Java API for caching
   Web Site:     http://sourceforge.net/projects/jsr107cache/
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+  
+  Artifacts:    jsr305-*.jar
+  Project:      JSR305 Annotations for Findbugs
+  Web Site:     http://findbugs.sourceforge.net/
   License:      Apache License, Version 2.0
   License File: apache-v2.0.txt
 
@@ -343,12 +521,52 @@
   License File: jtidy.txt
 
 
+  Artifacts:    jts-*.jar
+  Project:      JTidy, a Java port of HTML Tidy
+  Web Site:     http://jtidy.sourceforge.net
+  License:      ...
+  License File: jtidy.txt
+
+
+  Artifacts:    jul-to-slf4j-*.jar
+  Project:      JUL to SLF4J bridge.
+  Web Site:     http://www.slf4j.org
+  License:      MIT License
+  License File: slf4j.txt
+
+
   Artifacts:    junit-*.jar
-  Project:      The JUnit Testing Framework. A framework for unit-testing.  All our
+  Project:      The JUnit Testing Framework. A framework for unit-testing. All our
                 regression tests make use of this framework in a way or another.
   Web Site:     http://www.junit.org/
   License:      Common Public License (CPL) v1.0
   License File: cpl-v10.html
+
+
+  Artifacts:    jWlz-*.jar
+  Web Site:     http://www.emouseatlas.org/emap/analysis_tools_resources/software/woolz.html
+  License:      Common Public License (CPL) v1.0
+  License File: cpl-v10.html
+
+
+  Artifacts:    jxrlib-all-*.jar
+  Project:      Java bindings and pre-built native binaries for jxrlib.
+  Web Site:     https://jxrlib.codeplex.com
+  License:      FreeBSD License
+  License File: fbsd.html
+
+
+  Artifacts:    kryo-*.jar
+  Project:      Fast, efficient Java serialization
+  Web Site:     https://github.com/EsotericSoftware/kryo
+  License:      New BSD License
+  License File: bsd-new.txt
+
+
+  Artifacts:    logback-*.jar
+  Web Site:     http://logback.qos.ch
+  License:      Lesser General Public License (LGPL) v2.1
+  License File: lgpl-v2.1.txt
 
 
   Artifacts:    log4j-*.jar
@@ -367,16 +585,71 @@
   License File: apache-v2.0.txt
 
 
+  Artifacts:    mail-*.jar  
+  License:      CDDL or GPLv2+CE
+  License File: cddl-v1.0.txt
+
+
   Artifacts:    mdbtools-java.jar
   Web Site:     http://sourceforge.net/forum/message.php?msg_id=2550619
   License:      Lesser General Public License (LGPL) v2.1
   License File: lgpl-v2.1.txt
 
 
+  Artifacts:    metric-core-*.jar, metrics-graphite-*.jar, metrics-jvm-*.jar, metrics-logback-*.jar
+  Project:      Metrics is a Java library which gives you unparalleled insight into what your code does in
+                production. Metrics provides a powerful toolkit of ways to measure the behavior of critical
+                components in your production environment.
+  Web Site:     http://metrics.dropwizard.io/3.2.2/
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
+  Artifacts:    metadata-extractor-*.jar
+  Project:      Java library for reading metadata from image files.
+  Web Site:     http://code.google.com/p/metadata-extractor
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
+  Artifacts:    minlog-*.jar
+  Project:      Minimal overhead Java logging
+  Web Site:     http://code.google.com/p/minlog/
+  License:      New BSD License
+  License File: bsd-new.txt
+
+
+  Artifacts:    native-lib-loader-*.jar
+  Project:      A library for loading native libraries.
+  Web Site:     http://github.com/scijava/native-lib-loader
+  License:      Free BSD License
+  License File: fbsd.txt
+
+
   Artifacts:    netcdf-*.jar
   Web Site:     http://www.unidata.ucar.edu/software/netcdf-java/
   License:      Lesser General Public License (LGPL) v2.1
   License File: lgpl-v2.1.txt
+
+
+  Artifacts:    objenesis-*.jar
+  Project:      A library for instantiating Java objects.
+  Web Site:     http://objenesis.org
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
+  Artifacts:    oro-*.jar
+  Web Site:     http://jakarta.apache.org/oro/
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
+  Artifacts:    pdfbox-*.jar
+  Project:      PDFBox is an open source Java PDF library for working with PDF documents.
+  Web Site:     http://www.pdfbox.org/
+  License:      BSD License
+  License File: bsd.txt
 
 
   Artifacts:    perf4j-*.jar
@@ -400,10 +673,17 @@
 
 
   Artifacts:    postgresql-*.jar
-  Project:      PostgreSQL JDBC driver
+  Project:      PostgreSQL JDBC driver.
   Web Site:     http://jdbc.postgresql.org
-  License:      BSD
+  License:      PostgreSQL License
   License File: postgresql.txt
+
+
+  Artifacts:    quartz-*.jar
+  Project:      OpenSymphony's Quartz Scheduler.
+  Web Site:     http://www.quartz-scheduler.org/
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
 
 
   Artifacts:    reportng-*.jar
@@ -421,17 +701,39 @@
 
 
   Artifacts:    setuptools-*.egg
-  Project:      setuptools, a collection of enhancements to the Python distutils
+  Project:      setuptools, a collection of enhancements to the Python distutils.
   Web Site:     http://pypi.python.org/pypi/setuptools
   License:      PSF v2.5 or ZPL v2.1
   License File: psf-v2.5.txt or zpl-v2.1.txt
 
 
+  Artifacts:    serializer-*.jar
+  Project:      Serializer to write out XML, HTML etc. as a stream of characters from an input DOM or from input
+                SAX events.
+  Web Site:     http://xml.apache.org/xalan-j/
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
+  Artifacts:    shared-*.jar
+  Project:      Collections of utils packages
+  Web Site:     
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
   Artifacts:    slf4j-*.jar
   Project:      SLF4J, Simple Logging Facade for Java
   Web Site:     http://slf4j.org
-  License:      MIT
+  License:      MIT License
   License File: slf4j.txt
+
+
+  Artifacts:    snakeyaml-*.jar
+  Project:      YAML 1.1 parser and emitter for Java
+  Web Site:     http://code.google.com/p/snakeyaml
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
 
 
   Artifacts:    spring-*.jar
@@ -473,6 +775,13 @@
   License File: apache-v2.0.txt
 
 
+  Artifacts:    turbojpeg-*.jar
+  Project:      Java bindings and pre-built binaries for libjpeg-turbo.
+  Web Site:     http://libjpeg-turbo.virtualgl.org/
+  License:      FreeBSD License
+  License File: fbsd.txt
+
+
   Artifacts:    velocity-*.jar
   Project:      Apache Velocity. A Java-based template engine.
   Website:      http://velocity.apache.org
@@ -480,18 +789,51 @@
   License File: apache-v2.0.txt
 
 
+  Artifacts:    xalan-*.jar
+  Project:      Xalan-Java is an XSLT processor for transforming XML documents into HTML,
+                text, or other XML document types. It implements XSL Transformations (XSLT)
+                Version 1.0 and XML Path Language (XPath) Version 1.0 and can be used from
+                the command line, in an applet or a servlet, or as a module in other program.
+  Website:      http://xml.apache.org/xalan-j/
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
   Artifacts:    xerces-*.jar xercesImpl-*.jar xml-apis-*.jar
-  Project:      The Xerces2 Java Parser.  An XML parser which is used by Ant.
+  Project:      The Xerces2 Java Parser. An XML parser which is used by Ant.
   Web Site:     http://xml.apache.org/xerces2-j/
   License:      Apache Software License, Version 1.1
   License File: apache-v1.1.txt
 
 
-  Artifacts:    forms-*.jar
-  Web Site:     http://www.jgoodies.com/freeware/forms/index.html
-  License:      BSD
+  Artifacts:    xml-apis-*.jar
+  Project:      xml-commons provides an Apache-hosted set of DOM, SAX, and 
+                JAXP interfaces for use in other xml-based projects. Our hope is that we 
+                can standardize on both a common version and packaging scheme for these 
+                critical XML standards interfaces to make the lives of both our developers 
+                and users easier. The External Components portion of xml-commons contains 
+                interfaces that are defined by external standards organizations. For DOM, 
+                that's the W3C;
+  Web Site:     http://xml.apache.org/commons/#external
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
+  Artifacts:    xmpcore-*.jar
+  Project:      The XMP Library for Java is based on the C++ XMPCore library
+                and the API is similar.
+  Web Site:     http://www.adobe.com/devnet/xmp.html
+  License:      BSD License
   License File: bsd.txt
 
+
+  Artifacts:    xpp3-*.jar
+  Project:      The XMP Library for Java is based on the C++ XMPCore library
+                and the API is similar.
+  Web Site:     http://www.adobe.com/devnet/xmp.html
+  License:      Indiana University Extreme! Lab Software License, version 1.1.1 or Public Domain or 
+                Apache License, version 1.1
+  License File: apache-v1.1.txt
 
 
   //
