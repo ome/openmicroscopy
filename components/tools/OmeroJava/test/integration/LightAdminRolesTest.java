@@ -1196,7 +1196,7 @@ public class LightAdminRolesTest extends RolesTests {
             /* Check the value of canAnnotate on the sentImage.
              * The value must be false as the Rnd settings cannot be saved.*/
             Assert.assertFalse(getCurrentPermissions(sentImage).canAnnotate());
-            Assert.assertFalse(isExpectSuccessCreateROIRndSettings);
+            Assert.assertFalse(isExpectSuccessCreateROIRndSettings, sv.toString());
         }
         /* Retrieve the image corresponding to the roi and Rnd settings
          * (if they could be set) and check the roi and rendering settings
