@@ -220,8 +220,8 @@ public class LightAdminRolesTest extends RolesTests {
         Dataset dat = mmFactory.simpleDataset();
         Project sentProj = null;
         Dataset sentDat = null;
-        /* lightAdmin sets the normalUser as the owner of the newly created P/D but only
-         * in cases in which lightAdmin is not sudoing (if sudoing, the created P/D
+        /* lightAdmin sets the normalUser as the owner of the newly created Project/Dataset but only
+         * in cases in which lightAdmin is not sudoing (if sudoing, the created Project/Dataset
          * already belong to normalUser).*/
         if (!isSudoing) {
             proj.getDetails().setOwner(new ExperimenterI(normalUser.userId, false));
@@ -336,7 +336,7 @@ public class LightAdminRolesTest extends RolesTests {
         * Note that deletion of the Project
         * would delete the whole hierarchy, which was successfully tested
         * during writing of this test. The order of the below delete() commands
-        * is intentional, as the ability to delete the links and P/D/I separately is
+        * is intentional, as the ability to delete the links and Project/Dataset/Image separately is
         * tested in this way.
         * Also check that the canDelete boolean
         * on the object retrieved by the lightAdmin matches the deletePassing
@@ -873,7 +873,7 @@ public class LightAdminRolesTest extends RolesTests {
          * operation is captured in boolean isExpectSuccessLinkAndChown. Note that the
          * ownership of the links must be transferred explicitly, as the Chown feature
          * on the Project would not transfer ownership links owned by non-owners
-         * of the P/D/I objects (chown on mixed ownership hierarchy does not chown objects
+         * of the Project/Dataset/Image objects (chown on mixed ownership hierarchy does not chown objects
          * owned by other users).*/
         Chown2 chown = Requests.chown().target(linkOfDatasetImage).toUser(normalUser.userId).build();
         doChange(client, factory, chown, isExpectSuccessLinkAndChown);
@@ -1048,7 +1048,7 @@ public class LightAdminRolesTest extends RolesTests {
         if (isPrivileged) permissions.add(AdminPrivilegeChown.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(true, permissions);
-        /* normalUser creates two sets of P/D/I hierarchy in their default group.*/
+        /* normalUser creates two sets of Project/Dataset/Image hierarchy in their default group.*/
         loginUser(normalUser);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         Image image1 = mmFactory.createImage();
@@ -1068,7 +1068,7 @@ public class LightAdminRolesTest extends RolesTests {
         ProjectDatasetLink linkOfProjectDataset1 = linkParentToChild(sentProj1, sentDat1);
         ProjectDatasetLink linkOfProjectDataset2 = linkParentToChild(sentProj2, sentDat2);
 
-        /* normalUser creates two sets of P/D?I hierarchy in the other group (anotherGroup).*/
+        /* normalUser creates two sets of Project/Dataset?Image hierarchy in the other group (anotherGroup).*/
         client.getImplicitContext().put("omero.group", Long.toString(anotherGroup.getId().getValue()));
         Image image1AnotherGroup = mmFactory.createImage();
         Image image2AnotherGroup = mmFactory.createImage();
