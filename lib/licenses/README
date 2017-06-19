@@ -351,7 +351,8 @@
 
 
   Artifacts:    ij-*.jar
-  Web Site:     http://imagej.net/Welcome
+  Project:      ImageJ is an open source Java image processing program inspired by NIH Image for the Macintosh.
+  Web Site:     http://imagej.net/
   License:      Public Domain
 
 
@@ -473,7 +474,7 @@
                 structured drawing editors.
   Web Site:     http://www.jhotdraw.org/
   License:      Lesser General Public License (LGPL) or Creative Commons Attribution 3.0 Unported
-  License File:
+  License File: lgpl.txt
 
 
   Artifacts:    jmock-*.jar
@@ -513,13 +514,6 @@
 
 
   Artifacts:    jtidy-*.jar
-  Project:      JTidy, a Java port of HTML Tidy
-  Web Site:     http://jtidy.sourceforge.net
-  License:      ...
-  License File: jtidy.txt
-
-
-  Artifacts:    jts-*.jar
   Project:      JTidy, a Java port of HTML Tidy
   Web Site:     http://jtidy.sourceforge.net
   License:      ...
@@ -583,15 +577,24 @@
   License File: apache-v2.0.txt
 
 
+  Artifacts:    lwf-stubs-*.jar
+  Project:      Stub of proprietary Java API to handle Luratech LWF compression.
+                Required to compile Bio-Formats's support for Luratech LWF compression for the Opera Flex format.
+  Web Site:     http://www.luratech.com/
+  License:      BSD License
+  License File: bsd.txt
+
+
   Artifacts:    mail-*.jar  
   License:      CDDL or GPLv2+CE
   License File: cddl-v1.0.txt
 
 
-  Artifacts:    mdbtools-java.jar
-  Web Site:     http://sourceforge.net/forum/message.php?msg_id=2550619
-  License:      Lesser General Public License (LGPL) v2.1
-  License File: lgpl-v2.1.txt
+  Artifacts:    mipav-stubs-*.jar
+  Project:      A library for reading Metakit database files.
+  Web Site:     http://mipav.cit.nih.gov
+  License:      BSD License
+  License File: bsd.txt
 
 
   Artifacts:    metric-core-*.jar, metrics-graphite-*.jar, metrics-jvm-*.jar, metrics-logback-*.jar
@@ -889,7 +892,7 @@
 
 
   Artifacts:    components/tools/OmeroPy/src/omero_ext/killableprocess.py
-  Web Site:     http://svn.smedbergs.us/python-processes/trunk/killableprocess.py
+  Web Site:     https://github.com/andreisavu/python-process/blob/master/killableprocess.py
   License:      
   License File: killableprocess.py
 
@@ -901,12 +904,11 @@
   License File: apache-v2.0.txt
 
 
-
   Artifacts:    components/tools/OmeroPy/src/omero_ext/portalocker.py
   Project:      
   Web Site:     
-  License:      
-  License File: portalocker.py
+  License:      Python Software Foundation License, Version 2.0
+  License File: psf-v2.0.txt
 
 
   Artifacts:    components/tools/OmeroPy/src/omero_ext/pyinotify.py
