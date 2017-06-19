@@ -851,7 +851,7 @@ public class LightAdminRolesTest extends RolesTests {
         Assert.assertEquals(getCurrentPermissions(sentProj).canLink(), isExpectLinkingSuccess);
         /* lightAdmin tries to create links between the image and Dataset
          * and between Dataset and Project.
-         * If links could not be created, finish the test */
+         * If links could not be created, finish the test.*/
         DatasetImageLink linkOfDatasetImage = new DatasetImageLinkI();
         ProjectDatasetLink linkOfProjectDataset = new ProjectDatasetLinkI();
         try {
