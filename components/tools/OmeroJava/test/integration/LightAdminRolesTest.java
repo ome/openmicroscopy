@@ -1380,10 +1380,15 @@ public class LightAdminRolesTest extends RolesTests {
         IScriptPrx iScript = factory.getScriptService();
         /* lightAdmin fetches a script from the server.*/
         OriginalFile scriptFile = iScript.getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE).get(0);
-        RawFileStorePrx rfs = factory.createRawFileStore();
-        rfs.setFileId(scriptFile.getId().getValue());
-        final String actualScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
-        rfs.close();
+        String actualScript;
+        RawFileStorePrx rfs = null;
+        try {
+            rfs = factory.createRawFileStore();
+            rfs.setFileId(scriptFile.getId().getValue());
+            actualScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
+        } finally {
+            if (rfs != null) rfs.close();
+        }
         /* lightAdmin tries uploading the script as a new script in normalUser's group.*/
         iScript = factory.getScriptService();
         final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
@@ -1402,10 +1407,15 @@ public class LightAdminRolesTest extends RolesTests {
         Assert.assertEquals(scriptFile.getDetails().getOwner().getId().getValue(), roles.rootId);
         Assert.assertEquals(scriptFile.getDetails().getGroup().getId().getValue(), roles.userGroupId);
         /* Check if the script is correctly uploaded.*/
-        rfs = factory.createRawFileStore();
-        rfs.setFileId(testScriptId);
-        final String currentScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
-        rfs.close();
+        String currentScript;
+        rfs = null;
+        try {
+            rfs = factory.createRawFileStore();
+            rfs.setFileId(testScriptId);
+            currentScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
+        } finally {
+            if (rfs != null) rfs.close();
+        }
         Assert.assertEquals(currentScript, actualScript);
     }
 
@@ -1427,11 +1437,16 @@ public class LightAdminRolesTest extends RolesTests {
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         IScriptPrx iScript = factory.getScriptService();
         /* lightAdmin fetches a script from the server.*/
-        final OriginalFile scriptFile = iScript.getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE).get(0);
-        RawFileStorePrx rfs = factory.createRawFileStore();
-        rfs.setFileId(scriptFile.getId().getValue());
-        final String actualScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
-        rfs.close();
+        OriginalFile scriptFile = iScript.getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE).get(0);
+        String actualScript;
+        RawFileStorePrx rfs = null;
+        try {
+            rfs = factory.createRawFileStore();
+            rfs.setFileId(scriptFile.getId().getValue());
+            actualScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
+        } finally {
+            if (rfs != null) rfs.close();
+        }
         /* Another light admin (anotherLightAdmin) with appropriate permissions
          * uploads the script as a new script.*/
         final EventContext anotherLightAdmin = loginNewAdmin(true, AdminPrivilegeWriteScriptRepo.value);
@@ -1466,8 +1481,9 @@ public class LightAdminRolesTest extends RolesTests {
         } else {
             assertExists(testScript);
         }
-        rfs = factory.createRawFileStore();
+        rfs = null;
         try {
+            rfs = factory.createRawFileStore();
             rfs.setFileId(testScriptId);
             final String currentScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
             Assert.assertEquals(currentScript, actualScript);
@@ -1477,7 +1493,7 @@ public class LightAdminRolesTest extends RolesTests {
              * {@link #RawFileStoreTest.testBadFileId, testBadFileId} is broken.*/
             Assert.assertTrue(isExpectSuccessDeleteOfficialScript);
         } finally {
-            rfs.close();
+            if (rfs != null) rfs.close();
         }
     }
 
