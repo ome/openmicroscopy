@@ -73,7 +73,6 @@
   License File: apache-v2.0.txt
 
 
-
   Artifacts:    activation-*.jar
   Project:      The JavaBeans(TM) Activation Framework is used by the JavaMail(TM) API to manage MIME data
   Web Site:     http://java.sun.com/javase/technologies/desktop/javabeans/jaf/index.jsp
@@ -168,7 +167,6 @@
   Web Site:     http://www.beanshell.org/
   License:      Sun Public License or Lesser General Public License (LGPL) v3.0
   License File: spl.txt or lgpl-v3.0.txt
-
 
 
   Artifacts:    bufr-*.jar
@@ -878,11 +876,37 @@
   License File: apache-v2.0.txt
 
 
+  Artifacts:    components/tools/OmeroPy/src/omero_ext/cloghandler.py
+  Project:      A smart replacement for the standard RotatingFileHandler
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
+  Artifacts:    components/tools/OmeroPy/src/omero_ext/functional.py
+  Web Site:     http://code.djangoproject.com/browser/django/trunk/django/utils/functional.py
+  License:      Python Software Foundation License, Version 2.0
+  License File: psf-v2.0.txt
+
+
+  Artifacts:    components/tools/OmeroPy/src/omero_ext/killableprocess.py
+  Web Site:     http://svn.smedbergs.us/python-processes/trunk/killableprocess.py
+  License:      
+  License File: killableprocess.py
+
+
   Artifacts:    components/tools/OmeroPy/src/omero_ext/mox.py
   Project:      mox: an object-mocking framework for Python
   Web Site:     http://code.google.com/p/pymox
   License:      Apache License, Version 2.0
   License File: apache-v2.0.txt
+
+
+
+  Artifacts:    components/tools/OmeroPy/src/omero_ext/portalocker.py
+  Project:      
+  Web Site:     
+  License:      
+  License File: portalocker.py
 
 
   Artifacts:    components/tools/OmeroPy/src/omero_ext/pyinotify.py
@@ -892,18 +916,21 @@
   License File: pyinotify.py
 
 
-  Artifacts:    components/tools/OmeroPy/src/path.py
-  Project:      A module wrapper for os.path
-  Web Site:     https://github.com/jaraco/path.py
-  License:      MIT
-  License File: path.txt
+  Artifacts:    components/tools/OmeroPy/src/omero_ext/stubout.py
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
 
 
   Artifacts:    components/tools/OmeroPy/src/omero_ext/which.py
   Project:      GNU which replacement
   Web Site:     http://code.google.com/p/which/
-  License:      MIT
+  License:      MIT License
   License File: which.txt
+
+
+  Artifacts:    components/tools/OmeroPy/src/omero_ext/winprocess.py
+  License:      MIT License
+  License File: mit.txt
 
 
   Artifacts:    components/tools/OmeroPy/src/omero_ext/tiltpicker
@@ -913,18 +940,16 @@
   License File: apache-v2.0.txt
 
 
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery-ui-1.8.17/*
-  Project:      jQuery UI - open source library of interface components.
-  Web Site:     http://jqueryui.com/
-  License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2.
-  License File: jquery.txt, gpl.txt
+  Artifacts:    components/tools/OmeroPy/src/path.py
+  Project:      A module wrapper for os.path
+  Web Site:     https://github.com/jaraco/path.py
+  License:      MIT License
+  License File: path.txt
 
-
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery.ui.touch-punch.min.js
-  Project:      Touch punch - Enables touch events on mobile web
-  Web Site:     http://touchpunch.furf.com/
-  License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2.
-  License File: jquery.txt, gpl.txt
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webadmin/static/webadmin/javascript/jquery.imgareaselect-0.9.10.js
+  Web Site:     http://odyniec.net/projects/imgareaselect/
+  License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2
+  License File: mit.txt, gpl-v2.0.txt
 
 
   Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/static/webclient/javascript/slider/*
@@ -934,110 +959,227 @@
   License File: apache-v2.0.txt
 
 
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/static/webclient/javascript/jquery.form.js
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/static/webclient/javascript/jquery.editinplace-0.1.2.js
+  Project:      a jQuery plugin that turns any element or group of elements into an Ajax in-place editor
+                using only one line of code.
+  Web Site:     https://github.com/siebertm/jquery-edit-in-place
+  License:      BSD License
+  License File: bsd.txt
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/static/webclient/javascript/jquery.form-3.51.js
   Project:      jQuery Form Plugin.
   Web Site:     http://malsup.com/jquery/form/
-  License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2.
-  License File: jquery.txt
+  License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2
+  License File: mit.txt, gpl-v2.0.txt
 
 
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/media/javascript/jquery.imgareaselect.js
-  Project:      jQuery Image Area Select Plugin.
-  Web Site:     http://odyniec.net/projects/imgareaselect/
-  License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2.
-  License File: jquery.txt, gpl.txt
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/static/webclient/javascript/jquery.infieldlabel-0.1.js
+  Web Site:     https://github.com/instanceofme/jquery-infieldlabels
+  License:      MIT License and GNU GENERAL PUBLIC LICENSE Version 2
+  License File: mit.txt, gpl-v2.0.txt
 
 
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webadmin/static/webadmin/javascript/jquery.multiselects.js
-  Project:      jQuery Multiple Selects Plugin.
-  Web Site:     http://code.google.com/p/jqmultiselects/
-  License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2.
-  License File: jquery.txt, gpl.txt
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/static/webclient/javascript/modernizr-2.5.3.js
+  Web Site:     https://modernizr.com/
+  License:      MIT License
+  License File: mit.txt
 
 
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery.quicksearch.js
-  Project:      jQuery Quick Search Plugin.
-  Web Site:     http://rikrikrik.com/jquery/quicksearch/
-  License:      GNU GENERAL PUBLIC LICENSE Version 2.
-  License File: jquery.txt, gpl.txt
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/d3-3.5.17/*
+  Project:      JavaScript library for manipulating documents based on data.
+  Web Site:     https://d3js.org/
+  License:      BSD License
+  License File: bsd.txt
 
 
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery.tablesorter
-  Project:      jQuery Table Sorter Plugin.
-  Web Site:     http://tablesorter.com/docs/
-  License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2.
-  License File: jquery.txt, gpl.txt
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/farbtastic-1.2/*
+  Project:      a jQuery plug-in that can add one or more color picker widgets into a page.
+  Web Site:     https://github.com/mattfarina/farbtastic
+  License:      GNU GENERAL PUBLIC LICENSE Version 2
+  License File: gpl-v2.0.txt
 
 
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery.tooltip
-  Project:      jQuery Tooltip Plugin.
-  Web Site:     http://bassistance.de/jquery-plugins/jquery-plugin-tooltip/, http://docs.jquery.com/Plugins/Tooltip
-  License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2.
-  License File: jquery.txt, gpl.txt
-
-
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/raphael/raphael-min.js
-  Project:      Raphael javascript library
-  Web Site:     http://raphaeljs.com/
-  License:      MIT license.
-  License File: jquery.txt
-
-
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/raphael/scale.raphael.js
-  Project:      ScaleRaphael
-  Web Site:     www.shapevent.com/scaleraphael/
-  License:      MIT license.
-  License File: jquery.txt
-
-
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/chosen/*
-  Project:      Chosen
-  Web Site:     http://harvesthq.github.com/chosen/
-  License:      MIT license.
-  License File: jquery.txt
-
-
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/static/webgateway/pie/*
-  Project:      CSS3 PIE
-  Web Site:     http://css3pie.com
-  License:      Dual-licensed for use under the Apache License Version 2.0 or the General Public License (GPL) Version 2.
-  License File: apache-v2.0.txt gpl.txt
-
-
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/hammer/hammer.min.js
-  Project:      Hammer.js
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/hammer-2.0.2/*
+  Project:      A javascript library for multi-touch gestures.
   Web Site:     http://hammerjs.github.io/
-  License:      MIT license.
-  License File: jquery.txt
+  License:      MIT License
+  License File: mit.txt
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/ie8_pngfix/*
+  Project:      
+  Web Site:     
+  License:      
+  License File: 
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery-ui-1.10.4/*
+  Project:      jQuery UI - open source library of interface components.
+  Web Site:     http://jqueryui.com/
+  License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2
+  License File: jquery.txt, gpl-v2.0.txt
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery.chosen-1.2.0/*
+  Project:      a JavaScript plugin that makes long, unwieldy select boxes much more user-friendly.
+  Web Site:     https://github.com/harvesthq/chosen
+  License:      MIT License
+  License File: mit.txt
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery.flot-0.7/*
+  Project:      Attractive JavaScript plotting for jQuery
+  Web Site:     http://www.flotcharts.org/
+  License:      MIT License
+  License File: mit.txt
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery.jstree-3.0.8/*
+  Project:      jquery plugin, that provides interactive trees.
+  Web Site:     https://www.jstree.com/
+  License:      MIT License
+  License File: mit.txt
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery.tablesorter-2.0.3/*
+  Project:      jquery plugin, that provides interactive trees.
+  Web Site:     https://github.com/christianbach/tablesorter
+  License:      MIT License or GNU GENERAL PUBLIC LICENSE
+  License File: mit.txt, gpl-v3.0.txt
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/JQuerySpinBtn-1.3a/*
+  Project:      
+  Web Site:     
+  License:      
+  License File: 
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/panojs-2.0.0/*
+  Project:      An interactive JavaScript widget for panning and zooming a panoramic image
+                stitched together dynamically from smaller tiles. 
+  Web Site:     http://www.dimin.net/software/panojs/
+  License:      MIT License
+  License File: mit.txt
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/pie-1.0beta5/*
+  Project:      progressive internet explorer
+  Web Site:     http://css3pie.com/
+  License:      Apache License, version 2 and GNU GENERAL PUBLIC LICENSE version 2
+  License File: apache-v2.0.txt, gpl-v2.0.txt
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/raphael-2.1.0/*
+  Web Site:     https://github.com/fanstatic/js.raphael
+  License:      BSD License
+  License File: bsd.txt
 
 
   Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/underscore/*
-  Project:      Underscore.js
   Web Site:     http://underscorejs.org/
-  License:      MIT license.
-  License File: jquery.txt
+  License:      MIT License
+  License File: mit.txt
 
 
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/d3*
-  Project:      d3.js
-  Web Site:     http://underscorejs.org/
-  License:      BSD
-  License File: bsd.txt
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/aops-1.3.js
+  Web Site:     https://github.com/cujojs/meld
+  License:      MIT License
+  License File: mit.txt
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery-1.11.1.js
+  Web Site:     https://jquery.com/
+  License:      MIT License
+  License File: mit.txt
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery.blockUI-2.66.0.js
+  Web Site:     http://malsup.com/jquery/block/
+  License:      MIT License or GNU GENERAL PUBLIC LICENSE
+  License File: mit.txt, gpl-v3.0.txt
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery.hotkeys-0.8.js
+  Web Site:     https://github.com/tzuryby/jquery.hotkeys
+  License:      MIT License or GNU GENERAL PUBLIC LICENSE
+  License File: mit.txt, gpl-v3.0.txt
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery.mousewheel-3.0.6.js
+  Web Site:     https://github.com/jquery/jquery-mousewheel
+  License:      MIT License or GNU GENERAL PUBLIC LICENSE
+  License File: mit.txt, gpl-v3.0.txt
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery.quicksearch-1.0.js
+  Web Site:     https://github.com/riklomas/quicksearch
+  License:      MIT License
+  License File: mit.txt
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery.selectboxes-2.2.6.js
+  Web Site:     
+  License:      MIT License or GNU GENERAL PUBLIC LICENSE
+  License File: mit.txt, gpl-v3.0.txt
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery.ui.touch-punch-0.2.3.min.js
+  Project:      Touch punch - Enables touch events on mobile web
+  Web Site:     http://touchpunch.furf.com/
+  License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2
+  License File: jquery.txt, gpl.txt
 
 
   //
   // Used but not distributed
   //
 
-
-  Project:      PyTables
-  Web Site:     http://www.pytables.org
-  License:      Lesser General Public License
+  Project:      jinja2
+  Web Site:     http://jinja.pocoo.org/
+  License:      BSD License
+  License File: bsd.txt
 
 
   Project:      NumPy
   Web Site:     http://numpy.scipy.org/
   License:      Lesser General Public License
+  License File: lgpl.txt
+
+  
+  Project:      Matplotlib
+  Web Site:     https://matplotlib.org/
+  License:      only uses BSD compatible code, and its license is based on the PSF license
+  License File: matplotlib.txt
+
+
+  Project:      Pillow
+  Web Site:     https://python-pillow.org/
+  License:      Standard PIL License
+  License File: pil.txt
+
+
+  Project:      SciPy
+  Web Site:     https://www.scipy.org/scipylib/index.html
+  License:      BSD
+  License File: bsd.txt
+
+
+  Project:      PyTables
+  Web Site:     http://www.pytables.org
+  License:      Lesser General Public License
+  License File: lgpl.txt
+
+
+  Project:      PyYAML
+  Web Site:     http://pyyaml.org/wiki/PyYAML
+  License:      MIT
+  License File: mit.txt
+
+
+
+
 
   //
   // Public domain files copied from the web
@@ -1051,7 +1193,7 @@
   //
 
   Artifacts:    crystal_*
-  Project:      Crystal.  We are using a few of their icons.
+  Project:      Crystal. We are using a few of their icons.
   Web Site:     http://www.everaldo.com/crystal
   License:      Lesser General Public License (LGPL)
   License File: lgpl.txt
@@ -1064,13 +1206,6 @@
   License File: cpl-v10.html
 
 
-  Artifacts:    jna.jar, platform.jar
-  Project:      Java Native Access (JNA), used for calling platform specific methods.
-  Web Site:     https://github.com/twall/jna
-  License:      LGPL, version 2.1 (or later)
-  License File: lgpl.txt
-
-
   Artifacts:    nuvola_*
   Project:      The Nuvola icon theme. It provides most of the icons in OMERO.insight.
   Web Site:     http://www.icon-king.com/
@@ -1079,7 +1214,7 @@
 
 
   Artifacts:    openOffice_*
-  Project:      Ximian.  We are using a few of their icons that they designed for
+  Project:      Ximian. We are using a few of their icons that they designed for
                 Open Office.
   Web Site:     http://www.novell.com/linux/ximian.html
   License:      Lesser General Public License (LGPL)
