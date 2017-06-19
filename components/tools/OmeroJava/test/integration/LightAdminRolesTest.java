@@ -1183,7 +1183,7 @@ public class LightAdminRolesTest extends RolesTests {
         }
 
         /* lightAdmin tries to set rendering settings on normalUser's image
-         * using setOriginalSettingsInSet method */
+         * using setOriginalSettingsInSet method.*/
         IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
         try {
             prx.setOriginalSettingsInSet(Pixels.class.getName(),
