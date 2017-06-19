@@ -14,6 +14,8 @@ import loci.formats.ImageReader;
 import ome.model.enums.Format;
 import ome.system.PreferenceContext;
 
+import ome.services.util.ReadOnlyStatus;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +25,7 @@ import org.slf4j.LoggerFactory;
  * readers. Each reader is equivalent to a format ( + "Companion/<reader>").
  * Without such an extension, users are not able to import the latest and
  * greatest without a database upgrade.
- * 
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @author m.t.b.carroll@dundee.ac.uk
  * @since Beta4.1.1
@@ -41,6 +43,11 @@ public class DBEnumCheck extends BaseDBCheck {
 
     @Override
     protected void doCheck() {
+
+        if (skip("enumEnsure")) {
+            return; // EARLY EXIT
+        }
+
         final List<String> formatNames = new ArrayList<String>();
         for (final IFormatReader formatReader : new ImageReader().getReaders()) {
             String name = formatReader.getClass().getSimpleName();

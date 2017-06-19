@@ -63,6 +63,7 @@ public class InMemorySessionManagerImpl
         session.setNode(node);
         session.setOwner(new Experimenter(userId, false));
         sessions.put(session.getUuid(), session);
+        log.debug("Registered Session:{} ({})", session.getId(), session.getUuid());
         return session;
     }
 

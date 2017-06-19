@@ -47,19 +47,21 @@
      <constructor-arg ref="executor"/>
   </bean>
 
-  <bean id="dbFormatEnumerationCheck"
-     class="ome.services.util.DBEnumCheck"
-     init-method="start" lazy-init="false">
+  <bean id="baseDBCheck" abstract="true">
      <constructor-arg ref="executor"/>
      <constructor-arg ref="preferenceContext"/>
+     <property name="readOnlyStatus" ref="readOnlyStatus"/>
+  </bean>
+
+  <bean id="dbFormatEnumerationCheck" parent="baseDBCheck"
+     class="ome.services.util.DBEnumCheck"
+     init-method="start" lazy-init="false">
      <constructor-arg ref="ensureEnum"/>
   </bean>
 
-  <bean id="dbMappedEnumerationCheck"
+  <bean id="dbMappedEnumerationCheck" parent="baseDBCheck"
      class="ome.services.util.DBMappedEnumCheck"
      init-method="start" lazy-init="false">
-     <constructor-arg ref="executor"/>
-     <constructor-arg ref="preferenceContext"/>
      <constructor-arg ref="ensureEnum"/>
   </bean>
 
@@ -70,11 +72,10 @@
      <constructor-arg ref="roles"/>
   </bean>
 
-  <bean id="dbUnicodeUnitsCheck" depends-on="dbPatchCheck"
+  <bean id="dbUnicodeUnitsCheck" parent="baseDBCheck"
+     depends-on="dbPatchCheck"
      class="ome.services.util.DBUnicodeUnitsCheck"
      init-method="start" lazy-init="false">
-     <constructor-arg ref="executor"/>
-     <constructor-arg ref="preferenceContext"/>
   </bean>
 
   <bean id="serverDirectoryCheck"
