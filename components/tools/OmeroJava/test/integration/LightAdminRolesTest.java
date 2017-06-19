@@ -901,7 +901,7 @@ public class LightAdminRolesTest extends RolesTests {
 
         /**
          * Light admin (lightAdmin) imports data for others (normalUser) without using Sudo.
-         * lightAdmin first creates a Dataset and imports an image into it in lightAdmin's group
+         * lightAdmin first creates a Dataset and imports an Image into it in lightAdmin's group
          * (normalUser is not member of lightAdmin's group).
          * Then, lightAdmin tries to move the Dataset into normalUser's group.
          * Then, lightAdmin tries to chown the Dataset to normalUser.
