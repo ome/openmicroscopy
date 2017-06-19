@@ -880,7 +880,7 @@ public class LightAdminRolesTest extends RolesTests {
         chown = Requests.chown().target(linkOfProjectDataset).toUser(normalUser.userId).build();
         doChange(client, factory, chown, isExpectSuccessLinkAndChown);
 
-        /* Check the ownership of the links, image, Dataset and Project.*/
+        /* Check the ownership of the links, Image, Dataset and Project.*/
         final long linkDatasetImageId = ((RLong) iQuery.projection(
                 "SELECT id FROM DatasetImageLink WHERE parent.id  = :id",
                 new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
