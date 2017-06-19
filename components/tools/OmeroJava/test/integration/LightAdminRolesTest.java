@@ -1651,7 +1651,7 @@ public class LightAdminRolesTest extends RolesTests {
     }
 
     /**
-     * Light admin (ightAdmin) tries to edit an existing user.
+     * Light admin (lightAdmin) tries to edit an existing user.
      * lightAdmin will succeed if they have the <tt>ModifyUser</tt> privilege.
      * @param isPrivileged if to test a user who has the <tt>ModifyUser</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
