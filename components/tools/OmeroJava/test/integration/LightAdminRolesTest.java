@@ -675,7 +675,7 @@ public class LightAdminRolesTest extends RolesTests {
             assertOwnedBy(originalFile, anotherUser);
             /* Annotations will be chowned because
              * groupPermissions are private or read-only (captured in boolean
-             * annotationsChownExpectSuccess) */
+             * annotationsChownExpectSuccess).*/
             assertOwnedBy(annotOriginalFileAnnotationTagAndLinks, anotherUser);
         /* Check the chown was successful for the image but not the annotations
          * in case the annotationsChownExpectSuccess is false, i.e. in read-only and private group.*/
@@ -690,7 +690,7 @@ public class LightAdminRolesTest extends RolesTests {
             assertOwnedBy(originalFile, normalUser);
             assertOwnedBy(annotOriginalFileAnnotationTagAndLinks, normalUser);
         }
-        /* In any case, the image must be in the right group */
+        /* In any case, the image must be in the right group.*/
         assertInGroup(image, normalUser.groupId);
     }
 
