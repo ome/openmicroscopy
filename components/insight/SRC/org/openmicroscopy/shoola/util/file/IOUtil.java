@@ -271,8 +271,6 @@ public class IOUtil
 	    for (int i = 0; i < entries.length; i++) {
 	        try {
 	            f = entries[i];
-	            if (f.isHidden())
-	                continue;
 	            if (f.isDirectory()) {
 	                zipDir(f, out, f.getName());
 	                continue;

@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2016 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2017 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -91,21 +91,18 @@ public class RawDataAccess
     private void retrievePlane()
             throws Exception
     {
-        RawDataFacility rdf = gateway.getFacility(RawDataFacility.class);
-        //To retrieve the image, see above.
-        PixelsData pixels = image.getDefaultPixels();
-        int sizeZ = pixels.getSizeZ();
-        int sizeT = pixels.getSizeT();
-        int sizeC = pixels.getSizeC();
-        try {
+        try (RawDataFacility rdf = gateway.getFacility(RawDataFacility.class)) {
+            // To retrieve the image, see above.
+            PixelsData pixels = image.getDefaultPixels();
+            int sizeZ = pixels.getSizeZ();
+            int sizeT = pixels.getSizeT();
+            int sizeC = pixels.getSizeC();
             Plane2D p;
-            for (int z = 0; z < sizeZ; z++) 
-                for (int t = 0; t < sizeT; t++) 
-                    for (int c = 0; c < sizeC; c++) 
+            for (int z = 0; z < sizeZ; z++)
+                for (int t = 0; t < sizeT; t++)
+                    for (int c = 0; c < sizeC; c++)
                         p = rdf.getPlane(ctx, pixels, z, t, c);
-        } catch (Exception e) {
-            throw new Exception("Cannot read the plane", e);
-        } 
+        }
     }
 
 // Retrieve tile
@@ -118,13 +115,12 @@ public class RawDataAccess
     private void retrieveTile()
             throws Exception
     {
-        RawDataFacility rdf = gateway.getFacility(RawDataFacility.class);
-        //To retrieve the image, see above.
-        PixelsData pixels = image.getDefaultPixels();
-        int sizeZ = pixels.getSizeZ();
-        int sizeT = pixels.getSizeT();
-        int sizeC = pixels.getSizeC();
-        try {
+        try (RawDataFacility rdf = gateway.getFacility(RawDataFacility.class)) {
+            //To retrieve the image, see above.
+            PixelsData pixels = image.getDefaultPixels();
+            int sizeZ = pixels.getSizeZ();
+            int sizeT = pixels.getSizeT();
+            int sizeC = pixels.getSizeC();
             //tile = (50, 50, 10, 10)  x, y, width, height of tile
             int x = 0;
             int y = 0;
@@ -139,8 +135,6 @@ public class RawDataAccess
                     }
                 }
             }
-        } catch (Exception e) {
-            throw new Exception("Cannot read the tiles", e);
         }
     }
 

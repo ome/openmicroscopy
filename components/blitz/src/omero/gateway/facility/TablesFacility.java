@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+import omero.IllegalArgumentException;
 import omero.ServerError;
 import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
@@ -31,42 +32,16 @@ import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.AnnotationData;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.FileAnnotationData;
-import omero.gateway.model.ImageData;
-import omero.gateway.model.MaskData;
-import omero.gateway.model.PlateData;
-import omero.gateway.model.ROIData;
 import omero.gateway.model.TableData;
 import omero.gateway.model.TableDataColumn;
-import omero.gateway.model.WellSampleData;
-import omero.grid.BoolColumn;
 import omero.grid.Column;
 import omero.grid.Data;
-import omero.grid.DoubleArrayColumn;
-import omero.grid.DoubleColumn;
-import omero.grid.FileColumn;
-import omero.grid.FloatArrayColumn;
-import omero.grid.ImageColumn;
-import omero.grid.LongArrayColumn;
-import omero.grid.LongColumn;
-import omero.grid.MaskColumn;
-import omero.grid.PlateColumn;
-import omero.grid.RoiColumn;
 import omero.grid.SharedResourcesPrx;
-import omero.grid.StringColumn;
 import omero.grid.TablePrx;
-import omero.grid.WellColumn;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
-import omero.model.Image;
-import omero.model.ImageI;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
-import omero.model.Plate;
-import omero.model.PlateI;
-import omero.model.Roi;
-import omero.model.RoiI;
-import omero.model.WellSample;
-import omero.model.WellSampleI;
 
 /**
  * {@link Facility} to interact with OMERO.tables
@@ -118,20 +93,9 @@ public class TablesFacility extends Facility {
             if (name == null)
                 name = UUID.randomUUID().toString();
 
-            TableDataColumn[] columns = data.getColumns() != null ? data
-                    .getColumns() : new TableDataColumn[0];
-
-            Column[] gridColumns = new Column[data.getColumns().length];
-            for (int i = 0; i < data.getColumns().length; i++) {
-                String cname = columns.length > i ? columns[i].getName() : "";
-                String desc = columns.length > i ? columns[i].getDescription()
-                        : "";
-                Object[] d = data.getData().length > i ? data.getData()[i]
-                        : new Object[0];
-                gridColumns[i] = createColumn(cname, desc,
-                        data.getColumns()[i].getType(), d);
-            }
-
+            TablesFacilityHelper helper = new TablesFacilityHelper(this);
+            helper.parseTableData(data);
+            
             SharedResourcesPrx sr = gateway.getSharedResources(ctx);
             if (!sr.areTablesEnabled()) {
                 throw new DSAccessException(
@@ -140,8 +104,8 @@ public class TablesFacility extends Facility {
             long repId = sr.repositories().descriptions.get(0).getId()
                     .getValue();
             table = sr.newTable(repId, name);
-            table.initialize(gridColumns);
-            table.addData(gridColumns);
+            table.initialize(helper.getGridColumns());
+            table.addData(helper.getGridColumns());
 
             DataManagerFacility dm = gateway
                     .getFacility(DataManagerFacility.class);
@@ -252,6 +216,177 @@ public class TablesFacility extends Facility {
     }
     
     /**
+     * Perform a query on the table
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param fileId
+     *            The id of the {@link OriginalFile} which stores the table
+     * @param condition
+     *            The query string
+     * @return A list of row indices matching the condition
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public long[] query(SecurityContext ctx, long fileId,
+            String condition) throws DSOutOfServiceException, DSAccessException {
+        return query(ctx, fileId, condition, 0, 0, 0);
+    }
+
+    /**
+     * Perform a query on the table
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param fileId
+     *            The id of the {@link OriginalFile} which stores the table
+     * @param condition
+     *            The query string
+     * @param start
+     *            The index of the first row to consider (optional, default: 0)
+     * @param stop
+     *            The index of the last+1 row to consider (optional, default:
+     *            number of rows of the table)
+     * @param step
+     *            The stepping interval between the start and stop rows to
+     *            consider (optional, default: no stepping)
+     * @return A list of row indices matching the condition
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public long[] query(SecurityContext ctx, long fileId, String condition,
+            long start, long stop, long step) throws DSOutOfServiceException,
+            DSAccessException {
+        TablePrx table = null;
+        try {
+            OriginalFile file = new OriginalFileI(fileId, false);
+            SharedResourcesPrx sr = gateway.getSharedResources(ctx);
+            if (!sr.areTablesEnabled()) {
+                throw new DSAccessException(
+                        "Tables feature is not enabled on this server!");
+            }
+
+            table = sr.openTable(file);
+            if (start < 0)
+                start = 0;
+            if (stop <= 0)
+                stop = table.getNumberOfRows();
+            if (step < 0)
+                step = 0;
+
+            if (start > stop)
+                throw new IllegalArgumentException(
+                        "start value can't be greater than stop value");
+
+            if (start + step > stop)
+                throw new IllegalArgumentException(
+                        "step value is greater than the specified range");
+
+            return table.getWhereList(condition, null, start, stop, step);
+        } catch (Exception e) {
+            handleException(this, e, "Could not load table data");
+        } finally {
+            if (table != null)
+                try {
+                    table.close();
+                } catch (ServerError e) {
+                    logError(this, "Could not close table", e);
+                }
+        }
+        return new long[0];
+    }
+    
+    /**
+     * Load data from a table
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param fileId
+     *            The id of the {@link OriginalFile} which stores the table
+     * @param rows
+     *            The rows to get
+     * @return The specified data
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public TableData getTable(SecurityContext ctx, long fileId, List<Long> rows)
+            throws DSOutOfServiceException, DSAccessException {
+        long[] rowsArray = new long[rows.size()];
+        for (int i = 0; i < rows.size(); i++)
+            rowsArray[i] = rows.get(i);
+        return getTable(ctx, fileId, rowsArray);
+    }
+    
+    /**
+     * Load data from a table
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param fileId
+     *            The id of the {@link OriginalFile} which stores the table
+     * @param rows
+     *            The rows to get
+     * @return The specified data
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public TableData getTable(SecurityContext ctx, long fileId, long... rows)
+            throws DSOutOfServiceException, DSAccessException {
+        TablePrx table = null;
+        try {
+            OriginalFile file = new OriginalFileI(fileId, false);
+            SharedResourcesPrx sr = gateway.getSharedResources(ctx);
+            if (!sr.areTablesEnabled()) {
+                throw new DSAccessException(
+                        "Tables feature is not enabled on this server!");
+            }
+            table = sr.openTable(file);
+            
+            Data data = table.readCoordinates(rows);
+            
+            Column[] cols = table.getHeaders();
+            
+            TableDataColumn[] header = new TableDataColumn[cols.length];
+            for (int i = 0; i < cols.length; i++) {
+                header[i] = new TableDataColumn(cols[i].name,
+                        cols[i].description, i,
+                        Object.class);
+            }
+            
+            TablesFacilityHelper helper = new TablesFacilityHelper(this);
+            helper.parseData(data, header);
+            
+            TableData result = new TableData(header, helper.getDataArray());
+            result.setOriginalFileId(fileId);
+            result.setNumberOfRows(helper.getNRows());
+            return result;
+            
+        } catch (Exception e) {
+            handleException(this, e, "Could not load table data");
+        } finally {
+            if (table != null)
+                try {
+                    table.close();
+                } catch (ServerError e) {
+                    logError(this, "Could not close table", e);
+                }
+        }
+        return null;
+    }
+            
+    /**
      * Load data from a table
      * 
      * @param ctx
@@ -304,10 +439,10 @@ public class TablesFacility extends Facility {
                         cols[columnIndex].description, columnIndex,
                         Object.class);
             }
-
-            if (table.getNumberOfRows() == 0)
+            
+            if (table.getNumberOfRows() == 0) 
                 return new TableData(header, new Object[columns.length][0]);
-
+            
             if (rowFrom < 0)
                 rowFrom = 0;
 
@@ -322,147 +457,14 @@ public class TablesFacility extends Facility {
                 throw new Exception("Can't fetch more than "
                         + (Integer.MAX_VALUE - 1) + " rows at once.");
 
-            int nRows = (int) (rowTo - rowFrom + 1);
-
-            Object[][] dataArray = null;
-            if (nRows > 0) {
-                dataArray = new Object[columns.length][nRows];
-                Data data = table.read(columns, rowFrom, rowTo + 1);
-                for (int i = 0; i < data.columns.length; i++) {
-                    Column col = data.columns[i];
-                    if (col instanceof BoolColumn) {
-                        Boolean[] rowData = new Boolean[nRows];
-                        boolean tableData[] = ((BoolColumn) col).values;
-                        for (int j = 0; j < nRows; j++)
-                            rowData[j] = tableData[j];
-                        dataArray[i] = rowData;
-                        header[i].setType(Boolean.class);
-                    }
-                    if (col instanceof DoubleArrayColumn) {
-                        Double[][] rowData = new Double[nRows][];
-                        double tableData[][] = ((DoubleArrayColumn) col).values;
-                        for (int j = 0; j < nRows; j++) {
-                            Double[] tmp = new Double[tableData[j].length];
-                            for (int k = 0; k < tableData[j].length; k++) {
-                                tmp[k] = tableData[j][k];
-                            }
-                            rowData[j] = tmp;
-                        }
-                        dataArray[i] = rowData;
-                        header[i].setType(Double[].class);
-                    }
-                    if (col instanceof DoubleColumn) {
-                        Double[] rowData = new Double[nRows];
-                        double tableData[] = ((DoubleColumn) col).values;
-                        for (int j = 0; j < nRows; j++)
-                            rowData[j] = tableData[j];
-                        dataArray[i] = rowData;
-                        header[i].setType(Double.class);
-                    }
-                    if (col instanceof FileColumn) {
-                        FileAnnotationData[] rowData = new FileAnnotationData[nRows];
-                        long tableData[] = ((FileColumn) col).values;
-                        for (int j = 0; j < nRows; j++) {
-                            FileAnnotation f = new FileAnnotationI(
-                                    tableData[j], false);
-                            rowData[j] = new FileAnnotationData(f);
-                        }
-                        dataArray[i] = rowData;
-                        header[i].setType(FileAnnotationData.class);
-                    }
-                    if (col instanceof FloatArrayColumn) {
-                        Float[][] rowData = new Float[nRows][];
-                        float tableData[][] = ((FloatArrayColumn) col).values;
-                        for (int j = 0; j < nRows; j++) {
-                            Float[] tmp = new Float[tableData[j].length];
-                            for (int k = 0; k < tableData[j].length; k++) {
-                                tmp[k] = tableData[j][k];
-                            }
-                            rowData[j] = tmp;
-                        }
-                        dataArray[i] = rowData;
-                        header[i].setType(Float[].class);
-                    }
-                    if (col instanceof ImageColumn) {
-                        ImageData[] rowData = new ImageData[nRows];
-                        long tableData[] = ((ImageColumn) col).values;
-                        for (int j = 0; j < nRows; j++) {
-                            Image im = new ImageI(tableData[j], false);
-                            rowData[j] = new ImageData(im);
-                        }
-                        dataArray[i] = rowData;
-                        header[i].setType(ImageData.class);
-                    }
-                    if (col instanceof LongArrayColumn) {
-                        Long[][] rowData = new Long[nRows][];
-                        long tableData[][] = ((LongArrayColumn) col).values;
-                        for (int j = 0; j < nRows; j++) {
-                            Long[] tmp = new Long[tableData[j].length];
-                            for (int k = 0; k < tableData[j].length; k++) {
-                                tmp[k] = tableData[j][k];
-                            }
-                            rowData[j] = tmp;
-                        }
-                        dataArray[i] = rowData;
-                        header[i].setType(Long[].class);
-                    }
-                    if (col instanceof LongColumn) {
-                        Long[] rowData = new Long[nRows];
-                        long tableData[] = ((LongColumn) col).values;
-                        for (int j = 0; j < nRows; j++)
-                            rowData[j] = tableData[j];
-                        dataArray[i] = rowData;
-                        header[i].setType(Long.class);
-                    }
-                    if (col instanceof MaskColumn) {
-                        MaskColumn mc = ((MaskColumn) col);
-                        MaskData[] rowData = new MaskData[nRows];
-                        for (int j = 0; j < nRows; j++) {
-                            MaskData md = new MaskData(mc.x[j], mc.y[j],
-                                    mc.w[j], mc.h[j], mc.bytes[j]);
-                            rowData[j] = md;
-                        }
-                        dataArray[i] = rowData;
-                        header[i].setType(MaskData.class);
-                    }
-                    if (col instanceof PlateColumn) {
-                        PlateData[] rowData = new PlateData[nRows];
-                        long tableData[] = ((PlateColumn) col).values;
-                        for (int j = 0; j < nRows; j++) {
-                            Plate p = new PlateI(tableData[j], false);
-                            rowData[j] = new PlateData(p);
-                        }
-                        dataArray[i] = rowData;
-                        header[i].setType(PlateData.class);
-                    }
-                    if (col instanceof RoiColumn) {
-                        ROIData[] rowData = new ROIData[nRows];
-                        long tableData[] = ((RoiColumn) col).values;
-                        for (int j = 0; j < nRows; j++) {
-                            Roi p = new RoiI(tableData[j], false);
-                            rowData[j] = new ROIData(p);
-                        }
-                        dataArray[i] = rowData;
-                        header[i].setType(ROIData.class);
-                    }
-                    if (col instanceof StringColumn) {
-                        String[] rowData = ((StringColumn) col).values;
-                        dataArray[i] = rowData;
-                        header[i].setType(String.class);
-                    }
-                    if (col instanceof WellColumn) {
-                        WellSampleData[] rowData = new WellSampleData[nRows];
-                        long tableData[] = ((WellColumn) col).values;
-                        for (int j = 0; j < nRows; j++) {
-                            WellSample p = new WellSampleI(tableData[j], false);
-                            rowData[j] = new WellSampleData(p);
-                        }
-                        dataArray[i] = rowData;
-                        header[i].setType(ROIData.class);
-                    }
-                }
-            }
-            TableData result = new TableData(header, dataArray);
+            TableData result = null;
+            
+            Data data = table.read(columns, rowFrom, rowTo + 1);
+            
+            TablesFacilityHelper helper = new TablesFacilityHelper(this);
+            helper.parseData(data, header);
+            
+            result = new TableData(header, helper.getDataArray());
             result.setOffset(rowFrom);
             result.setOriginalFileId(fileId);
             result.setNumberOfRows(maxRow + 1);
@@ -519,155 +521,5 @@ public class TablesFacility extends Facility {
         }
         return result;
     }
-
-    /**
-     * Create a {@link Column} with the specified data
-     * 
-     * @param header
-     *            The header (column name)
-     * @param description
-     *            Description
-     * @param type
-     *            The type of data
-     * @param data
-     *            The data
-     * @return The {@link Column}
-     */
-    private Column createColumn(String header, String description,
-            Class<?> type, Object[] data) {
-        Column c = null;
-
-        if (type.equals(Boolean.class)) {
-            boolean[] d = new boolean[data.length];
-            for (int i = 0; i < data.length; i++)
-                d[i] = (Boolean) data[i];
-            c = new BoolColumn(header, description, d);
-        }
-
-        if (type.equals(Double[].class)) {
-            double[][] d = new double[data.length][];
-            int l = 0;
-            for (int i = 0; i < data.length; i++) {
-                Double[] src = (Double[]) data[i];
-                double[] dst = new double[src.length];
-                for (int j = 0; j < src.length; j++)
-                    dst[j] = src[j];
-                d[i] = dst;
-                l = dst.length;
-            }
-            c = new DoubleArrayColumn(header, description, l, d);
-        }
-
-        if (type.equals(Double.class)) {
-            double[] d = new double[data.length];
-            for (int i = 0; i < data.length; i++)
-                d[i] = (Double) data[i];
-            c = new DoubleColumn(header, description, d);
-        }
-
-        if (type.equals(FileAnnotationData.class)) {
-            long[] d = new long[data.length];
-            for (int i = 0; i < data.length; i++)
-                d[i] = ((FileAnnotationData) data[i]).getFileID();
-            c = new FileColumn(header, description, d);
-        }
-
-        if (type.equals(Float[].class)) {
-            float[][] d = new float[data.length][];
-            int l = 0;
-            for (int i = 0; i < data.length; i++) {
-                Float[] src = (Float[]) data[i];
-                float[] dst = new float[src.length];
-                for (int j = 0; j < src.length; j++)
-                    dst[j] = src[j];
-                d[i] = dst;
-                l = dst.length;
-            }
-            c = new FloatArrayColumn(header, description, l, d);
-        }
-
-        if (type.equals(ImageData.class)) {
-            long[] d = new long[data.length];
-            for (int i = 0; i < data.length; i++)
-                d[i] = ((ImageData) data[i]).getId();
-            c = new ImageColumn(header, description, d);
-        }
-
-        if (type.equals(Long[].class)) {
-            long[][] d = new long[data.length][];
-            int l = 0;
-            for (int i = 0; i < data.length; i++) {
-                Long[] src = (Long[]) data[i];
-                long[] dst = new long[src.length];
-                for (int j = 0; j < src.length; j++)
-                    dst[j] = src[j];
-                d[i] = dst;
-                l = dst.length;
-            }
-            c = new LongArrayColumn(header, description, l, d);
-        }
-
-        if (type.equals(Long.class)) {
-            long[] d = new long[data.length];
-            for (int i = 0; i < data.length; i++)
-                d[i] = (Long) data[i];
-            c = new LongColumn(header, description, d);
-        }
-
-        if (type.equals(MaskData.class)) {
-            long[] imageId = new long[data.length];
-            int[] theZ = new int[data.length];
-            int[] theT = new int[data.length];
-            double[] x = new double[data.length];
-            double[] y = new double[data.length];
-            double[] w = new double[data.length];
-            double[] h = new double[data.length];
-            byte[][] bytes = new byte[data.length][];
-
-            for (int i = 0; i < data.length; i++) {
-                MaskData md = (MaskData) data[i];
-                // TODO: Where get the imageId from!?
-                theZ[i] = md.getZ();
-                theT[i] = md.getT();
-                x[i] = md.getX();
-                y[i] = md.getY();
-                w[i] = md.getWidth();
-                h[i] = md.getHeight();
-                bytes[i] = md.getMask();
-            }
-
-            c = new MaskColumn(header, description, imageId, theZ, theT, x, y,
-                    w, h, bytes);
-        }
-
-        if (type.equals(PlateData.class)) {
-            long[] d = new long[data.length];
-            for (int i = 0; i < data.length; i++)
-                d[i] = ((PlateData) data[i]).getId();
-            c = new PlateColumn(header, description, d);
-        }
-
-        if (type.equals(ROIData.class)) {
-            long[] d = new long[data.length];
-            for (int i = 0; i < data.length; i++)
-                d[i] = ((ROIData) data[i]).getId();
-            c = new RoiColumn(header, description, d);
-        }
-
-        if (type.equals(String.class)) {
-            String[] d = new String[data.length];
-            for (int i = 0; i < data.length; i++)
-                d[i] = (String) data[i];
-            c = new StringColumn(header, description, Short.MAX_VALUE, d);
-        }
-
-        if (type.equals(WellSampleData.class)) {
-            long[] d = new long[data.length];
-            for (int i = 0; i < data.length; i++)
-                d[i] = ((WellSampleData) data[i]).getId();
-            c = new WellColumn(header, description, d);
-        }
-
-        return c;
-    }
+    
 }

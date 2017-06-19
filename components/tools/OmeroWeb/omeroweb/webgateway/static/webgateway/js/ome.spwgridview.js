@@ -83,7 +83,6 @@ $(function(){
                 });
             },
             addWell: function(data) {
-                showPanel();
 
                 var minX,
                     maxX,
@@ -92,6 +91,11 @@ $(function(){
 
                 // first filter for well-samples that have positions
                 data = data.filter(function(ws){ return ws.position !== undefined });
+
+                // Only show panel if we have some data
+                if (data.length > 0) {
+                    showPanel();
+                }
 
                 var xVals = data.map(getPos('x')).filter(notUndef);
                 var yVals = data.map(getPos('y')).filter(notUndef);

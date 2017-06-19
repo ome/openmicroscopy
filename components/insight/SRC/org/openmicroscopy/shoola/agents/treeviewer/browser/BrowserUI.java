@@ -616,13 +616,10 @@ class BrowserUI
     			if (object instanceof FileData) {
 					file = (FileData) object;
     				if (file.isDirectory()) {
-            			if (!file.isHidden()) {
-            				display = new TreeImageSet(file);
-            				buildEmptyNode(display);
-            			}
+            			display = new TreeImageSet(file);
+            			buildEmptyNode(display);
             		} else {
-            			if (!file.isHidden()) 
-            				display = new TreeImageNode(file);
+            			display = new TreeImageNode(file);
             		}
     			} else if (object instanceof ImageData) {
     				display = TreeViewerTranslator.transformImage(
@@ -652,7 +649,7 @@ class BrowserUI
     	FileData[] files = fs.getRoots();
 		for (int j = 0; j < files.length; j++) {
 			file = files[j];
-			if (file.isDirectory() && !file.isHidden()) {
+			if (file.isDirectory()) {
 				display = new TreeImageSet(file);
 				//display.setChildrenLoaded(true);
 				expNode.addChildDisplay(display);

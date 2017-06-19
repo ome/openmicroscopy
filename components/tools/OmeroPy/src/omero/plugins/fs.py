@@ -239,6 +239,14 @@ class FsControl(CmdControl):
             "--archived", action="store_true",
             help="list only images with archived data")
 
+        mkdir = parser.add(sub, self.mkdir)
+        mkdir.add_argument(
+            "new_dir",
+            help="directory to create in the repository")
+        mkdir.add_argument(
+            "--parents", action="store_true",
+            help="ensure whole path exists")
+
         rename = parser.add(sub, self.rename)
         rename.add_argument(
             "fileset",
@@ -448,6 +456,31 @@ Examples:
                 self._extended_info(client, row, values)
             tb.row(idx, *tuple(values))
         self.ctx.out(str(tb.build()))
+
+    @admin_only
+    def mkdir(self, args):
+        """Make a new directory (admin-only)
+
+Creates a new empty directory in the managed repository.
+A new storage volume may then be mounted at that location
+and the import template (omero.fs.repo.path) adjusted to
+target it. Once created, the directory may be deleted from
+the underlying filesystem and replaced with a symbolic link.
+Directories that violate the root-owned prefix components of
+omero.fs.repo.path are all set to be owned by the root user.
+"""
+
+        if len(args.new_dir) < 2:
+            raise ValueError("directory path too short", args.new_dir)
+        if args.new_dir[0] == '/':
+            args.new_dir = args.new_dir[1:]
+        if args.new_dir[-1] != '/':
+            args.new_dir += '/'
+
+        client = self.ctx.conn(args)
+
+        mrepo = client.getManagedRepository()
+        mrepo.makeDir(args.new_dir, args.parents)
 
     @windows_warning
     @admin_only

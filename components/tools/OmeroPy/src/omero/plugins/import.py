@@ -369,7 +369,7 @@ class ImportControl(BaseControl):
             help="Namespace to use for subsequent annotation (**)")
         add_annotation_argument(
             "--annotation-text", metavar="ANNOTATION_TEXT",
-            help="Content for a text annotation (requires namespace) (**)")
+            help="Content for a text annotation (**)")
         add_annotation_argument(
             "--annotation-link",
             metavar="ANNOTATION_LINK",

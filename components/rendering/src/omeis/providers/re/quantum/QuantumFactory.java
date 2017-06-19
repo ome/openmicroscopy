@@ -1,7 +1,5 @@
 /*
- * omeis.providers.re.quantum.QuantumFactory
- *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -12,8 +10,7 @@ import java.util.List;
 import ome.model.core.Pixels;
 import ome.model.display.QuantumDef;
 import ome.model.enums.Family;
-
-import omeis.providers.re.data.PlaneFactory;
+import ome.model.enums.PixelsType;
 
 /**
  * Factory to create objects to carry out quantization for a given context. This
@@ -62,7 +59,8 @@ public class QuantumFactory {
      * coefficients depend on the input and output (codomain) interval of the
      * map.
      */
-    public static final String LINEAR = "linear";
+    @Deprecated
+    public static final String LINEAR = Family.VALUE_LINEAR;
 
     /**
      * Flag to select a exponential map for the quantization process. The
@@ -71,7 +69,8 @@ public class QuantumFactory {
      * interval of the map. The <i>k</i> coefficient is the one specified by
      * the {@link QuantumDef context}.
      */
-    public static final String EXPONENTIAL = "exponential";
+    @Deprecated
+    public static final String EXPONENTIAL = Family.VALUE_EXPONENTIAL;
 
     /**
      * Flag to select a logarithmic map for the quantization process. The
@@ -79,7 +78,8 @@ public class QuantumFactory {
      * and <i>b</i> coefficients depend on the input and output (codomain)
      * interval of the map.
      */
-    public static final String LOGARITHMIC = "logarithmic";
+    @Deprecated
+    public static final String LOGARITHMIC = Family.VALUE_LOGARITHMIC;
 
     /**
      * Flag to select a polynomial map for the quantization process. The
@@ -90,7 +90,8 @@ public class QuantumFactory {
      * case of polynomial (<i>k = 1</i>). We keep the {@link #LINEAR} constant
      * for some UI reason but we apply the same algorithm.
      */
-    public static final String POLYNOMIAL = "polynomial";
+    @Deprecated
+    public static final String POLYNOMIAL = Family.VALUE_POLYNOMIAL;
 
     /** Default value. */
     public static final boolean NOISE_REDUCTION = true;
@@ -181,11 +182,11 @@ public class QuantumFactory {
      */
     private QuantumStrategy getQuantization(QuantumDef qd, Pixels pixels) {
         String typeAsString = pixels.getPixelsType().getValue();
-        if (PlaneFactory.INT32.equals(typeAsString) ||
-                PlaneFactory.UINT32.equals(typeAsString))
+        if (PixelsType.VALUE_INT32.equals(typeAsString) ||
+                PixelsType.VALUE_UINT32.equals(typeAsString))
             return new Quantization_32_bit(qd, pixels);
-        else if (PlaneFactory.FLOAT_TYPE.equals(typeAsString) ||
-                PlaneFactory.DOUBLE_TYPE.equals(typeAsString))
+        else if (PixelsType.VALUE_FLOAT.equals(typeAsString) ||
+                PixelsType.VALUE_DOUBLE.equals(typeAsString))
             return new Quantization_float(qd, pixels);
         return new Quantization_8_16_bit(qd, pixels);
     }

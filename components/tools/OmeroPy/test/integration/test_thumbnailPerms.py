@@ -624,3 +624,36 @@ class TestThumbnailPerms(ITest):
         assert 1 == len(thumbs)
         v_thumb_new = thumbs[0].getVersion().getValue()
         assert v_thumb_new == v_thumb + 1
+
+    def testGetThumbnailSetAfterApplySettings(self):
+        """
+        Tests that you can getThumbnailSet after applying settings.
+
+        See https://github.com/openmicroscopy/openmicroscopy/pull/5207
+        """
+        group = self.new_group(perms="rwra--")
+        client = self.new_client(group=group)
+
+        # Create 2 images in group
+        image1 = self.create_test_image(session=client.sf)
+        image2 = self.create_test_image(session=client.sf)
+
+        pixelsId1 = image1.getPrimaryPixels().id.val
+        pixelsId2 = image2.getPrimaryPixels().id.val
+
+        tb = client.sf.createThumbnailStore()
+        ss = client.sf.getRenderingSettingsService()
+
+        # This works to start with:
+        tb.getThumbnailByLongestSideSet(rint(96), [pixelsId1, pixelsId2],
+                                        {'omero.group': '-1'})
+
+        # After applying settings...
+        ss.applySettingsToSet(pixelsId1, "Image", [image2.id.val])
+
+        # Should still be able to get thumbnail set
+        tb.getThumbnailByLongestSideSet(rint(96), [pixelsId1, pixelsId2],
+                                        {'omero.group': '-1'})
+
+        # Also should work without any group context
+        tb.getThumbnailByLongestSideSet(rint(96), [pixelsId1, pixelsId2])

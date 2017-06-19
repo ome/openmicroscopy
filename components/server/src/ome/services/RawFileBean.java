@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2006-2017 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -40,6 +40,7 @@ import ome.conditions.SecurityViolation;
 import ome.io.nio.FileBuffer;
 import ome.io.nio.OriginalFilesService;
 import ome.model.core.OriginalFile;
+import ome.model.enums.ChecksumAlgorithm;
 import ome.security.policy.BinaryAccessPolicy;
 import ome.util.ShallowCopy;
 import ome.util.checksum.ChecksumProviderFactory;
@@ -59,8 +60,6 @@ import com.google.common.collect.ImmutableMap;
  *
  * @author Chris Allan &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:callan@blackcat.ca">callan@blackcat.ca</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Revision$ $Date:
- *          2005/06/08 15:21:59 $) </small>
  * @since OMERO3.0
  */
 @Transactional(readOnly = true)
@@ -79,13 +78,13 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
     /* Map of checksum algorithm names to the corresponding checksum type. */
     private static final ImmutableMap<String, ChecksumType> checksumAlgorithms =
             ImmutableMap.<String, ChecksumType> builder().
-            put("Adler-32", ChecksumType.ADLER32).
-            put("CRC-32", ChecksumType.CRC32).
-            put("MD5-128", ChecksumType.MD5).
-            put("Murmur3-32", ChecksumType.MURMUR32).
-            put("Murmur3-128", ChecksumType.MURMUR128).
-            put("SHA1-160", ChecksumType.SHA1).
-            put("File-Size-64", ChecksumType.FILE_SIZE).
+            put(ChecksumAlgorithm.VALUE_ADLER_32, ChecksumType.ADLER32).
+            put(ChecksumAlgorithm.VALUE_CRC_32, ChecksumType.CRC32).
+            put(ChecksumAlgorithm.VALUE_MD5_128, ChecksumType.MD5).
+            put(ChecksumAlgorithm.VALUE_MURMUR3_32, ChecksumType.MURMUR32).
+            put(ChecksumAlgorithm.VALUE_MURMUR3_128, ChecksumType.MURMUR128).
+            put(ChecksumAlgorithm.VALUE_SHA1_160, ChecksumType.SHA1).
+            put(ChecksumAlgorithm.VALUE_FILE_SIZE_64, ChecksumType.FILE_SIZE).
             build();
 
     /** The id of the original files instance. */

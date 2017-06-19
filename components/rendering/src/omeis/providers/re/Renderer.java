@@ -24,6 +24,7 @@ import ome.model.display.ChannelBinding;
 import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
+import ome.model.enums.PhotometricInterpretation;
 import ome.model.enums.PixelsType;
 import ome.model.enums.RenderingModel;
 import omeis.providers.re.codomain.CodomainChain;
@@ -82,18 +83,17 @@ public class Renderer {
     public static final int		MAX_CHANNELS = 8;
     
     /** Identifies the type used to store model values. */
-    public static final String MODEL_GREYSCALE = "greyscale";
+    public static final String MODEL_GREYSCALE = RenderingModel.VALUE_GREYSCALE;
 
     /** Identifies the type used to store model values. */
-    public static final String MODEL_RGB = "rgb";
+    public static final String MODEL_RGB = RenderingModel.VALUE_RGB;
 
     /** Identifies the type used to store model values. */
     public static final String MODEL_HSB = MODEL_RGB;
 
     /** Identifies the type used to store photometric interpretation values. */
-    public static final String PHOTOMETRIC_MONOCHROME = "Monochrome";
-
-    //static final String RGB_COLOR_DOMAIN = "RGB";
+    @Deprecated
+    public static final String PHOTOMETRIC_MONOCHROME = PhotometricInterpretation.VALUE_MONOCHROME;
 
     /**
      * The {@link Pixels} object to access the metadata of the pixels set bound
