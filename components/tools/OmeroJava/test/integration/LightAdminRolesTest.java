@@ -423,7 +423,7 @@ public class LightAdminRolesTest extends RolesTests {
                 "SELECT name FROM Project p WHERE p.id = :id",
                 new ParametersI().addId(sentProj.getId())).get(0).get(0)).getValue();
         /* Check that the Project still belongs to normalUser and the name of the Project
-         * was changed and saved or original name is retained as appropriate */
+         * was changed and saved or original name is retained as appropriate.*/
         assertOwnedBy(sentProj, normalUser);
         if (isExpectSuccess) {
             Assert.assertEquals(savedChangedName, retrievedName);
@@ -465,7 +465,7 @@ public class LightAdminRolesTest extends RolesTests {
          * A successful chgrp action will also move all annotations on the moved image,
          * which are unique on the image.*/
         boolean isExpectSuccessInMemberGroup = permChgrp || isSudoing;
-        /* create a Dataset as normalUser and import into it */
+        /* Create a Dataset as normalUser and import into it.*/
         loginUser(normalUser);
         Dataset dat = mmFactory.simpleDataset();
         Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
