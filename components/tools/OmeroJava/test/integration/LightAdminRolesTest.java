@@ -1308,7 +1308,7 @@ public class LightAdminRolesTest extends RolesTests {
         Assert.assertEquals(getCurrentPermissions(fileAnnotation).canChown(), isExpectSuccessCreateFileAttAndChown);
         /* lightAdmin tries to link the fileAnnotation to the normalUser's image.
          * This will not work in private group. See definition of the boolean
-         * isExpectSuccessLinkFileAttachemnt.*/
+         * isExpectSuccessLinkFileAttachment.*/
         ImageAnnotationLink link = null;
         try {
             link = (ImageAnnotationLink) linkParentToChild(sentImage, fileAnnotation);
