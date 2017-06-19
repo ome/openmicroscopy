@@ -1234,7 +1234,7 @@ public class LightAdminRolesTest extends RolesTests {
                     "SELECT rdef.pixels.image.id FROM RenderingDef rdef WHERE rdef.id = :id",
                     new ParametersI().addId(rDef.getId())).get(0).get(0)).getValue();
             if (isExpectSuccessCreateAndChown) {
-                /* First case: Workflow succeeded for creation and chown, all belongs to normalUser */
+                /* First case: Workflow succeeded for creation and chown, all belongs to normalUser.*/
                 assertOwnedBy(roi, normalUser);
                 assertOwnedBy(rDef, normalUser);
                 assertOwnedBy((new ImageI (imageId, false)), normalUser);
