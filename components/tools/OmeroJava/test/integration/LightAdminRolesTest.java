@@ -859,7 +859,7 @@ public class LightAdminRolesTest extends RolesTests {
             linkOfProjectDataset = linkParentToChild(sentProj, sentDat);
             Assert.assertTrue(isExpectLinkingSuccess);
         } catch (ServerError se) {
-            Assert.assertFalse(isExpectLinkingSuccess);
+            Assert.assertFalse(isExpectLinkingSuccess, se.toString());
             return;
         }
 
