@@ -639,7 +639,7 @@ public class LightAdminRolesTest extends RolesTests {
         OriginalFile originalFile = (OriginalFile) originalFileAndImage.get(0);
         Image image = (Image) originalFileAndImage.get(1);
 
-        /* Annotate the imported image with Tag and file attachment */
+        /* Annotate the imported image with Tag and file attachment.*/
         List<IObject> annotOriginalFileAnnotationTagAndLinks = annotateImageWithTagAndFile(image);
 
         /* Set up the basic permissions for this test.*/
