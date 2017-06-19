@@ -1218,7 +1218,7 @@ public class LightAdminRolesTest extends RolesTests {
             Assert.assertNull(rDef);
         }
         /* lightAdmin tries to chown the ROI and the rendering settings (rDef) to normalUser.
-         * Only attempt the canChown check and the chown if the ROI and rendering settings exist */
+         * Only attempt the canChown check and the chown if the ROI and rendering settings exist.*/
         if (isExpectSuccessCreateROIRndSettings) {
             /* Check the value of canChown on the ROI and rendering settings (rDef) matches
              * the boolean isExpectSuccessCreateAndChownRndSettings.*/
