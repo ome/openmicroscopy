@@ -933,7 +933,7 @@ public class LightAdminRolesTest extends RolesTests {
         client.getImplicitContext().put("omero.group", Long.toString(lightAdmin.groupId));
         Dataset dat = mmFactory.simpleDataset();
         Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
-        /* Import an image into the created Dataset.*/
+        /* Import an Image into the created Dataset.*/
         List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
         OriginalFile originalFile = (OriginalFile) originalFileAndImage.get(0);
         Image image = (Image) originalFileAndImage.get(1);
