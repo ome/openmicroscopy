@@ -698,13 +698,13 @@ public class LightAdminRolesTest extends RolesTests {
      * Light admin is trying to "import for others" without using Sudo in following manner.
      * lightAdmin imports into group of the normalUser (future owner of the data).
      * lightAdmin then transfers the ownership of the imported data to normalUser.
-     * For this test, combinations of <tt>Chown</tt>, <tt>WriteOwned</tt>,
-     *  <tt>WriteFile</tt> and <tt>WriteManagedRepo</tt> privileges will be explored
+     * For this test, combinations of <tt>WriteOwned</tt>, <tt>WriteFile</tt>,
+     * <tt>WriteManagedRepo</tt> and <tt>Chown</tt> privileges will be explored
      * for lightAdmin. For this workflow the creation and targeting of a Dataset
      * is tested too.
      * @param permWriteOwned if to test a user who has the <tt>WriteOwned</tt> privilege
-     * @param permWriteManagedRepo if to test a user who has the <tt>WriteManagedRepo</tt> privilege
      * @param permWriteFile if to test a user who has the <tt>WriteFile</tt> privilege
+     * @param permWriteManagedRepo if to test a user who has the <tt>WriteManagedRepo</tt> privilege
      * @param permChown if to test a user who has the <tt>Chown</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
