@@ -473,7 +473,7 @@ public class LightAdminRolesTest extends RolesTests {
         OriginalFile originalFile = (OriginalFile) originalFileAndImage.get(0);
         Image image = (Image) originalFileAndImage.get(1);
 
-        /* Annotate the imported image with Tag and file attachment */
+        /* Annotate the imported image with Tag and file attachment.*/
         List<IObject> annotOriginalFileAnnotationTagAndLinks = annotateImageWithTagAndFile(image);
 
         /* Set up the light admin's permissions for this test.*/
@@ -550,7 +550,7 @@ public class LightAdminRolesTest extends RolesTests {
          * move is intended, it must show "true" in every case in which SOME
          * chgrp might be successful.*/
         final boolean canChgrpExpectedTrue = permChgrp || isSudoing;
-        /* Create a Dataset as the normalUser and import into it */
+        /* Create a Dataset as the normalUser and import into it.*/
         loginUser(normalUser);
         Dataset dat = mmFactory.simpleDataset();
         Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
@@ -558,7 +558,7 @@ public class LightAdminRolesTest extends RolesTests {
         OriginalFile originalFile = (OriginalFile) originalFileAndImage.get(0);
         Image image = (Image) originalFileAndImage.get(1);
 
-        /* Annotate the imported image with Tag and file attachment */
+        /* Annotate the imported image with Tag and file attachment.*/
         List<IObject> annotOriginalFileAnnotationTagAndLinks = annotateImageWithTagAndFile(image);
 
         /* Set up the light admin's permissions for this test.*/
