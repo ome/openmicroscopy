@@ -756,7 +756,7 @@ public class LightAdminRolesTest extends RolesTests {
             image = (Image) originalFileAndImage.get(1);
             Assert.assertTrue(importNotYourGroupExpectSuccess);
         } catch (ServerError se) {
-            Assert.assertFalse(importNotYourGroupExpectSuccess);
+            Assert.assertFalse(importNotYourGroupExpectSuccess, se.toString());
         }
         /* Check the ownership and group of the original file and the image.*/
         if (importNotYourGroupExpectSuccess) {
