@@ -72,7 +72,7 @@ public class RolesTests extends AbstractServerImportTest {
         fakeImageFile.createNewFile();
     }
 
-    /* these permissions do not permit anything */
+    /* These permissions do not permit anything.*/
     @SuppressWarnings("serial")
     private static final Permissions NO_PERMISSIONS = new PermissionsI("------") {
         @Override
