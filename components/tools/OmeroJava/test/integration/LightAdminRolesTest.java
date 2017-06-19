@@ -661,7 +661,7 @@ public class LightAdminRolesTest extends RolesTests {
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         /* lightAdmin tries to chown the image.*/
         doChange(client, factory, Requests.chown().target(image).toUser(anotherUser.userId).build(), chownImagePassing);
-        /* Chect the results of the chown when lightAdmin is sudoed,
+        /* ChecK the results of the chown when lightAdmin is sudoed,
          * which should fail in any case.*/
         if (isSudoing) {
             assertOwnedBy(image, normalUser);
