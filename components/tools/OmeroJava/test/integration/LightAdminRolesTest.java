@@ -1198,8 +1198,8 @@ public class LightAdminRolesTest extends RolesTests {
             Assert.assertFalse(getCurrentPermissions(sentImage).canAnnotate());
             Assert.assertFalse(isExpectSuccessCreateROIRndSettings, sv.toString());
         }
-        /* Retrieve the image corresponding to the roi and Rnd settings
-         * (if they could be set) and check the roi and rendering settings
+        /* Retrieve the image corresponding to the ROI and Rnd settings
+         * (if they could be set) and check the ROI and rendering settings
          * belong to lightAdmin, whereas the image belongs to normalUser.*/
         RenderingDef rDef = (RenderingDef) iQuery.findByQuery("FROM RenderingDef WHERE pixels.id = :id",
                 new ParametersI().addId(pixelsOfImage.getId()));
@@ -1224,12 +1224,12 @@ public class LightAdminRolesTest extends RolesTests {
              * the boolean isExpectSuccessCreateAndChownRndSettings.*/
             Assert.assertEquals(getCurrentPermissions(roi).canChown(), isExpectSuccessCreateAndChown);
             Assert.assertEquals(getCurrentPermissions(rDef).canChown(), isExpectSuccessCreateAndChown);
-            /* Note that in read-only group, the chown of roi would fail, see
+            /* Note that in read-only group, the chown of ROI would fail, see
              * https://trello.com/c/7o4q2Tkt/745-fix-graphs-for-mixed-ownership-read-only.
              * The workaround used here is to chown both the image and the ROI.*/
             doChange(client, factory, Requests.chown().target(roi, sentImage).toUser(normalUser.userId).build(), isExpectSuccessCreateAndChown);
             doChange(client, factory, Requests.chown().target(rDef).toUser(normalUser.userId).build(), isExpectSuccessCreateAndChown);
-            /* Retrieve the image corresponding to the roi and Rnd settings.*/
+            /* Retrieve the image corresponding to the ROI and Rnd settings.*/
             long imageId = ((RLong) iQuery.projection(
                     "SELECT rdef.pixels.image.id FROM RenderingDef rdef WHERE rdef.id = :id",
                     new ParametersI().addId(rDef.getId())).get(0).get(0)).getValue();
