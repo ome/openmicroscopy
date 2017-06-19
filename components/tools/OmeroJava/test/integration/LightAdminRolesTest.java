@@ -792,8 +792,8 @@ public class LightAdminRolesTest extends RolesTests {
             assertInGroup(link, normalUser.groupId);
             assertOwnedBy(originalFile, normalUser);
             assertInGroup(originalFile, normalUser.groupId);
-        /* Check that the image, dataset and link still belongs
-         * to the light admin as the chown failed, but are in the group of normalUser.*/
+        /* Check that the image, dataset and link still belong
+         * to lightAdmin as the chown failed, but are in the group of normalUser.*/
         } else {
             assertOwnedBy(image, lightAdmin);
             assertInGroup(image, normalUser.groupId);
