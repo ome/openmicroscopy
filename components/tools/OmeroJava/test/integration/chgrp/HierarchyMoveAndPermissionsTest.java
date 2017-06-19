@@ -943,7 +943,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         }
         doChange(move);
 
-        /* check which objects are now in which groups */
+        /* Check which objects are now in which groups.*/
 
         assertInGroup(parentFolder, toGroup);
         assertInGroup(childFolder, childFolderMoves ? toGroup : fromGroup);
