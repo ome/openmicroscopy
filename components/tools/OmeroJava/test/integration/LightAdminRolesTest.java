@@ -1133,8 +1133,8 @@ public class LightAdminRolesTest extends RolesTests {
      * lightAdmin tries then to transfer the ownership of the ROI and Rendering settings
      * to normalUser.
      * lightAdmin does not use Sudo in this test.
-     * @param permChown if to test a user who has the <tt>Chown</tt> privilege
      * @param permWriteOwned if to test a user who has the <tt>WriteOwned</tt> privilege
+     * @param permChown if to test a user who has the <tt>Chown</tt> privilege
      * @param groupPermissions if to test the effect of group permission level
      * @throws Exception unexpected
      * @see <a href="https://docs.google.com/presentation/d/1ukEZmh0c6NCNKUE1dFqaYjN6Sd5xxCuOYkSuMdpiqvE/edit#slide=id.p4">graphical explanation</a>
