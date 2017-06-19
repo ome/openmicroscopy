@@ -401,7 +401,7 @@ public class LightAdminRolesTest extends RolesTests {
         loginUser(lightAdmin);
         /* As lightAdmin, sudo as the normalUser if this should be the case.*/
         if (isSudoing) sudo(new ExperimenterI(normalUser.userId, false));
-        /* Check that the canEdit flag on the created project is as expected */
+        /* Check that the canEdit flag on the created project is as expected.*/
         Assert.assertEquals(getCurrentPermissions(sentProj).canEdit(), isExpectSuccess);
         /* Try to rename the Project.*/
         final String changedName = "ChangedNameOfLightAdmin";
