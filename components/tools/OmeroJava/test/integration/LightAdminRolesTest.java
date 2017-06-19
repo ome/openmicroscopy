@@ -775,7 +775,7 @@ public class LightAdminRolesTest extends RolesTests {
          * createDatasetImportNotYourGroupAndChownExpectSuccess.*/
         Assert.assertEquals(getCurrentPermissions(sentDat).canChown(),
                 createDatasetImportNotYourGroupAndChownExpectSuccess);
-        /* lightAdmin tries to change the ownership of the Dataset to normalUser */
+        /* lightAdmin tries to change the ownership of the Dataset to normalUser.*/
         doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(),
                 createDatasetImportNotYourGroupAndChownExpectSuccess);
         final DatasetImageLink link = (DatasetImageLink) iQuery.findByQuery(
