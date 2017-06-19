@@ -107,11 +107,11 @@ public class RolesTests extends AbstractServerImportTest {
 
     /**
      * Import an image with original file into a given dataset.
-     * @param dat dataset to which to import the image if not null
+     * @param dataset dataset to which to import the image if not null
      * @return the original file and the imported image
      * @throws Exception if the import fails
      */
-    protected List<IObject> importImageWithOriginalFile(Dataset dat) throws Exception {
+    protected List<IObject> importImageWithOriginalFile(Dataset dataset) throws Exception {
         final List<IObject> originalFileAndImage = new ArrayList<IObject>();
         final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
         final List<List<RType>> result = iQuery.projection(
@@ -119,7 +119,7 @@ public class RolesTests extends AbstractServerImportTest {
                 new ParametersI().add("name", imageName));
         final long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
         List<String> path = Collections.singletonList(fakeImageFile.getPath());
-        importFileset(path, path.size(), dat);
+        importFileset(path, path.size(), dataset);
         final OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
                 "FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
                 new ParametersI().addId(previousId).add("name", imageName));
