@@ -744,7 +744,7 @@ public class LightAdminRolesTest extends RolesTests {
             sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
             Assert.assertTrue(createDatasetExpectSuccess);
         } catch (ServerError se) {
-            Assert.assertFalse(createDatasetExpectSuccess);
+            Assert.assertFalse(createDatasetExpectSuccess, se.toString());
         }
         /* As lightAdmin, import an Image into the created Dataset.*/
         OriginalFile originalFile = null;
