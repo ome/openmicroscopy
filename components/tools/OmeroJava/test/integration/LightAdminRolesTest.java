@@ -415,7 +415,7 @@ public class LightAdminRolesTest extends RolesTests {
             sentProj = (Project) iUpdate.saveAndReturnObject(retrievedUnrenamedProject);
             Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
-            Assert.assertFalse(isExpectSuccess);
+            Assert.assertFalse(isExpectSuccess, se.toString());
         }
         String savedChangedName = sentProj.getName().getValue().toString();
         logRootIntoGroup(normalUser.groupId);
