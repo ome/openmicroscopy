@@ -337,7 +337,7 @@ public class AbstractServerTest extends AbstractTest {
      * @return the new loaded link from the image to the annotation
      * @throws ServerError an error possibly occurring during saving of the link
      */
-    protected ImageAnnotationLink linkImageAnnotation(Image image, Annotation annotation) throws ServerError {
+    protected ImageAnnotationLink linkParentToChild(Image image, Annotation annotation) throws ServerError {
         if (image.isLoaded()) {
             image = (Image) image.proxy();
         }
@@ -349,6 +349,48 @@ public class AbstractServerTest extends AbstractTest {
         link.setParent(image);
         link.setChild(annotation);
         return (ImageAnnotationLink) iUpdate.saveAndReturnObject(link);
+    }
+
+    /**
+     * Create a link between a Project and a Dataset.
+     * @param project an OMERO Project
+     * @param dataset an OMERO Dataset
+     * @return the created link
+     * @throws ServerError an error possibly occurring during saving of the link
+     */
+    protected ProjectDatasetLink linkParentToChild(Project project, Dataset dataset) throws ServerError {
+        if (project.isLoaded() && project.getId() != null) {
+            project = (Project) project.proxy();
+        }
+        if (dataset.isLoaded() && dataset.getId() != null) {
+            dataset = (Dataset) dataset.proxy();
+        }
+
+        final ProjectDatasetLink link = new ProjectDatasetLinkI();
+        link.setParent(project);
+        link.setChild(dataset);
+        return (ProjectDatasetLink) iUpdate.saveAndReturnObject(link);
+    }
+
+    /**
+     * Create a link between a Dataset and an Image.
+     * @param dataset an OMERO Dataset
+     * @param image an OMERO Image
+     * @return the created link
+     * @throws ServerError an error possibly occurring during saving of the link
+     */
+    protected DatasetImageLink linkParentToChild(Dataset dataset, Image image) throws ServerError {
+        if (dataset.isLoaded() && dataset.getId() != null) {
+            dataset = (Dataset) dataset.proxy();
+        }
+        if (image.isLoaded() && image.getId() != null) {
+            image = (Image) image.proxy();
+        }
+
+        final DatasetImageLink link = new DatasetImageLinkI();
+        link.setParent(dataset);
+        link.setChild(image);
+        return (DatasetImageLink) iUpdate.saveAndReturnObject(link);
     }
 
     /**
@@ -421,48 +463,6 @@ public class AbstractServerTest extends AbstractTest {
      */
     protected void assertOwnedBy(Collection<? extends IObject> objects, EventContext expectedOwner) throws ServerError {
         verifyObjectProperty(objects, expectedOwner.userId, Properties.OWNER);
-    }
-
-    /**
-     * Create a link between a Dataset and an Image.
-     * @param dataset an OMERO Dataset
-     * @param image an OMERO Image
-     * @return the created link
-     * @throws ServerError an error possibly occurring during saving of the link
-     */
-    protected DatasetImageLink linkDatasetImage(Dataset dataset, Image image) throws ServerError {
-        if (dataset.isLoaded() && dataset.getId() != null) {
-            dataset = (Dataset) dataset.proxy();
-        }
-        if (image.isLoaded() && image.getId() != null) {
-            image = (Image) image.proxy();
-        }
-
-        final DatasetImageLink link = new DatasetImageLinkI();
-        link.setParent(dataset);
-        link.setChild(image);
-        return (DatasetImageLink) iUpdate.saveAndReturnObject(link);
-    }
-
-    /**
-     * Create a link between a Project and a Dataset.
-     * @param project an OMERO Project
-     * @param dataset an OMERO Dataset
-     * @return the created link
-     * @throws ServerError an error possibly occurring during saving of the link
-     */
-    protected ProjectDatasetLink linkProjectDataset(Project project, Dataset dataset) throws ServerError {
-        if (project.isLoaded() && project.getId() != null) {
-            project = (Project) project.proxy();
-        }
-        if (dataset.isLoaded() && dataset.getId() != null) {
-            dataset = (Dataset) dataset.proxy();
-        }
-
-        final ProjectDatasetLink link = new ProjectDatasetLinkI();
-        link.setParent(project);
-        link.setChild(dataset);
-        return (ProjectDatasetLink) iUpdate.saveAndReturnObject(link);
     }
 
     /**

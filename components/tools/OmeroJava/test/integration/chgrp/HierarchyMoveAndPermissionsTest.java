@@ -489,7 +489,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
                 .simpleImage());
         long imageId = image.getId().getValue();
         // now link the image and dataset.
-        linkDatasetImage(dataset, image);
+        linkParentToChild(dataset, image);
         disconnect();
         ctx = init(ctx);
 
@@ -553,7 +553,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
                 .simpleImage());
         long imageId = image.getId().getValue();
         // now link the image and dataset.
-        linkDatasetImage(dataset, image);
+        linkParentToChild(dataset, image);
         disconnect();
         ctx = init(ctx);
 
@@ -617,7 +617,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
                 .simpleImage());
         long imageId = image.getId().getValue();
         // now link the image and dataset.
-        linkDatasetImage(dataset, image);
+        linkParentToChild(dataset, image);
 
         disconnect();
         ctx = init(ctx);
@@ -690,7 +690,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
                 .simpleImage());
         long imageId = image.getId().getValue();
         // now link the image and dataset.
-        linkDatasetImage(dataset, image);
+        linkParentToChild(dataset, image);
 
         disconnect();
         ctx = init(ctx);

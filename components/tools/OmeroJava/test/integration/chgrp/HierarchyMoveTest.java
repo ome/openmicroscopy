@@ -874,10 +874,10 @@ public class HierarchyMoveTest extends AbstractServerTest {
         Image image2 = (Image) iUpdate.saveAndReturnObject(mmFactory
                 .simpleImage()).proxy();
         List<IObject> links = new ArrayList<IObject>();
-        links.add(linkDatasetImage(d, image1));
-        links.add(linkDatasetImage(d, image2));
+        links.add(linkParentToChild(d, image1));
+        links.add(linkParentToChild(d, image2));
 
-        links.add(linkProjectDataset(p, d));
+        links.add(linkParentToChild(p, d));
         iUpdate.saveAndReturnArray(links);
 
         List<Long> ids = new ArrayList<Long>();
@@ -1039,7 +1039,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
 
         /* only the original and the other are in the dataset; the projection is not */
         for (final Image image : new Image[] {original, other}) {
-            linkDatasetImage(dataset, image);
+            linkParentToChild(dataset, image);
         }
 
         /* move the dataset */

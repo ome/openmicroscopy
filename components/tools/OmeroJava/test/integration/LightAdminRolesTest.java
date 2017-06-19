@@ -166,9 +166,9 @@ public class LightAdminRolesTest extends RolesTests {
     private List<IObject> annotateImageWithTagAndFile(Image image) throws Exception {
         TagAnnotation tagAnnotation = new TagAnnotationI();
         tagAnnotation = (TagAnnotation) iUpdate.saveAndReturnObject(tagAnnotation);
-        final ImageAnnotationLink tagAnnotationLink = linkImageAnnotation(image, tagAnnotation);
+        final ImageAnnotationLink tagAnnotationLink = linkParentToChild(image, tagAnnotation);
         /* add a file attachment with original file to the imported image.*/
-        final ImageAnnotationLink fileAnnotationLink = linkImageAnnotation(image, mmFactory.createFileAnnotation());
+        final ImageAnnotationLink fileAnnotationLink = linkParentToChild(image, mmFactory.createFileAnnotation());
         /* link was saved in previous step with the whole graph, including fileAnnotation and original file */
         final FileAnnotation fileAnnotation = (FileAnnotation) fileAnnotationLink.getChild();
         final OriginalFile annotOriginalFile = fileAnnotation.getFile();
@@ -265,7 +265,7 @@ public class LightAdminRolesTest extends RolesTests {
         Assert.assertTrue(getCurrentPermissions(sentProj).canLink());
         Assert.assertTrue(getCurrentPermissions(sentDat).canLink());
         /* Check that being sudoed, lightAdmin can link the Project and Dataset of normalUser.*/
-        ProjectDatasetLink projectDatasetLink = linkProjectDataset(sentProj, sentDat);
+        ProjectDatasetLink projectDatasetLink = linkParentToChild(sentProj, sentDat);
 
         /* Check the owner of the image, its originalFile, imageDatasetLink and projectDatasetLink
          * is normalUser and the image and its originalFile are in normalUser's group.*/
@@ -322,7 +322,7 @@ public class LightAdminRolesTest extends RolesTests {
        Image image = (Image) originalFileAndImage.get(1);
        assertOwnedBy(image, normalUser);
        /* Link the Project and the Dataset.*/
-       ProjectDatasetLink projectDatasetLink = linkProjectDataset(sentProj, sentDat);
+       ProjectDatasetLink projectDatasetLink = linkParentToChild(sentProj, sentDat);
        IObject datasetImageLink = iQuery.findByQuery(
                "FROM DatasetImageLink WHERE child.id = :id",
                new ParametersI().addId(image.getId()));
@@ -855,8 +855,8 @@ public class LightAdminRolesTest extends RolesTests {
         DatasetImageLink linkOfDatasetImage = new DatasetImageLinkI();
         ProjectDatasetLink linkOfProjectDataset = new ProjectDatasetLinkI();
         try {
-            linkOfDatasetImage = linkDatasetImage(sentDat, sentImage);
-            linkOfProjectDataset = linkProjectDataset(sentProj, sentDat);
+            linkOfDatasetImage = linkParentToChild(sentDat, sentImage);
+            linkOfProjectDataset = linkParentToChild(sentProj, sentDat);
             Assert.assertTrue(isExpectLinkingSuccess);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectLinkingSuccess);
@@ -1063,10 +1063,10 @@ public class LightAdminRolesTest extends RolesTests {
         Project proj2 = mmFactory.simpleProject();
         Project sentProj1 = (Project) iUpdate.saveAndReturnObject(proj1);
         Project sentProj2 = (Project) iUpdate.saveAndReturnObject(proj2);
-        DatasetImageLink linkOfDatasetImage1 = linkDatasetImage(sentDat1, sentImage1);
-        DatasetImageLink linkOfDatasetImage2 = linkDatasetImage(sentDat2, sentImage2);
-        ProjectDatasetLink linkOfProjectDataset1 = linkProjectDataset(sentProj1, sentDat1);
-        ProjectDatasetLink linkOfProjectDataset2 = linkProjectDataset(sentProj2, sentDat2);
+        DatasetImageLink linkOfDatasetImage1 = linkParentToChild(sentDat1, sentImage1);
+        DatasetImageLink linkOfDatasetImage2 = linkParentToChild(sentDat2, sentImage2);
+        ProjectDatasetLink linkOfProjectDataset1 = linkParentToChild(sentProj1, sentDat1);
+        ProjectDatasetLink linkOfProjectDataset2 = linkParentToChild(sentProj2, sentDat2);
 
         /* normalUser creates two sets of P/D?I hierarchy in the other group (anotherGroup).*/
         client.getImplicitContext().put("omero.group", Long.toString(anotherGroup.getId().getValue()));
@@ -1082,10 +1082,10 @@ public class LightAdminRolesTest extends RolesTests {
         Project proj2AnotherGroup = mmFactory.simpleProject();
         Project sentProj1AnootherGroup = (Project) iUpdate.saveAndReturnObject(proj1AnotherGroup);
         Project sentProj2AnotherGroup = (Project) iUpdate.saveAndReturnObject(proj2AnotherGroup);
-        DatasetImageLink linkOfDatasetImage1AnotherGroup = linkDatasetImage(sentDat1AnotherGroup, sentImage1AnootherGroup);
-        DatasetImageLink linkOfDatasetImage2AnotherGroup = linkDatasetImage(sentDat2AnotherGroup, sentImage2AnotherGroup);
-        ProjectDatasetLink linkOfProjectDataset1AnotherGroup = linkProjectDataset(sentProj1AnootherGroup, sentDat1AnotherGroup);
-        ProjectDatasetLink linkOfProjectDataset2AnotherGroup = linkProjectDataset(sentProj2AnotherGroup, sentDat2AnotherGroup);
+        DatasetImageLink linkOfDatasetImage1AnotherGroup = linkParentToChild(sentDat1AnotherGroup, sentImage1AnootherGroup);
+        DatasetImageLink linkOfDatasetImage2AnotherGroup = linkParentToChild(sentDat2AnotherGroup, sentImage2AnotherGroup);
+        ProjectDatasetLink linkOfProjectDataset1AnotherGroup = linkParentToChild(sentProj1AnootherGroup, sentDat1AnotherGroup);
+        ProjectDatasetLink linkOfProjectDataset2AnotherGroup = linkParentToChild(sentProj2AnotherGroup, sentDat2AnotherGroup);
         /* lightAdmin tries to transfers all normalUser's data to recipient.*/
         loginUser(lightAdmin);
         /* In order to be able to operate in both groups, get all groups context.*/
@@ -1311,7 +1311,7 @@ public class LightAdminRolesTest extends RolesTests {
          * isExpectSuccessLinkFileAttachemnt.*/
         ImageAnnotationLink link = null;
         try {
-            link = (ImageAnnotationLink) linkImageAnnotation(sentImage, fileAnnotation);
+            link = (ImageAnnotationLink) linkParentToChild(sentImage, fileAnnotation);
             /* Check the value of canAnnotate on the image is true in successful linking case.*/
             Assert.assertTrue(getCurrentPermissions(sentImage).canAnnotate());
             Assert.assertTrue(isExpectSuccessLinkFileAttachemnt);
