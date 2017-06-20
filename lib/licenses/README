@@ -641,7 +641,7 @@
   Artifacts:    native-lib-loader-*.jar
   Project:      A library for loading native libraries.
   Web Site:     http://github.com/scijava/native-lib-loader
-  License:      Free BSD License
+  License:      FreeBSD License
   License File: fbsd.txt
 
 
@@ -832,7 +832,7 @@
                 critical XML standards interfaces to make the lives of both our developers 
                 and users easier. The External Components portion of xml-commons contains 
                 interfaces that are defined by external standards organizations. For DOM, 
-                that's the W3C;
+                that's the W3C.
   Web Site:     http://xml.apache.org/commons/#external
   License:      Apache License, Version 2.0
   License File: apache-v2.0.txt
