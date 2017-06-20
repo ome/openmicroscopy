@@ -117,6 +117,7 @@
     <property name="queryService"	ref="internal-ome.api.IQuery"/>
     <property name="extendedMetadata" ref="extendedMetadata"/>
     <property name="securitySystem" ref="securitySystem"/>
+    <property name="readOnlyStatus" ref="readOnlyStatus"/>
   </bean>
 
   <bean id="level3" abstract="true">
