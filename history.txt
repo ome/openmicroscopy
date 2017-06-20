@@ -9,7 +9,7 @@ This is a bug-fix release.
 Improvements include:
 
 - support for 2 new lookup tables from `Janelia <https://www.janelia.org/>`_
-- fixed loading of wells in right-hand panel of OMERO.web
+- enabled the Preview tab for wells in right-hand panel of OMERO.web
 
 Sysadmin changes include:
 
