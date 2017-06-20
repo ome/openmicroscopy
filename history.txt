@@ -19,7 +19,7 @@ Sysadmin changes include:
 
 Developer updates include:
 
-- added example on how to retrieved shapes from a ROI using batch querying for scalability
+- added example on how to retrieve shapes from a ROI using batch querying for scalability
 - improved logging of error during deletion
 - added new methods to Java Gateway
 - improved login options in Java Gateway
