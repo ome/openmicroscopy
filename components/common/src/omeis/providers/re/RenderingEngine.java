@@ -513,7 +513,8 @@ public interface RenderingEngine extends StatefulServiceInterface {
      * definition and associated sub-objects.
      * @param settings Rendering definition to copy from. Each sub-object
      * will be processed as though the specific method was called with
-     * related attributes provided as arguments.
+     * related attributes provided as arguments. <b>NOTE:</b> Codomain
+     * mappings are ignored.
      */
     public void updateSettings(RenderingDef settings);
 
