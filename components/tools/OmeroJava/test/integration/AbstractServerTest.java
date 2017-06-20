@@ -440,6 +440,7 @@ public class AbstractServerTest extends AbstractTest {
             Assert.assertEquals(actualId, id, testedObjectName);
         }
     }
+
     /**
      * Assert that the given object is owned by the given owner.
      * @param object a model object
