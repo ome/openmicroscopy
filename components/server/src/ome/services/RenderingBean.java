@@ -774,6 +774,68 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.
+     *
+     * @see RenderingEngine#updateSettings()
+     */
+    @RolesAllowed("user")
+    public void updateSettings(RenderingDef settings) {
+        if (settings == null) {
+            return;
+        }
+
+        // Emulate setModel(RenderingModel)
+        RenderingModel model = settings.getModel();
+        setModel(model);
+        // Emulate setDefaultZ(int)
+        Integer defaultZ = settings.getDefaultZ();
+        if (defaultZ != null) {
+            setDefaultZ(settings.getDefaultZ());
+        }
+        // Emulate setDefaultT(int)
+        Integer defaultT = settings.getDefaultT();
+        if (defaultT != null) {
+            setDefaultT(settings.getDefaultT());
+        }
+        QuantumDef quantumDef = settings.getQuantization();
+        if (quantumDef != null) {
+            // Emulate setQuantumStrategy(int)
+            Integer bitResolution = quantumDef.getBitResolution();
+            if (bitResolution != null) {
+                setQuantumStrategy(bitResolution);
+            }
+            // Emulate setCodmainInterval(int, int)
+            Integer start = quantumDef.getCdStart();
+            Integer end = quantumDef.getCdEnd();
+            setCodomainInterval(start, end);
+        }
+        for (int w = 0; w < settings.sizeOfWaveRendering(); w++) {
+            ChannelBinding cb = settings.getChannelBinding(w);
+            // Emulate setQuantizationMap(int, Family, double, boolean)
+            Family family = cb.getFamily();
+            Double coefficient = cb.getCoefficient();
+            Boolean noiseReduction = cb.getNoiseReduction();
+            setQuantizationMap(w, family, coefficient, noiseReduction);
+            // Emulate setChannelWindow(int, double, double)
+            Double start = cb.getInputStart();
+            Double end = cb.getInputEnd();
+            setChannelWindow(w, start, end);
+            // Emulate setRGBA(int, int, int, int, int)
+            Integer red = cb.getRed();
+            Integer green = cb.getGreen();
+            Integer blue = cb.getBlue();
+            Integer alpha = cb.getAlpha();
+            setRGBA(w, red, green, blue, alpha);
+            // Emulate setActive(boolean)
+            Boolean active = cb.getActive();
+            setActive(w, active);
+            // Emulate setChannelLookupTable(int, String)
+            String lookup = cb.getLookupTable();
+            setChannelLookupTable(w, lookup);
+        }
+    }
+
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
      * 
      * @see RenderingEngine#saveCurrentSettings()
      */
