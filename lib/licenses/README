@@ -141,6 +141,24 @@
   License File: apache-v2.0.txt
 
 
+  Artifacts:    axis-*.jar
+  Web Site:     http://axis.apache.org/
+  License:      Apache Software License, Version 2
+  License File: apache-v2.0.txt
+
+
+  Artifacts:    axis-saaj-*.jar
+  Web Site:     http://axis.apache.org/
+  License:      Apache Software License, Version 2
+  License File: apache-v2.0.txt
+
+
+  Artifacts:    axis-wsdl4j-*.jar
+  Web Site:     http://axis.apache.org/
+  License:      Apache Software License, Version 2
+  License File: apache-v2.0.txt
+
+
   Artifacts:    backport-util-concurrent-*.jar
   Project:      The package is the backport of java.util.concurrent API.
   Web Site:     http://backport-jsr166.sourceforge.net/
