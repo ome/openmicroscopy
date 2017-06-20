@@ -86,6 +86,7 @@ public class RolesTests extends AbstractServerImportTest {
      * @param object a model object previously retrieved from the server
      * @return the permissions for the object in the current context
      * @throws ServerError if the query caused a server error
+     * (except for security violations, returns NO_PERMISSIONS)
      */
     protected Permissions getCurrentPermissions(IObject object) throws ServerError {
         final String objectClass = object.getClass().getSuperclass().getSimpleName();
