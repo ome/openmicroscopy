@@ -24,7 +24,6 @@ import java.util.Collections;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 import ome.util.SqlAction;
 
@@ -38,7 +37,7 @@ public class LightAdminPrivilegesCleanup implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(LightAdminPrivilegesCleanup.class);
 
     private final SqlAction sqlAction;
-    private final ThreadPoolTaskScheduler scheduler;
+    private final long delayMs;
 
     private Collection<Long> transactionIds = Collections.emptyList();
 
@@ -49,19 +48,7 @@ public class LightAdminPrivilegesCleanup implements Runnable {
      */
     public LightAdminPrivilegesCleanup(SqlAction sqlAction, int delay) {
         this.sqlAction = sqlAction;
-
-        scheduler = new ThreadPoolTaskScheduler();
-        scheduler.initialize();
-        scheduler.scheduleWithFixedDelay(this, 1000L * delay);
-        LOGGER.debug("scheduled periodic cleanup of _current_admin_privileges table");
-    }
-
-    /**
-     * Do not execute the repeating cleanup task any more times.
-     */
-    public void close() {
-        LOGGER.debug("shutting down periodic cleanup of _current_admin_privileges table");
-        scheduler.shutdown();
+        delayMs = 1000L * delay;
     }
 
     @Override
@@ -69,5 +56,11 @@ public class LightAdminPrivilegesCleanup implements Runnable {
         LOGGER.debug("running periodic cleanup of _current_admin_privileges table");
         sqlAction.deleteOldAdminPrivileges(transactionIds);
         transactionIds = sqlAction.findOldAdminPrivileges();
+        try {
+            /* simple emulation of ThreadPoolTaskScheduler.scheduleWithFixedDelay */
+            Thread.sleep(delayMs);
+        } catch (InterruptedException e) {
+            LOGGER.debug("interrupted after cleanup of _current_admin_privileges table");
+        }
     }
 }

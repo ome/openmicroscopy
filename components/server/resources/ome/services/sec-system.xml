@@ -98,9 +98,20 @@
     <constructor-arg ref="scriptRepoUuids"/>
   </bean>
 
-  <bean id="adminPrivilegesCleanup" class="ome.security.basic.LightAdminPrivilegesCleanup" destroy-method="close">
+  <bean id="adminPrivilegesCleanup" class="ome.security.basic.LightAdminPrivilegesCleanup">
     <constructor-arg ref="simpleSqlAction"/>
-    <constructor-arg value="10"></constructor-arg>  <!-- seconds -->
+    <constructor-arg value="5"></constructor-arg>  <!-- seconds -->
+  </bean>
+
+  <bean id="adminPrivilegesCleanupTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+    <property name="jobDetail" ref="adminPrivilegesCleanupRun"/>
+    <property name="cronExpression" value="*/10 * * * * ?"/>
+  </bean>
+
+  <bean id="adminPrivilegesCleanupRun" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+    <property name="targetObject" ref="adminPrivilegesCleanup"/>
+    <property name="targetMethod" value="run"/>
+    <property name="concurrent" value="false"/>
   </bean>
 
 </beans>
