@@ -24,6 +24,7 @@ import omero.callbacks
 from omero import LockTimeout
 from omero.columns import columns2definition
 from omero.rtypes import rfloat, rint, rlong, rstring, unwrap
+from omero.util import internal_repository
 from omero.util.decorators import remoted, locked, perf
 from omero_ext import portalocker
 from omero_ext.functional import wraps
@@ -114,7 +115,7 @@ class HdfList(object):
         self.__paths = {}
 
     @locked
-    def addOrThrow(self, hdfpath, hdfstorage):
+    def addOrThrow(self, hdfpath, hdfstorage, read_only=False):
 
         if hdfpath in self.__paths:
             raise omero.LockTimeout(
@@ -125,12 +126,14 @@ class HdfList(object):
             raise omero.ApiUsageException(
                 None, None, "Parent directory does not exist: %s" % parent)
 
-        hdffile = hdfstorage.openfile("a")
+        mode = read_only and "r" or "a"
+        hdffile = hdfstorage.openfile(mode)
         fileno = hdffile.fileno()
 
         try:
-            portalocker.lockno(
-                fileno, portalocker.LOCK_NB | portalocker.LOCK_EX)
+            if not read_only:
+                portalocker.lockno(
+                    fileno, portalocker.LOCK_NB | portalocker.LOCK_EX)
         except portalocker.LockException:
             hdffile.close()
             raise omero.LockTimeout(
@@ -151,11 +154,12 @@ class HdfList(object):
         return hdffile
 
     @locked
-    def getOrCreate(self, hdfpath):
+    def getOrCreate(self, hdfpath, read_only=False):
         try:
             return self.__paths[hdfpath]
         except KeyError:
-            return HdfStorage(hdfpath, self._lock)  # Adds itself.
+            # Adds itself to the global list
+            return HdfStorage(hdfpath, self._lock, read_only=read_only)
 
     @locked
     def remove(self, hdfpath, hdffile):
@@ -173,7 +177,7 @@ class HdfStorage(object):
     instance will be available for any given physical HDF5 file.
     """
 
-    def __init__(self, file_path, hdf5lock):
+    def __init__(self, file_path, hdf5lock, read_only=False):
         """
         file_path should be the path to a file in a valid directory where
         this HDF instance can be stored (Not None or Empty). Once this
@@ -186,6 +190,7 @@ class HdfStorage(object):
 
         self.logger = logging.getLogger("omero.tables.HdfStorage")
 
+        self._read_only = read_only
         self.__hdf_path = path(file_path)
         # Locking first as described at:
         # http://www.pytables.org/trac/ticket/185
@@ -951,15 +956,25 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         directory. If this is not created, then a required server has
         not started, and so this instance will not start.
         """
-        wait = int(self.communicator.getProperties().getPropertyWithDefault(
-            "omero.repo.wait", "1"))
-        self.repo_dir = self.communicator.getProperties().getProperty(
-            "omero.repo.dir")
+        props = self.communicator.getProperties()
+        wait = int(props.getPropertyWithDefault("omero.repo.wait", "1"))
+        self.repo_dir = props.getProperty("omero.repo.dir")
+
+        config_service = self.ctx.getSession().getConfigService()
+        # TODO: add a isReadOnly method since this is currently a r/w method
+        # self.read_only = config_service.getConfigValue("omero.cluster.read_only")
+        try:
+            self.read_only = props.getProperty("omero.cluster.read_only")
+            self.read_only = ("true" == self.read_only.lower())
+        except:
+            self.read_only = False
+
+        if self.read_only:
+            self.logger.warn("Starting in read-only mode")
 
         if not self.repo_dir:
             # Implies this is the legacy directory. Obtain from server
-            self.repo_dir = self.ctx.getSession(
-                ).getConfigService().getConfigValue("omero.data.dir")
+            self.repo_dir = config_service.getConfigValue("omero.data.dir")
 
         self.repo_cfg = path(self.repo_dir) / ".omero" / "repository"
         start = time.time()
@@ -989,20 +1004,26 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         create a proxy for the InternalRepository attached to that.
         """
 
-        # Get and parse the uuid from the RandomAccessFile format from
-        # FileMaker
-        self.repo_uuid = (self.instance / "repo_uuid").lines()[0].strip()
-        if len(self.repo_uuid) != 38:
-            raise omero.ResourceError(
-                "Poorly formed UUID: %s" % self.repo_uuid)
-        self.repo_uuid = self.repo_uuid[2:]
+        if self.read_only:
+            # In read-only case, no takeover takes place
+            self.repo_mgr = internal_repository(self.communicator)
+        else:
 
-        # Using the repo_uuid, find our OriginalFile object
-        self.repo_obj = self.ctx.getSession().getQueryService().findByQuery(
-            "select f from OriginalFile f where hash = :uuid",
-            omero.sys.ParametersI().add("uuid", rstring(self.repo_uuid)))
-        self.repo_mgr = self.communicator.stringToProxy(
-            "InternalRepository-%s" % self.repo_uuid)
+            # Get and parse the uuid from the RandomAccessFile format from
+            # FileMaker
+            self.repo_uuid = (self.instance / "repo_uuid").lines()[0].strip()
+            if len(self.repo_uuid) != 38:
+                raise omero.ResourceError(
+                    "Poorly formed UUID: %s" % self.repo_uuid)
+            self.repo_uuid = self.repo_uuid[2:]
+
+            # Using the repo_uuid, find our OriginalFile object
+            self.repo_obj = self.ctx.getSession().getQueryService().findByQuery(
+                "select f from OriginalFile f where hash = :uuid",
+                omero.sys.ParametersI().add("uuid", rstring(self.repo_uuid)))
+            self.repo_mgr = self.communicator.stringToProxy(
+                "InternalRepository-%s" % self.repo_uuid)
+
         self.repo_mgr = self._internal_repo_cast(self.repo_mgr)
         self.repo_svc = self.repo_mgr.getProxy()
 
@@ -1031,7 +1052,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         if not p.exists():
             p.makedirs()
 
-        storage = HDFLIST.getOrCreate(file_path)
+        storage = HDFLIST.getOrCreate(file_path, read_only=self.read_only)
         id = Ice.Identity()
         id.name = Ice.generateUUID()
         table = TableI(self.ctx, file_obj, factory, storage, uuid=id.name,
