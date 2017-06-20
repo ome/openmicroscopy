@@ -87,7 +87,7 @@
         <bean parent="graphPolicyRule" p:matches="Instrument[I].lightSource = LS:[E]" p:changes="LS:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Instrument[I].microscope = M:[E]" p:changes="M:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Instrument[I].objective = O:[E]" p:changes="O:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="Instrument[I].otf = OTF:[E]" p:changes="OTF:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="Instrument[I].otf = OTFn:[E]" p:changes="OTFn:[I]"/>
 
         <!-- Continue instrument move deeper into subgraph. -->
 
@@ -187,19 +187,6 @@
         <bean parent="graphPolicyRule" p:matches="LP:LightPath[E]{o}" p:changes="LP:[I]"/>
         <bean parent="graphPolicyRule" p:matches="LP:LightPath[E]{a}" p:error="may not move some but not all of {LP}'s filters"/>
 
-        <!-- Ensure that rules with multiple matches may apply for links. -->
-
-        <bean parent="graphPolicyRule" p:matches="L:FilterSetEmissionFilterLink[!O]" p:changes="L:[-]"/>
-        <bean parent="graphPolicyRule" p:matches="L:FilterSetExcitationFilterLink[!O]" p:changes="L:[-]"/>
-        <bean parent="graphPolicyRule" p:matches="L:LightPathEmissionFilterLink[!O]" p:changes="L:[-]"/>
-        <bean parent="graphPolicyRule" p:matches="L:LightPathExcitationFilterLink[!O]" p:changes="L:[-]"/>
-
-        <!-- Ensure that rules with multiple matches may apply for settings. -->
-
-        <bean parent="graphPolicyRule" p:matches="S:DetectorSettings[!O]" p:changes="S:[-]"/>
-        <bean parent="graphPolicyRule" p:matches="S:LightSettings[!O]" p:changes="S:[-]"/>
-        <bean parent="graphPolicyRule" p:matches="S:ObjectiveSettings[!O]" p:changes="S:[-]"/>
-
         <!-- ANNOTATIONS -->
 
         <!--
@@ -289,10 +276,6 @@
         <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink[E].child = [D]" p:changes="L:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink[E].parent = [ED], L.child = [I]" p:changes="L:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink[E].parent = [DI], L.child = [E]{!r}" p:changes="L:[D]/n"/>
-
-        <!-- Ensure that rules with multiple matches may apply for links. -->
-
-        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink[!O]" p:changes="L:[-]"/>
 
         <!-- CONTAINERS -->
 
@@ -393,13 +376,6 @@
         <bean parent="graphPolicyRule" p:matches="L:FolderRoiLink[E].parent = [I], L.child = [E]{ia}" p:changes="L:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="L:FolderRoiLink[E].parent = [E], L.child = [I]" p:changes="L:[D]/n"/>
 
-        <!-- Ensure that rules with multiple matches may apply for links. -->
-
-        <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink[!O]" p:changes="L:[-]"/>
-        <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink[!O]" p:changes="L:[-]"/>
-        <bean parent="graphPolicyRule" p:matches="L:FolderImageLink[!O]" p:changes="L:[-]"/>
-        <bean parent="graphPolicyRule" p:matches="L:FolderRoiLink[!O]" p:changes="L:[-]"/>
-
         <!-- CORE -->
 
         <!-- Move pixels link to archived files if both pixels and files are to be moved. -->
@@ -495,10 +471,6 @@
         <bean parent="graphPolicyRule" p:matches="I:Image[E]{o}/o" p:changes="I:[I]"/>
         <bean parent="graphPolicyRule" p:matches="!$to_private, I:Image[E]{o}/d" p:changes="I:[I]/n"/>
         <bean parent="graphPolicyRule" p:matches="!$to_private, I:Image[E]{o}/m" p:changes="I:[I]/n"/>
-
-        <!-- Ensure that rules with multiple matches may apply for links. -->
-
-        <bean parent="graphPolicyRule" p:matches="L:PixelsOriginalFileMap[!O]" p:changes="L:[-]"/>
 
         <!-- DISPLAY -->
 
@@ -596,10 +568,6 @@
         <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink[E].parent = J:[I], L.child = OF:[E]{a}"
                                        p:error="may not move {J} while {OF} remains"/>
 
-        <!-- Ensure that rules with multiple matches may apply for links. -->
-
-        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink[!O]" p:changes="L:[-]"/>
-
         <!-- META -->
 
         <!-- If an object is deleted or moved then also delete or move its external info regardless of permissions. -->
@@ -645,7 +613,6 @@
 
         <bean parent="graphPolicyRule" p:matches="Roi[I].shapes = S:[E]" p:changes="S:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Shape[I].transform = T:[E]" p:changes="T:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="Mask[I].pixels =/o P:[E]" p:changes="P:[-]"/>
         <bean parent="graphPolicyRule" p:matches="Mask[I].pixels =/o P:[E], P.image = I:[E]{i}" p:changes="I:{r}"/>
 
         <!-- Delete the shapes of deleted ROIs. -->
@@ -682,15 +649,15 @@
         <!-- Move a reagent only if also moving screens and wells that use it. -->
 
         <bean parent="graphPolicyRule" p:matches="Screen[I].reagents = R:[E]{i}" p:changes="R:{r}"/>
-        <bean parent="graphPolicyRule" p:matches="Screen[E]{ia}.reagents = R:[E]{r}" p:changes="R:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="L:WellReagentLink[!D].parent = [I], L.child = R:[E]{i}" p:changes="R:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:WellReagentLink[EI].parent = [I], L.child = R:[E]{i}" p:changes="R:{r}"/>
         <bean parent="graphPolicyRule" p:matches="WellReagentLink[I].child = R:[E]{i}" p:changes="R:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="Screen[E]{ia}.reagents = R:[E]{r}" p:changes="R:{a}"/>
         <bean parent="graphPolicyRule" p:matches="L:WellReagentLink[E].parent = [E]{ia}, L.child = R:[E]{r}" p:changes="R:{a}"/>
         <bean parent="graphPolicyRule" p:matches="R:Reagent[E]{o}" p:changes="R:[I]"/>
         <bean parent="graphPolicyRule" p:matches="L:WellReagentLink[E].child = [I]" p:changes="L:[I]"/>
         <bean parent="graphPolicyRule" p:matches="S:Screen[E].reagents = R:[I]" p:error="may not move {R} without {S}"/>
-        <bean parent="graphPolicyRule" p:matches="L:WellReagentLink[!D].parent = [I], L.child = [E]{a}" p:changes="L:[D]"/>
-        <bean parent="graphPolicyRule" p:matches="L:WellReagentLink[!D].parent = W:[E], L.child = R:[I]"
+        <bean parent="graphPolicyRule" p:matches="L:WellReagentLink[E].parent = [I], L.child = [E]{a}" p:changes="L:[D]"/>
+        <bean parent="graphPolicyRule" p:matches="L:WellReagentLink[EI].parent = W:[E], L.child = R:[I]"
                                        p:error="may not move {R} without {W}"/>
 
         <!-- Cannot move screen to a private group if it uses a differently owned reagent. -->
@@ -738,12 +705,6 @@
         <bean parent="graphPolicyRule" p:matches="WS:WellSample.well = [I], WS.image = I:[E]{i}" p:changes = "I:{r}"/>
         <bean parent="graphPolicyRule" p:matches="WS:WellSample[E].well = [I], WS.image = I:[E]{o}" p:changes = "WS:[I]"/>
         <bean parent="graphPolicyRule" p:matches="WS:WellSample[E].well = [I], WS.image = I:[I]" p:changes = "WS:[I]"/>
-
-        <!-- Ensure that rules with multiple matches may apply for links. -->
-
-        <bean parent="graphPolicyRule" p:matches="WS:WellSample[!O]" p:changes="WS:[-]"/>
-        <bean parent="graphPolicyRule" p:matches="L:WellReagentLink[!O]" p:changes="L:[-]"/>
-        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[!O]" p:changes="L:[-]"/>
 
         <!-- STATS -->
 

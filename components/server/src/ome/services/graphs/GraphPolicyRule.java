@@ -43,8 +43,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multiset;
 import com.google.common.collect.Sets;
 
 /**
@@ -108,6 +112,11 @@ public class GraphPolicyRule {
      */
     private static interface TermMatch {
         /**
+         * @return the name of the term, may be {@code null}
+         */
+        String getName();
+
+        /**
          * If this matches the given term.
          * Does not adjust {@code namedTerms} or {@code isCheckAllPermissions} unless the match succeeds,
          * in which case sets {@code isCheckAllPermissions} to {@code false} if
@@ -116,11 +125,12 @@ public class GraphPolicyRule {
          * @param namedTerms the name dictionary of matched terms (updated by this method)
          * @param isCheckAllPermissions if permissions are to be checked for all of the matched objects (updated by this method)
          * @param details the details of the term
+         * @param isRequireNew can match existing terms only if defined in {@code namedTerms} by {@link NewTermMatch}
          * @return if the term matches
          * @throws GraphException if the match attempt could not be completed
          */
         boolean isMatch(Map<String, GraphPolicyRulePredicate> predicates, Map<String, Details> namedTerms,
-                MutableBoolean isCheckAllPermissions, Details details) throws GraphException;
+                MutableBoolean isCheckAllPermissions, Details details, boolean isRequireNew) throws GraphException;
     }
 
     /**
@@ -129,6 +139,7 @@ public class GraphPolicyRule {
      */
     private static class ExistingTermMatch implements TermMatch {
         final String termName;
+        NewTermMatch refersTo = null;
 
         /**
          * Construct an existing term match.
@@ -138,10 +149,40 @@ public class GraphPolicyRule {
             this.termName = termName;
         }
 
+        /**
+         * Note the new term match that defines this existing term.
+         * Must be set exactly once before {@link #isMatch(Map, Map, MutableBoolean, Details, boolean)} is used.
+         * @param reference the new term match with the same name
+         */
+        void setReference(NewTermMatch reference) {
+            if (refersTo != null) {
+                throw new IllegalStateException("cannot reset reference");
+            }
+            if (reference == null) {
+                throw new IllegalArgumentException("cannot set null reference");
+            }
+            if (!reference.termName.equals(termName)) {
+                throw new IllegalStateException("term name mismatch");
+            }
+            refersTo = reference;
+        }
+
+        @Override
+        public String getName() {
+            return termName;
+        }
+
         @Override
         public boolean isMatch(Map<String, GraphPolicyRulePredicate> predicates, Map<String, Details> namedTerms,
-                MutableBoolean isCheckAllPermissions, Details details) {
-            return details.equals(namedTerms.get(termName));
+                MutableBoolean isCheckAllPermissions, Details details, boolean isRequireNew) throws GraphException {
+            if (refersTo == null) {
+                throw new IllegalStateException("unresolved reference");
+            }
+            if (isRequireNew) {
+                return details.equals(namedTerms.get(termName));
+            } else {
+                return refersTo.isMatch(predicates, namedTerms, isCheckAllPermissions, details, isRequireNew);
+            }
         }
     }
 
@@ -210,8 +251,13 @@ public class GraphPolicyRule {
         }
 
         @Override
+        public String getName() {
+            return termName;
+        }
+
+        @Override
         public boolean isMatch(Map<String, GraphPolicyRulePredicate> predicates, Map<String, Details> namedTerms,
-                MutableBoolean isCheckAllPermissions, Details details) throws GraphException {
+                MutableBoolean isCheckAllPermissions, Details details, boolean isRequireNew) throws GraphException {
             final Class<? extends IObject> subjectClass = details.subject.getClass();
             final boolean previousIsCheckAllPermissions = isCheckAllPermissions.booleanValue();
             if (previousIsCheckAllPermissions && !details.isCheckPermissions) {
@@ -297,12 +343,13 @@ public class GraphPolicyRule {
          * @param rightDetails the details of the right term, being a value of the property
          * @param classProperty the name of the declaring class and property
          * @param notNullable if the property is not nullable
+         * @param isRequireNew can match existing terms only if defined in {@code namedTerms} by {@link NewTermMatch}
          * @return if the relationship matches
          * @throws GraphException if the match attempt could not be completed
          */
         boolean isMatch(Map<String, GraphPolicyRulePredicate> predicates, Map<String, Details> namedTerms,
-                MutableBoolean isCheckAllPermissions,
-                Details leftDetails, Details rightDetails, String classProperty, boolean notNullable) throws GraphException {
+                MutableBoolean isCheckAllPermissions, Details leftDetails, Details rightDetails, String classProperty,
+                boolean notNullable, boolean isRequireNew) throws GraphException {
             if ((this.sameOwner != null && leftDetails.ownerId != null && rightDetails.ownerId != null &&
                  this.sameOwner != leftDetails.ownerId.equals(rightDetails.ownerId)) ||
                 (this.notNullable != null && this.notNullable != notNullable) ||
@@ -311,31 +358,16 @@ public class GraphPolicyRule {
             }
             final Map<String, Details> newNamedTerms = new HashMap<String, Details>(namedTerms);
             final MutableBoolean newIsCheckAllPermissions = new MutableBoolean(isCheckAllPermissions.booleanValue());
-            final boolean isMatch = leftTerm.isMatch(predicates, newNamedTerms, newIsCheckAllPermissions, leftDetails) &&
-                                   rightTerm.isMatch(predicates, newNamedTerms, newIsCheckAllPermissions, rightDetails);
+            final boolean isMatch =
+                     leftTerm.isMatch(predicates, newNamedTerms, newIsCheckAllPermissions, leftDetails, isRequireNew) &&
+                    rightTerm.isMatch(predicates, newNamedTerms, newIsCheckAllPermissions, rightDetails, isRequireNew);
             if (isMatch) {
                 namedTerms.putAll(newNamedTerms);
                 isCheckAllPermissions.setValue(newIsCheckAllPermissions.booleanValue());
             }
             return isMatch;
         }
-
-        /**
-         * @return the name of the existing left term required for this relationship match,
-         * or {@code null} if the left term is not an existing term
-         */
-        String getExistingLeftTerm() {
-            return leftTerm instanceof ExistingTermMatch ? ((ExistingTermMatch) leftTerm).termName : null;
-        }
-
-        /**
-         * @return the name of the existing right term required for this relationship match,
-         * or {@code null} if the right term is not an existing term
-         */
-        String getExistingRightTerm() {
-            return rightTerm instanceof ExistingTermMatch ? ((ExistingTermMatch) rightTerm).termName : null;
-        }
-}
+    }
 
     /**
      * Matches conditions available via {@link GraphPolicy#isCondition(String)}.
@@ -423,6 +455,7 @@ public class GraphPolicyRule {
         final List<TermMatch> termMatchers;
         final List<RelationshipMatch> relationshipMatchers;
         final List<ConditionMatch> conditionMatchers;
+        final Set<String> commonTerms;
         final List<Change> changes;
         final String errorMessage;
 
@@ -433,14 +466,16 @@ public class GraphPolicyRule {
          * @param termMatchers the term matchers that must apply if the changes are to be applied
          * @param relationshipMatchers the relationship matchers that must apply if the changes are to be applied
          * @param conditionMatchers the condition matchers that must apply if the changes are to be applied
+         * @param commonTerms the names of the terms that appear in multiple matchers
          * @param changes the effects of this rule, guarded by the matchers
          */
         ParsedPolicyRule(String asString, List<TermMatch> termMatchers, List<RelationshipMatch> relationshipMatchers,
-                List<ConditionMatch> conditionMatchers, List<Change> changes) {
+                List<ConditionMatch> conditionMatchers, Set<String> commonTerms, List<Change> changes) {
             this.asString = asString;
             this.termMatchers = termMatchers;
             this.relationshipMatchers = relationshipMatchers;
             this.conditionMatchers = conditionMatchers;
+            this.commonTerms = commonTerms;
             this.changes = changes;
             this.errorMessage = null;
         }
@@ -452,14 +487,16 @@ public class GraphPolicyRule {
          * @param termMatchers the term matchers that must apply if the error is to be thrown
          * @param relationshipMatchers the relationship matchers that must apply if the error is to be thrown
          * @param conditionMatchers the condition matchers that must apply if the error is to be thrown
+         * @param commonTerms the names of the terms that appear in multiple matchers
          * @param errorMessage the message accompanying the error thrown by this rule in the event of a match
          */
         ParsedPolicyRule(String asString, List<TermMatch> termMatchers, List<RelationshipMatch> relationshipMatchers,
-                List<ConditionMatch> conditionMatchers, String errorMessage) {
+                List<ConditionMatch> conditionMatchers, Set<String> commonTerms, String errorMessage) {
             this.asString = asString;
             this.termMatchers = termMatchers;
             this.relationshipMatchers = relationshipMatchers;
             this.conditionMatchers = conditionMatchers;
+            this.commonTerms = commonTerms;
             this.changes = Collections.emptyList();
             this.errorMessage = errorMessage;
         }
@@ -478,7 +515,10 @@ public class GraphPolicyRule {
         final Matcher existingTermMatcher = EXISTING_TERM_PATTERN.matcher(term);
 
         if (existingTermMatcher.matches()) {
-            return new ExistingTermMatch(existingTermMatcher.group(1));
+            final String termName = existingTermMatcher.group(1);
+            if (graphPathBean.getClassForSimpleName(termName) == null) {
+                return new ExistingTermMatch(termName);
+            }
         }
 
         final Matcher newTermMatcher = NEW_TERM_PATTERN.matcher(term);
@@ -505,6 +545,9 @@ public class GraphPolicyRule {
             termName = null;
         } else {
             termName = termNameGroup.substring(0, termNameGroup.length() - 1);
+            if (graphPathBean.getClassForSimpleName(termName) != null) {
+                throw new GraphException("redefined known class " + termName + " in " + term);
+            }
         }
 
         /* parse class name, if any */
@@ -781,11 +824,13 @@ public class GraphPolicyRule {
      */
     public static GraphPolicy parseRules(GraphPathBean graphPathBean,
             Collection<GraphPolicyRule> rules) throws GraphException {
-        final List<ParsedPolicyRule> policyRules = new ArrayList<ParsedPolicyRule>();
+        final List<ParsedPolicyRule> parsedPolicyRules = new ArrayList<ParsedPolicyRule>();
         for (final GraphPolicyRule policyRule : rules) {
             final List<TermMatch> termMatches = new ArrayList<TermMatch>();
             final List<RelationshipMatch> relationshipMatches = new ArrayList<RelationshipMatch>();
             final List<ConditionMatch> conditionMatches = new ArrayList<ConditionMatch>();
+            final Multimap<String, TermMatch> termsByName = HashMultimap.create();
+            final Multiset<String> termCounts = HashMultiset.create();
             for (final String match : policyRule.matches) {
                 final String[] words = match.trim().split("\\s+");
                 if (words.length == 1) {
@@ -795,12 +840,55 @@ public class GraphPolicyRule {
                     } else if (word.startsWith("!$")) {
                         conditionMatches.add(new ConditionMatch(false, word.substring(2)));
                     } else {
-                        termMatches.add(parseTermMatch(graphPathBean, word));
+                        final TermMatch termMatch = parseTermMatch(graphPathBean, word);
+                        termMatches.add(termMatch);
+                        if (termMatch.getName() != null) {
+                            termsByName.put(termMatch.getName(), termMatch);
+                        }
                     }
                 } else if (words.length == 3) {
-                    relationshipMatches.add(parseRelationshipMatch(graphPathBean, words[0], words[1], words[2]));
+                    final RelationshipMatch relationshipMatch = parseRelationshipMatch(graphPathBean, words[0], words[1], words[2]);
+                    relationshipMatches.add(relationshipMatch);
+                    final String leftTermName = relationshipMatch.leftTerm.getName();
+                    if (leftTermName != null) {
+                        termsByName.put(leftTermName, relationshipMatch.leftTerm);
+                        if (relationshipMatch.propertyName != null) {
+                            termCounts.add(leftTermName);
+                        }
+                    }
+                    final String rightTermName = relationshipMatch.rightTerm.getName();
+                    if (rightTermName != null) {
+                        termsByName.put(rightTermName, relationshipMatch.rightTerm);
+                        if (relationshipMatch.propertyName != null) {
+                            termCounts.add(rightTermName);
+                        }
+                    }
                 } else {
                     throw new GraphException("failed to parse match " + match);
+                }
+            }
+            final ImmutableSet.Builder<String> commonTerms = ImmutableSet.builder();
+            for (final Multiset.Entry<String> termCount : termCounts.entrySet()) {
+                if (termCount.getCount() > 1) {
+                    commonTerms.add(termCount.getElement());
+                }
+            }
+            final Map<String, NewTermMatch> termMatchers = new HashMap<>();
+            for (final TermMatch term : termsByName.values()) {
+                if (term instanceof NewTermMatch) {
+                    final String termName = term.getName();
+                    if (termName != null && termMatchers.put(termName, (NewTermMatch) term) != null) {
+                        throw new GraphException("redefined term " + termName + " in rule " + policyRule);
+                    }
+                }
+            }
+            for (final TermMatch term : termsByName.values()) {
+                if (term instanceof ExistingTermMatch) {
+                    final NewTermMatch fullTerm = termMatchers.get(term.getName());
+                    if (fullTerm == null) {
+                        throw new GraphException("undefined term " + term.getName() + " in rule " + policyRule);
+                    }
+                    ((ExistingTermMatch) term).setReference(fullTerm);
                 }
             }
             if (policyRule.errorMessage == null) {
@@ -808,14 +896,14 @@ public class GraphPolicyRule {
                 for (final String change : policyRule.changes) {
                     changes.add(parseChange(change.trim()));
                 }
-                policyRules.add(new ParsedPolicyRule(policyRule.toString(), termMatches, relationshipMatches, conditionMatches,
-                        changes));
+                parsedPolicyRules.add(new ParsedPolicyRule(policyRule.toString(), termMatches, relationshipMatches,
+                        conditionMatches, commonTerms.build(), changes));
             } else {
-                policyRules.add(new ParsedPolicyRule(policyRule.toString(), termMatches, relationshipMatches, conditionMatches,
-                        policyRule.errorMessage));
+                parsedPolicyRules.add(new ParsedPolicyRule(policyRule.toString(), termMatches, relationshipMatches, 
+                        conditionMatches, commonTerms.build(), policyRule.errorMessage));
             }
         }
-        return new CleanGraphPolicy(policyRules);
+        return new CleanGraphPolicy(parsedPolicyRules);
     }
 
     /**
@@ -894,7 +982,8 @@ public class GraphPolicyRule {
                     if (policyRule.termMatchers.size() + policyRule.relationshipMatchers.size() == 1) {
                         reviewWithSingleMatch(linkedFrom, rootObject, linkedTo, notNullable, policyRule, changedObjects);
                     } else {
-                        reviewWithManyMatches(linkedFrom, rootObject, linkedTo, notNullable, policyRule, changedObjects);
+                        reviewWithManyMatches(linkedFrom, rootObject, linkedTo, notNullable, policyRule, changedObjects,
+                                HashMultimap.<String, Details>create());
                     }
                 }
             }
@@ -922,7 +1011,7 @@ public class GraphPolicyRule {
                 final Set<Details> allTerms = GraphPolicy.allObjects(linkedFrom.values(), rootObject, linkedTo.values());
                 for (final TermMatch matcher : policyRule.termMatchers) {
                     for (final Details object : allTerms) {
-                        if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions, object)) {
+                        if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions, object, true)) {
                             recordChanges(policyRule, changedObjects, namedTerms, isCheckAllPermissions.booleanValue());
                             namedTerms.clear();
                             isCheckAllPermissions.setValue(true);
@@ -938,7 +1027,7 @@ public class GraphPolicyRule {
                     final boolean isNotNullable = notNullable.contains(classProperty);
                     for (final Details linkerObject : dataPerProperty.getValue()) {
                         if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions,
-                                linkerObject, rootObject, classProperty, isNotNullable)) {
+                                linkerObject, rootObject, classProperty, isNotNullable, true)) {
                             recordChanges(policyRule, changedObjects, namedTerms, isCheckAllPermissions.booleanValue());
                             namedTerms.clear();
                             isCheckAllPermissions.setValue(true);
@@ -951,7 +1040,7 @@ public class GraphPolicyRule {
                     final boolean isNotNullable = notNullable.contains(classProperty);
                     for (final Details linkedObject : dataPerProperty.getValue()) {
                         if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions,
-                                rootObject, linkedObject, classProperty, isNotNullable)) {
+                                rootObject, linkedObject, classProperty, isNotNullable, true)) {
                             recordChanges(policyRule, changedObjects, namedTerms, isCheckAllPermissions.booleanValue());
                             namedTerms.clear();
                             isCheckAllPermissions.setValue(true);
@@ -970,11 +1059,13 @@ public class GraphPolicyRule {
          * @param notNullable which properties are not nullable
          * @param policyRule the policy rule to consider applying
          * @param changedObjects the set of details of objects that result from applied changes
+         * @param prohibitedTerms matches that may not be made for terms
          * @throws GraphException if a term named for a change is not defined in the matching
          */
-        private void reviewWithManyMatches(Map<String, Set<Details>> linkedFrom,
-                Details rootObject, Map<String, Set<Details>> linkedTo, Set<String> notNullable,
-                ParsedPolicyRule policyRule, Set<Details> changedObjects) throws GraphException {
+        private void reviewWithManyMatches(Map<String, Set<Details>> linkedFrom, Details rootObject,
+                Map<String, Set<Details>> linkedTo, Set<String> notNullable, ParsedPolicyRule policyRule,
+                Set<Details> changedObjects, Multimap<String, Details> prohibitedTerms) throws GraphException {
+            final boolean isPossibleMatch = prohibitedTerms.isEmpty();
             final SortedMap<String, Details> namedTerms = new TreeMap<String, Details>();
             final MutableBoolean isCheckAllPermissions = new MutableBoolean(true);
             final Set<TermMatch> unmatchedTerms = new HashSet<TermMatch>(policyRule.termMatchers);
@@ -991,7 +1082,10 @@ public class GraphPolicyRule {
                 while (unmatchedTermIterator.hasNext()) {
                     final TermMatch matcher = unmatchedTermIterator.next();
                     for (final Details object : allTerms) {
-                        if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions, object)) {
+                        if (matcher.getName() != null && prohibitedTerms.get(matcher.getName()).contains(object)) {
+                            continue;
+                        }
+                        if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions, object, true)) {
                             unmatchedTermIterator.remove();
                         }
                     }
@@ -1004,15 +1098,22 @@ public class GraphPolicyRule {
                         unmatchedTermIterator = unmatchedTerms.iterator();
                         while (unmatchedTermIterator.hasNext()) {
                             final TermMatch matcher = unmatchedTermIterator.next();
-                            if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions, linkerObject)) {
+                            if (matcher.getName() != null && prohibitedTerms.get(matcher.getName()).contains(linkerObject)) {
+                                continue;
+                            }
+                            if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions, linkerObject, true)) {
                                 unmatchedTermIterator.remove();
                             }
                         }
                         unmatchedRelationshipIterator = unmatchedRelationships.iterator();
                         while (unmatchedRelationshipIterator.hasNext()) {
                             final RelationshipMatch matcher = unmatchedRelationshipIterator.next();
+                            final String leftTermName = matcher.leftTerm.getName();
+                            if (leftTermName != null && prohibitedTerms.get(leftTermName).contains(linkerObject)) {
+                                continue;
+                            }
                             if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions,
-                                    linkerObject, rootObject, classProperty, isNotNullable)) {
+                                    linkerObject, rootObject, classProperty, isNotNullable, isPossibleMatch)) {
                                 unmatchedRelationshipIterator.remove();
                             }
                         }
@@ -1026,15 +1127,22 @@ public class GraphPolicyRule {
                         unmatchedTermIterator = unmatchedTerms.iterator();
                         while (unmatchedTermIterator.hasNext()) {
                             final TermMatch matcher = unmatchedTermIterator.next();
-                            if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions, linkedObject)) {
+                            if (matcher.getName() != null && prohibitedTerms.get(matcher.getName()).contains(linkedObject)) {
+                                continue;
+                            }
+                            if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions, linkedObject, true)) {
                                 unmatchedTermIterator.remove();
                             }
                         }
                         unmatchedRelationshipIterator = unmatchedRelationships.iterator();
                         while (unmatchedRelationshipIterator.hasNext()) {
                             final RelationshipMatch matcher = unmatchedRelationshipIterator.next();
+                            final String rightTermName = matcher.rightTerm.getName();
+                            if (rightTermName != null && prohibitedTerms.get(rightTermName).contains(linkedObject)) {
+                                continue;
+                            }
                             if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions,
-                                    rootObject, linkedObject, classProperty, isNotNullable)) {
+                                    rootObject, linkedObject, classProperty, isNotNullable, isPossibleMatch)) {
                                 unmatchedRelationshipIterator.remove();
                             }
                         }
@@ -1045,24 +1153,88 @@ public class GraphPolicyRule {
                 while (unmatchedRelationshipIterator.hasNext()) {
                     final RelationshipMatch matcher = unmatchedRelationshipIterator.next();
                     if (matcher.propertyName != null || matcher.notNullable != null) continue;
-                    final String leftTermName = matcher.getExistingLeftTerm();
-                    if (leftTermName == null) continue;
-                    final String rightTermName = matcher.getExistingRightTerm();
-                    if (rightTermName == null) continue;
-                    final Details leftDetails = namedTerms.get(leftTermName);
+                    if (matcher.leftTerm instanceof NewTermMatch || matcher.rightTerm instanceof NewTermMatch) continue;
+                    final Details leftDetails = namedTerms.get(matcher.leftTerm.getName());
                     if (leftDetails == null) continue;
-                    final Details rightDetails = namedTerms.get(rightTermName);
+                    if (prohibitedTerms.get(matcher.leftTerm.getName()).contains(leftDetails)) {
+                        continue;
+                    }
+                    final Details rightDetails = namedTerms.get(matcher.rightTerm.getName());
                     if (rightDetails == null) continue;
-                    if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions, leftDetails, rightDetails, null, false)) {
+                    if (prohibitedTerms.get(matcher.rightTerm.getName()).contains(rightDetails)) {
+                        continue;
+                    }
+                    if (matcher.isMatch(predicates, namedTerms, isCheckAllPermissions, leftDetails, rightDetails, null, false,
+                            isPossibleMatch)) {
                         unmatchedRelationshipIterator.remove();
                     }
                 }
-                if (unmatchedTerms.isEmpty() && unmatchedRelationships.isEmpty()) {
+                if (isPossibleMatch && unmatchedTerms.isEmpty() && unmatchedRelationships.isEmpty()) {
                     /* success, all matched */
                     recordChanges(policyRule, changedObjects, namedTerms, isCheckAllPermissions.booleanValue());
                     return;
                 } else if (namedTerms.size() == namedTermCount) {
-                    /* failure, all matchers will fail on retry */
+                    /* all remaining matchers are failing */
+                    /* now check if matched common terms are at least consistent with remaining matchers */
+                    final Set<String> namedCommonTerms = Sets.intersection(namedTerms.keySet(), policyRule.commonTerms);
+                    boolean isCommonConsistentWithUnmatched = true;
+                    for (final TermMatch matcher : unmatchedTerms) {
+                        final String termName = matcher.getName();
+                        if (termName != null && namedCommonTerms.contains(termName)) {
+                            final Details object = namedTerms.get(termName);
+                            if (!matcher.isMatch(predicates, namedTerms, isCheckAllPermissions, object, true)) {
+                                isCommonConsistentWithUnmatched = false;
+                                break;
+                            }
+                        }
+                    }
+                    if (isCommonConsistentWithUnmatched) {
+                        for (final RelationshipMatch matcher : unmatchedRelationships) {
+                            final String leftTermName = matcher.leftTerm.getName();
+                            if (leftTermName != null && namedCommonTerms.contains(leftTermName)) {
+                                final Details object = namedTerms.get(leftTermName);
+                                if (!matcher.leftTerm.isMatch(predicates, namedTerms, isCheckAllPermissions, object, true)) {
+                                    isCommonConsistentWithUnmatched = false;
+                                    break;
+                                }
+                            }
+                            final String rightTermName = matcher.rightTerm.getName();
+                            if (rightTermName != null && namedCommonTerms.contains(rightTermName)) {
+                                final Details object = namedTerms.get(rightTermName);
+                                if (!matcher.rightTerm.isMatch(predicates, namedTerms, isCheckAllPermissions, object, true)) {
+                                    isCommonConsistentWithUnmatched = false;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    boolean retry = false;
+                    if (isCommonConsistentWithUnmatched) {
+                        for (final String namedCommonTerm : namedCommonTerms) {
+                            /* each common term match may be worth reviewing as root object */
+                            final Details commonTermDetails = namedTerms.get(namedCommonTerm);
+                            if (!commonTermDetails.equals(rootObject)) {
+                                if (LOGGER.isDebugEnabled()) {
+                                    LOGGER.debug("matched " + Joiner.on(',').join(namedTerms.keySet()) +
+                                            " so will review " + commonTermDetails + " for rule " + policyRule.asString);
+                                }
+                                /* review object that is common across matchers */
+                                changedObjects.add(commonTermDetails);
+                                prohibitedTerms.put(namedCommonTerm, commonTermDetails);
+                                retry = true;
+                            }
+                        }
+                    }
+                    if (retry) {
+                        /* check if a different object can match the common term */
+                        reviewWithManyMatches(linkedFrom, rootObject, linkedTo, notNullable, policyRule, changedObjects,
+                                prohibitedTerms);
+                    } else if (isPossibleMatch && !policyRule.commonTerms.isEmpty()) {
+                        /* try looser matching to at least find what matches common terms for subsequent review */
+                        prohibitedTerms.put("nonsense string", rootObject);  // force isPossibleMatch to false
+                        reviewWithManyMatches(linkedFrom, rootObject, linkedTo, notNullable, policyRule, changedObjects,
+                                prohibitedTerms);
+                    }
                     return;
                 }
             } while (true);
