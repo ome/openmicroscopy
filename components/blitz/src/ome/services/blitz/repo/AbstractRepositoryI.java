@@ -339,14 +339,14 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
             this.repo = repo;
         }
 
-        protected String handleFileMaker(ServiceFactory sf) throws Exception {
+        protected String handleFileMaker(ServiceFactory sf, boolean readOnly) throws Exception {
             if (fileMaker.needsInit()) {
-                fileMaker.init(sf.getConfigService().getDatabaseUuid());
+                fileMaker.init(sf.getConfigService().getDatabaseUuid(), readOnly);
             }
 
             String line = null;
             try {
-                line = fileMaker.getLine();
+                line = fileMaker.getLine(readOnly);
             } catch (OverlappingFileLockException ofle) {
                 InternalRepositoryPrx[] repos = reg.lookupRepositories();
                 InternalRepositoryPrx prx = null;
@@ -363,8 +363,8 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
                     fileMaker.close();
                     FileMaker newFileMaker = new FileMaker(new File(
                             fileMaker.getDir()).getAbsolutePath());
-                    fileMaker.init(sf.getConfigService().getDatabaseUuid());
-                    line = newFileMaker.getLine();
+                    fileMaker.init(sf.getConfigService().getDatabaseUuid(), readOnly);
+                    line = newFileMaker.getLine(readOnly);
                 }
             }
             return line;
@@ -381,7 +381,7 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
             ome.model.core.OriginalFile r = sf.getQueryService()
             .findByString(ome.model.core.OriginalFile.class,
                     "hash", repoUuid);
-            
+
             if (!readOnly) {
                 handleRepoChanges(sf, r, line);
             }
@@ -477,7 +477,7 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
         @Transactional(readOnly = false)
         public Object doWork(Session session, ServiceFactory sf) {
             try {
-                String line = handleFileMaker(sf);
+                String line = handleFileMaker(sf, false);
                 ome.model.core.OriginalFile r = handleRepository(sf, line, false);
                 handleServants(r);
                 return r;
@@ -500,7 +500,7 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
         @Transactional(readOnly = true)
         public Object doWork(Session session, ServiceFactory sf) {
             try {
-                String line = handleFileMaker(sf);
+                String line = handleFileMaker(sf, true);
                 ome.model.core.OriginalFile r = handleRepository(sf, line, true);
                 handleServants(r);
                 return r;
