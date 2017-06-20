@@ -36,6 +36,7 @@
     <!-- For build -->
     <dependency org="ome" name="appbundler" rev="${versions.appbundler}" conf="build->default"/>
     <!-- From classpath -->
+    <dependency org="org.apache.axis" name="axis" rev="${versions.axis}"/>
     <dependency org="backport-util-concurrent" name="backport-util-concurrent" rev="${versions.backport}"/>
     <dependency org="commons-collections" name="commons-collections" rev="${versions.commons-collections}"/>
     <dependency org="commons-digester" name="commons-digester" rev="${versions.commons-digester}"/>
@@ -47,11 +48,14 @@
     <dependency org="com.google.guava" name="guava" rev="${versions.guava}"/>
     <dependency org="org.apache.httpcomponents" name="httpmime" rev="${versions.httpmime}"/>
     <dependency org="net.imagej" name="ij" rev="${versions.ij}"/>
+    <dependency org="javax.xml" name="jaxrpc-api" rev="${versions.jaxrpc}"/>
     <dependency org="org.jfree" name="jfreechart" rev="${versions.jfreechart}"/>
     <dependency org="insight" name="JHotDraw" rev="${versions.JHotDraw}"/>
     <dependency org="org.apache.poi" name="poi" rev="${versions.poi}"/>
+    <dependency org="org.apache.axis2" name="axis2-saaj" rev="${versions.saaj}" transitive="false"/>
     <dependency org="org.swinglabs" name="swingx" rev="${versions.swingx}"/>
     <dependency org="insight" name="TableLayout" rev="${versions.TableLayout}"/>
+    <dependency org="axis" name="axis-wsdl4j" rev="${versions.wsdl4j}"  transitive="false"/>
     <dependency org="com.mortennobel" name="java-image-scaling" rev="${versions.java-image-scaling}"/>
     <dependency org="net.java.dev.jna" name="jna" rev="${versions.jna}"/>
     <dependency org="net.java.dev.jna" name="platform" rev="${versions.platform}"/>
