@@ -1027,11 +1027,9 @@
   License File: mit.txt
 
 
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/ie8_pngfix/*
-  Project:      
-  Web Site:     
-  License:      
-  License File: 
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/ie8_pngfix/*    
+  License:      MIT License
+  License File: mit.txt
 
 
   Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery-ui-1.10.4/*
@@ -1070,10 +1068,9 @@
 
 
   Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/JQuerySpinBtn-1.3a/*
-  Project:      
-  Web Site:     
-  License:      
-  License File: 
+  Web Site:     http://www.softwareunity.com/jquery/JQuerySpinBtn/
+  License:      MIT License
+  License File: mit.txt
 
 
   Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/panojs-2.0.0/*
