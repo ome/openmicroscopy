@@ -438,7 +438,7 @@ public class AbstractServerTest extends AbstractTest {
             final List<List<RType>> results = root.getSession().getQueryService().projection(query, params, ALL_GROUPS_CONTEXT);
             final long actualId = ((RLong) results.get(0).get(0)).getValue();
             Assert.assertEquals(actualId, id, testedObjectName);
-         }
+        }
     }
     /**
      * Assert that the given object is owned by the given owner.
