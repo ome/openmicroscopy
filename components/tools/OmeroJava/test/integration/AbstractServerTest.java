@@ -323,11 +323,6 @@ public class AbstractServerTest extends AbstractTest {
         Properties(String name) {
             this.name = name;
         }
-
-        @Override
-        public String toString() {
-            return this.name;
-        }
     }
 
     /**
@@ -437,7 +432,7 @@ public class AbstractServerTest extends AbstractTest {
         }
         for (final IObject testedObject : testedObjects) {
             final String testedObjectName = testedObject.getClass().getName() + '[' + testedObject.getId().getValue() + ']';
-            final String query = "SELECT details." + property.toString() + ".id FROM " + testedObject.getClass().getSuperclass().getSimpleName() +
+            final String query = "SELECT details." + property + ".id FROM " + testedObject.getClass().getSuperclass().getSimpleName() +
                     " WHERE id = :id";
             final Parameters params = new ParametersI().addId(testedObject.getId());
             final List<List<RType>> results = root.getSession().getQueryService().projection(query, params, ALL_GROUPS_CONTEXT);
