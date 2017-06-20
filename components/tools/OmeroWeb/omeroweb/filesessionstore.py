@@ -1,6 +1,7 @@
 import datetime
 import errno
 import logging
+import traceback
 import os
 import shutil
 import tempfile
@@ -17,6 +18,8 @@ from django.contrib.sessions.exceptions import InvalidSessionKey
 # Aleksandra Tarkowska:
 # This is temporary solution to fix clearout of expiered sessions
 # See: https://code.djangoproject.com/ticket/22938
+
+logger = logging.getLogger(__name__)
 
 
 class SessionStore(SessionBase):
@@ -97,9 +100,9 @@ class SessionStore(SessionBase):
                     session_data = self.decode(file_data)
                 except (EOFError, SuspiciousOperation) as e:
                     if isinstance(e, SuspiciousOperation):
-                        logger = logging.getLogger(
+                        l = logging.getLogger(
                             'django.security.%s' % e.__class__.__name__)
-                        logger.warning(force_text(e))
+                        l.warning(force_text(e))
                     self.create()
 
                 # Remove expired sessions.
@@ -110,7 +113,11 @@ class SessionStore(SessionBase):
                     session_data = {}
                     self.delete()
                     self.create()
+            else:
+                logger.debug("No file_data for session: %s" %
+                             self._key_to_file())
         except (IOError, SuspiciousOperation):
+            logger.debug(traceback.format_exc())
             self.create()
         return session_data
 
@@ -121,6 +128,8 @@ class SessionStore(SessionBase):
                 self.save(must_create=True)
             except CreateError:
                 continue
+            logger.debug("Session created with session_key: %s" %
+                         self._session_key)
             self.modified = True
             self._session_cache = {}
             return
@@ -131,6 +140,8 @@ class SessionStore(SessionBase):
         session_data = self._get_session(no_load=must_create)
 
         session_file_name = self._key_to_file()
+        logger.debug("Save session to file with session_file_name: %s" %
+                     session_file_name)
 
         try:
             # Make sure the file exists.  If it does not already exist, an
@@ -184,7 +195,7 @@ class SessionStore(SessionBase):
                     os.unlink(output_file_name)
 
         except (OSError, IOError, EOFError):
-            pass
+            logger.debug(traceback.format_exc())
 
     def exists(self, session_key):
         return os.path.exists(self._key_to_file(session_key))
@@ -197,7 +208,8 @@ class SessionStore(SessionBase):
         try:
             os.unlink(self._key_to_file(session_key))
         except OSError:
-            pass
+            logger.debug("Failed to delete with session_key: %s" %
+                         session_key)
 
     def clean(self):
         pass
