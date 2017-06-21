@@ -324,9 +324,9 @@ GET ExperimenterGroups, using omero-marshal to generate json
 """
 
 api_group = url(r'^v(?P<api_version>%s)/m/groups/'
-                       '(?P<object_id>[0-9]+)/$' % versions,
-                       views.ExperimenterGroupView.as_view(),
-                       name='api_group')
+                '(?P<object_id>[0-9]+)/$' % versions,
+                views.ExperimenterGroupView.as_view(),
+                name='api_group')
 """
 GET Group, using omero-marshal to generate json
 """

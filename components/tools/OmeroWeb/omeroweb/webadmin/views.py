@@ -99,7 +99,8 @@ from omero.model import PermissionsI
 def prepare_experimenter(conn, eid=None):
     if eid is None:
         eid = conn.getEventContext().userId
-    experimenter = conn.getObject("Experimenter", eid, opts={'load_groups': True})
+    experimenter = conn.getObject("Experimenter", eid,
+                                  opts={'load_groups': True})
     defaultGroup = experimenter.getDefaultGroup()
     otherGroups = list(experimenter.getOtherGroups())
     hasAvatar = conn.hasExperimenterPhoto()
