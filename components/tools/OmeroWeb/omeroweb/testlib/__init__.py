@@ -254,6 +254,23 @@ def _delete_response(django_client, request_url, data, status_code=403,
                      **extra)
 
 
+def delete_json(django_client, request_url, data=None, status_code=200):
+    """
+    Performs a DELETE request, and returns the JSON response as a dict.
+
+    :param django_client:   Django test Client
+    :param request_url:     The url to request
+    :param data:            A dict of data to include as json content
+    :param status_code:     Verify that the response has this status
+
+    """
+    rsp = csrf_response(django_client, request_url, 'delete', json.dumps(data),
+                        status_code=status_code,
+                        content_type='application/json')
+    assert rsp.get('Content-Type') == 'application/json'
+    return json.loads(rsp.content)
+
+
 def _csrf_delete_response(django_client, request_url, data, status_code=200,
                           content_type=MULTIPART_CONTENT):
     csrf_token = django_client.cookies['csrftoken'].value
