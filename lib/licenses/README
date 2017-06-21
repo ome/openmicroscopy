@@ -16,7 +16,7 @@
   Within this document, the term 'third-party software' shall refer to the set
   of all the files which are contained in the source repository and which are
   listed in each 'Artifacts' entry within the 'Third-Party Software Licenses'
-  section of this document.  The term 'OME' or, equivalently, 'our software'
+  section of this document. The term 'OME' or, equivalently, 'our software'
   shall refer to any other file contained in the repository.
 
 
@@ -25,7 +25,7 @@
   -------
 
   This document states which licenses apply to which files in the
-  source repository.  It also gives credit to other projects and
+  source repository. It also gives credit to other projects and
   developers that provided us with their valuable software.
 
 
@@ -47,9 +47,9 @@
   files. This section lists all the third-party software that is used
   by OMERO.server using the following format:
 
-  Artifacts:    The files our software makes use of.  The wildcard character * can
+  Artifacts:    The files our software makes use of. The wildcard character * can
                 be appended to a sequence of characters S denoting a file name.
-                This shall mean 'all the files whose name starts with S'.  For example,
+                This shall mean 'all the files whose name starts with S'. For example,
                 'ant-*' means all the files whose name starts with 'ant-'.
                 Unless otherwise specified, all artifacts are to be found under
                 lib/repository. If specified directory pathnames are given relative to
@@ -597,7 +597,7 @@
 
   Artifacts:    lwf-stubs-*.jar
   Project:      Stub of proprietary Java API to handle Luratech LWF compression.
-                Required to compile Bio-Formats's support for Luratech LWF compression for the Opera Flex format.
+                Required to compile Bio-Formats' support for Luratech LWF compression for the Opera Flex format.
   Web Site:     http://www.luratech.com/
   License:      BSD License
   License File: bsd.txt
@@ -608,8 +608,15 @@
   License File: cddl-v1.0.txt
 
 
-  Artifacts:    mipav-stubs-*.jar
+  Artifacts:    metakit-*.jar
   Project:      A library for reading Metakit database files.
+  Web Site:     http://www.openmicroscopy.org/site/products/bio-formats
+  License:      General Public License (GPL), Version 2
+  License File: gpl-v2.0.txt
+
+
+  Artifacts:    mipav-stubs-*.jar
+  Project:      Stubs of MIPAV Java classes required to compile Bio-Formats' MIPAV plugin.
   Web Site:     http://mipav.cit.nih.gov
   License:      BSD License
   License File: bsd.txt
@@ -658,6 +665,47 @@
   License File: apache-v2.0.txt
 
 
+  Artifacts:    ome-common-*.jar
+  Project:      Contains common I/O, date parsing, and XML processing classes.
+  Web Site:     http://www.openmicroscopy.org/site/products/bio-formats
+  License:      BSD License
+  License File: bsd.txt
+
+
+  Artifacts:    ome-mdbtools-*.jar
+  Project:      Java API to handle Microsoft MDB format (Access).
+                Used by Bio-Formats for Zeiss LSM metadata in MDB files.
+  Web Site:     http://sourceforge.net/forum/message.php?msg_id=2550619
+  License:      General Public License (GPL), Version 2
+  License File: gpl-v2.0.txt
+
+
+  Artifacts:    ome-poi-*.jar
+  Project:      Java API to handle Microsoft OLE 2 Compound Document format (Word, Excel).
+                Based on poi-2.5.1-final-20040804.jar, with bugfixes for OLE v2 and
+                memory efficiency improvements.
+                Used by Bio-Formats for OLE support (cxd, ipw, oib, zvi).
+                Used by VisBio overlays logic for XLS export feature.
+  Web Site:     http://jakarta.apache.org/poi/
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
+  Artifacts:    ome-xml-*.jar
+  Project:      Java API to handle Microsoft MDB format (Access).
+                Used by Bio-Formats for Zeiss LSM metadata in MDB files.
+  Web Site:     http://www.openmicroscopy.org/site/support/ome-model/ome-xml/java-library.html
+  License:      BSD License
+  License File: bsd.txt
+
+
+  Artifacts:    specification-*.jar
+  Project:      The OME Data Model specification.
+  Web Site:     http://www.openmicroscopy.org/site/support/ome-model
+  License:      BSD License or Creative Commons Attribution 3.0 Unported License
+  License File: bsd.txt
+
+  
   Artifacts:    oro-*.jar
   Web Site:     http://jakarta.apache.org/oro/
   License:      Apache License, Version 2.0
