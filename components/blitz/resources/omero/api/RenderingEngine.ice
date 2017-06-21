@@ -470,6 +470,16 @@ module omero {
                  */
                 void removeCodomainMapFromChannel(omero::romio::CodomainMapContext mapCtx, int w) throws ServerError;
 
+                /**
+                 * Updates the current rendering settings based on a provided rendering
+                 * definition and associated sub-objects.
+                 * @param settings Rendering definition to copy from. Each sub-object
+                 * will be processed as though the specific method was called with
+                 * related attributes provided as arguments. NOTE: Codomain
+                 * mappings are ignored.
+                 */
+                idempotent void updateSettings(omero::model::RenderingDef settings) throws ServerError;
+
                 /** Saves the current rendering settings in the database. */
                 void saveCurrentSettings() throws ServerError;
 

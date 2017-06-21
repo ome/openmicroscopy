@@ -65,6 +65,7 @@ import omero.api.AMD_RenderingEngine_setQuantizationMap;
 import omero.api.AMD_RenderingEngine_setQuantumStrategy;
 import omero.api.AMD_RenderingEngine_setRGBA;
 import omero.api.AMD_RenderingEngine_updateCodomainMap;
+import omero.api.AMD_RenderingEngine_updateSettings;
 import omero.api.IRoiPrx;
 import omero.api._RenderingEngineOperations;
 import omero.constants.projection.ProjectionType;
@@ -73,6 +74,7 @@ import omero.grid.Data;
 import omero.grid.MaskColumn;
 import omero.grid.TablePrx;
 import omero.model.Family;
+import omero.model.RenderingDef;
 import omero.model.RenderingModel;
 import omero.romio.CodomainMapContext;
 import omero.romio.PlaneDef;
@@ -447,6 +449,12 @@ public class RenderingEngineI extends AbstractPyramidServant implements
             int green, int blue, int alpha, Current __current)
             throws ServerError {
         callInvokerOnRawArgs(__cb, __current, w, red, green, blue, alpha);
+    }
+
+    @Override
+    public void updateSettings_async(AMD_RenderingEngine_updateSettings __cb, RenderingDef settings, Current __current)
+            throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, settings);
     }
 
     public void updateCodomainMap_async(
