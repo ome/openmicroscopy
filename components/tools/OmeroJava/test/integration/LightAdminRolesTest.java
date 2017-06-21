@@ -2020,7 +2020,7 @@ public class LightAdminRolesTest extends RolesTests {
      * means specifically WriteScriptRepo privilege).
      */
     @DataProvider(name = "isPrivileged cases")
-    public Object[][] provideIsPrivilegesCases() {
+    public Object[][] provideIsPrivilegedCases() {
         int index = 0;
         final int IS_PRIVILEGED = index++;
         final int GROUP_PERMS = index++;
