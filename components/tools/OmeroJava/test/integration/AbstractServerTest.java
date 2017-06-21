@@ -323,6 +323,11 @@ public class AbstractServerTest extends AbstractTest {
         Properties(String name) {
             this.name = name;
         }
+
+        @Override
+        public String toString() {
+            return this.name;
+        }
     }
 
     /**
