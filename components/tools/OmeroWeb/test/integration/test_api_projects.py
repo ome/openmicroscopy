@@ -21,8 +21,8 @@
 Tests querying & editing Projects with webgateway json api
 """
 
-from omeroweb.testlib import IWebTest, _get_response_json, \
-    _csrf_post_json, _csrf_put_json, _csrf_delete_response_json
+from omeroweb.testlib import IWebTest, get_json, \
+    post_json, put_json, delete_json
 from django.core.urlresolvers import reverse
 from omeroweb.api import api_settings
 from django.test import Client
@@ -270,8 +270,7 @@ class TestProjects(IWebTest):
         django_client = Client()
         version = api_settings.API_VERSIONS[-1]
         request_url = reverse('api_projects', kwargs={'api_version': version})
-        rsp = _get_response_json(django_client, request_url, {},
-                                 status_code=403)
+        rsp = get_json(django_client, request_url, status_code=403)
         assert rsp['message'] == "Not logged in"
 
     def test_marshal_projects_no_results(self, user1):
@@ -283,7 +282,7 @@ class TestProjects(IWebTest):
         django_client = self.new_django_client(user_name, user_name)
         version = api_settings.API_VERSIONS[-1]
         request_url = reverse('api_projects', kwargs={'api_version': version})
-        rsp = _get_response_json(django_client, request_url, {})
+        rsp = get_json(django_client, request_url)
         assert rsp['data'] == []
 
     def test_marshal_projects_user(self, user1, projects_user1_group1):
@@ -295,7 +294,7 @@ class TestProjects(IWebTest):
         django_client = self.new_django_client(user_name, user_name)
         version = api_settings.API_VERSIONS[-1]
         request_url = reverse('api_projects', kwargs={'api_version': version})
-        rsp = _get_response_json(django_client, request_url, {})
+        rsp = get_json(django_client, request_url)
         assert_objects(conn, rsp['data'], projects_user1_group1)
         assert rsp['meta']['totalCount'] == len(rsp['data'])
 
@@ -310,7 +309,7 @@ class TestProjects(IWebTest):
         django_client = self.new_django_client(user_name, user_name)
         version = api_settings.API_VERSIONS[-1]
         request_url = reverse('api_projects', kwargs={'api_version': version})
-        rsp = _get_response_json(django_client, request_url, {})
+        rsp = get_json(django_client, request_url)
         # user1 reloads user2's projects
         assert_objects(conn, rsp['data'], projects_user2_group1)
         assert rsp['meta']['totalCount'] == len(rsp['data'])
@@ -325,7 +324,7 @@ class TestProjects(IWebTest):
         django_client = self.new_django_client(user_name, user_name)
         version = api_settings.API_VERSIONS[-1]
         request_url = reverse('api_projects', kwargs={'api_version': version})
-        rsp = _get_response_json(django_client, request_url, {})
+        rsp = get_json(django_client, request_url)
 
         # Group 1 is rwra--  Group 2 is rwr--
         # user1 reloads projects with group '-1' so that permissions on owner
@@ -347,17 +346,17 @@ class TestProjects(IWebTest):
         request_url = reverse('api_projects', kwargs={'api_version': version})
 
         # All groups
-        rsp = _get_response_json(django_client, request_url, {})
+        rsp = get_json(django_client, request_url)
         assert_objects(conn, rsp['data'], projects_user1)
         assert rsp['meta']['totalCount'] == len(projects_user1)
         # Filter by group A...
         gid = group1.id.val
-        rsp = _get_response_json(django_client, request_url, {'group': gid})
+        rsp = get_json(django_client, request_url, {'group': gid})
         assert_objects(conn, rsp['data'], projects_user1, group=gid)
         assert rsp['meta']['totalCount'] == len(rsp['data'])
         # ...and group B
         gid = group2.id.val
-        rsp = _get_response_json(django_client, request_url, {'group': gid})
+        rsp = get_json(django_client, request_url, {'group': gid})
         assert_objects(conn, rsp['data'], projects_user1, group=gid)
         assert rsp['meta']['totalCount'] == len(rsp['data'])
 
@@ -377,17 +376,17 @@ class TestProjects(IWebTest):
         request_url = reverse('api_projects', kwargs={'api_version': version})
 
         # Both users
-        rsp = _get_response_json(django_client, request_url, {})
+        rsp = get_json(django_client, request_url)
         assert_objects(conn, rsp['data'], projects)
         assert rsp['meta']['totalCount'] == len(projects)
 
         eid = user1[1].id.val
-        rsp = _get_response_json(django_client, request_url, {'owner': eid})
+        rsp = get_json(django_client, request_url, {'owner': eid})
         assert_objects(conn, rsp['data'], projects_user1_group1)
         assert rsp['meta']['totalCount'] == len(projects_user1_group1)
 
         eid = user2[1].id.val
-        rsp = _get_response_json(django_client, request_url, {'owner': eid})
+        rsp = get_json(django_client, request_url, {'owner': eid})
         assert_objects(conn, rsp['data'], projects_user2_group1)
         assert rsp['meta']['totalCount'] == len(projects_user2_group1)
 
@@ -407,8 +406,7 @@ class TestProjects(IWebTest):
 
         # Test a range of limits. offset = 0 by default
         for limit in range(-1, 4):
-            rsp = _get_response_json(django_client, request_url,
-                                     {'limit': limit})
+            rsp = get_json(django_client, request_url, {'limit': limit})
             assert rsp['meta']['totalCount'] == len(projects)
             if limit == -1:
                 # if we passed a negative number, expect the default to be used
@@ -420,7 +418,7 @@ class TestProjects(IWebTest):
 
             # Check that page 2 gives next n projects
             payload = {'limit': limit, 'offset': limit}
-            rsp = _get_response_json(django_client, request_url, payload)
+            rsp = get_json(django_client, request_url, payload)
             assert_objects(conn, rsp['data'], projects[limit:limit * 2])
             assert rsp['meta']['totalCount'] == len(projects)
 
@@ -440,7 +438,7 @@ class TestProjects(IWebTest):
 
         # Test 'childCount' parameter
         payload = {'childCount': 'true'}
-        rsp = _get_response_json(django_client, request_url, payload)
+        rsp = get_json(django_client, request_url, payload)
         childCounts = [p['omero:childCount'] for p in rsp['data']]
         assert childCounts == [0, 0, 0, 2, 1]
 
@@ -456,7 +454,7 @@ class TestProjects(IWebTest):
 
         # Test 'normalize' parameter.
         payload = {'normalize': 'true'}
-        rsp = _get_response_json(django_client, request_url, payload)
+        rsp = get_json(django_client, request_url, payload)
         assert rsp['meta']['totalCount'] == len(rsp['data'])
         for p in rsp['data']:
             details = p['omero:details']
@@ -484,7 +482,7 @@ class TestProjects(IWebTest):
         version = api_settings.API_VERSIONS[-1]
         # Need to get the Schema url to create @type
         base_url = reverse('api_base', kwargs={'api_version': version})
-        rsp = _get_response_json(django_client, base_url, {})
+        rsp = get_json(django_client, base_url)
         schema_url = rsp['url:schema']
         # specify group via query params
         save_url = "%s?group=%s" % (rsp['url:save'], group)
@@ -492,8 +490,8 @@ class TestProjects(IWebTest):
         project_name = 'test_api_projects'
         payload = {'Name': project_name,
                    '@type': schema_url + '#Project'}
-        rsp = _csrf_post_json(django_client, save_url, payload,
-                              status_code=201)
+        rsp = post_json(django_client, save_url, payload,
+                        status_code=201)
         new_proj = rsp['data']
         # We get the complete new Project returned
         assert new_proj['Name'] == project_name
@@ -501,7 +499,7 @@ class TestProjects(IWebTest):
 
         # Read Project
         project_url = "%s%s/" % (projects_url, project_id)
-        rsp = _get_response_json(django_client, project_url, {})
+        rsp = get_json(django_client, project_url)
         new_proj = rsp['data']
         assert new_proj['@id'] == project_id
         conn = BlitzGateway(client_obj=self.root)
@@ -528,14 +526,12 @@ class TestProjects(IWebTest):
         payload = {'Name': project_name,
                    '@type': OME_SCHEMA_URL + '#Project'}
         # Saving fails with NO group specified
-        rsp = _csrf_post_json(django_client, save_url, payload,
-                              status_code=400)
+        rsp = post_json(django_client, save_url, payload, status_code=400)
         assert rsp['message'] == ("Specify Group in omero:details or "
                                   "query parameters ?group=:id")
         # Add group details and try again
         payload['omero:details'] = group2_details
-        rsp = _csrf_post_json(django_client, save_url, payload,
-                              status_code=201)
+        rsp = post_json(django_client, save_url, payload, status_code=201)
         new_proj = rsp['data']
         new_project_id = new_proj['@id']
         assert new_proj['omero:details']['group']['@id'] == group2_id
@@ -543,7 +539,7 @@ class TestProjects(IWebTest):
         project_url = reverse('api_project',
                               kwargs={'api_version': version,
                                       'object_id': new_project_id})
-        rsp = _get_response_json(django_client, project_url, {})
+        rsp = get_json(django_client, project_url)
         assert rsp['data']['omero:details']['group']['@id'] == group2_id
 
     def test_project_update(self, user1):
@@ -564,11 +560,11 @@ class TestProjects(IWebTest):
                                       'object_id': project.id.val})
         save_url = reverse('api_save', kwargs={'api_version': version})
         # 1) Get Project, update and save back
-        rsp = _get_response_json(django_client, project_url, {})
+        rsp = get_json(django_client, project_url)
         project_json = rsp['data']
         assert project_json['Name'] == 'test_project_update'
         project_json['Name'] = 'new name'
-        rsp = _csrf_put_json(django_client, save_url, project_json)
+        rsp = put_json(django_client, save_url, project_json)
         project_json = rsp['data']
         assert project_json['@id'] == project.id.val
         assert project_json['Name'] == 'new name'    # Name has changed
@@ -579,25 +575,25 @@ class TestProjects(IWebTest):
         payload = {'Name': 'updated name',
                    '@id': project.id.val}
         # Test error message if we don't pass @type:
-        rsp = _csrf_put_json(django_client, save_url, payload, status_code=400)
+        rsp = put_json(django_client, save_url, payload, status_code=400)
         assert rsp['message'] == 'Need to specify @type attribute'
         # Add @type and try again
         payload['@type'] = project_json['@type']
-        rsp = _csrf_put_json(django_client, save_url, payload)
+        rsp = put_json(django_client, save_url, payload)
         project_json = rsp['data']
         assert project_json['@id'] == project.id.val
         assert project_json['Name'] == 'updated name'
         assert 'Description' not in project_json
         # Get project again to check update
-        rsp = _get_response_json(django_client, project_url, {})
+        rsp = get_json(django_client, project_url)
         pr_json = rsp['data']
         assert pr_json['Name'] == 'updated name'
         assert 'Description' not in pr_json
         # Now add description and save again
         pr_json['Description'] = 'New test description update'
-        _csrf_put_json(django_client, save_url, pr_json)
+        put_json(django_client, save_url, pr_json)
         # Read to check
-        rsp = _get_response_json(django_client, project_url, {})
+        rsp = get_json(django_client, project_url)
         assert rsp['data']['Description'] == 'New test description update'
 
     @pytest.mark.parametrize("dtype", ['Project', 'Dataset'])
@@ -628,10 +624,10 @@ class TestProjects(IWebTest):
                                      'object_id': parent.id.val})
         save_url = reverse('api_save', kwargs={'api_version': version})
         # Get Parent, update and save back
-        rsp = _get_response_json(django_client, parent_url, {})
+        rsp = get_json(django_client, parent_url)
         parent_json = rsp['data']
         parent_json['Name'] = 'renamed %s' % dtype
-        _csrf_put_json(django_client, save_url, parent_json)
+        put_json(django_client, save_url, parent_json)
 
         # Check Parent has been updated and still has children linked
         parentWrapper = conn.getObject(dtype, parent.id.val)
@@ -652,22 +648,19 @@ class TestProjects(IWebTest):
                               kwargs={'api_version': version,
                                       'object_id': project.id.val})
         # Before delete, we can read
-        pr_json = _get_response_json(django_client, project_url, {})
+        pr_json = get_json(django_client, project_url)
         assert pr_json['data']['Name'] == 'test_project_delete'
         # Delete
-        _csrf_delete_response_json(django_client, project_url, {})
+        delete_json(django_client, project_url, {})
         # Get should now return 404
-        rsp = _get_response_json(django_client, project_url, {},
-                                 status_code=404)
+        rsp = get_json(django_client, project_url, status_code=404)
         assert rsp['message'] == 'Project %s not found' % project.id.val
         # Delete (again) should return 404
-        rsp = _csrf_delete_response_json(django_client, project_url, {},
-                                         status_code=404)
+        rsp = delete_json(django_client, project_url, {}, status_code=404)
         assert rsp['message'] == 'Project %s not found' % project.id.val
         save_url = reverse('api_save', kwargs={'api_version': version})
         # TODO: Try to save deleted object - should return ApiException
         # see https://trello.com/c/qWNt9vLN/178-save-deleted-object
         with pytest.raises(AssertionError):
-            rsp = _csrf_put_json(django_client, save_url, pr_json,
-                                 status_code=400)
+            rsp = put_json(django_client, save_url, pr_json, status_code=400)
             assert rsp['message'] == 'Project %s not found' % project.id.val
