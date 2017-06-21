@@ -27,6 +27,9 @@ from omeroweb.testlib import _get_response
 
 from django.core.urlresolvers import reverse
 from omero.model.enums import UnitsLength
+from omero_model_ImageI import ImageI
+
+from omero.rtypes import rstring
 
 
 class TestCoreMetadata(IWebTest):
@@ -36,7 +39,7 @@ class TestCoreMetadata(IWebTest):
 
     def test_pixel_size_units(self):
         # Create image
-        iid = self.createTestImage(sizeC=2, session=self.sf).id.val
+        iid = self.create_test_image(size_c=2, session=self.sf).id.val
 
         # show right panel for image
         request_url = reverse('load_metadata_details', args=['image', iid])
@@ -62,3 +65,23 @@ class TestCoreMetadata(IWebTest):
         html = rsp.content
         assert "Pixels Size (XYZ):" in html
         assert "1.20 (pixel)" in html
+
+    def test_none_pixel_size(self):
+        """
+        Tests display of core metatada still works even when image
+        doesn't have pixels data
+        """
+        img = ImageI()
+        img.setName(rstring("no_pixels"))
+        img.setDescription(rstring("empty image without pixels data"))
+
+        conn = omero.gateway.BlitzGateway(client_obj=self.client)
+        img = conn.getUpdateService().saveAndReturnObject(img)
+
+        request_url = reverse('load_metadata_details',
+                              args=['image', img.id.val])
+
+        # Just check that the metadata panel is loaded
+        rsp = _get_response(self.django_client, request_url,
+                            {}, status_code=200)
+        assert "no_pixels" in rsp.content

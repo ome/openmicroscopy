@@ -377,7 +377,7 @@ public class SessionCache implements ApplicationContextAware {
 
     /**
      * Returns all the data contained in the internal implementation of
-     * this manger.
+     * this manager.
      *
      * @param quietly If true, then the access time for the given UUID
      *                  will not be updated.
@@ -541,7 +541,7 @@ public class SessionCache implements ApplicationContextAware {
         // Check to make sure exists
         getDataNullOrThrowOnTimeout(uuid, true);
         String key = "memory:" + uuid;
-        return createCache(key, true, Integer.MAX_VALUE);
+        return createCache(key, true, 0);
     }
 
     public Ehcache onDiskCache(String uuid) {

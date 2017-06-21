@@ -25,6 +25,7 @@ from test.integration.clitest.cli import CLITest
 import pytest
 import stat
 import re
+import yaml
 import omero
 from omero.cli import NonZeroReturnCode
 from omero.rtypes import rstring
@@ -120,7 +121,7 @@ class TestImport(CLITest):
         self.cli.register("import", plugin.ImportControl, "TEST")
         self.args += ["import"]
         self.add_client_dir()
-        self.keepRootAlive()
+        self.keep_root_alive()
 
     def set_conn_args(self):
         host = self.root.getProperty("omero.host")
@@ -149,33 +150,41 @@ class TestImport(CLITest):
         return o, e
 
     def add_client_dir(self):
-        dist_dir = self.OmeroPy / ".." / ".." / ".." / "dist"
-        client_dir = dist_dir / "lib" / "client"
+        client_dir = self.omero_dist / "lib" / "client"
         self.args += ["--clientdir", client_dir]
 
-    def check_other_output(self, out):
-        """Check the output of the import except Images, Plates and Summary"""
-        assert "Other imported objects:" in out
+    def check_other_output(self, out, import_type='default'):
+        """Check the output of the import except objects
+           (Images, Plates, Filesets) and Summary"""
+
         assert "==> Summary" in out
+        if import_type == 'default' or import_type == 'legacy':
+            assert "Other imported objects:" in out
+        elif import_type == 'yaml':
+            assert "Imported objects:" in out
+        if import_type == 'legacy':
+            assert "Imported pixels:" in out
 
     def get_object(self, err, obj_type, query=None):
-        if not query:
-            query = self.query
         """Retrieve the created object by parsing the stderr output"""
         pattern = re.compile('^%s:(?P<id>\d+)$' % obj_type)
         for line in reversed(err.split('\n')):
             match = re.match(pattern, line)
             if match:
                 break
-        obj = query.get(obj_type, int(match.group('id')),
+        obj_id = int(match.group('id'))
+        return self.assert_object(obj_type, obj_id, query=query)
+
+    def assert_object(self, obj_type, obj_id, query=None):
+        if not query:
+            query = self.query
+        obj = query.get(obj_type, obj_id,
                         {"omero.group": "-1"})
         assert obj
-        assert obj.id.val == int(match.group('id'))
+        assert obj.id.val == obj_id
         return obj
 
     def get_objects(self, err, obj_type, query=None):
-        if not query:
-            query = self.query
         """Retrieve the created objects by parsing the stderr output"""
         pattern = re.compile('^%s:(?P<idstring>\d+)$' % obj_type)
         objs = []
@@ -184,10 +193,8 @@ class TestImport(CLITest):
             if match:
                 ids = match.group('idstring').split(',')
                 for obj_id in ids:
-                    obj = query.get(obj_type, int(obj_id),
-                                    {"omero.group": "-1"})
-                    assert obj
-                    assert obj.id.val == int(obj_id)
+                    obj = self.assert_object(obj_type,
+                                             int(obj_id), query=query)
                     objs.append(obj)
         return objs
 
@@ -328,10 +335,10 @@ class TestImport(CLITest):
         # Invoke CLI import command
         self.do_import(capfd)
 
+    @pytest.mark.parametrize("ns_on", (True, False))
     @pytest.mark.parametrize("fixture", AFS, ids=AFS_names)
-    def testAnnotationText(self, tmpdir, capfd, fixture):
+    def testAnnotationText(self, ns_on, tmpdir, capfd, fixture):
         """Test argument creating a comment annotation linked to the import"""
-
         fakefile = tmpdir.join("test.fake")
         fakefile.write('')
         self.args += [str(fakefile)]
@@ -340,7 +347,32 @@ class TestImport(CLITest):
         ns = ['ns%s' % i for i in range(fixture.n)]
         text = ['text%s' % i for i in range(fixture.n)]
         for i in range(fixture.n):
-            self.args += [fixture.annotation_ns_arg, ns[i]]
+            if ns_on:
+                self.args += [fixture.annotation_ns_arg, ns[i]]
+            self.args += [fixture.annotation_text_arg, text[i]]
+
+        # Invoke CLI import command and retrieve stdout/stderr
+        o, e = self.do_import(capfd)
+        obj = self.get_object(o, 'Image')
+        annotations = self.get_linked_annotations(obj.id.val)
+
+        assert len(annotations) == fixture.n
+        if ns_on:
+            assert set([x.ns.val for x in annotations]) == set(ns)
+        assert set([x.textValue.val for x in annotations]) == set(text)
+
+    @pytest.mark.parametrize("fixture", AFS, ids=AFS_names)
+    def testAnnotationText_one_ns(self, tmpdir, capfd, fixture):
+        """Test argument creating a comment annotation linked to the import"""
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+        self.args += [str(fakefile)]
+        if fixture.arg_type == 'Java':
+            self.args += ['--']
+        text = ['text%s' % i for i in range(fixture.n)]
+        ns = ['ns%s' % i for i in range(1)]
+        for i in range(fixture.n):
+            self.args += [fixture.annotation_ns_arg, ns[0]]
             self.args += [fixture.annotation_text_arg, text[i]]
 
         # Invoke CLI import command and retrieve stdout/stderr
@@ -847,6 +879,56 @@ class TestImport(CLITest):
         # and the existence of the newly created Fileset
         self.get_object(e, 'Fileset')
         self.check_other_output(e)
+
+        # Parse and check the summary of the import output
+        summary = self.parse_summary(e)
+        assert summary
+        assert len(summary) == 5
+
+    def testImportOutputYaml(self, tmpdir, capfd):
+        """Test import output in yaml case"""
+        # Make sure you get yaml output
+        self.args += ["--output", "yaml"]
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+
+        self.args += [str(fakefile)]
+        o, e = self.do_import(capfd)
+        yo = yaml.load(o)
+        # Check the contents of "yo",
+        # and the existence of the newly created fileset and image
+        self.assert_object("Fileset", int(yo[0]['Fileset']))
+        assert len(yo[0]['Image']) == 1
+        self.assert_object("Image", int(yo[0]['Image'][0]))
+        # Check the contents of "e"
+        self.check_other_output(e, import_type='yaml')
+
+        # Parse and check the summary of the import output
+        summary = self.parse_summary(e)
+        assert summary
+        assert len(summary) == 5
+
+    def testImportOutputLegacy(self, tmpdir, capfd):
+        """Test import output in legacy case"""
+        # Make sure you get legacy output
+        self.args += ["--output", "legacy"]
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+
+        self.args += [str(fakefile)]
+        o, e = self.do_import(capfd)
+
+        # Check the contents of "o",
+        # and the existence of the newly created image
+        assert len(self.parse_imported_objects(o)) == 1
+        pid = int(self.parse_imported_objects(o)[0])
+        self.assert_object('Pixels', pid)
+
+        # Check the contents of "e"
+        # and the existence of the newly created Fileset and Image
+        self.get_object(e, 'Fileset')
+        self.get_object(e, 'Image')
+        self.check_other_output(e, import_type='legacy')
 
         # Parse and check the summary of the import output
         summary = self.parse_summary(e)

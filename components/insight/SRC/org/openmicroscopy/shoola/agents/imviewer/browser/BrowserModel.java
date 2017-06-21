@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -388,7 +388,9 @@ class BrowserModel
      */
     private double getBarSizeInPx(double ratio)
     {
-        if(unitBarLength == null)
+        if (unitBarLength == null
+                || Double.isInfinite(getPixelsSizeX().getValue())
+                || Double.isNaN(getPixelsSizeX().getValue()))
             return 1;
         
         try {
@@ -401,13 +403,12 @@ class BrowserModel
         }
         return 1;
     }
-    
+
     /** 
      * Creates a new instance.
      * 
      * @param parent    The parent of this component.
      *                  Mustn't be <code>null</code>.
-     * @param imageID	The id of the image.
      * @param pref		The preferences for the viewer.
      */
     BrowserModel(ImViewer parent, ViewerPreferences pref)
@@ -663,20 +664,45 @@ class BrowserModel
     /**
      * Sets the value of the flag controlling if the unit bar is painted or not.
      * 
-     * @param unitBar   Pass <code>true</code> to paint the unit bar, 
-     *                  <code>false</code> otherwise.
+     * @param unitBar
+     *            Pass <code>true</code> to paint the unit bar,
+     *            <code>false</code> otherwise.
      */
-    void setUnitBar(boolean unitBar)
-    {
+    void setUnitBar(boolean unitBar) {
         if (unitBar) {
-            int unitBarLenghtValue = UnitBarSizeAction.getDefaultValue();
-            // Guess the unit to use by assuming a 100px wide scalebar
-            Length tmp = new LengthI(getPixelsSizeX().getValue() * 100,
+            // Determine a reasonable unit
+            if (Double.isInfinite(getPixelsSizeX().getValue())
+                    || Double.isNaN(getPixelsSizeX().getValue()))
+                return;
+            Length tmp = new LengthI(getPixelsSizeX().getValue() / zoomFactor,
                     getPixelsSizeX().getUnit());
             tmp = UIUtilities.transformSize(tmp);
-            this.unitBarLength = new LengthI(unitBarLenghtValue, tmp.getUnit());
+            UnitsLength unit = tmp.getUnit();
+
+            // Determine a reasonable size by assuming a scalebar with length of
+            // up to 1/5th of current image display size
+            Rectangle visSize = ((BrowserUI)component.getUI()).getVisibleRect();
+            int barLengthInPx = (int)(visSize.getWidth() / 5d);
+            tmp = new LengthI(getPixelsSizeX().getValue() * barLengthInPx
+                    / zoomFactor, getPixelsSizeX().getUnit());
+            try {
+                tmp = new LengthI(tmp, unit);
+            } catch (BigResult e) {
+            }
+
+            if (tmp.getValue() > 999) {
+                int dec = (int) Math.log10(tmp.getValue());
+                this.unitBarLength = new LengthI(Math.pow(10, dec),
+                        tmp.getUnit());
+            } else {
+                int index = UnitBarSizeAction.getIndex(tmp.getValue());
+                this.unitBarLength = new LengthI(
+                        UnitBarSizeAction.getValue(index), tmp.getUnit());
+            }
+
+            this.parent.updateUnitBarMenu(this.unitBarLength);
         }
-    	this.unitBar = unitBar;
+        this.unitBar = unitBar;
     }
     
     /**
@@ -684,22 +710,13 @@ class BrowserModel
      * 
      * @param size
      *            The size of the unit bar.
-     * @param unit The unit
+     * @param unit
+     *            The unit
      */
     void setUnitBarSize(double size, UnitsLength unit) {
-        if (unitBarLength != null) {
-            try {
-                LengthI tmp = new LengthI(size, unit);
-                tmp = new LengthI(tmp, unitBarLength.getUnit());
-                unitBarLength.setValue(tmp.getValue());
-            } catch (BigResult e) {
-            }
-        }
-        else {
-            unitBarLength = new LengthI(size, unit);
-        }
+        unitBarLength = new LengthI(size, unit);
     }
-    
+
     /**
      * Returns the unit used to determine the size of the unit bar. The unit
      * depends on the size stored. The unit of reference in the OME model is in
@@ -741,6 +758,11 @@ class BrowserModel
      */
     String getUnitBarValue()
     {
+        if (unitBarLength == null
+                || Double.isInfinite(getPixelsSizeX().getValue())
+                || Double.isNaN(getPixelsSizeX().getValue()))
+            return "1";
+        
     	return UIUtilities.twoDecimalPlaces(unitBarLength.getValue());
     }
     
@@ -749,6 +771,11 @@ class BrowserModel
      * @return See above.
      */
     String getUnitBarUnit() {
+        if (unitBarLength == null
+                || Double.isInfinite(getPixelsSizeX().getValue())
+                || Double.isNaN(getPixelsSizeX().getValue()))
+            return LengthI.lookupSymbol(UnitsLength.PIXEL);
+        
         return LengthI.lookupSymbol(unitBarLength.getUnit());
     }
     
@@ -887,9 +914,14 @@ class BrowserModel
      */
 	Length getPixelsSizeZ() { return parent.getPixelsSizeZ(); }
    
-	Length getUnitBarLength() {
-	    return unitBarLength;
-	}
+    /**
+     * Get the length of the unit bar
+     * 
+     * @return See above.
+     */
+    public Length getUnitBarLength() {
+        return unitBarLength;
+    }
 	
     /** 
      * Returns the number of column for the grid.
@@ -1261,7 +1293,7 @@ class BrowserModel
      * En-/Disables interpolation; value will be stored in user
      * preferences
      * 
-     * @param interpolation
+     * @param interpolation The interpolation flag
      */
     void setInterpolation(boolean interpolation) {
         ImViewerFactory.setInterpolation(interpolation);

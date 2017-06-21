@@ -186,8 +186,8 @@ div.weblitz-viewport-tiles img {
 
 .lutBackground {
   background-image: url('../img/luts_10.png');
-  background-size: 100% 740px;   /* 2 x height - each lut scales to 20px high */
   background-repeat: no-repeat;
+  image-rendering: pixelated;
 }
 button>.lutBackground {
   opacity: 0.3;

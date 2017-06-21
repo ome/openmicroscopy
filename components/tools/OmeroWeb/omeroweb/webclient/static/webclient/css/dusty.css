@@ -186,6 +186,10 @@ button::-moz-focus-inner {
     #metadata_general .btn_download {
         background: url(../../webgateway/img/icon_download2.png) center center no-repeat;
     }
+
+    #metadata_general .btn_openwith {
+        background: url(../image/icon_openwith_toolbar.png) center center no-repeat;
+    }
     
     .toolbar_dropdown {
         float:right;
@@ -197,14 +201,21 @@ button::-moz-focus-inner {
         left: auto;
     }
     .toolbar_dropdown .dropdown:before {
-        left: 68% !important;
+        left: 68%;
     }
     .toolbar_dropdown ul a {
         background: none;
         font-size: 80%;
     }
-	
-	
+
+    /* Dropdown to the right of the button */
+    .toolbar_dropdown .dropdown_right {
+        right: auto;
+    }
+    .toolbar_dropdown .dropdown_right:before {
+        left: 2%;
+    }
+
 	
 
 /*
@@ -945,7 +956,7 @@ button::-moz-focus-inner {
  
 
 
-	#search input[type=text], .filtersearch input[type=text] {
+	#search input[type=text], .filtersearch input[type=text], #imagesPerRow {
 		-webkit-border-radius:50px;
 		-moz-border-radius:50px;
 		border-radius:50px;
@@ -1039,7 +1050,24 @@ button::-moz-focus-inner {
 	}
 	
 
+	.imagefilter {
+		float:left;
+		display:none;
+		margin-right:5px
+	}
 
+	.imagefilter .removefilter {
+		visibility: hidden;
+	}
+
+	.imagefilter:hover .removefilter {
+		display: inline-block;
+		visibility: visible;
+	}
+	.removefilter:hover {
+		cursor: pointer;
+		color: blue;
+	}
 
 
 

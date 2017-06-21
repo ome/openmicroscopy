@@ -6,6 +6,7 @@
  */
 package integration;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -42,6 +43,8 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.ROIData;
+import omero.gateway.model.ShapeData;
 
 /**
  * Collections of tests for the handling ROIs.
@@ -441,6 +444,47 @@ public class RoiServiceTest extends AbstractServerTest {
             shapes = roi.copyShapes();
             Assert.assertEquals(shapes.size(), 3);
         }
+    }
+    
+    /**
+     * Tests that shape fill and stroke color is stored as RGBA integer.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testShapeColor() throws Exception {
+        Image image = (Image) iUpdate.saveAndReturnObject(mmFactory
+                .simpleImage());
+
+        Roi roi = createRoi(image, 0, 0);
+        ROIData roiData = new ROIData(roi);
+
+        final int a = 10;
+        final int r = 20;
+        final int g = 30;
+        final int b = 40;
+
+        final Color c = new Color(r, g, b, a);
+        int rgba = 0;
+        rgba |= r << 24;
+        rgba |= g << 16;
+        rgba |= b << 8;
+        rgba |= (a & 255);
+
+        ShapeData shape = roiData.getShapes(0, 0).iterator().next();
+        shape.getShapeSettings().setStroke(c);
+        shape.getShapeSettings().setFill(c);
+
+        roi = (RoiI) iUpdate.saveAndReturnObject(roi);
+        roiData = new ROIData(roi);
+        shape = roiData.getShapes(0, 0).iterator().next();
+        Shape iShape = (Shape) shape.asIObject();
+
+        Assert.assertEquals(iShape.getStrokeColor().getValue(), rgba);
+        Assert.assertEquals(iShape.getFillColor().getValue(), rgba);
+
+        Assert.assertEquals(shape.getShapeSettings().getStroke(), c);
+        Assert.assertEquals(shape.getShapeSettings().getFill(), c);
     }
     
     /**

@@ -64,21 +64,14 @@ Node Popup Menu Item Should Be Disabled
 Select And Expand Node
     [Arguments]     ${nodeText}
     # Node identified by text value - needs to be visible
-    Click Element   xpath=//div[@id='dataTree']//a[contains(text(),'${nodeText}')]
+    Wait Until Element Is Visible       xpath=//div[@id='dataTree']//a[contains(text(),'${nodeText}')]
+    Click Element                       xpath=//div[@id='dataTree']//a[contains(text(),'${nodeText}')]
 
 Select And Expand Project Dataset Image
     ${projectId}=                       Select First Project With Children
     ${datasetId}=                       Select First Dataset With Children
     ${imageId}=                         Select First Image
     [Return]                            ${projectId}    ${datasetId}    ${imageId}
-
-Select And Expand Plate
-    ${firstNodeId}    Select First Node By Type    plate
-    [Return]          ${firstNodeId}
-
-Select And Expand Run
-    ${firstNodeId}    Select First Node By Type    acquisition
-    [Return]          ${firstNodeId}
 
 Select And Expand Image
     ${pid}    ${did}    ${imageId}      Select And Expand Project Dataset Image
@@ -232,6 +225,13 @@ Select First Image With Name
     Wait For General Panel          Image
     [Return]                        ${nodeId}
 
+Select First Plate With Name
+    [Arguments]                     ${PlateName}
+    ${nodeId}=                      Wait For Plate Node Text      ${PlateName}
+    Click Node                      ${nodeId}
+    Wait For General Panel          Plate
+    [Return]                        ${nodeId}
+
 Select First Orphaned Image
     ${nodeId}                       Select Orphaned Images Section
     Wait Until Element Is Visible   xpath=//li[@id='${nodeId}']/ul/li[1]/a
@@ -301,7 +301,7 @@ Check Right Panel Image
     Wait Until Element Is Visible       ${detailsPane}//th[contains(text(),'Z-sections/Timepoints:')]
     Wait Until Element Is Visible       ${detailsPane}//th[contains(text(),'Channels:')]
     Wait Until Element Is Visible       ${detailsPane}//th[contains(text(),'ROI Count:')]
-    Wait Until Element Is Visible       xpath=//*[@id="general_tab"]/div/a/span[contains(text(),'Full viewer')]
+    Wait Until Element Is Visible       xpath=//*[@id="general_tab"]//a/span[contains(text(),'Full viewer')]
     Wait Until Element Is Visible       xpath=//*[@id="general_tab"]/div/div/button[contains(@title,'Publishing Options')]
     Wait Until Element Is Visible       xpath=//*[@id="show_fs_files_btn"]
     Wait Until Element Is Visible       xpath=//*[@id="show_image_hierarchy"]
@@ -311,10 +311,10 @@ Check Right Panel Image
 Wait Until Center Panel Loads
     [Arguments]                     ${containerType}
     Run Keyword If                  '${containerType}' == 'Dataset'        Wait Until Element Is Visible      //*[@id="content_details"]/div[1]
-    Run Keyword If                  '${containerType}' == 'Dataset'        Wait Until Element Is Visible      xpath=//*[@id="filtersearch"]/div/label[contains(text(),'Filter Images')]
+    Run Keyword If                  '${containerType}' == 'Dataset'        Wait Until Element Is Visible      xpath=//form[@id="filtersearch"]/select[@id="choosefilter"]
     Run Keyword If                  '${containerType}' == 'Dataset'        Wait Until Element Is Visible      xpath=//*[@id="icon_layout"][contains(@title,"View as Thumbnails")][contains(@class,"checked")]
-    Run Keyword If                  '${containerType}' == 'Dataset'        Wait Until Element Is Visible      //*[@id="table_layout"][contains(@title,"View as List")]    
-    
+    Run Keyword If                  '${containerType}' == 'Dataset'        Wait Until Element Is Visible      //*[@id="table_layout"][contains(@title,"View as List")]
+
 
 # Methods for querying nodes by TEXT
 
@@ -406,7 +406,7 @@ Image Should Not Exist In Tree
     [Arguments]                     ${imageId}
     Node Should Not Exist In Tree   ${imageIcon}        ${imageId}
 
-Dataset Should Contain Image 
+Dataset Should Contain Image
     [Arguments]                             ${imageId}      ${datasetId}
     Select Dataset By Id                    ${datasetId}
     Wait Until Page Contains Element        css=tr.data_heading_id strong
@@ -539,6 +539,13 @@ Click Next Thumbnail
 Click Next Well
     Click Element  xpath=//td[contains(@class, 'well')][contains(@class, 'ui-selected')]/following-sibling::td/img
 
+Click Well By Name
+    [Arguments]    ${name}
+    Wait Until Page Contains Element    xpath=//td[contains(@class,'well')]/img[@name='${name}']
+    # Have to be sure that thumbnail itself has loaded before image is clickable!
+    Sleep                               1
+    Click Element                       xpath=//td[contains(@class,'well')]/img[@name='${name}']
+
 
 Thumbnail Should Be Selected
     [Arguments]     ${imageId}    ${expected}=${true}
@@ -548,6 +555,19 @@ Thumbnail Should Be Selected
 Thumbnail Should Not Be Selected
     [Arguments]                     ${imageId}
     Thumbnail Should Be Selected    ${imageId}    ${false}
+
+Get Id From Selected Item In Tree
+    # Wait Until Element Is Visible xpath=//li::a[contains(@class, 'jstree-clicked')]
+    ${dataId}=                      Get Element Attribute    xpath=//li[contains(@class,'jstree-leaf')][descendant::a[contains(@class, 'jstree-clicked')]]@data-id
+    [return]                        ${dataId}
+
+Get Id From Selected Thumbnail
+    ${dataId}=                      Get Element Attribute    xpath=//li[contains(@class,'ui-selected')]@data-id
+    [return]                        ${dataId}
+
+Get Id From Right Panel
+    ${dataId}=                      Get Text                css=tr.data_heading_id strong
+    [return]                        ${dataId}
 
 Shift Click Node
     [Arguments]                     ${nodeId}
@@ -565,7 +585,7 @@ Meta Click Node
     [Arguments]                     ${nodeId}
     Meta Click Element              "#${nodeId}>a"
 
-Meta Click Thumbnail                
+Meta Click Thumbnail
     [Arguments]                     ${iid}
     Meta Click Element              "#image_icon-${iid}"
 

@@ -15,6 +15,7 @@
 
 import re
 import json
+import base64
 import omero
 import omero.clients
 
@@ -68,7 +69,8 @@ import shutil
 
 from omeroweb.decorators import login_required, ConnCleaningHttpResponse
 from omeroweb.connector import Connector
-from omeroweb.webgateway.util import zip_archived_files, getIntOrDefault
+from omeroweb.webgateway.util import zip_archived_files, LUTS_IN_PNG
+from omeroweb.webgateway.util import get_longs, getIntOrDefault
 
 cache = CacheBase()
 logger = logging.getLogger(__name__)
@@ -211,7 +213,6 @@ def _split_channel_info(rchannels):
     channels = []
     windows = []
     colors = []
-    reverses = []
     for chan in rchannels.split(','):
         # chan  1|12:1386r$0000FF
         chan = chan.split('|', 1)
@@ -219,7 +220,6 @@ def _split_channel_info(rchannels):
         t = chan[0].strip()
         # t = '1'
         color = None
-        rev = None
         # Not normally used...
         if t.find('$') >= 0:
             t, color = t.split('$')
@@ -232,14 +232,7 @@ def _split_channel_info(rchannels):
                 if t.find('$') >= 0:
                     t, color = t.split('$', 1)
                     # color = '0000FF'
-                    # t = 12:1386r
-                # Optional flag to enable reverse codomain
-                if t.endswith('-r'):
-                    rev = False
-                    t = t[:-2]
-                elif t.endswith('r'):
-                    rev = True
-                    t = t[:-1]
+                    # t = 12:1386
                 t = t.split(':')
                 if len(t) == 2:
                     try:
@@ -248,11 +241,10 @@ def _split_channel_info(rchannels):
                         pass
             windows.append(ch_window)
             colors.append(color)
-            reverses.append(rev)
         except ValueError:
             pass
     logger.debug(str(channels)+","+str(windows)+","+str(colors))
-    return channels, windows, colors, reverses
+    return channels, windows, colors
 
 
 def getImgDetailsFromReq(request, as_string=False):
@@ -316,12 +308,10 @@ def render_birds_eye_view(request, iid, size=None,
     return render_thumbnail(request, iid, w=size, **kwargs)
 
 
-@login_required()
-def render_thumbnail(request, iid, w=None, h=None, conn=None, _defcb=None,
-                     **kwargs):
+def _render_thumbnail(request, iid, w=None, h=None, conn=None, _defcb=None,
+                      **kwargs):
     """
-    Returns an HttpResponse wrapped jpeg with the rendered thumbnail for image
-    'iid'
+    Returns a jpeg with the rendered thumbnail for image 'iid'
 
     @param request:     http request
     @param iid:         Image ID
@@ -330,15 +320,20 @@ def render_thumbnail(request, iid, w=None, h=None, conn=None, _defcb=None,
     @return:            http response containing jpeg
     """
     server_id = request.session['connector'].server_id
+
+    server_settings = request.session.get('server_settings', {}) \
+                                     .get('browser', {})
+    defaultSize = server_settings.get('thumb_default_size', 96)
+
     direct = True
     if w is None:
-        size = (96,)
+        size = (defaultSize,)
     else:
         if h is None:
             size = (int(w),)
         else:
             size = (int(w), int(h))
-    if size == (96,):
+    if size == (defaultSize,):
         direct = False
     user_id = conn.getUserId()
     z = getIntOrDefault(request, 'z', None)
@@ -356,7 +351,7 @@ def render_thumbnail(request, iid, w=None, h=None, conn=None, _defcb=None,
                 jpeg_data = _defcb(size=size)
                 prevent_cache = True
             else:
-                raise Http404
+                raise Http404('Failed to render thumbnail')
         else:
             jpeg_data = img.getThumbnail(
                 size=size, direct=direct, rdefId=rdefId, z=z, t=t)
@@ -366,8 +361,7 @@ def render_thumbnail(request, iid, w=None, h=None, conn=None, _defcb=None,
                     jpeg_data = _defcb(size=size)
                     prevent_cache = True
                 else:
-                    return HttpResponseServerError(
-                        'Failed to render thumbnail')
+                    raise Http404('Failed to render thumbnail')
             else:
                 prevent_cache = img._thumbInProgress
         if not prevent_cache:
@@ -375,6 +369,24 @@ def render_thumbnail(request, iid, w=None, h=None, conn=None, _defcb=None,
                                       jpeg_data, size)
     else:
         pass
+    return jpeg_data
+
+
+@login_required()
+def render_thumbnail(request, iid, w=None, h=None, conn=None, _defcb=None,
+                     **kwargs):
+    """
+    Returns an HttpResponse wrapped jpeg with the rendered thumbnail for image
+    'iid'
+
+    @param request:     http request
+    @param iid:         Image ID
+    @param w:           Thumbnail max width. 96 by default
+    @param h:           Thumbnail max height
+    @return:            http response containing jpeg
+    """
+    jpeg_data = _render_thumbnail(request=request, iid=iid, w=w, h=h,
+                                  conn=conn, _defcb=_defcb, **kwargs)
     rsp = HttpResponse(jpeg_data, content_type='image/jpeg')
     return rsp
 
@@ -750,6 +762,33 @@ def _get_signature_from_request(request):
     return rv
 
 
+def _get_maps_enabled(request, name, sizeC=0):
+    """
+    Parses 'maps' query string from request
+    """
+    codomains = None
+    if 'maps' in request:
+        map_json = request['maps']
+        codomains = []
+        try:
+            # If coming from request string, need to load -> json
+            if isinstance(map_json, (unicode, str)):
+                map_json = json.loads(map_json)
+            sizeC = max(len(map_json), sizeC)
+            for c in range(sizeC):
+                enabled = None
+                if len(map_json) > c:
+                    m = map_json[c].get(name)
+                    # If None, no change to saved status
+                    if m is not None:
+                        enabled = m.get('enabled') in (True, 'true')
+                codomains.append(enabled)
+        except:
+            logger.debug('Invalid json for query ?maps=%s' % map_json)
+            codomains = None
+    return codomains
+
+
 def _get_prepared_image(request, iid, server_id=None, conn=None,
                         saveDefs=False, retry=True):
     """
@@ -772,10 +811,19 @@ def _get_prepared_image(request, iid, server_id=None, conn=None,
     img = conn.getObject("Image", iid)
     if img is None:
         return
+    reverses = _get_maps_enabled(r, 'reverse', img.getSizeC())
     if 'c' in r:
         logger.debug("c="+r['c'])
-        channels, windows, colors, reverses = _split_channel_info(r['c'])
-        if not img.setActiveChannels(channels, windows, colors, reverses):
+        activechannels, windows, colors = _split_channel_info(r['c'])
+        allchannels = range(1, img.getSizeC() + 1)
+        # If saving, apply to all channels
+        if saveDefs and not img.setActiveChannels(allchannels, windows,
+                                                  colors, reverses):
+            logger.debug(
+                "Something bad happened while setting the active channels...")
+        # Save the active/inactive state of the channels
+        if not img.setActiveChannels(activechannels, windows, colors,
+                                     reverses):
             logger.debug(
                 "Something bad happened while setting the active channels...")
     if r.get('m', None) == 'g':
@@ -1407,18 +1455,11 @@ def plateGrid_json(request, pid, field=0, conn=None, **kwargs):
         field = long(field or 0)
     except ValueError:
         field = 0
-    prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
     thumbsize = getIntOrDefault(request, 'size', None)
     logger.debug(thumbsize)
     server_id = kwargs['server_id']
 
-    def get_thumb_url(iid):
-        if thumbsize is not None:
-            return reverse(prefix, args=(iid, thumbsize))
-        return reverse(prefix, args=(iid,))
-
-    plateGrid = PlateGrid(conn, pid, field,
-                          kwargs.get('urlprefix', get_thumb_url))
+    plateGrid = PlateGrid(conn, pid, field, kwargs.get('urlprefix', ''))
     plate = plateGrid.plate
     if plate is None:
         return Http404
@@ -1432,6 +1473,70 @@ def plateGrid_json(request, pid, field=0, conn=None, **kwargs):
                                  cache_key)
     else:
         rv = json.loads(rv)
+    return rv
+
+
+@login_required()
+@jsonp
+def get_thumbnails_json(request, w=None, conn=None, **kwargs):
+    """
+    Returns base64 encoded jpeg with the rendered thumbnail for images
+    'id'
+
+    @param request:     http request
+    @param w:           Thumbnail max width. 96 by default
+    @return:            http response containing base64 encoded thumbnails
+    """
+    if w is None:
+        w = 96
+    image_ids = get_longs(request, 'id')
+    image_ids = list(set(image_ids))    # remove any duplicates
+    # If we only have a single ID, simply use getThumbnail()
+    if len(image_ids) == 1:
+        iid = image_ids[0]
+        try:
+            data = _render_thumbnail(request, iid, w=w, conn=conn)
+            return {iid: "data:image/jpeg;base64,%s" % base64.b64encode(data)}
+        except:
+            return {iid: None}
+    logger.debug("Image ids: %r" % image_ids)
+    if len(image_ids) > settings.THUMBNAILS_BATCH:
+        return HttpJavascriptResponseServerError(
+            'Max %s thumbnails at a time.' % settings.THUMBNAILS_BATCH)
+    thumbnails = conn.getThumbnailSet([rlong(i) for i in image_ids], w)
+    rv = dict()
+    for i in image_ids:
+        rv[i] = None
+        try:
+            t = thumbnails[i]
+            if len(t) > 0:
+                # replace thumbnail urls by base64 encoded image
+                rv[i] = ("data:image/jpeg;base64,%s" % base64.b64encode(t))
+        except KeyError:
+            logger.error("Thumbnail not available. (img id: %d)" % i)
+        except Exception:
+            logger.error(traceback.format_exc())
+    return rv
+
+
+@login_required()
+@jsonp
+def get_thumbnail_json(request, iid, w=None, h=None, conn=None, _defcb=None,
+                       **kwargs):
+    """
+    Returns an HttpResponse base64 encoded jpeg with the rendered thumbnail
+    for image 'iid'
+
+    @param request:     http request
+    @param iid:         Image ID
+    @param w:           Thumbnail max width. 96 by default
+    @param h:           Thumbnail max height
+    @return:            http response containing base64 encoded thumbnail
+    """
+    jpeg_data = _render_thumbnail(
+        request=request, iid=iid, w=w, h=h,
+        conn=conn, _defcb=_defcb, **kwargs)
+    rv = "data:image/jpeg;base64,%s" % base64.b64encode(jpeg_data)
     return rv
 
 
@@ -1475,6 +1580,7 @@ def listWellImages_json(request, did, conn=None, **kwargs):
     """
 
     well = conn.getObject("Well", did)
+    acq = getIntOrDefault(request, 'run', None)
     if well is None:
         return HttpJavascriptResponseServerError('""')
     prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
@@ -1482,9 +1588,28 @@ def listWellImages_json(request, did, conn=None, **kwargs):
     def urlprefix(iid):
         return reverse(prefix, args=(iid,))
     xtra = {'thumbUrlPrefix': kwargs.get('urlprefix', urlprefix)}
-    return map(lambda x: x.getImage() and
-               x.getImage().simpleMarshal(xtra=xtra),
-               well.listChildren())
+
+    def marshal_pos(w):
+        d = {}
+        for x, p in (['x', w.getPosX()], ['y', w.getPosY()]):
+            if p is not None:
+                d[x] = {'value': p.getValue(), 'unit': str(p.getUnit())}
+        return d
+
+    wellImgs = []
+    for ws in well.listChildren():
+        # optionally filter by acquisition 'run'
+        if (acq is not None and ws.plateAcquisition is not None and
+                ws.plateAcquisition.id.val != acq):
+            continue
+        img = ws.getImage()
+        if img is not None:
+            m = img.simpleMarshal(xtra=xtra)
+            pos = marshal_pos(ws)
+            if len(pos.keys()) > 0:
+                m['position'] = pos
+            wellImgs.append(m)
+    return wellImgs
 
 
 @login_required()
@@ -1567,7 +1692,7 @@ def open_with_options(request, **kwargs):
         if len(ow) < 2:
             continue
         viewer = {}
-        viewer['label'] = ow[0]
+        viewer['id'] = ow[0]
         try:
             viewer['url'] = reverse(ow[1])
         except NoReverseMatch:
@@ -1587,6 +1712,8 @@ def open_with_options(request, **kwargs):
                     else:
                         # ...otherwise, assume within static
                         viewer['script_url'] = static(ow[2]['script_url'])
+                if 'label' in ow[2]:
+                    viewer['label'] = ow[2]['label']
         except:
             # ignore invalid params
             pass
@@ -1737,18 +1864,25 @@ def save_image_rdef_json(request, iid, conn=None, **kwargs):
 def listLuts_json(request, conn=None, **kwargs):
     """
     Lists lookup tables 'LUTs' availble for rendering
+
+    This list is dynamic and will change if users add LUTs to their server.
+    We include 'png_index' which is the index of each LUT within the
+    static/webgateway/img/luts_10.png or -1 if LUT is not found.
     """
     scriptService = conn.getScriptService()
     luts = scriptService.getScriptsByMimetype("text/x-lut")
     rv = []
     for l in luts:
+        lut = l.path.val + l.name.val
+        png_index = LUTS_IN_PNG.index(lut) if lut in LUTS_IN_PNG else -1
         rv.append({'id': l.id.val,
                    'path': l.path.val,
                    'name': l.name.val,
-                   'size': unwrap(l.size)
+                   'size': unwrap(l.size),
+                   'png_index': png_index,
                    })
     rv.sort(key=lambda x: x['name'].lower())
-    return {"luts": rv}
+    return {"luts": rv, "png_luts": LUTS_IN_PNG}
 
 
 @login_required()
@@ -1893,6 +2027,11 @@ def copy_image_rdef_json(request, conn=None, **kwargs):
         rdef = {
             'c': str(r.get('c'))    # channels
         }
+        if r.get('maps'):
+            try:
+                rdef['maps'] = json.loads(r.get('maps'))
+            except:
+                pass
         if r.get('pixel_range'):
             rdef['pixel_range'] = str(r.get('pixel_range'))
         if r.get('m'):
@@ -1921,25 +2060,28 @@ def copy_image_rdef_json(request, conn=None, **kwargs):
     def getRenderingSettings(image):
         rv = {}
         chs = []
+        maps = []
         for i, ch in enumerate(image.getChannels()):
             act = "" if ch.isActive() else "-"
             start = ch.getWindowStart()
             end = ch.getWindowEnd()
             color = ch.getLut()
-            rev = 'r' if ch.isReverseIntensity() else ''
+            maps.append({'reverse': {'enabled': ch.isReverseIntensity()}})
             if not color or len(color) == 0:
                 color = ch.getColor().getHtml()
-            chs.append("%s%s|%s:%s%s$%s" % (act, i+1, start, end, rev, color))
+            chs.append("%s%s|%s:%s$%s" % (act, i+1, start, end, color))
         rv['c'] = ",".join(chs)
+        rv['maps'] = maps
         rv['m'] = "g" if image.isGreyscaleRenderingModel() else "c"
         rv['z'] = image.getDefaultZ() + 1
         rv['t'] = image.getDefaultT() + 1
         return rv
 
     def applyRenderingSettings(image, rdef):
-        channels, windows, colors, reverse = _split_channel_info(rdef['c'])
+        reverses = _get_maps_enabled(rdef, 'reverse', image.getSizeC())
+        channels, windows, colors = _split_channel_info(rdef['c'])
         # also prepares _re
-        image.setActiveChannels(channels, windows, colors, reverse)
+        image.setActiveChannels(channels, windows, colors, reverses)
         if rdef['m'] == 'g':
             image.setGreyscaleRenderingModel()
         else:
@@ -2012,16 +2154,19 @@ def get_image_rdef_json(request, conn=None, **kwargs):
             image = conn.getObject("Image", fromid)
         if image is not None:
             rv = imageMarshal(image, request=request)
-            # return rv
             chs = []
+            maps = []
             for i, ch in enumerate(rv['channels']):
                 act = ch['active'] and str(i+1) or "-%s" % (i+1)
+                color = ch.get('lut') or ch['color']
                 chs.append("%s|%s:%s$%s" % (act, ch['window']['start'],
-                                            ch['window']['end'], ch['color']))
+                                            ch['window']['end'], color))
+                maps.append({'reverse': {'enabled': ch['reverseIntensity']}})
             rdef = {'c': (",".join(chs)),
                     'm': rv['rdefs']['model'],
                     'pixel_range': "%s:%s" % (rv['pixel_range'][0],
-                                              rv['pixel_range'][1])}
+                                              rv['pixel_range'][1]),
+                    'maps': maps}
 
     return {'rdef': rdef}
 
@@ -2358,6 +2503,37 @@ def get_rois_json(request, imageId, conn=None, **kwargs):
     rois.sort(key=lambda x: x['id'])
 
     return rois
+
+
+@login_required()
+def histogram_json(request, iid, theC, conn=None, **kwargs):
+    """
+    Returns a histogram for a single channel as a list of
+    256 values as json
+    """
+    image = conn.getObject("Image", iid)
+    if image is None:
+        raise Http404
+    maxW, maxH = conn.getMaxPlaneSize()
+    sizeX = image.getSizeX()
+    sizeY = image.getSizeY()
+    if (sizeX * sizeY) > (maxW * maxH):
+        msg = ("Histogram not supported for 'big' images (over %s * %s pixels)"
+               % (maxW, maxH))
+        return JsonResponse({"error": msg})
+
+    theZ = int(request.REQUEST.get('theZ', 0))
+    theT = int(request.REQUEST.get('theT', 0))
+    theC = int(theC)
+    binCount = int(request.REQUEST.get('bins', 256))
+
+    # TODO: handle projection when supported by OMERO
+    # proj = request.REQUEST.get('p', None)
+
+    data = image.getHistogram([theC], binCount, theZ=theZ, theT=theT)
+    histogram = data[theC]
+
+    return JsonResponse({'data': histogram})
 
 
 @login_required(isAdmin=True)

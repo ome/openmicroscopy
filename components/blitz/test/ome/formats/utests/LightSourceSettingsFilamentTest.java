@@ -1,22 +1,43 @@
+/*
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2017 University of Dundee. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ */
 package ome.formats.utests;
 
-import junit.framework.TestCase;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.model.BlitzInstanceProvider;
 import ome.util.LSID;
-import ome.xml.model.enums.*;
-import ome.xml.model.primitives.*;
+import ome.xml.model.enums.FilamentType;
+import ome.xml.model.primitives.PercentFraction;
+import ome.xml.model.primitives.PositiveInteger;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Filament;
 import omero.model.LightSettings;
 import omero.model.Pixels;
 
+import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class LightSourceSettingsFilamentTest extends TestCase
+public class LightSourceSettingsFilamentTest
 {
 	private OMEROWrapper wrapper;
 
@@ -70,18 +91,18 @@ public class LightSourceSettingsFilamentTest extends TestCase
 	public void testLightSourceCount()
 	{
         LSID lsid = new LSID(Pixels.class, IMAGE_INDEX);
-        assertNotNull(store.getSourceObject(lsid));
-        assertEquals(2, store.countCachedContainers(Filament.class));
-        assertEquals(5, store.countCachedContainers(null));
+        Assert.assertNotNull(store.getSourceObject(lsid));
+        Assert.assertEquals(store.countCachedContainers(Filament.class), 2);
+        Assert.assertEquals(store.countCachedContainers(null), 5);
 	}
 
 	@Test
 	public void testLightSourceSettingsCount()
 	{
         LSID lsid = new LSID(Pixels.class, IMAGE_INDEX);
-        assertNotNull(store.getSourceObject(lsid));
-        assertEquals(2, store.countCachedContainers(Filament.class));
-        assertEquals(5, store.countCachedContainers(null));
+        Assert.assertNotNull(store.getSourceObject(lsid));
+        Assert.assertEquals(store.countCachedContainers(Filament.class), 2);
+        Assert.assertEquals(store.countCachedContainers(null), 5);
 	}
 
 	@Test
@@ -90,8 +111,8 @@ public class LightSourceSettingsFilamentTest extends TestCase
         for (int i = 0; i < 2; i++)
         {
             LSID imageLsid = new LSID(LightSettings.class, IMAGE_INDEX, i);
-            assertTrue(store.hasReference(imageLsid, new LSID("Filament:" + i)));
+            Assert.assertTrue(store.hasReference(imageLsid, new LSID("Filament:" + i)));
         }
-        assertEquals(2, store.countCachedReferences(null, null));
+        Assert.assertEquals(store.countCachedReferences(null, null), 2);
 	}
 }

@@ -68,7 +68,7 @@ public class PolylineAndPolygonTest extends TestCase {
         {
             if (i != 0)
             {
-                buf.append(", ");
+                buf.append(" ");
             }
             buf.append(toNumber(points[i].x));
             buf.append(',');

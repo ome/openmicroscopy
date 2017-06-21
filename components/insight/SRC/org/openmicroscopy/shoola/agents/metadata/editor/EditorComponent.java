@@ -1180,7 +1180,7 @@ class EditorComponent
 	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#setFileset(Set)
 	 */
-	public void setFileset(Set<FilesetData> set)
+	public void setFileset(Collection<FilesetData> set)
 	{
 		model.setFileset(set);
 		view.displayFileset();

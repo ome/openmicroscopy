@@ -166,7 +166,7 @@ function gs_json (url, data, callback) {
   var cb = function (result) {
     return function (data, textStatus, errorThrown) {
       if (callback) {
-        callback (result, result ? data:errorThrown || textStatus);
+        callback (result, result ? data : errorThrown || textStatus);
       }
     }
   }

@@ -36,13 +36,13 @@ class TestTickets6000(ITest):
         admin.changeUserPassword(name, rstring("GOOD"))
 
         # First real password attempt is fast
-        self.loginAttempt(name, 0.15, "GOOD", less=True)
+        self.login_attempt(name, 0.15, "GOOD", less=True)
 
         # First attempt with UUID is fast
-        self.loginAttempt(uuid, 0.15, pw=uuid, less=True)
+        self.login_attempt(uuid, 0.15, pw=uuid, less=True)
 
         # Second attempt with UUID should still be fast
-        self.loginAttempt(uuid, 0.15, pw=uuid, less=True)
+        self.login_attempt(uuid, 0.15, pw=uuid, less=True)
 
         print client.sf
         print uuid

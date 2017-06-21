@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2016 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2017 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -21,20 +21,19 @@
  */
 package training;
 
-import java.util.UUID;
+import java.util.Collection;
 
 import omero.gateway.Gateway;
 import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;
-import omero.grid.Column;
-import omero.grid.Data;
-import omero.grid.LongColumn;
-import omero.grid.SharedResourcesPrx;
-import omero.grid.TablePrx;
 import omero.log.SimpleLogger;
-import omero.model.OriginalFile;
-import omero.model.OriginalFileI;
+import omero.gateway.facility.BrowseFacility;
+import omero.gateway.facility.TablesFacility;
 import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.TableData;
+import omero.gateway.model.TableDataColumn;
 
 /** 
  * Follow samples code indicating how to use OMERO.tables
@@ -57,6 +56,9 @@ public class HowToUseTables
     private static String password = "password";
     //end edit
 
+    /** The image.*/
+    private ImageData image;
+
     private Gateway gateway;
 
     private SecurityContext ctx;
@@ -64,85 +66,61 @@ public class HowToUseTables
     /**
      * start-code
      */
-
+    
     /**
-     * Creates a number of empty rows.
-     *
-     * @param rows The number of rows.
-     * @return See above.
-     */
-    private Column[] createColumns(int rows)
-    {
-        Column[] newColumns = new Column[2];
-        newColumns[0] = new LongColumn("Uid", "", new long[rows]);
-        newColumns[1] = new LongColumn("MyLongColumn", "", 
-                new long[rows]);
-        return newColumns;
+    * Loads the image.
+    * @param imageID The id of the image to load.
+    * @return See above.
+    */               
+    private ImageData loadImage(long imageID)
+            throws Exception {
+        BrowseFacility browse = gateway.getFacility(BrowseFacility.class);
+        return browse.getImage(ctx, imageID);
     }
 
 // Create table
 // ============
 
     /** 
-     * Creates a table.
+     * Creates a table and links to an Image.
      * @throws Exception
      */
-    private void createTable()
+    private void createTableandLinkToImage()
             throws Exception
     {
-        int rows = 1;
-        String name = UUID.randomUUID().toString();
-        Column[] columns = createColumns(rows);
-        //create a new table.
-        SharedResourcesPrx store = null;
-        TablePrx table = null;
-        TablePrx table2 = null;
-        try {
-            store = gateway.getSharedResources(ctx);
-            table = store.newTable(1, name);
-            //initialize the table
-            table.initialize(columns);
-            //add data to the table.
-            rows = 2;
-            Column[] newRow = createColumns(rows);
-            LongColumn uids = (LongColumn) newRow[0];
-            LongColumn myLongs = (LongColumn) newRow[1];
-            for (int i = 0; i < rows; i++) {
-                uids.values[i] = i;
-                myLongs.values[i] = i;
+        TableDataColumn[] columns = new TableDataColumn[3];
+        columns[0] =  new TableDataColumn("ID", 0, Long.class);
+        columns[1] =  new TableDataColumn("Name", 1, String.class);
+        columns[2] =  new TableDataColumn("Value", 2, Double.class);
+        
+        Object[][] data = new Object[3][5];
+        data[0] = new Long[] {1l, 2l, 3l, 4l, 5l};
+        data[1] = new String[] {"one", "two", "three", "four", "five"};
+        data[2] = new Double[] {1d, 2d, 3d, 4d, 5d};
+        
+        TableData tableData = new TableData(columns, data);
+        
+        TablesFacility fac = gateway.getFacility(TablesFacility.class);
+        
+        // Attach the table to the image
+        tableData = fac.addTable(ctx, image, "My Data", tableData);
+        
+        // Find the table again
+        Collection<FileAnnotationData> tables = fac.getAvailableTables(ctx, image);
+        long fileId  = tables.iterator().next().getFileID();
+        
+        // Request second and third column of the first three rows
+        TableData tableData2 = fac.getTable(ctx, fileId, 0, 2, 1, 2);
+        
+        // do something, e.g. print to System.out
+        int nRows = tableData2.getData()[0].length;
+        for (int row = 0; row < nRows; row++) {
+            for (int col = 0; col < tableData2.getColumns().length; col++) {
+                Object o = tableData2.getData()[col][row];
+                System.out.print(o + " ["
+                        + tableData2.getColumns()[col].getType() + "]\t");
             }
-            table.addData(newRow);
-            OriginalFile file = table.getOriginalFile(); // if you need to interact with the table
-            file = new OriginalFileI(file.getId(), false);
-            //Open the table again
-            table2 = store.openTable(file);
-            //read headers
-            Column[] cols = table2.getHeaders();
-            for (int i = 0; i < cols.length; i++) {
-                String colName = cols[i].name;
-                System.err.println("Column"+colName);
-            }
-            // Depending on size of table, you may only want to read some blocks.
-            long[] columnsToRead = new long[cols.length];
-            for (int i = 0; i < cols.length; i++) {
-                columnsToRead[i] = i;
-            }
-            // The number of columns we wish to read.
-            long[] rowSubset = new long[(int) (table2.getNumberOfRows()-1)];
-            for (int j = 0; j < rowSubset.length; j++) {
-                rowSubset[j] = j;
-            }
-            Data data = table2.slice(columnsToRead, rowSubset); // read the data.
-            cols = data.columns;
-            for (int j = 0; j < cols.length; j++) {
-                Column c = cols[j];
-                //do something
-            }
-        } catch (Exception e) {
-            throw new Exception("Cannot open table", e);
-        } finally {
-            if (table != null) table.close();
-            if (table2 != null) table2.close();
+            System.out.println();
         }
     }
 
@@ -154,15 +132,17 @@ public class HowToUseTables
      * Connects and invokes the various methods.
      *
      * @param args The login credentials.
+     * @param imageId omero Image ID.
      */
-    HowToUseTables(String[] args)
+    HowToUseTables(String[] args, long imageId)
     {
         LoginCredentials cred = new LoginCredentials(args);
         gateway = new Gateway(new SimpleLogger());
         try {
             ExperimenterData user = gateway.connect(cred);
             ctx = new SecurityContext(user.getGroupId());
-            createTable();
+            image = loadImage(imageId);
+            createTableandLinkToImage();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -184,8 +164,9 @@ public class HowToUseTables
         if (args == null || args.length == 0)
             args = new String[] { "--omero.host=" + hostName,
                 "--omero.user=" + userName, "--omero.pass=" + password };
-
-        new HowToUseTables(args);
+        
+        // Edit image Id if you want to use a custom imageId instead of the configuration option
+        new HowToUseTables(args, 1);
         System.exit(0);
     }
 

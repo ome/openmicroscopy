@@ -19,9 +19,31 @@ from omero.rtypes import rtime, rlong, rlist, rint
 from omero.gateway import BlitzGateway
 
 from test.integration.helpers import createTestImage
+import warnings
 
 
 class TestIShare(ITest):
+
+    @classmethod
+    def create_share(cls, description="", timeout=None,
+                     objects=[], experimenters=[], guests=[],
+                     enabled=True, client=None):
+        """
+        Create share object
+
+        :param objects: a list of objects to include in the share
+        :param description: a string containing the description of the share
+        :param timeout: the timeout of the share
+        :param experimenters: a list of users associated with the share
+        :param client: The client to use to create the share
+        """
+        warnings.warn(
+            "create_share is deprecated as of OMERO 5.3.0", DeprecationWarning)
+        if client is None:
+            client = cls.client
+        share = client.sf.getShareService()
+        return share.createShare(description, timeout, objects,
+                                 experimenters, guests, enabled)
 
     def test_that_permissions_are_default_private(self):
         i = self.make_image()
@@ -44,7 +66,7 @@ class TestIShare(ITest):
         share.addObjects(share_id, [d])
         assert len(share.getContents(share_id)) == 1
 
-        ds = self.createDatasets(4, "Dataset")
+        ds = self.create_datasets(4, "Dataset")
         share.addObjects(share_id, ds)
         assert share.getContentSize(share_id) == 5
         assert len(share.getAllUsers(share_id)) == 2

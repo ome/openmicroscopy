@@ -269,7 +269,7 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 		pixels.setSizeC(channelList.size());
 		pixels.setSizeT(sizeT);
 		pixels.setSha1("Pending...");
-		pixels.setDimensionOrder(getEnumeration(DimensionOrder.class, "XYZCT")); 
+		pixels.setDimensionOrder(getEnumeration(DimensionOrder.class, DimensionOrder.VALUE_XYZCT)); 
 		// Create channel data.
 		List<Channel> channels = createChannels(channelList);
 		for(Channel channel : channels)

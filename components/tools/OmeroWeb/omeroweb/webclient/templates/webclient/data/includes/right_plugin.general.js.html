@@ -76,6 +76,14 @@ $(function () {
                         }
                     }
                     $metadata_general.html(data);
+                },
+                error: function(data) {
+                    // If request string too long. e.g. image=1&image=2&image=3.... etc
+                    // Just show the error message in right panel.
+                    // This error will be ignored by OME.setupAjaxError();
+                    if (data.status == 414 || data.responseText.indexOf('Request Line is too large') > -1) {
+                        $metadata_general.html(data.responseText);
+                    }
                 }
             });
             
@@ -106,7 +114,7 @@ $(function () {
                             url = prefix+'metadata_details/'+orel+'/'+oid.split("-")[1]+'/';
                         }
                     } else if(orel=="well"){
-                        var well_index = selected[0]["index"];
+                        var well_index = selected[0]["index"] || 0;
                         url = '{% url 'load_metadata_details' %}well/'+oid.split('-')[1]+'/?index='+ well_index;
                     } else {
                         url = prefix+'metadata_details/'+orel+'/'+oid.split("-")[1]+'/';

@@ -83,6 +83,7 @@ class PreviewToolBar
         setSelectedPlane();
 
         preview = new JCheckBox(PREVIEW);
+        preview.setBackground(UIUtilities.BACKGROUND);
         preview.setEnabled(!model.isBigImage());
         preview.setToolTipText(PREVIEW_DESCRIPTION);
         preview.setFont(newFont);

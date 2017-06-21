@@ -1,0 +1,280 @@
+
+<!DOCTYPE html>
+
+<!--
+  Copyright (C) 2017 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<!-- Example file for connecting and logging in to the JSON api -->
+
+<html>
+
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+<style>
+
+#base_url_container {
+  z-index: 100;
+}
+
+#login_container {
+  display: none;
+}
+
+.full_page {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  z-index: 0;
+  background-color: #eee;
+}
+
+.full_page input {
+  margin-bottom: 20px;
+  padding: 10px;
+  font-size: 16px;
+  height: auto;
+}
+
+.navbar {
+  z-index: 0;
+}
+
+#username {
+  margin-bottom: 5px;
+}
+
+body {
+  background-color: #eee;
+}
+
+#server_form, #login_form {
+  max-width: 430px;
+  padding-top: 55px;
+  margin: 0 auto;
+
+}
+
+</style>
+
+<body>
+
+  <div id="base_url_container" class="full_page container">
+    <form id="server_form">
+      <h2>Enter OMERO.web url</h2>
+      <input id="base_url" type="text" class="form-control" placeholder="e.g. http://localhost:4080/" required autofocus>
+      <button class="btn btn-lg btn-primary btn-block" type="submit">Connect</button>
+    </form>
+  </div>
+
+  <div id="login_container" class="full_page container">
+    <form id="login_form">
+      <h2>Login to OMERO</h2>
+      <select id="server"></select>
+      <label for="username" class="sr-only">Username</label>
+      <input id="username" type="text" class="form-control" name="username" placeholder="Username">
+      <label for="password" class="sr-only">Password</label>
+      <input id="password" type="password" class="form-control" name="password" placeholder="Password">
+      <button class="btn btn-lg btn-primary btn-block" type="submit">Login</button>
+    </form>
+  </div>
+
+
+  <nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="#">OMERO</a>
+      </div>
+      <div id="navbar" class="collapse navbar-collapse">
+        <form class="navbar-form navbar-right" >
+          <button id="logout_button" type="submit" class="btn btn-link">Log out</button>
+        </form>
+        <ul class="nav navbar-nav navbar-right">
+          <li><a id="logged_in_user" href="#"></a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container" style="margin-top: 50px">
+    <div class="starter-template">
+      <h1>Projects</h1>
+      <div id="projects">
+      </div>
+    </div>
+  </div>
+
+<script>
+
+var omeroweb_url;
+var latest_base_url;
+var base_urls;
+var csrf_token;
+
+
+function createCORSRequest(method, url) {
+  var xhr = new XMLHttpRequest();
+  if ("withCredentials" in xhr) {
+    xhr.withCredentials = true;
+    xhr.open(method, url, true);
+  } else if (typeof XDomainRequest != "undefined") {
+    xhr = new XDomainRequest();
+    xhr.open(method, url);
+  } else {
+    // CORS is not supported by the browser.
+    xhr = null;
+  }
+
+  xhr.onerror = function() {
+    console.log('There was an error!');
+  };
+  return xhr;
+}
+
+function makeJSONRequest(method, url, callback, data) {
+  var xhr = createCORSRequest(method, url);
+
+  xhr.onload = function() {
+    console.log(xhr);
+    // handle the response (assumes we're getting JSON data)
+    var responseText = xhr.responseText;
+    var jsonResponse = JSON.parse(responseText);
+    // If not logged-in, show login form
+    if (xhr.status === 403 && jsonResponse.message === "Not logged in") {
+      prepareLogin();
+    }
+    // status OK - call the callback()
+    else if (xhr.status === 200) {
+      if (callback) {
+        callback(jsonResponse);
+      }
+    } else {
+      console.log("Error:", xhr)
+    }
+  };
+
+  if (method !== 'GET') {
+    xhr.setRequestHeader('x-csrftoken', csrf_token);
+  }
+
+  if (data) {
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.send(data);
+  } else {
+    xhr.send();
+  }
+}
+
+function loadBaseUrls(callback) {
+  makeJSONRequest('GET', latest_base_url, function(rsp) {
+    base_urls = rsp;
+    callback();
+  });
+}
+
+function prepareLogin() {
+  // show login form
+  document.getElementById('login_container').style.display = 'block';
+  // Get available servers
+  var servers_url = base_urls['url:servers'];
+  makeJSONRequest('GET', servers_url, function(rsp) {
+    var serversHtml = rsp.data.map(function(s){
+      return '<option value="' + s.id + '">' + s.server + ':' + s.port + '</option>';
+    });
+    document.getElementById('server').innerHTML = serversHtml.join("");
+  });
+
+  // Also get CSRF token needed for login and other POST requests
+  var token_url = base_urls['url:token'];
+  makeJSONRequest('GET', token_url, function(rsp) {
+    csrf_token = rsp.data;
+  });
+}
+
+function loadProjects() {
+  var projects_url = base_urls['url:projects'];
+  makeJSONRequest('GET', projects_url, function(rsp) {
+    // hide login form
+    document.getElementById('login_container').style.display = 'none';
+    var projectsHtml = rsp.data.map(function(p){
+      return '<p>' + p['@id'] + ':' + p.Name + '</p>';
+    });
+    document.getElementById('projects').innerHTML = projectsHtml.join("");
+  });
+}
+
+document.getElementById('server_form').addEventListener('submit', function(event) {
+  event.preventDefault();
+
+  omeroweb_url = document.getElementById('base_url').value;
+  // hide form
+  document.getElementById('base_url_container').style.display = 'none';
+  makeJSONRequest('GET', omeroweb_url + 'api/', function(rsp) {
+    // List of supported versions
+    var versions = rsp.data;
+    // Get base_url from last version in the list
+    latest_base_url = versions[versions.length-1]["url:base"];
+
+    // Get the list of top-level urls as starting points,
+    // then load Projects (will show Login form if we're not logged in)
+    loadBaseUrls(loadProjects);
+  });
+
+  return false;
+});
+
+
+document.getElementById('login_form').addEventListener('submit', function(event) {
+  event.preventDefault();
+
+  var login_url = base_urls['url:login'];
+
+  var fields = ['username', 'password', 'server'];
+  var data = fields.map(function(f){
+    return f + '=' + document.getElementById(f).value
+  });
+  data = data.join('&');
+  console.log(data);
+
+  makeJSONRequest('POST', login_url, function(rsp) {
+    // Will get eventContext if login OK
+    console.log(rsp);
+
+    // Show username in top header
+    var ctx = rsp['eventContext'];
+    document.getElementById('logged_in_user').innerHTML = ctx['userName'];
+
+    loadProjects();
+  }, data);
+
+  return false;
+});
+
+document.getElementById('logout_button').addEventListener('click', function(event) {
+  event.preventDefault()
+  var logout_url = omeroweb_url + 'webclient/logout/';
+  makeJSONRequest('POST', logout_url, function(rsp) {
+    console.log("LOGGED OUT")
+  });
+  return false;
+})
+
+</script>
+
+</body>
+</html>

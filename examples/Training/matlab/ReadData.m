@@ -338,6 +338,12 @@ try
     for i = 1:numel(wells),
         wellSamples = toMatlabList(wells(i).copyWellSamples());
         fprintf(1, '  Well %g - Found %g well samples\n ', i, numel(wellSamples));
+        % The wellList returned from the server is not sorted by wellIds, 
+        % please extract the wellRow and wellColumn for every well,
+        % to populate your results appropriately
+        well = wells(i);
+        wellRow = well.getRow().getValue();
+        wellColumn = well.getColumn().getValue();
         for j = 1:numel(wellSamples),
             pa = wellSamples(j).getPlateAcquisition();
         end

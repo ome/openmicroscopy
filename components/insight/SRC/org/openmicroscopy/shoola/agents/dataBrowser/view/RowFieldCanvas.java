@@ -32,6 +32,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -77,6 +79,15 @@ class RowFieldCanvas extends WellFieldsCanvas {
         addMouseListener(new MouseAdapter() {
 
             @Override
+            public void mouseClicked(MouseEvent e) {
+                WellSampleNode node = getNode(e.getPoint());
+                if (e.getClickCount() == 2 && node != null) {
+                    RowFieldCanvas.this.firePropertyChange(VIEW_PROPERTY, null,
+                            node);
+                }
+            }
+
+            @Override
             public void mouseReleased(MouseEvent e) {
                 WellSampleNode node = getNode(e.getPoint());
                 if (node == null)
@@ -95,6 +106,9 @@ class RowFieldCanvas extends WellFieldsCanvas {
                     if (n.isWell())
                         newSelection.add(n);
                 }
+
+                if (WellSampleNode.isSame(oldSelection, newSelection))
+                    return;
 
                 if (e.isShiftDown()) {
                     // Determine the start and end nodes of the selection
@@ -135,19 +149,14 @@ class RowFieldCanvas extends WellFieldsCanvas {
                     }
                 }
 
-                if (e.getClickCount() == 2)
-                    RowFieldCanvas.this.firePropertyChange(VIEW_PROPERTY, null,
-                            newSelection);
-
-                else
-                    RowFieldCanvas.this.firePropertyChange(SELECTION_PROPERTY,
-                            oldSelection, newSelection);
+                RowFieldCanvas.this.firePropertyChange(SELECTION_PROPERTY,
+                        oldSelection, newSelection);
 
             }
 
         });
     }
-
+    
     /**
      * Calculates an index for the given {@link WellSampleNode} based on the row
      * and column where it is displayed.

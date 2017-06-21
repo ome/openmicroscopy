@@ -2,7 +2,7 @@
  * ome.formats.OMEROMetadataStoreClient
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -1719,8 +1719,7 @@ public class OMEROMetadataStoreClient
             else groupLevel = ImportEvent.GROUP_COLLAB_READ;
         }
         else if (perm.isWorldRead()) {
-            if (perm.isWorldWrite())  groupLevel = ImportEvent.GROUP_PUBLIC;
-            else groupLevel = ImportEvent.GROUP_PUBLIC;
+            groupLevel = ImportEvent.GROUP_PUBLIC;
         } else {
             groupLevel = ImportEvent.GROUP_PRIVATE;
         }
@@ -5696,7 +5695,7 @@ public class OMEROMetadataStoreClient
         // We're always the same dimension order in the server; force it to
         // "XYZCT" (ticket:3124, ticket:3718, ticket:3668)
         o.setDimensionOrder((DimensionOrder) getEnumeration(
-            DimensionOrder.class, "XYZCT"));
+            DimensionOrder.class, omero.model.enums.DimensionOrderXYZCT.value));
     }
 
     /* (non-Javadoc)

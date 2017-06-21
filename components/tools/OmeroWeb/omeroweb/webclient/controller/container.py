@@ -133,6 +133,8 @@ class BaseContainer(BaseController):
             self.assertNotNone(self.annotation._obj, annotation, "Annotation")
         if orphaned:
             self.orphaned = True
+        if index is not None:
+            self.index = index
 
     def assertNotNone(self, obj, obj_id, obj_name):
         if obj is None:
@@ -173,6 +175,16 @@ class BaseContainer(BaseController):
         obj = self._get_object()
         return obj is not None and obj.id or None
 
+    def getWellSampleImage(self):
+        """Returns Image if Well is not None
+
+        Uses the current well sample index. Used by templates
+        to access Image from Well.
+        """
+        if self.well:
+            index = self.index if self.index is not None else 0
+            return self.well.getWellSample(index).image()
+
     def canAnnotate(self):
         obj = self._get_object()
         return obj is not None and obj.canAnnotate() or False
@@ -201,6 +213,18 @@ class BaseContainer(BaseController):
         elif self.acquisition:
             return self.acquisition._obj.plate.id.val
 
+    def getAnnotationCounts(self):
+        """
+        Get the annotion counts for the current object
+        """
+        return self._get_object().getAnnotationCounts()
+
+    def getBatchAnnotationCounts(self, objDict):
+        """
+        Get the annotion counts for the given objects
+        """
+        return self.conn.getAnnotationCounts(objDict)
+
     def canExportAsJpg(self, request, objDict=None):
         """
         Can't export as Jpg, Png, Tiff if bigger than approx 12k * 12k.
@@ -213,12 +237,17 @@ class BaseContainer(BaseController):
         except:
             limit = 144000000
         if self.image:
-            if (self.image.getSizeX() * self.image.getSizeY()) > limit:
+            sizex = self.image.getSizeX()
+            sizey = self.image.getSizeY()
+            if sizex is None or sizey is None or (sizex * sizey) > limit:
                 can = False
         elif objDict is not None:
             if 'image' in objDict:
                 for i in objDict['image']:
-                    if (i.getSizeX() * i.getSizeY()) > limit:
+                    sizex = i.getSizeX()
+                    sizey = i.getSizeY()
+                    if sizex is None or sizey is None or\
+                            (sizex * sizey) > limit:
                         can = False
         return can
 
@@ -239,12 +268,33 @@ class BaseContainer(BaseController):
             return self.image.canDownload() or \
                 self.well.canDownload() or self.plate.canDownload()
 
+    def list_scripts(self):
+        """
+        Get the file names of all scripts
+        """
+        scriptService = self.conn.getScriptService()
+        scripts = scriptService.getScripts()
+
+        scriptlist = []
+
+        for s in scripts:
+            name = s.name.val
+            scriptlist.append(name)
+
+        return scriptlist
+
     def listFigureScripts(self, objDict=None):
         """
         This configures all the Figure Scripts, setting their enabled status
         given the currently selected object (self.image etc) or batch objects
-        (uses objDict).
+        (uses objDict) and the script availability.
         """
+
+        availableScripts = self.list_scripts()
+        image = None
+        if self.image or self.well:
+            image = self.image or self.getWellSampleImage()
+
         figureScripts = []
         # id is used in url and is mapped to full script path by
         # views.figure_script()
@@ -256,13 +306,15 @@ class BaseContainer(BaseController):
                         " into separate views")}
         # Split View Figure is enabled if we have at least one image with
         # SizeC > 1
-        if self.image:
-            splitView['enabled'] = (self.image.getSizeC() > 1)
+        if image:
+            splitView['enabled'] = (image.getSizeC() > 1) and \
+                'Split_View_Figure.py' in availableScripts
         elif objDict is not None:
             if 'image' in objDict:
                 for i in objDict['image']:
                     if i.getSizeC() > 1:
-                        splitView['enabled'] = True
+                        splitView['enabled'] = 'Split_View_Figure.py' in \
+                            availableScripts
                         break
         thumbnailFig = {
             'id': 'Thumbnail',
@@ -271,20 +323,20 @@ class BaseContainer(BaseController):
             'tooltip': ("Export a figure of thumbnails, optionally sorted by"
                         " tag")}
         # Thumbnail figure is enabled if we have Datasets or Images selected
-        if self.image or self.dataset:
-            thumbnailFig['enabled'] = True
+        if self.image or self.dataset or self.well:
+            thumbnailFig['enabled'] = 'Thumbnail_Figure.py' in availableScripts
         elif objDict is not None:
             if 'image' in objDict or 'dataset' in objDict:
-                thumbnailFig['enabled'] = True
+                thumbnailFig['enabled'] = 'Thumbnail_Figure.py' in \
+                    availableScripts
 
         makeMovie = {
             'id': 'MakeMovie',
             'name': 'Make Movie',
             'enabled': False,
             'tooltip': "Create a movie of the image"}
-        if (self.image and (self.image.getSizeT() > 0 or
-                            self.image.getSizeZ() > 0)):
-            makeMovie['enabled'] = True
+        if (image and (image.getSizeT() > 1 or image.getSizeZ() > 1)):
+            makeMovie['enabled'] = 'Make_Movie.py' in availableScripts
 
         figureScripts.append(splitView)
         figureScripts.append(thumbnailFig)
@@ -779,7 +831,7 @@ class BaseContainer(BaseController):
                 linksByType[objType] = []
             linksByType[objType].append(obj.id.val)
         for linkType, ids in linksByType.items():
-            self.conn.deleteObjects(linkType, ids, wait=False)
+            self.conn.deleteObjects(linkType, ids, wait=True)
         if len(notFound) > 0:
             raise AttributeError("Attribute not specified. Cannot be removed.")
 

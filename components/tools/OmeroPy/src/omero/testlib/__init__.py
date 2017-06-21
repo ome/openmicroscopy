@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2008-2014 Glencoe Software, Inc. All Rights Reserved.
+# Copyright (C) 2008-2017 Glencoe Software, Inc. All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 # This program is free software; you can redistribute it and/or modify
@@ -24,6 +24,9 @@
 
 """
 
+import os
+import platform
+import locale
 import sys
 import time
 import weakref
@@ -36,6 +39,10 @@ import Ice
 import Glacier2
 import omero
 import omero.gateway
+
+from omero_version import omero_version
+from collections import defaultdict
+
 from omero.cmd import DoAll, State, ERR, OK, Chmod2, Chgrp2, Delete2
 from omero.callbacks import CmdCallbackI
 from omero.model import DatasetI, DatasetImageLinkI, ImageI, ProjectI
@@ -47,6 +54,13 @@ from omero.model import ExperimenterGroup, ExperimenterGroupI
 from omero.model import ProjectDatasetLinkI, ImageAnnotationLinkI
 from omero.model import PermissionsI
 from omero.model import ChecksumAlgorithmI
+from omero.model import NamedValue
+from omero.model.enums import ChecksumAlgorithmSHA1160, DimensionOrderXYZCT
+from omero.model.enums import PixelsTypeint8, PixelsTypeuint8, PixelsTypeint16
+from omero.model.enums import PixelsTypeuint16, PixelsTypeint32
+from omero.model.enums import PixelsTypeuint32, PixelsTypefloat
+from omero.model.enums import PixelsTypedouble
+
 from omero.rtypes import rbool, rstring, rlong, rtime, rint, unwrap
 from omero.util.temp_files import create_path
 from path import path
@@ -83,7 +97,7 @@ class ITest(object):
     @classmethod
     def setup_class(cls):
 
-        cls.OmeroPy = cls.omeropydir()
+        cls.omero_dist = cls.omerodistdir()
 
         cls.__clients = Clients()
 
@@ -117,7 +131,7 @@ class ITest(object):
         cls.root = None
         cls.__clients.__del__()
 
-    def keepRootAlive(self):
+    def keep_root_alive(self):
         """
         Keeps root connection alive.
         """
@@ -132,26 +146,38 @@ class ITest(object):
             raise
 
     @classmethod
-    def omeropydir(self):
+    def omerodistdir(cls):
+        def travers(p):
+            dist = None
+            for root, dirs, files in os.walk(p):
+                for f in files:
+                    t = path(os.path.join(root, f))
+                    # find OMERO dist by searching for bin/omero
+                    # exclude OmeroPy as is a source
+                    if (str(t.dirname().dirname().basename())
+                            not in ('OmeroPy', 'build', 'target') and
+                            str(t.basename()) == 'omero' and
+                            str(t.dirname().basename()) == 'bin'):
+                        dist = t.dirname().dirname()
+            return dist
         count = 10
         searched = []
         p = path(".").abspath()
         # "" means top of directory
-        while str(p.basename()) not in ("OmeroPy", ""):
+        dist_dir = None
+        while dist_dir is None:
+            dist_dir = travers(p)
             searched.append(p)
             p = p / ".."  # Walk up, in case test runner entered a subdirectory
-            try:
-                p, = p.dirs("OmeroPy")
-            except ValueError:
-                pass
             p = p.abspath()
             count -= 1
             if not count:
                 break
-        if str(p.basename()) == "OmeroPy":
-            return p
+        if dist_dir is not None:
+            return dist_dir
         else:
-            assert False, "Could not find OmeroPy/; searched %s" % searched
+            assert False, ("Could not find bin/omero executable; "
+                           "searched %s" % searched)
 
     def skip_if(self, config_key, condition, message=None):
         """Skip test if configuration does not meet condition"""
@@ -162,26 +188,26 @@ class ITest(object):
                         % (config_key, config_value))
 
     @classmethod
-    def uuid(self):
+    def uuid(cls):
         return str(uuid.uuid4())
 
     @classmethod
-    def login_args(self, client=None):
-        p = self.client.ic.getProperties()
+    def login_args(cls, client=None):
+        p = cls.client.ic.getProperties()
         host = p.getProperty("omero.host")
         port = p.getProperty("omero.port")
         if not client:
-            key = self.sf.ice_getIdentity().name
+            key = cls.sf.ice_getIdentity().name
         else:
             key = client.sf.ice_getIdentity().name
         return ["-q", "-s", host, "-k", key, "-p", port]
 
     @classmethod
-    def root_login_args(self):
-        p = self.root.ic.getProperties()
+    def root_login_args(cls):
+        p = cls.root.ic.getProperties()
         host = p.getProperty("omero.host")
         port = p.getProperty("omero.port")
-        key = self.root.sf.ice_getIdentity().name
+        key = cls.root.sf.ice_getIdentity().name
         return ["-s", host, "-k", key, "-p", port]
 
     def tmpfile(self):
@@ -189,11 +215,11 @@ class ITest(object):
 
     # Administrative methods
     @classmethod
-    def new_group(self, experimenters=None, perms=None,
+    def new_group(cls, experimenters=None, perms=None,
                   config=None, gname=None):
-        admin = self.root.sf.getAdminService()
+        admin = cls.root.sf.getAdminService()
         if gname is None:
-            gname = self.uuid()
+            gname = cls.uuid()
         group = ExperimenterGroupI()
         group.name = rstring(gname)
         group.ldap = rbool(False)
@@ -202,15 +228,15 @@ class ITest(object):
             group.details.permissions = PermissionsI(perms)
         gid = admin.createGroup(group)
         group = admin.getGroup(gid)
-        self.add_experimenters(group, experimenters)
+        cls.add_experimenters(group, experimenters)
         return group
 
     @classmethod
-    def add_experimenters(self, group, experimenters):
-        admin = self.root.sf.getAdminService()
+    def add_experimenters(cls, group, experimenters):
+        admin = cls.root.sf.getAdminService()
         if experimenters:
             for exp in experimenters:
-                user, name = self.user_and_name(exp)
+                user, name = cls.user_and_name(exp)
                 admin.addGroups(user, [group])
 
     def add_groups(self, experimenter, groups, owner=False):
@@ -237,18 +263,17 @@ class ITest(object):
     # Import methods
     def import_image(self, filename=None, client=None, extra_args=None,
                      skip="all", **kwargs):
+        """
+        Imports the specified file.
+        """
         if filename is None:
-            filename = self.OmeroPy / ".." / ".." / ".." / \
-                "components" / "common" / "test" / "tinyTest.d3d.dv"
+            raise Exception("No file specified")
         if client is None:
             client = self.client
 
         server = client.getProperty("omero.host")
         port = client.getProperty("omero.port")
         key = client.getSessionId()
-
-        # Search up until we find "OmeroPy"
-        dist_dir = self.OmeroPy / ".." / ".." / ".." / "dist"
 
         args = [sys.executable]
         args.append(str(path(".") / "bin" / "omero"))
@@ -262,7 +287,7 @@ class ITest(object):
             args.extend(extra_args)
         args.append(filename)
 
-        popen = subprocess.Popen(args, cwd=str(dist_dir),
+        popen = subprocess.Popen(args, cwd=str(self.omero_dist),
                                  stdout=subprocess.PIPE,
                                  stderr=subprocess.PIPE)
         out, err = popen.communicate()
@@ -273,71 +298,39 @@ class ITest(object):
         for x in out.split("\n"):
             if x and x.find("Created") < 0 and x.find("#") < 0:
                 try:    # if the line has an image ID...
-                    imageId = str(long(x.strip()))
+                    image_id = str(long(x.strip()))
                     # Occasionally during tests an id is duplicated on stdout
-                    if imageId not in pix_ids:
-                        pix_ids.append(imageId)
+                    if image_id not in pix_ids:
+                        pix_ids.append(image_id)
                 except:
                     pass
         return pix_ids
 
-    """
-    Creates a fake file with one image, imports
-    the file and then return the image.
-    """
-
-    def importSingleImage(self, name=None, client=None,
-                          with_companion=False, **kwargs):
+    def import_fake_file(self, images_count=1, name=None, client=None,
+                         with_companion=False, skip="all", **kwargs):
+        """
+        Creates a fake file with an images_count of images, imports
+        the file and then return the list of images.
+        By default a single image is imported.
+        """
         if client is None:
             client = self.client
         if name is None:
-            name = "importSingleImage"
-
-        images = self.importMIF(1, name=name, client=client,
-                                with_companion=with_companion,
-                                **kwargs)
-        return images[0]
-
-    """
-    Creates a fake file with one image and a companion file, imports
-    the file and then return the image..
-    """
-
-    def importSingleImageWithCompanion(self, name=None, client=None):
-        if client is None:
-            client = self.client
-        if name is None:
-            name = "importSingleImageWithCompanion"
-
-        images = self.importMIF(1, name=name, client=client,
-                                with_companion=True)
-        return images[0]
-
-    """
-    Creates a fake file with a seriesCount of images, imports
-    the file and then return the list of images.
-    """
-
-    def importMIF(self, seriesCount=0, name=None, client=None,
-                  with_companion=False, skip="all", **kwargs):
-        if client is None:
-            client = self.client
-        if name is None:
-            name = "importMIF"
+            name = "import_fake_file_%s" % images_count
 
         try:
-            globalMetadata = kwargs.pop("GlobalMetadata")
+            global_metadata = kwargs.pop("GlobalMetadata")
         except:
-            globalMetadata = None
-        if globalMetadata:
+            global_metadata = None
+        if global_metadata:
             with_companion = True
 
         append = ""
 
-        # Only include series count if enabled; in the case of plates,
+        # Only include images count if enabled; in the case of plates,
         # this will be unused
-        if seriesCount >= 1:
-            append = "series=%d%s" % (seriesCount, append)
+        if images_count >= 1:
+            append = "series=%d%s" % (images_count, append)
 
         if kwargs:
             for k, v in kwargs.items():
@@ -346,55 +339,54 @@ class ITest(object):
         query = client.sf.getQueryService()
         fake = create_path(name, "&%s.fake" % append)
         if with_companion:
-            ini = open(fake.abspath() + ".ini", "w")
-            if globalMetadata:
-                ini.write("[GlobalMetadata]\n")
-                for k, v in globalMetadata.items():
-                    ini.write("%s=%s\n" % (k, v))
-            ini.close()
+            with open(fake.abspath() + ".ini", "w") as ini:
+                if global_metadata:
+                    ini.write("[GlobalMetadata]\n")
+                    for k, v in global_metadata.items():
+                        ini.write("%s=%s\n" % (k, v))
 
-        pixelIds = self.import_image(
+        pixel_ids = self.import_image(
             filename=fake.abspath(), client=client, skip=skip, **kwargs)
 
-        if seriesCount >= 1:
-            assert seriesCount == len(pixelIds)
+        if images_count >= 1:
+            assert images_count == len(pixel_ids)
 
         images = []
-        for pixIdStr in pixelIds:
-            pixels = query.get("Pixels", long(pixIdStr))
+        for pix_id_str in pixel_ids:
+            pixels = query.get("Pixels", long(pix_id_str))
             images.append(pixels.getImage())
         return images
 
-    def importPlates(
-        self, client=None,
-        plates=1, plateAcqs=1,
-        plateCols=1, plateRows=1,
-        fields=1, **kwargs
-    ):
+    def import_plates(self, client=None, plates=1, plate_acqs=1, plate_cols=1,
+                      plate_rows=1, fields=1, **kwargs):
+        """
+        Creates fake plates and imports them.
+        """
 
         if client is None:
             client = self.client
 
         kwargs["plates"] = plates
-        kwargs["plateAcqs"] = plateAcqs
-        kwargs["plateCols"] = plateCols
-        kwargs["plateRows"] = plateRows
+        kwargs["plateAcqs"] = plate_acqs
+        kwargs["plateCols"] = plate_cols
+        kwargs["plateRows"] = plate_rows
         kwargs["fields"] = fields
-        images = self.importMIF(client=client, **kwargs)
+        images = self.import_fake_file(images_count=0, client=client, **kwargs)
         images = [x.id.val for x in images]
 
         query = client.sf.getQueryService()
         plates = query.findAllByQuery((
             "select p from Plate p "
-            "join p.wells as w "
-            "join w.wellSamples as ws "
-            "join ws.image as i "
+            "join fetch p.wells as w "
+            "join fetch w.wellSamples as ws "
+            "join fetch ws.image as i "
             "where i.id in (:ids)"),
             omero.sys.ParametersI().addIds(images))
         return plates
 
-    def createTestImage(self, sizeX=16, sizeY=16, sizeZ=1, sizeC=1, sizeT=1,
-                        session=None):
+    def create_test_image(self, size_x=16, size_y=16, size_z=1, size_c=1,
+                          size_t=1, session=None, name="testImage",
+                          thumb=True):
         """
         Creates a test image of the required dimensions, where each pixel
         value is set to the value of x+y.
@@ -405,11 +397,11 @@ class ITest(object):
 
         if session is None:
             session = self.root.sf
-        renderingEngine = session.createRenderingEngine()
-        queryService = session.getQueryService()
-        pixelsService = session.getPixelsService()
-        rawPixelStore = session.createRawPixelsStore()
-        containerService = session.getContainerService()
+        rendering_engine = session.createRenderingEngine()
+        query_service = session.getQueryService()
+        pixels_service = session.getPixelsService()
+        raw_pixel_store = session.createRawPixelsStore()
+        container_service = session.getContainerService()
 
         def f1(x, y):
             return y
@@ -420,69 +412,74 @@ class ITest(object):
         def f3(x, y):
             return x
 
-        pType = "int16"
+        p_type = PixelsTypeint16
         # look up the PixelsType object from DB
         # omero::model::PixelsType
-        pixelsType = queryService.findByQuery(
-            "from PixelsType as p where p.value='%s'" % pType, None)
-        if pixelsType is None and pType.startswith("float"):    # e.g. float32
+        pixels_type = query_service.findByQuery(
+            "from PixelsType as p where p.value='%s'" % p_type, None)
+        # if for example float32
+        if pixels_type is None and p_type.startswith("float"):
             # omero::model::PixelsType
-            pixelsType = queryService.findByQuery(
-                "from PixelsType as p where p.value='%s'" % "float", None)
-        if pixelsType is None:
-            print "Unknown pixels type for: " % pType
-            raise Exception("Unknown pixels type for: " % pType)
+            v = PixelsTypefloat
+            pixels_type = query_service.findByQuery(
+                "from PixelsType as p where p.value='%s'" % v, None)
+        if pixels_type is None:
+            raise Exception("Unknown pixels type for: " % p_type)
 
         # code below here is very similar to combineImages.py
         # create an image in OMERO and populate the planes with numpy 2D arrays
-        channelList = range(1, sizeC + 1)
-        iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT,
-                                        channelList, pixelsType,
-                                        "testImage", "description")
-        imageId = iId.getValue()
-        image = containerService.getImages("Image", [imageId], None)[0]
+        channel_list = range(1, size_c + 1)
+        iid = pixels_service.createImage(size_x, size_y, size_z, size_t,
+                                         channel_list, pixels_type,
+                                         name, "description")
+        image_id = iid.getValue()
+        image = container_service.getImages("Image", [image_id], None)[0]
 
-        pixelsId = image.getPrimaryPixels().getId().getValue()
-        rawPixelStore.setPixelsId(pixelsId, True)
+        pixels_id = image.getPrimaryPixels().getId().getValue()
 
-        colourMap = {0: (0, 0, 255, 255), 1: (0, 255, 0, 255),
-                     2: (255, 0, 0, 255), 3: (255, 0, 255, 255)}
-        fList = [f1, f2, f3]
-        for theC in range(sizeC):
-            minValue = 0
-            maxValue = 0
-            f = fList[theC % len(fList)]
-            for theZ in range(sizeZ):
-                for theT in range(sizeT):
-                    plane2D = fromfunction(f, (sizeY, sizeX), dtype=int16)
-                    script_utils.uploadPlane(
-                        rawPixelStore, plane2D, theZ, theC, theT)
-                    minValue = min(minValue, plane2D.min())
-                    maxValue = max(maxValue, plane2D.max())
-            pixelsService.setChannelGlobalMinMax(
-                pixelsId, theC, float(minValue), float(maxValue))
-            rgba = None
-            if theC in colourMap:
-                rgba = colourMap[theC]
-        for theC in range(sizeC):
-            script_utils.resetRenderingSettings(
-                renderingEngine, pixelsId, theC, minValue, maxValue, rgba)
-
-        renderingEngine.close()
-        rawPixelStore.close()
-
-        # See #9070. Forcing a thumbnail creation
-        tb = session.createThumbnailStore()
+        colour_map = {0: (0, 0, 255, 255), 1: (0, 255, 0, 255),
+                      2: (255, 0, 0, 255), 3: (255, 0, 255, 255)}
+        f_list = [f1, f2, f3]
         try:
-            s = tb.getThumbnailByLongestSideSet(rint(16), [pixelsId])
-            assert s[pixelsId] != ''
-
+            raw_pixel_store.setPixelsId(pixels_id, True)
+            for the_c in range(size_c):
+                min_value = 0
+                max_value = 0
+                f = f_list[the_c % len(f_list)]
+                for the_z in range(size_z):
+                    for the_t in range(size_t):
+                        plane_2d = fromfunction(f, (size_y, size_x),
+                                                dtype=int16)
+                        script_utils.upload_plane(raw_pixel_store, plane_2d,
+                                                  the_z, the_c, the_t)
+                        min_value = min(min_value, plane_2d.min())
+                        max_value = max(max_value, plane_2d.max())
+                pixels_service.setChannelGlobalMinMax(pixels_id, the_c,
+                                                      float(min_value),
+                                                      float(max_value))
+                rgba = None
+                if the_c in colour_map:
+                    rgba = colour_map[the_c]
+                script_utils.reset_rendering_settings(rendering_engine,
+                                                      pixels_id, the_c,
+                                                      min_value, max_value,
+                                                      rgba)
         finally:
-            tb.close()
+            rendering_engine.close()
+            raw_pixel_store.close()
+
+        if thumb:
+            # See #9070. Forcing a thumbnail creation
+            tb = session.createThumbnailStore()
+            try:
+                s = tb.getThumbnailByLongestSideSet(rint(16), [pixels_id])
+                assert s[pixels_id] != ''
+
+            finally:
+                tb.close()
 
         # Reloading image to prevent error on old pixels updateEvent
-        image = containerService.getImages("Image", [imageId], None)[0]
-        return image
+        return container_service.getImages("Image", [image_id], None)[0]
 
     def get_fileset(self, i, client=None):
         """
@@ -506,7 +503,7 @@ class ITest(object):
                 self.root.sf.getUpdateService().indexObject(
                     obj, {"omero.group": "-1"})
 
-    def waitOnCmd(self, client, handle, loops=10, ms=500, passes=True):
+    def wait_on_cmd(self, client, handle, loops=10, ms=500, passes=True):
         """
         Wait on an omero.cmd.HandlePrx to finish processing
         and then assert pass or fail. The callback is returned
@@ -520,7 +517,7 @@ class ITest(object):
         return callback
 
     @classmethod
-    def new_user(self, group=None, perms=None,
+    def new_user(cls, group=None, perms=None,
                  owner=False, system=False, uname=None,
                  email=None):
         """
@@ -528,19 +525,19 @@ class ITest(object):
         :system: If user is to be a system admin
         """
 
-        if not self.root:
+        if not cls.root:
             raise Exception("No root client. Cannot create user")
 
-        adminService = self.root.getSession().getAdminService()
+        admin_service = cls.root.getSession().getAdminService()
         if uname is None:
-            uname = self.uuid()
+            uname = cls.uuid()
 
         # Create group if necessary
         if not group:
-            g = self.new_group(perms=perms)
-            group = g.name.val
+            g = cls.new_group(perms=perms)
+            group = g.getName().getValue()
         else:
-            g, group = self.group_and_name(group)
+            g, group = cls.group_and_name(group)
 
         # Create user
         e = ExperimenterI()
@@ -549,17 +546,17 @@ class ITest(object):
         e.lastName = rstring(uname)
         e.ldap = rbool(False)
         e.email = rstring(email)
-        listOfGroups = list()
-        listOfGroups.append(adminService.lookupGroup('user'))
-        uid = adminService.createExperimenterWithPassword(
-            e, rstring(uname), g, listOfGroups)
-        e = adminService.lookupExperimenter(uname)
+        list_of_groups = list()
+        list_of_groups.append(admin_service.lookupGroup('user'))
+        uid = admin_service.createExperimenterWithPassword(
+            e, rstring(uname), g, list_of_groups)
+        e = admin_service.lookupExperimenter(uname)
         if owner:
-            adminService.setGroupOwner(g, e)
+            admin_service.setGroupOwner(g, e)
         if system:
-            adminService.addGroups(e, [ExperimenterGroupI(0, False)])
+            admin_service.addGroups(e, [ExperimenterGroupI(0, False)])
 
-        return adminService.getExperimenter(uid)
+        return admin_service.getExperimenter(uid)
 
     def new_client(self, group=None, user=None, perms=None,
                    owner=False, system=False, session=None,
@@ -611,9 +608,9 @@ class ITest(object):
         return elapsed, rv
 
     @classmethod
-    def group_and_name(self, group):
+    def group_and_name(cls, group):
         group = unwrap(group)
-        admin = self.root.sf.getAdminService()
+        admin = cls.root.sf.getAdminService()
         if isinstance(group, (int, long)):
             group = admin.getGroup(group)
             name = group.name.val
@@ -636,9 +633,9 @@ class ITest(object):
         return group, name
 
     @classmethod
-    def user_and_name(self, user):
+    def user_and_name(cls, user):
         user = unwrap(user)
-        admin = self.root.sf.getAdminService()
+        admin = cls.root.sf.getAdminService()
         if isinstance(user, omero.clients.BaseClient):
             admin = user.sf.getAdminService()
             ec = admin.getEventContext()
@@ -679,11 +676,12 @@ class ITest(object):
             client = self.client
 
         fake = create_path("missing_pyramid", "&sizeX=4000&sizeY=4000.fake")
-        pixelsId = self.import_image(filename=fake.abspath(), client=client,
-                                     skip="all")
-        return pixelsId[0]
+        pixels_id = self.import_image(filename=fake.abspath(), client=client,
+                                      skip="all")
+        return pixels_id[0]
 
-    def pix(self, x=10, y=10, z=10, c=3, t=50, client=None):
+    def create_pixels(self, x=10, y=10, z=10, c=3, t=50,
+                      pixels_type=PixelsTypeint8, client=None):
         """
         Creates an int8 pixel of the given size in the database.
         No data is written.
@@ -697,47 +695,60 @@ class ITest(object):
         pixels.sizeT = rint(t)
         pixels.sha1 = rstring("")
         pixels.pixelsType = PixelsTypeI()
-        pixels.pixelsType.value = rstring("int8")
+        pixels.pixelsType.value = rstring(pixels_type)
         pixels.dimensionOrder = DimensionOrderI()
-        pixels.dimensionOrder.value = rstring("XYZCT")
+        pixels.dimensionOrder.value = rstring(DimensionOrderXYZCT)
         image.addPixels(pixels)
 
         if client is None:
             client = self.client
         update = client.sf.getUpdateService()
         image = update.saveAndReturnObject(image)
-        pixels = image.getPrimaryPixels()
-        return pixels
+        return image.getPrimaryPixels()
 
-    def write(self, pix, rps):
+    @classmethod
+    def get_pixels_type(cls, pixels_type):
+        if pixels_type in [PixelsTypeint8, PixelsTypeuint8]:
+            return 1
+        if pixels_type in [PixelsTypeint16, PixelsTypeuint16]:
+            return 2
+        if pixels_type in [PixelsTypeint32, PixelsTypeuint32,
+                           PixelsTypefloat]:
+            return 4
+        if pixels_type in [PixelsTypedouble]:
+            return 8
+        raise Exception("Pixels Type %s not supported" % pixels_type)
+
+    def write(self, pixels, rps, pixels_type=PixelsTypeint8):
         """
         Writes byte arrays consisting of [5] to as
         either planes or tiles depending on the pixel
         size.
         """
+        p_type = self.get_pixels_type(pixels.pixelsType.getValue().getValue())
         if not rps.requiresPixelsPyramid():
             # By plane
-            bytes_per_plane = pix.sizeX.val * pix.sizeY.val  # Assuming int8
-            for z in range(pix.sizeZ.val):
-                for c in range(pix.sizeC.val):
-                    for t in range(pix.sizeT.val):
+            bytes_per_plane = pixels.sizeX.val * pixels.sizeY.val * p_type
+            for z in range(pixels.sizeZ.val):
+                for c in range(pixels.sizeC.val):
+                    for t in range(pixels.sizeT.val):
                         rps.setPlane([5] * bytes_per_plane, z, c, t)
         else:
             # By tile
             w, h = rps.getTileSize()
-            bytes_per_tile = w * h  # Assuming int8
-            for z in range(pix.sizeZ.val):
-                for c in range(pix.sizeC.val):
-                    for t in range(pix.sizeT.val):
-                        for x in range(0, pix.sizeX.val, w):
-                            for y in range(0, pix.sizeY.val, h):
+            bytes_per_tile = w * h * p_type
+            for z in range(pixels.sizeZ.val):
+                for c in range(pixels.sizeC.val):
+                    for t in range(pixels.sizeT.val):
+                        for x in range(0, pixels.sizeX.val, w):
+                            for y in range(0, pixels.sizeY.val, h):
 
                                 changed = False
-                                if x + w > pix.sizeX.val:
-                                    w = pix.sizeX.val - x
+                                if x + w > pixels.sizeX.val:
+                                    w = pixels.sizeX.val - x
                                     changed = True
-                                if y + h > pix.sizeY.val:
-                                    h = pix.sizeY.val - y
+                                if y + h > pixels.sizeY.val:
+                                    h = pixels.sizeY.val - y
                                     changed = True
                                 if changed:
                                     # Again assuming int8
@@ -747,20 +758,7 @@ class ITest(object):
                                         z, c, t, x, y, w, h)
                                 rps.setTile(*args)
 
-    def open_jpeg_buffer(self, buf):
-        try:
-            from PIL import Image
-        except ImportError:
-            try:
-                import Image
-            except ImportError:
-                assert False, "Pillow not installed"
-        from cStringIO import StringIO
-        tfile = StringIO(buf)
-        jpeg = Image.open(tfile)  # Raises if invalid
-        return jpeg
-
-    def loginAttempt(self, name, t, pw="BAD", less=False):
+    def login_attempt(self, name, t, pw="BAD", less=False):
         """
         Checks that login happens in less than or greater than
         the given time. By default, the password "BAD" is used,
@@ -769,7 +767,7 @@ class ITest(object):
         To check that logins happen more quickly, pass the
         correct password and less=True:
 
-            loginAttempt("user", 0.15, pw="REALVALUE", less=True)
+            login_attempt("user", 0.15, pw="REALVALUE", less=True)
 
         See integration.tickets4000 and 5000
         """
@@ -784,16 +782,16 @@ class ITest(object):
                 if pw != "BAD":
                     raise
             t2 = time.time()
-            T = (t2 - t1)
+            diff = (t2 - t1)
             if less:
-                assert T < t, "%s > %s" % (T, t)
+                assert diff < t, "%s > %s" % (diff, t)
             else:
-                assert T > t, "%s < %s" % (T, t)
+                assert diff > t, "%s < %s" % (diff, t)
         finally:
             c.__del__()
 
-    def doSubmit(self, request, client, test_should_pass=True,
-                 omero_group=None):
+    def do_submit(self, request, client, test_should_pass=True,
+                  omero_group=None):
         """
         Performs the request(s), waits on completion and checks that the
         result is not an error. The request can either be a single command
@@ -930,7 +928,7 @@ class ITest(object):
         tag = self.new_tag(name=name, ns=ns)
         return client.sf.getUpdateService().saveAndReturnObject(tag)
 
-    def createDatasets(self, count, baseName, client=None):
+    def create_datasets(self, count, base_name, client=None):
         """
         Creates a list of the given number of Dataset instances with names of
         the form "name [1]", "name [2]" etc and returns them in a list.
@@ -945,17 +943,19 @@ class ITest(object):
         update = client.sf.getUpdateService()
         dsets = []
         for i in range(count):
-            name = baseName + " [" + str(i + 1) + "]"
+            name = base_name + " [" + str(i + 1) + "]"
             dsets.append(self.new_dataset(name=name))
         return update.saveAndReturnArray(dsets)
 
-    def make_file_annotation(self, name=None, binary=None, format=None,
-                             client=None, ns=None):
+    def make_file_annotation(self, name=None, binary=None, mimetype=None,
+                             client=None, namespace=None):
         """
-        Creates a new DatasetI instance and returns the persisted object.
+        Creates a file annotation with an original file.
         If no name has been provided, a UUID string shall be used.
 
-        :param name: the name of the project
+        :param name: The name of the file
+        :param binary: The binary data
+        :param mimetype: The mimetype of the file.
         :param client: The client to use to create the object
         :param ns: The namespace for the annotation
         """
@@ -965,33 +965,35 @@ class ITest(object):
         update = client.sf.getUpdateService()
 
         # file
-        if format is None:
-            format = "application/octet-stream"
+        if mimetype is None:
+            mimetype = "application/octet-stream"
         if binary is None:
             binary = "12345678910"
         if name is None:
             name = str(self.uuid())
 
-        oFile = OriginalFileI()
-        oFile.setName(rstring(name))
-        oFile.setPath(rstring(str(self.uuid())))
-        oFile.setSize(rlong(len(binary)))
-        oFile.hasher = ChecksumAlgorithmI()
-        oFile.hasher.value = rstring("SHA1-160")
-        oFile.setMimetype(rstring(str(format)))
-        oFile = update.saveAndReturnObject(oFile)
+        ofile = OriginalFileI()
+        ofile.setName(rstring(name))
+        ofile.setPath(rstring(str(self.uuid())))
+        ofile.setSize(rlong(len(binary)))
+        ofile.hasher = ChecksumAlgorithmI()
+        ofile.hasher.value = rstring(ChecksumAlgorithmSHA1160)
+        ofile.setMimetype(rstring(str(mimetype)))
+        ofile = update.saveAndReturnObject(ofile)
 
         # save binary
         store = client.sf.createRawFileStore()
-        store.setFileId(oFile.id.val)
-        store.write(binary, 0, 0)
-        oFile = store.save()  # See ticket:1501
-        store.close()
+        try:
+            store.setFileId(ofile.getId().getValue())
+            store.write(binary, 0, len(binary))
+            ofile = store.save()  # See ticket:1501
+        finally:
+            store.close()
 
         fa = FileAnnotationI()
-        fa.setFile(oFile)
-        if ns is not None:
-            fa.setNs(rstring(ns))
+        fa.setFile(ofile)
+        if namespace is not None:
+            fa.setNs(rstring(namespace))
         return update.saveAndReturnObject(fa)
 
     def link(self, obj1, obj2, client=None):
@@ -1033,34 +1035,27 @@ class ITest(object):
             link.setChild(obj2.proxy())
         return client.sf.getUpdateService().saveAndReturnObject(link)
 
-    def delete(self, obj):
+    def delete(self, objs):
         """
-        Deletes a list of model entities (ProjectI, DatasetI or ImageI)
+        Deletes model entities (ProjectI, DatasetI, ImageI, etc)
         by creating Delete2 commands and calling
-        :func:`~test.ITest.doSubmit`.
+        :func:`~test.ITest.do_submit`.
 
         :param obj: a list of objects to be deleted
         """
-        if isinstance(obj[0], ProjectI):
-            t = "Project"
-        elif isinstance(obj[0], DatasetI):
-            t = "Dataset"
-        elif isinstance(obj[0], ImageI):
-            t = "Image"
-        else:
-            assert False, "Object type not supported."
-
-        ids = [i.id.val for i in obj]
-        command = Delete2(targetObjects={t: ids})
-
-        self.doSubmit(command, self.client)
+        to_delete = defaultdict(list)
+        for obj in objs:
+            t = obj.__class__.__name__
+            to_delete[t].append(obj.id.val)
+        command = Delete2(targetObjects=to_delete)
+        self.do_submit(command, self.client)
 
     def change_group(self, obj, target, client=None):
         """
         Moves a list of model entities (ProjectI, DatasetI or ImageI)
         to the target group. Accepts a client instance to guarantee calls
         in correct user contexts. Creates Chgrp2 commands and calls
-        :func:`~test.ITest.doSubmit`.
+        :func:`~test.ITest.do_submit`.
 
         :param obj: a list of objects to be moved
         :param target: the ID of the target group
@@ -1080,13 +1075,13 @@ class ITest(object):
         ids = [i.id.val for i in obj]
         command = Chgrp2(targetObjects={t: ids}, groupId=target)
 
-        self.doSubmit(command, client)
+        self.do_submit(command, client)
 
     def change_permissions(self, gid, perms, client=None):
         """
         Changes the permissions of an ExperimenterGroup object.
         Accepts a client instance to guarantee calls in correct user contexts.
-        Creates Chmod2 commands and calls :func:`~test.ITest.doSubmit`.
+        Creates Chmod2 commands and calls :func:`~test.ITest.do_submit`.
 
         :param gid: id of an ExperimenterGroup
         :param perms: permissions string
@@ -1098,25 +1093,7 @@ class ITest(object):
         command = Chmod2(
             targetObjects={'ExperimenterGroup': [gid]}, permissions=perms)
 
-        self.doSubmit(command, client)
-
-    def create_share(self, description="", timeout=None,
-                     objects=[], experimenters=[], guests=[],
-                     enabled=True, client=None):
-        """
-        Create share object
-
-        :param objects: a list of objects to include in the share
-        :param description: a string containing the description of the share
-        :param timeout: the timeout of the share
-        :param experimenters: a list of users associated with the share
-        :param client: The client to use to create the share
-        """
-        if client is None:
-            client = self.client
-        share = client.sf.getShareService()
-        return share.createShare(description, timeout, objects,
-                                 experimenters, guests, enabled)
+        self.do_submit(command, client)
 
 
 class ProjectionFixture(object):
@@ -1126,18 +1103,18 @@ class ProjectionFixture(object):
     """
 
     def __init__(self, perms, writer, reader,
-                 canRead,
-                 canAnnotate=False, canDelete=False,
-                 canEdit=False, canLink=False):
+                 can_read,
+                 can_annotate=False, can_delete=False,
+                 can_edit=False, can_link=False):
         self.perms = perms
         self.writer = writer
         self.reader = reader
 
-        self.canRead = canRead
-        self.canAnnotate = canAnnotate
-        self.canDelete = canDelete
-        self.canEdit = canEdit
-        self.canLink = canLink
+        self.canRead = can_read
+        self.canAnnotate = can_annotate
+        self.canDelete = can_delete
+        self.canEdit = can_edit
+        self.canLink = can_link
 
     def get_name(self):
         name = self.perms
@@ -1202,3 +1179,236 @@ PFS = (
     PF("rwrw--", "member1", "group-owner", 1, 1, 1, 1, 1),
     PF("rwrw--", "member1", "member2", 1, 1, 1, 1, 1),
 )
+
+
+class AbstractRepoTest(ITest):
+
+    def setup_method(self, method):
+        self.unique_dir = self.test_dir()
+
+    def test_dir(self, client=None):
+        if client is None:
+            client = self.client
+        mrepo = self.get_managed_repo(client=client)
+        user_dir = self.user_dir(client=client)
+        unique_dir = user_dir + "/" + self.uuid()  # ok
+        mrepo.makeDir(unique_dir, True)
+        return unique_dir
+
+    def user_dir(self, client=None):
+        if client is None:
+            client = self.client
+        ec = client.sf.getAdminService().getEventContext()
+        return "%s_%s" % (ec.userName, ec.userId)
+
+    def all(self, client):
+        ctx = dict(client.getImplicitContext().getContext())
+        ctx["omero.group"] = "-1"
+        return ctx
+
+    def get_managed_repo(self, client=None):
+        if client is None:
+            client = self.client
+        mrepo = client.getManagedRepository()
+        assert mrepo
+        return mrepo
+
+    def create_file(self, mrepo1, filename):
+        rfs = mrepo1.file(filename, "rw")
+        try:
+            rfs.write("hi", 0, 2)
+            ofile = rfs.save()
+            return ofile
+        finally:
+            rfs.close()
+
+    def raw(self, command, args, client=None):
+        if client is None:
+            client = self.client
+        mrepo = self.get_managed_repo(self.client)
+        obj = mrepo.root()
+        sha = obj.hash.val
+        raw_access = omero.grid.RawAccessRequest()
+        raw_access.repoUuid = sha
+        raw_access.command = command
+        raw_access.args = args
+        handle = client.sf.submit(raw_access)
+        return CmdCallbackI(client, handle)
+
+    def create_test_dir(self):
+        folder = create_path(folder=True)
+        (folder / "a.fake").touch()
+        (folder / "b.fake").touch()
+        return folder
+
+    def create_fileset(self, folder):
+        fileset = omero.model.FilesetI()
+        for f in folder.files():
+            entry = omero.model.FilesetEntryI()
+            entry.setClientPath(rstring(str(f.abspath())))
+            fileset.addFilesetEntry(entry)
+
+        # Fill version info
+        system, node, release, version, machine, processor = platform.uname()
+
+        client_version_info = [
+            NamedValue('omero.version', omero_version),
+            NamedValue('os.name', system),
+            NamedValue('os.version', release),
+            NamedValue('os.architecture', machine)
+        ]
+        try:
+            client_version_info.append(
+                NamedValue('locale', locale.getdefaultlocale()[0]))
+        except:
+            pass
+
+        upload = omero.model.UploadJobI()
+        upload.setVersionInfo(client_version_info)
+        fileset.linkJob(upload)
+        return fileset
+
+    def create_settings(self):
+        settings = omero.grid.ImportSettings()
+        settings.doThumbnails = rbool(True)
+        settings.noStatsInfo = rbool(False)
+        settings.userSpecifiedTarget = None
+        settings.userSpecifiedName = None
+        settings.userSpecifiedDescription = None
+        settings.userSpecifiedAnnotationList = None
+        settings.userSpecifiedPixels = None
+        settings.checksumAlgorithm = ChecksumAlgorithmI()
+        s = rstring(ChecksumAlgorithmSHA1160)
+        settings.checksumAlgorithm.value = s
+        return settings
+
+    def upload_folder(self, proc, folder):
+        ret_val = []
+        for i, fobj in enumerate(folder.files()):  # Assuming same order
+            rfs = proc.getUploader(i)
+            try:
+                f = fobj.open()
+                try:
+                    offset = 0
+                    block = []
+                    rfs.write(block, offset, len(block))  # Touch
+                    while True:
+                        block = f.read(1000 * 1000)
+                        if not block:
+                            break
+                        rfs.write(block, offset, len(block))
+                        offset += len(block)
+                    ret_val.append(self.client.sha1(fobj.abspath()))
+                finally:
+                    f.close()
+            finally:
+                rfs.close()
+        return ret_val
+
+    def full_import(self, client):
+        """
+        Re-usable method for a basic import
+        """
+        mrepo = self.get_managed_repo(client)
+        folder = self.create_test_dir()
+        fileset = self.create_fileset(folder)
+        settings = self.create_settings()
+
+        proc = mrepo.importFileset(fileset, settings)
+        try:
+            return self.assert_import(client, proc, folder)
+        finally:
+            proc.close()
+
+    # Assert methods
+    def assert_import(self, client, proc, folder):
+        hashes = self.upload_folder(proc, folder)
+        handle = proc.verifyUpload(hashes)
+        cb = CmdCallbackI(client, handle)
+        rsp = self.assert_passes(cb)
+        assert 1 == len(rsp.pixels)
+        return rsp
+
+    def assert_write(self, mrepo2, filename, ofile):
+        def _write(rfs):
+            try:
+                rfs.write("bye", 0, 3)
+                assert "bye" == rfs.read(0, 3)
+                # Resetting for other expectations
+                rfs.truncate(2)
+                rfs.write("hi", 0, 2)
+                assert "hi" == rfs.read(0, 2)
+            finally:
+                rfs.close()
+
+        # TODO: fileById is always "r"
+        # rfs = mrepo2.fileById(ofile.id.val)
+        # _write(rfs)
+
+        rfs = mrepo2.file(filename, "rw")
+        _write(rfs)
+
+    def assert_no_write(self, mrepo2, filename, ofile):
+        def _nowrite(rfs):
+            try:
+                pytest.raises(omero.SecurityViolation,
+                              rfs.write, "bye", 0, 3)
+                assert "hi" == rfs.read(0, 2)
+            finally:
+                rfs.close()
+
+        rfs = mrepo2.fileById(ofile.id.val)
+        _nowrite(rfs)
+
+        rfs = mrepo2.file(filename, "r")
+        _nowrite(rfs)
+
+        # Can't even acquire a writeable-rfs.
+        pytest.raises(omero.SecurityViolation,
+                      mrepo2.file, filename, "rw")
+
+    def assert_dir_write(self, mrepo2, dirname):
+        self.create_file(mrepo2, dirname + "/file2.txt")
+
+    def assert_no_dir_write(self, mrepo2, dirname):
+        # Also check that it's not possible to write
+        # in someone else's directory.
+        pytest.raises(omero.SecurityViolation,
+                      self.create_file, mrepo2, dirname + "/file2.txt")
+
+    def assert_no_read(self, mrepo2, filename, ofile):
+        pytest.raises(omero.SecurityViolation,
+                      mrepo2.fileById, ofile.id.val)
+        pytest.raises(omero.SecurityViolation,
+                      mrepo2.file, filename, "r")
+
+    def assert_read(self, mrepo2, filename, ofile, ctx=None):
+        def _read(rfs):
+            try:
+                assert "hi" == rfs.read(0, 2)
+            finally:
+                rfs.close()
+
+        rfs = mrepo2.fileById(ofile.id.val, ctx)
+        _read(rfs)
+
+        rfs = mrepo2.file(filename, "r", ctx)
+        _read(rfs)
+
+    def assert_listings(self, mrepo1, unique_dir):
+        assert [unique_dir + "/b"] == mrepo1.list(unique_dir + "/")
+        assert [unique_dir + "/b/c"] == mrepo1.list(unique_dir + "/b/")
+        assert [
+            unique_dir + "/b/c/file.txt"] == mrepo1.list(unique_dir + "/b/c/")
+
+    def assert_passes(self, cb, loops=10, wait=500):
+        cb.loop(loops, wait)
+        rsp = cb.getResponse()
+        if isinstance(rsp, omero.cmd.ERR):
+            raise Exception(rsp)
+        return rsp
+
+    def assert_error(self, cb, loops=10, wait=500):
+        cb.loop(loops, wait)
+        rsp = cb.getResponse()
+        assert isinstance(rsp, omero.cmd.ERR)

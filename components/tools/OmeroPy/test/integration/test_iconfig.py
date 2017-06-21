@@ -63,7 +63,7 @@ class TestConfig(ITest):
     def testClientDefaults(self):
         cfg = self.sf.getConfigService()
         defs = cfg.getClientConfigDefaults()
-        assert "omero.client.ui.menu.dropdown.colleagues" in defs
+        assert "omero.client.ui.menu.dropdown.colleagues.label" in defs
 
     def testClientValues(self):
         # Not sure what's in this so just calling

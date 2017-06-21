@@ -233,7 +233,7 @@ public class PermissionsTestAll extends AbstractServerTest {
                             false);
                     session.setSecurityContext(group);
                     iUpdate = session.getUpdateService();
-                    mmFactory = new ModelMockFactory(session.getPixelsService());
+                    mmFactory = new ModelMockFactory(session.getTypesService());
 
                     // Create new Image Objects(with pixels) and attach it to
                     // the session
@@ -274,7 +274,7 @@ public class PermissionsTestAll extends AbstractServerTest {
                     session.setSecurityContext(new ExperimenterGroupI(group.getId()
                             .getValue(), false));
                     iUpdate = session.getUpdateService();
-                    mmFactory = new ModelMockFactory(session.getPixelsService());
+                    mmFactory = new ModelMockFactory(session.getTypesService());
 
                     List<Long> annotationIds = new ArrayList<Long>();
 

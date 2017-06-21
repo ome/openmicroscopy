@@ -21,7 +21,6 @@
  */
 package training;
 
-import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -29,10 +28,10 @@ import java.util.List;
 import java.util.Map;
 
 import omero.RLong;
-import omero.api.IContainerPrx;
 import omero.api.IPixelsPrx;
 import omero.api.RawPixelsStorePrx;
 import omero.gateway.Gateway;
+import omero.gateway.facility.BrowseFacility;
 import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;
 import omero.log.SimpleLogger;
@@ -40,15 +39,14 @@ import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.IObject;
-import omero.model.Image;
 import omero.model.ImageI;
 import omero.model.LengthI;
 import omero.model.PixelsType;
 import ome.model.enums.UnitsLength;
-import omero.sys.ParametersI;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.PixelsData;
+
 
 /**
  * Sample code showing how to create new image.
@@ -97,14 +95,8 @@ public class CreateImage
     private ImageData loadImage(long imageID)
             throws Exception
     {
-        IContainerPrx proxy = gateway.getPojosService(ctx);
-        List<Image> results = proxy.getImages(Image.class.getName(),
-                Arrays.asList(imageId), new ParametersI());
-        //You can directly interact with the IObject or the Pojos object.
-        //Follow interaction with the Pojos.
-        if (results.size() == 0)
-            throw new Exception("Image does not exist. Check ID.");
-        return new ImageData(results.get(0));
+        BrowseFacility browse = gateway.getFacility(BrowseFacility.class);
+        return browse.getImage(ctx, imageID);
     }
 
     /**
@@ -170,8 +162,7 @@ public class CreateImage
             if (store != null) store.close();
         }
         //Now we are going to create the new image.
-        IPixelsPrx proxy = gateway.getPixelsService(ctx);
-        List<IObject> l = proxy.getAllEnumerations(PixelsType.class.getName());
+        List<IObject> l = gateway.getTypesService(ctx).allEnumerations(PixelsType.class.getName());
         Iterator<IObject> i = l.iterator();
         PixelsType type = null;
         String original = pixels.getPixelType();
@@ -190,6 +181,7 @@ public class CreateImage
         for (int c = 0; c < sizeC; c++) {
             channels.add(c);
         }
+        IPixelsPrx proxy = gateway.getPixelsService(ctx);
         RLong idNew = proxy.createImage(sizeX, sizeY, sizeZ, sizeT,
                 channels, type, name, "From Image ID: "+image.getId());
         if (idNew == null)

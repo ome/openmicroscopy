@@ -59,7 +59,6 @@ class TestScript(CLITest):
         newId = self.cli.get("script.file.id")
         self.cli.invoke(self.args + ["list", "user"], strict=True)
         replaceArgs = self.args + ["replace", str(newId), str(p)]
-        print replaceArgs
         self.cli.invoke(replaceArgs, strict=True)
 
     def testReplaceOfficial(self):

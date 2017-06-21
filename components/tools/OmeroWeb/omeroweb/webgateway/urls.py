@@ -269,6 +269,31 @@ webgateway_plategrid_json = url(
 """
 """
 
+
+webgateway_get_thumbnails_json = url(
+    r'^get_thumbnails/(?:(?P<w>[0-9]+)/)?$',
+    'webgateway.views.get_thumbnails_json')
+"""
+Returns a set of thumbnail base64 encoded of the OMERO Images,
+optionally scaled to max-longest-side.
+Image ids are specified in query string as list, e.g. id=1&id=2.
+"""
+
+webgateway_get_thumbnail_json = url(
+    r'^get_thumbnail/(?P<iid>[0-9]+)'
+    '/(?:(?P<w>[0-9]+)/)?(?:(?P<h>[0-9]+)/)?$',
+    'webgateway.views.get_thumbnail_json')
+"""
+Returns a thumbnail base64 encoded of the OMERO Images,
+optionally scaled to max-width and max-height.
+See L{views.render_thumbnail}. Uses current rendering settings.
+Query string can be used to specify Z or T section. E.g. ?z=10.
+Params in render_thumbnail/<iid>/<w>/<h> are:
+    - iid:  Image ID
+    - w:    Optional max width
+    - h:    Optional max height
+"""
+
 imageData_json = (r'^imgData/(?P<iid>[0-9]+)/(?:(?P<key>[^/]+)/)?$',
                   'webgateway.views.imageData_json')
 """
@@ -313,6 +338,15 @@ get_shape_json = url(
 gets a Shape as json. ROI-ID, Shape-ID is request: roiId=123 and shapeId=123
 {'type':'Rectangle', 'theZ':5, 'theT':0, 'x':250, 'y':100, 'width':10,
 'height':45}
+"""
+
+histogram_json = url(
+    r'^histogram_json/(?P<iid>[0-9]+)/channel/(?P<theC>[0-9]+)/',
+    'webgateway.views.histogram_json',
+    name="histogram_json")
+"""
+Gets a histogram of 256 columns (grey levels) for the chosen
+channel of an image. A single plane is specified by ?theT=1&theZ=2.
 """
 
 full_viewer = url(r'^img_detail/(?P<iid>[0-9]+)/$',
@@ -443,6 +477,8 @@ urlpatterns = patterns(
     render_birds_eye_view,
     render_ome_tiff,
     render_movie,
+    webgateway_get_thumbnails_json,
+    webgateway_get_thumbnail_json,
     # Template views
     # JSON methods
     listProjects_json,
@@ -457,6 +493,7 @@ urlpatterns = patterns(
     webgateway_search_json,
     get_rois_json,
     get_shape_json,
+    histogram_json,
     # image viewer
     full_viewer,
     # rendering def methods

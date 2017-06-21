@@ -1,5 +1,5 @@
 /*
- *   Copyright 2008 University of Dundee. All rights reserved.
+ *   Copyright 2008-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -15,6 +15,9 @@ import ome.api.IUpdate;
 import ome.api.RawFileStore;
 import ome.model.core.OriginalFile;
 import ome.model.enums.ChecksumAlgorithm;
+import ome.parameters.Parameters;
+import ome.security.ACLVoter;
+import ome.security.basic.OmeroInterceptor;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ParamsCache;
@@ -31,6 +34,7 @@ import omero.ApiUsageException;
 import omero.RInt;
 import omero.RType;
 import omero.ResourceError;
+import omero.SecurityViolation;
 import omero.ServerError;
 import omero.ValidationException;
 import omero.api.AMD_IScript_canRunScript;
@@ -90,12 +94,18 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
     protected final ScriptRepoHelper scripts;
 
+    protected final ACLVoter aclVoter;
+
+    protected final OmeroInterceptor interceptor;
+
     protected final ChecksumProviderFactory cpf;
 
-    public ScriptI(BlitzExecutor be, ScriptRepoHelper scripts,
+    public ScriptI(BlitzExecutor be, ScriptRepoHelper scripts, ACLVoter aclVoter, OmeroInterceptor interceptor,
             ChecksumProviderFactory cpf, ParamsCache cache) {
         super(null, be);
         this.scripts = scripts;
+        this.aclVoter = aclVoter;
+        this.interceptor = interceptor;
         this.cpf = cpf;
         this.cache = cache;
     }
@@ -195,15 +205,48 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
     }
 
     /**
+     * Check that the user can write files in the current context.
+     * @param __current Ice method invocation context
+     * @throws SecurityViolation if the user may not write files in the current context
+     */
+    private void assertCanWriteFiles(final Current __current) throws SecurityViolation {
+        boolean allowCreation = false;
+        try {
+            allowCreation = (Boolean) factory.executor.execute(
+                    __current.ctx, factory.principal, new Executor.SimpleWork(this, "uploadScript-prep") {
+                        @Transactional(readOnly = true)
+                        public Boolean doWork(Session session, ServiceFactory sf) {
+                            final OriginalFile file = new OriginalFile();
+                            /* check with interceptor */
+                            try {
+                                interceptor.newTransientDetails(file);
+                            } catch (ome.conditions.SecurityViolation sv) {
+                                return false;
+                            }
+                            /* check with ACL voter */
+                            return aclVoter.allowCreation(file);
+                        }
+                    });
+        } catch (ome.conditions.SecurityViolation sv) {
+            /* cannot even access the current context */
+        }
+        if (!allowCreation) {
+            throw new SecurityViolation(null, null,
+                    "No permission to upload script");
+        }
+    }
+
+    /**
      * Upload script to the server.
      *
-     * @param path Path to the script.
-     * @param scriptText
+     * @param path the path to the script
+     * @param scriptText the content for the new script
      * @param __current
      *            ice context.
      */
     public void uploadScript_async(final AMD_IScript_uploadScript __cb,
             final String path, final String scriptText, final Current __current) throws ServerError {
+        assertCanWriteFiles(__current);
         safeRunnableCall(__current, __cb, false, new Callable<Long>() {
             public Long call() throws Exception {
                 OriginalFile file = makeFile(path, scriptText, __current);
@@ -217,6 +260,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
     public void uploadOfficialScript_async(
             AMD_IScript_uploadOfficialScript __cb, final String path,
             final String scriptText, final Current __current) throws ServerError {
+        assertCanWriteFiles(__current);
         safeRunnableCall(__current, __cb, false, new Callable<Long>() {
             public Long call() throws Exception {
                 EventContext ec = factory.getEventContext();
@@ -557,6 +601,17 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                     throw new ApiUsageException(null, null,
                             "No script with id " + id + " on server.");
                 }
+                final boolean allowDelete = (Boolean) factory.executor.execute(
+                        __current.ctx, factory.principal, new Executor.SimpleWork(this, "deleteScript-prep") {
+                            @Transactional(readOnly = true)
+                            public Boolean doWork(Session session, ServiceFactory sf) {
+                                return aclVoter.allowDelete(file, file.getDetails());
+                            }
+                        });
+                if (!allowDelete) {
+                    throw new SecurityViolation(null, null,
+                            "No permission to delete script with id " + id);
+                }
 
                 deleteOriginalFile(file, __current);
                 factory.executor.execute(
@@ -564,6 +619,11 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
                             @Transactional(readOnly = false)
                             public Object doWork(Session session, ServiceFactory sf) {
+                                for (final ome.model.IObject foundLink : sf.getQueryService().findAllByQuery(
+                                        "FROM JobOriginalFileLink WHERE child.id = :id", new Parameters().addId(id))) {
+                                    // TODO: instead use Delete2 which automatically handles any necessary unlinking
+                                    session.delete(foundLink);
+                                }
                                 session.delete(file);
                                 return null;
                             }
@@ -705,7 +765,6 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
      * @return original file or null if script does not exist or more than one
      *         script with name exists.
      */
-    @SuppressWarnings("unchecked")
     private OriginalFile getOriginalFileOrNull(long id, final Ice.Current current) {
 
         try {

@@ -2809,7 +2809,7 @@ class ImViewerComponent
 					}
 				}
 			} else {
-				model.getBrowser().setZoomFactor(model.getZoomFactor(), false);
+				model.getBrowser().setZoomFactor(f, false);
 			}
 		} else {
 			renderXYPlane();
@@ -3565,5 +3565,15 @@ class ImViewerComponent
     @Override
     public void reloadROICount() {
         model.reloadROICount();
+    }
+    
+    /**
+     * Implemented as specified by the {@link ImViewer} interface.
+     * 
+     * @see ImViewer#updateUnitBarMenu(Length)
+     */
+    public void updateUnitBarMenu(Length unitBarLength) {
+        view.setScaleBarLength(unitBarLength);
+        model.setScaleBarUnit(unitBarLength.getUnit());
     }
 }

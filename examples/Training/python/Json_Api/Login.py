@@ -2,38 +2,40 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2016 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2016-2017 University of Dundee & Open Microscopy Environment.
 #                    All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 
 import requests
 
-from Parse_OMERO_Properties import USERNAME, PASSWORD, OMERO_WEB_HOST
+from Parse_OMERO_Properties import USERNAME, PASSWORD, OMERO_WEB_HOST, \
+    SERVER_NAME
 
 session = requests.Session()
 
 # Start by getting supported versions from the base url...
-r = session.get('%s/api/' % OMERO_WEB_HOST)
+api_url = '%s/api/' % OMERO_WEB_HOST
+print "Starting at:", api_url
+r = session.get(api_url)
 # we get a list of versions
 versions = r.json()['data']
-print 'Versions', versions
 
 # use most recent version...
 version = versions[-1]
 # get the 'base' url
-base_url = version['base_url']
+base_url = version['url:base']
 r = session.get(base_url)
 # which lists a bunch of urls as starting points
 urls = r.json()
-servers_url = urls['servers_url']
-login_url = urls['login_url']
-projects_url = urls['projects_url']
-save_url = urls['save_url']
-schema_url = urls['schema_url']
+servers_url = urls['url:servers']
+login_url = urls['url:login']
+projects_url = urls['url:projects']
+save_url = urls['url:save']
+schema_url = urls['url:schema']
 
 # To login we need to get CSRF token
-token_url = urls['token_url']
+token_url = urls['url:token']
 token = session.get(token_url).json()['data']
 print 'CSRF token', token
 # We add this to our session header
@@ -49,10 +51,10 @@ for s in servers:
     print ' name:', s['server']
     print ' host:', s['host']
     print ' port:', s['port']
-# find one called 'omero'
-servers = [s for s in servers if s['server'] == 'omero']
+# find one called SERVER_NAME
+servers = [s for s in servers if s['server'] == SERVER_NAME]
 if len(servers) < 1:
-    print "Found no server called 'omero'"
+    raise Exception("Found no server called '%s'" % SERVER_NAME)
 server = servers[0]
 
 # Login with username, password and token
@@ -89,7 +91,7 @@ projType = schema_url + '#Project'
 url = save_url + '?group=' + str(groupId)
 r = session.post(url, json={'Name': 'API TEST foo', '@type': projType})
 assert r.status_code == 201
-project = r.json()
+project = r.json()['data']
 project_id = project['@id']
 print 'Created Project:', project_id, project['Name']
 

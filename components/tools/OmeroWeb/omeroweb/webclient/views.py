@@ -32,6 +32,7 @@ import traceback
 import json
 import re
 import sys
+import warnings
 
 from time import time
 
@@ -61,7 +62,7 @@ from webclient_utils import _formatReport, _purgeCallback
 from forms import GlobalSearchForm, ContainerForm
 from forms import ShareForm, BasketShareForm
 from forms import ContainerNameForm, ContainerDescriptionForm
-from forms import CommentAnnotationForm, TagsAnnotationForm,  UsersForm
+from forms import CommentAnnotationForm, TagsAnnotationForm
 from forms import MetadataFilterForm, MetadataDetectorForm
 from forms import MetadataChannelForm, MetadataEnvironmentForm
 from forms import MetadataObjectiveForm, MetadataObjectiveSettingsForm
@@ -78,6 +79,7 @@ from omeroweb.webadmin.forms import LoginForm
 
 from omeroweb.webgateway import views as webgateway_views
 from omeroweb.webgateway.marshal import chgrpMarshal
+from omeroweb.webgateway.util import get_longs as webgateway_get_longs
 
 from omeroweb.feedback.views import handlerInternalError
 
@@ -119,18 +121,10 @@ def get_long_or_default(request, name, default):
 
 
 def get_longs(request, name):
-    """
-    Retrieves parameters from the request. If the parameters are not present
-    an empty list is returned
-
-    This does not catch exceptions as it makes sense to throw exceptions if
-    the arguments provided do not pass basic type validation
-    """
-    vals = []
-    vals_raw = request.GET.getlist(name)
-    for val_raw in vals_raw:
-        vals.append(long(val_raw))
-    return vals
+    warnings.warn(
+        "Deprecated. Use omeroweb.webgateway.util.get_longs()",
+        DeprecationWarning)
+    return webgateway_get_longs(request, name)
 
 
 def get_bool_or_default(request, name, default):
@@ -141,13 +135,7 @@ def get_bool_or_default(request, name, default):
     This does not catch exceptions as it makes sense to throw exceptions if
     the arguments provided do not pass basic type validation
     """
-    val = default
-    val_raw = request.GET.get(name)
-    if val_raw is not None:
-        if val_raw.lower() == 'true' or int(val_raw) == 1:
-            val = True
-    return val
-
+    return toBoolean(request.GET.get(name, default))
 
 ##############################################################################
 # custom index page
@@ -344,9 +332,8 @@ def logout(request, conn=None, **kwargs):
 
 
 ###########################################################################
-@login_required()
-@render_response()
-def load_template(request, menu, conn=None, url=None, **kwargs):
+def _load_template(request, menu, conn=None, url=None, **kwargs):
+
     """
     This view handles most of the top-level pages, as specified by 'menu' E.g.
     userdata, usertags, history, search etc.
@@ -357,16 +344,18 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     """
     request.session.modified = True
 
-    if menu == 'userdata':
-        template = "webclient/data/containers.html"
-    elif menu == 'usertags':
-        template = "webclient/data/containers.html"
-    else:
-        # E.g. search/search.html
-        template = "webclient/%s/%s.html" % (menu, menu)
+    template = kwargs.get('template', None)
+    if template is None:
+        if menu == 'userdata':
+            template = "webclient/data/containers.html"
+        elif menu == 'usertags':
+            template = "webclient/data/containers.html"
+        else:
+            # E.g. search/search.html
+            template = "webclient/%s/%s.html" % (menu, menu)
 
     # tree support
-    show = Show(conn, request, menu)
+    show = kwargs.get('show', Show(conn, request, menu))
     # Constructor does no loading.  Show.first_selected must be called first
     # in order to set up our initial state correctly.
     try:
@@ -390,7 +379,9 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
 
     # get url without request string - used to refresh page after switch
     # user/group etc
-    url = reverse(viewname="load_template", args=[menu])
+    url = kwargs.get('load_template_url', None)
+    if url is None:
+        url = reverse(viewname="load_template", args=[menu])
 
     # validate experimenter is in the active group
     active_group = (request.session.get('active_group') or
@@ -400,12 +391,6 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
         "ExperimenterGroup", active_group).groupSummary()
     userIds = [u.id for u in leaders]
     userIds.extend([u.id for u in members])
-    users = []
-    if len(leaders) > 0:
-        users.append(("Owners", leaders))
-    if len(members) > 0:
-        users.append(("Members", members))
-    users = tuple(users)
 
     # check any change in experimenter...
     user_id = request.GET.get('experimenter')
@@ -417,13 +402,13 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
         user_id = long(user_id)
     except:
         user_id = None
+    # check if user_id is in a currnt group
     if user_id is not None:
-        form_users = UsersForm(
-            initial={'users': users, 'empty_label': None, 'menu': menu},
-            data=request.GET.copy())
-        if not form_users.is_valid():
-            if user_id != -1:           # All users in group is allowed
-                user_id = None
+        if (user_id not in
+            (set(map(lambda x: x.id, leaders))
+             | set(map(lambda x: x.id, members))) and user_id != -1):
+            # All users in group is allowed
+            user_id = None
     if user_id is None:
         # ... or check that current user is valid in active group
         user_id = request.session.get('user_id', None)
@@ -461,12 +446,21 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
         "ExperimenterGroup", long(active_group))
     context['active_user'] = conn.getObject("Experimenter", long(user_id))
     context['initially_select'] = show.initially_select
+    context['initially_open'] = show.initially_open
     context['isLeader'] = conn.isLeader()
     context['current_url'] = url
     context['page_size'] = settings.PAGE
     context['template'] = template
+    context['thumbnails_batch'] = settings.THUMBNAILS_BATCH
 
     return context
+
+
+@login_required()
+@render_response()
+def load_template(request, menu, conn=None, url=None, **kwargs):
+    return _load_template(request=request, menu=menu, conn=conn,
+                          url=url, **kwargs)
 
 
 @login_required()
@@ -983,7 +977,7 @@ def _api_links_DELETE(conn, json_data):
                 linkType, links = objLnks
                 linkIds = [r.id.val for r in links]
                 logger.info("api_link: Deleting %s links" % len(linkIds))
-                conn.deleteObjects(linkType, linkIds)
+                conn.deleteObjects(linkType, linkIds, wait=True)
                 # webclient needs to know what is orphaned
                 linkType, remainingLinks = get_object_links(conn,
                                                             parent_type,
@@ -1040,6 +1034,7 @@ def api_paths_to_object(request, conn=None, **kwargs):
         tag_id = get_long_or_default(request, 'tag', None)
         tagset_id = get_long_or_default(request, 'tagset', None)
         group_id = get_long_or_default(request, 'group', None)
+        page_size = get_long_or_default(request, 'page_size', settings.PAGE)
     except ValueError:
         return HttpResponseBadRequest('Invalid parameter value')
 
@@ -1049,7 +1044,8 @@ def api_paths_to_object(request, conn=None, **kwargs):
     else:
         paths = paths_to_object(conn, experimenter_id, project_id,
                                 dataset_id, image_id, screen_id, plate_id,
-                                acquisition_id, well_id, group_id)
+                                acquisition_id, well_id, group_id,
+                                page_size=page_size)
     return JsonResponse({'paths': paths})
 
 
@@ -1151,8 +1147,7 @@ def api_tags_and_tagged_list_DELETE(request, conn=None, **kwargs):
 @login_required()
 def api_annotations(request, conn=None, **kwargs):
 
-    r = request.GET or request.POST
-
+    r = request.GET
     image_ids = r.getlist('image')
     dataset_ids = r.getlist('dataset')
     project_ids = r.getlist('project')
@@ -1270,7 +1265,10 @@ def load_plate(request, o1_type=None, o1_id=None, conn=None, **kwargs):
         context['baseurl'] = reverse('webgateway').rstrip('/')
         context['form_well_index'] = form_well_index
         context['index'] = index
+        context['thumbnails_batch'] = settings.THUMBNAILS_BATCH
         template = "webclient/data/plate.html"
+        if o1_type == 'acquisition':
+            context['acquisition'] = o1_id
 
     context['isLeader'] = conn.isLeader()
     context['template'] = template
@@ -1424,7 +1422,7 @@ def load_searching(request, form=None, conn=None, **kwargs):
                     for t in onlyTypes:
                         t = t[0:-1]  # remove 's'
                         if t in ('project', 'dataset', 'image', 'screen',
-                                 'plate'):
+                                 'plate', 'well'):
                             obj = conn.getObject(t, searchById)
                             if obj is not None:
                                 foundById.append({'otype': t, 'obj': obj})
@@ -1440,6 +1438,7 @@ def load_searching(request, form=None, conn=None, **kwargs):
         'foundById': foundById,
         'resultCount': manager.c_size + len(foundById)}
     context['template'] = template
+    context['thumbnails_batch'] = settings.THUMBNAILS_BATCH
     return context
 
 
@@ -1453,6 +1452,9 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
     The data and annotations are loaded by the manager. Display of appropriate
     data is handled by the template.
     """
+
+    # the index of a field within a well
+    index = getIntOrDefault(request, 'index', 0)
 
     context = dict()
 
@@ -1506,7 +1508,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
     else:
         try:
             manager = BaseContainer(
-                conn, **{str(c_type): long(c_id)})
+                conn, **{str(c_type): long(c_id), 'index': index})
         except AttributeError, x:
             return handlerInternalError(request, x)
         if share_id is not None:
@@ -1515,6 +1517,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
         else:
             template = "webclient/annotations/metadata_general.html"
             context['canExportAsJpg'] = manager.canExportAsJpg(request)
+            context['annotationCounts'] = manager.getAnnotationCounts()
             figScripts = manager.listFigureScripts()
     context['manager'] = manager
 
@@ -1539,9 +1542,14 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None,
     """
     context = {}
 
+    # the index of a field within a well
+    index = getIntOrDefault(request, 'index', 0)
+
     manager = BaseContainer(conn, **{str(c_type): long(c_id)})
     if share_id:
         context['share'] = BaseShare(conn, share_id)
+    if c_type == "well":
+        manager.image = manager.well.getImage(index)
 
     allRdefs = manager.image.getAllRenderingDefs()
     rdefs = {}
@@ -1573,7 +1581,11 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None,
             'c': ",".join(chs),
             'm': r['model'] == 'greyscale' and 'g' or 'c'
             })
+    max_w, max_h = conn.getMaxPlaneSize()
+    size_x = manager.image.getSizeX()
+    size_y = manager.image.getSizeY()
 
+    context['tiledImage'] = (size_x * size_y) > (max_w * max_h)
     context['manager'] = manager
     context['rdefsJson'] = json.dumps(rdefQueries)
     context['rdefs'] = rdefs
@@ -2021,6 +2033,8 @@ def batch_annotate(request, conn=None, **kwargs):
     context['canDownload'] = manager.canDownload(objs)
     context['template'] = "webclient/annotations/batch_annotate.html"
     context['webclient_path'] = reverse('webindex')
+    context['annotationCounts'] = manager.getBatchAnnotationCounts(
+        getObjects(request, conn))
     return context
 
 
@@ -2882,6 +2896,8 @@ def image_as_map(request, imageId, conn=None, **kwargs):
     Converts OMERO image into mrc.map file (using tiltpicker utils) and
     returns the file
     """
+    warnings.warn(
+        "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
 
     from omero_ext.tiltpicker.pyami import mrc
     from numpy import dstack, zeros, int8
@@ -3164,7 +3180,7 @@ def getObjectUrl(conn, obj):
                 break
 
     if obj.__class__.__name__ in (
-            "ImageI", "DatasetI", "ProjectI", "ScreenI", "PlateI"):
+            "ImageI", "DatasetI", "ProjectI", "ScreenI", "PlateI", "WellI"):
         otype = obj.__class__.__name__[:-1].lower()
         base_url += "?show=%s-%s" % (otype, obj.id.val)
         return base_url
@@ -3734,8 +3750,17 @@ def figure_script(request, scriptName, conn=None, **kwargs):
 
     imageIds = request.GET.get('Image', None)    # comma - delimited list
     datasetIds = request.GET.get('Dataset', None)
+    wellIds = request.GET.get('Well', None)
+
+    if wellIds is not None:
+        wellIds = [long(i) for i in wellIds.split(",")]
+        wells = conn.getObjects("Well", wellIds)
+        wellIdx = getIntOrDefault(request, 'Index', 0)
+        imageIds = [str(w.getImage(wellIdx).getId()) for w in wells]
+        imageIds = ",".join(imageIds)
     if imageIds is None and datasetIds is None:
-        return HttpResponse("Need to specify /?Image=1,2 or /?Dataset=1,2")
+        return HttpResponse(
+            "Need to specify /?Image=1,2 or /?Dataset=1,2 or /?Well=1,2")
 
     def validateIds(dtype, ids):
         ints = [int(oid) for oid in ids.split(",")]
@@ -3822,7 +3847,7 @@ def figure_script(request, scriptName, conn=None, **kwargs):
             thumbSets.append({'name': 'images', 'imageTags': imageTags})
             tags.extend(ts)
             parent = conn.getObject("Image", imageIds[0]).getParent()
-            figureName = parent.getName()
+            figureName = parent.getName() or "Thumbnail Figure"
             context['parent_id'] = parent.getId()
         uniqueTagIds = set()      # remove duplicates
         uniqueTags = []

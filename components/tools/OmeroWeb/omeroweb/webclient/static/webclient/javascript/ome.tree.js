@@ -21,6 +21,9 @@
 // jQuery load callback...
 $(function() {
 
+    // Flag holding curent single / multi selection status
+    var multiselection = false;
+
     // Select jstree and then cascade handle events and setup the tree.
     var jstree = $("#dataTree")
     .on('changed.jstree', function (e, data) {
@@ -35,7 +38,15 @@ $(function() {
             inst.load_node(data.node);
         }
 
+        multiselection = data.selected.length > 1;
+
         OME.tree_selection_changed(data, e);
+        if (OME.hideWellBirdsEye) {
+            OME.hideWellBirdsEye();
+        }
+    })
+    .on('selection_change.ome', function(e, nElements) {
+        multiselection = nElements > 1;
     })
     .on('copy_node.jstree', function(e, data) {
         /**
@@ -125,6 +136,7 @@ $(function() {
         * is updated to match another instance of itself elsewhere in the tree
         */
         var inst = data.instance;
+
         // Update the child count
         OME.updateNodeChildCount(inst, data.parent);
     })
@@ -133,15 +145,15 @@ $(function() {
         * Fired when the tree is loaded and ready for action
         */
         var inst = data.instance;
-
         // Global variable specifies what to select
-        var nodeIds = WEBCLIENT.initially_select;
+        var nodeIds = WEBCLIENT.initially_open;
         if (nodeIds.length === 0) {
             // If not found, just select root node
             inst.select_node('ul > li:first');
         } else {
-            // We load hierachy for first item...
-            var paramSplit = nodeIds[0].split('-');
+            // We load hierachy for last item (ignore 'well' since not in tree)
+            nodeIds = nodeIds.filter(function(n){return !n.startsWith('well')});
+            var paramSplit = nodeIds[nodeIds.length-1].split(/-(.+)/);
 
             var payload = {};
             payload[paramSplit[0]] = paramSplit[1];
@@ -156,8 +168,11 @@ $(function() {
                     data = json.paths;
                     // Use the open_node callback mechanism to facilitate loading the tree to the
                     // point indicated by the path, starting from the top, 'experimenter'.
-                    if (data.length === 0) return;
-
+                    if (data.length === 0) {
+                        // If not found, just select root node
+                        inst.select_node('ul > li:first');
+                        return;
+                    }
                     var getTraverse = function(path) {
                         var traverse = function(index, parentNode) {
                             // Get this path component
@@ -192,8 +207,8 @@ $(function() {
                                 // we also focus the node, to scroll to it and setup hotkey events
                                 $("#" + node.id).children('.jstree-anchor').focus();
                                 // Handle multiple selection. E.g. extra images in same dataset
-                                for(var n=1; n<nodeIds.length; n++) {
-                                    node = inst.locate_node(nodeIds[n], parentNode)[0];
+                                for(var n=1; n<WEBCLIENT.initially_select.length; n++) {
+                                    node = inst.locate_node(WEBCLIENT.initially_select[n], parentNode)[0];
                                     if(node) {
                                         inst.select_node(node);
                                     }
@@ -239,7 +254,16 @@ $(function() {
         if (node) {
             if (node.type === 'image') {
                 //Open the image viewer for this image
-                OME.openPopup(WEBCLIENT.URLS.webindex + "img_detail/" + node.data.obj.id);
+                var url = WEBCLIENT.URLS.webindex + "img_detail/" + node.data.obj.id + "/";
+                // Add dataset id so the viewer can know its context
+                var inst = $.jstree.reference('#dataTree');
+                var parent = datatree.get_node(node.parent);
+                if (parent && parent.data) {
+                    if (parent.type === 'dataset') {
+                        url += '?' + parent.type + '=' + parent.data.id
+                    }
+                }
+                window.open(url, '_blank');
             }
         }
     })
@@ -390,8 +414,12 @@ $(function() {
             'data' : function(node, callback, payload) {
                 // Get the data for this query
                 if (payload === undefined) {
-                    payload = {};
+                    // Check for existing 'payload' data, used to initialise the jsTree
+                    payload = this.element.data('payload');
+                    // clear data
+                    $.removeData(this.element[0], "payload");
                 }
+                payload = payload || {}
                 // We always use the parent id to fitler. E.g. experimenter id, project id etc.
                 // Exception to this for orphans as in the case of api_images, id is a dataset
                 if (node.hasOwnProperty('data') && node.type != 'orphaned') {
@@ -438,7 +466,7 @@ $(function() {
                 // we want the specific page, or use default first page
 
                 // Disable paging for node without counter
-                var nopageTypes = ['project', 'screen', 'plate', 'tagset', 'tag'];
+                var nopageTypes = WEBCLIENT.UI.TREE.pagination_nodes;
                 if (nopageTypes.indexOf(node.type) > -1) {
                     // TODO: temporary workaround to not paginate datasets,
                     // plates and acquisitions
@@ -459,9 +487,6 @@ $(function() {
                 if (node.type === 'dataset' || node.type === 'orphaned' || node.type === 'tag') {
                     payload['sizeXYZ'] = true;
                     payload['date'] = true;
-                    if (node.type !== 'tag') {
-                        payload['thumbVersion'] = true;
-                    }
                 }
 
                 // Always add the group_id from the current context
@@ -505,7 +530,6 @@ $(function() {
                 $.ajax({
                     url: url,
                     data: payload,
-                    cache: false,
                     success: function (data, textStatus, jqXHR) {
                         callback.call(this, data);
                     },
@@ -748,7 +772,7 @@ $(function() {
                 'valid_children': ['project','dataset','screen','plate', 'tag', 'tagset']
             },
             'map': {
-                'icon': WEBCLIENT.URLS.static_webclient + 'image/left_sidebar_icon_tag.png',
+                'icon': WEBCLIENT.URLS.static_webclient + 'image/left_sidebar_icon_map.png',
                 'valid_children': ['project', 'screen'],
                 'draggable': false
             },
@@ -1002,7 +1026,7 @@ $(function() {
                     // build a submenu of viewers...
                     var viewers = WEBCLIENT.OPEN_WITH.map(function(v){
                         return {
-                            "label": v.label,
+                            "label": v.label || v.id,
                             "action": function() {
                                 var inst = $.jstree.reference('#dataTree'),
                                     sel = inst.get_selected(true),
@@ -1026,12 +1050,7 @@ $(function() {
                                     url = v.getUrl(selJson, v.url);
                                 }
                                 // ...otherwise we use default handling...
-                                if (v.target) {
-                                    // E.g. target '_blank' tries to open in a new tab
-                                    window.open(url, v.target);
-                                } else {
-                                    OME.openPopup(url);
-                                }
+                                window.open(url, '_blank');
                             },
                             "_disabled": function() {
                                 var sel = $.jstree.reference('#dataTree').get_selected(true),
@@ -1067,6 +1086,7 @@ $(function() {
                     config["open_with"] = {
                         "label": "Open With...",
                         "_disabled": false,
+                        "icon"  : WEBCLIENT.URLS.static_webclient + 'image/icon_openwith.png',
                         "action": false,
                         "submenu": viewers
                     };
@@ -1163,10 +1183,10 @@ $(function() {
                         config['renderingsettings']["submenu"]['owner_rdef']['_disabled'] = false;
                     }
                 }
-                // Only enable copying if an image is the node
+                // Only enable copying if an image is the node and only one node is selected
                 if (node.type === 'image') {
                     config['renderingsettings']['_disabled'] = false;
-                    config['renderingsettings']["submenu"]['copy_rdef']['_disabled'] = false;
+                    config['renderingsettings']["submenu"]['copy_rdef']['_disabled'] = multiselection;
                 }
                 return config;
             }

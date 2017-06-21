@@ -1,5 +1,5 @@
 /*
- *   Copyright 2006-2016 University of Dundee. All rights reserved.
+ *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package integration;
@@ -13,6 +13,7 @@ import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferInt;
 import java.awt.image.DirectColorModel;
+import java.awt.image.Raster;
 import java.awt.image.SinglePixelPackedSampleModel;
 import java.awt.image.WritableRaster;
 import java.io.ByteArrayInputStream;
@@ -26,9 +27,9 @@ import javax.imageio.ImageIO;
 
 import ome.specification.XMLMockObjects;
 import ome.specification.XMLWriter;
-import omero.api.IPixelsPrx;
 import omero.api.IRenderingSettingsPrx;
 import omero.api.IScriptPrx;
+import omero.api.ITypesPrx;
 import omero.api.RenderingEnginePrx;
 import omero.cmd.Chgrp2;
 import omero.cmd.Delete2;
@@ -61,8 +62,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.testng.annotations.Test;
 import org.testng.Assert;
-
-import sun.awt.image.IntegerInterleavedRaster;
 
 /**
  * Collection of tests for the <code>RenderingEngine</code>.
@@ -229,7 +228,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         DataBuffer j2DBuf = new DataBufferInt(buf, sizeX * sizeY);
         SinglePixelPackedSampleModel sampleModel = new SinglePixelPackedSampleModel(
                 DataBuffer.TYPE_INT, sizeX, sizeY, sizeX, RGB);
-        WritableRaster raster = new IntegerInterleavedRaster(sampleModel,
+        WritableRaster raster = Raster.createWritableRaster(sampleModel,
                 j2DBuf, new Point(0, 0));
 
         ColorModel colorModel = new DirectColorModel(bits, RGB[0], RGB[1],
@@ -469,9 +468,9 @@ public class RenderingEngineTest extends AbstractServerTest {
         Assert.assertEquals(re.getDefaultZ(), v);
 
         // tested in PixelsService
-        IPixelsPrx svc = factory.getPixelsService();
-        List<IObject> families = svc.getAllEnumerations(Family.class.getName());
-        List<IObject> models = svc.getAllEnumerations(RenderingModel.class
+        ITypesPrx svc = factory.getTypesService();
+        List<IObject> families = svc.allEnumerations(Family.class.getName());
+        List<IObject> models = svc.allEnumerations(RenderingModel.class
                 .getName());
         RenderingModel model = def.getModel();
         Iterator<IObject> i;
@@ -668,9 +667,8 @@ public class RenderingEngineTest extends AbstractServerTest {
         re.setCodomainInterval(new_cd_start, new_cd_end);
         //mode change
         RenderingModel model = re.getModel();
-        List<IObject> models = factory.getPixelsService().getAllEnumerations(
-                RenderingModel.class
-                .getName());
+        List<IObject> models = factory.getTypesService().allEnumerations(
+                RenderingModel.class.getName());
         Iterator<IObject> j = models.iterator();
         RenderingModel m, new_model = null;
         // Change the color model so it is not grey scale.
@@ -802,8 +800,8 @@ public class RenderingEngineTest extends AbstractServerTest {
         Assert.assertNotNull(buffer);
         Assert.assertEquals(p.getSizeX().getValue(), buffer.sizeX1);
         Assert.assertEquals(p.getSizeY().getValue(), buffer.sizeX2);
-        IPixelsPrx svc = factory.getPixelsService();
-        List<IObject> models = svc.getAllEnumerations(RenderingModel.class
+        ITypesPrx svc = factory.getTypesService();
+        List<IObject> models = svc.allEnumerations(RenderingModel.class
                 .getName());
         RenderingModel model = re.getModel();
         Iterator<IObject> i = models.iterator();
@@ -947,8 +945,8 @@ public class RenderingEngineTest extends AbstractServerTest {
         pDef.region = r;
         bufferRegion = re.render(pDef);
         Assert.assertNotNull(bufferRegion);
-        IPixelsPrx svc = factory.getPixelsService();
-        List<IObject> models = svc.getAllEnumerations(RenderingModel.class
+        ITypesPrx svc = factory.getTypesService();
+        List<IObject> models = svc.allEnumerations(RenderingModel.class
                 .getName());
         RenderingModel model = re.getModel();
         Iterator<IObject> i = models.iterator();
@@ -1108,8 +1106,8 @@ public class RenderingEngineTest extends AbstractServerTest {
         Assert.assertNotNull(image);
 
         // now change the model
-        IPixelsPrx svc = factory.getPixelsService();
-        List<IObject> models = svc.getAllEnumerations(RenderingModel.class
+        ITypesPrx svc = factory.getTypesService();
+        List<IObject> models = svc.allEnumerations(RenderingModel.class
                 .getName());
         RenderingModel model = re.getModel();
         Iterator<IObject> i = models.iterator();
@@ -1245,8 +1243,8 @@ public class RenderingEngineTest extends AbstractServerTest {
         Assert.assertNotNull(region);
         imageRegion = createImage(region, 32, r.width, r.height);
         Assert.assertNotNull(imageRegion);
-        IPixelsPrx svc = factory.getPixelsService();
-        List<IObject> models = svc.getAllEnumerations(RenderingModel.class
+        ITypesPrx svc = factory.getTypesService();
+        List<IObject> models = svc.allEnumerations(RenderingModel.class
                 .getName());
         RenderingModel model = re.getModel();
         Iterator<IObject> i = models.iterator();
@@ -1517,8 +1515,8 @@ public class RenderingEngineTest extends AbstractServerTest {
 
         // greyscale
         RenderingModel model = re.getModel();
-        IPixelsPrx svc = factory.getPixelsService();
-        List<IObject> models = svc.getAllEnumerations(RenderingModel.class
+        ITypesPrx svc = factory.getTypesService();
+        List<IObject> models = svc.allEnumerations(RenderingModel.class
                 .getName());
         Iterator<IObject> i = models.iterator();
         RenderingModel m;
@@ -1587,8 +1585,8 @@ public class RenderingEngineTest extends AbstractServerTest {
 
         // grey scale.
         RenderingModel model = re.getModel();
-        IPixelsPrx svc = factory.getPixelsService();
-        List<IObject> models = svc.getAllEnumerations(RenderingModel.class
+        ITypesPrx svc = factory.getTypesService();
+        List<IObject> models = svc.allEnumerations(RenderingModel.class
                 .getName());
         Iterator<IObject> i = models.iterator();
         RenderingModel m;
@@ -1795,9 +1793,9 @@ public class RenderingEngineTest extends AbstractServerTest {
         re.saveCurrentSettings();
         Assert.assertEquals(re.getDefaultT(), t);
         // tested in PixelsService
-        IPixelsPrx svc = factory.getPixelsService();
-        List<IObject> families = svc.getAllEnumerations(Family.class.getName());
-        List<IObject> models = svc.getAllEnumerations(RenderingModel.class
+        ITypesPrx svc = factory.getTypesService();
+        List<IObject> families = svc.allEnumerations(Family.class.getName());
+        List<IObject> models = svc.allEnumerations(RenderingModel.class
                 .getName());
         RenderingModel rm = re.getModel();
         Iterator<IObject> i;
@@ -2200,9 +2198,8 @@ public class RenderingEngineTest extends AbstractServerTest {
         pDef.z = re.getDefaultZ();
         pDef.slice = omero.romio.XY.value;
         RenderingModel model = re.getModel();
-        List<IObject> models = factory.getPixelsService().getAllEnumerations(
-                RenderingModel.class
-                .getName());
+        List<IObject> models = factory.getTypesService().allEnumerations(
+                RenderingModel.class.getName());
         Iterator<IObject> j = models.iterator();
         RenderingModel m;
         // Change the color model so it is not grey scale.
@@ -2276,9 +2273,8 @@ public class RenderingEngineTest extends AbstractServerTest {
         pDef.z = re.getDefaultZ();
         pDef.slice = omero.romio.XY.value;
         RenderingModel model = re.getModel();
-        List<IObject> models = factory.getPixelsService().getAllEnumerations(
-                RenderingModel.class
-                .getName());
+        List<IObject> models = factory.getTypesService().allEnumerations(
+                RenderingModel.class.getName());
         Iterator<IObject> j = models.iterator();
         RenderingModel m;
         // Change the color model so it is not grey scale.
@@ -2726,7 +2722,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         Image image = mmFactory.createImage(ModelMockFactory.SIZE_X,
                 ModelMockFactory.SIZE_Y, ModelMockFactory.SIZE_Z,
                 ModelMockFactory.SIZE_T,
-                ModelMockFactory.DEFAULT_CHANNELS_NUMBER);
+                ModelMockFactory.DEFAULT_CHANNELS_NUMBER, ModelMockFactory.UINT16);
         image = (Image) iUpdate.saveAndReturnObject(image);
         Pixels pixels = image.getPrimaryPixels();
         long id = pixels.getId().getValue();
@@ -2764,7 +2760,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         Image image = mmFactory.createImage(ModelMockFactory.SIZE_X,
                 ModelMockFactory.SIZE_Y, ModelMockFactory.SIZE_Z,
                 ModelMockFactory.SIZE_T,
-                ModelMockFactory.DEFAULT_CHANNELS_NUMBER);
+                ModelMockFactory.DEFAULT_CHANNELS_NUMBER, ModelMockFactory.UINT16);
         image = (Image) iUpdate.saveAndReturnObject(image);
         Pixels pixels = image.getPrimaryPixels();
         long id = pixels.getId().getValue();
@@ -3305,7 +3301,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
         List<ChannelBinding> channels = def.copyWaveRendering();
         RenderingModel model = re.getModel();
-        List<IObject> models = factory.getPixelsService().getAllEnumerations(
+        List<IObject> models = factory.getTypesService().allEnumerations(
                 RenderingModel.class
                 .getName());
         Iterator<IObject> j = models.iterator();
@@ -3351,9 +3347,8 @@ public class RenderingEngineTest extends AbstractServerTest {
         RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
         List<ChannelBinding> channels = def.copyWaveRendering();
         RenderingModel model = re.getModel();
-        List<IObject> models = factory.getPixelsService().getAllEnumerations(
-                RenderingModel.class
-                .getName());
+        List<IObject> models = factory.getTypesService().allEnumerations(
+                RenderingModel.class.getName());
         Iterator<IObject> j = models.iterator();
         RenderingModel m;
         // Change the color model so it is not grey scale.

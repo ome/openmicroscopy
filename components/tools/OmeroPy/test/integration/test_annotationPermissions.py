@@ -77,7 +77,7 @@ class AnnotationPermissions(ITest):
         chmod = omero.cmd.Chmod2(
             targetObjects={'ExperimenterGroup': [self.group.id.val]},
             permissions=perms)
-        self.doSubmit(chmod, client, test_should_pass=succeed)
+        self.do_submit(chmod, client, test_should_pass=succeed)
 
     def createProjectAs(self, user):
         """ Adds a Project. """

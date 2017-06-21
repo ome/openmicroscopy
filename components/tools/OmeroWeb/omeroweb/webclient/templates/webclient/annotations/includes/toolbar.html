@@ -39,6 +39,81 @@
 
                 // We do this here and in batch_annotate panel
                 OME.initToolbarDropdowns();
+
+
+            {% if image %}
+                var parent = OME.getParentId();
+                if (parent) {
+                    if (parent.split('-')[0] === 'dataset') {
+                        var $btn = $("#open_full_viewer");
+                        $btn.prop('href', $btn.prop('href') + '?' + parent.replace('-', '='));
+                    }
+                }
+            {% endif %}
+
+
+                var selectedObjs = [{% for o in obj_labels %}{% if forloop.counter > 1 %},{% endif %}"{{ o.type|lower }}-{{ o.id}}"{% endfor %}];
+
+
+                {% if manager.obj_type %}
+                selectedObjs = ["{{ manager.obj_type }}-{{ manager.obj_id }}"];
+                {% endif %}
+
+                var selectedType = selectedObjs.reduce(function(prev, s){
+                    return s.split('-')[0] + (selectedObjs.length > 1 ? "s" : "");
+                }, "undefined");
+
+                {% if not share %}
+                var openwith_html = WEBCLIENT.OPEN_WITH.map(function(v){
+                    var label = v.label || v.id;
+                    var enabled = false;
+                    var tooltip = "Open " + selectedType + " with " + label;
+
+                    var selJson = selectedObjs.map(function(obj){
+                        var s = obj.split('-');
+                        var o = {'id': s[1],
+                                 'type': s[0]};
+                        return o;
+                    });
+                    if (typeof v.isEnabled === "function") {
+                        // If plugin has provided a function 'isEnabled'...
+                        // prepare json of selected objects to pass to function
+                        enabled = v.isEnabled(selJson);
+                    }
+                    // ...Otherwise if supported_objects list is configured...
+                    // v.supported_objects is ['image'] or ['dataset', 'images'] etc.
+                    else if (typeof v.supported_objects === "object" && v.supported_objects.length > 0) {
+                        enabled = v.supported_objects.reduce(function(prev, supported){
+                            // e.g. If supported_objects is 'images'...
+                            return prev || supported.indexOf(selectedType) > -1;  // ... selType 'image' OR 'images' are > -1
+                        }, false);
+                    };
+                    var dtypes = selectedObjs.map(function(o){
+                      return o.replace('-', '=');
+                    });
+                    var query = dtypes.join("&");
+                    // default url includes objects in query
+                    var url = v.url + "?" + query;
+                    // if plugin has added a url provider,
+                    // use it to update the url...
+                    if (v.getUrl) {
+                        url = v.getUrl(selJson, v.url);
+                    }
+                    var liClass = "";
+                    if (!enabled) {
+                        liClass = "disabled";
+                        tooltip = tooltip.replace("Open", "Cannot open");
+                    }
+                    var html = "<li class='" + liClass + "'><a title='" + tooltip + "'";
+                    if (enabled) {
+                        html += " target='_blank' href='" + url + "'>" + label + "</a></li>";
+                    } else {
+                        html += ">" + label + "</a></li>";
+                    }
+                    return html;
+                });
+                $("#right_panel_openwith").html(openwith_html.join(""));
+                {% endif %}
             });
             
     </script>
@@ -265,22 +340,49 @@
     
 
 
+    <div style="position: absolute; left: 0">
+      {% if image %}
+      <a class="btn silver btn_text" style="height: 18px"
+              id="open_full_viewer" target="_blank"
+              {% if share and not share.share.isOwned %}
+                  href="{% url 'web_image_viewer' share.share.id image.id %}"
+              {% else %}
+                  href="{% url 'web_image_viewer' image.id %}"
+              {% endif %}
+              title="Open full image viewer in new tab">
+          <span>
+              Full viewer
+          </span>
+      </a>
+      {% endif %}
 
-    {% if image %}
-    <a class="btn silver btn_text" style="position: absolute; left: 0; height: 20px"
-            {% if share and not share.share.isOwned %}
-                href="{% url 'web_image_viewer' share.share.id image.id %}"
-                onclick="return OME.openPopup('{% url 'web_image_viewer' share.share.id image.id %}')"
-            {% else %}
-                href="{% url 'web_image_viewer' image.id %}"
-                onclick="return OME.openPopup('{% url 'web_image_viewer' image.id %}')"
-            {% endif %}
-            title="Open full image viewer in new window">
-        <span>
-            Full viewer
-        </span>
-    </a>
-    {% endif %}
+
+      <div class="toolbar_dropdown">
+          {% if not share %}
+          <button class="btn silver btn_openwith" title="Open with..." style="height: 20px">
+              <span></span>
+          </button>
+          <ul id="right_panel_openwith" class="dropdown dropdown_right">
+          </ul>
+          {% endif %}
+      </div>
+  </div>
 
 </div>
 <div style="clear:both"></div>
+
+
+<!-- panel for extra info shown by toolbar buttons if needed -->
+<div id="toolbar_info_panel" style="display:none; background: #fff; border: solid 1px #ddd; margin:5px 0">
+    <img title="Close" src="{% static 'webgateway/img/close.gif' %}" style="float:right; margin:3px"/>
+    <div class="panel_title" style="margin: 4px">
+        <!-- text loaded here -->
+    </div>
+    <div class="panel_div"></div>
+    <div style="clear:both"></div>
+</div>
+
+<div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
+    <input type="text" size="30">
+    <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
+</div>

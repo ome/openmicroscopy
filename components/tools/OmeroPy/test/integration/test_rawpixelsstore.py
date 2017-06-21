@@ -34,7 +34,7 @@ class TestRPS(ITest):
             rps.close()
 
     def testTicket4737WithClose(self):
-        pix = self.pix()
+        pix = self.create_pixels()
         rps = self.client.sf.createRawPixelsStore()
         try:
             rps.setPixelsId(pix.id.val, True)
@@ -44,7 +44,7 @@ class TestRPS(ITest):
         self.check_pix(pix)
 
     def testTicket4737WithSave(self):
-        pix = self.pix()
+        pix = self.create_pixels()
         rps = self.client.sf.createRawPixelsStore()
         try:
             rps.setPixelsId(pix.id.val, True)
@@ -56,7 +56,7 @@ class TestRPS(ITest):
         self.check_pix(pix)
 
     def testTicket4737WithForEachTile(self):
-        pix = self.pix()
+        pix = self.create_pixels()
 
         class Iteration(TileLoopIteration):
 
@@ -72,7 +72,7 @@ class TestRPS(ITest):
         self.check_pix(pix)
 
     def testBigPlane(self):
-        pix = self.pix(x=4000, y=4000, z=1, t=1, c=1)
+        pix = self.create_pixels(x=4000, y=4000, z=1, t=1, c=1)
         rps = self.client.sf.createRawPixelsStore()
         try:
             rps.setPixelsId(pix.id.val, True)

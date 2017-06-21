@@ -245,7 +245,6 @@ public class RefreshExperimenterDataLoader
         List nodes;
         List<TimeRefObject> times;
         Iterator j;
-        TreeImageSet node;
         Map<SecurityContext, List> 
         m = new HashMap<SecurityContext, List>(expNodes.size());
         SecurityContext ctx;
@@ -262,7 +261,7 @@ public class RefreshExperimenterDataLoader
                 j = nodes.iterator();
                 times = new ArrayList<TimeRefObject>(nodes.size());
                 while (j.hasNext()) {
-                    node = (TreeImageSet) j.next();
+                    Object node = j.next();
                     if (node instanceof TreeImageTimeSet) {
                         time = (TreeImageTimeSet) node;
                         ref = new TimeRefObject(userID, TimeRefObject.TIME);

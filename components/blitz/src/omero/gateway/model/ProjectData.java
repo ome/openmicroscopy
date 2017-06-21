@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static omero.rtypes.rstring;
 import omero.model.Dataset;
 import omero.model.Project;
 import omero.model.ProjectDatasetLink;
@@ -100,7 +99,7 @@ public class ProjectData extends DataObject {
             throw new IllegalArgumentException("The name cannot be null.");
         }
         setDirty(true);
-        asProject().setName(rstring(name));
+        asProject().setName(omero.rtypes.rstring(name));
     }
 
     /**
@@ -125,7 +124,7 @@ public class ProjectData extends DataObject {
      */
     public void setDescription(String description) {
         setDirty(true);
-        asProject().setDescription(rstring(description));
+        asProject().setDescription(omero.rtypes.rstring(description));
     }
 
     /**

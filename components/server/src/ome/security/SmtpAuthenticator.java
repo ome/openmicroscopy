@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2008 University of Dundee. All rights reserved.
+ *   Copyright 2008-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -10,6 +10,8 @@ package ome.security;
 import javax.mail.Authenticator;
 import javax.mail.PasswordAuthentication;
 
+import org.apache.commons.lang.StringUtils;
+
 public class SmtpAuthenticator extends Authenticator {
 
     private String username = "";
@@ -17,7 +19,7 @@ public class SmtpAuthenticator extends Authenticator {
 
     public SmtpAuthenticator(String username, String password) {
         super();
-        if (!"".equals(username) && !"".equals(password)) {
+        if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
             this.username = username;
             this.password = password;
         }
@@ -25,7 +27,7 @@ public class SmtpAuthenticator extends Authenticator {
 
     @Override
     public PasswordAuthentication getPasswordAuthentication() {
-        if (this.username != "" && this.password != "") {
+        if (!this.username.isEmpty() && !this.password.isEmpty()) {
             return new PasswordAuthentication(username, password);
         } else {
             return super.getPasswordAuthentication();

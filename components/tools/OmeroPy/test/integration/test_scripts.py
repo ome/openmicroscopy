@@ -385,8 +385,7 @@ client.closeSession()
         finally:
             impl.cleanup()
 
-    @pytest.mark.intermittent(reason="Minor performance failure",
-                              ticket="11539")
+    @pytest.mark.broken(reason="Minor performance failure", ticket="11539")
     def testParamLoadingPerformanceTicket2285(self):
         root_client = self.new_client(system=True)
         svc = root_client.sf.getScriptService()
@@ -430,9 +429,10 @@ client.closeSession()
         scriptID = svc.getScriptID("/omero/figure_scripts/Thumbnail_Figure.py")
         if scriptID == -1:
             assert False, "Script not found"
-        pixID = self.import_image()[0]
+        session = self.client.getSession()
+        image = self.create_test_image(100, 100, 1, 1, 1, session)
         process = svc.runScript(
-            scriptID, wrap({"Data_Type": "Image", "IDs": [long(pixID)]}).val,
+            scriptID, wrap({"Data_Type": "Image", "IDs": [image.id.val]}).val,
             None)
         wait_time, ignore = self.timeit(
             omero.scripts.wait, self.client, process)

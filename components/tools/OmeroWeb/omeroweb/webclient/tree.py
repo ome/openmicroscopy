@@ -1505,7 +1505,8 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
             obj.column as column,
             plate.id as plateId,
             plate.columnNamingConvention as colnames,
-            plate.rowNamingConvention as rownames)
+            plate.rowNamingConvention as rownames,
+            plate.name as platename)
         from Well obj
             join obj.annotationLinks alink
             join obj.plate plate
@@ -1524,8 +1525,9 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
              e[0]["column"],
              e[0]["plateId"],
              e[0]["rownames"],
-             e[0]["colnames"]]
-        wells.append(_marshal_well(conn, e[0:8]))
+             e[0]["colnames"],
+             e[0]["platename"]]
+        wells.append(_marshal_well(conn, e[0:9]))
     tagged['wells'] = wells
 
     return tagged
@@ -1544,7 +1546,8 @@ def _marshal_well(conn, row):
         @param row The Well row to marshal
         @type row L{list}
     '''
-    well_id, owner_id, perms, row, col, plateId, rownames, colnames = row
+    well_id, owner_id, perms, row, col, plateId, rownames, colnames,\
+        platename = row
     well = dict()
     well['id'] = unwrap(well_id)
     well['ownerId'] = unwrap(owner_id)
@@ -1553,7 +1556,7 @@ def _marshal_well(conn, row):
         parse_permissions_css(perms, unwrap(owner_id), conn)
     rowname = str(row + 1) if rownames == 'number' else _letterGridLabel(row)
     colname = _letterGridLabel(col) if colnames == 'letter' else str(col + 1)
-    well['name'] = "%s%s" % (rowname, colname)
+    well['name'] = "%s - %s%s" % (platename, rowname, colname)
     return well
 
 
@@ -1851,7 +1854,7 @@ def marshal_annotations(conn, project_ids=None, dataset_ids=None,
             join fetch ch.details.creationEvent
             join fetch ch.details.owner
             left outer join fetch ch.file as file
-            where %s
+            where %s order by ch.ns
             """ % (dtype, ' and '.join(where_clause))
 
         for link in qs.findAllByQuery(q, params, service_opts):

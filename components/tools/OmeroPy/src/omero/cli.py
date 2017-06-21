@@ -36,6 +36,7 @@ import shlex
 import errno
 from threading import Lock
 from path import path
+from contextlib import contextmanager
 
 from omero_ext.argparse import ArgumentError
 from omero_ext.argparse import ArgumentTypeError
@@ -50,6 +51,7 @@ from omero_ext.argparse import SUPPRESS
 from omero.util.concurrency import get_event
 
 import omero
+import warnings
 
 #
 # Static setup
@@ -404,6 +406,23 @@ ENV_HELP = """Environment variables:
                     Default: $OMERO_USERDIR/tmp
 """
 
+SUDO_HELP = """
+The --sudo option is available to all
+commands accepting connection arguments.
+
+Below are a few examples showing how to use the sudo option
+
+Examples (admin or group owner only):
+
+    # Import data for user *username*
+    bin/omero import --sudo root -s servername -u username image.tiff
+    # Create a connection as another user
+    bin/omero login --sudo root -s servername -u username -g groupname
+    Password for root:
+    bin/omero login --sudo owner -s servername -u username -g groupname
+    Password for owner:
+"""
+
 
 class Context:
     """Simple context used for default logic. The CLI registry which registers
@@ -429,7 +448,7 @@ class Context:
         self.isquiet = False
         # This usage will go away and default will be False
         self.isdebug = DEBUG
-        self.topics = {"debug": DEBUG_HELP, "env": ENV_HELP}
+        self.topics = {"debug": DEBUG_HELP, "env": ENV_HELP, "sudo": SUDO_HELP}
         self.parser = Parser(prog=prog, description=OMERODOC)
         self.subparsers = self.parser_init(self.parser)
 
@@ -801,6 +820,12 @@ class BaseControl(object):
                 continue
             break
         return root_pass
+
+    def _add_wait(self, parser, default=-1):
+        parser.add_argument(
+            "--wait", type=long,
+            help="Number of seconds to wait for the processing to complete "
+            "(Indefinite < 0; No wait=0).", default=default)
 
     def get_subcommands(self):
         """Return a list of subcommands"""
@@ -1403,6 +1428,35 @@ class CLI(cmd.Cmd, Context):
     ###########################################################
 
 
+@contextmanager
+def cli_login(*args, **kwargs):
+    """
+    args will be appended to ["-q", "login"] and then
+    passed to onecmd
+
+    kwargs:
+      - keep_alive
+    """
+
+    keep_alive = kwargs.get("keep_alive", 300)
+    try:
+        cli = omero.cli.CLI()
+        cli.loadplugins()
+        login = ["-q", "login"]
+        login.extend(list(args))
+        cli.onecmd(login)
+        if keep_alive is not None:
+            client = cli.get_client()
+            if client is not None:
+                keep_alive = int(keep_alive)
+                client.enableKeepAlive(keep_alive)
+            else:
+                raise Exception("Failed to login")
+        yield cli
+    finally:
+        cli.close()
+
+
 def argv(args=sys.argv):
     """
     Main entry point for the OMERO command-line interface. First
@@ -1570,10 +1624,7 @@ class CmdControl(BaseControl):
 
     def _configure(self, parser):
         parser.set_defaults(func=self.main_method)
-        parser.add_argument(
-            "--wait", type=long,
-            help="Number of seconds to wait for the processing to complete "
-            "(Indefinite < 0; No wait=0).", default=-1)
+        self._add_wait(parser, default=-1)
 
     def main_method(self, args):
         client = self.ctx.conn(args)
@@ -1620,6 +1671,8 @@ class CmdControl(BaseControl):
         if err:
             self.ctx.err(err)
         else:
+            if hasattr(req, 'dryRun') and req.dryRun:
+                self.ctx.out("Dry run performed")
             self.ctx.out("ok")
 
         if detailed:
@@ -1686,10 +1739,7 @@ class GraphControl(CmdControl):
 
     def _configure(self, parser):
         parser.set_defaults(func=self.main_method)
-        parser.add_argument(
-            "--wait", type=long,
-            help="Number of seconds to wait for the processing to complete "
-            "(Indefinite < 0; No wait=0).", default=-1)
+        self._add_wait(parser, default=-1)
         parser.add_argument(
             "--include",
             help="Modifies the given option by including a list of objects")
@@ -1776,7 +1826,13 @@ class GraphControl(CmdControl):
                 opt.excludeType = exc
 
         commands, forces = zip(*args.obj)
+        show = not (args.force or args.dry_run)
         needsForce = any(forces)
+        if needsForce and show:
+            warnings.warn("\nUsing '--dry-run'.\
+                          Future versions will switch to '--force'.\
+                          Explicitly set the parameter for portability",
+                          DeprecationWarning)
         for req in commands:
             req.dryRun = args.dry_run or needsForce
             if args.force:

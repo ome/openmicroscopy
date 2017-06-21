@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -19,8 +19,6 @@
  *------------------------------------------------------------------------------
  */
 package omero.gateway.model;
-
-import static omero.rtypes.rstring;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -69,7 +67,7 @@ public class TermAnnotationData extends AnnotationData {
     public void setTerm(String term) {
         if (term == null) return;
         setDirty(true);
-        ((TermAnnotation) asAnnotation()).setTermValue(rstring(term));
+        ((TermAnnotation) asAnnotation()).setTermValue(omero.rtypes.rstring(term));
     }
 
     /**
@@ -103,7 +101,7 @@ public class TermAnnotationData extends AnnotationData {
             return;
         }
         setDirty(true);
-        asAnnotation().setDescription(rstring(value));
+        asAnnotation().setDescription(omero.rtypes.rstring(value));
     }
 
     /**

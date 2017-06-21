@@ -42,7 +42,7 @@ body {
 
 a:hover, a, a:visited {
     color: #1B7BC7;
-	color: hsl(200,60%,30%);
+	color: hsl(207,60%,40%);
 	-webkit-transition: all .2s linear;
     -webkit-transition: left 0s linear;
     text-decoration: none;

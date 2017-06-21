@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -34,11 +32,11 @@ import org.springframework.util.ResourceUtils;
  * 
  * Example:
  * 
- * <project ...> <taskdef name="dsl" classname="DSLTask" /> <property
- * name="dest.dir" value="${basedir}/gen-src/mappings"/> <target
- * name="generate"> <mkdir dir="${dest.dir}" /> <dsl outputdir="${dest.dir}">
- * <fileset dir="${mapping.dir}"> <include name="*.xml" /> </fileset> </dsl>
- * </target> </project>
+ * <project name="dsl"><taskdef name="dsl" classname="DSLTask" /><property
+ * name="dest.dir" value="${basedir}/gen-src/mappings"/><target
+ * name="generate"> <mkdir dir="${dest.dir}" /><dsl outputdir="${dest.dir}">
+ * <fileset dir="${mapping.dir}"> <include name="*.xml" /></fileset></dsl>
+ * </target></project>
  */
 public class DSLTask extends Task {
 

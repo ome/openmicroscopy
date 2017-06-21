@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2017 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -26,6 +26,8 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -51,7 +53,7 @@ import omero.cmd.SkipHead;
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.1.0
  */
-public class GraphRequestFactory {
+public class GraphRequestFactory implements ApplicationContextAware {
     private static final Logger LOGGER = LoggerFactory.getLogger(GraphRequestFactory.class);
 
     private final ACLVoter aclVoter;
@@ -63,6 +65,8 @@ public class GraphRequestFactory {
     private final ImmutableMap<Class<? extends Request>, GraphPolicy> graphPolicies;
     private final ImmutableSetMultimap<String, String> unnullable;
     private final ImmutableSet<String> defaultExcludeNs;
+
+    private ApplicationContext applicationContext = null;
 
     /**
      * Construct a new graph request factory.
@@ -76,6 +80,7 @@ public class GraphRequestFactory {
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      * @param defaultExcludeNs the default value for an unset excludeNs field
      * @throws GraphException if the graph path rules could not be parsed
+     * @deprecated from OMERO 5.4 the systemTypes argument is no longer included
      */
     public GraphRequestFactory(ACLVoter aclVoter, Roles securityRoles, SystemTypes systemTypes, GraphPathBean graphPathBean,
             Deletion deletionInstance, Map<Class<? extends Request>, List<String>> allTargets,
@@ -114,6 +119,11 @@ public class GraphRequestFactory {
         this.unnullable = unnullableBuilder.build();
 
         this.defaultExcludeNs = ImmutableSet.copyOf(defaultExcludeNs);
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
     }
 
     /**
@@ -157,9 +167,10 @@ public class GraphRequestFactory {
                 }
                 if (GraphModify2.class.isAssignableFrom(requestClass)) {
                     final Constructor<R> constructor = requestClass.getConstructor(ACLVoter.class, Roles.class, SystemTypes.class,
-                            GraphPathBean.class, Deletion.class, Set.class, GraphPolicy.class, SetMultimap.class);
+                            GraphPathBean.class, Deletion.class, Set.class, GraphPolicy.class, SetMultimap.class,
+                            ApplicationContext.class);
                     request = constructor.newInstance(aclVoter, securityRoles, systemTypes, graphPathBean, deletionInstance,
-                            targetClasses, graphPolicy, unnullable);
+                            targetClasses, graphPolicy, unnullable, applicationContext);
                 } else {
                     final Constructor<R> constructor = requestClass.getConstructor(ACLVoter.class, Roles.class, SystemTypes.class,
                             GraphPathBean.class, Set.class, GraphPolicy.class);

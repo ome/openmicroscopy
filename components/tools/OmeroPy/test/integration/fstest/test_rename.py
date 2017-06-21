@@ -22,7 +22,7 @@
 
 import pytest
 
-from test.integration.test_repository import AbstractRepoTest
+from omero.testlib import AbstractRepoTest
 from omero.constants.namespaces import NSFSRENAME
 from omero.plugins.fs import contents
 from omero.plugins.fs import prep_directory
@@ -81,7 +81,7 @@ class TestRename(AbstractRepoTest):
         """
         for source, target in tomove:
             cb = self.raw("mv", [source, target], client=self.root)
-            self.assertPasses(cb)
+            self.assert_passes(cb)
 
     @pytest.mark.parametrize("data", (
         ("user1", "user1", "rw----", True),
@@ -98,10 +98,10 @@ class TestRename(AbstractRepoTest):
             "user2": self.new_client(group=group),
             "root": self.root,
         }
-        orig_img = self.importMIF(name="rename",
-                                  sizeX=16, sizeY=16,
-                                  with_companion=True,
-                                  client=clients[owner])[0]
+        orig_img = self.import_fake_file(name="rename",
+                                         sizeX=16, sizeY=16,
+                                         with_companion=True,
+                                         client=clients[owner])[0]
         orig_fs = self.get_fileset([orig_img], clients[owner])
 
         uid = orig_fs.details.owner.id.val
@@ -127,7 +127,7 @@ class TestRename(AbstractRepoTest):
     def test_rename_annotation(self):
         ns = NSFSRENAME
         mrepo = self.client.getManagedRepository()
-        orig_img = self.importMIF(with_companion=True)
+        orig_img = self.import_fake_file(with_companion=True)
         orig_fs = self.get_fileset(orig_img)
         new_dir = prep_directory(self.client, mrepo)
         self.assert_rename(orig_fs, new_dir)

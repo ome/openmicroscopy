@@ -123,7 +123,7 @@ class ImViewerModel
 {
 
     /** Default maximum export size, 12kx12kx image */
-    static int DEFAULT_MAX_EXPORT_SIZE = 144000000;
+    static long DEFAULT_MAX_EXPORT_SIZE = 144000000;
     
 	/** The maximum size for the bird eye view for standard screen size.*/
 	private static final int BIRD_EYE_SIZE_LOWER = 128;
@@ -679,6 +679,16 @@ class ImViewerModel
             this.scaleBarUnit = tmp.getUnit();
         }
         return scaleBarUnit;
+    }
+    
+    /**
+     * Set the unit used for the scalebar
+     * 
+     * @param unit
+     *            The unit
+     */
+    public void setScaleBarUnit(UnitsLength unit) {
+        this.scaleBarUnit = unit;
     }
 	
 	/**
@@ -1357,13 +1367,14 @@ class ImViewerModel
         if (getPixelsData() == null)
             return false;
 
-        int imgSize = getPixelsData().getSizeX() * getPixelsData().getSizeY();
-        int maxSize = DEFAULT_MAX_EXPORT_SIZE;
+        long imgSize = (long) (getPixelsData().getSizeX() * getZoomFactor())
+                * (long) (getPixelsData().getSizeY() * getZoomFactor());
+        long maxSize = DEFAULT_MAX_EXPORT_SIZE;
         String tmp = (String) ImViewerAgent.getRegistry().lookup(
                 LookupNames.MAX_EXPORT_SIZE);
         if (tmp != null) {
             try {
-                maxSize = Integer.parseInt(tmp);
+                maxSize = Long.parseLong(tmp);
             } catch (NumberFormatException e) {
                 ImViewerAgent
                         .getRegistry()
@@ -2936,6 +2947,8 @@ class ImViewerModel
 		tiles.clear();
 		rnd.setSelectedResolutionLevel(level);
 		initializeTiles();
+		
+		browser.setSelectedResolutionLevelZoomFactor(getResolutionDescription().getRatio());
 	}
 	
 	/**

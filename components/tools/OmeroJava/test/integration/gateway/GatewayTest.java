@@ -39,7 +39,9 @@ import omero.gateway.facility.DataManagerFacility;
 import omero.gateway.facility.Facility;
 import omero.gateway.facility.ROIFacility;
 import omero.gateway.facility.RawDataFacility;
+import omero.gateway.facility.ROIFacility;
 import omero.gateway.facility.SearchFacility;
+import omero.gateway.facility.TablesFacility;
 import omero.gateway.facility.TransferFacility;
 import omero.log.SimpleLogger;
 import omero.model.IObject;
@@ -82,7 +84,8 @@ public class GatewayTest {
     TransferFacility transferFacility = null;
     DataManagerFacility datamanagerFacility = null;
     ROIFacility roiFacility = null;
-    
+    TablesFacility tablesFacility = null;
+
     @Test
     public void testConnected() throws DSOutOfServiceException {
         String version = gw.getServerVersion();
@@ -124,6 +127,7 @@ public class GatewayTest {
                 gw);
         roiFacility = Facility.getFacility(ROIFacility.class,
                 gw);
+        tablesFacility = Facility.getFacility(TablesFacility.class, gw);
     }
 
     @AfterClass(alwaysRun = true)
@@ -221,8 +225,8 @@ public class GatewayTest {
     private long createImage(SecurityContext ctx) throws Exception {
         String name = UUID.randomUUID().toString();
         IPixelsPrx svc = gw.getPixelsService(ctx);
-        List<IObject> types = svc
-                .getAllEnumerations(PixelsType.class.getName());
+        List<IObject> types = gw.getTypesService(ctx)
+                .allEnumerations(PixelsType.class.getName());
         List<Integer> channels = new ArrayList<Integer>();
         for (int i = 0; i < 3; i++) {
             channels.add(i);

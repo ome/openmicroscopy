@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
-import static omero.rtypes.rstring;
 import omero.RString;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
@@ -295,7 +294,7 @@ public class FileAnnotationData extends AnnotationData {
     {
         if (description == null || description.trim().length() == 0) return;
         setDirty(true);
-        asAnnotation().setDescription(rstring(description));
+        asAnnotation().setDescription(omero.rtypes.rstring(description));
     }
 
     /**

@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -29,7 +29,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import static omero.rtypes.*;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.GroupExperimenterMap;
@@ -176,7 +175,7 @@ public class GroupData extends DataObject {
             throw new IllegalArgumentException("The name cannot be null.");
         }
         setDirty(true);
-        asGroup().setName(rstring(name));
+        asGroup().setName(omero.rtypes.rstring(name));
     }
 
     /**
@@ -201,7 +200,7 @@ public class GroupData extends DataObject {
     public void setDescription(String description) {
         if (description == null) return;
         setDirty(true);
-        asGroup().setDescription(rstring(description));
+        asGroup().setDescription(omero.rtypes.rstring(description));
     }
 
     // Lazy loaded links

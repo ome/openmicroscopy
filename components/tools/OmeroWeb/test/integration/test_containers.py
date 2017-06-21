@@ -45,7 +45,7 @@ class TestContainers(IWebTest):
         """
         print dir(self)
 
-        pixels = self.pix(client=self.client)
+        pixels = self.create_pixels(client=self.client)
         for the_c in range(pixels.getSizeC().val):
             channel = omero.model.ChannelI()
             channel.logicalChannel = omero.model.LogicalChannelI()
@@ -154,8 +154,8 @@ class TestContainers(IWebTest):
     def test_edit_share(self):
 
         # create images
-        images = [self.createTestImage(session=self.sf),
-                  self.createTestImage(session=self.sf)]
+        images = [self.create_test_image(session=self.sf),
+                  self.create_test_image(session=self.sf)]
 
         sid = self.sf.getShareService().createShare(
             "foobar", rtime(None), images, [self.user], [], True)

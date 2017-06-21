@@ -14,6 +14,8 @@ from omeroweb.testlib import IWebTest
 
 from omero.model import PlateI, WellI, WellSampleI
 from omero.model import FileAnnotationI, OriginalFileI, PlateAnnotationLinkI
+from omero.model import LengthI
+from omero.model.enums import UnitsLength
 from omero.rtypes import rint, rstring, rtime
 from omero.gateway import BlitzGateway
 from omero.grid import WellColumn, StringColumn
@@ -67,10 +69,14 @@ def update_service(client):
 @pytest.fixture()
 def well_sample_factory(itest):
 
-    def make_well_sample():
+    def make_well_sample(x_pos=None, y_pos=None):
         ws = WellSampleI()
         image = itest.new_image(name=itest.uuid())
         ws.image = image
+        if x_pos is not None:
+            ws.posX = LengthI(x_pos, UnitsLength.REFERENCEFRAME)
+        if y_pos is not None:
+            ws.posY = LengthI(y_pos, UnitsLength.REFERENCEFRAME)
         return ws
     return make_well_sample
 
@@ -80,8 +86,8 @@ def well_factory(well_sample_factory):
 
     def make_well(ws_count=0):
         well = WellI()
-        for _ in range(ws_count):
-            well.addWellSample(well_sample_factory())
+        for i in range(ws_count):
+            well.addWellSample(well_sample_factory(i, i + 1))
         return well
     return make_well
 
@@ -292,10 +298,35 @@ class TestPlateGrid(object):
                 if len(well_samples) > field:
                     img = well_samples[field].getImage()
                     assert well_metadata['name'] == img.name.val
-                    # expect default thumbnail (no size specified)
-                    assert well_metadata['thumb_url'] ==\
-                        reverse('webgateway.views.render_thumbnail',
-                                args=[img.id.val])
+                    # by default thumbprefix is not set,
+                    # thumbnail url is not restored
+                    # this is string, see PlateGrid
+                    assert well_metadata['thumb_url'] == str(img.id.val)
+
+    def test_well_images(self, django_client, plate_wells, conn):
+        """
+        Test listing of wellSamples/images in a Well
+        """
+        for well in plate_wells.copyWells():
+            request_url = reverse('webgateway_listwellimages_json',
+                                  args=[well.id.val])
+            response = django_client.get(request_url)
+            assert response.status_code == 200
+            well_json = json.loads(response.content)
+            rf = str(UnitsLength.REFERENCEFRAME)
+            for i, ws in enumerate(well.copyWellSamples()):
+                ws_json = well_json[i]
+                img = ws.getImage()
+                assert ws_json['name'] == img.name.val
+                assert ws_json['id'] == img.id.val
+                assert ws_json['thumb_url'] ==\
+                    reverse('webgateway.views.render_thumbnail',
+                            args=[img.id.val])
+                assert ws_json['position'] == {'x': {'value': i,
+                                               'unit': rf},
+                                               'y': {'value': i + 1,
+                                                     'unit': rf}
+                                               }
 
     def test_instantiation(self, plate_wells, conn):
         """

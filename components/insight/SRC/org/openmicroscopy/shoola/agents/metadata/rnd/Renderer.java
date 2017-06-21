@@ -860,4 +860,15 @@ public interface Renderer
      *            The channel index
      */
     void resetLookupTable(int index);
+
+    
+    /**
+     * Set the histogram data for the given channel
+     * 
+     * @param ch
+     *            The channel index
+     * @param data
+     *            The data
+     */
+    void setHistogramData(int ch, int[] data);
 }

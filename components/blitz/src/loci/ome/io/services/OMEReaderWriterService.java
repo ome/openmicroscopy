@@ -32,6 +32,10 @@ import loci.formats.IFormatReader;
  *
  * @author callan
  */
+/**
+ * @deprecated  As of release 5.3.0
+ */
+@Deprecated
 public interface OMEReaderWriterService extends Service {
 
   /**

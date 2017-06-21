@@ -80,7 +80,8 @@ var MapAnnsPane = function MapAnnsPane($element, opts) {
                 traditional: true,
                 success: function(data){
 
-                    var experimenters = []
+                    var experimenters = [];
+                    var batchAnn = objects.length > 1;
                     if (data.experimenters.length > 0) {
                         // manipulate data...
                         // make an object of eid: experimenter
@@ -109,6 +110,11 @@ var MapAnnsPane = function MapAnnsPane($element, opts) {
                     var map_annotations = [];
 
                     anns.forEach(function(ann){
+                        if (batchAnn) {
+                            // Don't allow editing in batch annotate panel
+                            // Get error if all rows are deleted then try to add new map
+                            ann.permissions.canEdit = false;
+                        }
                         if (isMyClientMapAnn(ann)) {
                             my_client_map_annotations.push(ann);
                         } else if (isClientMapAnn(ann)) {
@@ -121,22 +127,25 @@ var MapAnnsPane = function MapAnnsPane($element, opts) {
                     // Update html...
                     var html = "";
                     var showHead = true;
-                    if (canAnnotate) {
+                    // If not batch_annotate, add placeholder to create map ann
+                    if (canAnnotate && !batchAnn) {
                         if (my_client_map_annotations.length === 0) {
                             showHead = false;
                             my_client_map_annotations = [{}];   // placeholder
                         }
-                        html = mapAnnsTempl({'anns': my_client_map_annotations,
-                        'showTableHead': showHead, 'showNs': false, 'clientMapAnn': true});
                     }
+                    // In batch_annotate view, we show which object each map is linked to
+                    var showParent = batchAnn;
+                    html = mapAnnsTempl({'anns': my_client_map_annotations,
+                        'showTableHead': showHead, 'showNs': false, 'clientMapAnn': true, 'showParent': showParent});
                     html = html + mapAnnsTempl({'anns': client_map_annotations,
-                        'showTableHead': false, 'showNs': false, 'clientMapAnn': true});
+                        'showTableHead': false, 'showNs': false, 'clientMapAnn': true, 'showParent': showParent});
                     html = html + mapAnnsTempl({'anns': map_annotations,
-                        'showTableHead': false, 'showNs': true, 'clientMapAnn': false});
+                        'showTableHead': false, 'showNs': true, 'clientMapAnn': false, 'showParent': showParent});
                     $mapAnnContainer.html(html);
 
                     // Finish up...
-                    OME.linkify_element($( "table.keyValueTable tbody tr" ));
+                    OME.linkify_element($( "table.keyValueTable" ));
                     OME.filterAnnotationsAddedBy();
                     $(".tooltip", $mapAnnContainer).tooltip_init();
                 }

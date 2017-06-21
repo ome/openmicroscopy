@@ -648,6 +648,13 @@
   License File: jquery.txt
 
 
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/d3*
+  Project:      d3.js
+  Web Site:     http://underscorejs.org/
+  License:      BSD
+  License File: bsd.txt
+
+
   //
   // Used but not distributed
   //

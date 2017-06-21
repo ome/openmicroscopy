@@ -152,6 +152,32 @@ public class UnitBarSizeAction
     	return values[index];
     }
     
+    /**
+     * Returns the index corresponding to the passed value or
+     * <code>CUSTOMIZED</code>.
+     * 
+     * @param value
+     *            The value to handle.
+     * @return See above.
+     */
+    public static int getIndex(double value) {
+        if (value < values[TWO])
+            return ONE;
+        if (value < values[FIVE])
+            return TWO;
+        if (value < values[TEN])
+            return FIVE;
+        if (value < values[TWENTY])
+            return TEN;
+        if (value < values[FIFTY])
+            return TWENTY;
+        if (value < values[HUNDRED])
+            return FIFTY;
+        if (value < 1000)
+            return HUNDRED;
+        return CUSTOMIZED;
+    }
+    
     /** One of the constant defined by this class. */
     private int     index;
     

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.config.OMEROEntry
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -109,7 +109,8 @@ class OMEROEntry
 		}
 		if (value == null) return true;
 		value = value.toLowerCase();
-		if (AgentInfo.TRUE.equals(value) || AgentInfo.TRUE.equals(value))
+		if (AgentInfo.TRUE.equals(value) ||
+                AgentInfo.TRUE_SHORT.equals(value))
 			return true;
 		else if (AgentInfo.FALSE.equals(value) ||
 				AgentInfo.FALSE_SHORT.equals(value))

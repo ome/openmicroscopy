@@ -242,6 +242,28 @@ class TestPixels (object):
             assert not e.close
             assert found == 1
 
+    def testGetHistogram(self, gatewaywrapper):
+        """
+        Tests we get data of the right size and close rawPixelsStore
+        """
+        image = self.image
+
+        # Should be 0 services already open, but don't enforce it...
+        current_services = gatewaywrapper.gateway.c.getStatefulServices()
+        current_count = len(current_services)
+
+        channels = [0, 1]
+        binSize = 100
+        theZ = 0
+        theT = 0
+        histogram = image.getHistogram(channels, binSize, theZ=theZ, theT=theT)
+        assert histogram.keys() == channels
+        assert len(histogram[0]) == binSize
+
+        # ...as long as we haven't left additional services open
+        services = gatewaywrapper.gateway.c.getStatefulServices()
+        assert len(services) == current_count
+
 
 class MockRawPixelsStore(object):
 

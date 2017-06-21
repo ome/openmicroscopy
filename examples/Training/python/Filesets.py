@@ -31,14 +31,14 @@ conn.connect()
 # create an image or set of images in OMERO.
 image = conn.getObject("Image", imageId)
 fileset = image.getFileset()       # will be None for pre-FS images
-fsId = fileset.getId()
+fs_id = fileset.getId()
 # List all images that are in this fileset
-for fsImage in fileset.copyImages():
-    print fsImage.getId(), fsImage.getName()
+for fs_image in fileset.copyImages():
+    print fs_image.getId(), fs_image.getName()
 # List original imported files
-for origFile in fileset.listFiles():
-    name = origFile.getName()
-    path = origFile.getPath()
+for orig_file in fileset.listFiles():
+    name = orig_file.getName()
+    path = orig_file.getPath()
     print path, name
 
 
@@ -47,21 +47,21 @@ for origFile in fileset.listFiles():
 # this will include pre-FS data IF images were archived on import
 print image.countImportedImageFiles()
 # specifically count Fileset files
-fileCount = image.countFilesetFiles()
+file_count = image.countFilesetFiles()
 # list files
-if fileCount > 0:
-    for origFile in image.getImportedImageFiles():
-        name = origFile.getName()
-        path = origFile.getPath()
+if file_count > 0:
+    for orig_file in image.getImportedImageFiles():
+        name = orig_file.getName()
+        path = orig_file.getPath()
         print path, name
 
 
 # Can get the Fileset using conn.getObject()
 # ==========================================
-fileset = conn.getObject("Fileset", fsId)
+fileset = conn.getObject("Fileset", fs_id)
 
 
 # Close connection
 # ================
 # When you are done, close the session to free up server resources.
-conn._closeSession()
+conn.close()

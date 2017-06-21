@@ -9,6 +9,7 @@
 package omero.util;
 
 import static omero.rtypes.rbool;
+import static omero.rtypes.rclass;
 import static omero.rtypes.rdouble;
 import static omero.rtypes.rfloat;
 import static omero.rtypes.rint;
@@ -422,6 +423,10 @@ public class IceMapper extends ome.util.ModelMapper implements
             Boolean b = (Boolean) o;
             omero.RBool bool = rbool(b.booleanValue());
             return bool;
+        } else if (o instanceof Class) {
+            Class c = (Class) o;
+            omero.RClass rc = rclass(c.getName());
+            return rc;
         } else if (o instanceof Date) {
             Date date = (Date) o;
             omero.RTime time = rtime(date.getTime());

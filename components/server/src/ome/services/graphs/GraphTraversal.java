@@ -476,6 +476,7 @@ public class GraphTraversal {
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      * @param policy how to determine which related objects to include in the operation
      * @param processor how to operate on the resulting target object graph
+     * @deprecated from OMERO 5.4 the systemTypes argument is no longer included
      */
     public GraphTraversal(Session session, EventContext eventContext, ACLVoter aclVoter, SystemTypes systemTypes,
             GraphPathBean graphPathBean, SetMultimap<String, String> unnullable, GraphPolicy policy, Processor processor) {
@@ -498,6 +499,7 @@ public class GraphTraversal {
      * @param applyRules if the given model objects should have the policy rules applied to them
      * @return the model objects included in the operation, and the deleted objects
      * @throws GraphException if the model objects were not as expected
+     * @deprecated from OMERO 5.4 the session argument is no longer included
      */
     public Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> planOperation(Session session,
             SetMultimap<String, Long> objects, boolean include, boolean applyRules) throws GraphException {
@@ -538,6 +540,7 @@ public class GraphTraversal {
      * @param applyRules if the given model objects should have the policy rules applied to them
      * @return the model objects included in the operation, and the deleted objects, may be unloaded with ID only
      * @throws GraphException if the model objects were not as expected
+     * @deprecated from OMERO 5.4 the session argument is no longer included
      */
     public Entry<Collection<IObject>, Collection<IObject>> planOperation(Session session,
             Collection<? extends IObject> objectInstances, boolean include, boolean applyRules) throws GraphException {
