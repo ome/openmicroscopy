@@ -537,7 +537,7 @@
                     // If a project is selected (or selected is a child of project) create dataset under it
                     var url, position = 0;
                     var parent = false;
-                    if(selected.length > 0 && cont_type == 'dataset') {
+                    if (selected.length > 0 && cont_type == 'dataset') {
                         if (selected[0].type === 'project') {
                             parent = selected[0];
                         } else if (inst.get_node(selected[0].parent).type === 'project') {
