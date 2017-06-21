@@ -100,7 +100,7 @@ class IWebTest(ITest):
 
 
 # Helpers
-def _response(django_client, request_url, method, data, status_code=403,
+def _response(django_client, request_url, method, data=None, status_code=200,
               content_type=MULTIPART_CONTENT, **extra):
     response = getattr(django_client, method)(request_url,
                                               data=data,
@@ -110,7 +110,63 @@ def _response(django_client, request_url, method, data, status_code=403,
     return response
 
 
+def csrf_response(django_client, request_url, method, data=None,
+                  status_code=200, content_type=MULTIPART_CONTENT):
+    """
+    Helper for testing post/put/delete with and without CSRF.
+
+    :param django_client:   Django test Client
+    :param request_url:     The url to request
+    :param data:            A dict of data to include as json content
+    :param status_code:     Verify that the response has this status
+    :param content_type:    Content type for request
+
+    """
+    # First check that this would fail with 403 without CSRF token
+    _response(django_client, request_url, method=method, data=data,
+              status_code=403, content_type=content_type)
+
+    # Should work as expected with CSRF token
+    csrf_token = django_client.cookies['csrftoken'].value
+    extra = {'HTTP_X_CSRFTOKEN': csrf_token}
+    return _response(django_client, request_url, method=method, data=data,
+                     status_code=status_code, content_type=content_type,
+                     **extra)
+
+
 # POST
+def post(django_client, request_url, data=None, status_code=200,
+         content_type=MULTIPART_CONTENT):
+    """
+    Performs a POST request, and returns the response.
+
+    :param django_client:   Django test Client
+    :param request_url:     The url to request
+    :param data:            A dict of data to include as json content
+    :param status_code:     Verify that the response has this status
+    :param content_type:
+
+    """
+    return csrf_response(django_client, request_url, "post", data=data,
+                         status_code=status_code, content_type=content_type)
+
+
+def post_json(django_client, request_url, data=None, status_code=200):
+    """
+    Performs a POST request, and returns the JSON response as a dict.
+
+    :param django_client:   Django test Client
+    :param request_url:     The url to request
+    :param data:            A dict of data to include as json content
+    :param status_code:     Verify that the response has this status
+
+    """
+    rsp = post(django_client, request_url, json.dumps(data),
+               status_code=status_code, content_type='application/json')
+    assert rsp.get('Content-Type') == 'application/json'
+    return json.loads(rsp.content)
+
+
 def _post_response(django_client, request_url, data, status_code=403,
                    content_type=MULTIPART_CONTENT, **extra):
     return _response(django_client, request_url, method='post', data=data,
@@ -159,6 +215,23 @@ def _csrf_post_json(django_client, request_url, data,
     return json.loads(rsp.content)
 
 
+def put_json(django_client, request_url, data=None, status_code=200):
+    """
+    Performs a PUT request, and returns the JSON response as a dict.
+
+    :param django_client:   Django test Client
+    :param request_url:     The url to request
+    :param data:            A dict of data to include as json content
+    :param status_code:     Verify that the response has this status
+
+    """
+    rsp = csrf_response(django_client, request_url, 'put', json.dumps(data),
+                        status_code=status_code,
+                        content_type='application/json')
+    assert rsp.get('Content-Type') == 'application/json'
+    return json.loads(rsp.content)
+
+
 # PUT json encoded as a string
 def _csrf_put_json(django_client, request_url, data,
                    status_code=200, content_type='application/json'):
@@ -198,6 +271,45 @@ def _csrf_delete_response_json(django_client, request_url,
 
 
 # GET
+def get(django_client, request_url, data=None, status_code=200, csrf=False):
+    """
+    Performs a GET request and returns the response.
+
+    :param django_client:   Django test Client
+    :param request_url:     The url to request
+    :param data:            A dictionary of data, used to build a query string
+    :param status_code:     Verify that the response has this status
+    :param csrf:            If true, add csrf token to query string
+    """
+    if csrf:
+        if data is None:
+            data = {}
+        csrf_token = django_client.cookies['csrftoken'].value
+        data['csrfmiddlewaretoken'] = csrf_token
+    if data is not None:
+        query_string = urlencode(data.items(), doseq=True)
+        request_url = '%s?%s' % (request_url, query_string)
+    return _response(django_client, request_url, 'get',
+                     status_code=status_code)
+
+
+def get_json(django_client, request_url, data=None, status_code=200,
+             csrf=False):
+    """
+    Performs a GET request and returns the JSON response as a dict.
+
+    :param django_client:   Django test Client
+    :param request_url:     The url to request
+    :param data:            A dictionary of data, used to build a query string
+    :param status_code:     Verify that the response has this status
+    :param csrf:            If true, add csrf token to query string
+
+    """
+    rsp = get(django_client, request_url, data, status_code, csrf)
+    assert rsp.get('Content-Type') == 'application/json'
+    return json.loads(rsp.content)
+
+
 def _get_response(django_client, request_url, query_string, status_code=405):
     query_string = urlencode(query_string.items(), doseq=True)
     response = django_client.get('%s?%s' % (request_url, query_string))
