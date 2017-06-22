@@ -215,6 +215,9 @@ public class PolylineAndPolygonTest extends TestCase {
 
         String pointsValues = toPoints(points);
         String pts = "points["+pointsValues+"] ";
+        pts = pts + "points1["+pointsValues+"] ";
+        pts = pts + "points2["+pointsValues+"] ";
+        pts = pts + "mask["+maskValues+"] ";
         shape.setPoints(rtypes.rstring(pts));
         PolygonData data = new PolygonData(shape);
         List<Point2D.Double> list = data.getPoints();
@@ -224,6 +227,17 @@ public class PolylineAndPolygonTest extends TestCase {
             p1 = list.get(i);
             assertEquals(p.getX(), p1.getX());
             assertEquals(p.getY(), p1.getY());
+        }
+        list = data.getPoints();
+        for (int i = 0; i < n; i++) {
+            p = points[i];
+            p1 = list.get(i);
+            assertEquals(p.getX(), p1.getX());
+            assertEquals(p.getY(), p1.getY());
+        }
+        List<Integer> ml = data.getMaskPoints();
+        for (int i = 0; i < n; i++) {
+            assertEquals(masks.get(i), ml.get(i));
         }
     }
 
@@ -245,6 +259,9 @@ public class PolylineAndPolygonTest extends TestCase {
 
         String pointsValues = toPoints(points);
         String pts = "points["+pointsValues+"] ";
+        pts = pts + "points1["+pointsValues+"] ";
+        pts = pts + "points2["+pointsValues+"] ";
+        pts = pts + "mask["+maskValues+"] ";
         shape.setPoints(rtypes.rstring(pts));
         PolygonData data = new PolygonData(shape);
         List<Point2D.Double> list = data.getPoints();
@@ -254,6 +271,17 @@ public class PolylineAndPolygonTest extends TestCase {
             p1 = list.get(i);
             assertEquals(p.getX(), p1.getX());
             assertEquals(p.getY(), p1.getY());
+        }
+        list = data.getPoints();
+        for (int i = 0; i < n; i++) {
+            p = points[i];
+            p1 = list.get(i);
+            assertEquals(p.getX(), p1.getX());
+            assertEquals(p.getY(), p1.getY());
+        }
+        List<Integer> ml = data.getMaskPoints();
+        for (int i = 0; i < n; i++) {
+            assertEquals(masks.get(i), ml.get(i));
         }
     }
     
