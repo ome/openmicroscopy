@@ -488,6 +488,7 @@ public class PermissionsTest extends AbstractServerTest {
      * @param isExpectSuccessOneTargetUser if the one-user chown is expected to succeed
      * @param isExpectSuccessTwoTargetUsers if the two-users chown is expected to succeed
      * @throws Exception unexpected
+     * @see <a href="https://docs.google.com/presentation/d/1b91OMuzs19q-e7obtr4-fWx4MMkickNwPUlf07LDGAc/edit">graphical explanation</a>
      */
     @Test(dataProvider = "chown targetUser test cases")
     public void testChownAllBelongingToUser(boolean areDataOwnersInOneGroup, boolean isAdmin, boolean isGroupOwner, boolean isRecipientInGroup,
