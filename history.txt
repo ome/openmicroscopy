@@ -8,8 +8,8 @@ This is a bug-fix release.
 
 Improvements include:
 
-- support for 2 new lookup tables from `Janelia <https://www.janelia.org/>`_
-- enabled the Preview tab for wells in right-hand panel of OMERO.web
+- support for two new lookup tables from `Janelia <https://www.janelia.org/>`_
+- fixed loading of Well in right-panel when browsing Well under Tag tree or from search results
 
 Sysadmin changes include:
 
@@ -19,11 +19,11 @@ Sysadmin changes include:
 
 Developer updates include:
 
-- added example on how to retrieve shapes from a ROI using batch querying for scalability
-- improved logging of error during deletion
+- added an example on how to retrieve shapes from a ROI using batch querying for scalability
+- improved logging of errors during deletion
 - added new methods to Java Gateway
 - improved login options in Java Gateway
-- specified image's dataset in url to give more context to OMERO.web apps 
+- specified an image's dataset in its url to give more context to OMERO.web apps 
 
 
 This release also upgrades the version of Bio-Formats which OMERO uses to
