@@ -193,7 +193,7 @@ public class LightAdminRolesTest extends RolesTests {
      * {@link #testImporterAsNoSudoChgrpChownWorkflow testImporterAsNoSudoChgrpChown} and {@link #testLinkNoSudo testLinkNoSudo}).
      * @param isSudoing if to test a success of workflows where Sudoed in
      * @param permWriteOwned if to test a user who has the <tt>WriteOwned</tt> privilege
-     * @param groupPermissions if to test the effect of group permission level
+     * @param groupPermissions to test the effect of group permission level
      * @throws Exception unexpected
      * @see <a href="https://docs.google.com/presentation/d/1JX6b9pkPtG-3hZIGSp2bu4WVvNKn6GHqIKdfbbJkiw8/edit">graphical explanation</a>
      */
@@ -288,7 +288,7 @@ public class LightAdminRolesTest extends RolesTests {
      * for this action.
      * @param isSudoing if to test a success of workflows where Sudoed in
      * @param permDeleteOwned if to test a user who has the <tt>DeleteOwned</tt> privilege
-     * @param groupPermissions if to test the effect of group permission level
+     * @param groupPermissions to test the effect of group permission level
      * @throws Exception unexpected
      * @see <a href="https://docs.google.com/presentation/d/1SRWiFJs7oIYJCSg8XpfeW0QyOPwbrSnAbXL_FaKF0I4/edit">graphical explanation</a>
      */
@@ -376,7 +376,7 @@ public class LightAdminRolesTest extends RolesTests {
      * or not using it, but having <tt>WriteOwned</tt> privilege instead.
      * @param isSudoing if to test a success of workflows where Sudoed in
      * @param permWriteOwned if to test a user who has the <tt>WriteOwned</tt> privilege
-     * @param groupPermissions if to test the effect of group permission level
+     * @param groupPermissions to test the effect of group permission level
      * @throws Exception unexpected
      * @see <a href="https://docs.google.com/presentation/d/18u5hRD_oFKjGlGQ7x55oUowrmdjS4HXkXKfJSlpbiVY/edit">graphical explanation</a>
      */
@@ -447,7 +447,7 @@ public class LightAdminRolesTest extends RolesTests {
      * to move annotations on the moved objects (tag and file attachment are tested here).
      * @param isSudoing if to test a success of workflows where Sudoed in
      * @param permChgrp if to test a user who has the <tt>Chgrp</tt> privilege
-     * @param groupPermissions if to test the effect of group permission level
+     * @param groupPermissions to test the effect of group permission level
      * @throws Exception unexpected
      * @see <a href="https://docs.google.com/presentation/d/1BUSzGp89en0Y7-5i7DkQbtVM-AgyfCJVa7rLhnMeO5A/edit">graphical explanation</a>
      */
@@ -527,7 +527,7 @@ public class LightAdminRolesTest extends RolesTests {
      * to move annotations (tag and file attachment are tested here).
      * @param isSudoing if to test a success of workflows where Sudoed in
      * @param permChgrp if to test a user who has the <tt>Chgrp</tt> privilege
-     * @param groupPermissions if to test the effect of group permission level
+     * @param groupPermissions to test the effect of group permission level
      * @throws Exception unexpected
      * @see <a href="https://docs.google.com/presentation/d/1c3TGh4bD5_djKO_-lJs5LoBjL0koYsko7QkyEuu-nXY/edit">graphical explanation</a>
      */
@@ -614,7 +614,7 @@ public class LightAdminRolesTest extends RolesTests {
      * general behavior of the <tt>Chown</tt> command.
      * @param isSudoing if to test a success of workflows where Sudoed in
      * @param permChown if to test a user who has the <tt>Chown</tt> privilege
-     * @param groupPermissions if to test the effect of group permission level
+     * @param groupPermissions to test the effect of group permission level
      * @throws Exception unexpected
      * @see <a href="https://docs.google.com/presentation/d/1r4qlG9JKLfTgS8s5xWM8SDJJ25t4RwSWuiy6BfFfO_o/edit">graphical explanation</a>
      */
@@ -706,7 +706,7 @@ public class LightAdminRolesTest extends RolesTests {
      * @param permWriteFile if to test a user who has the <tt>WriteFile</tt> privilege
      * @param permWriteManagedRepo if to test a user who has the <tt>WriteManagedRepo</tt> privilege
      * @param permChown if to test a user who has the <tt>Chown</tt> privilege
-     * @param groupPermissions if to test the effect of group permission level
+     * @param groupPermissions to test the effect of group permission level
      * @throws Exception unexpected
      * @see <a href="https://docs.google.com/presentation/d/1w_W6g69CV5Uy_rUom2K9O86w2Q2CGkl3rzNj-ZQzSt0/edit">graphical explanation</a>
      */
@@ -814,7 +814,7 @@ public class LightAdminRolesTest extends RolesTests {
      * lightAdmin will succeed if they have WriteOwned privilege.
      * @param permWriteOwned if to test a user who has the <tt>WriteOwned</tt> privilege
      * @param permChown if to test a user who has the <tt>Chown</tt> privilege
-     * @param groupPermissions if to test the effect of group permission level
+     * @param groupPermissions to test the effect of group permission level
      * @throws Exception unexpected
      * @see <a href="https://docs.google.com/presentation/d/1uetvPv-tsnHdRqkVvMx2xpHvVXYyUL2HTob8LUC6Mds/edit">graphical explanation</a>
      */
@@ -909,7 +909,7 @@ public class LightAdminRolesTest extends RolesTests {
          * privileges of lightAdmin are explored.
          * @param permChgrp if to test a user who has the <tt>Chgrp</tt> privilege
          * @param permChown if to test a user who has the <tt>Chown</tt> privilege
-         * @param groupPermissions if to test the effect of group permission level
+         * @param groupPermissions to test the effect of group permission level
          * @throws Exception unexpected
          * @see <a href="https://docs.google.com/presentation/d/1zqDRwYDm3wA_xE79M6qR56U8giFbLFDywH3slj0wURA/edit">graphical explanation</a>
          */
@@ -1032,7 +1032,7 @@ public class LightAdminRolesTest extends RolesTests {
      * is member, the recipient of the data is member of just one of the groups. Chown privilege
      * is sufficient for lightAdmin to perform the workflow.
      * @param isPrivileged if to test a user who has the <tt>Chown</tt> privilege
-     * @param groupPermissions if to test the effect of group permission level
+     * @param groupPermissions to test the effect of group permission level
      * @throws Exception unexpected
      * @see <a href="https://docs.google.com/presentation/d/1zbIu5gYPObbVkBSxdD4sMmPFMGgspbtYQEnJ9k8vfCs/edit">graphical explanation</a>
      */
@@ -1135,7 +1135,7 @@ public class LightAdminRolesTest extends RolesTests {
      * lightAdmin does not use Sudo in this test.
      * @param permWriteOwned if to test a user who has the <tt>WriteOwned</tt> privilege
      * @param permChown if to test a user who has the <tt>Chown</tt> privilege
-     * @param groupPermissions if to test the effect of group permission level
+     * @param groupPermissions to test the effect of group permission level
      * @throws Exception unexpected
      * @see <a href="https://docs.google.com/presentation/d/1ukEZmh0c6NCNKUE1dFqaYjN6Sd5xxCuOYkSuMdpiqvE/edit">graphical explanation</a>
      */
@@ -1259,7 +1259,7 @@ public class LightAdminRolesTest extends RolesTests {
      * @param permChown if to test a user who has the <tt>Chown</tt> privilege
      * @param permWriteOwned if to test a user who has the <tt>WriteOwned</tt> privilege
      * @param permWriteFile if to test a user who has the <tt>WriteFile</tt> privilege
-     * @param groupPermissions if to test the effect of group permission level
+     * @param groupPermissions to test the effect of group permission level
      * @throws Exception unexpected
      * @see <a href="https://docs.google.com/presentation/d/1jfdsPSvqJvBlN18vIFrRsNqh13eAlF5Gjh3G_MiGGAE/edit">graphical explanation</a>
      */
@@ -1363,7 +1363,7 @@ public class LightAdminRolesTest extends RolesTests {
      * Light admin (lightAdmin) tries to upload an official script.
      * lightAdmin succeeds in this if they have <tt>WriteScriptRepo</tt> permission.
      * @param isPrivileged if to test a user who has the <tt>WriteScriptRepo</tt> privilege
-     * @param groupPermissions if to test the effect of group permission level
+     * @param groupPermissions to test the effect of group permission level
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isPrivileged cases")
@@ -1423,7 +1423,7 @@ public class LightAdminRolesTest extends RolesTests {
      * Light admin (lightAdmin) tries to delete official script. 
      * lightAdmin will succeed if they have the <tt>DeleteScriptRepo</tt> privilege.
      * @param isPrivileged if to test a user who has the <tt>DeleteScriptRepo</tt> privilege
-     * @param groupPermissions if to test the effect of group permission level
+     * @param groupPermissions to test the effect of group permission level
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isPrivileged cases")
@@ -1503,7 +1503,7 @@ public class LightAdminRolesTest extends RolesTests {
      * To modify the group membership, lightAdmin attempts to add
      * an existing user to an existing group.
      * @param isPrivileged if to test a user who has the <tt>ModifyGroupMembership</tt> privilege
-     * @param groupPermissions if to test the effect of group permission level
+     * @param groupPermissions to test the effect of group permission level
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isPrivileged cases")
@@ -1533,7 +1533,7 @@ public class LightAdminRolesTest extends RolesTests {
      * To modify the group membership, lightAdmin attempts to remove
      * an existing user from an existing group.
      * @param isPrivileged if to test a user who has the <tt>ModifyGroupMembership</tt> privilege
-     * @param groupPermissions if to test the effect of group permission level
+     * @param groupPermissions to test the effect of group permission level
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isPrivileged cases")
@@ -1561,7 +1561,7 @@ public class LightAdminRolesTest extends RolesTests {
      * Light admin (lightAdmin) tries to make a user an owner of a group.
      * lightAdmin will succeed if they have the <tt>ModifyGroupMembership</tt> privilege.
      * @param isPrivileged if to test a user who has the <tt>ModifyGroupMembership</tt> privilege
-     * @param groupPermissions if to test the effect of group permission level
+     * @param groupPermissions to test the effect of group permission level
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isPrivileged cases")
@@ -1587,7 +1587,7 @@ public class LightAdminRolesTest extends RolesTests {
      * Light admin (lightAdmin) tries to unset a user from being an owner of a group.
      * lightAdmin will succeed if they have the <tt>ModifyGroupMembership</tt> privilege.
      * @param isPrivileged if to test a user who has the <tt>ModifyGroupMembership</tt> privilege
-     * @param groupPermissions if to test the effect of group permission level
+     * @param groupPermissions to test the effect of group permission level
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isPrivileged cases")
@@ -1622,7 +1622,7 @@ public class LightAdminRolesTest extends RolesTests {
      * Light admin (lightAdmin) tries to create a new user.
      * lightAdmin will succeed if they have the <tt>ModifyUser</tt> privilege.
      * @param isPrivileged if to test a user who has the <tt>ModifyUser</tt> privilege
-     * @param groupPermissions if to test the effect of group permission level
+     * @param groupPermissions to test the effect of group permission level
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isPrivileged cases")
@@ -1654,7 +1654,7 @@ public class LightAdminRolesTest extends RolesTests {
      * Light admin (lightAdmin) tries to edit an existing user.
      * lightAdmin will succeed if they have the <tt>ModifyUser</tt> privilege.
      * @param isPrivileged if to test a user who has the <tt>ModifyUser</tt> privilege
-     * @param groupPermissions if to test the effect of group permission level
+     * @param groupPermissions to test the effect of group permission level
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isPrivileged cases")
@@ -1681,7 +1681,7 @@ public class LightAdminRolesTest extends RolesTests {
      * Light admin (lightAdmin) tries to create a new group.
      * lightAmin will succeed if they have the <tt>ModifyGroup</tt> privilege.
      * @param isPrivileged if to test a user who has the <tt>ModifyGroup</tt> privilege
-     * @param groupPermissions if to test the effect of group permission level
+     * @param groupPermissions to test the effect of group permission level
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isPrivileged cases")
@@ -1710,7 +1710,7 @@ public class LightAdminRolesTest extends RolesTests {
      * Light admin (lightAdmin) tries to edit an existing group.
      * lightAdmin will succeed if they have the <tt>ModifyGroup</tt> privilege.
      * @param isPrivileged if to test a user who has the <tt>ModifyGroup</tt> privilege
-     * @param groupPermissions if to test the effect of group permission level
+     * @param groupPermissions to test the effect of group permission level
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isPrivileged cases")
