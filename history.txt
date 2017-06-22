@@ -23,7 +23,7 @@ Developer updates include:
 - improved logging of errors during deletion
 - added new methods to Java Gateway
 - improved login options in Java Gateway
-- specified an image's dataset in its url to give more context to OMERO.web apps 
+- specified an image's dataset in its URL to give more context to OMERO.web apps 
 
 
 This release also upgrades the version of Bio-Formats which OMERO uses to
