@@ -107,7 +107,7 @@ public class ROIFolderSaver extends BatchCallTree {
                 } else if (action == ROIFolderAction.DELETE_FOLDER) {
                     CmdCallbackI cb = dm.deleteFolders(ctx, folders, false, false);
                     // wait for the delete action to be finished
-                    Response res = cb.loop(20,500);
+                    Response res = cb.loop(20, 500);
                     if (res instanceof GraphException) {
                         GraphException ge = (GraphException) res;
                         throw new Exception("Couldn't delete folders: "+ge.message);
