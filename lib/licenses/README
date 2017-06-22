@@ -147,7 +147,7 @@
   License File: apache-v2.0.txt
 
 
-  Artifacts:    axis-saaj-*.jar
+  Artifacts:    axis2-saaj-*.jar
   Web Site:     http://axis.apache.org/
   License:      Apache Software License, Version 2
   License File: apache-v2.0.txt
@@ -171,6 +171,21 @@
   Web Site:     http://xml.apache.org/batik/
   License:      Apache Software License, Version 1.1
   License File: apache-v1.1.txt
+
+
+  Artifacts:    bcmail-jdk14-*.jar
+  Web Site:     http://www.bouncycastle.org
+  License:      Bouncy Castle License. To be read in the same way as the MIT License
+  License File: bouncy_castle_license.txt
+
+
+  Artifacts:    bcmprov-jdk14-*.jar
+  Project:      The Bouncy Castle Crypto package is a Java implementation of cryptographic algorithms.
+                The package is organised so that it contains a light-weight API suitable for use in any
+                environment (including the newly released J2ME) with the additional infrastructure to conform the algorithms to the JCE framework.
+  Web Site:     http://www.bouncycastle.org/java.html
+  License:      Bouncy Castle License. To be read in the same way as the MIT License
+  License File: bouncy_castle_license.txt
 
 
   Artifacts:    btm-*.jar
@@ -257,6 +272,27 @@
   Web Site:     http://www.fontbox.org/
   License:      BSD License
   License File: bsd.txt
+
+
+  Artifacts:    formats-api-*.jar
+  Project:      Top-level reader and writer APIs.
+  Web Site:     http://www.openmicroscopy.org/site/products/bio-formats
+  License:      BSD License
+  License File: bsd.txt
+
+
+  Artifacts:    formats-bsd-*.jar
+  Project:      Reader and writer implementations that are BSD-licensed.
+  Web Site:     http://www.openmicroscopy.org/site/products/bio-formats
+  License:      BSD License
+  License File: bsd.txt
+
+
+  Artifacts:    formats-gpl-*.jar
+  Project:      A library for reading and writing popular microscopy file formats.
+  Web Site:     http://www.openmicroscopy.org/site/products/bio-formats
+  License:      GNU General Public License v2+
+  License File: gpl.txt
 
 
   Artifacts:    freemarker-*.jar
@@ -427,6 +463,13 @@
   License:      Lesser General Public License (LGPL) v2.1
   License File: lgpl-v2.1.txt
 
+
+  Artifacts:    jaxrpc-api*.jar
+  Project:      Part of the Java Web Services Developer Pack 1.6
+  Web Site:     http://java.sun.com/webservices/jaxrpc/index.jsp
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
   
   Artifacts:    jcl-over-slf4j-*.jar
   Project:      JCL 1.1.1 implemented over SLF4J.
@@ -536,6 +579,16 @@
   Web Site:     http://jtidy.sourceforge.net
   License:      ...
   License File: jtidy.txt
+
+
+  Artifacts:    jts-*.jar
+  Project:      Java Transaction Service (JTS) specifies the implementation of a Transaction Manager
+                which supports the Java Transaction API (JTA) 1.0 Specification at
+                the high-level and implements the Java mapping of the OMG Object
+                Transaction Service (OTS) 1.1 Specification at the low-level.
+  Web Site:     http://java.sun.com/products/jts
+  License:      Sun License
+  License File:
 
 
   Artifacts:    jul-to-slf4j-*.jar
@@ -692,8 +745,7 @@
 
 
   Artifacts:    ome-xml-*.jar
-  Project:      Java API to handle Microsoft MDB format (Access).
-                Used by Bio-Formats for Zeiss LSM metadata in MDB files.
+  Project:      A library for working with OME-XML metadata structures.
   Web Site:     http://www.openmicroscopy.org/site/support/ome-model/ome-xml/java-library.html
   License:      BSD License
   License File: bsd.txt
