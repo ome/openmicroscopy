@@ -310,14 +310,35 @@ public class AbstractServerTest extends AbstractTest {
     }
 
     /**
+     * An enumeration of properties for which IObjects can be examined.
+     * Used in {@link AbstractServerTest.verifyObjectProperty}.
+     * @author pwalczysko@dundee.ac.uk
+     */
+    private enum DetailsProperty {
+        GROUP("group"),
+        OWNER("owner");
+
+        private final String name;
+
+        DetailsProperty(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return this.name;
+        }
+    }
+
+    /**
      * Add the given annotation to the given image.
      * @param image an image
      * @param annotation an annotation
      * @return the new loaded link from the image to the annotation
      * @throws ServerError an error possibly occurring during saving of the link
      */
-    protected ImageAnnotationLink linkImageAnnotation(Image image, Annotation annotation) throws ServerError {
-        if (image.isLoaded() && image.getId() != null) {
+    protected ImageAnnotationLink linkParentToChild(Image image, Annotation annotation) throws ServerError {
+        if (image.isLoaded()) {
             image = (Image) image.proxy();
         }
         if (annotation.isLoaded() && annotation.getId() != null) {
@@ -328,6 +349,48 @@ public class AbstractServerTest extends AbstractTest {
         link.setParent(image);
         link.setChild(annotation);
         return (ImageAnnotationLink) iUpdate.saveAndReturnObject(link);
+    }
+
+    /**
+     * Create a link between a Project and a Dataset.
+     * @param project an OMERO Project
+     * @param dataset an OMERO Dataset
+     * @return the created link
+     * @throws ServerError an error possibly occurring during saving of the link
+     */
+    protected ProjectDatasetLink linkParentToChild(Project project, Dataset dataset) throws ServerError {
+        if (project.isLoaded() && project.getId() != null) {
+            project = (Project) project.proxy();
+        }
+        if (dataset.isLoaded() && dataset.getId() != null) {
+            dataset = (Dataset) dataset.proxy();
+        }
+
+        final ProjectDatasetLink link = new ProjectDatasetLinkI();
+        link.setParent(project);
+        link.setChild(dataset);
+        return (ProjectDatasetLink) iUpdate.saveAndReturnObject(link);
+    }
+
+    /**
+     * Create a link between a Dataset and an Image.
+     * @param dataset an OMERO Dataset
+     * @param image an OMERO Image
+     * @return the created link
+     * @throws ServerError an error possibly occurring during saving of the link
+     */
+    protected DatasetImageLink linkParentToChild(Dataset dataset, Image image) throws ServerError {
+        if (dataset.isLoaded() && dataset.getId() != null) {
+            dataset = (Dataset) dataset.proxy();
+        }
+        if (image.isLoaded() && image.getId() != null) {
+            image = (Image) image.proxy();
+        }
+
+        final DatasetImageLink link = new DatasetImageLinkI();
+        link.setParent(dataset);
+        link.setChild(image);
+        return (DatasetImageLink) iUpdate.saveAndReturnObject(link);
     }
 
     /**
@@ -357,17 +420,29 @@ public class AbstractServerTest extends AbstractTest {
      * @throws ServerError unexpected
      */
     protected void assertInGroup(Collection<? extends IObject> objects, long expectedGroupId) throws ServerError {
-        if (objects.isEmpty()) {
+        verifyObjectProperty(objects, expectedGroupId, DetailsProperty.GROUP);
+    }
+
+    /**
+     * Assert that certain objects either belong to a certain group
+     * or have a certain owner.
+     * @param testedObjects some model objects to test for properties
+     * @param id expected id of the property object (of GROUP or OWNER)
+     * @param property property to examine the testedObjects for (can be GROUP or OWNER)
+     * @throws ServerError if query fails
+     */
+    protected void verifyObjectProperty(Collection<? extends IObject> testedObjects, long id, DetailsProperty property) throws ServerError {
+        if (testedObjects.isEmpty()) {
             throw new IllegalArgumentException("must assert about some objects");
         }
-        for (final IObject object : objects) {
-            final String objectName = object.getClass().getName() + '[' + object.getId().getValue() + ']';
-            final String query = "SELECT details.group.id FROM " + object.getClass().getSuperclass().getSimpleName() +
+        for (final IObject testedObject : testedObjects) {
+            final String testedObjectName = testedObject.getClass().getName() + '[' + testedObject.getId().getValue() + ']';
+            final String query = "SELECT details." + property + ".id FROM " + testedObject.getClass().getSuperclass().getSimpleName() +
                     " WHERE id = :id";
-            final Parameters params = new ParametersI().addId(object.getId());
+            final Parameters params = new ParametersI().addId(testedObject.getId());
             final List<List<RType>> results = root.getSession().getQueryService().projection(query, params, ALL_GROUPS_CONTEXT);
-            final long actualGroupId = ((RLong) results.get(0).get(0)).getValue();
-            Assert.assertEquals(actualGroupId, expectedGroupId, objectName);
+            final long actualId = ((RLong) results.get(0).get(0)).getValue();
+            Assert.assertEquals(actualId, id, testedObjectName);
         }
     }
 
@@ -388,60 +463,7 @@ public class AbstractServerTest extends AbstractTest {
      * @throws ServerError unexpected
      */
     protected void assertOwnedBy(Collection<? extends IObject> objects, EventContext expectedOwner) throws ServerError {
-        if (objects.isEmpty()) {
-            throw new IllegalArgumentException("must assert about some objects");
-        }
-        for (final IObject object : objects) {
-            final String objectName = object.getClass().getName() + '[' + object.getId().getValue() + ']';
-            final String query = "SELECT details.owner.id FROM " + object.getClass().getSuperclass().getSimpleName() +
-                    " WHERE id = :id";
-            final Parameters params = new ParametersI().addId(object.getId());
-            final List<List<RType>> results = root.getSession().getQueryService().projection(query, params, ALL_GROUPS_CONTEXT);
-            final long actualOwnerId = ((RLong) results.get(0).get(0)).getValue();
-            Assert.assertEquals(actualOwnerId, expectedOwner.userId, objectName);
-        }
-    }
-
-    /**
-     * Create a link between a Dataset and an Image.
-     * @param dataset an OMERO Dataset
-     * @param image an OMERO Image
-     * @return the created link
-     * @throws ServerError an error possibly occurring during saving of the link
-     */
-    protected DatasetImageLink linkDatasetImage(Dataset dataset, Image image) throws ServerError {
-        if (dataset.isLoaded() && dataset.getId() != null) {
-            dataset = (Dataset) dataset.proxy();
-        }
-        if (image.isLoaded() && image.getId() != null) {
-            image = (Image) image.proxy();
-        }
-
-        final DatasetImageLink link = new DatasetImageLinkI();
-        link.setParent(dataset);
-        link.setChild(image);
-        return (DatasetImageLink) iUpdate.saveAndReturnObject(link);
-    }
-
-    /**
-     * Create a link between a Project and a Dataset.
-     * @param project an OMERO Project
-     * @param dataset an OMERO Dataset
-     * @return the created link
-     * @throws ServerError an error possibly occurring during saving of the link
-     */
-    protected ProjectDatasetLink linkProjectDataset(Project project, Dataset dataset) throws ServerError {
-        if (project.isLoaded() && project.getId() != null) {
-            project = (Project) project.proxy();
-        }
-        if (dataset.isLoaded() && dataset.getId() != null) {
-            dataset = (Dataset) dataset.proxy();
-        }
-
-        final ProjectDatasetLink link = new ProjectDatasetLinkI();
-        link.setParent(project);
-        link.setChild(dataset);
-        return (ProjectDatasetLink) iUpdate.saveAndReturnObject(link);
+        verifyObjectProperty(objects, expectedOwner.userId, DetailsProperty.OWNER);
     }
 
     /**
