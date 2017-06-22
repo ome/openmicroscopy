@@ -677,7 +677,7 @@ class OmeroDataServiceImpl
                                 || r.getType().equals(PlateData.class))
                             type = Plate.class.getSimpleName();
                         
-                        if (type== null)
+                        if ( type== null)
                             return;
                         
                         String query = "select x from "+type+" x join fetch x.details.creationEvent where x.id="+r.getObjectId();
