@@ -314,13 +314,13 @@ public class AbstractServerTest extends AbstractTest {
      * Used in {@link AbstractServerTest.verifyObjectProperty}.
      * @author pwalczysko@dundee.ac.uk
      */
-    private enum Properties {
+    private enum DetailsProperty {
         GROUP("group"),
         OWNER("owner");
 
         private final String name;
 
-        Properties(String name) {
+        DetailsProperty(String name) {
             this.name = name;
         }
 
@@ -420,7 +420,7 @@ public class AbstractServerTest extends AbstractTest {
      * @throws ServerError unexpected
      */
     protected void assertInGroup(Collection<? extends IObject> objects, long expectedGroupId) throws ServerError {
-        verifyObjectProperty(objects, expectedGroupId, Properties.GROUP);
+        verifyObjectProperty(objects, expectedGroupId, DetailsProperty.GROUP);
     }
 
     /**
@@ -431,7 +431,7 @@ public class AbstractServerTest extends AbstractTest {
      * @param property property to examine the testedObjects for (can be GROUP or OWNER)
      * @throws ServerError if query fails
      */
-    protected void verifyObjectProperty(Collection<? extends IObject> testedObjects, long id, Properties property) throws ServerError {
+    protected void verifyObjectProperty(Collection<? extends IObject> testedObjects, long id, DetailsProperty property) throws ServerError {
         if (testedObjects.isEmpty()) {
             throw new IllegalArgumentException("must assert about some objects");
         }
@@ -463,7 +463,7 @@ public class AbstractServerTest extends AbstractTest {
      * @throws ServerError unexpected
      */
     protected void assertOwnedBy(Collection<? extends IObject> objects, EventContext expectedOwner) throws ServerError {
-        verifyObjectProperty(objects, expectedOwner.userId, Properties.OWNER);
+        verifyObjectProperty(objects, expectedOwner.userId, DetailsProperty.OWNER);
     }
 
     /**
