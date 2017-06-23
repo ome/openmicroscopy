@@ -27,7 +27,7 @@ from omero.gateway import BlitzGateway
 
 import pytest
 import time
-from omeroweb.testlib import IWebTest, _get_response, _csrf_post_response
+from omeroweb.testlib import IWebTest, get, post
 from django.core.urlresolvers import reverse
 import json
 
@@ -124,7 +124,7 @@ class TestChgrp(IWebTest):
 
         def doDryRun(data):
             request_url = reverse('chgrpDryRun')
-            rsp = _csrf_post_response(django_client, request_url, data)
+            rsp = post(django_client, request_url, data)
             jobId = rsp.content
             # Keep polling activities until dry-run job completed
             activities_url = reverse('activities_json')
@@ -302,14 +302,13 @@ class TestChgrp(IWebTest):
 # Helpers
 def _get_response_json(django_client, request_url,
                        query_string, status_code=200):
-    rsp = _get_response(django_client, request_url, query_string, status_code)
+    rsp = get(django_client, request_url, query_string, status_code)
     assert rsp.get('Content-Type') == 'application/json'
     return json.loads(rsp.content)
 
 
 def _csrf_post_response_json(django_client, request_url,
                              query_string, status_code=200):
-    rsp = _csrf_post_response(django_client, request_url,
-                              query_string, status_code)
+    rsp = post(django_client, request_url, query_string, status_code)
     assert rsp.get('Content-Type') == 'application/json'
     return json.loads(rsp.content)
