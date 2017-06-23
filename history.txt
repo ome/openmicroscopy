@@ -10,7 +10,7 @@ Improvements include:
 
 - support for two new lookup tables from `Janelia <https://www.janelia.org/>`_
 - fixed loading of Well in right-panel when browsing Well under Tag tree or from search results
-- fixed rotations of labels in figure scripts. 
+- fixed rotation of labels in figure scripts
 
 Sysadmin changes include:
 
