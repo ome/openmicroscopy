@@ -17,7 +17,7 @@ Sysadmin changes include:
 - allowed installation of OMERO.web with ice 3.5
 - fixed recursive loading of feedback in OMERO.web
 - provided patch for OMERO.server installation on OS using OpenSSL 1.1.0 e.g. Debian 9
-see :doc:`/sysadmins/troubleshooting`
+  see :doc:`/sysadmins/troubleshooting`
 
 
 Developer updates include:
