@@ -1,9 +1,6 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
- *
  */
 
 package omero.sys;
@@ -358,7 +355,7 @@ public class ParametersI extends omero.sys.Parameters {
         return null;
     }
 
-    // ~ Parameters.theOption.leaves, orphan, acquisitionData
+    // ~ Parameters.theOption.leaves, orphan, acquisitionData, cacheable
     // =========================================================================
 
     /**
@@ -458,6 +455,38 @@ public class ParametersI extends omero.sys.Parameters {
             return this.theOptions.acquisitionData;
         }
         return null;
+    }
+
+    /**
+     * Set queries to be cacheable. Use with caution.
+     * @return this instance, for method chaining
+     * @deprecated experimental: may be wholly removed in next major version
+     */
+    public ParametersI cache() {
+        if (theOptions == null) {
+            theOptions = new Options();
+        }
+        theOptions.cacheable = rbool(true);
+        return this;
+    }
+
+    /**
+     * Set queries to not be cacheable. This is the default.
+     * @return this instance, for method chaining
+     */
+    public ParametersI noCache() {
+        if (theOptions == null) {
+            theOptions = new Options();
+        }
+        theOptions.cacheable = rbool(false);
+        return this;
+    }
+
+    /**
+     * @return if queries are cacheable
+     */
+    public omero.RBool getCache() {
+        return theOptions == null ? null : theOptions.cacheable;
     }
 
     // ~ Parameters.map
