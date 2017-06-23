@@ -16,9 +16,9 @@ Sysadmin changes include:
 - clarified the upgrade of the "Open With" option
 - allowed installation of OMERO.web with ice 3.5
 - fixed recursive loading of feedback in OMERO.web
-- provided patch for OMERO.server installation on OS using 
-`OpenSSL 1.1.0 <https://www.openmicroscopy.org/site/support/omero5.3/sysadmins/troubleshooting.html>`_
-e.g. Debian 9
+- provided patch for OMERO.server installation on OS using OpenSSL 1.1.0 e.g. Debian 9
+see :doc:`/sysadmins/troubleshooting`
+
 
 Developer updates include:
 
