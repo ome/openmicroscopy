@@ -728,6 +728,10 @@ public class IceMapper extends ome.util.ModelMapper implements
             options.leaves= o.leaves.getValue();
         }
 
+        if (o.cacheable != null) {
+            options.cacheable = o.cacheable.getValue();
+        }
+
         if (o.acquisitionData != null) {
             options.acquisitionData = o.acquisitionData.getValue();
         }
