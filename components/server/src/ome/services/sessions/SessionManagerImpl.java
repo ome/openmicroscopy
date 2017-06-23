@@ -1466,12 +1466,12 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
             final List<String> userRoles = admin.getUserRoles(exp);
             final LocalQuery iQuery = (LocalQuery) sf.getQueryService();
             final String sessionClass = iQuery.find(Share.class, session.getId()) == null ? "Session" : "Share";
-            final Session reloaded = (Session) iQuery.findByQueryCached(
+            final Session reloaded = (Session) iQuery.findByQuery(
                             "select s from " + sessionClass + " s "
                             + "left outer join fetch s.sudoer "
                             + "left outer join fetch s.annotationLinks l "
                             + "left outer join fetch l.child a where s.id = :id",
-                            new Parameters().addId(session.getId()));
+                            new Parameters().addId(session.getId()).cache());
             final Experimenter sudoer = reloaded.getSudoer();
             boolean hasAdminPrivileges = memberOfGroupsIds.contains(roles.getSystemGroupId());
             if (sudoer != null) {

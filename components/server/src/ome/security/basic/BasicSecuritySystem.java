@@ -452,8 +452,8 @@ public class BasicSecuritySystem implements SecuritySystem,
             final LocalQuery iQuery = (LocalQuery) sf.getQueryService();
             final String sessionClass = iQuery.find(Share.class, sessionId) == null ? "Session" : "Share";
             final String hql = "FROM " + sessionClass + " s LEFT OUTER JOIN FETCH s.sudoer WHERE s.id = :id";
-            final Parameters params = new Parameters().addId(sessionId);
-            sess = iQuery.findByQueryCached(hql, params);
+            final Parameters params = new Parameters().addId(sessionId).cache();
+            sess = iQuery.findByQuery(hql, params);
         }
 
         tokenHolder.setToken(callGroup.getGraphHolder());
