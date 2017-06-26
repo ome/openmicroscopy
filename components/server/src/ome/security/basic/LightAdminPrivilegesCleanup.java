@@ -24,12 +24,13 @@ import java.util.Collections;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 import ome.util.SqlAction;
 
 /**
  * Periodically clean up old entries from the <tt>_current_admin_privileges</tt> database table.
+ * Relies on {@link org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean#setConcurrent(boolean)}
+ * having disabled concurrency via {@code false}.
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.4.0
  */
@@ -38,8 +39,9 @@ public class LightAdminPrivilegesCleanup implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(LightAdminPrivilegesCleanup.class);
 
     private final SqlAction sqlAction;
-    private final ThreadPoolTaskScheduler scheduler;
+    private final long halfDelayMs;
 
+    private long latestRunEnded = Long.MIN_VALUE;
     private Collection<Long> transactionIds = Collections.emptyList();
 
     /**
@@ -49,25 +51,21 @@ public class LightAdminPrivilegesCleanup implements Runnable {
      */
     public LightAdminPrivilegesCleanup(SqlAction sqlAction, int delay) {
         this.sqlAction = sqlAction;
-
-        scheduler = new ThreadPoolTaskScheduler();
-        scheduler.initialize();
-        scheduler.scheduleWithFixedDelay(this, 1000L * delay);
-        LOGGER.debug("scheduled periodic cleanup of _current_admin_privileges table");
-    }
-
-    /**
-     * Do not execute the repeating cleanup task any more times.
-     */
-    public void close() {
-        LOGGER.debug("shutting down periodic cleanup of _current_admin_privileges table");
-        scheduler.shutdown();
+        /* require delay of at least half the interval */
+        halfDelayMs = 500L * delay;
     }
 
     @Override
     public void run() {
-        LOGGER.debug("running periodic cleanup of _current_admin_privileges table");
+        if (latestRunEnded + halfDelayMs < System.currentTimeMillis()) {
+            LOGGER.debug("running periodic cleanup of _current_admin_privileges table");
+        } else {
+            /* simple emulation of ThreadPoolTaskScheduler.scheduleWithFixedDelay */
+            LOGGER.debug("skipping periodic cleanup of _current_admin_privileges table");
+            return;
+        }
         sqlAction.deleteOldAdminPrivileges(transactionIds);
         transactionIds = sqlAction.findOldAdminPrivileges();
+        latestRunEnded = System.currentTimeMillis();
     }
 }
