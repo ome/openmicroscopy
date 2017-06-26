@@ -308,8 +308,8 @@ class TestCsrf(IWebTest):
                 'filename': 'avatar.png',
                 "photo": temp
             }
-            csrf_response(self.django_client, request_url, 'post', data, status_code=302,
-                test_csrf_required=False)
+            csrf_response(self.django_client, request_url, 'post', data,
+                          status_code=302, test_csrf_required=False)
         finally:
             temp.close()
 
@@ -331,8 +331,8 @@ class TestCsrf(IWebTest):
                 'filename': 'avatar.png',
                 "photo": temp
             }
-            csrf_response(self.django_client, request_url, 'post', data, status_code=302,
-                 test_csrf_required=False)
+            csrf_response(self.django_client, request_url, 'post', data,
+                          status_code=302, test_csrf_required=False)
         finally:
             temp.close()
 
@@ -344,8 +344,8 @@ class TestCsrf(IWebTest):
             'y1': 50,
             'y2': 150
         }
-        csrf_response(self.django_client, request_url, 'post', data, status_code=302,
-             test_csrf_required=False)
+        csrf_response(self.django_client, request_url, 'post', data,
+                      status_code=302, test_csrf_required=False)
 
     def test_create_group(self):
         uuid = self.uuid()
