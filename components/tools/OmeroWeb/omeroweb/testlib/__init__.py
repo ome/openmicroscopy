@@ -111,7 +111,8 @@ def _response(django_client, request_url, method, data=None, status_code=200,
 
 
 def csrf_response(django_client, request_url, method, data=None,
-                  status_code=200, content_type=MULTIPART_CONTENT):
+                  status_code=200, content_type=MULTIPART_CONTENT,
+                  test_csrf_required=True):
     """
     Helper for testing post/put/delete with and without CSRF.
 
@@ -120,11 +121,14 @@ def csrf_response(django_client, request_url, method, data=None,
     :param data:            A dict of data to include as json content
     :param status_code:     Verify that the response has this status
     :param content_type:    Content type for request
+    :param test_csrf_required:  If True (default) check that request fails
+                                when CSRF token is not added
 
     """
     # First check that this would fail with 403 without CSRF token
-    _response(django_client, request_url, method=method, data=data,
-              status_code=403, content_type=content_type)
+    if test_csrf_required:
+        _response(django_client, request_url, method=method, data=data,
+                  status_code=403, content_type=content_type)
 
     # Should work as expected with CSRF token
     csrf_token = django_client.cookies['csrftoken'].value
@@ -301,6 +305,9 @@ def get(django_client, request_url, data=None, status_code=200, csrf=False):
     if csrf:
         if data is None:
             data = {}
+        else:
+            # avoid mutating dict we're passed
+            data = data.copy()
         csrf_token = django_client.cookies['csrftoken'].value
         data['csrfmiddlewaretoken'] = csrf_token
     if data is not None:
