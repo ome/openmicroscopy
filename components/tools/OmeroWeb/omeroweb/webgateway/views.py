@@ -1681,6 +1681,7 @@ def projectDetail_json(request, pid, conn=None, **kwargs):
     return rv
 
 
+@login_required()
 @jsonp
 def open_with_options(request, **kwargs):
     """
