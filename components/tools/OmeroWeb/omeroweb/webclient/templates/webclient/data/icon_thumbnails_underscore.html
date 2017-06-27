@@ -24,9 +24,8 @@
             data-owned="">
 
             <div class="image">
-                <!-- we wrap img with <a> so you can right-click -> open link in new tab
-                src="<%= webindex %>render_thumbnail/<%= img.id %>/<% if(img.shareId) {print( img.shareId + '/')} %><% if (img.thumbVersion) { print ('?version=' + img.thumbVersion)}%>" -->
-                <a href="<%= webindex %><% if(img.shareId) {print( img.shareId + '/')} %>img_detail/<%= img.id %>/">
+                <!-- we wrap img with <a> so you can right-click -> open link in new tab -->
+                <a href="<%= webindex %><% if(img.shareId) {print( img.shareId + '/')} %>img_detail/<%= img.id %>/<% if (dataset) print('?dataset=' + dataset) %>" >
                     <img/>
                 </a>
             </div>

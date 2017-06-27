@@ -1,0 +1,9 @@
+# Python installation requirements for OMERO.web
+# ==============================================
+#
+#     pip install -r requirements-py27-all-ice35.txt
+#
+
+numpy>=1.9
+Pillow<3.4
+-r requirements-py27-ice35.txt

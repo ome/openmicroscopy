@@ -1,6 +1,39 @@
 OMERO version history
 =====================
 
+5.3.3 (June 2017)
+-----------------
+
+This is a bug-fix release.
+
+Improvements include:
+
+- support for two new lookup tables from `Janelia <https://www.janelia.org/>`_
+- fixed loading of Well in right-panel when browsing Well under Tag tree or from search results
+- fixed rotation of labels in figure scripts
+
+Sysadmin changes include:
+
+- clarified the upgrade of the "Open With" option
+- allowed installation of OMERO.web with ice 3.5
+- fixed recursive loading of feedback in OMERO.web
+- provided patch for OMERO.server installation on OS using OpenSSL 1.1.0 e.g. Debian 9
+  see :doc:`/sysadmins/troubleshooting`
+
+
+Developer updates include:
+
+- added an example of how to retrieve shapes from a ROI using batch querying for scalability
+- improved logging of errors during deletion
+- added new methods to Java Gateway
+- improved login options in Java Gateway
+- specified an image's dataset in its URL to give more context to OMERO.web apps 
+
+
+This release also upgrades the version of Bio-Formats which OMERO uses to
+`5.5.2 <https://www.openmicroscopy.org/site/support/bio-formats5.5/about/whats-new.html#june-15>`_.
+
+
 5.3.2 (May 2017)
 ----------------
 
@@ -13,7 +46,9 @@ Improvements include:
 - textual annotations without a namespace can now be added at import using the CLI
 - improved thumbnails retrieval in OMERO.web
 - added "Open With" option to the right-hand panel in OMERO.web
-- group owners are now prevented from annotating other people's data in OMERO.web
+- private group owners are now not offered the ability to annotate other
+  people's data in OMERO.web UI, an action which was not permitted by the
+  server anyway
 - preview of wells now available in the right-hand panel
 
 Sysadmin changes include:

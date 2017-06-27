@@ -111,6 +111,7 @@ public class GraphHelper {
      * @param processor how to operate on the resulting target object graph
      * @param dryRun if the request should skip the actual model object updates
      * @return the new graph traversal manager
+     * @deprecated from OMERO 5.4 the systemTypes argument is no longer included
      */
     public GraphTraversal prepareGraphTraversal(List<ChildOption> childOptions, Set<GraphPolicy.Ability> requiredPermissions,
             GraphPolicy graphPolicy, Iterable<Function<GraphPolicy, GraphPolicy>> graphPolicyAdjusters,

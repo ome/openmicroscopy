@@ -81,6 +81,7 @@ public class GraphRequestFactory implements ApplicationContextAware {
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      * @param defaultExcludeNs the default value for an unset excludeNs field
      * @throws GraphException if the graph path rules could not be parsed
+     * @deprecated from OMERO 5.4 the systemTypes argument is no longer included
      */
     public GraphRequestFactory(ACLVoter aclVoter, Roles securityRoles, GraphPathBean graphPathBean,
             LightAdminPrivileges adminPrivileges, Deletion deletionInstance, Map<Class<? extends Request>, List<String>> allTargets,

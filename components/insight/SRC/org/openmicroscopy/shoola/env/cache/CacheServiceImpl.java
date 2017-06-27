@@ -1,8 +1,6 @@
 /*
- * org.openmicroscopy.shoola.env.cache.CacheServiceImpl 
- *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,21 +18,17 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package org.openmicroscopy.shoola.env.cache;
 
-
-
-//Java imports
 import java.io.InputStream;
 
 
-//Third-party libraries
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
-//Application-internal dependencies
 import omero.gateway.cache.CacheService;
 import omero.log.LogMessage;
 import omero.log.Logger;
@@ -46,10 +40,6 @@ import omero.log.Logger;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta3
  */
 class CacheServiceImpl
@@ -119,8 +109,8 @@ class CacheServiceImpl
 				//cache = new Cache(""+cacheID, size, true, false, 300, 600);
 				cache = new Cache(""+cacheID, size, 
 						MemoryStoreEvictionPolicy.LRU, true, 
-						manager.getDiskStorePath(), false, 300, 600,
-						false, 300, null, null, 10000000);
+						manager.getConfiguration().getDiskStoreConfiguration().getPath(),
+						false, 300, 600, false, 300, null, null, 10000000);
 				manager.addCache(cache);
 				break;
 			case DEFAULT:
