@@ -22,7 +22,6 @@ package omero.gateway.model;
 
 import java.math.RoundingMode;
 
-import ome.formats.model.UnitsFactory;
 import ome.model.units.BigResult;
 import omero.RDouble;
 import omero.RInt;

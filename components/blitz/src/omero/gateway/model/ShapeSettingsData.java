@@ -23,7 +23,6 @@ package omero.gateway.model;
 import java.awt.Color;
 import java.awt.Font;
 
-import ome.formats.model.UnitsFactory;
 import ome.model.units.BigResult;
 import omero.RInt;
 import omero.RString;

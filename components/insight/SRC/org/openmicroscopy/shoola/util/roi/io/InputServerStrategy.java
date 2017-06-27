@@ -411,7 +411,6 @@ class InputServerStrategy
 				data.isReadOnly(), data.isClientObject(), data.canEdit(),
 				data.canDelete(), data.canAnnotate());
 		List<Point2D.Double> points = data.getPoints();
-		List<Integer> mask = data.getMaskPoints();
 		for (int i = 0; i < points.size(); i++)
 		{
 			fig.addNode(new Node(i, points.get(i), points.get(i), 
@@ -439,29 +438,6 @@ class InputServerStrategy
 	{
 		return createPolylineFromPolylineFigure(data);
 	}	
-		
-	/**
-	 * Transforms the passed polyline into a line figure are it has only move
-	 * to operations.
-	 * 
-	 * @param data The polyline to transform.
-	 * @return See above.
-	 */
-	private ROIFigure createLineFromPolylineFigure(PolylineData data)
-	{
-		List<Point2D.Double> points = data.getPoints();
-		MeasureLineFigure fig = new MeasureLineFigure(data.isReadOnly(), 
-				data.isClientObject(), data.canEdit(), data.canDelete(),
-				data.canAnnotate());
-		fig.removeAllNodes();
-		for (int i = 0; i < points.size(); i++)
-			fig.addNode(new Node(points.get(i)));
-		
-		addShapeSettings(fig, data.getShapeSettings());
-		fig.setText(data.getText());
-		TRANSFORM.set(fig, toTransform(data.getTransform()));
-		return fig;
-	}
 	
 	/**
 	 * Transforms the passed polyline into a Polyline shape.

@@ -43,7 +43,6 @@ import omero.api.IUpdatePrx;
 import omero.cmd.CmdCallbackI;
 import omero.api.RawFileStorePrx;
 import omero.cmd.Delete2;
-import omero.cmd.Response;
 import omero.cmd.graphs.ChildOption;
 import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;

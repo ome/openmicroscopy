@@ -163,7 +163,6 @@ public class ROIReader {
         int[] yc = shape.getPolygon().ypoints;
         String type = shape.getTypeAsString();
         List<Point2D.Double> points = new LinkedList<Point2D.Double>();
-        List<Integer> masks = new ArrayList<Integer>();
         for (int i = 0; i < xc.length; i++) {
             points.add(new Point2D.Double(xc[i], yc[i]));
         }

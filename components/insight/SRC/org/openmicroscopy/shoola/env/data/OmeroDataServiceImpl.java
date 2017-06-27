@@ -632,7 +632,7 @@ class OmeroDataServiceImpl
 		
 		// search by ID:
 		if(!results.isEmpty())
-		    findByIds(ctx, results, true);
+		    findByIds(ctx, results);
 		
 		// search by text:
 		SearchResultCollection searchResults = gateway.search(ctx, context);
@@ -649,11 +649,11 @@ class OmeroDataServiceImpl
 	/**
 	 * Tries to find and load the Objects in results; removes them from results
 	 * if they can't be found.
-	 * @param ctx
-	 * @param results
-	 * @param allGroups
+	 * @param ctx The {@link SecurityContext}
+	 * @param results The results to look up
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 */
-        private void findByIds(SecurityContext ctx, SearchResultCollection results, boolean allGroups) throws DSOutOfServiceException{
+        private void findByIds(SecurityContext ctx, SearchResultCollection results) throws DSOutOfServiceException{
             Iterator<SearchResult> it = results.iterator();
             while (it.hasNext()) {
                 SearchResult r = it.next();
@@ -677,7 +677,7 @@ class OmeroDataServiceImpl
                                 || r.getType().equals(PlateData.class))
                             type = Plate.class.getSimpleName();
                         
-                        if ( type== null)
+                        if (type == null)
                             return;
                         
                         String query = "select x from "+type+" x join fetch x.details.creationEvent where x.id="+r.getObjectId();

@@ -20,7 +20,6 @@
  */
 package omero.gateway.model;
 
-import ome.formats.model.UnitsFactory;
 import ome.model.units.BigResult;
 import omero.RDouble;
 import omero.RLong;

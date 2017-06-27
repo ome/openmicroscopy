@@ -21,7 +21,6 @@
 package org.openmicroscopy.shoola.env.rnd.roi;
 
 import java.awt.Point;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -60,10 +59,6 @@ import omero.gateway.model.PixelsData;
  */
 class PointIterator
 {
-
-    /** Gateway to the raw data of the pixels set bound to this iterator. */
-    private Gateway gw;
-
     /** The number of z-sections. */
     private int sizeZ;
 
@@ -79,8 +74,10 @@ class PointIterator
     /** The number of channels. */
     private int sizeC;
 
+    /** The PixelsData */
     private PixelsData pixels;
     
+    /** Reference to the RawDataFacility */
     private RawDataFacility rf;
     
     /** 
@@ -191,19 +188,14 @@ class PointIterator
      * Creates a new instance to iterate over the pixels set accessible through
      * <code>source</code>.
      * 
-     * @param source Gateway to the raw data of the pixels set this iterator
+     * @param gw Gateway to the raw data of the pixels set this iterator
      *               will work on. Mustn't be <code>null</code>.
-     * @param sizeZ The number of z-sections.
-     * @param sizeT The number of timepoints.
-     * @param sizeC The number of channels.
-     * @param sizeX The number of pixels along the x-axis.
-     * @param sizeY The number of pixels along the y-axis.
+     * @param pixels The PixelsData
      * @throws ExecutionException  If {@link RawDataFacility} can't be accessed
      */
     PointIterator(Gateway gw, PixelsData pixels) throws ExecutionException
     {
-        if (gw == null) throw new NullPointerException("No source.");
-        this.gw = gw;
+        if (gw == null) throw new NullPointerException("No Gateway.");
         this.pixels = pixels;
         this.sizeZ = pixels.getSizeZ();
         this.sizeC = pixels.getSizeC();
