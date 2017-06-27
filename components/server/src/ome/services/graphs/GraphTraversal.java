@@ -481,7 +481,6 @@ public class GraphTraversal {
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      * @param policy how to determine which related objects to include in the operation
      * @param processor how to operate on the resulting target object graph
-     * @deprecated from OMERO 5.4 the systemTypes argument is no longer included
      */
     public GraphTraversal(Session session, EventContext eventContext, ACLVoter aclVoter, GraphPathBean graphPathBean,
             SetMultimap<String, String> unnullable, GraphPolicy policy, Processor processor) {
