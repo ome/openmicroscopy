@@ -392,7 +392,7 @@ class RGBControl
 	
     /** Fires Changed event to all listeners stating the model has changed. */
     void fireChangeEvent() {
-        if(CommonsLangUtils.isNotEmpty(model.getLUT()))
+        if (CommonsLangUtils.isNotEmpty(model.getLUT()))
             fireChangeEvent(PaintPotUI.LUT_PROPERTY);
         else
             fireChangeEvent(PaintPotUI.COLOUR_CHANGED_PROPERTY);
