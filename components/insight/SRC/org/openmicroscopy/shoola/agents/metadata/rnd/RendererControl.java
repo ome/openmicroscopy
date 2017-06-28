@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.rnd.RendererControl 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -500,9 +500,10 @@ class RendererControl
         } else {
             if (!ColourPickerUtil.sameLookuptable(newLut, oldLut)) {
                 model.setLookupTable(index, newLut, preview);
-            } if (newColor != null && !ColourPickerUtil.sameColor(newColor, oldColor)) {
+            }
+            if (!ColourPickerUtil.sameColor(newColor, oldColor)) {
                 model.setChannelColor(index, newColor, preview);
-            } 
+            }
             model.setReverseIntensity(index, revInt, preview);
         }
     }

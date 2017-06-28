@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -176,12 +176,12 @@ public class ColourPicker
     /** Resets the color to the original.*/
     void reset()
     {
-        ColourObject oldColor = new ColourObject();
-        oldColor.color = model.getOriginalColor();
-        oldColor.lut = model.getOriginalLUT();
-        oldColor.revInt = model.getOriginalReverseIntensity();
-        
-    	firePropertyChange(ACCEPT_PROPERTY, null,oldColor);
+        ColourObject orgColor = new ColourObject();
+        orgColor.color = model.getOriginalColor();
+        orgColor.lut = model.getOriginalLUT();
+        orgColor.revInt = model.getOriginalReverseIntensity();
+        orgColor.preview = true;
+        firePropertyChange(ACCEPT_PROPERTY, null, orgColor);
     }
     
     /**
