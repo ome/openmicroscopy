@@ -61,8 +61,6 @@
     <dependency org="net.java.dev.jna" name="platform" rev="${versions.platform}"/>
     <dependency org="edu.ucar" name="grib" rev="${versions.grib}" transitive="false"/>
     <dependency org="edu.ucar" name="bufr" rev="${versions.bufr}" transitive="false"/>
-    <!-- Required for annotations in Permissions.java -->
-    <dependency org="org.hibernate.javax.persistence" name="hibernate-jpa-2.0-api" rev="${versions.persistence-api}"/>
     <!-- Bioformats -->
     <dependency org="ome" name="formats-bsd" rev="${versions.bioformats}">
         <exclude org="com.jgoodies"/>

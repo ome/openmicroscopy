@@ -16,7 +16,7 @@
   Within this document, the term 'third-party software' shall refer to the set
   of all the files which are contained in the source repository and which are
   listed in each 'Artifacts' entry within the 'Third-Party Software Licenses'
-  section of this document.  The term 'OME' or, equivalently, 'our software'
+  section of this document. The term 'OME' or, equivalently, 'our software'
   shall refer to any other file contained in the repository.
 
 
@@ -25,7 +25,7 @@
   -------
 
   This document states which licenses apply to which files in the
-  source repository.  It also gives credit to other projects and
+  source repository. It also gives credit to other projects and
   developers that provided us with their valuable software.
 
 
@@ -47,9 +47,9 @@
   files. This section lists all the third-party software that is used
   by OMERO.server using the following format:
 
-  Artifacts:    The files our software makes use of.  The wildcard character * can
+  Artifacts:    The files our software makes use of. The wildcard character * can
                 be appended to a sequence of characters S denoting a file name.
-                This shall mean 'all the files whose name starts with S'.  For example,
+                This shall mean 'all the files whose name starts with S'. For example,
                 'ant-*' means all the files whose name starts with 'ant-'.
                 Unless otherwise specified, all artifacts are to be found under
                 lib/repository. If specified directory pathnames are given relative to
@@ -66,13 +66,18 @@
   //
 
 
-  Artifacts:    ant-*.jar ivy-*.jar
-                As well as junit-frames.xsl, and junit-noframes.xsl files under components/insight/build/tools
-  Project:      The Apache Ant Project.  Ant is a Java-based build tool. (Ivy is a subproject
-                of Ant for managing dependencies)
+  Artifacts:    ant-*.jar
+  Project:      The Apache Ant Project. Ant is a Java-based build tool.
   Web Site:     http://ant.apache.org/
   License:      Apache License, Version 2.0
   License File: apache-v2.0.txt
+
+
+  Artifacts:    activation-*.jar
+  Project:      The JavaBeans(TM) Activation Framework is used by the JavaMail(TM) API to manage MIME data
+  Web Site:     http://java.sun.com/javase/technologies/desktop/javabeans/jaf/index.jsp
+  License:      Common Development and distribution License (CDDL) Version 1.0
+  License File: cddl.txt
 
 
   Artifacts:    antlr-*.jar
@@ -81,22 +86,24 @@
   License:      BSD
   License File: antlr.txt
 
+
+  Artifacts:    aopalliance-*.jar
+  Web Site:     http://aopalliance.sourceforge.net
+  License:      Public Domain
+
+
+  Artifacts:    apacheds-all-*.jar
+  Project:      Extensible and embeddable directory server.
+  Web Site:     http://directory.apache.org/apacheds/
+  License:      Apache Software License, Version 2
+  License File: apache-v2.0.txt
+
+
   Artifacts:    appbundler-*.jar
   Project:      Packages a Java application as a Mac app bundle.
   Web Site:     https://java.net/projects/appbundler
   License:      General Public License (GPL), Version 2
   License File: gpl.txt
-
-
-  Artifacts:    axis-client-*.jar
-  Project:      Apache Axis is an implementation of the SOAP
-                ("Simple Object Access Protocol") submission to W3C.
-                This project is a follow-on to the Apache SOAP project.
-                We do not use this software directly but required by the ontology lookup
-                service.
-  Web Site:     http://ws.apache.org/axis/
-  License:      Apache License, Version 2.0
-  License File: apache-v2.0.txt
 
 
   Artifacts:    asm-*.jar
@@ -106,6 +113,59 @@
   License File: asm.txt
 
 
+  Artifacts:    assumeng-*.jar
+  Projects:     Assumg NG -- Assumptions for TestNG.
+  Web Site:     https://github.com/hierynomus/assumeng
+  License:      Apache Software License, Version 2
+  License File: apache-v2.0.txt
+
+
+  Artifacts:    aspectjrt-*.jar
+  Projects:     The runtime needed to execute a program using AspectJ.
+  Web Site:     http://www.aspectj.org
+  License:      Eclipse Public License, Version 1.0
+  License File: eclipse-v1.0.txt
+  
+
+  Artifacts:    aspectjweaver-*.jar
+  Projects:     The AspectJ weaver introduces advices to java classes.
+  Web Site:     http://www.aspectj.org
+  License:      Eclipse Public License, Version 1.0
+  License File: eclipse-v1.0.txt
+
+
+  Artifacts:    assumeng-*.jar
+  Projects:     Assumg NG -- Assumptions for TestNG.
+  Web Site:     https://github.com/hierynomus/assumeng
+  License:      Apache Software License, Version 2
+  License File: apache-v2.0.txt
+
+
+  Artifacts:    axis-*.jar
+  Web Site:     http://axis.apache.org/
+  License:      Apache Software License, Version 2
+  License File: apache-v2.0.txt
+
+
+  Artifacts:    axis2-saaj-*.jar
+  Web Site:     http://axis.apache.org/
+  License:      Apache Software License, Version 2
+  License File: apache-v2.0.txt
+
+
+  Artifacts:    axis-wsdl4j-*.jar
+  Web Site:     http://axis.apache.org/
+  License:      Apache Software License, Version 2
+  License File: apache-v2.0.txt
+
+
+  Artifacts:    backport-util-concurrent-*.jar
+  Project:      The package is the backport of java.util.concurrent API.
+  Web Site:     http://backport-jsr166.sourceforge.net/
+  License:      Public domain
+  License File:
+
+
   Artifacts:    batik-*.jar
   Project:      The Apache Batik SVG Toolkit.
   Web Site:     http://xml.apache.org/batik/
@@ -113,11 +173,33 @@
   License File: apache-v1.1.txt
 
 
+  Artifacts:    bcmail-jdk14-*.jar
+  Web Site:     http://www.bouncycastle.org
+  License:      Bouncy Castle License. To be read in the same way as the MIT License
+  License File: bouncy_castle_license.txt
+
+
+  Artifacts:    bcmprov-jdk14-*.jar
+  Project:      The Bouncy Castle Crypto package is a Java implementation of cryptographic algorithms.
+                The package is organised so that it contains a light-weight API suitable for use in any
+                environment (including the newly released J2ME) with the additional infrastructure to conform the algorithms to the JCE framework.
+  Web Site:     http://www.bouncycastle.org/java.html
+  License:      Bouncy Castle License. To be read in the same way as the MIT License
+  License File: bouncy_castle_license.txt
+
+
   Artifacts:    btm-*.jar
   Project:      Bitronix, JTA transaction manager
   Web Site:     http://bitronix.be
   License:      Lesser General Public License (LGPL) v2.1
   License File: lgpl-v2.1.txt
+
+
+  Artifacts:    bsh-*.jar
+  Project:      BeanShell
+  Web Site:     http://www.beanshell.org/
+  License:      Sun Public License or Lesser General Public License (LGPL) v3.0
+  License File: spl.txt or lgpl-v3.0.txt
 
 
   Artifacts:    bufr-*.jar
@@ -164,6 +246,13 @@
   License File: dom4j.txt
 
 
+  Artifacts:    ehcache-*.jar
+  Project:      Standards-based cache.
+  Web Site:     http://ehcache.org
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
   Artifacts:    findbugs-*.jar
   Project:      FindBugs, Find Bugs in Java Programs
   Web Site:     http://findbugs.sourceforge.net
@@ -171,16 +260,79 @@
   License File: lgpl-v2.1.txt
 
 
+  Artifacts:    filters-*.jar
+  Project:      A collection of image processing filters.
+  Web Site:     http://www.jhlabs.com/ip/index.html
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
+  Artifacts:    fontbox-*.jar
+  Project:      FontBox is a Java font library used to obtain low level information from font files.
+  Web Site:     http://www.fontbox.org/
+  License:      BSD License
+  License File: bsd.txt
+
+
+  Artifacts:    formats-api-*.jar
+  Project:      Top-level reader and writer APIs.
+  Web Site:     http://www.openmicroscopy.org/site/products/bio-formats
+  License:      BSD License
+  License File: bsd.txt
+
+
+  Artifacts:    formats-bsd-*.jar
+  Project:      Reader and writer implementations that are BSD-licensed.
+  Web Site:     http://www.openmicroscopy.org/site/products/bio-formats
+  License:      BSD License
+  License File: bsd.txt
+
+
+  Artifacts:    formats-gpl-*.jar
+  Project:      A library for reading and writing popular microscopy file formats.
+  Web Site:     http://www.openmicroscopy.org/site/products/bio-formats
+  License:      GNU General Public License v2+
+  License File: gpl.txt
+
+
   Artifacts:    freemarker-*.jar
   Project:      FreeMarker, a template engine
   Web Site:     http://freemarker.org
-  License:      BSD
+  License:      BSD-style License
   License File: freemarker.txt
+
+  
+  Artifacts:    freeze-*.jar
+  Project:      Persistent storage for Ice objects
+  Web Site:     https://zeroc.com
+  License:      General Public License (GPL), Version 2
+  License File: gpl-v2.0.txt
 
 
   Artifacts:    geronimo-spec-jta-*.jar
   Project:      Apache Geronimo
   Web Site:     http://geronimo.apache.org
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
+  Artifacts:    glacier2-*.jar
+  Project:      Firewall traversal for Ice
+  Web Site:     https://zeroc.com
+  License:      General Public License (GPL), Version 2
+  License File: gpl-v2.0.txt
+
+
+  Artifacts:    guava-*.jar
+  Project:      Google Core Libraries for Java.
+  Web Site:     https://github.com/google/guava
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
+  Artifacts:    guice-*.jar
+  Project:      Google Core Libraries for Java.
+  Web Site:     https://github.com/google/guice
   License:      Apache License, Version 2.0
   License File: apache-v2.0.txt
 
@@ -191,16 +343,14 @@
   License File: lgpl-v2.1.txt
 
 
-  Artifacts:    java-image-scaling*.jar
-  Web Site:     http://code.google.com/p/java-image-scaling/
-  License:      Lesser General Public License (LGPL) v3.0
-  License File: lgpl-v3.0.txt
-
-
-  Artifacts:    jfilechooser.jar
-  Web Site:     https://code.google.com/p/jfilechooser/
-  License:      Lesser General Public License (LGPL) v2.1
-  License File: lgpl-v2.1.txt
+  Artifacts:    hamcrest-core-*.jar
+  Project:      This is the core API of hamcrest matcher framework 
+                to be used by third-party framework providers. 
+                This includes the a foundation set of matcher
+                implementations for common operations.
+  Web Site:     http://code.google.com/p/hamcrest/
+  License:      BSD License
+  License File: bsd.txt
 
 
   Artifacts:    hibernate-*.jar
@@ -211,17 +361,71 @@
   License File: lgpl-v2.1.txt
 
 
+  Artifacts:    httpclient-*.jar
+  Project:      Apache HttpComponents HttpClient - MIME coded entities.
+  Web Site:     http://hc.apache.org/httpclient-3.x/
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
+  Artifacts:    httpcore-*.jar
+  Project:      Apache HttpComponents HttpClient - MIME coded entities.
+  Web Site:     http://hc.apache.org/httpclient-3.x/
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
+  Artifacts:    httpmime-*.jar
+  Project:      Apache HttpComponents HttpClient - MIME coded entities.
+  Web Site:     https://hc.apache.org/httpcomponents-client-ga/
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
   Artifacts:    ice-*.jar
   Project:      Internet Communications Engine (Ice). A modern object-oriented
-                middleware with support for C++, .NET, Java, Python, Ruby, and PHP
+                middleware with support for C++, .NET, Java, Python, Ruby, and PHP.
   Web Site:     http://zeroc.com
   License:      General Public License (GPL), Version 2
-  License File: gpl.txt
+  License File: gpl-v2.0.txt
 
+  
+  Artifacts:    icegrid-*.jar
+  Project:      Locate, deploy, and manage Ice servers.
+  Web Site:     http://zeroc.com
+  License:      General Public License (GPL), Version 2
+  License File: gpl-v2.0.txt
+
+
+  Artifacts:    icestorm-*.jar
+  Project:      Publish-subscribe event distribution service.
+  Web Site:     http://zeroc.com
+  License:      General Public License (GPL), Version 2
+  License File: gpl-v2.0.txt
+
+
+  Artifacts:    ij-*.jar
+  Project:      ImageJ is an open source Java image processing program inspired by NIH Image for the Macintosh.
+  Web Site:     http://imagej.net/
+  License:      Public Domain
+
+
+  Artifacts:    ini4j-*.jar
+  Project:      Publish-subscribe event distribution service
+  Web Site:     http://www.ini4j.org
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
+  Artifacts:    java-image-scaling-*.jar
+  Web Site:     http://code.google.com/p/java-image-scaling/
+  License:      Lesser General Public License (LGPL) v3.0
+  License File: lgpl-v3.0.txt
+ 
 
   Artifacts:    jai_imageio-*.jar
   Web Site:     http://jai-imageio.dev.java.net/
-  License:      BSD
+  License:      BSD License
   License File: bsd.txt
 
 
@@ -235,8 +439,15 @@
   Artifacts:    jamon-*.jar
   Project:      JAMon, A monitoring API
   Web Site:     http://jamon.sourceforge.net
-  License:      BSD
+  License:      BSD License
   License File: jamon.txt
+
+
+  Artifacts:    janino-*.jar
+  Project:      JAMon, A monitoring API
+  Web Site:     http://janino.net
+  License:      BSD License
+  License File: bsd.txt
 
 
   Artifacts:    java-getopt-*.jar
@@ -253,33 +464,77 @@
   License File: lgpl-v2.1.txt
 
 
-  Artifacts:    jaxrpc-*.jar
-  Project:      JAX-RPC Reference Implementation Project.
-                We do not use this software directly but required by the Apache Axis project
-  Web Site:     https://jax-rpc.dev.java.net/
-  License:      Common Development and Distribution License, Version 1.0
+  Artifacts:    jaxrpc-api*.jar
+  Project:      Part of the Java Web Services Developer Pack 1.6
+  Web Site:     http://java.sun.com/webservices/jaxrpc/index.jsp
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+  
+  Artifacts:    jcl-over-slf4j-*.jar
+  Project:      JCL 1.1.1 implemented over SLF4J.
+  Web Site:     http://www.slf4j.org
+  License:      MIT License
+  License File: slf4j.txt
+
+
+  Artifacts:    jcommander-*.jar
+  Project:      A Java framework to parse command line options with annotations.
+  Web Site:     http://beust.com/jcommander
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
 
 
   Artifacts:    jcommon-*.jar
-  Project:      The JCommon library.  We don't use this software directly,
-                but required by the JFreeChart library.
+  Project:      JCommon is a free general purpose Java class library that is used in
+                several projects at www.jfree.org, including JFreeChart and
+                JFreeReport.
   Web Site:     http://www.jfree.org/jcommon/index.php
   License:      Lesser General Public License (LGPL)
-  License File: lgpl.txt
+  License File: lgpl-v3.0.txt
 
 
-  Artifacts:    jhotdraw-*.jar
-  Project:      The JHotDraw project. A two-dimensional graphics framework for
-                structured drawing editors
-  Web Site:     http://sourceforge.net/projects/jhotdraw
-  License:      Lesser General Public License (LGPL)
-  License File: lgpl.txt
+  Artifacts:    jempbox-*.jar
+  Project:      JempBox is an open source Java library that implements Adobe's XMP(TM) specification.
+  Web Site:     http://www.jempbox.org/
+  License:      BSD License
+  License File: bsd.txt
 
 
   Artifacts:    jfreechar-*.jar
   Project:      The JFreeChart project. Used to display professional quality charts.
   Web Site:     http://www.jfree.org/jfreechart/
-  License:      Lesser General Public License (LGPL)
+  License:      Lesser General Public License (LGPL) v2.0
+  License File: lgpl-v2.0.txt
+
+
+  Artifacts:    jgoodies-common-*.jar
+  Project:      The JGoodies Common library provides convenience code
+                for other JGoodies libraries and applications.
+  Web Site:     http://www.jgoodies.com/downloads/libraries.html
+  License:      BSD License
+  License File: bsd.txt
+
+
+  Artifacts:    jgoodies-forms-*.jar
+  Project:      The JGoodies Forms framework helps you lay out and implement 
+                elegant Swing panels quickly and consistently.
+  Web Site:     https://forms.java.net/
+  License:      BSD License
+  License File: bsd.txt
+
+
+  Artifacts:    jhdf5-*.jar
+  Web Site:     https://wiki-bsse.ethz.ch/display/JHDF5
+  License:      Lesser General Public License (LGPL) v2.0
+  License File: lgpl-v2.0.txt
+
+
+  Artifacts:    jhotdraw-*.jar
+  Project:      The JHotDraw project. A two-dimensional graphics framework for
+                structured drawing editors.
+  Web Site:     http://www.jhotdraw.org/
+  License:      Lesser General Public License (LGPL) or Creative Commons Attribution 3.0 Unported
   License File: lgpl.txt
 
 
@@ -287,13 +542,34 @@
   Project:      jMock, a library that supports test-driven development of Java
                 code with mock objects.
   Web Site:     http://jmock.org
-  License:      BSD
+  License:      BSD License
   License File: jmock.txt
+
+ 
+  Artifacts:    jna-*.jar
+  Project:      Java Native Access.
+  Web Site:     https://github.com/twall/jna
+  License:      Lesser General Public License (LGPL) v2.1
+  License File: lgpl-v2.1.txt
+
+
+  Artifacts:    joda-time-*.jar
+  Project:      Date and time library to replace JDK date handling.
+  Web Site:     http://joda-time.sourceforge.net
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
 
 
   Artifacts:    jsr107cache-*.jar
   Project:      jsr107cache, Java API for caching
   Web Site:     http://sourceforge.net/projects/jsr107cache/
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+  
+  Artifacts:    jsr305-*.jar
+  Project:      JSR305 Annotations for Findbugs
+  Web Site:     http://findbugs.sourceforge.net/
   License:      Apache License, Version 2.0
   License File: apache-v2.0.txt
 
@@ -305,12 +581,55 @@
   License File: jtidy.txt
 
 
+  Artifacts:    jts-*.jar
+  Project:      Java Transaction Service (JTS) specifies the implementation of a Transaction Manager
+                which supports the Java Transaction API (JTA) 1.0 Specification at
+                the high-level and implements the Java mapping of the OMG Object
+                Transaction Service (OTS) 1.1 Specification at the low-level.
+  Web Site:     http://java.sun.com/products/jts
+  License:      Sun License
+  License File:
+
+
+  Artifacts:    jul-to-slf4j-*.jar
+  Project:      JUL to SLF4J bridge.
+  Web Site:     http://www.slf4j.org
+  License:      MIT License
+  License File: slf4j.txt
+
+
   Artifacts:    junit-*.jar
-  Project:      The JUnit Testing Framework. A framework for unit-testing.  All our
+  Project:      The JUnit Testing Framework. A framework for unit-testing. All our
                 regression tests make use of this framework in a way or another.
   Web Site:     http://www.junit.org/
   License:      Common Public License (CPL) v1.0
   License File: cpl-v10.html
+
+
+  Artifacts:    jWlz-*.jar
+  Web Site:     http://www.emouseatlas.org/emap/analysis_tools_resources/software/woolz.html
+  License:      Common Public License (CPL) v1.0
+  License File: cpl-v10.html
+
+
+  Artifacts:    jxrlib-all-*.jar
+  Project:      Java bindings and pre-built native binaries for jxrlib.
+  Web Site:     https://jxrlib.codeplex.com
+  License:      FreeBSD License
+  License File: fbsd.html
+
+
+  Artifacts:    kryo-*.jar
+  Project:      Fast, efficient Java serialization
+  Web Site:     https://github.com/EsotericSoftware/kryo
+  License:      New BSD License
+  License File: bsd-new.txt
+
+
+  Artifacts:    logback-*.jar
+  Web Site:     http://logback.qos.ch
+  License:      Lesser General Public License (LGPL) v2.1
+  License File: lgpl-v2.1.txt
 
 
   Artifacts:    log4j-*.jar
@@ -329,10 +648,61 @@
   License File: apache-v2.0.txt
 
 
-  Artifacts:    mdbtools-java.jar
-  Web Site:     http://sourceforge.net/forum/message.php?msg_id=2550619
-  License:      Lesser General Public License (LGPL) v2.1
-  License File: lgpl-v2.1.txt
+  Artifacts:    lwf-stubs-*.jar
+  Project:      Stub of proprietary Java API to handle Luratech LWF compression.
+                Required to compile Bio-Formats' support for Luratech LWF compression for the Opera Flex format.
+  Web Site:     http://www.luratech.com/
+  License:      BSD License
+  License File: bsd.txt
+
+
+  Artifacts:    mail-*.jar  
+  License:      CDDL or GPLv2+CE
+  License File: cddl-v1.0.txt
+
+
+  Artifacts:    metakit-*.jar
+  Project:      A library for reading Metakit database files.
+  Web Site:     http://www.openmicroscopy.org/site/products/bio-formats
+  License:      General Public License (GPL), Version 2
+  License File: gpl-v2.0.txt
+
+
+  Artifacts:    mipav-stubs-*.jar
+  Project:      Stubs of MIPAV Java classes required to compile Bio-Formats' MIPAV plugin.
+  Web Site:     http://mipav.cit.nih.gov
+  License:      BSD License
+  License File: bsd.txt
+
+
+  Artifacts:    metric-core-*.jar, metrics-graphite-*.jar, metrics-jvm-*.jar, metrics-logback-*.jar
+  Project:      Metrics is a Java library which gives you unparalleled insight into what your code does in
+                production. Metrics provides a powerful toolkit of ways to measure the behavior of critical
+                components in your production environment.
+  Web Site:     http://metrics.dropwizard.io/3.2.2/
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
+  Artifacts:    metadata-extractor-*.jar
+  Project:      Java library for reading metadata from image files.
+  Web Site:     http://code.google.com/p/metadata-extractor
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
+  Artifacts:    minlog-*.jar
+  Project:      Minimal overhead Java logging
+  Web Site:     http://code.google.com/p/minlog/
+  License:      New BSD License
+  License File: bsd-new.txt
+
+
+  Artifacts:    native-lib-loader-*.jar
+  Project:      A library for loading native libraries.
+  Web Site:     http://github.com/scijava/native-lib-loader
+  License:      FreeBSD License
+  License File: fbsd.txt
 
 
   Artifacts:    netcdf-*.jar
@@ -341,33 +711,98 @@
   License File: lgpl-v2.1.txt
 
 
+  Artifacts:    objenesis-*.jar
+  Project:      A library for instantiating Java objects.
+  Web Site:     http://objenesis.org
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
+  Artifacts:    ome-common-*.jar
+  Project:      Contains common I/O, date parsing, and XML processing classes.
+  Web Site:     http://www.openmicroscopy.org/site/products/bio-formats
+  License:      BSD License
+  License File: bsd.txt
+
+
+  Artifacts:    ome-mdbtools-*.jar
+  Project:      Java API to handle Microsoft MDB format (Access).
+                Used by Bio-Formats for Zeiss LSM metadata in MDB files.
+  Web Site:     http://sourceforge.net/forum/message.php?msg_id=2550619
+  License:      General Public License (GPL), Version 2
+  License File: gpl-v2.0.txt
+
+
+  Artifacts:    ome-poi-*.jar
+  Project:      Java API to handle Microsoft OLE 2 Compound Document format (Word, Excel).
+                Based on poi-2.5.1-final-20040804.jar, with bugfixes for OLE v2 and
+                memory efficiency improvements.
+                Used by Bio-Formats for OLE support (cxd, ipw, oib, zvi).
+                Used by VisBio overlays logic for XLS export feature.
+  Web Site:     http://jakarta.apache.org/poi/
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
+  Artifacts:    ome-xml-*.jar
+  Project:      A library for working with OME-XML metadata structures.
+  Web Site:     http://www.openmicroscopy.org/site/support/ome-model/ome-xml/java-library.html
+  License:      BSD License
+  License File: bsd.txt
+
+
+  Artifacts:    specification-*.jar
+  Project:      The OME Data Model specification.
+  Web Site:     http://www.openmicroscopy.org/site/support/ome-model
+  License:      BSD License or Creative Commons Attribution 3.0 Unported License
+  License File: bsd.txt
+
+  
+  Artifacts:    oro-*.jar
+  Web Site:     http://jakarta.apache.org/oro/
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
+  Artifacts:    pdfbox-*.jar
+  Project:      PDFBox is an open source Java PDF library for working with PDF documents.
+  Web Site:     http://www.pdfbox.org/
+  License:      BSD License
+  License File: bsd.txt
+
+
   Artifacts:    perf4j-*.jar
-  Project:      Perf4j, a set of utilites for calculating and dsplaying performance statistics
+  Project:      Perf4j, a set of utilites for calculating and displaying performance statistics.
   Web Site:     http://perf4j.codehaus.org
   License:      Apache License, Version 2.0
   License File: apache-v2.0.txt
 
 
+  Artifacts:    platform-*.jar
+  Project:      Java Native Access Platform.
+  Web Site:     https://github.com/twall/jna
+  License:      Lesser General Public License (LGPL) v2.1
+  License File: lgpl-v2.1.txt
+
+
   Artifacts:    poi-*.jar
-  Project:      Apache Project Java API To Access Microsoft Format Files
+  Project:      Apache Project Java API To Access Microsoft Format Files.
   License:      Apache License, Version 2.0
   License File: apache-v2.0.txt
 
 
   Artifacts:    postgresql-*.jar
-  Project:      PostgreSQL JDBC driver
+  Project:      PostgreSQL JDBC driver.
   Web Site:     http://jdbc.postgresql.org
-  License:      BSD
+  License:      PostgreSQL License
   License File: postgresql.txt
 
 
-  Artifacts:    libquaqua-unknown.jnilib, quaqua-filechooser-only-unknown.jar
-  Project:      Quaqua Look and Feel. A user interface library for Java applications
-                which wish to closely adhere to the Apple Human Interface Guidelines
-                for Mac OS X
-  Webpage:      http://www.randelshofer.ch/quaqua
-  License:      Lesser General Public License (LGPL) v2.1
-  License File: lgpl-v2.1.txt
+  Artifacts:    quartz-*.jar
+  Project:      OpenSymphony's Quartz Scheduler.
+  Web Site:     http://www.quartz-scheduler.org/
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
 
 
   Artifacts:    reportng-*.jar
@@ -375,14 +810,6 @@
   Website:      http://reportng.uncommons.org
   License:      Apache License, Version 2.0
   License File: apache-v2.0.txt
-
-
-  Artifacts:    saaj-*.jar
-  Project:      SAAJ Standard Implementation Project.
-                We do not use this software directly but required by the Apache Axis project
-  Web Site:     https://saaj.dev.java.net/
-  License:      General Public License (GPL), Version 2
-  License File: gpl.txt
 
 
   Artifacts:    scons-local-*.zip
@@ -393,17 +820,39 @@
 
 
   Artifacts:    setuptools-*.egg
-  Project:      setuptools, a collection of enhancements to the Python distutils
+  Project:      setuptools, a collection of enhancements to the Python distutils.
   Web Site:     http://pypi.python.org/pypi/setuptools
   License:      PSF v2.5 or ZPL v2.1
   License File: psf-v2.5.txt or zpl-v2.1.txt
 
 
+  Artifacts:    serializer-*.jar
+  Project:      Serializer to write out XML, HTML etc. as a stream of characters from an input DOM or from input
+                SAX events.
+  Web Site:     http://xml.apache.org/xalan-j/
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
+  Artifacts:    shared-*.jar
+  Project:      Collections of utils packages
+  Web Site:     
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
   Artifacts:    slf4j-*.jar
   Project:      SLF4J, Simple Logging Facade for Java
   Web Site:     http://slf4j.org
-  License:      MIT
+  License:      MIT License
   License File: slf4j.txt
+
+
+  Artifacts:    snakeyaml-*.jar
+  Project:      YAML 1.1 parser and emitter for Java
+  Web Site:     http://code.google.com/p/snakeyaml
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
 
 
   Artifacts:    spring-*.jar
@@ -445,6 +894,13 @@
   License File: apache-v2.0.txt
 
 
+  Artifacts:    turbojpeg-*.jar
+  Project:      Java bindings and pre-built binaries for libjpeg-turbo.
+  Web Site:     http://libjpeg-turbo.virtualgl.org/
+  License:      FreeBSD License
+  License File: fbsd.txt
+
+
   Artifacts:    velocity-*.jar
   Project:      Apache Velocity. A Java-based template engine.
   Website:      http://velocity.apache.org
@@ -452,18 +908,51 @@
   License File: apache-v2.0.txt
 
 
+  Artifacts:    xalan-*.jar
+  Project:      Xalan-Java is an XSLT processor for transforming XML documents into HTML,
+                text, or other XML document types. It implements XSL Transformations (XSLT)
+                Version 1.0 and XML Path Language (XPath) Version 1.0 and can be used from
+                the command line, in an applet or a servlet, or as a module in other program.
+  Website:      http://xml.apache.org/xalan-j/
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
   Artifacts:    xerces-*.jar xercesImpl-*.jar xml-apis-*.jar
-  Project:      The Xerces2 Java Parser.  An XML parser which is used by Ant.
+  Project:      The Xerces2 Java Parser. An XML parser which is used by Ant.
   Web Site:     http://xml.apache.org/xerces2-j/
   License:      Apache Software License, Version 1.1
   License File: apache-v1.1.txt
 
 
-  Artifacts:    forms-*.jar
-  Web Site:     http://www.jgoodies.com/freeware/forms/index.html
-  License:      BSD
+  Artifacts:    xml-apis-*.jar
+  Project:      xml-commons provides an Apache-hosted set of DOM, SAX, and 
+                JAXP interfaces for use in other xml-based projects. Our hope is that we 
+                can standardize on both a common version and packaging scheme for these 
+                critical XML standards interfaces to make the lives of both our developers 
+                and users easier. The External Components portion of xml-commons contains 
+                interfaces that are defined by external standards organizations. For DOM, 
+                that's the W3C.
+  Web Site:     http://xml.apache.org/commons/#external
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
+  Artifacts:    xmpcore-*.jar
+  Project:      The XMP Library for Java is based on the C++ XMPCore library
+                and the API is similar.
+  Web Site:     http://www.adobe.com/devnet/xmp.html
+  License:      BSD License
   License File: bsd.txt
 
+
+  Artifacts:    xpp3-*.jar
+  Project:      The XMP Library for Java is based on the C++ XMPCore library
+                and the API is similar.
+  Web Site:     http://www.adobe.com/devnet/xmp.html
+  License:      Indiana University Extreme! Lab Software License, version 1.1.1 or Public Domain or 
+                Apache License, version 1.1
+  License File: apache-v1.1.txt
 
 
   //
@@ -508,11 +997,36 @@
   License File: apache-v2.0.txt
 
 
+  Artifacts:    components/tools/OmeroPy/src/omero_ext/cloghandler.py
+  Project:      A smart replacement for the standard RotatingFileHandler
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
+  Artifacts:    components/tools/OmeroPy/src/omero_ext/functional.py
+  Web Site:     http://code.djangoproject.com/browser/django/trunk/django/utils/functional.py
+  License:      Python Software Foundation License, Version 2.0
+  License File: psf-v2.0.txt
+
+
+  Artifacts:    components/tools/OmeroPy/src/omero_ext/killableprocess.py
+  Web Site:     https://github.com/andreisavu/python-process/blob/master/killableprocess.py
+  License:      
+  License File: killableprocess.py
+
+
   Artifacts:    components/tools/OmeroPy/src/omero_ext/mox.py
   Project:      mox: an object-mocking framework for Python
   Web Site:     http://code.google.com/p/pymox
   License:      Apache License, Version 2.0
   License File: apache-v2.0.txt
+
+
+  Artifacts:    components/tools/OmeroPy/src/omero_ext/portalocker.py
+  Project:      
+  Web Site:     
+  License:      Python Software Foundation License, Version 2.0
+  License File: psf-v2.0.txt
 
 
   Artifacts:    components/tools/OmeroPy/src/omero_ext/pyinotify.py
@@ -522,18 +1036,21 @@
   License File: pyinotify.py
 
 
-  Artifacts:    components/tools/OmeroPy/src/path.py
-  Project:      A module wrapper for os.path
-  Web Site:     https://github.com/jaraco/path.py
-  License:      MIT
-  License File: path.txt
+  Artifacts:    components/tools/OmeroPy/src/omero_ext/stubout.py
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
 
 
   Artifacts:    components/tools/OmeroPy/src/omero_ext/which.py
   Project:      GNU which replacement
   Web Site:     http://code.google.com/p/which/
-  License:      MIT
+  License:      MIT License
   License File: which.txt
+
+
+  Artifacts:    components/tools/OmeroPy/src/omero_ext/winprocess.py
+  License:      MIT License
+  License File: mit.txt
 
 
   Artifacts:    components/tools/OmeroPy/src/omero_ext/tiltpicker
@@ -543,18 +1060,16 @@
   License File: apache-v2.0.txt
 
 
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery-ui-1.8.17/*
-  Project:      jQuery UI - open source library of interface components.
-  Web Site:     http://jqueryui.com/
-  License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2.
-  License File: jquery.txt, gpl.txt
+  Artifacts:    components/tools/OmeroPy/src/path.py
+  Project:      A module wrapper for os.path
+  Web Site:     https://github.com/jaraco/path.py
+  License:      MIT License
+  License File: path.txt
 
-
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery.ui.touch-punch.min.js
-  Project:      Touch punch - Enables touch events on mobile web
-  Web Site:     http://touchpunch.furf.com/
-  License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2.
-  License File: jquery.txt, gpl.txt
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webadmin/static/webadmin/javascript/jquery.imgareaselect-0.9.10.js
+  Web Site:     http://odyniec.net/projects/imgareaselect/
+  License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2
+  License File: mit.txt, gpl-v2.0.txt
 
 
   Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/static/webclient/javascript/slider/*
@@ -564,110 +1079,224 @@
   License File: apache-v2.0.txt
 
 
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/static/webclient/javascript/jquery.form.js
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/static/webclient/javascript/jquery.editinplace-0.1.2.js
+  Project:      a jQuery plugin that turns any element or group of elements into an Ajax in-place editor
+                using only one line of code.
+  Web Site:     https://github.com/siebertm/jquery-edit-in-place
+  License:      BSD License
+  License File: bsd.txt
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/static/webclient/javascript/jquery.form-3.51.js
   Project:      jQuery Form Plugin.
   Web Site:     http://malsup.com/jquery/form/
-  License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2.
-  License File: jquery.txt
+  License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2
+  License File: mit.txt, gpl-v2.0.txt
 
 
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/media/javascript/jquery.imgareaselect.js
-  Project:      jQuery Image Area Select Plugin.
-  Web Site:     http://odyniec.net/projects/imgareaselect/
-  License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2.
-  License File: jquery.txt, gpl.txt
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/static/webclient/javascript/jquery.infieldlabel-0.1.js
+  Web Site:     https://github.com/instanceofme/jquery-infieldlabels
+  License:      MIT License and GNU GENERAL PUBLIC LICENSE Version 2
+  License File: mit.txt, gpl-v2.0.txt
 
 
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webadmin/static/webadmin/javascript/jquery.multiselects.js
-  Project:      jQuery Multiple Selects Plugin.
-  Web Site:     http://code.google.com/p/jqmultiselects/
-  License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2.
-  License File: jquery.txt, gpl.txt
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/static/webclient/javascript/modernizr-2.5.3.js
+  Web Site:     https://modernizr.com/
+  License:      MIT License
+  License File: mit.txt
 
 
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery.quicksearch.js
-  Project:      jQuery Quick Search Plugin.
-  Web Site:     http://rikrikrik.com/jquery/quicksearch/
-  License:      GNU GENERAL PUBLIC LICENSE Version 2.
-  License File: jquery.txt, gpl.txt
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/d3-3.5.17/*
+  Project:      JavaScript library for manipulating documents based on data.
+  Web Site:     https://d3js.org/
+  License:      BSD License
+  License File: bsd.txt
 
 
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery.tablesorter
-  Project:      jQuery Table Sorter Plugin.
-  Web Site:     http://tablesorter.com/docs/
-  License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2.
-  License File: jquery.txt, gpl.txt
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/farbtastic-1.2/*
+  Project:      a jQuery plug-in that can add one or more color picker widgets into a page.
+  Web Site:     https://github.com/mattfarina/farbtastic
+  License:      GNU GENERAL PUBLIC LICENSE Version 2
+  License File: gpl-v2.0.txt
 
 
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery.tooltip
-  Project:      jQuery Tooltip Plugin.
-  Web Site:     http://bassistance.de/jquery-plugins/jquery-plugin-tooltip/, http://docs.jquery.com/Plugins/Tooltip
-  License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2.
-  License File: jquery.txt, gpl.txt
-
-
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/raphael/raphael-min.js
-  Project:      Raphael javascript library
-  Web Site:     http://raphaeljs.com/
-  License:      MIT license.
-  License File: jquery.txt
-
-
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/raphael/scale.raphael.js
-  Project:      ScaleRaphael
-  Web Site:     www.shapevent.com/scaleraphael/
-  License:      MIT license.
-  License File: jquery.txt
-
-
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/chosen/*
-  Project:      Chosen
-  Web Site:     http://harvesthq.github.com/chosen/
-  License:      MIT license.
-  License File: jquery.txt
-
-
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/static/webgateway/pie/*
-  Project:      CSS3 PIE
-  Web Site:     http://css3pie.com
-  License:      Dual-licensed for use under the Apache License Version 2.0 or the General Public License (GPL) Version 2.
-  License File: apache-v2.0.txt gpl.txt
-
-
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/hammer/hammer.min.js
-  Project:      Hammer.js
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/hammer-2.0.2/*
+  Project:      A javascript library for multi-touch gestures.
   Web Site:     http://hammerjs.github.io/
-  License:      MIT license.
-  License File: jquery.txt
+  License:      MIT License
+  License File: mit.txt
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/ie8_pngfix/*    
+  License:      MIT License
+  License File: mit.txt
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery-ui-1.10.4/*
+  Project:      jQuery UI - open source library of interface components.
+  Web Site:     http://jqueryui.com/
+  License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2
+  License File: jquery.txt, gpl-v2.0.txt
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery.chosen-1.2.0/*
+  Project:      a JavaScript plugin that makes long, unwieldy select boxes much more user-friendly.
+  Web Site:     https://github.com/harvesthq/chosen
+  License:      MIT License
+  License File: mit.txt
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery.flot-0.7/*
+  Project:      Attractive JavaScript plotting for jQuery
+  Web Site:     http://www.flotcharts.org/
+  License:      MIT License
+  License File: mit.txt
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery.jstree-3.0.8/*
+  Project:      jquery plugin, that provides interactive trees.
+  Web Site:     https://www.jstree.com/
+  License:      MIT License
+  License File: mit.txt
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery.tablesorter-2.0.3/*
+  Project:      jquery plugin, that provides interactive trees.
+  Web Site:     https://github.com/christianbach/tablesorter
+  License:      MIT License or GNU GENERAL PUBLIC LICENSE
+  License File: mit.txt, gpl-v3.0.txt
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/JQuerySpinBtn-1.3a/*
+  Web Site:     http://www.softwareunity.com/jquery/JQuerySpinBtn/
+  License:      MIT License
+  License File: mit.txt
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/panojs-2.0.0/*
+  Project:      An interactive JavaScript widget for panning and zooming a panoramic image
+                stitched together dynamically from smaller tiles. 
+  Web Site:     http://www.dimin.net/software/panojs/
+  License:      MIT License
+  License File: mit.txt
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/pie-1.0beta5/*
+  Project:      progressive internet explorer
+  Web Site:     http://css3pie.com/
+  License:      Apache License, version 2 and GNU GENERAL PUBLIC LICENSE version 2
+  License File: apache-v2.0.txt, gpl-v2.0.txt
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/raphael-2.1.0/*
+  Web Site:     https://github.com/fanstatic/js.raphael
+  License:      BSD License
+  License File: bsd.txt
 
 
   Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/underscore/*
-  Project:      Underscore.js
   Web Site:     http://underscorejs.org/
-  License:      MIT license.
-  License File: jquery.txt
+  License:      MIT License
+  License File: mit.txt
 
 
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/d3*
-  Project:      d3.js
-  Web Site:     http://underscorejs.org/
-  License:      BSD
-  License File: bsd.txt
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/aops-1.3.js
+  Web Site:     https://github.com/cujojs/meld
+  License:      MIT License
+  License File: mit.txt
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery-1.11.1.js
+  Web Site:     https://jquery.com/
+  License:      MIT License
+  License File: mit.txt
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery.blockUI-2.66.0.js
+  Web Site:     http://malsup.com/jquery/block/
+  License:      MIT License or GNU GENERAL PUBLIC LICENSE
+  License File: mit.txt, gpl-v3.0.txt
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery.hotkeys-0.8.js
+  Web Site:     https://github.com/tzuryby/jquery.hotkeys
+  License:      MIT License or GNU GENERAL PUBLIC LICENSE
+  License File: mit.txt, gpl-v3.0.txt
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery.mousewheel-3.0.6.js
+  Web Site:     https://github.com/jquery/jquery-mousewheel
+  License:      MIT License or GNU GENERAL PUBLIC LICENSE
+  License File: mit.txt, gpl-v3.0.txt
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery.quicksearch-1.0.js
+  Web Site:     https://github.com/riklomas/quicksearch
+  License:      MIT License
+  License File: mit.txt
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery.selectboxes-2.2.6.js
+  Web Site:     
+  License:      MIT License or GNU GENERAL PUBLIC LICENSE
+  License File: mit.txt, gpl-v3.0.txt
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery.ui.touch-punch-0.2.3.min.js
+  Project:      Touch punch - Enables touch events on mobile web
+  Web Site:     http://touchpunch.furf.com/
+  License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2
+  License File: jquery.txt, gpl.txt
 
 
   //
   // Used but not distributed
   //
 
-
-  Project:      PyTables
-  Web Site:     http://www.pytables.org
-  License:      Lesser General Public License
+  Project:      jinja2
+  Web Site:     http://jinja.pocoo.org/
+  License:      BSD License
+  License File: bsd.txt
 
 
   Project:      NumPy
   Web Site:     http://numpy.scipy.org/
   License:      Lesser General Public License
+  License File: lgpl.txt
+
+  
+  Project:      Matplotlib
+  Web Site:     https://matplotlib.org/
+  License:      only uses BSD compatible code, and its license is based on the PSF license
+  License File: matplotlib.txt
+
+
+  Project:      Pillow
+  Web Site:     https://python-pillow.org/
+  License:      Standard PIL License
+  License File: pil.txt
+
+
+  Project:      SciPy
+  Web Site:     https://www.scipy.org/scipylib/index.html
+  License:      BSD
+  License File: bsd.txt
+
+
+  Project:      PyTables
+  Web Site:     http://www.pytables.org
+  License:      Lesser General Public License
+  License File: lgpl.txt
+
+
+  Project:      PyYAML
+  Web Site:     http://pyyaml.org/wiki/PyYAML
+  License:      MIT
+  License File: mit.txt
+
+
+
+
 
   //
   // Public domain files copied from the web
@@ -677,49 +1306,11 @@
 
 
   //
-  // Build-time artifacts under components/insight/build/tools
-  //
-
-  Artifacts:    avalon-*.jar
-  Project:      The Apache Avalon Framework.  We don't use this software directly,
-                but it is required by the FOP library.
-  Web Site:     http://avalon.apache.org/
-  License:      Apache Software License, Version 1.1
-  License File: apache-v1.1.txt
-
-
-  Artifacts:    bsf-*.jar
-  Project:      The Bean Scripting Framework (BSF).  It provides scripting language
-                support within Java applications.  We use it to add scripting
-                capabilities to Ant.
-  Web Site:     http://jakarta.apache.org/bsf/
-  License:      Apache Software License, Version 1.1
-  License File: apache-v1.1.txt
-
-
-  Artifacts:    fop-*.jar
-  Project:      The Formatting Objects Processor (FOP).  FOP is a print formatter
-                driven by XSL formatting objects (XSL-FO).  It provides our build system
-                with pdf generation capabilities.
-  Web Site:     http://xml.apache.org/fop/
-  License:      Apache Software License, Version 1.1
-  License File: apache-v1.1.txt
-
-
-  Artifacts:    rhino-*.jar
-  Project:      The Rhino JavaScript Engine.  It provides JavaScript support to
-                the BSF library.
-  Web Site:     http://www.mozilla.org/rhino/
-  License:      Netscape Public License (NPL), Version 1.1
-  License File: npl-1_1.txt
-
-
-  //
   // Graphic artifacts under components/insight/SRC
   //
 
   Artifacts:    crystal_*
-  Project:      Crystal.  We are using a few of their icons.
+  Project:      Crystal. We are using a few of their icons.
   Web Site:     http://www.everaldo.com/crystal
   License:      Lesser General Public License (LGPL)
   License File: lgpl.txt
@@ -732,13 +1323,6 @@
   License File: cpl-v10.html
 
 
-  Artifacts:    jna.jar, platform.jar
-  Project:      Java Native Access (JNA), used for calling platform specific methods.
-  Web Site:     https://github.com/twall/jna
-  License:      LGPL, version 2.1 (or later)
-  License File: lgpl.txt
-
-
   Artifacts:    nuvola_*
   Project:      The Nuvola icon theme. It provides most of the icons in OMERO.insight.
   Web Site:     http://www.icon-king.com/
@@ -747,7 +1331,7 @@
 
 
   Artifacts:    openOffice_*
-  Project:      Ximian.  We are using a few of their icons that they designed for
+  Project:      Ximian. We are using a few of their icons that they designed for
                 Open Office.
   Web Site:     http://www.novell.com/linux/ximian.html
   License:      Lesser General Public License (LGPL)
