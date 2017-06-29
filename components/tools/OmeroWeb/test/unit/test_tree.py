@@ -28,6 +28,11 @@ from omeroweb.webclient.tree import _marshal_plate_acquisition, \
     _marshal_dataset, _marshal_plate, parse_permissions_css
 
 
+class MockEventContext(object):
+
+    adminPrivileges = []
+
+
 class MockConnection(object):
 
     def getUserId(self):
@@ -35,6 +40,9 @@ class MockConnection(object):
 
     def isAdmin(self):
         return False
+
+    def getEventContext(self):
+        return MockEventContext()
 
 
 @pytest.fixture(scope='module')
