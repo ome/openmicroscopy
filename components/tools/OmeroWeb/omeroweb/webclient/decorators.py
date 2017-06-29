@@ -127,7 +127,8 @@ class render_response(omeroweb.decorators.render_response):
         }}
 
         context.setdefault('ome', {})   # don't overwrite existing ome
-        context['ome']['eventContext'] = eventContextMarshal(conn.getEventContext())
+        context['ome']['eventContext'] = eventContextMarshal(
+            conn.getEventContext())
         context['ome']['user'] = conn.getUser
         context['ome']['user_id'] = request.session.get('user_id', None)
         context['ome']['group_id'] = request.session.get('group_id', None)
