@@ -59,7 +59,8 @@ def parse_permissions_css(permissions, ownerid, conn):
     permissionsCss = [r for r in restrictions if permissions.get(r)]
     if ownerid == conn.getUserId():
         permissionsCss.append("isOwned")
-    if ownerid == conn.getUserId() or conn.isAdmin():
+    if (ownerid == conn.getUserId() or
+            "Chgrp" in conn.getEventContext().adminPrivileges):
         permissionsCss.append("canChgrp")
     return ' '.join(permissionsCss)
 
