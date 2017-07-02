@@ -1580,6 +1580,7 @@ class GraphArg(object):
     def __call__(self, arg):
         cmd = self.cmd_type()
         targetObjects = dict()
+        targetUsers = []
         try:
             parts = arg.split(":", 1)
             assert len(parts) == 2
@@ -1597,8 +1598,17 @@ class GraphArg(object):
                     ids.extend(range(low, high+1))
                 else:
                     ids.append(long(id))
-            targetObjects[graph[0]] = ids
+            # Allow also experimenters to be processed by this method
+            # Note thoiugh that Expermienter cannot be combined with
+            # other graph objects in the combine_commands method.
+            #.Either only Experimenter is used in the arguments or
+            # other objects (like Datasets, Images etc.)
+            if "Experimenter" in graph:
+                targetUsers = ids
+            else:
+                targetObjects[graph[0]] = ids
             cmd.targetObjects = targetObjects
+            cmd.targetUsers = targetUsers
             if len(graph) > 1:
                 skiphead = omero.cmd.SkipHead()
                 skiphead.request = cmd
@@ -1905,7 +1915,12 @@ class GraphControl(CmdControl):
             rv.extend(others)
         elif len(others) > 1:
             for req in others[1:]:
-                type, ids = req.targetObjects.items()[0]
+                #.Catch eventuality that in GraphArg __call__ method
+                # the targetObjects were left empty.
+                try:
+                    type, ids = req.targetObjects.items()[0]
+                except IndexError:
+                    self.ctx.die(196, "Cannot combine object and non-object commands")
                 others[0].targetObjects.setdefault(type, []).extend(ids)
             rv.append(others[0])
 
