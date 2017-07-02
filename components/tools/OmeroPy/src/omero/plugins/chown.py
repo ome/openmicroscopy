@@ -107,12 +107,14 @@ class ChownControl(GraphControl):
         parser.add_argument(
             "obj", nargs="*", type=GraphArg(self.cmd_type()),
             help="either objects to be processed in the form <Class>:<Id>"
-                 " or user(s) to transfer ownership of all data from in the form Experimenter:<Id>")
+                 " or user(s) to transfer ownership of all data from in the"
+                 " form Experimenter:<Id>")
 
     def _pre_objects(self, parser):
         parser.add_argument(
             "usr", nargs="?", type=ExperimenterArg,
-            help="""user to transfer ownership of specified objects or all objects owned by specified user(s) to""")
+            help="user to transfer ownership of specified objects or all"
+                 " objects owned by specified user(s) to")
 
     def _process_request(self, req, args, client):
         # Retrieve user id

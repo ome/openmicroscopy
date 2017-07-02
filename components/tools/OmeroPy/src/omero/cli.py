@@ -1601,7 +1601,7 @@ class GraphArg(object):
             # Allow also experimenters to be processed by this method
             # Note thoiugh that Expermienter cannot be combined with
             # other graph objects in the combine_commands method.
-            #.Either only Experimenter is used in the arguments or
+            # Either only Experimenter is used in the arguments or
             # other objects (like Datasets, Images etc.)
             if "Experimenter" in graph:
                 targetUsers = ids
@@ -1915,12 +1915,12 @@ class GraphControl(CmdControl):
             rv.extend(others)
         elif len(others) > 1:
             for req in others[1:]:
-                #.Catch eventuality that in GraphArg __call__ method
+                # Catch eventuality that in GraphArg __call__ method
                 # the targetObjects were left empty.
                 try:
                     type, ids = req.targetObjects.items()[0]
                 except IndexError:
-                    self.ctx.die(196, "Cannot combine object and non-object commands")
+                    self.ctx.die(196, "Cannot combine commands")
                 others[0].targetObjects.setdefault(type, []).extend(ids)
             rv.append(others[0])
 
