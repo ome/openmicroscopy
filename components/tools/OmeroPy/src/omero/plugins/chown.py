@@ -13,11 +13,16 @@
    defined here will be added to the Cli class for later use.
 """
 
-from omero.cli import CLI, GraphControl, ExperimenterArg
+from omero.cli import CLI, GraphControl, ExperimenterArg, GraphArg
+from omero_ext.argparse import SUPPRESS
 import sys
 
 HELP = """Transfer ownership of data between users. Entire graphs of data,
 based on the ID of the top-node, are transferred.
+
+There are two ways to use this command, either specify the data to be
+transferred or specify users from whom the ownership of all their data
+will be transferred. These two usage ways can be combined.
 
 This command can only be used by OMERO administrators and group owners.
 
@@ -48,6 +53,11 @@ Examples:
     # Transfer all images contained under two projects
     omero chown 101 Project/Image:201,202
 
+    # Transfer all data owned by user 111 and one image to user 4
+    omero chown 4 Experimenter:111 Image:17
+    # Transfer all data of users 1,3 and 7 to user 10
+    omero chown 10 Experimenter:1,3,7
+
     # Do a dry run of a transfer reporting the outcome
     # if the transfer had been run
     omero chown 101 Dataset:53 --dry-run
@@ -65,10 +75,65 @@ class ChownControl(GraphControl):
         import omero.all
         return omero.cmd.Chown2
 
+    def _configure(self, parser):
+        parser.set_defaults(func=self.main_method)
+        self._add_wait(parser, default=-1)
+        parser.add_argument(
+            "--include",
+            help="Modifies the given option by including a list of objects")
+        parser.add_argument(
+            "--exclude",
+            help="Modifies the given option by excluding a list of objects")
+        parser.add_argument(
+            "--ordered", action="store_true",
+            help=("Pass multiple objects to commands strictly in the order "
+                  "given, otherwise group into as few commands as possible."))
+        parser.add_argument(
+            "--list", action="store_true",
+            help="Print a list of all available graph specs")
+        parser.add_argument(
+            "--list-details", action="store_true", help=SUPPRESS)
+        parser.add_argument(
+            "--report", action="store_true",
+            help="Print more detailed report of each action")
+        parser.add_argument(
+            "--dry-run", action="store_true",
+            help=("Do a dry run of the command, providing a "
+                  "report of what would have been done"))
+        parser.add_argument(
+            "--force", action="store_true",
+            help=("Force an action that otherwise defaults to a dry run"))
+        self._pre_objects(parser)
+        parser.add_argument(
+            "obj", nargs="*", type=GraphArg(self.cmd_type()),
+            help="objects to be processed in the form <Class>:<Id>"
+                 " and/or user(s) to transfer all data from in the"
+                 " form Experimenter:<Id>")
+
     def _pre_objects(self, parser):
         parser.add_argument(
             "usr", nargs="?", type=ExperimenterArg,
-            help="""user to transfer ownership of objects to""")
+            help="user to transfer ownership of specified objects and/or all"
+                 " objects owned by specified user(s) to")
+
+    def populate_targetUsers(self, command_check):
+        # Move the Experimenters whose data are to be
+        # transferred from targetObjects
+        # to targetUsers. The rewritten _check_command
+        # method checked these Experiments when they were
+        # in targetObjects, but Chown2 needs them in targetUsers
+        for k, v in command_check.targetObjects.items():
+            if k == "Experimenter":
+                if not v:
+                    return
+                command_check.targetUsers = v
+                del command_check.targetObjects["Experimenter"]
+
+    def _check_command(self, command_check):
+        # Rewrite higher class method to have command check
+        # as well as the possibility to adjust the command
+        super(ChownControl, self)._check_command(command_check)
+        self.populate_targetUsers(command_check)
 
     def _process_request(self, req, args, client):
         # Retrieve user id
