@@ -385,8 +385,10 @@ def experimenters(request, conn=None, **kwargs):
     template = "webadmin/experimenters.html"
 
     experimenterList = list(conn.getObjects("Experimenter"))
+    can_modify_user = 'ModifyUser' in conn.getCurrentAdminPrivileges()
 
-    context = {'experimenterList': experimenterList}
+    context = {'experimenterList': experimenterList,
+               'can_modify_user': can_modify_user}
     context['template'] = template
     return context
 
@@ -400,10 +402,22 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
     groups.sort(key=lambda x: x.getName().lower())
 
     if action == 'new':
-        form = ExperimenterForm(initial={
-            'with_password': True, 'active': True,
-            'groups': otherGroupsInitialList(groups)})
-        context = {'form': form}
+        user_id = conn.getUserId()
+        user_privileges = conn.getCurrentAdminPrivileges()
+        # Only Full Admin can set 'Role' of new experimenter
+        user_full_admin = 'ReadSession' in user_privileges
+        can_modify_user = 'ModifyUser' in user_privileges
+        form = ExperimenterForm(
+            can_edit_role=user_full_admin,
+            can_modify_user=can_modify_user,
+            initial={'with_password': True,
+                     'active': True,
+                     'groups': otherGroupsInitialList(groups)})
+        admin_groups = [
+            conn.getAdminService().getSecurityRoles().systemGroupId]
+        context = {'form': form,
+                   'admin_groups': admin_groups,
+                   'can_modify_user': can_modify_user}
     elif action == 'create':
         if request.method != 'POST':
             return HttpResponseRedirect(
@@ -429,7 +443,8 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                 lastName = form.cleaned_data['last_name']
                 email = form.cleaned_data['email']
                 institution = form.cleaned_data['institution']
-                admin = form.cleaned_data['administrator']
+                role = form.cleaned_data['role']
+                admin = role in ('administrator', 'restricted_administrator')
                 active = form.cleaned_data['active']
                 defaultGroup = form.cleaned_data['default_group']
                 otherGroups = form.cleaned_data['other_groups']
@@ -454,10 +469,14 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                         elif long(og) == g.id:
                             listOfOtherGroups.add(g)
 
-                conn.createExperimenter(
+                expId = conn.createExperimenter(
                     omename, firstName, lastName, email, admin, active,
                     dGroup, listOfOtherGroups, password, middleName,
                     institution)
+
+                # Update 'AdminPrivilege' config roles for user
+                conn.setConfigRoles(expId, form)
+
                 return HttpResponseRedirect(reverse("waexperimenters"))
             context = {'form': form}
     elif action == 'edit':
@@ -475,27 +494,67 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
             'last_name': experimenter.lastName,
             'email': experimenter.email,
             'institution': experimenter.institution,
-            'administrator': experimenter.isAdmin(),
             'active': experimenter.isActive(),
             'default_group': defaultGroupId,
             'my_groups': otherGroups,
             'other_groups': [g.id for g in otherGroups],
             'groups': otherGroupsInitialList(groups)}
-        system_users = [conn.getAdminService().getSecurityRoles().rootId,
-                        conn.getAdminService().getSecurityRoles().guestId]
-        experimenter_is_me_or_system = (
-            (conn.getEventContext().userId == long(eid)) or
-            (long(eid) in system_users))
+
+        # Load 'AdminPrivilege' roles for 'initial'
+        delete_perms = []
+        write_perms = []
+        script_perms = []
+        privileges = conn.getAdminPrivileges(experimenter.id)
+        for privilege in privileges:
+            if privilege in ('DeleteOwned', 'DeleteFile', 'DeleteManagedRepo'):
+                delete_perms.append(privilege)
+            elif privilege in ('WriteOwned', 'WriteFile', 'WriteManagedRepo'):
+                write_perms.append(privilege)
+            elif privilege in ('WriteScriptRepo', 'DeleteScriptRepo'):
+                script_perms.append(privilege)
+            else:
+                initial[privilege] = True
+        # if ALL the Delete/Write permissions are found, Delete/Write is True
+        if set(delete_perms) == \
+                set(('DeleteOwned', 'DeleteFile', 'DeleteManagedRepo')):
+            initial['Delete'] = True
+        if set(write_perms) == \
+                set(('WriteOwned', 'WriteFile', 'WriteManagedRepo')):
+            initial['Write'] = True
+        if set(script_perms) == \
+                set(('WriteScriptRepo', 'DeleteScriptRepo')):
+            initial['Script'] = True
+
+        role = 'user'
+        if experimenter.isAdmin():
+            if 'ReadSession' in privileges:
+                role = 'administrator'
+            else:
+                role = 'restricted_administrator'
+        initial['role'] = role
+
+        root_id = [conn.getAdminService().getSecurityRoles().rootId]
+        user_id = conn.getUserId()
+        user_privileges = conn.getCurrentAdminPrivileges()
+        experimenter_root = long(eid) == root_id
+        experimenter_me = long(eid) == user_id
+        user_full_admin = 'ReadSession' in user_privileges
+        can_modify_user = 'ModifyUser' in user_privileges
+        # Only Full Admin can edit 'Role' of experimenter
+        can_edit_role = user_full_admin and not (experimenter_me
+                                                 or experimenter_root)
         form = ExperimenterForm(
-            experimenter_is_me_or_system=experimenter_is_me_or_system,
+            can_modify_user=can_modify_user,
+            can_edit_role=can_edit_role,
+            experimenter_me=experimenter_me,
+            experimenter_root=experimenter_root,
             initial=initial)
         password_form = ChangePassword()
 
-        admin_groups = (
-            experimenter_is_me_or_system and
-            [conn.getAdminService().getSecurityRoles().systemGroupId] or
-            list())
+        admin_groups = [
+            conn.getAdminService().getSecurityRoles().systemGroupId]
         context = {'form': form, 'eid': eid, 'ldapAuth': isLdapUser,
+                   'can_modify_user': can_modify_user,
                    'password_form': password_form,
                    'admin_groups': admin_groups}
     elif action == 'save':
@@ -528,7 +587,8 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                 lastName = form.cleaned_data['last_name']
                 email = form.cleaned_data['email']
                 institution = form.cleaned_data['institution']
-                admin = form.cleaned_data['administrator']
+                role = form.cleaned_data['role']
+                admin = role in ('administrator', 'restricted_administrator')
                 active = form.cleaned_data['active']
                 rootId = conn.getAdminService().getSecurityRoles().rootId
                 # User can't disable themselves or 'root'
@@ -556,6 +616,12 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                             pass
                         elif long(og) == g.id:
                             listOfOtherGroups.add(g)
+
+                # Update 'AdminPrivilege' config roles for user
+                # If role is empty, roles section of form is disabled - ignore
+                # since disabled privileges will not show up in POST data
+                if role != '':
+                    conn.setConfigRoles(long(eid), form)
 
                 conn.updateExperimenter(
                     experimenter, omename, firstName, lastName, email, admin,
@@ -614,8 +680,9 @@ def groups(request, conn=None, **kwargs):
     template = "webadmin/groups.html"
 
     groups = conn.getObjects("ExperimenterGroup")
+    can_modify_group = 'ModifyGroup' in conn.getCurrentAdminPrivileges()
 
-    context = {'groups': groups}
+    context = {'groups': groups, 'can_modify_group': can_modify_group}
     context['template'] = template
     return context
 
@@ -634,6 +701,7 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
         ownerIds = [e.id for e in group.getOwners()]
         memberIds = [m.id for m in group.getMembers()]
         permissions = getActualPermissions(group)
+        can_modify_group = 'ModifyGroup' in conn.getCurrentAdminPrivileges()
         system_groups = [
             conn.getAdminService().getSecurityRoles().systemGroupId,
             conn.getAdminService().getSecurityRoles().userGroupId,
@@ -648,6 +716,7 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
             'owners': ownerIds,
             'members': memberIds,
             'experimenters': experimenters},
+            can_modify_group=can_modify_group,
             group_is_current_or_system=group_is_current_or_system)
         admins = [conn.getAdminService().getSecurityRoles().rootId]
         if long(gid) in system_groups:
@@ -655,12 +724,13 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
             # group
             admins.append(conn.getUserId())
         return {'form': form, 'gid': gid, 'permissions': permissions,
-                "admins": admins}
+                'admins': admins, 'can_modify_group': can_modify_group}
 
     if action == 'new':
+        can_modify_group = 'ModifyGroup' in conn.getCurrentAdminPrivileges()
         form = GroupForm(initial={'experimenters': experimenters,
                                   'permissions': 0})
-        context = {'form': form}
+        context = {'form': form, 'can_modify_group': can_modify_group}
     elif action == 'create':
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamanagegroupid",

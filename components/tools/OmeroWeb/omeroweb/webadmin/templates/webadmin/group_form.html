@@ -135,9 +135,12 @@
             {% endfor %}  
             
             
-            <input type="submit" value="{% trans 'Save' %}" />
-            <br/>
-            <br/>
+            <input type="submit" 
+                {% if not can_modify_group %}
+                    disabled title="You don't have permissions to edit Groups"
+                {% endif %}
+                value="{% trans 'Save' %}" />
+            <div style="clear: both"></div>
         </div>
     </form>
 

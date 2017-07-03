@@ -85,10 +85,21 @@ class ForgottonPasswordForm(NonASCIIForm):
         widget=forms.TextInput(attrs={'size': 28, 'autocomplete': 'off'}))
 
 
+ROLE_CHOICES = (
+    ('user', 'User'),
+    ('administrator', 'Administrator'),
+    ('restricted_administrator', 'Administrator with restricted privileges')
+)
+
+
 class ExperimenterForm(NonASCIIForm):
 
     def __init__(self, name_check=False, email_check=False,
-                 experimenter_is_me_or_system=False, *args, **kwargs):
+                 experimenter_is_me_or_system=False,
+                 experimenter_me=False,
+                 can_modify_user=True,
+                 experimenter_root=False,
+                 can_edit_role=True, *args, **kwargs):
         super(ExperimenterForm, self).__init__(*args, **kwargs)
         self.name_check = name_check
         self.email_check = email_check
@@ -131,28 +142,63 @@ class ExperimenterForm(NonASCIIForm):
             fields_key_order = [
                 'omename', 'password', 'confirmation', 'first_name',
                 'middle_name', 'last_name', 'email', 'institution',
-                'administrator', 'active', 'default_group', 'other_groups']
+                'role', 'active', 'other_groups', 'default_group']
         else:
             fields_key_order = [
                 'omename', 'first_name', 'middle_name', 'last_name',
-                'email', 'institution', 'administrator', 'active',
-                'default_group', 'other_groups']
+                'email', 'institution', 'role', 'active',
+                'other_groups', 'default_group']
+
+        ordered_fields = [(k, self.fields[k]) for k in fields_key_order]
+
+        roles = [('Sudo', 'Sudo'),
+                 # combine WriteFile/MagangedRepo/Owned roles into 'Write'
+                 ('Write', 'Write Data'),
+                 # combine DeleteFile/MagangedRepo/Owned roles into 'Delete'
+                 ('Delete', 'Delete Data'),
+                 ('Chgrp', 'Chgrp'),
+                 ('Chown', 'Chown'),
+                 ('ModifyGroup', 'Create and Edit Groups'),
+                 ('ModifyUser', 'Create and Edit Users'),
+                 ('ModifyGroupMembership', 'Add Users to Groups'),
+                 ('Script', 'Upload Scripts')]
+        for role in roles:
+            disabled = not can_edit_role
+            ordered_fields.append(
+                (role[0], forms.BooleanField(
+                    required=False,
+                    label=role[1],
+                    widget=forms.CheckboxInput(attrs={'class': 'privilege',
+                                                      'disabled': disabled})
+                ))
+            )
 
         # Django 1.8: Form.fields uses OrderedDict from the collections module.
-        self.fields = OrderedDict(
-            (k, self.fields[k])
-            for k in fields_key_order)
+        self.fields = OrderedDict(ordered_fields)
 
-        if experimenter_is_me_or_system:
+        if experimenter_me or experimenter_root:
             self.fields['omename'].widget.attrs['readonly'] = True
+            name = "yourself"
+            if experimenter_root:
+                name = "'root' user"
             self.fields['omename'].widget.attrs['title'] = \
-                "Changing of system username would be un-doable"
-            self.fields['administrator'].widget.attrs['disabled'] = True
-            self.fields['administrator'].widget.attrs['title'] = \
-                "Removal of your own admin rights would be un-doable"
+                "You can't edit Username of %s" % name
             self.fields['active'].widget.attrs['disabled'] = True
             self.fields['active'].widget.attrs['title'] = \
-                "You cannot disable yourself"
+                "You cannot disable %s" % name
+        if not can_edit_role:
+            self.fields['role'].widget.attrs['disabled'] = True
+            reason = "You don't have permissions to edit user's Role"
+            if experimenter_me:
+                reason = "You can't edit your own admin privileges"
+            elif experimenter_root:
+                reason = "You can't edit 'root' user's admin privileges"
+            self.fields['role'].widget.attrs['title'] = reason
+
+        # If we can't modify user, ALL fields are disabled
+        if not can_modify_user:
+            for field in self.fields.values():
+                field.widget.attrs['disabled'] = True
 
     omename = OmeNameField(
         max_length=250,
@@ -173,7 +219,14 @@ class ExperimenterForm(NonASCIIForm):
         max_length=250,
         widget=forms.TextInput(attrs={'size': 30, 'autocomplete': 'off'}),
         required=False)
-    administrator = forms.BooleanField(required=False)
+
+    # 'Role' is disabled if experimenter is 'admin' or self,
+    # so required=False to avoid validation error.
+    role = forms.ChoiceField(
+        choices=ROLE_CHOICES,
+        widget=forms.RadioSelect,
+        required=False,
+        initial='user')
     active = forms.BooleanField(required=False)
 
     def clean_confirmation(self):
@@ -225,7 +278,7 @@ PERMISSION_CHOICES = (
 class GroupForm(NonASCIIForm):
 
     def __init__(self, name_check=False, group_is_current_or_system=False,
-                 *args, **kwargs):
+                 can_modify_group=True, *args, **kwargs):
         super(GroupForm, self).__init__(*args, **kwargs)
         self.name_check = name_check
         try:
@@ -259,6 +312,11 @@ class GroupForm(NonASCIIForm):
 
         self.fields.keyOrder = [
             'name', 'description', 'owners', 'members', 'permissions']
+
+        # If we can't modify group, ALL fields are disabled
+        if not can_modify_group:
+            for field in self.fields.values():
+                field.widget.attrs['disabled'] = True
 
     name = forms.CharField(
         max_length=100,
