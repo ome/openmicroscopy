@@ -188,6 +188,9 @@ if True:
             except Exception, e:
                 assert False, "%s\n%s" % (script, e)
 
+    @pytest.mark.broken(
+        reason=('Scripts are disabled on the metadata branch: '
+                'https://github.com/ome/scripts/pull/129'))
     def testValidateRoiMovieCall(self):
         script = SCRIPTS / "figure_scripts" / "Movie_ROI_Figure.py"
         params = parse_file(str(script))
