@@ -671,7 +671,14 @@ class BlitzObjectWrapper (object):
         group. Web client will only allow this for the data Owner. Admin CAN
         move other user's data, but we don't support this in Web yet.
         """
-        return self.isOwned() or self._conn.isAdmin()   # See #8974
+        return self.getDetails().getPermissions().canChgrp()
+
+    def canChown(self):
+        """
+        Specifies whether the current user can give this object to another
+        user. Web client does not yet support this.
+        """
+        return self.getDetails().getPermissions().canChown()
 
     def countChildren(self):
         """
