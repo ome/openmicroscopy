@@ -14,7 +14,6 @@
 """
 
 from omero.cli import CLI, GraphControl, ExperimenterArg, GraphArg
-from omero_ext.argparse import SUPPRESS
 import sys
 
 HELP = """Transfer ownership of data between users. Entire graphs of data,
@@ -75,46 +74,18 @@ class ChownControl(GraphControl):
         import omero.all
         return omero.cmd.Chown2
 
-    def _configure(self, parser):
-        parser.set_defaults(func=self.main_method)
-        self._add_wait(parser, default=-1)
-        parser.add_argument(
-            "--include",
-            help="Modifies the given option by including a list of objects")
-        parser.add_argument(
-            "--exclude",
-            help="Modifies the given option by excluding a list of objects")
-        parser.add_argument(
-            "--ordered", action="store_true",
-            help=("Pass multiple objects to commands strictly in the order "
-                  "given, otherwise group into as few commands as possible."))
-        parser.add_argument(
-            "--list", action="store_true",
-            help="Print a list of all available graph specs")
-        parser.add_argument(
-            "--list-details", action="store_true", help=SUPPRESS)
-        parser.add_argument(
-            "--report", action="store_true",
-            help="Print more detailed report of each action")
-        parser.add_argument(
-            "--dry-run", action="store_true",
-            help=("Do a dry run of the command, providing a "
-                  "report of what would have been done"))
-        parser.add_argument(
-            "--force", action="store_true",
-            help=("Force an action that otherwise defaults to a dry run"))
-        self._pre_objects(parser)
-        parser.add_argument(
-            "obj", nargs="*", type=GraphArg(self.cmd_type()),
-            help="objects to be processed in the form <Class>:<Id>"
-                 " and/or user(s) to transfer all data from in the"
-                 " form Experimenter:<Id>")
-
     def _pre_objects(self, parser):
         parser.add_argument(
             "usr", nargs="?", type=ExperimenterArg,
             help="user to transfer ownership of specified objects and/or all"
                  " objects owned by specified user(s) to")
+
+    def _objects(self, parser):
+        parser.add_argument(
+            "obj", nargs="*", type=GraphArg(self.cmd_type()),
+            help="objects to be processed in the form <Class>:<Id>"
+                 " and/or user(s) to transfer all data from in the"
+                 " form Experimenter:<Id>")
 
     def populate_targetUsers(self, command_check):
         # Move the Experimenters whose data are to be
@@ -122,12 +93,11 @@ class ChownControl(GraphControl):
         # to targetUsers. The rewritten _check_command
         # method checked these Experiments when they were
         # in targetObjects, but Chown2 needs them in targetUsers
-        for k, v in command_check.targetObjects.items():
-            if k == "Experimenter":
-                if not v:
-                    return
-                command_check.targetUsers = v
-                del command_check.targetObjects["Experimenter"]
+        try:
+            command_check.targetUsers = command_check.targetObjects.pop(
+                "Experimenter")
+        except KeyError:
+            pass
 
     def _check_command(self, command_check):
         # Rewrite higher class method to have command check
