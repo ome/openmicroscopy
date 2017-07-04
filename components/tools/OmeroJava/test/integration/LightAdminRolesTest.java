@@ -377,11 +377,10 @@ public class LightAdminRolesTest extends RolesTests {
     * user. Behaviors of the system are explored when lightAdmin
     * is member of the group and also comparing test is made when otherUser
     * (non-admin) is attempting the delete.
-    * @param isSudoing if to test a success of workflows where Sudoed in
+    * @param isAdmin if to test a success of workflows when light admin
     * @param permDeleteOwned if to test a user who has the <tt>DeleteOwned</tt> privilege
     * @param groupPermissions to test the effect of group permission level
     * @throws Exception unexpected
-    * @see <a href="https://docs.google.com/presentation/d/1SRWiFJs7oIYJCSg8XpfeW0QyOPwbrSnAbXL_FaKF0I4/edit">graphical explanation</a>
     */
   @Test(dataProvider = "isSudoing and Delete privileges cases")
   public void testDeleteGroupMemeberNoSudo(boolean isAdmin, boolean permDeleteOwned,
