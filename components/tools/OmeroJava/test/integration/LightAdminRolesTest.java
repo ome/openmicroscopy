@@ -899,6 +899,90 @@ public class LightAdminRolesTest extends RolesTests {
         }
     }
 
+    /**
+     * lightAdmin tries to link their object to a pre-existing container (Dataset or Project)
+     * in the target group (of normalUser where lightAdmin is not member).
+     * lightAdmin tries to link image or Dataset to Dataset or Project.
+     * The image import (by lightAdmin for others) has been tested in other tests.
+     * Here, normalUser creates and saves the image, Dataset and Project,
+     * then lightAdmin tries to link these objects.
+     * lightAdmin will succeed if they have WriteOwned privilege.
+     * Note that lightAdmin will be made a member of normalUser's group for this test.
+     * @param permWriteOwned if to test a user who has the <tt>WriteOwned</tt> privilege
+     * @param permChown if to test a user who has the <tt>Chown</tt> privilege
+     * @param groupPermissions to test the effect of group permission level
+     * @throws Exception unexpected
+     * @see <a href="https://docs.google.com/presentation/d/1uetvPv-tsnHdRqkVvMx2xpHvVXYyUL2HTob8LUC6Mds/edit">graphical explanation</a>
+     */
+    @Test(dataProvider = "WriteOwned and Chown privileges cases")
+    public void testLinkOwnDataToOthersNoSudo(boolean permWriteOwned, boolean isAdmin,
+            String groupPermissions) throws Exception {
+        /* WriteOwned permission is necessary and sufficient for lightAdmin to link
+         * others objects. Exception is Private group, where such linking will
+         * fail in all cases.*/
+        boolean isExpectLinkingSuccessAdmin = (permWriteOwned && !groupPermissions.equals("rw----") || groupPermissions.equals("rwrw--"));
+        boolean isExpectLinkingSuccessUser = groupPermissions.equals("rwrw--");
+        final EventContext normalUser = newUserAndGroup(groupPermissions);
+        final EventContext otherUser = newUserAndGroup(groupPermissions);
+        ExperimenterGroup normalUsergroup = new ExperimenterGroupI(normalUser.groupId, false);
+        /* Set up the light admin's permissions for this test.*/
+        List<String> permissions = new ArrayList<String>();
+        if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
+        final EventContext lightAdmin;
+        lightAdmin = loginNewAdmin(true, permissions);
+        /* root adds lightAdmin to normalUser's group.*/
+        logRootIntoGroup(normalUser);
+        normalUsergroup = addUsers(normalUsergroup, ImmutableList.of(lightAdmin.userId, otherUser.userId), false);
+        /* Create Dataset and Project as normalUser in normalUser's group.*/
+        loginUser(normalUser);
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        Dataset dat = mmFactory.simpleDataset();
+        Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
+        Project proj = mmFactory.simpleProject();
+        Project sentProj = (Project) iUpdate.saveAndReturnObject(proj);
+        /* Create Image and Dataset as lightAdmin or otherUser in normalUser's group.*/
+        if(isAdmin) {
+            loginUser(lightAdmin);
+        } else {
+            loginUser(otherUser);
+        }
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        Image ownImage = mmFactory.createImage();
+        Image sentOwnImage = (Image) iUpdate.saveAndReturnObject(ownImage);
+        Dataset ownDat = mmFactory.simpleDataset();
+        Dataset sentOwnDat = (Dataset) iUpdate.saveAndReturnObject(ownDat);
+        /* lightAdmin or otherUser checks that the canLink value on all the objects to be linked
+         * is true (for own image) and for other people's objects (sentProj, sentDat) the canLink
+         * are matching the expected behaviour (see booleans isExpectLinkingSuccess... definitions.*/
+        Assert.assertTrue(getCurrentPermissions(sentOwnImage).canLink());
+        if (isAdmin) {
+            Assert.assertEquals(getCurrentPermissions(sentProj).canLink(), isExpectLinkingSuccessAdmin);
+        } else {
+            Assert.assertEquals(getCurrentPermissions(sentProj).canLink(), isExpectLinkingSuccessUser);
+        }
+        /* lightAdmin or otherUser tries to create links between their own image and normalUser's Dataset
+         * and between their own Dataset and normalUser's Project.*/
+        DatasetImageLink linkOfDatasetImage = new DatasetImageLinkI();
+        ProjectDatasetLink linkOfProjectDataset = new ProjectDatasetLinkI();
+        if (isAdmin) {
+            try {
+                linkOfDatasetImage = linkParentToChild(sentDat, sentOwnImage);
+                linkOfProjectDataset = linkParentToChild(sentProj, sentOwnDat);
+                Assert.assertTrue(isExpectLinkingSuccessAdmin);
+            } catch (ServerError se) {
+                Assert.assertFalse(isExpectLinkingSuccessAdmin, se.toString());
+            }
+        } else {
+            try {
+                linkOfDatasetImage = linkParentToChild(sentDat, sentOwnImage);
+                linkOfProjectDataset = linkParentToChild(sentProj, sentOwnDat);
+                Assert.assertTrue(isExpectLinkingSuccessUser);
+            } catch (ServerError se) {
+                Assert.assertFalse(isExpectLinkingSuccessUser, se.toString());
+            }
+        }
+    }
+
         /**
          * Light admin (lightAdmin) imports data for others (normalUser) without using Sudo.
          * lightAdmin first creates a Dataset and imports an Image into it in lightAdmin's group
