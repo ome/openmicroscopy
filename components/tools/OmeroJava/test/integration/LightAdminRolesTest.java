@@ -370,6 +370,103 @@ public class LightAdminRolesTest extends RolesTests {
        }
    }
 
+
+   /**
+    * Test whether a light admin can delete image, Project and Dataset
+    * and their respective links belonging to another
+    * user. Behaviors of the system are explored when lightAdmin
+    * is member of the group and also comparing test is made when otherUser
+    * (non-admin) is attempting the delete.
+    * @param isSudoing if to test a success of workflows where Sudoed in
+    * @param permDeleteOwned if to test a user who has the <tt>DeleteOwned</tt> privilege
+    * @param groupPermissions to test the effect of group permission level
+    * @throws Exception unexpected
+    * @see <a href="https://docs.google.com/presentation/d/1SRWiFJs7oIYJCSg8XpfeW0QyOPwbrSnAbXL_FaKF0I4/edit">graphical explanation</a>
+    */
+  @Test(dataProvider = "isSudoing and Delete privileges cases")
+  public void testDeleteGroupMemeberNoSudo(boolean isAdmin, boolean permDeleteOwned,
+          String groupPermissions) throws Exception {
+      /* Only DeleteOwned permission is needed for deletion of links, Dataset
+       * and image (with original file) when isAdmin. When not isAdmin, only in
+       * read-write group deletion of others data is possible.*/
+      boolean deletePassing = (permDeleteOwned && isAdmin) || groupPermissions.equals("rwrw--");
+      final EventContext normalUser = newUserAndGroup(groupPermissions);
+      final EventContext otherUser = newUserAndGroup(groupPermissions);
+      ExperimenterGroup normalUsergroup = new ExperimenterGroupI(normalUser.groupId, false);
+      /* Set up the light admin's permissions for this test.*/
+      List<String> permissions = new ArrayList<String>();
+      if (permDeleteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
+      final EventContext lightAdmin;
+      lightAdmin = loginNewAdmin(true, permissions);
+      /* root adds lightAdmin to normalUser's group.*/
+      logRootIntoGroup(normalUser);
+      normalUsergroup = addUsers(normalUsergroup, ImmutableList.of(lightAdmin.userId, otherUser.userId), false);
+      /* normalUser creates a Dataset and Project.*/
+      loginUser(normalUser);
+      client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+      Project proj = mmFactory.simpleProject();
+      Dataset dat = mmFactory.simpleDataset();
+      Project sentProj = null;
+      Dataset sentDat = null;
+      sentProj = (Project) iUpdate.saveAndReturnObject(proj);
+      sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
+      /* Import an image for the normalUser into the normalUser's default group
+       * and target it into the created Dataset.*/
+      List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
+      OriginalFile originalFile = (OriginalFile) originalFileAndImage.get(0);
+      Image image = (Image) originalFileAndImage.get(1);
+      assertOwnedBy(image, normalUser);
+      /* Link the Project and the Dataset.*/
+      ProjectDatasetLink projectDatasetLink = linkParentToChild(sentProj, sentDat);
+      IObject datasetImageLink = iQuery.findByQuery(
+              "FROM DatasetImageLink WHERE child.id = :id",
+              new ParametersI().addId(image.getId()));
+      /* Post-import workflows are done either by lightAdmin or by otherUser.*/
+      if(isAdmin) {
+          loginUser(lightAdmin);
+      } else {
+          loginUser(otherUser);
+      }
+      client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+      /* Check that lightAdmin or otherUser can delete the objects
+       * created on behalf of normalUser only if lightAdmin has sufficient permissions.
+       * Note that deletion of the Project
+       * would delete the whole hierarchy, which was successfully tested
+       * during writing of this test. The order of the below delete() commands
+       * is intentional, as the ability to delete the links and Project/Dataset/Image separately is
+       * tested in this way.
+       * Also check that the canDelete boolean
+       * on the object retrieved by the lightAdmin matches the deletePassing
+       * boolean.*/
+      //Assert.assertEquals(getCurrentPermissions(datasetImageLink).canDelete(), deletePassing);
+      doChange(client, factory, Requests.delete().target(datasetImageLink).build(), deletePassing);
+      //Assert.assertEquals(getCurrentPermissions(projectDatasetLink).canDelete(), deletePassing);
+      doChange(client, factory, Requests.delete().target(projectDatasetLink).build(), deletePassing);
+      Assert.assertEquals(getCurrentPermissions(image).canDelete(), deletePassing);
+      doChange(client, factory, Requests.delete().target(image).build(), deletePassing);
+      Assert.assertEquals(getCurrentPermissions(sentDat).canDelete(), deletePassing);
+      doChange(client, factory, Requests.delete().target(sentDat).build(), deletePassing);
+      Assert.assertEquals(getCurrentPermissions(sentProj).canDelete(), deletePassing);
+      doChange(client, factory, Requests.delete().target(sentProj).build(), deletePassing);
+
+      /* Check the existence/non-existence of the objects as appropriate.*/
+      logRootIntoGroup(normalUser);
+      if (deletePassing) {
+          assertDoesNotExist(originalFile);
+          assertDoesNotExist(image);
+          assertDoesNotExist(sentDat);
+          assertDoesNotExist(sentProj);
+          assertDoesNotExist(datasetImageLink);
+          assertDoesNotExist(projectDatasetLink);
+      } else {
+          assertExists(originalFile);
+          assertExists(image);
+          assertExists(sentDat);
+          assertExists(sentProj);
+          assertExists(datasetImageLink);
+          assertExists(projectDatasetLink);
+      }
+  }
     /**
      * Test that a light admin can edit the name of a project
      * on behalf of another user either using <tt>Sudo</tt> privilege
