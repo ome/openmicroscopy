@@ -126,7 +126,7 @@ class OmeroDataServiceImpl
 	 * @param ctx The security context.
 	 * @param parent    The parent of the children.
 	 * @param children  The children to unlink
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMEDS service.
 	 */
@@ -150,7 +150,7 @@ class OmeroDataServiceImpl
 	 * @param ctx The security context.
 	 * @param id The identifier of the set.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMEDS service.
 	 */
@@ -651,7 +651,7 @@ class OmeroDataServiceImpl
 	 * if they can't be found.
 	 * @param ctx The {@link SecurityContext}
 	 * @param results The results to look up
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 */
         private void findByIds(SecurityContext ctx, SearchResultCollection results) throws DSOutOfServiceException{
             Iterator<SearchResult> it = results.iterator();

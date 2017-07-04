@@ -1040,7 +1040,7 @@ class OMEROGateway
 	 * @param childID The annotation's identifier
 	 * @param userID The user's identifier.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -1084,7 +1084,7 @@ class OMEROGateway
 	 *
 	 * @param ctx The security context.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -1099,7 +1099,7 @@ class OMEROGateway
 	 *
 	 * @param ctx The security context.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -1115,7 +1115,7 @@ class OMEROGateway
 	 *
 	 * @param ctx The security context.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -1131,7 +1131,7 @@ class OMEROGateway
 	 *
 	 * @param ctx The security context.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -1148,7 +1148,7 @@ class OMEROGateway
 	 *
 	 * @param pixelsID	The pixels ID.
 	 * @param prx The rendering engine to load or thumbnail store.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -1179,7 +1179,7 @@ class OMEROGateway
 	 * @param terms		The terms to search for.
 	 * @param service	The search service.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -1225,7 +1225,7 @@ class OMEROGateway
 	 * @param terms		The terms to search for.
 	 * @param service	The search service.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -1470,7 +1470,7 @@ class OMEROGateway
 	 * @param ctx The security context.
 	 * @param userID The id of the user.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in.
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in.
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -1513,7 +1513,7 @@ class OMEROGateway
 	 * @param ctx The security context.
 	 * @param exp The experimenter to handle
 	 * @param groupID The id of the group.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in.
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in.
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -1552,7 +1552,7 @@ class OMEROGateway
 
 	/**
 	 * Returns the version of the server.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in.
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in.
 	 */
 	String getServerVersion()
 		throws DSOutOfServiceException
@@ -1623,7 +1623,7 @@ class OMEROGateway
 	 *                  of the type specified by the rootNodetype parameter.
 	 * @param options   The Options to retrieve the data.
 	 * @return  A set of hierarchy trees.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 * @see IPojos#loadContainerHierarchy(Class, List, Map)
@@ -1660,7 +1660,7 @@ class OMEROGateway
 	 * 						bottom of the trees. Mustn't be <code>null</code>.
 	 * @param options Options to retrieve the data.
 	 * @return A <code>Set</code> with all root nodes that were found.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 * @see IPojos#findContainerHierarchies(Class, List, Map)
@@ -1703,7 +1703,7 @@ class OMEROGateway
 	 * @param options       Options to retrieve the data.
 	 * @return A map whose key is rootNodeID and value the <code>Set</code> of
 	 *         all annotations for that node or <code>null</code>.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 * @see IPojos#findAnnotations(Class, List, List, Map)
@@ -1740,7 +1740,7 @@ class OMEROGateway
 	 * @param ctx The security context.
 	 * @param annotationIds The annotation to load.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.s
 	 */
@@ -1768,7 +1768,7 @@ class OMEROGateway
 	 * @param type    The type of parent to handle.
 	 * @param userID  The id of the user.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -1804,7 +1804,7 @@ class OMEROGateway
 	 * @param nodeIDs   Set of containers' IDS.
 	 * @param options   Options to retrieve the data.
 	 * @return A <code>Set</code> of retrieved images.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 * @see IPojos#getImages(Class, List, Map)
@@ -1833,7 +1833,7 @@ class OMEROGateway
      *            Indicates to load the images not in any container
      * @return A <code>Collection</code> of retrieved images.
      * @throws DSOutOfServiceException
-     *             If the connection is broken, or logged in
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
      *             If an error occurred while trying to retrieve data from OMERO
      *             service.
@@ -1866,7 +1866,7 @@ class OMEROGateway
 	 * @param options		Options to retrieve the data.
 	 * @param rootNodeIDs	Set of root node IDs.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 * @see IPojos#getCollectionCount(String, String, List, Map)
@@ -1898,7 +1898,7 @@ class OMEROGateway
 	 * @param object The object to create.
 	 * @param options Options to create the data.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 * @see IPojos#createDataObject(IObject, Map)
@@ -1917,7 +1917,7 @@ class OMEROGateway
 	 * @param options Options to create the data.
 	 * @param userName The name of the user to create data for.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 * @see IPojos#createDataObject(IObject, Map)
@@ -1940,7 +1940,7 @@ class OMEROGateway
 	 * @param objects The objects to create.
 	 * @param options Options to create the data.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 * @see IPojos#createDataObjects(IObject[], Map)
@@ -1959,7 +1959,7 @@ class OMEROGateway
 	 * @param options Options to create the data.
 	 * @param userName The name of the user.s
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 * @see IPojos#createDataObjects(IObject[], Map)
@@ -1981,7 +1981,7 @@ class OMEROGateway
 	 *
 	 * @param ctx The security context.
 	 * @param object    The object to delete.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -1996,7 +1996,7 @@ class OMEROGateway
 	 *
 	 * @param ctx The security context.
 	 * @param objects                  The objects to delete.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException       If an error occurred while trying to
 	 *                                 retrieve data from OMERO service.
 	 */
@@ -2025,7 +2025,7 @@ class OMEROGateway
 	 * @param object The object to update.
 	 * @param options Options to update the data.
 	 * @return The updated object.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 * @see IPojos#updateDataObject(IObject, Map)
@@ -2052,7 +2052,7 @@ class OMEROGateway
 	 * @param options Options to update the data.
 	 * @param userName The name of the user to create the data for.
 	 * @return The updated object.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 * @see IPojos#updateDataObject(IObject, Map)
@@ -2079,7 +2079,7 @@ class OMEROGateway
 	 * @param objects The objects to update.
 	 * @param options Options to update the data.
 	 * @return The updated object.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 * @see IPojos#updateDataObject(IObject, Map)
@@ -2104,7 +2104,7 @@ class OMEROGateway
 	 * @param object The object to update.
 	 * @param options Options to update the data.
 	 * @return The updated object.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 * @see IPojos#updateDataObject(IObject, Map)
@@ -2131,7 +2131,7 @@ class OMEROGateway
 	 * @param objects The array of objects to update.
 	 * @param options Options to update the data.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 * @see IPojos#updateDataObjects(IObject[], Map)
@@ -2164,7 +2164,7 @@ class OMEROGateway
 	 * @param ctx The security context.
 	 * @param pixelsID  The pixels set ID.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -2357,7 +2357,7 @@ class OMEROGateway
 	 * @param ctx The security context.
 	 * @param pixelsID  The pixels set ID.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 * @throws FSAccessException If an error occurred when trying to build a
@@ -2376,7 +2376,7 @@ class OMEROGateway
 	 * @param ctx The security context.
 	 * @param pixelsID  The pixels set ID.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 * @throws FSAccessException If an error occurred when trying to build a
@@ -2412,7 +2412,7 @@ class OMEROGateway
 	 *                child specified.
 	 * @param userID The id of the user.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -2458,7 +2458,7 @@ class OMEROGateway
 	 * @param parentID The id of the parent to handle.
 	 * @param children Collection of the identifiers.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -2504,7 +2504,7 @@ class OMEROGateway
 	 * @param parent The parent.
 	 * @param child The child.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -2538,7 +2538,7 @@ class OMEROGateway
 	 * @param parent The parent.
 	 * @param children Collection of children as identifiers.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -2576,7 +2576,7 @@ class OMEROGateway
 	 * @param children Collection of children as identifiers.
 	 * @param userID The id of the user.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -2645,7 +2645,7 @@ class OMEROGateway
 	 * @param children The collection of annotations' identifiers
 	 * @param userID The user's identifier or <code>-1</code>.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -2693,7 +2693,7 @@ class OMEROGateway
      * @param children The collection of annotations' identifiers
      * @param userID The user's identifier or <code>-1</code>.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
      * @throws DSAccessException If an error occurred while trying to
      *                           retrieve data from OMERO service.
 	 */
@@ -2750,7 +2750,7 @@ class OMEROGateway
 	 * @param childID The id of the child.
 	 * @param userID The id of the user.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -2786,7 +2786,7 @@ class OMEROGateway
 	 * @param childID The id of the child.
 	 * @param userID The id of the user.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -2837,7 +2837,7 @@ class OMEROGateway
      * @param childID The id of the child.
      * @param userID The id of the user.
      * @return See above.
-     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSOutOfServiceException If the connection is broken, or not logged in
      * @throws DSAccessException If an error occurred while trying to
      * retrieve data from OMERO service.
      */
@@ -2882,7 +2882,7 @@ class OMEROGateway
      * @param ctx The security context.
      * @param o The object to retrieve.
      * @return The last version of the object.
-     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSOutOfServiceException If the connection is broken, or not logged in
      * @throws DSAccessException If an error occurred while trying to
      * retrieve data from OMERO service.
      */
@@ -2905,7 +2905,7 @@ class OMEROGateway
 	 * @param dataObjectThe object to retrieve.
 	 * @param name The name of the object.
 	 * @param
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -2936,7 +2936,7 @@ class OMEROGateway
 	 * @param klassName The type of object to retrieve.
 	 * @param id The object's id.
 	 * @return The last version of the object.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -2984,7 +2984,7 @@ class OMEROGateway
          * @param klassName The type of object to retrieve.
          * @param id The object's id.
          * @return The last version of the object.
-         * @throws DSOutOfServiceException If the connection is broken, or logged in
+         * @throws DSOutOfServiceException If the connection is broken, or not logged in
          * @throws DSAccessException If an error occurred while trying to
          * retrieve data from OMERO service.
          */
@@ -3006,7 +3006,7 @@ class OMEROGateway
 	 * @param ctx The security context.
 	 * @param loggedInUser The user currently logged in.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -3052,7 +3052,7 @@ class OMEROGateway
 	 * @param image The image to retrieve.
 	 * @param keepOriginalPaths Pass <code>true</code> to preserve the original folder structure
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -3072,7 +3072,7 @@ class OMEROGateway
 	 * @param keepOriginalPaths Pass <code>true</code> to preserve the original folder
 	 *               structure.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -3282,7 +3282,7 @@ class OMEROGateway
 	 * @param file The file to copy the data into.
 	 * @param fileID The id of the file to download.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -3300,7 +3300,7 @@ class OMEROGateway
 	 * @param file The file to copy the data into.
 	 * @param fileID The id of the file to download.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -3360,7 +3360,7 @@ class OMEROGateway
 	 * @param ctx The security context.
 	 * @param id The id identifying the file.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -3388,7 +3388,7 @@ class OMEROGateway
 	 * @param ctx The security context.
 	 * @param pixelsID The ID of the pixels set.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -3419,7 +3419,7 @@ class OMEROGateway
 	 * @param mimeType The mimeType of the file.
 	 * @param originalFileID The id of the file or <code>-1</code>.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -3439,7 +3439,7 @@ class OMEROGateway
 	 * @param mimeType The mimeType of the file.
 	 * @param originalFileID The id of the file or <code>-1</code>.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -3573,7 +3573,7 @@ class OMEROGateway
 	 * @param ctx The security context.
 	 * @param password	The new password.
 	 * @param oldPassword The old password.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -3598,7 +3598,7 @@ class OMEROGateway
 	 * @param ctx The security context.
 	 * @param exp	The experimenter to handle.
 	 * @param currentUserID The identifier of the user currently logged in.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -3665,7 +3665,7 @@ class OMEROGateway
 	 * @param ctx The security context.
 	 * @param group	The group to update.
 	 * 
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -3690,7 +3690,7 @@ class OMEROGateway
 	 * 				<code>false</code> otherwise.
 	 * @param experimenters The experimenters to add or remove.
 	 * @param systemGroup	The roles to handle.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -3763,7 +3763,7 @@ class OMEROGateway
 	 * 				<code>false</code> otherwise.
 	 * @param group	The group to handle.
 	 * @param experimenters The experimenters to add or remove.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -4457,7 +4457,7 @@ class OMEROGateway
      *            search will be the group set in the security context)
      * @return The found objects.
      * @throws DSOutOfServiceException
-     *             If the connection is broken, or logged in.
+     *             If the connection is broken, or not logged in.
      * @throws DSAccessException
      *             If an error occurred while trying to retrieve data from OMEDS
      *             service.
@@ -6548,7 +6548,7 @@ class OMEROGateway
 	 * @param ctx The security context.
 	 * @param ids The group identifiers.
 	 * @return See above
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -7150,7 +7150,7 @@ class OMEROGateway
 	 * @param group The group to add the experimenters to.
 	 * @param experimenters The experimenters to add.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -7213,7 +7213,7 @@ class OMEROGateway
 	 * @param map The object to move and where to move them
 	 * @param options The options.
 	 * @return See above
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -7281,7 +7281,7 @@ class OMEROGateway
 	 * @param ctx The security context.
 	 * @param pixelsID  The pixels set ID.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -7357,7 +7357,7 @@ class OMEROGateway
      *            The security context.
      * @return See above.
      * @throws DSOutOfServiceException
-     *             If the connection is broken, or logged in
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
      *             If an error occurred while trying to retrieve data from OMERO
      *             service.
@@ -7379,7 +7379,7 @@ class OMEROGateway
 	 * @param ctx The security context.
 	 * @param imageIds The collection of images id.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -7430,7 +7430,7 @@ class OMEROGateway
 	 * @param nsExlcude The annotation's name space to exclude if any.
 	 * @param options Options to retrieve the data.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -7462,7 +7462,7 @@ class OMEROGateway
 	 * @param ctx The security context.
 	 * @return See above.
 	 * @throws ProcessException If an error occurred while running the script.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -7491,7 +7491,7 @@ class OMEROGateway
 	 *                  Mustn't be <code>null</code>.
 	 * @param rootIDs A set of the IDs of objects.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -7517,7 +7517,7 @@ class OMEROGateway
 	 * 
 	 * @param ctx The security context.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -7541,7 +7541,7 @@ class OMEROGateway
      * @param rootType The type of object to handle.
      * @param rootIDs The collection of object's identifiers.
      * @return See above.
-     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSOutOfServiceException If the connection is broken, or not logged in
      * @throws DSAccessException If an error occurred while trying to 
      * retrieve data from OMERO service.
      */

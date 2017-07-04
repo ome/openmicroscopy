@@ -687,7 +687,7 @@ public interface OmeroMetadataService
 	 * @param ctx The security context.
 	 * @param pixelsID The id of pixels set.
 	 * @return A list of channels.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
@@ -702,7 +702,7 @@ public interface OmeroMetadataService
 	 * @param file The file to write the data into.
 	 * @param id The id of the image.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 * @throws ProcessException If an error occurred while starting the process.
@@ -725,7 +725,7 @@ public interface OmeroMetadataService
 	 * @param nsInclude The annotation's name space to include if any.
 	 * @param nsExlcude The annotation's name space to exclude if any.
 	 * @return See above
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.
 	 */
@@ -742,7 +742,7 @@ public interface OmeroMetadataService
 	 * @param rootType The type of object to handle.
 	 * @param rootIDs The collection of object's identifiers.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.
 	 */
