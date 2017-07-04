@@ -2,7 +2,7 @@
 
 <!--
 #
-# Copyright (C) 2015-2016 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2015-2017 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -44,6 +44,12 @@
         <!-- Note that these rules apply only for downgrading a group to private. -->
 
         <!-- ACQUISITION -->
+
+        <!-- Consider all settings in the group. -->
+
+        <bean parent="graphPolicyRule" p:matches="S:DetectorSettings[E].details.group = [I]" p:changes="S:[-]"/>
+        <bean parent="graphPolicyRule" p:matches="S:LightSettings[E].details.group = [I]" p:changes="S:[-]"/>
+        <bean parent="graphPolicyRule" p:matches="S:ObjectiveSettings[E].details.group = [I]" p:changes="S:[-]"/>
 
         <!-- Delete cross-owner links regardless of permissions. -->
 
@@ -107,32 +113,38 @@
         <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink[E].parent = [D]" p:changes="L:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink[E].child = [D]" p:changes="L:[D]/n"/>
 
-        <!-- Ensure that rules with multiple matches may apply for links. -->
-
-        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink[!O]" p:changes="L:[-]"/>
-
         <!-- CONTAINERS -->
 
         <!-- Delete cross-owner links regardless of permissions. -->
 
-        <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink.parent = P:[E], L.child = D:[E], P =/!o D"
+        <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink[E].parent = P:[E], L.child = D:[E], P =/!o D"
                                        p:changes="L:[D]/n"/>
-        <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink.parent = D:[E], L.child = I:[E], D =/!o I"
+        <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink[E].parent = D:[E], L.child = I:[E], D =/!o I"
                                        p:changes="L:[D]/n"/>
-        <bean parent="graphPolicyRule" p:matches="L:FolderImageLink.parent = F:[E], L.child = I:[E], F =/!o I"
+        <bean parent="graphPolicyRule" p:matches="L:FolderImageLink[E].parent = F:[E], L.child = I:[E], F =/!o I"
                                        p:changes="L:[D]/n"/>
-        <bean parent="graphPolicyRule" p:matches="L:FolderRoiLink.parent = F:[E], L.child = ROI:[E], F =/!o ROI"
+        <bean parent="graphPolicyRule" p:matches="L:FolderRoiLink[E].parent = F:[E], L.child = ROI:[E], F =/!o ROI"
                                        p:changes="L:[D]/n"/>
 
         <!-- CORE -->
+
+        <!-- Consider every link in the group. -->
+
+        <bean parent="graphPolicyRule" p:matches="L:ILink[E].details.group = [I]" p:changes="L:[-]"/>
+
+        <!-- Consider every image, pixels and channel in the group. -->
+
+        <bean parent="graphPolicyRule" p:matches="I:Image[E].details.group = [I]" p:changes="I:[-]"/>
+        <bean parent="graphPolicyRule" p:matches="P:Pixels[E].details.group = [I]" p:changes="P:[-]"/>
+        <bean parent="graphPolicyRule" p:matches="C:Channel[E].details.group = [I]" p:changes="C:[-]"/>
 
         <!-- Do not delete an original file that is being used by an object. -->
 
         <bean parent="graphPolicyRule" p:matches="FileAnnotation.file = OF:[E]{r}" p:changes="OF:{a}"/>
         <bean parent="graphPolicyRule" p:matches="FilesetEntry.originalFile = OF:[E]{r}" p:changes="OF:{a}"/>
         <bean parent="graphPolicyRule" p:matches="Roi[E].source = OF:[E]{r}" p:changes="OF:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = [E], L.child = OF:[E]{r}" p:changes="OF:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="L:PixelsOriginalFileMap.child = [E], L.parent = OF:[E]{r}" p:changes="OF:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink[E].parent = [E], L.child = OF:[E]{r}" p:changes="OF:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="L:PixelsOriginalFileMap[E].child = [E], L.parent = OF:[E]{r}" p:changes="OF:{a}"/>
 
         <!-- If an original file is orphaned then delete it. -->
 
@@ -147,10 +159,6 @@
 
         <bean parent="graphPolicyRule" p:matches="LC:LogicalChannel[E].channels =/!o C:[E]"
                                        p:error="cannot downgrade to private as {LC} is for differently owned {C}"/>
-
-        <!-- Ensure that rules with multiple matches may apply for links. -->
-
-        <bean parent="graphPolicyRule" p:matches="L:PixelsOriginalFileMap[!O]" p:changes="L:[-]"/>
 
         <!-- DISPLAY -->
 
@@ -177,22 +185,14 @@
 
         <!-- Cannot downgrade to a private group if jobs have differently owned original files. -->
 
-        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = J:[E], L.child = OF:[E];group=!user, J =/!o OF"
+        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink[E].parent = J:[E], L.child = OF:[E];group=!user, J =/!o OF"
                                        p:error="cannot downgrade to private as {J} has differently owned {OF}"/>
-
-        <!-- Ensure that rules with multiple matches may apply for links. -->
-
-        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink[!O]" p:changes="L:[-]"/>
 
         <!-- META -->
 
         <!-- If an object is deleted then also delete or move its external info regardless of permissions. -->
 
         <bean parent="graphPolicyRule" p:matches="[D].details.externalInfo = EI:[E]" p:changes="EI:[D]/n"/>
-
-        <!-- Consider every model object in the group. -->
-
-        <bean parent="graphPolicyRule" p:matches="X:[E].details.group = [I]" p:changes="X:[-]"/>
 
         <!-- ROI -->
 
@@ -216,6 +216,10 @@
 
         <!-- SCREEN -->
 
+        <!-- Consider every screen in the group. -->
+
+        <bean parent="graphPolicyRule" p:matches="S:Screen[E].details.group = [I]" p:changes="S:[-]"/>
+
         <!-- Cannot downgrade to a private group if the image has a differently owned field. -->
 
         <bean parent="graphPolicyRule" p:matches="WS:WellSample.image =/!o I:[E]"
@@ -223,7 +227,7 @@
 
         <!-- Cannot downgrade to a private group if wells have differently owned reagents. -->
 
-        <bean parent="graphPolicyRule" p:matches="L:WellReagentLink.parent = W:[E], L.child = R:[E], W =/!o R"
+        <bean parent="graphPolicyRule" p:matches="L:WellReagentLink[E].parent = W:[E], L.child = R:[E], W =/!o R"
                                        p:error="cannot downgrade to private as {W} has differently owned {R}"/>
 
         <!-- Cannot downgrade to a private group if screen has differently owned reagents. -->
@@ -233,7 +237,8 @@
 
         <!-- Delete cross-owner links regardless of permissions. -->
 
-        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink.parent = S:[E], L.child = P:[E], S =/!o P" p:changes="L:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[E].parent = S:[E], L.child = P:[E], S =/!o P"
+                                       p:changes="L:[D]/n"/>
 
         <!-- STATS -->
 

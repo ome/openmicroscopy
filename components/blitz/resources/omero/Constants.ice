@@ -1,9 +1,6 @@
 /*
- *   $Id$
- *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
- *
  */
 
 #ifndef OMERO_CONSTANTS_ICE
@@ -270,6 +267,20 @@ module omero {
        * the annotate restriction has been applied to the current object.
        **/
       const int ANNOTATERESTRICTION = 3;
+
+      /**
+       * Index into the {@link omero.model.Permissions#restrictions}
+       * {@link omero.api.BoolArray} field to test whether or not
+       * the chgrp restriction has been applied to the current object.
+       **/
+      const int CHGRPRESTRICTION = 4;
+
+      /**
+       * Index into the {@link omero.model.Permissions#restrictions}
+       * {@link omero.api.BoolArray} field to test whether or not
+       * the chown restriction has been applied to the current object.
+       **/
+      const int CHOWNRESTRICTION = 5;
 
       /**
        * Extended restriction name which may be applied to images and other

@@ -1,12 +1,11 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
 package ome.security.sharing;
 
+import java.util.Map;
 import java.util.Set;
 
 import ome.api.IShare;
@@ -124,6 +123,10 @@ public class SharingACLVoter implements ACLVoter {
     }
 
     @Override
+    public void setPermittedClasses(Map<Integer, Set<Class<? extends IObject>>> objectClassesPermitted) {
+    }
+
+    @Override
     public void postProcess(IObject object) {
         if (object != null && object.isLoaded()) {
             Details d = object.getDetails();
@@ -139,12 +142,4 @@ public class SharingACLVoter implements ACLVoter {
     protected void throwDisabled(String action) {
         throw new SecurityViolation(action + " is not allowed while in share.");
     }
-
-    private Long group(Details d) {
-        if (d == null || d.getGroup() == null) {
-            return null;
-        }
-        return d.getGroup().getId();
-    }
-
 }

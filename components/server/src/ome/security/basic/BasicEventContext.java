@@ -1,7 +1,5 @@
 /*
- *   $Id$
- *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -20,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import ome.api.local.LocalAdmin;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
+import ome.model.enums.AdminPrivilege;
 import ome.model.internal.Permissions;
 import ome.model.meta.Event;
 import ome.model.meta.EventLog;
@@ -47,7 +46,7 @@ public class BasicEventContext extends SimpleEventContext {
     // =========================================================================
 
     /**
-     * Prinicpal should only be set once (on
+     * Principal should be set only once (on
      * {@link PrincipalHolder#login(Principal)}.
      */
     private final Principal p;
@@ -65,6 +64,8 @@ public class BasicEventContext extends SimpleEventContext {
     private Event event;
 
     private Experimenter owner;
+
+    private Experimenter sudoer;
 
     private ExperimenterGroup group;
 
@@ -92,6 +93,7 @@ public class BasicEventContext extends SimpleEventContext {
 
     void invalidate() {
         owner = null;
+        sudoer = null;
         group = null;
         event = null;
     }
@@ -204,6 +206,14 @@ public class BasicEventContext extends SimpleEventContext {
         this.isAdmin = admin;
     }
 
+    public void setAdminPrivileges(Set<AdminPrivilege> adminPrivileges) {
+        this.adminPrivileges = adminPrivileges;
+    }
+
+    public Set<AdminPrivilege> getAdminPrivileges() {
+        return adminPrivileges;
+    }
+
     public void setReadOnly(boolean readOnly) {
         this.isReadOnly = readOnly;
     }
@@ -246,6 +256,23 @@ public class BasicEventContext extends SimpleEventContext {
         this.cuId = owner.getId();
         if (owner.isLoaded()) {
             this.cuName = owner.getOmeName();
+        }
+    }
+
+    public Experimenter getSudoer() {
+        return sudoer;
+    }
+
+    public void setSudoer(Experimenter sudoer) {
+        this.sudoer = sudoer;
+        if (sudoer == null) {
+            this.csuId = null;
+            this.csuName = null;
+        } else {
+            this.csuId = sudoer.getId();
+            if (sudoer.isLoaded()) {
+                this.csuName = sudoer.getOmeName();
+            }
         }
     }
 
@@ -379,6 +406,8 @@ public class BasicEventContext extends SimpleEventContext {
         sb.append(";");
         sb.append(this.owner);
         sb.append(";");
+        sb.append(this.sudoer);
+        sb.append(';');
         sb.append(this.group);
         sb.append(";");
         sb.append(this.event);

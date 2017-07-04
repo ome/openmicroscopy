@@ -1,14 +1,14 @@
 /*
- * ome.system.EventContext
- *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
 package ome.system;
 
 import java.util.List;
+import java.util.Set;
 
+import ome.model.enums.AdminPrivilege;
 import ome.model.internal.Permissions;
 
 /**
@@ -17,7 +17,6 @@ import ome.model.internal.Permissions;
  * order), they also take place within an Event.
  * 
  * @author Josh Moore, josh.moore at gmx.de
- * @version $Revision$, $Date$
  * @see ome.model.meta.Experimenter
  * @see ome.model.meta.ExperimenterGroup
  * @since 3.0
@@ -34,11 +33,17 @@ public interface EventContext {
 
     String getCurrentUserName();
 
+    Long getCurrentSudoerId();
+
+    String getCurrentSudoerName();
+
     Long getCurrentGroupId();
 
     String getCurrentGroupName();
 
     boolean isCurrentUserAdmin();
+
+    Set<AdminPrivilege> getCurrentAdminPrivileges();
 
     boolean isReadOnly();
 

@@ -1219,11 +1219,52 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
 
         admin_serv = self.getAdminService()
         admin_serv.updateExperimenter(up_exp)
-        if len(addGroups) > 0:
+        can_mod = 'ModifyGroupMembership' in self.getCurrentAdminPrivileges()
+        if len(addGroups) > 0 and can_mod:
             admin_serv.addGroups(up_exp, addGroups)
         admin_serv.setDefaultGroup(up_exp, defaultGroup._obj)
-        if len(rmGroups) > 0:
+        if len(rmGroups) > 0 and can_mod:
             admin_serv.removeGroups(up_exp, rmGroups)
+
+    def setConfigRoles(self, experimenter_id, experimenter_form):
+        """
+        Save 'AdminPrivilege' roles from Experimenter Form
+        """
+        def createPrivilege(value):
+            privilege = omero.model.AdminPrivilegeI()
+            privilege.setValue(rstring(value))
+            return privilege
+        privileges = []
+        # If user is Admin, we give them ALL privileges!
+        if experimenter_form.cleaned_data['role'] == 'administrator':
+            for p in self.getEnumerationEntries('AdminPrivilege'):
+                privileges.append(createPrivilege(p.getValue()))
+        else:
+            # Otherwise, restrict to 'checked' privileges on form
+            form_privileges = ['Chgrp',
+                               'Chown',
+                               'ModifyGroup',
+                               'ModifyGroupMembership',
+                               'ModifyUser',
+                               'Sudo']
+            for p in form_privileges:
+                if experimenter_form.cleaned_data[p]:
+                    privileges.append(createPrivilege(p))
+            # 'Delete', 'Write' and 'Script' checkboxes update several roles
+            if experimenter_form.cleaned_data['Delete']:
+                privileges.append(createPrivilege('DeleteFile'))
+                privileges.append(createPrivilege('DeleteManagedRepo'))
+                privileges.append(createPrivilege('DeleteOwned'))
+            if experimenter_form.cleaned_data['Write']:
+                privileges.append(createPrivilege('WriteFile'))
+                privileges.append(createPrivilege('WriteManagedRepo'))
+                privileges.append(createPrivilege('WriteOwned'))
+            if experimenter_form.cleaned_data['Script']:
+                privileges.append(createPrivilege('WriteScriptRepo'))
+                privileges.append(createPrivilege('DeleteScriptRepo'))
+        # Save config...
+        self.getAdminService().setAdminPrivileges(
+            ExperimenterI(experimenter_id, False), privileges)
 
     def setMembersOfGroup(self, group, new_members):
         """

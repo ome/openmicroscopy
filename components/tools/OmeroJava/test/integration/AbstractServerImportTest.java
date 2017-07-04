@@ -40,6 +40,7 @@ import omero.cmd.HandlePrx;
 import omero.grid.ImportLocation;
 import omero.grid.ImportProcessPrx;
 import omero.grid.ImportRequest;
+import omero.model.IObject;
 
 import org.testng.Assert;
 
@@ -56,7 +57,7 @@ public class AbstractServerImportTest extends AbstractServerTest {
      *             unexpected
      */
     protected ImportLocation importFileset(List<String> srcPaths) throws Exception {
-        return importFileset(srcPaths, srcPaths.size());
+        return importFileset(srcPaths, srcPaths.size(), null);
     }
 
     /**
@@ -66,11 +67,13 @@ public class AbstractServerImportTest extends AbstractServerTest {
      *            the source paths
      * @param numberToUpload
      *            how many of the source paths to actually upload
+     * @param targetObject
+     *            object (Dataset or Screen) to import the Fileset into
      * @return the resulting import location
      * @throws Exception
      *             unexpected
      */
-    protected ImportLocation importFileset(List<String> srcPaths, int numberToUpload) throws Exception {
+    protected ImportLocation importFileset(List<String> srcPaths, int numberToUpload, IObject targetObject) throws Exception {
 
         // Setup that should be easier, most likely a single ctor on IL
         OMEROMetadataStoreClient client = new OMEROMetadataStoreClient();
@@ -80,7 +83,7 @@ public class AbstractServerImportTest extends AbstractServerTest {
 
         // This should also be simplified.
         ImportContainer container = new ImportContainer(new File(
-                srcPaths.get(0)), null /* target */, null /* user pixels */,
+                srcPaths.get(0)), targetObject /* target */, null /* user pixels */,
                 FakeReader.class.getName(), srcPaths.toArray(new String[srcPaths.size()]),
                 false /* isspw */);
 

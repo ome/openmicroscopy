@@ -75,7 +75,13 @@
         </span>
     </form>
 
-    <div class="btn blue"><a href="{% url 'wamanageexperimenterid' "new" %}"><span>{% trans "Add new User" %}</span></a></div>
+    {% if can_modify_user %}
+    <div class="btn blue">
+        <a href="{% url 'wamanageexperimenterid' "new" %}">
+            <span>{% trans "Add new User" %}</span>
+        </a>
+    </div>
+    {% endif %}
 
 </div>
 

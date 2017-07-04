@@ -1,7 +1,7 @@
 /*
  * ome.security.BasicACLVoter
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -11,28 +11,37 @@ import static ome.model.internal.Permissions.Role.GROUP;
 import static ome.model.internal.Permissions.Role.USER;
 import static ome.model.internal.Permissions.Role.WORLD;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
+import ome.conditions.ApiUsageException;
 import ome.conditions.GroupSecurityViolation;
 import ome.conditions.InternalException;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.model.core.OriginalFile;
+import ome.model.enums.AdminPrivilege;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Token;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.model.meta.GroupExperimenterMap;
 import ome.security.ACLVoter;
 import ome.security.SecurityFilter;
 import ome.security.SecuritySystem;
 import ome.security.SystemTypes;
+import ome.security.policy.DefaultPolicyService;
 import ome.security.policy.PolicyService;
 import ome.system.EventContext;
 import ome.system.Roles;
+import ome.tools.hibernate.HibernateUtils;
 
-import org.hibernate.LazyInitializationException;
+import org.apache.commons.collections.CollectionUtils;
 import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +50,6 @@ import org.springframework.util.Assert;
 /**
  * 
  * @author Josh Moore, josh.moore at gmx.de
- * @version $Revision$, $Date$
  * @see Token
  * @see SecuritySystem
  * @see Details
@@ -57,7 +65,9 @@ public class BasicACLVoter implements ACLVoter {
         ANNOTATE(Right.ANNOTATE),
         DELETE(Right.WRITE),
         EDIT(Right.WRITE),
-        LINK(Right.WRITE);
+        LINK(Right.WRITE),
+        CHGRP(Right.WRITE),
+        CHOWN(Right.WRITE);
 
         final Right right;
         Scope(Right right) {
@@ -79,6 +89,25 @@ public class BasicACLVoter implements ACLVoter {
 
     protected final Roles roles;
 
+    /* ignored if empty set */
+    private Set<Class<? extends IObject>> chgrpPermittedClasses = Collections.emptySet();
+
+    /* ignored if empty set */
+    private Set<Class<? extends IObject>> chownPermittedClasses = Collections.emptySet();
+
+    private final LightAdminPrivileges adminPrivileges;
+
+    /* thread-safe */
+    private final Set<String> managedRepoUuids, scriptRepoUuids;
+
+    private final String fileRepoSecretKey;
+
+    public BasicACLVoter(CurrentDetails cd, SystemTypes sysTypes,
+            TokenHolder tokenHolder, SecurityFilter securityFilter) {
+            this(cd, sysTypes, tokenHolder, securityFilter,
+                    new DefaultPolicyService(), new Roles());
+        }
+
     public BasicACLVoter(CurrentDetails cd, SystemTypes sysTypes,
         TokenHolder tokenHolder, SecurityFilter securityFilter,
         PolicyService policyService) {
@@ -87,25 +116,76 @@ public class BasicACLVoter implements ACLVoter {
     }
 
     public BasicACLVoter(CurrentDetails cd, SystemTypes sysTypes,
+            TokenHolder tokenHolder, SecurityFilter securityFilter,
+            PolicyService policyService,
+            Roles roles) {
+        this(cd, sysTypes, tokenHolder, securityFilter, policyService,
+                roles, new LightAdminPrivileges(roles), new HashSet<String>(), new HashSet<String>(), UUID.randomUUID().toString());
+    }
+
+    public BasicACLVoter(CurrentDetails cd, SystemTypes sysTypes,
         TokenHolder tokenHolder, SecurityFilter securityFilter,
         PolicyService policyService,
-        Roles roles) {
+        Roles roles, LightAdminPrivileges adminPrivileges, Set<String> managedRepoUuids, Set<String> scriptRepoUuids,
+        String fileRepoSecretKey) {
         this.currentUser = cd;
         this.sysTypes = sysTypes;
         this.securityFilter = securityFilter;
         this.tokenHolder = tokenHolder;
         this.roles = roles;
         this.policyService = policyService;
+        this.adminPrivileges = adminPrivileges;
+        this.managedRepoUuids = managedRepoUuids;
+        this.scriptRepoUuids = scriptRepoUuids;
+        this.fileRepoSecretKey = fileRepoSecretKey;
     }
 
     // ~ Interface methods
     // =========================================================================
 
-    /**
-     * 
-     */
     public boolean allowChmod(IObject iObject) {
-        return currentUser.isOwnerOrSupervisor(iObject);
+        if (iObject == null) {
+            throw new ApiUsageException("Object can't be null");
+        }
+        final Long ownerId = HibernateUtils.nullSafeOwnerId(iObject);
+        final Long groupId; // see 2874 and chmod
+        if (iObject instanceof ExperimenterGroup) {
+            groupId = iObject.getId();
+        } else {
+            groupId = HibernateUtils.nullSafeGroupId(iObject);
+        }
+        final EventContext ec = currentUser.getCurrentEventContext();
+        if (ec.getCurrentUserId().equals(ownerId) || ec.getLeaderOfGroupsList().contains(groupId)) {
+            return true;   // object owner or group owner
+        } else if (!ec.isCurrentUserAdmin()) {
+            return false;  // not an admin
+        }
+        final Set<AdminPrivilege> privileges = ec.getCurrentAdminPrivileges();
+        if (sysTypes.isSystemType(iObject.getClass())) {
+            if (iObject instanceof Experimenter) {
+                return privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_MODIFY_USER));
+            } else if (iObject instanceof ExperimenterGroup) {
+                return privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_MODIFY_GROUP));
+            } else if (iObject instanceof GroupExperimenterMap) {
+                return privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_MODIFY_GROUP_MEMBERSHIP));
+            } else {
+                return true;
+            }
+        } else {
+            if (iObject instanceof OriginalFile) {
+                final String repo = ((OriginalFile) iObject).getRepo();
+                if (repo != null) {
+                    if (managedRepoUuids.contains(repo)) {
+                        return privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_WRITE_MANAGED_REPO));
+                    } else if (scriptRepoUuids.contains(repo)) {
+                        return privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_WRITE_SCRIPT_REPO));
+                    }
+                }
+                return privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_WRITE_FILE));
+            } else {
+                return privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_WRITE_OWNED));
+            }
+        }
     }
 
     /**
@@ -120,6 +200,31 @@ public class BasicACLVoter implements ACLVoter {
      */
     public boolean allowLoad(Session session, Class<? extends IObject> klass, Details d, long id) {
         Assert.notNull(klass);
+
+        final BasicEventContext ec = currentUser.current();
+
+        /* regarding sessions see LightAdminPrivilegesSecurityFilter */
+        if (klass == ome.model.meta.Session.class) {
+            /* determine "real" owner of current and queried session, i.e. taking sudo into account */
+            final ome.model.meta.Session currentSession = (ome.model.meta.Session)
+                    session.get(ome.model.meta.Session.class, ec.getCurrentSessionId());
+            Experimenter sessionOwnerCurrent = currentSession.getSudoer();
+            if (sessionOwnerCurrent == null) {
+                sessionOwnerCurrent = currentSession.getOwner();
+            }
+            final ome.model.meta.Session queriedSession = (ome.model.meta.Session)
+                    session.get(ome.model.meta.Session.class, id);
+            Experimenter sessionOwnerQueried = queriedSession.getSudoer();
+            if (sessionOwnerQueried == null) {
+                sessionOwnerQueried = queriedSession.getOwner();
+            }
+            /* can read sessions for which "real" owner matches */
+            if (sessionOwnerCurrent.getId().equals(sessionOwnerQueried.getId())) {
+                return true;
+            }
+            /* only a full administrator may read all sessions */
+            return ec.getCurrentAdminPrivileges().contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_READ_SESSION));
+        }
 
         if (d == null || sysTypes.isSystemType(klass)) {
             // Here we're returning true because there
@@ -136,13 +241,13 @@ public class BasicACLVoter implements ACLVoter {
             rv = true;
         }
         else {
-            rv = securityFilter.passesFilter(session, d, currentUser.current());
+            rv = securityFilter.passesFilter(session, d, ec);
         }
 
         // Misusing this location to store the loaded objects perms for later.
-        if (this.currentUser.getCurrentEventContext().getCurrentGroupId() < 0) {
+        if (ec.getCurrentGroupId() < 0) {
             // For every object that gets loaded when omero.group = -1, we
-            // cache it's permissions in the session context so that when the
+            // cache its permissions in the session context so that when the
             // session is over we can re-apply all the permissions.
             ExperimenterGroup g = d.getGroup();
             if (g == null) {
@@ -156,7 +261,7 @@ public class BasicACLVoter implements ACLVoter {
                     log.warn(String.format("Permissions null for group %s " +
                             "while loading %s:%s", gid, klass.getName(), id));
                 } else {
-                    this.currentUser.current().setPermissionsForGroup(gid, p);
+                    ec.setPermissionsForGroup(gid, p);
                 }
             }
         }
@@ -181,16 +286,35 @@ public class BasicACLVoter implements ACLVoter {
         // OmeroInterceptor checks whether or not objects are only
         // LINKED to one's own objects which is the actual intent.
 
-        if (tokenHolder.hasPrivilegedToken(iObject)
-                || currentUser.getCurrentEventContext().isCurrentUserAdmin()) {
-            return true;
-        }
+        final EventContext ec = currentUser.getCurrentEventContext();
 
-        else if (sysType) {
+        if (tokenHolder.hasPrivilegedToken(iObject)) {
+            return true;
+        } else if (!sysType) {
+            if (iObject instanceof OriginalFile) {
+                final OriginalFile file = (OriginalFile) iObject;
+                if (file.getRepo() != null && !file.getName().startsWith(fileRepoSecretKey)) {
+                    /* Cannot yet set OriginalFile.repo except via secret key stored in database.
+                     * TODO: Need to first work through implications before permitting this. */
+                    return false;
+                }
+            }
+            /* also checked by OmeroInterceptor.newTransientDetails */
+            return true;
+        } else if (ec.isCurrentUserAdmin()) {
+            final Set<AdminPrivilege> privileges = ec.getCurrentAdminPrivileges();
+            if (iObject instanceof Experimenter) {
+                return privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_MODIFY_USER));
+            } else if (iObject instanceof ExperimenterGroup) {
+                return privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_MODIFY_GROUP));
+            } else if (iObject instanceof GroupExperimenterMap) {
+                return privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_MODIFY_GROUP_MEMBERSHIP));
+            } else {
+                return true;
+            }
+        } else {
             return false;
         }
-
-        return true;
     }
 
     public void throwCreationViolation(IObject iObject)
@@ -200,14 +324,17 @@ public class BasicACLVoter implements ACLVoter {
         boolean sysType = sysTypes.isSystemType(iObject.getClass()) ||
             sysTypes.isInSystemGroup(iObject.getDetails());
 
-        if (!sysType && currentUser.isGraphCritical(iObject.getDetails())) { // ticket:1769
+        if (sysType) {
+            throw new SecurityViolation(iObject + " is a System-type, and may be created only through privileged APIs.");
+        } else if (iObject instanceof OriginalFile && ((OriginalFile) iObject).getRepo() != null) {
+            /* Cannot yet set OriginalFile.repo except via secret key stored in database. */
+            throw new SecurityViolation("cannot set repo property of " + iObject + " via ORM");
+        } else if (currentUser.isGraphCritical(iObject.getDetails())) { // ticket:1769
             throw new GroupSecurityViolation(iObject + "-insertion violates " +
                     "group-security.");
+        } else {
+            throw new SecurityViolation("not permitted to create " + iObject);
         }
-
-        throw new SecurityViolation(iObject
-                + " is a System-type, and may only be "
-                + "created through privileged APIs.");
     }
 
     public boolean allowAnnotate(IObject iObject, Details trustedDetails) {
@@ -329,46 +456,39 @@ public class BasicACLVoter implements ACLVoter {
             // Don't return. Need further processing for delete.
         }
 
-        if (c.isCurrentUserAdmin()) {
+        final Set<AdminPrivilege> privileges = c.getCurrentAdminPrivileges();
+        if (LightAdminPrivileges.getAllPrivileges().equals(privileges)) {
             for (int i = 0; i < scopes.length; i++) {
                 if (scopes[i] != null) {
                     rv |= (1<<i);
                 }
             }
             return rv; // EARLY EXIT!
-        } else if (sysType) {
-            return 0;
         }
 
-        Permissions grpPermissions = c.getCurrentGroupPermissions();
-        final ExperimenterGroup grp = d.getGroup();
-        if (!(sysType || grp == null)) {
-            try {
-                if (grp.isLoaded()) {
-                    /* allow current group context to apply for adjusting directories in "user" group */
-                    if (!(iObject instanceof OriginalFile && iObject.isLoaded() && grp.getId() == roles.getUserGroupId() &&
-                            "Directory".equals(((OriginalFile) iObject).getMimetype()))) {
-                        grpPermissions = grp.getDetails().getPermissions();
-                    }
+        Permissions grpPermissions = null;
+        if (d.getGroup() != null) {
+            /* got a group set so review its permissions */
+            final Long gid = d.getGroup().getId();
+            if (roles.getUserGroupId() == gid) {
+                /* special handling for user group permissions */
+                if (iObject instanceof OriginalFile && "Directory".equals(((OriginalFile) iObject).getMimetype())) {
+                    grpPermissions = c.getPermissionsForGroup(gid);
+                } else {
+                    grpPermissions = new Permissions(Permissions.PRIVATE);
                 }
-            } catch (LazyInitializationException lie) {
-                /* cannot check if group is loaded */
+            } else {
+                /* not user group so use group's permissions */
+                grpPermissions = c.getPermissionsForGroup(gid);
             }
         }
+        if (grpPermissions == null && roles.getUserGroupId() != c.getCurrentGroupId()) {
+            /* fall back to current group permissions if not user group */
+            grpPermissions = c.getCurrentGroupPermissions();
+        }
         if (grpPermissions == null || grpPermissions == Permissions.DUMMY) {
-            if (d.getGroup() != null) {
-                Long gid = d.getGroup().getId();
-                grpPermissions = c.getPermissionsForGroup(gid);
-                if (grpPermissions == null && gid.equals(roles.getUserGroupId())) {
-                    grpPermissions = new Permissions(Permissions.EMPTY);
-                }
-            }
-            if (grpPermissions == null) {
-                throw new InternalException(
-                    "Permissions are null! Security system "
-                            + "failure -- refusing to continue. The Permissions should "
-                            + "be set to a default value.");
-            }
+            /* failing the above, fall back to no permissions */
+            grpPermissions = new Permissions(Permissions.EMPTY);
         }
 
         final boolean owner = owner(d, c);
@@ -379,8 +499,68 @@ public class BasicACLVoter implements ACLVoter {
             Scope scope = scopes[i];
             if (scope == null) continue;
 
-            if (leader) {
+            boolean hasLightAdminPrivilege = false;
+            if (!sysType) {
+                if (iObject instanceof OriginalFile) {
+                    final String repo = ((OriginalFile) iObject).getRepo();
+                    if (repo != null) {
+                        if (managedRepoUuids.contains(repo)) {
+                            if (privileges.contains(adminPrivileges.getPrivilege(scope == Scope.DELETE ?
+                                    AdminPrivilege.VALUE_DELETE_MANAGED_REPO : AdminPrivilege.VALUE_WRITE_MANAGED_REPO))) {
+                                hasLightAdminPrivilege = true;
+                            }
+                        } else if (scriptRepoUuids.contains(repo)) {
+                            if (privileges.contains(adminPrivileges.getPrivilege(scope == Scope.DELETE ?
+                                    AdminPrivilege.VALUE_DELETE_SCRIPT_REPO : AdminPrivilege.VALUE_WRITE_SCRIPT_REPO))) {
+                                hasLightAdminPrivilege = true;
+                            }
+                        } else {
+                            /* other repository */
+                            if (privileges.contains(adminPrivileges.getPrivilege(scope == Scope.DELETE ?
+                                    AdminPrivilege.VALUE_DELETE_FILE : AdminPrivilege.VALUE_WRITE_FILE))) {
+                                hasLightAdminPrivilege = true;
+                            }
+                        }
+                    } else {
+                        /* not in repository */
+                        if (privileges.contains(adminPrivileges.getPrivilege(scope == Scope.DELETE ?
+                                AdminPrivilege.VALUE_DELETE_FILE : AdminPrivilege.VALUE_WRITE_FILE))) {
+                            hasLightAdminPrivilege = true;
+                        }
+                    }
+                } else {
+                    if (privileges.contains(adminPrivileges.getPrivilege(scope == Scope.DELETE ?
+                            AdminPrivilege.VALUE_DELETE_OWNED : AdminPrivilege.VALUE_WRITE_OWNED))) {
+                        hasLightAdminPrivilege = true;
+                    }
+                }
+            } else if (iObject instanceof Experimenter) {
+                if (privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_MODIFY_USER))) {
+                    hasLightAdminPrivilege = true;
+                }
+            } else if (iObject instanceof ExperimenterGroup) {
+                if (privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_MODIFY_GROUP))) {
+                    hasLightAdminPrivilege = true;
+                }
+            } else if (iObject instanceof GroupExperimenterMap) {
+                if (privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_MODIFY_GROUP_MEMBERSHIP))) {
+                    hasLightAdminPrivilege = true;
+                }
+            } else if (c.isCurrentUserAdmin()) {
+                hasLightAdminPrivilege = true;
+            }
+
+            if (hasLightAdminPrivilege) {
                 rv |= (1<<i);
+            } else if (sysType) {
+                // no privilege
+            } else if (leader) {
+                rv |= (1<<i);
+            } else if (grpPermissions == null) {
+                throw new InternalException(
+                    "Permissions are null! Security system "
+                            + "failure -- refusing to continue. The Permissions should "
+                            + "be set to a default value.");
             }
 
             // standard
@@ -409,6 +589,70 @@ public class BasicACLVoter implements ACLVoter {
         return policyService.listActiveRestrictions(object);
     }
 
+    @Override
+    public void setPermittedClasses(Map<Integer, Set<Class<? extends IObject>>> objectClassesPermitted) {
+        final Set<Class<? extends IObject>> chgrpPermittedClasses = objectClassesPermitted.get(Permissions.CHGRPRESTRICTION);
+        final Set<Class<? extends IObject>> chownPermittedClasses = objectClassesPermitted.get(Permissions.CHOWNRESTRICTION);
+        if (CollectionUtils.isNotEmpty(chgrpPermittedClasses)) {
+            this.chgrpPermittedClasses = chgrpPermittedClasses;
+        }
+        if (CollectionUtils.isNotEmpty(chownPermittedClasses)) {
+            this.chownPermittedClasses = chownPermittedClasses;
+        }
+    }
+
+    /**
+     * On the given permissions integer sets the {@code CHGRP}, {@code CHOWN} restriction bits if the current user may
+     * move or give an object of the given class and with the given details.
+     * @param objectClass a model object's class
+     * @param details a model object's details
+     * @param allow a permissions integer
+     * @return the permissions integer, possibly adjusted
+     */
+    private int addChgrpChownRestrictionBits(Class<? extends IObject> objectClass, Details details, int allow) {
+        if (details.getOwner() == null || details.getGroup() == null) {
+            /* probably a system type, either way we cannot judge on this basis */
+            return allow;
+        }
+        final EventContext ec = currentUser.getCurrentEventContext();
+        final Set<AdminPrivilege> privileges = ec.getCurrentAdminPrivileges();
+        final boolean isChgrpPrivilege = privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_CHGRP));
+        final boolean isChownPrivilege = privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_CHOWN));
+        final int chgrpBit = 1 << Permissions.CHGRPRESTRICTION;
+        final int chownBit = 1 << Permissions.CHOWNRESTRICTION;
+        if (isChgrpPrivilege || ec.getCurrentUserId().equals(details.getOwner().getId())) {
+            allow |= chgrpBit;
+        }
+        if (isChownPrivilege || ec.getLeaderOfGroupsList().contains(details.getGroup().getId())) {
+            allow |= chownBit;
+        }
+        if ((allow & chgrpBit) > 0 && !chgrpPermittedClasses.isEmpty()) {
+            boolean isPermitted = false;
+            for (final Class<? extends IObject> permittedClass : chgrpPermittedClasses) {
+                if (permittedClass.isAssignableFrom(objectClass)) {
+                    isPermitted = true;
+                    break;
+                }
+            }
+            if (!isPermitted) {
+                allow &= ~chgrpBit;
+            }
+        }
+        if ((allow & chownBit) > 0 && !chownPermittedClasses.isEmpty()) {
+            boolean isPermitted = false;
+            for (final Class<? extends IObject> permittedClass : chownPermittedClasses) {
+                if (permittedClass.isAssignableFrom(objectClass)) {
+                    isPermitted = true;
+                    break;
+                }
+            }
+            if (!isPermitted) {
+                allow &= ~chownBit;
+            }
+        }
+        return allow;
+    }
+
     public void postProcess(IObject object) {
         if (object.isLoaded()) {
             Details details = object.getDetails();
@@ -418,10 +662,11 @@ public class BasicACLVoter implements ACLVoter {
 
             final BasicEventContext c = currentUser.current();
             final Permissions p = details.getPermissions();
-            final int allow = allowUpdateOrDelete(c, object, details,
+            int allow = allowUpdateOrDelete(c, object, details,
                 // This order must match the ordered of restrictions[]
                 // expected by p.copyRestrictions
                 Scope.LINK, Scope.EDIT, Scope.DELETE, Scope.ANNOTATE);
+            allow = addChgrpChownRestrictionBits(object.getClass(), details, allow);
 
             // #9635 - This is not the most efficient solution
             // But since it's unclear why Permission objects

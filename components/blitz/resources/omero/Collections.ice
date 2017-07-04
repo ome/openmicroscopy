@@ -10,8 +10,8 @@
 #define OMERO_COLLECTIONS_ICE
 
 #include <omero/ModelF.ice>
+#include <omero/SystemF.ice>
 #include <omero/RTypes.ice>
-#include <omero/System.ice>
 #include <Ice/BuiltinSequences.ice>
 
 /*

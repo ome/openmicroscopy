@@ -61,6 +61,7 @@ import ome.util.checksum.ChecksumProviderFactoryImpl;
 import ome.util.checksum.ChecksumType;
 import omero.ResourceError;
 import omero.ServerError;
+import omero.ValidationException;
 import omero.grid.ImportLocation;
 import omero.grid.ImportProcessPrx;
 import omero.grid.ImportSettings;
@@ -150,6 +151,8 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
     private final long userGroupId;
 
+    private final Set<String> managedRepoUuids;
+
     /**
      * Creates a {@link ProcessContainer} internally that will not be managed
      * by background threads. Used primarily during testing.
@@ -158,7 +161,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
      */
     public ManagedRepositoryI(String template, RepositoryDao dao) throws Exception {
         this(template, dao, new ProcessContainer(), new ChecksumProviderFactoryImpl(),
-                ALL_CHECKSUM_ALGORITHMS, FilePathRestrictionInstance.UNIX_REQUIRED.name, null, new Roles());
+                ALL_CHECKSUM_ALGORITHMS, FilePathRestrictionInstance.UNIX_REQUIRED.name, null, new Roles(), new HashSet<String>());
     }
 
     public ManagedRepositoryI(String template, RepositoryDao dao,
@@ -167,8 +170,9 @@ public class ManagedRepositoryI extends PublicRepositoryI
             String checksumAlgorithmSupported,
             String pathRules,
             String rootSessionUuid,
-            Roles roles) throws ServerError {
+            Roles roles, Set<String> managedRepoUuids) throws ServerError {
         super(dao, checksumProviderFactory, checksumAlgorithmSupported, pathRules);
+        this.managedRepoUuids = managedRepoUuids;
 
         int splitPoint = template.lastIndexOf("//");
         if (splitPoint < 0) {
@@ -193,6 +197,12 @@ public class ManagedRepositoryI extends PublicRepositoryI
     @Override
     public Ice.Object tie() {
         return new _ManagedRepositoryTie(this);
+    }
+
+    @Override
+    public void initialize(FileMaker fileMaker, Long id, String repoUuid) throws ValidationException {
+        super.initialize(fileMaker, id, repoUuid);
+        managedRepoUuids.add(repoUuid);
     }
 
     //

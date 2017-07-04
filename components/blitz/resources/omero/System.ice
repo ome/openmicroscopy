@@ -1,17 +1,14 @@
 /*
- *   $Id$
- *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
- *
  */
 
 #ifndef OMERO_SYSTEM_ICE
 #define OMERO_SYSTEM_ICE
 
-#include <omero/RTypes.ice>
 #include <omero/ModelF.ice>
-#include <Ice/BuiltinSequences.ice>
+#include <omero/SystemF.ice>
+#include <omero/Collections.ice>
 
 /*
  * The omero::system module combines the ome.system and ome.parameters
@@ -20,37 +17,6 @@
  */
 module omero {
   module sys {
-
-    // START: TRANSFERRED FROM COLLECTIONS
-
-    /*
-     * Some collections were initially defined under omero::sys
-     */
-
-        ["java:type:java.util.ArrayList<Long>:java.util.List<Long>"]
-            sequence<long> LongList;
-
-        ["java:type:java.util.ArrayList<Integer>:java.util.List<Integer>"]
-            sequence<int> IntList;
-
-        ["java:type:java.util.HashMap<Long,Long>:java.util.Map<Long,Long>"]
-            dictionary<long, long> CountMap;
-
-        /**
-         * ParamMap replaces the ome.parameters.QueryParam
-         * type, since the use of varargs is not possible.
-         **/
-        ["java:type:java.util.HashMap"]
-            dictionary<string,omero::RType> ParamMap;
-
-        /**
-         * IdByteMap is used by the ThumbnailService for the multiple thumbnail
-         * retrieval methods.
-         **/
-        ["java:type:java.util.HashMap"]
-            dictionary<long,Ice::ByteSeq> IdByteMap;
-
-    // END: TRANSFERRED FROM COLLECTIONS
 
     /**
      * Maps the ome.system.EventContext interface. Represents the
@@ -64,9 +30,12 @@ module omero {
       string sessionUuid;
       long   userId;
       string userName;
+      omero::RLong   sudoerId;
+      omero::RString sudoerName;
       long   groupId;
       string groupName;
       bool   isAdmin;
+      omero::api::StringSet  adminPrivileges;
       long   eventId;
       string eventType;
       LongList memberOfGroups;

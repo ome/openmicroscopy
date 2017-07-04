@@ -1,7 +1,8 @@
 /*
- * Copyright 2006-2016 University of Dundee. All rights reserved.
+ * Copyright 2006-2017 University of Dundee. All rights reserved.
  * Use is subject to license terms supplied in LICENSE.txt
  */
+
 package integration.chgrp;
 
 import integration.AbstractServerTest;
@@ -11,6 +12,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import omero.RLong;
 import omero.ServerError;
@@ -23,8 +26,12 @@ import omero.model.DatasetImageLinkI;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.Folder;
+import omero.model.FolderImageLink;
+import omero.model.FolderImageLinkI;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.Instrument;
+import omero.model.Microscope;
 import omero.model.Roi;
 import omero.model.RoiI;
 import omero.sys.EventContext;
@@ -466,6 +473,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
+    @Test
     public void testMoveDatasetImageGraphLinkDoneByImageOwnerRWRWtoRW()
             throws Exception {
         String perms = "rw----"; // destination
@@ -481,10 +489,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
                 .simpleImage());
         long imageId = image.getId().getValue();
         // now link the image and dataset.
-        DatasetImageLink link = new DatasetImageLinkI();
-        link.setChild((Image) image.proxy());
-        link.setParent((Dataset) dataset.proxy());
-        iUpdate.saveAndReturnObject(link);
+        linkParentToChild(dataset, image);
         disconnect();
         ctx = init(ctx);
 
@@ -548,10 +553,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
                 .simpleImage());
         long imageId = image.getId().getValue();
         // now link the image and dataset.
-        DatasetImageLink link = new DatasetImageLinkI();
-        link.setChild((Image) image.proxy());
-        link.setParent((Dataset) dataset.proxy());
-        iUpdate.saveAndReturnObject(link);
+        linkParentToChild(dataset, image);
         disconnect();
         ctx = init(ctx);
 
@@ -615,10 +617,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
                 .simpleImage());
         long imageId = image.getId().getValue();
         // now link the image and dataset.
-        DatasetImageLink link = new DatasetImageLinkI();
-        link.setChild((Image) image.proxy());
-        link.setParent((Dataset) dataset.proxy());
-        iUpdate.saveAndReturnObject(link);
+        linkParentToChild(dataset, image);
 
         disconnect();
         ctx = init(ctx);
@@ -691,10 +690,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
                 .simpleImage());
         long imageId = image.getId().getValue();
         // now link the image and dataset.
-        DatasetImageLink link = new DatasetImageLinkI();
-        link.setChild((Image) image.proxy());
-        link.setParent((Dataset) dataset.proxy());
-        iUpdate.saveAndReturnObject(link);
+        linkParentToChild(dataset, image);
 
         disconnect();
         ctx = init(ctx);
@@ -868,24 +864,6 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
     }
 
     /**
-     * Assert that the given object is in the given group.
-     * @param object a model object
-     * @param group an experimenter group
-     * @throws Exception unexpected
-     */
-    private void assertObjectInGroup(IObject object, ExperimenterGroup group) throws Exception {
-        if (iAdmin.getEventContext().groupId != group.getId().getValue()) {
-            loginUser(group);
-        }
-        Class <? extends IObject> objectClass = object.getClass();
-        while (objectClass.getSuperclass() != IObject.class) {
-            objectClass = objectClass.getSuperclass().asSubclass(IObject.class);
-        }
-        object = iQuery.get(objectClass.getSimpleName(), object.getId().getValue());
-        Assert.assertEquals(object.getDetails().getGroup().getId().getValue(), group.getId().getValue());
-    }
-
-    /**
      * Test moving folder hierarchies.
      * @param folderOption if the child option should target folders
      * @param includeOrphans how to set child options
@@ -965,11 +943,11 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         }
         doChange(move);
 
-        /* check which objects are now in which groups */
+        /* Check which objects are now in which groups.*/
 
-        assertObjectInGroup(parentFolder, toGroup);
-        assertObjectInGroup(childFolder, childFolderMoves ? toGroup : fromGroup);
-        assertObjectInGroup(roi, roiMoves ? toGroup : fromGroup);
+        assertInGroup(parentFolder, toGroup);
+        assertInGroup(childFolder, childFolderMoves ? toGroup : fromGroup);
+        assertInGroup(roi, roiMoves ? toGroup : fromGroup);
     }
 
     /**
@@ -1194,5 +1172,39 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         }
 
         return testCases.toArray(new Object[testCases.size()][]);
+    }
+
+    /**
+     * Test that {@link omero.model.Permissions#canChgrp()} respects {@code allTargets} as passed to
+     * {@link omero.cmd.graphs.GraphRequestFactory#GraphRequestFactory(ome.security.ACLVoter, ome.system.Roles,
+     *  ome.services.graphs.GraphPathBean, ome.security.basic.LightAdminPrivileges, ome.services.delete.Deletion,
+     *  Map, Map, List, Set)}.
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testAdminChgrpObjectPermissions() throws Exception {
+        logRootIntoGroup(newUserAndGroup("rw----"));
+
+        final Instrument instrument = (Instrument) iUpdate.saveAndReturnObject(mmFactory.createInstrument());
+        Assert.assertTrue(instrument.getDetails().getPermissions().canChgrp());
+
+        final Microscope microscope = instrument.getMicroscope();
+        Assert.assertFalse(microscope.getDetails().getPermissions().canChgrp());
+
+        Image image = mmFactory.simpleImage();
+        image.setInstrument((Instrument) instrument.proxy());
+        image = (Image) iUpdate.saveAndReturnObject(image);
+        Assert.assertTrue(image.getDetails().getPermissions().canChgrp());
+
+        final Folder folder = (Folder) iUpdate.saveAndReturnObject(mmFactory.simpleFolder());
+        Assert.assertTrue(folder.getDetails().getPermissions().canChgrp());
+
+        FolderImageLink link = new FolderImageLinkI();
+        link.setParent((Folder) folder.proxy());
+        link.setChild((Image) image.proxy());
+        link = (FolderImageLink) iUpdate.saveAndReturnObject(link);
+        Assert.assertFalse(link.getDetails().getPermissions().canChgrp());
+
+        doChange(Requests.delete().target(folder).build());
     }
 }

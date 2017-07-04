@@ -46,10 +46,68 @@
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.form-3.51.js" %}"></script>
     <script type="text/javascript" src="{% static '3rdparty/jquery.chosen-1.2.0/chosen.jquery.js' %}"></script>
     <script type="text/javascript" src="{% static '3rdparty/jquery.selectboxes-2.2.6.js' %}"></script>
-    
+    <style>
+        #privileges label {
+            width: 160px;
+        }
+        #privilege_info {
+            width: 50%;
+            float: left;
+            min-height: 100px;
+            text-align: right;
+            margin: 20px;
+            margin-top: 80px;
+            font-size: 14px;
+        }
+        #privilege_info b {
+            font-weight: bold;
+        }
+        #privilege_list {
+            width: 40%;
+            float: left;
+        }
+        #id_role input {
+            margin-top: -1px;
+        }
+        #id_role li {
+            margin-top: 2px;
+        }
+
+    </style>
     <script type="text/javascript">
     $(document).ready(function() 
     {
+        var PRIVILEGE_INFO = {
+            'Sudo': 'Administrator can log in as another user, with all the permissions of that user',
+            'Write': 'Administrator can create data in groups of which he/she is not a member. Also allows annotating, adding attachments to and editing of other users\' data.',
+            'Delete': 'Administrator can delete other users\' data',
+            'Chgrp': 'Administrator can move others\' data to a different Group',
+            'Chown': 'Administrator can transfer others\' data to a different Owner',
+            'ModifyGroup': 'Administrator can create and edit groups (but not add or remove users)',
+            'ModifyUser': 'Administrator can create and edit other users (but not add them to groups)',
+            'ModifyGroupMembership': 'Administrator can add or remove users to groups',
+            'Script': 'Administrator can upload "official" OMERO.scripts to the server',
+        }
+        // Move the user privilege checkboxes into a panel that is only shown when user
+        // selects 'restricted_administrator' role.
+        // Insert panel after 'id_role' field...
+        var $roleDiv = $('#id_role').parent();
+        var $privilegePanel = $('#privilege_panel').insertAfter($roleDiv);
+        $('.privilege').each(function(){
+            $(this).parent().appendTo($('#privileges'));
+        });
+        var showPrivilegeInfo = function(privilegeId) {
+            var privilegeName = privilegeId.replace('id_', '');
+            var info = PRIVILEGE_INFO[privilegeName] || " ";
+            var labelText = $("label[for='" + privilegeId + "']").text();
+            $('#privilege_info').html("<b>" + labelText + "</b> " + info);
+        }
+        $("#privileges label").on( "mouseover", function() {
+            showPrivilegeInfo($(this).prop('for'));
+        });
+        $("#privileges input").on( "mouseover", function() {
+            showPrivilegeInfo(this.id);
+        });
 
         // Since we want to disable removal of 'system' group (id=0) from chosen, this hides the 'X'
         var admin_groups = {{ admin_groups|jsonify|safe }};
@@ -61,61 +119,90 @@
             }
         }
 
+        // Sync the 'default group' <select> when specified group is added OR removed from selected groups
         var syncDefaultGroupOptions = function(id) {
-            var $df = $('#id_default_group'), currentDefaultGroup = $df.val()
-            if (id === currentDefaultGroup) {
-                $("#id_default_group option[value='"+id+"']").removeAttr("selected");
-            } else if (currentDefaultGroup=='') {
-                $("#id_default_group option[value='']").removeAttr("selected");
-            }
-            if ($("#id_default_group option[value='"+id+"']").length > 0) {
+            var $df = $('#id_default_group'),
+                currentDefaultGroup = $df.val();
+            var groupSelected = $("#id_other_groups option[value='"+id+"']").prop('selected');
+
+            if (!groupSelected) {
                 $("#id_default_group option[value='"+id+"']").remove();
             } else {
-                $df.append($("#id_other_groups option[value='"+id+"']").clone().removeAttr("selected"));
+                // make sure it's available in 'default_group' <select>
+                if ($("#id_default_group option[value='"+id+"']").length == 0) {
+                    // ADD it (by cloning corresponding <option> from 'groups' <select>)
+                    $df.append($("#id_other_groups option[value='"+id+"']").clone().removeProp('selected'));
+                }
             }
             // if only one group
             if( $( "#id_other_groups" ).val() && $( "#id_other_groups" ).val().length === 1) {
                 $df.selectOptions($( "#id_other_groups" ).val()[0], true);
             }
             $df.trigger("chosen:updated");
-            //$df.selectOptions(currentDefaultGroup, true);
         }
 
-        $("#id_default_group").chosen({disable_search_threshold:5, placeholder_text:'Choose default group'});
+        // Setup chosen plugin on 'Default Group' chooser (only select single group)
+        $("#id_default_group").chosen({
+            disable_search_threshold:5,
+            placeholder_text:'Choose default group'
+        });
 
         // Setup chosen plugin on 'Groups' chooser
-        $("#id_other_groups").chosen({placeholder_text:'Type group names to add...'}).change(function(evt, data) {
+        $("#id_other_groups")
+            .chosen({placeholder_text:'Type group names to add...'})
+            .change(function(evt, data) {
+                // In case we've added the system group:
+                hideSystemGroupX();
 
-            if (data && data.deselected) {
-                if (data.deselected === "0") {
-                    $("input[name='administrator']").prop('checked', false);
+                // If 'system' group added...
+                if (data && data.selected === "0") {
+                    // If role is disabled...
+                    if ($("#id_role_0").prop('disabled')) {
+                        // we want to revert change
+                        $("#id_other_groups option[value='0']").removeProp('selected');
+                        $('#id_other_groups').trigger("chosen:updated");
+                    } else {
+                        // otherwise 'role' is now 'administrator'
+                        $("input[name='role'][value='administrator']").prop('checked', true);
+                    }
                 }
-                syncDefaultGroupOptions(data.deselected);
-            } else if (data && data.selected) {
-                if (data.selected === "0") {
-                    $("input[name='administrator']").prop('checked', true);
+
+                // update 'default_group' <select>
+                if (data && data.deselected) {
+                    syncDefaultGroupOptions(data.deselected);
+                } else if (data && data.selected) {
+                    syncDefaultGroupOptions(data.selected);
                 }
-                syncDefaultGroupOptions(data.selected);
-            }
-            // In case we've added the system group:
-            hideSystemGroupX();
-        });
-        
-        $("input[name='administrator']").click( function(evt) {
-            evt.stopPropagation();
-            if($("input[name='administrator']").is(':checked')) {
-                $("#id_other_groups option[value='0']").attr('selected','selected');
+            });
+
+        // Show/hide privileges panel
+        var syncPrivilegesPanel = function() {
+            // Only show 'privilege panel' when 'restricted_administrator' is picked
+            if($("input[name='role'][value='restricted_administrator']").is(':checked')) {
+                $("#privilege_panel").slideDown();
             } else {
-                $("#id_other_groups option[value='0']").removeAttr("selected");
-                // also remove 'system' from the 'default group' chooser
+                $("#privilege_panel").slideUp();
+            }
+        }
+
+        // When 'role' is changed, might need to add/remove 'system' group from choosers
+        $("input[name='role']").click( function(evt) {
+            evt.stopPropagation();
+            // If role of 'user' is picked, de-select 'system' from the 'default group' chooser
+            if($("input[name='role'][value='user']").is(':checked')) {
+                $("#id_other_groups option[value='0']").removeProp("selected");
+            } else {
+                $("#id_other_groups option[value='0']").prop('selected', true);
             }
             $("#id_other_groups").trigger("chosen:updated");
+            syncPrivilegesPanel();
             syncDefaultGroupOptions(0);
             // In case we've added the system group:
             hideSystemGroupX();
         });
 
         // Initial setup:
+        syncPrivilegesPanel();
         hideSystemGroupX();
         
         // code for Change Password dialog - NB this is duplicated in myaccount.html. 
@@ -231,20 +318,19 @@
 
     <p>{% trans "Fields marked in red are mandatory." %}</p>
         {% for field in form %}
+            <div class="exp_field">
             {% if field.errors %}<div style="clear:both">{{ field.errors }}</div>{% endif %}
 
             {% ifequal field.label_tag form.default_group.label_tag %}
                 <!-- default group -->
                 <span class="required">{{ field.label_tag }}</span>
                 {{ field }}
-                <br />
             {% else %}
                 {% ifequal field.label_tag form.other_groups.label_tag %}
                     <!-- other groups -->
                     <span class="required">{{ field.label_tag }}</span>
                     {{ field }}
                 {% else %}
-                    <!-- all other fields -->
                     {% if field.field.required %}
                         <span class="required">{{ field.label_tag }}</span>
                     {% else %}
@@ -253,13 +339,17 @@
                     {{ field }}
                 {% endifequal %}
             {% endifequal %}
-            <br />
-            
+            </div>
         {% endfor %}
         
         <br />
         
-        <input type="submit" value="{% trans 'Save' %}" />
+        <input type="submit" 
+            {% if not can_modify_user %}
+                disabled title="You don't have permissions to edit Users"
+            {% endif %}
+            value="{% trans 'Save' %}" />
+        <div style="clear: both"></div>
 
     </form>
 
@@ -293,6 +383,21 @@
     </div>
     {% endif %}
 
+</div>
+
+
+<div id="privilege_panel" style="display: none">
+    <!-- Panel for picking Privileges for 'restricted administrator' -->
+    <!-- This is placed in the form and populated by '.privilage' fields by js onload-->
+    <div id="privilege_info"></div>
+    <div id="privilege_list">
+        <h1>Choose user privileges</h1>
+        <p>For more info see <a href="https://www.openmicroscopy.org/site/support/omero5.3/sysadmins/admins-with-restricted-privileges.html">administrator privileges</a>.</p>
+        <div id="privileges">
+
+        </div>
+    </div>
+    <div style="clear: both"></div>
 </div>
 
 

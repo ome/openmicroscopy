@@ -46,7 +46,7 @@ public class ScriptRepoHelperTest extends AbstractManagedContextTest {
     public void setup() throws Exception {
         mkdir();
         loginRoot();
-        helper = new ScriptRepoHelper(uuid(""), dir, this.executor,
+        helper = new ScriptRepoHelper(uuid(""), dir, this.executor, applicationContext.getBean("uuid", String.class),
                 this.loginAop.p, new Roles());
         ContextRefreshedEvent event = new ContextRefreshedEvent(
                 OmeroContext.getManagedServerContext());
