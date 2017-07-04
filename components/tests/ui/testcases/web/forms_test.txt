@@ -183,7 +183,7 @@ Test Search
     Submit Form                             id=search
 
     # We don't care about results, just check we get *some* results in dataTable
-    Location Should Be                      ${WELCOME URL}search/
+    Location Should Be                      ${WELCOME URL}search/?search_query=test
     Wait Until Page Contains Element        dataTable       ${WAIT}
     # Repeat search
     Submit Form                             searching_form
