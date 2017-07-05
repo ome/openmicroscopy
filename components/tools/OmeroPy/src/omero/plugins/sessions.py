@@ -449,7 +449,10 @@ class SessionsControl(BaseControl):
 
         if not rv:
 
-            self._require_tty("cannot request password")
+            if not pasw:
+                # Note: duplicating the `not pasw` check here
+                # for an overall nicer error message.
+                self._require_tty("cannot request password")
 
             tries = 3
             while True:
