@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -55,6 +55,7 @@ import omero.model.Screen;
 import omero.model.ScreenAnnotationLink;
 import omero.model.ScreenPlateLink;
 import omero.model.TagAnnotation;
+import omero.model.Well;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 
@@ -125,7 +126,7 @@ class OmeroDataServiceImpl
 	 * @param ctx The security context.
 	 * @param parent    The parent of the children.
 	 * @param children  The children to unlink
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMEDS service.
 	 */
@@ -149,7 +150,7 @@ class OmeroDataServiceImpl
 	 * @param ctx The security context.
 	 * @param id The identifier of the set.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMEDS service.
 	 */
@@ -631,7 +632,7 @@ class OmeroDataServiceImpl
 		
 		// search by ID:
 		if(!results.isEmpty())
-		    findByIds(ctx, results, true);
+		    findByIds(ctx, results);
 		
 		// search by text:
 		SearchResultCollection searchResults = gateway.search(ctx, context);
@@ -648,17 +649,37 @@ class OmeroDataServiceImpl
 	/**
 	 * Tries to find and load the Objects in results; removes them from results
 	 * if they can't be found.
-	 * @param ctx
-	 * @param results
-	 * @param allGroups
+	 * @param ctx The {@link SecurityContext}
+	 * @param results The results to look up
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 */
-        private void findByIds(SecurityContext ctx, SearchResultCollection results, boolean allGroups) throws DSOutOfServiceException{
+        private void findByIds(SecurityContext ctx, SearchResultCollection results) throws DSOutOfServiceException{
             Iterator<SearchResult> it = results.iterator();
             while (it.hasNext()) {
                 SearchResult r = it.next();
                 IObject obj = null;
                     try {
-                        String type = PojoMapper.convertTypeForSearchByQuery(r.getType());
+                        String type = null;
+                        if (r.getType().equals(Image.class) || r.getType().equals(ImageData.class))
+                            type = Image.class.getSimpleName();
+                        else if (r.getType().equals(Dataset.class)
+                                || r.getType().equals(DatasetData.class))
+                            type = Dataset.class.getSimpleName();
+                        else if (r.getType().equals(Project.class)
+                                || r.getType().equals(ProjectData.class))
+                            type = Project.class.getSimpleName();
+                        else if (r.getType().equals(Screen.class)
+                                || r.getType().equals(ScreenData.class))
+                            type = Screen.class.getSimpleName();
+                        else if (r.getType().equals(Well.class) || r.getType().equals(WellData.class))
+                            type = Well.class.getSimpleName();
+                        else if (r.getType().equals(Plate.class)
+                                || r.getType().equals(PlateData.class))
+                            type = Plate.class.getSimpleName();
+                        
+                        if (type == null)
+                            return;
+                        
                         String query = "select x from "+type+" x join fetch x.details.creationEvent where x.id="+r.getObjectId();
                         obj = gateway.findIObjectByQuery(ctx, query, true);
                     } catch (DSAccessException e) {

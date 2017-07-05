@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.roi.io.InputServerStrategy
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -411,9 +411,6 @@ class InputServerStrategy
 				data.isReadOnly(), data.isClientObject(), data.canEdit(),
 				data.canDelete(), data.canAnnotate());
 		List<Point2D.Double> points = data.getPoints();
-		List<Point2D.Double> points1 = data.getPoints1();
-		List<Point2D.Double> points2 = data.getPoints2();
-		List<Integer> mask = data.getMaskPoints();
 		for (int i = 0; i < points.size(); i++)
 		{
 			fig.addNode(new Node(i, points.get(i), points.get(i), 
@@ -439,41 +436,8 @@ class InputServerStrategy
 	 */
 	private ROIFigure createPolyOrlineFigure(PolylineData data)
 	{
-		List<Integer> mask = data.getMaskPoints();
-		
-		boolean line = true;
-		for (int i = 0 ; i < mask.size(); i++)
-		{
-			if (mask.get(i) != 0)
-				line = false;
-		}
-		
-		if (line) return createLineFromPolylineFigure(data);
 		return createPolylineFromPolylineFigure(data);
 	}	
-		
-	/**
-	 * Transforms the passed polyline into a line figure are it has only move
-	 * to operations.
-	 * 
-	 * @param data The polyline to transform.
-	 * @return See above.
-	 */
-	private ROIFigure createLineFromPolylineFigure(PolylineData data)
-	{
-		List<Point2D.Double> points = data.getPoints();
-		MeasureLineFigure fig = new MeasureLineFigure(data.isReadOnly(), 
-				data.isClientObject(), data.canEdit(), data.canDelete(),
-				data.canAnnotate());
-		fig.removeAllNodes();
-		for (int i = 0; i < points.size(); i++)
-			fig.addNode(new Node(points.get(i)));
-		
-		addShapeSettings(fig, data.getShapeSettings());
-		fig.setText(data.getText());
-		TRANSFORM.set(fig, toTransform(data.getTransform()));
-		return fig;
-	}
 	
 	/**
 	 * Transforms the passed polyline into a Polyline shape.
@@ -484,9 +448,6 @@ class InputServerStrategy
 	private ROIFigure createPolylineFromPolylineFigure(PolylineData data)
 	{
 		List<Point2D.Double> points = data.getPoints();
-		List<Point2D.Double> points1 = data.getPoints1();
-		List<Point2D.Double> points2 = data.getPoints2();
-		List<Integer> mask = data.getMaskPoints();
 		MeasureBezierFigure fig = new MeasureBezierFigure(false, 
 				data.isReadOnly(), data.isClientObject(), data.canEdit(),
 				data.canDelete(), data.canAnnotate());

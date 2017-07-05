@@ -83,7 +83,7 @@ class AdminServiceImpl
 	 * @param asAdmin Pass <code>true</code> if updated as an administrator,
 	 * 				  <code>false</code> otherwise.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.
 	 */

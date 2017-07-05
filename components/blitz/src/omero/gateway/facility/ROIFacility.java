@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -43,7 +43,10 @@ import omero.api.IUpdatePrx;
 import omero.api.RoiOptions;
 import omero.api.RoiResult;
 import omero.cmd.CmdCallbackI;
+import omero.cmd.ERR;
+import omero.cmd.GraphException;
 import omero.cmd.Request;
+import omero.cmd.Response;
 import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
@@ -791,7 +794,37 @@ public class ROIFacility extends Facility {
                                     }
                                     if (shapeIndex !=-1) {
                                         if (!removed.contains(coord))
-                                            dm.deleteObject(ctx, serverShape);
+                                            try {
+                                                Response res = dm.delete(ctx,
+                                                        serverShape).loop(10,
+                                                        500);
+                                                if (res instanceof GraphException) {
+                                                    GraphException ge = (GraphException) res;
+                                                    logWarn(this,
+                                                            "Could not delete shape "
+                                                                    + serverShape
+                                                                            .getId()
+                                                                            .getValue()
+                                                                    + ": "
+                                                                    + ge.message,
+                                                            null);
+                                                }
+                                                if (res instanceof ERR)
+                                                    logWarn(this,
+                                                            "Could not delete shape "
+                                                                    + serverShape
+                                                                            .getId()
+                                                                            .getValue(),
+                                                            null);
+                                            } catch (omero.LockTimeout e) {
+                                                logWarn(this,
+                                                        "Could not delete shape "
+                                                                + serverShape
+                                                                        .getId()
+                                                                        .getValue()
+                                                                + ", request timed out.",
+                                                        null);
+                                            }
                                         serverRoi.addShape(sh);
                                     } else {
                                         throw new Exception("serverRoi.shapeList " +

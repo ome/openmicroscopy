@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -161,22 +161,6 @@ public class LightSourceData
     }
 
     /**
-     * Returns the power of the light source.
-     *
-     * @return See above.
-     * @deprecated Replaced by {@link #getPower(UnitsPower)}
-     */
-    @Deprecated
-    public double getPower()
-    {
-        LightSource light = (LightSource) asIObject();
-        if (light == null) return -1;
-        Power value = light.getPower();
-        if (value == null) return -1;
-        return value.getValue();
-    }
-
-    /**
      * Returns the type of light.
      *
      * @return See above.
@@ -232,22 +216,6 @@ public class LightSourceData
         if (l == null)
             return null;
         return unit == null ? l : new LengthI(l, unit);
-    }
-
-    /**
-     * Returns the laser's wavelength.
-     *
-     * @return See above.
-     * @deprecated Replaced by {@link #getLaserWavelength(UnitsLength)}
-     */
-    @Deprecated
-    public double getLaserWavelength()
-    {
-        if (!LASER.equals(getKind())) return -1;
-        Laser laser = (Laser) asIObject();
-        Length value = laser.getWavelength();
-        if (value == null) return -1;
-        return value.getValue();
     }
 
     /**
@@ -354,22 +322,6 @@ public class LightSourceData
         if (f == null)
             return null;
         return unit == null ? f : new FrequencyI(f, unit);
-    }
-
-    /**
-     * Returns the repetition rate (Hz) if the laser is repetitive.
-     *
-     * @return See above.
-     * @deprecated Replaced by {@link #getLaserRepetitionRate(UnitsFrequency)}
-     */
-    @Deprecated
-    public double getLaserRepetitionRate()
-    {
-        if (!LASER.equals(getKind())) return -1;
-        Laser laser = (Laser) asIObject();
-        Frequency value = laser.getRepetitionRate();
-        if (value  == null) return -1;
-        return value.getValue();
     }
 
     /**

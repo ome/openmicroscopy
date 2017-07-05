@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- * Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ * Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,6 @@
  */
 package omero.gateway.model;
 
-import ome.formats.model.UnitsFactory;
 import ome.model.units.BigResult;
 import omero.RDouble;
 import omero.RString;
@@ -74,24 +73,6 @@ public class DetectorData
         return unit == null ? e : new ElectricPotentialI(e, unit);
     }
 
-    /**
-     * Returns the voltage of the detector.
-     *
-     * @return See above
-     * @deprecated Replaced by {@link #getVoltage(UnitsElectricPotential)}
-     */
-    @Deprecated
-    public Double getVoltage()
-    {
-        Detector detector = (Detector) asIObject();
-        ElectricPotential value = detector.getVoltage();
-        if (value == null) return null;
-        try {
-            return new ElectricPotentialI(value, UnitsFactory.Detector_Voltage).getValue();
-        } catch (BigResult e) {
-            return e.result.doubleValue();
-        }
-    }
 
     /**
      * Returns the amplification gain of the detector.
