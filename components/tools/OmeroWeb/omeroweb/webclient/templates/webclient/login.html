@@ -83,14 +83,6 @@
 					{% endcomment %}
 					
 			  		{{ form.server }}
-						
-				   <div id="ssl">
-					   <!--Padlock Image -->
-					   {{ form.ssl.help_text|safe }}{% if form.ssl.field.required %}*{% endif %}
-					   <!--Padlock Checkbox -->
-					   {{ form.ssl }}
-					   {{ form.ssl.errors }}
-				   </div>
 			   
 			   <!-- Form Error -->
 				{% if form.server.errors %}

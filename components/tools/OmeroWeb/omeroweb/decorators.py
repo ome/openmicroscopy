@@ -298,8 +298,6 @@ class login_required(object):
             username = settings.PUBLIC_USER
             password = settings.PUBLIC_PASSWORD
             is_secure = settings.SECURE
-            if not is_secure:
-                is_secure = request.GET.get('ssl', False)
             logger.debug('Is SSL? %s' % is_secure)
             # Try and use a cached OMERO.webpublic user session key.
             public_user_connector = self.get_public_user_connector()
@@ -341,7 +339,7 @@ class login_required(object):
         userip = get_client_ip(request)
         session = request.session
         request = request.GET
-        is_secure = request.get('ssl', False)
+        is_secure = settings.SECURE
         logger.debug('Is SSL? %s' % is_secure)
         connector = session.get('connector', None)
         logger.debug('Connector: %s' % connector)
