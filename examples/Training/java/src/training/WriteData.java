@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2016 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2017 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -26,6 +26,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -59,10 +60,12 @@ import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.model.enums.ChecksumAlgorithmSHA1160;
 import omero.sys.ParametersI;
+import omero.gateway.model.DataObject;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.FileAnnotationData;
 import omero.gateway.model.ImageData;
+import omero.gateway.model.ProjectData;
 import omero.gateway.model.TagAnnotationData;
 
 /** 
@@ -134,23 +137,24 @@ public class WriteData
             throws Exception
     {
         DataManagerFacility dm = gateway.getFacility(DataManagerFacility.class);
+        
         //Using IObject directly
         Dataset dataset = new DatasetI();
         dataset.setName(omero.rtypes.rstring("new Name 1"));
         dataset.setDescription(omero.rtypes.rstring("new description 1"));
-        //Using the pojo
-        DatasetData datasetData = new DatasetData();
-        datasetData.setName("new Name 2");
-        datasetData.setDescription("new description 2");
         ProjectDatasetLink link = new ProjectDatasetLinkI();
         link.setChild(dataset);
         link.setParent(new ProjectI(projectId, false));
         IObject r = dm.saveAndReturnObject(ctx, link);
-        //With pojo
-        link = new ProjectDatasetLinkI();
-        link.setChild(datasetData.asDataset());
-        link.setParent(new ProjectI(projectId, false));
-        r = dm.saveAndReturnObject(ctx, link);
+        
+        //Using the pojo
+        DatasetData datasetData = new DatasetData();
+        datasetData.setName("new Name 2");
+        datasetData.setDescription("new description 2");
+        BrowseFacility b = gateway.getFacility(BrowseFacility.class);
+        ProjectData projectData = b.getProjects(ctx, Collections.singleton(projectId)).iterator().next();
+        datasetData.setProjects(Collections.singleton(projectData));
+        DataObject r2 = dm.saveAndReturnObject(ctx, datasetData);
     }
 
 // Create tag
