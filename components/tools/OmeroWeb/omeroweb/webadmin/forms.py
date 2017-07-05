@@ -53,7 +53,7 @@ class LoginForm(NonASCIIForm):
         self.fields['server'] = ServerModelChoiceField(
             Server, empty_label=None)
 
-        self.fields.keyOrder = ['server', 'username', 'password', 'ssl']
+        self.fields.keyOrder = ['server', 'username', 'password']
 
     username = forms.CharField(
         max_length=50, widget=forms.TextInput(attrs={
@@ -61,18 +61,6 @@ class LoginForm(NonASCIIForm):
     password = forms.CharField(
         max_length=50,
         widget=forms.PasswordInput(attrs={'size': 22, 'autocomplete': 'off'}))
-    ssl_kwargs = dict(
-        required=False,
-        help_text='<img src="%swebgateway/img/nuvola_encrypted_grey16.png"'
-        ' title="Real-time encrypted data transfer can be turned on by'
-        ' checking the box, but it will slow down the data access. Turning'
-        ' it off does not affect the connection to the server which is always'
-        ' secure." alt="SSL"/>' % settings.STATIC_URL)
-    if settings.SECURE:
-        ssl_kwargs['initial'] = True
-        # Django 1.8 doesn't support ssl_kwargs['disabled']
-        ssl_kwargs['widget'] = forms.CheckboxInput(attrs={'disabled': 'yes'})
-    ssl = forms.BooleanField(**ssl_kwargs)
 
     def clean_username(self):
         if (self.cleaned_data['username'] == 'guest'):
