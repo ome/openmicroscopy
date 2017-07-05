@@ -87,7 +87,7 @@ class ChownControl(GraphControl):
                  " and/or user(s) to transfer all data from in the"
                  " form Experimenter:<Id>")
 
-    def populate_targetUsers(self, command_check):
+    def populate_target_users(self, command_check):
         """
         Move the Experimenters whose data are to be
         transferred from targetObjects
@@ -107,7 +107,7 @@ class ChownControl(GraphControl):
         as well as the possibility to adjust the command.
         """
         super(ChownControl, self)._check_command(command_check)
-        self.populate_targetUsers(command_check)
+        self.populate_target_users(command_check)
 
     def _process_request(self, req, args, client):
         # Retrieve user id
