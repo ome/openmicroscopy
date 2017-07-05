@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.colourpicker.RGBControl.java
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -392,7 +392,10 @@ class RGBControl
 	
     /** Fires Changed event to all listeners stating the model has changed. */
     void fireChangeEvent() {
-        fireChangeEvent(PaintPotUI.COLOUR_CHANGED_PROPERTY);
+        if (CommonsLangUtils.isNotEmpty(model.getLUT()))
+            fireChangeEvent(PaintPotUI.LUT_PROPERTY);
+        else
+            fireChangeEvent(PaintPotUI.COLOUR_CHANGED_PROPERTY);
     }
 
     /**

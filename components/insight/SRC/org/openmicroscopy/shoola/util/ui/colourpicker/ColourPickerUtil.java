@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2016-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -40,6 +40,9 @@ public class ColourPickerUtil {
      * @return See above.
      */
     public static boolean sameColor(Color c1, Color c2) {
+        if (c1 == null ^ c2 == null)
+            return false;
+        
         return c1.getRed() == c2.getRed() && c1.getGreen() == c2.getGreen()
                 && c1.getBlue() == c2.getBlue();
     }
