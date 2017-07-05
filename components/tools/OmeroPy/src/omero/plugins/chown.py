@@ -88,11 +88,13 @@ class ChownControl(GraphControl):
                  " form Experimenter:<Id>")
 
     def populate_targetUsers(self, command_check):
-        # Move the Experimenters whose data are to be
-        # transferred from targetObjects
-        # to targetUsers. The rewritten _check_command
-        # method checked these Experiments when they were
-        # in targetObjects, but Chown2 needs them in targetUsers
+        """
+        Move the Experimenters whose data are to be
+        transferred from targetObjects
+        to targetUsers. The rewritten _check_command
+        method checked these Experimenters when they were
+        in targetObjects, but Chown2 needs them in targetUsers.
+        """
         try:
             command_check.targetUsers = command_check.targetObjects.pop(
                 "Experimenter")
@@ -100,8 +102,10 @@ class ChownControl(GraphControl):
             pass
 
     def _check_command(self, command_check):
-        # Rewrite higher class method to have command check
-        # as well as the possibility to adjust the command
+        """
+        Rewrite higher class method to have command check
+        as well as the possibility to adjust the command.
+        """
         super(ChownControl, self)._check_command(command_check)
         self.populate_targetUsers(command_check)
 
