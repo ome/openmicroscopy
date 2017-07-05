@@ -19,8 +19,6 @@
 
 package integration;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,7 +26,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
@@ -71,8 +68,6 @@ import omero.model.IObject;
 import omero.model.NamedValue;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
-import omero.model.Permissions;
-import omero.model.PermissionsI;
 import omero.model.Session;
 import omero.model.enums.AdminPrivilegeChgrp;
 import omero.model.enums.AdminPrivilegeChown;
@@ -93,7 +88,6 @@ import omero.model.enums.ChecksumAlgorithmMurmur3128;
 import omero.model.enums.ChecksumAlgorithmSHA1160;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
-import omero.sys.Principal;
 
 import org.testng.Assert;
 import org.testng.SkipException;
@@ -102,7 +96,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
 /**
