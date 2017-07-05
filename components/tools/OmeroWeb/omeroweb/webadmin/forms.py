@@ -28,7 +28,6 @@ try:
 except:
     pass
 
-from django.conf import settings
 from django import forms
 from django.forms.widgets import Textarea
 
