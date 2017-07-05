@@ -33,6 +33,10 @@
   <bean id="currentDetails" class="ome.security.basic.CurrentDetails">
     <constructor-arg ref="sessionCache"/>
     <constructor-arg ref="roles"/>
+    <constructor-arg ref="systemTypes"/>
+    <constructor-arg ref="adminPrivileges"/>
+    <constructor-arg ref="managedRepoUuids"/>
+    <constructor-arg ref="scriptRepoUuids"/>
   </bean>
 
   <alias name="currentDetails" alias="principalHolder"/>
