@@ -1,9 +1,6 @@
 /*
- *   $Id$
- *
  *   Copyright 2007-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
- *
  */
 
 package omero.util;
@@ -488,6 +485,8 @@ public class IceMapper extends ome.util.ModelMapper implements
             rv.put("canDelete", rbool(!p.isDisallowDelete()));
             rv.put("canEdit", rbool(!p.isDisallowEdit()));
             rv.put("canLink", rbool(!p.isDisallowLink()));
+            rv.put("canChgrp", rbool(!p.isDisallowChgrp()));
+            rv.put("canChown", rbool(!p.isDisallowChown()));
             return rmap(rv);
         } else if (o instanceof ome.model.units.Unit) {
             ome.model.units.Unit u = (ome.model.units.Unit) o;
