@@ -1,6 +1,19 @@
 OMERO version history
 =====================
 
+5.4.0-m1 (July 2017)
+--------------------
+
+Developer preview release - **only intended as a developer preview for
+updating code before the full public release of 5.4.0. Use at your own risk**.
+
+Changes include:
+
+- added support for new security privileges to allow users to perform some
+  admin tasks  without having admin privileges e.g. import for others
+- added specific installation instruction for Debian 9
+
+
 5.3.3 (June 2017)
 -----------------
 
