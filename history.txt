@@ -14,6 +14,11 @@ Changes include:
 - added specific installation instructions for Debian 9
 
 
+This release also upgrades the version of Bio-Formats which OMERO uses to
+`5.5.3 <https://www.openmicroscopy.org/site/support/bio-formats5.5/about/whats-new.html#july-05>`_.
+
+
+
 5.3.3 (June 2017)
 -----------------
 
