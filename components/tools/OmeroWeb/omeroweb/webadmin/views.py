@@ -702,6 +702,8 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
         memberIds = [m.id for m in group.getMembers()]
         permissions = getActualPermissions(group)
         can_modify_group = 'ModifyGroup' in conn.getCurrentAdminPrivileges()
+        can_add_member = 'ModifyGroupMembership' in \
+            conn.getCurrentAdminPrivileges()
         system_groups = [
             conn.getAdminService().getSecurityRoles().systemGroupId,
             conn.getAdminService().getSecurityRoles().userGroupId,
@@ -724,13 +726,17 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
             # group
             admins.append(conn.getUserId())
         return {'form': form, 'gid': gid, 'permissions': permissions,
-                'admins': admins, 'can_modify_group': can_modify_group}
+                'admins': admins, 'can_modify_group': can_modify_group,
+                'can_add_member': can_add_member}
 
     if action == 'new':
         can_modify_group = 'ModifyGroup' in conn.getCurrentAdminPrivileges()
+        can_add_member = 'ModifyGroupMembership' in \
+            conn.getCurrentAdminPrivileges()
         form = GroupForm(initial={'experimenters': experimenters,
                                   'permissions': 0})
-        context = {'form': form, 'can_modify_group': can_modify_group}
+        context = {'form': form, 'can_modify_group': can_modify_group,
+                   'can_add_member': can_add_member}
     elif action == 'create':
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamanagegroupid",

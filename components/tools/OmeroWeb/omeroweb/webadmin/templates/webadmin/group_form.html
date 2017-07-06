@@ -93,7 +93,13 @@
                         "Follow the 'OMERO permissions' link below for full details.",
                         null, "WARNING", ['OK'], null, 180);
                 });
-
+                
+                if ('{{ can_add_member }}' == 'False') {
+                    $("label[for='id_owners']").hide();
+                    $("#id_owners_chosen").hide();
+                    $("label[for='id_members']").hide();
+                    $("#id_members_chosen").hide();
+                } 
         })
     </script>
 

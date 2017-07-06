@@ -1415,8 +1415,8 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         listOfOwners = list()
         for exp in owners:
             listOfOwners.append(exp._obj)
-
-        admin_serv.addGroupOwners(group, listOfOwners)
+        if listOfOwners:
+            admin_serv.addGroupOwners(group, listOfOwners)
         return gr_id
 
     def updateGroup(self, group, name, permissions, owners=list(),
