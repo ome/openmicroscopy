@@ -99,7 +99,9 @@ public class RolesTests extends AbstractServerImportTest {
             } else {
                 objectRetrieved = iQuery.get(objectClass, objectId, ALL_GROUPS_CONTEXT);
             }
-
+            if (objectRetrieved == null) {
+                return NO_PERMISSIONS;
+            }
             return objectRetrieved.getDetails().getPermissions();
         } catch (SecurityViolation sv) {
             return NO_PERMISSIONS;

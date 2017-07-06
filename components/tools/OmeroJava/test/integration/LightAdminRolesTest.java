@@ -437,9 +437,9 @@ public class LightAdminRolesTest extends RolesTests {
        * Also check that the canDelete boolean
        * on the object retrieved by the lightAdmin matches the deletePassing
        * boolean.*/
-      //Assert.assertEquals(getCurrentPermissions(datasetImageLink).canDelete(), deletePassing);
+      Assert.assertEquals(getCurrentPermissions(datasetImageLink).canDelete(), deletePassing);
       doChange(client, factory, Requests.delete().target(datasetImageLink).build(), deletePassing);
-      //Assert.assertEquals(getCurrentPermissions(projectDatasetLink).canDelete(), deletePassing);
+      Assert.assertEquals(getCurrentPermissions(projectDatasetLink).canDelete(), deletePassing);
       doChange(client, factory, Requests.delete().target(projectDatasetLink).build(), deletePassing);
       Assert.assertEquals(getCurrentPermissions(image).canDelete(), deletePassing);
       doChange(client, factory, Requests.delete().target(image).build(), deletePassing);
