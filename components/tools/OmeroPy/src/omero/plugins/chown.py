@@ -23,6 +23,9 @@ There are two ways to use this command, either specify the data to be
 transferred or specify users from whom the ownership of all their data
 will be transferred. These two usage ways can be combined.
 
+The usage with specified users has to be considered as advanced usage
+and might potentially be slow.
+
 This command can only be used by OMERO administrators and group owners.
 
 Group owners can only transfer ownership between members of the owned group.
@@ -52,8 +55,10 @@ Examples:
     # Transfer all images contained under two projects
     omero chown 101 Project/Image:201,202
 
+    # Advanced usage & potentially slow:
     # Transfer all data owned by user 111 and one image to user 4
     omero chown 4 Experimenter:111 Image:17
+    # Advanced usage & potentially slow:
     # Transfer all data of users 1,3 and 7 to user 10
     omero chown 10 Experimenter:1,3,7
 
