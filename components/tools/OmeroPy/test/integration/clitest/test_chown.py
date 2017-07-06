@@ -58,6 +58,57 @@ class TestChown(CLITest):
         assert obj.id.val == oid
         assert obj.details.owner.id.val == user.id.val
 
+    @pytest.mark.parametrize("user_prefix", user_prefixes)
+    def testChownBasicUsageTargetUser(self, simpleHierarchy, user_prefix):
+        proj, dset, img = simpleHierarchy
+        argument = "Experimenter"
+
+        # create a new user  in the same group
+        # and transfer all owned by self.user to the new user
+        client1, user1 = self.new_client_and_user(group=self.group)
+        args_user = self.args + ['%s%s' % (user_prefix, user1.id.val),
+                                 '%s:%s' % (argument, self.user.id.val)]
+        self.cli.invoke(args_user, strict=True)
+
+        # check that all objects have been transferred
+        obj = self.query.get('Project', proj.id.val, all_grps)
+        assert obj.id.val == proj.id.val
+        assert obj.details.owner.id.val == user1.id.val
+        obj = self.query.get('Dataset', dset.id.val, all_grps)
+        assert obj.id.val == dset.id.val
+        assert obj.details.owner.id.val == user1.id.val
+        obj = self.query.get('Image', img.id.val, all_grps)
+        assert obj.id.val == img.id.val
+        assert obj.details.owner.id.val == user1.id.val
+
+        # create dataset
+        object_name = "Dataset"
+        oid = self.create_object(object_name)
+
+        # now create a second user (user2) in the same group
+        # and trasfer all owned by user1 first step to user2 and
+        # the dataset (owned by self.user) to user2 in one step
+        client2, user2 = self.new_client_and_user(group=self.group)
+        self.args += ['%s%s' % (user_prefix, user2.id.val),
+                      '%s:%s' % (object_name, oid),
+                      '%s:%s' % (argument, user1.id.val)]
+        self.cli.invoke(self.args, strict=True)
+
+        # check that all objects of user1 have been transferred
+        obj = self.query.get('Project', proj.id.val, all_grps)
+        assert obj.id.val == proj.id.val
+        assert obj.details.owner.id.val == user2.id.val
+        obj = self.query.get('Dataset', dset.id.val, all_grps)
+        assert obj.id.val == dset.id.val
+        assert obj.details.owner.id.val == user2.id.val
+        obj = self.query.get('Image', img.id.val, all_grps)
+        assert obj.id.val == img.id.val
+        assert obj.details.owner.id.val == user2.id.val
+        # check that the separate dataset transferred too
+        obj = self.query.get('Dataset', oid, all_grps)
+        assert obj.id.val == oid
+        assert obj.details.owner.id.val == user2.id.val
+
     @pytest.mark.parametrize("object_prefix", ["", "/"])
     @pytest.mark.parametrize("object_suffix", ["", "I"])
     def testChownBasicUsageWithName(self, object_prefix, object_suffix):
