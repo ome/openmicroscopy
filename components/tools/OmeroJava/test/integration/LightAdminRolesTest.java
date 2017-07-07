@@ -1308,6 +1308,47 @@ public class LightAdminRolesTest extends RolesTests {
     }
 
     /**
+     * Light admin (lightAdmin) tries to delete ROI (belonging to normalUser)
+     * from image of normalUser.
+     * lightAdmin does not use Sudo in this test.
+     * @param isPrivileged if to test a user who has the <tt>DeleteOwned</tt> privilege
+     * @param groupPermissions to test the effect of group permission level
+     * @throws Exception unexpected
+     * @see <a href="https://docs.google.com/presentation/d/1ukEZmh0c6NCNKUE1dFqaYjN6Sd5xxCuOYkSuMdpiqvE/edit">graphical explanation</a>
+     */
+    @Test(dataProvider = "isPrivileged cases")
+    public void testROIDelete(boolean isPrivileged, String groupPermissions) throws Exception {
+        boolean isExpectSuccessDeleteROI = isPrivileged;
+        final EventContext normalUser = newUserAndGroup(groupPermissions);
+        /* Set up the light admin's permissions for this test.*/
+        List<String> permissions = new ArrayList<String>();
+        if (isPrivileged) permissions.add(AdminPrivilegeDeleteOwned.value);
+
+        /* normalUser creates an image with pixels and ROI in normalUser's group.*/
+        loginUser(normalUser);
+        Image image = mmFactory.createImage();
+        Image sentImage = (Image) iUpdate.saveAndReturnObject(image);
+        Pixels pixelsOfImage = sentImage.getPrimaryPixels();
+        Roi roi = new RoiI();
+        roi.addShape(new RectangleI());
+        roi.setImage((Image) sentImage.proxy());
+        roi = (Roi) iUpdate.saveAndReturnObject(roi);
+        assertOwnedBy(sentImage, normalUser);
+        assertOwnedBy(roi, normalUser);
+        /* lightAdmin logs in and tries to delete the ROI.*/
+        final EventContext lightAdmin;
+        lightAdmin = loginNewAdmin(true, permissions);
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        doChange(client, factory, Requests.delete().target(roi).build(), isExpectSuccessDeleteROI);
+        /* Check the ROI was deleted, whereas the image exists.*/
+        if (isExpectSuccessDeleteROI) {
+            assertDoesNotExist(roi);
+        } else {
+            assertExists(roi);
+        }
+        assertExists(sentImage);
+    }
+    /**
      * Light admin (lightAdmin) tries to put ROI and Rendering Settings on an
      * image of normalUser.
      * lightAdmin tries then to transfer the ownership of the ROI and Rendering settings
