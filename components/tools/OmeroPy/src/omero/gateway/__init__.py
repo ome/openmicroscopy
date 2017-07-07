@@ -1593,7 +1593,7 @@ class _BlitzGateway (object):
         try:
             stateful_services = self.c.getStatefulServices()
         except Exception, e:
-            logger.warn("No services could be found.", e)
+            logger.warn("No services could be found: %s" % e)
             stateful_services = []
 
         count = 0
