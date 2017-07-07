@@ -22,15 +22,12 @@ package integration;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import omero.RLong;
 import omero.RString;
-import omero.RType;
 import omero.SecurityViolation;
 import omero.ServerError;
 import omero.api.IRenderingSettingsPrx;
@@ -42,7 +39,6 @@ import omero.gateway.util.Requests;
 import omero.gateway.util.Requests.Delete2Builder;
 import omero.model.AdminPrivilege;
 import omero.model.AdminPrivilegeI;
-import omero.model.Annotation;
 import omero.model.Dataset;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
@@ -51,16 +47,13 @@ import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;
 import omero.model.FileAnnotation;
-import omero.model.FileAnnotationI;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
-import omero.model.ImageAnnotationLinkI;
 import omero.model.ImageI;
 import omero.model.NamedValue;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
-import omero.model.Permissions;
 import omero.model.PermissionsI;
 import omero.model.Pixels;
 import omero.model.Project;
@@ -70,7 +63,6 @@ import omero.model.RectangleI;
 import omero.model.RenderingDef;
 import omero.model.Roi;
 import omero.model.RoiI;
-import omero.model.Session;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.model.enums.AdminPrivilegeChgrp;
@@ -86,16 +78,13 @@ import omero.model.enums.AdminPrivilegeWriteManagedRepo;
 import omero.model.enums.AdminPrivilegeWriteOwned;
 import omero.model.enums.AdminPrivilegeWriteScriptRepo;
 import omero.sys.EventContext;
-import omero.sys.Parameters;
 import omero.sys.ParametersI;
-import omero.sys.Principal;
 
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 
 /**
  * Tests the concrete workflows of the light admins
