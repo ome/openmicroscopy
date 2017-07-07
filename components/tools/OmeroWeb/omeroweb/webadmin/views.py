@@ -730,7 +730,7 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
             # group
             admins.append(conn.getUserId())
         return {'form': form, 'gid': gid, 'permissions': permissions,
-                'admins': admins, 'can_add_member': can_add_member}
+                'admins': admins, 'can_modify_group': can_modify_group}
 
     if action == 'new':
         can_modify_group = 'ModifyGroup' in conn.getCurrentAdminPrivileges()
@@ -739,8 +739,7 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
         form = GroupForm(initial={'experimenters': experimenters,
                                   'permissions': 0},
                          can_add_member=can_add_member)
-        context = {'form': form, 'can_modify_group': can_modify_group,
-                   'can_add_member': can_add_member}
+        context = {'form': form, 'can_modify_group': can_modify_group}
     elif action == 'create':
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamanagegroupid",
