@@ -112,7 +112,7 @@ class HSBStrategy extends RenderingStrategy {
         		for (byte[] overlay : overlays.keySet())
         		{
 				ome.util.PixelData data =
-					new PixelData(PlaneFactory.BIT, ByteBuffer.wrap(overlay));
+					new PixelData(PixelsType.VALUE_BIT, ByteBuffer.wrap(overlay));
         			wData.add(new Plane2D(pDef, metadata, data));
         		}
         	}
@@ -256,7 +256,7 @@ class HSBStrategy extends RenderingStrategy {
     		QuantumDef def = new QuantumDef();  // Just to fulfill interface
     		Pixels pixels = new Pixels();
     		PixelsType bitType = new PixelsType();
-    		bitType.setValue(PlaneFactory.BIT);
+    		bitType.setValue(PixelsType.VALUE_BIT);
     		bitType.setBitSize(1);
     		pixels.setPixelsType(bitType);
     		for (int i = 0; i < overlays.size(); i++)

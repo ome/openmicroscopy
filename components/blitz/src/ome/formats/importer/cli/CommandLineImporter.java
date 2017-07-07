@@ -34,12 +34,8 @@ import ome.formats.importer.transfers.AbstractFileTransfer;
 import ome.formats.importer.transfers.CleanupFailure;
 import ome.formats.importer.transfers.FileTransfer;
 import ome.formats.importer.transfers.UploadFileTransfer;
-import omero.api.ServiceFactoryPrx;
-import omero.api.ServiceInterfacePrx;
-import omero.cmd.HandlePrx;
 import omero.cmd.Response;
 import omero.grid.ImportProcessPrx;
-import omero.grid.ImportProcessPrxHelper;
 import omero.model.Annotation;
 import omero.model.CommentAnnotationI;
 
@@ -384,7 +380,7 @@ public class CommandLineImporter {
             + "  --email EMAIL\t\t\t\tEmail for reported errors. Required --report\n"
             + "  --debug LEVEL\t\t\t\tTurn debug logging on (optional level)\n"
             + "  --annotation-ns ANNOTATION_NS\t\tNamespace to use for subsequent annotation\n"
-            + "  --annotation-text ANNOTATION_TEXT\tContent for a text annotation (requires namespace)\n"
+            + "  --annotation-text ANNOTATION_TEXT\tContent for a text annotation\n"
             + "  --annotation-link ANNOTATION_LINK\tComment annotation ID to link all images to\n"
             + "\n"
             + "Examples:\n"
@@ -492,19 +488,31 @@ public class CommandLineImporter {
     private static List<Annotation> toTextAnnotations(
                    List<String> namespaces, List<String> strings)
     {
+        List<Annotation> annotations = new ArrayList<Annotation>();
+        CommentAnnotationI annotation;
         if (namespaces.size() != strings.size())
         {
-            throw new IllegalArgumentException(String.format(
-                            "#Namespaces:%d != #Text:%d", namespaces.size(),
-                            strings.size()));
-        }
-        List<Annotation> annotations = new ArrayList<Annotation>();
-        for(int i = 0; i < namespaces.size(); i++)
-        {
-            CommentAnnotationI annotation = new CommentAnnotationI();
-            annotation.setNs(omero.rtypes.rstring(namespaces.get(i)));
-            annotation.setTextValue(omero.rtypes.rstring(strings.get(i)));
-            annotations.add(annotation);
+            String ns = null;
+            if (namespaces.size() == 1) {
+                ns = namespaces.get(0);
+            }
+            for(int i = 0; i < strings.size(); i++)
+            {
+                annotation = new CommentAnnotationI();
+                if (ns != null) {
+                    annotation.setTextValue(omero.rtypes.rstring(ns));
+                }
+                annotation.setTextValue(omero.rtypes.rstring(strings.get(i)));
+                annotations.add(annotation);
+            }
+        } else {
+            for(int i = 0; i < namespaces.size(); i++)
+            {
+                annotation = new CommentAnnotationI();
+                annotation.setNs(omero.rtypes.rstring(namespaces.get(i)));
+                annotation.setTextValue(omero.rtypes.rstring(strings.get(i)));
+                annotations.add(annotation);
+            }
         }
         return annotations;
     }

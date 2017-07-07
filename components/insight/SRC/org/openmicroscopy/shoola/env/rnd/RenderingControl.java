@@ -107,22 +107,22 @@ public interface RenderingControl
     public static final int     DEPTH_8BIT = 255;
     
     /** Identifies the <code>RGB</code> color model. */
-    public static final String  RGB = "rgb";
+    public static final String  RGB = omero.model.enums.RenderingModelrgb.value;
 
     /** Identifies the <code>Grey scale</code> color model. */
-    public static final String  GREY_SCALE = "greyscale";
+    public static final String  GREY_SCALE = omero.model.enums.RenderingModelgreyscale.value;
     
     /** Identifies the <code>Linear</code> family. */
-    public static final String  LINEAR = "linear";
+    public static final String  LINEAR = omero.model.enums.Familylinear.value;
     
     /** Identifies the <code>Polynomial</code> family. */
-    public static final String  POLYNOMIAL = "polynomial";
+    public static final String  POLYNOMIAL = omero.model.enums.Familypolynomial.value;
     
     /** Identifies the <code>Exponential</code> family. */
-    public static final String  EXPONENTIAL = "exponential";
+    public static final String  EXPONENTIAL = omero.model.enums.Familyexponential.value;
     
     /** Identifies the <code>Exponential</code> family. */
-    public static final String  LOGARITHMIC = "logarithmic";
+    public static final String  LOGARITHMIC = omero.model.enums.Familylogarithmic.value;
     
     /**
      * Returns the number of pixels along the X-axis.

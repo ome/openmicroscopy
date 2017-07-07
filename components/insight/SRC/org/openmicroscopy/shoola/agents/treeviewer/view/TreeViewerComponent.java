@@ -2780,12 +2780,10 @@ class TreeViewerComponent
 			
 		} else if (parentObject instanceof FileData) {
 			FileData f = (FileData) parentObject;
-			if (!f.isHidden()) {
-				if (f.isDirectory()) 
-					db = DataBrowserFactory.getFSFolderBrowser(
-							model.getSecurityContext(parent),
-							(FileData) parentObject, leaves);
-			}
+			if (f.isDirectory()) 
+				db = DataBrowserFactory.getFSFolderBrowser(
+						model.getSecurityContext(parent),
+						(FileData) parentObject, leaves);
 		} else {
 			db = DataBrowserFactory.getDataBrowser(
 					model.getSecurityContext(parent), grandParentObject, 
@@ -3471,7 +3469,7 @@ class TreeViewerComponent
 			model.browsePlates(plates, withThumbnails);
 		} else if (uo instanceof File) {
 			File f = (File) uo;
-			if (f.isDirectory() && !f.isHidden()) {
+			if (f.isDirectory()) {
 				List l = node.getChildrenDisplay();
 				if (l != null && l.size() > 0) {
 					Set leaves = new HashSet();
@@ -3490,14 +3488,12 @@ class TreeViewerComponent
 			}
 		} else if (uo instanceof FileData) {
 			FileData fa = (FileData) uo;
-			if (!fa.isHidden()) {
-				if (fa.isDirectory()) {
-					model.getSelectedBrowser().loadExperimenterData(
-							BrowserFactory.getDataOwner(node), 
-		        			node);
-				} else {
-					//Import, register and view.
-				}
+			if (fa.isDirectory()) {
+				model.getSelectedBrowser().loadExperimenterData(
+						BrowserFactory.getDataOwner(node), 
+		       			node);
+			} else {
+				//Import, register and view.
 			}
 		}
 		fireStateChange();

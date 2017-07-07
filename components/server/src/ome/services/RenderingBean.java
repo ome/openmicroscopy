@@ -1,5 +1,5 @@
 /*
- *   Copyright 2006-2016 University of Dundee. All rights reserved.
+ *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.services;
@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -27,6 +28,7 @@ import ome.api.local.LocalCompress;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.conditions.ResourceError;
+import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
 import ome.io.nio.InMemoryPlanarPixelBuffer;
 import ome.io.nio.PixelBuffer;
@@ -416,8 +418,15 @@ public class RenderingBean implements RenderingEngine, Serializable {
             QuantumFactory quantumFactory = new QuantumFactory(families);
             // Loading last to try to ensure that the buffer will get closed.
             PixelBuffer buffer = getPixelBuffer();
+            List<File> luts = Collections.emptyList();
+            try {
+                luts = loadLuts();
+            } catch (SecurityViolation sv) {
+                /* probably in a share */
+                log.debug("failed to load LUTs");
+            }
             renderer = new Renderer(quantumFactory, renderingModels, pixelsObj,
-                    rendDefObj, buffer, loadLuts());
+                    rendDefObj, buffer, luts);
         } finally {
             rwl.writeLock().unlock();
         }

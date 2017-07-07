@@ -1683,6 +1683,7 @@ def projectDetail_json(request, pid, conn=None, **kwargs):
     return rv
 
 
+@login_required()
 @jsonp
 def open_with_options(request, **kwargs):
     """
@@ -2536,6 +2537,8 @@ def histogram_json(request, iid, theC, conn=None, **kwargs):
     256 values as json
     """
     image = conn.getObject("Image", iid)
+    if image is None:
+        raise Http404
     maxW, maxH = conn.getMaxPlaneSize()
     sizeX = image.getSizeX()
     sizeY = image.getSizeY()

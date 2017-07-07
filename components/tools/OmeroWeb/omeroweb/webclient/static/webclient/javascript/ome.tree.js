@@ -41,6 +41,9 @@ $(function() {
         multiselection = data.selected.length > 1;
 
         OME.tree_selection_changed(data, e);
+        if (OME.hideWellBirdsEye) {
+            OME.hideWellBirdsEye();
+        }
     })
     .on('selection_change.ome', function(e, nElements) {
         multiselection = nElements > 1;
@@ -1074,6 +1077,7 @@ $(function() {
                     config["open_with"] = {
                         "label": "Open With...",
                         "_disabled": false,
+                        "icon"  : WEBCLIENT.URLS.static_webclient + 'image/icon_openwith.png',
                         "action": false,
                         "submenu": viewers
                     };
