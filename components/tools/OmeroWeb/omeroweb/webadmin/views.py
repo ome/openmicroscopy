@@ -681,8 +681,11 @@ def groups(request, conn=None, **kwargs):
 
     groups = conn.getObjects("ExperimenterGroup")
     can_modify_group = 'ModifyGroup' in conn.getCurrentAdminPrivileges()
+    can_add_member = 'ModifyGroupMembership' in \
+        conn.getCurrentAdminPrivileges()
 
-    context = {'groups': groups, 'can_modify_group': can_modify_group}
+    context = {'groups': groups, 'can_modify_group': can_modify_group,
+               'can_add_member': can_add_member}
     context['template'] = template
     return context
 
@@ -719,6 +722,7 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
             'members': memberIds,
             'experimenters': experimenters},
             can_modify_group=can_modify_group,
+            can_add_member=can_add_member,
             group_is_current_or_system=group_is_current_or_system)
         admins = [conn.getAdminService().getSecurityRoles().rootId]
         if long(gid) in system_groups:
@@ -726,15 +730,15 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
             # group
             admins.append(conn.getUserId())
         return {'form': form, 'gid': gid, 'permissions': permissions,
-                'admins': admins, 'can_modify_group': can_modify_group,
-                'can_add_member': can_add_member}
+                'admins': admins, 'can_add_member': can_add_member}
 
     if action == 'new':
         can_modify_group = 'ModifyGroup' in conn.getCurrentAdminPrivileges()
         can_add_member = 'ModifyGroupMembership' in \
             conn.getCurrentAdminPrivileges()
         form = GroupForm(initial={'experimenters': experimenters,
-                                  'permissions': 0})
+                                  'permissions': 0},
+                         can_add_member=can_add_member)
         context = {'form': form, 'can_modify_group': can_modify_group,
                    'can_add_member': can_add_member}
     elif action == 'create':
