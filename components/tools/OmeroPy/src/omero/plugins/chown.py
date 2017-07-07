@@ -59,7 +59,7 @@ Examples:
     # Transfer all data owned by user 111 and one image to user 4
     omero chown 4 Experimenter:111 Image:17
     # Advanced usage & potentially slow:
-    # Transfer all data of users 1,3 and 7 to user 10
+    # Transfer all data of users 1, 3 and 7 to user 10
     omero chown 10 Experimenter:1,3,7
 
     # Do a dry run of a transfer reporting the outcome
