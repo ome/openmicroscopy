@@ -62,7 +62,7 @@ class TestChown(CLITest):
         proj, dset, img = simpleHierarchy
         argument = "Experimenter"
 
-        # create a new user  in the same group
+        # create a new user in the same group
         # and transfer all owned by self.user to the new user
         client1, user1 = self.new_client_and_user(group=self.group)
         args_user = self.args + ['%s' % (user1.omeName.val),
@@ -85,7 +85,7 @@ class TestChown(CLITest):
         oid = self.create_object(object_name)
 
         # now create a second user (user2) in the same group
-        # and trasfer all owned by user1 first step to user2 and
+        # and transfer all owned by user1 and
         # the dataset (owned by self.user) to user2 in one step
         client2, user2 = self.new_client_and_user(group=self.group)
         self.args += ['%s' % (user2.omeName.val),
