@@ -1200,7 +1200,7 @@
   License File: mit.txt
 
 
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/aops-1.3.js
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/aop-1.3.js
   Web Site:     https://github.com/cujojs/meld
   License:      MIT License
   License File: mit.txt
