@@ -7,10 +7,6 @@
 
 package ome.server.utests.sec;
 
-import static ome.model.internal.Permissions.Right.READ;
-import static ome.model.internal.Permissions.Role.GROUP;
-import static ome.model.internal.Permissions.Role.WORLD;
-
 import java.util.List;
 
 import org.hibernate.Filter;
@@ -37,7 +33,7 @@ import ome.security.AdminAction;
 import ome.security.SecureAction;
 import ome.security.basic.OneGroupSecurityFilter;
 
-@Test
+@Test(groups="broken")
 public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 
     /*
