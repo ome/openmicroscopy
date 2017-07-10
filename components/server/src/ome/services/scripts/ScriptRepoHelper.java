@@ -26,6 +26,7 @@ import ome.model.enums.ChecksumAlgorithm;
 import ome.model.meta.ExperimenterGroup;
 import ome.services.delete.Deletion;
 import ome.services.util.Executor;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.Roles;
@@ -104,6 +105,8 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
 
     private final Roles roles;
 
+    private final ReadOnlyStatus readOnly;
+
     /**
      * {@link IOFileFilter} set on {@link #handleContextRefreshedEvent(ContextRefreshedEvent).
      */
@@ -122,8 +125,30 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
     /**
      * @see #ScriptRepoHelper(String, File, Executor, Principal, Roles)
      */
+    public ScriptRepoHelper(Executor ex, String sessionUuid, Roles roles, ReadOnlyStatus readOnly) {
+        this(new File(getDefaultScriptDir()), ex, new Principal(sessionUuid),
+                roles, readOnly);
+    }
+
+    /**
+     * @see #ScriptRepoHelper(String, File, Executor, Principal, Roles)
+     */
     public ScriptRepoHelper(File dir, Executor ex, Principal p, Roles roles) {
         this(SCRIPT_REPO, dir, ex, p, roles);
+    }
+
+    /**
+     * @see #ScriptRepoHelper(String, File, Executor, Principal, Roles)
+     */
+    public ScriptRepoHelper(File dir, Executor ex, Principal p, Roles roles, ReadOnlyStatus readOnly) {
+        this(SCRIPT_REPO, dir, ex, p, roles, readOnly);
+    }
+
+    /**
+     * @see #ScriptRepoHelper(String, File, Executor, Principal, Roles, ReadOnlyStatus)
+     */
+    public ScriptRepoHelper(String uuid, File dir, Executor ex, Principal p, Roles roles) {
+        this(SCRIPT_REPO, dir, ex, p, roles, null);
     }
 
     /**
@@ -139,12 +164,13 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
      * @param p
      */
     public ScriptRepoHelper(String uuid, File dir, Executor ex, Principal p,
-            Roles roles) {
+            Roles roles, ReadOnlyStatus readOnly) {
         this.roles = roles;
         this.uuid = uuid;
         this.dir = sanityCheck(log, dir);
         this.ex = ex;
         this.p = p;
+        this.readOnly = readOnly;
     }
 
     /**
@@ -454,6 +480,12 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
             final String mimetype, final Principal pp) {
         final Iterator<File> it = iterate();
         final List<OriginalFile> rv = new ArrayList<OriginalFile>();
+
+        if (readOnly != null && readOnly.isReadOnly()) {
+            // TODO: this will need to split the method in order to use a non readOnly TX
+            return new ArrayList<OriginalFile>();
+        }
+
         return (List<OriginalFile>) ex.execute(pp, new Executor.SimpleWork(this,
                 "loadAll", modificationCheck) {
             @Transactional(readOnly = false)
@@ -713,8 +745,8 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
      * Unlike {@link #delete(long)} this method simply performs the DB delete
      * on the given original file id.
      *
-     * @param context 
-     *                  Call context which affecets which group the current user is in. 
+     * @param context
+     *                  Call context which affecets which group the current user is in.
      *                  Can be null to pass no call context.
      * @param executor
      * @param p

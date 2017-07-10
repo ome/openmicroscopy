@@ -63,7 +63,9 @@ public class DBMappedEnumCheck extends BaseDBCheck {
     @Override
     protected void doCheck() {
         final SetMultimap<String, String> enums = getEnums();
-        if (enums != null) {
+        if (skip("enusure mapped enums")) {
+            return; // EARLY EXIT
+        } else if (enums != null) {
             ensureEnums(enums);
         }
     }

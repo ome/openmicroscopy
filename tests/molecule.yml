@@ -1,0 +1,36 @@
+---
+dependency:
+  name: galaxy
+  requirements_file: requirements.yml
+
+driver:
+  name: vagrant
+
+vagrant:
+  platforms:
+    - name: centos7
+      box: centos/7
+  providers:
+    - name: virtualbox
+      type: virtualbox
+      options:
+        memory: 2048
+        cpus: 1
+  instances:
+    - name: read-only
+
+docker:
+  containers:
+  - name: read-only
+    image: centos/systemd
+    image_version: latest
+    privileged: True
+
+ansible:
+  playbook: site.yml
+  host_vars:
+    omero-server:
+      omero_server_systemd_require_network: False
+
+verifier:
+  name: testinfra

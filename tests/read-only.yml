@@ -1,0 +1,46 @@
+- hosts: read-only
+  roles:
+    - role: openmicroscopy.postgresql
+      postgresql_users_databases:
+      - user: omero
+        password: omero
+        databases: [omero]
+      - user: omeroro
+        password: omeroro
+        databases: [omeroro]
+      postgresql_version: "9.6"
+
+  tasks:
+    - name: permit read access to omeroro
+      become: yes
+      become_user: postgres
+      postgresql_privs:
+        db: omero
+        type: table
+        objs: ALL_IN_SCHEMA
+        state: present
+        privs: SELECT
+        role: omeroro
+
+    - synchronize:
+        src: ../dist/
+        dest: /tmp/dist
+
+    - file:
+        path: /tmp/dist
+        state: directory
+        owner: "omero-server"
+        recurse: True
+
+- hosts: read-only
+  roles:
+    - role: openmicroscopy.omero-server
+      omero_server_ice_version: "3.5"
+      omero_server_omego_additional_args: /tmp/dist
+      omero_server_config_set:
+        omero.db.user: omeroro
+        omero.db.pass: omeroro
+        omero.cluster.read_only: True
+        omero.cluster.node_provider: ome.security.basic.InMemoryNodeProvider
+        omero.sessions.session_manager: ome.services.sessions.InMemorySessionManagerImpl
+        omero.security.event_provider: ome.security.basic.InMemoryEventProvider

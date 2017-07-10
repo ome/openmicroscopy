@@ -20,6 +20,7 @@
 package ome.services.util;
 
 import ome.system.PreferenceContext;
+import ome.services.util.ReadOnlyStatus;
 import ome.util.SqlAction;
 
 import org.slf4j.Logger;
@@ -43,6 +44,8 @@ abstract class BaseDBCheck {
 
     private final String configKey, configValue, configKeyValue;
 
+    private /*final*/ ReadOnlyStatus readOnlyStatus;
+
     /**
      * @param executor executor to use for configuration map check
      */
@@ -55,6 +58,18 @@ abstract class BaseDBCheck {
         configKey = "DB check " + getClass().getSimpleName();
         configValue = getCheckDone();
         configKeyValue = configKey + ": " + configValue;
+    }
+
+    public void setReadOnlyStatus(ReadOnlyStatus readOnlyStatus) {
+        this.readOnlyStatus = readOnlyStatus;
+    }
+
+    protected boolean skip(String msg) {
+        if (readOnlyStatus != null && readOnlyStatus.isReadOnly()) {
+            log.info("read-only mode; skipping {}", msg);
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -74,6 +89,11 @@ abstract class BaseDBCheck {
      * The database adjustment is to be performed.
      */
     private void checkIsStarting() {
+
+        if (skip("checkIsStarting")) {
+            return; // EARLY EXIT
+        }
+
         executor.executeSql(
                 new Executor.SimpleSqlWork(this, "BaseDBCheck") {
                     @Transactional(readOnly = false)
@@ -89,6 +109,11 @@ abstract class BaseDBCheck {
      * Hereafter {@link #isCheckRequired()} should return {@code false}.
      */
     private void checkIsDone() {
+
+        if (skip("checkIsDone")) {
+            return; // EARLY EXIT
+        }
+
         executor.executeSql(
                 new Executor.SimpleSqlWork(this, "BaseDBCheck") {
                     @Transactional(readOnly = false)

@@ -31,12 +31,14 @@ import ome.services.blitz.fire.Registry;
 import ome.services.messages.DeleteLogMessage;
 import ome.services.messages.DeleteLogsMessage;
 import ome.services.util.Executor;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
 import ome.util.SqlAction.DeleteLog;
 import ome.util.messages.InternalMessage;
 import omero.ServerError;
+import omero.ValidationException;
 import omero.api.RawFileStorePrx;
 import omero.api.RawPixelsStorePrx;
 import omero.api.RenderingEnginePrx;
@@ -83,6 +85,8 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
 
     private String repoUuid;
 
+    private ReadOnlyStatus readOnlyStatus;
+
     private volatile AtomicReference<State> state = new AtomicReference<State>();
 
     private enum State {
@@ -104,6 +108,10 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
         this.fileMaker = fileMaker;
         this.servant = servant;
         log.info("Initializing repository in " + fileMaker.getDir());
+    }
+
+    public void setReadOnlyStatus(ReadOnlyStatus readOnlyStatus) {
+        this.readOnlyStatus = readOnlyStatus;
     }
 
     /**
@@ -195,8 +203,14 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
      */
     public boolean takeover() {
 
+        boolean readOnly = false;
+        if (readOnlyStatus != null && readOnlyStatus.isReadOnly()) {
+            log.debug("In read-only mode");
+            readOnly = true;
+        }
+
         if (!state.compareAndSet(State.EAGER, State.WAITING)) {
-            log.debug("Skipping takeover");
+            log.debug("Skipping takeover: eager/waiting");
             return false;
         }
 
@@ -206,7 +220,8 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
 
         Object rv = null;
         try {
-            GetOrCreateRepo gorc = new GetOrCreateRepo(this);
+            BaseGetOrCreateRepo gorc = readOnly ?
+                    new ROGetOrCreateRepo(this) : new RWGetOrCreateRepo(this);
             rv = ex.execute(p, gorc);
             if (rv instanceof ome.model.core.OriginalFile) {
 
@@ -306,142 +321,137 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
     // =========================================================================
 
     /**
-     * Action class for either looking up the repository for this instance, or
+     * Action class hierarchy for either looking up the repository for this instance, or
      * if it doesn't exist, creating it. This is the bulk of the logic for the
      * {@link AbstractRepositoryI#takeover()} method, but doesn't deal with the
      * atomic locking of {@link AbstractRepositoryI#state} nor error handling.
      * Instead it simple returns an {@link Exception} ("failure") or null
      * ("success").
      */
-    class GetOrCreateRepo extends Executor.SimpleWork {
+    abstract class BaseGetOrCreateRepo extends Executor.SimpleWork {
 
         private final AbstractRepositoryI repo;
 
         RepositoryPrx publicPrx;
 
-        public GetOrCreateRepo(AbstractRepositoryI repo) {
+        public BaseGetOrCreateRepo(AbstractRepositoryI repo) {
             super(repo, "takeover");
             this.repo = repo;
         }
 
-        @Transactional(readOnly = false)
-        public Object doWork(Session session, ServiceFactory sf) {
+        protected String handleFileMaker(ServiceFactory sf, boolean readOnly) throws Exception {
+            if (fileMaker.needsInit()) {
+                fileMaker.init(sf.getConfigService().getDatabaseUuid(), readOnly);
+            }
 
-            ome.model.core.OriginalFile r = null;
-
+            String line = null;
             try {
-
-                if (fileMaker.needsInit()) {
-                    fileMaker.init(sf.getConfigService().getDatabaseUuid());
-                }
-
-                String line = null;
-                try {
-                    line = fileMaker.getLine();
-                } catch (OverlappingFileLockException ofle) {
-                    InternalRepositoryPrx[] repos = reg.lookupRepositories();
-                    InternalRepositoryPrx prx = null;
-                    if (repos != null) {
-                        for (int i = 0; i < repos.length; i++) {
-                            if (repos[i] != null) {
-                                if (repos[i].toString().contains(repoUuid)) {
-                                    prx = repos[i];
-                                }
+                line = fileMaker.getLine(readOnly);
+            } catch (OverlappingFileLockException ofle) {
+                InternalRepositoryPrx[] repos = reg.lookupRepositories();
+                InternalRepositoryPrx prx = null;
+                if (repos != null) {
+                    for (int i = 0; i < repos.length; i++) {
+                        if (repos[i] != null) {
+                            if (repos[i].toString().contains(repoUuid)) {
+                                prx = repos[i];
                             }
                         }
                     }
-                    if (prx == null) {
-                        fileMaker.close();
-                        FileMaker newFileMaker = new FileMaker(new File(
-                                fileMaker.getDir()).getAbsolutePath());
-                        fileMaker.init(sf.getConfigService().getDatabaseUuid());
-                        line = newFileMaker.getLine();
-                    }
                 }
-
-                if (line == null) {
-                    repoUuid = repo.generateRepoUuid();
-                } else {
-                    repoUuid = line;
+                if (prx == null) {
+                    fileMaker.close();
+                    FileMaker newFileMaker = new FileMaker(new File(
+                            fileMaker.getDir()).getAbsolutePath());
+                    fileMaker.init(sf.getConfigService().getDatabaseUuid(), readOnly);
+                    line = newFileMaker.getLine(readOnly);
                 }
+            }
+            return line;
+        }
 
-                r = sf.getQueryService()
-                .findByString(ome.model.core.OriginalFile.class,
-                        "hash", repoUuid);
+        protected ome.model.core.OriginalFile handleRepository(ServiceFactory sf, String line, boolean readOnly) throws Exception {
 
-                final String path = FilenameUtils.normalize(
-                        new File(fileMaker.getDir()).getAbsolutePath());
-                final String pathName = FilenameUtils.getName(path);
-                final String pathDir = FilenameUtils.getFullPath(path);
-                if (r == null) {
-
-                    if (line != null) {
-                        log.warn("Couldn't find repository object: " + line);
-                    }
-
-                    r = new ome.model.core.OriginalFile();
-                    r.setHash(repoUuid);
-                    r.setName(pathName);
-                    r.setPath(pathDir);
-                    Timestamp t = new Timestamp(System.currentTimeMillis());
-                    r.setAtime(t);
-                    r.setMtime(t);
-                    r.setCtime(t);
-                    r.setMimetype("Repository"); // ticket:2211
-                    r.setSize(0L);
-                    r = sf.getUpdateService().saveAndReturnObject(r);
-                    // ticket:1794
-                    sf.getAdminService().moveToCommonSpace(r);
-                    fileMaker.writeLine(repoUuid);
-                    log.info(String.format(
-                            "Registered new repository %s (uuid=%s)", r
-                                    .getName(), repoUuid));
-                } else if (!r.getPath().equals(pathDir) ||
-                        !r.getName().equals(pathName)) {
-                    final String oldPath = r.getPath();
-                    final String oldName = r.getName();
-                    r.setPath(pathDir);
-                    r.setName(pathName);
-                    r = sf.getUpdateService().saveAndReturnObject(r);
-                    log.warn("Data directory moved: {}{} updated to {}{}",
-                            oldPath, oldName, pathDir, pathName);
-                }
-
-                // ticket:1794 - only adds if necessary
-                sf.getAdminService().moveToCommonSpace(r);
-
-
-                log.info(String.format("Opened repository %s (uuid=%s)", r
-                        .getName(), repoUuid));
-
-                //
-                // Servants
-                //
-
-                servant.initialize(fileMaker, r.getId(), repoUuid);
-
-                LinkedList<Ice.ObjectPrx> objs = new LinkedList<Ice.ObjectPrx>();
-                objs.add(addOrReplace("InternalRepository-", repo));
-                objs.add(addOrReplace("PublicRepository-", servant.tie()));
-                publicPrx = RepositoryPrxHelper.uncheckedCast(objs.getLast());
-
-                //
-                // Activation & Registration
-                //
-                oa.activate(); // Must happen before the registry tries to connect
-
-                for (Ice.ObjectPrx prx : objs) {
-                    reg.addObject(prx);
-                }
-
-                log.info("Repository now active");
-                return r;
-            } catch (Exception e) {
-                fileMaker.close(); // If anything goes awry, we release for
-                // others!
-                return e;
+            if (line == null) {
+                repoUuid = repo.generateRepoUuid();
+            } else {
+                repoUuid = line;
             }
 
+            ome.model.core.OriginalFile r = sf.getQueryService()
+            .findByString(ome.model.core.OriginalFile.class,
+                    "hash", repoUuid);
+
+            if (!readOnly) {
+                handleRepoChanges(sf, r, line);
+            }
+
+            log.info(String.format("Opened repository %s (uuid=%s)", r
+                    .getName(), repoUuid));
+            return r;
+        }
+
+        protected void handleRepoChanges(ServiceFactory sf,
+                ome.model.core.OriginalFile r, String line) throws Exception {
+            final String path = FilenameUtils.normalize(
+                    new File(fileMaker.getDir()).getAbsolutePath());
+            final String pathName = FilenameUtils.getName(path);
+            final String pathDir = FilenameUtils.getFullPath(path);
+            if (r == null) {
+
+                if (line != null) {
+                    log.warn("Couldn't find repository object: " + line);
+                }
+
+                r = new ome.model.core.OriginalFile();
+                r.setHash(repoUuid);
+                r.setName(pathName);
+                r.setPath(pathDir);
+                Timestamp t = new Timestamp(System.currentTimeMillis());
+                r.setAtime(t);
+                r.setMtime(t);
+                r.setCtime(t);
+                r.setMimetype("Repository"); // ticket:2211
+                r.setSize(0L);
+                r = sf.getUpdateService().saveAndReturnObject(r);
+                // ticket:1794
+                fileMaker.writeLine(repoUuid);
+                log.info(String.format(
+                        "Registered new repository %s (uuid=%s)", r
+                                .getName(), repoUuid));
+            } else if (!r.getPath().equals(pathDir) ||
+                    !r.getName().equals(pathName)) {
+                final String oldPath = r.getPath();
+                final String oldName = r.getName();
+                r.setPath(pathDir);
+                r.setName(pathName);
+                r = sf.getUpdateService().saveAndReturnObject(r);
+                log.warn("Data directory moved: {}{} updated to {}{}",
+                        oldPath, oldName, pathDir, pathName);
+            }
+
+            // ticket:1794 - only adds if necessary
+            sf.getAdminService().moveToCommonSpace(r);
+        }
+
+        protected void handleServants(ome.model.core.OriginalFile r) throws Exception {
+            servant.initialize(fileMaker, r.getId(), repoUuid);
+
+            LinkedList<Ice.ObjectPrx> objs = new LinkedList<Ice.ObjectPrx>();
+            objs.add(addOrReplace("InternalRepository-", repo));
+            objs.add(addOrReplace("PublicRepository-", servant.tie()));
+            publicPrx = RepositoryPrxHelper.uncheckedCast(objs.getLast());
+
+            //
+            // Activation & Registration
+            //
+            oa.activate(); // Must happen before the registry tries to connect
+
+            for (Ice.ObjectPrx prx : objs) {
+                reg.addObject(prx);
+            }
+
+            log.info("Repository now active");
         }
 
         private Ice.ObjectPrx addOrReplace(String prefix, Ice.Object obj) {
@@ -453,6 +463,52 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
             }
             oa.add(obj, id);
             return oa.createDirectProxy(id);
+        }
+
+    }
+
+    class RWGetOrCreateRepo extends BaseGetOrCreateRepo {
+
+        public RWGetOrCreateRepo(AbstractRepositoryI repo) {
+            super(repo);
+        }
+
+        @Override
+        @Transactional(readOnly = false)
+        public Object doWork(Session session, ServiceFactory sf) {
+            try {
+                String line = handleFileMaker(sf, false);
+                ome.model.core.OriginalFile r = handleRepository(sf, line, false);
+                handleServants(r);
+                return r;
+            } catch (Exception e) {
+                fileMaker.close(); // If anything goes awry, we release for
+                // others!
+                return e;
+            }
+        }
+
+    }
+
+    class ROGetOrCreateRepo extends BaseGetOrCreateRepo {
+
+        public ROGetOrCreateRepo(AbstractRepositoryI repo) {
+            super(repo);
+        }
+
+        @Override
+        @Transactional(readOnly = true)
+        public Object doWork(Session session, ServiceFactory sf) {
+            try {
+                String line = handleFileMaker(sf, true);
+                ome.model.core.OriginalFile r = handleRepository(sf, line, true);
+                handleServants(r);
+                return r;
+            } catch (Exception e) {
+                fileMaker.close(); // If anything goes awry, we release for
+                // others!
+                return e;
+            }
         }
 
     }

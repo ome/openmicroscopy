@@ -61,12 +61,17 @@ public class FileMaker {
      * @throws Exception
      */
     public void init(String dbUuid) throws Exception {
+        init(dbUuid, false);
+    }
+
+    public void init(String dbUuid, boolean readOnly) throws Exception {
         synchronized (mutex) {
 
             if (this.dbUuid != null) {
                 throw new InternalException("Already initialized");
             }
 
+            String mode = readOnly ? "r" : "rw";
             this.dbUuid = dbUuid;
             File mountDir = new File(repoDir);
             File omeroDir = new File(mountDir, ".omero");
@@ -78,23 +83,32 @@ public class FileMaker {
             }
 
             repoUuidFile = new File(uuidDir, "repo_uuid");
-            dotLockFile = new File(uuidDir, ".lock");
-            repoUuidRaf = new RandomAccessFile(repoUuidFile, "rw");
-            dotLockRaf = new RandomAccessFile(dotLockFile, "rw");
+            repoUuidRaf = new RandomAccessFile(repoUuidFile, mode);
+
+            if (!readOnly) {
+                dotLockFile = new File(uuidDir, ".lock");
+                dotLockRaf = new RandomAccessFile(dotLockFile, "rw");
+            }
 
         }
     }
 
     public String getLine() throws Exception {
+        return getLine(false);
+    }
+
+    public String getLine(boolean readOnly) throws Exception {
         synchronized (mutex) {
 
             if (dbUuid == null) {
                 throw new InternalException("Not initialized");
             }
 
-            lock = dotLockRaf.getChannel().lock();
-            dotLockRaf.seek(0);
-            dotLockRaf.writeUTF(new Date().toString());
+            if (!readOnly) {
+                lock = dotLockRaf.getChannel().lock();
+                dotLockRaf.seek(0);
+                dotLockRaf.writeUTF(new Date().toString());
+            }
 
             String line = null;
             try {
@@ -154,7 +168,7 @@ public class FileMaker {
 
             dbUuid = null;
             repoUuidFile = null;
-            if (!dotLockFile.delete()) {
+            if (dotLockFile != null && !dotLockFile.delete()) {
                 log.warn("Failed to delete lock file: "
                         + dotLockFile.getAbsolutePath());
             }
