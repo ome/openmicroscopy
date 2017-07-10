@@ -492,9 +492,15 @@ public class RepositoryDaoImpl implements RepositoryDao {
             if (CollectionUtils.isEmpty(ids)) {
                 return Collections.emptyList();
             }
-            Parameters p = new Parameters();
-            p.addIds(ids);
-            return q.findAllByQuery(LOAD_ORIGINAL_FILE+"f.id in (:ids)", p);
+            final List<ome.model.core.OriginalFile> files = new ArrayList<>(ids.size());
+            final String filesById = LOAD_ORIGINAL_FILE + "f.id in (:ids)";
+            for (final List<Long> idsBatch : Iterables.partition(ids, 1024)) {
+                final Parameters params = new Parameters().addIds(idsBatch);
+                for (final IObject file : q.findAllByQuery(filesById, params)) {
+                    files.add((ome.model.core.OriginalFile) file);
+                }
+            }
+            return files;
 
     }
 
