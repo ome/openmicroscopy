@@ -189,7 +189,7 @@ def internal_repository(communicator, stop_event=None):
             elif "ScriptRepo" in str(repo):
                 continue
             return repo
-        except Ice.ConnectionRefusedException, cre:
+        except Ice.ConnectionRefusedException:
             pass
 
 

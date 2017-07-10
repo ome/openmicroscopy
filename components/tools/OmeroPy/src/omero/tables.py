@@ -962,7 +962,8 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
 
         config_service = self.ctx.getSession().getConfigService()
         # TODO: add a isReadOnly method since this is currently a r/w method
-        # self.read_only = config_service.getConfigValue("omero.cluster.read_only")
+        # self.read_only = config_service.getConfigValue(
+        #   "omero.cluster.read_only")
         try:
             self.read_only = props.getProperty("omero.cluster.read_only")
             self.read_only = ("true" == self.read_only.lower())
@@ -1018,7 +1019,8 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
             self.repo_uuid = self.repo_uuid[2:]
 
             # Using the repo_uuid, find our OriginalFile object
-            self.repo_obj = self.ctx.getSession().getQueryService().findByQuery(
+            query_service = self.ctx.getSession().getQueryService()
+            self.repo_obj = query_service.findByQuery(
                 "select f from OriginalFile f where hash = :uuid",
                 omero.sys.ParametersI().add("uuid", rstring(self.repo_uuid)))
             self.repo_mgr = self.communicator.stringToProxy(
