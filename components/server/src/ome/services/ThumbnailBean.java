@@ -1031,16 +1031,16 @@ public class ThumbnailBean extends AbstractLevel2Service
                         pixels = ctx.getPixels(pixelsId);
                         settings = ctx.getSettings(pixelsId);
                         thumbnailMetadata = ctx.getMetadata(pixelsId);
-                        if (inProgress && !PROGRESS_VERSION.equals(thumbnailMetadata.getVersion())) {
-                            thumbnailMetadata.setVersion(PROGRESS_VERSION);
-                            dirtyMetadata = true;
-                        }
                         try {
                             // At this point, we're sure that we have a thumbnail obj
                             // that we want to use, but retrieveThumbnail likes to
                             // re-generate. For the moment, we're saving and restoring
                             // that value to prevent creating a new one.
                             final byte[] thumbnail = retrieveThumbnail(false);
+                            if (inProgress && !PROGRESS_VERSION.equals(thumbnailMetadata.getVersion())) {
+                                thumbnailMetadata.setVersion(PROGRESS_VERSION);
+                                dirtyMetadata = true;
+                            }
                             toReturn.put(pixelsId, thumbnail);
                             if (dirtyMetadata) {
                                 toSave.add(thumbnailMetadata);
@@ -1057,7 +1057,15 @@ public class ThumbnailBean extends AbstractLevel2Service
                 // process due to the possible unloaded Pixels. If we do not,
                 // Pixels will be unloaded and we will hit
                 // IllegalStateException's when checking update events.
-                iUpdate.saveArray(toSave.toArray(new Thumbnail[toSave.size()]));
+                try {
+                    iUpdate.saveArray(toSave.toArray(new Thumbnail[toSave.size()]));
+                } catch (Exception e) {
+                    for (Thumbnail t : toSave) {
+                        if (toReturn.containsKey(t.getPixels().getId())) {
+                            toReturn.put(t.getPixels().getId(), null);
+                        }
+                    }
+                }
                 // Ensure that we do not have "dirty" pixels or rendering settings left
                 // around in the Hibernate session cache.
                 iQuery.clear();

@@ -1,5 +1,5 @@
 /*
- *   Copyright 2010-2017 University of Dundee. All rights reserved.
+ *   Copyright 2010-2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -675,7 +675,7 @@ public class ThumbnailCtx
      * dimension pools. We're extended graph critical if:
      * <ul>
      *   <li>
-     *      <code>isGraphCritical() == true</code> and the Pixels set does not
+     *      <code>isGraphGritical() == true</code> and the Pixels set does not
      *      belong to us.
      *   </li>
      *   <li>
