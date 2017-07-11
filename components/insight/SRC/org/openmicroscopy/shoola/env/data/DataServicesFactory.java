@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -49,6 +49,7 @@ import org.openmicroscopy.shoola.env.data.events.ReloadRenderingEngine;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 
+import omero.ServerError;
 import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
@@ -682,6 +683,28 @@ public class DataServicesFactory
         	}
         	registry.bind(LookupNames.USERS_DETAILS, exps);
         	registry.bind(LookupNames.USER_ADMINISTRATOR, uc.isAdministrator());
+        	
+            try {
+                List<String> privs = omeroGateway.getGateway()
+                        .getAdminService(ctx).getEventContext().adminPrivileges;
+                registry.bind(
+                        LookupNames.PRIV_EDIT_USER,
+                        privs.contains(omero.model.enums.AdminPrivilegeModifyUser.value));
+                registry.bind(
+                        LookupNames.PRIV_EDIT_GROUP,
+                        privs.contains(omero.model.enums.AdminPrivilegeModifyGroup.value));
+                registry.bind(LookupNames.PRIV_GROUP_ADD, privs
+                        .contains(omero.model.enums.AdminPrivilegeModifyGroupMembership.value));
+                registry.bind(LookupNames.PRIV_MOVE_GROUP, privs
+                        .contains(omero.model.enums.AdminPrivilegeChgrp.value));
+            } catch (ServerError e1) {
+                registry.bind(LookupNames.PRIV_EDIT_USER, false);
+                registry.bind(LookupNames.PRIV_EDIT_GROUP, false);
+                registry.bind(LookupNames.PRIV_GROUP_ADD, false);
+                registry.bind(LookupNames.PRIV_MOVE_GROUP, false);
+                registry.getLogger().warn(this, "Could not retrieve admin priviledges.");
+            }
+        	
 		} catch (DSAccessException e) {
 			throw new DSOutOfServiceException("Cannot retrieve groups", e);
 		} 
@@ -704,6 +727,11 @@ public class DataServicesFactory
 				        determineImageQuality(uc.getSpeedLevel()));
 				reg.bind(LookupNames.BINARY_AVAILABLE, b);
 				reg.bind(LookupNames.HELP_ON_LINE_SEARCH, url);
+				
+				reg.bind(LookupNames.PRIV_EDIT_USER, registry.lookup(LookupNames.PRIV_EDIT_USER));
+				reg.bind(LookupNames.PRIV_EDIT_GROUP, registry.lookup(LookupNames.PRIV_EDIT_GROUP));
+				reg.bind(LookupNames.PRIV_MOVE_GROUP, registry.lookup(LookupNames.PRIV_MOVE_GROUP));
+				reg.bind(LookupNames.PRIV_GROUP_ADD, registry.lookup(LookupNames.PRIV_GROUP_ADD));
 			}
 		}
 	}

@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -141,6 +141,58 @@ public class DataBrowserAgent
 		if (b == null) return false;
 		return b.booleanValue();
 	}
+	
+	/**
+     * Returns <code>true</code> if the currently logged in user
+     * can edit users, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public static boolean isEditUser()
+    {
+        Boolean b = (Boolean) registry.lookup(LookupNames.PRIV_EDIT_USER);
+        if (b == null) return false;
+        return b.booleanValue();
+    }
+    
+	/**
+     * Returns <code>true</code> if the currently logged in user
+     * can edit groups, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public static boolean isEditGroup()
+    {
+        Boolean b = (Boolean) registry.lookup(LookupNames.PRIV_EDIT_GROUP);
+        if (b == null) return false;
+        return b.booleanValue();
+    }
+    
+    /**
+     * Returns <code>true</code> if the currently logged in user
+     * can add users to groups, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public static boolean isAddToGroup()
+    {
+        Boolean b = (Boolean) registry.lookup(LookupNames.PRIV_GROUP_ADD);
+        if (b == null) return false;
+        return b.booleanValue();
+    }
+    
+    /**
+     * Returns <code>true</code> if the currently logged in user
+     * can move object to/from groups, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public static boolean isMoveGroup()
+    {
+        Boolean b = (Boolean) registry.lookup(LookupNames.PRIV_MOVE_GROUP);
+        if (b == null) return false;
+        return b.booleanValue();
+    }
 	
 	/**
 	 * Returns the collection of groups the current user is the leader of.
