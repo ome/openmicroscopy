@@ -97,8 +97,10 @@ def assert_config_argtype(func):
                 mismatch = True
             if settings.APPLICATION_SERVER in (settings.WSGITCP,):
                 if argtype not in (
-                        "nginx", "nginx-development",
-                        "nginx-location", "nginx-upstream"):
+                    "nginx",
+                    "nginx-development",
+                    "nginx-location",
+                ):
                     mismatch = True
             if (settings.APPLICATION_SERVER in (settings.WSGI,) and
                     argtype not in ("apache22", "apache24", "apache")):
@@ -118,9 +120,13 @@ class WebControl(BaseControl):
 
     # DEPRECATED: apache
     config_choices = (
-        "nginx", "nginx-development",
-        "nginx-location", "nginx-upstream",
-        "apache22", "apache24", "apache")
+        "nginx",
+        "nginx-development",
+        "nginx-location",
+        "apache22",
+        "apache24",
+        "apache",
+    )
 
     def _configure(self, parser):
         sub = parser.sub()
@@ -163,7 +169,6 @@ class WebControl(BaseControl):
             "  nginx: Nginx system configuration for inclusion\n"
             "  nginx-development: Standalone user-run Nginx server\n"
             "  nginx-location: Minimal location blocks (experts only)\n"
-            "  nginx-upstream: Minimal upstream block (experts only)\n"
             "  apache22: Apache 2.2 with mod_wsgi\n"
             "  apache24: Apache 2.4+ with mod_wsgi\n")
         config.add_argument("type", choices=self.config_choices)
