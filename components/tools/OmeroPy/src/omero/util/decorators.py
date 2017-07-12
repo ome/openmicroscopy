@@ -12,7 +12,7 @@ import traceback
 
 import omero
 
-from omero_ext.functional import wraps
+from functools import wraps
 
 perf_log = logging.getLogger("omero.perf")
 

@@ -26,7 +26,7 @@ from omero.columns import columns2definition
 from omero.rtypes import rfloat, rint, rlong, rstring, unwrap
 from omero.util.decorators import remoted, locked, perf
 from omero_ext import portalocker
-from omero_ext.functional import wraps
+from functools import wraps
 
 
 sys = __import__("sys")  # Python sys
