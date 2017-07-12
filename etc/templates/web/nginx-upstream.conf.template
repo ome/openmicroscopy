@@ -1,3 +1,0 @@
-upstream omeroweb%(PREFIX_NAME)s {
-    server %(FASTCGI_EXTERNAL)s fail_timeout=0;
-}

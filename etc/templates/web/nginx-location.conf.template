@@ -19,7 +19,7 @@ location @proxy_to_app%(PREFIX_NAME)s {
     proxy_redirect off;
     proxy_buffering off;
 
-    proxy_pass http://%(FASTCGI_EXTERNAL)s fail_timeout=0;
+    proxy_pass http://%(FASTCGI_EXTERNAL)s;
 }
 
 location %(FORCE_SCRIPT_NAME)s {
