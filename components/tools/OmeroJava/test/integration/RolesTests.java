@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.testng.annotations.BeforeClass;
 
 import com.google.common.collect.ImmutableList;
@@ -111,7 +112,7 @@ public class RolesTests extends AbstractServerImportTest {
      */
     protected List<IObject> importImageWithOriginalFile(Dataset dataset) throws Exception {
         final String omeroGroup = client.getImplicitContext().get(omero.constants.GROUP.value);
-        final long currentGroupId = omeroGroup == null ? iAdmin.getEventContext().groupId : Long.parseLong(omeroGroup);
+        final long currentGroupId = StringUtils.isBlank(omeroGroup) ? iAdmin.getEventContext().groupId : Long.parseLong(omeroGroup);
         final ImportLocation importLocation = importFileset(Collections.singletonList(fakeImageFile.getPath()), 1, dataset);
         final RString imagePath = omero.rtypes.rstring(importLocation.sharedPath + FsFile.separatorChar);
         final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
