@@ -541,6 +541,7 @@ class TestWeb(object):
     @pytest.mark.parametrize('server_type', [
         ["nginx", 'wsgi-tcp'],
         ["nginx-development", 'wsgi-tcp'],
+        ["nginx-location", 'wsgi-tcp'],
         ["apache22", 'wsgi'],
         ["apache24", 'wsgi']])
     @pytest.mark.parametrize('static_root', [
@@ -566,6 +567,9 @@ class TestWeb(object):
          '--servername', 'omeroweb.host',
          '--max-body-size', '2m', 'wsgi-tcp'],
         ['nginx-development', '--http', '1234',
+         '--servername', 'omeroweb.host',
+         '--max-body-size', '2m', 'wsgi-tcp'],
+        ['nginx-location', '--http', '1234',
          '--servername', 'omeroweb.host',
          '--max-body-size', '2m', 'wsgi-tcp'],
         ['apache22', '--http', '1234', 'wsgi'],
