@@ -435,6 +435,7 @@ public class LightAdminRolesTest extends RolesTests {
           assertExists(sentOtherDat);
       }
   }
+
     /**
      * Test that a light admin can edit the name of a project
      * on behalf of another user either using <tt>Sudo</tt> privilege
