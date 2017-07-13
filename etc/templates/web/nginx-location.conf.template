@@ -1,5 +1,7 @@
+# You are strongly recommended to include the following in your enclosing
+# server configuration:
 #sendfile on;
-#client_max_body_size ;
+#client_max_body_size 0;
 
 # maintenance page serve from here
 location @maintenance%(PREFIX_NAME)s {
