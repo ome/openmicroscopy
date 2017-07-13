@@ -1313,12 +1313,11 @@ public class LightAdminRolesTest extends RolesTests {
 
     /**
      * Light admin (lightAdmin) tries to delete ROI (belonging to normalUser)
-     * from image of normalUser.
+     * The ROI is on image of normalUser.
      * lightAdmin does not use Sudo in this test.
      * @param isPrivileged if to test a user who has the <tt>DeleteOwned</tt> privilege
      * @param groupPermissions to test the effect of group permission level
      * @throws Exception unexpected
-     * @see <a href="https://docs.google.com/presentation/d/1ukEZmh0c6NCNKUE1dFqaYjN6Sd5xxCuOYkSuMdpiqvE/edit">graphical explanation</a>
      */
     @Test(dataProvider = "isPrivileged cases")
     public void testROIDelete(boolean isPrivileged, String groupPermissions) throws Exception {
@@ -1352,6 +1351,7 @@ public class LightAdminRolesTest extends RolesTests {
         }
         assertExists(sentImage);
     }
+
     /**
      * Light admin (lightAdmin) tries to put ROI and Rendering Settings on an
      * image of normalUser.
