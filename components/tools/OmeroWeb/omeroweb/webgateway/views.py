@@ -2855,7 +2855,7 @@ class LoginView(View):
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
             server_id = form.cleaned_data['server']
-            is_secure = form.cleaned_data['ssl']
+            is_secure = settings.SECURE
 
             connector = Connector(server_id, is_secure)
 
