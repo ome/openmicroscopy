@@ -2183,10 +2183,11 @@ div.paging input.button_pagination {
     position: relative;
 }
 #spw table td.well {
-    background: #eee;
+    background: #fff;
 }
 #spw table td.placeholder {
     vertical-align: top;
+    background: #fff;
 }
 
 #spw table td.ui-selecting { border: 1px dashed #555; padding: 1px; background-color:#87ABD2;}
