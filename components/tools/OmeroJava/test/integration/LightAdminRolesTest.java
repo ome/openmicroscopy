@@ -1011,7 +1011,6 @@ public class LightAdminRolesTest extends RolesTests {
      * @param isAdmin if to test a lightAdmin
      * @param groupPermissions to test the effect of group permission level
      * @throws Exception unexpected
-     * @see <a href="https://docs.google.com/presentation/d/1uetvPv-tsnHdRqkVvMx2xpHvVXYyUL2HTob8LUC6Mds/edit">graphical explanation</a>
      */
     @Test(dataProvider = "WriteOwned and IsAdmin cases")
     public void testLinkMemberOfGroupNoSudo(boolean permWriteOwned, boolean isAdmin,
