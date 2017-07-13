@@ -997,25 +997,28 @@ public class LightAdminRolesTest extends RolesTests {
 
     /**
      * lightAdmin tries to link their object to a pre-existing container (Dataset or Project)
-     * in the target group (of normalUser where lightAdmin is not member).
-     * lightAdmin tries to link image or Dataset to Dataset or Project.
-     * The image import (by lightAdmin for others) has been tested in other tests.
-     * Here, normalUser creates and saves the image, Dataset and Project,
-     * then lightAdmin tries to link these objects.
-     * lightAdmin will succeed if they have WriteOwned privilege.
-     * Note that lightAdmin will be made a member of normalUser's group for this test.
+     * in the target group (of normalUser).
+     * Note that in this test lightAdmin is a member of normalUser's group.
+     * normalUser creates and saves the Dataset and Project,
+     * then lightAdmin or otherUser creates an image and dataset
+     * and they try to link these objects to the containers (Dataset or Project)
+     * of normalUser. lightAdmin succeeds if they have sufficient privileges.
+     * Neither partially working with own data, nor being
+     * a member of the group elevates lightAdmin's privileges over the
+     * privileges of a normal member of group (otherUser) working with their own data.
      * @param permWriteOwned if to test a user who has the <tt>WriteOwned</tt> privilege
-     * @param permChown if to test a user who has the <tt>Chown</tt> privilege
+     * @param isAdmin if to test a lightAdmin
      * @param groupPermissions to test the effect of group permission level
      * @throws Exception unexpected
      * @see <a href="https://docs.google.com/presentation/d/1uetvPv-tsnHdRqkVvMx2xpHvVXYyUL2HTob8LUC6Mds/edit">graphical explanation</a>
      */
-    @Test(dataProvider = "WriteOwned and Chown privileges cases")
-    public void testLinkOwnDataToOthersNoSudo(boolean permWriteOwned, boolean isAdmin,
+    @Test(dataProvider = "WriteOwned and IsAdmin cases")
+    public void testLinkMemberOfGroupNoSudo(boolean permWriteOwned, boolean isAdmin,
             String groupPermissions) throws Exception {
         /* WriteOwned permission is necessary and sufficient for lightAdmin to link
-         * others objects. Exception is Private group, where such linking will
-         * fail in all cases.*/
+         * others objects to their objects. Exceptions are Private group, where such linking will
+         * fail in all cases and Read-Write group where linking will succeed even
+         * for otherUser (otherUser and lightAdmin are both members of the group).*/
         boolean isExpectLinkingSuccessAdmin = (permWriteOwned && !groupPermissions.equals("rw----") || groupPermissions.equals("rwrw--"));
         boolean isExpectLinkingSuccessUser = groupPermissions.equals("rwrw--");
         final EventContext normalUser = newUserAndGroup(groupPermissions);
@@ -1049,14 +1052,14 @@ public class LightAdminRolesTest extends RolesTests {
         Dataset sentOwnDat = (Dataset) iUpdate.saveAndReturnObject(ownDat);
         /* lightAdmin or otherUser checks that the canLink value on all the objects to be linked
          * is true (for own image) and for other people's objects (sentProj, sentDat) the canLink
-         * are matching the expected behaviour (see booleans isExpectLinkingSuccess... definitions.*/
+         * are matching the expected behavior (see booleans isExpectLinkingSuccess... definitions).*/
         Assert.assertTrue(getCurrentPermissions(sentOwnImage).canLink());
         if (isAdmin) {
             Assert.assertEquals(getCurrentPermissions(sentProj).canLink(), isExpectLinkingSuccessAdmin);
         } else {
             Assert.assertEquals(getCurrentPermissions(sentProj).canLink(), isExpectLinkingSuccessUser);
         }
-        /* lightAdmin or otherUser tries to create links between their own image and normalUser's Dataset
+        /* lightAdmin or otherUser try to create links between their own image and normalUser's Dataset
          * and between their own Dataset and normalUser's Project.*/
         DatasetImageLink linkOfDatasetImage = new DatasetImageLinkI();
         ProjectDatasetLink linkOfProjectDataset = new ProjectDatasetLinkI();
@@ -2195,6 +2198,39 @@ public class LightAdminRolesTest extends RolesTests {
                         testCase[PERM_CHOWN] = permChown;
                         testCase[GROUP_PERMS] = groupPerms;
                         // DEBUG if (permWriteOwned == true && permChown == true && groupPerms.equals("rwr---"))
+                        testCases.add(testCase);
+                    }
+                }
+            }
+        return testCases.toArray(new Object[testCases.size()][]);
+    }
+
+    /**
+     * @return WriteOwned and Chown test cases for
+     * testLinkNoSudo and testROIAndRenderingSettingsNoSudo
+     */
+    @DataProvider(name = "WriteOwned and IsAdmin cases")
+    public Object[][] provideWriteOwnedAndIsAdmin() {
+        int index = 0;
+        final int PERM_WRITEOWNED = index++;
+        final int IS_ADMIN = index++;
+        final int GROUP_PERMS = index++;
+
+        final boolean[] booleanCases = new boolean[]{false, true};
+        final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
+        final List<Object[]> testCases = new ArrayList<Object[]>();
+
+            for (final boolean permWriteOwned : booleanCases) {
+                for (final boolean isAdmin : booleanCases) {
+                    for (final String groupPerms : permsCases) {
+                        final Object[] testCase = new Object[index];
+                        if (!permWriteOwned && !isAdmin)
+                            /* not an interesting case */
+                            continue;
+                        testCase[PERM_WRITEOWNED] = permWriteOwned;
+                        testCase[IS_ADMIN] = isAdmin;
+                        testCase[GROUP_PERMS] = groupPerms;
+                        // DEBUG if (permWriteOwned == true && isAdmin == true && groupPerms.equals("rwr---"))
                         testCases.add(testCase);
                     }
                 }
