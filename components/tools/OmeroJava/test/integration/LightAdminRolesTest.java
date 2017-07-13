@@ -385,8 +385,7 @@ public class LightAdminRolesTest extends RolesTests {
       /* Set up the light admin's permissions for this test.*/
       List<String> permissions = new ArrayList<String>();
       if (permDeleteOwned) permissions.add(AdminPrivilegeDeleteOwned.value);
-      final EventContext lightAdmin;
-      lightAdmin = loginNewAdmin(true, permissions);
+      final EventContext lightAdmin = loginNewAdmin(true, permissions);
       /* root adds lightAdmin to normalUser's group.*/
       logRootIntoGroup(normalUser);
       normalUsergroup = addUsers(normalUsergroup, ImmutableList.of(lightAdmin.userId, otherUser.userId), false);
@@ -1016,8 +1015,7 @@ public class LightAdminRolesTest extends RolesTests {
         /* Set up the light admin's permissions for this test.*/
         List<String> permissions = new ArrayList<String>();
         if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
-        final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(true, permissions);
+        final EventContext lightAdmin = loginNewAdmin(true, permissions);
         /* root adds lightAdmin to normalUser's group.*/
         logRootIntoGroup(normalUser);
         normalUsergroup = addUsers(normalUsergroup, ImmutableList.of(lightAdmin.userId, otherUser.userId), false);
@@ -1327,8 +1325,7 @@ public class LightAdminRolesTest extends RolesTests {
         assertOwnedBy(sentImage, normalUser);
         assertOwnedBy(roi, normalUser);
         /* lightAdmin logs in and tries to delete the ROI.*/
-        final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(true, permissions);
+        final EventContext lightAdmin = loginNewAdmin(true, permissions);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         doChange(client, factory, Requests.delete().target(roi).build(), isExpectSuccessDeleteROI);
         /* Check the ROI was deleted, whereas the image exists.*/
