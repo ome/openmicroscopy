@@ -372,18 +372,19 @@ public class LightAdminRolesTest extends RolesTests {
 
 
    /**
-    * Test whether a light admin can delete image, Project and Dataset
+    * Test whether a light admin (lightAdmin) can delete image, Project and Dataset
     * and their respective links belonging to another
-    * user. Behaviors of the system are explored when lightAdmin
-    * is member of the group and also comparing test is made when otherUser
-    * (non-admin) is attempting the delete.
+    * user (normalUser).
+    * Note that for this test, lightAdmin is member of normalUser's group.
+    * lightAdmin's privileges regarding deletion of others' data are not elevated by
+    * membership in the group over the privileges of normal member of group (otherUser).
     * @param isAdmin if to test a success of workflows when light admin
     * @param permDeleteOwned if to test a user who has the <tt>DeleteOwned</tt> privilege
     * @param groupPermissions to test the effect of group permission level
     * @throws Exception unexpected
     */
-  @Test(dataProvider = "isSudoing and Delete privileges cases")
-  public void testDeleteGroupMemeberNoSudo(boolean isAdmin, boolean permDeleteOwned,
+  @Test(dataProvider = "isAdmin and Delete cases")
+  public void testDeleteGroupMemberNoSudo(boolean isAdmin, boolean permDeleteOwned,
           String groupPermissions) throws Exception {
       /* Only DeleteOwned permission is needed for deletion of links, Dataset
        * and image (with original file) when isAdmin. When not isAdmin, only in
@@ -394,7 +395,7 @@ public class LightAdminRolesTest extends RolesTests {
       ExperimenterGroup normalUsergroup = new ExperimenterGroupI(normalUser.groupId, false);
       /* Set up the light admin's permissions for this test.*/
       List<String> permissions = new ArrayList<String>();
-      if (permDeleteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
+      if (permDeleteOwned) permissions.add(AdminPrivilegeDeleteOwned.value);
       final EventContext lightAdmin;
       lightAdmin = loginNewAdmin(true, permissions);
       /* root adds lightAdmin to normalUser's group.*/
@@ -409,13 +410,13 @@ public class LightAdminRolesTest extends RolesTests {
       Dataset sentDat = null;
       sentProj = (Project) iUpdate.saveAndReturnObject(proj);
       sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
-      /* Import an image for the normalUser into the normalUser's default group
-       * and target it into the created Dataset.*/
+      /* normalUser imports an image
+       * and targets it into the created Dataset.*/
       List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
       OriginalFile originalFile = (OriginalFile) originalFileAndImage.get(0);
       Image image = (Image) originalFileAndImage.get(1);
       assertOwnedBy(image, normalUser);
-      /* Link the Project and the Dataset.*/
+      /* normalUser links the Project and the Dataset.*/
       ProjectDatasetLink projectDatasetLink = linkParentToChild(sentProj, sentDat);
       IObject datasetImageLink = iQuery.findByQuery(
               "FROM DatasetImageLink WHERE child.id = :id",
@@ -428,14 +429,14 @@ public class LightAdminRolesTest extends RolesTests {
       }
       client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
       /* Check that lightAdmin or otherUser can delete the objects
-       * created on behalf of normalUser only if lightAdmin has sufficient permissions.
+       * of normalUser only if lightAdmin has sufficient permissions or it is read-write group.
        * Note that deletion of the Project
        * would delete the whole hierarchy, which was successfully tested
        * during writing of this test. The order of the below delete() commands
        * is intentional, as the ability to delete the links and Project/Dataset/Image separately is
        * tested in this way.
        * Also check that the canDelete boolean
-       * on the object retrieved by the lightAdmin matches the deletePassing
+       * on the object retrieved by the lightAdmin or otherUser matches the deletePassing
        * boolean.*/
       Assert.assertEquals(getCurrentPermissions(datasetImageLink).canDelete(), deletePassing);
       doChange(client, factory, Requests.delete().target(datasetImageLink).build(), deletePassing);
@@ -2053,6 +2054,38 @@ public class LightAdminRolesTest extends RolesTests {
                         testCase[PERM_DELETEOWNED] = permDeleteOwned;
                         testCase[GROUP_PERMS] = groupPerms;
                         // DEBUG if (isSudoing == true && permDeleteOwned == true && groupPerms.equals("rwr---"))
+                        testCases.add(testCase);
+                    }
+                }
+            }
+        return testCases.toArray(new Object[testCases.size()][]);
+    }
+
+    /**
+     * @return test cases for testDelete
+     */
+    @DataProvider(name = "isAdmin and Delete cases")
+    public Object[][] provideIsAdminDeleteOwned() {
+        int index = 0;
+        final int IS_ADMIN = index++;
+        final int PERM_DELETEOWNED = index++;
+        final int GROUP_PERMS = index++;
+
+        final boolean[] booleanCases = new boolean[]{false, true};
+        final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
+        final List<Object[]> testCases = new ArrayList<Object[]>();
+
+            for (final boolean isAdmin : booleanCases) {
+                for (final boolean permDeleteOwned : booleanCases) {
+                    for (final String groupPerms : permsCases) {
+                        final Object[] testCase = new Object[index];
+                        if (!isAdmin && permDeleteOwned)
+                            /* not an interesting case */
+                            continue;
+                        testCase[IS_ADMIN] = isAdmin;
+                        testCase[PERM_DELETEOWNED] = permDeleteOwned;
+                        testCase[GROUP_PERMS] = groupPerms;
+                        // DEBUG if (isAdmin == true && permDeleteOwned == true && groupPerms.equals("rwr---"))
                         testCases.add(testCase);
                     }
                 }
