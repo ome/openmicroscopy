@@ -370,6 +370,71 @@ public class LightAdminRolesTest extends RolesTests {
        }
    }
 
+   /**
+    * light admin (lightAdmin) being also a group owner of one group
+    * (ownedGroup) tries to delete Dataset of other user (normalUser).
+    * lightAdmin also tries to delete data of yet one other user (otherUser)
+    * in a group which they do not own (notOwnedGroup).
+    * lightAdmin succeeds only in the ownGroup, in the notOwnedGroup they
+    * succeed only with DeleteOwned privilege.
+    * @param isPrivileged if to test a user who has the <tt>DeleteOwned</tt> privilege
+    * @param groupPermissions to test the effect of group permission level
+    * @throws Exception unexpected
+    */
+  @Test(dataProvider = "isPrivileged cases")
+  public void testDeleteGroupOwner(boolean isPrivileged,
+          String groupPermissions) throws Exception {
+      /* DeleteOwned privilege is necessary for deletion in group which is
+       * not owned. For deletion in group which is owned, no privilege is necessary.*/
+      boolean deletePassingNotOwnedGroup = isPrivileged;
+      boolean deletePassingOwnedGroup = true;
+      final EventContext normalUser = newUserAndGroup(groupPermissions);
+      final EventContext otherUser = newUserAndGroup(groupPermissions);
+      /* Set up the light admin's permissions for this test */
+      List<String> permissions = new ArrayList<String>();
+      permissions.add(AdminPrivilegeSudo.value);
+      if (isPrivileged) permissions.add(AdminPrivilegeDeleteOwned.value);
+      final EventContext lightAdmin = loginNewAdmin(true, permissions);
+      ExperimenterGroup ownedGroup = new ExperimenterGroupI(normalUser.groupId, false);
+      ExperimenterGroup notOwnedGroup = new ExperimenterGroupI(otherUser.groupId, false);
+      /* root adds lightAdmin to normalUser's group as owner.*/
+      logRootIntoGroup(normalUser);
+      ownedGroup = addUsers(ownedGroup, Collections.singletonList(lightAdmin.userId), true);
+      /* normalUser creates a dataset in ownGroup.*/
+      loginUser(normalUser);
+      client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+      Dataset dat = mmFactory.simpleDataset();
+      Dataset sentDat = null;
+      sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
+      /* otherUser creates a dataset in notOwnGroup.*/
+      loginUser(otherUser);
+      client.getImplicitContext().put("omero.group", Long.toString(otherUser.groupId));
+      Dataset otherDat = mmFactory.simpleDataset();
+      Dataset sentOtherDat = null;
+      sentOtherDat = (Dataset) iUpdate.saveAndReturnObject(otherDat);
+      /* Check that the datasets are in their groups as expected.*/
+      assertInGroup(sentDat, ownedGroup);
+      assertInGroup(sentOtherDat, notOwnedGroup);
+      /* Check that lightAdmin can delete the datasets only when permissions allow that.
+       * Also check that the canDelete boolean
+       * on the object retrieved by the lightAdmin matches the deletePassing
+       * boolean.*/
+      loginUser(lightAdmin);
+      client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+      Assert.assertEquals(getCurrentPermissions(sentDat).canDelete(), deletePassingOwnedGroup);
+      doChange(client, factory, Requests.delete().target(sentDat).build(), deletePassingOwnedGroup);
+      client.getImplicitContext().put("omero.group", Long.toString(otherUser.groupId));
+      Assert.assertEquals(getCurrentPermissions(sentOtherDat).canDelete(), deletePassingNotOwnedGroup);
+      doChange(client, factory, Requests.delete().target(sentOtherDat).build(), deletePassingNotOwnedGroup);
+
+      /* Check the existence/non-existence of the objects as appropriate.*/
+      assertDoesNotExist(sentDat);
+      if (deletePassingNotOwnedGroup) {
+          assertDoesNotExist(sentOtherDat);
+      } else {
+          assertExists(sentOtherDat);
+      }
+  }
     /**
      * Test that a light admin can edit the name of a project
      * on behalf of another user either using <tt>Sudo</tt> privilege
