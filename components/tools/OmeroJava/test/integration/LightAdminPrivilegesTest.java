@@ -48,6 +48,7 @@ import omero.cmd.HandlePrx;
 import omero.cmd.graphs.ChildOption;
 import omero.gateway.util.Requests;
 import omero.gateway.util.Requests.Delete2Builder;
+import omero.grid.ImportLocation;
 import omero.grid.ManagedRepositoryPrx;
 import omero.grid.ManagedRepositoryPrxHelper;
 import omero.grid.RepositoryMap;
@@ -493,15 +494,12 @@ public class LightAdminPrivilegesTest extends RolesTests {
         /* import a fake image file as a normal user */
         final boolean isExpectSuccess = isAdmin && !isRestricted;
         final EventContext normalUser = newUserAndGroup("rwr-r-");
+        final ImportLocation importLocation = importFileset(Collections.singletonList(fakeImageFile.getPath()));
+        final RString imagePath = omero.rtypes.rstring(importLocation.sharedPath + FsFile.separatorChar);
         final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
-        final List<List<RType>> result = iQuery.projection(
-                "SELECT id FROM OriginalFile WHERE name = :name AND details.group.id = :group_id ORDER BY id DESC LIMIT 1",
-                new ParametersI().add("name", imageName).addLong("group_id", normalUser.groupId));
-        final long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
-        importFileset(Collections.singletonList(fakeImageFile.getPath()));
         final OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
-                "FROM OriginalFile o WHERE o.id > :id AND o.name = :name AND o.details.group.id = :group_id",
-                new ParametersI().addId(previousId).add("name", imageName).addLong("group_id", normalUser.groupId));
+                "FROM OriginalFile o WHERE o.path = :path AND o.name = :name AND o.details.group.id = :group_id",
+                new ParametersI().add("path", imagePath).add("name", imageName).addLong("group_id", normalUser.groupId));
         /* delete the model objects related to the file */
         final Fileset fileset = (Fileset) iQuery.findByQuery(
                 "SELECT fe.fileset FROM FilesetEntry fe WHERE fe.originalFile.id = :id",
@@ -548,15 +546,12 @@ public class LightAdminPrivilegesTest extends RolesTests {
         /* import a fake image file as a normal user */
         final boolean isExpectSuccess = isAdmin && !isRestricted;
         final EventContext normalUser = newUserAndGroup("rwr-r-");
+        final ImportLocation importLocation = importFileset(Collections.singletonList(fakeImageFile.getPath()));
+        final RString imagePath = omero.rtypes.rstring(importLocation.sharedPath + FsFile.separatorChar);
         final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
-        final List<List<RType>> result = iQuery.projection(
-                "SELECT id FROM OriginalFile WHERE name = :name AND details.group.id = :group_id ORDER BY id DESC LIMIT 1",
-                new ParametersI().add("name", imageName).addLong("group_id", normalUser.groupId));
-        final long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
-        importFileset(Collections.singletonList(fakeImageFile.getPath()));
         final OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
-                "FROM OriginalFile o WHERE o.id > :id AND o.name = :name AND o.details.group.id = :group_id",
-                new ParametersI().addId(previousId).add("name", imageName).addLong("group_id", normalUser.groupId));
+                "FROM OriginalFile o WHERE o.path = :path AND o.name = :name AND o.details.group.id = :group_id",
+                new ParametersI().add("path", imagePath).add("name", imageName).addLong("group_id", normalUser.groupId));
         /* delete the model objects related to the file */
         final Fileset fileset = (Fileset) iQuery.findByQuery(
                 "SELECT fe.fileset FROM FilesetEntry fe WHERE fe.originalFile.id = :id",
@@ -1775,25 +1770,21 @@ public class LightAdminPrivilegesTest extends RolesTests {
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteManagedRepo.value : null);
         client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
-        final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
-        final List<List<RType>> result = iQuery.projection(
-                "SELECT id FROM OriginalFile WHERE name = :name AND details.group.id = :group_id ORDER BY id DESC LIMIT 1",
-                new ParametersI().add("name", imageName).addLong("group_id", normalUser.groupId));
-        final long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
+        final ImportLocation importLocation;
         try {
-            importFileset(Collections.singletonList(fakeImageFile.getPath()));
+            importLocation = importFileset(Collections.singletonList(fakeImageFile.getPath()));
             Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccess);
+            /* no file to check */
+            return;
         }
+        final RString imagePath = omero.rtypes.rstring(importLocation.sharedPath + FsFile.separatorChar);
+        final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
         final OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
-                "FROM OriginalFile o WHERE o.id > :id AND o.name = :name AND o.details.group.id = :group_id",
-                new ParametersI().addId(previousId).add("name", imageName).addLong("group_id", normalUser.groupId));
-        if (isExpectSuccess) {
-            Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), normalUser.groupId);
-        } else {
-            Assert.assertNull(remoteFile);
-        }
+                "FROM OriginalFile o WHERE o.path = :path AND o.name = :name AND o.details.group.id = :group_id",
+                new ParametersI().add("path", imagePath).add("name", imageName).addLong("group_id", normalUser.groupId));
+        Assert.assertNotNull(remoteFile);
     }
 
     /**
@@ -1875,15 +1866,12 @@ public class LightAdminPrivilegesTest extends RolesTests {
         /* import a fake image file as a normal user */
         final boolean isExpectSuccess = isAdmin && !isRestricted;
         final EventContext normalUser = newUserAndGroup("rwr-r-");
+        final ImportLocation importLocation = importFileset(Collections.singletonList(fakeImageFile.getPath()));
+        final RString imagePath = omero.rtypes.rstring(importLocation.sharedPath + FsFile.separatorChar);
         final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
-        final List<List<RType>> result = iQuery.projection(
-                "SELECT id FROM OriginalFile WHERE name = :name AND details.group.id = :group_id ORDER BY id DESC LIMIT 1",
-                new ParametersI().add("name", imageName).addLong("group_id", normalUser.groupId));
-        final long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
-        importFileset(Collections.singletonList(fakeImageFile.getPath()));
         OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
-                "FROM OriginalFile o WHERE o.id > :id AND o.name = :name AND o.details.group.id = :group_id",
-                new ParametersI().addId(previousId).add("name", imageName).addLong("group_id", normalUser.groupId));
+                "FROM OriginalFile o WHERE o.path = :path AND o.name = :name AND o.details.group.id = :group_id",
+                new ParametersI().add("path", imagePath).add("name", imageName).addLong("group_id", normalUser.groupId));
         /* try to edit the file */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteManagedRepo.value : null);

@@ -21,21 +21,19 @@ package integration;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.testng.annotations.BeforeClass;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableList;
 
-import ome.system.Login;
-import omero.RLong;
+import ome.services.blitz.repo.path.FsFile;
 import omero.RString;
-import omero.RType;
 import omero.SecurityViolation;
 import omero.ServerError;
+import omero.grid.ImportLocation;
 import omero.model.Dataset;
 import omero.model.IObject;
 import omero.model.Image;
@@ -113,24 +111,23 @@ public class RolesTests extends AbstractServerImportTest {
      * @throws Exception if the import fails
      */
     protected List<IObject> importImageWithOriginalFile(Dataset dataset) throws Exception {
-        final List<IObject> originalFileAndImage = new ArrayList<IObject>();
+        final String omeroGroup = client.getImplicitContext().get(omero.constants.GROUP.value);
+        final long currentGroupId = StringUtils.isBlank(omeroGroup) ? iAdmin.getEventContext().groupId : Long.parseLong(omeroGroup);
+        final ImportLocation importLocation = importFileset(Collections.singletonList(fakeImageFile.getPath()), 1, dataset);
+        final RString imagePath = omero.rtypes.rstring(importLocation.sharedPath + FsFile.separatorChar);
         final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
-        final List<List<RType>> result = iQuery.projection(
-                "SELECT id FROM OriginalFile WHERE name = :name ORDER BY id DESC LIMIT 1",
-                new ParametersI().add("name", imageName));
-        final long previousId = result.isEmpty() ? -1 : ((RLong) result.get(0).get(0)).getValue();
-        List<String> path = Collections.singletonList(fakeImageFile.getPath());
-        importFileset(path, path.size(), dataset);
-        final OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
-                "FROM OriginalFile o WHERE o.id > :id AND o.name = :name",
-                new ParametersI().addId(previousId).add("name", imageName));
-        originalFileAndImage.add(remoteFile);
+        String hql = "FROM OriginalFile o WHERE o.path = :path AND o.name = :name";
+        final ParametersI params = new ParametersI().add("path", imagePath).add("name", imageName);
+        if (currentGroupId >= 0) {
+            hql += " AND o.details.group.id = :group_id";
+            params.addLong("group_id", currentGroupId);
+        }
+        final OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(hql, params);
         final Image image = (Image) iQuery.findByQuery(
                 "FROM Image WHERE fileset IN "
                 + "(SELECT fileset FROM FilesetEntry WHERE originalFile.id = :id)",
                 new ParametersI().addId(remoteFile.getId()));
-        originalFileAndImage.add(image);
-        return originalFileAndImage;
+        return ImmutableList.of(remoteFile, image);
     }
 
     /**
