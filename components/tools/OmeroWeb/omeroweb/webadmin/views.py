@@ -770,6 +770,8 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
         context = getEditFormContext()
     elif action == 'save':
         group = conn.getObject("ExperimenterGroup", gid)
+        can_add_member = 'ModifyGroupMembership' in \
+            conn.getCurrentAdminPrivileges()
 
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamanagegroupid",
@@ -780,7 +782,8 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
             name_check = conn.checkGroupName(request.POST.get('name'),
                                              group.name)
             form = GroupForm(initial={'experimenters': experimenters},
-                             data=request.POST.copy(), name_check=name_check)
+                             data=request.POST.copy(), name_check=name_check,
+                             can_add_member=can_add_member)
             context = {'form': form, 'gid': gid, 'permissions': permissions}
             if form.is_valid():
                 logger.debug("Update group form:" + str(form.cleaned_data))
@@ -809,9 +812,12 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
                     else:
                         msgs.append(ex.message)
 
-                new_members = getSelectedExperimenters(
-                    conn, mergeLists(members, owners))
-                removalFails = conn.setMembersOfGroup(group, new_members)
+                removalFails = []
+                if can_add_member:
+                    new_members = getSelectedExperimenters(
+                        conn, mergeLists(members, owners))
+                    removalFails = conn.setMembersOfGroup(group, new_members)
+
                 if len(removalFails) == 0 and len(msgs) == 0:
                     return HttpResponseRedirect(reverse("wagroups"))
                 # If we've failed to remove user...
