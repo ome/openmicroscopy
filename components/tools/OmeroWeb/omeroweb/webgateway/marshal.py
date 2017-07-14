@@ -27,12 +27,37 @@ import traceback
 logger = logging.getLogger(__name__)
 
 from omero.rtypes import unwrap
+from omero_marshal import get_encoder
 
 # OMERO.insight point list regular expression
 INSIGHT_POINT_LIST_RE = re.compile(r'points\[([^\]]+)\]')
 
 # OME model point list regular expression
 OME_MODEL_POINT_LIST_RE = re.compile(r'([\d.]+),([\d.]+)')
+
+
+def eventContextMarshal(event_context):
+    """
+    Marshals the omero::sys::EventContext as a dict.
+
+    @param event_context:   omero::sys::EventContext
+    @return:                Dict
+    """
+
+    ctx = {}
+    for a in ['shareId', 'sessionId', 'sessionUuid', 'userId', 'userName',
+              'sudoerId', 'sudoerName', 'groupId',
+              'groupName', 'isAdmin', 'eventId', 'eventType',
+              'memberOfGroups', 'leaderOfGroups',
+              'adminPrivileges']:
+            if (hasattr(event_context, a)):
+                ctx[a] = getattr(event_context, a)
+
+    perms = event_context.groupPermissions
+    encoder = get_encoder(perms.__class__)
+    ctx['groupPermissions'] = encoder.encode(perms)
+
+    return ctx
 
 
 def channelMarshal(channel):
