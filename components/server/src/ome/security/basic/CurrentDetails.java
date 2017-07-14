@@ -24,6 +24,7 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
+import ome.model.core.OriginalFile;
 import ome.model.enums.AdminPrivilege;
 import ome.model.enums.EventType;
 import ome.model.internal.Details;
@@ -34,8 +35,9 @@ import ome.model.meta.Event;
 import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.model.meta.GroupExperimenterMap;
 import ome.model.meta.Session;
-import ome.security.SecuritySystem;
+import ome.security.SystemTypes;
 import ome.services.messages.RegisterServiceCleanupMessage;
 import ome.services.sessions.SessionContext;
 import ome.services.sessions.state.SessionCache;
@@ -69,7 +71,15 @@ public class CurrentDetails implements PrincipalHolder {
 
     private final Roles roles;
 
+    private final SystemTypes sysTypes;
+
+    private final LightAdminPrivileges adminPrivileges;
+
     private final ThreadLocal<LinkedList<BasicEventContext>> contexts = new ThreadLocal<LinkedList<BasicEventContext>>();
+
+    private final Set<String> managedRepoUuids;
+
+    private final Set<String> scriptRepoUuids;
 
     /**
      * Call context set on the current details before login occurred. If this
@@ -83,18 +93,26 @@ public class CurrentDetails implements PrincipalHolder {
      * used will not be correct.
      */
     public CurrentDetails() {
-        this.cache = null;
-        this.roles = new Roles();
+        this(null);
     }
 
     public CurrentDetails(SessionCache cache) {
         this.cache = cache;
         this.roles = new Roles();
+        this.sysTypes = new SystemTypes(roles);
+        this.adminPrivileges = new LightAdminPrivileges(roles);
+        this.managedRepoUuids = Collections.emptySet();
+        this.scriptRepoUuids = Collections.emptySet();
     }
 
-    public CurrentDetails(SessionCache cache, Roles roles) {
+    public CurrentDetails(SessionCache cache, Roles roles, SystemTypes sysTypes, LightAdminPrivileges adminPrivileges,
+            Set<String> managedRepoUuids, Set<String> scriptRepoUuids) {
         this.cache = cache;
         this.roles = roles;
+        this.sysTypes = sysTypes;
+        this.adminPrivileges = adminPrivileges;
+        this.managedRepoUuids = managedRepoUuids;
+        this.scriptRepoUuids = scriptRepoUuids;
     }
 
     private LinkedList<BasicEventContext> list() {
@@ -238,14 +256,55 @@ public class CurrentDetails implements PrincipalHolder {
         }
 
         final EventContext ec = getCurrentEventContext();
-        final boolean isAdmin = ec.isCurrentUserAdmin();
-        final boolean isPI = ec.getLeaderOfGroupsList().contains(g);
-        final boolean isOwner = ec.getCurrentUserId().equals(o);
 
-        if (isAdmin || isPI || isOwner) {
+        if (ec.getLeaderOfGroupsList().contains(g)) {
+            /* is group leader */
             return true;
         }
-        return false;
+
+        if (ec.getCurrentUserId().equals(o)) {
+            /* is owner */
+            return true;
+        }
+
+        if (!ec.isCurrentUserAdmin()) {
+            /* neither data owner nor group leader nor administrator */
+            return false;
+        }
+
+        final boolean isSysType =  sysTypes.isSystemType(object.getClass()) || sysTypes.isInSystemGroup(object.getDetails());
+        final Set<AdminPrivilege> privileges = ec.getCurrentAdminPrivileges();
+
+        if (isSysType) {
+            if (object instanceof Experimenter) {
+                return privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_MODIFY_USER));
+            } else if (object instanceof ExperimenterGroup) {
+                return privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_MODIFY_GROUP));
+            } else if (object instanceof GroupExperimenterMap) {
+                return privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_MODIFY_GROUP_MEMBERSHIP));
+            } else {
+                return true;
+            }
+        } else {
+            if (object instanceof OriginalFile) {
+                final String repo = ((OriginalFile) object).getRepo();
+                if (repo != null) {
+                    if (managedRepoUuids.contains(repo)) {
+                        return privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_WRITE_MANAGED_REPO));
+                    } else if (scriptRepoUuids.contains(repo)) {
+                        return privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_WRITE_SCRIPT_REPO));
+                    } else {
+                        /* other repository */
+                        return privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_WRITE_FILE));
+                    }
+                } else {
+                    /* not in repository */
+                    return privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_WRITE_FILE));
+                }
+            } else {
+                return privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_WRITE_OWNED));
+            }
+        }
     }
 
     // State management
