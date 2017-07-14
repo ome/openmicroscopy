@@ -4,8 +4,8 @@ OMERO version history
 5.4.0-m2 (July 2017)
 --------------------
 
-Developer preview release - **only intended as a developer preview for
-updating code before the full public release of 5.4.0. Use at your own risk**.
+Developer preview release. Intended *only as a developer preview* for updating
+code before the full public release of 5.4.0. **Use at your own risk.**
 
 Changes include:
 
@@ -23,8 +23,8 @@ Changes include:
 5.4.0-m1 (July 2017)
 --------------------
 
-Developer preview release - **only intended as a developer preview for
-updating code before the full public release of 5.4.0. Use at your own risk**.
+Developer preview release. Intended *only as a developer preview* for updating
+code before the full public release of 5.4.0. **Use at your own risk.**
 
 Changes include:
 
