@@ -104,6 +104,9 @@ public class RepositoryDaoImpl implements RepositoryDao {
     private static final String LOAD_USER_INSTITUTION =
             "SELECT institution FROM " + Experimenter.class.getName() + " WHERE id = :id";
 
+    /* for large database queries */
+    private static final int BATCH_SIZE = 1024;
+
     private final static Logger log = LoggerFactory.getLogger(RepositoryDaoImpl.class);
 
     private final IceMapper mapper = new IceMapper();
@@ -400,14 +403,14 @@ public class RepositoryDaoImpl implements RepositoryDao {
 
     public List<Long> filterFilesByRepository(final String repo, List<Long> ids, Ice.Current current) {
         final List<Long> inRepo = new ArrayList<Long>();
-        for (final List<Long> idBatch : Iterables.partition(ids, 256)) {
+        for (final List<Long> idsBatch : Iterables.partition(ids, BATCH_SIZE)) {
             inRepo.addAll((Collection<Long>) executor
                     .execute(current.ctx, currentUser(current),
                             new Executor.SimpleWork(this, "filterFilesByRepository") {
                         @Override
                         @Transactional(readOnly = true)
                         public List<Long> doWork(Session session, ServiceFactory sf) {
-                            return getSqlAction().filterFileIdsByRepo(repo, idBatch);
+                            return getSqlAction().filterFileIdsByRepo(repo, idsBatch);
                         }
                     }));
         }
@@ -492,9 +495,15 @@ public class RepositoryDaoImpl implements RepositoryDao {
             if (CollectionUtils.isEmpty(ids)) {
                 return Collections.emptyList();
             }
-            Parameters p = new Parameters();
-            p.addIds(ids);
-            return q.findAllByQuery(LOAD_ORIGINAL_FILE+"f.id in (:ids)", p);
+            final List<ome.model.core.OriginalFile> files = new ArrayList<>(ids.size());
+            final String filesById = LOAD_ORIGINAL_FILE + "f.id in (:ids)";
+            for (final List<Long> idsBatch : Iterables.partition(ids, BATCH_SIZE)) {
+                final Parameters params = new Parameters().addIds(idsBatch);
+                for (final IObject file : q.findAllByQuery(filesById, params)) {
+                    files.add((ome.model.core.OriginalFile) file);
+                }
+            }
+            return files;
 
     }
 
