@@ -356,7 +356,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         sf.mockQuery.expects(atLeastOnce()).method("find")
             .with(new IsEqual(Share.class), new IsEqual(session.getId()))
             .will(returnValue(null));
-        sf.mockQuery.expects(atLeastOnce()).method("findByQueryCached")
+        sf.mockQuery.expects(atLeastOnce()).method("findByQuery")
             .with(new StringContains("Session"), ANYTHING)
             .will(returnValue(session));
         sf.mockQuery.expects(once()).method("projection").will(

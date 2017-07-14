@@ -317,18 +317,6 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     @RolesAllowed("user")
     public <T extends IObject> T findByQuery(String queryName, Parameters params)
             throws ValidationException {
-        return findByQuery(queryName, params, false);
-    }
-
-    @Override
-    @RolesAllowed("user")
-    public <T extends IObject> T findByQueryCached(String queryName, Parameters params)
-            throws ValidationException {
-        return findByQuery(queryName, params, true);
-    }
-
-    private <T extends IObject> T findByQuery(String queryName, Parameters params, boolean enableCaching)
-            throws ValidationException {
 
         if (params == null) {
             params = new Parameters();
@@ -338,7 +326,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
         params.unique();
 
         final Query<T> q = getQueryFactory().<T>lookup(queryName, params);
-        if (enableCaching) {
+        if (params.isCache()) {
             q.enableQueryCache();
         }
         T result = null;
@@ -377,6 +365,9 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     public <T extends IObject> List<T> findAllByQuery(String queryName,
             Parameters params) {
         Query<List<T>> q = getQueryFactory().lookup(queryName, params);
+        if (params != null && params.isCache()) {
+            q.enableQueryCache();
+        }
         return execute(q);
     }
 
@@ -424,6 +415,9 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     public List<Object[]> projection(final String query, Parameters p) {
         final Parameters params = (p == null ? new Parameters() : p);
         final Query<List<Object>> q = getQueryFactory().lookup(query, params);
+        if (params.isCache()) {
+            q.enableQueryCache();
+        }
 
         @SuppressWarnings("rawtypes")
         final List rv = (List) getHibernateTemplate().execute(q);

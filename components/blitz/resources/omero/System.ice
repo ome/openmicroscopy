@@ -95,12 +95,16 @@ module omero {
      *  acquisition...:= whether or not acquisitionData (objectives, etc.)
      *                  should be loaded
      *
+     * cacheable      := whether or not the query is cacheable by Hibernate
+     *                   (use with caution: caching may be counterproductive)
      **/
     class Options
     {
       omero::RBool  leaves;
       omero::RBool  orphan;
       omero::RBool  acquisitionData;
+      ["deprecated:experimental: may be wholly removed in next major version"]
+      omero::RBool  cacheable;
     };
 
     /**
