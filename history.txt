@@ -1,6 +1,25 @@
 OMERO version history
 =====================
 
+5.4.0-m2 (July 2017)
+--------------------
+
+Developer preview release - **only intended as a developer preview for
+updating code before the full public release of 5.4.0. Use at your own risk**.
+
+Changes include:
+
+- fixed OMERO.server permissions bug with restricted administrators
+- adjusted OMERO.blitz API to allow some query results to be cached
+- improve OMERO.web experience and fixed bugs for restricted administrators
+- improve OMERO.cli:
+  - fixed admin plugin so "cleanse" can handle larger directories
+  - have chgrp plugin check administrator Chgrp restriction
+  - added to chown plugin ability to target all of given users' data
+  - adjusted handling of standard input
+- various improvements in integration tests
+
+
 5.4.0-m1 (July 2017)
 --------------------
 
