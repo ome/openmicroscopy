@@ -448,6 +448,12 @@ class SessionsControl(BaseControl):
                 action = "Reconnected to"
 
         if not rv:
+
+            if not pasw:
+                # Note: duplicating the `not pasw` check here
+                # for an overall nicer error message.
+                self._require_tty("cannot request password")
+
             tries = 3
             while True:
                 try:
@@ -883,6 +889,7 @@ class SessionsControl(BaseControl):
         defserver = store.last_host()
         if not port:
             port = str(omero.constants.GLACIER2PORT)
+        self._require_tty("cannot request server")
         rv = self.ctx.input("Server: [%s:%s]" % (defserver, port))
         if not rv:
             return defserver, name, port
@@ -892,11 +899,17 @@ class SessionsControl(BaseControl):
     def _get_username(self, defuser):
         if defuser is None:
             defuser = get_user("root")
+        self._require_tty("cannot request username")
         rv = self.ctx.input("Username: [%s]" % defuser)
         if not rv:
             return defuser
         else:
             return rv
+
+    def _require_tty(self, msg):
+        if sys.stdin.isatty():
+            return
+        self.ctx.die(564, "stdin is not a terminal: %s" % msg)
 
 
 try:
