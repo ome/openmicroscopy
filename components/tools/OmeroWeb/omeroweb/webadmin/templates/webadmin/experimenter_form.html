@@ -304,8 +304,8 @@
         {% else %}
 
         <label>Password</label>
-            <a class="btn btn_text silver" id="change_password">
-                <span>Change User's Password</span>
+            <a class="btn btn_text silver" id="change_password" {% if not can_modify_user %} style="pointer-events: none" {% endif %}>
+                <span {% if not can_modify_user %} style="color:Gray" {% endif %}>Change User's Password</span>
             </a>
         <span id="password_change_message"></span>
         {% endif %}
