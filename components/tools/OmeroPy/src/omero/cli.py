@@ -37,6 +37,7 @@ import errno
 from threading import Lock
 from path import path
 from contextlib import contextmanager
+from functools import wraps
 
 from omero_ext.argparse import ArgumentError
 from omero_ext.argparse import ArgumentTypeError
@@ -599,23 +600,26 @@ class Context:
 #
 
 
-def admin_only(func):
+def admin_only(*fargs):
     """
-    Checks that the current user is an admin or throws an exception.
+    Checks that the current user is an admin and has sufficient privileges,
+    or throws an exception.
     """
-    def _check_admin(*args, **kwargs):
-        args = list(args)
-        self = args[0]
-        plugin_args = args[1]
-        client = self.ctx.conn(plugin_args)
-        ec = client.sf.getAdminService().getEventContext()
-        if not ec.isAdmin:
-            self.error_admin_only(fatal=True)
-        return func(*args, **kwargs)
-
-    from omero.util.decorators import wraps
-    _check_admin = wraps(func)(_check_admin)
-    return _check_admin
+    def _admin_only(func):
+        @wraps(func)
+        def _check_admin(*args, **kwargs):
+            self = args[0]
+            plugin_args = args[1]
+            client = self.ctx.conn(plugin_args)
+            ec = client.sf.getAdminService().getEventContext()
+            if not ec.isAdmin:
+                self.error_admin_only(fatal=True)
+            elif not set(fargs) <= set(ec.adminPrivileges):
+                # TODO: change to "insufficient privileges" error message
+                self.error_admin_only(fatal=True)
+            return func(*args, **kwargs)
+        return _check_admin
+    return _admin_only
 
 
 class BaseControl(object):
