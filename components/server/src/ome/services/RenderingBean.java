@@ -814,7 +814,10 @@ public class RenderingBean implements RenderingEngine, Serializable {
             Family family = cb.getFamily();
             Double coefficient = cb.getCoefficient();
             Boolean noiseReduction = cb.getNoiseReduction();
-            setQuantizationMap(w, family, coefficient, noiseReduction);
+            if (family != null && coefficient != null
+                    && noiseReduction != null) {
+                setQuantizationMap(w, family, coefficient, noiseReduction);
+            }
             // Emulate setChannelWindow(int, double, double)
             Double start = cb.getInputStart();
             Double end = cb.getInputEnd();
