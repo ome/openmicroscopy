@@ -612,11 +612,12 @@ def admin_only(*fargs):
             plugin_args = args[1]
             client = self.ctx.conn(plugin_args)
             ec = client.sf.getAdminService().getEventContext()
+            have_privs = set(ec.adminPrivileges)
+            need_privs = set(fargs)
             if not ec.isAdmin:
                 self.error_admin_only(fatal=True)
-            elif not set(fargs) <= set(ec.adminPrivileges):
-                # TODO: change to "insufficient privileges" error message
-                self.error_admin_only(fatal=True)
+            elif not need_privs <= have_privs:
+                self.error_admin_only_privs(need_privs - have_privs, fatal=True)
             return func(*args, **kwargs)
         return _check_admin
     return _admin_only
@@ -919,6 +920,12 @@ class BaseControl(object):
             self.ctx.die(code, msg)
         else:
             self.ctx.err(msg)
+
+    def error_admin_only_privs(self, restrictions,
+                               msg="SecurityViolation: Admin restrictions: ",
+                               code=111, fatal=True):
+        msg += ", ".join(sorted(restrictions))
+        self.error_admin_only(msg=msg, code=code, fatal=fatal)
 
     def _order_and_range_ids(self, ids):
         from itertools import groupby
