@@ -598,3 +598,35 @@ class TestWeb(object):
         d = self.compare_with_reference(
             server_type[0] + '-withoptions.conf', o)
         assert not d, 'Files are different:\n' + d
+
+    def testNginxLocationComment(self):
+        """
+        Check the example comment in nginx-location matches the recommended
+        nginx configuration
+        """
+
+        def clean(refname):
+            fn = path(__file__).dirname() / 'reference_templates' / refname
+            out = []
+            with open(fn) as f:
+                for line in f:
+                    if re.match('##\s*\w', line):
+                        out.append(line[2:].strip())
+                    elif re.match('[^#]\s*\w', line):
+                        out.append(line.strip())
+            return out
+
+        diffs = list(unified_diff(
+            clean('nginx.conf'), clean('nginx-location.conf'), n=0))
+        assert diffs == [
+            '--- \n',
+            '+++ \n',
+            '@@ -1,2 +0,0 @@\n',
+            '-upstream omeroweb {',
+            '-server 127.0.0.1:4080 fail_timeout=0;',
+            '@@ -7,0 +6 @@\n',
+            '+include /opt/omero/web/omero-web-location.include;',
+            '@@ -19 +18 @@\n',
+            '-proxy_pass http://omeroweb;',
+            '+proxy_pass http://127.0.0.1:4080;'
+        ]
