@@ -1003,12 +1003,6 @@
   License File: apache-v2.0.txt
 
 
-  Artifacts:    components/tools/OmeroPy/src/omero_ext/functional.py
-  Web Site:     http://code.djangoproject.com/browser/django/trunk/django/utils/functional.py
-  License:      Python Software Foundation License, Version 2.0
-  License File: psf-v2.0.txt
-
-
   Artifacts:    components/tools/OmeroPy/src/omero_ext/killableprocess.py
   Web Site:     https://github.com/andreisavu/python-process/blob/master/killableprocess.py
   License:      
