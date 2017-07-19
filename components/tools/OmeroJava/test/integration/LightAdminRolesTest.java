@@ -391,13 +391,8 @@ public class LightAdminRolesTest extends RolesTests {
       normalUsergroup = addUsers(normalUsergroup, ImmutableList.of(lightAdmin.userId, otherUser.userId), false);
       /* normalUser creates a Dataset and Project.*/
       loginUser(normalUser);
-      client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
-      Project proj = mmFactory.simpleProject();
-      Dataset dat = mmFactory.simpleDataset();
-      Project sentProj = null;
-      Dataset sentDat = null;
-      sentProj = (Project) iUpdate.saveAndReturnObject(proj);
-      sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
+      Project sentProj = (Project) iUpdate.saveAndReturnObject(mmFactory.simpleProject());
+      Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(mmFactory.simpleDataset());
       /* normalUser imports an image
        * and targets it into the created Dataset.*/
       List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
@@ -1000,7 +995,7 @@ public class LightAdminRolesTest extends RolesTests {
      * @param groupPermissions to test the effect of group permission level
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "WriteOwned and IsAdmin cases")
+    @Test(dataProvider = "WriteOwned and isAdmin cases")
     public void testLinkMemberOfGroupNoSudo(boolean permWriteOwned, boolean isAdmin,
             String groupPermissions) throws Exception {
         /* WriteOwned permission is necessary and sufficient for lightAdmin to link
@@ -2224,10 +2219,10 @@ public class LightAdminRolesTest extends RolesTests {
     }
 
     /**
-     * @return WriteOwned and Chown test cases for
+     * @return WriteOwned and isAdmin test cases for
      * testLinkNoSudo and testROIAndRenderingSettingsNoSudo
      */
-    @DataProvider(name = "WriteOwned and IsAdmin cases")
+    @DataProvider(name = "WriteOwned and isAdmin cases")
     public Object[][] provideWriteOwnedAndIsAdmin() {
         int index = 0;
         final int PERM_WRITEOWNED = index++;
