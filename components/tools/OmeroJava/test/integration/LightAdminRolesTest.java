@@ -298,12 +298,8 @@ public class LightAdminRolesTest extends RolesTests {
         sudo(new ExperimenterI(normalUser.userId, false));
         /* Create a Dataset and Project being sudoed as normalUser.*/
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
-        Project proj = mmFactory.simpleProject();
-        Dataset dat = mmFactory.simpleDataset();
-        Project sentProj = null;
-        Dataset sentDat = null;
-        sentProj = (Project) iUpdate.saveAndReturnObject(proj);
-        sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
+        Project sentProj = (Project) iUpdate.saveAndReturnObject(mmFactory.simpleProject());
+        Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(mmFactory.simpleDataset());
         /* Import an image for the normalUser into the normalUser's default group
          * and target it into the created Dataset.*/
         List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
