@@ -957,7 +957,7 @@ present, the user will enter a console""")
         else:
             self.ctx.call(command)
 
-    @admin_only
+    @admin_only()
     @with_config
     def fixpyramids(self, args, config):
         self.check_access()
@@ -1789,7 +1789,7 @@ OMERO Diagnostics %s
             " regenerated. Use the omero.ports.xxx configuration properties"
             " instead.")
 
-    @admin_only
+    @admin_only()
     def cleanse(self, args):
         self.check_access()
         from omero.util.cleanse import cleanse

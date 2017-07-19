@@ -133,7 +133,7 @@ server-permissions.html
         except ValueError, ve:
             self.ctx.die(505, str(ve))
 
-    @admin_only
+    @admin_only()
     def add(self, args):
 
         import omero

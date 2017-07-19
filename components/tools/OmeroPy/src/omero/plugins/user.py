@@ -214,7 +214,7 @@ class UserControl(UserGroupControl):
         groups = admin.containedGroups(uids[0])
         self.output_groups_list(groups, args)
 
-    @admin_only
+    @admin_only()
     def add(self, args):
         email = args.email
         login = args.username

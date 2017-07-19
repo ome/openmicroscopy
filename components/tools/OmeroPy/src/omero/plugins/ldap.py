@@ -92,7 +92,7 @@ to users.""")
         for x in (active, list, getdn, setdn, discover, create):
             x.add_login_arguments()
 
-    @admin_only
+    @admin_only()
     def active(self, args):
         c = self.ctx.conn(args)
         ildap = c.sf.getLdapService()
@@ -102,7 +102,7 @@ to users.""")
         else:
             self.ctx.die(1, "No")
 
-    @admin_only
+    @admin_only()
     def list(self, args):
         c = self.ctx.conn(args)
         iadmin = c.sf.getAdminService()
@@ -129,7 +129,7 @@ to users.""")
                 count += 1
         self.ctx.out(str(tb.build()))
 
-    @admin_only
+    @admin_only()
     def getdn(self, args):
         c = self.ctx.conn(args)
         iadmin = c.sf.getAdminService()
@@ -163,7 +163,7 @@ to users.""")
         if dn is not None and dn.strip():
             self.ctx.out(dn)
 
-    @admin_only
+    @admin_only()
     def setdn(self, args):
         c = self.ctx.conn(args)
         iupdate = c.sf.getUpdateService()
@@ -188,7 +188,7 @@ to users.""")
                               in ("yes", "true", "t", "1")))
             iupdate.saveObject(obj)
 
-    @admin_only
+    @admin_only()
     def discover(self, args):
         c = self.ctx.conn(args)
         ildap = c.sf.getLdapService()
@@ -223,7 +223,7 @@ to users.""")
                                      % (e.getId().getValue(),
                                         e.getOmeName().getValue()))
 
-    @admin_only
+    @admin_only()
     def create(self, args):
         c = self.ctx.conn(args)
         ildap = c.sf.getLdapService()
