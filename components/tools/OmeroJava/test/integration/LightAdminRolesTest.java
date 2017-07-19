@@ -2023,7 +2023,7 @@ public class LightAdminRolesTest extends RolesTests {
     }
 
     /**
-     * @return test cases for testDelete
+     * @return test cases for {@link #testDeleteGroupMemberNoSudo}
      */
     @DataProvider(name = "isAdmin and Delete cases")
     public Object[][] provideIsAdminDeleteOwned() {
@@ -2201,7 +2201,7 @@ public class LightAdminRolesTest extends RolesTests {
 
     /**
      * @return WriteOwned and isAdmin test cases for
-     * testLinkNoSudo and testROIAndRenderingSettingsNoSudo
+     * {@link #testLinkMemberOfGroupNoSudo}
      */
     @DataProvider(name = "WriteOwned and isAdmin cases")
     public Object[][] provideWriteOwnedAndIsAdmin() {
