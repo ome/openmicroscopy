@@ -327,9 +327,8 @@ public class LightAdminRolesTest extends RolesTests {
          * during writing of this test. The order of the below delete() commands
          * is intentional, as the ability to delete the links and Project/Dataset/Image separately is
          * tested in this way.
-         * Also check that the canDelete boolean
-         * on the object retrieved by the lightAdmin matches the deletePassing
-         * boolean.*/
+         * Also check that the canDelete boolean on the object retrieved
+         * by the lightAdmin matches the deletePassing boolean.*/
         Assert.assertEquals(getCurrentPermissions(datasetImageLink).canDelete(), deletePassing);
         doChange(client, factory, Requests.delete().target(datasetImageLink).build(), deletePassing);
         Assert.assertEquals(getCurrentPermissions(projectDatasetLink).canDelete(), deletePassing);
@@ -1002,7 +1001,8 @@ public class LightAdminRolesTest extends RolesTests {
          * others objects to their objects. Exceptions are Private group, where such linking will
          * fail in all cases and Read-Write group where linking will succeed even
          * for otherUser (otherUser and lightAdmin are both members of the group).*/
-        boolean isExpectLinkingSuccessAdmin = (permWriteOwned && !groupPermissions.equals("rw----") || groupPermissions.equals("rwrw--"));
+        boolean isExpectLinkingSuccessAdmin =
+                (permWriteOwned && !groupPermissions.equals("rw----") || groupPermissions.equals("rwrw--"));
         boolean isExpectLinkingSuccessUser = groupPermissions.equals("rwrw--");
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         final EventContext otherUser = newUserAndGroup(groupPermissions);
@@ -1064,23 +1064,23 @@ public class LightAdminRolesTest extends RolesTests {
         }
     }
 
-        /**
-         * Light admin (lightAdmin) imports data for others (normalUser) without using Sudo.
-         * lightAdmin first creates a Dataset and imports an Image into it in lightAdmin's group
-         * (normalUser is not member of lightAdmin's group).
-         * Then, lightAdmin tries to move the Dataset into normalUser's group.
-         * Then, lightAdmin tries to chown the Dataset to normalUser.
-         * For this test, combinations of <tt>Chown</tt>, <tt>Chgrp</tt>,
-         * privileges of lightAdmin are explored.
-         * @param permChgrp if to test a user who has the <tt>Chgrp</tt> privilege
-         * @param permChown if to test a user who has the <tt>Chown</tt> privilege
-         * @param groupPermissions to test the effect of group permission level
-         * @throws Exception unexpected
-         * @see <a href="https://docs.google.com/presentation/d/1zqDRwYDm3wA_xE79M6qR56U8giFbLFDywH3slj0wURA/edit">graphical explanation</a>
-         */
-        @Test(dataProvider = "Chgrp and Chown privileges cases")
-        public void testImporterAsNoSudoChgrpChownWorkflow(boolean permChgrp, boolean permChown,
-                String groupPermissions) throws Exception {
+    /**
+     * Light admin (lightAdmin) imports data for others (normalUser) without using Sudo.
+     * lightAdmin first creates a Dataset and imports an Image into it in lightAdmin's group
+     * (normalUser is not member of lightAdmin's group).
+     * Then, lightAdmin tries to move the Dataset into normalUser's group.
+     * Then, lightAdmin tries to chown the Dataset to normalUser.
+     * For this test, combinations of <tt>Chown</tt>, <tt>Chgrp</tt>,
+     * privileges of lightAdmin are explored.
+     * @param permChgrp if to test a user who has the <tt>Chgrp</tt> privilege
+     * @param permChown if to test a user who has the <tt>Chown</tt> privilege
+     * @param groupPermissions to test the effect of group permission level
+     * @throws Exception unexpected
+     * @see <a href="https://docs.google.com/presentation/d/1zqDRwYDm3wA_xE79M6qR56U8giFbLFDywH3slj0wURA/edit">graphical explanation</a>
+     */
+    @Test(dataProvider = "Chgrp and Chown privileges cases")
+    public void testImporterAsNoSudoChgrpChownWorkflow(boolean permChgrp, boolean permChown,
+            String groupPermissions) throws Exception {
         /* Importing into the group of the lightAdmin and
          * subsequent moving the data into the group of normalUser and chowning
          * them to the normalUser succeeds if Chgrp and Chown is possible,
