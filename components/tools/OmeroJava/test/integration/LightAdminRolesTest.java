@@ -1000,6 +1000,7 @@ public class LightAdminRolesTest extends RolesTests {
         boolean isExpectLinkingSuccessAdmin =
                 (permWriteOwned && !groupPermissions.equals("rw----") || groupPermissions.equals("rwrw--"));
         boolean isExpectLinkingSuccessUser = groupPermissions.equals("rwrw--");
+        final boolean isExpectLinkingSuccess = isAdmin ? isExpectLinkingSuccessAdmin : isExpectLinkingSuccessUser;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         final EventContext otherUser = newUserAndGroup(groupPermissions);
         ExperimenterGroup normalUsergroup = new ExperimenterGroupI(normalUser.groupId, false);
@@ -1032,31 +1033,15 @@ public class LightAdminRolesTest extends RolesTests {
          * is true (for own image) and for other people's objects (sentProj, sentDat) the canLink
          * are matching the expected behavior (see booleans isExpectLinkingSuccess... definitions).*/
         Assert.assertTrue(getCurrentPermissions(sentOwnImage).canLink());
-        if (isAdmin) {
-            Assert.assertEquals(getCurrentPermissions(sentProj).canLink(), isExpectLinkingSuccessAdmin);
-        } else {
-            Assert.assertEquals(getCurrentPermissions(sentProj).canLink(), isExpectLinkingSuccessUser);
-        }
+        Assert.assertEquals(getCurrentPermissions(sentProj).canLink(), isExpectLinkingSuccess);
         /* lightAdmin or otherUser try to create links between their own image and normalUser's Dataset
          * and between their own Dataset and normalUser's Project.*/
-        DatasetImageLink linkOfDatasetImage = new DatasetImageLinkI();
-        ProjectDatasetLink linkOfProjectDataset = new ProjectDatasetLinkI();
-        if (isAdmin) {
-            try {
-                linkOfDatasetImage = linkParentToChild(sentDat, sentOwnImage);
-                linkOfProjectDataset = linkParentToChild(sentProj, sentOwnDat);
-                Assert.assertTrue(isExpectLinkingSuccessAdmin);
-            } catch (ServerError se) {
-                Assert.assertFalse(isExpectLinkingSuccessAdmin, se.toString());
-            }
-        } else {
-            try {
-                linkOfDatasetImage = linkParentToChild(sentDat, sentOwnImage);
-                linkOfProjectDataset = linkParentToChild(sentProj, sentOwnDat);
-                Assert.assertTrue(isExpectLinkingSuccessUser);
-            } catch (ServerError se) {
-                Assert.assertFalse(isExpectLinkingSuccessUser, se.toString());
-            }
+        try {
+            DatasetImageLink linkOfDatasetImage = linkParentToChild(sentDat, sentOwnImage);
+            ProjectDatasetLink linkOfProjectDataset = linkParentToChild(sentProj, sentOwnDat);
+            Assert.assertTrue(isExpectLinkingSuccess);
+        } catch (ServerError se) {
+            Assert.assertFalse(isExpectLinkingSuccess, se.toString());
         }
     }
 
