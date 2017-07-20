@@ -1019,7 +1019,7 @@ public class LightAdminRolesTest extends RolesTests {
         Project proj = mmFactory.simpleProject();
         Project sentProj = (Project) iUpdate.saveAndReturnObject(proj);
         /* Create Image and Dataset as lightAdmin or otherUser in normalUser's group.*/
-        if(isAdmin) {
+        if (isAdmin) {
             loginUser(lightAdmin);
         } else {
             loginUser(otherUser);
