@@ -334,10 +334,15 @@
     <div class="verticalDragHandle"></div>
 </div>
 <div id="wellImagesContainer" class="wellImages fillSpace" style="bottom: 0px; height: 150px">
-    <div class='fillSpace toolbarBg' style='top: 0; height: 26px; border-bottom: solid 1px #ddd; padding-left:10px'>
-        <span>Wrap</span>
-        <input type="number" id="imagesPerRow" min="0" style="margin: 2px; width: 30px;"/>
-        <span>images per row</span>
+    <div class='fillSpace toolbarBg' style='top: 0; height: 30px; border-bottom: solid 1px #ddd; padding-left:10px;'>
+        <div style="float:left;">
+            <span>Wrap</span>
+            <input type="number" id="imagesPerRow" min="0" style="margin: 2px; width: 30px;"/>
+            <span>images per row</span>
+        </div>
+        <div style='margin-top: 10px; margin-left: auto; margin-right: auto; transform: translate(-80px, 0px); text-align: center;'>
+            <span>Images from each field</span>
+        </div>
     </div>
     <!-- Scrollable container for wellImages -->
     <div id="wellImages" class='fillSpace' style='top: 26px; bottom: 25px'>
