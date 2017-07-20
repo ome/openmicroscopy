@@ -244,6 +244,10 @@ public class Quantization_8_16_bit extends QuantumStrategy {
             LUT[x - lutMin] = (byte) cdStart;
         }
 
+        boolean doTransform = true;
+        if (valueMapper instanceof PolynomialMap && k == 1.0) {
+            doTransform = false;
+        }
         for (; x < dEnd; ++x) {
         	if (x > Q1) {
                 if (x <= Q9) {
@@ -255,10 +259,10 @@ public class Quantization_8_16_bit extends QuantumStrategy {
                 v = cdStart;
             }
         	
-            if (valueMapper instanceof PolynomialMap && k == 1.0) {
-                v = aNormalized * (v - ysNormalized);
-            } else {
+            if (doTransform) {
                 v = aNormalized * (valueMapper.transform(v, k) - ysNormalized);
+            } else {
+                v = aNormalized * (v - ysNormalized);
             }
             v = Math.round(v);
             v = Math.round(a1 * v + cdStart);
