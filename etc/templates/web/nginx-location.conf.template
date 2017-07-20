@@ -1,0 +1,43 @@
+# These location blocks should be included in your server configuration
+# For example:
+#
+##server {
+##    listen 80;
+##    server_name $hostname;
+##
+##    # SSL configuration ...
+##
+##    sendfile on;
+##    client_max_body_size 0;
+##
+##    # Include generated file from omero web config nginx-location:
+##    include /opt/omero/web/omero-web-location.include;
+##}
+
+# maintenance page serve from here
+location @maintenance%(PREFIX_NAME)s {
+    root %(ROOT)s/etc/templates/error;
+    try_files $uri /maintainance.html =502;
+}
+
+# weblitz django apps serve media from here
+location %(STATIC_URL)s {
+    alias %(STATIC_ROOT)s;
+}
+
+location @proxy_to_app%(PREFIX_NAME)s {
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+    proxy_redirect off;
+    proxy_buffering off;
+
+    proxy_pass http://%(FASTCGI_EXTERNAL)s;
+}
+
+location %(FORCE_SCRIPT_NAME)s {
+
+    error_page 502 @maintenance%(PREFIX_NAME)s;
+    # checks for static file, if not found proxy to app
+    try_files $uri @proxy_to_app%(PREFIX_NAME)s;
+}
