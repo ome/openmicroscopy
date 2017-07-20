@@ -1415,8 +1415,8 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         listOfOwners = list()
         for exp in owners:
             listOfOwners.append(exp._obj)
-
-        admin_serv.addGroupOwners(group, listOfOwners)
+        if listOfOwners:
+            admin_serv.addGroupOwners(group, listOfOwners)
         return gr_id
 
     def updateGroup(self, group, name, permissions, owners=list(),
@@ -1455,34 +1455,42 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         add_exps = list()
         rm_exps = list()
 
-        # remove
-        for oex in old_owners:
-            flag = False
-            for nex in owners:
-                if nex._obj.id.val == oex.id.val:
-                    flag = True
-            if not flag:
-                rm_exps.append(oex)
-
-        # add
-        for nex in owners:
-            flag = False
+        can_mod = 'ModifyGroupMembership' in self.getCurrentAdminPrivileges()
+        if can_mod:
+            # remove
             for oex in old_owners:
-                if oex.id.val == nex._obj.id.val:
-                    flag = True
-            if not flag:
-                add_exps.append(nex._obj)
+                flag = False
+                for nex in owners:
+                    if nex._obj.id.val == oex.id.val:
+                        flag = True
+                if not flag:
+                    rm_exps.append(oex)
+
+            # add
+            for nex in owners:
+                flag = False
+                for oex in old_owners:
+                    if oex.id.val == nex._obj.id.val:
+                        flag = True
+                if not flag:
+                    add_exps.append(nex._obj)
 
         msgs = []
         admin_serv = self.getAdminService()
         # Should we update updateGroup so this would be atomic?
         admin_serv.updateGroup(up_gr)
+
+        if str(permissions) == str(up_gr.details.getPermissions()):
+            permissions = None
+
         if permissions is not None:
             err = self.updatePermissions(group, permissions)
             if err is not None:
                 msgs.append(err)
-        admin_serv.addGroupOwners(up_gr, add_exps)
-        admin_serv.removeGroupOwners(up_gr, rm_exps)
+        if add_exps:
+            admin_serv.addGroupOwners(up_gr, add_exps)
+        if rm_exps:
+            admin_serv.removeGroupOwners(up_gr, rm_exps)
         return msgs
 
     def updateMyAccount(self, experimenter, firstName, lastName, email,
