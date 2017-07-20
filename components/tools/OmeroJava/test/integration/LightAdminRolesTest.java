@@ -1013,7 +1013,6 @@ public class LightAdminRolesTest extends RolesTests {
         normalUsergroup = addUsers(normalUsergroup, ImmutableList.of(lightAdmin.userId, otherUser.userId), false);
         /* Create Dataset and Project as normalUser in normalUser's group.*/
         loginUser(normalUser);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         Dataset dat = mmFactory.simpleDataset();
         Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
         Project proj = mmFactory.simpleProject();
