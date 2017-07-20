@@ -68,6 +68,8 @@ import omeis.providers.re.quantum.QuantumFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
+import org.perf4j.StopWatch;
+import org.perf4j.slf4j.Slf4JStopWatch;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -1185,6 +1187,8 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
     @RolesAllowed("user")
     public void setChannelLookupTable(int w, String lookup) {
+        StopWatch t0 = new Slf4JStopWatch(
+                "RenderingBean.setChannelLookupTable");
         rwl.readLock().lock();
 
         try {
@@ -1192,6 +1196,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
             renderer.setChannelLookupTable(w, lookup);
         } finally {
             rwl.readLock().unlock();
+            t0.stop();
         }
     }
 
@@ -1455,12 +1460,14 @@ public class RenderingBean implements RenderingEngine, Serializable {
      */
     @RolesAllowed("user")
     public void setActive(int w, boolean active) {
+        StopWatch t0 = new Slf4JStopWatch("RenderingBean.setActive");
         try {
             rwl.writeLock().lock();
             errorIfInvalidState();
             renderer.setActive(w, active);
         } finally {
             rwl.writeLock().unlock();
+            t0.stop();
         }
     }
 
@@ -1471,6 +1478,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
      */
     @RolesAllowed("user")
     public void setChannelWindow(int w, double start, double end) {
+        StopWatch t0 = new Slf4JStopWatch("RenderingBean.setChannelWindow");
         rwl.writeLock().lock();
 
         try {
@@ -1478,6 +1486,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
             renderer.setChannelWindow(w, start, end);
         } finally {
             rwl.writeLock().unlock();
+            t0.stop();
         }
     }
 
@@ -1488,12 +1497,14 @@ public class RenderingBean implements RenderingEngine, Serializable {
      */
     @RolesAllowed("user")
     public void setCodomainInterval(int start, int end) {
+        StopWatch t0 = new Slf4JStopWatch("RenderingBean.setCodomainInterval");
         rwl.writeLock().lock();
         try {
             errorIfInvalidState();
             renderer.setCodomainInterval(start, end);
         } finally {
             rwl.writeLock().unlock();
+            t0.stop();
         }
     }
 
@@ -1504,6 +1515,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
      */
     @RolesAllowed("user")
     public void setDefaultT(int t) {
+        StopWatch t0 = new Slf4JStopWatch("RenderingBean.setDefaultT");
         rwl.writeLock().lock();
 
         try {
@@ -1511,6 +1523,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
             renderer.setDefaultT(t);
         } finally {
             rwl.writeLock().unlock();
+            t0.stop();
         }
     }
 
@@ -1521,6 +1534,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
      */
     @RolesAllowed("user")
     public void setDefaultZ(int z) {
+        StopWatch t0 = new Slf4JStopWatch("RenderingBean.setDefaultZ");
         rwl.writeLock().lock();
 
         try {
@@ -1528,6 +1542,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
             renderer.setDefaultZ(z);
         } finally {
             rwl.writeLock().unlock();
+            t0.stop();
         }
     }
 
@@ -1538,6 +1553,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
      */
     @RolesAllowed("user")
     public void setModel(RenderingModel model) {
+        StopWatch t0 = new Slf4JStopWatch("RenderingBean.setModel");
         rwl.writeLock().lock();
 
         try {
@@ -1546,6 +1562,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
             renderer.setModel(m);
         } finally {
             rwl.writeLock().unlock();
+            t0.stop();
         }
     }
 
@@ -1557,6 +1574,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
     @RolesAllowed("user")
     public void setQuantizationMap(int w, Family family, double coefficient,
             boolean noiseReduction) {
+        StopWatch t0 = new Slf4JStopWatch("RenderingBean.setQuantizationMap");
         rwl.writeLock().lock();
 
         try {
@@ -1565,6 +1583,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
             renderer.setQuantizationMap(w, f, coefficient, noiseReduction);
         } finally {
             rwl.writeLock().unlock();
+            t0.stop();
         }
     }
 
@@ -1575,6 +1594,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
      */
     @RolesAllowed("user")
     public void setQuantumStrategy(int bitResolution) {
+        StopWatch t0 = new Slf4JStopWatch("RenderingBean.setQuantumStrategy");
         rwl.writeLock().lock();
 
         try {
@@ -1582,6 +1602,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
             renderer.setQuantumStrategy(bitResolution);
         } finally {
             rwl.writeLock().unlock();
+            t0.stop();
         }
     }
 
@@ -1592,6 +1613,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
      */
     @RolesAllowed("user")
     public void setRGBA(int w, int red, int green, int blue, int alpha) {
+        StopWatch t0 = new Slf4JStopWatch("RenderingBean.setRGBA");
         rwl.writeLock().lock();
 
         try {
@@ -1599,6 +1621,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
             renderer.setRGBA(w, red, green, blue, alpha);
         } finally {
             rwl.writeLock().unlock();
+            t0.stop();
         }
     }
 
