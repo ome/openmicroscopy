@@ -237,8 +237,6 @@ public class Quantization_8_16_bit extends QuantumStrategy {
         initNormalizedMap(k);
         // Initializes the decile map.
         double v = initDecileMap(dStart, dEnd);
-        QuantumMap normalize = new PolynomialMap();
-        
 
         // Build the LUT
         int x = lutMin;
@@ -249,7 +247,7 @@ public class Quantization_8_16_bit extends QuantumStrategy {
         for (; x < dEnd; ++x) {
         	if (x > Q1) {
                 if (x <= Q9) {
-                    v = aDecile * normalize.transform(x, 1) - bDecile;
+                    v = aDecile * x - bDecile;
                 } else {
                     v = cdEnd;
                 }
