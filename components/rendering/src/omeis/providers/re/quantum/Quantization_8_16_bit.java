@@ -255,7 +255,11 @@ public class Quantization_8_16_bit extends QuantumStrategy {
                 v = cdStart;
             }
         	
-            v = aNormalized * (valueMapper.transform(v, k) - ysNormalized);
+            if (valueMapper instanceof PolynomialMap && k == 1.0) {
+                v = aNormalized * (v - ysNormalized);
+            } else {
+                v = aNormalized * (valueMapper.transform(v, k) - ysNormalized);
+            }
             v = Math.round(v);
             v = Math.round(a1 * v + cdStart);
             LUT[x - lutMin] = (byte) v;
