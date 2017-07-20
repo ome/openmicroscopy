@@ -11,6 +11,8 @@
 import sys
 
 from omero.cli import UserGroupControl, CLI, ExceptionHandler, admin_only
+from omero.model.enums import (AdminPrivilegeModifyGroupMembership,
+                               AdminPrivilegeModifyUser)
 from omero.rtypes import unwrap as _
 
 HELP = "Support for adding and managing users"
@@ -214,7 +216,7 @@ class UserControl(UserGroupControl):
         groups = admin.containedGroups(uids[0])
         self.output_groups_list(groups, args)
 
-    @admin_only()
+    @admin_only(AdminPrivilegeModifyUser, AdminPrivilegeModifyGroupMembership)
     def add(self, args):
         email = args.email
         login = args.username

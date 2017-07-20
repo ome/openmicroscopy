@@ -11,6 +11,7 @@
 import sys
 
 from omero.cli import UserGroupControl, CLI, ExceptionHandler, admin_only
+from omero.model.enums import AdminPrivilegeModifyGroup
 
 HELP = """Group administration methods"""
 defaultperms = {
@@ -133,7 +134,7 @@ server-permissions.html
         except ValueError, ve:
             self.ctx.die(505, str(ve))
 
-    @admin_only()
+    @admin_only(AdminPrivilegeModifyGroup)
     def add(self, args):
 
         import omero
