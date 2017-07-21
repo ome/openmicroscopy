@@ -617,7 +617,8 @@ def admin_only(*fargs):
             if not ec.isAdmin:
                 self.error_admin_only(fatal=True)
             elif not need_privs <= have_privs:
-                self.error_admin_only_privs(need_privs - have_privs, fatal=True)
+                self.error_admin_only_privs(need_privs - have_privs,
+                                            fatal=True)
             return func(*args, **kwargs)
         return _check_admin
     return _admin_only
