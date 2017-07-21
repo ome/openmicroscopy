@@ -513,8 +513,24 @@ public interface RenderingEngine extends StatefulServiceInterface {
      * definition and associated sub-objects.
      * @param settings Rendering definition to copy from. Each sub-object
      * will be processed as though the specific method was called with
-     * related attributes provided as arguments. <b>NOTE:</b> Codomain
-     * mappings are ignored.
+     * related attributes provided as arguments. The following methods are
+     * called underneath: <ul>
+     * <li>{@link RenderingEngine#setModel(RenderingModel)}</li>
+     * <li>{@link RenderingEngine#setDefaultZ(int)}</li>
+     * <li>{@link RenderingEngine#setDefaultT(int)}</li>
+     * <li>{@link RenderingEngine#setQuantumStrategy(int)}</li>
+     * <li>{@link RenderingEngine#setCodomainInterval(int, int)}</li>
+     * <li>{@link RenderingEngine#setActive(int, boolean)}</li>
+     * <li>{@link RenderingEngine#setChannelWindow(int, double, double)}</li>
+     * <li>{@link RenderingEngine#setQuantizationMap(int, Family, double, boolean)}</li>
+     * <li>{@link RenderingEngine#setRGBA(int, int, int, int, int)}</li>
+     * <li>{@link RenderingEngine#setChannelLookupTable(int, String)}</li>
+     * </ul>
+     * If one or more attributes that apply to a particular method are
+     * <code>null</code> it will be <b>skipped</b>. The underlying Renderer is
+     * not able to handle partial field updates.
+     *
+     * <b>NOTE:</b> Codomain mappings are ignored.
      */
     public void updateSettings(RenderingDef settings);
 

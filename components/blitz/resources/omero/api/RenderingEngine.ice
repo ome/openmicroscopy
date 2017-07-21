@@ -475,8 +475,13 @@ module omero {
                  * definition and associated sub-objects.
                  * @param settings Rendering definition to copy from. Each sub-object
                  * will be processed as though the specific method was called with
-                 * related attributes provided as arguments. NOTE: Codomain
-                 * mappings are ignored.
+                 * related attributes provided as arguments.
+                 *
+                 * If one or more attributes that apply to a particular method are
+                 * null it will be skipped. The underlying Renderer is not able 
+                 * to handle partial field updates.
+                 *
+                 * NOTE: Codomain mappings are ignored.
                  */
                 idempotent void updateSettings(omero::model::RenderingDef settings) throws ServerError;
 

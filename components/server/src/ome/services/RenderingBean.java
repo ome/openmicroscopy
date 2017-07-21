@@ -812,6 +812,15 @@ public class RenderingBean implements RenderingEngine, Serializable {
         }
         for (int w = 0; w < settings.sizeOfWaveRendering(); w++) {
             ChannelBinding cb = settings.getChannelBinding(w);
+            // Emulate setActive(boolean)
+            Boolean active = cb.getActive();
+            setActive(w, active);
+            // Emulate setChannelWindow(int, double, double)
+            Double start = cb.getInputStart();
+            Double end = cb.getInputEnd();
+            if (start != null && end != null) {
+                setChannelWindow(w, start, end);
+            }
             // Emulate setQuantizationMap(int, Family, double, boolean)
             Family family = cb.getFamily();
             Double coefficient = cb.getCoefficient();
@@ -820,22 +829,19 @@ public class RenderingBean implements RenderingEngine, Serializable {
                     && noiseReduction != null) {
                 setQuantizationMap(w, family, coefficient, noiseReduction);
             }
-            // Emulate setChannelWindow(int, double, double)
-            Double start = cb.getInputStart();
-            Double end = cb.getInputEnd();
-            setChannelWindow(w, start, end);
             // Emulate setRGBA(int, int, int, int, int)
             Integer red = cb.getRed();
             Integer green = cb.getGreen();
             Integer blue = cb.getBlue();
             Integer alpha = cb.getAlpha();
-            setRGBA(w, red, green, blue, alpha);
-            // Emulate setActive(boolean)
-            Boolean active = cb.getActive();
-            setActive(w, active);
+            if (red != null && green != null && blue != null && alpha != null) {
+                setRGBA(w, red, green, blue, alpha);
+            }
             // Emulate setChannelLookupTable(int, String)
-            String lookup = cb.getLookupTable();
-            setChannelLookupTable(w, lookup);
+            String lookupTable = cb.getLookupTable();
+            if (lookupTable != null) {
+                setChannelLookupTable(w, lookupTable);
+            }
         }
     }
 
