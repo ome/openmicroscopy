@@ -278,8 +278,7 @@ public class BasicACLVoter implements ACLVoter {
         Assert.notNull(iObject);
         Class<?> cls = iObject.getClass();
 
-        boolean sysType = sysTypes.isSystemType(cls)
-            || sysTypes.isInSystemGroup(iObject.getDetails());
+        boolean sysType = sysTypes.isSystemType(cls);
 
         // Note: removed restriction from #1769 that admins can only
         // create objects belonging to the current user. Instead,
@@ -321,8 +320,7 @@ public class BasicACLVoter implements ACLVoter {
             throws SecurityViolation {
         Assert.notNull(iObject);
 
-        boolean sysType = sysTypes.isSystemType(iObject.getClass()) ||
-            sysTypes.isInSystemGroup(iObject.getDetails());
+        boolean sysType = sysTypes.isSystemType(iObject.getClass());
 
         if (sysType) {
             throw new SecurityViolation(iObject + " is a System-type, and may be created only through privileged APIs.");
@@ -350,8 +348,7 @@ public class BasicACLVoter implements ACLVoter {
     public void throwUpdateViolation(IObject iObject) throws SecurityViolation {
         Assert.notNull(iObject);
 
-        boolean sysType = sysTypes.isSystemType(iObject.getClass()) ||
-            sysTypes.isInSystemGroup(iObject.getDetails());
+        boolean sysType = sysTypes.isSystemType(iObject.getClass());
 
         if (!sysType && currentUser.isGraphCritical(iObject.getDetails())) { // ticket:1769
             throw new GroupSecurityViolation(iObject +"-modification violates " +
@@ -431,8 +428,7 @@ public class BasicACLVoter implements ACLVoter {
             throw new InternalException("trustedDetails are null!");
         }
 
-        final boolean sysType = sysTypes.isSystemType(iObject.getClass()) ||
-            sysTypes.isInSystemGroup(d);
+        final boolean sysType = sysTypes.isSystemType(iObject.getClass());
         final boolean sysTypeOrUsrGroup = sysType ||
             sysTypes.isInUserGroup(d);
 

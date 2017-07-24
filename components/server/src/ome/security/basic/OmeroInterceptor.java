@@ -692,8 +692,7 @@ public class OmeroInterceptor implements Interceptor {
 
         // Light administrator privileges
         final boolean isPrivilegedCreator;
-        final boolean sysType = sysTypes.isSystemType(obj.getClass())
-                || sysTypes.isInSystemGroup(obj.getDetails());
+        final boolean sysType = sysTypes.isSystemType(obj.getClass());
         final Set<AdminPrivilege> privileges = bec.getCurrentAdminPrivileges();
 
         if (!bec.isCurrentUserAdmin()) {
@@ -803,16 +802,13 @@ public class OmeroInterceptor implements Interceptor {
             Permissions groupPerms = currentUser.getCurrentEventContext()
                 .getCurrentGroupPermissions();
 
-            boolean isInSysGrp = sysTypes.isInSystemGroup(newDetails);
             boolean isInUsrGrp = sysTypes.isInUserGroup(newDetails);
             if (groupPerms.identical(source.getPermissions())) {
                 // ok. weird that they're set. probably an instance
                 // of a managed object being passed in as with
                 // ticket:2055
             } else if (!sysTypes.isSystemType(obj.getClass())) {
-                if (isInSysGrp) {
-                    // allow admin to do what they want. is this right?
-                } else if (isInUsrGrp) {
+                if (isInUsrGrp) {
                     // similarly, allow whatever in user group for the moment.
                 } else {
                     throw new PermissionMismatchGroupSecurityViolation(
