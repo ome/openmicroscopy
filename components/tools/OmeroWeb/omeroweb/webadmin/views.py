@@ -404,11 +404,8 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
     if action == 'new':
         user_id = conn.getUserId()
         user_privileges = conn.getCurrentAdminPrivileges()
-        # Only Full Admin can set 'Role' of new experimenter
-        user_full_admin = 'ReadSession' in user_privileges
         can_modify_user = 'ModifyUser' in user_privileges
         form = ExperimenterForm(
-            can_edit_role=user_full_admin,
             can_modify_user=can_modify_user,
             initial={'with_password': True,
                      'active': True,
@@ -538,14 +535,9 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
         user_privileges = conn.getCurrentAdminPrivileges()
         experimenter_root = long(eid) == root_id
         experimenter_me = long(eid) == user_id
-        user_full_admin = 'ReadSession' in user_privileges
         can_modify_user = 'ModifyUser' in user_privileges
-        # Only Full Admin can edit 'Role' of experimenter
-        can_edit_role = user_full_admin and not (experimenter_me
-                                                 or experimenter_root)
         form = ExperimenterForm(
             can_modify_user=can_modify_user,
-            can_edit_role=can_edit_role,
             experimenter_me=experimenter_me,
             experimenter_root=experimenter_root,
             initial=initial)

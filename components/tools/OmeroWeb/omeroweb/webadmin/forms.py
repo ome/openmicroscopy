@@ -99,7 +99,7 @@ class ExperimenterForm(NonASCIIForm):
                  experimenter_me=False,
                  can_modify_user=True,
                  experimenter_root=False,
-                 can_edit_role=True, *args, **kwargs):
+                 *args, **kwargs):
         super(ExperimenterForm, self).__init__(*args, **kwargs)
         self.name_check = name_check
         self.email_check = email_check
@@ -163,13 +163,11 @@ class ExperimenterForm(NonASCIIForm):
                  ('ModifyGroupMembership', 'Add Users to Groups'),
                  ('Script', 'Upload Scripts')]
         for role in roles:
-            disabled = not can_edit_role
             ordered_fields.append(
                 (role[0], forms.BooleanField(
                     required=False,
                     label=role[1],
-                    widget=forms.CheckboxInput(attrs={'class': 'privilege',
-                                                      'disabled': disabled})
+                    widget=forms.CheckboxInput(attrs={'class': 'privilege'})
                 ))
             )
 
@@ -186,14 +184,6 @@ class ExperimenterForm(NonASCIIForm):
             self.fields['active'].widget.attrs['disabled'] = True
             self.fields['active'].widget.attrs['title'] = \
                 "You cannot disable %s" % name
-        if not can_edit_role:
-            self.fields['role'].widget.attrs['disabled'] = True
-            reason = "You don't have permissions to edit user's Role"
-            if experimenter_me:
-                reason = "You can't edit your own admin privileges"
-            elif experimenter_root:
-                reason = "You can't edit 'root' user's admin privileges"
-            self.fields['role'].widget.attrs['title'] = reason
 
         # If we can't modify user, ALL fields are disabled
         if not can_modify_user:
