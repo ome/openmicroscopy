@@ -1063,6 +1063,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
 
     def createExperimenter(self, omeName, firstName, lastName, email, isAdmin,
                            isActive, defaultGroup, otherGroups, password,
+                           privileges,
                            middleName=None, institution=None):
         """
         Create and return a new user in the given groups with password.
@@ -1121,9 +1122,16 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             listOfGroups.append(g._obj)
 
         admin_serv = self.getAdminService()
-        return admin_serv.createExperimenterWithPassword(
-            experimenter, rstring(str(password)), defaultGroup._obj,
-            listOfGroups)
+        exp_id = admin_serv.createLightSystemUser(experimenter, privileges)
+        exp = ExperimenterI(exp_id, False)
+
+        # TODO: Need either Admin's password OR user's existing password here!
+        # self.c.sf.setSecurityPassword(my_password)
+        # admin_serv.changeUserPassword(omeName, rstring(str(password)))
+        admin_serv.addGroups(exp, listOfGroups)
+        admin_serv.setDefaultGroup(exp, defaultGroup._obj)
+
+        return exp
 
     def updateExperimenter(self, experimenter, omeName, firstName, lastName,
                            email, isAdmin, isActive, defaultGroup,
@@ -1226,9 +1234,9 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         if len(rmGroups) > 0 and can_mod:
             admin_serv.removeGroups(up_exp, rmGroups)
 
-    def setConfigRoles(self, experimenter_id, experimenter_form):
+    def getPrivilegesFromForm(self, experimenter_form):
         """
-        Save 'AdminPrivilege' roles from Experimenter Form
+        Get 'AdminPrivilege' roles from Experimenter Form
         """
         def createPrivilege(value):
             privilege = omero.model.AdminPrivilegeI()
@@ -1262,9 +1270,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             if experimenter_form.cleaned_data['Script']:
                 privileges.append(createPrivilege('WriteScriptRepo'))
                 privileges.append(createPrivilege('DeleteScriptRepo'))
-        # Save config...
-        self.getAdminService().setAdminPrivileges(
-            ExperimenterI(experimenter_id, False), privileges)
+        return privileges
 
     def setMembersOfGroup(self, group, new_members):
         """

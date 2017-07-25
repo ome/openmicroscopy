@@ -466,13 +466,12 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                         elif long(og) == g.id:
                             listOfOtherGroups.add(g)
 
+                # iAdmin.createLightSystemUser(createdAdmin, privileges);
+                privileges = conn.getPrivilegesFromForm(form)
                 expId = conn.createExperimenter(
                     omename, firstName, lastName, email, admin, active,
-                    dGroup, listOfOtherGroups, password, middleName,
-                    institution)
-
-                # Update 'AdminPrivilege' config roles for user
-                conn.setConfigRoles(expId, form)
+                    dGroup, listOfOtherGroups, password,
+                    privileges, middleName, institution)
 
                 return HttpResponseRedirect(reverse("waexperimenters"))
             context = {'form': form}
@@ -613,7 +612,9 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                 # If role is empty, roles section of form is disabled - ignore
                 # since disabled privileges will not show up in POST data
                 if role != '':
-                    conn.setConfigRoles(long(eid), form)
+                    privileges = conn.getPrivilegesFromForm(form)
+                    conn.getAdminService().setAdminPrivileges(
+                        experimenter, privileges)
 
                 conn.updateExperimenter(
                     experimenter, omename, firstName, lastName, email, admin,
