@@ -1640,6 +1640,71 @@ public class LightAdminRolesTest extends RolesTests {
     }
 
     /**
+     * Light admin (lightAdmin) tries to create a new user which is also light admin (createdAdmin).
+     * createdAdmin has the same privileges as the creating lightAdmin.
+     * lightAdmin will succeed if they have the <tt>ModifyUser</tt> privilege.
+     * Four types of lightAdmin privileges are tested, matching the types defined in the user doc.
+     * @param permModifyUser if to test a user who has the <tt>ModifyUser</tt> privilege
+     * @param lightAdminType to test 4 light admin permission combinations matching the user doc
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "createLightAdmin cases")
+    public void testModifyUserCreateLight(boolean permModifyUser, String lightAdminType) throws Exception {
+        /* isPrivileged translates in this test into ModifyUser permission, see below.*/
+        boolean isExpectSuccessCreateLightAdmin= permModifyUser;
+        List<String> permissions = new ArrayList<String>();
+        if (permModifyUser) permissions.add(AdminPrivilegeModifyUser.value);
+        /* Define the permission types for the four types of lightAdmin. The
+         * "DataViewer" lightAdminType does not have any permissions, and thus
+         * it is not listed in the if/else branching below. "Organizer" should
+         * normally have "ModifyUser" permission, but this is an object of testing,
+         * and so is not given in the else if block below.*/
+        if (lightAdminType.equals("Importer")) {
+            permissions.add(AdminPrivilegeSudo.value);
+        } else if (lightAdminType.equals("Analyst")) {
+            permissions.add(AdminPrivilegeChown.value);
+            permissions.add(AdminPrivilegeWriteManagedRepo.value);
+            permissions.add(AdminPrivilegeWriteFile.value);
+            permissions.add(AdminPrivilegeWriteOwned.value);
+            permissions.add(AdminPrivilegeWriteScriptRepo.value);
+            permissions.add(AdminPrivilegeDeleteScriptRepo.value);
+        } else if (lightAdminType.equals("Organizer")) {
+            permissions.add(AdminPrivilegeChgrp.value);
+            permissions.add(AdminPrivilegeChown.value);
+            permissions.add(AdminPrivilegeModifyGroup.value);
+            permissions.add(AdminPrivilegeModifyGroupMembership.value);
+            permissions.add(AdminPrivilegeDeleteOwned.value);
+            //permissions.add(AdminPriilegeDeleteManagedRepo.value);
+            //permissions.add(AdminPriilegeDeleteFile.value);
+            permissions.add(AdminPrivilegeWriteManagedRepo.value);
+            permissions.add(AdminPrivilegeWriteFile.value);
+            permissions.add(AdminPrivilegeWriteOwned.value);
+        }
+        final EventContext lightAdmin = loginNewAdmin(true, permissions);
+        /* lightAdmin declares and defines the createdAdmin they are
+         * attempting to create (createdAdmin). Permissions will be the same for lightAdmin
+         * and createdAdmin.*/
+        Experimenter createdAdmin = new ExperimenterI();
+        createdAdmin.setOmeName(omero.rtypes.rstring(UUID.randomUUID().toString()));
+        createdAdmin.setFirstName(omero.rtypes.rstring("August"));
+        createdAdmin.setLastName(omero.rtypes.rstring("Köhler"));
+        createdAdmin.setLdap(omero.rtypes.rbool(false));
+        final List<AdminPrivilege> privileges = new ArrayList<>();
+        for (final String permission : permissions) {
+            final AdminPrivilege privilege = new AdminPrivilegeI();
+            privilege.setValue(omero.rtypes.rstring(permission));
+            privileges.add(privilege);
+        }
+        /* lightAdmin succeeds only if they have right permissions.*/
+        try {
+            iAdmin.createLightSystemUser(createdAdmin, privileges);
+            Assert.assertTrue(isExpectSuccessCreateLightAdmin);
+        } catch (ServerError se) {
+            Assert.assertFalse(isExpectSuccessCreateLightAdmin);
+        }
+    }
+
+    /**
      * Light admin (lightAdmin) tries to edit an existing user.
      * lightAdmin will succeed if they have the <tt>ModifyUser</tt> privilege.
      * @param isPrivileged if to test a user who has the <tt>ModifyUser</tt> privilege
@@ -2024,6 +2089,31 @@ public class LightAdminRolesTest extends RolesTests {
                     testCase[IS_PRIVILEGED] = isPrivileged;
                     testCase[GROUP_PERMS] = groupPerms;
                     // DEBUG if (isPrivileged == true && groupPerms.equals("rwr---"))
+                    testCases.add(testCase);
+                }
+            }
+        return testCases.toArray(new Object[testCases.size()][]);
+    }
+
+    /**
+     * @return createLightAdmin test cases for {@link #testModifyUserCreateLight}
+     */
+    @DataProvider(name = "createLightAdmin cases")
+    public Object[][] provideCreateLightAdminCases() {
+        int index = 0;
+        final int PERM_MODIFYUSER = index++;
+        final int LIGHT_ADMIN_TYPES = index++;
+
+        final boolean[] booleanCases = new boolean[]{false, true};
+        final String[] permsCases = new String[]{"DataViewer", "Importer", "Analyst", "Organizer"};
+        final List<Object[]> testCases = new ArrayList<Object[]>();
+
+            for (final boolean permModifyUser : booleanCases) {
+                for (final String lightAdminType : permsCases) {
+                    final Object[] testCase = new Object[index];
+                    testCase[PERM_MODIFYUSER] = permModifyUser;
+                    testCase[LIGHT_ADMIN_TYPES] = lightAdminType;
+                    // DEBUG if (permModifyUser == true && createdAdminType.equals("DataViewer"))
                     testCases.add(testCase);
                 }
             }
