@@ -116,6 +116,8 @@ jQuery._WeblitzPlateview = function (container, options) {
   var _this = this;
   var thisid = this.self.attr('id');
   var spacer_gif_src = opts.staticurl + 'img/spacer.gif';
+  var thumbsLoaded = false;
+  var thumbAspectRatio;
 
   var _reset = function (result, data) {
     _this.self.html("");
@@ -140,7 +142,7 @@ jQuery._WeblitzPlateview = function (container, options) {
       tr.append('<th>'+data.rowlabels[i]+'</th>');
       for (var j=0; j<data.grid[i].length; j++) {
         if (data.grid[i][j] === null) {
-        tr.append('<td class="placeholder"><img src="' + spacer_gif_src + '" /></td>');
+          tr.append('<td class="placeholder"><img src="' + spacer_gif_src + '" /></td>');
         } else {
           imgIds.push(data.grid[i][j].id);
           data.grid[i][j]._wellpos = data.rowlabels[i]+data.collabels[j];
@@ -156,6 +158,12 @@ jQuery._WeblitzPlateview = function (container, options) {
             .click(tclick(data.grid[i][j]))
             .load(function() {
               $(this).removeClass('loading').siblings('.waiting').remove();
+              if (!thumbsLoaded) {
+                // When first thumbnails loads, we get aspect ratio and use that to scale
+                // all images (including unloaded images and placeholder spacers)
+                thumbAspectRatio = $(this).width()/$(this).height();
+                _this.setSpwThumbSize(opts.width);
+              }
               _this.self.trigger('thumbLoad', [$(this).parent(), $(this)]);
             })
             .data('wellpos', data.rowlabels[i] + data.collabels[j]);
@@ -217,6 +225,25 @@ jQuery._WeblitzPlateview = function (container, options) {
       elm.removeClass('pv-focus');
     } else {
       $('img', _this.self).removeClass('pv-focus');
+    }
+  };
+
+  this.setSpwThumbSize = function(size) {
+    // This handles square or landscape thumbnails.
+    // using css: width and max-height;
+    // (portrait thumbnails will be shown as square)
+    // Since we don't want to remove previous class (don't know it),
+    // just set new class
+    // if well is small, offset the hover label
+    var cls = size < 30 ? 'wellLabelOffset ' : '';
+    cls += 'wellSize' + size;
+    $("#spw>table").prop('class', cls);
+    // Bulk update placeholder images
+    if (thumbAspectRatio) {
+      var thumbWidth = size;
+      var thumbHeight = size/thumbAspectRatio;
+      // Same css behaviour as for image thumbnails
+      $(".placeholder img").css({'width': thumbWidth + 'px', 'max-height': thumbHeight + 'px'});
     }
   };
 };

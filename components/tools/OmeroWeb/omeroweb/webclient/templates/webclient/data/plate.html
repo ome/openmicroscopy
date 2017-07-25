@@ -55,20 +55,12 @@
 
             // Resize SPW thumbnails
             var spw_thumb_size = $('body').data('spw_thumb_size') || 64;
-            function setSpwThumbSize(size) {
-                // Since we don't want to remove previous class (don't know it),
-                // just set new class
-                // if well is small, offset the hover label
-                var cls = size < 30 ? 'wellLabelOffset ' : '';
-                cls += 'wellSize' + size;
-                $("#spw>table").prop('class', cls);
-            }
             $("#thumb_size_slider").slider({
                 max: 130,
                 min: 10,
                 value: spw_thumb_size,
                 slide: function(event, ui) {
-                    setSpwThumbSize(ui.value);
+                    wpv.setSpwThumbSize(ui.value);
                 },
                 stop: function(event, ui) {
                     $('body').data('spw_thumb_size', ui.value);
@@ -207,7 +199,6 @@
             // Need to apply correct thumb size once loaded
             // and scroll to selected well
             wpv.self.bind('_resetLoaded', function(){
-                setSpwThumbSize(spw_thumb_size);
                 // scroll to selected well:
                 var selection = $("td.ui-selected").first();
                 if (typeof selection !== 'undefined' && selection.length > 0) {
