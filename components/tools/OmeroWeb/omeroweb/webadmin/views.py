@@ -614,7 +614,7 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                 if role != '':
                     privileges = conn.getPrivilegesFromForm(form)
                     conn.getAdminService().setAdminPrivileges(
-                        experimenter, privileges)
+                        experimenter._obj, privileges)
 
                 conn.updateExperimenter(
                     experimenter, omename, firstName, lastName, email, admin,

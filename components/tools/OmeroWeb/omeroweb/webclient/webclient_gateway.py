@@ -1128,8 +1128,12 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         # TODO: Need either Admin's password OR user's existing password here!
         # self.c.sf.setSecurityPassword(my_password)
         # admin_serv.changeUserPassword(omeName, rstring(str(password)))
-        admin_serv.addGroups(exp, listOfGroups)
-        admin_serv.setDefaultGroup(exp, defaultGroup._obj)
+
+        # TODO: should we be testing privileges in eventContext instead of
+        # admin.getCurrentAdminPrivileges() ??
+        if 'ModifyGroupMembership' in self.getCurrentAdminPrivileges():
+            admin_serv.addGroups(exp, listOfGroups)
+            admin_serv.setDefaultGroup(exp, defaultGroup._obj)
 
         return exp
 
