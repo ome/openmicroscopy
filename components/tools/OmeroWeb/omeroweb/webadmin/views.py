@@ -468,7 +468,7 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
 
                 # iAdmin.createLightSystemUser(createdAdmin, privileges);
                 privileges = conn.getPrivilegesFromForm(form)
-                expId = conn.createExperimenter(
+                conn.createExperimenter(
                     omename, firstName, lastName, email, admin, active,
                     dGroup, listOfOtherGroups, password,
                     privileges, middleName, institution)
