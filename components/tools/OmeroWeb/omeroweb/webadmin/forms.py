@@ -98,6 +98,7 @@ class ExperimenterForm(NonASCIIForm):
                  experimenter_is_me_or_system=False,
                  experimenter_me=False,
                  can_modify_user=True,
+                 user_privileges=[],
                  experimenter_root=False,
                  *args, **kwargs):
         super(ExperimenterForm, self).__init__(*args, **kwargs)
@@ -152,9 +153,9 @@ class ExperimenterForm(NonASCIIForm):
         ordered_fields = [(k, self.fields[k]) for k in fields_key_order]
 
         roles = [('Sudo', 'Sudo'),
-                 # combine WriteFile/MagangedRepo/Owned roles into 'Write'
+                 # combine WriteFile/ManagedRepo/Owned roles into 'Write'
                  ('Write', 'Write Data'),
-                 # combine DeleteFile/MagangedRepo/Owned roles into 'Delete'
+                 # combine DeleteFile/ManagedRepo/Owned roles into 'Delete'
                  ('Delete', 'Delete Data'),
                  ('Chgrp', 'Chgrp'),
                  ('Chown', 'Chown'),
@@ -163,11 +164,17 @@ class ExperimenterForm(NonASCIIForm):
                  ('ModifyGroupMembership', 'Add Users to Groups'),
                  ('Script', 'Upload Scripts')]
         for role in roles:
+            # If current user is light-admin, ignore privileges they don't have
+            # So they can't add/remove these from experimenter
+            # We don't disable them - (not in form data and will be removed)
+            hide = role[0] not in user_privileges
             ordered_fields.append(
                 (role[0], forms.BooleanField(
                     required=False,
                     label=role[1],
-                    widget=forms.CheckboxInput(attrs={'class': 'privilege'})
+                    widget=forms.CheckboxInput(
+                        attrs={'class':
+                               'privilege %s' % ('hide' if hide else '')})
                 ))
             )
 

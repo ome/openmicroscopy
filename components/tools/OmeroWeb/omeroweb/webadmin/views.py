@@ -393,6 +393,40 @@ def experimenters(request, conn=None, **kwargs):
     return context
 
 
+def get_privileges_for_form(privileges):
+    """
+    Maps the various server-side privileges for ExperimenterForm.
+
+    For example, 'Delete' privilege is True only if all of
+    'DeleteOwned', 'DeleteFile' and 'DeleteManagedRepo' are True
+    """
+    enabled = []
+    delete_perms = []
+    write_perms = []
+    script_perms = []
+
+    for privilege in privileges:
+        if privilege in ('DeleteOwned', 'DeleteFile', 'DeleteManagedRepo'):
+            delete_perms.append(privilege)
+        elif privilege in ('WriteOwned', 'WriteFile', 'WriteManagedRepo'):
+            write_perms.append(privilege)
+        elif privilege in ('WriteScriptRepo', 'DeleteScriptRepo'):
+            script_perms.append(privilege)
+        else:
+            enabled.append(privilege)
+    # if ALL the Delete/Write permissions are found, Delete/Write is True
+    if set(delete_perms) == \
+            set(('DeleteOwned', 'DeleteFile', 'DeleteManagedRepo')):
+        enabled.append('Delete')
+    if set(write_perms) == \
+            set(('WriteOwned', 'WriteFile', 'WriteManagedRepo')):
+        enabled.append('Write')
+    if set(script_perms) == \
+            set(('WriteScriptRepo', 'DeleteScriptRepo')):
+        enabled.append('Script')
+    return enabled
+
+
 @login_required(isAdmin=True)
 @render_response_admin()
 def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
@@ -403,10 +437,12 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
 
     if action == 'new':
         user_id = conn.getUserId()
-        user_privileges = conn.getCurrentAdminPrivileges()
+        user_privileges = get_privileges_for_form(
+            conn.getCurrentAdminPrivileges())
         can_modify_user = 'ModifyUser' in user_privileges
         form = ExperimenterForm(
             can_modify_user=can_modify_user,
+            user_privileges=user_privileges,
             initial={'with_password': True,
                      'active': True,
                      'groups': otherGroupsInitialList(groups)})
@@ -497,29 +533,9 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
             'groups': otherGroupsInitialList(groups)}
 
         # Load 'AdminPrivilege' roles for 'initial'
-        delete_perms = []
-        write_perms = []
-        script_perms = []
         privileges = conn.getAdminPrivileges(experimenter.id)
-        for privilege in privileges:
-            if privilege in ('DeleteOwned', 'DeleteFile', 'DeleteManagedRepo'):
-                delete_perms.append(privilege)
-            elif privilege in ('WriteOwned', 'WriteFile', 'WriteManagedRepo'):
-                write_perms.append(privilege)
-            elif privilege in ('WriteScriptRepo', 'DeleteScriptRepo'):
-                script_perms.append(privilege)
-            else:
-                initial[privilege] = True
-        # if ALL the Delete/Write permissions are found, Delete/Write is True
-        if set(delete_perms) == \
-                set(('DeleteOwned', 'DeleteFile', 'DeleteManagedRepo')):
-            initial['Delete'] = True
-        if set(write_perms) == \
-                set(('WriteOwned', 'WriteFile', 'WriteManagedRepo')):
-            initial['Write'] = True
-        if set(script_perms) == \
-                set(('WriteScriptRepo', 'DeleteScriptRepo')):
-            initial['Script'] = True
+        for p in get_privileges_for_form(privileges):
+            initial[p] = True
 
         role = 'user'
         if experimenter.isAdmin():
@@ -531,12 +547,14 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
 
         root_id = [conn.getAdminService().getSecurityRoles().rootId]
         user_id = conn.getUserId()
-        user_privileges = conn.getCurrentAdminPrivileges()
+        user_privileges = get_privileges_for_form(
+            conn.getCurrentAdminPrivileges())
         experimenter_root = long(eid) == root_id
         experimenter_me = long(eid) == user_id
         can_modify_user = 'ModifyUser' in user_privileges
         form = ExperimenterForm(
             can_modify_user=can_modify_user,
+            user_privileges=user_privileges,
             experimenter_me=experimenter_me,
             experimenter_root=experimenter_root,
             initial=initial)
