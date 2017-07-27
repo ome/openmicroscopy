@@ -2289,6 +2289,32 @@ class _BlitzGateway (object):
             omero.model.ExperimenterI(user_id, False))
         return [unwrap(p.getValue()) for p in privileges]
 
+    def updateAdminPrivileges(self, exp_id, add=[], remove=[]):
+        """
+        Update the experimenter's Admin Priviledges, adding and removing.
+
+        :param exp_id:  ID of experimenter to update
+        :param add:     List of strings
+        :param remove:  List of strings
+        """
+        admin = self.getAdminService()
+        exp = omero.model.ExperimenterI(exp_id, False)
+
+        privileges = set(self.getAdminPrivileges(exp_id))
+
+        # Add via union
+        privileges = privileges.union(set(add))
+        # Remove via difference
+        privileges = privileges.difference(set(remove))
+
+        to_set = []
+        for p in list(privileges):
+            privilege = omero.model.AdminPrivilegeI()
+            privilege.setValue(rstring(p))
+            to_set.append(privilege)
+
+        admin.setAdminPrivileges(exp, to_set)
+
     def isAdmin(self):
         """
         Checks if a user has administration privileges.
