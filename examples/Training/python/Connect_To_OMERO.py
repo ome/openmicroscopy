@@ -62,7 +62,7 @@ if __name__ == '__main__':
 
     print "Member of:"
     for g in conn.getGroupsMemberOf():
-        print "   ID:", g.getName(), " Name:", g.getId()
+        print "   ID:", g.getId(), " Name:", g.getName()
     group = conn.getGroupFromContext()
     print "Current group: ", group.getName()
 
@@ -79,7 +79,7 @@ if __name__ == '__main__':
 
     print "Owner of:"
     for g in conn.listOwnedGroups():
-        print "   ID: ", g.getName(), " Name:", g.getId()
+        print "   ID: ", g.getId(), " Name:", g.getName()
 
     # New in OMERO 5
     print "Admins:"
