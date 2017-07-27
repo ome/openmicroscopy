@@ -1122,15 +1122,15 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             listOfGroups.append(g._obj)
 
         admin_serv = self.getAdminService()
-        exp_id = admin_serv.createLightSystemUser(experimenter, privileges)
+        admin_privileges = []
+        for p in privileges:
+            privilege = omero.model.AdminPrivilegeI()
+            privilege.setValue(rstring(p))
+            admin_privileges.append(privilege)
+        exp_id = admin_serv.createRestrictedSystemUserWithPassword(
+            experimenter, admin_privileges, password)
         exp = ExperimenterI(exp_id, False)
 
-        # TODO: Need either Admin's password OR user's existing password here!
-        # self.c.sf.setSecurityPassword(my_password)
-        # admin_serv.changeUserPassword(omeName, rstring(str(password)))
-
-        # TODO: should we be testing privileges in eventContext instead of
-        # admin.getCurrentAdminPrivileges() ??
         if 'ModifyGroupMembership' in self.getCurrentAdminPrivileges():
             admin_serv.addGroups(exp, listOfGroups)
             admin_serv.setDefaultGroup(exp, defaultGroup._obj)
