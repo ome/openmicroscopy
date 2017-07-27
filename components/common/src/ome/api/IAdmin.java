@@ -316,8 +316,22 @@ public interface IAdmin extends ServiceInterface {
      * @param privileges the privileges to set for the user
      * @return id of the newly created {@link Experimenter}
      */
-    long createLightSystemUser(@NotNull Experimenter newSystemUser,
+    long createRestrictedSystemUser(@NotNull Experimenter newSystemUser,
             @NotNull @Validate(AdminPrivilege.class) List<AdminPrivilege> privileges);
+
+    /**
+     * Create and return a new system user. This user will be created with the
+     * "System" (administration) group as default and will also be in the "user"
+     * group.
+     *
+     * @param newSystemUser a new {@link Experimenter} instance
+     * @param privileges the privileges to set for the user
+     * @param password the password to set for the user
+     * @return id of the newly created {@link Experimenter}
+     */
+    long createRestrictedSystemUserWithPassword(@NotNull Experimenter newSystemUser,
+            @NotNull @Validate(AdminPrivilege.class) List<AdminPrivilege> privileges,
+            @Hidden String password);
 
     /**
      * create and return a new user in the given groups.
