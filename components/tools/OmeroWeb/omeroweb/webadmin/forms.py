@@ -167,14 +167,13 @@ class ExperimenterForm(NonASCIIForm):
             # If current user is light-admin, ignore privileges they don't have
             # So they can't add/remove these from experimenter
             # We don't disable them - (not in form data and will be removed)
-            hide = role[0] not in user_privileges
             ordered_fields.append(
                 (role[0], forms.BooleanField(
                     required=False,
                     label=role[1],
                     widget=forms.CheckboxInput(
-                        attrs={'class':
-                               'privilege %s' % ('hide' if hide else '')})
+                        attrs={'class': 'privilege',
+                               'disabled': role[0] not in user_privileges})
                 ))
             )
 
