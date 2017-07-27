@@ -670,6 +670,13 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     @Override
     @RolesAllowed("system")
     @Transactional(readOnly = false)
+    public long createLightSystemUser(Experimenter newSystemUser, List<AdminPrivilege> privileges) {
+        return createRestrictedSystemUser(newSystemUser, privileges);
+    }
+
+    @Override
+    @RolesAllowed("system")
+    @Transactional(readOnly = false)
     public long createRestrictedSystemUser(Experimenter newSystemUser, List<AdminPrivilege> privileges) {
         newSystemUser.setConfig(getRestrictedSystemUserConfig(privileges));
         return createSystemUser(newSystemUser);
