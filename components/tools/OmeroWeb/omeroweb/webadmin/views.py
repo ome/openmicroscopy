@@ -393,40 +393,6 @@ def experimenters(request, conn=None, **kwargs):
     return context
 
 
-def get_privileges_for_form(privileges):
-    """
-    Maps the various server-side privileges for ExperimenterForm.
-
-    For example, 'Delete' privilege is True only if all of
-    'DeleteOwned', 'DeleteFile' and 'DeleteManagedRepo' are True
-    """
-    enabled = []
-    delete_perms = []
-    write_perms = []
-    script_perms = []
-
-    for privilege in privileges:
-        if privilege in ('DeleteOwned', 'DeleteFile', 'DeleteManagedRepo'):
-            delete_perms.append(privilege)
-        elif privilege in ('WriteOwned', 'WriteFile', 'WriteManagedRepo'):
-            write_perms.append(privilege)
-        elif privilege in ('WriteScriptRepo', 'DeleteScriptRepo'):
-            script_perms.append(privilege)
-        else:
-            enabled.append(privilege)
-    # if ALL the Delete/Write permissions are found, Delete/Write is True
-    if set(delete_perms) == \
-            set(('DeleteOwned', 'DeleteFile', 'DeleteManagedRepo')):
-        enabled.append('Delete')
-    if set(write_perms) == \
-            set(('WriteOwned', 'WriteFile', 'WriteManagedRepo')):
-        enabled.append('Write')
-    if set(script_perms) == \
-            set(('WriteScriptRepo', 'DeleteScriptRepo')):
-        enabled.append('Script')
-    return enabled
-
-
 @login_required(isAdmin=True)
 @render_response_admin()
 def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
@@ -435,11 +401,11 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
     groups = list(conn.getObjects("ExperimenterGroup"))
     groups.sort(key=lambda x: x.getName().lower())
 
+    user_privileges = conn.get_privileges_for_form(
+        conn.getCurrentAdminPrivileges())
+    can_modify_user = 'ModifyUser' in user_privileges
+
     if action == 'new':
-        user_id = conn.getUserId()
-        user_privileges = get_privileges_for_form(
-            conn.getCurrentAdminPrivileges())
-        can_modify_user = 'ModifyUser' in user_privileges
         form = ExperimenterForm(
             can_modify_user=can_modify_user,
             user_privileges=user_privileges,
@@ -464,7 +430,11 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
             initial = {'with_password': True,
                        'my_groups': my_groups,
                        'groups': otherGroupsInitialList(groups)}
+            # This form may be returned to user if invalid
+            # Needs user_privileges & can_modify_user for this
             form = ExperimenterForm(
+                can_modify_user=can_modify_user,
+                user_privileges=user_privileges,
                 initial=initial, data=request.POST.copy(),
                 name_check=name_check, email_check=email_check)
             if form.is_valid():
@@ -510,7 +480,8 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                     privileges, middleName, institution)
 
                 return HttpResponseRedirect(reverse("waexperimenters"))
-            context = {'form': form}
+            # Handle invalid form
+            context = {'form': form, 'can_modify_user': can_modify_user}
     elif action == 'edit':
         experimenter, defaultGroup, otherGroups, isLdapUser, hasAvatar = \
             prepare_experimenter(conn, eid)
@@ -534,7 +505,7 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
 
         # Load 'AdminPrivilege' roles for 'initial'
         privileges = conn.getAdminPrivileges(experimenter.id)
-        for p in get_privileges_for_form(privileges):
+        for p in conn.get_privileges_for_form(privileges):
             initial[p] = True
 
         role = 'user'
@@ -547,11 +518,8 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
 
         root_id = [conn.getAdminService().getSecurityRoles().rootId]
         user_id = conn.getUserId()
-        user_privileges = get_privileges_for_form(
-            conn.getCurrentAdminPrivileges())
         experimenter_root = long(eid) == root_id
         experimenter_me = long(eid) == user_id
-        can_modify_user = 'ModifyUser' in user_privileges
         form = ExperimenterForm(
             can_modify_user=can_modify_user,
             user_privileges=user_privileges,
@@ -649,9 +617,6 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                     institution)
                 return HttpResponseRedirect(reverse("waexperimenters"))
             context = {'form': form, 'eid': eid, 'ldapAuth': isLdapUser}
-    # elif action == "delete":
-    #    conn.deleteExperimenter()
-    #    return HttpResponseRedirect(reverse("waexperimenters"))
     else:
         return HttpResponseRedirect(reverse("waexperimenters"))
 

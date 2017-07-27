@@ -1128,7 +1128,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             privilege.setValue(rstring(p))
             admin_privileges.append(privilege)
         exp_id = admin_serv.createRestrictedSystemUserWithPassword(
-            experimenter, admin_privileges, password)
+            experimenter, admin_privileges, rstring(password))
         exp = ExperimenterI(exp_id, False)
 
         if 'ModifyGroupMembership' in self.getCurrentAdminPrivileges():
@@ -1271,6 +1271,39 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
                 privileges.append('WriteScriptRepo')
                 privileges.append('DeleteScriptRepo')
         return privileges
+
+    def get_privileges_for_form(self, privileges):
+        """
+        Maps the various server-side privileges for ExperimenterForm.
+
+        For example, 'Delete' privilege is True only if all of
+        'DeleteOwned', 'DeleteFile' and 'DeleteManagedRepo' are True
+        """
+        enabled = []
+        delete_perms = []
+        write_perms = []
+        script_perms = []
+
+        for privilege in privileges:
+            if privilege in ('DeleteOwned', 'DeleteFile', 'DeleteManagedRepo'):
+                delete_perms.append(privilege)
+            elif privilege in ('WriteOwned', 'WriteFile', 'WriteManagedRepo'):
+                write_perms.append(privilege)
+            elif privilege in ('WriteScriptRepo', 'DeleteScriptRepo'):
+                script_perms.append(privilege)
+            else:
+                enabled.append(privilege)
+        # if ALL the Delete/Write permissions are found, Delete/Write is True
+        if set(delete_perms) == \
+                set(('DeleteOwned', 'DeleteFile', 'DeleteManagedRepo')):
+            enabled.append('Delete')
+        if set(write_perms) == \
+                set(('WriteOwned', 'WriteFile', 'WriteManagedRepo')):
+            enabled.append('Write')
+        if set(script_perms) == \
+                set(('WriteScriptRepo', 'DeleteScriptRepo')):
+            enabled.append('Script')
+        return enabled
 
     def setMembersOfGroup(self, group, new_members):
         """
