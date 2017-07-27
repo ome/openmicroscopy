@@ -8,6 +8,7 @@ package ome.logic;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -641,10 +642,21 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                 groupProxy(sec.getSecurityRoles().getUserGroupName()));
     }
 
-    @Override
-    @RolesAllowed("system")
-    @Transactional(readOnly = false)
-    public long createLightSystemUser(Experimenter newSystemUser, List<AdminPrivilege> privileges) {
+    // TODO: Consider adding to public API.
+    private long createSystemUserWithPassword(Experimenter newSystemUser, String password) {
+        // logged & secured via createExperimenter
+        return createExperimenterWithPassword(newSystemUser, password,
+                groupProxy(sec.getSecurityRoles().getSystemGroupName()),
+                groupProxy(sec.getSecurityRoles().getUserGroupName()));
+    }
+
+    /**
+     * Get a value suitable for {@link Experimenter#setConfig(List)} corresponding to the given light administrator privileges.
+     * @param privileges the privileges that a light administrator should have, never {@code null}
+     * @return the corresponding user configuration for that light administrator, never {@code null}
+     * @throws ApiUsageException if unknown privileges are named
+     */
+    private List<NamedValue> getRestrictedSystemUserConfig(Collection<AdminPrivilege> privileges) {
         assertKnownPrivileges(privileges);
         final List<NamedValue> userConfig = new ArrayList<>();
         for (final AdminPrivilege privilege : LightAdminPrivileges.getAllPrivileges()) {
@@ -652,8 +664,24 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                 userConfig.add(new NamedValue(adminPrivileges.getConfigNameForPrivilege(privilege), Boolean.toString(false)));
             }
         }
-        newSystemUser.setConfig(userConfig);
+        return userConfig;
+    }
+
+    @Override
+    @RolesAllowed("system")
+    @Transactional(readOnly = false)
+    public long createRestrictedSystemUser(Experimenter newSystemUser, List<AdminPrivilege> privileges) {
+        newSystemUser.setConfig(getRestrictedSystemUserConfig(privileges));
         return createSystemUser(newSystemUser);
+    }
+
+    @Override
+    @RolesAllowed("system")
+    @Transactional(readOnly = false)
+    public long createRestrictedSystemUserWithPassword(Experimenter newSystemUser, List<AdminPrivilege> privileges,
+            String password) {
+        newSystemUser.setConfig(getRestrictedSystemUserConfig(privileges));
+        return createSystemUserWithPassword(newSystemUser, password);
     }
 
     @RolesAllowed("user")
