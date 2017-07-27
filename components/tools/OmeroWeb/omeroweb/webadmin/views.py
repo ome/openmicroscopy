@@ -631,8 +631,17 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                 # since disabled privileges will not show up in POST data
                 if role != '':
                     privileges = conn.getPrivilegesFromForm(form)
-                    conn.getAdminService().setAdminPrivileges(
-                        experimenter._obj, privileges)
+                    # Only process privileges that we have permission to set
+                    to_add = []
+                    to_remove = []
+                    for p in conn.getCurrentAdminPrivileges():
+                        if p in privileges:
+                            to_add.append(p)
+                        else:
+                            to_remove.append(p)
+
+                    conn.updateAdminPrivileges(experimenter.id,
+                                               to_add, to_remove)
 
                 conn.updateExperimenter(
                     experimenter, omename, firstName, lastName, email, admin,

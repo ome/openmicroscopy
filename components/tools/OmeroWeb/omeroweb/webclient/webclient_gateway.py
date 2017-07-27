@@ -1242,15 +1242,11 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         """
         Get 'AdminPrivilege' roles from Experimenter Form
         """
-        def createPrivilege(value):
-            privilege = omero.model.AdminPrivilegeI()
-            privilege.setValue(rstring(value))
-            return privilege
         privileges = []
         # If user is Admin, we give them ALL privileges!
         if experimenter_form.cleaned_data['role'] == 'administrator':
             for p in self.getEnumerationEntries('AdminPrivilege'):
-                privileges.append(createPrivilege(p.getValue()))
+                privileges.append(p.getValue())
         else:
             # Otherwise, restrict to 'checked' privileges on form
             form_privileges = ['Chgrp',
@@ -1261,19 +1257,19 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
                                'Sudo']
             for p in form_privileges:
                 if experimenter_form.cleaned_data[p]:
-                    privileges.append(createPrivilege(p))
+                    privileges.append(p)
             # 'Delete', 'Write' and 'Script' checkboxes update several roles
             if experimenter_form.cleaned_data['Delete']:
-                privileges.append(createPrivilege('DeleteFile'))
-                privileges.append(createPrivilege('DeleteManagedRepo'))
-                privileges.append(createPrivilege('DeleteOwned'))
+                privileges.append('DeleteFile')
+                privileges.append('DeleteManagedRepo')
+                privileges.append('DeleteOwned')
             if experimenter_form.cleaned_data['Write']:
-                privileges.append(createPrivilege('WriteFile'))
-                privileges.append(createPrivilege('WriteManagedRepo'))
-                privileges.append(createPrivilege('WriteOwned'))
+                privileges.append('WriteFile')
+                privileges.append('WriteManagedRepo')
+                privileges.append('WriteOwned')
             if experimenter_form.cleaned_data['Script']:
-                privileges.append(createPrivilege('WriteScriptRepo'))
-                privileges.append(createPrivilege('DeleteScriptRepo'))
+                privileges.append('WriteScriptRepo')
+                privileges.append('DeleteScriptRepo')
         return privileges
 
     def setMembersOfGroup(self, group, new_members):
