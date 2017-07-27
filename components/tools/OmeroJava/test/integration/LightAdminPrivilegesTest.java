@@ -2762,7 +2762,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
 
     /**
      * Test that administrators may give users only privileges that they themselves have.
-     * Attempts editng privileges via {@link omero.api.IUpdatePrx}.
+     * Attempts editing privileges via {@link omero.api.IUpdatePrx}.
      * @param isHasSudo if the administrator has the <tt>Sudo</tt> privilege
      * @param isGrantsSudo if the target user should be given the <tt>Sudo</tt> privilege
      * @param isEditsAdmin if the target user should be an administrator
@@ -2776,7 +2776,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
         Experimenter newUser = createExperimenterI(UUID.randomUUID().toString(), getClass().getSimpleName(), "Test");
         final long newUserId;
         if (isEditsAdmin) {
-            newUserId = iAdmin.createLightSystemUser(newUser, Collections.<AdminPrivilege>emptyList());
+            newUserId = iAdmin.createRestrictedSystemUser(newUser, Collections.<AdminPrivilege>emptyList());
         } else {
             final String groupName = newUserAndGroup("rwr---", false).groupName;
             loginUser(actor);
