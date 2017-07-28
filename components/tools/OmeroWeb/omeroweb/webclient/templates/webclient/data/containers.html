@@ -277,8 +277,8 @@
             var userId = {{ ome.user_id }},
                 memberOfGroup = WEBCLIENT.eventContext.memberOfGroups.indexOf(WEBCLIENT.active_group_id) > -1,
                 writeOwned = WEBCLIENT.eventContext.adminPrivileges.indexOf("WriteOwned") > -1,
-                // canCreate if looking at your own data or 'All Members' AND have permissions
-                canCreate = ((userId === WEBCLIENT.USER.id || userId === -1) && (memberOfGroup || writeOwned));
+                // canCreate if looking at your own data or 'All Members' OR have permissions
+                canCreate = (userId === WEBCLIENT.USER.id || (userId === -1 && memberOfGroup) || writeOwned);
 
             // Also need all selected items to allow linking,
             // because new objects are sometimes linked under selected items

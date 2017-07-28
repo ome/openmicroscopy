@@ -1100,7 +1100,7 @@ $(function() {
                     memberOfGroup = WEBCLIENT.eventContext.memberOfGroups.indexOf(WEBCLIENT.active_group_id) > -1,
                     writeOwned = WEBCLIENT.eventContext.adminPrivileges.indexOf("WriteOwned") > -1,
                     // canCreate if looking at your own data or 'All Members' OR have permissions
-                    canCreate = ((userId === WEBCLIENT.USER.id || userId === -1) || writeOwned),
+                    canCreate = (userId === WEBCLIENT.USER.id || (userId === -1 && memberOfGroup) || writeOwned),
                     canLink = OME.nodeHasPermission(node, 'canLink'),
                     parentAllowsCreate = (node.type === "orphaned" || node.type === "experimenter");
 
