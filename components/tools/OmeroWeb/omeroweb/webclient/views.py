@@ -2548,65 +2548,42 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("manage_action_containers",
                                         args=["edit", o_type, o_id]))
-        if o_type == "project" and hasattr(manager, o_type) and o_id > 0:
-            # If Parent o_type is 'project'...
-            form = ContainerForm(data=request.POST.copy())
-            if form.is_valid():
-                logger.debug(
-                    "Create new in %s: %s" % (o_type, str(form.cleaned_data)))
-                name = form.cleaned_data['name']
-                description = form.cleaned_data['description']
-                oid = manager.createDataset(name, description)
-                rdict = {'bad': 'false', 'id': oid}
-                return JsonResponse(rdict)
-            else:
-                d = dict()
-                for e in form.errors.iteritems():
-                    d.update({e[0]: unicode(e[1])})
-                rdict = {'bad': 'true', 'errs': d}
-                return JsonResponse(rdict)
-        elif o_type == "tagset" and o_id > 0:
-            form = ContainerForm(data=request.POST.copy())
-            if form.is_valid():
-                name = form.cleaned_data['name']
-                description = form.cleaned_data['description']
-                oid = manager.createTag(name, description)
-                rdict = {'bad': 'false', 'id': oid}
-                return JsonResponse(rdict)
-            else:
-                d = dict()
-                for e in form.errors.iteritems():
-                    d.update({e[0]: unicode(e[1])})
-                rdict = {'bad': 'true', 'errs': d}
-                return JsonResponse(rdict)
-        elif request.POST.get('folder_type') in ("project", "screen",
+
+        form = ContainerForm(data=request.POST.copy())
+        if form.is_valid():
+            logger.debug(
+                "Create new in %s: %s" % (o_type, str(form.cleaned_data)))
+            name = form.cleaned_data['name']
+            description = form.cleaned_data['description']
+            owner = form.cleaned_data['owner']
+
+            if o_type == "project" and hasattr(manager, o_type) and o_id > 0:
+                oid = manager.createDataset(name, description, owner=owner)
+            elif o_type == "tagset" and o_id > 0:
+                oid = manager.createTag(name, description, owner=owner)
+            elif request.POST.get('folder_type') in ("project", "screen",
                                                  "dataset", "tag", "tagset"):
-            # No parent specified. We can create orphaned 'project', 'dataset'
-            # etc.
-            form = ContainerForm(data=request.POST.copy())
-            if form.is_valid():
-                logger.debug("Create new: %s" % (str(form.cleaned_data)))
-                name = form.cleaned_data['name']
-                description = form.cleaned_data['description']
+                # No parent specified. We can create orphaned 'project',
+                # 'dataset' etc.
                 folder_type = request.POST.get('folder_type')
                 if folder_type == "dataset":
                     oid = manager.createDataset(
                         name, description,
+                        owner=owner,
                         img_ids=request.POST.getlist('image', None))
                 else:
-                    # lookup method, E.g. createTag, createProject etc.
-                    oid = getattr(manager, "create" +
-                                  folder_type.capitalize())(name, description)
-                rdict = {'bad': 'false', 'id': oid}
-                return JsonResponse(rdict)
+                    oid = conn.createContainer(folder_type, name,
+                                               description, owner=owner)
             else:
-                d = dict()
-                for e in form.errors.iteritems():
-                    d.update({e[0]: unicode(e[1])})
-                rdict = {'bad': 'true', 'errs': d}
-                return JsonResponse(rdict)
+                return HttpResponseServerError("Object does not exist")
+            rdict = {'bad': 'false', 'id': oid}
+            return JsonResponse(rdict)
         else:
-            return HttpResponseServerError("Object does not exist")
+            d = dict()
+            for e in form.errors.iteritems():
+                d.update({e[0]: unicode(e[1])})
+            rdict = {'bad': 'true', 'errs': d}
+            return JsonResponse(rdict)
     elif action == 'add':
         template = "webclient/public/share_form.html"
         experimenters = list(conn.getExperimenters())

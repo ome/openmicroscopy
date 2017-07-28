@@ -204,8 +204,26 @@
 
         OME.handleNewContainer = function(container_type) {
 
-            $("#new_container_type").text(container_type.capitalize());
+            // If we are filtering to show another user's data,
+            // we 'should' have writeOwned privilege
+
+            var writeOwned = WEBCLIENT.eventContext.adminPrivileges.indexOf("WriteOwned") > -1;
             var $f = $("#new-container-form");
+
+            if (WEBCLIENT.active_user.id !== WEBCLIENT.USER.id || WEBCLIENT.active_user.id === -1) {
+                // Just in case...
+                if (!writeOwned) {
+                    alert("You don't have permission to create data for other users");
+                    return;
+                }
+                // If filtering by User, data will belong to them
+                if (WEBCLIENT.active_user_id !== -1) {
+                    $("#new_pds_owner").text(WEBCLIENT.active_user.fullName);
+                    $("input[name='owner']", $f).val(WEBCLIENT.active_user.id);
+                }
+            }
+
+            $("#new_container_type").text(container_type.capitalize());
             var new_container_name = $("input[name='name']", $f).val("");     // clear fields
             var new_container_desc = $("textarea[name='description']", $f).val("");
             $("#new-container-form").dialog('open');
@@ -502,6 +520,7 @@
                     var $f = $("#new-container-form");
                     var new_container_name = $("input[name='name']", $f).val();
                     var new_container_desc = $("textarea[name='description']", $f).val();
+                    var new_container_owner = $("input[name='owner']", $f).val();
                     if ($.trim(new_container_name).length == 0) {
                         alert("Please enter a Name");
                         return;
@@ -574,7 +593,8 @@
                     var ajax_data = {
                             "name" : new_container_name,
                             "folder_type" : cont_type,
-                            "description" : new_container_desc
+                            "description" : new_container_desc,
+                            "owner": new_container_owner
                         }
                     if (img_ids.length > 0){
                         ajax_data['image'] = img_ids;
@@ -833,6 +853,10 @@
         <!-- hidden dialog for new Container -->
         <form id="new-container-form" title="New..." style="display:none">
             <p>Create a new <span id="new_container_type">Container</span>...</p>
+            <p>
+                <img class="new_pds_owner_icon" src="{% static 'webclient/image/icon_settings_user.png' %}">
+                <label>Assign to Owner:</label> <span id="new_pds_owner"></span>
+                {{ new_container_form.owner }}
             <p>
                 <label for="id_name">Name:</label>
                 {{ new_container_form.name }}
