@@ -559,56 +559,13 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
                 return rslt[0][0].val
         return 0
 
-    def listImagesInDataset(self, oid, eid=None, page=None,
-                            load_pixels=False):
-        """
-        List Images in the given Dataset.
-        Optinally filter by experimenter 'eid'
-
-        @param eid:         experimenter id
-        @type eid:          Long
-        @param page:        page number
-        @type page:         Long
-        @return:            Generator yielding Images
-        @rtype:             L{ImageWrapper} generator
-        """
-
-        q = self.getQueryService()
-        p = omero.sys.ParametersI()
-        p.map["oid"] = rlong(long(oid))
-        if page is not None:
-            p.page(((int(page)-1)*settings.PAGE), settings.PAGE)
-        if load_pixels:
-            pixels = ("join fetch im.pixels as pix"
-                      " left outer join fetch pix.thumbnails ")
-        else:
-            pixels = ""
-        sql = ("select im from Image im "
-               "join fetch im.details.creationEvent "
-               "join fetch im.details.owner join fetch im.details.group "
-               "left outer join fetch im.datasetLinks dil "
-               "left outer join fetch dil.parent d %s"
-               "where d.id = :oid" % pixels)
-        if eid is not None:
-            p.map["eid"] = rlong(long(eid))
-            sql += " and im.details.owner.id=:eid"
-        sql += " order by lower(im.name), im.id"
-
-        for e in q.findAllByQuery(sql, p, self.SERVICE_OPTS):
-            kwargs = {'link': omero.gateway.BlitzObjectWrapper(
-                self, e.copyDatasetLinks()[0])}
-            yield ImageWrapper(self, e, None, **kwargs)
-
-    def createDataset(self, name, description=None, img_ids=None):
+    def createDataset(self, name, description=None, img_ids=None, owner=None):
         """
         Creates a Dataset and adds images if img_ids is specified.
         Returns the new Dataset ID.
         """
-        ds = omero.model.DatasetI()
-        ds.name = rstring(str(name))
-        if description is not None and description != "":
-            ds.description = rstring(str(description))
-        dsid = self.saveAndReturnId(ds)
+        dsid = self.createContainer("dataset", name,
+                                    description=description, owner=owner)
         if img_ids is not None:
             iids = [int(i) for i in img_ids]
             links = []
@@ -617,56 +574,29 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
                 link.setParent(omero.model.DatasetI(dsid, False))
                 link.setChild(omero.model.ImageI(iid, False))
                 links.append(link)
-            self.saveArray(links)
+            self.saveArray(links, owner=owner)
         return dsid
 
-    def createProject(self, name, description=None):
-        """ Creates new Project and returns ID """
-
-        pr = omero.model.ProjectI()
-        pr.name = rstring(str(name))
-        if description is not None and description != "":
-            pr.description = rstring(str(description))
-        return self.saveAndReturnId(pr)
-
-    def createScreen(self, name, description=None):
-        """ Creates new Screen and returns ID """
-
-        sc = omero.model.ScreenI()
-        sc.name = rstring(str(name))
-        if description is not None and description != "":
-            sc.description = rstring(str(description))
-        return self.saveAndReturnId(sc)
-
-    def createTag(self, name, description=None):
-        """ Creates new Tag and returns ID """
-
-        tag = omero.model.TagAnnotationI()
-        tag.textValue = rstring(str(name))
-        if description is not None and description != "":
-            tag.description = rstring(str(description))
-        return self.saveAndReturnId(tag)
-
-    def createTagset(self, name, description=None):
-        """ Creates new Tag Set and returns ID """
-
-        tag = omero.model.TagAnnotationI()
-        tag.textValue = rstring(str(name))
-        tag.ns = rstring(omero.constants.metadata.NSINSIGHTTAGSET)
-        if description is not None and description != "":
-            tag.description = rstring(str(description))
-        return self.saveAndReturnId(tag)
-
-    def createContainer(self, dtype, name, description=None):
-        """ Creates new Project, Dataset or Screen and returns ID """
-
+    def createContainer(self, dtype, name, description=None, owner=None):
+        """Creates Project, Dataset, Screen, Tag or Tagset and returns ID."""
+        print 'owner', owner
         dtype = dtype.lower()
         if dtype == "project":
-            return self.createProject(name, description)
+            c = omero.model.ProjectI()
         elif dtype == "dataset":
-            return self.createDataset(name, description)
+            c = omero.model.DatasetI()
         elif dtype == "screen":
-            return self.createScreen(name, description)
+            c = omero.model.ScreenI()
+        if dtype == "tag" or dtype == "tagset":
+            c = omero.model.TagAnnotationI()
+            c.textValue = rstring(str(name))
+            if dtype == "tagset":
+                c.ns = rstring(omero.constants.metadata.NSINSIGHTTAGSET)
+        else:
+            c.name = rstring(str(name))
+
+        oid = self.saveAndReturnId(c, owner=owner)
+        return oid
 
     # DATA RETRIVAL BY TAGs
     def findTag(self, name, desc=None):
@@ -1572,7 +1502,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
                 cb.close(True)
         return message
 
-    def saveObject(self, obj):
+    def saveObject(self, obj, owner=None):
         """
         Provide method for directly updating object graphs. Act recursively on
         the entire object graph, replacing placeholders and details where
@@ -1585,10 +1515,13 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
                         null.
         @type obj       ObjectI
         """
+        ctx = self.SERVICE_OPTS.copy()
+        if owner is not None:
+            ctx.setOmeroUser(owner)
         u = self.getUpdateService()
-        u.saveObject(obj, self.SERVICE_OPTS)
+        u.saveObject(obj, ctx)
 
-    def saveArray(self, objs):
+    def saveArray(self, objs, owner=None):
         """
         Provide method for directly updating list of object graphs. Act
         recursively on the entire object graph, replacing placeholders and
@@ -1601,10 +1534,14 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
                         entity. Not null.
         @type obj       L{ObjectI}
         """
+        ctx = self.SERVICE_OPTS.copy()
+        if owner is not None:
+            ctx.setOmeroUser(owner)
         u = self.getUpdateService()
-        u.saveArray(objs, self.SERVICE_OPTS)
+        print 'saveArray', len(objs)
+        u.saveArray(objs, ctx)
 
-    def saveAndReturnObject(self, obj):
+    def saveAndReturnObject(self, obj, owner=None):
         """
         Provide method for directly updating object graphs and return it. Act
         recursively on the entire object graph, replacing placeholders and
@@ -1620,12 +1557,15 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         @rtype          ObjectI
         """
         u = self.getUpdateService()
-        res = u.saveAndReturnObject(obj, self.SERVICE_OPTS)
+        ctx = self.SERVICE_OPTS.copy()
+        if owner is not None:
+            ctx.setOmeroUser(owner)
+        res = u.saveAndReturnObject(obj, ctx)
         res.unload()
         obj = omero.gateway.BlitzObjectWrapper(self, res)
         return obj
 
-    def saveAndReturnId(self, obj):
+    def saveAndReturnId(self, obj, owner=None):
         """
         Provide method for directly updating object graphs and return ID. Act
         recursively on the entire object graph, replacing placeholders and
@@ -1641,7 +1581,10 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         @rtype          Long
         """
         u = self.getUpdateService()
-        res = u.saveAndReturnObject(obj, self.SERVICE_OPTS)
+        ctx = self.SERVICE_OPTS.copy()
+        if owner is not None:
+            ctx.setOmeroUser(owner)
+        res = u.saveAndReturnObject(obj, ctx)
         res.unload()
         return res.id.val
 
