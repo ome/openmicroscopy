@@ -209,23 +209,35 @@
 
             var writeOwned = WEBCLIENT.eventContext.adminPrivileges.indexOf("WriteOwned") > -1;
             var $f = $("#new-container-form");
+            var memberOfGroup = WEBCLIENT.eventContext.memberOfGroups.indexOf(WEBCLIENT.active_group_id) > -1;
 
-            if (WEBCLIENT.active_user.id !== WEBCLIENT.USER.id || WEBCLIENT.active_user.id === -1) {
-                // Just in case...
-                if (!writeOwned) {
+            // clear fields
+            $("input[name='owner']", $f).val("");
+            var new_container_name = $("input[name='name']", $f).val("");
+            var new_container_desc = $("textarea[name='description']", $f).val("");
+            $("#new_pds_owner_controls").hide();
+
+            // If we're not filtering by MY data, could be 'All Members' or another User...
+            // Data will be and we need to show who owner will be
+            if (WEBCLIENT.active_user.id !== WEBCLIENT.USER.id) {
+                // We 'should' have right permissions but just in case...
+                if (!memberOfGroup && !writeOwned) {
                     alert("You don't have permission to create data for other users");
                     return;
                 }
                 // If filtering by User, data will belong to them
-                if (WEBCLIENT.active_user_id !== -1) {
+                if (WEBCLIENT.active_user.id !== -1) {
                     $("#new_pds_owner").text(WEBCLIENT.active_user.fullName);
                     $("input[name='owner']", $f).val(WEBCLIENT.active_user.id);
+                    $("#new_pds_owner_controls").show();
+                }
+                // Otherwise, if we can writeOwned, pick Owner from members of this group
+                else if (writeOwned) {
+                    // TODO: show <select> for choosing owner
                 }
             }
 
             $("#new_container_type").text(container_type.capitalize());
-            var new_container_name = $("input[name='name']", $f).val("");     // clear fields
-            var new_container_desc = $("textarea[name='description']", $f).val("");
             $("#new-container-form").dialog('open');
         }
 
@@ -853,7 +865,7 @@
         <!-- hidden dialog for new Container -->
         <form id="new-container-form" title="New..." style="display:none">
             <p>Create a new <span id="new_container_type">Container</span>...</p>
-            <p>
+            <p id="new_pds_owner_controls">
                 <img class="new_pds_owner_icon" src="{% static 'webclient/image/icon_settings_user.png' %}">
                 <label>Assign to Owner:</label> <span id="new_pds_owner"></span>
                 {{ new_container_form.owner }}
