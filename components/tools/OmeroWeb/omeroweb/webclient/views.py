@@ -2562,7 +2562,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
             elif o_type == "tagset" and o_id > 0:
                 oid = manager.createTag(name, description, owner=owner)
             elif request.POST.get('folder_type') in ("project", "screen",
-                                                 "dataset", "tag", "tagset"):
+                                                     "dataset",
+                                                     "tag", "tagset"):
                 # No parent specified. We can create orphaned 'project',
                 # 'dataset' etc.
                 folder_type = request.POST.get('folder_type')
