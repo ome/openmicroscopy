@@ -233,7 +233,8 @@
                 }
                 // Otherwise, if we can writeOwned, pick Owner from members of this group
                 else if (writeOwned) {
-                    // TODO: show <select> for choosing owner
+                    // Not yet supported (Create options should be disabled if All Members)
+                    // To support this, will need to show <select> to choose owner.
                 }
             }
 
@@ -289,8 +290,10 @@
             var userId = {{ ome.user_id }},
                 memberOfGroup = WEBCLIENT.eventContext.memberOfGroups.indexOf(WEBCLIENT.active_group_id) > -1,
                 writeOwned = WEBCLIENT.eventContext.adminPrivileges.indexOf("WriteOwned") > -1,
-                // canCreate if looking at your own data or 'All Members' OR have permissions
-                canCreate = (userId === WEBCLIENT.USER.id || (userId === -1 && memberOfGroup) || writeOwned);
+                allMembers = userId === -1,
+                // canCreate if looking at your own data or 'All Members' OR User's data with writeOwned
+                canCreate = (userId === WEBCLIENT.USER.id || (allMembers && memberOfGroup) ||
+                    (!allMembers && writeOwned));
 
             // Also need all selected items to allow linking,
             // because new objects are sometimes linked under selected items

@@ -1099,14 +1099,16 @@ $(function() {
                     // admin may be viewing a Group that they are not a member of
                     memberOfGroup = WEBCLIENT.eventContext.memberOfGroups.indexOf(WEBCLIENT.active_group_id) > -1,
                     writeOwned = WEBCLIENT.eventContext.adminPrivileges.indexOf("WriteOwned") > -1,
-                    // canCreate if looking at your own data or 'All Members' OR have permissions
-                    canCreate = (userId === WEBCLIENT.USER.id || (userId === -1 && memberOfGroup) || writeOwned),
+                    allMembers = userId === -1,
+                    // canCreate if looking at your own data or 'All Members' OR User's data && writeOwned
+                    canCreate = (userId === WEBCLIENT.USER.id || (allMembers && memberOfGroup) ||
+                        (!allMembers && writeOwned)),
                     canLink = OME.nodeHasPermission(node, 'canLink'),
                     parentAllowsCreate = (node.type === "orphaned" || node.type === "experimenter");
 
                 // We don't allow creating if new node will not be displayed in tree.
                 // If you canLink under selected Project, Dataset will be in tree
-                if(canLink && node.type === "project" && !tagTree) {
+                if(canLink && node.type === "project" && memberOfGroup && !tagTree) {
                     config["create"]["_disabled"] = false;
                     config["create"]["submenu"]["dataset"]["_disabled"] = false;
                 }
