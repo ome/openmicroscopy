@@ -99,13 +99,16 @@ class RoleRenderer(forms.RadioSelect.renderer):
     def render(self):
         midList = []
         for x, wid in enumerate(self):
+            disabled = self.attrs.get('disabled')
             if ROLE_CHOICES[x][0] == 'administrator':
-                disable_admin = hasattr(self, 'disable_admin')
-                wid.attrs['disabled'] = getattr(self, 'disable_admin')
+                if hasattr(self, 'disable_admin'):
+                    disabled = getattr(self, 'disable_admin')
+            if disabled:
+                wid.attrs['disabled'] = True
             midList.append(u'<li>%s</li>' % force_unicode(wid))
         finalList = mark_safe(u'<ul id="id_role">\n%s\n</ul>'
                               % u'\n'.join([u'<li>%s</li>'
-            % w for w in midList]))
+                                           % w for w in midList]))
         return finalList
 
 
@@ -216,6 +219,7 @@ class ExperimenterForm(NonASCIIForm):
                 name = "'root' user"
             self.fields['omename'].widget.attrs['title'] = \
                 "You can't edit Username of %s" % name
+            self.fields['role'].widget.attrs['disabled'] = True
             self.fields['active'].widget.attrs['disabled'] = True
             self.fields['active'].widget.attrs['title'] = \
                 "You cannot disable %s" % name
