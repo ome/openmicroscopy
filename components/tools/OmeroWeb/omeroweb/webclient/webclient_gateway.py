@@ -1063,7 +1063,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
 
     def createExperimenter(self, omeName, firstName, lastName, email, isAdmin,
                            isActive, defaultGroup, otherGroups, password,
-                           privileges,
+                           privileges=None,
                            middleName=None, institution=None):
         """
         Create and return a new user in the given groups with password.
@@ -1122,18 +1122,25 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             listOfGroups.append(g._obj)
 
         admin_serv = self.getAdminService()
-        admin_privileges = []
-        for p in privileges:
-            privilege = omero.model.AdminPrivilegeI()
-            privilege.setValue(rstring(p))
-            admin_privileges.append(privilege)
-        exp_id = admin_serv.createRestrictedSystemUserWithPassword(
-            experimenter, admin_privileges, rstring(password))
-        exp = ExperimenterI(exp_id, False)
 
-        if 'ModifyGroupMembership' in self.getCurrentAdminPrivileges():
-            admin_serv.addGroups(exp, listOfGroups)
-            admin_serv.setDefaultGroup(exp, defaultGroup._obj)
+        if privileges is not None:
+            admin_privileges = []
+            for p in privileges:
+                privilege = omero.model.AdminPrivilegeI()
+                privilege.setValue(rstring(p))
+                admin_privileges.append(privilege)
+            exp_id = admin_serv.createRestrictedSystemUserWithPassword(
+                experimenter, admin_privileges, rstring(password))
+            exp = ExperimenterI(exp_id, False)
+
+            if 'ModifyGroupMembership' in self.getCurrentAdminPrivileges():
+                admin_serv.addGroups(exp, listOfGroups)
+                admin_serv.setDefaultGroup(exp, defaultGroup._obj)
+
+        else:
+            exp = admin_serv.createExperimenterWithPassword(
+                experimenter, rstring(password), defaultGroup._obj,
+                listOfGroups)
 
         return exp
 
@@ -1241,10 +1248,15 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
     def getPrivilegesFromForm(self, experimenter_form):
         """
         Get 'AdminPrivilege' roles from Experimenter Form
+
+        Returns None if Role is User
         """
         privileges = []
+        role = experimenter_form.cleaned_data['role']
+        if role == 'user':
+            return None
         # If user is Admin, we give them ALL privileges!
-        if experimenter_form.cleaned_data['role'] == 'administrator':
+        if role == 'administrator':
             for p in self.getEnumerationEntries('AdminPrivilege'):
                 privileges.append(p.getValue())
         else:
