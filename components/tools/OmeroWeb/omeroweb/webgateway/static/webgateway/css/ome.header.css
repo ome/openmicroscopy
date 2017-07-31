@@ -1010,21 +1010,6 @@ li.menu_back a {
 	overflow:hidden;
 }
 
-
-
-	.left_panel_inner {
-	     position: absolute;
-	     left:0;
-	     right:0;
-	     bottom:0;
-	     top:0;
-	     overflow: auto;
-		 border-right:solid 1px hsl(210,10%,85%);
-	 }
-	 
-	 
-	
-
 #center_panel {
     left:0px; right:0px; top:0px; bottom:0px;
 	background:hsl(210,1%,98%);

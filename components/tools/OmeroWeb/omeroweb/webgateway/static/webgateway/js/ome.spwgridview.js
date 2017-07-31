@@ -57,7 +57,7 @@ $(function(){
         });
 
         function showPanel() {
-            var height = 240;
+            var height = 280;
             $left_panel_tabs.css('bottom', height + 'px');
             $left_panel_bottom.css('height', height + 'px');
         }
@@ -65,7 +65,7 @@ $(function(){
         function getPos(attr) {
             return function(ws) {
                 return ws.position[attr] ? ws.position[attr].value : undefined;
-            }
+            };
         }
         function notUndef(p) {
             return p !== undefined;
