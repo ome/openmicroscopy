@@ -31,6 +31,8 @@ except:
 from django.conf import settings
 from django import forms
 from django.forms.widgets import Textarea
+from django.utils.encoding import force_unicode
+from django.utils.safestring import mark_safe
 
 from omeroweb.connector import Server
 
@@ -92,6 +94,21 @@ ROLE_CHOICES = (
 )
 
 
+class RoleRenderer(forms.RadioSelect.renderer):
+    """Allows disabling of 'administrator' Radio button."""
+    def render(self):
+        midList = []
+        for x, wid in enumerate(self):
+            if ROLE_CHOICES[x][0] == 'administrator':
+                disable_admin = hasattr(self, 'disable_admin')
+                wid.attrs['disabled'] = getattr(self, 'disable_admin')
+            midList.append(u'<li>%s</li>' % force_unicode(wid))
+        finalList = mark_safe(u'<ul id="id_role">\n%s\n</ul>'
+                              % u'\n'.join([u'<li>%s</li>'
+            % w for w in midList]))
+        return finalList
+
+
 class ExperimenterForm(NonASCIIForm):
 
     def __init__(self, name_check=False, email_check=False,
@@ -104,6 +121,7 @@ class ExperimenterForm(NonASCIIForm):
         super(ExperimenterForm, self).__init__(*args, **kwargs)
         self.name_check = name_check
         self.email_check = email_check
+        self.user_privileges = user_privileges
 
         try:
             self.fields['other_groups'] = GroupModelMultipleChoiceField(
@@ -128,6 +146,17 @@ class ExperimenterForm(NonASCIIForm):
             except:
                 self.fields['default_group'] = GroupModelChoiceField(
                     queryset=list(), empty_label=u"", required=False)
+
+        # 'Role' is disabled if experimenter is 'admin' or self,
+        # so required=False to avoid validation error.
+        self.fields['role'] = forms.ChoiceField(
+            choices=ROLE_CHOICES,
+            widget=forms.RadioSelect(renderer=RoleRenderer),
+            required=False,
+            initial='user')
+        # If current user is restricted Admin, can't create full Admin
+        restricted_admin = "ReadSession" not in self.user_privileges
+        self.fields['role'].widget.renderer.disable_admin = restricted_admin
 
         if ('with_password' in kwargs['initial'] and
                 kwargs['initial']['with_password']):
@@ -216,13 +245,6 @@ class ExperimenterForm(NonASCIIForm):
         widget=forms.TextInput(attrs={'size': 30, 'autocomplete': 'off'}),
         required=False)
 
-    # 'Role' is disabled if experimenter is 'admin' or self,
-    # so required=False to avoid validation error.
-    role = forms.ChoiceField(
-        choices=ROLE_CHOICES,
-        widget=forms.RadioSelect,
-        required=False,
-        initial='user')
     active = forms.BooleanField(required=False)
 
     def clean_confirmation(self):
