@@ -84,13 +84,8 @@ if __name__ == '__main__':
     # New in OMERO 5
     print "Admins:"
     for exp in conn.getAdministrators():
-        fullName = exp.getFullName()
-        print "fullName", type(fullName)
-        print "Full Name...", fullName
-        print "str", str(fullName)
-        print "Full Name: %s" % fullName
         print "   ID: %s %s Name: %s" % (
-            exp.getId(), exp.getOmeName(), fullName)
+            exp.getId(), exp.getOmeName(), exp.getFullName())
 
     # The 'context' of our current session
     ctx = conn.getEventContext()
