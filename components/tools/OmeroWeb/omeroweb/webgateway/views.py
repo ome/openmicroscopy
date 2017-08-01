@@ -969,9 +969,14 @@ def render_image(request, iid, z=None, t=None, conn=None, **kwargs):
             jpeg_data = output.getvalue()
             output.close()
             rsp = HttpResponse(jpeg_data, content_type='image/png')
-        # don't seem to need to do this for tiff
         elif format == 'tif':
-            rsp = HttpResponse(jpeg_data, content_type='image/tif')
+            # convert jpeg data to TIFF
+            i = Image.open(StringIO(jpeg_data))
+            output = StringIO()
+            i.save(output, 'tiff')
+            jpeg_data = output.getvalue()
+            output.close()
+            rsp = HttpResponse(jpeg_data, content_type='image/tiff')
         fileName = img.getName().decode('utf8').replace(" ", "_")
         fileName = fileName.replace(",", ".")
         rsp['Content-Type'] = 'application/force-download'
