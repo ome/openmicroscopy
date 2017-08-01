@@ -48,7 +48,8 @@ def owner_permissions():
         'canEdit': True,
         'canAnnotate': True,
         'canLink': True,
-        'canDelete': True
+        'canDelete': True,
+        'canChgrp': True,
     }
 
 
@@ -91,7 +92,7 @@ class TestTree(object):
             'ownerId': 1L,
             'name': 'Run 1',
             'permsCss':
-                'canEdit canAnnotate canLink canDelete isOwned canChgrp'
+                'canEdit canAnnotate canLink canDelete canChgrp isOwned'
         }
 
         marshaled = _marshal_plate_acquisition(mock_conn, row)
@@ -112,7 +113,7 @@ class TestTree(object):
             'ownerId': 1L,
             'name': 'name',
             'permsCss':
-                'canEdit canAnnotate canLink canDelete isOwned canChgrp'
+                'canEdit canAnnotate canLink canDelete canChgrp isOwned'
         }
 
         marshaled = _marshal_plate_acquisition(mock_conn, row)
@@ -133,7 +134,7 @@ class TestTree(object):
             'ownerId': 1L,
             'name': '2014-05-08 10:37:02 - 2014-05-08 10:38:30',
             'permsCss':
-                'canEdit canAnnotate canLink canDelete isOwned canChgrp'
+                'canEdit canAnnotate canLink canDelete canChgrp isOwned'
         }
 
         marshaled = _marshal_plate_acquisition(mock_conn, row)
@@ -153,7 +154,7 @@ class TestTree(object):
             'id': 1L,
             'ownerId': 2L,
             'name': 'Run 1',
-            'permsCss': 'canEdit canAnnotate canLink canDelete'
+            'permsCss': 'canEdit canAnnotate canLink canDelete canChgrp'
         }
 
         marshaled = _marshal_plate_acquisition(mock_conn, row)
@@ -161,7 +162,8 @@ class TestTree(object):
 
     def test_parse_permissions_css(
             self, mock_conn):
-        restrictions = ('canEdit', 'canAnnotate', 'canLink', 'canDelete')
+        restrictions = ('canEdit', 'canAnnotate', 'canLink', 'canDelete',
+                        'canChgrp')
         # Iterate through every combination of the restrictions' flags,
         # checking each with and without expected canChgrp
         for i in range(2**len(restrictions)):
@@ -185,7 +187,7 @@ class TestTree(object):
             # Test with matching owner_ids, which means
             # isOwned and canChgrp is True
             expected.append('isOwned')
-            expected.append('canChgrp')
+            # expected.append('canChgrp')
             expected.sort()
             received = parse_permissions_css(permissions_dict,
                                              owner_id,
@@ -207,7 +209,7 @@ class TestTree(object):
             'ownerId': 1L,
             'name': 'name',
             'permsCss':
-                'canEdit canAnnotate canLink canDelete isOwned canChgrp',
+                'canEdit canAnnotate canLink canDelete canChgrp isOwned',
             'childCount': 1
         }
 
@@ -226,7 +228,7 @@ class TestTree(object):
             'id': 1L,
             'ownerId': 2L,
             'name': 'name',
-            'permsCss': 'canEdit canAnnotate canLink canDelete',
+            'permsCss': 'canEdit canAnnotate canLink canDelete canChgrp',
             'childCount': 1
         }
 
@@ -246,7 +248,7 @@ class TestTree(object):
             'ownerId': 1L,
             'name': 'name',
             'permsCss':
-                'canEdit canAnnotate canLink canDelete isOwned canChgrp',
+                'canEdit canAnnotate canLink canDelete canChgrp isOwned',
                 'childCount': 2
         }
 
@@ -265,7 +267,7 @@ class TestTree(object):
             'id': 1L,
             'ownerId': 2L,
             'name': 'name',
-            'permsCss': 'canEdit canAnnotate canLink canDelete',
+            'permsCss': 'canEdit canAnnotate canLink canDelete canChgrp',
             'childCount': 2
         }
 
