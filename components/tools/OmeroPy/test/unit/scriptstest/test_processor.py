@@ -20,7 +20,7 @@ import Ice
 import omero.processor
 import omero.util
 import omero.util.concurrency
-from omero_ext.functional import wraps
+from functools import wraps
 
 
 def pass_through(arg):

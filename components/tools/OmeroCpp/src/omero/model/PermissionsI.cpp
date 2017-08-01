@@ -1,9 +1,6 @@
 /*
- *   $Id$
- *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
- *
  */
 
 #include <omero/ClientErrors.h>
@@ -118,6 +115,14 @@ namespace omero {
 
         bool PermissionsI::canLink(const Ice::Current& /* current */) {
             return ! isDisallow(omero::constants::permissions::LINKRESTRICTION);
+        }
+
+        bool PermissionsI::canChgrp(const Ice::Current& /* current */) {
+            return ! isDisallow(omero::constants::permissions::CHGRPRESTRICTION);
+        }
+
+        bool PermissionsI::canChown(const Ice::Current& /* current */) {
+            return ! isDisallow(omero::constants::permissions::CHOWNRESTRICTION);
         }
 
         Ice::Long PermissionsI::getPerm1(const Ice::Current& /* current */) {

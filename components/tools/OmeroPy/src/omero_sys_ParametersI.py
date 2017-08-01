@@ -258,7 +258,7 @@ class ParametersI(omero.sys.Parameters):
             return self.theFilter.endTime
         return None
 
-    # ~ Parameters.theOption.leaves, orphan, acquisitionData
+    # ~ Parameters.theOption.leaves, orphan, acquisitionData, cacheable
     # ====================================================================
 
     def leaves(self):
@@ -310,6 +310,23 @@ class ParametersI(omero.sys.Parameters):
     def getAcquisitionData(self):
         if self.theOptions:
             return self.theOptions.acquisitionData
+        return None
+
+    def cache(self):
+        if not self.theOptions:
+            self.theOptions = omero.sys.Options()
+        self.theOptions.cache = rbool(True)
+        return self
+
+    def noCache(self):
+        if not self.theOptions:
+            self.theOptions = omero.sys.Options()
+        self.theOptions.cache = rbool(False)
+        return self
+
+    def getCache(self):
+        if self.theOptions:
+            return self.theOptions.cache
         return None
 
     # Parameters.map

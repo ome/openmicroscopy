@@ -1,9 +1,8 @@
 /*
- *   $Id$
- *
  *   Copyright 2007-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.server.utests.sessions;
 
 import java.util.Arrays;
@@ -28,6 +27,7 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Node;
 import ome.model.meta.Session;
+import ome.model.meta.Share;
 import ome.security.basic.CurrentDetails;
 import ome.server.utests.DummyExecutor;
 import ome.services.sessions.SessionContext;
@@ -47,6 +47,7 @@ import org.jmock.MockObjectTestCase;
 import org.jmock.core.Constraint;
 import org.jmock.core.Invocation;
 import org.jmock.core.Stub;
+import org.jmock.core.constraint.IsEqual;
 import org.jmock.core.constraint.StringContains;
 import org.springframework.context.event.ApplicationEventMulticaster;
 import org.testng.annotations.AfterMethod;
@@ -352,6 +353,9 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         sf.mockAdmin.expects(once()).method("checkPassword").will(
                 returnValue(true));
         // execute lookup user
+        sf.mockQuery.expects(atLeastOnce()).method("find")
+            .with(new IsEqual(Share.class), new IsEqual(session.getId()))
+            .will(returnValue(null));
         sf.mockQuery.expects(atLeastOnce()).method("findByQuery")
             .with(new StringContains("Session"), ANYTHING)
             .will(returnValue(session));

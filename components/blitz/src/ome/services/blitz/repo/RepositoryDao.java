@@ -185,11 +185,12 @@ public interface RepositoryDao {
      * @param mimetype
      * @param sf
      * @param sql
+     * @param session
      * @return See above.
      * @throws ServerError
      */
     public ome.model.core.OriginalFile register(String repoUuid, CheckedPath checked,
-            final String mimetype, final ServiceFactory sf, final SqlAction sql)
+            final String mimetype, final ServiceFactory sf, final SqlAction sql, Session session)
                     throws ServerError;
 
     /**

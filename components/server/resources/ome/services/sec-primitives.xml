@@ -33,6 +33,10 @@
   <bean id="currentDetails" class="ome.security.basic.CurrentDetails">
     <constructor-arg ref="sessionCache"/>
     <constructor-arg ref="roles"/>
+    <constructor-arg ref="systemTypes"/>
+    <constructor-arg ref="adminPrivileges"/>
+    <constructor-arg ref="managedRepoUuids"/>
+    <constructor-arg ref="scriptRepoUuids"/>
   </bean>
 
   <alias name="currentDetails" alias="principalHolder"/>
@@ -40,6 +44,10 @@
   <bean id="internalServiceFactory" class="ome.tools.spring.InternalServiceFactory"/>
 
   <bean id="roles" factory-bean="dbUserCheck" factory-method="getRoles"/>
+
+  <bean id="adminPrivileges" class="ome.security.basic.LightAdminPrivileges">
+    <constructor-arg ref="roles"/>
+  </bean>
 
   <bean id="securityFilterHolder" class="ome.security.SecurityFilterHolder">
     <constructor-arg ref="currentDetails"/>
@@ -62,6 +70,10 @@
     <constructor-arg ref="shareStore"/>
   </bean>
 
+  <bean id="LightAdminPrivilegesSecurityFilter" class="ome.security.basic.LightAdminPrivilegesSecurityFilter">
+    <constructor-arg ref="roles"/>
+  </bean>
+
   <alias name="${omero.security.chmod_strategy}" alias="chmodStrategy"/>
 
   <bean id="groupChmodStrategy" class="ome.security.basic.GroupChmodStrategy">
@@ -74,6 +86,10 @@
   <bean id="systemTypes" class="ome.security.SystemTypes"/>
 
   <bean id="tokenHolder" class="ome.security.basic.TokenHolder"/>
+
+  <bean id="managedRepoUuids" class="com.google.common.collect.Sets" factory-method="newConcurrentHashSet"/>
+
+  <bean id="scriptRepoUuids" class="com.google.common.collect.Sets" factory-method="newConcurrentHashSet"/>
 
   <alias name="${omero.policy.bean}" alias="policyService"/>
 
@@ -113,6 +129,10 @@
     <constructor-arg ref="securityFilterHolder"/>
     <constructor-arg ref="policyService"/>
     <constructor-arg ref="roles"/>
+    <constructor-arg ref="adminPrivileges"/>
+    <constructor-arg ref="managedRepoUuids"/>
+    <constructor-arg ref="scriptRepoUuids"/>
+    <constructor-arg ref="uuid"/>  <!-- allows setting OriginalFile.repo -->
   </bean>
 
   <bean name="sessionCache" class="ome.services.sessions.state.SessionCache">
@@ -127,6 +147,7 @@
     <property name="principalHolder" ref="principalHolder"/>
     <property name="sessionCache"    ref="sessionCache"/>
     <property name="roles"           ref="roles"/>
+    <property name="adminPrivileges" ref="adminPrivileges"/>
     <property name="executor"        ref="executor"/>
     <property name="defaultTimeToIdle" value="${omero.sessions.timeout}"/>
     <property name="defaultTimeToLive" value="${omero.sessions.maximum}"/>

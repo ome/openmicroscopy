@@ -8,9 +8,11 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import ome.model.core.Image;
+import ome.model.enums.AdminPrivilege;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
@@ -20,6 +22,7 @@ import ome.security.SystemTypes;
 import ome.security.basic.BasicACLVoter;
 import ome.security.basic.BasicEventContext;
 import ome.security.basic.CurrentDetails;
+import ome.security.basic.LightAdminPrivileges;
 import ome.security.basic.TokenHolder;
 import ome.security.policy.DefaultPolicyService;
 import ome.services.sessions.SessionContext;
@@ -27,6 +30,7 @@ import ome.services.sessions.SessionContextImpl;
 import ome.services.sessions.state.SessionCache;
 import ome.services.sessions.stats.NullSessionStats;
 import ome.system.Principal;
+import ome.system.Roles;
 
 import org.jmock.MockObjectTestCase;
 import org.testng.annotations.Test;
@@ -57,6 +61,8 @@ public class WritePermissionsTest extends MockObjectTestCase {
     final BasicACLVoter voter = new BasicACLVoter(cd, new SystemTypes(),
             new TokenHolder(), null, new DefaultPolicyService());
 
+    final Set<AdminPrivilege> allAdminPrivileges = new LightAdminPrivileges(new Roles()).getAllPrivileges();
+
     protected Session login(String perms, long user, boolean leader) {
 
         Session s = sess(perms, user, THE_GROUP);
@@ -64,6 +70,9 @@ public class WritePermissionsTest extends MockObjectTestCase {
         cache.putSession(s.getUuid(), sc);
         BasicEventContext bec = new BasicEventContext(new Principal(s.getUuid()),
                 new NullSessionStats(), sc);
+        if (user == ROOT) {
+            bec.setAdminPrivileges(allAdminPrivileges);
+        }
         ExperimenterGroup g = s.getDetails().getGroup();
         bec.setGroup(g, g.getDetails().getPermissions());
         bec.setOwner(s.getDetails().getOwner());

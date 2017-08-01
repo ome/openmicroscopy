@@ -671,7 +671,14 @@ class BlitzObjectWrapper (object):
         group. Web client will only allow this for the data Owner. Admin CAN
         move other user's data, but we don't support this in Web yet.
         """
-        return self.isOwned() or self._conn.isAdmin()   # See #8974
+        return self.getDetails().getPermissions().canChgrp()
+
+    def canChown(self):
+        """
+        Specifies whether the current user can give this object to another
+        user. Web client does not yet support this.
+        """
+        return self.getDetails().getPermissions().canChown()
 
     def countChildren(self):
         """
@@ -2262,6 +2269,25 @@ class _BlitzGateway (object):
         admin_service = self.getAdminService()
         group = admin_service.getGroup(self.getEventContext().groupId)
         return ExperimenterGroupWrapper(self, group)
+
+    def getCurrentAdminPrivileges(self):
+        """
+        Returns list of Admin Privileges for the current session.
+
+        :return:    List of strings such as ["ModifyUser", "ModifyGroup"]
+        """
+        privileges = self.getAdminService().getCurrentAdminPrivileges()
+        return [unwrap(p.getValue()) for p in privileges]
+
+    def getAdminPrivileges(self, user_id):
+        """
+        Returns list of Admin Privileges for the specified user.
+
+        :return:    List of strings such as ["ModifyUser", "ModifyGroup"]
+        """
+        privileges = self.getAdminService().getAdminPrivileges(
+            omero.model.ExperimenterI(user_id, False))
+        return [unwrap(p.getValue()) for p in privileges]
 
     def isAdmin(self):
         """

@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- * Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ * Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -61,23 +61,6 @@ public class PolygonData
     }
 
     /**
-     * Creates a new instance of the PolygonData, set the points in the polygon.
-     *
-     * @param points The points in the polygon.
-     * @param points1 The points in the polygon.
-     * @param points2 The points in the polygon.
-     * @param maskList The points in the polygon.
-     * @deprecated
-     */
-    public PolygonData(List<Point2D.Double> points,
-            List<Point2D.Double> points1,
-            List<Point2D.Double> points2, List<Integer> maskList)
-    {
-        super(new PolygonI(), true);
-        setPoints(points, points1, points2, maskList);
-    }
-
-    /**
      * Create a new instance of the PolylineData, set the points in the polyline.
      *
      * @param points See Above.
@@ -131,30 +114,6 @@ public class PolygonData
      * Returns the points in the polygon.
      *
      * @return See above.
-     * @deprecated
-     */
-    public List<Point2D.Double> getPoints1()
-    {
-        String pts = fromPoints("points1");
-        return parsePointsToPoint2DList(pts);
-    }
-
-    /**
-     * Returns the points in the polygon.
-     *
-     * @return See above.
-     * @deprecated
-     */
-    public List<Point2D.Double> getPoints2()
-    {
-        String pts = fromPoints("points2");
-        return parsePointsToPoint2DList(pts);
-    }
-
-    /**
-     * Returns the points in the polygon.
-     *
-     * @return See above.
      */
     public List<Integer> getMaskPoints()
     {
@@ -162,29 +121,6 @@ public class PolygonData
         return parsePointsToIntegerList(pts);
     }
 
-    /**
-     * Sets the points in the polygon.
-     *
-     * @param points The points in the polygon.
-     * @param points1 The points in the polygon.
-     * @param points2 The points in the polygon.
-     * @param maskList The points in the polygon.
-     * @deprecated
-     */
-    public void setPoints(List<Point2D.Double> points,
-            List<Point2D.Double> points1,
-            List<Point2D.Double> points2, List<Integer> maskList)
-    {
-        if (isReadOnly())
-            throw new IllegalArgumentException("Shape ReadOnly");
-        Polygon shape = (Polygon) asIObject();
-        if (shape == null) 
-            throw new IllegalArgumentException("No shape specified.");
-
-        String pointsValues =
-                toPoints(points.toArray(new Point2D.Double[points.size()]));
-        shape.setPoints(rtypes.rstring(pointsValues));
-    }
 
     /**
      * Sets the points in the polygon.

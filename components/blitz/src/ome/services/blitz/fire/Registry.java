@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -12,7 +10,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-//import ome.services.blitz.repo.InternalRepositoryI;
 import omero.api.ServiceFactoryPrx;
 import omero.grid.ClusterNodePrx;
 import omero.grid.ClusterNodePrxHelper;
@@ -55,17 +52,14 @@ public interface Registry {
      * create sessions for accessing the database.
      * 
      *<pre>
-     * communicator := Ice.Communicator used to find the registry
      * user         := Username which should have a session created
-     * group        := Group into which the session should be logged
+     * groupId      := Group into which the session should be logged
      * retries      := Number of session creation retries before throwing
      * interval     := Seconds between retries
      * client_uuid  := Uuid of the client which should be used
      * </pre>
-     * @deprecated OMERO 5.4 uses group ID instead of group name
      */
-    @Deprecated  // removed in 5.4
-    ServiceFactoryPrx getInternalServiceFactory(String user, String group,
+    ServiceFactoryPrx getInternalServiceFactory(String user, Long groupId,
             int retries, int interval, String client_uuid) throws Exception;
 
     /**
@@ -114,9 +108,8 @@ public interface Registry {
             this.ic = ic;
         }
 
-        @Deprecated  // OMERO 5.4 uses group ID instead of group name
         public ServiceFactoryPrx getInternalServiceFactory(String user,
-                String group, int retries, int interval, String client_uuid)
+                Long groupId, int retries, int interval, String client_uuid)
                 throws Exception {
 
             int tryCount = 0;
@@ -133,12 +126,14 @@ public interface Registry {
                 try {
                     Map<String, String> ctx = new HashMap<String, String>();
                     ctx.put("omero.client.uuid", client_uuid);
+                    if (groupId != null) {
+                        ctx.put("omero.group", Long.toString(groupId));
+                    }
                     prx = query
                             .findAllObjectsByType("::Glacier2::SessionManager")[0];
                     SessionManagerPrx blitz = Glacier2.SessionManagerPrxHelper
                             .checkedCast(prx);
                     SessionPrx sf = blitz.create(user, null, ctx);
-                    // Group currently unused.
                     return omero.api.ServiceFactoryPrxHelper.checkedCast(sf);
                 } catch (Ice.ObjectAdapterDeactivatedException oade) {
                     // Server is going down. wait an interval and this may have

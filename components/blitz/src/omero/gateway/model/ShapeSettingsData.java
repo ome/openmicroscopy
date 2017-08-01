@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- * Copyright (C) 2006-2016 University of Dundee. All rights reserved.
+ * Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -23,7 +23,6 @@ package omero.gateway.model;
 import java.awt.Color;
 import java.awt.Font;
 
-import ome.formats.model.UnitsFactory;
 import ome.model.units.BigResult;
 import omero.RInt;
 import omero.RString;
@@ -229,25 +228,6 @@ public class ShapeSettingsData
     }
 
     /**
-     * Returns the stroke's width.
-     *
-     * @return See above.
-     * @deprecated Replaced by {@link #getStrokeWidth(UnitsLength)}
-     */
-    @Deprecated
-    public double getStrokeWidth()
-    {
-        Shape shape = (Shape) asIObject();
-        Length value = shape.getStrokeWidth();
-        if (value == null) return 1.0;
-        try {
-            return new LengthI(value, UnitsFactory.Shape_StrokeWidth).getValue();
-        } catch (BigResult e) {
-            return value.getValue();
-        }
-    }
-
-    /**
      * Returns the stroke's width (or 1 px if it's not set or <= 0)
      *
      * @param unit
@@ -263,22 +243,6 @@ public class ShapeSettingsData
         if (value == null || value.getValue()<=0) 
             return new LengthI(1, UnitsLength.PIXEL);
         return unit == null ? value : new LengthI(value, unit);
-    }
-
-    /**
-     * Set the stroke width.
-     *
-     * @param strokeWidth See above.
-     * @deprecated Replaced by {@link #setStrokeWidth(Length)}
-     */
-    @Deprecated
-    public void setStrokeWidth(Double strokeWidth)
-    {
-        Shape shape = (Shape) asIObject();
-        if (shape == null) 
-            throw new IllegalArgumentException("No shape specified.");
-        shape.setStrokeWidth(new LengthI(strokeWidth, UnitsFactory.Shape_StrokeWidth));
-        setDirty(true);
     }
 
     /**
@@ -343,7 +307,13 @@ public class ShapeSettingsData
             style = style | Font.BOLD;
         if (isFontItalic())
             style = style | Font.ITALIC;
-        return new Font(getFontFamily(), style, (int) getFontSize());
+        int size = DEFAULT_FONT_SIZE;
+        try {
+            size = (int) getFontSize(UnitsLength.POINT).getValue();
+        } catch (BigResult e) {
+            // just use default font size
+        }
+        return new Font(getFontFamily(), style, size);
     }
 
     /**
@@ -378,37 +348,6 @@ public class ShapeSettingsData
     /**
      * Returns the stroke.
      *
-     * @return See above.
-     * @deprecated Replaced by {@link #getFontSize(UnitsLength)}
-     */
-    @Deprecated
-    public double getFontSize()
-    {
-        Shape shape = (Shape) asIObject();
-        if (shape == null) 
-            throw new IllegalArgumentException("No shape specified.");
-        Length size = shape.getFontSize();
-        if (size != null) {
-            try {
-                if (size.getUnit().equals(UnitsLength.PIXEL)) {
-                    return size.getValue();
-                }
-                return (new LengthI(size, UnitsLength.POINT)).getValue();
-            } catch (Exception e) {
-                if (e instanceof BigResult) {
-                    BigResult ex = (BigResult) e;
-                    if (ex.result != null) {
-                        return ex.result.doubleValue();
-                    }
-                }
-            }
-        }
-        return DEFAULT_FONT_SIZE;
-    }
-
-    /**
-     * Returns the stroke.
-     *
      * @param unit
      *            The unit (may be null, in which case no conversion will be
      *            performed)
@@ -424,21 +363,6 @@ public class ShapeSettingsData
         if (size != null) 
             return unit == null ? size : new LengthI(size, unit);
         return new LengthI(DEFAULT_FONT_SIZE, UnitsLength.POINT);
-    }
-
-    /**
-     * Set the size of the font.
-     * @deprecated Replaced by {@link #setFontSize(Length)}
-     */
-    @Deprecated
-    public void setFontSize(int fontSize)
-    {
-        Shape shape = (Shape) asIObject();
-        if (shape == null) 
-            throw new IllegalArgumentException("No shape specified.");
-        if (fontSize <= 0) fontSize = DEFAULT_FONT_SIZE;
-        shape.setFontSize(new LengthI(fontSize, UnitsLength.POINT));
-        setDirty(true);
     }
 
     /**

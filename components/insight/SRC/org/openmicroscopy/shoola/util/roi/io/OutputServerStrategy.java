@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -374,20 +374,14 @@ public class OutputServerStrategy
 		MeasureBezierFigure fig = (MeasureBezierFigure) shape.getFigure();
 		AffineTransform t = AttributeKeys.TRANSFORM.get(fig);
 		List<Point2D.Double> points = new LinkedList<Point2D.Double>();
-		List<Point2D.Double> points1 = new LinkedList<Point2D.Double>();
-		List<Point2D.Double> points2 = new LinkedList<Point2D.Double>();
-		List<Integer> maskList = new LinkedList<Integer>();
 		
 		BezierPath bezier = fig.getBezierPath();
 		for (BezierPath.Node node : bezier)
 		{
 			points.add(new Point2D.Double(node.x[0], node.y[0]));
-			points1.add(new Point2D.Double(node.x[1], node.y[1]));
-			points2.add(new Point2D.Double(node.x[2], node.y[2]));
-			maskList.add(Integer.valueOf(node.getMask()));
 		}
 		PolygonData poly = new PolygonData();
-		poly.setPoints(points, points1, points2, maskList);
+		poly.setPoints(points);
 		if (t != null)
 			poly.setTransform(toTransform(t));
 		String text = fig.getText();
@@ -426,18 +420,12 @@ public class OutputServerStrategy
 		}
 		
 		List<Point2D.Double> points = new LinkedList<Point2D.Double>();
-		List<Point2D.Double> points1 = new LinkedList<Point2D.Double>();
-		List<Point2D.Double> points2 = new LinkedList<Point2D.Double>();
-		List<Integer> maskList =  new LinkedList<Integer>();
 		for (BezierPath.Node node : bezier)
 		{
 			points.add(new Point2D.Double(node.x[0], node.y[0]));
-			points1.add(new Point2D.Double(node.x[1], node.y[1]));
-			points2.add(new Point2D.Double(node.x[2], node.y[2]));
-			maskList.add(Integer.valueOf(node.getMask()));
 		}
 		PolylineData line = new PolylineData();
-		line.setPoints(points, points1, points2, maskList);
+		line.setPoints(points);
 		if (t != null)
 			line.setTransform(toTransform(t));
 		String text = fig.getText();
@@ -461,20 +449,14 @@ public class OutputServerStrategy
 		MeasureBezierFigure fig = (MeasureBezierFigure)shape.getFigure();
 		AffineTransform t = AttributeKeys.TRANSFORM.get(fig);
 		List<Point2D.Double> points = new LinkedList<Point2D.Double>();
-		List<Point2D.Double> points1 = new LinkedList<Point2D.Double>();
-		List<Point2D.Double> points2 = new LinkedList<Point2D.Double>();
-		List<Integer> maskList=new LinkedList<Integer>();
 		
 		BezierPath bezier = fig.getBezierPath();
 		for (BezierPath.Node node : bezier)
 		{
 			points.add(new Point2D.Double(node.x[0], node.y[0]));
-			points1.add(new Point2D.Double(node.x[1], node.y[1]));
-			points2.add(new Point2D.Double(node.x[2], node.y[2]));
-			maskList.add(Integer.valueOf(node.getMask()));
 		}
 		PolylineData poly = new PolylineData();
-		poly.setPoints(points, points1, points2, maskList);
+		poly.setPoints(points);
 		if (t != null)
 			poly.setTransform(toTransform(t));
 		String text = fig.getText();

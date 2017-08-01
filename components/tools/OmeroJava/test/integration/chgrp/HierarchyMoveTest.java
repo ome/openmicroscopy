@@ -866,28 +866,18 @@ public class HierarchyMoveTest extends AbstractServerTest {
         iAdmin.getEventContext(); // Refresh
 
         Project p = (Project) iUpdate.saveAndReturnObject(mmFactory
-                .simpleProjectData().asIObject());
+                .simpleProjectData().asIObject()).proxy();
         Dataset d = (Dataset) iUpdate.saveAndReturnObject(mmFactory
-                .simpleDatasetData().asIObject());
+                .simpleDatasetData().asIObject()).proxy();
         Image image1 = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage());
+                .simpleImage()).proxy();
         Image image2 = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage());
+                .simpleImage()).proxy();
         List<IObject> links = new ArrayList<IObject>();
-        DatasetImageLink link = new DatasetImageLinkI();
-        link.setChild(image1);
-        link.setParent(d);
-        links.add(link);
+        links.add(linkParentToChild(d, image1));
+        links.add(linkParentToChild(d, image2));
 
-        link = new DatasetImageLinkI();
-        link.setChild(image2);
-        link.setParent(d);
-        links.add(link);
-
-        ProjectDatasetLink l = new ProjectDatasetLinkI();
-        l.setChild(d);
-        l.setParent(p);
-        links.add(l);
+        links.add(linkParentToChild(p, d));
         iUpdate.saveAndReturnArray(links);
 
         List<Long> ids = new ArrayList<Long>();
@@ -1049,10 +1039,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
 
         /* only the original and the other are in the dataset; the projection is not */
         for (final Image image : new Image[] {original, other}) {
-            final DatasetImageLink link = new DatasetImageLinkI();
-            link.setParent(dataset);
-            link.setChild(image);
-            iUpdate.saveAndReturnObject(link);
+            linkParentToChild(dataset, image);
         }
 
         /* move the dataset */

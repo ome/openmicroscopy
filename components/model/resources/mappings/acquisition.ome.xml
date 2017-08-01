@@ -2,7 +2,7 @@
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # 
-# Copyright 2006-2016 University of Dundee. All rights reserved.
+# Copyright 2006-2017 University of Dundee. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -99,6 +99,7 @@
 			 name is the filename of the file, i.e. `basename <file>`
 			-->
 			<required name="path" type="text"/>
+			<optional name="repo" type="string"/>  <!-- length 36 -->
 			<optional name="size" type="long"/>
 			<optional name="atime" type="timestamp"/>
 			<optional name="mtime" type="timestamp"/>

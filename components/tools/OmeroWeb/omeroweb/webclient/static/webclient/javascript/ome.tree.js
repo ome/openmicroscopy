@@ -1096,13 +1096,22 @@ $(function() {
                 // use canLink, canDelete etc classes on each node to enable/disable right-click menu
 
                 var userId = WEBCLIENT.active_user_id,
-                    canCreate = (userId === WEBCLIENT.USER.id || userId === -1),
+                    // admin may be viewing a Group that they are not a member of
+                    memberOfGroup = WEBCLIENT.eventContext.memberOfGroups.indexOf(WEBCLIENT.active_group_id) > -1,
+                    writeOwned = WEBCLIENT.eventContext.adminPrivileges.indexOf("WriteOwned") > -1,
+                    // canCreate if looking at your own data or 'All Members' AND have permissions
+                    canCreate = ((userId === WEBCLIENT.USER.id || userId === -1) && (memberOfGroup || writeOwned)),
                     canLink = OME.nodeHasPermission(node, 'canLink'),
                     parentAllowsCreate = (node.type === "orphaned" || node.type === "experimenter");
 
 
-                // Although not everything created here will go under selected node,
-                // we still don't allow creation if linking not allowed
+                // We don't allow creating if new node will not be displayed in tree.
+                // If you canLink under selected Project, Dataset will be in tree
+                if(canLink && node.type === "project" && !tagTree) {
+                    config["create"]["_disabled"] = false;
+                    config["create"]["submenu"]["dataset"]["_disabled"] = false;
+                }
+                // Otherwise can only create if we're filtering for your data
                 if(canCreate && (canLink || parentAllowsCreate)) {
                     // Enable tag or P/D/I submenus created above
                     config["create"]["_disabled"] = false;

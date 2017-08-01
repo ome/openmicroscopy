@@ -1,7 +1,5 @@
 /*
- * ome.api.local.LocalQuery
- *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -100,5 +98,4 @@ public interface LocalQuery extends ome.api.IQuery {
      * @return yes or no.
      */
     boolean checkProperty(String type, String property);
-
 }

@@ -103,6 +103,7 @@ class TestImages(IWebTest):
     def test_dataset_images(self, user1, dataset_images):
         """Test listing of Images in a Dataset."""
         conn = get_connection(user1)
+        groupId = conn.getEventContext().groupId
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
         version = api_settings.API_VERSIONS[-1]
@@ -115,7 +116,7 @@ class TestImages(IWebTest):
         datasets_url = reverse('api_datasets', kwargs={'api_version': version})
 
         # List ALL Images
-        rsp = get_json(django_client, images_url)
+        rsp = get_json(django_client, images_url, {'group': groupId})
         assert len(rsp['data']) == 6
         assert rsp['meta'] == {'totalCount': 6,
                                'limit': api_settings.API_LIMIT,
@@ -123,10 +124,10 @@ class TestImages(IWebTest):
                                'offset': 0}
 
         # Filter Images by Orphaned
-        payload = {'orphaned': 'true'}
+        payload = {'orphaned': 'true', 'group': groupId}
         rsp = get_json(django_client, images_url, payload)
         assert_objects(conn, rsp['data'], [orphaned], dtype='Image',
-                       opts={'load_pixels': True})
+                       group=groupId, opts={'load_pixels': True})
         assert rsp['meta'] == {'totalCount': 1,
                                'limit': api_settings.API_LIMIT,
                                'maxLimit': api_settings.API_MAX_LIMIT,

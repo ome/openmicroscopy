@@ -1,5 +1,5 @@
 /*
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -42,6 +42,7 @@ import ome.api.ThumbnailStore;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.model.acquisition.Objective;
+import ome.model.enums.AdminPrivilege;
 import ome.model.enums.Family;
 import ome.model.enums.FilterType;
 import ome.model.internal.Permissions;
@@ -534,6 +535,16 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
                 return "user";
             }
 
+            @Override
+            public Long getCurrentSudoerId() {
+                return null;
+            }
+
+            @Override
+            public String getCurrentSudoerName() {
+                return null;
+            }
+
             public List<Long> getLeaderOfGroupsList() {
                 return Arrays.asList(4L);
             }
@@ -544,6 +555,11 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
 
             public boolean isCurrentUserAdmin() {
                 return true;
+            }
+
+            @Override
+            public Set<AdminPrivilege> getCurrentAdminPrivileges() {
+                return Collections.emptySet();
             }
 
             public boolean isReadOnly() {

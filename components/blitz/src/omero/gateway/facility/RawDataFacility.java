@@ -166,48 +166,6 @@ public class RawDataFacility extends Facility implements AutoCloseable {
     }
 
     /**
-     * Extracts a 2D plane from the pixels set.
-     *
-     * @param ctx
-     *            The security context.
-     * @param pixels
-     *            The {@link PixelsData} object to fetch the data from.
-     * @param z
-     *            The z-section at which data is to be fetched.
-     * @param t
-     *            The timepoint at which data is to be fetched.
-     * @param c
-     *            The channel at which data is to be fetched.
-     * @param close
-     *            Pass <code>true</code> to close the connection to the
-     *            Pixelstore, <code>false</code> to leave it open. (deprecated,
-     *            the resources will be closed when the facility itself is
-     *            closed, see {@link #close()}, {@link AutoCloseable})
-     * @return A plane 2D object that encapsulates the actual plane pixels.
-     * @throws DataSourceException
-     *             If an error occurs while retrieving the plane data from the
-     *             pixels source.
-     * @deprecated Use getPlane(SecurityContext, PixelsData, z, t, c) instead
-     */
-    @Deprecated
-    public Plane2D getPlane(SecurityContext ctx, PixelsData pixels, int z,
-            int t, int c, boolean close) throws DataSourceException {
-        Plane2D data = null;
-        DataSink ds = null;
-        try {
-            ds = getDataSink(ctx, pixels, gateway);
-            data = ds.getPlane(z, t, c);
-        } catch (DSOutOfServiceException e) {
-            throw new DataSourceException("Can't initiate DataSink", e);
-        }
-        finally {
-            if (close)
-                ds.close();
-        }
-        return data;
-    }
-
-    /**
      * Extracts a 2D tile from the pixels set
      * 
      * @param ctx

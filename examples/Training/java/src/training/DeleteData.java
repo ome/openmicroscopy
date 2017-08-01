@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2016 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2017 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -103,7 +103,7 @@ public class DeleteData
         img.setName(omero.rtypes.rstring("image1"));
         img.setDescription(omero.rtypes.rstring("descriptionImage1"));
         img = (Image) dm.saveAndReturnObject(ctx, img);
-        Response rsp = dm.deleteObject(ctx, img);
+        Response rsp = dm.delete(ctx, img).loop(10, 500);
         System.err.println(rsp);
     }
 
@@ -126,7 +126,7 @@ public class DeleteData
         d.linkAnnotation(fa);
         d = (Dataset) dm.saveAndReturnObject(ctx, d);
         fa = (FileAnnotation) d.linkedAnnotationList().get(0);
-        Response rsp = dm.deleteObject(ctx, fa);
+        Response rsp = dm.delete(ctx, fa).loop(10, 500);
         System.err.println(rsp);
     }
 

@@ -20,8 +20,12 @@ import ome.conditions.AuthenticationException;
 import ome.conditions.RootException;
 import ome.conditions.SecurityViolation;
 import ome.conditions.SessionException;
+import ome.model.enums.AdminPrivilege;
+import ome.model.meta.Experimenter;
 import ome.model.meta.Session;
 import ome.security.basic.CurrentDetails;
+import ome.security.basic.LightAdminPrivileges;
+import ome.services.sessions.SessionManager.CreationRequest;
 import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.Principal;
@@ -48,10 +52,13 @@ public class SessionBean implements ISession {
 
     final private CurrentDetails cd;
 
-    public SessionBean(SessionManager mgr, Executor ex, CurrentDetails cd) {
+    private final LightAdminPrivileges adminPrivileges;
+
+    public SessionBean(SessionManager mgr, Executor ex, CurrentDetails cd, LightAdminPrivileges adminPrivileges) {
         this.mgr = mgr;
         this.ex = ex;
         this.cd = cd;
+        this.adminPrivileges = adminPrivileges;
     }
     
     // ~ Injectors
@@ -69,16 +76,33 @@ public class SessionBean implements ISession {
             final long timeToIdleMs,
             String defaultGroup) {
 
-        final String user = currentUser();
+        final String user = currentContext().getCurrentUserName();
         if (user == null) {
             throw new SecurityViolation("No current user");
         }
-        
+
+        final EventContext context = currentContext();
+        final Session currentSession;
+        if (context instanceof SessionContext) {
+            currentSession = ((SessionContext) context).getSession();
+        } else {
+            currentSession = null;
+        }
+
         try {
             final Principal principal = principal(defaultGroup, user);
             Future<Session> future = ex.submit(new Callable<Session>(){
                 public Session call() throws Exception {
-                    Session session = mgr.createWithAgent(principal, "createSession", null);
+                    final CreationRequest req = new CreationRequest();
+                    req.principal = principal;
+                    req.agent = "createSession";
+                    if (currentSession != null) {
+                        final Experimenter sudoer = currentSession.getSudoer();
+                        if (sudoer != null) {
+                            req.sudoer = sudoer.getId();
+                        }
+                    }
+                    final Session session = mgr.createFromRequest(req);
                     session.setTimeToIdle(timeToIdleMs);
                     session.setTimeToLive(timeToLiveMs);
                     return mgr.update(session, false);
@@ -101,8 +125,28 @@ public class SessionBean implements ISession {
             final long timeToLiveMilliseconds, final long timeToIdleMilliseconds) {
 
         final EventContext context = currentContext();
-        final List<Long> groupsLed = context.isCurrentUserAdmin() ? null :
-            context.getLeaderOfGroupsList();
+        final Session currentSession;
+        if (context instanceof SessionContext) {
+            currentSession = ((SessionContext) context).getSession();
+        } else {
+            currentSession = null;
+        }
+
+        final List<Long> groupsLed;
+        if (context.isCurrentUserAdmin()) {
+            if (currentSession != null) {
+                final Set<AdminPrivilege> privileges = adminPrivileges.getSessionPrivileges(currentSession);
+                if (privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_SUDO))) {
+                    groupsLed = null;
+                } else {
+                    groupsLed = context.getLeaderOfGroupsList();
+                }
+            } else {
+                groupsLed = null;
+            }
+        } else {
+            groupsLed = context.getLeaderOfGroupsList();
+        }
 
         try {
             Future<Session> future = ex.submit(new Callable<Session>(){
@@ -113,6 +157,13 @@ public class SessionBean implements ISession {
                     req.groupsLed = groupsLed;
                     req.timeToIdle = timeToIdleMilliseconds;
                     req.timeToLive = timeToLiveMilliseconds;
+                    req.sudoer = context.getCurrentUserId();
+                    if (currentSession != null) {
+                        final Experimenter sudoer = currentSession.getSudoer();
+                        if (sudoer != null) {
+                            req.sudoer = sudoer.getId();
+                        }
+                    }
                     return mgr.createFromRequest(req);
                 }});
             return ex.get(future);
@@ -165,30 +216,30 @@ public class SessionBean implements ISession {
 
     @RolesAllowed("user")
     public java.util.List<Session> getMyOpenSessions() {
-        final String user = currentUser();
+        final String uuid = currentContext().getCurrentSessionUuid();
         Future<List<Session>> future = ex.submit(new Callable<List<Session>>(){
             public List<Session> call() throws Exception {
-                return mgr.findByUser(user);
+                return mgr.findSameUser(uuid);
             }});
         return ex.get(future);
     }
 
     @RolesAllowed("user")
     public java.util.List<Session> getMyOpenAgentSessions(final String agent) {
-        final String user = currentUser();
+        final String uuid = currentContext().getCurrentSessionUuid();
         Future<List<Session>> future = ex.submit(new Callable<List<Session>>(){
             public List<Session> call() throws Exception {
-                return mgr.findByUserAndAgent(user, agent);
+                return mgr.findSameUser(uuid, agent);
             }});
         return ex.get(future);
     }
 
     @RolesAllowed("user")
     public java.util.List<Session> getMyOpenClientSessions() {
-        final String user = currentUser();
+        final String uuid = currentContext().getCurrentSessionUuid();
         Future<List<Session>> future = ex.submit(new Callable<List<Session>>(){
             public List<Session> call() throws Exception {
-                return mgr.findByUserAndAgent(user, "OMERO.insight",
+                return mgr.findSameUser(uuid, "OMERO.insight",
                         "OMERO.web", "OMERO.importer");
             }});
         return ex.get(future);
@@ -239,10 +290,6 @@ public class SessionBean implements ISession {
 
     // ~ Helpers
     // =========================================================================
-
-    String currentUser() {
-        return currentContext().getCurrentUserName();
-    }
 
     EventContext currentContext() {
         String user = cd.getLast().getName();
