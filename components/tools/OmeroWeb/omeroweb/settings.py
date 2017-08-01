@@ -509,6 +509,8 @@ CUSTOM_SETTINGS_MAPPINGS = {
           " navigate. The idea is that you can create the public pages"
           " yourself (see OMERO.web framework since we do not provide public"
           " pages.")],
+    "omero.web.public.get_only" :
+        ["PUBLIC_GET_ONLY", "true", parse_boolean, "Restrict public users to GET requests only"],
     "omero.web.public.server_id":
         ["PUBLIC_SERVER_ID", 1, int, "Server to authenticate against."],
     "omero.web.public.user":
