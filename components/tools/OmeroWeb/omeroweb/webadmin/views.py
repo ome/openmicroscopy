@@ -607,8 +607,7 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                     else:
                         to_remove.append(p)
 
-                conn.updateAdminPrivileges(experimenter.id,
-                                               to_add, to_remove)
+                conn.updateAdminPrivileges(experimenter.id, to_add, to_remove)
 
                 conn.updateExperimenter(
                     experimenter, omename, firstName, lastName, email, admin,
