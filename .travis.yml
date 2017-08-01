@@ -1,5 +1,5 @@
 language: java
-
+dist: trusty
 jdk: oraclejdk8
 
 # This (sudo: false) is needed to "run on container-based infrastructure" on
