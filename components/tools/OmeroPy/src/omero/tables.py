@@ -97,7 +97,7 @@ def modifies(func):
 class HdfList(object):
 
     """
-    Since two calls to tables.openFile() return non-equal files
+    Since two calls to tables.open_file() return non-equal files
     with equal fileno's, portalocker cannot be used to prevent
     the creation of two HdfStorage instances from the same
     Python process.
@@ -229,9 +229,9 @@ class HdfStorage(object):
                             self.__hdf_path, mode))
                     mode = "r"
 
-            return tables.openFile(str(self.__hdf_path), mode=mode,
-                                   title="OMERO HDF Measurement Storage",
-                                   rootUEP="/")
+            return tables.open_file(str(self.__hdf_path), mode=mode,
+                                    title="OMERO HDF Measurement Storage",
+                                    rootUEP="/")
         except (tables.HDF5ExtError, IOError) as e:
             msg = "HDFStorage initialized with bad path: %s: %s" % (
                 self.__hdf_path, e)
@@ -335,15 +335,15 @@ class HdfStorage(object):
                     None, None, "Reserved column name: %s" % c.name)
 
         self.__definition = columns2definition(cols)
-        self.__ome = self.__hdf_file.createGroup("/", "OME")
-        self.__mea = self.__hdf_file.createTable(
+        self.__ome = self.__hdf_file.create_group("/", "OME")
+        self.__mea = self.__hdf_file.create_table(
             self.__ome, "Measurements", self.__definition)
 
         self.__types = [x.ice_staticId() for x in cols]
         self.__descriptions = [
             (x.description is not None) and x.description or "" for x in cols]
-        self.__hdf_file.createArray(self.__ome, "ColumnTypes", self.__types)
-        self.__hdf_file.createArray(
+        self.__hdf_file.create_array(self.__ome, "ColumnTypes", self.__types)
+        self.__hdf_file.create_array(
             self.__ome, "ColumnDescriptions", self.__descriptions)
 
         md = {}
