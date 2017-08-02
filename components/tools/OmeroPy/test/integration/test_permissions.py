@@ -864,7 +864,7 @@ class TestPermissionProjections(ITest):
     def assertPerms(self, perms, fixture):
         found_arr = []
         expected_arr = []
-        for x in ("Annotate", "Delete", "Edit", "Link"):
+        for x in ("Annotate", "Delete", "Edit", "Link", "Chgrp", "Chown"):
             key = "can%s" % x
             found = bool(perms[key])
             found_arr.append(found)
