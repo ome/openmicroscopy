@@ -139,20 +139,12 @@ BEGIN
           INSERT INTO _lock_ids (id, name) VALUES (Lid, seq);
       END IF;
 
-      BEGIN
-        PERFORM pg_advisory_lock(1, Lid);
-      EXCEPTION
-        WHEN undefined_function THEN
-          RAISE DEBUG ''No function pg_advisory_lock'';
-      END;
+      PERFORM pg_advisory_lock(1, Lid);
+
       PERFORM nextval(seq) FROM generate_series(1, increment);
       SELECT currval(seq) INTO nv;
-      BEGIN
-        PERFORM pg_advisory_unlock(1, Lid);
-      EXCEPTION
-        WHEN undefined_function THEN
-          RAISE DEBUG ''No function pg_advisory_unlock'';
-      END;
+
+      PERFORM pg_advisory_unlock(1, Lid);
 
       RETURN nv;
 
