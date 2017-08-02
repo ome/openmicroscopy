@@ -936,7 +936,35 @@ class TestPermissionProjections(ITest):
                     "canChgrp": perms.canChgrp(),
                     "canChown": perms.canChown(),
                 }
-                self._cache[key] = value
+
+                # Test that we get the same using the map with
+                # 'project_details_permissions' workaround as used in webclient
+                # without loading the whole project
+                proj = unwrap(reader.projection(
+                    """select new map(project.id as id,
+                    project.name as name,
+                    project.details.owner.id as ownerId,
+                    project as project_details_permissions)
+                    from Project project
+                    where project.id = :id""",
+                    ParametersI().addId(project.id.val),
+                    {"omero:group": str(group)}))[0]
+
+                perms = proj[0].get('project_details_permissions')
+                perms_values = {
+                    "perms": perms.get("perm"),
+                    "canAnnotate": perms.get("canAnnotate"),
+                    "canDelete": perms.get("canDelete"),
+                    "canEdit": perms.get("canEdit"),
+                    "canLink": perms.get("canLink"),
+                    "canChgrp": perms.get("canChgrp"),
+                    "canChown": perms.get("canChown"),
+                }
+
+                assert perms_values == value
+
+                self._cache[key] = perms_values
+
         except IndexError:
             # No permissions were returned.
             assert not fixture.canRead
