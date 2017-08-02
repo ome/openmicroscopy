@@ -43,6 +43,16 @@ import string
 from omero_ext import portalocker
 from omero.install.python_warning import py27_only, PYTHON_WARNING
 
+# Load custom settings from etc/grid/config.xml
+# Tue  2 Nov 2010 11:03:18 GMT -- ticket:3228
+from omero.util.concurrency import get_event
+
+# Load server list and freeze
+from utils import sort_properties_to_tuple
+
+# Load server list and freeze
+from connector import Server
+
 logger = logging.getLogger(__name__)
 
 if not py27_only():
@@ -161,9 +171,6 @@ LOGGING = {
 }
 
 
-# Load custom settings from etc/grid/config.xml
-# Tue  2 Nov 2010 11:03:18 GMT -- ticket:3228
-from omero.util.concurrency import get_event
 CONFIG_XML = os.path.join(OMERO_HOME, 'etc', 'grid', 'config.xml')
 count = 10
 event = get_event("websettings")
@@ -1237,15 +1244,8 @@ MANAGERS = ADMINS  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
 # omeroweb.connector.Connector object
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
 
-
-# Load server list and freeze
-from utils import sort_properties_to_tuple
-
 # MIDDLEWARE_CLASSES: A tuple of middleware classes to use.
 MIDDLEWARE_CLASSES = sort_properties_to_tuple(MIDDLEWARE_CLASSES_LIST)  # noqa
-
-# Load server list and freeze
-from connector import Server
 
 
 def load_server_list():
