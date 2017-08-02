@@ -19,31 +19,8 @@ clean()
     ant clean
 }
 
-get_ice()
-{
-  if [ "$TRAVIS" = "true" ]; then
-    NAME=ice
-    fold start install
-    ice=Ice-3.5.1-b1-ubuntu1204-amd64.tar.xz
-    if [ ! -f "download/$ice" ]; then
-      mkdir -p download
-      cd download
-      wget "http://downloads.openmicroscopy.org/ice/experimental/$ice"
-      cd ..
-    fi
-    tar -xvf "download/$ice"
-    ICE_HOME="$(pwd)/Ice-3.5.1-b1-ubuntu1204-amd64"
-    export SLICEPATH="${ICE_HOME}/slice"
-    export PATH="${ICE_HOME}/bin:$PATH"
-    export LD_LIBRARY_PATH="${ICE_HOME}/lib:$LD_LIBRARY_PATH"
-    export PYTHONPATH="${ICE_HOME}/python:$PYTHONPATH"
-    fold end install
-  fi
-}
-
 java_build()
 {
-    get_ice
     NAME=java_build
     fold start default
         TEST="-p" ant build-default -Dpackage-extra=false
@@ -55,7 +32,6 @@ java_build()
 
 java_test()
 {
-    get_ice
     NAME=java_test
     for dir in dsl model common rendering server blitz tools/OmeroJava
     do
@@ -88,7 +64,6 @@ py_flake8()
 
 py_build()
 {
-    get_ice
     NAME=py_build
     fold start default
         ant build-default -Dpackage-extra=false
@@ -97,7 +72,6 @@ py_build()
 
 py_test()
 {
-    get_ice
     NAME=py_test
     for dir in OmeroPy OmeroFS OmeroWeb
     do
@@ -127,7 +101,6 @@ py_test()
 
 build_cpp()
 {
-    get_ice
     (
         cd components/tools/OmeroCpp
         mkdir build
@@ -148,7 +121,6 @@ build_cpp()
 
 if [ $# -eq 0 ]
 then
-    get_ice
     clean
     java_build
     py_build
