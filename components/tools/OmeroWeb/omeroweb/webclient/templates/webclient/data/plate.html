@@ -76,13 +76,15 @@
             });
             // Resize Images in Well
             var well_images_size = $('body').data('well_images_size') || 64;
-            $("#wellImages").prop('class', 'fillSpace wellSize' + well_images_size);
+            var prev_well_images_size = well_images_size;
+            $("#wellImages").addClass('wellSize' + well_images_size);
             $("#wellImages_size_slider").slider({
                 max: 130,
                 min: 30,
                 value: well_images_size,
                 slide: function(event, ui) {
-                    $("#wellImages").prop('class', 'fillSpace wellSize' + ui.value);
+                    $("#wellImages").removeClass('wellSize' + prev_well_images_size).addClass('wellSize' + ui.value);
+                    prev_well_images_size = ui.value;
                 },
                 stop: function(event, ui) {
                     $('body').data('well_images_size', ui.value);
@@ -333,14 +335,21 @@
 <div id="wellImagesDragHandle" class='fillSpace' style="bottom: 150px; overflow: visible">
     <div class="verticalDragHandle"></div>
 </div>
-<div id="wellImagesContainer" class="wellImages fillSpace" style="bottom: 0px; height: 150px">
-    <div class='fillSpace toolbarBg' style='top: 0; height: 26px; border-bottom: solid 1px #ddd; padding-left:10px'>
-        <span>Wrap</span>
-        <input type="number" id="imagesPerRow" min="0" style="margin: 2px; width: 30px;"/>
-        <span>images per row</span>
+<div id="wellImagesContainer" class="well-fields wellImages fillSpace">
+    <div class="well-fields__toolbar toolbarBg">
+        <div class="well-fields__toolbar-tools--left">
+            <div class="wrap-images-tool">
+                <span class="text--medium">wrap</span>
+                <input class="wrap-images-tool__input" id="imagesPerRow" type="number" min="0" max="99"/>
+                <span class="text--medium">images per row</span>
+            </div>
+        </div>
+        <div class="well-fields__toolbar-title">
+            <span class="text--medium">Fields from well</span>
+        </div>
     </div>
     <!-- Scrollable container for wellImages -->
-    <div id="wellImages" class='fillSpace' style='top: 26px; bottom: 25px'>
+    <div id="wellImages" class="well-fields__images fillSpace">
         <table style="width: 100%"></table>
     </div>
     <div class='fillSpace' style='bottom: 0; height: 25px; border-top: solid 1px #ddd; background: #EFF1F4' >
@@ -349,4 +358,4 @@
             <div id="wellImages_size_slider" class="thumb_size_slider" title="Zoom Plate"></div>
         </div>
     </div>
-</div>   
+</div>
