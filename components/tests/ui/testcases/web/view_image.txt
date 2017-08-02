@@ -57,7 +57,7 @@ Test Open Viewer
     Click Element                       xpath=//button[contains(@class, 'btn_openwith')]
     Wait Until Element Is Visible       xpath=//a[@title='Open image with Image viewer']
     Click Element                       xpath=//a[@title='Open image with Image viewer']
-    Check Image Viewer                  ${imageName}
+    Check Image Viewer                  ${imageName}                ${dId}
     # And jsTree
     Right Click Open With               ${nodeId}      Image viewer
     Check Image Viewer                  ${imageName}                ${dId}

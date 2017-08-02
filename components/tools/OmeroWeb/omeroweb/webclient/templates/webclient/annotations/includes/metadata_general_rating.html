@@ -25,6 +25,12 @@
         <span class="annotationCount">{{ annotationCounts.LongAnnotation }}</span>
     </h1>
     <div class="annotations_section" style="display: none">
-        <div id="rating_annotations" {% if manager.canAnnotate or not annotationBlocked %}class="canAnnotate"{% endif %}></div>
+        <!-- If we're in 'batch annotate' (obj_string) use annotationBlocked -->
+        <div id="rating_annotations"
+          {% if obj_string and not annotationBlocked %}
+              class="canAnnotate"
+          {% elif manager.canAnnotate %}
+              class="canAnnotate"
+          {% endif %}></div>
      </div>
      </div>

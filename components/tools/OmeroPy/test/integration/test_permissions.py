@@ -933,6 +933,8 @@ class TestPermissionProjections(ITest):
                     "canDelete": perms.canDelete(),
                     "canEdit": perms.canEdit(),
                     "canLink": perms.canLink(),
+                    "canChgrp": perms.canChgrp(),
+                    "canChown": perms.canChown(),
                 }
                 self._cache[key] = value
         except IndexError:

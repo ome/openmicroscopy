@@ -2,7 +2,7 @@
  * ome.services.blitz.repo.PublicRepositoryI
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -504,6 +504,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
                 public ome.model.core.OriginalFile doWork(Session session, ServiceFactory sf) {
                     final ome.model.core.OriginalFile persisted = sf.getUpdateService().saveAndReturnObject(originalFile);
                     getSqlAction().setFileRepo(Collections.singleton(persisted.getId()), repoUuid);
+                    session.refresh(persisted);
                     return persisted;
                 }
             });
@@ -755,7 +756,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
                 // This will fail if the directory already exists
                 try {
                     repositoryDao.register(repoUuid, checked,
-                            DIRECTORY_MIMETYPE, sf, sql);
+                            DIRECTORY_MIMETYPE, sf, sql, s);
                 } catch (ValidationException ve) {
                     if (ve.getCause() instanceof PSQLException) {
                         // Could have collided with another thread also creating the directory.
@@ -791,7 +792,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
             }
         }
         repositoryDao.register(repoUuid, checked,
-                DIRECTORY_MIMETYPE, sf, sql);
+                DIRECTORY_MIMETYPE, sf, sql, s);
     }
 
     //

@@ -165,7 +165,7 @@ Test Default Search Check
     [Documentation]     login,search and Check that you are taken to the search ‘page’/UI with your search query entered into the search field.
     
     Omero Default Search
-    Location Should Be                  ${SEARCH URL}
+    Location Should Be                  ${SEARCH URL}?search_query=${SEARCH_QUERY}
     Page Should Contain Textfield       name=query
     Textfield Value Should be           name=query      ${SEARCH_QUERY}
     Wait Until Page Contains Element    id=dataTable    ${WAIT}

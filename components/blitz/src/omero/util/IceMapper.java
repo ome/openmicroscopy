@@ -1,9 +1,6 @@
 /*
- *   $Id$
- *
  *   Copyright 2007-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
- *
  */
 
 package omero.util;
@@ -38,6 +35,7 @@ import java.util.Set;
 import ome.conditions.InternalException;
 import ome.model.IObject;
 import ome.model.ModelBased;
+import ome.model.enums.AdminPrivilege;
 import ome.services.blitz.util.ConvertToBlitzExceptionMessage;
 import ome.system.OmeroContext;
 import ome.system.Principal;
@@ -487,6 +485,8 @@ public class IceMapper extends ome.util.ModelMapper implements
             rv.put("canDelete", rbool(!p.isDisallowDelete()));
             rv.put("canEdit", rbool(!p.isDisallowEdit()));
             rv.put("canLink", rbool(!p.isDisallowLink()));
+            rv.put("canChgrp", rbool(!p.isDisallowChgrp()));
+            rv.put("canChown", rbool(!p.isDisallowChown()));
             return rmap(rv);
         } else if (o instanceof ome.model.units.Unit) {
             ome.model.units.Unit u = (ome.model.units.Unit) o;
@@ -547,9 +547,15 @@ public class IceMapper extends ome.util.ModelMapper implements
         ec.groupName = ctx.getCurrentGroupName();
         ec.userId = ctx.getCurrentUserId();
         ec.userName = ctx.getCurrentUserName();
+        ec.sudoerId = ctx.getCurrentSudoerId() == null ? null : rlong(ctx.getCurrentSudoerId());
+        ec.sudoerName = ctx.getCurrentSudoerName() == null ? null : rstring(ctx.getCurrentSudoerName());
         ec.leaderOfGroups = ctx.getLeaderOfGroupsList();
         ec.memberOfGroups = ctx.getMemberOfGroupsList();
         ec.isAdmin = ctx.isCurrentUserAdmin();
+        ec.adminPrivileges = new ArrayList<>(ctx.getCurrentAdminPrivileges().size());
+        for (final AdminPrivilege privilege : ctx.getCurrentAdminPrivileges()) {
+            ec.adminPrivileges.add(privilege.getValue());
+        }
         // ticket:2265 Removing from public interface
         // ec.isReadOnly = ctx.isReadOnly();
         ec.groupPermissions = convert(ctx.getCurrentGroupPermissions());
@@ -719,6 +725,10 @@ public class IceMapper extends ome.util.ModelMapper implements
 
         if (o.leaves != null) {
             options.leaves= o.leaves.getValue();
+        }
+
+        if (o.cacheable != null) {
+            options.cacheable = o.cacheable.getValue();
         }
 
         if (o.acquisitionData != null) {

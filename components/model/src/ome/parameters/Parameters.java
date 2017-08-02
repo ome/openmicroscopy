@@ -1,7 +1,5 @@
 /*
- * ome.parameters.Parameters
- *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -510,6 +508,38 @@ public class Parameters implements Serializable {
             return this.options.orphan;
         }
         return false;
+    }
+
+    /**
+     * Set queries to be cacheable. Use with caution.
+     * @return this instance, for method chaining
+     * @deprecated experimental: may be wholly removed in next major version
+     */
+    public Parameters cache() {
+        if (options == null) {
+            options = new Options();
+        }
+        options.cacheable = true;
+        return this;
+    }
+
+    /**
+     * Set queries to not be cacheable. This is the default.
+     * @return this instance, for method chaining
+     */
+    public Parameters noCache() {
+        if (options == null) {
+            options = new Options();
+        }
+        options.cacheable = false;
+        return this;
+    }
+
+    /**
+     * @return if queries are cacheable
+     */
+    public boolean isCache() {
+        return options == null ? false : options.cacheable;
     }
 
     // ~ Serialization

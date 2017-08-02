@@ -1766,15 +1766,21 @@ class GraphControl(CmdControl):
             "--force", action="store_true",
             help=("Force an action that otherwise defaults to a dry run"))
         self._pre_objects(parser)
-        parser.add_argument(
-            "obj", nargs="*", type=GraphArg(self.cmd_type()),
-            help="Objects to be processed in the form <Class>:<Id>")
+        self._objects(parser)
 
     def _pre_objects(self, parser):
         """
         Allows configuring before the "obj" n-argument is added.
         """
         pass
+
+    def _objects(self, parser):
+        """
+        Allows configuring the "obj" n-argument by overriding this method.
+        """
+        parser.add_argument(
+            "obj", nargs="*", type=GraphArg(self.cmd_type()),
+            help="Objects to be processed in the form <Class>:<Id>")
 
     def as_doall(self, req_or_doall):
         if not isinstance(req_or_doall, omero.cmd.DoAll):

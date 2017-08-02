@@ -1,5 +1,6 @@
 package ome.services.blitz.repo;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -7,8 +8,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import ome.api.IQuery;
+import ome.api.IUpdate;
 import ome.api.JobHandle;
 import ome.api.RawFileStore;
 import ome.api.local.LocalAdmin;
@@ -19,7 +22,9 @@ import ome.model.fs.FilesetJobLink;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Parameters;
+import ome.security.basic.OmeroInterceptor;
 import ome.services.RawFileBean;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.util.Executor;
@@ -99,6 +104,9 @@ public class RepositoryDaoImpl implements RepositoryDao {
     private static final String LOAD_USER_INSTITUTION =
             "SELECT institution FROM " + Experimenter.class.getName() + " WHERE id = :id";
 
+    /* for large database queries */
+    private static final int BATCH_SIZE = 1024;
+
     private final static Logger log = LoggerFactory.getLogger(RepositoryDaoImpl.class);
 
     private final IceMapper mapper = new IceMapper();
@@ -107,34 +115,31 @@ public class RepositoryDaoImpl implements RepositoryDao {
     protected final Roles roles;
     protected final Executor executor;
     protected final Executor statefulExecutor;
+    protected final OmeroInterceptor interceptor;
+    protected final String fileRepoSecretKey;
 
     /**
      * Primary constructor which takes all final fields.
-     *
-     * @param principal
-     * @param roles
-     * @param executor
-     * @param statefulExecutor
      */
     public RepositoryDaoImpl(Principal principal, Roles roles,
-            Executor executor, Executor statefulExecutor) {
+            Executor executor, Executor statefulExecutor, OmeroInterceptor interceptor, String fileRepoSecretKey) {
         this.principal = principal;
         this.roles = roles;
         this.executor = executor;
         this.statefulExecutor = statefulExecutor;
+        this.interceptor = interceptor;
+        this.fileRepoSecretKey = fileRepoSecretKey;
     }
 
     /**
      * Previous constructor which should no longer be used. Primarily for
      * simplicity of testing.
-     *
-     * @param principal
-     * @param executor
      */
     public RepositoryDaoImpl(Principal principal, Executor executor) {
         this(principal, new Roles(), executor,
-                executor.getContext().getBean(
-                        "statefulExecutor", Executor.class));
+                executor.getContext().getBean("statefulExecutor", Executor.class),
+                executor.getContext().getBean("omeroInterceptor", OmeroInterceptor.class),
+                UUID.randomUUID().toString());
     }
 
     /**
@@ -339,7 +344,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
                     f = _internalRegister(repoUuid,
                             Arrays.asList(checked), Arrays.asList(parent),
                             null, PublicRepositoryI.DIRECTORY_MIMETYPE,
-                            sf, sql).get(0);
+                            sf, sql, s).get(0);
                     sw.stop("omero.repo.file.register");
                 } else {
                     // Make sure the file is in the user group
@@ -398,14 +403,14 @@ public class RepositoryDaoImpl implements RepositoryDao {
 
     public List<Long> filterFilesByRepository(final String repo, List<Long> ids, Ice.Current current) {
         final List<Long> inRepo = new ArrayList<Long>();
-        for (final List<Long> idBatch : Iterables.partition(ids, 256)) {
+        for (final List<Long> idsBatch : Iterables.partition(ids, BATCH_SIZE)) {
             inRepo.addAll((Collection<Long>) executor
                     .execute(current.ctx, currentUser(current),
                             new Executor.SimpleWork(this, "filterFilesByRepository") {
                         @Override
                         @Transactional(readOnly = true)
                         public List<Long> doWork(Session session, ServiceFactory sf) {
-                            return getSqlAction().filterFileIdsByRepo(repo, idBatch);
+                            return getSqlAction().filterFileIdsByRepo(repo, idsBatch);
                         }
                     }));
         }
@@ -490,9 +495,15 @@ public class RepositoryDaoImpl implements RepositoryDao {
             if (CollectionUtils.isEmpty(ids)) {
                 return Collections.emptyList();
             }
-            Parameters p = new Parameters();
-            p.addIds(ids);
-            return q.findAllByQuery(LOAD_ORIGINAL_FILE+"f.id in (:ids)", p);
+            final List<ome.model.core.OriginalFile> files = new ArrayList<>(ids.size());
+            final String filesById = LOAD_ORIGINAL_FILE + "f.id in (:ids)";
+            for (final List<Long> idsBatch : Iterables.partition(ids, BATCH_SIZE)) {
+                final Parameters params = new Parameters().addIds(idsBatch);
+                for (final IObject file : q.findAllByQuery(filesById, params)) {
+                    files.add((ome.model.core.OriginalFile) file);
+                }
+            }
+            return files;
 
     }
 
@@ -533,7 +544,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
                     List<ome.model.core.OriginalFile> ofs =
                                 _internalRegister(repoUuid, paths, parents,
                                         checksumAlgorithm, null,
-                                        sf, getSqlAction());
+                                        sf, getSqlAction(), session);
                     sw.stop("omero.repo.save_fileset.register");
 
                     sw = new Slf4JStopWatch();
@@ -605,11 +616,15 @@ public class RepositoryDaoImpl implements RepositoryDao {
                 public Object doWork(Session session, ServiceFactory sf) {
                     return _internalRegister(repoUuid,
                             Arrays.asList(checked), Arrays.asList(parent),
-                            null, mimetype, sf, getSqlAction()).get(0);
+                            null, mimetype, sf, getSqlAction(), session).get(0);
                 }
             });
-
-            return (OriginalFile) mapper.map(of);
+            final OriginalFile rv = (OriginalFile) mapper.map(of);
+            final String name = rv.getName().getValue();
+            if (name.startsWith(fileRepoSecretKey)) {
+                rv.setName(omero.rtypes.rstring(name.substring(fileRepoSecretKey.length())));
+            }
+            return rv;
         } catch (Exception e) {
             throw (ServerError) mapper.handleException(e, executor.getContext());
         }
@@ -623,11 +638,12 @@ public class RepositoryDaoImpl implements RepositoryDao {
      * @param mimetype
      * @param sf
      * @param sql
+     * @param session
      * @return See above.
      * @throws ServerError
      */
     public ome.model.core.OriginalFile register(final String repoUuid, final CheckedPath checked,
-            final String mimetype, final ServiceFactory sf, final SqlAction sql)
+            final String mimetype, final ServiceFactory sf, final SqlAction sql, Session session)
                     throws ServerError {
 
         if (checked.isRoot) {
@@ -639,7 +655,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
 
         return _internalRegister(repoUuid,
                 Arrays.asList(checked), Arrays.asList(parent),
-                null, mimetype, sf, sql).get(0);
+                null, mimetype, sf, sql, session).get(0);
 
     }
 
@@ -775,12 +791,13 @@ public class RepositoryDaoImpl implements RepositoryDao {
      * @param parent
      * @param sf non-null
      * @param sql non-null
+     * @param session
      * @return
      */
     private List<ome.model.core.OriginalFile> _internalRegister(final String repoUuid,
             final List<CheckedPath> checked, final List<CheckedPath> parents,
             ChecksumAlgorithm checksumAlgorithm, final String mimetype,
-            ServiceFactory sf, SqlAction sql) {
+            ServiceFactory sf, SqlAction sql, Session session) {
 
         final List<ome.model.core.OriginalFile> toReturn = new ArrayList<ome.model.core.OriginalFile>();
         final ListMultimap<CheckedPath, CheckedPath> levels = ArrayListMultimap.create();
@@ -817,7 +834,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
                 canWriteParentDirectory(sf, sql,
                     repoUuid, parent);
                 List<ome.model.core.OriginalFile> created = createOriginalFile(sf, sql,
-                    repoUuid, toCreate, checksumAlgorithm, mimetype);
+                    repoUuid, toCreate, checksumAlgorithm, mimetype, session);
                 toReturn.addAll(created);
             }
 
@@ -904,20 +921,15 @@ public class RepositoryDaoImpl implements RepositoryDao {
     }
 
     public omero.sys.EventContext getEventContext(Ice.Current curr) {
-        EventContext ec = this.currentContext(new Principal(curr.ctx.get(
-                omero.constants.SESSIONUUID.value)));
-        return IceMapper.convert(ec);
-    }
-
-    @Deprecated  // removed in 5.4
-    protected EventContext currentContext(Principal currentUser) {
-        return (EventContext) executor.execute(currentUser,
+        final Principal currentUser = new Principal(curr.ctx.get(omero.constants.SESSIONUUID.value));
+        final EventContext ec = (EventContext) executor.execute(curr.ctx, currentUser,
                 new Executor.SimpleWork(this, "getEventContext") {
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
                 return ((LocalAdmin) sf.getAdminService()).getEventContextQuiet();
             }
         });
+        return IceMapper.convert(ec);
     }
 
     public String getUserInstitution(final long userId, Ice.Current current) {
@@ -957,26 +969,31 @@ public class RepositoryDaoImpl implements RepositoryDao {
      * @param checked
      * @param checksumAlgorithm 
      * @param mimetype
+     * @param session
      * @return See above.
      */
     protected List<ome.model.core.OriginalFile> createOriginalFile(
             ServiceFactory sf, SqlAction sql, String repoUuid,
-            List<CheckedPath> checked, ChecksumAlgorithm checksumAlgorithm, String mimetype) {
+            List<CheckedPath> checked, ChecksumAlgorithm checksumAlgorithm, String mimetype, Session session) {
 
         ome.model.enums.ChecksumAlgorithm ca = null;
         if (checksumAlgorithm != null) {
              ca = new ome.model.enums.ChecksumAlgorithm(checksumAlgorithm.getValue().getValue());
         }
         List<ome.model.core.OriginalFile> rv = new ArrayList<ome.model.core.OriginalFile>();
+        final Timestamp now = new Timestamp(System.currentTimeMillis());
         for (CheckedPath path : checked) {
             ome.model.core.OriginalFile ofile = path.asOriginalFile(mimetype);
             rv.add(ofile);
+            ofile.setCtime(now);
             ofile.setHasher(ca);
+            ofile.setName(fileRepoSecretKey + ofile.getName());  // prefix removed by database trigger
+            ofile.setRepo(repoUuid);
         }
 
-
         StopWatch sw = new Slf4JStopWatch();
-        IObject[] saved = sf.getUpdateService().saveAndReturnArray(rv.toArray(new IObject[rv.size()]));
+        final IUpdate iUpdate = sf.getUpdateService();
+        IObject[] saved = iUpdate.saveAndReturnArray(rv.toArray(new IObject[rv.size()]));
         sw.stop("omero.repo.create_original_file.save");
         final List<Long> ids = new ArrayList<Long>(saved.length);
         sw = new Slf4JStopWatch();
@@ -990,10 +1007,6 @@ public class RepositoryDaoImpl implements RepositoryDao {
             }
         }
         sw.stop("omero.repo.create_original_file.internal_mkdir");
-
-        sw = new Slf4JStopWatch();
-        sql.setFileRepo(ids, repoUuid);
-        sw.stop("omero.repo.create_original_file.set_file_repo");
         return rv;
     }
 

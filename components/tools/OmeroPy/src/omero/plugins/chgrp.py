@@ -61,14 +61,9 @@ class ChgrpControl(GraphControl):
 
     def is_admin(self, client):
         # check if the user currently logged is an admin
-        svc = client.sf.getAdminService()
-        uid = self.ctx.get_event_context().userId
-        groups = svc.containedGroups(uid)
-        roles = svc.getSecurityRoles()
-        for g in groups:
-            if roles.systemGroupId == g.id.val:
-                return True
-        return False
+        from omero.model.enums import AdminPrivilegeChgrp
+        ec = self.ctx.get_event_context()
+        return AdminPrivilegeChgrp in ec.adminPrivileges
 
     def _process_request(self, req, args, client):
         # Retrieve group id

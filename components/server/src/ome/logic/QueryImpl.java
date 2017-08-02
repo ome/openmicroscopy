@@ -1,5 +1,5 @@
 /*
- *   Copyright 2006-2015 University of Dundee. All rights reserved.
+ *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -315,7 +315,6 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
 
     @Override
     @RolesAllowed("user")
-    @SuppressWarnings("unchecked")
     public <T extends IObject> T findByQuery(String queryName, Parameters params)
             throws ValidationException {
 
@@ -326,7 +325,10 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
         // specify that we should only return a single value if possible
         params.unique();
 
-        Query<T> q = getQueryFactory().lookup(queryName, params);
+        final Query<T> q = getQueryFactory().<T>lookup(queryName, params);
+        if (params.isCache()) {
+            q.enableQueryCache();
+        }
         T result = null;
         try {
             result = execute(q);
@@ -363,6 +365,9 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     public <T extends IObject> List<T> findAllByQuery(String queryName,
             Parameters params) {
         Query<List<T>> q = getQueryFactory().lookup(queryName, params);
+        if (params != null && params.isCache()) {
+            q.enableQueryCache();
+        }
         return execute(q);
     }
 
@@ -410,6 +415,9 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     public List<Object[]> projection(final String query, Parameters p) {
         final Parameters params = (p == null ? new Parameters() : p);
         final Query<List<Object>> q = getQueryFactory().lookup(query, params);
+        if (params.isCache()) {
+            q.enableQueryCache();
+        }
 
         @SuppressWarnings("rawtypes")
         final List rv = (List) getHibernateTemplate().execute(q);

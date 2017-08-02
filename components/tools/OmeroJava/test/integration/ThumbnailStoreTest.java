@@ -269,9 +269,8 @@ public class ThumbnailStoreTest extends AbstractServerTest {
         try {
             /* use all-groups context to fetch both thumbnails at once */
             final List<Long> pixelsIdsαβ = ImmutableList.of(pixelsIdα, pixelsIdβ);
-            final Map<String, String> allGroupsContext = ImmutableMap.of("omero.group", "-1");
             svc = factory.createThumbnailStore();
-            thumbnails = svc.getThumbnailByLongestSideSet(null, pixelsIdsαβ, allGroupsContext);
+            thumbnails = svc.getThumbnailByLongestSideSet(null, pixelsIdsαβ, ALL_GROUPS_CONTEXT);
         } finally {
             if (svc != null) {
                 {

@@ -1,9 +1,6 @@
 /*
- *   $Id$
- *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
- *
  */
 
 #ifndef PERMISSIONSI_H
@@ -72,6 +69,8 @@ public:
     virtual bool canDelete(const Ice::Current& current = Ice::Current());
     virtual bool canEdit(const Ice::Current& current = Ice::Current());
     virtual bool canLink(const Ice::Current& current = Ice::Current());
+    virtual bool canChgrp(const Ice::Current& current = Ice::Current());
+    virtual bool canChown(const Ice::Current& current = Ice::Current());
 
     /*
      * Central methods. The optional argument is a requirement

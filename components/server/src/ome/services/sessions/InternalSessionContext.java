@@ -1,13 +1,15 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.services.sessions;
 
 import java.util.Arrays;
 
+import com.google.common.collect.ImmutableSet;
+
+import ome.model.enums.AdminPrivilege;
 import ome.model.internal.Permissions;
 import ome.model.meta.Session;
 import ome.services.sessions.stats.NullSessionStats;
@@ -24,9 +26,9 @@ class InternalSessionContext extends SessionContextImpl {
 
     Roles roles;
 
-    InternalSessionContext(Session s, Roles roles) {
-        super(s, Arrays.asList(roles.getSystemGroupId()), Arrays.asList(roles
-                .getSystemGroupId()),
+    InternalSessionContext(Session s, ImmutableSet<AdminPrivilege> adminPrivileges, Roles roles) {
+        super(s, adminPrivileges, Arrays.asList(roles.getSystemGroupId()),
+                Arrays.asList(roles.getSystemGroupId()),
                 Arrays.asList(roles.getSystemGroupName()),
                 new NullSessionStats(), roles, null);
         this.roles = roles;

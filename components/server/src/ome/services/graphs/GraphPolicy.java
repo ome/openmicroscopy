@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2017 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -95,6 +95,18 @@ public abstract class GraphPolicy {
         CHMOD,
 
         /**
+         * the user's ability to move the object, as judged by
+         * {@link ome.model.internal.Permissions#isDisallowChgrp()}
+         */
+        CHGRP,
+
+        /**
+         * the user's ability to give the object, as judged by
+         * {@link ome.model.internal.Permissions#isDisallowChown()}
+         */
+        CHOWN,
+
+        /**
          * the user actually owns the object
          */
         OWN;
@@ -148,11 +160,14 @@ public abstract class GraphPolicy {
          * @param mayUpdate if the object may be updated
          * @param mayDelete if the object may be deleted
          * @param mayChmod if the object may have its permissions changed
+         * @param mayChgrp if the object may be moved
+         * @param mayChown if the object may be given
          * @param isOwner if the user owns the object
          * @param isCheckPermissions if the user is expected to have the permissions required to process the object
          */
         Details(IObject subject, Long ownerId, Long groupId, Action action, Orphan orphan,
-                boolean mayUpdate, boolean mayDelete, boolean mayChmod, boolean isOwner, boolean isCheckPermissions) {
+                boolean mayUpdate, boolean mayDelete, boolean mayChmod, boolean mayChgrp, boolean mayChown,
+                boolean isOwner, boolean isCheckPermissions) {
             this.subject = subject;
             this.ownerId = ownerId;
             this.groupId = groupId;
@@ -168,6 +183,12 @@ public abstract class GraphPolicy {
             }
             if (mayChmod) {
                 permissions.add(Ability.CHMOD);
+            }
+            if (mayChgrp) {
+                permissions.add(Ability.CHGRP);
+            }
+            if (mayChown) {
+                permissions.add(Ability.CHOWN);
             }
             if (isOwner) {
                 permissions.add(Ability.OWN);

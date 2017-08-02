@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2016-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -24,16 +24,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import omero.cmd.CmdCallbackI;
+import omero.cmd.ERR;
+import omero.cmd.GraphException;
+import omero.cmd.Response;
 import omero.gateway.SecurityContext;
 import omero.gateway.facility.DataManagerFacility;
 import omero.gateway.facility.ROIFacility;
 import omero.gateway.model.FolderData;
 import omero.gateway.model.ROIData;
-import omero.model.IObject;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
@@ -106,7 +107,13 @@ public class ROIFolderSaver extends BatchCallTree {
                 } else if (action == ROIFolderAction.DELETE_FOLDER) {
                     CmdCallbackI cb = dm.deleteFolders(ctx, folders, false, false);
                     // wait for the delete action to be finished
-                    cb.block(10000);
+                    Response res = cb.loop(20, 500);
+                    if (res instanceof GraphException) {
+                        GraphException ge = (GraphException) res;
+                        throw new Exception("Couldn't delete folders: "+ge.message);
+                    }
+                    if (res instanceof ERR)
+                        throw new Exception("Couldn't delete folders");
                 } 
                 
                 if (result == null)

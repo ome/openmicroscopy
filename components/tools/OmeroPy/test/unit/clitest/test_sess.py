@@ -10,6 +10,7 @@
 """
 
 import os
+import sys
 import pytest
 import Glacier2
 import uuid
@@ -26,6 +27,14 @@ omeroDir = path(os.getcwd()) / "build"
 testsess = "testsess"
 testuser = "testuser"
 testhost = "testhost"
+
+
+@pytest.fixture(autouse=True)
+def istty(monkeypatch):
+    def isatty(*args, **kwargs):
+        return True
+    monkeypatch.setattr(sys.stdin, 'isatty', isatty)
+    assert sys.stdin.isatty()
 
 
 class MyStore(SessionsStore):

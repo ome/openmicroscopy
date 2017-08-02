@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -43,7 +43,6 @@ import omero.api.IUpdatePrx;
 import omero.cmd.CmdCallbackI;
 import omero.api.RawFileStorePrx;
 import omero.cmd.Delete2;
-import omero.cmd.Response;
 import omero.cmd.graphs.ChildOption;
 import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
@@ -116,27 +115,6 @@ public class DataManagerFacility extends Facility {
     DataManagerFacility(Gateway gateway) throws ExecutionException {
         super(gateway);
         this.browse = gateway.getFacility(BrowseFacility.class);
-    }
-
-    /**
-     * Deletes the specified object.
-     *
-     * @deprecated Use the asynchronous method
-     *             {@link #delete(SecurityContext, IObject)} instead
-     * @param ctx
-     *            The security context.
-     * @param object
-     *            The object to delete.
-     * @return The {@link Response} handle
-     * @throws DSOutOfServiceException
-     *             If the connection is broken, or not logged in
-     * @throws DSAccessException
-     *             If an error occurred while trying to retrieve data from OMERO
-     *             service.
-     */
-    public Response deleteObject(SecurityContext ctx, IObject object)
-            throws DSOutOfServiceException, DSAccessException {
-        return deleteObjects(ctx, Collections.singletonList(object));
     }
 
     /**
@@ -236,38 +214,7 @@ public class DataManagerFacility extends Facility {
         }
         return null;
     }
-
-    /**
-     * Deletes the specified objects.
-     *
-     * @deprecated Use the asynchronous method
-     *             {@link #delete(SecurityContext, List)} instead
-     * 
-     * @param ctx
-     *            The security context.
-     * @param objects
-     *            The objects to delete.
-     * @return The {@link Response} handle
-     * @throws DSOutOfServiceException
-     *             If the connection is broken, or not logged in
-     * @throws DSAccessException
-     *             If an error occurred while trying to retrieve data from OMERO
-     *             service.
-     */
-    public Response deleteObjects(SecurityContext ctx, List<IObject> objects)
-            throws DSOutOfServiceException, DSAccessException {
-        try {
-            final Delete2Builder request = Requests.delete();
-            for (final IObject object : objects) {
-                request.target(object);
-            }
-            return gateway.submit(ctx, request.build()).loop(50, 250);
-        } catch (Throwable t) {
-            handleException(this, t, "Cannot delete the object.");
-        }
-        return null;
-    }
-
+    
     /**
      * Updates the specified object.
      *

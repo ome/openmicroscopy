@@ -60,14 +60,12 @@ import omero.model.ExperimenterI;
 import omero.model.OriginalFile;
 import omero.sys.EventContext;
 import omero.sys.Parameters;
-import omero.sys.Roles;
 import omero.util.TempFileManager;
 
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -472,7 +470,7 @@ public class ManagedRepositoryTest extends AbstractServerImportTest {
         srcPaths.add(file2.getAbsolutePath());
         // TODO: due to verifyUpload one cannot obtain the import location
         // without uploading both files
-        ImportLocation data = importFileset(srcPaths, 2);
+        ImportLocation data = importFileset(srcPaths, 2, null);
 
         assertFileExists("Upload failed. File does not exist: ",
                 pathToUsedFile(data, 0));
@@ -579,6 +577,27 @@ public class ManagedRepositoryTest extends AbstractServerImportTest {
             assertFileExists("Delete failed. File deleted!: ",
                     pathToUsedFile(data2, index));
         }
+    }
+
+    /**
+     * Test that an administrator can import into a group of which they are not a member.
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testAdminImportIntoAnotherGroup() throws Exception {
+        /* prepare as admin to import into another group */
+        final long targetGroup = iAdmin.getEventContext().groupId;
+        newUserInGroup(new ExperimenterGroupI(roles.systemGroupId, false), false);
+        client.getImplicitContext().put("omero.group", Long.toString(targetGroup));
+
+        /* create and import a fake image */
+        final File localPath = tempFileManager.createPath(UUID.randomUUID().toString(), null, true);
+        final File localFile = ensureFileExists(localPath, UUID.randomUUID().toString() + ".fake");
+        importFileset(Collections.singletonList(localFile.toString()));
+
+        /* check that the import was into the intended group */
+        final OriginalFile remoteFile = (OriginalFile) iQuery.findByString("OriginalFile", "name", localFile.getName());
+        Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), targetGroup);
     }
 
     /**
@@ -868,7 +887,6 @@ public class ManagedRepositoryTest extends AbstractServerImportTest {
     @Test
     public void testMakeFilesetDirectoryNormalUser() throws Exception {
         /* import an image */
-        final Roles roles = iAdmin.getSecurityRoles();  // TODO will be a field provided by superclass
         final File uniquePath = tempFileManager.createPath(UUID.randomUUID().toString(), null, true);
         final File file = ensureFileExists(uniquePath, UUID.randomUUID().toString() + ".fake");
         final ImportLocation importLocation = importFileset(Collections.singletonList(file.getAbsolutePath()));
@@ -909,7 +927,6 @@ public class ManagedRepositoryTest extends AbstractServerImportTest {
     @Test
     public void testMakeArbitraryDirectoryAdminUser() throws Exception {
         /* set up the new user as an administrator */
-        final Roles roles = iAdmin.getSecurityRoles();  // TODO will be a field provided by superclass
         final EventContext ec = iAdmin.getEventContext();
         root.getSession().getAdminService().addGroups(new ExperimenterI(ec.userId, false),
                 Collections.<ExperimenterGroup>singletonList(new ExperimenterGroupI(roles.systemGroupId, false)));
@@ -939,7 +956,7 @@ public class ManagedRepositoryTest extends AbstractServerImportTest {
      * @param parentsSecond if to set {@code parents == true} in <em>re</em>creating the directory
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "every pair of Booleans")
+    @Test(dataProvider = "test cases using two Boolean arguments")
     public void testRecreateDirectory(boolean parentsFirst, boolean parentsSecond) throws Exception {
         logRootIntoGroup();
         setRepo();
@@ -951,18 +968,5 @@ public class ManagedRepositoryTest extends AbstractServerImportTest {
         } catch (ResourceError e) {
             Assert.assertFalse(parentsSecond);
         }
-    }
-
-    /**
-     * @return every combination of Boolean pairs
-     */
-    @DataProvider(name = "every pair of Booleans")
-    public Object[][] provideEveryPairOfBooleans() {
-        return new Object[][] {
-                new Boolean[] {false, false},
-                new Boolean[] {false, true},
-                new Boolean[] {true,  false},
-                new Boolean[] {true,  true}
-        };
     }
 }

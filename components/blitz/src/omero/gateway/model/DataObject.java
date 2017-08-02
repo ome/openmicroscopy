@@ -641,6 +641,31 @@ public abstract class DataObject {
         return p.canDelete();
     }
 
+    /**
+     * Returns <code>true</code> if the object can be moved by the user
+     * currently logged in,
+     * <code>false</code> otherwise, depending on permissions level.
+     *
+     * @return See above.
+     */
+    public boolean canChgrp()
+    {
+        final Permissions perms = asIObject().getDetails().getPermissions();
+        return perms != null && perms.canChgrp();
+    }
+
+    /**
+     * Returns <code>true</code> if the object can be given by the user
+     * currently logged in,
+     * <code>false</code> otherwise, depending on permissions level.
+     *
+     * @return See above.
+     */
+    public boolean canChown()
+    {
+        final Permissions perms = asIObject().getDetails().getPermissions();
+        return perms != null && perms.canChown();
+    }
 }
 
 /**

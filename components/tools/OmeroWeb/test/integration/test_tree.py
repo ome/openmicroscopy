@@ -1853,8 +1853,13 @@ class TestTree(ITest):
         """
         conn = get_connection(userA)
         expected = expected_images(userA, images)
-        marshaled = marshal_images(conn=conn,
-                                   group_id=-1)
+        all_images = marshal_images(conn=conn,
+                                    group_id=-1)
+        # Need to check that all expected are in marshalled
+        # BUT - marshalled may contain other images from 'user' group
+        assert len(all_images) >= len(expected)
+        iids = [i['id'] for i in expected]
+        marshaled = [i for i in all_images if i['id'] in iids]
         assert marshaled == expected
 
     def test_marshal_images_dataset(self, userA,

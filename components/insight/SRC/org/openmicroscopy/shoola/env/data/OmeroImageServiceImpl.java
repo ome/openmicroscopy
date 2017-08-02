@@ -316,7 +316,7 @@ class OmeroImageServiceImpl
 	 * @param object The object hosting the import option.
 	 * @param userName The name of the user to create the data for.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */

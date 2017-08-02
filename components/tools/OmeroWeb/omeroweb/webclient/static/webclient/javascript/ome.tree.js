@@ -1096,7 +1096,11 @@ $(function() {
                 // use canLink, canDelete etc classes on each node to enable/disable right-click menu
 
                 var userId = WEBCLIENT.active_user_id,
-                    canCreate = (userId === WEBCLIENT.USER.id || userId === -1),
+                    // admin may be viewing a Group that they are not a member of
+                    memberOfGroup = WEBCLIENT.eventContext.memberOfGroups.indexOf(WEBCLIENT.active_group_id) > -1,
+                    writeOwned = WEBCLIENT.eventContext.adminPrivileges.indexOf("WriteOwned") > -1,
+                    // canCreate if looking at your own data or 'All Members' AND have permissions
+                    canCreate = ((userId === WEBCLIENT.USER.id || userId === -1) && (memberOfGroup || writeOwned)),
                     canLink = OME.nodeHasPermission(node, 'canLink'),
                     parentAllowsCreate = (node.type === "orphaned" || node.type === "experimenter");
 

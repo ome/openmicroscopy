@@ -7,11 +7,13 @@ package ome.services.sessions;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -20,6 +22,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 
 import ome.api.local.LocalAdmin;
+import ome.api.local.LocalQuery;
 import ome.conditions.ApiUsageException;
 import ome.conditions.AuthenticationException;
 import ome.conditions.InternalException;
@@ -30,6 +33,7 @@ import ome.conditions.SessionTimeoutException;
 import ome.model.annotations.Annotation;
 import ome.model.annotations.CommentAnnotation;
 import ome.model.annotations.TextAnnotation;
+import ome.model.enums.AdminPrivilege;
 import ome.model.enums.EventType;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
@@ -40,6 +44,7 @@ import ome.model.meta.Session;
 import ome.model.meta.Share;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
+import ome.security.basic.LightAdminPrivileges;
 import ome.security.basic.PrincipalHolder;
 import ome.services.messages.CreateSessionMessage;
 import ome.services.messages.DestroySessionMessage;
@@ -57,6 +62,7 @@ import ome.system.Roles;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,6 +76,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.MapMaker;
 
 /**
@@ -104,6 +111,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
     // Injected
     protected OmeroContext context;
     protected Roles roles;
+    protected LightAdminPrivileges adminPrivileges;
     protected SessionCache cache;
     protected Executor executor;
     protected long defaultTimeToIdle;
@@ -151,6 +159,10 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         roles = securityRoles;
     }
 
+    public void setAdminPrivileges(LightAdminPrivileges adminPrivileges) {
+        this.adminPrivileges = adminPrivileges;
+    }
+
     public void setExecutor(Executor executor) {
         this.executor = executor;
     }
@@ -190,7 +202,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         try {
             asroot = new Principal(internal_uuid, "system", "Sessions");
             final Session session = executeInternalSession();
-            internalSession = new InternalSessionContext(session, roles);
+            internalSession = new InternalSessionContext(session, LightAdminPrivileges.getAllPrivileges(), roles);
             cache.putSession(internal_uuid, internalSession);
         } catch (UncategorizedSQLException uncat) {
             log.warn("Assuming that this is read-only");
@@ -358,7 +370,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
                     Principal p = validateSessionInputs(sf, req);
                     oldsession.setDefaultEventType(p.getEventType());
                     long userId = executeLookupUser(sf, p);
-                    Session s = executeUpdate(sf, oldsession, userId);
+                    final Session s = executeUpdate(sf, oldsession, userId, req.sudoer);
                     return executeSessionContextLookup(sf, p, s);
                 }
 
@@ -372,7 +384,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         SessionContext newctx = createSessionContext(rv, null);
 
         // This the publishEvent returns successfully, then we will have to
-        // handle rolling back this addition our selves
+        // handle rolling back this addition ourselves
         String uuid = newctx.getCurrentSessionUuid();
         cache.putSession(uuid, newctx);
         try {
@@ -479,7 +491,13 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         executor.execute(asroot, new Executor.SimpleWork(this, "update") {
             @Transactional(readOnly = false)
             public Object doWork(org.hibernate.Session __s, ServiceFactory sf) {
-                return executeUpdate(sf, copy, newctx.getCurrentUserId());
+                final Long sudoerId;
+                if (orig.getSudoer() == null) {
+                    sudoerId = null;
+                } else {
+                    sudoerId = orig.getSudoer().getId();
+                }
+                return executeUpdate(sf, copy, newctx.getCurrentUserId(), sudoerId);
             }
         });
         cache.putSession(uuid, newctx);
@@ -500,18 +518,19 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
 
         final Experimenter exp = (Experimenter) list.get(0);
         final ExperimenterGroup grp = (ExperimenterGroup) list.get(1);
-        final List<Long> memberOfGroupsIds = (List<Long>) list.get(2);
-        final List<Long> leaderOfGroupsIds = (List<Long>) list.get(3);
-        final List<String> userRoles = (List<String>) list.get(4);
-        final Principal principal = (Principal) list.get(5);
-        final Session session = (Session) list.get(6);
+        final Set<AdminPrivilege> adminPrivileges = (Set<AdminPrivilege>) list.get(2);
+        final List<Long> memberOfGroupsIds = (List<Long>) list.get(3);
+        final List<Long> leaderOfGroupsIds = (List<Long>) list.get(4);
+        final List<String> userRoles = (List<String>) list.get(5);
+        final Principal principal = (Principal) list.get(6);
+        final Session session = (Session) list.get(7);
 
         parseAndSetDefaultType(principal.getEventType(), session);
 
         session.getDetails().setOwner(exp);
         session.getDetails().setGroup(grp);
 
-        SessionContext sessionContext = new SessionContextImpl(session,
+        SessionContext sessionContext = new SessionContextImpl(session, adminPrivileges,
                 leaderOfGroupsIds, memberOfGroupsIds, userRoles, factory
                         .createStats(), roles, previous);
         return sessionContext;
@@ -551,13 +570,6 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
             }
         }
     }
-    private final static String findBy1 =
-        "select s.id, s.uuid from Session s " +
-        "join s.owner o where " +
-        "s.closed is null and o.omeName = :name ";
-
-    private final static String findByOrder =
-        "order by s.started desc";
 
     private List<Session> findByQuery(String query, Parameters p) {
         List<Object[]> ids_uuids = executeProjection(query, p);
@@ -574,24 +586,60 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         return rv;
     }
 
-    public List<Session> findByUser(String user) {
-        return findByQuery(findBy1 + findByOrder,
-                new Parameters().addString("name", user));
-    }
-
-    public List<Session> findByUserAndAgent(String user, String... agents) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(findBy1);
-        Parameters p = new Parameters().addString("name", user);
-        if (agents == null || agents.length == 0 ||
-                (agents.length == 1  && agents[0] == null)) {
-            sb.append("and s.userAgent is null ");
-        } else {
-            sb.append("and s.userAgent in (:agents) ");
-            p.addList("agents", Arrays.asList(agents));
+    public List<Session> findSameUser(String uuid, String... agents) {
+        /* determine the light administrator privileges associated with the given session */
+        final Session session = find(uuid);
+        final String membershipQuery = "SELECT id FROM GroupExperimenterMap WHERE parent.id = :group AND child.id = :user";
+        boolean hasAdminPrivileges = CollectionUtils.isNotEmpty(executeProjection(membershipQuery,
+                new Parameters().addLong("group", roles.getSystemGroupId()).addLong("user", session.getOwner().getId())));
+        if (session.getSudoer() != null) {
+            hasAdminPrivileges = hasAdminPrivileges && CollectionUtils.isNotEmpty(executeProjection(membershipQuery,
+                    new Parameters().addLong("group", roles.getSystemGroupId()).addLong("user", session.getSudoer().getId())));
         }
-        sb.append(findByOrder);
-        return findByQuery(sb.toString(), p);
+        final Set<AdminPrivilege> privileges;
+        if (hasAdminPrivileges) {
+            privileges = adminPrivileges.getSessionPrivileges(session);
+        } else {
+            privileges = Collections.emptySet();
+        }
+        /* determine which agent values should filter results */
+        final Set<String> agentSet = new HashSet<>();
+        boolean nullAgent = false;
+        for (final String agent : agents) {
+            if (agent == null) {
+                nullAgent = true;
+            } else {
+                agentSet.add(agent);
+            }
+        }
+        /* construct and perform the query */
+        final StringBuilder sessionQuery = new StringBuilder();
+        final Parameters params = new Parameters();
+        sessionQuery.append("SELECT id, uuid FROM Session WHERE closed IS NULL");
+        sessionQuery.append(" AND owner.id = :owner");
+        params.addLong("owner", session.getOwner().getId());
+        if (!privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_READ_SESSION))) {
+            /* user is not privileged so is limited to where sudoer is the same as their current session */
+            if (session.getSudoer() == null) {
+                sessionQuery.append(" AND sudoer IS NULL");
+            } else {
+                sessionQuery.append(" AND sudoer.id = :sudoer");
+                params.addLong("sudoer", session.getSudoer().getId());
+            }
+        }
+        final List<String> agentClauses = new ArrayList<String>();
+        if (!agentSet.isEmpty()) {
+            agentClauses.add("userAgent IN (:agents)");
+            params.addSet("agents", agentSet);
+        }
+        if (nullAgent) {
+            agentClauses.add("userAgent IS NULL");
+        }
+        if (!agentClauses.isEmpty()) {
+            sessionQuery.append(" AND (" + Joiner.on(" OR ").join(agentClauses) + ")");
+        }
+        sessionQuery.append(" ORDER BY started DESC");
+        return findByQuery(sessionQuery.toString(), params);
     }
 
     public int getReferenceCount(String uuid) {
@@ -1006,14 +1054,17 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
      */
     @SuppressWarnings({"rawtypes" })
     public SessionContext reload(final SessionContext ctx) {
-        final Principal p = new Principal(ctx.getCurrentUserName(), ctx
-                .getCurrentGroupName(), ctx.getCurrentEventType());
         List list = (List) executor.execute(asroot, new Executor.SimpleWork(
                 this, "reload", ctx.getSession().getUuid()) {
             @Transactional(readOnly = true)
             public Object doWork(org.hibernate.Session session,
                     ServiceFactory sf) {
-                return executeSessionContextLookup(sf, p, ctx.getSession());
+                /* user and group names may change while the session is open */
+                final LocalAdmin admin = (LocalAdmin) sf.getAdminService();
+                final Experimenter exp = admin.userProxy(ctx.getCurrentUserId());
+                final ExperimenterGroup grp = admin.groupProxy(ctx.getCurrentGroupId());
+                final Principal p = new Principal(exp.getOmeName(), grp.getName(), ctx.getCurrentEventType());
+                return executeSessionContextLookup(sf, p, exp, grp, ctx.getSession());
             }
         });
         if (list == null) {
@@ -1046,7 +1097,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
     }
 
     private Session executeUpdate(ServiceFactory sf, Session session,
-            long userId) {
+            long userId, Long sudoerId) {
         Node node = sf.getQueryService().findByQuery(
                 "select n from Node n where uuid = :uuid",
                 new Parameters().addString("uuid", internal_uuid).setFilter(
@@ -1056,6 +1107,11 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         }
         session.setNode(node);
         session.setOwner(new Experimenter(userId, false));
+        if (sudoerId == null) {
+            session.setSudoer(null);
+        } else {
+            session.setSudoer(new Experimenter(sudoerId, false));
+        }
         Session rv = sf.getUpdateService().saveAndReturnObject(session);
         rv.putAt("#2733", session.retrieve("#2733"));
         return rv;
@@ -1389,23 +1445,41 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
      */
     private List<Object> executeSessionContextLookup(ServiceFactory sf,
             Principal principal, Session session) {
+        final LocalAdmin admin = (LocalAdmin) sf.getAdminService();
+        final Experimenter exp = admin.userProxy(principal.getName());
+        final ExperimenterGroup grp = admin.groupProxy(principal.getGroup());
+        return executeSessionContextLookup(sf, principal, exp, grp, session);
+    }
+
+    /**
+     * Returns a List of state for creating a new {@link SessionContext}. If an
+     * exception is thrown, return nulls since throwing an exception within the
+     * Work will set our transaction to rollback only.
+     */
+    private List<Object> executeSessionContextLookup(ServiceFactory sf,
+            Principal principal, Experimenter exp, ExperimenterGroup grp, Session session) {
         try {
             List<Object> list = new ArrayList<Object>();
             LocalAdmin admin = (LocalAdmin) sf.getAdminService();
-            final Experimenter exp = admin.userProxy(principal.getName());
-            final ExperimenterGroup grp = admin
-                    .groupProxy(principal.getGroup());
             final List<Long> memberOfGroupsIds = admin.getMemberOfGroupIds(exp);
             final List<Long> leaderOfGroupsIds = admin.getLeaderOfGroupIds(exp);
             final List<String> userRoles = admin.getUserRoles(exp);
-            final Session reloaded = (Session)
-                    sf.getQueryService().findByQuery(
-                            "select s from Session s "
+            final LocalQuery iQuery = (LocalQuery) sf.getQueryService();
+            final String sessionClass = iQuery.find(Share.class, session.getId()) == null ? "Session" : "Share";
+            final Session reloaded = (Session) iQuery.findByQuery(
+                            "select s from " + sessionClass + " s "
+                            + "left outer join fetch s.sudoer "
                             + "left outer join fetch s.annotationLinks l "
                             + "left outer join fetch l.child a where s.id = :id",
-                            new Parameters().addId(session.getId()));
+                            new Parameters().addId(session.getId()).cache());
+            final Experimenter sudoer = reloaded.getSudoer();
+            boolean hasAdminPrivileges = memberOfGroupsIds.contains(roles.getSystemGroupId());
+            if (sudoer != null) {
+                hasAdminPrivileges = hasAdminPrivileges && admin.getMemberOfGroupIds(sudoer).contains(roles.getSystemGroupId());
+            }
             list.add(exp);
             list.add(grp);
+            list.add(hasAdminPrivileges ? adminPrivileges.getSessionPrivileges(reloaded) : Collections.emptySet());
             list.add(memberOfGroupsIds);
             list.add(leaderOfGroupsIds);
             list.add(userRoles);

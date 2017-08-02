@@ -27,6 +27,7 @@
     <constructor-arg ref="sessionManager"/>
     <constructor-arg ref="currentDetails"/>
     <constructor-arg ref="executor"/>
+    <constructor-arg ref="adminPrivileges"/>
   </bean> 
  
   <bean name="managed-ome.api.ISession" parent="selfManagingService">

@@ -21,7 +21,7 @@ import omero.grid.monitors as monitors
 from path import path
 from omero.util import ServerContext
 from omero_ext.mox import Mox
-from omero_ext.functional import wraps
+from functools import wraps
 from omero.util.temp_files import create_path
 from fsDropBoxMonitorClient import MonitorClientI
 

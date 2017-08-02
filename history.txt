@@ -1,6 +1,43 @@
 OMERO version history
 =====================
 
+5.4.0-m2 (July 2017)
+--------------------
+
+Developer preview release. Intended *only as a developer preview* for updating
+code before the full public release of 5.4.0. **Use at your own risk.**
+
+Changes include:
+
+- fixed OMERO.server permissions bug with restricted administrators
+- adjusted OMERO.blitz API to allow some query results to be cached
+- improve OMERO.web experience and fixed bugs for restricted administrators
+- improve OMERO.cli:
+  - fixed admin plugin so "cleanse" can handle larger directories
+  - have chgrp plugin check administrator Chgrp restriction
+  - added to chown plugin ability to target all of given users' data
+  - adjusted handling of standard input
+- various improvements in integration tests
+
+
+5.4.0-m1 (July 2017)
+--------------------
+
+Developer preview release. Intended *only as a developer preview* for updating
+code before the full public release of 5.4.0. **Use at your own risk.**
+
+Changes include:
+
+- added support for new security privileges to allow users to perform some
+  admin tasks without having admin privileges e.g. import for others
+- added specific installation instructions for Debian 9
+
+
+This release also upgrades the version of Bio-Formats which OMERO uses to
+`5.5.3 <https://www.openmicroscopy.org/site/support/bio-formats5.5/about/whats-new.html#july-05>`_.
+
+
+
 5.3.3 (June 2017)
 -----------------
 

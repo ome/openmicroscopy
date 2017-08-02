@@ -57,7 +57,7 @@ import ome.model.IObject;
 import ome.tools.spring.OnContextRefreshedEventListener;
 
 /**
- * The graph path bean holds the Hiberate object mapping and assists navigation thereof.
+ * The graph path bean holds the Hibernate object mapping and assists navigation thereof.
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.1.0
  */
@@ -77,7 +77,7 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
      * @author m.t.b.carroll@dundee.ac.uk
      * @since 5.1.0
      */
-    /* private GraphPathReport */ static class PropertyDetails {
+    private static class PropertyDetails {
         final String holder;
         final List<String> path;
         final Type type;
