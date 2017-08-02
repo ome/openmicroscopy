@@ -125,11 +125,12 @@ def get_perms(user, obj, dtype):
         perms.append('canLink')
     if permissions.canDelete():
         perms.append('canDelete')
+    if permissions.canChgrp():
+        perms.append('canChgrp')
+    if permissions.canChown():
+        perms.append('canChown')
     if obj.details.owner.id.val == user[1].id.val:
         perms.append('isOwned')
-    # TODO Add chgrp permission to an admin user
-    if obj.details.owner.id.val == user[1].id.val:
-        perms.append('canChgrp')
 
     return ' '.join(perms)
 
