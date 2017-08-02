@@ -1062,7 +1062,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             rstring(str(old_password)), rstring(str(password)))
 
     def createExperimenter(self, omeName, firstName, lastName, email, isAdmin,
-                           isActive, defaultGroup, otherGroups, password,
+                           isActive, defaultGroupId, otherGroupIds, password,
                            privileges=None,
                            middleName=None, institution=None):
         """
@@ -1079,11 +1079,10 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         @type isAdmin Boolean
         @param isActive Active user (user can log in).
         @type isActive Boolean
-        @param defaultGroup Instance of ExperimenterGroup selected as a first
-                            active group.
-        @type defaultGroup ExperimenterGroupI
-        @param otherGroups List of ExperimenterGroup instances. Can be empty.
-        @type otherGroups L{ExperimenterGroupI}
+        @param defaultGroupId Default active group ID.
+        @type defaultGroupId ExperimenterGroupI
+        @param otherGroupIds List of Group IDs. Can be empty.
+        @type otherGroupIds L{ExperimenterGroupI}
         @param password Must pass validation in the security sub-system.
         @type password String
         @param middleName A middle name.
@@ -1105,25 +1104,27 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
                                     rstring(str(institution)) or None)
         experimenter.ldap = rbool(False)
 
+        admin_serv = self.getAdminService()
         listOfGroups = list()
         # system group
         if isAdmin:
-            g = self.getObject("ExperimenterGroup",
-                               attributes={'name': 'system'})
-            listOfGroups.append(g._obj)
+            gid = admin_serv.getSecurityRoles().systemGroupId
+            listOfGroups.append(ExperimenterGroupI(gid, False))
 
         # user group
         if isActive:
-            g = self.getObject("ExperimenterGroup",
-                               attributes={'name': 'user'})
-            listOfGroups.append(g._obj)
+            gid = admin_serv.getSecurityRoles().userGroupId
+            listOfGroups.append(ExperimenterGroupI(gid, False))
 
-        for g in otherGroups:
-            listOfGroups.append(g._obj)
+        for i in otherGroupIds:
+            listOfGroups.append(ExperimenterGroupI(i, False))
 
-        admin_serv = self.getAdminService()
+        defaultGroup = ExperimenterGroupI(defaultGroupId, False)
 
         if privileges is not None:
+            if defaultGroupId not in otherGroupIds:
+                listOfGroups.append(ExperimenterGroupI(defaultGroupId, False))
+
             admin_privileges = []
             for p in privileges:
                 privilege = omero.model.AdminPrivilegeI()
@@ -1135,11 +1136,12 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
 
             if 'ModifyGroupMembership' in self.getCurrentAdminPrivileges():
                 admin_serv.addGroups(exp, listOfGroups)
-                admin_serv.setDefaultGroup(exp, defaultGroup._obj)
+                admin_serv.setDefaultGroup(exp, defaultGroup)
 
         else:
+            # This will handle empty listOfGroups
             exp = admin_serv.createExperimenterWithPassword(
-                experimenter, rstring(password), defaultGroup._obj,
+                experimenter, rstring(password), defaultGroup,
                 listOfGroups)
 
         return exp
@@ -1245,7 +1247,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         if len(rmGroups) > 0 and can_mod:
             admin_serv.removeGroups(up_exp, rmGroups)
 
-    def getPrivilegesFromForm(self, experimenter_form):
+    def get_privileges_from_form(self, experimenter_form):
         """
         Get 'AdminPrivilege' roles from Experimenter Form
 
@@ -1253,7 +1255,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         """
         privileges = []
         role = experimenter_form.cleaned_data['role']
-        if role == 'user':
+        if role not in ('restricted_administrator', 'administrator'):
             return None
         # If user is Admin, we give them ALL privileges!
         if role == 'administrator':

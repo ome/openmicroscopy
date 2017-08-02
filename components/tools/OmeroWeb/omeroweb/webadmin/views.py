@@ -457,26 +457,12 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                 # if default group was not selected take first from the list.
                 if defaultGroup is None:
                     defaultGroup = otherGroups[0]
-                for g in groups:
-                    if long(defaultGroup) == g.id:
-                        dGroup = g
-                        break
 
-                listOfOtherGroups = set()
-                # rest of groups
-                for g in groups:
-                    for og in otherGroups:
-                        # remove defaultGroup from otherGroups if contains
-                        if long(og) == long(dGroup.id):
-                            pass
-                        elif long(og) == g.id:
-                            listOfOtherGroups.add(g)
-
-                # iAdmin.createLightSystemUser(createdAdmin, privileges);
-                privileges = conn.getPrivilegesFromForm(form)
+                privileges = conn.get_privileges_from_form(form)
+                # Create a User, Restricted-Admin or Admin, based on privileges
                 conn.createExperimenter(
                     omename, firstName, lastName, email, admin, active,
-                    dGroup, listOfOtherGroups, password,
+                    defaultGroup, otherGroups, password,
                     privileges, middleName, institution)
 
                 return HttpResponseRedirect(reverse("waexperimenters"))
@@ -595,7 +581,7 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                             listOfOtherGroups.add(g)
 
                 # Update 'AdminPrivilege' config roles for user
-                privileges = conn.getPrivilegesFromForm(form)
+                privileges = conn.get_privileges_from_form(form)
                 if privileges is None:
                     privileges = []
                 # Only process privileges that we have permission to set
