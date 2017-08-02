@@ -141,8 +141,14 @@ BEGIN
 
       PERFORM pg_advisory_lock(1, Lid);
 
-      PERFORM nextval(seq) FROM generate_series(1, increment);
-      SELECT currval(seq) INTO nv;
+      BEGIN
+          PERFORM nextval(seq) FROM generate_series(1, increment);
+          SELECT currval(seq) INTO nv;
+      EXCEPTION
+          WHEN OTHERS THEN
+              PERFORM pg_advisory_unlock(1, Lid);
+          RAISE;
+      END;
 
       PERFORM pg_advisory_unlock(1, Lid);
 
