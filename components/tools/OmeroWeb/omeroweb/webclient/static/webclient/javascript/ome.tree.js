@@ -1106,14 +1106,7 @@ $(function() {
                     canLink = OME.nodeHasPermission(node, 'canLink'),
                     parentAllowsCreate = (node.type === "orphaned" || node.type === "experimenter");
 
-                // We don't allow creating if new node will not be displayed in tree.
-                // If you canLink under selected Project, Dataset will be in tree
-                if(canLink && node.type === "project" && memberOfGroup && !tagTree) {
-                    config["create"]["_disabled"] = false;
-                    config["create"]["submenu"]["dataset"]["_disabled"] = false;
-                }
-                // Otherwise can only create if we're filtering for your data
-                if(canCreate && (canLink || parentAllowsCreate)) {
+                if(canCreate) {
                     // Enable tag or P/D/I submenus created above
                     config["create"]["_disabled"] = false;
                     if (tagTree) {
@@ -1121,7 +1114,13 @@ $(function() {
                         config["create"]["submenu"]["tag"]["_disabled"] = false;
                     } else {
                         config["create"]["submenu"]["project"]["_disabled"] = false;
-                        config["create"]["submenu"]["dataset"]["_disabled"] = false;
+                        if (node.type === "project") {
+                            // If Project is selected don't try to create Dataset
+                            // unless we canLink or create link that belongs to user
+                            config["create"]["submenu"]["dataset"]["_disabled"] = !(canLink || writeOwned);
+                        } else {
+                            config["create"]["submenu"]["dataset"]["_disabled"] = false;
+                        }
                         config["create"]["submenu"]["screen"]["_disabled"] = false;
                     }
                 }
