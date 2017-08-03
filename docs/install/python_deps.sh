@@ -42,9 +42,6 @@ install(){
 install numpy
 install Pillow
 
-# Scipy (requires Gfortran compiler)
-install scipy || echo "Scipy installation failed. Make sure a fortran compiler is available."
-
 #
 # Various issues with matplotlib. See the following if you have problems:
 # -----------------------------------------------------------------------

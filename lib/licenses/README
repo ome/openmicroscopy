@@ -1264,12 +1264,6 @@
   License File: pil.txt
 
 
-  Project:      SciPy
-  Web Site:     https://www.scipy.org/scipylib/index.html
-  License:      BSD
-  License File: bsd.txt
-
-
   Project:      PyTables
   Web Site:     http://www.pytables.org
   License:      Lesser General Public License
