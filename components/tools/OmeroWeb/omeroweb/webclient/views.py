@@ -54,7 +54,6 @@ from django.template import RequestContext as Context
 from django.utils.http import urlencode
 from django.core.urlresolvers import reverse
 from django.utils.encoding import smart_str
-from django.core.servers.basehttp import FileWrapper
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
 
