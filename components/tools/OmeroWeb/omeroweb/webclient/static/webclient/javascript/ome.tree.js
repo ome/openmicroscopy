@@ -988,6 +988,7 @@ $(function() {
                                 var inst = $.jstree.reference('#dataTree');
                                 OME.copyRenderingSettings(WEBCLIENT.URLS.copy_image_rdef_json,
                                     inst.get_selected(true));
+                                WEBCLIENT.HAS_RDEF = true;
                             }
                         },
                         "paste_rdef": {

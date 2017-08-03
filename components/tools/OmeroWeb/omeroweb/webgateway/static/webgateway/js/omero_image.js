@@ -32,6 +32,11 @@
         var jqxhr = $.getJSON(viewport.viewport_server + "/copyImgRDef/?" + rdefQry);
         jqxhr.complete(function() {
             $("#rdef-paste-btn").removeAttr('disabled').removeClass("button-disabled");
+
+            // Optional : only present on webclient app
+            if (WEBCLIENT) {
+                WEBCLIENT.HAS_RDEF = true;
+            }
         });
     };
 
