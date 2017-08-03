@@ -1,5 +1,4 @@
 language: java
-
 jdk: oraclejdk8
 
 # This (sudo: false) is needed to "run on container-based infrastructure" on
@@ -33,6 +32,7 @@ env:
 
 before_install:
     - echo $PATH
+    - export PATH=/usr/bin/:$PATH
     - sudo apt-get install -y zeroc-ice35 python-imaging python-numpy python-tables python-yaml
     - pip install --user pytest
     - if [[ $BUILD == 'build-python' ]]; then pip install --user -r ./components/tools/OmeroWeb/requirements-py27-all-ice35.txt; fi
