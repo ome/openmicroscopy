@@ -5,7 +5,7 @@ jdk: oraclejdk8
 # This (sudo: false) is needed to "run on container-based infrastructure" on
 # which cache: is available
 # http://docs.travis-ci.com/user/workers/container-based-infrastructure/
-sudo: false
+sudo: required
 
 # http://docs.travis-ci.com/user/caching/#Arbitrary-directories
 cache:
@@ -19,11 +19,11 @@ matrix:
 addons:
   apt_packages:
     - git
-    - zeroc-ice35
-    - python-imaging
-    - python-numpy
-    - python-tables
-    - python-yaml
+    #- zeroc-ice35
+    #- python-imaging
+    #- python-numpy
+    #- python-tables
+    #- python-yaml
     - cmake
     - libgtest-dev
 
@@ -32,6 +32,8 @@ env:
     - BUILD="build-java"
 
 before_install:
+    - echo $PATH
+    - sudo apt-get install -y zeroc-ice35 python-imaging python-numpy python-tables python-yaml
     - pip install --user pytest
     - if [[ $BUILD == 'build-python' ]]; then pip install --user -r ./components/tools/OmeroWeb/requirements-py27-all-ice35.txt; fi
     - export PATH=$PATH:$HOME/.local/bin
