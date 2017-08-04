@@ -84,7 +84,7 @@
             'Chgrp': 'Administrator can move others\' data to a different Group',
             'Chown': 'Administrator can transfer others\' data to a different Owner',
             'ModifyGroup': 'Administrator can create and edit groups (but not add or remove users)',
-            'ModifyUser': 'Administrator can create and edit other users (but not add them to groups)',
+            'ModifyUser': 'Administrator can create and edit other users (but not add them to groups). Recommended to also select <b>Add Users to Groups</b>',
             'ModifyGroupMembership': 'Administrator can add or remove users to groups',
             'Script': 'Administrator can upload "official" OMERO.scripts to the server',
         }
@@ -107,6 +107,12 @@
         });
         $("#privileges input").on( "mouseover", function() {
             showPrivilegeInfo(this.id);
+        });
+
+        // When User selects "Create and Edit User" privilege, also select "Add Users To Groups"
+        $("#id_ModifyUser").on("change", function() {
+            var checked = $(this).is(':checked');
+            $("#id_ModifyGroupMembership").prop('checked', checked);
         });
 
         // Since we want to disable removal of 'system' group (id=0) from chosen, this hides the 'X'
