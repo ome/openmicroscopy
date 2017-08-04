@@ -932,9 +932,6 @@ def _api_links_POST(conn, json_data, **kwargs):
         p = conn.getQueryService().get(ptype, parent_id,
                                        conn.SERVICE_OPTS)
         conn.SERVICE_OPTS.setOmeroGroup(p.details.group.id.val)
-        # If we can set the link ownership then set it to match the parent
-        if "WriteOwned" in conn.getEventContext().adminPrivileges:
-            conn.SERVICE_OPTS.setOmeroUser(p.details.owner.id.val)
         logger.info("api_link: Saving %s links" % len(linksToSave))
 
         try:
