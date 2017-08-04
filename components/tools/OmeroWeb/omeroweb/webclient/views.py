@@ -978,10 +978,7 @@ def _api_links_DELETE(conn, json_data):
                 if objLnks is None:
                     continue
                 linkType, links = objLnks
-                linkIds = [r.id.val for r in links if
-                           r.getDetails().permissions.canDelete()]
-                if len(linkIds) == 0:
-                    continue
+                linkIds = [r.id.val for r in links]
                 logger.info("api_link: Deleting %s links" % len(linkIds))
                 conn.deleteObjects(linkType, linkIds, wait=True)
                 # webclient needs to know what is orphaned
