@@ -537,7 +537,9 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                 request.POST.getlist('other_groups'))
             initial = {'my_groups': my_groups,
                        'groups': otherGroupsInitialList(groups)}
-            form = ExperimenterForm(initial=initial, data=request.POST.copy(),
+            form = ExperimenterForm(can_modify_user=can_modify_user,
+                                    user_privileges=user_privileges,
+                                    initial=initial, data=request.POST.copy(),
                                     name_check=name_check,
                                     email_check=email_check)
 
@@ -600,7 +602,8 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                     active, dGroup, listOfOtherGroups, middleName,
                     institution)
                 return HttpResponseRedirect(reverse("waexperimenters"))
-            context = {'form': form, 'eid': eid, 'ldapAuth': isLdapUser}
+            context = {'form': form, 'eid': eid, 'ldapAuth': isLdapUser,
+                       'can_modify_user': can_modify_user}
     else:
         return HttpResponseRedirect(reverse("waexperimenters"))
 
