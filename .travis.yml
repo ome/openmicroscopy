@@ -34,6 +34,8 @@ before_install:
     - echo $PATH
     - export PATH=/usr/bin/:$PATH
     - sudo apt-get install -y zeroc-ice35 python-imaging python-numpy python-tables python-yaml
+    #- sudo apt-get purge python-numpy  libhdf5-serial-dev 
+    - pip install -U numexpr # table test failure otherwise
     - pip install --user pytest
     - if [[ $BUILD == 'build-python' ]]; then pip install --user -r ./components/tools/OmeroWeb/requirements-py27-all-ice35.txt; fi
     - export PATH=$PATH:$HOME/.local/bin
@@ -43,6 +45,7 @@ before_install:
 # retries the build due to:
 # https://github.com/travis-ci/travis-ci/issues/2507
 install:
+    - pip install --user numpy
     - if [[ $BUILD == 'build-python' ]]; then travis_retry ./components/tools/travis-build py-build; fi
     - if [[ $BUILD == 'build-java' ]]; then travis_retry ./components/tools/travis-build java-build; fi
 
