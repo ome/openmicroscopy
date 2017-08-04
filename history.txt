@@ -12,6 +12,8 @@ Changes include:
 - improved display of plate in OMERO.web
 - various improvements in integration tests
 - fixed import related bugs in OMERO.insight
+- fixed synchronization of controls enabling copy/paste of
+  rendering settings in OMERO.web
 
 5.4.0-m2 (July 2017)
 --------------------
