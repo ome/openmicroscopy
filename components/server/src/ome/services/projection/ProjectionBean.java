@@ -270,7 +270,7 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
                                             "Unknown algorithm: " + algorithm);
                                 }
                             }
-                            destinationBuffer.setPlane(buf, 0, newC, t);
+                            destinationBuffer.setPlane(buf, 0, newC, t-tStart);
                         }
                         catch (IOException e)
                         {
