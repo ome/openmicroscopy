@@ -310,10 +310,10 @@ class TestHdfList(TestCase):
             "The file '%s' is already opened. " % tmp)
         monkeypatch.undo()
 
-        # HdfList uses portalocker, test by mocking tables.openFile
-        self.mox.StubOutWithMock(tables, 'openFile')
-        tables.openFile(tmp, mode='w', title='OMERO HDF Measurement Storage',
-                        rootUEP='/').AndReturn(open(tmp))
+        # HdfList uses portalocker, test by mocking tables.open_file
+        self.mox.StubOutWithMock(tables, 'open_file')
+        tables.open_file(tmp, mode='w', title='OMERO HDF Measurement Storage',
+                         rootUEP='/').AndReturn(open(tmp))
 
         self.mox.ReplayAll()
 
