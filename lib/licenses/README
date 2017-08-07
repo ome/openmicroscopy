@@ -746,7 +746,7 @@
 
   Artifacts:    ome-xml-*.jar
   Project:      A library for working with OME-XML metadata structures.
-  Web Site:     https://docs.openmicroscopy.org/ome-model/5.5.7/ome-xml/java-library.html
+  Web Site:     https://docs.openmicroscopy.org/ome-model/
   License:      BSD License
   License File: bsd.txt
 
