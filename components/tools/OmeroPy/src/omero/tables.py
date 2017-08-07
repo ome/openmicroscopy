@@ -97,7 +97,7 @@ def modifies(func):
 class HdfList(object):
 
     """
-    Since two calls to tables.openFile() return non-equal files
+    Since two calls to tables.open_file() return non-equal files
     with equal fileno's, portalocker cannot be used to prevent
     the creation of two HdfStorage instances from the same
     Python process.
@@ -217,9 +217,9 @@ class HdfStorage(object):
     def size(self):
         return self.__hdf_path.size
 
-    def openfile(self, mode):
+    def openfile(self, mode, policy='default'):
+        tables.file._FILE_OPEN_POLICY = policy
         try:
-
             if self.__hdf_path.exists():
                 if self.__hdf_path.size == 0:
                     mode = "w"
@@ -229,14 +229,32 @@ class HdfStorage(object):
                             self.__hdf_path, mode))
                     mode = "r"
 
-            return tables.openFile(str(self.__hdf_path), mode=mode,
-                                   title="OMERO HDF Measurement Storage",
-                                   rootUEP="/")
+            return tables.open_file(str(self.__hdf_path), mode=mode,
+                                    title="OMERO HDF Measurement Storage",
+                                    rootUEP="/")
         except (tables.HDF5ExtError, IOError) as e:
             msg = "HDFStorage initialized with bad path: %s: %s" % (
                 self.__hdf_path, e)
             self.logger.error(msg)
             raise omero.ValidationException(None, None, msg)
+        except (ValueError) as e:
+
+            # trap PyTables >= 3.1 FILE_OPEN_POLICY exception
+            # to provide an updated message
+            if 'FILE_OPEN_POLICY' in str(e):
+                e = ValueError(
+                    "PyTables [{version}] no longer supports opening multiple "
+                    "files\n"
+                    "even in read-only mode on this HDF5 version "
+                    "[{hdf_version}]. You can accept this\n"
+                    "and not open the same file multiple times at once,\n"
+                    "upgrade the HDF5 version, or downgrade to PyTables 3.0.0 "
+                    "which allows\n"
+                    "files to be opened multiple times at once\n"
+                    .format(version=tables.__version__,
+                            hdf_version=tables.get_hdf5_version()))
+
+            raise e
 
     def modified(self):
         return self._modified
@@ -335,15 +353,15 @@ class HdfStorage(object):
                     None, None, "Reserved column name: %s" % c.name)
 
         self.__definition = columns2definition(cols)
-        self.__ome = self.__hdf_file.createGroup("/", "OME")
-        self.__mea = self.__hdf_file.createTable(
+        self.__ome = self.__hdf_file.create_group("/", "OME")
+        self.__mea = self.__hdf_file.create_table(
             self.__ome, "Measurements", self.__definition)
 
         self.__types = [x.ice_staticId() for x in cols]
         self.__descriptions = [
             (x.description is not None) and x.description or "" for x in cols]
-        self.__hdf_file.createArray(self.__ome, "ColumnTypes", self.__types)
-        self.__hdf_file.createArray(
+        self.__hdf_file.create_array(self.__ome, "ColumnTypes", self.__types)
+        self.__hdf_file.create_array(
             self.__ome, "ColumnDescriptions", self.__descriptions)
 
         md = {}
