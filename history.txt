@@ -14,6 +14,9 @@ Changes include:
 - fixed import related bugs in OMERO.insight
 - fixed synchronization of controls enabling copy/paste of
   rendering settings in OMERO.web
+- fixed projection of images
+
+This release also upgrades the version of Bio-Formats which OMERO uses to 5.6.0-m1
 
 5.4.0-m2 (July 2017)
 --------------------
