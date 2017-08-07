@@ -37,6 +37,7 @@ import omero.api.ServiceFactoryPrx;
 import omero.cmd.Chown2;
 import omero.gateway.util.Requests;
 import omero.gateway.util.Requests.Delete2Builder;
+import omero.gateway.util.Utils;
 import omero.model.AdminPrivilege;
 import omero.model.AdminPrivilegeI;
 import omero.model.Dataset;
@@ -121,13 +122,8 @@ public class LightAdminRolesTest extends RolesTests {
         final ServiceFactoryPrx rootSession = root.getSession();
         Experimenter user = new ExperimenterI(ctx.userId, false);
         user = (Experimenter) rootSession.getQueryService().get("Experimenter", ctx.userId);
-        final List<AdminPrivilege> privileges = new ArrayList<>();
-        rootSession.getAdminService().setAdminPrivileges(user, privileges);
-        for (final String permission : permissions) {
-            final AdminPrivilege privilege = new AdminPrivilegeI();
-            privilege.setValue(omero.rtypes.rstring(permission));
-            privileges.add(privilege);
-        }
+        final List<AdminPrivilege> privileges = Utils.toEnum(AdminPrivilege.class, AdminPrivilegeI.class, permissions);
+        rootSession.getAdminService().setAdminPrivileges(user, Collections.<AdminPrivilege>emptyList());
         rootSession.getAdminService().setAdminPrivileges(user, privileges);
         /* avoid old session as privileges are briefly cached */
         loginUser(ctx);
