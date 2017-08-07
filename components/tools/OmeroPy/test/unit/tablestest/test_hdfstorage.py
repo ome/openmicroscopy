@@ -312,6 +312,7 @@ class TestHdfList(TestCase):
 
         # HdfList uses portalocker, test by mocking tables.open_file
         self.mox.StubOutWithMock(tables, 'open_file')
+        tables.file._FILE_OPEN_POLICY = 'default'
         tables.open_file(tmp, mode='w', title='OMERO HDF Measurement Storage',
                          rootUEP='/').AndReturn(open(tmp))
 
