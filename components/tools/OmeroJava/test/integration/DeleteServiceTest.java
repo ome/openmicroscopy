@@ -1,7 +1,8 @@
 /*
- * Copyright 2006-2015 University of Dundee. All rights reserved.
+ * Copyright 2006-2017 University of Dundee. All rights reserved.
  * Use is subject to license terms supplied in LICENSE.txt
  */
+
 package integration;
 
 import java.io.File;
@@ -75,6 +76,8 @@ import omero.model.PlateAcquisition;
 import omero.model.PlateAnnotationLink;
 import omero.model.PlateAnnotationLinkI;
 import omero.model.PlateI;
+import omero.model.Point;
+import omero.model.PointI;
 import omero.model.Project;
 import omero.model.ProjectAnnotationLink;
 import omero.model.ProjectAnnotationLinkI;
@@ -1323,6 +1326,32 @@ public class DeleteServiceTest extends AbstractServerTest {
         param.addIds(shapeIds);
         sql = "select d from Shape as d where d.id in (:ids)";
         Assert.assertEquals(0, iQuery.findAllByQuery(sql, param).size());
+    }
+
+    /**
+     * Test that if a shape is deleted then the ROI's shapes do not have a {@code null} where the deleted shape once was.
+     * @throws Exception unexpected
+     */
+    @Test(groups = "broken")
+    public void testDeleteSomeShapes() throws Exception {
+        Roi roiBefore = new RoiI();
+        int count;
+        for (count = 0; count < 3; count++) {
+            final Point point = new PointI();
+            point.setX(omero.rtypes.rdouble(count));
+            point.setY(omero.rtypes.rdouble(count));
+            roiBefore.addShape(point);
+        }
+        roiBefore = (Roi) iUpdate.saveAndReturnObject(roiBefore);
+        Assert.assertEquals(roiBefore.sizeOfShapes(), count);
+        doChange(Requests.delete().target(roiBefore.getShape(1)).build());
+        final Roi roiAfter = (Roi) iQuery.findByQuery(
+                "FROM Roi roi JOIN FETCH roi.shapes WHERE roi.id = :id",
+                new ParametersI().addId(roiBefore.getId()));
+        Assert.assertEquals(roiAfter.sizeOfShapes(), roiBefore.sizeOfShapes() - 1);
+        Assert.assertEquals(roiAfter.getShape(0).getId().getValue(), roiBefore.getShape(0).getId().getValue());
+        Assert.assertEquals(roiAfter.getShape(1).getId().getValue(), roiBefore.getShape(2).getId().getValue());
+        doChange(Requests.delete().target(roiAfter).build());
     }
 
     /**
