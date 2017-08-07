@@ -176,7 +176,7 @@ OMERO.web
 
 To run the tests locally, you will first need to start OMERO.web, please see
 
-http://www.openmicroscopy.org/site/support/omero5.3/sysadmins/unix/install-web.html
+https://docs.openmicroscopy.org/latest/omero/sysadmins/unix/install-web.html
 
 for more information.
 
