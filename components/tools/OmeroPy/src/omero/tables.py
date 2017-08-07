@@ -217,9 +217,9 @@ class HdfStorage(object):
     def size(self):
         return self.__hdf_path.size
 
-    def openfile(self, mode):
+    def openfile(self, mode, policy='default'):
+        tables.file._FILE_OPEN_POLICY = policy
         try:
-
             if self.__hdf_path.exists():
                 if self.__hdf_path.size == 0:
                     mode = "w"
@@ -237,6 +237,24 @@ class HdfStorage(object):
                 self.__hdf_path, e)
             self.logger.error(msg)
             raise omero.ValidationException(None, None, msg)
+        except (ValueError) as e:
+
+            # trap PyTables >= 3.1 FILE_OPEN_POLICY exception
+            # to provide an updated message
+            if 'FILE_OPEN_POLICY' in str(e):
+                e = ValueError(
+                    "PyTables [{version}] no longer supports opening multiple "
+                    "files\n"
+                    "even in read-only mode on this HDF5 version "
+                    "[{hdf_version}]. You can accept this\n"
+                    "and not open the same file multiple times at once,\n"
+                    "upgrade the HDF5 version, or downgrade to PyTables 3.0.0 "
+                    "which allows\n"
+                    "files to be opened multiple times at once\n"
+                    .format(version=tables.__version__,
+                            hdf_version=tables.get_hdf5_version()))
+
+            raise e
 
     def modified(self):
         return self._modified
