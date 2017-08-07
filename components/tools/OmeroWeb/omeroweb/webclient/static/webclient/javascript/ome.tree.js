@@ -988,6 +988,7 @@ $(function() {
                                 var inst = $.jstree.reference('#dataTree');
                                 OME.copyRenderingSettings(WEBCLIENT.URLS.copy_image_rdef_json,
                                     inst.get_selected(true));
+                                WEBCLIENT.HAS_RDEF = true;
                             }
                         },
                         "paste_rdef": {
@@ -1186,8 +1187,13 @@ $(function() {
                         node.type === 'acquisition' ||
                         node.type === 'image') {
 
+                        if (WEBCLIENT.HAS_RDEF) {
+                            // If the user has not got an object to copy, don't show the
+                            // paste option as a valid item
+                            config['renderingsettings']["submenu"]['paste_rdef']['_disabled'] = false;
+                        }
+
                         config['renderingsettings']['_disabled'] = false;
-                        config['renderingsettings']["submenu"]['paste_rdef']['_disabled'] = false;
                         config['renderingsettings']["submenu"]['reset_rdef']['_disabled'] = false;
                         config['renderingsettings']["submenu"]['owner_rdef']['_disabled'] = false;
                     }
