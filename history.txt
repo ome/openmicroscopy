@@ -15,6 +15,7 @@ Changes include:
 - fixed synchronization of controls enabling copy/paste of
   rendering settings in OMERO.web
 - fixed projection of images
+- removed Scipy dependency
 
 This release also upgrades the version of Bio-Formats which OMERO uses to 5.6.0-m1
 
