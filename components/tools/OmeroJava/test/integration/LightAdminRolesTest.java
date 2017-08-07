@@ -182,7 +182,7 @@ public class LightAdminRolesTest extends RolesTests {
      * @param permWriteOwned if to test a user who has the <tt>WriteOwned</tt> privilege
      * @param groupPermissions to test the effect of group permission level
      * @throws Exception unexpected
-     * @see <a href="http://downloads.openmicroscopy.org/resources/experimental/tests/graph-permissions/0.1/testImporterAsSudoCreateImport.pptx">graphical explanation</a>
+     * @see <a href="https://downloads.openmicroscopy.org/resources/experimental/tests/graph-permissions/0.1/testImporterAsSudoCreateImport.pptx">graphical explanation</a>
      */
     @Test(dataProvider = "isSudoing and WriteOwned privileges cases")
     public void testImporterAsSudoCreateImport(boolean isSudoing, boolean permWriteOwned,
@@ -277,7 +277,7 @@ public class LightAdminRolesTest extends RolesTests {
      * @param permDeleteOwned if to test a user who has the <tt>DeleteOwned</tt> privilege
      * @param groupPermissions to test the effect of group permission level
      * @throws Exception unexpected
-     * @see <a href="http://downloads.openmicroscopy.org/resources/experimental/tests/graph-permissions/0.1/testDelete.pptx">graphical explanation</a>
+     * @see <a href="https://downloads.openmicroscopy.org/resources/experimental/tests/graph-permissions/0.1/testDelete.pptx">graphical explanation</a>
      */
     @Test(dataProvider = "isSudoing and Delete privileges cases")
     public void testDelete(boolean isSudoing, boolean permDeleteOwned,
@@ -510,7 +510,7 @@ public class LightAdminRolesTest extends RolesTests {
      * @param permWriteOwned if to test a user who has the <tt>WriteOwned</tt> privilege
      * @param groupPermissions to test the effect of group permission level
      * @throws Exception unexpected
-     * @see <a href="http://downloads.openmicroscopy.org/resources/experimental/tests/graph-permissions/0.1/testEdit.pptx">graphical explanation</a>
+     * @see <a href="https://downloads.openmicroscopy.org/resources/experimental/tests/graph-permissions/0.1/testEdit.pptx">graphical explanation</a>
      */
     @Test(dataProvider = "isSudoing and WriteOwned privileges cases")
     public void testEdit(boolean isSudoing, boolean permWriteOwned,
@@ -581,7 +581,7 @@ public class LightAdminRolesTest extends RolesTests {
      * @param permChgrp if to test a user who has the <tt>Chgrp</tt> privilege
      * @param groupPermissions to test the effect of group permission level
      * @throws Exception unexpected
-     * @see <a href="http://downloads.openmicroscopy.org/resources/experimental/tests/graph-permissions/0.1/testChgrp.pptx">graphical explanation</a>
+     * @see <a href="https://downloads.openmicroscopy.org/resources/experimental/tests/graph-permissions/0.1/testChgrp.pptx">graphical explanation</a>
      */
     @Test(dataProvider = "isSudoing and Chgrp privileges cases")
     public void testChgrp(boolean isSudoing, boolean permChgrp, String groupPermissions)
@@ -661,7 +661,7 @@ public class LightAdminRolesTest extends RolesTests {
      * @param permChgrp if to test a user who has the <tt>Chgrp</tt> privilege
      * @param groupPermissions to test the effect of group permission level
      * @throws Exception unexpected
-     * @see <a href="http://downloads.openmicroscopy.org/resources/experimental/tests/graph-permissions/0.1/testChgrpNonMember.pptx">graphical explanation</a>
+     * @see <a href="https://downloads.openmicroscopy.org/resources/experimental/tests/graph-permissions/0.1/testChgrpNonMember.pptx">graphical explanation</a>
      */
     @Test(dataProvider = "isSudoing and Chgrp privileges cases")
     public void testChgrpNonMember(boolean isSudoing, boolean permChgrp, String groupPermissions)
@@ -748,7 +748,7 @@ public class LightAdminRolesTest extends RolesTests {
      * @param permChown if to test a user who has the <tt>Chown</tt> privilege
      * @param groupPermissions to test the effect of group permission level
      * @throws Exception unexpected
-     * @see <a href="http://downloads.openmicroscopy.org/resources/experimental/tests/graph-permissions/0.1/testChown.pptx">graphical explanation</a>
+     * @see <a href="https://downloads.openmicroscopy.org/resources/experimental/tests/graph-permissions/0.1/testChown.pptx">graphical explanation</a>
      */
     @Test(dataProvider = "isSudoing and Chown privileges cases")
     public void testChown(boolean isSudoing, boolean permChown, String groupPermissions)
@@ -840,7 +840,7 @@ public class LightAdminRolesTest extends RolesTests {
      * @param permChown if to test a user who has the <tt>Chown</tt> privilege
      * @param groupPermissions to test the effect of group permission level
      * @throws Exception unexpected
-     * @see <a href="http://downloads.openmicroscopy.org/resources/experimental/tests/graph-permissions/0.1/testImporterAsNoSudoChownOnlyWorkflow.pptx">graphical explanation</a>
+     * @see <a href="https://downloads.openmicroscopy.org/resources/experimental/tests/graph-permissions/0.1/testImporterAsNoSudoChownOnlyWorkflow.pptx">graphical explanation</a>
      */
     @Test(dataProvider = "WriteOwned, WriteFile, WriteManagedRepo and Chown privileges cases")
     public void testImporterAsNoSudoChownOnlyWorkflow(boolean permWriteOwned, boolean permWriteFile,
@@ -948,7 +948,7 @@ public class LightAdminRolesTest extends RolesTests {
      * @param permChown if to test a user who has the <tt>Chown</tt> privilege
      * @param groupPermissions to test the effect of group permission level
      * @throws Exception unexpected
-     * @see <a href="http://downloads.openmicroscopy.org/resources/experimental/tests/graph-permissions/0.1/testLinkNoSudo.pptx">graphical explanation</a>
+     * @see <a href="https://downloads.openmicroscopy.org/resources/experimental/tests/graph-permissions/0.1/testLinkNoSudo.pptx">graphical explanation</a>
      */
     @Test(dataProvider = "WriteOwned and Chown privileges cases")
     public void testLinkNoSudo(boolean permWriteOwned, boolean permChown,
@@ -1113,7 +1113,7 @@ public class LightAdminRolesTest extends RolesTests {
      * @param permChown if to test a user who has the <tt>Chown</tt> privilege
      * @param groupPermissions to test the effect of group permission level
      * @throws Exception unexpected
-     * @see <a href="https://docs.google.com/presentation/d/1zqDRwYDm3wA_xE79M6qR56U8giFbLFDywH3slj0wURA/edit">graphical explanation</a>
+     * @see <a href="https://downloads.openmicroscopy.org/resources/experimental/tests/graph-permissions/0.1/testImporterAsNoSudoChgrpChownWorkflow.pptx">graphical explanation</a>
      */
     @Test(dataProvider = "Chgrp and Chown privileges cases")
     public void testImporterAsNoSudoChgrpChownWorkflow(boolean permChgrp, boolean permChown,
@@ -1236,7 +1236,7 @@ public class LightAdminRolesTest extends RolesTests {
      * @param isPrivileged if to test a user who has the <tt>Chown</tt> privilege
      * @param groupPermissions to test the effect of group permission level
      * @throws Exception unexpected
-     * @see <a href="http://downloads.openmicroscopy.org/resources/experimental/tests/graph-permissions/0.1/testChownAllBelongingToUserLightAdmin.pptx">graphical explanation</a>
+     * @see <a href="https://downloads.openmicroscopy.org/resources/experimental/tests/graph-permissions/0.1/testChownAllBelongingToUserLightAdmin.pptx">graphical explanation</a>
      */
     @Test(dataProvider = "isPrivileged cases")
     public void testChownAllBelongingToUser(boolean isPrivileged, String groupPermissions) throws Exception {
@@ -1379,7 +1379,7 @@ public class LightAdminRolesTest extends RolesTests {
      * @param permChown if to test a user who has the <tt>Chown</tt> privilege
      * @param groupPermissions to test the effect of group permission level
      * @throws Exception unexpected
-     * @see <a href="http://downloads.openmicroscopy.org/resources/experimental/tests/graph-permissions/0.1/testROIAndRenderingSettingsNoSudo.pptx">graphical explanation</a>
+     * @see <a href="https://downloads.openmicroscopy.org/resources/experimental/tests/graph-permissions/0.1/testROIAndRenderingSettingsNoSudo.pptx">graphical explanation</a>
      */
     @Test(dataProvider = "WriteOwned and Chown privileges cases")
     public void testROIAndRenderingSettingsNoSudo(boolean permWriteOwned, boolean permChown,
@@ -1503,7 +1503,7 @@ public class LightAdminRolesTest extends RolesTests {
      * @param permWriteFile if to test a user who has the <tt>WriteFile</tt> privilege
      * @param groupPermissions to test the effect of group permission level
      * @throws Exception unexpected
-     * @see <a href="http://downloads.openmicroscopy.org/resources/experimental/tests/graph-permissions/0.1/testFileAttachmentNoSudo.pptx">graphical explanation</a>
+     * @see <a href="https://downloads.openmicroscopy.org/resources/experimental/tests/graph-permissions/0.1/testFileAttachmentNoSudo.pptx">graphical explanation</a>
      */
     @Test(dataProvider = "fileAttachment privileges cases")
     public void testFileAttachmentNoSudo(boolean permChown, boolean permWriteOwned,
