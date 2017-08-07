@@ -762,9 +762,6 @@ class TreeViewerControl
 	 */
 	List<MoveToAction> getMoveAction()
 	{
-	    if (!TreeViewerAgent.isMoveGroup())
-	        return null;
-	        
 		//First check that we can move the data.
 		Browser browser = model.getSelectedBrowser();
 		List selection = null;
