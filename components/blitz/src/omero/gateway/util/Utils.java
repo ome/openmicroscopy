@@ -1,7 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
- *
+ *  Copyright (C) 2015-2017 University of Dundee. All rights reserved.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,13 +17,23 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package omero.gateway.util;
 
+import java.beans.PropertyDescriptor;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.regex.Pattern;
 
+import org.apache.commons.beanutils.PropertyUtils;
+
+import omero.RString;
+import omero.model.IObject;
+
 /**
- * Collection of methods used to set the name of files to import.
+ * Collection of methods used to set the name of files to import and to handle enumerations.
  *
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
@@ -146,4 +155,55 @@ public class Utils {
         return null;
     }
 
+    /**
+     * Throws if the given class is clearly not an enumeration in the OMERO model.
+     * There is no {@code omero.model.IEnum} analog of {@link ome.model.IEnum}.
+     * @param enumClass a type that should be an enumeration
+     */
+    private static void assertEnumType(Class<? extends IObject> enumClass) {
+        if ("omero.model".equals(enumClass.getPackage().getName())) {
+            for (final PropertyDescriptor descriptor : PropertyUtils.getPropertyDescriptors(enumClass)) {
+                if ("value".equals(descriptor.getName()) && descriptor.getPropertyType() == omero.RString.class) {
+                    return;
+                }
+            }
+        }
+        throw new IllegalArgumentException("requires OMERO.blitz API enumeration type, not " + enumClass.getName());
+    }
+
+    /**
+     * Convert a list of {@code String} values to their corresponding {@code omero.model.enums} instances.
+     * @param enumClass the desired enumeration type, never {@code null}
+     * @param instanceClass the type whose no-argument constructor is used to provide instances of {@code enumClass}
+     * @param enumValues values of the enumeration type, never {@code null} nor with a {@code null} value
+     * @return enumeration instances of the given type with the given values
+     * @throws ReflectiveOperationException if the instances could not be created
+     */
+    public static <E extends IObject, I extends E> List<E> toEnum(Class<E> enumClass, Class<I> instanceClass,
+            Collection<String> enumValues) throws ReflectiveOperationException {
+        assertEnumType(enumClass);
+        final List<E> enumInstances = new ArrayList<>(enumValues.size());
+        for (final String enumValue : enumValues) {
+            final E enumInstance = instanceClass.newInstance();
+            PropertyUtils.setProperty(enumInstance, "value", omero.rtypes.rstring(enumValue));
+            enumInstances.add(enumInstance);
+        }
+        return enumInstances;
+    }
+
+    /**
+     * Convert a list of {@code omero.model.enums} instances to their corresponding {@code String} values.
+     * @param enumInstances enumeration instances, never {@code null} nor with a {@code null} value
+     * @return values of the given instances, never {@code null}
+     * @throws ReflectiveOperationException if the values could not be determined
+     */
+    public static <E extends IObject> List<String> fromEnum(Collection<E> enumInstances) throws ReflectiveOperationException {
+        final List<String> enumValues = new ArrayList<>(enumInstances.size());
+        for (final IObject enumInstance : enumInstances) {
+            assertEnumType(enumInstance.getClass());
+            final RString enumValue = (RString) PropertyUtils.getProperty(enumInstance, "value");
+            enumValues.add(enumValue.getValue());
+        }
+        return enumValues;
+    }
 }

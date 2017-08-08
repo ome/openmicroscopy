@@ -29,7 +29,8 @@ conn.connect()
 # Retrieve a given plane
 # ======================
 # Use the pixelswrapper to retrieve the plane as
-# a 2D numpy array see https://github.com/scipy/scipy
+# a 2D numpy array
+# see https://docs.scipy.org/doc/numpy/reference/arrays.ndarray.html
 #
 # Numpy array can be used for various analysis routines
 #

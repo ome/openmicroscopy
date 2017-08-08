@@ -37,6 +37,7 @@ import omero.api.ServiceFactoryPrx;
 import omero.cmd.Chown2;
 import omero.gateway.util.Requests;
 import omero.gateway.util.Requests.Delete2Builder;
+import omero.gateway.util.Utils;
 import omero.model.AdminPrivilege;
 import omero.model.AdminPrivilegeI;
 import omero.model.Dataset;
@@ -67,6 +68,8 @@ import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.model.enums.AdminPrivilegeChgrp;
 import omero.model.enums.AdminPrivilegeChown;
+import omero.model.enums.AdminPrivilegeDeleteFile;
+import omero.model.enums.AdminPrivilegeDeleteManagedRepo;
 import omero.model.enums.AdminPrivilegeDeleteOwned;
 import omero.model.enums.AdminPrivilegeDeleteScriptRepo;
 import omero.model.enums.AdminPrivilegeModifyGroup;
@@ -119,13 +122,8 @@ public class LightAdminRolesTest extends RolesTests {
         final ServiceFactoryPrx rootSession = root.getSession();
         Experimenter user = new ExperimenterI(ctx.userId, false);
         user = (Experimenter) rootSession.getQueryService().get("Experimenter", ctx.userId);
-        final List<AdminPrivilege> privileges = new ArrayList<>();
-        rootSession.getAdminService().setAdminPrivileges(user, privileges);
-        for (final String permission : permissions) {
-            final AdminPrivilege privilege = new AdminPrivilegeI();
-            privilege.setValue(omero.rtypes.rstring(permission));
-            privileges.add(privilege);
-        }
+        final List<AdminPrivilege> privileges = Utils.toEnum(AdminPrivilege.class, AdminPrivilegeI.class, permissions);
+        rootSession.getAdminService().setAdminPrivileges(user, Collections.<AdminPrivilege>emptyList());
         rootSession.getAdminService().setAdminPrivileges(user, privileges);
         /* avoid old session as privileges are briefly cached */
         loginUser(ctx);
@@ -281,83 +279,228 @@ public class LightAdminRolesTest extends RolesTests {
      * @throws Exception unexpected
      * @see <a href="https://docs.google.com/presentation/d/1SRWiFJs7oIYJCSg8XpfeW0QyOPwbrSnAbXL_FaKF0I4/edit">graphical explanation</a>
      */
-   @Test(dataProvider = "isSudoing and Delete privileges cases")
-   public void testDelete(boolean isSudoing, boolean permDeleteOwned,
-           String groupPermissions) throws Exception {
-       /* Only DeleteOwned permission is needed for deletion of links, Dataset
-        * and image (with original file) when not sudoing. When sudoing, no other
-        * permission is needed.*/
-       boolean deletePassing = permDeleteOwned || isSudoing;
-       final EventContext normalUser = newUserAndGroup(groupPermissions);
-       /* Set up the light admin's permissions for this test */
-       List<String> permissions = new ArrayList<String>();
-       permissions.add(AdminPrivilegeSudo.value);
-       if (permDeleteOwned) permissions.add(AdminPrivilegeDeleteOwned.value);
-       final EventContext lightAdmin;
-       lightAdmin = loginNewAdmin(true, permissions);
-       sudo(new ExperimenterI(normalUser.userId, false));
-       /* Create a Dataset and Project being sudoed as normalUser.*/
-       client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
-       Project proj = mmFactory.simpleProject();
-       Dataset dat = mmFactory.simpleDataset();
-       Project sentProj = null;
-       Dataset sentDat = null;
-       sentProj = (Project) iUpdate.saveAndReturnObject(proj);
-       sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
-       /* Import an image for the normalUser into the normalUser's default group
-        * and target it into the created Dataset.*/
-       List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
-       OriginalFile originalFile = (OriginalFile) originalFileAndImage.get(0);
-       Image image = (Image) originalFileAndImage.get(1);
-       assertOwnedBy(image, normalUser);
-       /* Link the Project and the Dataset.*/
-       ProjectDatasetLink projectDatasetLink = linkParentToChild(sentProj, sentDat);
-       IObject datasetImageLink = iQuery.findByQuery(
-               "FROM DatasetImageLink WHERE child.id = :id",
-               new ParametersI().addId(image.getId()));
-       /* Take care of post-import workflows which do not use sudo.*/
-       if (!isSudoing) {
-           loginUser(lightAdmin);
-           client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
-       }
-       /* Check that lightAdmin can delete the objects
-        * created on behalf of normalUser only if lightAdmin has sufficient permissions.
-        * Note that deletion of the Project
-        * would delete the whole hierarchy, which was successfully tested
-        * during writing of this test. The order of the below delete() commands
-        * is intentional, as the ability to delete the links and Project/Dataset/Image separately is
-        * tested in this way.
-        * Also check that the canDelete boolean
-        * on the object retrieved by the lightAdmin matches the deletePassing
-        * boolean.*/
-       Assert.assertEquals(getCurrentPermissions(datasetImageLink).canDelete(), deletePassing);
-       doChange(client, factory, Requests.delete().target(datasetImageLink).build(), deletePassing);
-       Assert.assertEquals(getCurrentPermissions(projectDatasetLink).canDelete(), deletePassing);
-       doChange(client, factory, Requests.delete().target(projectDatasetLink).build(), deletePassing);
-       Assert.assertEquals(getCurrentPermissions(image).canDelete(), deletePassing);
-       doChange(client, factory, Requests.delete().target(image).build(), deletePassing);
-       Assert.assertEquals(getCurrentPermissions(sentDat).canDelete(), deletePassing);
-       doChange(client, factory, Requests.delete().target(sentDat).build(), deletePassing);
-       Assert.assertEquals(getCurrentPermissions(sentProj).canDelete(), deletePassing);
-       doChange(client, factory, Requests.delete().target(sentProj).build(), deletePassing);
+    @Test(dataProvider = "isSudoing and Delete privileges cases")
+    public void testDelete(boolean isSudoing, boolean permDeleteOwned,
+            String groupPermissions) throws Exception {
+        /* Only DeleteOwned permission is needed for deletion of links, Dataset
+         * and image (with original file) when not sudoing. When sudoing, no other
+         * permission is needed.*/
+        boolean deletePassing = permDeleteOwned || isSudoing;
+        final EventContext normalUser = newUserAndGroup(groupPermissions);
+        /* Set up the light admin's permissions for this test */
+        List<String> permissions = new ArrayList<String>();
+        permissions.add(AdminPrivilegeSudo.value);
+        if (permDeleteOwned) permissions.add(AdminPrivilegeDeleteOwned.value);
+        final EventContext lightAdmin;
+        lightAdmin = loginNewAdmin(true, permissions);
+        sudo(new ExperimenterI(normalUser.userId, false));
+        /* Create a Dataset and Project being sudoed as normalUser.*/
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        Project sentProj = (Project) iUpdate.saveAndReturnObject(mmFactory.simpleProject());
+        Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(mmFactory.simpleDataset());
+        /* Import an image for the normalUser into the normalUser's default group
+         * and target it into the created Dataset.*/
+        List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
+        OriginalFile originalFile = (OriginalFile) originalFileAndImage.get(0);
+        Image image = (Image) originalFileAndImage.get(1);
+        assertOwnedBy(image, normalUser);
+        /* Link the Project and the Dataset.*/
+        ProjectDatasetLink projectDatasetLink = linkParentToChild(sentProj, sentDat);
+        IObject datasetImageLink = iQuery.findByQuery(
+                "FROM DatasetImageLink WHERE child.id = :id",
+                new ParametersI().addId(image.getId()));
+        /* Take care of post-import workflows which do not use sudo.*/
+        if (!isSudoing) {
+            loginUser(lightAdmin);
+            client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        }
+        /* Check that lightAdmin can delete the objects
+         * created on behalf of normalUser only if lightAdmin has sufficient permissions.
+         * Note that deletion of the Project
+         * would delete the whole hierarchy, which was successfully tested
+         * during writing of this test. The order of the below delete() commands
+         * is intentional, as the ability to delete the links and Project/Dataset/Image separately is
+         * tested in this way.
+         * Also check that the canDelete boolean on the object retrieved
+         * by the lightAdmin matches the deletePassing boolean.*/
+        Assert.assertEquals(getCurrentPermissions(datasetImageLink).canDelete(), deletePassing);
+        doChange(client, factory, Requests.delete().target(datasetImageLink).build(), deletePassing);
+        Assert.assertEquals(getCurrentPermissions(projectDatasetLink).canDelete(), deletePassing);
+        doChange(client, factory, Requests.delete().target(projectDatasetLink).build(), deletePassing);
+        Assert.assertEquals(getCurrentPermissions(image).canDelete(), deletePassing);
+        doChange(client, factory, Requests.delete().target(image).build(), deletePassing);
+        Assert.assertEquals(getCurrentPermissions(sentDat).canDelete(), deletePassing);
+        doChange(client, factory, Requests.delete().target(sentDat).build(), deletePassing);
+        Assert.assertEquals(getCurrentPermissions(sentProj).canDelete(), deletePassing);
+        doChange(client, factory, Requests.delete().target(sentProj).build(), deletePassing);
 
-       /* Check the existence/non-existence of the objects as appropriate.*/
-       if (deletePassing) {
-           assertDoesNotExist(originalFile);
-           assertDoesNotExist(image);
-           assertDoesNotExist(sentDat);
-           assertDoesNotExist(sentProj);
-           assertDoesNotExist(datasetImageLink);
-           assertDoesNotExist(projectDatasetLink);
-       } else {
-           assertExists(originalFile);
-           assertExists(image);
-           assertExists(sentDat);
-           assertExists(sentProj);
-           assertExists(datasetImageLink);
-           assertExists(projectDatasetLink);
-       }
-   }
+        /* Check the existence/non-existence of the objects as appropriate.*/
+        if (deletePassing) {
+            assertDoesNotExist(originalFile);
+            assertDoesNotExist(image);
+            assertDoesNotExist(sentDat);
+            assertDoesNotExist(sentProj);
+            assertDoesNotExist(datasetImageLink);
+            assertDoesNotExist(projectDatasetLink);
+        } else {
+            assertExists(originalFile);
+            assertExists(image);
+            assertExists(sentDat);
+            assertExists(sentProj);
+            assertExists(datasetImageLink);
+            assertExists(projectDatasetLink);
+        }
+    }
+
+
+    /**
+     * Test whether a light admin (lightAdmin) can delete image, Project and Dataset
+     * and their respective links belonging to another
+     * user (normalUser).
+     * Note that for this test, lightAdmin is member of normalUser's group.
+     * lightAdmin's privileges regarding deletion of others' data are not elevated by
+     * membership in the group over the privileges of normal member of group (otherUser).
+     * @param isAdmin if to test a success of workflows when light admin
+     * @param permDeleteOwned if to test a user who has the <tt>DeleteOwned</tt> privilege
+     * @param groupPermissions to test the effect of group permission level
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "isAdmin and Delete cases")
+    public void testDeleteGroupMemberNoSudo(boolean isAdmin, boolean permDeleteOwned,
+            String groupPermissions) throws Exception {
+        /* Only DeleteOwned permission is needed for deletion of links, Dataset
+         * and image (with original file) when isAdmin. When not isAdmin, only in
+         * read-write group deletion of others data is possible.*/
+        boolean deletePassing = (permDeleteOwned && isAdmin) || groupPermissions.equals("rwrw--");
+        final EventContext normalUser = newUserAndGroup(groupPermissions);
+        final EventContext otherUser = newUserAndGroup(groupPermissions);
+        ExperimenterGroup normalUsergroup = new ExperimenterGroupI(normalUser.groupId, false);
+        /* Set up the light admin's permissions for this test.*/
+        List<String> permissions = new ArrayList<String>();
+        if (permDeleteOwned) permissions.add(AdminPrivilegeDeleteOwned.value);
+        final EventContext lightAdmin = loginNewAdmin(true, permissions);
+        /* root adds lightAdmin to normalUser's group.*/
+        logRootIntoGroup(normalUser);
+        normalUsergroup = addUsers(normalUsergroup, ImmutableList.of(lightAdmin.userId, otherUser.userId), false);
+        /* normalUser creates a Dataset and Project.*/
+        loginUser(normalUser);
+        Project sentProj = (Project) iUpdate.saveAndReturnObject(mmFactory.simpleProject());
+        Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(mmFactory.simpleDataset());
+        /* normalUser imports an image
+         * and targets it into the created Dataset.*/
+        List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
+        OriginalFile originalFile = (OriginalFile) originalFileAndImage.get(0);
+        Image image = (Image) originalFileAndImage.get(1);
+        assertOwnedBy(image, normalUser);
+        /* normalUser links the Project and the Dataset.*/
+        ProjectDatasetLink projectDatasetLink = linkParentToChild(sentProj, sentDat);
+        IObject datasetImageLink = iQuery.findByQuery(
+                "FROM DatasetImageLink WHERE child.id = :id",
+                new ParametersI().addId(image.getId()));
+        /* Post-import workflows are done either by lightAdmin or by otherUser.*/
+        if (isAdmin) {
+            loginUser(lightAdmin);
+        } else {
+            loginUser(otherUser);
+        }
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        /* Check that lightAdmin or otherUser can delete the objects
+         * of normalUser only if lightAdmin has sufficient permissions or it is read-write group.
+         * Note that deletion of the Project
+         * would delete the whole hierarchy, which was successfully tested
+         * during writing of this test. The order of the below delete() commands
+         * is intentional, as the ability to delete the links and Project/Dataset/Image separately is
+         * tested in this way.
+         * Also check that the canDelete boolean on the object retrieved by the lightAdmin
+         * or otherUser matches the deletePassing boolean.*/
+        Assert.assertEquals(getCurrentPermissions(datasetImageLink).canDelete(), deletePassing);
+        doChange(client, factory, Requests.delete().target(datasetImageLink).build(), deletePassing);
+        Assert.assertEquals(getCurrentPermissions(projectDatasetLink).canDelete(), deletePassing);
+        doChange(client, factory, Requests.delete().target(projectDatasetLink).build(), deletePassing);
+        Assert.assertEquals(getCurrentPermissions(image).canDelete(), deletePassing);
+        doChange(client, factory, Requests.delete().target(image).build(), deletePassing);
+        Assert.assertEquals(getCurrentPermissions(sentDat).canDelete(), deletePassing);
+        doChange(client, factory, Requests.delete().target(sentDat).build(), deletePassing);
+        Assert.assertEquals(getCurrentPermissions(sentProj).canDelete(), deletePassing);
+        doChange(client, factory, Requests.delete().target(sentProj).build(), deletePassing);
+
+        /* Check the existence/non-existence of the objects as appropriate.*/
+        logRootIntoGroup(normalUser);
+        if (deletePassing) {
+            assertDoesNotExist(originalFile);
+            assertDoesNotExist(image);
+            assertDoesNotExist(sentDat);
+            assertDoesNotExist(sentProj);
+            assertDoesNotExist(datasetImageLink);
+            assertDoesNotExist(projectDatasetLink);
+        } else {
+            assertExists(originalFile);
+            assertExists(image);
+            assertExists(sentDat);
+            assertExists(sentProj);
+            assertExists(datasetImageLink);
+            assertExists(projectDatasetLink);
+        }
+    }
+
+    /**
+     * light admin (lightAdmin) being also a group owner of one group
+     * (ownedGroup) tries to delete Dataset of other user (normalUser).
+     * lightAdmin also tries to delete data of yet one other user (otherUser)
+     * in a group which they do not own (notOwnedGroup).
+     * lightAdmin succeeds only in the ownGroup, in the notOwnedGroup they
+     * succeed only with DeleteOwned privilege.
+     * @param isPrivileged if to test a user who has the <tt>DeleteOwned</tt> privilege
+     * @param groupPermissions to test the effect of group permission level
+     * @throws Exception unexpected
+    */
+    @Test(dataProvider = "isPrivileged cases")
+    public void testDeleteGroupOwner(boolean isPrivileged,
+            String groupPermissions) throws Exception {
+        /* DeleteOwned privilege is necessary for deletion in group which is
+         * not owned. For deletion in group which is owned, no privilege is necessary.*/
+        boolean deletePassingNotOwnedGroup = isPrivileged;
+        boolean deletePassingOwnedGroup = true;
+        final EventContext normalUser = newUserAndGroup(groupPermissions);
+        final EventContext otherUser = newUserAndGroup(groupPermissions);
+        /* Set up the light admin's permissions for this test */
+        List<String> permissions = new ArrayList<String>();
+        permissions.add(AdminPrivilegeSudo.value);
+        if (isPrivileged) permissions.add(AdminPrivilegeDeleteOwned.value);
+        final EventContext lightAdmin = loginNewAdmin(true, permissions);
+        ExperimenterGroup ownedGroup = new ExperimenterGroupI(normalUser.groupId, false);
+        ExperimenterGroup notOwnedGroup = new ExperimenterGroupI(otherUser.groupId, false);
+        /* root adds lightAdmin to normalUser's group as owner.*/
+        logRootIntoGroup(normalUser);
+        ownedGroup = addUsers(ownedGroup, Collections.singletonList(lightAdmin.userId), true);
+        /* normalUser creates a Dataset in ownGroup.*/
+        loginUser(normalUser);
+        final Dataset sentDataset = (Dataset) iUpdate.saveAndReturnObject(mmFactory.simpleDataset());
+        /* otherUser creates a Dataset in notOwnGroup.*/
+        loginUser(otherUser);
+        final Dataset sentOtherDataset = (Dataset) iUpdate.saveAndReturnObject(mmFactory.simpleDataset());
+        /* Check that the Datasets are in their groups as expected.*/
+        assertInGroup(sentDataset, ownedGroup);
+        assertInGroup(sentOtherDataset, notOwnedGroup);
+        /* Check that lightAdmin can delete the Datasets only when permissions allow that.
+         * Also check that the canDelete boolean
+         * on the object retrieved by the lightAdmin matches the deletePassing
+         * boolean.*/
+        loginUser(lightAdmin);
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        Assert.assertEquals(getCurrentPermissions(sentDataset).canDelete(), deletePassingOwnedGroup);
+        doChange(client, factory, Requests.delete().target(sentDataset).build(), deletePassingOwnedGroup);
+        client.getImplicitContext().put("omero.group", Long.toString(otherUser.groupId));
+        Assert.assertEquals(getCurrentPermissions(sentOtherDataset).canDelete(), deletePassingNotOwnedGroup);
+        doChange(client, factory, Requests.delete().target(sentOtherDataset).build(), deletePassingNotOwnedGroup);
+        /* Check the existence/non-existence of the objects as appropriate.*/
+        assertDoesNotExist(sentDataset);
+        if (deletePassingNotOwnedGroup) {
+            assertDoesNotExist(sentOtherDataset);
+        } else {
+            assertExists(sentOtherDataset);
+        }
+    }
 
     /**
      * Test that a light admin can edit the name of a project
@@ -888,23 +1031,93 @@ public class LightAdminRolesTest extends RolesTests {
         }
     }
 
-        /**
-         * Light admin (lightAdmin) imports data for others (normalUser) without using Sudo.
-         * lightAdmin first creates a Dataset and imports an Image into it in lightAdmin's group
-         * (normalUser is not member of lightAdmin's group).
-         * Then, lightAdmin tries to move the Dataset into normalUser's group.
-         * Then, lightAdmin tries to chown the Dataset to normalUser.
-         * For this test, combinations of <tt>Chown</tt>, <tt>Chgrp</tt>,
-         * privileges of lightAdmin are explored.
-         * @param permChgrp if to test a user who has the <tt>Chgrp</tt> privilege
-         * @param permChown if to test a user who has the <tt>Chown</tt> privilege
-         * @param groupPermissions to test the effect of group permission level
-         * @throws Exception unexpected
-         * @see <a href="https://docs.google.com/presentation/d/1zqDRwYDm3wA_xE79M6qR56U8giFbLFDywH3slj0wURA/edit">graphical explanation</a>
-         */
-        @Test(dataProvider = "Chgrp and Chown privileges cases")
-        public void testImporterAsNoSudoChgrpChownWorkflow(boolean permChgrp, boolean permChown,
-                String groupPermissions) throws Exception {
+    /**
+     * lightAdmin tries to link their object to a pre-existing container (Dataset or Project)
+     * in the target group (of normalUser).
+     * Note that in this test lightAdmin is a member of normalUser's group.
+     * normalUser creates and saves the Dataset and Project,
+     * then lightAdmin or otherUser creates an image and dataset
+     * and they try to link these objects to the containers (Dataset or Project)
+     * of normalUser. lightAdmin succeeds if they have sufficient privileges.
+     * Neither partially working with own data, nor being
+     * a member of the group elevates lightAdmin's privileges over the
+     * privileges of a normal member of group (otherUser) working with their own data.
+     * @param permWriteOwned if to test a user who has the <tt>WriteOwned</tt> privilege
+     * @param isAdmin if to test a lightAdmin
+     * @param groupPermissions to test the effect of group permission level
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "WriteOwned and isAdmin cases")
+    public void testLinkMemberOfGroupNoSudo(boolean permWriteOwned, boolean isAdmin,
+            String groupPermissions) throws Exception {
+        /* WriteOwned permission is necessary and sufficient for lightAdmin to link
+         * others objects to their objects. Exceptions are Private group, where such linking will
+         * fail in all cases and Read-Write group where linking will succeed even
+         * for otherUser (otherUser and lightAdmin are both members of the group).*/
+        boolean isExpectLinkingSuccessAdmin =
+                (permWriteOwned && !groupPermissions.equals("rw----") || groupPermissions.equals("rwrw--"));
+        boolean isExpectLinkingSuccessUser = groupPermissions.equals("rwrw--");
+        final boolean isExpectLinkingSuccess = isAdmin ? isExpectLinkingSuccessAdmin : isExpectLinkingSuccessUser;
+        final EventContext normalUser = newUserAndGroup(groupPermissions);
+        final EventContext otherUser = newUserAndGroup(groupPermissions);
+        ExperimenterGroup normalUsergroup = new ExperimenterGroupI(normalUser.groupId, false);
+        /* Set up the light admin's permissions for this test.*/
+        List<String> permissions = new ArrayList<String>();
+        if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
+        final EventContext lightAdmin = loginNewAdmin(true, permissions);
+        /* root adds lightAdmin to normalUser's group.*/
+        logRootIntoGroup(normalUser);
+        normalUsergroup = addUsers(normalUsergroup, ImmutableList.of(lightAdmin.userId, otherUser.userId), false);
+        /* Create Dataset and Project as normalUser in normalUser's group.*/
+        loginUser(normalUser);
+        Dataset dat = mmFactory.simpleDataset();
+        Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
+        Project proj = mmFactory.simpleProject();
+        Project sentProj = (Project) iUpdate.saveAndReturnObject(proj);
+        /* Create Image and Dataset as lightAdmin or otherUser in normalUser's group.*/
+        if (isAdmin) {
+            loginUser(lightAdmin);
+        } else {
+            loginUser(otherUser);
+        }
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        Image ownImage = mmFactory.createImage();
+        Image sentOwnImage = (Image) iUpdate.saveAndReturnObject(ownImage);
+        Dataset ownDat = mmFactory.simpleDataset();
+        Dataset sentOwnDat = (Dataset) iUpdate.saveAndReturnObject(ownDat);
+        /* lightAdmin or otherUser checks that the canLink value on all the objects to be linked
+         * is true (for own image) and for other people's objects (sentProj, sentDat) the canLink
+         * are matching the expected behavior (see booleans isExpectLinkingSuccess... definitions).*/
+        Assert.assertTrue(getCurrentPermissions(sentOwnImage).canLink());
+        Assert.assertEquals(getCurrentPermissions(sentProj).canLink(), isExpectLinkingSuccess);
+        /* lightAdmin or otherUser try to create links between their own image and normalUser's Dataset
+         * and between their own Dataset and normalUser's Project.*/
+        try {
+            DatasetImageLink linkOfDatasetImage = linkParentToChild(sentDat, sentOwnImage);
+            ProjectDatasetLink linkOfProjectDataset = linkParentToChild(sentProj, sentOwnDat);
+            Assert.assertTrue(isExpectLinkingSuccess);
+        } catch (ServerError se) {
+            Assert.assertFalse(isExpectLinkingSuccess, se.toString());
+        }
+    }
+
+    /**
+     * Light admin (lightAdmin) imports data for others (normalUser) without using Sudo.
+     * lightAdmin first creates a Dataset and imports an Image into it in lightAdmin's group
+     * (normalUser is not member of lightAdmin's group).
+     * Then, lightAdmin tries to move the Dataset into normalUser's group.
+     * Then, lightAdmin tries to chown the Dataset to normalUser.
+     * For this test, combinations of <tt>Chown</tt>, <tt>Chgrp</tt>,
+     * privileges of lightAdmin are explored.
+     * @param permChgrp if to test a user who has the <tt>Chgrp</tt> privilege
+     * @param permChown if to test a user who has the <tt>Chown</tt> privilege
+     * @param groupPermissions to test the effect of group permission level
+     * @throws Exception unexpected
+     * @see <a href="https://docs.google.com/presentation/d/1zqDRwYDm3wA_xE79M6qR56U8giFbLFDywH3slj0wURA/edit">graphical explanation</a>
+     */
+    @Test(dataProvider = "Chgrp and Chown privileges cases")
+    public void testImporterAsNoSudoChgrpChownWorkflow(boolean permChgrp, boolean permChown,
+            String groupPermissions) throws Exception {
         /* Importing into the group of the lightAdmin and
          * subsequent moving the data into the group of normalUser and chowning
          * them to the normalUser succeeds if Chgrp and Chown is possible,
@@ -1114,6 +1327,46 @@ public class LightAdminRolesTest extends RolesTests {
         assertOwnedBy(sentImage1AnootherGroup, recipient);
         assertOwnedBy(linkOfDatasetImage2AnotherGroup, recipient);
         assertOwnedBy(linkOfProjectDataset2AnotherGroup, recipient);
+    }
+
+    /**
+     * Light admin (lightAdmin) tries to delete ROI (belonging to normalUser)
+     * The ROI is on image of normalUser.
+     * lightAdmin does not use Sudo in this test.
+     * @param isPrivileged if to test a user who has the <tt>DeleteOwned</tt> privilege
+     * @param groupPermissions to test the effect of group permission level
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "isPrivileged cases")
+    public void testROIDelete(boolean isPrivileged, String groupPermissions) throws Exception {
+        boolean isExpectSuccessDeleteROI = isPrivileged;
+        final EventContext normalUser = newUserAndGroup(groupPermissions);
+        /* Set up the light admin's permissions for this test.*/
+        List<String> permissions = new ArrayList<String>();
+        if (isPrivileged) permissions.add(AdminPrivilegeDeleteOwned.value);
+
+        /* normalUser creates an image with pixels and ROI in normalUser's group.*/
+        loginUser(normalUser);
+        Image image = mmFactory.createImage();
+        Image sentImage = (Image) iUpdate.saveAndReturnObject(image);
+        Pixels pixelsOfImage = sentImage.getPrimaryPixels();
+        Roi roi = new RoiI();
+        roi.addShape(new RectangleI());
+        roi.setImage((Image) sentImage.proxy());
+        roi = (Roi) iUpdate.saveAndReturnObject(roi);
+        assertOwnedBy(sentImage, normalUser);
+        assertOwnedBy(roi, normalUser);
+        /* lightAdmin logs in and tries to delete the ROI.*/
+        final EventContext lightAdmin = loginNewAdmin(true, permissions);
+        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        doChange(client, factory, Requests.delete().target(roi).build(), isExpectSuccessDeleteROI);
+        /* Check the ROI was deleted, whereas the image exists.*/
+        if (isExpectSuccessDeleteROI) {
+            assertDoesNotExist(roi);
+        } else {
+            assertExists(roi);
+        }
+        assertExists(sentImage);
     }
 
     /**
@@ -1640,6 +1893,71 @@ public class LightAdminRolesTest extends RolesTests {
     }
 
     /**
+     * Light admin (lightAdmin) tries to create a new user which is also light admin (createdAdmin).
+     * createdAdmin has the same privileges as the creating lightAdmin.
+     * lightAdmin will succeed if they have the <tt>ModifyUser</tt> privilege.
+     * Four types of lightAdmin privileges are tested, matching the types defined in the user doc.
+     * @param permModifyUser if to test a user who has the <tt>ModifyUser</tt> privilege
+     * @param lightAdminType to test 4 light admin permission combinations matching the user doc
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "createLightAdmin cases")
+    public void testModifyUserCreateLight(boolean permModifyUser, String lightAdminType) throws Exception {
+        /* isPrivileged translates in this test into ModifyUser permission, see below.*/
+        boolean isExpectSuccessCreateLightAdmin= permModifyUser;
+        List<String> permissions = new ArrayList<String>();
+        if (permModifyUser) permissions.add(AdminPrivilegeModifyUser.value);
+        /* Define the permission types for the four types of lightAdmin. The
+         * "DataViewer" lightAdminType does not have any permissions, and thus
+         * it is not listed in the if/else branching below. "Organizer" should
+         * normally have "ModifyUser" permission, but this is an object of testing,
+         * and so is not given in the else if block below.*/
+        if (lightAdminType.equals("Importer")) {
+            permissions.add(AdminPrivilegeSudo.value);
+        } else if (lightAdminType.equals("Analyst")) {
+            permissions.add(AdminPrivilegeChown.value);
+            permissions.add(AdminPrivilegeWriteManagedRepo.value);
+            permissions.add(AdminPrivilegeWriteFile.value);
+            permissions.add(AdminPrivilegeWriteOwned.value);
+            permissions.add(AdminPrivilegeWriteScriptRepo.value);
+            permissions.add(AdminPrivilegeDeleteScriptRepo.value);
+        } else if (lightAdminType.equals("Organizer")) {
+            permissions.add(AdminPrivilegeChgrp.value);
+            permissions.add(AdminPrivilegeChown.value);
+            permissions.add(AdminPrivilegeModifyGroup.value);
+            permissions.add(AdminPrivilegeModifyGroupMembership.value);
+            permissions.add(AdminPrivilegeDeleteOwned.value);
+            permissions.add(AdminPrivilegeDeleteManagedRepo.value);
+            permissions.add(AdminPrivilegeDeleteFile.value);
+            permissions.add(AdminPrivilegeWriteManagedRepo.value);
+            permissions.add(AdminPrivilegeWriteFile.value);
+            permissions.add(AdminPrivilegeWriteOwned.value);
+        }
+        final EventContext lightAdmin = loginNewAdmin(true, permissions);
+        /* lightAdmin declares and defines the createdAdmin they are
+         * attempting to create (createdAdmin). Permissions will be the same for lightAdmin
+         * and createdAdmin.*/
+        Experimenter createdAdmin = new ExperimenterI();
+        createdAdmin.setOmeName(omero.rtypes.rstring(UUID.randomUUID().toString()));
+        createdAdmin.setFirstName(omero.rtypes.rstring("August"));
+        createdAdmin.setLastName(omero.rtypes.rstring("Köhler"));
+        createdAdmin.setLdap(omero.rtypes.rbool(false));
+        final List<AdminPrivilege> privileges = new ArrayList<>();
+        for (final String permission : permissions) {
+            final AdminPrivilege privilege = new AdminPrivilegeI();
+            privilege.setValue(omero.rtypes.rstring(permission));
+            privileges.add(privilege);
+        }
+        /* lightAdmin succeeds only if they have right permissions.*/
+        try {
+            iAdmin.createLightSystemUser(createdAdmin, privileges);
+            Assert.assertTrue(isExpectSuccessCreateLightAdmin);
+        } catch (ServerError se) {
+            Assert.assertFalse(isExpectSuccessCreateLightAdmin);
+        }
+    }
+
+    /**
      * Light admin (lightAdmin) tries to edit an existing user.
      * lightAdmin will succeed if they have the <tt>ModifyUser</tt> privilege.
      * @param isPrivileged if to test a user who has the <tt>ModifyUser</tt> privilege
@@ -1826,6 +2144,38 @@ public class LightAdminRolesTest extends RolesTests {
     }
 
     /**
+     * @return test cases for {@link #testDeleteGroupMemberNoSudo}
+     */
+    @DataProvider(name = "isAdmin and Delete cases")
+    public Object[][] provideIsAdminDeleteOwned() {
+        int index = 0;
+        final int IS_ADMIN = index++;
+        final int PERM_DELETEOWNED = index++;
+        final int GROUP_PERMS = index++;
+
+        final boolean[] booleanCases = new boolean[]{false, true};
+        final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
+        final List<Object[]> testCases = new ArrayList<Object[]>();
+
+            for (final boolean isAdmin : booleanCases) {
+                for (final boolean permDeleteOwned : booleanCases) {
+                    for (final String groupPerms : permsCases) {
+                        final Object[] testCase = new Object[index];
+                        if (!isAdmin && permDeleteOwned)
+                            /* not an interesting case */
+                            continue;
+                        testCase[IS_ADMIN] = isAdmin;
+                        testCase[PERM_DELETEOWNED] = permDeleteOwned;
+                        testCase[GROUP_PERMS] = groupPerms;
+                        // DEBUG if (isAdmin == true && permDeleteOwned == true && groupPerms.equals("rwr---"))
+                        testCases.add(testCase);
+                    }
+                }
+            }
+        return testCases.toArray(new Object[testCases.size()][]);
+    }
+
+    /**
      * @return test cases for testChgrp and testChgrpNonMember
      */
     @DataProvider(name = "isSudoing and Chgrp privileges cases")
@@ -1971,6 +2321,39 @@ public class LightAdminRolesTest extends RolesTests {
     }
 
     /**
+     * @return WriteOwned and isAdmin test cases for
+     * {@link #testLinkMemberOfGroupNoSudo}
+     */
+    @DataProvider(name = "WriteOwned and isAdmin cases")
+    public Object[][] provideWriteOwnedAndIsAdmin() {
+        int index = 0;
+        final int PERM_WRITEOWNED = index++;
+        final int IS_ADMIN = index++;
+        final int GROUP_PERMS = index++;
+
+        final boolean[] booleanCases = new boolean[]{false, true};
+        final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
+        final List<Object[]> testCases = new ArrayList<Object[]>();
+
+            for (final boolean permWriteOwned : booleanCases) {
+                for (final boolean isAdmin : booleanCases) {
+                    for (final String groupPerms : permsCases) {
+                        final Object[] testCase = new Object[index];
+                        if (!permWriteOwned && !isAdmin)
+                            /* not an interesting case */
+                            continue;
+                        testCase[PERM_WRITEOWNED] = permWriteOwned;
+                        testCase[IS_ADMIN] = isAdmin;
+                        testCase[GROUP_PERMS] = groupPerms;
+                        // DEBUG if (permWriteOwned == true && isAdmin == true && groupPerms.equals("rwr---"))
+                        testCases.add(testCase);
+                    }
+                }
+            }
+        return testCases.toArray(new Object[testCases.size()][]);
+    }
+
+    /**
      * @return Chgrp and Chown test cases for testImporterAsNoSudoChgrpChownWorkflow
      */
     @DataProvider(name = "Chgrp and Chown privileges cases")
@@ -2024,6 +2407,31 @@ public class LightAdminRolesTest extends RolesTests {
                     testCase[IS_PRIVILEGED] = isPrivileged;
                     testCase[GROUP_PERMS] = groupPerms;
                     // DEBUG if (isPrivileged == true && groupPerms.equals("rwr---"))
+                    testCases.add(testCase);
+                }
+            }
+        return testCases.toArray(new Object[testCases.size()][]);
+    }
+
+    /**
+     * @return createLightAdmin test cases for {@link #testModifyUserCreateLight}
+     */
+    @DataProvider(name = "createLightAdmin cases")
+    public Object[][] provideCreateLightAdminCases() {
+        int index = 0;
+        final int PERM_MODIFYUSER = index++;
+        final int LIGHT_ADMIN_TYPES = index++;
+
+        final boolean[] booleanCases = new boolean[]{false, true};
+        final String[] permsCases = new String[]{"DataViewer", "Importer", "Analyst", "Organizer"};
+        final List<Object[]> testCases = new ArrayList<Object[]>();
+
+            for (final boolean permModifyUser : booleanCases) {
+                for (final String lightAdminType : permsCases) {
+                    final Object[] testCase = new Object[index];
+                    testCase[PERM_MODIFYUSER] = permModifyUser;
+                    testCase[LIGHT_ADMIN_TYPES] = lightAdminType;
+                    // DEBUG if (permModifyUser == true && createdAdminType.equals("DataViewer"))
                     testCases.add(testCase);
                 }
             }
